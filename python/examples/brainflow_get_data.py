@@ -26,7 +26,6 @@ class CythonDataHandler (object):
 
     def draw_data (self, filename):
         eeg_df = self.pandas_df[['eeg1', 'eeg2', 'eeg3', 'eeg4', 'eeg5', 'eeg6', 'eeg7', 'eeg8', 'timestamp']]
-
         eeg_df.plot (x = 'timestamp')
         fig = plt.gcf ()
         fig.savefig (filename)
@@ -36,7 +35,7 @@ def main ():
     board = CythonBoard ('/dev/ttyUSB0')
     board.prepare_session ()
     board.start_stream ()
-    time.sleep (5)
+    time.sleep (15)
     # get last package
     print (board.get_immediate_board_data ())
     # get last 250 datapoints

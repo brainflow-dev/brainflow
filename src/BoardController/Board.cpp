@@ -20,13 +20,13 @@ Board::Board (int num_channels, const char *port_name)
 
 Board::~Board ()
 {
+    if (is_streaming)
+        this->stop_stream ();
     if (db)
     {
         delete db;
         db = NULL;
     }
-    if (is_streaming)
-        this->stop_stream ();
     initialized = false;
 }
 
@@ -69,7 +69,7 @@ int Board::set_port_settings ()
     port_settings.c_lflag = 0;
     // blocking read with timeout 0.1 sec
     port_settings.c_cc[VMIN] = 0;
-    port_settings.c_cc[VTIME] = 1;
+    port_settings.c_cc[VTIME] = 10;
     
     if (tcsetattr (port_descriptor, TCSANOW, &port_settings) != 0)
     {

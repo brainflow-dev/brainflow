@@ -77,3 +77,12 @@ int get_board_data (int data_count, float *data_buf, double *ts_buf)
 
     return board->get_board_data (data_count, data_buf, ts_buf);
 }
+
+__attribute__((destructor)) static void terminate_all (void) 
+{
+    if (initialized)
+    {
+        board->logger->error ("Terminating streaming process");
+        release_session ();
+    }
+}

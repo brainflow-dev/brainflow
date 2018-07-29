@@ -61,7 +61,7 @@ void Cython::read_thread ()
         res = read (port_descriptor, b, 32);
         if (res != 32)
         {
-            logger->error ("unable to read 32 bytes");
+            logger->debug ("unable to read 32 bytes");
             continue;
         }
         if (b[res] != END_BYTE)
