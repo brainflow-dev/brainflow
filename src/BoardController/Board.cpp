@@ -162,6 +162,7 @@ int Board::stop_stream ()
     {
         keep_alive = false;
         is_streaming = false;
+        streaming_thread.join ();
         return send_to_board ("s");
     }
     else
