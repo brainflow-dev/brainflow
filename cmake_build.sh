@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ ! -d "$DIRECTORY" ]; then
+if [ ! -d build ]; then
   mkdir build
 fi
 
