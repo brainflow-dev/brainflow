@@ -16,6 +16,7 @@ class Board
 
     protected:
 
+        int is_dummy;
         volatile bool keep_alive;
         bool initialized;
         bool is_streaming;
@@ -35,7 +36,7 @@ class Board
         virtual void read_thread () = 0;
 
     public:
-        Board (int num_channels, const char *port_name);
+        Board (int num_channels, const char *port_name, int is_dummy);
         virtual ~Board ();
 
         virtual int prepare_session ();

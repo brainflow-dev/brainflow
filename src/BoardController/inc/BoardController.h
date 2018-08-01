@@ -23,13 +23,13 @@ typedef enum
 
 typedef enum
 {
-    CYTHON_BOARD = 0
+    CYTHON_BOARD = 0,
     UNIMPLEMENTED
 } BoardIds;
 
 extern "C"
 {
-    int prepare_session (int board_id, const char *port_name);
+    int prepare_session (int board_id, const char *port_name, int is_dummy);
     int start_stream (int buffer_size);
     int stop_stream ();
     int release_session ();

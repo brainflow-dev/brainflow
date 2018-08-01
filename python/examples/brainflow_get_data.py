@@ -32,7 +32,8 @@ class CythonDataHandler (object):
 
 
 def main ():
-    board = CythonBoard (b'/dev/emulated_cython')
+    # TODO replace file_operation by tty_operation to remove 'is_dummy'
+    board = CythonBoard (b'/dev/emulated_cython', is_dummy = 1)
     board.prepare_session ()
     board.start_stream ()
     time.sleep (15)

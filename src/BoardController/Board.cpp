@@ -4,10 +4,11 @@
 #include "Board.h"
 
 
-Board::Board (int num_channels, const char *port_name)
+Board::Board (int num_channels, const char *port_name, int is_dummy)
 {
     strcpy (this->port_name, port_name);
     this->num_channels = num_channels;
+    this->is_dummy = is_dummy;
 
     is_streaming = false;
     keep_alive = false;
@@ -52,7 +53,10 @@ int Board::send_to_board (char *message)
 }
 
 int Board::set_port_settings ()
-{
+{   
+    if (is_dummy)
+        return send_to_board ("v");
+
     tcgetattr (port_descriptor, &port_settings);
     cfsetispeed (&port_settings, B115200);
     cfsetospeed (&port_settings, B115200);
