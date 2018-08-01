@@ -32,7 +32,7 @@ class CythonDataHandler (object):
 
 
 def main ():
-    board = CythonBoard ('/dev/ttyUSB0')
+    board = CythonBoard (b'/dev/emulated_cython')
     board.prepare_session ()
     board.start_stream ()
     time.sleep (15)

@@ -92,22 +92,22 @@ class CythonBoard (object):
     def prepare_session (self):
         res = BoardControllerDLL.get_instance ().prepare_session (Boards.Cython.value, self.port_name)
         if res != StreamExitCodes.STATUS_OK.value:
-            raise StreamExitCodes ('unable to prepare streaming session', res)
+            raise BrainFlowError ('unable to prepare streaming session', res)
 
     def start_stream (self, num_samples = 7*86400*250):
         res = BoardControllerDLL.get_instance ().start_stream (num_samples)
         if res != StreamExitCodes.STATUS_OK.value:
-            raise StreamExitCodes ('unable to start streaming session', res)
+            raise BrainFlowError ('unable to start streaming session', res)
 
     def stop_stream (self):
         res = BoardControllerDLL.get_instance ().stop_stream ()
         if res != StreamExitCodes.STATUS_OK.value:
-            raise StreamExitCodes ('unable to stop streaming session', res)
+            raise BrainFlowError ('unable to stop streaming session', res)
 
     def release_session (self):
         res = BoardControllerDLL.get_instance ().release_session ()
         if res != StreamExitCodes.STATUS_OK.value:
-            raise StreamExitCodes ('unable to release streaming session', res)
+            raise BrainFlowError ('unable to release streaming session', res)
 
     def get_current_board_data (self, num_samples = 250 * 2):
         data_arr = numpy.zeros (num_samples  * self.num_channels).astype (numpy.float32)
@@ -116,7 +116,7 @@ class CythonBoard (object):
 
         res = BoardControllerDLL.get_instance().get_current_board_data (num_samples, data_arr, time_arr, current_size)
         if res != StreamExitCodes.STATUS_OK.value:
-            raise StreamExitCodes ('unable to get current data', res)
+            raise BrainFlowError ('unable to get current data', res)
 
         if len (current_size) == 0:
             return None
@@ -132,7 +132,7 @@ class CythonBoard (object):
 
         res = BoardControllerDLL.get_instance ().get_board_data_count (data_size)
         if res != StreamExitCodes.STATUS_OK.value:
-            raise StreamExitCodes ('unable to obtain buffer size', res)
+            raise BrainFlowError ('unable to obtain buffer size', res)
         return data_size[0]
 
     def get_board_data (self):
@@ -142,7 +142,7 @@ class CythonBoard (object):
 
         res = BoardControllerDLL.get_instance ().get_board_data (data_size, data_arr, time_arr)
         if res != StreamExitCodes.STATUS_OK.value:
-            raise StreamExitCodes ('unable to get board data', res)
+            raise BrainFlowError ('unable to get board data', res)
 
         data_arr = data_arr.reshape (data_size, self.num_channels)
         return numpy.column_stack ((data_arr, time_arr))

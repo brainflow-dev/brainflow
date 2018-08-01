@@ -14,11 +14,11 @@ setup (
             'Topic :: Utilities'
         ],
         install_requires = [
-            'numpy', 'enum34'
+            'numpy'
         ],
         package_data = {
             'brainflow': [ 'lib/libBoardController.so']
         },
         zip_safe = True,
-        python_requires = '>=2.7'
+        python_requires = '>=3'
     )
