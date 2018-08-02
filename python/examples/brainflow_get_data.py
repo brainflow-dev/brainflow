@@ -3,7 +3,8 @@ import numpy as np
 import pandas as pd
 import matplotlib
 matplotlib.use ('Agg')
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
+import argparse
 
 from brainflow import *
 
@@ -32,7 +33,12 @@ class CythonDataHandler (object):
 
 
 def main ():
-    board = CythonBoard (b'/dev/emulated_cython')
+    parser = argparse.ArgumentParser ()
+    parser.add_argument ('--port', type = str, help  = "port name", required = True)
+    args = parser.parse_args ()
+
+    board = CythonBoard (args.port.encode ())
+    #board = CythonBoard (b'/dev/emulated_cython')
     board.prepare_session ()
     board.start_stream ()
     time.sleep (15)

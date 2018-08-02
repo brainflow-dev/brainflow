@@ -53,6 +53,11 @@ int Board::send_to_board (char *message)
 
 int Board::set_port_settings ()
 {
+    // only file operations are supported in emulators   
+#ifdef EMULATOR_MODE
+    return send_to_board ("v");
+#endif
+
     tcgetattr (port_descriptor, &port_settings);
     cfsetispeed (&port_settings, B115200);
     cfsetospeed (&port_settings, B115200);
@@ -150,6 +155,12 @@ int Board::start_stream (int buffer_size)
         return send_res;
 
     db = new DataBuffer (num_channels, buffer_size);
+    if (!db->is_ready ())
+    {
+        logger->error ("unable to prepare buffer");
+        return INVALID_BUFFER_SIZE_ERROR;
+    }
+
     keep_alive = true;
     streaming_thread = std::thread ([this] {this->read_thread ();});
     is_streaming = true;
