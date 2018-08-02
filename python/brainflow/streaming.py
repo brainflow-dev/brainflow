@@ -38,8 +38,7 @@ class BoardControllerDLL (object):
         self.prepare_session.restype = ctypes.c_int
         self.prepare_session.argtypes = [
             ctypes.c_int,
-            ctypes.c_char_p,
-            ctypes.c_int
+            ctypes.c_char_p
         ]
 
         self.start_stream = self.lib.start_stream
@@ -86,13 +85,12 @@ class BoardControllerDLL (object):
 
 class CythonBoard (object):
 
-    def __init__ (self, port_name, is_dummy = 0):
+    def __init__ (self, port_name):
         self.port_name = port_name
         self.num_channels = 12
-        self.is_dummy = is_dummy
 
     def prepare_session (self):
-        res = BoardControllerDLL.get_instance ().prepare_session (Boards.Cython.value, self.port_name, self.is_dummy)
+        res = BoardControllerDLL.get_instance ().prepare_session (Boards.Cython.value, self.port_name)
         if res != StreamExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to prepare streaming session', res)
 

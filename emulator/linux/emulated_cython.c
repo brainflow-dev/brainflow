@@ -205,6 +205,8 @@ static ssize_t cython_read (struct file *f, char *buf, size_t count, loff_t *f_p
 
         char rand_number;
         int bytes_to_write = 0;
+        if (total_bytes_readed >= package_size * 256)
+            total_bytes_readed = 0;
         char package_num = (total_bytes_readed / package_size) % 256;
         for (i = 0; i < buffer_size / package_size; i++)
         {

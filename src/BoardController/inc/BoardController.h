@@ -29,7 +29,7 @@ typedef enum
 
 extern "C"
 {
-    int prepare_session (int board_id, const char *port_name, int is_dummy);
+    int prepare_session (int board_id, const char *port_name);
     int start_stream (int buffer_size);
     int stop_stream ();
     int release_session ();

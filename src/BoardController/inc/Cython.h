@@ -31,7 +31,7 @@ class Cython : public Board
 
     public:
         // package num, 8 eeg channels, 3 accel channels
-        Cython (const char *port_name, int is_dummy) : Board (12, port_name, is_dummy){}
+        Cython (const char *port_name) : Board (12, port_name){}
 
 };
 

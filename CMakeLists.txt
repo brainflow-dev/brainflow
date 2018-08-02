@@ -11,12 +11,19 @@ include_directories (
 )
 
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/python/brainflow/lib)
+set (LIBRARY_SRC
+	"src/Utils/TimeStamp.cpp"
+	"src/Utils/DataBuffer.cpp"
+	"src/BoardController/Board.cpp"
+	"src/BoardController/Cython.cpp"
+	"src/BoardController/BoardController.cpp"
+	)
 
 add_library (
     BoardController SHARED
-    src/Utils/TimeStamp.cpp
-    src/Utils/DataBuffer.cpp
-    src/BoardController/Board.cpp
-    src/BoardController/Cython.cpp
-    src/BoardController/BoardController.cpp
+    ${LIBRARY_SRC}
 )
+
+if (${EMULATOR})
+	target_compile_definitions (BoardController PUBLIC EMULATOR_MODE)
+endif (${EMULATOR})

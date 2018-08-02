@@ -6,7 +6,7 @@
 Board *board = NULL;
 bool initialized = false;
 
-int prepare_session (int board_id, const char *port_name, int is_dummy)
+int prepare_session (int board_id, const char *port_name)
 {
     if (initialized)
         return STATUS_OK;
@@ -15,7 +15,7 @@ int prepare_session (int board_id, const char *port_name, int is_dummy)
     switch (board_id)
     {
         case CYTHON_BOARD:
-            board = new Cython (port_name, is_dummy);
+            board = new Cython (port_name);
             res = board->prepare_session ();
             break;
         default:  

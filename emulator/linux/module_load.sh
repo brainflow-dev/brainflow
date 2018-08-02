@@ -1,5 +1,4 @@
-echo "Removing previous module, if any"
+echo "rmmod will be executed to uninstall previos module if any"
 rmmod emulated_cython
-echo "Inserting new module"
-insmod emulated_cython.ko 
-echo "Done"
+insmod emulated_cython.ko
+echo "new driver installed"
