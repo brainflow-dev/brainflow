@@ -32,6 +32,7 @@ class DataBuffer
         size_t get_data (size_t max_count, double *ts_buf, float *data_buf);
         size_t get_current_data (size_t max_count, double *ts_buf, float *data_buf);
         size_t get_data_count ();
+        bool is_ready ();
 
 };
 

@@ -20,7 +20,7 @@ static int major_number;
 static unsigned int total_bytes_readed = 0;
 static struct class *cython_class = NULL;
 static struct device *cython_device = NULL;
-static unsigned char *data = NULL;
+static char *data = NULL;
 static unsigned int package_size = 33;
 module_param (package_size, uint, S_IRUGO);
 static unsigned int buffer_size = 330;
@@ -124,13 +124,24 @@ static int cython_release (struct inode *inode, struct file *f)
 
 static ssize_t cython_write (struct file *f, const char *buf, size_t count, loff_t *f_pos)
 {
+    char temp_buf[2];
+
     if (!count)
         return -EIO;
 
     if (count > 2)
-        printk (KERN_WARNING "You should write single character\n");
+    {
+        printk (KERN_ALERT "You should write single character\n");
+        return -EIO;
+    }
 
-    switch (buf[0])
+    if (copy_from_user (temp_buf, buf, 1))
+    {
+        printk (KERN_ALERT "Unable to copy data from userspace\n");
+        return -EFAULT;
+    }
+
+    switch (temp_buf[0])
     {
         case 'b':
             current_command = 'b';
@@ -194,7 +205,7 @@ static ssize_t cython_read (struct file *f, char *buf, size_t count, loff_t *f_p
 
         char rand_number;
         int bytes_to_write = 0;
-        int package_num = total_bytes_readed / package_size;
+        char package_num = (total_bytes_readed / package_size) % 256;
         for (i = 0; i < buffer_size / package_size; i++)
         {
             data[i * package_size] = 0xA0;

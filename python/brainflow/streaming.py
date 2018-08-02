@@ -96,7 +96,7 @@ class CythonBoard (object):
         if res != StreamExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to prepare streaming session', res)
 
-    def start_stream (self, num_samples = 7*86400*250):
+    def start_stream (self, num_samples = 3600*250):
         res = BoardControllerDLL.get_instance ().start_stream (num_samples)
         if res != StreamExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to start streaming session', res)

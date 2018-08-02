@@ -18,6 +18,11 @@ DataBuffer::~DataBuffer ()
     free (timestamps);
 }
 
+bool DataBuffer::is_ready ()
+{
+    return (data != NULL);
+}
+
 void DataBuffer::add_data (double timestamp, float *value)
 {
     lock.lock ();
