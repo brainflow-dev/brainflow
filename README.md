@@ -46,7 +46,7 @@ data = board.get_board_data ()
 board.stop_stream ()
 board.release_session ()
 ```
-For more detailed description af Python binding and examples please visit [Python]: https://github.com/Andrey1994/brainflow/tree/master/python
+For more detailed description af Python binding and examples please visit [Python](https://github.com/Andrey1994/brainflow/tree/master/python)
 
 ## Brainflow Emulator
 These tools were designed to allow developers contribute to this library even if the don't have an access to the OpenBCI board,it works as kernel's module and at least for now supports only file operationas, tty operations may be added in future
