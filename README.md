@@ -40,7 +40,7 @@ board.start_stream ()
 time.sleep (15)
 # get last 250 datapoints (this method doesn't free buffer, last 250 samples will still exist)
 current_data = board.get_current_board_data (250)
-# get all data (this method free the buffer and return all samples as numpy array)
+# get all data (this method free the buffer and returns all samples as numpy array)
 data = board.get_board_data ()
 # stop streaming and free resources
 board.stop_stream ()
