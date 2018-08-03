@@ -72,7 +72,7 @@ int Board::set_port_settings ()
     port_settings.c_iflag &= ~(ICANON | IXOFF | IXON | IXANY);
     port_settings.c_oflag = 0;
     port_settings.c_lflag = 0;
-    // blocking read with timeout 0.1 sec
+    // blocking read with timeout 1 sec
     port_settings.c_cc[VMIN] = 0;
     port_settings.c_cc[VTIME] = 10;
     
