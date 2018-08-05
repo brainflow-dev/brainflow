@@ -2,7 +2,7 @@
 #include <string.h>
 
 #include "Board.h"
-
+#include "serial.h"
 
 Board::Board (int num_channels, const char *port_name)
 {
@@ -11,11 +11,10 @@ Board::Board (int num_channels, const char *port_name)
 
     is_streaming = false;
     keep_alive = false;
-    port_descriptor = 0;
-    memset (&port_settings, 0, sizeof (port_settings));
     initialized = false;
     logger = spdlog::stderr_logger_mt ("board_logger");
     db = NULL;
+    port_descriptor = 0;
 }
 
 Board::~Board ()
@@ -32,22 +31,22 @@ Board::~Board ()
 
 int Board::open_port ()
 {
-    if (port_descriptor > 0)
+    if (is_port_open (port_descriptor))
         return PORT_ALREADY_OPEN_ERROR;
 
-    int flags = O_RDWR | O_NOCTTY;          
-    port_descriptor = open (port_name, flags);
-
-    if (port_descriptor < 0)
+    int res = open_serial_port (port_name, &port_descriptor);
+    if (res < 0)
         return UNABLE_TO_OPEN_PORT_ERROR;
+
     return STATUS_OK;
 }
 
 int Board::send_to_board (char *message)
 {
-    int res = write (port_descriptor, message, 1);
+    int res = send_to_serial_port (message, port_descriptor);
     if (res != 1)
         return BOARD_WRITE_ERROR;
+
     return STATUS_OK;
 }
 
@@ -58,30 +57,12 @@ int Board::set_port_settings ()
     return send_to_board ("v");
 #endif
 
-    tcgetattr (port_descriptor, &port_settings);
-    cfsetispeed (&port_settings, B115200);
-    cfsetospeed (&port_settings, B115200);
-    port_settings.c_cflag &= ~PARENB;
-    port_settings.c_cflag &= ~CSTOPB;
-    port_settings.c_cflag &= ~CSIZE;
-    port_settings.c_cflag |= CS8;
-    port_settings.c_cflag |= CREAD;
-    port_settings.c_cflag |= CLOCAL;
-    port_settings.c_cflag |= HUPCL;
-    port_settings.c_iflag = IGNPAR;
-    port_settings.c_iflag &= ~(ICANON | IXOFF | IXON | IXANY);
-    port_settings.c_oflag = 0;
-    port_settings.c_lflag = 0;
-    // blocking read with timeout 1 sec
-    port_settings.c_cc[VMIN] = 0;
-    port_settings.c_cc[VTIME] = 10;
-    
-    if (tcsetattr (port_descriptor, TCSANOW, &port_settings) != 0)
+    int res = set_serial_port_settings (port_descriptor);
+    if (res < 0)
     {
-        logger->error ("Unable to set port options");
+        logger->error ("Unable to set port settings");
         return SER_PORT_ERROR;
     }
-    tcflush (port_descriptor, TCIOFLUSH);
     return send_to_board ("v");
 }
 
@@ -93,7 +74,7 @@ int Board::status_check ()
     // board is ready if there are '$$$'
     for (int i = 0; i < 1000; i++)
     {
-        int res = read (port_descriptor, buf, 1);
+        int res = read_from_serial_port (port_descriptor, buf, 1);
         if (res > 0)
         {
             if (buf[0] == '$')
@@ -139,7 +120,7 @@ int Board::start_stream (int buffer_size)
     }
     if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
     {
-        logger->error ("invalud array size");
+        logger->error ("invalid array size");
         return INVALID_BUFFER_SIZE_ERROR;
     }
     

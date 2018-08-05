@@ -38,7 +38,6 @@ def main ():
     args = parser.parse_args ()
 
     board = CythonBoard (args.port.encode ())
-    #board = CythonBoard (b'/dev/emulated_cython')
     board.prepare_session ()
     board.start_stream ()
     time.sleep (15)
