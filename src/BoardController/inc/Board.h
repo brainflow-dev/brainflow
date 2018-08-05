@@ -3,6 +3,8 @@
 
 #ifdef _WIN32
 #include "windows.h"
+#else
+#include <unistd.h>
 #endif
 
 #include <thread>
@@ -23,7 +25,7 @@ class Board
         bool initialized;
         bool is_streaming;
         std::thread streaming_thread;
-        
+
         char port_name[64]; // should be enought to store port name
         #ifdef _WIN32
         HANDLE port_descriptor;

@@ -40,7 +40,7 @@ inline int set_serial_port_settings (HANDLE port_descriptor)
     dcb_serial_params.Parity = NOPARITY;
     if (SetCommState (port_descriptor, &dcb_serial_params) == 0)
     {
-        CloseHandle (hSerial);
+        CloseHandle (port_descriptor);
         return -1;
     }
 
@@ -81,7 +81,7 @@ inline bool is_port_open (int port_descriptor)
 
 inline int open_serial_port (char *port_name, int *port_descriptor)
 {
-	int flags = O_RDWR | O_NOCTTY;          
+	int flags = O_RDWR | O_NOCTTY;
     *port_descriptor = open (port_name, flags);
     if (*port_descriptor < 0)
         return -1;
@@ -110,7 +110,7 @@ inline int set_serial_port_settings (int port_descriptor)
     // blocking read with timeout 1 sec
     port_settings.c_cc[VMIN] = 0;
     port_settings.c_cc[VTIME] = 10;
-    
+
     if (tcsetattr (port_descriptor, TCSANOW, &port_settings) != 0)
         return -1;
     tcflush (port_descriptor, TCIOFLUSH);

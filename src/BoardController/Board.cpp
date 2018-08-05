@@ -1,4 +1,3 @@
-#include <unistd.h>
 #include <string.h>
 
 #include "Board.h"
@@ -52,7 +51,7 @@ int Board::send_to_board (char *message)
 
 int Board::set_port_settings ()
 {
-    // only file operations are supported in emulators   
+    // only file operations are supported in emulators
 #ifdef EMULATOR_MODE
     return send_to_board ("v");
 #endif
@@ -123,7 +122,7 @@ int Board::start_stream (int buffer_size)
         logger->error ("invalid array size");
         return INVALID_BUFFER_SIZE_ERROR;
     }
-    
+
     if (db)
     {
         delete db;

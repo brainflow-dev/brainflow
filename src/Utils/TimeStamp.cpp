@@ -1,5 +1,6 @@
 #ifdef _WIN32
-#include "windows.h"
+#include <windows.h>
+#include <stdint.h>
 #define FILETIME_TO_UNIX 116444736000000000i64
 #else
 #include <sys/time.h>
