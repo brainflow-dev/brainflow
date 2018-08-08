@@ -1,5 +1,11 @@
 import os
+import platform
 from setuptools import setup, find_packages
+
+if platform.system () == 'Windows':
+    dll_path = 'lib\\BoardController.dll'
+else:
+    dll_path = 'lib/libBoardController.so'
 
 setup (
         name = 'brainflow',
@@ -17,7 +23,7 @@ setup (
             'numpy'
         ],
         package_data = {
-            'brainflow': [ 'lib/libBoardController.so']
+            'brainflow': [dll_path]
         },
         zip_safe = True,
         python_requires = '>=3'

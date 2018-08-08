@@ -4,6 +4,7 @@ from numpy.ctypeslib import ndpointer
 import pkg_resources
 import enum
 import os
+import platform
 
 from brainflow.exit_codes import StreamExitCodes
 
@@ -32,7 +33,11 @@ class BoardControllerDLL (object):
 
     def __init__ (self):
 
-        self.lib = ctypes.cdll.LoadLibrary (pkg_resources.resource_filename (__name__, os.path.join ('lib/libBoardController.so')))
+        if platform.system () == 'Windows':
+            dll_path = 'lib\\BoardController.dll'
+        else:
+            dll_path = 'lib/libBoardController.so'
+        self.lib = ctypes.cdll.LoadLibrary (pkg_resources.resource_filename (__name__, os.path.join (dll_path)))
 
         self.prepare_session = self.lib.prepare_session
         self.prepare_session.restype = ctypes.c_int

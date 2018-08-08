@@ -1,14 +1,19 @@
 #ifndef BOARD
 #define BOARD
 
+#ifdef _WIN32
+#include "windows.h"
+#else
+#include <unistd.h>
+#endif
+
 #include <thread>
-#include <termios.h>
 
 #include "spdlog/spdlog.h"
 #include "DataBuffer.h"
 #include "BoardController.h"
 
-#define MAX_CAPTURE_SAMPLES (7*86400*250)  // should be enough for one week of capture
+#define MAX_CAPTURE_SAMPLES (86400*250)  // should be enough for one day of capturing
 
 
 class Board
@@ -20,10 +25,13 @@ class Board
         bool initialized;
         bool is_streaming;
         std::thread streaming_thread;
-        
+
         char port_name[64]; // should be enought to store port name
+        #ifdef _WIN32
+        HANDLE port_descriptor;
+        #else
         int port_descriptor;
-        struct termios port_settings;
+        #endif
 
         DataBuffer *db;
         int num_channels;

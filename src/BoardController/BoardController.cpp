@@ -1,7 +1,9 @@
 #include "BoardController.h"
 #include "Cython.h"
 #include "Board.h"
-
+#ifdef _WIN32
+#include "windows.h"
+#endif
 
 Board *board = NULL;
 bool initialized = false;
@@ -18,7 +20,7 @@ int prepare_session (int board_id, const char *port_name)
             board = new Cython (port_name);
             res = board->prepare_session ();
             break;
-        default:  
+        default:
             return UNSUPPORTED_BOARD_ERROR;
     }
     initialized = true;
@@ -29,7 +31,7 @@ int start_stream (int buffer_size)
 {
     if (!initialized)
         return BOARD_NOT_CREATED_ERROR;
-    
+
     return board->start_stream (buffer_size);
 }
 
@@ -78,7 +80,27 @@ int get_board_data (int data_count, float *data_buf, double *ts_buf)
     return board->get_board_data (data_count, data_buf, ts_buf);
 }
 
-__attribute__((destructor)) static void terminate_all (void) 
+#ifdef _WIN32
+BOOL WINAPI DllMain (HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
+{
+    switch (fdwReason)
+    {
+        case DLL_PROCESS_DETACH:
+        {
+            if (initialized)
+            {
+                board->logger->error ("Terminating streaming process");
+                release_session ();
+            }
+            break;
+        }
+        default:
+            break;
+    }
+    return TRUE;
+}
+#else
+__attribute__((destructor)) static void terminate_all (void)
 {
     if (initialized)
     {
@@ -86,3 +108,4 @@ __attribute__((destructor)) static void terminate_all (void)
         release_session ();
     }
 }
+#endif

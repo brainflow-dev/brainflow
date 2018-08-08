@@ -1,6 +1,12 @@
 #ifndef BOARDCONTROLLER
 #define BOARDCONTROLLER
 
+#ifdef _WIN32
+    #define SHARED_EXPORT __declspec(dllexport)
+#else
+    #define SHARED_EXPORT
+#endif
+
 typedef enum
 {
     STATUS_OK = 0,
@@ -29,13 +35,13 @@ typedef enum
 
 extern "C"
 {
-    int prepare_session (int board_id, const char *port_name);
-    int start_stream (int buffer_size);
-    int stop_stream ();
-    int release_session ();
-    int get_current_board_data (int num_samples, float *data_buf, double *ts_buf, int *returned_samples);
-    int get_board_data_count (int *result);
-    int get_board_data (int data_count, float *data_buf, double *ts_buf);
+    SHARED_EXPORT int prepare_session (int board_id, const char *port_name);
+    SHARED_EXPORT int start_stream (int buffer_size);
+    SHARED_EXPORT int stop_stream ();
+    SHARED_EXPORT int release_session ();
+    SHARED_EXPORT int get_current_board_data (int num_samples, float *data_buf, double *ts_buf, int *returned_samples);
+    SHARED_EXPORT int get_board_data_count (int *result);
+    SHARED_EXPORT int get_board_data (int data_count, float *data_buf, double *ts_buf);
 }
 
 #endif
