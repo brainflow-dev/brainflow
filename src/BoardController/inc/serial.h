@@ -44,9 +44,9 @@ inline int set_serial_port_settings (HANDLE port_descriptor)
         return -1;
     }
 
-    timeouts.ReadIntervalTimeout = 50;
-    timeouts.ReadTotalTimeoutConstant = 50;
-    timeouts.ReadTotalTimeoutMultiplier = 10;
+    timeouts.ReadIntervalTimeout = 1000;
+    timeouts.ReadTotalTimeoutConstant = 1000;
+    timeouts.ReadTotalTimeoutMultiplier = 100;
     timeouts.WriteTotalTimeoutConstant = 50;
     timeouts.WriteTotalTimeoutMultiplier = 10;
     if (SetCommTimeouts (port_descriptor, &timeouts) == 0)

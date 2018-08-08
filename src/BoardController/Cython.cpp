@@ -3,17 +3,17 @@
 #include "serial.h"
 
 int32_t Cython::cast_24bit_to_int32 (unsigned char *byte_array)
-{     
-    int32_t new_int = (  
-        ((0xFF & byte_array[0]) << 16) |  
-        ((0xFF & byte_array[1]) << 8) |   
-        (0xFF & byte_array[2])  
-    );  
+{
+    int32_t new_int = (
+        ((0xFF & byte_array[0]) << 16) |
+        ((0xFF & byte_array[1]) << 8) |
+        (0xFF & byte_array[2])
+    );
     if ((new_int & 0x00800000) > 0)
-        new_int |= 0xFF000000;  
+        new_int |= 0xFF000000;
     else
-        new_int &= 0x00FFFFFF;  
-    return new_int;  
+        new_int &= 0x00FFFFFF;
+    return new_int;
 }
 
 int32_t Cython::cast_16bit_to_int32 (unsigned char *byte_array) {
@@ -52,7 +52,7 @@ void Cython::read_thread ()
         res = read_from_serial_port (port_descriptor, b, 1);
         if (res != 1)
         {
-            logger->error ("unable to read 1 byte");
+            logger->debug ("unable to read 1 byte");
             continue;
         }
         if (b[0] != START_BYTE)
