@@ -22,7 +22,7 @@ It's not required to compile the entire library to use Python binding.
 Following commands will install all required packages for you:
 ```
 cd python
-pip3.6 install -e .
+pip install -e .
 ``` 
 It depends only on numpy but some Python examples require to install additional libraries
 After installation you will be able to use it via:
