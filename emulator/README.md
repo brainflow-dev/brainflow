@@ -13,7 +13,7 @@ After that you will be able to read/write data to/from /dev/emulated_cython devi
 Also you will have to build main library in emulated mode
 ```
 cd %brainflow_dir%
-./cmake_build_emu.sh
+./cmake_build.sh EMULATOR
 cd python
 pip install -e .
 ```

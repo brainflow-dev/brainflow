@@ -2,7 +2,7 @@
 
 Brainflow is a library intended to obtain and analyze EEG and EMG data from OpenBCI boards
 
-It is written on C\C++ and provides a dynamic library which used by different bindings
+It is written on C\C++ and provides a dynamic library which used by different bindings and supports Windows and Linux OS
 
 DLL interface:
 ```
@@ -14,7 +14,7 @@ int get_current_board_data (int num_samples, float *data_buf, double *ts_buf, in
 int get_board_data_count (int *result);
 int get_board_data (int data_count, float *data_buf, double *ts_buf);
 ```
-For now only linux and Cython serial board are supported, but Windows support will be added soon as well as other boards
+For now only Cython serial board is supported, more boards will be added soon.
 We are going to add Java/Matlab/R/NodeJS bindings and more examples in the next versions
 
 ## Python
@@ -22,7 +22,7 @@ It's not required to compile the entire library to use Python binding.
 Following commands will install all required packages for you:
 ```
 cd python
-pip3.6 install -e .
+pip install -e .
 ``` 
 It depends only on numpy but some Python examples require to install additional libraries
 After installation you will be able to use it via:
@@ -62,7 +62,7 @@ After that you will be able to read/write data to/from /dev/emulated_cython devi
 Also you will have to build main library in emulated mode
 ```
 cd %brainflow_dir%
-./cmake_build_emu.sh
+./cmake_build.sh EMULATOR
 cd python
 pip install -e .
 ```
