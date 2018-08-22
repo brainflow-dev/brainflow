@@ -1,1 +1,1 @@
-from brainflow.streaming import *
+from brainflow.board_shim import *

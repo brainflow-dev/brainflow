@@ -1,14 +1,16 @@
-#include "BoardController.h"
-#include "Cython.h"
-#include "Board.h"
 #ifdef _WIN32
-#include "windows.h"
+#include <windows.h>
 #endif
+
+#include "board_controller.h"
+#include "cython.h"
+#include "board.h"
+
 
 Board *board = NULL;
 bool initialized = false;
 
-int prepare_session (int board_id, const char *port_name)
+int prepare_session (int board_id, char *port_name)
 {
     if (initialized)
         return STATUS_OK;

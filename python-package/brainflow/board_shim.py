@@ -88,11 +88,15 @@ class BoardControllerDLL (object):
         ]
 
 
-class CythonBoard (object):
+class BoardShim (object):
 
-    def __init__ (self, port_name):
+    def __init__ (self, board_id, port_name):
         self.port_name = port_name
-        self.num_channels = 12
+        self.board_id = board_id
+        if board_id == Boards.Cython.value:
+            self.num_channels = 12
+        else:
+            raise BrainFlowError ('unsupported board type', StreamExitCodes.UNSUPPORTED_BOARD_ERROR.value)
 
     def prepare_session (self):
         res = BoardControllerDLL.get_instance ().prepare_session (Boards.Cython.value, self.port_name)

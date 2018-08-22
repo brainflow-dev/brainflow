@@ -1,5 +1,5 @@
-#include "Cython.h"
-#include "TimeStamp.h"
+#include "cython.h"
+#include "timestamp.h"
 #include "serial.h"
 
 int32_t Cython::cast_24bit_to_int32 (unsigned char *byte_array)

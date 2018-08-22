@@ -76,7 +76,7 @@ def main ():
     parser.add_argument ('--port', type = str, help  = 'port name', required = True)
     args = parser.parse_args ()
 
-    board = CythonBoard (args.port.encode ())
+    board = BoardShim (Boards.Cython.value, args.port.encode ())
     board.prepare_session ()
     board.start_stream ()
     time.sleep (5)

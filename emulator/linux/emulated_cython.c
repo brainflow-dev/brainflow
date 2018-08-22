@@ -150,10 +150,12 @@ static ssize_t cython_write (struct file *f, const char *buf, size_t count, loff
         case 'v':
             current_command = 'v';
             current_buffer_position = 0;
+            total_bytes_readed = 0;
             break;
         case 's':
             current_command = 's';
             current_buffer_position = 0;
+            total_bytes_readed = 0;
             break;
         default:
             printk (KERN_ALERT "Unsupported command\n");
@@ -164,7 +166,7 @@ static ssize_t cython_write (struct file *f, const char *buf, size_t count, loff
 
 static ssize_t cython_read (struct file *f, char *buf, size_t count, loff_t *f_pos)
 {
-    mdelay (4);
+    mdelay (2);
 
     int i, j;
 

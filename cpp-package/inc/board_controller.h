@@ -35,7 +35,7 @@ typedef enum
 
 extern "C"
 {
-    SHARED_EXPORT int prepare_session (int board_id, const char *port_name);
+    SHARED_EXPORT int prepare_session (int board_id, char *port_name);
     SHARED_EXPORT int start_stream (int buffer_size);
     SHARED_EXPORT int stop_stream ();
     SHARED_EXPORT int release_session ();

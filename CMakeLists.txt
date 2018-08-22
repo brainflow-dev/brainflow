@@ -49,16 +49,16 @@ endif ()
 
 include_directories (
     inc
-    src/Utils/
-    src/BoardController/inc
+    src/utils/
+    src/board_controller/inc
 )
 
 set (LIBRARY_SRC
-    "src/Utils/TimeStamp.cpp"
-    "src/Utils/DataBuffer.cpp"
-    "src/BoardController/Board.cpp"
-    "src/BoardController/Cython.cpp"
-    "src/BoardController/BoardController.cpp"
+    "src/utils/timestamp.cpp"
+    "src/utils/data_buffer.cpp"
+    "src/board_controller/board.cpp"
+    "src/board_controller/cython.cpp"
+    "src/board_controller/board_controller.cpp"
     )
 
 add_library (

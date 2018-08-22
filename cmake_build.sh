@@ -18,4 +18,8 @@ fi
 cmake --build .
 cd ..
 
-cp ./compiled/libBoardController.so ./python/brainflow/lib/libBoardController.so
+# python
+cp ./compiled/libBoardController.so ./python-package/brainflow/lib/libBoardController.so
+# cpp
+cp ./compiled/libBoardController.so ./cpp-package/lib/libBoardController.so
+cp ./src/board_controller/inc/board_controller.h  ./cpp-package/inc/board_controller.h
