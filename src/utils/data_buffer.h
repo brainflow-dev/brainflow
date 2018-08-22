@@ -1,7 +1,7 @@
 #ifndef DATABUFFER
 #define DATABUFFER
 
-#include <SpinLock.h>
+#include "spinlock.h"
 
 
 class DataBuffer 

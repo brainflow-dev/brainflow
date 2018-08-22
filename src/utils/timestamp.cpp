@@ -5,8 +5,9 @@
 #else
 #include <sys/time.h>
 #endif
+
 #include <stdlib.h>
-#include "TimeStamp.h"
+#include "timestamp.h"
 
 #ifdef _WIN32
 double get_timestamp () {

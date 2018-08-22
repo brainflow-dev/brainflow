@@ -2,16 +2,15 @@
 #define BOARD
 
 #ifdef _WIN32
-#include "windows.h"
+#include <windows.h>
 #else
 #include <unistd.h>
 #endif
-
 #include <thread>
 
 #include "spdlog/spdlog.h"
-#include "DataBuffer.h"
-#include "BoardController.h"
+#include "data_buffer.h"
+#include "board_controller.h"
 
 #define MAX_CAPTURE_SAMPLES (86400*250)  // should be enough for one day of capturing
 

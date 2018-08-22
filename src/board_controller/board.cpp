@@ -1,6 +1,6 @@
 #include <string.h>
 
-#include "Board.h"
+#include "board.h"
 #include "serial.h"
 
 Board::Board (int num_channels, const char *port_name)

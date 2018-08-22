@@ -2,11 +2,11 @@
 #define CYTHON
 
 #include <math.h> 
-#include <array>
 #include <stdint.h>
-#include "Board.h"
+
+#include "board.h"
 #include "spdlog/spdlog.h"
-#include "DataBuffer.h"
+#include "data_buffer.h"
 
 #define SAMPLE_RATE 250.0
 #define START_BYTE 0xA0
@@ -22,8 +22,8 @@ class Cython : public Board
 
     private:
 
-        int32_t cast_24bit_to_int32 (unsigned char *byteArray);
-        int32_t cast_16bit_to_int32 (unsigned char *byteArray);
+        int32_t cast_24bit_to_int32 (unsigned char *byte_array);
+        int32_t cast_16bit_to_int32 (unsigned char *byte_array);
 
     protected:
 
