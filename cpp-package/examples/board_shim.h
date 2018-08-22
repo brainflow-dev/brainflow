@@ -7,7 +7,8 @@ class BoardShim
     void reshape_data (int data_count, float *buf, double *ts_buf, double **output_buf);
 
     public:
-        int num_channels;
+        int num_data_channels;
+        int total_channels;
         int board_id;
         char port_name[1024];
 

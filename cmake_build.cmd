@@ -8,5 +8,7 @@ cmake --build .
 cd ..
 
 echo F | xcopy /Y .\compiled\Debug\BoardController.dll .\python-package\brainflow\lib\BoardController.dll
+
 echo F | xcopy /Y .\compiled\Debug\BoardController.dll .\cpp-package\lib\BoardController.dll
+echo F | xcopy /Y .\compiled\Debug\BoardController.lib .\cpp-package\lib\BoardController.lib
 echo F | xcopy /Y .\src\board_controller\inc\board_controller.h .\cpp-package\inc\board_controller.h

@@ -10,7 +10,10 @@ BoardShim::BoardShim (int board_id, const char *port_name)
 	strcpy (this->port_name, port_name);
 	this->board_id = board_id;
 	if (board_id == CYTHON_BOARD)
-    	num_channels = 12;
+	{
+    	num_data_channels = 12; // package_num, 8 eeg, 3accel
+    	total_channels = num_data_channels + 1; // plus ts
+    }
 }
 
 int BoardShim::prepare_session ()
@@ -40,7 +43,7 @@ int BoardShim::get_board_data_count (int *result)
 
 int BoardShim::get_board_data (int data_count, double **data_buf)
 {
-	float *buf = (float *)malloc (sizeof (float) * data_count * num_channels);
+	float *buf = (float *)malloc (sizeof (float) * data_count * num_data_channels);
 	double *ts_buf = (double *)malloc (sizeof (double) * data_count);
 
 	int res = ::get_board_data (data_count, buf, ts_buf);
@@ -58,7 +61,7 @@ int BoardShim::get_board_data (int data_count, double **data_buf)
 
 int BoardShim::get_current_board_data (int num_samples, double **data_buf, int *returned_samples)
 {
-	float *buf = (float *)malloc (sizeof (float) * num_samples * num_channels);
+	float *buf = (float *)malloc (sizeof (float) * num_samples * num_data_channels);
 	double *ts_buf = (double *)malloc (sizeof (double) * num_samples);
 
 	int res = ::get_current_board_data (num_samples, buf, ts_buf, returned_samples);
@@ -78,10 +81,10 @@ void BoardShim::reshape_data (int data_count, float *data_buf, double *ts_buf, d
 {
 	for (int i = 0; i < data_count; i++)
     {
-        for (int j = 0; j < num_channels; j++)
+        for (int j = 0; j < num_data_channels; j++)
         {
-            output_buf[i][j] = data_buf[i * num_channels + j];
+            output_buf[i][j] = data_buf[i * num_data_channels + j];
         }
-        output_buf[i][num_channels] = ts_buf[i];
+        output_buf[i][num_data_channels] = ts_buf[i];
     }
 }

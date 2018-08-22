@@ -94,7 +94,7 @@ class BoardShim (object):
         self.port_name = port_name
         self.board_id = board_id
         if board_id == Boards.Cython.value:
-            self.num_channels = 12
+            self._num_channels = 12
         else:
             raise BrainFlowError ('unsupported board type', StreamExitCodes.UNSUPPORTED_BOARD_ERROR.value)
 
@@ -119,7 +119,7 @@ class BoardShim (object):
             raise BrainFlowError ('unable to release streaming session', res)
 
     def get_current_board_data (self, num_samples = 250 * 2):
-        data_arr = numpy.zeros (num_samples  * self.num_channels).astype (numpy.float32)
+        data_arr = numpy.zeros (num_samples  * self._num_channels).astype (numpy.float32)
         time_arr = numpy.zeros (num_samples).astype (numpy.float64)
         current_size = numpy.zeros (1).astype (numpy.int64)
 
@@ -130,7 +130,7 @@ class BoardShim (object):
         if len (current_size) == 0:
             return None
 
-        data_arr = data_arr[0:current_size[0] * self.num_channels].reshape (current_size[0], self.num_channels)
+        data_arr = data_arr[0:current_size[0] * self._num_channels].reshape (current_size[0], self._num_channels)
         return numpy.column_stack ((data_arr, time_arr))
 
     def get_immediate_board_data (self):
@@ -147,11 +147,11 @@ class BoardShim (object):
     def get_board_data (self):
         data_size = self.get_board_data_count ()
         time_arr = numpy.zeros (data_size).astype (numpy.float64)
-        data_arr = numpy.zeros (data_size * self.num_channels).astype (numpy.float32)
+        data_arr = numpy.zeros (data_size * self._num_channels).astype (numpy.float32)
 
         res = BoardControllerDLL.get_instance ().get_board_data (data_size, data_arr, time_arr)
         if res != StreamExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to get board data', res)
 
-        data_arr = data_arr.reshape (data_size, self.num_channels)
+        data_arr = data_arr.reshape (data_size, self._num_channels)
         return numpy.column_stack ((data_arr, time_arr))
