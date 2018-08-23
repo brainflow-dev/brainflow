@@ -1,9 +1,9 @@
 #include <string.h>
 
-#include "board.h"
+#include "openbci_board.h"
 #include "serial.h"
 
-Board::Board (int num_channels, const char *port_name)
+OpenBCIBoard::OpenBCIBoard (int num_channels, const char *port_name)
 {
     strcpy (this->port_name, port_name);
     this->num_channels = num_channels;
@@ -16,7 +16,7 @@ Board::Board (int num_channels, const char *port_name)
     port_descriptor = 0;
 }
 
-Board::~Board ()
+OpenBCIBoard::~OpenBCIBoard ()
 {
     if (is_streaming)
         this->stop_stream ();
@@ -28,7 +28,7 @@ Board::~Board ()
     initialized = false;
 }
 
-int Board::open_port ()
+int OpenBCIBoard::open_port ()
 {
     if (is_port_open (port_descriptor))
         return PORT_ALREADY_OPEN_ERROR;
@@ -40,7 +40,7 @@ int Board::open_port ()
     return STATUS_OK;
 }
 
-int Board::send_to_board (char *message)
+int OpenBCIBoard::send_to_board (char *message)
 {
     int res = send_to_serial_port (message, port_descriptor);
     if (res != 1)
@@ -49,7 +49,7 @@ int Board::send_to_board (char *message)
     return STATUS_OK;
 }
 
-int Board::set_port_settings ()
+int OpenBCIBoard::set_port_settings ()
 {
     // only file operations are supported in emulators
 #ifdef EMULATOR_MODE
@@ -65,7 +65,7 @@ int Board::set_port_settings ()
     return send_to_board ("v");
 }
 
-int Board::status_check ()
+int OpenBCIBoard::status_check ()
 {
     unsigned char buf[1];
     int count = 0;
@@ -87,7 +87,7 @@ int Board::status_check ()
     return BOARD_NOT_READY_ERROR;
 }
 
-int Board::prepare_session ()
+int OpenBCIBoard::prepare_session ()
 {
     if (initialized)
     {
@@ -110,7 +110,7 @@ int Board::prepare_session ()
     return STATUS_OK;
 }
 
-int Board::start_stream (int buffer_size)
+int OpenBCIBoard::start_stream (int buffer_size)
 {
     if (is_streaming)
     {
@@ -147,7 +147,7 @@ int Board::start_stream (int buffer_size)
     return STATUS_OK;
 }
 
-int Board::stop_stream ()
+int OpenBCIBoard::stop_stream ()
 {
     if (is_streaming)
     {
@@ -160,7 +160,7 @@ int Board::stop_stream ()
         return STREAM_THREAD_IS_NOT_RUNNING;
 }
 
-int Board::release_session ()
+int OpenBCIBoard::release_session ()
 {
     if (initialized)
     {
@@ -178,7 +178,7 @@ int Board::release_session ()
     return STATUS_OK;
 }
 
-int Board::get_current_board_data (int num_samples, float *data_buf, double *ts_buf, int *returned_samples)
+int OpenBCIBoard::get_current_board_data (int num_samples, float *data_buf, double *ts_buf, int *returned_samples)
 {
     if (db && data_buf && ts_buf && returned_samples)
     {
@@ -189,7 +189,7 @@ int Board::get_current_board_data (int num_samples, float *data_buf, double *ts_
         return INVALID_ARGUMENTS_ERROR;
 }
 
-int Board::get_board_data_count (int *result)
+int OpenBCIBoard::get_board_data_count (int *result)
 {
     if (!db)
         return EMPTY_BUFFER_ERROR;
@@ -200,7 +200,7 @@ int Board::get_board_data_count (int *result)
     return STATUS_OK;
 }
 
-int Board::get_board_data (int data_count, float *data_buf, double *ts_buf)
+int OpenBCIBoard::get_board_data (int data_count, float *data_buf, double *ts_buf)
 {
     if (!db)
         return EMPTY_BUFFER_ERROR;

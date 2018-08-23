@@ -4,7 +4,7 @@
 #include <math.h> 
 #include <stdint.h>
 
-#include "board.h"
+#include "openbci_board.h"
 #include "spdlog/spdlog.h"
 #include "data_buffer.h"
 
@@ -15,7 +15,7 @@
 #define ADS1299_gain 24.0
 
 
-class Cython : public Board
+class Cython : public OpenBCIBoard
 {
     float eeg_scale = ADS1299_Vref/float((pow(2,23)-1))/ADS1299_gain*1000000.;
     float accel_scale = 0.002/(pow(2,4));
@@ -31,7 +31,7 @@ class Cython : public Board
 
     public:
         // package num, 8 eeg channels, 3 accel channels
-        Cython (const char *port_name) : Board (12, port_name){}
+        Cython (const char *port_name) : OpenBCIBoard (12, port_name){}
 
 };
 
