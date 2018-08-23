@@ -90,10 +90,7 @@ BOOL WINAPI DllMain (HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         case DLL_PROCESS_DETACH:
         {
             if (initialized)
-            {
-                board->logger->error ("Terminating streaming process");
                 release_session ();
-            }
             break;
         }
         default:
@@ -105,9 +102,6 @@ BOOL WINAPI DllMain (HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 __attribute__((destructor)) static void terminate_all (void)
 {
     if (initialized)
-    {
-        board->logger->error ("Terminating streaming process");
         release_session ();
-    }
 }
 #endif
