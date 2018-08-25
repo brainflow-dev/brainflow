@@ -16,8 +16,9 @@ find_library (
 
 add_executable (
     GetData
-    examples/board_shim.cpp
-    examples/brainflow_get_data.cpp
+    src/board_shim.cpp
+    src/data_handler.cpp
+    src/brainflow_get_data.cpp
 )
 
 target_link_libraries (GetData "${brainflow}")

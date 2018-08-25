@@ -10,6 +10,7 @@
 
 #include "board_shim.h"
 #include "board_controller.h"
+#include "data_handler.h"
 
 using namespace std;
 
@@ -36,7 +37,7 @@ void write_csv (const char *filename, double **data_buf, int data_count, int tot
         output_file << endl;
     }
     output_file.close ();
-}
+} 
 
 int main (int argc, char *argv[])
 {
@@ -47,6 +48,7 @@ int main (int argc, char *argv[])
     }
 
     BoardShim *cython = new BoardShim (CYTHON_BOARD, argv[1]);
+    DataHandler *dh = new DataHandler (CYTHON_BOARD);
     int buffer_size = 250 * 60;
     double **data_buf = (double **)malloc (sizeof (double *) * buffer_size);
     for (int i = 0; i < buffer_size; i++)
@@ -75,12 +77,16 @@ int main (int argc, char *argv[])
     check_error (res);
     res = cython->release_session ();
     check_error (res);
+    dh->preprocess_data (data_buf, data_count);
 
     write_csv ("board_data.csv", data_buf, data_count, cython->total_channels);
 
     for (int i = 0; i < buffer_size; i++)
         free (data_buf[i]);
     free (data_buf);
+    
+    delete dh;
+    delete cython;
 
     return 0;
 }

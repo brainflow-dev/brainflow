@@ -20,7 +20,7 @@ setup (
             'Topic :: Utilities'
         ],
         install_requires = [
-            'numpy'
+            'numpy', 'scipy', 'pandas'
         ],
         package_data = {
             'brainflow': [dll_path]
