@@ -91,7 +91,7 @@ class BoardControllerDLL (object):
 class BoardShim (object):
 
     def __init__ (self, board_id, port_name):
-        self.port_name = port_name
+        self.port_name = port_name.encode ()
         self.board_id = board_id
         if board_id == Boards.Cython.value:
             self._num_channels = 12

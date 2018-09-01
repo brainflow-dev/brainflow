@@ -11,7 +11,9 @@ OpenBCIBoard::OpenBCIBoard (int num_channels, const char *port_name)
     is_streaming = false;
     keep_alive = false;
     initialized = false;
+    spdlog::drop ("board_logger");
     logger = spdlog::stderr_logger_mt ("board_logger");
+    logger->flush_on (spdlog::level::err);
     db = NULL;
     port_descriptor = 0;
 }
@@ -60,7 +62,7 @@ int OpenBCIBoard::set_port_settings ()
     if (res < 0)
     {
         logger->error ("Unable to set port settings");
-        return SER_PORT_ERROR;
+        return SET_PORT_ERROR;
     }
     return send_to_board ("v");
 }

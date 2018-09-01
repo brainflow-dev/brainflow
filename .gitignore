@@ -334,3 +334,4 @@ ASALocalRun/
 
 build/
 python/flowcat.egg-info/
+.Rproj.user

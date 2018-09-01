@@ -25,7 +25,10 @@ int prepare_session (int board_id, char *port_name)
         default:
             return UNSUPPORTED_BOARD_ERROR;
     }
-    initialized = true;
+    if (res == STATUS_OK)
+        initialized = true;
+    else
+        initialized = false;
     return res;
 }
 
