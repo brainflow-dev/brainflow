@@ -73,6 +73,12 @@ inline int send_to_serial_port (const void *message, HANDLE port_descriptor)
         return 0;
     return 1;
 }
+
+inline int close_serial_port (HANDLE port_descriptor)
+{
+    CloseHandle (port_descriptor);
+    return 0;
+}
 #else
 inline bool is_port_open (int port_descriptor)
 {
@@ -127,6 +133,14 @@ inline int send_to_serial_port (const void *message, int port_descriptor)
 {
     int res = write (port_descriptor, message, 1);
     return res;
+}
+
+inline int close_serial_port (int port_descriptor)
+{
+    int res = close (port_descriptor);
+    if (res < 0)
+        return -1;
+    return 0;
 }
 #endif
 #endif

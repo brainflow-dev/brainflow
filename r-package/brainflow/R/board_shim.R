@@ -1,6 +1,7 @@
 #' @export
 Boards <- function () {
-    list(Cython = 0, Unimplemented = 1)
+    list(Cython = c(Type = 0, sampling = 250, num_channels = 13, num_eeg_channels = 8),
+         Unimplemented = c(Type = 1, sampling = NULL, num_channels = NULL, num_eeg_channels = NULL))
 }
 
 #' @param board_id
@@ -23,7 +24,7 @@ prepare_session <- function(board_shim) {
 #'
 #' @export
 start_stream <- function(board_shim, max_size) {
-    board_shim$start_stream(max_size)
+    board_shim$start_stream(as.integer(max_size))
 }
 
 #' @param board_shim
@@ -45,7 +46,7 @@ release_session <- function(board_shim) {
 #' @return current board data
 #' @export
 get_current_board_data <- function(board_shim, num_samples) {
-    board_shim$get_current_board_data(num_samples)
+    board_shim$get_current_board_data(as.integer(num_samples))
 }
 
 #' @param board_shim

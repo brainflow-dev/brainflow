@@ -119,7 +119,7 @@ class BoardShim (object):
             raise BrainFlowError ('unable to release streaming session', res)
 
     def get_current_board_data (self, num_samples = 250 * 2):
-        data_arr = numpy.zeros (num_samples  * self._num_channels).astype (numpy.float32)
+        data_arr = numpy.zeros (int(num_samples  * self._num_channels)).astype (numpy.float32)
         time_arr = numpy.zeros (num_samples).astype (numpy.float64)
         current_size = numpy.zeros (1).astype (numpy.int64)
 

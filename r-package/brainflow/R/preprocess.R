@@ -26,7 +26,7 @@ notch_interference <- function(data_handler) {
 #'
 #' @export
 bandpass <- function(data_handler, start_fq, stop_fq) {
-    data_handler$bandpass(start_fq, stop_fq)
+    data_handler$bandpass(as.double(start_fq), as.double(stop_fq))
 }
 
 #' @param data_handler
@@ -50,5 +50,5 @@ get_data <- function(data_handler) {
 #'
 #' @export
 preprocess_data <- function(data_handler, start_fq, stop_fq, calc_fft) {
-    data_handler$preprocess_data(start_fq, stop_fq, calc_fft)
+    data_handler$preprocess_data(as.double(start_fq), as.double(stop_fq), calc_fft)
 }

@@ -12,7 +12,7 @@ OpenBCIBoard::OpenBCIBoard (int num_channels, const char *port_name)
     keep_alive = false;
     initialized = false;
     spdlog::drop ("board_logger");
-    logger = spdlog::stderr_logger_mt ("board_logger");
+    logger = spdlog::basic_logger_mt ("board_logger", "openbci_log.txt");
     logger->flush_on (spdlog::level::err);
     db = NULL;
     port_descriptor = 0;
@@ -174,7 +174,7 @@ int OpenBCIBoard::release_session ()
             delete db;
             db = NULL;
         }
-
+        close_serial_port (port_descriptor);
         initialized = false;
     }
     return STATUS_OK;
