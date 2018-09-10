@@ -65,13 +65,13 @@ brainflow_server <- function(input, output, session) {
         if (is.null(reactive_values$fft_data)) {
             return ()
         }
-        #power_df <- sapply(reactive_values$fft_data, abs)
-        #power_df <- data.frame(power_df)
+        power_df <- sapply(reactive_values$fft_data, abs)
+        power_df <- data.frame(power_df)
         # average
         #power_df <- sapply(power_df, function(x) colMeans(matrix(x, nrow = 5)))
-        #power_df <- data.frame(power_df)
-        #df <- melt(power_df,  id.vars = 'timestamp', variable.name = 'series')
-        #ggplot(df, aes(timestamp,value)) + geom_line(aes(colour = series))
+        power_df <- data.frame(power_df)
+        df <- melt(power_df,  id.vars = 'timestamp', variable.name = 'series')
+        ggplot(df, aes(timestamp,value)) + geom_line(aes(colour = series))
     })
 
     output$session_control <- renderUI({
