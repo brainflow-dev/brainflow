@@ -9,26 +9,22 @@ require(reshape2)
 
 setLogFile("brainflow_gui.json")
 
-
 brainflow_server <- function(input, output, session) {
     sync_interval <- 200
     reactive_values <- reactiveValues()
     reactive_values$is_streaming <- FALSE
     reactive_values$board <- NULL
     reactive_values$eeg_data <- NULL
-    reactive_values$fft_data <- NULL
     reactive_values$board_shim <- NULL
-    reactive_values$data_handler <- NULL
 
     observe({
         invalidateLater(sync_interval, session)
         if (reactive_values$is_streaming == FALSE || is.null(reactive_values$board_shim)) {
             reactive_values$eeg_data <- NULL
-            reactive_values$fft_data <- NULL
             return ()
         }
         tryCatch({
-            raw_data <- get_current_board_data(reactive_values$board_shim, as.integer(2 * reactive_values$board["sampling"] * sync_interval / 1000))
+            raw_data <- get_current_board_data(reactive_values$board_shim, as.integer(8 * reactive_values$board["sampling"] * sync_interval / 1000))
             if (is.null(raw_data)) {
                 return ()
             }
@@ -37,14 +33,13 @@ brainflow_server <- function(input, output, session) {
                 preprocess_data(data_handler, input$bandpass[1], input$bandpass[2], TRUE)
             }
             else {
-                calculate_fft(data_handler)
+                remove_dc_offset(data_handler)
+                notch_interference(data_handler)
             }
             prepared_data <- get_data(data_handler)
             eeg_cols <- grep("^eeg", names(prepared_data), value=TRUE)
-            fft_cols <- grep("^fft", names(prepared_data), value=TRUE)
 
             reactive_values$eeg_data <- prepared_data[c(eeg_cols, "timestamp")]
-            reactive_values$fft_data <- prepared_data[c(fft_cols, "timestamp")]
         }, error = function(e) {
             loggit(log_lvl = "ERROR", e)
         })
@@ -57,21 +52,8 @@ brainflow_server <- function(input, output, session) {
             return ()
         }
         df <- melt(reactive_values$eeg_data,  id.vars = 'timestamp', variable.name = 'series')
-        ggplot(df, aes(timestamp,value)) + geom_line(aes(colour = series)) + facet_grid(series ~ .)
-    })
-
-    output$fft_data <- renderPlot({
-        invalidateLater(sync_interval, session)
-        if (is.null(reactive_values$fft_data)) {
-            return ()
-        }
-        power_df <- sapply(reactive_values$fft_data, abs)
-        power_df <- data.frame(power_df)
-        # average
-        #power_df <- sapply(power_df, function(x) colMeans(matrix(x, nrow = 5)))
-        power_df <- data.frame(power_df)
-        df <- melt(power_df,  id.vars = 'timestamp', variable.name = 'series')
-        ggplot(df, aes(timestamp,value)) + geom_line(aes(colour = series))
+        ggplot(df, aes(timestamp,value)) + geom_line(aes(colour = series)) + facet_grid(series ~ ., scales = "free_y") +
+            xlab("Time(sec)") + ylab("Value") + ggtitle("EEG")
     })
 
     output$session_control <- renderUI({
@@ -106,7 +88,9 @@ brainflow_server <- function(input, output, session) {
                 sendSweetAlert(session = session, title = "Started", text = "Start capturing EEG data",
                                type = "success", closeOnClickOutside = TRUE)
             }, error = function(e) {
-                sendSweetAlert(session = session, title = "Error", text = e, type = "error", closeOnClickOutside = TRUE)
+                error_msg <- strsplit(x = e$message, split = "Detailed traceback")[[1]][1]
+                sendSweetAlert(session = session, title = "Error", text = error_msg, type = "error", closeOnClickOutside = TRUE)
+                loggit(log_lvl = "ERROR", e)
                 reactive_values$is_streaming <- FALSE
                 reactive_values$board_shim <- NULL
                 reactive_values$board <- NULL
@@ -121,7 +105,12 @@ brainflow_server <- function(input, output, session) {
     observeEvent(input$stop_stream, {
         tryCatch({
             stop_stream(reactive_values$board_shim)
-            data <- get_board_data(reactive_values$board_shim)
+            raw_data <- get_board_data(reactive_values$board_shim)
+            data_handler <- get_data_handler(reactive_values$board["Type"], raw_data)
+            data <- get_data(data_handler)
+            if (input$descr != "") {
+                data$description <- input$descr
+            }
             write.csv(data, file = input$file, append = TRUE)
             release_session(reactive_values$board_shim)
             reactive_values$is_streaming <- FALSE
@@ -130,7 +119,9 @@ brainflow_server <- function(input, output, session) {
             sendSweetAlert(session = session, title = "Stopped", text = "Stop capturing EEG data",
                                type = "success", closeOnClickOutside = TRUE)
         }, error = function(e) {
-            sendSweetAlert(session = session, title = "Error", text = e, type = "error", closeOnClickOutside = TRUE)
+            error_msg <- strsplit(x = e$message, split = "Detailed traceback")[[1]][1]
+            sendSweetAlert(session = session, title = "Error", text = error_msg, type = "error", closeOnClickOutside = TRUE)
+            loggit(log_lvl = "ERROR", e)
             reactive_values$is_streaming <- TRUE
         })
     })

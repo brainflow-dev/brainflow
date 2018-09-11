@@ -41,23 +41,12 @@ sidebar <- dashboardSidebar(
 body <- dashboardBody(
     fluidRow(
         column(
-            width = 6,
+            width = 12,
             box(
                 title = "EEG Data",
                 status = "warning",
                 solidHeader = TRUE,
                 plotOutput("eeg_data", height = "85vh"),
-                width = NULL
-            )
-        ),
-
-        column(
-            width = 6,
-            box(
-                title = "FFT Data",
-                status = "warning",
-                solidHeader = TRUE,
-                plotOutput("fft_data", height = "85vh"),
                 width = NULL
             )
         )
