@@ -1,16 +1,14 @@
 # Python
-It's not required to compile the entire library to use Python binding.
 Following commands will install all required packages for you:
 ```
-cd python
+cd python-package
 pip install -e .
 ``` 
-It depends only on numpy but some Python examples require to install additional libraries
-After installation you will be able to use it via:
+After installation you will be able to use this library via:
 ```
 from brainflow import *
 ```
-And obtain data using:
+Simple example:
 ```
 # create board object and allocate resources
 board = CythonBoard (b'/dev/ttyUSB0)
@@ -42,6 +40,6 @@ class CythonBoard (object):
     def get_board_data_count (self):
     def get_board_data (self):
 ```
-All possible error codes are described [here](https://github.com/Andrey1994/brainflow/blob/master/python/brainflow/exit_codes.py)
+All possible error codes are described [here](https://github.com/Andrey1994/brainflow/blob/master/python-package/brainflow/exit_codes.py)
 
-For more information and samples please go to [examples](https://github.com/Andrey1994/brainflow/tree/master/python/examples)
+For more information and samples please go to [examples](https://github.com/Andrey1994/brainflow/tree/master/python-package/examples)
