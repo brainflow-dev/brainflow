@@ -114,3 +114,5 @@ Also [GUI](https://github.com/Andrey1994/brainflow/tree/master/gui) is implement
 * Replace file_operations by tty_operations in Linux emulator
 * Add Windows emulator
 * CI\CD
+* Push to CRAN, PYPI...
+* Package GUI to standalone desktop aplication
