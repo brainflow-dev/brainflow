@@ -1,10 +1,13 @@
 # R
-This package works via [Reticulate module](https://rstudio.github.io/reticulate/articles/introduction.html) which allows to call Python function directly from R, also it translates all Python classes(even user defined) to the corresponds R constructures 
-For now it is not added to CRAN so you will have to build this package manually using R-strudio
+This package works via [Reticulate module](https://rstudio.github.io/reticulate/articles/introduction.html) which allows to call Python function directly from R, also it translates all Python classes(even user defined) to the corresponds R constructures.
+
+For now it is not added to the CRAN, so you will have to build this package manually using R-strudio
 
 ## Example:
 ```
 library(reticulate)
+# you have to change it and make sure you have brainflow-python installed
+# after pushing brainflow to PYPI and CRAN it will not be necessary
 use_python("/home/osboxes/venv_brainflow/bin/python")
 library(brainflow)
 
