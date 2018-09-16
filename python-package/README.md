@@ -25,6 +25,7 @@ filtered_data.to_csv ('results.csv')
 All [BoardShim methods](https://github.com/Andrey1994/brainflow/blob/master/python-package/brainflow/board_shim.py)
 
 All [DataHandler methods](https://github.com/Andrey1994/brainflow/blob/master/python-package/brainflow/preprocess.py)
+
 All possible error codes are described [here](https://github.com/Andrey1994/brainflow/blob/master/python-package/brainflow/exit_codes.py)
 
 For more information and samples please go to [examples](https://github.com/Andrey1994/brainflow/tree/master/python-package/examples)
