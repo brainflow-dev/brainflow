@@ -18,7 +18,3 @@ cd %brainflow_dir%
 cd python-package
 pip install -e .
 ```
-
-## TODO List:
-* Implement tty operations
-* Add Windows emulator
