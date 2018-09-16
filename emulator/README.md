@@ -19,6 +19,6 @@ cd python-package
 pip install -e .
 ```
 
-*TODO List:*
+## TODO List:
 * Implement tty operations
 * Add Windows emulator
