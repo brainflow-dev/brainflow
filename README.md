@@ -104,3 +104,13 @@ release_session(board_shim)
 All methods provided by this package can be found [here](https://github.com/Andrey1994/brainflow/tree/master/r-package/brainflow/R).
 
 Also [GUI](https://github.com/Andrey1994/brainflow/tree/master/gui) is implemented using brainflow R package and Shiny
+
+## TODO List:
+* Add Matlab\Octave binding
+* Add Java\Scala binding
+* Add Nodejs binding
+* Add more boards
+* Add reading from file to DataHandler
+* Replace file_operations by tty_operations in Linux emulator
+* Add Windows emulator
+* CI\CD
