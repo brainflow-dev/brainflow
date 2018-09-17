@@ -105,6 +105,22 @@ All methods provided by this package can be found [here](https://github.com/Andr
 
 Also [GUI](https://github.com/Andrey1994/brainflow/tree/master/gui) is implemented using brainflow R package and Shiny
 
+## CPP example
+Headers and compiled libraries are located in ./cpp-package/inc and ./cpp-package/lib directories respectively.
+You are able to use ./cpp-package/src as a reference
+
+In fact [board_shim.cpp](https://github.com/Andrey1994/brainflow/blob/master/cpp-package/src/board_shim.cpp) duplicates methods from DLL but wraps them in Class
+
+To compile this project:
+```
+mkdir build
+cd build
+cmake ..
+make
+```
+You are able to use msbuild as well and compile it for Windows
+
+
 ## TODO List:
 * Add Matlab\Octave binding
 * Add Java\Scala binding
