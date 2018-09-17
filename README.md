@@ -17,7 +17,7 @@ int get_board_data (int data_count, float *data_buf, double *ts_buf);
 For now only Cython serial board is supported, more boards will be added soon.
 
 ## GUI
-Brainflow GUI is a R Shiny application which use Brainflow R package to obtain data from BCI board
+Brainflow GUI is a R Shiny application which uses Brainflow R package to obtain data from BCI board
 ### Screenshot:
 ![image1](https://farm2.staticflickr.com/1842/30854740608_e40c6c5248_o_d.png)
 
