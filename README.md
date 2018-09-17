@@ -21,6 +21,27 @@ Brainflow GUI is a R Shiny application which uses Brainflow R package to obtain 
 ### Screenshot:
 ![image1](https://farm2.staticflickr.com/1842/30854740608_e40c6c5248_o_d.png)
 
+## BrainFlow board emulator
+
+These tools were designed to allow developers contribute to this library even if the don't have an access to the OpenBCI board,it works as a kernel's module which implements file operations
+
+### Linux
+Execute the following commands with root privileges to run it on Linux machine:
+```
+cd emulator/linux
+make
+./module_load.sh
+```
+After that you will be able to read/write data to/from /dev/emulated_cython device
+Also you will have to build main library in emulated mode
+```
+cd %brainflow_dir%
+./cmake_build.sh EMULATOR
+# you will have to reinstall packages
+cd python-package
+pip install -e .
+```
+
 ## Python
 Following commands will install all required packages for you:
 ```
@@ -52,28 +73,6 @@ All [DataHandler methods](https://github.com/Andrey1994/brainflow/blob/master/py
 All possible error codes are described [here](https://github.com/Andrey1994/brainflow/blob/master/python-package/brainflow/exit_codes.py)
 
 For more information and samples please go to [examples](https://github.com/Andrey1994/brainflow/tree/master/python-package/examples)
-
-
-## BrainFlow board emulator
-
-These tools were designed to allow developers contribute to this library even if the don't have an access to the OpenBCI board,it works as a kernel's module which implements file operations
-
-### Linux
-Execute the following commands with root privileges to run it on Linux machine:
-```
-cd emulator/linux
-make
-./module_load.sh
-```
-After that you will be able to read/write data to/from /dev/emulated_cython device
-Also you will have to build main library in emulated mode
-```
-cd %brainflow_dir%
-./cmake_build.sh EMULATOR
-# you will have to reinstall packages
-cd python-package
-pip install -e .
-```
 
 ## R
 This package works via [Reticulate module](https://rstudio.github.io/reticulate/articles/introduction.html) which allows to call Python function directly from R, also it translates all Python classes(even user defined) to the corresponds R constructures.
