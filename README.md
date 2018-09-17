@@ -1,6 +1,6 @@
 # Brainflow
 
-Brainflow is a library intended to obtain and analyze EEG, EMG and ECG data from BCI boards
+Brainflow is a library intended to obtain and analyze EEG, EMG and ECG data.
 
 I've implemented the core module of this library in C\C++ and compiled it in DLL, so all difficult logic and package parsing
 was done only once in native code, while other languages just call methods from DLL
