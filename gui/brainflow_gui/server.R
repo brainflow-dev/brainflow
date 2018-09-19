@@ -10,7 +10,7 @@ require(reshape2)
 setLogFile("brainflow_gui.json")
 
 brainflow_server <- function(input, output, session) {
-    sync_interval <- 200
+    sync_interval <- 100
     reactive_values <- reactiveValues()
     reactive_values$is_streaming <- FALSE
     reactive_values$board <- NULL
@@ -24,7 +24,7 @@ brainflow_server <- function(input, output, session) {
             return ()
         }
         tryCatch({
-            raw_data <- get_current_board_data(reactive_values$board_shim, as.integer(8 * reactive_values$board["sampling"] * sync_interval / 1000))
+            raw_data <- get_current_board_data(reactive_values$board_shim, as.integer(20 * reactive_values$board["sampling"] * sync_interval / 1000))
             if (is.null(raw_data)) {
                 return ()
             }
@@ -83,9 +83,9 @@ brainflow_server <- function(input, output, session) {
                     stopApp(returnValue = 1)
                 }
                 prepare_session(reactive_values$board_shim)
-                start_stream(reactive_values$board_shim, 1800 * reactive_values$board["sampling"])
+                start_stream(reactive_values$board_shim, 3600 * reactive_values$board["sampling"])
                 reactive_values$is_streaming <- TRUE
-                sendSweetAlert(session = session, title = "Started", text = "Start capturing EEG data",
+                sendSweetAlert(session = session, title = "Started", text = "Started capturing EEG data",
                                type = "success", closeOnClickOutside = TRUE)
             }, error = function(e) {
                 error_msg <- strsplit(x = e$message, split = "Detailed traceback")[[1]][1]
