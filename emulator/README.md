@@ -1,6 +1,6 @@
 # BrainFlow board emulator
 
-These tools were designed to allow developers contribute to this library even if the don't have an access to the OpenBCI board,it works as kernel's module and at least for now supports only file operationas, tty operations may be added in future
+These tools were designed to allow developers contribute to this library even if the don't have an access to the OpenBCI board,it works as a kernel's module which implements file operations
 
 ## Linux
 Execute the following commands with root privileges to run it on Linux machine:
@@ -14,6 +14,7 @@ Also you will have to build main library in emulated mode
 ```
 cd %brainflow_dir%
 ./cmake_build.sh EMULATOR
-cd python
+# you will have to reinstall packages
+cd python-package
 pip install -e .
 ```

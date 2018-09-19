@@ -1,5 +1,5 @@
-Sys.setenv(RETICULATE_PYTHON = "/home/andrey/venv_brainflow/bin/python")
 library(reticulate)
+use_python("/home/osboxes/venv_brainflow/bin/python")
 library(brainflow)
 
 board_shim <- get_board_shim(Boards()$Cython["Type"], "/dev/emulated_cython")
