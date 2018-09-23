@@ -3,6 +3,9 @@ project (brainflow)
 
 set (CMAKE_CXX_STANDARD 11)
 set (CMAKE_VERBOSE_MAKEFILE ON)
+# for Matlab2017 gcc 4.9 is required
+set(CMAKE_C_COMPILER /usr/bin/gcc-4.9)
+set(CMAKE_CXX_COMPILER /usr/bin/g++-4.9)
 
 macro (configure_msvc_runtime)
     if (MSVC)
@@ -77,3 +80,7 @@ set_target_properties (BoardController
 if (${EMULATOR})
     target_compile_definitions (BoardController PUBLIC EMULATOR_MODE)
 endif (${EMULATOR})
+
+if (UNIX)
+    target_link_libraries (BoardController -lpthread)
+endif (UNIX)

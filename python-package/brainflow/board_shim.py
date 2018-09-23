@@ -131,6 +131,7 @@ class BoardShim (object):
             return None
 
         data_arr = data_arr[0:current_size[0] * self._num_channels].reshape (current_size[0], self._num_channels)
+        time_arr = time_arr[0:current_size[0]]
         return numpy.column_stack ((data_arr, time_arr))
 
     def get_immediate_board_data (self):

@@ -23,3 +23,6 @@ cp ./compiled/libBoardController.so ./python-package/brainflow/lib/libBoardContr
 # cpp
 cp ./compiled/libBoardController.so ./cpp-package/lib/libBoardController.so
 cp ./src/board_controller/inc/board_controller.h  ./cpp-package/inc/board_controller.h
+# matlab
+cp ./compiled/libBoardController.so ./matlab-package/brainflow/lib/libBoardController.so
+cp ./src/board_controller/inc/board_controller.h  ./matlab-package/brainflow/inc/board_controller.h
