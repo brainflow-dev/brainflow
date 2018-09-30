@@ -35,6 +35,7 @@ int OpenBCIBoard::open_port ()
     if (is_port_open (port_descriptor))
         return PORT_ALREADY_OPEN_ERROR;
 
+    logger->info ("openning port {}: {}", port_name, port_descriptor);
     int res = open_serial_port (port_name, &port_descriptor);
     if (res < 0)
         return UNABLE_TO_OPEN_PORT_ERROR;
