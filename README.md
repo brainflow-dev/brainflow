@@ -104,7 +104,7 @@ All methods provided by this package can be found [here](https://github.com/Andr
 
 Also [GUI](https://github.com/Andrey1994/brainflow/tree/master/gui) is implemented using brainflow R package and Shiny
 
-## CPP example
+## CPP
 Headers and compiled libraries are located in ./cpp-package/inc and ./cpp-package/lib directories respectively.
 You are able to use ./cpp-package/src as a reference
 
@@ -119,9 +119,29 @@ make
 ```
 You are able to use msbuild as well and compile it for Windows
 
+## Matlab
+For some Matlab's versions and OSes you may need to recompile brainflow using specific compiler.
+For example loadlibrary in Matlab 2017 works only if library was compiled with gcc < 5.0
+
+### Example:
+```
+board_shim = BoardShim (BoardsIds.CYTHON_BOARD, '/dev/ttyUSB0')
+ec = board_shim.prepare_session ()
+board_shim.check_ec (ec)
+ec = board_shim.start_stream (3600)
+board_shim.check_ec (ec)
+pause (5)
+ec = board_shim.stop_stream ()
+board_shim.check_ec (ec)
+[ec, data, ts] = board_shim.get_current_board_data (250)
+board_shim.check_ec (ec)
+disp (data)
+ec = board_shim.release_session ()
+board_shim.check_ec (ec)
+```
+[BoardShim matlab class](https://github.com/Andrey1994/brainflow/blob/master/matlab-package/brainflow/BoardShim.m)
 
 ## TODO List:
-* Add Matlab\Octave binding
 * Add Java\Scala binding
 * Add Nodejs binding
 * Add more boards
