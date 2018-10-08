@@ -5,6 +5,7 @@ import pkg_resources
 import enum
 import os
 import platform
+import sys
 
 from brainflow.exit_codes import StreamExitCodes
 
@@ -32,12 +33,11 @@ class BoardControllerDLL (object):
         return cls.__instance
 
     def __init__ (self):
-
         if platform.system () == 'Windows':
             dll_path = 'lib\\BoardController.dll'
         else:
             dll_path = 'lib/libBoardController.so'
-        self.lib = ctypes.cdll.LoadLibrary (pkg_resources.resource_filename (__name__, os.path.join (dll_path)))
+        self.lib = ctypes.cdll.LoadLibrary (pkg_resources.resource_filename (__name__, dll_path))
 
         self.prepare_session = self.lib.prepare_session
         self.prepare_session.restype = ctypes.c_int
@@ -91,7 +91,10 @@ class BoardControllerDLL (object):
 class BoardShim (object):
 
     def __init__ (self, board_id, port_name):
-        self.port_name = port_name.encode ()
+        if sys.version_info >= (3,0):
+            self.port_name = port_name.encode ()
+        else:
+            self.port_name = port_name
         self.board_id = board_id
         if board_id == Boards.Cython.value:
             self._num_channels = 12

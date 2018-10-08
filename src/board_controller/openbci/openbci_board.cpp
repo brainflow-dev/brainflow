@@ -12,7 +12,7 @@ OpenBCIBoard::OpenBCIBoard (int num_channels, const char *port_name)
     keep_alive = false;
     initialized = false;
     spdlog::drop ("board_logger");
-    logger = spdlog::basic_logger_mt ("board_logger", "openbci_log.txt");
+    logger = spdlog::stderr_logger_mt ("board_logger");
     logger->flush_on (spdlog::level::err);
     db = NULL;
     port_descriptor = 0;

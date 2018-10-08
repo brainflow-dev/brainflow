@@ -10,21 +10,25 @@ from brainflow.board_shim import *
 
 class DataHandler (object):
 
-    def __init__ (self, board_type, numpy_data):
-        if board_type == Boards.Cython.value:
+    def __init__ (self, board_id, numpy_data = None, csv_file = None):
+        if board_id == Boards.Cython.value:
             self.fs_hz = 250
             self.num_eeg_channels = 8
         else:
             raise Exception ('Unsupported Board Type')
-        self.numpy_data = numpy_data
 
-        columns = ['package_num']
-        for i in range (self.num_eeg_channels):
-            columns.append ('eeg%d' % (i + 1))
-        for i in range (3):
-            columns.append ('accel%d' % (i + 1))
-        columns.append ('timestamp')
-        self.eeg_df = pd.DataFrame (self.numpy_data, columns = columns, dtype = np.float64)
+        if numpy_data is not None:
+            columns = ['package_num']
+            for i in range (self.num_eeg_channels):
+                columns.append ('eeg%d' % (i + 1))
+            for i in range (3):
+                columns.append ('accel%d' % (i + 1))
+            columns.append ('timestamp')
+            self.eeg_df = pd.DataFrame (numpy_data, columns = columns, dtype = np.float64)
+        elif csv_file is not None:
+            self.eeg_df = pd.read_csv (csv_file, index_col = 0)
+        else:
+            raise Exception ('no data prodvided')
 
     def remove_dc_offset (self):
         res_df = pd.DataFrame ()
@@ -39,18 +43,16 @@ class DataHandler (object):
 
         self.eeg_df = res_df
 
-    def notch_interference (self):
+    def notch_interference (self, notch_freq_hz = 50.0):
         res_df = pd.DataFrame ()
-        notch_freq_hz = np.array ([50.0, 60.0])
-        for freq_hz in np.nditer (notch_freq_hz):
-            bp_stop_hz = freq_hz + 3.0 * np.array ([-1, 1])
-            b, a = signal.butter (3, bp_stop_hz / (self.fs_hz / 2.0), 'bandstop')
+        bp_stop_hz = notch_freq_hz + 3.0 * np.array ([-1, 1])
+        b, a = signal.butter (3, bp_stop_hz / (self.fs_hz / 2.0), 'bandstop')
 
-            for column_name in self.eeg_df.columns:
-                if column_name.startswith ('eeg'):
-                    res_df[column_name] = signal.lfilter (b, a, self.eeg_df[column_name], 0)
-                else:
-                    res_df[column_name] = self.eeg_df[column_name]
+        for column_name in self.eeg_df.columns:
+            if column_name.startswith ('eeg'):
+                res_df[column_name] = signal.lfilter (b, a, self.eeg_df[column_name], 0)
+            else:
+                res_df[column_name] = self.eeg_df[column_name]
 
         self.eeg_df = res_df
 

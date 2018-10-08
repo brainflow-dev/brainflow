@@ -1,4 +1,3 @@
-Sys.setenv(RETICULATE_PYTHON = "/home/andrey/venv_brainflow/bin/python")
 library(reticulate)
 library(brainflow)
 library(shiny)

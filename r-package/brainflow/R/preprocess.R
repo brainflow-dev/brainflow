@@ -1,9 +1,10 @@
 #' @param board_id
-#' @param eeg_data
+#' @param numpy_data
+#' @param csv_file
 #' @return DataHandler object
 #' @export
-get_data_handler <- function(board_id, eeg_data) {
-  brainflow$DataHandler(board_id, eeg_data)
+get_data_handler <- function(board_id, numpy_data = NULL, csv_file = NULL) {
+  brainflow$DataHandler(board_id, numpy_data, csv_file)
 }
 
 #' @param data_handler
@@ -16,8 +17,8 @@ remove_dc_offset <- function(data_handler) {
 #' @param data_handler
 #'
 #' @export
-notch_interference <- function(data_handler) {
-  data_handler$notch_interference()
+notch_interference <- function(data_handler, fq) {
+  data_handler$notch_interference(as.double(fq))
 }
 
 #' @param data_handler

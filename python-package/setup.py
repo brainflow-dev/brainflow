@@ -26,5 +26,5 @@ setup (
             'brainflow': [dll_path]
         },
         zip_safe = True,
-        python_requires = '>=3'
+        python_requires = '>=2.7'
     )
