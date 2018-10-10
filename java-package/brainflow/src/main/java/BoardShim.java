@@ -7,7 +7,7 @@ import com.sun.jna.Library;
 import com.sun.jna.Native;
 
 public class BoardShim {
-	
+
 	public interface DllInterface extends Library {
 		DllInterface INSTANCE = SystemUtils.IS_OS_WINDOWS ? (DllInterface) Native.loadLibrary (Paths.get ("src", "main", "resources", "BoardController.dll").toString (), DllInterface.class) :
 			(DllInterface) Native.loadLibrary (Paths.get ("src", "main", "resources", "libBoardController.so").toString (), DllInterface.class);
@@ -96,22 +96,6 @@ public class BoardShim {
 			throw new BrainFlowError ("Error in get_board_data", ec);
 		}
 		return new BoardData (num_channels, data_arr, ts_arr);
-	}
-	
-	/**
-	 * A test method
-	 */
-	public static void main (String[] args) throws Exception {
- 
-		BoardShim board_shim = new BoardShim (Boards.CYTHON, "/dev/emulated_cython");
- 
-		board_shim.prepare_session ();
-		board_shim.start_stream (3600);
-		Thread.sleep (1000);
-		board_shim.stop_stream ();
-		System.out.println (board_shim.get_board_data_count ());
-		System.out.println (board_shim.get_board_data ());
-		board_shim.release_session ();
 	}
  
 }
