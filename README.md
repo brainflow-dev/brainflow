@@ -1,9 +1,8 @@
 # Brainflow
 
-Brainflow is a library intended to obtain and analyze EEG, EMG and ECG data.
+Brainflow is a library intended to obtain and analyze EEG data.
 
-I've implemented the core module of this library in C\C++ and compiled it in DLL, so all difficult logic and package parsing
-was done only once in native code, while other languages just call methods from DLL
+Core module of this library is implemented in C\C++ and available for all bindings as a dynamic library.
 ## DLL interface:
 ```
 int prepare_session (int board_id, const char *port_name);
@@ -14,7 +13,6 @@ int get_current_board_data (int num_samples, float *data_buf, double *ts_buf, in
 int get_board_data_count (int *result);
 int get_board_data (int data_count, float *data_buf, double *ts_buf);
 ```
-For now only Cython serial board is supported, more boards will be added soon.
 
 ## GUI
 Brainflow GUI is a R Shiny application which uses Brainflow R package to obtain data from BCI board
@@ -41,8 +39,8 @@ cd %brainflow_dir%
 cd python-package
 pip install -e .
 ```
-
-## Python
+## Bindings
+### Python
 Following commands will install all required packages for you:
 ```
 cd python-package
@@ -52,7 +50,7 @@ After installation you will be able to use this library via:
 ```
 from brainflow import *
 ```
-Simple example:
+#### Example
 ```
 board = BoardShim (Boards.Cython.value, args.port)
 board.prepare_session ()
@@ -72,21 +70,14 @@ All [DataHandler methods](https://github.com/Andrey1994/brainflow/blob/master/py
 
 All possible error codes are described [here](https://github.com/Andrey1994/brainflow/blob/master/python-package/brainflow/exit_codes.py)
 
-For more information and samples please go to [examples](https://github.com/Andrey1994/brainflow/tree/master/python-package/examples)
+Some [examples](https://github.com/Andrey1994/brainflow/tree/master/python-package/examples)
 
-## R
-This package works via [Reticulate module](https://rstudio.github.io/reticulate/articles/introduction.html) which allows to call Python function directly from R, also it translates all Python classes(even user defined) to the corresponds R constructures.
+### R
+This package works via [Reticulate module](https://rstudio.github.io/reticulate/articles/introduction.html) which allows to call Python function directly from R, also it translates all Python types(even user defined) to the correspond R types.
 
-For now it is not added to the CRAN, so you will have to build this package manually using R-strudio
-
-### Example:
+#### Example:
 ```
-library(reticulate)
-# you have to change it and make sure you have brainflow-python installed
-# after pushing brainflow to PYPI and CRAN it will not be necessary
-use_python("/home/osboxes/venv_brainflow/bin/python")
 library(brainflow)
-
 board_shim <- get_board_shim(Boards()$Cython["Type"], "/dev/emulated_cython")
 prepare_session(board_shim)
 start_stream(board_shim, 3600)
@@ -102,15 +93,13 @@ release_session(board_shim)
 ```
 All methods provided by this package can be found [here](https://github.com/Andrey1994/brainflow/tree/master/r-package/brainflow/R).
 
-Also [GUI](https://github.com/Andrey1994/brainflow/tree/master/gui) is implemented using brainflow R package and Shiny
+Also [GUI](https://github.com/Andrey1994/brainflow/tree/master/gui) is implemented using brainflow R package and Shiny module
 
-## CPP
+### Cpp
 Headers and compiled libraries are located in ./cpp-package/inc and ./cpp-package/lib directories respectively.
 You are able to use ./cpp-package/src as a reference
 
-In fact [board_shim.cpp](https://github.com/Andrey1994/brainflow/blob/master/cpp-package/src/board_shim.cpp) duplicates methods from DLL but wraps them in Class
-
-To compile this project:
+To compile this project on Linux:
 ```
 mkdir build
 cd build
@@ -119,11 +108,11 @@ make
 ```
 You are able to use msbuild as well and compile it for Windows
 
-## Matlab
+### Matlab
 For some Matlab's versions and OSes you may need to recompile brainflow using specific compiler.
 For example loadlibrary in Matlab 2017 works only if library was compiled with gcc < 5.0
 
-### Example:
+#### Example
 ```
 board_shim = BoardShim (BoardsIds.CYTHON_BOARD, '/dev/ttyUSB0')
 ec = board_shim.prepare_session ()
@@ -141,13 +130,19 @@ board_shim.check_ec (ec)
 ```
 [BoardShim matlab class](https://github.com/Andrey1994/brainflow/blob/master/matlab-package/brainflow/BoardShim.m)
 
-## TODO List:
-* Add Java\Scala binding
-* Add Nodejs binding
-* Add more boards
-* Add reading from file to DataHandler
-* Replace file_operations by tty_operations in Linux emulator
-* Add Windows emulator
-* CI\CD
-* Push to CRAN, PYPI...
-* Package GUI to standalone desktop aplication
+### Java
+Java binding for brainflow is a Maven project, which calls C methods using JNA
+
+#### Example:
+```
+BoardShim board_shim = new BoardShim (Boards.CYTHON, "/dev/ttyUSB0");
+board_shim.prepare_session ();
+board_shim.start_stream (3600);
+Thread.sleep (1000);
+board_shim.stop_stream ();
+System.out.println (board_shim.get_board_data_count ());
+System.out.println (board_shim.get_board_data ());
+board_shim.release_session ();
+```
+Note: For some OS you may need to set jna.library.path properly
+
