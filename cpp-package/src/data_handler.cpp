@@ -4,6 +4,9 @@
 #include "data_handler.h"
 #include "board_controller.h"
 
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
 
 DataHandler::DataHandler (int board_id)
 {
@@ -20,11 +23,11 @@ DataHandler::DataHandler (int board_id)
 
 void DataHandler::filter_lowpass (double **data, int data_count, float cutoff)
 {
-    double rc = 1.0 / (cutoff * 2 * M_PI); 
-    double dt = 1.0 / sample_rate; 
+    double rc = 1.0 / (cutoff * 2 * M_PI);
+    double dt = 1.0 / sample_rate;
     double alpha = dt / (rc + dt);
     double *temp_arr = (double*)malloc (sizeof (double) * data_count);
-    
+
     for (int channel = start_eeg; channel < stop_eeg; channel++)
     {
         temp_arr[0] = data[0][channel];
@@ -38,11 +41,11 @@ void DataHandler::filter_lowpass (double **data, int data_count, float cutoff)
 
 void DataHandler::filter_highpass (double **data, int data_count, float cutoff)
 {
-    double rc = 1.0 / (cutoff * 2 * M_PI); 
-    double dt = 1.0 / sample_rate; 
+    double rc = 1.0 / (cutoff * 2 * M_PI);
+    double dt = 1.0 / sample_rate;
     double alpha = rc / (rc + dt);
     double *temp_arr = (double*)malloc (sizeof (double) * data_count);
-    
+
     for (int channel = start_eeg; channel < stop_eeg; channel++)
     {
         temp_arr[0] = data[0][channel];
