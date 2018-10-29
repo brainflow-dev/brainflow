@@ -5,6 +5,19 @@
   <version>0.0.1-SNAPSHOT</version>
   <name>brainflow</name>
   <description>java binding for brainflow library</description>
+  <build>
+    <resources>
+      <resource>
+        <targetPath>${project.build.outputDirectory}</targetPath>
+        <filtering>false</filtering>
+        <directory>${basedir}/src/main/resources</directory>
+        <includes>
+          <include>BoardController.dll</include>
+          <include>libBoardController.so</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
   <dependencies>
     <dependency>
        <groupId>net.java.dev.jna</groupId>

@@ -9,8 +9,8 @@ import com.sun.jna.Native;
 public class BoardShim {
 
 	public interface DllInterface extends Library {
-		DllInterface INSTANCE = SystemUtils.IS_OS_WINDOWS ? (DllInterface) Native.loadLibrary (Paths.get ("src", "main", "resources", "BoardController.dll").toString (), DllInterface.class) :
-			(DllInterface) Native.loadLibrary (Paths.get ("src", "main", "resources", "libBoardController.so").toString (), DllInterface.class);
+		DllInterface INSTANCE = SystemUtils.IS_OS_WINDOWS ? (DllInterface) Native.loadLibrary ("BoardController.dll", DllInterface.class) :
+			(DllInterface) Native.loadLibrary ("libBoardController.so", DllInterface.class);
 		int prepare_session (int board_id, String port_name);
 		int start_stream (int buffer_size);
 		int stop_stream ();
