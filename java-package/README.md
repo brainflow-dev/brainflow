@@ -12,4 +12,3 @@ System.out.println (board_shim.get_board_data_count ());
 System.out.println (board_shim.get_board_data ());
 board_shim.release_session ();
 ```
-Note: For some OS you may need to set jna.library.path properly
