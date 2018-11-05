@@ -1,7 +1,6 @@
 import time
 import numpy as np
 import pandas as pd
-import argparse
 import scipy
 from scipy import signal
 from scipy.fftpack import fft

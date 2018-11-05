@@ -17,7 +17,7 @@ remove_dc_offset <- function(data_handler) {
 #' @param data_handler
 #'
 #' @export
-notch_interference <- function(data_handler, fq) {
+notch_interference <- function(data_handler, fq = 50.0) {
   data_handler$notch_interference(as.double(fq))
 }
 
