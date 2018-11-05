@@ -98,6 +98,7 @@ class BoardShim (object):
         self.board_id = board_id
         if board_id == Boards.Cython.value:
             self._num_channels = 12
+            self.fs_hz = 250
         else:
             raise BrainFlowError ('unsupported board type', StreamExitCodes.UNSUPPORTED_BOARD_ERROR.value)
 

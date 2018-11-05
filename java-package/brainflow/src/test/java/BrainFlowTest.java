@@ -2,7 +2,7 @@ public class BrainFlowTest {
 
 	public static void main (String[] args) throws Exception {
 		 
-		BoardShim board_shim = new BoardShim (Boards.CYTHON, "COM3");
+		BoardShim board_shim = new BoardShim (Boards.CYTHON, "/dev/ttyUSB0");
 		board_shim.prepare_session ();
 		System.out.println ("Session is ready");
 		board_shim.start_stream (3600);
