@@ -16,7 +16,7 @@ def main ():
 
     data_handler = DataHandler (Boards.Cython.value, numpy_data = data)
     filtered_data = data_handler.preprocess_data (1, 50)
-    filtered_data.to_csv ('results.csv')
+    filtered_data.to_csv ('results.csv', index = False)
     print (filtered_data.head ())
     read_data = DataHandler (Boards.Cython.value, csv_file = 'results.csv')
     print (read_data.get_data ().head ())

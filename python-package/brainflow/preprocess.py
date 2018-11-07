@@ -25,7 +25,7 @@ class DataHandler (object):
             columns.append ('timestamp')
             self.eeg_df = pd.DataFrame (numpy_data, columns = columns, dtype = np.float64)
         elif csv_file is not None:
-            self.eeg_df = pd.read_csv (csv_file, index_col = 0)
+            self.eeg_df = pd.read_csv (csv_file)
         else:
             raise Exception ('no data prodvided')
 
