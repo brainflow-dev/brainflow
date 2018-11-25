@@ -1,6 +1,6 @@
 #' @export
 Boards <- function () {
-    list(Cython = c(Type = 0, sampling = 250, num_channels = 13, num_eeg_channels = 8),
+    list(Cython = c(Type = as.integer(0), sampling = as.integer(250), num_channels = as.integer(13), num_eeg_channels = as.integer(8)),
          Unimplemented = c(Type = 1, sampling = NULL, num_channels = NULL, num_eeg_channels = NULL))
 }
 

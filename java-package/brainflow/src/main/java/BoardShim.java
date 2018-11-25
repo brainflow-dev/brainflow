@@ -20,12 +20,12 @@ public class BoardShim {
 		int get_board_data (int data_count, float[] data_buf, double[] ts_buf);
 	}
  
-	public int num_channels;
+	public int package_length;
 	public int board_id;
 	public String port_name;
 	public BoardShim (int board_id, String port_name) throws BrainFlowError {
-		if (board_id == Boards.CYTHON) {
-			num_channels = 12;
+		if (board_id == CYTHON.board_id) {
+			package_length = CYTHON.package_length;
 			this.board_id = board_id;
 		}
 		else {
@@ -72,30 +72,30 @@ public class BoardShim {
 	}
 	
 	public BoardData get_current_board_data (int num_samples) throws BrainFlowError {
-		float[] data_arr = new float[num_samples * num_channels];
+		float[] data_arr = new float[num_samples * package_length];
 		double[] ts_arr = new double[num_samples];
 		int[] current_size = new int[1];
 		int ec = DllInterface.INSTANCE.get_current_board_data (num_samples, data_arr, ts_arr, current_size);
 		if (ec != ExitCode.STATUS_OK.get_code ()) {
 			throw new BrainFlowError ("Error in get_current_board_data", ec);
 		}
-		return new BoardData (num_channels, Arrays.copyOfRange(data_arr, 0, current_size[0] * num_channels),
+		return new BoardData (package_length, Arrays.copyOfRange(data_arr, 0, current_size[0] * package_length),
 				Arrays.copyOfRange(ts_arr, 0, current_size[0]));
 	}
-	
+
 	public BoardData get_immediate_board_data (int num_samples) throws BrainFlowError {
 		return get_current_board_data (0);
 	}
 	
 	public BoardData get_board_data () throws BrainFlowError {
 		int size = get_board_data_count ();
-		float[] data_arr = new float[size * num_channels];
+		float[] data_arr = new float[size * package_length];
 		double[] ts_arr = new double[size];
 		int ec = DllInterface.INSTANCE.get_board_data (size, data_arr, ts_arr);
 		if (ec != ExitCode.STATUS_OK.get_code ()) {
 			throw new BrainFlowError ("Error in get_board_data", ec);
 		}
-		return new BoardData (num_channels, data_arr, ts_arr);
+		return new BoardData (package_length, data_arr, ts_arr);
 	}
  
 }

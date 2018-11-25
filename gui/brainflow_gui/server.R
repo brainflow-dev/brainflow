@@ -29,7 +29,7 @@ brainflow_server <- function(input, output, session) {
             }
             data_handler <- get_data_handler(reactive_values$board["Type"], raw_data)
             if (input$preprocess == TRUE) {
-                preprocess_data(data_handler, input$bandpass[1], input$bandpass[2], TRUE)
+                preprocess_data(data_handler, 3, input$bandpass[1], input$bandpass[2], FALSE)
             }
             else {
                 remove_dc_offset(data_handler)

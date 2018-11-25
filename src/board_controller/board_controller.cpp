@@ -8,11 +8,10 @@
 
 
 Board *board = NULL;
-bool initialized = false;
 
 int prepare_session (int board_id, char *port_name)
 {
-    if (initialized)
+    if (board)
         return STATUS_OK;
 
     int res = STATUS_OK;
@@ -25,16 +24,17 @@ int prepare_session (int board_id, char *port_name)
         default:
             return UNSUPPORTED_BOARD_ERROR;
     }
-    if (res == STATUS_OK)
-        initialized = true;
-    else
-        initialized = false;
+    if (res != STATUS_OK)
+    {
+        delete board;
+        board = NULL;
+    }
     return res;
 }
 
 int start_stream (int buffer_size)
 {
-    if (!initialized)
+    if (board == NULL)
         return BOARD_NOT_CREATED_ERROR;
 
     return board->start_stream (buffer_size);
@@ -42,7 +42,7 @@ int start_stream (int buffer_size)
 
 int stop_stream ()
 {
-    if (!initialized)
+    if (board == NULL)
         return BOARD_NOT_CREATED_ERROR;
 
     return board->stop_stream ();
@@ -50,20 +50,19 @@ int stop_stream ()
 
 int release_session ()
 {
-    if (!initialized)
+    if (board == NULL)
         return BOARD_NOT_CREATED_ERROR;
 
     int res = board->release_session ();
     delete board;
     board = NULL;
-    initialized = false;
 
     return res;
 }
 
 int get_current_board_data (int num_samples, float *data_buf, double *ts_buf, int *returned_samples)
 {
-    if (!initialized)
+    if (board == NULL)
         return BOARD_NOT_CREATED_ERROR;
 
     return board->get_current_board_data (num_samples, data_buf, ts_buf, returned_samples);
@@ -71,7 +70,7 @@ int get_current_board_data (int num_samples, float *data_buf, double *ts_buf, in
 
 int get_board_data_count (int *result)
 {
-    if (!initialized)
+    if (board == NULL)
         return BOARD_NOT_CREATED_ERROR;
 
     return board->get_board_data_count (result);
@@ -79,7 +78,7 @@ int get_board_data_count (int *result)
 
 int get_board_data (int data_count, float *data_buf, double *ts_buf)
 {
-    if (!initialized)
+    if (board == NULL)
         return BOARD_NOT_CREATED_ERROR;
 
     return board->get_board_data (data_count, data_buf, ts_buf);
@@ -92,7 +91,7 @@ BOOL WINAPI DllMain (HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
     {
         case DLL_PROCESS_DETACH:
         {
-            if (initialized)
+            if (board != NULL)
                 release_session ();
             break;
         }
@@ -104,7 +103,7 @@ BOOL WINAPI DllMain (HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 #else
 __attribute__((destructor)) static void terminate_all (void)
 {
-    if (initialized)
+    if (board != NULL)
         release_session ();
 }
 #endif

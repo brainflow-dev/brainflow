@@ -17,9 +17,11 @@ class BrainFlowError (Exception):
         self.exit_code = exit_code
 
 
-class Boards (enum.Enum):
-    Cython = 0
-    Unimplemented = 1
+class CYTHON (object):
+    board_id = 0
+    fs_hz = 250
+    num_eeg_channels = 8
+    package_length = 12
 
 
 class BoardControllerDLL (object):
@@ -96,14 +98,15 @@ class BoardShim (object):
         else:
             self.port_name = port_name
         self.board_id = board_id
-        if board_id == Boards.Cython.value:
-            self._num_channels = 12
-            self.fs_hz = 250
+        if board_id == CYTHON.board_id:
+            self.package_length = CYTHON.package_length
+            self.fs_hz = CYTHON.fs_hz
+            self.num_eeg_channels = CYTHON.num_eeg_channels
         else:
             raise BrainFlowError ('unsupported board type', StreamExitCodes.UNSUPPORTED_BOARD_ERROR.value)
 
     def prepare_session (self):
-        res = BoardControllerDLL.get_instance ().prepare_session (Boards.Cython.value, self.port_name)
+        res = BoardControllerDLL.get_instance ().prepare_session (self.board_id, self.port_name)
         if res != StreamExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to prepare streaming session', res)
 
@@ -123,18 +126,18 @@ class BoardShim (object):
             raise BrainFlowError ('unable to release streaming session', res)
 
     def get_current_board_data (self, num_samples):
-        data_arr = numpy.zeros (int(num_samples  * self._num_channels)).astype (numpy.float32)
+        data_arr = numpy.zeros (int(num_samples  * self.package_length)).astype (numpy.float32)
         time_arr = numpy.zeros (num_samples).astype (numpy.float64)
         current_size = numpy.zeros (1).astype (numpy.int64)
 
-        res = BoardControllerDLL.get_instance().get_current_board_data (num_samples, data_arr, time_arr, current_size)
+        res = BoardControllerDLL.get_instance ().get_current_board_data (num_samples, data_arr, time_arr, current_size)
         if res != StreamExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to get current data', res)
 
         if len (current_size) == 0:
             return None
 
-        data_arr = data_arr[0:current_size[0] * self._num_channels].reshape (current_size[0], self._num_channels)
+        data_arr = data_arr[0:current_size[0] * self.package_length].reshape (current_size[0], self.package_length)
         time_arr = time_arr[0:current_size[0]]
         return numpy.column_stack ((data_arr, time_arr))
 
@@ -152,11 +155,11 @@ class BoardShim (object):
     def get_board_data (self):
         data_size = self.get_board_data_count ()
         time_arr = numpy.zeros (data_size).astype (numpy.float64)
-        data_arr = numpy.zeros (data_size * self._num_channels).astype (numpy.float32)
+        data_arr = numpy.zeros (data_size * self.package_length).astype (numpy.float32)
 
         res = BoardControllerDLL.get_instance ().get_board_data (data_size, data_arr, time_arr)
         if res != StreamExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to get board data', res)
 
-        data_arr = data_arr.reshape (data_size, self._num_channels)
+        data_arr = data_arr.reshape (data_size, self.package_length)
         return numpy.column_stack ((data_arr, time_arr))

@@ -1,0 +1,37 @@
+general:
+  num_cols: 6
+  epoch_length: 1000
+  eeg_delay: 100
+  eeg_end: 850
+  board: "Cython"
+  port: "/dev/ttyUSB0"
+
+window_settings:
+  geometry_x: 1024
+  geometry_y: 1024
+  grid_width: 840
+
+presentation:
+  highlight_time: 100
+  intermediate_time: 75
+  random_highlight: true
+  # Colors of the characters in the grid
+  default_char_color: "#ffffff"
+  highlight_char_color: "#000000"
+  # Color for rectangle that highlights a single character
+  char_select_color: "#00ff00"
+  # Color of highlighting rectangle
+  rect_color: "#ffffff"
+  # Backgrounf color of the character grid/canvas
+  grid_bg_color: "#000000"
+
+training_params:
+  wait_timeout: 3000
+  # How many flashes of all rows and columns, sequence, per trial
+  seq_per_trial: 15
+  num_trials: 36
+
+live_params:
+  seq_per_trial: 15
+  max_repeat: 3
+  stop_thresh: 0.3

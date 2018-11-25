@@ -3,22 +3,22 @@ import java.util.List;
 
 
 public class BoardData {
-	
+
 	private List<ArrayList<Double>> board_data = new ArrayList<ArrayList<Double>> ();
-	private int num_channels;
-	
-	public BoardData (int num_channels, float[] raw_data, double[] ts_data) {
-		this.num_channels = num_channels;
+	private int package_length;
+
+	public BoardData (int package_length, float[] raw_data, double[] ts_data) {
+		this.package_length = package_length;
 		for (int i = 0; i < ts_data.length; i++) {
 			ArrayList<Double> temp = new ArrayList<Double> ();
-			for (int j = 0; j < this.num_channels; j++) {
-				temp.add ((double) raw_data[i * num_channels + j]);
+			for (int j = 0; j < this.package_length; j++) {
+				temp.add ((double) raw_data[i * package_length + j]);
 			}
 			temp.add (ts_data[i]);
 			board_data.add (temp);
 		}
 	}
-	
+
 	@Override
     public String toString() {
 		StringBuilder str_b = new StringBuilder ();
@@ -34,13 +34,13 @@ public class BoardData {
 	public List<ArrayList<Double>> get_board_data () {
 		return board_data;
 	}
-	
+
 	public int get_size () {
 		return board_data.size ();
 	}
-	
-	public int get_num_channels () {
-		return num_channels;
+
+	public int get_package_length () {
+		return package_length;
 	}
 
 }

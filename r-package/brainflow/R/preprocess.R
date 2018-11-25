@@ -17,6 +17,13 @@ remove_dc_offset <- function(data_handler) {
 #' @param data_handler
 #'
 #' @export
+save_csv <- function(data_handler, filename) {
+    data_handler$save_csv(filename)
+}
+
+#' @param data_handler
+#'
+#' @export
 notch_interference <- function(data_handler, fq = 50.0) {
   data_handler$notch_interference(as.double(fq))
 }
@@ -26,8 +33,8 @@ notch_interference <- function(data_handler, fq = 50.0) {
 #' @param stop_fq
 #'
 #' @export
-bandpass <- function(data_handler, start_fq, stop_fq) {
-    data_handler$bandpass(as.double(start_fq), as.double(stop_fq))
+bandpass <- function(data_handler, order, start_fq, stop_fq) {
+    data_handler$bandpass(as.integer(order), as.double(start_fq), as.double(stop_fq))
 }
 
 #' @param data_handler
@@ -50,6 +57,6 @@ get_data <- function(data_handler) {
 #' @param calc_fft
 #'
 #' @export
-preprocess_data <- function(data_handler, start_fq, stop_fq, calc_fft) {
-    data_handler$preprocess_data(as.double(start_fq), as.double(stop_fq), calc_fft)
+preprocess_data <- function(data_handler, order, start_fq, stop_fq, calc_fft) {
+    data_handler$preprocess_data(as.integer(order), as.double(start_fq), as.double(stop_fq), calc_fft)
 }
