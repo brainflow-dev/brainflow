@@ -3,8 +3,14 @@ import time
 import pandas as pd
 import numpy as np
 import random
-import Tkinter as tk
-from Tkinter import *
+try:
+    # for Python2
+    import Tkinter as tk
+    from Tkinter import *
+except ImportError:
+    # for Python3
+    import tkinter as tk
+    from tkinter import *
 import argparse
 import yaml
 import pickle
@@ -54,11 +60,11 @@ class StartScreen (tk.Frame):
         self.start_live_button.grid (pady = 3, sticky = tk.W + tk.E)
 
         self.next_screen = next_screen
-    
+
     def display_screen (self):
         """Adds this screen to the window"""
         self.place (relx = 0.5, rely = 0.5, anchor = CENTER)
-    
+
     def remove_screen (self):
         """Removes this screen from the window"""
         self.place_forget ()
@@ -104,7 +110,7 @@ class P300GUI (tk.Frame):
         self.sequence_count = 0
         self.trial_in_progress = False
         self.char_highlighted = False
-        
+
         self.char_select_rect = SelectionRectangle (
                                                     self.settings,
                                                     x = self.col_width * self.trial_col, y = self.col_width * self.trial_row,
@@ -171,8 +177,8 @@ class P300GUI (tk.Frame):
             self.spelled_text.set ('Look at: %s' % str (self.get_character (self.trial_row, self.trial_col)))
             # Wait
             self.master.after (self.settings['training_params']['wait_timeout'], self.update)
-        
-        elif self.trial_in_progress:    
+
+        elif self.trial_in_progress:
             # Turn off the highlighting of the character
             if self.char_highlighted:
                 self.char_highlighted = False
@@ -209,10 +215,10 @@ class P300GUI (tk.Frame):
                 else:
                     # Keep the rect invisible for a set amount of time
                     self.master.after (self.intermediate_time, self.update)
-        
+
 
     def live_update (self):
-        """Updates the position and visibility of the selection rectangle""" 
+        """Updates the position and visibility of the selection rectangle"""
         if self.selection_rect.visible:
             self.selection_rect.update ()
             self.record_event ()
@@ -247,7 +253,7 @@ class P300GUI (tk.Frame):
             else:
                 # Keep the rect invisible for a set amount of time
                 self.master.after (self.intermediate_time, self.update)
-    
+
     def free_live_variables (self):
         # free current weights
         self.current_live_count = 0
@@ -263,7 +269,7 @@ class P300GUI (tk.Frame):
             return chr (65 + cell_num)
         else:
             return str (cell_num - 26)
-        
+
     def draw (self):
         """Redraws the canvas"""
         self.canvas.delete ('all')
@@ -298,7 +304,7 @@ class P300GUI (tk.Frame):
     def draw_characters (self):
         """Draws 36 characters [a-z] and [0-9] in a 6x6 grid"""
         row_height = int (self.canvas['height']) / self.num_cols
-        
+
         # Draw the characters to the canvas
         ascii_letter_offset = 65
         ascii_number_offset = 48
@@ -341,7 +347,7 @@ class P300GUI (tk.Frame):
         if len (self.spelled_text.get ()) > 0:
             self.spelled_text.set (self.spelled_text.get ()[:-1])
             self.text_buffer.icursor (len (self.spelled_text.get ()))
-    
+
     def add_text (self, text):
         """Appends some given text to the sppelled text buffer"""
         self.spelled_text.set (self.spelled_text.get () + text)
@@ -490,14 +496,14 @@ class SelectionRectangle ():
         self.y = y
         self.length = length
         self.width = width
-        self.graphic_ref = None 
+        self.graphic_ref = None
         self.color = color
         self.max_x = max_x
         self.max_y = max_y
         self.remaining_rows = range (6)
         self.remaining_cols = range (6)
         self.visible = True
-    
+
     def get_index (self):
         """Return the current row or column index of the rectangle"""
         if self.is_vertical ():
@@ -510,21 +516,21 @@ class SelectionRectangle ():
         # Reorient the rectangle to be vertical
         if not self.is_vertical():
             self.rotate90 ()
-        # Set the rectangle to the proper position    
+        # Set the rectangle to the proper position
         self.x = index * self.width
         if reset_top:
             self.y = 0
 
     def move_to_row (self, index, reset_left = True):
         """Moves and re-orients the rectangle to a row specified by an index"""
-        # Reorient the rectangle to be horizontal 
+        # Reorient the rectangle to be horizontal
         if self.is_vertical ():
             self.rotate90 ()
         # Set the rectangel to the proper position
         self.y = index * self.length
         if reset_left:
             self.x = 0
-            
+
     def rotate90 (self):
         """Rotates the rectangle 90 degrees"""
         temp = self.width
@@ -547,19 +553,19 @@ class SelectionRectangle ():
         """Refills the lists of available rows and columns with index values"""
         self.remaining_rows = range (6)
         self.remaining_cols = range (6)
-    
+
     def select_rand_row (self):
         """Selects a row from the available_rows"""
         rand_index = random.randint (0, len (self.remaining_rows) - 1)
         row = self.remaining_rows[rand_index]
         return row
-    
+
     def select_rand_col (self):
         """Selects a random column from the available_cols"""
         rand_index = random.randint (0, len (self.remaining_cols) - 1)
         col = self.remaining_cols[rand_index]
         return col
-    
+
     def end_of_sequence (self):
         """Returns true if there are no more available moves for the rect"""
         return len (self.remaining_cols) == 0 and len (self.remaining_rows) == 0
@@ -605,7 +611,7 @@ class SelectionRectangle ():
                 if self.y + self.length > self.max_y:
                     self.y = 0
                     self.rotate90 ()
-    
+
     def draw (self, canvas):
         """Draws the rectange to a Tkinter canvas"""
         if self.visible:
