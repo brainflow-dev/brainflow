@@ -228,6 +228,7 @@ class P300GUI (tk.Frame):
                 self.sequence_count = self.sequence_count + 1
                 if self.sequence_count >= self.settings['live_params']['seq_per_trial']:
                     self.master.after (self.settings['general']['epoch_length'] + self.intermediate_time, self.update)
+                    time.sleep (self.settings['general']['epoch_length'] / 1000.0)
 
                     # get predicted character
                     predicted_row, predicted_col = self.get_predicted ()
@@ -415,6 +416,8 @@ class P300GUI (tk.Frame):
         self.event_data.index.name = 'index'
 
         data_x, _ = classifier.prepare_data (eeg_data, self.event_data, self.settings, False)
+        if data_x.shape[0] != self.settings['live_params']['seq_per_trial'] * self.settings['general']['num_cols'] * 2:
+            logging.error ('Incorrect data shape')
         decisions = classifier.get_decison (data_x, self.scaler, self.pca, self.classifier)
 
         for i, decision in enumerate (decisions):
