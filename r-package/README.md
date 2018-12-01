@@ -5,24 +5,23 @@ For now it is not added to the CRAN, so you will have to build this package manu
 
 ## Example:
 ```
-library(reticulate)
-# you have to change it and make sure you have brainflow-python installed
-# after pushing brainflow to PYPI and CRAN it will not be necessary
-use_python("/home/osboxes/venv_brainflow/bin/python")
+
 library(brainflow)
 
-board_shim <- get_board_shim(Boards()$Cython["Type"], "/dev/emulated_cython")
+board_shim <- get_board_shim(Boards()$Cython["Type"], "/dev/ttyUSB0")
 prepare_session(board_shim)
 start_stream(board_shim, 3600)
 Sys.sleep(time = 5)
 stop_stream(board_shim)
 data <- get_current_board_data(board_shim, 250)
+release_session(board_shim)
 
-data_handler <- get_data_handler(Boards()$Cython["Type"], data)
-preprocess_data(data_handler, 1, 50, TRUE)
+data_handler <- get_data_handler(Boards()$Cython["Type"], numpy_data = data)
+preprocess_data(data_handler, 3, 1, 50, TRUE)
 preprocessed_data <- get_data(data_handler)
 head(preprocessed_data)
-release_session(board_shim)
+save_csv(data_handler, "results.csv")
+head(get_data(get_data_handler(Boards()$Cython["Type"], csv_file = "results.csv")))
 ```
 All methods provided by this package can be found [here](https://github.com/Andrey1994/brainflow/tree/master/r-package/brainflow/R).
 
