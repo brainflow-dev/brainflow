@@ -1,0 +1,4 @@
+[submodule "brainapps"]
+	path = brainapps
+	url = https://github.com/Andrey1994/brainapps
+	branch = master

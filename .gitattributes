@@ -1,6 +1,0 @@
-apps/p300-speller/data/eeg.csv filter=lfs diff=lfs merge=lfs -text
-apps/p300-speller/data/eeg_test.csv filter=lfs diff=lfs merge=lfs -text
-apps/p300-speller/data/events.csv filter=lfs diff=lfs merge=lfs -text
-apps/p300-speller/data/events_test.csv filter=lfs diff=lfs merge=lfs -text
-apps/p300-speller/data/data_x.pickle filter=lfs diff=lfs merge=lfs -text
-apps/p300-speller/data/data_y.pickle filter=lfs diff=lfs merge=lfs -text
