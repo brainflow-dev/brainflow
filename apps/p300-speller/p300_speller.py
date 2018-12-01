@@ -129,11 +129,11 @@ class P300GUI (tk.Frame):
     def set_training_mode (self, is_training):
         self.is_training = is_training
         if not self.is_training:
-            with open (os.path.join (os.path.dirname (os.path.realpath (__file__)), 'data','scaler.pickle'), 'rb') as f:
+            with open (os.path.join (os.path.dirname (os.path.realpath (__file__)), 'data', self.settings['general']['scaler']), 'rb') as f:
                 self.scaler = pickle.load (f)
-            with open (os.path.join (os.path.dirname (os.path.realpath (__file__)), 'data','pca.pickle'), 'rb') as f:
+            with open (os.path.join (os.path.dirname (os.path.realpath (__file__)), 'data',self.settings['general']['transformer']), 'rb') as f:
                 self.pca = pickle.load (f)
-            with open (os.path.join (os.path.dirname (os.path.realpath (__file__)), 'data','classifier.pickle'), 'rb') as f:
+            with open (os.path.join (os.path.dirname (os.path.realpath (__file__)), 'data', self.settings['general']['classifier']), 'rb') as f:
                 self.classifier = pickle.load (f)
 
             self.current_live_count = 0

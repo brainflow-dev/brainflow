@@ -4,10 +4,10 @@ general:
   eeg_delay: 100
   eeg_end: 850
   board: "Cython"
-  port: "/dev/ttyUSB0"
-  scaler: "scaler.pickle"
-  transformer: "pca.pickle"
-  classifier: "classifier.pickle"
+  port: "COM3"
+  scaler: "scaler_win.pickle"
+  transformer: "pca_win.pickle"
+  classifier: "classifier_win.pickle"
 
 window_settings:
   geometry_x: 1024

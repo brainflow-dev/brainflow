@@ -94,7 +94,7 @@ def prepare_data (eeg_data, event_data, settings, training = True):
     else:
         return data_df, None
 
-def classify_lda (data_x, data_y):
+def classify_lda (data_x, data_y, settings):
     """Train Classifier using LDA and RFE"""
     x_train, x_test, y_train, y_test = train_test_split (data_x, data_y, test_size = 0.2, random_state = 0, stratify = data_y)
 
@@ -119,9 +119,9 @@ def classify_lda (data_x, data_y):
     print (classification_report (y_test, predicted))
 
     data_to_test = pca.transform (scaler.transform (data_x))
-    scores = cross_val_score (clf, data_to_test, data_y, cv = 5, scoring = 'roc_auc', n_jobs = -1, verbose = 10) 
+    scores = cross_val_score (clf, data_to_test, data_y, cv = 5, scoring = 'roc_auc', n_jobs = -1, verbose = 10)
     print ('ROC_AUC:', scores, np.mean (scores), np.std (scores))
-    scores = cross_val_score (clf, data_to_test, data_y, cv = 5, scoring = 'balanced_accuracy', n_jobs = -1, verbose = 10) 
+    scores = cross_val_score (clf, data_to_test, data_y, cv = 5, scoring = 'balanced_accuracy', n_jobs = -1, verbose = 10)
     print ('Balanced Accuracy:', scores, np.mean (scores), np.std (scores))
 
     save = False
@@ -136,11 +136,11 @@ def classify_lda (data_x, data_y):
 
     if save:
         print ('Saving Classifier and Transformers')
-        with open (os.path.join (os.path.dirname (os.path.realpath (__file__)), 'data','scaler.pickle'), 'wb') as f:
+        with open (os.path.join (os.path.dirname (os.path.realpath (__file__)), 'data', settings['general']['scaler']), 'wb') as f:
             pickle.dump (scaler, f)
-        with open (os.path.join (os.path.dirname (os.path.realpath (__file__)), 'data','classifier.pickle'), 'wb') as f:
+        with open (os.path.join (os.path.dirname (os.path.realpath (__file__)), 'data', settings['general']['classifier']), 'wb') as f:
             pickle.dump (clf, f)
-        with open (os.path.join (os.path.dirname (os.path.realpath (__file__)), 'data','pca.pickle'), 'wb') as f:
+        with open (os.path.join (os.path.dirname (os.path.realpath (__file__)), 'data', settings['general']['transformer']), 'wb') as f:
             pickle.dump (pca, f)
 
 def get_decison (data_x, scaler, transformer, classifier):
@@ -154,11 +154,11 @@ def get_classes (data_x, scaler, transformer, classifier):
     return classifier.predict (data_x)
 
 def test_fair (settings):
-    with open (os.path.join (os.path.dirname (os.path.realpath (__file__)), 'data','scaler.pickle'), 'rb') as f:
+    with open (os.path.join (os.path.dirname (os.path.realpath (__file__)), 'data', settings['general']['scaler']), 'rb') as f:
         scaler = pickle.load (f)
-    with open (os.path.join (os.path.dirname (os.path.realpath (__file__)), 'data','classifier.pickle'), 'rb') as f:
+    with open (os.path.join (os.path.dirname (os.path.realpath (__file__)), 'data', settings['general']['classifier']), 'rb') as f:
         classifier = pickle.load (f)
-    with open (os.path.join (os.path.dirname (os.path.realpath (__file__)), 'data','pca.pickle'), 'rb') as f:
+    with open (os.path.join (os.path.dirname (os.path.realpath (__file__)), 'data', settings['general']['transformer']), 'rb') as f:
         pca = pickle.load (f)
 
     eeg_data, event_data = load_data (os.path.join (os.path.dirname (os.path.realpath (__file__)), 'data','eeg_test.csv'),
@@ -170,7 +170,7 @@ def test_fair (settings):
         stop_index = (i + 1) * settings['training_params']['seq_per_trial'] * settings['general']['num_cols'] * 2
         current_event_data = event_data.iloc[start_index:stop_index]
         right_col = event_data['trial_col'].values[start_index]
-        right_row = event_data['trial_row'].values[start_index]      
+        right_row = event_data['trial_row'].values[start_index]
 
         data_x, _ = prepare_data (eeg_data, current_event_data, settings)
         decisions = get_decison (data_x, scaler, pca, classifier)
@@ -238,8 +238,8 @@ def main ():
     args = parser.parse_args ()
     logging.basicConfig (level = logging.DEBUG)
 
+    settings = yaml.load (open (args.settings))
     if args.test:
-        settings = yaml.load (open (args.settings))
         test_fair (settings)
     else:
         if args.reuse:
@@ -248,7 +248,6 @@ def main ():
             with open (os.path.join (os.path.dirname (os.path.realpath (__file__)), 'data','data_y.pickle'), 'rb') as f:
                 data_y = pickle.load (f)
         else:
-            settings = yaml.load (open (args.settings))
             eeg_data, event_data = load_data (args.eeg_file, args.event_file)
             data_x, data_y = prepare_data (eeg_data, event_data, settings)
 
@@ -257,7 +256,7 @@ def main ():
             with open (os.path.join (os.path.dirname (os.path.realpath (__file__)), 'data','data_y.pickle'), 'wb') as f:
                 pickle.dump (data_y, f)
 
-        classify_lda (data_x, data_y)
+        classify_lda (data_x, data_y, settings)
 
 
 if __name__ == '__main__':
