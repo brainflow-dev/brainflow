@@ -3,7 +3,7 @@
 Brainflow is a library intended to obtain, parse and analyze EEG\EMG\ECG data.
 
 Core module of this library is implemented in C\C++ and available for all bindings as a dynamic library.
-## DLL interface:
+## Shared library methods:
 ```
 int prepare_session (int board_id, const char *port_name);
 int start_stream (int buffer_size);
