@@ -14,6 +14,19 @@ int get_board_data_count (int *result);
 int get_board_data (int data_count, float *data_buf, double *ts_buf);
 ```
 For now only [OpenBCI Cython](http://docs.openbci.com/Hardware/02-Cyton) is supported
+
+## Bindings
+I support bindigs for:
+* [python](https://github.com/Andrey1994/brainflow/blob/master/python-package/examples/brainflow_get_data.py)
+* [java](https://github.com/Andrey1994/brainflow/blob/master/java-package/brainflow/src/test/java/BrainFlowTest.java)
+* [matlab](https://github.com/Andrey1994/brainflow/blob/master/matlab-package/brainflow/brainflow_get_data.m)
+* [R](https://github.com/Andrey1994/brainflow/blob/master/r-package/examples/brainflow_get_data.R)
+* [CPP](https://github.com/Andrey1994/brainflow/blob/master/cpp-package/src/brainflow_get_data.cpp)
+* [Matlab](https://github.com/Andrey1994/brainflow/blob/master/matlab-package/brainflow/brainflow_get_data.m)
+
+
+It's easy to add new language because all difficult logic about data obtaining is implemented in C\C++ and bindings just call DLL's methods 
+
 ## Applications
 ### GUI
 Brainflow GUI is based on R Shiny package and provides simple UI to monitor EEG\EMG\ECG data
@@ -43,14 +56,3 @@ cd %brainflow_dir%
 cd python-package
 pip install -e .
 ```
-## Bindings
-I support bindigs for:
-* [python](https://github.com/Andrey1994/brainflow/blob/master/python-package/examples/brainflow_get_data.py)
-* [java](https://github.com/Andrey1994/brainflow/blob/master/java-package/brainflow/src/test/java/BrainFlowTest.java)
-* [matlab](https://github.com/Andrey1994/brainflow/blob/master/matlab-package/brainflow/brainflow_get_data.m)
-* [R](https://github.com/Andrey1994/brainflow/blob/master/r-package/examples/brainflow_get_data.R)
-* [CPP](https://github.com/Andrey1994/brainflow/blob/master/cpp-package/src/brainflow_get_data.cpp)
-* [Matlab](https://github.com/Andrey1994/brainflow/blob/master/matlab-package/brainflow/brainflow_get_data.m)
-
-
-It's easy to add new language because all difficult logic about data obtaining is implemented in C\C++ and bindings just call DLL's methods 
