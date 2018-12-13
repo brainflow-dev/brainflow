@@ -10,17 +10,33 @@ from brainflow import *
 ```
 Simple example:
 ```
-board = BoardShim (Boards.Cython.value, args.port)
-board.prepare_session ()
-board.start_stream ()
-time.sleep (5)
-data = board.get_board_data ()
-board.stop_stream ()
-board.release_session ()
 
-data_handler = DataHandler (Boards.Cython.value, data)
-filtered_data = data_handler.preprocess_data (1, 50)
-filtered_data.to_csv ('results.csv')
+import argparse
+from brainflow import *
+
+def main ():
+    parser = argparse.ArgumentParser ()
+    parser.add_argument ('--port', type = str, help  = 'port name', required = True)
+    args = parser.parse_args ()
+
+    board = BoardShim (CYTHON.board_id, args.port)
+    board.prepare_session ()
+    board.start_stream ()
+    time.sleep (5)
+    data = board.get_board_data ()
+    board.stop_stream ()
+    board.release_session ()
+
+    data_handler = DataHandler (CYTHON.board_id, numpy_data = data)
+    filtered_data = data_handler.preprocess_data (order = 3, start = 1, stop = 50)
+    data_handler.save_csv ('results.csv')
+    print (filtered_data.head ())
+    read_data = DataHandler (CYTHON.board_id, csv_file = 'results.csv')
+    print (read_data.get_data ().head ())
+
+
+if __name__ == "__main__":
+    main ()
 ```
 All [BoardShim methods](https://github.com/Andrey1994/brainflow/blob/master/python-package/brainflow/board_shim.py)
 
