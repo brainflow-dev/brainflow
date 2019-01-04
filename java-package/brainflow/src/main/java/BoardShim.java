@@ -19,7 +19,7 @@ public class BoardShim {
 		int get_board_data_count (int[] result);
 		int get_board_data (int data_count, float[] data_buf, double[] ts_buf);
 	}
- 
+
 	public int package_length;
 	public int board_id;
 	public String port_name;
@@ -33,21 +33,21 @@ public class BoardShim {
 		}
 		this.port_name = port_name;
 	}
-	
+
 	public void prepare_session () throws BrainFlowError {
 		int ec = DllInterface.INSTANCE.prepare_session (board_id, port_name);
 		if (ec != ExitCode.STATUS_OK.get_code ()) {
 			throw new BrainFlowError ("Error in prepare_session", ec);
 		}
 	}
- 
+
 	public void start_stream (int buffer_size) throws BrainFlowError {
 		int ec = DllInterface.INSTANCE.start_stream (buffer_size);
 		if (ec != ExitCode.STATUS_OK.get_code ()) {
 			throw new BrainFlowError ("Error in start_stream", ec);
 		}
 	}
- 
+
 	public void stop_stream () throws BrainFlowError {
 		int ec = DllInterface.INSTANCE.stop_stream ();
 		if (ec != ExitCode.STATUS_OK.get_code ()) {
@@ -61,7 +61,7 @@ public class BoardShim {
 			throw new BrainFlowError ("Error in release_session", ec);
 		}
 	}
-	
+
 	public int get_board_data_count () throws BrainFlowError {
 		int[] res = new int[1];
 		int ec = DllInterface.INSTANCE.get_board_data_count (res);
@@ -70,7 +70,7 @@ public class BoardShim {
 		}
 		return res[0];
 	}
-	
+
 	public BoardData get_current_board_data (int num_samples) throws BrainFlowError {
 		float[] data_arr = new float[num_samples * package_length];
 		double[] ts_arr = new double[num_samples];
@@ -83,10 +83,10 @@ public class BoardShim {
 				Arrays.copyOfRange(ts_arr, 0, current_size[0]));
 	}
 
-	public BoardData get_immediate_board_data (int num_samples) throws BrainFlowError {
+	public BoardData get_immediate_board_data () throws BrainFlowError {
 		return get_current_board_data (0);
 	}
-	
+
 	public BoardData get_board_data () throws BrainFlowError {
 		int size = get_board_data_count ();
 		float[] data_arr = new float[size * package_length];
@@ -97,5 +97,5 @@ public class BoardShim {
 		}
 		return new BoardData (package_length, data_arr, ts_arr);
 	}
- 
+
 }
