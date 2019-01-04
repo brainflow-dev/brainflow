@@ -26,8 +26,7 @@ I support bindigs for:
 * [Matlab](https://github.com/Andrey1994/brainflow/blob/master/matlab-package/brainflow/brainflow_get_data.m)
 * [C#](https://github.com/Andrey1994/brainflow/blob/master/csharp-package/brainflow/test/get_board_data.cs)
 
-
-It's easy to add new language because all difficult logic about data obtaining is implemented in C\C++ and bindings just call DLL's methods 
+These bindings just call methods from dynamic libraries 
 
 ### Python sample
 ```
