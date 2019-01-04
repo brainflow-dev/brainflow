@@ -19,3 +19,5 @@ echo F | xcopy /Y .\src\board_controller\inc\board_controller.h .\matlab-package
 
 echo F | xcopy /Y .\compiled\Debug\BoardController.dll .\java-package\brainflow\src\main\resources\BoardController.dll
 echo F | xcopy /Y .\compiled\Debug\BoardController.lib .\java-package\brainflow\src\main\resources\BoardController.lib
+
+echo F | xcopy /Y .\compiled\Debug\BoardController.dll .\csharp-package\brainflow\brainflow\BoardController.dll
