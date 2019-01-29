@@ -8,23 +8,23 @@ else:
     dll_path = 'lib/libBoardController.so'
 
 setup (
-        name = 'brainflow',
-        version = '1.0',
-        description = 'Library to get data from OpenBCI boards',
-        url = 'https://github.com/Andrey1994/brainflow',
-        author = 'Andrey Parfenov',
-        author_email = 'a1994ndrey@nvidia.com',
-        packages = find_packages (),
-        classifiers = [
-            'Development Status :: 2 - Pre-Alpha',
-            'Topic :: Utilities'
-        ],
-        install_requires = [
-            'numpy', 'scipy', 'pandas', 'enum-compat'
-        ],
-        package_data = {
-            'brainflow': [dll_path]
-        },
-        zip_safe = True,
-        python_requires = '>=2.7'
-    )
+    name = 'brainflow',
+    version = '1.0',
+    description = 'Library to get data from OpenBCI boards',
+    url = 'https://github.com/Andrey1994/brainflow',
+    author = 'Andrey Parfenov',
+    author_email = 'a1994ndrey@gmail.com',
+    packages = find_packages (),
+    classifiers = [
+        'Development Status :: 2 - Pre-Alpha',
+        'Topic :: Utilities'
+    ],
+    install_requires = [
+        'numpy', 'scipy', 'pandas', 'enum-compat'
+    ],
+    package_data = {
+        'brainflow': [dll_path]
+    },
+    zip_safe = True,
+    python_requires = '>=2.7'
+)
