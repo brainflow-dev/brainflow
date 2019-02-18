@@ -72,7 +72,7 @@ P300 speller is based on [Event Related Potentials](https://en.wikipedia.org/wik
 
 ## BrainFlow board emulator
 
-This tool was designed to allow developers to contribute to this library even if the don't have an access to the OpenBCI board,it works as a device driver
+This tool was designed to allow developers to contribute to this library even if they don't have an access to the OpenBCI board,it works as a device driver
 
 ### Linux
 For now only file operations are supported, so you will need to recompile this library
