@@ -9,7 +9,7 @@ else:
 
 setup (
     name = 'brainflow',
-    version = '1.0',
+    version = '1.0.1',
     description = 'Library to get data from OpenBCI boards',
     url = 'https://github.com/Andrey1994/brainflow',
     author = 'Andrey Parfenov',
