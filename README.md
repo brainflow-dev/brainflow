@@ -12,6 +12,7 @@ int release_session ();
 int get_current_board_data (int num_samples, float *data_buf, double *ts_buf, int *returned_samples);
 int get_board_data_count (int *result);
 int get_board_data (int data_count, float *data_buf, double *ts_buf);
+int set_log_level (int log_level);
 ```
 For now only [OpenBCI Cython](http://docs.openbci.com/Hardware/02-Cyton) is supported, but architecture allows to add new boards and not only from OpenBCI without any issues
 
@@ -31,14 +32,22 @@ These bindings just call methods from dynamic libraries
 ### Python sample
 ```
 import argparse
-from brainflow import *
+import time
+import brainflow
+
 
 def main ():
     parser = argparse.ArgumentParser ()
     parser.add_argument ('--port', type = str, help  = 'port name', required = True)
+    parser.add_argument ('--log', action = 'store_true')
     args = parser.parse_args ()
 
-    board = BoardShim (CYTHON.board_id, args.port)
+    if (args.log):
+        brainflow.board_shim.BoardShim.enable_board_logger ()
+    else:
+        brainflow.board_shim.BoardShim.disable_board_logger ()
+
+    board = brainflow.board_shim.BoardShim (brainflow.board_shim.CYTHON.board_id, args.port)
     board.prepare_session ()
     board.start_stream ()
     time.sleep (5)
@@ -46,11 +55,11 @@ def main ():
     board.stop_stream ()
     board.release_session ()
 
-    data_handler = DataHandler (CYTHON.board_id, numpy_data = data)
+    data_handler = brainflow.preprocess.DataHandler (brainflow.board_shim.CYTHON.board_id, numpy_data = data)
     filtered_data = data_handler.preprocess_data (order = 3, start = 1, stop = 50)
     data_handler.save_csv ('results.csv')
     print (filtered_data.head ())
-    read_data = DataHandler (CYTHON.board_id, csv_file = 'results.csv')
+    read_data = brainflow.preprocess.DataHandler (brainflow.board_shim.CYTHON.board_id, csv_file = 'results.csv')
     print (read_data.get_data ().head ())
 
 
