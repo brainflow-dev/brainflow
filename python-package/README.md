@@ -4,6 +4,8 @@ Following commands will install all required packages for you:
 cd python-package
 pip install -e .
 ``` 
+Or download it from [PYPI](https://pypi.org/project/brainflow/)
+
 After installation you will be able to use this library via:
 ```
 from brainflow import *
