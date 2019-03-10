@@ -43,6 +43,7 @@ SHARED_EXPORT int release_session ();
 SHARED_EXPORT int get_current_board_data (int num_samples, float *data_buf, double *ts_buf, int *returned_samples);
 SHARED_EXPORT int get_board_data_count (int *result);
 SHARED_EXPORT int get_board_data (int data_count, float *data_buf, double *ts_buf);
+SHARED_EXPORT int set_log_level (int log_level);
 #ifdef __cplusplus
 }
 #endif

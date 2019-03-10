@@ -54,8 +54,6 @@ class OpenBCIBoard : public Board
         int get_board_data_count (int *result);
         int get_board_data (int data_count, float *data_buf, double *ts_buf);
 
-        std::shared_ptr<spdlog::logger> logger;
-
 };
 
 #endif

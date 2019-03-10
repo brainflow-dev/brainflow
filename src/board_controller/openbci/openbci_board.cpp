@@ -11,9 +11,7 @@ OpenBCIBoard::OpenBCIBoard (int num_channels, const char *port_name)
     is_streaming = false;
     keep_alive = false;
     initialized = false;
-    spdlog::drop ("board_logger");
-    logger = spdlog::stderr_logger_mt ("board_logger");
-    logger->flush_on (spdlog::level::err);
+
     db = NULL;
     port_descriptor = 0;
 }
@@ -35,7 +33,7 @@ int OpenBCIBoard::open_port ()
     if (is_port_open (port_descriptor))
         return PORT_ALREADY_OPEN_ERROR;
 
-    logger->info ("openning port {}: {}", port_name, port_descriptor);
+    Board::board_logger->info ("openning port {}: {}", port_name, port_descriptor);
     int res = open_serial_port (port_name, &port_descriptor);
     if (res < 0)
         return UNABLE_TO_OPEN_PORT_ERROR;
@@ -62,7 +60,7 @@ int OpenBCIBoard::set_port_settings ()
     int res = set_serial_port_settings (port_descriptor);
     if (res < 0)
     {
-        logger->error ("Unable to set port settings");
+        Board::board_logger->error ("Unable to set port settings");
         return SET_PORT_ERROR;
     }
     return send_to_board ("v");
@@ -94,7 +92,7 @@ int OpenBCIBoard::prepare_session ()
 {
     if (initialized)
     {
-        logger->info ("Session already prepared");
+        Board::board_logger->info ("Session already prepared");
         return STATUS_OK;
     }
     int port_open = open_port ();
@@ -117,12 +115,12 @@ int OpenBCIBoard::start_stream (int buffer_size)
 {
     if (is_streaming)
     {
-        logger->error ("Streaming thread already running");
+        Board::board_logger->error ("Streaming thread already running");
         return STREAM_ALREADY_RUN_ERROR;
     }
     if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
     {
-        logger->error ("invalid array size");
+        Board::board_logger->error ("invalid array size");
         return INVALID_BUFFER_SIZE_ERROR;
     }
 
@@ -140,7 +138,7 @@ int OpenBCIBoard::start_stream (int buffer_size)
     db = new DataBuffer (num_channels, buffer_size);
     if (!db->is_ready ())
     {
-        logger->error ("unable to prepare buffer");
+        Board::board_logger->error ("unable to prepare buffer");
         return INVALID_BUFFER_SIZE_ERROR;
     }
 

@@ -3,11 +3,6 @@ project (brainflow)
 
 set (CMAKE_CXX_STANDARD 11)
 set (CMAKE_VERBOSE_MAKEFILE ON)
-# for Matlab2017 gcc 4.9 is required
-if (UNIX)
-	set(CMAKE_C_COMPILER /usr/bin/gcc-4.9)
-	set(CMAKE_CXX_COMPILER /usr/bin/g++-4.9)
-endif (UNIX)
 
 macro (configure_msvc_runtime)
     if (MSVC)
@@ -65,6 +60,7 @@ set (LIBRARY_SRC
     "src/board_controller/openbci/openbci_board.cpp"
     "src/board_controller/openbci/cython.cpp"
     "src/board_controller/board_controller.cpp"
+    "src/board_controller/board.cpp"
     )
 
 add_library (

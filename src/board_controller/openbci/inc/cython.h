@@ -1,7 +1,7 @@
 #ifndef CYTHON
 #define CYTHON
 
-#include <math.h> 
+#include <math.h>
 #include <stdint.h>
 
 #include "openbci_board.h"
@@ -19,11 +19,6 @@ class Cython : public OpenBCIBoard
 {
     float eeg_scale = ADS1299_Vref/float((pow(2,23)-1))/ADS1299_gain*1000000.;
     float accel_scale = 0.002/(pow(2,4));
-
-    private:
-
-        int32_t cast_24bit_to_int32 (unsigned char *byte_array);
-        int32_t cast_16bit_to_int32 (unsigned char *byte_array);
 
     protected:
 

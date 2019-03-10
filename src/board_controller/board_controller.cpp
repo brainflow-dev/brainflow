@@ -2,15 +2,20 @@
 #include <windows.h>
 #endif
 
+#include <mutex>
+
 #include "board_controller.h"
 #include "cython.h"
 #include "board.h"
 
 
 Board *board = NULL;
+std::mutex mutex;
 
 int prepare_session (int board_id, char *port_name)
 {
+    std::lock_guard<std::mutex> lock (mutex);
+
     if (board)
         return STATUS_OK;
 
@@ -34,6 +39,8 @@ int prepare_session (int board_id, char *port_name)
 
 int start_stream (int buffer_size)
 {
+    std::lock_guard<std::mutex> lock (mutex);
+
     if (board == NULL)
         return BOARD_NOT_CREATED_ERROR;
 
@@ -42,6 +49,8 @@ int start_stream (int buffer_size)
 
 int stop_stream ()
 {
+    std::lock_guard<std::mutex> lock (mutex);
+
     if (board == NULL)
         return BOARD_NOT_CREATED_ERROR;
 
@@ -50,6 +59,8 @@ int stop_stream ()
 
 int release_session ()
 {
+    std::lock_guard<std::mutex> lock (mutex);
+
     if (board == NULL)
         return BOARD_NOT_CREATED_ERROR;
 
@@ -62,6 +73,8 @@ int release_session ()
 
 int get_current_board_data (int num_samples, float *data_buf, double *ts_buf, int *returned_samples)
 {
+    std::lock_guard<std::mutex> lock (mutex);
+
     if (board == NULL)
         return BOARD_NOT_CREATED_ERROR;
 
@@ -70,6 +83,8 @@ int get_current_board_data (int num_samples, float *data_buf, double *ts_buf, in
 
 int get_board_data_count (int *result)
 {
+    std::lock_guard<std::mutex> lock (mutex);
+
     if (board == NULL)
         return BOARD_NOT_CREATED_ERROR;
 
@@ -78,10 +93,18 @@ int get_board_data_count (int *result)
 
 int get_board_data (int data_count, float *data_buf, double *ts_buf)
 {
+    std::lock_guard<std::mutex> lock (mutex);
+
     if (board == NULL)
         return BOARD_NOT_CREATED_ERROR;
 
     return board->get_board_data (data_count, data_buf, ts_buf);
+}
+
+int set_log_level (int log_level)
+{
+    std::lock_guard<std::mutex> lock (mutex);
+    return Board::set_log_level (log_level);
 }
 
 #ifdef _WIN32
@@ -92,7 +115,11 @@ BOOL WINAPI DllMain (HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         case DLL_PROCESS_DETACH:
         {
             if (board != NULL)
-                release_session ();
+            {
+                board->release_session ();
+                delete board;
+                board = NULL;
+            }
             break;
         }
         default:
@@ -104,6 +131,10 @@ BOOL WINAPI DllMain (HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 __attribute__((destructor)) static void terminate_all (void)
 {
     if (board != NULL)
-        release_session ();
+    {
+        board->release_session ();
+        delete board;
+        board = NULL;
+    }
 }
 #endif

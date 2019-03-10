@@ -1,10 +1,14 @@
 #ifndef BOARD
 #define BOARD
 
+#include "spdlog/spdlog.h"
+
 
 class Board
 {
     public:
+        static std::shared_ptr<spdlog::logger> board_logger;
+        static int set_log_level (int level);
 
         virtual int prepare_session () = 0;
         virtual int start_stream (int buffer_size) = 0;

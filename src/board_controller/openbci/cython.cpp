@@ -1,32 +1,7 @@
 #include "cython.h"
 #include "timestamp.h"
 #include "serial.h"
-
-int32_t Cython::cast_24bit_to_int32 (unsigned char *byte_array)
-{
-    int32_t new_int = (
-        ((0xFF & byte_array[0]) << 16) |
-        ((0xFF & byte_array[1]) << 8) |
-        (0xFF & byte_array[2])
-    );
-    if ((new_int & 0x00800000) > 0)
-        new_int |= 0xFF000000;
-    else
-        new_int &= 0x00FFFFFF;
-    return new_int;
-}
-
-int32_t Cython::cast_16bit_to_int32 (unsigned char *byte_array) {
-    int32_t new_int = (
-        ((0xFF & byte_array[0]) << 8) |
-        (0xFF & byte_array[1])
-    );
-    if ((new_int & 0x00008000) > 0)
-        new_int |= 0xFFFF0000;
-    else
-        new_int &= 0x0000FFFF;
-    return new_int;
-}
+#include "custom_cast.h"
 
 void Cython::read_thread ()
 {
@@ -52,7 +27,7 @@ void Cython::read_thread ()
         res = read_from_serial_port (port_descriptor, b, 1);
         if (res != 1)
         {
-            logger->debug ("unable to read 1 byte");
+            Board::board_logger->debug ("unable to read 1 byte");
             continue;
         }
         if (b[0] != START_BYTE)
@@ -61,12 +36,12 @@ void Cython::read_thread ()
         res = read_from_serial_port (port_descriptor, b, 32);
         if (res != 32)
         {
-            logger->debug ("unable to read 32 bytes");
+            Board::board_logger->debug ("unable to read 32 bytes");
             continue;
         }
         // check end byte
         if (b[res] != END_BYTE)
-            logger->debug ("Wrong end byte, found {}, required {}", b[res], END_BYTE);
+            Board::board_logger->debug ("Wrong end byte, found {}, required {}", b[res], END_BYTE);
         else
             continue;
 

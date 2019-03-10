@@ -89,6 +89,11 @@ class BoardControllerDLL (object):
            ndpointer (ctypes.c_int64)
         ]
 
+        self.set_log_level = self.lib.set_log_level
+        self.set_log_level.restype = ctypes.c_int
+        self.set_log_level.argtypes = [
+           ctypes.c_int
+        ]
 
 class BoardShim (object):
 
@@ -104,6 +109,24 @@ class BoardShim (object):
             self.num_eeg_channels = CYTHON.num_eeg_channels
         else:
             raise BrainFlowError ('unsupported board type', StreamExitCodes.UNSUPPORTED_BOARD_ERROR.value)
+
+    @classmethod
+    def enable_board_logger (cls):
+        res = BoardControllerDLL.get_instance ().set_log_level (2)
+        if res != StreamExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to enable logger', res)
+
+    @classmethod
+    def disable_board_logger (cls):
+        res = BoardControllerDLL.get_instance ().set_log_level (6)
+        if res != StreamExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to disable logger', res)
+
+    @classmethod
+    def enable_dev_board_logger (cls):
+        res = BoardControllerDLL.get_instance ().set_log_level (0)
+        if res != StreamExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to enable logger', res)
 
     def prepare_session (self):
         res = BoardControllerDLL.get_instance ().prepare_session (self.board_id, self.port_name)
