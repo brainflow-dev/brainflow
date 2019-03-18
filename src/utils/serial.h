@@ -17,7 +17,7 @@ inline bool is_port_open (HANDLE port_descriptor)
 inline int open_serial_port (char *port_name, HANDLE *port_descriptor)
 {
 	*port_descriptor = CreateFile (port_name, GENERIC_READ|GENERIC_WRITE, 0, NULL,
-        							OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        							OPEN_EXISTING, 0, NULL);
     if (port_descriptor == INVALID_HANDLE_VALUE)
     	return -1;
     return 0;
@@ -30,6 +30,7 @@ inline int set_serial_port_settings (HANDLE port_descriptor)
 	dcb_serial_params.DCBlength = sizeof (dcb_serial_params);
     if (GetCommState (port_descriptor, &dcb_serial_params) == 0)
     {
+
         CloseHandle (port_descriptor);
         return -1;
     }
@@ -41,7 +42,7 @@ inline int set_serial_port_settings (HANDLE port_descriptor)
     if (SetCommState (port_descriptor, &dcb_serial_params) == 0)
     {
         CloseHandle (port_descriptor);
-        return -1;
+        return -2;
     }
 
     timeouts.ReadIntervalTimeout = 1000;
@@ -52,7 +53,7 @@ inline int set_serial_port_settings (HANDLE port_descriptor)
     if (SetCommTimeouts (port_descriptor, &timeouts) == 0)
     {
         CloseHandle (port_descriptor);
-        return -1;
+        return -3;
     }
     return 0;
 }

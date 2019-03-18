@@ -17,7 +17,7 @@ def main ():
     board = brainflow.board_shim.BoardShim (brainflow.board_shim.CYTHON.board_id, args.port)
     board.prepare_session ()
     board.start_stream ()
-    time.sleep (5)
+    time.sleep (25)
     data = board.get_board_data ()
     board.stop_stream ()
     board.release_session ()
