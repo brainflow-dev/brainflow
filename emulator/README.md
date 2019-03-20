@@ -1,11 +1,11 @@
 # Brainflow Emulator
 
-Brainflow emulators allows to run tests without EEG headset.
+Brainflow emulator allows users to run tests without EEG headset.
 
-* On Windows it works using com0com
+* On Windows it works using [com0com](http://com0com.sourceforge.net/)
 * On Linux it works using pty
 
-You should pass command line to test directly to cython_linux.py or to cython_writer.py, script will add port automatically to provided command line and will start an application
+You should pass command line to test directly to [cython_linux.py](./brainflow_emulator/cython_linux.py) or to [cython_windows.py](./brainflow_emulator/cython_windows.py), script will add port automatically to provided command line and will start an application
 
 ### Example
 
