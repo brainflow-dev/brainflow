@@ -21,20 +21,12 @@ setup (
         'Development Status :: 2 - Pre-Alpha',
         'Topic :: Utilities'
     ],
-    scripts = [
-        # seems like scripts section doesnt work on windows
-        'brainflow_emulator/cython_linux.py',
-        'brainflow_emulator/cython_windows.py'
+    install_requires = [
+        'pyserial'
     ],
     package_data = {
         'brainflow_emulator': [
-            'com0com\\cncport.inf',
-            'com0com\\com0com.cat'
-            'com0com\\com0com.inf'
-            'com0com\\com0com.sys'
-            'com0com\\comport.inf'
-            'com0com\\setup.dll'
-            'com0com\\setupc.exe'
+            os.path.join ('com0com', 'setup_com0com_W7_x64_signed.exe'),
         ]
     },
     zip_safe = True,

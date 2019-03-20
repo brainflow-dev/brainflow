@@ -3,19 +3,39 @@ import sys
 import subprocess
 import logging
 import pkg_resources
-import atexit
+
+from serial import Serial
+
+from brainflow_emulator.emulate_common import TestFailureError, Listener
 
 
-from brainflow_emulator.emulate_common import test_serial
+def write (port, data):
+    return port.write (data)
 
+def read (port, num_bytes):
+    return port.read (num_bytes)
 
-def get_pkg_dir ():
-    return os.path.abspath (os.path.dirname (pkg_resources.resource_filename (__name__, 'com0com\\setupc.exe')))
+def get_isntaller ():
+    return pkg_resources.resource_filename (__name__, os.path.join ('com0com', 'setup_com0com_W7_x64_signed.exe'))
+
+def install_com0com ():
+    this_directory = os.path.abspath (os.path.dirname (__file__))
+    directory = os.path.join (this_directory, 'com0com')
+    if not os.path.exists (directory):
+        os.makedirs (directory)
+    p = subprocess.Popen ([get_isntaller (), '/NCRC', '/S', '/D=%s' % directory], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+    out, err = p.communicate ()
+    if p.returncode != 0:
+        logging.error ('stdout is %s' % out)
+        logging.error ('stderr is %s' % err)
+        raise Exception ('com0com installation failure')
+    return directory
 
 def get_ports_windows ():
+    directory = install_com0com ()
     # remove ports from previous run if any
-    p = subprocess.Popen ([os.path.join (get_pkg_dir (), 'setupc.exe'), 'remove', '0'],
-                         stdout = subprocess.PIPE, stderr = subprocess.PIPE, cwd = get_pkg_dir ())
+    p = subprocess.Popen ([os.path.join (directory, 'setupc.exe'), 'remove', '0'],
+                         stdout = subprocess.PIPE, stderr = subprocess.PIPE, cwd = directory)
     stdout, stderr = p.communicate ()
     logging.info ('remove stdout is %s' % stdout)
     logging.info ('remove stderr is %s' % stderr)
@@ -24,8 +44,8 @@ def get_ports_windows ():
     m_name = 'COM8'
     s_name = 'COM9'
 
-    p = subprocess.Popen ([os.path.join (get_pkg_dir (), 'setupc.exe'), 'install', 'PortName=%s' % m_name, 'PortName=%s' % s_name],
-                        stdout = subprocess.PIPE, stderr = subprocess.PIPE, cwd = get_pkg_dir ())
+    p = subprocess.Popen ([os.path.join (directory, 'setupc.exe'), 'install', 'PortName=%s' % m_name, 'PortName=%s' % s_name],
+                        stdout = subprocess.PIPE, stderr = subprocess.PIPE, cwd = directory)
     stdout, stderr = p.communicate ()
     logging.info ('install stdout is %s' % stdout)
     logging.info ('install stderr is %s' % stderr)
@@ -33,14 +53,34 @@ def get_ports_windows ():
     if p.returncode != 0:
         raise Exception ('com0com failure')
 
-    return os.open (m_name, os.O_RDWR), None, m_name, s_name
+    return m_name, s_name
+
+def test_serial (cmd_list, m_name, s_name):
+    master = Serial (m_name, timeout = 0)
+    listen_thread = Listener (master, write, read)
+    listen_thread.daemon = True
+    listen_thread.start ()
+
+    cmd_to_run = cmd_list + [s_name]
+    logging.info ('Running %s' % ' '.join ([str (x) for x in cmd_to_run]))
+    process = subprocess.Popen (cmd_to_run, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+    stdout, stderr = process.communicate ()
+
+    logging.info ('stdout is: %s' % stdout)
+    logging.info ('stderr is: %s' % stderr)
+    master.close ()
+    if process.returncode != 0:
+        raise TestFailureError ('Test failed with exit code %s' % str (process.returncode), process.returncode)
+
+    return stdout, stderr
+
 
 def main (cmd_list):
     if not cmd_list:
         raise Exception ('No command to execute')
 
-    master, slave, m_name, s_name = get_ports_windows ()
-    test_serial (cmd_list, master, slave, m_name, s_name)
+    m_name, s_name = get_ports_windows ()
+    test_serial (cmd_list, m_name, s_name)
 
 
 if __name__=='__main__':
