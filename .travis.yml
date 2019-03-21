@@ -5,8 +5,8 @@ language: java
 before_script:
   - sudo apt-get update
   - sudo apt-get install -y maven python3 python3-setuptools python3-pip
-  - cd $TRAVIS_BUILD_DIR && cd emulator && pip3 install -U .
-  - cd $TRAVIS_BUILD_DIR && cd python-package && pip3 install -U .
+  - cd $TRAVIS_BUILD_DIR && cd emulator && sudo pip3 install -U .
+  - cd $TRAVIS_BUILD_DIR && cd python-package && sudo pip3 install -U .
   - cd $TRAVIS_BUILD_DIR && cd java-package && mvn package
 
 script:
