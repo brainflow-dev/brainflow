@@ -4,15 +4,15 @@ dist: xenial
 language: java
 
 before_script:
-  - sudo apt-get update
-  - sudo apt-get install -y maven python3 python3-setuptools python3-pip
-  - cd $TRAVIS_BUILD_DIR && cd emulator && sudo pip3 install -U .
-  - cd $TRAVIS_BUILD_DIR && cd python-package && sudo pip3 install -U .
+  - sudo -H apt-get update
+  - sudo -H apt-get install -y maven python3 python3-setuptools python3-pip
+  - sudo -H pip3 install $TRAVIS_BUILD_DIR/emulator
+  - sudo -H pip3 install $TRAVIS_BUILD_DIR/python-package
   - cd $TRAVIS_BUILD_DIR && cd java-package/brainflow && mvn package
 
 script:
-  - python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cython_linux.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py
-  - javac -classpath $TRAVIS_BUILD_DIR/java-package/brainflow/target/brainflow-java-jar-with-dependencies.jar BrainFlowTest.java && python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cython_linux.py java -classpath .;$TRAVIS_BUILD_DIR/java-package/brainflow/target/brainflow-java-jar-with-dependencies.jar BrainFlowTest
+  - sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cython_linux.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py
+  - sudo -H javac -classpath $TRAVIS_BUILD_DIR/java-package/brainflow/target/brainflow-java-jar-with-dependencies.jar BrainFlowTest.java && sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cython_linux.py java -classpath .;$TRAVIS_BUILD_DIR/java-package/brainflow/target/brainflow-java-jar-with-dependencies.jar BrainFlowTest
 
 after_success:
   - echo "Test Success - Branch($TRAVIS_BRANCH) Pull Request($TRAVIS_PULL_REQUEST) Tag($TRAVIS_TAG)"
