@@ -1,0 +1,13 @@
+language: java
+
+before_script:
+  - sudo apt-get update
+  - sudo apt-get install -y maven python3
+  - cd $TRAVIS_BUILD_DIR && cd emulator && python3 setup.py install
+  - cd $TRAVIS_BUILD_DIR && cd python-package && python3 setup.py install
+  - cd $TRAVIS_BUILD_DIR && cd java-package && mvn package
+
+script:
+  - python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cython_linux.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py
+  - javac -classpath $TRAVIS_BUILD_DIR/java-package/brainflow/target/brainflow-java-jar-with-dependencies.jar BrainFlowTest.java &&
+python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cython_linux.py java -classpath .;$TRAVIS_BUILD_DIR/java-package/brainflow/target/brainflow-java-jar-with-dependencies.jar BrainFlowTest
