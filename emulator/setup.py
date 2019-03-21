@@ -8,9 +8,9 @@ with open (os.path.join (this_directory, 'README.md'), encoding = 'utf-8') as f:
     long_description = f.read ()
 
 setup (
-    name = 'brainflow',
-    version = '1.0.3',
-    description = 'Library to get data from OpenBCI boards',
+    name = 'brainflow_emulator',
+    version = '0.0.1',
+    description = 'Emulator for brainflow project',
     long_description = long_description,
     long_description_content_type = 'text/markdown',
     url = 'https://github.com/Andrey1994/brainflow',
@@ -22,10 +22,12 @@ setup (
         'Topic :: Utilities'
     ],
     install_requires = [
-        'numpy', 'scipy', 'pandas', 'enum-compat'
+        'pyserial'
     ],
     package_data = {
-        'brainflow': ['lib\\BoardController.dll', 'lib\\libBoardController.so']
+        'brainflow_emulator': [
+            os.path.join ('com0com', 'setup_com0com_W7_x64_signed.exe'),
+        ]
     },
     zip_safe = True,
     python_requires = '>=2.7'

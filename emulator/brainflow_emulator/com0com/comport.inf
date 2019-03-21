@@ -1,0 +1,112 @@
+;******************************************************************************
+;
+; comport.inf
+;
+; Installation file for the Null-modem emulator driver.
+;
+; Copyright (c) 2010-2012 Vyacheslav Frolov
+;
+;******************************************************************************
+
+[Version]
+Signature = "$Windows NT$"
+Provider = %VF%
+Class = Ports
+ClassGUID = {4D36E978-E325-11CE-BFC1-08002BE10318}
+CatalogFile = com0com.cat
+;           MM/DD/YYYY
+DriverVer = 06/04/2012,3.0.0.0
+UninstallInfTag = {df799e12-3c56-421b-b298-b6d3642bc878}
+
+;******************************************************************************
+;
+; Driver information
+;
+;******************************************************************************
+
+[Manufacturer]
+%VF% = com0com, NTx86, NTia64, NTamd64
+
+[ControlFlags]
+ExcludeFromSelect = com0com\comport
+
+[com0com]
+%com0com.PortDesc% = com0com_inst_port, com0com\comport
+
+[com0com.NTx86]
+%com0com.PortDesc% = com0com_inst_port, com0com\comport
+
+[com0com.NTia64]
+%com0com.PortDesc% = com0com_inst_port, com0com\comport
+
+[com0com.NTamd64]
+%com0com.PortDesc% = com0com_inst_port, com0com\comport
+
+;******************************************************************************
+;
+; Port install section
+;
+;******************************************************************************
+
+[com0com_inst_port]
+AddReg = com0com_AddReg
+Include = msports.inf
+Needs = SerialEnumerator.NT
+
+[com0com_inst_port.Services]
+AddService = com0com, %SPSVCINST_ASSOCSERVICE%, com0com_Service_Inst, com0com_EventLog_Inst
+Include = msports.inf
+Needs = SerialEnumerator.NT.Services
+
+[com0com_inst_port.HW]
+AddReg = com0com_HW_AddReg
+
+[com0com_AddReg]
+;HKR,,PortSubClass,1,01
+;HKR,,EnumPropPages32,,"MsPorts.dll,SerialPortPropPageProvider"
+
+[com0com_HW_AddReg]
+HKR,,"UpperFilters",0x00010000,"serenum"
+
+;******************************************************************************
+;
+; Common section
+;
+;******************************************************************************
+
+[com0com_Service_Inst]
+DisplayName    = %com0com.SrvDesc%
+ServiceType    = %SERVICE_KERNEL_DRIVER%
+StartType      = %SERVICE_DEMAND_START%
+ErrorControl   = %SERVICE_ERROR_NORMAL%
+ServiceBinary  = %12%\com0com.sys
+
+[com0com_EventLog_Inst]
+AddReg = com0com_EventLog_AddReg
+
+[com0com_EventLog_AddReg]
+HKR,,EventMessageFile,%REG_EXPAND_SZ%,"%%SystemRoot%%\System32\IoLogMsg.dll;%%SystemRoot%%\System32\drivers\com0com.sys"
+HKR,,TypesSupported,%REG_DWORD%,7
+
+;******************************************************************************
+;
+; Strings
+;
+;******************************************************************************
+
+[Strings]
+
+SPSVCINST_ASSOCSERVICE = 0x00000002
+
+REG_EXPAND_SZ          = 0x00020000
+REG_DWORD              = 0x00010001
+
+SERVICE_KERNEL_DRIVER  = 1
+SERVICE_DEMAND_START   = 3
+SERVICE_ERROR_NORMAL   = 1
+
+VF = "Vyacheslav Frolov"
+com0com.PortDesc = "com0com - serial port emulator"
+com0com.SrvDesc = "com0com - emulates the serial ports interconnected via a null-modem cable"
+
+;******************************************************************************

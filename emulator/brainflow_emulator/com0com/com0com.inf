@@ -1,0 +1,133 @@
+;******************************************************************************
+;
+; com0com.inf
+;
+; Installation file for the Null-modem emulator driver.
+;
+; Copyright (c) 2004-2012 Vyacheslav Frolov
+;
+;******************************************************************************
+
+[Version]
+Signature = "$Windows NT$"
+Provider = %VF%
+Class = CNCPorts
+ClassGUID = {df799e12-3c56-421b-b298-b6d3642bc878}
+CatalogFile = com0com.cat
+;           MM/DD/YYYY
+DriverVer = 06/04/2012,3.0.0.0
+UninstallInfTag = {df799e12-3c56-421b-b298-b6d3642bc878}
+
+;******************************************************************************
+;
+; Class section
+;
+;******************************************************************************
+
+[ClassInstall32]
+AddReg = com0com_ClassReg
+
+[com0com_ClassReg]
+HKR,,,0,%ClassName%
+HKR,,Icon,,-23
+
+;******************************************************************************
+;
+; Source and Destination information
+;
+;******************************************************************************
+
+[SourceDisksNames]
+1 = %DiskId1%,,,""
+
+[SourceDisksFiles]
+com0com.sys = 1,,
+
+[DestinationDirs]
+com0com_CopyDrivers = 12
+
+[com0com_CopyDrivers]
+com0com.sys
+
+;******************************************************************************
+;
+; Driver information
+;
+;******************************************************************************
+
+[Manufacturer]
+%VF% = com0com, NTx86, NTia64, NTamd64
+
+[com0com]
+%com0com.BusDesc% = com0com_inst, root\com0com
+
+[com0com.NTx86]
+%com0com.BusDesc% = com0com_inst, root\com0com
+
+[com0com.NTia64]
+%com0com.BusDesc% = com0com_inst, root\com0com
+
+[com0com.NTamd64]
+%com0com.BusDesc% = com0com_inst, root\com0com
+
+;******************************************************************************
+;
+; Bus install section
+;
+;******************************************************************************
+
+[com0com_inst]
+AddReg = com0com_AddReg
+CopyFiles = com0com_CopyDrivers
+CopyINF = cncport.inf
+;CopyINF = comport.inf
+
+[com0com_inst.Services]
+AddService = com0com, %SPSVCINST_ASSOCSERVICE%, com0com_Service_Inst, com0com_EventLog_Inst
+
+[com0com_AddReg]
+
+;******************************************************************************
+;
+; Common section
+;
+;******************************************************************************
+
+[com0com_Service_Inst]
+DisplayName    = %com0com.SrvDesc%
+ServiceType    = %SERVICE_KERNEL_DRIVER%
+StartType      = %SERVICE_DEMAND_START%
+ErrorControl   = %SERVICE_ERROR_NORMAL%
+ServiceBinary  = %12%\com0com.sys
+
+[com0com_EventLog_Inst]
+AddReg = com0com_EventLog_AddReg
+
+[com0com_EventLog_AddReg]
+HKR,,EventMessageFile,%REG_EXPAND_SZ%,"%%SystemRoot%%\System32\IoLogMsg.dll;%%SystemRoot%%\System32\drivers\com0com.sys"
+HKR,,TypesSupported,%REG_DWORD%,7
+
+;******************************************************************************
+;
+; Strings
+;
+;******************************************************************************
+
+[Strings]
+
+SPSVCINST_ASSOCSERVICE = 0x00000002
+
+REG_EXPAND_SZ          = 0x00020000
+REG_DWORD              = 0x00010001
+
+SERVICE_KERNEL_DRIVER  = 1
+SERVICE_DEMAND_START   = 3
+SERVICE_ERROR_NORMAL   = 1
+
+DiskId1 = "Installation Disk #1 (com0com - Null-modem emulator)"
+VF = "Vyacheslav Frolov"
+com0com.BusDesc = "com0com - bus for serial port pair emulator"
+com0com.SrvDesc = "com0com - emulates the serial ports interconnected via a null-modem cable"
+ClassName = "com0com - serial port emulators"
+
+;******************************************************************************

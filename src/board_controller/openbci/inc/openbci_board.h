@@ -9,7 +9,6 @@
 #include <thread>
 
 #include "board.h"
-#include "spdlog/spdlog.h"
 #include "data_buffer.h"
 #include "board_controller.h"
 

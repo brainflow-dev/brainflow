@@ -60,7 +60,7 @@ int OpenBCIBoard::set_port_settings ()
     int res = set_serial_port_settings (port_descriptor);
     if (res < 0)
     {
-        Board::board_logger->error ("Unable to set port settings");
+        Board::board_logger->error ("Unable to set port settings, res is {}", res);
         return SET_PORT_ERROR;
     }
     return send_to_board ("v");
@@ -72,7 +72,7 @@ int OpenBCIBoard::status_check ()
     int count = 0;
 
     // board is ready if there are '$$$'
-    for (int i = 0; i < 1000; i++)
+    for (int i = 0; i < 500; i++)
     {
         int res = read_from_serial_port (port_descriptor, buf, 1);
         if (res > 0)
