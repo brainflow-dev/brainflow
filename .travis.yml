@@ -8,7 +8,7 @@ before_script:
   - sudo apt-get install -y maven python3 python3-setuptools python3-pip
   - cd $TRAVIS_BUILD_DIR && cd emulator && sudo pip3 install -U .
   - cd $TRAVIS_BUILD_DIR && cd python-package && sudo pip3 install -U .
-  - cd $TRAVIS_BUILD_DIR && cd java-package && mvn package
+  - cd $TRAVIS_BUILD_DIR && cd java-package/brainflow && mvn package
 
 script:
   - python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cython_linux.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py
