@@ -10,8 +10,11 @@ before_script:
   - sudo -H pip3 install $TRAVIS_BUILD_DIR/emulator
   - sudo -H pip3 install $TRAVIS_BUILD_DIR/python-package
   - cd $TRAVIS_BUILD_DIR && cd java-package/brainflow && mvn package
+  # check that everything is installed properly
   - pip3 list
   - ls -l $TRAVIS_BUILD_DIR/java-package/brainflow/target/
+  - ls -l /usr/local/lib/python3.5/dist-packages/brainflow/
+  - ls -l /usr/local/lib/python3.5/dist-packages/brainflow/lib/
 
 script:
   - sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cython_linux.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py
