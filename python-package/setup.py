@@ -25,7 +25,7 @@ setup (
         'numpy', 'scipy', 'pandas', 'enum-compat'
     ],
     package_data = {
-        'brainflow': ['lib\\BoardController.dll', 'lib\\libBoardController.so']
+        'brainflow': [os.path.join ('lib', 'BoardController.dll'), os.path.join ('lib', 'libBoardController.so')]
     },
     zip_safe = True,
     python_requires = '>=2.7'
