@@ -6,6 +6,7 @@ language: java
 before_script:
   - sudo -H apt-get update
   - sudo -H apt-get install -y maven python3 python3-setuptools python3-pip
+  - sudo pip3 install --upgrade pip
   - sudo -H pip3 install --upgrade setuptools wheel virtualenv
   - sudo -H pip3 install $TRAVIS_BUILD_DIR/emulator
   - sudo -H pip3 install $TRAVIS_BUILD_DIR/python-package
@@ -14,7 +15,6 @@ before_script:
   - pip3 list
   - ls -l $TRAVIS_BUILD_DIR/java-package/brainflow/target/
   - ls -l /usr/local/lib/python3.5/dist-packages/brainflow/
-  - ls -l /usr/local/lib/python3.5/dist-packages/brainflow/lib/
 
 script:
   - sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cython_linux.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py
