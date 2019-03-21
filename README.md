@@ -19,7 +19,7 @@ For now only [OpenBCI Cython](http://docs.openbci.com/Hardware/02-Cyton) is supp
 ![Cython](https://farm5.staticflickr.com/4817/32567183898_10a4b56659.jpg)
 
 ## Bindings
-I support bindigs for:
+I support bindings for:
 * [python](https://github.com/Andrey1994/brainflow/blob/master/python-package/examples/brainflow_get_data.py)
 * [java](https://github.com/Andrey1994/brainflow/blob/master/java-package/brainflow/src/test/java/BrainFlowTest.java)
 * [R](https://github.com/Andrey1994/brainflow/blob/master/r-package/examples/brainflow_get_data.R)
