@@ -1,5 +1,7 @@
 # Brainflow
 
+[![Build Status](https://travis-ci.com/Andrey1994/brainflow.svg?branch=master)](https://travis-ci.com/Andrey1994/brainflow)
+
 Brainflow is a library intended to obtain, parse and analyze EEG\EMG\ECG data.
 
 Core module of this library is implemented in C\C++ and available for all bindings as a dynamic library.
