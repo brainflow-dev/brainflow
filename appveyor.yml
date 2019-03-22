@@ -22,7 +22,7 @@ install:
 
 test_script:
   - python .\emulator\brainflow_emulator\cython_windows.py python .\tests\python\brainflow_get_data.py
-  - cd .\tests\cpp && python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cython_windows.py run.cmd
+  - cd .\tests\cpp && mkdir build && cmake -G "Visual Studio 14 2015 Win64" .. && cmake --build . && python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cython_windows.py .\Debug\GetData.exe
   - cmake_build.cmd
 
 notifications:
