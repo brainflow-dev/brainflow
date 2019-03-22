@@ -32,6 +32,7 @@ def install_com0com ():
         logging.error ('stdout is %s' % out)
         logging.error ('stderr is %s' % err)
         raise Exception ('com0com installation failure')
+    logging.info ('Sleeping a few second, it doesnt work in appveyour without it')
     time.sleep (60)
     return directory
 
@@ -56,6 +57,7 @@ def get_ports_windows ():
 
     if p.returncode != 0:
         raise Exception ('com0com failure')
+    logging.info ('Sleeping a few second, it doesnt work in appveyour without it')
     time.sleep (60)
     return m_name, s_name
 

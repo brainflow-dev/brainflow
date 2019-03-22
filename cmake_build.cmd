@@ -1,4 +1,4 @@
-rem rmdir build
+rmdir /S /Q build
 mkdir build
 
 cd build
