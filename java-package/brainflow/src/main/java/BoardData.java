@@ -6,7 +6,7 @@ public class BoardData {
 
 	private List<ArrayList<Double>> board_data = new ArrayList<ArrayList<Double>> ();
 	private int package_length;
-
+	
 	public BoardData (int package_length, float[] raw_data, double[] ts_data) {
 		this.package_length = package_length;
 		for (int i = 0; i < ts_data.length; i++) {

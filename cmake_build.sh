@@ -1,19 +1,12 @@
 #!/bin/bash
 
 if [ -d build ]; then
-  	rm -rf build
+	rm -rf build
 fi
 mkdir build
 cd build
 
-if [[ "$@" == "EMULATOR" ]]
-then
-	echo "Build emulator mode"
-    cmake -DEMULATOR=1 ..
-else
-	echo "Build plain"
-    cmake ..
-fi
+cmake ..
 
 cmake --build .
 cd ..

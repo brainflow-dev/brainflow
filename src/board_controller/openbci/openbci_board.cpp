@@ -18,14 +18,7 @@ OpenBCIBoard::OpenBCIBoard (int num_channels, const char *port_name)
 
 OpenBCIBoard::~OpenBCIBoard ()
 {
-    if (is_streaming)
-        this->stop_stream ();
-    if (db)
-    {
-        delete db;
-        db = NULL;
-    }
-    initialized = false;
+    release_session ();
 }
 
 int OpenBCIBoard::open_port ()
@@ -173,7 +166,8 @@ int OpenBCIBoard::release_session ()
             delete db;
             db = NULL;
         }
-        close_serial_port (port_descriptor);
+        if (is_port_open (port_descriptor))
+            close_serial_port (port_descriptor);
         initialized = false;
     }
     return STATUS_OK;

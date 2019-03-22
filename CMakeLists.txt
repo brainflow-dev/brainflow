@@ -75,10 +75,6 @@ set_target_properties (BoardController
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_HOME_DIRECTORY}/compiled"
 )
 
-if (${EMULATOR})
-    target_compile_definitions (BoardController PUBLIC EMULATOR_MODE)
-endif (${EMULATOR})
-
 if (UNIX)
     target_link_libraries (BoardController -lpthread)
 endif (UNIX)
