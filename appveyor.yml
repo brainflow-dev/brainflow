@@ -21,3 +21,11 @@ install:
 
 test_script:
 - python .\emulator\brainflow_emulator\cython_windows.py python .\tests\python\brainflow_get_data.py
+
+notifications:
+  - provider: Email
+    to:
+      - a1994ndrey@gmail.com
+    on_build_success: false
+    on_build_failure: true
+    on_build_status_changed: true
