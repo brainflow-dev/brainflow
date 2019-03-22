@@ -3,6 +3,7 @@ import sys
 import subprocess
 import logging
 import pkg_resources
+import time
 
 from serial import Serial
 
@@ -31,6 +32,7 @@ def install_com0com ():
         logging.error ('stdout is %s' % out)
         logging.error ('stderr is %s' % err)
         raise Exception ('com0com installation failure')
+    time.sleep (60)
     return directory
 
 def get_ports_windows ():
