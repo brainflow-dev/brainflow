@@ -16,7 +16,6 @@ init:
 install:
 - pip install .\emulator\
 - pip install .\python-package
-- ps: Restart-Computer -Force
 - ps: .\emulator\brainflow_emulator\com0com\certmgr.exe  /add .\emulator\brainflow_emulator\com0com\com0com.cer /s /r localMachine root
 - ps: .\emulator\brainflow_emulator\com0com\certmgr.exe /add .\emulator\brainflow_emulator\com0com\com0com.cer /s /r localMachine trustedpublisher
 
