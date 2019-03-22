@@ -22,4 +22,5 @@ echo F | xcopy /Y .\compiled\Debug\BoardController.lib .\java-package\brainflow\
 echo F | xcopy /Y .\compiled\Debug\BoardController.dll .\csharp-package\brainflow\brainflow\BoardController.dll
 
 echo F | xcopy /Y .\compiled\Debug\BoardController.dll .\data\lib\BoardController.dll
+echo F | xcopy /Y .\compiled\Debug\BoardController.lib .\data\lib\BoardController.lib
 echo F | xcopy /Y .\src\board_controller\inc\board_controller.h .\data\inc\board_controller.h

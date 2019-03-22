@@ -9,7 +9,7 @@ with open (os.path.join (this_directory, 'README.md'), encoding = 'utf-8') as f:
 
 setup (
     name = 'brainflow',
-    version = '1.0.3',
+    version = '1.0.5',
     description = 'Library to get data from OpenBCI boards',
     long_description = long_description,
     long_description_content_type = 'text/markdown',
