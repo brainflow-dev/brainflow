@@ -22,6 +22,7 @@ install:
 
 test_script:
   - python .\emulator\brainflow_emulator\cython_windows.py python .\tests\python\brainflow_get_data.py
+  - cmake_build.cmd
 
 notifications:
   - provider: Email
