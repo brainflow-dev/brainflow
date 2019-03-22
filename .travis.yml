@@ -17,7 +17,7 @@ before_script:
   - ls -l $TRAVIS_BUILD_DIR/java-package/brainflow/target/
 
 script:
-  - cd $TRAVIS_BUILD_DIR && sudo -H cmake_build.sh
+  - cd $TRAVIS_BUILD_DIR && sudo -H bash cmake_build.sh
   - sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cython_linux.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py
   - cd $TRAVIS_BUILD_DIR/tests/java/ && sudo -H javac -classpath $TRAVIS_BUILD_DIR/java-package/brainflow/target/brainflow-java-jar-with-dependencies.jar BrainFlowTest.java && ls -l . && sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cython_linux.py java -classpath ".:$TRAVIS_BUILD_DIR/java-package/brainflow/target/brainflow-java-jar-with-dependencies.jar" BrainFlowTest
 
