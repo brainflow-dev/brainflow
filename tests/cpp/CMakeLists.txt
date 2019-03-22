@@ -5,7 +5,7 @@ set (CMAKE_CXX_STANDARD 11)
 set (CMAKE_VERBOSE_MAKEFILE ON)
 
 include_directories (
-    ${CMAKE_HOME_DIRECTORY}/../../data/inc
+    "${CMAKE_HOME_DIRECTORY}/../../data/inc"
 )
 
 find_library (
