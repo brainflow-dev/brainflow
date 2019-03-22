@@ -23,7 +23,9 @@ def install_com0com ():
     directory = os.path.join (this_directory, 'com0com')
     if not os.path.exists (directory):
         os.makedirs (directory)
-    p = subprocess.Popen ([get_isntaller (), '/NCRC', '/S', '/D=%s' % directory], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+    cmds = [get_isntaller (), '/NCRC', '/S', '/D=%s' % directory]
+    logging.info ('running %s' % ' '.join (cmds))
+    p = subprocess.Popen (cmds, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
     out, err = p.communicate ()
     if p.returncode != 0:
         logging.error ('stdout is %s' % out)
