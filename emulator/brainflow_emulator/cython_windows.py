@@ -45,8 +45,8 @@ def get_ports_windows ():
     logging.info ('remove stderr is %s' % stderr)
 
     # hopefully hardcoded values are good enough for emulators and tests
-    m_name = 'COM10'
-    s_name = 'COM11'
+    m_name = 'COM8'
+    s_name = 'COM9'
 
     p = subprocess.Popen ([os.path.join (directory, 'setupc.exe'), 'install', 'PortName=%s' % m_name, 'PortName=%s' % s_name],
                         stdout = subprocess.PIPE, stderr = subprocess.PIPE, cwd = directory)

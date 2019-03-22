@@ -11,16 +11,17 @@ clone_depth: 3
 build: off
 
 init:
-- cmd: set PATH=%PY_DIR%;%PY_DIR%\Scripts;%PATH%
+  - cmd: set PATH=%PY_DIR%;%PY_DIR%\Scripts;%PATH%
+  - cmd: set CNC_INSTALL_CNCA0_CNCB0_PORTS="YES"
 
 install:
-- pip install .\emulator\
-- pip install .\python-package
-- ps: .\emulator\brainflow_emulator\com0com\certmgr.exe  /add .\emulator\brainflow_emulator\com0com\com0com.cer /s /r localMachine root
-- ps: .\emulator\brainflow_emulator\com0com\certmgr.exe /add .\emulator\brainflow_emulator\com0com\com0com.cer /s /r localMachine trustedpublisher
+  - pip install .\emulator\
+  - pip install .\python-package
+  - .\emulator\brainflow_emulator\com0com\certmgr.exe  /add .\emulator\brainflow_emulator\com0com\com0com.cer /s /r localMachine root
+  - .\emulator\brainflow_emulator\com0com\certmgr.exe /add .\emulator\brainflow_emulator\com0com\com0com.cer /s /r localMachine trustedpublisher
 
 test_script:
-- python .\emulator\brainflow_emulator\cython_windows.py python .\tests\python\brainflow_get_data.py
+  - python .\emulator\brainflow_emulator\cython_windows.py python .\tests\python\brainflow_get_data.py
 
 notifications:
   - provider: Email
