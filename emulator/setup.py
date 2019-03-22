@@ -26,7 +26,7 @@ setup (
     ],
     package_data = {
         'brainflow_emulator': [
-            os.path.join ('com0com', 'setup_com0com_W7_x64_signed.exe'),
+            os.path.join ('com0com', 'setup_com0com_W7_x64_signed.exe')
         ]
     },
     zip_safe = True,

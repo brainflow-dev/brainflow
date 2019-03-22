@@ -16,6 +16,8 @@ init:
 install:
 - pip install .\emulator\
 - pip install .\python-package
+- .\emulator\brainflow_emulator\com0com\certmgr.exe  /add .\emulator\brainflow_emulator\com0com\com0com.cer /s /r localMachine root
+- .\emulator\brainflow_emulator\com0com\certmgr.exe /add .\emulator\brainflow_emulator\com0com\com0com.cer /s /r localMachine
 
 test_script:
 - python .\emulator\brainflow_emulator\cython_windows.py python .\tests\python\brainflow_get_data.py
