@@ -22,7 +22,7 @@ install:
 
 test_script:
   - python .\emulator\brainflow_emulator\cython_windows.py python .\tests\python\brainflow_get_data.py
-  - cd .\tests\cpp && mkdir build && cd build && cmake -G "Visual Studio 14 2015 Win64" .. && cmake --build . && python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cython_windows.py .\Debug\GetData.exe
+  - cd .\tests\cpp && mkdir build && cd build && cp %APPVEYOR_BUILD_FOLDER%\data\lib\BoardController.dll . && cp %APPVEYOR_BUILD_FOLDER%\data\lib\BoardController.lib . && data\lib\cmake -G "Visual Studio 14 2015 Win64" .. && cmake --build . && python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cython_windows.py .\Debug\GetData.exe
   - cmake_build.cmd
 
 notifications:
