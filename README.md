@@ -1,10 +1,19 @@
 # Brainflow
 
-[![Build Status](https://travis-ci.com/Andrey1994/brainflow.svg?branch=master)](https://travis-ci.com/Andrey1994/brainflow)
-
 Brainflow is a library intended to obtain, parse and analyze EEG\EMG\ECG data.
 
 Core module of this library is implemented in C\C++ and available for all bindings as a dynamic library.
+
+
+## Build status
+*Linux(Travis)*:
+
+[![Build Status](https://travis-ci.com/Andrey1994/brainflow.svg?branch=master)](https://travis-ci.com/Andrey1994/brainflow)
+
+*Windows(AppVeyour)*:
+
+[![Build status](https://ci.appveyor.com/api/projects/status/4gr8uy65f86eh2b5/branch/master?svg=true)](https://ci.appveyor.com/project/Andrey1994/brainflow/branch/master)
+
 ## Shared library methods:
 ```
 int prepare_session (int board_id, const char *port_name);
