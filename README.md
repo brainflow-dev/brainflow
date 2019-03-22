@@ -137,3 +137,16 @@ cd {project_dir}/tests/java
 javac -classpath {project_dir}\java-package\brainflow\target\brainflow-java-jar-with-dependencies.jar BrainFlowTest.java
 python {project_dir}\emulator\brainflow_emulator\cython_windows.py java -classpath .;{project_dir}\java-package\brainflow\target\brainflow-java-jar-with-dependencies.jar BrainFlowTest
 ```
+
+## Build instructions
+
+### Windows
+* Install CMAKE>=3.10
+* Run cmake_build.cmd
+You may change [this line](https://github.com/Andrey1994/brainflow/blob/master/cmake_build.cmd#L5) to use VS you have installed
+
+### Linux
+* Install CMAKE>=3.10
+* Run bash cmake_build.sh
+
+*If you wanna distribute compiled Linux linraries you HAVE to build it inside this [docker continer](https://github.com/Andrey1994/brainflow/blob/master/Docker/Dockerfile) otherwise your libraries will fail on Linux with another glibc version*
