@@ -20,3 +20,6 @@ echo F | xcopy /Y .\compiled\Debug\BoardController.dll .\java-package\brainflow\
 echo F | xcopy /Y .\compiled\Debug\BoardController.lib .\java-package\brainflow\src\main\resources\BoardController.lib
 
 echo F | xcopy /Y .\compiled\Debug\BoardController.dll .\csharp-package\brainflow\brainflow\BoardController.dll
+
+echo F | xcopy /Y .\compiled\Debug\BoardController.dll .\data\lib\BoardController.dll
+echo F | xcopy /Y .\src\board_controller\inc\board_controller.h .\data\inc\board_controller.h

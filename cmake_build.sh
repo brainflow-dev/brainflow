@@ -21,3 +21,6 @@ cp ./compiled/libBoardController.so ./matlab-package/brainflow/lib/libBoardContr
 cp ./src/board_controller/inc/board_controller.h  ./matlab-package/brainflow/inc/board_controller.h
 # java
 cp ./compiled/libBoardController.so ./java-package/brainflow/src/main/resources/libBoardController.so
+# data
+cp ./compiled/libBoardController.so ./data/lib/libBoardController.so
+cp ./src/board_controller/inc/board_controller.h  ./data/inc/board_controller.h
