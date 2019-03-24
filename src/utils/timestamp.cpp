@@ -1,7 +1,6 @@
 #ifdef _WIN32
 #include <windows.h>
 #include <stdint.h>
-#include <versionhelpers.h>
 #define FILETIME_TO_UNIX 116444736000000000i64
 #else
 #include <sys/time.h>
@@ -13,10 +12,7 @@
 #ifdef _WIN32
 double get_timestamp () {
 	FILETIME ft;
-	if (IsWindows8OrGreater ())
-        GetSystemTimePreciseAsFileTime (&ft);
-    else
-        GetSystemTimeAsFileTime (&ft);
+	GetSystemTimePreciseAsFileTime (&ft);
 	int64_t t = ((int64_t) ft.dwHighDateTime << 32L) | (int64_t) ft.dwLowDateTime;
 	return (t - FILETIME_TO_UNIX) / (10.0 * 1000.0 * 1000.0);
 }
