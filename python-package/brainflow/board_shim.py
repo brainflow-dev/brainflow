@@ -6,7 +6,7 @@ import enum
 import os
 import platform
 import sys
-
+import struct
 from brainflow.exit_codes import StreamExitCodes
 
 
@@ -31,6 +31,8 @@ class BoardControllerDLL (object):
     @classmethod
     def get_instance (cls):
         if cls.__instance is None:
+            if struct.calcsize ("P") * 8 != 64:
+                raise Exception ("You need 64-bit python to use this library")
             cls.__instance = cls ()
         return cls.__instance
 
