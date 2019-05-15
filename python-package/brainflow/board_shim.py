@@ -17,7 +17,7 @@ class BrainFlowError (Exception):
         self.exit_code = exit_code
 
 
-class CYTHON (object):
+class CYTON (object):
     board_id = 0
     fs_hz = 250
     num_eeg_channels = 8
@@ -31,8 +31,8 @@ class BoardControllerDLL (object):
     @classmethod
     def get_instance (cls):
         if cls.__instance is None:
-            if struct.calcsize ("P") * 8 != 64:
-                raise Exception ("You need 64-bit python to use this library")
+            #if struct.calcsize ("P") * 8 != 64:
+            #    raise Exception ("You need 64-bit python to use this library")
             cls.__instance = cls ()
         return cls.__instance
 
@@ -105,10 +105,10 @@ class BoardShim (object):
         else:
             self.port_name = port_name
         self.board_id = board_id
-        if board_id == CYTHON.board_id:
-            self.package_length = CYTHON.package_length
-            self.fs_hz = CYTHON.fs_hz
-            self.num_eeg_channels = CYTHON.num_eeg_channels
+        if board_id == CYTON.board_id:
+            self.package_length = CYTON.package_length
+            self.fs_hz = CYTON.fs_hz
+            self.num_eeg_channels = CYTON.num_eeg_channels
         else:
             raise BrainFlowError ('unsupported board type', StreamExitCodes.UNSUPPORTED_BOARD_ERROR.value)
 

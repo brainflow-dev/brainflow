@@ -1,5 +1,5 @@
-#ifndef CYTHON
-#define CYTHON
+#ifndef CYTON
+#define CYTON
 
 #include <math.h>
 #include <stdint.h>
@@ -15,7 +15,7 @@
 #define ADS1299_gain 24.0
 
 
-class Cython : public OpenBCIBoard
+class Cyton : public OpenBCIBoard
 {
     float eeg_scale = ADS1299_Vref/float((pow(2,23)-1))/ADS1299_gain*1000000.;
     float accel_scale = 0.002/(pow(2,4));
@@ -26,7 +26,7 @@ class Cython : public OpenBCIBoard
 
     public:
         // package num, 8 eeg channels, 3 accel channels
-        Cython (const char *port_name) : OpenBCIBoard (12, port_name){}
+        Cyton (const char *port_name) : OpenBCIBoard (12, port_name){}
 
 };
 

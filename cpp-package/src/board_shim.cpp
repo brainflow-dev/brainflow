@@ -9,7 +9,7 @@ BoardShim::BoardShim (int board_id, const char *port_name)
 {
 	strcpy (this->port_name, port_name);
 	this->board_id = board_id;
-	if (board_id == CYTHON_BOARD)
+	if (board_id == CYTON_BOARD)
 	{
     	num_data_channels = 12; // package_num, 8 eeg, 3accel
     	total_channels = num_data_channels + 1; // plus ts

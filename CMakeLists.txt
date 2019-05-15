@@ -58,7 +58,7 @@ set (LIBRARY_SRC
     "src/utils/timestamp.cpp"
     "src/utils/data_buffer.cpp"
     "src/board_controller/openbci/openbci_board.cpp"
-    "src/board_controller/openbci/cython.cpp"
+    "src/board_controller/openbci/cyton.cpp"
     "src/board_controller/board_controller.cpp"
     "src/board_controller/board.cpp"
     )

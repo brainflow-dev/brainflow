@@ -20,13 +20,13 @@ namespace brainflow
         {
             this.board_id = board_id;
             this.port_name = port_name;
-            if (board_id == (int) BoardIds.CYTHON_BOARD)
+            if (board_id == (int) BoardIds.CYTON_BOARD)
             {
-                this.package_length = Cython.package_length;
-                this.fs_hz = Cython.fs_hz;
-                this.num_eeg_channels = Cython.num_eeg_channels;
-                this.first_eeg_channel = Cython.first_eeg_channel;
-                this.last_eeg_channel = Cython.last_eeg_channel;
+                this.package_length = Cyton.package_length;
+                this.fs_hz = Cyton.fs_hz;
+                this.num_eeg_channels = Cyton.num_eeg_channels;
+                this.first_eeg_channel = Cyton.first_eeg_channel;
+                this.last_eeg_channel = Cyton.last_eeg_channel;
             }
             else
             {
@@ -92,7 +92,7 @@ namespace brainflow
             }
             Array.Resize (ref data_arr, current_size[0] * package_length);
             Array.Resize (ref ts_arr, current_size[0]);
-            return new BoardData ((int)BoardIds.CYTHON_BOARD, data_arr, ts_arr).get_board_data ();
+            return new BoardData ((int)BoardIds.CYTON_BOARD, data_arr, ts_arr).get_board_data ();
 	    }
 
         public double[,] get_immediate_board_data ()
@@ -109,7 +109,7 @@ namespace brainflow
 		    if (ec != (int) CustomExitCodes.STATUS_OK) {
                 throw new BrainFlowExceptioin (ec);
             }
-		    return new BoardData ((int) BoardIds.CYTHON_BOARD, data_arr, ts_arr).get_board_data ();
+		    return new BoardData ((int) BoardIds.CYTON_BOARD, data_arr, ts_arr).get_board_data ();
 	    }
     }
 }

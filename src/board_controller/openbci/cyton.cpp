@@ -1,9 +1,9 @@
-#include "cython.h"
+#include "cyton.h"
 #include "timestamp.h"
 #include "serial.h"
 #include "custom_cast.h"
 
-void Cython::read_thread ()
+void Cyton::read_thread ()
 {
     /*
         Byte 1: 0xA0

@@ -29,7 +29,7 @@ namespace brainflow
 
     public enum BoardIds
     {
-        CYTHON_BOARD = 0,
+        CYTON_BOARD = 0,
         UNIMPLEMENTED
     };
 

@@ -32,12 +32,12 @@ classdef BoardShim
             end
             obj.port_name = port_name
             obj.board_id = uint32 (board_id)
-            if board_id == uint32(BoardsIds.CYTHON_BOARD)
+            if board_id == uint32(BoardsIds.CYTON_BOARD)
                 obj.num_channels = 12
             end
             loadlibrary (obj.libname, 'board_controller.h')
         end
-   
+
         function check_ec (obj, ec)
             if ec ~= 0
                 error ('Non zero ec: %d, desc: %s', ec, obj.exit_codes(ec))
@@ -77,7 +77,7 @@ classdef BoardShim
             data_buf = transpose(reshape(data.Value, [obj.num_channels, data_count]))
             ts_buf = ts.Value
         end
-        
+
         function [exit_code, data_buf, ts_buf] = get_current_board_data (obj, num_samples)
             data_count = libpointer ('int32Ptr', 0)
             data = libpointer ('singlePtr', zeros (1, num_samples * obj.num_channels))

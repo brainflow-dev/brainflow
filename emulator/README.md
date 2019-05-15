@@ -5,7 +5,7 @@ Brainflow emulator allows users to run tests without EEG headset.
 * On Windows it works using [com0com](http://com0com.sourceforge.net/)
 * On Linux it works using pty
 
-You should pass command line to test directly to [cython_linux.py](./brainflow_emulator/cython_linux.py) or to [cython_windows.py](./brainflow_emulator/cython_windows.py), script will add port automatically to provided command line and will start an application
+You should pass command line to test directly to [cyton_linux.py](./brainflow_emulator/cyton_linux.py) or to [cyton_windows.py](./brainflow_emulator/cyton_windows.py), script will add port automatically to provided command line and will start an application
 
 ### Example
 
@@ -16,7 +16,7 @@ pip3 install -U .
 ```
 Run test
 ```
-python3 brainflow_emulator/cython_linux.py python3 /media/sf_folder/brainflow/python-package/examples/brainflow_get_data.py --log --port
+python3 brainflow_emulator/cyton_linux.py python3 /media/sf_folder/brainflow/python-package/examples/brainflow_get_data.py --log --port
 INFO:root:Running python3 /media/sf_folder/brainflow/python-package/examples/brainflow_get_data.py --log --port /dev/pts/1
 INFO:root:read "b'v'"
 INFO:root:read "b'b'"

@@ -5,7 +5,7 @@
 #include <mutex>
 
 #include "board_controller.h"
-#include "cython.h"
+#include "cyton.h"
 #include "board.h"
 
 
@@ -22,8 +22,8 @@ int prepare_session (int board_id, char *port_name)
     int res = STATUS_OK;
     switch (board_id)
     {
-        case CYTHON_BOARD:
-            board = new Cython (port_name);
+        case CYTON_BOARD:
+            board = new Cyton (port_name);
             res = board->prepare_session ();
             break;
         default:

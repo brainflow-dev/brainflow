@@ -28,8 +28,8 @@ public class BoardShim {
 	public String port_name;
 	public DllInterface instance;
 	public BoardShim (int board_id, String port_name, Boolean unpack_lib) throws BrainFlowError, IOException {
-		if (board_id == CYTHON.board_id) {
-			package_length = CYTHON.package_length;
+		if (board_id == CYTON.board_id) {
+			package_length = CYTON.package_length;
 			this.board_id = board_id;
 		}
 		else {

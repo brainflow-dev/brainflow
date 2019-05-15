@@ -11,7 +11,7 @@
 DataHandler::DataHandler (int board_id)
 {
     this->board_id = board_id;
-    if (board_id == CYTHON_BOARD)
+    if (board_id == CYTON_BOARD)
     {
         num_data_channels = 12; // package_num, 8 eeg, 3accel
         start_eeg = 1;
