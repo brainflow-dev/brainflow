@@ -17,9 +17,9 @@ namespace brainflow
         internal BoardData (int board_id, float[] raw_data, double[] ts_data)
         {
             this.board_id = board_id;
-            if (board_id == (int) BoardIds.CYTHON_BOARD)
+            if (board_id == (int) BoardIds.CYTON_BOARD)
             {
-                this.package_length = Cython.package_length;
+                this.package_length = Cyton.package_length;
             }
             else
             {

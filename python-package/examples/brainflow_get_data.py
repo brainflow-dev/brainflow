@@ -14,7 +14,7 @@ def main ():
     else:
         brainflow.board_shim.BoardShim.disable_board_logger ()
 
-    board = brainflow.board_shim.BoardShim (brainflow.board_shim.CYTHON.board_id, args.port)
+    board = brainflow.board_shim.BoardShim (brainflow.board_shim.CYTON.board_id, args.port)
     board.prepare_session ()
     board.start_stream ()
     time.sleep (25)
@@ -22,11 +22,11 @@ def main ():
     board.stop_stream ()
     board.release_session ()
 
-    data_handler = brainflow.preprocess.DataHandler (brainflow.board_shim.CYTHON.board_id, numpy_data = data)
+    data_handler = brainflow.preprocess.DataHandler (brainflow.board_shim.CYTON.board_id, numpy_data = data)
     filtered_data = data_handler.preprocess_data (order = 3, start = 1, stop = 50)
     data_handler.save_csv ('results.csv')
     print (filtered_data.head ())
-    read_data = brainflow.preprocess.DataHandler (brainflow.board_shim.CYTHON.board_id, csv_file = 'results.csv')
+    read_data = brainflow.preprocess.DataHandler (brainflow.board_shim.CYTON.board_id, csv_file = 'results.csv')
     print (read_data.get_data ().head ())
 
 

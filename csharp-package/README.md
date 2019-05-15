@@ -16,7 +16,7 @@ namespace test
     {
         static void Main (string[] args)
         {
-            BoardShim board_shim = new BoardShim ((int)Cython.board_id, "COM3");
+            BoardShim board_shim = new BoardShim ((int)Cyton.board_id, "COM3");
 
             board_shim.prepare_session ();
             Console.WriteLine ("Session is ready");
@@ -32,9 +32,9 @@ namespace test
             double[,] unprocessed_data = board_shim.get_board_data ();
 
             // check serialization
-            DataHandler dh = new DataHandler ((int) BoardIds.CYTHON_BOARD, data_from_board: unprocessed_data);
+            DataHandler dh = new DataHandler ((int) BoardIds.CYTON_BOARD, data_from_board: unprocessed_data);
             dh.save_csv ("before_processing.csv");
-            dh = new DataHandler ((int) BoardIds.CYTHON_BOARD, csv_file: "before_processing.csv");
+            dh = new DataHandler ((int) BoardIds.CYTON_BOARD, csv_file: "before_processing.csv");
             dh.save_csv ("before_preprocessing2.csv");
             // check preprocessing
             dh.remove_dc_offset ();

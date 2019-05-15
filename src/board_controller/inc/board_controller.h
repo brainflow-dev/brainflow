@@ -29,7 +29,7 @@ typedef enum
 
 typedef enum
 {
-    CYTHON_BOARD = 0,
+    CYTON_BOARD = 0,
     UNIMPLEMENTED
 } BoardIds;
 

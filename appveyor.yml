@@ -21,7 +21,7 @@ install:
   - .\emulator\brainflow_emulator\com0com\certmgr.exe /add .\emulator\brainflow_emulator\com0com\com0com.cer /s /r localMachine trustedpublisher
 
 test_script:
-  - python .\emulator\brainflow_emulator\cython_windows.py python .\tests\python\brainflow_get_data.py
+  - python .\emulator\brainflow_emulator\cyton_windows.py python .\tests\python\brainflow_get_data.py
   - cmake_build.cmd
 
 notifications:

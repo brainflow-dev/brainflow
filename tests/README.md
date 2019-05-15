@@ -13,9 +13,9 @@ python setup.py install
 cd {project_dir}/python-package
 pip install -e .
 # to test it on Linux machine
-python3 {project_dir}/emulator/brainflow_emulator/cython_linux.py python3 {project_dir}/tests/python/brainflow_get_data.py
+python3 {project_dir}/emulator/brainflow_emulator/cyton_linux.py python3 {project_dir}/tests/python/brainflow_get_data.py
 # to test it on Windows machine
-python3 {project_dir}/emulator/brainflow_emulator/cython_windows.py python3 {project_dir}/tests/python/brainflow_get_data.py
+python3 {project_dir}/emulator/brainflow_emulator/cyton_windows.py python3 {project_dir}/tests/python/brainflow_get_data.py
 ```
 
 ### Run Java test
@@ -25,5 +25,5 @@ cd {project_dir}\java-package
 mvn package
 cd {project_dir}/tests/java
 javac -classpath {project_dir}\java-package\brainflow\target\brainflow-java-jar-with-dependencies.jar BrainFlowTest.java
-python {project_dir}\emulator\brainflow_emulator\cython_windows.py java -classpath .;{project_dir}\java-package\brainflow\target\brainflow-java-jar-with-dependencies.jar BrainFlowTest
+python {project_dir}\emulator\brainflow_emulator\cyton_windows.py java -classpath .;{project_dir}\java-package\brainflow\target\brainflow-java-jar-with-dependencies.jar BrainFlowTest
 ```

@@ -11,9 +11,9 @@ from brainflow.board_shim import *
 class DataHandler (object):
 
     def __init__ (self, board_id, numpy_data = None, csv_file = None):
-        if board_id == CYTHON.board_id:
-            self.fs_hz = CYTHON.fs_hz
-            self.num_eeg_channels = CYTHON.num_eeg_channels
+        if board_id == CYTON.board_id:
+            self.fs_hz = CYTON.fs_hz
+            self.num_eeg_channels = CYTON.num_eeg_channels
         else:
             raise Exception ('Unsupported Board Type')
 

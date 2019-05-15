@@ -3,7 +3,7 @@ Java binding for brainflow is a Maven project, which calls C methods using JNA
 
 ## Example:
 ```
-BoardShim board_shim = new BoardShim (Boards.CYTHON, "/dev/ttyUSB0", true);
+BoardShim board_shim = new BoardShim (Boards.CYTON, "/dev/ttyUSB0", true);
 board_shim.prepare_session ();
 board_shim.start_stream (3600);
 Thread.sleep (1000);

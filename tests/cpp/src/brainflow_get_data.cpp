@@ -37,7 +37,7 @@ void write_csv (const char *filename, double **data_buf, int data_count, int tot
         output_file << endl;
     }
     output_file.close ();
-} 
+}
 
 int main (int argc, char *argv[])
 {
@@ -47,20 +47,20 @@ int main (int argc, char *argv[])
         return -1;
     }
 
-    BoardShim *cython = new BoardShim (CYTHON_BOARD, argv[1]);
-    DataHandler *dh = new DataHandler (CYTHON_BOARD);
+    BoardShim *cyton = new BoardShim (CYTON_BOARD, argv[1]);
+    DataHandler *dh = new DataHandler (CYTON_BOARD);
     int buffer_size = 250 * 60;
     double **data_buf = (double **)malloc (sizeof (double *) * buffer_size);
     for (int i = 0; i < buffer_size; i++)
     {
-        data_buf[i] = (double *)malloc (sizeof (double) * cython->total_channels);
+        data_buf[i] = (double *)malloc (sizeof (double) * cyton->total_channels);
     }
     int res = STATUS_OK;
     int data_count;
 
-    res = cython->prepare_session ();
+    res = cyton->prepare_session ();
     check_error (res);
-    res = cython->start_stream (buffer_size);
+    res = cyton->start_stream (buffer_size);
     check_error (res);
 
     #ifdef _WIN32
@@ -69,24 +69,24 @@ int main (int argc, char *argv[])
     sleep (5);
     #endif
 
-    res = cython->stop_stream ();
+    res = cyton->stop_stream ();
     check_error (res);
-    res = cython->get_board_data_count (&data_count);
+    res = cyton->get_board_data_count (&data_count);
     check_error (res);
-    res = cython->get_board_data (data_count, data_buf);
+    res = cyton->get_board_data (data_count, data_buf);
     check_error (res);
-    res = cython->release_session ();
+    res = cyton->release_session ();
     check_error (res);
     dh->preprocess_data (data_buf, data_count);
 
-    write_csv ("board_data.csv", data_buf, data_count, cython->total_channels);
+    write_csv ("board_data.csv", data_buf, data_count, cyton->total_channels);
 
     for (int i = 0; i < buffer_size; i++)
         free (data_buf[i]);
     free (data_buf);
-    
+
     delete dh;
-    delete cython;
+    delete cyton;
 
     return 0;
 }

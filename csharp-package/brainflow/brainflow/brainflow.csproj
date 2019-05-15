@@ -99,7 +99,7 @@
   <ItemGroup>
     <Compile Include="board_data.cs" />
     <Compile Include="board_shim.cs" />
-    <Compile Include="cython.cs" />
+    <Compile Include="cyton.cs" />
     <Compile Include="library.cs" />
     <Compile Include="brainflow_exception.cs" />
     <Compile Include="data_handler.cs" />
@@ -135,7 +135,7 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Accord.3.8.0\build\Accord.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Accord.3.8.0\build\Accord.targets'))" />
   </Target>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>

@@ -33,7 +33,7 @@ class Listener (threading.Thread):
             if res == b'v':
                 self.write (self.port, b'OpenBCI Emulator $$$')
             elif res == b'b':
-                self.writer_process = CythonWriter (self.port, 0.005, self.write)
+                self.writer_process = CytonWriter (self.port, 0.005, self.write)
                 self.writer_process.daemon = True
                 self.writer_process.start ()
             elif res == b's':
@@ -45,7 +45,7 @@ class Listener (threading.Thread):
                 logging.warning ('got unexpected command "%s"' % res)
 
 
-class CythonWriter (threading.Thread):
+class CytonWriter (threading.Thread):
 
     def __init__ (self, port, delay, write):
         threading.Thread.__init__ (self)

@@ -25,9 +25,9 @@ int get_board_data_count (int *result);
 int get_board_data (int data_count, float *data_buf, double *ts_buf);
 int set_log_level (int log_level);
 ```
-For now only [OpenBCI Cython](http://docs.openbci.com/Hardware/02-Cyton) is supported, but architecture allows to add new boards and not only from OpenBCI without any issues
+For now only [OpenBCI Cyton](http://docs.openbci.com/Hardware/02-Cyton) is supported, but architecture allows to add new boards and not only from OpenBCI without any issues
 
-![Cython](https://farm5.staticflickr.com/4817/32567183898_10a4b56659.jpg)
+![Cyton](https://farm5.staticflickr.com/4817/32567183898_10a4b56659.jpg)
 
 ## Bindings
 I support bindings for:
@@ -38,7 +38,7 @@ I support bindings for:
 * [Matlab](https://github.com/Andrey1994/brainflow/blob/master/matlab-package/brainflow/brainflow_get_data.m)
 * [C#](https://github.com/Andrey1994/brainflow/blob/master/csharp-package/brainflow/test/get_board_data.cs)
 
-These bindings just call methods from dynamic libraries 
+These bindings just call methods from dynamic libraries
 
 ### Python sample
 ```
@@ -58,7 +58,7 @@ def main ():
     else:
         brainflow.board_shim.BoardShim.disable_board_logger ()
 
-    board = brainflow.board_shim.BoardShim (brainflow.board_shim.CYTHON.board_id, args.port)
+    board = brainflow.board_shim.BoardShim (brainflow.board_shim.CYTON.board_id, args.port)
     board.prepare_session ()
     board.start_stream ()
     time.sleep (5)
@@ -66,11 +66,11 @@ def main ():
     board.stop_stream ()
     board.release_session ()
 
-    data_handler = brainflow.preprocess.DataHandler (brainflow.board_shim.CYTHON.board_id, numpy_data = data)
+    data_handler = brainflow.preprocess.DataHandler (brainflow.board_shim.CYTON.board_id, numpy_data = data)
     filtered_data = data_handler.preprocess_data (order = 3, start = 1, stop = 50)
     data_handler.save_csv ('results.csv')
     print (filtered_data.head ())
-    read_data = brainflow.preprocess.DataHandler (brainflow.board_shim.CYTHON.board_id, csv_file = 'results.csv')
+    read_data = brainflow.preprocess.DataHandler (brainflow.board_shim.CYTON.board_id, csv_file = 'results.csv')
     print (read_data.get_data ().head ())
 
 
@@ -97,7 +97,7 @@ Brainflow emulator allows users to run tests without EEG headset.
 * On Windows it works using [com0com](http://com0com.sourceforge.net/)
 * On Linux it works using pty
 
-You should pass command line to test directly to [cython_linux.py](./emulator/brainflow_emulator/cython_linux.py) or to [cython_windows.py](./emulator/brainflow_emulator/cython_windows.py), script will add port automatically to provided command line and will start an application
+You should pass command line to test directly to [cyton_linux.py](./emulator/brainflow_emulator/cyton_linux.py) or to [cyton_windows.py](./emulator/brainflow_emulator/cyton_windows.py), script will add port automatically to provided command line and will start an application
 
 ### Example
 
@@ -108,7 +108,7 @@ pip3 install -U .
 ```
 Run test
 ```
-python3 brainflow_emulator/cython_linux.py python3 /media/sf_folder/brainflow/python-package/examples/brainflow_get_data.py --log --port
+python3 brainflow_emulator/cyton_linux.py python3 /media/sf_folder/brainflow/python-package/examples/brainflow_get_data.py --log --port
 INFO:root:Running python3 /media/sf_folder/brainflow/python-package/examples/brainflow_get_data.py --log --port /dev/pts/1
 INFO:root:read "b'v'"
 INFO:root:read "b'b'"
@@ -134,9 +134,9 @@ python setup.py install
 cd {project_dir}/python-package
 pip install -e .
 # to test it on Linux machine
-python3 {project_dir}/emulator/brainflow_emulator/cython_linux.py python3 {project_dir}/tests/python/brainflow_get_data.py
+python3 {project_dir}/emulator/brainflow_emulator/cyton_linux.py python3 {project_dir}/tests/python/brainflow_get_data.py
 # to test it on Windows machine
-python3 {project_dir}/emulator/brainflow_emulator/cython_windows.py python3 {project_dir}/tests/python/brainflow_get_data.py
+python3 {project_dir}/emulator/brainflow_emulator/cyton_windows.py python3 {project_dir}/tests/python/brainflow_get_data.py
 ```
 
 #### Run Java test
@@ -146,7 +146,7 @@ cd {project_dir}\java-package
 mvn package
 cd {project_dir}/tests/java
 javac -classpath {project_dir}\java-package\brainflow\target\brainflow-java-jar-with-dependencies.jar BrainFlowTest.java
-python {project_dir}\emulator\brainflow_emulator\cython_windows.py java -classpath .;{project_dir}\java-package\brainflow\target\brainflow-java-jar-with-dependencies.jar BrainFlowTest
+python {project_dir}\emulator\brainflow_emulator\cyton_windows.py java -classpath .;{project_dir}\java-package\brainflow\target\brainflow-java-jar-with-dependencies.jar BrainFlowTest
 ```
 
 ## Build instructions

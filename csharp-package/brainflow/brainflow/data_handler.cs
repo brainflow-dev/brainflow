@@ -20,12 +20,12 @@ namespace brainflow
 
         public DataHandler (int board_id, double[,] data_from_board = null, string csv_file = null)
         {
-            if (board_id == (int) BoardIds.CYTHON_BOARD)
+            if (board_id == (int) BoardIds.CYTON_BOARD)
             {
                 fs_hz = 250;
                 first_eeg_channel = 1;
-                last_eeg_channel = first_eeg_channel + Cython.num_eeg_channels - 1;
-                ts_col_num = Cython.package_length; // data format - package from board plus ts column
+                last_eeg_channel = first_eeg_channel + Cyton.num_eeg_channels - 1;
+                ts_col_num = Cyton.package_length; // data format - package from board plus ts column
             }
             else
             {

@@ -1,4 +1,4 @@
-board_shim = BoardShim (BoardsIds.CYTHON_BOARD, '/dev/ttyUSB0')
+board_shim = BoardShim (BoardsIds.CYTON_BOARD, '/dev/ttyUSB0')
 ec = board_shim.prepare_session ()
 board_shim.check_ec (ec)
 ec = board_shim.start_stream (3600)

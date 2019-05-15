@@ -15,10 +15,10 @@ before_script:
   - sudo -H R --vanilla -e 'install.packages("reticulate", repos="http://cran.us.r-project.org")'
 
 script:
-  - sudo -H pip3 install $TRAVIS_BUILD_DIR/python-package && sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cython_linux.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py
-  - cd $TRAVIS_BUILD_DIR && cd java-package/brainflow && mvn package && cd $TRAVIS_BUILD_DIR/tests/java/ && sudo -H javac -classpath $TRAVIS_BUILD_DIR/java-package/brainflow/target/brainflow-java-jar-with-dependencies.jar BrainFlowTest.java && ls -l . && sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cython_linux.py java -classpath ".:$TRAVIS_BUILD_DIR/java-package/brainflow/target/brainflow-java-jar-with-dependencies.jar" BrainFlowTest
-  - cd $TRAVIS_BUILD_DIR/tests/cpp/ && sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cython_linux.py bash run.sh
-  - cd $TRAVIS_BUILD_DIR/r-package/brainflow && sudo -H R CMD build . && sudo -H R CMD INSTALL brainflow_0.0.0.9000.tar.gz && sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cython_linux.py Rscript $TRAVIS_BUILD_DIR/tests/r/brainflow_get_data.R
+  - sudo -H pip3 install $TRAVIS_BUILD_DIR/python-package && sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py
+  - cd $TRAVIS_BUILD_DIR && cd java-package/brainflow && mvn package && cd $TRAVIS_BUILD_DIR/tests/java/ && sudo -H javac -classpath $TRAVIS_BUILD_DIR/java-package/brainflow/target/brainflow-java-jar-with-dependencies.jar BrainFlowTest.java && ls -l . && sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py java -classpath ".:$TRAVIS_BUILD_DIR/java-package/brainflow/target/brainflow-java-jar-with-dependencies.jar" BrainFlowTest
+  - cd $TRAVIS_BUILD_DIR/tests/cpp/ && sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py bash run.sh
+  - cd $TRAVIS_BUILD_DIR/r-package/brainflow && sudo -H R CMD build . && sudo -H R CMD INSTALL brainflow_0.0.0.9000.tar.gz && sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py Rscript $TRAVIS_BUILD_DIR/tests/r/brainflow_get_data.R
   - cd $TRAVIS_BUILD_DIR && sudo -H bash cmake_build.sh
 
 after_success:
