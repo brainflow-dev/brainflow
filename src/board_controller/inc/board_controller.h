@@ -2,9 +2,9 @@
 #define BOARDCONTROLLER
 
 #ifdef _WIN32
-    #define SHARED_EXPORT __declspec(dllexport)
+#define SHARED_EXPORT __declspec(dllexport)
 #else
-    #define SHARED_EXPORT
+#define SHARED_EXPORT
 #endif
 
 typedef enum
@@ -34,16 +34,18 @@ typedef enum
 } BoardIds;
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
-SHARED_EXPORT int prepare_session (int board_id, char *port_name);
-SHARED_EXPORT int start_stream (int buffer_size);
-SHARED_EXPORT int stop_stream ();
-SHARED_EXPORT int release_session ();
-SHARED_EXPORT int get_current_board_data (int num_samples, float *data_buf, double *ts_buf, int *returned_samples);
-SHARED_EXPORT int get_board_data_count (int *result);
-SHARED_EXPORT int get_board_data (int data_count, float *data_buf, double *ts_buf);
-SHARED_EXPORT int set_log_level (int log_level);
+    SHARED_EXPORT int prepare_session (int board_id, char *port_name);
+    SHARED_EXPORT int start_stream (int buffer_size);
+    SHARED_EXPORT int stop_stream ();
+    SHARED_EXPORT int release_session ();
+    SHARED_EXPORT int get_current_board_data (
+        int num_samples, float *data_buf, double *ts_buf, int *returned_samples);
+    SHARED_EXPORT int get_board_data_count (int *result);
+    SHARED_EXPORT int get_board_data (int data_count, float *data_buf, double *ts_buf);
+    SHARED_EXPORT int set_log_level (int log_level);
 #ifdef __cplusplus
 }
 #endif

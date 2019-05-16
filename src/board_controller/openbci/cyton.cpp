@@ -1,7 +1,7 @@
 #include "cyton.h"
-#include "timestamp.h"
-#include "serial.h"
 #include "custom_cast.h"
+#include "serial.h"
+#include "timestamp.h"
 
 void Cyton::read_thread ()
 {
@@ -46,10 +46,10 @@ void Cyton::read_thread ()
             continue;
 
         float package[12];
-        package[0] = (float) b[0];
+        package[0] = (float)b[0];
         for (int i = 0; i < 8; i++)
         {
-            package[i+1] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
+            package[i + 1] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
         }
         package[9] = accel_scale * cast_16bit_to_int32 (b + 25);
         package[10] = accel_scale * cast_16bit_to_int32 (b + 27);

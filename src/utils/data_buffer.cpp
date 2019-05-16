@@ -1,7 +1,6 @@
+#include "data_buffer.h"
 #include <stdlib.h>
 #include <string.h>
-#include "data_buffer.h"
-
 
 DataBuffer::DataBuffer (int num_samples, size_t buffer_size)
 {
@@ -52,7 +51,8 @@ void DataBuffer::get_chunk (size_t start, size_t size, double *ts_buf, float *da
         memcpy (ts_buf, timestamps + start, first_half * sizeof (double));
         memcpy (data_buf, data + start * num_samples, first_half * sizeof (float) * num_samples);
         memcpy (ts_buf + first_half, timestamps, second_half * sizeof (double));
-        memcpy (data_buf + first_half * num_samples, data, second_half * sizeof (float) * num_samples);
+        memcpy (
+            data_buf + first_half * num_samples, data, second_half * sizeof (float) * num_samples);
     }
 }
 
@@ -73,7 +73,7 @@ size_t DataBuffer::get_data (size_t max_count, double *ts_buf, float *data_buf)
 }
 
 size_t DataBuffer::get_current_data (size_t max_count, double *ts_buf, float *data_buf)
-{   
+{
     lock.lock ();
     size_t result_count = max_count;
     if (result_count > count)
