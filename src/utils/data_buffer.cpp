@@ -1,6 +1,4 @@
 #include "data_buffer.h"
-#include <stdlib.h>
-#include <string.h>
 
 DataBuffer::DataBuffer (int num_samples, size_t buffer_size)
 {

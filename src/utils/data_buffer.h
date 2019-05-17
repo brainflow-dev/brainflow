@@ -2,6 +2,8 @@
 #define DATABUFFER
 
 #include "spinlock.h"
+#include <stdlib.h>
+#include <string.h>
 
 class DataBuffer
 {
