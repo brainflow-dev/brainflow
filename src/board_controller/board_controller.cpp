@@ -4,10 +4,9 @@
 
 #include <mutex>
 
+#include "board.h"
 #include "board_controller.h"
 #include "cyton.h"
-#include "board.h"
-
 
 Board *board = NULL;
 std::mutex mutex;
@@ -128,7 +127,7 @@ BOOL WINAPI DllMain (HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
     return TRUE;
 }
 #else
-__attribute__((destructor)) static void terminate_all (void)
+__attribute__ ((destructor)) static void terminate_all (void)
 {
     if (board != NULL)
     {

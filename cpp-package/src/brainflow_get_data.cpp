@@ -1,5 +1,5 @@
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <stdlib.h>
 
 #ifdef _WIN32
@@ -8,12 +8,11 @@
 #include <unistd.h>
 #endif
 
-#include "board_shim.h"
 #include "board_controller.h"
+#include "board_shim.h"
 #include "data_handler.h"
 
 using namespace std;
-
 
 void check_error (int ec)
 {
@@ -63,11 +62,11 @@ int main (int argc, char *argv[])
     res = cyton->start_stream (buffer_size);
     check_error (res);
 
-    #ifdef _WIN32
+#ifdef _WIN32
     Sleep (5000);
-    #else
+#else
     sleep (5);
-    #endif
+#endif
 
     res = cyton->stop_stream ();
     check_error (res);

@@ -29,7 +29,9 @@ int OpenBCIBoard::open_port ()
     Board::board_logger->info ("openning port {}: {}", port_name, port_descriptor);
     int res = open_serial_port (port_name, &port_descriptor);
     if (res < 0)
+    {
         return UNABLE_TO_OPEN_PORT_ERROR;
+    }
 
     return STATUS_OK;
 }
@@ -136,7 +138,7 @@ int OpenBCIBoard::start_stream (int buffer_size)
     }
 
     keep_alive = true;
-    streaming_thread = std::thread ([this] {this->read_thread ();});
+    streaming_thread = std::thread ([this] { this->read_thread (); });
     is_streaming = true;
     return STATUS_OK;
 }
@@ -173,14 +175,16 @@ int OpenBCIBoard::release_session ()
     return STATUS_OK;
 }
 
-int OpenBCIBoard::get_current_board_data (int num_samples, float *data_buf, double *ts_buf, int *returned_samples)
+int OpenBCIBoard::get_current_board_data (
+    int num_samples, float *data_buf, double *ts_buf, int *returned_samples)
 {
     if (db && data_buf && ts_buf && returned_samples)
     {
         size_t result = db->get_current_data (num_samples, ts_buf, data_buf);
-        (*returned_samples) = int (result);
+        (*returned_samples) = int(result);
         return STATUS_OK;
-    } else
+    }
+    else
         return INVALID_ARGUMENTS_ERROR;
 }
 
@@ -191,7 +195,7 @@ int OpenBCIBoard::get_board_data_count (int *result)
     if (!result)
         return INVALID_ARGUMENTS_ERROR;
 
-    *result = int (db->get_data_count ());
+    *result = int(db->get_data_count ());
     return STATUS_OK;
 }
 
