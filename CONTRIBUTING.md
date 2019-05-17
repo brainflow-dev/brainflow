@@ -2,7 +2,7 @@
 
 ## Code style
 We are using clang-format tool to keep the same code style for all cpp files. You can download clang-format binary from [LLVM Download Page](http://releases.llvm.org/download.html).
-We recommmend to install a plugin for your text editor\IDE which will apply clang-format tool during saving.
+We recommend to install a plugin for your text editor\IDE which will apply clang-format tool during saving.
 
 Plugins for text editors\IDEs:
 * [Sublime](https://packagecontrol.io/packages/Clang%20Format)
@@ -11,7 +11,7 @@ Plugins for text editors\IDEs:
 
 *Note: you need to specify 'File' as a style for clang-format*
 
-Unfortunatelly clang-format can not handle naming,  so some additional rules are:
+Unfortunately clang-format can not handle naming,  so some additional rules are:
 * methods and variables should be in lower case with underscore
 * class names should be in camel case
 
