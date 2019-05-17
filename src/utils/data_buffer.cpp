@@ -54,6 +54,7 @@ void DataBuffer::get_chunk (size_t start, size_t size, double *ts_buf, float *da
     }
 }
 
+// removes data from buffer
 size_t DataBuffer::get_data (size_t max_count, double *ts_buf, float *data_buf)
 {
     lock.lock ();
@@ -70,6 +71,7 @@ size_t DataBuffer::get_data (size_t max_count, double *ts_buf, float *data_buf)
     return result_count;
 }
 
+// doesn't remove data from buffer
 size_t DataBuffer::get_current_data (size_t max_count, double *ts_buf, float *data_buf)
 {
     lock.lock ();
