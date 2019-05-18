@@ -106,6 +106,9 @@ int set_log_level (int log_level)
     return Board::set_log_level (log_level);
 }
 
+// DLLMain is executed during LoadLibrary\FreeLibrary. Board object desctructorshould be called even
+// without it but for sanity check to ensure that we stop streaming data from the board I call it
+// manually here as well
 #ifdef _WIN32
 BOOL WINAPI DllMain (HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 {
@@ -127,6 +130,7 @@ BOOL WINAPI DllMain (HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
     return TRUE;
 }
 #else
+// the same as DLL_PROCESS_DETACH for linux
 __attribute__ ((destructor)) static void terminate_all (void)
 {
     if (board != NULL)
