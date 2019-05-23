@@ -22,7 +22,7 @@ install:
 
 test_script:
   - python .\emulator\brainflow_emulator\cyton_windows.py python .\tests\python\brainflow_get_data.py
-  - cmake_build.cmd
+  - mkdir build && cd build && cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=..\installed .. && cmake --build . --target install --config Release
 
 notifications:
   - provider: Email
