@@ -1,14 +1,6 @@
-# CPP example
-Headers and compiled libraries are located in ./inc and ./lib directories respectively.
-You are able to use ./src as a reference
+# Cpp
+Brainflow is a Cpp library which provides low-level API to read data from OpenBCI, this API used by different bindings and for Cpp there is a high level API as well
 
-In fact [board_shim.cpp](https://github.com/Andrey1994/brainflow/blob/master/cpp-package/src/board_shim.cpp) duplicates methods from DLL but wraps them in Class
+You can find usage example at [cpp-test](../tests/cpp)
 
-To compile this project:
-```
-mkdir build
-cd build
-cmake ..
-make
-```
-You are able to use msbuild as well and compile it for Windows
+You need to compile and install brainflow to use it

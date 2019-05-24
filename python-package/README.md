@@ -1,10 +1,15 @@
 # Python
+
+*Note: for now we provide only 64bit libraries, so you need 64bit python to run it*
 Following commands will install all required packages for you:
 ```
 cd python-package
 pip install -e .
 ```
-Or download it from [PYPI](https://pypi.org/project/brainflow/)
+Or install it from [PYPI](https://pypi.org/project/brainflow/) with:
+```
+pip install brainflow
+```
 
 After installation you will be able to use this library via:
 ```
@@ -48,10 +53,10 @@ def main ():
 if __name__ == "__main__":
     main ()
 ```
-All [BoardShim methods](https://github.com/Andrey1994/brainflow/blob/master/python-package/brainflow/board_shim.py)
+All [BoardShim methods](./brainflow/board_shim.py)
 
-All [DataHandler methods](https://github.com/Andrey1994/brainflow/blob/master/python-package/brainflow/preprocess.py)
+All [DataHandler methods](./brainflow/preprocess.py)
 
-All possible error codes are described [here](https://github.com/Andrey1994/brainflow/blob/master/python-package/brainflow/exit_codes.py)
+All possible error codes are described [here](./brainflow/exit_codes.py)
 
-For more information and samples please go to [examples](https://github.com/Andrey1994/brainflow/tree/master/python-package/examples)
+For more information and samples please go to [examples](./python-package/examples)

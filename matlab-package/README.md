@@ -1,6 +1,8 @@
 # Matlab
-For some Matlab's versions and OSes you may need to recompile brainflow using specific compiler.
-For example loadlibrary in Matlab 2017 works only if library was compiled with gcc < 5.0
+
+#### TODO list:
+* test on all platforms
+* convert it to package
 
 ## Example:
 ```
@@ -18,4 +20,4 @@ disp (data)
 ec = board_shim.release_session ()
 board_shim.check_ec (ec)
 ```
-[BoardShim matlab class](https://github.com/Andrey1994/brainflow/blob/master/matlab-package/brainflow/BoardShim.m)
+[BoardShim matlab class](./brainflow/BoardShim.m)

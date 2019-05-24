@@ -1,9 +1,10 @@
 # Brainflow
 
-Brainflow is a library intended to obtain, parse and analyze EEG\EMG\ECG data.
+Brainflow is a library intended to obtain, parse and analyze EEG\EMG\ECG data from OpenBCI boards.
 
-Core module of this library is implemented in C\C++ and available for all bindings as a dynamic library.
+Core module of this library is implemented in C\C++ and available for all bindings as a dynamic library. This approach allows to reduce code duplication and simplify maintenance, also it's better than any streaming based solution because using this library you don't need to worry about inter process communication and it's a single dependency.
 
+This project was forked by OpenBCI from [Andrey1994/brainflow](https://github.com/Andrey1994/brainflow) and now this is the official version which is supported by OpenBCI and @Andrey1994
 
 ## Build status
 *Linux(Travis)*:
@@ -25,22 +26,32 @@ int get_board_data_count (int *result);
 int get_board_data (int data_count, float *data_buf, double *ts_buf);
 int set_log_level (int log_level);
 ```
-For now only [OpenBCI Cyton](http://docs.openbci.com/Hardware/02-Cyton) is supported, but architecture allows to add new boards and not only from OpenBCI without any issues
 
+## TODO List:
+- [ ] add Ganglion
+- [ ] add Cython daisy
+- [ ] add WiFI shield
+- [ ] Support Mac
+- [ ] integrate python and R bindings with MNE
+- [ ] fix Matlab package
+- [ ] code cleanup
+
+## Supported boards:
+For now only [OpenBCI Cyton Serial](http://docs.openbci.com/Hardware/02-Cyton) is supported, we are working on other boards
 ![Cyton](https://farm5.staticflickr.com/4817/32567183898_10a4b56659.jpg)
 
-## Bindings
-I support bindings for:
-* [python](https://github.com/Andrey1994/brainflow/blob/master/python-package/examples/brainflow_get_data.py)
-* [java](https://github.com/Andrey1994/brainflow/blob/master/java-package/brainflow/src/test/java/BrainFlowTest.java)
-* [R](https://github.com/Andrey1994/brainflow/blob/master/r-package/examples/brainflow_get_data.R)
-* [CPP](https://github.com/Andrey1994/brainflow/blob/master/cpp-package/src/brainflow_get_data.cpp)
-* [Matlab](https://github.com/Andrey1994/brainflow/blob/master/matlab-package/brainflow/brainflow_get_data.m)
-* [C#](https://github.com/Andrey1994/brainflow/blob/master/csharp-package/brainflow/test/get_board_data.cs)
+## Brainflow Bindings
+We support bindings for:
+* [python](./python-package)
+* [java](./java-package/brainflow/)
+* [R](./r-package/)
+* [CPP](./cpp-package/)
+* [Matlab(WIP)](./matlab-package/brainflow/)
+* [C#](./csharp-package/brainflow/)
 
-These bindings just call methods from dynamic libraries
+These bindings just call methods from dynamic libraries, if you are interested in other programming languages - feel free to create feature request
 
-### Python sample
+### SDK Usage Sample(Python):
 ```
 import argparse
 import time
@@ -122,9 +133,9 @@ python setup.py install
 cd {project_dir}/python-package
 pip install -e .
 # to test it on Linux machine
-python3 {project_dir}/emulator/brainflow_emulator/cyton_linux.py python3 {project_dir}/tests/python/brainflow_get_data.py
+python {project_dir}/emulator/brainflow_emulator/cyton_linux.py python {project_dir}/tests/python/brainflow_get_data.py
 # to test it on Windows machine
-python3 {project_dir}/emulator/brainflow_emulator/cyton_windows.py python3 {project_dir}/tests/python/brainflow_get_data.py
+python {project_dir}/emulator/brainflow_emulator/cyton_windows.py python {project_dir}/tests/python/brainflow_get_data.py
 ```
 
 #### Run Java test
@@ -139,13 +150,80 @@ python {project_dir}\emulator\brainflow_emulator\cyton_windows.py java -classpat
 
 ## Build instructions
 
-### Windows
-* Install CMAKE>=3.10
-* Run cmake_build.cmd
-You may change [this line](https://github.com/Andrey1994/brainflow/blob/master/cmake_build.cmd#L5) to use VS you have installed
+*For now we commit compiled libraries directly to github, so if you don't need Cpp SDK and just want to use binding for your favorite language, you don't need to compile brainflow*
 
-### Linux
+### Compilation
+
+#### Windows
+* Install CMAKE>=3.10 (you can install cmake from pip of from [cmake website](https://cmake.org/))
+* Install Visual Studio 2015 or newer(We just need MSBUILD and you are able to download it without Visual Studio but it's easier to install Visual Studio Community)
+```
+mkdir build
+cd build
+# if you install another Visual Studio you need to change the generator in command below, also you can change installation directory(you may skip installation if you don't need Cpp SDK), if you wanna commit compiled libraries you need to specify -DCMAKE_SYSTEM_VERSION=8.1 it's the oldest windows version which we support
+cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\\installed\\ ..
+cmake --build . --target install --config Release
+cd ..
+```
+
+#### Linux
 * Install CMAKE>=3.10
-* Run bash cmake_build.sh
 
 *If you wanna distribute compiled Linux linraries you HAVE to build it inside this [docker continer](https://github.com/Andrey1994/brainflow/blob/master/Docker/Dockerfile) otherwise your libraries will fail on Linux with another glibc version*
+
+Instructions to build and run docker container and [docker getting started guide](https://docs.docker.com/get-started/)
+```
+cd Docker
+docker build .
+docker run -it -v %host_path_to_brainflow%:%%path_inside_container% %container_id% /bin/bash
+```
+```
+mkdir build
+cd build
+cmake -DCMAKE_INSTALL_PREFIX=%install_path% ..
+make
+# you can skip installation step if you don't need Cpp API
+make install
+```
+
+### Python
+
+*Note: for now we provide only 64bit libraries, so you need 64bit python to run it*
+Following commands will install all required packages for you:
+```
+cd python-package
+pip install -e .
+```
+Or install it from [PYPI](https://pypi.org/project/brainflow/) with:
+```
+pip install brainflow
+```
+
+### R
+R package works via [Reticulate module](https://rstudio.github.io/reticulate/articles/introduction.html) which allows to call Python function directly from R, also it translates all Python classes(even user defined) to the corresponds R constructures.
+
+For now it is not added to the CRAN, so you will have to build this package manually using R-strudio or from command line and install python brainflow bindigs first(I recommend to install it system wide, you can install it to virtualenv but you will need to specify environment variable for reticulate to use this virtualenv)
+
+Usefull Links:
+* [Build package with R studio](https://support.rstudio.com/hc/en-us/articles/200486518-Customizing-Package-Build-Options)
+* [Reticulate module](https://rstudio.github.io/reticulate/articles/introduction.html)
+* You also able to build package from command line, you can check it in .travis.yml file
+
+### Java
+Java binding for brainflow is a Maven project to compile it you just need to run:
+```
+mvn package
+```
+
+### C#
+You will need to install Nuget packages to build it yourself and compile it using Microsoft Visual Studio
+
+### Cpp
+Brainflow is a Cpp library which provides low-level API to read data from OpenBCI, this API used by different bindings and for Cpp there is a high level API as well, you can check high level API classes and functions [here](./cpp-package)
+
+You can find usage example at [cpp-test](./tests/cpp)
+
+You need to compile and install brainflow to use it
+
+## License: 
+MIT
