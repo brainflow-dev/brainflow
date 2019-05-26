@@ -9,11 +9,11 @@ This project was forked by OpenBCI from [Andrey1994/brainflow](https://github.co
 ## Build status
 *Linux(Travis)*:
 
-[![Build Status](https://travis-ci.com/Andrey1994/brainflow.svg?branch=master)](https://travis-ci.com/Andrey1994/brainflow)
+[![Build Status](https://travis-ci.org/OpenBCI/brainflow.svg?branch=master)](https://travis-ci.org/OpenBCI/brainflow)
 
 *Windows(AppVeyour)*:
 
-[![Build status](https://ci.appveyor.com/api/projects/status/4gr8uy65f86eh2b5/branch/master?svg=true)](https://ci.appveyor.com/project/Andrey1994/brainflow/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/kuuoa32me3253jad/branch/master?svg=true)](https://ci.appveyor.com/project/daniellasry/brainflow/branch/master)
 
 ## Shared library methods:
 ```
