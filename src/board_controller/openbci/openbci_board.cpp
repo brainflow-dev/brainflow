@@ -3,9 +3,8 @@
 #include "openbci_board.h"
 #include "serial.h"
 
-OpenBCIBoard::OpenBCIBoard (int num_channels, const char *port_name)
+OpenBCIBoard::OpenBCIBoard (int num_channels, const char *port_name) : serial (port_name)
 {
-    strcpy (this->port_name, port_name);
     this->num_channels = num_channels;
 
     is_streaming = false;
@@ -13,7 +12,6 @@ OpenBCIBoard::OpenBCIBoard (int num_channels, const char *port_name)
     initialized = false;
 
     db = NULL;
-    port_descriptor = 0;
 }
 
 OpenBCIBoard::~OpenBCIBoard ()
@@ -23,11 +21,14 @@ OpenBCIBoard::~OpenBCIBoard ()
 
 int OpenBCIBoard::open_port ()
 {
-    if (is_port_open (port_descriptor))
+    if (serial.is_port_open ())
+    {
+        Board::board_logger->error ("port {} already open", serial.get_port_name ());
         return PORT_ALREADY_OPEN_ERROR;
+    }
 
-    Board::board_logger->info ("openning port {}: {}", port_name, port_descriptor);
-    int res = open_serial_port (port_name, &port_descriptor);
+    Board::board_logger->info ("openning port {}", serial.get_port_name ());
+    int res = serial.open_serial_port ();
     if (res < 0)
     {
         return UNABLE_TO_OPEN_PORT_ERROR;
@@ -38,7 +39,7 @@ int OpenBCIBoard::open_port ()
 
 int OpenBCIBoard::send_to_board (char *message)
 {
-    int res = send_to_serial_port (message, port_descriptor);
+    int res = serial.send_to_serial_port (message);
     if (res != 1)
         return BOARD_WRITE_ERROR;
 
@@ -47,12 +48,7 @@ int OpenBCIBoard::send_to_board (char *message)
 
 int OpenBCIBoard::set_port_settings ()
 {
-    // only file operations are supported in emulators
-#ifdef EMULATOR_MODE
-    return send_to_board ("v");
-#endif
-
-    int res = set_serial_port_settings (port_descriptor);
+    int res = serial.set_serial_port_settings ();
     if (res < 0)
     {
         Board::board_logger->error ("Unable to set port settings, res is {}", res);
@@ -69,7 +65,7 @@ int OpenBCIBoard::status_check ()
     // board is ready if there are '$$$'
     for (int i = 0; i < 500; i++)
     {
-        int res = read_from_serial_port (port_descriptor, buf, 1);
+        int res = serial.read_from_serial_port (buf, 1);
         if (res > 0)
         {
             if (buf[0] == '$')
@@ -168,10 +164,9 @@ int OpenBCIBoard::release_session ()
             delete db;
             db = NULL;
         }
-        if (is_port_open (port_descriptor))
-            close_serial_port (port_descriptor);
         initialized = false;
     }
+    serial.close_serial_port ();
     return STATUS_OK;
 }
 

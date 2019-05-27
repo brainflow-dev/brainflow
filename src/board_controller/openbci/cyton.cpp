@@ -24,7 +24,7 @@ void Cyton::read_thread ()
     while (keep_alive)
     {
         // check start byte
-        res = read_from_serial_port (port_descriptor, b, 1);
+        res = serial.read_from_serial_port (b, 1);
         if (res != 1)
         {
             Board::board_logger->debug ("unable to read 1 byte");
@@ -33,7 +33,7 @@ void Cyton::read_thread ()
         if (b[0] != START_BYTE)
             continue;
 
-        res = read_from_serial_port (port_descriptor, b, 32);
+        res = serial.read_from_serial_port (b, 32);
         if (res != 32)
         {
             Board::board_logger->debug ("unable to read 32 bytes");
