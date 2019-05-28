@@ -49,6 +49,28 @@ if (MSVC)
     configure_msvc_runtime()
 endif ()
 
+if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+    MESSAGE ("64 bits compiler detected")
+    SET (PLATFORM_ACH "X64")
+    SET (BOARD_CONTROLLER_NAME "BoardController")
+    SET (GET_DATA_NAME "GetData")
+    if (UNIX)
+        SET (COMPILED_FILE_NAME "libBoardController.so")
+    else (UNIX)
+        SET (COMPILED_FILE_NAME "BoardController.dll")
+    endif (UNIX)
+else (CMAKE_SIZEOF_VOID_P EQUAL 8)
+    MESSAGE ("32 bits compiler detected")
+    SET (PLATFORM_ACH "X86")
+    SET (BOARD_CONTROLLER_NAME "BoardController86")
+    SET (GET_DATA_NAME "GetData86")
+    if (UNIX)
+        SET (COMPILED_FILE_NAME "libBoardController86.so")
+    else (UNIX)
+        SET (COMPILED_FILE_NAME "BoardController86.dll")
+    endif (UNIX)
+endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
+
 # boardcontroller
 set (LIBRARY_SRC
     "src/utils/timestamp.cpp"
@@ -61,19 +83,19 @@ set (LIBRARY_SRC
 )
 
 add_library (
-    BoardController SHARED
+    ${BOARD_CONTROLLER_NAME} SHARED
     ${LIBRARY_SRC}
 )
 
 target_include_directories (
-    BoardController PRIVATE
+    ${BOARD_CONTROLLER_NAME} PRIVATE
     inc
     src/utils/
     src/board_controller/inc
     src/board_controller/openbci/inc
 )
 
-set_target_properties (BoardController
+set_target_properties (${BOARD_CONTROLLER_NAME}
     PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_HOME_DIRECTORY}/compiled"
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_HOME_DIRECTORY}/compiled"
@@ -81,48 +103,48 @@ set_target_properties (BoardController
 )
 
 if (UNIX)
-    target_link_libraries (BoardController -lpthread)
+    target_link_libraries (${BOARD_CONTROLLER_NAME} -lpthread)
 endif (UNIX)
 
 # getdata
 # it's impossible to install target from subfolder, so we have to move GetData target to top level or split installation
 # I prefer to move GetData from subfolder to top level CMakeLists.txt
 add_library (
-    GetData STATIC
+    ${GET_DATA_NAME} STATIC
     cpp-package/src/board_shim.cpp
     cpp-package/src/data_handler.cpp
 )
 
 target_include_directories (
-    GetData PRIVATE
+    ${GET_DATA_NAME} PRIVATE
     src/board_controller/inc
 )
 
 if (UNIX)
-    target_link_libraries (GetData pthread BoardController)
+    target_link_libraries (${GET_DATA_NAME} pthread ${BOARD_CONTROLLER_NAME})
 else (UNIX)
-    target_link_libraries (GetData BoardController)
+    target_link_libraries (${GET_DATA_NAME} ${BOARD_CONTROLLER_NAME})
 endif (UNIX)
 
 # copy
 if (MSVC)
-    add_custom_command (TARGET BoardController POST_BUILD
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/BoardController.dll" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/BoardController.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/BoardController.dll" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/BoardController.dll"
+    add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${COMPILED_FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${COMPILED_FILE_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${COMPILED_FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${COMPILED_FILE_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/board_controller/inc/board_controller.h" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/inc/board_controller.h"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/BoardController.dll" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/BoardController.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/BoardController.dll" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/BoardController.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/BoardController.dll" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/BoardController.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${COMPILED_FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${COMPILED_FILE_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${COMPILED_FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/${COMPILED_FILE_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${COMPILED_FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${COMPILED_FILE_NAME}"
     )
 endif (MSVC)
 if (UNIX)
-    add_custom_command (TARGET BoardController POST_BUILD
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/libBoardController.so" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/libBoardController.so"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/libBoardController.so" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/libBoardController.so"
+    add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${COMPILED_FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${COMPILED_FILE_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${COMPILED_FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${COMPILED_FILE_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/board_controller/inc/board_controller.h" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/inc/board_controller.h"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/libBoardController.so" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/libBoardController.so"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/libBoardController.so" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/libBoardController.so"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/libBoardController.so" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/libBoardController.so"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${COMPILED_FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${COMPILED_FILE_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${COMPILED_FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/${COMPILED_FILE_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${COMPILED_FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${COMPILED_FILE_NAME}"
     )
 endif (UNIX)
 
@@ -157,7 +179,7 @@ install (
 )
 
 install (
-    TARGETS BoardController GetData
+    TARGETS ${BOARD_CONTROLLER_NAME} ${GET_DATA_NAME}
     EXPORT ${targets_export_name}
     RUNTIME DESTINATION lib
     LIBRARY DESTINATION lib

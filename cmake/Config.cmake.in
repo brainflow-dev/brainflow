@@ -12,14 +12,26 @@ check_required_components("@PROJECT_NAME@")
 set (@PROJECT_NAME@_INCLUDE_DIRS @package_inc_install_dir@)
 set (@PROJECT_NAME@_LIBRARY_DIRS @package_lib_install_dir@)
 
+if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+    MESSAGE ("64 bits compiler detected")
+    SET (PLATFORM_ACH "X64")
+    SET (BOARD_CONTROLLER_NAME "BoardController" "libBoardController")
+    SET (GET_DATA_NAME "GetData" "libGetData")
+else (CMAKE_SIZEOF_VOID_P EQUAL 8)
+    MESSAGE ("32 bits compiler detected")
+    SET (PLATFORM_ACH "X86")
+    SET (BOARD_CONTROLLER_NAME "BoardController86" "libBoardController86")
+    SET (GET_DATA_NAME "GetData86" "libGetData86")
+endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
+
 find_library (
     BoardControllerPath
-    BoardController libBoardController
+    ${BOARD_CONTROLLER_NAME}
     PATHS @package_lib_install_dir@
 )
 
 find_library (
     GetDataPath
-    GetData libGetData
+    ${GET_DATA_NAME}
     PATHS @package_lib_install_dir@
 )
