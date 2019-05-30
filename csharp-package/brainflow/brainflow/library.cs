@@ -29,8 +29,7 @@ namespace brainflow
 
     public enum BoardIds
     {
-        CYTON_BOARD = 0,
-        UNIMPLEMENTED
+        CYTON_BOARD = 0
     };
 
     public static class Library
