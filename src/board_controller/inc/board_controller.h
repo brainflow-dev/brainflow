@@ -29,8 +29,7 @@ typedef enum
 
 typedef enum
 {
-    CYTON_BOARD = 0,
-    UNIMPLEMENTED
+    CYTON_BOARD = 0
 } BoardIds;
 
 #ifdef __cplusplus
