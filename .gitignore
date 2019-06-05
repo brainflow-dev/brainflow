@@ -332,6 +332,8 @@ ASALocalRun/
 .raw
 .txt
 
-build/
+build*
+installed*
+compiled/
 python/flowcat.egg-info/
 .Rproj.user
