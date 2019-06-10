@@ -24,12 +24,14 @@ typedef enum
     EMPTY_BUFFER_ERROR,
     INVALID_ARGUMENTS_ERROR,
     UNSUPPORTED_BOARD_ERROR,
-    BOARD_NOT_CREATED_ERROR
+    BOARD_NOT_CREATED_ERROR,
+    ANOTHER_BOARD_IS_CREATED_ERROR
 } CustomExitCodes;
 
 typedef enum
 {
-    CYTON_BOARD = 0
+    CYTON_BOARD = 0,
+    GANGLION_BOARD = 1
 } BoardIds;
 
 #ifdef __cplusplus

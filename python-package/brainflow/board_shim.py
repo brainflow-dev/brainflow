@@ -23,6 +23,12 @@ class CYTON (object):
     num_eeg_channels = 8
     package_length = 12
 
+class GANGLION (object):
+    board_id = 1
+    fs_hz = 200
+    num_eeg_channels = 4
+    package_length = 8
+
 
 class BoardControllerDLL (object):
 
@@ -109,6 +115,10 @@ class BoardShim (object):
             self.package_length = CYTON.package_length
             self.fs_hz = CYTON.fs_hz
             self.num_eeg_channels = CYTON.num_eeg_channels
+        elif board_id == GANGLION.board_id:
+            self.package_length = GANGLION.package_length
+            self.fs_hz = GANGLION.fs_hz
+            self.num_eeg_channels = GANGLION.num_eeg_channels
         else:
             raise BrainFlowError ('unsupported board type', StreamExitCodes.UNSUPPORTED_BOARD_ERROR.value)
 

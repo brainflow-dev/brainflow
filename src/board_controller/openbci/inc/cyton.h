@@ -27,6 +27,11 @@ public:
     Cyton (const char *port_name) : OpenBCIBoard (12, port_name)
     {
     }
+
+    int get_board_id ()
+    {
+        return GANGLION_BOARD;
+    }
 };
 
 #endif

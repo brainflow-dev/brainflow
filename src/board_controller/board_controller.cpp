@@ -7,6 +7,7 @@
 #include "board.h"
 #include "board_controller.h"
 #include "cyton.h"
+#include "ganglion.h"
 
 Board *board = NULL;
 std::mutex mutex;
@@ -15,14 +16,31 @@ int prepare_session (int board_id, char *port_name)
 {
     std::lock_guard<std::mutex> lock (mutex);
 
-    if (board)
+    if ((board) && (board->get_board_id () == board_id))
+    {
+        Board::board_logger->warn ("Session is already prepared");
         return STATUS_OK;
+    }
+    else
+    {
+        if (board)
+        {
+            Board::board_logger->error (
+                "Board with ID {} is already created you should release previous session first",
+                board->get_board_id ());
+            return ANOTHER_BOARD_IS_CREATED_ERROR;
+        }
+    }
 
     int res = STATUS_OK;
     switch (board_id)
     {
         case CYTON_BOARD:
             board = new Cyton (port_name);
+            res = board->prepare_session ();
+            break;
+        case GANGLION_BOARD:
+            board = new Ganglion (port_name);
             res = board->prepare_session ();
             break;
         default:

@@ -17,6 +17,7 @@ public:
         int num_samples, float *data_buf, double *ts_buf, int *returned_samples) = 0;
     virtual int get_board_data_count (int *result) = 0;
     virtual int get_board_data (int data_count, float *data_buf, double *ts_buf) = 0;
+    virtual int get_board_id () = 0;
 };
 
 #endif
