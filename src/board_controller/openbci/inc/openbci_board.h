@@ -1,16 +1,12 @@
 #ifndef OPENBCI_BOARD
 #define OPENBCI_BOARD
 
-#ifdef _WIN32
-#include <windows.h>
-#else
-#include <unistd.h>
-#endif
 #include <thread>
 
 #include "board.h"
 #include "board_controller.h"
 #include "data_buffer.h"
+#include "serial.h"
 
 #define MAX_CAPTURE_SAMPLES (86400 * 250) // should be enough for one day of capturing
 
@@ -23,12 +19,7 @@ protected:
     bool is_streaming;
     std::thread streaming_thread;
 
-    char port_name[64]; // should be enought to store port name
-#ifdef _WIN32
-    HANDLE port_descriptor;
-#else
-    int port_descriptor;
-#endif
+    Serial serial;
 
     DataBuffer *db;
     int num_channels;

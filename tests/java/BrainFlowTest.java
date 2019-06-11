@@ -16,7 +16,6 @@ public class BrainFlowTest {
 			throw new IllegalStateException ();
 		}
 		System.out.println (board_shim.get_board_data_count ());
-		System.out.println (board_shim.get_board_data ());
 		board_shim.release_session ();
 		System.out.println ("Released");
 	}

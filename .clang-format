@@ -22,7 +22,7 @@ IndentCaseLabels: 'true'
 IndentWidth: '4'
 KeepEmptyLinesAtTheStartOfBlocks: 'true'
 Language: Cpp
-MaxEmptyLinesToKeep: '1'
+MaxEmptyLinesToKeep: '2'
 NamespaceIndentation: All
 PointerAlignment: Right
 SpaceBeforeAssignmentOperators: 'true'

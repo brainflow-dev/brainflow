@@ -11,8 +11,9 @@ clone_depth: 3
 build: off
 
 init:
-  - cmd: set PATH=%PY_DIR%;%PY_DIR%\Scripts;%APPVEYOR_BUILD_FOLDER%\data\lib;%PATH%
+  - cmd: set PATH=%PY_DIR%;%PY_DIR%\Scripts;C:\Program Files\Java\jdk1.8.0\bin;%APPVEYOR_BUILD_FOLDER%\installed\lib;%APPVEYOR_BUILD_FOLDER%\installed32\lib;%PATH%
   - cmd: set CNC_INSTALL_CNCA0_CNCB0_PORTS="YES"
+  - cmd: set JAVA_HOME=C:\Program Files\Java\jdk1.8.0
 
 install:
   - pip install .\emulator\
@@ -21,8 +22,14 @@ install:
   - .\emulator\brainflow_emulator\com0com\certmgr.exe /add .\emulator\brainflow_emulator\com0com\com0com.cer /s /r localMachine trustedpublisher
 
 test_script:
-  - python .\emulator\brainflow_emulator\cyton_windows.py python .\tests\python\brainflow_get_data.py
-  - cmake_build.cmd
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py python .\tests\python\brainflow_get_data.py
+  - mkdir build && cd build && cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed\ .. && cmake --build . --target install --config Release
+  - mkdir %APPVEYOR_BUILD_FOLDER%\tests\cpp\build && cd %APPVEYOR_BUILD_FOLDER%\tests\cpp\build && cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%APPVEYOR_BUILD_FOLDER%\installed\ .. && cmake --build . && python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\build\Debug\test_get_data.exe
+  # I've checked there is a jdk and mvn preinstalled in image, don't need to install them from chocolatey
+  - cd %APPVEYOR_BUILD_FOLDER%\java-package\brainflow && mvn package && cd ..\..\tests\java && javac -classpath ..\..\java-package\brainflow\target\brainflow-java-jar-with-dependencies.jar BrainFlowTest.java
+  # tests for 32 bit
+  - mkdir %APPVEYOR_BUILD_FOLDER%\build32 && cd %APPVEYOR_BUILD_FOLDER%\build32 && cmake -G "Visual Studio 14 2015" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed32\ .. && cmake --build . --target install --config Release
+  - mkdir %APPVEYOR_BUILD_FOLDER%\tests\cpp\build32 && cd %APPVEYOR_BUILD_FOLDER%\tests\cpp\build32 && cmake -G "Visual Studio 14 2015" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%APPVEYOR_BUILD_FOLDER%\installed32\ .. && cmake --build . && python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\build32\Debug\test_get_data.exe
 
 notifications:
   - provider: Email

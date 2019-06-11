@@ -3,6 +3,7 @@ project (brainflow)
 
 set (CMAKE_CXX_STANDARD 11)
 set (CMAKE_VERBOSE_MAKEFILE ON)
+set (BRAINFLOW_VERSION 1.0.0)
 
 macro (configure_msvc_runtime)
     if (MSVC)
@@ -43,32 +44,58 @@ macro (configure_msvc_runtime)
     endif ()
 endmacro ()
 
+# link msvc runtime statically
 if (MSVC)
     configure_msvc_runtime()
 endif ()
 
-include_directories (
+if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+    MESSAGE ("64 bits compiler detected")
+    SET (PLATFORM_ACH "X64")
+    SET (BOARD_CONTROLLER_NAME "BoardController")
+    SET (GET_DATA_NAME "GetData")
+    if (UNIX)
+        SET (COMPILED_FILE_NAME "libBoardController.so")
+    else (UNIX)
+        SET (COMPILED_FILE_NAME "BoardController.dll")
+    endif (UNIX)
+else (CMAKE_SIZEOF_VOID_P EQUAL 8)
+    MESSAGE ("32 bits compiler detected")
+    SET (PLATFORM_ACH "X86")
+    SET (BOARD_CONTROLLER_NAME "BoardController86")
+    SET (GET_DATA_NAME "GetData86")
+    if (UNIX)
+        SET (COMPILED_FILE_NAME "libBoardController86.so")
+    else (UNIX)
+        SET (COMPILED_FILE_NAME "BoardController86.dll")
+    endif (UNIX)
+endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
+
+# boardcontroller
+set (LIBRARY_SRC
+    "src/utils/timestamp.cpp"
+    "src/utils/data_buffer.cpp"
+    "src/utils/serial.cpp"
+    "src/board_controller/openbci/openbci_board.cpp"
+    "src/board_controller/openbci/cyton.cpp"
+    "src/board_controller/board_controller.cpp"
+    "src/board_controller/board.cpp"
+)
+
+add_library (
+    ${BOARD_CONTROLLER_NAME} SHARED
+    ${LIBRARY_SRC}
+)
+
+target_include_directories (
+    ${BOARD_CONTROLLER_NAME} PRIVATE
     inc
     src/utils/
     src/board_controller/inc
     src/board_controller/openbci/inc
 )
 
-set (LIBRARY_SRC
-    "src/utils/timestamp.cpp"
-    "src/utils/data_buffer.cpp"
-    "src/board_controller/openbci/openbci_board.cpp"
-    "src/board_controller/openbci/cyton.cpp"
-    "src/board_controller/board_controller.cpp"
-    "src/board_controller/board.cpp"
-    )
-
-add_library (
-    BoardController SHARED
-    ${LIBRARY_SRC}
-)
-
-set_target_properties (BoardController
+set_target_properties (${BOARD_CONTROLLER_NAME}
     PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_HOME_DIRECTORY}/compiled"
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_HOME_DIRECTORY}/compiled"
@@ -76,5 +103,97 @@ set_target_properties (BoardController
 )
 
 if (UNIX)
-    target_link_libraries (BoardController -lpthread)
+    target_link_libraries (${BOARD_CONTROLLER_NAME} -lpthread)
 endif (UNIX)
+
+# getdata
+# it's impossible to install target from subfolder, so we have to move GetData target to top level or split installation
+# I prefer to move GetData from subfolder to top level CMakeLists.txt
+add_library (
+    ${GET_DATA_NAME} STATIC
+    cpp-package/src/board_shim.cpp
+    cpp-package/src/data_handler.cpp
+)
+
+target_include_directories (
+    ${GET_DATA_NAME} PRIVATE
+    src/board_controller/inc
+)
+
+if (UNIX)
+    target_link_libraries (${GET_DATA_NAME} pthread ${BOARD_CONTROLLER_NAME})
+else (UNIX)
+    target_link_libraries (${GET_DATA_NAME} ${BOARD_CONTROLLER_NAME})
+endif (UNIX)
+
+# copy
+if (MSVC)
+    add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${COMPILED_FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${COMPILED_FILE_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${COMPILED_FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${COMPILED_FILE_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/board_controller/inc/board_controller.h" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/inc/board_controller.h"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${COMPILED_FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${COMPILED_FILE_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${COMPILED_FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/${COMPILED_FILE_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${COMPILED_FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${COMPILED_FILE_NAME}"
+    )
+endif (MSVC)
+if (UNIX)
+    add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${COMPILED_FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${COMPILED_FILE_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${COMPILED_FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${COMPILED_FILE_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/board_controller/inc/board_controller.h" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/inc/board_controller.h"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${COMPILED_FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${COMPILED_FILE_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${COMPILED_FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/${COMPILED_FILE_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${COMPILED_FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${COMPILED_FILE_NAME}"
+    )
+endif (UNIX)
+
+# install
+set (version_config "${CMAKE_HOME_DIRECTORY}/compiled/brainflowConfigVersion.cmake")
+set (config_install_dir "lib/cmake/brainflow")
+set (project_config "${CMAKE_HOME_DIRECTORY}/compiled/brainflowConfig.cmake")
+set (targets_export_name brainflowTargets)
+set (package_lib_install_dir ${CMAKE_INSTALL_PREFIX}/lib)
+set (package_inc_install_dir ${CMAKE_INSTALL_PREFIX}/inc)
+
+include (CMakePackageConfigHelpers)
+
+write_basic_package_version_file (
+    "${version_config}"
+    VERSION ${BRAINFLOW_VERSION}
+    COMPATIBILITY AnyNewerVersion
+)
+
+configure_package_config_file (
+    "cmake/Config.cmake.in"
+    "${project_config}"
+    INSTALL_DESTINATION "${config_install_dir}"
+)
+
+install (
+    FILES
+    "src/board_controller/inc/board_controller.h"
+    "cpp-package/src/data_handler.h"
+    "cpp-package/src/board_shim.h"
+    DESTINATION inc
+)
+
+install (
+    TARGETS ${BOARD_CONTROLLER_NAME} ${GET_DATA_NAME}
+    EXPORT ${targets_export_name}
+    RUNTIME DESTINATION lib
+    LIBRARY DESTINATION lib
+    INCLUDES DESTINATION inc
+    ARCHIVE DESTINATION lib
+)
+
+install (
+    FILES "${project_config}" "${version_config}"
+    DESTINATION "${config_install_dir}"
+)
+
+install (
+    EXPORT ${targets_export_name}
+    NAMESPACE brainflow::
+    DESTINATION "${config_install_dir}"
+)

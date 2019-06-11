@@ -1,9 +1,8 @@
 # C#
-* [C# binding for brainflow library(for now Windows only)](https://github.com/Andrey1994/brainflow/tree/master/csharp-package/brainflow/brainflow)
-* [Test sample](https://github.com/Andrey1994/brainflow/tree/master/csharp-package/brainflow/test)
-* [Compiled C# dll and all dependencies (archive in Git LFS)](https://github.com/Andrey1994/brainflow/blob/master/csharp-package/brainflow/test/bin/Release/executables_and_dlls.zip)
+* [C# binding for brainflow library(for now Windows only)](./brainflow/brainflow)
+* [Test sample](./brainflow/test)
 
-You will need to install Nuget packages to build it yourself
+You will need to install Nuget packages to build it yourself and compile it using Microsoft Visual Studio
 
 ## Example:
 ```

@@ -1,0 +1,14 @@
+README.md
+setup.py
+brainflow/__init__.py
+brainflow/board_shim.py
+brainflow/exit_codes.py
+brainflow/preprocess.py
+brainflow.egg-info/PKG-INFO
+brainflow.egg-info/SOURCES.txt
+brainflow.egg-info/dependency_links.txt
+brainflow.egg-info/requires.txt
+brainflow.egg-info/top_level.txt
+brainflow.egg-info/zip-safe
+brainflow/lib/BoardController.dll
+brainflow/lib/libBoardController.so

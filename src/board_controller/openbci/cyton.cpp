@@ -24,33 +24,40 @@ void Cyton::read_thread ()
     while (keep_alive)
     {
         // check start byte
-        res = read_from_serial_port (port_descriptor, b, 1);
+        res = serial.read_from_serial_port (b, 1);
         if (res != 1)
         {
             Board::board_logger->debug ("unable to read 1 byte");
             continue;
         }
         if (b[0] != START_BYTE)
+        {
             continue;
+        }
 
-        res = read_from_serial_port (port_descriptor, b, 32);
+        res = serial.read_from_serial_port (b, 32);
         if (res != 32)
         {
             Board::board_logger->debug ("unable to read 32 bytes");
             continue;
         }
         // check end byte
-        if (b[res] != END_BYTE)
-            Board::board_logger->debug ("Wrong end byte, found {}, required {}", b[res], END_BYTE);
-        else
+        if (b[res - 1] != END_BYTE)
+        {
+            Board::board_logger->warn (
+                "Wrong end byte, found {}, required {}", b[res - 1], END_BYTE);
             continue;
+        }
 
         float package[12];
+        // package num
         package[0] = (float)b[0];
+        // eeg
         for (int i = 0; i < 8; i++)
         {
             package[i + 1] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
         }
+        // accel
         package[9] = accel_scale * cast_16bit_to_int32 (b + 25);
         package[10] = accel_scale * cast_16bit_to_int32 (b + 27);
         package[11] = accel_scale * cast_16bit_to_int32 (b + 29);
