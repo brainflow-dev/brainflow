@@ -4,7 +4,9 @@ Brainflow is a library intended to obtain, parse and analyze EEG\EMG\ECG data fr
 
 Core module of this library is implemented in C\C++ and available for all bindings as a dynamic library. This approach allows to reduce code duplication and simplify maintenance, also it's better than any streaming based solution because using this library you don't need to worry about inter process communication and it's a single dependency.
 
-This project was forked by OpenBCI from [Andrey1994/brainflow](https://github.com/Andrey1994/brainflow) and now this is the official version which is supported by OpenBCI and @Andrey1994
+
+## *NOTE: Brainflow was forked by OpenBCI community, I will contribute to [OpenBCI's fork](https://github.com/OpenBCI/brainflow) and maintain it. To download the latest stable version of Brainflow feel free to use OpenBCI's fork. From now on I will use this Brainflow version as a development environment to send Pull Requests to OpenBCI*
+
 
 ## Build status
 *Linux(Travis)*:
@@ -88,6 +90,19 @@ def main ():
 if __name__ == "__main__":
     main ()
 ```
+
+
+## Applications
+### GUI
+Brainflow GUI is based on R Shiny package and provides simple UI to monitor EEG\EMG\ECG data
+![image1](https://farm2.staticflickr.com/1842/30854740608_e40c6c5248_o_d.png)
+### P300 Speller
+P300 speller is based on [Event Related Potentials](https://en.wikipedia.org/wiki/Event-related_potential). I use TKInter to draw UI and [LDA](https://scikit-learn.org/stable/modules/generated/sklearn.discriminant_analysis.LinearDiscriminantAnalysis.html) to perform classification
+#### Installation
+* Electrode placement: P3,P4,C3,C4,T5,T6,O1,O2
+* Install [Git LFS](https://git-lfs.github.com/) because I use it to save eeg data and pickled classifier
+* Use Python 2.7 x64, and install packages from requirements.txt, to use Python 3 you will need to retrain the classifier(Pickle is not portable between different OSes and Python's versions)
+[![Watch the video](https://farm8.staticflickr.com/7811/45713649104_1b32faa349_h.jpg)](https://youtu.be/1GdjMx5t4ls)
 
 ## Brainflow Emulator
 
