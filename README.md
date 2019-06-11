@@ -103,7 +103,7 @@ P300 speller is based on [Event Related Potentials](https://en.wikipedia.org/wik
 #### Installation
 * Electrode placement: P3,P4,C3,C4,T5,T6,O1,O2
 * Install [Git LFS](https://git-lfs.github.com/) because I use it to save eeg data and pickled classifier
-* Use Python 2.7 x64, and install packages from requirements.txt, to use Python 3 you will need to retrain the classifier(Pickle is not portable between different OSes and Python's versions)
+* Use Python >=3.x x64, and install packages from requirements.txt
 [![Watch the video](https://farm8.staticflickr.com/7811/45713649104_1b32faa349_h.jpg)](https://youtu.be/1GdjMx5t4ls)
 
 ## Brainflow Emulator
