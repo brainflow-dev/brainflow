@@ -93,6 +93,8 @@ if __name__ == "__main__":
 
 
 ## Applications
+### [Brainapps Repo](https://github.com/Andrey1994/brainapps)
+
 ### GUI
 Brainflow GUI is based on R Shiny package and provides simple UI to monitor EEG\EMG\ECG data
 ![image1](https://farm2.staticflickr.com/1842/30854740608_e40c6c5248_o_d.png)
