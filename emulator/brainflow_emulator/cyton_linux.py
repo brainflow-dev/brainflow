@@ -16,10 +16,9 @@ def read (port, num_bytes):
 def get_ports_pty ():
     master, slave = pty.openpty ()
     s_name = os.ttyname (slave)
-    m_name = os.ttyname (master)
-    return master, slave, m_name, s_name
+    return master, slave, s_name
 
-def test_serial (cmd_list, master, slave, m_name, s_name):
+def test_serial (cmd_list, master, slave, s_name):
     listen_thread = Listener (master, write, read)
     listen_thread.daemon = True
     listen_thread.start ()
@@ -40,8 +39,8 @@ def test_serial (cmd_list, master, slave, m_name, s_name):
 def main (cmd_list):
     if not cmd_list:
         raise Exception ('No command to execute')
-    master, slave, m_name, s_name = get_ports_pty ()
-    test_serial (cmd_list, master, slave, m_name, s_name)
+    master, slave, s_name = get_ports_pty ()
+    test_serial (cmd_list, master, slave, s_name)
 
 
 if __name__=='__main__':
