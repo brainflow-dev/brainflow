@@ -4,15 +4,15 @@ DataBuffer::DataBuffer (int num_samples, size_t buffer_size)
 {
     this->buffer_size = buffer_size;
     this->num_samples = num_samples;
-    data = (float *)malloc (buffer_size * sizeof (float) * num_samples);
-    timestamps = (double *)malloc (buffer_size * sizeof (double));
+    data = new float[buffer_size * num_samples];
+    timestamps = new double[buffer_size];
     first_free = first_used = count = 0;
 }
 
 DataBuffer::~DataBuffer ()
 {
-    free (data);
-    free (timestamps);
+    delete[] data;
+    delete[] timestamps;
 }
 
 bool DataBuffer::is_ready ()
