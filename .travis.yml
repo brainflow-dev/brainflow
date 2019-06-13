@@ -3,10 +3,6 @@ dist: xenial
 
 language: java
 
-os:
-  - linux
-  - osx
-
 before_script:
   - sudo -H apt-get update
   - sudo -H apt-get install -y maven python3 python3-setuptools python3-pip
