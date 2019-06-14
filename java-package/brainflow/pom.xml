@@ -22,6 +22,7 @@
         <includes>
           <include>BoardController.dll</include>
           <include>libBoardController.so</include>
+          <include>libBoardController.dylib</include>
         </includes>
       </resource>
     </resources>
