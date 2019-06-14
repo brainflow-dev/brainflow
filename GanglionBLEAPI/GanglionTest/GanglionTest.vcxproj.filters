@@ -15,4 +15,7 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="dll_loader.h" />
+  </ItemGroup>
 </Project>

@@ -1,11 +1,9 @@
 #ifndef RUNTIME_DLL_LOADER
 #define RUNTIME_DLL_LOADER
 
+#include <string.h>
 #ifdef _WIN32
 #include <windows.h>
-// I dont want to care about unicode string, force undef it here to use char* as LPSTR
-#undef _UNICODE
-#undef UNICODE
 typedef __declspec(dllimport) int(__cdecl *DLLFunc) (LPVOID);
 #endif
 
@@ -28,7 +26,7 @@ public:
 #ifdef _WIN32
     bool load_library ()
     {
-        lib_instance = LoadLibrary (TEXT (this->dll_path));
+        lib_instance = LoadLibrary (this->dll_path);
         if (lib_instance == NULL)
         {
             return false;
@@ -59,8 +57,8 @@ public:
 #endif
 
 private:
-    char dll_path[1024];
 #ifdef _WIN32
+    char dll_path[64];
     HINSTANCE lib_instance;
 #endif
 };

@@ -6,6 +6,7 @@
 #include <Windows.h>
 
 #include "GanglionNativeInterface.h"
+#include "dll_loader.h"
 
 void check_exit_code (int ec, const char *message)
 {
@@ -20,19 +21,44 @@ void check_exit_code (int ec, const char *message)
     }
 }
 
-int main()
+int main(int argc, char *argv[])
 {
-    struct GanglionLibNative::GanglionDataNative data;
-
-    int res = GanglionLibNative::open_ganglion_native (NULL);
+    DLLLoader *dll_loader = NULL;
+    if (sizeof (void *) == 8)
+    {
+        const char *dll_name = "GanglionLibNative64.dll";
+        dll_loader = new DLLLoader (dll_name);
+    }
+    else
+    {
+        const char *dll_name = "GanglionLibNative32.dll";
+        dll_loader = new DLLLoader (dll_name);
+    }
+    if (!dll_loader->load_library ())
+    {
+        return 1;
+    }
+    DLLFunc func = dll_loader->get_address ("open_ganglion_mac_addr_native");
+    if (func == NULL)
+    {
+        return 2;
+    }
+    int res = (func) (argv[1]);
     check_exit_code (res, "open");
-    check_exit_code (res, "pair");
-    res = GanglionLibNative::start_stream_native (NULL);
+    
+    func = dll_loader->get_address ("start_stream_native");
+    if (func == NULL)
+    {
+        return 3;
+    }
+    res = (func) (NULL);
     check_exit_code (res, "start");
     // in real usage it will be in abother thread in infinitive loop like while(!shouldStop).....
+    struct GanglionLibNative::GanglionDataNative data;
+    func = dll_loader->get_address ("get_data_native");
     for (int i = 0; i < 500; i++)
     {
-        res = GanglionLibNative::get_data_native ((LPVOID)&data);
+        res = (func) ((LPVOID)&data);
         if (res == GanglionLibNative::CustomExitCodesNative::STATUS_OK)
         {
             std::cout << "timestamp:" << data.timestamp << std::endl;
@@ -48,7 +74,7 @@ int main()
             Sleep (100);
         }
     }
-    res = GanglionLibNative::close_ganglion_native (NULL);
-    check_exit_code (res, "close");
+    func = dll_loader->get_address ("close_ganglion_native");
+    (func) (NULL);
     return 0;
 }

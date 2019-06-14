@@ -191,7 +191,9 @@ void Ganglion::read_thread ()
     while (keep_alive)
     {
         struct GanglionLibNative::GanglionDataNative data;
+#ifdef _WIN32
         int res = (func) ((LPVOID)&data);
+#endif
         if (res == GanglionLibNative::CustomExitCodesNative::STATUS_OK)
         {
             for (int i = 0; i < 20; i++)
