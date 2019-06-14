@@ -18,7 +18,7 @@
     <ClInclude Include="Wrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GanglionNativeInterface.h">
+    <ClInclude Include="..\Interface\GanglionNativeInterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

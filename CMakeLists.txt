@@ -58,6 +58,10 @@ if (CMAKE_SIZEOF_VOID_P EQUAL 8)
         SET (COMPILED_FILE_NAME "libBoardController.so")
     else (UNIX)
         SET (COMPILED_FILE_NAME "BoardController.dll")
+        SET (GANGLION_LIB_NATIVE_PATH "${CMAKE_HOME_DIRECTORY}/GanglionBLEAPI/x64/Release/GanglionLibNative64.dll")
+        SET (GANGLION_LIB_PATH "${CMAKE_HOME_DIRECTORY}/GanglionBLEAPI/x64/Release/GanglionLib.dll")
+        SET (GANGLION_LIB_NATIVE_NAME "GanglionLibNative64.dll")
+        SET (GANGLION_LIB_NAME "GanglionLib.dll")
     endif (UNIX)
 else (CMAKE_SIZEOF_VOID_P EQUAL 8)
     MESSAGE ("32 bits compiler detected")
@@ -68,6 +72,10 @@ else (CMAKE_SIZEOF_VOID_P EQUAL 8)
         SET (COMPILED_FILE_NAME "libBoardController86.so")
     else (UNIX)
         SET (COMPILED_FILE_NAME "BoardController86.dll")
+        SET (GANGLION_LIB_NATIVE_PATH "${CMAKE_HOME_DIRECTORY}/GanglionBLEAPI/Win32/Release/GanglionLibNative32.dll")
+        SET (GANGLION_LIB_PATH "${CMAKE_HOME_DIRECTORY}/GanglionBLEAPI/Win32/Release/GanglionLib.dll")
+        SET (GANGLION_LIB_NATIVE_NAME "GanglionLibNative32.dll")
+        SET (GANGLION_LIB_NAME "GanglionLib.dll")
     endif (UNIX)
 endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
 
@@ -76,7 +84,8 @@ set (LIBRARY_SRC
     "src/utils/timestamp.cpp"
     "src/utils/data_buffer.cpp"
     "src/utils/serial.cpp"
-    "src/board_controller/openbci/openbci_board.cpp"
+    "src/board_controller/openbci/openbci_serial_board.cpp"
+    "src/board_controller/openbci/ganglion.cpp"
     "src/board_controller/openbci/cyton.cpp"
     "src/board_controller/board_controller.cpp"
     "src/board_controller/board.cpp"
@@ -93,6 +102,7 @@ target_include_directories (
     src/utils/
     src/board_controller/inc
     src/board_controller/openbci/inc
+    GanglionBLEAPI/Interface
 )
 
 set_target_properties (${BOARD_CONTROLLER_NAME}
@@ -135,6 +145,8 @@ if (MSVC)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${COMPILED_FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${COMPILED_FILE_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${COMPILED_FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/${COMPILED_FILE_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${COMPILED_FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${COMPILED_FILE_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${GANGLION_LIB_NATIVE_PATH}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${GANGLION_LIB_NATIVE_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${GANGLION_LIB_PATH}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${GANGLION_LIB_NAME}"
     )
 endif (MSVC)
 if (UNIX)

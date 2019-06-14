@@ -1,16 +1,16 @@
-#ifndef OPENBCI_BOARD
-#define OPENBCI_BOARD
+#ifndef GANGLION
+#define GANGLION
 
 #include <thread>
 
 #include "board.h"
 #include "board_controller.h"
 #include "data_buffer.h"
-#include "serial.h"
+#include "runtime_dll_loader.h"
 
 #define MAX_CAPTURE_SAMPLES (86400 * 250) // should be enough for one day of capturing
 
-class OpenBCIBoard : public Board
+class Ganglion : public Board
 {
 
 protected:
@@ -19,29 +19,29 @@ protected:
     bool is_streaming;
     std::thread streaming_thread;
 
-    Serial serial;
-
-    DataBuffer *db;
+    char mac_addr[1024];
+    bool use_mac_addr;
     int num_channels;
+    DLLLoader *dll_loader;
 
-    virtual int open_port ();
-    virtual int send_to_board (char *message);
-    virtual int status_check ();
-    virtual int set_port_settings ();
-    virtual void read_thread () = 0;
+    void read_thread ();
 
 public:
-    OpenBCIBoard (int num_channels, const char *port_name);
-    virtual ~OpenBCIBoard ();
+    Ganglion (const char *port_name);
+    ~Ganglion ();
 
-    virtual int prepare_session ();
-    virtual int start_stream (int buffer_size);
-    virtual int stop_stream ();
-    virtual int release_session ();
+    int prepare_session ();
+    int start_stream (int buffer_size);
+    int stop_stream ();
+    int release_session ();
     int get_current_board_data (
         int num_samples, float *data_buf, double *ts_buf, int *returned_samples);
     int get_board_data_count (int *result);
     int get_board_data (int data_count, float *data_buf, double *ts_buf);
+    int get_board_id ()
+    {
+        return GANGLION_BOARD;
+    }
 };
 
 #endif

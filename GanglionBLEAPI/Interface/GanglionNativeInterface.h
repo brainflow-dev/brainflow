@@ -1,15 +1,18 @@
 #pragma once
 
+#ifdef _WIN32
+#include <Windows.h>
+#endif
 
 namespace GanglionLibNative
 {
-    #pragma pack (push, 1)
+#pragma pack(push, 1)
     struct GanglionDataNative
     {
         unsigned char data[20];
         long timestamp;
     };
-    #pragma pack (pop)
+#pragma pack(pop)
 
     enum CustomExitCodesNative
     {
@@ -30,16 +33,17 @@ namespace GanglionLibNative
         NO_DATA_ERROR
     };
 
-    #ifdef __cplusplus
+#ifdef __cplusplus
     extern "C"
     {
-        __declspec(dllexport) int open_ganglion_native ();
-        __declspec(dllexport) int open_ganglion_mac_addr_native (char *macAddr);
-        __declspec(dllexport) int pair_ganglion_native ();
-        __declspec(dllexport) int stop_stream_native ();
-        __declspec(dllexport) int start_stream_native ();
-        __declspec(dllexport) int close_ganglion_native ();
-        __declspec(dllexport) int get_data_native (struct GanglionDataNative *board_data);
+#ifdef _WIN32
+        __declspec(dllexport) int __cdecl open_ganglion_native (LPVOID param);
+        __declspec(dllexport) int __cdecl open_ganglion_mac_addr_native (LPVOID param);
+        __declspec(dllexport) int __cdecl stop_stream_native (LPVOID param);
+        __declspec(dllexport) int __cdecl start_stream_native (LPVOID param);
+        __declspec(dllexport) int __cdecl close_ganglion_native (LPVOID param);
+        __declspec(dllexport) int __cdecl get_data_native (LPVOID param);
+#endif
     }
-    #endif
+#endif
 }

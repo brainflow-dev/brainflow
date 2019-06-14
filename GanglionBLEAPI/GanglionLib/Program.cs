@@ -27,17 +27,29 @@ namespace GanglionLib
 
         public int open_ganglion ()
         {
-            var task = open_ganglion_async ("");
-            task.Wait ();
-            return task.Result;
+            var task_open = open_ganglion_async ("");
+            task_open.Wait ();
+            if (task_open.Result != (int)CustomExitCodes.STATUS_OK)
+            {
+                return task_open.Result;
+            }
+            var task_pair = pair_ganglion_async ();
+            task_pair.Wait ();
+            return task_pair.Result;
         }
 
 
         public int open_ganglion (string mac_addr)
         {
-            var task = open_ganglion_async (mac_addr);
-            task.Wait ();
-            return task.Result;
+            var task_open = open_ganglion_async (mac_addr);
+            task_open.Wait ();
+            if (task_open.Result != (int) CustomExitCodes.STATUS_OK)
+            {
+                return task_open.Result;
+            }
+            var task_pair = pair_ganglion_async ();
+            task_pair.Wait ();
+            return task_pair.Result;
         }
 
         unsafe public BoardData get_data ()
@@ -65,13 +77,6 @@ namespace GanglionLib
             }
         }
 
-        public int pair_ganglion ()
-        {
-            var task = pair_ganglion_async ();
-            task.Wait ();
-            return task.Result;
-        }
-
         public int close_ganglion ()
         {
             var unsubTask = disable_notifications ();
@@ -97,7 +102,6 @@ namespace GanglionLib
             send_characteristic = null;
             receive_characteristic = null;
             disconnect_characteristic = null;
-
             return (int) CustomExitCodes.STATUS_OK;
         }
 

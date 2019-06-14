@@ -5,7 +5,7 @@
 #include <string>
 #include <Windows.h>
 
-#include "../Wrapper/GanglionNativeInterface.h"
+#include "GanglionNativeInterface.h"
 
 void check_exit_code (int ec, const char *message)
 {
@@ -24,16 +24,15 @@ int main()
 {
     struct GanglionLibNative::GanglionDataNative data;
 
-    int res = GanglionLibNative::open_ganglion_native ();
+    int res = GanglionLibNative::open_ganglion_native (NULL);
     check_exit_code (res, "open");
-    res = GanglionLibNative::pair_ganglion_native ();
     check_exit_code (res, "pair");
-    res = GanglionLibNative::start_stream_native ();
+    res = GanglionLibNative::start_stream_native (NULL);
     check_exit_code (res, "start");
     // in real usage it will be in abother thread in infinitive loop like while(!shouldStop).....
     for (int i = 0; i < 500; i++)
     {
-        res = GanglionLibNative::get_data_native (&data);
+        res = GanglionLibNative::get_data_native ((LPVOID)&data);
         if (res == GanglionLibNative::CustomExitCodesNative::STATUS_OK)
         {
             std::cout << "timestamp:" << data.timestamp << std::endl;
@@ -49,7 +48,7 @@ int main()
             Sleep (100);
         }
     }
-    res = GanglionLibNative::close_ganglion_native ();
+    res = GanglionLibNative::close_ganglion_native (NULL);
     check_exit_code (res, "close");
     return 0;
 }
