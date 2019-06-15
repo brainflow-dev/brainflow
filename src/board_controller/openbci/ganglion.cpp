@@ -54,10 +54,21 @@ int Ganglion::prepare_session ()
         Board::board_logger->error ("failed to load library");
         return GENERAL_ERROR;
     }
+
+    Board::board_logger->debug ("Library is loaded");
     int res = STATUS_OK;
+    DLLFunc func = dll_loader->get_address ("initialize");
+    if (func == NULL)
+    {
+        Board::board_logger->error ("failed to get function address for initialize");
+        return GENERAL_ERROR;
+    }
+    res = (func) (NULL);
+    Board::board_logger->debug ("ganglionlib initialized");
+
     if (this->use_mac_addr)
     {
-        DLLFunc func = dll_loader->get_address ("open_ganglion_mac_addr_native");
+        func = dll_loader->get_address ("open_ganglion_mac_addr_native");
         if (func == NULL)
         {
             Board::board_logger->error (
@@ -68,7 +79,7 @@ int Ganglion::prepare_session ()
     }
     else
     {
-        DLLFunc func = dll_loader->get_address ("open_ganglion_native");
+        func = dll_loader->get_address ("open_ganglion_native");
         if (func == NULL)
         {
             Board::board_logger->error ("failed to get function address for open_ganglion_native");
@@ -81,6 +92,7 @@ int Ganglion::prepare_session ()
         Board::board_logger->error ("failed to Open Ganglion Device");
         return GENERAL_ERROR;
     }
+
     initialized = true;
     return STATUS_OK;
 }

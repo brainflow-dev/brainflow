@@ -3,6 +3,7 @@
 using namespace System;
 using namespace GanglionLib;
 
+
 namespace Wrapper
 {
     public ref class GanglionLibWrapper
@@ -14,5 +15,6 @@ namespace Wrapper
     public:
         Ganglion ^ganglion_obj;
         static GanglionLibWrapper ^instance = gcnew GanglionLibWrapper ();
+
     };
 }

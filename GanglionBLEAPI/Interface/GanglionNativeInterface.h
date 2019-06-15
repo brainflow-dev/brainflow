@@ -37,12 +37,13 @@ namespace GanglionLibNative
     extern "C"
     {
 #ifdef _WIN32
-        __declspec(dllexport) int __cdecl open_ganglion_native (LPVOID param);
-        __declspec(dllexport) int __cdecl open_ganglion_mac_addr_native (LPVOID param);
-        __declspec(dllexport) int __cdecl stop_stream_native (LPVOID param);
-        __declspec(dllexport) int __cdecl start_stream_native (LPVOID param);
-        __declspec(dllexport) int __cdecl close_ganglion_native (LPVOID param);
-        __declspec(dllexport) int __cdecl get_data_native (LPVOID param);
+        __declspec (dllexport) int initialize (LPVOID param);
+        __declspec (dllexport) int open_ganglion_native (LPVOID param);
+        __declspec (dllexport) int open_ganglion_mac_addr_native (LPVOID param);
+        __declspec (dllexport) int stop_stream_native (LPVOID param);
+        __declspec (dllexport) int start_stream_native (LPVOID param);
+        __declspec (dllexport) int close_ganglion_native (LPVOID param);
+        __declspec (dllexport) int get_data_native (LPVOID param);
 #endif
     }
 #endif

@@ -3,9 +3,57 @@
 
 using namespace GanglionLib;
 using namespace Wrapper;
+using namespace System;
+using namespace System::IO;
+using namespace System::Reflection;
 
 namespace GanglionLibNative
 {
+    bool is_initialized = false;
+    // I've tried to register handler in private constructor of GanglionLibWrapper - it doesnt work, so place it here and call manually
+    Assembly ^assembly_resolve (Object ^Sender, ResolveEventArgs ^args)
+    {
+        AssemblyName ^assemblyName = gcnew AssemblyName (args->Name);
+        if (assemblyName->Name == "GanglionLib")
+        {
+            String ^target_file_name = gcnew String ("GanglionLib.dll");
+            String ^path = Environment::GetEnvironmentVariable ("Path");
+            auto folders = path->Split (';');
+            for (int i = 0; i < folders->Length; i++)
+            {
+                try
+                {
+                    array<String ^> ^files = Directory::GetFiles (folders[i]);
+                    for (int j = 0; j < files->Length; j++)
+                    {
+                        if (files[j]->EndsWith (target_file_name))
+                        {
+                            return Assembly::LoadFile (files[j]);
+                        }
+                    }
+                }
+                catch (Exception ^ex)
+                {
+                    Console::WriteLine (ex->GetType ()->Name);
+               }
+            }
+        }
+
+        return nullptr;
+    }
+
+    int initialize (LPVOID param)
+    {
+        if (!is_initialized)
+        {
+            std::cout << "called" << std::endl;
+            AppDomain::CurrentDomain->AssemblyResolve +=
+                gcnew ResolveEventHandler (assembly_resolve);
+            is_initialized = true;
+        }
+        return (int)CustomExitCodesNative::STATUS_OK;
+    }
+
     int open_ganglion_native (LPVOID param)
     {
         Ganglion ^wrapper = GanglionLibWrapper::instance->ganglion_obj;
@@ -15,8 +63,8 @@ namespace GanglionLibNative
     int open_ganglion_mac_addr_native (LPVOID param)
     {
         Ganglion ^wrapper = GanglionLibWrapper::instance->ganglion_obj;
-        String ^macNew = gcnew String ((char*)param);
-        return wrapper->open_ganglion (macNew);
+        String ^mac_new = gcnew String ((char*)param);
+        return wrapper->open_ganglion (mac_new);
     }
 
     int close_ganglion_native (LPVOID param)
