@@ -27,29 +27,43 @@ namespace GanglionLib
 
         public int open_ganglion ()
         {
-            var task_open = open_ganglion_async ("");
-            task_open.Wait ();
-            if (task_open.Result != (int)CustomExitCodes.STATUS_OK)
+            try
             {
-                return task_open.Result;
+                var task_open = open_ganglion_async ("");
+                task_open.Wait ();
+                if (task_open.Result != (int) CustomExitCodes.STATUS_OK)
+                {
+                    return task_open.Result;
+                }
+                var task_pair = pair_ganglion_async ();
+                task_pair.Wait ();
+                return task_pair.Result;
             }
-            var task_pair = pair_ganglion_async ();
-            task_pair.Wait ();
-            return task_pair.Result;
+            catch (Exception ex)
+            {
+                return (int) CustomExitCodes.GENERAL_ERROR;
+            }
         }
 
 
         public int open_ganglion (string mac_addr)
         {
-            var task_open = open_ganglion_async (mac_addr);
-            task_open.Wait ();
-            if (task_open.Result != (int) CustomExitCodes.STATUS_OK)
+            try
             {
-                return task_open.Result;
+                var task_open = open_ganglion_async (mac_addr);
+                task_open.Wait ();
+                if (task_open.Result != (int) CustomExitCodes.STATUS_OK)
+                {
+                    return task_open.Result;
+                }
+                var task_pair = pair_ganglion_async ();
+                task_pair.Wait ();
+                return task_pair.Result;
             }
-            var task_pair = pair_ganglion_async ();
-            task_pair.Wait ();
-            return task_pair.Result;
+            catch (Exception ex)
+            {
+                return (int) CustomExitCodes.GENERAL_ERROR;
+            }
         }
 
         unsafe public BoardData get_data ()
@@ -79,8 +93,16 @@ namespace GanglionLib
 
         public int close_ganglion ()
         {
-            var unsubTask = disable_notifications ();
-            unsubTask.Wait ();
+            int res = (int) CustomExitCodes.STATUS_OK;
+            try
+            {
+                var unsub_task = disable_notifications ();
+                unsub_task.Wait ();
+            }
+            catch (Exception ex)
+            {
+                res = (int) CustomExitCodes.GENERAL_ERROR;
+            }
             stop_stream ();
             if (ganglion_device == null)
             {
@@ -102,36 +124,50 @@ namespace GanglionLib
             send_characteristic = null;
             receive_characteristic = null;
             disconnect_characteristic = null;
-            return (int) CustomExitCodes.STATUS_OK;
+            return res;
         }
 
         public int stop_stream ()
         {
-            var stop_task = send_command_async ((byte)'s');
-            stop_task.Wait ();
-            // ' ' is not documented and I dont see such command in firmware code, but it was in previous SDKs so let's keep it
-            var disconnect_task = send_command_async ((byte) ' ');
-            disconnect_task.Wait ();
-            if (stop_task.Result != (int) CustomExitCodes.STATUS_OK)
+            try
             {
-                return stop_task.Result;
+                var stop_task = send_command_async ((byte) 's');
+                stop_task.Wait ();
+                // ' ' is not documented and I dont see such command in firmware code, but it was in previous SDKs so let's keep it
+                var disconnect_task = send_command_async ((byte) ' ');
+                disconnect_task.Wait ();
+                if (stop_task.Result != (int) CustomExitCodes.STATUS_OK)
+                {
+                    return stop_task.Result;
+                }
+                if (disconnect_task.Result != (int) CustomExitCodes.STATUS_OK)
+                {
+                    return disconnect_task.Result;
+                }
+                return (int) CustomExitCodes.STATUS_OK;
             }
-            if (disconnect_task.Result != (int) CustomExitCodes.STATUS_OK)
+            catch (Exception ex)
             {
-                return disconnect_task.Result;
+                return (int) CustomExitCodes.GENERAL_ERROR;
             }
-            return (int) CustomExitCodes.STATUS_OK;
         }
 
         public int start_stream ()
         {
-            var task = send_command_async ((byte) 'b');
-            task.Wait ();
-            if (task.Result != (int) CustomExitCodes.STATUS_OK)
+            try
             {
+                var task = send_command_async ((byte) 'b');
+                task.Wait ();
+                if (task.Result != (int) CustomExitCodes.STATUS_OK)
+                {
+                    return task.Result;
+                }
                 return task.Result;
             }
-            return task.Result;
+            catch (Exception ex)
+            {
+                return (int) CustomExitCodes.GENERAL_ERROR;
+            }
         }
 
         ~Ganglion ()
@@ -276,7 +312,7 @@ namespace GanglionLib
                             {
                                 return (int) CustomExitCodes.FAILED_TO_SET_CALLBACK_ERROR;
                             }
-                            // double check that everything is okay with callback, but maybe it works
+                            // double check that everything is okay with callback, maybe it works
                             var current_descriptor_value = await receive_characteristic.ReadClientCharacteristicConfigurationDescriptorAsync();
                             if (current_descriptor_value.Status != GattCommunicationStatus.Success
                                 || current_descriptor_value.ClientCharacteristicConfigurationDescriptor != GattClientCharacteristicConfigurationDescriptorValue.Notify)

@@ -107,10 +107,13 @@ class BoardControllerDLL (object):
 class BoardShim (object):
 
     def __init__ (self, board_id, port_name):
-        if sys.version_info >= (3,0):
-            self.port_name = port_name.encode ()
+        if port_name:
+            if sys.version_info >= (3,0):
+                self.port_name = port_name.encode ()
+            else:
+                self.port_name = port_name
         else:
-            self.port_name = port_name
+            self.port_name = None
         self.board_id = board_id
         if board_id == CYTON.board_id:
             self.package_length = CYTON.package_length
@@ -146,7 +149,7 @@ class BoardShim (object):
         if res != StreamExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to prepare streaming session', res)
 
-    def start_stream (self, num_samples = 3600*250):
+    def start_stream (self, num_samples = 1800*250):
         res = BoardControllerDLL.get_instance ().start_stream (num_samples)
         if res != StreamExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to start streaming session', res)

@@ -14,7 +14,7 @@ public:
     DLLLoader (const char *dll_path)
     {
         strcpy (this->dll_path, dll_path);
-        lib_instance = NULL;
+        this->lib_instance = NULL;
     }
 
     ~DLLLoader ()
@@ -26,10 +26,13 @@ public:
 #ifdef _WIN32
     bool load_library ()
     {
-        lib_instance = LoadLibrary (this->dll_path);
-        if (lib_instance == NULL)
+        if (this->lib_instance == NULL)
         {
-            return false;
+            this->lib_instance = LoadLibrary (this->dll_path);
+            if (this->lib_instance == NULL)
+            {
+                return false;
+            }
         }
         return true;
     }
@@ -48,6 +51,7 @@ public:
         if (this->lib_instance)
         {
             FreeLibrary (this->lib_instance);
+            this->lib_instance = NULL;
         }
     }
 

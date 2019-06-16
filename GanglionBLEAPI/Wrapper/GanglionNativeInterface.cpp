@@ -10,7 +10,6 @@ using namespace System::Reflection;
 namespace GanglionLibNative
 {
     bool is_initialized = false;
-    // I've tried to register handler in private constructor of GanglionLibWrapper - it doesnt work, so place it here and call manually
     Assembly ^assembly_resolve (Object ^Sender, ResolveEventArgs ^args)
     {
         AssemblyName ^assemblyName = gcnew AssemblyName (args->Name);
@@ -34,8 +33,7 @@ namespace GanglionLibNative
                 }
                 catch (Exception ^ex)
                 {
-                    Console::WriteLine (ex->GetType ()->Name);
-               }
+                }
             }
         }
 
@@ -46,7 +44,6 @@ namespace GanglionLibNative
     {
         if (!is_initialized)
         {
-            std::cout << "called" << std::endl;
             AppDomain::CurrentDomain->AssemblyResolve +=
                 gcnew ResolveEventHandler (assembly_resolve);
             is_initialized = true;

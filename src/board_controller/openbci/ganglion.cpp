@@ -1,11 +1,19 @@
+#include <chrono>
 #include <string.h>
+
+#ifdef _WIN32
+#include <Windows.h>
+#endif
 
 #include "GanglionNativeInterface.h"
 #include "ganglion.h"
 
+// sleep is 10 ms, so wait for 1sec total
+#define MAX_ATTEMPTS_TO_GET_DATA 100
+
+
 Ganglion::Ganglion (const char *port_name)
 {
-    this->num_channels = num_channels;
     if (port_name == NULL)
     {
         this->use_mac_addr = false;
@@ -30,10 +38,12 @@ Ganglion::Ganglion (const char *port_name)
     }
 #else
 #endif
-    is_streaming = false;
-    keep_alive = false;
-    initialized = false;
-    db = NULL;
+    this->is_streaming = false;
+    this->keep_alive = false;
+    this->initialized = false;
+    this->db = NULL;
+    this->num_channels = 8;
+    this->state = SYNC_TIMEOUT_ERROR;
 }
 
 Ganglion::~Ganglion ()
@@ -49,48 +59,24 @@ int Ganglion::prepare_session ()
         return STATUS_OK;
     }
 
-    if (!dll_loader->load_library ())
+    if (!this->dll_loader->load_library ())
     {
         Board::board_logger->error ("failed to load library");
         return GENERAL_ERROR;
     }
 
     Board::board_logger->debug ("Library is loaded");
-    int res = STATUS_OK;
-    DLLFunc func = dll_loader->get_address ("initialize");
-    if (func == NULL)
+    int res = this->call_init ();
+    if (res != STATUS_OK)
     {
-        Board::board_logger->error ("failed to get function address for initialize");
-        return GENERAL_ERROR;
+        return res;
     }
-    res = (func) (NULL);
     Board::board_logger->debug ("ganglionlib initialized");
 
-    if (this->use_mac_addr)
+    res = this->call_open ();
+    if (res != STATUS_OK)
     {
-        func = dll_loader->get_address ("open_ganglion_mac_addr_native");
-        if (func == NULL)
-        {
-            Board::board_logger->error (
-                "failed to get function address for open_ganglion_mac_addr_native");
-            return GENERAL_ERROR;
-        }
-        res = (func) (this->mac_addr);
-    }
-    else
-    {
-        func = dll_loader->get_address ("open_ganglion_native");
-        if (func == NULL)
-        {
-            Board::board_logger->error ("failed to get function address for open_ganglion_native");
-            return GENERAL_ERROR;
-        }
-        res = (func) (NULL);
-    }
-    if (res != GanglionLibNative::CustomExitCodesNative::STATUS_OK)
-    {
-        Board::board_logger->error ("failed to Open Ganglion Device");
-        return GENERAL_ERROR;
+        return res;
     }
 
     initialized = true;
@@ -99,7 +85,7 @@ int Ganglion::prepare_session ()
 
 int Ganglion::start_stream (int buffer_size)
 {
-    if (is_streaming)
+    if (this->is_streaming)
     {
         Board::board_logger->error ("Streaming thread already running");
         return STREAM_ALREADY_RUN_ERROR;
@@ -110,58 +96,54 @@ int Ganglion::start_stream (int buffer_size)
         return INVALID_BUFFER_SIZE_ERROR;
     }
 
-    if (db)
+    if (this->db)
     {
-        delete db;
-        db = NULL;
+        delete this->db;
+        this->db = NULL;
     }
 
-    // start streaming
-    DLLFunc func = dll_loader->get_address ("start_stream_native");
-    if (func == NULL)
+    this->db = new DataBuffer (num_channels, buffer_size);
+    if (!this->db->is_ready ())
     {
-        Board::board_logger->error ("failed to get function address for start_stream_native");
-        return GENERAL_ERROR;
-    }
-    int res = (func) (NULL);
-    if (res != GanglionLibNative::CustomExitCodesNative::STATUS_OK)
-    {
-        Board::board_logger->error ("failed to start streaming");
-        return GENERAL_ERROR;
-    }
-
-    db = new DataBuffer (num_channels, buffer_size);
-    if (!db->is_ready ())
-    {
-        Board::board_logger->error ("unable to prepare buffer");
+        Board::board_logger->error ("unable to prepare buffer with size {}", buffer_size);
         return INVALID_BUFFER_SIZE_ERROR;
     }
 
-    keep_alive = true;
-    streaming_thread = std::thread ([this] { this->read_thread (); });
-    is_streaming = true;
-    return STATUS_OK;
+    int res = this->call_start ();
+    if (res != STATUS_OK)
+    {
+        return res;
+    }
+
+    this->keep_alive = true;
+    this->streaming_thread = std::thread ([this] { this->read_thread (); });
+
+    // wait for data to ensure that everything is okay
+    std::unique_lock<std::mutex> lk (this->m);
+    auto sec = std::chrono::seconds (1);
+    if (cv.wait_for (lk, 20 * sec, [this] { return this->state != SYNC_TIMEOUT_ERROR; }))
+    {
+        this->is_streaming = true;
+        return this->state;
+    }
+    else
+    {
+        Board::board_logger->error ("no data received in 20sec, stopping thread");
+        this->is_streaming = true;
+        this->stop_stream ();
+        return this->state;
+    }
 }
 
 int Ganglion::stop_stream ()
 {
-    if (is_streaming)
+    if (this->is_streaming)
     {
-        keep_alive = false;
-        is_streaming = false;
-        streaming_thread.join ();
-        DLLFunc func = dll_loader->get_address ("stop_stream_native");
-        if (func == NULL)
-        {
-            Board::board_logger->error ("failed to get function address for stop_stream_native");
-            return GENERAL_ERROR;
-        }
-        int res = (func) (NULL);
-        if (res != GanglionLibNative::CustomExitCodesNative::STATUS_OK)
-        {
-            Board::board_logger->error ("failed to stop streaming");
-            return GENERAL_ERROR;
-        }
+        this->keep_alive = false;
+        this->is_streaming = false;
+        this->streaming_thread.join ();
+        this->state = SYNC_TIMEOUT_ERROR;
+        return this->call_stop ();
     }
     else
     {
@@ -171,28 +153,24 @@ int Ganglion::stop_stream ()
 
 int Ganglion::release_session ()
 {
-    if (initialized)
+    if (this->initialized)
     {
-        if (is_streaming)
-            stop_stream ();
+        this->stop_stream ();
 
-        if (db)
+        if (this->db)
         {
-            delete db;
-            db = NULL;
+            delete this->db;
+            this->db = NULL;
         }
-        initialized = false;
+        this->initialized = false;
     }
-    DLLFunc func = dll_loader->get_address ("close_ganglion_native");
-    if (func == NULL)
+    if (this->dll_loader != NULL)
     {
-        Board::board_logger->error ("failed to get function address for close_ganglion_native");
-        return GENERAL_ERROR;
+        this->call_close ();
+        this->dll_loader->free_library ();
+        delete this->dll_loader;
+        this->dll_loader = NULL;
     }
-    (func) (NULL);
-    dll_loader->free_library ();
-    delete dll_loader;
-    dll_loader = NULL;
     return STATUS_OK;
 }
 
@@ -200,7 +178,19 @@ void Ganglion::read_thread ()
 {
     // https://docs.openbci.com/Hardware/08-Ganglion_Data_Format
     DLLFunc func = dll_loader->get_address ("get_data_native");
-    while (keep_alive)
+    if (func == NULL)
+    {
+        Board::board_logger->error ("failed to get function address for get_data_native");
+        {
+            std::lock_guard<std::mutex> lk (this->m);
+            this->state = GENERAL_ERROR;
+        }
+        this->cv.notify_one ();
+        return;
+    }
+    int num_attempts = 0;
+    bool was_reset = false;
+    while (this->keep_alive)
     {
         struct GanglionLibNative::GanglionDataNative data;
 #ifdef _WIN32
@@ -208,15 +198,176 @@ void Ganglion::read_thread ()
 #endif
         if (res == GanglionLibNative::CustomExitCodesNative::STATUS_OK)
         {
-            for (int i = 0; i < 20; i++)
+            if (this->state != STATUS_OK)
             {
-                Board::board_logger->trace ("package data {} {}", i, (int)data.data[i]);
+                {
+                    std::lock_guard<std::mutex> lk (this->m);
+                    this->state = STATUS_OK;
+                }
+                this->cv.notify_one ();
+                Board::board_logger->debug ("start streaming");
             }
         }
         else
         {
-            Board::board_logger->trace ("error {}", res);
+            if (this->state == SYNC_TIMEOUT_ERROR)
+            {
+                num_attempts++;
+            }
+            if (num_attempts == MAX_ATTEMPTS_TO_GET_DATA)
+            {
+                if (was_reset)
+                {
+                    Board::board_logger->error ("no data even after reset");
+                    {
+                        std::lock_guard<std::mutex> lk (this->m);
+                        this->state = GENERAL_ERROR;
+                    }
+                    this->cv.notify_one ();
+                    return;
+                }
+                else
+                {
+                    Board::board_logger->warn ("resetting Ganglion device");
+                    int tmp_res = this->call_close ();
+                    if (tmp_res != STATUS_OK)
+                    {
+                        {
+                            std::lock_guard<std::mutex> lk (this->m);
+                            this->state = tmp_res;
+                        }
+                        this->cv.notify_one ();
+                        return;
+                    }
+                    tmp_res = this->call_open ();
+                    if (tmp_res != STATUS_OK)
+                    {
+                        {
+                            std::lock_guard<std::mutex> lk (this->m);
+                            this->state = tmp_res;
+                        }
+                        this->cv.notify_one ();
+                        return;
+                    }
+                    tmp_res = this->call_start ();
+                    if (tmp_res != STATUS_OK)
+                    {
+                        {
+                            std::lock_guard<std::mutex> lk (this->m);
+                            this->state = tmp_res;
+                        }
+                        this->cv.notify_one ();
+                        return;
+                    }
+                    was_reset = true;
+                }
+            }
+#ifdef _WIN32
             Sleep (10);
+#endif
         }
     }
+}
+
+int Ganglion::call_start ()
+{
+    DLLFunc func = this->dll_loader->get_address ("start_stream_native");
+    if (func == NULL)
+    {
+        Board::board_logger->error ("failed to get function address for start_stream_native");
+        return GENERAL_ERROR;
+    }
+    int res = (func) (NULL);
+    if (res != GanglionLibNative::CustomExitCodesNative::STATUS_OK)
+    {
+        Board::board_logger->error ("failed to start streaming {}", res);
+        return GENERAL_ERROR;
+    }
+    return STATUS_OK;
+}
+
+int Ganglion::call_init ()
+{
+    DLLFunc func = this->dll_loader->get_address ("initialize");
+    if (func == NULL)
+    {
+        Board::board_logger->error ("failed to get function address for initialize");
+        return GENERAL_ERROR;
+    }
+    int res = (func) (NULL);
+    if (res != GanglionLibNative::CustomExitCodesNative::STATUS_OK)
+    {
+        Board::board_logger->error ("failed to init GanglionLib {}", res);
+        return GENERAL_ERROR;
+    }
+    return STATUS_OK;
+}
+
+int Ganglion::call_open ()
+{
+    int res = GanglionLibNative::CustomExitCodesNative::STATUS_OK;
+    if (this->use_mac_addr)
+    {
+        Board::board_logger->info ("search for {}", this->mac_addr);
+        DLLFunc func = this->dll_loader->get_address ("open_ganglion_mac_addr_native");
+        if (func == NULL)
+        {
+            Board::board_logger->error (
+                "failed to get function address for open_ganglion_mac_addr_native");
+            return GENERAL_ERROR;
+        }
+        res = (func) (this->mac_addr);
+    }
+    else
+    {
+        Board::board_logger->warn ("mac address is not specified, try to find ganglion without it");
+        DLLFunc func = this->dll_loader->get_address ("open_ganglion_native");
+        if (func == NULL)
+        {
+            Board::board_logger->error ("failed to get function address for open_ganglion_native");
+            return GENERAL_ERROR;
+        }
+        res = (func) (NULL);
+    }
+    if (res != GanglionLibNative::CustomExitCodesNative::STATUS_OK)
+    {
+        Board::board_logger->error ("failed to Open Ganglion Device {}", res);
+        return GENERAL_ERROR;
+    }
+    Board::board_logger->info ("Found Ganglion Device");
+    return STATUS_OK;
+}
+
+int Ganglion::call_stop ()
+{
+    DLLFunc func = dll_loader->get_address ("stop_stream_native");
+    if (func == NULL)
+    {
+        Board::board_logger->error ("failed to get function address for stop_stream_native");
+        return GENERAL_ERROR;
+    }
+    int res = (func) (NULL);
+    if (res != GanglionLibNative::CustomExitCodesNative::STATUS_OK)
+    {
+        Board::board_logger->error ("failed to stop streaming {}", res);
+        return GENERAL_ERROR;
+    }
+    return STATUS_OK;
+}
+
+int Ganglion::call_close ()
+{
+    DLLFunc func = dll_loader->get_address ("close_ganglion_native");
+    if (func == NULL)
+    {
+        Board::board_logger->error ("failed to get function address for close_ganglion_native");
+        return GENERAL_ERROR;
+    }
+    int res = (func) (NULL);
+    if (res != GanglionLibNative::CustomExitCodesNative::STATUS_OK)
+    {
+        Board::board_logger->error ("failed to close Ganglion {}", res);
+        return GENERAL_ERROR;
+    }
+    return STATUS_OK;
 }

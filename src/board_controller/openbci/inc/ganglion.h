@@ -1,6 +1,8 @@
 #ifndef GANGLION
 #define GANGLION
 
+#include <condition_variable>
+#include <mutex>
 #include <thread>
 
 #include "board.h"
@@ -13,7 +15,7 @@
 class Ganglion : public Board
 {
 
-protected:
+private:
     volatile bool keep_alive;
     bool initialized;
     bool is_streaming;
@@ -23,6 +25,21 @@ protected:
     bool use_mac_addr;
     int num_channels;
     DLLLoader *dll_loader;
+
+    int call_init ();
+    int call_open ();
+    int call_close ();
+    int call_start ();
+    int call_stop ();
+
+    /*
+    at least for windows from time to time callback for value change notification is not triggered
+    restart solves this issue, so if callback is not tiriggered we will reset Ganglion Device and
+    wait in main thread for data
+    */
+    std::mutex m;
+    std::condition_variable cv;
+    volatile int state;
 
     void read_thread ();
 
