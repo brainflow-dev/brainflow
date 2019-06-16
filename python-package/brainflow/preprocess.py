@@ -14,6 +14,9 @@ class DataHandler (object):
         if board_id == CYTON.board_id:
             self.fs_hz = CYTON.fs_hz
             self.num_eeg_channels = CYTON.num_eeg_channels
+        elif board_id == GANGLION.board_id:
+            self.fs_hz = GANGLION.fs_hz
+            self.num_eeg_channels = GANGLION.num_eeg_channels
         else:
             raise Exception ('Unsupported Board Type')
 
