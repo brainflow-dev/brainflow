@@ -25,7 +25,7 @@ protected:
     int num_channels;
 
     virtual int open_port ();
-    virtual int send_to_board (char *message);
+    virtual int send_to_board (const char *message);
     virtual int status_check ();
     virtual int set_port_settings ();
     virtual void read_thread () = 0;

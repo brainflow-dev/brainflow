@@ -37,7 +37,7 @@ int OpenBCIBoard::open_port ()
     return STATUS_OK;
 }
 
-int OpenBCIBoard::send_to_board (char *message)
+int OpenBCIBoard::send_to_board (const char *message)
 {
     int res = serial.send_to_serial_port (message);
     if (res != 1)

@@ -9,6 +9,7 @@ public:
     static std::shared_ptr<spdlog::logger> board_logger;
     static int set_log_level (int level);
 
+    virtual ~Board() {};
     virtual int prepare_session () = 0;
     virtual int start_stream (int buffer_size) = 0;
     virtual int stop_stream () = 0;
