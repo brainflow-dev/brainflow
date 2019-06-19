@@ -30,7 +30,7 @@ public:
 
     int get_board_id ()
     {
-        return CYTHON_BOARD;
+        return CYTON_BOARD;
     }
 };
 
