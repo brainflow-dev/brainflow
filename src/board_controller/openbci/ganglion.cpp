@@ -222,10 +222,10 @@ void Ganglion::read_thread ()
             // no compression, used to init variable
             if (data.data[0] == 0)
             {
-                last_data[0] = cast_24bit_to_int32 (data.data + 8);
-                last_data[1] = cast_24bit_to_int32 (data.data + 11);
-                last_data[2] = cast_24bit_to_int32 (data.data + 14);
-                last_data[3] = cast_24bit_to_int32 (data.data + 17);
+                last_data[0] = cast_24bit_to_int32 (data.data + 1);
+                last_data[1] = cast_24bit_to_int32 (data.data + 4);
+                last_data[2] = cast_24bit_to_int32 (data.data + 7);
+                last_data[3] = cast_24bit_to_int32 (data.data + 10);
                 last_data[4] = last_data[0];
                 last_data[5] = last_data[1];
                 last_data[6] = last_data[2];
@@ -236,14 +236,15 @@ void Ganglion::read_thread ()
                 package[2] = this->eeg_scale * last_data[1];
                 package[3] = this->eeg_scale * last_data[2];
                 package[4] = this->eeg_scale * last_data[3];
-                // I dont understand how to get accel data, wfor now it's 0
+
+                // I dont understand how to get accel data, for now it's 0
                 package[5] = 0.f;
                 package[6] = 0.f;
                 package[7] = 0.f;
                 this->db->add_data (data.timestamp, package);
                 continue;
             }
-            // 18 bit compression, sends delta from previous value instead real value!
+            // 18 bit compression, sends delta from previous value instead of real value!
             else if ((data.data[0] >= 1) && (data.data[0] <= 100))
             {
                 bytes_per_num = 18;
