@@ -265,8 +265,18 @@ void Ganglion::read_thread ()
                     delta[counter] = cast_18bit_to_int32 (package_bytes + i);
                 else
                     delta[counter] = cast_19bit_to_int32 (package_bytes + i);
-                last_data[counter] -= delta[counter];
             }
+
+            for (int i = 0; i < 4; i++)
+            {
+                last_data[i] = last_data[i + 4] - delta[i];
+            }
+
+            for (int i = 4; i < 8; i++)
+            {
+                last_data[i] = last_data[i - 4] - delta[i];
+            }
+
             // add first encoded package
             package[0] = data.data[0];
             package[1] = this->eeg_scale * last_data[0];
