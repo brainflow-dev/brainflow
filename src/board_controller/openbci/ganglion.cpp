@@ -191,6 +191,9 @@ void Ganglion::read_thread ()
     }
     int num_attempts = 0;
     bool was_reset = false;
+
+    float last_data[8] = {0};
+
     while (this->keep_alive)
     {
         struct GanglionLibNative::GanglionDataNative data;
@@ -209,10 +212,9 @@ void Ganglion::read_thread ()
                 Board::board_logger->debug ("start streaming");
             }
 
-            float package[8] = {0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f};
-            // last_data and delta hold 8 nums because (4 by each package)
-            float last_data[8] = {0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f};
-            float delta[8] = {0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f};
+            float package[8] = {0};
+            // delta holds 8 nums because (4 by each package)
+            float delta[8] = {0};
             int bytes_per_num = 0;
             unsigned char package_bytes[160]; // 20 * 8
             for (int i = 0; i < 20; i++)
@@ -222,20 +224,24 @@ void Ganglion::read_thread ()
             // no compression, used to init variable
             if (data.data[0] == 0)
             {
-                last_data[0] = cast_24bit_to_int32 (data.data + 1);
-                last_data[1] = cast_24bit_to_int32 (data.data + 4);
-                last_data[2] = cast_24bit_to_int32 (data.data + 7);
-                last_data[3] = cast_24bit_to_int32 (data.data + 10);
-                last_data[4] = last_data[0];
-                last_data[5] = last_data[1];
-                last_data[6] = last_data[2];
-                last_data[7] = last_data[3];
+                // shift the last data packet to make room for a newer one
+                last_data[0] = last_data[4];
+                last_data[1] = last_data[5];
+                last_data[2] = last_data[6];
+                last_data[3] = last_data[7];
 
+                // add new packet
+                last_data[4] = cast_24bit_to_int32 (data.data + 1);
+                last_data[5] = cast_24bit_to_int32 (data.data + 4);
+                last_data[6] = cast_24bit_to_int32 (data.data + 7);
+                last_data[7] = cast_24bit_to_int32 (data.data + 10);
+
+                // scale new packet and insert into result
                 package[0] = 0.f;
-                package[1] = this->eeg_scale * last_data[0];
-                package[2] = this->eeg_scale * last_data[1];
-                package[3] = this->eeg_scale * last_data[2];
-                package[4] = this->eeg_scale * last_data[3];
+                package[1] = this->eeg_scale * last_data[4];
+                package[2] = this->eeg_scale * last_data[5];
+                package[3] = this->eeg_scale * last_data[6];
+                package[4] = this->eeg_scale * last_data[7];
 
                 // I dont understand how to get accel data, for now it's 0
                 package[5] = 0.f;
@@ -265,8 +271,20 @@ void Ganglion::read_thread ()
                     delta[counter] = cast_18bit_to_int32 (package_bytes + i);
                 else
                     delta[counter] = cast_19bit_to_int32 (package_bytes + i);
-                last_data[counter] -= delta[counter];
             }
+
+            // apply the first delta to the last data we got in the previous iteration
+            for (int i = 0; i < 4; i++)
+            {
+                last_data[i] = last_data[i + 4] - delta[i];
+            }
+
+            // apply the second delta to the previous packet which we just decompressed above
+            for (int i = 4; i < 8; i++)
+            {
+                last_data[i] = last_data[i - 4] - delta[i];
+            }
+
             // add first encoded package
             package[0] = data.data[0];
             package[1] = this->eeg_scale * last_data[0];
