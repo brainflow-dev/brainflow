@@ -1,5 +1,10 @@
+#include <Windows.h>
+#include <atlstr.h>
+
 #include "GanglionNativeInterface.h"
 #include "Wrapper.h"
+
+#define MAX_PATH 2048
 
 using namespace GanglionLib;
 using namespace Wrapper;
@@ -9,13 +14,54 @@ using namespace System::Reflection;
 
 namespace GanglionLibNative
 {
-    bool is_initialized = false;
-    Assembly ^assembly_resolve (Object ^Sender, ResolveEventArgs ^args)
+    CStringW get_dll_path ()
     {
+        CStringW this_path = L"";
+        WCHAR path[MAX_PATH];
+        HMODULE hm;
+        if (GetModuleHandleExW (GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+                    GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                (LPWSTR)&get_dll_path, &hm))
+        {
+            GetModuleFileNameW (hm, path, sizeof (path));
+            PathRemoveFileSpecW (path);
+            this_path = CStringW (path);
+            if (!this_path.IsEmpty () && this_path.GetAt (this_path.GetLength () - 1) != '\\')
+                this_path += L"\\";
+        }
+        else
+        {
+            return L"";
+        }
+
+        return this_path;
+    }
+
+    bool is_initialized = false;
+    Assembly ^assembly_resolve (Object ^ Sender, ResolveEventArgs ^ args)
+	{
         AssemblyName ^assemblyName = gcnew AssemblyName (args->Name);
+        String ^target_file_name = gcnew String ("GanglionLib.dll");
         if (assemblyName->Name == "GanglionLib")
         {
-            String ^target_file_name = gcnew String ("GanglionLib.dll");
+            // try to search via GANGLION_LIB_PATH first
+            try
+            {
+                String ^ganglion_lib_path =
+                    Environment::GetEnvironmentVariable ("GANGLION_LIB_PATH");
+                array<String ^> ^files = Directory::GetFiles (ganglion_lib_path);
+                for (int j = 0; j < files->Length; j++)
+                {
+                    if (files[j]->EndsWith (target_file_name))
+                    {
+                        return Assembly::LoadFile (files[j]);
+                    }
+                }
+            }
+            catch (Exception ^ ex)
+            {
+            }
+            // try to search via Path next
             String ^path = Environment::GetEnvironmentVariable ("Path");
             auto folders = path->Split (';');
             for (int i = 0; i < folders->Length; i++)
@@ -31,7 +77,7 @@ namespace GanglionLibNative
                         }
                     }
                 }
-                catch (Exception ^ex)
+                catch (Exception ^ ex)
                 {
                 }
             }
@@ -41,26 +87,36 @@ namespace GanglionLibNative
     }
 
     int initialize (LPVOID param)
-    {
-        if (!is_initialized)
-        {
-            AppDomain::CurrentDomain->AssemblyResolve +=
-                gcnew ResolveEventHandler (assembly_resolve);
-            is_initialized = true;
-        }
-        return (int)CustomExitCodesNative::STATUS_OK;
-    }
+	{
+		if (!is_initialized)
+		{
+			LPTSTR val = (LPTSTR)malloc (MAX_PATH * sizeof (TCHAR));
+			DWORD ret = GetEnvironmentVariable (L"GANGLION_LIB_PATH", val, MAX_PATH);
+			if (ret == 0)
+			{
+				// get path of this dll and use it as a hint for C# dll search via state var
+				CStringW this_path = get_dll_path ();
+				SetEnvironmentVariable (L"GANGLION_LIB_PATH", this_path);
+			}
+
+			AppDomain::CurrentDomain->AssemblyResolve +=
+				gcnew ResolveEventHandler (assembly_resolve);
+			is_initialized = true;
+            free (val);
+		}
+		return (int)CustomExitCodesNative::STATUS_OK;
+	}
 
     int open_ganglion_native (LPVOID param)
     {
-        Ganglion ^wrapper = GanglionLibWrapper::instance->ganglion_obj;
+        Ganglion ^ wrapper = GanglionLibWrapper::instance->ganglion_obj;
         return wrapper->open_ganglion ();
     }
 
     int open_ganglion_mac_addr_native (LPVOID param)
     {
-        Ganglion ^wrapper = GanglionLibWrapper::instance->ganglion_obj;
-        String ^mac_new = gcnew String ((char*)param);
+        Ganglion ^ wrapper = GanglionLibWrapper::instance->ganglion_obj;
+        String ^ mac_new = gcnew String ((char *)param);
         return wrapper->open_ganglion (mac_new);
     }
 
@@ -72,7 +128,7 @@ namespace GanglionLibNative
 
     int start_stream_native (LPVOID param)
     {
-        Ganglion ^wrapper = GanglionLibWrapper::instance->ganglion_obj;
+        Ganglion ^ wrapper = GanglionLibWrapper::instance->ganglion_obj;
         return wrapper->start_stream ();
     }
 
@@ -84,8 +140,8 @@ namespace GanglionLibNative
 
     int get_data_native (LPVOID param)
     {
-        Ganglion ^wrapper = GanglionLibWrapper::instance->ganglion_obj;
-        BoardData ^managedData = wrapper->get_data ();
+        Ganglion ^ wrapper = GanglionLibWrapper::instance->ganglion_obj;
+        BoardData ^ managedData = wrapper->get_data ();
         if (managedData->exit_code != (int)CustomExitCodes::STATUS_OK)
         {
             return managedData->exit_code;
@@ -94,7 +150,7 @@ namespace GanglionLibNative
         boardData->timestamp = managedData->timestamp;
         for (int i = 0; i < managedData->data->Length; i++)
         {
-            boardData->data[i] = (unsigned char) managedData->data[i];
+            boardData->data[i] = (unsigned char)managedData->data[i];
         }
         return (int)CustomExitCodesNative::STATUS_OK;
     }

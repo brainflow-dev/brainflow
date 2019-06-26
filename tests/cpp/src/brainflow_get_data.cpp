@@ -14,14 +14,6 @@
 
 using namespace std;
 
-void check_error (int ec)
-{
-    if (ec != STATUS_OK)
-    {
-        cout << "exit code is " << ec << endl;
-        exit (ec);
-    }
-}
 
 void write_csv (const char *filename, double **data_buf, int data_count, int total_channels)
 {
@@ -48,39 +40,41 @@ int main (int argc, char *argv[])
 
     int board_id = atoi (argv[1]);
     BoardShim *board = new BoardShim (board_id, argv[2]);
+    BoardDesc *board_desc = board->board_desc;
     DataHandler *dh = new DataHandler (board_id);
     int buffer_size = 250 * 60;
     double **data_buf = new double *[buffer_size];
     for (int i = 0; i < buffer_size; i++)
     {
-        data_buf[i] = new double[board->total_channels[];
-        data_buf[i] = new double[cyton->total_channels];
+        data_buf[i] = new double[board_desc->get_total_count ()];
     }
     int res = STATUS_OK;
     int data_count;
 
-    res = board->prepare_session ();
-    check_error (res);
-    res = board->start_stream (buffer_size);
-    check_error (res);
+    try
+    {
+        board->prepare_session ();
+        board->start_stream (buffer_size);
 
 #ifdef _WIN32
-    Sleep (5000);
+        Sleep (5000);
 #else
-    sleep (5);
+        sleep (5);
 #endif
 
-    res = board->stop_stream ();
-    check_error (res);
-    res = board->get_board_data_count (&data_count);
-    check_error (res);
-    res = board->get_board_data (data_count, data_buf);
-    check_error (res);
-    res = board->release_session ();
-    check_error (res);
-    dh->preprocess_data (data_buf, data_count);
+        board->stop_stream ();
+        board->get_board_data_count (&data_count);
+        board->get_board_data (data_count, data_buf);
+        board->release_session ();
+        dh->preprocess_data (data_buf, data_count);
+    }
+    catch (const BrainFlowExcpetion &err)
+    {
+        std::cout << err.what () << std::endl;
+        res = err.get_exit_code ();
+    }
 
-    write_csv ("board_data.csv", data_buf, data_count, board->total_channels);
+    write_csv ("board_data.csv", data_buf, data_count, board_desc->get_total_count ());
 
     for (int i = 0; i < buffer_size; i++)
         delete[] data_buf[i];
@@ -89,5 +83,5 @@ int main (int argc, char *argv[])
     delete dh;
     delete board;
 
-    return 0;
+    return res;
 }

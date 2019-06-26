@@ -9,8 +9,8 @@
 #include "custom_cast.h"
 #include "ganglion.h"
 
-// sleep is 10 ms, so wait for 1sec total
-#define MAX_ATTEMPTS_TO_GET_DATA 100
+// sleep is 10 ms, so wait for 2.5sec total
+#define MAX_ATTEMPTS_TO_GET_DATA 250
 
 
 Ganglion::Ganglion (const char *port_name)

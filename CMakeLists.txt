@@ -196,6 +196,8 @@ install (
     "src/board_controller/inc/board_controller.h"
     "cpp-package/src/data_handler.h"
     "cpp-package/src/board_shim.h"
+    "cpp-package/src/board_desc.h"
+    "cpp-package/src/brainflow_exception.h"
     DESTINATION inc
 )
 

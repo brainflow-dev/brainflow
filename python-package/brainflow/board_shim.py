@@ -17,17 +17,27 @@ class BrainFlowError (Exception):
         self.exit_code = exit_code
 
 
-class CYTON (object):
-    board_id = 0
-    fs_hz = 250
-    num_eeg_channels = 8
-    package_length = 12
+class BoardIds (enum.Enum):
+    CYTON = 0
+    GANGLION = 1
 
-class GANGLION (object):
-    board_id = 1
-    fs_hz = 200
-    num_eeg_channels = 4
-    package_length = 8
+
+class CytonDesc (object):
+
+    def __init__(self):
+        self.board_id = BoardIds.CYTON.value
+        self.fs_hz = 250
+        self.num_eeg_channels = 8
+        self.package_length = 12
+
+
+class GanglionDesc (object):
+
+    def __init__(self):
+        self.board_id = BoardIds.GANGLION.value
+        self.fs_hz = 200
+        self.num_eeg_channels = 4
+        self.package_length = 8
 
 
 class BoardControllerDLL (object):
@@ -117,14 +127,10 @@ class BoardShim (object):
         else:
             self.port_name = None
         self.board_id = board_id
-        if board_id == CYTON.board_id:
-            self.package_length = CYTON.package_length
-            self.fs_hz = CYTON.fs_hz
-            self.num_eeg_channels = CYTON.num_eeg_channels
-        elif board_id == GANGLION.board_id:
-            self.package_length = GANGLION.package_length
-            self.fs_hz = GANGLION.fs_hz
-            self.num_eeg_channels = GANGLION.num_eeg_channels
+        if board_id == BoardIds.CYTON.value:
+            self.board_desc = CytonDesc ()
+        elif board_id == BoardIds.GANGLION.value:
+            self.board_desc = GanglionDesc ()
         else:
             raise BrainFlowError ('unsupported board type', StreamExitCodes.UNSUPPORTED_BOARD_ERROR.value)
 
@@ -147,7 +153,7 @@ class BoardShim (object):
             raise BrainFlowError ('unable to enable logger', res)
 
     def prepare_session (self):
-        res = BoardControllerDLL.get_instance ().prepare_session (self.board_id, self.port_name)
+        res = BoardControllerDLL.get_instance ().prepare_session (self.board_desc.board_id, self.port_name)
         if res != StreamExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to prepare streaming session', res)
 
@@ -167,7 +173,7 @@ class BoardShim (object):
             raise BrainFlowError ('unable to release streaming session', res)
 
     def get_current_board_data (self, num_samples):
-        data_arr = numpy.zeros (int(num_samples  * self.package_length)).astype (numpy.float32)
+        data_arr = numpy.zeros (int(num_samples  * self.board_desc.package_length)).astype (numpy.float32)
         time_arr = numpy.zeros (num_samples).astype (numpy.float64)
         current_size = numpy.zeros (1).astype (numpy.int64)
 
@@ -178,7 +184,7 @@ class BoardShim (object):
         if len (current_size) == 0:
             return None
 
-        data_arr = data_arr[0:current_size[0] * self.package_length].reshape (current_size[0], self.package_length)
+        data_arr = data_arr[0:current_size[0] * self.board_desc.package_length].reshape (current_size[0], self.board_desc.package_length)
         time_arr = time_arr[0:current_size[0]]
         return numpy.column_stack ((data_arr, time_arr))
 
@@ -196,11 +202,11 @@ class BoardShim (object):
     def get_board_data (self):
         data_size = self.get_board_data_count ()
         time_arr = numpy.zeros (data_size).astype (numpy.float64)
-        data_arr = numpy.zeros (data_size * self.package_length).astype (numpy.float32)
+        data_arr = numpy.zeros (data_size * self.board_desc.package_length).astype (numpy.float32)
 
         res = BoardControllerDLL.get_instance ().get_board_data (data_size, data_arr, time_arr)
         if res != StreamExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to get board data', res)
 
-        data_arr = data_arr.reshape (data_size, self.package_length)
+        data_arr = data_arr.reshape (data_size, self.board_desc.package_length)
         return numpy.column_stack ((data_arr, time_arr))

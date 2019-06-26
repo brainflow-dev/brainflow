@@ -8,17 +8,18 @@ from scipy.fftpack import fft
 
 from brainflow.board_shim import *
 
+
 class DataHandler (object):
 
     def __init__ (self, board_id, numpy_data = None, csv_file = None):
-        if board_id == CYTON.board_id:
-            self.fs_hz = CYTON.fs_hz
-            self.num_eeg_channels = CYTON.num_eeg_channels
-        elif board_id == GANGLION.board_id:
-            self.fs_hz = GANGLION.fs_hz
-            self.num_eeg_channels = GANGLION.num_eeg_channels
+        if board_id == BoardIds.CYTON.value:
+            self.board_desc = CytonDesc ()
+        elif board_id == BoardIds.GANGLION.value:
+            self.board_desc = GanglionDesc ()
         else:
             raise Exception ('Unsupported Board Type')
+        self.fs_hz = self.board_desc.fs_hz
+        self.num_eeg_channels = self.board_desc.num_eeg_channels
 
         if numpy_data is not None:
             columns = ['package_num']
