@@ -40,26 +40,27 @@ void write_csv (const char *filename, double **data_buf, int data_count, int tot
 
 int main (int argc, char *argv[])
 {
-    if (argc != 2)
+    if (argc != 3)
     {
-        cout << "port name is required" << endl;
+        cout << "board id and port name are required" << endl;
         return -1;
     }
 
-    BoardShim *cyton = new BoardShim (CYTON_BOARD, argv[1]);
-    DataHandler *dh = new DataHandler (CYTON_BOARD);
+    int board_id = atoi (argv[1]);
+    BoardShim *board = new BoardShim (board_id, argv[2]);
+    DataHandler *dh = new DataHandler (board_id);
     int buffer_size = 250 * 60;
     double **data_buf = (double **)malloc (sizeof (double *) * buffer_size);
     for (int i = 0; i < buffer_size; i++)
     {
-        data_buf[i] = (double *)malloc (sizeof (double) * cyton->total_channels);
+        data_buf[i] = (double *)malloc (sizeof (double) * board->total_channels);
     }
     int res = STATUS_OK;
     int data_count;
 
-    res = cyton->prepare_session ();
+    res = board->prepare_session ();
     check_error (res);
-    res = cyton->start_stream (buffer_size);
+    res = board->start_stream (buffer_size);
     check_error (res);
 
 #ifdef _WIN32
@@ -68,24 +69,24 @@ int main (int argc, char *argv[])
     sleep (5);
 #endif
 
-    res = cyton->stop_stream ();
+    res = board->stop_stream ();
     check_error (res);
-    res = cyton->get_board_data_count (&data_count);
+    res = board->get_board_data_count (&data_count);
     check_error (res);
-    res = cyton->get_board_data (data_count, data_buf);
+    res = board->get_board_data (data_count, data_buf);
     check_error (res);
-    res = cyton->release_session ();
+    res = board->release_session ();
     check_error (res);
     dh->preprocess_data (data_buf, data_count);
 
-    write_csv ("board_data.csv", data_buf, data_count, cyton->total_channels);
+    write_csv ("board_data.csv", data_buf, data_count, board->total_channels);
 
     for (int i = 0; i < buffer_size; i++)
         free (data_buf[i]);
     free (data_buf);
 
     delete dh;
-    delete cyton;
+    delete board;
 
     return 0;
 }

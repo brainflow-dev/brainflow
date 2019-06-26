@@ -13,6 +13,14 @@ BoardShim::BoardShim (int board_id, const char *port_name)
         num_data_channels = 12;                 // package_num, 8 eeg, 3accel
         total_channels = num_data_channels + 1; // plus ts
     }
+    else
+    {
+        if (board_id == GANGLION_BOARD)
+        {
+            num_data_channels = 8;                  // package_num, 8 eeg, 3accel
+            total_channels = num_data_channels + 1; // plus ts
+        }
+    }
 }
 
 int BoardShim::prepare_session ()

@@ -16,8 +16,9 @@ namespace GanglionLib
 
     public class GanglionConstants
     {
-        public const string name = "Ganglion-605d";
-        // watcher receives device name as Ganglion-605d or Simble and it looks like random
+        // name format is Ganglion-....
+        public const string name_prefix = "Ganglion";
+        // from time to time watcher receives Simblee as a Ganglion name
         public const string alt_name = "Simblee";
         public const string service_id = "0000fe84-0000-1000-8000-00805f9b34fb";
         public const string characteristic_send_id = "2d30c083-f39f-4ce6-923f-3484ea480596";

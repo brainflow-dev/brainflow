@@ -24,12 +24,16 @@ namespace brainflow
         EMPTY_BUFFER_ERROR,
         INVALID_ARGUMENTS_ERROR,
         UNSUPPORTED_BOARD_ERROR,
-        BOARD_NOT_CREATED_ERROR
+        BOARD_NOT_CREATED_ERROR,
+        ANOTHER_BOARD_IS_CREATED_ERROR,
+        GENERAL_ERROR,
+        SYNC_TIMEOUT_ERROR
     };
 
     public enum BoardIds
     {
-        CYTON_BOARD = 0
+        CYTON_BOARD = 0,
+        GANGLION_BOARD = 1
     };
 
     public static class Library

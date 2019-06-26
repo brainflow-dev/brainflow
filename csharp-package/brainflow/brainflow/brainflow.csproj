@@ -100,6 +100,7 @@
     <Compile Include="board_data.cs" />
     <Compile Include="board_shim.cs" />
     <Compile Include="cyton.cs" />
+    <Compile Include="ganglion.cs" />
     <Compile Include="library.cs" />
     <Compile Include="brainflow_exception.cs" />
     <Compile Include="data_handler.cs" />
@@ -120,9 +121,6 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="BoardController.dll" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

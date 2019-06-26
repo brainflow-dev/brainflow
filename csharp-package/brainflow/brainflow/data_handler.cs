@@ -22,14 +22,24 @@ namespace brainflow
         {
             if (board_id == (int) BoardIds.CYTON_BOARD)
             {
-                fs_hz = 250;
-                first_eeg_channel = 1;
+                fs_hz = Cyton.fs_hz;
+                first_eeg_channel = Cyton.first_eeg_channel;
                 last_eeg_channel = first_eeg_channel + Cyton.num_eeg_channels - 1;
                 ts_col_num = Cyton.package_length; // data format - package from board plus ts column
             }
             else
             {
-                throw new BrainFlowExceptioin ((int) CustomExitCodes.UNSUPPORTED_BOARD_ERROR);
+                if (board_id == (int)BoardIds.GANGLION_BOARD)
+                {
+                    fs_hz = Ganglion.fs_hz;
+                    first_eeg_channel = Ganglion.first_eeg_channel;
+                    last_eeg_channel = first_eeg_channel + Cyton.num_eeg_channels - 1;
+                    ts_col_num = Ganglion.package_length;
+                }
+                else
+                {
+                    throw new BrainFlowExceptioin((int)CustomExitCodes.UNSUPPORTED_BOARD_ERROR);
+                }
             }
             if (data_from_board != null)
             {

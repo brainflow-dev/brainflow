@@ -1,10 +1,12 @@
 import java.io.File;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Map;
 
 import org.apache.commons.lang3.SystemUtils;
 
@@ -27,33 +29,64 @@ public class BoardShim {
 	public int board_id;
 	public String port_name;
 	public DllInterface instance;
-	public BoardShim (int board_id, String port_name, Boolean unpack_lib) throws BrainFlowError, IOException {
+	public BoardShim (int board_id, String port_name, Boolean unpack_lib) throws BrainFlowError, IOException, ReflectiveOperationException {
+		this.board_id = board_id;
 		if (board_id == CYTON.board_id) {
 			package_length = CYTON.package_length;
-			this.board_id = board_id;
 		}
 		else {
-			throw new  BrainFlowError ("Wrong board_id", ExitCode.UNSUPPORTED_BOARD_ERROR.get_code ());
+			if (board_id == GANGLION.board_id)
+			{
+				package_length = GANGLION.package_length;
+			}
+			else
+			{
+				throw new  BrainFlowError ("Wrong board_id", ExitCode.UNSUPPORTED_BOARD_ERROR.get_code ());
+			}
 		}
 		String lib_name = "libBoardController.so";
 		if (SystemUtils.IS_OS_WINDOWS)
 		{
 			lib_name = "BoardController.dll";
+			
 		}
 		if (unpack_lib)
 		{
-			// need to extract library from jar
-			File file = new File (lib_name);
-			if (file.exists ())
-				file.delete ();
-	        InputStream link = (getClass().getResourceAsStream (lib_name));
-	        Files.copy (link, file.getAbsoluteFile ().toPath ());
+			// need to extract libraries from jar
+			// todo I dont like an idea to pack dlls in jar, we still need to unpack them, lets remove it later
+			unpack_from_jar (lib_name);
+			if (SystemUtils.IS_OS_WINDOWS)
+			{
+				unpack_from_jar ("GanglionLib.dll");
+				unpack_from_jar ("GanglionLibNative64.dll");
+				// it works with illegal-acees=warn default is deny
+				// update_env ("Path", System.getenv("Path") + ";.");
+			}
 		}
 		this.instance = (DllInterface) Native.loadLibrary (lib_name, DllInterface.class);
 		this.port_name = port_name;
 	}
+	
+	// this dirty hacks are temporary remove all staff related to dll extractions and path settings!
+	@SuppressWarnings({ "unchecked" })
+	public static void update_env(String name, String val) throws ReflectiveOperationException {
+	    Map<String, String> env = System.getenv();
+	    Field field = env.getClass().getDeclaredField("m");
+	    field.setAccessible(true);
+	    ((Map<String, String>) field.get(env)).put(name, val);
+	}
+	
+	private void unpack_from_jar (String lib_name) throws IOException
+	{
+		File file = new File (lib_name);
+		if (file.exists ())
+			file.delete ();
+        InputStream link = (getClass().getResourceAsStream (lib_name));
+        Files.copy (link, file.getAbsoluteFile ().toPath ());
+	}
 
 	public void prepare_session () throws BrainFlowError {
+		System.out.println(board_id + port_name);
 		int ec = this.instance.prepare_session (board_id, port_name);
 		if (ec != ExitCode.STATUS_OK.get_code ()) {
 			throw new BrainFlowError ("Error in prepare_session", ec);

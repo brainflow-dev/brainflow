@@ -99,10 +99,8 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="System.Windows" />
-    <Reference Include="Windows, Version=255.255.255.255, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\Windows Kits\10\UnionMetadata\Windows.winmd</HintPath>
-      <Private>False</Private>
+    <Reference Include="Windows">
+      <HintPath>D:\Windows Kits\10\UnionMetadata\10.0.17763.0\Windows.winmd</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -125,16 +123,6 @@
       <FileType>Assembly</FileType>
     </PublishFile>
     <PublishFile Include="System.Runtime.WindowsRuntime.UI.Xaml">
-      <Visible>False</Visible>
-      <Group>
-      </Group>
-      <TargetPath>
-      </TargetPath>
-      <PublishState>Exclude</PublishState>
-      <IncludeHash>True</IncludeHash>
-      <FileType>Assembly</FileType>
-    </PublishFile>
-    <PublishFile Include="Windows">
       <Visible>False</Visible>
       <Group>
       </Group>

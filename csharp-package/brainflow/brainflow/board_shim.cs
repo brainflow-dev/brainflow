@@ -30,7 +30,18 @@ namespace brainflow
             }
             else
             {
-                throw new BrainFlowExceptioin ((int)CustomExitCodes.UNSUPPORTED_BOARD_ERROR);
+                if (board_id == (int)BoardIds.GANGLION_BOARD)
+                {
+                    this.package_length = Ganglion.package_length;
+                    this.fs_hz = Ganglion.fs_hz;
+                    this.num_eeg_channels = Ganglion.num_eeg_channels;
+                    this.first_eeg_channel = Ganglion.first_eeg_channel;
+                    this.last_eeg_channel = Ganglion.last_eeg_channel;
+                }
+                else
+                {
+                    throw new BrainFlowExceptioin((int)CustomExitCodes.UNSUPPORTED_BOARD_ERROR);
+                }
             }
         }
 
@@ -92,7 +103,7 @@ namespace brainflow
             }
             Array.Resize (ref data_arr, current_size[0] * package_length);
             Array.Resize (ref ts_arr, current_size[0]);
-            return new BoardData ((int)BoardIds.CYTON_BOARD, data_arr, ts_arr).get_board_data ();
+            return new BoardData (this.board_id, data_arr, ts_arr).get_board_data ();
 	    }
 
         public double[,] get_immediate_board_data ()
@@ -109,7 +120,7 @@ namespace brainflow
 		    if (ec != (int) CustomExitCodes.STATUS_OK) {
                 throw new BrainFlowExceptioin (ec);
             }
-		    return new BoardData ((int) BoardIds.CYTON_BOARD, data_arr, ts_arr).get_board_data ();
+		    return new BoardData (this.board_id, data_arr, ts_arr).get_board_data ();
 	    }
     }
 }

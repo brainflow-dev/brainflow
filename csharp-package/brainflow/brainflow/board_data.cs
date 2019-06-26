@@ -23,7 +23,14 @@ namespace brainflow
             }
             else
             {
-                throw new BrainFlowExceptioin ((int) CustomExitCodes.UNSUPPORTED_BOARD_ERROR);
+                if (board_id == (int) BoardIds.GANGLION_BOARD)
+                {
+                    this.package_length = Ganglion.package_length;
+                }
+                else
+                {
+                    throw new BrainFlowExceptioin((int)CustomExitCodes.UNSUPPORTED_BOARD_ERROR);
+                }
             }
             List<List<double>> temp_board_data = new List<List<double>> ();
             for (int i = 0; i < ts_data.Length; i++)

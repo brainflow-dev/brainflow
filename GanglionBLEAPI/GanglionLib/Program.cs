@@ -226,7 +226,7 @@ namespace GanglionLib
             {
                 if (ganglion_info == null)
                 {
-                    if (dev_info.Name.Equals (GanglionConstants.name) || dev_info.Name.Equals (GanglionConstants.alt_name))
+                    if (dev_info.Name.ToLower ().Contains (GanglionConstants.name_prefix.ToLower ()) || dev_info.Name.ToLower ().Equals (GanglionConstants.alt_name.ToLower ()))
                     {
                         if (string.IsNullOrEmpty (mac_addr))
                         {
@@ -235,7 +235,7 @@ namespace GanglionLib
                         else
                         {
                             // mac address != Id it's just a substring
-                            if (dev_info.Id.Contains (mac_addr))
+                            if (dev_info.Id.ToLower().Contains (mac_addr.ToLower()))
                             {
                                 ganglion_info = dev_info;
                             }

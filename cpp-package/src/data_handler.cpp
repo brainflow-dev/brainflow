@@ -10,6 +10,7 @@
 
 DataHandler::DataHandler (int board_id)
 {
+
     this->board_id = board_id;
     if (board_id == CYTON_BOARD)
     {
@@ -18,6 +19,18 @@ DataHandler::DataHandler (int board_id)
         stop_eeg = 9;
         sample_rate = 250.0;
         total_channels = num_data_channels + 1; // plus ts
+    }
+    // todo refactor it in all bindings, add 2 step check that board id is correct
+    else
+    {
+        if (board_id == GANGLION_BOARD)
+        {
+            num_data_channels = 8; // package_num, 8 eeg, 3accel
+            start_eeg = 1;
+            stop_eeg = 5;
+            sample_rate = 200.0;
+            total_channels = num_data_channels + 1; // plus ts
+        }
     }
 }
 
