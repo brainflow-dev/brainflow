@@ -212,15 +212,16 @@ void Ganglion::read_thread ()
                 Board::board_logger->debug ("start streaming");
             }
 
-            float package[8] = {0};
+            float package[8] = {0.f};
             // delta holds 8 nums because (4 by each package)
-            float delta[8] = {0};
+            float delta[8] = {0.f};
             int bits_per_num = 0;
-            unsigned char package_bits[160] = {'0'}; // 20 * 8
+            unsigned char package_bits[160] = {0}; // 20 * 8
             for (int i = 0; i < 20; i++)
             {
                 uchar_to_bits (data.data[i], package_bits + i * 8);
             }
+
             // no compression, used to init variable
             if (data.data[0] == 0)
             {
@@ -268,9 +269,9 @@ void Ganglion::read_thread ()
             for (int i = 8, counter = 0; i < bits_per_num * 8; i += bits_per_num, counter++)
             {
                 if (bits_per_num == 18)
-                    delta[counter] = cast_18bit_to_int32 (package_bits + i);
+                    delta[counter] = cast_ganglion_bits_to_int32<18> (package_bits + i);
                 else
-                    delta[counter] = cast_19bit_to_int32 (package_bits + i);
+                    delta[counter] = cast_ganglion_bits_to_int32<19> (package_bits + i);
             }
 
             // apply the first delta to the last data we got in the previous iteration
