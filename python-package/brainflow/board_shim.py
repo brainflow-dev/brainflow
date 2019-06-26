@@ -46,6 +46,8 @@ class BoardControllerDLL (object):
         if platform.system () == 'Windows':
             dll_path = 'lib\\BoardController.dll'
             os.environ['PATH'] += os.pathsep + os.path.abspath (os.path.dirname (pkg_resources.resource_filename (__name__, os.path.join ('lib', 'BoardController.dll'))))
+        elif platform.system () == 'Darwin':
+            dll_path = 'lib/libBoardController.dylib'
         else:
             dll_path = 'lib/libBoardController.so'
         self.lib = ctypes.cdll.LoadLibrary (pkg_resources.resource_filename (__name__, dll_path))

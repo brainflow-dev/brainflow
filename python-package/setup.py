@@ -30,6 +30,7 @@ setup (
             os.path.join ('lib', 'libBoardController.so'),
             os.path.join ('lib', 'GanglionLib.dll'),
             os.path.join ('lib', 'GanglionLibNative64.dll'),
+            os.path.join ('lib', 'libBoardController.dylib')
         ]
     },
     zip_safe = True,

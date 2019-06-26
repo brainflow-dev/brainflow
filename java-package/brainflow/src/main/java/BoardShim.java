@@ -44,12 +44,18 @@ public class BoardShim {
 				throw new  BrainFlowError ("Wrong board_id", ExitCode.UNSUPPORTED_BOARD_ERROR.get_code ());
 			}
 		}
+		
 		String lib_name = "libBoardController.so";
 		if (SystemUtils.IS_OS_WINDOWS)
 		{
 			lib_name = "BoardController.dll";
 			
 		}
+		else if (SystemUtils.IS_OS_MAC)
+		{
+			lib_name = "libBoardController.dylib";
+		}
+
 		if (unpack_lib)
 		{
 			// need to extract libraries from jar

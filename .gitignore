@@ -296,6 +296,8 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+*.egg-info
+*.egg
 
 # Cake - Uncomment if you are using it
 # tools/**
@@ -332,6 +334,8 @@ ASALocalRun/
 .raw
 .txt
 
-build/
+build*
+installed*
+compiled/
 python/flowcat.egg-info/
 .Rproj.user

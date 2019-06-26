@@ -36,7 +36,7 @@ int OpenBCISerialBoard::open_port ()
     return STATUS_OK;
 }
 
-int OpenBCISerialBoard::send_to_board (char *message)
+int OpenBCISerialBoard::send_to_board (const char *message)
 {
     int res = serial.send_to_serial_port (message);
     if (res != 1)

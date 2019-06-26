@@ -24,6 +24,7 @@
           <include>libBoardController.so</include>
           <include>GanglionLib.dll</include>
           <include>GanglionLibNative64.dll</include>
+          <include>libBoardController.dylib</include>
         </includes>
       </resource>
     </resources>

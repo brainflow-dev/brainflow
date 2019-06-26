@@ -50,10 +50,11 @@ int main (int argc, char *argv[])
     BoardShim *board = new BoardShim (board_id, argv[2]);
     DataHandler *dh = new DataHandler (board_id);
     int buffer_size = 250 * 60;
-    double **data_buf = (double **)malloc (sizeof (double *) * buffer_size);
+    double **data_buf = new double *[buffer_size];
     for (int i = 0; i < buffer_size; i++)
     {
-        data_buf[i] = (double *)malloc (sizeof (double) * board->total_channels);
+        data_buf[i] = new double[board->total_channels[];
+        data_buf[i] = new double[cyton->total_channels];
     }
     int res = STATUS_OK;
     int data_count;
@@ -82,8 +83,8 @@ int main (int argc, char *argv[])
     write_csv ("board_data.csv", data_buf, data_count, board->total_channels);
 
     for (int i = 0; i < buffer_size; i++)
-        free (data_buf[i]);
-    free (data_buf);
+        delete[] data_buf[i];
+    delete[] data_buf;
 
     delete dh;
     delete board;
