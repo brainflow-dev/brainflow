@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace brainflow
 {
+
     public class BoardShim
     {
         public int board_id;
@@ -13,36 +14,16 @@ namespace brainflow
         public int fs_hz;
         public int num_eeg_channels;
         public int first_eeg_channel;
-        public int last_eeg_channel;
         public int package_length;
 
         public BoardShim (int board_id, string port_name)
         {
             this.board_id = board_id;
             this.port_name = port_name;
-            if (board_id == (int) BoardIds.CYTON_BOARD)
-            {
-                this.package_length = Cyton.package_length;
-                this.fs_hz = Cyton.fs_hz;
-                this.num_eeg_channels = Cyton.num_eeg_channels;
-                this.first_eeg_channel = Cyton.first_eeg_channel;
-                this.last_eeg_channel = Cyton.last_eeg_channel;
-            }
-            else
-            {
-                if (board_id == (int)BoardIds.GANGLION_BOARD)
-                {
-                    this.package_length = Ganglion.package_length;
-                    this.fs_hz = Ganglion.fs_hz;
-                    this.num_eeg_channels = Ganglion.num_eeg_channels;
-                    this.first_eeg_channel = Ganglion.first_eeg_channel;
-                    this.last_eeg_channel = Ganglion.last_eeg_channel;
-                }
-                else
-                {
-                    throw new BrainFlowExceptioin((int)CustomExitCodes.UNSUPPORTED_BOARD_ERROR);
-                }
-            }
+            this.package_length = BoardInfoGetter.get_package_length (board_id);
+            this.fs_hz = BoardInfoGetter.get_fs_hz (board_id);
+            this.num_eeg_channels = BoardInfoGetter.get_num_eeg_channels (board_id);
+            this.first_eeg_channel = BoardInfoGetter.get_first_eeg_channel (board_id);
         }
 
         public void prepare_session ()

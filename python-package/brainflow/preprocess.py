@@ -12,14 +12,8 @@ from brainflow.board_shim import *
 class DataHandler (object):
 
     def __init__ (self, board_id, numpy_data = None, csv_file = None):
-        if board_id == BoardIds.CYTON.value:
-            self.board_desc = CytonDesc ()
-        elif board_id == BoardIds.GANGLION.value:
-            self.board_desc = GanglionDesc ()
-        else:
-            raise Exception ('Unsupported Board Type')
-        self.fs_hz = self.board_desc.fs_hz
-        self.num_eeg_channels = self.board_desc.num_eeg_channels
+        self.fs_hz = BoardInfoGetter.get_fs_hz (board_id)
+        self.num_eeg_channels = BoardInfoGetter.get_num_eeg_channels (board_id)
 
         if numpy_data is not None:
             columns = ['package_num']

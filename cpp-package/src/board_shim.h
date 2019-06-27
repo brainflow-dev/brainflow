@@ -1,7 +1,7 @@
 #ifndef BOARD_SHIM
 #define BOARD_SHIM
 
-#include "board_desc.h"
+#include "board_info_getter.h"
 #include "brainflow_exception.h"
 
 class BoardShim
@@ -10,15 +10,11 @@ class BoardShim
     void reshape_data (int data_count, float *buf, double *ts_buf, double **output_buf);
 
 public:
-    BoardDesc *board_desc;
+    int num_data_channels;
     int board_id;
     char port_name[1024];
 
     BoardShim (int board_id, const char *port_name);
-    ~BoardShim ()
-    {
-        delete board_desc;
-    }
 
     void prepare_session ();
     void start_stream (int buffer_size);

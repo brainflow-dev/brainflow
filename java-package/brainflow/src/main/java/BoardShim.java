@@ -31,19 +31,7 @@ public class BoardShim {
 	public DllInterface instance;
 	public BoardShim (int board_id, String port_name, Boolean unpack_lib) throws BrainFlowError, IOException, ReflectiveOperationException {
 		this.board_id = board_id;
-		if (board_id == CYTON.board_id) {
-			package_length = CYTON.package_length;
-		}
-		else {
-			if (board_id == GANGLION.board_id)
-			{
-				package_length = GANGLION.package_length;
-			}
-			else
-			{
-				throw new  BrainFlowError ("Wrong board_id", ExitCode.UNSUPPORTED_BOARD_ERROR.get_code ());
-			}
-		}
+		package_length = BoardInfoGetter.get_package_length(board_id);
 		
 		String lib_name = "libBoardController.so";
 		if (SystemUtils.IS_OS_WINDOWS)
@@ -59,27 +47,15 @@ public class BoardShim {
 		if (unpack_lib)
 		{
 			// need to extract libraries from jar
-			// todo I dont like an idea to pack dlls in jar, we still need to unpack them, lets remove it later
 			unpack_from_jar (lib_name);
 			if (SystemUtils.IS_OS_WINDOWS)
 			{
 				unpack_from_jar ("GanglionLib.dll");
 				unpack_from_jar ("GanglionLibNative64.dll");
-				// it works with illegal-acees=warn default is deny
-				// update_env ("Path", System.getenv("Path") + ";.");
 			}
 		}
 		this.instance = (DllInterface) Native.loadLibrary (lib_name, DllInterface.class);
 		this.port_name = port_name;
-	}
-	
-	// this dirty hacks are temporary remove all staff related to dll extractions and path settings!
-	@SuppressWarnings({ "unchecked" })
-	public static void update_env(String name, String val) throws ReflectiveOperationException {
-	    Map<String, String> env = System.getenv();
-	    Field field = env.getClass().getDeclaredField("m");
-	    field.setAccessible(true);
-	    ((Map<String, String>) field.get(env)).put(name, val);
 	}
 	
 	private void unpack_from_jar (String lib_name) throws IOException

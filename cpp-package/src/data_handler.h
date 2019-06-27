@@ -1,15 +1,12 @@
 #ifndef DATAHANDLER
 #define DATAHANDLER
 
-#include "board_desc.h"
+#include "board_info_getter.h"
 #include "brainflow_exception.h"
-
 
 class DataHandler
 {
 public:
-    BoardDesc *board_desc;
-    int num_data_channels;
     int start_eeg;
     int stop_eeg;
     int sample_rate;

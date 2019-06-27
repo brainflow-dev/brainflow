@@ -97,6 +97,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BoardInfoGetter.cs" />
     <Compile Include="board_data.cs" />
     <Compile Include="board_shim.cs" />
     <Compile Include="cyton.cs" />

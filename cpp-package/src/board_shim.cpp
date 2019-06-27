@@ -8,22 +8,7 @@ BoardShim::BoardShim (int board_id, const char *port_name)
 {
     strcpy (this->port_name, port_name);
     this->board_id = board_id;
-    if (board_id == CYTON_BOARD)
-    {
-        board_desc = new CytonDesc ();
-    }
-    else
-    {
-        if (board_id == GANGLION_BOARD)
-        {
-            board_desc = new GanglionDesc ();
-        }
-        else
-        {
-            board_desc = NULL;
-            throw BrainFlowExcpetion ("Unsupported Board Error", UNSUPPORTED_BOARD_ERROR);
-        }
-    }
+    num_data_channels = BoardInfoGetter::get_package_length (board_id);
 }
 
 void BoardShim::prepare_session ()
@@ -73,7 +58,7 @@ void BoardShim::get_board_data_count (int *result)
 
 void BoardShim::get_board_data (int data_count, double **data_buf)
 {
-    float *buf = new float[data_count * board_desc->get_num_data_channels ()];
+    float *buf = new float[data_count * num_data_channels];
     double *ts_buf = new double[data_count];
 
     int res = ::get_board_data (data_count, buf, ts_buf);
@@ -90,7 +75,7 @@ void BoardShim::get_board_data (int data_count, double **data_buf)
 
 void BoardShim::get_current_board_data (int num_samples, double **data_buf, int *returned_samples)
 {
-    float *buf = new float[num_samples * board_desc->get_num_data_channels ()];
+    float *buf = new float[num_samples * num_data_channels];
     double *ts_buf = new double[num_samples];
 
     int res = ::get_current_board_data (num_samples, buf, ts_buf, returned_samples);
@@ -109,10 +94,10 @@ void BoardShim::reshape_data (int data_count, float *data_buf, double *ts_buf, d
 {
     for (int i = 0; i < data_count; i++)
     {
-        for (int j = 0; j < board_desc->get_num_data_channels (); j++)
+        for (int j = 0; j < num_data_channels; j++)
         {
-            output_buf[i][j] = data_buf[i * board_desc->get_num_data_channels () + j];
+            output_buf[i][j] = data_buf[i * num_data_channels + j];
         }
-        output_buf[i][board_desc->get_num_data_channels ()] = ts_buf[i];
+        output_buf[i][num_data_channels] = ts_buf[i];
     }
 }

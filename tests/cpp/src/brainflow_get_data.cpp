@@ -40,13 +40,13 @@ int main (int argc, char *argv[])
 
     int board_id = atoi (argv[1]);
     BoardShim *board = new BoardShim (board_id, argv[2]);
-    BoardDesc *board_desc = board->board_desc;
+    int length = BoardInfoGetter::get_package_length (board_id);
     DataHandler *dh = new DataHandler (board_id);
     int buffer_size = 250 * 60;
     double **data_buf = new double *[buffer_size];
     for (int i = 0; i < buffer_size; i++)
     {
-        data_buf[i] = new double[board_desc->get_total_count ()];
+        data_buf[i] = new double[length];
     }
     int res = STATUS_OK;
     int data_count;
@@ -74,7 +74,7 @@ int main (int argc, char *argv[])
         res = err.get_exit_code ();
     }
 
-    write_csv ("board_data.csv", data_buf, data_count, board_desc->get_total_count ());
+    write_csv ("board_data.csv", data_buf, data_count, length);
 
     for (int i = 0; i < buffer_size; i++)
         delete[] data_buf[i];

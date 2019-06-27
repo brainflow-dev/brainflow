@@ -156,6 +156,8 @@ if (MSVC)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${GANGLION_LIB_PATH}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/${GANGLION_LIB_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${GANGLION_LIB_NATIVE_PATH}" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${GANGLION_LIB_NATIVE_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${GANGLION_LIB_PATH}" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${GANGLION_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${GANGLION_LIB_NATIVE_PATH}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${GANGLION_LIB_NATIVE_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${GANGLION_LIB_PATH}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${GANGLION_LIB_NAME}"
     )
 endif (MSVC)
 if (UNIX)
@@ -196,7 +198,7 @@ install (
     "src/board_controller/inc/board_controller.h"
     "cpp-package/src/data_handler.h"
     "cpp-package/src/board_shim.h"
-    "cpp-package/src/board_desc.h"
+    "cpp-package/src/board_info_getter.h"
     "cpp-package/src/brainflow_exception.h"
     DESTINATION inc
 )

@@ -10,28 +10,10 @@
 
 DataHandler::DataHandler (int board_id)
 {
-
     this->board_id = board_id;
-    if (board_id == CYTON_BOARD)
-    {
-        board_desc = new CytonDesc ();
-    }
-    else
-    {
-        if (board_id == GANGLION_BOARD)
-        {
-            board_desc = new GanglionDesc ();
-        }
-        else
-        {
-            board_desc = NULL;
-            throw BrainFlowExcpetion ("Unsupported Board Error", UNSUPPORTED_BOARD_ERROR);
-        }
-    }
-    num_data_channels = board_desc->get_num_data_channels ();
-    start_eeg = board_desc->get_start_eeg_channel ();
-    stop_eeg = board_desc->get_num_eeg_channels () + start_eeg;
-    int sample_rate = board_desc->get_sampling_rate ();
+    start_eeg = BoardInfoGetter::get_first_eeg_channel (board_id);
+    stop_eeg = BoardInfoGetter::get_num_eeg_channels (board_id) + start_eeg;
+    sample_rate = BoardInfoGetter::get_fs_hz (board_id);
 }
 
 void DataHandler::filter_lowpass (double **data, int data_count, float cutoff)
