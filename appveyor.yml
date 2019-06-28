@@ -35,7 +35,7 @@ test_script:
 notifications:
   - provider: Email
     to:
-      - a1994ndrey@gmail.com
+      - '{{commitAuthorEmail}}'
     on_build_success: false
     on_build_failure: true
     on_build_status_changed: true
