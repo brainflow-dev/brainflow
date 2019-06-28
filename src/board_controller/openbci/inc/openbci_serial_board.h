@@ -19,8 +19,6 @@ protected:
     std::thread streaming_thread;
 
     Serial serial;
-
-    DataBuffer *db;
     int num_channels;
 
     virtual int open_port ();
