@@ -53,11 +53,13 @@ int OpenBCISerialBoard::set_port_settings ()
         Board::board_logger->error ("Unable to set port settings, res is {}", res);
         return SET_PORT_ERROR;
     }
+    Board::board_logger->trace ("set port settings");
     return send_to_board ("v");
 }
 
 int OpenBCISerialBoard::status_check ()
 {
+    Board::board_logger->trace ("start status check");
     unsigned char buf[1];
     int count = 0;
 
@@ -98,6 +100,7 @@ int OpenBCISerialBoard::prepare_session ()
         return initted;
 
     initialized = true;
+    Board::board_logger->trace ("Session is ready");
     return STATUS_OK;
 }
 

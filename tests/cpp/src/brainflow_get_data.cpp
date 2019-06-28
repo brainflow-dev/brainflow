@@ -55,7 +55,9 @@ int main (int argc, char *argv[])
 
     try
     {
+        std::cout << "preparing session" << std::endl;
         board->prepare_session ();
+        std::cout << "starting streaming" << std::endl;
         board->start_stream (buffer_size);
 
 #ifdef _WIN32
@@ -63,11 +65,15 @@ int main (int argc, char *argv[])
 #else
         sleep (5);
 #endif
-
+        std::cout << "stopping streaming" << std::endl;
         board->stop_stream ();
+        std::cout << "getting data count" << std::endl;
         board->get_board_data_count (&data_count);
+        std::cout << "getting data" << std::endl;
         board->get_board_data (data_count, data_buf);
+        std::cout << "releasing session" << std::endl;
         board->release_session ();
+        std::cout << "preprocessing data" << std::endl;
         dh->preprocess_data (data_buf, data_count);
     }
     catch (const BrainFlowExcpetion &err)
@@ -76,7 +82,9 @@ int main (int argc, char *argv[])
         res = err.get_exit_code ();
     }
 
+    std::cout << "saving results" << std::endl;
     write_csv ("board_data.csv", data_buf, data_count, length);
+    std::cout << "completed!" << std::endl;
 
     for (int i = 0; i < buffer_size; i++)
         delete[] data_buf[i];
