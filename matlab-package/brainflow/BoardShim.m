@@ -27,7 +27,7 @@ classdef BoardShim
             obj.exit_codes(15) = 'BOARD_NOT_CREATED_ERROR'
             if isunix
                 obj.libname = 'libBoardController'
-            elseif ismac:
+            elseif ismac
                 obj.libname = 'libBoardController'
             else
                 obj.libname = 'BoardController'
