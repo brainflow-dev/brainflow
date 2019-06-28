@@ -38,6 +38,8 @@ int main (int argc, char *argv[])
         return -1;
     }
 
+    set_log_level (0);
+
     int board_id = atoi (argv[1]);
     BoardShim *board = new BoardShim (board_id, argv[2]);
     int length = BoardInfoGetter::get_package_length (board_id);

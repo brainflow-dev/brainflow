@@ -32,7 +32,7 @@ int OpenBCISerialBoard::open_port ()
     {
         return UNABLE_TO_OPEN_PORT_ERROR;
     }
-
+    Board::board_logger->trace ("port {} is open", serial.get_port_name ());
     return STATUS_OK;
 }
 
