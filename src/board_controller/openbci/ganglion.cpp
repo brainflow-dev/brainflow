@@ -2,7 +2,9 @@
 #include <string.h>
 
 #ifdef _WIN32
-#include <Windows.h>
+#include <windows.h>
+#else
+#include <unistd.h>
 #endif
 
 #include "GanglionNativeInterface.h"
@@ -197,9 +199,7 @@ void Ganglion::read_thread ()
     while (this->keep_alive)
     {
         struct GanglionLibNative::GanglionDataNative data;
-#ifdef _WIN32
-        int res = (func) ((LPVOID)&data);
-#endif
+        int res = (func) ((void *)&data);
         if (res == GanglionLibNative::CustomExitCodesNative::STATUS_OK)
         {
             if (this->state != STATUS_OK)
@@ -356,6 +356,8 @@ void Ganglion::read_thread ()
             }
 #ifdef _WIN32
             Sleep (10);
+#else
+            usleep (10000);
 #endif
         }
     }

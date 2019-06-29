@@ -4,7 +4,10 @@
 #include <string.h>
 #ifdef _WIN32
 #include <windows.h>
-typedef __declspec(dllimport) int(__cdecl *DLLFunc) (LPVOID);
+typedef __declspec(dllimport) int(__cdecl *DLLFunc) (void *);
+#else
+typedef int (*DLLFunc) (void *);
+#include <dlfcn.h>
 #endif
 
 
@@ -54,16 +57,46 @@ public:
             this->lib_instance = NULL;
         }
     }
-
-    // UNIX && APPLE PART
+    // linux part
 #else
+    bool load_library ()
+    {
+        if (this->lib_instance == NULL)
+        {
+            lib_instance = dlopen (this->dll_path, RTLD_LAZY);
+            if (!lib_instance)
+            {
+                return false;
+            }
+            return true;
+        }
+    }
 
+    DLLFunc get_address (const char *function_name)
+    {
+        if (this->lib_instance == NULL)
+        {
+            return NULL;
+        }
+        return (DLLFunc)dlsym (this->lib_instance, function_name);
+    }
+
+    void free_library ()
+    {
+        if (this->lib_instance)
+        {
+            dlclose (this->lib_instance);
+            this->lib_instance = NULL;
+        }
+    }
 #endif
 
 private:
-#ifdef _WIN32
     char dll_path[64];
+#ifdef _WIN32
     HINSTANCE lib_instance;
+#else
+    void *lib_instance;
 #endif
 };
 #endif

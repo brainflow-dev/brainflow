@@ -14,6 +14,13 @@ std::mutex mutex;
 
 int prepare_session (int board_id, char *port_name)
 {
+
+#ifndef _WIN32
+    // temp stub for ganglion on linux and macos
+    if (board_id == GANGLION_BOARD)
+        return UNSUPPORTED_BOARD_ERROR;
+#endif
+
     std::lock_guard<std::mutex> lock (mutex);
 
     if ((board) && (board->get_board_id () == board_id))
