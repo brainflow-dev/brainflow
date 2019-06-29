@@ -117,7 +117,7 @@ set_target_properties (${BOARD_CONTROLLER_NAME}
 )
 
 if (UNIX)
-    target_link_libraries (${BOARD_CONTROLLER_NAME} -lpthread)
+    target_link_libraries (${BOARD_CONTROLLER_NAME} -lpthread -ldl)
 endif (UNIX)
 
 # getdata
