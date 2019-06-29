@@ -1,8 +1,13 @@
 #pragma once
 
 #ifdef _WIN32
-#include <Windows.h>
+#include <windows.h>
+#define SHARED_EXPORT __declspec(dllexport)
+#else
+#define SHARED_EXPORT
 #endif
+
+#include <string.h>
 
 namespace GanglionLibNative
 {
@@ -11,6 +16,19 @@ namespace GanglionLibNative
     {
         unsigned char data[20];
         long timestamp;
+        GanglionDataNative (unsigned char *data, long timestamp)
+        {
+            memcpy (this->data, data, sizeof (unsigned char) * 20);
+            this->timestamp = timestamp;
+        }
+        GanglionDataNative ()
+        {
+        }
+        GanglionDataNative (const GanglionDataNative &other)
+        {
+            timestamp = other.timestamp;
+            memcpy (data, other.data, sizeof (unsigned char) * 20);
+        }
     };
 #pragma pack(pop)
 
@@ -36,15 +54,13 @@ namespace GanglionLibNative
 #ifdef __cplusplus
     extern "C"
     {
-#ifdef _WIN32
-        __declspec (dllexport) int initialize (LPVOID param);
-        __declspec (dllexport) int open_ganglion_native (LPVOID param);
-        __declspec (dllexport) int open_ganglion_mac_addr_native (LPVOID param);
-        __declspec (dllexport) int stop_stream_native (LPVOID param);
-        __declspec (dllexport) int start_stream_native (LPVOID param);
-        __declspec (dllexport) int close_ganglion_native (LPVOID param);
-        __declspec (dllexport) int get_data_native (LPVOID param);
-#endif
+        SHARED_EXPORT int initialize (void *param);
+        SHARED_EXPORT int open_ganglion_native (void *param);
+        SHARED_EXPORT int open_ganglion_mac_addr_native (void *param);
+        SHARED_EXPORT int stop_stream_native (void *param);
+        SHARED_EXPORT int start_stream_native (void *param);
+        SHARED_EXPORT int close_ganglion_native (void *param);
+        SHARED_EXPORT int get_data_native (void *param);
     }
 #endif
 }

@@ -89,14 +89,15 @@ if __name__ == "__main__":
     main ()
 ```
 
-## Brainflow Emulator
+## Brainflow Emulator (Cyton)
 
-Brainflow emulator allows users to run tests without EEG headset.
+Brainflow emulator for Cyton allows users to run tests without EEG headset.
 
 * On Windows it works using [com0com](http://com0com.sourceforge.net/)
 * On Linux it works using pty
 
 You should pass command line to test directly to [cyton_linux.py](./emulator/brainflow_emulator/cyton_linux.py) or to [cyton_windows.py](./emulator/brainflow_emulator/cyton_windows.py), script will add port automatically to provided command line and will start an application
+
 
 ### Example
 
@@ -117,6 +118,10 @@ INFO:root:stderr is: b'[2019-03-20 19:12:10.313] [board_logger] [info] openning 
 ```
 
 Emulator raises *TestFailureError* if test fails
+
+## Brainflow emulator (Ganglion)
+
+To emulate Ganglion device you need to compile mock from GanglionBLEAPI folder and put compiled libraries instead original files like GanglionLibNative64.dll, GanglionLibNative32.dll and the same for Linux\MacOs libraries, rebuild brainflow just to put new libraries to correct locations and run as with real board
 
 ## Brainflow Tests
 
