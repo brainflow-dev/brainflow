@@ -26,7 +26,5 @@ after_success:
 
 notifications:
   email:
-    recipients:
-      - a1994ndrey@gmail.com
     on_success: never
     on_failure: always
