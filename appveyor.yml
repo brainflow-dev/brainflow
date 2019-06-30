@@ -24,9 +24,10 @@ install:
   - cd  %APPVEYOR_BUILD_FOLDER%\GanglionBLEAPI\Mock\build
   - cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_SYSTEM_VERSION=8.1 ..
   - cmake --build . --config Release
+  - cd %APPVEYOR_BUILD_FOLDER%
 
 test_script:
-  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py python .\tests\python\brainflow_get_data.py
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py
   - mkdir build && cd build && cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed\ .. && cmake --build . --target install --config Release
   - mkdir %APPVEYOR_BUILD_FOLDER%\tests\cpp\build && cd %APPVEYOR_BUILD_FOLDER%\tests\cpp\build && cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%APPVEYOR_BUILD_FOLDER%\installed\ .. && cmake --build . --config Release && python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\build\Release\test_get_data.exe 0
   # I've checked there is a jdk and mvn preinstalled in image, don't need to install them from chocolatey
