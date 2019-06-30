@@ -20,7 +20,10 @@ install:
   - pip install .\python-package
   - .\emulator\brainflow_emulator\com0com\certmgr.exe  /add .\emulator\brainflow_emulator\com0com\com0com.cer /s /r localMachine root
   - .\emulator\brainflow_emulator\com0com\certmgr.exe /add .\emulator\brainflow_emulator\com0com\com0com.cer /s /r localMachine trustedpublisher
-  - mkdir %APPVEYOR_BUILD_FOLDER%\GanglionBLEAPI\Mock\build %% cd  %APPVEYOR_BUILD_FOLDER%\GanglionBLEAPI\Mock\build && cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_SYSTEM_VERSION=8.1 .. && cmake --build . --config Release
+  - mkdir %APPVEYOR_BUILD_FOLDER%\GanglionBLEAPI\Mock\build
+  - cd  %APPVEYOR_BUILD_FOLDER%\GanglionBLEAPI\Mock\build
+  - cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_SYSTEM_VERSION=8.1 ..
+  - cmake --build . --config Release
 
 test_script:
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py python .\tests\python\brainflow_get_data.py
