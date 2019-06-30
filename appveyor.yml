@@ -33,7 +33,7 @@ test_script:
   # I've checked there is a jdk and mvn preinstalled in image, don't need to install them from chocolatey
   - cd %APPVEYOR_BUILD_FOLDER%\java-package\brainflow && mvn package && cd ..\..\tests\java && javac -classpath ..\..\java-package\brainflow\target\brainflow-java-jar-with-dependencies.jar BrainFlowTest.java
   # tests for ganglion
-  - cp %APPVEYOR_BUILD_FOLDER%\GanglionBLEAPI\Mock\compiled\Release\GanglionLibNative64.dll %APPVEYOR_BUILD_FOLDER%\brainflow\python-package\brainflow\lib\GanglionLibNative64.dll && cd %APPVEYOR_BUILD_FOLDER%\brainflow\python-package && python examples\brainflow_get_data.py --log --board 1 --port e6:73:73:18:09:b1
+  - cp %APPVEYOR_BUILD_FOLDER%\GanglionBLEAPI\Mock\compiled\Release\GanglionLibNative64.dll %APPVEYOR_BUILD_FOLDER%\python-package\brainflow\lib\GanglionLibNative64.dll && cd %APPVEYOR_BUILD_FOLDER%\brainflow\python-package && python examples\brainflow_get_data.py --log --board 1 --port e6:73:73:18:09:b1
   # tests for 32 bit
   - mkdir %APPVEYOR_BUILD_FOLDER%\build32 && cd %APPVEYOR_BUILD_FOLDER%\build32 && cmake -G "Visual Studio 14 2015" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed32\ .. && cmake --build . --target install --config Release
   # I dont understand why the test below fails in appveyour, todo - investigate it
