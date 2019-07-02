@@ -1,5 +1,6 @@
 #include <chrono>
 #include <string.h>
+#include <string>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -10,6 +11,7 @@
 #include "GanglionNativeInterface.h"
 #include "custom_cast.h"
 #include "ganglion.h"
+#include "get_dll_dir.h"
 
 // sleep is 10 ms, so wait for 2.5sec total
 #define MAX_ATTEMPTS_TO_GET_DATA 250
@@ -26,20 +28,30 @@ Ganglion::Ganglion (const char *port_name)
         strcpy (this->mac_addr, port_name);
         this->use_mac_addr = true;
     }
+    // get full path of ganglioblibnative with assumption that this lib is in the same folder
+    char ganglionlib_dir[1024];
+    bool res = get_dll_path (ganglionlib_dir);
+    std::string ganglioblib_path = "";
 #ifdef _WIN32
     if (sizeof (void *) == 8)
     {
-        const char *dll_name = "GanglionLibNative64.dll";
-        Board::board_logger->debug ("use dll: {}", dll_name);
-        dll_loader = new DLLLoader (dll_name);
+        if (res)
+            ganglioblib_path = std::string (ganglionlib_dir) + "GanglionLibNative64.dll";
+        else
+            ganglioblib_path = "GanglionLibNative64.dll";
     }
     else
     {
-        const char *dll_name = "GanglionLibNative32.dll";
-        Board::board_logger->debug ("use dll: {}", dll_name);
-        dll_loader = new DLLLoader (dll_name);
+        if (res)
+            ganglioblib_path = std::string (ganglionlib_dir) + "GanglionLibNative32.dll";
+        else
+            ganglioblib_path = "GanglionLibNative32.dll";
     }
+    Board::board_logger->debug ("use dll: {}", ganglioblib_path.c_str ());
+    dll_loader = new DLLLoader (ganglioblib_path.c_str ());
 #else
+    // temp unimplemented
+    dll_loader = NULL;
 #endif
     this->is_streaming = false;
     this->keep_alive = false;

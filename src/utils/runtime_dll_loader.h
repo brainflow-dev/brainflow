@@ -10,7 +10,7 @@ typedef int (*DLLFunc) (void *);
 #include <dlfcn.h>
 #endif
 
-
+#include <iostream>
 class DLLLoader
 {
 public:
@@ -34,6 +34,7 @@ public:
             this->lib_instance = LoadLibrary (this->dll_path);
             if (this->lib_instance == NULL)
             {
+                std::cout << "res " << GetLastError () << dll_path << std::endl;
                 return false;
             }
         }
@@ -92,7 +93,7 @@ public:
 #endif
 
 private:
-    char dll_path[64];
+    char dll_path[1024];
 #ifdef _WIN32
     HINSTANCE lib_instance;
 #else

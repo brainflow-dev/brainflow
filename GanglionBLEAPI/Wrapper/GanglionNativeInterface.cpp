@@ -38,37 +38,18 @@ namespace GanglionLibNative
     }
 
     bool is_initialized = false;
-    Assembly ^assembly_resolve (Object ^ Sender, ResolveEventArgs ^ args)
-	{
-        AssemblyName ^assemblyName = gcnew AssemblyName (args->Name);
-        String ^target_file_name = gcnew String ("GanglionLib.dll");
-        if (assemblyName->Name == "GanglionLib")
-        {
-            // try to search via GANGLION_LIB_PATH first
-            try
+    Assembly ^
+        assembly_resolve (Object ^ Sender, ResolveEventArgs ^ args) {
+            AssemblyName ^ assemblyName = gcnew AssemblyName (args->Name);
+            String ^ target_file_name = gcnew String ("GanglionLib.dll");
+            if (assemblyName->Name == "GanglionLib")
             {
-                String ^ganglion_lib_path =
-                    Environment::GetEnvironmentVariable ("GANGLION_LIB_PATH");
-                array<String ^> ^files = Directory::GetFiles (ganglion_lib_path);
-                for (int j = 0; j < files->Length; j++)
-                {
-                    if (files[j]->EndsWith (target_file_name))
-                    {
-                        return Assembly::LoadFile (files[j]);
-                    }
-                }
-            }
-            catch (Exception ^ ex)
-            {
-            }
-            // try to search via Path next
-            String ^path = Environment::GetEnvironmentVariable ("Path");
-            auto folders = path->Split (';');
-            for (int i = 0; i < folders->Length; i++)
-            {
+                // try to search via GANGLION_LIB_PATH first
                 try
                 {
-                    array<String ^> ^files = Directory::GetFiles (folders[i]);
+                    String ^ ganglion_lib_path =
+                        Environment::GetEnvironmentVariable ("GANGLION_LIB_PATH");
+                    array<String ^> ^ files = Directory::GetFiles (ganglion_lib_path);
                     for (int j = 0; j < files->Length; j++)
                     {
                         if (files[j]->EndsWith (target_file_name))
@@ -80,32 +61,51 @@ namespace GanglionLibNative
                 catch (Exception ^ ex)
                 {
                 }
+                // try to search via Path next
+                String ^ path = Environment::GetEnvironmentVariable ("Path");
+                auto folders = path->Split (';');
+                for (int i = 0; i < folders->Length; i++)
+                {
+                    try
+                    {
+                        array<String ^> ^ files = Directory::GetFiles (folders[i]);
+                        for (int j = 0; j < files->Length; j++)
+                        {
+                            if (files[j]->EndsWith (target_file_name))
+                            {
+                                return Assembly::LoadFile (files[j]);
+                            }
+                        }
+                    }
+                    catch (Exception ^ ex)
+                    {
+                    }
+                }
             }
+
+            return nullptr;
         }
 
-        return nullptr;
-    }
+        int initialize (LPVOID param)
+    {
+        if (!is_initialized)
+        {
+            LPTSTR val = (LPTSTR)malloc (MAX_PATH * sizeof (TCHAR));
+            DWORD ret = GetEnvironmentVariable (L"GANGLION_LIB_PATH", val, MAX_PATH);
+            if (ret == 0)
+            {
+                // get path of this dll and use it as a hint for C# dll search via state var
+                CStringW this_path = get_dll_path ();
+                SetEnvironmentVariable (L"GANGLION_LIB_PATH", this_path);
+            }
 
-    int initialize (LPVOID param)
-	{
-		if (!is_initialized)
-		{
-			LPTSTR val = (LPTSTR)malloc (MAX_PATH * sizeof (TCHAR));
-			DWORD ret = GetEnvironmentVariable (L"GANGLION_LIB_PATH", val, MAX_PATH);
-			if (ret == 0)
-			{
-				// get path of this dll and use it as a hint for C# dll search via state var
-				CStringW this_path = get_dll_path ();
-				SetEnvironmentVariable (L"GANGLION_LIB_PATH", this_path);
-			}
-
-			AppDomain::CurrentDomain->AssemblyResolve +=
-				gcnew ResolveEventHandler (assembly_resolve);
-			is_initialized = true;
+            AppDomain::CurrentDomain->AssemblyResolve +=
+                gcnew ResolveEventHandler (assembly_resolve);
+            is_initialized = true;
             free (val);
-		}
-		return (int)CustomExitCodesNative::STATUS_OK;
-	}
+        }
+        return (int)CustomExitCodesNative::STATUS_OK;
+    }
 
     int open_ganglion_native (LPVOID param)
     {
