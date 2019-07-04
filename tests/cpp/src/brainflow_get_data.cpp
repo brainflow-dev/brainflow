@@ -76,7 +76,7 @@ int main (int argc, char *argv[])
         std::cout << "preprocessing data" << std::endl;
         dh->preprocess_data (data_buf, data_count);
     }
-    catch (const BrainFlowExcpetion &err)
+    catch (const BrainFlowException &err)
     {
         std::cout << err.what () << std::endl;
         res = err.get_exit_code ();
