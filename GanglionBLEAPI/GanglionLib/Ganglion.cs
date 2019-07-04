@@ -8,6 +8,7 @@ using System.Threading;
 
 namespace GanglionLib
 {
+    // https://docs.microsoft.com/en-us/windows/uwp/devices-sensors/gatt-client
     public class Ganglion
     {
         // "Magic" string for all BLE devices
@@ -245,6 +246,7 @@ namespace GanglionLib
                     }
                 }
             };
+            // maybe it works without Updated filed, just put empy function for now
             watcher.Updated += (_, __) => { };
             watcher.EnumerationCompleted += (DeviceWatcher sender, object arg) => { sender.Stop (); };
             watcher.Stopped += (DeviceWatcher sender, object arg) => { sender.Start (); };

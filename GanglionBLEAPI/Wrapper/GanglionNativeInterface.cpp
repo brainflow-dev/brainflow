@@ -90,7 +90,8 @@ namespace GanglionLibNative
     {
         if (!is_initialized)
         {
-            LPTSTR val = (LPTSTR)malloc (MAX_PATH * sizeof (TCHAR));
+            TCHAR tmp[MAX_PATH];
+            LPTSTR val = (LPTSTR)tmp;
             DWORD ret = GetEnvironmentVariable (L"GANGLION_LIB_PATH", val, MAX_PATH);
             if (ret == 0)
             {
@@ -102,7 +103,6 @@ namespace GanglionLibNative
             AppDomain::CurrentDomain->AssemblyResolve +=
                 gcnew ResolveEventHandler (assembly_resolve);
             is_initialized = true;
-            free (val);
         }
         return (int)CustomExitCodesNative::STATUS_OK;
     }

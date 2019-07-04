@@ -35,7 +35,7 @@ public:
             if (board_id == GANGLION_BOARD)
                 return GANGLION::package_length;
             else
-                throw BrainFlowExcpetion ("Unsupported Board Error", UNSUPPORTED_BOARD_ERROR);
+                throw BrainFlowException ("Unsupported Board Error", UNSUPPORTED_BOARD_ERROR);
         }
     }
 
@@ -48,7 +48,7 @@ public:
             if (board_id == GANGLION_BOARD)
                 return GANGLION::num_eeg_channels;
             else
-                throw BrainFlowExcpetion ("Unsupported Board Error", UNSUPPORTED_BOARD_ERROR);
+                throw BrainFlowException ("Unsupported Board Error", UNSUPPORTED_BOARD_ERROR);
         }
     }
 
@@ -61,7 +61,7 @@ public:
             if (board_id == GANGLION_BOARD)
                 return GANGLION::fs_hz;
             else
-                throw BrainFlowExcpetion ("Unsupported Board Error", UNSUPPORTED_BOARD_ERROR);
+                throw BrainFlowException ("Unsupported Board Error", UNSUPPORTED_BOARD_ERROR);
         }
     }
 
@@ -74,7 +74,7 @@ public:
             if (board_id == GANGLION_BOARD)
                 return GANGLION::first_eeg_channel;
             else
-                throw BrainFlowExcpetion ("Unsupported Board Error", UNSUPPORTED_BOARD_ERROR);
+                throw BrainFlowException ("Unsupported Board Error", UNSUPPORTED_BOARD_ERROR);
         }
     }
 };

@@ -16,7 +16,7 @@ void BoardShim::prepare_session ()
     int res = ::prepare_session (board_id, port_name);
     if (res != STATUS_OK)
     {
-        throw BrainFlowExcpetion ("failed to prepare session", res);
+        throw BrainFlowException ("failed to prepare session", res);
     }
 }
 
@@ -25,7 +25,7 @@ void BoardShim::start_stream (int buffer_size)
     int res = ::start_stream (buffer_size);
     if (res != STATUS_OK)
     {
-        throw BrainFlowExcpetion ("failed to start stream", res);
+        throw BrainFlowException ("failed to start stream", res);
     }
 }
 
@@ -34,7 +34,7 @@ void BoardShim::stop_stream ()
     int res = ::stop_stream ();
     if (res != STATUS_OK)
     {
-        throw BrainFlowExcpetion ("failed to stop stream", res);
+        throw BrainFlowException ("failed to stop stream", res);
     }
 }
 
@@ -43,7 +43,7 @@ void BoardShim::release_session ()
     int res = ::release_session ();
     if (res != STATUS_OK)
     {
-        throw BrainFlowExcpetion ("failed to release session", res);
+        throw BrainFlowException ("failed to release session", res);
     }
 }
 
@@ -52,7 +52,7 @@ void BoardShim::get_board_data_count (int *result)
     int res = ::get_board_data_count (result);
     if (res != STATUS_OK)
     {
-        throw BrainFlowExcpetion ("failed to get board data count", res);
+        throw BrainFlowException ("failed to get board data count", res);
     }
 }
 
@@ -66,7 +66,7 @@ void BoardShim::get_board_data (int data_count, double **data_buf)
     {
         delete[] buf;
         delete[] ts_buf;
-        throw BrainFlowExcpetion ("failed to get board data", res);
+        throw BrainFlowException ("failed to get board data", res);
     }
     reshape_data (data_count, buf, ts_buf, data_buf);
     delete[] buf;
@@ -83,7 +83,7 @@ void BoardShim::get_current_board_data (int num_samples, double **data_buf, int 
     {
         delete[] buf;
         delete[] ts_buf;
-        throw BrainFlowExcpetion ("failed to get board data", res);
+        throw BrainFlowException ("failed to get board data", res);
     }
     reshape_data (*returned_samples, buf, ts_buf, data_buf);
     delete[] buf;
