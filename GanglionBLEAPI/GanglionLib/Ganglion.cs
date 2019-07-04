@@ -21,7 +21,7 @@ namespace GanglionLib
         private GattCharacteristic send_characteristic = null;
         private GattCharacteristic receive_characteristic = null;
         private GattCharacteristic disconnect_characteristic = null;
-        private TimeSpan timeout = TimeSpan.FromSeconds (6);
+        private TimeSpan timeout = TimeSpan.FromSeconds (5);
         private Queue<BoardData> data_queue = new Queue<BoardData> ();
 
         public int open_ganglion ()
@@ -57,7 +57,8 @@ namespace GanglionLib
                 }
                 var task_pair = pair_ganglion_async ();
                 task_pair.Wait ();
-                return task_pair.Result;
+                // dont check exit code for pairing because pairing works pretty strange
+                return (int)CustomExitCodes.STATUS_OK;
             }
             catch (Exception ex)
             {
@@ -97,6 +98,8 @@ namespace GanglionLib
             {
                 var unsub_task = disable_notifications ();
                 unsub_task.Wait ();
+                var task_unpair = unpair_ganglion_async ();
+                task_unpair.Wait ();
             }
             catch (Exception ex)
             {
@@ -375,7 +378,7 @@ namespace GanglionLib
 
             try
             {
-                if (pairing_information.CanPair)
+                if ((pairing_information.CanPair) && (!pairing_information.IsPaired))
                 {
                     result = await ganglion_device.DeviceInformation.Pairing.PairAsync (pairing_information.ProtectionLevel).AsTask ().TimeoutAfter (timeout);
                 }
@@ -393,6 +396,42 @@ namespace GanglionLib
                 return (int) CustomExitCodes.GENERAL_ERROR;
             }
             return (int) CustomExitCodes.STATUS_OK;
+        }
+
+        private async Task<int> unpair_ganglion_async ()
+        {
+            if (ganglion_info == null)
+            {
+                return (int)CustomExitCodes.GANGLION_NOT_FOUND_ERROR;
+            }
+            if (ganglion_device == null)
+            {
+                return (int)CustomExitCodes.GANGLION_IS_NOT_OPEN_ERROR;
+            }
+
+            DeviceUnpairingResult result = null;
+            DeviceInformationPairing pairing_information = ganglion_device.DeviceInformation.Pairing;
+
+            try
+            {
+                if (pairing_information.IsPaired)
+                {
+                    result = await ganglion_device.DeviceInformation.Pairing.UnpairAsync ().AsTask ().TimeoutAfter (timeout);
+                }
+                else
+                {
+                    return (int)CustomExitCodes.GANGLION_IS_NOT_PAIRED_ERROR;
+                }
+            }
+            catch (TimeoutException e)
+            {
+                return (int)CustomExitCodes.TIMEOUT_ERROR;
+            }
+            catch (Exception e)
+            {
+                return (int)CustomExitCodes.GENERAL_ERROR;
+            }
+            return (int)CustomExitCodes.STATUS_OK;
         }
 
         private async Task<int> disable_notifications ()
