@@ -14,3 +14,38 @@ int Board::set_log_level (int level)
     Board::board_logger->flush_on (spdlog::level::level_enum (log_level));
     return STATUS_OK;
 }
+
+int Board::get_current_board_data (
+    int num_samples, float *data_buf, double *ts_buf, int *returned_samples)
+{
+    if (db && data_buf && ts_buf && returned_samples)
+    {
+        size_t result = db->get_current_data (num_samples, ts_buf, data_buf);
+        (*returned_samples) = int(result);
+        return STATUS_OK;
+    }
+    else
+        return INVALID_ARGUMENTS_ERROR;
+}
+
+int Board::get_board_data_count (int *result)
+{
+    if (!db)
+        return EMPTY_BUFFER_ERROR;
+    if (!result)
+        return INVALID_ARGUMENTS_ERROR;
+
+    *result = int(db->get_data_count ());
+    return STATUS_OK;
+}
+
+int Board::get_board_data (int data_count, float *data_buf, double *ts_buf)
+{
+    if (!db)
+        return EMPTY_BUFFER_ERROR;
+    if ((!data_buf) || !(ts_buf))
+        return INVALID_ARGUMENTS_ERROR;
+
+    db->get_data (data_count, ts_buf, data_buf);
+    return STATUS_OK;
+}

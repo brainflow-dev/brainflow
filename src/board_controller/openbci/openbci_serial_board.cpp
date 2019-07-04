@@ -1,25 +1,24 @@
 #include <string.h>
 
-#include "openbci_board.h"
+#include "openbci_serial_board.h"
 #include "serial.h"
 
-OpenBCIBoard::OpenBCIBoard (int num_channels, const char *port_name) : serial (port_name)
+OpenBCISerialBoard::OpenBCISerialBoard (int num_channels, const char *port_name)
+    : Board (), serial (port_name)
 {
     this->num_channels = num_channels;
 
     is_streaming = false;
     keep_alive = false;
     initialized = false;
-
-    db = NULL;
 }
 
-OpenBCIBoard::~OpenBCIBoard ()
+OpenBCISerialBoard::~OpenBCISerialBoard ()
 {
     release_session ();
 }
 
-int OpenBCIBoard::open_port ()
+int OpenBCISerialBoard::open_port ()
 {
     if (serial.is_port_open ())
     {
@@ -33,11 +32,11 @@ int OpenBCIBoard::open_port ()
     {
         return UNABLE_TO_OPEN_PORT_ERROR;
     }
-
+    Board::board_logger->trace ("port {} is open", serial.get_port_name ());
     return STATUS_OK;
 }
 
-int OpenBCIBoard::send_to_board (const char *message)
+int OpenBCISerialBoard::send_to_board (const char *message)
 {
     int res = serial.send_to_serial_port (message);
     if (res != 1)
@@ -46,7 +45,7 @@ int OpenBCIBoard::send_to_board (const char *message)
     return STATUS_OK;
 }
 
-int OpenBCIBoard::set_port_settings ()
+int OpenBCISerialBoard::set_port_settings ()
 {
     int res = serial.set_serial_port_settings ();
     if (res < 0)
@@ -54,11 +53,13 @@ int OpenBCIBoard::set_port_settings ()
         Board::board_logger->error ("Unable to set port settings, res is {}", res);
         return SET_PORT_ERROR;
     }
+    Board::board_logger->trace ("set port settings");
     return send_to_board ("v");
 }
 
-int OpenBCIBoard::status_check ()
+int OpenBCISerialBoard::status_check ()
 {
+    Board::board_logger->trace ("start status check");
     unsigned char buf[1];
     int count = 0;
 
@@ -79,7 +80,7 @@ int OpenBCIBoard::status_check ()
     return BOARD_NOT_READY_ERROR;
 }
 
-int OpenBCIBoard::prepare_session ()
+int OpenBCISerialBoard::prepare_session ()
 {
     if (initialized)
     {
@@ -99,10 +100,11 @@ int OpenBCIBoard::prepare_session ()
         return initted;
 
     initialized = true;
+    Board::board_logger->trace ("Session is ready");
     return STATUS_OK;
 }
 
-int OpenBCIBoard::start_stream (int buffer_size)
+int OpenBCISerialBoard::start_stream (int buffer_size)
 {
     if (is_streaming)
     {
@@ -139,7 +141,7 @@ int OpenBCIBoard::start_stream (int buffer_size)
     return STATUS_OK;
 }
 
-int OpenBCIBoard::stop_stream ()
+int OpenBCISerialBoard::stop_stream ()
 {
     if (is_streaming)
     {
@@ -152,55 +154,14 @@ int OpenBCIBoard::stop_stream ()
         return STREAM_THREAD_IS_NOT_RUNNING;
 }
 
-int OpenBCIBoard::release_session ()
+int OpenBCISerialBoard::release_session ()
 {
     if (initialized)
     {
         if (is_streaming)
             stop_stream ();
-
-        if (db)
-        {
-            delete db;
-            db = NULL;
-        }
         initialized = false;
     }
     serial.close_serial_port ();
-    return STATUS_OK;
-}
-
-int OpenBCIBoard::get_current_board_data (
-    int num_samples, float *data_buf, double *ts_buf, int *returned_samples)
-{
-    if (db && data_buf && ts_buf && returned_samples)
-    {
-        size_t result = db->get_current_data (num_samples, ts_buf, data_buf);
-        (*returned_samples) = int(result);
-        return STATUS_OK;
-    }
-    else
-        return INVALID_ARGUMENTS_ERROR;
-}
-
-int OpenBCIBoard::get_board_data_count (int *result)
-{
-    if (!db)
-        return EMPTY_BUFFER_ERROR;
-    if (!result)
-        return INVALID_ARGUMENTS_ERROR;
-
-    *result = int(db->get_data_count ());
-    return STATUS_OK;
-}
-
-int OpenBCIBoard::get_board_data (int data_count, float *data_buf, double *ts_buf)
-{
-    if (!db)
-        return EMPTY_BUFFER_ERROR;
-    if ((!data_buf) || !(ts_buf))
-        return INVALID_ARGUMENTS_ERROR;
-
-    db->get_data (data_count, ts_buf, data_buf);
     return STATUS_OK;
 }

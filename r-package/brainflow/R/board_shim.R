@@ -1,7 +1,7 @@
 #' @export
 Boards <- function () {
     list(Cyton = c(Type = as.integer(0), sampling = as.integer(250), num_channels = as.integer(13), num_eeg_channels = as.integer(8)),
-         Unimplemented = c(Type = 1, sampling = NULL, num_channels = NULL, num_eeg_channels = NULL))
+         Ganglion = c(Type = as.integer(1), sampling = as.integer(200), num_channels = as.integer(9), num_eeg_channels = as.integer(4)))
 }
 
 #' @param board_id

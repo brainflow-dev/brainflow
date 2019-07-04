@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.InteropServices;
 
 namespace brainflow
 {
@@ -24,12 +19,16 @@ namespace brainflow
         EMPTY_BUFFER_ERROR,
         INVALID_ARGUMENTS_ERROR,
         UNSUPPORTED_BOARD_ERROR,
-        BOARD_NOT_CREATED_ERROR
+        BOARD_NOT_CREATED_ERROR,
+        ANOTHER_BOARD_IS_CREATED_ERROR,
+        GENERAL_ERROR,
+        SYNC_TIMEOUT_ERROR
     };
 
     public enum BoardIds
     {
-        CYTON_BOARD = 0
+        CYTON_BOARD = 0,
+        GANGLION_BOARD = 1
     };
 
     public static class Library
@@ -48,6 +47,8 @@ namespace brainflow
         public static extern int get_board_data_count(int[] result);
         [DllImport("BoardController.dll", SetLastError = true)]
         public static extern int get_board_data(int data_count, float[] data_buf, double[] ts_buf);
+        [DllImport ("BoardController.dll", SetLastError = true)]
+        public static extern int set_log_level (int log_level);
     }
 
 }

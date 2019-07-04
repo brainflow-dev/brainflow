@@ -25,7 +25,13 @@ setup (
         'numpy', 'scipy', 'pandas', 'enum-compat'
     ],
     package_data = {
-        'brainflow': [os.path.join ('lib', 'BoardController.dll'), os.path.join ('lib', 'libBoardController.so'), os.path.join ('lib', 'libBoardController.dylib')]
+        'brainflow': [
+            os.path.join ('lib', 'BoardController.dll'),
+            os.path.join ('lib', 'libBoardController.so'),
+            os.path.join ('lib', 'GanglionLib.dll'),
+            os.path.join ('lib', 'GanglionLibNative64.dll'),
+            os.path.join ('lib', 'libBoardController.dylib')
+        ]
     },
     zip_safe = True,
     python_requires = '>=2.7'

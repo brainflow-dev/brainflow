@@ -11,14 +11,9 @@
 DataHandler::DataHandler (int board_id)
 {
     this->board_id = board_id;
-    if (board_id == CYTON_BOARD)
-    {
-        num_data_channels = 12; // package_num, 8 eeg, 3accel
-        start_eeg = 1;
-        stop_eeg = 9;
-        sample_rate = 250.0;
-        total_channels = num_data_channels + 1; // plus ts
-    }
+    start_eeg = BoardInfoGetter::get_first_eeg_channel (board_id);
+    stop_eeg = BoardInfoGetter::get_num_eeg_channels (board_id) + start_eeg;
+    sample_rate = BoardInfoGetter::get_fs_hz (board_id);
 }
 
 void DataHandler::filter_lowpass (double **data, int data_count, float cutoff)

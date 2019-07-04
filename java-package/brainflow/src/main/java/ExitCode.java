@@ -19,7 +19,11 @@ public enum ExitCode {
     EMPTY_BUFFER_ERROR (12),
     INVALID_ARGUMENTS_ERROR (13),
     UNSUPPORTED_BOARD_ERROR (14),
-    BOARD_NOT_CREATED_ERROR (15);
+    BOARD_NOT_CREATED_ERROR (15),
+    ANOTHER_BOARD_IS_CREATED_ERROR (16),
+    GENERAL_ERROR (17),
+    SYNC_TIMEOUT_ERROR (18);
+
  
     private final int exit_code;
     private static final Map<Integer, ExitCode> ec_map = new HashMap<Integer, ExitCode>();
