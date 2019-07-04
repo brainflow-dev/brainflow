@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace brainflow
 {
@@ -24,6 +20,33 @@ namespace brainflow
             this.fs_hz = BoardInfoGetter.get_fs_hz (board_id);
             this.num_eeg_channels = BoardInfoGetter.get_num_eeg_channels (board_id);
             this.first_eeg_channel = BoardInfoGetter.get_first_eeg_channel (board_id);
+        }
+
+        public static void enable_board_logger ()
+        {
+            int res = Library.set_log_level (2);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowExceptioin (res);
+            }
+        }
+
+        public static void disable_board_logger ()
+        {
+            int res = Library.set_log_level (6);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowExceptioin (res);
+            }
+        }
+
+        public static void enable_dev_board_logger ()
+        {
+            int res = Library.set_log_level (0);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowExceptioin (res);
+            }
         }
 
         public void prepare_session ()

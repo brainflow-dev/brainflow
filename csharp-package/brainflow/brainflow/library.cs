@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.InteropServices;
 
 namespace brainflow
 {
@@ -52,6 +47,8 @@ namespace brainflow
         public static extern int get_board_data_count(int[] result);
         [DllImport("BoardController.dll", SetLastError = true)]
         public static extern int get_board_data(int data_count, float[] data_buf, double[] ts_buf);
+        [DllImport ("BoardController.dll", SetLastError = true)]
+        public static extern int set_log_level (int log_level);
     }
 
 }
