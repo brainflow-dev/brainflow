@@ -161,12 +161,12 @@ python {project_dir}\emulator\brainflow_emulator\cyton_windows.py java -classpat
 
 #### Windows
 * Install CMAKE>=3.10 (you can install cmake from pip of from [cmake website](https://cmake.org/))
-* Install Visual Studio 2015 or newer(We just need MSBUILD and you are able to download it without Visual Studio but it's easier to install Visual Studio Community)
+* Install Visual Studio(We just need MSBUILD and you are able to download it without Visual Studio but it's easier to install Visual Studio Community)
 ```
 mkdir build
 cd build
 # if you install another Visual Studio you need to change the generator in command below, also you can change installation directory(you may skip installation if you don't need Cpp SDK), if you wanna commit compiled libraries you need to specify -DCMAKE_SYSTEM_VERSION=8.1 it's the oldest windows version which we support
-cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\\installed\\ ..
+cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\\installed\\ ..
 cmake --build . --target install --config Release
 cd ..
 ```
