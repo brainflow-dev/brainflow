@@ -5,10 +5,12 @@ stack: python 3
 
 environment:
   PY_DIR: C:\Python36-x64
-  DROPBOX_TOKEN:
-    secure: meLSd9q87sYGzss67QMpRA3mTe/9GbFPQiTxtAtWTolHRbFp9/sq0lI/nTY3es55iIrmohH2/nUVJOVK7cg1zB1ORPFQztP6Js42LV2jXGM=
+  AWS_ACCESS_KEY_ID:
+    secure: 41Lh3mnlU+lVcr5eX3bTgmsKqcebacVgDOww7zb0r4E=
+  AWS_SECRET_ACCESS_KEY:
+    secure: jeVYQ02OTywaENrIcWvoZg+YzGnhiluCDes/kaJE4NeVIZqjlipFt5yXxCct9S5w
   PYPI_PASSWORD:
-    secure: ZuRCW1W45pqH03Lio54BzQ==
+    secure: iwHCe7zJP1fu+Jv03MC+ArVwcbANHouo7xvXkJvqXPQ=
 
 clone_depth: 3
 
