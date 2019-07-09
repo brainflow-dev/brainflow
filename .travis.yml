@@ -34,10 +34,10 @@ script:
   - cd $TRAVIS_BUILD_DIR/tests/cpp && mkdir build && cd build && cmake -DCMAKE_PREFIX_PATH=$TRAVIS_BUILD_DIR/installed .. && make && LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py $TRAVIS_BUILD_DIR/tests/cpp/build/test_get_data 0
 
 after_success:
-  - sudo -H pip3 install -r $TRAVIS_BUILD_DIR/tools/requirements.txt
-  - python3 $TRAVIS_BUILD_DIR/tools/dropbox_uploader.py  --token $DROPBOX_TOKEN --local-files "$TRAVIS_BUILD_DIR/installed/lib/*.*" --remote-dir /$TRAVIS_COMMIT/linux
+  - sudo -H pip3 install awscli
+  - aws s3 cp $TRAVIS_BUILD_DIR/installed/lib/ s3://brainflow-artifacts/%APPVEYOR_REPO_COMMIT%/linux --recursive
   # notify that everything is ok
-  - echo success > linux_success && python3 $TRAVIS_BUILD_DIR/tools/dropbox_uploader.py  --token $DROPBOX_TOKEN --local-files linux_success --remote-dir /$TRAVIS_COMMIT/linux
+  - echo success > linux_success && aws s3 cp linux_success s3://brainflow-artifacts/%APPVEYOR_REPO_COMMIT%
 
 notifications:
   email:
