@@ -35,6 +35,8 @@ install:
   # compile brainflow for 32 and 64
   - mkdir %APPVEYOR_BUILD_FOLDER%\build32 && cd %APPVEYOR_BUILD_FOLDER%\build32 && cmake -G "Visual Studio 15 2017" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed32\ .. && cmake --build . --target install --config Release
   - mkdir %APPVEYOR_BUILD_FOLDER%\build64 && cd %APPVEYOR_BUILD_FOLDER%\build64 && cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed64\ .. && cmake --build . --target install --config Release
+  - cp %APPVEYOR_BUILD_FOLDER%\installed64\lib\GanglionLibNative64.dll  %APPVEYOR_BUILD_FOLDER%\compiled\GanglionLibNative64.dll
+  - cp %APPVEYOR_BUILD_FOLDER%\installed32\lib\GanglionLibNative32.dll  %APPVEYOR_BUILD_FOLDER%\compiled\GanglionLibNative32.dll
 
 test_script:
   # x64
@@ -49,24 +51,35 @@ test_script:
   # I dont understand why the test below fails in appveyour, todo - investigate it
   #- mkdir %APPVEYOR_BUILD_FOLDER%\tests\cpp\build32 && cd %APPVEYOR_BUILD_FOLDER%\tests\cpp\build32 && cmake -G "Visual Studio 15 2017" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%APPVEYOR_BUILD_FOLDER%\installed32\ .. && cmake --build . --config Release && python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\build32\Release\test_get_data.exe 0
 
-#TODO add uploading to github release page
+# replace mocked libraries by real libs
+after_test:
+  - cp %APPVEYOR_BUILD_FOLDER%\compiled\GanglionLibNative64.dll %APPVEYOR_BUILD_FOLDER%\python-package\brainflow\lib\GanglionLibNative64.dll
+
 deploy_script:
   - python -m pip install wheel
   - python -m pip install twine
-  - python -m pip install -r %APPVEYOR_BUILD_FOLDER%\tools\requirements.txt
-  - python %APPVEYOR_BUILD_FOLDER%\tools\dropbox_uploader.py --token %DROPBOX_TOKEN% --local-files %APPVEYOR_BUILD_FOLDER%\installed32\lib\*.* --remote-dir /%APPVEYOR_REPO_COMMIT%/win32
-  - python %APPVEYOR_BUILD_FOLDER%\tools\dropbox_uploader.py --token %DROPBOX_TOKEN% --local-files %APPVEYOR_BUILD_FOLDER%\installed32\inc\*.* --remote-dir /%APPVEYOR_REPO_COMMIT%/inc
-  - python %APPVEYOR_BUILD_FOLDER%\tools\dropbox_uploader.py --token %DROPBOX_TOKEN% --local-files %APPVEYOR_BUILD_FOLDER%\installed64\lib\*.* --remote-dir /%APPVEYOR_REPO_COMMIT%/win64
+  - python -m pip install awscli
+  # upload to S3 in all cases, we will always be able to download libs
+  - aws s3 cp %APPVEYOR_BUILD_FOLDER%\installed32\inc\ s3://brainflow-artifacts/%APPVEYOR_REPO_COMMIT%/inc --recursive
+  - aws s3 cp %APPVEYOR_BUILD_FOLDER%\installed32\lib\ s3://brainflow-artifacts/%APPVEYOR_REPO_COMMIT%/lib32 --recursive
+  - aws s3 cp %APPVEYOR_BUILD_FOLDER%\installed64\lib\ s3://brainflow-artifacts/%APPVEYOR_REPO_COMMIT%/lib64 --recursive
+  # download files from travis using S3 create package and publish it
   - ps: >-
       If ($env:APPVEYOR_REPO_TAG -eq "true" -And $env:APPVEYOR_REPO_BRANCH -eq "master") {
-        Invoke-Expression "python $env:APPVEYOR_BUILD_FOLDER\tools\wait_for_file.py --token $env:DROPBOX_TOKEN --file /$env:APPVEYOR_REPO_COMMIT/linux/linux_success"
-        New-Item $env:APPVEYOR_BUILD_FOLDER\linux_libs -itemtype directory
-        Invoke-Expression "python $env:APPVEYOR_BUILD_FOLDER\tools\dropbox_downloader.py --token $env:DROPBOX_TOKEN --local-dir $env:APPVEYOR_BUILD_FOLDER\linux_libs --remote-dir /$env:APPVEYOR_REPO_COMMIT/linux"
-        Copy-Item "$env:APPVEYOR_BUILD_FOLDER\linux_libs\*" -Destination "$env:APPVEYOR_BUILD_FOLDER\python-package\brainflow\lib" -Recurse
-        ls $env:APPVEYOR_BUILD_FOLDER\python-package\brainflow\lib
-        cd $env:APPVEYOR_BUILD_FOLDER\python-package
-        python setup.py sdist bdist_wheel
-        twine upload --skip-existing dist/*.whl --user Andrey1994 --password %PYPI_PASSWORD%
+        for ($i=0; $i -lt 15; $i++){aws s3 ls s3://brainflow-artifacts/$env:APPVEYOR_REPO_COMMIT/linux_success; if($?) {break} if(!$?) {Start-Sleep -s 60;echo "not found"}}
+        aws s3 ls s3://brainflow-artifacts/$env:APPVEYOR_REPO_COMMIT/linux_success
+        If ($?) {
+          New-Item $env:APPVEYOR_BUILD_FOLDER\linux -itemtype directory
+          aws s3 cp s3://brainflow-artifacts/$env:APPVEYOR_REPO_COMMIT/linux/ $env:APPVEYOR_BUILD_FOLDER\linux_libs\ --recursive
+          Copy-Item "$env:APPVEYOR_BUILD_FOLDER\linux\*" -Destination "$env:APPVEYOR_BUILD_FOLDER\python-package\brainflow\lib" -Recurse
+          ls $env:APPVEYOR_BUILD_FOLDER\python-package\brainflow\lib
+          cd $env:APPVEYOR_BUILD_FOLDER\python-package
+          python setup.py sdist bdist_wheel
+          twine upload --skip-existing dist/*.whl --user OpenBCI --password %PYPI_PASSWORD%
+        }
+        Else {
+          write-output "failed to wait for linux libs"
+        }
       } Else {
         write-output "Skip deployment for non tag"
       }
