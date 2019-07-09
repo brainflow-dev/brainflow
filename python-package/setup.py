@@ -1,5 +1,6 @@
 import os
 import platform
+import sys
 from setuptools import setup, find_packages
 
 
@@ -9,7 +10,7 @@ with open (os.path.join (this_directory, 'README.md')) as f:
 
 setup (
     name = 'brainflow',
-    version = '1.0.7',
+    version = os.environ.get('BRAINFLOW_VERSION', '1.0.8'),
     description = 'Library to get data from OpenBCI boards',
     long_description = long_description,
     long_description_content_type = 'text/markdown',

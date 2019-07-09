@@ -5,39 +5,70 @@ stack: python 3
 
 environment:
   PY_DIR: C:\Python36-x64
+  DROPBOX_TOKEN:
+    secure: meLSd9q87sYGzss67QMpRA3mTe/9GbFPQiTxtAtWTolHRbFp9/sq0lI/nTY3es55iIrmohH2/nUVJOVK7cg1zB1ORPFQztP6Js42LV2jXGM=
+  PYPI_PASSWORD:
+    secure: ZuRCW1W45pqH03Lio54BzQ==
 
 clone_depth: 3
 
 build: off
 
 init:
-  - cmd: set PATH=%PY_DIR%;%PY_DIR%\Scripts;C:\Program Files\Java\jdk1.8.0\bin;%APPVEYOR_BUILD_FOLDER%\installed\lib;%APPVEYOR_BUILD_FOLDER%\installed32\lib;%PATH%
+  - cmd: set PATH=%PY_DIR%;%PY_DIR%\Scripts;C:\Program Files\Java\jdk1.8.0\bin;%APPVEYOR_BUILD_FOLDER%\installed64\lib;%APPVEYOR_BUILD_FOLDER%\installed32\lib;%PATH%
   - cmd: set CNC_INSTALL_CNCA0_CNCB0_PORTS="YES"
   - cmd: set JAVA_HOME=C:\Program Files\Java\jdk1.8.0
+  - cmd: set BRAINFLOW_VERSION=%APPVEYOR_REPO_TAG_NAME%
 
 install:
-  - pip install .\emulator\
-  - pip install .\python-package
-  - .\emulator\brainflow_emulator\com0com\certmgr.exe  /add .\emulator\brainflow_emulator\com0com\com0com.cer /s /r localMachine root
-  - .\emulator\brainflow_emulator\com0com\certmgr.exe /add .\emulator\brainflow_emulator\com0com\com0com.cer /s /r localMachine trustedpublisher
+  # install emulator for cyton
+  - pip install %APPVEYOR_BUILD_FOLDER%\emulator\
+  - cd %APPVEYOR_BUILD_FOLDER% && %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\com0com\certmgr.exe  /add %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\com0com\com0com.cer /s /r localMachine root
+  - cd %APPVEYOR_BUILD_FOLDER% && %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\com0com\certmgr.exe /add %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\com0com\com0com.cer /s /r localMachine trustedpublisher
+  # build mock for ganglion
   - mkdir %APPVEYOR_BUILD_FOLDER%\GanglionBLEAPI\Mock\build
   - cd  %APPVEYOR_BUILD_FOLDER%\GanglionBLEAPI\Mock\build
   - cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_SYSTEM_VERSION=8.1 ..
   - cmake --build . --config Release
-  - cd %APPVEYOR_BUILD_FOLDER%
+  # compile brainflow for 32 and 64
+  - mkdir %APPVEYOR_BUILD_FOLDER%\build32 && cd %APPVEYOR_BUILD_FOLDER%\build32 && cmake -G "Visual Studio 15 2017" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed32\ .. && cmake --build . --target install --config Release
+  - mkdir %APPVEYOR_BUILD_FOLDER%\build64 && cd %APPVEYOR_BUILD_FOLDER%\build64 && cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed64\ .. && cmake --build . --target install --config Release
 
 test_script:
-  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py
-  - mkdir build && cd build && cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed\ .. && cmake --build . --target install --config Release
-  - mkdir %APPVEYOR_BUILD_FOLDER%\tests\cpp\build && cd %APPVEYOR_BUILD_FOLDER%\tests\cpp\build && cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%APPVEYOR_BUILD_FOLDER%\installed\ .. && cmake --build . --config Release && python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\build\Release\test_get_data.exe 0
-  # I've checked there is a jdk and mvn preinstalled in image, don't need to install them from chocolatey
+  # x64
+  # tests for cyton
+  - pip install %APPVEYOR_BUILD_FOLDER%\python-package\ && python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py
+  - mkdir %APPVEYOR_BUILD_FOLDER%\tests\cpp\build && cd %APPVEYOR_BUILD_FOLDER%\tests\cpp\build && cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%APPVEYOR_BUILD_FOLDER%\installed64\ .. && cmake --build . --config Release && python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\build\Release\test_get_data.exe 0
   - cd %APPVEYOR_BUILD_FOLDER%\java-package\brainflow && mvn package && cd ..\..\tests\java && javac -classpath ..\..\java-package\brainflow\target\brainflow-java-jar-with-dependencies.jar BrainFlowTest.java
   # tests for ganglion
   - cp %APPVEYOR_BUILD_FOLDER%\GanglionBLEAPI\Mock\compiled\Release\GanglionLibNative64.dll %APPVEYOR_BUILD_FOLDER%\python-package\brainflow\lib\GanglionLibNative64.dll && cd %APPVEYOR_BUILD_FOLDER%\python-package && python -m pip install -U . && python %APPVEYOR_BUILD_FOLDER%\python-package\examples\brainflow_get_data.py --log --board 1 --port e6:73:73:18:09:b1
-  # tests for 32 bit
-  - mkdir %APPVEYOR_BUILD_FOLDER%\build32 && cd %APPVEYOR_BUILD_FOLDER%\build32 && cmake -G "Visual Studio 15 2017" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed32\ .. && cmake --build . --target install --config Release
+
+  # x32
   # I dont understand why the test below fails in appveyour, todo - investigate it
   #- mkdir %APPVEYOR_BUILD_FOLDER%\tests\cpp\build32 && cd %APPVEYOR_BUILD_FOLDER%\tests\cpp\build32 && cmake -G "Visual Studio 15 2017" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%APPVEYOR_BUILD_FOLDER%\installed32\ .. && cmake --build . --config Release && python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\build32\Release\test_get_data.exe 0
+
+#TODO add uploading to github release page
+deploy_script:
+  - python -m pip install wheel
+  - python -m pip install twine
+  - python -m pip install -r %APPVEYOR_BUILD_FOLDER%\tools\requirements.txt
+  - python %APPVEYOR_BUILD_FOLDER%\tools\dropbox_uploader.py --token %DROPBOX_TOKEN% --local-files %APPVEYOR_BUILD_FOLDER%\installed32\lib\*.* --remote-dir /%APPVEYOR_REPO_COMMIT%/win32
+  - python %APPVEYOR_BUILD_FOLDER%\tools\dropbox_uploader.py --token %DROPBOX_TOKEN% --local-files %APPVEYOR_BUILD_FOLDER%\installed32\inc\*.* --remote-dir /%APPVEYOR_REPO_COMMIT%/inc
+  - python %APPVEYOR_BUILD_FOLDER%\tools\dropbox_uploader.py --token %DROPBOX_TOKEN% --local-files %APPVEYOR_BUILD_FOLDER%\installed64\lib\*.* --remote-dir /%APPVEYOR_REPO_COMMIT%/win64
+  - ps: >-
+      If ($env:APPVEYOR_REPO_TAG -eq "true" -And $env:APPVEYOR_REPO_BRANCH -eq "master") {
+        Invoke-Expression "python $env:APPVEYOR_BUILD_FOLDER\tools\wait_for_file.py --token $env:DROPBOX_TOKEN --file /$env:APPVEYOR_REPO_COMMIT/linux/linux_success"
+        New-Item $env:APPVEYOR_BUILD_FOLDER\linux_libs -itemtype directory
+        Invoke-Expression "python $env:APPVEYOR_BUILD_FOLDER\tools\dropbox_downloader.py --token $env:DROPBOX_TOKEN --local-dir $env:APPVEYOR_BUILD_FOLDER\linux_libs --remote-dir /$env:APPVEYOR_REPO_COMMIT/linux"
+        Copy-Item "$env:APPVEYOR_BUILD_FOLDER\linux_libs\*" -Destination "$env:APPVEYOR_BUILD_FOLDER\python-package\brainflow\lib" -Recurse
+        ls $env:APPVEYOR_BUILD_FOLDER\python-package\brainflow\lib
+        cd $env:APPVEYOR_BUILD_FOLDER\python-package
+        python setup.py sdist bdist_wheel
+        twine upload --skip-existing dist/*.whl --user Andrey1994 --password %PYPI_PASSWORD%
+      } Else {
+        write-output "Skip deployment for non tag"
+      }
+
 notifications:
   - provider: Email
     to:

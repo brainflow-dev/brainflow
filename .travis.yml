@@ -1,6 +1,12 @@
 sudo: required
 dist: xenial
 
+services:
+  - docker
+
+env:
+  - secure: "m/Av/Oq/MTFgpdI+Z6pLzFQCS1gw2LexPyF56U7VHSHWTybOni2Arm5nJvmQ9unGF+6vdAGWFCb+jAQjLpoNIg+XJd4nb8Hi4pUn5sXxBzihVGIVKU883vXuXt7BZ4k4ggwV1XP6gQcNcTqGVVOv26Z5yjVbCg5YcMBEXnkslbjqbi33euMVDug2HFXmvcYzca5f5zOAcQY51jSkioEaVFvM4grXRnZT4kI4NLBpRHHvwg2oFz3bLQtzV/U96RMn7sZVO0+8D/giHaop7AOK9wR8ZWzGcMKYgrNBWWXvoD4U6DmJnDi/4FUX89LwJzpN9w7osqJnibu1hsR1Rj1QhWLv1tHBxuUuIZrrqjlC+tq5RGqgPfGu1eXJuwFfNa7oK2uH7wY6++HUgSkXphbYiMBbuDLIDmm/xRS9bdp8OfHcLpTJVRnK2tWHiFzHa7xaIEAndo+4JLTY1xooIW9b2su68F7/UUJhqsLvt0MuUeAIxq45LrHHF1SKyOwG+wI38ePdwRdsy4Xh9pduVUcrxFgyOXIQltimqZAnydK/MBhsSZcSFGLYVcvWLBo6arCyRn73ke3l038ykbN4Ci2knNmA5SeLcYMl05xk0mI3buGYY7UT6CnA0frPhVI9ANODADg64mtC8SWDf4klPwYJ1VTohNEBF1UMB/4GlXX+UYM="
+
 language: java
 
 before_script:
@@ -16,17 +22,21 @@ before_script:
   - sudo -H R --vanilla -e 'install.packages("glue", repos="http://cran.us.r-project.org")'
   - sudo -H R --vanilla -e 'install.packages("knitr", repos="http://cran.us.r-project.org")'
   - sudo -H R --vanilla -e 'install.packages("reticulate", repos="http://cran.us.r-project.org")'
+  - docker pull dockcross/manylinux-x64
+  - docker run -e TRAVIS_BUILD_DIR=$TRAVIS_BUILD_DIR -v $TRAVIS_BUILD_DIR:$TRAVIS_BUILD_DIR dockcross/manylinux-x64 /bin/bash -c "/opt/python/cp36-cp36m/bin/pip3.6 install cmake && cd $TRAVIS_BUILD_DIR && mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR/installed .. && make && make install"
 
 script:
   - sudo -H pip3 install $TRAVIS_BUILD_DIR/python-package && sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py
   # Disable this test temporary, dont know whats wrong can not reproduce locally, will investigate later
   #- cd $TRAVIS_BUILD_DIR && cd java-package/brainflow && mvn package && cd $TRAVIS_BUILD_DIR/tests/java/ && sudo -H javac -classpath $TRAVIS_BUILD_DIR/java-package/brainflow/target/brainflow-java-jar-with-dependencies.jar BrainFlowTest.java && ls -l . && sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py java -classpath ".:$TRAVIS_BUILD_DIR/java-package/brainflow/target/brainflow-java-jar-with-dependencies.jar" BrainFlowTest 0
   - cd $TRAVIS_BUILD_DIR/r-package/brainflow && sudo -H R CMD build . && sudo -H R CMD INSTALL brainflow_0.0.0.9000.tar.gz && sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py Rscript $TRAVIS_BUILD_DIR/tests/r/brainflow_get_data.R
-  - cd $TRAVIS_BUILD_DIR && mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR/installed .. && make && make install
   - cd $TRAVIS_BUILD_DIR/tests/cpp && mkdir build && cd build && cmake -DCMAKE_PREFIX_PATH=$TRAVIS_BUILD_DIR/installed .. && make && LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py $TRAVIS_BUILD_DIR/tests/cpp/build/test_get_data 0
 
 after_success:
-  - echo "Test Success - Branch($TRAVIS_BRANCH) Pull Request($TRAVIS_PULL_REQUEST) Tag($TRAVIS_TAG)"
+  - sudo -H pip3 install -r $TRAVIS_BUILD_DIR/tools/requirements.txt
+  - python3 $TRAVIS_BUILD_DIR/tools/dropbox_uploader.py  --token $DROPBOX_TOKEN --local-files "$TRAVIS_BUILD_DIR/installed/lib/*.*" --remote-dir /$TRAVIS_COMMIT/linux
+  # notify that everything is ok
+  - echo success > linux_success && python3 $TRAVIS_BUILD_DIR/tools/dropbox_uploader.py  --token $DROPBOX_TOKEN --local-files linux_success --remote-dir /$TRAVIS_COMMIT/linux
 
 notifications:
   email:
