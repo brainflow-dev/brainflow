@@ -36,9 +36,9 @@ script:
 
 after_success:
   - sudo -H pip3 install awscli
-  - aws s3 cp $TRAVIS_BUILD_DIR/installed/lib/ s3://brainflow-artifacts/%APPVEYOR_REPO_COMMIT%/linux --recursive
+  - aws s3 cp $TRAVIS_BUILD_DIR/installed/lib/ s3://brainflow-artifacts/$TRAVIS_COMMIT/linux --recursive
   # notify that everything is ok
-  - echo success > linux_success && aws s3 cp linux_success s3://brainflow-artifacts/%APPVEYOR_REPO_COMMIT%
+  - echo success > linux_success && aws s3 cp linux_success s3://brainflow-artifacts/$TRAVIS_COMMIT/
 
 notifications:
   email:
