@@ -75,7 +75,7 @@ deploy_script:
           ls $env:APPVEYOR_BUILD_FOLDER\python-package\brainflow\lib
           cd $env:APPVEYOR_BUILD_FOLDER\python-package
           python setup.py sdist bdist_wheel
-          twine upload --skip-existing dist/*.whl --user OpenBCI --password %PYPI_PASSWORD%
+          twine upload --skip-existing dist/*.whl --user OpenBCI --password $env:PYPI_PASSWORD
         }
         Else {
           write-output "failed to wait for linux libs"
