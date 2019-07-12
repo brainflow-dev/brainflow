@@ -15,22 +15,13 @@ namespace brainflow
         public int fs_hz;
         public int first_eeg_channel;
         public int last_eeg_channel;
-        public int ts_col_num;
         public double[,] data;
 
         public DataHandler (int board_id, double[,] data_from_board = null, string csv_file = null)
         {
-            if (board_id == (int) BoardIds.CYTON_BOARD)
-            {
-                fs_hz = 250;
-                first_eeg_channel = 1;
-                last_eeg_channel = first_eeg_channel + Cyton.num_eeg_channels - 1;
-                ts_col_num = Cyton.package_length; // data format - package from board plus ts column
-            }
-            else
-            {
-                throw new BrainFlowExceptioin ((int) CustomExitCodes.UNSUPPORTED_BOARD_ERROR);
-            }
+            fs_hz = BoardInfoGetter.get_fs_hz (board_id);
+            first_eeg_channel = BoardInfoGetter.get_first_eeg_channel (board_id);
+            last_eeg_channel = first_eeg_channel + BoardInfoGetter.get_num_eeg_channels (board_id) - 1;
             if (data_from_board != null)
             {
                 data = data_from_board.Copy ();

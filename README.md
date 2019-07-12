@@ -91,29 +91,15 @@ if __name__ == "__main__":
     main ()
 ```
 
+## Brainflow Emulator (Cyton)
 
-## Applications
-### [Brainapps Repo](https://github.com/Andrey1994/brainapps)
-
-### GUI
-Brainflow GUI is based on R Shiny package and provides simple UI to monitor EEG\EMG\ECG data
-![image1](https://farm2.staticflickr.com/1842/30854740608_e40c6c5248_o_d.png)
-### P300 Speller
-P300 speller is based on [Event Related Potentials](https://en.wikipedia.org/wiki/Event-related_potential). I use TKInter to draw UI and [LDA](https://scikit-learn.org/stable/modules/generated/sklearn.discriminant_analysis.LinearDiscriminantAnalysis.html) to perform classification
-#### Installation
-* Electrode placement: P3,P4,C3,C4,T5,T6,O1,O2
-* Install [Git LFS](https://git-lfs.github.com/) because I use it to save eeg data and pickled classifier
-* Use Python >=3.x x64, and install packages from requirements.txt
-[![Watch the video](https://farm8.staticflickr.com/7811/45713649104_1b32faa349_h.jpg)](https://youtu.be/1GdjMx5t4ls)
-
-## Brainflow Emulator
-
-Brainflow emulator allows users to run tests without EEG headset.
+Brainflow emulator for Cyton allows users to run tests without EEG headset.
 
 * On Windows it works using [com0com](http://com0com.sourceforge.net/)
 * On Linux it works using pty
 
 You should pass command line to test directly to [cyton_linux.py](./emulator/brainflow_emulator/cyton_linux.py) or to [cyton_windows.py](./emulator/brainflow_emulator/cyton_windows.py), script will add port automatically to provided command line and will start an application
+
 
 ### Example
 
@@ -134,6 +120,10 @@ INFO:root:stderr is: b'[2019-03-20 19:12:10.313] [board_logger] [info] openning 
 ```
 
 Emulator raises *TestFailureError* if test fails
+
+## Brainflow emulator (Ganglion)
+
+To emulate Ganglion device you need to compile mock from GanglionBLEAPI folder and put compiled libraries instead original files like GanglionLibNative64.dll, GanglionLibNative32.dll and the same for Linux\MacOs libraries, rebuild brainflow just to put new libraries to correct locations and run as with real board
 
 ## Brainflow Tests
 
@@ -173,12 +163,12 @@ python {project_dir}\emulator\brainflow_emulator\cyton_windows.py java -classpat
 
 #### Windows
 * Install CMAKE>=3.10 (you can install cmake from pip of from [cmake website](https://cmake.org/))
-* Install Visual Studio 2015 or newer(We just need MSBUILD and you are able to download it without Visual Studio but it's easier to install Visual Studio Community)
+* Install Visual Studio(We just need MSBUILD and you are able to download it without Visual Studio but it's easier to install Visual Studio Community)
 ```
 mkdir build
 cd build
 # if you install another Visual Studio you need to change the generator in command below, also you can change installation directory(you may skip installation if you don't need Cpp SDK), if you wanna commit compiled libraries you need to specify -DCMAKE_SYSTEM_VERSION=8.1 it's the oldest windows version which we support
-cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\\installed\\ ..
+cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\\installed\\ ..
 cmake --build . --target install --config Release
 cd ..
 ```

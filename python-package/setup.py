@@ -1,5 +1,6 @@
 import os
 import platform
+import sys
 from setuptools import setup, find_packages
 
 
@@ -9,7 +10,7 @@ with open (os.path.join (this_directory, 'README.md')) as f:
 
 setup (
     name = 'brainflow',
-    version = '1.0.7',
+    version = os.environ.get('BRAINFLOW_VERSION', '1.0.8'),
     description = 'Library to get data from OpenBCI boards',
     long_description = long_description,
     long_description_content_type = 'text/markdown',
@@ -25,7 +26,13 @@ setup (
         'numpy', 'scipy', 'pandas', 'enum-compat'
     ],
     package_data = {
-        'brainflow': [os.path.join ('lib', 'BoardController.dll'), os.path.join ('lib', 'libBoardController.so')]
+        'brainflow': [
+            os.path.join ('lib', 'BoardController.dll'),
+            os.path.join ('lib', 'libBoardController.so'),
+            os.path.join ('lib', 'GanglionLib.dll'),
+            os.path.join ('lib', 'GanglionLibNative64.dll'),
+            os.path.join ('lib', 'libBoardController.dylib')
+        ]
     },
     zip_safe = True,
     python_requires = '>=2.7'

@@ -24,6 +24,45 @@ class CYTON (object):
     package_length = 12
 
 
+class GANGLION (object):
+    board_id = 1
+    fs_hz = 200
+    num_eeg_channels = 4
+    package_length = 8
+
+
+class BoardInfoGetter (object):
+
+    @classmethod
+    def get_fs_hz (cls, board_id):
+        if board_id == CYTON.board_id:
+            return CYTON.fs_hz
+        elif board_id == GANGLION.board_id:
+            return GANGLION.fs_hz
+        else:
+            raise BrainFlowError ('unsupported board type', StreamExitCodes.UNSUPPORTED_BOARD_ERROR.value)
+
+
+    @classmethod
+    def get_num_eeg_channels (cls, board_id):
+        if board_id == CYTON.board_id:
+            return CYTON.num_eeg_channels
+        elif board_id == GANGLION.board_id:
+            return GANGLION.num_eeg_channels
+        else:
+            raise BrainFlowError ('unsupported board type', StreamExitCodes.UNSUPPORTED_BOARD_ERROR.value)
+
+
+    @classmethod
+    def get_package_length (cls, board_id):
+        if board_id == CYTON.board_id:
+            return CYTON.package_length
+        elif board_id == GANGLION.board_id:
+            return GANGLION.package_length
+        else:
+            raise BrainFlowError ('unsupported board type', StreamExitCodes.UNSUPPORTED_BOARD_ERROR.value)
+
+
 class BoardControllerDLL (object):
 
     __instance = None
@@ -31,14 +70,16 @@ class BoardControllerDLL (object):
     @classmethod
     def get_instance (cls):
         if cls.__instance is None:
-            #if struct.calcsize ("P") * 8 != 64:
-            #    raise Exception ("You need 64-bit python to use this library")
+            if struct.calcsize ("P") * 8 != 64:
+                raise Exception ("You need 64-bit python to use this library")
             cls.__instance = cls ()
         return cls.__instance
 
     def __init__ (self):
         if platform.system () == 'Windows':
             dll_path = 'lib\\BoardController.dll'
+        elif platform.system () == 'Darwin':
+            dll_path = 'lib/libBoardController.dylib'
         else:
             dll_path = 'lib/libBoardController.so'
         self.lib = ctypes.cdll.LoadLibrary (pkg_resources.resource_filename (__name__, dll_path))
@@ -100,17 +141,17 @@ class BoardControllerDLL (object):
 class BoardShim (object):
 
     def __init__ (self, board_id, port_name):
-        if sys.version_info >= (3,0):
-            self.port_name = port_name.encode ()
+        if port_name:
+            if sys.version_info >= (3,0):
+                self.port_name = port_name.encode ()
+            else:
+                self.port_name = port_name
         else:
-            self.port_name = port_name
+            self.port_name = None
         self.board_id = board_id
-        if board_id == CYTON.board_id:
-            self.package_length = CYTON.package_length
-            self.fs_hz = CYTON.fs_hz
-            self.num_eeg_channels = CYTON.num_eeg_channels
-        else:
-            raise BrainFlowError ('unsupported board type', StreamExitCodes.UNSUPPORTED_BOARD_ERROR.value)
+        self.package_length = BoardInfoGetter.get_package_length (board_id)
+        self.fs_hz = BoardInfoGetter.get_fs_hz (board_id)
+        self.num_eeg_channels = BoardInfoGetter.get_num_eeg_channels (board_id)
 
     @classmethod
     def enable_board_logger (cls):
@@ -135,7 +176,7 @@ class BoardShim (object):
         if res != StreamExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to prepare streaming session', res)
 
-    def start_stream (self, num_samples = 3600*250):
+    def start_stream (self, num_samples = 1800*250):
         res = BoardControllerDLL.get_instance ().start_stream (num_samples)
         if res != StreamExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to start streaming session', res)

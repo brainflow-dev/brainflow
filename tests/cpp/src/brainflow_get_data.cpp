@@ -14,14 +14,6 @@
 
 using namespace std;
 
-void check_error (int ec)
-{
-    if (ec != STATUS_OK)
-    {
-        cout << "exit code is " << ec << endl;
-        exit (ec);
-    }
-}
 
 void write_csv (const char *filename, double **data_buf, int data_count, int total_channels)
 {
@@ -40,52 +32,66 @@ void write_csv (const char *filename, double **data_buf, int data_count, int tot
 
 int main (int argc, char *argv[])
 {
-    if (argc != 2)
+    if (argc != 3)
     {
-        cout << "port name is required" << endl;
+        cout << "board id and port name are required" << endl;
         return -1;
     }
 
-    BoardShim *cyton = new BoardShim (CYTON_BOARD, argv[1]);
-    DataHandler *dh = new DataHandler (CYTON_BOARD);
+    set_log_level (0);
+
+    int board_id = atoi (argv[1]);
+    BoardShim *board = new BoardShim (board_id, argv[2]);
+    int length = BoardInfoGetter::get_package_length (board_id);
+    DataHandler *dh = new DataHandler (board_id);
     int buffer_size = 250 * 60;
-    double **data_buf = (double **)malloc (sizeof (double *) * buffer_size);
+    double **data_buf = new double *[buffer_size];
     for (int i = 0; i < buffer_size; i++)
     {
-        data_buf[i] = (double *)malloc (sizeof (double) * cyton->total_channels);
+        data_buf[i] = new double[length];
     }
     int res = STATUS_OK;
     int data_count;
 
-    res = cyton->prepare_session ();
-    check_error (res);
-    res = cyton->start_stream (buffer_size);
-    check_error (res);
+    try
+    {
+        std::cout << "preparing session" << std::endl;
+        board->prepare_session ();
+        std::cout << "starting streaming" << std::endl;
+        board->start_stream (buffer_size);
 
 #ifdef _WIN32
-    Sleep (5000);
+        Sleep (5000);
 #else
-    sleep (5);
+        sleep (5);
 #endif
+        std::cout << "stopping streaming" << std::endl;
+        board->stop_stream ();
+        std::cout << "getting data count" << std::endl;
+        board->get_board_data_count (&data_count);
+        std::cout << "getting data" << std::endl;
+        board->get_board_data (data_count, data_buf);
+        std::cout << "releasing session" << std::endl;
+        board->release_session ();
+        std::cout << "preprocessing data" << std::endl;
+        dh->preprocess_data (data_buf, data_count);
+    }
+    catch (const BrainFlowException &err)
+    {
+        std::cout << err.what () << std::endl;
+        res = err.get_exit_code ();
+    }
 
-    res = cyton->stop_stream ();
-    check_error (res);
-    res = cyton->get_board_data_count (&data_count);
-    check_error (res);
-    res = cyton->get_board_data (data_count, data_buf);
-    check_error (res);
-    res = cyton->release_session ();
-    check_error (res);
-    dh->preprocess_data (data_buf, data_count);
-
-    write_csv ("board_data.csv", data_buf, data_count, cyton->total_channels);
+    std::cout << "saving results" << std::endl;
+    write_csv ("board_data.csv", data_buf, data_count, length);
+    std::cout << "completed!" << std::endl;
 
     for (int i = 0; i < buffer_size; i++)
-        free (data_buf[i]);
-    free (data_buf);
+        delete[] data_buf[i];
+    delete[] data_buf;
 
     delete dh;
-    delete cyton;
+    delete board;
 
-    return 0;
+    return res;
 }

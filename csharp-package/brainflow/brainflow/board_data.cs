@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Accord.Math;
 
@@ -17,14 +14,7 @@ namespace brainflow
         internal BoardData (int board_id, float[] raw_data, double[] ts_data)
         {
             this.board_id = board_id;
-            if (board_id == (int) BoardIds.CYTON_BOARD)
-            {
-                this.package_length = Cyton.package_length;
-            }
-            else
-            {
-                throw new BrainFlowExceptioin ((int) CustomExitCodes.UNSUPPORTED_BOARD_ERROR);
-            }
+            this.package_length = BoardInfoGetter.get_package_length (board_id);
             List<List<double>> temp_board_data = new List<List<double>> ();
             for (int i = 0; i < ts_data.Length; i++)
             {

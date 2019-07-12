@@ -8,72 +8,86 @@ BoardShim::BoardShim (int board_id, const char *port_name)
 {
     strcpy (this->port_name, port_name);
     this->board_id = board_id;
-    if (board_id == CYTON_BOARD)
+    num_data_channels = BoardInfoGetter::get_package_length (board_id);
+}
+
+void BoardShim::prepare_session ()
+{
+    int res = ::prepare_session (board_id, port_name);
+    if (res != STATUS_OK)
     {
-        num_data_channels = 12;                 // package_num, 8 eeg, 3accel
-        total_channels = num_data_channels + 1; // plus ts
+        throw BrainFlowException ("failed to prepare session", res);
     }
 }
 
-int BoardShim::prepare_session ()
+void BoardShim::start_stream (int buffer_size)
 {
-    return ::prepare_session (board_id, port_name);
+    int res = ::start_stream (buffer_size);
+    if (res != STATUS_OK)
+    {
+        throw BrainFlowException ("failed to start stream", res);
+    }
 }
 
-int BoardShim::start_stream (int buffer_size)
+void BoardShim::stop_stream ()
 {
-    return ::start_stream (buffer_size);
+    int res = ::stop_stream ();
+    if (res != STATUS_OK)
+    {
+        throw BrainFlowException ("failed to stop stream", res);
+    }
 }
 
-int BoardShim::stop_stream ()
+void BoardShim::release_session ()
 {
-    return ::stop_stream ();
+    int res = ::release_session ();
+    if (res != STATUS_OK)
+    {
+        throw BrainFlowException ("failed to release session", res);
+    }
 }
 
-int BoardShim::release_session ()
+void BoardShim::get_board_data_count (int *result)
 {
-    return ::release_session ();
+    int res = ::get_board_data_count (result);
+    if (res != STATUS_OK)
+    {
+        throw BrainFlowException ("failed to get board data count", res);
+    }
 }
 
-int BoardShim::get_board_data_count (int *result)
+void BoardShim::get_board_data (int data_count, double **data_buf)
 {
-    return ::get_board_data_count (result);
-}
-
-int BoardShim::get_board_data (int data_count, double **data_buf)
-{
-    float *buf = (float *)malloc (sizeof (float) * data_count * num_data_channels);
-    double *ts_buf = (double *)malloc (sizeof (double) * data_count);
+    float *buf = new float[data_count * num_data_channels];
+    double *ts_buf = new double[data_count];
 
     int res = ::get_board_data (data_count, buf, ts_buf);
     if (res != STATUS_OK)
     {
-        free (buf);
-        free (ts_buf);
-        return res;
+        delete[] buf;
+        delete[] ts_buf;
+        throw BrainFlowException ("failed to get board data", res);
     }
     reshape_data (data_count, buf, ts_buf, data_buf);
-    free (buf);
-    free (ts_buf);
-    return STATUS_OK;
+    delete[] buf;
+    delete[] ts_buf;
 }
 
-int BoardShim::get_current_board_data (int num_samples, double **data_buf, int *returned_samples)
+void BoardShim::get_current_board_data (int num_samples, double **data_buf, int *returned_samples)
 {
-    float *buf = (float *)malloc (sizeof (float) * num_samples * num_data_channels);
-    double *ts_buf = (double *)malloc (sizeof (double) * num_samples);
+    float *buf = new float[num_samples * num_data_channels];
+    double *ts_buf = new double[num_samples];
 
     int res = ::get_current_board_data (num_samples, buf, ts_buf, returned_samples);
     if (res != STATUS_OK)
     {
-        free (buf);
-        free (ts_buf);
-        return res;
+        delete[] buf;
+        delete[] ts_buf;
+        throw BrainFlowException ("failed to get board data", res);
     }
     reshape_data (*returned_samples, buf, ts_buf, data_buf);
-    free (buf);
-    free (ts_buf);
-    return STATUS_OK;
+    delete[] buf;
+    delete[] ts_buf;
 }
 
 void BoardShim::reshape_data (int data_count, float *data_buf, double *ts_buf, double **output_buf)

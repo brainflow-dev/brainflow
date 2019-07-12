@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace brainflow
 {
+
     public class BoardShim
     {
         public int board_id;
@@ -13,24 +10,42 @@ namespace brainflow
         public int fs_hz;
         public int num_eeg_channels;
         public int first_eeg_channel;
-        public int last_eeg_channel;
         public int package_length;
 
         public BoardShim (int board_id, string port_name)
         {
             this.board_id = board_id;
             this.port_name = port_name;
-            if (board_id == (int) BoardIds.CYTON_BOARD)
+            this.package_length = BoardInfoGetter.get_package_length (board_id);
+            this.fs_hz = BoardInfoGetter.get_fs_hz (board_id);
+            this.num_eeg_channels = BoardInfoGetter.get_num_eeg_channels (board_id);
+            this.first_eeg_channel = BoardInfoGetter.get_first_eeg_channel (board_id);
+        }
+
+        public static void enable_board_logger ()
+        {
+            int res = Library.set_log_level (2);
+            if (res != (int)CustomExitCodes.STATUS_OK)
             {
-                this.package_length = Cyton.package_length;
-                this.fs_hz = Cyton.fs_hz;
-                this.num_eeg_channels = Cyton.num_eeg_channels;
-                this.first_eeg_channel = Cyton.first_eeg_channel;
-                this.last_eeg_channel = Cyton.last_eeg_channel;
+                throw new BrainFlowExceptioin (res);
             }
-            else
+        }
+
+        public static void disable_board_logger ()
+        {
+            int res = Library.set_log_level (6);
+            if (res != (int)CustomExitCodes.STATUS_OK)
             {
-                throw new BrainFlowExceptioin ((int)CustomExitCodes.UNSUPPORTED_BOARD_ERROR);
+                throw new BrainFlowExceptioin (res);
+            }
+        }
+
+        public static void enable_dev_board_logger ()
+        {
+            int res = Library.set_log_level (0);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowExceptioin (res);
             }
         }
 
@@ -92,7 +107,7 @@ namespace brainflow
             }
             Array.Resize (ref data_arr, current_size[0] * package_length);
             Array.Resize (ref ts_arr, current_size[0]);
-            return new BoardData ((int)BoardIds.CYTON_BOARD, data_arr, ts_arr).get_board_data ();
+            return new BoardData (this.board_id, data_arr, ts_arr).get_board_data ();
 	    }
 
         public double[,] get_immediate_board_data ()
@@ -109,7 +124,7 @@ namespace brainflow
 		    if (ec != (int) CustomExitCodes.STATUS_OK) {
                 throw new BrainFlowExceptioin (ec);
             }
-		    return new BoardData ((int) BoardIds.CYTON_BOARD, data_arr, ts_arr).get_board_data ();
+		    return new BoardData (this.board_id, data_arr, ts_arr).get_board_data ();
 	    }
     }
 }
