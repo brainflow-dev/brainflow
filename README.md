@@ -11,11 +11,11 @@ Core module of this library is implemented in C\C++ and available for all bindin
 ## Build status
 *Linux(Travis)*:
 
-[![Build Status](https://travis-ci.org/OpenBCI/brainflow.svg?branch=master)](https://travis-ci.org/OpenBCI/brainflow)
+[![Build Status](https://travis-ci.org/Andrey1994/brainflow.svg?branch=master)](https://travis-ci.org/Andrey1994/brainflow)
 
 *Windows(AppVeyour)*:
 
-[![Build status](https://ci.appveyor.com/api/projects/status/kuuoa32me3253jad/branch/master?svg=true)](https://ci.appveyor.com/project/daniellasry/brainflow/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/4gr8uy65f86eh2b5?svg=true)](https://ci.appveyor.com/project/Andrey1994/brainflow)
 
 ## Shared library methods:
 ```
@@ -90,6 +90,20 @@ def main ():
 if __name__ == "__main__":
     main ()
 ```
+
+## Applications
+### [Brainapps Repo](https://github.com/Andrey1994/brainapps)
+
+### GUI
+Brainflow GUI is based on R Shiny package and provides simple UI to monitor EEG\EMG\ECG data
+![image1](https://farm2.staticflickr.com/1842/30854740608_e40c6c5248_o_d.png)
+### P300 Speller
+P300 speller is based on [Event Related Potentials](https://en.wikipedia.org/wiki/Event-related_potential). I use TKInter to draw UI and [LDA](https://scikit-learn.org/stable/modules/generated/sklearn.discriminant_analysis.LinearDiscriminantAnalysis.html) to perform classification
+#### Installation
+* Electrode placement: P3,P4,C3,C4,T5,T6,O1,O2
+* Install [Git LFS](https://git-lfs.github.com/) because I use it to save eeg data and pickled classifier
+* Use Python >=3.x x64, and install packages from requirements.txt
+[![Watch the video](https://farm8.staticflickr.com/7811/45713649104_1b32faa349_h.jpg)](https://youtu.be/1GdjMx5t4ls)
 
 ## Brainflow Emulator (Cyton)
 
