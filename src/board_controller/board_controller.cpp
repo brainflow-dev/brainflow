@@ -7,6 +7,7 @@
 #include "board.h"
 #include "board_controller.h"
 #include "cyton.h"
+#include "cyton_daisy.h"
 #include "ganglion.h"
 #include "synthetic_board.h"
 
@@ -45,19 +46,21 @@ int prepare_session (int board_id, char *port_name)
     {
         case CYTON_BOARD:
             board = new Cyton (port_name);
-            res = board->prepare_session ();
             break;
         case GANGLION_BOARD:
             board = new Ganglion (port_name);
-            res = board->prepare_session ();
             break;
         case SYNTHETIC_BOARD:
             board = new SyntheticBoard (port_name);
-            res = board->prepare_session ();
+            break;
+        case CYTON_DAISY_BOARD:
+            board = new CytonDaisy (port_name);
             break;
         default:
+            Board::board_logger->error ("No board with Id {}", board_id);
             return UNSUPPORTED_BOARD_ERROR;
     }
+    res = board->prepare_session ();
     if (res != STATUS_OK)
     {
         delete board;

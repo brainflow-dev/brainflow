@@ -24,6 +24,16 @@ public:
 };
 
 
+class CYTON_DAISY
+{
+public:
+    static const int fs_hz = 125;
+    static const int num_eeg_channels = 16;
+    static const int package_length = 20;
+    static const int first_eeg_channel = 1;
+};
+
+
 class SYNTHETIC
 {
 public:
@@ -47,6 +57,8 @@ public:
                 return GANGLION::package_length;
             case SYNTHETIC_BOARD:
                 return SYNTHETIC::package_length;
+            case CYTON_DAISY_BOARD:
+                return CYTON_DAISY::package_length;
             default:
                 throw BrainFlowException ("Unsupported Board Error", UNSUPPORTED_BOARD_ERROR);
         }
@@ -62,6 +74,8 @@ public:
                 return GANGLION::num_eeg_channels;
             case SYNTHETIC_BOARD:
                 return SYNTHETIC::num_eeg_channels;
+            case CYTON_DAISY_BOARD:
+                return CYTON_DAISY::num_eeg_channels;
             default:
                 throw BrainFlowException ("Unsupported Board Error", UNSUPPORTED_BOARD_ERROR);
         }
@@ -77,6 +91,8 @@ public:
                 return GANGLION::fs_hz;
             case SYNTHETIC_BOARD:
                 return SYNTHETIC::fs_hz;
+            case CYTON_DAISY_BOARD:
+                return CYTON_DAISY::fs_hz;
             default:
                 throw BrainFlowException ("Unsupported Board Error", UNSUPPORTED_BOARD_ERROR);
         }
@@ -92,6 +108,8 @@ public:
                 return GANGLION::first_eeg_channel;
             case SYNTHETIC_BOARD:
                 return SYNTHETIC::first_eeg_channel;
+            case CYTON_DAISY_BOARD:
+                return CYTON_DAISY::first_eeg_channel;
             default:
                 throw BrainFlowException ("Unsupported Board Error", UNSUPPORTED_BOARD_ERROR);
         }

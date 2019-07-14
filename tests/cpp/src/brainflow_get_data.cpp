@@ -82,8 +82,6 @@ int main (int argc, char *argv[])
         res = err.get_exit_code ();
     }
 
-    std::cout << "saving results" << std::endl;
-    write_csv ("board_data.csv", data_buf, data_count, length);
     std::cout << "completed!" << std::endl;
 
     for (int i = 0; i < buffer_size; i++)

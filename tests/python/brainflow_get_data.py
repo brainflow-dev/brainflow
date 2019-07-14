@@ -25,8 +25,6 @@ def main ():
 
     data_handler = brainflow.preprocess.DataHandler (args.board, numpy_data = data)
     filtered_data = data_handler.preprocess_data (order = 3, start = 1, stop = 50)
-    data_handler.save_csv ('results.csv')
-    print (filtered_data.head ())
 
 
 if __name__ == "__main__":

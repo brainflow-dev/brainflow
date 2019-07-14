@@ -1,4 +1,4 @@
-#include "cyton.h"
+#include "cyton_daisy.h"
 #include "custom_cast.h"
 #include "serial.h"
 #include "timestamp.h"
@@ -7,8 +7,9 @@
 #define END_BYTE 0xC0
 
 
-void Cyton::read_thread ()
+void CytonDaisy::read_thread ()
 {
+    // format is the same as for cyton but need to join two packages together
     /*
         Byte 1: 0xA0
         Byte 2: Sample Number
@@ -25,6 +26,8 @@ void Cyton::read_thread ()
     */
     int res;
     unsigned char b[32];
+    float package[20]; // 16 eeg channelsm 3 accel and package num
+    bool first_sample = false;
     while (keep_alive)
     {
         // check start byte
@@ -53,19 +56,35 @@ void Cyton::read_thread ()
             continue;
         }
 
-        float package[12];
-        // package num
-        package[0] = (float)b[0];
-        // eeg
-        for (int i = 0; i < 8; i++)
+        if ((b[0] % 2 == 0) && (first_sample))
         {
-            package[i + 1] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
+            // eeg
+            for (int i = 0; i < 8; i++)
+            {
+                package[i + 9] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
+            }
+            // need to average accel data
+            package[17] += accel_scale * cast_16bit_to_int32 (b + 25);
+            package[18] += accel_scale * cast_16bit_to_int32 (b + 27);
+            package[19] += accel_scale * cast_16bit_to_int32 (b + 29);
+            package[17] /= 2.0f;
+            package[18] /= 2.0f;
+            package[19] /= 2.0f;
+            db->add_data (get_timestamp (), package);
         }
-        // accel
-        package[9] = accel_scale * cast_16bit_to_int32 (b + 25);
-        package[10] = accel_scale * cast_16bit_to_int32 (b + 27);
-        package[11] = accel_scale * cast_16bit_to_int32 (b + 29);
-
-        db->add_data (get_timestamp (), package);
+        else
+        {
+            first_sample = true;
+            package[0] = (float)b[0];
+            // eeg
+            for (int i = 0; i < 8; i++)
+            {
+                package[i + 1] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
+            }
+            // accel
+            package[17] = accel_scale * cast_16bit_to_int32 (b + 25);
+            package[18] = accel_scale * cast_16bit_to_int32 (b + 27);
+            package[19] = accel_scale * cast_16bit_to_int32 (b + 29);
+        }
     }
 }

@@ -125,6 +125,7 @@
     <Compile Include="board_data.cs" />
     <Compile Include="board_shim.cs" />
     <Compile Include="cyton.cs" />
+    <Compile Include="cyton_daisy.cs" />
     <Compile Include="ganglion.cs" />
     <Compile Include="library.cs" />
     <Compile Include="brainflow_exception.cs" />
