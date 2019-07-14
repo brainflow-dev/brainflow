@@ -31,6 +31,13 @@ class GANGLION (object):
     package_length = 8
 
 
+class SYNTHETIC (object):
+    board_id = -1
+    fs_hz = 256
+    num_eeg_channels = 8
+    package_length = 12
+
+
 class BoardInfoGetter (object):
 
     @classmethod
@@ -39,6 +46,8 @@ class BoardInfoGetter (object):
             return CYTON.fs_hz
         elif board_id == GANGLION.board_id:
             return GANGLION.fs_hz
+        elif board_id == SYNTHETIC.board_id:
+            return SYNTHETIC.fs_hz
         else:
             raise BrainFlowError ('unsupported board type', StreamExitCodes.UNSUPPORTED_BOARD_ERROR.value)
 
@@ -49,6 +58,8 @@ class BoardInfoGetter (object):
             return CYTON.num_eeg_channels
         elif board_id == GANGLION.board_id:
             return GANGLION.num_eeg_channels
+        elif board_id == SYNTHETIC.board_id:
+            return SYNTHETIC.num_eeg_channels
         else:
             raise BrainFlowError ('unsupported board type', StreamExitCodes.UNSUPPORTED_BOARD_ERROR.value)
 
@@ -59,6 +70,8 @@ class BoardInfoGetter (object):
             return CYTON.package_length
         elif board_id == GANGLION.board_id:
             return GANGLION.package_length
+        elif board_id == SYNTHETIC.board_id:
+            return SYNTHETIC.package_length
         else:
             raise BrainFlowError ('unsupported board type', StreamExitCodes.UNSUPPORTED_BOARD_ERROR.value)
 

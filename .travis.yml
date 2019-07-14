@@ -28,11 +28,16 @@ before_script:
   - docker run -e TRAVIS_BUILD_DIR=$TRAVIS_BUILD_DIR -v $TRAVIS_BUILD_DIR:$TRAVIS_BUILD_DIR dockcross/manylinux-x64 /bin/bash -c "/opt/python/cp36-cp36m/bin/pip3.6 install cmake && cd $TRAVIS_BUILD_DIR && mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR/installed .. && make && make install"
 
 script:
-  - sudo -H pip3 install $TRAVIS_BUILD_DIR/python-package && sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py
+  - sudo -H pip3 install $TRAVIS_BUILD_DIR/python-package && sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --log --board 0 --port 
   # Disable this test temporary, dont know whats wrong can not reproduce locally, will investigate later
   #- cd $TRAVIS_BUILD_DIR && cd java-package/brainflow && mvn package && cd $TRAVIS_BUILD_DIR/tests/java/ && sudo -H javac -classpath $TRAVIS_BUILD_DIR/java-package/brainflow/target/brainflow-java-jar-with-dependencies.jar BrainFlowTest.java && ls -l . && sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py java -classpath ".:$TRAVIS_BUILD_DIR/java-package/brainflow/target/brainflow-java-jar-with-dependencies.jar" BrainFlowTest 0
   - cd $TRAVIS_BUILD_DIR/r-package/brainflow && sudo -H R CMD build . && sudo -H R CMD INSTALL brainflow_0.0.0.9000.tar.gz && sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py Rscript $TRAVIS_BUILD_DIR/tests/r/brainflow_get_data.R
   - cd $TRAVIS_BUILD_DIR/tests/cpp && mkdir build && cd build && cmake -DCMAKE_PREFIX_PATH=$TRAVIS_BUILD_DIR/installed .. && make && LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py $TRAVIS_BUILD_DIR/tests/cpp/build/test_get_data 0
+
+  # synthetci board tests
+  - python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --log --board -1 --port "smth"
+  - $TRAVIS_BUILD_DIR/tests/cpp/build/test_get_data -1 "smth"
+  
 
 after_success:
   - sudo -H pip3 install awscli

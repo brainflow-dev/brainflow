@@ -8,6 +8,7 @@
 #include "board_controller.h"
 #include "cyton.h"
 #include "ganglion.h"
+#include "synthetic_board.h"
 
 Board *board = NULL;
 std::mutex mutex;
@@ -48,6 +49,10 @@ int prepare_session (int board_id, char *port_name)
             break;
         case GANGLION_BOARD:
             board = new Ganglion (port_name);
+            res = board->prepare_session ();
+            break;
+        case SYNTHETIC_BOARD:
+            board = new SyntheticBoard (port_name);
             res = board->prepare_session ();
             break;
         default:

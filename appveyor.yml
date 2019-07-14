@@ -41,17 +41,20 @@ install:
 test_script:
   # x64
   # tests for cyton
-  # todo add c# tests for 32 and 64
-  - pip install %APPVEYOR_BUILD_FOLDER%\python-package\ && python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py
+  - pip install %APPVEYOR_BUILD_FOLDER%\python-package\ && python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board 0 --port
   - mkdir %APPVEYOR_BUILD_FOLDER%\tests\cpp\build && cd %APPVEYOR_BUILD_FOLDER%\tests\cpp\build && cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%APPVEYOR_BUILD_FOLDER%\installed64\ .. && cmake --build . --config Release && python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\build\Release\test_get_data.exe 0
   - cd %APPVEYOR_BUILD_FOLDER%\java-package\brainflow && mvn package && cd ..\..\tests\java && javac -classpath ..\..\java-package\brainflow\target\brainflow-java-jar-with-dependencies.jar BrainFlowTest.java
   # tests for ganglion
-  - cp %APPVEYOR_BUILD_FOLDER%\GanglionBLEAPI\Mock\compiled\Release\GanglionLibNative64.dll %APPVEYOR_BUILD_FOLDER%\python-package\brainflow\lib\GanglionLibNative64.dll && cd %APPVEYOR_BUILD_FOLDER%\python-package && python -m pip install -U . && python %APPVEYOR_BUILD_FOLDER%\python-package\examples\brainflow_get_data.py --log --board 1 --port e6:73:73:18:09:b1
+  - cp %APPVEYOR_BUILD_FOLDER%\GanglionBLEAPI\Mock\compiled\Release\GanglionLibNative64.dll %APPVEYOR_BUILD_FOLDER%\python-package\brainflow\lib\GanglionLibNative64.dll && cd %APPVEYOR_BUILD_FOLDER%\python-package && python -m pip install -U . && python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board 1 --port e6:73:73:18:09:b1
 
   # x32
   # I dont understand why the test below fails in appveyour, todo - investigate it
   #- mkdir %APPVEYOR_BUILD_FOLDER%\tests\cpp\build32 && cd %APPVEYOR_BUILD_FOLDER%\tests\cpp\build32 && cmake -G "Visual Studio 15 2017" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%APPVEYOR_BUILD_FOLDER%\installed32\ .. && cmake --build . --config Release && python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\build32\Release\test_get_data.exe 0
   # todo add 32bit test for python
+
+  # synthetci board tests
+  - python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board -1 --port "smth"
+  - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\tests\cpp\build\Release\test_get_data.exe -1 "smth"
 
 # replace mocked libraries by real libs
 after_test:

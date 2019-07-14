@@ -1,5 +1,4 @@
-#ifndef GET_DLL_DIR
-#define GET_DLL_DIR
+#pragma once
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -50,5 +49,4 @@ bool get_dll_path (char *res)
     return false;
 }
 
-#endif
 #endif

@@ -1,5 +1,4 @@
-#ifndef RUNTIME_DLL_LOADER
-#define RUNTIME_DLL_LOADER
+#pragma once
 
 #include <string.h>
 #ifdef _WIN32
@@ -100,4 +99,3 @@ private:
     void *lib_instance;
 #endif
 };
-#endif

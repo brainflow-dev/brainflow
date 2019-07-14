@@ -130,6 +130,7 @@
     <Compile Include="brainflow_exception.cs" />
     <Compile Include="data_handler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="synthetic.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

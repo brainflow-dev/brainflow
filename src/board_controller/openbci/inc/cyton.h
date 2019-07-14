@@ -1,5 +1,4 @@
-#ifndef CYTON
-#define CYTON
+#pragma once
 
 #include <math.h>
 #include <stdint.h>
@@ -33,5 +32,3 @@ public:
         return CYTON_BOARD;
     }
 };
-
-#endif

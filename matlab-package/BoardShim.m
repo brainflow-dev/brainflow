@@ -36,13 +36,14 @@ classdef BoardShim
                 obj.libname = 'BoardController';
             end
             obj.port_name = port_name;
-            obj.board_id = uint32 (board_id);
-            if board_id == uint32(BoardIDs.CYTON_BOARD)
+            obj.board_id = int32 (board_id);
+            if board_id == int32 (BoardIDs.CYTON_BOARD)
                 obj.num_channels = 12;
-                loadlibrary (obj.libname, 'board_controller.h')
-            elseif board_id == uint32(BoardIDs.GANGLION_BOARD)
+            elseif board_id == int32 (BoardIDs.GANGLION_BOARD)
                 obj.num_channels = 8;
-                loadlibrary (obj.libname, 'board_controller.h')
+            elseif board_id == int32 (BoardIDs.SYNTHETIC_BOARD)
+                obj.num_channels = 12;
+            loadlibrary (obj.libname, 'board_controller.h') 
             end
             
         end

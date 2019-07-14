@@ -27,6 +27,7 @@ namespace brainflow
 
     public enum BoardIds
     {
+        SYNTHETIC_BOARD = -1,
         CYTON_BOARD = 0,
         GANGLION_BOARD = 1
     };

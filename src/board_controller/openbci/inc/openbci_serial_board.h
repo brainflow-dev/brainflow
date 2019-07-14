@@ -1,5 +1,4 @@
-#ifndef OPENBCI_SERIAL_BOARD
-#define OPENBCI_SERIAL_BOARD
+#pragma once
 
 #include <thread>
 
@@ -7,7 +6,6 @@
 #include "board_controller.h"
 #include "serial.h"
 
-#define MAX_CAPTURE_SAMPLES (86400 * 250) // should be enough for one day of capturing
 
 class OpenBCISerialBoard : public Board
 {
@@ -36,5 +34,3 @@ public:
     virtual int stop_stream ();
     virtual int release_session ();
 };
-
-#endif

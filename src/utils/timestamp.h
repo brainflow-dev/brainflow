@@ -1,6 +1,3 @@
-#ifndef TIMESTAMP
-#define TIMESTAMP
+#pragma once
 
 double get_timestamp ();
-
-#endif

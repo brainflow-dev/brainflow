@@ -1,5 +1,4 @@
-#ifndef BOARD_SHIM
-#define BOARD_SHIM
+#pragma once
 
 #include "board_info_getter.h"
 #include "brainflow_exception.h"
@@ -24,5 +23,3 @@ public:
     void get_board_data_count (int *result);
     void get_board_data (int data_count, double **data_buf);
 };
-
-#endif

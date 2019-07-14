@@ -1,8 +1,10 @@
-#ifndef BOARD
-#define BOARD
+#pragma once
 
 #include "data_buffer.h"
 #include "spdlog/spdlog.h"
+
+#define MAX_CAPTURE_SAMPLES (86400 * 250) // should be enough for one day of capturing
+
 
 class Board
 {
@@ -37,5 +39,3 @@ public:
 protected:
     DataBuffer *db;
 };
-
-#endif

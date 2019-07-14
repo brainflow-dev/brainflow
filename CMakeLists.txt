@@ -93,6 +93,7 @@ set (LIBRARY_SRC
     "src/board_controller/openbci/cyton.cpp"
     "src/board_controller/board_controller.cpp"
     "src/board_controller/board.cpp"
+    "src/board_controller/synthetic_board.cpp"
 )
 
 add_library (
