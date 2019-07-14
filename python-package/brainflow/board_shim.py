@@ -70,14 +70,15 @@ class BoardControllerDLL (object):
     @classmethod
     def get_instance (cls):
         if cls.__instance is None:
-            if struct.calcsize ("P") * 8 != 64:
-                raise Exception ("You need 64-bit python to use this library")
             cls.__instance = cls ()
         return cls.__instance
 
     def __init__ (self):
         if platform.system () == 'Windows':
-            dll_path = 'lib\\BoardController.dll'
+            if struct.calcsize ("P") * 8 == 64:
+                dll_path = 'lib\\BoardController.dll'
+            else:
+                dll_path = 'lib\\BoardController32.dll'
         elif platform.system () == 'Darwin':
             dll_path = 'lib/libBoardController.dylib'
         else:

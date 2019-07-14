@@ -193,7 +193,6 @@ make install
 
 ### Python
 
-*Note: for now we provide only 64bit libraries, so you need 64bit python to run it*
 Following commands will install all required packages for you:
 ```
 cd python-package
@@ -203,6 +202,10 @@ Or install it from [PYPI](https://pypi.org/project/brainflow/) with:
 ```
 pip install brainflow
 ```
+*For Ganglion(Windows) you may need to install visual c++ redistributable for your PC:*
+
+* [redist_x64](https://aka.ms/vs/16/release/vc_redist.x64.exe)
+* [redist_x86](https://aka.ms/vs/16/release/vc_redist.x86.exe)
 
 ### R
 R package works via [Reticulate module](https://rstudio.github.io/reticulate/articles/introduction.html) which allows to call Python function directly from R, also it translates all Python classes(even user defined) to the corresponds R constructures.
