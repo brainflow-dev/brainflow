@@ -11,6 +11,7 @@ from brainflow.exit_codes import StreamExitCodes
 
 
 class BrainFlowError (Exception):
+    """This exception is raised if non-zero exit code is returned from C code"""
     def __init__ (self, message, exit_code):
         detailed_message = '%s:%d %s' % (StreamExitCodes (exit_code).name, exit_code, message)
         super (BrainFlowError, self).__init__ (detailed_message)
@@ -32,9 +33,11 @@ class GANGLION (object):
 
 
 class BoardInfoGetter (object):
+    """class to get information about boards, it's recommended to use this class instead hardcoded values"""
 
     @classmethod
     def get_fs_hz (cls, board_id):
+        """Get sampling rate"""
         if board_id == CYTON.board_id:
             return CYTON.fs_hz
         elif board_id == GANGLION.board_id:
@@ -45,6 +48,7 @@ class BoardInfoGetter (object):
 
     @classmethod
     def get_num_eeg_channels (cls, board_id):
+        """Get number of eeg channels"""
         if board_id == CYTON.board_id:
             return CYTON.num_eeg_channels
         elif board_id == GANGLION.board_id:
@@ -55,6 +59,7 @@ class BoardInfoGetter (object):
 
     @classmethod
     def get_package_length (cls, board_id):
+        """Get package length"""
         if board_id == CYTON.board_id:
             return CYTON.package_length
         elif board_id == GANGLION.board_id:
@@ -139,6 +144,7 @@ class BoardControllerDLL (object):
         ]
 
 class BoardShim (object):
+    """BoardShim class is a primary interface to all boards"""
 
     def __init__ (self, board_id, port_name):
         if port_name:
@@ -155,12 +161,14 @@ class BoardShim (object):
 
     @classmethod
     def enable_board_logger (cls):
+        """enable board logger to stderr"""
         res = BoardControllerDLL.get_instance ().set_log_level (2)
         if res != StreamExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to enable logger', res)
 
     @classmethod
     def disable_board_logger (cls):
+        """disable board logger to stderr"""
         res = BoardControllerDLL.get_instance ().set_log_level (6)
         if res != StreamExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to disable logger', res)
@@ -172,26 +180,31 @@ class BoardShim (object):
             raise BrainFlowError ('unable to enable logger', res)
 
     def prepare_session (self):
+        """prepare streaming sesssion, init resources, you need to call it before any other BoardShim object methods"""
         res = BoardControllerDLL.get_instance ().prepare_session (self.board_id, self.port_name)
         if res != StreamExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to prepare streaming session', res)
 
     def start_stream (self, num_samples = 1800*250):
+        """Start streaming data, this methods stores data in ringbuffer"""
         res = BoardControllerDLL.get_instance ().start_stream (num_samples)
         if res != StreamExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to start streaming session', res)
 
     def stop_stream (self):
+        """Stop streaming data"""
         res = BoardControllerDLL.get_instance ().stop_stream ()
         if res != StreamExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to stop streaming session', res)
 
     def release_session (self):
+        """release all resources"""
         res = BoardControllerDLL.get_instance ().release_session ()
         if res != StreamExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to release streaming session', res)
 
     def get_current_board_data (self, num_samples):
+        """Get specified amount of data or less if there is not enough data, doesnt remove data from ringbuffer"""
         data_arr = numpy.zeros (int(num_samples  * self.package_length)).astype (numpy.float32)
         time_arr = numpy.zeros (num_samples).astype (numpy.float64)
         current_size = numpy.zeros (1).astype (numpy.int64)
@@ -208,9 +221,11 @@ class BoardShim (object):
         return numpy.column_stack ((data_arr, time_arr))
 
     def get_immediate_board_data (self):
+        """Get the latest package, doesnt remove data from ringbuffer"""
         return self.get_current_board_data (1)
 
     def get_board_data_count (self):
+        """Get num of elements in ringbuffer"""
         data_size = numpy.zeros (1).astype (numpy.int64)
 
         res = BoardControllerDLL.get_instance ().get_board_data_count (data_size)
@@ -219,6 +234,7 @@ class BoardShim (object):
         return data_size[0]
 
     def get_board_data (self):
+        """Get all board data and remove them from ringbuffer"""
         data_size = self.get_board_data_count ()
         time_arr = numpy.zeros (data_size).astype (numpy.float64)
         data_arr = numpy.zeros (data_size * self.package_length).astype (numpy.float32)
