@@ -21,6 +21,7 @@ These versions are exactly the same, choose one and use it
 	BuildBrainFlow
 	CoreModuleAPI
 	UserAPI
+	Examples
 	BrainFlowDev
 	AskHelp
 	License
