@@ -6,6 +6,8 @@ Core module of this library is implemented in C\C++ and available for all bindin
 
 This project was forked by OpenBCI from [Andrey1994/brainflow](https://github.com/Andrey1994/brainflow) and now this is the official version which is supported by OpenBCI and @Andrey1994
 
+## [BrainFlow Docs, Dev and User guides and other information](https://brainflow.readthedocs.io/en/latest/index.html)
+
 ## Build status
 *Linux(Travis)*:
 
