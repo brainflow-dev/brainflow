@@ -10,3 +10,5 @@ Or install it from [PYPI](https://pypi.org/project/brainflow/) with:
 ```
 pip install brainflow
 ```
+
+## [Documentation, Dev and User Guides and other useful information](https://brainflow.readthedocs.io/en/latest/index.html)
