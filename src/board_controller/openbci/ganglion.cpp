@@ -17,7 +17,7 @@
 #define MAX_ATTEMPTS_TO_GET_DATA 250
 
 
-Ganglion::Ganglion (const char *port_name)
+Ganglion::Ganglion (const char *port_name) : Board ()
 {
     if (port_name == NULL)
     {
@@ -56,7 +56,6 @@ Ganglion::Ganglion (const char *port_name)
     this->is_streaming = false;
     this->keep_alive = false;
     this->initialized = false;
-    this->db = NULL;
     this->num_channels = 8;
     this->state = SYNC_TIMEOUT_ERROR;
 }

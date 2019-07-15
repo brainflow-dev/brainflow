@@ -27,10 +27,13 @@ setup (
     ],
     package_data = {
         'brainflow': [
+            # I think we can add 32bit version only for windows at least for now
             os.path.join ('lib', 'BoardController.dll'),
+            os.path.join ('lib', 'BoardController32.dll'),
             os.path.join ('lib', 'libBoardController.so'),
             os.path.join ('lib', 'GanglionLib.dll'),
             os.path.join ('lib', 'GanglionLibNative64.dll'),
+            os.path.join ('lib', 'GanglionLibNative32.dll'),
             os.path.join ('lib', 'libBoardController.dylib')
         ]
     },

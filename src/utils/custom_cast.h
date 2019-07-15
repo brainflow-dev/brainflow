@@ -1,5 +1,4 @@
-#ifndef CUSTOM_CAST
-#define CUSTOM_CAST
+#pragma once
 
 #include <bitset>
 #include <stdint.h>
@@ -63,5 +62,3 @@ template <unsigned int N> inline int32_t cast_ganglion_bits_to_int32 (unsigned c
 
     return result;
 }
-
-#endif

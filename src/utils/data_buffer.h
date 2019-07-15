@@ -1,5 +1,4 @@
-#ifndef DATABUFFER
-#define DATABUFFER
+#pragma once
 
 #include "spinlock.h"
 #include <stdlib.h>
@@ -35,5 +34,3 @@ public:
     size_t get_data_count ();
     bool is_ready ();
 };
-
-#endif

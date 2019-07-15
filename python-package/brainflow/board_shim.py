@@ -31,6 +31,20 @@ class GANGLION (object):
     package_length = 8
 
 
+class SYNTHETIC (object):
+    board_id = -1
+    fs_hz = 256
+    num_eeg_channels = 8
+    package_length = 12
+
+
+class CYTON_DAISY (object):
+    board_id = 2
+    fs_hz = 125
+    num_eeg_channels = 16
+    package_length = 20
+
+
 class BoardInfoGetter (object):
 
     @classmethod
@@ -39,6 +53,10 @@ class BoardInfoGetter (object):
             return CYTON.fs_hz
         elif board_id == GANGLION.board_id:
             return GANGLION.fs_hz
+        elif board_id == SYNTHETIC.board_id:
+            return SYNTHETIC.fs_hz
+        elif board_id == CYTON_DAISY.board_id:
+            return CYTON_DAISY.fs_hz
         else:
             raise BrainFlowError ('unsupported board type', StreamExitCodes.UNSUPPORTED_BOARD_ERROR.value)
 
@@ -49,6 +67,10 @@ class BoardInfoGetter (object):
             return CYTON.num_eeg_channels
         elif board_id == GANGLION.board_id:
             return GANGLION.num_eeg_channels
+        elif board_id == SYNTHETIC.board_id:
+            return SYNTHETIC.num_eeg_channels
+        elif board_id == CYTON_DAISY.board_id:
+            return CYTON_DAISY.num_eeg_channels
         else:
             raise BrainFlowError ('unsupported board type', StreamExitCodes.UNSUPPORTED_BOARD_ERROR.value)
 
@@ -59,6 +81,10 @@ class BoardInfoGetter (object):
             return CYTON.package_length
         elif board_id == GANGLION.board_id:
             return GANGLION.package_length
+        elif board_id == SYNTHETIC.board_id:
+            return SYNTHETIC.package_length
+        elif board_id == CYTON_DAISY.board_id:
+            return CYTON_DAISY.package_length
         else:
             raise BrainFlowError ('unsupported board type', StreamExitCodes.UNSUPPORTED_BOARD_ERROR.value)
 
@@ -70,14 +96,15 @@ class BoardControllerDLL (object):
     @classmethod
     def get_instance (cls):
         if cls.__instance is None:
-            if struct.calcsize ("P") * 8 != 64:
-                raise Exception ("You need 64-bit python to use this library")
             cls.__instance = cls ()
         return cls.__instance
 
     def __init__ (self):
         if platform.system () == 'Windows':
-            dll_path = 'lib\\BoardController.dll'
+            if struct.calcsize ("P") * 8 == 64:
+                dll_path = 'lib\\BoardController.dll'
+            else:
+                dll_path = 'lib\\BoardController32.dll'
         elif platform.system () == 'Darwin':
             dll_path = 'lib/libBoardController.dylib'
         else:

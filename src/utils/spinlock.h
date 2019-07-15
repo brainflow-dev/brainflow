@@ -1,5 +1,4 @@
-#ifndef SPINLOCK
-#define SPINLOCK
+#pragma once
 
 #include <atomic>
 
@@ -21,5 +20,3 @@ public:
         lck.clear (std::memory_order_release);
     }
 };
-
-#endif

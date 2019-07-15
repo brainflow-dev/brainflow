@@ -1,5 +1,4 @@
-#ifndef DATAHANDLER
-#define DATAHANDLER
+#pragma once
 
 #include "board_info_getter.h"
 #include "brainflow_exception.h"
@@ -21,5 +20,3 @@ public:
     void preprocess_data (double **data, int data_count, float min_cutoff = 1.0,
         float max_cutoff = 50.0, float dc_offset = 1.0);
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef SERIAL
-#define SERIAL
+#pragma once
 
 #ifdef _WIN32
 #include <windows.h>
@@ -50,5 +49,3 @@ private:
     int port_descriptor;
 #endif
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef BOARDCONTROLLER
-#define BOARDCONTROLLER
+#pragma once
 
 #ifdef _WIN32
 #define SHARED_EXPORT __declspec(dllexport)
@@ -32,8 +31,10 @@ typedef enum
 
 typedef enum
 {
+    SYNTHETIC_BOARD = -1,
     CYTON_BOARD = 0,
-    GANGLION_BOARD = 1
+    GANGLION_BOARD = 1,
+    CYTON_DAISY_BOARD = 2
 } BoardIds;
 
 #ifdef __cplusplus
@@ -51,6 +52,4 @@ extern "C"
     SHARED_EXPORT int set_log_level (int log_level);
 #ifdef __cplusplus
 }
-#endif
-
 #endif
