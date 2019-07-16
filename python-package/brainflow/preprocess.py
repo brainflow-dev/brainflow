@@ -10,6 +10,7 @@ from brainflow.board_shim import *
 
 
 class DataHandler (object):
+    """DataHandler is used for basic data preprocessing and filtering"""
 
     def __init__ (self, board_id, numpy_data = None, csv_file = None):
         self.fs_hz = BoardInfoGetter.get_fs_hz (board_id)
@@ -29,12 +30,14 @@ class DataHandler (object):
             raise Exception ('no data prodvided')
 
     def save_csv (self, filename):
+        """Save data in csv file, if file exists - appends data"""
         if os.path.isfile (filename):
             self.eeg_df.to_csv (filename, mode = 'a', header = False, index = False)
         else:
             self.eeg_df.to_csv (filename, index = False)
 
     def remove_dc_offset (self):
+        """Remove dc offset"""
         res_df = pd.DataFrame ()
         hp_cutoff_hz = 1.0
         b, a = signal.butter (2, hp_cutoff_hz / (self.fs_hz / 2.0), 'highpass')
@@ -48,6 +51,7 @@ class DataHandler (object):
         self.eeg_df = res_df
 
     def notch_interference (self, notch_freq_hz = 50.0):
+        """Notch interference"""
         res_df = pd.DataFrame ()
         bp_stop_hz = notch_freq_hz + 3.0 * np.array ([-1, 1])
         b, a = signal.butter (3, bp_stop_hz / (self.fs_hz / 2.0), 'bandstop')
@@ -61,6 +65,7 @@ class DataHandler (object):
         self.eeg_df = res_df
 
     def bandpass (self, order, start, stop):
+        """Bandpass filter"""
         res_df = pd.DataFrame ()
         bp_hz = np.array ([start,stop])
         b, a = signal.butter (8, bp_hz / (self.fs_hz / 2.0), 'bandpass')
@@ -74,6 +79,7 @@ class DataHandler (object):
         self.eeg_df = res_df
 
     def calculate_fft (self):
+        """calculate FFT"""
         res_df = pd.DataFrame ()
 
         for column_name in self.eeg_df.columns:
@@ -84,9 +90,11 @@ class DataHandler (object):
         self.eeg_df = res_df
 
     def get_data (self):
+        """Return pandas dataframe"""
         return self.eeg_df
 
     def preprocess_data (self, order = 8, start = 1, stop = 50, calc_fft = False):
+        """Perform data cleaning and preprocessing, returns pandas dataframe"""
         self.remove_dc_offset ()
         self.notch_interference ()
         self.bandpass (order, start, stop)
