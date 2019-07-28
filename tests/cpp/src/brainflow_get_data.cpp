@@ -42,7 +42,7 @@ int main (int argc, char *argv[])
 
     int board_id = atoi (argv[1]);
     BoardShim *board = new BoardShim (board_id, argv[2]);
-    int length = BoardInfoGetter::get_package_length (board_id);
+    int length = BoardInfoGetter::get_package_length (board_id) + 1; // + 1 for timestamp
     DataHandler *dh = new DataHandler (board_id);
     int buffer_size = 250 * 60;
     double **data_buf = new double *[buffer_size];
@@ -69,12 +69,15 @@ int main (int argc, char *argv[])
         board->stop_stream ();
         std::cout << "getting data count" << std::endl;
         board->get_board_data_count (&data_count);
+        std::cout << "there are " << data_count << " packages" << std::endl;
         std::cout << "getting data" << std::endl;
         board->get_board_data (data_count, data_buf);
         std::cout << "releasing session" << std::endl;
         board->release_session ();
         std::cout << "preprocessing data" << std::endl;
         dh->preprocess_data (data_buf, data_count);
+
+        write_csv ("cpp_test.csv", data_buf, data_count, length);
     }
     catch (const BrainFlowException &err)
     {
