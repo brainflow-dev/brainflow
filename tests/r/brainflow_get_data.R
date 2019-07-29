@@ -10,6 +10,5 @@ data <- get_current_board_data(board_shim, 250)
 release_session(board_shim)
 
 data_handler <- get_data_handler(Boards()$Cyton["Type"], numpy_data = data)
-preprocess_data(data_handler, 3, 1, 50, TRUE)
-preprocessed_data <- get_data(data_handler)
+preprocessed_data <- preprocess_data(data_handler, 3, 1, 50, TRUE)
 head(preprocessed_data)

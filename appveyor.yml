@@ -31,10 +31,10 @@ install:
   - mkdir %APPVEYOR_BUILD_FOLDER%\GanglionBLEAPI\Mock\build
   - cd  %APPVEYOR_BUILD_FOLDER%\GanglionBLEAPI\Mock\build
   - cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_SYSTEM_VERSION=8.1 ..
-  - cmake --build . --config Release
+  - cmake --build . --config Release > ganglion_mock_build64_stdout.txt
   # compile brainflow for 32 and 64
-  - mkdir %APPVEYOR_BUILD_FOLDER%\build32 && cd %APPVEYOR_BUILD_FOLDER%\build32 && cmake -G "Visual Studio 15 2017" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed32\ .. && cmake --build . --target install --config Release
-  - mkdir %APPVEYOR_BUILD_FOLDER%\build64 && cd %APPVEYOR_BUILD_FOLDER%\build64 && cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed64\ .. && cmake --build . --target install --config Release
+  - mkdir %APPVEYOR_BUILD_FOLDER%\build32 && cd %APPVEYOR_BUILD_FOLDER%\build32 && cmake -G "Visual Studio 15 2017" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed32\ .. && cmake --build . --target install --config Release > brainflow_build32_stdout.txt
+  - mkdir %APPVEYOR_BUILD_FOLDER%\build64 && cd %APPVEYOR_BUILD_FOLDER%\build64 && cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed64\ .. && cmake --build . --target install --config Release > brainflow_build64_stdout.txt
   # store real ganglion libs libraries in compiled folder
   - cp %APPVEYOR_BUILD_FOLDER%\installed64\lib\GanglionLibNative64.dll  %APPVEYOR_BUILD_FOLDER%\compiled\GanglionLibNative64.dll
   - cp %APPVEYOR_BUILD_FOLDER%\installed32\lib\GanglionLibNative32.dll  %APPVEYOR_BUILD_FOLDER%\compiled\GanglionLibNative32.dll
@@ -44,17 +44,16 @@ install:
   # install python package
   - pip install %APPVEYOR_BUILD_FOLDER%\python-package\ 
   # build cpp
-  - mkdir %APPVEYOR_BUILD_FOLDER%\tests\cpp\build && cd %APPVEYOR_BUILD_FOLDER%\tests\cpp\build && cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%APPVEYOR_BUILD_FOLDER%\installed64\ .. && cmake --build . --config Release
-  - mkdir %APPVEYOR_BUILD_FOLDER%\tests\cpp\build32 && cd %APPVEYOR_BUILD_FOLDER%\tests\cpp\build32 && cmake -G "Visual Studio 15 2017" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%APPVEYOR_BUILD_FOLDER%\installed32\ .. && cmake --build . --config Release
+  - mkdir %APPVEYOR_BUILD_FOLDER%\tests\cpp\build && cd %APPVEYOR_BUILD_FOLDER%\tests\cpp\build && cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%APPVEYOR_BUILD_FOLDER%\installed64\ .. && cmake --build . --config Release > cpp_test_build64_stdout.txt
+  - mkdir %APPVEYOR_BUILD_FOLDER%\tests\cpp\build32 && cd %APPVEYOR_BUILD_FOLDER%\tests\cpp\build32 && cmake -G "Visual Studio 15 2017" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%APPVEYOR_BUILD_FOLDER%\installed32\ .. && cmake --build . --config Release > cpp_test_build32_stdout.txt
   # mvn package for java
-  - cd %APPVEYOR_BUILD_FOLDER%\java-package\brainflow && mvn package && cd ..\..\tests\java && javac -classpath ..\..\java-package\brainflow\target\brainflow-java-jar-with-dependencies.jar BrainFlowTest.java
+  - cd %APPVEYOR_BUILD_FOLDER%\java-package\brainflow && mvn package > maven_package_stdout.txt && cd ..\..\tests\java && javac -classpath ..\..\java-package\brainflow\target\brainflow-java-jar-with-dependencies.jar BrainFlowTest.java
 
 test_script:
   # tests for cyton
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board 0 --port
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\build\Release\test_get_data.exe 0
-  # in appveyour it fails with heap error can not reproduce localy
-  # - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\build32\Release\test_get_data.exe 0
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\build32\Release\test_get_data.exe 0
   # tests for ganglion
   - python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board 1 --port e6:73:73:18:09:b1
   - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\tests\cpp\build\Release\test_get_data.exe 1 e6:73:73:18:09:b1
@@ -70,9 +69,9 @@ after_test:
   - cp %APPVEYOR_BUILD_FOLDER%\compiled\GanglionLibNative64.dll %APPVEYOR_BUILD_FOLDER%\python-package\brainflow\lib\GanglionLibNative64.dll
 
 deploy_script:
-  - python -m pip install wheel
-  - python -m pip install twine
-  - python -m pip install awscli
+  - python -m pip install wheel > wheel_install.txt
+  - python -m pip install twine > twine_install.txt
+  - python -m pip install awscli > awscli_install.txt
   # upload to S3 in all cases, we will always be able to download libs
   - aws s3 cp %APPVEYOR_BUILD_FOLDER%\installed32\inc\ s3://brainflow-artifacts/%APPVEYOR_REPO_COMMIT%/inc --recursive
   - aws s3 cp %APPVEYOR_BUILD_FOLDER%\installed32\lib\ s3://brainflow-artifacts/%APPVEYOR_REPO_COMMIT%/lib32 --recursive
@@ -97,6 +96,23 @@ deploy_script:
       } Else {
         write-output "Skip deployment for non tag"
       }
+
+artifacts:
+  - path: build32\brainflow_build32_stdout.txt
+    name: brainflow_build64_stdout
+    type: zip
+
+  - path: build64\brainflow_build64_stdout.txt
+    name: brainflow_build64_stdout
+    type: zip
+
+  - path: GanglionBLEAPI\Mock\build\ganglion_mock_build64_stdout.txt
+    name: ganglion_mock_build64_stdout
+    type: zip
+
+  - path: java-package\brainflow\maven_package_stdout.txt
+    name: mvn_package_stdout
+    type: zip
 
 notifications:
   - provider: Email
