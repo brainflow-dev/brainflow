@@ -97,22 +97,11 @@ deploy_script:
         write-output "Skip deployment for non tag"
       }
 
-artifacts:
-  - path: build32\brainflow_build32_stdout.txt
-    name: brainflow_build64_stdout
-    type: zip
-
-  - path: build64\brainflow_build64_stdout.txt
-    name: brainflow_build64_stdout
-    type: zip
-
-  - path: GanglionBLEAPI\Mock\build\ganglion_mock_build64_stdout.txt
-    name: ganglion_mock_build64_stdout
-    type: zip
-
-  - path: java-package\brainflow\maven_package_stdout.txt
-    name: mvn_package_stdout
-    type: zip
+on_finish:
+  - appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build32\brainflow_build32_stdout.txt
+  - appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build64\brainflow_build64_stdout.txt
+  - appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\GanglionBLEAPI\Mock\build\ganglion_mock_build64_stdout.txt
+  - appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\java-package\brainflow\maven_package_stdout.txt
 
 notifications:
   - provider: Email
