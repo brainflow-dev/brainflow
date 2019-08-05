@@ -79,19 +79,33 @@ deploy_script:
   # download files from travis using S3 create package and publish it
   - ps: >-
       If ($env:APPVEYOR_REPO_TAG -eq "true" -And $env:APPVEYOR_REPO_BRANCH -eq "master") {
-        for ($i=0; $i -lt 15; $i++){aws s3 ls s3://brainflow-artifacts/$env:APPVEYOR_REPO_COMMIT/linux_success; if($?) {break} if(!$?) {Start-Sleep -s 60;echo "not found"}}
-        aws s3 ls s3://brainflow-artifacts/$env:APPVEYOR_REPO_COMMIT/linux_success
-        If ($?) {
+        # wait 30 minutes or until mac and linux binaries appear in s3
+        $lin = $false;
+        $osx = $false;
+        for ($i=0; $i -lt 30; $i++) {
+          aws s3 ls s3://brainflow-artifacts/$env:APPVEYOR_REPO_COMMIT/linux_success;
+          $lin = $?;
+          aws s3 ls s3://brainflow-artifacts/$env:APPVEYOR_REPO_COMMIT/osx_success;
+          $osx = $?
+          if($lin -and $osx) {break}
+          Start-Sleep -s 60;
+          echo "not found"
+        }
+        If ($lin -and $osx) {
+          write-output "Binaries found - running deployment"
           New-Item $env:APPVEYOR_BUILD_FOLDER\linux -itemtype directory
+          New-Item $env:APPVEYOR_BUILD_FOLDER\osx -itemtype directory
           aws s3 cp s3://brainflow-artifacts/$env:APPVEYOR_REPO_COMMIT/linux/ $env:APPVEYOR_BUILD_FOLDER\linux_libs\ --recursive
+          aws s3 cp s3://brainflow-artifacts/$env:APPVEYOR_REPO_COMMIT/osx/ $env:APPVEYOR_BUILD_FOLDER\osx_libs\ --recursive
           Copy-Item "$env:APPVEYOR_BUILD_FOLDER\linux\*" -Destination "$env:APPVEYOR_BUILD_FOLDER\python-package\brainflow\lib" -Recurse
+          Copy-Item "$env:APPVEYOR_BUILD_FOLDER\osx\*" -Destination "$env:APPVEYOR_BUILD_FOLDER\python-package\brainflow\lib" -Recurse
           ls $env:APPVEYOR_BUILD_FOLDER\python-package\brainflow\lib
           cd $env:APPVEYOR_BUILD_FOLDER\python-package
           python setup.py sdist bdist_wheel
           twine upload --skip-existing dist/*.whl --user OpenBCI --password $env:PYPI_PASSWORD
         }
         Else {
-          write-output "failed to wait for linux libs"
+          write-output "Failed to wait for mac and linux libs"
         }
       } Else {
         write-output "Skip deployment for non tag"
