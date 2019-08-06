@@ -98,6 +98,6 @@ void BoardShim::reshape_data (int data_count, float *data_buf, double *ts_buf, d
         {
             output_buf[i][j] = data_buf[i * num_data_channels + j];
         }
-        output_buf[i][num_data_channels] = ts_buf[i];
+        output_buf[i][num_data_channels] = ts_buf[i]; // add timestamp
     }
 }

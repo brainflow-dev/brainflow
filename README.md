@@ -10,10 +10,12 @@ Core module of this library is implemented in C\C++ and available for all bindin
 ## *NOTE: Brainflow was forked by OpenBCI community, I will contribute to [OpenBCI's fork](https://github.com/OpenBCI/brainflow) and maintain it. To download the latest stable version of Brainflow feel free to use OpenBCI's fork. Both versions are exactly the same*
 
 
+## [BrainFlow Docs, Dev and User guides and other information](https://brainflow.readthedocs.io/en/latest/index.html)
+
 ## Build status
 *Linux(Travis)*:
 
-[![Build Status](https://travis-ci.org/Andrey1994/brainflow.svg?branch=master)](https://travis-ci.org/Andrey1994/brainflow)
+[![Build Status](https://travis-ci.com/Andrey1994/brainflow.svg?branch=master)](https://travis-ci.com/Andrey1994/brainflow)
 
 *Windows(AppVeyour)*:
 
