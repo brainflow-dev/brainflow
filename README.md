@@ -11,7 +11,7 @@ This project was forked by OpenBCI from [Andrey1994/brainflow](https://github.co
 ## Build status
 *Linux(Travis)*:
 
-[![Build Status](https://travis-ci.org/OpenBCI/brainflow.svg?branch=master)](https://travis-ci.org/OpenBCI/brainflow)
+[![Build Status](https://travis-ci.com/OpenBCI/brainflow.svg?branch=master)](https://travis-ci.org/OpenBCI/brainflow)
 
 *Windows(AppVeyour)*:
 
