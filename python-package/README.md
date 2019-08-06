@@ -1,6 +1,5 @@
 # Python
 
-*Note: for now we provide only 64bit libraries, so you need 64bit python to run it*
 Following commands will install all required packages for you:
 ```
 cd python-package
