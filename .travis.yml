@@ -74,7 +74,7 @@ after_success:
   - sudo -H pip3 install awscli
   - aws s3 cp $TRAVIS_BUILD_DIR/installed/lib/ s3://brainflow-artifacts/$TRAVIS_COMMIT/$TRAVIS_OS_NAME --recursive
   # notify that everything is ok
-  - echo success > $TRAVIS_OS_NAME_success && aws s3 cp $TRAVIS_OS_NAME_success s3://brainflow-artifacts/$TRAVIS_COMMIT/
+  - echo success > ${TRAVIS_OS_NAME}_success && aws s3 cp ${TRAVIS_OS_NAME}_success s3://brainflow-artifacts/$TRAVIS_COMMIT/
 
 notifications:
   email:
