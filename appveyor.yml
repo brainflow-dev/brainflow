@@ -95,8 +95,8 @@ deploy_script:
           write-output "Binaries found - running deployment"
           New-Item $env:APPVEYOR_BUILD_FOLDER\linux -itemtype directory
           New-Item $env:APPVEYOR_BUILD_FOLDER\osx -itemtype directory
-          aws s3 cp s3://brainflow-artifacts/$env:APPVEYOR_REPO_COMMIT/linux/ $env:APPVEYOR_BUILD_FOLDER\linux_libs\ --recursive
-          aws s3 cp s3://brainflow-artifacts/$env:APPVEYOR_REPO_COMMIT/osx/ $env:APPVEYOR_BUILD_FOLDER\osx_libs\ --recursive
+          aws s3 cp s3://brainflow-artifacts/$env:APPVEYOR_REPO_COMMIT/linux/ $env:APPVEYOR_BUILD_FOLDER\linux\ --recursive
+          aws s3 cp s3://brainflow-artifacts/$env:APPVEYOR_REPO_COMMIT/osx/ $env:APPVEYOR_BUILD_FOLDER\osx\ --recursive
           Copy-Item "$env:APPVEYOR_BUILD_FOLDER\linux\*" -Destination "$env:APPVEYOR_BUILD_FOLDER\python-package\brainflow\lib" -Recurse
           Copy-Item "$env:APPVEYOR_BUILD_FOLDER\osx\*" -Destination "$env:APPVEYOR_BUILD_FOLDER\python-package\brainflow\lib" -Recurse
           ls $env:APPVEYOR_BUILD_FOLDER\python-package\brainflow\lib
