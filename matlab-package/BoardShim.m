@@ -28,11 +28,14 @@ classdef BoardShim
             obj.exit_codes(16) = 'ANOTHER_BOARD_IS_CREATED_ERROR';
             obj.exit_codes(17) = 'GENERAL_ERROR';
             obj.exit_codes(18) = 'SYNC_TIMEOUT_ERROR';
-            if isunix
+            if ismac
+                addpath('brainflow/lib/APPLE')
                 obj.libname = 'libBoardController';
-            elseif ismac
+            elseif isunix
+                addpath('brainflow/lib/UNIX')
                 obj.libname = 'libBoardController';
             else
+                addpath('brainflow/lib/MSVC')
                 obj.libname = 'BoardController';
             end
             obj.port_name = port_name;
