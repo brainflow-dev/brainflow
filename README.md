@@ -29,19 +29,6 @@ int get_board_data (int data_count, float *data_buf, double *ts_buf);
 int set_log_level (int log_level);
 ```
 
-## TODO List:
-- [ ] add Ganglion
-- [ ] add Cython daisy
-- [ ] add WiFI shield
-- [ ] Support Mac
-- [ ] integrate python and R bindings with MNE
-- [ ] fix Matlab package
-- [ ] code cleanup
-
-## Supported boards:
-For now only [OpenBCI Cyton Serial](http://docs.openbci.com/Hardware/02-Cyton) is supported, we are working on other boards
-![Cyton](https://farm5.staticflickr.com/4817/32567183898_10a4b56659.jpg)
-
 ## Brainflow Bindings
 We support bindings for:
 * [python](./python-package)
@@ -52,108 +39,6 @@ We support bindings for:
 * [C#](./csharp-package/brainflow/)
 
 These bindings just call methods from dynamic libraries, if you are interested in other programming languages - feel free to create feature request
-
-### SDK Usage Sample(Python):
-```
-import argparse
-import time
-import brainflow
-
-
-def main ():
-    parser = argparse.ArgumentParser ()
-    parser.add_argument ('--port', type = str, help  = 'port name', required = True)
-    parser.add_argument ('--log', action = 'store_true')
-    args = parser.parse_args ()
-
-    if (args.log):
-        brainflow.board_shim.BoardShim.enable_board_logger ()
-    else:
-        brainflow.board_shim.BoardShim.disable_board_logger ()
-
-    board = brainflow.board_shim.BoardShim (brainflow.board_shim.CYTON.board_id, args.port)
-    board.prepare_session ()
-    board.start_stream ()
-    time.sleep (5)
-    data = board.get_board_data ()
-    board.stop_stream ()
-    board.release_session ()
-
-    data_handler = brainflow.preprocess.DataHandler (brainflow.board_shim.CYTON.board_id, numpy_data = data)
-    filtered_data = data_handler.preprocess_data (order = 3, start = 1, stop = 50)
-    data_handler.save_csv ('results.csv')
-    print (filtered_data.head ())
-    read_data = brainflow.preprocess.DataHandler (brainflow.board_shim.CYTON.board_id, csv_file = 'results.csv')
-    print (read_data.get_data ().head ())
-
-
-if __name__ == "__main__":
-    main ()
-```
-
-## Brainflow Emulator (Cyton)
-
-Brainflow emulator for Cyton allows users to run tests without EEG headset.
-
-* On Windows it works using [com0com](http://com0com.sourceforge.net/)
-* On Linux it works using pty
-
-You should pass command line to test directly to [cyton_linux.py](./emulator/brainflow_emulator/cyton_linux.py) or to [cyton_windows.py](./emulator/brainflow_emulator/cyton_windows.py), script will add port automatically to provided command line and will start an application
-
-
-### Example
-
-Install emulator package
-```
-cd emulator
-pip3 install -U .
-```
-Run test
-```
-python3 brainflow_emulator/cyton_linux.py python3 /media/sf_folder/brainflow/python-package/examples/brainflow_get_data.py --log --port
-INFO:root:Running python3 /media/sf_folder/brainflow/python-package/examples/brainflow_get_data.py --log --port /dev/pts/1
-INFO:root:read "b'v'"
-INFO:root:read "b'b'"
-INFO:root:read "b's'"
-INFO:root:stdout is: b'   package_num         eeg1          eeg2  ...    accel2    accel3     timestamp\n0          0.0    59.692543    264.193723  ...  3.526750  1.616875  1.553124e+09\n1          1.0   425.466525   2773.043094  ...  1.519125 -3.823000  1.553124e+09\n2          2.0  1349.970005  12973.129874  ...  2.586875  0.657750  1.553124e+09\n3          3.0  2730.721543  35263.509116  ... -2.776625  1.778750  1.553124e+09\n4          4.0  4333.067974  60181.588357  ...  3.000500 -0.270625  1.553124e+09\n\n[5 rows x 13 columns]\n   package_num         eeg1          eeg2  ...    accel2    accel3     timestamp\n0          0.0    59.692543    264.193723  ...  3.526750  1.616875  1.553124e+09\n1          1.0   425.466525   2773.043094  ...  1.519125 -3.823000  1.553124e+09\n2          2.0  1349.970005  12973.129874  ...  2.586875  0.657750  1.553124e+09\n3          3.0  2730.721543  35263.509116  ... -2.776625  1.778750  1.553124e+09\n4          4.0  4333.067974  60181.588357  ...  3.000500 -0.270625  1.553124e+09\n\n[5 rows x 13 columns]\n'
-INFO:root:stderr is: b'[2019-03-20 19:12:10.313] [board_logger] [info] openning port /dev/pts/1: 0\n'
-```
-
-Emulator raises *TestFailureError* if test fails
-
-## Brainflow emulator (Ganglion)
-
-To emulate Ganglion device you need to compile mock from GanglionBLEAPI folder and put compiled libraries instead original files like GanglionLibNative64.dll, GanglionLibNative32.dll and the same for Linux\MacOs libraries, rebuild brainflow just to put new libraries to correct locations and run as with real board
-
-## Brainflow Tests
-
-### Instructions to run tests
-
-You need to install emulator package first
-```
-cd {project_dir}/emulator
-python setup.py install
-```
-
-#### Run Python tests
-```
-cd {project_dir}/python-package
-pip install -e .
-# to test it on Linux machine
-python {project_dir}/emulator/brainflow_emulator/cyton_linux.py python {project_dir}/tests/python/brainflow_get_data.py
-# to test it on Windows machine
-python {project_dir}/emulator/brainflow_emulator/cyton_windows.py python {project_dir}/tests/python/brainflow_get_data.py
-```
-
-#### Run Java test
-```
-cd {project_dir}\java-package
-# I dont add jar to repo, so you will need to build it
-mvn package
-cd {project_dir}/tests/java
-javac -classpath {project_dir}\java-package\brainflow\target\brainflow-java-jar-with-dependencies.jar BrainFlowTest.java
-python {project_dir}\emulator\brainflow_emulator\cyton_windows.py java -classpath .;{project_dir}\java-package\brainflow\target\brainflow-java-jar-with-dependencies.jar BrainFlowTest
-```
 
 ## Build instructions
 
