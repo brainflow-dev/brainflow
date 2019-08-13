@@ -3,7 +3,9 @@ Supported Boards
 
 
 Synthetic Board
----------------
+----------------
+
+This board generates synthetic data and you dont need real hardware to use it.
 
 API params:
 
@@ -14,8 +16,6 @@ System Requirements:
 
 - Windows >= 8.1/Linux/MacOS
 - For Python and C# we support x86/x64 libraries, for other bindings x64 only
-
-This board generates synthetic data and you dont need real hardware to use it.
 
 Board Spec:
 
@@ -30,13 +30,14 @@ OpenBCI Cyton
 
 .. image:: https://farm5.staticflickr.com/4817/32567183898_10a4b56659.jpg
 
+
+Cyton geting started guide from `OpenBCI 
+<https://docs.openbci.com/Tutorials/00-Tutorials>`_.
+
 API params:
 
 - board Id: 0
 - port: serial port (COM3, /dev/ttyUSB0 ....)
-
-Cyton geting started guide from `OpenBCI 
-<https://docs.openbci.com/Tutorials/00-Tutorials>`_.
 
 System Requirements:
 
@@ -51,17 +52,17 @@ Board Spec:
 - communication: serial port
 
 OpenBCI Ganglion
-----------------
+-----------------
 
 .. image:: https://live.staticflickr.com/65535/48288408326_7f078cd2eb.jpg
+
+Ganglion geting started guide from `OpenBCI 
+<https://docs.openbci.com/Tutorials/00-Tutorials>`_.
 
 API params:
 
 - board Id: 1
-- port: for Windows - Ganglion Mac address which you can get using Bluetooth Low Energy Explorer from Microsoft Store (e.g. e6:73:73:18:09:b1) for Windows autodiscovery works so you can pass empty string as well, for Linux/MacOS you need to pass string in format "dongle_port,mac_addr"(e.g./dev/ttyACM0,e6:73:73:18:09:b1)  to get mac address on Linux you can use hcitool
-
-Ganglion geting started guide from `OpenBCI 
-<https://docs.openbci.com/Tutorials/00-Tutorials>`_.
+- port: for Windows - Ganglion Mac address which you can get using Bluetooth Low Energy Explorer from Microsoft Store (e.g. e6:73:73:18:09:b1) for Windows autodiscovery works so you can pass empty string as well, for Linux/MacOS you need to pass string in format "dongle_port,mac_addr"(e.g./dev/ttyACM0,e6:73:73:18:09:b1) to get mac address on Linux you can use hcitool
 
 System Requirements:
 
@@ -79,17 +80,17 @@ Board Spec:
 
 
 OpenBCI Cyton Daisy
--------------------
+--------------------
 
 .. image:: https://live.staticflickr.com/65535/48288597712_7ba142797e.jpg
+
+Cyton Daisy geting started guide from `OpenBCI 
+<https://docs.openbci.com/Tutorials/00-Tutorials>`_.
 
 API params:
 
 - board Id: 2
 - port: serial port (COM3, /dev/ttyUSB0 ....)
-
-Cyton Daisy geting started guide from `OpenBCI 
-<https://docs.openbci.com/Tutorials/00-Tutorials>`_.
 
 System Requirements:
 
