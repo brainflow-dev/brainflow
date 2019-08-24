@@ -1,10 +1,12 @@
+package brainflow;
+
 import java.util.HashMap;
 import java.util.Map;
 
 
 public enum ExitCode {
  
-	STATUS_OK (0),
+    STATUS_OK (0),
     PORT_ALREADY_OPEN_ERROR (1),
     UNABLE_TO_OPEN_PORT_ERROR (2),
     SET_PORT_ERROR (3),
@@ -42,12 +44,12 @@ public enum ExitCode {
     }
  
     ExitCode(final int code) {
-    	exit_code = code;
+        exit_code = code;
     }
 
     static {
         for (final ExitCode ec : ExitCode.values ()) {
-        	ec_map.put(ec.get_code(), ec);
+            ec_map.put(ec.get_code(), ec);
         }
     }
 
