@@ -19,6 +19,7 @@ public class BoardShim {
 
     public interface DllInterface extends Library {
         int prepare_session (int board_id, String port_name);
+        int config_board (String port_name);
         int start_stream (int buffer_size);
         int stop_stream ();
         int release_session ();
@@ -74,6 +75,13 @@ public class BoardShim {
         int ec = this.instance.prepare_session (board_id, port_name);
         if (ec != ExitCode.STATUS_OK.get_code ()) {
             throw new BrainFlowError ("Error in prepare_session", ec);
+        }
+    }
+
+    public void config_board (String config) throws BrainFlowError {
+        int ec = this.instance.config_board (config);
+        if (ec != ExitCode.STATUS_OK.get_code ()) {
+            throw new BrainFlowError ("Error in config_board", ec);
         }
     }
 

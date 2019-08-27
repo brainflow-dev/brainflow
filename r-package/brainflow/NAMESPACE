@@ -3,6 +3,7 @@
 export(Boards)
 export(bandpass)
 export(calculate_fft)
+export(config_board)
 export(get_board_data)
 export(get_board_data_count)
 export(get_board_shim)

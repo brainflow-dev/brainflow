@@ -50,6 +50,7 @@ extern "C"
     SHARED_EXPORT int get_board_data_count (int *result);
     SHARED_EXPORT int get_board_data (int data_count, float *data_buf, double *ts_buf);
     SHARED_EXPORT int set_log_level (int log_level);
+    SHARED_EXPORT int config_board (char *config);
 #ifdef __cplusplus
 }
 #endif

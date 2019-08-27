@@ -71,3 +71,11 @@ get_board_data_count <- function(board_shim) {
 get_board_data <- function(board_shim) {
     board_shim$get_board_data()
 }
+
+#' @param board_shim
+#' @param config
+#'
+#' @export
+config_board <- function(board_shim, config) {
+    board_shim$config_board(config)
+}

@@ -11,7 +11,7 @@
 
 namespace GanglionLibNative
 {
-#pragma pack(push, 1)
+#pragma pack (push, 1)
     struct GanglionDataNative
     {
         unsigned char data[20];
@@ -30,7 +30,7 @@ namespace GanglionLibNative
             memcpy (data, other.data, sizeof (unsigned char) * 20);
         }
     };
-#pragma pack(pop)
+#pragma pack (pop)
 
     enum CustomExitCodesNative
     {
@@ -54,13 +54,14 @@ namespace GanglionLibNative
 #ifdef __cplusplus
     extern "C"
     {
-        SHARED_EXPORT int initialize (void *param);
+        SHARED_EXPORT int initialize_native (void *param);
         SHARED_EXPORT int open_ganglion_native (void *param);
         SHARED_EXPORT int open_ganglion_mac_addr_native (void *param);
         SHARED_EXPORT int stop_stream_native (void *param);
         SHARED_EXPORT int start_stream_native (void *param);
         SHARED_EXPORT int close_ganglion_native (void *param);
         SHARED_EXPORT int get_data_native (void *param);
+        SHARED_EXPORT int config_board_native (void *param);
     }
 #endif
 }

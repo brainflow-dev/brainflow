@@ -27,6 +27,7 @@ int get_current_board_data (int num_samples, float *data_buf, double *ts_buf, in
 int get_board_data_count (int *result);
 int get_board_data (int data_count, float *data_buf, double *ts_buf);
 int set_log_level (int log_level);
+int config_board (char *config);
 ```
 
 ## Brainflow Bindings

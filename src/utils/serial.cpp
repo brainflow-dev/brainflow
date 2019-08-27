@@ -71,13 +71,12 @@ int Serial::read_from_serial_port (void *bytes_to_read, int size)
     return (int)readed;
 }
 
-int Serial::send_to_serial_port (const void *message)
+int Serial::send_to_serial_port (const void *message, int length)
 {
     DWORD bytes_written;
-    // force one byte
-    if (!WriteFile (this->port_descriptor, message, 1, &bytes_written, NULL))
+    if (!WriteFile (this->port_descriptor, message, length, &bytes_written, NULL))
         return 0;
-    return 1;
+    return bytes_written;
 }
 
 int Serial::close_serial_port ()
@@ -149,10 +148,9 @@ int Serial::read_from_serial_port (void *bytes_to_read, int size)
     return read (this->port_descriptor, bytes_to_read, size);
 }
 
-int Serial::send_to_serial_port (const void *message)
+int Serial::send_to_serial_port (const void *message, int length)
 {
-    // force one byte
-    int res = write (this->port_descriptor, message, 1);
+    int res = write (this->port_descriptor, message, length);
     return res;
 }
 

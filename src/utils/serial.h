@@ -34,7 +34,7 @@ public:
     bool is_port_open ();
     int set_serial_port_settings ();
     int read_from_serial_port (void *bytes_to_read, int size);
-    int send_to_serial_port (const void *message);
+    int send_to_serial_port (const void *message, int length);
     int close_serial_port ();
     char *get_port_name ()
     {

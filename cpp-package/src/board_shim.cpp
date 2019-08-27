@@ -90,6 +90,15 @@ void BoardShim::get_current_board_data (int num_samples, double **data_buf, int 
     delete[] ts_buf;
 }
 
+void BoardShim::config_board (char *config)
+{
+    int res = ::config_board (config);
+    if (res != STATUS_OK)
+    {
+        throw BrainFlowException ("failed to config board", res);
+    }
+}
+
 void BoardShim::reshape_data (int data_count, float *data_buf, double *ts_buf, double **output_buf)
 {
     for (int i = 0; i < data_count; i++)

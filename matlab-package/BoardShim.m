@@ -51,9 +51,9 @@ classdef BoardShim
         end
 
         function check_ec (obj, ec, task_name)
-            status = obj.exit_codes(ec);
-            if strcmp(status,'STATUS_OK')
-                disp([task_name, ': ', status])
+            status = obj.exit_codes (ec);
+            if strcmp (status,'STATUS_OK')
+                disp ([task_name, ': ', status])
             else
                 error ('Non zero ec: %d, desc: %s', ec, status)
             end
@@ -62,32 +62,38 @@ classdef BoardShim
         function prepare_session (obj)
             task_name = 'prepare_session';
             exit_code = calllib (obj.libname, task_name, obj.board_id, obj.port_name);
-            obj.check_ec(exit_code, task_name);
+            obj.check_ec (exit_code, task_name);
+        end
+
+        function config_board (obj, config)
+            task_name = 'config_board';
+            exit_code = calllib (obj.libname, task_name, config);
+            obj.check_ec (exit_code, task_name);
         end
 
         function start_stream (obj, buffer_size)
             task_name = 'start_stream';
             exit_code = calllib (obj.libname, task_name, buffer_size);
-            obj.check_ec(exit_code, task_name);
+            obj.check_ec (exit_code, task_name);
         end
 
         function stop_stream (obj)
             task_name = 'stop_stream';
             exit_code = calllib (obj.libname, task_name);
-            obj.check_ec(exit_code, task_name);
+            obj.check_ec (exit_code, task_name);
         end
 
         function release_session (obj)
             task_name = 'release_session';
             exit_code = calllib (obj.libname, task_name);
-            obj.check_ec(exit_code, task_name);
+            obj.check_ec (exit_code, task_name);
         end
 
         function num_data_point = get_board_data_count (obj)
             task_name = 'get_board_data_count';
             data_count = libpointer ('int32Ptr', 0);
-            exit_code = calllib(obj.libname, task_name, data_count);
-            obj.check_ec(exit_code, task_name);
+            exit_code = calllib (obj.libname, task_name, data_count);
+            obj.check_ec (exit_code, task_name);
             num_data_point = data_count.value;
         end
 
@@ -96,9 +102,9 @@ classdef BoardShim
             data_count = obj.get_board_data_count ();
             data = libpointer ('singlePtr', zeros (1, data_count * obj.num_channels));
             ts = libpointer ('doublePtr', zeros (1, data_count));
-            exit_code = calllib(obj.libname, task_name, data_count, data, ts);
-            obj.check_ec(exit_code, task_name);
-            data_buf = transpose(reshape(data.Value, [obj.num_channels, data_count]));
+            exit_code = calllib (obj.libname, task_name, data_count, data, ts);
+            obj.check_ec (exit_code, task_name);
+            data_buf = transpose (reshape (data.Value, [obj.num_channels, data_count]));
             ts_buf = ts.Value;
         end
 
@@ -107,10 +113,10 @@ classdef BoardShim
             data_count = libpointer ('int32Ptr', 0);
             data = libpointer ('singlePtr', zeros (1, num_samples * obj.num_channels));
             ts = libpointer ('doublePtr', zeros (1, num_samples));
-            exit_code = calllib(obj.libname, task_name, num_samples, data, ts, data_count);
-            obj.check_ec(exit_code, task_name);
-            data_buf = transpose(reshape(data.Value(1,1:data_count.Value * obj.num_channels), [obj.num_channels, data_count.Value]));
-            ts_buf = ts.Value(1,1:data_count.Value);
+            exit_code = calllib (obj.libname, task_name, num_samples, data, ts, data_count);
+            obj.check_ec (exit_code, task_name);
+            data_buf = transpose (reshape (data.Value (1,1:data_count.Value * obj.num_channels), [obj.num_channels, data_count.Value]));
+            ts_buf = ts.Value (1,1:data_count.Value);
         end
     end
 end

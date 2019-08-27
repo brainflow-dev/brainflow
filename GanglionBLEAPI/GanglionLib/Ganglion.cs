@@ -107,6 +107,7 @@ namespace GanglionLib
                 res = (int) CustomExitCodes.GENERAL_ERROR;
             }
             stop_stream ();
+            config_board (" ", false); // use disc characteristic instead send characteristic
             if (ganglion_device == null)
             {
                 return (int) CustomExitCodes.GANGLION_IS_NOT_OPEN_ERROR;
@@ -130,47 +131,28 @@ namespace GanglionLib
             return res;
         }
 
-        public int stop_stream ()
+        public int config_board (string config, bool use_send_characteristic = true)
         {
             try
             {
-                var stop_task = send_command_async ((byte) 's');
-                stop_task.Wait ();
-                // ' ' is not documented and I dont see such command in firmware code, but it was in previous SDKs so let's keep it
-                var disconnect_task = send_command_async ((byte) ' ');
-                disconnect_task.Wait ();
-                if (stop_task.Result != (int) CustomExitCodes.STATUS_OK)
-                {
-                    return stop_task.Result;
-                }
-                if (disconnect_task.Result != (int) CustomExitCodes.STATUS_OK)
-                {
-                    return disconnect_task.Result;
-                }
-                return (int) CustomExitCodes.STATUS_OK;
-            }
-            catch (Exception ex)
-            {
-                return (int) CustomExitCodes.GENERAL_ERROR;
-            }
-        }
-
-        public int start_stream ()
-        {
-            try
-            {
-                var task = send_command_async ((byte) 'b');
+                var task = send_command_async (config);
                 task.Wait ();
-                if (task.Result != (int) CustomExitCodes.STATUS_OK)
-                {
-                    return task.Result;
-                }
                 return task.Result;
             }
             catch (Exception ex)
             {
-                return (int) CustomExitCodes.GENERAL_ERROR;
+                return (int)CustomExitCodes.GENERAL_ERROR;
             }
+        }
+
+        public int stop_stream ()
+        {
+            return config_board ("s");
+        }
+
+        public int start_stream ()
+        {
+            return config_board ("b");
         }
 
         ~Ganglion ()
@@ -178,7 +160,7 @@ namespace GanglionLib
             close_ganglion ();
         }
 
-        private async Task<int> send_command_async (byte command, bool use_send_characteristic = true)
+        private async Task<int> send_command_async (string command, bool use_send_characteristic = true)
         {
             if (ganglion_device == null)
             {
@@ -190,7 +172,7 @@ namespace GanglionLib
             }
 
             var writer = new Windows.Storage.Streams.DataWriter ();
-            writer.WriteByte (command);
+            writer.WriteString (command);
             try
             {
                 GattWriteResult result = null;

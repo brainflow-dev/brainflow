@@ -40,7 +40,7 @@ namespace GanglionLibNative
 
     void thread_func ();
 
-    int initialize (void *param)
+    int initialize_native (void *param)
     {
         std::cout << "initialized" << std::endl;
         return STATUS_OK;
@@ -106,6 +106,11 @@ namespace GanglionLibNative
     {
         stop_stream_native (NULL);
         is_open = false;
+        return STATUS_OK;
+    }
+
+    int config_board_native (void *param)
+    {
         return STATUS_OK;
     }
 

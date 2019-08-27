@@ -28,6 +28,7 @@ private:
     DLLLoader *dll_loader;
 
     int call_init ();
+    int call_config (char *config);
     int call_open ();
     int call_close ();
     int call_start ();
@@ -52,6 +53,7 @@ public:
     int start_stream (int buffer_size);
     int stop_stream ();
     int release_session ();
+    int config_board (char *config);
     int get_board_id ()
     {
         return GANGLION_BOARD;
