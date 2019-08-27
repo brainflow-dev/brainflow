@@ -36,8 +36,8 @@ We support bindings for:
 * [java](./java-package/brainflow/)
 * [R](./r-package/)
 * [CPP](./cpp-package/)
-* [Matlab(WIP)](./matlab-package/brainflow/)
-* [C#](./csharp-package/brainflow/)
+* [Matlab](./matlab-package/brainflow/)
+* [C# (Windows only)](./csharp-package/brainflow/)
 
 These bindings just call methods from dynamic libraries, if you are interested in other programming languages - feel free to create feature request
 
