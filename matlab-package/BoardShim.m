@@ -9,31 +9,43 @@ classdef BoardShim
     methods
         function obj = BoardShim (board_id, port_name)
             obj.exit_codes = containers.Map ('KeyType', 'int32', 'ValueType', 'any');
-            obj.exit_codes(0) = 'STATUS_OK';
-            obj.exit_codes(1) = 'PORT_ALREADY_OPEN_ERROR';
-            obj.exit_codes(2) = 'UNABLE_TO_OPEN_PORT_ERROR';
-            obj.exit_codes(3) = 'SET_PORT_ERROR';
-            obj.exit_codes(4) = 'BOARD_WRITE_ERROR';
-            obj.exit_codes(5) = 'INCOMMING_MSG_ERROR';
-            obj.exit_codes(6) = 'INITIAL_MSG_ERROR';
-            obj.exit_codes(7) = 'BOARD_NOT_READY_ERROR';
-            obj.exit_codes(8) = 'STREAM_ALREADY_RUN_ERROR';
-            obj.exit_codes(9) = 'INVALID_BUFFER_SIZE_ERROR';
-            obj.exit_codes(10) = 'STREAM_THREAD_ERROR';
-            obj.exit_codes(11) = 'STREAM_THREAD_IS_NOT_RUNNING';
-            obj.exit_codes(12) = 'EMPTY_BUFFER_ERROR';
-            obj.exit_codes(13) = 'INVALID_ARGUMENTS_ERROR';
-            obj.exit_codes(14) = 'UNSUPPORTED_BOARD_ERROR';
-            obj.exit_codes(15) = 'BOARD_NOT_CREATED_ERROR';
-            obj.exit_codes(16) = 'ANOTHER_BOARD_IS_CREATED_ERROR';
-            obj.exit_codes(17) = 'GENERAL_ERROR';
-            obj.exit_codes(18) = 'SYNC_TIMEOUT_ERROR';
-            if isunix
-                obj.libname = 'libBoardController';
+            obj.exit_codes (0) = 'STATUS_OK';
+            obj.exit_codes (1) = 'PORT_ALREADY_OPEN_ERROR';
+            obj.exit_codes (2) = 'UNABLE_TO_OPEN_PORT_ERROR';
+            obj.exit_codes (3) = 'SET_PORT_ERROR';
+            obj.exit_codes (4) = 'BOARD_WRITE_ERROR';
+            obj.exit_codes (5) = 'INCOMMING_MSG_ERROR';
+            obj.exit_codes (6) = 'INITIAL_MSG_ERROR';
+            obj.exit_codes (7) = 'BOARD_NOT_READY_ERROR';
+            obj.exit_codes (8) = 'STREAM_ALREADY_RUN_ERROR';
+            obj.exit_codes (9) = 'INVALID_BUFFER_SIZE_ERROR';
+            obj.exit_codes (10) = 'STREAM_THREAD_ERROR';
+            obj.exit_codes (11) = 'STREAM_THREAD_IS_NOT_RUNNING';
+            obj.exit_codes (12) = 'EMPTY_BUFFER_ERROR';
+            obj.exit_codes (13) = 'INVALID_ARGUMENTS_ERROR';
+            obj.exit_codes (14) = 'UNSUPPORTED_BOARD_ERROR';
+            obj.exit_codes (15) = 'BOARD_NOT_CREATED_ERROR';
+            obj.exit_codes (16) = 'ANOTHER_BOARD_IS_CREATED_ERROR';
+            obj.exit_codes (17) = 'GENERAL_ERROR';
+            obj.exit_codes (18) = 'SYNC_TIMEOUT_ERROR';
+            
+            if ispc
+                obj.libname = 'BoardController';
+                if not(libisloaded('BoardController.dll'))
+                    loadlibrary('BoardController.dll','inc/board_controller.h');
+                end
             elseif ismac
                 obj.libname = 'libBoardController';
+                if not(libisloaded('libBoardController'))
+                    loadlibrary('libBoardController.dylib','inc/board_controller.h');
+                end
+            elseif isunix
+                obj.libname = 'libBoardController';
+                if not (libisloaded('libBoardController'))
+                    loadlibrary('libBoardController.so', 'inc/board_controller.h');
+                end
             else
-                obj.libname = 'BoardController';
+                error ('OS not supported!')
             end
             obj.port_name = port_name;
             obj.board_id = int32 (board_id);
@@ -45,9 +57,7 @@ classdef BoardShim
                 obj.num_channels = 12;
             elseif board_id == int32 (BoardIDs.CYTON_DAISY_BOARD)
                 obj.num_channels = 20;
-            loadlibrary (obj.libname, 'board_controller.h') 
             end
-            
         end
 
         function check_ec (obj, ec, task_name)
