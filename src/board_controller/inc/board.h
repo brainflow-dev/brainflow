@@ -30,6 +30,7 @@ public:
     virtual int stop_stream () = 0;
     virtual int release_session () = 0;
     virtual int get_board_id () = 0;
+    virtual int config_board (char *config) = 0;
 
     int get_current_board_data (
         int num_samples, float *data_buf, double *ts_buf, int *returned_samples);

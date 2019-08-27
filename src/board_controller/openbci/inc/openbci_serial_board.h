@@ -20,10 +20,10 @@ protected:
     int num_channels;
 
     virtual int open_port ();
-    virtual int send_to_board (const char *message);
     virtual int status_check ();
     virtual int set_port_settings ();
     virtual void read_thread () = 0;
+    virtual int send_to_board (char *msg);
 
 public:
     OpenBCISerialBoard (int num_channels, const char *port_name);
@@ -33,4 +33,5 @@ public:
     virtual int start_stream (int buffer_size);
     virtual int stop_stream ();
     virtual int release_session ();
+    virtual int config_board (char *config);
 };

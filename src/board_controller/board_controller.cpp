@@ -139,6 +139,16 @@ int set_log_level (int log_level)
     return Board::set_log_level (log_level);
 }
 
+int config_board (char *config)
+{
+    std::lock_guard<std::mutex> lock (mutex);
+
+    if (board == NULL)
+        return BOARD_NOT_CREATED_ERROR;
+
+    return board->config_board (config);
+}
+
 // DLLMain is executed during LoadLibrary\FreeLibrary. Board object desctructorshould be called even
 // without it but for sanity check to ensure that we stop streaming data from the board I call it
 // manually here as well

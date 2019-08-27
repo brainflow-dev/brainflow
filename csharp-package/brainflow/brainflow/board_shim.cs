@@ -58,6 +58,15 @@ namespace brainflow
             }
         }
 
+        public void config_board (string config)
+        {
+            int res = Library.config_board (config);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowExceptioin (res);
+            }
+        }
+
         public void start_stream (int num_samples = 3600 * 250)
         {
             int res = Library.start_stream(num_samples);

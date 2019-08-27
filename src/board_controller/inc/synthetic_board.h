@@ -35,4 +35,5 @@ public:
     {
         return SYNTHETIC_BOARD;
     }
+    int config_board (char *config);
 };

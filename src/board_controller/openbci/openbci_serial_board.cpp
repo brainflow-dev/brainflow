@@ -1,5 +1,6 @@
 #include <string.h>
 
+#include "openbci_helpers.h"
 #include "openbci_serial_board.h"
 #include "serial.h"
 
@@ -36,11 +37,25 @@ int OpenBCISerialBoard::open_port ()
     return STATUS_OK;
 }
 
-int OpenBCISerialBoard::send_to_board (const char *message)
+int OpenBCISerialBoard::config_board (char *config)
 {
-    int res = serial.send_to_serial_port (message);
-    if (res != 1)
+    int res = validate_config (config);
+    if (res != STATUS_OK)
+    {
+        return res;
+    }
+    return send_to_board (config);
+}
+
+int OpenBCISerialBoard::send_to_board (char *msg)
+{
+    int lenght = strlen (msg);
+    Board::board_logger->debug ("sending {} to the board", msg);
+    int res = serial.send_to_serial_port ((const void *)msg, lenght);
+    if (res != lenght)
+    {
         return BOARD_WRITE_ERROR;
+    }
 
     return STATUS_OK;
 }

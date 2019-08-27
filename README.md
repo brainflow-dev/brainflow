@@ -21,5 +21,16 @@ Core module of this library is implemented in C\C++ and available for all bindin
 
 [![Build status](https://ci.appveyor.com/api/projects/status/4gr8uy65f86eh2b5?svg=true)](https://ci.appveyor.com/project/Andrey1994/brainflow)
 
+## Brainflow Bindings
+We support bindings for:
+* [python](./python-package)
+* [java](./java-package/brainflow/)
+* [R](./r-package/)
+* [CPP](./cpp-package/)
+* [Matlab](./matlab-package/brainflow/)
+* [C# (Windows only)](./csharp-package/brainflow/)
+
+These bindings just call methods from dynamic libraries, if you are interested in other programming languages - feel free to create feature request
+
 ## License: 
 MIT

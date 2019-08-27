@@ -10,6 +10,7 @@
 #include <unistd.h>
 #endif
 
+#include "openbci_helpers.h"
 #include "synthetic_board.h"
 #include "timestamp.h"
 
@@ -159,4 +160,9 @@ void SyntheticBoard::read_thread ()
 #endif
     }
     delete[] package;
+}
+
+int SyntheticBoard::config_board (char *config)
+{
+    return validate_config (config);
 }

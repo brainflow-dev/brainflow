@@ -42,6 +42,7 @@ class Listener (threading.Thread):
                         self.writer_process.need_data = False
                         self.writer_process.join ()
             else:
+                # we dont handle commands to turn on/off channels, gain signal and so on. such commands dont change package format
                 logging.warning ('got unexpected command "%s"' % res)
 
 

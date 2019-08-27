@@ -24,6 +24,6 @@ cd {project_dir}\java-package
 # I dont add jar to repo, so you will need to build it
 mvn package
 cd {project_dir}/tests/java
-javac -classpath {project_dir}\java-package\brainflow\target\brainflow-java-jar-with-dependencies.jar BrainFlowTest.java
-python {project_dir}\emulator\brainflow_emulator\cyton_windows.py java -classpath .;{project_dir}\java-package\brainflow\target\brainflow-java-jar-with-dependencies.jar BrainFlowTest
+javac -classpath {project_dir}\java-package\brainflow\target\brainflow-jar-with-dependencies.jar BrainFlowTest.java
+python {project_dir}\emulator\brainflow_emulator\cyton_windows.py java -classpath .;{project_dir}\java-package\brainflow\target\brainflow-jar-with-dependencies.jar BrainFlowTest
 ```

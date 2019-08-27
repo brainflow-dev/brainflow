@@ -22,4 +22,5 @@ public:
     void get_current_board_data (int num_samples, double **data_buf, int *returned_samples);
     void get_board_data_count (int *result);
     void get_board_data (int data_count, double **data_buf);
+    void config_board (char *config);
 };

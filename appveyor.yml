@@ -47,7 +47,7 @@ install:
   - mkdir %APPVEYOR_BUILD_FOLDER%\tests\cpp\build && cd %APPVEYOR_BUILD_FOLDER%\tests\cpp\build && cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%APPVEYOR_BUILD_FOLDER%\installed64\ .. && cmake --build . --config Release > cpp_test_build64_stdout.txt
   - mkdir %APPVEYOR_BUILD_FOLDER%\tests\cpp\build32 && cd %APPVEYOR_BUILD_FOLDER%\tests\cpp\build32 && cmake -G "Visual Studio 15 2017" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%APPVEYOR_BUILD_FOLDER%\installed32\ .. && cmake --build . --config Release > cpp_test_build32_stdout.txt
   # mvn package for java
-  - cd %APPVEYOR_BUILD_FOLDER%\java-package\brainflow && mvn package > maven_package_stdout.txt && cd ..\..\tests\java && javac -classpath ..\..\java-package\brainflow\target\brainflow-java-jar-with-dependencies.jar BrainFlowTest.java
+  - cd %APPVEYOR_BUILD_FOLDER%\java-package\brainflow && mvn package > maven_package_stdout.txt && cd ..\..\tests\java && javac -classpath ..\..\java-package\brainflow\target\brainflow-jar-with-dependencies.jar BrainFlowTest.java
 
 test_script:
   # tests for cyton
