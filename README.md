@@ -7,10 +7,7 @@ Brainflow is a library intended to obtain, parse and analyze EEG\EMG\ECG data fr
 Core module of this library is implemented in C\C++ and available for all bindings as a dynamic library. This approach allows to reduce code duplication and simplify maintenance, also it's better than any streaming based solution because using this library you don't need to worry about inter process communication and it's a single dependency.
 
 
-## *NOTE: Brainflow was forked by OpenBCI community, I will contribute to [OpenBCI's fork](https://github.com/OpenBCI/brainflow) and maintain it. To download the latest stable version of Brainflow feel free to use OpenBCI's fork. Both versions are exactly the same*
-
-
-## [BrainFlow Docs, Dev and User guides and other information](https://brainflow.readthedocs.io/en/latest/index.html)
+#### *NOTE: Brainflow was forked by OpenBCI community, I will contribute to [OpenBCI's fork](https://github.com/OpenBCI/brainflow) and maintain it. To download the latest stable version of Brainflow feel free to use OpenBCI's fork. Both versions are exactly the same*
 
 ## Build status
 *Linux(Travis)*:
