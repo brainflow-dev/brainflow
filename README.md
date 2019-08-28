@@ -16,7 +16,7 @@ Core module of this library is implemented in C\C++ and available for all bindin
 
 *Windows(AppVeyour)*:
 
-[![Build status](https://ci.appveyor.com/api/projects/status/4gr8uy65f86eh2b5?svg=true)](https://ci.appveyor.com/project/Andrey1994/brainflow)
+[![Build status](https://ci.appveyor.com/api/projects/status/4gr8uy65f86eh2b5/branch/master?svg=true)](https://ci.appveyor.com/project/Andrey1994/brainflow/branch/master)
 
 ## Brainflow Bindings
 We support bindings for:
