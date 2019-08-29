@@ -28,15 +28,6 @@ C#
    :language: c#
 
 
-Unity Integration
-~~~~~~~~~~~~~~~~~~
-
-- compile core module
-- compile c# binding
-- copy managed DLLs to Assets folder
-- copy unmanaged DLLS to project folder to use it with Unity player
-- after building Unity project copy unmanaged DLLs to exe folder
-
 Matlab
 -------
 

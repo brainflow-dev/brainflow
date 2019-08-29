@@ -1,10 +1,16 @@
 Build Instructions
 ==================
 
-You are able to download compiled libraries from github release page or build BrainFlow by yourself
+Common requirements
+----------------------
 
-Manual Compilation (Core Module + CPP package)
------------------------------------------------
+- Windows >= 8.1/Linux/MacOS
+- On Windows we support x86 and x64 libraries for Python and C# for other languages - x64 only, for MacOS and Linux - only x64 for all languages
+- For Ganglion on Windows if you dont compile brainflow by yorself you may need to install `redist_x64 <https://aka.ms/vs/16/release/vc_redist.x64.exe>`_ or `redist_x86 <https://aka.ms/vs/16/release/vc_redist.x86.exe>`_  (but more likely you have it preinstalled) to use built-in Bluetooth API also you need Windows >= 10
+- For Ganglion on Linux/MacOS you need to use dongle, for Windows dongle is not required if you have Bluetooth on your laptop
+
+Compilation
+-------------
 
 Windows
 ~~~~~~~
@@ -24,7 +30,7 @@ Python
 
 .. compound::
 
-    After compilation of BrainFlow's core module or manual copypasting of compiled libraries you need to run ::
+    After compilation of BrainFlow's core module you need to run ::
 
        	cd python-package
       	python -m pip install -e .
@@ -45,22 +51,34 @@ Java
 
 .. compound::
 
-    After compilation of BrainFlow's core module or manual copypasting of compiled libraries you need to install maven and run ::
+    After compilation of BrainFlow's core module you need to install maven and run ::
 
        	cd java-package
       	mvn package
 
+Also you can download jar files with all dependencies inside directly from `release page <https://github.com/OpenBCI/brainflow/releases>`_
+
 C#
 ----
 
-- Compile BrainFlow's core module or copypaste libs
+For C# only Windows is currently supported
+
+- Compile BrainFlow's core module
 - open Visual Studio Solution
 - install required nuget packages
 - build it using Visual Studio
 - make sure that unmanaged libraries exist in search Path
 
+Unity Integration
+~~~~~~~~~~~~~~~~~~
+
+- build C# package
+- copy managed DLLs to the Assets folder of your Unity project
+- copy unmanaged DLLS to project folder to use it with Unity player
+- after building Unity project copy unmanaged DLLs to exe folder
+
 Matlab
 -------
 
-- Compile BrainFlow's core module or copypaste libs
+- Compile BrainFlow's core module
 - run samples
