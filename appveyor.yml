@@ -11,6 +11,8 @@ environment:
     secure: jeVYQ02OTywaENrIcWvoZg+YzGnhiluCDes/kaJE4NeVIZqjlipFt5yXxCct9S5w
   PYPI_PASSWORD:
     secure: iwHCe7zJP1fu+Jv03MC+ArVwcbANHouo7xvXkJvqXPQ=
+  GITHUB_TOKEN:
+    secure: LrDw5C81iZpUPzP6fbzej6tzZvu59lQSXHPsYvx9DmG+LQXOewUdh4c460Jn1GC/
 
 clone_depth: 3
 
@@ -38,9 +40,10 @@ install:
   # store real ganglion libs libraries in compiled folder
   - cp %APPVEYOR_BUILD_FOLDER%\installed64\lib\GanglionLibNative64.dll  %APPVEYOR_BUILD_FOLDER%\compiled\GanglionLibNative64.dll
   - cp %APPVEYOR_BUILD_FOLDER%\installed32\lib\GanglionLibNative32.dll  %APPVEYOR_BUILD_FOLDER%\compiled\GanglionLibNative32.dll
-  # replace real ganglion libs by mock for python
+  # replace real ganglion libs by mocks
   - cp %APPVEYOR_BUILD_FOLDER%\GanglionBLEAPI\Mock\compiled\Release\GanglionLibNative64.dll %APPVEYOR_BUILD_FOLDER%\python-package\brainflow\lib\GanglionLibNative64.dll
   - cp %APPVEYOR_BUILD_FOLDER%\GanglionBLEAPI\Mock\compiled\Release\GanglionLibNative64.dll %APPVEYOR_BUILD_FOLDER%\installed64\lib\GanglionLibNative64.dll
+  - cp %APPVEYOR_BUILD_FOLDER%\GanglionBLEAPI\Mock\compiled\Release\GanglionLibNative64.dll %APPVEYOR_BUILD_FOLDER%\java-package\brainflow\src\main\resources\GanglionLibNative64.dll
   # install python package
   - pip install %APPVEYOR_BUILD_FOLDER%\python-package\ 
   # build cpp
@@ -67,8 +70,8 @@ test_script:
 # replace mocked libraries by real libs
 after_test:
   - cp %APPVEYOR_BUILD_FOLDER%\compiled\GanglionLibNative64.dll %APPVEYOR_BUILD_FOLDER%\python-package\brainflow\lib\GanglionLibNative64.dll
+  - cp %APPVEYOR_BUILD_FOLDER%\compiled\GanglionLibNative64.dll %APPVEYOR_BUILD_FOLDER%\java-package\brainflow\src\main\resources\GanglionLibNative64.dll
 
-# deploy only from openbci's fork
 # deploy_script:
 #   - python -m pip install wheel > wheel_install.txt
 #   - python -m pip install twine > twine_install.txt
@@ -104,6 +107,12 @@ after_test:
 #           cd $env:APPVEYOR_BUILD_FOLDER\python-package
 #           python setup.py sdist bdist_wheel
 #           twine upload --skip-existing dist/*.whl --user OpenBCI --password $env:PYPI_PASSWORD
+#           cd $env:APPVEYOR_BUILD_FOLDER\java-package\brainflow
+#           mvn package > mvn_final_stdout.txt
+#           cd $env:APPVEYOR_BUILD_FOLDER\tools
+#           .\github-release.exe release --user OpenBCI --repo brainflow --tag $env:APPVEYOR_REPO_TAG_NAME
+#           .\github-release.exe upload --user OpenBCI --repo brainflow --tag $env:APPVEYOR_REPO_TAG_NAME --name brainflow.jar --file $env:APPVEYOR_BUILD_FOLDER\java-package\brainflow\target\brainflow.jar
+#           .\github-release.exe upload --user OpenBCI --repo brainflow --tag $env:APPVEYOR_REPO_TAG_NAME --name brainflow-jar-with-dependencies.jar --file $env:APPVEYOR_BUILD_FOLDER\java-package\brainflow\target\brainflow-jar-with-dependencies.jar
 #         }
 #         Else {
 #           write-output "Failed to wait for mac and linux libs"
