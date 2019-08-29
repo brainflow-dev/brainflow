@@ -111,6 +111,7 @@ deploy_script:
           mvn package > mvn_final_stdout.txt
           cd $env:APPVEYOR_BUILD_FOLDER\tools
           .\github-release.exe release --user OpenBCI --repo brainflow --tag $env:APPVEYOR_REPO_TAG_NAME
+          .\github-release.exe upload --user OpenBCI --repo brainflow --tag $env:APPVEYOR_REPO_TAG_NAME --name brainflow.jar --file $env:APPVEYOR_BUILD_FOLDER\java-package\brainflow\target\brainflow.jar
           .\github-release.exe upload --user OpenBCI --repo brainflow --tag $env:APPVEYOR_REPO_TAG_NAME --name brainflow-jar-with-dependencies.jar --file $env:APPVEYOR_BUILD_FOLDER\java-package\brainflow\target\brainflow-jar-with-dependencies.jar
         }
         Else {
