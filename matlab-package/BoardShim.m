@@ -31,18 +31,18 @@ classdef BoardShim
             
             if ispc
                 obj.libname = 'BoardController';
-                if not(libisloaded('BoardController.dll'))
-                    loadlibrary('BoardController.dll','inc/board_controller.h');
+                if not (libisloaded ('BoardController'))
+                    loadlibrary ('./lib/BoardController.dll', './inc/board_controller.h');
                 end
             elseif ismac
                 obj.libname = 'libBoardController';
-                if not(libisloaded('libBoardController'))
-                    loadlibrary('libBoardController.dylib','inc/board_controller.h');
+                if not (libisloaded ('libBoardController'))
+                    loadlibrary ('./lib/libBoardController.dylib', './inc/board_controller.h');
                 end
             elseif isunix
                 obj.libname = 'libBoardController';
-                if not (libisloaded('libBoardController'))
-                    loadlibrary('libBoardController.so', 'inc/board_controller.h');
+                if not (libisloaded ('libBoardController'))
+                    loadlibrary ('./lib/libBoardController.so', './inc/board_controller.h');
                 end
             else
                 error ('OS not supported!')
