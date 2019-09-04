@@ -22,7 +22,7 @@ void BoardShim::prepare_session ()
 
 void BoardShim::start_stream (int buffer_size)
 {
-    int res = ::start_stream (buffer_size);
+    int res = ::start_stream (buffer_size, board_id, port_name);
     if (res != STATUS_OK)
     {
         throw BrainFlowException ("failed to start stream", res);
@@ -31,7 +31,7 @@ void BoardShim::start_stream (int buffer_size)
 
 void BoardShim::stop_stream ()
 {
-    int res = ::stop_stream ();
+    int res = ::stop_stream (board_id, port_name);
     if (res != STATUS_OK)
     {
         throw BrainFlowException ("failed to stop stream", res);
@@ -40,7 +40,7 @@ void BoardShim::stop_stream ()
 
 void BoardShim::release_session ()
 {
-    int res = ::release_session ();
+    int res = ::release_session (board_id, port_name);
     if (res != STATUS_OK)
     {
         throw BrainFlowException ("failed to release session", res);
@@ -49,7 +49,7 @@ void BoardShim::release_session ()
 
 void BoardShim::get_board_data_count (int *result)
 {
-    int res = ::get_board_data_count (result);
+    int res = ::get_board_data_count (result, board_id, port_name);
     if (res != STATUS_OK)
     {
         throw BrainFlowException ("failed to get board data count", res);
@@ -61,7 +61,7 @@ void BoardShim::get_board_data (int data_count, double **data_buf)
     float *buf = new float[data_count * num_data_channels];
     double *ts_buf = new double[data_count];
 
-    int res = ::get_board_data (data_count, buf, ts_buf);
+    int res = ::get_board_data (data_count, buf, ts_buf, board_id, port_name);
     if (res != STATUS_OK)
     {
         delete[] buf;
@@ -78,7 +78,8 @@ void BoardShim::get_current_board_data (int num_samples, double **data_buf, int 
     float *buf = new float[num_samples * num_data_channels];
     double *ts_buf = new double[num_samples];
 
-    int res = ::get_current_board_data (num_samples, buf, ts_buf, returned_samples);
+    int res =
+        ::get_current_board_data (num_samples, buf, ts_buf, returned_samples, board_id, port_name);
     if (res != STATUS_OK)
     {
         delete[] buf;
@@ -92,7 +93,7 @@ void BoardShim::get_current_board_data (int num_samples, double **data_buf, int 
 
 void BoardShim::config_board (char *config)
 {
-    int res = ::config_board (config);
+    int res = ::config_board (config, board_id, port_name);
     if (res != STATUS_OK)
     {
         throw BrainFlowException ("failed to config board", res);

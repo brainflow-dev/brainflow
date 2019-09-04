@@ -42,15 +42,16 @@ extern "C"
 {
 #endif
     SHARED_EXPORT int prepare_session (int board_id, char *port_name);
-    SHARED_EXPORT int start_stream (int buffer_size);
-    SHARED_EXPORT int stop_stream ();
-    SHARED_EXPORT int release_session ();
-    SHARED_EXPORT int get_current_board_data (
-        int num_samples, float *data_buf, double *ts_buf, int *returned_samples);
-    SHARED_EXPORT int get_board_data_count (int *result);
-    SHARED_EXPORT int get_board_data (int data_count, float *data_buf, double *ts_buf);
+    SHARED_EXPORT int start_stream (int buffer_size, int board_id, char *port_name);
+    SHARED_EXPORT int stop_stream (int board_id, char *port_name);
+    SHARED_EXPORT int release_session (int board_id, char *port_name);
+    SHARED_EXPORT int get_current_board_data (int num_samples, float *data_buf, double *ts_buf,
+        int *returned_samples, int board_id, char *port_name);
+    SHARED_EXPORT int get_board_data_count (int *result, int board_id, char *port_name);
+    SHARED_EXPORT int get_board_data (
+        int data_count, float *data_buf, double *ts_buf, int board_id, char *port_name);
     SHARED_EXPORT int set_log_level (int log_level);
-    SHARED_EXPORT int config_board (char *config);
+    SHARED_EXPORT int config_board (char *config, int board_id, char *port_name);
 #ifdef __cplusplus
 }
 #endif

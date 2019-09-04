@@ -130,12 +130,17 @@ class BoardControllerDLL (object):
         self.start_stream = self.lib.start_stream
         self.start_stream.restype = ctypes.c_int
         self.start_stream.argtypes = [
-            ctypes.c_int
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_char_p
         ]
 
         self.stop_stream = self.lib.stop_stream
         self.stop_stream.restype = ctypes.c_int
-        self.stop_stream.argtypes = []
+        self.stop_stream.argtypes = [
+            ctypes.c_int,
+            ctypes.c_char_p
+        ]
 
         self.get_current_board_data = self.lib.get_current_board_data
         self.get_current_board_data.restype = ctypes.c_int
@@ -143,7 +148,9 @@ class BoardControllerDLL (object):
             ctypes.c_int,
             ndpointer (ctypes.c_float),
             ndpointer (ctypes.c_double),
-            ndpointer (ctypes.c_int64)
+            ndpointer (ctypes.c_int64),
+            ctypes.c_int,
+            ctypes.c_char_p
         ]
 
         self.get_board_data = self.lib.get_board_data
@@ -151,21 +158,24 @@ class BoardControllerDLL (object):
         self.get_board_data.argtypes = [
             ctypes.c_int,
             ndpointer (ctypes.c_float),
-            ndpointer (ctypes.c_double)
+            ndpointer (ctypes.c_double),
+            ctypes.c_int,
+            ctypes.c_char_p
         ]
-
-        self.stop_stream = self.lib.stop_stream
-        self.stop_stream.restype = ctypes.c_int
-        self.stop_stream.argtypes = []
 
         self.release_session = self.lib.release_session
         self.release_session.restype = ctypes.c_int
-        self.release_session.argtypes = []
+        self.release_session.argtypes = [
+            ctypes.c_int,
+            ctypes.c_char_p
+        ]
 
         self.get_board_data_count = self.lib.get_board_data_count
         self.get_board_data_count.restype = ctypes.c_int
         self.get_board_data_count.argtypes = [
-           ndpointer (ctypes.c_int64)
+            ndpointer (ctypes.c_int64),
+            ctypes.c_int,
+            ctypes.c_char_p
         ]
 
         self.set_log_level = self.lib.set_log_level
@@ -177,6 +187,8 @@ class BoardControllerDLL (object):
         self.config_board = self.lib.config_board
         self.config_board.restype = ctypes.c_int
         self.config_board.argtypes = [
+            ctypes.c_char_p,
+            ctypes.c_int,
             ctypes.c_char_p
         ]
 
@@ -226,19 +238,19 @@ class BoardShim (object):
 
     def start_stream (self, num_samples = 1800*250):
         """Start streaming data, this methods stores data in ringbuffer"""
-        res = BoardControllerDLL.get_instance ().start_stream (num_samples)
+        res = BoardControllerDLL.get_instance ().start_stream (num_samples, self.board_id, self.port_name)
         if res != StreamExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to start streaming session', res)
 
     def stop_stream (self):
         """Stop streaming data"""
-        res = BoardControllerDLL.get_instance ().stop_stream ()
+        res = BoardControllerDLL.get_instance ().stop_stream (self.board_id, self.port_name)
         if res != StreamExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to stop streaming session', res)
 
     def release_session (self):
         """release all resources"""
-        res = BoardControllerDLL.get_instance ().release_session ()
+        res = BoardControllerDLL.get_instance ().release_session (self.board_id, self.port_name)
         if res != StreamExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to release streaming session', res)
 
@@ -248,7 +260,7 @@ class BoardShim (object):
         time_arr = numpy.zeros (num_samples).astype (numpy.float64)
         current_size = numpy.zeros (1).astype (numpy.int64)
 
-        res = BoardControllerDLL.get_instance ().get_current_board_data (num_samples, data_arr, time_arr, current_size)
+        res = BoardControllerDLL.get_instance ().get_current_board_data (num_samples, data_arr, time_arr, current_size, self.board_id, self.port_name)
         if res != StreamExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to get current data', res)
 
@@ -267,7 +279,7 @@ class BoardShim (object):
         """Get num of elements in ringbuffer"""
         data_size = numpy.zeros (1).astype (numpy.int64)
 
-        res = BoardControllerDLL.get_instance ().get_board_data_count (data_size)
+        res = BoardControllerDLL.get_instance ().get_board_data_count (data_size, self.board_id, self.port_name)
         if res != StreamExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to obtain buffer size', res)
         return data_size[0]
@@ -278,7 +290,7 @@ class BoardShim (object):
         time_arr = numpy.zeros (data_size).astype (numpy.float64)
         data_arr = numpy.zeros (data_size * self.package_length).astype (numpy.float32)
 
-        res = BoardControllerDLL.get_instance ().get_board_data (data_size, data_arr, time_arr)
+        res = BoardControllerDLL.get_instance ().get_board_data (data_size, data_arr, time_arr, self.board_id, self.port_name)
         if res != StreamExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to get board data', res)
 
@@ -292,6 +304,6 @@ class BoardShim (object):
         except:
             config_string = config
 
-        res = BoardControllerDLL.get_instance ().config_board (config_string)
+        res = BoardControllerDLL.get_instance ().config_board (config_string, self.board_id, self.port_name)
         if res != StreamExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to config board', res)

@@ -60,7 +60,7 @@ namespace brainflow
 
         public void config_board (string config)
         {
-            int res = Library.config_board (config);
+            int res = Library.config_board (config, board_id, port_name);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowExceptioin (res);
@@ -69,7 +69,7 @@ namespace brainflow
 
         public void start_stream (int num_samples = 3600 * 250)
         {
-            int res = Library.start_stream(num_samples);
+            int res = Library.start_stream (num_samples, board_id, port_name);
             if (res != (int) CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowExceptioin (res);
@@ -78,7 +78,7 @@ namespace brainflow
 
         public void stop_stream ()
         {
-            int res = Library.stop_stream ();
+            int res = Library.stop_stream (board_id, port_name);
             if (res != (int) CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowExceptioin (res);
@@ -87,7 +87,7 @@ namespace brainflow
 
         public void release_session ()
         {
-            int res = Library.release_session ();
+            int res = Library.release_session (board_id, port_name);
             if (res != (int) CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowExceptioin (res);
@@ -97,7 +97,7 @@ namespace brainflow
         public int get_board_data_count ()
         {
             int[] res = new int[1];
-            int ec = Library.get_board_data_count (res);
+            int ec = Library.get_board_data_count (res, board_id, port_name);
             if (ec != (int) CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowExceptioin (ec);
@@ -110,7 +110,7 @@ namespace brainflow
             float[] data_arr = new float[num_samples * package_length];
             double[] ts_arr = new double[num_samples];
             int[] current_size = new int[1];
-            int ec = Library.get_current_board_data (num_samples, data_arr, ts_arr, current_size);
+            int ec = Library.get_current_board_data (num_samples, data_arr, ts_arr, current_size, board_id, port_name);
 		    if (ec != (int) CustomExitCodes.STATUS_OK) {
 			    throw new BrainFlowExceptioin (ec);
             }
@@ -129,7 +129,7 @@ namespace brainflow
 		    int size = get_board_data_count ();
 		    float[] data_arr = new float[size * package_length];
 		    double[] ts_arr = new double[size];
-            int ec = Library.get_board_data (size, data_arr, ts_arr);
+            int ec = Library.get_board_data (size, data_arr, ts_arr, board_id, port_name);
 		    if (ec != (int) CustomExitCodes.STATUS_OK) {
                 throw new BrainFlowExceptioin (ec);
             }

@@ -16,6 +16,7 @@ OpenBCISerialBoard::OpenBCISerialBoard (int num_channels, const char *port_name)
 
 OpenBCISerialBoard::~OpenBCISerialBoard ()
 {
+    skip_logs = true;
     release_session ();
 }
 

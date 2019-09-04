@@ -2,7 +2,10 @@
 #include <windows.h>
 #endif
 
+#include <map>
+#include <memory>
 #include <mutex>
+#include <utility>
 
 #include "board.h"
 #include "board_controller.h"
@@ -11,8 +14,11 @@
 #include "ganglion.h"
 #include "synthetic_board.h"
 
-Board *board = NULL;
+std::map<std::pair<int, std::string>, std::shared_ptr<Board>> boards;
 std::mutex mutex;
+
+std::pair<int, std::string> get_key (int board_id, char *port_name);
+int check_board_session (std::pair<int, std::string> key);
 
 int prepare_session (int board_id, char *port_name)
 {
@@ -25,112 +31,135 @@ int prepare_session (int board_id, char *port_name)
 
     std::lock_guard<std::mutex> lock (mutex);
 
-    if ((board) && (board->get_board_id () == board_id))
+    std::pair<int, std::string> key = get_key (board_id, port_name);
+    if (boards.find (key) != boards.end ())
     {
-        Board::board_logger->warn ("Session is already prepared");
-        return STATUS_OK;
-    }
-    else
-    {
-        if (board)
-        {
-            Board::board_logger->error (
-                "Board with ID {} is already created you should release previous session first",
-                board->get_board_id ());
-            return ANOTHER_BOARD_IS_CREATED_ERROR;
-        }
+        Board::board_logger->error (
+            "Board with id {} and port {} already created", board_id, port_name);
+        return PORT_ALREADY_OPEN_ERROR;
     }
 
     int res = STATUS_OK;
+    std::shared_ptr<Board> board = NULL;
     switch (board_id)
     {
         case CYTON_BOARD:
-            board = new Cyton (port_name);
+            board = std::shared_ptr<Board> (new Cyton (port_name));
             break;
         case GANGLION_BOARD:
-            board = new Ganglion (port_name);
+            board = std::shared_ptr<Board> (new Ganglion (port_name));
             break;
         case SYNTHETIC_BOARD:
-            board = new SyntheticBoard (port_name);
+            board = std::shared_ptr<Board> (new SyntheticBoard (port_name));
             break;
         case CYTON_DAISY_BOARD:
-            board = new CytonDaisy (port_name);
+            board = std::shared_ptr<Board> (new CytonDaisy (port_name));
             break;
         default:
-            Board::board_logger->error ("No board with Id {}", board_id);
             return UNSUPPORTED_BOARD_ERROR;
     }
     res = board->prepare_session ();
     if (res != STATUS_OK)
     {
-        delete board;
         board = NULL;
     }
+    boards[key] = board;
     return res;
 }
 
-int start_stream (int buffer_size)
+int start_stream (int buffer_size, int board_id, char *port_name)
 {
     std::lock_guard<std::mutex> lock (mutex);
 
-    if (board == NULL)
-        return BOARD_NOT_CREATED_ERROR;
+    std::pair<int, std::string> key = get_key (board_id, port_name);
+    int res = check_board_session (key);
+    if (res != STATUS_OK)
+    {
+        return res;
+    }
+    auto board_it = boards.find (key);
 
-    return board->start_stream (buffer_size);
+    return board_it->second->start_stream (buffer_size);
 }
 
-int stop_stream ()
+int stop_stream (int board_id, char *port_name)
 {
     std::lock_guard<std::mutex> lock (mutex);
 
-    if (board == NULL)
-        return BOARD_NOT_CREATED_ERROR;
+    std::pair<int, std::string> key = get_key (board_id, port_name);
+    int res = check_board_session (key);
+    if (res != STATUS_OK)
+    {
+        return res;
+    }
+    auto board_it = boards.find (key);
 
-    return board->stop_stream ();
+    return board_it->second->stop_stream ();
 }
 
-int release_session ()
+int release_session (int board_id, char *port_name)
 {
     std::lock_guard<std::mutex> lock (mutex);
 
-    if (board == NULL)
-        return BOARD_NOT_CREATED_ERROR;
+    std::pair<int, std::string> key = get_key (board_id, port_name);
+    int res = check_board_session (key);
+    if (res != STATUS_OK)
+    {
+        return res;
+    }
+    auto board_it = boards.find (key);
 
-    int res = board->release_session ();
-    delete board;
-    board = NULL;
+    res = board_it->second->release_session ();
+    boards.erase (board_it);
 
     return res;
 }
 
-int get_current_board_data (int num_samples, float *data_buf, double *ts_buf, int *returned_samples)
+int get_current_board_data (int num_samples, float *data_buf, double *ts_buf, int *returned_samples,
+    int board_id, char *port_name)
 {
     std::lock_guard<std::mutex> lock (mutex);
 
-    if (board == NULL)
-        return BOARD_NOT_CREATED_ERROR;
+    std::pair<int, std::string> key = get_key (board_id, port_name);
+    int res = check_board_session (key);
+    if (res != STATUS_OK)
+    {
+        return res;
+    }
+    auto board_it = boards.find (key);
 
-    return board->get_current_board_data (num_samples, data_buf, ts_buf, returned_samples);
+    return board_it->second->get_current_board_data (
+        num_samples, data_buf, ts_buf, returned_samples);
 }
 
-int get_board_data_count (int *result)
+int get_board_data_count (int *result, int board_id, char *port_name)
 {
     std::lock_guard<std::mutex> lock (mutex);
 
-    if (board == NULL)
-        return BOARD_NOT_CREATED_ERROR;
+    std::pair<int, std::string> key = get_key (board_id, port_name);
+    int res = check_board_session (key);
+    if (res != STATUS_OK)
+    {
+        return res;
+    }
+    auto board_it = boards.find (key);
 
-    return board->get_board_data_count (result);
+    return board_it->second->get_board_data_count (result);
 }
 
-int get_board_data (int data_count, float *data_buf, double *ts_buf)
+int get_board_data (int data_count, float *data_buf, double *ts_buf, int board_id, char *port_name)
 {
     std::lock_guard<std::mutex> lock (mutex);
 
-    if (board == NULL)
-        return BOARD_NOT_CREATED_ERROR;
+    std::pair<int, std::string> key = get_key (board_id, port_name);
+    int res = check_board_session (key);
+    if (res != STATUS_OK)
+    {
+        return res;
+    }
+    auto board_it = boards.find (key);
 
-    return board->get_board_data (data_count, data_buf, ts_buf);
+    return board_it->second->get_board_data (data_count, data_buf, ts_buf);
 }
 
 int set_log_level (int log_level)
@@ -139,48 +168,48 @@ int set_log_level (int log_level)
     return Board::set_log_level (log_level);
 }
 
-int config_board (char *config)
+int config_board (char *config, int board_id, char *port_name)
 {
     std::lock_guard<std::mutex> lock (mutex);
 
-    if (board == NULL)
+    std::pair<int, std::string> key = get_key (board_id, port_name);
+    int res = check_board_session (key);
+    if (res != STATUS_OK)
+    {
+        return res;
+    }
+    auto board_it = boards.find (key);
+
+    return board_it->second->config_board (config);
+}
+
+/////////////////////////////////////////////////
+//////////////////// helpers ////////////////////
+/////////////////////////////////////////////////
+
+std::pair<int, std::string> get_key (int board_id, char *port_name)
+{
+    std::string str_port;
+    if (port_name == NULL)
+    {
+        str_port = "";
+    }
+    else
+    {
+        str_port = port_name;
+    }
+    std::pair<int, std::string> key = std::make_pair (board_id, str_port);
+    return key;
+}
+
+int check_board_session (std::pair<int, std::string> key)
+{
+    if (boards.find (key) == boards.end ())
+    {
+        Board::board_logger->error (
+            "Board with id {} and port {} is not created", key.first, key.second);
         return BOARD_NOT_CREATED_ERROR;
-
-    return board->config_board (config);
-}
-
-// DLLMain is executed during LoadLibrary\FreeLibrary. Board object desctructorshould be called even
-// without it but for sanity check to ensure that we stop streaming data from the board I call it
-// manually here as well
-#ifdef _WIN32
-BOOL WINAPI DllMain (HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
-{
-    switch (fdwReason)
-    {
-        case DLL_PROCESS_DETACH:
-        {
-            if (board != NULL)
-            {
-                board->release_session ();
-                delete board;
-                board = NULL;
-            }
-            break;
-        }
-        default:
-            break;
     }
-    return TRUE;
+
+    return STATUS_OK;
 }
-#else
-// the same as DLL_PROCESS_DETACH for linux
-__attribute__ ((destructor)) static void terminate_all (void)
-{
-    if (board != NULL)
-    {
-        board->release_session ();
-        delete board;
-        board = NULL;
-    }
-}
-#endif

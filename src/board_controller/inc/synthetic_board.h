@@ -31,9 +31,5 @@ public:
     int start_stream (int buffer_size);
     int stop_stream ();
     int release_session ();
-    int get_board_id ()
-    {
-        return SYNTHETIC_BOARD;
-    }
     int config_board (char *config);
 };
