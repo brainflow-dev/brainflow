@@ -34,7 +34,7 @@ void CytonDaisy::read_thread ()
         res = serial.read_from_serial_port (b, 1);
         if (res != 1)
         {
-            Board::board_logger->debug ("unable to read 1 byte");
+            safe_logger (spdlog::level::debug, "unable to read 1 byte");
             continue;
         }
         if (b[0] != START_BYTE)
@@ -45,14 +45,14 @@ void CytonDaisy::read_thread ()
         res = serial.read_from_serial_port (b, 32);
         if (res != 32)
         {
-            Board::board_logger->debug ("unable to read 32 bytes");
+            safe_logger (spdlog::level::debug, "unable to read 32 bytes");
             continue;
         }
         // check end byte
         if (b[res - 1] != END_BYTE)
         {
-            Board::board_logger->warn (
-                "Wrong end byte, found {}, required {}", b[res - 1], END_BYTE);
+            safe_logger (
+                spdlog::level::warn, "Wrong end byte, found {}, required {}", b[res - 1], END_BYTE);
             continue;
         }
 

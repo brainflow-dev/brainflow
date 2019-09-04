@@ -77,32 +77,50 @@ classdef BoardShim
 
         function config_board (obj, config)
             task_name = 'config_board';
-            exit_code = calllib (obj.libname, task_name, config);
+            exit_code = calllib (obj.libname, task_name, config, obj.board_id, obj.port_name);
             obj.check_ec (exit_code, task_name);
         end
 
         function start_stream (obj, buffer_size)
             task_name = 'start_stream';
-            exit_code = calllib (obj.libname, task_name, buffer_size);
+            exit_code = calllib (obj.libname, task_name, buffer_size, obj.board_id, obj.port_name);
             obj.check_ec (exit_code, task_name);
         end
 
         function stop_stream (obj)
             task_name = 'stop_stream';
-            exit_code = calllib (obj.libname, task_name);
+            exit_code = calllib (obj.libname, task_name, obj.board_id, obj.port_name);
             obj.check_ec (exit_code, task_name);
         end
 
         function release_session (obj)
             task_name = 'release_session';
-            exit_code = calllib (obj.libname, task_name);
+            exit_code = calllib (obj.libname, task_name, obj.board_id, obj.port_name);
             obj.check_ec (exit_code, task_name);
+        end
+
+        function set_log_level (obj, log_level)
+            task_name = 'set_log_level';
+            exit_code = calllib (obj.libname, task_name, log_level);
+            obj.check_ec (exit_code, task_name);
+        end
+
+        function enable_board_logger (obj)
+            set_log_level (2)
+        end
+
+        function enable_dev_board_logger (obj)
+            set_log_level (0)
+        end
+
+        function disable_board_logger (obj)
+            set_log_level (6)
         end
 
         function num_data_point = get_board_data_count (obj)
             task_name = 'get_board_data_count';
             data_count = libpointer ('int32Ptr', 0);
-            exit_code = calllib (obj.libname, task_name, data_count);
+            exit_code = calllib (obj.libname, task_name, data_count, obj.board_id, obj.port_name);
             obj.check_ec (exit_code, task_name);
             num_data_point = data_count.value;
         end
@@ -112,7 +130,7 @@ classdef BoardShim
             data_count = obj.get_board_data_count ();
             data = libpointer ('singlePtr', zeros (1, data_count * obj.num_channels));
             ts = libpointer ('doublePtr', zeros (1, data_count));
-            exit_code = calllib (obj.libname, task_name, data_count, data, ts);
+            exit_code = calllib (obj.libname, task_name, data_count, data, ts, obj.board_id, obj.port_name);
             obj.check_ec (exit_code, task_name);
             data_buf = transpose (reshape (data.Value, [obj.num_channels, data_count]));
             ts_buf = ts.Value;
@@ -123,7 +141,7 @@ classdef BoardShim
             data_count = libpointer ('int32Ptr', 0);
             data = libpointer ('singlePtr', zeros (1, num_samples * obj.num_channels));
             ts = libpointer ('doublePtr', zeros (1, num_samples));
-            exit_code = calllib (obj.libname, task_name, num_samples, data, ts, data_count);
+            exit_code = calllib (obj.libname, task_name, num_samples, data, ts, data_count, obj.board_id, obj.port_name);
             obj.check_ec (exit_code, task_name);
             data_buf = transpose (reshape (data.Value (1,1:data_count.Value * obj.num_channels), [obj.num_channels, data_count.Value]));
             ts_buf = ts.Value (1,1:data_count.Value);

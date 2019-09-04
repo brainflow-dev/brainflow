@@ -23,9 +23,4 @@ public:
     CytonDaisy (const char *port_name) : OpenBCISerialBoard (20, port_name)
     {
     }
-
-    int get_board_id ()
-    {
-        return CYTON_DAISY_BOARD;
-    }
 };

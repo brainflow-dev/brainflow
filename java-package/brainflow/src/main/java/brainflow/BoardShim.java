@@ -19,13 +19,14 @@ public class BoardShim {
 
     public interface DllInterface extends Library {
         int prepare_session (int board_id, String port_name);
-        int config_board (String port_name);
-        int start_stream (int buffer_size);
-        int stop_stream ();
-        int release_session ();
-        int get_current_board_data (int num_samples, float [] data_buf, double [] ts_buf, int[] returned_samples);
-        int get_board_data_count (int[] result);
-        int get_board_data (int data_count, float[] data_buf, double[] ts_buf);
+        int config_board (String config, int board_id, String port_name);
+        int start_stream (int buffer_size, int board_id, String port_name);
+        int stop_stream (int board_id, String port_name);
+        int release_session (int board_id, String port_name);
+        int get_current_board_data (int num_samples, float [] data_buf, double [] ts_buf, int[] returned_samples, int board_id, String port_name);
+        int get_board_data_count (int[] result, int board_id, String port_name);
+        int get_board_data (int data_count, float[] data_buf, double[] ts_buf, int board_id, String port_name);
+        int set_log_level (int log_level);
     }
 
     public int package_length;
@@ -71,7 +72,6 @@ public class BoardShim {
     }
 
     public void prepare_session () throws BrainFlowError {
-        System.out.println(board_id + port_name);
         int ec = this.instance.prepare_session (board_id, port_name);
         if (ec != ExitCode.STATUS_OK.get_code ()) {
             throw new BrainFlowError ("Error in prepare_session", ec);
@@ -79,28 +79,28 @@ public class BoardShim {
     }
 
     public void config_board (String config) throws BrainFlowError {
-        int ec = this.instance.config_board (config);
+        int ec = this.instance.config_board (config, board_id, port_name);
         if (ec != ExitCode.STATUS_OK.get_code ()) {
             throw new BrainFlowError ("Error in config_board", ec);
         }
     }
 
     public void start_stream (int buffer_size) throws BrainFlowError {
-        int ec = this.instance.start_stream (buffer_size);
+        int ec = this.instance.start_stream (buffer_size, board_id, port_name);
         if (ec != ExitCode.STATUS_OK.get_code ()) {
             throw new BrainFlowError ("Error in start_stream", ec);
         }
     }
 
     public void stop_stream () throws BrainFlowError {
-        int ec = this.instance.stop_stream ();
+        int ec = this.instance.stop_stream (board_id, port_name);
         if (ec != ExitCode.STATUS_OK.get_code ()) {
             throw new BrainFlowError ("Error in stop_stream", ec);
         }
     }
 
     public void release_session () throws BrainFlowError {
-        int ec = this.instance.release_session ();
+        int ec = this.instance.release_session (board_id, port_name);
         if (ec != ExitCode.STATUS_OK.get_code ()) {
             throw new BrainFlowError ("Error in release_session", ec);
         }
@@ -108,7 +108,7 @@ public class BoardShim {
 
     public int get_board_data_count () throws BrainFlowError {
         int[] res = new int[1];
-        int ec = this.instance.get_board_data_count (res);
+        int ec = this.instance.get_board_data_count (res, board_id, port_name);
         if (ec != ExitCode.STATUS_OK.get_code ()) {
             throw new BrainFlowError ("Error in get_board_data_count", ec);
         }
@@ -119,7 +119,7 @@ public class BoardShim {
         float[] data_arr = new float[num_samples * package_length];
         double[] ts_arr = new double[num_samples];
         int[] current_size = new int[1];
-        int ec = this.instance.get_current_board_data (num_samples, data_arr, ts_arr, current_size);
+        int ec = this.instance.get_current_board_data (num_samples, data_arr, ts_arr, current_size, board_id, port_name);
         if (ec != ExitCode.STATUS_OK.get_code ()) {
             throw new BrainFlowError ("Error in get_current_board_data", ec);
         }
@@ -135,11 +135,29 @@ public class BoardShim {
         int size = get_board_data_count ();
         float[] data_arr = new float[size * package_length];
         double[] ts_arr = new double[size];
-        int ec = this.instance.get_board_data (size, data_arr, ts_arr);
+        int ec = this.instance.get_board_data (size, data_arr, ts_arr, board_id, port_name);
         if (ec != ExitCode.STATUS_OK.get_code ()) {
             throw new BrainFlowError ("Error in get_board_data", ec);
         }
         return new BoardData (package_length, data_arr, ts_arr);
     }
 
+    public void set_log_level (int log_level) throws BrainFlowError {
+        int ec = this.instance.set_log_level (log_level);
+        if (ec != ExitCode.STATUS_OK.get_code ()) {
+            throw new BrainFlowError ("Error in set_log_level", ec);
+        }
+    }
+
+    public void enable_board_logger () throws BrainFlowError {
+        set_log_level (2);
+    }
+
+    public void enable_dev_board_logger () throws BrainFlowError {
+        set_log_level (0);
+    }
+
+    public void disable_board_logger () throws BrainFlowError {
+        set_log_level (6);
+    }
 }

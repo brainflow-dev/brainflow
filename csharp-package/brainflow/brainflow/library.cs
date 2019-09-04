@@ -43,21 +43,21 @@ namespace brainflow
         [DllImport ("BoardController.dll", SetLastError = true)]
         public static extern int prepare_session (int board_id, string port_name);
         [DllImport ("BoardController.dll", SetLastError = true)]
-        public static extern int start_stream (int buffer_size);
+        public static extern int start_stream (int buffer_size, int board_id, string port_name);
         [DllImport ("BoardController.dll", SetLastError = true)]
-        public static extern int stop_stream ();
+        public static extern int stop_stream (int board_id, string port_name);
         [DllImport ("BoardController.dll", SetLastError = true)]
-        public static extern int release_session ();
+        public static extern int release_session (int board_id, string port_name);
         [DllImport ("BoardController.dll", SetLastError = true)]
-        public static extern int get_current_board_data (int num_samples, float[] data_buf, double[] ts_buf, int[] returned_samples);
+        public static extern int get_current_board_data (int num_samples, float[] data_buf, double[] ts_buf, int[] returned_samples, int board_id, string port_name);
         [DllImport ("BoardController.dll", SetLastError = true)]
-        public static extern int get_board_data_count(int[] result);
+        public static extern int get_board_data_count(int[] result, int board_id, string port_name);
         [DllImport ("BoardController.dll", SetLastError = true)]
-        public static extern int get_board_data (int data_count, float[] data_buf, double[] ts_buf);
+        public static extern int get_board_data (int data_count, float[] data_buf, double[] ts_buf, int board_id, string port_name);
         [DllImport ("BoardController.dll", SetLastError = true)]
         public static extern int set_log_level (int log_level);
         [DllImport ("BoardController.dll", SetLastError = true)]
-        public static extern int config_board (string config);
+        public static extern int config_board (string config, int board_id, string port_name);
     }
 
     public static class Library32
@@ -65,21 +65,21 @@ namespace brainflow
         [DllImport ("BoardController32.dll", SetLastError = true)]
         public static extern int prepare_session (int board_id, string port_name);
         [DllImport ("BoardController32.dll", SetLastError = true)]
-        public static extern int start_stream (int buffer_size);
+        public static extern int start_stream (int buffer_size, int board_id, string port_name);
         [DllImport ("BoardController32.dll", SetLastError = true)]
-        public static extern int stop_stream ();
+        public static extern int stop_stream (int board_id, string port_name);
         [DllImport ("BoardController32.dll", SetLastError = true)]
-        public static extern int release_session ();
+        public static extern int release_session (int board_id, string port_name);
         [DllImport ("BoardController32.dll", SetLastError = true)]
-        public static extern int get_current_board_data (int num_samples, float[] data_buf, double[] ts_buf, int[] returned_samples);
+        public static extern int get_current_board_data (int num_samples, float[] data_buf, double[] ts_buf, int[] returned_samples, int board_id, string port_name);
         [DllImport ("BoardController32.dll", SetLastError = true)]
-        public static extern int get_board_data_count (int[] result);
+        public static extern int get_board_data_count (int[] result, int board_id, string port_name);
         [DllImport ("BoardController32.dll", SetLastError = true)]
-        public static extern int get_board_data (int data_count, float[] data_buf, double[] ts_buf);
+        public static extern int get_board_data (int data_count, float[] data_buf, double[] ts_buf, int board_id, string port_name);
         [DllImport ("BoardController32.dll", SetLastError = true)]
         public static extern int set_log_level (int log_level);
         [DllImport ("BoardController32.dll", SetLastError = true)]
-        public static extern int config_board (string config);
+        public static extern int config_board (string config, int board_id, string port_name);
     }
 
     public static class Library
@@ -92,52 +92,52 @@ namespace brainflow
                 return Library32.prepare_session (board_id, port_name);
         }
 
-        public static int start_stream (int buffer_size)
+        public static int start_stream (int buffer_size, int board_id, string port_name)
         {
             if (System.Environment.Is64BitProcess)
-                return Library64.start_stream (buffer_size);
+                return Library64.start_stream (buffer_size, board_id, port_name);
             else
-                return Library32.start_stream (buffer_size);
+                return Library32.start_stream (buffer_size, board_id, port_name);
         }
 
-        public static int stop_stream ()
+        public static int stop_stream (int board_id, string port_name)
         {
             if (System.Environment.Is64BitProcess)
-                return Library64.stop_stream ();
+                return Library64.stop_stream (board_id, port_name);
             else
-                return Library32.stop_stream ();
+                return Library32.stop_stream (board_id, port_name);
         }
 
-        public static int release_session ()
+        public static int release_session (int board_id, string port_name)
         {
             if (System.Environment.Is64BitProcess)
-                return Library64.release_session ();
+                return Library64.release_session (board_id, port_name);
             else
-                return Library32.release_session ();
+                return Library32.release_session (board_id, port_name);
         }
 
-        public static int get_current_board_data (int num_samples, float[] data_buf, double[] ts_buf, int[] returned_samples)
+        public static int get_current_board_data (int num_samples, float[] data_buf, double[] ts_buf, int[] returned_samples, int board_id, string port_name)
         {
             if (System.Environment.Is64BitProcess)
-                return Library64.get_current_board_data (num_samples, data_buf, ts_buf, returned_samples);
+                return Library64.get_current_board_data (num_samples, data_buf, ts_buf, returned_samples, board_id, port_name);
             else
-                return Library32.get_current_board_data (num_samples, data_buf, ts_buf, returned_samples);
+                return Library32.get_current_board_data (num_samples, data_buf, ts_buf, returned_samples, board_id, port_name);
         }
 
-        public static int get_board_data_count (int[] result)
+        public static int get_board_data_count (int[] result, int board_id, string port_name)
         {
             if (System.Environment.Is64BitProcess)
-                return Library64.get_board_data_count (result);
+                return Library64.get_board_data_count (result, board_id, port_name);
             else
-                return Library32.get_board_data_count (result);
+                return Library32.get_board_data_count (result, board_id, port_name);
         }
 
-        public static int get_board_data (int data_count, float[] data_buf, double[] ts_buf)
+        public static int get_board_data (int data_count, float[] data_buf, double[] ts_buf, int board_id, string port_name)
         {
             if (System.Environment.Is64BitProcess)
-                return Library64.get_board_data (data_count, data_buf, ts_buf);
+                return Library64.get_board_data (data_count, data_buf, ts_buf, board_id, port_name);
             else
-                return Library32.get_board_data (data_count, data_buf, ts_buf);
+                return Library32.get_board_data (data_count, data_buf, ts_buf, board_id, port_name);
         }
 
         public static int set_log_level (int log_level)
@@ -148,12 +148,12 @@ namespace brainflow
                 return Library32.set_log_level (log_level);
         }
 
-        public static int config_board (string config)
+        public static int config_board (string config, int board_id, string port_name)
         {
             if (System.Environment.Is64BitProcess)
-                return Library64.config_board (config);
+                return Library64.config_board (config, board_id, port_name);
             else
-                return Library32.config_board (config);
+                return Library32.config_board (config, board_id, port_name);
         }
     }
 }

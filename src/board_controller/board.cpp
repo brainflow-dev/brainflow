@@ -1,7 +1,7 @@
 #include "board.h"
 #include "board_controller.h"
 
-std::shared_ptr<spdlog::logger> Board::board_logger = spdlog::stderr_logger_mt ("board_logger");
+spdlog::logger *Board::board_logger = spdlog::stderr_logger_mt ("board_logger").get ();
 
 int Board::set_log_level (int level)
 {

@@ -35,15 +35,17 @@ SyntheticBoard::SyntheticBoard (const char *json_config) : Board ()
 
 SyntheticBoard::~SyntheticBoard ()
 {
+    skip_logs = true;
     release_session ();
 }
 
 
 int SyntheticBoard::prepare_session ()
 {
+    safe_logger (spdlog::level::trace, "prepare session");
     if (initialized)
     {
-        Board::board_logger->info ("Session is already prepared");
+        safe_logger (spdlog::level::info, "Session is already prepared");
         return STATUS_OK;
     }
     initialized = true;
@@ -52,14 +54,15 @@ int SyntheticBoard::prepare_session ()
 
 int SyntheticBoard::start_stream (int buffer_size)
 {
+    safe_logger (spdlog::level::trace, "start stream");
     if (this->is_streaming)
     {
-        Board::board_logger->error ("Streaming thread already running");
+        safe_logger (spdlog::level::err, "Streaming thread already running");
         return STREAM_ALREADY_RUN_ERROR;
     }
     if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
     {
-        Board::board_logger->error ("invalid array size");
+        safe_logger (spdlog::level::err, "invalid array size");
         return INVALID_BUFFER_SIZE_ERROR;
     }
 
@@ -72,7 +75,7 @@ int SyntheticBoard::start_stream (int buffer_size)
     this->db = new DataBuffer (num_channels + 4, buffer_size);
     if (!this->db->is_ready ())
     {
-        Board::board_logger->error ("unable to prepare buffer with size {}", buffer_size);
+        safe_logger (spdlog::level::err, "unable to prepare buffer with size {}", buffer_size);
         return INVALID_BUFFER_SIZE_ERROR;
     }
 
@@ -84,6 +87,7 @@ int SyntheticBoard::start_stream (int buffer_size)
 
 int SyntheticBoard::stop_stream ()
 {
+    safe_logger (spdlog::level::trace, "stop stream");
     if (this->is_streaming)
     {
         this->keep_alive = false;
@@ -99,6 +103,7 @@ int SyntheticBoard::stop_stream ()
 
 int SyntheticBoard::release_session ()
 {
+    safe_logger (spdlog::level::trace, "release session");
     if (this->initialized)
     {
         this->stop_stream ();
@@ -132,9 +137,9 @@ void SyntheticBoard::read_thread ()
     std::mt19937 mt (rd ());
     float max_noise = (this->noise > 0.001f) ? this->noise : 0.001f;
     float range = (this->amplitude * max_noise) / 2.0f;
-    Board::board_logger->info ("noise range is {}:{}", -range, range);
-    Board::board_logger->info ("amplitude is {}", this->amplitude);
-    Board::board_logger->info ("shift is {}", this->shift);
+    safe_logger (spdlog::level::info, "noise range is {}:{}", -range, range);
+    safe_logger (spdlog::level::info, "amplitude is {}", this->amplitude);
+    safe_logger (spdlog::level::info, "shift is {}", this->shift);
     std::uniform_real_distribution<float> dist (-range, range);
 
     while (this->keep_alive)
