@@ -1,6 +1,6 @@
-# Brainflow Emulator (Cyton)
+# Brainflow emulator allows users to run tests without EEG headset.
 
-Brainflow Cyton emulator allows users to run tests without EEG headset.
+## Brainflow Emulator (Cyton)
 
 * On Windows it works using [com0com](http://com0com.sourceforge.net/)
 * On Linux it works using pty
@@ -16,8 +16,8 @@ pip3 install -U .
 ```
 Run test
 ```
-python3 brainflow_emulator/cyton_linux.py python3 /media/sf_folder/brainflow/python-package/examples/brainflow_get_data.py --log --port
-INFO:root:Running python3 /media/sf_folder/brainflow/python-package/examples/brainflow_get_data.py --log --port /dev/pts/1
+python3 brainflow_emulator/cyton_linux.py python3 /media/sf_folder/brainflow/python-package/examples/brainflow_get_data.py --log --board 0 --port
+INFO:root:Running python3 /media/sf_folder/brainflow/python-package/examples/brainflow_get_data.py --log --board 0 --port /dev/pts/1
 INFO:root:read "b'v'"
 INFO:root:read "b'b'"
 INFO:root:read "b's'"
@@ -27,6 +27,21 @@ INFO:root:stderr is: b'[2019-03-20 19:12:10.313] [board_logger] [info] openning 
 
 Emulator raises *TestFailureError* if test fails
 
-# Brianflow Emulator (Ganglion)
+## Brianflow Emulator (Ganglion)
 
 To emulate Ganglion device you need to compile mock from GanglionBLEAPI folder and put compiled libraries instead original files like GanglionLibNative64.dll, GanglionLibNative32.dll and the same for Linux\MacOs libraries, rebuild brainflow just to put new libraries to correct locations(these libraries will be loaded at runtime so if you know target location you are able just copypaste them with recompilation of brainflow project) and run as with real board.
+
+## Brainflow Emulator (NovaXR)
+
+NovaXR emulator creates socket server and streams data to brainflow like it's a real board but with much lower sampling rate
+
+### Example
+Install emulator package
+```
+cd emulator
+pip3 install -U .
+```
+Run test
+```
+python3 brainflow_emulator/novaxr.py python3 /media/sf_folder/brainflow/python-package/examples/brainflow_get_data.py --log --port 127.0.0.1 --board 3
+```

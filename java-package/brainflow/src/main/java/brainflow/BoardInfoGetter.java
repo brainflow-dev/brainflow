@@ -13,6 +13,8 @@ public class BoardInfoGetter {
                 return SYNTHETIC.fs_hz;
             case CYTON_DAISY.board_id:
                 return CYTON_DAISY.fs_hz;
+            case NOVAXR.board_id:
+                return NOVAXR.fs_hz;
             default:
                 throw new  BrainFlowError ("Wrong board_id", ExitCode.UNSUPPORTED_BOARD_ERROR.get_code ());
         }
@@ -30,6 +32,8 @@ public class BoardInfoGetter {
                 return SYNTHETIC.package_length;
             case CYTON_DAISY.board_id:
                 return CYTON_DAISY.package_length;
+            case NOVAXR.board_id:
+                return NOVAXR.package_length;
             default:
                 throw new  BrainFlowError ("Wrong board_id", ExitCode.UNSUPPORTED_BOARD_ERROR.get_code ());
         }
@@ -47,6 +51,8 @@ public class BoardInfoGetter {
                 return SYNTHETIC.num_eeg_channels;
             case CYTON_DAISY.board_id:
                 return CYTON_DAISY.num_eeg_channels;
+            case NOVAXR.board_id:
+                return NOVAXR.num_eeg_channels;
             default:
                 throw new  BrainFlowError ("Wrong board_id", ExitCode.UNSUPPORTED_BOARD_ERROR.get_code ());
         }

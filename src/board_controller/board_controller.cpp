@@ -1,4 +1,7 @@
 #ifdef _WIN32
+#include <ws2tcpip.h>
+// windows sockets version 2 should be added before windows.h(seems like there is a version
+// conflict), windows sockets are used for wifi boards
 #include <windows.h>
 #endif
 
@@ -12,6 +15,7 @@
 #include "cyton.h"
 #include "cyton_daisy.h"
 #include "ganglion.h"
+#include "novaxr.h"
 #include "synthetic_board.h"
 
 std::map<std::pair<int, std::string>, std::shared_ptr<Board>> boards;
@@ -55,6 +59,9 @@ int prepare_session (int board_id, char *port_name)
         case CYTON_DAISY_BOARD:
             board = std::shared_ptr<Board> (new CytonDaisy (port_name));
             break;
+        case NOVAXR_BOARD:
+            board = std::shared_ptr<Board> (new NovaXR (port_name));
+            break;
         default:
             return UNSUPPORTED_BOARD_ERROR;
     }
@@ -78,7 +85,6 @@ int start_stream (int buffer_size, int board_id, char *port_name)
         return res;
     }
     auto board_it = boards.find (key);
-
     return board_it->second->start_stream (buffer_size);
 }
 
@@ -93,7 +99,6 @@ int stop_stream (int board_id, char *port_name)
         return res;
     }
     auto board_it = boards.find (key);
-
     return board_it->second->stop_stream ();
 }
 
@@ -108,10 +113,8 @@ int release_session (int board_id, char *port_name)
         return res;
     }
     auto board_it = boards.find (key);
-
     res = board_it->second->release_session ();
     boards.erase (board_it);
-
     return res;
 }
 
@@ -127,7 +130,6 @@ int get_current_board_data (int num_samples, float *data_buf, double *ts_buf, in
         return res;
     }
     auto board_it = boards.find (key);
-
     return board_it->second->get_current_board_data (
         num_samples, data_buf, ts_buf, returned_samples);
 }
@@ -143,7 +145,6 @@ int get_board_data_count (int *result, int board_id, char *port_name)
         return res;
     }
     auto board_it = boards.find (key);
-
     return board_it->second->get_board_data_count (result);
 }
 
@@ -158,7 +159,6 @@ int get_board_data (int data_count, float *data_buf, double *ts_buf, int board_i
         return res;
     }
     auto board_it = boards.find (key);
-
     return board_it->second->get_board_data (data_count, data_buf, ts_buf);
 }
 
@@ -179,7 +179,6 @@ int config_board (char *config, int board_id, char *port_name)
         return res;
     }
     auto board_it = boards.find (key);
-
     return board_it->second->config_board (config);
 }
 
@@ -210,6 +209,5 @@ int check_board_session (std::pair<int, std::string> key)
             "Board with id {} and port {} is not created", key.first, key.second);
         return BOARD_NOT_CREATED_ERROR;
     }
-
     return STATUS_OK;
 }

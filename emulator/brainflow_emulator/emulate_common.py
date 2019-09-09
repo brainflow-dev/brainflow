@@ -7,6 +7,11 @@ import time
 from random import randint
 
 
+def log_multilines (log_function, message):
+    for line in message.splitlines ():
+        log_function (line)
+
+
 class TestFailureError (Exception):
     def __init__ (self, message, exit_code):
         super (TestFailureError, self).__init__ (message)

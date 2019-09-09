@@ -14,6 +14,8 @@
                     return Synthetic.fs_hz;
                 case (int)BoardIds.CYTON_DAISY_BOARD:
                     return CytonDaisy.fs_hz;
+                case (int)BoardIds.NOVAXR_BOARD:
+                    return Novaxr.fs_hz;
                 default:
                     throw new BrainFlowExceptioin ((int)CustomExitCodes.UNSUPPORTED_BOARD_ERROR);
             }
@@ -31,6 +33,8 @@
                     return Synthetic.first_eeg_channel;
                 case (int)BoardIds.CYTON_DAISY_BOARD:
                     return CytonDaisy.first_eeg_channel;
+                case (int)BoardIds.NOVAXR_BOARD:
+                    return Novaxr.first_eeg_channel;
                 default:
                     throw new BrainFlowExceptioin ((int)CustomExitCodes.UNSUPPORTED_BOARD_ERROR);
             }
@@ -48,6 +52,8 @@
                     return Synthetic.num_eeg_channels;
                 case (int)BoardIds.CYTON_DAISY_BOARD:
                     return CytonDaisy.num_eeg_channels;
+                case (int)BoardIds.NOVAXR_BOARD:
+                    return Novaxr.num_eeg_channels;
                 default:
                     throw new BrainFlowExceptioin ((int)CustomExitCodes.UNSUPPORTED_BOARD_ERROR);
             }
@@ -65,6 +71,8 @@
                     return Synthetic.package_length;
                 case (int)BoardIds.CYTON_DAISY_BOARD:
                     return CytonDaisy.package_length;
+                case (int)BoardIds.NOVAXR_BOARD:
+                    return Novaxr.package_length;
                 default:
                     throw new BrainFlowExceptioin ((int)CustomExitCodes.UNSUPPORTED_BOARD_ERROR);
             }

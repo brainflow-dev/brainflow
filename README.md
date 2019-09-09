@@ -26,7 +26,5 @@ We support bindings for:
 * [Matlab](./matlab-package/brainflow/)
 * [C# (Windows only)](./csharp-package/brainflow/)
 
-These bindings just call methods from dynamic libraries, if you are interested in other programming languages - feel free to create feature request
-
 ## License: 
 MIT
