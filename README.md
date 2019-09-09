@@ -9,7 +9,12 @@ This project was forked by OpenBCI from [Andrey1994/brainflow](https://github.co
 ## [BrainFlow Docs, Dev and User guides and other information](https://brainflow.readthedocs.io/en/latest/index.html)
 
 ## Build status
-*Linux(Travis)*:
+Compiled with:
+* MSVC on Windows
+* GCC on Linux
+* Clang on MacOS
+
+*Linux and MacOS(Travis)*:
 
 [![Build Status](https://travis-ci.com/OpenBCI/brainflow.svg?branch=master)](https://travis-ci.com/OpenBCI/brainflow)
 
