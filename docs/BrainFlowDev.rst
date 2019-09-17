@@ -7,7 +7,7 @@ Code style
 We use clang-format tool to keep the same code style for all cpp files. You can download clang-format binary from `LLVM Download Page <http://releases.llvm.org/download.html>`_
 We recommend to install a plugin for your text editor or IDE which will apply clang-format tool during saving. You will need to set code style option to "FILE"
 
-Plugins for text editors\IDEs:
+Plugins for text editors and IDEs:
 
 - `Sublime <https://packagecontrol.io/packages/Clang%20Format>`_
 - `VSCode <https://marketplace.visualstudio.com/items?itemName=xaver.clang-format>`_
