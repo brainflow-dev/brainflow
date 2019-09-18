@@ -49,8 +49,8 @@ class CYTON_DAISY (object):
 class NOVAXR (object):
     board_id = 3
     fs_hz = 2000
-    num_eeg_channels = 14
-    package_length = 23
+    num_eeg_channels = 16
+    package_length = 25
 
 
 class BoardInfoGetter (object):

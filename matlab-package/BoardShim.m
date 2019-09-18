@@ -58,7 +58,7 @@ classdef BoardShim
             elseif board_id == int32 (BoardIDs.CYTON_DAISY_BOARD)
                 obj.num_channels = 20;
             elseif board_id == int32 (BoardIDs.NOVAXR_BOARD)
-                obj.num_channels = 23;
+                obj.num_channels = 25;
             end
         end
 

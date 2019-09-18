@@ -18,7 +18,6 @@ class NovaXR : public Board
 private:
     const float eeg_scale = ADS1299_Vref / float((pow (2, 23) - 1)) / ADS1299_gain * 1000000.;
     const float accel_scale = 0.002 / (pow (2, 4));
-    const float gyro_scale = 0.002 / (pow (2, 4)); // todo more likely this value is wrong
 
     volatile bool keep_alive;
     bool initialized;

@@ -48,8 +48,8 @@ class NOVAXR
 {
 public:
     static const int fs_hz = 2000;
-    static const int num_eeg_channels = 14;
-    static const int package_length = 23;
+    static const int num_eeg_channels = 16;
+    static const int package_length = 25;
     static const int first_eeg_channel = 1;
 };
 

@@ -4,7 +4,7 @@ Boards <- function () {
          Ganglion = c(Type = as.integer(1), sampling = as.integer(200), num_channels = as.integer(9), num_eeg_channels = as.integer(4)),
          Synthetic = c(Type = as.integer(-1), sampling = as.integer(256), num_channels = as.integer(13), num_eeg_channels = as.integer(8)),
          CytonDaisy = c(Type = as.integer(2), sampling = as.integer(125), num_channels = as.integer(20), num_eeg_channels = as.integer(16)),
-         Novaxr = c(Type = as.integer(3), sampling = as.integer(2000), num_channels = as.integer(23), num_eeg_channels = as.integer(14)))
+         Novaxr = c(Type = as.integer(3), sampling = as.integer(2000), num_channels = as.integer(25), num_eeg_channels = as.integer(16)))
 }
 
 #' @param board_id

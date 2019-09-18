@@ -1,4 +1,5 @@
 #include <chrono>
+#include <stdint.h>
 #include <string.h>
 
 #include "custom_cast.h"
@@ -203,25 +204,26 @@ void NovaXR::read_thread ()
             }
         }
 
-        float package[23];
+        float package[25];
         // package num
         package[0] = (float)b[0];
         // eeg and emg
-        for (int i = 4; i < 18; i++)
+        for (int i = 4; i < 20; i++)
         {
             // put them directly after package num in brainflow
-            package[i - 3] = eeg_scale * (float)cast_24bit_to_int32 (b + 1 + 3 * i);
+            package[i - 3] = eeg_scale * (float)cast_24bit_to_int32 (b + 4 + 3 * (i - 4));
         }
-        package[15] = (float)b[1];                                // ppg
-        package[16] = cast_16bit_to_int32 (b + 2);                // eda todo scale?
-        package[17] = accel_scale * cast_16bit_to_int32 (b + 52); // accel x
-        package[18] = accel_scale * cast_16bit_to_int32 (b + 54); // accel y
-        package[19] = accel_scale * cast_16bit_to_int32 (b + 56); // accel z
-        package[20] = gyro_scale * cast_16bit_to_int32 (b + 58);  // gyro x
-        package[21] = gyro_scale * cast_16bit_to_int32 (b + 60);  // gyro y
-        package[22] = gyro_scale * cast_16bit_to_int32 (b + 62);  // gyro z
+        package[17] = (float)b[1];                                // ppg
+        package[18] = cast_16bit_to_int32 (b + 2);                // eda todo scale?
+        package[19] = accel_scale * cast_16bit_to_int32 (b + 52); // accel x
+        package[20] = accel_scale * cast_16bit_to_int32 (b + 54); // accel y
+        package[21] = accel_scale * cast_16bit_to_int32 (b + 56); // accel z
+        package[22] = cast_16bit_to_int32 (b + 58);               // gyro x scale?
+        package[23] = cast_16bit_to_int32 (b + 60);               // gyro y scale?
+        package[24] = cast_16bit_to_int32 (b + 62);               // gyro z scale?
 
-        double timestamp = (double)atol ((const char *)(b + 64));
+        double timestamp;
+        memcpy (&timestamp, b + 64, 8);
         db->add_data (timestamp, package);
     }
 }
