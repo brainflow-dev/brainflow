@@ -11,7 +11,7 @@ NovaXR::NovaXR (char *ip_addr) : Board (), socket (ip_addr, 2390, (int)SocketTyp
     this->is_streaming = false;
     this->keep_alive = false;
     this->initialized = false;
-    this->num_channels = 23;
+    this->num_channels = 25;
     this->state = SYNC_TIMEOUT_ERROR;
 }
 
