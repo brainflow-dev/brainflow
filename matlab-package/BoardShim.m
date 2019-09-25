@@ -107,6 +107,12 @@ classdef BoardShim
             obj.check_ec (exit_code, task_name);
         end
 
+        function set_log_file (obj, log_file)
+            task_name = 'set_log_file';
+            exit_code = calllib (obj.libname, task_name, log_file);
+            obj.check_ec (exit_code, task_name);
+        end
+
         function enable_board_logger (obj)
             set_log_level (2)
         end

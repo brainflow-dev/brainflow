@@ -9,8 +9,9 @@
 class Board
 {
 public:
-    static spdlog::logger *board_logger;
+    static std::shared_ptr<spdlog::logger> board_logger;
     static int set_log_level (int level);
+    static int set_log_file (char *log_file);
 
     virtual ~Board ()
     {

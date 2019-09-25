@@ -46,7 +46,7 @@ before_script:
       docker pull dockcross/manylinux-x64 ;
     fi
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-      docker run -e TRAVIS_BUILD_DIR=$TRAVIS_BUILD_DIR -v $TRAVIS_BUILD_DIR:$TRAVIS_BUILD_DIR dockcross/manylinux-x64 /bin/bash -c "/opt/python/cp36-cp36m/bin/pip3.6 install cmake && cd $TRAVIS_BUILD_DIR && mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR/installed .. && make && make install" ;
+      docker run -e TRAVIS_BUILD_DIR=$TRAVIS_BUILD_DIR -v $TRAVIS_BUILD_DIR:$TRAVIS_BUILD_DIR dockcross/manylinux-x64 /bin/bash -c "/opt/python/cp36-cp36m/bin/pip3.6 install cmake==3.13.0 && cd $TRAVIS_BUILD_DIR && mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR/installed .. && make && make install" ;
     fi
   # build for mac
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then

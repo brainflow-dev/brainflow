@@ -1,4 +1,4 @@
-board_shim = BoardShim (BoardIDs.GANGLION_BOARD, '');
+board_shim = BoardShim (BoardIDs.SYNTHETIC_BOARD, '');
 board_shim.prepare_session ();
 board_shim.start_stream (3600);
 pause (5)

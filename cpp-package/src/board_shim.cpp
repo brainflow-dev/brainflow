@@ -4,6 +4,42 @@
 #include "board_controller.h"
 #include "board_shim.h"
 
+void BoardShim::enable_board_logger ()
+{
+    int res = set_log_level (2);
+    if (res != STATUS_OK)
+    {
+        throw BrainFlowException ("failed to enable board logger", res);
+    }
+}
+
+void BoardShim::disable_board_logger ()
+{
+    int res = set_log_level (6);
+    if (res != STATUS_OK)
+    {
+        throw BrainFlowException ("failed to disable board logger", res);
+    }
+}
+
+void BoardShim::enable_dev_board_logger ()
+{
+    int res = set_log_level (0);
+    if (res != STATUS_OK)
+    {
+        throw BrainFlowException ("failed to enable dev board logger", res);
+    }
+}
+
+void BoardShim::set_log_file (char *log_file)
+{
+    int res = ::set_log_file (log_file);
+    if (res != STATUS_OK)
+    {
+        throw BrainFlowException ("failed to set log file", res);
+    }
+}
+
 BoardShim::BoardShim (int board_id, const char *port_name)
 {
     strcpy (this->port_name, port_name);

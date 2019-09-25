@@ -6,7 +6,7 @@ public class BrainFlowError extends Exception {
     
     public BrainFlowError (String message, int ec)
     {
-        super (message + ":" + ExitCode.string_from_code (ec));
+        super (message + ":" + brainflow.ExitCode.string_from_code (ec));
         exit_code = ec;
         msg = message;
     }

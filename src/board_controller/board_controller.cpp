@@ -168,6 +168,12 @@ int set_log_level (int log_level)
     return Board::set_log_level (log_level);
 }
 
+int set_log_file (char *log_file)
+{
+    std::lock_guard<std::mutex> lock (mutex);
+    return Board::set_log_file (log_file);
+}
+
 int config_board (char *config, int board_id, char *port_name)
 {
     std::lock_guard<std::mutex> lock (mutex);

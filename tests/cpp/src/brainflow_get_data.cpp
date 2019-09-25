@@ -8,7 +8,6 @@
 #include <unistd.h>
 #endif
 
-#include "board_controller.h"
 #include "board_shim.h"
 #include "data_handler.h"
 
@@ -38,7 +37,7 @@ int main (int argc, char *argv[])
         return -1;
     }
 
-    set_log_level (2);
+    BoardShim::enable_board_logger ();
 
     int board_id = atoi (argv[1]);
     BoardShim *board = new BoardShim (board_id, argv[2]);

@@ -80,3 +80,11 @@ get_board_data <- function(board_shim) {
 config_board <- function(board_shim, config) {
     board_shim$config_board(config)
 }
+
+#' @param board_shim
+#' @param log_file
+#'
+#' @export
+set_log_file <- function(board_shim, log_file) {
+    board_shim$set_log_file(log_file)
+}

@@ -197,6 +197,12 @@ class BoardControllerDLL (object):
            ctypes.c_int
         ]
 
+        self.set_log_file = self.lib.set_log_file
+        self.set_log_file.restype = ctypes.c_int
+        self.set_log_file.argtypes = [
+            ctypes.c_char_p
+        ]
+
         self.config_board = self.lib.config_board
         self.config_board.restype = ctypes.c_int
         self.config_board.argtypes = [
@@ -242,6 +248,17 @@ class BoardShim (object):
         res = BoardControllerDLL.get_instance ().set_log_level (0)
         if res != StreamExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to enable logger', res)
+
+    @classmethod
+    def set_log_file (cls, log_file):
+        """redirect logger from stderr to file, can be called any time"""
+        try:
+            file = log_file.encode ()
+        except:
+            file = log_file
+        res = BoardControllerDLL.get_instance ().set_log_file (file)
+        if res != StreamExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to redirect logs to a file', res)
 
     def prepare_session (self):
         """prepare streaming sesssion, init resources, you need to call it before any other BoardShim object methods"""

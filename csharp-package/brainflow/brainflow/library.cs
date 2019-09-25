@@ -59,6 +59,8 @@ namespace brainflow
         public static extern int set_log_level (int log_level);
         [DllImport ("BoardController.dll", SetLastError = true)]
         public static extern int config_board (string config, int board_id, string port_name);
+        [DllImport ("BoardController.dll", SetLastError = true)]
+        public static extern int set_log_file (string log_file);
     }
 
     public static class Library32
@@ -81,6 +83,8 @@ namespace brainflow
         public static extern int set_log_level (int log_level);
         [DllImport ("BoardController32.dll", SetLastError = true)]
         public static extern int config_board (string config, int board_id, string port_name);
+        [DllImport ("BoardController32.dll", SetLastError = true)]
+        public static extern int set_log_file (string log_file);
     }
 
     public static class Library
@@ -155,6 +159,14 @@ namespace brainflow
                 return Library64.config_board (config, board_id, port_name);
             else
                 return Library32.config_board (config, board_id, port_name);
+        }
+
+        public static int set_log_file (string log_file)
+        {
+            if (System.Environment.Is64BitProcess)
+                return Library64.set_log_file (log_file);
+            else
+                return Library32.set_log_file (log_file);
         }
     }
 }
