@@ -1,6 +1,6 @@
-package brainflow;
+import brainflow.*;
 
-public class BrainFlowTest {
+public class BrainFlowGetData {
 
     public static void main (String[] args) throws Exception {
 
