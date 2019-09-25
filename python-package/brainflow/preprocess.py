@@ -20,6 +20,11 @@ class DataHandler (object):
             columns = ['package_num']
             for i in range (self.num_eeg_channels):
                 columns.append ('eeg%d' % (i + 1))
+            if board_id == NOVAXR.board_id:
+                columns.append ('ppg')
+                columns.append ('eda')
+                for i in range (3):
+                    columns.append ('gyro%d' % (i + 1))
             for i in range (3):
                 columns.append ('accel%d' % (i + 1))
             columns.append ('timestamp')

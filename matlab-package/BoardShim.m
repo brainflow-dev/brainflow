@@ -57,6 +57,8 @@ classdef BoardShim
                 obj.num_channels = 12;
             elseif board_id == int32 (BoardIDs.CYTON_DAISY_BOARD)
                 obj.num_channels = 20;
+            elseif board_id == int32 (BoardIDs.NOVAXR_BOARD)
+                obj.num_channels = 25;
             end
         end
 
@@ -102,6 +104,12 @@ classdef BoardShim
         function set_log_level (obj, log_level)
             task_name = 'set_log_level';
             exit_code = calllib (obj.libname, task_name, log_level);
+            obj.check_ec (exit_code, task_name);
+        end
+
+        function set_log_file (obj, log_file)
+            task_name = 'set_log_file';
+            exit_code = calllib (obj.libname, task_name, log_file);
             obj.check_ec (exit_code, task_name);
         end
 

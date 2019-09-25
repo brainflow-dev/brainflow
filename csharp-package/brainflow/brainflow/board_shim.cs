@@ -49,6 +49,15 @@ namespace brainflow
             }
         }
 
+        public static void set_log_file (string log_file)
+        {
+            int res = Library.set_log_file (log_file);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowExceptioin (res);
+            }
+        }
+
         public void prepare_session ()
         {
             int res = Library.prepare_session (board_id, port_name);

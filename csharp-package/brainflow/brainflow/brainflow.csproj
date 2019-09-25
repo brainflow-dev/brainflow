@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>brainflow</RootNamespace>
     <AssemblyName>brainflow</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <PublishUrl>publish\</PublishUrl>
@@ -124,6 +124,7 @@
     <Compile Include="board_info_getter.cs" />
     <Compile Include="board_data.cs" />
     <Compile Include="board_shim.cs" />
+    <Compile Include="novaxr.cs" />
     <Compile Include="cyton.cs" />
     <Compile Include="cyton_daisy.cs" />
     <Compile Include="ganglion.cs" />

@@ -1,7 +1,9 @@
 #include "board.h"
 #include "board_controller.h"
 
-spdlog::logger *Board::board_logger = spdlog::stderr_logger_mt ("board_logger").get ();
+#define LOGGER_NAME "board_logger"
+
+std::shared_ptr<spdlog::logger> Board::board_logger = spdlog::stderr_logger_mt (LOGGER_NAME);
 
 int Board::set_log_level (int level)
 {
@@ -12,6 +14,16 @@ int Board::set_log_level (int level)
         log_level = 0;
     Board::board_logger->set_level (spdlog::level::level_enum (log_level));
     Board::board_logger->flush_on (spdlog::level::level_enum (log_level));
+    return STATUS_OK;
+}
+
+int Board::set_log_file (char *log_file)
+{
+    spdlog::level::level_enum level = Board::board_logger->level ();
+    spdlog::drop (LOGGER_NAME);
+    Board::board_logger = spdlog::basic_logger_mt (LOGGER_NAME, log_file);
+    Board::board_logger->set_level (level);
+    Board::board_logger->flush_on (level);
     return STATUS_OK;
 }
 

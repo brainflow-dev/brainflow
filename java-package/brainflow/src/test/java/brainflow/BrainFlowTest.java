@@ -4,7 +4,9 @@ public class BrainFlowTest {
 
     public static void main (String[] args) throws Exception {
 
-        BoardShim board_shim = new BoardShim (Integer.parseInt (args[0]), args[1], true);
+        BoardShim.enable_board_logger ();
+        BoardShim.set_log_file ("test_log.txt");
+        BoardShim board_shim = new BoardShim (Integer.parseInt (args[0]), args[1]);
         board_shim.prepare_session ();
         System.out.println ("Session is ready");
         board_shim.start_stream (3600);

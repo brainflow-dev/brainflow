@@ -20,12 +20,10 @@ def main ():
     
     # disable second channel, note emulator doesnt handle such commands, run with real board to validate
     # different board have different data formats
-    if args.board in (brainflow.CYTON.board_id, brainflow.CYTON_DAISY.board_id, brainflow.SYNTHETIC.board_id):
+    if args.board != brainflow.GANGLION.board_id:
         board.config_board ('x2100000X')
-    elif args.board == brainflow.GANGLION.board_id:
-        board.config_board ('2')
     else:
-        print ('unexpected board id')
+        board.config_board ('2')
 
     board.start_stream ()
     time.sleep (10)

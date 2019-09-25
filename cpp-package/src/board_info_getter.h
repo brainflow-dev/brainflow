@@ -43,6 +43,17 @@ public:
     static const int first_eeg_channel = 1;
 };
 
+
+class NOVAXR
+{
+public:
+    static const int fs_hz = 2000;
+    static const int num_eeg_channels = 16;
+    static const int package_length = 25;
+    static const int first_eeg_channel = 1;
+};
+
+
 // todo: move it to low level api during implementation of signal processing in c++
 class BoardInfoGetter
 {
@@ -59,6 +70,8 @@ public:
                 return SYNTHETIC::package_length;
             case CYTON_DAISY_BOARD:
                 return CYTON_DAISY::package_length;
+            case NOVAXR_BOARD:
+                return NOVAXR::package_length;
             default:
                 throw BrainFlowException ("Unsupported Board Error", UNSUPPORTED_BOARD_ERROR);
         }
@@ -76,6 +89,8 @@ public:
                 return SYNTHETIC::num_eeg_channels;
             case CYTON_DAISY_BOARD:
                 return CYTON_DAISY::num_eeg_channels;
+            case NOVAXR_BOARD:
+                return NOVAXR::num_eeg_channels;
             default:
                 throw BrainFlowException ("Unsupported Board Error", UNSUPPORTED_BOARD_ERROR);
         }
@@ -93,6 +108,8 @@ public:
                 return SYNTHETIC::fs_hz;
             case CYTON_DAISY_BOARD:
                 return CYTON_DAISY::fs_hz;
+            case NOVAXR_BOARD:
+                return NOVAXR::fs_hz;
             default:
                 throw BrainFlowException ("Unsupported Board Error", UNSUPPORTED_BOARD_ERROR);
         }
@@ -110,6 +127,8 @@ public:
                 return SYNTHETIC::first_eeg_channel;
             case CYTON_DAISY_BOARD:
                 return CYTON_DAISY::first_eeg_channel;
+            case NOVAXR_BOARD:
+                return NOVAXR::first_eeg_channel;
             default:
                 throw BrainFlowException ("Unsupported Board Error", UNSUPPORTED_BOARD_ERROR);
         }

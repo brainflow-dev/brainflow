@@ -34,7 +34,8 @@ typedef enum
     SYNTHETIC_BOARD = -1,
     CYTON_BOARD = 0,
     GANGLION_BOARD = 1,
-    CYTON_DAISY_BOARD = 2
+    CYTON_DAISY_BOARD = 2,
+    NOVAXR_BOARD = 3
 } BoardIds;
 
 #ifdef __cplusplus
@@ -52,6 +53,7 @@ extern "C"
         int data_count, float *data_buf, double *ts_buf, int board_id, char *port_name);
     SHARED_EXPORT int set_log_level (int log_level);
     SHARED_EXPORT int config_board (char *config, int board_id, char *port_name);
+    SHARED_EXPORT int set_log_file (char *log_file);
 #ifdef __cplusplus
 }
 #endif

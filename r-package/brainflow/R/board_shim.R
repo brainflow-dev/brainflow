@@ -3,7 +3,8 @@ Boards <- function () {
     list(Cyton = c(Type = as.integer(0), sampling = as.integer(250), num_channels = as.integer(13), num_eeg_channels = as.integer(8)),
          Ganglion = c(Type = as.integer(1), sampling = as.integer(200), num_channels = as.integer(9), num_eeg_channels = as.integer(4)),
          Synthetic = c(Type = as.integer(-1), sampling = as.integer(256), num_channels = as.integer(13), num_eeg_channels = as.integer(8)),
-         CytonDaisy = c(Type = as.integer(2), sampling = as.integer(125), num_channels = as.integer(20), num_eeg_channels = as.integer(16)))
+         CytonDaisy = c(Type = as.integer(2), sampling = as.integer(125), num_channels = as.integer(20), num_eeg_channels = as.integer(16)),
+         Novaxr = c(Type = as.integer(3), sampling = as.integer(2000), num_channels = as.integer(25), num_eeg_channels = as.integer(16)))
 }
 
 #' @param board_id
@@ -78,4 +79,12 @@ get_board_data <- function(board_shim) {
 #' @export
 config_board <- function(board_shim, config) {
     board_shim$config_board(config)
+}
+
+#' @param board_shim
+#' @param log_file
+#'
+#' @export
+set_log_file <- function(board_shim, log_file) {
+    board_shim$set_log_file(log_file)
 }

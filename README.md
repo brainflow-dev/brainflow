@@ -6,11 +6,15 @@ Brainflow is a library intended to obtain, parse and analyze EEG\EMG\ECG data fr
 
 Core module of this library is implemented in C\C++ and available for all bindings as a dynamic library. This approach allows to reduce code duplication and simplify maintenance, also it's better than any streaming based solution because using this library you don't need to worry about inter process communication and it's a single dependency.
 
-
 #### *NOTE: Brainflow was forked by OpenBCI community, I will contribute to [OpenBCI's fork](https://github.com/OpenBCI/brainflow) and maintain it. To download the latest stable version of Brainflow feel free to use OpenBCI's fork. Both versions are exactly the same*
 
 ## Build status
-*Linux(Travis)*:
+Compiled with:
+* MSVC on Windows
+* GCC on Linux
+* Clang on MacOS
+
+*Linux and MacOS(Travis)*:
 
 [![Build Status](https://travis-ci.com/Andrey1994/brainflow.svg?branch=master)](https://travis-ci.com/Andrey1994/brainflow)
 
@@ -26,8 +30,6 @@ We support bindings for:
 * [CPP](./cpp-package/)
 * [Matlab](./matlab-package/brainflow/)
 * [C# (Windows only)](./csharp-package/brainflow/)
-
-These bindings just call methods from dynamic libraries, if you are interested in other programming languages - feel free to create feature request
 
 ## License: 
 MIT

@@ -46,6 +46,13 @@ class CYTON_DAISY (object):
     package_length = 20
 
 
+class NOVAXR (object):
+    board_id = 3
+    fs_hz = 2000
+    num_eeg_channels = 16
+    package_length = 25
+
+
 class BoardInfoGetter (object):
     """class to get information about boards, it's recommended to use this class instead hardcoded values"""
 
@@ -60,6 +67,8 @@ class BoardInfoGetter (object):
             return SYNTHETIC.fs_hz
         elif board_id == CYTON_DAISY.board_id:
             return CYTON_DAISY.fs_hz
+        elif board_id == NOVAXR.board_id:
+            return NOVAXR.fs_hz
         else:
             raise BrainFlowError ('unsupported board type', StreamExitCodes.UNSUPPORTED_BOARD_ERROR.value)
 
@@ -75,6 +84,8 @@ class BoardInfoGetter (object):
             return SYNTHETIC.num_eeg_channels
         elif board_id == CYTON_DAISY.board_id:
             return CYTON_DAISY.num_eeg_channels
+        elif board_id == NOVAXR.board_id:
+            return NOVAXR.num_eeg_channels
         else:
             raise BrainFlowError ('unsupported board type', StreamExitCodes.UNSUPPORTED_BOARD_ERROR.value)
 
@@ -90,6 +101,8 @@ class BoardInfoGetter (object):
             return SYNTHETIC.package_length
         elif board_id == CYTON_DAISY.board_id:
             return CYTON_DAISY.package_length
+        elif board_id == NOVAXR.board_id:
+            return NOVAXR.package_length
         else:
             raise BrainFlowError ('unsupported board type', StreamExitCodes.UNSUPPORTED_BOARD_ERROR.value)
 
@@ -184,6 +197,12 @@ class BoardControllerDLL (object):
            ctypes.c_int
         ]
 
+        self.set_log_file = self.lib.set_log_file
+        self.set_log_file.restype = ctypes.c_int
+        self.set_log_file.argtypes = [
+            ctypes.c_char_p
+        ]
+
         self.config_board = self.lib.config_board
         self.config_board.restype = ctypes.c_int
         self.config_board.argtypes = [
@@ -229,6 +248,17 @@ class BoardShim (object):
         res = BoardControllerDLL.get_instance ().set_log_level (0)
         if res != StreamExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to enable logger', res)
+
+    @classmethod
+    def set_log_file (cls, log_file):
+        """redirect logger from stderr to file, can be called any time"""
+        try:
+            file = log_file.encode ()
+        except:
+            file = log_file
+        res = BoardControllerDLL.get_instance ().set_log_file (file)
+        if res != StreamExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to redirect logs to a file', res)
 
     def prepare_session (self):
         """prepare streaming sesssion, init resources, you need to call it before any other BoardShim object methods"""

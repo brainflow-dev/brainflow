@@ -21,15 +21,6 @@ def main ():
         brainflow.board_shim.BoardShim.enable_dev_board_logger ()
     else:
         brainflow.board_shim.BoardShim.disable_board_logger ()
-    
-    # disable second channel, note emulator doesnt handle such commands, run with real board to validate
-    # different board have different data formats
-    if args.first_board in (brainflow.CYTON.board_id, brainflow.CYTON_DAISY.board_id, brainflow.SYNTHETIC.board_id):
-        first_board.config_board ('x2100000X')
-    elif args.board == brainflow.GANGLION.board_id:
-        first_board.config_board ('2')
-    else:
-        print ('unexpected board id')
 
     first_board.start_stream ()
     second_board.start_stream ()

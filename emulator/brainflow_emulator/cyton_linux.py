@@ -4,7 +4,7 @@ import pty
 import logging
 import subprocess
 
-from brainflow_emulator.emulate_common import TestFailureError, Listener
+from brainflow_emulator.emulate_common import TestFailureError, Listener, log_multilines
 
 
 def write (port, data):
@@ -28,8 +28,8 @@ def test_serial (cmd_list, master, slave, s_name):
     process = subprocess.Popen (cmd_to_run, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
     stdout, stderr = process.communicate ()
 
-    logging.info ('stdout is: %s' % stdout)
-    logging.info ('stderr is: %s' % stderr)
+    log_multilines (logging.info, stdout)
+    log_multilines (logging.info, stderr)
 
     if process.returncode != 0:
         raise TestFailureError ('Test failed with exit code %s' % str (process.returncode), process.returncode)

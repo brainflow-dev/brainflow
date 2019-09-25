@@ -9,6 +9,11 @@ class BoardShim
     void reshape_data (int data_count, float *buf, double *ts_buf, double **output_buf);
 
 public:
+    static void disable_board_logger ();
+    static void enable_board_logger ();
+    static void enable_dev_board_logger ();
+    static void set_log_file (char *log_file);
+
     int num_data_channels;
     int board_id;
     char port_name[1024];
