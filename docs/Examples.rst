@@ -17,7 +17,7 @@ R
 Java
 -----
 
-.. literalinclude:: ../java-package/brainflow/src/test/java/BrainFlowGetData.java
+.. literalinclude:: ../tests/java/BrainFlowGetData.java
    :language: java
 
 
