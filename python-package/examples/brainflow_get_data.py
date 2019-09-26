@@ -28,7 +28,10 @@ def main ():
     board.release_session ()
 
     data_handler = brainflow.preprocess.DataHandler (args.board, numpy_data = data)
-    filtered_data = data_handler.preprocess_data (order = 3, start = 1, stop = 50)
+    data_handler.remove_dc_offset ()
+    data_handler.notch_interference ()
+    filtered_data = data_handler.get_data ()
+    #filtered_data = data_handler.preprocess_data (order = 3, start = 1, stop = 50)
     # plot eeg channels
     eeg_columns = list ()
     for col_name in filtered_data.columns:
