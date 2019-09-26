@@ -18,6 +18,7 @@ brainflow.board\_shim
    :members:
    :noindex:
    :show-inheritance:
+   :member-order: bysource
 
 brainflow.exit\_codes
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -27,6 +28,7 @@ brainflow.exit\_codes
    :undoc-members:
    :noindex:
    :show-inheritance:
+   :member-order: bysource
 
 brainflow.preprocess
 ~~~~~~~~~~~~~~~~~~~~~
@@ -36,3 +38,4 @@ brainflow.preprocess
    :undoc-members:
    :noindex:
    :show-inheritance:
+   :member-order: bysource

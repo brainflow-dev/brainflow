@@ -231,20 +231,21 @@ class BoardShim (object):
 
     @classmethod
     def enable_board_logger (cls):
-        """enable board logger to stderr"""
+        """enable board logger"""
         res = BoardControllerDLL.get_instance ().set_log_level (2)
         if res != StreamExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to enable logger', res)
 
     @classmethod
     def disable_board_logger (cls):
-        """disable board logger to stderr"""
+        """disable board logger"""
         res = BoardControllerDLL.get_instance ().set_log_level (6)
         if res != StreamExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to disable logger', res)
 
     @classmethod
     def enable_dev_board_logger (cls):
+        """enable it to check developers log messages"""
         res = BoardControllerDLL.get_instance ().set_log_level (0)
         if res != StreamExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to enable logger', res)
