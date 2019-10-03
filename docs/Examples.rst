@@ -17,7 +17,7 @@ R
 Java
 -----
 
-.. literalinclude:: ../java-package/brainflow/src/test/java/BrainFlowGetData.java
+.. literalinclude:: ../tests/java/BrainFlowGetData.java
    :language: java
 
 
@@ -27,15 +27,6 @@ C#
 .. literalinclude:: ../csharp-package/brainflow/test/get_board_data.cs
    :language: c#
 
-
-Unity Integration
-~~~~~~~~~~~~~~~~~~
-
-- compile core module
-- compile c# binding
-- copy managed DLLs to Assets folder
-- copy unmanaged DLLS to project folder to use it with Unity player
-- after building Unity project copy unmanaged DLLs to exe folder
 
 Matlab
 -------
