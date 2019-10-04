@@ -124,6 +124,9 @@
     <Compile Include="board_info_getter.cs" />
     <Compile Include="board_data.cs" />
     <Compile Include="board_shim.cs" />
+    <Compile Include="cyton_daisy_wifi.cs" />
+    <Compile Include="cyton_wifi.cs" />
+    <Compile Include="ganglion_wifi.cs" />
     <Compile Include="novaxr.cs" />
     <Compile Include="cyton.cs" />
     <Compile Include="cyton_daisy.cs" />

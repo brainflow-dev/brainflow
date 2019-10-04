@@ -83,6 +83,10 @@ test_script:
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\novaxr_udp.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\build\Release\test_get_data.exe 3 127.0.0.1
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\novaxr_udp.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\build32\Release\test_get_data.exe 3 127.0.0.1
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\novaxr_udp.py %APPVEYOR_BUILD_FOLDER%\tests\csharp\build\Release\test.exe 3 127.0.0.1
+  # tests for wifi shield based boards
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --board 4 --port 127.0.0.1
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\build\Release\test_get_data.exe 5 127.0.0.1
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py %APPVEYOR_BUILD_FOLDER%\tests\csharp\build\Release\test.exe 6 127.0.0.1
 
 # replace mocked libraries by real libs
 after_test:

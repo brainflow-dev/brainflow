@@ -1,4 +1,5 @@
 #ifdef _WIN32
+#include <winsock2.h>
 #include <ws2tcpip.h>
 // windows sockets version 2 should be added before windows.h(seems like there is a version
 // conflict), windows sockets are used for wifi boards
@@ -14,7 +15,10 @@
 #include "board_controller.h"
 #include "cyton.h"
 #include "cyton_daisy.h"
+#include "cyton_daisy_wifi.h"
+#include "cyton_wifi.h"
 #include "ganglion.h"
+#include "ganglion_wifi.h"
 #include "novaxr.h"
 #include "synthetic_board.h"
 
@@ -61,6 +65,15 @@ int prepare_session (int board_id, char *port_name)
             break;
         case NOVAXR_BOARD:
             board = std::shared_ptr<Board> (new NovaXR (port_name));
+            break;
+        case GANGLION_WIFI_BOARD:
+            board = std::shared_ptr<Board> (new GanglionWifi (port_name));
+            break;
+        case CYTON_WIFI_BOARD:
+            board = std::shared_ptr<Board> (new CytonWifi (port_name));
+            break;
+        case CYTON_DAISY_WIFI_BOARD:
+            board = std::shared_ptr<Board> (new CytonDaisyWifi (port_name));
             break;
         default:
             return UNSUPPORTED_BOARD_ERROR;

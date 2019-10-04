@@ -7,7 +7,7 @@
 
 #include "board.h"
 #include "board_controller.h"
-#include "socket.h"
+#include "socket_client.h"
 
 #define ADS1299_Vref 4.5
 #define ADS1299_gain 24.0
@@ -24,7 +24,7 @@ private:
     bool is_streaming;
     std::thread streaming_thread;
     int num_channels;
-    Socket socket;
+    SocketClient socket;
 
     std::mutex m;
     std::condition_variable cv;

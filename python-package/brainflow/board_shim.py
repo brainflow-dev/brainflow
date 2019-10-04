@@ -53,6 +53,27 @@ class NOVAXR (object):
     package_length = 25
 
 
+class GANGLION_WIFI (object):
+    board_id = 4
+    fs_hz = 1600
+    num_eeg_channels = 4
+    package_length = 8
+
+
+class CYTON_WIFI (object):
+    board_id = 5
+    fs_hz = 1000
+    num_eeg_channels = 8
+    package_length = 12
+
+
+class CYTON_DAISY_WIFI (object):
+    board_id = 6
+    fs_hz = 1000
+    num_eeg_channels = 16
+    package_length = 20
+
+
 class BoardInfoGetter (object):
     """class to get information about boards, it's recommended to use this class instead hardcoded values"""
 
@@ -69,9 +90,14 @@ class BoardInfoGetter (object):
             return CYTON_DAISY.fs_hz
         elif board_id == NOVAXR.board_id:
             return NOVAXR.fs_hz
+        elif board_id == CYTON_WIFI.board_id:
+            return CYTON_WIFI.fs_hz
+        elif board_id == CYTON_DAISY_WIFI.board_id:
+            return CYTON_DAISY_WIFI.fs_hz
+        elif board_id == GANGLION_WIFI.board_id:
+            return GANGLION_WIFI.fs_hz
         else:
             raise BrainFlowError ('unsupported board type', StreamExitCodes.UNSUPPORTED_BOARD_ERROR.value)
-
 
     @classmethod
     def get_num_eeg_channels (cls, board_id):
@@ -86,9 +112,14 @@ class BoardInfoGetter (object):
             return CYTON_DAISY.num_eeg_channels
         elif board_id == NOVAXR.board_id:
             return NOVAXR.num_eeg_channels
+        elif board_id == CYTON_WIFI.board_id:
+            return CYTON_WIFI.num_eeg_channels
+        elif board_id == CYTON_DAISY_WIFI.board_id:
+            return CYTON_DAISY_WIFI.num_eeg_channels
+        elif board_id == GANGLION_WIFI.board_id:
+            return GANGLION_WIFI.num_eeg_channels
         else:
             raise BrainFlowError ('unsupported board type', StreamExitCodes.UNSUPPORTED_BOARD_ERROR.value)
-
 
     @classmethod
     def get_package_length (cls, board_id):
@@ -103,6 +134,12 @@ class BoardInfoGetter (object):
             return CYTON_DAISY.package_length
         elif board_id == NOVAXR.board_id:
             return NOVAXR.package_length
+        elif board_id == CYTON_WIFI.board_id:
+            return CYTON_WIFI.package_length
+        elif board_id == CYTON_DAISY_WIFI.board_id:
+            return CYTON_DAISY_WIFI.package_length
+        elif board_id == GANGLION_WIFI.board_id:
+            return GANGLION_WIFI.package_length
         else:
             raise BrainFlowError ('unsupported board type', StreamExitCodes.UNSUPPORTED_BOARD_ERROR.value)
 

@@ -3,8 +3,11 @@ Boards <- function () {
     list(Cyton = c(Type = as.integer(0), sampling = as.integer(250), num_channels = as.integer(13), num_eeg_channels = as.integer(8)),
          Ganglion = c(Type = as.integer(1), sampling = as.integer(200), num_channels = as.integer(9), num_eeg_channels = as.integer(4)),
          Synthetic = c(Type = as.integer(-1), sampling = as.integer(256), num_channels = as.integer(13), num_eeg_channels = as.integer(8)),
-         CytonDaisy = c(Type = as.integer(2), sampling = as.integer(125), num_channels = as.integer(20), num_eeg_channels = as.integer(16)),
-         Novaxr = c(Type = as.integer(3), sampling = as.integer(2000), num_channels = as.integer(25), num_eeg_channels = as.integer(16)))
+         CytonDaisy = c(Type = as.integer(2), sampling = as.integer(125), num_channels = as.integer(21), num_eeg_channels = as.integer(16)),
+         Novaxr = c(Type = as.integer(3), sampling = as.integer(2000), num_channels = as.integer(26), num_eeg_channels = as.integer(16)),
+         CytonWifi = c(Type = as.integer(5), sampling = as.integer(1000), num_channels = as.integer(13), num_eeg_channels = as.integer(8)),
+         CytonDaisyWifi = c(Type = as.integer(6), sampling = as.integer(1000), num_channels = as.integer(21), num_eeg_channels = as.integer(16)),
+         GanglionWifi = c(Type = as.integer(4), sampling = as.integer(1600), num_channels = as.integer(9), num_eeg_channels = as.integer(4)))
 }
 
 #' @param board_id

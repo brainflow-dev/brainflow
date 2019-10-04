@@ -16,6 +16,12 @@
                     return CytonDaisy.fs_hz;
                 case (int)BoardIds.NOVAXR_BOARD:
                     return Novaxr.fs_hz;
+                case (int)BoardIds.GANGLION_WIFI:
+                    return GanglionWifi.fs_hz;
+                case (int)BoardIds.CYTON_WIFI:
+                    return CytonWifi.fs_hz;
+                case (int)BoardIds.CYTON_DAISY_WIFI:
+                    return CytonDaisyWifi.fs_hz;
                 default:
                     throw new BrainFlowExceptioin ((int)CustomExitCodes.UNSUPPORTED_BOARD_ERROR);
             }
@@ -35,6 +41,12 @@
                     return CytonDaisy.first_eeg_channel;
                 case (int)BoardIds.NOVAXR_BOARD:
                     return Novaxr.first_eeg_channel;
+                case (int)BoardIds.GANGLION_WIFI:
+                    return GanglionWifi.first_eeg_channel;
+                case (int)BoardIds.CYTON_WIFI:
+                    return CytonWifi.first_eeg_channel;
+                case (int)BoardIds.CYTON_DAISY_WIFI:
+                    return CytonDaisyWifi.first_eeg_channel;
                 default:
                     throw new BrainFlowExceptioin ((int)CustomExitCodes.UNSUPPORTED_BOARD_ERROR);
             }
@@ -54,6 +66,12 @@
                     return CytonDaisy.num_eeg_channels;
                 case (int)BoardIds.NOVAXR_BOARD:
                     return Novaxr.num_eeg_channels;
+                case (int)BoardIds.GANGLION_WIFI:
+                    return GanglionWifi.num_eeg_channels;
+                case (int)BoardIds.CYTON_WIFI:
+                    return CytonWifi.num_eeg_channels;
+                case (int)BoardIds.CYTON_DAISY_WIFI:
+                    return CytonDaisyWifi.num_eeg_channels;
                 default:
                     throw new BrainFlowExceptioin ((int)CustomExitCodes.UNSUPPORTED_BOARD_ERROR);
             }
@@ -73,6 +91,12 @@
                     return CytonDaisy.package_length;
                 case (int)BoardIds.NOVAXR_BOARD:
                     return Novaxr.package_length;
+                case (int)BoardIds.GANGLION_WIFI:
+                    return GanglionWifi.package_length;
+                case (int)BoardIds.CYTON_WIFI:
+                    return CytonWifi.package_length;
+                case (int)BoardIds.CYTON_DAISY_WIFI:
+                    return CytonDaisyWifi.package_length;
                 default:
                     throw new BrainFlowExceptioin ((int)CustomExitCodes.UNSUPPORTED_BOARD_ERROR);
             }
