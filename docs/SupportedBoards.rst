@@ -171,7 +171,7 @@ Board Spec:
 OpenBCI Cyton Daisy with Wifi Shield
 --------------------------------------
 
-.. image:: hhttps://live.staticflickr.com/65535/48843419918_f11c90deb0_k.jpg
+.. image:: https://live.staticflickr.com/65535/48843419918_f11c90deb0_k.jpg
 
 `Wifi shield geting started guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_.
 
