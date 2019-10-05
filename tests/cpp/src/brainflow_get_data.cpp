@@ -37,7 +37,7 @@ int main (int argc, char *argv[])
         return -1;
     }
 
-    BoardShim::enable_board_logger ();
+    BoardShim::enable_dev_board_logger ();
 
     int board_id = atoi (argv[1]);
     BoardShim *board = new BoardShim (board_id, argv[2]);

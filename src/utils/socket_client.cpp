@@ -1,5 +1,6 @@
-#include "socket.h"
+#include <string.h>
 
+#include "socket_client.h"
 
 ///////////////////////////////
 /////////// WINDOWS ///////////
@@ -10,7 +11,78 @@
 #pragma comment(lib, "Mswsock.lib")
 #pragma comment(lib, "AdvApi32.lib")
 
-Socket::Socket (const char *ip_addr, int port, int socket_type)
+
+int SocketClient::get_local_ip_addr (char *connect_ip, int port, char *local_ip)
+{
+    WSADATA wsadata;
+    int return_value = (int)SocketReturnCodes::STATUS_OK;
+    struct sockaddr_in serv;
+    char buffer[80];
+    SOCKET sock = INVALID_SOCKET;
+    struct sockaddr_in name;
+    int res = WSAStartup (MAKEWORD (2, 2), &wsadata);
+    if (res != 0)
+    {
+        return_value = (int)SocketReturnCodes::WSA_STARTUP_ERROR;
+    }
+
+    if (return_value == (int)SocketReturnCodes::STATUS_OK)
+    {
+        sock = socket (AF_INET, SOCK_DGRAM, 0);
+        if (sock == INVALID_SOCKET)
+        {
+            return_value = (int)SocketReturnCodes::CREATE_SOCKET_ERROR;
+        }
+    }
+
+    if (return_value == (int)SocketReturnCodes::STATUS_OK)
+    {
+        memset (&serv, 0, sizeof (serv));
+        serv.sin_family = AF_INET;
+        if (inet_pton (AF_INET, connect_ip, &serv.sin_addr) == 0)
+        {
+            return_value = (int)SocketReturnCodes::PTON_ERROR;
+        }
+        serv.sin_port = htons (port);
+    }
+
+    if (return_value == (int)SocketReturnCodes::STATUS_OK)
+    {
+        if (::connect (sock, (const struct sockaddr *)&serv, sizeof (serv)) == SOCKET_ERROR)
+        {
+            return_value = (int)SocketReturnCodes::CONNECT_ERROR;
+        }
+    }
+
+    if (return_value == (int)SocketReturnCodes::STATUS_OK)
+    {
+        int namelen = sizeof (name);
+        int err = getsockname (sock, (struct sockaddr *)&name, &namelen);
+        if (err != 0)
+        {
+            return_value = (int)SocketReturnCodes::CONNECT_ERROR;
+        }
+    }
+
+    if (return_value == (int)SocketReturnCodes::STATUS_OK)
+    {
+        const char *p = inet_ntop (AF_INET, &name.sin_addr, buffer, 80);
+        if (p != NULL)
+        {
+            strcpy (local_ip, buffer);
+        }
+        else
+        {
+            return_value = (int)SocketReturnCodes::PTON_ERROR;
+        }
+    }
+
+    closesocket (sock);
+    WSACleanup ();
+    return return_value;
+}
+
+SocketClient::SocketClient (const char *ip_addr, int port, int socket_type)
 {
     strcpy (this->ip_addr, ip_addr);
     this->port = port;
@@ -19,7 +91,7 @@ Socket::Socket (const char *ip_addr, int port, int socket_type)
     this->socket_type = socket_type;
 }
 
-int Socket::connect ()
+int SocketClient::connect ()
 {
     WSADATA wsadata;
     int res = WSAStartup (MAKEWORD (2, 2), &wsadata);
@@ -64,7 +136,7 @@ int Socket::connect ()
     return (int)SocketReturnCodes::STATUS_OK;
 }
 
-int Socket::send (const char *data, int size)
+int SocketClient::send (const char *data, int size)
 {
     int len = sizeof (socket_addr);
     int res = 0;
@@ -83,7 +155,7 @@ int Socket::send (const char *data, int size)
     return res;
 }
 
-int Socket::recv (void *data, int size)
+int SocketClient::recv (void *data, int size)
 {
     int len = sizeof (socket_addr);
     int res;
@@ -102,7 +174,7 @@ int Socket::recv (void *data, int size)
     return res;
 }
 
-void Socket::close ()
+void SocketClient::close ()
 {
     closesocket (connect_socket);
     connect_socket = INVALID_SOCKET;
@@ -117,7 +189,70 @@ void Socket::close ()
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 
-Socket::Socket (const char *ip_addr, int port, int socket_type)
+int SocketClient::get_local_ip_addr (char *connect_ip, int port, char *local_ip)
+{
+    int return_value = (int)SocketReturnCodes::STATUS_OK;
+    struct sockaddr_in serv;
+    char buffer[80];
+    int sock = -1;
+    struct sockaddr_in name;
+
+    if (return_value == (int)SocketReturnCodes::STATUS_OK)
+    {
+        sock = socket (AF_INET, SOCK_DGRAM, 0);
+        if (sock < 0)
+        {
+            return_value = (int)SocketReturnCodes::CREATE_SOCKET_ERROR;
+        }
+    }
+
+    if (return_value == (int)SocketReturnCodes::STATUS_OK)
+    {
+        memset (&serv, 0, sizeof (serv));
+        serv.sin_family = AF_INET;
+        if (inet_pton (AF_INET, connect_ip, &serv.sin_addr) == 0)
+        {
+            return_value = (int)SocketReturnCodes::PTON_ERROR;
+        }
+        serv.sin_port = htons (port);
+    }
+
+    if (return_value == (int)SocketReturnCodes::STATUS_OK)
+    {
+        if (::connect (sock, (const struct sockaddr *)&serv, sizeof (serv)) == -1)
+        {
+            return_value = (int)SocketReturnCodes::CONNECT_ERROR;
+        }
+    }
+
+    if (return_value == (int)SocketReturnCodes::STATUS_OK)
+    {
+        socklen_t namelen = (socklen_t)sizeof (name);
+        int err = getsockname (sock, (struct sockaddr *)&name, &namelen);
+        if (err != 0)
+        {
+            return_value = (int)SocketReturnCodes::CONNECT_ERROR;
+        }
+    }
+
+    if (return_value == (int)SocketReturnCodes::STATUS_OK)
+    {
+        const char *p = inet_ntop (AF_INET, &name.sin_addr, buffer, 80);
+        if (p != NULL)
+        {
+            strcpy (local_ip, buffer);
+        }
+        else
+        {
+            return_value = (int)SocketReturnCodes::PTON_ERROR;
+        }
+    }
+
+    ::close (sock);
+    return return_value;
+}
+
+SocketClient::SocketClient (const char *ip_addr, int port, int socket_type)
 {
     strcpy (this->ip_addr, ip_addr);
     this->port = port;
@@ -126,7 +261,7 @@ Socket::Socket (const char *ip_addr, int port, int socket_type)
     this->socket_type = socket_type;
 }
 
-int Socket::connect ()
+int SocketClient::connect ()
 {
     if (socket_type == (int)SocketType::UDP)
     {
@@ -168,7 +303,7 @@ int Socket::connect ()
     return (int)SocketReturnCodes::STATUS_OK;
 }
 
-int Socket::send (const char *data, int size)
+int SocketClient::send (const char *data, int size)
 {
     int res;
     if (socket_type == (int)SocketType::UDP)
@@ -183,7 +318,7 @@ int Socket::send (const char *data, int size)
     return res;
 }
 
-int Socket::recv (void *data, int size)
+int SocketClient::recv (void *data, int size)
 {
     unsigned int len = (unsigned int)sizeof (socket_addr);
     int res;
@@ -198,7 +333,7 @@ int Socket::recv (void *data, int size)
     return res;
 }
 
-void Socket::close ()
+void SocketClient::close ()
 {
     ::close (connect_socket);
     connect_socket = -1;

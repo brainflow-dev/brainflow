@@ -15,6 +15,12 @@ public class BoardInfoGetter {
                 return CYTON_DAISY.fs_hz;
             case NOVAXR.board_id:
                 return NOVAXR.fs_hz;
+            case GANGLION_WIFI.board_id:
+                return GANGLION_WIFI.fs_hz;
+            case CYTON_WIFI.board_id:
+                return CYTON_WIFI.fs_hz;
+            case CYTON_DAISY_WIFI.board_id:
+                return CYTON_DAISY_WIFI.fs_hz;
             default:
                 throw new  BrainFlowError ("Wrong board_id", ExitCode.UNSUPPORTED_BOARD_ERROR.get_code ());
         }
@@ -34,6 +40,12 @@ public class BoardInfoGetter {
                 return CYTON_DAISY.package_length;
             case NOVAXR.board_id:
                 return NOVAXR.package_length;
+            case GANGLION_WIFI.board_id:
+                return GANGLION_WIFI.package_length;
+            case CYTON_WIFI.board_id:
+                return CYTON_WIFI.package_length;
+            case CYTON_DAISY_WIFI.board_id:
+                return CYTON_DAISY_WIFI.package_length;
             default:
                 throw new  BrainFlowError ("Wrong board_id", ExitCode.UNSUPPORTED_BOARD_ERROR.get_code ());
         }
@@ -53,6 +65,12 @@ public class BoardInfoGetter {
                 return CYTON_DAISY.num_eeg_channels;
             case NOVAXR.board_id:
                 return NOVAXR.num_eeg_channels;
+            case GANGLION_WIFI.board_id:
+                return GANGLION_WIFI.num_eeg_channels;
+            case CYTON_WIFI.board_id:
+                return CYTON_WIFI.num_eeg_channels;
+            case CYTON_DAISY_WIFI.board_id:
+                return CYTON_DAISY_WIFI.num_eeg_channels;
             default:
                 throw new  BrainFlowError ("Wrong board_id", ExitCode.UNSUPPORTED_BOARD_ERROR.get_code ());
         }

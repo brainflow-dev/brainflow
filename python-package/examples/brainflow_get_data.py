@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 def main ():
     parser = argparse.ArgumentParser ()
     parser.add_argument ('--port', type = str, help  = 'port name, for synthetic board port_name doesnt matter, just pass smth', required = True)
-    parser.add_argument ('--board', type = int, help  = 'board id, Ganglion: 1, Cyton: 0, Synthetic: -1, Cyton Daisy: 2', required = True)
+    parser.add_argument ('--board', type = int, help  = 'board id, check docs to get a list of supported boards', required = True)
     parser.add_argument ('--log', action = 'store_true')
     args = parser.parse_args ()
 
@@ -28,7 +28,10 @@ def main ():
     board.release_session ()
 
     data_handler = brainflow.preprocess.DataHandler (args.board, numpy_data = data)
-    filtered_data = data_handler.preprocess_data (order = 3, start = 1, stop = 50)
+    data_handler.remove_dc_offset ()
+    data_handler.notch_interference ()
+    filtered_data = data_handler.get_data ()
+    #filtered_data = data_handler.preprocess_data (order = 3, start = 1, stop = 50)
     # plot eeg channels
     eeg_columns = list ()
     for col_name in filtered_data.columns:

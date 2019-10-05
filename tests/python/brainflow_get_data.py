@@ -6,7 +6,7 @@ import brainflow
 def main ():
     parser = argparse.ArgumentParser ()
     parser.add_argument ('--port', type = str, help  = 'port name, for synthetic board port_name doesnt matter, just pass smth', required = True)
-    parser.add_argument ('--board', type = int, help  = 'board id, Ganglion: 1, Cyton: 0, Synthetic: -1', required = True)
+    parser.add_argument ('--board', type = int, help  = 'board id, check docs to get a list of supported board ids', required = True)
     parser.add_argument ('--log', action = 'store_true')
     args = parser.parse_args ()
 
@@ -20,9 +20,9 @@ def main ():
     
     # disable second channel, note emulator doesnt handle such commands, run with real board to validate
     # different board have different data formats
-    if args.board != brainflow.GANGLION.board_id:
+    if args.board == brainflow.CYTON.board_id:
         board.config_board ('x2100000X')
-    else:
+    elif args.board == brainflow.GANGLION.board_id:
         board.config_board ('2')
 
     board.start_stream ()

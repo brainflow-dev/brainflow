@@ -1,11 +1,8 @@
 #pragma once
 
 #include <math.h>
-#include <stdint.h>
 
-#include "data_buffer.h"
 #include "openbci_serial_board.h"
-#include "spdlog/spdlog.h"
 
 #define ADS1299_Vref 4.5
 #define ADS1299_gain 24.0
