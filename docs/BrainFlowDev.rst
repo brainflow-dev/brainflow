@@ -1,5 +1,5 @@
 BrainFlow Dev
-=====================
+===============
 
 Code style
 -----------
@@ -24,9 +24,11 @@ We try to keep the same code style for all bindings as well, even if it doesn't 
 For example we add spaces before and after assignment operator to specify default value for method's param and add spaces before brackets
 
 CI and tests
--------------
+--------------
 
 If you want to commit to core module of brainflow project please check that all tests are passed, you can enable `Travis CI <https://travis-ci.com/>`_ and `AppVeyour <https://ci.appveyor.com>`_ for your fork of BrainFlow to run tests automatically, or check CI status directly in your PR
+
+Also you can run integration tests manually for any board even if you dont have real hardware, see :ref:`brainflow_emulator_link` for details
 
 Pull Requests
 --------------

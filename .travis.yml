@@ -26,6 +26,7 @@ addons:
       - python3-pip
       - r-base
       - libxml2-dev
+      - valgrind
   homebrew:
     packages:
       - r
@@ -62,16 +63,29 @@ script:
   - sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --log --board 0 --port 
   - sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py Rscript $TRAVIS_BUILD_DIR/tests/r/brainflow_get_data.R
   - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py $TRAVIS_BUILD_DIR/tests/cpp/build/test_get_data 0
+  - if [ `which valgrind` ]; then
+    LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/build/test_get_data 0 ;
+    fi
   # tests for synthetic board
   - python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --log --board -1 --port "smth"
   - python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_multiboard_get_data.py --log --first-board -1 --first-port "smth1" --second-board -1 --second-port "smth2"
-  - $TRAVIS_BUILD_DIR/tests/cpp/build/test_get_data -1 "smth"
+  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib $TRAVIS_BUILD_DIR/tests/cpp/build/test_get_data -1 "smth"
+  # upstream version of valgrind fails with rand - disable this check for synthetic board
+  #- if [ `which valgrind` ]; then
+  #  LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/build/test_get_data -1 "smth" ;
+  #  fi
   # tests for cyton daisy
   - sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --log --board 2 --port 
   - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py $TRAVIS_BUILD_DIR/tests/cpp/build/test_get_data 2
+  - if [ `which valgrind` ]; then
+    LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/build/test_get_data 2 ;
+    fi
   # tests for novaxr
   - sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/novaxr_udp.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --board 3 --port 127.0.0.1
   - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/novaxr_udp.py $TRAVIS_BUILD_DIR/tests/cpp/build/test_get_data 3 127.0.0.1
+  - if [ `which valgrind` ]; then
+    LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/novaxr_udp.py valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/build/test_get_data 3 127.0.0.1 ;
+    fi
   # tests for wifi shield based boards
   # on unix socket after close () goes to time_wait state and it fails to create a new socket on this port when previous connection is in time_wait state
   # I dont want to add network restart or timeout, so test only one wifi shield board
