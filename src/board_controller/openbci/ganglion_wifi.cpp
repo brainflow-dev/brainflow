@@ -3,7 +3,8 @@
 #include "timestamp.h"
 
 #define START_BYTE 0xA0
-#define END_BYTE 0xC0
+#define END_BYTE_STANDARD 0xC0
+#define END_BYTE_MAX 0xC6
 
 
 void GanglionWifi::read_thread ()
@@ -39,15 +40,8 @@ void GanglionWifi::read_thread ()
         {
             continue;
         }
-        // check end byte
-        if (b[res - 1] != END_BYTE)
-        {
-            safe_logger (
-                spdlog::level::warn, "Wrong end byte, found {}, required {}", b[res - 1], END_BYTE);
-            continue;
-        }
 
-        double package[12];
+        double package[15] = {0.};
         // package num
         package[0] = (double)b[0];
         // eeg
@@ -55,10 +49,31 @@ void GanglionWifi::read_thread ()
         {
             package[i + 1] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
         }
-        // accel
-        package[5] = accel_scale * cast_16bit_to_int32 (b + 25);
-        package[6] = accel_scale * cast_16bit_to_int32 (b + 27);
-        package[7] = accel_scale * cast_16bit_to_int32 (b + 29);
+        // check end byte
+        if (b[res - 1] == END_BYTE_STANDARD)
+        {
+            // accel
+            package[5] = accel_scale * cast_16bit_to_int32 (b + 25);
+            package[6] = accel_scale * cast_16bit_to_int32 (b + 27);
+            package[7] = accel_scale * cast_16bit_to_int32 (b + 29);
+            package[8] = (double)b[res - 1];
+        }
+        else if ((b[res - 1] > END_BYTE_STANDARD) && (b[res - 1] < END_BYTE_MAX))
+        {
+            // other data
+            package[8] = (double)b[res - 1];
+            package[9] = (double)b[25];
+            package[10] = (double)b[26];
+            package[11] = (double)b[27];
+            package[12] = (double)b[28];
+            package[13] = (double)b[29];
+            package[14] = (double)b[30];
+        }
+        else
+        {
+            safe_logger (spdlog::level::warn, "Wrong end byte, found {}", b[res - 1]);
+            continue;
+        }
 
         db->add_data (get_timestamp (), package);
     }

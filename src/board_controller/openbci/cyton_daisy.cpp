@@ -4,7 +4,8 @@
 #include "timestamp.h"
 
 #define START_BYTE 0xA0
-#define END_BYTE 0xC0
+#define END_BYTE_STANDARD 0xC0
+#define END_BYTE_MAX 0xC6
 
 
 void CytonDaisy::read_thread ()
@@ -26,7 +27,7 @@ void CytonDaisy::read_thread ()
     */
     int res;
     unsigned char b[32];
-    double package[20]; // 16 eeg channelsm 3 accel and package num
+    double package[27];
     bool first_sample = false;
     while (keep_alive)
     {
@@ -48,43 +49,89 @@ void CytonDaisy::read_thread ()
             safe_logger (spdlog::level::debug, "unable to read 32 bytes");
             continue;
         }
-        // check end byte
-        if (b[res - 1] != END_BYTE)
-        {
-            safe_logger (
-                spdlog::level::warn, "Wrong end byte, found {}, required {}", b[res - 1], END_BYTE);
-            continue;
-        }
 
-        if ((b[0] % 2 == 0) && (first_sample))
+        // check end byte
+        if (b[res - 1] == END_BYTE_STANDARD) // package has accel data
         {
-            // eeg
-            for (int i = 0; i < 8; i++)
+            if ((b[0] % 2 == 0) && (first_sample))
             {
-                package[i + 9] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
+                // eeg
+                for (int i = 0; i < 8; i++)
+                {
+                    package[i + 9] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
+                }
+                // need to average accel data
+                package[17] += accel_scale * cast_16bit_to_int32 (b + 25);
+                package[18] += accel_scale * cast_16bit_to_int32 (b + 27);
+                package[19] += accel_scale * cast_16bit_to_int32 (b + 29);
+                package[17] /= 2.0f;
+                package[18] /= 2.0f;
+                package[19] /= 2.0f;
+                package[20] = (double)b[res - 1];
+                db->add_data (get_timestamp (), package);
             }
-            // need to average accel data
-            package[17] += accel_scale * cast_16bit_to_int32 (b + 25);
-            package[18] += accel_scale * cast_16bit_to_int32 (b + 27);
-            package[19] += accel_scale * cast_16bit_to_int32 (b + 29);
-            package[17] /= 2.0f;
-            package[18] /= 2.0f;
-            package[19] /= 2.0f;
-            db->add_data (get_timestamp (), package);
+            else
+            {
+                first_sample = true;
+                package[0] = (double)b[0];
+                // eeg
+                for (int i = 0; i < 8; i++)
+                {
+                    package[i + 1] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
+                }
+                // accel
+                package[17] = accel_scale * cast_16bit_to_int32 (b + 25);
+                package[18] = accel_scale * cast_16bit_to_int32 (b + 27);
+                package[19] = accel_scale * cast_16bit_to_int32 (b + 29);
+            }
+        }
+        else if ((b[res - 1] > END_BYTE_STANDARD) && (b[res - 1] < END_BYTE_MAX))
+        {
+            if ((b[0] % 2 == 0) && (first_sample))
+            {
+                // eeg
+                for (int i = 0; i < 8; i++)
+                {
+                    package[i + 9] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
+                }
+                // need to average other data
+                package[21] += (double)b[25];
+                package[22] += (double)b[26];
+                package[23] += (double)b[27];
+                package[24] += (double)b[28];
+                package[25] += (double)b[29];
+                package[26] += (double)b[30];
+                package[21] /= 2.0;
+                package[22] /= 2.0;
+                package[23] /= 2.0;
+                package[24] /= 2.0;
+                package[25] /= 2.0;
+                package[26] /= 2.0;
+                package[20] = (double)b[res - 1];
+                db->add_data (get_timestamp (), package);
+            }
+            else
+            {
+                first_sample = true;
+                package[0] = (double)b[0];
+                // eeg
+                for (int i = 0; i < 8; i++)
+                {
+                    package[i + 1] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
+                }
+                // other data
+                package[21] = (double)b[25];
+                package[22] = (double)b[26];
+                package[23] = (double)b[27];
+                package[24] = (double)b[28];
+                package[25] = (double)b[29];
+                package[26] = (double)b[30];
+            }
         }
         else
         {
-            first_sample = true;
-            package[0] = (double)b[0];
-            // eeg
-            for (int i = 0; i < 8; i++)
-            {
-                package[i + 1] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
-            }
-            // accel
-            package[17] = accel_scale * cast_16bit_to_int32 (b + 25);
-            package[18] = accel_scale * cast_16bit_to_int32 (b + 27);
-            package[19] = accel_scale * cast_16bit_to_int32 (b + 29);
+            safe_logger (spdlog::level::warn, "Wrong end byte, found {}", b[res - 1]);
+            continue;
         }
     }
 }
