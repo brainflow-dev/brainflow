@@ -17,7 +17,8 @@ protected:
 
 public:
     // package num, 16 eeg channels, 3 accel channels
-    CytonDaisyWifi (char *ip_addr) : OpenBCIWifiShieldBoard (20, ip_addr)
+    CytonDaisyWifi (struct BrainFlowInputParams params)
+        : OpenBCIWifiShieldBoard (20, params, (int)CYTON_DAISY_WIFI_BOARD)
     {
     }
 };

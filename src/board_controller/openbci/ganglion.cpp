@@ -18,15 +18,14 @@
 #define MAX_ATTEMPTS_TO_GET_DATA 250
 
 
-Ganglion::Ganglion (const char *port_name) : Board ()
+Ganglion::Ganglion (struct BrainFlowInputParams params) : Board ((int)GANGLION_BOARD, params)
 {
-    if (port_name == NULL)
+    if (params.mac_address.empty ())
     {
         this->use_mac_addr = false;
     }
     else
     {
-        strcpy (this->mac_addr, port_name);
         this->use_mac_addr = true;
     }
     // get full path of ganglioblibnative with assumption that this lib is in the same folder
@@ -37,16 +36,24 @@ Ganglion::Ganglion (const char *port_name) : Board ()
     if (sizeof (void *) == 8)
     {
         if (res)
+        {
             ganglioblib_path = std::string (ganglionlib_dir) + "GanglionLibNative64.dll";
+        }
         else
+        {
             ganglioblib_path = "GanglionLibNative64.dll";
+        }
     }
     else
     {
         if (res)
+        {
             ganglioblib_path = std::string (ganglionlib_dir) + "GanglionLibNative32.dll";
+        }
         else
+        {
             ganglioblib_path = "GanglionLibNative32.dll";
+        }
     }
     safe_logger (spdlog::level::debug, "use dll: {}", ganglioblib_path.c_str ());
     dll_loader = new DLLLoader (ganglioblib_path.c_str ());
@@ -226,7 +233,7 @@ void Ganglion::read_thread ()
                 safe_logger (spdlog::level::debug, "start streaming");
             }
 
-            float package[8] = {0.f};
+            double package[8] = {0.f};
             // delta holds 8 nums because (4 by each package)
             float delta[8] = {0.f};
             int bits_per_num = 0;
@@ -252,16 +259,16 @@ void Ganglion::read_thread ()
                 last_data[7] = cast_24bit_to_int32 (data.data + 10);
 
                 // scale new packet and insert into result
-                package[0] = 0.f;
+                package[0] = 0.;
                 package[1] = this->eeg_scale * last_data[4];
                 package[2] = this->eeg_scale * last_data[5];
                 package[3] = this->eeg_scale * last_data[6];
                 package[4] = this->eeg_scale * last_data[7];
 
                 // I dont understand how to get accel data, for now it's 0
-                package[5] = 0.f;
-                package[6] = 0.f;
-                package[7] = 0.f;
+                package[5] = 0.;
+                package[6] = 0.;
+                package[7] = 0.;
                 this->db->add_data (data.timestamp, package);
                 continue;
             }
@@ -411,7 +418,7 @@ int Ganglion::call_open ()
     int res = GanglionLibNative::CustomExitCodesNative::STATUS_OK;
     if (this->use_mac_addr)
     {
-        safe_logger (spdlog::level::info, "search for {}", this->mac_addr);
+        safe_logger (spdlog::level::info, "search for {}", this->params.mac_address.c_str ());
         DLLFunc func = this->dll_loader->get_address ("open_ganglion_mac_addr_native");
         if (func == NULL)
         {
@@ -419,7 +426,7 @@ int Ganglion::call_open ()
                 "failed to get function address for open_ganglion_mac_addr_native");
             return GENERAL_ERROR;
         }
-        res = (func) (this->mac_addr);
+        res = (func) (const_cast<char *> (params.mac_address.c_str ()));
     }
     else
     {

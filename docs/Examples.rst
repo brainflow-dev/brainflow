@@ -11,8 +11,10 @@ Python
 R
 -----
 
+For R brainflow's signal processing API is unavailable, you will need to implement filters by yourself or use packages from CRAN
+
 .. literalinclude:: ../r-package/examples/brainflow_get_data.R
-   :language: r
+	:language: r
 
 Java
 -----
@@ -26,13 +28,6 @@ C#
 
 .. literalinclude:: ../csharp-package/brainflow/test/get_board_data.cs
    :language: c#
-
-
-Matlab
--------
-
-.. literalinclude:: ../matlab-package/BrainflowGetData.m
-   :language: matlab
 
 
 C++

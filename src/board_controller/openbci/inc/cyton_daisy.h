@@ -17,7 +17,8 @@ protected:
 
 public:
     // package num, 8 eeg channels, 3 accel channels
-    CytonDaisy (const char *port_name) : OpenBCISerialBoard (20, port_name)
+    CytonDaisy (struct BrainFlowInputParams params)
+        : OpenBCISerialBoard (20, params, (int)CYTON_DAISY_BOARD)
     {
     }
 };

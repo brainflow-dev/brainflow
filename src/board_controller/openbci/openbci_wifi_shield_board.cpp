@@ -10,24 +10,14 @@
 #define HTTP_IMPLEMENTATION
 #include "http.h"
 
-#define LOCAL_PORT 17982 // just random number lets hope that its free
-
 using json = nlohmann::json;
 
 
-OpenBCIWifiShieldBoard::OpenBCIWifiShieldBoard (int num_channels, char *shield_ip) : Board ()
+OpenBCIWifiShieldBoard::OpenBCIWifiShieldBoard (
+    int num_channels, struct BrainFlowInputParams params, int board_id)
+    : Board (board_id, params)
 {
     this->num_channels = num_channels;
-    if (shield_ip != NULL)
-    {
-        strcpy (this->shield_ip, shield_ip);
-    }
-    else
-    {
-        strcpy (this->shield_ip,
-            "192.168.4.1"); // just for better user experience since only direct
-                            // mode of wifi shield works ip will always be 192.168.4.1
-    }
     server_socket = NULL;
     keep_alive = false;
     initialized = false;
@@ -39,40 +29,6 @@ OpenBCIWifiShieldBoard::~OpenBCIWifiShieldBoard ()
     release_session ();
 }
 
-int OpenBCIWifiShieldBoard::config_board (char *config)
-{
-    if (!initialized)
-    {
-        return BOARD_NOT_READY_ERROR;
-    }
-    int res = validate_config (config);
-    if (res != STATUS_OK)
-    {
-        return res;
-    }
-
-    std::string url = "http://" + std::string (this->shield_ip) + "/command";
-    json post_data;
-    post_data["command"] = std::string (config);
-    std::string post_str = post_data.dump ();
-    safe_logger (spdlog::level::info, "command string {}", post_str.c_str ());
-    http_t *request = http_post (url.c_str (), post_str.c_str (), strlen (post_str.c_str ()), NULL);
-    if (!request)
-    {
-        safe_logger (spdlog::level::err, "error during request creation, to {}", url.c_str ());
-        return GENERAL_ERROR;
-    }
-    int send_res = wait_for_http_resp (request);
-    if (send_res != STATUS_OK)
-    {
-        http_release (request);
-        return send_res;
-    }
-    http_release (request);
-
-    return STATUS_OK;
-}
-
 int OpenBCIWifiShieldBoard::prepare_session ()
 {
     if (initialized)
@@ -80,9 +36,25 @@ int OpenBCIWifiShieldBoard::prepare_session ()
         safe_logger (spdlog::level::info, "Session already prepared");
         return STATUS_OK;
     }
-
+    if (params.ip_address.empty ())
+    {
+        safe_logger (
+            spdlog::level::err, "ip address is empty and autodiscovery is not implemented");
+        return INVALID_ARGUMENTS_ERROR;
+    }
+    if (params.ip_protocol != (int)IpProtocolType::TCP)
+    {
+        safe_logger (spdlog::level::err, "ip protocol should be tcp");
+        return INVALID_ARGUMENTS_ERROR;
+    }
+    if (!params.ip_port)
+    {
+        safe_logger (spdlog::level::err, "ip port is empty");
+        return INVALID_ARGUMENTS_ERROR;
+    }
     char local_ip[80];
-    int res = SocketClient::get_local_ip_addr (shield_ip, 80, local_ip);
+    int res = SocketClient::get_local_ip_addr (
+        const_cast<char *> (params.ip_address.c_str ()), 80, local_ip);
     if (res != 0)
     {
         safe_logger (spdlog::level::err, "failed to get local ip addr: {}", res);
@@ -90,17 +62,17 @@ int OpenBCIWifiShieldBoard::prepare_session ()
     }
     safe_logger (spdlog::level::info, "local ip addr is {}", local_ip);
 
-    server_socket = new SocketServer (local_ip, LOCAL_PORT);
+    server_socket = new SocketServer (local_ip, params.ip_port);
     res = server_socket->bind ();
     if (res != 0)
     {
         safe_logger (spdlog::level::err, "failed to create server socket with addr {} and port {}",
-            local_ip, LOCAL_PORT);
+            local_ip, params.ip_port);
         return GENERAL_ERROR;
     }
-    safe_logger (spdlog::level::trace, "bind socket, port  is {}", LOCAL_PORT);
+    safe_logger (spdlog::level::trace, "bind socket, port  is {}", params.ip_port);
 
-    std::string url = "http://" + std::string (this->shield_ip) + "/board";
+    std::string url = "http://" + params.ip_address + "/board";
     http_t *request = http_get (url.c_str (), NULL);
     if (!request)
     {
@@ -121,11 +93,11 @@ int OpenBCIWifiShieldBoard::prepare_session ()
         safe_logger (spdlog::level::err, "error in accept");
         return GENERAL_ERROR;
     }
-    url = "http://" + std::string (this->shield_ip) + "/tcp";
+    url = "http://" + params.ip_address + "/tcp";
 
     json post_data;
     post_data["ip"] = std::string (local_ip);
-    post_data["port"] = LOCAL_PORT;
+    post_data["port"] = params.ip_port;
     post_data["output"] = std::string ("raw");
     post_data["delimiter"] = true;
     post_data["latency"] = 10000;
@@ -185,6 +157,40 @@ int OpenBCIWifiShieldBoard::prepare_session ()
     return STATUS_OK;
 }
 
+int OpenBCIWifiShieldBoard::config_board (char *config)
+{
+    if (!initialized)
+    {
+        return BOARD_NOT_READY_ERROR;
+    }
+    int res = validate_config (config);
+    if (res != STATUS_OK)
+    {
+        return res;
+    }
+
+    std::string url = "http://" + params.ip_address + "/command";
+    json post_data;
+    post_data["command"] = std::string (config);
+    std::string post_str = post_data.dump ();
+    safe_logger (spdlog::level::info, "command string {}", post_str.c_str ());
+    http_t *request = http_post (url.c_str (), post_str.c_str (), strlen (post_str.c_str ()), NULL);
+    if (!request)
+    {
+        safe_logger (spdlog::level::err, "error during request creation, to {}", url.c_str ());
+        return GENERAL_ERROR;
+    }
+    int send_res = wait_for_http_resp (request);
+    if (send_res != STATUS_OK)
+    {
+        http_release (request);
+        return send_res;
+    }
+    http_release (request);
+
+    return STATUS_OK;
+}
+
 int OpenBCIWifiShieldBoard::start_stream (int buffer_size)
 {
     if (keep_alive)
@@ -204,7 +210,7 @@ int OpenBCIWifiShieldBoard::start_stream (int buffer_size)
         db = NULL;
     }
 
-    std::string url = "http://" + std::string (this->shield_ip) + "/stream/start";
+    std::string url = "http://" + params.ip_address + "/stream/start";
     http_t *request = http_get (url.c_str (), NULL);
     if (!request)
     {
@@ -237,7 +243,7 @@ int OpenBCIWifiShieldBoard::stop_stream ()
     {
         keep_alive = false;
         streaming_thread.join ();
-        std::string url = "http://" + std::string (this->shield_ip) + "/stream/stop";
+        std::string url = "http://" + params.ip_address + "/stream/stop";
         http_t *request = http_get (url.c_str (), NULL);
         if (!request)
         {

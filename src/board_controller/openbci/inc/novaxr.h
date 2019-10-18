@@ -24,7 +24,7 @@ private:
     bool is_streaming;
     std::thread streaming_thread;
     int num_channels;
-    SocketClient socket;
+    SocketClient *socket;
 
     std::mutex m;
     std::condition_variable cv;
@@ -32,7 +32,7 @@ private:
     void read_thread ();
 
 public:
-    NovaXR (char *ip_addr);
+    NovaXR (struct BrainFlowInputParams params);
     ~NovaXR ();
 
     int prepare_session ();

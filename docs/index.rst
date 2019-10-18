@@ -23,6 +23,7 @@ These versions are exactly the same, choose one and use it
 	UserAPI
 	Examples
 	BrainFlowDev
+	BrainFlowEmulator
 	AskHelp
 	License
 

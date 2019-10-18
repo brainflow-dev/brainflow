@@ -25,7 +25,7 @@ void CytonDaisyWifi::read_thread ()
     */
     int res;
     unsigned char b[32];
-    float package[20]; // 16 eeg channels 3 accel and package num
+    double package[20]; // 16 eeg channels 3 accel and package num
     bool first_sample = false;
     while (keep_alive)
     {
@@ -74,7 +74,7 @@ void CytonDaisyWifi::read_thread ()
         else
         {
             first_sample = true;
-            package[0] = (float)b[0];
+            package[0] = (double)b[0];
             // eeg
             for (int i = 0; i < 8; i++)
             {

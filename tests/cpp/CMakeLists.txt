@@ -1,6 +1,9 @@
 cmake_minimum_required (VERSION 3.10)
 project (brainflow_cpp_example)
 
+set (CMAKE_CXX_STANDARD 11)
+set (CMAKE_VERBOSE_MAKEFILE ON)
+
 macro (configure_msvc_runtime)
     if (MSVC)
         # Default to statically-linked runtime.
@@ -40,10 +43,10 @@ macro (configure_msvc_runtime)
     endif ()
 endmacro ()
 
-set (CMAKE_CXX_STANDARD 11)
-set (CMAKE_VERBOSE_MAKEFILE ON)
-
-configure_msvc_runtime()
+# link msvc runtime statically
+if (MSVC)
+    configure_msvc_runtime()
+endif ()
 
 find_package (
     brainflow CONFIG REQUIRED
@@ -61,6 +64,8 @@ target_include_directories (
 
 target_link_libraries (
     test_get_data PUBLIC
-    ${GetDataPath}
+    # for some systems(ubuntu for example) order matters
+    ${BrainflowPath}
+    ${DataHandlerPath}
     ${BoardControllerPath}
 )
