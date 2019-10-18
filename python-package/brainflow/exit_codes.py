@@ -1,7 +1,7 @@
 import enum
 
 
-class StreamExitCodes (enum.Enum):
+class BrainflowExitCodes (enum.Enum):
     """Enum to store all possible exit codes"""
     STATUS_OK = 0
     PORT_ALREADY_OPEN_ERROR = 1
@@ -22,3 +22,5 @@ class StreamExitCodes (enum.Enum):
     ANOTHER_BOARD_IS_CREATED_ERROR = 16
     GENERAL_ERROR = 17
     SYNC_TIMEOUT_ERROR = 18
+    JSON_NOT_FOUND_ERROR = 19
+    NO_SUCH_DATA_IN_JSON_ERROR = 20

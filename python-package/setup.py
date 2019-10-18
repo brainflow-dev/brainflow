@@ -18,23 +18,23 @@ setup (
     author = 'Andrey Parfenov',
     author_email = 'a1994ndrey@gmail.com',
     packages = find_packages (),
-    classifiers = [
-        'Development Status :: 2 - Pre-Alpha',
-        'Topic :: Utilities'
-    ],
     install_requires = [
-        'numpy', 'scipy', 'pandas', 'enum-compat'
+        'numpy'
     ],
     package_data = {
         'brainflow': [
-            # I think we can add 32bit version only for windows at least for now
             os.path.join ('lib', 'BoardController.dll'),
             os.path.join ('lib', 'BoardController32.dll'),
             os.path.join ('lib', 'libBoardController.so'),
             os.path.join ('lib', 'GanglionLib.dll'),
             os.path.join ('lib', 'GanglionLibNative64.dll'),
             os.path.join ('lib', 'GanglionLibNative32.dll'),
-            os.path.join ('lib', 'libBoardController.dylib')
+            os.path.join ('lib', 'libBoardController.dylib'),
+            os.path.join ('lib', 'brainflow_boards.json'),
+            os.path.join ('lib', 'DataHandler.dll'),
+            os.path.join ('lib', 'DataHandler32.dll'),
+            os.path.join ('lib', 'libDataHandler.so'),
+            os.path.join ('lib', 'libDataHandler.dylib')
         ]
     },
     zip_safe = True,

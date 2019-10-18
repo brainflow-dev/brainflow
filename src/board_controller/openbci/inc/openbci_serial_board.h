@@ -16,7 +16,7 @@ protected:
     bool is_streaming;
     std::thread streaming_thread;
 
-    Serial serial;
+    Serial *serial;
     int num_channels;
 
     virtual int open_port ();
@@ -26,7 +26,7 @@ protected:
     virtual int send_to_board (char *msg);
 
 public:
-    OpenBCISerialBoard (int num_channels, const char *port_name);
+    OpenBCISerialBoard (int num_channels, struct BrainFlowInputParams params, int board_id);
     virtual ~OpenBCISerialBoard ();
 
     virtual int prepare_session ();

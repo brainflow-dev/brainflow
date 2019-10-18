@@ -50,9 +50,9 @@ void CytonWifi::read_thread ()
             continue;
         }
 
-        float package[12];
+        double package[12];
         // package num
-        package[0] = (float)b[0];
+        package[0] = (double)b[0];
         // eeg
         for (int i = 0; i < 8; i++)
         {

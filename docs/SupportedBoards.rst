@@ -5,12 +5,12 @@ Supported Boards
 Synthetic Board
 ----------------
 
+
 This board generates synthetic data and you dont need real hardware to use it.
 
-prepare_session args to select this board:
+To choose this board in BoardShim class please specify:
 
-- board Id: -1
-- port: any string
+- board_id: -1
 
 Supported platforms:
 
@@ -20,9 +20,9 @@ Supported platforms:
 
 Board Specs:
 
-- num eeg(emg) channels: configurable
-- num acceleration channels: configurable
-- sampling rate: configurable
+- num eeg(emg) channels: 8
+- num acceleration channels: 3
+- sampling rate: 256
 - communication: None
 
 
@@ -33,10 +33,10 @@ OpenBCI Cyton
 
 `Cyton geting started guide from OpenBCI <https://docs.openbci.com/Tutorials/00-Tutorials>`_.
 
-prepare_session args to select this board:
+To choose this board in BoardShim class please specify:
 
-- board Id: 0
-- port: serial port (COM3, /dev/ttyUSB0 ....)
+- board_id: 0
+- serial_port field of BrainFlowInputStruct
 
 Supported platforms:
 
@@ -60,8 +60,10 @@ OpenBCI Ganglion
 
 prepare_session args to select this board:
 
-- board Id: 1
-- port: for Windows - Ganglion Mac address which you can get using Bluetooth Low Energy Explorer from Microsoft Store (e.g. e6:73:73:18:09:b1) for Windows autodiscovery works so you can pass empty string as well, for Linux/MacOS you need to pass string in format "dongle_port,mac_addr"(e.g./dev/ttyACM0,e6:73:73:18:09:b1) to get mac address on Linux you can use hcitool
+To choose this board in BoardShim class please specify:
+
+- board_id: 1
+- mac_address field of BrainFlowInputStruct, if its empty BrainFlow will try to autodiscover it
 
 Supported platforms:
 
@@ -89,10 +91,10 @@ OpenBCI Cyton Daisy
 
 `Cyton Daisy geting started guide from OpenBCI <https://docs.openbci.com/Tutorials/00-Tutorials>`_.
 
-prepare_session args to select this board:
+To choose this board in BoardShim class please specify:
 
-- board Id: 2
-- port: serial port (COM3, /dev/ttyUSB0 ....)
+- board_id: 2
+- serial_port field of BrainFlowInputStruct
 
 Supported platforms:
 
@@ -117,11 +119,12 @@ OpenBCI Ganglion with Wifi Shield
 
 `Wifi shield programming guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_.
 
+To choose this board in BoardShim class please specify:
 
-API params:
-
-- board Id: 4
-- port: shield ip address (192.168.4.1 for direct mode)
+- board_id: 4
+- ip_address field of BrainFlowInputStruct should contain WiFi Shield Ip address(in direct mode its 192.168.4.1)
+- ip_protocol field of BrainFlowInputStruct should be IpProtocolType.TCP
+- ip_port field of BrainFlowInputStruct should be any local port which is free right now
 
 Supported platforms:
 
@@ -148,10 +151,12 @@ OpenBCI Cyton with Wifi Shield
 
 `Wifi shield programming guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_.
 
-API params:
+To choose this board in BoardShim class please specify:
 
-- board Id: 5
-- port: shield ip address (192.168.4.1 for direct mode)
+- board_id: 5
+- ip_address field of BrainFlowInputStruct should contain WiFi Shield Ip address(in direct mode its 192.168.4.1)
+- ip_protocol field of BrainFlowInputStruct should be IpProtocolType.TCP
+- ip_port field of BrainFlowInputStruct should be any local port which is free right now
 
 Supported platforms:
 
@@ -177,18 +182,18 @@ OpenBCI Cyton Daisy with Wifi Shield
 
 `Wifi shield programming guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_.
 
+To choose this board in BoardShim class please specify:
 
-API params:
-
-- board Id: 6
-- port: shield ip address (192.168.4.1 for direct mode)
+- board_id: 6
+- ip_address field of BrainFlowInputStruct should contain WiFi Shield Ip address(in direct mode its 192.168.4.1)
+- ip_protocol field of BrainFlowInputStruct should be IpProtocolType.TCP
+- ip_port field of BrainFlowInputStruct should be any local port which is free right now
 
 Supported platforms:
 
 - Windows >= 8.1
 - Linux
 - MacOS
-
 
 Board Spec:
 

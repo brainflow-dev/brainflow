@@ -16,12 +16,14 @@ if (CMAKE_SIZEOF_VOID_P EQUAL 8)
     MESSAGE ("64 bits compiler detected")
     SET (PLATFORM_ACH "X64")
     SET (BOARD_CONTROLLER_NAME "BoardController" "libBoardController")
-    SET (GET_DATA_NAME "GetData" "libGetData")
+    SET (DATA_HANDLER_NAME "DataHandler" "libDataHandler")
+    SET (BRAINFLOW_NAME "Brainflow" "libBrainflow")
 else (CMAKE_SIZEOF_VOID_P EQUAL 8)
     MESSAGE ("32 bits compiler detected")
     SET (PLATFORM_ACH "X86")
     SET (BOARD_CONTROLLER_NAME "BoardController32" "libBoardController32")
-    SET (GET_DATA_NAME "GetData32" "libGetData32")
+    SET (DATA_HANDLER_NAME "DataHandler32" "libDataHandler32")
+    SET (BRAINFLOW_NAME "Brainflow32" "libBrainflow32")
 endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
 
 find_library (
@@ -31,7 +33,13 @@ find_library (
 )
 
 find_library (
-    GetDataPath
-    ${GET_DATA_NAME}
+    DataHandlerPath
+    ${DATA_HANDLER_NAME}
+    PATHS @package_lib_install_dir@
+)
+
+find_library (
+    BrainflowPath
+    ${BRAINFLOW_NAME}
     PATHS @package_lib_install_dir@
 )

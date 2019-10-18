@@ -23,12 +23,11 @@ protected:
 
     SocketServer *server_socket;
     int num_channels;
-    char shield_ip[80];
 
     virtual void read_thread () = 0;
 
 public:
-    OpenBCIWifiShieldBoard (int num_channels, char *ip_addr);
+    OpenBCIWifiShieldBoard (int num_channels, struct BrainFlowInputParams params, int board_id);
     virtual ~OpenBCIWifiShieldBoard ();
 
     int prepare_session ();

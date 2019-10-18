@@ -22,7 +22,6 @@ private:
     bool is_streaming;
     std::thread streaming_thread;
 
-    char mac_addr[1024];
     bool use_mac_addr;
     int num_channels;
     DLLLoader *dll_loader;
@@ -46,7 +45,7 @@ private:
     void read_thread ();
 
 public:
-    Ganglion (const char *port_name);
+    Ganglion (struct BrainFlowInputParams params);
     ~Ganglion ();
 
     int prepare_session ();

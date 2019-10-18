@@ -24,7 +24,7 @@ private:
     void read_thread ();
 
 public:
-    SyntheticBoard (const char *json_config);
+    SyntheticBoard (struct BrainFlowInputParams params);
     ~SyntheticBoard ();
 
     int prepare_session ();

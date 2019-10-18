@@ -4,11 +4,12 @@
 #include "openbci_serial_board.h"
 #include "serial.h"
 
-OpenBCISerialBoard::OpenBCISerialBoard (int num_channels, const char *port_name)
-    : Board (), serial (port_name)
+OpenBCISerialBoard::OpenBCISerialBoard (
+    int num_channels, struct BrainFlowInputParams params, int board_id)
+    : Board (board_id, params)
 {
     this->num_channels = num_channels;
-
+    serial = NULL;
     is_streaming = false;
     keep_alive = false;
     initialized = false;
@@ -22,19 +23,19 @@ OpenBCISerialBoard::~OpenBCISerialBoard ()
 
 int OpenBCISerialBoard::open_port ()
 {
-    if (serial.is_port_open ())
+    if (serial->is_port_open ())
     {
-        safe_logger (spdlog::level::err, "port {} already open", serial.get_port_name ());
+        safe_logger (spdlog::level::err, "port {} already open", serial->get_port_name ());
         return PORT_ALREADY_OPEN_ERROR;
     }
 
-    Board::board_logger->info ("openning port {}", serial.get_port_name ());
-    int res = serial.open_serial_port ();
+    Board::board_logger->info ("openning port {}", serial->get_port_name ());
+    int res = serial->open_serial_port ();
     if (res < 0)
     {
         return UNABLE_TO_OPEN_PORT_ERROR;
     }
-    safe_logger (spdlog::level::trace, "port {} is open", serial.get_port_name ());
+    safe_logger (spdlog::level::trace, "port {} is open", serial->get_port_name ());
     return STATUS_OK;
 }
 
@@ -56,7 +57,7 @@ int OpenBCISerialBoard::send_to_board (char *msg)
 {
     int lenght = strlen (msg);
     safe_logger (spdlog::level::debug, "sending {} to the board", msg);
-    int res = serial.send_to_serial_port ((const void *)msg, lenght);
+    int res = serial->send_to_serial_port ((const void *)msg, lenght);
     if (res != lenght)
     {
         return BOARD_WRITE_ERROR;
@@ -67,7 +68,7 @@ int OpenBCISerialBoard::send_to_board (char *msg)
 
 int OpenBCISerialBoard::set_port_settings ()
 {
-    int res = serial.set_serial_port_settings ();
+    int res = serial->set_serial_port_settings ();
     if (res < 0)
     {
         safe_logger (spdlog::level::err, "Unable to set port settings, res is {}", res);
@@ -86,7 +87,7 @@ int OpenBCISerialBoard::status_check ()
     // board is ready if there are '$$$'
     for (int i = 0; i < 500; i++)
     {
-        int res = serial.read_from_serial_port (buf, 1);
+        int res = serial->read_from_serial_port (buf, 1);
         if (res > 0)
         {
             if (buf[0] == '$')
@@ -98,7 +99,9 @@ int OpenBCISerialBoard::status_check ()
                 count = 0;
             }
             if (count == 3)
+            {
                 return STATUS_OK;
+            }
         }
     }
     return BOARD_NOT_READY_ERROR;
@@ -111,6 +114,12 @@ int OpenBCISerialBoard::prepare_session ()
         safe_logger (spdlog::level::info, "Session already prepared");
         return STATUS_OK;
     }
+    if (params.serial_port.empty ())
+    {
+        safe_logger (spdlog::level::err, "serial port is empty");
+        return INVALID_ARGUMENTS_ERROR;
+    }
+    serial = new Serial (params.serial_port.c_str ());
     int port_open = open_port ();
     if (port_open != STATUS_OK)
     {
@@ -196,6 +205,11 @@ int OpenBCISerialBoard::release_session ()
         }
         initialized = false;
     }
-    serial.close_serial_port ();
+    if (serial)
+    {
+        serial->close_serial_port ();
+        delete serial;
+        serial = NULL;
+    }
     return STATUS_OK;
 }

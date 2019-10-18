@@ -28,7 +28,7 @@ void Cyton::read_thread ()
     while (keep_alive)
     {
         // check start byte
-        res = serial.read_from_serial_port (b, 1);
+        res = serial->read_from_serial_port (b, 1);
         if (res != 1)
         {
             safe_logger (spdlog::level::debug, "unable to read 1 byte");
@@ -39,7 +39,7 @@ void Cyton::read_thread ()
             continue;
         }
 
-        res = serial.read_from_serial_port (b, 32);
+        res = serial->read_from_serial_port (b, 32);
         if (res != 32)
         {
             safe_logger (spdlog::level::debug, "unable to read 32 bytes");
@@ -53,9 +53,9 @@ void Cyton::read_thread ()
             continue;
         }
 
-        float package[12];
+        double package[12];
         // package num
-        package[0] = (float)b[0];
+        package[0] = (double)b[0];
         // eeg
         for (int i = 0; i < 8; i++)
         {

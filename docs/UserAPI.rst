@@ -1,18 +1,18 @@
 User API
-=========
+==========
 
-There is no separated classes for each BCI board, instead there is only one BoardShim class, you need to pass BrainFlow's board id to BoardShim constructor to choose a board.
-Using this design you are able to switch boards via single integer value.
-To request information like sampling rate for speciffic board we recommend to use BoardInfoGetter class.
-All bindings throw BrainFlowException with exit code and error message if smth went wrong.
+BrainFlow User API has no classes for all supported boardm instead there are only two classes:
+- BoardShim to read data from a board
+- DataFilter to perform signal processing
 
-All bindings have pretty similar API. Here we will add only Python API Reference, for other languages it's almost the same
+To select a board you need to pass BrainFlow's board id to BoardShim's constructor as well as required parameters for this particular board.
+This level of abstraction allows you to change board almost without any changes in code.
 
 Python API Reference
----------------------
+----------------------
 
 brainflow.board\_shim
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: brainflow.board_shim
    :members:
@@ -21,7 +21,7 @@ brainflow.board\_shim
    :member-order: bysource
 
 brainflow.exit\_codes
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: brainflow.exit_codes
    :members:
@@ -30,10 +30,10 @@ brainflow.exit\_codes
    :show-inheritance:
    :member-order: bysource
 
-brainflow.preprocess
-~~~~~~~~~~~~~~~~~~~~~
+brainflow.data\_filter
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: brainflow.preprocess
+.. automodule:: brainflow.data_filter
    :members:
    :undoc-members:
    :noindex:

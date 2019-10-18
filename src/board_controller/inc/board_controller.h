@@ -1,62 +1,83 @@
 #pragma once
 
+#include <string>
+#include <tuple>
+
 #ifdef _WIN32
 #define SHARED_EXPORT __declspec(dllexport)
+#define CALLING_CONVENTION __cdecl
 #else
 #define SHARED_EXPORT
+#define CALLING_CONVENTION
 #endif
 
-typedef enum
-{
-    STATUS_OK = 0,
-    PORT_ALREADY_OPEN_ERROR,
-    UNABLE_TO_OPEN_PORT_ERROR,
-    SET_PORT_ERROR,
-    BOARD_WRITE_ERROR,
-    INCOMMING_MSG_ERROR,
-    INITIAL_MSG_ERROR,
-    BOARD_NOT_READY_ERROR,
-    STREAM_ALREADY_RUN_ERROR,
-    INVALID_BUFFER_SIZE_ERROR,
-    STREAM_THREAD_ERROR,
-    STREAM_THREAD_IS_NOT_RUNNING,
-    EMPTY_BUFFER_ERROR,
-    INVALID_ARGUMENTS_ERROR,
-    UNSUPPORTED_BOARD_ERROR,
-    BOARD_NOT_CREATED_ERROR,
-    ANOTHER_BOARD_IS_CREATED_ERROR,
-    GENERAL_ERROR,
-    SYNC_TIMEOUT_ERROR
-} CustomExitCodes;
+#include "board_info_getter.h"
+#include "brainflow_constants.h"
 
-typedef enum
+enum class IpProtocolType
 {
-    SYNTHETIC_BOARD = -1,
-    CYTON_BOARD = 0,
-    GANGLION_BOARD = 1,
-    CYTON_DAISY_BOARD = 2,
-    NOVAXR_BOARD = 3,
-    GANGLION_WIFI_BOARD = 4,
-    CYTON_WIFI_BOARD = 5,
-    CYTON_DAISY_WIFI_BOARD = 6
-} BoardIds;
+    NONE = 0,
+    UDP = 1,
+    TCP = 2
+};
+
+// we pass this structure from user API as a json string
+struct BrainFlowInputParams
+{
+    std::string serial_port;
+    std::string mac_address;
+    std::string ip_address;
+    int ip_port;
+    int ip_protocol;
+    std::string other_info;
+
+    BrainFlowInputParams ()
+    {
+        serial_port = "";
+        mac_address = "";
+        ip_address = "";
+        ip_port = 0;
+        ip_protocol = (int)IpProtocolType::NONE;
+        other_info = "";
+    }
+
+    // default copy constructor and assignment operator are ok, need less operator to use in map
+    bool operator< (const struct BrainFlowInputParams &other) const
+    {
+        return std::tie (serial_port, mac_address, ip_address, ip_port, ip_protocol, other_info) <
+            std::tie (other.serial_port, other.mac_address, other.ip_address, other.ip_port,
+                other.ip_protocol, other.other_info);
+    }
+};
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
-    SHARED_EXPORT int prepare_session (int board_id, char *port_name);
-    SHARED_EXPORT int start_stream (int buffer_size, int board_id, char *port_name);
-    SHARED_EXPORT int stop_stream (int board_id, char *port_name);
-    SHARED_EXPORT int release_session (int board_id, char *port_name);
-    SHARED_EXPORT int get_current_board_data (int num_samples, float *data_buf, double *ts_buf,
-        int *returned_samples, int board_id, char *port_name);
-    SHARED_EXPORT int get_board_data_count (int *result, int board_id, char *port_name);
-    SHARED_EXPORT int get_board_data (
-        int data_count, float *data_buf, double *ts_buf, int board_id, char *port_name);
-    SHARED_EXPORT int set_log_level (int log_level);
-    SHARED_EXPORT int config_board (char *config, int board_id, char *port_name);
-    SHARED_EXPORT int set_log_file (char *log_file);
+    // data acquisition methods
+    SHARED_EXPORT int CALLING_CONVENTION prepare_session (int board_id,
+        char
+            *json_brainflow_input_params); // I dont use const char * because I am not sure that all
+                                           // languages support passing const char * instead char *
+    SHARED_EXPORT int CALLING_CONVENTION start_stream (
+        int buffer_size, int board_id, char *json_brainflow_input_params);
+    SHARED_EXPORT int CALLING_CONVENTION stop_stream (
+        int board_id, char *json_brainflow_input_params);
+    SHARED_EXPORT int CALLING_CONVENTION release_session (
+        int board_id, char *json_brainflow_input_params);
+    SHARED_EXPORT int get_current_board_data (int num_samples, double *data_buf,
+        int *returned_samples, int board_id, char *json_brainflow_input_params);
+    SHARED_EXPORT int CALLING_CONVENTION get_board_data_count (
+        int *result, int board_id, char *json_brainflow_input_params);
+    SHARED_EXPORT int CALLING_CONVENTION get_board_data (
+        int data_count, double *data_buf, int board_id, char *json_brainflow_input_params);
+    SHARED_EXPORT int CALLING_CONVENTION config_board (
+        char *config, int board_id, char *json_brainflow_input_params);
+
+    // logging methods
+    SHARED_EXPORT int CALLING_CONVENTION set_log_level (int log_level);
+    SHARED_EXPORT int CALLING_CONVENTION set_log_file (char *log_file);
+
 #ifdef __cplusplus
 }
 #endif

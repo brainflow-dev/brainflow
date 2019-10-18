@@ -18,14 +18,12 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-SyntheticBoard::SyntheticBoard (const char *json_config) : Board ()
+SyntheticBoard::SyntheticBoard (struct BrainFlowInputParams params)
+    : Board ((int)SYNTHETIC_BOARD, params)
 {
     this->is_streaming = false;
     this->keep_alive = false;
     this->initialized = false;
-    // todo as soon as we move data processing to cpp we will be able to make this params
-    // configurable using json file for example, can not do it right now because we will need to
-    // read this json file in all bindigs and pass filename to BoardInfoGetter somehow
     this->num_channels = 8;
     this->amplitude = 1000;
     this->shift = 0.3f;
@@ -131,7 +129,7 @@ void SyntheticBoard::read_thread ()
         base_wave[i] = this->amplitude * sin (1.8f * i * rads + this->shift);
     }
     // eeg channels + 3 accel channels + package num
-    float *package = new float[this->num_channels + 3 + 1];
+    double *package = new double[this->num_channels + 3 + 1];
     // random distr for noise
     std::random_device rd;
     std::mt19937 mt (rd ());
@@ -145,7 +143,7 @@ void SyntheticBoard::read_thread ()
     while (this->keep_alive)
     {
         // package num
-        package[0] = (float)counter;
+        package[0] = (double)counter;
         // eeg
         for (int i = 0; i < this->num_channels; i++)
         {

@@ -1,12 +1,16 @@
-# Python
+# Brainflow
 
-Following commands will install all required packages for you:
-```
-cd python-package
-pip install -e .
-```
-Or install it from [PYPI](https://pypi.org/project/brainflow/) with:
-```
-pip install brainflow
-```
+Brainflow is a library to read and process data from BCI boards.
+
+This library provides an uniform API to get data from huge amount of BCI devices and to perform signal processing
+
+Also it is available for other programming languages like:
+
+* C++
+* Java
+* C#
+* Matlab
+* R
+* and so on
+
 ## [BrainFlow Docs, Dev and User guides and other information](https://brainflow.readthedocs.io/en/latest/index.html)

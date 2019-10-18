@@ -25,6 +25,10 @@
           <include>GanglionLib.dll</include>
           <include>GanglionLibNative64.dll</include>
           <include>libBoardController.dylib</include>
+          <include>brainflow_boards.json</include>
+          <include>DataHandler.dll</include>
+          <include>libDataHandler.dll</include>
+          <include>libDataHandler.dylib</include>
         </includes>
       </resource>
     </resources>
@@ -81,5 +85,10 @@
       <artifactId>commons-lang3</artifactId>
       <version>3.1</version>
     </dependency>
+    <dependency> 
+       <groupId>com.google.code.gson</groupId> 
+       <artifactId>gson</artifactId> 
+       <version>2.6.2</version> 
+   </dependency>
   </dependencies>
 </project>

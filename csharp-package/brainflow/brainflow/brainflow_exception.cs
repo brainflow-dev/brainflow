@@ -2,10 +2,10 @@
 
 namespace brainflow
 {
-    public class BrainFlowExceptioin : Exception
+    public class BrainFlowException : Exception
     {
         public int exit_code;
-        public BrainFlowExceptioin (int code) : base (String.Format ("{0}:{1}", Enum.GetName (typeof (CustomExitCodes), code), code))
+        public BrainFlowException (int code) : base (String.Format ("{0}:{1}", Enum.GetName (typeof (CustomExitCodes), code), code))
         {
             exit_code = code;
         }

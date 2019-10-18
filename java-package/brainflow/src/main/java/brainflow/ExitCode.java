@@ -24,9 +24,11 @@ public enum ExitCode {
     BOARD_NOT_CREATED_ERROR (15),
     ANOTHER_BOARD_IS_CREATED_ERROR (16),
     GENERAL_ERROR (17),
-    SYNC_TIMEOUT_ERROR (18);
+    SYNC_TIMEOUT_ERROR (18),
+    JSON_NOT_FOUND_ERROR (19),
+    NO_SUCH_DATA_IN_JSON_ERROR (20);
+    
 
- 
     private final int exit_code;
     private static final Map<Integer, ExitCode> ec_map = new HashMap<Integer, ExitCode>();
     
