@@ -1,5 +1,3 @@
-.. _brainflow_emulator_link:
-
 Brainflow Emulator
 ==================
 
@@ -10,7 +8,7 @@ Cyton
 
 Cyton emulator simulate COM port using:
 
-- [com0com](http://com0com.sourceforge.net/) for Windows
+- `com0com <http://com0com.sourceforge.net/>`_ for Windows
 - pty for Linux and MacOS
 
 You should pass command line to test directly to cyton_linux.py or to cyton_windows.py, script will add port automatically to provided command line and will start an application
@@ -24,12 +22,12 @@ Install emulator package::
 Run tests for Linux\MacOS and Windows (port argument will be added by Emulator!) ::
 
     python brainflow_emulator/cyton_linux.py python ../python-package/examples/brainflow_get_data.py --log --board-id 0 --serial-port
-    python brainflow_emulator/cyton_windows.py python ..\python-package\examples\brainflow_get_data.py --log --board-id 0 --serial-port
+    python brainflow_emulator\cyton_windows.py python ..\python-package\examples\brainflow_get_data.py --log --board-id 0 --serial-port
 
 Ganglion
 ----------
 
-Interaction with Ganglion is implemented in another dynamic library, brainflow loads this library at runtime and calls methods from this library, there is a mock for this library, so you need to compile `mock <../GanglionBLEAPI/Mock>`_` and replace real library by it. Use Cmake to build mock
+Interaction with Ganglion is implemented in another dynamic library, brainflow loads this library at runtime and calls methods from this library, there is a mock for this library, so you need to compile mock version and replace real library by it. Use Cmake to build mock
 
 
 NovaXR

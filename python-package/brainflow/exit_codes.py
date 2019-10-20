@@ -3,6 +3,7 @@ import enum
 
 class BrainflowExitCodes (enum.Enum):
     """Enum to store all possible exit codes"""
+
     STATUS_OK = 0
     PORT_ALREADY_OPEN_ERROR = 1
     UNABLE_TO_OPEN_PORT_ERROR = 2

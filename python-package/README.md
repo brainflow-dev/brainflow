@@ -9,7 +9,6 @@ Also it is available for other programming languages like:
 * C++
 * Java
 * C#
-* Matlab
 * R
 * and so on
 

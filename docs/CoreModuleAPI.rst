@@ -3,8 +3,8 @@ BrainFlow Core API
 
 Core module of BrainFlow includes two dynamic libraries, one of them reads data from a board and provides methods to query information about data format while another dynamic library performs signal processing. All bindings just call methods from these dynamic libraries, it simplifies adding new boards and maintenance.
 
-All possible exit codes
--------------------------
+All possible exit codes and supported boards
+----------------------------------------------
 
 .. literalinclude:: ../src/board_controller/inc/brainflow_constants.h
    :language: cpp
