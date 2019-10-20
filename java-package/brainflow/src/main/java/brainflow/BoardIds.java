@@ -14,29 +14,29 @@ public enum BoardIds {
     CYTON_WIFI_BOARD (5),
     CYTON_DAISY_WIFI_BOARD (6);
     
-    private final int exit_code;
-    private static final Map<Integer, ExitCode> ec_map = new HashMap<Integer, ExitCode>();
+    private final int board_id;
+    private static final Map<Integer, BoardIds> bi_map = new HashMap<Integer, BoardIds>();
     
     public int get_code () {
-        return exit_code;
+        return board_id;
     }
     
     public static String string_from_code (final int code) {
         return from_code (code).name ();
     }
  
-    public static ExitCode from_code (final int code) {
-        final ExitCode element = ec_map.get (code);
+    public static BoardIds from_code (final int code) {
+        final BoardIds element = bi_map.get (code);
         return element;
     }
  
     BoardIds(final int code) {
-        exit_code = code;
+        board_id = code;
     }
 
     static {
-        for (final ExitCode ec : ExitCode.values ()) {
-            ec_map.put(ec.get_code(), ec);
+        for (final BoardIds bi : BoardIds.values ()) {
+            bi_map.put(bi.get_code(), bi);
         }
     }
 }
