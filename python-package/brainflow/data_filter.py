@@ -14,9 +14,10 @@ from brainflow.exit_codes import BrainflowExitCodes
 
 class FilterTypes (enum.Enum):
     """Enum to store all supported Filter Types"""
-    BUTTERWORTH = 0
-    CHEBYSHEV_TYPE_1 = 1
-    BESSEL = 2
+
+    BUTTERWORTH = 0 #:
+    CHEBYSHEV_TYPE_1 = 1 #:
+    BESSEL = 2 #:
 
 
 class DataHandlerDLL (object):
@@ -101,7 +102,21 @@ class DataFilter (object):
 
     @classmethod
     def perform_lowpass (cls, data, sampling_rate, cutoff, order, filter_type, ripple):
-        """apply low pass filter to provided data"""
+        """apply low pass filter to provided data
+
+        :param data: data to filter, filter works in-place
+        :type data: numpy array
+        :param sampling_rate: board's sampling rate
+        :type sampling_rate: float
+        :param cutoff: cutoff frequency
+        :type cutoff: float
+        :param order: filter order
+        :type order: int
+        :param filter_type: filter type from special enum
+        :type filter_type: int
+        :param ripple: ripple value for Chebyshev filter
+        :type ripple: float
+        """
         if not isinstance (sampling_rate, int):
             raise BrainFlowError ('wrong type for sampling rate', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not isinstance (filter_type, int):
@@ -112,7 +127,21 @@ class DataFilter (object):
 
     @classmethod
     def perform_highpass (cls, data, sampling_rate, cutoff, order, filter_type, ripple):
-        """apply high pass filter to provided data"""
+        """apply high pass filter to provided data
+
+        :param data: data to filter, filter works in-place
+        :type data: numpy array
+        :param sampling_rate: board's sampling rate
+        :type sampling_rate: float
+        :param cutoff: cutoff frequency
+        :type cutoff: float
+        :param order: filter order
+        :type order: int
+        :param filter_type: filter type from special enum
+        :type filter_type: int
+        :param ripple: ripple value for Chebyshev filter
+        :type ripple: float
+        """
         if not isinstance (sampling_rate, int):
             raise BrainFlowError ('wrong type for sampling rate', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not isinstance (filter_type, int):
@@ -123,7 +152,23 @@ class DataFilter (object):
 
     @classmethod
     def perform_bandpass (cls, data, sampling_rate, center_freq, band_width, order, filter_type, ripple):
-        """apply band pass filter to provided data"""
+        """apply band pass filter to provided data
+
+        :param data: data to filter, filter works in-place
+        :type data: numpy array
+        :param sampling_rate: board's sampling rate
+        :type sampling_rate: float
+        :param center_freq: center frequency frequency
+        :type center_freq: float
+        :param band_width: band width
+        :type band_width: float
+        :param order: filter order
+        :type order: int
+        :param filter_type: filter type from special enum
+        :type filter_type: int
+        :param ripple: ripple value for Chebyshev filter
+        :type ripple: float
+        """
         if not isinstance (sampling_rate, int):
             raise BrainFlowError ('wrong type for sampling rate', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not isinstance (filter_type, int):
@@ -134,7 +179,23 @@ class DataFilter (object):
 
     @classmethod
     def perform_bandstop (cls, data, sampling_rate, center_freq, band_width, order, filter_type, ripple):
-        """apply band stop filter to provided data"""
+        """apply band stop filter to provided data
+
+        :param data: data to filter, filter works in-place
+        :type data: numpy array
+        :param sampling_rate: board's sampling rate
+        :type sampling_rate: float
+        :param center_freq: center frequency frequency
+        :type center_freq: float
+        :param band_width: band width
+        :type band_width: float
+        :param order: filter order
+        :type order: int
+        :param filter_type: filter type from special enum
+        :type filter_type: int
+        :param ripple: ripple value for Chebyshev filter
+        :type ripple: float
+        """
         if not isinstance (sampling_rate, int):
             raise BrainFlowError ('wrong type for sampling rate', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not isinstance (filter_type, int):

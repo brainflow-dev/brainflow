@@ -14,6 +14,8 @@
 #
 import os
 import sys
+import subprocess
+
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath(os.path.join('..', 'python-package')))
 sys.path.insert(0, os.path.abspath(os.path.join('..', 'python-package', 'brainflow')))
@@ -40,8 +42,56 @@ release = u''
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc'
+    'sphinx.ext.autodoc',
+    'breathe'
 ]
+
+# Breathe and Doxygen setup
+
+breathe_default_project = "BrainFlowCpp"
+
+def configure_doxyfile(input_dir, output_dir, project):
+    with open('Doxyfile.in', 'r') as file :
+        filedata = file.read()
+
+    filedata = filedata.replace('@DOXYGEN_INPUT_DIR@', input_dir)
+    filedata = filedata.replace('@DOXYGEN_OUTPUT_DIR@', output_dir)
+    filedata = filedata.replace('@DOXYGEN_PROJECT@', project)
+
+    with open('Doxyfile', 'w') as file:
+        file.write(filedata)
+
+# Check if we're running on Read the Docs' servers
+read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
+
+breathe_projects = {}
+
+if read_the_docs_build:
+    # cpp binding
+    input_dir = '../cpp-package/src'
+    output_dir = 'build-cpp'
+    configure_doxyfile(input_dir, output_dir, 'BrainFlowCpp')
+    subprocess.call('doxygen', shell=True)
+    breathe_projects['BrainFlowCpp'] = output_dir + '/xml'
+    # java binding
+    input_dir = '../java-package'
+    output_dir = 'build-java'
+    configure_doxyfile(input_dir, output_dir, 'BrainFlowJava')
+    subprocess.call('doxygen', shell=True)
+    breathe_projects['BrainFlowJava'] = output_dir + '/xml'
+    # c# binding
+    input_dir = '../csharp-package'
+    output_dir = 'build-csharp'
+    configure_doxyfile(input_dir, output_dir, 'BrainFlowCsharp')
+    subprocess.call('doxygen', shell=True)
+    breathe_projects['BrainFlowCsharp'] = output_dir + '/xml'
+    # core api, we dont use it right now but maybe later we will docs for developers too
+    input_dir = '../src'
+    output_dir = 'build-core'
+    configure_doxyfile(input_dir, output_dir, 'BrainFlowCore')
+    subprocess.call('doxygen', shell=True)
+    breathe_projects['BrainFlowCore'] = output_dir + '/xml'
+
 
 # sphinx.ext.autodoc
 autoclass_content = 'both'
@@ -82,13 +132,33 @@ pygments_style = None
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "sphinx_rtd_theme"
+
+# I dont like import in the middle but its a copypaste from their docs
+import guzzle_sphinx_theme
+
+extensions.append("guzzle_sphinx_theme")
+html_theme_path = guzzle_sphinx_theme.html_theme_path()
+html_theme = "guzzle_sphinx_theme"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-# html_theme_options = {}
+html_translator_class = 'guzzle_sphinx_theme.HTMLTranslator'
+html_show_sourcelink = False
+html_sidebars = {
+    '**': ['logo-text.html',
+           'globaltoc.html',
+           'localtoc.html',
+           'searchbox.html']
+}
+
+html_theme_options = {
+    "globaltoc_depth": 3,
+    "globaltoc_collapse": False,
+    "globaltoc_includehidden": False,
+    "project_nav_name": "BrainFlow"
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

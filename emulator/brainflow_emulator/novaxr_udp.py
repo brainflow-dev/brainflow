@@ -37,8 +37,8 @@ def test_socket (cmd_list):
 
 def run_socket_server ():
     novaxr_thread = NovaXREmulator ()
-    novaxr_thread.daemon = True
     novaxr_thread.start ()
+    return novaxr_thread
 
 
 class NovaXREmulator (threading.Thread):
@@ -54,14 +54,16 @@ class NovaXREmulator (threading.Thread):
         self.addr = None
         self.package_num = 0
         self.package_size = 72
+        self.keep_alive = True
 
     def run (self):
-        while True:
+        while self.keep_alive:
             if self.package_num % 256 == 0:
                 self.package_num = 0
             try:
                 msg, self.addr = self.server_socket.recvfrom (128)
-                logging.info ('received %s from %s' % (msg, self.addr))
+                if msg:
+                    logging.info ('received %s from %s' % (msg, self.addr))
                 if msg == Message.start_stream.value:
                     self.state = State.stream.value
                 elif msg == Message.stop_stream.value:
@@ -89,10 +91,12 @@ class NovaXREmulator (threading.Thread):
 def main (cmd_list):
     if not cmd_list:
         raise Exception ('No command to execute')
-    run_socket_server ()
+    server_thread = run_socket_server ()
     test_socket (cmd_list)
+    server_thread.keep_alive = False
+    server_thread.join ()
 
 
 if __name__=='__main__':
-    logging.basicConfig (level = logging.INFO)
+    logging.basicConfig (format = '%(asctime)s %(levelname)-8s %(message)s', level = logging.INFO)
     main (sys.argv[1:])

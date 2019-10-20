@@ -5,7 +5,7 @@ Common requirements
 ----------------------
 
 - Windows >= 8.1/Linux/MacOS
-- On Windows we support x86 and x64 libraries for Python and C# for other languages - x64 only, for MacOS and Linux - only x64 for all languages
+- On Windows we support x86/x64 libraries, for MacOS and Linux - only x64 bit libraries, if you need 32bit libraries for Linux you should compile them by yourself
 - For Ganglion on Windows if you dont compile brainflow by yorself you may need to install `redist_x64 <https://aka.ms/vs/16/release/vc_redist.x64.exe>`_ or `redist_x86 <https://aka.ms/vs/16/release/vc_redist.x86.exe>`_  (but more likely you have it preinstalled) to use built-in Bluetooth API also you need Windows >= 10
 - For Ganglion on Linux/MacOS you need to use dongle, for Windows dongle is not required if you have Bluetooth on your laptop
 
@@ -72,6 +72,8 @@ C#
 ----
 
 For C# only Windows is currently supported
+
+You can download latest release from `Nuget <https://www.nuget.org/packages/brainflow/>`_ or build it youself:
 
 - Compile BrainFlow's core module
 - open Visual Studio Solution

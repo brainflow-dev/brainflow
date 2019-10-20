@@ -236,7 +236,7 @@ public class BoardShim {
     }
     
     public int board_id;
-    public String input_json;
+    private String input_json;
     
     public BoardShim (int board_id, BrainFlowInputParams params) throws BrainFlowError, IOException, ReflectiveOperationException {
         this.board_id = board_id;
