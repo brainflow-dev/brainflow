@@ -83,13 +83,16 @@ int OpenBCISerialBoard::status_check ()
     Board::board_logger->trace ("start status check");
     unsigned char buf[1];
     int count = 0;
+    int max_empty_seq = 5;
+    int num_empty_attempts = 0;
 
-    // board is ready if there are '$$$'
     for (int i = 0; i < 500; i++)
     {
         int res = serial->read_from_serial_port (buf, 1);
         if (res > 0)
         {
+            num_empty_attempts = 0;
+            // board is ready if there are '$$$'
             if (buf[0] == '$')
             {
                 count++;
@@ -101,6 +104,15 @@ int OpenBCISerialBoard::status_check ()
             if (count == 3)
             {
                 return STATUS_OK;
+            }
+        }
+        else
+        {
+            num_empty_attempts++;
+            if (num_empty_attempts > max_empty_seq)
+            {
+                safe_logger (spdlog::level::err, "board doesnt send welcome characters!");
+                return BOARD_NOT_READY_ERROR;
             }
         }
     }
