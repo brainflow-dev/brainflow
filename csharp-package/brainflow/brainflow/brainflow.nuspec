@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>1.1.1</version>
+    <title>$title$</title>
+    <authors>Andrey1994</authors>
+    <owners>Andrey1994</owners>
+    <licenseUrl>https://github.com/Andrey1994/brainflow/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/Andrey1994/brainflow</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>C# binding to BrainFlow</description>
+    <releaseNotes>Check BrainFlow docs for details about this release</releaseNotes>
+    <copyright>Copyright (c) 2018 Andrey Parfenov</copyright>
+    <tags>BrainFlow EEG EMG BCI OpenBCI</tags>
+    <dependencies>
+      <dependency id="Accord" version="3.8.0" />
+      <dependency id="Accord.Math" version="3.8.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="lib\**" target="lib" />
+    <file src="brainflow.targets" target="build" />
+  </files>
+</package>

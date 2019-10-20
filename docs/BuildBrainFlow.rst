@@ -73,6 +73,8 @@ C#
 
 For C# only Windows is currently supported
 
+You can download latest release from `Nuget <https://www.nuget.org/packages/brainflow/>`_ or build it youself:
+
 - Compile BrainFlow's core module
 - open Visual Studio Solution
 - install required nuget packages
