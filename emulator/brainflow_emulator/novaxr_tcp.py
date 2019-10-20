@@ -37,8 +37,8 @@ def test_socket (cmd_list):
 
 def run_socket_server ():
     novaxr_thread = NovaXREmulator ()
-    novaxr_thread.daemon = True
     novaxr_thread.start ()
+    return novaxr_thread
 
 
 class NovaXREmulator (threading.Thread):
@@ -48,34 +48,44 @@ class NovaXREmulator (threading.Thread):
         self.local_ip = '127.0.0.1'
         self.local_port = 2390
         self.server_socket = socket.socket (family = socket.AF_INET, type = socket.SOCK_STREAM)
-        self.server_socket.settimeout (5) # timeout for listen and accept
+        self.server_socket.settimeout (0.1)
         self.server_socket.bind ((self.local_ip, self.local_port))
         self.server_socket.listen (1)
         self.state = State.wait.value
         self.addr = None
+        self.conn = None
         self.package_num = 0
         self.package_size = 72
+        self.keep_alive = True
 
     def run (self):
-        self.conn, self.addr = self.server_socket.accept ()
-        self.server_socket.settimeout (0.1) # timeout for recv and send - decreases sampling rate significantly because it will wait for recv 0.1 sec but it's just a test
+        for i in range (50):
+            try:
+                self.conn, self.addr = self.server_socket.accept ()
+                break
+            except socket.timeout:
+                pass
+        if self.addr is None:
+            raise TestFailureError ('failed to establish connection')
 
-        while True:
+        while self.keep_alive:
             if self.package_num % 256 == 0:
                 self.package_num = 0
-            try:
-                msg = self.conn.recv (128)
-                logging.info ('received %s' % (msg))
-                if msg == Message.start_stream.value:
-                    self.state = State.stream.value
-                elif msg == Message.stop_stream.value:
-                    self.state = State.wait.value
-                else:
+            # dirtiest hack ever but it doesnt work otherwise. seems like recv ignores timeout and it means that we send only 1 package
+            if self.package_num == 0:
+                try:
+                    msg = self.conn.recv (128)
                     if msg:
-                        # we dont handle board config characters because they dont change package format
-                        logging.warn ('received unexpected string %s', str (msg))
-            except socket.timeout:
-                logging.debug ('timeout for recv')
+                        logging.info ('received %s' % (msg))
+                        if msg == Message.start_stream.value:
+                            self.state = State.stream.value
+                        elif msg == Message.stop_stream.value:
+                            self.state = State.wait.value
+                        else:
+                            # we dont handle board config characters because they dont change package format
+                            logging.warn ('received unexpected string %s', str (msg))
+                except socket.timeout:
+                    logging.debug ('timeout for recv')
 
             if self.state == State.stream.value:
                 package = list ()
@@ -93,10 +103,12 @@ class NovaXREmulator (threading.Thread):
 def main (cmd_list):
     if not cmd_list:
         raise Exception ('No command to execute')
-    run_socket_server ()
+    server_thread = run_socket_server ()
     test_socket (cmd_list)
+    server_thread.keep_alive = False
+    server_thread.join ()
 
 
 if __name__=='__main__':
-    logging.basicConfig (level = logging.INFO)
+    logging.basicConfig (format = '%(asctime)s %(levelname)-8s %(message)s', level = logging.INFO)
     main (sys.argv[1:])
