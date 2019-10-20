@@ -113,7 +113,6 @@ after_test:
 #       }
 #       nuget pack brainflow.csproj -properties Configuration=Release -IncludeReferencedProjects;
 #       aws s3 cp %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow s3://brainflow-artifacts/%APPVEYOR_REPO_COMMIT%/nuget --recursive;
-
 #       $lin = $false;
 #       $osx = $false;
 #       for ($i=0; $i -lt 30; $i++) {
@@ -123,6 +122,15 @@ after_test:
 #         aws s3 ls s3://brainflow-artifacts/$env:APPVEYOR_REPO_COMMIT/osx_success;
 #         $osx = $?
 #         if($lin -and $osx) {break}
+#         # stop waiting if linux or mac tests fail
+#         aws s3 ls s3://brainflow-artifacts/$env:APPVEYOR_REPO_COMMIT/linux_failure;
+#         $lin_fail = $?;
+#         aws s3 ls s3://brainflow-artifacts/$env:APPVEYOR_REPO_COMMIT/osx_failure;
+#         $osx_fail = $?
+#         if($lin_fail -or $osx_fail) {
+#           write-output "Skip deployment, travis build failed"
+#           break
+#         }
 #         Start-Sleep -s 60;
 #         echo "not found"
 #       }
