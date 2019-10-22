@@ -261,6 +261,14 @@ class BoardControllerDLL (object):
             ndpointer (ctypes.c_int32)
         ]
 
+        self.get_analog_channels = self.lib.get_analog_channels
+        self.get_analog_channels.restype = ctypes.c_int
+        self.get_analog_channels.argtypes = [
+            ctypes.c_int,
+            ndpointer (ctypes.c_int32),
+            ndpointer (ctypes.c_int32)
+        ]
+
         self.get_gyro_channels = self.lib.get_gyro_channels
         self.get_gyro_channels.restype = ctypes.c_int
         self.get_gyro_channels.argtypes = [
@@ -516,6 +524,24 @@ class BoardShim (object):
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to request info about this board', res)
         result = accel_channels.tolist () [0:num_channels[0]]
+        return result
+
+    @classmethod
+    def get_analog_channels (cls, board_id):
+        """get list of analog channels in resulting data table for a board
+
+        :param board_id: Board Id
+        :type board_id: int
+        :return: list of analog channels in returned numpy array
+        :rtype: list
+        """
+        num_channels = numpy.zeros (1).astype (numpy.int32)
+        analog_channels = numpy.zeros (512).astype (numpy.int32)
+
+        res = BoardControllerDLL.get_instance ().get_analog_channels (board_id, analog_channels, num_channels)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to request info about this board', res)
+        result = analog_channels.tolist () [0:num_channels[0]]
         return result
 
     @classmethod

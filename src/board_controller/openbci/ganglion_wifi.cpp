@@ -4,6 +4,7 @@
 
 #define START_BYTE 0xA0
 #define END_BYTE_STANDARD 0xC0
+#define END_BYTE_ANALOG 0xC1
 #define END_BYTE_MAX 0xC6
 
 
@@ -41,7 +42,7 @@ void GanglionWifi::read_thread ()
             continue;
         }
 
-        double package[15] = {0.};
+        double package[18] = {0.};
         // package num
         package[0] = (double)b[0];
         // eeg
@@ -49,6 +50,8 @@ void GanglionWifi::read_thread ()
         {
             package[i + 1] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
         }
+        // end byte
+        package[8] = (double)b[res - 1];
         // check end byte
         if (b[res - 1] == END_BYTE_STANDARD)
         {
@@ -56,9 +59,15 @@ void GanglionWifi::read_thread ()
             package[5] = accel_scale * cast_16bit_to_int32 (b + 25);
             package[6] = accel_scale * cast_16bit_to_int32 (b + 27);
             package[7] = accel_scale * cast_16bit_to_int32 (b + 29);
-            package[8] = (double)b[res - 1];
         }
-        else if ((b[res - 1] > END_BYTE_STANDARD) && (b[res - 1] < END_BYTE_MAX))
+        else if (b[res - 1] == END_BYTE_ANALOG)
+        {
+            // analog
+            package[15] = cast_16bit_to_int32 (b + 25);
+            package[16] = cast_16bit_to_int32 (b + 27);
+            package[17] = cast_16bit_to_int32 (b + 29);
+        }
+        else if ((b[res - 1] > END_BYTE_ANALOG) && (b[res - 1] <= END_BYTE_MAX))
         {
             // other data
             package[8] = (double)b[res - 1];

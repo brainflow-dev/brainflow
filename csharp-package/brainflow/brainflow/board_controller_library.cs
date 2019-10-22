@@ -89,6 +89,8 @@ namespace brainflow
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_accel_channels (int board_id, int[] channels, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_analog_channels (int board_id, int[] channels, int[] len);
+        [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_gyro_channels (int board_id, int[] channels, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_other_channels (int board_id, int[] channels, int[] len);
@@ -138,6 +140,8 @@ namespace brainflow
         public static extern int get_ppg_channels (int board_id, int[] channels, int[] len);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_accel_channels (int board_id, int[] channels, int[] len);
+        [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_analog_channels (int board_id, int[] channels, int[] len);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_gyro_channels (int board_id, int[] channels, int[] len);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -312,6 +316,14 @@ namespace brainflow
                 return BoardControllerLibrary64.get_accel_channels (board_id, channels, len);
             else
                 return BoardControllerLibrary32.get_accel_channels (board_id, channels, len);
+        }
+
+        public static int get_analog_channels (int board_id, int[] channels, int[] len)
+        {
+            if (System.Environment.Is64BitProcess)
+                return BoardControllerLibrary64.get_analog_channels (board_id, channels, len);
+            else
+                return BoardControllerLibrary32.get_analog_channels (board_id, channels, len);
         }
 
         public static int get_gyro_channels (int board_id, int[] channels, int[] len)

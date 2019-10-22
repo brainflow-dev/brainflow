@@ -18,7 +18,7 @@ protected:
 public:
     // package num, 4 eeg channels, 3 accel channels
     GanglionWifi (struct BrainFlowInputParams params)
-        : OpenBCIWifiShieldBoard (15, params, (int)GANGLION_WIFI_BOARD)
+        : OpenBCIWifiShieldBoard (18, params, (int)GANGLION_WIFI_BOARD)
     {
     }
 };

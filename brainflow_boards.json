@@ -13,6 +13,7 @@
 			"eda_channels" : [1, 2, 3, 4, 5, 6, 7, 8],
 			"ppg_channels" : [],
 			"accel_channels" : [9, 10, 11],
+			"analog_channels" : [],
 			"gyro_channels": [],
 			"other_channels": []
 		},
@@ -20,8 +21,8 @@
 			"name": "Cyton",
 			"sampling_rate": 250,
 			"package_num_channel" : 0,
-			"timestamp_channel" : 19,
-			"num_rows" : 20,
+			"timestamp_channel" : 22,
+			"num_rows" : 23,
 			"eeg_channels" : [1, 2, 3, 4, 5, 6, 7, 8],
 			"emg_channels" : [1, 2, 3, 4, 5, 6, 7, 8],
 			"ecg_channels" : [1, 2, 3, 4, 5, 6, 7, 8],
@@ -29,6 +30,7 @@
 			"eda_channels" : [1, 2, 3, 4, 5, 6, 7, 8],
 			"ppg_channels" : [],
 			"accel_channels" : [9, 10, 11],
+			"analog_channels" : [19, 20, 21],
 			"gyro_channels": [],
 			"other_channels": [12, 13, 14, 15, 16, 17, 18]
 		},
@@ -45,6 +47,7 @@
 			"eda_channels" : [1, 2, 3, 4],
 			"ppg_channels" : [],
 			"accel_channels" : [5, 6, 8],
+			"analog_channels" : [],
 			"gyro_channels": [],
 			"other_channels": []
 		},
@@ -52,8 +55,8 @@
 			"name": "CytonDaisy",
 			"sampling_rate": 125,
 			"package_num_channel" : 0,
-			"timestamp_channel" : 27,
-			"num_rows" : 28,
+			"timestamp_channel" : 30,
+			"num_rows" : 31,
 			"eeg_channels" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
 			"emg_channels" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
 			"ecg_channels" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
@@ -61,6 +64,7 @@
 			"eda_channels" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
 			"ppg_channels" : [],
 			"accel_channels" : [17, 18, 19],
+			"analog_channels" : [27, 28, 29],
 			"gyro_channels": [],
 			"other_channels": [20, 21, 22, 23, 24, 25, 26]
 		},
@@ -77,6 +81,7 @@
 			"eda_channels" : [18],
 			"ppg_channels" : [17],
 			"accel_channels" : [19, 20, 21],
+			"analog_channels" : [],
 			"gyro_channels": [22, 23, 24],
 			"other_channels": []
 		},
@@ -84,8 +89,8 @@
 			"name": "GanglionWifi",
 			"sampling_rate": 1600,
 			"package_num_channel" : 0,
-			"timestamp_channel" : 15,
-			"num_rows" : 16,
+			"timestamp_channel" : 18,
+			"num_rows" : 19,
 			"eeg_channels" : [1, 2, 3, 4],
 			"emg_channels" : [1, 2, 3, 4],
 			"ecg_channels" : [1, 2, 3, 4],
@@ -93,6 +98,7 @@
 			"eda_channels" : [1, 2, 3, 4],
 			"ppg_channels" : [],
 			"accel_channels" : [5, 6, 7],
+			"analog_channels" : [15, 16, 17],
 			"gyro_channels": [],
 			"other_channels": [8, 9, 10, 11, 12, 13, 14]
 		},
@@ -100,8 +106,8 @@
 			"name": "CytonWifi",
 			"sampling_rate": 1000,
 			"package_num_channel" : 0,
-			"timestamp_channel" : 19,
-			"num_rows" : 20,
+			"timestamp_channel" : 22,
+			"num_rows" : 23,
 			"eeg_channels" : [1, 2, 3, 4, 5, 6, 7, 8],
 			"emg_channels" : [1, 2, 3, 4, 5, 6, 7, 8],
 			"ecg_channels" : [1, 2, 3, 4, 5, 6, 7, 8],
@@ -109,6 +115,7 @@
 			"eda_channels" : [1, 2, 3, 4, 5, 6, 7, 8],
 			"ppg_channels" : [],
 			"accel_channels" : [8, 10, 11],
+			"analog_channels" : [19, 20, 21],
 			"gyro_channels": [],
 			"other_channels": [12, 13, 14, 15, 16, 17, 18]
 		},
@@ -116,8 +123,8 @@
 			"name": "CytonDaisyWifi",
 			"sampling_rate": 1000,
 			"package_num_channel" : 0,
-			"timestamp_channel" : 27,
-			"num_rows" : 28,
+			"timestamp_channel" : 30,
+			"num_rows" : 31,
 			"eeg_channels" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
 			"emg_channels" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
 			"ecg_channels" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
@@ -125,8 +132,9 @@
 			"eda_channels" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
 			"ppg_channels" : [],
 			"accel_channels" : [17, 18, 19],
+			"analog_channels" : [27, 28, 29],
 			"gyro_channels": [],
-			"other_channels": [20, 21, 22, 23, 24, 25, 26, 27]
+			"other_channels": [20, 21, 22, 23, 24, 25, 26]
 		}
 	}
 }

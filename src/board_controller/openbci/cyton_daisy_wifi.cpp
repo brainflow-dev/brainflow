@@ -4,6 +4,7 @@
 
 #define START_BYTE 0xA0
 #define END_BYTE_STANDARD 0xC0
+#define END_BYTE_ANALOG 0xC1
 #define END_BYTE_MAX 0xC6
 
 
@@ -26,7 +27,7 @@ void CytonDaisyWifi::read_thread ()
     */
     int res;
     unsigned char b[32];
-    double package[27] = {0.};
+    double package[30] = {0.};
     bool first_sample = false;
     while (keep_alive)
     {
@@ -48,6 +49,7 @@ void CytonDaisyWifi::read_thread ()
             safe_logger (spdlog::level::debug, "unable to read 32 bytes");
             continue;
         }
+
         // check end byte
         if (b[res - 1] == END_BYTE_STANDARD) // package has accel data
         {
@@ -83,7 +85,42 @@ void CytonDaisyWifi::read_thread ()
                 package[19] = accel_scale * cast_16bit_to_int32 (b + 29);
             }
         }
-        else if ((b[res - 1] > END_BYTE_STANDARD) && (b[res - 1] < END_BYTE_MAX))
+        else if (b[res - 1] == END_BYTE_ANALOG) // package has analog data
+        {
+            if ((b[0] % 2 == 0) && (first_sample))
+            {
+                // eeg
+                for (int i = 0; i < 8; i++)
+                {
+                    package[i + 9] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
+                }
+                // need to average analog data
+                package[27] += cast_16bit_to_int32 (b + 25);
+                package[28] += cast_16bit_to_int32 (b + 27);
+                package[29] += cast_16bit_to_int32 (b + 29);
+                package[27] /= 2.0f;
+                package[28] /= 2.0f;
+                package[29] /= 2.0f;
+                package[20] = (double)b[res - 1]; // cyton end byte
+                db->add_data (get_timestamp (), package);
+            }
+            else
+            {
+                first_sample = true;
+                package[0] = (double)b[0];
+                // eeg
+                for (int i = 0; i < 8; i++)
+                {
+                    package[i + 1] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
+                }
+                // analog
+                package[27] = cast_16bit_to_int32 (b + 25);
+                package[28] = cast_16bit_to_int32 (b + 27);
+                package[29] = cast_16bit_to_int32 (b + 29);
+            }
+        }
+        else if ((b[res - 1] > END_BYTE_STANDARD) &&
+            (b[res - 1] <= END_BYTE_MAX)) // some data which we dont preprocess but add as raw
         {
             if ((b[0] % 2 == 0) && (first_sample))
             {

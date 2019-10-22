@@ -33,6 +33,7 @@ public:
     static int *get_ppg_channels (int board_id, int *len);
     static int *get_eda_channels (int board_id, int *len);
     static int *get_accel_channels (int board_id, int *len);
+    static int *get_analog_channels (int board_id, int *len);
     static int *get_gyro_channels (int board_id, int *len);
     static int *get_other_channels (int board_id, int *len);
 

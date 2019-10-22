@@ -139,8 +139,13 @@ after_test:
 #         New-Item $env:APPVEYOR_BUILD_FOLDER\linux -itemtype directory
 #         New-Item $env:APPVEYOR_BUILD_FOLDER\osx -itemtype directory
 #         aws s3 cp s3://brainflow-artifacts/$env:APPVEYOR_REPO_COMMIT/linux/ $env:APPVEYOR_BUILD_FOLDER\linux\ --recursive
+#         ls  $env:APPVEYOR_BUILD_FOLDER\linux
 #         aws s3 cp s3://brainflow-artifacts/$env:APPVEYOR_REPO_COMMIT/osx/ $env:APPVEYOR_BUILD_FOLDER\osx\ --recursive
+#         ls $env:APPVEYOR_BUILD_FOLDER\osx
 #         cd $env:APPVEYOR_BUILD_FOLDER\java-package\brainflow
+#         Copy-Item "$env:APPVEYOR_BUILD_FOLDER\linux\*" -Destination "$env:APPVEYOR_BUILD_FOLDER\java-package\brainflow\src\main\resources" -Recurse
+#         Copy-Item "$env:APPVEYOR_BUILD_FOLDER\osx\*" -Destination "$env:APPVEYOR_BUILD_FOLDER\java-package\brainflow\src\main\resources" -Recurse
+#         ls $env:APPVEYOR_BUILD_FOLDER\java-package\brainflow\src\main\resources;
 #         mvn package > mvn_final_stdout.txt
 #         #upload .jars to aws
 #         aws s3 cp %APPVEYOR_BUILD_FOLDER%\java-package\brainflow\target\ s3://brainflow-artifacts/%APPVEYOR_REPO_COMMIT%/jars --recursive
@@ -163,7 +168,6 @@ after_test:
 #       Else {
 #         write-output "Failed to wait for mac and linux libs"
 #       }
-
 # on_finish:
 #   - appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build32\brainflow_build32_stdout.txt
 #   - appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build64\brainflow_build64_stdout.txt

@@ -77,6 +77,11 @@ int get_accel_channels (int board_id, int *accel_channels, int *len)
     return get_array_value (board_id, "accel_channels", accel_channels, len);
 }
 
+int get_analog_channels (int board_id, int *analog_channels, int *len)
+{
+    return get_array_value (board_id, "analog_channels", analog_channels, len);
+}
+
 int get_gyro_channels (int board_id, int *gyro_channels, int *len)
 {
     return get_array_value (board_id, "gyro_channels", gyro_channels, len);

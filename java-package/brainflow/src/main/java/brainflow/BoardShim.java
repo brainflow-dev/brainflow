@@ -35,6 +35,7 @@ public class BoardShim {
         int get_eda_channels (int board_id, int[] eda_channels, int[] len);
         int get_ppg_channels (int board_id, int[] ppg_channels, int[] len);
         int get_accel_channels (int board_id, int[] accel_channels, int[] len);
+        int get_analog_channels (int board_id, int[] analog_channels, int[] len);
         int get_gyro_channels (int board_id, int[] gyro_channels, int[] len);
         int get_other_channels (int board_id, int[] other_channels, int[] len);
     }
@@ -206,6 +207,17 @@ public class BoardShim {
     	int[] len = new int[1];
     	int[] channels = new int[512];
         int ec = instance.get_accel_channels (board_id, channels, len);
+        if (ec != ExitCode.STATUS_OK.get_code ()) {
+            throw new BrainFlowError ("Error in board info getter", ec);
+        }
+        
+        return Arrays.copyOfRange(channels, 0, len[0]);
+    }
+
+    public static int[] get_analog_channels (int board_id) throws BrainFlowError {
+        int[] len = new int[1];
+        int[] channels = new int[512];
+        int ec = instance.get_analog_channels (board_id, channels, len);
         if (ec != ExitCode.STATUS_OK.get_code ()) {
             throw new BrainFlowError ("Error in board info getter", ec);
         }
