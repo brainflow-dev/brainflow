@@ -4,6 +4,7 @@
 
 #define START_BYTE 0xA0
 #define END_BYTE_STANDARD 0xC0
+#define END_BYTE_ANALOG 0xC1
 #define END_BYTE_MAX 0xC6
 
 
@@ -44,7 +45,7 @@ void CytonWifi::read_thread ()
             continue;
         }
 
-        double package[19] = {0.};
+        double package[22] = {0.};
         // package num
         package[0] = (double)b[0];
         // eeg
@@ -52,6 +53,8 @@ void CytonWifi::read_thread ()
         {
             package[i + 1] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
         }
+        // end byte
+        package[12] = (double)b[res - 1];
         // check end byte
         if (b[res - 1] == END_BYTE_STANDARD)
         {
@@ -59,11 +62,17 @@ void CytonWifi::read_thread ()
             package[9] = accel_scale * cast_16bit_to_int32 (b + 25);
             package[10] = accel_scale * cast_16bit_to_int32 (b + 27);
             package[11] = accel_scale * cast_16bit_to_int32 (b + 29);
-            package[12] = (double)b[res - 1];
         }
-        else if ((b[res - 1] > END_BYTE_STANDARD) && (b[res - 1] < END_BYTE_MAX))
+        else if (b[res - 1] == END_BYTE_ANALOG)
         {
-            package[12] = (double)b[res - 1];
+            // analog
+            package[19] = cast_16bit_to_int32 (b + 25);
+            package[20] = cast_16bit_to_int32 (b + 27);
+            package[21] = cast_16bit_to_int32 (b + 29);
+        }
+        else if ((b[res - 1] > END_BYTE_ANALOG) && (b[res - 1] <= END_BYTE_MAX))
+        {
+            // unprocessed bytes
             package[13] = (double)b[25];
             package[14] = (double)b[26];
             package[15] = (double)b[27];

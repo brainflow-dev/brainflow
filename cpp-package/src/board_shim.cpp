@@ -317,6 +317,17 @@ int *BoardShim::get_accel_channels (int board_id, int *len)
     return accel_channels;
 }
 
+int *BoardShim::get_analog_channels (int board_id, int *len)
+{
+    int *analog_channels = new int[MAX_CHANNELS];
+    int res = ::get_analog_channels (board_id, analog_channels, len);
+    if (res != STATUS_OK)
+    {
+        throw BrainFlowException ("failed get board info", res);
+    }
+    return analog_channels;
+}
+
 int *BoardShim::get_other_channels (int board_id, int *len)
 {
     int *other_channels = new int[MAX_CHANNELS];
