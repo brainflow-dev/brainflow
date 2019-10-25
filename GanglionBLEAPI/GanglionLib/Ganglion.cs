@@ -22,7 +22,7 @@ namespace GanglionLib
         private GattCharacteristic send_characteristic = null;
         private GattCharacteristic receive_characteristic = null;
         private GattCharacteristic disconnect_characteristic = null;
-        private TimeSpan timeout = TimeSpan.FromSeconds (5);
+        private TimeSpan timeout = TimeSpan.FromSeconds (6);
         private Queue<BoardData> data_queue = new Queue<BoardData> ();
 
         public int open_ganglion ()
