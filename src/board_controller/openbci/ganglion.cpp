@@ -415,38 +415,56 @@ int Ganglion::call_init ()
 
 int Ganglion::call_open ()
 {
-    int res = GanglionLibNative::CustomExitCodesNative::STATUS_OK;
-    if (this->use_mac_addr)
+    int res = GanglionLibNative::CustomExitCodesNative::GENERAL_ERROR;
+#ifdef _WIN32
+    int num_attempts = 2;
+#else
+    int num_attempts = 1;
+#endif
+    // its bad but we need to make it as reliable as possible, once per ~200 runs it fails to
+    // open ganglion and I can not fix it in C# code(wo restart) so lets restart it here,
+    // bigger delay is better than failure!
+    for (int i = 0; i < num_attempts; i++)
     {
-        safe_logger (spdlog::level::info, "search for {}", this->params.mac_address.c_str ());
-        DLLFunc func = this->dll_loader->get_address ("open_ganglion_mac_addr_native");
-        if (func == NULL)
+        safe_logger (spdlog::level::debug, "trying to open ganglion {}/{}", i, num_attempts);
+        if (this->use_mac_addr)
         {
-            safe_logger (spdlog::level::err,
-                "failed to get function address for open_ganglion_mac_addr_native");
-            return GENERAL_ERROR;
+            safe_logger (spdlog::level::info, "search for {}", this->params.mac_address.c_str ());
+            DLLFunc func = this->dll_loader->get_address ("open_ganglion_mac_addr_native");
+            if (func == NULL)
+            {
+                safe_logger (spdlog::level::err,
+                    "failed to get function address for open_ganglion_mac_addr_native");
+                return GENERAL_ERROR;
+            }
+            res = (func) (const_cast<char *> (params.mac_address.c_str ()));
         }
-        res = (func) (const_cast<char *> (params.mac_address.c_str ()));
-    }
-    else
-    {
-        safe_logger (
-            spdlog::level::info, "mac address is not specified, try to find ganglion without it");
-        DLLFunc func = this->dll_loader->get_address ("open_ganglion_native");
-        if (func == NULL)
+        else
         {
-            safe_logger (
-                spdlog::level::err, "failed to get function address for open_ganglion_native");
-            return GENERAL_ERROR;
+            safe_logger (spdlog::level::info,
+                "mac address is not specified, try to find ganglion without it");
+            DLLFunc func = this->dll_loader->get_address ("open_ganglion_native");
+            if (func == NULL)
+            {
+                safe_logger (
+                    spdlog::level::err, "failed to get function address for open_ganglion_native");
+                return GENERAL_ERROR;
+            }
+            res = (func) (NULL);
         }
-        res = (func) (NULL);
+        if (res == GanglionLibNative::CustomExitCodesNative::STATUS_OK)
+        {
+            safe_logger (spdlog::level::info, "Ganglion is opened and paired");
+            break;
+        }
+        // sanity check, e.g. device was found but services were not found
+        call_close ();
     }
     if (res != GanglionLibNative::CustomExitCodesNative::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to Open Ganglion Device {}", res);
         return GENERAL_ERROR;
     }
-    safe_logger (spdlog::level::info, "Found Ganglion Device");
     return STATUS_OK;
 }
 

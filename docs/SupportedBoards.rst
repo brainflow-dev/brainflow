@@ -67,14 +67,12 @@ To choose this board in BoardShim class please specify:
 
 Supported platforms:
 
-- Windows >= 10
-- Linux
-- MacOS
+- Only Windows 10, older versions of Windows dont support Bluetooth Low Energy API
 
 Additional configuration:
 
 - If you use python bindings installed from PYPI on Windows you may need to install `redist_x64 <https://aka.ms/vs/16/release/vc_redist.x64.exe>`_ or `redist_x86 <https://aka.ms/vs/16/release/vc_redist.x86.exe>`_  (but more likely you have it preinstalled)
-- For Linux/MacOS you need to use dongle, for Windows dongle is not required if you have Bluetooth on your laptop
+- It works without dongle if your PC has Bluetooth, if not - use dongle
 
 Board Spec:
 
