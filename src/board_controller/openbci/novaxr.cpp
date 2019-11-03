@@ -6,6 +6,11 @@
 #include "novaxr.h"
 #include "openbci_helpers.h"
 
+#ifndef _WIN32
+#include <errno.h>
+#endif
+
+
 NovaXR::NovaXR (struct BrainFlowInputParams params) : Board ((int)NOVAXR_BOARD, params)
 {
     this->socket = NULL;
@@ -200,6 +205,12 @@ void NovaXR::read_thread ()
     while (keep_alive)
     {
         res = socket->recv (b, 72);
+#ifndef _WIN32
+        if (res == -1)
+        {
+            safe_logger (spdlog::level::err, "errno {} message {}", errno, strerror (errno));
+        }
+#endif
         if (res != 72)
         {
             safe_logger (spdlog::level::trace, "unable to read 72 bytes, read {}", res);
