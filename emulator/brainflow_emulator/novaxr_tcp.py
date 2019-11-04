@@ -69,12 +69,12 @@ class NovaXREmulator (threading.Thread):
             raise TestFailureError ('failed to establish connection')
 
         while self.keep_alive:
-            if self.package_num % 256 == 0:
+            if self.package_num % 255 == 0:
                 self.package_num = 0
             # dirtiest hack ever but it doesnt work otherwise. seems like recv ignores timeout and it means that we send only 1 package
             if self.package_num == 0:
                 try:
-                    msg = self.conn.recv (128)
+                    msg = self.conn.recv (1)
                     if msg:
                         logging.info ('received %s' % (msg))
                         if msg == Message.start_stream.value:

@@ -39,16 +39,22 @@ int NovaXR::prepare_session ()
         safe_logger (spdlog::level::err, "ip address or ip protocol is empty");
         return INVALID_ARGUMENTS_ERROR;
     }
+    int port = 2390;
+    if (params.ip_port != 0)
+    {
+        safe_logger (spdlog::level::warn, "use port {} instead default", params.ip_port);
+        port = params.ip_port;
+    }
     if (params.ip_protocol == (int)IpProtocolType::UDP)
     {
-        socket = new SocketClient (params.ip_address.c_str (), 2390, (int)SocketType::UDP);
+        socket = new SocketClient (params.ip_address.c_str (), port, (int)SocketType::UDP);
     }
     else
     {
-        socket = new SocketClient (params.ip_address.c_str (), 2390, (int)SocketType::TCP);
+        socket = new SocketClient (params.ip_address.c_str (), port, (int)SocketType::TCP);
     }
     int res = socket->connect ();
-    if (res != 0)
+    if (res != (int)SocketReturnCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to init socket: {}", res);
         return GENERAL_ERROR;
@@ -69,6 +75,14 @@ int NovaXR::config_board (char *config)
     res = socket->send (config, len);
     if (len != res)
     {
+        if (res == -1)
+        {
+#ifdef _WIN32
+            safe_logger (spdlog::level::err, "WSAGetLastError is {}", WSAGetLastError ());
+#else
+            safe_logger (spdlog::level::err, "errno {} message {}", errno, strerror (errno));
+#endif
+        }
         safe_logger (spdlog::level::err, "Failed to config a board");
         return BOARD_WRITE_ERROR;
     }
@@ -95,8 +109,17 @@ int NovaXR::start_stream (int buffer_size)
     }
 
     // start streaming
-    if (socket->send ("b", 1) != 1)
+    int res = socket->send ("b", 1);
+    if (res != 1)
     {
+        if (res == -1)
+        {
+#ifdef _WIN32
+            safe_logger (spdlog::level::err, "WSAGetLastError is {}", WSAGetLastError ());
+#else
+            safe_logger (spdlog::level::err, "errno {} message {}", errno, strerror (errno));
+#endif
+        }
         safe_logger (spdlog::level::err, "Failed to send a command to board");
         return BOARD_WRITE_ERROR;
     }
@@ -137,8 +160,17 @@ int NovaXR::stop_stream ()
         is_streaming = false;
         streaming_thread.join ();
         this->state = SYNC_TIMEOUT_ERROR;
-        if (socket->send ("s", 1) != 1)
+        int res = socket->send ("s", 1);
+        if (res != 1)
         {
+            if (res == -1)
+            {
+#ifdef _WIN32
+                safe_logger (spdlog::level::err, "WSAGetLastError is {}", WSAGetLastError ());
+#else
+                safe_logger (spdlog::level::err, "errno {} message {}", errno, strerror (errno));
+#endif
+            }
             safe_logger (spdlog::level::err, "Failed to send a command to board");
             return BOARD_WRITE_ERROR;
         }
@@ -205,12 +237,14 @@ void NovaXR::read_thread ()
     while (keep_alive)
     {
         res = socket->recv (b, 72);
-#ifndef _WIN32
         if (res == -1)
         {
+#ifdef _WIN32
+            safe_logger (spdlog::level::err, "WSAGetLastError is {}", WSAGetLastError ());
+#else
             safe_logger (spdlog::level::err, "errno {} message {}", errno, strerror (errno));
-        }
 #endif
+        }
         if (res != 72)
         {
             safe_logger (spdlog::level::trace, "unable to read 72 bytes, read {}", res);
@@ -221,10 +255,6 @@ void NovaXR::read_thread ()
             // inform main thread that everything is ok and first package was received
             if (this->state != STATUS_OK)
             {
-                for (int i = 0; i < 72; i++)
-                {
-                    safe_logger (spdlog::level::trace, "byte {} val {}", i, b[i]);
-                }
                 {
                     std::lock_guard<std::mutex> lk (this->m);
                     this->state = STATUS_OK;

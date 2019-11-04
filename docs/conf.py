@@ -43,7 +43,8 @@ release = u''
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'breathe'
+    'breathe',
+    'sphinxcontrib.ghcontributors'
 ]
 
 # Breathe and Doxygen setup
