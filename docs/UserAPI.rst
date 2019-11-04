@@ -1,7 +1,7 @@
 User API
 ==========
 
-BrainFlow User API has no classes for all supported boardm instead there are only two classes:
+BrainFlow User API has no classes for all supported boards instead there are only two classes:
 - BoardShim to read data from a board
 - DataFilter to perform signal processing
 
@@ -109,7 +109,7 @@ R API Reference
 R binding is a wrapper on top of Python binding which is implemented using `reticulate <https://rstudio.github.io/reticulate/>`_.
 There are a few methods which allows you to create python objects and call their methods. 
 
-But reticulate translates numpy arrays to R arrays in a tricky way, and it prevents us to implement signal processing in R, so you for R you have to perform signal processing by yourself.
+But reticulate translates numpy arrays to R arrays in a tricky way, and it prevents us to implement signal processing in R, so for R you have to perform signal processing by yourself.
 
 Check R sample to see how to use it.
 

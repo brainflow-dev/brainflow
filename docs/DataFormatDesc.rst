@@ -25,6 +25,8 @@ Exact format for this array is board specific but to keep API uniform we have me
    get_timestamp_channel (board_id)
    # and so on
 
+**For some boards like Cyton, Ganglion and others we can not separate EMG, EEG, EDA and ECG and in this case we return exactly the same array for all these methods but for some boards EMG and EEG channels differs**
+
 Using methods above you can write completely board agnostic code and switch boards using single parameter! Even if you have only one board using these methods you can easily switch to Synthetic board for development and run code without real hardware.
 
 Special channels for Cyton Based boards

@@ -119,13 +119,14 @@ int SocketClient::connect ()
     }
 
     // ensure that library will not hang in blocking recv/send call
-    DWORD timeout = 3000;
+    DWORD timeout = 5000;
     setsockopt (connect_socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof (timeout));
     setsockopt (connect_socket, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof (timeout));
     if (socket_type == (int)SocketType::TCP)
     {
         DWORD value = 1;
         setsockopt (connect_socket, IPPROTO_TCP, TCP_NODELAY, (char *)&value, sizeof (value));
+        setsockopt (connect_socket, SOL_SOCKET, SO_KEEPALIVE, (char *)&value, sizeof (value));
         if (::connect (connect_socket, (sockaddr *)&socket_addr, sizeof (socket_addr)) ==
             SOCKET_ERROR)
         {
@@ -285,7 +286,7 @@ int SocketClient::connect ()
 
     // ensure that library will not hang in blocking recv/send call
     struct timeval tv;
-    tv.tv_sec = 3;
+    tv.tv_sec = 5;
     tv.tv_usec = 0;
     setsockopt (connect_socket, SOL_SOCKET, SO_RCVTIMEO, (const char *)&tv, sizeof (tv));
     setsockopt (connect_socket, SOL_SOCKET, SO_SNDTIMEO, (const char *)&tv, sizeof (tv));
@@ -294,6 +295,7 @@ int SocketClient::connect ()
     {
         int value = 1;
         setsockopt (connect_socket, IPPROTO_TCP, TCP_NODELAY, &value, sizeof (value));
+        setsockopt (connect_socket, SOL_SOCKET, SO_KEEPALIVE, &value, sizeof (value));
         if (::connect (connect_socket, (sockaddr *)&socket_addr, sizeof (socket_addr)) == -1)
         {
             return (int)SocketReturnCodes::CONNECT_ERROR;

@@ -61,7 +61,18 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
     {
         Board::board_logger->error (
             "Board with id {} and the same config already exists", board_id);
-        return PORT_ALREADY_OPEN_ERROR;
+        return ANOTHER_BOARD_IS_CREATED_ERROR;
+    }
+    // for ganglion we load dll at runtime this dll has its own global state
+    // so we dont support multiple ganglions
+    for (auto iter = boards.begin (); iter != boards.end (); iter++)
+    {
+        auto key = iter->first;
+        if (key.first == GANGLION_BOARD)
+        {
+            Board::board_logger->error ("Only one Ganglion board is allowed");
+            return ANOTHER_BOARD_IS_CREATED_ERROR;
+        }
     }
 
     std::shared_ptr<Board> board = NULL;
