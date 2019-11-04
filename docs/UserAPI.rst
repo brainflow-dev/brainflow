@@ -2,6 +2,7 @@ User API
 ==========
 
 BrainFlow User API has no classes for all supported boards instead there are only two classes:
+
 - BoardShim to read data from a board
 - DataFilter to perform signal processing
 
