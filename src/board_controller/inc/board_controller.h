@@ -14,6 +14,7 @@
 #include "board_info_getter.h"
 #include "brainflow_constants.h"
 
+
 enum class IpProtocolType
 {
     NONE = 0,

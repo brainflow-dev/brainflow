@@ -32,6 +32,7 @@ private:
     int call_close ();
     int call_start ();
     int call_stop ();
+    int call_release ();
 
     /*
     at least for windows from time to time callback for value change notification is not triggered

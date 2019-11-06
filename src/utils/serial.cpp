@@ -29,7 +29,7 @@ int Serial::open_serial_port ()
     return SerialExitCodes::OK;
 }
 
-int Serial::set_serial_port_settings ()
+int Serial::set_serial_port_settings (int ms_timeout)
 {
     DCB dcb_serial_params = {0};
     COMMTIMEOUTS timeouts = {0};
@@ -50,8 +50,8 @@ int Serial::set_serial_port_settings ()
         return SerialExitCodes::SET_PORT_STATE_ERROR;
     }
 
-    timeouts.ReadIntervalTimeout = 1000;
-    timeouts.ReadTotalTimeoutConstant = 1000;
+    timeouts.ReadIntervalTimeout = ms_timeout;
+    timeouts.ReadTotalTimeoutConstant = ms_timeout;
     timeouts.ReadTotalTimeoutMultiplier = 100;
     timeouts.WriteTotalTimeoutConstant = 50;
     timeouts.WriteTotalTimeoutMultiplier = 10;
@@ -114,7 +114,7 @@ int Serial::open_serial_port ()
     return OK;
 }
 
-int Serial::set_serial_port_settings ()
+int Serial::set_serial_port_settings (int ms_timeout)
 {
     struct termios port_settings;
     memset (&port_settings, 0, sizeof (port_settings));
@@ -133,9 +133,8 @@ int Serial::set_serial_port_settings ()
     port_settings.c_iflag &= ~(ICANON | IXOFF | IXON | IXANY);
     port_settings.c_oflag = 0;
     port_settings.c_lflag = 0;
-    // blocking read with timeout 1 sec
     port_settings.c_cc[VMIN] = 0;
-    port_settings.c_cc[VTIME] = 10;
+    port_settings.c_cc[VTIME] = ms_timeout / 10;
 
     if (tcsetattr (this->port_descriptor, TCSANOW, &port_settings) != 0)
         return SerialExitCodes::SET_PORT_STATE_ERROR;

@@ -26,6 +26,7 @@ setup (
             os.path.join ('lib', 'BoardController.dll'),
             os.path.join ('lib', 'BoardController32.dll'),
             os.path.join ('lib', 'libBoardController.so'),
+            os.path.join ('lib', 'GanglionLibrary.so'),
             os.path.join ('lib', 'GanglionLib.dll'),
             os.path.join ('lib', 'GanglionLibNative64.dll'),
             os.path.join ('lib', 'GanglionLibNative32.dll'),

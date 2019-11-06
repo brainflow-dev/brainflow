@@ -20,47 +20,50 @@
 
 Ganglion::Ganglion (struct BrainFlowInputParams params) : Board ((int)GANGLION_BOARD, params)
 {
-    if (params.mac_address.empty ())
-    {
-        this->use_mac_addr = false;
-    }
-    else
-    {
-        this->use_mac_addr = true;
-    }
+    this->use_mac_addr = (params.mac_address.empty ()) ? false : true;
     // get full path of ganglioblibnative with assumption that this lib is in the same folder
     char ganglionlib_dir[1024];
     bool res = get_dll_path (ganglionlib_dir);
-    std::string ganglioblib_path = "";
+    std::string ganglionlib_path = "";
 #ifdef _WIN32
+    // get library path
     if (sizeof (void *) == 8)
     {
         if (res)
         {
-            ganglioblib_path = std::string (ganglionlib_dir) + "GanglionLibNative64.dll";
+            ganglionlib_path = std::string (ganglionlib_dir) + "GanglionLibNative64.dll";
         }
         else
         {
-            ganglioblib_path = "GanglionLibNative64.dll";
+            ganglionlib_path = "GanglionLibNative64.dll";
         }
     }
     else
     {
         if (res)
         {
-            ganglioblib_path = std::string (ganglionlib_dir) + "GanglionLibNative32.dll";
+            ganglionlib_path = std::string (ganglionlib_dir) + "GanglionLibNative32.dll";
         }
         else
         {
-            ganglioblib_path = "GanglionLibNative32.dll";
+            ganglionlib_path = "GanglionLibNative32.dll";
         }
     }
-    safe_logger (spdlog::level::debug, "use dll: {}", ganglioblib_path.c_str ());
-    dll_loader = new DLLLoader (ganglioblib_path.c_str ());
 #else
-    // temp unimplemented
-    dll_loader = NULL;
+    // get lib path, only 64 bit for unix
+    if (res)
+    {
+        ganglionlib_path = std::string (ganglionlib_dir) + "GanglionLibrary.so";
+    }
+    else
+    {
+        ganglionlib_path = "GanglionLibrary.so";
+    }
 #endif
+
+    safe_logger (spdlog::level::debug, "use dyn lib: {}", ganglionlib_path.c_str ());
+    dll_loader = new DLLLoader (ganglionlib_path.c_str ());
+
     this->is_streaming = false;
     this->keep_alive = false;
     this->initialized = false;
@@ -81,6 +84,14 @@ int Ganglion::prepare_session ()
         safe_logger (spdlog::level::info, "Session is already prepared");
         return STATUS_OK;
     }
+
+#ifndef _WIN32
+    if (params.serial_port.empty ())
+    {
+        safe_logger (spdlog::level::err, "for unix you need to specify dongle port");
+        return INVALID_ARGUMENTS_ERROR;
+    }
+#endif
 
     if (!this->dll_loader->load_library ())
     {
@@ -191,6 +202,7 @@ int Ganglion::release_session ()
     if (this->dll_loader != NULL)
     {
         this->call_close ();
+        this->call_release ();
         this->dll_loader->free_library ();
         delete this->dll_loader;
         this->dll_loader = NULL;
@@ -221,7 +233,7 @@ void Ganglion::read_thread ()
     {
         struct GanglionLibNative::GanglionDataNative data;
         int res = (func) ((void *)&data);
-        if (res == GanglionLibNative::CustomExitCodesNative::STATUS_OK)
+        if (res == (int)GanglionLibNative::CustomExitCodesNative::STATUS_OK)
         {
             if (this->state != STATUS_OK)
             {
@@ -404,8 +416,12 @@ int Ganglion::call_init ()
         safe_logger (spdlog::level::err, "failed to get function address for initialize");
         return GENERAL_ERROR;
     }
+#ifndef _WIN32
+    int res = (func) ((void *)params.serial_port.c_str ());
+#else
     int res = (func) (NULL);
-    if (res != GanglionLibNative::CustomExitCodesNative::STATUS_OK)
+#endif
+    if (res != (int)GanglionLibNative::CustomExitCodesNative::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to init GanglionLib {}", res);
         return GENERAL_ERROR;
@@ -494,7 +510,7 @@ int Ganglion::call_start ()
         return GENERAL_ERROR;
     }
     int res = (func) (NULL);
-    if (res != GanglionLibNative::CustomExitCodesNative::STATUS_OK)
+    if (res != (int)GanglionLibNative::CustomExitCodesNative::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to start streaming {}", res);
         return GENERAL_ERROR;
@@ -532,6 +548,23 @@ int Ganglion::call_close ()
     if (res != GanglionLibNative::CustomExitCodesNative::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to close Ganglion {}", res);
+        return GENERAL_ERROR;
+    }
+    return STATUS_OK;
+}
+
+int Ganglion::call_release ()
+{
+    DLLFunc func = this->dll_loader->get_address ("release_native");
+    if (func == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to get function address for release_native");
+        return GENERAL_ERROR;
+    }
+    int res = (func) (NULL);
+    if (res != GanglionLibNative::CustomExitCodesNative::STATUS_OK)
+    {
+        safe_logger (spdlog::level::err, "failed to release ganglion {}", res);
         return GENERAL_ERROR;
     }
     return STATUS_OK;

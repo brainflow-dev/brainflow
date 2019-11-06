@@ -39,13 +39,6 @@ static int string_to_brainflow_input_params (
 
 int prepare_session (int board_id, char *json_brainflow_input_params)
 {
-
-#ifndef _WIN32
-    // temp stub for ganglion on linux and macos
-    if (board_id == GANGLION_BOARD)
-        return UNSUPPORTED_BOARD_ERROR;
-#endif
-
     std::lock_guard<std::mutex> lock (mutex);
 
     Board::board_logger->info ("incomming json: {}", json_brainflow_input_params);

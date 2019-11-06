@@ -32,7 +32,7 @@ public:
 
     int open_serial_port ();
     bool is_port_open ();
-    int set_serial_port_settings ();
+    int set_serial_port_settings (int ms_timeout = 1000);
     int read_from_serial_port (void *bytes_to_read, int size);
     int send_to_serial_port (const void *message, int length);
     int close_serial_port ();

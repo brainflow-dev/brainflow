@@ -5,13 +5,14 @@
 #define SHARED_EXPORT __declspec(dllexport)
 #else
 #define SHARED_EXPORT
+#define GANGLION_DONGLE_PORT "GANGLION_DONGLE_PORT"
 #endif
 
 #include <string.h>
 
 namespace GanglionLibNative
 {
-#pragma pack (push, 1)
+#pragma pack(push, 1)
     struct GanglionDataNative
     {
         unsigned char data[20];
@@ -30,25 +31,29 @@ namespace GanglionLibNative
             memcpy (data, other.data, sizeof (unsigned char) * 20);
         }
     };
-#pragma pack (pop)
+#pragma pack(pop)
 
     enum CustomExitCodesNative
     {
         STATUS_OK = 0,
-        GANGLION_NOT_FOUND_ERROR,
-        GANGLION_IS_NOT_OPEN_ERROR,
-        GANGLION_ALREADY_PAIR_ERROR,
-        GANGLION_ALREADY_OPEN_ERROR,
-        SERVICE_NOT_FOUND_ERROR,
-        SEND_CHARACTERISTIC_NOT_FOUND_ERROR,
-        RECEIVE_CHARACTERISTIC_NOT_FOUND_ERROR,
-        DISCONNECT_CHARACTERISTIC_NOT_FOUND_ERROR,
-        TIMEOUT_ERROR,
-        STOP_ERROR,
-        FAILED_TO_SET_CALLBACK_ERROR,
-        FAILED_TO_UNSUBSCRIBE_ERROR,
-        GENERAL_ERROR,
-        NO_DATA_ERROR
+        GANGLION_NOT_FOUND_ERROR = 1,
+        GANGLION_IS_NOT_OPEN_ERROR = 2,
+        GANGLION_ALREADY_PAIR_ERROR = 3,
+        GANGLION_ALREADY_OPEN_ERROR = 4,
+        SERVICE_NOT_FOUND_ERROR = 5,
+        SEND_CHARACTERISTIC_NOT_FOUND_ERROR = 6,
+        RECEIVE_CHARACTERISTIC_NOT_FOUND_ERROR = 7,
+        DISCONNECT_CHARACTERISTIC_NOT_FOUND_ERROR = 8,
+        TIMEOUT_ERROR = 9,
+        STOP_ERROR = 10,
+        FAILED_TO_SET_CALLBACK_ERROR = 11,
+        FAILED_TO_UNSUBSCRIBE_ERROR = 12,
+        GENERAL_ERROR = 13,
+        NO_DATA_ERROR = 14,
+        SYNC_ERROR = 15,
+        NOT_IMPLEMENTED_ERROR = 16,
+        INVALID_MAC_ADDR_ERROR = 17,
+        PORT_OPEN_ERROR = 18
     };
 
 #ifdef __cplusplus
@@ -62,6 +67,7 @@ namespace GanglionLibNative
         SHARED_EXPORT int close_ganglion_native (void *param);
         SHARED_EXPORT int get_data_native (void *param);
         SHARED_EXPORT int config_board_native (void *param);
+        SHARED_EXPORT int release_native (void *param);
     }
 #endif
 }

@@ -69,6 +69,8 @@ if (CMAKE_SIZEOF_VOID_P EQUAL 8)
         SET (DATA_HANDLER_COMPILED_NAME "libDataHandler.dylib")
     elseif (UNIX)
         SET (BOARD_CONTROLLER_COMPILED_NAME "libBoardController.so")
+        SET (GANGLION_LIB_NAME "GanglionLibrary.so")
+        SET (GANGLION_LIB_PATH "${CMAKE_HOME_DIRECTORY}/GanglionBLEAPI/GanglionLibrary.so")
         SET (DATA_HANDLER_COMPILED_NAME "libDataHandler.so")
     else ()
         SET (BOARD_CONTROLLER_COMPILED_NAME "BoardController.dll")
@@ -238,6 +240,14 @@ if (UNIX)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
     )
 endif (UNIX)
+if (UNIX AND NOT APPLE)
+    add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
+        # copy libraries for ganglion
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${GANGLION_LIB_PATH}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${GANGLION_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${GANGLION_LIB_PATH}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/${GANGLION_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${GANGLION_LIB_PATH}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${GANGLION_LIB_NAME}"
+    )
+endif (UNIX AND NOT APPLE)
 
 # need to copy json file to bindings
 add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
@@ -305,6 +315,13 @@ if (MSVC)
         DESTINATION lib
     )
 endif (MSVC)
+if (UNIX AND NOT APPLE)
+    install (
+        FILES
+        "${GANGLION_LIB_PATH}"
+        DESTINATION lib
+    )
+endif (UNIX AND NOT APPLE)
 
 install (
     FILES "${project_config}" "${version_config}"
