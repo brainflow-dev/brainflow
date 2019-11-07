@@ -7,13 +7,16 @@
 #include "board.h"
 #include "board_controller.h"
 #include "data_buffer.h"
-#include "runtime_dll_loader.h"
 
 
 class Ganglion : public Board
 {
 
 private:
+    static int num_objects;
+
+    bool is_valid;
+
     float const accel_scale = 0.032f;
     float const eeg_scale = (1.2f * 1000000) / (8388607.0f * 1.5f * 51.0f);
 
@@ -24,8 +27,8 @@ private:
 
     bool use_mac_addr;
     int num_channels;
-    DLLLoader *dll_loader;
 
+    // legacy from shared library, now we can do the same wo these helpers but lets keep it
     int call_init ();
     int call_config (char *config);
     int call_open ();
@@ -34,11 +37,6 @@ private:
     int call_stop ();
     int call_release ();
 
-    /*
-    at least for windows from time to time callback for value change notification is not triggered
-    restart solves this issue, so if callback is not tiriggered we will reset Ganglion Device and
-    wait in main thread for data
-    */
     std::mutex m;
     std::condition_variable cv;
     volatile int state;

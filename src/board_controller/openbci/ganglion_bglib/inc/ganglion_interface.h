@@ -1,31 +1,23 @@
 #pragma once
 
-#ifdef _WIN32
-#include <windows.h>
-#define SHARED_EXPORT __declspec(dllexport)
-#else
-#define SHARED_EXPORT
-#define GANGLION_DONGLE_PORT "GANGLION_DONGLE_PORT"
-#endif
-
 #include <string.h>
 
-namespace GanglionLibNative
+namespace GanglionLib
 {
 #pragma pack(push, 1)
-    struct GanglionDataNative
+    struct GanglionData
     {
         unsigned char data[20];
         long timestamp;
-        GanglionDataNative (unsigned char *data, long timestamp)
+        GanglionData (unsigned char *data, long timestamp)
         {
             memcpy (this->data, data, sizeof (unsigned char) * 20);
             this->timestamp = timestamp;
         }
-        GanglionDataNative ()
+        GanglionData ()
         {
         }
-        GanglionDataNative (const GanglionDataNative &other)
+        GanglionData (const GanglionData &other)
         {
             timestamp = other.timestamp;
             memcpy (data, other.data, sizeof (unsigned char) * 20);
@@ -33,7 +25,7 @@ namespace GanglionLibNative
     };
 #pragma pack(pop)
 
-    enum CustomExitCodesNative
+    enum CustomExitCodes
     {
         STATUS_OK = 0,
         GANGLION_NOT_FOUND_ERROR = 1,
@@ -56,18 +48,14 @@ namespace GanglionLibNative
         PORT_OPEN_ERROR = 18
     };
 
-#ifdef __cplusplus
-    extern "C"
-    {
-        SHARED_EXPORT int initialize_native (void *param);
-        SHARED_EXPORT int open_ganglion_native (void *param);
-        SHARED_EXPORT int open_ganglion_mac_addr_native (void *param);
-        SHARED_EXPORT int stop_stream_native (void *param);
-        SHARED_EXPORT int start_stream_native (void *param);
-        SHARED_EXPORT int close_ganglion_native (void *param);
-        SHARED_EXPORT int get_data_native (void *param);
-        SHARED_EXPORT int config_board_native (void *param);
-        SHARED_EXPORT int release_native (void *param);
-    }
-#endif
-}
+    // void * is a legacy from dynamic library which was loaded via LoadLibrary\dlopen
+    int initialize (void *param);
+    int open_ganglion (void *param);
+    int open_ganglion_mac_addr (void *param);
+    int stop_stream (void *param);
+    int start_stream (void *param);
+    int close_ganglion (void *param);
+    int get_data (void *param);
+    int config_board (void *param);
+    int release (void *param);
+} // namespace GanglionLib

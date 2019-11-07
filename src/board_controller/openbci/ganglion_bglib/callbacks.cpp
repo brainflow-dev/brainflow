@@ -3,10 +3,9 @@
 #include <queue>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
-#include "GanglionNativeInterface.h"
 #include "cmd_def.h"
+#include "ganglion_interface.h"
 #include "helpers.h"
 #include "timestamp.h"
 #include "uart.h"
@@ -14,25 +13,28 @@
 #define GANGLION_SERVICE_UUID 0xfe84
 #define CLIENT_CHARACTERISTIC_UUID 0x2902
 
-extern volatile int exit_code;
-extern volatile bd_addr connect_addr;
-extern volatile uint8 connection;
-extern volatile uint16 ganglion_handle_start;
-extern volatile uint16 ganglion_handle_end;
-// recv and send chars handles
-extern volatile uint16 ganglion_handle_recv;
-extern volatile uint16 ganglion_handle_send;
-extern volatile uint16 client_char_handle;
-extern volatile State state;
+namespace GanglionLib
+{
+    extern volatile int exit_code;
+    extern volatile bd_addr connect_addr;
+    extern volatile uint8 connection;
+    extern volatile uint16 ganglion_handle_start;
+    extern volatile uint16 ganglion_handle_end;
+    // recv and send chars handles
+    extern volatile uint16 ganglion_handle_recv;
+    extern volatile uint16 ganglion_handle_send;
+    extern volatile uint16 client_char_handle;
+    extern volatile State state;
 
-extern std::queue<struct GanglionLibNative::GanglionDataNative> data_queue;
+    extern std::queue<struct GanglionLib::GanglionData> data_queue;
 
-// uuid - 2d30c083-f39f-4ce6-923f-3484ea480596
-const int send_char_uuid_bytes[16] = {
-    150, 5, 72, 234, 132, 52, 63, 146, 230, 76, 159, 243, 131, 192, 48, 45};
-// uuid - 2d30c082-f39f-4ce6-923f-3484ea480596
-const int recv_char_uuid_bytes[16] = {
-    150, 5, 72, 234, 132, 52, 63, 146, 230, 76, 159, 243, 130, 192, 48, 45};
+    // uuid - 2d30c083-f39f-4ce6-923f-3484ea480596
+    const int send_char_uuid_bytes[16] = {
+        150, 5, 72, 234, 132, 52, 63, 146, 230, 76, 159, 243, 131, 192, 48, 45};
+    // uuid - 2d30c082-f39f-4ce6-923f-3484ea480596
+    const int recv_char_uuid_bytes[16] = {
+        150, 5, 72, 234, 132, 52, 63, 146, 230, 76, 159, 243, 130, 192, 48, 45};
+}
 
 void ble_evt_gap_scan_response (const struct ble_msg_gap_scan_response_evt_t *msg)
 {
@@ -62,10 +64,11 @@ void ble_evt_gap_scan_response (const struct ble_msg_gap_scan_response_evt_t *ms
 
     if (name_found_in_response)
     {
-        if (strcasestr (name, "ganglion") != NULL)
+        // strcasestr is unavailable for windows
+        if (strstr (name, "anglion") != NULL)
         {
-            memcpy ((void *)connect_addr.addr, msg->sender.addr, sizeof (bd_addr));
-            exit_code = (int)GanglionLibNative::STATUS_OK;
+            memcpy ((void *)GanglionLib::connect_addr.addr, msg->sender.addr, sizeof (bd_addr));
+            GanglionLib::exit_code = (int)GanglionLib::STATUS_OK;
         }
     }
 }
@@ -75,12 +78,12 @@ void ble_evt_connection_status (const struct ble_msg_connection_status_evt_t *ms
     // New connection
     if (msg->flags & connection_connected)
     {
-        connection = msg->connection;
+        GanglionLib::connection = msg->connection;
         // this method is called from ble_evt_connection_disconnected need to set exit code only
         // when we call this method from open_ble_device
-        if (state == State::initial_connection)
+        if (GanglionLib::state == GanglionLib::State::initial_connection)
         {
-            exit_code = (int)GanglionLibNative::STATUS_OK;
+            GanglionLib::exit_code = (int)GanglionLib::STATUS_OK;
         }
     }
 }
@@ -88,7 +91,8 @@ void ble_evt_connection_status (const struct ble_msg_connection_status_evt_t *ms
 void ble_evt_connection_disconnected (const struct ble_msg_connection_disconnected_evt_t *msg)
 {
     // atempt to reconnect
-    ble_cmd_gap_connect_direct (&connect_addr, gap_address_type_random, 40, 60, 100, 0);
+    ble_cmd_gap_connect_direct (
+        &GanglionLib::connect_addr, gap_address_type_random, 40, 60, 100, 0);
 }
 
 // ble_evt_attclient_group_found and ble_evt_attclient_procedure_completed are called after the same
@@ -102,34 +106,35 @@ void ble_evt_attclient_group_found (const struct ble_msg_attclient_group_found_e
     uint16 uuid = (msg->uuid.data[1] << 8) | msg->uuid.data[0];
     if (uuid == GANGLION_SERVICE_UUID)
     {
-        ganglion_handle_start = msg->start;
-        ganglion_handle_end = msg->end;
+        GanglionLib::ganglion_handle_start = msg->start;
+        GanglionLib::ganglion_handle_end = msg->end;
     }
 }
 
 void ble_evt_attclient_procedure_completed (
     const struct ble_msg_attclient_procedure_completed_evt_t *msg)
 {
-    if (state == State::write_to_client_char)
+    if (GanglionLib::state == GanglionLib::State::write_to_client_char)
     {
         if (msg->result == 0)
         {
-            exit_code = (int)GanglionLibNative::STATUS_OK;
+            GanglionLib::exit_code = (int)GanglionLib::STATUS_OK;
         }
     }
-    if (state == State::open_called)
+    if (GanglionLib::state == GanglionLib::State::open_called)
     {
-        if ((ganglion_handle_start) && (ganglion_handle_end))
+        if ((GanglionLib::ganglion_handle_start) && (GanglionLib::ganglion_handle_end))
         {
-            ble_cmd_attclient_find_information (msg->connection, ganglion_handle_start,
-                ganglion_handle_end); // triggers ble_evt_attclient_find_information_found
+            ble_cmd_attclient_find_information (msg->connection, GanglionLib::ganglion_handle_start,
+                GanglionLib::ganglion_handle_end); // triggers
+                                                   // ble_evt_attclient_find_information_found
         }
     }
-    else if (state == State::config_called)
+    else if (GanglionLib::state == GanglionLib::State::config_called)
     {
         if (msg->result == 0)
         {
-            exit_code = (int)GanglionLibNative::STATUS_OK;
+            GanglionLib::exit_code = (int)GanglionLib::STATUS_OK;
         }
     }
 }
@@ -138,14 +143,14 @@ void ble_evt_attclient_procedure_completed (
 void ble_evt_attclient_find_information_found (
     const struct ble_msg_attclient_find_information_found_evt_t *msg)
 {
-    if (state == State::open_called)
+    if (GanglionLib::state == GanglionLib::State::open_called)
     {
         if (msg->uuid.len == 2)
         {
             uint16 uuid = (msg->uuid.data[1] << 8) | msg->uuid.data[0];
             if (uuid == CLIENT_CHARACTERISTIC_UUID)
             {
-                client_char_handle = msg->chrhandle;
+                GanglionLib::client_char_handle = msg->chrhandle;
             }
         }
         if (msg->uuid.len == 16)
@@ -154,28 +159,29 @@ void ble_evt_attclient_find_information_found (
             bool is_recv = true;
             for (int i = 0; i < 16; i++)
             {
-                if (msg->uuid.data[i] != send_char_uuid_bytes[i])
+                if (msg->uuid.data[i] != GanglionLib::send_char_uuid_bytes[i])
                 {
                     is_send = false;
                 }
-                if (msg->uuid.data[i] != recv_char_uuid_bytes[i])
+                if (msg->uuid.data[i] != GanglionLib::recv_char_uuid_bytes[i])
                 {
                     is_recv = false;
                 }
             }
             if (is_recv)
             {
-                ganglion_handle_recv = msg->chrhandle;
+                GanglionLib::ganglion_handle_recv = msg->chrhandle;
             }
             if (is_send)
             {
-                ganglion_handle_send = msg->chrhandle;
+                GanglionLib::ganglion_handle_send = msg->chrhandle;
             }
         }
-        if ((ganglion_handle_send) && (ganglion_handle_recv) && (client_char_handle) &&
-            (state == State::open_called))
+        if ((GanglionLib::ganglion_handle_send) && (GanglionLib::ganglion_handle_recv) &&
+            (GanglionLib::client_char_handle) &&
+            (GanglionLib::state == GanglionLib::State::open_called))
         {
-            exit_code = (int)GanglionLibNative::STATUS_OK;
+            GanglionLib::exit_code = (int)GanglionLib::STATUS_OK;
         }
     }
 }
@@ -186,7 +192,7 @@ void ble_evt_attclient_attribute_value (const struct ble_msg_attclient_attribute
     {
         unsigned char values[20] = {0};
         memcpy (values, msg->value.data, msg->value.len * sizeof (unsigned char));
-        struct GanglionLibNative::GanglionDataNative data (values, (long)get_timestamp ());
-        data_queue.push (data);
+        struct GanglionLib::GanglionData data (values, (long)get_timestamp ());
+        GanglionLib::data_queue.push (data);
     }
 }

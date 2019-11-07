@@ -25,14 +25,16 @@
 
 #include "uart.h"
 
-#ifdef PLATFORM_WIN
+#ifdef _WIN32
 
 #ifdef _MSC_VER
 #define snprintf _snprintf
 #endif
 
-#include <Setupapi.h>
 #include <windows.h>
+
+#include <Setupapi.h>
+#pragma comment(lib, "Setupapi.lib")
 
 HANDLE serial_handle;
 
@@ -123,7 +125,7 @@ int uart_find_serialport (char *name)
         reqSize = 0;
         SetupDiGetDeviceRegistryPropertyA (
             hDevInfo, &DeviceInfoData, SPDRP_FRIENDLYNAME, NULL, NULL, 0, &reqSize);
-        pbuf = malloc (reqSize > 1 ? reqSize : 1);
+        pbuf = (BYTE *)malloc (reqSize > 1 ? reqSize : 1);
         if (!SetupDiGetDeviceRegistryPropertyA (
                 hDevInfo, &DeviceInfoData, SPDRP_FRIENDLYNAME, NULL, pbuf, reqSize, NULL))
         {

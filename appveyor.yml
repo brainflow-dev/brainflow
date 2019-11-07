@@ -28,7 +28,6 @@ install:
   # compile brainflow for 32 and 64
   - mkdir %APPVEYOR_BUILD_FOLDER%\build32 && cd %APPVEYOR_BUILD_FOLDER%\build32 && cmake -G "Visual Studio 15 2017" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed32\ .. && cmake --build . --target install --config Release > brainflow_build32_stdout.txt
   - mkdir %APPVEYOR_BUILD_FOLDER%\build64 && cd %APPVEYOR_BUILD_FOLDER%\build64 && cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed64\ .. && cmake --build . --target install --config Release > brainflow_build64_stdout.txt
-  # build csharp (in order for copy ganglion mock into csharp test folder)
   # nuget package for csharp
   - nuget install Accord -OutputDirectory ../csharp-package/brainflow/packages && nuget install Accord.Math -OutputDirectory ../csharp-package/brainflow/packages
   # charp build Any CPU
@@ -37,18 +36,6 @@ install:
   - pip install %APPVEYOR_BUILD_FOLDER%\emulator\
   - cd %APPVEYOR_BUILD_FOLDER% && %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\com0com\certmgr.exe  /add %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\com0com\com0com.cer /s /r localMachine root
   - cd %APPVEYOR_BUILD_FOLDER% && %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\com0com\certmgr.exe /add %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\com0com\com0com.cer /s /r localMachine trustedpublisher
-  # build mock for ganglion
-  - mkdir %APPVEYOR_BUILD_FOLDER%\GanglionBLEAPI\Mock\build
-  - cd  %APPVEYOR_BUILD_FOLDER%\GanglionBLEAPI\Mock\build
-  - cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_SYSTEM_VERSION=8.1 ..
-  - cmake --build . --config Release > ganglion_mock_build64_stdout.txt
-  # store real ganglion libs libraries in compiled folder
-  - cp %APPVEYOR_BUILD_FOLDER%\installed64\lib\GanglionLibNative64.dll  %APPVEYOR_BUILD_FOLDER%\compiled\GanglionLibNative64.dll
-  - cp %APPVEYOR_BUILD_FOLDER%\installed32\lib\GanglionLibNative32.dll  %APPVEYOR_BUILD_FOLDER%\compiled\GanglionLibNative32.dll
-  # replace real ganglion libs by mocks
-  - cp %APPVEYOR_BUILD_FOLDER%\GanglionBLEAPI\Mock\compiled\Release\GanglionLibNative64.dll %APPVEYOR_BUILD_FOLDER%\python-package\brainflow\lib\GanglionLibNative64.dll
-  - cp %APPVEYOR_BUILD_FOLDER%\GanglionBLEAPI\Mock\compiled\Release\GanglionLibNative64.dll %APPVEYOR_BUILD_FOLDER%\installed64\lib\GanglionLibNative64.dll
-  - cp %APPVEYOR_BUILD_FOLDER%\GanglionBLEAPI\Mock\compiled\Release\GanglionLibNative64.dll %APPVEYOR_BUILD_FOLDER%\java-package\brainflow\src\main\resources\GanglionLibNative64.dll
   # install python package
   - pip install %APPVEYOR_BUILD_FOLDER%\python-package\
   # build cpp
@@ -64,10 +51,6 @@ test_script:
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\build\Release\test_get_data.exe --board-id 0 --serial-port
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\build32\Release\test_get_data.exe --board-id 0 --serial-port
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\test\bin\Release\test.exe --board-id 0 --serial-port
-  # tests for ganglion
-  - python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board-id 1 --mac-address e6:73:73:18:09:b1
-  - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\tests\cpp\build\Release\test_get_data.exe --board-id 1 --mac-address e6:73:73:18:09:b1
-  - cd %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\test\bin\Release && test.exe --board-id 1 --mac-address e6:73:73:18:09:b1
   # tests for synthetic
   - python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board-id -1
   - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\tests\cpp\build\Release\test_get_data.exe --board-id -1
@@ -86,13 +69,6 @@ test_script:
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --board-id 4 --ip-address 127.0.0.1 --ip-protocol 2 --ip-port 17982
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\build\Release\test_get_data.exe --board-id 5 --ip-address 127.0.0.1 --ip-protocol 2 --ip-port 17982
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\test\bin\Release\test.exe --board-id 6 --ip-address 127.0.0.1 --ip-protocol 2 --ip-port 17982
-
-# replace mocked libraries by real libs
-after_test:
-  - cp %APPVEYOR_BUILD_FOLDER%\compiled\GanglionLibNative64.dll %APPVEYOR_BUILD_FOLDER%\python-package\brainflow\lib\GanglionLibNative64.dll
-  - cp %APPVEYOR_BUILD_FOLDER%\compiled\GanglionLibNative64.dll %APPVEYOR_BUILD_FOLDER%\java-package\brainflow\src\main\resources\GanglionLibNative64.dll
-  - cp %APPVEYOR_BUILD_FOLDER%\compiled\GanglionLibNative64.dll %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow\lib\GanglionLibNative64.dll
-  - cp %APPVEYOR_BUILD_FOLDER%\compiled\GanglionLibNative32.dll %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow\lib\GanglionLibNative32.dll
 
 deploy_script:
   - python -m pip install wheel > wheel_install.txt
@@ -174,7 +150,6 @@ deploy_script:
 on_finish:
   - appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build32\brainflow_build32_stdout.txt
   - appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build64\brainflow_build64_stdout.txt
-  - appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\GanglionBLEAPI\Mock\build\ganglion_mock_build64_stdout.txt
   - appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\java-package\brainflow\maven_package_stdout.txt
 
 notifications:
