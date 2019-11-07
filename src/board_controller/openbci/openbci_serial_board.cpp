@@ -200,7 +200,10 @@ int OpenBCISerialBoard::stop_stream ()
     {
         keep_alive = false;
         is_streaming = false;
-        streaming_thread.join ();
+        if (streaming_thread.joinable ())
+        {
+            streaming_thread.join ();
+        }
         return send_to_board ("s");
     }
     else

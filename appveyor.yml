@@ -6,13 +6,13 @@ stack: python 3
 environment:
   PY_DIR: C:\Python36-x64
   AWS_ACCESS_KEY_ID:
-    secure: 41Lh3mnlU+lVcr5eX3bTgmsKqcebacVgDOww7zb0r4E=
+    secure: BkEm2UFU7L/eihM1Sg0/F5SPVtyLqHWMBXXM1CialbE=
   AWS_SECRET_ACCESS_KEY:
-    secure: jeVYQ02OTywaENrIcWvoZg+YzGnhiluCDes/kaJE4NeVIZqjlipFt5yXxCct9S5w
+    secure: gjIjWPDtmovPZ3/Q7Xo/WfUKzZRZGaXi4BRPuukeL6M8YA0+ydmmuEESk9g7DzuC
   PYPI_PASSWORD:
-    secure: iwHCe7zJP1fu+Jv03MC+ArVwcbANHouo7xvXkJvqXPQ=
+    secure: ZuRCW1W45pqH03Lio54BzQ==
   GITHUB_TOKEN:
-    secure: LrDw5C81iZpUPzP6fbzej6tzZvu59lQSXHPsYvx9DmG+LQXOewUdh4c460Jn1GC/
+    secure: Q0/Pyd8J+EX6/zaOuWATGu2OvRBLz53SYEFejI91VFiPEOJ0KbyZl+2UdYSzniDI
 
 clone_depth: 3
 
@@ -28,7 +28,6 @@ install:
   # compile brainflow for 32 and 64
   - mkdir %APPVEYOR_BUILD_FOLDER%\build32 && cd %APPVEYOR_BUILD_FOLDER%\build32 && cmake -G "Visual Studio 15 2017" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed32\ .. && cmake --build . --target install --config Release > brainflow_build32_stdout.txt
   - mkdir %APPVEYOR_BUILD_FOLDER%\build64 && cd %APPVEYOR_BUILD_FOLDER%\build64 && cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed64\ .. && cmake --build . --target install --config Release > brainflow_build64_stdout.txt
-  # build csharp (in order for copy ganglion mock into csharp test folder)
   # nuget package for csharp
   - nuget install Accord -OutputDirectory ../csharp-package/brainflow/packages && nuget install Accord.Math -OutputDirectory ../csharp-package/brainflow/packages
   # charp build Any CPU
@@ -37,18 +36,6 @@ install:
   - pip install %APPVEYOR_BUILD_FOLDER%\emulator\
   - cd %APPVEYOR_BUILD_FOLDER% && %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\com0com\certmgr.exe  /add %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\com0com\com0com.cer /s /r localMachine root
   - cd %APPVEYOR_BUILD_FOLDER% && %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\com0com\certmgr.exe /add %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\com0com\com0com.cer /s /r localMachine trustedpublisher
-  # build mock for ganglion
-  - mkdir %APPVEYOR_BUILD_FOLDER%\GanglionBLEAPI\Mock\build
-  - cd  %APPVEYOR_BUILD_FOLDER%\GanglionBLEAPI\Mock\build
-  - cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_SYSTEM_VERSION=8.1 ..
-  - cmake --build . --config Release > ganglion_mock_build64_stdout.txt
-  # store real ganglion libs libraries in compiled folder
-  - cp %APPVEYOR_BUILD_FOLDER%\installed64\lib\GanglionLibNative64.dll  %APPVEYOR_BUILD_FOLDER%\compiled\GanglionLibNative64.dll
-  - cp %APPVEYOR_BUILD_FOLDER%\installed32\lib\GanglionLibNative32.dll  %APPVEYOR_BUILD_FOLDER%\compiled\GanglionLibNative32.dll
-  # replace real ganglion libs by mocks
-  - cp %APPVEYOR_BUILD_FOLDER%\GanglionBLEAPI\Mock\compiled\Release\GanglionLibNative64.dll %APPVEYOR_BUILD_FOLDER%\python-package\brainflow\lib\GanglionLibNative64.dll
-  - cp %APPVEYOR_BUILD_FOLDER%\GanglionBLEAPI\Mock\compiled\Release\GanglionLibNative64.dll %APPVEYOR_BUILD_FOLDER%\installed64\lib\GanglionLibNative64.dll
-  - cp %APPVEYOR_BUILD_FOLDER%\GanglionBLEAPI\Mock\compiled\Release\GanglionLibNative64.dll %APPVEYOR_BUILD_FOLDER%\java-package\brainflow\src\main\resources\GanglionLibNative64.dll
   # install python package
   - pip install %APPVEYOR_BUILD_FOLDER%\python-package\
   # build cpp
@@ -64,10 +51,6 @@ test_script:
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\build\Release\test_get_data.exe --board-id 0 --serial-port
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\build32\Release\test_get_data.exe --board-id 0 --serial-port
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\test\bin\Release\test.exe --board-id 0 --serial-port
-  # tests for ganglion
-  - python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board-id 1 --mac-address e6:73:73:18:09:b1
-  - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\tests\cpp\build\Release\test_get_data.exe --board-id 1 --mac-address e6:73:73:18:09:b1
-  - cd %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\test\bin\Release && test.exe --board-id 1 --mac-address e6:73:73:18:09:b1
   # tests for synthetic
   - python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board-id -1
   - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\tests\cpp\build\Release\test_get_data.exe --board-id -1
@@ -87,92 +70,87 @@ test_script:
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\build\Release\test_get_data.exe --board-id 5 --ip-address 127.0.0.1 --ip-protocol 2 --ip-port 17982
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\test\bin\Release\test.exe --board-id 6 --ip-address 127.0.0.1 --ip-protocol 2 --ip-port 17982
 
-# replace mocked libraries by real libs
-after_test:
-  - cp %APPVEYOR_BUILD_FOLDER%\compiled\GanglionLibNative64.dll %APPVEYOR_BUILD_FOLDER%\python-package\brainflow\lib\GanglionLibNative64.dll
-  - cp %APPVEYOR_BUILD_FOLDER%\compiled\GanglionLibNative64.dll %APPVEYOR_BUILD_FOLDER%\java-package\brainflow\src\main\resources\GanglionLibNative64.dll
-  - cp %APPVEYOR_BUILD_FOLDER%\compiled\GanglionLibNative64.dll %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow\lib\GanglionLibNative64.dll
-  - cp %APPVEYOR_BUILD_FOLDER%\compiled\GanglionLibNative32.dll %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow\lib\GanglionLibNative32.dll
+deploy_script:
+  - python -m pip install wheel > wheel_install.txt
+  - python -m pip install twine > twine_install.txt
+  - python -m pip install awscli > awscli_install.txt
+  # upload to S3 in all cases, we will always be able to download libs
+  - aws s3 cp %APPVEYOR_BUILD_FOLDER%\installed32\inc\ s3://brainflow/%APPVEYOR_REPO_COMMIT%/inc --recursive
+  - aws s3 cp %APPVEYOR_BUILD_FOLDER%\installed32\lib\ s3://brainflow/%APPVEYOR_REPO_COMMIT%/lib32 --recursive
+  - aws s3 cp %APPVEYOR_BUILD_FOLDER%\installed64\lib\ s3://brainflow/%APPVEYOR_REPO_COMMIT%/lib64 --recursive
+  # download files from travis using S3 create package and publish it
+  - ps: >-
+      cd $env:APPVEYOR_BUILD_FOLDER\csharp-package\brainflow\brainflow;
+      If ($env:APPVEYOR_REPO_TAG -eq "true" -And $env:APPVEYOR_REPO_BRANCH -eq "master") {
+        (gc .\brainflow.nuspec).replace('VERSION_PLACEHOLDER',$env:APPVEYOR_REPO_TAG_NAME) | Out-File -encoding ASCII brainflow.nuspec
+      }
+      Else {
+        (gc .\brainflow.nuspec).replace('VERSION_PLACEHOLDER','1.0.0') | Out-File -encoding ASCII brainflow.nuspec
+      }
+      nuget pack brainflow.csproj -properties Configuration=Release -IncludeReferencedProjects;
+      aws s3 cp %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow s3://brainflow/%APPVEYOR_REPO_COMMIT%/nuget --recursive;
 
-# deploy_script:
-#   - python -m pip install wheel > wheel_install.txt
-#   - python -m pip install twine > twine_install.txt
-#   - python -m pip install awscli > awscli_install.txt
-#   # upload to S3 in all cases, we will always be able to download libs
-#   - aws s3 cp %APPVEYOR_BUILD_FOLDER%\installed32\inc\ s3://brainflow-artifacts/%APPVEYOR_REPO_COMMIT%/inc --recursive
-#   - aws s3 cp %APPVEYOR_BUILD_FOLDER%\installed32\lib\ s3://brainflow-artifacts/%APPVEYOR_REPO_COMMIT%/lib32 --recursive
-#   - aws s3 cp %APPVEYOR_BUILD_FOLDER%\installed64\lib\ s3://brainflow-artifacts/%APPVEYOR_REPO_COMMIT%/lib64 --recursive
-#   # download files from travis using S3 create package and publish it
-#   - ps: >-
-#       cd $env:APPVEYOR_BUILD_FOLDER\csharp-package\brainflow\brainflow;
-#       If ($env:APPVEYOR_REPO_TAG -eq "true" -And $env:APPVEYOR_REPO_BRANCH -eq "master") {
-#         (gc .\brainflow.nuspec).replace('VERSION_PLACEHOLDER',$env:APPVEYOR_REPO_TAG_NAME) | Out-File -encoding ASCII brainflow.nuspec
-#       }
-#       Else {
-#         (gc .\brainflow.nuspec).replace('VERSION_PLACEHOLDER','1.0.0') | Out-File -encoding ASCII brainflow.nuspec
-#       }
-#       nuget pack brainflow.csproj -properties Configuration=Release -IncludeReferencedProjects;
-#       aws s3 cp %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow s3://brainflow-artifacts/%APPVEYOR_REPO_COMMIT%/nuget --recursive;
-#       $lin = $false;
-#       $osx = $false;
-#       for ($i=0; $i -lt 30; $i++) {
-#         # wait 30 minutes or until mac and linux binaries appear in s3
-#         aws s3 ls s3://brainflow-artifacts/$env:APPVEYOR_REPO_COMMIT/linux_success;
-#         $lin = $?;
-#         aws s3 ls s3://brainflow-artifacts/$env:APPVEYOR_REPO_COMMIT/osx_success;
-#         $osx = $?
-#         if($lin -and $osx) {break}
-#         # stop waiting if linux or mac tests fail
-#         aws s3 ls s3://brainflow-artifacts/$env:APPVEYOR_REPO_COMMIT/linux_failure;
-#         $lin_fail = $?;
-#         aws s3 ls s3://brainflow-artifacts/$env:APPVEYOR_REPO_COMMIT/osx_failure;
-#         $osx_fail = $?
-#         if($lin_fail -or $osx_fail) {
-#           write-output "Skip deployment, travis build failed"
-#           break
-#         }
-#         Start-Sleep -s 60;
-#         echo "not found"
-#       }
-#       If ($lin -and $osx) {
-#         write-output "Binaries found - running deployment"
-#         New-Item $env:APPVEYOR_BUILD_FOLDER\linux -itemtype directory
-#         New-Item $env:APPVEYOR_BUILD_FOLDER\osx -itemtype directory
-#         aws s3 cp s3://brainflow-artifacts/$env:APPVEYOR_REPO_COMMIT/linux/ $env:APPVEYOR_BUILD_FOLDER\linux\ --recursive
-#         ls  $env:APPVEYOR_BUILD_FOLDER\linux
-#         aws s3 cp s3://brainflow-artifacts/$env:APPVEYOR_REPO_COMMIT/osx/ $env:APPVEYOR_BUILD_FOLDER\osx\ --recursive
-#         ls $env:APPVEYOR_BUILD_FOLDER\osx
-#         cd $env:APPVEYOR_BUILD_FOLDER\java-package\brainflow
-#         Copy-Item "$env:APPVEYOR_BUILD_FOLDER\linux\*" -Destination "$env:APPVEYOR_BUILD_FOLDER\java-package\brainflow\src\main\resources" -Recurse
-#         Copy-Item "$env:APPVEYOR_BUILD_FOLDER\osx\*" -Destination "$env:APPVEYOR_BUILD_FOLDER\java-package\brainflow\src\main\resources" -Recurse
-#         ls $env:APPVEYOR_BUILD_FOLDER\java-package\brainflow\src\main\resources;
-#         mvn package > mvn_final_stdout.txt
-#         #upload .jars to aws
-#         aws s3 cp %APPVEYOR_BUILD_FOLDER%\java-package\brainflow\target\ s3://brainflow-artifacts/%APPVEYOR_REPO_COMMIT%/jars --recursive
-#         If ($env:APPVEYOR_REPO_TAG -eq "true" -And $env:APPVEYOR_REPO_BRANCH -eq "master") {
-#           Copy-Item "$env:APPVEYOR_BUILD_FOLDER\linux\*" -Destination "$env:APPVEYOR_BUILD_FOLDER\python-package\brainflow\lib" -Recurse
-#           Copy-Item "$env:APPVEYOR_BUILD_FOLDER\osx\*" -Destination "$env:APPVEYOR_BUILD_FOLDER\python-package\brainflow\lib" -Recurse
-#           ls $env:APPVEYOR_BUILD_FOLDER\python-package\brainflow\lib
-#           cd $env:APPVEYOR_BUILD_FOLDER\python-package
-#           python setup.py sdist bdist_wheel
-#           twine upload --skip-existing dist/*.whl --user OpenBCI --password $env:PYPI_PASSWORD
-#           cd $env:APPVEYOR_BUILD_FOLDER\tools
-#           .\github-release.exe release --user OpenBCI --repo brainflow --tag $env:APPVEYOR_REPO_TAG_NAME
-#           .\github-release.exe upload --user OpenBCI --repo brainflow --tag $env:APPVEYOR_REPO_TAG_NAME --name brainflow.jar --file $env:APPVEYOR_BUILD_FOLDER\java-package\brainflow\target\brainflow.jar
-#           .\github-release.exe upload --user OpenBCI --repo brainflow --tag $env:APPVEYOR_REPO_TAG_NAME --name brainflow-jar-with-dependencies.jar --file $env:APPVEYOR_BUILD_FOLDER\java-package\brainflow\target\brainflow-jar-with-dependencies.jar
-#         }
-#         Else {
-#           write-output "Skip deployment for non tag"
-#         }
-#       }
-#       Else {
-#         write-output "Failed to wait for mac and linux libs"
-#       }
-# on_finish:
-#   - appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build32\brainflow_build32_stdout.txt
-#   - appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build64\brainflow_build64_stdout.txt
-#   - appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\GanglionBLEAPI\Mock\build\ganglion_mock_build64_stdout.txt
-#   - appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\java-package\brainflow\maven_package_stdout.txt
+      $lin = $false;
+      $osx = $false;
+      for ($i=0; $i -lt 30; $i++) {
+        # wait 30 minutes or until mac and linux binaries appear in s3
+        aws s3 ls s3://brainflow/$env:APPVEYOR_REPO_COMMIT/linux_success;
+        $lin = $?;
+        aws s3 ls s3://brainflow/$env:APPVEYOR_REPO_COMMIT/osx_success;
+        $osx = $?
+        if($lin -and $osx) {break}
+        # stop waiting if linux or mac tests fail
+        aws s3 ls s3://brainflow/$env:APPVEYOR_REPO_COMMIT/linux_failure;
+        $lin_fail = $?;
+        aws s3 ls s3://brainflow/$env:APPVEYOR_REPO_COMMIT/osx_failure;
+        $osx_fail = $?
+        if($lin_fail -or $osx_fail) {
+          write-output "Skip deployment, travis build failed"
+          break
+        }
+        Start-Sleep -s 60;
+        echo "not found"
+      }
+      If ($lin -and $osx) {
+        write-output "Binaries found - running deployment"
+        New-Item $env:APPVEYOR_BUILD_FOLDER\linux -itemtype directory
+        New-Item $env:APPVEYOR_BUILD_FOLDER\osx -itemtype directory
+        aws s3 cp s3://brainflow/$env:APPVEYOR_REPO_COMMIT/linux/ $env:APPVEYOR_BUILD_FOLDER\linux\ --recursive
+        ls  $env:APPVEYOR_BUILD_FOLDER\linux
+        aws s3 cp s3://brainflow/$env:APPVEYOR_REPO_COMMIT/osx/ $env:APPVEYOR_BUILD_FOLDER\osx\ --recursive
+        ls $env:APPVEYOR_BUILD_FOLDER\osx
+        cd $env:APPVEYOR_BUILD_FOLDER\java-package\brainflow
+        Copy-Item "$env:APPVEYOR_BUILD_FOLDER\linux\*" -Destination "$env:APPVEYOR_BUILD_FOLDER\java-package\brainflow\src\main\resources" -Recurse
+        Copy-Item "$env:APPVEYOR_BUILD_FOLDER\osx\*" -Destination "$env:APPVEYOR_BUILD_FOLDER\java-package\brainflow\src\main\resources" -Recurse
+        ls $env:APPVEYOR_BUILD_FOLDER\java-package\brainflow\src\main\resources;
+        mvn package > mvn_final_stdout.txt
+        #upload .jars to aws
+        aws s3 cp %APPVEYOR_BUILD_FOLDER%\java-package\brainflow\target\ s3://brainflow/%APPVEYOR_REPO_COMMIT%/jars --recursive
+
+        If ($env:APPVEYOR_REPO_TAG -eq "true" -And $env:APPVEYOR_REPO_BRANCH -eq "master") {
+          Copy-Item "$env:APPVEYOR_BUILD_FOLDER\linux\*" -Destination "$env:APPVEYOR_BUILD_FOLDER\python-package\brainflow\lib" -Recurse
+          Copy-Item "$env:APPVEYOR_BUILD_FOLDER\osx\*" -Destination "$env:APPVEYOR_BUILD_FOLDER\python-package\brainflow\lib" -Recurse
+          ls $env:APPVEYOR_BUILD_FOLDER\python-package\brainflow\lib
+          cd $env:APPVEYOR_BUILD_FOLDER\python-package
+          python setup.py sdist bdist_wheel
+          twine upload --skip-existing dist/*.whl --user Andrey1994 --password $env:PYPI_PASSWORD
+          cd $env:APPVEYOR_BUILD_FOLDER\tools
+          .\github-release.exe release --user Andrey1994 --repo brainflow --tag $env:APPVEYOR_REPO_TAG_NAME
+          .\github-release.exe upload --user Andrey1994 --repo brainflow --tag $env:APPVEYOR_REPO_TAG_NAME --name brainflow.jar --file $env:APPVEYOR_BUILD_FOLDER\java-package\brainflow\target\brainflow.jar
+          .\github-release.exe upload --user Andrey1994 --repo brainflow --tag $env:APPVEYOR_REPO_TAG_NAME --name brainflow-jar-with-dependencies.jar --file $env:APPVEYOR_BUILD_FOLDER\java-package\brainflow\target\brainflow-jar-with-dependencies.jar
+        }
+        Else {
+          write-output "Skip deployment for non tag"
+        }
+      }
+      Else {
+        write-output "Failed to wait for mac and linux libs"
+      }
+
+on_finish:
+  - appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build32\brainflow_build32_stdout.txt
+  - appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build64\brainflow_build64_stdout.txt
+  - appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\java-package\brainflow\maven_package_stdout.txt
 
 notifications:
   - provider: Email

@@ -36,7 +36,7 @@ OpenBCI Cyton
 To choose this board in BoardShim class please specify:
 
 - board_id: 0
-- serial_port field of BrainFlowInputStruct
+- serial_port field of BrainFlowInputParams structure
 
 Supported platforms:
 
@@ -58,28 +58,26 @@ OpenBCI Ganglion
 
 `Ganglion geting started guide from OpenBCI <https://docs.openbci.com/Tutorials/00-Tutorials>`_.
 
-prepare_session args to select this board:
+**To use Ganglion board you need a** `dongle <https://shop.openbci.com/collections/frontpage/products/ganglion-dongle>`_
 
 To choose this board in BoardShim class please specify:
 
 - board_id: 1
-- mac_address field of BrainFlowInputStruct, if its empty BrainFlow will try to autodiscover it
+- serial_port field of BrainFlowInputParams structure
+- mac_address field of BrainFlowInputParams structure, if its empty BrainFlow will try to autodiscover Ganglion
 
 Supported platforms:
 
-- Only Windows 10, older versions of Windows dont support Bluetooth Low Energy API
-
-Additional configuration:
-
-- If you use python bindings installed from PYPI on Windows you may need to install `redist_x64 <https://aka.ms/vs/16/release/vc_redist.x64.exe>`_ or `redist_x86 <https://aka.ms/vs/16/release/vc_redist.x86.exe>`_  (but more likely you have it preinstalled)
-- It works without dongle if your PC has Bluetooth, if not - use dongle
+- Windows >= 8.1
+- Linux
+- MacOS
 
 Board Spec:
 
 - num eeg(emg) channels: 4
 - num acceleration channels: 3
 - sampling rate: 200
-- communication: Bluetooth Low Energy
+- communication: Bluetooth Low Energy behind serial port from the dongle
 
 
 OpenBCI Cyton Daisy
@@ -92,7 +90,7 @@ OpenBCI Cyton Daisy
 To choose this board in BoardShim class please specify:
 
 - board_id: 2
-- serial_port field of BrainFlowInputStruct
+- serial_port field of BrainFlowInputParams structure
 
 Supported platforms:
 
@@ -105,7 +103,7 @@ Board Spec:
 - num eeg(emg) channels: 16
 - num acceleration channels: 3
 - sampling rate: 125
-- communication: Bluetooth Low Energy
+- communication: serial port
 
 
 OpenBCI Ganglion with Wifi Shield
@@ -120,9 +118,9 @@ OpenBCI Ganglion with Wifi Shield
 To choose this board in BoardShim class please specify:
 
 - board_id: 4
-- ip_address field of BrainFlowInputStruct should contain WiFi Shield Ip address(in direct mode its 192.168.4.1)
-- ip_protocol field of BrainFlowInputStruct should be IpProtocolType.TCP
-- ip_port field of BrainFlowInputStruct should be any local port which is free right now
+- ip_address field of BrainFlowInputParams structure should contain WiFi Shield Ip address(in direct mode its 192.168.4.1)
+- ip_protocol field of BrainFlowInputParams structure should be IpProtocolType.TCP
+- ip_port field of BrainFlowInputParams structure should be any local port which is free right now
 
 Supported platforms:
 
@@ -152,9 +150,9 @@ OpenBCI Cyton with Wifi Shield
 To choose this board in BoardShim class please specify:
 
 - board_id: 5
-- ip_address field of BrainFlowInputStruct should contain WiFi Shield Ip address(in direct mode its 192.168.4.1)
-- ip_protocol field of BrainFlowInputStruct should be IpProtocolType.TCP
-- ip_port field of BrainFlowInputStruct should be any local port which is free right now
+- ip_address field of BrainFlowInputParams structure should contain WiFi Shield Ip address(in direct mode its 192.168.4.1)
+- ip_protocol field of BrainFlowInputParams structure should be IpProtocolType.TCP
+- ip_port field of BrainFlowInputParams structure should be any local port which is free right now
 
 Supported platforms:
 
@@ -183,9 +181,9 @@ OpenBCI Cyton Daisy with Wifi Shield
 To choose this board in BoardShim class please specify:
 
 - board_id: 6
-- ip_address field of BrainFlowInputStruct should contain WiFi Shield Ip address(in direct mode its 192.168.4.1)
-- ip_protocol field of BrainFlowInputStruct should be IpProtocolType.TCP
-- ip_port field of BrainFlowInputStruct should be any local port which is free right now
+- ip_address field of BrainFlowInputParams structure should contain WiFi Shield Ip address(in direct mode its 192.168.4.1)
+- ip_protocol field of BrainFlowInputParams structure should be IpProtocolType.TCP
+- ip_port field of BrainFlowInputParams structure should be any local port which is free right now
 
 Supported platforms:
 

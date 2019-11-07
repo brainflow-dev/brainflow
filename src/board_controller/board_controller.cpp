@@ -39,13 +39,6 @@ static int string_to_brainflow_input_params (
 
 int prepare_session (int board_id, char *json_brainflow_input_params)
 {
-
-#ifndef _WIN32
-    // temp stub for ganglion on linux and macos
-    if (board_id == GANGLION_BOARD)
-        return UNSUPPORTED_BOARD_ERROR;
-#endif
-
     std::lock_guard<std::mutex> lock (mutex);
 
     Board::board_logger->info ("incomming json: {}", json_brainflow_input_params);
@@ -62,17 +55,6 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
         Board::board_logger->error (
             "Board with id {} and the same config already exists", board_id);
         return ANOTHER_BOARD_IS_CREATED_ERROR;
-    }
-    // for ganglion we load dll at runtime this dll has its own global state
-    // so we dont support multiple ganglions
-    for (auto iter = boards.begin (); iter != boards.end (); iter++)
-    {
-        auto key = iter->first;
-        if (key.first == GANGLION_BOARD)
-        {
-            Board::board_logger->error ("Only one Ganglion board is allowed");
-            return ANOTHER_BOARD_IS_CREATED_ERROR;
-        }
     }
 
     std::shared_ptr<Board> board = NULL;

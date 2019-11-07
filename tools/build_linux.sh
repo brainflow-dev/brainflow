@@ -10,4 +10,3 @@ cmake -DCMAKE_INSTALL_PREFIX=../installed_linux -DCMAKE_BUILD_TYPE=Release ..
 make
 make install
 cd ..
-

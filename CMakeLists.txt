@@ -3,7 +3,7 @@ project (brainflow)
 
 set (CMAKE_CXX_STANDARD 11)
 set (CMAKE_VERBOSE_MAKEFILE ON)
-set (BRAINFLOW_VERSION 1.0.0)
+set (BRAINFLOW_VERSION 2.1.0)
 
 macro (configure_msvc_runtime)
     if (MSVC)
@@ -45,16 +45,30 @@ macro (configure_msvc_runtime)
 endmacro ()
 
 # link msvc runtime statically
-if (MSVC)
-    configure_msvc_runtime()
-endif ()
+configure_msvc_runtime ()
 
-# add_subfolder doesnt work if you need to istall packages, add it in top level file
-SET (DSPFilters "DSPFilters")
+# add_subfolder doesnt work on linux if you need to istall packages, add it in top level file
+SET (DSPFILTERS "DSPFilters")
 aux_source_directory (${CMAKE_HOME_DIRECTORY}/third_party/DSPFilters/source DSPFILTERS_SOURCE_LIB)
-add_library (${DSPFilters} STATIC ${DSPFILTERS_SOURCE_LIB})
-target_include_directories (${DSPFilters} PUBLIC $<BUILD_INTERFACE:${CMAKE_HOME_DIRECTORY}/third_party/DSPFilters/include>)
-set_property (TARGET ${DSPFilters} PROPERTY POSITION_INDEPENDENT_CODE ON)
+add_library (${DSPFILTERS} STATIC ${DSPFILTERS_SOURCE_LIB})
+target_include_directories (${DSPFILTERS} PUBLIC $<BUILD_INTERFACE:${CMAKE_HOME_DIRECTORY}/third_party/DSPFilters/include>)
+set_property (TARGET ${DSPFILTERS} PROPERTY POSITION_INDEPENDENT_CODE ON)
+
+SET (GANGLION_LIB "GanglionLib")
+set (GANGLION_SOURCE_LIB
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/callbacks.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/cmd_def.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/helpers.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/main.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/stubs.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/uart.cpp
+)
+add_library (${GANGLION_LIB} STATIC ${GANGLION_SOURCE_LIB})
+target_include_directories (${GANGLION_LIB} PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_HOME_DIRECTORY}/src/utils>
+    $<BUILD_INTERFACE:${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/inc>
+)
+set_property (TARGET ${GANGLION_LIB} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 SET (BOARDS_JSON "brainflow_boards.json")
 
@@ -73,10 +87,6 @@ if (CMAKE_SIZEOF_VOID_P EQUAL 8)
     else ()
         SET (BOARD_CONTROLLER_COMPILED_NAME "BoardController.dll")
         SET (DATA_HANDLER_COMPILED_NAME "DataHandler.dll")
-        SET (GANGLION_LIB_NATIVE_PATH "${CMAKE_HOME_DIRECTORY}/GanglionBLEAPI/x64/Release/GanglionLibNative64.dll")
-        SET (GANGLION_LIB_PATH "${CMAKE_HOME_DIRECTORY}/GanglionBLEAPI/x64/Release/GanglionLib.dll")
-        SET (GANGLION_LIB_NATIVE_NAME "GanglionLibNative64.dll")
-        SET (GANGLION_LIB_NAME "GanglionLib.dll")
     endif (APPLE)
 else (CMAKE_SIZEOF_VOID_P EQUAL 8)
     MESSAGE ("32 bits compiler detected")
@@ -93,36 +103,32 @@ else (CMAKE_SIZEOF_VOID_P EQUAL 8)
     else ()
         SET (BOARD_CONTROLLER_COMPILED_NAME "BoardController32.dll")
         SET (DATA_HANDLER_COMPILED_NAME "DataHandler32.dll")
-        SET (GANGLION_LIB_NATIVE_PATH "${CMAKE_HOME_DIRECTORY}/GanglionBLEAPI/Win32/Release/GanglionLibNative32.dll")
-        SET (GANGLION_LIB_PATH "${CMAKE_HOME_DIRECTORY}/GanglionBLEAPI/Win32/Release/GanglionLib.dll")
-        SET (GANGLION_LIB_NATIVE_NAME "GanglionLibNative32.dll")
-        SET (GANGLION_LIB_NAME "GanglionLib.dll")
     endif (APPLE)
 endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
 
 set (BOARD_CONTROLLER_SRC
-    "src/utils/timestamp.cpp"
-    "src/utils/data_buffer.cpp"
-    "src/utils/serial.cpp"
-    "src/utils/socket_client.cpp"
-    "src/utils/socket_server.cpp"
-    "src/board_controller/openbci/openbci_serial_board.cpp"
-    "src/board_controller/openbci/openbci_wifi_shield_board.cpp"
-    "src/board_controller/openbci/ganglion_wifi.cpp"
-    "src/board_controller/openbci/cyton_wifi.cpp"
-    "src/board_controller/openbci/cyton_daisy_wifi.cpp"
-    "src/board_controller/openbci/ganglion.cpp"
-    "src/board_controller/openbci/cyton.cpp"
-    "src/board_controller/openbci/cyton_daisy.cpp"
-    "src/board_controller/board_controller.cpp"
-    "src/board_controller/board_info_getter.cpp"
-    "src/board_controller/board.cpp"
-    "src/board_controller/synthetic_board.cpp"
-    "src/board_controller/openbci/novaxr.cpp"
+    ${CMAKE_HOME_DIRECTORY}/src/utils/timestamp.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/utils/data_buffer.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/utils/serial.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/utils/socket_client.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/utils/socket_server.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/openbci_serial_board.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/openbci_wifi_shield_board.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_wifi.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/cyton_wifi.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/cyton_daisy_wifi.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/cyton.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/cyton_daisy.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/board_controller.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/board_info_getter.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/board.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/synthetic_board.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/novaxr.cpp
 )
 
 set (DATA_HANDLER_SRC
-    "src/data_handler/data_handler.cpp"
+    ${CMAKE_HOME_DIRECTORY}/src/data_handler/data_handler.cpp
 )
 
 add_library (
@@ -137,59 +143,57 @@ add_library (
 
 target_include_directories (
     ${BOARD_CONTROLLER_NAME} PRIVATE
-    third_party/
-    third_party/json
-    third_party/http
-    src/utils/
-    src/board_controller/inc
-    src/board_controller/openbci/inc
-    GanglionBLEAPI/Interface
+    ${CMAKE_HOME_DIRECTORY}/third_party/
+    ${CMAKE_HOME_DIRECTORY}/third_party/json
+    ${CMAKE_HOME_DIRECTORY}/third_party/http
+    ${CMAKE_HOME_DIRECTORY}/src/utils/
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/inc
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/inc
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/inc
 )
 
 target_include_directories (
     ${DATA_HANDLER_NAME} PRIVATE
-    third_party/
-    src/utils/
-    src/board_controller/inc
-    src/data_handler/inc
-    third_party/DSPFilters/include
+    ${CMAKE_HOME_DIRECTORY}/third_party/
+    ${CMAKE_HOME_DIRECTORY}/src/utils/
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/inc
+    ${CMAKE_HOME_DIRECTORY}/src/data_handler/inc
+    ${CMAKE_HOME_DIRECTORY}/third_party/DSPFilters/include
 )
 
 set_target_properties (${BOARD_CONTROLLER_NAME}
     PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_HOME_DIRECTORY}/compiled"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_HOME_DIRECTORY}/compiled"
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_HOME_DIRECTORY}/compiled"
+    ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
 )
 
 set_target_properties (${DATA_HANDLER_NAME}
     PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_HOME_DIRECTORY}/compiled"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_HOME_DIRECTORY}/compiled"
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_HOME_DIRECTORY}/compiled"
+    ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
 )
 
 if (UNIX)
-    target_link_libraries (${BOARD_CONTROLLER_NAME} pthread dl)
-    target_link_libraries (${DATA_HANDLER_NAME} ${DSPFilters} pthread dl)
+    target_link_libraries (${BOARD_CONTROLLER_NAME} ${GANGLION_LIB} pthread dl)
+    target_link_libraries (${DATA_HANDLER_NAME} ${DSPFILTERS} pthread dl)
 else (UNIX)
-    target_link_libraries (${DATA_HANDLER_NAME} ${DSPFilters})
+    target_link_libraries (${BOARD_CONTROLLER_NAME} ${GANGLION_LIB})
+    target_link_libraries (${DATA_HANDLER_NAME} ${DSPFILTERS})
 endif (UNIX)
 
-# getdata
-# it's impossible to install target from subfolder, so we have to move GetData target to top level or split installation
-# I prefer to move GetData from subfolder to top level CMakeLists.txt
 add_library (
     ${BRAINFLOW_CPP_BINDING_NAME} STATIC
-    cpp-package/src/board_shim.cpp
-    cpp-package/src/data_filter.cpp
+    ${CMAKE_HOME_DIRECTORY}/cpp-package/src/board_shim.cpp
+    ${CMAKE_HOME_DIRECTORY}/cpp-package/src/data_filter.cpp
 )
 
 target_include_directories (
     ${BRAINFLOW_CPP_BINDING_NAME} PRIVATE
-    src/board_controller/inc
-    src/data_handler/inc
-    third_party/json
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/inc
+    ${CMAKE_HOME_DIRECTORY}/src/data_handler/inc
+    ${CMAKE_HOME_DIRECTORY}/third_party/json
 )
 
 if (UNIX)
@@ -206,13 +210,6 @@ if (MSVC)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BOARD_CONTROLLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${BOARD_CONTROLLER_COMPILED_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BOARD_CONTROLLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/${BOARD_CONTROLLER_COMPILED_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BOARD_CONTROLLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${BOARD_CONTROLLER_COMPILED_NAME}"
-        # copy libraries which are required for ganglion
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${GANGLION_LIB_NATIVE_PATH}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${GANGLION_LIB_NATIVE_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${GANGLION_LIB_PATH}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${GANGLION_LIB_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${GANGLION_LIB_NATIVE_PATH}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/${GANGLION_LIB_NATIVE_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${GANGLION_LIB_PATH}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/${GANGLION_LIB_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${GANGLION_LIB_NATIVE_PATH}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${GANGLION_LIB_NATIVE_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${GANGLION_LIB_PATH}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${GANGLION_LIB_NAME}"    
     )
     add_custom_command (TARGET ${DATA_HANDLER_NAME} POST_BUILD 
         # copy data handler libs
@@ -248,36 +245,36 @@ add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
 )
 
 # install
-set (version_config "${CMAKE_HOME_DIRECTORY}/compiled/brainflowConfigVersion.cmake")
-set (config_install_dir "lib/cmake/brainflow")
-set (project_config "${CMAKE_HOME_DIRECTORY}/compiled/brainflowConfig.cmake")
-set (targets_export_name brainflowTargets)
-set (package_lib_install_dir ${CMAKE_INSTALL_PREFIX}/lib)
-set (package_inc_install_dir ${CMAKE_INSTALL_PREFIX}/inc)
+set (VERSION_CONFIG ${CMAKE_HOME_DIRECTORY}/compiled/brainflowConfigVersion.cmake)
+set (CONFIG_INSTALL_DIR lib/cmake/brainflow)
+set (PROJECT_CONFIG ${CMAKE_HOME_DIRECTORY}/compiled/brainflowConfig.cmake)
+set (TARGETS_EXPORT_NAME brainflowTargets)
+set (PACKAGE_LIB_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/lib)
+set (PACKAGE_INC_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/inc)
 
 include (CMakePackageConfigHelpers)
 
 write_basic_package_version_file (
-    "${version_config}"
+    ${VERSION_CONFIG}
     VERSION ${BRAINFLOW_VERSION}
     COMPATIBILITY AnyNewerVersion
 )
 
 configure_package_config_file (
-    "cmake/Config.cmake.in"
-    "${project_config}"
-    INSTALL_DESTINATION "${config_install_dir}"
+    cmake/Config.cmake.in
+    ${PROJECT_CONFIG}
+    INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}
 )
 
 install (
     FILES
-    "src/board_controller/inc/board_controller.h"
-    "src/board_controller/inc/brainflow_constants.h"
-    "src/board_controller/inc/board_info_getter.h"
-    "src/data_handler/inc/data_handler.h"
-    "cpp-package/src/data_filter.h"
-    "cpp-package/src/board_shim.h"
-    "cpp-package/src/brainflow_exception.h"
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/inc/board_controller.h
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/inc/brainflow_constants.h
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/inc/board_info_getter.h
+    ${CMAKE_HOME_DIRECTORY}/src/data_handler/inc/data_handler.h
+    ${CMAKE_HOME_DIRECTORY}/cpp-package/src/data_filter.h
+    ${CMAKE_HOME_DIRECTORY}/cpp-package/src/board_shim.h
+    ${CMAKE_HOME_DIRECTORY}/cpp-package/src/brainflow_exception.h
     DESTINATION inc
 )
 
@@ -289,30 +286,21 @@ install (
 )
 
 install (
-    TARGETS ${BOARD_CONTROLLER_NAME} ${DATA_HANDLER_NAME} ${DSPFilters} ${BRAINFLOW_CPP_BINDING_NAME}
-    EXPORT ${targets_export_name}
+    TARGETS ${BOARD_CONTROLLER_NAME} ${DATA_HANDLER_NAME} ${DSPFILTERS} ${GANGLION_LIB} ${BRAINFLOW_CPP_BINDING_NAME}
+    EXPORT ${TARGETS_EXPORT_NAME}
     RUNTIME DESTINATION lib
     LIBRARY DESTINATION lib
     INCLUDES DESTINATION inc
     ARCHIVE DESTINATION lib
 )
 
-if (MSVC)
-    install (
-        FILES
-        "${GANGLION_LIB_NATIVE_PATH}"
-        "${GANGLION_LIB_PATH}"
-        DESTINATION lib
-    )
-endif (MSVC)
-
 install (
-    FILES "${project_config}" "${version_config}"
-    DESTINATION "${config_install_dir}"
+    FILES ${PROJECT_CONFIG} ${VERSION_CONFIG}
+    DESTINATION ${CONFIG_INSTALL_DIR}
 )
 
 install (
-    EXPORT ${targets_export_name}
+    EXPORT ${TARGETS_EXPORT_NAME}
     NAMESPACE brainflow::
-    DESTINATION "${config_install_dir}"
+    DESTINATION ${CONFIG_INSTALL_DIR}
 )

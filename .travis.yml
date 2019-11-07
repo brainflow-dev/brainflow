@@ -12,8 +12,8 @@ services:
 
 env:
   global:
-    - secure: hRHTlAuSUqjjgUuCKDaCWYCPOdEYgnz4JOEuglaG6NnbLNx/UxWR9alxk41kdwLGH7cmN/Z7ZFWLffA0m49j3mKiNwY7fscHg7iyCTkwhfOK0F8PbYs23NqSW8dedkivwE/YC6QO8ElOO8RhqMmNZJO77v2XRmZfU4btfw40uyX3jkbyZjnj6a0SDzCWK8zCQxoaG3YPml1gsdn5QZ5hUMY79GAnVeufNJXjPNRwVZnSBD/2c95S64b6Slsx2XoTNXDUgzJFncCbmeYZGMgNbUWBG8968ew3Ck+TNG2oiH8Y8FZHgeKayJqNLC1QvRsgdiqBCci5Ve6+s8mVxikhdgYGJJXcn7G9vW2BV71U6YryRRyZPUUyj2vwAzZwSiiasQGLe0o1MEFuV/gN7M6p4m07XDYDXQogImVruvYbQXwk223/7IqnDkeHg1jzrxlx4nBgEddZKSlASG+l+2kw68XC6efB4Fm6kOId0MP00wG6PzhtywfGwIOML0QWof+XCCv8sUBz2aTLN1KXw/Bnsl5kRfAXwvDNYGMA3j1u5tCw9762qY9loenWLC/7+IZTnc4QHgCW3ZjSL0CQfMkOsGIP5fzKBeSt8/aXpXhNeEad3qkcSMeGDbs1a11zn2oKjjd0YyjoXj/GvefZe7a4tOWbBqF6ow9w6UjwCHwftM8=
-    - secure: o4T5hXAk2mQHYLjZ+Yr/JwMkgfe5gvjm8XLVIJ4BNsO0OpW7oXQ5Hcw8nKYlF3HEGjHkdW+nHeKFtYivI32Yu6QYvUQK0Titp91LELPKgMpz8IvpksI3SbAyQOw6trDhoV/3r0kBT2Xjw2Q8aXjH9e55Ogw6G+MhiKCJL3/y8ECofjssPNaSAJO9AEbG658KMRYL9BTjMkLJlhkeaIwTvPMWBGdIpMIll6uD1xa0iMaB1taWT0oEapuY8rygF10YgKOrsRf/P5kfd742MxdJkbMhOQcgXb6SK7yjkGp6gMbv5rktpCK+7UfQQC8ibmoI/JMjeKDLoB6eVIbWMGBHcfcgWFqIFq4sT39kCl4ZbZZ+MU77mCVqq6UA6Vy/n8tbSICJvjkaBa//6pu+oAWYsTFFLN6beAxDB1RsS78m+ejMznPX2v2KI2bHmZp2qXRdN7csp6nCXJl1b3rWhrKuIdmhS5PFAvuCXMDxpOSPhNdEa8akonISy7SGQL4jgoINsLpRrKQFpLHzcan8UHQVVg4UuRugqZ2pYYoUaP2YMbjOKg1VgKZjALlFiNIKRqlDLNT24gakSJ9OFAU45TXE8gUEpA6JyfQuP6fwrD9TwhAdLSxjQkfNT0X3Nd/aAu4AxPNI7Ra0eoIW8/O+WvVT8jK0Qfg8bH0nMIYRgVPcbmc=
+    - secure: QDhFByXil9s1ylj7oGofbM1gn7zWk85pj08NDZIRfvnkhg3h7+9lcV62Lqz/4bPBoURDHTjo5FQnTbWr09cBomtG+/yZ+KU+eTWu/Y1uwxQbUzpRVlOaWnrQxvHamyenK83XuiRnnXpGydjbBT1cnXM4foE93V+1t0rKk9JlGml17T3lCC6UwQirtDEWAbCqYWsFTKNq/pp3KUIxqceX3gZxY/1iI5Jk7DsgdhBSL4SIRxH913QjYZtZaLJR7Ea8jGHYqJlAc5ahrDdLZHARYcULGU/5/g9Jk2noeZzUV3gfRGLVecvB2lG4pMed3dKVLHCJ9ULmQvybfDIQ9B5ZSKvLyTfmJBtvsExUS1Vf9JT5tEhPP59jVPi3EhIvgFNEQt33HXLZELu8LMKG+5uLUoVlIuV9RwyHGh2e00fqpItTavT35VfmNrYtpxlANyfHWhu1DVI1fSuYi/VZCC1cyf7Yi4IsKooWgg/veLlDTfqfCePGoq9NpCopFvjuqdhKgM2yK/cVPKBu+cYmHjzrgoDNn0jfthn2/DeSMKOxzZxX62ZZHVqEQLeMmRT3pmVWo+DQwbWHdda2SAE3BGGlsSPlWOTmMO1hqOO+FpE4N5ObS/Toy/THuviVnT+jGt2LgStfimssZOCndHDUFAO9vkBVS1wNZ6y3ibJ3kihHJEw=
+    - secure: TCCuoURDpO/qIOyURTTi4mHubLc+HN5/XAKcM7uuHr4gJNw1/KQlZmOhQICv/Z7Nz5yGzCCsjl3v9zPM8VSngaHv8Z5QKdBu+hPZY/YINDqyrc5rs7lc2t/so/Wc47nUyjFuZ7wf1iGZnrXRzPrJa/tiIhBCFqS/+gIdKNn5NFDYY/pjF3Tesek969QuwCJE4sA1zzEBNxmSdo5QdbZ6yA+tLV/ccrfFcBTWYeGe9nSOG4TDJTQ1v/5aWKRIepxcMwnLaS0iyRc2GeB9KxnJsu09I4aChCo7B26onOZFcwhOwo8Vsv65HHMBMBjnJAQwN5uPPMGprej9bX3YTz+4BSLMU7+3Q1E3uonBVEbQIieY92XQmakgAFgN2BYpnP/7Wy6E0FP+j9+ia5OB/tsRC+8Vcc5PtRm5sOsBsfftYS3r4b47yH5+DEiaPsoZRs1bXiDgriwcw0aTUbqNZLUHhX8gbTqeuL3mOo6iVo5bmWIYtB+xjcPaHgKjqPPTXgmc68hQo7Qmd4i9b7jbPTR9McI6y4VGSHdzZF7jM1agl16At3EkFaEMjYsxk96IlsSvsQjK5E0RDd4+5q0M246Ua2ikBKhDH/JD9SFlO/jxyAMaofiEobg0WgQz/3kJHdqw5anUvOamziSMi48xVDwScjhnX2ihBKjuxmMEX9JPXHM=
 
 language: java
 
@@ -97,22 +97,21 @@ script:
       sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/wifi_shield_emulator.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --log --board-id 4 --ip-address 127.0.0.1 --ip-protocol 2 --ip-port 17982 ;
     fi
 
-# deploy from openbci fork
-# after_success:
-#   - sudo -H pip3 install awscli
-#   # push libraries from docker!
-#   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-#       aws s3 cp $TRAVIS_BUILD_DIR/installed_docker/lib/ s3://brainflow-artifacts/$TRAVIS_COMMIT/$TRAVIS_OS_NAME --recursive ;
-#     fi
-#   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-#       aws s3 cp $TRAVIS_BUILD_DIR/installed/lib/ s3://brainflow-artifacts/$TRAVIS_COMMIT/$TRAVIS_OS_NAME --recursive ;
-#     fi
-#   # notify that everything is ok
-#   - echo success > ${TRAVIS_OS_NAME}_success && aws s3 cp ${TRAVIS_OS_NAME}_success s3://brainflow-artifacts/$TRAVIS_COMMIT/
+after_success:
+  - sudo -H pip3 install awscli
+  # push libraries from docker!
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+      aws s3 cp $TRAVIS_BUILD_DIR/installed_docker/lib/ s3://brainflow/$TRAVIS_COMMIT/$TRAVIS_OS_NAME --recursive ;
+    fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
+      aws s3 cp $TRAVIS_BUILD_DIR/installed/lib/ s3://brainflow/$TRAVIS_COMMIT/$TRAVIS_OS_NAME --recursive ;
+    fi
+  # notify that everything is ok
+  - echo success > ${TRAVIS_OS_NAME}_success && aws s3 cp ${TRAVIS_OS_NAME}_success s3://brainflow/$TRAVIS_COMMIT/
 
 after_failure:
   # notify Appveyor of travis test failure
-  echo failure > ${TRAVIS_OS_NAME}_failure && aws s3 cp ${TRAVIS_OS_NAME}_failure s3://brainflow-artifacts/$TRAVIS_COMMIT/
+  echo failure > ${TRAVIS_OS_NAME}_failure && aws s3 cp ${TRAVIS_OS_NAME}_failure s3://brainflow/$TRAVIS_COMMIT/
 
 notifications:
   email:
