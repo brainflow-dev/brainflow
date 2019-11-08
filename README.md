@@ -1,14 +1,11 @@
-# Brainflow
+# BrainFlow
 
 ## [Documentation, Contributing guide and other information](https://brainflow.readthedocs.io/en/latest/index.html)
 
-Brainflow is a library intended to obtain, parse and analyze EEG\EMG\ECG data from OpenBCI boards.
-
-Core module of this library is implemented in C\C++ and available for all bindings as a dynamic library. This approach allows to reduce code duplication and simplify maintenance, also it's better than any streaming based solution because using this library you don't need to worry about inter process communication and it's a single dependency.
-
-#### *NOTE: Brainflow was forked by OpenBCI community, I will contribute to [OpenBCI's fork](https://github.com/OpenBCI/brainflow) and maintain it. To download the latest stable version of Brainflow feel free to use OpenBCI's fork. Both versions are exactly the same*
+Brainflow is a library intended to obtain, parse and analyze EEG\EMG\ECG... data from any BCI board.
 
 ## Build status
+
 Compiled with:
 * MSVC on Windows
 * GCC on Linux
@@ -22,13 +19,19 @@ Compiled with:
 
 [![Build status](https://ci.appveyor.com/api/projects/status/4gr8uy65f86eh2b5/branch/master?svg=true)](https://ci.appveyor.com/project/Andrey1994/brainflow/branch/master)
 
+## Extend BrainFLow SDK
+
+*We will be glad to add new boards to BrainFlow SDK, the only requirement for your board if you want to add it to BrainFlow - an access to raw data.*
+*For more information about process of adding new boards to BrainFlow read* [this](https://brainflow.readthedocs.io/en/latest/BrainFlowDev.html#instructions-to-add-new-boards-to-brainflow)
+
+*Also we can help you to integrate BrainFlow SDK to your apps, fromeworks etc.*
+
 ## Brainflow Bindings
 We support bindings for:
 * [python](./python-package)
 * [java](./java-package/brainflow/)
 * [R](./r-package/)
-* [CPP](./cpp-package/)
-* [Matlab](./matlab-package/brainflow/)
+* [C++](./cpp-package/)
 * [C# (Windows only)](./csharp-package/brainflow/)
 
 ## License: 

@@ -1,16 +1,17 @@
 Supported Boards
 =================
 
-
 Synthetic Board
 ----------------
 
-
 This board generates synthetic data and you dont need real hardware to use it.
 
-To choose this board in BoardShim class please specify:
+**It can be extremely useful during development.**
+
+To choose this board in BoardShim constructor please specify:
 
 - board_id: -1
+- you dont need to set any fields in BrainFlowInputParams structure
 
 Supported platforms:
 
@@ -20,11 +21,10 @@ Supported platforms:
 
 Board Specs:
 
-- num eeg(emg) channels: 8
+- num eeg(emg,...) channels: 8
 - num acceleration channels: 3
 - sampling rate: 256
 - communication: None
-
 
 OpenBCI Cyton
 --------------
@@ -33,7 +33,7 @@ OpenBCI Cyton
 
 `Cyton geting started guide from OpenBCI <https://docs.openbci.com/Tutorials/00-Tutorials>`_.
 
-To choose this board in BoardShim class please specify:
+To choose this board in BoardShim constructor please specify:
 
 - board_id: 0
 - serial_port field of BrainFlowInputParams structure
@@ -46,7 +46,7 @@ Supported platforms:
 
 Board Spec:
 
-- num eeg(emg) channels: 8
+- num eeg(emg,...) channels: 8
 - num acceleration channels: 3
 - sampling rate: 250
 - communication: serial port
@@ -58,9 +58,9 @@ OpenBCI Ganglion
 
 `Ganglion geting started guide from OpenBCI <https://docs.openbci.com/Tutorials/00-Tutorials>`_.
 
-**To use Ganglion board you need a** `dongle <https://shop.openbci.com/collections/frontpage/products/ganglion-dongle>`_
+**To use Ganglion board you need a** `dongle <https://shop.openbci.com/collections/frontpage/products/ganglion-dongle>`_.
 
-To choose this board in BoardShim class please specify:
+To choose this board in BoardShim constructor please specify:
 
 - board_id: 1
 - serial_port field of BrainFlowInputParams structure
@@ -74,11 +74,10 @@ Supported platforms:
 
 Board Spec:
 
-- num eeg(emg) channels: 4
+- num eeg(emg,...) channels: 4
 - num acceleration channels: 3
 - sampling rate: 200
 - communication: Bluetooth Low Energy behind serial port from the dongle
-
 
 OpenBCI Cyton Daisy
 --------------------
@@ -87,7 +86,7 @@ OpenBCI Cyton Daisy
 
 `Cyton Daisy geting started guide from OpenBCI <https://docs.openbci.com/Tutorials/00-Tutorials>`_.
 
-To choose this board in BoardShim class please specify:
+To choose this board in BoardShim constructor please specify:
 
 - board_id: 2
 - serial_port field of BrainFlowInputParams structure
@@ -100,7 +99,7 @@ Supported platforms:
 
 Board Spec:
 
-- num eeg(emg) channels: 16
+- num eeg(emg,...) channels: 16
 - num acceleration channels: 3
 - sampling rate: 125
 - communication: serial port
@@ -115,7 +114,7 @@ OpenBCI Ganglion with Wifi Shield
 
 `Wifi shield programming guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_.
 
-To choose this board in BoardShim class please specify:
+To choose this board in BoardShim constructor please specify:
 
 - board_id: 4
 - ip_address field of BrainFlowInputParams structure should contain WiFi Shield Ip address(in direct mode its 192.168.4.1)
@@ -128,15 +127,12 @@ Supported platforms:
 - Linux
 - MacOS
 
-
 Board Spec:
 
-- num eeg(emg) channels: 4
+- num eeg(emg,...) channels: 4
 - num acceleration channels: 3
 - sampling rate: 1600
-- communication: tcp socket to read data(local port 17982) and http to send commands
-
-
+- communication: tcp socket to read data and http to send commands
 
 OpenBCI Cyton with Wifi Shield
 ---------------------------------
@@ -147,7 +143,7 @@ OpenBCI Cyton with Wifi Shield
 
 `Wifi shield programming guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_.
 
-To choose this board in BoardShim class please specify:
+To choose this board in BoardShim constructor please specify:
 
 - board_id: 5
 - ip_address field of BrainFlowInputParams structure should contain WiFi Shield Ip address(in direct mode its 192.168.4.1)
@@ -163,11 +159,10 @@ Supported platforms:
 
 Board Spec:
 
-- num eeg(emg) channels: 8
+- num eeg(emg,...) channels: 8
 - num acceleration channels: 3
 - sampling rate: 1000
-- communication: tcp socket to read data(local port 17982) and http to send commands
-
+- communication: tcp socket to read data and http to send commands
 
 OpenBCI Cyton Daisy with Wifi Shield
 --------------------------------------
@@ -178,7 +173,7 @@ OpenBCI Cyton Daisy with Wifi Shield
 
 `Wifi shield programming guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_.
 
-To choose this board in BoardShim class please specify:
+To choose this board in BoardShim constructor please specify:
 
 - board_id: 6
 - ip_address field of BrainFlowInputParams structure should contain WiFi Shield Ip address(in direct mode its 192.168.4.1)
@@ -193,7 +188,7 @@ Supported platforms:
 
 Board Spec:
 
-- num eeg(emg) channels: 16
+- num eeg(emg,...) channels: 16
 - num acceleration channels: 3
 - sampling rate: 1000
-- communication: tcp socket to read data(local port 17982) and http to send commands
+- communication: tcp socket to read data and http to send commands

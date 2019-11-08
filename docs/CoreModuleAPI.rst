@@ -12,14 +12,14 @@ All possible exit codes and supported boards
 Board Controller Interface
 ---------------------------
 
-This library reads data from a board and provides API to request information about this board and data format. In User API these methods are available via BoardShim class
+This library reads data from a board and provides an API to request information about this board and data format. In User API these methods are available via BoardShim class.
 
-Data acquisition methods are described below
+Data acquisition methods are described below:
 
 .. literalinclude:: ../src/board_controller/inc/board_controller.h
    :language: cpp
 
-Board Description methods are described below
+Board Description methods are described below:
 
 .. literalinclude:: ../src/board_controller/inc/board_info_getter.h
    :language: cpp
@@ -27,7 +27,7 @@ Board Description methods are described below
 Data Handler Interface
 ----------------------
 
-This library performs basic signal processing. In User API these methods are available via DataFilter class
+This library performs basic signal processing. In User API these methods are available via DataFilter class.
 
 .. literalinclude:: ../src/data_handler/inc/data_handler.h
    :language: cpp
