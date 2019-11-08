@@ -8,7 +8,7 @@ Data Format Description
    get_board_data ()
    get_current_board_data (max_num_packages)
 
-**Return 2d double array [num_channels x num_data_points], rows of this array represent different channels like  EEG channels, EMG channels, Accel channels, Timesteps and other information, while columns in this array represens actual packages from a board.**
+**Return 2d double array [num_channels x num_data_points], rows of this array represent different channels like  EEG channels, EMG channels, Accel channels, Timesteps and so on, while columns in this array represent actual packages from a board.**
 
 Exact format for this array is board specific but to keep API uniform we have methods like:
 
@@ -25,7 +25,7 @@ Exact format for this array is board specific but to keep API uniform we have me
    get_timestamp_channel (board_id)
    # and so on
 
-**For some boards like OpenBCI Cyton, OpenBCI Ganglion and others we can not separate EMG, EEG, EDA and ECG and in this case we return exactly the same array for all these methods but for some boards EMG and EEG channels differs**
+**For some boards like OpenBCI Cyton, OpenBCI Ganglion and others we can not separate EMG, EEG, EDA and ECG and in this case we return exactly the same array for all these methods but for some boards EMG and EEG channels differ**
 
 Using methods above you can write completely board agnostic code and switch boards using single parameter! Even if you have only one board using these methods you can easily switch to Synthetic board for development and run code without real hardware.
 
