@@ -30,6 +30,8 @@ OpenBCI Cyton
 --------------
 
 .. image:: https://farm5.staticflickr.com/4817/32567183898_10a4b56659.jpg
+    :width: 400px
+    :height: 200px
 
 `Cyton geting started guide from OpenBCI <https://docs.openbci.com/Tutorials/00-Tutorials>`_.
 
@@ -55,6 +57,8 @@ OpenBCI Ganglion
 -----------------
 
 .. image:: https://live.staticflickr.com/65535/48288408326_7f078cd2eb.jpg
+    :width: 500px
+    :height: 450px
 
 `Ganglion geting started guide from OpenBCI <https://docs.openbci.com/Tutorials/00-Tutorials>`_.
 
@@ -83,6 +87,8 @@ OpenBCI Cyton Daisy
 --------------------
 
 .. image:: https://live.staticflickr.com/65535/48288597712_7ba142797e.jpg
+    :width: 500px
+    :height: 500px
 
 `Cyton Daisy geting started guide from OpenBCI <https://docs.openbci.com/Tutorials/00-Tutorials>`_.
 
@@ -109,6 +115,8 @@ OpenBCI Ganglion with Wifi Shield
 -----------------------------------
 
 .. image:: https://live.staticflickr.com/65535/48836544227_05059fc450_b.jpg
+    :width: 500px
+    :height: 500px
 
 `Wifi shield geting started guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_.
 
@@ -138,6 +146,8 @@ OpenBCI Cyton with Wifi Shield
 ---------------------------------
 
 .. image:: https://live.staticflickr.com/65535/48836367066_a8c4b6d3be_b.jpg
+    :width: 500px
+    :height: 500px
 
 `Wifi shield geting started guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_.
 
@@ -168,6 +178,8 @@ OpenBCI Cyton Daisy with Wifi Shield
 --------------------------------------
 
 .. image:: https://live.staticflickr.com/65535/48843419918_f11c90deb0_k.jpg
+    :width: 500px
+    :height: 500px
 
 `Wifi shield geting started guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_.
 
