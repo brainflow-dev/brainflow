@@ -6,7 +6,7 @@ Python
 
 .. compound::
 
-    Also you are able to install latest release from PYPI ::
+    You are able to install latest release from PYPI ::
 
         python -m pip install brainflow
 
@@ -22,7 +22,7 @@ C#
 
 For C# only Windows is currently supported.
 
-You can download latest release from `Nuget <https://www.nuget.org/packages/brainflow/>`_ or build it yourself:
+You are able to install latest release from `Nuget <https://www.nuget.org/packages/brainflow/>`_ or build it yourself:
 
 - Compile BrainFlow's core module
 - open Visual Studio Solution
@@ -46,7 +46,7 @@ R binding is based on `reticulate <https://rstudio.github.io/reticulate/>`_ pack
 Java
 -----
 
-You can download jar files directly from `release page <https://github.com/Andrey1994/brainflow/releases>`_
+You are able to download jar files directly from `release page <https://github.com/Andrey1994/brainflow/releases>`_
 
 .. compound::
 
