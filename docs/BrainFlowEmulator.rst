@@ -1,10 +1,10 @@
-Brainflow Emulator
-==================
+BrainFlow Emulator
+===================
 
-Brainflow Emulator allows you to run all integration tests for all supported boards without real hardware, our CI uses it for test automation, also you can run it on your own PC.
+BrainFlow Emulator allows you to run all integration tests for all supported boards without real hardware, our CI uses it for test automation, also you can run it on your own PC.
 
-Cyton
--------
+OpenBCI Cyton
+--------------
 
 Cyton emulator simulate COM port using:
 
@@ -25,8 +25,8 @@ Run tests for Linux\MacOS and Windows (port argument will be added by Emulator!)
     python brainflow_emulator\cyton_windows.py python ..\python-package\examples\brainflow_get_data.py --log --board-id 0 --serial-port
 
 
-NovaXR
--------
+OpenBCI NovaXR
+---------------
 
 NovaXR emulator creates socket server and streams data to BrainFlow like it's a real board but with much lower sampling rate.
 
@@ -39,8 +39,8 @@ Run tests::
 
     python brainflow_emulator/novaxr_udp.py python ../python-package/examples/brainflow_get_data.py --log --ip-address 127.0.0.1 --board-id 3 --ip-protocol 1
 
-Wifi shield based boards
---------------------------
+OpenBCI Wifi Shield based boards
+----------------------------------
 
 Wifi shield emulator starts http server to read commands and creates client socket to stream data.
 
