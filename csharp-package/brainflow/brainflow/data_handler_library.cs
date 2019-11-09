@@ -5,8 +5,8 @@ namespace brainflow
     public enum FilterTypes
     {
         BUTTERWORTH = 0,
-        CHEBYSHEV_TYPE_1,
-        BESSEL
+        CHEBYSHEV_TYPE_1 = 1,
+        BESSEL = 2
     };
 
     class DataHandlerLibrary64
