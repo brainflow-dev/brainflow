@@ -134,12 +134,11 @@ pygments_style = None
 # a list of builtin themes.
 #
 
-# I dont like import in the middle but its a copypaste from their docs
-import guzzle_sphinx_theme
+import sphinx_rtd_theme
 
-extensions.append('guzzle_sphinx_theme')
-html_theme_path = guzzle_sphinx_theme.html_theme_path()
-html_theme = 'guzzle_sphinx_theme'
+extensions.append('sphinx_rtd_theme')
+html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -147,22 +146,20 @@ html_theme = 'guzzle_sphinx_theme'
 #
 html_translator_class = 'guzzle_sphinx_theme.HTMLTranslator'
 html_show_sourcelink = False
-html_sidebars = {
-    '**': ['logo-text.html',
-           'globaltoc.html',
-           'localtoc.html',
-           'searchbox.html']
-}
+
+html_logo = '_static/brainflow_logo.png'
 
 html_theme_options = {
-    'project_nav_name': 'BrainFlow'
+    'collapse_navigation': False,
+    'display_version': True,
+    'logo_only': False,
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named 'default.css' will overwrite the builtin 'default.css'.
 html_static_path = ['_static']
-
+html_context = {'css_files': ['_static/custom.css']}
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
 #

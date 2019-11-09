@@ -57,8 +57,8 @@ OpenBCI Ganglion
 -----------------
 
 .. image:: https://live.staticflickr.com/65535/48288408326_7f078cd2eb.jpg
-    :width: 500px
-    :height: 450px
+    :width: 450px
+    :height: 400px
 
 `Ganglion geting started guide from OpenBCI <https://docs.openbci.com/Tutorials/00-Tutorials>`_.
 
