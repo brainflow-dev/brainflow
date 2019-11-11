@@ -6,7 +6,7 @@ Python
 
 .. compound::
 
-    You are able to install latest release from PYPI ::
+    You are able to install the latest release from PYPI ::
 
         python -m pip install brainflow
 
@@ -22,7 +22,7 @@ C#
 
 For C# only Windows is currently supported.
 
-You are able to install latest release from `Nuget <https://www.nuget.org/packages/brainflow/>`_ or build it yourself:
+You are able to install the latest release from `Nuget <https://www.nuget.org/packages/brainflow/>`_ or build it yourself:
 
 - Compile BrainFlow's core module
 - open Visual Studio Solution
@@ -35,7 +35,7 @@ Unity Integration
 
 - build C# package
 - copy managed DLLs to the Assets folder of your Unity project
-- copy unmanaged DLLS to project folder to use it with Unity player
+- copy unmanaged DLLs to project folder to use it with Unity player
 - after building Unity project copy unmanaged DLLs to exe folder
 
 R

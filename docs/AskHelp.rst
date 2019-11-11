@@ -12,15 +12,19 @@ Contact Info, Feature Request, Report an Issue
 Issues
 --------
 
-First of all you need to specify BrainFlow version and OS which you use.
-Also you should run BrainFlow with:
+First of all you need to run your code with:
 
 .. code-block:: python
 
    enable_dev_board_logger ()
    
-And attach full log to your issue description.
-And finally, you have to provide steps to reproduce your problem or a simple script.
+
+After that make sure that:
+
+- you've specified BrainFlow version and OS version
+- you've attached all logs to your issue description
+- you've provided steps or a simple example to reproduce your issue
+
 
 Contributors
 -------------
