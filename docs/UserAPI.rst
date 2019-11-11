@@ -7,7 +7,7 @@ BrainFlow User API has only two classes:
 - DataFilter to perform signal processing
 
 BrainFlow API is board agnostic, so to select a specific board you need to pass BrainFlow's board id to BoardShim's constructor and an instance of BrainFlowInputParams structure which should hold information for your specific board(e.g. specify serial_port for OpenBCI Cyton, check Supported Boards section for details).
-This abstraction allows you to switch a board almost without any changes in code.
+This abstraction allows you to switch boards without any changes in code.
 
 Since API for all bindings is almost the same we add description for parameters, return values and methods only for Python API.
 For other languages we add docs without any description and hints.
