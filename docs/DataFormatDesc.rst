@@ -1,6 +1,9 @@
 Data Format Description
 =========================
 
+Generic Format Description
+----------------------------
+
 **Methods like:**
 
 .. code-block:: python
