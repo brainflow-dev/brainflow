@@ -1,5 +1,7 @@
 ﻿using System;
 
+using Accord.Math;
+
 namespace brainflow
 {
     public class DataFilter
@@ -51,6 +53,44 @@ namespace brainflow
                 throw new BrainFlowException (res);
             }
             return filtered_data;
+        }
+
+        public static void write_file (double[,] data, string file_name, string file_mode)
+        {
+            int num_rows = data.Rows();
+            int res = DataHandlerLibrary.write_file (data.Flatten(), data.Rows (), data.Columns (), file_name, file_mode);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException (res);
+            }
+        }
+
+        public static double[,] read_file (string file_name)
+        {
+            int[] num_elements = new int[1];
+            int res = DataHandlerLibrary.get_num_elements_in_file (file_name, num_elements);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException (res);
+            }
+            double[] data_arr = new double[num_elements[0]];
+            int[] num_rows = new int[1];
+            int[] num_cols = new int[1];
+            res = DataHandlerLibrary.read_file (data_arr, num_rows, num_cols, file_name, num_elements[0]);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException (res);
+            }
+
+            double[,] result = new double[num_rows[0], num_cols[0]];
+            for (int i = 0; i < num_rows[0]; i++)
+            {
+                for (int j = 0; j < num_cols[0]; j++)
+                {
+                    result[i, j] = data_arr[i * num_cols[0] + j];
+                }
+            }
+            return result;
         }
     }
 }

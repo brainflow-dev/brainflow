@@ -3,7 +3,8 @@ package brainflow;
 import java.util.HashMap;
 import java.util.Map;
 
-public enum BoardIds {
+public enum BoardIds
+{
 
     SYNTHETIC_BOARD (-1),
     CYTON_BOARD (0),
@@ -13,30 +14,36 @@ public enum BoardIds {
     GANGLION_WIFI_BOARD (4),
     CYTON_WIFI_BOARD (5),
     CYTON_DAISY_WIFI_BOARD (6);
-    
+
     private final int board_id;
-    private static final Map<Integer, BoardIds> bi_map = new HashMap<Integer, BoardIds>();
-    
-    public int get_code () {
+    private static final Map<Integer, BoardIds> bi_map = new HashMap<Integer, BoardIds> ();
+
+    public int get_code ()
+    {
         return board_id;
     }
-    
-    public static String string_from_code (final int code) {
+
+    public static String string_from_code (final int code)
+    {
         return from_code (code).name ();
     }
- 
-    public static BoardIds from_code (final int code) {
+
+    public static BoardIds from_code (final int code)
+    {
         final BoardIds element = bi_map.get (code);
         return element;
     }
- 
-    BoardIds(final int code) {
+
+    BoardIds (final int code)
+    {
         board_id = code;
     }
 
-    static {
-        for (final BoardIds bi : BoardIds.values ()) {
-            bi_map.put(bi.get_code(), bi);
+    static
+    {
+        for (final BoardIds bi : BoardIds.values ())
+        {
+            bi_map.put (bi.get_code (), bi);
         }
     }
 }

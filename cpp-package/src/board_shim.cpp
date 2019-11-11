@@ -32,29 +32,17 @@ std::string params_to_string (struct BrainFlowInputParams params)
 
 void BoardShim::enable_board_logger ()
 {
-    int res = set_log_level (2);
-    if (res != STATUS_OK)
-    {
-        throw BrainFlowException ("failed to enable board logger", res);
-    }
+    BoardShim::set_log_level ((int)LogLevels::LEVEL_INFO);
 }
 
 void BoardShim::disable_board_logger ()
 {
-    int res = set_log_level (6);
-    if (res != STATUS_OK)
-    {
-        throw BrainFlowException ("failed to disable board logger", res);
-    }
+    BoardShim::set_log_level ((int)LogLevels::LEVEL_OFF);
 }
 
 void BoardShim::enable_dev_board_logger ()
 {
-    int res = set_log_level (0);
-    if (res != STATUS_OK)
-    {
-        throw BrainFlowException ("failed to enable dev board logger", res);
-    }
+    BoardShim::set_log_level ((int)LogLevels::LEVEL_TRACE);
 }
 
 void BoardShim::set_log_file (char *log_file)
@@ -63,6 +51,30 @@ void BoardShim::set_log_file (char *log_file)
     if (res != STATUS_OK)
     {
         throw BrainFlowException ("failed to set log file", res);
+    }
+}
+
+void BoardShim::set_log_level (int log_level)
+{
+    int res = ::set_log_level (log_level);
+    if (res != STATUS_OK)
+    {
+        throw BrainFlowException ("failed to set log level", res);
+    }
+}
+
+void BoardShim::log_message (int log_level, const char *format, ...)
+{
+    char buffer[1024];
+    va_list ap;
+    va_start (ap, format);
+    vsnprintf (buffer, 1024, format, ap);
+    va_end (ap);
+
+    int res = ::log_message (log_level, buffer);
+    if (res != STATUS_OK)
+    {
+        throw BrainFlowException ("failed to write log message", res);
     }
 }
 

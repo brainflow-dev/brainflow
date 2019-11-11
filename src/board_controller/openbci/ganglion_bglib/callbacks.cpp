@@ -81,7 +81,7 @@ void ble_evt_connection_status (const struct ble_msg_connection_status_evt_t *ms
         GanglionLib::connection = msg->connection;
         // this method is called from ble_evt_connection_disconnected need to set exit code only
         // when we call this method from open_ble_device
-        if (GanglionLib::state == GanglionLib::State::initial_connection)
+        if (GanglionLib::state == GanglionLib::State::INITIAL_CONNECTION)
         {
             GanglionLib::exit_code = (int)GanglionLib::STATUS_OK;
         }
@@ -114,14 +114,14 @@ void ble_evt_attclient_group_found (const struct ble_msg_attclient_group_found_e
 void ble_evt_attclient_procedure_completed (
     const struct ble_msg_attclient_procedure_completed_evt_t *msg)
 {
-    if (GanglionLib::state == GanglionLib::State::write_to_client_char)
+    if (GanglionLib::state == GanglionLib::State::WRITE_TO_CLIENT_CHAR)
     {
         if (msg->result == 0)
         {
             GanglionLib::exit_code = (int)GanglionLib::STATUS_OK;
         }
     }
-    if (GanglionLib::state == GanglionLib::State::open_called)
+    if (GanglionLib::state == GanglionLib::State::OPEN_CALLED)
     {
         if ((GanglionLib::ganglion_handle_start) && (GanglionLib::ganglion_handle_end))
         {
@@ -130,7 +130,7 @@ void ble_evt_attclient_procedure_completed (
                                                    // ble_evt_attclient_find_information_found
         }
     }
-    else if (GanglionLib::state == GanglionLib::State::config_called)
+    else if (GanglionLib::state == GanglionLib::State::CONFIG_CALLED)
     {
         if (msg->result == 0)
         {
@@ -143,7 +143,7 @@ void ble_evt_attclient_procedure_completed (
 void ble_evt_attclient_find_information_found (
     const struct ble_msg_attclient_find_information_found_evt_t *msg)
 {
-    if (GanglionLib::state == GanglionLib::State::open_called)
+    if (GanglionLib::state == GanglionLib::State::OPEN_CALLED)
     {
         if (msg->uuid.len == 2)
         {
@@ -179,7 +179,7 @@ void ble_evt_attclient_find_information_found (
         }
         if ((GanglionLib::ganglion_handle_send) && (GanglionLib::ganglion_handle_recv) &&
             (GanglionLib::client_char_handle) &&
-            (GanglionLib::state == GanglionLib::State::open_called))
+            (GanglionLib::state == GanglionLib::State::OPEN_CALLED))
         {
             GanglionLib::exit_code = (int)GanglionLib::STATUS_OK;
         }

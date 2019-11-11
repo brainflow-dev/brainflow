@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdarg>
 #include <string>
 
 // include it here to allow user include only this single file
@@ -7,6 +8,17 @@
 #include "brainflow_constants.h"
 #include "brainflow_exception.h"
 
+
+enum class LogLevels : int
+{
+    LEVEL_TRACE = 0,
+    LEVEL_DEBUG = 1,
+    LEVEL_INFO = 2,
+    LEVEL_WARN = 3,
+    LEVEL_ERROR = 4,
+    LEVEL_CRITICAL = 5,
+    LEVEL_OFF = 6
+};
 
 class BoardShim
 {
@@ -20,6 +32,10 @@ public:
     static void enable_board_logger ();
     static void enable_dev_board_logger ();
     static void set_log_file (char *log_file);
+    // use set_log_level and log_message only if you want to write your own log messages to
+    // brainflow logger
+    static void set_log_level (int log_level);
+    static void log_message (int log_level, const char *format, ...);
 
     // data desc and board desc methods, these methods return column indexes in data table
     static int get_sampling_rate (int board_id);

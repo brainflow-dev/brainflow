@@ -230,36 +230,42 @@ namespace brainflow
             return result;
         }
 
-        public static void enable_board_logger ()
+        public static void set_log_level (int log_level)
         {
-            int res = BoardControllerLibrary.set_log_level (2);
+            int res = BoardControllerLibrary.set_log_level (log_level);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException (res);
             }
+        }
+
+        public static void enable_board_logger ()
+        {
+            BoardControllerLibrary.set_log_level ((int)LogLevels.LEVEL_INFO);
         }
 
         public static void disable_board_logger ()
         {
-            int res = BoardControllerLibrary.set_log_level (6);
-            if (res != (int)CustomExitCodes.STATUS_OK)
-            {
-                throw new BrainFlowException (res);
-            }
+            BoardControllerLibrary.set_log_level ((int)LogLevels.LEVEL_OFF);
         }
 
         public static void enable_dev_board_logger ()
         {
-            int res = BoardControllerLibrary.set_log_level (0);
-            if (res != (int)CustomExitCodes.STATUS_OK)
-            {
-                throw new BrainFlowException (res);
-            }
+            BoardControllerLibrary.set_log_level ((int)LogLevels.LEVEL_TRACE);
         }
 
         public static void set_log_file (string log_file)
         {
             int res = BoardControllerLibrary.set_log_file (log_file);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException (res);
+            }
+        }
+
+        public static void log_message (int log_level, string message)
+        {
+            int res = BoardControllerLibrary.log_message (log_level, message);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException (res);

@@ -96,6 +96,33 @@ class DataHandlerDLL (object):
             ctypes.c_double
         ]
 
+        self.write_file = self.lib.write_file
+        self.write_file.restype = ctypes.c_int
+        self.write_file.argtypes = [
+            ndpointer (ctypes.c_double),
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_char_p,
+            ctypes.c_char_p
+        ]
+
+        self.read_file = self.lib.read_file
+        self.read_file.restype = ctypes.c_int
+        self.read_file.argtypes = [
+            ndpointer (ctypes.c_double),
+            ndpointer (ctypes.c_int32),
+            ndpointer (ctypes.c_int32),
+            ctypes.c_char_p,
+            ctypes.c_int
+        ]
+
+        self.get_num_elements_in_file = self.lib.get_num_elements_in_file
+        self.get_num_elements_in_file.restype = ctypes.c_int
+        self.get_num_elements_in_file.argtypes = [
+            ctypes.c_char_p,
+            ndpointer (ctypes.c_int32)
+        ]
+
 
 class DataFilter (object):
     """DataFilter class contains methods for signal processig"""
@@ -158,7 +185,7 @@ class DataFilter (object):
         :type data: numpy array
         :param sampling_rate: board's sampling rate
         :type sampling_rate: float
-        :param center_freq: center frequency frequency
+        :param center_freq: center frequency
         :type center_freq: float
         :param band_width: band width
         :type band_width: float
@@ -185,7 +212,7 @@ class DataFilter (object):
         :type data: numpy array
         :param sampling_rate: board's sampling rate
         :type sampling_rate: float
-        :param center_freq: center frequency frequency
+        :param center_freq: center frequency
         :type center_freq: float
         :param band_width: band width
         :type band_width: float
@@ -203,3 +230,61 @@ class DataFilter (object):
         res = DataHandlerDLL.get_instance ().perform_bandstop (data, data.shape[0], sampling_rate, center_freq, band_width, order, filter_type, ripple)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to apply band stop filter', res)
+
+    @classmethod
+    def write_file (cls, data, file_name, file_mode):
+        """write data to file, in file data will be transposed
+
+        :param data: data to store in a file
+        :type data: numpy array
+        :param file_name: file name to store data
+        :type file_name: str
+        :param file_mode: 'w' to rewrite file or 'a' to append data to file
+        :type file_mode: str
+        """
+        try:
+            file = file_name.encode ()
+        except:
+            file = file_name
+        try:
+            mode = file_mode.encode ()
+        except:
+            mode = file_mode
+
+        data_flatten = data.flatten ()
+        res = DataHandlerDLL.get_instance ().write_file (data_flatten, data.shape[0], data.shape[1], file, mode)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to write file', res)
+
+    @classmethod
+    def read_file (cls, file_name):
+        """read data from file
+
+        :param file_name: file name to read
+        :type file_name: str
+        :return: 2d numpy array with data from this file, data will be transposed to original dimensions
+        :rtype: 2d numpy array
+        """
+        try:
+            file = file_name.encode ()
+        except:
+            file = file_name
+
+        num_elements = numpy.zeros (1).astype (numpy.int32)
+        res = DataHandlerDLL.get_instance ().get_num_elements_in_file (file, num_elements)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to determine number of elements in file', res)
+
+        data_arr = numpy.zeros (num_elements).astype (numpy.float64)
+        num_rows = numpy.zeros (1).astype (numpy.int32)
+        num_cols = numpy.zeros (1).astype (numpy.int32)
+
+        res = DataHandlerDLL.get_instance ().read_file (data_arr, num_rows, num_cols, file, num_elements)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to read file', res)
+
+        if len (num_rows) == 0 or len (num_cols) == 0:
+            return None
+
+        data_arr = data_arr[0:num_rows[0] * num_cols[0]].reshape (num_rows[0], num_cols[0])
+        return data_arr        

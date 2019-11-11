@@ -12,14 +12,14 @@ namespace GanglionLib
 {
     enum State
     {
-        none = 0,
-        init_called = 1,
-        initial_connection = 2,
-        open_called = 3,
-        config_called = 4,
-        close_called = 5,
-        get_data_called = 6,
-        write_to_client_char = 7
+        NONE = 0,
+        INIT_CALLED = 1,
+        INITIAL_CONNECTION = 2,
+        OPEN_CALLED = 3,
+        CONFIG_CALLED = 4,
+        CLOSE_CALLED = 5,
+        GET_DATA_CALLED = 6,
+        WRITE_TO_CLIENT_CHAR = 7
     };
 
     void output (uint8 len1, uint8 *data1, uint16 len2, uint8 *data2);

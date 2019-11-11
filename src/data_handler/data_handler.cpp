@@ -1,3 +1,8 @@
+#include <stdio.h>
+#include <string.h>
+#include <string>
+#include <vector>
+
 #include "data_handler.h"
 
 #include "DspFilters/Dsp.h"
@@ -184,4 +189,142 @@ int perform_bandstop (double *data, int data_len, int sampling_rate, double cent
     delete f;
 
     return STATUS_OK;
+}
+
+int write_file (double *data, int num_rows, int num_cols, char *file_name, char *file_mode)
+{
+    if ((strcmp (file_mode, "w") != 0) && (strcmp (file_mode, "w+") != 0) &&
+        (strcmp (file_mode, "a") != 0) && (strcmp (file_mode, "a+") != 0))
+    {
+        return INVALID_ARGUMENTS_ERROR;
+    }
+    FILE *fp;
+    fp = fopen (file_name, file_mode);
+    if (fp == NULL)
+    {
+        return GENERAL_ERROR;
+    }
+
+    // in read/write file data is transposed!
+    for (int i = 0; i < num_cols; i++)
+    {
+        for (int j = 0; j < num_rows - 1; j++)
+        {
+            fprintf (fp, "%lf,", data[j * num_cols + i]);
+        }
+        fprintf (fp, "%lf\n", data[(num_rows - 1) * num_cols + i]);
+    }
+    fclose (fp);
+    return STATUS_OK;
+}
+
+int read_file (double *data, int *num_rows, int *num_cols, char *file_name, int num_elements)
+{
+    if (num_elements <= 0)
+    {
+        return INVALID_ARGUMENTS_ERROR;
+    }
+    FILE *fp;
+    fp = fopen (file_name, "r");
+    if (fp == NULL)
+    {
+        return INVALID_ARGUMENTS_ERROR;
+    }
+
+    char buf[4096];
+    // rows and cols in csv file, in data array its transposed!
+    int total_rows = 0;
+    int total_cols = 0;
+
+    // count rows
+    char c;
+    for (c = getc (fp); c != EOF; c = getc (fp))
+    {
+        if (c == '\n')
+        {
+            total_rows++;
+        }
+    }
+
+    fseek (fp, 0, SEEK_SET);
+    int current_row = 0;
+    int cur_pos = 0;
+    while (fgets (buf, sizeof (buf), fp) != NULL)
+    {
+        std::string csv_string (buf);
+        std::stringstream ss (csv_string);
+        std::vector<std::string> splitted;
+        std::string tmp;
+        while (getline (ss, tmp, ','))
+        {
+            splitted.push_back (tmp);
+        }
+        total_cols = splitted.size ();
+        for (int i = 0; i < total_cols; i++)
+        {
+            data[i * total_rows + current_row] = std::stod (splitted[i]);
+            cur_pos++;
+            if (cur_pos == (num_elements - 1))
+            {
+                *num_cols = current_row + 1;
+                *num_rows = total_cols;
+                fclose (fp);
+                return STATUS_OK;
+            }
+        }
+        current_row++;
+    }
+    // more likely code below is unreachable
+    *num_cols = total_rows;
+    *num_rows = total_cols;
+    fclose (fp);
+    return STATUS_OK;
+}
+
+int get_num_elements_in_file (char *file_name, int *num_elements)
+{
+    FILE *fp;
+    fp = fopen (file_name, "r");
+    if (fp == NULL)
+    {
+        return INVALID_ARGUMENTS_ERROR;
+    }
+
+    char buf[4096];
+    int total_rows = 0;
+
+    // count rows
+    char c;
+    for (c = getc (fp); c != EOF; c = getc (fp))
+    {
+        if (c == '\n')
+        {
+            total_rows++;
+        }
+    }
+    if (total_rows == 0)
+    {
+        *num_elements = 0;
+        fclose (fp);
+        return EMPTY_BUFFER_ERROR;
+    }
+
+    fseek (fp, 0, SEEK_SET);
+    while (fgets (buf, sizeof (buf), fp) != NULL)
+    {
+        std::string csv_string (buf);
+        std::stringstream ss (csv_string);
+        std::vector<std::string> splitted;
+        std::string tmp;
+        while (getline (ss, tmp, ','))
+        {
+            splitted.push_back (tmp);
+        }
+        *num_elements = splitted.size () * total_rows;
+        fclose (fp);
+        return STATUS_OK;
+    }
+    *num_elements = 0;
+    fclose (fp);
+    return EMPTY_BUFFER_ERROR;
 }

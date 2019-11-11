@@ -25,6 +25,18 @@ class BoardIds (enum.Enum):
     CYTON_DAISY_WIFI_BOARD = 6 #:
 
 
+class LogLevels (enum.Enum):
+    """Enum to store all log levels supported by BrainFlow"""
+
+    LEVEL_TRACE = 0 #:
+    LEVEL_DEBUG = 1 #:
+    LEVEL_INFO = 2 #:
+    LEVEL_WARN = 3 #:
+    LEVEL_ERROR = 4 #:
+    LEVEL_CRITICAL = 5 #:
+    LEVEL_OFF = 6 #:
+
+
 class IpProtocolType (enum.Enum):
     """Enum to store Ip Protocol types"""
 
@@ -128,7 +140,7 @@ class BoardControllerDLL (object):
         self.get_current_board_data.argtypes = [
             ctypes.c_int,
             ndpointer (ctypes.c_double),
-            ndpointer (ctypes.c_int64),
+            ndpointer (ctypes.c_int32),
             ctypes.c_int,
             ctypes.c_char_p
         ]
@@ -152,7 +164,7 @@ class BoardControllerDLL (object):
         self.get_board_data_count = self.lib.get_board_data_count
         self.get_board_data_count.restype = ctypes.c_int
         self.get_board_data_count.argtypes = [
-            ndpointer (ctypes.c_int64),
+            ndpointer (ctypes.c_int32),
             ctypes.c_int,
             ctypes.c_char_p
         ]
@@ -166,6 +178,13 @@ class BoardControllerDLL (object):
         self.set_log_file = self.lib.set_log_file
         self.set_log_file.restype = ctypes.c_int
         self.set_log_file.argtypes = [
+            ctypes.c_char_p
+        ]
+
+        self.log_message = self.lib.log_message
+        self.log_message.restype = ctypes.c_int
+        self.log_message.argtypes = [
+            ctypes.c_int,
             ctypes.c_char_p
         ]
 
@@ -305,24 +324,48 @@ class BoardShim (object):
 
 
     @classmethod
-    def enable_board_logger (cls):
-        """enable board logger to stderr"""
-        res = BoardControllerDLL.get_instance ().set_log_level (2)
+    def set_log_level (cls, log_level):
+        """set BrainFlow log level, use it only if you want to write your own messages to BrainFlow logger,
+        otherwise use enable_board_logger, enable_dev_board_logger or disable_board_logger
+
+        :param log_level: log level, to specify it you should use values from LogLevels enum
+        :type log_level: int
+        """
+        res = BoardControllerDLL.get_instance ().set_log_level (log_level)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to enable logger', res)
+
+    @classmethod
+    def enable_board_logger (cls):
+        """enable BrainFlow Logger with level INFO, uses stderr for log messages by default"""
+        cls.set_log_level (LogLevels.LEVEL_INFO.value)
 
     @classmethod
     def disable_board_logger (cls):
-        """disable board logger to stderr"""
-        res = BoardControllerDLL.get_instance ().set_log_level (6)
-        if res != BrainflowExitCodes.STATUS_OK.value:
-            raise BrainFlowError ('unable to disable logger', res)
+        """disable BrainFlow Logger"""
+        cls.set_log_level (LogLevels.LEVEL_OFF.value)
 
     @classmethod
     def enable_dev_board_logger (cls):
-        res = BoardControllerDLL.get_instance ().set_log_level (0)
+        """enable BrainFlow Logger with level TRACE, uses stderr for log messages by default"""
+        cls.set_log_level (LogLevels.LEVEL_TRACE.value)
+
+    @classmethod
+    def log_message (cls, log_level, message):
+        """write your own log message to BrainFlow logger, use it if you wanna have single logger for your own code and BrainFlow's code
+        
+        :param log_level: log level
+        :type log_file: int
+        :param message: message
+        :type message: str
+        """
+        try:
+            msg = message.encode ()
+        except:
+            msg = message
+        res = BoardControllerDLL.get_instance ().log_message (log_level, msg)
         if res != BrainflowExitCodes.STATUS_OK.value:
-            raise BrainFlowError ('unable to enable logger', res)
+            raise BrainFlowError ('unable to write log message', res)
 
     @classmethod
     def set_log_file (cls, log_file):
@@ -620,7 +663,7 @@ class BoardShim (object):
         """
         package_length = BoardShim.get_num_rows (self.board_id)
         data_arr = numpy.zeros (int(num_samples  * package_length)).astype (numpy.float64)
-        current_size = numpy.zeros (1).astype (numpy.int64)
+        current_size = numpy.zeros (1).astype (numpy.int32)
 
         res = BoardControllerDLL.get_instance ().get_current_board_data (num_samples, data_arr, current_size, self.board_id, self.input_json)
         if res != BrainflowExitCodes.STATUS_OK.value:
@@ -638,7 +681,7 @@ class BoardShim (object):
         :return: number of elements in ring buffer
         :rtype: int
         """
-        data_size = numpy.zeros (1).astype (numpy.int64)
+        data_size = numpy.zeros (1).astype (numpy.int32)
 
         res = BoardControllerDLL.get_instance ().get_board_data_count (data_size, self.board_id, self.input_json)
         if res != BrainflowExitCodes.STATUS_OK.value:
