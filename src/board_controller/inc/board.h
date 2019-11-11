@@ -11,7 +11,7 @@ class Board
 {
 public:
     static std::shared_ptr<spdlog::logger> board_logger;
-    static int set_log_level (int level);
+    static int set_log_level (int log_level);
     static int set_log_file (char *log_file);
 
     virtual ~Board ()

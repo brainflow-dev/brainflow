@@ -44,9 +44,7 @@ macro (configure_msvc_runtime)
 endmacro ()
 
 # link msvc runtime statically
-if (MSVC)
-    configure_msvc_runtime()
-endif ()
+configure_msvc_runtime()
 
 find_package (
     brainflow CONFIG REQUIRED

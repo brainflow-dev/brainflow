@@ -2,6 +2,17 @@
 
 namespace brainflow
 {
+    public enum LogLevels
+    {
+        LEVEL_TRACE = 0,
+        LEVEL_DEBUG = 1,
+        LEVEL_INFO = 2,
+        LEVEL_WARN = 3,
+        LEVEL_ERROR = 4,
+        LEVEL_CRITICAL = 5,
+        LEVEL_OFF = 6
+    };
+
     public enum CustomExitCodes
     {
         STATUS_OK = 0,
@@ -63,6 +74,8 @@ namespace brainflow
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_level (int log_level);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int log_message (int log_level, string message);
+        [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int config_board (string config, int board_id, string input_json);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_file (string log_file);
@@ -114,6 +127,8 @@ namespace brainflow
         public static extern int get_board_data (int data_count, double[] data_buf, int board_id, string input_json);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_level (int log_level);
+        [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int log_message (int log_level, string message);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int config_board (string config, int board_id, string input_json);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -212,6 +227,14 @@ namespace brainflow
                 return BoardControllerLibrary64.set_log_level (log_level);
             else
                 return BoardControllerLibrary32.set_log_level (log_level);
+        }
+
+        public static int log_message (int log_level, string message)
+        {
+            if (System.Environment.Is64BitProcess)
+                return BoardControllerLibrary64.log_message (log_level, message);
+            else
+                return BoardControllerLibrary32.log_message (log_level, message);
         }
 
         public static int config_board (string config, int board_id, string input_json)

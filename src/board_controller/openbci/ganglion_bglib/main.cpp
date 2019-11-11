@@ -27,7 +27,7 @@ namespace GanglionLib
     volatile uint16 ganglion_handle_send = 0;
     volatile uint16 client_char_handle = 0;
     volatile State state =
-        State::none; // same callbacks are triggered by different methods we need to differ them
+        State::NONE; // same callbacks are triggered by different methods we need to differ them
 
     bool initialized = false;
     std::mutex mutex;
@@ -71,7 +71,7 @@ namespace GanglionLib
             return res;
         }
         exit_code = (int)CustomExitCodes::SYNC_ERROR;
-        state = State::open_called;
+        state = State::OPEN_CALLED;
         ble_cmd_gap_discover (gap_discover_observation);
 
         res = wait_for_callback (15);
@@ -95,7 +95,7 @@ namespace GanglionLib
             return res;
         }
         exit_code = (int)CustomExitCodes::SYNC_ERROR;
-        state = State::open_called;
+        state = State::OPEN_CALLED;
         char *mac_addr = (char *)param;
         // convert string mac addr to bd_addr struct
         for (int i = 0; i < strlen (mac_addr); i++)
@@ -140,7 +140,7 @@ namespace GanglionLib
         }
         // from silicanlabs forum - write 0x00001 to enable notifications
         uint8 configuration[] = {0x01, 0x00};
-        state = State::write_to_client_char;
+        state = State::WRITE_TO_CLIENT_CHAR;
         exit_code = (int)GanglionLib::SYNC_ERROR;
         ble_cmd_attclient_attribute_write (connection, client_char_handle, 2, &configuration);
         ble_cmd_attclient_execute_write (connection, 1);
@@ -156,7 +156,7 @@ namespace GanglionLib
         {
             return (int)CustomExitCodes::GANGLION_IS_NOT_OPEN_ERROR;
         }
-        state = State::close_called;
+        state = State::CLOSE_CALLED;
 
         if (!should_stop_stream)
         {
@@ -180,7 +180,7 @@ namespace GanglionLib
         {
             return (int)CustomExitCodes::GANGLION_IS_NOT_OPEN_ERROR;
         }
-        state = State::get_data_called;
+        state = State::GET_DATA_CALLED;
         if (data_queue.empty ())
         {
             return (int)CustomExitCodes::NO_DATA_ERROR;
@@ -205,7 +205,7 @@ namespace GanglionLib
         exit_code = (int)CustomExitCodes::SYNC_ERROR;
         char *config = (char *)param;
         int len = strlen (config);
-        state = State::config_called;
+        state = State::CONFIG_CALLED;
         if (!ganglion_handle_send)
         {
             return (int)CustomExitCodes::SEND_CHARACTERISTIC_NOT_FOUND_ERROR;
@@ -221,7 +221,7 @@ namespace GanglionLib
         if (initialized)
         {
             close_ganglion (NULL);
-            state = State::none;
+            state = State::NONE;
             initialized = false;
         }
         return (int)CustomExitCodes::STATUS_OK;

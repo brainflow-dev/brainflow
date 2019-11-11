@@ -3,9 +3,9 @@ package brainflow;
 import java.util.HashMap;
 import java.util.Map;
 
+public enum ExitCode
+{
 
-public enum ExitCode {
- 
     STATUS_OK (0),
     PORT_ALREADY_OPEN_ERROR (1),
     UNABLE_TO_OPEN_PORT_ERROR (2),
@@ -27,31 +27,36 @@ public enum ExitCode {
     SYNC_TIMEOUT_ERROR (18),
     JSON_NOT_FOUND_ERROR (19),
     NO_SUCH_DATA_IN_JSON_ERROR (20);
-    
 
     private final int exit_code;
-    private static final Map<Integer, ExitCode> ec_map = new HashMap<Integer, ExitCode>();
-    
-    public int get_code () {
+    private static final Map<Integer, ExitCode> ec_map = new HashMap<Integer, ExitCode> ();
+
+    public int get_code ()
+    {
         return exit_code;
     }
-    
-    public static String string_from_code (final int code) {
+
+    public static String string_from_code (final int code)
+    {
         return from_code (code).name ();
     }
- 
-    public static ExitCode from_code (final int code) {
+
+    public static ExitCode from_code (final int code)
+    {
         final ExitCode element = ec_map.get (code);
         return element;
     }
- 
-    ExitCode(final int code) {
+
+    ExitCode (final int code)
+    {
         exit_code = code;
     }
 
-    static {
-        for (final ExitCode ec : ExitCode.values ()) {
-            ec_map.put(ec.get_code(), ec);
+    static
+    {
+        for (final ExitCode ec : ExitCode.values ())
+        {
+            ec_map.put (ec.get_code (), ec);
         }
     }
 

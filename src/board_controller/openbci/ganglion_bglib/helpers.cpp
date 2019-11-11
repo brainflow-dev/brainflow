@@ -82,14 +82,14 @@ namespace GanglionLib
     {
         exit_code = (int)GanglionLib::SYNC_ERROR;
         // send command to connect
-        state = State::initial_connection;
+        state = State::INITIAL_CONNECTION;
         ble_cmd_gap_connect_direct (&connect_addr, gap_address_type_random, 40, 60, 100, 0);
         int res = wait_for_callback (15);
         if (res != (int)GanglionLib::STATUS_OK)
         {
             return res;
         }
-        state = State::open_called;
+        state = State::OPEN_CALLED;
 
         exit_code = (int)GanglionLib::SYNC_ERROR;
         uint8 primary_service_uuid[] = {0x00, 0x28};
@@ -105,7 +105,7 @@ namespace GanglionLib
         // from silicanlabs forum - write 0x00001 to enable notifications
         // copypasted in start_stream method but lets keep it in 2 places
         uint8 configuration[] = {0x01, 0x00};
-        state = State::write_to_client_char;
+        state = State::WRITE_TO_CLIENT_CHAR;
         exit_code = (int)GanglionLib::SYNC_ERROR;
         ble_cmd_attclient_attribute_write (connection, client_char_handle, 2, &configuration);
         ble_cmd_attclient_execute_write (connection, 1);

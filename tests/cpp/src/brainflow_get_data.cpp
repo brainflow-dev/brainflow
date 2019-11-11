@@ -36,24 +36,42 @@ int main (int argc, char *argv[])
     {
         board->prepare_session ();
         board->start_stream ();
-
+        BoardShim::log_message ((int)LogLevels::LEVEL_INFO, "Start sleeping in the main thread");
 #ifdef _WIN32
         Sleep (5000);
 #else
         sleep (5);
 #endif
+
         board->stop_stream ();
         int data_count = 0;
         data = board->get_board_data (&data_count);
-        std::cout << "received " << data_count << " packages" << std::endl;
+        BoardShim::log_message ((int)LogLevels::LEVEL_INFO, "read %d packages", data_count);
         board->release_session ();
         num_rows = BoardShim::get_num_rows (board_id);
-        print_head (data, num_rows, data_count);
-        int eeg_num_channels = 0;
-        eeg_channels = BoardShim::get_eeg_channels (board_id, &eeg_num_channels);
+        std::cout << std::endl << "Data from the board" << std::endl << std::endl;
         print_head (data, num_rows, data_count);
 
+        // demo for serialization
+        /*
+        DataFilter::write_file (data, num_rows, data_count, "test.csv", "w");
+        int restored_num_rows = 0;
+        int restored_num_cols = 0;
+        double **restored_data =
+            DataFilter::read_file (&restored_num_rows, &restored_num_cols, "test.csv");
+        std::cout << std::endl
+                  << "Data from the file, num packages is " << restored_num_cols << std::endl
+                  << std::endl;
+        print_head (restored_data, restored_num_rows, restored_num_cols);
+        for (int i = 0; i < restored_num_rows; i++)
+        {
+            delete[] restored_data[i];
+        }
+        delete[] restored_data;
+        */
         // just for test and demo - apply different filters to different eeg channels
+        int eeg_num_channels = 0;
+        eeg_channels = BoardShim::get_eeg_channels (board_id, &eeg_num_channels);
         for (int i = 0; i < eeg_num_channels; i++)
         {
             switch (i)
@@ -76,11 +94,12 @@ int main (int argc, char *argv[])
                     break;
             }
         }
+        std::cout << std::endl << "Data after processing" << std::endl << std::endl;
         print_head (data, num_rows, data_count);
     }
     catch (const BrainFlowException &err)
     {
-        std::cout << err.what () << std::endl;
+        BoardShim::log_message ((int)LogLevels::LEVEL_ERROR, err.what ());
         res = err.exit_code;
     }
 

@@ -22,6 +22,7 @@ typedef enum name
 extern "C"
 {
 #endif
+    // signal processing methods
     // ripple param uses only for chebyshev filter
     SHARED_EXPORT int perform_lowpass (double *data, int data_len, int sampling_rate, double cutoff,
         int order, int filter_type, double ripple);
@@ -31,6 +32,14 @@ extern "C"
         double center_freq, double band_width, int order, int filter_type, double ripple);
     SHARED_EXPORT int perform_bandstop (double *data, int data_len, int sampling_rate,
         double center_freq, double band_width, int order, int filter_type, double ripple);
+    // file operations
+    SHARED_EXPORT int write_file (
+        double *data, int num_rows, int num_cols, char *file_name, char *file_mode);
+    SHARED_EXPORT int read_file (
+        double *data, int *num_rows, int *num_cols, char *file_name, int num_elements);
+    SHARED_EXPORT int get_num_elements_in_file (
+        char *file_name, int *num_elements); // its an internal method for bindings its not
+                                             // available via high level api
 #ifdef __cplusplus
 }
 #endif
