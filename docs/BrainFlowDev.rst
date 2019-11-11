@@ -31,7 +31,7 @@ Also you can run integration tests manually for any board even if you dont have 
 Pull Requests
 --------------
 
-Just try to briefly explain a goal of this PR
+Just try to briefly explain a goal of this PR.
 
 Instructions to add new boards to BrainFlow
 ---------------------------------------------

@@ -10,7 +10,7 @@ BrainFlow is a library intended to obtain, parse and analyze EEG, EMG, ECG and o
 
 It provides uniform API for all supported boards, it means that you can switch boards without any changes in code, also if you add your board to BrainFlow it will work with almost all applications built on top on BrainFlow from the box.
 
-There are several forks of BrainFlow, we recommend to use `original version <https://github.com/Andrey1994/brainflow>`_
+**There are several forks of BrainFlow, we recommend to use** `original version <https://github.com/Andrey1994/brainflow>`_
 
 
 .. toctree::
