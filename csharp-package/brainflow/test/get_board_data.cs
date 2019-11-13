@@ -61,16 +61,6 @@ namespace test
                         Console.WriteLine ("Filtered channel " + eeg_channels[i]);
                         Console.WriteLine ("[{0}]", string.Join (", ", filtered));
                         break;
-                    case 4:
-                        filtered = DataFilter.perform_rolling_filter (unprocessed_data.GetRow (eeg_channels[i]), 3, (int)AggOperations.MEAN);
-                        Console.WriteLine ("Filtered channel " + eeg_channels[i]);
-                        Console.WriteLine ("[{0}]", string.Join (", ", filtered));
-                        break;
-                    case 5:
-                        filtered = DataFilter.perform_rolling_filter (unprocessed_data.GetRow (eeg_channels[i]), 3, (int)AggOperations.MEDIAN);
-                        Console.WriteLine ("Filtered channel " + eeg_channels[i]);
-                        Console.WriteLine ("[{0}]", string.Join (", ", filtered));
-                        break;
                 }
             }
         }

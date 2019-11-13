@@ -52,8 +52,7 @@ int main (int argc, char *argv[])
         std::cout << std::endl << "Data from the board" << std::endl << std::endl;
         print_head (data, num_rows, data_count);
 
-        // demo for serialization, commented out because in CI its not allowed to write files in
-        // some directories
+        // demo for serialization
         /*
         DataFilter::write_file (data, num_rows, data_count, "test.csv", "w");
         int restored_num_rows = 0;
@@ -92,13 +91,6 @@ int main (int argc, char *argv[])
                 case 3:
                     DataFilter::perform_bandstop (data[eeg_channels[i]], data_count,
                         BoardShim::get_sampling_rate (board_id), 5.0, 1.5, 4, BUTTERWORTH, 0);
-                    break;
-                case 4:
-                    DataFilter::perform_rolling_filter (data[eeg_channels[i]], data_count, 3, MEAN);
-                    break;
-                case 5:
-                    DataFilter::perform_rolling_filter (
-                        data[eeg_channels[i]], data_count, 3, MEDIAN);
                     break;
             }
         }

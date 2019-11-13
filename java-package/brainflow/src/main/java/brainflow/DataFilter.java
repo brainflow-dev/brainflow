@@ -27,8 +27,6 @@ public class DataFilter
         int perform_bandstop (double[] data, int data_len, int sampling_rate, double center_freq, double band_width,
                 int order, int filter_type, double ripple);
 
-        int perform_rolling_filter (double[] data, int data_len, int period, int operation);
-
         int write_file (double[] data, int num_rows, int num_cols, String file_name, String file_mode);
 
         int read_file (double[] data, int[] num_rows, int[] num_cols, String file_name, int max_elements);
@@ -106,15 +104,6 @@ public class DataFilter
     {
         int ec = instance.perform_bandstop (data, data.length, sampling_rate, center_freq, band_width, order,
                 filter_type, ripple);
-        if (ec != ExitCode.STATUS_OK.get_code ())
-        {
-            throw new BrainFlowError ("Failed to apply filter", ec);
-        }
-    }
-
-    public static void perform_rolling_filter (double[] data, int period, int operation) throws BrainFlowError
-    {
-        int ec = instance.perform_rolling_filter (data, data.length, period, operation);
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to apply filter", ec);

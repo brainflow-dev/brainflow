@@ -20,14 +20,6 @@ class FilterTypes (enum.Enum):
     BESSEL = 2 #:
 
 
-class AggOperations (enum.Enum):
-    """Enum to store all supported aggregation operations"""
-
-    MEAN = 0 #:
-    MEDIAN = 1 #:
-    EACH = 2 #:
-
-
 class DataHandlerDLL (object):
 
     __instance = None
@@ -131,15 +123,6 @@ class DataHandlerDLL (object):
             ndpointer (ctypes.c_int32)
         ]
 
-        self.perform_rolling_filter = self.lib.perform_rolling_filter
-        self.perform_rolling_filter.restype = ctypes.c_int
-        self.perform_rolling_filter.argtypes = [
-            ndpointer (ctypes.c_double),
-            ctypes.c_int,
-            ctypes.c_int,
-            ctypes.c_int
-        ]
-
 
 class DataFilter (object):
     """DataFilter class contains methods for signal processig"""
@@ -149,7 +132,7 @@ class DataFilter (object):
         """apply low pass filter to provided data
 
         :param data: data to filter, filter works in-place
-        :type data: 1d numpy array
+        :type data: numpy array
         :param sampling_rate: board's sampling rate
         :type sampling_rate: float
         :param cutoff: cutoff frequency
@@ -165,8 +148,6 @@ class DataFilter (object):
             raise BrainFlowError ('wrong type for sampling rate', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not isinstance (filter_type, int):
             raise BrainFlowError ('wrong type for filter type', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
-        if len (data.shape) != 1:
-            raise BrainFlowError ('wrong shape for filter data array, it should be 1d array', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         res = DataHandlerDLL.get_instance ().perform_lowpass (data, data.shape[0], sampling_rate, cutoff, order, filter_type, ripple)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to perform low pass filter', res)
@@ -176,7 +157,7 @@ class DataFilter (object):
         """apply high pass filter to provided data
 
         :param data: data to filter, filter works in-place
-        :type data: 1d numpy array
+        :type data: numpy array
         :param sampling_rate: board's sampling rate
         :type sampling_rate: float
         :param cutoff: cutoff frequency
@@ -192,8 +173,6 @@ class DataFilter (object):
             raise BrainFlowError ('wrong type for sampling rate', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not isinstance (filter_type, int):
             raise BrainFlowError ('wrong type for filter type', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
-        if len (data.shape) != 1:
-            raise BrainFlowError ('wrong shape for filter data array, it should be 1d array', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         res = DataHandlerDLL.get_instance ().perform_highpass (data, data.shape[0], sampling_rate, cutoff, order, filter_type, ripple)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to apply high pass filter', res)
@@ -203,7 +182,7 @@ class DataFilter (object):
         """apply band pass filter to provided data
 
         :param data: data to filter, filter works in-place
-        :type data: 1d numpy array
+        :type data: numpy array
         :param sampling_rate: board's sampling rate
         :type sampling_rate: float
         :param center_freq: center frequency
@@ -221,8 +200,6 @@ class DataFilter (object):
             raise BrainFlowError ('wrong type for sampling rate', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not isinstance (filter_type, int):
             raise BrainFlowError ('wrong type for filter type', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
-        if len (data.shape) != 1:
-            raise BrainFlowError ('wrong shape for filter data array, it should be 1d array', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         res = DataHandlerDLL.get_instance ().perform_bandpass (data, data.shape[0], sampling_rate, center_freq, band_width, order, filter_type, ripple)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to apply band pass filter', res)
@@ -232,7 +209,7 @@ class DataFilter (object):
         """apply band stop filter to provided data
 
         :param data: data to filter, filter works in-place
-        :type data: 1d numpy array
+        :type data: numpy array
         :param sampling_rate: board's sampling rate
         :type sampling_rate: float
         :param center_freq: center frequency
@@ -250,46 +227,21 @@ class DataFilter (object):
             raise BrainFlowError ('wrong type for sampling rate', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not isinstance (filter_type, int):
             raise BrainFlowError ('wrong type for filter type', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
-        if len (data.shape) != 1:
-            raise BrainFlowError ('wrong shape for filter data array, it should be 1d array', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         res = DataHandlerDLL.get_instance ().perform_bandstop (data, data.shape[0], sampling_rate, center_freq, band_width, order, filter_type, ripple)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to apply band stop filter', res)
-
-    @classmethod
-    def perform_rolling_filter (cls, data, period, operation):
-        """smooth data using moving average or median
-
-        :param data: data to smooth, it works in-place
-        :type data: 1d numpy array
-        :param period: window size
-        :type period: int
-        :param operation: int for AggOperation enum
-        :type operation: int
-        """
-        if not isinstance (period, int):
-            raise BrainFlowError ('wrong type for period', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
-        if not isinstance (operation, int):
-            raise BrainFlowError ('wrong type for operation', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
-        if len (data.shape) != 1:
-            raise BrainFlowError ('wrong shape for filter data array, it should be 1d array', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
-        res = DataHandlerDLL.get_instance ().perform_rolling_filter (data, data.shape[0], period, operation)
-        if res != BrainflowExitCodes.STATUS_OK.value:
-            raise BrainFlowError ('unable to smooth data', res)
 
     @classmethod
     def write_file (cls, data, file_name, file_mode):
         """write data to file, in file data will be transposed
 
         :param data: data to store in a file
-        :type data: 2d numpy array
+        :type data: numpy array
         :param file_name: file name to store data
         :type file_name: str
         :param file_mode: 'w' to rewrite file or 'a' to append data to file
         :type file_mode: str
         """
-        if len (data.shape) != 2:
-            raise BrainFlowError ('wrong shape for filter data array, it should be 2d array', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         try:
             file = file_name.encode ()
         except:
@@ -298,6 +250,7 @@ class DataFilter (object):
             mode = file_mode.encode ()
         except:
             mode = file_mode
+
         data_flatten = data.flatten ()
         res = DataHandlerDLL.get_instance ().write_file (data_flatten, data.shape[0], data.shape[1], file, mode)
         if res != BrainflowExitCodes.STATUS_OK.value:
