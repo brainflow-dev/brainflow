@@ -3,6 +3,9 @@ package brainflow;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * enum to store all supported boards
+ */
 public enum BoardIds
 {
 

@@ -9,6 +9,13 @@ namespace brainflow
         BESSEL = 2
     };
 
+    public enum AggOperations
+    {
+        MEAN = 0,
+        MEDIAN = 1,
+        EACH = 2
+    };
+
     class DataHandlerLibrary64
     {
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -19,6 +26,8 @@ namespace brainflow
         public static extern int perform_bandpass (double[] data, int len, int sampling_rate, double center_freq, double band_width, int order, int filter_type, double ripple);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_bandstop (double[] data, int len, int sampling_rate, double center_freq, double band_width, int order, int filter_type, double ripple);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int perform_rolling_filter (double[] data, int len, int period, int operation);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int write_file (double[] data, int num_rows, int num_cols, string file_name, string file_mode);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -37,6 +46,8 @@ namespace brainflow
         public static extern int perform_bandpass (double[] data, int len, int sampling_rate, double center_freq, double band_width, int order, int filter_type, double ripple);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_bandstop (double[] data, int len, int sampling_rate, double center_freq, double band_width, int order, int filter_type, double ripple);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int perform_rolling_filter (double[] data, int len, int period, int operation);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int write_file (double[] data, int num_rows, int num_cols, string file_name, string file_mode);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -77,6 +88,14 @@ namespace brainflow
                 return DataHandlerLibrary64.perform_bandstop (data, len, sampling_rate, center_freq, band_width, order, filter_type, ripple);
             else
                 return DataHandlerLibrary32.perform_bandstop (data, len, sampling_rate, center_freq, band_width, order, filter_type, ripple);
+        }
+
+        public static int perform_rolling_filter (double[] data, int len, int period, int operation)
+        {
+            if (System.Environment.Is64BitProcess)
+                return DataHandlerLibrary64.perform_rolling_filter (data, len, period, operation);
+            else
+                return DataHandlerLibrary32.perform_rolling_filter (data, len, period, operation);
         }
 
         public static int read_file (double[] data, int[] num_rows, int[] num_cols, string file_name, int max_elements)

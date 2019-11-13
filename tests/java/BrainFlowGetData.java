@@ -46,6 +46,12 @@ public class BrainFlowTest
                     DataFilter.perform_bandstop(data[eeg_channels[i]], BoardShim.get_sampling_rate(board_id), 20.0, 5.0,
                             4, FilterTypes.CHEBYSHEV_TYPE_1.get_code(), 1.0);
                     break;
+                case 4:
+                    DataFilter.perform_rolling_filter (data[eeg_channels[i]], 3, AggOperations.MEAN.get_code ());
+                    break;
+                case 5:
+                    DataFilter.perform_rolling_filter (data[eeg_channels[i]], 3, AggOperations.MEDIAN.get_code ());
+                    break;
             }
         }
         System.out.println("After signal processing:");

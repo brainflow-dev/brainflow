@@ -10,6 +10,9 @@ import org.apache.commons.lang3.SystemUtils;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 
+/**
+ * DataFilter class to perform signal processing
+ */
 public class DataFilter
 {
 
@@ -26,6 +29,8 @@ public class DataFilter
 
         int perform_bandstop (double[] data, int data_len, int sampling_rate, double center_freq, double band_width,
                 int order, int filter_type, double ripple);
+
+        int perform_rolling_filter (double[] data, int data_len, int period, int operation);
 
         int write_file (double[] data, int num_rows, int num_cols, String file_name, String file_mode);
 
@@ -68,6 +73,9 @@ public class DataFilter
         }
     }
 
+    /**
+     * perform lowpass filter in-place
+     */
     public static void perform_lowpass (double[] data, int sampling_rate, double cutoff, int order, int filter_type,
             double ripple) throws BrainFlowError
     {
@@ -78,6 +86,9 @@ public class DataFilter
         }
     }
 
+    /**
+     * perform highpass filter in-place
+     */
     public static void perform_highpass (double[] data, int sampling_rate, double cutoff, int order, int filter_type,
             double ripple) throws BrainFlowError
     {
@@ -88,6 +99,9 @@ public class DataFilter
         }
     }
 
+    /**
+     * perform bandpass filter in-place
+     */
     public static void perform_bandpass (double[] data, int sampling_rate, double center_freq, double band_width,
             int order, int filter_type, double ripple) throws BrainFlowError
     {
@@ -99,6 +113,9 @@ public class DataFilter
         }
     }
 
+    /**
+     * perform bandstop filter in-place
+     */
     public static void perform_bandstop (double[] data, int sampling_rate, double center_freq, double band_width,
             int order, int filter_type, double ripple) throws BrainFlowError
     {
@@ -110,6 +127,21 @@ public class DataFilter
         }
     }
 
+    /**
+     * perform moving average or moving median filter in-place
+     */
+    public static void perform_rolling_filter (double[] data, int period, int operation) throws BrainFlowError
+    {
+        int ec = instance.perform_rolling_filter (data, data.length, period, operation);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Failed to apply filter", ec);
+        }
+    }
+
+    /**
+     * write data to csv file, in file data will be transposed
+     */
     public static void write_file (double[][] data, String file_name, String file_mode) throws BrainFlowError
     {
         if (data.length == 0)
@@ -124,6 +156,9 @@ public class DataFilter
         }
     }
 
+    /**
+     * read data from file, transpose it back to original format
+     */
     public static double[][] read_file (String file_name) throws BrainFlowError
     {
         int[] num_elements = new int[1];

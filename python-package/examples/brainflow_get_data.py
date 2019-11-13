@@ -9,7 +9,7 @@ matplotlib.use ('Agg')
 import matplotlib.pyplot as plt
 
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels
-from brainflow.data_filter import DataFilter, FilterTypes
+from brainflow.data_filter import DataFilter, FilterTypes, AggOperations
 
 
 def main ():
@@ -53,7 +53,7 @@ def main ():
     eeg_channels = BoardShim.get_eeg_channels (args.board_id)
     df = pd.DataFrame (np.transpose (data))
     print ('Data From the Board')
-    print (df.head ())
+    print (df.head (10))
     plt.figure ()
     df[eeg_channels].plot (subplots = True)
     plt.savefig ('before_processing.png')
@@ -63,7 +63,7 @@ def main ():
     restored_data = DataFilter.read_file ('test.csv')
     restored_df = pd.DataFrame (np.transpose (restored_data))
     print ('Data From the File')
-    print (restored_df.head ())
+    print (restored_df.head (10))
 
     # demo how to perform signal processing
     for count, channel in enumerate (eeg_channels):
@@ -75,10 +75,14 @@ def main ():
             DataFilter.perform_lowpass (data[channel], BoardShim.get_sampling_rate (args.board_id), 9.0, 5, FilterTypes.CHEBYSHEV_TYPE_1.value, 1)
         elif count == 3:
             DataFilter.perform_highpass (data[channel], BoardShim.get_sampling_rate (args.board_id), 3.0, 4, FilterTypes.BUTTERWORTH.value, 0)
+        elif count == 4:
+            DataFilter.perform_rolling_filter (data[channel], 3, AggOperations.MEAN.value)
+        elif count == 5:
+            DataFilter.perform_rolling_filter (data[channel], 3, AggOperations.MEDIAN.value)
 
     df = pd.DataFrame (np.transpose (data))
     print ('Data After Processing')
-    print (df.head ())
+    print (df.head (10))
     plt.figure ()
     df[eeg_channels].plot (subplots = True)
     plt.savefig ('after_processing.png')
