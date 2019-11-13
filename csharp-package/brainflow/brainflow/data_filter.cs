@@ -55,18 +55,6 @@ namespace brainflow
             return filtered_data;
         }
 
-        public static double[] perform_rolling_filter (double[] data, int period, int operation)
-        {
-            double[] filtered_data = new double[data.Length];
-            Array.Copy (data, filtered_data, data.Length);
-            int res = DataHandlerLibrary.perform_rolling_filter (filtered_data, data.Length, period, operation);
-            if (res != (int)CustomExitCodes.STATUS_OK)
-            {
-                throw new BrainFlowException (res);
-            }
-            return filtered_data;
-        }
-
         public static void write_file (double[,] data, string file_name, string file_mode)
         {
             int num_rows = data.Rows();

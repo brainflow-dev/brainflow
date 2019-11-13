@@ -46,15 +46,6 @@ void DataFilter::perform_bandstop (double *data, int data_len, int sampling_rate
     }
 }
 
-void DataFilter::perform_rolling_filter (double *data, int data_len, int period, int agg_operation)
-{
-    int res = ::perform_rolling_filter (data, data_len, period, agg_operation);
-    if (res != STATUS_OK)
-    {
-        throw BrainFlowException ("failed to filter signal", res);
-    }
-}
-
 double **DataFilter::read_file (int *num_rows, int *num_cols, char *file_name)
 {
     int max_elements = 0;

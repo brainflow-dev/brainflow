@@ -16,7 +16,6 @@ public:
         double band_width, int order, int filter_type, double ripple);
     static void perform_bandstop (double *data, int data_len, int sampling_rate, double center_freq,
         double band_width, int order, int filter_type, double ripple);
-    static void perform_rolling_filter (double *data, int data_len, int period, int agg_operation);
 
     static void write_file (
         double **data, int num_rows, int num_cols, char *file_name, char *file_mode);
