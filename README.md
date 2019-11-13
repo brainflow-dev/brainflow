@@ -28,7 +28,6 @@ We support bindings for:
 * [java](./java-package/brainflow/)
 * [R](./r-package/)
 * [CPP](./cpp-package/)
-* [Matlab](./matlab-package/brainflow/)
 * [C# (Windows only)](./csharp-package/brainflow/)
 
 ## License: 
