@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "data_handler.h"
+#include "rolling_filter.h"
 
 #include "DspFilters/Dsp.h"
 
@@ -188,6 +189,36 @@ int perform_bandstop (double *data, int data_len, int sampling_rate, double cent
     f->process (data_len, filter_data);
     delete f;
 
+    return STATUS_OK;
+}
+
+int perform_rolling_filter (double *data, int data_len, int period, int agg_operation)
+{
+    if ((data == NULL) || (period <= 0))
+    {
+        return INVALID_ARGUMENTS_ERROR;
+    }
+
+    RollingFilter<double> *filter = NULL;
+    switch (agg_operation)
+    {
+        case MEAN:
+            filter = new RollingAverage<double> (period);
+            break;
+        case MEDIAN:
+            filter = new RollingMedian<double> (period);
+            break;
+        case EACH:
+            return STATUS_OK;
+        default:
+            return INVALID_ARGUMENTS_ERROR;
+    }
+    for (int i = 0; i < data_len; i++)
+    {
+        filter->add_data (data[i]);
+        data[i] = filter->get_value ();
+    }
+    delete filter;
     return STATUS_OK;
 }
 
