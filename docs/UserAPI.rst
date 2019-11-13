@@ -3,14 +3,13 @@ User API
 
 BrainFlow User API has only two classes:
 
-- BoardShim to read data from a board
-- DataFilter to perform signal processing
+- BoardShim to read data from a board, it calls methods from underlying BoardController library
+- DataFilter to perform signal processing, it calls methods from underlying DataHandler library
 
-BrainFlow API is board agnostic, so to select a specific board you need to pass BrainFlow's board id to BoardShim's constructor and an instance of BrainFlowInputParams structure which should hold information for your specific board(e.g. specify serial_port for OpenBCI Cyton, check Supported Boards section for details).
+These classes are independent, so if you want, you can use BrainFlow API only for data streaming and perform signal processing by yourself and vice versa.
+
+BrainFlow API is board agnostic, so to select a specific board you need to pass BrainFlow's board id to BoardShim's constructor and an instance of BrainFlowInputParams structure which should hold information for your specific board, check Supported Boards section for details.
 This abstraction allows you to switch boards without any changes in code.
-
-Since API for all bindings is almost the same we add description for parameters, return values and methods only for Python API.
-For other languages we add docs without any description and hints.
 
 Python API Reference
 ----------------------
@@ -46,12 +45,8 @@ brainflow.data\_filter
 C++ API Reference
 -------------------
 
-Here we describe only high level API, to get information about structures, classes and enums from low level API check Brainflow Core API.
-
 BoardShim class
 ~~~~~~~~~~~~~~~~
-
-This class communicates with a real board and read/send data from/to it.
 
 .. doxygenclass:: BoardShim
    :members:
@@ -61,8 +56,6 @@ This class communicates with a real board and read/send data from/to it.
 DataFilter class
 ~~~~~~~~~~~~~~~~~~
 
-Use this for signal processing, all methods change input data in-place.
-
 .. doxygenclass:: DataFilter
    :members:
    :project: BrainFlowCpp
@@ -70,8 +63,6 @@ Use this for signal processing, all methods change input data in-place.
 
 BrainFlowException class
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Exception which is raised if wrong exit code was returned from low level API.
 
 .. doxygenclass:: BrainFlowException
    :members:
