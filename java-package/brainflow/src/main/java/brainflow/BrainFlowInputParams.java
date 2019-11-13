@@ -2,6 +2,9 @@ package brainflow;
 
 import com.google.gson.Gson;
 
+/**
+ * to get fields which are required for your board check SupportedBoards section
+ */
 public class BrainFlowInputParams
 {
 

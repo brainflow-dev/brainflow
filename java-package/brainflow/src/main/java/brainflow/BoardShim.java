@@ -11,6 +11,9 @@ import org.apache.commons.lang3.SystemUtils;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 
+/**
+ * BoardShim class to communicate with a board
+ */
 public class BoardShim
 {
 
@@ -104,21 +107,33 @@ public class BoardShim
         }
     }
 
+    /**
+     * enable BrainFlow logger with level INFO
+     */
     public static void enable_board_logger () throws BrainFlowError
     {
         set_log_level (2);
     }
 
+    /**
+     * enable BrainFlow logger with level TRACE
+     */
     public static void enable_dev_board_logger () throws BrainFlowError
     {
         set_log_level (0);
     }
 
+    /**
+     * disable BrainFlow logger
+     */
     public static void disable_board_logger () throws BrainFlowError
     {
         set_log_level (6);
     }
 
+    /**
+     * redirect logger from stderr to a file
+     */
     public static void set_log_file (String log_file) throws BrainFlowError
     {
         int ec = instance.set_log_file (log_file);
@@ -128,6 +143,9 @@ public class BoardShim
         }
     }
 
+    /**
+     * set log level
+     */
     public static void set_log_level (int log_level) throws BrainFlowError
     {
         int ec = instance.set_log_level (log_level);
@@ -137,6 +155,9 @@ public class BoardShim
         }
     }
 
+    /**
+     * send user defined strings to BrainFlow logger
+     */
     public static void log_message (int log_level, String message) throws BrainFlowError
     {
         int ec = instance.log_message (log_level, message);
@@ -146,6 +167,9 @@ public class BoardShim
         }
     }
 
+    /**
+     * get sampling rate for this board
+     */
     public static int get_sampling_rate (int board_id) throws BrainFlowError
     {
         int[] res = new int[1];
@@ -157,6 +181,10 @@ public class BoardShim
         return res[0];
     }
 
+    /**
+     * get row index in returned by get_board_data() 2d array which contains
+     * timestamps
+     */
     public static int get_timestamp_channel (int board_id) throws BrainFlowError
     {
         int[] res = new int[1];
@@ -168,6 +196,9 @@ public class BoardShim
         return res[0];
     }
 
+    /**
+     * get number of rows in returned by get_board_data() 2d array
+     */
     public static int get_num_rows (int board_id) throws BrainFlowError
     {
         int[] res = new int[1];
@@ -179,6 +210,10 @@ public class BoardShim
         return res[0];
     }
 
+    /**
+     * get row index in returned by get_board_data() 2d array which contains package
+     * nums
+     */
     public static int get_package_num_channel (int board_id) throws BrainFlowError
     {
         int[] res = new int[1];
@@ -190,6 +225,10 @@ public class BoardShim
         return res[0];
     }
 
+    /**
+     * get row indices in returned by get_board_data() 2d array which contains EEG
+     * data, for some boards we can not split EEG\EMG\... and return the same array
+     */
     public static int[] get_eeg_channels (int board_id) throws BrainFlowError
     {
         int[] len = new int[1];
@@ -203,6 +242,10 @@ public class BoardShim
         return Arrays.copyOfRange (channels, 0, len[0]);
     }
 
+    /**
+     * get row indices in returned by get_board_data() 2d array which contains EMG
+     * data, for some boards we can not split EEG\EMG\... and return the same array
+     */
     public static int[] get_emg_channels (int board_id) throws BrainFlowError
     {
         int[] len = new int[1];
@@ -216,6 +259,10 @@ public class BoardShim
         return Arrays.copyOfRange (channels, 0, len[0]);
     }
 
+    /**
+     * get row indices in returned by get_board_data() 2d array which contains ECG
+     * data, for some boards we can not split EEG\EMG\... and return the same array
+     */
     public static int[] get_ecg_channels (int board_id) throws BrainFlowError
     {
         int[] len = new int[1];
@@ -229,6 +276,10 @@ public class BoardShim
         return Arrays.copyOfRange (channels, 0, len[0]);
     }
 
+    /**
+     * get row indices in returned by get_board_data() 2d array which contains EOG
+     * data, for some boards we can not split EEG\EMG\... and return the same array
+     */
     public static int[] get_eog_channels (int board_id) throws BrainFlowError
     {
         int[] len = new int[1];
@@ -242,6 +293,10 @@ public class BoardShim
         return Arrays.copyOfRange (channels, 0, len[0]);
     }
 
+    /**
+     * get row indices in returned by get_board_data() 2d array which contains EDA
+     * data, for some boards we can not split EEG\EMG\... and return the same array
+     */
     public static int[] get_eda_channels (int board_id) throws BrainFlowError
     {
         int[] len = new int[1];
@@ -255,6 +310,10 @@ public class BoardShim
         return Arrays.copyOfRange (channels, 0, len[0]);
     }
 
+    /**
+     * get row indices in returned by get_board_data() 2d array which contains PPG
+     * data, for some boards we can not split EEG\EMG\... and return the same array
+     */
     public static int[] get_ppg_channels (int board_id) throws BrainFlowError
     {
         int[] len = new int[1];
@@ -268,6 +327,10 @@ public class BoardShim
         return Arrays.copyOfRange (channels, 0, len[0]);
     }
 
+    /**
+     * get row indices in returned by get_board_data() 2d array which contains accel
+     * data
+     */
     public static int[] get_accel_channels (int board_id) throws BrainFlowError
     {
         int[] len = new int[1];
@@ -281,6 +344,10 @@ public class BoardShim
         return Arrays.copyOfRange (channels, 0, len[0]);
     }
 
+    /**
+     * get row indices in returned by get_board_data() 2d array which contains
+     * analog data
+     */
     public static int[] get_analog_channels (int board_id) throws BrainFlowError
     {
         int[] len = new int[1];
@@ -294,6 +361,10 @@ public class BoardShim
         return Arrays.copyOfRange (channels, 0, len[0]);
     }
 
+    /**
+     * get row indices in returned by get_board_data() 2d array which contains gyro
+     * data
+     */
     public static int[] get_gyro_channels (int board_id) throws BrainFlowError
     {
         int[] len = new int[1];
@@ -307,6 +378,10 @@ public class BoardShim
         return Arrays.copyOfRange (channels, 0, len[0]);
     }
 
+    /**
+     * get row indices in returned by get_board_data() 2d array which contains other
+     * data
+     */
     public static int[] get_other_channels (int board_id) throws BrainFlowError
     {
         int[] len = new int[1];
@@ -320,9 +395,15 @@ public class BoardShim
         return Arrays.copyOfRange (channels, 0, len[0]);
     }
 
+    /**
+     * BrainFlow's board id
+     */
     public int board_id;
     private String input_json;
 
+    /**
+     * Create BoardShim object
+     */
     public BoardShim (int board_id, BrainFlowInputParams params)
             throws BrainFlowError, IOException, ReflectiveOperationException
     {
@@ -330,6 +411,9 @@ public class BoardShim
         this.input_json = params.to_json ();
     }
 
+    /**
+     * prepare steaming session, allocate resources
+     */
     public void prepare_session () throws BrainFlowError
     {
         int ec = instance.prepare_session (board_id, input_json);
@@ -339,6 +423,10 @@ public class BoardShim
         }
     }
 
+    /**
+     * send string to a board, use this method carefully and only if you understand
+     * what you are doing
+     */
     public void config_board (String config) throws BrainFlowError
     {
         int ec = instance.config_board (config, board_id, input_json);
@@ -348,6 +436,9 @@ public class BoardShim
         }
     }
 
+    /**
+     * start streaming thread, store data in internal ringbuffer
+     */
     public void start_stream (int buffer_size) throws BrainFlowError
     {
         int ec = instance.start_stream (buffer_size, board_id, input_json);
@@ -357,6 +448,9 @@ public class BoardShim
         }
     }
 
+    /**
+     * stop streaming thread
+     */
     public void stop_stream () throws BrainFlowError
     {
         int ec = instance.stop_stream (board_id, input_json);
@@ -366,6 +460,9 @@ public class BoardShim
         }
     }
 
+    /**
+     * release all resources
+     */
     public void release_session () throws BrainFlowError
     {
         int ec = instance.release_session (board_id, input_json);
@@ -375,6 +472,9 @@ public class BoardShim
         }
     }
 
+    /**
+     * get number of packages in ringbuffer
+     */
     public int get_board_data_count () throws BrainFlowError
     {
         int[] res = new int[1];
@@ -386,6 +486,10 @@ public class BoardShim
         return res[0];
     }
 
+    /**
+     * get latest collected data, can return less than "num_samples", doesnt flush
+     * it from ringbuffer
+     */
     public double[][] get_current_board_data (int num_samples) throws BrainFlowError
     {
         int num_rows = BoardShim.get_num_rows (board_id);
@@ -404,6 +508,9 @@ public class BoardShim
         return result;
     }
 
+    /**
+     * get all data from ringbuffer and flush it
+     */
     public double[][] get_board_data () throws BrainFlowError
     {
         int size = get_board_data_count ();

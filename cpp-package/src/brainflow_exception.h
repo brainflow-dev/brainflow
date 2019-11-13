@@ -4,10 +4,12 @@
 #include <exception>
 #include <string>
 
+/// BrainFlowException class to notify about errors
 class BrainFlowException : public std::exception
 {
 
 public:
+    /// exit code returned from low level API
     int exit_code;
 
     explicit BrainFlowException (const char *msg, int exit_code) : std::exception ()

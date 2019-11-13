@@ -10,12 +10,21 @@
 
 #define MAX_FILTER_ORDER 8 // define it here to show in the docs
 
-typedef enum name
+
+typedef enum
 {
     BUTTERWORTH = 0,
     CHEBYSHEV_TYPE_1 = 1,
     BESSEL = 2
 } FilterTypes;
+
+// its another kind of filters and will be used in downsampling too dont add it to FilterTypes
+typedef enum
+{
+    MEAN = 0,
+    MEDIAN = 1,
+    EACH = 2
+} AggOperations;
 
 
 #ifdef __cplusplus
@@ -32,6 +41,9 @@ extern "C"
         double center_freq, double band_width, int order, int filter_type, double ripple);
     SHARED_EXPORT int perform_bandstop (double *data, int data_len, int sampling_rate,
         double center_freq, double band_width, int order, int filter_type, double ripple);
+    SHARED_EXPORT int perform_rolling_filter (
+        double *data, int data_len, int period, int agg_operation);
+
     // file operations
     SHARED_EXPORT int write_file (
         double *data, int num_rows, int num_cols, char *file_name, char *file_mode);
