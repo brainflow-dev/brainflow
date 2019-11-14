@@ -33,6 +33,13 @@ C# sample
 C++ sample
 -----------
 
+**Make sure that compiled dynamic libraries exist in search path before running an executable, do one of:**
+
+- for Linux and MacOS add them to LD_LIBRARY_PATH env variable
+- for Windows add them to PATH env variable
+- or just copypaste them to the folder where your executable is located
+
+
 .. literalinclude:: ../tests/cpp/CMakeLists.txt
    :language: none
 
