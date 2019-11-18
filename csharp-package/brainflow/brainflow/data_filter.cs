@@ -112,12 +112,38 @@ namespace brainflow
         {
             double[] filtered_data = new double[data.Length];
             Array.Copy (data, filtered_data, data.Length);
-            int res = DataHandlerLibrary.perform_rolling_filter (filtered_data, data.Length, period, operation);
+            int res = DataHandlerLibrary.perform_rolling_filter (filtered_data, filtered_data.Length, period, operation);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException (res);
             }
             return filtered_data;
+        }
+
+        /// <summary>
+        /// perform data downsampling, it just aggregates data without applying lowpass filter
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="period"></param>
+        /// <param name="operation"></param>
+        /// <returns>data after downsampling</returns>
+        public static double[] perform_downsampling (double[] data, int period, int operation)
+        {
+            if (period == 0)
+            {
+                throw new BrainFlowException ((int)CustomExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            if (data.Length / period <= 0)
+            {
+                throw new BrainFlowException ((int)CustomExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            double[] downsampled_data = new double[data.Length / period];
+            int res = DataHandlerLibrary.perform_downsampling (data, data.Length, period, operation, downsampled_data);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException (res);
+            }
+            return downsampled_data;
         }
 
         /// <summary>

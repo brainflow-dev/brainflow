@@ -55,6 +55,23 @@ void DataFilter::perform_rolling_filter (double *data, int data_len, int period,
     }
 }
 
+double *DataFilter::perform_downsampling (
+    double *data, int data_len, int period, int agg_operation, int *filtered_size)
+{
+    if ((data == NULL) || (data_len == 0) || (period == 0) || (data_len / period == 0))
+    {
+        throw BrainFlowException ("invalid input params", INVALID_ARGUMENTS_ERROR);
+    }
+    double *filtered_data = new double[data_len / period];
+    int res = ::perform_downsampling (data, data_len, period, agg_operation, filtered_data);
+    if (res != STATUS_OK)
+    {
+        throw BrainFlowException ("failed to filter signal", res);
+    }
+    *filtered_size = data_len / period;
+    return filtered_data;
+}
+
 double **DataFilter::read_file (int *num_rows, int *num_cols, char *file_name)
 {
     int max_elements = 0;

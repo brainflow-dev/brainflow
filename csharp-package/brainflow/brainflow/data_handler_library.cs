@@ -29,6 +29,8 @@ namespace brainflow
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_rolling_filter (double[] data, int len, int period, int operation);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int perform_downsampling (double[] data, int len, int period, int operation, double[] downsampled_data);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int write_file (double[] data, int num_rows, int num_cols, string file_name, string file_mode);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int read_file (double[] data, int[] num_rows, int[] num_cols, string file_name, int max_elements);
@@ -48,6 +50,8 @@ namespace brainflow
         public static extern int perform_bandstop (double[] data, int len, int sampling_rate, double center_freq, double band_width, int order, int filter_type, double ripple);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_rolling_filter (double[] data, int len, int period, int operation);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int perform_downsampling (double[] data, int len, int period, int operation, double[] downsampled_data);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int write_file (double[] data, int num_rows, int num_cols, string file_name, string file_mode);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -96,6 +100,14 @@ namespace brainflow
                 return DataHandlerLibrary64.perform_rolling_filter (data, len, period, operation);
             else
                 return DataHandlerLibrary32.perform_rolling_filter (data, len, period, operation);
+        }
+
+        public static int perform_downsampling (double[] data, int len, int period, int operation, double[] filtered_data)
+        {
+            if (System.Environment.Is64BitProcess)
+                return DataHandlerLibrary64.perform_downsampling (data, len, period, operation, filtered_data);
+            else
+                return DataHandlerLibrary32.perform_downsampling (data, len, period, operation, filtered_data);
         }
 
         public static int read_file (double[] data, int[] num_rows, int[] num_cols, string file_name, int max_elements)

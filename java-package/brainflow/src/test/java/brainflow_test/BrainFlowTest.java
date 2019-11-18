@@ -1,6 +1,12 @@
-package brainflow;
-
+package brainflow_test;
 import java.util.Arrays;
+
+import brainflow.AggOperations;
+import brainflow.BoardShim;
+import brainflow.BrainFlowInputParams;
+import brainflow.DataFilter;
+import brainflow.FilterTypes;
+import brainflow.LogLevels;
 
 public class BrainFlowTest
 {
@@ -61,6 +67,12 @@ public class BrainFlowTest
                     break;
                 case 5:
                     DataFilter.perform_rolling_filter (data[eeg_channels[i]], 3, AggOperations.MEDIAN.get_code ());
+                    break;
+                case 6:
+                    double[] downsampled_data = DataFilter.perform_downsampling (data[eeg_channels[i]], 2,
+                            AggOperations.EACH.get_code ());
+                    System.out.println ("Downsampled data:");
+                    System.out.println (Arrays.toString (downsampled_data));
                     break;
             }
         }

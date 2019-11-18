@@ -140,6 +140,16 @@ class DataHandlerDLL (object):
             ctypes.c_int
         ]
 
+        self.perform_downsampling = self.lib.perform_downsampling
+        self.perform_downsampling.restype = ctypes.c_int
+        self.perform_downsampling.argtypes = [
+            ndpointer (ctypes.c_double),
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ndpointer (ctypes.c_double)
+        ]
+
 
 class DataFilter (object):
     """DataFilter class contains methods for signal processig"""
@@ -264,7 +274,7 @@ class DataFilter (object):
         :type data: 1d numpy array
         :param period: window size
         :type period: int
-        :param operation: int for AggOperation enum
+        :param operation: int value from AggOperation enum
         :type operation: int
         """
         if not isinstance (period, int):
@@ -276,6 +286,35 @@ class DataFilter (object):
         res = DataHandlerDLL.get_instance ().perform_rolling_filter (data, data.shape[0], period, operation)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to smooth data', res)
+
+    @classmethod
+    def perform_downsampling (cls, data, period, operation):
+        """perform data downsampling, it doesnt apply lowpass filter for you, it just aggregates several data points
+
+        :param data: initial data
+        :type data: 1d numpy array
+        :param period: downsampling period
+        :type period: int
+        :param operation: int value from AggOperation enum
+        :type operation: int
+        :return: downsampled data
+        :rtype: 1d numpy array
+        """
+        if not isinstance (period, int):
+            raise BrainFlowError ('wrong type for period', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        if not isinstance (operation, int):
+            raise BrainFlowError ('wrong type for operation', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        if len (data.shape) != 1:
+            raise BrainFlowError ('wrong shape for filter data array, it should be 1d array', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        if period <= 0:
+            raise BrainFlowError ('Invalid value for period', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+
+        downsampled_data = numpy.zeros (int (data.shape[0] / period)).astype (numpy.float64)
+        res = DataHandlerDLL.get_instance ().perform_downsampling (data, data.shape[0], period, operation, downsampled_data)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to perform downsampling', res)
+
+        return downsampled_data
 
     @classmethod
     def write_file (cls, data, file_name, file_mode):

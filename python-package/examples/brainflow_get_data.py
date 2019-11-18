@@ -67,6 +67,7 @@ def main ():
 
     # demo how to perform signal processing
     for count, channel in enumerate (eeg_channels):
+        # filters work in-place
         if count == 0:
             DataFilter.perform_bandpass (data[channel], BoardShim.get_sampling_rate (args.board_id), 15.0, 6.0, 4, FilterTypes.BESSEL.value, 0)
         elif count == 1:
@@ -79,6 +80,12 @@ def main ():
             DataFilter.perform_rolling_filter (data[channel], 3, AggOperations.MEAN.value)
         elif count == 5:
             DataFilter.perform_rolling_filter (data[channel], 3, AggOperations.MEDIAN.value)
+        # downsampling returns new numpy array
+        elif count == 6:
+            downsampled_data = DataFilter.perform_downsampling (data[channel], 2, AggOperations.EACH.value)
+            print ("Downsampled data for channel %d:" % channel)
+            print (downsampled_data)
+
 
     df = pd.DataFrame (np.transpose (data))
     print ('Data After Processing')

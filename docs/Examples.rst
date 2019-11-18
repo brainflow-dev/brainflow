@@ -19,7 +19,7 @@ For R brainflow's signal processing API is unavailable, you will need to impleme
 Java sample
 -------------
 
-.. literalinclude:: ../tests/java/BrainFlowGetData.java
+.. literalinclude:: ../java-package/brainflow/src/test/java/brainflow_test/BrainFlowTest.java
    :language: java
 
 
