@@ -91,7 +91,7 @@ SocketClient::SocketClient (const char *ip_addr, int port, int socket_type)
     this->socket_type = socket_type;
 }
 
-int SocketClient::connect ()
+int SocketClient::connect (int min_bytes)
 {
     WSADATA wsadata;
     int res = WSAStartup (MAKEWORD (2, 2), &wsadata);
@@ -132,6 +132,10 @@ int SocketClient::connect ()
         {
             return (int)SocketReturnCodes::CONNECT_ERROR;
         }
+        // to simplify parsing code and make it uniform for udp and tcp set min bytes for tcp to
+        // package size
+        setsockopt (
+            connect_socket, SOL_SOCKET, SO_RCVLOWAT, (char *)&min_bytes, sizeof (min_bytes));
     }
 
     return (int)SocketReturnCodes::STATUS_OK;
@@ -262,7 +266,7 @@ SocketClient::SocketClient (const char *ip_addr, int port, int socket_type)
     this->socket_type = socket_type;
 }
 
-int SocketClient::connect ()
+int SocketClient::connect (int min_bytes)
 {
     if (socket_type == (int)SocketType::UDP)
     {
@@ -300,6 +304,9 @@ int SocketClient::connect ()
         {
             return (int)SocketReturnCodes::CONNECT_ERROR;
         }
+        // to simplify parsing code and make it uniform for udp and tcp set min bytes for tcp to
+        // package size
+        setsockopt (connect_socket, SOL_SOCKET, SO_RCVLOWAT, &min_bytes, sizeof (min_bytes));
     }
 
     return (int)SocketReturnCodes::STATUS_OK;

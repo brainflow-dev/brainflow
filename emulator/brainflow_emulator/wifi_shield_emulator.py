@@ -24,17 +24,17 @@ class ShieldWriter (threading.Thread):
 
     def run (self):
         while self.need_data:
-            if self.package_num % 256 == 0:
-                self.package_num = 0
-
             package = list ()
-            package.append (0xA0)
-            package.append (self.package_num)
-            for i in range (2, self.package_size - 1):
-                package.append (randint (0, 255))
-            package.append (0xC0)
+            for _ in range (6):
+                package.append (0xA0)
+                package.append (self.package_num)
+                for i in range (2, self.package_size - 1):
+                    package.append (randint (0, 255))
+                package.append (0xC0)
+                self.package_num = self.package_num + 1
+                if self.package_num % 256 == 0:
+                    self.package_num = 0
             self.write_socket.sendall (bytes (package))
-            self.package_num = self.package_num + 1
             time.sleep (self.delay)
 
 

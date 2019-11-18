@@ -15,7 +15,7 @@ public:
         close ();
     }
 
-    int bind ();
+    int bind (int min_bytes = 1);
     int accept ();
     int recv (void *data, int size);
     void close ();
