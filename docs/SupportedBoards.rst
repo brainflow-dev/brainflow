@@ -26,8 +26,11 @@ Board Specs:
 - sampling rate: 256
 - communication: None
 
-OpenBCI Cyton
---------------
+OpenBCI
+--------
+
+Cyton
+~~~~~~~
 
 .. image:: https://farm5.staticflickr.com/4817/32567183898_10a4b56659.jpg
     :width: 400px
@@ -53,8 +56,8 @@ Board Spec:
 - sampling rate: 250
 - communication: serial port
 
-OpenBCI Ganglion
------------------
+Ganglion
+~~~~~~~~~
 
 .. image:: https://live.staticflickr.com/65535/48288408326_7f078cd2eb.jpg
     :width: 450px
@@ -83,8 +86,8 @@ Board Spec:
 - sampling rate: 200
 - communication: Bluetooth Low Energy behind serial port from the dongle
 
-OpenBCI Cyton Daisy
---------------------
+Cyton Daisy
+~~~~~~~~~~~~
 
 .. image:: https://live.staticflickr.com/65535/48288597712_7ba142797e.jpg
     :width: 500px
@@ -111,8 +114,8 @@ Board Spec:
 - communication: serial port
 
 
-OpenBCI Ganglion with Wifi Shield
------------------------------------
+Ganglion with Wifi Shield
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. image:: https://live.staticflickr.com/65535/48836544227_05059fc450_b.jpg
     :width: 500px
@@ -142,8 +145,8 @@ Board Spec:
 - sampling rate: 1600
 - communication: tcp socket to read data and http to send commands
 
-OpenBCI Cyton with Wifi Shield
----------------------------------
+Cyton with Wifi Shield
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. image:: https://live.staticflickr.com/65535/48836367066_a8c4b6d3be_b.jpg
     :width: 500px
@@ -174,8 +177,8 @@ Board Spec:
 - sampling rate: 1000
 - communication: tcp socket to read data and http to send commands
 
-OpenBCI Cyton Daisy with Wifi Shield
---------------------------------------
+Cyton Daisy with Wifi Shield
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. image:: https://live.staticflickr.com/65535/48843419918_f11c90deb0_k.jpg
     :width: 500px
