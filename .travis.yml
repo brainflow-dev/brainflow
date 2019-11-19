@@ -103,21 +103,21 @@ script:
       sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/wifi_shield_emulator.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --log --board-id 6 --ip-address 127.0.0.1 --ip-protocol 2 --ip-port 17984 ;
     fi
 
-after_success:
-  - sudo -H pip3 install awscli
-  # push libraries from docker!
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-      aws s3 cp $TRAVIS_BUILD_DIR/installed_docker/lib/ s3://brainflow/$TRAVIS_COMMIT/$TRAVIS_OS_NAME --recursive ;
-    fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-      aws s3 cp $TRAVIS_BUILD_DIR/installed/lib/ s3://brainflow/$TRAVIS_COMMIT/$TRAVIS_OS_NAME --recursive ;
-    fi
-  # notify that everything is ok
-  - echo success > ${TRAVIS_OS_NAME}_success && aws s3 cp ${TRAVIS_OS_NAME}_success s3://brainflow/$TRAVIS_COMMIT/
+# after_success:
+#   - sudo -H pip3 install awscli
+#   # push libraries from docker!
+#   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+#       aws s3 cp $TRAVIS_BUILD_DIR/installed_docker/lib/ s3://brainflow/$TRAVIS_COMMIT/$TRAVIS_OS_NAME --recursive ;
+#     fi
+#   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
+#       aws s3 cp $TRAVIS_BUILD_DIR/installed/lib/ s3://brainflow/$TRAVIS_COMMIT/$TRAVIS_OS_NAME --recursive ;
+#     fi
+#   # notify that everything is ok
+#   - echo success > ${TRAVIS_OS_NAME}_success && aws s3 cp ${TRAVIS_OS_NAME}_success s3://brainflow/$TRAVIS_COMMIT/
 
-after_failure:
-  # notify Appveyor of travis test failure
-  echo failure > ${TRAVIS_OS_NAME}_failure && aws s3 cp ${TRAVIS_OS_NAME}_failure s3://brainflow/$TRAVIS_COMMIT/
+# after_failure:
+#   # notify Appveyor of travis test failure
+#   echo failure > ${TRAVIS_OS_NAME}_failure && aws s3 cp ${TRAVIS_OS_NAME}_failure s3://brainflow/$TRAVIS_COMMIT/
 
 notifications:
   email:
