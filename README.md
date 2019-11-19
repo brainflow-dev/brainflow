@@ -6,7 +6,7 @@ Core module of this library is implemented in C\C++ and available for all bindin
 
 This project was forked by OpenBCI from [Andrey1994/brainflow](https://github.com/Andrey1994/brainflow)
 
-## [BrainFlow Docs, Dev and User guides and other information](https://brainflow.readthedocs.io/en/latest/index.html)
+## [BrainFlow Docs, Dev and User guides and other information](https://brainflow.readthedocs.io/)
 
 ## Build status
 Compiled with:
@@ -27,7 +27,7 @@ We support bindings for:
 * [python](./python-package)
 * [java](./java-package/brainflow/)
 * [R](./r-package/)
-* [CPP](./cpp-package/)
+* [C++](./cpp-package/)
 * [C# (Windows only)](./csharp-package/brainflow/)
 
 ## License: 
