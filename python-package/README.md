@@ -12,4 +12,4 @@ Also it is available for other programming languages like:
 * R
 * and so on
 
-## [BrainFlow Docs, Dev and User guides and other information](https://brainflow.readthedocs.io/en/latest/index.html)
+## [BrainFlow Docs, Dev and User guides and other information](https://brainflow.readthedocs.io/)
