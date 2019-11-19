@@ -1,6 +1,6 @@
 # BrainFlow
 
-## [Documentation, Contributing guide and other information](https://brainflow.readthedocs.io/en/latest/index.html)
+## [Documentation, Contributing guide and other information](https://brainflow.readthedocs.io/)
 
 Brainflow is a library intended to obtain, parse and analyze EEG\EMG\ECG... data from any BCI board.
 
