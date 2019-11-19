@@ -49,7 +49,7 @@ extensions = [
 
 # Breathe and Doxygen setup
 
-breathe_default_project = "BrainFlowCpp"
+breathe_default_project = 'BrainFlowCpp'
 
 def configure_doxyfile(input_dir, output_dir, project):
     with open('Doxyfile.in', 'r') as file :
@@ -96,7 +96,7 @@ if read_the_docs_build:
 
 # sphinx.ext.autodoc
 autoclass_content = 'both'
-autodoc_default_options = {"members": None}
+autodoc_default_options = {'members': None}
 autodoc_member_order = 'bysource'
 
 
@@ -116,7 +116,7 @@ master_doc = 'index'
 # for a list of supported languages.
 #
 # This is also used if you do content translation via gettext catalogs.
-# Usually you set "language" from the command line for these cases.
+# Usually you set 'language' from the command line for these cases.
 language = None
 
 # List of patterns, relative to source directory, that match files and
@@ -134,12 +134,11 @@ pygments_style = None
 # a list of builtin themes.
 #
 
-# I dont like import in the middle but its a copypaste from their docs
-import guzzle_sphinx_theme
+import sphinx_rtd_theme
 
-extensions.append("guzzle_sphinx_theme")
-html_theme_path = guzzle_sphinx_theme.html_theme_path()
-html_theme = "guzzle_sphinx_theme"
+extensions.append('sphinx_rtd_theme')
+html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -147,25 +146,21 @@ html_theme = "guzzle_sphinx_theme"
 #
 html_translator_class = 'guzzle_sphinx_theme.HTMLTranslator'
 html_show_sourcelink = False
-html_sidebars = {
-    '**': ['logo-text.html',
-           'globaltoc.html',
-           'localtoc.html',
-           'searchbox.html']
-}
+
+html_logo = '_static/brainflow_logo.png'
 
 html_theme_options = {
-    "globaltoc_depth": 3,
-    "globaltoc_collapse": False,
-    "globaltoc_includehidden": False,
-    "project_nav_name": "BrainFlow"
+    'canonical_url': 'https://brainflow.readthedocs.io/en/latest/',
+    'collapse_navigation': False,
+    'display_version': True,
+    'logo_only': False,
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
-# so a file named "default.css" will overwrite the builtin "default.css".
+# so a file named 'default.css' will overwrite the builtin 'default.css'.
 html_static_path = ['_static']
-
+html_context = {'css_files': ['_static/custom.css']}
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
 #
@@ -180,7 +175,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'BrainFlowdoc'
+htmlhelp_basename = 'BrainFlowDoc'
 
 
 # -- Options for LaTeX output ------------------------------------------------

@@ -6,14 +6,11 @@
 Welcome to BrainFlow's documentation!
 =====================================
 
-Brainflow is a library intended to obtain, parse and analyze EEG\EMG\ECG data from BCI boards.
+BrainFlow is a library intended to obtain, parse and analyze EEG, EMG, ECG and other kinds of data from BCI boards.
 
-We support two versions of this library:
+It provides a **uniform API for all supported boards**, it means that you can switch boards without any changes in code, also if you add your board to BrainFlow it will work with almost all applications built on top on BrainFlow from the box. Also there is **powerfull API to perform signal processing** which you can use even without BCI headset.
 
-- `original version <https://github.com/Andrey1994/brainflow>`_
-- `OpenBCI\'s fork <https://github.com/OpenBCI/brainflow>`_
-
-These versions are exactly the same, choose one and use it
+**There are several forks of BrainFlow, we recommend to use** `original version <https://github.com/Andrey1994/brainflow>`_ **or** `OpenBCI version <https://github.com/OpenBCI/brainflow>`_. Both of them are exactly the same and supported by original author.
 
 
 .. toctree::

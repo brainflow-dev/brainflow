@@ -1,5 +1,5 @@
 breathe==4.13.0
 sphinx==2.0.1
-guzzle_sphinx_theme
+sphinx_rtd_theme
 brainflow
 sphinxcontrib-ghcontributors

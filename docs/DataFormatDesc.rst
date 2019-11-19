@@ -1,6 +1,9 @@
 Data Format Description
 =========================
 
+Generic Format Description
+----------------------------
+
 **Methods like:**
 
 .. code-block:: python
@@ -8,7 +11,7 @@ Data Format Description
    get_board_data ()
    get_current_board_data (max_num_packages)
 
-**Return 2d double array [num_channels x num_data_points], rows of this array contain data for EEG, EMG, Accel, Timesteps and other kinds of data.**
+**Return 2d double array [num_channels x num_data_points], rows of this array represent different channels like  EEG channels, EMG channels, Accel channels, Timesteps and so on, while columns in this array represent actual packages from a board.**
 
 Exact format for this array is board specific but to keep API uniform we have methods like:
 
@@ -25,14 +28,14 @@ Exact format for this array is board specific but to keep API uniform we have me
    get_timestamp_channel (board_id)
    # and so on
 
-**For some boards like Cyton, Ganglion and others we can not separate EMG, EEG, EDA and ECG and in this case we return exactly the same array for all these methods but for some boards EMG and EEG channels differs**
+**For some boards like OpenBCI Cyton, OpenBCI Ganglion and others we can not separate EMG, EEG, EDA and ECG and in this case we return exactly the same array for all these methods but for some boards EMG and EEG channels differ**
 
 Using methods above you can write completely board agnostic code and switch boards using single parameter! Even if you have only one board using these methods you can easily switch to Synthetic board for development and run code without real hardware.
 
 Special channels for Cyton Based boards
 -----------------------------------------
 
-`Cyton based boards from OpenBCI <https://docs.openbci.com/Tutorials/00-Tutorials>`_ suport different output formats like described `here <https://docs.openbci.com/docs/02Cyton/CytonDataFormat#firmware-version-200-fall-2016-to-now-1>`_.
+`Cyton based boards from OpenBCI <https://docs.openbci.com/Tutorials/00-Tutorials>`_ suport different output formats which is described `here <https://docs.openbci.com/docs/02Cyton/CytonDataFormat#firmware-version-200-fall-2016-to-now-1>`_.
 
 **For Cyton based boards we add Cyton End byte to a first channel from:**
 
@@ -52,17 +55,17 @@ Special channels for Cyton Based boards
 
    get_analog_channels (board_id)
 
-For analog data we return int32 values but from low level API we return double array so these values were casted to double wo any changes.
+For analog data we return int32 values but from low level API we return double array so these values are casted to double wo any changes.
 
-**If Cyton End Byte is between 0xC2 and 0xC6 we add raw unprocessed bytes to the second and following channels returned by:**
+**If Cyton End Byte is between 0xC2 and 0xC6 we add raw unprocessed bytes to the second and next channels returned by:**
 
 .. code-block:: python
 
    get_other_channels (board_id)
 
-For such data we return unprocessed raw bytes you should cast them to integer or floats
+For such data we return unprocessed raw bytes you should cast them to integers or floats.
 
-If Cyton End Byte outside `this range <https://docs.openbci.com/docs/02Cyton/CytonDataFormat#firmware-version-200-fall-2016-to-now-1>`_ we drop entire package.
+If Cyton End Byte is outside `this range <https://docs.openbci.com/docs/02Cyton/CytonDataFormat#firmware-version-200-fall-2016-to-now-1>`_ we drop entire package.
 
 **Check this example for details:**
 

@@ -1,0 +1,8 @@
+/* Use white for logo background. color of brain on the image is de923f */
+.wy-side-nav-search {
+  background-color: #fff;
+}
+
+.wy-side-nav-search > div.version {
+  color: #000;
+}
