@@ -1,15 +1,15 @@
 User API
 ==========
 
-BrainFlow User API has no classes for all supported boards instead there are only two classes:
-- BoardShim to read data from a board
-- DataFilter to perform signal processing
+BrainFlow User API has only two classes:
 
-To select a board you need to pass BrainFlow's board id to BoardShim's constructor as well as required parameters for this particular board.
-This level of abstraction allows you to change board almost without any changes in code.
+- BoardShim to read data from a board, it calls methods from underlying BoardController library
+- DataFilter to perform signal processing, it calls methods from underlying DataHandler library
 
-Since API for all bindings is almost the same we add description for parameters, return values and methods only for Python API.
-For other languages we add docs without any description and hints.
+These classes are independent, so if you want, you can use BrainFlow API only for data streaming and perform signal processing by yourself and vice versa.
+
+BrainFlow API is board agnostic, so to select a specific board you need to pass BrainFlow's board id to BoardShim's constructor and an instance of BrainFlowInputParams structure which should hold information for your specific board, check Supported Boards section for details.
+This abstraction allows you to switch boards without any changes in code.
 
 Python API Reference
 ----------------------
@@ -42,15 +42,11 @@ brainflow.data\_filter
    :show-inheritance:
    :member-order: bysource
 
-Cpp API Reference
+C++ API Reference
 -------------------
-
-Here we describe only high level API, to get information about structures, classes and enums from low level API check Brainflow Core API
 
 BoardShim class
 ~~~~~~~~~~~~~~~~
-
-This class communicates with a real board and read/send data from/to it
 
 .. doxygenclass:: BoardShim
    :members:
@@ -60,8 +56,6 @@ This class communicates with a real board and read/send data from/to it
 DataFilter class
 ~~~~~~~~~~~~~~~~~~
 
-Use this for signal processing, all methods change input data in-place.
-
 .. doxygenclass:: DataFilter
    :members:
    :project: BrainFlowCpp
@@ -69,8 +63,6 @@ Use this for signal processing, all methods change input data in-place.
 
 BrainFlowException class
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Exception which is raised if wrong exit code was returned from low level API
 
 .. doxygenclass:: BrainFlowException
    :members:
@@ -93,7 +85,7 @@ Content of Brainflow Package:
 C# API Reference
 -------------------
 
-To simplify 2D array manipulation we use `Accord Library <http://accord-framework.net/>`_. You need to install it first from Nuget.
+To simplify 2D array manipulation we use `Accord Library <http://accord-framework.net/>`_. 
 
 Content of brainflow namespace:
 
@@ -106,10 +98,10 @@ Content of brainflow namespace:
 R API Reference
 -----------------
 
-R binding is a wrapper on top of Python binding which is implemented using `reticulate <https://rstudio.github.io/reticulate/>`_.
-There are a few methods which allows you to create python objects and call their methods. 
+R binding is a wrapper on top of Python binding, it is implemented using `reticulate <https://rstudio.github.io/reticulate/>`_.
+There are a few methods which allow you to create python objects and call their methods. 
 
-But reticulate translates numpy arrays to R arrays in a tricky way, and it prevents us to implement signal processing in R, so for R you have to perform signal processing by yourself.
+Reticulate translates numpy arrays to R arrays in a tricky way, and it prevents us to implement signal processing in R, so for R you have to perform signal processing by yourself.
 
 Check R sample to see how to use it.
 
