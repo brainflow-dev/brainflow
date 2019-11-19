@@ -19,7 +19,7 @@ SocketServer::SocketServer (const char *local_ip, int local_port)
     client_connected = false;
 }
 
-int SocketServer::bind ()
+int SocketServer::bind (int min_bytes)
 {
     WSADATA wsadata;
     int res = WSAStartup (MAKEWORD (2, 2), &wsadata);
@@ -50,6 +50,14 @@ int SocketServer::bind ()
     setsockopt (server_socket, IPPROTO_TCP, TCP_NODELAY, (char *)&value, sizeof (value));
     setsockopt (server_socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof (timeout));
     setsockopt (server_socket, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof (timeout));
+    // set linger timeout to 1s to handle time_wait state gracefully
+    struct linger sl;
+    sl.l_onoff = 1;
+    sl.l_linger = 1;
+    setsockopt (server_socket, SOL_SOCKET, SO_LINGER, (char *)&sl, sizeof (sl));
+    // to simplify parsing code and make it uniform for udp and tcp set min bytes for tcp to
+    // package size
+    setsockopt (server_socket, SOL_SOCKET, SO_RCVLOWAT, (char *)&min_bytes, sizeof (min_bytes));
 
     if ((listen (server_socket, 1)) != 0)
     {
@@ -133,7 +141,7 @@ SocketServer::SocketServer (const char *local_ip, int local_port)
     client_connected = false;
 }
 
-int SocketServer::bind ()
+int SocketServer::bind (int min_bytes)
 {
     server_socket = socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (server_socket < 0)
@@ -160,6 +168,14 @@ int SocketServer::bind ()
     setsockopt (server_socket, IPPROTO_TCP, TCP_NODELAY, &value, sizeof (value));
     setsockopt (server_socket, SOL_SOCKET, SO_RCVTIMEO, (const char *)&tv, sizeof (tv));
     setsockopt (server_socket, SOL_SOCKET, SO_SNDTIMEO, (const char *)&tv, sizeof (tv));
+    // set linger timeout to 1s to handle time_wait state gracefully
+    struct linger sl;
+    sl.l_onoff = 1;
+    sl.l_linger = 1;
+    setsockopt (server_socket, SOL_SOCKET, SO_LINGER, &sl, sizeof (sl));
+    // to simplify parsing code and make it uniform for udp and tcp set min bytes for tcp to
+    // package size
+    setsockopt (server_socket, SOL_SOCKET, SO_RCVLOWAT, &min_bytes, sizeof (min_bytes));
 
     if ((listen (server_socket, 1)) != 0)
     {

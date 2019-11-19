@@ -96,6 +96,12 @@ script:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/wifi_shield_emulator.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --log --board-id 4 --ip-address 127.0.0.1 --ip-protocol 2 --ip-port 17982 ;
     fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+      sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/wifi_shield_emulator.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --log --board-id 5 --ip-address 127.0.0.1 --ip-protocol 2 --ip-port 17983 ;
+    fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+      sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/wifi_shield_emulator.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --log --board-id 6 --ip-address 127.0.0.1 --ip-protocol 2 --ip-port 17984 ;
+    fi
 
 after_success:
   - sudo -H pip3 install awscli

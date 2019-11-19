@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "data_handler.h"
+#include "downsample_operators.h"
 #include "rolling_filter.h"
 
 #include "DspFilters/Dsp.h"
@@ -219,6 +220,36 @@ int perform_rolling_filter (double *data, int data_len, int period, int agg_oper
         data[i] = filter->get_value ();
     }
     delete filter;
+    return STATUS_OK;
+}
+
+int perform_downsampling (
+    double *data, int data_len, int period, int agg_operation, double *output_data)
+{
+    if ((data == NULL) || (data_len <= 0) || (period <= 0) || (output_data == NULL))
+    {
+        return INVALID_ARGUMENTS_ERROR;
+    }
+    double (*downsampling_op) (double *, int);
+    switch (agg_operation)
+    {
+        case MEAN:
+            downsampling_op = downsample_mean;
+            break;
+        case MEDIAN:
+            downsampling_op = downsample_median;
+            break;
+        case EACH:
+            downsampling_op = downsample_each;
+            break;
+        default:
+            return INVALID_ARGUMENTS_ERROR;
+    }
+    int num_values = data_len / period;
+    for (int i = 0; i < num_values; i++)
+    {
+        output_data[i] = downsampling_op (data + i * period, period);
+    }
     return STATUS_OK;
 }
 

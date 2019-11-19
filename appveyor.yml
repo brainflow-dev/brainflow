@@ -67,8 +67,8 @@ test_script:
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\novaxr_tcp.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\test\bin\Release\test.exe --board-id 3 --ip-address 127.0.0.1 --ip-protocol 2
   # tests for wifi shield based boards
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --board-id 4 --ip-address 127.0.0.1 --ip-protocol 2 --ip-port 17982
-  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\build\Release\test_get_data.exe --board-id 5 --ip-address 127.0.0.1 --ip-protocol 2 --ip-port 17982
-  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\test\bin\Release\test.exe --board-id 6 --ip-address 127.0.0.1 --ip-protocol 2 --ip-port 17982
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\build\Release\test_get_data.exe --board-id 5 --ip-address 127.0.0.1 --ip-protocol 2 --ip-port 17983
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\test\bin\Release\test.exe --board-id 6 --ip-address 127.0.0.1 --ip-protocol 2 --ip-port 17984
 
 deploy_script:
   - python -m pip install wheel > wheel_install.txt

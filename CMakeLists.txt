@@ -65,7 +65,7 @@ set (GANGLION_SOURCE_LIB
 )
 add_library (${GANGLION_LIB} STATIC ${GANGLION_SOURCE_LIB})
 target_include_directories (${GANGLION_LIB} PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_HOME_DIRECTORY}/src/utils>
+    $<BUILD_INTERFACE:${CMAKE_HOME_DIRECTORY}/src/utils/inc>
     $<BUILD_INTERFACE:${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/inc>
 )
 set_property (TARGET ${GANGLION_LIB} PROPERTY POSITION_INDEPENDENT_CODE ON)
@@ -146,7 +146,7 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/third_party/
     ${CMAKE_HOME_DIRECTORY}/third_party/json
     ${CMAKE_HOME_DIRECTORY}/third_party/http
-    ${CMAKE_HOME_DIRECTORY}/src/utils/
+    ${CMAKE_HOME_DIRECTORY}/src/utils/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/inc
@@ -155,7 +155,7 @@ target_include_directories (
 target_include_directories (
     ${DATA_HANDLER_NAME} PRIVATE
     ${CMAKE_HOME_DIRECTORY}/third_party/
-    ${CMAKE_HOME_DIRECTORY}/src/utils/
+    ${CMAKE_HOME_DIRECTORY}/src/utils/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/inc
     ${CMAKE_HOME_DIRECTORY}/src/data_handler/inc
     ${CMAKE_HOME_DIRECTORY}/third_party/DSPFilters/include
@@ -193,6 +193,7 @@ target_include_directories (
     ${BRAINFLOW_CPP_BINDING_NAME} PRIVATE
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/inc
     ${CMAKE_HOME_DIRECTORY}/src/data_handler/inc
+    ${CMAKE_HOME_DIRECTORY}/cpp-package/src/inc
     ${CMAKE_HOME_DIRECTORY}/third_party/json
 )
 
@@ -272,9 +273,9 @@ install (
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/inc/brainflow_constants.h
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/inc/board_info_getter.h
     ${CMAKE_HOME_DIRECTORY}/src/data_handler/inc/data_handler.h
-    ${CMAKE_HOME_DIRECTORY}/cpp-package/src/data_filter.h
-    ${CMAKE_HOME_DIRECTORY}/cpp-package/src/board_shim.h
-    ${CMAKE_HOME_DIRECTORY}/cpp-package/src/brainflow_exception.h
+    ${CMAKE_HOME_DIRECTORY}/cpp-package/src/inc/data_filter.h
+    ${CMAKE_HOME_DIRECTORY}/cpp-package/src/inc/board_shim.h
+    ${CMAKE_HOME_DIRECTORY}/cpp-package/src/inc/brainflow_exception.h
     DESTINATION inc
 )
 

@@ -2,6 +2,7 @@
 #include "custom_cast.h"
 #include "timestamp.h"
 
+
 #define START_BYTE 0xA0
 #define END_BYTE_STANDARD 0xC0
 #define END_BYTE_ANALOG 0xC1
@@ -22,68 +23,67 @@ void GanglionWifi::read_thread ()
         Byte 33: 0xCX where X is 0-F in hex
     */
     int res;
-    unsigned char b[32];
+    unsigned char b[OpenBCIWifiShieldBoard::transaction_size];
     while (keep_alive)
     {
         // check start byte
-        res = server_socket->recv (b, 1);
-        if (res != 1)
+        res = server_socket->recv (b, OpenBCIWifiShieldBoard::transaction_size);
+        if (res != OpenBCIWifiShieldBoard::transaction_size)
         {
             continue;
         }
-        if (b[0] != START_BYTE)
+        for (int cur_package = 0;
+             cur_package < OpenBCIWifiShieldBoard::num_packages_per_transaction; cur_package++)
         {
-            continue;
-        }
+            int offset = cur_package * OpenBCIWifiShieldBoard::package_size;
+            if (b[0 + offset] != START_BYTE)
+            {
+                continue;
+            }
 
-        res = server_socket->recv (b, 32);
-        if (res != 32)
-        {
-            continue;
-        }
+            double package[18] = {0.};
+            // package num
+            package[0] = (double)b[1 + offset];
+            // eeg
+            for (int i = 0; i < 4; i++)
+            {
+                package[i + 1] = eeg_scale * cast_24bit_to_int32 (b + 2 + 3 * i + offset);
+            }
+            // end byte
+            package[8] = (double)b[32 + offset];
+            // check end byte
+            if (b[32 + offset] == END_BYTE_STANDARD)
+            {
+                // accel
+                package[5] = accel_scale * cast_16bit_to_int32 (b + 26 + offset);
+                package[6] = accel_scale * cast_16bit_to_int32 (b + 28 + offset);
+                package[7] = accel_scale * cast_16bit_to_int32 (b + 30 + offset);
+            }
+            else if (b[32 + offset] == END_BYTE_ANALOG)
+            {
+                // analog
+                package[15] = cast_16bit_to_int32 (b + 26 + offset);
+                package[16] = cast_16bit_to_int32 (b + 28 + offset);
+                package[17] = cast_16bit_to_int32 (b + 30 + offset);
+            }
+            else if ((b[32 + offset] > END_BYTE_ANALOG) && (b[32 + offset] <= END_BYTE_MAX))
+            {
+                // other data
+                package[8] = (double)b[32 + offset];
+                package[9] = (double)b[26 + offset];
+                package[10] = (double)b[27 + offset];
+                package[11] = (double)b[28 + offset];
+                package[12] = (double)b[29 + offset];
+                package[13] = (double)b[30 + offset];
+                package[14] = (double)b[31 + offset];
+            }
+            else
+            {
+                safe_logger (spdlog::level::warn, "Wrong end byte, found {}", b[32 + offset]);
+                continue;
+            }
 
-        double package[18] = {0.};
-        // package num
-        package[0] = (double)b[0];
-        // eeg
-        for (int i = 0; i < 4; i++)
-        {
-            package[i + 1] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
+            db->add_data (get_timestamp (), package);
         }
-        // end byte
-        package[8] = (double)b[res - 1];
-        // check end byte
-        if (b[res - 1] == END_BYTE_STANDARD)
-        {
-            // accel
-            package[5] = accel_scale * cast_16bit_to_int32 (b + 25);
-            package[6] = accel_scale * cast_16bit_to_int32 (b + 27);
-            package[7] = accel_scale * cast_16bit_to_int32 (b + 29);
-        }
-        else if (b[res - 1] == END_BYTE_ANALOG)
-        {
-            // analog
-            package[15] = cast_16bit_to_int32 (b + 25);
-            package[16] = cast_16bit_to_int32 (b + 27);
-            package[17] = cast_16bit_to_int32 (b + 29);
-        }
-        else if ((b[res - 1] > END_BYTE_ANALOG) && (b[res - 1] <= END_BYTE_MAX))
-        {
-            // other data
-            package[8] = (double)b[res - 1];
-            package[9] = (double)b[25];
-            package[10] = (double)b[26];
-            package[11] = (double)b[27];
-            package[12] = (double)b[28];
-            package[13] = (double)b[29];
-            package[14] = (double)b[30];
-        }
-        else
-        {
-            safe_logger (spdlog::level::warn, "Wrong end byte, found {}", b[res - 1]);
-            continue;
-        }
-
-        db->add_data (get_timestamp (), package);
     }
 }

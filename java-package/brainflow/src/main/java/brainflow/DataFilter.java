@@ -32,6 +32,8 @@ public class DataFilter
 
         int perform_rolling_filter (double[] data, int data_len, int period, int operation);
 
+        int perform_downsampling (double[] data, int data_len, int period, int operation, double[] filtered_data);
+
         int write_file (double[] data, int num_rows, int num_cols, String file_name, String file_mode);
 
         int read_file (double[] data, int[] num_rows, int[] num_cols, String file_name, int max_elements);
@@ -137,6 +139,29 @@ public class DataFilter
         {
             throw new BrainFlowError ("Failed to apply filter", ec);
         }
+    }
+
+    /**
+     * perform data downsampling, it doesnt apply lowpass filter for you, it just
+     * aggregates several data points
+     */
+    public static double[] perform_downsampling (double[] data, int period, int operation) throws BrainFlowError
+    {
+        if (period <= 0)
+        {
+            throw new BrainFlowError ("Invalid period", ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
+        if (data.length / period <= 0)
+        {
+            throw new BrainFlowError ("Invalid data size", ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
+        double[] downsampled_data = new double[(int) (data.length / period)];
+        int ec = instance.perform_downsampling (data, data.length, period, operation, downsampled_data);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Failed to perform downsampling", ec);
+        }
+        return downsampled_data;
     }
 
     /**

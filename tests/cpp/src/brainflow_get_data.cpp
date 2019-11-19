@@ -14,6 +14,7 @@ using namespace std;
 
 void print_head (double **data_buf, int num_channels, int num_data_points);
 bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, int *board_id);
+void print_one_row (double *data, int num_data_points);
 
 int main (int argc, char *argv[])
 {
@@ -73,10 +74,13 @@ int main (int argc, char *argv[])
         // just for test and demo - apply different filters to different eeg channels
         int eeg_num_channels = 0;
         eeg_channels = BoardShim::get_eeg_channels (board_id, &eeg_num_channels);
+        int filtered_size = 0;
+        double *downsampled_data = NULL;
         for (int i = 0; i < eeg_num_channels; i++)
         {
             switch (i)
             {
+                // signal filtering methods work in-place
                 case 0:
                     DataFilter::perform_lowpass (data[eeg_channels[i]], data_count,
                         BoardShim::get_sampling_rate (board_id), 20.0, 3, BUTTERWORTH, 0);
@@ -99,6 +103,27 @@ int main (int argc, char *argv[])
                 case 5:
                     DataFilter::perform_rolling_filter (
                         data[eeg_channels[i]], data_count, 3, MEDIAN);
+                    break;
+                // downsampling methods return new array
+                case 6:
+                    downsampled_data = DataFilter::perform_downsampling (
+                        data[eeg_channels[i]], data_count, 2, MEAN, &filtered_size);
+                    std::cout << std::endl
+                              << "Data from :" << eeg_channels[i] << " after downsampling "
+                              << std::endl
+                              << std::endl;
+                    print_one_row (downsampled_data, filtered_size);
+                    delete[] downsampled_data;
+                    break;
+                case 7:
+                    downsampled_data = DataFilter::perform_downsampling (
+                        data[eeg_channels[i]], data_count, 2, EACH, &filtered_size);
+                    std::cout << std::endl
+                              << "Data from channel " << eeg_channels[i] << " after downsampling "
+                              << std::endl
+                              << std::endl;
+                    print_one_row (downsampled_data, filtered_size);
+                    delete[] downsampled_data;
                     break;
             }
         }
@@ -138,6 +163,16 @@ void print_head (double **data_buf, int num_channels, int num_data_points)
         }
         std::cout << std::endl;
     }
+}
+
+void print_one_row (double *data, int num_data_points)
+{
+    int num_points = (num_data_points < 5) ? num_data_points : 5;
+    for (int i = 0; i < num_points; i++)
+    {
+        std::cout << data[i] << " ";
+    }
+    std::cout << std::endl;
 }
 
 bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, int *board_id)
