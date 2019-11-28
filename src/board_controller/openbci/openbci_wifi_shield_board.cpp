@@ -12,6 +12,9 @@
 
 using json = nlohmann::json;
 
+constexpr int OpenBCIWifiShieldBoard::transaction_size;
+constexpr int OpenBCIWifiShieldBoard::num_packages_per_transaction;
+constexpr int OpenBCIWifiShieldBoard::package_size;
 
 OpenBCIWifiShieldBoard::OpenBCIWifiShieldBoard (
     int num_channels, struct BrainFlowInputParams params, int board_id)
@@ -42,7 +45,9 @@ int OpenBCIWifiShieldBoard::prepare_session ()
             spdlog::level::err, "ip address is empty and autodiscovery is not implemented");
         return INVALID_ARGUMENTS_ERROR;
     }
-    if (params.ip_protocol != (int)IpProtocolType::TCP)
+    // user doent need to provide this param because we have only tcp impl,
+    // but if its specified and its UDP return an error
+    if (params.ip_protocol == (int)IpProtocolType::UDP)
     {
         safe_logger (spdlog::level::err, "ip protocol should be tcp");
         return INVALID_ARGUMENTS_ERROR;

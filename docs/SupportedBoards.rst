@@ -129,7 +129,6 @@ To choose this board in BoardShim constructor please specify:
 
 - board_id: 4
 - ip_address field of BrainFlowInputParams structure should contain WiFi Shield Ip address(in direct mode its 192.168.4.1)
-- ip_protocol field of BrainFlowInputParams structure should be IpProtocolType.TCP
 - ip_port field of BrainFlowInputParams structure should be any local port which is free right now
 
 Supported platforms:
@@ -160,7 +159,6 @@ To choose this board in BoardShim constructor please specify:
 
 - board_id: 5
 - ip_address field of BrainFlowInputParams structure should contain WiFi Shield Ip address(in direct mode its 192.168.4.1)
-- ip_protocol field of BrainFlowInputParams structure should be IpProtocolType.TCP
 - ip_port field of BrainFlowInputParams structure should be any local port which is free right now
 
 Supported platforms:
@@ -192,7 +190,6 @@ To choose this board in BoardShim constructor please specify:
 
 - board_id: 6
 - ip_address field of BrainFlowInputParams structure should contain WiFi Shield Ip address(in direct mode its 192.168.4.1)
-- ip_protocol field of BrainFlowInputParams structure should be IpProtocolType.TCP
 - ip_port field of BrainFlowInputParams structure should be any local port which is free right now
 
 Supported platforms:

@@ -58,8 +58,6 @@ class NovaXREmulator (threading.Thread):
 
     def run (self):
         while self.keep_alive:
-            if self.package_num % 256 == 0:
-                self.package_num = 0
             try:
                 msg, self.addr = self.server_socket.recvfrom (128)
                 if msg:
@@ -77,12 +75,15 @@ class NovaXREmulator (threading.Thread):
 
             if self.state == State.stream.value:
                 package = list ()
-                package.append (self.package_num)
-                self.package_num = self.package_num + 1
-                for i in range (1, self.package_size - 8):
-                    package.append (random.randint (0, 255))
-                timestamp = bytearray (struct.pack ("d", time.time ()))
-                package.extend (timestamp)
+                for _ in range (20):
+                    package.append (self.package_num)
+                    self.package_num = self.package_num + 1
+                    if self.package_num % 255 == 0:
+                        self.package_num = 0
+                    for i in range (1, self.package_size - 8):
+                        package.append (random.randint (0, 255))
+                    timestamp = bytearray (struct.pack ("d", time.time ()))
+                    package.extend (timestamp)
                 try:
                     self.server_socket.sendto (bytes (package), self.addr)
                 except socket.timeout:

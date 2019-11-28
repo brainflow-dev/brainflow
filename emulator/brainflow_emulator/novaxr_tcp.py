@@ -69,32 +69,31 @@ class NovaXREmulator (threading.Thread):
             raise TestFailureError ('failed to establish connection')
 
         while self.keep_alive:
-            if self.package_num % 255 == 0:
-                self.package_num = 0
-            # dirtiest hack ever but it doesnt work otherwise. seems like recv ignores timeout and it means that we send only 1 package
-            if self.package_num == 0:
-                try:
-                    msg = self.conn.recv (1)
-                    if msg:
-                        logging.info ('received %s' % (msg))
-                        if msg == Message.start_stream.value:
-                            self.state = State.stream.value
-                        elif msg == Message.stop_stream.value:
-                            self.state = State.wait.value
-                        else:
-                            # we dont handle board config characters because they dont change package format
-                            logging.warn ('received unexpected string %s', str (msg))
-                except socket.timeout:
-                    logging.debug ('timeout for recv')
+            try:
+                msg = self.conn.recv (1)
+                if msg:
+                    logging.info ('received %s' % (msg))
+                    if msg == Message.start_stream.value:
+                        self.state = State.stream.value
+                    elif msg == Message.stop_stream.value:
+                        self.state = State.wait.value
+                    else:
+                        # we dont handle board config characters because they dont change package format
+                        logging.warn ('received unexpected string %s', str (msg))
+            except socket.timeout:
+                logging.debug ('timeout for recv')
 
             if self.state == State.stream.value:
                 package = list ()
-                package.append (self.package_num)
-                self.package_num = self.package_num + 1
-                for i in range (1, self.package_size - 8):
-                    package.append (random.randint (0, 255))
-                timestamp = bytearray (struct.pack ("d", time.time ()))
-                package.extend (timestamp)
+                for _ in range (20):
+                    package.append (self.package_num)
+                    self.package_num = self.package_num + 1
+                    if self.package_num % 255 == 0:
+                        self.package_num = 0
+                    for i in range (1, self.package_size - 8):
+                        package.append (random.randint (0, 255))
+                    timestamp = bytearray (struct.pack ("d", time.time ()))
+                    package.extend (timestamp)
                 try:
                     self.conn.send (bytes (package))
                 except socket.timeout:
