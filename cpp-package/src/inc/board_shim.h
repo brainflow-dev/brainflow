@@ -8,7 +8,6 @@
 #include "brainflow_constants.h"
 #include "brainflow_exception.h"
 
-
 /// LogLevels enum to store all possible log levels
 enum class LogLevels : int
 {
@@ -20,6 +19,7 @@ enum class LogLevels : int
     LEVEL_CRITICAL = 5, /// CRITICAL
     LEVEL_OFF = 6       // OFF
 };
+
 
 /// BoardShim class to communicate with a board
 class BoardShim

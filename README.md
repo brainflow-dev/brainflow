@@ -6,7 +6,7 @@ Core module of this library is implemented in C\C++ and available for all bindin
 
 This project was forked by OpenBCI from [Andrey1994/brainflow](https://github.com/Andrey1994/brainflow)
 
-## [BrainFlow Docs, Dev and User guides and other information](https://brainflow.readthedocs.io/)
+## [BrainFlow Docs, Dev and User guides and other information](https://brainflow.readthedocs.io)
 
 ## Build status
 Compiled with:

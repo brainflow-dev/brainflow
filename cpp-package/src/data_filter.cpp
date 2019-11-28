@@ -72,6 +72,54 @@ double *DataFilter::perform_downsampling (
     return filtered_data;
 }
 
+std::pair<double *, int *> DataFilter::perform_wavelet_transform (
+    double *data, int data_len, char *wavelet, int decomposition_level)
+{
+    if (data_len <= 0)
+    {
+        throw BrainFlowException ("invalid input params", INVALID_ARGUMENTS_ERROR);
+    }
+
+    double *wavelet_output = new double[data_len +
+        2 * decomposition_level * (40 + 1)]; // I get this formula from wavelib sources
+    int *decomposition_lengths = new int[decomposition_level + 1];
+    int res = ::perform_wavelet_transform (
+        data, data_len, wavelet, decomposition_level, wavelet_output, decomposition_lengths);
+    if (res != STATUS_OK)
+    {
+        throw BrainFlowException ("failed to perform wavelet", res);
+    }
+    return std::make_pair (wavelet_output, decomposition_lengths);
+}
+
+double *DataFilter::perform_inverse_wavelet_transform (std::pair<double *, int *> wavelet_output,
+    int original_data_len, char *wavelet, int decomposition_level)
+{
+    if (original_data_len <= 0)
+    {
+        throw BrainFlowException ("invalid input params", INVALID_ARGUMENTS_ERROR);
+    }
+
+    double *original_data = new double[original_data_len];
+    int res = ::perform_inverse_wavelet_transform (wavelet_output.first, original_data_len, wavelet,
+        decomposition_level, wavelet_output.second, original_data);
+    if (res != STATUS_OK)
+    {
+        throw BrainFlowException ("failed to perform inverse wavelet", res);
+    }
+    return original_data;
+}
+
+void DataFilter::perform_wavelet_denoising (
+    double *data, int data_len, char *wavelet, int decomposition_level)
+{
+    int res = ::perform_wavelet_denoising (data, data_len, wavelet, decomposition_level);
+    if (res != STATUS_OK)
+    {
+        throw BrainFlowException ("failed to perform wavelet denoising", res);
+    }
+}
+
 double **DataFilter::read_file (int *num_rows, int *num_cols, char *file_name)
 {
     int max_elements = 0;

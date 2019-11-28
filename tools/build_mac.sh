@@ -6,7 +6,7 @@ fi
 mkdir build_mac
 cd build_mac
 
-cmake -DCMAKE_INSTALL_PREFIX=../installed_mac ..
+cmake -DCMAKE_INSTALL_PREFIX=../installed_mac -DCMAKE_BUILD_TYPE=Release ..
 make
 make install
 cd ..

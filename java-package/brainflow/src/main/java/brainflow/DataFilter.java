@@ -6,6 +6,8 @@ import java.nio.file.Files;
 import java.util.Arrays;
 
 import org.apache.commons.lang3.SystemUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;
@@ -33,6 +35,14 @@ public class DataFilter
         int perform_rolling_filter (double[] data, int data_len, int period, int operation);
 
         int perform_downsampling (double[] data, int data_len, int period, int operation, double[] filtered_data);
+
+        int perform_wavelet_transform (double[] data, int data_len, String wavelet, int decomposition_level,
+                double[] output_data, int[] decomposition_lengths);
+
+        int perform_inverse_wavelet_transform (double[] wavelet_coeffs, int original_data_len, String wavelet,
+                int decomposition_level, int[] decomposition_lengths, double[] output_data);
+
+        int perform_wavelet_denoising (double[] data, int data_len, String wavelet, int decomposition_level);
 
         int write_file (double[] data, int num_rows, int num_cols, String file_name, String file_mode);
 
@@ -162,6 +172,77 @@ public class DataFilter
             throw new BrainFlowError ("Failed to perform downsampling", ec);
         }
         return downsampled_data;
+    }
+
+    /**
+     * perform wavelet based denoising in-place
+     * 
+     * @param wavelet             supported vals:
+     *                            db1..db15,haar,sym2..sym10,coif1..coif5,bior1.1,bior1.3,bior1.5,bior2.2,bior2.4,bior2.6,bior2.8,bior3.1,bior3.3,bior3.5
+     *                            ,bior3.7,bior3.9,bior4.4,bior5.5,bior6.8
+     * 
+     * @param decomposition_level level of decomposition of wavelet transform
+     */
+    public static void perform_wavelet_denoising (double[] data, String wavelet, int decomposition_level)
+            throws BrainFlowError
+    {
+        int ec = instance.perform_wavelet_denoising (data, data.length, wavelet, decomposition_level);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Failed to perform denoising", ec);
+        }
+    }
+
+    /**
+     * perform wavelet transform
+     * 
+     * @param wavelet supported vals:
+     *                db1..db15,haar,sym2..sym10,coif1..coif5,bior1.1,bior1.3,bior1.5,bior2.2,bior2.4,bior2.6,bior2.8,bior3.1,bior3.3,bior3.5
+     *                ,bior3.7,bior3.9,bior4.4,bior5.5,bior6.8
+     */
+    public static Pair<double[], int[]> perform_wavelet_transform (double[] data, String wavelet,
+            int decomposition_level) throws BrainFlowError
+    {
+        if (decomposition_level <= 0)
+        {
+            throw new BrainFlowError ("Invalid decomposition level", ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
+        int[] lengths = new int[decomposition_level + 1];
+        double[] output_array = new double[data.length + 2 * decomposition_level * (40 + 1)];
+        int ec = instance.perform_wavelet_transform (data, data.length, wavelet, decomposition_level, output_array,
+                lengths);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Failed to perform wavelet transform", ec);
+        }
+        int total_sum = 0;
+        for (int val : lengths)
+        {
+            total_sum += val;
+        }
+        Pair<double[], int[]> res = new MutablePair<double[], int[]> (Arrays.copyOfRange (output_array, 0, total_sum),
+                lengths);
+        return res;
+    }
+
+    /**
+     * perform inverse wavelet transform
+     */
+    public static double[] perform_inverse_wavelet_transform (Pair<double[], int[]> wavelet_output,
+            int original_data_len, String wavelet, int decomposition_level) throws BrainFlowError
+    {
+        if (decomposition_level <= 0)
+        {
+            throw new BrainFlowError ("Invalid decomposition level", ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
+        double[] output_array = new double[original_data_len];
+        int ec = instance.perform_inverse_wavelet_transform (wavelet_output.getLeft (), original_data_len, wavelet,
+                decomposition_level, wavelet_output.getRight (), output_array);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Failed to perform inverse wavelet transform", ec);
+        }
+        return output_array;
     }
 
     /**

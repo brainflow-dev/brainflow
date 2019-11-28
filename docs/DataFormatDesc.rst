@@ -69,5 +69,5 @@ If Cyton End Byte is outside `this range <https://docs.openbci.com/docs/02Cyton/
 
 **Check this example for details:**
 
-.. literalinclude:: ../tests/python/brainflow_analog_mode_other_data.py
+.. literalinclude:: ../tests/python/cyton_analog_mode_other_data.py
    :language: py

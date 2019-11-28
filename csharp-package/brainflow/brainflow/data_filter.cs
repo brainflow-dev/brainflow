@@ -147,6 +147,75 @@ namespace brainflow
         }
 
         /// <summary>
+        /// perform wavelet transform
+        /// </summary>
+        /// <param name="data">data for wavelet transform</param>
+        /// <param name="wavelet">db1..db15,haar,sym2..sym10,coif1..coif5,bior1.1,bior1.3,bior1.5,bior2.2,bior2.4,bior2.6,bior2.8,bior3.1,bior3.3,bior3.5 ,bior3.7,bior3.9,bior4.4,bior5.5,bior6.8</param>
+        /// <param name="decomposition_level">decomposition level</param>
+        /// <returns>tuple of wavelet coeffs in format [A(J) D(J) D(J-1) ..... D(1)] where J is decomposition level, A - app coeffs, D - detailed coeffs, and array with lengths for each block</returns>
+        public static Tuple<double[], int[]> perform_wavelet_transform (double[] data, string wavelet, int decomposition_level)
+        {
+            double[] wavelet_coeffs = new double[data.Length + 2 * (40 + 1)];
+            int[] lengths = new int[decomposition_level + 1];
+            int res = DataHandlerLibrary.perform_wavelet_transform (data, data.Length, wavelet, decomposition_level, wavelet_coeffs, lengths);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException (res);
+            }
+            int total_length = 0;
+            foreach (int val in lengths)
+            {
+                total_length += val;
+            }
+            double[] truncated = new double[total_length];
+            for (int i = 0; i < total_length; i++)
+            {
+                truncated[i] = wavelet_coeffs[i];
+            }
+            Tuple<double[], int[]> return_data = new Tuple<double[], int[]> (truncated, lengths);
+            return return_data;
+        }
+
+        /// <summary>
+        /// perform inverse wavelet transorm
+        /// </summary>
+        /// <param name="wavelet_data">tuple returned by perform_wavelet_transform</param>
+        /// <param name="original_data_len">size of original data before direct wavelet transform</param>
+        /// <param name="wavelet">db1..db15,haar,sym2..sym10,coif1..coif5,bior1.1,bior1.3,bior1.5,bior2.2,bior2.4,bior2.6,bior2.8,bior3.1,bior3.3,bior3.5 ,bior3.7,bior3.9,bior4.4,bior5.5,bior6.8</param>
+        /// <param name="decomposition_level">level of decomposition</param>
+        /// <returns>restored data</returns>
+        public static double[] perform_inverse_wavelet_transform (Tuple<double[], int[]> wavelet_data, int original_data_len, string wavelet, int decomposition_level)
+        {
+            double[] original_data = new double[original_data_len];
+            int res = DataHandlerLibrary.perform_inverse_wavelet_transform (wavelet_data.Item1, original_data_len, wavelet, decomposition_level,
+                                                                            wavelet_data.Item2, original_data);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException (res);
+            }
+            return original_data;
+        }
+
+        /// <summary>
+        /// perform wavelet based denoising
+        /// </summary>
+        /// <param name="data">data for denoising</param>
+        /// <param name="wavelet">db1..db15,haar,sym2..sym10,coif1..coif5,bior1.1,bior1.3,bior1.5,bior2.2,bior2.4,bior2.6,bior2.8,bior3.1,bior3.3,bior3.5 ,bior3.7,bior3.9,bior4.4,bior5.5,bior6.8</param>
+        /// <param name="decomposition_level">level of decomposition in wavelet transform</param>
+        /// <returns>denoised data</returns>
+        public static double[] perform_wavelet_denoising (double[] data, string wavelet, int decomposition_level)
+        {
+            double[] filtered_data = new double[data.Length];
+            Array.Copy (data, filtered_data, data.Length);
+            int res = DataHandlerLibrary.perform_wavelet_denoising (filtered_data, filtered_data.Length, wavelet, decomposition_level);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException (res);
+            }
+            return filtered_data;
+        }
+
+        /// <summary>
         /// write data to csv file, data will be transposed
         /// </summary>
         /// <param name="data"></param>

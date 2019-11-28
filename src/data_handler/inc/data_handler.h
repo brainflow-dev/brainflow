@@ -32,7 +32,7 @@ extern "C"
 {
 #endif
     // signal processing methods
-    // ripple param uses only for chebyshev filter
+    // ripple param is used only for chebyshev filter
     SHARED_EXPORT int perform_lowpass (double *data, int data_len, int sampling_rate, double cutoff,
         int order, int filter_type, double ripple);
     SHARED_EXPORT int perform_highpass (double *data, int data_len, int sampling_rate,
@@ -41,10 +41,21 @@ extern "C"
         double center_freq, double band_width, int order, int filter_type, double ripple);
     SHARED_EXPORT int perform_bandstop (double *data, int data_len, int sampling_rate,
         double center_freq, double band_width, int order, int filter_type, double ripple);
+
     SHARED_EXPORT int perform_rolling_filter (
         double *data, int data_len, int period, int agg_operation);
+
     SHARED_EXPORT int perform_downsampling (
         double *data, int data_len, int period, int agg_operation, double *output_data);
+
+    SHARED_EXPORT int perform_wavelet_transform (double *data, int data_len, char *wavelet,
+        int decomposition_level, double *output_data, int *decomposition_lengths);
+    SHARED_EXPORT int perform_inverse_wavelet_transform (double *wavelet_coeffs,
+        int original_data_len, char *wavelet, int decomposition_level, int *decomposition_lengths,
+        double *output_data);
+    SHARED_EXPORT int perform_wavelet_denoising (
+        double *data, int data_len, char *wavelet, int decomposition_level);
+
 
     // file operations
     SHARED_EXPORT int write_file (

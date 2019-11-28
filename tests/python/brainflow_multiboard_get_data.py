@@ -1,8 +1,8 @@
 import argparse
 import time
-import brainflow
 import numpy as np
 
+import brainflow
 from brainflow.board_shim import BoardShim, BrainFlowInputParams
 from brainflow.data_filter import DataFilter, FilterTypes
 
@@ -46,7 +46,7 @@ def main ():
     synth_data = synth_board.get_board_data ()
     board.stop_stream ()
     synth_board.stop_stream ()
-    # board.release_session () # test that we handle it correctly
+    board.release_session ()
     synth_board.release_session ()
 
 
