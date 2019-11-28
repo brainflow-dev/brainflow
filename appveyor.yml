@@ -38,37 +38,68 @@ install:
   - cd %APPVEYOR_BUILD_FOLDER% && %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\com0com\certmgr.exe /add %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\com0com\com0com.cer /s /r localMachine trustedpublisher
   # install python package
   - pip install %APPVEYOR_BUILD_FOLDER%\python-package\
-  # build cpp
-  - mkdir %APPVEYOR_BUILD_FOLDER%\tests\cpp\build && cd %APPVEYOR_BUILD_FOLDER%\tests\cpp\build && cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%APPVEYOR_BUILD_FOLDER%\installed64\ .. && cmake --build . --config Release > cpp_test_build64_stdout.txt
-  - mkdir %APPVEYOR_BUILD_FOLDER%\tests\cpp\build32 && cd %APPVEYOR_BUILD_FOLDER%\tests\cpp\build32 && cmake -G "Visual Studio 15 2017" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%APPVEYOR_BUILD_FOLDER%\installed32\ .. && cmake --build . --config Release > cpp_test_build32_stdout.txt
+  # install dependencies for python tests
+  - pip install -r %APPVEYOR_BUILD_FOLDER%\tests\python\requirements.txt
+  # build cpp tests
+  - mkdir %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build && cd %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build && cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%APPVEYOR_BUILD_FOLDER%\installed64\ .. && cmake --build . --config Release > cpp_get_data_demo_build64_stdout.txt
+  - mkdir %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build32 && cd %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build32 && cmake -G "Visual Studio 15 2017" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%APPVEYOR_BUILD_FOLDER%\installed32\ .. && cmake --build . --config Release > cpp_get_data_demo_build32_stdout.txt
+  - mkdir %APPVEYOR_BUILD_FOLDER%\tests\cpp\signal_processing_demo\build && cd %APPVEYOR_BUILD_FOLDER%\tests\cpp\signal_processing_demo\build && cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%APPVEYOR_BUILD_FOLDER%\installed64\ .. && cmake --build . --config Release > cpp_signal_processing_demo_build64_stdout.txt
+  - mkdir %APPVEYOR_BUILD_FOLDER%\tests\cpp\signal_processing_demo\build32 && cd %APPVEYOR_BUILD_FOLDER%\tests\cpp\signal_processing_demo\build32 && cmake -G "Visual Studio 15 2017" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%APPVEYOR_BUILD_FOLDER%\installed32\ .. && cmake --build . --config Release > cpp_signal_processing_demo_build32_stdout.txt
   # mvn package for java
   - cd %APPVEYOR_BUILD_FOLDER%\java-package\brainflow && mvn package > maven_package_stdout.txt
 
 test_script:
+  # tests for boards
   # tests for cyton
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board-id 0 --serial-port
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_multiboard_get_data.py --log --board-id 0 --serial-port
-  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\build\Release\test_get_data.exe --board-id 0 --serial-port
-  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\build32\Release\test_get_data.exe --board-id 0 --serial-port
-  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\test\bin\Release\test.exe --board-id 0 --serial-port
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 0 --serial-port
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build32\Release\brainflow_get_data.exe --board-id 0 --serial-port
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 0 --serial-port
   # tests for synthetic
   - python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board-id -1
-  - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\tests\cpp\build\Release\test_get_data.exe --board-id -1
-  - cd %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\test\bin\Release && test.exe --board-id -1
+  - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id -1
+  - cd %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow_get_data\bin\Release && test.exe --board-id -1
   # tests for cyton daisy
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board-id 2 --serial-port
-  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\build\Release\test_get_data.exe --board-id 2 --serial-port
-  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\test\bin\Release\test.exe --board-id 2 --serial-port
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 2 --serial-port
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 2 --serial-port
   # tests for novaxr
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\novaxr_udp.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --board-id 3 --ip-address 127.0.0.1 --ip-protocol 1
-  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\novaxr_udp.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\build\Release\test_get_data.exe --board-id 3 --ip-address 127.0.0.1 --ip-protocol 1
-  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\novaxr_udp.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\build32\Release\test_get_data.exe --board-id 3 --ip-address 127.0.0.1 --ip-protocol 1
-  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\novaxr_udp.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\test\bin\Release\test.exe --board-id 3 --ip-address 127.0.0.1 --ip-protocol 1
-  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\novaxr_tcp.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\test\bin\Release\test.exe --board-id 3 --ip-address 127.0.0.1 --ip-protocol 2
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\novaxr_udp.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 3 --ip-address 127.0.0.1 --ip-protocol 1
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\novaxr_udp.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build32\Release\brainflow_get_data.exe --board-id 3 --ip-address 127.0.0.1 --ip-protocol 1
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\novaxr_udp.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 3 --ip-address 127.0.0.1 --ip-protocol 1
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\novaxr_tcp.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 3 --ip-address 127.0.0.1 --ip-protocol 2
   # tests for wifi shield based boards
-  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --board-id 4 --ip-address 127.0.0.1 --ip-protocol 2 --ip-port 17982
-  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\build\Release\test_get_data.exe --board-id 5 --ip-address 127.0.0.1 --ip-protocol 2 --ip-port 17983
-  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\test\bin\Release\test.exe --board-id 6 --ip-address 127.0.0.1 --ip-protocol 2 --ip-port 17984
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --board-id 4 --ip-address 127.0.0.1 --ip-port 17982
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 5 --ip-address 127.0.0.1 --ip-port 17983
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build32\Release\brainflow_get_data.exe --board-id 5 --ip-address 127.0.0.1 --ip-port 17993
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 6 --ip-address 127.0.0.1 --ip-port 17984  
+  # tests for signal processing
+  # python
+  - python %APPVEYOR_BUILD_FOLDER%\tests\python\denoising.py
+  - python %APPVEYOR_BUILD_FOLDER%\tests\python\serialization.py
+  - python %APPVEYOR_BUILD_FOLDER%\tests\python\signal_filtering.py
+  - python %APPVEYOR_BUILD_FOLDER%\tests\python\transforms.py
+  - python %APPVEYOR_BUILD_FOLDER%\tests\python\downsampling.py
+  # C++ 32
+  - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\tests\cpp\signal_processing_demo\build32\Release\denoising.exe
+  - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\tests\cpp\signal_processing_demo\build32\Release\downsampling.exe
+  - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\tests\cpp\signal_processing_demo\build32\Release\signal_filtering.exe
+  - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\tests\cpp\signal_processing_demo\build32\Release\serialization.exe
+  - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\tests\cpp\signal_processing_demo\build32\Release\transforms.exe
+  # C++ 64
+  - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\tests\cpp\signal_processing_demo\build\Release\denoising.exe
+  - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\tests\cpp\signal_processing_demo\build\Release\downsampling.exe
+  - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\tests\cpp\signal_processing_demo\build\Release\signal_filtering.exe
+  - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\tests\cpp\signal_processing_demo\build\Release\serialization.exe
+  - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\tests\cpp\signal_processing_demo\build\Release\transforms.exe
+  # C#
+  - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\downsampling\bin\Release\test.exe
+  - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\denoising\bin\Release\test.exe
+  - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\serialization\bin\Release\test.exe
+  - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\transforms\bin\Release\test.exe
+  - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\signal_filtering\bin\Release\test.exe
 
 # deploy_script:
 #   - python -m pip install wheel > wheel_install.txt

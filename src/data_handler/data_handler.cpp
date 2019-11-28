@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include <stdio.h>
 #include <string.h>
 #include <string>
@@ -6,8 +7,12 @@
 #include "data_handler.h"
 #include "downsample_operators.h"
 #include "rolling_filter.h"
+#include "wavelet_helpers.h"
 
 #include "DspFilters/Dsp.h"
+
+#include "wauxlib.h"
+#include "wavelib.h"
 
 
 int perform_lowpass (double *data, int data_len, int sampling_rate, double cutoff, int order,
@@ -249,6 +254,146 @@ int perform_downsampling (
     for (int i = 0; i < num_values; i++)
     {
         output_data[i] = downsampling_op (data + i * period, period);
+    }
+    return STATUS_OK;
+}
+
+// https://github.com/rafat/wavelib/wiki/DWT-Example-Code
+int perform_wavelet_transform (double *data, int data_len, char *wavelet, int decomposition_level,
+    double *output_data, int *decomposition_lengths)
+{
+    if ((data == NULL) || (data_len <= 0) || (wavelet == NULL) || (output_data == NULL) ||
+        (!validate_wavelet (wavelet)) || (decomposition_lengths == NULL) ||
+        (decomposition_level <= 0))
+    {
+        return INVALID_ARGUMENTS_ERROR;
+    }
+
+    wave_object obj = NULL;
+    wt_object wt = NULL;
+
+    try
+    {
+        obj = wave_init (wavelet);
+        wt = wt_init (obj, "dwt", data_len, decomposition_level);
+        setDWTExtension (wt, "sym");
+        setWTConv (wt, "direct");
+        dwt (wt, data);
+        for (int i = 0; i < wt->outlength; i++)
+        {
+            output_data[i] = wt->output[i];
+        }
+        for (int i = 0; i < decomposition_level + 1; i++)
+        {
+            decomposition_lengths[i] = wt->length[i];
+        }
+        wave_free (obj);
+        wt_free (wt);
+    }
+    catch (const std::exception &e)
+    {
+        if (obj)
+        {
+            wave_free (obj);
+        }
+        if (wt)
+        {
+            wt_free (wt);
+        }
+        // more likely exception here occured because input buffer is to small to perform wavelet
+        // transform
+        return INVALID_BUFFER_SIZE_ERROR;
+    }
+    return STATUS_OK;
+}
+
+// inside wavelib inverse transform uses internal state from direct transform, dirty hack to restore
+// it here
+int perform_inverse_wavelet_transform (double *wavelet_coeffs, int original_data_len, char *wavelet,
+    int decomposition_level, int *decomposition_lengths, double *output_data)
+{
+    if ((wavelet_coeffs == NULL) || (decomposition_level <= 0) || (original_data_len <= 0) ||
+        (wavelet == NULL) || (output_data == NULL) || (!validate_wavelet (wavelet)) ||
+        (decomposition_lengths == NULL))
+    {
+        return INVALID_ARGUMENTS_ERROR;
+    }
+
+    wave_object obj;
+    wt_object wt;
+
+    try
+    {
+        obj = wave_init (wavelet);
+        wt = wt_init (obj, "dwt", original_data_len, decomposition_level);
+        setDWTExtension (wt, "sym");
+        setWTConv (wt, "direct");
+        int total_len = 0;
+        for (int i = 0; i < decomposition_level + 1; i++)
+        {
+            wt->length[i] = decomposition_lengths[i];
+            total_len += decomposition_lengths[i];
+        }
+        for (int i = 0; i < total_len; i++)
+        {
+            wt->output[i] = wavelet_coeffs[i];
+        }
+        idwt (wt, output_data);
+        wave_free (obj);
+        wt_free (wt);
+    }
+    catch (const std::exception &e)
+    {
+        if (obj)
+        {
+            wave_free (obj);
+        }
+        if (wt)
+        {
+            wt_free (wt);
+        }
+        // more likely exception here occured because input buffer is to small to perform wavelet
+        // transform
+        return INVALID_BUFFER_SIZE_ERROR;
+    }
+    return STATUS_OK;
+}
+
+int perform_wavelet_denoising (double *data, int data_len, char *wavelet, int decomposition_level)
+{
+    if ((data == NULL) || (data_len <= 0) || (decomposition_level <= 0) ||
+        (!validate_wavelet (wavelet)))
+    {
+        return INVALID_ARGUMENTS_ERROR;
+    }
+
+    denoise_object obj;
+    double *temp = new double[data_len];
+    try
+    {
+        obj = denoise_init (data_len, decomposition_level, wavelet);
+        setDenoiseMethod (obj, "visushrink");
+        setDenoiseWTMethod (obj, "dwt");
+        setDenoiseWTExtension (obj, "sym");
+        setDenoiseParameters (obj, "soft", "all");
+        denoise (obj, data, temp);
+        for (int i = 0; i < data_len; i++)
+        {
+            data[i] = temp[i];
+        }
+        delete[] temp;
+        denoise_free (obj);
+    }
+    catch (const std::exception &e)
+    {
+        delete[] temp;
+        if (obj)
+        {
+            denoise_free (obj);
+        }
+        // more likely exception here occured because input buffer is to small to perform wavelet
+        // transform
+        return INVALID_BUFFER_SIZE_ERROR;
     }
     return STATUS_OK;
 }

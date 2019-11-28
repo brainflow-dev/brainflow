@@ -1,3 +1,4 @@
+#include <chrono>
 #include <fstream>
 #include <math.h>
 #include <random>
@@ -27,7 +28,7 @@ SyntheticBoard::SyntheticBoard (struct BrainFlowInputParams params)
     this->num_channels = 8;
     this->amplitude = 1000;
     this->shift = 0.3f;
-    this->noise = 0.1f;
+    this->noise = 0.75f;
     this->sampling_rate = 256;
 }
 
@@ -131,14 +132,14 @@ void SyntheticBoard::read_thread ()
     // eeg channels + 3 accel channels + package num
     double *package = new double[this->num_channels + 3 + 1];
     // random distr for noise
-    std::random_device rd;
-    std::mt19937 mt (rd ());
+    uint64_t seed = std::chrono::high_resolution_clock::now ().time_since_epoch ().count ();
+    std::mt19937 mt (static_cast<uint32_t> (seed));
     float max_noise = (this->noise > 0.001f) ? this->noise : 0.001f;
     float range = (this->amplitude * max_noise) / 2.0f;
     safe_logger (spdlog::level::info, "noise range is {}:{}", -range, range);
     safe_logger (spdlog::level::info, "amplitude is {}", this->amplitude);
     safe_logger (spdlog::level::info, "shift is {}", this->shift);
-    std::uniform_real_distribution<float> dist (-range, range);
+    std::uniform_real_distribution<float> dist (0 - range, range);
 
     while (this->keep_alive)
     {
@@ -150,9 +151,9 @@ void SyntheticBoard::read_thread ()
             package[i + 1] = base_wave[counter] + dist (mt);
         }
         // accel
-        package[1 + this->num_channels] = this->amplitude * dist (mt);
-        package[2 + this->num_channels] = this->amplitude * dist (mt);
-        package[3 + this->num_channels] = this->amplitude * dist (mt);
+        package[1 + this->num_channels] = dist (mt);
+        package[2 + this->num_channels] = dist (mt);
+        package[3 + this->num_channels] = dist (mt);
 
         db->add_data (get_timestamp (), package);
         counter++;

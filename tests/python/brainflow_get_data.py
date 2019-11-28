@@ -1,8 +1,8 @@
 import argparse
 import time
-import brainflow
 import numpy as np
 
+import brainflow
 from brainflow.board_shim import BoardShim, BrainFlowInputParams
 from brainflow.data_filter import DataFilter, FilterTypes, AggOperations
 
@@ -36,38 +36,15 @@ def main ():
     board = BoardShim (args.board_id, params)
     board.prepare_session ()
 
-    # disable 2nd channel for cyton use real board to check it, emulator ignores commands
-    if args.board_id == brainflow.board_shim.BoardIds.CYTON_BOARD.value:
-        board.config_board ('x2100000X')
-
     board.start_stream ()
-    time.sleep (10)
-    data = board.get_board_data ()
+    time.sleep (30)
+    # data = board.get_current_board_data (256) # get latest 256 packages or less, doesnt remove them from internal buffer
+    data = board.get_board_data () # get all data and remove it from internal buffer
     board.stop_stream ()
     board.release_session ()
 
-    eeg_channels = BoardShim.get_eeg_channels (args.board_id)
-    for count, channel in enumerate (eeg_channels):
-        # filters work in-place
-        if count == 0:
-            DataFilter.perform_bandpass (data[channel], BoardShim.get_sampling_rate (args.board_id), 15.0, 6.0, 4, FilterTypes.BESSEL.value, 0)
-        elif count == 1:
-            DataFilter.perform_bandstop (data[channel], BoardShim.get_sampling_rate (args.board_id), 5.0, 1.0, 3, FilterTypes.BUTTERWORTH.value, 0)
-        elif count == 2:
-            DataFilter.perform_lowpass (data[channel], BoardShim.get_sampling_rate (args.board_id), 9.0, 5, FilterTypes.CHEBYSHEV_TYPE_1.value, 1)
-        elif count == 3:
-            DataFilter.perform_highpass (data[channel], BoardShim.get_sampling_rate (args.board_id), 3.0, 4, FilterTypes.BUTTERWORTH.value, 0)
-        elif count == 4:
-            DataFilter.perform_rolling_filter (data[channel], 3, AggOperations.MEAN.value)
-        elif count == 5:
-            DataFilter.perform_rolling_filter (data[channel], 3, AggOperations.MEDIAN.value)
-        # downsampling returns new numpy array
-        elif count == 6:
-            downsampled_data = DataFilter.perform_downsampling (data[channel], 2, AggOperations.EACH.value)
-            print ("Downsampled data for channel %d:" % channel)
-            print (downsampled_data)
-
-
+    print (data)
+    print (data.shape)
 
 if __name__ == "__main__":
     main ()

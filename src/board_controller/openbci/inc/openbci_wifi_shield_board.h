@@ -39,5 +39,6 @@ public:
     static constexpr int package_size = 33;
     static constexpr int num_packages_per_transaction =
         6; // should be even for correct parsing in daisy
-    static constexpr int transaction_size = package_size * num_packages_per_transaction;
+    static constexpr int transaction_size =
+        OpenBCIWifiShieldBoard::package_size * OpenBCIWifiShieldBoard::num_packages_per_transaction;
 };

@@ -51,56 +51,95 @@ before_script:
     # for all tests except C++ we need libraries built inside docker and we need them for production
     # for C++ test we need libs to be compiled in the same env as test
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-      cd $TRAVIS_BUILD_DIR && mkdir build_outside && cd build_outside && cmake -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR/installed .. && sudo -H make && make install;
+      cd $TRAVIS_BUILD_DIR && mkdir build_outside && cd build_outside && cmake -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR/installed -DCMAKE_BUILD_TYPE=Release .. && sudo -H make && make install;
     fi
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-      docker run -e TRAVIS_BUILD_DIR=$TRAVIS_BUILD_DIR -v $TRAVIS_BUILD_DIR:$TRAVIS_BUILD_DIR dockcross/manylinux-x64 /bin/bash -c "/opt/python/cp36-cp36m/bin/pip3.6 install cmake==3.13.0 && cd $TRAVIS_BUILD_DIR && mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR/installed_docker .. && make && make install" ;
+      docker run -e TRAVIS_BUILD_DIR=$TRAVIS_BUILD_DIR -v $TRAVIS_BUILD_DIR:$TRAVIS_BUILD_DIR dockcross/manylinux-x64 /bin/bash -c "/opt/python/cp36-cp36m/bin/pip3.6 install cmake==3.13.0 && cd $TRAVIS_BUILD_DIR && mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR/installed_docker -DCMAKE_BUILD_TYPE=Release .. && make && make install" ;
     fi
   # build for mac
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-      cd $TRAVIS_BUILD_DIR && mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR/installed .. && make && make install ;
+      cd $TRAVIS_BUILD_DIR && mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR/installed -DCMAKE_BUILD_TYPE=Release .. && make && make install ;
     fi
   - sudo -H pip3 install $TRAVIS_BUILD_DIR/python-package
+  - sudo -H pip3 install -r $TRAVIS_BUILD_DIR/tests/python/requirements.txt
   # R disabled. It's taking up too much time in CI
   # - cd $TRAVIS_BUILD_DIR/r-package/brainflow && sudo -H R CMD build . && sudo -H R CMD INSTALL brainflow_0.0.0.9000.tar.gz
-  - cd $TRAVIS_BUILD_DIR/tests/cpp && mkdir build && cd build && cmake -DCMAKE_PREFIX_PATH=$TRAVIS_BUILD_DIR/installed .. && make
+  - cd $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo && mkdir build && cd build && cmake -DCMAKE_PREFIX_PATH=$TRAVIS_BUILD_DIR/installed .. && make
+  - cd $TRAVIS_BUILD_DIR/tests/cpp/signal_processing_demo && mkdir build && cd build && cmake -DCMAKE_PREFIX_PATH=$TRAVIS_BUILD_DIR/installed .. && make
   - cd $TRAVIS_BUILD_DIR && cd java-package/brainflow && mvn package
 
 script:
+  # tests for boards
   # tests for cyton
   - sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --log --board-id 0 --serial-port
   - sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_multiboard_get_data.py --log --board-id 0 --serial-port
-  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py $TRAVIS_BUILD_DIR/tests/cpp/build/test_get_data --board-id 0 --serial-port
+  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 0 --serial-port
   - if [ `which valgrind` ]; then
-      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/build/test_get_data --board-id 0 --serial-port ;
+      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 0 --serial-port ;
     fi
   # tests for synthetic board
   - python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --log --board-id -1
-  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib $TRAVIS_BUILD_DIR/tests/cpp/build/test_get_data --board-id -1
+  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id -1
+  - if [ `which valgrind` ]; then
+      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id -1;
+    fi
   # R disabled. It's taking up too much time in CI
   # - Rscript $TRAVIS_BUILD_DIR/tests/r/brainflow_get_data.R
   # tests for cyton daisy
   - sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --log --board-id 2 --serial-port 
-  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py $TRAVIS_BUILD_DIR/tests/cpp/build/test_get_data --board-id 2 --serial-port
+  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 2 --serial-port
   - if [ `which valgrind` ]; then
-      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/build/test_get_data --board-id 2 --serial-port ;
+      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 2 --serial-port ;
     fi
   # tests for novaxr
   - sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/novaxr_udp.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --board-id 3 --ip-address 127.0.0.1 --ip-protocol 1
-  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/novaxr_udp.py $TRAVIS_BUILD_DIR/tests/cpp/build/test_get_data --board-id 3 --ip-address 127.0.0.1 --ip-protocol 1
+  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/novaxr_udp.py $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 3 --ip-address 127.0.0.1 --ip-protocol 1
   - if [ `which valgrind` ]; then
-      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/novaxr_udp.py valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/build/test_get_data --board-id 3 --ip-address 127.0.0.1 --ip-protocol 1 ;
+      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/novaxr_udp.py valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 3 --ip-address 127.0.0.1 --ip-protocol 1 ;
     fi
   - sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/novaxr_tcp.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --board-id 3 --ip-address 127.0.0.1 --ip-protocol 2
   # tests for wifi shield, fails on macos due to an issue in emulator
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-      sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/wifi_shield_emulator.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --log --board-id 4 --ip-address 127.0.0.1 --ip-protocol 2 --ip-port 17982 ;
+      sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/wifi_shield_emulator.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --log --board-id 4 --ip-address 127.0.0.1 --ip-port 17982 ;
     fi
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-      sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/wifi_shield_emulator.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --log --board-id 5 --ip-address 127.0.0.1 --ip-protocol 2 --ip-port 17983 ;
+      sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/wifi_shield_emulator.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --log --board-id 5 --ip-address 127.0.0.1 --ip-port 17983 ;
     fi
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-      sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/wifi_shield_emulator.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --log --board-id 6 --ip-address 127.0.0.1 --ip-protocol 2 --ip-port 17984 ;
+      sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/wifi_shield_emulator.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --log --board-id 6 --ip-address 127.0.0.1 --ip-port 17984 ;
+    fi
+  # todo replace it by error suppression in http.h file, there is nothing critical in terms of errors
+  # - if [ `which valgrind` ]; then
+  #    sudo -H LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/wifi_shield_emulator.py valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 6 --ip-address 127.0.0.1 --ip-port 17985 ;
+  #  fi
+  # tests for signal processing
+  # python
+  - python3 $TRAVIS_BUILD_DIR/tests/python/denoising.py
+  - python3 $TRAVIS_BUILD_DIR/tests/python/serialization.py
+  - python3 $TRAVIS_BUILD_DIR/tests/python/signal_filtering.py
+  - python3 $TRAVIS_BUILD_DIR/tests/python/transforms.py
+  - python3 $TRAVIS_BUILD_DIR/tests/python/downsampling.py
+  # C++
+  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib $TRAVIS_BUILD_DIR/tests/cpp/signal_processing_demo/build/denoising
+  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib $TRAVIS_BUILD_DIR/tests/cpp/signal_processing_demo/build/downsampling
+  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib $TRAVIS_BUILD_DIR/tests/cpp/signal_processing_demo/build/signal_filtering
+  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib $TRAVIS_BUILD_DIR/tests/cpp/signal_processing_demo/build/serialization
+  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib $TRAVIS_BUILD_DIR/tests/cpp/signal_processing_demo/build/transforms
+  # valgrind tests
+  - if [ `which valgrind` ]; then
+      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/signal_processing_demo/build/denoising ;
+    fi
+  - if [ `which valgrind` ]; then
+      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/signal_processing_demo/build/downsampling ;
+    fi
+  - if [ `which valgrind` ]; then
+      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/signal_processing_demo/build/signal_filtering ;
+    fi
+  - if [ `which valgrind` ]; then
+      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/signal_processing_demo/build/serialization ;
+    fi
+  - if [ `which valgrind` ]; then
+      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/signal_processing_demo/build/transforms ;
     fi
 
 # after_success:

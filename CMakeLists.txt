@@ -53,6 +53,14 @@ aux_source_directory (${CMAKE_HOME_DIRECTORY}/third_party/DSPFilters/source DSPF
 add_library (${DSPFILTERS} STATIC ${DSPFILTERS_SOURCE_LIB})
 target_include_directories (${DSPFILTERS} PUBLIC $<BUILD_INTERFACE:${CMAKE_HOME_DIRECTORY}/third_party/DSPFilters/include>)
 set_property (TARGET ${DSPFILTERS} PROPERTY POSITION_INDEPENDENT_CODE ON)
+# there are asserts, I wanna disable them even for debug builds
+target_compile_definitions(${DSPFILTERS} PRIVATE -DNDEBUG)
+
+SET (WAVELIB "WaveLib")
+aux_source_directory (${CMAKE_HOME_DIRECTORY}/third_party/wavelib/src WAVELIB_SRC)
+add_library (${WAVELIB} STATIC ${WAVELIB_SRC})
+target_include_directories (${WAVELIB} PUBLIC $<BUILD_INTERFACE:${CMAKE_HOME_DIRECTORY}/third_party/wavelib/header>)
+set_property (TARGET ${WAVELIB} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 SET (GANGLION_LIB "GanglionLib")
 set (GANGLION_SOURCE_LIB
@@ -159,6 +167,7 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/inc
     ${CMAKE_HOME_DIRECTORY}/src/data_handler/inc
     ${CMAKE_HOME_DIRECTORY}/third_party/DSPFilters/include
+    ${CMAKE_HOME_DIRECTORY}/third_party/wavelib/header
 )
 
 set_target_properties (${BOARD_CONTROLLER_NAME}
@@ -177,10 +186,10 @@ set_target_properties (${DATA_HANDLER_NAME}
 
 if (UNIX)
     target_link_libraries (${BOARD_CONTROLLER_NAME} ${GANGLION_LIB} pthread dl)
-    target_link_libraries (${DATA_HANDLER_NAME} ${DSPFILTERS} pthread dl)
+    target_link_libraries (${DATA_HANDLER_NAME} ${DSPFILTERS} ${WAVELIB} pthread dl)
 else (UNIX)
     target_link_libraries (${BOARD_CONTROLLER_NAME} ${GANGLION_LIB})
-    target_link_libraries (${DATA_HANDLER_NAME} ${DSPFILTERS})
+    target_link_libraries (${DATA_HANDLER_NAME} ${DSPFILTERS} ${WAVELIB})
 endif (UNIX)
 
 add_library (
@@ -287,7 +296,7 @@ install (
 )
 
 install (
-    TARGETS ${BOARD_CONTROLLER_NAME} ${DATA_HANDLER_NAME} ${DSPFILTERS} ${GANGLION_LIB} ${BRAINFLOW_CPP_BINDING_NAME}
+    TARGETS ${BOARD_CONTROLLER_NAME} ${DATA_HANDLER_NAME} ${DSPFILTERS} ${WAVELIB} ${GANGLION_LIB} ${BRAINFLOW_CPP_BINDING_NAME}
     EXPORT ${TARGETS_EXPORT_NAME}
     RUNTIME DESTINATION lib
     LIBRARY DESTINATION lib

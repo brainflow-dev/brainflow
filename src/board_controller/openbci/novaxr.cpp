@@ -10,6 +10,10 @@
 #include <errno.h>
 #endif
 
+constexpr int NovaXR::transaction_size;
+constexpr int NovaXR::num_packages;
+constexpr int NovaXR::package_size;
+constexpr int NovaXR::num_channels;
 
 NovaXR::NovaXR (struct BrainFlowInputParams params) : Board ((int)NOVAXR_BOARD, params)
 {
@@ -17,7 +21,6 @@ NovaXR::NovaXR (struct BrainFlowInputParams params) : Board ((int)NOVAXR_BOARD, 
     this->is_streaming = false;
     this->keep_alive = false;
     this->initialized = false;
-    this->num_channels = 25;
     this->state = SYNC_TIMEOUT_ERROR;
 }
 
@@ -53,7 +56,7 @@ int NovaXR::prepare_session ()
     {
         socket = new SocketClient (params.ip_address.c_str (), port, (int)SocketType::TCP);
     }
-    int res = socket->connect ();
+    int res = socket->connect (NovaXR::transaction_size);
     if (res != (int)SocketReturnCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to init socket: {}", res);
@@ -124,7 +127,7 @@ int NovaXR::start_stream (int buffer_size)
         return BOARD_WRITE_ERROR;
     }
 
-    db = new DataBuffer (num_channels, buffer_size);
+    db = new DataBuffer (NovaXR::num_channels, buffer_size);
     if (!db->is_ready ())
     {
         safe_logger (spdlog::level::err, "unable to prepare buffer");
@@ -233,10 +236,10 @@ void NovaXR::read_thread ()
      */
 
     int res;
-    unsigned char b[72];
+    unsigned char b[NovaXR::transaction_size];
     while (keep_alive)
     {
-        res = socket->recv (b, 72);
+        res = socket->recv (b, NovaXR::transaction_size);
         if (res == -1)
         {
 #ifdef _WIN32
@@ -245,9 +248,10 @@ void NovaXR::read_thread ()
             safe_logger (spdlog::level::err, "errno {} message {}", errno, strerror (errno));
 #endif
         }
-        if (res != 72)
+        if (res != NovaXR::transaction_size)
         {
-            safe_logger (spdlog::level::trace, "unable to read 72 bytes, read {}", res);
+            safe_logger (spdlog::level::trace, "unable to read {} bytes, read {}",
+                NovaXR::transaction_size, res);
             continue;
         }
         else
@@ -255,6 +259,8 @@ void NovaXR::read_thread ()
             // inform main thread that everything is ok and first package was received
             if (this->state != STATUS_OK)
             {
+                safe_logger (spdlog::level::info,
+                    "received first package with {} bytes streaming is started", res);
                 {
                     std::lock_guard<std::mutex> lk (this->m);
                     this->state = STATUS_OK;
@@ -264,26 +270,25 @@ void NovaXR::read_thread ()
             }
         }
 
-        double package[25];
-        // package num
-        package[0] = (double)b[0];
-        // eeg and emg
-        for (int i = 4; i < 20; i++)
+        for (int cur_package = 0; cur_package < NovaXR::num_packages; cur_package++)
         {
-            // put them directly after package num in brainflow
-            package[i - 3] = eeg_scale * (double)cast_24bit_to_int32 (b + 4 + 3 * (i - 4));
-        }
-        package[17] = (double)b[1];                               // ppg
-        package[18] = cast_16bit_to_int32 (b + 2);                // eda todo scale?
-        package[19] = accel_scale * cast_16bit_to_int32 (b + 52); // accel x
-        package[20] = accel_scale * cast_16bit_to_int32 (b + 54); // accel y
-        package[21] = accel_scale * cast_16bit_to_int32 (b + 56); // accel z
-        package[22] = cast_16bit_to_int32 (b + 58);               // gyro x scale?
-        package[23] = cast_16bit_to_int32 (b + 60);               // gyro y scale?
-        package[24] = cast_16bit_to_int32 (b + 62);               // gyro z scale?
+            double package[NovaXR::num_channels] = {0.};
+            int offset = cur_package * NovaXR::package_size;
+            // package num
+            package[0] = (double)b[0 + offset];
+            // eeg and emg
+            for (int i = 4; i < 20; i++)
+            {
+                // put them directly after package num in brainflow
+                package[i - 3] =
+                    eeg_scale * (double)cast_24bit_to_int32 (b + offset + 4 + 3 * (i - 4));
+            }
+            package[17] = (double)b[1 + offset];                // ppg
+            package[18] = cast_16bit_to_int32 (b + 2 + offset); // eda
 
-        double timestamp;
-        memcpy (&timestamp, b + 64, 8);
-        db->add_data (timestamp, package);
+            double timestamp;
+            memcpy (&timestamp, b + 64 + offset, 8);
+            db->add_data (timestamp, package);
+        }
     }
 }
