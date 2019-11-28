@@ -306,7 +306,7 @@ int SocketClient::connect (int min_bytes)
         }
         // to simplify parsing code and make it uniform for udp and tcp set min bytes for tcp to
         // package size
-        setsockopt (connect_socket, SOL_SOCKET, SO_RCVLOWAT, &min_bytes, sizeof (min_bytes));
+        // setsockopt (connect_socket, SOL_SOCKET, SO_RCVLOWAT, &min_bytes, sizeof (min_bytes));
     }
 
     return (int)SocketReturnCodes::STATUS_OK;

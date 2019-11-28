@@ -48,7 +48,7 @@ class NovaXREmulator (threading.Thread):
         self.local_ip = '127.0.0.1'
         self.local_port = 2390
         self.server_socket = socket.socket (family = socket.AF_INET, type = socket.SOCK_STREAM)
-        self.server_socket.settimeout (0.1)
+        self.server_socket.settimeout (1)
         self.server_socket.bind ((self.local_ip, self.local_port))
         self.server_socket.listen (1)
         self.state = State.wait.value
@@ -61,6 +61,7 @@ class NovaXREmulator (threading.Thread):
     def run (self):
         for i in range (50):
             try:
+                self.server_socket.settimeout (1) # duplicate for sanity check
                 self.conn, self.addr = self.server_socket.accept ()
                 break
             except socket.timeout:
@@ -70,6 +71,7 @@ class NovaXREmulator (threading.Thread):
 
         while self.keep_alive:
             try:
+                self.conn.settimeout (1)
                 msg = self.conn.recv (1)
                 if msg:
                     logging.info ('received %s' % (msg))
@@ -85,7 +87,7 @@ class NovaXREmulator (threading.Thread):
 
             if self.state == State.stream.value:
                 package = list ()
-                for _ in range (20):
+                for _ in range (19):
                     package.append (self.package_num)
                     self.package_num = self.package_num + 1
                     if self.package_num % 255 == 0:

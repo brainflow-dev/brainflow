@@ -75,7 +75,7 @@ class NovaXREmulator (threading.Thread):
 
             if self.state == State.stream.value:
                 package = list ()
-                for _ in range (20):
+                for _ in range (19):
                     package.append (self.package_num)
                     self.package_num = self.package_num + 1
                     if self.package_num % 255 == 0:
