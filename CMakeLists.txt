@@ -53,6 +53,8 @@ aux_source_directory (${CMAKE_HOME_DIRECTORY}/third_party/DSPFilters/source DSPF
 add_library (${DSPFILTERS} STATIC ${DSPFILTERS_SOURCE_LIB})
 target_include_directories (${DSPFILTERS} PUBLIC $<BUILD_INTERFACE:${CMAKE_HOME_DIRECTORY}/third_party/DSPFilters/include>)
 set_property (TARGET ${DSPFILTERS} PROPERTY POSITION_INDEPENDENT_CODE ON)
+# there are asserts, I wanna disable them even for debug builds
+target_compile_definitions(${DSPFILTERS} PRIVATE -DNDEBUG)
 
 SET (WAVELIB "WaveLib")
 aux_source_directory (${CMAKE_HOME_DIRECTORY}/third_party/wavelib/src WAVELIB_SRC)

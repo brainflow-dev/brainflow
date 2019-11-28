@@ -17,13 +17,11 @@ class NovaXR : public Board
 
 private:
     const float eeg_scale = ADS1299_Vref / float((pow (2, 23) - 1)) / ADS1299_gain * 1000000.;
-    const float accel_scale = 0.002 / (pow (2, 4));
 
     volatile bool keep_alive;
     bool initialized;
     bool is_streaming;
     std::thread streaming_thread;
-    int num_channels;
     SocketClient *socket;
 
     std::mutex m;
@@ -40,4 +38,9 @@ public:
     int stop_stream ();
     int release_session ();
     int config_board (char *config);
+
+    static constexpr int package_size = 72;
+    static constexpr int num_packages = 19;
+    static constexpr int transaction_size = NovaXR::package_size * NovaXR::num_packages;
+    static constexpr int num_channels = 25;
 };
