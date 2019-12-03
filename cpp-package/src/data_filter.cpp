@@ -105,6 +105,7 @@ double *DataFilter::perform_inverse_wavelet_transform (std::pair<double *, int *
         decomposition_level, wavelet_output.second, original_data);
     if (res != STATUS_OK)
     {
+        delete[] original_data;
         throw BrainFlowException ("failed to perform inverse wavelet", res);
     }
     return original_data;
@@ -118,6 +119,62 @@ void DataFilter::perform_wavelet_denoising (
     {
         throw BrainFlowException ("failed to perform wavelet denoising", res);
     }
+}
+
+std::complex<double> *DataFilter::perform_fft (double *data, int data_len)
+{
+    if ((data_len & (data_len - 1)) || (data_len <= 0))
+    {
+        throw BrainFlowException ("data len is not power of 2", INVALID_ARGUMENTS_ERROR);
+    }
+    std::complex<double> *output = new std::complex<double>[data_len / 2 + 1];
+    double *temp_re = new double[data_len / 2 + 1];
+    double *temp_im = new double[data_len / 2 + 1];
+    int res = ::perform_fft (data, data_len, temp_re, temp_im);
+    if (res == STATUS_OK)
+    {
+        for (int i = 0; i < data_len / 2 + 1; i++)
+        {
+            output[i].real (temp_re[i]);
+            output[i].imag (temp_im[i]);
+        }
+        delete[] temp_re;
+        delete[] temp_im;
+    }
+    else
+    {
+        delete[] output;
+        delete[] temp_re;
+        delete[] temp_im;
+        throw BrainFlowException ("failed to perform fft", res);
+    }
+    return output;
+}
+
+double *DataFilter::perform_ifft (std::complex<double> *data, int data_len)
+{
+    if ((data_len & (data_len - 1)) || (data_len <= 0))
+    {
+        throw BrainFlowException ("data len is not power of 2", INVALID_ARGUMENTS_ERROR);
+    }
+    double *output = new double[data_len];
+    double *temp_re = new double[data_len / 2 + 1];
+    double *temp_im = new double[data_len / 2 + 1];
+    for (int i = 0; i < data_len / 2 + 1; i++)
+    {
+        temp_re[i] = data[i].real ();
+        temp_im[i] = data[i].imag ();
+    }
+
+    int res = ::perform_ifft (temp_re, temp_im, data_len, output);
+    delete[] temp_re;
+    delete[] temp_im;
+    if (res != STATUS_OK)
+    {
+        delete[] output;
+        throw BrainFlowException ("failed to perform ifft", res);
+    }
+    return output;
 }
 
 double **DataFilter::read_file (int *num_rows, int *num_cols, char *file_name)

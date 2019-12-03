@@ -1,5 +1,6 @@
 #pragma once
 
+#include <complex>
 #include <utility>
 // include it here to allow user include only this single file
 #include "brainflow_constants.h"
@@ -50,6 +51,20 @@ public:
     /// perform wavelet denoising
     static void perform_wavelet_denoising (
         double *data, int data_len, char *wavelet, int decomposition_level);
+    /**
+     * perform direct fft
+     * @param data input array
+     * @param data_len must be power of 2
+     * @return complex array with size data_len / 2 + 1, it holds only positive im values
+     */
+    static std::complex<double> *perform_fft (double *data, int data_len);
+    /**
+     * perform inverse fft
+     * @param data complex array from perform_fft
+     * @param data_len len of original array, must be power of 2
+     * @return restored data
+     */
+    static double *perform_ifft (std::complex<double> *data, int data_len);
 
 
     /// write file, in file data will be transposed

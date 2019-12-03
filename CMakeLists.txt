@@ -168,6 +168,7 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/src/data_handler/inc
     ${CMAKE_HOME_DIRECTORY}/third_party/DSPFilters/include
     ${CMAKE_HOME_DIRECTORY}/third_party/wavelib/header
+    ${CMAKE_HOME_DIRECTORY}/third_party/fft/src
 )
 
 set_target_properties (${BOARD_CONTROLLER_NAME}
