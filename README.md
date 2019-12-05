@@ -4,6 +4,8 @@
 
 Brainflow is a library intended to obtain, parse and analyze EEG\EMG\ECG... data from any BCI board.
 
+It provides a **uniform API for all supported boards**, it means that you can switch boards without any changes in code, also if you add your board to BrainFlow it will work with almost all applications built on top on BrainFlow from the box. Also there is **powerfull API to perform signal processing** which you can use even without BCI headset.
+
 ## Build status
 
 Compiled with:
@@ -21,8 +23,8 @@ Compiled with:
 
 ## Extend BrainFLow SDK
 
-*We will be glad to add new boards to BrainFlow SDK, the only requirement for your board if you want to add it to BrainFlow - an access to raw data.*
-*For more information about process of adding new boards to BrainFlow read* [this](https://brainflow.readthedocs.io/en/latest/BrainFlowDev.html#instructions-to-add-new-boards-to-brainflow)
+*We will be glad to add new boards, signal processing methods and new features to BrainFlow SDK.*
+*For more information about process of adding new features to BrainFlow read* [this](https://brainflow.readthedocs.io/en/stable/BrainFlowDev.html)
 
 *Also we can help you to integrate BrainFlow SDK to your apps, fromeworks etc.*
 
