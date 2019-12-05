@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 
 using Accord.Math;
 
@@ -213,6 +214,66 @@ namespace brainflow
                 throw new BrainFlowException (res);
             }
             return filtered_data;
+        }
+
+        /// <summary>
+        /// perform direct fft
+        /// </summary>
+        /// <param name="data">data for fft</param>
+        /// <param name="start_pos">start pos</param>
+        /// <param name="end_pos">end pos, end_pos - start_pos must be a power of 2</param>
+        /// <returns>complex array of size N / 2 + 1 of fft data</returns>
+        public static Complex[] perform_fft(double[] data, int start_pos, int end_pos)
+        {
+            if ((start_pos < 0) || (end_pos > data.Length) || (start_pos >= end_pos))
+            {
+                throw new BrainFlowException ((int)CustomExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            int len = end_pos - start_pos;
+            if ((len & (len - 1)) != 0)
+            {
+                throw new BrainFlowException ((int)CustomExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            double[] data_to_process = new double[len];
+            Array.Copy (data, start_pos, data_to_process, 0, len);
+            double[] temp_re = new double[len / 2 + 1];
+            double[] temp_im = new double[len / 2 + 1];
+            Complex[] output = new Complex[len / 2 + 1];
+
+            int res = DataHandlerLibrary.perform_fft (data_to_process, len, temp_re, temp_im);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException (res);
+            }
+            for (int i = 0; i < len / 2 + 1; i++)
+            {
+                output[i] = new Complex (temp_re[i], temp_im[i]);
+            }
+            return output;
+        }
+
+        /// <summary>
+        /// perform inverse fft
+        /// </summary>
+        /// <param name="data">data from perform_fft</param>
+        /// <returns>restored data</returns>
+        public static double[] perform_ifft(Complex[] data)
+        {
+            int len = (data.Length - 1) * 2;
+            double[] temp_re = new double[data.Length];
+            double[] temp_im = new double[data.Length];
+            double[] output = new double[len];
+            for (int i = 0; i < data.Length; i++)
+            {
+                temp_re[i] = data[i].Real;
+                temp_im[i] = data[i].Imaginary;
+            }
+            int res = DataHandlerLibrary.perform_ifft (temp_re, temp_im, len, output);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException (res);
+            }
+            return output;
         }
 
         /// <summary>

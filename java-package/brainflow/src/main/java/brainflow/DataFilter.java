@@ -8,6 +8,8 @@ import java.util.Arrays;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.transform.TransformUtils;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;
@@ -43,6 +45,10 @@ public class DataFilter
                 int decomposition_level, int[] decomposition_lengths, double[] output_data);
 
         int perform_wavelet_denoising (double[] data, int data_len, String wavelet, int decomposition_level);
+
+        int perform_fft (double[] data, int data_len, double[] output_re, double[] output_im);
+
+        int perform_ifft (double[] re, double[] im, int data_len, double[] data);
 
         int write_file (double[] data, int num_rows, int num_cols, String file_name, String file_mode);
 
@@ -243,6 +249,58 @@ public class DataFilter
             throw new BrainFlowError ("Failed to perform inverse wavelet transform", ec);
         }
         return output_array;
+    }
+
+    /**
+     * perform direct fft
+     * 
+     * @param data      data for fft transform
+     * @param start_pos starting position to calc fft
+     * @param end_pos   end position to calc fft, total_len must be a power of two
+     * @return array of complex values with size N / 2 + 1
+     */
+    public static Complex[] perform_fft (double[] data, int start_pos, int end_pos) throws BrainFlowError
+    {
+        if ((start_pos < 0) || (end_pos > data.length) || (start_pos >= end_pos))
+        {
+            throw new BrainFlowError ("invalid position arguments", ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
+        // I didnt find a way to pass an offset using pointers, copy array
+        double[] data_to_process = Arrays.copyOfRange (data, start_pos, end_pos);
+        int len = data_to_process.length;
+        if ((len & (len - 1)) != 0)
+        {
+            throw new BrainFlowError ("end_pos - start_pos must be a power of 2",
+                    ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
+        double[][] complex_array = new double[2][];
+        complex_array[0] = new double[len / 2 + 1];
+        complex_array[1] = new double[len / 2 + 1];
+        int ec = instance.perform_fft (data_to_process, data.length, complex_array[0], complex_array[1]);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Failed to perform fft", ec);
+        }
+        return TransformUtils.createComplexArray (complex_array);
+    }
+
+    /**
+     * perform inverse fft
+     * 
+     * @param data data from fft transform(array of complex values)
+     * @return restored data
+     */
+    public static double[] perform_ifft (Complex[] data) throws BrainFlowError
+    {
+        double[][] complex_array = TransformUtils.createRealImaginaryArray (data);
+        int len = (data.length - 1) * 2;
+        double[] output = new double[len];
+        int ec = instance.perform_ifft (complex_array[0], complex_array[1], len, output);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Failed to perform ifft", ec);
+        }
+        return output;
     }
 
     /**

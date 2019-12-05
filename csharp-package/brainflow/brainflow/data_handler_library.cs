@@ -43,7 +43,10 @@ namespace brainflow
                                                                     int[] decomposition_lengths, double[] output_data);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_wavelet_denoising (double[] data, int data_len, string wavelet, int decomposition_level);
-
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int perform_fft (double[] data, int data_len, double[] re, double[] im);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int perform_ifft (double[] re, double[] im, int data_len, double[] data);
     }
 
     class DataHandlerLibrary32
@@ -73,6 +76,10 @@ namespace brainflow
                                                                     int[] decomposition_lengths, double[] output_data);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_wavelet_denoising (double[] data, int data_len, string wavelet, int decomposition_level);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int perform_fft (double[] data, int data_len, double[] re, double[] im);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int perform_ifft (double[] re, double[] im, int data_len, double[] data);
     }
 
     class DataHandlerLibrary
@@ -172,6 +179,22 @@ namespace brainflow
                 return DataHandlerLibrary64.perform_wavelet_denoising (data, data_len, wavelet, decomposition_level);
             else
                 return DataHandlerLibrary32.perform_wavelet_denoising (data, data_len, wavelet, decomposition_level);
+        }
+
+        public static int perform_fft (double[] data, int data_len, double[] output_re, double[] output_im)
+        {
+            if (System.Environment.Is64BitProcess)
+                return DataHandlerLibrary64.perform_fft (data, data_len, output_re, output_im);
+            else
+                return DataHandlerLibrary32.perform_fft (data, data_len, output_re, output_im);
+        }
+
+        public static int perform_ifft (double[] re, double[] im, int len, double[] data)
+        {
+            if (System.Environment.Is64BitProcess)
+                return DataHandlerLibrary64.perform_ifft (re, im, len, data);
+            else
+                return DataHandlerLibrary32.perform_ifft (re, im, len, data);
         }
     }
 }

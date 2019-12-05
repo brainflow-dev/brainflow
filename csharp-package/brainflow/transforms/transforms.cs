@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using brainflow;
 
 using Accord.Math;
@@ -42,8 +43,16 @@ namespace test
                 Console.WriteLine ();
                 // you can do smth with wavelet coeffs here, for example denoising works via thresholds for wavelets coeffs
                 double[] restored_data = DataFilter.perform_inverse_wavelet_transform (wavelet_data, unprocessed_data.GetRow (eeg_channels[i]).Length, "db4", 3);
-                Console.WriteLine ("Restored data:");
+                Console.WriteLine ("Restored wavelet data:");
                 Console.WriteLine ("[{0}]", string.Join (", ", restored_data));
+
+                // demo for fft
+                // end_pos - start_pos must be a power of 2
+                Complex[] fft_data = DataFilter.perform_fft (unprocessed_data.GetRow (eeg_channels[i]), 0, 64);
+                // len of fft_data is N / 2 + 1
+                double[] restored_fft_data = DataFilter.perform_ifft (fft_data);
+                Console.WriteLine ("Restored fft data:");
+                Console.WriteLine ("[{0}]", string.Join (", ", restored_fft_data));
             }
         }
     }
