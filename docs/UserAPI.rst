@@ -8,8 +8,10 @@ BrainFlow User API has only two classes:
 
 These classes are independent, so if you want, you can use BrainFlow API only for data streaming and perform signal processing by yourself and vice versa.
 
-BrainFlow API is board agnostic, so to select a specific board you need to pass BrainFlow's board id to BoardShim's constructor and an instance of BrainFlowInputParams structure which should hold information for your specific board, check Supported Boards section for details.
+BrainFlow API is board agnostic, so **to select a specific board you need to pass BrainFlow's board id to BoardShim's constructor and an instance of BrainFlowInputParams structure** which should hold information for your specific board, check :ref:`supported-boards-label`. for details.
 This abstraction allows you to switch boards without any changes in code.
+
+In BoardShim all data from a board returned as a 2d array, rows in this array may contain timestamps, EEG and EMG data and so on, to see instructions how to query specific kind of data check :ref:`data-format-label` and :ref:`code-samples-label`.
 
 Python API Reference
 ----------------------
@@ -99,9 +101,7 @@ R API Reference
 -----------------
 
 R binding is a wrapper on top of Python binding, it is implemented using `reticulate <https://rstudio.github.io/reticulate/>`_.
-There are a few methods which allow you to create python objects and call their methods. 
-
-Reticulate translates numpy arrays to R arrays in a tricky way, and it prevents us to implement signal processing in R, so for R you have to perform signal processing by yourself.
+There are a few methods which allow you to create python objects and call their methods. **BrainFlow's Signal processing API is unavailable for R you need to perform signal processing in R by yourself**
 
 Check R sample to see how to use it.
 

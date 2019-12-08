@@ -1,6 +1,11 @@
+.. _code-samples-label:
 
 Code Samples
 ============
+
+Make sure that you've installed BrainFlow package before running code samples below.
+
+See :ref:`installation-label` for details.
 
 Python
 --------
@@ -9,6 +14,9 @@ Python
 
 - matplotlib
 - pandas
+- mne
+
+BrainFlow doesn't need these packages and doesn't install them, but we use them in demos below.
 
 Python Get Data from a Board
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -46,43 +54,49 @@ Python Denoising
 .. literalinclude:: ../tests/python/denoising.py
    :language: py
 
+Python MNE Integration
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../tests/python/brainflow_to_mne.py
+   :language: py
+
 Java
 ------
 
 Java Get Data from a Board
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../java-package/brainflow/src/test/java/brainflow_test/BrainFlowGetData.java
+.. literalinclude:: ../java-package/brainflow/src/main/java/brainflow/examples/BrainFlowGetData.java
    :language: java
 
 Java Read Write File
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../java-package/brainflow/src/test/java/brainflow_test/Serialization.java
+.. literalinclude:: ../java-package/brainflow/src/main/java/brainflow/examples/Serialization.java
    :language: java
 
 Java Downsample Data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../java-package/brainflow/src/test/java/brainflow_test/Downsampling.java
+.. literalinclude:: ../java-package/brainflow/src/main/java/brainflow/examples/Downsampling.java
    :language: java
 
 Java Transforms
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../java-package/brainflow/src/test/java/brainflow_test/Transforms.java
+.. literalinclude:: ../java-package/brainflow/src/main/java/brainflow/examples/Transforms.java
    :language: java
 
 Java Signal Filtering
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../java-package/brainflow/src/test/java/brainflow_test/SignalFiltering.java
+.. literalinclude:: ../java-package/brainflow/src/main/java/brainflow/examples/SignalFiltering.java
    :language: java
 
 Java Denoising
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../java-package/brainflow/src/test/java/brainflow_test/Denoising.java
+.. literalinclude:: ../java-package/brainflow/src/main/java/brainflow/examples/Denoising.java
    :language: java
 
 C#
@@ -132,7 +146,7 @@ C++
 
 - for Linux and MacOS add them to LD_LIBRARY_PATH env variable
 - for Windows add them to PATH env variable
-- or just copypaste them to the folder where your executable is located
+- or just copypaste them to the folder where your executable is located, don’t forget to copypaste brainflow_boards.json too
 
 CMake File Example
 ~~~~~~~~~~~~~~~~~~~~~
@@ -179,10 +193,15 @@ C++ Denoising
 R
 ----
 
-For R BrainFlow's signal processing API is unavailable, you will need to implement filters by yourself or use packages from CRAN.
-
 R Get Data from a Board
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. literalinclude:: ../tests/r/brainflow_get_data.R
-	:language: r
+   :language: r
+
+Notebooks
+------------
+.. toctree::
+
+   ./notebooks/brainflow_mne
+   ./notebooks/denoising

@@ -82,6 +82,7 @@ test_script:
   - python %APPVEYOR_BUILD_FOLDER%\tests\python\signal_filtering.py
   - python %APPVEYOR_BUILD_FOLDER%\tests\python\transforms.py
   - python %APPVEYOR_BUILD_FOLDER%\tests\python\downsampling.py
+  - python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_to_mne.py
   # C++ 32
   - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\tests\cpp\signal_processing_demo\build32\Release\denoising.exe
   - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\tests\cpp\signal_processing_demo\build32\Release\downsampling.exe

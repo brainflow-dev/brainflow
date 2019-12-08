@@ -67,6 +67,14 @@ before_script:
   - cd $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo && mkdir build && cd build && cmake -DCMAKE_PREFIX_PATH=$TRAVIS_BUILD_DIR/installed .. && make
   - cd $TRAVIS_BUILD_DIR/tests/cpp/signal_processing_demo && mkdir build && cd build && cmake -DCMAKE_PREFIX_PATH=$TRAVIS_BUILD_DIR/installed .. && make
   - cd $TRAVIS_BUILD_DIR && cd java-package/brainflow && mvn package
+  # to run java tests need to copypaste libs even if they are inside jar file
+  - cp $TRAVIS_BUILD_DIR/java-package/brainflow/target/classes/brainflow/*.json $TRAVIS_BUILD_DIR/java-package/brainflow/target/classes/
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+      cp $TRAVIS_BUILD_DIR/java-package/brainflow/target/classes/brainflow/*.so $TRAVIS_BUILD_DIR/java-package/brainflow/target/classes/ ;
+    fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
+      cp $TRAVIS_BUILD_DIR/java-package/brainflow/target/classes/brainflow/*.dylib $TRAVIS_BUILD_DIR/java-package/brainflow/target/classes/ ;
+    fi
 
 script:
   # tests for boards
@@ -83,6 +91,7 @@ script:
   - if [ `which valgrind` ]; then
       LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id -1;
     fi
+  - cd $TRAVIS_BUILD_DIR/java-package/brainflow && mvn exec:java -Dexec.mainClass="brainflow.examples.BrainFlowGetData" -Dexec.args="--board-id -1"
   # R disabled. It's taking up too much time in CI
   # - Rscript $TRAVIS_BUILD_DIR/tests/r/brainflow_get_data.R
   # tests for cyton daisy
@@ -119,6 +128,7 @@ script:
   - python3 $TRAVIS_BUILD_DIR/tests/python/signal_filtering.py
   - python3 $TRAVIS_BUILD_DIR/tests/python/transforms.py
   - python3 $TRAVIS_BUILD_DIR/tests/python/downsampling.py
+  - python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_to_mne.py
   # C++
   - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib $TRAVIS_BUILD_DIR/tests/cpp/signal_processing_demo/build/denoising
   - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib $TRAVIS_BUILD_DIR/tests/cpp/signal_processing_demo/build/downsampling
@@ -141,6 +151,13 @@ script:
   - if [ `which valgrind` ]; then
       LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/signal_processing_demo/build/transforms ;
     fi
+  # java
+  - cd $TRAVIS_BUILD_DIR/java-package/brainflow && mvn exec:java -Dexec.mainClass="brainflow.examples.Denoising"
+  - cd $TRAVIS_BUILD_DIR/java-package/brainflow && mvn exec:java -Dexec.mainClass="brainflow.examples.Downsampling"
+  - cd $TRAVIS_BUILD_DIR/java-package/brainflow && mvn exec:java -Dexec.mainClass="brainflow.examples.Serialization"
+  - cd $TRAVIS_BUILD_DIR/java-package/brainflow && mvn exec:java -Dexec.mainClass="brainflow.examples.SignalFiltering"
+  - cd $TRAVIS_BUILD_DIR/java-package/brainflow && mvn exec:java -Dexec.mainClass="brainflow.examples.Transforms"
+
 
 after_success:
   - sudo -H pip3 install awscli

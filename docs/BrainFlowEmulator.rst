@@ -1,3 +1,5 @@
+.. _emulator-label:
+
 BrainFlow Emulator
 ===================
 
@@ -21,8 +23,8 @@ Install emulator package::
 
 Run tests for Linux\MacOS and Windows (port argument will be added by Emulator!) ::
 
-    python brainflow_emulator/cyton_linux.py python ../python-package/examples/brainflow_get_data.py --log --board-id 0 --serial-port
-    python brainflow_emulator\cyton_windows.py python ..\python-package\examples\brainflow_get_data.py --log --board-id 0 --serial-port
+    python brainflow_emulator/cyton_linux.py python ../tests/python/brainflow_get_data.py --log --board-id 0 --serial-port
+    python brainflow_emulator\cyton_windows.py python ..\tests\python\brainflow_get_data.py --log --board-id 0 --serial-port
 
 
 OpenBCI NovaXR
@@ -37,7 +39,7 @@ Install emulator package::
 
 Run tests::
 
-    python brainflow_emulator/novaxr_udp.py python ../python-package/examples/brainflow_get_data.py --log --ip-address 127.0.0.1 --board-id 3 --ip-protocol 1
+    python brainflow_emulator/novaxr_udp.py python ../tests/python/brainflow_get_data.py --log --ip-address 127.0.0.1 --board-id 3 --ip-protocol 1
 
 OpenBCI Wifi Shield based boards
 ----------------------------------
@@ -51,7 +53,7 @@ Install emulator package::
 
 Run tests for Ganglion, Cyton and Daisy with Wifi Shield::
 
-    python brainflow_emulator/wifi_shield_emulator.py python ../python-package/examples/brainflow_get_data.py --log --ip-address 127.0.0.1 --board-id 4 --ip-protocol 2 --ip-port 17982
-    python brainflow_emulator/wifi_shield_emulator.py python ../python-package/examples/brainflow_get_data.py --log --ip-address 127.0.0.1 --board-id 5 --ip-protocol 2 --ip-port 17982
-    python brainflow_emulator/wifi_shield_emulator.py python ../python-package/examples/brainflow_get_data.py --log --ip-address 127.0.0.1 --board-id 6 --ip-protocol 2 --ip-port 17982
+    python brainflow_emulator/wifi_shield_emulator.py python ../tests/python/brainflow_get_data.py --log --ip-address 127.0.0.1 --board-id 4 --ip-protocol 2 --ip-port 17982
+    python brainflow_emulator/wifi_shield_emulator.py python ../tests/python/brainflow_get_data.py --log --ip-address 127.0.0.1 --board-id 5 --ip-protocol 2 --ip-port 17982
+    python brainflow_emulator/wifi_shield_emulator.py python ../tests/python/brainflow_get_data.py --log --ip-address 127.0.0.1 --board-id 6 --ip-protocol 2 --ip-port 17982
 
