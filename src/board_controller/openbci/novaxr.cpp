@@ -92,7 +92,7 @@ int NovaXR::config_board (char *config)
     return STATUS_OK;
 }
 
-int NovaXR::start_stream (int buffer_size)
+int NovaXR::start_stream (int buffer_size, char *streamer_params)
 {
     if (is_streaming)
     {
@@ -110,9 +110,26 @@ int NovaXR::start_stream (int buffer_size)
         delete db;
         db = NULL;
     }
+    if (streamer)
+    {
+        delete streamer;
+        streamer = NULL;
+    }
+
+    int res = prepare_streamer (streamer_params);
+    if (res != STATUS_OK)
+    {
+        return res;
+    }
+    db = new DataBuffer (NovaXR::num_channels, buffer_size);
+    if (!db->is_ready ())
+    {
+        safe_logger (spdlog::level::err, "unable to prepare buffer");
+        return INVALID_BUFFER_SIZE_ERROR;
+    }
 
     // start streaming
-    int res = socket->send ("b", 1);
+    res = socket->send ("b", 1);
     if (res != 1)
     {
         if (res == -1)
@@ -125,13 +142,6 @@ int NovaXR::start_stream (int buffer_size)
         }
         safe_logger (spdlog::level::err, "Failed to send a command to board");
         return BOARD_WRITE_ERROR;
-    }
-
-    db = new DataBuffer (NovaXR::num_channels, buffer_size);
-    if (!db->is_ready ())
-    {
-        safe_logger (spdlog::level::err, "unable to prepare buffer");
-        return INVALID_BUFFER_SIZE_ERROR;
     }
 
     keep_alive = true;
@@ -162,6 +172,11 @@ int NovaXR::stop_stream ()
         keep_alive = false;
         is_streaming = false;
         streaming_thread.join ();
+        if (streamer)
+        {
+            delete streamer;
+            streamer = NULL;
+        }
         this->state = SYNC_TIMEOUT_ERROR;
         int res = socket->send ("s", 1);
         if (res != 1)
@@ -288,6 +303,7 @@ void NovaXR::read_thread ()
 
             double timestamp;
             memcpy (&timestamp, b + 64 + offset, 8);
+            streamer->stream_data (package, NovaXR::num_channels, timestamp);
             db->add_data (timestamp, package);
         }
     }

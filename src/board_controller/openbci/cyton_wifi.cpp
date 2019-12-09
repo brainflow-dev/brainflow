@@ -85,7 +85,9 @@ void CytonWifi::read_thread ()
                 continue;
             }
 
-            db->add_data (get_timestamp (), package);
+            double timestamp = get_timestamp ();
+            db->add_data (timestamp, package);
+            streamer->stream_data (package, 22, timestamp);
         }
     }
 }

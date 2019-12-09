@@ -23,7 +23,7 @@ public class BoardShim
 
         int config_board (String config, int board_id, String port_name);
 
-        int start_stream (int buffer_size, int board_id, String port_name);
+        int start_stream (int buffer_size, String streamer_params, int board_id, String port_name);
 
         int stop_stream (int board_id, String port_name);
 
@@ -437,15 +437,32 @@ public class BoardShim
     }
 
     /**
-     * start streaming thread, store data in internal ringbuffer
+     * start streaming thread, store data in internal ringbuffer and stream them
+     * from brainflow at the same time
      */
-    public void start_stream (int buffer_size) throws BrainFlowError
+    public void start_stream (int buffer_size, String streamer_params) throws BrainFlowError
     {
-        int ec = instance.start_stream (buffer_size, board_id, input_json);
+        int ec = instance.start_stream (buffer_size, streamer_params, board_id, input_json);
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in start_stream", ec);
         }
+    }
+
+    /**
+     * start streaming thread, store data in internal ringbuffer
+     */
+    public void start_stream () throws BrainFlowError
+    {
+        start_stream (450000, "");
+    }
+
+    /**
+     * start streaming thread, store data in internal ringbuffer
+     */
+    public void start_stream (int buffer_size) throws BrainFlowError
+    {
+        start_stream (buffer_size, "");
     }
 
     /**

@@ -65,7 +65,9 @@ void CytonDaisyWifi::read_thread ()
                     package[18] /= 2.0f;
                     package[19] /= 2.0f;
                     package[20] = (double)b[32 + offset];
-                    db->add_data (get_timestamp (), package);
+                    double timestamp = get_timestamp ();
+                    db->add_data (timestamp, package);
+                    streamer->stream_data (package, 30, timestamp);
                 }
                 else
                 {
@@ -99,7 +101,9 @@ void CytonDaisyWifi::read_thread ()
                     package[28] /= 2.0f;
                     package[29] /= 2.0f;
                     package[20] = (double)b[32 + offset]; // cyton end byte
-                    db->add_data (get_timestamp (), package);
+                    double timestamp = get_timestamp ();
+                    db->add_data (timestamp, package);
+                    streamer->stream_data (package, 30, timestamp);
                 }
                 else
                 {
@@ -141,7 +145,9 @@ void CytonDaisyWifi::read_thread ()
                     package[25] /= 2.0;
                     package[26] /= 2.0;
                     package[20] = (double)b[32 + offset];
-                    db->add_data (get_timestamp (), package);
+                    double timestamp = get_timestamp ();
+                    db->add_data (timestamp, package);
+                    streamer->stream_data (package, 30, timestamp);
                 }
                 else
                 {

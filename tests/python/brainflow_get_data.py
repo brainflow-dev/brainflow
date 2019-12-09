@@ -16,6 +16,7 @@ def main ():
     parser.add_argument ('--serial-port', type = str, help  = 'serial port', required = False, default = '')
     parser.add_argument ('--mac-address', type = str, help  = 'mac address', required = False, default = '')
     parser.add_argument ('--other-info', type = str, help  = 'other info', required = False, default = '')
+    parser.add_argument ('--streamer-params', type = str, help  = 'other info', required = False, default = '')
     parser.add_argument ('--board-id', type = int, help  = 'board id, check docs to get a list of supported boards', required = True)
     parser.add_argument ('--log', action = 'store_true')
     args = parser.parse_args ()
@@ -36,10 +37,11 @@ def main ():
     board = BoardShim (args.board_id, params)
     board.prepare_session ()
 
-    board.start_stream ()
-    time.sleep (7)
-    data = board.get_current_board_data (100) # get latest 100 packages or less, doesnt remove them from internal buffer
-    # data = board.get_board_data () # get all data and remove it from internal buffer
+    # board.start_stream () # use this for default options
+    board.start_stream (45000, args.streamer_params)
+    time.sleep (10)
+    # data = board.get_current_board_data (256) # get latest 256 packages or less, doesnt remove them from internal buffer
+    data = board.get_board_data () # get all data and remove it from internal buffer
     board.stop_stream ()
     board.release_session ()
 

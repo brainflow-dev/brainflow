@@ -8,6 +8,7 @@
 #endif
 
 #include "board_shim.h"
+#include "data_filter.h"
 
 using namespace std;
 
@@ -28,15 +29,16 @@ int main (int argc, char *argv[])
 
     BoardShim *board = new BoardShim (board_id, params);
     double **data = NULL;
+    double **data_from_file = NULL;
     int res = 0;
     int num_rows = 0;
 
     try
     {
         board->prepare_session ();
-        board->start_stream ();
-        // board->start_stream (45000, (char *)"file://file_stream_test.csv:a"); // store data in a
-        // file directly during streaming
+        board->start_stream (
+            45000, (char *)"file://file_stream_test.csv:w"); // store data in a file directly during
+                                                             // streaming
         BoardShim::log_message ((int)LogLevels::LEVEL_INFO, "Start sleeping in the main thread");
 #ifdef _WIN32
         Sleep (5000);
@@ -52,6 +54,17 @@ int main (int argc, char *argv[])
         num_rows = BoardShim::get_num_rows (board_id);
         std::cout << std::endl << "Data from the board" << std::endl << std::endl;
         print_head (data, num_rows, data_count);
+        // read data from file and validate size
+        int restored_num_rows = 0;
+        int restored_num_cols = 0;
+        data_from_file =
+            DataFilter::read_file (&restored_num_rows, &restored_num_cols, "file_stream_test.csv");
+        if ((restored_num_cols != data_count) || (restored_num_rows != num_rows))
+        {
+            BoardShim::log_message ((int)LogLevels::LEVEL_ERROR, "restored %dx%d expected %dx%d",
+                restored_num_rows, restored_num_cols, num_rows, data_count);
+            throw BrainFlowException ("wrong file size", GENERAL_ERROR);
+        }
     }
     catch (const BrainFlowException &err)
     {
@@ -64,9 +77,11 @@ int main (int argc, char *argv[])
         for (int i = 0; i < num_rows; i++)
         {
             delete[] data[i];
+            delete[] data_from_file[i];
         }
     }
     delete[] data;
+    delete[] data_from_file;
     delete board;
 
     return res;

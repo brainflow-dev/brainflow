@@ -81,7 +81,7 @@ int Ganglion::prepare_session ()
     return STATUS_OK;
 }
 
-int Ganglion::start_stream (int buffer_size)
+int Ganglion::start_stream (int buffer_size, char *streamer_params)
 {
     if (this->is_streaming)
     {
@@ -99,7 +99,17 @@ int Ganglion::start_stream (int buffer_size)
         delete this->db;
         this->db = NULL;
     }
+    if (this->streamer)
+    {
+        delete this->streamer;
+        this->streamer = NULL;
+    }
 
+    int res = prepare_streamer (streamer_params);
+    if (res != STATUS_OK)
+    {
+        return res;
+    }
     this->db = new DataBuffer (num_channels, buffer_size);
     if (!this->db->is_ready ())
     {
@@ -107,7 +117,7 @@ int Ganglion::start_stream (int buffer_size)
         return INVALID_BUFFER_SIZE_ERROR;
     }
 
-    int res = this->call_start ();
+    res = this->call_start ();
     if (res != STATUS_OK)
     {
         return res;
@@ -141,6 +151,11 @@ int Ganglion::stop_stream ()
         this->keep_alive = false;
         this->is_streaming = false;
         this->streaming_thread.join ();
+        if (this->streamer)
+        {
+            delete this->streamer;
+            this->streamer = NULL;
+        }
         this->state = SYNC_TIMEOUT_ERROR;
         return this->call_stop ();
     }
@@ -226,11 +241,10 @@ void Ganglion::read_thread ()
                 package[2] = this->eeg_scale * last_data[5];
                 package[3] = this->eeg_scale * last_data[6];
                 package[4] = this->eeg_scale * last_data[7];
-
-                // I dont understand how to get accel data, for now it's 0
                 package[5] = accel_x;
                 package[6] = accel_y;
                 package[7] = accel_z;
+                this->streamer->stream_data (package, 8, data.timestamp);
                 this->db->add_data (data.timestamp, package);
                 continue;
             }
@@ -291,19 +305,21 @@ void Ganglion::read_thread ()
 
             // add first encoded package
             package[0] = data.data[0];
-            package[5] = accel_x;
-            package[6] = accel_y;
-            package[7] = accel_z;
             package[1] = this->eeg_scale * last_data[0];
             package[2] = this->eeg_scale * last_data[1];
             package[3] = this->eeg_scale * last_data[2];
             package[4] = this->eeg_scale * last_data[3];
+            package[5] = accel_x;
+            package[6] = accel_y;
+            package[7] = accel_z;
+            this->streamer->stream_data (package, 8, data.timestamp);
             this->db->add_data (data.timestamp, package);
             // add second package
             package[1] = this->eeg_scale * last_data[4];
             package[2] = this->eeg_scale * last_data[5];
             package[3] = this->eeg_scale * last_data[6];
             package[4] = this->eeg_scale * last_data[7];
+            this->streamer->stream_data (package, 8, data.timestamp);
             this->db->add_data (data.timestamp, package);
         }
         else

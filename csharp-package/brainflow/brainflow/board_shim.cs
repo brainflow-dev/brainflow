@@ -403,10 +403,11 @@ namespace brainflow
         /// <summary>
         /// start streaming thread, store data in internal ringbuffer
         /// </summary>
-        /// <param name="buffer_size"></param>
-        public void start_stream (int buffer_size = 3600 * 250)
+        /// <param name="buffer_size">size of internal ringbuffer</param>
+        /// <param name="streamer_params">supported values: file://%file_name%:w, file://%file_name%:a, streaming_board://%multicast_group_ip%:%port%</param>
+        public void start_stream (int buffer_size = 3600 * 250, string streamer_params = "")
         {
-            int res = BoardControllerLibrary.start_stream (buffer_size, board_id, input_json);
+            int res = BoardControllerLibrary.start_stream (buffer_size, streamer_params, board_id, input_json);
             if (res != (int) CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException (res);

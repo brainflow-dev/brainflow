@@ -34,7 +34,7 @@ public:
     ~NovaXR ();
 
     int prepare_session ();
-    int start_stream (int buffer_size);
+    int start_stream (int buffer_size, char *streamer_params);
     int stop_stream ();
     int release_session ();
     int config_board (char *config);

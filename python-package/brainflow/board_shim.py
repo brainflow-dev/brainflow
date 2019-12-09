@@ -124,6 +124,7 @@ class BoardControllerDLL (object):
         self.start_stream.restype = ctypes.c_int
         self.start_stream.argtypes = [
             ctypes.c_int,
+            ctypes.c_char_p,
             ctypes.c_int,
             ctypes.c_char_p
         ]
@@ -629,13 +630,24 @@ class BoardShim (object):
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to prepare streaming session', res)
 
-    def start_stream (self, num_samples = 1800*250):
+    def start_stream (self, num_samples = 1800*250, streamer_params = None):
         """Start streaming data, this methods stores data in ringbuffer
 
         :param num_samples: size of ring buffer to keep data
         :type num_samples: int
+        :param streamer_params parameter to stream data from brainflow, supported vals: file://%file_name%:w, file://%file_name%:a, streaming_board://%multicast_group_ip%:%port%
+        :type streamer_params: str
         """
-        res = BoardControllerDLL.get_instance ().start_stream (num_samples, self.board_id, self.input_json)
+
+        if streamer_params is None:
+            streamer = None
+        else:
+            try:
+                streamer = streamer_params.encode ()
+            except:
+                streamer = streamer_params
+
+        res = BoardControllerDLL.get_instance ().start_stream (num_samples, streamer, self.board_id, self.input_json)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to start streaming session', res)
 

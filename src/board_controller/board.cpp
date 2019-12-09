@@ -1,5 +1,11 @@
+#include <string>
+
 #include "board.h"
 #include "board_controller.h"
+#include "file_streamer.h"
+#include "multicast_streamer.h"
+#include "stub_streamer.h"
+
 
 #define LOGGER_NAME "brainflow_logger"
 
@@ -29,6 +35,71 @@ int Board::set_log_file (char *log_file)
     Board::board_logger->set_level (level);
     Board::board_logger->flush_on (level);
     return STATUS_OK;
+}
+
+int Board::prepare_streamer (char *streamer_params)
+{
+    // to dont write smth like if (streamer) every time for all boards create dummy streamer which
+    // does nothing and return an instance of this streamer if user dont specify streamer_params
+    if (streamer_params == NULL)
+    {
+        safe_logger (spdlog::level::debug, "use stub streamer");
+        streamer = new StubStreamer ();
+    }
+    else if (streamer_params[0] == '\0')
+    {
+        safe_logger (spdlog::level::debug, "use stub streamer");
+        streamer = new StubStreamer ();
+    }
+    else
+    {
+        // parse string, sscanf doesnt work
+        std::string streamer_params_str (streamer_params);
+        size_t idx1 = streamer_params_str.find ("://");
+        if (idx1 == std::string::npos)
+        {
+            safe_logger (
+                spdlog::level::err, "format is streamer_type://streamer_dest:streamer_args");
+            return INVALID_ARGUMENTS_ERROR;
+        }
+        std::string streamer_type = streamer_params_str.substr (0, idx1);
+        size_t idx2 = streamer_params_str.find (":", idx1 + 3);
+        if (idx2 == std::string::npos)
+        {
+            safe_logger (
+                spdlog::level::err, "format is streamer_type://streamer_dest:streamer_args");
+            return INVALID_ARGUMENTS_ERROR;
+        }
+        std::string streamer_dest = streamer_params_str.substr (idx1 + 3, idx2 - idx1 - 3);
+        std::string streamer_mods = streamer_params_str.substr (idx2 + 1);
+
+        if (streamer_type == "file")
+        {
+            streamer = new FileStreamer (streamer_dest.c_str (), streamer_mods.c_str ());
+        }
+        if (streamer_type == "streaming_board")
+        {
+            int port = std::stoi (streamer_mods);
+            streamer = new MultiCastStreamer (streamer_dest.c_str (), port);
+        }
+
+        if (streamer == NULL)
+        {
+            safe_logger (
+                spdlog::level::err, "unsupported streamer type {}", streamer_type.c_str ());
+            return INVALID_ARGUMENTS_ERROR;
+        }
+    }
+
+    int res = streamer->init_streamer ();
+    if (res != STATUS_OK)
+    {
+        safe_logger (spdlog::level::err, "failed to init streamer");
+        delete streamer;
+        streamer = NULL;
+    }
+
+    return res;
 }
 
 int Board::get_current_board_data (int num_samples, double *data_buf, int *returned_samples)

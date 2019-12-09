@@ -97,9 +97,10 @@ void BoardShim::prepare_session ()
     }
 }
 
-void BoardShim::start_stream (int buffer_size)
+void BoardShim::start_stream (int buffer_size, char *streamer_params)
 {
-    int res = ::start_stream (buffer_size, board_id, const_cast<char *> (input_params.c_str ()));
+    int res = ::start_stream (
+        buffer_size, streamer_params, board_id, const_cast<char *> (input_params.c_str ()));
     if (res != STATUS_OK)
     {
         throw BrainFlowException ("failed to start stream", res);

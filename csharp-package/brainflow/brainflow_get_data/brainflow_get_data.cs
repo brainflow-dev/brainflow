@@ -16,7 +16,8 @@ namespace test
 
             BoardShim board_shim = new BoardShim (board_id, input_params);
             board_shim.prepare_session ();
-            board_shim.start_stream (3600);
+            // board_shim.start_stream (); // use this for default options
+            board_shim.start_stream (450000, "file://file_stream.csv:w");
             BoardShim.log_message ((int)LogLevels.LEVEL_INFO, "Start sleeping in the main thread");
             System.Threading.Thread.Sleep (5000);
             board_shim.stop_stream ();

@@ -155,7 +155,7 @@ int OpenBCISerialBoard::prepare_session ()
     return STATUS_OK;
 }
 
-int OpenBCISerialBoard::start_stream (int buffer_size)
+int OpenBCISerialBoard::start_stream (int buffer_size, char *streamer_params)
 {
     if (is_streaming)
     {
@@ -173,14 +173,17 @@ int OpenBCISerialBoard::start_stream (int buffer_size)
         delete db;
         db = NULL;
     }
-
-    // start streaming
-    int send_res = send_to_board ("b");
-    if (send_res != STATUS_OK)
+    if (streamer)
     {
-        return send_res;
+        delete streamer;
+        streamer = NULL;
     }
 
+    int res = prepare_streamer (streamer_params);
+    if (res != STATUS_OK)
+    {
+        return res;
+    }
     db = new DataBuffer (num_channels, buffer_size);
     if (!db->is_ready ())
     {
@@ -188,6 +191,12 @@ int OpenBCISerialBoard::start_stream (int buffer_size)
         return INVALID_BUFFER_SIZE_ERROR;
     }
 
+    // start streaming
+    int send_res = send_to_board ("b");
+    if (send_res != STATUS_OK)
+    {
+        return send_res;
+    }
     keep_alive = true;
     streaming_thread = std::thread ([this] { this->read_thread (); });
     is_streaming = true;
@@ -203,6 +212,11 @@ int OpenBCISerialBoard::stop_stream ()
         if (streaming_thread.joinable ())
         {
             streaming_thread.join ();
+        }
+        if (streamer)
+        {
+            delete streamer;
+            streamer = NULL;
         }
         return send_to_board ("s");
     }
