@@ -1,8 +1,11 @@
-package brainflow_test;
+package brainflow.examples;
+
+import brainflow.*;
 
 import java.util.Arrays;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.math3.complex.Complex;
 
 import brainflow.BoardIds;
 import brainflow.BoardShim;
@@ -24,7 +27,7 @@ public class Transforms
         board_shim.prepare_session ();
         board_shim.start_stream (3600);
         BoardShim.log_message (LogLevels.LEVEL_INFO.get_code (), "Start sleeping in the main thread");
-        Thread.sleep (5000);
+        Thread.sleep (10000);
         board_shim.stop_stream ();
         System.out.println (board_shim.get_board_data_count ());
         int num_rows = BoardShim.get_num_rows (board_id);
@@ -56,9 +59,15 @@ public class Transforms
             // thresholds for wavelet coeffs
             double[] restored_data = DataFilter.perform_inverse_wavelet_transform (wavelet_data,
                     data[eeg_channels[i]].length, "db4", 3);
-            System.out.println ("Restored data:");
+            System.out.println ("Restored data after wavelet:");
             System.out.println (Arrays.toString (restored_data));
 
+            // demo for fft works only for power of 2
+            // len of fft_data is N / 2 + 1
+            Complex[] fft_data = DataFilter.perform_fft (data[eeg_channels[i]], 0, 64);
+            double[] restored_fft_data = DataFilter.perform_ifft (fft_data);
+            System.out.println ("Restored data after fft:");
+            System.out.println (Arrays.toString (restored_fft_data));
         }
     }
 }

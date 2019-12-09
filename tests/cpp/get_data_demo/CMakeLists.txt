@@ -50,6 +50,9 @@ find_package (
     brainflow CONFIG REQUIRED
 )
 
+###############################
+## Demo for data acquisition ##
+###############################
 add_executable (
     brainflow_get_data
     src/brainflow_get_data.cpp
@@ -62,6 +65,27 @@ target_include_directories (
 
 target_link_libraries (
     brainflow_get_data PUBLIC
+    # for some systems(ubuntu for example) order matters
+    ${BrainflowPath}
+    ${DataHandlerPath}
+    ${BoardControllerPath}
+)
+
+#############################
+## Demo for file streaming ##
+#############################
+add_executable (
+    brainflow_file_stream
+    src/brainflow_file_stream.cpp
+)
+
+target_include_directories (
+    brainflow_file_stream PUBLIC
+    ${brainflow_INCLUDE_DIRS}
+)
+
+target_link_libraries (
+    brainflow_file_stream PUBLIC
     # for some systems(ubuntu for example) order matters
     ${BrainflowPath}
     ${DataHandlerPath}

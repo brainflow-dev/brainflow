@@ -14,16 +14,16 @@ It provides a **uniform API for all supported boards**, it means that you can sw
 
 
 .. toctree::
-	SupportedBoards
-	BuildBrainFlow
-	CoreModuleAPI
-	UserAPI
-	DataFormatDesc
-	Examples
-	BrainFlowDev
-	BrainFlowEmulator
-	AskHelp
-	License
+    SupportedBoards
+    BuildBrainFlow
+    CoreModuleAPI
+    UserAPI
+    DataFormatDesc
+    Examples
+    BrainFlowDev
+    BrainFlowEmulator
+    AskHelp
+    License
 
 
 Search

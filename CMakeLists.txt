@@ -120,6 +120,8 @@ set (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/utils/serial.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/socket_client.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/socket_server.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/utils/multicast_client.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/utils/multicast_server.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/openbci_serial_board.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/openbci_wifi_shield_board.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_wifi.cpp
@@ -133,6 +135,8 @@ set (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/board.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/synthetic_board.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/novaxr.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/file_streamer.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/multicast_streamer.cpp
 )
 
 set (DATA_HANDLER_SRC
@@ -168,6 +172,7 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/src/data_handler/inc
     ${CMAKE_HOME_DIRECTORY}/third_party/DSPFilters/include
     ${CMAKE_HOME_DIRECTORY}/third_party/wavelib/header
+    ${CMAKE_HOME_DIRECTORY}/third_party/fft/src
 )
 
 set_target_properties (${BOARD_CONTROLLER_NAME}

@@ -52,29 +52,34 @@ test_script:
   # tests for boards
   # tests for cyton
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board-id 0 --serial-port
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board-id 0 --streamer-params file://file_streamer.csv:w --serial-port
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_multiboard_get_data.py --log --board-id 0 --serial-port
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 0 --serial-port
-  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build32\Release\brainflow_get_data.exe --board-id 0 --serial-port
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build32\Release\brainflow_file_stream.exe --board-id 0 --serial-port
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 0 --serial-port
   # tests for synthetic
   - python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board-id -1
+  - python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board-id -1 --streamer-params file://file_streamer.csv:w
   - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id -1
+  - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build\Release\brainflow_file_stream.exe --board-id -1
   - cd %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow_get_data\bin\Release && test.exe --board-id -1
   # tests for cyton daisy
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board-id 2 --serial-port
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board-id 2 --streamer-params file://file_streamer.csv:a --serial-port
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 2 --serial-port
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 2 --serial-port
   # tests for novaxr
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\novaxr_udp.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --board-id 3 --ip-address 127.0.0.1 --ip-protocol 1
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\novaxr_udp.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --board-id 3 --ip-address 127.0.0.1 --ip-protocol 1 --streamer-params file://file_streamer.csv:w
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\novaxr_udp.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 3 --ip-address 127.0.0.1 --ip-protocol 1
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\novaxr_udp.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build32\Release\brainflow_get_data.exe --board-id 3 --ip-address 127.0.0.1 --ip-protocol 1
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\novaxr_udp.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 3 --ip-address 127.0.0.1 --ip-protocol 1
-  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\novaxr_tcp.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 3 --ip-address 127.0.0.1 --ip-protocol 2
   # tests for wifi shield based boards
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --board-id 4 --ip-address 127.0.0.1 --ip-port 17982
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 5 --ip-address 127.0.0.1 --ip-port 17983
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build32\Release\brainflow_get_data.exe --board-id 5 --ip-address 127.0.0.1 --ip-port 17993
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 6 --ip-address 127.0.0.1 --ip-port 17984  
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --board-id 4 --ip-address 127.0.0.1 --ip-port 17986 --streamer-params file://file_streamer.csv:w
   # tests for signal processing
   # python
   - python %APPVEYOR_BUILD_FOLDER%\tests\python\denoising.py
@@ -82,6 +87,7 @@ test_script:
   - python %APPVEYOR_BUILD_FOLDER%\tests\python\signal_filtering.py
   - python %APPVEYOR_BUILD_FOLDER%\tests\python\transforms.py
   - python %APPVEYOR_BUILD_FOLDER%\tests\python\downsampling.py
+  - python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_to_mne.py
   # C++ 32
   - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\tests\cpp\signal_processing_demo\build32\Release\denoising.exe
   - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\tests\cpp\signal_processing_demo\build32\Release\downsampling.exe

@@ -2,4 +2,10 @@ breathe==4.13.0
 sphinx==2.0.1
 sphinx_rtd_theme
 brainflow
+pandas
+mne
+matplotlib
+ipykernel
+nbsphinx
+pandoc
 sphinxcontrib-ghcontributors

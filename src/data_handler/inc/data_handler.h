@@ -55,6 +55,10 @@ extern "C"
         double *output_data);
     SHARED_EXPORT int perform_wavelet_denoising (
         double *data, int data_len, char *wavelet, int decomposition_level);
+    SHARED_EXPORT int perform_fft (
+        double *data, int data_len, double *output_re, double *output_im);
+    SHARED_EXPORT int perform_ifft (
+        double *input_re, double *input_im, int data_len, double *restored_data);
 
 
     // file operations

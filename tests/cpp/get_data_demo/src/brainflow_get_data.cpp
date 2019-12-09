@@ -35,6 +35,8 @@ int main (int argc, char *argv[])
     {
         board->prepare_session ();
         board->start_stream ();
+        // board->start_stream (45000, (char *)"file://file_stream_test.csv:a"); // store data in a
+        // file directly during streaming
         BoardShim::log_message ((int)LogLevels::LEVEL_INFO, "Start sleeping in the main thread");
 #ifdef _WIN32
         Sleep (5000);

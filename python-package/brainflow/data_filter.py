@@ -172,6 +172,24 @@ class DataHandlerDLL (object):
             ndpointer (ctypes.c_double)
         ]
 
+        self.perform_fft = self.lib.perform_fft
+        self.perform_fft.restype = ctypes.c_int
+        self.perform_fft.argtypes = [
+            ndpointer (ctypes.c_double),
+            ctypes.c_int,
+            ndpointer (ctypes.c_double),
+            ndpointer (ctypes.c_double)
+        ]
+
+        self.perform_ifft = self.lib.perform_ifft
+        self.perform_ifft.restype = ctypes.c_int
+        self.perform_ifft.argtypes = [
+            ndpointer (ctypes.c_double),
+            ndpointer (ctypes.c_double),
+            ctypes.c_int,
+            ndpointer (ctypes.c_double)
+        ]
+
         self.perform_wavelet_denoising = self.lib.perform_wavelet_denoising
         self.perform_wavelet_denoising.restype = ctypes.c_int
         self.perform_wavelet_denoising.argtypes = [
@@ -423,6 +441,55 @@ class DataFilter (object):
         res = DataHandlerDLL.get_instance ().perform_wavelet_denoising (data, data.shape[0], wavelet_func, decomposition_level)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to denoise data', res)
+
+    @classmethod
+    def perform_fft (cls, data):
+        """perform direct fft
+
+        :param data: data for fft, len of data must be a power of 2
+        :type data: 1d numpy array
+        :return: numpy array of complex values, len of this array is N / 2 + 1
+        :rtype: 1d numpy array
+        """
+        def is_power_of_two (n):
+            return (n != 0) and (n & (n - 1) == 0)
+
+        if (not is_power_of_two (data.shape[0])):
+            raise BrainFlowError ('data len is not power of 2', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+
+        temp_re = numpy.zeros (int (data.shape[0] / 2 + 1)).astype (numpy.float64)
+        temp_im = numpy.zeros (int (data.shape[0] / 2 + 1)).astype (numpy.float64)
+        res = DataHandlerDLL.get_instance ().perform_fft (data, data.shape[0], temp_re, temp_im)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to perform fft', res)
+
+        output = numpy.zeros (int (data.shape[0] / 2 + 1)).astype (numpy.complex128)
+        for i in range (output.shape[0]):
+            output[i] = numpy.complex128 (complex (temp_re[i], temp_im[i]))
+
+        return output
+
+    @classmethod
+    def perform_ifft (cls, data):
+        """perform inverse fft
+
+        :param data: data from fft
+        :type data: 1d numpy array of numpy.complex128
+        :return: restored data
+        :rtype: 1d numpy array of doubles
+        """
+        temp_re = numpy.zeros (data.shape[0]).astype (numpy.float64)
+        temp_im = numpy.zeros (data.shape[0]).astype (numpy.float64)
+        for i in range (data.shape[0]):
+            temp_re[i] = data[i].real
+            temp_im[i] = data[i].imag
+        output = numpy.zeros (2 * (data.shape[0] - 1)).astype (numpy.float64)
+
+        res = DataHandlerDLL.get_instance ().perform_ifft (temp_re, temp_im, output.shape[0], output)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to perform ifft', res)
+
+        return output
 
     @classmethod
     def write_file (cls, data, file_name, file_mode):

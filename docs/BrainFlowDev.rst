@@ -26,7 +26,7 @@ CI and tests
 
 If you want to commit to core module of brainflow project please check that all tests are passed, you can enable `Travis CI <https://travis-ci.com/>`_ and `AppVeyour <https://ci.appveyor.com>`_ for your fork of BrainFlow to run tests automatically, or check CI status directly in your PR.
 
-Also you can run integration tests manually for any board even if you dont have real hardware, check BrainFlow Emulator page for details.
+Also you can run integration tests manually for any board even if you dont have real hardware, check :ref:`emulator-label`. page for details.
 
 Pull Requests
 --------------
@@ -45,3 +45,20 @@ Instructions to add new boards to BrainFlow
 **You've just written Python, Java, C#, R, C++ ... SDKs for your board! Also now you can use your new board with applications and frameworks which use BrainFlow API.**
 
 To enable automation testing you should develop a simple emulator for your new board and add tests to .travis.yml and appveyour.yml, also make sure that all current tests are passed and feel free to send a PR.
+
+Instruction to build docs locally
+-----------------------------------
+
+Don't push changes to Docs without local verification.
+
+- install `pandoc <https://pandoc.org/installing.html>`_
+- optional: install Doxygen, skip it if you dont understand what it is or don't need to publish your local build
+
+Install requirements::
+
+    cd docs
+    python -m pip install -r requirements.txt
+
+Build docs::
+
+    make html

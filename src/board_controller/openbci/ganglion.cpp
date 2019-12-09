@@ -81,7 +81,7 @@ int Ganglion::prepare_session ()
     return STATUS_OK;
 }
 
-int Ganglion::start_stream (int buffer_size)
+int Ganglion::start_stream (int buffer_size, char *streamer_params)
 {
     if (this->is_streaming)
     {
@@ -99,7 +99,17 @@ int Ganglion::start_stream (int buffer_size)
         delete this->db;
         this->db = NULL;
     }
+    if (this->streamer)
+    {
+        delete this->streamer;
+        this->streamer = NULL;
+    }
 
+    int res = prepare_streamer (streamer_params);
+    if (res != STATUS_OK)
+    {
+        return res;
+    }
     this->db = new DataBuffer (num_channels, buffer_size);
     if (!this->db->is_ready ())
     {
@@ -107,7 +117,7 @@ int Ganglion::start_stream (int buffer_size)
         return INVALID_BUFFER_SIZE_ERROR;
     }
 
-    int res = this->call_start ();
+    res = this->call_start ();
     if (res != STATUS_OK)
     {
         return res;
@@ -141,6 +151,11 @@ int Ganglion::stop_stream ()
         this->keep_alive = false;
         this->is_streaming = false;
         this->streaming_thread.join ();
+        if (this->streamer)
+        {
+            delete this->streamer;
+            this->streamer = NULL;
+        }
         this->state = SYNC_TIMEOUT_ERROR;
         return this->call_stop ();
     }
@@ -174,6 +189,10 @@ void Ganglion::read_thread ()
     int num_attempts = 0;
     bool was_reset = false;
     float last_data[8] = {0};
+
+    double accel_x = 0.;
+    double accel_y = 0.;
+    double accel_z = 0.;
 
     while (this->keep_alive)
     {
@@ -222,17 +241,31 @@ void Ganglion::read_thread ()
                 package[2] = this->eeg_scale * last_data[5];
                 package[3] = this->eeg_scale * last_data[6];
                 package[4] = this->eeg_scale * last_data[7];
-
-                // I dont understand how to get accel data, for now it's 0
-                package[5] = 0.;
-                package[6] = 0.;
-                package[7] = 0.;
+                package[5] = accel_x;
+                package[6] = accel_y;
+                package[7] = accel_z;
+                this->streamer->stream_data (package, 8, data.timestamp);
                 this->db->add_data (data.timestamp, package);
                 continue;
             }
             // 18 bit compression, sends delta from previous value instead of real value!
             else if ((data.data[0] >= 1) && (data.data[0] <= 100))
             {
+                int last_digit = data.data[0] % 10;
+                switch (last_digit)
+                {
+                    case 0:
+                        accel_x = this->accel_scale * data.data[19];
+                        break;
+                    case 1:
+                        accel_y = this->accel_scale * data.data[19];
+                        break;
+                    case 2:
+                        accel_z = this->accel_scale * data.data[19];
+                        break;
+                    default:
+                        break;
+                }
                 bits_per_num = 18;
             }
             else if ((data.data[0] >= 101) && (data.data[0] <= 200))
@@ -276,12 +309,17 @@ void Ganglion::read_thread ()
             package[2] = this->eeg_scale * last_data[1];
             package[3] = this->eeg_scale * last_data[2];
             package[4] = this->eeg_scale * last_data[3];
+            package[5] = accel_x;
+            package[6] = accel_y;
+            package[7] = accel_z;
+            this->streamer->stream_data (package, 8, data.timestamp);
             this->db->add_data (data.timestamp, package);
             // add second package
             package[1] = this->eeg_scale * last_data[4];
             package[2] = this->eeg_scale * last_data[5];
             package[3] = this->eeg_scale * last_data[6];
             package[4] = this->eeg_scale * last_data[7];
+            this->streamer->stream_data (package, 8, data.timestamp);
             this->db->add_data (data.timestamp, package);
         }
         else
@@ -316,6 +354,13 @@ int Ganglion::config_board (char *config)
     if (res != STATUS_OK)
     {
         return res;
+    }
+    // I've tried to pause and restart inside bglib code it doesnt work, dont want to investigate
+    // further
+    if (this->keep_alive)
+    {
+        safe_logger (spdlog::level::debug, "For ganglion config doesnt work if stream is running");
+        return STREAM_ALREADY_RUN_ERROR;
     }
     return this->call_config (config);
 }

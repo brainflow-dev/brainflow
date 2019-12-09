@@ -60,7 +60,7 @@ namespace brainflow
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int prepare_session (int board_id, string input_json);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int start_stream (int buffer_size, int board_id, string input_json);
+        public static extern int start_stream (int buffer_size, string streamer_params, int board_id, string input_json);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int stop_stream (int board_id, string input_json);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -114,7 +114,7 @@ namespace brainflow
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int prepare_session (int board_id, string input_json);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int start_stream (int buffer_size, int board_id, string input_json);
+        public static extern int start_stream (int buffer_size, string streamer_params, int board_id, string input_json);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int stop_stream (int board_id, string input_json);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -173,12 +173,12 @@ namespace brainflow
                 return BoardControllerLibrary32.prepare_session (board_id, input_json);
         }
 
-        public static int start_stream (int buffer_size, int board_id, string input_json)
+        public static int start_stream (int buffer_size, string streamer_params, int board_id, string input_json)
         {
             if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.start_stream (buffer_size, board_id, input_json);
+                return BoardControllerLibrary64.start_stream (buffer_size, streamer_params, board_id, input_json);
             else
-                return BoardControllerLibrary32.start_stream (buffer_size, board_id, input_json);
+                return BoardControllerLibrary32.start_stream (buffer_size, streamer_params, board_id, input_json);
         }
 
         public static int stop_stream (int board_id, string input_json)

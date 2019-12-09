@@ -46,7 +46,7 @@
 			"eog_channels" : [1, 2, 3, 4],
 			"eda_channels" : [1, 2, 3, 4],
 			"ppg_channels" : [],
-			"accel_channels" : [5, 6, 8],
+			"accel_channels" : [5, 6, 7],
 			"analog_channels" : [],
 			"gyro_channels": [],
 			"other_channels": []

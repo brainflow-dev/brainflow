@@ -30,7 +30,7 @@ public:
     virtual ~OpenBCISerialBoard ();
 
     virtual int prepare_session ();
-    virtual int start_stream (int buffer_size);
+    virtual int start_stream (int buffer_size, char *streamer_params);
     virtual int stop_stream ();
     virtual int release_session ();
     virtual int config_board (char *config);

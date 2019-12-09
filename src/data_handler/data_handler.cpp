@@ -14,6 +14,8 @@
 #include "wauxlib.h"
 #include "wavelib.h"
 
+#include "FFTReal.h"
+
 
 int perform_lowpass (double *data, int data_len, int sampling_rate, double cutoff, int order,
     int filter_type, double ripple)
@@ -382,11 +384,15 @@ int perform_wavelet_denoising (double *data, int data_len, char *wavelet, int de
             data[i] = temp[i];
         }
         delete[] temp;
+        temp = NULL;
         denoise_free (obj);
     }
     catch (const std::exception &e)
     {
-        delete[] temp;
+        if (temp)
+        {
+            delete[] temp;
+        }
         if (obj)
         {
             denoise_free (obj);
@@ -394,6 +400,103 @@ int perform_wavelet_denoising (double *data, int data_len, char *wavelet, int de
         // more likely exception here occured because input buffer is to small to perform wavelet
         // transform
         return INVALID_BUFFER_SIZE_ERROR;
+    }
+    return STATUS_OK;
+}
+
+/*
+   FFTReal output | Positive FFT equiv.   | Negative FFT equiv.
+   ---------------+-----------------------+-----------------------
+   f [0]          | Real (bin 0)          | Real (bin 0)
+   f [...]        | Real (bin ...)        | Real (bin ...)
+   f [length/2]   | Real (bin length/2)   | Real (bin length/2)
+   f [length/2+1] | Imag (bin 1)          | -Imag (bin 1)
+   f [...]        | Imag (bin ...)        | -Imag (bin ...)
+   f [length-1]   | Imag (bin length/2-1) | -Imag (bin length/2-1)
+
+And FFT bins are distributed in f [] as above:
+
+               |                | Positive FFT    | Negative FFT
+   Bin         | Real part      | imaginary part  | imaginary part
+   ------------+----------------+-----------------+---------------
+   0           | f [0]          | 0               | 0
+   1           | f [1]          | f [length/2+1]  | -f [length/2+1]
+   ...         | f [...],       | f [...]         | -f [...]
+   length/2-1  | f [length/2-1] | f [length-1]    | -f [length-1]
+   length/2    | f [length/2]   | 0               | 0
+   length/2+1  | f [length/2-1] | -f [length-1]   | f [length-1]
+   ...         | f [...]        | -f [...]        | f [...]
+   length-1    | f [1]          | -f [length/2+1] | f [length/2+1]
+*/
+int perform_fft (double *data, int data_len, double *output_re, double *output_im)
+{
+    // must be power of 2
+    if ((!data) || (!output_re) || (!output_im) || (data_len <= 0) || (data_len & (data_len - 1)))
+    {
+        return INVALID_ARGUMENTS_ERROR;
+    }
+    double *temp = new double[data_len];
+    try
+    {
+        ffft::FFTReal<double> fft_object (data_len);
+        fft_object.do_fft (temp, data);
+        for (int i = 0; i < data_len / 2 + 1; i++)
+        {
+            output_re[i] = temp[i];
+        }
+        output_im[0] = 0.0;
+        for (int count = 1, j = data_len / 2 + 1; j < data_len; j++, count++)
+        {
+            output_im[count] = temp[j];
+        }
+        output_im[data_len / 2] = 0.0;
+        delete[] temp;
+        temp = NULL;
+    }
+    catch (const std::exception &e)
+    {
+        if (temp)
+        {
+            delete[] temp;
+        }
+        return GENERAL_ERROR;
+    }
+    return STATUS_OK;
+}
+
+// data_len here is an original size, not len of input_re input_im
+int perform_ifft (double *input_re, double *input_im, int data_len, double *restored_data)
+{
+    // must be power of 2
+    if ((!restored_data) || (!input_re) || (!input_im) || (data_len <= 0) ||
+        (data_len & (data_len - 1)))
+    {
+        return INVALID_ARGUMENTS_ERROR;
+    }
+    double *temp = new double[data_len];
+    try
+    {
+        ffft::FFTReal<double> fft_object (data_len);
+        for (int i = 0; i < data_len / 2 + 1; i++)
+        {
+            temp[i] = input_re[i];
+        }
+        for (int count = 1, j = data_len / 2 + 1; j < data_len; j++, count++)
+        {
+            temp[j] = input_im[count];
+        }
+        fft_object.do_ifft (temp, restored_data);
+        fft_object.rescale (restored_data);
+        delete[] temp;
+        temp = NULL;
+    }
+    catch (const std::exception &e)
+    {
+        if (temp)
+        {
+            delete[] temp;
+        }
+        return GENERAL_ERROR;
     }
     return STATUS_OK;
 }

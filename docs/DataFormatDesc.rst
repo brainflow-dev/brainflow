@@ -1,3 +1,5 @@
+.. _data-format-label:
+
 Data Format Description
 =========================
 

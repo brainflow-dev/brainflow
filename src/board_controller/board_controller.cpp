@@ -96,7 +96,8 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
     return res;
 }
 
-int start_stream (int buffer_size, int board_id, char *json_brainflow_input_params)
+int start_stream (
+    int buffer_size, char *streamer_params, int board_id, char *json_brainflow_input_params)
 {
     std::lock_guard<std::mutex> lock (mutex);
 
@@ -114,7 +115,7 @@ int start_stream (int buffer_size, int board_id, char *json_brainflow_input_para
         return res;
     }
     auto board_it = boards.find (key);
-    return board_it->second->start_stream (buffer_size);
+    return board_it->second->start_stream (buffer_size, streamer_params);
 }
 
 int stop_stream (int board_id, char *json_brainflow_input_params)

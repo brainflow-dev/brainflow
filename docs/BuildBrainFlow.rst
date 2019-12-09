@@ -1,3 +1,5 @@
+.. _installation-label:
+
 Installation Instructions
 ==========================
 

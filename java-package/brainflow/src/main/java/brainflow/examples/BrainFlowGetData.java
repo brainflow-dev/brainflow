@@ -1,4 +1,6 @@
-package brainflow_test;
+package brainflow.examples;
+
+import brainflow.*;
 
 import java.util.Arrays;
 
@@ -17,7 +19,8 @@ public class BrainFlowGetData
         BoardShim board_shim = new BoardShim (board_id, params);
 
         board_shim.prepare_session ();
-        board_shim.start_stream (3600);
+        // board_shim.start_stream (); // use this for default options
+        board_shim.start_stream (450000, "file://file_stream.csv:w");
         BoardShim.log_message (LogLevels.LEVEL_INFO.get_code (), "Start sleeping in the main thread");
         Thread.sleep (5000);
         board_shim.stop_stream ();

@@ -51,7 +51,7 @@ int SyntheticBoard::prepare_session ()
     return STATUS_OK;
 }
 
-int SyntheticBoard::start_stream (int buffer_size)
+int SyntheticBoard::start_stream (int buffer_size, char *streamer_params)
 {
     safe_logger (spdlog::level::trace, "start stream");
     if (this->is_streaming)
@@ -65,12 +65,21 @@ int SyntheticBoard::start_stream (int buffer_size)
         return INVALID_BUFFER_SIZE_ERROR;
     }
 
+    if (this->streamer)
+    {
+        delete this->streamer;
+        this->streamer = NULL;
+    }
     if (this->db)
     {
         delete this->db;
         this->db = NULL;
     }
-    // here num channels means num_eeg_channels,total number of channels is num_eeg_channels + 1 +3
+    int res = prepare_streamer (streamer_params);
+    if (res != STATUS_OK)
+    {
+        return res;
+    }
     this->db = new DataBuffer (num_channels + 4, buffer_size);
     if (!this->db->is_ready ())
     {
@@ -92,6 +101,11 @@ int SyntheticBoard::stop_stream ()
         this->keep_alive = false;
         this->is_streaming = false;
         this->streaming_thread.join ();
+        if (this->streamer)
+        {
+            delete this->streamer;
+            this->streamer = NULL;
+        }
         return STATUS_OK;
     }
     else
@@ -155,7 +169,9 @@ void SyntheticBoard::read_thread ()
         package[2 + this->num_channels] = dist (mt);
         package[3 + this->num_channels] = dist (mt);
 
-        db->add_data (get_timestamp (), package);
+        double timestamp = get_timestamp ();
+        this->db->add_data (timestamp, package);
+        this->streamer->stream_data (package, this->num_channels + 3 + 1, timestamp);
         counter++;
 #ifdef _WIN32
         Sleep ((int)(1000 / this->sampling_rate));
