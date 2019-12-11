@@ -3,6 +3,49 @@
 Supported Boards
 =================
 
+Streaming Board
+------------------
+
+BrainFlow's boards can stream data to different destinations like file, socket and so on. This board acts like a consumer for data streamed from the main process.
+
+**To use it in the first process you should call:**
+
+.. code-block:: python
+
+    # choose any valid multicast address(from "224.0.0.0" to "239.255.255.255") and port
+    start_stream (450000, 'streaming_board://225.1.1.1:6677')
+
+**In the second process please specify:**
+
+- board_id: -2
+- ip_address field of BrainFlowInputParams structure, for example above it's 225.1.1.1
+- ip_port field of BrainFlowInputParams structure, for example above it's 6677
+- other_info field of BrainFlowInputParams structure, write there board_id for a board which acts like data provider(master board)
+
+Supported platforms:
+
+- Windows >= 8.1
+- Linux
+- MacOS
+
+In methods like:
+
+.. code-block:: python
+
+   get_eeg_channels (board_id)
+   get_emg_channels (board_id)
+   get_ecg_channels (board_id)
+   # .......
+
+You need to use master board id instead Streaming Board Id, because exact data format for streaming board is controlled by master board as well as sampling rate.
+
+Board Specs:
+
+- num eeg(emg,...) channels: like in master board
+- num acceleration channels: like in master board
+- sampling rate: like in master board
+- communication: UDP multicast socket to read data from master board
+
 Synthetic Board
 ----------------
 
@@ -144,7 +187,7 @@ Board Spec:
 - num eeg(emg,...) channels: 4
 - num acceleration channels: 3
 - sampling rate: 1600
-- communication: tcp socket to read data and http to send commands
+- communication: TCP socket to read data and HTTP to send commands
 
 Cyton with Wifi Shield
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -175,7 +218,7 @@ Board Spec:
 - num eeg(emg,...) channels: 8
 - num acceleration channels: 3
 - sampling rate: 1000
-- communication: tcp socket to read data and http to send commands
+- communication: TCP socket to read data and HTTP to send commands
 
 Cyton Daisy with Wifi Shield
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -205,4 +248,4 @@ Board Spec:
 - num eeg(emg,...) channels: 16
 - num acceleration channels: 3
 - sampling rate: 1000
-- communication: tcp socket to read data and http to send commands
+- communication: TCP socket to read data and HTTP to send commands

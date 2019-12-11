@@ -26,10 +26,15 @@ class BoardShim
 {
 
     void reshape_data (int data_points, double *linear_buffer, double **output_buf);
-    std::string input_params;
+    // can not init master_board_id in constructor cause we can not raise an exception from
+    // constructor, also can not do it only in prepare_session cause it might not be a first called
+    // method.
+    int get_master_board_id ();
+    std::string serialized_params;
+    struct BrainFlowInputParams params;
 
 public:
-    /// disable BrainFlow logger
+    /// disable BrainFlow loggers
     static void disable_board_logger ();
     /// enable BrainFlow logger with LEVEL_INFO
     static void enable_board_logger ();
@@ -85,7 +90,8 @@ public:
      * start streaming thread and store data in ringbuffer
      * @param buffer_size size of internal ring buffer
      * @param streamer_params use it to pass data packages further or store them directly during streaming,
-                    supported values: file://%file_name%:w, file://%file_name%:a, streaming_board://%multicast_group_ip%:%port%
+                    supported values: "file://%file_name%:w", "file://%file_name%:a", "streaming_board://%multicast_group_ip%:%port%"".
+                    Range for multicast addresses is from "224.0.0.0" to "239.255.255.255"
      */
     void start_stream (int buffer_size = 450000, char *streamer_params = NULL);
     // clang-format on

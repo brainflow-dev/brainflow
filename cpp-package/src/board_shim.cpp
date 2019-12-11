@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <string>
 
 #include "board_shim.h"
 
@@ -84,13 +85,14 @@ void BoardShim::log_message (int log_level, const char *format, ...)
 
 BoardShim::BoardShim (int board_id, struct BrainFlowInputParams params)
 {
-    input_params = params_to_string (params);
+    serialized_params = params_to_string (params);
+    this->params = params;
     this->board_id = board_id;
 }
 
 void BoardShim::prepare_session ()
 {
-    int res = ::prepare_session (board_id, const_cast<char *> (input_params.c_str ()));
+    int res = ::prepare_session (board_id, const_cast<char *> (serialized_params.c_str ()));
     if (res != STATUS_OK)
     {
         throw BrainFlowException ("failed to prepare session", res);
@@ -100,7 +102,7 @@ void BoardShim::prepare_session ()
 void BoardShim::start_stream (int buffer_size, char *streamer_params)
 {
     int res = ::start_stream (
-        buffer_size, streamer_params, board_id, const_cast<char *> (input_params.c_str ()));
+        buffer_size, streamer_params, board_id, const_cast<char *> (serialized_params.c_str ()));
     if (res != STATUS_OK)
     {
         throw BrainFlowException ("failed to start stream", res);
@@ -109,7 +111,7 @@ void BoardShim::start_stream (int buffer_size, char *streamer_params)
 
 void BoardShim::stop_stream ()
 {
-    int res = ::stop_stream (board_id, const_cast<char *> (input_params.c_str ()));
+    int res = ::stop_stream (board_id, const_cast<char *> (serialized_params.c_str ()));
     if (res != STATUS_OK)
     {
         throw BrainFlowException ("failed to stop stream", res);
@@ -118,7 +120,7 @@ void BoardShim::stop_stream ()
 
 void BoardShim::release_session ()
 {
-    int res = ::release_session (board_id, const_cast<char *> (input_params.c_str ()));
+    int res = ::release_session (board_id, const_cast<char *> (serialized_params.c_str ()));
     if (res != STATUS_OK)
     {
         throw BrainFlowException ("failed to release session", res);
@@ -128,8 +130,8 @@ void BoardShim::release_session ()
 int BoardShim::get_board_data_count ()
 {
     int data_count = 0;
-    int res =
-        ::get_board_data_count (&data_count, board_id, const_cast<char *> (input_params.c_str ()));
+    int res = ::get_board_data_count (
+        &data_count, board_id, const_cast<char *> (serialized_params.c_str ()));
     if (res != STATUS_OK)
     {
         throw BrainFlowException ("failed to get board data count", res);
@@ -140,10 +142,10 @@ int BoardShim::get_board_data_count ()
 double **BoardShim::get_board_data (int *num_data_points)
 {
     int num_samples = get_board_data_count ();
-    int num_data_channels = get_num_rows (board_id);
+    int num_data_channels = get_num_rows (get_master_board_id ());
     double *buf = new double[num_samples * num_data_channels];
-    int res =
-        ::get_board_data (num_samples, buf, board_id, const_cast<char *> (input_params.c_str ()));
+    int res = ::get_board_data (
+        num_samples, buf, board_id, const_cast<char *> (serialized_params.c_str ()));
     if (res != STATUS_OK)
     {
         delete[] buf;
@@ -163,10 +165,10 @@ double **BoardShim::get_board_data (int *num_data_points)
 
 double **BoardShim::get_current_board_data (int num_samples, int *num_data_points)
 {
-    int num_data_channels = BoardShim::get_num_rows (board_id);
+    int num_data_channels = BoardShim::get_num_rows (get_master_board_id ());
     double *buf = new double[num_samples * num_data_channels];
-    int res = ::get_current_board_data (
-        num_samples, buf, num_data_points, board_id, const_cast<char *> (input_params.c_str ()));
+    int res = ::get_current_board_data (num_samples, buf, num_data_points, board_id,
+        const_cast<char *> (serialized_params.c_str ()));
     if (res != STATUS_OK)
     {
         delete[] buf;
@@ -186,7 +188,7 @@ double **BoardShim::get_current_board_data (int num_samples, int *num_data_point
 
 void BoardShim::config_board (char *config)
 {
-    int res = ::config_board (config, board_id, const_cast<char *> (input_params.c_str ()));
+    int res = ::config_board (config, board_id, const_cast<char *> (serialized_params.c_str ()));
     if (res != STATUS_OK)
     {
         throw BrainFlowException ("failed to config board", res);
@@ -197,12 +199,31 @@ void BoardShim::config_board (char *config)
 // can not do it directly in low level api because some languages can not pass multidim array to C++
 void BoardShim::reshape_data (int num_data_points, double *linear_buffer, double **output_buf)
 {
-    int num_data_channels = BoardShim::get_num_rows (board_id);
+    int num_data_channels = BoardShim::get_num_rows (get_master_board_id ());
     for (int i = 0; i < num_data_channels; i++)
     {
         memcpy (
             output_buf[i], linear_buffer + i * num_data_points, sizeof (double) * num_data_points);
     }
+}
+
+int BoardShim::get_master_board_id ()
+{
+    int master_board_id = board_id;
+    if (board_id == STREAMING_BOARD)
+    {
+        try
+        {
+            master_board_id = std::stoi (params.other_info);
+        }
+        catch (const std::exception &e)
+        {
+            throw BrainFlowException (
+                "specify master board id for STREAMING_BOARD using params.other_info",
+                INVALID_ARGUMENTS_ERROR);
+        }
+    }
+    return master_board_id;
 }
 
 //////////////////////////////////////////

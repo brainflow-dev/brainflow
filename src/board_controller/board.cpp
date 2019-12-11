@@ -79,7 +79,16 @@ int Board::prepare_streamer (char *streamer_params)
         }
         if (streamer_type == "streaming_board")
         {
-            int port = std::stoi (streamer_mods);
+            int port = 0;
+            try
+            {
+                port = std::stoi (streamer_mods);
+            }
+            catch (const std::exception &e)
+            {
+                safe_logger (spdlog::level::err, e.what ());
+                return INVALID_ARGUMENTS_ERROR;
+            }
             streamer = new MultiCastStreamer (streamer_dest.c_str (), port);
         }
 

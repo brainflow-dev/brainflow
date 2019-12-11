@@ -80,6 +80,8 @@ test_script:
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build32\Release\brainflow_get_data.exe --board-id 5 --ip-address 127.0.0.1 --ip-port 17993
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 6 --ip-address 127.0.0.1 --ip-port 17984  
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --board-id 4 --ip-address 127.0.0.1 --ip-port 17986 --streamer-params file://file_streamer.csv:w
+  # tests for streaming board
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\streaming_board_emulator.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
   # tests for signal processing
   # python
   - python %APPVEYOR_BUILD_FOLDER%\tests\python\denoising.py

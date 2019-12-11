@@ -5,6 +5,22 @@ BrainFlow Emulator
 
 BrainFlow Emulator allows you to run all integration tests for all supported boards without real hardware, our CI uses it for test automation, also you can run it on your own PC.
 
+Streaming Board
+-----------------
+
+Streaming Board emulator works using Python binding for BrainFlow, so **you need to install Python binding first.**
+
+Install emulator package::
+
+    cd emulator
+    python -m pip install -U .
+
+Run tests ::
+
+    python emulator\brainflow_emulator\streaming_board_emulator.py python tests\python\brainflow_get_data.py --log --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
+
+This emulator uses synthetic board as a master board and ip address and port are hardcoded.
+
 OpenBCI Cyton
 --------------
 

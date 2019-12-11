@@ -1,5 +1,6 @@
 #include <iostream>
 #include <stdlib.h>
+#include <string>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -49,6 +50,13 @@ int main (int argc, char *argv[])
         data = board->get_board_data (&data_count);
         BoardShim::log_message ((int)LogLevels::LEVEL_INFO, "read %d packages", data_count);
         board->release_session ();
+        // for STREAMING_BOARD you have to query information using board id for master board
+        // because for STREAMING_BOARD data format is determined by master board!
+        if (board_id == STREAMING_BOARD)
+        {
+            board_id = std::stoi (params.other_info);
+            BoardShim::log_message ((int)LogLevels::LEVEL_INFO, "Use Board Id %d", board_id);
+        }
         num_rows = BoardShim::get_num_rows (board_id);
         std::cout << std::endl << "Data from the board" << std::endl << std::endl;
         print_head (data, num_rows, data_count);
