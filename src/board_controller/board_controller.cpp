@@ -20,6 +20,7 @@
 #include "ganglion.h"
 #include "ganglion_wifi.h"
 #include "novaxr.h"
+#include "streaming_board.h"
 #include "synthetic_board.h"
 
 #include "json.hpp"
@@ -60,14 +61,17 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
     std::shared_ptr<Board> board = NULL;
     switch (board_id)
     {
+        case STREAMING_BOARD:
+            board = std::shared_ptr<Board> (new StreamingBoard (params));
+            break;
+        case SYNTHETIC_BOARD:
+            board = std::shared_ptr<Board> (new SyntheticBoard (params));
+            break;
         case CYTON_BOARD:
             board = std::shared_ptr<Board> (new Cyton (params));
             break;
         case GANGLION_BOARD:
             board = std::shared_ptr<Board> (new Ganglion (params));
-            break;
-        case SYNTHETIC_BOARD:
-            board = std::shared_ptr<Board> (new SyntheticBoard (params));
             break;
         case CYTON_DAISY_BOARD:
             board = std::shared_ptr<Board> (new CytonDaisy (params));

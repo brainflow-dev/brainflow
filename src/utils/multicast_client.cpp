@@ -30,10 +30,7 @@ int MultiCastClient::init ()
     }
     socket_addr.sin_family = AF_INET;
     socket_addr.sin_port = htons (port);
-    if (inet_pton (AF_INET, ip_addr, &socket_addr.sin_addr) == 0)
-    {
-        return (int)MultiCastReturnCodes::PTON_ERROR;
-    }
+    socket_addr.sin_addr.s_addr = htonl (INADDR_ANY);
     client_socket = socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (client_socket == INVALID_SOCKET)
     {
@@ -43,7 +40,7 @@ int MultiCastClient::init ()
     // ensure that library will not hang in blocking recv/send call
     DWORD timeout = 5000;
     DWORD value = 1;
-    setsockopt (client_socket, SOL_SOCKET, SO_REUSEADDR, (char *)value, sizeof (value));
+    setsockopt (client_socket, SOL_SOCKET, SO_REUSEADDR, (char *)&value, sizeof (value));
     setsockopt (client_socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof (timeout));
     setsockopt (client_socket, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof (timeout));
 
@@ -112,17 +109,14 @@ int MultiCastClient::init ()
 
     socket_addr.sin_family = AF_INET;
     socket_addr.sin_port = htons (port);
-    if (inet_pton (AF_INET, ip_addr, &socket_addr.sin_addr) == 0)
-    {
-        return (int)MultiCastReturnCodes::PTON_ERROR;
-    }
+    socket_addr.sin_addr.s_addr = htonl (INADDR_ANY);
 
     // ensure that library will not hang in blocking recv/send call
     struct timeval tv;
     tv.tv_sec = 5;
     tv.tv_usec = 0;
     int value = 1;
-    setsockopt (client_socket, SOL_SOCKET, SO_REUSEADDR, (char *)value, sizeof (value));
+    setsockopt (client_socket, SOL_SOCKET, SO_REUSEADDR, &value, sizeof (value));
     setsockopt (client_socket, SOL_SOCKET, SO_RCVTIMEO, (const char *)&tv, sizeof (tv));
     setsockopt (client_socket, SOL_SOCKET, SO_SNDTIMEO, (const char *)&tv, sizeof (tv));
 

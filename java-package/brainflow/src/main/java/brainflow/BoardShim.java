@@ -400,6 +400,7 @@ public class BoardShim
      */
     public int board_id;
     private String input_json;
+    private int master_board_id;
 
     /**
      * Create BoardShim object
@@ -408,6 +409,18 @@ public class BoardShim
             throws BrainFlowError, IOException, ReflectiveOperationException
     {
         this.board_id = board_id;
+        this.master_board_id = board_id;
+        if (board_id == BoardIds.STREAMING_BOARD.get_code ())
+        {
+            try
+            {
+                this.master_board_id = Integer.parseInt (params.other_info);
+            } catch (NumberFormatException e)
+            {
+                throw new BrainFlowError ("need to set params.other_info to master board id",
+                        ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+            }
+        }
         this.input_json = params.to_json ();
     }
 
@@ -439,6 +452,14 @@ public class BoardShim
     /**
      * start streaming thread, store data in internal ringbuffer and stream them
      * from brainflow at the same time
+     * 
+     * @param buffer_size     size of internal ringbuffer
+     * 
+     * @param streamer_params supported vals: "file://%file_name%:w",
+     *                        "file://%file_name%:a",
+     *                        "streaming_board://%multicast_group_ip%:%port%". Range
+     *                        for multicast addresses is from "224.0.0.0" to
+     *                        "239.255.255.255"
      */
     public void start_stream (int buffer_size, String streamer_params) throws BrainFlowError
     {
@@ -509,7 +530,7 @@ public class BoardShim
      */
     public double[][] get_current_board_data (int num_samples) throws BrainFlowError
     {
-        int num_rows = BoardShim.get_num_rows (board_id);
+        int num_rows = BoardShim.get_num_rows (master_board_id);
         double[] data_arr = new double[num_samples * num_rows];
         int[] current_size = new int[1];
         int ec = instance.get_current_board_data (num_samples, data_arr, current_size, board_id, input_json);
@@ -531,7 +552,7 @@ public class BoardShim
     public double[][] get_board_data () throws BrainFlowError
     {
         int size = get_board_data_count ();
-        int num_rows = BoardShim.get_num_rows (board_id);
+        int num_rows = BoardShim.get_num_rows (master_board_id);
         double[] data_arr = new double[size * num_rows];
         int ec = instance.get_board_data (size, data_arr, board_id, input_json);
         if (ec != ExitCode.STATUS_OK.get_code ())

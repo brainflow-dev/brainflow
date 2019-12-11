@@ -1,6 +1,7 @@
 #' @export
 BoardIds <- function () {
     list (
+        STREAMING_BOARD = c (Id = as.integer (-2)),
         SYNTHETIC_BOARD = c (Id = as.integer (-1)),
         CYTON_BOARD = c (Id = as.integer (0)),
         GANGLION_BOARD = c (Id = as.integer (1)),

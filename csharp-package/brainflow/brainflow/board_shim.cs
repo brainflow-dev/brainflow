@@ -15,6 +15,7 @@ namespace brainflow
         /// </summary>
         public int board_id;
         private string input_json;
+        private int master_board_id; // for streaming board
 
         /// <summary>
         /// Create an instance of BoardShim class
@@ -24,6 +25,18 @@ namespace brainflow
         public BoardShim (int board_id, BrainFlowInputParams input_params)
         {
             this.board_id = board_id;
+            this.master_board_id = board_id;
+            if (board_id == (int)BoardIds.STREAMING_BOARD)
+            {
+                try
+                {
+                    master_board_id = System.Convert.ToInt32 (input_params.other_info);
+                }
+                catch (FormatException)
+                {
+                    throw new BrainFlowException ((int)CustomExitCodes.INVALID_ARGUMENTS_ERROR);
+                }
+            }
             this.input_json = input_params.to_json ();
         }
 
@@ -460,7 +473,7 @@ namespace brainflow
         /// <returns>latest collected data, can be less than "num_samples"</returns>
         public double[,] get_current_board_data (int num_samples)
         {
-            int num_rows = BoardShim.get_num_rows (board_id); 
+            int num_rows = BoardShim.get_num_rows (master_board_id); 
             double[] data_arr = new double[num_samples * num_rows];
             int[] current_size = new int[1];
             int ec = BoardControllerLibrary.get_current_board_data (num_samples, data_arr, current_size, board_id, input_json);
@@ -485,7 +498,7 @@ namespace brainflow
         public double[,] get_board_data ()
         {
 		    int size = get_board_data_count ();
-            int num_rows = BoardShim.get_num_rows (board_id);
+            int num_rows = BoardShim.get_num_rows (master_board_id);
             double[] data_arr = new double[size * num_rows];
             int ec = BoardControllerLibrary.get_board_data (size, data_arr, board_id, input_json);
 		    if (ec != (int) CustomExitCodes.STATUS_OK) {

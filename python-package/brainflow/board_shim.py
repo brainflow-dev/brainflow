@@ -15,6 +15,7 @@ from brainflow.exit_codes import BrainflowExitCodes
 class BoardIds (enum.Enum):
     """Enum to store all supported Board Ids"""
 
+    STREAMING_BOARD = -2 #:
     SYNTHETIC_BOARD = -1 #:
     CYTON_BOARD = 0 #:
     GANGLION_BOARD = 1 #:
@@ -322,6 +323,15 @@ class BoardShim (object):
         else:
             self.port_name = None
         self.board_id = board_id
+        # we need it for streaming board
+        if board_id == BoardIds.STREAMING_BOARD.value:
+            try:
+                self._master_board_id = int (input_params.other_info)
+            except:
+                raise BrainFlowError ('set master board id using params.other_info for STREAMING_BOARD',
+                                    BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        else:
+            self._master_board_id = self.board_id
 
 
     @classmethod
@@ -630,12 +640,12 @@ class BoardShim (object):
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to prepare streaming session', res)
 
-    def start_stream (self, num_samples = 1800*250, streamer_params = None):
+    def start_stream (self, num_samples = 1800 * 250, streamer_params = None):
         """Start streaming data, this methods stores data in ringbuffer
 
         :param num_samples: size of ring buffer to keep data
         :type num_samples: int
-        :param streamer_params parameter to stream data from brainflow, supported vals: file://%file_name%:w, file://%file_name%:a, streaming_board://%multicast_group_ip%:%port%
+        :param streamer_params parameter to stream data from brainflow, supported vals: "file://%file_name%:w", "file://%file_name%:a", "streaming_board://%multicast_group_ip%:%port%". Range for multicast addresses is from "224.0.0.0" to "239.255.255.255"
         :type streamer_params: str
         """
 
@@ -673,7 +683,7 @@ class BoardShim (object):
         :return: latest data from a board
         :rtype: numpy 2d array
         """
-        package_length = BoardShim.get_num_rows (self.board_id)
+        package_length = BoardShim.get_num_rows (self._master_board_id)
         data_arr = numpy.zeros (int(num_samples  * package_length)).astype (numpy.float64)
         current_size = numpy.zeros (1).astype (numpy.int32)
 
@@ -707,7 +717,7 @@ class BoardShim (object):
         :rtype: numpy 2d array
         """
         data_size = self.get_board_data_count ()
-        package_length = BoardShim.get_num_rows (self.board_id)
+        package_length = BoardShim.get_num_rows (self._master_board_id)
         data_arr = numpy.zeros (data_size * package_length).astype (numpy.float64)
 
         res = BoardControllerDLL.get_instance ().get_board_data (data_size, data_arr, self.board_id, self.input_json)

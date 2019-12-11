@@ -8,7 +8,7 @@ import java.util.Map;
  */
 public enum BoardIds
 {
-
+    STREAMING_BOARD (-2),
     SYNTHETIC_BOARD (-1),
     CYTON_BOARD (0),
     GANGLION_BOARD (1),
