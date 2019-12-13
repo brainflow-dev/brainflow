@@ -205,6 +205,13 @@ class BoardControllerDLL (object):
             ndpointer (ctypes.c_int32)
         ]
 
+        self.get_battery_channel = self.lib.get_battery_channel
+        self.get_battery_channel.restype = ctypes.c_int
+        self.get_battery_channel.argtypes = [
+            ctypes.c_int,
+            ndpointer (ctypes.c_int32)
+        ]
+
         self.get_package_num_channel = self.lib.get_package_num_channel
         self.get_package_num_channel.restype = ctypes.c_int
         self.get_package_num_channel.argtypes = [
@@ -306,6 +313,14 @@ class BoardControllerDLL (object):
             ndpointer (ctypes.c_int32)
         ]
 
+        self.get_temperature_channels = self.lib.get_temperature_channels
+        self.get_temperature_channels.restype = ctypes.c_int
+        self.get_temperature_channels.argtypes = [
+            ctypes.c_int,
+            ndpointer (ctypes.c_int32),
+            ndpointer (ctypes.c_int32)
+        ]
+
 
 class BoardShim (object):
     """BoardShim class is a primary interface to all boards
@@ -401,6 +416,7 @@ class BoardShim (object):
         :type board_id: int
         :return: sampling rate for this board id
         :rtype: int
+        :raises BrainFlowError: If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
         """
         sampling_rate = numpy.zeros (1).astype (numpy.int32)
         res = BoardControllerDLL.get_instance ().get_sampling_rate (board_id, sampling_rate)
@@ -416,12 +432,29 @@ class BoardShim (object):
         :type board_id: int
         :return: number of package num channel
         :rtype: int
+        :raises BrainFlowError: If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
         """
         package_num_channel = numpy.zeros (1).astype (numpy.int32)
         res = BoardControllerDLL.get_instance ().get_package_num_channel (board_id, package_num_channel)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to request info about this board', res)
         return int (package_num_channel[0])
+
+    @classmethod
+    def get_battery_channel (cls, board_id):
+        """get battery channel for a board
+
+        :param board_id: Board Id
+        :type board_id: int
+        :return: number of batter channel
+        :rtype: int
+        :raises BrainFlowError: If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+        """
+        battery_channel = numpy.zeros (1).astype (numpy.int32)
+        res = BoardControllerDLL.get_instance ().get_package_num_channel (board_id, battery_channel)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to request info about this board', res)
+        return int (battery_channel[0])
 
     @classmethod
     def get_num_rows (cls, board_id):
@@ -431,6 +464,7 @@ class BoardShim (object):
         :type board_id: int
         :return: number of rows in returned numpy array
         :rtype: int
+        :raises BrainFlowError: If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
         """
         num_rows = numpy.zeros (1).astype (numpy.int32)
         res = BoardControllerDLL.get_instance ().get_num_rows (board_id, num_rows)
@@ -446,6 +480,7 @@ class BoardShim (object):
         :type board_id: int
         :return: number of timestamp channel in returned numpy array
         :rtype: int
+        :raises BrainFlowError: If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
         """
         timestamp_channel = numpy.zeros (1).astype (numpy.int32)
         res = BoardControllerDLL.get_instance ().get_timestamp_channel (board_id, timestamp_channel)
@@ -461,6 +496,7 @@ class BoardShim (object):
         :type board_id: int
         :return: list of eeg channels in returned numpy array
         :rtype: list
+        :raises BrainFlowError: If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
         """
         num_channels = numpy.zeros (1).astype (numpy.int32)
         eeg_channels = numpy.zeros (512).astype (numpy.int32)
@@ -479,6 +515,7 @@ class BoardShim (object):
         :type board_id: int
         :return: list of eeg channels in returned numpy array
         :rtype: list
+        :raises BrainFlowError: If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
         """
         num_channels = numpy.zeros (1).astype (numpy.int32)
         emg_channels = numpy.zeros (512).astype (numpy.int32)
@@ -497,6 +534,7 @@ class BoardShim (object):
         :type board_id: int
         :return: list of ecg channels in returned numpy array
         :rtype: list
+        :raises BrainFlowError: If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
         """
         num_channels = numpy.zeros (1).astype (numpy.int32)
         ecg_channels = numpy.zeros (512).astype (numpy.int32)
@@ -515,6 +553,7 @@ class BoardShim (object):
         :type board_id: int
         :return: list of eog channels in returned numpy array
         :rtype: list
+        :raises BrainFlowError: If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
         """
         num_channels = numpy.zeros (1).astype (numpy.int32)
         eog_channels = numpy.zeros (512).astype (numpy.int32)
@@ -533,6 +572,7 @@ class BoardShim (object):
         :type board_id: int
         :return: list of eda channels in returned numpy array
         :rtype: list
+        :raises BrainFlowError: If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
         """
         num_channels = numpy.zeros (1).astype (numpy.int32)
         eda_channels = numpy.zeros (512).astype (numpy.int32)
@@ -551,6 +591,7 @@ class BoardShim (object):
         :type board_id: int
         :return: list of ppg channels in returned numpy array
         :rtype: list
+        :raises BrainFlowError: If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
         """
         num_channels = numpy.zeros (1).astype (numpy.int32)
         ppg_channels = numpy.zeros (512).astype (numpy.int32)
@@ -569,6 +610,7 @@ class BoardShim (object):
         :type board_id: int
         :return: list of accel channels in returned numpy array
         :rtype: list
+        :raises BrainFlowError: If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
         """
         num_channels = numpy.zeros (1).astype (numpy.int32)
         accel_channels = numpy.zeros (512).astype (numpy.int32)
@@ -587,6 +629,7 @@ class BoardShim (object):
         :type board_id: int
         :return: list of analog channels in returned numpy array
         :rtype: list
+        :raises BrainFlowError: If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
         """
         num_channels = numpy.zeros (1).astype (numpy.int32)
         analog_channels = numpy.zeros (512).astype (numpy.int32)
@@ -605,6 +648,7 @@ class BoardShim (object):
         :type board_id: int
         :return: list of gyro channels in returned numpy array
         :rtype: list
+        :raises BrainFlowError: If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
         """
         num_channels = numpy.zeros (1).astype (numpy.int32)
         gyro_channels = numpy.zeros (512).astype (numpy.int32)
@@ -623,6 +667,7 @@ class BoardShim (object):
         :type board_id: int
         :return: list of other channels in returned numpy array
         :rtype: list
+        :raises BrainFlowError: If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
         """
         num_channels = numpy.zeros (1).astype (numpy.int32)
         other_channels = numpy.zeros (512).astype (numpy.int32)
@@ -631,6 +676,25 @@ class BoardShim (object):
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to request info about this board', res)
         result = other_channels.tolist () [0:num_channels[0]]
+        return result
+
+    @classmethod
+    def get_temperature_channels (cls, board_id):
+        """get list of temperature channels in resulting data table for a board
+
+        :param board_id: Board Id
+        :type board_id: int
+        :return: list of temperature channels in returned numpy array
+        :rtype: list
+        :raises BrainFlowError: If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+        """
+        num_channels = numpy.zeros (1).astype (numpy.int32)
+        temperature_channels = numpy.zeros (512).astype (numpy.int32)
+
+        res = BoardControllerDLL.get_instance ().get_temperature_channels (board_id, temperature_channels, num_channels)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to request info about this board', res)
+        result = temperature_channels.tolist () [0:num_channels[0]]
         return result
 
     def prepare_session (self):

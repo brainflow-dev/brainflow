@@ -55,7 +55,7 @@ Install emulator package::
 
 Run tests::
 
-    python brainflow_emulator/novaxr_udp.py python ../tests/python/brainflow_get_data.py --log --ip-address 127.0.0.1 --board-id 3 --ip-protocol 1
+    python brainflow_emulator/novaxr_udp.py python ../tests/python/brainflow_get_data.py --log --ip-address 127.0.0.1 --board-id 3
 
 OpenBCI Wifi Shield based boards
 ----------------------------------

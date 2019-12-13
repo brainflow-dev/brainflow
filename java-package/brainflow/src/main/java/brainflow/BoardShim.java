@@ -44,6 +44,8 @@ public class BoardShim
 
         int get_sampling_rate (int board_id, int[] sampling_rate);
 
+        int get_battery_channel (int board_id, int[] battery_channel);
+
         int get_package_num_channel (int board_id, int[] package_num_channel);
 
         int get_num_rows (int board_id, int[] num_rows);
@@ -69,6 +71,8 @@ public class BoardShim
         int get_gyro_channels (int board_id, int[] gyro_channels, int[] len);
 
         int get_other_channels (int board_id, int[] other_channels, int[] len);
+
+        int get_temperature_channels (int board_id, int[] temperature_channels, int[] len);
     }
 
     private static DllInterface instance;
@@ -226,6 +230,21 @@ public class BoardShim
     }
 
     /**
+     * get row index in returned by get_board_data() 2d array which contains battery
+     * level
+     */
+    public static int get_battery_channel (int board_id) throws BrainFlowError
+    {
+        int[] res = new int[1];
+        int ec = instance.get_battery_channel (board_id, res);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in board info getter", ec);
+        }
+        return res[0];
+    }
+
+    /**
      * get row indices in returned by get_board_data() 2d array which contains EEG
      * data, for some boards we can not split EEG\EMG\... and return the same array
      */
@@ -268,6 +287,23 @@ public class BoardShim
         int[] len = new int[1];
         int[] channels = new int[512];
         int ec = instance.get_ecg_channels (board_id, channels, len);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in board info getter", ec);
+        }
+
+        return Arrays.copyOfRange (channels, 0, len[0]);
+    }
+
+    /**
+     * get row indices in returned by get_board_data() 2d array which contains
+     * temperature data
+     */
+    public static int[] get_temperature_channels (int board_id) throws BrainFlowError
+    {
+        int[] len = new int[1];
+        int[] channels = new int[512];
+        int ec = instance.get_temperature_channels (board_id, channels, len);
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in board info getter", ec);

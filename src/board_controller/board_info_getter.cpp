@@ -32,6 +32,11 @@ int get_package_num_channel (int board_id, int *package_num_channel)
     return get_single_value (board_id, "package_num_channel", package_num_channel);
 }
 
+int get_battery_channel (int board_id, int *battery_channel)
+{
+    return get_single_value (board_id, "battery_channel", battery_channel);
+}
+
 int get_num_rows (int board_id, int *num_rows)
 {
     return get_single_value (board_id, "num_rows", num_rows);
@@ -90,6 +95,11 @@ int get_gyro_channels (int board_id, int *gyro_channels, int *len)
 int get_other_channels (int board_id, int *other_channels, int *len)
 {
     return get_array_value (board_id, "other_channels", other_channels, len);
+}
+
+int get_temperature_channels (int board_id, int *temperature_channels, int *len)
+{
+    return get_array_value (board_id, "temperature_channels", temperature_channels, len);
 }
 
 inline std::string get_json_config ()
@@ -170,6 +180,6 @@ inline int get_array_value (int board_id, const char *param_name, int *output_ar
     }
     catch (json::exception &e)
     {
-        return NO_SUCH_DATA_IN_JSON_ERROR;
+        return UNSUPPORTED_BOARD_ERROR;
     }
 }

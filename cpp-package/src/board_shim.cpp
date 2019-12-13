@@ -263,6 +263,17 @@ int BoardShim::get_timestamp_channel (int board_id)
     return timestamp_channel;
 }
 
+int BoardShim::get_battery_channel (int board_id)
+{
+    int battery_channel = 0;
+    int res = ::get_battery_channel (board_id, &battery_channel);
+    if (res != STATUS_OK)
+    {
+        throw BrainFlowException ("failed get board info", res);
+    }
+    return battery_channel;
+}
+
 int BoardShim::get_num_rows (int board_id)
 {
     int num_rows = 0;
@@ -371,4 +382,15 @@ int *BoardShim::get_other_channels (int board_id, int *len)
         throw BrainFlowException ("failed get board info", res);
     }
     return other_channels;
+}
+
+int *BoardShim::get_temperature_channels (int board_id, int *len)
+{
+    int *temperature_channels = new int[MAX_CHANNELS];
+    int res = ::get_temperature_channels (board_id, temperature_channels, len);
+    if (res != STATUS_OK)
+    {
+        throw BrainFlowException ("failed get board info", res);
+    }
+    return temperature_channels;
 }

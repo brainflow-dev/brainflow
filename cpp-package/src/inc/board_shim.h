@@ -34,6 +34,7 @@ class BoardShim
     struct BrainFlowInputParams params;
 
 public:
+    // clang-format off
     /// disable BrainFlow loggers
     static void disable_board_logger ();
     /// enable BrainFlow logger with LEVEL_INFO
@@ -47,34 +48,102 @@ public:
     /// write user defined string to BrainFlow logger
     static void log_message (int log_level, const char *format, ...);
 
-    /// get sampling rate for this board, info about sampling rate is hardcoded in json file
+    /**
+     * get sampling rate for this board
+     * @param board_id board if for your board
+     * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+     */
     static int get_sampling_rate (int board_id);
-    /// get row index which holds package nums
+    /**
+     * get row index which holds package nums
+     * @param board_id board if for your board
+     * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+     */
     static int get_package_num_channel (int board_id);
-    /// get row index which holds timestamps
+    /**
+     * get row index which holds timestamps
+     * @param board_id board if for your board
+     * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+     */
     static int get_timestamp_channel (int board_id);
-    /// get number of rows in returned from @ref get_board_data() 2d array
+    /**
+     * get row index which holds battery level info
+     * @param board_id board if for your board
+     * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+     */
+    static int get_battery_channel (int board_id);
+    /**
+     * get number of rows in returned from @ref get_board_data() 2d array
+     * @param board_id board if for your board
+     * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+     */
     static int get_num_rows (int board_id);
-    /// get row indices which hold EEG data, for some board we can not split EEG\EMG\...
+    /**
+     * get row indices which hold EEG data, for some board we can not split EEG\EMG\...
+     * @param board_id board if for your board
+     * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+     */
     static int *get_eeg_channels (int board_id, int *len);
-    /// get row indices which hold EMG data, for some board we can not split EEG\EMG\...
+    /**
+     * get row indices which hold EMG data, for some board we can not split EEG\EMG\...
+     * @param board_id board if for your board
+     * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+     */
     static int *get_emg_channels (int board_id, int *len);
-    /// get row indices which hold ECG data, for some board we can not split EEG\EMG\...
+    /**
+     * get row indices which hold ECG data, for some board we can not split EEG\EMG\...
+     * @param board_id board if for your board
+     * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+     */
     static int *get_ecg_channels (int board_id, int *len);
-    /// get row indices which hold EOG data, for some board we can not split EEG\EMG\...
+    /**
+     * get row indices which hold EOG data, for some board we can not split EEG\EMG\...
+     * @param board_id board if for your board
+     * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+     */
     static int *get_eog_channels (int board_id, int *len);
-    /// get row indices which hold PPG data
+    /**
+     * get row indices which hold PPG data
+     * @param board_id board if for your board
+     * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+     */
     static int *get_ppg_channels (int board_id, int *len);
-    /// get row indices which hold EDA data
+    /**
+     * get row indices which hold EDA data
+     * @param board_id board if for your board
+     * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+     */
     static int *get_eda_channels (int board_id, int *len);
-    /// get row indices which hold accel data
+    /**
+     * get row indices which hold accel data
+     * @param board_id board if for your board
+     * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+     */
     static int *get_accel_channels (int board_id, int *len);
-    /// get row indices which hold ANALOG data
+    /**
+     * get row indices which hold analog data
+     * @param board_id board if for your board
+     * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+     */
     static int *get_analog_channels (int board_id, int *len);
-    /// get row indices which hold gyro data
+    /**
+     * get row indices which hold gyro data
+     * @param board_id board if for your board
+     * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+     */
     static int *get_gyro_channels (int board_id, int *len);
-    /// get row indices which hold other information for this board
+    /**
+     * get row indices which hold other information
+     * @param board_id board if for your board
+     * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+     */
     static int *get_other_channels (int board_id, int *len);
+    /**
+     * get row indices which hold temperature data
+     * @param board_id board if for your board
+     * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+     */
+    static int *get_temperature_channels (int board_id, int *len);
 
     int board_id;
 
@@ -85,7 +154,6 @@ public:
 
     /// prepare BrainFlow's streaming session, should be called first
     void prepare_session ();
-    // clang-format off
     /**
      * start streaming thread and store data in ringbuffer
      * @param buffer_size size of internal ring buffer
@@ -94,7 +162,6 @@ public:
                     Range for multicast addresses is from "224.0.0.0" to "239.255.255.255"
      */
     void start_stream (int buffer_size = 450000, char *streamer_params = NULL);
-    // clang-format on
     /// stop streaming thread, doesnt release other resources
     void stop_stream ();
     /// release streaming session
@@ -107,4 +174,5 @@ public:
     double **get_board_data (int *num_data_points);
     /// send string to a board, use it carefully and only if you understand what you are doing
     void config_board (char *config);
+    // clang-format on
 };
