@@ -45,6 +45,7 @@ namespace brainflow
         /// </summary>
         /// <param name="board_id"></param>
         /// <returns>sampling rate</returns>
+        /// <exception cref="BrainFlowException">If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR</exception>
         public static int get_sampling_rate (int board_id)
         {
             int[] val = new int[1];
@@ -61,6 +62,7 @@ namespace brainflow
         /// </summary>
         /// <param name="board_id"></param>
         /// <returns>row num in 2d array</returns>
+        /// <exception cref="BrainFlowException">If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR</exception>
         public static int get_package_num_channel (int board_id)
         {
             int[] val = new int[1];
@@ -77,6 +79,7 @@ namespace brainflow
         /// </summary>
         /// <param name="board_id"></param>
         /// <returns>row num in 2d array</returns>
+        /// <exception cref="BrainFlowException">If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR</exception>
         public static int get_timestamp_channel (int board_id)
         {
             int[] val = new int[1];
@@ -89,10 +92,28 @@ namespace brainflow
         }
 
         /// <summary>
+        /// get row undex which holds battery level
+        /// </summary>
+        /// <param name="board_id"></param>
+        /// <returns>row num in 2d array</returns>
+        /// <exception cref="BrainFlowException">If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR</exception>
+        public static int get_battery_channel (int board_id)
+        {
+            int[] val = new int[1];
+            int res = BoardControllerLibrary.get_battery_channel (board_id, val);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException (res);
+            }
+            return val[0];
+        }
+
+        /// <summary>
         /// get number of rows in returned by get_board_data() 2d array 
         /// </summary>
         /// <param name="board_id"></param>
         /// <returns>number of rows in 2d array</returns>
+        /// <exception cref="BrainFlowException">If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR</exception>
         public static int get_num_rows (int board_id)
         {
             int[] val = new int[1];
@@ -109,6 +130,7 @@ namespace brainflow
         /// </summary>
         /// <param name="board_id"></param>
         /// <returns>array of row nums</returns>
+        /// <exception cref="BrainFlowException">If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR</exception>
         public static int[] get_eeg_channels (int board_id)
         {
             int[] len = new int[1];
@@ -131,6 +153,7 @@ namespace brainflow
         /// </summary>
         /// <param name="board_id"></param>
         /// <returns>array of row nums</returns>
+        /// <exception cref="BrainFlowException">If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR</exception>
         public static int[] get_emg_channels (int board_id)
         {
             int[] len = new int[1];
@@ -153,6 +176,7 @@ namespace brainflow
         /// </summary>
         /// <param name="board_id"></param>
         /// <returns>array of row nums</returns>
+        /// <exception cref="BrainFlowException">If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR</exception>
         public static int[] get_ecg_channels (int board_id)
         {
             int[] len = new int[1];
@@ -175,6 +199,7 @@ namespace brainflow
         /// </summary>
         /// <param name="board_id"></param>
         /// <returns>array of row nums</returns>
+        /// <exception cref="BrainFlowException">If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR</exception>
         public static int[] get_eog_channels (int board_id)
         {
             int[] len = new int[1];
@@ -197,6 +222,7 @@ namespace brainflow
         /// </summary>
         /// <param name="board_id"></param>
         /// <returns>array of row nums</returns>
+        /// <exception cref="BrainFlowException">If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR</exception>
         public static int[] get_eda_channels (int board_id)
         {
             int[] len = new int[1];
@@ -219,6 +245,7 @@ namespace brainflow
         /// </summary>
         /// <param name="board_id"></param>
         /// <returns>array of row nums</returns>
+        /// <exception cref="BrainFlowException">If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR</exception>
         public static int[] get_ppg_channels (int board_id)
         {
             int[] len = new int[1];
@@ -241,6 +268,7 @@ namespace brainflow
         /// </summary>
         /// <param name="board_id"></param>
         /// <returns>array of row nums</returns>
+        /// <exception cref="BrainFlowException">If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR</exception>
         public static int[] get_accel_channels (int board_id)
         {
             int[] len = new int[1];
@@ -263,6 +291,7 @@ namespace brainflow
         /// </summary>
         /// <param name="board_id"></param>
         /// <returns>array of row nums</returns>
+        /// <exception cref="BrainFlowException">If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR</exception>
         public static int[] get_analog_channels (int board_id)
         {
             int[] len = new int[1];
@@ -285,6 +314,7 @@ namespace brainflow
         /// </summary>
         /// <param name="board_id"></param>
         /// <returns>array of row nums</returns>
+        /// <exception cref="BrainFlowException">If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR</exception>
         public static int[] get_gyro_channels (int board_id)
         {
             int[] len = new int[1];
@@ -307,11 +337,35 @@ namespace brainflow
         /// </summary>
         /// <param name="board_id"></param>
         /// <returns>array of row nums</returns>
+        /// <exception cref="BrainFlowException">If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR</exception>
         public static int[] get_other_channels (int board_id)
         {
             int[] len = new int[1];
             int[] channels = new int[512];
             int res = BoardControllerLibrary.get_other_channels (board_id, channels, len);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException (res);
+            }
+            int[] result = new int[len[0]];
+            for (int i = 0; i < len[0]; i++)
+            {
+                result[i] = channels[i];
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// get temperature channels for this board
+        /// </summary>
+        /// <param name="board_id"></param>
+        /// <returns>array of row nums</returns>
+        /// <exception cref="BrainFlowException">If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR</exception>
+        public static int[] get_temperature_channels (int board_id)
+        {
+            int[] len = new int[1];
+            int[] channels = new int[512];
+            int res = BoardControllerLibrary.get_temperature_channels (board_id, channels, len);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException (res);

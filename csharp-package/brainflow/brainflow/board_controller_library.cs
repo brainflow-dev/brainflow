@@ -87,6 +87,8 @@ namespace brainflow
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_package_num_channel (int board_id, int[] package_num_channel);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_battery_channel (int board_id, int[] battery_channel);
+        [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_num_rows (int board_id, int[] num_rows);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_eeg_channels (int board_id, int[] channels, int[] len);
@@ -108,6 +110,8 @@ namespace brainflow
         public static extern int get_gyro_channels (int board_id, int[] channels, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_other_channels (int board_id, int[] channels, int[] len);
+        [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_temperature_channels (int board_id, int[] channels, int[] len);
     }
 
     public static class BoardControllerLibrary32
@@ -141,6 +145,8 @@ namespace brainflow
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_package_num_channel (int board_id, int[] package_num_channel);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_battery_channel (int board_id, int[] battery_channel);
+        [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_num_rows (int board_id, int[] num_rows);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_eeg_channels (int board_id, int[] channels, int[] len);
@@ -162,6 +168,8 @@ namespace brainflow
         public static extern int get_gyro_channels (int board_id, int[] channels, int[] len);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_other_channels (int board_id, int[] channels, int[] len);
+        [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_temperature_channels (int board_id, int[] channels, int[] len);
     }
 
     public static class BoardControllerLibrary
@@ -270,6 +278,14 @@ namespace brainflow
                 return BoardControllerLibrary32.get_package_num_channel (board_id, package_num);
         }
 
+        public static int get_battery_channel (int board_id, int[] battery)
+        {
+            if (System.Environment.Is64BitProcess)
+                return BoardControllerLibrary64.get_battery_channel (board_id, battery);
+            else
+                return BoardControllerLibrary32.get_battery_channel (board_id, battery);
+        }
+
         public static int get_num_rows (int board_id, int[] num_rows)
         {
             if (System.Environment.Is64BitProcess)
@@ -364,6 +380,14 @@ namespace brainflow
                 return BoardControllerLibrary64.get_other_channels (board_id, channels, len);
             else
                 return BoardControllerLibrary32.get_other_channels (board_id, channels, len);
+        }
+
+        public static int get_temperature_channels (int board_id, int[] channels, int[] len)
+        {
+            if (System.Environment.Is64BitProcess)
+                return BoardControllerLibrary64.get_temperature_channels (board_id, channels, len);
+            else
+                return BoardControllerLibrary32.get_temperature_channels (board_id, channels, len);
         }
     }
 }

@@ -42,5 +42,5 @@ public:
     static constexpr int package_size = 72;
     static constexpr int num_packages = 19;
     static constexpr int transaction_size = NovaXR::package_size * NovaXR::num_packages;
-    static constexpr int num_channels = 25;
+    static constexpr int num_channels = 21;
 };

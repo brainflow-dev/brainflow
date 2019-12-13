@@ -37,25 +37,17 @@ int NovaXR::prepare_session ()
         safe_logger (spdlog::level::info, "Session is already prepared");
         return STATUS_OK;
     }
-    if ((params.ip_address.empty ()) || (params.ip_protocol == (int)IpProtocolType::NONE))
+    if (params.ip_address.empty ())
     {
-        safe_logger (spdlog::level::err, "ip address or ip protocol is empty");
+        safe_logger (spdlog::level::err, "ip address is empty");
         return INVALID_ARGUMENTS_ERROR;
     }
-    int port = 2390;
-    if (params.ip_port != 0)
+    if (params.ip_protocol == (int)IpProtocolType::TCP)
     {
-        safe_logger (spdlog::level::warn, "use port {} instead default", params.ip_port);
-        port = params.ip_port;
+        safe_logger (spdlog::level::err, "ip protocol is UDP for novaxr");
+        return INVALID_ARGUMENTS_ERROR;
     }
-    if (params.ip_protocol == (int)IpProtocolType::UDP)
-    {
-        socket = new SocketClient (params.ip_address.c_str (), port, (int)SocketType::UDP);
-    }
-    else
-    {
-        socket = new SocketClient (params.ip_address.c_str (), port, (int)SocketType::TCP);
-    }
+    socket = new SocketClient (params.ip_address.c_str (), 2390, (int)SocketType::UDP);
     int res = socket->connect (NovaXR::transaction_size);
     if (res != (int)SocketReturnCodes::STATUS_OK)
     {
@@ -241,12 +233,9 @@ void NovaXR::read_thread ()
      * Packet Byte [43:45]: EMG 1
      * Packet Byte [46:48]: EMG 2
      * Packet Byte [49:51]: EMG 3
-     * Packet Byte [52:53]: AXL X
-     * Packet Byte [54:55]: AXL Y
-     * Packet Byte [56:57]: AXL Z
-     * Packet Byte [58:59]: GYR X
-     * Packet Byte [60:61]: GYR Y
-     * Packet Byte [62:63]: GYR Z
+     * Packet Byte [52]:    Battery Level range: 0-100
+     * Packet Byte [53:54]: Skin Temperature
+     * Packet Byte [55]:    Firmware Error Code
      * Packet Byte [64:71]: Timestamp
      */
 
@@ -298,8 +287,12 @@ void NovaXR::read_thread ()
                 package[i - 3] =
                     eeg_scale * (double)cast_24bit_to_int32 (b + offset + 4 + 3 * (i - 4));
             }
+            int16_t temperature;
+            memcpy (&temperature, b + 53 + offset, 2);
             package[17] = (double)b[1 + offset];                // ppg
             package[18] = cast_16bit_to_int32 (b + 2 + offset); // eda
+            package[19] = temperature / 100.0;                  // temperature
+            package[20] = (double)b[52 + offset];               // battery level
 
             double timestamp;
             memcpy (&timestamp, b + 64 + offset, 8);
