@@ -46,8 +46,8 @@ Instructions to add new boards to BrainFlow
 
 To enable automation testing you should develop a simple emulator for your new board and add tests to .travis.yml and appveyour.yml, also make sure that all current tests are passed and feel free to send a PR.
 
-Instruction to build docs locally
------------------------------------
+Instructions to build docs locally
+------------------------------------
 
 Don't push changes to Docs without local verification.
 
