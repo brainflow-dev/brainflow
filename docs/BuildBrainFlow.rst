@@ -16,8 +16,8 @@ Python
 
     If you want to install it from source files or build unreleased version from github you should compile core module first and run ::
 
-       	cd python-package
-      	python -m pip install -e .
+        cd python-package
+        python -m pip install -e .
 
 C#
 ----
@@ -54,8 +54,9 @@ You are able to download jar files directly from `release page <https://github.c
 
     If you want to install it from source files or build unreleased version from github you should compile core module first and run ::
 
-       	cd java-package
-      	mvn package
+        cd java-package
+        cd brainflow
+        mvn package
 
 
 Compilation of Core module and C++ binding

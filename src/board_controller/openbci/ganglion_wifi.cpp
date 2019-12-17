@@ -40,6 +40,11 @@ void GanglionWifi::read_thread ()
             {
                 continue;
             }
+            if ((b[32 + offset] < END_BYTE_STANDARD) || (b[32 + offset] > END_BYTE_MAX))
+            {
+                safe_logger (spdlog::level::warn, "Wrong end byte, found {}", b[32 + offset]);
+                continue;
+            }
 
             double package[18] = {0.};
             // package num
@@ -51,7 +56,14 @@ void GanglionWifi::read_thread ()
             }
             // end byte
             package[8] = (double)b[32 + offset];
-            // check end byte
+            // place raw bytes to other_channels with end byte
+            package[9] = (double)b[26 + offset];
+            package[10] = (double)b[27 + offset];
+            package[11] = (double)b[28 + offset];
+            package[12] = (double)b[29 + offset];
+            package[13] = (double)b[30 + offset];
+            package[14] = (double)b[31 + offset];
+            // place accel data
             if (b[32 + offset] == END_BYTE_STANDARD)
             {
                 // accel
@@ -59,28 +71,13 @@ void GanglionWifi::read_thread ()
                 package[6] = accel_scale * cast_16bit_to_int32 (b + 28 + offset);
                 package[7] = accel_scale * cast_16bit_to_int32 (b + 30 + offset);
             }
-            else if (b[32 + offset] == END_BYTE_ANALOG)
+            // place analog data
+            if (b[32 + offset] == END_BYTE_ANALOG)
             {
                 // analog
                 package[15] = cast_16bit_to_int32 (b + 26 + offset);
                 package[16] = cast_16bit_to_int32 (b + 28 + offset);
                 package[17] = cast_16bit_to_int32 (b + 30 + offset);
-            }
-            else if ((b[32 + offset] > END_BYTE_ANALOG) && (b[32 + offset] <= END_BYTE_MAX))
-            {
-                // other data
-                package[8] = (double)b[32 + offset];
-                package[9] = (double)b[26 + offset];
-                package[10] = (double)b[27 + offset];
-                package[11] = (double)b[28 + offset];
-                package[12] = (double)b[29 + offset];
-                package[13] = (double)b[30 + offset];
-                package[14] = (double)b[31 + offset];
-            }
-            else
-            {
-                safe_logger (spdlog::level::warn, "Wrong end byte, found {}", b[32 + offset]);
-                continue;
             }
 
             double timestamp = get_timestamp ();

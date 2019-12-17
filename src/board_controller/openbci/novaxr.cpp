@@ -215,29 +215,31 @@ void NovaXR::read_thread ()
 {
     /* ------ NovaXR packet format --------
      * Packet Byte [0]:     Packet Number
-     * Packet Byte [1]:     PPG
-     * Packet Byte [2:3]:   EDA
-     * Packet Byte [4:6]:   EEG_FC 0
-     * Packet Byte [7:9]:   EEG_FC 1
-     * Packet Byte [10:12]: EEG_OL 0
-     * Packet Byte [13:15]: EEG_OL 1
-     * Packet Byte [16:18]: EEG_OL 2
-     * Packet Byte [19:21]: EEG_OL 3
-     * Packet Byte [22:24]: EEG_OL 4
-     * Packet Byte [25:27]: EEG_OL 5
-     * Packet Byte [28:30]: EEG_OL 6
-     * Packet Byte [31:33]: EEG_OL 7
-     * Packet Byte [34:36]: EOG 0
-     * Packet Byte [37:39]: EOG 1
-     * Packet Byte [40:42]: EMG 0
-     * Packet Byte [43:45]: EMG 1
-     * Packet Byte [46:48]: EMG 2
-     * Packet Byte [49:51]: EMG 3
-     * Packet Byte [52]:    Battery Level range: 0-100
-     * Packet Byte [53:54]: Skin Temperature
-     * Packet Byte [55]:    Firmware Error Code
+     * Packet Byte [1:2]:   PPG
+     * Packet Byte [3:4]:   EDA
+     * Packet Byte [5:7]:   EEG_FC 0
+     * Packet Byte [8:10]:  EEG_FC 1
+     * Packet Byte [11:13]: EEG_OL 0
+     * Packet Byte [14:16]: EEG_OL 1
+     * Packet Byte [17:19]: EEG_OL 2
+     * Packet Byte [20:22]: EEG_OL 3
+     * Packet Byte [23:25]: EEG_OL 4
+     * Packet Byte [26:28]: EEG_OL 5
+     * Packet Byte [29:31]: EEG_OL 6
+     * Packet Byte [32:34]: EEG_OL 7
+     * Packet Byte [35:37]: EOG 0
+     * Packet Byte [38:40]: EOG 1
+     * Packet Byte [41:43]: EMG 0
+     * Packet Byte [44:46]: EMG 1
+     * Packet Byte [47:49]: EMG 2
+     * Packet Byte [50:52]: EMG 3
+     * Packet Byte [53]:    Battery Level range: 0-100
+     * Packet Byte [54:55]: Skin Temperature
+     * Packet Byte [56]:    Firmware Error Code
      * Packet Byte [64:71]: Timestamp
+     * ----- Total 72 Bytes ------------
      */
+
 
     int res;
     unsigned char b[NovaXR::transaction_size];
@@ -285,14 +287,18 @@ void NovaXR::read_thread ()
             {
                 // put them directly after package num in brainflow
                 package[i - 3] =
-                    eeg_scale * (double)cast_24bit_to_int32 (b + offset + 4 + 3 * (i - 4));
+                    eeg_scale * (double)cast_24bit_to_int32 (b + offset + 5 + 3 * (i - 4));
             }
             int16_t temperature;
-            memcpy (&temperature, b + 53 + offset, 2);
-            package[17] = (double)b[1 + offset];                // ppg
-            package[18] = cast_16bit_to_int32 (b + 2 + offset); // eda
-            package[19] = temperature / 100.0;                  // temperature
-            package[20] = (double)b[52 + offset];               // battery level
+            int16_t ppg;
+            int16_t eda;
+            memcpy (&temperature, b + 54 + offset, 2);
+            memcpy (&ppg, b + 1 + offset, 2);
+            memcpy (&eda, b + 3 + offset, 2);
+            package[17] = ppg;                    // ppg
+            package[18] = eda;                    // eda
+            package[19] = temperature / 100.0;    // temperature
+            package[20] = (double)b[53 + offset]; // battery level
 
             double timestamp;
             memcpy (&timestamp, b + 64 + offset, 8);

@@ -59,13 +59,11 @@ Special channels for Cyton Based boards
 
 For analog data we return int32 values but from low level API we return double array so these values are casted to double wo any changes.
 
-**If Cyton End Byte is between 0xC2 and 0xC6 we add raw unprocessed bytes to the second and next channels returned by:**
+**Also we add raw unprocessed bytes to the second and next channels returned by:**
 
 .. code-block:: python
 
    get_other_channels (board_id)
-
-For such data we return unprocessed raw bytes you should cast them to integers or floats.
 
 If Cyton End Byte is outside `this range <https://docs.openbci.com/docs/02Cyton/CytonDataFormat#firmware-version-200-fall-2016-to-now-1>`_ we drop entire package.
 
