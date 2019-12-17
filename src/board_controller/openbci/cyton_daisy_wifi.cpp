@@ -30,7 +30,6 @@ void CytonDaisyWifi::read_thread ()
     unsigned char b[OpenBCIWifiShieldBoard::transaction_size];
     while (keep_alive)
     {
-        // check start byte
         res = server_socket->recv (b, OpenBCIWifiShieldBoard::transaction_size);
         if (res != OpenBCIWifiShieldBoard::transaction_size)
         {
@@ -46,131 +45,110 @@ void CytonDaisyWifi::read_thread ()
             {
                 break; // drop entire transaction for daisy
             }
+            unsigned char *bytes = b + 1; // for better consistency between plain cyton and wifi, in
+                                          // plain cyton index is shifted by 1
 
-            // check end byte
-            if (b[32 + offset] == END_BYTE_STANDARD) // package has accel data
+            if ((bytes[31 + offset] < END_BYTE_STANDARD) || (bytes[31 + offset] > END_BYTE_MAX))
             {
-                if ((b[1 + offset] % 2 == 0) && (first_sample))
-                {
-                    // eeg
-                    for (int i = 0; i < 8; i++)
-                    {
-                        package[i + 9] = eeg_scale * cast_24bit_to_int32 (b + 2 + 3 * i + offset);
-                    }
-                    // need to average accel data
-                    package[17] += accel_scale * cast_16bit_to_int32 (b + 26 + offset);
-                    package[18] += accel_scale * cast_16bit_to_int32 (b + 28 + offset);
-                    package[19] += accel_scale * cast_16bit_to_int32 (b + 30 + offset);
-                    package[17] /= 2.0f;
-                    package[18] /= 2.0f;
-                    package[19] /= 2.0f;
-                    package[20] = (double)b[32 + offset];
-                    double timestamp = get_timestamp ();
-                    db->add_data (timestamp, package);
-                    streamer->stream_data (package, 30, timestamp);
-                }
-                else
-                {
-                    first_sample = true;
-                    package[0] = (double)b[1 + offset];
-                    // eeg
-                    for (int i = 0; i < 8; i++)
-                    {
-                        package[i + 1] = eeg_scale * cast_24bit_to_int32 (b + 2 + 3 * i + offset);
-                    }
-                    // accel
-                    package[17] = accel_scale * cast_16bit_to_int32 (b + 26 + offset);
-                    package[18] = accel_scale * cast_16bit_to_int32 (b + 28 + offset);
-                    package[19] = accel_scale * cast_16bit_to_int32 (b + 30 + offset);
-                }
+                safe_logger (spdlog::level::warn, "Wrong end byte {}", bytes[31 + offset]);
+                continue;
             }
-            else if (b[32 + offset] == END_BYTE_ANALOG) // package has analog data
+
+            // place unprocessed bytes to other_channels for all modes
+            if ((bytes[0 + offset] % 2 == 0) && (first_sample))
             {
-                if ((b[1 + offset] % 2 == 0) && (first_sample))
+                // eeg
+                for (int i = 0; i < 8; i++)
                 {
-                    // eeg
-                    for (int i = 0; i < 8; i++)
-                    {
-                        package[i + 9] = eeg_scale * cast_24bit_to_int32 (b + 2 + 3 * i + offset);
-                    }
-                    // need to average analog data
-                    package[27] += cast_16bit_to_int32 (b + 26 + offset);
-                    package[28] += cast_16bit_to_int32 (b + 28 + offset);
-                    package[29] += cast_16bit_to_int32 (b + 30 + offset);
-                    package[27] /= 2.0f;
-                    package[28] /= 2.0f;
-                    package[29] /= 2.0f;
-                    package[20] = (double)b[32 + offset]; // cyton end byte
-                    double timestamp = get_timestamp ();
-                    db->add_data (timestamp, package);
-                    streamer->stream_data (package, 30, timestamp);
+                    package[i + 9] = eeg_scale * cast_24bit_to_int32 (bytes + 1 + 3 * i + offset);
                 }
-                else
-                {
-                    first_sample = true;
-                    package[0] = (double)b[0 + offset];
-                    // eeg
-                    for (int i = 0; i < 8; i++)
-                    {
-                        package[i + 1] = eeg_scale * cast_24bit_to_int32 (b + 2 + 3 * i + offset);
-                    }
-                    // analog
-                    package[27] = cast_16bit_to_int32 (b + 26 + offset);
-                    package[28] = cast_16bit_to_int32 (b + 28 + offset);
-                    package[29] = cast_16bit_to_int32 (b + 30 + offset);
-                }
-            }
-            else if ((b[32 + offset] > END_BYTE_STANDARD) &&
-                (b[32 + offset] <=
-                    END_BYTE_MAX)) // some data which we dont preprocess but add as raw
-            {
-                if ((b[1 + offset] % 2 == 0) && (first_sample))
-                {
-                    // eeg
-                    for (int i = 0; i < 8; i++)
-                    {
-                        package[i + 9] = eeg_scale * cast_24bit_to_int32 (b + 2 + 3 * i + offset);
-                    }
-                    // need to average other data
-                    package[21] += (double)b[26 + offset];
-                    package[22] += (double)b[27 + offset];
-                    package[23] += (double)b[28 + offset];
-                    package[24] += (double)b[29 + offset];
-                    package[25] += (double)b[30 + offset];
-                    package[26] += (double)b[31 + offset];
-                    package[21] /= 2.0;
-                    package[22] /= 2.0;
-                    package[23] /= 2.0;
-                    package[24] /= 2.0;
-                    package[25] /= 2.0;
-                    package[26] /= 2.0;
-                    package[20] = (double)b[32 + offset];
-                    double timestamp = get_timestamp ();
-                    db->add_data (timestamp, package);
-                    streamer->stream_data (package, 30, timestamp);
-                }
-                else
-                {
-                    first_sample = true;
-                    package[0] = (double)b[1 + offset];
-                    // eeg
-                    for (int i = 0; i < 8; i++)
-                    {
-                        package[i + 1] = eeg_scale * cast_24bit_to_int32 (b + 2 + 3 * i + offset);
-                    }
-                    // other data
-                    package[21] = (double)b[26 + offset];
-                    package[22] = (double)b[27 + offset];
-                    package[23] = (double)b[28 + offset];
-                    package[24] = (double)b[29 + offset];
-                    package[25] = (double)b[30 + offset];
-                    package[26] = (double)b[31 + offset];
-                }
+                // need to average other_channels
+                package[21] += (double)bytes[25 + offset];
+                package[22] += (double)bytes[28 + offset];
+                package[23] += (double)bytes[27 + offset];
+                package[24] += (double)bytes[28 + offset];
+                package[25] += (double)bytes[29 + offset];
+                package[26] += (double)bytes[30 + offset];
+                package[21] /= 2.0;
+                package[22] /= 2.0;
+                package[23] /= 2.0;
+                package[24] /= 2.0;
+                package[25] /= 2.0;
+                package[26] /= 2.0;
+                package[20] = (double)bytes[31 + offset];
             }
             else
             {
-                safe_logger (spdlog::level::warn, "Wrong end byte, found {}", b[32 + offset]);
-                break; // drop entire transaction
+                first_sample = true;
+                package[0] = (double)bytes[0 + offset];
+                // eeg
+                for (int i = 0; i < 8; i++)
+                {
+                    package[i + 1] = eeg_scale * cast_24bit_to_int32 (bytes + 1 + 3 * i + offset);
+                }
+                // other_channels
+                package[21] = (double)bytes[25 + offset];
+                package[22] = (double)bytes[26 + offset];
+                package[23] = (double)bytes[27 + offset];
+                package[24] = (double)bytes[28 + offset];
+                package[25] = (double)bytes[29 + offset];
+                package[26] = (double)bytes[30 + offset];
+            }
+
+            // place processed accel data
+            if (bytes[31 + offset] == END_BYTE_STANDARD)
+            {
+                if ((bytes[0 + offset] % 2 == 0) && (first_sample))
+                {
+                    // need to average accel data
+                    package[17] += accel_scale * cast_16bit_to_int32 (bytes + 25 + offset);
+                    package[18] += accel_scale * cast_16bit_to_int32 (bytes + 27 + offset);
+                    package[19] += accel_scale * cast_16bit_to_int32 (bytes + 29 + offset);
+                    package[17] /= 2.0f;
+                    package[18] /= 2.0f;
+                    package[19] /= 2.0f;
+                    package[20] = (double)bytes[31 + offset];
+                }
+                else
+                {
+                    first_sample = true;
+                    package[0] = (double)bytes[0 + offset];
+                    // accel
+                    package[17] = accel_scale * cast_16bit_to_int32 (bytes + 25 + offset);
+                    package[18] = accel_scale * cast_16bit_to_int32 (bytes + 27 + offset);
+                    package[19] = accel_scale * cast_16bit_to_int32 (bytes + 29 + offset);
+                }
+            }
+            // place processed analog data
+            if (bytes[31 + offset] == END_BYTE_ANALOG)
+            {
+                if ((bytes[0 + offset] % 2 == 0) && (first_sample))
+                {
+                    // need to average analog data
+                    package[27] += cast_16bit_to_int32 (bytes + 25 + offset);
+                    package[28] += cast_16bit_to_int32 (bytes + 27 + offset);
+                    package[29] += cast_16bit_to_int32 (bytes + 29 + offset);
+                    package[27] /= 2.0f;
+                    package[28] /= 2.0f;
+                    package[29] /= 2.0f;
+                    package[20] = (double)bytes[31 + offset]; // cyton end byte
+                }
+                else
+                {
+                    first_sample = true;
+                    package[0] = (double)bytes[0 + offset];
+                    // analog
+                    package[27] = cast_16bit_to_int32 (bytes + 25 + offset);
+                    package[28] = cast_16bit_to_int32 (bytes + 27 + offset);
+                    package[29] = cast_16bit_to_int32 (bytes + 29 + offset);
+                }
+            }
+            // commit package
+            if ((bytes[0 + offset] % 2 == 0) && (first_sample))
+            {
+                double timestamp = get_timestamp ();
+                db->add_data (timestamp, package);
+                streamer->stream_data (package, 30, timestamp);
             }
         }
     }

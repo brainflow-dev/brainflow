@@ -43,46 +43,44 @@ void CytonWifi::read_thread ()
             {
                 continue;
             }
+            unsigned char *bytes = b + 1; // for better consistency between plain cyton and wifi, in
+                                          // plain cyton index is shifted by 1
+
+            if ((bytes[31 + offset] < END_BYTE_STANDARD) || (bytes[31 + offset] > END_BYTE_MAX))
+            {
+                safe_logger (spdlog::level::warn, "Wrong end byte {}", bytes[31 + offset]);
+                continue;
+            }
 
             double package[22] = {0.};
             // package num
-            package[0] = (double)b[1 + offset];
+            package[0] = (double)bytes[0 + offset];
             // eeg
             for (int i = 0; i < 8; i++)
             {
-                package[i + 1] = eeg_scale * cast_24bit_to_int32 (b + 2 + 3 * i + offset);
+                package[i + 1] = eeg_scale * cast_24bit_to_int32 (bytes + 1 + 3 * i + offset);
             }
-            // end byte
-            package[12] = (double)b[32 + offset];
-            // check end byte
-            if (b[32 + offset] == END_BYTE_STANDARD)
+            package[12] = (double)bytes[31 + offset]; // end byte
+            // place unprocessed bytes for all modes to other_channels
+            package[13] = (double)bytes[25 + offset];
+            package[14] = (double)bytes[26 + offset];
+            package[15] = (double)bytes[27 + offset];
+            package[16] = (double)bytes[28 + offset];
+            package[17] = (double)bytes[29 + offset];
+            package[18] = (double)bytes[30 + offset];
+            // place processed bytes for accel
+            if (bytes[31 + offset] == END_BYTE_STANDARD)
             {
-                // accel
-                package[9] = accel_scale * cast_16bit_to_int32 (b + 26 + offset);
-                package[10] = accel_scale * cast_16bit_to_int32 (b + 28 + offset);
-                package[11] = accel_scale * cast_16bit_to_int32 (b + 30 + offset);
+                package[9] = accel_scale * cast_16bit_to_int32 (bytes + 25 + offset);
+                package[10] = accel_scale * cast_16bit_to_int32 (bytes + 27 + offset);
+                package[11] = accel_scale * cast_16bit_to_int32 (bytes + 29 + offset);
             }
-            else if (b[32 + offset] == END_BYTE_ANALOG)
+            // place processed bytes for analog
+            if (bytes[31 + offset] == END_BYTE_ANALOG)
             {
-                // analog
-                package[19] = cast_16bit_to_int32 (b + 26 + offset);
-                package[20] = cast_16bit_to_int32 (b + 28 + offset);
-                package[21] = cast_16bit_to_int32 (b + 30 + offset);
-            }
-            else if ((b[32 + offset] > END_BYTE_ANALOG) && (b[32 + offset] <= END_BYTE_MAX))
-            {
-                // unprocessed bytes
-                package[13] = (double)b[26 + offset];
-                package[14] = (double)b[27 + offset];
-                package[15] = (double)b[28 + offset];
-                package[16] = (double)b[29 + offset];
-                package[17] = (double)b[30 + offset];
-                package[18] = (double)b[31 + offset];
-            }
-            else
-            {
-                safe_logger (spdlog::level::warn, "Wrong end byte, found {}", b[32 + offset]);
-                continue;
+                package[19] = cast_16bit_to_int32 (bytes + 25 + offset);
+                package[20] = cast_16bit_to_int32 (bytes + 27 + offset);
+                package[21] = cast_16bit_to_int32 (bytes + 29 + offset);
             }
 
             double timestamp = get_timestamp ();

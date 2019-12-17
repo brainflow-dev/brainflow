@@ -46,6 +46,11 @@ void Cyton::read_thread ()
             safe_logger (spdlog::level::debug, "unable to read 32 bytes");
             continue;
         }
+        if ((b[31] < END_BYTE_STANDARD) || (b[31] > END_BYTE_MAX))
+        {
+            safe_logger (spdlog::level::warn, "Wrong end byte {}", b[31]);
+            continue;
+        }
 
         double package[22] = {0.};
         // package num
@@ -56,36 +61,27 @@ void Cyton::read_thread ()
             package[i + 1] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
         }
         // end byte
-        package[12] = (double)b[res - 1];
-        // check end byte
-        if (b[res - 1] == END_BYTE_STANDARD)
+        package[12] = (double)b[31];
+        // place unprocessed bytes for all modes to other_channels
+        package[13] = (double)b[25];
+        package[14] = (double)b[26];
+        package[15] = (double)b[27];
+        package[16] = (double)b[28];
+        package[17] = (double)b[29];
+        package[18] = (double)b[30];
+        // place processed bytes for accel
+        if (b[31] == END_BYTE_STANDARD)
         {
-            // accel
             package[9] = accel_scale * cast_16bit_to_int32 (b + 25);
             package[10] = accel_scale * cast_16bit_to_int32 (b + 27);
             package[11] = accel_scale * cast_16bit_to_int32 (b + 29);
         }
-        else if (b[res - 1] == END_BYTE_ANALOG)
+        // place processed bytes for analog
+        if (b[31] == END_BYTE_ANALOG)
         {
-            // analog
             package[19] = cast_16bit_to_int32 (b + 25);
             package[20] = cast_16bit_to_int32 (b + 27);
             package[21] = cast_16bit_to_int32 (b + 29);
-        }
-        else if ((b[res - 1] > END_BYTE_ANALOG) && (b[res - 1] <= END_BYTE_MAX))
-        {
-            // unprocessed bytes
-            package[13] = (double)b[25];
-            package[14] = (double)b[26];
-            package[15] = (double)b[27];
-            package[16] = (double)b[28];
-            package[17] = (double)b[29];
-            package[18] = (double)b[30];
-        }
-        else
-        {
-            safe_logger (spdlog::level::warn, "Wrong end byte, found {}", b[res - 1]);
-            continue;
         }
 
         double timestamp = get_timestamp ();
