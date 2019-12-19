@@ -101,11 +101,10 @@ R API Reference
 -----------------
 
 R binding is a wrapper on top of Python binding, it is implemented using `reticulate <https://rstudio.github.io/reticulate/>`_.
-There are a few methods which allow you to create python objects and call their methods. **BrainFlow's Signal processing API is unavailable for R you need to perform signal processing in R by yourself**
 
-Check R sample to see how to use it.
+Check R samples to see how to use it.
 
 Full code for R binding:
 
-.. literalinclude:: ../r-package/brainflow/R/board_shim.R
+.. literalinclude:: ../r-package/brainflow/R/package.R
    :language: r

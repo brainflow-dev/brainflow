@@ -199,6 +199,30 @@ R Get Data from a Board
 .. literalinclude:: ../tests/r/brainflow_get_data.R
    :language: r
 
+R Read Write File
+~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../tests/r/serialization.R
+   :language: r
+
+R Transforms
+~~~~~~~~~~~~~
+
+.. literalinclude:: ../tests/r/transforms.R
+   :language: r
+
+R Signal Filtering
+~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../tests/r/signal_filtering.R
+   :language: r
+
+R Denoising
+~~~~~~~~~~~~~
+
+.. literalinclude:: ../tests/r/denoising.R
+   :language: r
+
 Notebooks
 ------------
 .. toctree::

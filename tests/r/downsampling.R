@@ -8,3 +8,9 @@ Sys.sleep (time = 5)
 board_shim$stop_stream ()
 data <- board_shim$get_current_board_data (as.integer (250))
 board_shim$release_session ()
+
+# need to convert to numpy array manually
+numpy_data <- np$array (data[2,])
+print (numpy_data)
+brainflow_python$DataFilter$perform_downsampling (numpy_data, as.integer (3), brainflow_python$AggOperations$EACH$value)
+print (numpy_data)

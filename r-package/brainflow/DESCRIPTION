@@ -11,7 +11,7 @@ Description: Provides an R Interface to the brainflow project
 Depends: R (>= 3.2.3)
 Encoding: UTF-8
 License: MIT
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2
 Imports: reticulate
 Suggests: knitr
 VignetteBuilder: knitr
