@@ -41,9 +41,8 @@ int OpenBCIWifiShieldBoard::prepare_session ()
     }
     if (params.ip_address.empty ())
     {
-        safe_logger (
-            spdlog::level::err, "ip address is empty and autodiscovery is not implemented");
-        return INVALID_ARGUMENTS_ERROR;
+        safe_logger (spdlog::level::warn, "use default ip address 192.168.4.1");
+        params.ip_address = "192.168.4.1";
     }
     // user doent need to provide this param because we have only tcp impl,
     // but if its specified and its UDP return an error
