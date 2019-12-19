@@ -39,8 +39,8 @@ int NovaXR::prepare_session ()
     }
     if (params.ip_address.empty ())
     {
-        safe_logger (spdlog::level::err, "ip address is empty");
-        return INVALID_ARGUMENTS_ERROR;
+        safe_logger (spdlog::level::info, "use default IP address 192.168.4.1");
+        params.ip_address = "192.168.4.1";
     }
     if (params.ip_protocol == (int)IpProtocolType::TCP)
     {
