@@ -26,7 +26,7 @@ CI and tests
 
 If you want to commit to core module of brainflow project please check that all tests are passed, you can enable `Travis CI <https://travis-ci.com/>`_ and `AppVeyour <https://ci.appveyor.com>`_ for your fork of BrainFlow to run tests automatically, or check CI status directly in your PR.
 
-Also you can run integration tests manually for any board even if you dont have real hardware, check :ref:`emulator-label`. page for details.
+Also you can run integration tests manually for any board even if you dont have real hardware, check :ref:`emulator-label` page for details.
 
 Pull Requests
 --------------
