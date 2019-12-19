@@ -8,3 +8,7 @@ Sys.sleep (time = 5)
 board_shim$stop_stream ()
 data <- board_shim$get_current_board_data (as.integer (250))
 board_shim$release_session ()
+
+brainflow_python$DataFilter$write_file (data, "test.csv", "w")
+data_restored <- brainflow_python$DataFilter$read_file ("test.csv")
+print (restored_data)
