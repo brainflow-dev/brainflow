@@ -8,13 +8,13 @@ Python
 
 .. compound::
 
-    You are able to install the latest release from PYPI ::
+    Please, make sure to use Python 3+. Next, install the latest release from PYPI with the following command in terminal ::
 
         python -m pip install brainflow
 
 .. compound::
 
-    If you want to install it from source files or build unreleased version from github you should compile core module first and run ::
+    If you want to install it from source files or build unreleased version from Github, you should compile core module first and run ::
 
         cd python-package
         python -m pip install -e .
@@ -22,7 +22,7 @@ Python
 C#
 ----
 
-For C# only Windows is currently supported.
+For C#, only Windows is currently supported.
 
 You are able to install the latest release from `Nuget <https://www.nuget.org/packages/brainflow/>`_ or build it yourself:
 
@@ -43,7 +43,7 @@ Unity Integration
 R
 -----
 
-R binding is based on `reticulate <https://rstudio.github.io/reticulate/>`_ package and calls python code, so you need to install Python binding first, make sure that reticulate uses correct virtual environment, after that you will be able to build R package from command line or using R Studio, install it and run samples.
+R binding is based on `reticulate <https://rstudio.github.io/reticulate/>`_ package and calls Python code, so you need to install Python binding first, make sure that reticulate uses correct virtual environment, after that you will be able to build R package from command line or using R Studio, install it and run samples.
 
 Java
 -----

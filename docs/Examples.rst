@@ -3,14 +3,14 @@
 Code Samples
 ============
 
-Make sure that you've installed BrainFlow package before running code samples below.
+Make sure that you've installed BrainFlow package before running the code samples below.
 
 See :ref:`installation-label` for details.
 
 Python
 --------
 
-**To run some signal processing samples you may need to install:**
+**To run some signal processing samples, you may need to install:**
 
 - matplotlib
 - pandas
@@ -142,7 +142,7 @@ C# Denoising
 C++
 -----
 
-**Make sure that compiled dynamic libraries exist in search path before running an executable, do one of:**
+**Make sure that compiled dynamic libraries exist in search path before running an executable by doing one of the following:**
 
 - for Linux and MacOS add them to LD_LIBRARY_PATH env variable
 - for Windows add them to PATH env variable
