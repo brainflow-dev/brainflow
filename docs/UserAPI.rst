@@ -11,7 +11,7 @@ These classes are independent, so if you want, you can use BrainFlow API only fo
 BrainFlow API is board agnostic, so **to select a specific board you need to pass BrainFlow's board id to BoardShim's constructor and an instance of BrainFlowInputParams structure** which should hold information for your specific board, check :ref:`supported-boards-label`. for details.
 This abstraction allows you to switch boards without any changes in code.
 
-In BoardShim all data from a board returned as a 2d array, rows in this array may contain timestamps, EEG and EMG data and so on, to see instructions how to query specific kind of data check :ref:`data-format-label` and :ref:`code-samples-label`.
+In BoardShim, all board data is returned as a 2d array. Rows in this array may contain timestamps: EEG and EMG data and so on. To see instructions how to query specific kind of data check :ref:`data-format-label` and :ref:`code-samples-label`.
 
 Python API Reference
 ----------------------
@@ -100,7 +100,7 @@ Content of brainflow namespace:
 R API Reference
 -----------------
 
-R binding is a wrapper on top of Python binding, it is implemented using `reticulate <https://rstudio.github.io/reticulate/>`_.
+R binding is a wrapper on top of Python binding. It is implemented using `reticulate <https://rstudio.github.io/reticulate/>`_.
 
 Check R samples to see how to use it.
 

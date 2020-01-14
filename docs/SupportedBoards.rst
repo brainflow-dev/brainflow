@@ -95,7 +95,7 @@ Cyton
     :width: 312px
     :height: 161px
 
-`Cyton geting started guide from OpenBCI <https://docs.openbci.com/Tutorials/00-Tutorials>`_.
+`Cyton geting started guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/CytonGS>`_.
 
 **To choose this board in BoardShim constructor please specify:**
 
@@ -122,7 +122,7 @@ Ganglion
     :width: 400px
     :height: 230px
 
-`Ganglion geting started guide from OpenBCI <https://docs.openbci.com/Tutorials/00-Tutorials>`_.
+`Ganglion geting started guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/GanglionGS>`_.
 
 **To use Ganglion board you need a** `dongle <https://shop.openbci.com/collections/frontpage/products/ganglion-dongle>`_.
 
@@ -152,7 +152,7 @@ Cyton Daisy
     :width: 400px
     :height: 394px
 
-`Cyton Daisy geting started guide from OpenBCI <https://docs.openbci.com/Tutorials/00-Tutorials>`_.
+`Cyton Daisy geting started guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/DaisyGS>`_.
 
 **To choose this board in BoardShim constructor please specify:**
 
