@@ -3,25 +3,25 @@
 #include <bitset>
 #include <stdint.h>
 
+// copypasted from OpenBCI_JavaScript_Utilities
 inline int32_t cast_24bit_to_int32 (unsigned char *byte_array)
 {
-    int32_t new_int =
-        (((0xFF & byte_array[0]) << 16) | ((0xFF & byte_array[1]) << 8) | (0xFF & byte_array[2]));
-    if ((new_int & 0x00800000) > 0)
-        new_int |= 0xFF000000;
-    else
-        new_int &= 0x00FFFFFF;
-    return new_int;
+    int prefix = 0;
+    if (byte_array[0] > 127)
+    {
+        prefix = 255;
+    }
+    return (prefix << 24) | (byte_array[0] << 16) | (byte_array[1] << 8) | byte_array[2];
 }
 
 inline int32_t cast_16bit_to_int32 (unsigned char *byte_array)
 {
-    int32_t new_int = (((0xFF & byte_array[0]) << 8) | (0xFF & byte_array[1]));
-    if ((new_int & 0x00008000) > 0)
-        new_int |= 0xFFFF0000;
-    else
-        new_int &= 0x0000FFFF;
-    return new_int;
+    int prefix = 0;
+    if (byte_array[0] > 127)
+    {
+        prefix = 65535;
+    }
+    return (prefix << 16) | (byte_array[0] << 8) | byte_array[1];
 }
 
 inline void uchar_to_bits (unsigned char c, unsigned char *bits)

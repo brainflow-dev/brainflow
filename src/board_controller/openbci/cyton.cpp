@@ -40,12 +40,19 @@ void Cyton::read_thread ()
             continue;
         }
 
-        res = serial->read_from_serial_port (b, 32);
-        if (res != 32)
+        int remaining_bytes = 32;
+        int pos = 0;
+        while ((remaining_bytes > 0) && (keep_alive))
         {
-            safe_logger (spdlog::level::debug, "unable to read 32 bytes");
-            continue;
+            res = serial->read_from_serial_port (b + pos, remaining_bytes);
+            remaining_bytes -= res;
+            pos += res;
         }
+        if (!keep_alive)
+        {
+            return;
+        }
+
         if ((b[31] < END_BYTE_STANDARD) || (b[31] > END_BYTE_MAX))
         {
             safe_logger (spdlog::level::warn, "Wrong end byte {}", b[31]);
