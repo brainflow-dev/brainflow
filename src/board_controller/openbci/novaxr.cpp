@@ -243,9 +243,18 @@ void NovaXR::read_thread ()
 
     int res;
     unsigned char b[NovaXR::transaction_size];
+    long counter = 0;
+    double recv_avg_time = 0;
+    double process_avg_time = 0;
     while (keep_alive)
     {
+        auto recv_start_time = std::chrono::high_resolution_clock::now ();
         res = socket->recv (b, NovaXR::transaction_size);
+        auto recv_stop_time = std::chrono::high_resolution_clock::now ();
+        auto recv_duration =
+            std::chrono::duration_cast<std::chrono::microseconds> (recv_stop_time - recv_start_time)
+                .count ();
+
         if (res == -1)
         {
 #ifdef _WIN32
@@ -276,6 +285,7 @@ void NovaXR::read_thread ()
             }
         }
 
+        auto processing_start_time = std::chrono::high_resolution_clock::now ();
         for (int cur_package = 0; cur_package < NovaXR::num_packages; cur_package++)
         {
             double package[NovaXR::num_channels] = {0.};
@@ -305,5 +315,16 @@ void NovaXR::read_thread ()
             streamer->stream_data (package, NovaXR::num_channels, timestamp);
             db->add_data (timestamp, package);
         }
+        auto processing_stop_time = std::chrono::high_resolution_clock::now ();
+        auto processing_duration = std::chrono::duration_cast<std::chrono::microseconds> (
+            processing_stop_time - processing_start_time)
+                                       .count ();
+        recv_avg_time += recv_duration / 1000.0;
+        process_avg_time += processing_duration / 1000.0;
+        counter++;
     }
+    recv_avg_time /= counter;
+    process_avg_time /= counter;
+    safe_logger (spdlog::level::trace, "recv avg time in ms {}", recv_avg_time);
+    safe_logger (spdlog::level::trace, "process avg time in ms {}", process_avg_time);
 }

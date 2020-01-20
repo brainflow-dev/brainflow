@@ -78,7 +78,7 @@ class NovaXREmulator (threading.Thread):
                 for _ in range (19):
                     package.append (self.package_num)
                     self.package_num = self.package_num + 1
-                    if self.package_num % 255 == 0:
+                    if self.package_num % 256 == 0:
                         self.package_num = 0
                     for i in range (1, self.package_size - 8):
                         package.append (random.randint (0, 255))
@@ -88,6 +88,7 @@ class NovaXREmulator (threading.Thread):
                     self.server_socket.sendto (bytes (package), self.addr)
                 except socket.timeout:
                     logging.info ('timeout for send')
+
 
 def main (cmd_list):
     if not cmd_list:

@@ -58,7 +58,7 @@
 		},
 		"3" : {
 			"name": "NovaXR",
-			"sampling_rate": 1000,
+			"sampling_rate": 1940,
 			"package_num_channel" : 0,
 			"timestamp_channel" : 21,
 			"num_rows" : 22,
