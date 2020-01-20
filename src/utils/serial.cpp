@@ -84,6 +84,7 @@ int Serial::close_serial_port ()
     if (this->is_port_open ())
     {
         CloseHandle (this->port_descriptor);
+        this->port_descriptor = NULL;
     }
     return SerialExitCodes::OK;
 }
@@ -158,8 +159,11 @@ int Serial::close_serial_port ()
     if (this->is_port_open ())
     {
         int res = close (port_descriptor);
+        port_descriptor = 0;
         if (res < 0)
+        {
             return SerialExitCodes::CLOSE_ERROR;
+        }
     }
     return SerialExitCodes::OK;
 }
