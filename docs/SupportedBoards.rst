@@ -10,9 +10,9 @@ To create an instance of BoardShim class for your board check required inputs in
 
    "Streaming Board", "BoardIds.STREAMING_BOARD (-2)", "-", "-", "multicast IP address", "port", "-", "Board Id of master board"
    "Synthetic Board", "BoardIds.SYNTHETIC_BOARD (-1)", "-", "-", "-", "-", "-", "-"
-   "Cyton", "BoardIds.CYTON_BOARD (0)", "dongle serial port(COM3, /dev/ttyUSB0...)", "-", "-", "-", "-", "-"
+   "Cyton", "BoardIds.CYTON_BOARD (0)", "dongle serial port(COM3, /dev/ttyUSB0, /dev/cu.usbserial-xxxxxx...)", "-", "-", "-", "-", "-"
    "Ganglion", "BoardIds.GANGLION_BOARD (1)", "dongle serial port(COM3, /dev/ttyUSB0...)", "Optional: Ganglion's MAC address", "-", "-", "-", "-"
-   "Cyton Daisy", "BoardIds.CYTON_DAISY_BOARD (2)", "dongle serial port(COM3, /dev/ttyUSB0...)", "-", "-", "-", "-", "-"
+   "Cyton Daisy", "BoardIds.CYTON_DAISY_BOARD (2)", "dongle serial port(COM3, /dev/ttyUSB0, /dev/cu.usbserial-xxxxxx...)", "-", "-", "-", "-", "-"
    "Ganglion Wifi", "BoardIds.GANGLION_WIFI_BOARD (4)", "-", "-", "Wifi Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-"
    "Cyton Wifi", "BoardIds.CYTON_WIFI_BOARD (5)", "-", "-", "Wifi Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-"
    "Cyton Daisy Wifi", "BoardIds.CYTON_DAISY_WIFI_BOARD (6)", "-", "-", "Wifi Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-"
@@ -114,6 +114,7 @@ Board Spec:
 - num acceleration channels: 3
 - sampling rate: 250
 - communication: serial port
+- signal gain: 24
 
 Ganglion
 ~~~~~~~~~
@@ -171,6 +172,7 @@ Board Spec:
 - num acceleration channels: 3
 - sampling rate: 125
 - communication: serial port
+- signal gain: 24
 
 
 Ganglion with Wifi Shield
@@ -233,6 +235,7 @@ Board Spec:
 - num acceleration channels: 3
 - sampling rate: 1000
 - communication: TCP socket to read data and HTTP to send commands
+- signal gain: 24
 
 Cyton Daisy with Wifi Shield
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -263,3 +266,4 @@ Board Spec:
 - num acceleration channels: 3
 - sampling rate: 1000
 - communication: TCP socket to read data and HTTP to send commands
+- signal gain: 24

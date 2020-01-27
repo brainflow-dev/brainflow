@@ -334,12 +334,17 @@ ASALocalRun/
 .raw
 .txt
 
+#Environment file
+.env
+.vscode/
+
 build*
 installed*
 compiled/
 python/flowcat.egg-info/
 .Rproj.user
 
+# Build files
 java-package/brainflow/target
 java-package/brainflow/.classpath
 java-package/brainflow/.project
