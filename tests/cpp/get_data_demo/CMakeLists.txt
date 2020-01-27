@@ -91,3 +91,45 @@ target_link_libraries (
     ${DataHandlerPath}
     ${BoardControllerPath}
 )
+
+#################################
+## Demo for data acquisition 2 ##
+#################################
+add_executable (
+    brainflow_get_data_twice
+    src/brainflow_get_data_twice.cpp
+)
+
+target_include_directories (
+    brainflow_get_data_twice PUBLIC
+    ${brainflow_INCLUDE_DIRS}
+)
+
+target_link_libraries (
+    brainflow_get_data_twice PUBLIC
+    # for some systems(ubuntu for example) order matters
+    ${BrainflowPath}
+    ${DataHandlerPath}
+    ${BoardControllerPath}
+)
+
+#################################
+##   Demo for config_board     ##
+#################################
+add_executable (
+    brainflow_config_board
+    src/brainflow_config_board.cpp
+)
+
+target_include_directories (
+    brainflow_config_board PUBLIC
+    ${brainflow_INCLUDE_DIRS}
+)
+
+target_link_libraries (
+    brainflow_config_board PUBLIC
+    # for some systems(ubuntu for example) order matters
+    ${BrainflowPath}
+    ${DataHandlerPath}
+    ${BoardControllerPath}
+)
