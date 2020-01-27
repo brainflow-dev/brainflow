@@ -32,80 +32,53 @@ int main (int argc, char *argv[])
     int res = 0;
     int num_rows = 0;
 
-    try
+    // Run two sessions one after another to test that release_session frees all resources
+    for (int i = 0; i < 2; i++)
     {
-        board->prepare_session ();
-
-        ////////////////////////////////Start stream first time
-        board->start_stream ();
-        // board->start_stream (45000, (char *)"file://file_stream_test.csv:a"); // store data in a
-        // file directly during streaming
-        BoardShim::log_message ((int)LogLevels::LEVEL_INFO, "Start sleeping in the main thread");
+        try
+        {
+            board->prepare_session ();
+            board->start_stream ();
+            BoardShim::log_message (
+                (int)LogLevels::LEVEL_INFO, "Start sleeping in the main thread");
 #ifdef _WIN32
-        Sleep (5000);
+            Sleep (5000);
 #else
-        sleep (5);
+            sleep (5);
 #endif
-        //////////////////////Stop Stream and print data
-        board->stop_stream ();
-        int data_count = 0;
-        data = board->get_board_data (&data_count);
-        BoardShim::log_message ((int)LogLevels::LEVEL_INFO, "read %d packages", data_count);
-        board->release_session ();
-        // for STREAMING_BOARD you have to query information using board id for master board
-        // because for STREAMING_BOARD data format is determined by master board!
-        if (board_id == STREAMING_BOARD)
-        {
-            board_id = std::stoi (params.other_info);
-            BoardShim::log_message ((int)LogLevels::LEVEL_INFO, "Use Board Id %d", board_id);
-        }
-        num_rows = BoardShim::get_num_rows (board_id);
-        std::cout << std::endl << "Data from the board" << std::endl << std::endl;
-        print_head (data, num_rows, data_count);
 
-
-        ////////////////////////////////Start stream second time
-        board->prepare_session ();
-        board->start_stream ();
-        // board->start_stream (45000, (char *)"file://file_stream_test.csv:a"); // store data in a
-        // file directly during streaming
-        BoardShim::log_message ((int)LogLevels::LEVEL_INFO, "Start sleeping in the main thread");
-#ifdef _WIN32
-        Sleep (5000);
-#else
-        sleep (5);
-#endif
-        //////////////////////Stop Stream and print data
-        board->stop_stream ();
-        data_count = 0;
-        data = board->get_board_data (&data_count);
-        BoardShim::log_message ((int)LogLevels::LEVEL_INFO, "read %d packages", data_count);
-        board->release_session ();
-        // for STREAMING_BOARD you have to query information using board id for master board
-        // because for STREAMING_BOARD data format is determined by master board!
-        if (board_id == STREAMING_BOARD)
-        {
-            board_id = std::stoi (params.other_info);
-            BoardShim::log_message ((int)LogLevels::LEVEL_INFO, "Use Board Id %d", board_id);
+            board->stop_stream ();
+            int data_count = 0;
+            data = board->get_board_data (&data_count);
+            BoardShim::log_message ((int)LogLevels::LEVEL_INFO, "read %d packages", data_count);
+            board->release_session ();
+            // for STREAMING_BOARD you have to query information using board id for master board
+            // because for STREAMING_BOARD data format is determined by master board!
+            if (board_id == STREAMING_BOARD)
+            {
+                board_id = std::stoi (params.other_info);
+                BoardShim::log_message ((int)LogLevels::LEVEL_INFO, "Use Board Id %d", board_id);
+            }
+            num_rows = BoardShim::get_num_rows (board_id);
+            std::cout << std::endl << "Data from the board" << std::endl << std::endl;
+            print_head (data, num_rows, data_count);
         }
-        num_rows = BoardShim::get_num_rows (board_id);
-        std::cout << std::endl << "Data from the board... again" << std::endl << std::endl;
-        print_head (data, num_rows, data_count);
-    }
-    catch (const BrainFlowException &err)
-    {
-        BoardShim::log_message ((int)LogLevels::LEVEL_ERROR, err.what ());
-        res = err.exit_code;
+        catch (const BrainFlowException &err)
+        {
+            BoardShim::log_message ((int)LogLevels::LEVEL_ERROR, err.what ());
+            res = err.exit_code;
+        }
+
+        if (data != NULL)
+        {
+            for (int i = 0; i < num_rows; i++)
+            {
+                delete[] data[i];
+            }
+        }
+        delete[] data;
     }
 
-    if (data != NULL)
-    {
-        for (int i = 0; i < num_rows; i++)
-        {
-            delete[] data[i];
-        }
-    }
-    delete[] data;
     delete board;
 
     return res;

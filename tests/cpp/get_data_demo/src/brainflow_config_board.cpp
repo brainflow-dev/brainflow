@@ -13,14 +13,16 @@
 using namespace std;
 
 void print_head (double **data_buf, int num_channels, int num_data_points);
-bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, int *board_id);
+bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, int *board_id,
+    std::string &config);
 
 
 int main (int argc, char *argv[])
 {
     struct BrainFlowInputParams params;
-    int board_id = 0;
-    if (!parse_args (argc, argv, &params, &board_id))
+    int board_id = (int)BoardIds::SYNTHETIC_BOARD;
+    std::string config = "";
+    if (!parse_args (argc, argv, &params, &board_id, config))
     {
         return -1;
     }
@@ -36,50 +38,24 @@ int main (int argc, char *argv[])
     {
         board->prepare_session ();
 
-        // TEST DISABLE CHANNELS 4
-        char *chanOff = "4";
-        board->config_board (chanOff);
-
+        // test config board before streaming
+        BoardShim::log_message (
+            (int)LogLevels::LEVEL_INFO, "Config board with %s", config.c_str ());
+        board->config_board ((char *)config.c_str ());
         board->start_stream ();
-        // board->start_stream (45000, (char *)"file://file_stream_test.csv:a"); // store data in a
-        // file directly during streaming
         BoardShim::log_message ((int)LogLevels::LEVEL_INFO, "Start sleeping in the main thread");
 #ifdef _WIN32
         Sleep (5000);
 #else
         sleep (5);
 #endif
-
+        // test config board during streaming (we use the same config here, it makes sense only for
+        // testing)
+        board->config_board ((char *)config.c_str ());
         board->stop_stream ();
         int data_count = 0;
         data = board->get_board_data (&data_count);
         BoardShim::log_message ((int)LogLevels::LEVEL_INFO, "read %d packages", data_count);
-
-        num_rows = BoardShim::get_num_rows (board_id);
-        std::cout << std::endl << "Data from the board" << std::endl << std::endl;
-        print_head (data, num_rows, data_count);
-
-
-        /// TEST ENABLE CHANNEL 4
-        char *chanOn = "$";
-        board->config_board (chanOn);
-        // board->start_stream ();
-        // board->start_stream (45000, (char *)"file://file_stream_test.csv:a"); // store data in a
-        // file directly during streaming
-        BoardShim::log_message ((int)LogLevels::LEVEL_INFO, "Start sleeping in the main thread");
-#ifdef _WIN32
-        Sleep (5000);
-#else
-        sleep (5);
-#endif
-        ////////////////////// STOP STREAM
-        board->stop_stream ();
-        data_count = 0;
-        data = board->get_board_data (&data_count);
-        BoardShim::log_message ((int)LogLevels::LEVEL_INFO, "read %d packages", data_count);
-
-
-        /////////////////////////// RELEASE SESSION
         board->release_session ();
         // for STREAMING_BOARD you have to query information using board id for master board
         // because for STREAMING_BOARD data format is determined by master board!
@@ -126,9 +102,11 @@ void print_head (double **data_buf, int num_channels, int num_data_points)
     }
 }
 
-bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, int *board_id)
+bool parse_args (
+    int argc, char *argv[], struct BrainFlowInputParams *params, int *board_id, std::string &config)
 {
     bool board_id_found = false;
+    bool config_found = false;
     for (int i = 1; i < argc; i++)
     {
         if (std::string (argv[i]) == std::string ("--board-id"))
@@ -138,6 +116,20 @@ bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, in
                 i++;
                 board_id_found = true;
                 *board_id = std::stoi (std::string (argv[i]));
+            }
+            else
+            {
+                std::cerr << "missed argument" << std::endl;
+                return false;
+            }
+        }
+        if (std::string (argv[i]) == std::string ("--config"))
+        {
+            if (i + 1 < argc)
+            {
+                i++;
+                config_found = true;
+                config = std::string (argv[i]);
             }
             else
             {
@@ -227,6 +219,11 @@ bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, in
     if (!board_id_found)
     {
         std::cerr << "board id is not provided" << std::endl;
+        return false;
+    }
+    if (!config_found)
+    {
+        std::cerr << "config for board is not provided" << std::endl;
         return false;
     }
     return true;

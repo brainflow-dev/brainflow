@@ -62,3 +62,34 @@ Install requirements::
 Build docs::
 
     make html
+
+Debug BrainFlow's errors
+---------------------------
+
+Since bindings just call methods from dynamic libraries, more likely errors occur in C++ code, it means that you need to use C++ debuger like gdb. If there is an error in binding, it should be simple to figure out and resolve the issue using language specific tools.
+
+Steps to get more information about errors in C++ code:
+
+- build BrainFlow's core module and C++ binding in debug mode. In files like tools/build_linux.sh default config is Release, so you need to change it to Debug
+- reproduce your issue using C++ binding
+- run it with debuger and memory checker
+
+Example for Linux(for MacOS it's the same)::
+
+    vim tools/build_linux.sh
+    # Change build type to Debug
+    bash tools/build_linux.sh
+    # Create a test to reproduce your issue in C++, here we will use get_data_demo
+    cd tests/cpp/get_data_demo
+    mkdir build
+    cd build
+    cmake -DCMAKE_PREFIX_PATH=TYPE_FULL_PATH_TO_BRAINFLOW_INSTALLED_FOLDER ..
+    # e.g. cmake -DCMAKE_PREFIX_PATH=/home/andrey/brainflow/installed_linux -DCMAKE_BUILD_TYPE=Debug ..
+    make
+    # Run Valgrind to check memory errors
+    # Here we use command line for Ganglion
+    sudo valgrind --error-exitcode=1 --leak-check=full ./brainflow_get_data --board-id 1 --serial-port /dev/ttyACM0 --mac-address e6:73:73:18:09:b1
+    # Valgrind will print Error Summary and exact line numbers
+    # Run gdb and get backtrace
+    sudo gdb --args ./brainflow_get_data --board-id 1 --serial-port /dev/ttyACM0 --mac-address e6:73:73:18:09:b1
+    # In gdb terminal type 'r' to run the program and as soon as error occurs, type 'bt' to see backtrace with exact lines of code and call stack

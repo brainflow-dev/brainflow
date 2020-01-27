@@ -142,6 +142,19 @@ C# Denoising
 C++
 -----
 
+.. compound::
+
+   To compile examples below for Linux or MacOS run: ::
+
+      cd tests/cpp/get_data_demo
+      mkdir build
+      cd build
+      cmake -DCMAKE_PREFIX_PATH=TYPE_FULL_PATH_TO_BRAINFLOW_INSTALLED_FOLDER ..
+      # e.g. cmake -DCMAKE_PREFIX_PATH=/home/andrey/brainflow/installed_linux ..
+      make
+
+For Windows it's almost the same.
+
 **Make sure that compiled dynamic libraries exist in search path before running an executable by doing one of the following:**
 
 - for Linux and MacOS add them to LD_LIBRARY_PATH env variable
@@ -151,7 +164,7 @@ C++
 CMake File Example
 ~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../tests/cpp/get_data_demo/CMakeLists.txt
+.. literalinclude:: ../tests/cpp/signal_processing_demo/CMakeLists.txt
    :language: none
 
 C++ Read Data from a Board
