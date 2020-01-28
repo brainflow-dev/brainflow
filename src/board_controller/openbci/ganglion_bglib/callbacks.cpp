@@ -188,7 +188,7 @@ void ble_evt_attclient_find_information_found (
 
 void ble_evt_attclient_attribute_value (const struct ble_msg_attclient_attribute_value_evt_t *msg)
 {
-    if ((int)msg->value.len >= 18)
+    if (((int)msg->value.len >= 18) && ((int)msg->value.len <= 20))
     {
         unsigned char values[20] = {0};
         memcpy (values, msg->value.data, msg->value.len * sizeof (unsigned char));
