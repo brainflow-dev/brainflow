@@ -19,6 +19,7 @@
 #define FIRST_HANDLE 0x0001
 #define LAST_HANDLE 0xffff
 
+
 namespace GanglionLib
 {
     extern volatile int exit_code;
@@ -27,8 +28,8 @@ namespace GanglionLib
     extern volatile uint16 client_char_handle;
     extern char uart_port[1024];
     extern volatile State state;
-    extern std::mutex m;
     extern std::condition_variable cv;
+    std::mutex mutex;
 
     void output (uint8 len1, uint8 *data1, uint16 len2, uint8 *data2)
     {
@@ -41,7 +42,9 @@ namespace GanglionLib
     // reads messages and calls required callbacks (copypaste from sample)
     int read_message (int timeout_ms)
     {
-        unsigned char data[256]; // enough for BLE
+        std::lock_guard<std::mutex> lock (mutex);
+
+        unsigned char *data = NULL;
         struct ble_header hdr;
         int r;
 
@@ -57,10 +60,12 @@ namespace GanglionLib
         }
         if (hdr.lolen)
         {
+            data = new unsigned char[hdr.lolen];
             r = uart_rx (hdr.lolen, data, UART_TIMEOUT);
             if (r <= 0)
             {
                 exit_code = (int)GanglionLib::PORT_OPEN_ERROR;
+                delete[] data;
                 return 1; // fails to read
             }
         }
@@ -70,11 +75,12 @@ namespace GanglionLib
         if (!msg)
         {
             exit_code = (int)GanglionLib::GENERAL_ERROR;
+            delete[] data;
             return 1;
         }
 
         msg->handler (data);
-
+        delete[] data;
         return 0;
     }
 

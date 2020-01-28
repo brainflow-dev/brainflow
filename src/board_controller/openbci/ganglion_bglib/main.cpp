@@ -1,6 +1,5 @@
 #include <chrono>
 #include <ctype.h>
-#include <mutex>
 #include <queue>
 #include <stdlib.h>
 #include <string.h>
@@ -28,11 +27,10 @@ namespace GanglionLib
     volatile uint16 client_char_handle = 0;
     volatile State state =
         State::NONE; // same callbacks are triggered by different methods we need to differ them
+    volatile bool should_stop_stream = true;
 
     bool initialized = false;
-    std::mutex mutex;
     std::thread read_characteristic_thread;
-    bool should_stop_stream = true;
 
     void read_characteristic_worker ()
     {

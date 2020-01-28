@@ -1,5 +1,5 @@
 //
-// Bluegiga’s Bluetooth Smart Demo Application
+// Bluegigaï¿½s Bluetooth Smart Demo Application
 // Contact: support@bluegiga.com.
 //
 // This is free software distributed under the terms of the MIT license reproduced below.
@@ -179,7 +179,7 @@ int uart_tx (int len, unsigned char *data)
             return -1;
         }
         len -= written;
-        data += len;
+        data += written;
     }
 
     return 0;
@@ -213,7 +213,7 @@ int uart_rx (int len, unsigned char *data, int timeout_ms)
                 return 0;
         }
         len -= rread;
-        data += len;
+        data += rread;
     }
 
     return l;
@@ -296,7 +296,7 @@ int uart_tx (int len, unsigned char *data)
             return -1;
         }
         len -= written;
-        data += len;
+        data += written;
     }
 
     return 0;
@@ -325,7 +325,7 @@ int uart_rx (int len, unsigned char *data, int timeout_ms)
             return -1;
         }
         len -= rread;
-        data += len;
+        data += rread;
     }
 
     return l;
