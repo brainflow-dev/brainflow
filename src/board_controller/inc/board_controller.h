@@ -74,6 +74,8 @@ extern "C"
         int data_count, double *data_buf, int board_id, char *json_brainflow_input_params);
     SHARED_EXPORT int CALLING_CONVENTION config_board (
         char *config, int board_id, char *json_brainflow_input_params);
+    SHARED_EXPORT int CALLING_CONVENTION is_prepared (
+        int *prepared, int board_id, char *json_brainflow_input_params);
 
     // logging methods
     SHARED_EXPORT int CALLING_CONVENTION set_log_level (int log_level);

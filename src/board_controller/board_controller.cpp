@@ -33,7 +33,8 @@ std::mutex mutex;
 
 std::pair<int, struct BrainFlowInputParams> get_key (
     int board_id, struct BrainFlowInputParams params);
-static int check_board_session (std::pair<int, struct BrainFlowInputParams> key);
+static int check_board_session (int board_id, char *json_brainflow_input_params,
+    std::pair<int, struct BrainFlowInputParams> &key, bool log_error = true);
 static int string_to_brainflow_input_params (
     const char *json_brainflow_input_params, struct BrainFlowInputParams *params);
 
@@ -96,7 +97,28 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
     {
         board = NULL;
     }
-    boards[key] = board;
+    else
+    {
+        boards[key] = board;
+    }
+    return res;
+}
+
+int is_prepared (int *prepared, int board_id, char *json_brainflow_input_params)
+{
+    std::lock_guard<std::mutex> lock (mutex);
+
+    std::pair<int, struct BrainFlowInputParams> key;
+    int res = check_board_session (board_id, json_brainflow_input_params, key, false);
+    if (res == STATUS_OK)
+    {
+        *prepared = 1;
+    }
+    if (res == BOARD_NOT_CREATED_ERROR)
+    {
+        *prepared = 0;
+        res = STATUS_OK;
+    }
     return res;
 }
 
@@ -105,15 +127,8 @@ int start_stream (
 {
     std::lock_guard<std::mutex> lock (mutex);
 
-    struct BrainFlowInputParams params;
-    int res = string_to_brainflow_input_params (json_brainflow_input_params, &params);
-    if (res != STATUS_OK)
-    {
-        return res;
-    }
-
-    std::pair<int, struct BrainFlowInputParams> key = get_key (board_id, params);
-    res = check_board_session (key);
+    std::pair<int, struct BrainFlowInputParams> key;
+    int res = check_board_session (board_id, json_brainflow_input_params, key, false);
     if (res != STATUS_OK)
     {
         return res;
@@ -126,15 +141,8 @@ int stop_stream (int board_id, char *json_brainflow_input_params)
 {
     std::lock_guard<std::mutex> lock (mutex);
 
-    struct BrainFlowInputParams params;
-    int res = string_to_brainflow_input_params (json_brainflow_input_params, &params);
-    if (res != STATUS_OK)
-    {
-        return res;
-    }
-
-    std::pair<int, struct BrainFlowInputParams> key = get_key (board_id, params);
-    res = check_board_session (key);
+    std::pair<int, struct BrainFlowInputParams> key;
+    int res = check_board_session (board_id, json_brainflow_input_params, key, false);
     if (res != STATUS_OK)
     {
         return res;
@@ -147,15 +155,8 @@ int release_session (int board_id, char *json_brainflow_input_params)
 {
     std::lock_guard<std::mutex> lock (mutex);
 
-    struct BrainFlowInputParams params;
-    int res = string_to_brainflow_input_params (json_brainflow_input_params, &params);
-    if (res != STATUS_OK)
-    {
-        return res;
-    }
-
-    std::pair<int, struct BrainFlowInputParams> key = get_key (board_id, params);
-    res = check_board_session (key);
+    std::pair<int, struct BrainFlowInputParams> key;
+    int res = check_board_session (board_id, json_brainflow_input_params, key, false);
     if (res != STATUS_OK)
     {
         return res;
@@ -171,15 +172,8 @@ int get_current_board_data (int num_samples, double *data_buf, int *returned_sam
 {
     std::lock_guard<std::mutex> lock (mutex);
 
-    struct BrainFlowInputParams params;
-    int res = string_to_brainflow_input_params (json_brainflow_input_params, &params);
-    if (res != STATUS_OK)
-    {
-        return res;
-    }
-
-    std::pair<int, struct BrainFlowInputParams> key = get_key (board_id, params);
-    res = check_board_session (key);
+    std::pair<int, struct BrainFlowInputParams> key;
+    int res = check_board_session (board_id, json_brainflow_input_params, key, false);
     if (res != STATUS_OK)
     {
         return res;
@@ -192,15 +186,8 @@ int get_board_data_count (int *result, int board_id, char *json_brainflow_input_
 {
     std::lock_guard<std::mutex> lock (mutex);
 
-    struct BrainFlowInputParams params;
-    int res = string_to_brainflow_input_params (json_brainflow_input_params, &params);
-    if (res != STATUS_OK)
-    {
-        return res;
-    }
-
-    std::pair<int, struct BrainFlowInputParams> key = get_key (board_id, params);
-    res = check_board_session (key);
+    std::pair<int, struct BrainFlowInputParams> key;
+    int res = check_board_session (board_id, json_brainflow_input_params, key, false);
     if (res != STATUS_OK)
     {
         return res;
@@ -214,15 +201,8 @@ int get_board_data (
 {
     std::lock_guard<std::mutex> lock (mutex);
 
-    struct BrainFlowInputParams params;
-    int res = string_to_brainflow_input_params (json_brainflow_input_params, &params);
-    if (res != STATUS_OK)
-    {
-        return res;
-    }
-
-    std::pair<int, struct BrainFlowInputParams> key = get_key (board_id, params);
-    res = check_board_session (key);
+    std::pair<int, struct BrainFlowInputParams> key;
+    int res = check_board_session (board_id, json_brainflow_input_params, key, false);
     if (res != STATUS_OK)
     {
         return res;
@@ -273,15 +253,8 @@ int config_board (char *config, int board_id, char *json_brainflow_input_params)
 {
     std::lock_guard<std::mutex> lock (mutex);
 
-    struct BrainFlowInputParams params;
-    int res = string_to_brainflow_input_params (json_brainflow_input_params, &params);
-    if (res != STATUS_OK)
-    {
-        return res;
-    }
-
-    std::pair<int, struct BrainFlowInputParams> key = get_key (board_id, params);
-    res = check_board_session (key);
+    std::pair<int, struct BrainFlowInputParams> key;
+    int res = check_board_session (board_id, json_brainflow_input_params, key, false);
     if (res != STATUS_OK)
     {
         return res;
@@ -301,12 +274,25 @@ std::pair<int, struct BrainFlowInputParams> get_key (
     return key;
 }
 
-int check_board_session (std::pair<int, struct BrainFlowInputParams> key)
+int check_board_session (int board_id, char *json_brainflow_input_params,
+    std::pair<int, struct BrainFlowInputParams> &key, bool log_error)
 {
+    struct BrainFlowInputParams params;
+    int res = string_to_brainflow_input_params (json_brainflow_input_params, &params);
+    if (res != STATUS_OK)
+    {
+        return res;
+    }
+
+    key = get_key (board_id, params);
+
     if (boards.find (key) == boards.end ())
     {
-        Board::board_logger->error (
-            "Board with id {} and port provided config is not created", key.first);
+        if (log_error)
+        {
+            Board::board_logger->error (
+                "Board with id {} and port provided config is not created", key.first);
+        }
         return BOARD_NOT_CREATED_ERROR;
     }
     return STATUS_OK;

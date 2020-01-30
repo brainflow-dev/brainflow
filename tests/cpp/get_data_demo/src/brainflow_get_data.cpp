@@ -65,6 +65,10 @@ int main (int argc, char *argv[])
     {
         BoardShim::log_message ((int)LogLevels::LEVEL_ERROR, err.what ());
         res = err.exit_code;
+        if (board->is_prepared ())
+        {
+            board->release_session ();
+        }
     }
 
     if (data != NULL)

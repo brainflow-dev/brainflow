@@ -99,6 +99,17 @@ void BoardShim::prepare_session ()
     }
 }
 
+bool BoardShim::is_prepared ()
+{
+    int prepared = 0;
+    int res = ::is_prepared (&prepared, board_id, const_cast<char *> (serialized_params.c_str ()));
+    if (res != STATUS_OK)
+    {
+        throw BrainFlowException ("failed to check session", res);
+    }
+    return (bool)prepared;
+}
+
 void BoardShim::start_stream (int buffer_size, char *streamer_params)
 {
     int res = ::start_stream (

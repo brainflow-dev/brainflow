@@ -19,22 +19,22 @@ public class BoardShim
 
     private interface DllInterface extends Library
     {
-        int prepare_session (int board_id, String port_name);
+        int prepare_session (int board_id, String params);
 
-        int config_board (String config, int board_id, String port_name);
+        int config_board (String config, int board_id, String params);
 
-        int start_stream (int buffer_size, String streamer_params, int board_id, String port_name);
+        int start_stream (int buffer_size, String streamer_params, int board_id, String params);
 
-        int stop_stream (int board_id, String port_name);
+        int stop_stream (int board_id, String params);
 
-        int release_session (int board_id, String port_name);
+        int release_session (int board_id, String params);
 
         int get_current_board_data (int num_samples, double[] data_buf, int[] returned_samples, int board_id,
-                String port_name);
+                String params);
 
-        int get_board_data_count (int[] result, int board_id, String port_name);
+        int get_board_data_count (int[] result, int board_id, String params);
 
-        int get_board_data (int data_count, double[] data_buf, int board_id, String port_name);
+        int get_board_data (int data_count, double[] data_buf, int board_id, String params);
 
         int set_log_level (int log_level);
 
@@ -73,6 +73,8 @@ public class BoardShim
         int get_other_channels (int board_id, int[] other_channels, int[] len);
 
         int get_temperature_channels (int board_id, int[] temperature_channels, int[] len);
+
+        int is_prepared (int[] prepared, int board_id, String params);
     }
 
     private static DllInterface instance;
@@ -558,6 +560,20 @@ public class BoardShim
             throw new BrainFlowError ("Error in get_board_data_count", ec);
         }
         return res[0];
+    }
+
+    /**
+     * check session status
+     */
+    public boolean is_prepared () throws BrainFlowError
+    {
+        int[] res = new int[1];
+        int ec = instance.is_prepared (res, board_id, input_json);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in is_prepared", ec);
+        }
+        return res[0] != 0;
     }
 
     /**
