@@ -71,7 +71,7 @@ class BrainFlowInputParams (object):
         self.other_info = ''
 
     def to_json (self):
-        return json.dumps (self, default = lambda o: o.__dict__, 
+        return json.dumps (self, default = lambda o: o.__dict__,
             sort_keys = True, indent = 4)
 
 class BrainFlowError (Exception):
@@ -379,7 +379,7 @@ class BoardShim (object):
     @classmethod
     def log_message (cls, log_level, message):
         """write your own log message to BrainFlow logger, use it if you wanna have single logger for your own code and BrainFlow's code
-        
+
         :param log_level: log level
         :type log_file: int
         :param message: message
@@ -451,7 +451,7 @@ class BoardShim (object):
         :raises BrainFlowError: If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
         """
         battery_channel = numpy.zeros (1).astype (numpy.int32)
-        res = BoardControllerDLL.get_instance ().get_package_num_channel (board_id, battery_channel)
+        res = BoardControllerDLL.get_instance ().get_battery_channel (board_id, battery_channel)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to request info about this board', res)
         return int (battery_channel[0])
