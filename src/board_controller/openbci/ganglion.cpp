@@ -117,7 +117,12 @@ int Ganglion::start_stream (int buffer_size, char *streamer_params)
         return INVALID_BUFFER_SIZE_ERROR;
     }
 
-    res = this->call_start ();
+    return this->start_streaming_prepared ();
+}
+
+int Ganglion::start_streaming_prepared ()
+{
+    int res = this->call_start ();
     if (res != STATUS_OK)
     {
         return res;
@@ -139,8 +144,7 @@ int Ganglion::start_stream (int buffer_size, char *streamer_params)
         safe_logger (spdlog::level::err, "no data received in 20sec, stopping thread");
         this->is_streaming = true;
         this->stop_stream ();
-        // return the same exit code as novaxr
-        return UNABLE_TO_OPEN_PORT_ERROR;
+        return SYNC_TIMEOUT_ERROR;
     }
 }
 
@@ -355,14 +359,33 @@ int Ganglion::config_board (char *config)
     {
         return res;
     }
-    // I've tried to pause and restart inside bglib code it doesnt work, dont want to investigate
-    // further
+    // need to pause, config and restart. I have no idea why it doesnt work if I restart it inside
+    // bglib or just call call_stop call_start, full restart solves the issue
     if (this->keep_alive)
     {
-        safe_logger (spdlog::level::debug, "For ganglion config doesnt work if stream is running");
-        return STREAM_ALREADY_RUN_ERROR;
+        safe_logger (spdlog::level::info, "stoping streaming to configure board");
+        // stop stream
+        this->keep_alive = false;
+        this->is_streaming = false;
+        this->streaming_thread.join ();
+        this->state = SYNC_TIMEOUT_ERROR;
+        int res = this->call_stop ();
+        if (res != STATUS_OK)
+        {
+            return res;
+        }
+        // call itself with disabled streaming
+        res = config_board (config);
+        if (res != STATUS_OK)
+        {
+            return res;
+        }
+        return this->start_streaming_prepared ();
     }
-    return this->call_config (config);
+    else
+    {
+        return this->call_config (config);
+    }
 }
 
 int Ganglion::call_init ()

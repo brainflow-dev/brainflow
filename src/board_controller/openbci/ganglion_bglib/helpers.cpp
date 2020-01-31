@@ -1,3 +1,4 @@
+#include <chrono>
 #include <condition_variable>
 #include <ctype.h>
 #include <mutex>
@@ -42,7 +43,8 @@ namespace GanglionLib
     // reads messages and calls required callbacks (copypaste from sample)
     int read_message (int timeout_ms)
     {
-        std::lock_guard<std::mutex> lock (mutex);
+        // if uncomented in some cases there is an error "mutex destroyed while locked"
+        // std::lock_guard<std::mutex> lock (mutex);
 
         unsigned char *data = NULL;
         struct ble_header hdr;
@@ -108,7 +110,7 @@ namespace GanglionLib
             return res;
         }
 
-        // from silicanlabs forum - write 0x00001 to enable notifications
+        // from siliconlabs forum - write 0x00001 to enable notifications
         // copypasted in start_stream method but lets keep it in 2 places
         uint8 configuration[] = {0x01, 0x00};
         state = State::WRITE_TO_CLIENT_CHAR;
@@ -118,14 +120,19 @@ namespace GanglionLib
         return wait_for_callback (5);
     }
 
-    int wait_for_callback (int num_attempts)
+    int wait_for_callback (int num_seconds)
     {
-        for (int i = 0; (i < num_attempts) && (exit_code == (int)GanglionLib::SYNC_ERROR); i++)
+        auto start_time = std::chrono::high_resolution_clock::now ();
+        int run_time = 0;
+        while ((run_time < num_seconds) && (exit_code == (int)GanglionLib::SYNC_ERROR))
         {
             if (read_message (UART_TIMEOUT) > 0)
             {
                 break;
             }
+            auto end_time = std::chrono::high_resolution_clock::now ();
+            run_time =
+                std::chrono::duration_cast<std::chrono::seconds> (end_time - start_time).count ();
         }
         return exit_code;
     }

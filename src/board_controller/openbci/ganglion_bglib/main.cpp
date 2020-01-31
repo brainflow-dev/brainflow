@@ -124,8 +124,10 @@ namespace GanglionLib
             read_characteristic_thread.join ();
         }
         int res = config_board ((char *)"s");
-        std::queue<struct GanglionLib::GanglionData> empty;
-        std::swap (data_queue, empty); // free queue
+        while (!data_queue.empty ())
+        {
+            data_queue.pop ();
+        }
         return res;
     }
 
