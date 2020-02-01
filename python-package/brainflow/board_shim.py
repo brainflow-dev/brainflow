@@ -121,6 +121,14 @@ class BoardControllerDLL (object):
             ctypes.c_char_p
         ]
 
+        self.is_prepared = self.lib.is_prepared
+        self.is_prepared.restype = ctypes.c_int
+        self.is_prepared.argtypes = [
+            ndpointer (ctypes.c_int32),
+            ctypes.c_int,
+            ctypes.c_char_p
+        ]
+
         self.start_stream = self.lib.start_stream
         self.start_stream.restype = ctypes.c_int
         self.start_stream.argtypes = [
@@ -773,6 +781,19 @@ class BoardShim (object):
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to obtain buffer size', res)
         return data_size[0]
+
+    def is_prepared (self):
+        """Check if session is ready or not
+
+        :return: session status
+        :rtype: bool
+        """
+        prepared = numpy.zeros (1).astype (numpy.int32)
+
+        res = BoardControllerDLL.get_instance ().is_prepared (prepared, self.board_id, self.input_json)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to check session status', res)
+        return bool(prepared[0])
 
     def get_board_data (self):
         """Get all board data and remove them from ringbuffer
