@@ -162,6 +162,8 @@ public:
                     Range for multicast addresses is from "224.0.0.0" to "239.255.255.255"
      */
     void start_stream (int buffer_size = 450000, char *streamer_params = NULL);
+    /// check if session is ready or not
+    bool is_prepared ();
     /// stop streaming thread, doesnt release other resources
     void stop_stream ();
     /// release streaming session

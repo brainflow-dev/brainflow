@@ -112,6 +112,8 @@ namespace brainflow
         public static extern int get_other_channels (int board_id, int[] channels, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_temperature_channels (int board_id, int[] channels, int[] len);
+        [DllImport("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int is_prepared(int[] prepared, int board_id, string input_json);
     }
 
     public static class BoardControllerLibrary32
@@ -170,6 +172,8 @@ namespace brainflow
         public static extern int get_other_channels (int board_id, int[] channels, int[] len);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_temperature_channels (int board_id, int[] channels, int[] len);
+        [DllImport("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int is_prepared(int[] prepared, int board_id, string input_json);
     }
 
     public static class BoardControllerLibrary
@@ -220,6 +224,14 @@ namespace brainflow
                 return BoardControllerLibrary64.get_board_data_count (result, board_id, input_json);
             else
                 return BoardControllerLibrary32.get_board_data_count (result, board_id, input_json);
+        }
+
+        public static int is_prepared(int[] result, int board_id, string input_json)
+        {
+            if (System.Environment.Is64BitProcess)
+                return BoardControllerLibrary64.is_prepared(result, board_id, input_json);
+            else
+                return BoardControllerLibrary32.is_prepared(result, board_id, input_json);
         }
 
         public static int get_board_data (int data_count, double[] data_buf, int board_id, string input_json)

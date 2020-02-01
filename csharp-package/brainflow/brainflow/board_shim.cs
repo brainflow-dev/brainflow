@@ -506,6 +506,21 @@ namespace brainflow
         }
 
         /// <summary>
+        /// check session status
+        /// </summary>
+        /// <returns>session status</returns>
+        public bool is_prepared ()
+        {
+            int[] res = new int[1];
+            int ec = BoardControllerLibrary.is_prepared(res, board_id, input_json);
+            if (ec != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException(ec);
+            }
+            return res[0] != 0;
+        }
+
+        /// <summary>
         /// get number of packages in ringbuffer
         /// </summary>
         /// <returns>number of packages</returns>

@@ -42,6 +42,7 @@ private:
     volatile int state;
 
     void read_thread ();
+    int start_streaming_prepared ();
 
 public:
     Ganglion (struct BrainFlowInputParams params);
