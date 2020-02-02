@@ -30,14 +30,14 @@ Exact format for this array is board specific. To keep the API uniform. we have 
    get_timestamp_channel (board_id)
    # and so on
 
-**For some boards like OpenBCI Cyton, OpenBCI Ganglion and others we can not separate EMG, EEG, EDA and ECG and in this case we return exactly the same array for all these methods but for some boards EMG and EEG channels differ**
+**For some boards like OpenBCI Cyton, OpenBCI Ganglion and others we cannot separate EMG, EEG, EDA and ECG and in this case we return exactly the same array for all these methods but for some boards EMG and EEG channels will differ**
 
 Using the methods above, you can write completely board agnostic code and switch boards using a single parameter! Even if you have only one board using these methods you can easily switch to Synthetic board for development and run code without real hardware.
 
 Special channels for Cyton Based boards
 -----------------------------------------
 
-`Cyton based boards from OpenBCI <https://docs.openbci.com/docs/02Cyton/CytonLanding>`_ suport different output formats which is described `here <https://docs.openbci.com/docs/02Cyton/CytonDataFormat#firmware-version-200-fall-2016-to-now-1>`_.
+`Cyton-based boards from OpenBCI <https://docs.openbci.com/docs/02Cyton/CytonLanding>`_ support different output formats, described `here <https://docs.openbci.com/docs/02Cyton/CytonDataFormat#firmware-version-200-fall-2016-to-now-1>`_.
 
 **For Cyton based boards, we add Cyton End byte to a first channel from:**
 
