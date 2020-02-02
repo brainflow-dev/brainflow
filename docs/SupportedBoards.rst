@@ -91,11 +91,11 @@ OpenBCI
 Cyton
 ~~~~~~~
 
-.. image:: https://farm5.staticflickr.com/4817/32567183898_10a4b56659.jpg
-    :width: 312px
-    :height: 161px
+.. image:: https://i.ibb.co/cNj9pyf/Cyton.jpg
+    :width: 200px
+    :height: 200px
 
-`Cyton geting started guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/CytonGS>`_.
+`Cyton Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/CytonGS>`_.
 
 **To choose this board in BoardShim constructor please specify:**
 
@@ -123,7 +123,7 @@ Ganglion
     :width: 400px
     :height: 230px
 
-`Ganglion geting started guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/GanglionGS>`_.
+`Ganglion Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/GanglionGS>`_.
 
 **To use Ganglion board you need a** `dongle <https://shop.openbci.com/collections/frontpage/products/ganglion-dongle>`_.
 
@@ -153,7 +153,7 @@ Cyton Daisy
     :width: 400px
     :height: 394px
 
-`Cyton Daisy geting started guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/DaisyGS>`_.
+`CytonDaisy Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/DaisyGS>`_.
 
 **To choose this board in BoardShim constructor please specify:**
 
@@ -175,16 +175,16 @@ Board Spec:
 - signal gain: 24
 
 
-Ganglion with Wifi Shield
+Ganglion with WiFi Shield
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. image:: https://live.staticflickr.com/65535/48836544227_05059fc450_b.jpg
-    :width: 332px
-    :height: 400px
+    :width: 300px
+    :height: 300px
 
-`Wifi shield geting started guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_.
+`WiFi Shield Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_.
 
-`Wifi shield programming guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_.
+`WiFi Shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_.
 
 **To choose this board in BoardShim constructor please specify:**
 
@@ -205,16 +205,16 @@ Board Spec:
 - sampling rate: 1600
 - communication: TCP socket to read data and HTTP to send commands
 
-Cyton with Wifi Shield
+Cyton with WiFi Shield
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. image:: https://live.staticflickr.com/65535/48836367066_a8c4b6d3be_b.jpg
     :width: 400px
     :height: 325px
 
-`Wifi shield geting started guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_.
+`WiFi shield Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_.
 
-`Wifi shield programming guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_.
+`WiFi shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_.
 
 **To choose this board in BoardShim constructor please specify:**
 
@@ -237,16 +237,16 @@ Board Spec:
 - communication: TCP socket to read data and HTTP to send commands
 - signal gain: 24
 
-Cyton Daisy with Wifi Shield
+CytonDaisy with WiFi Shield
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. image:: https://live.staticflickr.com/65535/48843419918_f11c90deb0_k.jpg
     :width: 400px
     :height: 400px
 
-`Wifi shield geting started guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_.
+`WiFi Shield Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_.
 
-`Wifi shield programming guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_.
+`WiFi Shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_.
 
 **To choose this board in BoardShim constructor please specify:**
 
