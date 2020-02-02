@@ -16,7 +16,7 @@ Python
 - pandas
 - mne
 
-BrainFlow doesn't need these packages and doesn't install them, but we use them in demos below.
+BrainFlow doesn't use these packages and doesn't install them, but the packages will be used in demos below.
 
 Python Get Data from a Board
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
