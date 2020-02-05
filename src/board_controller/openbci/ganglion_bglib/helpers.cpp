@@ -50,7 +50,7 @@ namespace GanglionLib
         struct ble_header hdr;
         int r;
 
-        r = uart_rx (sizeof (hdr), (unsigned char *)&hdr, UART_TIMEOUT);
+        r = uart_rx (sizeof (hdr), (unsigned char *)&hdr, timeout_ms);
         if (!r)
         {
             return -1; // timeout
