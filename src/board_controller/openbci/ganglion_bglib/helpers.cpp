@@ -73,15 +73,10 @@ namespace GanglionLib
         }
 
         const struct ble_msg *msg = ble_get_msg_hdr (hdr);
-
-        if (!msg)
+        if (msg)
         {
-            exit_code = (int)GanglionLib::GENERAL_ERROR;
-            delete[] data;
-            return 1;
+            msg->handler (data);
         }
-
-        msg->handler (data);
         delete[] data;
         return 0;
     }
