@@ -344,6 +344,10 @@ compiled/
 python/flowcat.egg-info/
 .Rproj.user
 
+# Docs build files
+docs/_build/*
+docs/Doxyfile*
+
 # Build files
 java-package/brainflow/target
 java-package/brainflow/.classpath

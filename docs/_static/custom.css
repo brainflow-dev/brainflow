@@ -6,3 +6,9 @@
 .wy-side-nav-search > div.version {
   color: #000;
 }
+
+.wy-nav-content {
+  max-width: 100%;
+  position: relative;
+  overflow: auto;
+}
