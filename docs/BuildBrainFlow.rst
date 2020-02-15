@@ -81,7 +81,7 @@ Linux
 ~~~~~~
 
 - Install Cmake>=3.10 you can install it from PYPI via pip
-- If you wanna distribute compiled Linux linraries you HAVE to build it inside manylinux Docker container
+- If you wanna distribute compiled Linux libraries you HAVE to build it inside manylinux Docker container
 - Build it as a cmake project manually or use bash file from tools directory
 - You can use any compiler but for Linux we test only GCC, also we test only 64bit libraries for Linux
 
