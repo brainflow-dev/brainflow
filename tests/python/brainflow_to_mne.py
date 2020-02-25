@@ -29,6 +29,7 @@ def main():
 
     eeg_channels = BoardShim.get_eeg_channels (BoardIds.SYNTHETIC_BOARD.value)
     eeg_data = data[eeg_channels, :]
+    eeg_data = eeg_data / 1000000 # BrainFlow returns uV, convert to V for MNE
 
     # Creating MNE objects from brainflow data arrays
     ch_types = ['eeg', 'eeg', 'eeg', 'eeg', 'eeg', 'eeg', 'eeg', 'eeg']

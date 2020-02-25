@@ -30,9 +30,9 @@ Exact format for this array is board specific. To keep the API uniform. we have 
    get_timestamp_channel (board_id)
    # and so on
 
-**For some boards like OpenBCI Cyton, OpenBCI Ganglion and others we cannot separate EMG, EEG, EDA and ECG and in this case we return exactly the same array for all these methods but for some boards EMG and EEG channels will differ**
+**For some boards like OpenBCI Cyton, OpenBCI Ganglion, etc we cannot separate EMG, EEG, EDA and ECG and in this case we return exactly the same array for all these methods but for some devices EMG and EEG channels will differ.**
 
-Using the methods above, you can write completely board agnostic code and switch boards using a single parameter! Even if you have only one board using these methods you can easily switch to Synthetic board for development and run code without real hardware.
+Using the methods above, you can write completely board agnostic code and switch boards using a single parameter! Even if you have only one board using these methods you can easily switch to Synthetic Board or Streaming Board.
 
 Special channels for Cyton Based boards
 -----------------------------------------
@@ -45,13 +45,13 @@ Special channels for Cyton Based boards
 
    get_other_channels (board_id)
 
-**If Cyton End bytes is equal to 0xC0 we add accel data. To get rows which contain accel data use:**
+**If Cyton End byte is equal to 0xC0 we add accel data. To get rows which contain accel data use:**
 
 .. code-block:: python
 
    get_accel_channels (board_id)
 
-**If Cyton End bytes is equal to 0xC1 we add analog data. To get rows which contain analog data use:**
+**If Cyton End byte is equal to 0xC1 we add analog data. To get rows which contain analog data use:**
 
 .. code-block:: python
 
