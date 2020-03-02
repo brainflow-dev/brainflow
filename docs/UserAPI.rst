@@ -71,6 +71,11 @@ BrainFlowException class
    :project: BrainFlowCpp
    :undoc-members:
 
+BrainFlow constants
+~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../src/board_controller/inc/brainflow_constants.h
+   :language: cpp
 
 Java API Reference
 -------------------

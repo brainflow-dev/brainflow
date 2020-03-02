@@ -13,6 +13,7 @@
 
 #include "board.h"
 #include "board_controller.h"
+#include "brainbit.h"
 #include "cyton.h"
 #include "cyton_daisy.h"
 #include "cyton_daisy_wifi.h"
@@ -88,6 +89,9 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
             break;
         case CYTON_DAISY_WIFI_BOARD:
             board = std::shared_ptr<Board> (new CytonDaisyWifi (params));
+            break;
+        case BRAINBIT_BOARD:
+            board = std::shared_ptr<Board> (new BrainBit (params));
             break;
         default:
             return UNSUPPORTED_BOARD_ERROR;

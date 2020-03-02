@@ -27,6 +27,7 @@
           <include>DataHandler.dll</include>
           <include>libDataHandler.so</include>
           <include>libDataHandler.dylib</include>
+          <include>neurosdk-x64.dll</include>
         </includes>
       </resource>
     </resources>

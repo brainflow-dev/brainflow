@@ -16,6 +16,8 @@ To create an instance of BoardShim class for your board check required inputs in
    "Ganglion Wifi", "BoardIds.GANGLION_WIFI_BOARD (4)", "-", "-", "Wifi Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-"
    "Cyton Wifi", "BoardIds.CYTON_WIFI_BOARD (5)", "-", "-", "Wifi Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-"
    "Cyton Daisy Wifi", "BoardIds.CYTON_DAISY_WIFI_BOARD (6)", "-", "-", "Wifi Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-"
+   "BrainBit", "BoardIds.BRAINBIT_BOARD (7)", "-", "-", "-", "-", "-", "Serial Number of BrainBit device"
+
 
 Streaming Board
 ------------------
@@ -67,7 +69,7 @@ This board generates synthetic data and you dont need real hardware to use it.
 
 **It can be extremely useful during development.**
 
-**To choose this board in BoardShim constructor please specify:**
+To choose this board in BoardShim constructor please specify:
 
 - board_id: -1
 - you dont need to set any fields in BrainFlowInputParams structure
@@ -97,7 +99,7 @@ Cyton
 
 `Cyton Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/CytonGS>`_.
 
-**To choose this board in BoardShim constructor please specify:**
+To choose this board in BoardShim constructor please specify:
 
 - board_id: 0
 - serial_port field of BrainFlowInputParams structure
@@ -107,6 +109,8 @@ Supported platforms:
 - Windows >= 8.1
 - Linux
 - MacOS
+
+**On MacOS there are two serial ports for each device: /dev/tty..... and /dev/cu..... You HAVE to specify /dev/cu.....**
 
 Board Spec:
 
@@ -127,7 +131,7 @@ Ganglion
 
 **To use Ganglion board you need a** `dongle <https://shop.openbci.com/collections/frontpage/products/ganglion-dongle>`_.
 
-**To choose this board in BoardShim constructor please specify:**
+To choose this board in BoardShim constructor please specify:
 
 - board_id: 1
 - serial_port field of BrainFlowInputParams structure
@@ -138,6 +142,8 @@ Supported platforms:
 - Windows >= 8.1
 - Linux
 - MacOS
+
+**On MacOS there are two serial ports for each device: /dev/tty..... and /dev/cu..... You HAVE to specify /dev/cu.....**
 
 Board Spec:
 
@@ -155,7 +161,7 @@ Cyton Daisy
 
 `CytonDaisy Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/DaisyGS>`_.
 
-**To choose this board in BoardShim constructor please specify:**
+To choose this board in BoardShim constructor please specify:
 
 - board_id: 2
 - serial_port field of BrainFlowInputParams structure
@@ -165,6 +171,8 @@ Supported platforms:
 - Windows >= 8.1
 - Linux
 - MacOS
+
+**On MacOS there are two serial ports for each device: /dev/tty..... and /dev/cu..... You HAVE to specify /dev/cu.....**
 
 Board Spec:
 
@@ -186,7 +194,7 @@ Ganglion with WiFi Shield
 
 `WiFi Shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_.
 
-**To choose this board in BoardShim constructor please specify:**
+To choose this board in BoardShim constructor please specify:
 
 - board_id: 4
 - ip_address field of BrainFlowInputParams structure should contain WiFi Shield Ip address(in direct mode its 192.168.4.1)
@@ -216,7 +224,7 @@ Cyton with WiFi Shield
 
 `WiFi shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_.
 
-**To choose this board in BoardShim constructor please specify:**
+To choose this board in BoardShim constructor please specify:
 
 - board_id: 5
 - ip_address field of BrainFlowInputParams structure should contain WiFi Shield Ip address(in direct mode its 192.168.4.1)
@@ -248,7 +256,7 @@ CytonDaisy with WiFi Shield
 
 `WiFi Shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_.
 
-**To choose this board in BoardShim constructor please specify:**
+To choose this board in BoardShim constructor please specify:
 
 - board_id: 6
 - ip_address field of BrainFlowInputParams structure should contain WiFi Shield Ip address(in direct mode its 192.168.4.1)
@@ -267,3 +275,31 @@ Board Spec:
 - sampling rate: 1000
 - communication: TCP socket to read data and HTTP to send commands
 - signal gain: 24
+
+BrainBit Company
+-----------------
+
+BrainBit
+~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/49579371806_80b1bffae1.jpg
+    :width: 400px
+    :height: 400px
+
+`BrainBit website <https://brainbit.com/>`_.
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 7
+- other_info field of BrainFlowInputParams structure should contain Serial Number of BrainBit device
+
+Supported platforms:
+
+- Windows >= 10
+
+Board Spec:
+
+- num eeg channels: 4
+- num acceleration channels: None
+- sampling rate: 250
+- communication: Bluetooth Low Energy

@@ -65,7 +65,7 @@ Compilation of Core module and C++ binding
 Windows
 ~~~~~~~~
 
-- Install Cmake>=3.10 you can install it from PYPI via pip
+- Install Cmake>=3.13 you can install it from PYPI via pip
 - Install Visual Studio 2017, you can use another version but you will need to change cmake generator in batch files or run cmake commands manually. Also in CI we test only VS2017
 - Build it as a cmake project manually or use batch files from tools directory
 
@@ -73,7 +73,7 @@ Windows
 
     Compilation using batch files ::
 
-        python -m pip install cmake==3.13.0
+        python -m pip install cmake==3.13.3
         .\tools\build_win32.cmd
         .\tools\build_win64.cmd
 
@@ -89,7 +89,7 @@ Linux
 
     Compilation using bash file ::
 
-        python -m pip install cmake==3.13.0
+        python -m pip install cmake==3.13.3
         ./tools/build_linux.sh
 
 MacOS
@@ -103,6 +103,6 @@ MacOS
 
     Compilation using bash file ::
 
-        python -m pip install cmake==3.13.0
+        python -m pip install cmake==3.13.3
         ./tools/build_mac.sh
 

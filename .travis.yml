@@ -36,7 +36,7 @@ addons:
 
 install:
   - sudo pip3 install --upgrade pip
-  - sudo pip3 install cmake==3.13.0
+  - sudo pip3 install cmake==3.13.3
   - sudo -H pip3 install --upgrade setuptools wheel virtualenv
   - sudo -H pip3 install $TRAVIS_BUILD_DIR/emulator
   # R disabled. It's taking up too much time in CI
@@ -55,7 +55,7 @@ before_script:
       cd $TRAVIS_BUILD_DIR && mkdir build_outside && cd build_outside && cmake -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR/installed -DCMAKE_BUILD_TYPE=Release .. && sudo -H make && make install;
     fi
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-      docker run -e TRAVIS_BUILD_DIR=$TRAVIS_BUILD_DIR -v $TRAVIS_BUILD_DIR:$TRAVIS_BUILD_DIR dockcross/manylinux-x64 /bin/bash -c "/opt/python/cp36-cp36m/bin/pip3.6 install cmake==3.13.0 && cd $TRAVIS_BUILD_DIR && mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR/installed_docker -DCMAKE_BUILD_TYPE=Release .. && make && make install" ;
+      docker run -e TRAVIS_BUILD_DIR=$TRAVIS_BUILD_DIR -v $TRAVIS_BUILD_DIR:$TRAVIS_BUILD_DIR dockcross/manylinux-x64 /bin/bash -c "/opt/python/cp36-cp36m/bin/pip3.6 install cmake==3.13.3 && cd $TRAVIS_BUILD_DIR && mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR/installed_docker -DCMAKE_BUILD_TYPE=Release .. && make && make install" ;
     fi
   # build for mac
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
