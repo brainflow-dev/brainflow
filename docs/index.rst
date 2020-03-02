@@ -16,7 +16,6 @@ It provides a **uniform data acquisition API for all supported boards**, it mean
 .. toctree::
     SupportedBoards
     BuildBrainFlow
-    CoreModuleAPI
     UserAPI
     DataFormatDesc
     Examples

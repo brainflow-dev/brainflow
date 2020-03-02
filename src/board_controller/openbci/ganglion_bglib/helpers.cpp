@@ -1,7 +1,6 @@
 #include <chrono>
 #include <condition_variable>
 #include <ctype.h>
-#include <mutex>
 #include <stdlib.h>
 #include <string.h>
 #include <string>
@@ -30,7 +29,6 @@ namespace GanglionLib
     extern char uart_port[1024];
     extern volatile State state;
     extern std::condition_variable cv;
-    std::mutex mutex;
 
     void output (uint8 len1, uint8 *data1, uint16 len2, uint8 *data2)
     {
@@ -43,9 +41,6 @@ namespace GanglionLib
     // reads messages and calls required callbacks (copypaste from sample)
     int read_message (int timeout_ms)
     {
-        // if uncomented in some cases there is an error "mutex destroyed while locked"
-        // std::lock_guard<std::mutex> lock (mutex);
-
         unsigned char *data = NULL;
         struct ble_header hdr;
         int r;

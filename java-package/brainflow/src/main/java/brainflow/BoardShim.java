@@ -85,6 +85,7 @@ public class BoardShim
         if (SystemUtils.IS_OS_WINDOWS)
         {
             lib_name = "BoardController.dll";
+            unpack_from_jar ("neurosdk-x64.dll");
 
         } else if (SystemUtils.IS_OS_MAC)
         {

@@ -84,6 +84,8 @@ int SyntheticBoard::start_stream (int buffer_size, char *streamer_params)
     if (!this->db->is_ready ())
     {
         safe_logger (spdlog::level::err, "unable to prepare buffer with size {}", buffer_size);
+        delete db;
+        db = NULL;
         return INVALID_BUFFER_SIZE_ERROR;
     }
 

@@ -97,6 +97,7 @@ if (CMAKE_SIZEOF_VOID_P EQUAL 8)
     else ()
         SET (BOARD_CONTROLLER_COMPILED_NAME "BoardController.dll")
         SET (DATA_HANDLER_COMPILED_NAME "DataHandler.dll")
+        SET (BRIANBIT_LIB_NAME "neurosdk-x64")
     endif (APPLE)
 else (CMAKE_SIZEOF_VOID_P EQUAL 8)
     MESSAGE ("32 bits compiler detected")
@@ -113,6 +114,7 @@ else (CMAKE_SIZEOF_VOID_P EQUAL 8)
     else ()
         SET (BOARD_CONTROLLER_COMPILED_NAME "BoardController32.dll")
         SET (DATA_HANDLER_COMPILED_NAME "DataHandler32.dll")
+        SET (BRIANBIT_LIB_NAME "neurosdk-x86")
     endif (APPLE)
 endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
 
@@ -140,6 +142,7 @@ set (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/novaxr.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/file_streamer.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/multicast_streamer.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/brainbit/brainbit.cpp
 )
 
 set (DATA_HANDLER_SRC
@@ -164,8 +167,21 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/src/utils/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/inc
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/brainbit/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/inc
 )
+
+# BrainBit supoprts only Windows
+if (MSVC)
+    target_include_directories (
+        ${BOARD_CONTROLLER_NAME} PRIVATE
+        ${CMAKE_HOME_DIRECTORY}/third_party/brainbit/inc
+    )
+
+    find_library(BRAINBIT_SDK_LIB NAMES ${BRIANBIT_LIB_NAME} PATHS ${CMAKE_HOME_DIRECTORY}/third_party/brainbit/lib)
+    target_link_libraries(${BOARD_CONTROLLER_NAME} PRIVATE ${BRAINBIT_SDK_LIB})
+
+endif (MSVC)
 
 target_include_directories (
     ${DATA_HANDLER_NAME} PRIVATE
@@ -193,11 +209,11 @@ set_target_properties (${DATA_HANDLER_NAME}
 )
 
 if (UNIX)
-    target_link_libraries (${BOARD_CONTROLLER_NAME} ${GANGLION_LIB} pthread dl)
-    target_link_libraries (${DATA_HANDLER_NAME} ${DSPFILTERS} ${WAVELIB} pthread dl)
+    target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE ${GANGLION_LIB} pthread dl)
+    target_link_libraries (${DATA_HANDLER_NAME} PRIVATE ${DSPFILTERS} ${WAVELIB} pthread dl)
 else (UNIX)
-    target_link_libraries (${BOARD_CONTROLLER_NAME} ${GANGLION_LIB})
-    target_link_libraries (${DATA_HANDLER_NAME} ${DSPFILTERS} ${WAVELIB})
+    target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE ${GANGLION_LIB})
+    target_link_libraries (${DATA_HANDLER_NAME} PRIVATE ${DSPFILTERS} ${WAVELIB})
 endif (UNIX)
 
 add_library (
@@ -227,6 +243,9 @@ if (MSVC)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BOARD_CONTROLLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${BOARD_CONTROLLER_COMPILED_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BOARD_CONTROLLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${BOARD_CONTROLLER_COMPILED_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BOARD_CONTROLLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/${BOARD_CONTROLLER_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/brainbit/lib/${BRIANBIT_LIB_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/${BRIANBIT_LIB_NAME}.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/brainbit/lib/${BRIANBIT_LIB_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${BRIANBIT_LIB_NAME}.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/brainbit/lib/${BRIANBIT_LIB_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${BRIANBIT_LIB_NAME}.dll"
     )
     add_custom_command (TARGET ${DATA_HANDLER_NAME} POST_BUILD 
         # copy data handler libs
@@ -290,6 +309,15 @@ install (
     ${CMAKE_HOME_DIRECTORY}/cpp-package/src/inc/brainflow_exception.h
     DESTINATION inc
 )
+
+# install brainbit dll
+if (MSVC)
+    install (
+        FILES
+        ${CMAKE_HOME_DIRECTORY}/third_party/brainbit/lib/${BRIANBIT_LIB_NAME}.dll
+        DESTINATION lib
+    )
+endif (MSVC)
 
 # need to put this file with libraries
 install (

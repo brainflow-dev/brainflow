@@ -192,7 +192,8 @@ void ble_evt_attclient_attribute_value (const struct ble_msg_attclient_attribute
     {
         unsigned char values[20] = {0};
         memcpy (values, msg->value.data, msg->value.len * sizeof (unsigned char));
-        struct GanglionLib::GanglionData data (values, (long)get_timestamp ());
+        double timestamp = get_timestamp ();
+        struct GanglionLib::GanglionData data (values, timestamp);
         GanglionLib::data_queue.push (data);
     }
 }

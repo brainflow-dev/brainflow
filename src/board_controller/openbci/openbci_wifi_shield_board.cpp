@@ -229,6 +229,8 @@ int OpenBCIWifiShieldBoard::start_stream (int buffer_size, char *streamer_params
     if (!db->is_ready ())
     {
         safe_logger (spdlog::level::err, "unable to prepare buffer");
+        delete db;
+        db = NULL;
         return INVALID_BUFFER_SIZE_ERROR;
     }
 

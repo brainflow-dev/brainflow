@@ -24,6 +24,7 @@ class BoardIds (enum.Enum):
     GANGLION_WIFI_BOARD = 4 #:
     CYTON_WIFI_BOARD = 5 #:
     CYTON_DAISY_WIFI_BOARD = 6 #:
+    BRAINBIT_BOARD = 7 #:
 
 
 class LogLevels (enum.Enum):
@@ -110,6 +111,14 @@ class BoardControllerDLL (object):
             dll_path = 'lib/libBoardController.so'
         full_path = pkg_resources.resource_filename (__name__, dll_path)
         if os.path.isfile (full_path):
+            # for python we load dll by direct path but this dll may depend on other dlls and they will not be found!
+            # to solve it we can load all of them before loading the main one or change PATH\LD_LIBRARY_PATH env var.
+            # env variable looks better, since it can be done only once for all dependencies
+            dir_path = os.path.abspath (os.path.dirname (full_path))
+            if platform.system () == 'Windows':
+                os.environ['PATH'] = dir_path + os.pathsep + os.environ.get ('PATH', '')
+            else:
+                os.environ['LD_LIBRARY_PATH'] = dir_path + os.pathsep + os.environ.get ('LD_LIBRARY_PATH', '')
             self.lib = ctypes.cdll.LoadLibrary (full_path)
         else:
             raise FileNotFoundError ('Dynamic library %s is missed, did you forget to compile brainflow before installation of python package?' % full_path)
