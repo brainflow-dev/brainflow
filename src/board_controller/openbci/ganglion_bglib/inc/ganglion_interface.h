@@ -8,15 +8,19 @@ namespace GanglionLib
     struct GanglionData
     {
         unsigned char data[20];
-        long timestamp;
-        GanglionData (unsigned char *data, long timestamp)
+        double timestamp;
+
+        GanglionData (unsigned char *data, double timestamp)
         {
             memcpy (this->data, data, sizeof (unsigned char) * 20);
             this->timestamp = timestamp;
         }
+
         GanglionData ()
         {
+            timestamp = 0.0;
         }
+
         GanglionData (const GanglionData &other)
         {
             timestamp = other.timestamp;
