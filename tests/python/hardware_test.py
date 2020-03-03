@@ -141,12 +141,20 @@ def main ():
                 for ch in emg_channels:
                     if ch not in total_channels:
                         total_channels.append (ch)
+            total_channels.append (timestamp_channel)
 
+            columns = list ()
+            for i in range (len (total_channels) - 1):
+                columns.append ('channel_%d' % i)
+            columns.append ('timestamp')
 
             df = pd.DataFrame (np.transpose (data))
-            df[total_channels].to_csv ('selected_data_%d.csv' % i)
             df.to_csv ('all_data_%d.csv' % i)
-            df[total_channels].plot (subplots = True)
+
+            df_to_plot = df[total_channels]
+            df_to_plot.columns = columns
+            df_to_plot.to_csv ('selected_data_%d.csv' % i)
+            df_to_plot.plot (subplots = True, x = 'timestamp', style = '.-')
             plt.show ()
     finally:
         # release session in the end

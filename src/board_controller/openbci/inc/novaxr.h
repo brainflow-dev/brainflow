@@ -27,6 +27,7 @@ private:
     std::mutex m;
     std::condition_variable cv;
     volatile int state;
+    volatile double start_time;
     void read_thread ();
 
 public:
