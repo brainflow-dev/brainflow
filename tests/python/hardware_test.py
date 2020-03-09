@@ -145,7 +145,7 @@ def main ():
 
             columns = list ()
             for i in range (len (total_channels) - 1):
-                columns.append ('channel_%d' % i)
+                columns.append ('channel_%d' % (int(total_channels[i]) - 1))
             columns.append ('timestamp')
 
             df = pd.DataFrame (np.transpose (data))
