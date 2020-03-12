@@ -6,6 +6,8 @@
 #include "multicast_streamer.h"
 #include "stub_streamer.h"
 
+#include "spdlog/sinks/null_sink.h"
+
 
 #define LOGGER_NAME "brainflow_logger"
 
@@ -30,10 +32,13 @@ int Board::set_log_level (int level)
 int Board::set_log_file (char *log_file)
 {
     spdlog::level::level_enum level = Board::board_logger->level ();
+    Board::board_logger = spdlog::create<spdlog::sinks::null_sink_st> (
+        "null_logger"); // to dont set logger to nullptr and avoid raice condition
     spdlog::drop (LOGGER_NAME);
     Board::board_logger = spdlog::basic_logger_mt (LOGGER_NAME, log_file);
     Board::board_logger->set_level (level);
     Board::board_logger->flush_on (level);
+    spdlog::drop ("null_logger");
     return STATUS_OK;
 }
 
