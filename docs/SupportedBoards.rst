@@ -276,8 +276,8 @@ Board Spec:
 - communication: TCP socket to read data and HTTP to send commands
 - signal gain: 24
 
-BrainBit Company
------------------
+Neuro MD
+------------
 
 BrainBit
 ~~~~~~~~~~
@@ -296,6 +296,7 @@ To choose this board in BoardShim constructor please specify:
 Supported platforms:
 
 - Windows >= 10
+- MacOS
 
 Board Spec:
 
