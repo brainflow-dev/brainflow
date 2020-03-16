@@ -5,6 +5,10 @@ set (CMAKE_CXX_STANDARD 11)
 set (CMAKE_VERBOSE_MAKEFILE ON)
 set (BRAINFLOW_VERSION 2.1.0)
 
+# dont export sumbols on unix by default
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_C_VISIBILITY_PRESET hidden)
+
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 macro (configure_msvc_runtime)
