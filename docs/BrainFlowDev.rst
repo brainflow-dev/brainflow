@@ -26,7 +26,7 @@ CI and tests
 
 If you want to commit to core module of brainflow project please check that all tests are passed, you can enable `Travis CI <https://travis-ci.com/>`_ and `AppVeyour <https://ci.appveyor.com>`_ for your fork of BrainFlow to run tests automatically, or check CI status directly in your PR.
 
-Also you can run integration tests manually for any board even if you dont have real hardware, check :ref:`emulator-label` page for details.
+Also you can run integration tests manually for any board even if you dont have real hardware using BrainFlow Emulator.
 
 Pull Requests
 --------------
@@ -93,3 +93,78 @@ Example for Linux(for MacOS it's the same)::
     # Run gdb and get backtrace
     sudo gdb --args ./brainflow_get_data --board-id 1 --serial-port /dev/ttyACM0 --mac-address e6:73:73:18:09:b1
     # In gdb terminal type 'r' to run the program and as soon as error occurs, type 'bt' to see backtrace with exact lines of code and call stack
+
+
+BrainFlow Emulator
+--------------------
+
+BrainFlow Emulator allows you to run all integration tests for all supported boards without real hardware. Our CI uses it for test automation. Also, you can run it on your own PC!
+
+Streaming Board
+~~~~~~~~~~~~~~~~~~
+
+Streaming Board emulator works using Python binding for BrainFlow, so **you need to install Python binding first.**
+
+Install emulator package::
+
+    cd emulator
+    python -m pip install -U .
+
+Run tests ::
+
+    python emulator\brainflow_emulator\streaming_board_emulator.py python tests\python\brainflow_get_data.py --log --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
+
+This emulator uses synthetic board as a master board and the IP address and port are hardcoded.
+
+OpenBCI Cyton
+~~~~~~~~~~~~~~~
+
+Cyton emulator simulate COM port using:
+
+- `com0com <http://com0com.sourceforge.net/>`_ for Windows
+- pty for Linux and MacOS
+
+You should pass test command line directly to cyton_linux.py or to cyton_windows.py. The script will add the port automatically to provided command line and will start an application.
+
+
+Install emulator package::
+
+    cd emulator
+    python -m pip install -U .
+
+Run tests for Linux\MacOS and Windows (port argument will be added by Emulator!) ::
+
+    python brainflow_emulator/cyton_linux.py python ../tests/python/brainflow_get_data.py --log --board-id 0 --serial-port
+    python brainflow_emulator\cyton_windows.py python ..\tests\python\brainflow_get_data.py --log --board-id 0 --serial-port
+
+
+OpenBCI NovaXR
+~~~~~~~~~~~~~~~~
+
+NovaXR emulator creates socket server and streams data to BrainFlow like it's a real board, but with much lower sampling rate.
+
+Install emulator package::
+
+    cd emulator
+    python -m pip install -U .
+
+Run tests::
+
+    python brainflow_emulator/novaxr_udp.py python ../tests/python/brainflow_get_data.py --log --ip-address 127.0.0.1 --board-id 3
+
+OpenBCI Wifi Shield based boards
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Wifi shield emulator starts http server to read commands and creates client socket to stream data.
+
+Install emulator package::
+
+    cd emulator
+    python -m pip install -U .
+
+Run tests for Ganglion, Cyton and Daisy with Wifi Shield::
+
+    python brainflow_emulator/wifi_shield_emulator.py python ../tests/python/brainflow_get_data.py --log --ip-address 127.0.0.1 --board-id 4 --ip-protocol 2 --ip-port 17982
+    python brainflow_emulator/wifi_shield_emulator.py python ../tests/python/brainflow_get_data.py --log --ip-address 127.0.0.1 --board-id 5 --ip-protocol 2 --ip-port 17982
+    python brainflow_emulator/wifi_shield_emulator.py python ../tests/python/brainflow_get_data.py --log --ip-address 127.0.0.1 --board-id 6 --ip-protocol 2 --ip-port 17982
+
