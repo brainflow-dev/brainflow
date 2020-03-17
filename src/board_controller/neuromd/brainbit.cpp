@@ -15,7 +15,7 @@
 // Implementation for Windows and APPLE //
 //////////////////////////////////////////
 
-#ifdef _WIN32 || __APPLE__
+#if defined _WIN32 || defined __APPLE__
 
 #include "cparams.h"
 #include "cscanner.h"
