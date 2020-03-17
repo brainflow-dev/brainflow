@@ -177,15 +177,21 @@ target_include_directories (
 )
 
 # NeuroSDK supoprts only Windows and MacOS
-if (MSVC OR APPLE)
+if (MSVC)
     target_include_directories (
         ${BOARD_CONTROLLER_NAME} PRIVATE
-        ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/inc
+        ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/inc/win
     )
-
+endif (MSVC)
+if (APPLE)
+    target_include_directories (
+        ${BOARD_CONTROLLER_NAME} PRIVATE
+        ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/inc/macos
+    )
+endif (APPLE)
+if (MSVC OR APPLE)
     find_library(NEUROSDK_SDK_LIB NAMES ${NEUROSDK_LIB_NAME} PATHS ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib)
     target_link_libraries(${BOARD_CONTROLLER_NAME} PRIVATE ${NEUROSDK_SDK_LIB})
-
 endif (MSVC OR APPLE)
 
 target_include_directories (
@@ -243,7 +249,7 @@ endif (UNIX)
 
 # copy
 if (MSVC)
-    add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD 
+    add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
         # copy board controller libs
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BOARD_CONTROLLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${BOARD_CONTROLLER_COMPILED_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BOARD_CONTROLLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${BOARD_CONTROLLER_COMPILED_NAME}"
@@ -252,7 +258,7 @@ if (MSVC)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib/${NEUROSDK_LIB_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${NEUROSDK_LIB_NAME}.dll"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib/${NEUROSDK_LIB_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${NEUROSDK_LIB_NAME}.dll"
     )
-    add_custom_command (TARGET ${DATA_HANDLER_NAME} POST_BUILD 
+    add_custom_command (TARGET ${DATA_HANDLER_NAME} POST_BUILD
         # copy data handler libs
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${DATA_HANDLER_COMPILED_NAME}"
@@ -274,7 +280,7 @@ if (UNIX)
     )
 endif (UNIX)
 if (APPLE)
-    add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD 
+    add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
         # copy neurosdk lib for MacOS
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib/lib${NEUROSDK_LIB_NAME}.dylib" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/lib${NEUROSDK_LIB_NAME}.dylib"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib/lib${NEUROSDK_LIB_NAME}.dylib" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/lib${NEUROSDK_LIB_NAME}.dylib"
