@@ -134,9 +134,6 @@ script:
   - if [ `which valgrind` ]; then
       python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/streaming_board_emulator.py valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1 ;
     fi
-  # dummy tests for brainbit just to check that it runs smth
-  - python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --log --board-id 7 --other-info 12345 || echo $?
-  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 7 -- other-info 12345 ||  echo $?
 
   # tests for signal processing
   # python
