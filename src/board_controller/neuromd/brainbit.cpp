@@ -467,9 +467,12 @@ void BrainBit::read_thread ()
 
 void BrainBit::free_listeners ()
 {
+// different headers(free_listener_handle method) for macos and msvc
+#ifdef _WIN32
     if (resistance_listener_t4)
     {
         free_listener_handle (resistance_listener_t4);
+
         resistance_listener_t4 = NULL;
     }
     if (resistance_listener_t3)
@@ -492,6 +495,34 @@ void BrainBit::free_listeners ()
         free_listener_handle (battery_listener);
         battery_listener = NULL;
     }
+#endif
+#ifdef APPLE
+    if (resistance_listener_t4)
+    {
+        free_length_listener_handle (resistance_listener_t4);
+        resistance_listener_t4 = NULL;
+    }
+    if (resistance_listener_t3)
+    {
+        free_length_listener_handle (resistance_listener_t3);
+        resistance_listener_t3 = NULL;
+    }
+    if (resistance_listener_o1)
+    {
+        free_length_listener_handle (resistance_listener_o1);
+        resistance_listener_o1 = NULL;
+    }
+    if (resistance_listener_o2)
+    {
+        free_length_listener_handle (resistance_listener_o2);
+        resistance_listener_o2 = NULL;
+    }
+    if (battery_listener)
+    {
+        free_length_listener_handle (battery_listener);
+        battery_listener = NULL;
+    }
+#endif
 }
 
 void BrainBit::free_device ()
