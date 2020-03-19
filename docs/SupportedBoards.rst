@@ -281,8 +281,8 @@ Board Spec:
 - communication: TCP socket to read data and HTTP to send commands
 - signal gain: 24
 
-Neuro MD
-------------
+NeuroMD
+----------
 
 BrainBit
 ~~~~~~~~~~
