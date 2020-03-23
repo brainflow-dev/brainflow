@@ -143,6 +143,7 @@ set (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/file_streamer.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/multicast_streamer.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/brainbit/brainbit.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/gtec/unicorn_board.cpp
 )
 
 set (DATA_HANDLER_SRC
@@ -168,6 +169,7 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/brainbit/inc
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/gtec/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/inc
 )
 
@@ -268,6 +270,13 @@ if (UNIX)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/${DATA_HANDLER_COMPILED_NAME}"
     )
 endif (UNIX)
+if (UNIX AND NOT APPLE)
+    # copy libunicorn.so
+    add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD 
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/unicorn/lib/libunicorn.so" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/libunicorn.so"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/unicorn/lib/libunicorn.so" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/libunicorn.so"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/unicorn/lib/libunicorn.so" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/libunicorn.so"
+endif (UNIX AND NOT APPLE)
 
 # need to copy json file to bindings
 add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
@@ -315,6 +324,15 @@ if (MSVC)
     install (
         FILES
         ${CMAKE_HOME_DIRECTORY}/third_party/brainbit/lib/${BRIANBIT_LIB_NAME}.dll
+        DESTINATION lib
+    )
+endif (MSVC)
+
+# install unicorn lib
+if (UNIX AND NOT APPLE)
+    install (
+        FILES
+        ${CMAKE_HOME_DIRECTORY}/third_party/unicorn/lib/libunicorn.so
         DESTINATION lib
     )
 endif (MSVC)

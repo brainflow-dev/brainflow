@@ -23,6 +23,7 @@
 #include "novaxr.h"
 #include "streaming_board.h"
 #include "synthetic_board.h"
+#include "unicorn_board.h"
 
 #include "json.hpp"
 
@@ -92,6 +93,9 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
             break;
         case BRAINBIT_BOARD:
             board = std::shared_ptr<Board> (new BrainBit (params));
+            break;
+        case UNICORN_BOARD:
+            board = std::shared_ptr<Board> (new UnicornBoard (params));
             break;
         default:
             return UNSUPPORTED_BOARD_ERROR;
