@@ -1,18 +1,6 @@
 {% if layout.common-ext-js %}
   {% for js in layout.common-ext-js %}
-	<script src="{{ js }}"></script>
-  {% endfor %}
-{% endif %}
-
-{% if page.ext-js %}
-  {% for js in page.ext-js %}
-	<script src="{{ js }}"></script>
-  {% endfor %}
-{% endif %}
-
-{% if page.js %}
-  {% for js in page.js %}
-	<script src="{{ js | prepend: site.baseurl | replace: '//', '/' }}"></script>
+    {% include ext-js.html js=js %}
   {% endfor %}
 {% endif %}
 
@@ -22,13 +10,23 @@
     {% if js contains 'jquery' %}
       <script>
       	if (typeof jQuery == 'undefined') {
-      	  document.write('<script src="{{ js | prepend: site.baseurl | replace: "//", "/" }}"></scr' + 'ipt>');
+          document.write('<script src="{{ js | relative_url }}"></scr' + 'ipt>');
       	}
       </script>
     {% else %}
-	<script src="{{ js | prepend: site.baseurl | replace: '//', '/' }}"></script>
+      <script src="{{ js | relative_url }}"></script>
     {% endif %}
   {% endfor %}
 {% endif %}
 
-{% include google_analytics.html %}
+{% if page.ext-js %}
+  {% for js in page.ext-js %}
+    {% include ext-js.html js=js %}
+  {% endfor %}
+{% endif %}
+
+{% if page.js %}
+  {% for js in page.js %}
+    <script src="{{ js | relative_url }}"></script>
+  {% endfor %}
+{% endif %}
