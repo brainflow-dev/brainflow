@@ -1,0 +1,109 @@
+# --- Serving options --- #
+
+# url is the full website URL
+# baseurl is the website's URL without the hostname
+
+# If you are building a simple GitHub user page (username.github.io) then use these settings:
+#url: "http://username.github.io"
+#baseurl: ""
+
+# If you are building a GitHub project page then use these settings:
+url: "http://daattali.github.io/beautiful-jekyll"
+baseurl: "/beautiful-jekyll"
+
+# Of course don't forget to change the username and projectname to YOUR username and project
+
+# Name of website
+title: Beautiful Jekyll
+
+# Short description of your site
+description: Quickly build a beautiful Jekyll website
+
+# --- Navigation bar options --- #
+
+# Image to show in the navigation bar - image must be a square (width = height)
+# Remove this parameter if you don't want an image in the navbar
+avatar: "/img/avatar-icon.png"
+
+# List of links in the navigation bar
+navbar-links:
+  Home: ""
+  Resources:
+    - Getting started: "getstarted"
+    - Featured users: "featured-users"
+    - Project page: "https://github.com/daattali/beautiful-jekyll#readme"
+  About me: "http://deanattali.com"
+  Support me: "http://deanattali.com/aboutme/#feed-meeee"
+
+# --- Footer options --- #
+
+# Change all these values or delete the ones you don't want.
+# Important: you must keep the "name" parameter, everything else you can remove
+author:
+  name: Dean Attali
+  email: "daattali@gmail.com"
+  facebook: deanattali
+  github: daattali
+  twitter: daattali
+  linkedin: "pub/dean-attali/8/946/143"
+  stackoverflow: "users/3943160/daattali"
+ 
+# Select which links to show in the footer
+footer-links-active:
+  rss: false
+  facebook: true
+  email: true
+  twitter: true
+  github: true
+  linkedin: false
+  stackoverflow: false
+  
+share-links-active:
+  twitter: true
+  facebook: true
+  google: false
+  linkedin: true
+
+# How to display the link to the website in the footer
+# Remove this if you don't want a link in the footer
+url-pretty: "deanattali.com/beautiful-jekyll"  # eg. "deanattali.com/beautiful-jekyll"
+
+# --- Misc --- #
+
+# Fill in your Disqus shortname (NOT the userid) if you want to support Disqus comments
+#disqus: ""
+
+# Fill in your Google Analytics ID to track your website using GA
+google_analytics: "UA-59820529-1"
+
+# --- Don't need to touch anything below here (but you can if you want) --- #
+
+# Output options (more information on Jekyll's site)
+timezone: "America/Vancouver"
+markdown: kramdown
+highlighter: rouge
+permalink: /:year-:month-:day-:title/
+paginate: 5
+
+# Default YAML values (more information on Jekyll's site)
+defaults:
+  -
+    scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+      comments: true  # add comments to all blog posts 
+      show-share: true # add sharing buttons to all blog posts
+      social-share: true # add social media sharing buttons to all blog posts
+  -
+    scope:
+      path: "" # all files
+    values:
+      layout: "page"
+
+# Exclude these files from production site
+exclude:
+  - CNAME
+  - LICENSE
+  - README.md
