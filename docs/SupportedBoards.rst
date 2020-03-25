@@ -137,6 +137,11 @@ To choose this board in BoardShim constructor please specify:
 - serial_port field of BrainFlowInputParams structure
 - mac_address field of BrainFlowInputParams structure, if its empty BrainFlow will try to autodiscover Ganglion
 
+To get Ganglion's MAC address you can use:
+
+- Windows: `Bluetooth LE Explorer App <https://www.microsoft.com/en-us/p/bluetooth-le-explorer/9n0ztkf1qd98?activetab=pivot:overviewtab>`_
+- Linux: hcitool command
+
 Supported platforms:
 
 - Windows >= 8.1
@@ -276,8 +281,8 @@ Board Spec:
 - communication: TCP socket to read data and HTTP to send commands
 - signal gain: 24
 
-BrainBit Company
------------------
+NeuroMD
+----------
 
 BrainBit
 ~~~~~~~~~~
@@ -296,6 +301,7 @@ To choose this board in BoardShim constructor please specify:
 Supported platforms:
 
 - Windows >= 10
+- MacOS
 
 Board Spec:
 

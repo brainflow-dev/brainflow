@@ -48,10 +48,15 @@ Exact format for this array is board specific. To keep the API uniform. we have 
 
 **For some boards like OpenBCI Cyton, OpenBCI Ganglion, etc we cannot separate EMG, EEG, EDA and ECG and in this case we return exactly the same array for all these methods but for some devices EMG and EEG channels will differ.**
 
+**If board has no such data these methods throw an exception with UNSUPPORTED_BOARD_ERROR exit code.**
+
 Using the methods above, you can write completely board agnostic code and switch boards using a single parameter! Even if you have only one board using these methods you can easily switch to Synthetic Board or Streaming Board.
 
-Special channels for OpenBCI Cyton based boards
--------------------------------------------------
+OpenBCI Specific Data
+------------------------
+
+Special Channels for OpenBCI Cyton Based Boards
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 `Cyton-based boards from OpenBCI <https://docs.openbci.com/docs/02Cyton/CytonLanding>`_ support different output formats, described `here <https://docs.openbci.com/docs/02Cyton/CytonDataFormat#firmware-version-200-fall-2016-to-now-1>`_.
 
@@ -83,7 +88,19 @@ Also we add raw unprocessed bytes to the second and next channels returned by:
 
 If Cyton End Byte is outside `this range <https://docs.openbci.com/docs/02Cyton/CytonDataFormat#firmware-version-200-fall-2016-to-now-1>`_, we drop the entire package.
 
-**Check this example for details:**
+Check this example for details:
 
 .. literalinclude:: ../tests/python/cyton_analog_mode_other_data.py
    :language: py
+
+NeuroMD Specific Data
+-----------------------
+
+BrainBit
+~~~~~~~~~~
+
+For BrainBit we write resistance data to:
+
+.. code-block:: python
+
+   get_other_channels (board_id)

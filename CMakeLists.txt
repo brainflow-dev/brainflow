@@ -95,13 +95,14 @@ if (CMAKE_SIZEOF_VOID_P EQUAL 8)
     if(APPLE)
         SET (BOARD_CONTROLLER_COMPILED_NAME "libBoardController.dylib")
         SET (DATA_HANDLER_COMPILED_NAME "libDataHandler.dylib")
+        SET (NEUROSDK_LIB_NAME "neurosdk-shared")
     elseif (UNIX)
         SET (BOARD_CONTROLLER_COMPILED_NAME "libBoardController.so")
         SET (DATA_HANDLER_COMPILED_NAME "libDataHandler.so")
     else ()
         SET (BOARD_CONTROLLER_COMPILED_NAME "BoardController.dll")
         SET (DATA_HANDLER_COMPILED_NAME "DataHandler.dll")
-        SET (BRIANBIT_LIB_NAME "neurosdk-x64")
+        SET (NEUROSDK_LIB_NAME "neurosdk-x64")
     endif (APPLE)
 else (CMAKE_SIZEOF_VOID_P EQUAL 8)
     MESSAGE ("32 bits compiler detected")
@@ -118,7 +119,7 @@ else (CMAKE_SIZEOF_VOID_P EQUAL 8)
     else ()
         SET (BOARD_CONTROLLER_COMPILED_NAME "BoardController32.dll")
         SET (DATA_HANDLER_COMPILED_NAME "DataHandler32.dll")
-        SET (BRIANBIT_LIB_NAME "neurosdk-x86")
+        SET (NEUROSDK_LIB_NAME "neurosdk-x86")
     endif (APPLE)
 endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
 
@@ -146,7 +147,7 @@ set (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/novaxr.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/file_streamer.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/multicast_streamer.cpp
-    ${CMAKE_HOME_DIRECTORY}/src/board_controller/brainbit/brainbit.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/brainbit.cpp
 )
 
 set (DATA_HANDLER_SRC
@@ -171,21 +172,30 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/src/utils/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/inc
-    ${CMAKE_HOME_DIRECTORY}/src/board_controller/brainbit/inc
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/inc
 )
 
-# BrainBit supoprts only Windows
+# NeuroSDK supoprts only Windows and MacOS
 if (MSVC)
     target_include_directories (
         ${BOARD_CONTROLLER_NAME} PRIVATE
-        ${CMAKE_HOME_DIRECTORY}/third_party/brainbit/inc
+        ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/inc/win
     )
-
-    find_library(BRAINBIT_SDK_LIB NAMES ${BRIANBIT_LIB_NAME} PATHS ${CMAKE_HOME_DIRECTORY}/third_party/brainbit/lib)
-    target_link_libraries(${BOARD_CONTROLLER_NAME} PRIVATE ${BRAINBIT_SDK_LIB})
-
+    find_library(NEUROSDK_SDK_LIB NAMES ${NEUROSDK_LIB_NAME} PATHS ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib)
+    target_link_libraries(${BOARD_CONTROLLER_NAME} PRIVATE ${NEUROSDK_SDK_LIB})
 endif (MSVC)
+if (APPLE)
+    target_include_directories (
+        ${BOARD_CONTROLLER_NAME} PRIVATE
+        ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/inc/macos
+    )
+    find_library(BLE_LIB NAMES bluetoothle PATHS ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib)
+    find_library(BRAINBIT_LIB NAMES brainbit PATHS ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib)
+    find_library(UTILITIES_LIB NAMES utilities PATHS ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib)
+    find_library(NEUROSDK_SDK_LIB NAMES ${NEUROSDK_LIB_NAME} PATHS ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib)
+    target_link_libraries(${BOARD_CONTROLLER_NAME} PRIVATE ${BLE_LIB} ${BRAINBIT_LIB} ${UTILITIES_LIB} ${NEUROSDK_SDK_LIB})
+endif (APPLE)
 
 target_include_directories (
     ${DATA_HANDLER_NAME} PRIVATE
@@ -242,16 +252,16 @@ endif (UNIX)
 
 # copy
 if (MSVC)
-    add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD 
+    add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
         # copy board controller libs
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BOARD_CONTROLLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${BOARD_CONTROLLER_COMPILED_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BOARD_CONTROLLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${BOARD_CONTROLLER_COMPILED_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BOARD_CONTROLLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/${BOARD_CONTROLLER_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/brainbit/lib/${BRIANBIT_LIB_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/${BRIANBIT_LIB_NAME}.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/brainbit/lib/${BRIANBIT_LIB_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${BRIANBIT_LIB_NAME}.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/brainbit/lib/${BRIANBIT_LIB_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${BRIANBIT_LIB_NAME}.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib/${NEUROSDK_LIB_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/${NEUROSDK_LIB_NAME}.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib/${NEUROSDK_LIB_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${NEUROSDK_LIB_NAME}.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib/${NEUROSDK_LIB_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${NEUROSDK_LIB_NAME}.dll"
     )
-    add_custom_command (TARGET ${DATA_HANDLER_NAME} POST_BUILD 
+    add_custom_command (TARGET ${DATA_HANDLER_NAME} POST_BUILD
         # copy data handler libs
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${DATA_HANDLER_COMPILED_NAME}"
@@ -272,6 +282,14 @@ if (UNIX)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/${DATA_HANDLER_COMPILED_NAME}"
     )
 endif (UNIX)
+if (APPLE)
+    add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
+        # copy neurosdk lib for MacOS
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib/lib${NEUROSDK_LIB_NAME}.dylib" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/lib${NEUROSDK_LIB_NAME}.dylib"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib/lib${NEUROSDK_LIB_NAME}.dylib" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/lib${NEUROSDK_LIB_NAME}.dylib"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib/lib${NEUROSDK_LIB_NAME}.dylib" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/lib${NEUROSDK_LIB_NAME}.dylib"
+    )
+endif (APPLE)
 
 # need to copy json file to bindings
 add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
@@ -314,14 +332,21 @@ install (
     DESTINATION inc
 )
 
-# install brainbit dll
+# install neurosdk
 if (MSVC)
     install (
         FILES
-        ${CMAKE_HOME_DIRECTORY}/third_party/brainbit/lib/${BRIANBIT_LIB_NAME}.dll
+        ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib/${NEUROSDK_LIB_NAME}.dll
         DESTINATION lib
     )
 endif (MSVC)
+if (APPLE)
+    install (
+        FILES
+        ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib/lib${NEUROSDK_LIB_NAME}.dylib
+        DESTINATION lib
+    )
+endif (APPLE)
 
 # need to put this file with libraries
 install (
