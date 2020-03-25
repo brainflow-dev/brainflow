@@ -113,3 +113,8 @@ Full code for R binding:
 
 .. literalinclude:: ../r-package/brainflow/R/package.R
    :language: r
+
+Matlab API Reference
+----------------------
+
+Matlab binding calls C\C++ code as any other binding, it's not compatible with Octave. Use our code samples as a reference for Matlab API.

@@ -10,8 +10,6 @@ BrainFlow is a library intended to obtain, parse and analyze EEG, EMG, ECG and o
 
 It provides a **uniform data acquisition API for all supported boards**, it means that you can switch boards without any changes in code and applications on top of BrainFlow are board agnostic. Also there is **powerful API to perform signal processing** which you can use even without BCI headset. Both of these two APIs are the same across bindings.
 
-**There are several forks of BrainFlow, we recommend to use** `original version <https://github.com/Andrey1994/brainflow>`_ **or** `OpenBCI version <https://github.com/OpenBCI/brainflow>`_. Both of them are exactly the same and supported by original author.
-
 
 .. toctree::
     SupportedBoards
@@ -19,6 +17,7 @@ It provides a **uniform data acquisition API for all supported boards**, it mean
     UserAPI
     DataFormatDesc
     Examples
+    Gallery
     BrainFlowDev
     AskHelp
     License

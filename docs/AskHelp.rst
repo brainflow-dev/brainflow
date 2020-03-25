@@ -1,14 +1,13 @@
-Request Help
-=============
+Ask Help
+===========
 
 Contact Info, Feature Request, Report an Issue
 -----------------------------------------------
 
-- **Preferred:** create issues or feature requests in our `GitHub Page <https://github.com/Andrey1994/brainflow>`_ or in `OpenBCI Fork <https://github.com/OpenBCI/brainflow>`_ 
-- For questions about BrainFlow integration to other apps and frameworks use `Andrey\'s email <a1994ndrey@gmail.com>`_
+- Join our `slack workspace <https://openbraintalk.slack.com/>`_ using `self\-invite page <https://c6ber255cc.execute-api.eu-west-1.amazonaws.com/Express/>`_
+- To report bugs or request features create an issue in our `GitHub Page <https://github.com/Andrey1994/brainflow>`_ 
+- For questions about adding new devices or collaboration use `Andrey\`s email <a1994ndrey@gmail.com>`_
 - For hardware related questions and issues contact board manufacturer
-- For issues with OpenBCI boards and BrainFlow refer to the `OpenBCI Forum <https://openbci.com/forum/>`_
-
 
 Issue format
 --------------

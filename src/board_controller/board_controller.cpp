@@ -14,6 +14,7 @@
 #include "board.h"
 #include "board_controller.h"
 #include "brainbit.h"
+#include "brainflow_input_params.h"
 #include "cyton.h"
 #include "cyton_daisy.h"
 #include "cyton_daisy_wifi.h"
