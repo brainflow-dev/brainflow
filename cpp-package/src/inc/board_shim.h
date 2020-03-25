@@ -7,6 +7,7 @@
 #include "board_controller.h"
 #include "brainflow_constants.h"
 #include "brainflow_exception.h"
+#include "brainflow_input_params.h"
 
 /// LogLevels enum to store all possible log levels
 enum class LogLevels : int

@@ -1,55 +1,16 @@
 #pragma once
 
-#include <string>
-#include <tuple>
-
 #ifdef _WIN32
 #define SHARED_EXPORT __declspec(dllexport)
 #define CALLING_CONVENTION __cdecl
 #else
-#define SHARED_EXPORT __attribute__((visibility("default")))
+#define SHARED_EXPORT __attribute__ ((visibility ("default")))
 #define CALLING_CONVENTION
 #endif
 
 #include "board_info_getter.h"
 #include "brainflow_constants.h"
 
-
-enum class IpProtocolType
-{
-    NONE = 0,
-    UDP = 1,
-    TCP = 2
-};
-
-// we pass this structure from user API as a json string
-struct BrainFlowInputParams
-{
-    std::string serial_port;
-    std::string mac_address;
-    std::string ip_address;
-    int ip_port;
-    int ip_protocol;
-    std::string other_info;
-
-    BrainFlowInputParams ()
-    {
-        serial_port = "";
-        mac_address = "";
-        ip_address = "";
-        ip_port = 0;
-        ip_protocol = (int)IpProtocolType::NONE;
-        other_info = "";
-    }
-
-    // default copy constructor and assignment operator are ok, need less operator to use in map
-    bool operator< (const struct BrainFlowInputParams &other) const
-    {
-        return std::tie (serial_port, mac_address, ip_address, ip_port, ip_protocol, other_info) <
-            std::tie (other.serial_port, other.mac_address, other.ip_address, other.ip_port,
-                other.ip_protocol, other.other_info);
-    }
-};
 
 #ifdef __cplusplus
 extern "C"

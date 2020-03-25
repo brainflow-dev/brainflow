@@ -5,17 +5,22 @@
 
 #include "timestamp.h"
 
-////////////////////////////////
-// Implementation for Windows //
-////////////////////////////////
-
 #ifdef _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
+
+//////////////////////////////////////////
+// Implementation for Windows and APPLE //
+//////////////////////////////////////////
+
+#if defined _WIN32 || defined __APPLE__
 
 #include "cparams.h"
 #include "cscanner.h"
 #include "sdk_error.h"
 #include "stdio.h"
-#include "windows.h"
 
 
 constexpr int BrainBit::package_size;
@@ -462,9 +467,12 @@ void BrainBit::read_thread ()
 
 void BrainBit::free_listeners ()
 {
+// different headers(free_listener_handle method) for macos and msvc
+#ifdef _WIN32
     if (resistance_listener_t4)
     {
         free_listener_handle (resistance_listener_t4);
+
         resistance_listener_t4 = NULL;
     }
     if (resistance_listener_t3)
@@ -487,6 +495,34 @@ void BrainBit::free_listeners ()
         free_listener_handle (battery_listener);
         battery_listener = NULL;
     }
+#endif
+#ifdef APPLE
+    if (resistance_listener_t4)
+    {
+        free_length_listener_handle (resistance_listener_t4);
+        resistance_listener_t4 = NULL;
+    }
+    if (resistance_listener_t3)
+    {
+        free_length_listener_handle (resistance_listener_t3);
+        resistance_listener_t3 = NULL;
+    }
+    if (resistance_listener_o1)
+    {
+        free_length_listener_handle (resistance_listener_o1);
+        resistance_listener_o1 = NULL;
+    }
+    if (resistance_listener_o2)
+    {
+        free_length_listener_handle (resistance_listener_o2);
+        resistance_listener_o2 = NULL;
+    }
+    if (battery_listener)
+    {
+        free_length_listener_handle (battery_listener);
+        battery_listener = NULL;
+    }
+#endif
 }
 
 void BrainBit::free_device ()
@@ -542,7 +578,11 @@ int BrainBit::find_device (long long serial_number)
     {
         if (find_device_info (enumerator, serial_number, &device_info) != 0)
         {
+#ifdef _WIN32:
             Sleep (300);
+#else
+            usleep (300000);
+#endif
             continue;
         }
 
@@ -670,9 +710,9 @@ void BrainBit::on_resistance_received (
     free_DoubleDataArray (resistance_array);
 }
 
-///////////////////
-// Stub for Unix //
-///////////////////
+////////////////////
+// Stub for Linux //
+////////////////////
 
 #else
 

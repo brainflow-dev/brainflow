@@ -4,7 +4,7 @@
 #define SHARED_EXPORT __declspec(dllexport)
 #define CALLING_CONVENTION __cdecl
 #else
-#define SHARED_EXPORT __attribute__((visibility("default")))
+#define SHARED_EXPORT __attribute__ ((visibility ("default")))
 #define CALLING_CONVENTION
 #endif
 
@@ -20,7 +20,6 @@ typedef enum
     BESSEL = 2
 } FilterTypes;
 
-// its another kind of filters and will be used in downsampling too dont add it to FilterTypes
 typedef enum
 {
     MEAN = 0,
@@ -35,14 +34,16 @@ extern "C"
 #endif
     // signal processing methods
     // ripple param is used only for chebyshev filter
-    SHARED_EXPORT int CALLING_CONVENTION perform_lowpass (double *data, int data_len, int sampling_rate, double cutoff,
-        int order, int filter_type, double ripple);
-    SHARED_EXPORT int CALLING_CONVENTION perform_highpass (double *data, int data_len, int sampling_rate,
-        double cutoff, int order, int filter_type, double ripple);
-    SHARED_EXPORT int CALLING_CONVENTION perform_bandpass (double *data, int data_len, int sampling_rate,
-        double center_freq, double band_width, int order, int filter_type, double ripple);
-    SHARED_EXPORT int CALLING_CONVENTION perform_bandstop (double *data, int data_len, int sampling_rate,
-        double center_freq, double band_width, int order, int filter_type, double ripple);
+    SHARED_EXPORT int CALLING_CONVENTION perform_lowpass (double *data, int data_len,
+        int sampling_rate, double cutoff, int order, int filter_type, double ripple);
+    SHARED_EXPORT int CALLING_CONVENTION perform_highpass (double *data, int data_len,
+        int sampling_rate, double cutoff, int order, int filter_type, double ripple);
+    SHARED_EXPORT int CALLING_CONVENTION perform_bandpass (double *data, int data_len,
+        int sampling_rate, double center_freq, double band_width, int order, int filter_type,
+        double ripple);
+    SHARED_EXPORT int CALLING_CONVENTION perform_bandstop (double *data, int data_len,
+        int sampling_rate, double center_freq, double band_width, int order, int filter_type,
+        double ripple);
 
     SHARED_EXPORT int CALLING_CONVENTION perform_rolling_filter (
         double *data, int data_len, int period, int agg_operation);
@@ -50,8 +51,8 @@ extern "C"
     SHARED_EXPORT int CALLING_CONVENTION perform_downsampling (
         double *data, int data_len, int period, int agg_operation, double *output_data);
 
-    SHARED_EXPORT int CALLING_CONVENTION perform_wavelet_transform (double *data, int data_len, char *wavelet,
-        int decomposition_level, double *output_data, int *decomposition_lengths);
+    SHARED_EXPORT int CALLING_CONVENTION perform_wavelet_transform (double *data, int data_len,
+        char *wavelet, int decomposition_level, double *output_data, int *decomposition_lengths);
     SHARED_EXPORT int CALLING_CONVENTION perform_inverse_wavelet_transform (double *wavelet_coeffs,
         int original_data_len, char *wavelet, int decomposition_level, int *decomposition_lengths,
         double *output_data);

@@ -19,6 +19,8 @@ BrainFlow is a library intended to obtain, parse and analyze EEG, EMG, ECG and o
 
 ## [BrainFlow Docs, Dev and User guides and other information](https://brainflow.readthedocs.io)
 
+## [BrainFlow's slack workspace](https://openbraintalk.slack.com/), use this [link to join](https://c6ber255cc.execute-api.eu-west-1.amazonaws.com/Express/)
+
 ## Build status
 
 Compiled with:
@@ -41,6 +43,7 @@ We support bindings for:
 * [R](./r-package/)
 * [C++](./cpp-package/)
 * [C# (Windows only)](./csharp-package/brainflow/)
+* [Matlab](./matlab-package/brainflow)
 
 ## License: 
 MIT
