@@ -120,7 +120,7 @@ url-pretty: "brainflow.ai"  # eg. "deanattali.com/beautiful-jekyll"
 staticman:
   repository : "Andrey1994/brainflow"
   branch     : gh-pages # If you're not using `master` branch, then you also need to update the `branch` parameter in `staticman.yml`
-  endpoint   : "https://api.staticman.net/v3/entry/github/Andrey1994/brainflow/gh-pages"
+  endpoint   : "https://api.staticman.net/v3/entry/github/"
   reCaptcha:
     # reCaptcha for Staticman (OPTIONAL, but recommended for spam protection)
     # If you use reCaptcha, you must also set these parameters in staticman.yml
