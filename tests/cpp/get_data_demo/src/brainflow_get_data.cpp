@@ -170,6 +170,19 @@ bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, in
                 return false;
             }
         }
+        if (std::string (argv[i]) == std::string ("--timeout"))
+        {
+            if (i + 1 < argc)
+            {
+                i++;
+                params->timeout = std::stoi (std::string (argv[i]));
+            }
+            else
+            {
+                std::cerr << "missed argument" << std::endl;
+                return false;
+            }
+        }
         if (std::string (argv[i]) == std::string ("--other-info"))
         {
             if (i + 1 < argc)

@@ -39,6 +39,7 @@ private:
     void free_listeners ();
     void free_device ();
     void free_channels ();
+    void free_listener (ListenerHandle lh);
 
     ListenerHandle battery_listener;
     ListenerHandle resistance_listener_t3;

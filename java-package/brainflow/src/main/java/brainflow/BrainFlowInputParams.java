@@ -13,6 +13,7 @@ public class BrainFlowInputParams
     public int ip_port;
     public int ip_protocol;
     public String other_info;
+    public int timeout;
 
     public BrainFlowInputParams ()
     {
@@ -22,6 +23,7 @@ public class BrainFlowInputParams
         ip_port = 0;
         ip_protocol = IpProtocolType.NONE.get_code ();
         other_info = "";
+        timeout = 0;
     }
 
     public String to_json ()
@@ -87,5 +89,15 @@ public class BrainFlowInputParams
     public void set_other_info (String other_info)
     {
         this.other_info = other_info;
+    }
+
+    public void set_timeout (int timeout)
+    {
+        this.timeout = timeout;
+    }
+
+    public int get_timeout ()
+    {
+        return timeout;
     }
 }

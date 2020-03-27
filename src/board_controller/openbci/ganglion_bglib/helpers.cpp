@@ -23,6 +23,7 @@
 namespace GanglionLib
 {
     extern volatile int exit_code;
+    extern int timeout;
     extern volatile bd_addr connect_addr;
     extern volatile uint8 connection;
     extern volatile uint16 client_char_handle;
@@ -82,7 +83,7 @@ namespace GanglionLib
         // send command to connect
         state = State::INITIAL_CONNECTION;
         ble_cmd_gap_connect_direct (&connect_addr, gap_address_type_random, 40, 60, 100, 0);
-        int res = wait_for_callback (15);
+        int res = wait_for_callback (timeout);
         if (res != (int)GanglionLib::STATUS_OK)
         {
             return res;
@@ -94,7 +95,7 @@ namespace GanglionLib
         ble_cmd_attclient_read_by_group_type (
             connection, FIRST_HANDLE, LAST_HANDLE, 2, primary_service_uuid);
 
-        res = wait_for_callback (15);
+        res = wait_for_callback (timeout);
         if (res != (int)GanglionLib::STATUS_OK)
         {
             return res;
@@ -107,7 +108,7 @@ namespace GanglionLib
         exit_code = (int)GanglionLib::SYNC_ERROR;
         ble_cmd_attclient_attribute_write (connection, client_char_handle, 2, &configuration);
         ble_cmd_attclient_execute_write (connection, 1);
-        return wait_for_callback (5);
+        return wait_for_callback (timeout);
     }
 
     int wait_for_callback (int num_seconds)

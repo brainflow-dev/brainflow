@@ -316,6 +316,7 @@ int string_to_brainflow_input_params (
         params->other_info = config["other_info"];
         params->mac_address = config["mac_address"];
         params->ip_address = config["ip_address"];
+        params->timeout = config["timeout"];
         return STATUS_OK;
     }
     catch (json::exception &e)

@@ -63,6 +63,10 @@ namespace test
                 {
                     board_id = Convert.ToInt32 (args[i + 1]);
                 }
+                if (args[i].Equals("--timeout"))
+                {
+                    input_params.timeout = Convert.ToInt32(args[i + 1]);
+                }
             }
             return board_id;
         }

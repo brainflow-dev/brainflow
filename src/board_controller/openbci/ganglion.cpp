@@ -392,7 +392,21 @@ int Ganglion::config_board (char *config)
 
 int Ganglion::call_init ()
 {
-    int res = GanglionLib::initialize ((void *)params.serial_port.c_str ());
+    if ((params.timeout < 0) || (params.timeout > 600))
+    {
+        safe_logger (spdlog::level::err, "wrong value for timeout");
+        return INVALID_ARGUMENTS_ERROR;
+    }
+    int timeout = 15;
+    if (params.timeout != 0)
+    {
+        timeout = params.timeout;
+    }
+    safe_logger (
+        spdlog::level::info, "use {} as a timeout for device discovery and for callbacks", timeout);
+
+    struct GanglionLib::GanglionInputData input_data (timeout, params.serial_port.c_str ());
+    int res = GanglionLib::initialize ((void *)&input_data);
     if (res != (int)GanglionLib::CustomExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to init GanglionLib {}", res);
