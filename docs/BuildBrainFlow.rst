@@ -62,10 +62,14 @@ You are able to download jar files directly from `release page <https://github.c
 Matlab
 --------
 
-To use Matlab binding you HAVE to build core module first.
-After compilation of core module you will be able to open brainflow/matlab-package/brainflow folder in Matlab IDE, add examples folder to Matlab's path and run them.
+Steps to setup Matlab binding for BrainFlow:
 
-Compilation of Core module and C++ binding
+- Compile Core Module, using instructions below
+- Open Matlab IDE and open brainflow/matlab-package/brainflow folder there
+- Add folders lib and inc to Matlab path
+- If you want to run Matlab scripts from folders different than brainflow/matlab-package/brainflow you need to add it to your Matlab path too
+
+Compilation of Core Module and C++ Binding
 -------------------------------------------
 
 Windows

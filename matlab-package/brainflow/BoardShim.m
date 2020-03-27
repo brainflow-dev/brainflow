@@ -10,17 +10,17 @@ classdef BoardShim
         function lib_name = load_lib ()
             if ispc
                 if not (libisloaded ('BoardController'))
-                    loadlibrary ('./lib/BoardController.dll', './inc/board_controller.h', 'includepath', './inc', 'addheader', 'board_info_getter');
+                    loadlibrary ('BoardController.dll', 'board_controller.h', 'addheader', 'board_info_getter');
                 end
                 lib_name = 'BoardController';
             elseif ismac
                 if not (libisloaded ('libBoardController'))
-                    loadlibrary ('./lib/libBoardController.dylib', './inc/board_controller.h', 'includepath', './inc', 'addheader', 'board_info_getter');
+                    loadlibrary ('libBoardController.dylib', 'board_controller.h', 'addheader', 'board_info_getter');
                 end
                 lib_name = 'libBoardController';
             elseif isunix
                 if not (libisloaded ('libBoardController'))
-                    loadlibrary ('./liblibBoardController.so', './inc/board_controller.h', 'includepath', './inc', 'addheader', 'board_info_getter');
+                    loadlibrary ('libBoardController.so', 'board_controller.h', 'addheader', 'board_info_getter');
                 end
                 lib_name = 'libBoardController';
             else
