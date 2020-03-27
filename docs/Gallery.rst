@@ -11,6 +11,7 @@ Timeflux has `BrainFlow plugin <https://github.com/timeflux/timeflux_brainflow>`
 .. image:: https://live.staticflickr.com/65535/49688678392_2ae04986d8.jpg
     :width: 500px
     :height: 331px
+    :align: center
 
 MNE-Scan
 ----------
@@ -22,3 +23,4 @@ MNE-Scan is a part of `MNE\-CPP project <https://github.com/mne-tools/mne-cpp>`_
 .. image:: https://live.staticflickr.com/65535/49687876918_9703569326.jpg
     :width: 500px
     :height: 289px
+    :align: center
