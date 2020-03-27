@@ -465,64 +465,27 @@ void BrainBit::read_thread ()
     }
 }
 
+void BrainBit::free_listener (ListenerHandle lh)
+{
+    if (lh)
+    {
+        // different headers for macos and msvc
+#ifdef _WIN32
+        free_listener_handle (lh);
+#else
+        free_length_listener_handle (lh);
+#endif
+        lh = NULL;
+    }
+}
+
 void BrainBit::free_listeners ()
 {
-// different headers(free_listener_handle method) for macos and msvc
-#ifdef _WIN32
-    if (resistance_listener_t4)
-    {
-        free_listener_handle (resistance_listener_t4);
-
-        resistance_listener_t4 = NULL;
-    }
-    if (resistance_listener_t3)
-    {
-        free_listener_handle (resistance_listener_t3);
-        resistance_listener_t3 = NULL;
-    }
-    if (resistance_listener_o1)
-    {
-        free_listener_handle (resistance_listener_o1);
-        resistance_listener_o1 = NULL;
-    }
-    if (resistance_listener_o2)
-    {
-        free_listener_handle (resistance_listener_o2);
-        resistance_listener_o2 = NULL;
-    }
-    if (battery_listener)
-    {
-        free_listener_handle (battery_listener);
-        battery_listener = NULL;
-    }
-#endif
-#ifdef APPLE
-    if (resistance_listener_t4)
-    {
-        free_length_listener_handle (resistance_listener_t4);
-        resistance_listener_t4 = NULL;
-    }
-    if (resistance_listener_t3)
-    {
-        free_length_listener_handle (resistance_listener_t3);
-        resistance_listener_t3 = NULL;
-    }
-    if (resistance_listener_o1)
-    {
-        free_length_listener_handle (resistance_listener_o1);
-        resistance_listener_o1 = NULL;
-    }
-    if (resistance_listener_o2)
-    {
-        free_length_listener_handle (resistance_listener_o2);
-        resistance_listener_o2 = NULL;
-    }
-    if (battery_listener)
-    {
-        free_length_listener_handle (battery_listener);
-        battery_listener = NULL;
-    }
-#endif
+    free_listener (resistance_listener_t4);
+    free_listener (resistance_listener_t3);
+    free_listener (resistance_listener_o1);
+    free_listener (resistance_listener_o2);
+    free_listener (battery_listener);
 }
 
 void BrainBit::free_device ()
@@ -561,6 +524,12 @@ void BrainBit::free_channels ()
 
 int BrainBit::find_device (long long serial_number)
 {
+    if ((params.timeout < 0) || (params.timeout > 600))
+    {
+        safe_logger (spdlog::level::err, "bad value for timeout");
+        return INVALID_ARGUMENTS_ERROR;
+    }
+
     DeviceEnumerator *enumerator = create_device_enumerator (DeviceTypeBrainbit);
     if (enumerator == NULL)
     {
@@ -570,7 +539,15 @@ int BrainBit::find_device (long long serial_number)
         return BOARD_NOT_READY_ERROR;
     }
 
-    int attempts = 35;
+    int timeout = 15;
+    if (params.timeout != 0)
+    {
+        timeout = params.timeout;
+    }
+    safe_logger (spdlog::level::info, "set timeout for device discovery to {}", timeout);
+
+    int sleep_delay = 300;
+    int attempts = (int)(timeout * 1000.0 / sleep_delay);
     int found = false;
     int res = STATUS_OK;
     DeviceInfo device_info;
@@ -579,9 +556,9 @@ int BrainBit::find_device (long long serial_number)
         if (find_device_info (enumerator, serial_number, &device_info) != 0)
         {
 #ifdef _WIN32:
-            Sleep (300);
+            Sleep (sleep_delay);
 #else
-            usleep (300000);
+            usleep (sleep_delay * 1000);
 #endif
             continue;
         }

@@ -23,6 +23,7 @@ std::string params_to_string (struct BrainFlowInputParams params)
     j["ip_address"] = params.ip_address;
     j["mac_address"] = params.mac_address;
     j["other_info"] = params.other_info;
+    j["timeout"] = params.timeout;
     std::string post_str = j.dump ();
     return post_str;
 }

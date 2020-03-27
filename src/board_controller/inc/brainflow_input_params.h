@@ -19,6 +19,7 @@ struct BrainFlowInputParams
     int ip_port;
     int ip_protocol;
     std::string other_info;
+    int timeout;
 
     BrainFlowInputParams ()
     {
@@ -28,13 +29,14 @@ struct BrainFlowInputParams
         ip_port = 0;
         ip_protocol = (int)IpProtocolType::NONE;
         other_info = "";
+        timeout = 0;
     }
 
     // default copy constructor and assignment operator are ok, need less operator to use in map
     bool operator< (const struct BrainFlowInputParams &other) const
     {
-        return std::tie (serial_port, mac_address, ip_address, ip_port, ip_protocol, other_info) <
-            std::tie (other.serial_port, other.mac_address, other.ip_address, other.ip_port,
-                other.ip_protocol, other.other_info);
+        return std::tie (serial_port, mac_address, ip_address, ip_port, ip_protocol, other_info,
+                   timeout) < std::tie (other.serial_port, other.mac_address, other.ip_address,
+                                  other.ip_port, other.ip_protocol, other.other_info, timeout);
     }
 };

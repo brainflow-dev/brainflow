@@ -70,6 +70,7 @@ class BrainFlowInputParams (object):
         self.ip_port = 0
         self.ip_protocol = IpProtocolType.NONE.value
         self.other_info = ''
+        self.timeout = 0
 
     def to_json (self):
         return json.dumps (self, default = lambda o: o.__dict__,

@@ -10,6 +10,7 @@ from brainflow.data_filter import DataFilter, FilterTypes, AggOperations
 def main ():
     parser = argparse.ArgumentParser ()
     # use docs to check which parameters are required for specific board, e.g. for Cyton - set serial port
+    parser.add_argument ('--timeout', type = int, help  = 'timeout for device discovery or connection', required = False, default = 0)
     parser.add_argument ('--ip-port', type = int, help  = 'ip port', required = False, default = 0)
     parser.add_argument ('--ip-protocol', type = int, help  = 'ip protocol, check IpProtocolType enum', required = False, default = 0)
     parser.add_argument ('--ip-address', type = str, help  = 'ip address', required = False, default = '')
@@ -28,6 +29,7 @@ def main ():
     params.other_info = args.other_info
     params.ip_address = args.ip_address
     params.ip_protocol = args.ip_protocol
+    params.timeout = args.timeout
 
     if (args.log):
         BoardShim.enable_dev_board_logger ()

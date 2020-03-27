@@ -27,6 +27,26 @@ namespace GanglionLib
             memcpy (data, other.data, sizeof (unsigned char) * 20);
         }
     };
+
+    // just to pass two args to initialize
+    struct GanglionInputData
+    {
+        int timeout;
+        char uart_port[1024];
+
+        GanglionInputData (int timeout, const char *uart_port)
+        {
+            this->timeout = timeout;
+            strcpy (this->uart_port, uart_port);
+        }
+
+        GanglionInputData (const GanglionInputData &other)
+        {
+            timeout = other.timeout;
+            strcpy (uart_port, other.uart_port);
+        }
+    };
+
 #pragma pack(pop)
 
     enum CustomExitCodes

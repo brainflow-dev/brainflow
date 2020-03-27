@@ -5,17 +5,17 @@ classdef DataFilter
         function lib_name = load_lib ()
             if ispc
                 if not (libisloaded ('DataHandler'))
-                    loadlibrary ('./lib/DataHandler.dll', './inc/data_handler.h', 'includepath', './inc');
+                    loadlibrary ('DataHandler.dll', 'data_handler.h');
                 end
                 lib_name = 'DataHandler';
             elseif ismac
                 if not (libisloaded ('libDataHandler'))
-                    loadlibrary ('./lib/libDataHandler.dylib', './inc/data_handler.h', 'includepath', './inc');
+                    loadlibrary ('libDataHandler.dylib', 'data_handler.h');
                 end
                 lib_name = 'libDataHandler';
             elseif isunix
                 if not (libisloaded ('libDataHandler'))
-                    loadlibrary ('./lib/libDataHandler.so', './inc/data_handler.h', 'includepath', './inc');
+                    loadlibrary ('libDataHandler.so', 'data_handler.h');
                 end
                 lib_name = 'libDataHandler';
             else
