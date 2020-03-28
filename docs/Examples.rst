@@ -1,7 +1,7 @@
 .. _code-samples-label:
 
 Code Samples
-============
+=============
 
 Make sure that you've installed BrainFlow package before running the code samples below.
 
@@ -235,6 +235,39 @@ R Denoising
 
 .. literalinclude:: ../tests/r/denoising.R
    :language: r
+
+Matlab
+--------
+
+Matlab Get Data from a Board
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../matlab-package/brainflow/examples/BrainFlowGetData.m
+   :language: matlab
+
+Matlab Read Write File
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../matlab-package/brainflow/examples/Serialization.m
+   :language: matlab
+
+Matlab Transforms
+~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../matlab-package/brainflow/examples/Transforms.m
+   :language: matlab
+
+Matlab Signal Filtering
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../matlab-package/brainflow/examples/SignalFiltering.m
+   :language: matlab
+
+Matlab Denoising
+~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../matlab-package/brainflow/examples/Denoising.m
+   :language: matlab
 
 Notebooks
 ------------

@@ -5,17 +5,22 @@
 
 #include "timestamp.h"
 
-////////////////////////////////
-// Implementation for Windows //
-////////////////////////////////
-
 #ifdef _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
+
+//////////////////////////////////////////
+// Implementation for Windows and APPLE //
+//////////////////////////////////////////
+
+#if defined _WIN32 || defined __APPLE__
 
 #include "cparams.h"
 #include "cscanner.h"
 #include "sdk_error.h"
 #include "stdio.h"
-#include "windows.h"
 
 
 constexpr int BrainBit::package_size;
@@ -460,33 +465,27 @@ void BrainBit::read_thread ()
     }
 }
 
+void BrainBit::free_listener (ListenerHandle lh)
+{
+    if (lh)
+    {
+        // different headers for macos and msvc
+#ifdef _WIN32
+        free_listener_handle (lh);
+#else
+        free_length_listener_handle (lh);
+#endif
+        lh = NULL;
+    }
+}
+
 void BrainBit::free_listeners ()
 {
-    if (resistance_listener_t4)
-    {
-        free_listener_handle (resistance_listener_t4);
-        resistance_listener_t4 = NULL;
-    }
-    if (resistance_listener_t3)
-    {
-        free_listener_handle (resistance_listener_t3);
-        resistance_listener_t3 = NULL;
-    }
-    if (resistance_listener_o1)
-    {
-        free_listener_handle (resistance_listener_o1);
-        resistance_listener_o1 = NULL;
-    }
-    if (resistance_listener_o2)
-    {
-        free_listener_handle (resistance_listener_o2);
-        resistance_listener_o2 = NULL;
-    }
-    if (battery_listener)
-    {
-        free_listener_handle (battery_listener);
-        battery_listener = NULL;
-    }
+    free_listener (resistance_listener_t4);
+    free_listener (resistance_listener_t3);
+    free_listener (resistance_listener_o1);
+    free_listener (resistance_listener_o2);
+    free_listener (battery_listener);
 }
 
 void BrainBit::free_device ()
@@ -525,6 +524,12 @@ void BrainBit::free_channels ()
 
 int BrainBit::find_device (long long serial_number)
 {
+    if ((params.timeout < 0) || (params.timeout > 600))
+    {
+        safe_logger (spdlog::level::err, "bad value for timeout");
+        return INVALID_ARGUMENTS_ERROR;
+    }
+
     DeviceEnumerator *enumerator = create_device_enumerator (DeviceTypeBrainbit);
     if (enumerator == NULL)
     {
@@ -534,7 +539,15 @@ int BrainBit::find_device (long long serial_number)
         return BOARD_NOT_READY_ERROR;
     }
 
-    int attempts = 35;
+    int timeout = 15;
+    if (params.timeout != 0)
+    {
+        timeout = params.timeout;
+    }
+    safe_logger (spdlog::level::info, "set timeout for device discovery to {}", timeout);
+
+    int sleep_delay = 300;
+    int attempts = (int)(timeout * 1000.0 / sleep_delay);
     int found = false;
     int res = STATUS_OK;
     DeviceInfo device_info;
@@ -542,7 +555,11 @@ int BrainBit::find_device (long long serial_number)
     {
         if (find_device_info (enumerator, serial_number, &device_info) != 0)
         {
-            Sleep (300);
+#ifdef _WIN32:
+            Sleep (sleep_delay);
+#else
+            usleep (sleep_delay * 1000);
+#endif
             continue;
         }
 
@@ -670,9 +687,9 @@ void BrainBit::on_resistance_received (
     free_DoubleDataArray (resistance_array);
 }
 
-///////////////////
-// Stub for Unix //
-///////////////////
+////////////////////
+// Stub for Linux //
+////////////////////
 
 #else
 

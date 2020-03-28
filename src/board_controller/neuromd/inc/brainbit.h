@@ -5,18 +5,19 @@
 #include "board.h"
 #include "board_controller.h"
 
-#ifdef _WIN32
+#if defined _WIN32 || defined __APPLE__
 #include "c_eeg_channels.h"
 #include "cdevice.h"
+#include "clistener.h"
 #endif
 
 class BrainBit : public Board
 {
 
 private:
-    // as for now BrainBit supports only windows, to dont write ifdef in board_controller.cpp and
-    // dont change CmakeLists.txt add dummy implementation for Unix
-#ifdef _WIN32
+    // as for now BrainBit supports only windows and macos, to dont write ifdef in
+    // board_controller.cpp add dummy implementation for linux
+#if defined _WIN32 || defined __APPLE__
     volatile bool keep_alive;
     bool initialized;
     bool is_streaming;
@@ -38,6 +39,7 @@ private:
     void free_listeners ();
     void free_device ();
     void free_channels ();
+    void free_listener (ListenerHandle lh);
 
     ListenerHandle battery_listener;
     ListenerHandle resistance_listener_t3;
@@ -61,7 +63,7 @@ public:
     int release_session ();
     int config_board (char *config);
 
-#ifdef _WIN32
+#if defined _WIN32 || defined __APPLE__
     // callbacks must be public since they are called from plain C callbacks
     void on_battery_charge_received (
         Device *device, ChannelInfo channel_info, IntDataArray battery_data);

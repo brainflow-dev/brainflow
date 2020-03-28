@@ -65,6 +65,10 @@ public class BrainFlowGetData
             {
                 board_id = Integer.parseInt (args[i + 1]);
             }
+            if (args[i].equals ("--timeout"))
+            {
+                params.timeout = Integer.parseInt (args[i + 1]);
+            }
         }
         return board_id;
     }

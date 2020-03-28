@@ -113,3 +113,14 @@ Full code for R binding:
 
 .. literalinclude:: ../r-package/brainflow/R/package.R
    :language: r
+
+Matlab API Reference
+----------------------
+
+Matlab binding calls C\C++ code as any other binding, it's not compatible with Octave. Use our code samples as a reference for Matlab API.
+
+A few general rules to keep in mind:
+
+- Use char arrays instead strings to work with BrainFlow API, it means 'my_string' instead "my_string", otherwise you will get calllib error
+- Use int32 values intead enums, it means int32 (BoardIDs.SYNTHETIC_BOARD) instead BoardIDs.SYNTHETIC_BOARD, the same is true for all enums in BrainFlow API
+

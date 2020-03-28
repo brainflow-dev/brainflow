@@ -59,7 +59,17 @@ You are able to download jar files directly from `release page <https://github.c
         mvn package
 
 
-Compilation of Core module and C++ binding
+Matlab
+--------
+
+Steps to setup Matlab binding for BrainFlow:
+
+- Compile Core Module, using instructions below
+- Open Matlab IDE and open brainflow/matlab-package/brainflow folder there
+- Add folders lib and inc to Matlab path
+- If you want to run Matlab scripts from folders different than brainflow/matlab-package/brainflow you need to add it to your Matlab path too
+
+Compilation of Core Module and C++ Binding
 -------------------------------------------
 
 Windows

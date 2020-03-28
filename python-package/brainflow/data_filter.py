@@ -389,7 +389,6 @@ class DataFilter (object):
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to perform wavelet transform', res)
 
-        # we could return a tuple here but lets keep it like in other bindings
         return wavelet_coeffs[0: sum (lengths)], lengths
 
     @classmethod
@@ -536,11 +535,11 @@ class DataFilter (object):
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to determine number of elements in file', res)
 
-        data_arr = numpy.zeros (num_elements).astype (numpy.float64)
+        data_arr = numpy.zeros (num_elements[0]).astype (numpy.float64)
         num_rows = numpy.zeros (1).astype (numpy.int32)
         num_cols = numpy.zeros (1).astype (numpy.int32)
 
-        res = DataHandlerDLL.get_instance ().read_file (data_arr, num_rows, num_cols, file, num_elements)
+        res = DataHandlerDLL.get_instance ().read_file (data_arr, num_rows, num_cols, file, num_elements[0])
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to read file', res)
 

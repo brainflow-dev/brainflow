@@ -49,6 +49,11 @@ namespace brainflow
         /// </summary>
         [DataMember]
         public string other_info;
+        /// <summary>
+        /// timeout for device discovery or connection
+        /// </summary>
+        [DataMember]
+        public int timeout;
 
         public BrainFlowInputParams ()
         {
@@ -58,6 +63,7 @@ namespace brainflow
             ip_port = 0;
             ip_protocol = (int)IpProtocolType.NONE;
             other_info = "";
+            timeout = 0;
         }
 
         public string to_json ()

@@ -70,6 +70,7 @@ class BrainFlowInputParams (object):
         self.ip_port = 0
         self.ip_protocol = IpProtocolType.NONE.value
         self.other_info = ''
+        self.timeout = 0
 
     def to_json (self):
         return json.dumps (self, default = lambda o: o.__dict__,
@@ -119,6 +120,10 @@ class BoardControllerDLL (object):
                 os.environ['PATH'] = dir_path + os.pathsep + os.environ.get ('PATH', '')
             else:
                 os.environ['LD_LIBRARY_PATH'] = dir_path + os.pathsep + os.environ.get ('LD_LIBRARY_PATH', '')
+            # for MacOS there are a few more env vars to search for libraries
+            if platform.system () == 'Darwin':
+                os.environ['DYLD_LIBRARY_PATH '] = dir_path + os.pathsep + os.environ.get ('DYLD_LIBRARY_PATH ', '')
+                os.environ['DYLD_FALLBACK_LIBRARY_PATH '] = dir_path + os.pathsep + os.environ.get ('DYLD_FALLBACK_LIBRARY_PATH ', '')
             self.lib = ctypes.cdll.LoadLibrary (full_path)
         else:
             raise FileNotFoundError ('Dynamic library %s is missed, did you forget to compile brainflow before installation of python package?' % full_path)
