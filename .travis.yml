@@ -39,6 +39,7 @@ install:
   - sudo pip3 install cmake==3.13.3
   - sudo -H pip3 install --upgrade setuptools wheel virtualenv
   - sudo -H pip3 install $TRAVIS_BUILD_DIR/emulator
+  - sudo -H pip3 install awscli
   # R disabled. It's taking up too much time in CI
   # # install required packages for R
   # - sudo -H R --vanilla -e 'install.packages("knitr", repos="http://cran.us.r-project.org")'
@@ -174,7 +175,6 @@ script:
 
 
 after_success:
-  - sudo -H pip3 install awscli
   # push libraries from docker!
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       aws s3 cp $TRAVIS_BUILD_DIR/installed_docker/lib/ s3://brainflow-artifacts/$TRAVIS_COMMIT/$TRAVIS_OS_NAME --recursive ;
