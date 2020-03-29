@@ -5,6 +5,7 @@
 #include "board.h"
 #include "board_controller.h"
 #include "runtime_dll_loader.h"
+#include "unicorn_types.h"
 
 
 class UnicornBoard : public Board
@@ -12,11 +13,18 @@ class UnicornBoard : public Board
 
 private:
 #ifdef __linux__
+    UNICORN_HANDLE device_handle;
+
     volatile bool keep_alive;
     bool initialized;
     bool is_streaming;
     std::thread streaming_thread;
-    DLLLoader *dll_loaderer;
+    // libunicorn.so requires specific linux distribution, to dont limit all supported boards to
+    // these requirements load this library manually in runtime
+    DLLLoader *dll_loader;
+    // get_address can return an error to avoid error in acquisition thread, set this pointer in
+    // prepare_session and store
+    int (*func_get_data) (UNICORN_HANDLE, uint32_t, float *, uint32_t);
 
     void read_thread ();
 

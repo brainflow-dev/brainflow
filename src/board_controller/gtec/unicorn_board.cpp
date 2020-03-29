@@ -2,18 +2,23 @@
 
 // implementation for linux
 #ifdef __linux__
+
+#include <string.h>
+#include <sys/utsname.h>
+#include <unistd.h>
+
 #include "get_dll_dir.h"
 #include "unicorn_board.h"
-#include "unicorn_types.h"
-#include <string.h>
-#include <string>
-#include <unistd.h>
+
+
+constexpr int UnicornBoard::package_size;
 
 
 UnicornBoard::UnicornBoard (struct BrainFlowInputParams params) : Board ((int)UNICORN_BOARD, params)
 {
     // get full path of libunicorn.so with assumption that this lib is in the same folder
     char unicornlib_dir[1024];
+    device_handle = 0;
     bool res = get_dll_path (unicornlib_dir);
     std::string unicornlib_path = "";
     if (res)
@@ -22,7 +27,7 @@ UnicornBoard::UnicornBoard (struct BrainFlowInputParams params) : Board ((int)UN
     }
     else
     {
-        unicornlib_path = "libunicorn.so"
+        unicornlib_path = "libunicorn.so";
     }
 
     safe_logger (spdlog::level::debug, "use dyn lib: {}", unicornlib_path.c_str ());
@@ -31,6 +36,7 @@ UnicornBoard::UnicornBoard (struct BrainFlowInputParams params) : Board ((int)UN
     is_streaming = false;
     keep_alive = false;
     initialized = false;
+    func_get_data = NULL;
 }
 
 UnicornBoard::~UnicornBoard ()
@@ -54,6 +60,14 @@ int UnicornBoard::prepare_session ()
         return GENERAL_ERROR;
     }
     safe_logger (spdlog::level::debug, "Library is loaded");
+
+    func_get_data = (int (*) (UNICORN_HANDLE, uint32_t, float *, uint32_t))dll_loader->get_address (
+        "UNICORN_GetData");
+    if (func_get_data == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to get function address for UNICORN_GetData");
+        return GENERAL_ERROR;
+    }
 
     int res = call_open ();
     if (res != STATUS_OK)
@@ -94,7 +108,7 @@ int UnicornBoard::start_stream (int buffer_size, char *streamer_params)
         return res;
     }
 
-    db = new DataBuffer (num_channels, buffer_size);
+    db = new DataBuffer (UnicornBoard::package_size, buffer_size);
     if (!db->is_ready ())
     {
         Board::board_logger->error ("Unable to prepare buffer with size {}", buffer_size);
@@ -103,7 +117,7 @@ int UnicornBoard::start_stream (int buffer_size, char *streamer_params)
         return INVALID_BUFFER_SIZE_ERROR;
     }
 
-    int res = call_start ();
+    res = call_start ();
     if (res != STATUS_OK)
     {
         return res;
@@ -135,16 +149,11 @@ int UnicornBoard::release_session ()
     if (initialized)
     {
         stop_stream ();
-
-        if (db)
-        {
-            delete db;
-            db = NULL;
-        }
         initialized = false;
     }
     if (dll_loader != NULL)
     {
+        func_get_data = NULL;
         call_close ();
         dll_loader->free_library ();
         delete dll_loader;
@@ -155,29 +164,44 @@ int UnicornBoard::release_session ()
 
 void UnicornBoard::read_thread ()
 {
-    while (this->keep_alive)
+    double package[UnicornBoard::package_size];
+    float temp_buffer[UnicornBoard::package_size];
+
+    while (keep_alive)
     {
+        // todo
+        /*
+        func_get_data (device_handle, 1, temp_buffer, UnicornBoard::package_size * sizeof (float));
+        db->add_data (timestamp, package);
+        streamer->stream_data (package, UnicornBoard::package_size, timestamp);
+        */
     }
 }
 
 int UnicornBoard::config_board (char *config)
 {
-    safe_logger (spdlog::level::debug, "config_board in todo list for Unicorn.");
+    // todo if there will be requests for it.
+    // Unicorn API provides int Unicorn_SetConfiguration method
+    safe_logger (spdlog::level::debug, "config_board is not supported for Unicorn.");
     return UNSUPPORTED_BOARD_ERROR;
 }
 
 int UnicornBoard::call_open ()
 {
-    int (*func) (UNICORN_DEVICE_SERIAL *, uint32_t *, BOOL) =
-        dll_loader->get_address ("UNICORN_GetAvailableDevices");
-    if (func == NULL)
+    // find devices
+    int (*func_get_available) (UNICORN_DEVICE_SERIAL *, uint32_t *, BOOL) =
+        (int (*) (UNICORN_DEVICE_SERIAL *, uint32_t *, BOOL))dll_loader->get_address (
+            "UNICORN_GetAvailableDevices");
+    if (func_get_available == NULL)
     {
         safe_logger (
             spdlog::level::err, "failed to get function address for UNICORN_GetAvailableDevices");
         return GENERAL_ERROR;
     }
+    constexpr int max_devices = 512;
+    UNICORN_DEVICE_SERIAL *available_devices = new UNICORN_DEVICE_SERIAL[max_devices];
     unsigned int available_device_count = 0;
-    int ec = func (NULL, &available_device_count, TRUE);
+    int ec = func_get_available (available_devices, &available_device_count, TRUE);
     if (ec != UNICORN_ERROR_SUCCESS)
     {
         safe_logger (spdlog::level::err, "Error in UNICORN_GetAvailableDevices {}", ec);
@@ -189,150 +213,81 @@ int UnicornBoard::call_open ()
         return BOARD_NOT_READY_ERROR;
     }
 
+    // open device
+    int (*func_open) (UNICORN_DEVICE_SERIAL, UNICORN_HANDLE *) = (int (*) (
+        UNICORN_DEVICE_SERIAL, UNICORN_HANDLE *))dll_loader->get_address ("UNICORN_OpenDevice");
+    if (func_open == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to get function address for UNICORN_OpenDevice");
+        return GENERAL_ERROR;
+    }
+
+    ec = func_open (available_devices[0], &device_handle);
+    if ((ec != UNICORN_ERROR_SUCCESS) || (device_handle == 0))
+    {
+        safe_logger (spdlog::level::err, "Error in UNICORN_OpenDevice {}", ec);
+        return BOARD_NOT_READY_ERROR;
+    }
 
     return STATUS_OK;
 }
 
-int Ganglion::call_open ()
+int UnicornBoard::call_start ()
 {
-    int res = GanglionLibNative::CustomExitCodesNative::GENERAL_ERROR;
-#ifdef _WIN32
-    int num_attempts = 2;
-#else
-    int num_attempts = 1;
-#endif
-    // its bad but we need to make it as reliable as possible, once per ~200 runs it fails to
-    // open ganglion and I can not fix it in C# code(wo restart) so lets restart it here,
-    // bigger delay is better than failure!
-    for (int i = 0; i < num_attempts; i++)
-    {
-        safe_logger (spdlog::level::debug, "trying to open ganglion {}/{}", i, num_attempts);
-        if (this->use_mac_addr)
-        {
-            safe_logger (spdlog::level::info, "search for {}", this->params.mac_address.c_str ());
-            DLLFunc func = this->dll_loader->get_address ("open_ganglion_mac_addr_native");
-            if (func == NULL)
-            {
-                safe_logger (spdlog::level::err,
-                    "failed to get function address for open_ganglion_mac_addr_native");
-                return GENERAL_ERROR;
-            }
-            res = (func) (const_cast<char *> (params.mac_address.c_str ()));
-        }
-        else
-        {
-            safe_logger (spdlog::level::info,
-                "mac address is not specified, try to find ganglion without it");
-            DLLFunc func = this->dll_loader->get_address ("open_ganglion_native");
-            if (func == NULL)
-            {
-                safe_logger (
-                    spdlog::level::err, "failed to get function address for open_ganglion_native");
-                return GENERAL_ERROR;
-            }
-            res = (func) (NULL);
-        }
-        if (res == GanglionLibNative::CustomExitCodesNative::STATUS_OK)
-        {
-            safe_logger (spdlog::level::info, "Ganglion is opened and paired");
-            break;
-        }
-        // sanity check, e.g. device was found but services were not found
-        call_close ();
-    }
-    if (res != GanglionLibNative::CustomExitCodesNative::STATUS_OK)
-    {
-        safe_logger (spdlog::level::err, "failed to Open Ganglion Device {}", res);
-        return GENERAL_ERROR;
-    }
-    return STATUS_OK;
-}
-
-int Ganglion::call_config (char *config)
-{
-    DLLFunc func = this->dll_loader->get_address ("config_board_native");
-    if (func == NULL)
-    {
-        safe_logger (spdlog::level::err, "failed to get function address for config_board_native");
-        return GENERAL_ERROR;
-    }
-    int res = (func) (config);
-    if (res != GanglionLibNative::CustomExitCodesNative::STATUS_OK)
-    {
-        safe_logger (spdlog::level::err, "failed to config board {}", res);
-        return GENERAL_ERROR;
-    }
-    return STATUS_OK;
-}
-
-int Ganglion::call_start ()
-{
-    DLLFunc func = this->dll_loader->get_address ("start_stream_native");
-    if (func == NULL)
-    {
-        safe_logger (spdlog::level::err, "failed to get function address for start_stream_native");
-        return GENERAL_ERROR;
-    }
-    int res = (func) (NULL);
-    if (res != (int)GanglionLibNative::CustomExitCodesNative::STATUS_OK)
-    {
-        safe_logger (spdlog::level::err, "failed to start streaming {}", res);
-        return GENERAL_ERROR;
-    }
-    return STATUS_OK;
-}
-
-int Ganglion::call_stop ()
-{
-    DLLFunc func = dll_loader->get_address ("stop_stream_native");
-    if (func == NULL)
-    {
-        safe_logger (spdlog::level::err, "failed to get function address for stop_stream_native");
-        return GENERAL_ERROR;
-    }
-    int res = (func) (NULL);
-    if (res != GanglionLibNative::CustomExitCodesNative::STATUS_OK)
-    {
-        safe_logger (spdlog::level::err, "failed to stop streaming {}", res);
-        return GENERAL_ERROR;
-    }
-    return STATUS_OK;
-}
-
-int Ganglion::call_close ()
-{
-    DLLFunc func = dll_loader->get_address ("close_ganglion_native");
-    if (func == NULL)
+    int (*func_start_streaming) (UNICORN_HANDLE, BOOL) =
+        (int (*) (UNICORN_HANDLE, BOOL))dll_loader->get_address ("UNICORN_StartAcquisition");
+    if (func_start_streaming == NULL)
     {
         safe_logger (
-            spdlog::level::err, "failed to get function address for close_ganglion_native");
+            spdlog::level::err, "failed to get function address for UNICORN_StartAcquisition");
         return GENERAL_ERROR;
     }
-    int res = (func) (NULL);
-    if (res != GanglionLibNative::CustomExitCodesNative::STATUS_OK)
+    int ec = func_start_streaming (device_handle, FALSE);
+    if (ec != UNICORN_ERROR_SUCCESS)
     {
-        safe_logger (spdlog::level::err, "failed to close Ganglion {}", res);
+        safe_logger (spdlog::level::err, "Error in UNICORN_StartAcquisition {}", ec);
         return GENERAL_ERROR;
     }
     return STATUS_OK;
 }
 
-int Ganglion::call_release ()
+int UnicornBoard::call_stop ()
 {
-    DLLFunc func = this->dll_loader->get_address ("release_native");
-    if (func == NULL)
+    int (*func_stop_streaming) (UNICORN_HANDLE) =
+        (int (*) (UNICORN_HANDLE))dll_loader->get_address ("UNICORN_StopAcquisition");
+    if (func_stop_streaming == NULL)
     {
-        safe_logger (spdlog::level::err, "failed to get function address for release_native");
+        safe_logger (
+            spdlog::level::err, "failed to get function address for UNICORN_StopAcquisition");
         return GENERAL_ERROR;
     }
-    int res = (func) (NULL);
-    if (res != GanglionLibNative::CustomExitCodesNative::STATUS_OK)
+    int ec = func_stop_streaming (device_handle);
+    if (ec != UNICORN_ERROR_SUCCESS)
     {
-        safe_logger (spdlog::level::err, "failed to release ganglion {}", res);
+        safe_logger (spdlog::level::err, "Error in UNICORN_StopAcquisition {}", ec);
         return GENERAL_ERROR;
     }
     return STATUS_OK;
 }
+
+int UnicornBoard::call_close ()
+{
+    int (*func_close) (UNICORN_HANDLE *) =
+        (int (*) (UNICORN_HANDLE *))dll_loader->get_address ("UNICORN_CloseDevice");
+    if (func_close == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to get function address for UNICORN_CloseDevice");
+        return GENERAL_ERROR;
+    }
+    int ec = func_close (&device_handle);
+    if (ec != UNICORN_ERROR_SUCCESS)
+    {
+        safe_logger (spdlog::level::err, "Error in UNICORN_CloseDevice {}", ec);
+        return GENERAL_ERROR;
+    }
+    return STATUS_OK;
+}
+
 
 // stub for windows and macos
 #else
