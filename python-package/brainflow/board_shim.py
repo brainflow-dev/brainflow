@@ -124,6 +124,7 @@ class BoardControllerDLL (object):
             if platform.system () == 'Darwin':
                 os.environ['DYLD_LIBRARY_PATH '] = dir_path + os.pathsep + os.environ.get ('DYLD_LIBRARY_PATH ', '')
                 os.environ['DYLD_FALLBACK_LIBRARY_PATH '] = dir_path + os.pathsep + os.environ.get ('DYLD_FALLBACK_LIBRARY_PATH ', '')
+                ctypes.cdll.LoadLibrary (pkg_resources.resource_filename (__name__, 'lib/libneurosdk-shared.dylib'))
             self.lib = ctypes.cdll.LoadLibrary (full_path)
         else:
             raise FileNotFoundError ('Dynamic library %s is missed, did you forget to compile brainflow before installation of python package?' % full_path)
