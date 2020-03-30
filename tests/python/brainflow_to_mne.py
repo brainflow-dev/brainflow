@@ -8,11 +8,8 @@ import pandas as pd
 import brainflow
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 
-from mne.viz.topomap import _prepare_topo_plot, plot_topomap
 import mne
 from mne.channels import read_layout
-
-from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
 def main():
