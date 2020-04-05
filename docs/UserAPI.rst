@@ -117,10 +117,27 @@ Full code for R binding:
 Matlab API Reference
 ----------------------
 
-Matlab binding calls C\C++ code as any other binding, it's not compatible with Octave. Use our code samples as a reference for Matlab API.
+Matlab binding calls C\C++ code as any other binding, it's not compatible with Octave. Use Matlab examples and API reference for other languaes as a starting point.
 
 A few general rules to keep in mind:
 
 - Use char arrays instead strings to work with BrainFlow API, it means 'my_string' instead "my_string", otherwise you will get calllib error
 - Use int32 values intead enums, it means int32 (BoardIDs.SYNTHETIC_BOARD) instead BoardIDs.SYNTHETIC_BOARD, the same is true for all enums in BrainFlow API
 
+Like here:
+
+.. literalinclude:: ../matlab-package/brainflow/examples/Serialization.m
+   :language: matlab
+
+
+Julia API Reference
+---------------------
+
+Julia binding calls C\C++ code as any other binding. Use Julia examples and API reference for other languaes as a starting point.
+
+Since Julia is not Object-Oriented language, there is no DataFilter class. BoardShim class exists but all BoardShim class methods were moved to BrainFlow package and you need to pass BoardShim object to them.
+
+Like here:
+
+.. literalinclude:: ../julia-package/brainflow/test/serialization.jl
+   :language: julia
