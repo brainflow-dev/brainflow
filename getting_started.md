@@ -43,3 +43,9 @@ subtitle: Start using BrainFlow API in your projects
 * [Install Matlab binding](https://brainflow.readthedocs.io/en/stable/BuildBrainFlow.html#matlab)
 * [Matlab API Reference](https://brainflow.readthedocs.io/en/stable/UserAPI.html#matlab-api-reference)
 * [Matlab Code Samples](https://brainflow.readthedocs.io/en/stable/Examples.html#matlab)
+
+## BrainFlow - Julia
+
+* [Install Julia binding](https://brainflow.readthedocs.io/en/stable/BuildBrainFlow.html#julia)
+* [Julia API Reference](https://brainflow.readthedocs.io/en/stable/UserAPI.html#julia-api-reference)
+* [Julia Code Samples](https://brainflow.readthedocs.io/en/stable/Examples.html#julia)

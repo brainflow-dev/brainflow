@@ -23,6 +23,7 @@ navbar-links:
   About BrainFlow:
     - What We Do: "what_we_do"
     - Contact: "contact"
+    - Partners and Sponsors: "partners_and_sponsors"
   Resources:
     - Docs: "https://brainflow.readthedocs.io/en/stable/"
     - Github: "https://github.com/Andrey1994/brainflow/"
