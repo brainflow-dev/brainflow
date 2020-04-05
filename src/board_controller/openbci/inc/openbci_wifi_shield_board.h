@@ -14,7 +14,8 @@ class OpenBCIWifiShieldBoard : public Board
 {
 
 private:
-    int wait_for_http_resp (http_t *request, int max_attempts = 500);
+    int http_timeout;
+    int wait_for_http_resp (http_t *request);
 
 protected:
     volatile bool keep_alive;

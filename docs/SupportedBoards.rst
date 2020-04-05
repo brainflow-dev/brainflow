@@ -13,9 +13,9 @@ To create an instance of BoardShim class for your board check required inputs in
    "Cyton", "BoardIds.CYTON_BOARD (0)", "dongle serial port(COM3, /dev/ttyUSB0, /dev/cu.usbserial-xxxxxx...)", "-", "-", "-", "-", "-", "-"
    "Ganglion", "BoardIds.GANGLION_BOARD (1)", "dongle serial port(COM3, /dev/ttyUSB0...)", "Optional: Ganglion's MAC address", "-", "-", "-", "-", "Timeout for device discovery(default 15sec)"
    "Cyton Daisy", "BoardIds.CYTON_DAISY_BOARD (2)", "dongle serial port(COM3, /dev/ttyUSB0, /dev/cu.usbserial-xxxxxx...)", "-", "-", "-", "-", "-", "-"
-   "Ganglion Wifi", "BoardIds.GANGLION_WIFI_BOARD (4)", "-", "-", "Wifi Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "-"
-   "Cyton Wifi", "BoardIds.CYTON_WIFI_BOARD (5)", "-", "-", "Wifi Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "-"
-   "Cyton Daisy Wifi", "BoardIds.CYTON_DAISY_WIFI_BOARD (6)", "-", "-", "Wifi Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "-"
+   "Ganglion Wifi", "BoardIds.GANGLION_WIFI_BOARD (4)", "-", "-", "Wifi Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "Timeout for HTTP response(default 10sec)"
+   "Cyton Wifi", "BoardIds.CYTON_WIFI_BOARD (5)", "-", "-", "Wifi Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "Timeout for HTTP response(default 10sec)"
+   "Cyton Daisy Wifi", "BoardIds.CYTON_DAISY_WIFI_BOARD (6)", "-", "-", "Wifi Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "Timeout for HTTP response(default 10sec)"
    "BrainBit", "BoardIds.BRAINBIT_BOARD (7)", "-", "-", "-", "-", "-", "Serial Number of BrainBit device", "Timeout for device discovery(default 15sec)"
 
 
@@ -205,6 +205,7 @@ To choose this board in BoardShim constructor please specify:
 - board_id: 4
 - ip_address field of BrainFlowInputParams structure should contain WiFi Shield Ip address(in direct mode its 192.168.4.1)
 - ip_port field of BrainFlowInputParams structure should be any local port which is free right now
+- optional: timeout field of BrainFlowInputParams structure, default is 10sec
 
 Supported platforms:
 
@@ -235,6 +236,7 @@ To choose this board in BoardShim constructor please specify:
 - board_id: 5
 - ip_address field of BrainFlowInputParams structure should contain WiFi Shield Ip address(in direct mode its 192.168.4.1)
 - ip_port field of BrainFlowInputParams structure should be any local port which is free right now
+- optional: timeout field of BrainFlowInputParams structure, default is 10sec
 
 Supported platforms:
 
@@ -267,6 +269,7 @@ To choose this board in BoardShim constructor please specify:
 - board_id: 6
 - ip_address field of BrainFlowInputParams structure should contain WiFi Shield Ip address(in direct mode its 192.168.4.1)
 - ip_port field of BrainFlowInputParams structure should be any local port which is free right now
+- optional: timeout field of BrainFlowInputParams structure, default is 10sec
 
 Supported platforms:
 

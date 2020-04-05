@@ -69,6 +69,30 @@ Steps to setup Matlab binding for BrainFlow:
 - Add folders lib and inc to Matlab path
 - If you want to run Matlab scripts from folders different than brainflow/matlab-package/brainflow you need to add it to your Matlab path too
 
+
+Julia
+--------
+
+Steps to setup Julia binding for BrainFlow:
+
+- Compile Core Module, using instructions below
+- Set PATH(on Windows) or LD_LIBRARY_PATH(on Unix) env variables to ensure that compiled libraries are in search path
+- Install BrainFlow package locally
+
+.. compound::
+
+    Example ::
+
+        # compile core module first
+        # set env variable
+        export LD_LIBRARY_PATH=/home/andreyparfenov/brainflow/installed_linux/lib/:$LD_LIBRARY_PATH
+        cd julia-package/brainflow
+        julia
+        # type ']' to switch to pkg terminal
+        activate . # activate BrainFlow's env
+        
+
+
 Compilation of Core Module and C++ Binding
 -------------------------------------------
 
