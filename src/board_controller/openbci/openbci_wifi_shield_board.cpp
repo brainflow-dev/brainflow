@@ -24,6 +24,7 @@ OpenBCIWifiShieldBoard::OpenBCIWifiShieldBoard (
     server_socket = NULL;
     keep_alive = false;
     initialized = false;
+    http_timeout = 10;
 }
 
 OpenBCIWifiShieldBoard::~OpenBCIWifiShieldBoard ()
@@ -44,6 +45,11 @@ int OpenBCIWifiShieldBoard::prepare_session ()
         safe_logger (spdlog::level::warn, "use default ip address 192.168.4.1");
         params.ip_address = "192.168.4.1";
     }
+    if ((params.timeout > 0) && (params.timeout < 600))
+    {
+        http_timeout = params.timeout;
+    }
+    safe_logger (spdlog::level::info, "use {} as http timeout", http_timeout);
     // user doent need to provide this param because we have only tcp impl,
     // but if its specified and its UDP return an error
     if (params.ip_protocol == (int)IpProtocolType::UDP)
@@ -306,17 +312,19 @@ int OpenBCIWifiShieldBoard::release_session ()
     return STATUS_OK;
 }
 
-int OpenBCIWifiShieldBoard::wait_for_http_resp (http_t *request, int max_attempts)
+int OpenBCIWifiShieldBoard::wait_for_http_resp (http_t *request)
 {
     http_status_t status = HTTP_STATUS_PENDING;
     int prev_size = -1;
+    int sleep_interval = 10;
+    int max_attempts = (http_timeout * 1000) / sleep_interval;
     int i = 0;
     while (status == HTTP_STATUS_PENDING)
     {
         i++;
         if (i == max_attempts)
         {
-            safe_logger (spdlog::level::err, "still pending after {} attempts", max_attempts);
+            safe_logger (spdlog::level::err, "still pending after {} seconds", http_timeout);
             return BOARD_WRITE_ERROR;
         }
         status = http_process (request);
@@ -326,9 +334,9 @@ int OpenBCIWifiShieldBoard::wait_for_http_resp (http_t *request, int max_attempt
             prev_size = (int)request->response_size;
         }
 #ifdef _WIN32
-        Sleep ((int)(10));
+        Sleep ((int)(sleep_interval));
 #else
-        usleep ((int)(10000));
+        usleep ((int)(sleep_interval * 1000));
 #endif
     }
     if (request->response_data != NULL)

@@ -269,6 +269,40 @@ Matlab Denoising
 .. literalinclude:: ../matlab-package/brainflow/examples/Denoising.m
    :language: matlab
 
+Julia
+--------
+
+Julia Get Data from a Board
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../julia-package/brainflow/test/brainflow_get_data.jl
+   :language: julia
+
+Julia Read Write File
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../julia-package/brainflow/test/serialization.jl
+   :language: julia
+
+Julia Transforms
+~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../julia-package/brainflow/test/transforms.jl
+   :language: julia
+
+Julia Signal Filtering
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../julia-package/brainflow/test/signal_filtering.jl
+   :language: julia
+
+Julia Denoising
+~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../julia-package/brainflow/test/denoising.jl
+   :language: julia
+
+
 Notebooks
 ------------
 .. toctree::
