@@ -13,6 +13,7 @@ import JSON
     CYTON_WIFI_BOARD = 5
     CYTON_DAISY_WIFI_BOARD = 6
     BRAINBIT_BOARD = 7
+    UNICORN_BOARD = 8
 
 end
 

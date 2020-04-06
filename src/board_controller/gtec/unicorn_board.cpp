@@ -8,6 +8,7 @@
 #include <unistd.h>
 
 #include "get_dll_dir.h"
+#include "timestamp.h"
 #include "unicorn_board.h"
 
 
@@ -169,12 +170,36 @@ void UnicornBoard::read_thread ()
 
     while (keep_alive)
     {
-        // todo
-        /*
+        // unicorn uses similar idea as in brainflow - return single array with different kinds of
+        // data and provide API(defines in this case) to mark this data
         func_get_data (device_handle, 1, temp_buffer, UnicornBoard::package_size * sizeof (float));
+        double timestamp = get_timestamp ();
+        // eeg data
+        package[0] = (double)temp_buffer[UNICORN_EEG_CONFIG_INDEX];
+        package[1] = (double)temp_buffer[UNICORN_EEG_CONFIG_INDEX + 1];
+        package[2] = (double)temp_buffer[UNICORN_EEG_CONFIG_INDEX + 2];
+        package[3] = (double)temp_buffer[UNICORN_EEG_CONFIG_INDEX + 3];
+        package[4] = (double)temp_buffer[UNICORN_EEG_CONFIG_INDEX + 4];
+        package[5] = (double)temp_buffer[UNICORN_EEG_CONFIG_INDEX + 5];
+        package[6] = (double)temp_buffer[UNICORN_EEG_CONFIG_INDEX + 6];
+        package[7] = (double)temp_buffer[UNICORN_EEG_CONFIG_INDEX + 7];
+        // accel data
+        package[8] = (double)temp_buffer[UNICORN_ACCELEROMETER_CONFIG_INDEX];
+        package[9] = (double)temp_buffer[UNICORN_ACCELEROMETER_CONFIG_INDEX + 1];
+        package[10] = (double)temp_buffer[UNICORN_ACCELEROMETER_CONFIG_INDEX + 2];
+        // gyro data
+        package[11] = (double)temp_buffer[UNICORN_GYROSCOPE_CONFIG_INDEX];
+        package[12] = (double)temp_buffer[UNICORN_GYROSCOPE_CONFIG_INDEX + 1];
+        package[13] = (double)temp_buffer[UNICORN_GYROSCOPE_CONFIG_INDEX + 2];
+        // battery data
+        package[14] = (double)temp_buffer[UNICORN_BATTERY_CONFIG_INDEX];
+        // counter / package num
+        package[15] = (double)temp_buffer[UNICORN_COUNTER_CONFIG_INDEX];
+        // validation config index? place it to other channels
+        package[16] = (double)temp_buffer[UNICORN_VALIDATION_CONFIG_INDEX];
+
         db->add_data (timestamp, package);
         streamer->stream_data (package, UnicornBoard::package_size, timestamp);
-        */
     }
 }
 

@@ -17,6 +17,7 @@ To create an instance of BoardShim class for your board check required inputs in
    "Cyton Wifi", "BoardIds.CYTON_WIFI_BOARD (5)", "-", "-", "Wifi Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "Timeout for HTTP response(default 10sec)"
    "Cyton Daisy Wifi", "BoardIds.CYTON_DAISY_WIFI_BOARD (6)", "-", "-", "Wifi Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "Timeout for HTTP response(default 10sec)"
    "BrainBit", "BoardIds.BRAINBIT_BOARD (7)", "-", "-", "-", "-", "-", "Serial Number of BrainBit device", "Timeout for device discovery(default 15sec)"
+   "Unicorn", "BoardIds.UNICORN_BOARD (8)", "-", "-", "-", "-", "-", "-", "-"
 
 
 Streaming Board
@@ -97,7 +98,7 @@ Cyton
     :width: 200px
     :height: 200px
 
-`Cyton Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/CytonGS>`_.
+`Cyton Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/CytonGS>`_
 
 To choose this board in BoardShim constructor please specify:
 
@@ -127,9 +128,9 @@ Ganglion
     :width: 400px
     :height: 230px
 
-`Ganglion Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/GanglionGS>`_.
+`Ganglion Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/GanglionGS>`_
 
-**To use Ganglion board you need a** `dongle <https://shop.openbci.com/collections/frontpage/products/ganglion-dongle>`_.
+**To use Ganglion board you need a** `dongle <https://shop.openbci.com/collections/frontpage/products/ganglion-dongle>`_
 
 To choose this board in BoardShim constructor please specify:
 
@@ -165,7 +166,7 @@ Cyton Daisy
     :width: 400px
     :height: 394px
 
-`CytonDaisy Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/DaisyGS>`_.
+`CytonDaisy Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/DaisyGS>`_
 
 To choose this board in BoardShim constructor please specify:
 
@@ -196,9 +197,9 @@ Ganglion with WiFi Shield
     :width: 300px
     :height: 300px
 
-`WiFi Shield Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_.
+`WiFi Shield Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_
 
-`WiFi Shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_.
+`WiFi Shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_
 
 To choose this board in BoardShim constructor please specify:
 
@@ -227,9 +228,9 @@ Cyton with WiFi Shield
     :width: 400px
     :height: 325px
 
-`WiFi shield Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_.
+`WiFi shield Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_
 
-`WiFi shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_.
+`WiFi shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_
 
 To choose this board in BoardShim constructor please specify:
 
@@ -260,9 +261,9 @@ CytonDaisy with WiFi Shield
     :width: 400px
     :height: 400px
 
-`WiFi Shield Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_.
+`WiFi Shield Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_
 
-`WiFi Shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_.
+`WiFi Shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_
 
 To choose this board in BoardShim constructor please specify:
 
@@ -295,7 +296,7 @@ BrainBit
     :width: 400px
     :height: 400px
 
-`BrainBit website <https://brainbit.com/>`_.
+`BrainBit website <https://brainbit.com/>`_
 
 To choose this board in BoardShim constructor please specify:
 
@@ -312,5 +313,33 @@ Board Spec:
 
 - num eeg channels: 4
 - num acceleration channels: None
+- sampling rate: 250
+- communication: Bluetooth Low Energy
+
+
+G.TEC
+------
+
+Unicorn
+~~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/49740988577_c54162024d_h.jpg
+    :width: 600px
+    :height: 450px
+
+`Unicorn website <https://www.unicorn-bi.com/>`_
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 8
+
+Supported platforms:
+
+- Ubuntu 18.04, may work on other Linux OSes, it depends on dynamic library provided by Unicorn
+
+Board Spec:
+
+- num eeg channels: 8
+- num acceleration channels: 3
 - sampling rate: 250
 - communication: Bluetooth Low Energy
