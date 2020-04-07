@@ -223,10 +223,8 @@ int UnicornBoard::call_open ()
             spdlog::level::err, "failed to get function address for UNICORN_GetAvailableDevices");
         return GENERAL_ERROR;
     }
-    constexpr int max_devices = 512;
-    UNICORN_DEVICE_SERIAL *available_devices = new UNICORN_DEVICE_SERIAL[max_devices];
     unsigned int available_device_count = 0;
-    int ec = func_get_available (available_devices, &available_device_count, TRUE);
+    int ec = func_get_available (NULL, &available_device_count, TRUE);
     if (ec != UNICORN_ERROR_SUCCESS)
     {
         safe_logger (spdlog::level::err, "Error in UNICORN_GetAvailableDevices {}", ec);
@@ -235,6 +233,13 @@ int UnicornBoard::call_open ()
     if (available_device_count < 1)
     {
         safe_logger (spdlog::level::err, "Unicorn not found");
+        return BOARD_NOT_READY_ERROR;
+    }
+    UNICORN_DEVICE_SERIAL *available_devices = new UNICORN_DEVICE_SERIAL[available_device_count];
+    ec = func_get_available (available_devices, &available_device_count, TRUE);
+    if (ec != UNICORN_ERROR_SUCCESS)
+    {
+        safe_logger (spdlog::level::err, "Error in UNICORN_GetAvailableDevices {}", ec);
         return BOARD_NOT_READY_ERROR;
     }
 
