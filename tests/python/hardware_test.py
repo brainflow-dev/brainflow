@@ -27,7 +27,7 @@ def main ():
     parser.add_argument ('--run-time', type = int, help = 'run time for one iteration in sec', required = True)
     parser.add_argument ('--num-iters', type = int, help = 'number of iterations', default = 1)
     parser.add_argument ('--channels', type = str, help = 'channels to plot in format 0,1,2 by default plot all channels', default = None)
-    parser.add_argument ('--config', type = str, help = 'config string', default = None)
+    parser.add_argument ('--config-file', type = str, help = 'file with strings to send to device', default = None)
     args = parser.parse_args ()
 
     params = BrainFlowInputParams ()
@@ -50,8 +50,11 @@ def main ():
 
     board = BoardShim (args.board_id, params)
     board.prepare_session ()
-    if args.config is not None:
-        board.config_board (args.config)
+    if args.config_file:
+        with open (args.config_file) as file:
+            lines = file.readlines ()
+            for line in lines:
+                board.config_board (line)
 
     buffer_size = int (BoardShim.get_sampling_rate (master_board_id) * args.run_time * 1.2) # + 20% for safety
 
