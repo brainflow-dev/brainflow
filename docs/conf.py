@@ -162,7 +162,7 @@ html_show_sourcelink = False
 html_logo = '_static/brainflow_logo.png'
 
 html_theme_options = {
-    'canonical_url': 'https://brainflow.readthedocs.io/en/latest/',
+    'canonical_url': 'https://brainflow.readthedocs.io/en/stable/',
     'collapse_navigation': False,
     'display_version': True,
     'logo_only': False,

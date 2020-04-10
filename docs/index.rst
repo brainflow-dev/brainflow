@@ -20,6 +20,7 @@ It provides a **uniform data acquisition API for all supported boards**, it mean
     Gallery
     BrainFlowDev
     AskHelp
+    Partners
     License
 
 
