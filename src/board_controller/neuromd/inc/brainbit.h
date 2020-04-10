@@ -32,9 +32,8 @@ private:
 
     void read_thread ();
 
-    int find_device (long long serial_number);
-    int find_device_info (
-        DeviceEnumerator *enumerator, uint64_t serial_number, DeviceInfo *out_device_info);
+    int find_device ();
+    int find_device_info (DeviceEnumerator *enumerator, DeviceInfo *out_device_info);
     int connect_device ();
     void free_listeners ();
     void free_device ();

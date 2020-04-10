@@ -69,6 +69,30 @@ Steps to setup Matlab binding for BrainFlow:
 - Add folders lib and inc to Matlab path
 - If you want to run Matlab scripts from folders different than brainflow/matlab-package/brainflow you need to add it to your Matlab path too
 
+
+Julia
+--------
+
+Steps to setup Julia binding for BrainFlow:
+
+- Compile Core Module, using instructions below
+- Set PATH(on Windows) or LD_LIBRARY_PATH(on Unix) env variables to ensure that compiled libraries are in search path
+- Install BrainFlow package locally
+
+.. compound::
+
+    Example ::
+
+        # compile core module first
+        # set env variable
+        export LD_LIBRARY_PATH=/home/andreyparfenov/brainflow/installed_linux/lib/:$LD_LIBRARY_PATH
+        cd julia-package/brainflow
+        julia
+        # type ']' to switch to pkg terminal
+        activate . # activate BrainFlow's env
+        
+
+
 Compilation of Core Module and C++ Binding
 -------------------------------------------
 
@@ -90,7 +114,7 @@ Windows
 Linux
 ~~~~~~
 
-- Install Cmake>=3.10 you can install it from PYPI via pip
+- Install Cmake>=3.13 you can install it from PYPI via pip
 - If you wanna distribute compiled Linux libraries you HAVE to build it inside manylinux Docker container
 - Build it as a cmake project manually or use bash file from tools directory
 - You can use any compiler but for Linux we test only GCC, also we test only 64bit libraries for Linux
@@ -105,7 +129,7 @@ Linux
 MacOS
 ~~~~~~~
 
-- Install Cmake>=3.10 you can install it from PYPI via pip
+- Install Cmake>=3.13 you can install it from PYPI via pip
 - Build it as a cmake project manually or use bash file from tools directory
 - You can use any compiler but for MacOS we test only Clang
 

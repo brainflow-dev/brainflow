@@ -2,6 +2,7 @@ classdef BoardShim
     
     properties
         board_id
+        master_board_id
         input_params_json
     end
 
@@ -52,11 +53,11 @@ classdef BoardShim
             BoardShim.set_log_level (int32 (2))
         end
 
-        function enable_dev_board_logger (obj)
+        function enable_dev_board_logger ()
             BoardShim.set_log_level (int32 (0))
         end
 
-        function disable_board_logger (obj)
+        function disable_board_logger ()
             BoardShim.set_log_level (int32 (6))
         end
         
@@ -100,7 +101,7 @@ classdef BoardShim
             res = libpointer ('int32Ptr', 0);
             exit_code = calllib (lib_name, task_name, board_id, res);
             BoardShim.check_ec (exit_code, task_name);
-            num_rows = res.value + 1;
+            num_rows = res.value;
         end
         
         function timestamp_channel = get_timestamp_channel (board_id)
@@ -219,6 +220,14 @@ classdef BoardShim
         function obj = BoardShim (board_id, input_params)
             obj.input_params_json = input_params.to_json ();
             obj.board_id = int32 (board_id);
+            obj.master_board_id = obj.board_id;
+            if (board_id == int32 (BoardIDs.STREAMING_BOARD))
+                double_val = str2double (input_params.other_info);
+                if (isnan(double_val))
+                    error("Write master board ID to other_info field");
+                end
+                obj.master_board_id = int32 (double_val);
+            end
         end
 
         function prepare_session (obj)
@@ -268,7 +277,7 @@ classdef BoardShim
         function data_buf = get_board_data (obj)
             task_name = 'get_board_data';
             data_count = obj.get_board_data_count ();
-            num_rows = BoardShim.get_num_rows (obj.board_id) - 1;
+            num_rows = BoardShim.get_num_rows (obj.master_board_id);
             lib_name = BoardShim.load_lib ();
             data = libpointer ('doublePtr', zeros (1, data_count * num_rows));
             exit_code = calllib (lib_name, task_name, data_count, data, obj.board_id, obj.input_params_json);
@@ -279,7 +288,7 @@ classdef BoardShim
         function data_buf = get_current_board_data (obj, num_samples)
             task_name = 'get_current_board_data';
             data_count = libpointer ('int32Ptr', 0);
-            num_rows = BoardShim.get_num_rows (obj.board_id) - 1;
+            num_rows = BoardShim.get_num_rows (obj.master_board_id);
             lib_name = BoardShim.load_lib ();
             data = libpointer ('doublePtr', zeros (1, num_samples * num_rows));
             exit_code = calllib (lib_name, task_name, num_samples, data, data_count, obj.board_id, obj.input_params_json);

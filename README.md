@@ -44,6 +44,7 @@ We support bindings for:
 * [C++](./cpp-package/)
 * [C# (Windows only)](./csharp-package/brainflow/)
 * [Matlab](./matlab-package/brainflow)
+* [Julia](.julia-package/brainflow)
 
 ## License: 
 MIT

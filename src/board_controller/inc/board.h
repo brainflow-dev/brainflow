@@ -25,6 +25,12 @@ public:
             delete db;
             db = NULL;
         }
+
+        if (streamer != NULL)
+        {
+            delete streamer;
+            streamer = NULL;
+        }
     }
     Board (int board_id, struct BrainFlowInputParams params)
     {

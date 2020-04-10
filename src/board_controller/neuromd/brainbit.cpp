@@ -73,25 +73,9 @@ int BrainBit::prepare_session ()
         safe_logger (spdlog::level::info, "Session is already prepared");
         return STATUS_OK;
     }
-    if (params.other_info.empty ())
-    {
-        safe_logger (
-            spdlog::level::err, "You need to provide BrainBit serial number to other_info field!");
-        return INVALID_ARGUMENTS_ERROR;
-    }
-    long long serial_number = 0;
-    try
-    {
-        serial_number = std::stoll (params.other_info);
-    }
-    catch (...)
-    {
-        safe_logger (
-            spdlog::level::err, "You need to provide BrainBit serial number to other_info field!");
-        return INVALID_ARGUMENTS_ERROR;
-    }
-    // try to find device by serial number
-    int res = find_device (serial_number);
+
+    // try to find device
+    int res = find_device ();
     if (res != STATUS_OK)
     {
         free_device ();
@@ -522,7 +506,7 @@ void BrainBit::free_channels ()
     }
 }
 
-int BrainBit::find_device (long long serial_number)
+int BrainBit::find_device ()
 {
     if ((params.timeout < 0) || (params.timeout > 600))
     {
@@ -548,12 +532,16 @@ int BrainBit::find_device (long long serial_number)
 
     int sleep_delay = 300;
     int attempts = (int)(timeout * 1000.0 / sleep_delay);
-    int found = false;
     int res = STATUS_OK;
     DeviceInfo device_info;
     do
     {
-        if (find_device_info (enumerator, serial_number, &device_info) != 0)
+        res = find_device_info (enumerator, &device_info);
+        if (res == INVALID_ARGUMENTS_ERROR)
+        {
+            break;
+        }
+        if (res != STATUS_OK)
         {
 #ifdef _WIN32:
             Sleep (sleep_delay);
@@ -563,12 +551,10 @@ int BrainBit::find_device (long long serial_number)
             continue;
         }
 
-        safe_logger (spdlog::level::info, "Device with SN {} found", serial_number);
-        found = true;
         break;
     } while (attempts-- > 0);
 
-    if (found)
+    if (res == STATUS_OK)
     {
         device = create_Device (enumerator, device_info);
         if (device == NULL)
@@ -579,39 +565,50 @@ int BrainBit::find_device (long long serial_number)
             res = BOARD_NOT_READY_ERROR;
         }
     }
-    else
-    {
-        safe_logger (spdlog::level::err, "Device with SN {} not found", serial_number);
-        res = BOARD_NOT_READY_ERROR;
-    }
 
     enumerator_delete (enumerator);
 
     return res;
 }
 
-int BrainBit::find_device_info (
-    DeviceEnumerator *enumerator, uint64_t serial_number, DeviceInfo *out_device_info)
+int BrainBit::find_device_info (DeviceEnumerator *enumerator, DeviceInfo *out_device_info)
 {
     DeviceInfoArray device_info_array;
+    long long serial_number = 0;
+    if (!params.other_info.empty ())
+    {
+        try
+        {
+            serial_number = std::stoll (params.other_info);
+        }
+        catch (...)
+        {
+            safe_logger (spdlog::level::err,
+                "You need to provide BrainBit serial number to other_info field!");
+            return INVALID_ARGUMENTS_ERROR;
+        }
+    }
+
     const int result_code = enumerator_get_device_list (enumerator, &device_info_array);
     if (result_code != SDK_NO_ERROR)
     {
-        return -1;
+        return GENERAL_ERROR;
     }
 
     for (size_t i = 0; i < device_info_array.info_count; ++i)
     {
-        if (device_info_array.info_array[i].SerialNumber == serial_number)
+        if ((device_info_array.info_array[i].SerialNumber == serial_number) || (serial_number == 0))
         {
+            safe_logger (spdlog::level::info, "Found device with ID {}",
+                device_info_array.info_array[i].SerialNumber);
             *out_device_info = device_info_array.info_array[i];
             free_DeviceInfoArray (device_info_array);
-            return 0;
+            return STATUS_OK;
         }
     }
 
     free_DeviceInfoArray (device_info_array);
-    return -1;
+    return BOARD_NOT_READY_ERROR;
 }
 
 int BrainBit::connect_device ()

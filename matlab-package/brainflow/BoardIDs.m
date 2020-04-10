@@ -10,5 +10,6 @@ classdef BoardIDs < int32
         CYTON_WIFI (5)
         CYTON_DAISY_WIFI (6)
         BRAINBIT_BOARD (7)
+        UNICORN_BOARD (8)
     end
 end
