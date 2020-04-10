@@ -3,9 +3,7 @@
 #include <string.h>
 #ifdef _WIN32
 #include <windows.h>
-typedef __declspec(dllimport) int(__cdecl *DLLFunc) (void *);
 #else
-typedef int (*DLLFunc) (void *);
 #include <dlfcn.h>
 #endif
 
@@ -39,13 +37,13 @@ public:
         return true;
     }
 
-    DLLFunc get_address (const char *function_name)
+    void *get_address (const char *function_name)
     {
         if (this->lib_instance == NULL)
         {
             return NULL;
         }
-        return (DLLFunc)GetProcAddress (this->lib_instance, function_name);
+        return (void *)GetProcAddress (this->lib_instance, function_name);
     }
 
     void free_library ()
@@ -71,13 +69,13 @@ public:
         }
     }
 
-    DLLFunc get_address (const char *function_name)
+    void *get_address (const char *function_name)
     {
         if (this->lib_instance == NULL)
         {
             return NULL;
         }
-        return (DLLFunc)dlsym (this->lib_instance, function_name);
+        return dlsym (this->lib_instance, function_name);
     }
 
     void free_library ()

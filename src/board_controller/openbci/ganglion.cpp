@@ -176,12 +176,6 @@ int Ganglion::release_session ()
     if (this->initialized)
     {
         this->stop_stream ();
-
-        if (this->db)
-        {
-            delete this->db;
-            this->db = NULL;
-        }
         this->initialized = false;
     }
     this->call_close ();
