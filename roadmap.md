@@ -21,7 +21,7 @@ Currently we added or going to add support for:
 * [~~OpenBCI Cyton with WIFI~~](https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS)
 * [~~OpenBCI Cyton Daisy with WIFI~~](https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS)
 * [~~BrainBit~~](https://brainbit.com/)
-* [Unicorn](https://www.unicorn-bi.com/)(~~Linux~~, Windos)
+* [Unicorn](https://www.unicorn-bi.com/)(~~Linux~~, Windows)
 * [Muse](https://choosemuse.com/)
 * [Callibri](https://callibri.com/)
 * [FreeEEG](https://github.com/neuroidss/FreeEEG32)
@@ -70,4 +70,3 @@ We'd like to improve the content, structure, and presentation of the BrainFlow d
 
 * Improve the "Getting Started" documentation, designing and writing learning paths for users different backgrounds (e.g. brand new to programming, experienced programmers unfamiliar with BCI technology, already familiar with BCI technology or BCI scientists without programming experience).
 * Improve the overall organization of the documentation and specific subsections of the documentation to make navigation and finding content easier.
-* Performance monitoring
