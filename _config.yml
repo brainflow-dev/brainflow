@@ -22,17 +22,19 @@ description: News about BrainFlow project
 navbar-links:
   About BrainFlow:
     - What We Do: "what_we_do"
-    - Contact: "contact"
+    - Project Roadmap: "roadmap"
     - Partners and Sponsors: "partners_and_sponsors"
   Resources:
     - Docs: "https://brainflow.readthedocs.io/en/stable/"
     - Github: "https://github.com/Andrey1994/brainflow/"
     - Getting Started: "getting_started"
     - Learning BCI: "http://learn.neurotechedu.com/lessons/"
-  Apps:
+  Community:
+    - Contact: "contact"
+    - Code of Conduct: "conduct"
+  Featured Apps:
     - MNE-Scan: "mne_scan"
     - Timeflux: "timeflux"
-
 
 # Image to show in the navigation bar - image must be a square (width = height)
 # Remove this parameter if you don't want an image in the navbar
