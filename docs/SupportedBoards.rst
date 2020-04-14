@@ -13,9 +13,9 @@ To create an instance of BoardShim class for your board check required inputs in
    "Cyton", "BoardIds.CYTON_BOARD (0)", "dongle serial port(COM3, /dev/ttyUSB0, /dev/cu.usbserial-xxxxxx...)", "-", "-", "-", "-", "-", "-"
    "Ganglion", "BoardIds.GANGLION_BOARD (1)", "dongle serial port(COM3, /dev/ttyUSB0...)", "Optional: Ganglion's MAC address", "-", "-", "-", "-", "Timeout for device discovery(default 15sec)"
    "Cyton Daisy", "BoardIds.CYTON_DAISY_BOARD (2)", "dongle serial port(COM3, /dev/ttyUSB0, /dev/cu.usbserial-xxxxxx...)", "-", "-", "-", "-", "-", "-"
-   "Ganglion Wifi", "BoardIds.GANGLION_WIFI_BOARD (4)", "-", "-", "Wifi Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "Timeout for HTTP response(default 10sec)"
-   "Cyton Wifi", "BoardIds.CYTON_WIFI_BOARD (5)", "-", "-", "Wifi Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "Timeout for HTTP response(default 10sec)"
-   "Cyton Daisy Wifi", "BoardIds.CYTON_DAISY_WIFI_BOARD (6)", "-", "-", "Wifi Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "Timeout for HTTP response(default 10sec)"
+   "Ganglion WIFI", "BoardIds.GANGLION_WIFI_BOARD (4)", "-", "-", "WIFI Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "Timeout for HTTP response(default 10sec)"
+   "Cyton WIFI", "BoardIds.CYTON_WIFI_BOARD (5)", "-", "-", "WIFI Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "Timeout for HTTP response(default 10sec)"
+   "Cyton Daisy WIFI", "BoardIds.CYTON_DAISY_WIFI_BOARD (6)", "-", "-", "WIFI Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "Timeout for HTTP response(default 10sec)"
    "BrainBit", "BoardIds.BRAINBIT_BOARD (7)", "-", "-", "-", "-", "-", "Optional: Serial Number of BrainBit device", "Timeout for device discovery(default 15sec)"
    "Unicorn", "BoardIds.UNICORN_BOARD (8)", "-", "-", "-", "-", "-", "Optional: Serial Number of Unicorn device", "-"
 
@@ -190,16 +190,16 @@ Board Spec:
 - signal gain: 24
 
 
-Ganglion with WiFi Shield
+Ganglion with WIFI Shield
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. image:: https://live.staticflickr.com/65535/48836544227_05059fc450_b.jpg
     :width: 300px
     :height: 300px
 
-`WiFi Shield Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_
+`WIFI Shield Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_
 
-`WiFi Shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_
+`WIFI Shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_
 
 To choose this board in BoardShim constructor please specify:
 
@@ -221,16 +221,16 @@ Board Spec:
 - sampling rate: 1600
 - communication: TCP socket to read data and HTTP to send commands
 
-Cyton with WiFi Shield
+Cyton with WIFI Shield
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. image:: https://live.staticflickr.com/65535/48836367066_a8c4b6d3be_b.jpg
     :width: 400px
     :height: 325px
 
-`WiFi shield Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_
+`WIFI shield Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_
 
-`WiFi shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_
+`WIFI shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_
 
 To choose this board in BoardShim constructor please specify:
 
@@ -254,16 +254,16 @@ Board Spec:
 - communication: TCP socket to read data and HTTP to send commands
 - signal gain: 24
 
-CytonDaisy with WiFi Shield
+CytonDaisy with WIFI Shield
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. image:: https://live.staticflickr.com/65535/48843419918_f11c90deb0_k.jpg
     :width: 400px
     :height: 400px
 
-`WiFi Shield Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_
+`WIFI Shield Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_
 
-`WiFi Shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_
+`WIFI Shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_
 
 To choose this board in BoardShim constructor please specify:
 
