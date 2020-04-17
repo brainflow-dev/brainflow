@@ -126,6 +126,25 @@ namespace brainflow
         }
 
         /// <summary>
+        /// get names of EEG channels in 10-20 system. Only if electrodes have fixed locations
+        /// </summary>
+        /// <param name="board_id"></param>
+        /// <returns>array of 10-20 locations</returns>
+        /// <exception cref="BrainFlowException">If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR</exception>
+        public static string[] get_eeg_names(int board_id)
+        {
+            int[] len = new int[1];
+            byte[] str = new byte[4096];
+            int res = BoardControllerLibrary.get_eeg_names(board_id, str, len);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException(res);
+            }
+            string eeg_str = System.Text.Encoding.UTF8.GetString (str, 0, len[0]);
+            return eeg_str.Split (new Char[] {','});
+        }
+
+        /// <summary>
         /// get row indices of EEG channels for this board, for some board we can not split EMG\EEG\.. data and return the same array for all of them
         /// </summary>
         /// <param name="board_id"></param>

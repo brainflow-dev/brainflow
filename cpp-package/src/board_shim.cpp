@@ -1,6 +1,9 @@
+#include <algorithm>
+#include <sstream>
 #include <stdlib.h>
 #include <string.h>
 #include <string>
+#include <vector>
 
 #include "board_shim.h"
 
@@ -295,6 +298,32 @@ int BoardShim::get_num_rows (int board_id)
         throw BrainFlowException ("failed get board info", res);
     }
     return num_rows;
+}
+
+std::string *BoardShim::get_eeg_names (int board_id, int *len)
+{
+    char *eeg_names = new char[4096];
+    int string_len = 0;
+    int res = ::get_eeg_names (board_id, eeg_names, &string_len);
+    if (res != STATUS_OK)
+    {
+        throw BrainFlowException ("failed get board info", res);
+    }
+    std::string line (eeg_names, 0, string_len);
+    std::istringstream ss (line);
+    std::vector<std::string> out;
+    std::string single_name;
+    while (std::getline (ss, single_name, ','))
+    {
+        out.push_back (single_name);
+    }
+    delete[] eeg_names;
+
+    std::string *result = new std::string[out.size ()];
+    std::copy (out.begin (), out.end (), result);
+    *len = out.size ();
+
+    return result;
 }
 
 int *BoardShim::get_eeg_channels (int board_id, int *len)

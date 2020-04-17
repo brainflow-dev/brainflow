@@ -122,6 +122,7 @@
 			"battery_channel": 9,
 			"num_rows" : 11,
 			"eeg_channels" : [1, 2, 3, 4],
+			"eeg_names": "T3,T4,O1,O2",
 			"other_channels": [5, 6, 7, 8]
 		},
 		"8" : {

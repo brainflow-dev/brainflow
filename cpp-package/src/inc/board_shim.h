@@ -51,97 +51,103 @@ public:
 
     /**
      * get sampling rate for this board
-     * @param board_id board if for your board
+     * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static int get_sampling_rate (int board_id);
     /**
      * get row index which holds package nums
-     * @param board_id board if for your board
+     * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static int get_package_num_channel (int board_id);
     /**
      * get row index which holds timestamps
-     * @param board_id board if for your board
+     * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static int get_timestamp_channel (int board_id);
     /**
      * get row index which holds battery level info
-     * @param board_id board if for your board
+     * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static int get_battery_channel (int board_id);
     /**
      * get number of rows in returned from @ref get_board_data() 2d array
-     * @param board_id board if for your board
+     * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static int get_num_rows (int board_id);
     /**
+     * get eeg channel names in 10-20 system for devices with fixed electrode locations
+     * @param board_id board id of your device
+     * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+     */
+    static std::string *get_eeg_names (int board_id, int *len);
+    /**
      * get row indices which hold EEG data, for some board we can not split EEG\EMG\...
-     * @param board_id board if for your board
+     * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static int *get_eeg_channels (int board_id, int *len);
     /**
      * get row indices which hold EMG data, for some board we can not split EEG\EMG\...
-     * @param board_id board if for your board
+     * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static int *get_emg_channels (int board_id, int *len);
     /**
      * get row indices which hold ECG data, for some board we can not split EEG\EMG\...
-     * @param board_id board if for your board
+     * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static int *get_ecg_channels (int board_id, int *len);
     /**
      * get row indices which hold EOG data, for some board we can not split EEG\EMG\...
-     * @param board_id board if for your board
+     * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static int *get_eog_channels (int board_id, int *len);
     /**
      * get row indices which hold PPG data
-     * @param board_id board if for your board
+     * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static int *get_ppg_channels (int board_id, int *len);
     /**
      * get row indices which hold EDA data
-     * @param board_id board if for your board
+     * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static int *get_eda_channels (int board_id, int *len);
     /**
      * get row indices which hold accel data
-     * @param board_id board if for your board
+     * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static int *get_accel_channels (int board_id, int *len);
     /**
      * get row indices which hold analog data
-     * @param board_id board if for your board
+     * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static int *get_analog_channels (int board_id, int *len);
     /**
      * get row indices which hold gyro data
-     * @param board_id board if for your board
+     * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static int *get_gyro_channels (int board_id, int *len);
     /**
      * get row indices which hold other information
-     * @param board_id board if for your board
+     * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static int *get_other_channels (int board_id, int *len);
     /**
      * get row indices which hold temperature data
-     * @param board_id board if for your board
+     * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static int *get_temperature_channels (int board_id, int *len);
