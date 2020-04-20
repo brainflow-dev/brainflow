@@ -170,7 +170,7 @@ int BrainBit::prepare_session ()
                 {
 
                     signal_t3 =
-                        create_EegDoubleChannel_info (device, device_channels.info_array[i]);
+                        create_SignalDoubleChannel_info (device, device_channels.info_array[i]);
                 }
             }
             if (strcmp (device_channels.info_array[i].name, "T4") == 0)
@@ -178,7 +178,7 @@ int BrainBit::prepare_session ()
                 if (brainbit_code == SDK_NO_ERROR)
                 {
                     signal_t4 =
-                        create_EegDoubleChannel_info (device, device_channels.info_array[i]);
+                        create_SignalDoubleChannel_info (device, device_channels.info_array[i]);
                 }
             }
             if (strcmp (device_channels.info_array[i].name, "O1") == 0)
@@ -186,7 +186,7 @@ int BrainBit::prepare_session ()
                 if (brainbit_code == SDK_NO_ERROR)
                 {
                     signal_o1 =
-                        create_EegDoubleChannel_info (device, device_channels.info_array[i]);
+                        create_SignalDoubleChannel_info (device, device_channels.info_array[i]);
                 }
             }
             if (strcmp (device_channels.info_array[i].name, "O2") == 0)
@@ -194,7 +194,7 @@ int BrainBit::prepare_session ()
                 if (brainbit_code == SDK_NO_ERROR)
                 {
                     signal_o2 =
-                        create_EegDoubleChannel_info (device, device_channels.info_array[i]);
+                        create_SignalDoubleChannel_info (device, device_channels.info_array[i]);
                 }
             }
         }
