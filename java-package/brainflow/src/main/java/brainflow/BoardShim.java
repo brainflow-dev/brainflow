@@ -75,6 +75,8 @@ public class BoardShim
         int get_temperature_channels (int board_id, int[] temperature_channels, int[] len);
 
         int is_prepared (int[] prepared, int board_id, String params);
+
+        int get_eeg_names (int board_id, byte[] names, int[] len);
     }
 
     private static DllInterface instance;
@@ -245,6 +247,23 @@ public class BoardShim
             throw new BrainFlowError ("Error in board info getter", ec);
         }
         return res[0];
+    }
+
+    /**
+     * Get names of EEG electrodes in 10-20 system. Only if electrodes have freezed
+     * locations
+     */
+    public static String[] get_eeg_names (int board_id) throws BrainFlowError
+    {
+        int[] len = new int[1];
+        byte[] str = new byte[4096];
+        int ec = instance.get_eeg_names (board_id, str, len);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in board info getter", ec);
+        }
+        String eeg_names_string = new String (str, 0, len[0]);
+        return eeg_names_string.split (",");
     }
 
     /**

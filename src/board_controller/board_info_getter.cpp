@@ -19,6 +19,7 @@ inline std::string get_json_config ();
 inline bool check_file_exists (const std::string &name);
 inline std::string int_to_string (int val);
 inline int get_single_value (int board_id, const char *param_name, int *value);
+inline int get_string_value (int board_id, const char *param_name, char *string, int *len);
 inline int get_array_value (int board_id, const char *param_name, int *output_array, int *len);
 
 
@@ -45,6 +46,11 @@ int get_num_rows (int board_id, int *num_rows)
 int get_timestamp_channel (int board_id, int *timestamp_channel)
 {
     return get_single_value (board_id, "timestamp_channel", timestamp_channel);
+}
+
+int get_eeg_names (int board_id, char *eeg_names, int *len)
+{
+    return get_string_value (board_id, "eeg_names", eeg_names, len);
 }
 
 int get_eeg_channels (int board_id, int *eeg_channels, int *len)
@@ -181,5 +187,27 @@ inline int get_array_value (int board_id, const char *param_name, int *output_ar
     catch (json::exception &e)
     {
         return UNSUPPORTED_BOARD_ERROR;
+    }
+}
+
+inline int get_string_value (int board_id, const char *param_name, char *string, int *len)
+{
+    std::string json_file = get_json_config ();
+    if (!check_file_exists (json_file))
+    {
+        return JSON_NOT_FOUND_ERROR;
+    }
+    try
+    {
+        std::ifstream json_stream (json_file);
+        json config = json::parse (json_stream);
+        std::string val = config["boards"][int_to_string (board_id)][param_name];
+        strcpy (string, val.c_str ());
+        *len = strlen (val.c_str ());
+        return STATUS_OK;
+    }
+    catch (json::exception &e)
+    {
+        return NO_SUCH_DATA_IN_JSON_ERROR;
     }
 }
