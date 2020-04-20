@@ -6,7 +6,7 @@
 #include "board_controller.h"
 
 #if defined _WIN32 || defined __APPLE__
-#include "c_eeg_channels.h"
+#include "csignal-channel.h"
 #include "cdevice.h"
 #include "clistener.h"
 #endif
@@ -45,10 +45,10 @@ private:
     ListenerHandle resistance_listener_t4;
     ListenerHandle resistance_listener_o1;
     ListenerHandle resistance_listener_o2;
-    EegDoubleChannel *signal_t4;
-    EegDoubleChannel *signal_t3;
-    EegDoubleChannel *signal_o1;
-    EegDoubleChannel *signal_o2;
+    SignalDoubleChannel *signal_t4;
+    SignalDoubleChannel *signal_t3;
+    SignalDoubleChannel *signal_o1;
+    SignalDoubleChannel *signal_o2;
 
 #endif
 
