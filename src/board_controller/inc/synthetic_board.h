@@ -15,12 +15,6 @@ private:
     bool is_streaming;
     std::thread streaming_thread;
 
-    int num_channels;
-    float amplitude;
-    float shift;
-    float noise;
-    int sampling_rate;
-
     void read_thread ();
 
 public:
@@ -32,4 +26,6 @@ public:
     int stop_stream ();
     int release_session ();
     int config_board (char *config);
+
+    static constexpr int package_size = 19;
 };
