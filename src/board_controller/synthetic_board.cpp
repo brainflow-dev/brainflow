@@ -136,8 +136,8 @@ void SyntheticBoard::read_thread ()
 {
     // predefined sin wave for exg
     unsigned char counter = 0;
-    constexpr int num_samples = 250;
-    float base_wave[256];
+    constexpr int num_samples = 256;
+    float base_wave[num_samples];
     double amplitude = 1000.0;
     double noise = 0.6;
     double shift = 0.3;
