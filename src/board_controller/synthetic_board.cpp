@@ -19,17 +19,16 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+
+constexpr int SyntheticBoard::package_size;
+
+
 SyntheticBoard::SyntheticBoard (struct BrainFlowInputParams params)
     : Board ((int)SYNTHETIC_BOARD, params)
 {
-    this->is_streaming = false;
-    this->keep_alive = false;
-    this->initialized = false;
-    this->num_channels = 8;
-    this->amplitude = 1000;
-    this->shift = 0.3f;
-    this->noise = 0.75f;
-    this->sampling_rate = 256;
+    is_streaming = false;
+    keep_alive = false;
+    initialized = false;
 }
 
 SyntheticBoard::~SyntheticBoard ()
@@ -37,7 +36,6 @@ SyntheticBoard::~SyntheticBoard ()
     skip_logs = true;
     release_session ();
 }
-
 
 int SyntheticBoard::prepare_session ()
 {
@@ -47,6 +45,7 @@ int SyntheticBoard::prepare_session ()
         safe_logger (spdlog::level::info, "Session is already prepared");
         return STATUS_OK;
     }
+
     initialized = true;
     return STATUS_OK;
 }
@@ -54,7 +53,7 @@ int SyntheticBoard::prepare_session ()
 int SyntheticBoard::start_stream (int buffer_size, char *streamer_params)
 {
     safe_logger (spdlog::level::trace, "start stream");
-    if (this->is_streaming)
+    if (is_streaming)
     {
         safe_logger (spdlog::level::err, "Streaming thread already running");
         return STREAM_ALREADY_RUN_ERROR;
@@ -65,23 +64,23 @@ int SyntheticBoard::start_stream (int buffer_size, char *streamer_params)
         return INVALID_BUFFER_SIZE_ERROR;
     }
 
-    if (this->streamer)
+    if (streamer)
     {
-        delete this->streamer;
-        this->streamer = NULL;
+        delete streamer;
+        streamer = NULL;
     }
-    if (this->db)
+    if (db)
     {
-        delete this->db;
-        this->db = NULL;
+        delete db;
+        db = NULL;
     }
     int res = prepare_streamer (streamer_params);
     if (res != STATUS_OK)
     {
         return res;
     }
-    this->db = new DataBuffer (num_channels + 4, buffer_size);
-    if (!this->db->is_ready ())
+    db = new DataBuffer (SyntheticBoard::package_size, buffer_size);
+    if (!db->is_ready ())
     {
         safe_logger (spdlog::level::err, "unable to prepare buffer with size {}", buffer_size);
         delete db;
@@ -89,24 +88,24 @@ int SyntheticBoard::start_stream (int buffer_size, char *streamer_params)
         return INVALID_BUFFER_SIZE_ERROR;
     }
 
-    this->keep_alive = true;
-    this->streaming_thread = std::thread ([this] { this->read_thread (); });
-    this->is_streaming = true;
+    keep_alive = true;
+    streaming_thread = std::thread ([this] { this->read_thread (); });
+    is_streaming = true;
     return STATUS_OK;
 }
 
 int SyntheticBoard::stop_stream ()
 {
     safe_logger (spdlog::level::trace, "stop stream");
-    if (this->is_streaming)
+    if (is_streaming)
     {
-        this->keep_alive = false;
-        this->is_streaming = false;
-        this->streaming_thread.join ();
-        if (this->streamer)
+        keep_alive = false;
+        is_streaming = false;
+        streaming_thread.join ();
+        if (streamer)
         {
-            delete this->streamer;
-            this->streamer = NULL;
+            delete streamer;
+            streamer = NULL;
         }
         return STATUS_OK;
     }
@@ -119,69 +118,93 @@ int SyntheticBoard::stop_stream ()
 int SyntheticBoard::release_session ()
 {
     safe_logger (spdlog::level::trace, "release session");
-    if (this->initialized)
+    if (initialized)
     {
-        this->stop_stream ();
+        stop_stream ();
 
-        if (this->db)
+        if (db)
         {
-            delete this->db;
-            this->db = NULL;
+            delete db;
+            db = NULL;
         }
-        this->initialized = false;
+        initialized = false;
     }
     return STATUS_OK;
 }
 
-
 void SyntheticBoard::read_thread ()
 {
-    // predefined based sin wave
+    // predefined sin wave for exg
     unsigned char counter = 0;
-    constexpr int num_samples = 256;
+    constexpr int num_samples = 250;
     float base_wave[256];
+    double amplitude = 1000.0;
+    double noise = 0.6;
+    double shift = 0.3;
     for (int i = 0; i < num_samples; i++)
     {
         float rads = (float)(M_PI / 180.0f);
-        base_wave[i] = this->amplitude * sin (1.8f * i * rads + this->shift);
+        base_wave[i] = amplitude * sin (1.8f * i * rads + shift);
     }
-    // eeg channels + 3 accel channels + package num
-    double *package = new double[this->num_channels + 3 + 1];
-    // random distr for noise
+    // random distr for exg noise
     uint64_t seed = std::chrono::high_resolution_clock::now ().time_since_epoch ().count ();
     std::mt19937 mt (static_cast<uint32_t> (seed));
-    float max_noise = (this->noise > 0.001f) ? this->noise : 0.001f;
-    float range = (this->amplitude * max_noise) / 2.0f;
+    float max_noise = (noise > 0.001f) ? noise : 0.001f;
+    float range = (amplitude * max_noise) / 2.0f;
     safe_logger (spdlog::level::info, "noise range is {}:{}", -range, range);
-    safe_logger (spdlog::level::info, "amplitude is {}", this->amplitude);
-    safe_logger (spdlog::level::info, "shift is {}", this->shift);
+    safe_logger (spdlog::level::info, "amplitude is {}", amplitude);
+    safe_logger (spdlog::level::info, "shift is {}", shift);
     std::uniform_real_distribution<float> dist (0 - range, range);
 
-    while (this->keep_alive)
+    // get info about synthetic board from json
+    int sampling_rate = 250;
+    int ec = get_sampling_rate (SYNTHETIC_BOARD, &sampling_rate);
+    if (ec != STATUS_OK)
     {
-        // package num
+        safe_logger (spdlog::level::warn, "failed to get sampling rate from json: {}", ec);
+    }
+
+    double package[SyntheticBoard::package_size] = {0.0};
+    int num_exg_channels = 8;
+
+    while (keep_alive)
+    {
+        // I thought about reading this info directly from json here and allow users to change
+        // synthetic board via json but I dont see many use cases for it and after all
+        // brainflow_boards.json is implementation detail
         package[0] = (double)counter;
-        // eeg
-        for (int i = 0; i < this->num_channels; i++)
+        // exg
+        for (int i = 0; i < num_exg_channels; i++)
         {
             package[i + 1] = base_wave[counter] + dist (mt);
         }
         // accel
-        package[1 + this->num_channels] = dist (mt);
-        package[2 + this->num_channels] = dist (mt);
-        package[3 + this->num_channels] = dist (mt);
+        package[9] = counter / 255.0;
+        package[10] = counter / 255.0;
+        package[11] = counter / 255.0;
+        // gyro
+        package[12] = 1.0 - counter / 255.0;
+        package[13] = 1.0 - counter / 255.0;
+        package[14] = 1.0 - counter / 255.0;
+        // eda
+        package[15] = amplitude + dist (mt);
+        // ppg
+        package[16] = 70 + counter / 5.0;
+        // temperature
+        package[17] = 36 + counter / 200.0;
+        // battery
+        package[18] = 100 - counter / 3.0;
 
         double timestamp = get_timestamp ();
-        this->db->add_data (timestamp, package);
-        this->streamer->stream_data (package, this->num_channels + 3 + 1, timestamp);
+        db->add_data (timestamp, package);
+        streamer->stream_data (package, SyntheticBoard::package_size, timestamp);
         counter++;
 #ifdef _WIN32
-        Sleep ((int)(1000 / this->sampling_rate));
+        Sleep ((int)(1000 / sampling_rate));
 #else
-        usleep ((int)(1000000 / this->sampling_rate));
+        usleep ((int)(1000000 / sampling_rate));
 #endif
     }
-    delete[] package;
 }
 
 int SyntheticBoard::config_board (char *config)
