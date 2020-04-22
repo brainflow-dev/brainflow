@@ -92,6 +92,7 @@ public class BoardShim
         } else if (SystemUtils.IS_OS_MAC)
         {
             lib_name = "libBoardController.dylib";
+            unpack_from_jar ("libneurosdk-shared.dylib");
         }
 
         // need to extract libraries from jar
