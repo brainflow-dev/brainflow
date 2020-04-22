@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 
 import org.apache.commons.lang3.SystemUtils;
@@ -92,7 +93,11 @@ public class BoardShim
         } else if (SystemUtils.IS_OS_MAC)
         {
             lib_name = "libBoardController.dylib";
-            unpack_from_jar ("libneurosdk-shared.dylib");
+            Path location = unpack_from_jar ("libneurosdk-shared.dylib");
+            if (location != null)
+            {
+                System.load (location.toString ());
+            }
         }
 
         // need to extract libraries from jar
@@ -102,7 +107,7 @@ public class BoardShim
         instance = (DllInterface) Native.loadLibrary (lib_name, DllInterface.class);
     }
 
-    private static void unpack_from_jar (String lib_name)
+    private static Path unpack_from_jar (String lib_name)
     {
         try
         {
@@ -111,9 +116,11 @@ public class BoardShim
                 file.delete ();
             InputStream link = (BoardShim.class.getResourceAsStream (lib_name));
             Files.copy (link, file.getAbsoluteFile ().toPath ());
+            return file.getAbsoluteFile ().toPath ();
         } catch (Exception io)
         {
-            System.err.println ("native library: " + lib_name + " is not found in jar file");
+            System.err.println ("file: " + lib_name + " is not found in jar file");
+            return null;
         }
     }
 
