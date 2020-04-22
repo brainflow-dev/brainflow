@@ -23,18 +23,18 @@ Ganglion::Ganglion (struct BrainFlowInputParams params) : Board ((int)GANGLION_B
     Ganglion::num_objects++;
     if (Ganglion::num_objects > 1)
     {
-        this->is_valid = false;
+        is_valid = false;
     }
     else
     {
-        this->is_valid = true;
+        is_valid = true;
     }
-    this->use_mac_addr = (params.mac_address.empty ()) ? false : true;
-    this->is_streaming = false;
-    this->keep_alive = false;
-    this->initialized = false;
-    this->num_channels = 8;
-    this->state = SYNC_TIMEOUT_ERROR;
+    use_mac_addr = (params.mac_address.empty ()) ? false : true;
+    is_streaming = false;
+    keep_alive = false;
+    initialized = false;
+    num_channels = 8;
+    state = SYNC_TIMEOUT_ERROR;
 }
 
 Ganglion::~Ganglion ()
@@ -52,38 +52,38 @@ int Ganglion::prepare_session ()
         return STATUS_OK;
     }
 
-    if (!this->is_valid)
+    if (!is_valid)
     {
         safe_logger (spdlog::level::info, "only one ganglion per process is supported");
         return ANOTHER_BOARD_IS_CREATED_ERROR;
     }
 
-    if (this->params.serial_port.empty ())
+    if (params.serial_port.empty ())
     {
         safe_logger (spdlog::level::err, "you need to specify dongle port");
         return INVALID_ARGUMENTS_ERROR;
     }
 
-    int res = this->call_init ();
+    int res = call_init ();
     if (res != STATUS_OK)
     {
         return res;
     }
     safe_logger (spdlog::level::debug, "ganglionlib initialized");
 
-    res = this->call_open ();
+    res = call_open ();
     if (res != STATUS_OK)
     {
         return res;
     }
 
-    this->initialized = true;
+    initialized = true;
     return STATUS_OK;
 }
 
 int Ganglion::start_stream (int buffer_size, char *streamer_params)
 {
-    if (this->is_streaming)
+    if (is_streaming)
     {
         safe_logger (spdlog::level::err, "Streaming thread already running");
         return STREAM_ALREADY_RUN_ERROR;
@@ -94,15 +94,15 @@ int Ganglion::start_stream (int buffer_size, char *streamer_params)
         return INVALID_BUFFER_SIZE_ERROR;
     }
 
-    if (this->db)
+    if (db)
     {
-        delete this->db;
-        this->db = NULL;
+        delete db;
+        db = NULL;
     }
-    if (this->streamer)
+    if (streamer)
     {
-        delete this->streamer;
-        this->streamer = NULL;
+        delete streamer;
+        streamer = NULL;
     }
 
     int res = prepare_streamer (streamer_params);
@@ -110,8 +110,8 @@ int Ganglion::start_stream (int buffer_size, char *streamer_params)
     {
         return res;
     }
-    this->db = new DataBuffer (num_channels, buffer_size);
-    if (!this->db->is_ready ())
+    db = new DataBuffer (num_channels, buffer_size);
+    if (!db->is_ready ())
     {
         Board::board_logger->error ("unable to prepare buffer with size {}", buffer_size);
         delete db;
@@ -119,51 +119,51 @@ int Ganglion::start_stream (int buffer_size, char *streamer_params)
         return INVALID_BUFFER_SIZE_ERROR;
     }
 
-    return this->start_streaming_prepared ();
+    return start_streaming_prepared ();
 }
 
 int Ganglion::start_streaming_prepared ()
 {
-    int res = this->call_start ();
+    int res = call_start ();
     if (res != STATUS_OK)
     {
         return res;
     }
 
-    this->keep_alive = true;
-    this->streaming_thread = std::thread ([this] { this->read_thread (); });
+    keep_alive = true;
+    streaming_thread = std::thread ([this] { read_thread (); });
 
     // wait for data to ensure that everything is okay
-    std::unique_lock<std::mutex> lk (this->m);
+    std::unique_lock<std::mutex> lk (m);
     auto sec = std::chrono::seconds (1);
-    if (cv.wait_for (lk, 20 * sec, [this] { return this->state != SYNC_TIMEOUT_ERROR; }))
+    if (cv.wait_for (lk, 20 * sec, [this] { return state != SYNC_TIMEOUT_ERROR; }))
     {
-        this->is_streaming = true;
-        return this->state;
+        is_streaming = true;
+        return state;
     }
     else
     {
         safe_logger (spdlog::level::err, "no data received in 20sec, stopping thread");
-        this->is_streaming = true;
-        this->stop_stream ();
+        is_streaming = true;
+        stop_stream ();
         return SYNC_TIMEOUT_ERROR;
     }
 }
 
 int Ganglion::stop_stream ()
 {
-    if (this->is_streaming)
+    if (is_streaming)
     {
-        this->keep_alive = false;
-        this->is_streaming = false;
-        this->streaming_thread.join ();
-        if (this->streamer)
+        keep_alive = false;
+        is_streaming = false;
+        streaming_thread.join ();
+        if (streamer)
         {
-            delete this->streamer;
-            this->streamer = NULL;
+            delete streamer;
+            streamer = NULL;
         }
-        this->state = SYNC_TIMEOUT_ERROR;
-        return this->call_stop ();
+        state = SYNC_TIMEOUT_ERROR;
+        return call_stop ();
     }
     else
     {
@@ -173,13 +173,13 @@ int Ganglion::stop_stream ()
 
 int Ganglion::release_session ()
 {
-    if (this->initialized)
+    if (initialized)
     {
-        this->stop_stream ();
-        this->initialized = false;
+        stop_stream ();
+        initialized = false;
     }
-    this->call_close ();
-    this->call_release ();
+    call_close ();
+    call_release ();
     return STATUS_OK;
 }
 
@@ -194,19 +194,19 @@ void Ganglion::read_thread ()
     double accel_y = 0.;
     double accel_z = 0.;
 
-    while (this->keep_alive)
+    while (keep_alive)
     {
         struct GanglionLib::GanglionData data;
         int res = GanglionLib::get_data ((void *)&data);
         if (res == (int)GanglionLib::CustomExitCodes::STATUS_OK)
         {
-            if (this->state != STATUS_OK)
+            if (state != STATUS_OK)
             {
                 {
-                    std::lock_guard<std::mutex> lk (this->m);
-                    this->state = STATUS_OK;
+                    std::lock_guard<std::mutex> lk (m);
+                    state = STATUS_OK;
                 }
-                this->cv.notify_one ();
+                cv.notify_one ();
                 safe_logger (spdlog::level::debug, "start streaming");
             }
 
@@ -237,15 +237,15 @@ void Ganglion::read_thread ()
 
                 // scale new packet and insert into result
                 package[0] = 0.;
-                package[1] = this->eeg_scale * last_data[4];
-                package[2] = this->eeg_scale * last_data[5];
-                package[3] = this->eeg_scale * last_data[6];
-                package[4] = this->eeg_scale * last_data[7];
+                package[1] = eeg_scale * last_data[4];
+                package[2] = eeg_scale * last_data[5];
+                package[3] = eeg_scale * last_data[6];
+                package[4] = eeg_scale * last_data[7];
                 package[5] = accel_x;
                 package[6] = accel_y;
                 package[7] = accel_z;
-                this->streamer->stream_data (package, 8, data.timestamp);
-                this->db->add_data (data.timestamp, package);
+                streamer->stream_data (package, 8, data.timestamp);
+                db->add_data (data.timestamp, package);
                 continue;
             }
             // 18 bit compression, sends delta from previous value instead of real value!
@@ -255,13 +255,13 @@ void Ganglion::read_thread ()
                 switch (last_digit)
                 {
                     case 0:
-                        accel_x = this->accel_scale * data.data[19];
+                        accel_x = accel_scale * data.data[19];
                         break;
                     case 1:
-                        accel_y = this->accel_scale * data.data[19];
+                        accel_y = accel_scale * data.data[19];
                         break;
                     case 2:
-                        accel_z = this->accel_scale * data.data[19];
+                        accel_z = accel_scale * data.data[19];
                         break;
                     default:
                         break;
@@ -305,26 +305,26 @@ void Ganglion::read_thread ()
 
             // add first encoded package
             package[0] = data.data[0];
-            package[1] = this->eeg_scale * last_data[0];
-            package[2] = this->eeg_scale * last_data[1];
-            package[3] = this->eeg_scale * last_data[2];
-            package[4] = this->eeg_scale * last_data[3];
+            package[1] = eeg_scale * last_data[0];
+            package[2] = eeg_scale * last_data[1];
+            package[3] = eeg_scale * last_data[2];
+            package[4] = eeg_scale * last_data[3];
             package[5] = accel_x;
             package[6] = accel_y;
             package[7] = accel_z;
-            this->streamer->stream_data (package, 8, data.timestamp);
-            this->db->add_data (data.timestamp, package);
+            streamer->stream_data (package, 8, data.timestamp);
+            db->add_data (data.timestamp, package);
             // add second package
-            package[1] = this->eeg_scale * last_data[4];
-            package[2] = this->eeg_scale * last_data[5];
-            package[3] = this->eeg_scale * last_data[6];
-            package[4] = this->eeg_scale * last_data[7];
-            this->streamer->stream_data (package, 8, data.timestamp);
-            this->db->add_data (data.timestamp, package);
+            package[1] = eeg_scale * last_data[4];
+            package[2] = eeg_scale * last_data[5];
+            package[3] = eeg_scale * last_data[6];
+            package[4] = eeg_scale * last_data[7];
+            streamer->stream_data (package, 8, data.timestamp);
+            db->add_data (data.timestamp, package);
         }
         else
         {
-            if (this->state == SYNC_TIMEOUT_ERROR)
+            if (state == SYNC_TIMEOUT_ERROR)
             {
                 num_attempts++;
             }
@@ -332,10 +332,10 @@ void Ganglion::read_thread ()
             {
                 safe_logger (spdlog::level::err, "no data received");
                 {
-                    std::lock_guard<std::mutex> lk (this->m);
-                    this->state = GENERAL_ERROR;
+                    std::lock_guard<std::mutex> lk (m);
+                    state = GENERAL_ERROR;
                 }
-                this->cv.notify_one ();
+                cv.notify_one ();
                 return;
             }
 #ifdef _WIN32
@@ -357,15 +357,15 @@ int Ganglion::config_board (char *config)
     }
     // need to pause, config and restart. I have no idea why it doesnt work if I restart it inside
     // bglib or just call call_stop call_start, full restart solves the issue
-    if (this->keep_alive)
+    if (keep_alive)
     {
         safe_logger (spdlog::level::info, "stoping streaming to configure board");
         // stop stream
-        this->keep_alive = false;
-        this->is_streaming = false;
-        this->streaming_thread.join ();
-        this->state = SYNC_TIMEOUT_ERROR;
-        int res = this->call_stop ();
+        keep_alive = false;
+        is_streaming = false;
+        streaming_thread.join ();
+        state = SYNC_TIMEOUT_ERROR;
+        int res = call_stop ();
         if (res != STATUS_OK)
         {
             return res;
@@ -376,11 +376,11 @@ int Ganglion::config_board (char *config)
         {
             return res;
         }
-        return this->start_streaming_prepared ();
+        return start_streaming_prepared ();
     }
     else
     {
-        return this->call_config (config);
+        return call_config (config);
     }
 }
 
@@ -412,9 +412,9 @@ int Ganglion::call_init ()
 int Ganglion::call_open ()
 {
     int res = GanglionLib::CustomExitCodes::GENERAL_ERROR;
-    if (this->use_mac_addr)
+    if (use_mac_addr)
     {
-        safe_logger (spdlog::level::info, "search for {}", this->params.mac_address.c_str ());
+        safe_logger (spdlog::level::info, "search for {}", params.mac_address.c_str ());
         res =
             GanglionLib::open_ganglion_mac_addr (const_cast<char *> (params.mac_address.c_str ()));
     }

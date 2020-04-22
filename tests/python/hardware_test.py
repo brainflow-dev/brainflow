@@ -95,8 +95,8 @@ def main ():
             
             timestamp_array = data[timestamp_channel]
             time_diff_array = list ()
-            for i in range (0, timestamp_array.size - 1):
-                time_diff_array.append (timestamp_array[i + 1] - timestamp_array[i])
+            for j in range (0, timestamp_array.size - 1):
+                time_diff_array.append (timestamp_array[j + 1] - timestamp_array[j])
 
 
             package_num_array = data[package_num_channel]
@@ -134,9 +134,9 @@ def main ():
                 for ch in emg_channels:
                     if ch not in temp_channels:
                         temp_channels.append (ch)
-                for i in range (len (temp_channels)):
-                    if i in selected_channels:
-                        total_channels.append (temp_channels[i])
+                for j in range (len (temp_channels)):
+                    if j in selected_channels:
+                        total_channels.append (temp_channels[j])
             else:
                 # for cyton/ganglion eeg_channels and emg_channels are the same array because we can not split it
                 # for novaxr its 2 different arrays, join them
@@ -147,8 +147,8 @@ def main ():
             total_channels.append (timestamp_channel)
 
             columns = list ()
-            for i in range (len (total_channels) - 1):
-                columns.append ('channel_%d' % (int(total_channels[i]) - 1))
+            for j in range (len (total_channels) - 1):
+                columns.append ('channel_%d' % (int(total_channels[j]) - 1))
             columns.append ('timestamp')
 
             df = pd.DataFrame (np.transpose (data))
