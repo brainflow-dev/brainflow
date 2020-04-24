@@ -10,7 +10,7 @@ We use [Slack workspace](https://openbraintalk.slack.com/) to answer question ab
 
 ## Github Issues
 
-If you want to report a bug, feel free to create issues at [BrainFlow's Github Page](https://github.com/Andrey1994/brainflow/issues)
+If you want to report a bug, feel free to create issues at [BrainFlow's Github Page](https://github.com/brainflow-dev/brainflow/issues)
 
 ## Author's contact information
 
