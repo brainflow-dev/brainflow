@@ -34,7 +34,7 @@ Compiled with:
 
 *Windows(AppVeyour)*:
 
-[![Build status](https://ci.appveyor.com/api/projects/status/4gr8uy65f86eh2b5/branch/master?svg=true)](https://ci.appveyor.com/project/brainflow-dev/brainflow/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/nk6c8q4mcrfo9xgm/branch/master?svg=true)](https://ci.appveyor.com/project/Andrey1994/brainflow/branch/master)
 
 ## Brainflow Bindings
 We support bindings for:
