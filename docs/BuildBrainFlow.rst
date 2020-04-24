@@ -48,7 +48,7 @@ R binding is based on `reticulate <https://rstudio.github.io/reticulate/>`_ pack
 Java
 -----
 
-You are able to download jar files directly from `release page <https://github.com/Andrey1994/brainflow/releases>`_
+You are able to download jar files directly from `release page <https://github.com/brainflow-dev/brainflow/releases>`_
 
 .. compound::
 
