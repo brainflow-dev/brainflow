@@ -67,9 +67,10 @@ void GanglionWifi::read_thread ()
             if (b[32 + offset] == END_BYTE_STANDARD)
             {
                 // accel
-                package[5] = accel_scale * cast_16bit_to_int32 (b + 26 + offset);
-                package[6] = accel_scale * cast_16bit_to_int32 (b + 28 + offset);
-                package[7] = accel_scale * cast_16bit_to_int32 (b + 30 + offset);
+                // mistake in firmware in axis
+                package[5] = accel_scale * cast_16bit_to_int32 (b + 28 + offset);
+                package[6] = accel_scale * cast_16bit_to_int32 (b + 26 + offset);
+                package[7] = -accel_scale * cast_16bit_to_int32 (b + 30 + offset);
             }
             // place analog data
             if (b[32 + offset] == END_BYTE_ANALOG)

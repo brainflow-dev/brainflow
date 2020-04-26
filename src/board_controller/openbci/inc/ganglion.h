@@ -17,7 +17,7 @@ private:
 
     bool is_valid;
 
-    float const accel_scale = 0.032f;
+    float const accel_scale = 0.016f;
     float const eeg_scale = (1.2f * 1000000) / (8388607.0f * 1.5f * 51.0f);
 
     volatile bool keep_alive;
