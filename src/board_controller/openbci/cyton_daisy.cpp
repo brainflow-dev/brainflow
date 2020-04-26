@@ -30,6 +30,7 @@ void CytonDaisy::read_thread ()
     unsigned char b[32];
     double package[30] = {0.};
     bool first_sample = false;
+    double accel[3] = {0.};
     while (keep_alive)
     {
         // check start byte
@@ -107,15 +108,25 @@ void CytonDaisy::read_thread ()
         // place processed accel data
         if (b[31] == END_BYTE_STANDARD)
         {
+            int32_t accel_temp[3] = {0};
+            accel_temp[0] = cast_16bit_to_int32 (b + 25);
+            accel_temp[1] = cast_16bit_to_int32 (b + 27);
+            accel_temp[2] = cast_16bit_to_int32 (b + 29);
+
             if ((b[0] % 2 == 0) && (first_sample))
             {
                 // need to average accel data
-                package[17] += accel_scale * cast_16bit_to_int32 (b + 25);
-                package[18] += accel_scale * cast_16bit_to_int32 (b + 27);
-                package[19] += accel_scale * cast_16bit_to_int32 (b + 29);
-                package[17] /= 2.0f;
-                package[18] /= 2.0f;
-                package[19] /= 2.0f;
+                if (accel_temp[0] != 0)
+                {
+                    accel[0] += accel_scale * accel_temp[0];
+                    accel[1] += accel_scale * accel_temp[1];
+                    accel[2] += accel_scale * accel_temp[2];
+
+                    accel[0] /= 2.f;
+                    accel[1] /= 2.f;
+                    accel[2] /= 2.f;
+                }
+
                 package[20] = (double)b[31];
             }
             else
@@ -123,10 +134,17 @@ void CytonDaisy::read_thread ()
                 first_sample = true;
                 package[0] = (double)b[0];
                 // accel
-                package[17] = accel_scale * cast_16bit_to_int32 (b + 25);
-                package[18] = accel_scale * cast_16bit_to_int32 (b + 27);
-                package[19] = accel_scale * cast_16bit_to_int32 (b + 29);
+                if (accel_temp[0] != 0)
+                {
+                    accel[0] = accel_scale * accel_temp[0];
+                    accel[1] = accel_scale * accel_temp[1];
+                    accel[2] = accel_scale * accel_temp[2];
+                }
             }
+
+            package[17] = accel[0];
+            package[18] = accel[1];
+            package[19] = accel[2];
         }
         // place processed analog data
         if (b[31] == END_BYTE_ANALOG)

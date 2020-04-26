@@ -28,6 +28,7 @@ void CytonDaisyWifi::read_thread ()
     */
     int res;
     unsigned char b[OpenBCIWifiShieldBoard::transaction_size];
+    double accel[3] = {0.};
     while (keep_alive)
     {
         res = server_socket->recv (b, OpenBCIWifiShieldBoard::transaction_size);
@@ -98,26 +99,44 @@ void CytonDaisyWifi::read_thread ()
             // place processed accel data
             if (bytes[31 + offset] == END_BYTE_STANDARD)
             {
+                int32_t accel_temp[3] = {0};
+                accel_temp[0] = cast_16bit_to_int32 (bytes + 25 + offset);
+                accel_temp[1] = cast_16bit_to_int32 (bytes + 27 + offset);
+                accel_temp[2] = cast_16bit_to_int32 (bytes + 29 + offset);
+
                 if ((bytes[0 + offset] % 2 == 0) && (first_sample))
                 {
                     // need to average accel data
-                    package[17] += accel_scale * cast_16bit_to_int32 (bytes + 25 + offset);
-                    package[18] += accel_scale * cast_16bit_to_int32 (bytes + 27 + offset);
-                    package[19] += accel_scale * cast_16bit_to_int32 (bytes + 29 + offset);
-                    package[17] /= 2.0f;
-                    package[18] /= 2.0f;
-                    package[19] /= 2.0f;
+                    if (accel_temp[0] != 0)
+                    {
+                        accel[0] += accel_scale * accel_temp[0];
+                        accel[1] += accel_scale * accel_temp[1];
+                        accel[2] += accel_scale * accel_temp[2];
+
+                        accel[0] /= 2.f;
+                        accel[1] /= 2.f;
+                        accel[2] /= 2.f;
+                    }
+
                     package[20] = (double)bytes[31 + offset];
                 }
                 else
                 {
                     first_sample = true;
                     package[0] = (double)bytes[0 + offset];
+
                     // accel
-                    package[17] = accel_scale * cast_16bit_to_int32 (bytes + 25 + offset);
-                    package[18] = accel_scale * cast_16bit_to_int32 (bytes + 27 + offset);
-                    package[19] = accel_scale * cast_16bit_to_int32 (bytes + 29 + offset);
+                    if (accel_temp[0] != 0)
+                    {
+                        accel[0] = accel_scale * accel_temp[0];
+                        accel[1] = accel_scale * accel_temp[1];
+                        accel[2] = accel_scale * accel_temp[2];
+                    }
                 }
+
+                package[17] = accel[0];
+                package[18] = accel[1];
+                package[19] = accel[2];
             }
             // place processed analog data
             if (bytes[31 + offset] == END_BYTE_ANALOG)

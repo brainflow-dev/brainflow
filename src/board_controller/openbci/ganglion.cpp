@@ -254,14 +254,16 @@ void Ganglion::read_thread ()
                 int last_digit = data.data[0] % 10;
                 switch (last_digit)
                 {
+                    // accel data is signed, so we must cast it to signed char
+                    // due to a known bug in ganglion firmware, we must swap x and z, and invert z.
                     case 0:
-                        accel_x = accel_scale * data.data[19];
+                        accel_z = -accel_scale * (char)data.data[19];
                         break;
                     case 1:
-                        accel_y = accel_scale * data.data[19];
+                        accel_y = accel_scale * (char)data.data[19];
                         break;
                     case 2:
-                        accel_z = accel_scale * data.data[19];
+                        accel_x = accel_scale * (char)data.data[19];
                         break;
                     default:
                         break;
