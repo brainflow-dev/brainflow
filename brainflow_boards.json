@@ -12,7 +12,6 @@
 			"emg_channels" : [1, 2, 3, 4, 5, 6, 7, 8],
 			"ecg_channels" : [1, 2, 3, 4, 5, 6, 7, 8],
 			"eog_channels" : [1, 2, 3, 4, 5, 6, 7, 8],
-			"eda_channels" : [1, 2, 3, 4, 5, 6, 7, 8],
 			"accel_channels" : [9, 10, 11],
 			"gyro_channels" : [12, 13, 14],
 			"eda_channels" : [15],
@@ -29,7 +28,6 @@
 			"emg_channels" : [1, 2, 3, 4, 5, 6, 7, 8],
 			"ecg_channels" : [1, 2, 3, 4, 5, 6, 7, 8],
 			"eog_channels" : [1, 2, 3, 4, 5, 6, 7, 8],
-			"eda_channels" : [1, 2, 3, 4, 5, 6, 7, 8],
 			"accel_channels" : [9, 10, 11],
 			"analog_channels" : [19, 20, 21],
 			"other_channels": [12, 13, 14, 15, 16, 17, 18]
@@ -44,7 +42,6 @@
 			"emg_channels" : [1, 2, 3, 4],
 			"ecg_channels" : [1, 2, 3, 4],
 			"eog_channels" : [1, 2, 3, 4],
-			"eda_channels" : [1, 2, 3, 4],
 			"accel_channels" : [5, 6, 7]
 		},
 		"2" : {
@@ -57,7 +54,6 @@
 			"emg_channels" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
 			"ecg_channels" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
 			"eog_channels" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
-			"eda_channels" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
 			"accel_channels" : [17, 18, 19],
 			"analog_channels" : [27, 28, 29],
 			"other_channels": [20, 21, 22, 23, 24, 25, 26]
@@ -85,7 +81,6 @@
 			"emg_channels" : [1, 2, 3, 4],
 			"ecg_channels" : [1, 2, 3, 4],
 			"eog_channels" : [1, 2, 3, 4],
-			"eda_channels" : [1, 2, 3, 4],
 			"accel_channels" : [5, 6, 7],
 			"analog_channels" : [15, 16, 17],
 			"other_channels": [8, 9, 10, 11, 12, 13, 14]
@@ -100,7 +95,6 @@
 			"emg_channels" : [1, 2, 3, 4, 5, 6, 7, 8],
 			"ecg_channels" : [1, 2, 3, 4, 5, 6, 7, 8],
 			"eog_channels" : [1, 2, 3, 4, 5, 6, 7, 8],
-			"eda_channels" : [1, 2, 3, 4, 5, 6, 7, 8],
 			"accel_channels" : [9, 10, 11],
 			"analog_channels" : [19, 20, 21],
 			"other_channels": [12, 13, 14, 15, 16, 17, 18]
@@ -115,7 +109,6 @@
 			"emg_channels" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
 			"ecg_channels" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
 			"eog_channels" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
-			"eda_channels" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
 			"accel_channels" : [17, 18, 19],
 			"analog_channels" : [27, 28, 29],
 			"other_channels": [20, 21, 22, 23, 24, 25, 26]
