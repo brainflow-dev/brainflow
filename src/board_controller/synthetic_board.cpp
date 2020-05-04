@@ -165,7 +165,9 @@ void SyntheticBoard::read_thread ()
     }
 
     double package[SyntheticBoard::package_size] = {0.0};
-    int num_exg_channels = 8;
+    int num_exg_channels = 16;
+
+    bool positive_square = true;
 
     while (keep_alive)
     {
@@ -173,27 +175,47 @@ void SyntheticBoard::read_thread ()
         // synthetic board via json but I dont see many use cases for it and after all
         // brainflow_boards.json is implementation detail
         package[0] = (double)counter;
+        if ((counter % 51 == 0) && (counter != 255))
+        {
+            positive_square = !positive_square;
+        }
         // exg
         for (int i = 0; i < num_exg_channels; i++)
         {
-            package[i + 1] = base_wave[counter] + dist (mt);
+            // for first half use sin wave
+            if (i < (num_exg_channels / 2))
+            {
+                package[i + 1] = base_wave[counter] + dist (mt);
+            }
+            // for second half use square wave
+            else
+            {
+                if (positive_square)
+                {
+                    package[i + 1] = amplitude / 2;
+                }
+                else
+                {
+                    package[i + 1] = -amplitude / 2;
+                }
+            }
         }
         // accel
-        package[9] = counter / 255.0;
-        package[10] = counter / 255.0;
-        package[11] = counter / 255.0;
+        package[17] = counter / 255.0;
+        package[18] = counter / 255.0;
+        package[19] = counter / 255.0;
         // gyro
-        package[12] = 1.0 - counter / 255.0;
-        package[13] = 1.0 - counter / 255.0;
-        package[14] = 1.0 - counter / 255.0;
+        package[20] = 1.0 - counter / 255.0;
+        package[21] = 1.0 - counter / 255.0;
+        package[22] = 1.0 - counter / 255.0;
         // eda
-        package[15] = amplitude + dist (mt);
+        package[23] = amplitude + dist (mt);
         // ppg
-        package[16] = 70 + counter / 5.0;
+        package[24] = 70 + counter / 5.0;
         // temperature
-        package[17] = 36 + counter / 200.0;
+        package[25] = 36 + counter / 200.0;
         // battery
-        package[18] = 100 - counter / 3.0;
+        package[26] = 100 - counter / 3.0;
 
         double timestamp = get_timestamp ();
         db->add_data (timestamp, package);
