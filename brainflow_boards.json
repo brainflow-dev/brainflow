@@ -8,7 +8,7 @@
 			"timestamp_channel" : 27,
 			"num_rows" : 28,
 			"eeg_channels" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
-			"eeg_names" : "Fz,C3,Cz,C4,Pz,PO7,Oz,PO8",
+			"eeg_names" : "Fz,C3,Cz,C4,Pz,PO7,Oz,PO8,F5,F7,F3,F1,F2,F4,F6,F8",
 			"emg_channels" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
 			"ecg_channels" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
 			"eog_channels" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
