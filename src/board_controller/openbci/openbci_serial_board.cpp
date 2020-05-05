@@ -50,6 +50,15 @@ int OpenBCISerialBoard::config_board (char *config)
     {
         return res;
     }
+    if (is_streaming)
+    {
+        safe_logger (spdlog::level::warn,
+            "You are changing board params during streaming, it may lead to sync mismatch between "
+            "data acquisition thread and device");
+    }
+    safe_logger (spdlog::level::warn,
+        "If you change gain you may need to rescale data, in data returned by BrainFlow we use "
+        "gain 24 to convert int24 to uV");
     return send_to_board (config);
 }
 
