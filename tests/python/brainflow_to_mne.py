@@ -29,8 +29,8 @@ def main():
     eeg_data = eeg_data / 1000000 # BrainFlow returns uV, convert to V for MNE
 
     # Creating MNE objects from brainflow data arrays
-    ch_types = ['eeg', 'eeg', 'eeg', 'eeg', 'eeg', 'eeg', 'eeg', 'eeg']
-    ch_names = ['T7', 'CP5', 'FC5', 'C3', 'C4', 'FC6', 'CP6', 'T8']
+    ch_types = ['eeg'] * len (eeg_channels)
+    ch_names = BoardShim.get_eeg_names (BoardIds.SYNTHETIC_BOARD.value)
     sfreq = BoardShim.get_sampling_rate (BoardIds.SYNTHETIC_BOARD.value)
     info = mne.create_info (ch_names = ch_names, sfreq = sfreq, ch_types = ch_types)
     raw = mne.io.RawArray (eeg_data, info)
