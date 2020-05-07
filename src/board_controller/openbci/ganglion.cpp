@@ -13,8 +13,6 @@
 #include "ganglion_interface.h"
 #include "openbci_helpers.h"
 
-// sleep is 10 ms, so wait for 2.5sec total
-#define MAX_ATTEMPTS_TO_GET_DATA 250
 
 int Ganglion::num_objects = 0;
 
@@ -33,8 +31,10 @@ Ganglion::Ganglion (struct BrainFlowInputParams params) : Board ((int)GANGLION_B
     is_streaming = false;
     keep_alive = false;
     initialized = false;
-    num_channels = 8;
+    num_channels = 13;
     state = SYNC_TIMEOUT_ERROR;
+    start_command = "b";
+    stop_command = "s";
 }
 
 Ganglion::~Ganglion ()
@@ -57,6 +57,18 @@ int Ganglion::prepare_session ()
         safe_logger (spdlog::level::info, "only one ganglion per process is supported");
         return ANOTHER_BOARD_IS_CREATED_ERROR;
     }
+
+    if ((params.timeout < 0) || (params.timeout > 600))
+    {
+        safe_logger (spdlog::level::err, "wrong value for timeout");
+        return INVALID_ARGUMENTS_ERROR;
+    }
+    if (params.timeout == 0)
+    {
+        params.timeout = 15;
+    }
+    safe_logger (spdlog::level::info, "use {} as a timeout for device discovery and for callbacks",
+        params.timeout);
 
     if (params.serial_port.empty ())
     {
@@ -136,14 +148,15 @@ int Ganglion::start_streaming_prepared ()
     // wait for data to ensure that everything is okay
     std::unique_lock<std::mutex> lk (m);
     auto sec = std::chrono::seconds (1);
-    if (cv.wait_for (lk, 20 * sec, [this] { return state != SYNC_TIMEOUT_ERROR; }))
+    if (cv.wait_for (lk, params.timeout * sec, [this] { return state != SYNC_TIMEOUT_ERROR; }))
     {
         is_streaming = true;
         return state;
     }
     else
     {
-        safe_logger (spdlog::level::err, "no data received in 20sec, stopping thread");
+        safe_logger (
+            spdlog::level::err, "no data received in {} sec, stopping thread", params.timeout);
         is_streaming = true;
         stop_stream ();
         return SYNC_TIMEOUT_ERROR;
@@ -187,12 +200,22 @@ void Ganglion::read_thread ()
 {
     // https://docs.openbci.com/Hardware/08-Ganglion_Data_Format
     int num_attempts = 0;
+    int sleep_time = 10;
+    int max_attempts = params.timeout * 1000 / sleep_time;
     bool was_reset = false;
     float last_data[8] = {0};
 
     double accel_x = 0.;
     double accel_y = 0.;
     double accel_z = 0.;
+
+    double resist_ref = 0.0;
+    double resist_first = 0.0;
+    double resist_second = 0.0;
+    double resist_third = 0.0;
+    double resist_fourth = 0.0;
+
+    double *package = new double[num_channels];
 
     while (keep_alive)
     {
@@ -210,8 +233,7 @@ void Ganglion::read_thread ()
                 safe_logger (spdlog::level::debug, "start streaming");
             }
 
-            double package[8] = {0.f};
-            // delta holds 8 nums because (4 by each package)
+            // delta holds 8 nums (4 by each package)
             float delta[8] = {0.f};
             int bits_per_num = 0;
             unsigned char package_bits[160] = {0}; // 20 * 8
@@ -244,7 +266,7 @@ void Ganglion::read_thread ()
                 package[5] = accel_x;
                 package[6] = accel_y;
                 package[7] = accel_z;
-                streamer->stream_data (package, 8, data.timestamp);
+                streamer->stream_data (package, num_channels, data.timestamp);
                 db->add_data (data.timestamp, package);
                 continue;
             }
@@ -274,10 +296,49 @@ void Ganglion::read_thread ()
             {
                 bits_per_num = 19;
             }
-            else if (data.data[0] > 200)
+            else if ((data.data[0] > 200) && (data.data[0] < 206))
             {
-                safe_logger (
-                    spdlog::level::warn, "unexpected value {} in first byte", data.data[0]);
+                for (int i = 0; i < 20; i++)
+                {
+                    safe_logger (spdlog::level::warn, "byte {} value {}", i, data.data[i]);
+                }
+                int val = 5; // temp placeholder todo parse
+                switch (data.data[0] % 10)
+                {
+                    case 1:
+                        resist_first = val;
+                        break;
+                    case 2:
+                        resist_second = val;
+                        break;
+                    case 3:
+                        resist_third = val;
+                        break;
+                    case 4:
+                        resist_fourth = val;
+                        break;
+                    case 5:
+                        resist_ref = val;
+                        break;
+                    default:
+                        break;
+                }
+                package[0] = data.data[0];
+                package[8] = resist_first;
+                package[9] = resist_second;
+                package[10] = resist_third;
+                package[11] = resist_fourth;
+                package[12] = resist_ref;
+                streamer->stream_data (package, num_channels, data.timestamp);
+                db->add_data (data.timestamp, package);
+                continue;
+            }
+            else
+            {
+                for (int i = 0; i < 20; i++)
+                {
+                    safe_logger (spdlog::level::warn, "byte {} value {}", i, data.data[i]);
+                }
                 continue;
             }
             // handle compressed data for 18 or 19 bits
@@ -314,14 +375,14 @@ void Ganglion::read_thread ()
             package[5] = accel_x;
             package[6] = accel_y;
             package[7] = accel_z;
-            streamer->stream_data (package, 8, data.timestamp);
+            streamer->stream_data (package, num_channels, data.timestamp);
             db->add_data (data.timestamp, package);
             // add second package
             package[1] = eeg_scale * last_data[4];
             package[2] = eeg_scale * last_data[5];
             package[3] = eeg_scale * last_data[6];
             package[4] = eeg_scale * last_data[7];
-            streamer->stream_data (package, 8, data.timestamp);
+            streamer->stream_data (package, num_channels, data.timestamp);
             db->add_data (data.timestamp, package);
         }
         else
@@ -330,7 +391,7 @@ void Ganglion::read_thread ()
             {
                 num_attempts++;
             }
-            if (num_attempts == MAX_ATTEMPTS_TO_GET_DATA)
+            if (num_attempts == max_attempts)
             {
                 safe_logger (spdlog::level::err, "no data received");
                 {
@@ -341,12 +402,13 @@ void Ganglion::read_thread ()
                 return;
             }
 #ifdef _WIN32
-            Sleep (10);
+            Sleep (sleep_time);
 #else
-            usleep (10000);
+            usleep (sleep_time * 1000);
 #endif
         }
     }
+    delete[] package;
 }
 
 int Ganglion::config_board (char *config)
@@ -372,36 +434,62 @@ int Ganglion::config_board (char *config)
         {
             return res;
         }
-        // call itself with disabled streaming
-        res = config_board (config);
+        /* hack, in ganglion commands to enable/disable impedance check control data streaming
+        to handle it and keep it consistent with other devices we swap chars for command_start and
+        command_stop
+        */
+        if ((strlen (config)) && (config[0] == 'z'))
+        {
+            start_command = "z";
+            stop_command = "Z";
+        }
+        else
+        {
+            if ((strlen (config)) && (config[0] == 'Z'))
+            {
+                start_command = "b";
+                stop_command = "s";
+            }
+            // plain command which doesnt change streaming behaviour
+            else
+            {
+                // call itself with disabled streaming
+                res = config_board (config);
+            }
+        }
         if (res != STATUS_OK)
         {
             return res;
         }
         return start_streaming_prepared ();
     }
+    // streaming is not started, dont pause
     else
     {
-        return call_config (config);
+        if ((strlen (config)) && (config[0] == 'z'))
+        {
+            start_command = "z";
+            stop_command = "Z";
+        }
+        else
+        {
+            if ((strlen (config)) && (config[0] == 'Z'))
+            {
+                start_command = "b";
+                stop_command = "s";
+            }
+            else
+            {
+                return call_config (config);
+            }
+        }
     }
+    return STATUS_OK;
 }
 
 int Ganglion::call_init ()
 {
-    if ((params.timeout < 0) || (params.timeout > 600))
-    {
-        safe_logger (spdlog::level::err, "wrong value for timeout");
-        return INVALID_ARGUMENTS_ERROR;
-    }
-    int timeout = 15;
-    if (params.timeout != 0)
-    {
-        timeout = params.timeout;
-    }
-    safe_logger (
-        spdlog::level::info, "use {} as a timeout for device discovery and for callbacks", timeout);
-
-    struct GanglionLib::GanglionInputData input_data (timeout, params.serial_port.c_str ());
+    struct GanglionLib::GanglionInputData input_data (params.timeout, params.serial_port.c_str ());
     int res = GanglionLib::initialize ((void *)&input_data);
     if (res != (int)GanglionLib::CustomExitCodes::STATUS_OK)
     {
@@ -447,7 +535,8 @@ int Ganglion::call_config (char *config)
 
 int Ganglion::call_start ()
 {
-    int res = GanglionLib::start_stream (NULL);
+    safe_logger (spdlog::level::info, "use command {} to start streaming", start_command.c_str ());
+    int res = GanglionLib::start_stream ((void *)start_command.c_str ());
     if (res != (int)GanglionLib::CustomExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to start streaming {}", res);
@@ -458,7 +547,7 @@ int Ganglion::call_start ()
 
 int Ganglion::call_stop ()
 {
-    int res = GanglionLib::stop_stream (NULL);
+    int res = GanglionLib::stop_stream ((void *)stop_command.c_str ());
     if (res != (int)GanglionLib::CustomExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to stop streaming {}", res);

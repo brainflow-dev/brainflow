@@ -36,13 +36,14 @@
 			"name": "Ganglion",
 			"sampling_rate": 200,
 			"package_num_channel" : 0,
-			"timestamp_channel" : 8,
-			"num_rows" : 9,
+			"timestamp_channel" : 13,
+			"num_rows" : 14,
 			"eeg_channels" : [1, 2, 3, 4],
 			"emg_channels" : [1, 2, 3, 4],
 			"ecg_channels" : [1, 2, 3, 4],
 			"eog_channels" : [1, 2, 3, 4],
-			"accel_channels" : [5, 6, 7]
+			"accel_channels" : [5, 6, 7],
+			"resistance_channels" : [8, 9, 10, 11, 12]
 		},
 		"2" : {
 			"name": "CytonDaisy",
@@ -122,7 +123,7 @@
 			"num_rows" : 11,
 			"eeg_channels" : [1, 2, 3, 4],
 			"eeg_names": "T3,T4,O1,O2",
-			"other_channels": [5, 6, 7, 8]
+			"resistance_channels": [5, 6, 7, 8]
 		},
 		"8" : {
 			"name": "Unicorn",
