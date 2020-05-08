@@ -229,6 +229,7 @@ int NovaXR::release_session ()
 
 void NovaXR::read_thread ()
 {
+    // eeg and emg channels were switch this format needs to be updated
     /* ------ NovaXR packet format --------
      * Packet Byte [0]:     Packet Number
      * Packet Byte [1:2]:   PPG
@@ -309,11 +310,18 @@ void NovaXR::read_thread ()
             // package num
             package[0] = (double)b[0 + offset];
             // eeg and emg
-            for (int i = 4; i < 20; i++)
+            for (int i = 4, tmp_counter = 0; i < 20; i++, tmp_counter++)
             {
                 // put them directly after package num in brainflow
-                package[i - 3] =
-                    eeg_scale * (double)cast_24bit_to_int32 (b + offset + 5 + 3 * (i - 4));
+                if (tmp_counter < 8)
+                    package[i - 3] = eeg_scale_main_board *
+                        (double)cast_24bit_to_int32 (b + offset + 5 + 3 * (i - 4));
+                else if (tmp_counter < 14)
+                    package[i - 3] =
+                        emg_scale * (double)cast_24bit_to_int32 (b + offset + 5 + 3 * (i - 4));
+                else
+                    package[i - 3] = eeg_scale_sister_board *
+                        (double)cast_24bit_to_int32 (b + offset + 5 + 3 * (i - 4));
             }
             int16_t temperature;
             int16_t ppg;
