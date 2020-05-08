@@ -118,6 +118,8 @@ namespace brainflow
         public static extern int is_prepared(int[] prepared, int board_id, string input_json);
         [DllImport("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_eeg_names(int board_id, byte[] eeg_names, int[] len);
+        [DllImport("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_resistance_channels(int board_id, int[] channels, int[] len);
     }
 
     public static class BoardControllerLibrary32
@@ -180,6 +182,8 @@ namespace brainflow
         public static extern int is_prepared(int[] prepared, int board_id, string input_json);
         [DllImport("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_eeg_names(int board_id, byte[] eeg_names, int[] len);
+        [DllImport("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_resistance_channels(int board_id, int[] channels, int[] len);
     }
 
     public static class BoardControllerLibrary
@@ -414,6 +418,14 @@ namespace brainflow
                 return BoardControllerLibrary64.get_temperature_channels (board_id, channels, len);
             else
                 return BoardControllerLibrary32.get_temperature_channels (board_id, channels, len);
+        }
+
+        public static int get_resistance_channels(int board_id, int[] channels, int[] len)
+        {
+            if (System.Environment.Is64BitProcess)
+                return BoardControllerLibrary64.get_resistance_channels(board_id, channels, len);
+            else
+                return BoardControllerLibrary32.get_resistance_channels(board_id, channels, len);
         }
     }
 }

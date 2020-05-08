@@ -151,6 +151,12 @@ public:
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static int *get_temperature_channels (int board_id, int *len);
+    /**
+     * get row indices which hold resistance data
+     * @param board_id board id of your device
+     * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+     */
+    static int *get_resistance_channels (int board_id, int *len);
 
     int board_id;
 
