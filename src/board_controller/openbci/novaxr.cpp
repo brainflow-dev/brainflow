@@ -54,7 +54,18 @@ int NovaXR::prepare_session ()
     if (res != (int)SocketReturnCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to init socket: {}", res);
+        delete socket;
+        socket = NULL;
         return GENERAL_ERROR;
+    }
+    // force default settings for device
+    res = config_board ("d");
+    if (res != STATUS_OK)
+    {
+        safe_logger (spdlog::level::err, "failed to apply default settings");
+        delete socket;
+        socket = NULL;
+        return BOARD_WRITE_ERROR;
     }
     initialized = true;
     return STATUS_OK;

@@ -9,6 +9,21 @@
 #define END_BYTE_MAX 0xC6
 
 
+// load default settings for cyton boards
+int CytonDaisy::prepare_session ()
+{
+    int res = OpenBCISerialBoard::prepare_session ();
+    if (res != STATUS_OK)
+    {
+        return res;
+    }
+    res = config_board ("d");
+    // cyton sends response back, clean serial buffer
+    unsigned char tmp;
+    while (serial->read_from_serial_port (&tmp, 1) == 1)
+        ;
+}
+
 void CytonDaisy::read_thread ()
 {
     // format is the same as for cyton but need to join two packages together
