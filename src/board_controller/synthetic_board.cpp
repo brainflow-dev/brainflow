@@ -208,8 +208,11 @@ void SyntheticBoard::read_thread ()
         package[24] = 70 + counter / 5.0;
         // temperature
         package[25] = 36 + counter / 200.0;
+        // resistance (add just 2 channels)
+        package[26] = 1000 + counter / 5.0;
+        package[27] = 1000 + counter / 5.0;
         // battery
-        package[26] = 100 - counter / 3.0;
+        package[28] = 100 - counter / 3.0;
 
         double timestamp = get_timestamp ();
         db->add_data (timestamp, package);
