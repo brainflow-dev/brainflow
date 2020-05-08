@@ -353,6 +353,14 @@ class BoardControllerDLL (object):
             ndpointer (ctypes.c_int32)
         ]
 
+        self.get_resistance_channels = self.lib.get_resistance_channels
+        self.get_resistance_channels.restype = ctypes.c_int
+        self.get_resistance_channels.argtypes = [
+            ctypes.c_int,
+            ndpointer (ctypes.c_int32),
+            ndpointer (ctypes.c_int32)
+        ]
+
 
 class BoardShim (object):
     """BoardShim class is a primary interface to all boards
@@ -744,6 +752,25 @@ class BoardShim (object):
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to request info about this board', res)
         result = temperature_channels.tolist () [0:num_channels[0]]
+        return result
+
+    @classmethod
+    def get_resistance_channels (cls, board_id):
+        """get list of resistance channels in resulting data table for a board
+
+        :param board_id: Board Id
+        :type board_id: int
+        :return: list of resistance channels in returned numpy array
+        :rtype: list
+        :raises BrainFlowError: If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+        """
+        num_channels = numpy.zeros (1).astype (numpy.int32)
+        resistance_channels = numpy.zeros (512).astype (numpy.int32)
+
+        res = BoardControllerDLL.get_instance ().get_resistance_channels (board_id, resistance_channels, num_channels)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to request info about this board', res)
+        result = resistance_channels.tolist () [0:num_channels[0]]
         return result
 
     def prepare_session (self):

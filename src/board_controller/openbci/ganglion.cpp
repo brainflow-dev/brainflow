@@ -16,6 +16,7 @@
 
 int Ganglion::num_objects = 0;
 
+
 Ganglion::Ganglion (struct BrainFlowInputParams params) : Board ((int)GANGLION_BOARD, params)
 {
     Ganglion::num_objects++;
@@ -298,11 +299,28 @@ void Ganglion::read_thread ()
             }
             else if ((data.data[0] > 200) && (data.data[0] < 206))
             {
-                for (int i = 0; i < 20; i++)
+                // asci sting with value and 'Z' in the end
+                int val = 0;
+                int i = 0;
+                for (i = 1; i < 6; i++)
                 {
-                    safe_logger (spdlog::level::warn, "byte {} value {}", i, data.data[i]);
+                    if (data.data[i] == 'Z')
+                    {
+                        break;
+                    }
                 }
-                int val = 5; // temp placeholder todo parse
+                std::string asci_value ((const char *)(data.data + 1), i - 1);
+
+                try
+                {
+                    val = std::stoi (asci_value);
+                }
+                catch (...)
+                {
+                    safe_logger (spdlog::level::err, "failed to parse impedance data: {}",
+                        asci_value.c_str ());
+                }
+
                 switch (data.data[0] % 10)
                 {
                     case 1:

@@ -398,6 +398,29 @@ namespace brainflow
         }
 
         /// <summary>
+        /// get resistance channels for this board
+        /// </summary>
+        /// <param name="board_id"></param>
+        /// <returns>array of row nums</returns>
+        /// <exception cref="BrainFlowException">If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR</exception>
+        public static int[] get_resistance_channels(int board_id)
+        {
+            int[] len = new int[1];
+            int[] channels = new int[512];
+            int res = BoardControllerLibrary.get_resistance_channels(board_id, channels, len);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException(res);
+            }
+            int[] result = new int[len[0]];
+            for (int i = 0; i < len[0]; i++)
+            {
+                result[i] = channels[i];
+            }
+            return result;
+        }
+
+        /// <summary>
         /// set log level, logger is disabled by default
         /// </summary>
         /// <param name="log_level"></param>

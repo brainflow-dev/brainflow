@@ -108,6 +108,11 @@ int get_temperature_channels (int board_id, int *temperature_channels, int *len)
     return get_array_value (board_id, "temperature_channels", temperature_channels, len);
 }
 
+int get_resistance_channels (int board_id, int *resistance_channels, int *len)
+{
+    return get_array_value (board_id, "resistance_channels", resistance_channels, len);
+}
+
 inline std::string get_json_config ()
 {
     char lib_dir[1024];
