@@ -8,6 +8,22 @@
 #define END_BYTE_ANALOG 0xC1
 #define END_BYTE_MAX 0xC6
 
+
+// load default settings for cyton boards
+int Cyton::prepare_session ()
+{
+    int res = OpenBCISerialBoard::prepare_session ();
+    if (res != STATUS_OK)
+    {
+        return res;
+    }
+    res = config_board ("d");
+    // cyton sends response back, clean serial buffer
+    unsigned char tmp;
+    while (serial->read_from_serial_port (&tmp, 1) == 1)
+        ;
+}
+
 void Cyton::read_thread ()
 {
     /*

@@ -31,11 +31,11 @@ public:
     OpenBCIWifiShieldBoard (int num_channels, struct BrainFlowInputParams params, int board_id);
     virtual ~OpenBCIWifiShieldBoard ();
 
-    int prepare_session ();
-    int start_stream (int buffer_size, char *streamer_params);
-    int stop_stream ();
-    int release_session ();
-    int config_board (char *config);
+    virtual int prepare_session ();
+    virtual int start_stream (int buffer_size, char *streamer_params);
+    virtual int stop_stream ();
+    virtual int release_session ();
+    virtual int config_board (char *config);
 
     static constexpr int package_size = 33;
     static constexpr int num_packages_per_transaction =

@@ -16,8 +16,9 @@ protected:
     void read_thread ();
 
 public:
-    // package num, 8 eeg channels, 3 accel channels
     Cyton (struct BrainFlowInputParams params) : OpenBCISerialBoard (22, params, (int)CYTON_BOARD)
     {
     }
+
+    int prepare_session ();
 };

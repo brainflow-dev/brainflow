@@ -9,6 +9,17 @@
 #define END_BYTE_MAX 0xC6
 
 
+// load default settings for cyton boards
+int CytonDaisyWifi::prepare_session ()
+{
+    int res = OpenBCIWifiShieldBoard::prepare_session ();
+    if (res != STATUS_OK)
+    {
+        return res;
+    }
+    return config_board ("d");
+}
+
 void CytonDaisyWifi::read_thread ()
 {
     // format is the same as for cyton but need to join two packages together
