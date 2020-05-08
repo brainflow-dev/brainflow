@@ -73,6 +73,8 @@ public class BoardShim
 
         int get_other_channels (int board_id, int[] other_channels, int[] len);
 
+        int get_resistance_channels (int board_id, int[] channels, int[] len);
+
         int get_temperature_channels (int board_id, int[] temperature_channels, int[] len);
 
         int is_prepared (int[] prepared, int board_id, String params);
@@ -334,6 +336,23 @@ public class BoardShim
         int[] len = new int[1];
         int[] channels = new int[512];
         int ec = instance.get_temperature_channels (board_id, channels, len);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in board info getter", ec);
+        }
+
+        return Arrays.copyOfRange (channels, 0, len[0]);
+    }
+
+    /**
+     * get row indices in returned by get_board_data() 2d array which contains
+     * resistance data
+     */
+    public static int[] get_resistance_channels (int board_id) throws BrainFlowError
+    {
+        int[] len = new int[1];
+        int[] channels = new int[512];
+        int ec = instance.get_resistance_channels (board_id, channels, len);
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in board info getter", ec);

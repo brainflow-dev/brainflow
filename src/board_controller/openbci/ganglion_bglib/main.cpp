@@ -138,8 +138,6 @@ namespace GanglionLib
             read_characteristic_thread.join ();
         }
         exit_code = (int)CustomExitCodes::SYNC_ERROR;
-        char *config = (char *)param;
-        int len = strlen (config);
         state = State::CONFIG_CALLED;
         if (!ganglion_handle_send)
         {
@@ -150,7 +148,7 @@ namespace GanglionLib
             while (!stop_config_thread)
             {
                 ble_cmd_attclient_attribute_write (
-                    connection, ganglion_handle_send, 1, (uint8 *)"s");
+                    connection, ganglion_handle_send, 1, (uint8 *)param);
             }
         });
         int res = wait_for_callback (timeout);
@@ -174,7 +172,7 @@ namespace GanglionLib
             should_stop_stream = true;
             read_characteristic_thread.join ();
         }
-        int res = config_board ((char *)"s");
+        int res = config_board ((char *)param);
         while (!data_queue.empty ())
         {
             data_queue.pop ();
@@ -185,7 +183,7 @@ namespace GanglionLib
 
     int start_stream (void *param)
     {
-        int res = config_board ((char *)"b");
+        int res = config_board ((char *)param);
         if (res != (int)CustomExitCodes::STATUS_OK)
         {
             return res;

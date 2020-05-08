@@ -435,3 +435,14 @@ int *BoardShim::get_temperature_channels (int board_id, int *len)
     }
     return temperature_channels;
 }
+
+int *BoardShim::get_resistance_channels (int board_id, int *len)
+{
+    int *resistance_channels = new int[MAX_CHANNELS];
+    int res = ::get_eeg_channels (board_id, resistance_channels, len);
+    if (res != STATUS_OK)
+    {
+        throw BrainFlowException ("failed get board info", res);
+    }
+    return resistance_channels;
+}
