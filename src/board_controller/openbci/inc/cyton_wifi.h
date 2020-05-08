@@ -21,4 +21,6 @@ public:
         : OpenBCIWifiShieldBoard (22, params, (int)CYTON_WIFI_BOARD)
     {
     }
+
+    int prepare_session ();
 };
