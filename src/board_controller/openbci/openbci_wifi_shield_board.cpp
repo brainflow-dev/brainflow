@@ -12,8 +12,6 @@
 
 using json = nlohmann::json;
 
-constexpr int OpenBCIWifiShieldBoard::transaction_size;
-constexpr int OpenBCIWifiShieldBoard::num_packages_per_transaction;
 constexpr int OpenBCIWifiShieldBoard::package_size;
 
 OpenBCIWifiShieldBoard::OpenBCIWifiShieldBoard (
@@ -74,7 +72,7 @@ int OpenBCIWifiShieldBoard::prepare_session ()
 
     server_socket = new SocketServer (local_ip, params.ip_port);
     res = server_socket->bind (
-        OpenBCIWifiShieldBoard::transaction_size); // set min bytes returned by recv
+        OpenBCIWifiShieldBoard::package_size); // set min bytes returned by recv
     if (res != 0)
     {
         safe_logger (spdlog::level::err, "failed to create server socket with addr {} and port {}",

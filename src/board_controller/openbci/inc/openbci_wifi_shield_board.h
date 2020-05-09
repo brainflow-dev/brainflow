@@ -38,8 +38,4 @@ public:
     virtual int config_board (char *config);
 
     static constexpr int package_size = 33;
-    static constexpr int num_packages_per_transaction =
-        6; // should be even for correct parsing in daisy
-    static constexpr int transaction_size =
-        OpenBCIWifiShieldBoard::package_size * OpenBCIWifiShieldBoard::num_packages_per_transaction;
 };
