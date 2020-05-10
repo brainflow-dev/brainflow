@@ -319,6 +319,7 @@ void Ganglion::read_thread ()
                 {
                     safe_logger (spdlog::level::err, "failed to parse impedance data: {}",
                         asci_value.c_str ());
+                    continue;
                 }
 
                 switch (data.data[0] % 10)
