@@ -128,30 +128,26 @@ int GanglionWifi::stop_stream ()
             delete streamer;
             streamer = NULL;
         }
+        // Board fails to receive/handle "Z" almost all the time
+        // workaround - still send 'Z' and send /stream/stop after that, maybe it will work
         if (is_cheking_impedance)
         {
             send_config ("Z");
-            // call above fails often with message "Lost Connection with OpenBCI Board"
-            return STATUS_OK;
         }
-        else
+        std::string url = "http://" + params.ip_address + "/stream/stop";
+        http_t *request = http_get (url.c_str (), NULL);
+        if (!request)
         {
-            std::string url = "http://" + params.ip_address + "/stream/stop";
-            http_t *request = http_get (url.c_str (), NULL);
-            if (!request)
-            {
-                safe_logger (
-                    spdlog::level::err, "error during request creation, to {}", url.c_str ());
-                return GENERAL_ERROR;
-            }
-            int send_res = wait_for_http_resp (request);
-            if (send_res != STATUS_OK)
-            {
-                http_release (request);
-                return send_res;
-            }
-            http_release (request);
+            safe_logger (spdlog::level::err, "error during request creation, to {}", url.c_str ());
+            return GENERAL_ERROR;
         }
+        int send_res = wait_for_http_resp (request);
+        if (send_res != STATUS_OK)
+        {
+            http_release (request);
+            return send_res;
+        }
+        http_release (request);
 
         return STATUS_OK;
     }
@@ -310,7 +306,7 @@ void GanglionWifi::read_thread_impedance ()
         // channel_num starts from 1, first resistance channel is 18
         safe_logger (
             spdlog::level::trace, "resistance value is {}, channel number is {}", val, channel_num);
-        if (!((channel_num > 0) && (channel_num < 5)))
+        if (!((channel_num > 0) && (channel_num < 6)))
         {
             safe_logger (spdlog::level::warn, "channel number is {}", channel_num);
             continue;
