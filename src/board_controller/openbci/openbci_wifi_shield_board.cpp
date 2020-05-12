@@ -12,8 +12,6 @@
 
 using json = nlohmann::json;
 
-constexpr int OpenBCIWifiShieldBoard::transaction_size;
-constexpr int OpenBCIWifiShieldBoard::num_packages_per_transaction;
 constexpr int OpenBCIWifiShieldBoard::package_size;
 
 OpenBCIWifiShieldBoard::OpenBCIWifiShieldBoard (
@@ -74,7 +72,7 @@ int OpenBCIWifiShieldBoard::prepare_session ()
 
     server_socket = new SocketServer (local_ip, params.ip_port);
     res = server_socket->bind (
-        OpenBCIWifiShieldBoard::transaction_size); // set min bytes returned by recv
+        OpenBCIWifiShieldBoard::package_size); // set min bytes returned by recv
     if (res != 0)
     {
         safe_logger (spdlog::level::err, "failed to create server socket with addr {} and port {}",
@@ -168,7 +166,8 @@ int OpenBCIWifiShieldBoard::prepare_session ()
     return STATUS_OK;
 }
 
-int OpenBCIWifiShieldBoard::config_board (char *config)
+
+int OpenBCIWifiShieldBoard::send_config (char *config)
 {
     if (!initialized)
     {
@@ -205,11 +204,14 @@ int OpenBCIWifiShieldBoard::config_board (char *config)
             "You are changing board params during streaming, it may lead to sync mismatch between "
             "data acquisition thread and device");
     }
-    safe_logger (spdlog::level::warn,
-        "If you change gain you may need to rescale EXG data, in data returned by BrainFlow we use "
-        "gain 24 to convert int24 to uV");
+    safe_logger (spdlog::level::warn, "If you change gain you may need to rescale EXG data");
 
     return STATUS_OK;
+}
+
+int OpenBCIWifiShieldBoard::config_board (char *config)
+{
+    return send_config (config);
 }
 
 int OpenBCIWifiShieldBoard::start_stream (int buffer_size, char *streamer_params)

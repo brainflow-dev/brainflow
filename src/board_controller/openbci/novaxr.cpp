@@ -288,6 +288,7 @@ void NovaXR::read_thread ()
         }
         else
         {
+            socket->send ("a", sizeof (char)); // send ack that data received
             // inform main thread that everything is ok and first package was received
             if (this->state != STATUS_OK)
             {

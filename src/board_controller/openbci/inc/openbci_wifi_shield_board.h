@@ -13,11 +13,10 @@ struct http_t; // forward declaration cause include "http.h" here leads to stran
 class OpenBCIWifiShieldBoard : public Board
 {
 
-private:
+protected:
     int http_timeout;
     int wait_for_http_resp (http_t *request);
 
-protected:
     volatile bool keep_alive;
     bool initialized;
     std::thread streaming_thread;
@@ -26,6 +25,7 @@ protected:
     int num_channels;
 
     virtual void read_thread () = 0;
+    virtual int send_config (char *config);
 
 public:
     OpenBCIWifiShieldBoard (int num_channels, struct BrainFlowInputParams params, int board_id);
@@ -38,8 +38,4 @@ public:
     virtual int config_board (char *config);
 
     static constexpr int package_size = 33;
-    static constexpr int num_packages_per_transaction =
-        6; // should be even for correct parsing in daisy
-    static constexpr int transaction_size =
-        OpenBCIWifiShieldBoard::package_size * OpenBCIWifiShieldBoard::num_packages_per_transaction;
 };
