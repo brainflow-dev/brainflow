@@ -291,7 +291,7 @@ void GanglionWifi::read_thread_impedance ()
                 break;
             }
         }
-        std::string asci_value ((const char *)(b + 2), i - 2);
+        std::string asci_value ((const char *)(b + 2), i - 1);
         try
         {
             val = std::stoi (asci_value);
