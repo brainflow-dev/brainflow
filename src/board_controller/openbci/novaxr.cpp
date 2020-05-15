@@ -59,8 +59,8 @@ int NovaXR::prepare_session ()
         return GENERAL_ERROR;
     }
     // force default settings for device
-    res = config_board ("d");
-    if (res != STATUS_OK)
+    res = socket->send ("d", 1);
+    if (res != 1)
     {
         safe_logger (spdlog::level::err, "failed to apply default settings");
         delete socket;
