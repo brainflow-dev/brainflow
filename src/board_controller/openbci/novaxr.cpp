@@ -94,6 +94,28 @@ int NovaXR::config_board (char *config)
         safe_logger (spdlog::level::err, "Failed to config a board");
         return BOARD_WRITE_ERROR;
     }
+    if (!is_streaming)
+    {
+        char response = 0;
+        res = socket->recv (&response, 1);
+        if (res != 1)
+        {
+            safe_logger (spdlog::level::err, "failed to recv ack");
+            return BOARD_WRITE_ERROR;
+        }
+        switch (response)
+        {
+            case 'A':
+                return STATUS_OK;
+            case 'I':
+                safe_logger (spdlog::level::err, "invalid command");
+                return INVALID_ARGUMENTS_ERROR;
+            default:
+                safe_logger (spdlog::level::err, "unknown char received: {}", response);
+                return GENERAL_ERROR;
+        }
+    }
+
     return STATUS_OK;
 }
 
