@@ -146,7 +146,7 @@
 			"timestamp_channel" : 2,
 			"package_num_channel": 0,
 			"num_rows" : 3,
-			"eeg_channels" : [1],
+			"eeg_channels" : [1]
 		},
 		"10" : {
 			"name": "CallibriEMG",
@@ -154,7 +154,7 @@
 			"timestamp_channel" : 2,
 			"package_num_channel": 0,
 			"num_rows" : 3,
-			"emg_channels" : [1],
+			"emg_channels" : [1]
 		},
 		"11" : {
 			"name": "CallibriECG",
@@ -162,7 +162,7 @@
 			"timestamp_channel" : 2,
 			"package_num_channel": 0,
 			"num_rows" : 3,
-			"ecg_channels" : [1],
+			"ecg_channels" : [1]
 		}
 	}
 }

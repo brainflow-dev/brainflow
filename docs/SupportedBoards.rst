@@ -18,6 +18,9 @@ To create an instance of BoardShim class for your board check required inputs in
    "Cyton Daisy WIFI", "BoardIds.CYTON_DAISY_WIFI_BOARD (6)", "-", "-", "WIFI Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "Timeout for HTTP response(default 10sec)", "-"
    "BrainBit", "BoardIds.BRAINBIT_BOARD (7)", "-", "-", "-", "-", "-", "-", "Timeout for device discovery(default 15sec)", "Optional: Serial Number of BrainBit device"
    "Unicorn", "BoardIds.UNICORN_BOARD (8)", "-", "-", "-", "-", "-", "-", "-", "Optional: Serial Number of Unicorn device"
+   "CallibriEEG", "BoardIds.CALLIBRI_EEG_BOARD (9)", "-", "-", "-", "-", "-", "Optional: ExternalSwitchInputMioUSB (default is ExternalSwitchInputMioElectrodes)", "Timeout for device discovery(default 15sec)", "-"
+   "CallibriEMG", "BoardIds.CALLIBRI_EMG_BOARD (10)", "-", "-", "-", "-", "-", "Optional: ExternalSwitchInputMioUSB (default is ExternalSwitchInputMioElectrodes)", "Timeout for device discovery(default 15sec)", "-"
+   "CallibriECG", "BoardIds.CALLIBRI_ECG_BOARD (11)", "-", "-", "-", "-", "-", "Optional: ExternalSwitchInputMioUSB (default is ExternalSwitchInputMioElectrodes)", "Timeout for device discovery(default 15sec)", "-"
 
 
 Streaming Board
@@ -314,6 +317,41 @@ Board Spec:
 - num eeg channels: 4
 - num acceleration channels: None
 - sampling rate: 250
+- communication: Bluetooth Low Energy
+
+
+Callibri(Yellow)
+~~~~~~~~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/49906443867_315307d6fc_w.jpg
+    :width: 338px
+    :height: 400px
+
+`Callibri website <https://callibri.com/>`_
+
+Callibri can be used to record EMG, ECG and EEG, but based on signal type you need to apply different settings for device.
+
+BrainFlow does it for you, so there are:
+
+- CALLIBRI_EEG_BOARD (board_id 9)
+- CALLIBRI_EMG_BOARD (board_id 10)
+- CALLIBRI_ECG_BOARD (board_id 11)
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 9, 10 or 11 based on data type
+- optional: to use electrodes connected vis USB write "ExternalSwitchInputMioUSB" to other_info field of BrainFlowInputParams structure
+- optional: timeout field of BrainFlowInputParams structure, default is 15sec
+
+Supported platforms:
+
+- Windows >= 10
+- MacOS
+
+Board Spec:
+
+- num exg channels: 1
+- num acceleration channels: None
 - communication: Bluetooth Low Energy
 
 

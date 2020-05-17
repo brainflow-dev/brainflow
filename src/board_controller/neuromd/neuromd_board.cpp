@@ -150,7 +150,7 @@ int NeuromdBoard::find_device_info (DeviceEnumerator *enumerator, DeviceInfo *ou
         }
     }
 
-    const int result_code = enumerator_get_device_list (enumerator, &device_info_array);
+    int result_code = enumerator_get_device_list (enumerator, &device_info_array);
     if (result_code != SDK_NO_ERROR)
     {
         return GENERAL_ERROR;
@@ -158,13 +158,49 @@ int NeuromdBoard::find_device_info (DeviceEnumerator *enumerator, DeviceInfo *ou
 
     for (size_t i = 0; i < device_info_array.info_count; ++i)
     {
-        if ((device_info_array.info_array[i].SerialNumber == serial_number) || (serial_number == 0))
+        // here SerialNumber is 0 for Callibri(probably its a bug)
+        if (board_id == (int)BRAINBIT_BOARD)
         {
-            safe_logger (spdlog::level::info, "Found device with ID {}",
-                device_info_array.info_array[i].SerialNumber);
-            *out_device_info = device_info_array.info_array[i];
-            free_DeviceInfoArray (device_info_array);
-            return STATUS_OK;
+            if ((device_info_array.info_array[i].SerialNumber == serial_number) ||
+                (serial_number == 0))
+            {
+                safe_logger (spdlog::level::info, "Found device with ID {}",
+                    device_info_array.info_array[i].SerialNumber);
+                *out_device_info = device_info_array.info_array[i];
+                free_DeviceInfoArray (device_info_array);
+                return STATUS_OK;
+            }
+        }
+        else
+        {
+            // device_read_SerialNumber returns random string for callibri
+            // validate that device name is CallibriYellow and thats all for now
+            Device *temp_device = create_Device (enumerator, device_info_array.info_array[i]);
+            if (temp_device == NULL)
+            {
+                safe_logger (spdlog::level::trace, "failed to create device");
+                continue;
+            }
+            char device_name[256];
+            result_code = device_read_Name (temp_device, device_name, 256);
+            if (result_code != SDK_NO_ERROR)
+            {
+                safe_logger (spdlog::level::trace, "failed to read device name");
+                device_disconnect (temp_device);
+                device_delete (temp_device);
+                temp_device = NULL;
+                continue;
+            }
+            safe_logger (spdlog::level::info, "device name is {}", device_name);
+            device_disconnect (temp_device);
+            device_delete (temp_device);
+            temp_device = NULL;
+            if (strcmp (device_name, "Callibri_Yellow") == 0)
+            {
+                *out_device_info = device_info_array.info_array[i];
+                free_DeviceInfoArray (device_info_array);
+                return STATUS_OK;
+            }
         }
     }
 
@@ -182,14 +218,23 @@ int NeuromdBoard::connect_device ()
 
     device_connect (device);
 
-    DeviceState device_state;
-    int return_code = device_read_State (device, &device_state);
-    if (return_code != SDK_NO_ERROR)
+    DeviceState device_state = DeviceStateDisconnected;
+    // on Callibri first attemp fails, repeat several times
+    for (int i = 0; (i < 5) && (device_state != DeviceStateConnected);)
     {
-        char error_msg[1024];
-        sdk_last_error_msg (error_msg, 1024);
-        safe_logger (spdlog::level::err, "device read state error {}", error_msg);
-        return BOARD_NOT_READY_ERROR;
+        int return_code = device_read_State (device, &device_state);
+        if (return_code != SDK_NO_ERROR)
+        {
+            char error_msg[1024];
+            sdk_last_error_msg (error_msg, 1024);
+            safe_logger (spdlog::level::err, "device read state error {}", error_msg);
+            return BOARD_NOT_READY_ERROR;
+        }
+#ifdef _WIN32
+        Sleep (1000);
+#else
+        usleep (1000000)
+#endif
     }
 
     if (device_state != DeviceStateConnected)
