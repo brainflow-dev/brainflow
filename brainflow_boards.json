@@ -132,7 +132,6 @@
 			"sampling_rate": 250,
 			"timestamp_channel" : 17,
 			"package_num_channel": 15,
-			"battery_channel": 9,
 			"num_rows" : 18,
 			"eeg_channels" : [0, 1, 2, 3, 4, 5, 6, 7],
 			"eeg_names": "Fz,C3,Cz,C4,Pz,PO7,Oz,PO8",
@@ -140,6 +139,30 @@
 			"gyro_channels": [11, 12, 13],
 			"other_channels": [16],
 			"battery_channel": 14
+		},
+		"9" : {
+			"name": "CallibriEEG",
+			"sampling_rate": 250,
+			"timestamp_channel" : 2,
+			"package_num_channel": 0,
+			"num_rows" : 3,
+			"eeg_channels" : [1],
+		},
+		"10" : {
+			"name": "CallibriEMG",
+			"sampling_rate": 1000,
+			"timestamp_channel" : 2,
+			"package_num_channel": 0,
+			"num_rows" : 3,
+			"emg_channels" : [1],
+		},
+		"11" : {
+			"name": "CallibriECG",
+			"sampling_rate": 125,
+			"timestamp_channel" : 2,
+			"package_num_channel": 0,
+			"num_rows" : 3,
+			"ecg_channels" : [1],
 		}
 	}
 }
