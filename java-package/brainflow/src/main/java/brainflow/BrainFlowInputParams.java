@@ -14,6 +14,7 @@ public class BrainFlowInputParams
     public int ip_protocol;
     public String other_info;
     public int timeout;
+    public String serial_number;
 
     public BrainFlowInputParams ()
     {
@@ -24,6 +25,7 @@ public class BrainFlowInputParams
         ip_protocol = IpProtocolType.NONE.get_code ();
         other_info = "";
         timeout = 0;
+        serial_number = "";
     }
 
     public String to_json ()
@@ -99,5 +101,15 @@ public class BrainFlowInputParams
     public int get_timeout ()
     {
         return timeout;
+    }
+
+    public String get_serial_number ()
+    {
+        return serial_number;
+    }
+
+    public void set_serial_number (String serial_number)
+    {
+        this.serial_number = serial_number;
     }
 }

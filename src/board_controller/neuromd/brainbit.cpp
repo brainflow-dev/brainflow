@@ -575,16 +575,16 @@ int BrainBit::find_device_info (DeviceEnumerator *enumerator, DeviceInfo *out_de
 {
     DeviceInfoArray device_info_array;
     long long serial_number = 0;
-    if (!params.other_info.empty ())
+    if (!params.serial_number.empty ())
     {
         try
         {
-            serial_number = std::stoll (params.other_info);
+            serial_number = std::stoll (params.serial_number);
         }
         catch (...)
         {
             safe_logger (spdlog::level::err,
-                "You need to provide BrainBit serial number to other_info field!");
+                "You need to provide BrainBit serial number to serial_number field!");
             return INVALID_ARGUMENTS_ERROR;
         }
     }

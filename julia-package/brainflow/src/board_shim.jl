@@ -55,9 +55,10 @@ mutable struct BrainFlowInputParams
     ip_protocol::Int32
     other_info::String
     timeout::Int32
+    serial_number::String
 
     function BrainFlowInputParams()
-        new("", "", "", 0, Integer(NONE), "", 0)
+        new("", "", "", 0, Integer(NONE), "", 0, "")
     end
 
 end

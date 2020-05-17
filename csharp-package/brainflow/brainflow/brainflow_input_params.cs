@@ -54,6 +54,11 @@ namespace brainflow
         /// </summary>
         [DataMember]
         public int timeout;
+        /// <summary>
+        /// serial number
+        /// </summary>
+        [DataMember]
+        public string serial_number;
 
         public BrainFlowInputParams ()
         {
@@ -64,6 +69,7 @@ namespace brainflow
             ip_protocol = (int)IpProtocolType.NONE;
             other_info = "";
             timeout = 0;
+            serial_number = "";
         }
 
         public string to_json ()
