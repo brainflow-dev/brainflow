@@ -159,7 +159,7 @@ html_theme = 'sphinx_rtd_theme'
 html_translator_class = 'guzzle_sphinx_theme.HTMLTranslator'
 html_show_sourcelink = False
 
-html_logo = '_static/brainflow_logo.png'
+html_logo = '_static/brainflow_logo_text.png'
 
 html_theme_options = {
     'canonical_url': 'https://brainflow.readthedocs.io/en/stable/',
