@@ -1,4 +1,7 @@
-# BrainFlow
+<p align="center">
+    <img width="400" height="160" src="https://live.staticflickr.com/65535/49908747533_f359f83610_w.jpg">
+</p>
+
 
 BrainFlow is a library intended to obtain, parse and analyze EEG, EMG, ECG and other kinds of data from biosensors.
 
@@ -21,3 +24,9 @@ BrainFlow is a library intended to obtain, parse and analyze EEG, EMG, ECG and o
 
 ## [BrainFlow's slack workspace](https://openbraintalk.slack.com/), use this [link to join](https://c6ber255cc.execute-api.eu-west-1.amazonaws.com/Express/)
 
+## Partners and Sponsors
+
+* [![OpenBCI](https://live.staticflickr.com/65535/49739828092_1ff5c9c728_t.jpg)](https://openbci.com/)
+
+## License: 
+MIT
