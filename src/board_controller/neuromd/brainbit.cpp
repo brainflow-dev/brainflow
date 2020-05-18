@@ -531,7 +531,7 @@ void BrainBit::on_resistance_received (
 
 #else
 
-BrainBit::BrainBit (struct BrainFlowInputParams params) : Board ((int)BRAINBIT_BOARD, params)
+BrainBit::BrainBit (struct BrainFlowInputParams params) : NeuromdBoard ((int)BRAINBIT_BOARD, params)
 {
 }
 
