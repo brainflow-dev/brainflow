@@ -5,6 +5,21 @@
   <version>0.0.1-SNAPSHOT</version>
   <name>brainflow</name>
   <description>java binding for brainflow library</description>
+  <url>https://brainflow.ai/</url>
+
+  <licenses>
+    <license>
+      <name>MIT</name>
+      <url>https://github.com/brainflow-dev/brainflow/blob/master/LICENSE</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+ 
+  <scm>
+    <connection>scm:git:git@github.com:brainflow-dev/brainflow.git</connection>
+    <url>scm:git:git@github.com:brainflow-dev/brainflow.git</url>
+    <developerConnection>scm:git:git@github.com:brainflow-dev/brainflow.git</developerConnection>
+  </scm>
 
   <properties>
     <maven.compiler.source>1.7</maven.compiler.source>
