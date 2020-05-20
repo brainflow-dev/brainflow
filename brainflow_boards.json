@@ -64,14 +64,14 @@
 			"name": "NovaXR",
 			"sampling_rate": 500,
 			"package_num_channel" : 0,
-			"timestamp_channel" : 21,
-			"num_rows" : 22,
-			"battery_channel" : 20,
+			"timestamp_channel" : 22,
+			"num_rows" : 23,
+			"battery_channel" : 21,
 			"eeg_channels" : [1, 2, 3, 4, 5, 6, 7, 8, 15, 16],
 			"emg_channels" : [9, 10, 11, 12, 13, 14],
-			"eda_channels" : [18],
-			"ppg_channels" : [17],
-			"temperature_channels" : [19]
+			"eda_channels" : [19],
+			"ppg_channels" : [17, 18],
+			"temperature_channels" : [20]
 		},
 		"4" : {
 			"name": "GanglionWifi",
