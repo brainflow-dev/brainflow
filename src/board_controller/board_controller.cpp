@@ -15,6 +15,9 @@
 #include "board_controller.h"
 #include "brainbit.h"
 #include "brainflow_input_params.h"
+#include "callibri_ecg.h"
+#include "callibri_eeg.h"
+#include "callibri_emg.h"
 #include "cyton.h"
 #include "cyton_daisy.h"
 #include "cyton_daisy_wifi.h"
@@ -97,6 +100,15 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
             break;
         case UNICORN_BOARD:
             board = std::shared_ptr<Board> (new UnicornBoard (params));
+            break;
+        case CALLIBRI_EEG_BOARD:
+            board = std::shared_ptr<Board> (new CallibriEEG (params));
+            break;
+        case CALLIBRI_EMG_BOARD:
+            board = std::shared_ptr<Board> (new CallibriEMG (params));
+            break;
+        case CALLIBRI_ECG_BOARD:
+            board = std::shared_ptr<Board> (new CallibriECG (params));
             break;
         default:
             return UNSUPPORTED_BOARD_ERROR;
@@ -321,6 +333,7 @@ int string_to_brainflow_input_params (
         params->mac_address = config["mac_address"];
         params->ip_address = config["ip_address"];
         params->timeout = config["timeout"];
+        params->serial_number = config["serial_number"];
         return STATUS_OK;
     }
     catch (json::exception &e)

@@ -215,6 +215,19 @@ bool parse_args (
                 return false;
             }
         }
+        if (std::string (argv[i]) == std::string ("--serial-number"))
+        {
+            if (i + 1 < argc)
+            {
+                i++;
+                params->serial_number = std::string (argv[i]);
+            }
+            else
+            {
+                std::cerr << "missed argument" << std::endl;
+                return false;
+            }
+        }
     }
     if (!board_id_found)
     {

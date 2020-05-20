@@ -17,7 +17,8 @@ def main ():
     parser.add_argument ('--serial-port', type = str, help  = 'serial port', required = False, default = '')
     parser.add_argument ('--mac-address', type = str, help  = 'mac address', required = False, default = '')
     parser.add_argument ('--other-info', type = str, help  = 'other info', required = False, default = '')
-    parser.add_argument ('--streamer-params', type = str, help  = 'other info', required = False, default = '')
+    parser.add_argument ('--streamer-params', type = str, help  = 'streamer params', required = False, default = '')
+    parser.add_argument ('--serial-number', type = str, help  = 'serial number', required = False, default = '')
     parser.add_argument ('--board-id', type = int, help  = 'board id, check docs to get a list of supported boards', required = True)
     parser.add_argument ('--log', action = 'store_true')
     args = parser.parse_args ()
@@ -27,6 +28,7 @@ def main ():
     params.serial_port = args.serial_port
     params.mac_address = args.mac_address
     params.other_info = args.other_info
+    params.serial_number = args.serial_number
     params.ip_address = args.ip_address
     params.ip_protocol = args.ip_protocol
     params.timeout = args.timeout

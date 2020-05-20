@@ -6,18 +6,21 @@ Supported Boards
 To create an instance of BoardShim class for your board check required inputs in the table below:
 
 .. csv-table:: Required inputs
-   :header: "Board", "Board Id", "BrainFlowInputParams.serial_port", "BrainFlowInputParams.mac_address", "BrainFlowInputParams.ip_address", "BrainFlowInputParams.ip_port", "BrainFlowInputParams.ip_protocol", "BrainFlowInputParams.other_info", "BrainFlowInputParams.timeout"
+   :header: "Board", "Board Id", "BrainFlowInputParams.serial_port", "BrainFlowInputParams.mac_address", "BrainFlowInputParams.ip_address", "BrainFlowInputParams.ip_port", "BrainFlowInputParams.ip_protocol", "BrainFlowInputParams.other_info", "BrainFlowInputParams.timeout", "BrainFlowInputParams.serial_number"
 
-   "Streaming Board", "BoardIds.STREAMING_BOARD (-2)", "-", "-", "multicast IP address", "port", "-", "Board Id of master board", "-"
-   "Synthetic Board", "BoardIds.SYNTHETIC_BOARD (-1)", "-", "-", "-", "-", "-", "Optional: square keyword", "-"
-   "Cyton", "BoardIds.CYTON_BOARD (0)", "dongle serial port(COM3, /dev/ttyUSB0, /dev/cu.usbserial-xxxxxx...)", "-", "-", "-", "-", "-", "-"
-   "Ganglion", "BoardIds.GANGLION_BOARD (1)", "dongle serial port(COM3, /dev/ttyUSB0...)", "Optional: Ganglion's MAC address", "-", "-", "-", "-", "Timeout for device discovery(default 15sec)"
-   "Cyton Daisy", "BoardIds.CYTON_DAISY_BOARD (2)", "dongle serial port(COM3, /dev/ttyUSB0, /dev/cu.usbserial-xxxxxx...)", "-", "-", "-", "-", "-", "-"
-   "Ganglion Wifi", "BoardIds.GANGLION_WIFI_BOARD (4)", "-", "-", "Wifi Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "Timeout for HTTP response(default 10sec)"
-   "Cyton Wifi", "BoardIds.CYTON_WIFI_BOARD (5)", "-", "-", "Wifi Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "Timeout for HTTP response(default 10sec)"
-   "Cyton Daisy Wifi", "BoardIds.CYTON_DAISY_WIFI_BOARD (6)", "-", "-", "Wifi Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "Timeout for HTTP response(default 10sec)"
-   "BrainBit", "BoardIds.BRAINBIT_BOARD (7)", "-", "-", "-", "-", "-", "Optional: Serial Number of BrainBit device", "Timeout for device discovery(default 15sec)"
-   "Unicorn", "BoardIds.UNICORN_BOARD (8)", "-", "-", "-", "-", "-", "Optional: Serial Number of Unicorn device", "-"
+   "Streaming Board", "BoardIds.STREAMING_BOARD (-2)", "-", "-", "multicast IP address", "port", "-", "Board Id of master board", "-", "-"
+   "Synthetic Board", "BoardIds.SYNTHETIC_BOARD (-1)", "-", "-", "-", "-", "-", "Optional: square keyword", "-", "-"
+   "Cyton", "BoardIds.CYTON_BOARD (0)", "dongle serial port(COM3, /dev/ttyUSB0, /dev/cu.usbserial-xxxxxx...)", "-", "-", "-", "-", "-", "-", "-"
+   "Ganglion", "BoardIds.GANGLION_BOARD (1)", "dongle serial port(COM3, /dev/ttyUSB0...)", "Optional: Ganglion's MAC address", "-", "-", "-", "-", "Timeout for device discovery(default 15sec)", "-"
+   "Cyton Daisy", "BoardIds.CYTON_DAISY_BOARD (2)", "dongle serial port(COM3, /dev/ttyUSB0, /dev/cu.usbserial-xxxxxx...)", "-", "-", "-", "-", "-", "-", "-"
+   "Ganglion WIFI", "BoardIds.GANGLION_WIFI_BOARD (4)", "-", "-", "WIFI Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "Timeout for HTTP response(default 10sec)", "-"
+   "Cyton WIFI", "BoardIds.CYTON_WIFI_BOARD (5)", "-", "-", "WIFI Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "Timeout for HTTP response(default 10sec)", "-"
+   "Cyton Daisy WIFI", "BoardIds.CYTON_DAISY_WIFI_BOARD (6)", "-", "-", "WIFI Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "Timeout for HTTP response(default 10sec)", "-"
+   "BrainBit", "BoardIds.BRAINBIT_BOARD (7)", "-", "-", "-", "-", "-", "-", "Timeout for device discovery(default 15sec)", "Optional: Serial Number of BrainBit device"
+   "Unicorn", "BoardIds.UNICORN_BOARD (8)", "-", "-", "-", "-", "-", "-", "-", "Optional: Serial Number of Unicorn device"
+   "CallibriEEG", "BoardIds.CALLIBRI_EEG_BOARD (9)", "-", "-", "-", "-", "-", "Optional: ExternalSwitchInputMioUSB (default is ExternalSwitchInputMioElectrodes)", "Timeout for device discovery(default 15sec)", "-"
+   "CallibriEMG", "BoardIds.CALLIBRI_EMG_BOARD (10)", "-", "-", "-", "-", "-", "Optional: ExternalSwitchInputMioUSB (default is ExternalSwitchInputMioElectrodes)", "Timeout for device discovery(default 15sec)", "-"
+   "CallibriECG", "BoardIds.CALLIBRI_ECG_BOARD (11)", "-", "-", "-", "-", "-", "Optional: ExternalSwitchInputMioUSB (default is ExternalSwitchInputMioElectrodes)", "Timeout for device discovery(default 15sec)", "-"
 
 
 Streaming Board
@@ -190,16 +193,16 @@ Board Spec:
 - signal gain: 24
 
 
-Ganglion with WiFi Shield
+Ganglion with WIFI Shield
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. image:: https://live.staticflickr.com/65535/48836544227_05059fc450_b.jpg
     :width: 300px
     :height: 300px
 
-`WiFi Shield Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_
+`WIFI Shield Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_
 
-`WiFi Shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_
+`WIFI Shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_
 
 To choose this board in BoardShim constructor please specify:
 
@@ -221,16 +224,16 @@ Board Spec:
 - sampling rate: 1600
 - communication: TCP socket to read data and HTTP to send commands
 
-Cyton with WiFi Shield
+Cyton with WIFI Shield
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. image:: https://live.staticflickr.com/65535/48836367066_a8c4b6d3be_b.jpg
     :width: 400px
     :height: 325px
 
-`WiFi shield Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_
+`WIFI shield Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_
 
-`WiFi shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_
+`WIFI shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_
 
 To choose this board in BoardShim constructor please specify:
 
@@ -254,16 +257,16 @@ Board Spec:
 - communication: TCP socket to read data and HTTP to send commands
 - signal gain: 24
 
-CytonDaisy with WiFi Shield
+CytonDaisy with WIFI Shield
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. image:: https://live.staticflickr.com/65535/48843419918_f11c90deb0_k.jpg
     :width: 400px
     :height: 400px
 
-`WiFi Shield Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_
+`WIFI Shield Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_
 
-`WiFi Shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_
+`WIFI Shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_
 
 To choose this board in BoardShim constructor please specify:
 
@@ -301,7 +304,7 @@ BrainBit
 To choose this board in BoardShim constructor please specify:
 
 - board_id: 7
-- optional: other_info field of BrainFlowInputParams structure should contain Serial Number of BrainBit device, use it if you have multiple devices
+- optional: serial_number field of BrainFlowInputParams structure should contain Serial Number of BrainBit device, use it if you have multiple devices
 - optional: timeout field of BrainFlowInputParams structure, default is 15sec
 
 Supported platforms:
@@ -314,6 +317,41 @@ Board Spec:
 - num eeg channels: 4
 - num acceleration channels: None
 - sampling rate: 250
+- communication: Bluetooth Low Energy
+
+
+Callibri(Yellow)
+~~~~~~~~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/49906443867_315307d6fc_w.jpg
+    :width: 338px
+    :height: 400px
+
+`Callibri website <https://callibri.com/>`_
+
+Callibri can be used to record EMG, ECG and EEG, but based on signal type you need to apply different settings for device.
+
+BrainFlow does it for you, so there are:
+
+- CALLIBRI_EEG_BOARD (board_id 9)
+- CALLIBRI_EMG_BOARD (board_id 10)
+- CALLIBRI_ECG_BOARD (board_id 11)
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 9, 10 or 11 based on data type
+- optional: to use electrodes connected vis USB write "ExternalSwitchInputMioUSB" to other_info field of BrainFlowInputParams structure
+- optional: timeout field of BrainFlowInputParams structure, default is 15sec
+
+Supported platforms:
+
+- Windows >= 10
+- MacOS
+
+Board Spec:
+
+- num exg channels: 1
+- num acceleration channels: None
 - communication: Bluetooth Low Energy
 
 
@@ -332,7 +370,7 @@ Unicorn
 To choose this board in BoardShim constructor please specify:
 
 - board_id: 8
-- optional: other_info field of BrainFlowInputParams structure should contain Serial Number of BrainBit device, use it if you have multiple devices
+- optional: serial_number field of BrainFlowInputParams structure should contain Serial Number of BrainBit device, use it if you have multiple devices
 
 Supported platforms:
 

@@ -2,16 +2,9 @@
 
 #include <thread>
 
-#include "board.h"
-#include "board_controller.h"
+#include "neuromd_board.h"
 
-#if defined _WIN32 || defined __APPLE__
-#include "csignal-channel.h"
-#include "cdevice.h"
-#include "clistener.h"
-#endif
-
-class BrainBit : public Board
+class BrainBit : public NeuromdBoard
 {
 
 private:
@@ -22,7 +15,6 @@ private:
     bool initialized;
     bool is_streaming;
     std::thread streaming_thread;
-    Device *device;
     // store data from callbacks as object fields and add it to eeg data
     volatile int last_battery;
     volatile double last_resistance_t3;
@@ -32,13 +24,8 @@ private:
 
     void read_thread ();
 
-    int find_device ();
-    int find_device_info (DeviceEnumerator *enumerator, DeviceInfo *out_device_info);
-    int connect_device ();
     void free_listeners ();
-    void free_device ();
     void free_channels ();
-    void free_listener (ListenerHandle lh);
 
     ListenerHandle battery_listener;
     ListenerHandle resistance_listener_t3;

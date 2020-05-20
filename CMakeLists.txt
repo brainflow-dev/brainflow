@@ -157,7 +157,12 @@ set (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/file_streamer.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/multicast_streamer.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/gtec/unicorn_board.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/neuromd_board.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/brainbit.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/callibri.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/callibri_eeg.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/callibri_ecg.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/callibri_emg.cpp
 )
 
 set (DATA_HANDLER_SRC
