@@ -26,7 +26,7 @@ BrainFlow is a library intended to obtain, parse and analyze EEG, EMG, ECG and o
 
 ## Partners and Sponsors
 
-* [![OpenBCI](https://live.staticflickr.com/65535/49739828092_1ff5c9c728_t.jpg)](https://openbci.com/)
+[![OpenBCI](https://live.staticflickr.com/65535/49913349191_0cbd41157c_w.jpg)](https://openbci.com/)
 
 ## License: 
 MIT

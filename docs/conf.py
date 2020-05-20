@@ -183,7 +183,6 @@ html_context = {'css_files': ['_static/custom.css']}
 #
 # html_sidebars = {}
 
-
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
