@@ -1,15 +1,13 @@
 package brainflow.examples;
 
-import brainflow.*;
-
-import java.util.Arrays;
-
 import brainflow.AggOperations;
 import brainflow.BoardIds;
 import brainflow.BoardShim;
 import brainflow.BrainFlowInputParams;
 import brainflow.DataFilter;
 import brainflow.LogLevels;
+
+import java.util.Arrays;
 
 public class Denoising
 {

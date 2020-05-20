@@ -162,6 +162,12 @@ deploy_script:
         Copy-Item "$env:APPVEYOR_BUILD_FOLDER\linux\*" -Destination "$env:APPVEYOR_BUILD_FOLDER\java-package\brainflow\src\main\resources" -Recurse
         Copy-Item "$env:APPVEYOR_BUILD_FOLDER\osx\*" -Destination "$env:APPVEYOR_BUILD_FOLDER\java-package\brainflow\src\main\resources" -Recurse
         ls $env:APPVEYOR_BUILD_FOLDER\java-package\brainflow\src\main\resources;
+        If ($env:APPVEYOR_REPO_TAG -eq "true" -And $env:APPVEYOR_REPO_BRANCH -eq "master") {
+          (gc .\pom.xml).replace('0.0.1-SNAPSHOT',$env:APPVEYOR_REPO_TAG_NAME) | Out-File -encoding ASCII pom.xml
+        }
+        Else {
+          (gc .\pom.xml).replace('0.0.1-SNAPSHOT','1.0.0') | Out-File -encoding ASCII pom.xml
+        }
         mvn package > mvn_final_stdout.txt
         #upload .jars to aws
         aws s3 cp %APPVEYOR_BUILD_FOLDER%\java-package\brainflow\target\ s3://brainflow/%APPVEYOR_REPO_COMMIT%/jars --recursive
