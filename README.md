@@ -32,11 +32,11 @@ Compiled with:
 
 *Linux and MacOS(Travis)*:
 
-[![Build Status](https://travis-ci.com/brainflow-dev/brainflow.svg?branch=master)](https://travis-ci.com/brainflow-dev/brainflow)
+[![Build Status](https://travis-ci.com/OpenBCI/brainflow.svg?branch=master)](https://travis-ci.com/OpenBCI/brainflow)
 
 *Windows(AppVeyour)*:
 
-[![Build status](https://ci.appveyor.com/api/projects/status/nk6c8q4mcrfo9xgm/branch/master?svg=true)](https://ci.appveyor.com/project/Andrey1994/brainflow/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/kuuoa32me3253jad/branch/master?svg=true)](https://ci.appveyor.com/project/daniellasry/brainflow/branch/master)
 
 ## Brainflow Bindings
 
