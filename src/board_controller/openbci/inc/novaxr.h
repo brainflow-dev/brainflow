@@ -17,10 +17,10 @@ class NovaXR : public Board
 
 private:
     // different default gains
-    const double eeg_scale_main_board = ADS1299_Vref / double((pow (2, 23) - 1)) / 8.0 * 1000000.;
+    const double eeg_scale_main_board = ADS1299_Vref / double ((pow (2, 23) - 1)) / 8.0 * 1000000.;
     const double eeg_scale_sister_board =
-        ADS1299_Vref / double((pow (2, 23) - 1)) / 12.0 * 1000000.;
-    const double emg_scale = ADS1299_Vref / double((pow (2, 23) - 1)) / 4.0 * 1000000.;
+        ADS1299_Vref / double ((pow (2, 23) - 1)) / 12.0 * 1000000.;
+    const double emg_scale = ADS1299_Vref / double ((pow (2, 23) - 1)) / 4.0 * 1000000.;
 
     volatile bool keep_alive;
     bool initialized;
@@ -47,5 +47,5 @@ public:
     static constexpr int package_size = 72;
     static constexpr int num_packages = 19;
     static constexpr int transaction_size = NovaXR::package_size * NovaXR::num_packages;
-    static constexpr int num_channels = 21;
+    static constexpr int num_channels = 22;
 };

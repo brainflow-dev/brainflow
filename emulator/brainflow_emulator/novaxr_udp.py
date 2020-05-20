@@ -19,6 +19,9 @@ class State (enum.Enum):
 class Message (enum.Enum):
     start_stream = b'b'
     stop_stream = b's'
+    default_settings = b'd'
+    ack_from_device = b'A'
+    temp_ack_from_host = b'a' # maybe will be removed later
 
 
 def test_socket (cmd_list):
@@ -60,18 +63,22 @@ class NovaXREmulator (threading.Thread):
         while self.keep_alive:
             try:
                 msg, self.addr = self.server_socket.recvfrom (128)
-                if msg:
-                    logging.info ('received %s from %s' % (msg, self.addr))
                 if msg == Message.start_stream.value:
                     self.state = State.stream.value
                 elif msg == Message.stop_stream.value:
                     self.state = State.wait.value
+                elif msg == Message.default_settings.value:
+                    self.server_socket.sendto (Message.ack_from_device.value, self.addr)
+                elif msg == Message.temp_ack_from_host.value:
+                    pass # just remove it from logs
                 else:
                     if msg:
                         # we dont handle board config characters because they dont change package format
                         logging.warn ('received unexpected string %s', str (msg))
             except socket.timeout:
                 logging.debug ('timeout for recv')
+            except Exception:
+                break
 
             if self.state == State.stream.value:
                 package = list ()

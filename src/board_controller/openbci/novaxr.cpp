@@ -59,8 +59,8 @@ int NovaXR::prepare_session ()
         return GENERAL_ERROR;
     }
     // force default settings for device
-    res = socket->send ("d", 1);
-    if (res != 1)
+    res = config_board ("d");
+    if (res != STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to apply default settings");
         delete socket;
@@ -73,6 +73,11 @@ int NovaXR::prepare_session ()
 
 int NovaXR::config_board (char *config)
 {
+    if (socket == NULL)
+    {
+        safe_logger (spdlog::level::err, "You need to call prepare_session before config_board");
+        return BOARD_NOT_CREATED_ERROR;
+    }
     safe_logger (spdlog::level::debug, "Trying to config NovaXR with {}", config);
     int res = validate_config (config);
     if (res != STATUS_OK)
@@ -121,6 +126,11 @@ int NovaXR::config_board (char *config)
 
 int NovaXR::start_stream (int buffer_size, char *streamer_params)
 {
+    if (!initialized)
+    {
+        safe_logger (spdlog::level::err, "You need to call prepare_session before config_board");
+        return BOARD_NOT_CREATED_ERROR;
+    }
     if (is_streaming)
     {
         safe_logger (spdlog::level::err, "Streaming thread already running");
@@ -251,34 +261,35 @@ int NovaXR::release_session ()
 
 void NovaXR::read_thread ()
 {
-    // eeg and emg channels were switch this format needs to be updated
-    /* ------ NovaXR packet format --------
-     * Packet Byte [0]:     Packet Number
-     * Packet Byte [1:2]:   PPG
-     * Packet Byte [3:4]:   EDA
-     * Packet Byte [5:7]:   EEG_FC 0
-     * Packet Byte [8:10]:  EEG_FC 1
-     * Packet Byte [11:13]: EEG_OL 0
-     * Packet Byte [14:16]: EEG_OL 1
-     * Packet Byte [17:19]: EEG_OL 2
-     * Packet Byte [20:22]: EEG_OL 3
-     * Packet Byte [23:25]: EEG_OL 4
-     * Packet Byte [26:28]: EEG_OL 5
-     * Packet Byte [29:31]: EEG_OL 6
-     * Packet Byte [32:34]: EEG_OL 7
-     * Packet Byte [35:37]: EOG 0
-     * Packet Byte [38:40]: EOG 1
-     * Packet Byte [41:43]: EMG 0
-     * Packet Byte [44:46]: EMG 1
-     * Packet Byte [47:49]: EMG 2
-     * Packet Byte [50:52]: EMG 3
-     * Packet Byte [53]:    Battery Level range: 0-100
-     * Packet Byte [54:55]: Skin Temperature
-     * Packet Byte [56]:    Firmware Error Code
-     * Packet Byte [64:71]: Timestamp
-     * ----- Total 72 Bytes ------------
-     */
-
+    /// -------------------------------------------------------
+    /// Packet Byte | Field Name | Description
+    /// ------------|------------|------------------------------
+    /// [0]         | Sample ID  | Data Packet/Point ID 0-255
+    /// [1:4]       | EDA        | Electrodermal Activity signal
+    /// [5:7]       | EEG_FC 0   | MainBoard ADS CH #0
+    /// [8:10]      | EEG_FC 1   | MainBoard ADS CH #1
+    /// [11:13]     | EEG_OL 0   | MainBoard ADS CH #2
+    /// [14:16]     | EEG_OL 1   | MainBoard ADS CH #3
+    /// [17:19]     | EEG_OL 2   | MainBoard ADS CH #4
+    /// [20:22]     | EEG_OL 3   | MainBoard ADS CH #5
+    /// [23:25]     | EEG_OL 4   | MainBoard ADS CH #6
+    /// [26:28]     | EEG_OL 5   | MainBoard ADS CH #7
+    /// [29:31]     | EEG_OL 6   | SisterBoard ADS CH #0
+    /// [32:34]     | EEG_OL 7   | SisterBoard ADS CH #1
+    /// [35:37]     | EOG 0      | SisterBoard ADS CH #2
+    /// [38:40]     | EOG 1      | SisterBoard ADS CH #3
+    /// [41:43]     | EMG 0      | SisterBoard ADS CH #4
+    /// [44:46]     | EMG 1      | SisterBoard ADS CH #5
+    /// [47:49]     | EMG 2      | SisterBoard ADS CH #6
+    /// [50:52]     | EMG 3      | SisterBoard ADS CH #7
+    /// [53]        | BATT       | Battery Level range: 0-100
+    /// [54:55]     | SKIN_T     | Skin Temperature
+    /// [56:59]     | PPGRED     | Photoplethysmogram Red Signal
+    /// [60:63]     | PPGIR      | Photoplethysmogram IR Signal
+    /// [64:71]     | Timestamp  | Timestamp in Microseconds
+    /// -------------------------------------------------------
+    /// Total 72 Bytes per Data Packet
+    /// -------------------------------------------------------
 
     int res;
     unsigned char b[NovaXR::transaction_size];
@@ -347,15 +358,22 @@ void NovaXR::read_thread ()
                         (double)cast_24bit_to_int32 (b + offset + 5 + 3 * (i - 4));
             }
             int16_t temperature;
-            int16_t ppg;
-            int16_t eda;
+            int32_t ppg_ir;
+            int32_t ppg_red;
+            float eda;
             memcpy (&temperature, b + 54 + offset, 2);
-            memcpy (&ppg, b + 1 + offset, 2);
-            memcpy (&eda, b + 3 + offset, 2);
-            package[17] = ppg;                    // ppg
-            package[18] = eda;                    // eda
-            package[19] = temperature / 100.0;    // temperature
-            package[20] = (double)b[53 + offset]; // battery level
+            memcpy (&eda, b + 1 + offset, 4);
+            memcpy (&ppg_red, b + 56 + offset, 4);
+            memcpy (&ppg_ir, b + 60 + offset, 4);
+            // ppg
+            package[17] = (double)ppg_red;
+            package[18] = (double)ppg_ir;
+            // eda
+            package[19] = (double)eda;
+            // temperature
+            package[20] = temperature / 100.0;
+            // battery
+            package[21] = (double)b[53 + offset];
 
             double timestamp_device;
             memcpy (&timestamp_device, b + 64 + offset, 8);
