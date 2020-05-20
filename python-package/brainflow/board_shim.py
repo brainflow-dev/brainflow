@@ -26,6 +26,9 @@ class BoardIds (enum.Enum):
     CYTON_DAISY_WIFI_BOARD = 6 #:
     BRAINBIT_BOARD = 7 #:
     UNICORN_BOARD = 8 #:
+    CALLIBRI_EEG_BOARD = 9 #:
+    CALLIBRI_EMG_BOARD = 10 #:
+    CALLIBRI_ECG_BOARD = 11 #:
 
 
 class LogLevels (enum.Enum):
@@ -72,6 +75,7 @@ class BrainFlowInputParams (object):
         self.ip_protocol = IpProtocolType.NONE.value
         self.other_info = ''
         self.timeout = 0
+        self.serial_number = ''
 
     def to_json (self):
         return json.dumps (self, default = lambda o: o.__dict__,

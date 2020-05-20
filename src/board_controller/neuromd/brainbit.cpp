@@ -42,12 +42,11 @@ namespace BrainBitCallbacks
 }
 
 
-BrainBit::BrainBit (struct BrainFlowInputParams params) : Board ((int)BRAINBIT_BOARD, params)
+BrainBit::BrainBit (struct BrainFlowInputParams params) : NeuromdBoard ((int)BRAINBIT_BOARD, params)
 {
     is_streaming = false;
     keep_alive = false;
     initialized = false;
-    device = NULL;
     last_battery = -1;
     last_resistance_t4 = 0.0;
     last_resistance_t3 = 0.0;
@@ -449,20 +448,6 @@ void BrainBit::read_thread ()
     }
 }
 
-void BrainBit::free_listener (ListenerHandle lh)
-{
-    if (lh)
-    {
-        // different headers for macos and msvc
-#ifdef _WIN32
-        free_listener_handle (lh);
-#else
-        free_length_listener_handle (lh);
-#endif
-        lh = NULL;
-    }
-}
-
 void BrainBit::free_listeners ()
 {
     free_listener (resistance_listener_t4);
@@ -470,16 +455,6 @@ void BrainBit::free_listeners ()
     free_listener (resistance_listener_o1);
     free_listener (resistance_listener_o2);
     free_listener (battery_listener);
-}
-
-void BrainBit::free_device ()
-{
-    if (device)
-    {
-        device_disconnect (device);
-        device_delete (device);
-        device = NULL;
-    }
 }
 
 void BrainBit::free_channels ()
@@ -504,140 +479,6 @@ void BrainBit::free_channels ()
         AnyChannel_delete ((AnyChannel *)signal_o2);
         signal_o2 = NULL;
     }
-}
-
-int BrainBit::find_device ()
-{
-    if ((params.timeout < 0) || (params.timeout > 600))
-    {
-        safe_logger (spdlog::level::err, "bad value for timeout");
-        return INVALID_ARGUMENTS_ERROR;
-    }
-
-    DeviceEnumerator *enumerator = create_device_enumerator (DeviceTypeBrainbit);
-    if (enumerator == NULL)
-    {
-        char error_msg[1024];
-        sdk_last_error_msg (error_msg, 1024);
-        safe_logger (spdlog::level::err, "create enumerator error {}", error_msg);
-        return BOARD_NOT_READY_ERROR;
-    }
-
-    int timeout = 15;
-    if (params.timeout != 0)
-    {
-        timeout = params.timeout;
-    }
-    safe_logger (spdlog::level::info, "set timeout for device discovery to {}", timeout);
-
-    int sleep_delay = 300;
-    int attempts = (int)(timeout * 1000.0 / sleep_delay);
-    int res = STATUS_OK;
-    DeviceInfo device_info;
-    do
-    {
-        res = find_device_info (enumerator, &device_info);
-        if (res == INVALID_ARGUMENTS_ERROR)
-        {
-            break;
-        }
-        if (res != STATUS_OK)
-        {
-#ifdef _WIN32:
-            Sleep (sleep_delay);
-#else
-            usleep (sleep_delay * 1000);
-#endif
-            continue;
-        }
-
-        break;
-    } while (attempts-- > 0);
-
-    if (res == STATUS_OK)
-    {
-        device = create_Device (enumerator, device_info);
-        if (device == NULL)
-        {
-            char error_msg[1024];
-            sdk_last_error_msg (error_msg, 1024);
-            safe_logger (spdlog::level::err, "create Device error {}", error_msg);
-            res = BOARD_NOT_READY_ERROR;
-        }
-    }
-
-    enumerator_delete (enumerator);
-
-    return res;
-}
-
-int BrainBit::find_device_info (DeviceEnumerator *enumerator, DeviceInfo *out_device_info)
-{
-    DeviceInfoArray device_info_array;
-    long long serial_number = 0;
-    if (!params.other_info.empty ())
-    {
-        try
-        {
-            serial_number = std::stoll (params.other_info);
-        }
-        catch (...)
-        {
-            safe_logger (spdlog::level::err,
-                "You need to provide BrainBit serial number to other_info field!");
-            return INVALID_ARGUMENTS_ERROR;
-        }
-    }
-
-    const int result_code = enumerator_get_device_list (enumerator, &device_info_array);
-    if (result_code != SDK_NO_ERROR)
-    {
-        return GENERAL_ERROR;
-    }
-
-    for (size_t i = 0; i < device_info_array.info_count; ++i)
-    {
-        if ((device_info_array.info_array[i].SerialNumber == serial_number) || (serial_number == 0))
-        {
-            safe_logger (spdlog::level::info, "Found device with ID {}",
-                device_info_array.info_array[i].SerialNumber);
-            *out_device_info = device_info_array.info_array[i];
-            free_DeviceInfoArray (device_info_array);
-            return STATUS_OK;
-        }
-    }
-
-    free_DeviceInfoArray (device_info_array);
-    return BOARD_NOT_READY_ERROR;
-}
-
-int BrainBit::connect_device ()
-{
-    if (device == NULL)
-    {
-        safe_logger (spdlog::level::err, "Device is not created.");
-        return BOARD_NOT_CREATED_ERROR;
-    }
-
-    device_connect (device);
-
-    DeviceState device_state;
-    int return_code = device_read_State (device, &device_state);
-    if (return_code != SDK_NO_ERROR)
-    {
-        char error_msg[1024];
-        sdk_last_error_msg (error_msg, 1024);
-        safe_logger (spdlog::level::err, "device read state error {}", error_msg);
-        return BOARD_NOT_READY_ERROR;
-    }
-
-    if (device_state != DeviceStateConnected)
-    {
-        safe_logger (spdlog::level::err, "Device is not connected.");
-        return BOARD_NOT_READY_ERROR;
-    }
-
-    return STATUS_OK;
 }
 
 void BrainBit::on_battery_charge_received (
@@ -690,7 +531,7 @@ void BrainBit::on_resistance_received (
 
 #else
 
-BrainBit::BrainBit (struct BrainFlowInputParams params) : Board ((int)BRAINBIT_BOARD, params)
+BrainBit::BrainBit (struct BrainFlowInputParams params) : NeuromdBoard ((int)BRAINBIT_BOARD, params)
 {
 }
 
@@ -700,31 +541,31 @@ BrainBit::~BrainBit ()
 
 int BrainBit::prepare_session ()
 {
-    safe_logger (spdlog::level::err, "BrainBit supports only Windows.");
+    safe_logger (spdlog::level::err, "BrainBit doesnt support Linux.");
     return UNSUPPORTED_BOARD_ERROR;
 }
 
 int BrainBit::config_board (char *config)
 {
-    safe_logger (spdlog::level::err, "BrainBit supports only Windows.");
+    safe_logger (spdlog::level::err, "BrainBit doesnt support Linux.");
     return UNSUPPORTED_BOARD_ERROR;
 }
 
 int BrainBit::release_session ()
 {
-    safe_logger (spdlog::level::err, "BrainBit supports only Windows.");
+    safe_logger (spdlog::level::err, "BrainBit doesnt support Linux.");
     return UNSUPPORTED_BOARD_ERROR;
 }
 
 int BrainBit::stop_stream ()
 {
-    safe_logger (spdlog::level::err, "BrainBit supports only Windows.");
+    safe_logger (spdlog::level::err, "BrainBit doesnt support Linux.");
     return UNSUPPORTED_BOARD_ERROR;
 }
 
 int BrainBit::start_stream (int buffer_size, char *streamer_params)
 {
-    safe_logger (spdlog::level::err, "BrainBit supports only Windows.");
+    safe_logger (spdlog::level::err, "BrainBit doesnt support Linux.");
     return UNSUPPORTED_BOARD_ERROR;
 }
 

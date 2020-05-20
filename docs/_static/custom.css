@@ -11,4 +11,5 @@
   max-width: 100%;
   position: relative;
   overflow: auto;
+  background: #fff;
 }

@@ -245,17 +245,17 @@ int UnicornBoard::call_open ()
 
     // search for device
     int device_num = 0;
-    if (params.other_info.empty ())
+    if (params.serial_number.empty ())
     {
         safe_logger (spdlog::level::warn,
-            "Use device with id {}. To select another one provide id to other_info field.",
+            "Use device with id {}. To select another one provide id to serial_number field.",
             available_devices[device_num]);
     }
     else
     {
         for (device_num = 0; device_num < available_device_count; device_num++)
         {
-            if (strcmp (available_devices[device_num], params.other_info.c_str ()) == 0)
+            if (strcmp (available_devices[device_num], params.serial_number.c_str ()) == 0)
             {
                 break;
             }
@@ -263,7 +263,7 @@ int UnicornBoard::call_open ()
         if (device_num == available_device_count)
         {
             safe_logger (
-                spdlog::level::err, "device with id {} not found", params.other_info.c_str ());
+                spdlog::level::err, "device with id {} not found", params.serial_number.c_str ());
             delete[] available_devices;
             return GENERAL_ERROR;
         }

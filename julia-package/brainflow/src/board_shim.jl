@@ -14,6 +14,9 @@ import JSON
     CYTON_DAISY_WIFI_BOARD = 6
     BRAINBIT_BOARD = 7
     UNICORN_BOARD = 8
+    CALLIBRI_EEG_BOARD = 9
+    CALLIBRI_EMG_BOARD = 10
+    CALLIBRI_ECG_BOARD = 11
 
 end
 
@@ -55,9 +58,10 @@ mutable struct BrainFlowInputParams
     ip_protocol::Int32
     other_info::String
     timeout::Int32
+    serial_number::String
 
     function BrainFlowInputParams()
-        new("", "", "", 0, Integer(NONE), "", 0)
+        new("", "", "", 0, Integer(NONE), "", 0, "")
     end
 
 end

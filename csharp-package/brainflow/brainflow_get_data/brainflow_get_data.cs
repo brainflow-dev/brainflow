@@ -67,6 +67,10 @@ namespace test
                 {
                     input_params.timeout = Convert.ToInt32(args[i + 1]);
                 }
+                if (args[i].Equals("--serial-number"))
+                {
+                    input_params.serial_number = args[i + 1];
+                }
             }
             return board_id;
         }
