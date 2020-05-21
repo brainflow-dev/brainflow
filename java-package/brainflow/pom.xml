@@ -14,12 +14,32 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
- 
+
   <scm>
     <connection>scm:git:git@github.com:brainflow-dev/brainflow.git</connection>
     <url>scm:git:git@github.com:brainflow-dev/brainflow.git</url>
     <developerConnection>scm:git:git@github.com:brainflow-dev/brainflow.git</developerConnection>
   </scm>
+
+  <developers>
+    <developer>
+      <name>Andrey Parfenov</name>
+      <email>a1994ndrey@gmail.com</email>
+       <organization>brainflow-dev</organization>
+       <organizationUrl>https://github.com/brainflow-dev</organizationUrl>
+    </developer>
+  </developers>
+
+  <distributionManagement>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+    <repository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+    </repository>
+  </distributionManagement>
 
   <properties>
     <maven.compiler.source>1.7</maven.compiler.source>
@@ -59,11 +79,11 @@
                 <id>copy-dependencies</id>
                 <phase>prepare-package</phase>
                 <goals>
-                    <goal>copy-dependencies</goal>
+                  <goal>copy-dependencies</goal>
                 </goals>
                 <configuration>
                     <outputDirectory>
-                        ${project.build.directory}/libs
+                      ${project.build.directory}/libs
                     </outputDirectory>
                 </configuration>
             </execution>
@@ -77,18 +97,47 @@
             <execution>
                 <phase>package</phase>
                 <goals>
-                    <goal>single</goal>
+                  <goal>single</goal>
                 </goals>
                 <configuration>
                   <descriptorRefs>
-                      <descriptorRef>jar-with-dependencies</descriptorRef>
+                    <descriptorRef>jar-with-dependencies</descriptorRef>
                   </descriptorRefs>
                 </configuration>
             </execution>
         </executions>
       </plugin>
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.0.0</version>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+              <goals>
+                  <goal>jar</goal>
+              </goals>
+          </execution>
+        </executions>
+    </plugin>
+      
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-source-plugin</artifactId>
+      <version>3.0.1</version>
+      <executions>
+        <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+        </execution>
+      </executions>
+    </plugin>
+      
+  </plugins>
 
-      </plugins>
   </build>
   <dependencies>
     <dependency>
