@@ -1,7 +1,5 @@
 package brainflow.examples;
 
-import brainflow.*;
-
 import java.util.Arrays;
 
 import org.apache.commons.lang3.tuple.Pair;
