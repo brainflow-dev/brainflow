@@ -92,15 +92,3 @@ Check this example for details:
 
 .. literalinclude:: ../tests/python/cyton_analog_mode_other_data.py
    :language: py
-
-NeuroMD Specific Data
------------------------
-
-BrainBit
-~~~~~~~~~~
-
-For BrainBit we write resistance data to:
-
-.. code-block:: python
-
-   get_other_channels (board_id)
