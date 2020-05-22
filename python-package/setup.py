@@ -14,7 +14,7 @@ setup (
     description = 'Library to get data from OpenBCI boards',
     long_description = long_description,
     long_description_content_type = 'text/markdown',
-    url = 'https://github.com/Andrey1994/brainflow',
+    url = 'https://github.com/brainflow-dev/brainflow',
     author = 'Andrey Parfenov',
     author_email = 'a1994ndrey@gmail.com',
     packages = find_packages (),
