@@ -154,14 +154,6 @@ paginate_path: "/blog/page:num/"
 
 kramdown:
   input: GFM
-  syntax_highlighter_opts:
-    default_lang: html
-    css_class: 'highlight'
-    span:
-      line_numbers: false
-    block:
-      line_numbers: true
-      start_line: 1
 
 # Default YAML values (more information on Jekyll's site)
 defaults:
