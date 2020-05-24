@@ -216,6 +216,11 @@ int NeuromdBoard::connect_device ()
         return BOARD_NOT_CREATED_ERROR;
     }
 
+#ifndef _WIN32:
+    // "Fix" a race condition in BrainBit SDK on MacOS
+    usleep(5000000);
+#endif
+
     device_connect (device);
 
     DeviceState device_state = DeviceStateDisconnected;
