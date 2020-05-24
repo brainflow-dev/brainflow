@@ -23,7 +23,7 @@ Currently we added or going to add support for:
 * [~~BrainBit~~](https://brainbit.com/)
 * [Unicorn](https://www.unicorn-bi.com/)(~~Linux~~, Windows)
 * [Muse](https://choosemuse.com/)
-* [Callibri](https://callibri.com/)
+* [~~Callibri~~](https://callibri.com/)
 * [FreeEEG](https://github.com/neuroidss/FreeEEG32)
 * [HackEEG](https://www.starcat.io/products/hackeeg-shield/)
 * etc

@@ -1,0 +1,82 @@
+---
+layout: base
+title: Features
+---
+
+{% include header.html type="page" %}
+
+<link rel="stylesheet" href="/assets/features.css">
+<article class="post">
+    <div class="post-content">
+        <div class="wrapper">
+            <!-- Uniform API -->
+<div class="row">
+    <div class="col-12">
+        <h3 class="feature-title">Uniform Data Acquisition API for All Devices</h3>
+        <br>
+    </div>
+    <div class="col-5">
+        <p class="feature-paragraph">Applications on top of BrainFlow are device agnostic from the box. So, you can target more users and can switch devices without changes in code!</p>
+    </div>
+    <div class="col-1">
+    </div>
+    <div class="col-6 code-block">
+        <figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">params</span><span class="o">=</span><span class="nc">BrainFlowInputParams</span><span class="n">()</span>
+<span class="c1"># provide params for your particluar device</span>
+<span class = "c1"># its the only device specific code</span>
+<span class="n">params</span><span class="o">.</span><span class="n">serial_port</span><span class="o">=</span><span class = "s">"COM3"</span>
+<span class="n">params</span><span class="o">.</span><span class="n">ip_address</span><span class="o">=</span><span class = "s">"192.168.0.11"</span>
+<span class="c1">#.......</span>
+
+<span class="n">board_shim</span><span class="o">=</span><span class="nc">BoardShim</span><span class="n">(board_id, params)</span>
+<span class="n">eeg_channels</span><span class="o">=</span><span class="nc">BoardShim</span><span class="o">.</span><span class="n">get_eeg_channels(board_id)</span></code></pre></figure>
+    </div>
+</div>
+<!-- 7 Language Bindings -->
+<br><br>
+<div class="row">
+    <div class="col-7"></div>
+    <div class="col-5">
+        <h3 class="feature-title">7 Language Bindings</h3>
+        <br>
+    </div>
+    <div class="col-6 code-block">
+        <figure class="highlight"><pre><code class="language-python" data-lang="java"><span class="n">board</span><span class="o">.</span><span class="n">prepare_session()</span>
+<span class="n">board</span><span class="o">.</span><span class="n">start_stream()</span>
+<span class="n">time</span><span class="o">.</span><span class="n">sleep(10)</span>
+<span class="n">board</span><span class="o">.</span><span class="n">stop_stream()</span>
+<span class="n">data</span><span class="o">=</span><span class="n">board</span><span class="o">.</span><span class="n">get_board_data()</span>
+<span class="n">board</span><span class="o">.</span><span class="n">release_session()</span></code></pre></figure>
+    </div>
+    <div class="col-1">
+    </div>
+    <div class="col-5">
+        <p class="feature-paragraph">Deep integration into Python, C++, Java, C# and support for Julia, Matlab and R.
+            This allows a very smooth transition from one programming language to another and simple integration to existing applications!
+        </p>
+    </div>
+    <div class="col-1">
+    </div>
+    
+</div>
+
+<!-- Signal Processing -->
+<br><br>
+<div class="row">
+    <div class="col-12">
+        <h3 class="feature-title">Powerful Signal Processing API</h3>
+        <br>
+    </div>
+    <div class="col-5">
+        <p class="feature-paragraph">All popular filters and transforms implemented, no need to search for other packages to perform signal processing, denoising and calculate FFT!</p>
+    </div>
+    <div class="col-1">
+    </div>
+    <div class="col-6 code-block">
+        <figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">for</span> <span class="n">channel</span> <span class="k">in</span> <span class="n">eeg_channels</span><span class="o">:</span>
+	<span class="c1"># check all supported filters and parameters in docs</span>
+	<span class="nc">DataFilter</span><span class="o">.</span><span class="n">perform_rolling_filter(data[channel], 3,</span> <span class="nc">AggOperations</span><span class="n">.MEAN.value)</span>
+</code></pre></figure>
+    </div>
+</div>
+</article>

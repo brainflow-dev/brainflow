@@ -4,7 +4,7 @@
 title: BrainFlow
 
 # Short description of your site
-description: News about BrainFlow project
+description: How Biosensors Work
 
 # --- Local development options ---
 # If your website is hosted locally rather than on GitHub, then you need to uncomment the next two parameters to set the url and baseurl
@@ -20,22 +20,21 @@ description: News about BrainFlow project
 
 # List of links in the navigation bar
 navbar-links:
+  Get Started: "get_started"
+  Github: "https://github.com/brainflow-dev/brainflow/"
+  Docs: "https://brainflow.readthedocs.io/en/stable/"
+  Features: "features"
+  Gallery: "gallery"
+  Blog: "blog"
   About BrainFlow:
-    - What We Do: "what_we_do"
+    - Contact us: "contact"
     - Project Roadmap: "roadmap"
-    - Partners and Sponsors: "partners_and_sponsors"
-  Resources:
-    - Docs: "https://brainflow.readthedocs.io/en/stable/"
-    - Github: "https://github.com/brainflow-dev/brainflow/"
-    - Getting Started: "getting_started"
-    - Learning BCI: "http://learn.neurotechedu.com/lessons/"
-  Community:
-    - Contact: "contact"
     - Code of Conduct: "conduct"
+    - Partners and Sponsors: "partners_and_sponsors"
 
 # Image to show in the navigation bar - image must be a square (width = height)
 # Remove this parameter if you don't want an image in the navbar
-avatar: "/img/brain.png"
+avatar: "/img/brainflow_logo.png"
 
 # If you want to have an image logo in the top-left corner instead of the title text,
 # then specify the following parameter
@@ -151,6 +150,7 @@ markdown: kramdown
 highlighter: rouge
 permalink: /:year-:month-:day-:title/
 paginate: 5
+paginate_path: "/blog/page:num/"
 
 kramdown:
   input: GFM
@@ -163,7 +163,7 @@ defaults:
       type: "posts"
     values:
       layout: "post"
-      comments: true  # add comments to all blog posts
+      comments: false  # add comments to all blog posts
       social-share: true # add social media sharing buttons to all blog posts
   -
     scope:
@@ -239,6 +239,3 @@ prose:
 plugins:
   - jekyll-paginate
   - jekyll-sitemap
-
-# Beautiful Jekyll / Dean Attali
-# 2fc73a3a967e97599c9763d05e564189
