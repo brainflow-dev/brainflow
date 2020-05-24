@@ -11,7 +11,7 @@ with open (os.path.join (this_directory, 'README.md')) as f:
 setup (
     name = 'brainflow',
     version = os.environ.get('BRAINFLOW_VERSION', '1.0.8'),
-    description = 'Library to get data from OpenBCI boards',
+    description = 'Python Binding for BrainFlow',
     long_description = long_description,
     long_description_content_type = 'text/markdown',
     url = 'https://github.com/brainflow-dev/brainflow',
