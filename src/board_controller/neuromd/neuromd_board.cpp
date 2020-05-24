@@ -220,7 +220,7 @@ int NeuromdBoard::connect_device ()
 
     DeviceState device_state = DeviceStateDisconnected;
     // on Callibri first attemp fails, repeat several times
-    for (int i = 0; (i < 5) && (device_state != DeviceStateConnected);)
+    for (int i = 0; (i < 5) && (device_state != DeviceStateConnected); ++i)
     {
         int return_code = device_read_State (device, &device_state);
         if (return_code != SDK_NO_ERROR)
