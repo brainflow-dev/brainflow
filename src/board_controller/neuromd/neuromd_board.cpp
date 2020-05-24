@@ -216,11 +216,16 @@ int NeuromdBoard::connect_device ()
         return BOARD_NOT_CREATED_ERROR;
     }
 
+#ifndef _WIN32:
+    // "Fix" a race condition in BrainBit SDK on MacOS
+    usleep(5000000);
+#endif
+
     device_connect (device);
 
     DeviceState device_state = DeviceStateDisconnected;
     // on Callibri first attemp fails, repeat several times
-    for (int i = 0; (i < 5) && (device_state != DeviceStateConnected);)
+    for (int i = 0; (i < 5) && (device_state != DeviceStateConnected); ++i)
     {
         int return_code = device_read_State (device, &device_state);
         if (return_code != SDK_NO_ERROR)
