@@ -22,9 +22,10 @@ protected:
     Device *device;
 
     int find_device ();
-    int find_device_info (DeviceEnumerator *enumerator, DeviceInfo *out_device_info);
+    int find_device_info (DeviceEnumerator *enumerator);
     void free_device ();
     void free_listener (ListenerHandle lh);
+    DeviceInfo device_info;
 
 #endif
 

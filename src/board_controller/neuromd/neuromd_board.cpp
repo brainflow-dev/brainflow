@@ -17,6 +17,7 @@ NeuromdBoard::NeuromdBoard (int board_id, struct BrainFlowInputParams params)
 {
 #if defined _WIN32 || defined __APPLE__
     device = NULL;
+    memset (&device_info, 0, sizeof (device_info));
 #endif
 }
 
@@ -94,11 +95,10 @@ int NeuromdBoard::find_device ()
     int sleep_delay = 300;
     int attempts = (int)(timeout * 1000.0 / sleep_delay);
     int res = STATUS_OK;
-    DeviceInfo device_info;
     // find device info
     do
     {
-        res = find_device_info (enumerator, &device_info);
+        res = find_device_info (enumerator);
         if (res == INVALID_ARGUMENTS_ERROR)
         {
             break;
@@ -172,7 +172,7 @@ int NeuromdBoard::find_device ()
     return res;
 }
 
-int NeuromdBoard::find_device_info (DeviceEnumerator *enumerator, DeviceInfo *out_device_info)
+int NeuromdBoard::find_device_info (DeviceEnumerator *enumerator)
 {
     DeviceInfoArray device_info_array;
     long long serial_number = 0;
@@ -206,7 +206,7 @@ int NeuromdBoard::find_device_info (DeviceEnumerator *enumerator, DeviceInfo *ou
             {
                 safe_logger (spdlog::level::info, "Found device with ID {}",
                     device_info_array.info_array[i].SerialNumber);
-                *out_device_info = device_info_array.info_array[i];
+                device_info = device_info_array.info_array[i];
                 free_DeviceInfoArray (device_info_array);
                 return STATUS_OK;
             }
@@ -237,7 +237,7 @@ int NeuromdBoard::find_device_info (DeviceEnumerator *enumerator, DeviceInfo *ou
             temp_device = NULL;
             if (strcmp (device_name, "Callibri_Yellow") == 0)
             {
-                *out_device_info = device_info_array.info_array[i];
+                device_info = device_info_array.info_array[i];
                 free_DeviceInfoArray (device_info_array);
                 return STATUS_OK;
             }
