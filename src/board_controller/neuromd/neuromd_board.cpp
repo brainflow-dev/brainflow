@@ -137,33 +137,23 @@ int NeuromdBoard::find_device ()
         // connect device
         device_connect (device);
 
-        DeviceState device_state = DeviceStateDisconnected;
-        // on Callibri first attemp fails, repeat several times
-        for (int i = 0; (i < 5) && (device_state != DeviceStateConnected); i++)
+        DeviceState device_state;
+        int return_code = device_read_State (device, &device_state);
+        if (return_code != SDK_NO_ERROR)
         {
-            int return_code = device_read_State (device, &device_state);
-            if (return_code != SDK_NO_ERROR)
-            {
-                char error_msg[1024];
-                sdk_last_error_msg (error_msg, 1024);
-                safe_logger (spdlog::level::err, "device read state error {}", error_msg);
-                free_device ();
-                return BOARD_NOT_READY_ERROR;
-            }
-#ifdef _WIN32
-            Sleep (1000);
-#else
-            usleep (1000000);
-#endif
+            char error_msg[1024];
+            sdk_last_error_msg (error_msg, 1024);
+            safe_logger (spdlog::level::err, "device read state error {}", error_msg);
+            return BOARD_NOT_READY_ERROR;
         }
 
         if (device_state != DeviceStateConnected)
         {
             safe_logger (spdlog::level::err, "Device is not connected.");
-            free_device ();
             return BOARD_NOT_READY_ERROR;
         }
 
+        return STATUS_OK;
         return STATUS_OK;
     }
 
