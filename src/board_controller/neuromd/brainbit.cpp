@@ -80,13 +80,6 @@ int BrainBit::prepare_session ()
         free_device ();
         return res;
     }
-    // try to connect to device
-    res = connect_device ();
-    if (res != STATUS_OK)
-    {
-        free_device ();
-        return res;
-    }
 
     // need to set callbacks for battery charge and resistance data
     // get info about channels

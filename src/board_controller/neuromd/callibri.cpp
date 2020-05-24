@@ -55,13 +55,6 @@ int Callibri::prepare_session ()
         free_device ();
         return res;
     }
-    // try to connect to device
-    res = connect_device ();
-    if (res != STATUS_OK)
-    {
-        free_device ();
-        return res;
-    }
 
     // apply settings for EEG/ECG/EMG
     res = apply_initial_settings ();
