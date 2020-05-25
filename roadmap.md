@@ -1,4 +1,9 @@
-# Roadmap
+---
+layout: page
+title: Roadmap
+subtitle: Global Tasks to Accomplish
+---
+
 
 This page provides an overview of the major themes in BrainFlow's development. Each of these items requires a relatively large amount of effort to implement. These may be achieved more quickly with dedicated funding or interest from contributors.
 
