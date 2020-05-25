@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Partners and Sponsors
+subtitle: Third Party Contributors to BrainFlow Project
 ---
 
 ## OpenBCI
