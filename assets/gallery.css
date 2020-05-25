@@ -8,17 +8,7 @@
 
 .hidden-sm { display: none; }
 
-.container { width: 100%; margin-left: auto; margin-right: auto; }
-
-@media only screen and (min-width: 33.75em) { .container { width: 80%; } }
-
-@media only screen and (min-width: 60em) { .container { width: 75%; max-width: 60rem; } }
-
-.row { position: relative; width: 100%; }
-
 .post .row [class^="col"] { float: left; margin: 0.5rem 1%; min-height: 0.125rem; }
-
-.row::after { content: ""; display: table; clear: both; }
 
 .col-1, .col-2, .col-3, .col-4, .col-5, .col-6, .col-7, .col-8, .col-9, .col-10, .col-11, .col-12 { width: 98%; }
 
