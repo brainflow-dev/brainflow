@@ -145,6 +145,11 @@ def main ():
                     if ch not in total_channels:
                         total_channels.append (ch)
             total_channels.append (timestamp_channel)
+            try:
+                total_channels.extend (BoardShim.get_ppg_channels (master_board_id))
+                total_channels.extend (BoardShim.get_eda_channels (master_board_id))
+            except:
+                pass
 
             columns = list ()
             for j in range (len (total_channels) - 1):
@@ -157,7 +162,7 @@ def main ():
             df_to_plot = df[total_channels]
             df_to_plot.columns = columns
             df_to_plot.to_csv ('selected_data_%d.csv' % i)
-            df_to_plot.plot (subplots = True, x = 'timestamp', style = '.-')
+            df_to_plot.plot (subplots = True, x = 'timestamp')
             plt.show ()
     finally:
         # release session in the end
