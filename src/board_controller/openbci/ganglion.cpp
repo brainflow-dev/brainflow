@@ -220,6 +220,11 @@ void Ganglion::read_thread ()
 
     while (keep_alive)
     {
+        for (int i = 0; i < num_channels; i++)
+        {
+            package[i] = 0.0;
+        }
+
         struct GanglionLib::GanglionData data;
         int res = GanglionLib::get_data ((void *)&data);
         if (res == (int)GanglionLib::CustomExitCodes::STATUS_OK)
