@@ -160,6 +160,24 @@ int uart_open (char *port)
         return -1;
     }
 
+    DCB dcb_serial_params = {0};
+    dcb_serial_params.DCBlength = sizeof (dcb_serial_params);
+    if (GetCommState (serial_handle, &dcb_serial_params) == 0)
+    {
+        CloseHandle (serial_handle);
+        return -1;
+    }
+
+    dcb_serial_params.BaudRate = CBR_256000;
+    dcb_serial_params.ByteSize = 8;
+    dcb_serial_params.StopBits = ONESTOPBIT;
+    dcb_serial_params.Parity = NOPARITY;
+    if (SetCommState (serial_handle, &dcb_serial_params) == 0)
+    {
+        CloseHandle (serial_handle);
+        return -1;
+    }
+
     return 0;
 }
 void uart_close ()
