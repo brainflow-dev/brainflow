@@ -250,10 +250,10 @@ int uart_open (char *port)
     tcgetattr (serial_handle, &options);
 
     /*
-     * Set the baud rates to 115200...
+     * Set the baud rates to 230400...
      */
-    cfsetispeed (&options, B115200);
-    cfsetospeed (&options, B115200);
+    cfsetispeed (&options, B230400);
+    cfsetospeed (&options, B230400);
 
     /*
      * Enable the receiver and set parameters ...
