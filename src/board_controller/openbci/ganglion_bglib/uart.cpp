@@ -160,6 +160,24 @@ int uart_open (char *port)
         return -1;
     }
 
+    DCB dcb_serial_params = {0};
+    dcb_serial_params.DCBlength = sizeof (dcb_serial_params);
+    if (GetCommState (serial_handle, &dcb_serial_params) == 0)
+    {
+        CloseHandle (serial_handle);
+        return -1;
+    }
+
+    dcb_serial_params.BaudRate = CBR_256000;
+    dcb_serial_params.ByteSize = 8;
+    dcb_serial_params.StopBits = ONESTOPBIT;
+    dcb_serial_params.Parity = NOPARITY;
+    if (SetCommState (serial_handle, &dcb_serial_params) == 0)
+    {
+        CloseHandle (serial_handle);
+        return -1;
+    }
+
     return 0;
 }
 void uart_close ()
@@ -250,10 +268,10 @@ int uart_open (char *port)
     tcgetattr (serial_handle, &options);
 
     /*
-     * Set the baud rates to 115200...
+     * Set the baud rates to 230400...
      */
-    cfsetispeed (&options, B115200);
-    cfsetospeed (&options, B115200);
+    cfsetispeed (&options, B230400);
+    cfsetospeed (&options, B230400);
 
     /*
      * Enable the receiver and set parameters ...
