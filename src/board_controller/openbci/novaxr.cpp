@@ -67,6 +67,15 @@ int NovaXR::prepare_session ()
         socket = NULL;
         return BOARD_WRITE_ERROR;
     }
+    // force default sampling rate - 500
+    res = config_board ("~5");
+    if (res != STATUS_OK)
+    {
+        safe_logger (spdlog::level::err, "failed to apply defaul sampling rate");
+        delete socket;
+        socket = NULL;
+        return BOARD_WRITE_ERROR;
+    }
     initialized = true;
     return STATUS_OK;
 }
