@@ -92,6 +92,7 @@ void ble_evt_connection_status (const struct ble_msg_connection_status_evt_t *ms
 void ble_evt_connection_disconnected (const struct ble_msg_connection_disconnected_evt_t *msg)
 {
     // atempt to reconnect
+    // changing values here leads to package loss, dont touch it
     ble_cmd_gap_connect_direct (
         &GanglionLib::connect_addr, gap_address_type_random, 10, 76, 100, 0);
 }
