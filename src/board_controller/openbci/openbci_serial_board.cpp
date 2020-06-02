@@ -29,7 +29,7 @@ int OpenBCISerialBoard::open_port ()
         return PORT_ALREADY_OPEN_ERROR;
     }
 
-    Board::board_logger->info ("openning port {}", serial->get_port_name ());
+    safe_logger (spdlog::level::info, "openning port {}", serial->get_port_name ());
     int res = serial->open_serial_port ();
     if (res < 0)
     {
@@ -89,7 +89,6 @@ int OpenBCISerialBoard::set_port_settings ()
 
 int OpenBCISerialBoard::status_check ()
 {
-    Board::board_logger->trace ("start status check");
     unsigned char buf[1];
     int count = 0;
     int max_empty_seq = 5;
@@ -144,23 +143,55 @@ int OpenBCISerialBoard::prepare_session ()
     int port_open = open_port ();
     if (port_open != STATUS_OK)
     {
+        delete serial;
+        serial = NULL;
         return port_open;
     }
 
     int set_settings = set_port_settings ();
     if (set_settings != STATUS_OK)
     {
+        delete serial;
+        serial = NULL;
         return set_settings;
     }
 
     int initted = status_check ();
     if (initted != STATUS_OK)
     {
+        delete serial;
+        serial = NULL;
         return initted;
     }
 
+    int res = send_to_board ("d");
+    // cyton sends response back, clean serial buffer and analyze response
+    constexpr int max_tmp_size = 1024;
+    unsigned char tmp_array[max_tmp_size];
+    unsigned char tmp;
+    int tmp_id = 0;
+    while (serial->read_from_serial_port (&tmp, 1) == 1)
+    {
+        if (tmp_id < max_tmp_size)
+        {
+            tmp_array[tmp_id] = tmp;
+            tmp_id++;
+        }
+    }
+    tmp_id = (tmp_id == max_tmp_size) ? tmp_id - 1 : tmp_id;
+    tmp_array[tmp_id] = '\0';
+
+    if (strncmp ((const char *)tmp_array, "Failure", 7) == 0)
+    {
+        safe_logger (spdlog::level::err,
+            "Board config error, probably dongle is inserted but Cyton is off.");
+        safe_logger (spdlog::level::trace, "read {}", tmp_array);
+        delete serial;
+        serial = NULL;
+        return BOARD_NOT_READY_ERROR;
+    }
+
     initialized = true;
-    Board::board_logger->trace ("Session is ready");
     return STATUS_OK;
 }
 
@@ -168,12 +199,12 @@ int OpenBCISerialBoard::start_stream (int buffer_size, char *streamer_params)
 {
     if (is_streaming)
     {
-        Board::board_logger->error ("Streaming thread already running");
+        safe_logger (spdlog::level::err, "Streaming thread already running");
         return STREAM_ALREADY_RUN_ERROR;
     }
     if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
     {
-        Board::board_logger->error ("invalid array size");
+        safe_logger (spdlog::level::err, "invalid array size");
         return INVALID_BUFFER_SIZE_ERROR;
     }
 

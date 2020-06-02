@@ -19,7 +19,7 @@ class State (enum.Enum):
 class Message (enum.Enum):
     start_stream = b'b'
     stop_stream = b's'
-    default_settings = b'd'
+    ack_values = (b'd', b'~5')
     ack_from_device = b'A'
     temp_ack_from_host = b'a' # maybe will be removed later
 
@@ -67,7 +67,7 @@ class NovaXREmulator (threading.Thread):
                     self.state = State.stream.value
                 elif msg == Message.stop_stream.value:
                     self.state = State.wait.value
-                elif msg == Message.default_settings.value:
+                elif msg in Message.ack_values.value:
                     self.server_socket.sendto (Message.ack_from_device.value, self.addr)
                 elif msg == Message.temp_ack_from_host.value:
                     pass # just remove it from logs

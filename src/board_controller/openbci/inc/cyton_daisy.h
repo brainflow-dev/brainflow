@@ -20,6 +20,4 @@ public:
         : OpenBCISerialBoard (30, params, (int)CYTON_DAISY_BOARD)
     {
     }
-
-    int prepare_session ();
 };
