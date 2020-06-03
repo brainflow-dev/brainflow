@@ -405,7 +405,7 @@ if (UNIX AND NOT APPLE)
         ${CMAKE_HOME_DIRECTORY}/third_party/unicorn/lib/libunicorn.so
         DESTINATION lib
     )
-endif (MSVC)
+endif (UNIX AND NOT APPLE)
 
 # need to put this file with libraries
 install (
