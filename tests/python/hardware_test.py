@@ -134,6 +134,7 @@ def main ():
                 for ch in emg_channels:
                     if ch not in temp_channels:
                         temp_channels.append (ch)
+                temp_channels = sorted (temp_channels)
                 for j in range (len (temp_channels)):
                     if j in selected_channels:
                         total_channels.append (temp_channels[j])
@@ -144,6 +145,13 @@ def main ():
                 for ch in emg_channels:
                     if ch not in total_channels:
                         total_channels.append (ch)
+                total_channels = sorted (total_channels)
+
+            try:
+                total_channels.extend (BoardShim.get_ppg_channels (master_board_id))
+                total_channels.extend (BoardShim.get_eda_channels (master_board_id))
+            except:
+                pass
             total_channels.append (timestamp_channel)
 
             columns = list ()
@@ -157,7 +165,7 @@ def main ():
             df_to_plot = df[total_channels]
             df_to_plot.columns = columns
             df_to_plot.to_csv ('selected_data_%d.csv' % i)
-            df_to_plot.plot (subplots = True, x = 'timestamp', style = '.-')
+            df_to_plot.plot (subplots = True, x = 'timestamp')
             plt.show ()
     finally:
         # release session in the end
