@@ -12,7 +12,8 @@ We signed this library by our own cert instead.
 If you are a user and see this error:
 
 ```
-"OSError: dlopen(/Users/hyemin/opt/anaconda3/envs/notebook/lib/python3.7/site-packages/brainflow/lib/libneurosdk-shared.dylib, 6): no suitable image found.  Did find: /Users/hyemin/opt/anaconda3/envs/notebook/lib/python3.7/site-packages/brainflow/lib/libneurosdk-shared.dylib: code signature invalid for '/Users/hyemin/opt/anaconda3/envs/notebook/lib/python3.7/site-packages/brainflow/lib/libneurosdk-shared.dylib'"
+OSError: dlopen(/Users/hyemin/opt/anaconda3/envs/notebook/lib/python3.7/site-packages/brainflow/lib/libneurosdk-shared.dylib, 6): no suitable image found.
+Did find: /Users/hyemin/opt/anaconda3/envs/notebook/lib/python3.7/site-packages/brainflow/lib/libneurosdk-shared.dylib: code signature invalid for '/Users/hyemin/opt/anaconda3/envs/notebook/lib/python3.7/site-packages/brainflow/lib/libneurosdk-shared.dylib'
 ```
 
 Move to new version and it will solve your issue.
