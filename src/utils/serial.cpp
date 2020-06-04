@@ -135,7 +135,7 @@ int Serial::set_serial_port_settings (int ms_timeout)
     port_settings.c_oflag = 0;
     port_settings.c_lflag = 0;
     port_settings.c_cc[VMIN] = 0;
-    port_settings.c_cc[VTIME] = ms_timeout / 10;
+    port_settings.c_cc[VTIME] = ms_timeout / 100; // vtime is in tenths of a second
 
     if (tcsetattr (this->port_descriptor, TCSANOW, &port_settings) != 0)
         return SerialExitCodes::SET_PORT_STATE_ERROR;
