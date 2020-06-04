@@ -493,6 +493,7 @@ footer .theme-by {
 .intro-header .post-heading h1 {
   margin-top: 0;
   font-size: 35px;
+  text-align: center;
 }
 .intro-header .page-heading .page-subheading,
 .intro-header .post-heading .post-subheading {
@@ -502,9 +503,11 @@ footer .theme-by {
   font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-weight: 300;
   margin: 10px 0 0;
+  text-align: center;
 }
 .intro-header .post-heading .post-subheading {
   margin-bottom: 20px;
+  text-align: center;
 }
 .intro-header.big-img .page-heading .page-subheading,
 .intro-header.big-img .post-heading .post-subheading {
@@ -517,6 +520,10 @@ footer .theme-by {
 }
 .intro-header.big-img .post-heading .post-meta {
   color: #EEE;
+  text-align: center;
+}
+.post-heading .post-meta {
+  text-align: center;
 }
 .intro-header.big-img .img-desc {
   background: rgba(30, 30, 30, 0.6);
@@ -545,6 +552,7 @@ footer .theme-by {
   }
   .intro-header .post-heading h1 {
     font-size: 50px;
+    text-align: center;
   }
   .intro-header.big-img .img-desc {
     font-size: 14px;

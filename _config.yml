@@ -38,7 +38,7 @@ avatar: "/img/brainflow_logo.png"
 
 # If you want to have an image logo in the top-left corner instead of the title text,
 # then specify the following parameter
-title-img: "/img/brainflow_logo_text.png"
+title-img: "/img/brainflow_logo_text_transp.png"
 
 # --- Background colour/image options --- #
 
