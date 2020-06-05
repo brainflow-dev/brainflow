@@ -28,6 +28,7 @@ navbar-links:
   Blog: "blog"
   About BrainFlow:
     - Contact us: "contact"
+    - Dev Guide: "https://brainflow.readthedocs.io/en/stable/BrainFlowDev.html"
     - Project Roadmap: "roadmap"
     - Code of Conduct: "conduct"
     - Partners and Sponsors: "partners_and_sponsors"
