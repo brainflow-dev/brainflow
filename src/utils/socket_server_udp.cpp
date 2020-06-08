@@ -27,7 +27,7 @@ int SocketServerUDP::bind (int min_bytes)
     }
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons (local_port);
-    server_addr.sin_addr.s_addr = INADDR_ANY;
+    server_addr.sin_addr.s_addr = htonl (INADDR_ANY);
     server_socket = socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (server_socket == INVALID_SOCKET)
     {
@@ -52,7 +52,7 @@ int SocketServerUDP::recv (void *data, int size)
 {
     struct sockaddr_in client_addr;
     memset (&client_addr, 0, sizeof (client_addr));
-    int len = 0;
+    socklen_t len = sizeof (client_addr);
     int res =
         recvfrom (server_socket, (char *)data, size, 0, (struct sockaddr *)&client_addr, &len);
     if (res == SOCKET_ERROR)
@@ -97,7 +97,7 @@ int SocketServerUDP::bind (int min_bytes)
     }
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons (local_port);
-    server_addr.sin_addr.s_addr = INADDR_ANY;
+    server_addr.sin_addr.s_addr = htonl (INADDR_ANY);
 
     if (::bind (server_socket, (const struct sockaddr *)&server_addr, sizeof (server_addr)) != 0)
     {
@@ -119,7 +119,7 @@ int SocketServerUDP::recv (void *data, int size)
 {
     struct sockaddr_in client_addr;
     memset (&client_addr, 0, sizeof (client_addr));
-    socklen_t len = 0;
+    socklen_t len = sizeof (client_addr);
     return recvfrom (server_socket, (char *)data, size, 0, (struct sockaddr *)&client_addr, &len);
 }
 

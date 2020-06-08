@@ -128,6 +128,7 @@ int Fascia::start_stream (int buffer_size, char *streamer_params)
 
 int Fascia::stop_stream ()
 {
+    safe_logger (spdlog::level::trace, "stopping thread");
     if (is_streaming)
     {
         keep_alive = false;
@@ -150,6 +151,7 @@ int Fascia::stop_stream ()
 
 int Fascia::release_session ()
 {
+    safe_logger (spdlog::level::trace, "releasing session");
     if (initialized)
     {
         if (is_streaming)
@@ -174,6 +176,16 @@ void Fascia::read_thread ()
     while (keep_alive)
     {
         res = socket->recv (b, Fascia::transaction_size);
+        // log socket error
+        if (res == -1)
+        {
+#ifdef _WIN32
+            safe_logger (spdlog::level::err, "WSAGetLastError is {}", WSAGetLastError ());
+#else
+            safe_logger (spdlog::level::err, "errno {} message {}", errno, strerror (errno));
+#endif
+        }
+        // log amount of bytes read
         if (res != Fascia::transaction_size)
         {
             safe_logger (spdlog::level::trace, "unable to read {} bytes, read {}",
