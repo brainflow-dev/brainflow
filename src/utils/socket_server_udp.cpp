@@ -84,7 +84,7 @@ void SocketServerUDP::close ()
 SocketServerUDP::SocketServerUDP (int local_port)
 {
     this->local_port = local_port;
-    server_socket = INVALID_SOCKET;
+    server_socket = -1;
     memset (&server_addr, 0, sizeof (server_addr));
 }
 
@@ -101,7 +101,7 @@ int SocketServerUDP::bind (int min_bytes)
 
     if (::bind (server_socket, (const struct sockaddr *)&server_addr, sizeof (server_addr)) != 0)
     {
-        return (int)SocketServerUDPCodes::CONNECT_ERROR;
+        return (int)SocketServerUDPCodes::BIND_ERROR;
     }
 
     // ensure that library will not hang in blocking recv/send call
@@ -119,14 +119,8 @@ int SocketServerUDP::recv (void *data, int size)
 {
     struct sockaddr_in client_addr;
     memset (&client_addr, 0, sizeof (client_addr));
-    int len = 0;
-    int res =
-        recvfrom (server_socket, (char *)data, size, 0, (struct sockaddr *)&client_addr, &len);
-    if (res == SOCKET_ERROR)
-    {
-        return -1;
-    }
-    return res;
+    socklen_t len = 0;
+    return recvfrom (server_socket, (char *)data, size, 0, (struct sockaddr *)&client_addr, &len);
 }
 
 void SocketServerUDP::close ()
