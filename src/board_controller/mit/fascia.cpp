@@ -16,7 +16,7 @@ constexpr int Fascia::num_packages;
 constexpr int Fascia::package_size;
 constexpr int Fascia::num_channels;
 
-Fascia::Fascia (struct BrainFlowInputParams params) : Board ((int)NOVAXR_BOARD, params)
+Fascia::Fascia (struct BrainFlowInputParams params) : Board ((int)FASCIA_BOARD, params)
 {
     this->socket = NULL;
     this->is_streaming = false;
