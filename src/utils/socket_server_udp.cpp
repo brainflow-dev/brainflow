@@ -81,7 +81,7 @@ void SocketServerUDP::close ()
 #include <netinet/tcp.h>
 
 
-SocketServerUDP::SocketServerUDP (const char *local_ip, int local_port)
+SocketServerUDP::SocketServerUDP (int local_port)
 {
     this->local_port = local_port;
     server_socket = INVALID_SOCKET;

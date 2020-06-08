@@ -8,6 +8,7 @@
 #include <unistd.h>
 #endif
 
+#include <string.h>
 
 enum class SocketServerUDPCodes
 {
