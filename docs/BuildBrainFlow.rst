@@ -124,7 +124,7 @@ Linux
     Compilation using bash file ::
 
         python -m pip install cmake==3.13.3
-        ./tools/build_linux.sh
+        bash ./tools/build_linux.sh
 
 MacOS
 ~~~~~~~
@@ -138,5 +138,5 @@ MacOS
     Compilation using bash file ::
 
         python -m pip install cmake==3.13.3
-        ./tools/build_mac.sh
+        bash ./tools/build_mac.sh
 
