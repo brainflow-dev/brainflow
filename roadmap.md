@@ -13,27 +13,9 @@ Additionally, an item not being on the roadmap does not exclude it from inclusio
 
 ## Support as many devices as possible
 
-We have powerful system for multi board expansion, which allows us to relatively simple add support for new devices.
+We have powerful system for multi board expansion, which allows us to add support for new devices rather fast and easy.
 
-Currently we added or going to add support for:
-
-* [~~Streaming Board~~](https://brainflow.readthedocs.io/en/stable/SupportedBoards.html#streaming-board)
-* [~~Synthetic Board~~](https://brainflow.readthedocs.io/en/stable/SupportedBoards.html#synthetic-board)
-* [~~OpenBCI Cyton~~](https://docs.openbci.com/docs/01GettingStarted/01-Boards/CytonGS)
-* [~~OpenBCI Ganglion~~](https://docs.openbci.com/docs/01GettingStarted/01-Boards/GanglionGS)
-* [~~OpenBCI Cyton Daisy~~](https://docs.openbci.com/docs/01GettingStarted/01-Boards/DaisyGS)
-* [~~OpenBCI Ganglion with WIFI~~](https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS)
-* [~~OpenBCI Cyton with WIFI~~](https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS)
-* [~~OpenBCI Cyton Daisy with WIFI~~](https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS)
-* [~~BrainBit~~](https://brainbit.com/)
-* [Unicorn](https://www.unicorn-bi.com/)(~~Linux~~, Windows)
-* [Muse](https://choosemuse.com/)
-* [~~Callibri~~](https://callibri.com/)
-* [FreeEEG](https://github.com/neuroidss/FreeEEG32)
-* [HackEEG](https://www.starcat.io/products/hackeeg-shield/)
-* etc
-
-To add new devices to BrainFlow API we need to buy them or work together with manufacturers.
+But to add new devices to BrainFlow API we need to buy them or work together with manufacturers.
 
 ## Port BrainFlow to new platforms and languages
 

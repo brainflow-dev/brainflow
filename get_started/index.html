@@ -1,7 +1,6 @@
 ---
 layout: page
 title: Get Started
-subtitle: Installation and Code Samples
 ---
 
 <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -38,7 +37,7 @@ subtitle: Installation and Code Samples
 
 .btn-group.opt-group { margin-top: 5px; margin-bottom: 5px; display: flex; justify-content: space-between; }
 
-.btn-group.opt-group .opt { padding-bottom: 10px; padding-top: 10px; font-size: 17px; width: 100%; border: none; color: #333447; margin-left: 5px; margin-right: 5px; background-color: whitesmoke; }
+.btn-group.opt-group .opt { padding-bottom: 10px; padding-top: 10px; font-size: 17px; width: 100%; border: none; color: #333447; margin-left: 5px; margin-right: 5px; background-color: #d5e4f2; }
 
 @media screen and (max-width: 600px) { .btn-group.opt-group .opt { font-size: 11px; margin-left: 2px; margin-right: 2px; } }
 
@@ -51,10 +50,122 @@ subtitle: Installation and Code Samples
 .highlight { background: #f0f3f3; }
 
 .highlight .c { color: #0099FF; font-style: italic; }
+
 </style>
 
 <div class="install-selector">
-    <h2>Installing BrainFlow</h2>
+    <h3>Supported Boards</h3>
+    <p>Indicate your device. Then, check supported OSes and Platforms for your board.</p>
+    <div class="row">
+        <div class="col-3 install-left">
+            <span>Manufacturer</span>
+        </div>
+        <div class="col-9 install-right">
+            <div class="btn-group opt-group" role="group">
+                <button type="button" class="btn btn-default opt active manufactorers">BrainFlow</button>
+                <button type="button" class="btn btn-default opt manufactorers">OpenBCI</button>
+                <button type="button" class="btn btn-default opt manufactorers">G.Tec</button>
+                <button type="button" class="btn btn-default opt manufactorers">NeuroMD</button>
+            </div>
+        </div>
+    </div>
+    <div class="brainflow">
+        <div class="row">
+            <div class="col-3 install-left">
+                <span>Board</span>
+            </div>
+            <div class="col-9 install-right">
+                <div class="btn-group opt-group" role="group">
+                    <button type="button" class="btn btn-default opt active boards">Streaming Board</button>
+                    <button type="button" class="btn btn-default opt boards">Synthetic Board</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="openbci">
+        <div class="row">
+            <div class="col-3 install-left">
+                <span>Board</span>
+            </div>
+            <div class="col-9 install-right">
+                <div class="btn-group opt-group" role="group">
+                    <button type="button" class="btn btn-default opt active boards">Cyton</button>
+                    <button type="button" class="btn btn-default opt boards">Ganglion</button>
+                    <button type="button" class="btn btn-default opt boards">Daisy</button>
+                    <button type="button" class="btn btn-default opt boards">WIFI Shield</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="g-tec">
+        <div class="row">
+            <div class="col-3 install-left">
+                <span>Board</span>
+            </div>
+            <div class="col-9 install-right">
+                <div class="btn-group opt-group" role="group">
+                    <button type="button" class="btn btn-default opt active boards">Unicorn</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="neuromd">
+        <div class="row">
+            <div class="col-3 install-left">
+                <span>Board</span>
+            </div>
+            <div class="col-9 install-right">
+                <div class="btn-group opt-group" role="group">
+                    <button type="button" class="btn btn-default opt active boards">BrainBit</button>
+                    <button type="button" class="btn btn-default opt active boards">Callibri</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="streaming-board synthetic-board cyton ganglion daisy wifi-shield">
+        <div class="row">
+            <div class="col-3 install-left">
+                <span>OS / Platform</span>
+            </div>
+            <div class="col-9 install-right">
+                <div class="btn-group opt-group" role="group">
+                    <button type="button" class="btn btn-default opt active platforms">Linux</button>
+                    <button type="button" class="btn btn-default opt platforms">MacOS</button>
+                    <button type="button" class="btn btn-default opt platforms">Windows</button>
+                    <button type="button" class="btn btn-default opt platforms">Devices</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="unicorn">
+        <div class="row">
+            <div class="col-3 install-left">
+                <span>OS / Platform</span>
+            </div>
+            <div class="col-9 install-right">
+                <div class="btn-group opt-group" role="group">
+                    <button type="button" class="btn btn-default opt active platforms">Linux</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="brainbit callibri">
+        <div class="row">
+            <div class="col-3 install-left">
+                <span>OS / Platform</span>
+            </div>
+            <div class="col-9 install-right">
+                <div class="btn-group opt-group" role="group">
+                    <button type="button" class="btn btn-default opt platforms">MacOS</button>
+                    <button type="button" class="btn btn-default opt platforms">Windows</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="install-selector">
+    <h3>Installing BrainFlow</h3>
     <p>Indicate your preferred configuration. Then, follow the customized commands to install BrainFlow on your system.</p>
     <div class="row">
         <div class="col-3 install-left">
@@ -195,6 +306,65 @@ subtitle: Installation and Code Samples
     </div>
 </div>
 
+<br>
+
+<div class="streaming-board">
+    <h4>Streaming Board Description</h4>
+    <p>Refer to the <a href="https://brainflow.readthedocs.io/en/stable/SupportedBoards.html#streaming-board">BrainFlow Docs</a>.</p>
+</div>
+
+<div class="synthetic-board">
+    <h4>Synthetic Board Description</h4>
+    <p>Refer to the <a href="https://brainflow.readthedocs.io/en/stable/SupportedBoards.html#synthetic-board">BrainFlow Docs</a>.</p>
+</div>
+
+<div class="cyton">
+    <h4>Cyton Board Description</h4>
+    <br>
+    <img height="240" src="https://i.ibb.co/cNj9pyf/Cyton.jpg" alt="cyton">
+    <p>Refer to the <a href="https://brainflow.readthedocs.io/en/stable/SupportedBoards.html#cyton">BrainFlow Docs</a>.</p>
+</div>
+
+<div class="ganglion">
+    <h4>Ganglion Board Description</h4>
+    <br>
+    <img height="240" src="https://live.staticflickr.com/65535/49989634628_abebfbac29_m.jpg" alt="ganglion">
+    <p>Refer to the <a href="https://brainflow.readthedocs.io/en/stable/SupportedBoards.html#ganglion">BrainFlow Docs</a>.</p>
+</div>
+
+<div class="daisy">
+    <h4>Cyton Daisy Board Description</h4>
+    <br>
+    <img height="240" src="https://live.staticflickr.com/65535/49989634573_7c6ec96f68_m.jpg" alt="cyton_daisy">
+    <p>Refer to the <a href="https://brainflow.readthedocs.io/en/stable/SupportedBoards.html#cyton-daisy">BrainFlow Docs</a>.</p>
+</div>
+
+<div class="wifi-shield">
+    <h4>WIFI Shield Board Description</h4>
+    <br>
+    <img height="240" src="https://live.staticflickr.com/65535/49989634613_b8298d81a4_m.jpg" alt="wifi_shield">
+    <p>Refer to the <a href="https://brainflow.readthedocs.io/en/stable/SupportedBoards.html#ganglion-with-wifi-shield">BrainFlow Docs</a>.</p>
+</div>
+
+<div class="brainbit">
+    <h4>BrainBit Board Description</h4>
+    <br>
+    <img height="240" src="https://live.staticflickr.com/65535/49579371806_80b1bffae1.jpg" alt="brainbit">
+    <p>Refer to the <a href="https://brainflow.readthedocs.io/en/stable/SupportedBoards.html#brainbit">BrainFlow Docs</a>.</p>
+</div>
+
+<div class="callibri">
+    <h4>Callibri Board Description</h4>
+    <img height="240" src="https://live.staticflickr.com/65535/49906443867_315307d6fc_w.jpg" alt="callibri">
+    <p>Refer to the <a href="https://brainflow.readthedocs.io/en/stable/SupportedBoards.html#callibri-yellow">BrainFlow Docs</a>.</p>
+</div>
+
+<div class="unicorn">
+    <h4>Unicorn Board Description</h4>
+    <img height="240" src="https://live.staticflickr.com/65535/49740988577_c54162024d_h.jpg" alt="unicorn">
+    <p>Refer to the <a href="https://brainflow.readthedocs.io/en/stable/SupportedBoards.html#unicorn">BrainFlow Docs</a>.</p>
+</div>
+
 <div class="devices">
     <h3>Devices</h3>
     <p>BrainFlow supports devices like Raspberry PI and Nvidia Jetson, but you have to build it from source. Also, for some boards we use libraries provided by vendors and usually they don't work on such devices. For instructions to build BrainFlow from source, please refer to the <a href="https://brainflow.readthedocs.io/en/stable/BuildBrainFlow.html#linux"> BrainFlow Compilation Guide.</a></p>
@@ -202,23 +372,11 @@ subtitle: Installation and Code Samples
         <h4>Raspberry PI</h4>
         <img src="https://live.staticflickr.com/65535/49920521047_a14b16429f_w.jpg" alt="Raspberry">
         <p>BrainFlow supports Debian based Raspbian ARM based operating system. After compilation of C++ code you can install bindings you want. But only Python and C++ SDK support 32bit Linux.</p>
-        <h5>Boards supported on Raspberry PI</h5>
-        <ul>
-          <li>Streaming Board</li>
-          <li>Synthetic Board</li>
-          <li>All OpenBCI devices</li>
-        </ul>
     </div>
     <div class="nvidia-jetson">
         <h4>Nvidia Jetson</h4>
         <img src="https://live.staticflickr.com/65535/49920224836_2cabb9a44d_w.jpg" alt="Nvidi_Jetson">
         <p>BrainFlow can be used with Nvidia Jetson devices without any issues, just need to compile it from source. And install binding from local folder.</p>
-        <h5>Boards supported on Nvidia Jetson</h5>
-        <ul>
-          <li>Streaming Board</li>
-          <li>Synthetic Board</li>
-          <li>All OpenBCI devices</li>
-        </ul>
     </div>
 </div>
 
@@ -289,3 +447,5 @@ subtitle: Installation and Code Samples
     <h4>Cpp Code Samples</h4>
     <p>Refer to the <a href="https://brainflow.readthedocs.io/en/stable/Examples.html#id1">BrainFlow Cpp Code Samples</a>.</p>
 </div>
+
+

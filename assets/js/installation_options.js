@@ -59,6 +59,17 @@ $(document).ready(function() {
       $('button.opt').each(function() { is_a_match($(this), iotSelect) });
       queryString += 'iot=' + iotSelect + '&';
     }
+    if (urlParams.get('manufactorer')) {
+      manufactorerSelect = label(urlParams.get('manufactorer'));
+      $('button.opt')
+          .each(function() { is_a_match($(this), manufactorerSelect) });
+      queryString += 'manufactorer=' + manufactorerSelect + '&';
+    }
+    if (urlParams.get('board')) {
+      boardSelect = label(urlParams.get('board'));
+      $('button.opt').each(function() { is_a_match($(this), boardSelect) });
+      queryString += 'board=' + boardSelect + '&';
+    }
 
     showContent();
 
@@ -93,6 +104,12 @@ $(document).ready(function() {
     } else if ($(this).hasClass("iots")) {
       console.log($(this));
       urlParams.set("iot", label($(this).text()));
+    } else if ($(this).hasClass("manufactorers")) {
+      console.log($(this));
+      urlParams.set("manufactorer", label($(this).text()));
+    } else if ($(this).hasClass("boards")) {
+      console.log($(this));
+      urlParams.set("board", label($(this).text()));
     }
     setSelects(urlParams);
   }
