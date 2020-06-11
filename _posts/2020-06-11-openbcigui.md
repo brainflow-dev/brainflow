@@ -2,7 +2,7 @@
 layout: post
 title: OpenBCI GUI with BrainFlow
 subtitle: OpenBCI GUI 5.0 uses BrainFlow
-image: /img/openbci_gui.jpg
+image: /img/openbci_gui_5.jpg
 tags: [apps]
 ---
 
