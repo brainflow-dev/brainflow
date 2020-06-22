@@ -144,7 +144,16 @@ classdef DataFilter
             DataFilter.check_ec (exit_code, task_name);
             data = output.Value;
         end
-        
+
+        function output = get_nearest_power_of_two (value)
+            lib_name = DataFilter.load_lib ();
+            task_name = 'get_nearest_power_of_two';
+            power_of_two = libpointer ('int32Ptr', 0);
+            exit_code = calllib (lib_name, task_name, value, power_of_two);
+            DataFilter.check_ec (exit_code, task_name);
+            output = power_of_two.Value;
+        end
+
         function write_file (data, file_name, file_mode)
             task_name = 'write_file';
             lib_name = DataFilter.load_lib ();

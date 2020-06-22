@@ -47,6 +47,8 @@ namespace brainflow
         public static extern int perform_fft (double[] data, int data_len, double[] re, double[] im);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_ifft (double[] re, double[] im, int data_len, double[] data);
+        [DllImport("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_nearest_power_of_two(int value, int[] output);
     }
 
     class DataHandlerLibrary32
@@ -80,6 +82,8 @@ namespace brainflow
         public static extern int perform_fft (double[] data, int data_len, double[] re, double[] im);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_ifft (double[] re, double[] im, int data_len, double[] data);
+        [DllImport("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_nearest_power_of_two(int value, int[] output);
     }
 
     class DataHandlerLibrary
@@ -154,6 +158,14 @@ namespace brainflow
                 return DataHandlerLibrary64.get_num_elements_in_file (file_name, num_elements);
             else
                 return DataHandlerLibrary32.get_num_elements_in_file (file_name, num_elements);
+        }
+
+        public static int get_nearest_power_of_two(int value, int[] output)
+        {
+            if (System.Environment.Is64BitProcess)
+                return DataHandlerLibrary64.get_nearest_power_of_two(value, output);
+            else
+                return DataHandlerLibrary32.get_nearest_power_of_two(value, output);
         }
 
         public static int perform_wavelet_transform (double[] data, int data_len, string wavelet, int decomposition_level, double[] output_data, int[] decomposition_lengths)

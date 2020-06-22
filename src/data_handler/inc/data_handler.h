@@ -55,7 +55,7 @@ extern "C"
         double *data, int data_len, double *output_re, double *output_im);
     SHARED_EXPORT int CALLING_CONVENTION perform_ifft (
         double *input_re, double *input_im, int data_len, double *restored_data);
-
+    SHARED_EXPORT int CALLING_CONVENTION get_nearest_power_of_two (int value, int *output);
 
     // file operations
     SHARED_EXPORT int CALLING_CONVENTION write_file (

@@ -55,6 +55,8 @@ public class DataFilter
         int read_file (double[] data, int[] num_rows, int[] num_cols, String file_name, int max_elements);
 
         int get_num_elements_in_file (String file_name, int[] num_elements);
+
+        int get_nearest_power_of_two (int value, int[] output);
     }
 
     private static DllInterface instance;
@@ -301,6 +303,20 @@ public class DataFilter
             throw new BrainFlowError ("Failed to perform ifft", ec);
         }
         return output;
+    }
+
+    /**
+     * calculate nearest power of two
+     */
+    public static int get_nearest_power_of_two (int value) throws BrainFlowError
+    {
+        int[] power_of_two = new int[1];
+        int ec = instance.get_nearest_power_of_two (value, power_of_two);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Failed to calc nearest power of two", ec);
+        }
+        return power_of_two[0];
     }
 
     /**

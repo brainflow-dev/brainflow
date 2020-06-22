@@ -190,6 +190,13 @@ class DataHandlerDLL (object):
             ndpointer (ctypes.c_double)
         ]
 
+        self.get_nearest_power_of_two = self.lib.get_nearest_power_of_two
+        self.get_nearest_power_of_two.restype = ctypes.c_int
+        self.get_nearest_power_of_two.argtypes = [
+            ctypes.c_int,
+            ndpointer (ctypes.c_int32)
+        ]
+
         self.perform_wavelet_denoising = self.lib.perform_wavelet_denoising
         self.perform_wavelet_denoising.restype = ctypes.c_int
         self.perform_wavelet_denoising.argtypes = [
@@ -489,6 +496,22 @@ class DataFilter (object):
             raise BrainFlowError ('unable to perform ifft', res)
 
         return output
+
+    @classmethod
+    def get_nearest_power_of_two (cls, value):
+        """calc nearest power of two
+
+        :param value: input value
+        :type value: int
+        :return: nearest power of two
+        :rtype: int
+        """
+        output = numpy.zeros (1).astype (numpy.c_int32)
+        res = DataHandlerDLL.get_instance ().get_nearest_power_of_two (value, output)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to calc nearest power of two', res)
+
+        return output[0]
 
     @classmethod
     def write_file (cls, data, file_name, file_mode):

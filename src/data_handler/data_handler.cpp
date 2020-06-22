@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <string>
@@ -498,6 +499,21 @@ int perform_ifft (double *input_re, double *input_im, int data_len, double *rest
         }
         return GENERAL_ERROR;
     }
+    return STATUS_OK;
+}
+
+int get_nearest_power_of_two (int value, int *output)
+{
+    int32_t v = (int32_t)value;
+    v--;
+    v |= v >> 1;
+    v |= v >> 2;
+    v |= v >> 4;
+    v |= v >> 8;
+    v |= v >> 16;
+    v++;            // next power of 2
+    int x = v >> 1; // previous power of 2
+    *output = (v - value) > (value - x) ? x : v;
     return STATUS_OK;
 }
 

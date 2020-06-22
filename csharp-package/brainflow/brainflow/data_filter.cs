@@ -324,5 +324,21 @@ namespace brainflow
             }
             return result;
         }
+
+        /// <summary>
+        /// calculate nearest power of two
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns>nearest power of two</returns>
+        public static int get_nearest_power_of_two(int value)
+        {
+            int[] output = new int[1];
+            int res = DataHandlerLibrary.get_nearest_power_of_two(value, output);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException(res);
+            }
+            return output[0];
+        }
     }
 }

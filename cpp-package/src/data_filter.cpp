@@ -177,6 +177,17 @@ double *DataFilter::perform_ifft (std::complex<double> *data, int data_len)
     return output;
 }
 
+int DataFilter::get_nearest_power_of_two (int value)
+{
+    int output = 0;
+    int res = ::get_nearest_power_of_two (value, &output);
+    if (res != STATUS_OK)
+    {
+        throw BrainFlowException ("failed to calc nearest power of two", res);
+    }
+    return output;
+}
+
 double **DataFilter::read_file (int *num_rows, int *num_cols, char *file_name)
 {
     int max_elements = 0;

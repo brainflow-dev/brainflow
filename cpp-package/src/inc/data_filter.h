@@ -65,6 +65,12 @@ public:
      * @return restored data
      */
     static double *perform_ifft (std::complex<double> *data, int data_len);
+    /**
+     * calculate nearest power of 2
+     * @param value input value
+     * @return nearest power of 2
+     */
+    static int get_nearest_power_of_two (int value);
 
 
     /// write file, in file data will be transposed
