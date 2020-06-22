@@ -504,6 +504,16 @@ int perform_ifft (double *input_re, double *input_im, int data_len, double *rest
 
 int get_nearest_power_of_two (int value, int *output)
 {
+    if (value < 0)
+    {
+        return INVALID_ARGUMENTS_ERROR;
+    }
+    if (value == 1)
+    {
+        *output = 2;
+        return STATUS_OK;
+    }
+
     int32_t v = (int32_t)value;
     v--;
     v |= v >> 1;
