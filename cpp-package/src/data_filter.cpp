@@ -121,7 +121,7 @@ void DataFilter::perform_wavelet_denoising (
     }
 }
 
-std::complex<double> *DataFilter::perform_fft (double *data, int data_len)
+std::complex<double> *DataFilter::perform_fft (double *data, int data_len, int window)
 {
     if ((data_len & (data_len - 1)) || (data_len <= 0))
     {
@@ -130,7 +130,7 @@ std::complex<double> *DataFilter::perform_fft (double *data, int data_len)
     std::complex<double> *output = new std::complex<double>[data_len / 2 + 1];
     double *temp_re = new double[data_len / 2 + 1];
     double *temp_im = new double[data_len / 2 + 1];
-    int res = ::perform_fft (data, data_len, temp_re, temp_im);
+    int res = ::perform_fft (data, data_len, window, temp_re, temp_im);
     if (res == STATUS_OK)
     {
         for (int i = 0; i < data_len / 2 + 1; i++)
@@ -149,6 +149,56 @@ std::complex<double> *DataFilter::perform_fft (double *data, int data_len)
         throw BrainFlowException ("failed to perform fft", res);
     }
     return output;
+}
+
+std::pair<double *, double *> DataFilter::get_psd (
+    double *data, int data_len, int sampling_rate, int window)
+{
+    if ((data_len & (data_len - 1)) || (data_len <= 0))
+    {
+        throw BrainFlowException ("data len is not power of 2", INVALID_ARGUMENTS_ERROR);
+    }
+    double *ampl = new double[data_len / 2 + 1];
+    double *freq = new double[data_len / 2 + 1];
+    int res = ::get_psd (data, data_len, sampling_rate, window, ampl, freq);
+    if (res != STATUS_OK)
+    {
+        delete[] ampl;
+        delete[] freq;
+        throw BrainFlowException ("failed to get psd", res);
+    }
+    return std::make_pair (ampl, freq);
+}
+
+std::pair<double *, double *> DataFilter::get_log_psd (
+    double *data, int data_len, int sampling_rate, int window)
+{
+    if ((data_len & (data_len - 1)) || (data_len <= 0))
+    {
+        throw BrainFlowException ("data len is not power of 2", INVALID_ARGUMENTS_ERROR);
+    }
+    double *ampl = new double[data_len / 2 + 1];
+    double *freq = new double[data_len / 2 + 1];
+    int res = ::get_log_psd (data, data_len, sampling_rate, window, ampl, freq);
+    if (res != STATUS_OK)
+    {
+        delete[] ampl;
+        delete[] freq;
+        throw BrainFlowException ("failed to get log psd", res);
+    }
+    return std::make_pair (ampl, freq);
+}
+
+double DataFilter::get_band_power (
+    std::pair<double *, double *> psd, int data_len, double freq_start, double freq_end)
+{
+    double band_power = 0;
+    int res = ::get_band_power (psd.first, psd.second, data_len, freq_start, freq_end, &band_power);
+    if (res != STATUS_OK)
+    {
+        throw BrainFlowException ("failed to get band power", res);
+    }
+    return band_power;
 }
 
 double *DataFilter::perform_ifft (std::complex<double> *data, int data_len)

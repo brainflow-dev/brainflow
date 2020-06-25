@@ -60,6 +60,12 @@ Python MNE Integration
 .. literalinclude:: ../tests/python/brainflow_to_mne.py
    :language: py
 
+Python Band Power
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../tests/python/band_power.py
+   :language: py
+
 Java
 ------
 
@@ -99,6 +105,12 @@ Java Denoising
 .. literalinclude:: ../java-package/brainflow/src/main/java/brainflow/examples/Denoising.java
    :language: java
 
+Java Band Power
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../java-package/brainflow/src/main/java/brainflow/examples/BandPower.java
+   :language: java
+
 C#
 -----
 
@@ -136,6 +148,12 @@ C# Denoising
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. literalinclude:: ../csharp-package/brainflow/denoising/denoising.cs
+   :language: c#
+
+C# Band Power
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../csharp-package/brainflow/band_power/band_power.cs
    :language: c#
 
 
@@ -203,6 +221,12 @@ C++ Denoising
 .. literalinclude:: ../tests/cpp/signal_processing_demo/src/denoising.cpp
    :language: cpp
 
+C++ Band Power
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../tests/cpp/signal_processing_demo/src/band_power.cpp
+   :language: cpp
+
 R
 ----
 
@@ -234,6 +258,12 @@ R Denoising
 ~~~~~~~~~~~~~
 
 .. literalinclude:: ../tests/r/denoising.R
+   :language: r
+
+R Band Power
+~~~~~~~~~~~~~
+
+.. literalinclude:: ../tests/r/band_power.R
    :language: r
 
 Matlab
@@ -269,6 +299,12 @@ Matlab Denoising
 .. literalinclude:: ../matlab-package/brainflow/examples/Denoising.m
    :language: matlab
 
+Matlab Band Power
+~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../matlab-package/brainflow/examples/BandPower.m
+   :language: matlab
+
 Julia
 --------
 
@@ -302,6 +338,11 @@ Julia Denoising
 .. literalinclude:: ../julia-package/brainflow/test/denoising.jl
    :language: julia
 
+Julia Band Power
+~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../julia-package/brainflow/test/band_power.jl
+   :language: julia
 
 Notebooks
 ------------
@@ -309,3 +350,4 @@ Notebooks
 
    ./notebooks/brainflow_mne
    ./notebooks/denoising
+   ./notebooks/band_power

@@ -4,7 +4,7 @@ import brainflow
 import numpy as np
 
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels, BoardIds
-from brainflow.data_filter import DataFilter, FilterTypes, AggOperations
+from brainflow.data_filter import DataFilter, FilterTypes, AggOperations, WindowFunctions
 
 
 def main ():
@@ -13,12 +13,13 @@ def main ():
     # use synthetic board for demo
     params = BrainFlowInputParams ()
     board_id = BoardIds.SYNTHETIC_BOARD.value
+    sampling_rate = BoardShim.get_sampling_rate (board_id)
     board = BoardShim (board_id, params)
     board.prepare_session ()
     board.start_stream ()
     BoardShim.log_message (LogLevels.LEVEL_INFO.value, 'start sleeping in the main thread')
     time.sleep (10)
-    data = board.get_board_data ()
+    data = board.get_current_board_data (DataFilter.get_nearest_power_of_two (sampling_rate))
     board.stop_stream ()
     board.release_session ()
 
@@ -40,7 +41,7 @@ def main ():
         print (restored_data)
 
         # demo for fft, len of data must be a power of 2
-        fft_data = DataFilter.perform_fft (data[channel][:128])
+        fft_data = DataFilter.perform_fft (data[channel], WindowFunctions.NO_WINDOW.value)
         # len of fft_data is N / 2 + 1
         restored_fft_data = DataFilter.perform_ifft (fft_data)
         print ('Restored data after fft for channel %d:' % channel)

@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Numerics;
 using brainflow;
 
 using Accord.Math;
 
 namespace test
 {
-    class Downsampling
+    class GetBoardData
     {
         static void Main (string[] args)
         {
@@ -13,24 +14,25 @@ namespace test
             BoardShim.enable_dev_board_logger ();
             BrainFlowInputParams input_params = new BrainFlowInputParams ();
             int board_id = (int)BoardIds.SYNTHETIC_BOARD;
+            int sampling_rate = BoardShim.get_sampling_rate (board_id);
 
             BoardShim board_shim = new BoardShim (board_id, input_params);
             board_shim.prepare_session ();
             board_shim.start_stream (3600);
             System.Threading.Thread.Sleep (5000);
             board_shim.stop_stream ();
-            double[,] unprocessed_data = board_shim.get_current_board_data (20);
+            double[,] data = board_shim.get_current_board_data (DataFilter.get_nearest_power_of_two (sampling_rate));
             int[] eeg_channels = BoardShim.get_eeg_channels (board_id);
             board_shim.release_session ();
 
             for (int i = 0; i < eeg_channels.Length; i++)
             {
-                Console.WriteLine ("Before processing:");
-                Console.WriteLine ("[{0}]", string.Join (", ", unprocessed_data.GetRow(eeg_channels[i])));
-                // you can use MEAN, MEDIAN or EACH for downsampling
-                double[] filtered = DataFilter.perform_downsampling (unprocessed_data.GetRow (eeg_channels[i]), 3, (int)AggOperations.MEDIAN);
-                Console.WriteLine ("Before processing:");
-                Console.WriteLine ("[{0}]", string.Join (", ", filtered));
+                // optional: you can subtract mean from signal before PSD calculation
+                Tuple<double[], double[]> psd = DataFilter.get_psd (data.GetRow (eeg_channels[i]), 0,
+                    data.GetRow (eeg_channels[i]).Length, sampling_rate, (int)WindowFunctions.HANNING);
+                double band_power_alpha = DataFilter.get_band_power (psd, 7.0, 13.0);
+                double band_power_beta = DataFilter.get_band_power (psd, 14.0, 30.0);
+                Console.WriteLine ("Alpha/Beta Ratio:" + (band_power_alpha/ band_power_beta));
             }
         }
     }

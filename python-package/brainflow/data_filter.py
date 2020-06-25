@@ -28,6 +28,15 @@ class AggOperations (enum.Enum):
     EACH = 2 #:
 
 
+class WindowFunctions (enum.Enum):
+    """Enum to store all supported window functions"""
+
+    NO_WINDOW = 0 #:
+    HANNING = 1 #:
+    HAMMING = 2 #:
+    BLACKMAN_HARRIS = 3 #:
+
+
 class DataHandlerDLL (object):
 
     __instance = None
@@ -177,6 +186,7 @@ class DataHandlerDLL (object):
         self.perform_fft.argtypes = [
             ndpointer (ctypes.c_double),
             ctypes.c_int,
+            ctypes.c_int,
             ndpointer (ctypes.c_double),
             ndpointer (ctypes.c_double)
         ]
@@ -204,6 +214,39 @@ class DataHandlerDLL (object):
             ctypes.c_int,
             ctypes.c_char_p,
             ctypes.c_int
+        ]
+
+        self.get_psd = self.lib.get_psd
+        self.get_psd.restype = ctypes.c_int
+        self.get_psd.argtypes = [
+            ndpointer (ctypes.c_double),
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ndpointer (ctypes.c_double),
+            ndpointer (ctypes.c_double),
+        ]
+
+        self.get_log_psd = self.lib.get_log_psd
+        self.get_log_psd.restype = ctypes.c_int
+        self.get_log_psd.argtypes = [
+            ndpointer (ctypes.c_double),
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ndpointer (ctypes.c_double),
+            ndpointer (ctypes.c_double),
+        ]
+
+        self.get_band_power = self.lib.get_band_power
+        self.get_band_power.restype = ctypes.c_int
+        self.get_band_power.argtypes = [
+            ndpointer (ctypes.c_double),
+            ndpointer (ctypes.c_double),
+            ctypes.c_int,
+            ctypes.c_double,
+            ctypes.c_double,
+            ndpointer (ctypes.c_double)
         ]
 
 
@@ -449,11 +492,13 @@ class DataFilter (object):
             raise BrainFlowError ('unable to denoise data', res)
 
     @classmethod
-    def perform_fft (cls, data):
+    def perform_fft (cls, data, window):
         """perform direct fft
 
         :param data: data for fft, len of data must be a power of 2
         :type data: 1d numpy array
+        :param window: window function
+        :type window: int
         :return: numpy array of complex values, len of this array is N / 2 + 1
         :rtype: 1d numpy array
         """
@@ -461,11 +506,11 @@ class DataFilter (object):
             return (n != 0) and (n & (n - 1) == 0)
 
         if (not is_power_of_two (data.shape[0])):
-            raise BrainFlowError ('data len is not power of 2', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+            raise BrainFlowError ('data len is not power of 2: %d' % data.shape[0], BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
 
         temp_re = numpy.zeros (int (data.shape[0] / 2 + 1)).astype (numpy.float64)
         temp_im = numpy.zeros (int (data.shape[0] / 2 + 1)).astype (numpy.float64)
-        res = DataHandlerDLL.get_instance ().perform_fft (data, data.shape[0], temp_re, temp_im)
+        res = DataHandlerDLL.get_instance ().perform_fft (data, data.shape[0], window, temp_re, temp_im)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to perform fft', res)
 
@@ -474,6 +519,107 @@ class DataFilter (object):
             output[i] = numpy.complex128 (complex (temp_re[i], temp_im[i]))
 
         return output
+
+    @classmethod
+    def get_psd (cls, data, sampling_rate, window):
+        """calculate PSD
+
+        :param data: data to calc psd, len of data must be a power of 2
+        :type data: 1d numpy array
+        :param sampling_rate: sampling rate
+        :type sampling_rate: int
+        :param window: window function
+        :type window: int
+        :return: amplitude and frequency arrays of len N / 2 + 1
+        :rtype: tuple(ndarray, ndarray)
+        """
+        def is_power_of_two (n):
+            return (n != 0) and (n & (n - 1) == 0)
+
+        if (not is_power_of_two (data.shape[0])):
+            raise BrainFlowError ('data len is not power of 2: %d' % data.shape[0], BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+
+        ampls = numpy.zeros (int (data.shape[0] / 2 + 1)).astype (numpy.float64)
+        freqs = numpy.zeros (int (data.shape[0] / 2 + 1)).astype (numpy.float64)
+        res = DataHandlerDLL.get_instance ().get_psd (data, data.shape[0], sampling_rate, window, ampls, freqs)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to calc psd', res)
+
+        return ampls, freqs
+
+    @classmethod
+    def get_log_psd (cls, data, sampling_rate, window):
+        """calculate log PSD
+
+        :param data: data to calc log psd, len of data must be a power of 2
+        :type data: 1d numpy array
+        :param sampling_rate: sampling rate
+        :type sampling_rate: int
+        :param window: window function
+        :type window: int
+        :return: amplitude and frequency arrays of len N / 2 + 1
+        :rtype: tuple(ndarray, ndarray)
+        """
+        def is_power_of_two (n):
+            return (n != 0) and (n & (n - 1) == 0)
+
+        if (not is_power_of_two (data.shape[0])):
+            raise BrainFlowError ('data len is not power of 2: %d' % data.shape[0], BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+
+        ampls = numpy.zeros (int (data.shape[0] / 2 + 1)).astype (numpy.float64)
+        freqs = numpy.zeros (int (data.shape[0] / 2 + 1)).astype (numpy.float64)
+        res = DataHandlerDLL.get_instance ().get_log_psd (data, data.shape[0], sampling_rate, window, ampls, freqs)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to calc log psd', res)
+
+        return ampls, freqs\
+
+    @classmethod
+    def get_log_psd (cls, data, sampling_rate, window):
+        """calculate log PSD
+
+        :param data: data to calc log psd, len of data must be a power of 2
+        :type data: 1d numpy array
+        :param sampling_rate: sampling rate
+        :type sampling_rate: int
+        :param window: window function
+        :type window: int
+        :return: amplitude and frequency arrays of len N / 2 + 1
+        :rtype: tuple(ndarray, ndarray)
+        """
+        def is_power_of_two (n):
+            return (n != 0) and (n & (n - 1) == 0)
+
+        if (not is_power_of_two (data.shape[0])):
+            raise BrainFlowError ('data len is not power of 2', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+
+        ampls = numpy.zeros (int (data.shape[0] / 2 + 1)).astype (numpy.float64)
+        freqs = numpy.zeros (int (data.shape[0] / 2 + 1)).astype (numpy.float64)
+        res = DataHandlerDLL.get_instance ().get_log_psd (data, data.shape[0], sampling_rate, window, ampls, freqs)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to calc log psd', res)
+
+        return ampls, freqs
+
+    @classmethod
+    def get_band_power (cls, psd, freq_start, freq_end):
+        """calculate band power
+
+        :param psd: psd from get_psd or get_log_psd
+        :type psd: typle(ndarray, ndarray)
+        :param freq_start: start freq
+        :type freq_start: int
+        :param freq_end: end freq
+        :type freq_end: int
+        :return: band power
+        :rtype: float64 value
+        """
+        band_power = numpy.zeros (1).astype (numpy.float64)
+        res = DataHandlerDLL.get_instance ().get_band_power (psd[0], psd[1], psd[0].shape[0], freq_start, freq_end, band_power)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to calc band power', res)
+
+        return band_power[0]
 
     @classmethod
     def perform_ifft (cls, data):
@@ -506,7 +652,7 @@ class DataFilter (object):
         :return: nearest power of two
         :rtype: int
         """
-        output = numpy.zeros (1).astype (numpy.c_int32)
+        output = numpy.zeros (1).astype (numpy.int32)
         res = DataHandlerDLL.get_instance ().get_nearest_power_of_two (value, output)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to calc nearest power of two', res)

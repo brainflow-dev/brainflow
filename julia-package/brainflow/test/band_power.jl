@@ -17,16 +17,8 @@ brainflow.release_session(board_shim)
 eeg_channels = brainflow.get_eeg_channels(Integer(brainflow.SYNTHETIC_BOARD))
 data_first_channel = data[eeg_channels[1], :]
 
-# returns tuple of wavelet coeffs and lengths
-wavelet_data = brainflow.perform_wavelet_transform(data_first_channel, "db4", 2)
-restored_wavelet_data = brainflow.perform_inverse_wavelet_transform(wavelet_data, length(data_first_channel), "db4", 2)
-
-fft_data = brainflow.perform_fft(data_first_channel, Integer(brainflow.NO_WINDOW))
-restored_fft_data = brainflow.perform_ifft(fft_data)
-
-println("Original Data")
-println(data_first_channel)
-println("Restored from Wavelet Data")
-println(restored_wavelet_data)
-println("Restored from FFT Data")
-println(restored_fft_data)
+# psd is a tuple of ampls and freqs
+psd = brainflow.get_psd(data_first_channel, sampling_rate, Integer(brainflow.BLACKMAN_HARRIS))
+band_power_alpha = brainflow.get_band_power(psd, 7.0, 13.0)
+band_power_beta = brainflow.get_band_power(psd, 14.0, 30.0)
+println(band_power_alpha / band_power_beta)

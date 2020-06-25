@@ -124,6 +124,7 @@ Linux
     Compilation using bash file ::
 
         python -m pip install cmake==3.13.3
+        # you may need to change line endings using dos2unix or text editor for file below
         bash ./tools/build_linux.sh
 
 MacOS
@@ -138,5 +139,6 @@ MacOS
     Compilation using bash file ::
 
         python -m pip install cmake==3.13.3
+        # you may need to change line endings using dos2unix or text editor for file below
         bash ./tools/build_mac.sh
 

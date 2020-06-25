@@ -16,6 +16,16 @@ end
 end
 
 
+@enum WindowFunctions begin
+
+    NO_WINDOW = 0
+    HANNING = 1
+    HAMMING = 2
+    BLACKMAN_HARRIS = 3
+
+end
+
+
 function perform_lowpass(data, sampling_rate, cutoff, order, filter_type, ripple)
     ec = STATUS_OK
     # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
@@ -285,7 +295,7 @@ function perform_inverse_wavelet_transform(wavelet_output, original_data_len, wa
 end
 
 
-function perform_fft(data)
+function perform_fft(data, window)
 
     function is_power_of_two(value)
         (value != 0) && (value & (value - 1) == 0)
@@ -302,14 +312,14 @@ function perform_fft(data)
     ec = STATUS_OK
     # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
     if Sys.iswindows()
-        ec = ccall((:perform_fft, "DataHandler.dll"), Cint, (Ptr{Float64}, Cint, Ptr{Float64}, Ptr{Float64}),
-            data, length(data), temp_re, temp_im)
+        ec = ccall((:perform_fft, "DataHandler.dll"), Cint, (Ptr{Float64}, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
+            data, length(data), window, temp_re, temp_im)
     elseif Sys.isapple()
-        ec = ccall((:perform_fft, "libDataHandler.dylib"), Cint, (Ptr{Float64}, Cint, Ptr{Float64}, Ptr{Float64}),
-            data, length(data), temp_re, temp_im)
+        ec = ccall((:perform_fft, "libDataHandler.dylib"), Cint, (Ptr{Float64}, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
+            data, length(data), window, temp_re, temp_im)
     else
-        ec = ccall((:perform_fft, "libDataHandler.so"), Cint, (Ptr{Float64}, Cint, Ptr{Float64}, Ptr{Float64}),
-            data, length(data), temp_re, temp_im)
+        ec = ccall((:perform_fft, "libDataHandler.so"), Cint, (Ptr{Float64}, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
+            data, length(data), window, temp_re, temp_im)
     end
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in perform_fft ", ec), ec))
@@ -347,4 +357,89 @@ function perform_ifft(data)
         throw(BrainFlowError(string("Error in perform_ifft ", ec), ec))
     end
     res
+end
+
+function get_psd(data, sampling_rate, window)
+
+    function is_power_of_two(value)
+        (value != 0) && (value & (value - 1) == 0)
+    end
+
+    if !is_power_of_two(length(data))
+        throw(BrainFlowError(string("Data Len must be power of two ", INVALID_ARGUMENTS_ERROR), INVALID_ARGUMENTS_ERROR))
+    end
+
+    temp_ampls = Vector{Float64}(undef, Integer(length(data) / 2) + 1)
+    temp_freqs = Vector{Float64}(undef, Integer(length(data) / 2) + 1)
+    res = Vector{Complex}(undef, Integer(length(data) / 2) + 1)
+
+    ec = STATUS_OK
+    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
+    if Sys.iswindows()
+        ec = ccall((:get_psd, "DataHandler.dll"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
+            data, length(data), sampling_rate, window, temp_ampls, temp_freqs)
+    elseif Sys.isapple()
+        ec = ccall((:get_psd, "libDataHandler.dylib"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
+            data, length(data), sampling_rate, window, temp_ampls, temp_freqs)
+    else
+        ec = ccall((:get_psd, "libDataHandler.so"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
+            data, length(data), sampling_rate, window, temp_ampls, temp_freqs)
+    end
+    if ec != Integer(STATUS_OK)
+        throw(BrainFlowError(string("Error in get_psd ", ec), ec))
+    end
+    temp_ampls, temp_freqs
+end
+
+function get_log_psd(data, sampling_rate, window)
+
+    function is_power_of_two(value)
+        (value != 0) && (value & (value - 1) == 0)
+    end
+
+    if !is_power_of_two(length(data))
+        throw(BrainFlowError(string("Data Len must be power of two ", INVALID_ARGUMENTS_ERROR), INVALID_ARGUMENTS_ERROR))
+    end
+
+    temp_ampls = Vector{Float64}(undef, Integer(length(data) / 2) + 1)
+    temp_freqs = Vector{Float64}(undef, Integer(length(data) / 2) + 1)
+    res = Vector{Complex}(undef, Integer(length(data) / 2) + 1)
+
+    ec = STATUS_OK
+    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
+    if Sys.iswindows()
+        ec = ccall((:get_log_psd, "DataHandler.dll"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
+            data, length(data), sampling_rate, window, temp_re, temp_im)
+    elseif Sys.isapple()
+        ec = ccall((:get_log_psd, "libDataHandler.dylib"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
+            data, length(data), sampling_rate, window, temp_re, temp_im)
+    else
+        ec = ccall((:get_log_psd, "libDataHandler.so"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
+            data, length(data), sampling_rate, window, temp_re, temp_im)
+    end
+    if ec != Integer(STATUS_OK)
+        throw(BrainFlowError(string("Error in get_log_psd ", ec), ec))
+    end
+    temp_ampls, temp_freqs
+end
+
+function get_band_power(psd, freq_start, freq_end)
+    band_power = Vector{Float64}(undef, 1)
+
+    ec = STATUS_OK
+    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
+    if Sys.iswindows()
+        ec = ccall((:get_band_power, "DataHandler.dll"), Cint, (Ptr{Float64}, Ptr{Float64}, Cint, Float64, Float64, Ptr{Float64}),
+            psd[1], psd[2], length(psd[1]), freq_start, freq_end, band_power)
+    elseif Sys.isapple()
+        ec = ccall((:get_band_power, "libDataHandler.dylib"), Cint, (Ptr{Float64}, Ptr{Float64}, Cint, Float64, Float64, Ptr{Float64}),
+            psd[1], psd[2], length(psd[1]), freq_start, freq_end, band_power)
+    else
+        ec = ccall((:get_band_power, "libDataHandler.so"), Cint, (Ptr{Float64}, Ptr{Float64}, Cint, Float64, Float64, Ptr{Float64}),
+            psd[1], psd[2], length(psd[1]), freq_start, freq_end, band_power)
+    end
+    if ec != Integer(STATUS_OK)
+        throw(BrainFlowError(string("Error in get_band_power ", ec), ec))
+    end
+    band_power[1]
 end

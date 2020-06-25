@@ -46,7 +46,7 @@ public class DataFilter
 
         int perform_wavelet_denoising (double[] data, int data_len, String wavelet, int decomposition_level);
 
-        int perform_fft (double[] data, int data_len, double[] output_re, double[] output_im);
+        int perform_fft (double[] data, int data_len, int window, double[] output_re, double[] output_im);
 
         int perform_ifft (double[] re, double[] im, int data_len, double[] data);
 
@@ -57,6 +57,13 @@ public class DataFilter
         int get_num_elements_in_file (String file_name, int[] num_elements);
 
         int get_nearest_power_of_two (int value, int[] output);
+
+        int get_psd (double[] data, int len, int sampling_rate, int window, double[] ampls, double[] freqs);
+
+        int get_log_psd (double[] data, int len, int sampling_rate, int window, double[] ampls, double[] freqs);
+
+        int get_band_power (double[] ampls, double[] freqs, int len, double start_freq, double stop_freq,
+                double[] output);
     }
 
     private static DllInterface instance;
@@ -259,9 +266,10 @@ public class DataFilter
      * @param data      data for fft transform
      * @param start_pos starting position to calc fft
      * @param end_pos   end position to calc fft, total_len must be a power of two
+     * @param window    window function
      * @return array of complex values with size N / 2 + 1
      */
-    public static Complex[] perform_fft (double[] data, int start_pos, int end_pos) throws BrainFlowError
+    public static Complex[] perform_fft (double[] data, int start_pos, int end_pos, int window) throws BrainFlowError
     {
         if ((start_pos < 0) || (end_pos > data.length) || (start_pos >= end_pos))
         {
@@ -278,7 +286,7 @@ public class DataFilter
         double[][] complex_array = new double[2][];
         complex_array[0] = new double[len / 2 + 1];
         complex_array[1] = new double[len / 2 + 1];
-        int ec = instance.perform_fft (data_to_process, data.length, complex_array[0], complex_array[1]);
+        int ec = instance.perform_fft (data_to_process, len, window, complex_array[0], complex_array[1]);
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to perform fft", ec);
@@ -303,6 +311,98 @@ public class DataFilter
             throw new BrainFlowError ("Failed to perform ifft", ec);
         }
         return output;
+    }
+
+    /**
+     * get PSD
+     * 
+     * @param data      data to process
+     * @param start_pos starting position to calc PSD
+     * @param end_pos   end position to calc PSD, total_len must be a power of two
+     * @param window    window function
+     * @return pair of ampl and freq arrays with len N / 2 + 1
+     */
+    public static Pair<double[], double[]> get_psd (double[] data, int start_pos, int end_pos, int sampling_rate,
+            int window) throws BrainFlowError
+    {
+        if ((start_pos < 0) || (end_pos > data.length) || (start_pos >= end_pos))
+        {
+            throw new BrainFlowError ("invalid position arguments", ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
+        // I didnt find a way to pass an offset using pointers, copy array
+        double[] data_to_process = Arrays.copyOfRange (data, start_pos, end_pos);
+        int len = data_to_process.length;
+        if ((len & (len - 1)) != 0)
+        {
+            throw new BrainFlowError ("end_pos - start_pos must be a power of 2",
+                    ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
+        double[] ampls = new double[len / 2 + 1];
+        double[] freqs = new double[len / 2 + 1];
+        int ec = instance.get_psd (data_to_process, len, sampling_rate, window, ampls, freqs);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Failed to get psd", ec);
+        }
+        Pair<double[], double[]> res = new MutablePair<double[], double[]> (ampls, freqs);
+        return res;
+    }
+
+    /**
+     * get log PSD
+     * 
+     * @param data      data to process
+     * @param start_pos starting position to calc log PSD
+     * @param end_pos   end position to calc log PSD, total_len must be a power of
+     *                  two
+     * @param window    window function
+     * @return pair of ampl and freq arrays with len N / 2 + 1
+     */
+    public static Pair<double[], double[]> get_log_psd (double[] data, int start_pos, int end_pos, int sampling_rate,
+            int window) throws BrainFlowError
+    {
+        if ((start_pos < 0) || (end_pos > data.length) || (start_pos >= end_pos))
+        {
+            throw new BrainFlowError ("invalid position arguments", ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
+        // I didnt find a way to pass an offset using pointers, copy array
+        double[] data_to_process = Arrays.copyOfRange (data, start_pos, end_pos);
+        int len = data_to_process.length;
+        if ((len & (len - 1)) != 0)
+        {
+            throw new BrainFlowError ("end_pos - start_pos must be a power of 2",
+                    ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
+        double[] ampls = new double[len / 2 + 1];
+        double[] freqs = new double[len / 2 + 1];
+        int ec = instance.get_log_psd (data_to_process, len, sampling_rate, window, ampls, freqs);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Failed to get log psd", ec);
+        }
+        Pair<double[], double[]> res = new MutablePair<double[], double[]> (ampls, freqs);
+        return res;
+    }
+
+    /**
+     * get band power
+     * 
+     * @param psd        PSD from get_psd or get_log_psd
+     * @param freq_start lowest frequency of band
+     * @param freq_end   highest frequency of band
+     * @return band power
+     */
+    public static double get_band_power (Pair<double[], double[]> psd, double freq_start, double freq_end)
+            throws BrainFlowError
+    {
+        double[] res = new double[1];
+        int ec = instance.get_band_power (psd.getLeft (), psd.getRight (), psd.getLeft ().length, freq_start, freq_end,
+                res);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Failed to get band power", ec);
+        }
+        return res[0];
     }
 
     /**

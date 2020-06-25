@@ -12,11 +12,9 @@ data = board_shim.get_current_board_data (DataFilter.get_nearest_power_of_two (s
 board_shim.release_session ();
 
 eeg_channels = BoardShim.get_eeg_channels (int32 (BoardIDs.SYNTHETIC_BOARD));
-% wavelet for first eeg channel %
 first_eeg_channel = eeg_channels (1);
 original_data = data (first_eeg_channel, :);
-[wavelet_data, wavelet_lenghts] = DataFilter.perform_wavelet_transform (original_data, 'db4', 2);
-restored_data = DataFilter.perform_inverse_wavelet_transform (wavelet_data, wavelet_lenghts, size (original_data, 2), 'db4', 2);
-% fft for first eeg channel %
-fft_data = DataFilter.perform_fft (original_data, int32 (WindowFunctions.NO_WINDOW));
-restored_fft_data = DataFilter.perform_ifft (fft_data);
+[ampls, freqs] = DataFilter.get_psd (original_data, sampling_rate, int32 (WindowFunctions.HAMMING));
+band_power_alpha = DataFilter.get_band_power (ampls, freqs, 7.0, 13.0);
+band_power_beta = DataFilter.get_band_power (ampls, freqs, 14.0, 30.0);
+ratio = band_power_alpha / band_power_beta;

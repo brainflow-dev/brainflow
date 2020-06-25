@@ -16,6 +16,14 @@ namespace brainflow
         EACH = 2
     };
 
+    public enum WindowFunctions
+    {
+        NO_WINDOW = 0,
+        HANNING = 1,
+        HAMMING = 2,
+        BLACKMAN_HARRIS = 3
+    };
+
     class DataHandlerLibrary64
     {
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -44,11 +52,17 @@ namespace brainflow
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_wavelet_denoising (double[] data, int data_len, string wavelet, int decomposition_level);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int perform_fft (double[] data, int data_len, double[] re, double[] im);
+        public static extern int perform_fft (double[] data, int data_len, int window, double[] re, double[] im);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_ifft (double[] re, double[] im, int data_len, double[] data);
         [DllImport("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_nearest_power_of_two(int value, int[] output);
+        [DllImport("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_psd(double[] data, int data_len, int sampling_rate, int window, double[] ampls, double[] freqs);
+        [DllImport("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_log_psd(double[] data, int data_len, int sampling_rate, int window, double[] ampls, double[] freqs);
+        [DllImport("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_band_power(double[] ampls, double[] freqs, int data_len, double freq_start, double freq_end, double[] res);
     }
 
     class DataHandlerLibrary32
@@ -79,11 +93,17 @@ namespace brainflow
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_wavelet_denoising (double[] data, int data_len, string wavelet, int decomposition_level);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int perform_fft (double[] data, int data_len, double[] re, double[] im);
+        public static extern int perform_fft (double[] data, int data_len, int window, double[] re, double[] im);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_ifft (double[] re, double[] im, int data_len, double[] data);
         [DllImport("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_nearest_power_of_two(int value, int[] output);
+        [DllImport("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_psd(double[] data, int data_len, int sampling_rate, int window, double[] ampls, double[] freqs);
+        [DllImport("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_log_psd(double[] data, int data_len, int sampling_rate, int window, double[] ampls, double[] freqs);
+        [DllImport("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_band_power(double[] ampls, double[] freqs, int data_len, double freq_start, double freq_end, double[] res);
     }
 
     class DataHandlerLibrary
@@ -193,12 +213,36 @@ namespace brainflow
                 return DataHandlerLibrary32.perform_wavelet_denoising (data, data_len, wavelet, decomposition_level);
         }
 
-        public static int perform_fft (double[] data, int data_len, double[] output_re, double[] output_im)
+        public static int perform_fft (double[] data, int data_len, int window, double[] output_re, double[] output_im)
         {
             if (System.Environment.Is64BitProcess)
-                return DataHandlerLibrary64.perform_fft (data, data_len, output_re, output_im);
+                return DataHandlerLibrary64.perform_fft (data, data_len, window, output_re, output_im);
             else
-                return DataHandlerLibrary32.perform_fft (data, data_len, output_re, output_im);
+                return DataHandlerLibrary32.perform_fft (data, data_len, window, output_re, output_im);
+        }
+
+        public static int get_psd(double[] data, int data_len, int sampling_rate, int window, double[] output_ampls, double[] output_freqs)
+        {
+            if (System.Environment.Is64BitProcess)
+                return DataHandlerLibrary64.get_psd(data, data_len, sampling_rate, window, output_ampls, output_freqs);
+            else
+                return DataHandlerLibrary32.get_psd(data, data_len, sampling_rate, window, output_ampls, output_freqs);
+        }
+
+        public static int get_log_psd(double[] data, int data_len, int sampling_rate, int window, double[] output_ampls, double[] output_freqs)
+        {
+            if (System.Environment.Is64BitProcess)
+                return DataHandlerLibrary64.get_log_psd(data, data_len, sampling_rate, window, output_ampls, output_freqs);
+            else
+                return DataHandlerLibrary32.get_log_psd(data, data_len, sampling_rate, window, output_ampls, output_freqs);
+        }
+
+        public static int get_band_power(double[] ampls, double[] freqs, int data_len, double start_freq, double stop_freq, double[] res)
+        {
+            if (System.Environment.Is64BitProcess)
+                return DataHandlerLibrary64.get_band_power(ampls, freqs, data_len, start_freq, stop_freq, res);
+            else
+                return DataHandlerLibrary32.get_band_power(ampls, freqs, data_len, start_freq, stop_freq, res);
         }
 
         public static int perform_ifft (double[] re, double[] im, int len, double[] data)

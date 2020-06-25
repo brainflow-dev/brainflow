@@ -1,3 +1,4 @@
+#include <math.h>
 #include <stdexcept>
 #include <stdint.h>
 #include <stdio.h>
@@ -16,6 +17,13 @@
 #include "wavelib.h"
 
 #include "FFTReal.h"
+
+
+#define MAX_FILTER_ORDER 8
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 
 int perform_lowpass (double *data, int data_len, int sampling_rate, double cutoff, int order,
@@ -429,18 +437,53 @@ And FFT bins are distributed in f [] as above:
    ...         | f [...]        | -f [...]        | f [...]
    length-1    | f [1]          | -f [length/2+1] | f [length/2+1]
 */
-int perform_fft (double *data, int data_len, double *output_re, double *output_im)
+int perform_fft (
+    double *data, int data_len, int window_function, double *output_re, double *output_im)
 {
     // must be power of 2
     if ((!data) || (!output_re) || (!output_im) || (data_len <= 0) || (data_len & (data_len - 1)))
     {
         return INVALID_ARGUMENTS_ERROR;
     }
+    double *windowed_data = new double[data_len];
+    // from https://www.edn.com/windowing-functions-improve-fft-results-part-i/
+    switch (window_function)
+    {
+        case NO_WINDOW:
+            for (int i = 0; i < data_len; i++)
+            {
+                windowed_data[i] = data[i];
+            }
+            break;
+        case HAMMING:
+            for (int i = 0; i < data_len; i++)
+            {
+                windowed_data[i] = data[i] * (0.54 - 0.46 * cos (2.0 * M_PI * i / data_len));
+            }
+            break;
+        case HANNING:
+            for (int i = 0; i < data_len; i++)
+            {
+                windowed_data[i] = data[i] * (0.5 - 0.5 * cos (2.0 * M_PI * i / data_len));
+            }
+            break;
+        case BLACKMAN_HARRIS:
+            for (int i = 0; i < data_len; i++)
+            {
+                windowed_data[i] = data[i] *
+                    (0.355768 - 0.487396 * cos (2.0 * M_PI * i / data_len) +
+                        0.144232 * cos (4.0 * M_PI * i / data_len) -
+                        0.012604 * cos (6.0 * M_PI * i / data_len));
+            }
+            break;
+        default:
+            return INVALID_ARGUMENTS_ERROR;
+    }
     double *temp = new double[data_len];
     try
     {
         ffft::FFTReal<double> fft_object (data_len);
-        fft_object.do_fft (temp, data);
+        fft_object.do_fft (temp, windowed_data);
         for (int i = 0; i < data_len / 2 + 1; i++)
         {
             output_re[i] = temp[i];
@@ -448,10 +491,13 @@ int perform_fft (double *data, int data_len, double *output_re, double *output_i
         output_im[0] = 0.0;
         for (int count = 1, j = data_len / 2 + 1; j < data_len; j++, count++)
         {
-            output_im[count] = temp[j];
+            // add minus to make output exactly as in scipy
+            output_im[count] = -temp[j];
         }
         output_im[data_len / 2] = 0.0;
         delete[] temp;
+        delete[] windowed_data;
+        windowed_data = NULL;
         temp = NULL;
     }
     catch (const std::exception &e)
@@ -459,6 +505,10 @@ int perform_fft (double *data, int data_len, double *output_re, double *output_i
         if (temp)
         {
             delete[] temp;
+        }
+        if (windowed_data)
+        {
+            delete[] windowed_data;
         }
         return GENERAL_ERROR;
     }
@@ -484,7 +534,8 @@ int perform_ifft (double *input_re, double *input_im, int data_len, double *rest
         }
         for (int count = 1, j = data_len / 2 + 1; j < data_len; j++, count++)
         {
-            temp[j] = input_im[count];
+            // add minus to make output exactly as in scipy
+            temp[j] = -input_im[count];
         }
         fft_object.do_ifft (temp, restored_data);
         fft_object.rescale (restored_data);
@@ -499,6 +550,83 @@ int perform_ifft (double *input_re, double *input_im, int data_len, double *rest
         }
         return GENERAL_ERROR;
     }
+    return STATUS_OK;
+}
+
+int get_psd (double *data, int data_len, int sampling_rate, int window_function,
+    double *output_ampl, double *output_freq)
+{
+    if ((data_len < 1) || (data_len & (data_len - 1)) || (output_ampl == NULL) ||
+        (output_freq == NULL))
+    {
+        return INVALID_ARGUMENTS_ERROR;
+    }
+    double *re = new double[data_len / 2 + 1];
+    double *im = new double[data_len / 2 + 1];
+    int res = perform_fft (data, data_len, window_function, re, im);
+    if (res != STATUS_OK)
+    {
+        delete[] re;
+        delete[] im;
+        return res;
+    }
+    double freq_res = (double)sampling_rate / (double)data_len;
+    for (int i = 0; i < data_len / 2 + 1; i++)
+    {
+        // https://www.mathworks.com/help/signal/ug/power-spectral-density-estimates-using-fft.html
+        output_ampl[i] = (re[i] * re[i] + im[i] * im[i]) / ((double)(sampling_rate * data_len));
+        if ((i != 0) && (i != data_len / 2))
+        {
+            output_ampl[i] *= 2;
+        }
+        output_freq[i] = i * freq_res;
+    }
+    delete[] re;
+    delete[] im;
+    return STATUS_OK;
+}
+
+int get_log_psd (double *data, int data_len, int sampling_rate, int window_function,
+    double *output_ampl, double *output_freq)
+{
+    int res = get_psd (data, data_len, sampling_rate, window_function, output_ampl, output_freq);
+    if (res != STATUS_OK)
+    {
+        return res;
+    }
+    for (int i = 0; i < data_len / 2 + 1; i++)
+    {
+        output_ampl[i] = log10 (output_ampl[i]);
+    }
+    return STATUS_OK;
+}
+
+int get_band_power (double *ampl, double *freq, int data_len, double freq_start, double freq_end,
+    double *band_power)
+{
+    if ((ampl == NULL) || (freq == NULL) || (freq_start > freq_end) || (band_power == NULL))
+    {
+        return INVALID_ARGUMENTS_ERROR;
+    }
+    int counter = 0;
+    double res = 0.0;
+    for (int i = 0; i < data_len; i++)
+    {
+        if (freq[i] > freq_end)
+        {
+            break;
+        }
+        if ((freq[i] >= freq_start) && (freq[i] <= freq_end))
+        {
+            res += ampl[i];
+            counter++;
+        }
+    }
+    if (counter != 0)
+    {
+        res /= counter;
+    }
+    *band_power = res;
     return STATUS_OK;
 }
 
