@@ -18,7 +18,7 @@ int main (int argc, char *argv[])
 {
     struct BrainFlowInputParams params;
     // use synthetic board for demo
-    int board_id = SYNTHETIC_BOARD;
+    int board_id = (int)BoardIds::SYNTHETIC_BOARD;
 
     BoardShim::enable_dev_board_logger ();
 
@@ -46,7 +46,7 @@ int main (int argc, char *argv[])
         {
             BoardShim::log_message ((int)LogLevels::LEVEL_ERROR,
                 "read %d packages, for this test we want exactly 128 packages", data_count);
-            return GENERAL_ERROR;
+            return (int)BrainFlowExitCodes::GENERAL_ERROR;
         }
         board->release_session ();
         num_rows = BoardShim::get_num_rows (board_id);
@@ -94,8 +94,8 @@ int main (int argc, char *argv[])
 
             // demo for fft
             // data count must be power of 2 for fft!
-            std::complex<double> *fft_data =
-                DataFilter::perform_fft (data[eeg_channels[i]], data_count, NO_WINDOW);
+            std::complex<double> *fft_data = DataFilter::perform_fft (
+                data[eeg_channels[i]], data_count, (int)WindowFunctions::NO_WINDOW);
             // len of fft_data array is N / 2 + 1
             std::cout << "FFT coeffs:" << std::endl;
             for (int i = 0; i < data_count / 2 + 1; i++)

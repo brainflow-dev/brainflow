@@ -182,7 +182,7 @@ For Windows it's almost the same.
 CMake File Example
 ~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../tests/cpp/signal_processing_demo/CMakeLists.txt
+.. literalinclude:: ../tests/cpp/get_data_demo/CMakeLists.txt
    :language: none
 
 C++ Read Data from a Board

@@ -16,7 +16,7 @@ int main (int argc, char *argv[])
 {
     struct BrainFlowInputParams params;
     // use synthetic board for demo
-    int board_id = SYNTHETIC_BOARD;
+    int board_id = (int)BoardIds::SYNTHETIC_BOARD;
 
     BoardShim::enable_dev_board_logger ();
 
@@ -46,7 +46,7 @@ int main (int argc, char *argv[])
         {
             BoardShim::log_message ((int)LogLevels::LEVEL_ERROR,
                 "read %d packages, for this test we want exactly %d packages", data_count, fft_len);
-            return GENERAL_ERROR;
+            return (int)BrainFlowExitCodes::GENERAL_ERROR;
         }
         board->release_session ();
         num_rows = BoardShim::get_num_rows (board_id);
@@ -59,8 +59,8 @@ int main (int argc, char *argv[])
         {
             // optional: you can subtract mean from signal before FFT or apply filters
             // calc psd
-            std::pair<double *, double *> psd =
-                DataFilter::get_psd (data[eeg_channels[i]], data_count, sampling_rate, HAMMING);
+            std::pair<double *, double *> psd = DataFilter::get_psd (
+                data[eeg_channels[i]], data_count, sampling_rate, (int)WindowFunctions::HAMMING);
             // calc band power
             double band_power_alpha =
                 DataFilter::get_band_power (psd, data_count / 2 + 1, 7.0, 13.0);

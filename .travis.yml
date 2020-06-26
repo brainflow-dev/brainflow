@@ -98,9 +98,6 @@ script:
   - if [ `which valgrind` ]; then
       LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id -1;
     fi
-  - if [ `which valgrind` ]; then
-      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_file_stream --board-id -1;
-    fi
   - cd $TRAVIS_BUILD_DIR/java-package/brainflow && mvn exec:java -Dexec.mainClass="brainflow.examples.BrainFlowGetData" -Dexec.args="--board-id -1"
   # R disabled. It's taking up too much time in CI
   # - Rscript $TRAVIS_BUILD_DIR/tests/r/brainflow_get_data.R

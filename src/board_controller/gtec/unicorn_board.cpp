@@ -221,7 +221,7 @@ int UnicornBoard::call_open ()
     {
         safe_logger (
             spdlog::level::err, "failed to get function address for UNICORN_GetAvailableDevices");
-        return GENERAL_ERROR;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
     unsigned int available_device_count = 0;
     int ec = func_get_available (NULL, &available_device_count, TRUE);
@@ -266,7 +266,7 @@ int UnicornBoard::call_open ()
             safe_logger (
                 spdlog::level::err, "device with id {} not found", params.serial_number.c_str ());
             delete[] available_devices;
-            return GENERAL_ERROR;
+            return (int)BrainFlowExitCodes::GENERAL_ERROR;
         }
     }
 
@@ -277,7 +277,7 @@ int UnicornBoard::call_open ()
     {
         safe_logger (spdlog::level::err, "failed to get function address for UNICORN_OpenDevice");
         delete[] available_devices;
-        return GENERAL_ERROR;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
     ec = func_open (available_devices[device_num], &device_handle);
     if ((ec != UNICORN_ERROR_SUCCESS) || (device_handle == 0))
