@@ -17,7 +17,7 @@ public:
 
     int init_streamer ()
     {
-        return STATUS_OK;
+        return (int)BrainFlowExitCodes::STATUS_OK;
     }
     void stream_data (double *data, int size, double timestamp)
     {

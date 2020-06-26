@@ -12,7 +12,8 @@ protected:
 #endif
 
 public:
-    CallibriEEG (struct BrainFlowInputParams params) : Callibri ((int)CALLIBRI_EEG_BOARD, params)
+    CallibriEEG (struct BrainFlowInputParams params)
+        : Callibri ((int)BoardIds::CALLIBRI_EEG_BOARD, params)
     {
     }
     ~CallibriEEG ()

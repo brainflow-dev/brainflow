@@ -15,7 +15,8 @@
 constexpr int UnicornBoard::package_size;
 
 
-UnicornBoard::UnicornBoard (struct BrainFlowInputParams params) : Board ((int)UNICORN_BOARD, params)
+UnicornBoard::UnicornBoard (struct BrainFlowInputParams params)
+    : Board ((int)BoardIds::UNICORN_BOARD, params)
 {
     // get full path of libunicorn.so with assumption that this lib is in the same folder
     char unicornlib_dir[1024];
@@ -51,13 +52,13 @@ int UnicornBoard::prepare_session ()
     if (initialized)
     {
         safe_logger (spdlog::level::info, "Session is already prepared");
-        return STATUS_OK;
+        return (int)BrainFlowExitCodes::STATUS_OK;
     }
 
     if (!dll_loader->load_library ())
     {
         safe_logger (spdlog::level::err, "Failed to load library");
-        return GENERAL_ERROR;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
     safe_logger (spdlog::level::debug, "Library is loaded");
 
@@ -66,17 +67,17 @@ int UnicornBoard::prepare_session ()
     if (func_get_data == NULL)
     {
         safe_logger (spdlog::level::err, "failed to get function address for UNICORN_GetData");
-        return GENERAL_ERROR;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
 
     int res = call_open ();
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
 
     initialized = true;
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int UnicornBoard::start_stream (int buffer_size, char *streamer_params)
@@ -84,12 +85,12 @@ int UnicornBoard::start_stream (int buffer_size, char *streamer_params)
     if (is_streaming)
     {
         safe_logger (spdlog::level::err, "Streaming thread already running");
-        return STREAM_ALREADY_RUN_ERROR;
+        return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
     if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
     {
         safe_logger (spdlog::level::err, "Invalid array size");
-        return INVALID_BUFFER_SIZE_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     if (db)
@@ -103,7 +104,7 @@ int UnicornBoard::start_stream (int buffer_size, char *streamer_params)
         streamer = NULL;
     }
     int res = prepare_streamer (streamer_params);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
@@ -114,11 +115,11 @@ int UnicornBoard::start_stream (int buffer_size, char *streamer_params)
         Board::board_logger->error ("Unable to prepare buffer with size {}", buffer_size);
         delete db;
         db = NULL;
-        return INVALID_BUFFER_SIZE_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     res = call_start ();
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
@@ -126,7 +127,7 @@ int UnicornBoard::start_stream (int buffer_size, char *streamer_params)
     keep_alive = true;
     streaming_thread = std::thread ([this] { this->read_thread (); });
     is_streaming = true;
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int UnicornBoard::stop_stream ()
@@ -140,7 +141,7 @@ int UnicornBoard::stop_stream ()
     }
     else
     {
-        return STREAM_THREAD_IS_NOT_RUNNING;
+        return (int)BrainFlowExitCodes::STREAM_THREAD_IS_NOT_RUNNING;
     }
 }
 
@@ -159,7 +160,7 @@ int UnicornBoard::release_session ()
         delete dll_loader;
         dll_loader = NULL;
     }
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 void UnicornBoard::read_thread ()
@@ -207,7 +208,7 @@ int UnicornBoard::config_board (char *config)
     // todo if there will be requests for it.
     // Unicorn API provides int Unicorn_SetConfiguration method
     safe_logger (spdlog::level::debug, "config_board is not supported for Unicorn.");
-    return UNSUPPORTED_BOARD_ERROR;
+    return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
 int UnicornBoard::call_open ()
@@ -227,12 +228,12 @@ int UnicornBoard::call_open ()
     if (ec != UNICORN_ERROR_SUCCESS)
     {
         safe_logger (spdlog::level::err, "Error in UNICORN_GetAvailableDevices {}", ec);
-        return BOARD_NOT_READY_ERROR;
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     }
     if (available_device_count < 1)
     {
         safe_logger (spdlog::level::err, "Unicorn not found");
-        return BOARD_NOT_READY_ERROR;
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     }
     UNICORN_DEVICE_SERIAL *available_devices = new UNICORN_DEVICE_SERIAL[available_device_count];
     ec = func_get_available (available_devices, &available_device_count, TRUE);
@@ -240,7 +241,7 @@ int UnicornBoard::call_open ()
     {
         safe_logger (spdlog::level::err, "Error in UNICORN_GetAvailableDevices {}", ec);
         delete[] available_devices;
-        return BOARD_NOT_READY_ERROR;
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     }
 
     // search for device
@@ -283,11 +284,11 @@ int UnicornBoard::call_open ()
     {
         safe_logger (spdlog::level::err, "Error in UNICORN_OpenDevice {}", ec);
         delete[] available_devices;
-        return BOARD_NOT_READY_ERROR;
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     }
 
     delete[] available_devices;
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int UnicornBoard::call_start ()
@@ -298,15 +299,15 @@ int UnicornBoard::call_start ()
     {
         safe_logger (
             spdlog::level::err, "failed to get function address for UNICORN_StartAcquisition");
-        return GENERAL_ERROR;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
     int ec = func_start_streaming (device_handle, FALSE);
     if (ec != UNICORN_ERROR_SUCCESS)
     {
         safe_logger (spdlog::level::err, "Error in UNICORN_StartAcquisition {}", ec);
-        return GENERAL_ERROR;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int UnicornBoard::call_stop ()
@@ -317,15 +318,15 @@ int UnicornBoard::call_stop ()
     {
         safe_logger (
             spdlog::level::err, "failed to get function address for UNICORN_StopAcquisition");
-        return GENERAL_ERROR;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
     int ec = func_stop_streaming (device_handle);
     if (ec != UNICORN_ERROR_SUCCESS)
     {
         safe_logger (spdlog::level::err, "Error in UNICORN_StopAcquisition {}", ec);
-        return GENERAL_ERROR;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int UnicornBoard::call_close ()
@@ -335,21 +336,22 @@ int UnicornBoard::call_close ()
     if (func_close == NULL)
     {
         safe_logger (spdlog::level::err, "failed to get function address for UNICORN_CloseDevice");
-        return GENERAL_ERROR;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
     int ec = func_close (&device_handle);
     if (ec != UNICORN_ERROR_SUCCESS)
     {
         safe_logger (spdlog::level::err, "Error in UNICORN_CloseDevice {}", ec);
-        return GENERAL_ERROR;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 
 // stub for windows and macos
 #else
-UnicornBoard::UnicornBoard (struct BrainFlowInputParams params) : Board ((int)UNICORN_BOARD, params)
+UnicornBoard::UnicornBoard (struct BrainFlowInputParams params)
+    : Board ((int)BoardIds::UNICORN_BOARD, params)
 {
 }
 
@@ -360,30 +362,30 @@ UnicornBoard::~UnicornBoard ()
 int UnicornBoard::prepare_session ()
 {
     safe_logger (spdlog::level::err, "UnicornBoard supports only Linux.");
-    return UNSUPPORTED_BOARD_ERROR;
+    return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
 int UnicornBoard::config_board (char *config)
 {
     safe_logger (spdlog::level::err, "UnicornBoard supports only Linux.");
-    return UNSUPPORTED_BOARD_ERROR;
+    return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
 int UnicornBoard::release_session ()
 {
     safe_logger (spdlog::level::err, "UnicornBoard supports only Linux.");
-    return UNSUPPORTED_BOARD_ERROR;
+    return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
 int UnicornBoard::stop_stream ()
 {
     safe_logger (spdlog::level::err, "UnicornBoard supports only Linux.");
-    return UNSUPPORTED_BOARD_ERROR;
+    return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
 int UnicornBoard::start_stream (int buffer_size, char *streamer_params)
 {
     safe_logger (spdlog::level::err, "UnicornBoard supports only Linux.");
-    return UNSUPPORTED_BOARD_ERROR;
+    return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 #endif

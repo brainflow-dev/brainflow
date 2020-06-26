@@ -29,9 +29,9 @@ int MultiCastStreamer::init_streamer ()
     if (res != (int)MultiCastReturnCodes::STATUS_OK)
     {
         Board::board_logger->error ("failed to init server multicast socket {}", res);
-        return GENERAL_ERROR;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 void MultiCastStreamer::stream_data (double *data, int len, double timestamp)

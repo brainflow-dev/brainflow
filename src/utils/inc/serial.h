@@ -10,7 +10,7 @@
 #include <string.h>
 
 
-enum SerialExitCodes
+enum SerialExitCodes : int
 {
     OK = 0,
     OPEN_PORT_ERROR = -1,

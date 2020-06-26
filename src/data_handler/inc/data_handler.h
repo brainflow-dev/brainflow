@@ -4,27 +4,27 @@
 #include "shared_export.h"
 
 
-typedef enum
+enum class FilterTypes : int
 {
     BUTTERWORTH = 0,
     CHEBYSHEV_TYPE_1 = 1,
     BESSEL = 2
-} FilterTypes;
+};
 
-typedef enum
+enum class AggOperations : int
 {
     MEAN = 0,
     MEDIAN = 1,
     EACH = 2
-} AggOperations;
+};
 
-typedef enum
+enum class WindowFunctions : int
 {
     NO_WINDOW = 0,
     HANNING = 1,
     HAMMING = 2,
     BLACKMAN_HARRIS = 3
-} WindowFunctions;
+};
 
 
 #ifdef __cplusplus

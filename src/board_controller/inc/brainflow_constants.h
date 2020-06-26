@@ -1,6 +1,6 @@
 #pragma once
 
-typedef enum
+enum class BrainFlowExitCodes : int
 {
     STATUS_OK = 0,
     PORT_ALREADY_OPEN_ERROR = 1,
@@ -23,9 +23,9 @@ typedef enum
     SYNC_TIMEOUT_ERROR = 18,
     JSON_NOT_FOUND_ERROR = 19,
     NO_SUCH_DATA_IN_JSON_ERROR = 20
-} CustomExitCodes;
+};
 
-typedef enum
+enum class BoardIds : int
 {
     STREAMING_BOARD = -2,
     SYNTHETIC_BOARD = -1,
@@ -41,4 +41,4 @@ typedef enum
     CALLIBRI_EEG_BOARD = 9,
     CALLIBRI_EMG_BOARD = 10,
     CALLIBRI_ECG_BOARD = 11
-} BoardIds;
+};

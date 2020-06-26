@@ -54,7 +54,7 @@ int main (int argc, char *argv[])
     {
         data_buf[i] = (double *)malloc (sizeof (double) * cyton->total_channels);
     }
-    int res = STATUS_OK;
+    int res = (int)BrainFlowExitCodes::STATUS_OK;
     int data_count;
 
     res = cyton->prepare_session ();

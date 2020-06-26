@@ -12,13 +12,13 @@
 #include <string.h>
 
 
-enum class SocketType
+enum class SocketType : int
 {
     UDP = 0,
     TCP = 1
 };
 
-enum class SocketReturnCodes
+enum class SocketReturnCodes : int
 {
     STATUS_OK = 0,
     WSA_STARTUP_ERROR = 1,

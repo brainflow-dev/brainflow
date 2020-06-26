@@ -7,7 +7,7 @@ void DataFilter::perform_lowpass (double *data, int data_len, int sampling_rate,
     int order, int filter_type, double ripple)
 {
     int res = ::perform_lowpass (data, data_len, sampling_rate, cutoff, order, filter_type, ripple);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to filter signal", res);
     }
@@ -18,7 +18,7 @@ void DataFilter::perform_highpass (double *data, int data_len, int sampling_rate
 {
     int res =
         ::perform_highpass (data, data_len, sampling_rate, cutoff, order, filter_type, ripple);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to filter signal", res);
     }
@@ -29,7 +29,7 @@ void DataFilter::perform_bandpass (double *data, int data_len, int sampling_rate
 {
     int res = ::perform_bandpass (
         data, data_len, sampling_rate, center_freq, band_width, order, filter_type, ripple);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to filter signal", res);
     }
@@ -40,7 +40,7 @@ void DataFilter::perform_bandstop (double *data, int data_len, int sampling_rate
 {
     int res = ::perform_bandstop (
         data, data_len, sampling_rate, center_freq, band_width, order, filter_type, ripple);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to filter signal", res);
     }
@@ -49,7 +49,7 @@ void DataFilter::perform_bandstop (double *data, int data_len, int sampling_rate
 void DataFilter::perform_rolling_filter (double *data, int data_len, int period, int agg_operation)
 {
     int res = ::perform_rolling_filter (data, data_len, period, agg_operation);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to filter signal", res);
     }
@@ -60,11 +60,12 @@ double *DataFilter::perform_downsampling (
 {
     if ((data == NULL) || (data_len == 0) || (period == 0) || (data_len / period == 0))
     {
-        throw BrainFlowException ("invalid input params", INVALID_ARGUMENTS_ERROR);
+        throw BrainFlowException (
+            "invalid input params", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
     }
     double *filtered_data = new double[data_len / period];
     int res = ::perform_downsampling (data, data_len, period, agg_operation, filtered_data);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to filter signal", res);
     }
@@ -77,7 +78,8 @@ std::pair<double *, int *> DataFilter::perform_wavelet_transform (
 {
     if (data_len <= 0)
     {
-        throw BrainFlowException ("invalid input params", INVALID_ARGUMENTS_ERROR);
+        throw BrainFlowException (
+            "invalid input params", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
     }
 
     double *wavelet_output = new double[data_len +
@@ -85,7 +87,7 @@ std::pair<double *, int *> DataFilter::perform_wavelet_transform (
     int *decomposition_lengths = new int[decomposition_level + 1];
     int res = ::perform_wavelet_transform (
         data, data_len, wavelet, decomposition_level, wavelet_output, decomposition_lengths);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to perform wavelet", res);
     }
@@ -97,13 +99,14 @@ double *DataFilter::perform_inverse_wavelet_transform (std::pair<double *, int *
 {
     if (original_data_len <= 0)
     {
-        throw BrainFlowException ("invalid input params", INVALID_ARGUMENTS_ERROR);
+        throw BrainFlowException (
+            "invalid input params", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
     }
 
     double *original_data = new double[original_data_len];
     int res = ::perform_inverse_wavelet_transform (wavelet_output.first, original_data_len, wavelet,
         decomposition_level, wavelet_output.second, original_data);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         delete[] original_data;
         throw BrainFlowException ("failed to perform inverse wavelet", res);
@@ -115,7 +118,7 @@ void DataFilter::perform_wavelet_denoising (
     double *data, int data_len, char *wavelet, int decomposition_level)
 {
     int res = ::perform_wavelet_denoising (data, data_len, wavelet, decomposition_level);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to perform wavelet denoising", res);
     }
@@ -125,13 +128,14 @@ std::complex<double> *DataFilter::perform_fft (double *data, int data_len, int w
 {
     if ((data_len & (data_len - 1)) || (data_len <= 0))
     {
-        throw BrainFlowException ("data len is not power of 2", INVALID_ARGUMENTS_ERROR);
+        throw BrainFlowException (
+            "data len is not power of 2", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
     }
     std::complex<double> *output = new std::complex<double>[data_len / 2 + 1];
     double *temp_re = new double[data_len / 2 + 1];
     double *temp_im = new double[data_len / 2 + 1];
     int res = ::perform_fft (data, data_len, window, temp_re, temp_im);
-    if (res == STATUS_OK)
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
         for (int i = 0; i < data_len / 2 + 1; i++)
         {
@@ -156,12 +160,13 @@ std::pair<double *, double *> DataFilter::get_psd (
 {
     if ((data_len & (data_len - 1)) || (data_len <= 0))
     {
-        throw BrainFlowException ("data len is not power of 2", INVALID_ARGUMENTS_ERROR);
+        throw BrainFlowException (
+            "data len is not power of 2", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
     }
     double *ampl = new double[data_len / 2 + 1];
     double *freq = new double[data_len / 2 + 1];
     int res = ::get_psd (data, data_len, sampling_rate, window, ampl, freq);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         delete[] ampl;
         delete[] freq;
@@ -175,12 +180,13 @@ std::pair<double *, double *> DataFilter::get_log_psd (
 {
     if ((data_len & (data_len - 1)) || (data_len <= 0))
     {
-        throw BrainFlowException ("data len is not power of 2", INVALID_ARGUMENTS_ERROR);
+        throw BrainFlowException (
+            "data len is not power of 2", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
     }
     double *ampl = new double[data_len / 2 + 1];
     double *freq = new double[data_len / 2 + 1];
     int res = ::get_log_psd (data, data_len, sampling_rate, window, ampl, freq);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         delete[] ampl;
         delete[] freq;
@@ -194,7 +200,7 @@ double DataFilter::get_band_power (
 {
     double band_power = 0;
     int res = ::get_band_power (psd.first, psd.second, data_len, freq_start, freq_end, &band_power);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to get band power", res);
     }
@@ -205,7 +211,8 @@ double *DataFilter::perform_ifft (std::complex<double> *data, int data_len)
 {
     if ((data_len & (data_len - 1)) || (data_len <= 0))
     {
-        throw BrainFlowException ("data len is not power of 2", INVALID_ARGUMENTS_ERROR);
+        throw BrainFlowException (
+            "data len is not power of 2", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
     }
     double *output = new double[data_len];
     double *temp_re = new double[data_len / 2 + 1];
@@ -219,7 +226,7 @@ double *DataFilter::perform_ifft (std::complex<double> *data, int data_len)
     int res = ::perform_ifft (temp_re, temp_im, data_len, output);
     delete[] temp_re;
     delete[] temp_im;
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         delete[] output;
         throw BrainFlowException ("failed to perform ifft", res);
@@ -231,7 +238,7 @@ int DataFilter::get_nearest_power_of_two (int value)
 {
     int output = 0;
     int res = ::get_nearest_power_of_two (value, &output);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to calc nearest power of two", res);
     }
@@ -242,13 +249,13 @@ double **DataFilter::read_file (int *num_rows, int *num_cols, char *file_name)
 {
     int max_elements = 0;
     int res = get_num_elements_in_file (file_name, &max_elements);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to determine file size", res);
     }
     double *data_linear = new double[max_elements];
     res = ::read_file (data_linear, num_rows, num_cols, file_name, max_elements);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         delete[] data_linear;
         throw BrainFlowException ("failed to read file", res);
@@ -271,7 +278,7 @@ void DataFilter::write_file (
     double *data_linear = new double[num_rows * num_cols];
     DataFilter::reshape_data_to_1d (num_rows, num_cols, data, data_linear);
     int res = ::write_file (data_linear, num_rows, num_cols, file_name, file_mode);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         delete[] data_linear;
         throw BrainFlowException ("failed to write file", res);

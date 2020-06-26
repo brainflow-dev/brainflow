@@ -17,7 +17,7 @@
 int CytonWifi::prepare_session ()
 {
     int res = OpenBCIWifiShieldBoard::prepare_session ();
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }

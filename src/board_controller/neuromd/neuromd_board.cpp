@@ -64,11 +64,11 @@ int NeuromdBoard::find_device ()
     if ((params.timeout < 0) || (params.timeout > 600))
     {
         safe_logger (spdlog::level::err, "bad value for timeout");
-        return INVALID_ARGUMENTS_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
     DeviceEnumerator *enumerator = NULL;
-    if (board_id == (int)BRAINBIT_BOARD)
+    if (board_id == (int)BoardIds::BRAINBIT_BOARD)
     {
         enumerator = create_device_enumerator (DeviceTypeBrainbit);
     }
@@ -81,7 +81,7 @@ int NeuromdBoard::find_device ()
         char error_msg[1024];
         sdk_last_error_msg (error_msg, 1024);
         safe_logger (spdlog::level::err, "create enumerator error {}", error_msg);
-        return BOARD_NOT_READY_ERROR;
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     }
 
     int timeout = 15;
@@ -93,16 +93,16 @@ int NeuromdBoard::find_device ()
 
     int sleep_delay = 300;
     int attempts = (int)(timeout * 1000.0 / sleep_delay);
-    int res = STATUS_OK;
+    int res = (int)BrainFlowExitCodes::STATUS_OK;
     DeviceInfo device_info;
     do
     {
         res = find_device_info (enumerator, &device_info);
-        if (res == INVALID_ARGUMENTS_ERROR)
+        if (res == (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR)
         {
             break;
         }
-        if (res != STATUS_OK)
+        if (res != (int)BrainFlowExitCodes::STATUS_OK)
         {
 #ifdef _WIN32:
             Sleep (sleep_delay);
@@ -115,7 +115,7 @@ int NeuromdBoard::find_device ()
         break;
     } while (attempts-- > 0);
 
-    if (res == STATUS_OK)
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
         device = create_Device (enumerator, device_info);
         if (device == NULL)
@@ -123,7 +123,7 @@ int NeuromdBoard::find_device ()
             char error_msg[1024];
             sdk_last_error_msg (error_msg, 1024);
             safe_logger (spdlog::level::err, "create Device error {}", error_msg);
-            res = BOARD_NOT_READY_ERROR;
+            res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
         }
     }
 
@@ -146,20 +146,20 @@ int NeuromdBoard::find_device_info (DeviceEnumerator *enumerator, DeviceInfo *ou
         {
             safe_logger (spdlog::level::err,
                 "You need to provide NeuromdBoard serial number to serial_number field!");
-            return INVALID_ARGUMENTS_ERROR;
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
         }
     }
 
     int result_code = enumerator_get_device_list (enumerator, &device_info_array);
     if (result_code != SDK_NO_ERROR)
     {
-        return GENERAL_ERROR;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
 
     for (size_t i = 0; i < device_info_array.info_count; ++i)
     {
         // here SerialNumber is 0 for Callibri(probably its a bug)
-        if (board_id == (int)BRAINBIT_BOARD)
+        if (board_id == (int)BoardIds::BRAINBIT_BOARD)
         {
             if ((device_info_array.info_array[i].SerialNumber == serial_number) ||
                 (serial_number == 0))
@@ -168,7 +168,7 @@ int NeuromdBoard::find_device_info (DeviceEnumerator *enumerator, DeviceInfo *ou
                     device_info_array.info_array[i].SerialNumber);
                 *out_device_info = device_info_array.info_array[i];
                 free_DeviceInfoArray (device_info_array);
-                return STATUS_OK;
+                return (int)BrainFlowExitCodes::STATUS_OK;
             }
         }
         else
@@ -199,13 +199,13 @@ int NeuromdBoard::find_device_info (DeviceEnumerator *enumerator, DeviceInfo *ou
             {
                 *out_device_info = device_info_array.info_array[i];
                 free_DeviceInfoArray (device_info_array);
-                return STATUS_OK;
+                return (int)BrainFlowExitCodes::STATUS_OK;
             }
         }
     }
 
     free_DeviceInfoArray (device_info_array);
-    return BOARD_NOT_READY_ERROR;
+    return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
 }
 
 int NeuromdBoard::connect_device ()
@@ -213,7 +213,7 @@ int NeuromdBoard::connect_device ()
     if (device == NULL)
     {
         safe_logger (spdlog::level::err, "Device is not created.");
-        return BOARD_NOT_CREATED_ERROR;
+        return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
     }
 
 #ifndef _WIN32:
@@ -233,7 +233,7 @@ int NeuromdBoard::connect_device ()
             char error_msg[1024];
             sdk_last_error_msg (error_msg, 1024);
             safe_logger (spdlog::level::err, "device read state error {}", error_msg);
-            return BOARD_NOT_READY_ERROR;
+            return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
         }
 #ifdef _WIN32
         Sleep (1000);
@@ -245,10 +245,10 @@ int NeuromdBoard::connect_device ()
     if (device_state != DeviceStateConnected)
     {
         safe_logger (spdlog::level::err, "Device is not connected.");
-        return BOARD_NOT_READY_ERROR;
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     }
 
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 #endif
