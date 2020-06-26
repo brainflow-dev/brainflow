@@ -113,9 +113,6 @@ script:
   - if [ `which valgrind` ]; then
       LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/novaxr_udp.py valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 3 --ip-address 127.0.0.1 ;
     fi
-  - if [ `which valgrind` ]; then
-      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/novaxr_udp.py valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data_twice --board-id 3 --ip-address 127.0.0.1 ;
-    fi
   # tests for wifi shield, fails on macos due to an issue in emulator
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/wifi_shield_emulator.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --log --board-id 4 --ip-address 127.0.0.1 --ip-port 17982 ;
