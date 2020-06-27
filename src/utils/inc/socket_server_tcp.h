@@ -1,16 +1,33 @@
 #pragma once
 
+#ifdef _WIN32
+#include <ws2tcpip.h>
+#else
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <unistd.h>
+#endif
+
+#include <stdlib.h>
+#include <string.h>
 #include <thread>
 
-#include "socket_client.h"
+enum class SocketServerTCPReturnCodes : int
+{
+    STATUS_OK = 0,
+    WSA_STARTUP_ERROR = 1,
+    CREATE_SOCKET_ERROR = 2,
+    CONNECT_ERROR = 3,
+    PTON_ERROR = 4
+};
 
 
-class SocketServer
+class SocketServerTCP
 {
 
 public:
-    SocketServer (const char *local_ip, int local_port);
-    ~SocketServer ()
+    SocketServerTCP (const char *local_ip, int local_port);
+    ~SocketServerTCP ()
     {
         close ();
     }

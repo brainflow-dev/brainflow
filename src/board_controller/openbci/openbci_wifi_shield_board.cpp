@@ -3,6 +3,7 @@
 #include <string>
 
 #include "openbci_wifi_shield_board.h"
+#include "socket_client.h"
 
 #include "json.hpp"
 
@@ -69,10 +70,10 @@ int OpenBCIWifiShieldBoard::prepare_session ()
     }
     safe_logger (spdlog::level::info, "local ip addr is {}", local_ip);
 
-    server_socket = new SocketServer (local_ip, params.ip_port);
+    server_socket = new SocketServerTCP (local_ip, params.ip_port);
     res = server_socket->bind (
         OpenBCIWifiShieldBoard::package_size); // set min bytes returned by recv
-    if (res != 0)
+    if (res != (int)SocketServerTCPReturnCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to create server socket with addr {} and port {}",
             local_ip, params.ip_port);
@@ -96,7 +97,7 @@ int OpenBCIWifiShieldBoard::prepare_session ()
     http_release (request);
 
     res = server_socket->accept ();
-    if (res != 0)
+    if (res != (int)SocketServerTCPReturnCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "error in accept");
         return (int)BrainFlowExitCodes::GENERAL_ERROR;

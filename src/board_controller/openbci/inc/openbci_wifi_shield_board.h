@@ -4,8 +4,7 @@
 
 #include "board.h"
 #include "board_controller.h"
-#include "socket_client.h"
-#include "socket_server.h"
+#include "socket_server_tcp.h"
 
 
 struct http_t; // forward declaration cause include "http.h" here leads to strange errors
@@ -21,7 +20,7 @@ protected:
     bool initialized;
     std::thread streaming_thread;
 
-    SocketServer *server_socket;
+    SocketServerTCP *server_socket;
     int num_channels;
 
     virtual void read_thread () = 0;

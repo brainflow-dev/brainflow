@@ -1,4 +1,4 @@
-#include "socket_server.h"
+#include "socket_server_tcp.h"
 
 
 ///////////////////////////////
@@ -10,7 +10,7 @@
 #pragma comment(lib, "Mswsock.lib")
 #pragma comment(lib, "AdvApi32.lib")
 
-SocketServer::SocketServer (const char *local_ip, int local_port)
+SocketServerTCP::SocketServerTCP (const char *local_ip, int local_port)
 {
     strcpy (this->local_ip, local_ip);
     this->local_port = local_port;
@@ -19,29 +19,29 @@ SocketServer::SocketServer (const char *local_ip, int local_port)
     client_connected = false;
 }
 
-int SocketServer::bind (int min_bytes)
+int SocketServerTCP::bind (int min_bytes)
 {
     WSADATA wsadata;
     int res = WSAStartup (MAKEWORD (2, 2), &wsadata);
     if (res != 0)
     {
-        return (int)SocketReturnCodes::WSA_STARTUP_ERROR;
+        return (int)SocketServerTCPReturnCodes::WSA_STARTUP_ERROR;
     }
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons (local_port);
     if (inet_pton (AF_INET, local_ip, &server_addr.sin_addr) == 0)
     {
-        return (int)SocketReturnCodes::PTON_ERROR;
+        return (int)SocketServerTCPReturnCodes::PTON_ERROR;
     }
     server_socket = socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (server_socket == INVALID_SOCKET)
     {
-        return (int)SocketReturnCodes::CREATE_SOCKET_ERROR;
+        return (int)SocketServerTCPReturnCodes::CREATE_SOCKET_ERROR;
     }
 
     if (::bind (server_socket, (const struct sockaddr *)&server_addr, sizeof (server_addr)) != 0)
     {
-        return (int)SocketReturnCodes::CONNECT_ERROR;
+        return (int)SocketServerTCPReturnCodes::CONNECT_ERROR;
     }
 
     // ensure that library will not hang in blocking recv/send call
@@ -61,19 +61,19 @@ int SocketServer::bind (int min_bytes)
 
     if ((listen (server_socket, 1)) != 0)
     {
-        return (int)SocketReturnCodes::CONNECT_ERROR;
+        return (int)SocketServerTCPReturnCodes::CONNECT_ERROR;
     }
 
-    return (int)SocketReturnCodes::STATUS_OK;
+    return (int)SocketServerTCPReturnCodes::STATUS_OK;
 }
 
-int SocketServer::accept ()
+int SocketServerTCP::accept ()
 {
     accept_thread = std::thread ([this] { this->accept_worker (); });
-    return (int)SocketReturnCodes::STATUS_OK;
+    return (int)SocketServerTCPReturnCodes::STATUS_OK;
 }
 
-void SocketServer::accept_worker ()
+void SocketServerTCP::accept_worker ()
 {
     int len = sizeof (client_addr);
     connected_socket = ::accept (server_socket, (struct sockaddr *)&client_addr, &len);
@@ -90,7 +90,7 @@ void SocketServer::accept_worker ()
     }
 }
 
-int SocketServer::recv (void *data, int size)
+int SocketServerTCP::recv (void *data, int size)
 {
     if (connected_socket == INVALID_SOCKET)
     {
@@ -104,7 +104,7 @@ int SocketServer::recv (void *data, int size)
     return res;
 }
 
-void SocketServer::close ()
+void SocketServerTCP::close ()
 {
     if (server_socket != INVALID_SOCKET)
     {
@@ -132,7 +132,7 @@ void SocketServer::close ()
 #include <netinet/tcp.h>
 
 
-SocketServer::SocketServer (const char *local_ip, int local_port)
+SocketServerTCP::SocketServerTCP (const char *local_ip, int local_port)
 {
     strcpy (this->local_ip, local_ip);
     this->local_port = local_port;
@@ -141,23 +141,23 @@ SocketServer::SocketServer (const char *local_ip, int local_port)
     client_connected = false;
 }
 
-int SocketServer::bind (int min_bytes)
+int SocketServerTCP::bind (int min_bytes)
 {
     server_socket = socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (server_socket < 0)
     {
-        return (int)SocketReturnCodes::CREATE_SOCKET_ERROR;
+        return (int)SocketServerTCPReturnCodes::CREATE_SOCKET_ERROR;
     }
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons (local_port);
     if (inet_pton (AF_INET, local_ip, &server_addr.sin_addr) == 0)
     {
-        return (int)SocketReturnCodes::PTON_ERROR;
+        return (int)SocketServerTCPReturnCodes::PTON_ERROR;
     }
 
     if (::bind (server_socket, (const struct sockaddr *)&server_addr, sizeof (server_addr)) != 0)
     {
-        return (int)SocketReturnCodes::CONNECT_ERROR;
+        return (int)SocketServerTCPReturnCodes::CONNECT_ERROR;
     }
 
     // ensure that library will not hang in blocking recv/send call
@@ -179,19 +179,19 @@ int SocketServer::bind (int min_bytes)
 
     if ((listen (server_socket, 1)) != 0)
     {
-        return (int)SocketReturnCodes::CONNECT_ERROR;
+        return (int)SocketServerTCPReturnCodes::CONNECT_ERROR;
     }
 
-    return (int)SocketReturnCodes::STATUS_OK;
+    return (int)SocketServerTCPReturnCodes::STATUS_OK;
 }
 
-int SocketServer::accept ()
+int SocketServerTCP::accept ()
 {
     accept_thread = std::thread ([this] { this->accept_worker (); });
-    return (int)SocketReturnCodes::STATUS_OK;
+    return (int)SocketServerTCPReturnCodes::STATUS_OK;
 }
 
-void SocketServer::accept_worker ()
+void SocketServerTCP::accept_worker ()
 {
     unsigned int len = sizeof (client_addr);
     connected_socket = ::accept (server_socket, (struct sockaddr *)&this->client_addr, &len);
@@ -210,7 +210,7 @@ void SocketServer::accept_worker ()
     }
 }
 
-int SocketServer::recv (void *data, int size)
+int SocketServerTCP::recv (void *data, int size)
 {
     if (connected_socket <= 0)
     {
@@ -220,7 +220,7 @@ int SocketServer::recv (void *data, int size)
     return res;
 }
 
-void SocketServer::close ()
+void SocketServerTCP::close ()
 {
     if (server_socket != -1)
     {

@@ -137,7 +137,7 @@ set (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/utils/data_buffer.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/serial.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/socket_client.cpp
-    ${CMAKE_HOME_DIRECTORY}/src/utils/socket_server.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/utils/socket_server_tcp.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/multicast_client.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/multicast_server.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/openbci_serial_board.cpp
