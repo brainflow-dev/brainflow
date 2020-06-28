@@ -50,9 +50,6 @@ find_package (
     brainflow CONFIG REQUIRED
 )
 
-###############################
-## Demo for data acquisition ##
-###############################
 add_executable (
     brainflow_get_data
     src/brainflow_get_data.cpp
@@ -65,69 +62,6 @@ target_include_directories (
 
 target_link_libraries (
     brainflow_get_data PUBLIC
-    # for some systems(ubuntu for example) order matters
-    ${BrainflowPath}
-    ${DataHandlerPath}
-    ${BoardControllerPath}
-)
-
-#############################
-## Demo for file streaming ##
-#############################
-add_executable (
-    brainflow_file_stream
-    src/brainflow_file_stream.cpp
-)
-
-target_include_directories (
-    brainflow_file_stream PUBLIC
-    ${brainflow_INCLUDE_DIRS}
-)
-
-target_link_libraries (
-    brainflow_file_stream PUBLIC
-    # for some systems(ubuntu for example) order matters
-    ${BrainflowPath}
-    ${DataHandlerPath}
-    ${BoardControllerPath}
-)
-
-#################################
-## Demo for data acquisition 2 ##
-#################################
-add_executable (
-    brainflow_get_data_twice
-    src/brainflow_get_data_twice.cpp
-)
-
-target_include_directories (
-    brainflow_get_data_twice PUBLIC
-    ${brainflow_INCLUDE_DIRS}
-)
-
-target_link_libraries (
-    brainflow_get_data_twice PUBLIC
-    # for some systems(ubuntu for example) order matters
-    ${BrainflowPath}
-    ${DataHandlerPath}
-    ${BoardControllerPath}
-)
-
-#################################
-##   Demo for config_board     ##
-#################################
-add_executable (
-    brainflow_config_board
-    src/brainflow_config_board.cpp
-)
-
-target_include_directories (
-    brainflow_config_board PUBLIC
-    ${brainflow_INCLUDE_DIRS}
-)
-
-target_link_libraries (
-    brainflow_config_board PUBLIC
     # for some systems(ubuntu for example) order matters
     ${BrainflowPath}
     ${DataHandlerPath}

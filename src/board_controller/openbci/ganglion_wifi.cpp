@@ -18,23 +18,23 @@ int GanglionWifi::config_board (char *config)
 {
     if ((config == NULL) || (strlen (config) == 0))
     {
-        return INVALID_ARGUMENTS_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     if ((keep_alive) && ((config[0] == 'z') || (config[0] == 'Z')))
     {
         safe_logger (
             spdlog::level::err, "For Ganglion WIFI impedance works only if streaming is stopped");
-        return INVALID_ARGUMENTS_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     if (config[0] == 'z')
     {
         is_cheking_impedance = true;
-        return STATUS_OK;
+        return (int)BrainFlowExitCodes::STATUS_OK;
     }
     if (config[0] == 'Z')
     {
         is_cheking_impedance = false;
-        return STATUS_OK;
+        return (int)BrainFlowExitCodes::STATUS_OK;
     }
     return send_config (config);
 }
@@ -44,12 +44,12 @@ int GanglionWifi::start_stream (int buffer_size, char *streamer_params)
     if (keep_alive)
     {
         safe_logger (spdlog::level::err, "Streaming thread already running");
-        return STREAM_ALREADY_RUN_ERROR;
+        return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
     if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
     {
         safe_logger (spdlog::level::err, "invalid array size");
-        return INVALID_BUFFER_SIZE_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     if (db)
@@ -64,7 +64,7 @@ int GanglionWifi::start_stream (int buffer_size, char *streamer_params)
     }
 
     int res = prepare_streamer (streamer_params);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
@@ -74,18 +74,18 @@ int GanglionWifi::start_stream (int buffer_size, char *streamer_params)
         safe_logger (spdlog::level::err, "unable to prepare buffer");
         delete db;
         db = NULL;
-        return INVALID_BUFFER_SIZE_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     // need to start impedance streaming
     if (is_cheking_impedance)
     {
         res = send_config ("z");
-        if (res == STATUS_OK)
+        if (res == (int)BrainFlowExitCodes::STATUS_OK)
         {
             keep_alive = true;
             streaming_thread = std::thread ([this] { this->read_thread_impedance (); });
-            return STATUS_OK;
+            return (int)BrainFlowExitCodes::STATUS_OK;
         }
         else
         {
@@ -100,10 +100,10 @@ int GanglionWifi::start_stream (int buffer_size, char *streamer_params)
         if (!request)
         {
             safe_logger (spdlog::level::err, "error during request creation, to {}", url.c_str ());
-            return GENERAL_ERROR;
+            return (int)BrainFlowExitCodes::GENERAL_ERROR;
         }
         int send_res = wait_for_http_resp (request);
-        if (send_res != STATUS_OK)
+        if (send_res != (int)BrainFlowExitCodes::STATUS_OK)
         {
             http_release (request);
             return send_res;
@@ -112,9 +112,9 @@ int GanglionWifi::start_stream (int buffer_size, char *streamer_params)
 
         keep_alive = true;
         streaming_thread = std::thread ([this] { this->read_thread (); });
-        return STATUS_OK;
+        return (int)BrainFlowExitCodes::STATUS_OK;
     }
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int GanglionWifi::stop_stream ()
@@ -139,21 +139,21 @@ int GanglionWifi::stop_stream ()
         if (!request)
         {
             safe_logger (spdlog::level::err, "error during request creation, to {}", url.c_str ());
-            return GENERAL_ERROR;
+            return (int)BrainFlowExitCodes::GENERAL_ERROR;
         }
         int send_res = wait_for_http_resp (request);
-        if (send_res != STATUS_OK)
+        if (send_res != (int)BrainFlowExitCodes::STATUS_OK)
         {
             http_release (request);
             return send_res;
         }
         http_release (request);
 
-        return STATUS_OK;
+        return (int)BrainFlowExitCodes::STATUS_OK;
     }
     else
     {
-        return STREAM_THREAD_IS_NOT_RUNNING;
+        return (int)BrainFlowExitCodes::STREAM_THREAD_IS_NOT_RUNNING;
     }
 }
 

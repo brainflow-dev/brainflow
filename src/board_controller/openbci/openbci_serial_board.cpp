@@ -1,6 +1,5 @@
 #include <string.h>
 
-#include "openbci_helpers.h"
 #include "openbci_serial_board.h"
 #include "serial.h"
 
@@ -26,29 +25,24 @@ int OpenBCISerialBoard::open_port ()
     if (serial->is_port_open ())
     {
         safe_logger (spdlog::level::err, "port {} already open", serial->get_port_name ());
-        return PORT_ALREADY_OPEN_ERROR;
+        return (int)BrainFlowExitCodes::PORT_ALREADY_OPEN_ERROR;
     }
 
     safe_logger (spdlog::level::info, "openning port {}", serial->get_port_name ());
     int res = serial->open_serial_port ();
     if (res < 0)
     {
-        return UNABLE_TO_OPEN_PORT_ERROR;
+        return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
     }
     safe_logger (spdlog::level::trace, "port {} is open", serial->get_port_name ());
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int OpenBCISerialBoard::config_board (char *config)
 {
     if (!initialized)
     {
-        return BOARD_NOT_READY_ERROR;
-    }
-    int res = validate_config (config);
-    if (res != STATUS_OK)
-    {
-        return res;
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     }
     if (is_streaming)
     {
@@ -69,10 +63,10 @@ int OpenBCISerialBoard::send_to_board (char *msg)
     int res = serial->send_to_serial_port ((const void *)msg, lenght);
     if (res != lenght)
     {
-        return BOARD_WRITE_ERROR;
+        return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
     }
 
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int OpenBCISerialBoard::set_port_settings ()
@@ -81,7 +75,7 @@ int OpenBCISerialBoard::set_port_settings ()
     if (res < 0)
     {
         safe_logger (spdlog::level::err, "Unable to set port settings, res is {}", res);
-        return SET_PORT_ERROR;
+        return (int)BrainFlowExitCodes::SET_PORT_ERROR;
     }
     safe_logger (spdlog::level::trace, "set port settings");
     return send_to_board ("v");
@@ -111,7 +105,7 @@ int OpenBCISerialBoard::status_check ()
             }
             if (count == 3)
             {
-                return STATUS_OK;
+                return (int)BrainFlowExitCodes::STATUS_OK;
             }
         }
         else
@@ -120,11 +114,11 @@ int OpenBCISerialBoard::status_check ()
             if (num_empty_attempts > max_empty_seq)
             {
                 safe_logger (spdlog::level::err, "board doesnt send welcome characters!");
-                return BOARD_NOT_READY_ERROR;
+                return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
             }
         }
     }
-    return BOARD_NOT_READY_ERROR;
+    return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
 }
 
 int OpenBCISerialBoard::prepare_session ()
@@ -132,16 +126,16 @@ int OpenBCISerialBoard::prepare_session ()
     if (initialized)
     {
         safe_logger (spdlog::level::info, "Session already prepared");
-        return STATUS_OK;
+        return (int)BrainFlowExitCodes::STATUS_OK;
     }
     if (params.serial_port.empty ())
     {
         safe_logger (spdlog::level::err, "serial port is empty");
-        return INVALID_ARGUMENTS_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     serial = new Serial (params.serial_port.c_str ());
     int port_open = open_port ();
-    if (port_open != STATUS_OK)
+    if (port_open != (int)BrainFlowExitCodes::STATUS_OK)
     {
         delete serial;
         serial = NULL;
@@ -149,7 +143,7 @@ int OpenBCISerialBoard::prepare_session ()
     }
 
     int set_settings = set_port_settings ();
-    if (set_settings != STATUS_OK)
+    if (set_settings != (int)BrainFlowExitCodes::STATUS_OK)
     {
         delete serial;
         serial = NULL;
@@ -157,7 +151,7 @@ int OpenBCISerialBoard::prepare_session ()
     }
 
     int initted = status_check ();
-    if (initted != STATUS_OK)
+    if (initted != (int)BrainFlowExitCodes::STATUS_OK)
     {
         delete serial;
         serial = NULL;
@@ -188,11 +182,11 @@ int OpenBCISerialBoard::prepare_session ()
         safe_logger (spdlog::level::trace, "read {}", tmp_array);
         delete serial;
         serial = NULL;
-        return BOARD_NOT_READY_ERROR;
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     }
 
     initialized = true;
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int OpenBCISerialBoard::start_stream (int buffer_size, char *streamer_params)
@@ -200,12 +194,12 @@ int OpenBCISerialBoard::start_stream (int buffer_size, char *streamer_params)
     if (is_streaming)
     {
         safe_logger (spdlog::level::err, "Streaming thread already running");
-        return STREAM_ALREADY_RUN_ERROR;
+        return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
     if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
     {
         safe_logger (spdlog::level::err, "invalid array size");
-        return INVALID_BUFFER_SIZE_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     if (db)
@@ -220,7 +214,7 @@ int OpenBCISerialBoard::start_stream (int buffer_size, char *streamer_params)
     }
 
     int res = prepare_streamer (streamer_params);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
@@ -230,19 +224,19 @@ int OpenBCISerialBoard::start_stream (int buffer_size, char *streamer_params)
         safe_logger (spdlog::level::err, "unable to prepare buffer");
         delete db;
         db = NULL;
-        return INVALID_BUFFER_SIZE_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     // start streaming
     int send_res = send_to_board ("b");
-    if (send_res != STATUS_OK)
+    if (send_res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return send_res;
     }
     keep_alive = true;
     streaming_thread = std::thread ([this] { this->read_thread (); });
     is_streaming = true;
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int OpenBCISerialBoard::stop_stream ()
@@ -263,7 +257,9 @@ int OpenBCISerialBoard::stop_stream ()
         return send_to_board ("s");
     }
     else
-        return STREAM_THREAD_IS_NOT_RUNNING;
+    {
+        return (int)BrainFlowExitCodes::STREAM_THREAD_IS_NOT_RUNNING;
+    }
 }
 
 int OpenBCISerialBoard::release_session ()
@@ -282,5 +278,5 @@ int OpenBCISerialBoard::release_session ()
         delete serial;
         serial = NULL;
     }
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }

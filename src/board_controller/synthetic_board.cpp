@@ -11,7 +11,6 @@
 #include <unistd.h>
 #endif
 
-#include "openbci_helpers.h"
 #include "synthetic_board.h"
 #include "timestamp.h"
 
@@ -24,7 +23,7 @@ constexpr int SyntheticBoard::package_size;
 
 
 SyntheticBoard::SyntheticBoard (struct BrainFlowInputParams params)
-    : Board ((int)SYNTHETIC_BOARD, params)
+    : Board ((int)BoardIds::SYNTHETIC_BOARD, params)
 {
     is_streaming = false;
     keep_alive = false;
@@ -43,11 +42,11 @@ int SyntheticBoard::prepare_session ()
     if (initialized)
     {
         safe_logger (spdlog::level::info, "Session is already prepared");
-        return STATUS_OK;
+        return (int)BrainFlowExitCodes::STATUS_OK;
     }
 
     initialized = true;
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int SyntheticBoard::start_stream (int buffer_size, char *streamer_params)
@@ -56,12 +55,12 @@ int SyntheticBoard::start_stream (int buffer_size, char *streamer_params)
     if (is_streaming)
     {
         safe_logger (spdlog::level::err, "Streaming thread already running");
-        return STREAM_ALREADY_RUN_ERROR;
+        return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
     if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
     {
         safe_logger (spdlog::level::err, "invalid array size");
-        return INVALID_BUFFER_SIZE_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     if (streamer)
@@ -75,7 +74,7 @@ int SyntheticBoard::start_stream (int buffer_size, char *streamer_params)
         db = NULL;
     }
     int res = prepare_streamer (streamer_params);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
@@ -85,13 +84,13 @@ int SyntheticBoard::start_stream (int buffer_size, char *streamer_params)
         safe_logger (spdlog::level::err, "unable to prepare buffer with size {}", buffer_size);
         delete db;
         db = NULL;
-        return INVALID_BUFFER_SIZE_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     keep_alive = true;
     streaming_thread = std::thread ([this] { this->read_thread (); });
     is_streaming = true;
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int SyntheticBoard::stop_stream ()
@@ -107,11 +106,11 @@ int SyntheticBoard::stop_stream ()
             delete streamer;
             streamer = NULL;
         }
-        return STATUS_OK;
+        return (int)BrainFlowExitCodes::STATUS_OK;
     }
     else
     {
-        return STREAM_THREAD_IS_NOT_RUNNING;
+        return (int)BrainFlowExitCodes::STREAM_THREAD_IS_NOT_RUNNING;
     }
 }
 
@@ -129,7 +128,7 @@ int SyntheticBoard::release_session ()
         }
         initialized = false;
     }
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 void SyntheticBoard::read_thread ()
@@ -166,8 +165,8 @@ void SyntheticBoard::read_thread ()
 
     // get info about synthetic board from json
     int sampling_rate = 250;
-    int ec = get_sampling_rate (SYNTHETIC_BOARD, &sampling_rate);
-    if (ec != STATUS_OK)
+    int ec = get_sampling_rate ((int)BoardIds::SYNTHETIC_BOARD, &sampling_rate);
+    if (ec != (int)BrainFlowExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::warn, "failed to get sampling rate from json: {}", ec);
     }
@@ -228,5 +227,5 @@ void SyntheticBoard::read_thread ()
 
 int SyntheticBoard::config_board (char *config)
 {
-    return validate_config (config);
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }

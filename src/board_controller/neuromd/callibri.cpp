@@ -45,19 +45,19 @@ int Callibri::prepare_session ()
     if (initialized)
     {
         safe_logger (spdlog::level::info, "Session is already prepared");
-        return STATUS_OK;
+        return (int)BrainFlowExitCodes::STATUS_OK;
     }
 
     // try to find device
     int res = find_device ();
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         free_device ();
         return res;
     }
     // try to connect to device
     res = connect_device ();
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         free_device ();
         return res;
@@ -65,7 +65,7 @@ int Callibri::prepare_session ()
 
     // apply settings for EEG/ECG/EMG
     res = apply_initial_settings ();
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         free_device ();
         return res;
@@ -79,7 +79,7 @@ int Callibri::prepare_session ()
         sdk_last_error_msg (error_msg, 1024);
         safe_logger (spdlog::level::err, "get channels error {}", error_msg);
         free_device ();
-        return GENERAL_ERROR;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
 
     for (size_t i = 0; i < device_channels.info_count; ++i)
@@ -95,18 +95,18 @@ int Callibri::prepare_session ()
 
     initialized = true;
 
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int Callibri::config_board (char *config)
 {
     if (device == NULL)
     {
-        return BOARD_NOT_CREATED_ERROR;
+        return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
     }
     if (config == NULL)
     {
-        return INVALID_ARGUMENTS_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
     Command cmd = CommandStartSignal;
@@ -125,7 +125,7 @@ int Callibri::config_board (char *config)
     {
         safe_logger (spdlog::level::err,
             "Invalid value for config, Supported values: CommandStartSignal, CommandStopSignal");
-        return INVALID_ARGUMENTS_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
     int ec = device_execute (device, cmd);
@@ -134,10 +134,10 @@ int Callibri::config_board (char *config)
         char error_msg[1024];
         sdk_last_error_msg (error_msg, 1024);
         safe_logger (spdlog::level::err, error_msg);
-        return GENERAL_ERROR;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
 
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int Callibri::start_stream (int buffer_size, char *streamer_params)
@@ -145,12 +145,12 @@ int Callibri::start_stream (int buffer_size, char *streamer_params)
     if (is_streaming)
     {
         safe_logger (spdlog::level::err, "Streaming thread already running");
-        return STREAM_ALREADY_RUN_ERROR;
+        return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
     if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
     {
         safe_logger (spdlog::level::err, "invalid array size");
-        return INVALID_BUFFER_SIZE_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     if (db)
@@ -165,7 +165,7 @@ int Callibri::start_stream (int buffer_size, char *streamer_params)
     }
 
     int res = prepare_streamer (streamer_params);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
@@ -175,11 +175,11 @@ int Callibri::start_stream (int buffer_size, char *streamer_params)
         safe_logger (spdlog::level::err, "unable to prepare buffer");
         delete db;
         db = NULL;
-        return INVALID_BUFFER_SIZE_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     res = config_board ((char *)"CommandStartSignal");
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
@@ -187,7 +187,7 @@ int Callibri::start_stream (int buffer_size, char *streamer_params)
     keep_alive = true;
     streaming_thread = std::thread ([this] { this->read_thread (); });
     is_streaming = true;
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int Callibri::stop_stream ()
@@ -207,7 +207,7 @@ int Callibri::stop_stream ()
     }
     else
     {
-        return STREAM_THREAD_IS_NOT_RUNNING;
+        return (int)BrainFlowExitCodes::STREAM_THREAD_IS_NOT_RUNNING;
     }
 }
 
@@ -223,7 +223,7 @@ int Callibri::release_session ()
         free_channels ();
         free_device ();
     }
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 
@@ -292,31 +292,31 @@ Callibri::~Callibri ()
 int Callibri::prepare_session ()
 {
     safe_logger (spdlog::level::err, "Callibri doesnt support Linux.");
-    return UNSUPPORTED_BOARD_ERROR;
+    return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
 int Callibri::config_board (char *config)
 {
     safe_logger (spdlog::level::err, "Callibri doesnt support Linux.");
-    return UNSUPPORTED_BOARD_ERROR;
+    return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
 int Callibri::release_session ()
 {
     safe_logger (spdlog::level::err, "Callibri doesnt support Linux.");
-    return UNSUPPORTED_BOARD_ERROR;
+    return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
 int Callibri::stop_stream ()
 {
     safe_logger (spdlog::level::err, "Callibri doesnt support Linux.");
-    return UNSUPPORTED_BOARD_ERROR;
+    return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
 int Callibri::start_stream (int buffer_size, char *streamer_params)
 {
     safe_logger (spdlog::level::err, "Callibri doesnt support Linux.");
-    return UNSUPPORTED_BOARD_ERROR;
+    return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
 #endif

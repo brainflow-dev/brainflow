@@ -9,7 +9,7 @@
 
 
 StreamingBoard::StreamingBoard (struct BrainFlowInputParams params)
-    : Board ((int)STREAMING_BOARD,
+    : Board ((int)BoardIds::STREAMING_BOARD,
           params) // its a hack - set board_id for streaming board here temporary and override it
                   // with master board id in prepare_session, board_id is protected and there is no
                   // api to get it so its ok
@@ -31,14 +31,14 @@ int StreamingBoard::prepare_session ()
     if (initialized)
     {
         safe_logger (spdlog::level::info, "Session is already prepared");
-        return STATUS_OK;
+        return (int)BrainFlowExitCodes::STATUS_OK;
     }
     if ((params.ip_address.empty ()) || (params.other_info.empty ()) || (params.ip_port == 0))
     {
         safe_logger (spdlog::level::err,
             "write multicast group ip to ip_address field, ip port to ip_port field and original "
             "board id to other info");
-        return INVALID_ARGUMENTS_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     try
     {
@@ -49,7 +49,7 @@ int StreamingBoard::prepare_session ()
         safe_logger (spdlog::level::err,
             "Write board id for the board which streams data to other_info field");
         safe_logger (spdlog::level::err, e.what ());
-        return INVALID_ARGUMENTS_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
     client = new MultiCastClient (params.ip_address.c_str (), params.ip_port);
@@ -62,16 +62,16 @@ int StreamingBoard::prepare_session ()
         safe_logger (spdlog::level::err, "errno {} message {}", errno, strerror (errno));
 #endif
         safe_logger (spdlog::level::err, "failed to init socket: {}", res);
-        return GENERAL_ERROR;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
     initialized = true;
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int StreamingBoard::config_board (char *config)
 {
     // dont allow streaming boards to change config for master board
-    return UNSUPPORTED_BOARD_ERROR;
+    return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
 int StreamingBoard::start_stream (int buffer_size, char *streamer_params)
@@ -79,12 +79,12 @@ int StreamingBoard::start_stream (int buffer_size, char *streamer_params)
     if (is_streaming)
     {
         safe_logger (spdlog::level::err, "Streaming thread already running");
-        return STREAM_ALREADY_RUN_ERROR;
+        return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
     if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
     {
         safe_logger (spdlog::level::err, "invalid array size");
-        return INVALID_BUFFER_SIZE_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     if (db)
@@ -99,13 +99,13 @@ int StreamingBoard::start_stream (int buffer_size, char *streamer_params)
     }
 
     int res = prepare_streamer (streamer_params);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
     int num_channels = 0;
     res = get_num_rows (board_id, &num_channels);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to get num rows for {}", board_id);
         return res;
@@ -114,13 +114,13 @@ int StreamingBoard::start_stream (int buffer_size, char *streamer_params)
     if (!db->is_ready ())
     {
         safe_logger (spdlog::level::err, "unable to prepare buffer");
-        return INVALID_BUFFER_SIZE_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     keep_alive = true;
     streaming_thread = std::thread ([this] { this->read_thread (); });
     is_streaming = true;
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int StreamingBoard::stop_stream ()
@@ -135,11 +135,11 @@ int StreamingBoard::stop_stream ()
             delete streamer;
             streamer = NULL;
         }
-        return STATUS_OK;
+        return (int)BrainFlowExitCodes::STATUS_OK;
     }
     else
     {
-        return STREAM_THREAD_IS_NOT_RUNNING;
+        return (int)BrainFlowExitCodes::STREAM_THREAD_IS_NOT_RUNNING;
     }
 }
 
@@ -158,7 +158,7 @@ int StreamingBoard::release_session ()
             client = NULL;
         }
     }
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 void StreamingBoard::read_thread ()

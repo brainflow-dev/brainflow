@@ -53,7 +53,7 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
     Board::board_logger->info ("incomming json: {}", json_brainflow_input_params);
     struct BrainFlowInputParams params;
     int res = string_to_brainflow_input_params (json_brainflow_input_params, &params);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
@@ -63,62 +63,62 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
     {
         Board::board_logger->error (
             "Board with id {} and the same config already exists", board_id);
-        return ANOTHER_BOARD_IS_CREATED_ERROR;
+        return (int)BrainFlowExitCodes::ANOTHER_BOARD_IS_CREATED_ERROR;
     }
 
     std::shared_ptr<Board> board = NULL;
-    switch (board_id)
+    switch (static_cast<BoardIds> (board_id))
     {
-        case STREAMING_BOARD:
+        case BoardIds::STREAMING_BOARD:
             board = std::shared_ptr<Board> (new StreamingBoard (params));
             break;
-        case SYNTHETIC_BOARD:
+        case BoardIds::SYNTHETIC_BOARD:
             board = std::shared_ptr<Board> (new SyntheticBoard (params));
             break;
-        case CYTON_BOARD:
+        case BoardIds::CYTON_BOARD:
             board = std::shared_ptr<Board> (new Cyton (params));
             break;
-        case GANGLION_BOARD:
+        case BoardIds::GANGLION_BOARD:
             board = std::shared_ptr<Board> (new Ganglion (params));
             break;
-        case CYTON_DAISY_BOARD:
+        case BoardIds::CYTON_DAISY_BOARD:
             board = std::shared_ptr<Board> (new CytonDaisy (params));
             break;
-        case NOVAXR_BOARD:
+        case BoardIds::NOVAXR_BOARD:
             board = std::shared_ptr<Board> (new NovaXR (params));
             break;
-        case GANGLION_WIFI_BOARD:
+        case BoardIds::GANGLION_WIFI_BOARD:
             board = std::shared_ptr<Board> (new GanglionWifi (params));
             break;
-        case CYTON_WIFI_BOARD:
+        case BoardIds::CYTON_WIFI_BOARD:
             board = std::shared_ptr<Board> (new CytonWifi (params));
             break;
-        case CYTON_DAISY_WIFI_BOARD:
+        case BoardIds::CYTON_DAISY_WIFI_BOARD:
             board = std::shared_ptr<Board> (new CytonDaisyWifi (params));
             break;
-        case BRAINBIT_BOARD:
+        case BoardIds::BRAINBIT_BOARD:
             board = std::shared_ptr<Board> (new BrainBit (params));
             break;
-        case UNICORN_BOARD:
+        case BoardIds::UNICORN_BOARD:
             board = std::shared_ptr<Board> (new UnicornBoard (params));
             break;
-        case CALLIBRI_EEG_BOARD:
+        case BoardIds::CALLIBRI_EEG_BOARD:
             board = std::shared_ptr<Board> (new CallibriEEG (params));
             break;
-        case CALLIBRI_EMG_BOARD:
+        case BoardIds::CALLIBRI_EMG_BOARD:
             board = std::shared_ptr<Board> (new CallibriEMG (params));
             break;
-        case CALLIBRI_ECG_BOARD:
+        case BoardIds::CALLIBRI_ECG_BOARD:
             board = std::shared_ptr<Board> (new CallibriECG (params));
             break;
-        case FASCIA_BOARD:
+        case BoardIds::FASCIA_BOARD:
             board = std::shared_ptr<Board> (new Fascia (params));
             break;
         default:
-            return UNSUPPORTED_BOARD_ERROR;
+            return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
     }
     res = board->prepare_session ();
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         board = NULL;
     }
@@ -135,14 +135,14 @@ int is_prepared (int *prepared, int board_id, char *json_brainflow_input_params)
 
     std::pair<int, struct BrainFlowInputParams> key;
     int res = check_board_session (board_id, json_brainflow_input_params, key, false);
-    if (res == STATUS_OK)
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
         *prepared = 1;
     }
-    if (res == BOARD_NOT_CREATED_ERROR)
+    if (res == (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR)
     {
         *prepared = 0;
-        res = STATUS_OK;
+        res = (int)BrainFlowExitCodes::STATUS_OK;
     }
     return res;
 }
@@ -154,7 +154,7 @@ int start_stream (
 
     std::pair<int, struct BrainFlowInputParams> key;
     int res = check_board_session (board_id, json_brainflow_input_params, key, false);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
@@ -168,7 +168,7 @@ int stop_stream (int board_id, char *json_brainflow_input_params)
 
     std::pair<int, struct BrainFlowInputParams> key;
     int res = check_board_session (board_id, json_brainflow_input_params, key, false);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
@@ -182,7 +182,7 @@ int release_session (int board_id, char *json_brainflow_input_params)
 
     std::pair<int, struct BrainFlowInputParams> key;
     int res = check_board_session (board_id, json_brainflow_input_params, key, false);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
@@ -199,7 +199,7 @@ int get_current_board_data (int num_samples, double *data_buf, int *returned_sam
 
     std::pair<int, struct BrainFlowInputParams> key;
     int res = check_board_session (board_id, json_brainflow_input_params, key, false);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
@@ -213,7 +213,7 @@ int get_board_data_count (int *result, int board_id, char *json_brainflow_input_
 
     std::pair<int, struct BrainFlowInputParams> key;
     int res = check_board_session (board_id, json_brainflow_input_params, key, false);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
@@ -228,7 +228,7 @@ int get_board_data (
 
     std::pair<int, struct BrainFlowInputParams> key;
     int res = check_board_session (board_id, json_brainflow_input_params, key, false);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
@@ -265,7 +265,7 @@ int log_message (int log_level, char *log_message)
 
     Board::board_logger->log (spdlog::level::level_enum (log_level), "{}", log_message);
 
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int set_log_file (char *log_file)
@@ -280,7 +280,7 @@ int config_board (char *config, int board_id, char *json_brainflow_input_params)
 
     std::pair<int, struct BrainFlowInputParams> key;
     int res = check_board_session (board_id, json_brainflow_input_params, key, false);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
@@ -304,7 +304,7 @@ int check_board_session (int board_id, char *json_brainflow_input_params,
 {
     struct BrainFlowInputParams params;
     int res = string_to_brainflow_input_params (json_brainflow_input_params, &params);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
@@ -318,9 +318,9 @@ int check_board_session (int board_id, char *json_brainflow_input_params,
             Board::board_logger->error (
                 "Board with id {} and port provided config is not created", key.first);
         }
-        return BOARD_NOT_CREATED_ERROR;
+        return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
     }
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int string_to_brainflow_input_params (
@@ -338,11 +338,11 @@ int string_to_brainflow_input_params (
         params->ip_address = config["ip_address"];
         params->timeout = config["timeout"];
         params->serial_number = config["serial_number"];
-        return STATUS_OK;
+        return (int)BrainFlowExitCodes::STATUS_OK;
     }
     catch (json::exception &e)
     {
         Board::board_logger->error ("invalid input json, {}", e.what ());
-        return GENERAL_ERROR;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
 }

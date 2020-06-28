@@ -18,10 +18,8 @@ namespace test
             board_shim.prepare_session ();
             // board_shim.start_stream (); // use this for default options
             board_shim.start_stream (450000, "file://file_stream.csv:w");
-            BoardShim.log_message ((int)LogLevels.LEVEL_INFO, "Start sleeping in the main thread");
             System.Threading.Thread.Sleep (5000);
             board_shim.stop_stream ();
-            Console.WriteLine ("data count: {0}", board_shim.get_board_data_count ());
             double[,] unprocessed_data = board_shim.get_current_board_data (20);
             int[] eeg_channels = BoardShim.get_eeg_channels (board_id);
             foreach (var index in eeg_channels)

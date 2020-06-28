@@ -18,7 +18,7 @@ int main (int argc, char *argv[])
 {
     struct BrainFlowInputParams params;
     // use synthetic board for demo
-    int board_id = SYNTHETIC_BOARD;
+    int board_id = (int)BoardIds::SYNTHETIC_BOARD;
 
     BoardShim::enable_dev_board_logger ();
 
@@ -59,17 +59,19 @@ int main (int argc, char *argv[])
                 // first of all you can try simple moving average or moving median to remove noise
                 case 0:
                     DataFilter::perform_rolling_filter (
-                        data[eeg_channels[i]], data_count, 3, MEDIAN);
+                        data[eeg_channels[i]], data_count, 3, (int)AggOperations::MEDIAN);
                     break;
                 case 1:
-                    DataFilter::perform_rolling_filter (data[eeg_channels[i]], data_count, 3, MEAN);
+                    DataFilter::perform_rolling_filter (
+                        data[eeg_channels[i]], data_count, 3, (int)AggOperations::MEAN);
                     break;
                 case 2:
                     DataFilter::perform_rolling_filter (
-                        data[eeg_channels[i]], data_count, 5, MEDIAN);
+                        data[eeg_channels[i]], data_count, 5, (int)AggOperations::MEDIAN);
                     break;
                 case 3:
-                    DataFilter::perform_rolling_filter (data[eeg_channels[i]], data_count, 5, MEAN);
+                    DataFilter::perform_rolling_filter (
+                        data[eeg_channels[i]], data_count, 5, (int)AggOperations::MEAN);
                     break;
                     // if moving average and moving median dont work well for your signal you can
                     // try wavelet based denoising, feel free to try different wavelet functions and

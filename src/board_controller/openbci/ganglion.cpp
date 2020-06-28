@@ -11,13 +11,13 @@
 #include "custom_cast.h"
 #include "ganglion.h"
 #include "ganglion_interface.h"
-#include "openbci_helpers.h"
 
 
 int Ganglion::num_objects = 0;
 
 
-Ganglion::Ganglion (struct BrainFlowInputParams params) : Board ((int)GANGLION_BOARD, params)
+Ganglion::Ganglion (struct BrainFlowInputParams params)
+    : Board ((int)BoardIds::GANGLION_BOARD, params)
 {
     Ganglion::num_objects++;
     if (Ganglion::num_objects > 1)
@@ -33,7 +33,7 @@ Ganglion::Ganglion (struct BrainFlowInputParams params) : Board ((int)GANGLION_B
     keep_alive = false;
     initialized = false;
     num_channels = 13;
-    state = SYNC_TIMEOUT_ERROR;
+    state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
     start_command = "b";
     stop_command = "s";
 }
@@ -50,19 +50,19 @@ int Ganglion::prepare_session ()
     if (initialized)
     {
         safe_logger (spdlog::level::info, "Session is already prepared");
-        return STATUS_OK;
+        return (int)BrainFlowExitCodes::STATUS_OK;
     }
 
     if (!is_valid)
     {
         safe_logger (spdlog::level::info, "only one ganglion per process is supported");
-        return ANOTHER_BOARD_IS_CREATED_ERROR;
+        return (int)BrainFlowExitCodes::ANOTHER_BOARD_IS_CREATED_ERROR;
     }
 
     if ((params.timeout < 0) || (params.timeout > 600))
     {
         safe_logger (spdlog::level::err, "wrong value for timeout");
-        return INVALID_ARGUMENTS_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     if (params.timeout == 0)
     {
@@ -74,24 +74,24 @@ int Ganglion::prepare_session ()
     if (params.serial_port.empty ())
     {
         safe_logger (spdlog::level::err, "you need to specify dongle port");
-        return INVALID_ARGUMENTS_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
     int res = call_init ();
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
     safe_logger (spdlog::level::debug, "ganglionlib initialized");
 
     res = call_open ();
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
 
     initialized = true;
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int Ganglion::start_stream (int buffer_size, char *streamer_params)
@@ -99,12 +99,12 @@ int Ganglion::start_stream (int buffer_size, char *streamer_params)
     if (is_streaming)
     {
         safe_logger (spdlog::level::err, "Streaming thread already running");
-        return STREAM_ALREADY_RUN_ERROR;
+        return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
     if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
     {
         safe_logger (spdlog::level::err, "invalid array size");
-        return INVALID_BUFFER_SIZE_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     if (db)
@@ -119,7 +119,7 @@ int Ganglion::start_stream (int buffer_size, char *streamer_params)
     }
 
     int res = prepare_streamer (streamer_params);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
@@ -129,7 +129,7 @@ int Ganglion::start_stream (int buffer_size, char *streamer_params)
         Board::board_logger->error ("unable to prepare buffer with size {}", buffer_size);
         delete db;
         db = NULL;
-        return INVALID_BUFFER_SIZE_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     return start_streaming_prepared ();
@@ -138,7 +138,7 @@ int Ganglion::start_stream (int buffer_size, char *streamer_params)
 int Ganglion::start_streaming_prepared ()
 {
     int res = call_start ();
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
@@ -149,7 +149,8 @@ int Ganglion::start_streaming_prepared ()
     // wait for data to ensure that everything is okay
     std::unique_lock<std::mutex> lk (m);
     auto sec = std::chrono::seconds (1);
-    if (cv.wait_for (lk, params.timeout * sec, [this] { return state != SYNC_TIMEOUT_ERROR; }))
+    if (cv.wait_for (lk, params.timeout * sec,
+            [this] { return state != (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR; }))
     {
         is_streaming = true;
         return state;
@@ -160,7 +161,7 @@ int Ganglion::start_streaming_prepared ()
             spdlog::level::err, "no data received in {} sec, stopping thread", params.timeout);
         is_streaming = true;
         stop_stream ();
-        return SYNC_TIMEOUT_ERROR;
+        return (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
     }
 }
 
@@ -176,12 +177,12 @@ int Ganglion::stop_stream ()
             delete streamer;
             streamer = NULL;
         }
-        state = SYNC_TIMEOUT_ERROR;
+        state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
         return call_stop ();
     }
     else
     {
-        return STREAM_THREAD_IS_NOT_RUNNING;
+        return (int)BrainFlowExitCodes::STREAM_THREAD_IS_NOT_RUNNING;
     }
 }
 
@@ -194,7 +195,7 @@ int Ganglion::release_session ()
     }
     call_close ();
     call_release ();
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 void Ganglion::read_thread ()
@@ -229,11 +230,11 @@ void Ganglion::read_thread ()
         int res = GanglionLib::get_data ((void *)&data);
         if (res == (int)GanglionLib::CustomExitCodes::STATUS_OK)
         {
-            if (state != STATUS_OK)
+            if (state != (int)BrainFlowExitCodes::STATUS_OK)
             {
                 {
                     std::lock_guard<std::mutex> lk (m);
-                    state = STATUS_OK;
+                    state = (int)BrainFlowExitCodes::STATUS_OK;
                 }
                 cv.notify_one ();
                 safe_logger (spdlog::level::debug, "start streaming");
@@ -411,7 +412,7 @@ void Ganglion::read_thread ()
         }
         else
         {
-            if (state == SYNC_TIMEOUT_ERROR)
+            if (state == (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR)
             {
                 num_attempts++;
             }
@@ -420,7 +421,7 @@ void Ganglion::read_thread ()
                 safe_logger (spdlog::level::err, "no data received");
                 {
                     std::lock_guard<std::mutex> lk (m);
-                    state = GENERAL_ERROR;
+                    state = (int)BrainFlowExitCodes::GENERAL_ERROR;
                 }
                 cv.notify_one ();
                 return;
@@ -438,11 +439,6 @@ void Ganglion::read_thread ()
 int Ganglion::config_board (char *config)
 {
     safe_logger (spdlog::level::debug, "Trying to config Ganglion with {}", config);
-    int res = validate_config (config);
-    if (res != STATUS_OK)
-    {
-        return res;
-    }
     // need to pause, config and restart. I have no idea why it doesnt work if I restart it inside
     // bglib or just call call_stop call_start, full restart solves the issue
     if (keep_alive)
@@ -452,9 +448,9 @@ int Ganglion::config_board (char *config)
         keep_alive = false;
         is_streaming = false;
         streaming_thread.join ();
-        state = SYNC_TIMEOUT_ERROR;
+        state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
         int res = call_stop ();
-        if (res != STATUS_OK)
+        if (res != (int)BrainFlowExitCodes::STATUS_OK)
         {
             return res;
         }
@@ -481,7 +477,7 @@ int Ganglion::config_board (char *config)
                 res = config_board (config);
             }
         }
-        if (res != STATUS_OK)
+        if (res != (int)BrainFlowExitCodes::STATUS_OK)
         {
             return res;
         }
@@ -508,7 +504,7 @@ int Ganglion::config_board (char *config)
             }
         }
     }
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int Ganglion::call_init ()
@@ -518,9 +514,9 @@ int Ganglion::call_init ()
     if (res != (int)GanglionLib::CustomExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to init GanglionLib {}", res);
-        return GENERAL_ERROR;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int Ganglion::call_open ()
@@ -541,9 +537,9 @@ int Ganglion::call_open ()
     if (res != GanglionLib::CustomExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to Open Ganglion Device {}", res);
-        return GENERAL_ERROR;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int Ganglion::call_config (char *config)
@@ -552,9 +548,9 @@ int Ganglion::call_config (char *config)
     if (res != GanglionLib::CustomExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to config board {}", res);
-        return GENERAL_ERROR;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int Ganglion::call_start ()
@@ -564,9 +560,9 @@ int Ganglion::call_start ()
     if (res != (int)GanglionLib::CustomExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to start streaming {}", res);
-        return GENERAL_ERROR;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int Ganglion::call_stop ()
@@ -575,9 +571,9 @@ int Ganglion::call_stop ()
     if (res != (int)GanglionLib::CustomExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to stop streaming {}", res);
-        return GENERAL_ERROR;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int Ganglion::call_close ()
@@ -586,9 +582,9 @@ int Ganglion::call_close ()
     if (res != (int)GanglionLib::CustomExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to close ganglion {}", res);
-        return GENERAL_ERROR;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int Ganglion::call_release ()
@@ -597,7 +593,7 @@ int Ganglion::call_release ()
     if (res != (int)GanglionLib::CustomExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to release ganglion library {}", res);
-        return GENERAL_ERROR;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }

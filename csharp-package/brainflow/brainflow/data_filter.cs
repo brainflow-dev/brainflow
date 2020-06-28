@@ -222,8 +222,9 @@ namespace brainflow
         /// <param name="data">data for fft</param>
         /// <param name="start_pos">start pos</param>
         /// <param name="end_pos">end pos, end_pos - start_pos must be a power of 2</param>
+        /// <param name="window">window function</param>
         /// <returns>complex array of size N / 2 + 1 of fft data</returns>
-        public static Complex[] perform_fft(double[] data, int start_pos, int end_pos)
+        public static Complex[] perform_fft(double[] data, int start_pos, int end_pos, int window)
         {
             if ((start_pos < 0) || (end_pos > data.Length) || (start_pos >= end_pos))
             {
@@ -240,7 +241,7 @@ namespace brainflow
             double[] temp_im = new double[len / 2 + 1];
             Complex[] output = new Complex[len / 2 + 1];
 
-            int res = DataHandlerLibrary.perform_fft (data_to_process, len, temp_re, temp_im);
+            int res = DataHandlerLibrary.perform_fft (data_to_process, len, window, temp_re, temp_im);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException (res);
@@ -323,6 +324,109 @@ namespace brainflow
                 }
             }
             return result;
+        }
+
+        /// <summary>
+        /// calculate nearest power of two
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns>nearest power of two</returns>
+        public static int get_nearest_power_of_two(int value)
+        {
+            int[] output = new int[1];
+            int res = DataHandlerLibrary.get_nearest_power_of_two(value, output);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException(res);
+            }
+            return output[0];
+        }
+
+        /// <summary>
+        /// calculate PSD
+        /// </summary>
+        /// <param name="data">data for PSD</param>
+        /// <param name="start_pos">start pos</param>
+        /// <param name="end_pos">end pos, end_pos - start_pos must be a power of 2</param>
+        /// <param name="sampling_rate">sampling rate</param>
+        /// <param name="window">window function</param>
+        /// <returns>Tuple of ampls and freqs arrays of size N / 2 + 1</returns>
+        public static Tuple<double[], double[]> get_psd(double[] data, int start_pos, int end_pos, int sampling_rate, int window)
+        {
+            if ((start_pos < 0) || (end_pos > data.Length) || (start_pos >= end_pos))
+            {
+                throw new BrainFlowException((int)CustomExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            int len = end_pos - start_pos;
+            if ((len & (len - 1)) != 0)
+            {
+                throw new BrainFlowException((int)CustomExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            double[] data_to_process = new double[len];
+            Array.Copy(data, start_pos, data_to_process, 0, len);
+            double[] temp_ampls = new double[len / 2 + 1];
+            double[] temp_freqs = new double[len / 2 + 1];
+
+            int res = DataHandlerLibrary.get_psd(data_to_process, len, sampling_rate, window, temp_ampls, temp_freqs);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException(res);
+            }
+            Tuple<double[], double[]> return_data = new Tuple<double[], double[]>(temp_ampls, temp_freqs);
+            return return_data;
+        }
+
+        /// <summary>
+        /// calculate log PSD
+        /// </summary>
+        /// <param name="data">data for log PSD</param>
+        /// <param name="start_pos">start pos</param>
+        /// <param name="end_pos">end pos, end_pos - start_pos must be a power of 2</param>
+        /// <param name="sampling_rate">sampling rate</param>
+        /// <param name="window">window function</param>
+        /// <returns>Tuple of ampls and freqs arrays of size N / 2 + 1</returns>
+        public static Tuple<double[], double[]> get_log_psd(double[] data, int start_pos, int end_pos, int sampling_rate, int window)
+        {
+            if ((start_pos < 0) || (end_pos > data.Length) || (start_pos >= end_pos))
+            {
+                throw new BrainFlowException((int)CustomExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            int len = end_pos - start_pos;
+            if ((len & (len - 1)) != 0)
+            {
+                throw new BrainFlowException((int)CustomExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            double[] data_to_process = new double[len];
+            Array.Copy(data, start_pos, data_to_process, 0, len);
+            double[] temp_ampls = new double[len / 2 + 1];
+            double[] temp_freqs = new double[len / 2 + 1];
+
+            int res = DataHandlerLibrary.get_log_psd(data_to_process, len, sampling_rate, window, temp_ampls, temp_freqs);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException(res);
+            }
+            Tuple<double[], double[]> return_data = new Tuple<double[], double[]>(temp_ampls, temp_freqs);
+            return return_data;
+        }
+
+        /// <summary>
+        /// calculate band power
+        /// </summary>
+        /// <param name="psd">psd data returned by get_psd or get_log_psd</param>
+        /// <param name="start_freq">lowest frequency of band</param>
+        /// <param name="stop_freq">highest frequency of band</param>
+        /// <returns>band power</returns>
+        public static double get_band_power(Tuple<double[], double[]> psd, double start_freq, double stop_freq)
+        {
+            double[] band_power = new double[1];
+
+            int res = DataHandlerLibrary.get_band_power(psd.Item1, psd.Item2, psd.Item1.Length, start_freq, stop_freq, band_power);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException(res);
+            }
+            return band_power[0];
         }
     }
 }

@@ -26,7 +26,7 @@ int Board::set_log_level (int level)
     }
     Board::board_logger->set_level (spdlog::level::level_enum (log_level));
     Board::board_logger->flush_on (spdlog::level::level_enum (log_level));
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int Board::set_log_file (char *log_file)
@@ -39,7 +39,7 @@ int Board::set_log_file (char *log_file)
     Board::board_logger->set_level (level);
     Board::board_logger->flush_on (level);
     spdlog::drop ("null_logger");
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int Board::prepare_streamer (char *streamer_params)
@@ -65,7 +65,7 @@ int Board::prepare_streamer (char *streamer_params)
         {
             safe_logger (
                 spdlog::level::err, "format is streamer_type://streamer_dest:streamer_args");
-            return INVALID_ARGUMENTS_ERROR;
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
         }
         std::string streamer_type = streamer_params_str.substr (0, idx1);
         size_t idx2 = streamer_params_str.find (":", idx1 + 3);
@@ -73,7 +73,7 @@ int Board::prepare_streamer (char *streamer_params)
         {
             safe_logger (
                 spdlog::level::err, "format is streamer_type://streamer_dest:streamer_args");
-            return INVALID_ARGUMENTS_ERROR;
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
         }
         std::string streamer_dest = streamer_params_str.substr (idx1 + 3, idx2 - idx1 - 3);
         std::string streamer_mods = streamer_params_str.substr (idx2 + 1);
@@ -92,7 +92,7 @@ int Board::prepare_streamer (char *streamer_params)
             catch (const std::exception &e)
             {
                 safe_logger (spdlog::level::err, e.what ());
-                return INVALID_ARGUMENTS_ERROR;
+                return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
             }
             streamer = new MultiCastStreamer (streamer_dest.c_str (), port);
         }
@@ -101,12 +101,12 @@ int Board::prepare_streamer (char *streamer_params)
         {
             safe_logger (
                 spdlog::level::err, "unsupported streamer type {}", streamer_type.c_str ());
-            return INVALID_ARGUMENTS_ERROR;
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
         }
     }
 
     int res = streamer->init_streamer ();
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to init streamer");
         delete streamer;
@@ -122,7 +122,7 @@ int Board::get_current_board_data (int num_samples, double *data_buf, int *retur
     {
         int num_data_channels = -1;
         int res = get_num_rows (board_id, &num_data_channels);
-        if (res != STATUS_OK)
+        if (res != (int)BrainFlowExitCodes::STATUS_OK)
         {
             return res;
         }
@@ -136,11 +136,11 @@ int Board::get_current_board_data (int num_samples, double *data_buf, int *retur
         delete[] buf;
         delete[] ts_buf;
         *returned_samples = num_data_points;
-        return STATUS_OK;
+        return (int)BrainFlowExitCodes::STATUS_OK;
     }
     else
     {
-        return INVALID_ARGUMENTS_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 }
 
@@ -148,30 +148,30 @@ int Board::get_board_data_count (int *result)
 {
     if (!db)
     {
-        return EMPTY_BUFFER_ERROR;
+        return (int)BrainFlowExitCodes::EMPTY_BUFFER_ERROR;
     }
     if (!result)
     {
-        return INVALID_ARGUMENTS_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
     *result = (int)db->get_data_count ();
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int Board::get_board_data (int data_count, double *data_buf)
 {
     if (!db)
     {
-        return EMPTY_BUFFER_ERROR;
+        return (int)BrainFlowExitCodes::EMPTY_BUFFER_ERROR;
     }
     if (!data_buf)
     {
-        return INVALID_ARGUMENTS_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     int num_data_channels = 0;
     int res = get_num_rows (board_id, &num_data_channels);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
@@ -184,7 +184,7 @@ int Board::get_board_data (int data_count, double *data_buf)
     reshape_data (num_data_points, buf, ts_buf, data_buf);
     delete[] buf;
     delete[] ts_buf;
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 void Board::reshape_data (

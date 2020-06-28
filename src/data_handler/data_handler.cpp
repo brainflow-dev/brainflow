@@ -1,4 +1,6 @@
+#include <math.h>
 #include <stdexcept>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <string>
@@ -17,6 +19,13 @@
 #include "FFTReal.h"
 
 
+#define MAX_FILTER_ORDER 8
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
+
 int perform_lowpass (double *data, int data_len, int sampling_rate, double cutoff, int order,
     int filter_type, double ripple)
 {
@@ -27,32 +36,32 @@ int perform_lowpass (double *data, int data_len, int sampling_rate, double cutof
     Dsp::Filter *f = NULL;
     if ((order < 1) || (order > MAX_FILTER_ORDER) || (!data))
     {
-        return GENERAL_ERROR;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    switch (filter_type)
+    switch (static_cast<FilterTypes> (filter_type))
     {
-        case BUTTERWORTH:
+        case FilterTypes::BUTTERWORTH:
             // "1024" is the number of samples over which to fade parameter changes
             f = new Dsp::SmoothedFilterDesign<Dsp::Butterworth::Design::LowPass<MAX_FILTER_ORDER>,
                 1, Dsp::DirectFormII> (1024);
             break;
-        case CHEBYSHEV_TYPE_1:
+        case FilterTypes::CHEBYSHEV_TYPE_1:
             f = new Dsp::SmoothedFilterDesign<Dsp::ChebyshevI::Design::LowPass<MAX_FILTER_ORDER>, 1,
                 Dsp::DirectFormII> (1024);
             break;
-        case BESSEL:
+        case FilterTypes::BESSEL:
             f = new Dsp::SmoothedFilterDesign<Dsp::Bessel::Design::LowPass<MAX_FILTER_ORDER>, 1,
                 Dsp::DirectFormII> (1024);
             break;
         default:
-            return INVALID_ARGUMENTS_ERROR;
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
     Dsp::Params params;
     params[0] = sampling_rate; // sample rate
     params[1] = order;         // order
     params[2] = cutoff;        // cutoff
-    if (filter_type == CHEBYSHEV_TYPE_1)
+    if (filter_type == (int)FilterTypes::CHEBYSHEV_TYPE_1)
     {
         params[3] = ripple; // ripple
     }
@@ -60,7 +69,7 @@ int perform_lowpass (double *data, int data_len, int sampling_rate, double cutof
     f->process (data_len, filter_data);
     delete f;
 
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int perform_highpass (double *data, int data_len, int sampling_rate, double cutoff, int order,
@@ -72,31 +81,31 @@ int perform_highpass (double *data, int data_len, int sampling_rate, double cuto
 
     if ((order < 1) || (order > MAX_FILTER_ORDER) || (!data))
     {
-        return INVALID_ARGUMENTS_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
-    switch (filter_type)
+    switch (static_cast<FilterTypes> (filter_type))
     {
-        case BUTTERWORTH:
+        case FilterTypes::BUTTERWORTH:
             // "1024" is the number of samples over which to fade parameter changes
             f = new Dsp::SmoothedFilterDesign<Dsp::Butterworth::Design::HighPass<MAX_FILTER_ORDER>,
                 1, Dsp::DirectFormII> (1024);
             break;
-        case CHEBYSHEV_TYPE_1:
+        case FilterTypes::CHEBYSHEV_TYPE_1:
             f = new Dsp::SmoothedFilterDesign<Dsp::ChebyshevI::Design::HighPass<MAX_FILTER_ORDER>,
                 1, Dsp::DirectFormII> (1024);
             break;
-        case BESSEL:
+        case FilterTypes::BESSEL:
             f = new Dsp::SmoothedFilterDesign<Dsp::Bessel::Design::HighPass<MAX_FILTER_ORDER>, 1,
                 Dsp::DirectFormII> (1024);
             break;
         default:
-            return INVALID_ARGUMENTS_ERROR;
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     Dsp::Params params;
     params[0] = sampling_rate; // sample rate
     params[1] = order;         // order
     params[2] = cutoff;        // cutoff
-    if (filter_type == CHEBYSHEV_TYPE_1)
+    if (filter_type == (int)FilterTypes::CHEBYSHEV_TYPE_1)
     {
         params[3] = ripple; // ripple
     }
@@ -104,7 +113,7 @@ int perform_highpass (double *data, int data_len, int sampling_rate, double cuto
     f->process (data_len, filter_data);
     delete f;
 
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int perform_bandpass (double *data, int data_len, int sampling_rate, double center_freq,
@@ -116,25 +125,25 @@ int perform_bandpass (double *data, int data_len, int sampling_rate, double cent
 
     if ((order < 1) || (order > MAX_FILTER_ORDER) || (!data))
     {
-        return INVALID_ARGUMENTS_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
-    switch (filter_type)
+    switch (static_cast<FilterTypes> (filter_type))
     {
-        case BUTTERWORTH:
+        case FilterTypes::BUTTERWORTH:
             // "1024" is the number of samples over which to fade parameter changes
             f = new Dsp::SmoothedFilterDesign<Dsp::Butterworth::Design::BandPass<MAX_FILTER_ORDER>,
                 1, Dsp::DirectFormII> (1024);
             break;
-        case CHEBYSHEV_TYPE_1:
+        case FilterTypes::CHEBYSHEV_TYPE_1:
             f = new Dsp::SmoothedFilterDesign<Dsp::ChebyshevI::Design::BandPass<MAX_FILTER_ORDER>,
                 1, Dsp::DirectFormII> (1024);
             break;
-        case BESSEL:
+        case FilterTypes::BESSEL:
             f = new Dsp::SmoothedFilterDesign<Dsp::Bessel::Design::BandPass<MAX_FILTER_ORDER>, 1,
                 Dsp::DirectFormII> (1024);
             break;
         default:
-            return INVALID_ARGUMENTS_ERROR;
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
     Dsp::Params params;
@@ -142,7 +151,7 @@ int perform_bandpass (double *data, int data_len, int sampling_rate, double cent
     params[1] = order;         // order
     params[2] = center_freq;   // center freq
     params[3] = band_width;
-    if (filter_type == CHEBYSHEV_TYPE_1)
+    if (filter_type == (int)FilterTypes::CHEBYSHEV_TYPE_1)
     {
         params[4] = ripple; // ripple
     }
@@ -151,7 +160,7 @@ int perform_bandpass (double *data, int data_len, int sampling_rate, double cent
     f->process (data_len, filter_data);
     delete f;
 
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int perform_bandstop (double *data, int data_len, int sampling_rate, double center_freq,
@@ -163,25 +172,25 @@ int perform_bandstop (double *data, int data_len, int sampling_rate, double cent
 
     if ((order < 1) || (order > MAX_FILTER_ORDER) || (!data))
     {
-        return INVALID_ARGUMENTS_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
-    switch (filter_type)
+    switch (static_cast<FilterTypes> (filter_type))
     {
-        case BUTTERWORTH:
+        case FilterTypes::BUTTERWORTH:
             // "1024" is the number of samples over which to fade parameter changes
             f = new Dsp::SmoothedFilterDesign<Dsp::Butterworth::Design::BandStop<MAX_FILTER_ORDER>,
                 1, Dsp::DirectFormII> (1024);
             break;
-        case CHEBYSHEV_TYPE_1:
+        case FilterTypes::CHEBYSHEV_TYPE_1:
             f = new Dsp::SmoothedFilterDesign<Dsp::ChebyshevI::Design::BandStop<MAX_FILTER_ORDER>,
                 1, Dsp::DirectFormII> (1024);
             break;
-        case BESSEL:
+        case FilterTypes::BESSEL:
             f = new Dsp::SmoothedFilterDesign<Dsp::Bessel::Design::BandStop<MAX_FILTER_ORDER>, 1,
                 Dsp::DirectFormII> (1024);
             break;
         default:
-            return INVALID_ARGUMENTS_ERROR;
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
     Dsp::Params params;
@@ -189,7 +198,7 @@ int perform_bandstop (double *data, int data_len, int sampling_rate, double cent
     params[1] = order;         // order
     params[2] = center_freq;   // center freq
     params[3] = band_width;
-    if (filter_type == CHEBYSHEV_TYPE_1)
+    if (filter_type == (int)FilterTypes::CHEBYSHEV_TYPE_1)
     {
         params[4] = ripple; // ripple
     }
@@ -197,29 +206,29 @@ int perform_bandstop (double *data, int data_len, int sampling_rate, double cent
     f->process (data_len, filter_data);
     delete f;
 
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int perform_rolling_filter (double *data, int data_len, int period, int agg_operation)
 {
     if ((data == NULL) || (period <= 0))
     {
-        return INVALID_ARGUMENTS_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
     RollingFilter<double> *filter = NULL;
-    switch (agg_operation)
+    switch (static_cast<AggOperations> (agg_operation))
     {
-        case MEAN:
+        case AggOperations::MEAN:
             filter = new RollingAverage<double> (period);
             break;
-        case MEDIAN:
+        case AggOperations::MEDIAN:
             filter = new RollingMedian<double> (period);
             break;
-        case EACH:
-            return STATUS_OK;
+        case AggOperations::EACH:
+            return (int)BrainFlowExitCodes::STATUS_OK;
         default:
-            return INVALID_ARGUMENTS_ERROR;
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     for (int i = 0; i < data_len; i++)
     {
@@ -227,7 +236,7 @@ int perform_rolling_filter (double *data, int data_len, int period, int agg_oper
         data[i] = filter->get_value ();
     }
     delete filter;
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int perform_downsampling (
@@ -235,29 +244,29 @@ int perform_downsampling (
 {
     if ((data == NULL) || (data_len <= 0) || (period <= 0) || (output_data == NULL))
     {
-        return INVALID_ARGUMENTS_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     double (*downsampling_op) (double *, int);
-    switch (agg_operation)
+    switch (static_cast<AggOperations> (agg_operation))
     {
-        case MEAN:
+        case AggOperations::MEAN:
             downsampling_op = downsample_mean;
             break;
-        case MEDIAN:
+        case AggOperations::MEDIAN:
             downsampling_op = downsample_median;
             break;
-        case EACH:
+        case AggOperations::EACH:
             downsampling_op = downsample_each;
             break;
         default:
-            return INVALID_ARGUMENTS_ERROR;
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     int num_values = data_len / period;
     for (int i = 0; i < num_values; i++)
     {
         output_data[i] = downsampling_op (data + i * period, period);
     }
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 // https://github.com/rafat/wavelib/wiki/DWT-Example-Code
@@ -268,7 +277,7 @@ int perform_wavelet_transform (double *data, int data_len, char *wavelet, int de
         (!validate_wavelet (wavelet)) || (decomposition_lengths == NULL) ||
         (decomposition_level <= 0))
     {
-        return INVALID_ARGUMENTS_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
     wave_object obj = NULL;
@@ -304,9 +313,9 @@ int perform_wavelet_transform (double *data, int data_len, char *wavelet, int de
         }
         // more likely exception here occured because input buffer is to small to perform wavelet
         // transform
-        return INVALID_BUFFER_SIZE_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 // inside wavelib inverse transform uses internal state from direct transform, dirty hack to restore
@@ -318,7 +327,7 @@ int perform_inverse_wavelet_transform (double *wavelet_coeffs, int original_data
         (wavelet == NULL) || (output_data == NULL) || (!validate_wavelet (wavelet)) ||
         (decomposition_lengths == NULL))
     {
-        return INVALID_ARGUMENTS_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
     wave_object obj;
@@ -356,9 +365,9 @@ int perform_inverse_wavelet_transform (double *wavelet_coeffs, int original_data
         }
         // more likely exception here occured because input buffer is to small to perform wavelet
         // transform
-        return INVALID_BUFFER_SIZE_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int perform_wavelet_denoising (double *data, int data_len, char *wavelet, int decomposition_level)
@@ -366,7 +375,7 @@ int perform_wavelet_denoising (double *data, int data_len, char *wavelet, int de
     if ((data == NULL) || (data_len <= 0) || (decomposition_level <= 0) ||
         (!validate_wavelet (wavelet)))
     {
-        return INVALID_ARGUMENTS_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
     denoise_object obj;
@@ -399,9 +408,9 @@ int perform_wavelet_denoising (double *data, int data_len, char *wavelet, int de
         }
         // more likely exception here occured because input buffer is to small to perform wavelet
         // transform
-        return INVALID_BUFFER_SIZE_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 /*
@@ -428,18 +437,53 @@ And FFT bins are distributed in f [] as above:
    ...         | f [...]        | -f [...]        | f [...]
    length-1    | f [1]          | -f [length/2+1] | f [length/2+1]
 */
-int perform_fft (double *data, int data_len, double *output_re, double *output_im)
+int perform_fft (
+    double *data, int data_len, int window_function, double *output_re, double *output_im)
 {
     // must be power of 2
     if ((!data) || (!output_re) || (!output_im) || (data_len <= 0) || (data_len & (data_len - 1)))
     {
-        return INVALID_ARGUMENTS_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+    double *windowed_data = new double[data_len];
+    // from https://www.edn.com/windowing-functions-improve-fft-results-part-i/
+    switch (static_cast<WindowFunctions> (window_function))
+    {
+        case WindowFunctions::NO_WINDOW:
+            for (int i = 0; i < data_len; i++)
+            {
+                windowed_data[i] = data[i];
+            }
+            break;
+        case WindowFunctions::HAMMING:
+            for (int i = 0; i < data_len; i++)
+            {
+                windowed_data[i] = data[i] * (0.54 - 0.46 * cos (2.0 * M_PI * i / data_len));
+            }
+            break;
+        case WindowFunctions::HANNING:
+            for (int i = 0; i < data_len; i++)
+            {
+                windowed_data[i] = data[i] * (0.5 - 0.5 * cos (2.0 * M_PI * i / data_len));
+            }
+            break;
+        case WindowFunctions::BLACKMAN_HARRIS:
+            for (int i = 0; i < data_len; i++)
+            {
+                windowed_data[i] = data[i] *
+                    (0.355768 - 0.487396 * cos (2.0 * M_PI * i / data_len) +
+                        0.144232 * cos (4.0 * M_PI * i / data_len) -
+                        0.012604 * cos (6.0 * M_PI * i / data_len));
+            }
+            break;
+        default:
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     double *temp = new double[data_len];
     try
     {
         ffft::FFTReal<double> fft_object (data_len);
-        fft_object.do_fft (temp, data);
+        fft_object.do_fft (temp, windowed_data);
         for (int i = 0; i < data_len / 2 + 1; i++)
         {
             output_re[i] = temp[i];
@@ -447,10 +491,13 @@ int perform_fft (double *data, int data_len, double *output_re, double *output_i
         output_im[0] = 0.0;
         for (int count = 1, j = data_len / 2 + 1; j < data_len; j++, count++)
         {
-            output_im[count] = temp[j];
+            // add minus to make output exactly as in scipy
+            output_im[count] = -temp[j];
         }
         output_im[data_len / 2] = 0.0;
         delete[] temp;
+        delete[] windowed_data;
+        windowed_data = NULL;
         temp = NULL;
     }
     catch (const std::exception &e)
@@ -459,9 +506,13 @@ int perform_fft (double *data, int data_len, double *output_re, double *output_i
         {
             delete[] temp;
         }
-        return GENERAL_ERROR;
+        if (windowed_data)
+        {
+            delete[] windowed_data;
+        }
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 // data_len here is an original size, not len of input_re input_im
@@ -471,7 +522,7 @@ int perform_ifft (double *input_re, double *input_im, int data_len, double *rest
     if ((!restored_data) || (!input_re) || (!input_im) || (data_len <= 0) ||
         (data_len & (data_len - 1)))
     {
-        return INVALID_ARGUMENTS_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     double *temp = new double[data_len];
     try
@@ -483,7 +534,8 @@ int perform_ifft (double *input_re, double *input_im, int data_len, double *rest
         }
         for (int count = 1, j = data_len / 2 + 1; j < data_len; j++, count++)
         {
-            temp[j] = input_im[count];
+            // add minus to make output exactly as in scipy
+            temp[j] = -input_im[count];
         }
         fft_object.do_ifft (temp, restored_data);
         fft_object.rescale (restored_data);
@@ -496,9 +548,111 @@ int perform_ifft (double *input_re, double *input_im, int data_len, double *rest
         {
             delete[] temp;
         }
-        return GENERAL_ERROR;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int get_psd (double *data, int data_len, int sampling_rate, int window_function,
+    double *output_ampl, double *output_freq)
+{
+    if ((data_len < 1) || (data_len & (data_len - 1)) || (output_ampl == NULL) ||
+        (output_freq == NULL))
+    {
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+    double *re = new double[data_len / 2 + 1];
+    double *im = new double[data_len / 2 + 1];
+    int res = perform_fft (data, data_len, window_function, re, im);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        delete[] re;
+        delete[] im;
+        return res;
+    }
+    double freq_res = (double)sampling_rate / (double)data_len;
+    for (int i = 0; i < data_len / 2 + 1; i++)
+    {
+        // https://www.mathworks.com/help/signal/ug/power-spectral-density-estimates-using-fft.html
+        output_ampl[i] = (re[i] * re[i] + im[i] * im[i]) / ((double)(sampling_rate * data_len));
+        if ((i != 0) && (i != data_len / 2))
+        {
+            output_ampl[i] *= 2;
+        }
+        output_freq[i] = i * freq_res;
+    }
+    delete[] re;
+    delete[] im;
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int get_log_psd (double *data, int data_len, int sampling_rate, int window_function,
+    double *output_ampl, double *output_freq)
+{
+    int res = get_psd (data, data_len, sampling_rate, window_function, output_ampl, output_freq);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        return res;
+    }
+    for (int i = 0; i < data_len / 2 + 1; i++)
+    {
+        output_ampl[i] = log10 (output_ampl[i]);
+    }
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int get_band_power (double *ampl, double *freq, int data_len, double freq_start, double freq_end,
+    double *band_power)
+{
+    if ((ampl == NULL) || (freq == NULL) || (freq_start > freq_end) || (band_power == NULL))
+    {
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+    int counter = 0;
+    double res = 0.0;
+    for (int i = 0; i < data_len; i++)
+    {
+        if (freq[i] > freq_end)
+        {
+            break;
+        }
+        if ((freq[i] >= freq_start) && (freq[i] <= freq_end))
+        {
+            res += ampl[i];
+            counter++;
+        }
+    }
+    if (counter != 0)
+    {
+        res /= counter;
+    }
+    *band_power = res;
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int get_nearest_power_of_two (int value, int *output)
+{
+    if (value < 0)
+    {
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+    if (value == 1)
+    {
+        *output = 2;
+        return (int)BrainFlowExitCodes::STATUS_OK;
+    }
+
+    int32_t v = (int32_t)value;
+    v--;
+    v |= v >> 1;
+    v |= v >> 2;
+    v |= v >> 4;
+    v |= v >> 8;
+    v |= v >> 16;
+    v++;            // next power of 2
+    int x = v >> 1; // previous power of 2
+    *output = (v - value) > (value - x) ? x : v;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int write_file (double *data, int num_rows, int num_cols, char *file_name, char *file_mode)
@@ -506,13 +660,13 @@ int write_file (double *data, int num_rows, int num_cols, char *file_name, char 
     if ((strcmp (file_mode, "w") != 0) && (strcmp (file_mode, "w+") != 0) &&
         (strcmp (file_mode, "a") != 0) && (strcmp (file_mode, "a+") != 0))
     {
-        return INVALID_ARGUMENTS_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     FILE *fp;
     fp = fopen (file_name, file_mode);
     if (fp == NULL)
     {
-        return GENERAL_ERROR;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
 
     // in read/write file data is transposed!
@@ -525,20 +679,20 @@ int write_file (double *data, int num_rows, int num_cols, char *file_name, char 
         fprintf (fp, "%lf\n", data[(num_rows - 1) * num_cols + i]);
     }
     fclose (fp);
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int read_file (double *data, int *num_rows, int *num_cols, char *file_name, int num_elements)
 {
     if (num_elements <= 0)
     {
-        return INVALID_ARGUMENTS_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     FILE *fp;
     fp = fopen (file_name, "r");
     if (fp == NULL)
     {
-        return INVALID_ARGUMENTS_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
     char buf[4096];
@@ -579,7 +733,7 @@ int read_file (double *data, int *num_rows, int *num_cols, char *file_name, int 
                 *num_cols = current_row + 1;
                 *num_rows = total_cols;
                 fclose (fp);
-                return STATUS_OK;
+                return (int)BrainFlowExitCodes::STATUS_OK;
             }
         }
         current_row++;
@@ -588,7 +742,7 @@ int read_file (double *data, int *num_rows, int *num_cols, char *file_name, int 
     *num_cols = total_rows;
     *num_rows = total_cols;
     fclose (fp);
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int get_num_elements_in_file (char *file_name, int *num_elements)
@@ -597,7 +751,7 @@ int get_num_elements_in_file (char *file_name, int *num_elements)
     fp = fopen (file_name, "r");
     if (fp == NULL)
     {
-        return INVALID_ARGUMENTS_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
     char buf[4096];
@@ -616,7 +770,7 @@ int get_num_elements_in_file (char *file_name, int *num_elements)
     {
         *num_elements = 0;
         fclose (fp);
-        return EMPTY_BUFFER_ERROR;
+        return (int)BrainFlowExitCodes::EMPTY_BUFFER_ERROR;
     }
 
     fseek (fp, 0, SEEK_SET);
@@ -632,9 +786,9 @@ int get_num_elements_in_file (char *file_name, int *num_elements)
         }
         *num_elements = splitted.size () * total_rows;
         fclose (fp);
-        return STATUS_OK;
+        return (int)BrainFlowExitCodes::STATUS_OK;
     }
     *num_elements = 0;
     fclose (fp);
-    return EMPTY_BUFFER_ERROR;
+    return (int)BrainFlowExitCodes::EMPTY_BUFFER_ERROR;
 }

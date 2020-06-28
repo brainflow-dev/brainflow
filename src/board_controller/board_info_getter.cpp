@@ -154,7 +154,7 @@ inline int get_single_value (int board_id, const char *param_name, int *value)
     std::string json_file = get_json_config ();
     if (!check_file_exists (json_file))
     {
-        return JSON_NOT_FOUND_ERROR;
+        return (int)BrainFlowExitCodes::JSON_NOT_FOUND_ERROR;
     }
     try
     {
@@ -162,11 +162,11 @@ inline int get_single_value (int board_id, const char *param_name, int *value)
         json config = json::parse (json_stream);
         int val = (int)config["boards"][int_to_string (board_id)][param_name];
         *value = val;
-        return STATUS_OK;
+        return (int)BrainFlowExitCodes::STATUS_OK;
     }
     catch (json::exception &e)
     {
-        return NO_SUCH_DATA_IN_JSON_ERROR;
+        return (int)BrainFlowExitCodes::NO_SUCH_DATA_IN_JSON_ERROR;
     }
 }
 
@@ -175,7 +175,7 @@ inline int get_array_value (int board_id, const char *param_name, int *output_ar
     std::string json_file = get_json_config ();
     if (!check_file_exists (json_file))
     {
-        return JSON_NOT_FOUND_ERROR;
+        return (int)BrainFlowExitCodes::JSON_NOT_FOUND_ERROR;
     }
     try
     {
@@ -187,11 +187,11 @@ inline int get_array_value (int board_id, const char *param_name, int *output_ar
             memcpy (output_array, &values[0], sizeof (int) * values.size ());
         }
         *len = values.size ();
-        return STATUS_OK;
+        return (int)BrainFlowExitCodes::STATUS_OK;
     }
     catch (json::exception &e)
     {
-        return UNSUPPORTED_BOARD_ERROR;
+        return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
     }
 }
 
@@ -200,7 +200,7 @@ inline int get_string_value (int board_id, const char *param_name, char *string,
     std::string json_file = get_json_config ();
     if (!check_file_exists (json_file))
     {
-        return JSON_NOT_FOUND_ERROR;
+        return (int)BrainFlowExitCodes::JSON_NOT_FOUND_ERROR;
     }
     try
     {
@@ -209,10 +209,10 @@ inline int get_string_value (int board_id, const char *param_name, char *string,
         std::string val = config["boards"][int_to_string (board_id)][param_name];
         strcpy (string, val.c_str ());
         *len = strlen (val.c_str ());
-        return STATUS_OK;
+        return (int)BrainFlowExitCodes::STATUS_OK;
     }
     catch (json::exception &e)
     {
-        return NO_SUCH_DATA_IN_JSON_ERROR;
+        return (int)BrainFlowExitCodes::NO_SUCH_DATA_IN_JSON_ERROR;
     }
 }
