@@ -22,6 +22,7 @@
 #include "cyton_daisy.h"
 #include "cyton_daisy_wifi.h"
 #include "cyton_wifi.h"
+#include "fascia.h"
 #include "ganglion.h"
 #include "ganglion_wifi.h"
 #include "novaxr.h"
@@ -109,6 +110,9 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
             break;
         case CALLIBRI_ECG_BOARD:
             board = std::shared_ptr<Board> (new CallibriECG (params));
+            break;
+        case FASCIA_BOARD:
+            board = std::shared_ptr<Board> (new Fascia (params));
             break;
         default:
             return UNSUPPORTED_BOARD_ERROR;
