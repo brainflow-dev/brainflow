@@ -1,8 +1,15 @@
+tools/build_linux.sh eol=lf
+tools/build_mac.sh eol=lf
+*.sh eol=lf
+*.cmd eol=crlf
 ###############################################################################
 # Set default behavior to automatically normalize line endings.
 ###############################################################################
 * text=auto
-
+tools/build_linux.sh eol=lf
+tools/build_mac.sh eol=lf
+*.sh eol=lf
+*.cmd eol=crlf
 ###############################################################################
 # Set default behavior for command prompt diff.
 #
