@@ -1,10 +1,8 @@
-#include <chrono>
 #include <stdint.h>
 #include <string.h>
 
 #include "custom_cast.h"
 #include "fascia.h"
-#include "openbci_helpers.h"
 #include "timestamp.h"
 
 #ifndef _WIN32
@@ -16,13 +14,13 @@ constexpr int Fascia::num_packages;
 constexpr int Fascia::package_size;
 constexpr int Fascia::num_channels;
 
-Fascia::Fascia (struct BrainFlowInputParams params) : Board ((int)FASCIA_BOARD, params)
+Fascia::Fascia (struct BrainFlowInputParams params) : Board ((int)BoardIds::FASCIA_BOARD, params)
 {
-    this->socket = NULL;
-    this->is_streaming = false;
-    this->keep_alive = false;
-    this->initialized = false;
-    this->state = SYNC_TIMEOUT_ERROR;
+    socket = NULL;
+    is_streaming = false;
+    keep_alive = false;
+    initialized = false;
+    state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
 }
 
 Fascia::~Fascia ()
@@ -36,30 +34,30 @@ int Fascia::prepare_session ()
     if (initialized)
     {
         safe_logger (spdlog::level::info, "Session is already prepared");
-        return STATUS_OK;
+        return (int)BrainFlowExitCodes::STATUS_OK;
     }
     if (params.ip_port == 0)
     {
         safe_logger (spdlog::level::err, "you need to provide port for local UDP server");
-        return INVALID_ARGUMENTS_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     socket = new SocketServerUDP (params.ip_port);
     int res = socket->bind ();
-    if (res != (int)SocketServerUDPCodes::STATUS_OK)
+    if (res != (int)SocketServerUDPReturnCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to init socket: {}", res);
         delete socket;
         socket = NULL;
-        return GENERAL_ERROR;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
     initialized = true;
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int Fascia::config_board (char *config)
 {
     safe_logger (spdlog::level::err, "config_board is not supported for Fascia.");
-    return UNSUPPORTED_BOARD_ERROR;
+    return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
 int Fascia::start_stream (int buffer_size, char *streamer_params)
@@ -67,17 +65,17 @@ int Fascia::start_stream (int buffer_size, char *streamer_params)
     if (!initialized)
     {
         safe_logger (spdlog::level::err, "You need to call prepare_session before config_board");
-        return BOARD_NOT_CREATED_ERROR;
+        return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
     }
     if (is_streaming)
     {
         safe_logger (spdlog::level::err, "Streaming thread already running");
-        return STREAM_ALREADY_RUN_ERROR;
+        return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
     if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
     {
         safe_logger (spdlog::level::err, "invalid array size");
-        return INVALID_BUFFER_SIZE_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     if (db)
@@ -92,7 +90,7 @@ int Fascia::start_stream (int buffer_size, char *streamer_params)
     }
 
     int res = prepare_streamer (streamer_params);
-    if (res != STATUS_OK)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
@@ -102,7 +100,7 @@ int Fascia::start_stream (int buffer_size, char *streamer_params)
         safe_logger (spdlog::level::err, "unable to prepare buffer");
         delete db;
         db = NULL;
-        return INVALID_BUFFER_SIZE_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     // no command to start streaming, its on all the time, just create thread to read it
@@ -110,19 +108,20 @@ int Fascia::start_stream (int buffer_size, char *streamer_params)
     keep_alive = true;
     streaming_thread = std::thread ([this] { this->read_thread (); });
     // wait for data to ensure that everything is okay(its optional)
-    std::unique_lock<std::mutex> lk (this->m);
+    std::unique_lock<std::mutex> lk (m);
     auto sec = std::chrono::seconds (1);
-    if (cv.wait_for (lk, 5 * sec, [this] { return this->state != SYNC_TIMEOUT_ERROR; }))
+    if (cv.wait_for (lk, 5 * sec,
+            [this] { return this->state != (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR; }))
     {
-        this->is_streaming = true;
-        return this->state;
+        is_streaming = true;
+        return state;
     }
     else
     {
         safe_logger (spdlog::level::err, "no data received in 3sec, stopping thread");
-        this->is_streaming = true;
-        this->stop_stream ();
-        return SYNC_TIMEOUT_ERROR;
+        is_streaming = true;
+        stop_stream ();
+        return (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
     }
 }
 
@@ -139,13 +138,13 @@ int Fascia::stop_stream ()
             delete streamer;
             streamer = NULL;
         }
-        this->state = SYNC_TIMEOUT_ERROR;
+        state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
         // no command to stop, if you add to firmware send it here
-        return STATUS_OK;
+        return (int)BrainFlowExitCodes::STATUS_OK;
     }
     else
     {
-        return STREAM_THREAD_IS_NOT_RUNNING;
+        return (int)BrainFlowExitCodes::STREAM_THREAD_IS_NOT_RUNNING;
     }
 }
 
@@ -166,7 +165,7 @@ int Fascia::release_session ()
             socket = NULL;
         }
     }
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 void Fascia::read_thread ()
@@ -195,15 +194,15 @@ void Fascia::read_thread ()
         else
         {
             // inform main thread that first package was received
-            if (this->state != STATUS_OK)
+            if (state != (int)BrainFlowExitCodes::STATUS_OK)
             {
                 safe_logger (spdlog::level::info,
                     "received first package with {} bytes streaming is started", res);
                 {
-                    std::lock_guard<std::mutex> lk (this->m);
-                    this->state = STATUS_OK;
+                    std::lock_guard<std::mutex> lk (m);
+                    state = (int)BrainFlowExitCodes::STATUS_OK;
                 }
-                this->cv.notify_one ();
+                cv.notify_one ();
                 safe_logger (spdlog::level::debug, "start streaming");
             }
         }

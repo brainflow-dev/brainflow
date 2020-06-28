@@ -10,7 +10,7 @@
 
 #include <string.h>
 
-enum class SocketServerUDPCodes
+enum class SocketServerUDPReturnCodes
 {
     STATUS_OK = 0,
     WSA_STARTUP_ERROR = 1,
@@ -28,7 +28,7 @@ public:
         close ();
     }
 
-    int bind (int min_bytes = 1);
+    int bind ();
     int recv (void *data, int size);
     void close ();
 

@@ -111,7 +111,7 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
         case BoardIds::CALLIBRI_ECG_BOARD:
             board = std::shared_ptr<Board> (new CallibriECG (params));
             break;
-        case FASCIA_BOARD:
+        case BoardIds::FASCIA_BOARD:
             board = std::shared_ptr<Board> (new Fascia (params));
             break;
         default:
