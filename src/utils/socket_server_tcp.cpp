@@ -10,16 +10,17 @@
 #pragma comment(lib, "Mswsock.lib")
 #pragma comment(lib, "AdvApi32.lib")
 
-SocketServerTCP::SocketServerTCP (const char *local_ip, int local_port)
+SocketServerTCP::SocketServerTCP (const char *local_ip, int local_port, bool recv_all_or_nothing)
 {
     strcpy (this->local_ip, local_ip);
     this->local_port = local_port;
+    this->recv_all_or_nothing = recv_all_or_nothing;
     server_socket = INVALID_SOCKET;
     connected_socket = INVALID_SOCKET;
     client_connected = false;
 }
 
-int SocketServerTCP::bind (int min_bytes)
+int SocketServerTCP::bind ()
 {
     WSADATA wsadata;
     int res = WSAStartup (MAKEWORD (2, 2), &wsadata);
@@ -47,17 +48,16 @@ int SocketServerTCP::bind (int min_bytes)
     // ensure that library will not hang in blocking recv/send call
     DWORD timeout = 3000;
     DWORD value = 1;
-    setsockopt (server_socket, IPPROTO_TCP, TCP_NODELAY, (char *)&value, sizeof (value));
-    setsockopt (server_socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof (timeout));
-    setsockopt (server_socket, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof (timeout));
+    DWORD buf_size = 65536;
+    setsockopt (server_socket, IPPROTO_TCP, TCP_NODELAY, (const char *)&value, sizeof (value));
+    setsockopt (server_socket, SOL_SOCKET, SO_RCVTIMEO, (const char *)&timeout, sizeof (timeout));
+    setsockopt (server_socket, SOL_SOCKET, SO_SNDTIMEO, (const char *)&timeout, sizeof (timeout));
+    setsockopt (server_socket, SOL_SOCKET, SO_RCVBUF, (const char *)&buf_size, sizeof (buf_size));
     // set linger timeout to 1s to handle time_wait state gracefully
     struct linger sl;
     sl.l_onoff = 1;
     sl.l_linger = 1;
-    setsockopt (server_socket, SOL_SOCKET, SO_LINGER, (char *)&sl, sizeof (sl));
-    // to simplify parsing code and make it uniform for udp and tcp set min bytes for tcp to
-    // package size
-    setsockopt (server_socket, SOL_SOCKET, SO_RCVLOWAT, (char *)&min_bytes, sizeof (min_bytes));
+    setsockopt (server_socket, SOL_SOCKET, SO_LINGER, (const char *)&sl, sizeof (sl));
 
     if ((listen (server_socket, 1)) != 0)
     {
@@ -82,9 +82,15 @@ void SocketServerTCP::accept_worker ()
         // ensure that library will not hang in blocking recv/send call
         DWORD timeout = 3000;
         DWORD value = 1;
-        setsockopt (connected_socket, IPPROTO_TCP, TCP_NODELAY, (char *)&value, sizeof (value));
-        setsockopt (connected_socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof (timeout));
-        setsockopt (connected_socket, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof (timeout));
+        DWORD buf_size = 65536;
+        setsockopt (
+            connected_socket, IPPROTO_TCP, TCP_NODELAY, (const char *)&value, sizeof (value));
+        setsockopt (
+            connected_socket, SOL_SOCKET, SO_RCVTIMEO, (const char *)&timeout, sizeof (timeout));
+        setsockopt (
+            connected_socket, SOL_SOCKET, SO_SNDTIMEO, (const char *)&timeout, sizeof (timeout));
+        setsockopt (
+            connected_socket, SOL_SOCKET, SO_RCVBUF, (const char *)&buf_size, sizeof (buf_size));
 
         client_connected = true;
     }
@@ -101,7 +107,34 @@ int SocketServerTCP::recv (void *data, int size)
     {
         return -1;
     }
-    return res;
+    for (int i = 0; i < res; i++)
+    {
+        temp_buffer.push (((char *)data)[i]);
+    }
+    // before we used SO_RCVLOWAT but it didnt work well
+    // and we were not sure that it works correctly with timeout
+    if (recv_all_or_nothing)
+    {
+        if (temp_buffer.size () < size)
+        {
+            return 0;
+        }
+        for (int i = 0; i < size; i++)
+        {
+            ((char *)data)[i] = temp_buffer.front ();
+            temp_buffer.pop ();
+        }
+        return size;
+    }
+    else
+    {
+        for (int i = 0; i < res; i++)
+        {
+            ((char *)data)[i] = temp_buffer.front ();
+            temp_buffer.pop ();
+        }
+        return res;
+    }
 }
 
 void SocketServerTCP::close ()
@@ -132,16 +165,17 @@ void SocketServerTCP::close ()
 #include <netinet/tcp.h>
 
 
-SocketServerTCP::SocketServerTCP (const char *local_ip, int local_port)
+SocketServerTCP::SocketServerTCP (const char *local_ip, int local_port, bool recv_all_or_nothing)
 {
     strcpy (this->local_ip, local_ip);
     this->local_port = local_port;
+    this->recv_all_or_nothing = recv_all_or_nothing;
     server_socket = -1;
     connected_socket = -1;
     client_connected = false;
 }
 
-int SocketServerTCP::bind (int min_bytes)
+int SocketServerTCP::bind ()
 {
     server_socket = socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (server_socket < 0)
@@ -165,17 +199,16 @@ int SocketServerTCP::bind (int min_bytes)
     tv.tv_sec = 3;
     tv.tv_usec = 0;
     int value = 1;
+    int buf_size = 65536;
     setsockopt (server_socket, IPPROTO_TCP, TCP_NODELAY, &value, sizeof (value));
-    setsockopt (server_socket, SOL_SOCKET, SO_RCVTIMEO, (const char *)&tv, sizeof (tv));
-    setsockopt (server_socket, SOL_SOCKET, SO_SNDTIMEO, (const char *)&tv, sizeof (tv));
+    setsockopt (server_socket, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof (tv));
+    setsockopt (server_socket, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof (tv));
+    setsockopt (server_socket, SOL_SOCKET, SO_RCVBUF, &buf_size, sizeof (buf_size));
     // set linger timeout to 1s to handle time_wait state gracefully
     struct linger sl;
     sl.l_onoff = 1;
     sl.l_linger = 1;
     setsockopt (server_socket, SOL_SOCKET, SO_LINGER, &sl, sizeof (sl));
-    // to simplify parsing code and make it uniform for udp and tcp set min bytes for tcp to
-    // package size
-    setsockopt (server_socket, SOL_SOCKET, SO_RCVLOWAT, &min_bytes, sizeof (min_bytes));
 
     if ((listen (server_socket, 1)) != 0)
     {
@@ -202,9 +235,11 @@ void SocketServerTCP::accept_worker ()
         tv.tv_sec = 3;
         tv.tv_usec = 0;
         int value = 1;
+        int buf_size = 65536;
         setsockopt (connected_socket, IPPROTO_TCP, TCP_NODELAY, &value, sizeof (value));
-        setsockopt (connected_socket, SOL_SOCKET, SO_RCVTIMEO, (const char *)&tv, sizeof (tv));
-        setsockopt (connected_socket, SOL_SOCKET, SO_SNDTIMEO, (const char *)&tv, sizeof (tv));
+        setsockopt (connected_socket, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof (tv));
+        setsockopt (connected_socket, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof (tv));
+        setsockopt (connected_socket, SOL_SOCKET, SO_RCVBUF, &buf_size, sizeof (buf_size));
 
         client_connected = true;
     }
@@ -217,7 +252,34 @@ int SocketServerTCP::recv (void *data, int size)
         return -1;
     }
     int res = ::recv (connected_socket, (char *)data, size, 0);
-    return res;
+    for (int i = 0; i < res; i++)
+    {
+        temp_buffer.push (((char *)data)[i]);
+    }
+    // before we used SO_RCVLOWAT but it didnt work well
+    // and we were not sure that it works correctly with timeout
+    if (recv_all_or_nothing)
+    {
+        if (temp_buffer.size () < size)
+        {
+            return 0;
+        }
+        for (int i = 0; i < size; i++)
+        {
+            ((char *)data)[i] = temp_buffer.front ();
+            temp_buffer.pop ();
+        }
+        return size;
+    }
+    else
+    {
+        for (int i = 0; i < res; i++)
+        {
+            ((char *)data)[i] = temp_buffer.front ();
+            temp_buffer.pop ();
+        }
+        return res;
+    }
 }
 
 void SocketServerTCP::close ()

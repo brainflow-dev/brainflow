@@ -70,9 +70,8 @@ int OpenBCIWifiShieldBoard::prepare_session ()
     }
     safe_logger (spdlog::level::info, "local ip addr is {}", local_ip);
 
-    server_socket = new SocketServerTCP (local_ip, params.ip_port);
-    res = server_socket->bind (
-        OpenBCIWifiShieldBoard::package_size); // set min bytes returned by recv
+    server_socket = new SocketServerTCP (local_ip, params.ip_port, true);
+    res = server_socket->bind ();
     if (res != (int)SocketServerTCPReturnCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to create server socket with addr {} and port {}",

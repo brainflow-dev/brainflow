@@ -8,6 +8,7 @@
 #include <unistd.h>
 #endif
 
+#include <queue>
 #include <stdlib.h>
 #include <string.h>
 #include <thread>
@@ -26,13 +27,13 @@ class SocketServerTCP
 {
 
 public:
-    SocketServerTCP (const char *local_ip, int local_port);
+    SocketServerTCP (const char *local_ip, int local_port, bool recv_all_or_nothing);
     ~SocketServerTCP ()
     {
         close ();
     }
 
-    int bind (int min_bytes = 1);
+    int bind ();
     int accept ();
     int recv (void *data, int size);
     void close ();
@@ -46,6 +47,8 @@ private:
     int local_port;
     struct sockaddr_in server_addr;
     volatile struct sockaddr_in client_addr;
+    std::queue<char> temp_buffer;
+    bool recv_all_or_nothing;
 
     std::thread accept_thread;
 
