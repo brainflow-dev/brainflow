@@ -5,7 +5,7 @@ using Accord.Math;
 
 namespace test
 {
-    class GetBoardData
+    class SignalFiltering
     {
         static void Main (string[] args)
         {
@@ -17,10 +17,8 @@ namespace test
             BoardShim board_shim = new BoardShim (board_id, input_params);
             board_shim.prepare_session ();
             board_shim.start_stream (3600);
-            BoardShim.log_message ((int)LogLevels.LEVEL_INFO, "Start sleeping in the main thread");
             System.Threading.Thread.Sleep (5000);
             board_shim.stop_stream ();
-            Console.WriteLine ("data count: {0}", board_shim.get_board_data_count ());
             double[,] unprocessed_data = board_shim.get_current_board_data (20);
             int[] eeg_channels = BoardShim.get_eeg_channels (board_id);
             board_shim.release_session ();

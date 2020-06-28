@@ -17,7 +17,7 @@ int CallibriEMG::apply_initial_settings ()
         char error_msg[1024];
         sdk_last_error_msg (error_msg, 1024);
         safe_logger (spdlog::level::err, "Failed to set sampling rate: {}", error_msg);
-        return BOARD_WRITE_ERROR;
+        return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
     }
 
     exit_code = device_set_Gain (device, Gain6);
@@ -26,7 +26,7 @@ int CallibriEMG::apply_initial_settings ()
         char error_msg[1024];
         sdk_last_error_msg (error_msg, 1024);
         safe_logger (spdlog::level::err, "Failed to set gain: {}", error_msg);
-        return BOARD_WRITE_ERROR;
+        return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
     }
 
     exit_code = device_set_Offset (device, 0);
@@ -35,7 +35,7 @@ int CallibriEMG::apply_initial_settings ()
         char error_msg[1024];
         sdk_last_error_msg (error_msg, 1024);
         safe_logger (spdlog::level::err, "Failed to set offset: {}", error_msg);
-        return BOARD_WRITE_ERROR;
+        return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
     }
 
     if (strcmp (params.other_info.c_str (), "ExternalSwitchInputMioUSB") == 0)
@@ -54,7 +54,7 @@ int CallibriEMG::apply_initial_settings ()
         char error_msg[1024];
         sdk_last_error_msg (error_msg, 1024);
         safe_logger (spdlog::level::err, "Failed to set switch state: {}", error_msg);
-        return BOARD_WRITE_ERROR;
+        return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
     }
 
     exit_code = device_set_ADCInputState (device, ADCInputResistance);
@@ -63,7 +63,7 @@ int CallibriEMG::apply_initial_settings ()
         char error_msg[1024];
         sdk_last_error_msg (error_msg, 1024);
         safe_logger (spdlog::level::err, "Failed to set ADC input state: {}", error_msg);
-        return BOARD_WRITE_ERROR;
+        return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
     }
 
     exit_code = device_set_HardwareFilterState (device, true);
@@ -72,9 +72,9 @@ int CallibriEMG::apply_initial_settings ()
         char error_msg[1024];
         sdk_last_error_msg (error_msg, 1024);
         safe_logger (spdlog::level::err, "Failed to set filter state: {}", error_msg);
-        return BOARD_WRITE_ERROR;
+        return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
     }
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 #endif

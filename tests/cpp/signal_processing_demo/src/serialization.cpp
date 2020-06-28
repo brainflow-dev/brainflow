@@ -18,7 +18,7 @@ int main (int argc, char *argv[])
 {
     struct BrainFlowInputParams params;
     // use synthetic board for demo
-    int board_id = SYNTHETIC_BOARD;
+    int board_id = (int)BoardIds::SYNTHETIC_BOARD;
 
     BoardShim::enable_dev_board_logger ();
 

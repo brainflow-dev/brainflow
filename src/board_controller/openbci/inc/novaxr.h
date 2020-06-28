@@ -7,7 +7,7 @@
 
 #include "board.h"
 #include "board_controller.h"
-#include "socket_client.h"
+#include "socket_client_udp.h"
 
 #define ADS1299_Vref 4.5
 
@@ -17,16 +17,16 @@ class NovaXR : public Board
 
 private:
     // different default gains
-    const double eeg_scale_main_board = ADS1299_Vref / double ((pow (2, 23) - 1)) / 8.0 * 1000000.;
+    const double eeg_scale_main_board = ADS1299_Vref / double((pow (2, 23) - 1)) / 8.0 * 1000000.;
     const double eeg_scale_sister_board =
-        ADS1299_Vref / double ((pow (2, 23) - 1)) / 12.0 * 1000000.;
-    const double emg_scale = ADS1299_Vref / double ((pow (2, 23) - 1)) / 4.0 * 1000000.;
+        ADS1299_Vref / double((pow (2, 23) - 1)) / 12.0 * 1000000.;
+    const double emg_scale = ADS1299_Vref / double((pow (2, 23) - 1)) / 4.0 * 1000000.;
 
     volatile bool keep_alive;
     bool initialized;
     bool is_streaming;
     std::thread streaming_thread;
-    SocketClient *socket;
+    SocketClientUDP *socket;
 
     std::mutex m;
     std::condition_variable cv;

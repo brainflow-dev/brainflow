@@ -12,7 +12,7 @@
 #include <string.h>
 
 
-enum class MultiCastReturnCodes
+enum class MultiCastReturnCodes : int
 {
     STATUS_OK = 0,
     WSA_STARTUP_ERROR = 1,

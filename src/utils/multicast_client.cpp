@@ -1,6 +1,7 @@
 #include <string.h>
 
 #include "multicast_client.h"
+#include "socket_client_udp.h"
 
 ///////////////////////////////
 /////////// WINDOWS ///////////
@@ -54,7 +55,22 @@ int MultiCastClient::init ()
     {
         return (int)MultiCastReturnCodes::PTON_ERROR;
     }
-    mreq.imr_interface.s_addr = htonl (INADDR_ANY);
+    char interface_ip[80];
+    // use google dns ip to get local address in network
+    res = SocketClientUDP::get_local_ip_addr ("8.8.8.8", 53, interface_ip);
+    if (res != (int)SocketClientUDPReturnCodes::STATUS_OK)
+    {
+        // use INADDR_ANY if failed to connect, it works only for localhost
+        mreq.imr_interface.s_addr = htonl (INADDR_ANY);
+    }
+    else
+    {
+        // use local ip in network
+        if (inet_pton (AF_INET, interface_ip, &mreq.imr_interface.s_addr) == 0)
+        {
+            return (int)MultiCastReturnCodes::PTON_ERROR;
+        }
+    }
     if (setsockopt (client_socket, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *)&mreq, sizeof (mreq)) !=
         0)
     {
@@ -130,7 +146,22 @@ int MultiCastClient::init ()
     {
         return (int)MultiCastReturnCodes::PTON_ERROR;
     }
-    mreq.imr_interface.s_addr = htonl (INADDR_ANY);
+    char interface_ip[80];
+    // use google dns ip to get local address in network
+    int res = SocketClientUDP::get_local_ip_addr ("8.8.8.8", 53, interface_ip);
+    if (res != (int)SocketClientUDPReturnCodes::STATUS_OK)
+    {
+        // use INADDR_ANY if failed to connect, it works only for localhost
+        mreq.imr_interface.s_addr = htonl (INADDR_ANY);
+    }
+    else
+    {
+        // use local ip in network
+        if (inet_pton (AF_INET, interface_ip, &mreq.imr_interface.s_addr) == 0)
+        {
+            return (int)MultiCastReturnCodes::PTON_ERROR;
+        }
+    }
     if (setsockopt (client_socket, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *)&mreq, sizeof (mreq)) !=
         0)
     {

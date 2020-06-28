@@ -31,7 +31,7 @@ Methods like:
 
 **Return 2d double array [num_channels x num_data_points], rows of this array represent different channels like  EEG channels, EMG channels, Accel channels, Timesteps and so on, while columns in this array represent actual packages from a board.**
 
-Exact format for this array is board specific. To keep the API uniform. we have methods like:
+Exact format for this array is board specific. To keep the API uniform, we have methods like:
 
 .. code-block:: python
 

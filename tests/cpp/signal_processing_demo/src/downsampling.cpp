@@ -18,7 +18,7 @@ int main (int argc, char *argv[])
 {
     struct BrainFlowInputParams params;
     // use synthetic board for demo
-    int board_id = SYNTHETIC_BOARD;
+    int board_id = (int)BoardIds::SYNTHETIC_BOARD;
 
     BoardShim::enable_dev_board_logger ();
 
@@ -61,16 +61,16 @@ int main (int argc, char *argv[])
             switch (i)
             {
                 case 0:
-                    downsampled_data = DataFilter::perform_downsampling (
-                        data[eeg_channels[i]], data_count, 2, MEAN, &filtered_size);
+                    downsampled_data = DataFilter::perform_downsampling (data[eeg_channels[i]],
+                        data_count, 2, (int)AggOperations::MEAN, &filtered_size);
                     break;
                 case 1:
-                    downsampled_data = DataFilter::perform_downsampling (
-                        data[eeg_channels[i]], data_count, 3, MEDIAN, &filtered_size);
+                    downsampled_data = DataFilter::perform_downsampling (data[eeg_channels[i]],
+                        data_count, 3, (int)AggOperations::MEDIAN, &filtered_size);
                     break;
                 default:
-                    downsampled_data = DataFilter::perform_downsampling (
-                        data[eeg_channels[i]], data_count, 2, EACH, &filtered_size);
+                    downsampled_data = DataFilter::perform_downsampling (data[eeg_channels[i]],
+                        data_count, 2, (int)AggOperations::EACH, &filtered_size);
                     break;
             }
 

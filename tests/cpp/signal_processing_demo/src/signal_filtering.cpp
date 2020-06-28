@@ -18,7 +18,7 @@ int main (int argc, char *argv[])
 {
     struct BrainFlowInputParams params;
     // use synthetic board for demo
-    int board_id = SYNTHETIC_BOARD;
+    int board_id = (int)BoardIds::SYNTHETIC_BOARD;
 
     BoardShim::enable_dev_board_logger ();
 
@@ -60,19 +60,23 @@ int main (int argc, char *argv[])
                 // signal filtering methods work in-place
                 case 0:
                     DataFilter::perform_lowpass (data[eeg_channels[i]], data_count,
-                        BoardShim::get_sampling_rate (board_id), 30.0, 3, BUTTERWORTH, 0);
+                        BoardShim::get_sampling_rate (board_id), 30.0, 3,
+                        (int)FilterTypes::BUTTERWORTH, 0);
                     break;
                 case 1:
                     DataFilter::perform_highpass (data[eeg_channels[i]], data_count,
-                        BoardShim::get_sampling_rate (board_id), 5.0, 5, CHEBYSHEV_TYPE_1, 1);
+                        BoardShim::get_sampling_rate (board_id), 5.0, 5,
+                        (int)FilterTypes::CHEBYSHEV_TYPE_1, 1);
                     break;
                 case 2:
                     DataFilter::perform_bandpass (data[eeg_channels[i]], data_count,
-                        BoardShim::get_sampling_rate (board_id), 15.0, 5.0, 3, BESSEL, 0);
+                        BoardShim::get_sampling_rate (board_id), 15.0, 5.0, 3,
+                        (int)FilterTypes::BESSEL, 0);
                     break;
                 default:
                     DataFilter::perform_bandstop (data[eeg_channels[i]], data_count,
-                        BoardShim::get_sampling_rate (board_id), 30.0, 1.0, 3, BUTTERWORTH, 0);
+                        BoardShim::get_sampling_rate (board_id), 30.0, 1.0, 3,
+                        (int)FilterTypes::BUTTERWORTH, 0);
                     break;
             }
         }

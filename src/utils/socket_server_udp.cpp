@@ -17,13 +17,13 @@ SocketServerUDP::SocketServerUDP (int local_port)
     memset (&server_addr, 0, sizeof (server_addr));
 }
 
-int SocketServerUDP::bind (int min_bytes)
+int SocketServerUDP::bind ()
 {
     WSADATA wsadata;
     int res = WSAStartup (MAKEWORD (2, 2), &wsadata);
     if (res != 0)
     {
-        return (int)SocketServerUDPCodes::WSA_STARTUP_ERROR;
+        return (int)SocketServerUDPReturnCodes::WSA_STARTUP_ERROR;
     }
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons (local_port);
@@ -31,12 +31,12 @@ int SocketServerUDP::bind (int min_bytes)
     server_socket = socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (server_socket == INVALID_SOCKET)
     {
-        return (int)SocketServerUDPCodes::CREATE_SOCKET_ERROR;
+        return (int)SocketServerUDPReturnCodes::CREATE_SOCKET_ERROR;
     }
 
     if (::bind (server_socket, (const struct sockaddr *)&server_addr, sizeof (server_addr)) != 0)
     {
-        return (int)SocketServerUDPCodes::BIND_ERROR;
+        return (int)SocketServerUDPReturnCodes::BIND_ERROR;
     }
 
     // ensure that library will not hang in blocking recv/send call
@@ -45,7 +45,7 @@ int SocketServerUDP::bind (int min_bytes)
     setsockopt (server_socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof (timeout));
     setsockopt (server_socket, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof (timeout));
 
-    return (int)SocketServerUDPCodes::STATUS_OK;
+    return (int)SocketServerUDPReturnCodes::STATUS_OK;
 }
 
 int SocketServerUDP::recv (void *data, int size)
@@ -88,12 +88,12 @@ SocketServerUDP::SocketServerUDP (int local_port)
     memset (&server_addr, 0, sizeof (server_addr));
 }
 
-int SocketServerUDP::bind (int min_bytes)
+int SocketServerUDP::bind ()
 {
     server_socket = socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (server_socket < 0)
     {
-        return (int)SocketServerUDPCodes::CREATE_SOCKET_ERROR;
+        return (int)SocketServerUDPReturnCodes::CREATE_SOCKET_ERROR;
     }
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons (local_port);
@@ -101,7 +101,7 @@ int SocketServerUDP::bind (int min_bytes)
 
     if (::bind (server_socket, (const struct sockaddr *)&server_addr, sizeof (server_addr)) != 0)
     {
-        return (int)SocketServerUDPCodes::BIND_ERROR;
+        return (int)SocketServerUDPReturnCodes::BIND_ERROR;
     }
 
     // ensure that library will not hang in blocking recv/send call
@@ -112,7 +112,7 @@ int SocketServerUDP::bind (int min_bytes)
     setsockopt (server_socket, SOL_SOCKET, SO_RCVTIMEO, (const char *)&tv, sizeof (tv));
     setsockopt (server_socket, SOL_SOCKET, SO_SNDTIMEO, (const char *)&tv, sizeof (tv));
 
-    return (int)SocketServerUDPCodes::STATUS_OK;
+    return (int)SocketServerUDPReturnCodes::STATUS_OK;
 }
 
 int SocketServerUDP::recv (void *data, int size)

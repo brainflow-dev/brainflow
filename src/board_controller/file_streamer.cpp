@@ -24,14 +24,14 @@ int FileStreamer::init_streamer ()
     if ((strcmp (file_mode, "w") != 0) && (strcmp (file_mode, "w+") != 0) &&
         (strcmp (file_mode, "a") != 0) && (strcmp (file_mode, "a+") != 0))
     {
-        return INVALID_ARGUMENTS_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     fp = fopen (file, file_mode);
     if (fp == NULL)
     {
-        return GENERAL_ERROR;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    return STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 void FileStreamer::stream_data (double *data, int len, double timestamp)

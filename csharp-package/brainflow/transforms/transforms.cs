@@ -6,7 +6,7 @@ using Accord.Math;
 
 namespace test
 {
-    class GetBoardData
+    class Transforms
     {
         static void Main (string[] args)
         {
@@ -18,10 +18,8 @@ namespace test
             BoardShim board_shim = new BoardShim (board_id, input_params);
             board_shim.prepare_session ();
             board_shim.start_stream (3600);
-            BoardShim.log_message ((int)LogLevels.LEVEL_INFO, "Start sleeping in the main thread");
             System.Threading.Thread.Sleep (5000);
             board_shim.stop_stream ();
-            Console.WriteLine ("data count: {0}", board_shim.get_board_data_count ());
             double[,] unprocessed_data = board_shim.get_current_board_data (64);
             int[] eeg_channels = BoardShim.get_eeg_channels (board_id);
             board_shim.release_session ();
@@ -48,7 +46,7 @@ namespace test
 
                 // demo for fft
                 // end_pos - start_pos must be a power of 2
-                Complex[] fft_data = DataFilter.perform_fft (unprocessed_data.GetRow (eeg_channels[i]), 0, 64);
+                Complex[] fft_data = DataFilter.perform_fft (unprocessed_data.GetRow (eeg_channels[i]), 0, 64, (int)WindowFunctions.HAMMING);
                 // len of fft_data is N / 2 + 1
                 double[] restored_fft_data = DataFilter.perform_ifft (fft_data);
                 Console.WriteLine ("Restored fft data:");

@@ -10,9 +10,6 @@
 #include "socket_server_udp.h"
 
 
-#define ADS1299_Vref 4.5
-#define ADS1299_gain 24.0
-
 class Fascia : public Board
 {
 

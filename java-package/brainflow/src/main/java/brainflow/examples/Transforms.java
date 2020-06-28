@@ -10,6 +10,7 @@ import brainflow.BoardShim;
 import brainflow.BrainFlowInputParams;
 import brainflow.DataFilter;
 import brainflow.LogLevels;
+import brainflow.WindowFunctions;
 
 public class Transforms
 {
@@ -62,7 +63,8 @@ public class Transforms
 
             // demo for fft works only for power of 2
             // len of fft_data is N / 2 + 1
-            Complex[] fft_data = DataFilter.perform_fft (data[eeg_channels[i]], 0, 64);
+            Complex[] fft_data = DataFilter.perform_fft (data[eeg_channels[i]], 0, 64,
+                    WindowFunctions.NO_WINDOW.get_code ());
             double[] restored_fft_data = DataFilter.perform_ifft (fft_data);
             System.out.println ("Restored data after fft:");
             System.out.println (Arrays.toString (restored_fft_data));
