@@ -29,6 +29,7 @@ class BoardIds (enum.Enum):
     CALLIBRI_EEG_BOARD = 9 #:
     CALLIBRI_EMG_BOARD = 10 #:
     CALLIBRI_ECG_BOARD = 11 #:
+    FASCIA_BOARD = 12 #:
 
 
 class LogLevels (enum.Enum):

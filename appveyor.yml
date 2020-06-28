@@ -79,6 +79,8 @@ test_script:
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --board-id 4 --ip-address 127.0.0.1 --ip-port 17986 --streamer-params file://file_streamer.csv:w
   # tests for streaming board
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\streaming_board_emulator.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
+  # test for fascia
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\fascia_emulator_ci.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --board-id 12 --ip-port 7789
   # tests for signal processing
   # python
   - python %APPVEYOR_BUILD_FOLDER%\tests\python\denoising.py

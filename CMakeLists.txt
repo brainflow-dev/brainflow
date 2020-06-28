@@ -139,6 +139,7 @@ set (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/utils/socket_client_tcp.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/socket_client_udp.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/socket_server_tcp.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/utils/socket_server_udp.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/multicast_client.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/multicast_server.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/openbci_serial_board.cpp
@@ -164,6 +165,7 @@ set (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/callibri_eeg.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/callibri_ecg.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/callibri_emg.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/mit/fascia.cpp
 )
 
 set (DATA_HANDLER_SRC
@@ -192,6 +194,7 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/gtec/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/inc
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/mit/inc
 )
 
 # NeuroSDK supports only Windows and MacOS
