@@ -6,7 +6,7 @@ using Accord.Math;
 
 namespace test
 {
-    class GetBoardData
+    class BandPower
     {
         static void Main (string[] args)
         {
