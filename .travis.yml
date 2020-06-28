@@ -135,7 +135,11 @@ script:
   - if [ `which valgrind` ]; then
       python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/streaming_board_emulator.py valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1 ;
     fi
-
+  # test for fascia
+  - sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/fascia_emulator_ci.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --board-id 12 --ip-port 7789
+  - if [ `which valgrind` ]; then
+      python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/fascia_emulator_ci.py valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 12 --ip-port 7789 ;
+    fi
   # tests for signal processing
   # python
   - python3 $TRAVIS_BUILD_DIR/tests/python/denoising.py
