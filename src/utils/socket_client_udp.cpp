@@ -115,12 +115,22 @@ int SocketClientUDP::connect ()
     setsockopt (connect_socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof (timeout));
     setsockopt (connect_socket, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof (timeout));
 
-    // for UDP need to bind in client
+    return (int)SocketClientUDPReturnCodes::STATUS_OK;
+}
+
+int SocketClientUDP::bind ()
+{
+    // for socket clients which dont call sendto before recvfrom bind should be called on client
+    // side
+    // https://stackoverflow.com/questions/3057029/do-i-have-to-bind-a-udp-socket-in-my-client-program-to-receive-data-i-always-g
+    if (connect_socket == INVALID_SOCKET)
+    {
+        return (int)SocketClientUDPReturnCodes::CREATE_SOCKET_ERROR;
+    }
     if (::bind (connect_socket, (const struct sockaddr *)&socket_addr, sizeof (socket_addr)) != 0)
     {
         return (int)SocketClientUDPReturnCodes::CONNECT_ERROR;
     }
-
     return (int)SocketClientUDPReturnCodes::STATUS_OK;
 }
 
@@ -254,12 +264,22 @@ int SocketClientUDP::connect ()
     setsockopt (connect_socket, SOL_SOCKET, SO_RCVTIMEO, (const char *)&tv, sizeof (tv));
     setsockopt (connect_socket, SOL_SOCKET, SO_SNDTIMEO, (const char *)&tv, sizeof (tv));
 
-    // for UDP need to bind in client
+    return (int)SocketClientUDPReturnCodes::STATUS_OK;
+}
+
+int SocketClientUDP::bind ()
+{
+    // for socket clients which dont call sendto before recvfrom bind should be called on client
+    // side
+    // https://stackoverflow.com/questions/3057029/do-i-have-to-bind-a-udp-socket-in-my-client-program-to-receive-data-i-always-g
+    if (connect_socket < 0)
+    {
+        return (int)SocketClientUDPReturnCodes::CREATE_SOCKET_ERROR;
+    }
     if (::bind (connect_socket, (const struct sockaddr *)&socket_addr, sizeof (socket_addr)) != 0)
     {
         return (int)SocketClientUDPReturnCodes::CONNECT_ERROR;
     }
-
     return (int)SocketClientUDPReturnCodes::STATUS_OK;
 }
 

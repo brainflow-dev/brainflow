@@ -34,7 +34,8 @@ public:
         close ();
     }
 
-    int connect (); // makes sense only for tcp
+    int connect ();
+    int bind ();
     int send (const char *data, int size);
     int recv (void *data, int size);
     void close ();
@@ -47,7 +48,6 @@ public:
     {
         return port;
     }
-
 
 private:
     char ip_addr[32];
