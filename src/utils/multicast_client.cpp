@@ -148,8 +148,8 @@ int MultiCastClient::init ()
     }
     char interface_ip[80];
     // use google dns ip to get local address in network
-    int res = SocketClient::get_local_ip_addr ("8.8.8.8", 53, interface_ip);
-    if (res != (int)SocketReturnCodes::STATUS_OK)
+    int res = SocketClientUDP::get_local_ip_addr ("8.8.8.8", 53, interface_ip);
+    if (res != (int)SocketClientUDPReturnCodes::STATUS_OK)
     {
         // use INADDR_ANY if failed to connect, it works only for localhost
         mreq.imr_interface.s_addr = htonl (INADDR_ANY);
