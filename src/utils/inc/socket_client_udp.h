@@ -12,13 +12,7 @@
 #include <string.h>
 
 
-enum class SocketType : int
-{
-    UDP = 0,
-    TCP = 1
-};
-
-enum class SocketReturnCodes : int
+enum class SocketClientUDPReturnCodes : int
 {
     STATUS_OK = 0,
     WSA_STARTUP_ERROR = 1,
@@ -27,19 +21,20 @@ enum class SocketReturnCodes : int
     PTON_ERROR = 4
 };
 
-class SocketClient
+
+class SocketClientUDP
 {
 
 public:
     static int get_local_ip_addr (char *connect_ip, int port, char *local_ip);
 
-    SocketClient (const char *port_name, int port, int socket_type);
-    ~SocketClient ()
+    SocketClientUDP (const char *port_name, int port);
+    ~SocketClientUDP ()
     {
         close ();
     }
 
-    int connect (int min_bytes = 1); // makes sense only for tcp
+    int connect (); // makes sense only for tcp
     int send (const char *data, int size);
     int recv (void *data, int size);
     void close ();

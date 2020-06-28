@@ -48,9 +48,9 @@ int NovaXR::prepare_session ()
         safe_logger (spdlog::level::err, "ip protocol is UDP for novaxr");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
-    socket = new SocketClient (params.ip_address.c_str (), 2390, (int)SocketType::UDP);
-    int res = socket->connect (NovaXR::transaction_size);
-    if (res != (int)SocketReturnCodes::STATUS_OK)
+    socket = new SocketClientUDP (params.ip_address.c_str (), 2390);
+    int res = socket->connect ();
+    if (res != (int)SocketClientUDPReturnCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to init socket: {}", res);
         delete socket;

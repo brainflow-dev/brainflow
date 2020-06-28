@@ -3,7 +3,7 @@
 #include <string>
 
 #include "openbci_wifi_shield_board.h"
-#include "socket_client.h"
+#include "socket_client_udp.h"
 
 #include "json.hpp"
 
@@ -61,7 +61,7 @@ int OpenBCIWifiShieldBoard::prepare_session ()
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     char local_ip[80];
-    int res = SocketClient::get_local_ip_addr (
+    int res = SocketClientUDP::get_local_ip_addr (
         const_cast<char *> (params.ip_address.c_str ()), 80, local_ip);
     if (res != 0)
     {
