@@ -142,7 +142,6 @@ void SyntheticBoard::read_thread ()
     std::normal_distribution<double> accel_dist (0.0, 0.35);
     std::normal_distribution<double> temperature_dist (36.0, 0.5);
     std::normal_distribution<double> dist_mean_thousand (1000.0, 200.0);
-    std::normal_distribution<double> dist_mean_hundred (100.0, 20.0);
 
     uint64_t seed = std::chrono::high_resolution_clock::now ().time_since_epoch ().count ();
     std::mt19937 mt (static_cast<uint32_t> (seed));
@@ -174,8 +173,8 @@ void SyntheticBoard::read_thread ()
         // eda
         package[23] = dist_mean_thousand (mt);
         // ppg
-        package[24] = dist_mean_hundred (mt);
-        package[25] = dist_mean_hundred (mt);
+        package[24] = 5.0 * dist_mean_thousand (mt);
+        package[25] = 5.0 * dist_mean_thousand (mt);
         // temperature
         package[26] = temperature_dist (mt);
         // resistance (add just 2 channels)
