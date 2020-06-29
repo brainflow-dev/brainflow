@@ -121,10 +121,7 @@ deploy_script:
   - ps: >-
       cd $env:APPVEYOR_BUILD_FOLDER\csharp-package\brainflow\brainflow;
       If ($env:APPVEYOR_REPO_TAG -eq "true" -And $env:APPVEYOR_REPO_BRANCH -eq "master") {
-        (gc .\brainflow.nuspec).replace('VERSION_PLACEHOLDER',$env:APPVEYOR_REPO_TAG_NAME) | Out-File -encoding ASCII brainflow.nuspec
-      }
-      Else {
-        (gc .\brainflow.nuspec).replace('VERSION_PLACEHOLDER','1.0.0') | Out-File -encoding ASCII brainflow.nuspec
+        (gc .\brainflow.nuspec).replace('0.0.1',$env:APPVEYOR_REPO_TAG_NAME) | Out-File -encoding ASCII brainflow.nuspec
       }
       nuget pack brainflow.csproj -properties Configuration=Release -IncludeReferencedProjects;
       aws s3 cp %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow s3://brainflow/%APPVEYOR_REPO_COMMIT%/nuget --recursive;
