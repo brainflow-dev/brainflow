@@ -133,94 +133,64 @@ int SyntheticBoard::release_session ()
 
 void SyntheticBoard::read_thread ()
 {
-    // predefined sin wave for exg
     unsigned char counter = 0;
-    bool positive_square = true;
-    bool use_square = false;
-    constexpr int num_samples = 256;
-    float base_wave[num_samples];
-    double amplitude = 1000.0;
-    double noise = 0.6;
-    double shift = 0.3;
+    constexpr int exg_channels = 16;
+    constexpr int imu_channels = 6; // accel + gyro
+    double sin_phase_rad[exg_channels] = {0.0};
+    double package[SyntheticBoard::package_size] = {0.0};
+    int sampling_rate = 250;
+    std::normal_distribution<double> accel_dist (0.0, 0.35);
+    std::normal_distribution<double> temperature_dist (36.0, 0.5);
+    std::normal_distribution<double> dist_mean_thousand (1000.0, 200.0);
 
-    if (strcmp (params.other_info.c_str (), "square") == 0)
-    {
-        use_square = true;
-    }
-
-    for (int i = 0; i < num_samples; i++)
-    {
-        float rads = (float)(M_PI / 180.0f);
-        base_wave[i] = amplitude * sin (1.8f * i * rads + shift);
-    }
-    // random distr for exg noise
     uint64_t seed = std::chrono::high_resolution_clock::now ().time_since_epoch ().count ();
     std::mt19937 mt (static_cast<uint32_t> (seed));
-    float max_noise = (noise > 0.001f) ? noise : 0.001f;
-    float range = (amplitude * max_noise) / 2.0f;
-    safe_logger (spdlog::level::info, "noise range is {}:{}", -range, range);
-    safe_logger (spdlog::level::info, "amplitude is {}", amplitude);
-    safe_logger (spdlog::level::info, "shift is {}", shift);
-    std::uniform_real_distribution<float> dist (0 - range, range);
-
-    // get info about synthetic board from json
-    int sampling_rate = 250;
-    int ec = get_sampling_rate ((int)BoardIds::SYNTHETIC_BOARD, &sampling_rate);
-    if (ec != (int)BrainFlowExitCodes::STATUS_OK)
-    {
-        safe_logger (spdlog::level::warn, "failed to get sampling rate from json: {}", ec);
-    }
-
-    double package[SyntheticBoard::package_size] = {0.0};
-    int num_exg_channels = 16;
 
     while (keep_alive)
     {
         package[0] = (double)counter;
-        if ((counter % 51 == 0) && (counter != 255))
-        {
-            positive_square = !positive_square;
-        }
         // exg
-        for (int i = 0; i < num_exg_channels; i++)
+        for (int i = 0; i < exg_channels; i++)
         {
-            if (use_square)
+            double amplitude = 10.0 * (i + 1);
+            double noise = 0.1 * (i + 1);
+            double freq = 5.0 * (i + 1);
+            double shift = 0.05 * i;
+            double range = (amplitude * noise) / 2.0;
+            std::uniform_real_distribution<double> dist (0 - range, range);
+            sin_phase_rad[i] += 2.0f * M_PI * freq / (double)sampling_rate;
+            if (sin_phase_rad[i] > 2.0f * M_PI)
             {
-                package[i + 1] = positive_square ? amplitude / 2 : -amplitude / 2;
+                sin_phase_rad[i] -= 2.0f * M_PI;
             }
-            else
-            {
-                package[i + 1] = base_wave[counter] + dist (mt);
-            }
+            package[i + 1] = (amplitude + dist (mt)) * sqrt (2.0) * sin (sin_phase_rad[i] + shift);
         }
-        // accel
-        package[17] = counter / 255.0;
-        package[18] = counter / 255.0;
-        package[19] = counter / 255.0;
-        // gyro
-        package[20] = 1.0 - counter / 255.0;
-        package[21] = 1.0 - counter / 255.0;
-        package[22] = 1.0 - counter / 255.0;
+        // accel and gyro
+        for (int i = 0; i < imu_channels; i++)
+        {
+            package[i + 1 + exg_channels] = accel_dist (mt);
+        }
         // eda
-        package[23] = amplitude + dist (mt);
+        package[23] = dist_mean_thousand (mt);
         // ppg
-        package[24] = 70 + counter / 5.0;
+        package[24] = 5.0 * dist_mean_thousand (mt);
+        package[25] = 5.0 * dist_mean_thousand (mt);
         // temperature
-        package[25] = 36 + counter / 200.0;
+        package[26] = temperature_dist (mt);
         // resistance (add just 2 channels)
-        package[26] = 1000 + counter / 5.0;
-        package[27] = 1000 + counter / 5.0;
+        package[27] = dist_mean_thousand (mt);
+        package[28] = dist_mean_thousand (mt);
         // battery
-        package[28] = 100 - counter / 3.0;
+        package[29] = 95.0;
 
         double timestamp = get_timestamp ();
         db->add_data (timestamp, package);
         streamer->stream_data (package, SyntheticBoard::package_size, timestamp);
         counter++;
 #ifdef _WIN32
-        Sleep ((int)(1000 / sampling_rate));
+        Sleep ((int)(1000.0 / sampling_rate));
 #else
-        usleep ((int)(1000000 / sampling_rate));
+        usleep ((int)(1000000.0 / sampling_rate));
 #endif
     }
 }

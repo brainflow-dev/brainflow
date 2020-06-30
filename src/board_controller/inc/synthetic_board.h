@@ -27,5 +27,5 @@ public:
     int release_session ();
     int config_board (char *config);
 
-    static constexpr int package_size = 29;
+    static constexpr int package_size = 30;
 };
