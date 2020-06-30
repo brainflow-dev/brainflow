@@ -6,7 +6,7 @@ tags: [release]
 
 Breaking changes in this release:
 
-* Methods to calculate FFT now have window argument. Chech code samples
+* Methods to calculate FFT now have window argument. Check code samples
 * C++ only: all constants are C++ 11 enum classes now without typedef. It's important to prevent name conflicts
 
 Other changes:
