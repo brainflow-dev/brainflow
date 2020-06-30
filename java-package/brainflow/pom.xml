@@ -31,13 +31,10 @@
   </developers>
 
   <distributionManagement>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
     <repository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+      <id>github</id>
+      <name>GitHub brainflow-dev Apache Maven Packages</name>
+      <url>https://maven.pkg.github.com/brainflow-dev/brainflow</url>
     </repository>
   </distributionManagement>
 
@@ -106,6 +103,33 @@
                 </configuration>
             </execution>
         </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>pl.project13.maven</groupId>
+        <artifactId>git-commit-id-plugin</artifactId>
+        <version>2.2.4</version>
+        <executions>
+            <execution>
+                <id>get-the-git-infos</id>
+                <goals>
+                    <goal>revision</goal>
+                </goals>
+            </execution>
+        </executions>
+        <configuration>
+            <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+            <prefix>git</prefix>
+            <verbose>false</verbose>
+            <generateGitPropertiesFile>true</generateGitPropertiesFile>
+            <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+            <format>json</format>
+            <gitDescribe>
+                <skip>false</skip>
+                <always>false</always>
+                <dirty>-dirty</dirty>
+            </gitDescribe>
+        </configuration>
       </plugin>
       
   </plugins>

@@ -121,10 +121,7 @@ deploy_script:
   - ps: >-
       cd $env:APPVEYOR_BUILD_FOLDER\csharp-package\brainflow\brainflow;
       If ($env:APPVEYOR_REPO_TAG -eq "true" -And $env:APPVEYOR_REPO_BRANCH -eq "master") {
-        (gc .\brainflow.nuspec).replace('VERSION_PLACEHOLDER',$env:APPVEYOR_REPO_TAG_NAME) | Out-File -encoding ASCII brainflow.nuspec
-      }
-      Else {
-        (gc .\brainflow.nuspec).replace('VERSION_PLACEHOLDER','1.0.0') | Out-File -encoding ASCII brainflow.nuspec
+        (gc .\brainflow.nuspec).replace('0.0.1',$env:APPVEYOR_REPO_TAG_NAME) | Out-File -encoding ASCII brainflow.nuspec
       }
       nuget pack brainflow.csproj -properties Configuration=Release -IncludeReferencedProjects;
       aws s3 cp %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow s3://brainflow/%APPVEYOR_REPO_COMMIT%/nuget --recursive;
@@ -165,9 +162,9 @@ deploy_script:
         If ($env:APPVEYOR_REPO_TAG -eq "true" -And $env:APPVEYOR_REPO_BRANCH -eq "master") {
           (gc .\pom.xml).replace('0.0.1-SNAPSHOT',$env:APPVEYOR_REPO_TAG_NAME) | Out-File -encoding ASCII pom.xml
         }
-        Else {
-          (gc .\pom.xml).replace('0.0.1-SNAPSHOT','1.0.0') | Out-File -encoding ASCII pom.xml
-        }
+        (gc .\settings.xml).replace('USER','Andrey1994') | Out-File -encoding ASCII settings.xml
+        (gc .\settings.xml).replace('TOKEN',$env:GITHUB_TOKEN) | Out-File -encoding ASCII settings.xml
+        mvn -s $env:APPVEYOR_BUILD_FOLDER\java-package\brainflow\settings.xml deploy -Dregistry=https://maven.pkg.github.com/brainflow-dev -Dtoken=$env:GITHUB_TOKEN
         mvn package > mvn_final_stdout.txt
         #upload .jars to aws
         aws s3 cp %APPVEYOR_BUILD_FOLDER%\java-package\brainflow\target\ s3://brainflow/%APPVEYOR_REPO_COMMIT%/jars --recursive
