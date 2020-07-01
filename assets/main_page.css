@@ -8,14 +8,7 @@
 
 .hidden-sm { display: none; }
 
-
-
-
-
 .post .row [class^="col"] { float: left; margin: 0.5rem 1%; min-height: 0.125rem; }
-
-
-
 
 .col-1, .col-2, .col-3, .col-4, .col-5, .col-6, .col-7, .col-8, .col-9, .col-10, .col-11, .col-12 { width: 98%; }
 
@@ -182,8 +175,6 @@ table td { border: 1px solid whitesmoke; }
 .card:hover { box-shadow: inset 0 -2px 0 0 #E7C60B; filter: none; }
 
 .card:hover a h3, .card:hover h4 { color: orangered; }
-
-.card h3 { color: black; }
 
 .card p { font-size: 90%; }
 

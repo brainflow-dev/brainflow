@@ -176,8 +176,6 @@ table td { border: 1px solid whitesmoke; }
 
 .card:hover a h3, .card:hover h4 { color: orangered; }
 
-.card h3 { color: black; }
-
 .card p { font-size: 90%; }
 
 .card a { color: #424242; }
