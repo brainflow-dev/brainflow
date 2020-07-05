@@ -8,6 +8,12 @@
 #endif
 
 
+// for macos and maybe ancient versions of glibc
+#ifndef RTLD_DEEPBIND
+#define RTLD_DEEPBIND 0
+#endif
+
+
 class DLLLoader
 {
 public:
