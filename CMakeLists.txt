@@ -69,6 +69,15 @@ target_include_directories (${WAVELIB} PUBLIC $<BUILD_INTERFACE:${CMAKE_HOME_DIR
 set_property (TARGET ${WAVELIB} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 SET (GANGLION_LIB "GanglionLib")
+if (MSVC)
+SET (GANGLION_LIB_NAME "GanglionLib.dll")
+endif (MSVC)
+if (APPLE)
+SET (GANGLION_LIB_NAME "libGanglionLib.dylib")
+endif (APPLE)
+if (UNIX AND NOT APPLE)
+SET (GANGLION_LIB_NAME "libGanglionLib.so")
+endif (UNIX AND NOT APPLE)
 set (GANGLION_SOURCE_LIB
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/callbacks.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/cmd_def.cpp
@@ -76,8 +85,9 @@ set (GANGLION_SOURCE_LIB
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/main.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/stubs.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/uart.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/utils/timestamp.cpp
 )
-add_library (${GANGLION_LIB} STATIC ${GANGLION_SOURCE_LIB})
+add_library (${GANGLION_LIB} SHARED ${GANGLION_SOURCE_LIB})
 target_include_directories (${GANGLION_LIB} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_HOME_DIRECTORY}/src/utils/inc>
     $<BUILD_INTERFACE:${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/inc>
@@ -236,6 +246,13 @@ set_target_properties (${BOARD_CONTROLLER_NAME}
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
 )
 
+set_target_properties (${GANGLION_LIB}
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
+)
+
 set_target_properties (${DATA_HANDLER_NAME}
     PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
@@ -244,10 +261,9 @@ set_target_properties (${DATA_HANDLER_NAME}
 )
 
 if (UNIX)
-    target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE ${GANGLION_LIB} pthread dl)
+    target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE pthread dl)
     target_link_libraries (${DATA_HANDLER_NAME} PRIVATE ${DSPFILTERS} ${WAVELIB} pthread dl)
 else (UNIX)
-    target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE ${GANGLION_LIB})
     target_link_libraries (${DATA_HANDLER_NAME} PRIVATE ${DSPFILTERS} ${WAVELIB})
 endif (UNIX)
 
@@ -274,6 +290,12 @@ endif (UNIX)
 
 # copy
 if (MSVC)
+    add_custom_command (TARGET ${GANGLION_LIB} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${GANGLION_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${GANGLION_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${GANGLION_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${GANGLION_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${GANGLION_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/${GANGLION_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${GANGLION_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${GANGLION_LIB_NAME}"
+    )
     add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
         # copy board controller libs
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BOARD_CONTROLLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${BOARD_CONTROLLER_COMPILED_NAME}"
@@ -301,6 +323,12 @@ if (MSVC)
     )
 endif (MSVC)
 if (UNIX)
+    add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${GANGLION_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${GANGLION_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${GANGLION_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${GANGLION_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${GANGLION_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/${GANGLION_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${GANGLION_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${GANGLION_LIB_NAME}"
+    )
     add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
         # copy board controller libs
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${BOARD_CONTROLLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${BOARD_CONTROLLER_COMPILED_NAME}"

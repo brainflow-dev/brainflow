@@ -8,7 +8,7 @@
 #include "helpers.h"
 #include "uart.h"
 
-#include "ganglion_interface.h"
+#include "ganglion_types.h"
 
 #ifdef _WIN32
 #include <windows.h>

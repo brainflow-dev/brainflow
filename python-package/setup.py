@@ -35,7 +35,10 @@ setup (
             os.path.join ('lib', 'neurosdk-x64.dll'),
             os.path.join ('lib', 'neurosdk-x86.dll'),
             os.path.join ('lib', 'libneurosdk-shared.dylib'),
-            os.path.join ('lib', 'libunicorn.so')
+            os.path.join ('lib', 'libunicorn.so'),
+            os.path.join ('lib', 'GanglionLib.dll'),
+            os.path.join ('lib', 'libGanglionLib.so'),
+            os.path.join ('lib', 'libGanglionLib.dylib')
         ]
     },
     zip_safe = True,

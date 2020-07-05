@@ -8,6 +8,7 @@
 #include "board.h"
 #include "board_controller.h"
 #include "data_buffer.h"
+#include "runtime_dll_loader.h"
 
 
 class Ganglion : public Board
@@ -47,6 +48,8 @@ private:
 
     void read_thread ();
     int start_streaming_prepared ();
+
+    DLLLoader *dll_loader;
 
 public:
     Ganglion (struct BrainFlowInputParams params);
