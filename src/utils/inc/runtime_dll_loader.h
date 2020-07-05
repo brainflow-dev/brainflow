@@ -60,7 +60,9 @@ public:
     {
         if (this->lib_instance == NULL)
         {
-            lib_instance = dlopen (this->dll_path, RTLD_LAZY);
+            // RTLD_DEEPBIND will search for symbols in loaded lib first and after that in global
+            // scope
+            lib_instance = dlopen (this->dll_path, RTLD_LAZY | RTLD_DEEPBIND);
             if (!lib_instance)
             {
                 return false;

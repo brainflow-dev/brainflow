@@ -473,7 +473,7 @@ void Ganglion::read_thread ()
                     state = (int)BrainFlowExitCodes::GENERAL_ERROR;
                 }
                 cv.notify_one ();
-                return;
+                break;
             }
 #ifdef _WIN32
             Sleep (sleep_time);
@@ -558,6 +558,10 @@ int Ganglion::config_board (char *config)
 
 int Ganglion::call_init ()
 {
+    if (dll_loader == NULL)
+    {
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+    }
     int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("initialize");
     if (func == NULL)
     {
@@ -577,6 +581,10 @@ int Ganglion::call_init ()
 
 int Ganglion::call_open ()
 {
+    if (dll_loader == NULL)
+    {
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+    }
     int res = GanglionLib::CustomExitCodes::GENERAL_ERROR;
     if (use_mac_addr)
     {
@@ -614,6 +622,10 @@ int Ganglion::call_open ()
 
 int Ganglion::call_config (char *config)
 {
+    if (dll_loader == NULL)
+    {
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+    }
     int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("config_board");
     if (func == NULL)
     {
@@ -632,6 +644,10 @@ int Ganglion::call_config (char *config)
 
 int Ganglion::call_start ()
 {
+    if (dll_loader == NULL)
+    {
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+    }
     int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("start_stream");
     if (func == NULL)
     {
@@ -651,6 +667,10 @@ int Ganglion::call_start ()
 
 int Ganglion::call_stop ()
 {
+    if (dll_loader == NULL)
+    {
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+    }
     int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("stop_stream");
     if (func == NULL)
     {
@@ -669,6 +689,10 @@ int Ganglion::call_stop ()
 
 int Ganglion::call_close ()
 {
+    if (dll_loader == NULL)
+    {
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+    }
     int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("close_ganglion");
     if (func == NULL)
     {
@@ -687,6 +711,10 @@ int Ganglion::call_close ()
 
 int Ganglion::call_release ()
 {
+    if (dll_loader == NULL)
+    {
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+    }
     int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("release");
     if (func == NULL)
     {
