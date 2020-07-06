@@ -43,7 +43,14 @@ Ganglion::Ganglion (struct BrainFlowInputParams params)
     char ganglionlib_dir[1024];
     bool res = get_dll_path (ganglionlib_dir);
 #ifdef _WIN32
-    ganglionlib_name = "GanglionLib.dll";
+    if (sizeof (void *) == 4)
+    {
+        ganglionlib_name = "GanglionLib32.dll";
+    }
+    else
+    {
+        ganglionlib_name = "GanglionLib.dll";
+    }
 #endif
 #ifdef __linux__
     ganglionlib_name = "libGanglionLib.so";
