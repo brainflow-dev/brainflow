@@ -24,21 +24,35 @@ int Board::set_log_level (int level)
     {
         log_level = 0;
     }
-    Board::board_logger->set_level (spdlog::level::level_enum (log_level));
-    Board::board_logger->flush_on (spdlog::level::level_enum (log_level));
+    try
+    {
+        Board::board_logger->set_level (spdlog::level::level_enum (log_level));
+        Board::board_logger->flush_on (spdlog::level::level_enum (log_level));
+    }
+    catch (...)
+    {
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int Board::set_log_file (char *log_file)
 {
-    spdlog::level::level_enum level = Board::board_logger->level ();
-    Board::board_logger = spdlog::create<spdlog::sinks::null_sink_st> (
-        "null_logger"); // to dont set logger to nullptr and avoid raice condition
-    spdlog::drop (LOGGER_NAME);
-    Board::board_logger = spdlog::basic_logger_mt (LOGGER_NAME, log_file);
-    Board::board_logger->set_level (level);
-    Board::board_logger->flush_on (level);
-    spdlog::drop ("null_logger");
+    try
+    {
+        spdlog::level::level_enum level = Board::board_logger->level ();
+        Board::board_logger = spdlog::create<spdlog::sinks::null_sink_st> (
+            "null_logger"); // to dont set logger to nullptr and avoid raice condition
+        spdlog::drop (LOGGER_NAME);
+        Board::board_logger = spdlog::basic_logger_mt (LOGGER_NAME, log_file);
+        Board::board_logger->set_level (level);
+        Board::board_logger->flush_on (level);
+        spdlog::drop ("null_logger");
+    }
+    catch (...)
+    {
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 

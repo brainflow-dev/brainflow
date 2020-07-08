@@ -1,8 +1,8 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "get_dll_dir.h"
 #include "neuromd_board.h"
-
 #include "timestamp.h"
 
 #ifdef _WIN32
@@ -12,28 +12,399 @@
 #endif
 
 
+///////////////////////////////////////
+/// Windows or Apple Implementation ///
+///////////////////////////////////////
+
+#if defined _WIN32 || defined __APPLE__
+
+
 NeuromdBoard::NeuromdBoard (int board_id, struct BrainFlowInputParams params)
     : Board (board_id, params)
 {
-#if defined _WIN32 || defined __APPLE__
     device = NULL;
+
+    std::string neurosdk_path = "";
+    std::string neurosdk_name = "";
+    char neurosdk_dir[1024];
+    bool res = get_dll_path (neurosdk_dir);
+#ifdef _WIN32
+    if (sizeof (void *) == 4)
+    {
+        neurosdk_name = "neurosdk-x86.dll";
+    }
+    else
+    {
+        neurosdk_name = "neurosdk-x64.dll";
+    }
+#endif
+#ifdef __APPLE__
+    neurosdk_name = "libneurosdk-shared.dylib";
+#endif
+
+    if (res)
+    {
+        neurosdk_path = std::string (neurosdk_dir) + neurosdk_name;
+    }
+    else
+    {
+        neurosdk_path = neurosdk_name;
+    }
+
+    safe_logger (spdlog::level::debug, "use dyn lib: {}", neurosdk_path.c_str ());
+    dll_loader = new DLLLoader (neurosdk_path.c_str ());
+
+    sdk_last_error_msg = NULL;
+    device_disconnect = NULL;
+    device_delete = NULL;
+    create_device_enumerator = NULL;
+    create_Device = NULL;
+    enumerator_delete = NULL;
+    enumerator_get_device_list = NULL;
+    free_DeviceInfoArray = NULL;
+    device_read_Name = NULL;
+    device_connect = NULL;
+    device_read_State = NULL;
+    device_set_SamplingFrequency = NULL;
+    device_set_Gain = NULL;
+    device_set_Offset = NULL;
+    device_set_ExternalSwitchState = NULL;
+    device_set_ADCInputState = NULL;
+    device_set_HardwareFilterState = NULL;
+    device_available_channels = NULL;
+    create_SignalDoubleChannel_info = NULL;
+    free_ChannelInfoArray = NULL;
+    device_execute = NULL;
+    AnyChannel_get_total_length = NULL;
+    DoubleChannel_read_data = NULL;
+    AnyChannel_delete = NULL;
+    device_subscribe_int_channel_data_received = NULL;
+    device_subscribe_double_channel_data_received = NULL;
+    free_IntDataArray = NULL;
+    free_DoubleDataArray = NULL;
+#ifdef _WIN32
+    free_listener_handle = NULL;
+#else
+    free_length_listener_handle = NULL;
 #endif
 }
 
 NeuromdBoard::~NeuromdBoard ()
 {
     skip_logs = true;
-#if defined _WIN32 || defined __APPLE__
-    free_device ();
-#endif
+    release_session ();
 }
 
-#if defined _WIN32 || defined __APPLE__
+int NeuromdBoard::prepare_session ()
+{
+    if (!dll_loader->load_library ())
+    {
+        safe_logger (spdlog::level::err, "Failed to load library");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
 
-#include "cparams.h"
-#include "cscanner.h"
-#include "sdk_error.h"
+    // Find addresses for all methods which we will use
 
+    // sdk_last_error_msg
+    sdk_last_error_msg = (int (*) (char *, size_t))dll_loader->get_address ("sdk_last_error_msg");
+    if (sdk_last_error_msg == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to get function address for sdk_last_error_msg");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    // device_disconnect
+    device_disconnect = (int (*) (Device *))dll_loader->get_address ("device_disconnect");
+    if (device_disconnect == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to get function address for device_disconnect");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    // device_delete
+    device_delete = (void (*) (Device *))dll_loader->get_address ("device_delete");
+    if (device_delete == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to get function address for device_delete");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    // create_device_enumerator
+    create_device_enumerator =
+        (DeviceEnumerator * (*)(DeviceType)) dll_loader->get_address ("create_device_enumerator");
+    if (create_device_enumerator == NULL)
+    {
+        safe_logger (
+            spdlog::level::err, "failed to get function address for create_device_enumerator");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    // create_Device
+    create_Device =
+        (Device * (*)(DeviceEnumerator *, DeviceInfo)) dll_loader->get_address ("create_Device");
+    if (create_Device == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to get function address for create_Device");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    // enumerator_delete
+    enumerator_delete =
+        (void (*) (DeviceEnumerator *))dll_loader->get_address ("enumerator_delete");
+    if (enumerator_delete == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to get function address for enumerator_delete");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    // enumerator_get_device_list
+    enumerator_get_device_list = (int (*) (DeviceEnumerator *,
+        DeviceInfoArray *))dll_loader->get_address ("enumerator_get_device_list");
+    if (enumerator_get_device_list == NULL)
+    {
+        safe_logger (
+            spdlog::level::err, "failed to get function address for enumerator_get_device_list");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    // free_DeviceInfoArray
+    free_DeviceInfoArray =
+        (void (*) (DeviceInfoArray))dll_loader->get_address ("free_DeviceInfoArray");
+    if (free_DeviceInfoArray == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to get function address for free_DeviceInfoArray");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    // device_read_Name
+    device_read_Name =
+        (int (*) (Device *, char *, size_t))dll_loader->get_address ("device_read_Name");
+    if (device_read_Name == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to get function address for device_read_Name");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    // device_connect
+    device_connect = (int (*) (Device *))dll_loader->get_address ("device_connect");
+    if (device_connect == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to get function address for device_connect");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    // device_read_State
+    device_read_State =
+        (int (*) (Device *, DeviceState *))dll_loader->get_address ("device_read_State");
+    if (device_read_State == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to get function address for device_read_State");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    // device_set_SamplingFrequency
+    device_set_SamplingFrequency = (int (*) (Device *, SamplingFrequency))dll_loader->get_address (
+        "device_set_SamplingFrequency");
+    if (device_set_SamplingFrequency == NULL)
+    {
+        safe_logger (
+            spdlog::level::err, "failed to get function address for device_set_SamplingFrequency");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    // device_set_Gain
+    device_set_Gain = (int (*) (Device *, Gain))dll_loader->get_address ("device_set_Gain");
+    if (device_set_Gain == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to get function address for device_set_Gain");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    // device_set_Offset
+    device_set_Offset =
+        (int (*) (Device *, unsigned char))dll_loader->get_address ("device_set_Offset");
+    if (device_set_Offset == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to get function address for device_set_Offset");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    // device_set_ExternalSwitchState
+    device_set_ExternalSwitchState = (int (*) (
+        Device *, ExternalSwitchInput))dll_loader->get_address ("device_set_ExternalSwitchState");
+    if (device_set_ExternalSwitchState == NULL)
+    {
+        safe_logger (spdlog::level::err,
+            "failed to get function address for device_set_ExternalSwitchState");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    // device_set_ADCInputState
+    device_set_ADCInputState =
+        (int (*) (Device *, ADCInput))dll_loader->get_address ("device_set_ADCInputState");
+    if (device_set_ADCInputState == NULL)
+    {
+        safe_logger (
+            spdlog::level::err, "failed to get function address for device_set_ADCInputState");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    // device_set_HardwareFilterState
+    device_set_HardwareFilterState =
+        (int (*) (Device *, bool))dll_loader->get_address ("device_set_HardwareFilterState");
+    if (device_set_HardwareFilterState == NULL)
+    {
+        safe_logger (spdlog::level::err,
+            "failed to get function address for device_set_HardwareFilterState");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    // device_available_channels
+    device_available_channels = (int (*) (
+        const Device *, ChannelInfoArray *))dll_loader->get_address ("device_available_channels");
+    if (device_available_channels == NULL)
+    {
+        safe_logger (
+            spdlog::level::err, "failed to get function address for device_available_channels");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    // create_SignalDoubleChannel_info
+    create_SignalDoubleChannel_info = (SignalDoubleChannel *
+        (*)(Device *, ChannelInfo)) dll_loader->get_address ("create_SignalDoubleChannel_info");
+    if (create_SignalDoubleChannel_info == NULL)
+    {
+        safe_logger (spdlog::level::err,
+            "failed to get function address for create_SignalDoubleChannel_info");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    // free_ChannelInfoArray
+    free_ChannelInfoArray =
+        (void (*) (ChannelInfoArray))dll_loader->get_address ("free_ChannelInfoArray");
+    if (free_ChannelInfoArray == NULL)
+    {
+        safe_logger (
+            spdlog::level::err, "failed to get function address for free_ChannelInfoArray");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    // device_execute
+    device_execute = (int (*) (Device *, Command))dll_loader->get_address ("device_execute");
+    if (device_execute == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to get function address for device_execute");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    // AnyChannel_get_total_length
+    AnyChannel_get_total_length =
+        (int (*) (AnyChannel *, size_t *))dll_loader->get_address ("AnyChannel_get_total_length");
+    if (AnyChannel_get_total_length == NULL)
+    {
+        safe_logger (
+            spdlog::level::err, "failed to get function address for AnyChannel_get_total_length");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    // DoubleChannel_read_data
+    DoubleChannel_read_data = (int (*) (DoubleChannel *, size_t, size_t, double *, size_t,
+        size_t *))dll_loader->get_address ("DoubleChannel_read_data");
+    if (DoubleChannel_read_data == NULL)
+    {
+        safe_logger (
+            spdlog::level::err, "failed to get function address for DoubleChannel_read_data");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    // AnyChannel_delete
+    AnyChannel_delete = (void (*) (AnyChannel *))dll_loader->get_address ("AnyChannel_delete");
+    if (AnyChannel_delete == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to get function address for AnyChannel_delete");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    // device_subscribe_int_channel_data_received
+    device_subscribe_int_channel_data_received = (int (*) (Device *, ChannelInfo,
+        void (*) (Device *, ChannelInfo, IntDataArray, void *), ListenerHandle *,
+        void *))dll_loader->get_address ("device_subscribe_int_channel_data_received");
+    if (device_subscribe_int_channel_data_received == NULL)
+    {
+        safe_logger (spdlog::level::err,
+            "failed to get function address for device_subscribe_int_channel_data_received");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    // device_subscribe_double_channel_data_received
+    device_subscribe_double_channel_data_received = (int (*) (Device *, ChannelInfo,
+        void (*) (Device *, ChannelInfo, DoubleDataArray, void *), ListenerHandle *,
+        void *))dll_loader->get_address ("device_subscribe_double_channel_data_received");
+    if (device_subscribe_double_channel_data_received == NULL)
+    {
+        safe_logger (spdlog::level::err,
+            "failed to get function address for device_subscribe_double_channel_data_received");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    // free_IntDataArray
+    free_IntDataArray = (void (*) (IntDataArray))dll_loader->get_address ("free_IntDataArray");
+    if (free_IntDataArray == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to get function address for free_IntDataArray");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    // free_DoubleDataArray
+    free_DoubleDataArray =
+        (void (*) (DoubleDataArray))dll_loader->get_address ("free_DoubleDataArray");
+    if (free_DoubleDataArray == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to get function address for free_DoubleDataArray");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+#ifdef _WIN32
+    // free_listener_handle
+    free_listener_handle =
+        (void (*) (ListenerHandle))dll_loader->get_address ("free_listener_handle");
+    if (free_listener_handle == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to get function address for free_listener_handle");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+#else
+    // free_length_listener_handle
+    free_length_listener_handle =
+        (void (*) (LengthListenerHandle))dll_loader->get_address ("free_length_listener_handle");
+    if (free_length_listener_handle == NULL)
+    {
+        safe_logger (
+            spdlog::level::err, "failed to get function address for free_length_listener_handle");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+#endif
+
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int NeuromdBoard::release_session ()
+{
+    free_device ();
+    if (dll_loader != NULL)
+    {
+        delete dll_loader;
+        dll_loader = NULL;
+    }
+
+    sdk_last_error_msg = NULL;
+    device_disconnect = NULL;
+    device_delete = NULL;
+    create_device_enumerator = NULL;
+    create_Device = NULL;
+    enumerator_delete = NULL;
+    enumerator_get_device_list = NULL;
+    free_DeviceInfoArray = NULL;
+    device_read_Name = NULL;
+    device_connect = NULL;
+    device_read_State = NULL;
+    device_set_SamplingFrequency = NULL;
+    device_set_Gain = NULL;
+    device_set_Offset = NULL;
+    device_set_ExternalSwitchState = NULL;
+    device_set_ADCInputState = NULL;
+    device_set_HardwareFilterState = NULL;
+    device_available_channels = NULL;
+    create_SignalDoubleChannel_info = NULL;
+    free_ChannelInfoArray = NULL;
+    device_execute = NULL;
+    AnyChannel_get_total_length = NULL;
+    DoubleChannel_read_data = NULL;
+    AnyChannel_delete = NULL;
+    device_subscribe_int_channel_data_received = NULL;
+    device_subscribe_double_channel_data_received = NULL;
+    free_IntDataArray = NULL;
+    free_DoubleDataArray = NULL;
+#ifdef _WIN32
+    free_listener_handle = NULL;
+#else
+    free_length_listener_handle = NULL;
+#endif
+
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
 
 void NeuromdBoard::free_listener (ListenerHandle lh)
 {
@@ -249,6 +620,27 @@ int NeuromdBoard::connect_device ()
     }
 
     return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+////////////////////////////
+/// Linux Implementation ///
+////////////////////////////
+
+#else
+
+NeuromdBoard::NeuromdBoard (int board_id, struct BrainFlowInputParams params)
+{
+}
+NeuromdBoard::~NeuromdBoard ()
+{
+}
+int NeuromdBoard::prepare_session ()
+{
+    return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
+}
+int NeuromdBoard::release_session ()
+{
+    return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
 #endif

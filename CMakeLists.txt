@@ -205,28 +205,8 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/mit/inc
+    ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/inc/types
 )
-
-# NeuroSDK supports only Windows and MacOS
-if (MSVC)
-    target_include_directories (
-        ${BOARD_CONTROLLER_NAME} PRIVATE
-        ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/inc/win
-    )
-    find_library(NEUROSDK_SDK_LIB NAMES ${NEUROSDK_LIB_NAME} PATHS ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib)
-    target_link_libraries(${BOARD_CONTROLLER_NAME} PRIVATE ${NEUROSDK_SDK_LIB})
-endif (MSVC)
-if (APPLE)
-    target_include_directories (
-        ${BOARD_CONTROLLER_NAME} PRIVATE
-        ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/inc/macos
-    )
-    find_library(BLE_LIB NAMES bluetoothle PATHS ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib)
-    find_library(BRAINBIT_LIB NAMES brainbit PATHS ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib)
-    find_library(UTILITIES_LIB NAMES utilities PATHS ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib)
-    find_library(NEUROSDK_SDK_LIB NAMES ${NEUROSDK_LIB_NAME} PATHS ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib)
-    target_link_libraries(${BOARD_CONTROLLER_NAME} PRIVATE ${BLE_LIB} ${BRAINBIT_LIB} ${UTILITIES_LIB} ${NEUROSDK_SDK_LIB})
-endif (APPLE)
 
 target_include_directories (
     ${DATA_HANDLER_NAME} PRIVATE

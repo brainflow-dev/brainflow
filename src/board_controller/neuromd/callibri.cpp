@@ -48,8 +48,15 @@ int Callibri::prepare_session ()
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
 
+    // init all function pointers
+    int res = NeuromdBoard::prepare_session ();
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        return res;
+    }
+
     // try to find device
-    int res = find_device ();
+    res = find_device ();
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         free_device ();
@@ -221,9 +228,9 @@ int Callibri::release_session ()
         }
         initialized = false;
         free_channels ();
-        free_device ();
     }
-    return (int)BrainFlowExitCodes::STATUS_OK;
+
+    return NeuromdBoard::release_session ();
 }
 
 
