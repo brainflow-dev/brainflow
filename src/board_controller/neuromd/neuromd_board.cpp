@@ -524,6 +524,9 @@ int NeuromdBoard::find_device_info (DeviceEnumerator *enumerator, DeviceInfo *ou
     int result_code = enumerator_get_device_list (enumerator, &device_info_array);
     if (result_code != SDK_NO_ERROR)
     {
+        char error_msg[1024];
+        sdk_last_error_msg (error_msg, 1024);
+        safe_logger (spdlog::level::warn, "enumerator_get_device_list error: {}", error_msg);
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
 
