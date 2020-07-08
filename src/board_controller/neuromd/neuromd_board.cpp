@@ -629,6 +629,7 @@ int NeuromdBoard::connect_device ()
 #else
 
 NeuromdBoard::NeuromdBoard (int board_id, struct BrainFlowInputParams params)
+    : Board (board_id, params)
 {
 }
 NeuromdBoard::~NeuromdBoard ()
