@@ -49,7 +49,6 @@ public:
 private:
     char ip_addr[32];
     int port;
-    int socket_type;
 #ifdef _WIN32
     SOCKET connect_socket;
     struct sockaddr_in socket_addr;
