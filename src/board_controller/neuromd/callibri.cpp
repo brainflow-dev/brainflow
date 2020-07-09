@@ -17,10 +17,6 @@
 
 #if defined _WIN32 || defined __APPLE__
 
-#include "cparams.h"
-#include "cscanner.h"
-#include "sdk_error.h"
-
 
 constexpr int Callibri::package_size;
 

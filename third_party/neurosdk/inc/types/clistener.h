@@ -9,6 +9,7 @@ extern "C"
 #include "lib_export.h"
 
     typedef void *ListenerHandle;
+    typedef void *LengthListenerHandle;
 
 #ifdef __cplusplus
 }
