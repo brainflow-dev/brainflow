@@ -32,14 +32,6 @@ You are able to install the latest release from `Nuget <https://www.nuget.org/pa
 - build it using Visual Studio
 - make sure that unmanaged libraries exist in search path
 
-Unity Integration
-~~~~~~~~~~~~~~~~~~
-
-- build C# package
-- copy managed DLLs to the Assets folder of your Unity project
-- copy unmanaged DLLs to project folder to use it with Unity player
-- after building Unity project copy unmanaged DLLs to exe folder
-
 R
 -----
 
