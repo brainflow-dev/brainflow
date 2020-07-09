@@ -28,7 +28,7 @@ class SocketClientUDP
 public:
     static int get_local_ip_addr (char *connect_ip, int port, char *local_ip);
 
-    SocketClientUDP (const char *port_name, int port);
+    SocketClientUDP (const char *ip_addr, int port);
     ~SocketClientUDP ()
     {
         close ();
