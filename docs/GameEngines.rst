@@ -148,3 +148,5 @@ Let's add one more script which will read data. Create any game object and attac
     }
 
 If everything is fine, you will see Alpa and Beta bandpower ratio per each channel in Console.
+
+After building your game you need to copy *Unmanaged(C++)* libraries to a folder where executable is located.
