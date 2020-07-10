@@ -351,6 +351,16 @@ if (APPLE)
     )
 endif (APPLE)
 
+if (ANDROID)
+    add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${BOARD_CONTROLLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/tools/jniLibs/${ANDROID_ABI}/${BOARD_CONTROLLER_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/${BOARDS_JSON}" "${CMAKE_HOME_DIRECTORY}/tools/jniLibs/${ANDROID_ABI}/${BOARDS_JSON}"
+    )
+    add_custom_command (TARGET ${DATA_HANDLER_NAME} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/tools/jniLibs/${ANDROID_ABI}/${DATA_HANDLER_COMPILED_NAME}"
+    )
+endif (ANDROID)
+
 # need to copy json file to bindings
 add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
     COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/${BOARDS_JSON}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${BOARDS_JSON}"
