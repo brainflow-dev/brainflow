@@ -52,14 +52,12 @@ For demo we will create a simple script and run *prepare_session* and *release_s
 
     public class BoardShimUnity : MonoBehaviour
     {
-        public static BoardShimUnity instance { get; private set; }
         public static BoardShim board_shim = null;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void OnRuntimeMethodLoad()
         {
-            var instance_ = FindObjectOfType<BoardShimUnity>();
-            if (instance_ == null)
+            if (board_shim == null)
             {
                 try
                 {
@@ -77,17 +75,21 @@ For demo we will create a simple script and run *prepare_session* and *release_s
                     Debug.Log(e);
                     Application.Quit();
                 }
-                instance_ = new GameObject("BoardShimUnity").AddComponent<BoardShimUnity>();
-                DontDestroyOnLoad(instance_);
             }
-            instance = instance_;
         }
 
         private void OnApplicationQuit()
         {
             if (board_shim != null)
             {
-                board_shim.release_session();
+                try
+                {
+                    board_shim.release_session();
+                }
+                catch (BrainFlowException e)
+                {
+                    Debug.Log(e);
+                }
                 Debug.Log("Brainflow streaming was stopped");
             }
         }
