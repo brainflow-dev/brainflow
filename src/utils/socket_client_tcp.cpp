@@ -125,7 +125,6 @@ int SocketClientTCP::send (const char *data, int size)
 
 int SocketClientTCP::recv (void *data, int size)
 {
-    unsigned int len = (unsigned int)sizeof (socket_addr);
     int res = ::recv (connect_socket, (char *)data, (size_t)size, 0);
     return res;
 }

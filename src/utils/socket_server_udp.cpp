@@ -119,7 +119,7 @@ int SocketServerUDP::recv (void *data, int size)
 {
     struct sockaddr_in client_addr;
     memset (&client_addr, 0, sizeof (client_addr));
-    socklen_t len = sizeof (client_addr);
+    socklen_t len = (socklen_t)sizeof (client_addr);
     return recvfrom (server_socket, (char *)data, size, 0, (struct sockaddr *)&client_addr, &len);
 }
 

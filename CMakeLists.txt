@@ -240,12 +240,13 @@ set_target_properties (${DATA_HANDLER_NAME}
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
 )
 
-if (UNIX)
+# dont link pthread for Android
+if (UNIX AND NOT ANDROID)
     target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE pthread dl)
     target_link_libraries (${DATA_HANDLER_NAME} PRIVATE ${DSPFILTERS} ${WAVELIB} pthread dl)
-else (UNIX)
+else (UNIX AND NOT ANDROID)
     target_link_libraries (${DATA_HANDLER_NAME} PRIVATE ${DSPFILTERS} ${WAVELIB})
-endif (UNIX)
+endif (UNIX AND NOT ANDROID)
 
 add_library (
     ${BRAINFLOW_CPP_BINDING_NAME} STATIC
@@ -262,11 +263,11 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/third_party/json
 )
 
-if (UNIX)
+if (UNIX AND NOT ANDROID)
     target_link_libraries (${BRAINFLOW_CPP_BINDING_NAME} pthread ${BOARD_CONTROLLER_NAME} ${DATA_HANDLER_NAME})
-else (UNIX)
+else (UNIX AND NOT ANDROID)
     target_link_libraries (${BRAINFLOW_CPP_BINDING_NAME} ${BOARD_CONTROLLER_NAME} ${DATA_HANDLER_NAME})
-endif (UNIX)
+endif (UNIX AND NOT ANDROID)
 
 # copy
 if (MSVC)
