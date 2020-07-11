@@ -40,41 +40,71 @@ Open your Unity project and copy **Managed(C#)** libraries from BrainFlow and **
 
 Now, you are able to use BrainFlow API in your C# scripts!
 
-For demo we will create a simple script and run *prepare_session* and *release_session* during start and end.
+For demo we will create a simple script to read data and calculate band powers.
 
 .. code-block:: csharp 
 
+    using System;
     using System.Collections;
     using System.Collections.Generic;
     using UnityEngine;
 
+    using Accord;
+    using Accord.Math;
     using brainflow;
 
-    public class BoardShimUnity : MonoBehaviour
+    public class Sphere : MonoBehaviour
     {
-        public static BoardShim board_shim = null;
+        private BoardShim board_shim = null;
+        private int sampling_rate = 0;
+        private int[] eeg_channels = null;
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        static void OnRuntimeMethodLoad()
+        // Start is called before the first frame update
+        void Start()
+        {
+            try
+            {
+                BoardShim.set_log_file("brainflow_log.txt");
+                BoardShim.enable_dev_board_logger();
+
+                BrainFlowInputParams input_params = new BrainFlowInputParams();
+                int board_id = (int)BoardIds.SYNTHETIC_BOARD;
+                board_shim = new BoardShim(board_id, input_params);
+                board_shim.prepare_session();
+                board_shim.start_stream(450000, "file://brainflow_data.csv:w");
+                
+                sampling_rate = BoardShim.get_sampling_rate(board_id);
+                eeg_channels = BoardShim.get_eeg_channels(board_id);
+                Debug.Log("Brainflow streaming was started");
+            }
+            catch (BrainFlowException e)
+            {
+                Debug.Log(e);
+            }
+        }
+
+        // Update is called once per frame
+        void Update()
         {
             if (board_shim == null)
             {
-                try
-                {
-                    BrainFlowInputParams input_params = new BrainFlowInputParams();
-                    int board_id = (int)BoardIds.SYNTHETIC_BOARD;
-                    board_shim = new BoardShim(board_id, input_params);
-                    board_shim.prepare_session();
-                    board_shim.start_stream(450000, "file://brainflow_data.csv:w");
-                    BoardShim.set_log_file("brainflow_log.txt");
-                    BoardShim.enable_dev_board_logger();
-                    Debug.Log("Brainflow streaming was started");
-                }
-                catch (BrainFlowException e)
-                {
-                    Debug.Log(e);
-                    Application.Quit();
-                }
+                return;
+            }
+            int number_of_data_points = DataFilter.get_nearest_power_of_two(sampling_rate);
+            double[,] data = board_shim.get_current_board_data(number_of_data_points);
+            if (data.GetRow(0).Length < number_of_data_points)
+            {
+                // wait for more data
+                return;
+            }
+            // calc bandpowers per channel
+            for (int i = 0; i < eeg_channels.Length; i++)
+            {
+                Tuple<double[], double[]> psd = DataFilter.get_psd(data.GetRow(eeg_channels[i]), 0,
+                    data.GetRow(eeg_channels[i]).Length, sampling_rate, (int)WindowFunctions.HANNING);
+                double band_power_alpha = DataFilter.get_band_power(psd, 7.0, 13.0);
+                double band_power_beta = DataFilter.get_band_power(psd, 14.0, 30.0);
+                Debug.Log("Alpha/Beta Ratio:" + (band_power_alpha / band_power_beta));
             }
         }
 
@@ -93,60 +123,12 @@ For demo we will create a simple script and run *prepare_session* and *release_s
                 Debug.Log("Brainflow streaming was stopped");
             }
         }
-
-    }
-
-Now, if you start and stop scene in Unity Editor, in console you will see messages and also it will create file with data in the project root.
-
-Let's add one more script which will read data. Create any game object and attach script below to it.
-
-.. code-block:: csharp 
-
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using UnityEngine;
-
-    using Accord;
-    using Accord.Math;
-    using brainflow;
-
-    public class Sphere : MonoBehaviour
-    {
-        private int board_id;
-        private int sampling_rate;
-        private int[] eeg_channels;
-
-        // Start is called before the first frame update
-        void Start()
-        {
-            board_id = BoardShimUnity.board_shim.board_id;
-            sampling_rate = BoardShim.get_sampling_rate(board_id);
-            eeg_channels = BoardShim.get_eeg_channels(board_id);
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-            int number_of_data_points = DataFilter.get_nearest_power_of_two(sampling_rate);
-            double[,] data = BoardShimUnity.board_shim.get_current_board_data(number_of_data_points);
-            if (data.GetRow(0).Length < number_of_data_points)
-            {
-                // wait for more data
-                return;
-            }
-            // calc bandpowers per channel
-            for (int i = 0; i < eeg_channels.Length; i++)
-            {
-                Tuple<double[], double[]> psd = DataFilter.get_psd(data.GetRow(eeg_channels[i]), 0,
-                    data.GetRow(eeg_channels[i]).Length, sampling_rate, (int)WindowFunctions.HANNING);
-                double band_power_alpha = DataFilter.get_band_power(psd, 7.0, 13.0);
-                double band_power_beta = DataFilter.get_band_power(psd, 14.0, 30.0);
-                Debug.Log("Alpha/Beta Ratio:" + (band_power_alpha / band_power_beta));
-            }
-        }
     }
 
 If everything is fine, you will see Alpa and Beta bandpower ratio per each channel in Console.
+
+.. image:: https://live.staticflickr.com/65535/50102505902_f110fc89d8_c.jpg
+    :width: 800px
+    :height: 465px
 
 After building your game you need to copy *Unmanaged(C++)* libraries to a folder where executable is located.
