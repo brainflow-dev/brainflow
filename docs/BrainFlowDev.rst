@@ -36,15 +36,15 @@ Just try to briefly explain a goal of this PR.
 Instructions to add new boards to BrainFlow
 ---------------------------------------------
 
-- add new object creation to board_controller.cpp
-- add new board Id to BoardIds enum in C++ code and in all bindings
-- inherit your board from Board class and implement all pure virtual methods, store data in DataBuffer object, use synthetic board as a reference, try to reuse code from utils folder
-- add information about your board to brainflow_boards.json
-- add new files to CmakeLists.txt
+- add new board Id to `BoardIds enum in C code <https://github.com/brainflow-dev/brainflow/blob/master/src/board_controller/inc/brainflow_constants.h>`_ and to the same enum in all bindings
+- add new object creation to `board controller C interface <https://github.com/brainflow-dev/brainflow/blob/master/src/board_controller/board_controller.cpp>`_
+- inherit your board from `Board class <https://github.com/brainflow-dev/brainflow/blob/master/src/board_controller/inc/board.h>`_ and implement all pure virtual methods, store data in DataBuffer object, use `synthetic board <https://github.com/brainflow-dev/brainflow/blob/master/src/board_controller/inc/synthetic_board.h>`_ as a reference, try to reuse code from `utils <https://github.com/brainflow-dev/brainflow/tree/master/src/utils>`_ folder
+- add information about your board to `brainflow_boards.json <https://github.com/brainflow-dev/brainflow/blob/master/brainflow_boards.json>`_
+- add new files to BOARD_CONTROLLER_SRC variable in `CmakeLists.txt <https://github.com/brainflow-dev/brainflow/blob/master/CMakeLists.txt>`_, you may also need to add new directory to *target_include_directories* for BOARD_CONTROLLER_NAME variable
 
 **You've just written Python, Java, C#, R, C++ ... SDKs for your board! Also now you can use your new board with applications and frameworks which use BrainFlow API.**
 
-To enable automation testing you should develop a simple emulator for your new board and add tests to .travis.yml and appveyour.yml, also make sure that all current tests are passed and feel free to send a PR.
+Optional: We use CI to run tests automatically, to add your board to CI pipelines you can develop a simple emulator for your device. Use `emulators for existing boards <https://github.com/brainflow-dev/brainflow/tree/master/emulator/brainflow_emulator>`_ as a reference and add tests for your device to *Travis* and *Appveyour*.
 
 Instructions to build docs locally
 ------------------------------------

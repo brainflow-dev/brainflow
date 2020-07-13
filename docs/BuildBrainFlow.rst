@@ -30,15 +30,7 @@ You are able to install the latest release from `Nuget <https://www.nuget.org/pa
 - open Visual Studio Solution
 - install required nuget packages
 - build it using Visual Studio
-- make sure that unmanaged libraries exist in search path
-
-Unity Integration
-~~~~~~~~~~~~~~~~~~
-
-- build C# package
-- copy managed DLLs to the Assets folder of your Unity project
-- copy unmanaged DLLs to project folder to use it with Unity player
-- after building Unity project copy unmanaged DLLs to exe folder
+- **make sure that unmanaged(C++) libraries exist in search path** - set PATH env variable or copy them to correct folder
 
 R
 -----
@@ -101,13 +93,14 @@ Windows
 
 - Install Cmake>=3.13 you can install it from PYPI via pip
 - Install Visual Studio 2017, you can use another version but you will need to change cmake generator in batch files or run cmake commands manually. Also in CI we test only VS2017
-- Build it as a cmake project manually or use batch files from tools directory
+- Build it as a cmake project manually or use cmd files from tools directory
 
 .. compound::
 
-    Compilation using batch files ::
+    Compilation using cmd files ::
 
         python -m pip install cmake==3.13.3
+        # need to run these files from project dir
         .\tools\build_win32.cmd
         .\tools\build_win64.cmd
 
@@ -125,6 +118,7 @@ Linux
 
         python -m pip install cmake==3.13.3
         # you may need to change line endings using dos2unix or text editor for file below
+        # need to run this file from project dir
         bash ./tools/build_linux.sh
 
 MacOS
@@ -140,5 +134,6 @@ MacOS
 
         python -m pip install cmake==3.13.3
         # you may need to change line endings using dos2unix or text editor for file below
+        # need to run this file from project dir
         bash ./tools/build_mac.sh
 
