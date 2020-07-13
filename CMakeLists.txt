@@ -142,6 +142,7 @@ set (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/utils/socket_server_udp.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/multicast_client.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/multicast_server.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/utils/broadcast_client.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/openbci_serial_board.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/openbci_wifi_shield_board.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_wifi.cpp
@@ -166,6 +167,7 @@ set (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/callibri_ecg.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/callibri_emg.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/mit/fascia.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/neurosity/notion_osc.cpp
 )
 
 set (DATA_HANDLER_SRC
@@ -188,6 +190,7 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/third_party/json
     ${CMAKE_HOME_DIRECTORY}/third_party/http
     ${CMAKE_HOME_DIRECTORY}/third_party/unicorn/inc
+    ${CMAKE_HOME_DIRECTORY}/third_party/oscpp/include
     ${CMAKE_HOME_DIRECTORY}/src/utils/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/inc
@@ -195,7 +198,11 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/mit/inc
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/neurosity/inc
 )
+
+# disable min max defines in windows.h
+target_compile_definitions(${BOARD_CONTROLLER_NAME} PRIVATE -DNOMINMAX)
 
 # NeuroSDK supports only Windows and MacOS
 if (MSVC)

@@ -15,5 +15,6 @@ classdef BoardIDs < int32
         CALLIBRI_EMG_BOARD (10)
         CALLIBRI_ECG_BOARD (11)
         FASCIA_BOARD (12)
+        NOTION_OSC_BOARD (13)
     end
 end
