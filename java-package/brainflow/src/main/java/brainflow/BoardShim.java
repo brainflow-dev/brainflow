@@ -86,6 +86,10 @@ public class BoardShim
 
     static
     {
+        // SystemUtils doesnt have smth like IS_OS_ANDROID, need to check using
+        // properties
+        boolean is_on_android = "The Android Project".equals (System.getProperty ("java.specification.vendor"));
+
         String lib_name = "libBoardController.so";
         String ganglion_name = "libGanglionLib.so";
         if (SystemUtils.IS_OS_WINDOWS)
@@ -101,10 +105,18 @@ public class BoardShim
             unpack_from_jar ("libneurosdk-shared.dylib");
         }
 
-        // need to extract libraries from jar
-        unpack_from_jar (lib_name);
-        unpack_from_jar (ganglion_name);
-        unpack_from_jar ("brainflow_boards.json");
+        if (!is_on_android)
+        {
+            // need to extract libraries from jar
+            unpack_from_jar (lib_name);
+            unpack_from_jar (ganglion_name);
+            unpack_from_jar ("brainflow_boards.json");
+        } else
+        {
+            // for android you need to put these files manually to jniLibs folder, unpacking
+            // doesnt work
+            lib_name = "BoardController"; // no lib prefix and no extension for android
+        }
 
         instance = (DllInterface) Native.loadLibrary (lib_name, DllInterface.class);
     }
