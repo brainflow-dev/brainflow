@@ -3,5 +3,5 @@ mkdir build64
 
 cd build64
 cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\\installed64 ..
-cmake --build . --target install --config Release -j 4 --parallel 4
+cmake --build . --target install --config Debug -j 4 --parallel 4
 cd ..

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "shared_export.h"
 #include <string.h>
 
 namespace GanglionLib
@@ -71,15 +72,4 @@ namespace GanglionLib
         INVALID_MAC_ADDR_ERROR = 17,
         PORT_OPEN_ERROR = 18
     };
-
-    // void * is a legacy from dynamic library which was loaded via LoadLibrary\dlopen
-    int initialize (void *param);
-    int open_ganglion (void *param);
-    int open_ganglion_mac_addr (void *param);
-    int stop_stream (void *param);
-    int start_stream (void *param);
-    int close_ganglion (void *param);
-    int get_data (void *param);
-    int config_board (void *param);
-    int release (void *param);
-} // namespace GanglionLib
+}

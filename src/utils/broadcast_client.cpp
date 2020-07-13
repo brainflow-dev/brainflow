@@ -114,7 +114,7 @@ int BroadCastClient::init ()
 
 int BroadCastClient::recv (void *data, int size)
 {
-    unsigned int len = (unsigned int)sizeof (socket_addr);
+    socklen_t len = (socklen_t)sizeof (socket_addr);
     int res = recvfrom (connect_socket, (char *)data, size, 0, (sockaddr *)&socket_addr, &len);
     return res;
 }

@@ -87,23 +87,23 @@ public class BoardShim
     static
     {
         String lib_name = "libBoardController.so";
+        String ganglion_name = "libGanglionLib.so";
         if (SystemUtils.IS_OS_WINDOWS)
         {
             lib_name = "BoardController.dll";
+            ganglion_name = "GanglionLib.dll";
             unpack_from_jar ("neurosdk-x64.dll");
 
         } else if (SystemUtils.IS_OS_MAC)
         {
             lib_name = "libBoardController.dylib";
-            Path location = unpack_from_jar ("libneurosdk-shared.dylib");
-            if (location != null)
-            {
-                System.load (location.toString ());
-            }
+            ganglion_name = "libGanglionLib.dylib";
+            unpack_from_jar ("libneurosdk-shared.dylib");
         }
 
         // need to extract libraries from jar
         unpack_from_jar (lib_name);
+        unpack_from_jar (ganglion_name);
         unpack_from_jar ("brainflow_boards.json");
 
         instance = (DllInterface) Native.loadLibrary (lib_name, DllInterface.class);

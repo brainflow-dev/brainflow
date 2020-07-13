@@ -9,7 +9,8 @@
 #include "helpers.h"
 #include "uart.h"
 
-#include "ganglion_interface.h"
+#include "ganglion_functions.h"
+#include "ganglion_types.h"
 
 // read Bluetooth_Smart_Software_v1.3.1_API_Reference.pdf to understand this code
 

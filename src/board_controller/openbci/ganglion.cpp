@@ -10,7 +10,8 @@
 
 #include "custom_cast.h"
 #include "ganglion.h"
-#include "ganglion_interface.h"
+#include "ganglion_types.h"
+#include "get_dll_dir.h"
 
 
 int Ganglion::num_objects = 0;
@@ -36,6 +37,39 @@ Ganglion::Ganglion (struct BrainFlowInputParams params)
     state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
     start_command = "b";
     stop_command = "s";
+
+    std::string ganglionlib_path = "";
+    std::string ganglionlib_name = "";
+    char ganglionlib_dir[1024];
+    bool res = get_dll_path (ganglionlib_dir);
+#ifdef _WIN32
+    if (sizeof (void *) == 4)
+    {
+        ganglionlib_name = "GanglionLib32.dll";
+    }
+    else
+    {
+        ganglionlib_name = "GanglionLib.dll";
+    }
+#endif
+#ifdef __linux__
+    ganglionlib_name = "libGanglionLib.so";
+#endif
+#ifdef __APPLE__
+    ganglionlib_name = "libGanglionLib.dylib";
+#endif
+
+    if (res)
+    {
+        ganglionlib_path = std::string (ganglionlib_dir) + ganglionlib_name;
+    }
+    else
+    {
+        ganglionlib_path = ganglionlib_name;
+    }
+
+    safe_logger (spdlog::level::debug, "use dyn lib: {}", ganglionlib_path.c_str ());
+    dll_loader = new DLLLoader (ganglionlib_path.c_str ());
 }
 
 Ganglion::~Ganglion ()
@@ -58,6 +92,13 @@ int Ganglion::prepare_session ()
         safe_logger (spdlog::level::info, "only one ganglion per process is supported");
         return (int)BrainFlowExitCodes::ANOTHER_BOARD_IS_CREATED_ERROR;
     }
+
+    if (!dll_loader->load_library ())
+    {
+        safe_logger (spdlog::level::err, "Failed to load library");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    safe_logger (spdlog::level::debug, "Library is loaded");
 
     if ((params.timeout < 0) || (params.timeout > 600))
     {
@@ -195,6 +236,14 @@ int Ganglion::release_session ()
     }
     call_close ();
     call_release ();
+
+    if (dll_loader != NULL)
+    {
+        dll_loader->free_library ();
+        delete dll_loader;
+        dll_loader = NULL;
+    }
+
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
@@ -219,6 +268,13 @@ void Ganglion::read_thread ()
 
     double *package = new double[num_channels];
 
+    int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("get_data");
+    if (func == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to get function address for get_data");
+        return;
+    }
+
     while (keep_alive)
     {
         for (int i = 0; i < num_channels; i++)
@@ -227,7 +283,7 @@ void Ganglion::read_thread ()
         }
 
         struct GanglionLib::GanglionData data;
-        int res = GanglionLib::get_data ((void *)&data);
+        int res = func ((void *)&data);
         if (res == (int)GanglionLib::CustomExitCodes::STATUS_OK)
         {
             if (state != (int)BrainFlowExitCodes::STATUS_OK)
@@ -424,7 +480,7 @@ void Ganglion::read_thread ()
                     state = (int)BrainFlowExitCodes::GENERAL_ERROR;
                 }
                 cv.notify_one ();
-                return;
+                break;
             }
 #ifdef _WIN32
             Sleep (sleep_time);
@@ -509,8 +565,19 @@ int Ganglion::config_board (char *config)
 
 int Ganglion::call_init ()
 {
+    if (dll_loader == NULL)
+    {
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+    }
+    int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("initialize");
+    if (func == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to get function address for initialize");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+
     struct GanglionLib::GanglionInputData input_data (params.timeout, params.serial_port.c_str ());
-    int res = GanglionLib::initialize ((void *)&input_data);
+    int res = func ((void *)&input_data);
     if (res != (int)GanglionLib::CustomExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to init GanglionLib {}", res);
@@ -521,18 +588,36 @@ int Ganglion::call_init ()
 
 int Ganglion::call_open ()
 {
+    if (dll_loader == NULL)
+    {
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+    }
     int res = GanglionLib::CustomExitCodes::GENERAL_ERROR;
     if (use_mac_addr)
     {
+        int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("open_ganglion_mac_addr");
+        if (func == NULL)
+        {
+            safe_logger (
+                spdlog::level::err, "failed to get function address for open_ganglion_mac_addr");
+            return (int)BrainFlowExitCodes::GENERAL_ERROR;
+        }
+
         safe_logger (spdlog::level::info, "search for {}", params.mac_address.c_str ());
-        res =
-            GanglionLib::open_ganglion_mac_addr (const_cast<char *> (params.mac_address.c_str ()));
+        res = func (const_cast<char *> (params.mac_address.c_str ()));
     }
     else
     {
+        int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("open_ganglion");
+        if (func == NULL)
+        {
+            safe_logger (spdlog::level::err, "failed to get function address for open_ganglion");
+            return (int)BrainFlowExitCodes::GENERAL_ERROR;
+        }
+
         safe_logger (
             spdlog::level::info, "mac address is not specified, try to find ganglion without it");
-        res = GanglionLib::open_ganglion (NULL);
+        res = func (NULL);
     }
     if (res != GanglionLib::CustomExitCodes::STATUS_OK)
     {
@@ -544,7 +629,18 @@ int Ganglion::call_open ()
 
 int Ganglion::call_config (char *config)
 {
-    int res = GanglionLib::config_board (config);
+    if (dll_loader == NULL)
+    {
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+    }
+    int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("config_board");
+    if (func == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to get function address for config_board");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+
+    int res = func (config);
     if (res != GanglionLib::CustomExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to config board {}", res);
@@ -555,8 +651,19 @@ int Ganglion::call_config (char *config)
 
 int Ganglion::call_start ()
 {
+    if (dll_loader == NULL)
+    {
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+    }
+    int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("start_stream");
+    if (func == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to get function address for start_stream");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+
     safe_logger (spdlog::level::info, "use command {} to start streaming", start_command.c_str ());
-    int res = GanglionLib::start_stream ((void *)start_command.c_str ());
+    int res = func ((void *)start_command.c_str ());
     if (res != (int)GanglionLib::CustomExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to start streaming {}", res);
@@ -567,7 +674,18 @@ int Ganglion::call_start ()
 
 int Ganglion::call_stop ()
 {
-    int res = GanglionLib::stop_stream ((void *)stop_command.c_str ());
+    if (dll_loader == NULL)
+    {
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+    }
+    int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("stop_stream");
+    if (func == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to get function address for stop_stream");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+
+    int res = func ((void *)stop_command.c_str ());
     if (res != (int)GanglionLib::CustomExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to stop streaming {}", res);
@@ -578,7 +696,18 @@ int Ganglion::call_stop ()
 
 int Ganglion::call_close ()
 {
-    int res = GanglionLib::close_ganglion (NULL);
+    if (dll_loader == NULL)
+    {
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+    }
+    int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("close_ganglion");
+    if (func == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to get function address for close_ganglion");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+
+    int res = func (NULL);
     if (res != (int)GanglionLib::CustomExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to close ganglion {}", res);
@@ -589,7 +718,18 @@ int Ganglion::call_close ()
 
 int Ganglion::call_release ()
 {
-    int res = GanglionLib::release (NULL);
+    if (dll_loader == NULL)
+    {
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+    }
+    int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("release");
+    if (func == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to get function address for release");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+
+    int res = func (NULL);
     if (res != (int)GanglionLib::CustomExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to release ganglion library {}", res);

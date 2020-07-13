@@ -114,8 +114,8 @@ int MultiCastServer::init ()
 
 int MultiCastServer::send (void *data, int size)
 {
-    int res = ::sendto (server_socket, (char *)data, size, 0, (struct sockaddr *)&server_addr,
-        sizeof (server_addr));
+    socklen_t len = (socklen_t)sizeof (server_addr);
+    int res = ::sendto (server_socket, (char *)data, size, 0, (struct sockaddr *)&server_addr, len);
     return res;
 }
 

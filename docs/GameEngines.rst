@@ -31,7 +31,7 @@ Open OUTPUTDIR, you will see BrainFlow library and dependencies. For BrainFlow t
     :width: 640px
     :height: 304px
 
-Open your Unity project and copy **Managed(C#)** libraries from BrainFlow and **all dependencies** to the Assets folder, after that copy **Unamanaged(C++)** libraries from BrainFlow to the root folder of your project.
+Open your Unity project and copy **Managed(C#)** libraries from BrainFlow and **all dependencies** to the Assets folder, after that copy **Unmanaged(C++)** libraries from BrainFlow to the root folder of your project.
 
 .. image:: https://live.staticflickr.com/65535/50095628822_14538fede0_c.jpg
     :width: 800px
