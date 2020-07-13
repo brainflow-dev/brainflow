@@ -30,6 +30,7 @@ install:
   - mkdir %APPVEYOR_BUILD_FOLDER%\build_armv7 && cd %APPVEYOR_BUILD_FOLDER%\build_armv7 && cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=C:\ProgramData\Microsoft\AndroidNDK64\android-ndk-r17\build\cmake\android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=android-19 -DANDROID_ABI=armeabi-v7a .. && cmake --build . --target install --config Release -j 2 --parallel 2 > build_android_v7.txt
   - mkdir %APPVEYOR_BUILD_FOLDER%\build_arm86 && cd %APPVEYOR_BUILD_FOLDER%\build_arm86 && cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=C:\ProgramData\Microsoft\AndroidNDK64\android-ndk-r17\build\cmake\android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=android-19 -DANDROID_ABI=x86 .. && cmake --build . --target install --config Release -j 2 --parallel 2 > build_android_86.txt
   - mkdir %APPVEYOR_BUILD_FOLDER%\build_arm64 && cd %APPVEYOR_BUILD_FOLDER%\build_arm64 && cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=C:\ProgramData\Microsoft\AndroidNDK64\android-ndk-r17\build\cmake\android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=android-19 -DANDROID_ABI=x86_64 .. && cmake --build . --target install --config Release -j 2 --parallel 2 > build_android_64.txt
+  - cd %APPVEYOR_BUILD_FOLDER% && 7z a jniLibs.zip %APPVEYOR_BUILD_FOLDER%\tools\jniLibs
   # compile brainflow for 32 and 64
   - mkdir %APPVEYOR_BUILD_FOLDER%\build32 && cd %APPVEYOR_BUILD_FOLDER%\build32 && cmake -G "Visual Studio 15 2017" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed32\ .. && cmake --build . --target install --config Release -j 2 --parallel 2 > brainflow_build32_stdout.txt
   - mkdir %APPVEYOR_BUILD_FOLDER%\build64 && cd %APPVEYOR_BUILD_FOLDER%\build64 && cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed64\ .. && cmake --build . --target install --config Release -j 2 --parallel 2 > brainflow_build64_stdout.txt
@@ -122,6 +123,7 @@ deploy_script:
   - aws s3 cp %APPVEYOR_BUILD_FOLDER%\installed32\inc\ s3://brainflow/%APPVEYOR_REPO_COMMIT%/inc --recursive
   - aws s3 cp %APPVEYOR_BUILD_FOLDER%\installed32\lib\ s3://brainflow/%APPVEYOR_REPO_COMMIT%/lib32 --recursive
   - aws s3 cp %APPVEYOR_BUILD_FOLDER%\installed64\lib\ s3://brainflow/%APPVEYOR_REPO_COMMIT%/lib64 --recursive
+  - aws s3 cp %APPVEYOR_BUILD_FOLDER%\jniLibs.zip s3://brainflow/%APPVEYOR_REPO_COMMIT%/jniLibs.zip --recursive
   # download files from travis using S3 create package and publish it
   - ps: >-
       cd $env:APPVEYOR_BUILD_FOLDER\csharp-package\brainflow\brainflow;
@@ -184,6 +186,7 @@ deploy_script:
           .\github-release.exe release --user brainflow-dev --repo brainflow --tag $env:APPVEYOR_REPO_TAG_NAME
           .\github-release.exe upload --user brainflow-dev --repo brainflow --tag $env:APPVEYOR_REPO_TAG_NAME --name brainflow.jar --file $env:APPVEYOR_BUILD_FOLDER\java-package\brainflow\target\brainflow.jar
           .\github-release.exe upload --user brainflow-dev --repo brainflow --tag $env:APPVEYOR_REPO_TAG_NAME --name brainflow-jar-with-dependencies.jar --file $env:APPVEYOR_BUILD_FOLDER\java-package\brainflow\target\brainflow-jar-with-dependencies.jar
+          .\github-release.exe upload --user brainflow-dev --repo brainflow --tag $env:APPVEYOR_REPO_TAG_NAME --name jniLibs.zip --file $env:APPVEYOR_BUILD_FOLDER\jniLibs.zip
         }
         Else {
           write-output "Skip deployment for non tag"
@@ -194,14 +197,8 @@ deploy_script:
       }
 
 on_finish:
-  - appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build32\brainflow_build32_stdout.txt
   - appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build64\brainflow_build64_stdout.txt
-  - appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\java-package\brainflow\maven_package_stdout.txt
 
-artifacts:
-  - path: tools\jniLibs
-    name: jniLibs
-    type: zip
 
 notifications:
   - provider: Email
