@@ -123,7 +123,7 @@ deploy_script:
   - aws s3 cp %APPVEYOR_BUILD_FOLDER%\installed32\inc\ s3://brainflow/%APPVEYOR_REPO_COMMIT%/inc --recursive
   - aws s3 cp %APPVEYOR_BUILD_FOLDER%\installed32\lib\ s3://brainflow/%APPVEYOR_REPO_COMMIT%/lib32 --recursive
   - aws s3 cp %APPVEYOR_BUILD_FOLDER%\installed64\lib\ s3://brainflow/%APPVEYOR_REPO_COMMIT%/lib64 --recursive
-  - aws s3 cp %APPVEYOR_BUILD_FOLDER%\jniLibs.zip s3://brainflow/%APPVEYOR_REPO_COMMIT%/jniLibs.zip --recursive
+  - aws s3 cp %APPVEYOR_BUILD_FOLDER%\jniLibs.zip s3://brainflow/%APPVEYOR_REPO_COMMIT%/jniLibs.zip
   # download files from travis using S3 create package and publish it
   - ps: >-
       cd $env:APPVEYOR_BUILD_FOLDER\csharp-package\brainflow\brainflow;
