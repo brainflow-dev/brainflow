@@ -25,6 +25,7 @@
 #include "fascia.h"
 #include "ganglion.h"
 #include "ganglion_wifi.h"
+#include "notion_osc.h"
 #include "novaxr.h"
 #include "streaming_board.h"
 #include "synthetic_board.h"
@@ -113,6 +114,9 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
             break;
         case BoardIds::FASCIA_BOARD:
             board = std::shared_ptr<Board> (new Fascia (params));
+            break;
+        case BoardIds::NOTION_OSC_BOARD:
+            board = std::shared_ptr<Board> (new NotionOSC (params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

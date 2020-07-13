@@ -22,7 +22,8 @@ public enum BoardIds
     CALLIBRI_EEG_BOARD (9),
     CALLIBRI_EMG_BOARD (10),
     CALLIBRI_ECG_BOARD (11),
-    FASCIA_BOARD (12);
+    FASCIA_BOARD (12),
+    NOTION_OSC_BOARD (13);
 
     private final int board_id;
     private static final Map<Integer, BoardIds> bi_map = new HashMap<Integer, BoardIds> ();
