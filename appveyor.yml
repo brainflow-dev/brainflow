@@ -191,15 +191,6 @@ deploy_script:
         write-output "Failed to wait for mac and linux libs"
       }
 
-on_finish:
-  - appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build32\brainflow_build32_stdout.txt
-  - appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build64\brainflow_build64_stdout.txt
-  - appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\java-package\brainflow\maven_package_stdout.txt
-
-artifacts:
-  - path: tools\jniLibs
-    name: jniLibs
-    type: zip
 
 notifications:
   - provider: Email
