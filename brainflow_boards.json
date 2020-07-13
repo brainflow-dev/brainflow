@@ -179,6 +179,16 @@
 			"ppg_channels" : [18],
 			"temperature_channels" : [17],
 			"other_channels": [1]
+		},
+		"13" : {
+			"name": "NotionOSC",
+			"sampling_rate": 250,
+			"timestamp_channel" : 10,
+			"package_num_channel": 0,
+			"num_rows" : 11,
+			"eeg_channels" : [1, 2, 3, 4, 5, 6, 7, 8],
+			"eeg_names": "CP6,F6,C4,CP4,CP3,F5,C3,CP5",
+			"other_channels": [9]
 		}
 	}
 }
