@@ -108,7 +108,7 @@ For demo we will create a simple script to read data and calculate band powers.
             }
         }
 
-        private void OnApplicationQuit()
+        private void OnDestroy()
         {
             if (board_shim != null)
             {
