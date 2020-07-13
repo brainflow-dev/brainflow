@@ -226,7 +226,7 @@ int SocketServerTCP::accept ()
 
 void SocketServerTCP::accept_worker ()
 {
-    unsigned int len = sizeof (client_addr);
+    socklen_t len = (socklen_t)sizeof (client_addr);
     connected_socket = ::accept (server_socket, (struct sockaddr *)&this->client_addr, &len);
     if (connected_socket > 0)
     {

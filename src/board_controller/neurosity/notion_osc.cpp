@@ -190,7 +190,14 @@ void NotionOSC::read_thread ()
                 cv.notify_one ();
                 safe_logger (spdlog::level::debug, "start streaming");
             }
-            handle_packet (OSCPP::Server::Packet (b, res));
+            try
+            {
+                handle_packet (OSCPP::Server::Packet (b, res));
+            }
+            catch (...)
+            {
+                // do nothing
+            }
         }
     }
 }

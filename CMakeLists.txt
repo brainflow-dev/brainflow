@@ -68,38 +68,24 @@ add_library (${WAVELIB} STATIC ${WAVELIB_SRC})
 target_include_directories (${WAVELIB} PUBLIC $<BUILD_INTERFACE:${CMAKE_HOME_DIRECTORY}/third_party/wavelib/header>)
 set_property (TARGET ${WAVELIB} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-SET (GANGLION_LIB "GanglionLib")
-set (GANGLION_SOURCE_LIB
-    ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/callbacks.cpp
-    ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/cmd_def.cpp
-    ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/helpers.cpp
-    ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/main.cpp
-    ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/stubs.cpp
-    ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/uart.cpp
-)
-add_library (${GANGLION_LIB} STATIC ${GANGLION_SOURCE_LIB})
-target_include_directories (${GANGLION_LIB} PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_HOME_DIRECTORY}/src/utils/inc>
-    $<BUILD_INTERFACE:${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/inc>
-)
-set_property (TARGET ${GANGLION_LIB} PROPERTY POSITION_INDEPENDENT_CODE ON)
-
-SET (BOARDS_JSON "brainflow_boards.json")
-
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)
     MESSAGE ("64 bits compiler detected")
     SET (PLATFORM_ACH "X64")
+    SET (GANGLION_LIB "GanglionLib")
     SET (BOARD_CONTROLLER_NAME "BoardController")
     SET (DATA_HANDLER_NAME "DataHandler")
     SET (BRAINFLOW_CPP_BINDING_NAME "Brainflow")
     if(APPLE)
+        SET (GANGLION_LIB_NAME "libGanglionLib.dylib")
         SET (BOARD_CONTROLLER_COMPILED_NAME "libBoardController.dylib")
         SET (DATA_HANDLER_COMPILED_NAME "libDataHandler.dylib")
         SET (NEUROSDK_LIB_NAME "neurosdk-shared")
     elseif (UNIX)
+        SET (GANGLION_LIB_NAME "libGanglionLib.so")
         SET (BOARD_CONTROLLER_COMPILED_NAME "libBoardController.so")
         SET (DATA_HANDLER_COMPILED_NAME "libDataHandler.so")
     else ()
+        SET (GANGLION_LIB_NAME "GanglionLib.dll")
         SET (BOARD_CONTROLLER_COMPILED_NAME "BoardController.dll")
         SET (DATA_HANDLER_COMPILED_NAME "DataHandler.dll")
         SET (NEUROSDK_LIB_NAME "neurosdk-x64")
@@ -111,18 +97,24 @@ else (CMAKE_SIZEOF_VOID_P EQUAL 8)
     # to dont write code like if(32 bits) if(64 bits) in bindings and keep the ability to use them if brainflow was built from src
     # use the same name for 32 and 64 bits
     if (APPLE)
+        SET (GANGLION_LIB "GanglionLib")
+        SET (GANGLION_LIB_NAME "libGanglionLib.dylib")
         SET (BOARD_CONTROLLER_NAME "BoardController")
         SET (DATA_HANDLER_NAME "DataHandler")
         SET (BRAINFLOW_CPP_BINDING_NAME "Brainflow")
         SET (BOARD_CONTROLLER_COMPILED_NAME "libBoardController.dylib")
         SET (DATA_HANDLER_COMPILED_NAME "libDataHandler.dylib")
     elseif (UNIX)
+        SET (GANGLION_LIB "GanglionLib")
+        SET (GANGLION_LIB_NAME "libGanglionLib.so")
         SET (BOARD_CONTROLLER_NAME "BoardController")
         SET (DATA_HANDLER_NAME "DataHandler")
         SET (BRAINFLOW_CPP_BINDING_NAME "Brainflow")
         SET (BOARD_CONTROLLER_COMPILED_NAME "libBoardController.so")
         SET (DATA_HANDLER_COMPILED_NAME "libDataHandler.so")
     else ()
+        SET (GANGLION_LIB "GanglionLib32")
+        SET (GANGLION_LIB_NAME "GanglionLib32.dll")
         SET (BOARD_CONTROLLER_NAME "BoardController32")
         SET (DATA_HANDLER_NAME "DataHandler32")
         SET (BRAINFLOW_CPP_BINDING_NAME "Brainflow32")
@@ -131,6 +123,24 @@ else (CMAKE_SIZEOF_VOID_P EQUAL 8)
         SET (NEUROSDK_LIB_NAME "neurosdk-x86")
     endif (APPLE)
 endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
+
+set (GANGLION_SOURCE_LIB
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/callbacks.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/cmd_def.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/helpers.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/main.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/stubs.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/uart.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/utils/timestamp.cpp
+)
+add_library (${GANGLION_LIB} SHARED ${GANGLION_SOURCE_LIB})
+target_include_directories (${GANGLION_LIB} PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_HOME_DIRECTORY}/src/utils/inc>
+    $<BUILD_INTERFACE:${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/inc>
+)
+set_property (TARGET ${GANGLION_LIB} PROPERTY POSITION_INDEPENDENT_CODE ON)
+
+SET (BOARDS_JSON "brainflow_boards.json")
 
 set (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/utils/timestamp.cpp
@@ -198,32 +208,12 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/mit/inc
+    ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/inc/types
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neurosity/inc
 )
 
 # disable min max defines in windows.h
 target_compile_definitions(${BOARD_CONTROLLER_NAME} PRIVATE -DNOMINMAX)
-
-# NeuroSDK supports only Windows and MacOS
-if (MSVC)
-    target_include_directories (
-        ${BOARD_CONTROLLER_NAME} PRIVATE
-        ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/inc/win
-    )
-    find_library(NEUROSDK_SDK_LIB NAMES ${NEUROSDK_LIB_NAME} PATHS ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib)
-    target_link_libraries(${BOARD_CONTROLLER_NAME} PRIVATE ${NEUROSDK_SDK_LIB})
-endif (MSVC)
-if (APPLE)
-    target_include_directories (
-        ${BOARD_CONTROLLER_NAME} PRIVATE
-        ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/inc/macos
-    )
-    find_library(BLE_LIB NAMES bluetoothle PATHS ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib)
-    find_library(BRAINBIT_LIB NAMES brainbit PATHS ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib)
-    find_library(UTILITIES_LIB NAMES utilities PATHS ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib)
-    find_library(NEUROSDK_SDK_LIB NAMES ${NEUROSDK_LIB_NAME} PATHS ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib)
-    target_link_libraries(${BOARD_CONTROLLER_NAME} PRIVATE ${BLE_LIB} ${BRAINBIT_LIB} ${UTILITIES_LIB} ${NEUROSDK_SDK_LIB})
-endif (APPLE)
 
 target_include_directories (
     ${DATA_HANDLER_NAME} PRIVATE
@@ -243,6 +233,13 @@ set_target_properties (${BOARD_CONTROLLER_NAME}
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
 )
 
+set_target_properties (${GANGLION_LIB}
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
+)
+
 set_target_properties (${DATA_HANDLER_NAME}
     PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
@@ -250,13 +247,13 @@ set_target_properties (${DATA_HANDLER_NAME}
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
 )
 
-if (UNIX)
-    target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE ${GANGLION_LIB} pthread dl)
+# dont link pthread for Android
+if (UNIX AND NOT ANDROID)
+    target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE pthread dl)
     target_link_libraries (${DATA_HANDLER_NAME} PRIVATE ${DSPFILTERS} ${WAVELIB} pthread dl)
-else (UNIX)
-    target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE ${GANGLION_LIB})
+else (UNIX AND NOT ANDROID)
     target_link_libraries (${DATA_HANDLER_NAME} PRIVATE ${DSPFILTERS} ${WAVELIB})
-endif (UNIX)
+endif (UNIX AND NOT ANDROID)
 
 add_library (
     ${BRAINFLOW_CPP_BINDING_NAME} STATIC
@@ -273,14 +270,20 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/third_party/json
 )
 
-if (UNIX)
+if (UNIX AND NOT ANDROID)
     target_link_libraries (${BRAINFLOW_CPP_BINDING_NAME} pthread ${BOARD_CONTROLLER_NAME} ${DATA_HANDLER_NAME})
-else (UNIX)
+else (UNIX AND NOT ANDROID)
     target_link_libraries (${BRAINFLOW_CPP_BINDING_NAME} ${BOARD_CONTROLLER_NAME} ${DATA_HANDLER_NAME})
-endif (UNIX)
+endif (UNIX AND NOT ANDROID)
 
 # copy
 if (MSVC)
+    add_custom_command (TARGET ${GANGLION_LIB} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${GANGLION_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${GANGLION_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${GANGLION_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${GANGLION_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${GANGLION_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/${GANGLION_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${GANGLION_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${GANGLION_LIB_NAME}"
+    )
     add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
         # copy board controller libs
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BOARD_CONTROLLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${BOARD_CONTROLLER_COMPILED_NAME}"
@@ -308,6 +311,12 @@ if (MSVC)
     )
 endif (MSVC)
 if (UNIX)
+    add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${GANGLION_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${GANGLION_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${GANGLION_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${GANGLION_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${GANGLION_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/${GANGLION_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${GANGLION_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${GANGLION_LIB_NAME}"
+    )
     add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
         # copy board controller libs
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${BOARD_CONTROLLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${BOARD_CONTROLLER_COMPILED_NAME}"
@@ -348,6 +357,16 @@ if (APPLE)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib/lib${NEUROSDK_LIB_NAME}.dylib" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/lib${NEUROSDK_LIB_NAME}.dylib"
     )
 endif (APPLE)
+
+if (ANDROID)
+    add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${BOARD_CONTROLLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/tools/jniLibs/${ANDROID_ABI}/${BOARD_CONTROLLER_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/${BOARDS_JSON}" "${CMAKE_HOME_DIRECTORY}/tools/jniLibs/${ANDROID_ABI}/${BOARDS_JSON}"
+    )
+    add_custom_command (TARGET ${DATA_HANDLER_NAME} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/tools/jniLibs/${ANDROID_ABI}/${DATA_HANDLER_COMPILED_NAME}"
+    )
+endif (ANDROID)
 
 # need to copy json file to bindings
 add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD

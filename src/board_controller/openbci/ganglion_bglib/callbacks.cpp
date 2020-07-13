@@ -5,7 +5,7 @@
 #include <string.h>
 
 #include "cmd_def.h"
-#include "ganglion_interface.h"
+#include "ganglion_types.h"
 #include "helpers.h"
 #include "timestamp.h"
 #include "uart.h"

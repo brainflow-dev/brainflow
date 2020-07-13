@@ -17,11 +17,6 @@
 
 #if defined _WIN32 || defined __APPLE__
 
-#include "cparams.h"
-#include "cscanner.h"
-#include "sdk_error.h"
-#include "stdio.h"
-
 
 constexpr int BrainBit::package_size;
 
@@ -73,9 +68,15 @@ int BrainBit::prepare_session ()
         safe_logger (spdlog::level::info, "Session is already prepared");
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
+    // init all function pointers
+    int res = NeuromdBoard::prepare_session ();
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        return res;
+    }
 
     // try to find device
-    int res = find_device ();
+    res = find_device ();
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         free_device ();
@@ -357,9 +358,8 @@ int BrainBit::release_session ()
         initialized = false;
         free_listeners ();
         free_channels ();
-        free_device ();
     }
-    return (int)BrainFlowExitCodes::STATUS_OK;
+    return NeuromdBoard::release_session ();
 }
 
 
