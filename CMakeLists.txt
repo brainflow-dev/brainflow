@@ -6,10 +6,10 @@ set (CMAKE_VERBOSE_MAKEFILE ON)
 set (BRAINFLOW_VERSION 2.1.0)
 
 # dont export sumbols on unix by default
-set(CMAKE_CXX_VISIBILITY_PRESET hidden)
-set(CMAKE_C_VISIBILITY_PRESET hidden)
+set (CMAKE_CXX_VISIBILITY_PRESET hidden)
+set (CMAKE_C_VISIBILITY_PRESET hidden)
 
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set (CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 macro (configure_msvc_runtime)
     if (MSVC)
@@ -254,6 +254,11 @@ if (UNIX AND NOT ANDROID)
 else (UNIX AND NOT ANDROID)
     target_link_libraries (${DATA_HANDLER_NAME} PRIVATE ${DSPFILTERS} ${WAVELIB})
 endif (UNIX AND NOT ANDROID)
+# link android logging library
+if (ANDROID)
+    find_library (log-lib log)
+    target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE log)
+endif (ANDROID)
 
 add_library (
     ${BRAINFLOW_CPP_BINDING_NAME} STATIC

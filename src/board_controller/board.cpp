@@ -8,10 +8,15 @@
 
 #include "spdlog/sinks/null_sink.h"
 
-
 #define LOGGER_NAME "brainflow_logger"
 
+#ifdef __ANDROID__
+#include "spdlog/sinks/android_sink.h"
+std::shared_ptr<spdlog::logger> Board::board_logger =
+    spdlog::android_logger (LOGGER_NAME, "brainflow_ndk_logger");
+#else
 std::shared_ptr<spdlog::logger> Board::board_logger = spdlog::stderr_logger_mt (LOGGER_NAME);
+#endif
 
 int Board::set_log_level (int level)
 {
@@ -38,6 +43,10 @@ int Board::set_log_level (int level)
 
 int Board::set_log_file (char *log_file)
 {
+#ifdef __ANDROID__
+    safe_logger (spdlog::level::err, "For Android set_log_file is unavailable");
+    return (int)BrainFlowExitCodes::GENERAL_ERROR;
+#else
     try
     {
         spdlog::level::level_enum level = Board::board_logger->level ();
@@ -54,6 +63,7 @@ int Board::set_log_file (char *log_file)
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
     return (int)BrainFlowExitCodes::STATUS_OK;
+#endif
 }
 
 int Board::prepare_streamer (char *streamer_params)
