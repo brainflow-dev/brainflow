@@ -44,7 +44,7 @@ int Board::set_log_level (int level)
 int Board::set_log_file (char *log_file)
 {
 #ifdef __ANDROID__
-    safe_logger (spdlog::level::err, "For Android set_log_file is unavailable");
+    Board::board_logger->error ("For Android set_log_file is unavailable");
     return (int)BrainFlowExitCodes::GENERAL_ERROR;
 #else
     try
