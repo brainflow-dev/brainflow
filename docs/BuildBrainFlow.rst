@@ -155,4 +155,4 @@ Installation instructions:
 
 Now you can use BrainFlow SDK in your Android application!
 
-Note: Android Studio inline compiler may show red errors but it should be compiled fine with Gradle. To fix inline compiler you can use *Sync Project with Gradle Files* or click at *File > Invalidate Cache/Restart > Invalidate and Restart*
+Note: Android Studio inline compiler may show red errors but it should be compiled fine with Gradle. To fix inline compiler you can use *File > Sync Project with Gradle Files* or click at *File > Invalidate Cache/Restart > Invalidate and Restart*
