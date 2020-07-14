@@ -139,3 +139,20 @@ MacOS
         # need to run this file from project dir
         bash ./tools/build_mac.sh
 
+
+Android
+---------
+
+To check supported boards for Android visit :ref:`supported-boards-label`
+
+Installation instructions:
+
+- Create Java project in Android Studio, Kotlin is not supported
+- Download jniLibs.zip from `Release page <https://github.com/brainflow-dev/brainflow/releases>`_
+- Unpack jniLibs.zip and copy it's content to project/app/src/main/jniLibs
+- Download brainflow-jar-with-dependencies.jar from `Release page <https://github.com/brainflow-dev/brainflow/releases>`_  or from `Github package <https://github.com/brainflow-dev/brainflow/packages/290893>`_
+- Copy brainflow-jar-with-dependencies.jar to project/app/libs folder
+
+Now you can use BrainFlow SDK in your Android application!
+
+Note: Android Studio inline compiler may show red errors but it should be compiled fine with Gradle. To fix inline compiler you can use *Sync Project with Gradle Files* or click at *File > Invalidate Cache/Restart > Invalidate and Restart*
