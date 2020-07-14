@@ -70,6 +70,8 @@ public class DataFilter
 
     static
     {
+        boolean is_os_android = "The Android Project".equals (System.getProperty ("java.specification.vendor"));
+
         String lib_name = "libDataHandler.so";
         if (SystemUtils.IS_OS_WINDOWS)
         {
@@ -80,8 +82,14 @@ public class DataFilter
             lib_name = "libDataHandler.dylib";
         }
 
-        // need to extract libraries from jar
-        unpack_from_jar (lib_name);
+        if (is_os_android)
+        {
+            lib_name = "DataHandler";
+        } else
+        {
+            // need to extract libraries from jar
+            unpack_from_jar (lib_name);
+        }
         instance = (DllInterface) Native.loadLibrary (lib_name, DllInterface.class);
     }
 
