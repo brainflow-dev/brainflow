@@ -84,6 +84,7 @@ Supported platforms:
 - Windows >= 8.1
 - Linux
 - MacOS
+- Android
 
 Board Specs:
 
@@ -217,6 +218,7 @@ Supported platforms:
 - Windows >= 8.1
 - Linux
 - MacOS
+- Android
 
 Board Spec:
 
@@ -248,7 +250,7 @@ Supported platforms:
 - Windows >= 8.1
 - Linux
 - MacOS
-
+- Android
 
 Board Spec:
 
@@ -281,6 +283,7 @@ Supported platforms:
 - Windows >= 8.1
 - Linux
 - MacOS
+- Android
 
 Board Spec:
 
