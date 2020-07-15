@@ -50,7 +50,7 @@ void CytonWifi::read_thread ()
         if (res != OpenBCIWifiShieldBoard::package_size)
         {
             safe_logger (spdlog::level::warn, "recv result: {}", res);
-            if (res == -1)
+            if (res < 0)
             {
 #ifdef _WIN32
                 safe_logger (spdlog::level::warn, "WSAGetLastError is {}", WSAGetLastError ());
