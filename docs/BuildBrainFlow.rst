@@ -153,7 +153,6 @@ Installation instructions
 - Unpack *jniLibs.zip* and copy it's content to *project/app/src/main/jniLibs*
 - Download *brainflow-jar-with-dependencies.jar* from `Release page <https://github.com/brainflow-dev/brainflow/releases>`_  or from `Github package <https://github.com/brainflow-dev/brainflow/packages/290893>`_
 - Copy *brainflow-jar-with-dependencies.jar* to *project/app/libs folder*
-- Download *brainflow_boards.json* from `Release page <https://github.com/brainflow-dev/brainflow/releases>`_ and place it to the assets folder of your app
 
 Now you can use BrainFlow SDK in your Android application!
 

@@ -4,19 +4,11 @@
 #include <string>
 #include <vector>
 
+#include "board.h"
 #include "board_info_getter.h"
+#include "brainflow_boards.h"
 #include "brainflow_constants.h"
-#include "get_dll_dir.h"
 
-#include "json.hpp"
-
-#define JSON_FILE_NAME "brainflow_boards.json"
-
-using json = nlohmann::json;
-
-
-inline std::string get_json_config ();
-inline bool check_file_exists (const std::string &name);
 inline std::string int_to_string (int val);
 inline int get_single_value (int board_id, const char *param_name, int *value);
 inline int get_string_value (int board_id, const char *param_name, char *string, int *len);
@@ -113,35 +105,6 @@ int get_resistance_channels (int board_id, int *resistance_channels, int *len)
     return get_array_value (board_id, "resistance_channels", resistance_channels, len);
 }
 
-inline std::string get_json_config ()
-{
-    char lib_dir[1024];
-    bool res = get_dll_path (lib_dir);
-    std::string json_path = "";
-    if (res)
-    {
-        json_path = std::string (lib_dir) + JSON_FILE_NAME;
-    }
-    else
-    {
-        json_path = JSON_FILE_NAME;
-    }
-    return json_path;
-}
-
-inline bool check_file_exists (const std::string &name)
-{
-    if (FILE *file = fopen (name.c_str (), "r"))
-    {
-        fclose (file);
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
 inline std::string int_to_string (int val)
 {
     std::ostringstream ss;
@@ -151,37 +114,25 @@ inline std::string int_to_string (int val)
 
 inline int get_single_value (int board_id, const char *param_name, int *value)
 {
-    std::string json_file = get_json_config ();
-    if (!check_file_exists (json_file))
-    {
-        return (int)BrainFlowExitCodes::JSON_NOT_FOUND_ERROR;
-    }
     try
     {
-        std::ifstream json_stream (json_file);
-        json config = json::parse (json_stream);
-        int val = (int)config["boards"][int_to_string (board_id)][param_name];
+        int val = (int)brainflow_boards_json["boards"][int_to_string (board_id)][param_name];
         *value = val;
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
     catch (json::exception &e)
     {
+        Board::board_logger->error (e.what ());
         return (int)BrainFlowExitCodes::NO_SUCH_DATA_IN_JSON_ERROR;
     }
 }
 
 inline int get_array_value (int board_id, const char *param_name, int *output_array, int *len)
 {
-    std::string json_file = get_json_config ();
-    if (!check_file_exists (json_file))
-    {
-        return (int)BrainFlowExitCodes::JSON_NOT_FOUND_ERROR;
-    }
     try
     {
-        std::ifstream json_stream (json_file);
-        json config = json::parse (json_stream);
-        std::vector<int> values = config["boards"][int_to_string (board_id)][param_name];
+        std::vector<int> values =
+            brainflow_boards_json["boards"][int_to_string (board_id)][param_name];
         if (!values.empty ())
         {
             memcpy (output_array, &values[0], sizeof (int) * values.size ());
@@ -191,28 +142,23 @@ inline int get_array_value (int board_id, const char *param_name, int *output_ar
     }
     catch (json::exception &e)
     {
-        return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
+        Board::board_logger->error (e.what ());
+        return (int)BrainFlowExitCodes::NO_SUCH_DATA_IN_JSON_ERROR;
     }
 }
 
 inline int get_string_value (int board_id, const char *param_name, char *string, int *len)
 {
-    std::string json_file = get_json_config ();
-    if (!check_file_exists (json_file))
-    {
-        return (int)BrainFlowExitCodes::JSON_NOT_FOUND_ERROR;
-    }
     try
     {
-        std::ifstream json_stream (json_file);
-        json config = json::parse (json_stream);
-        std::string val = config["boards"][int_to_string (board_id)][param_name];
+        std::string val = brainflow_boards_json["boards"][int_to_string (board_id)][param_name];
         strcpy (string, val.c_str ());
         *len = strlen (val.c_str ());
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
     catch (json::exception &e)
     {
+        Board::board_logger->error (e.what ());
         return (int)BrainFlowExitCodes::NO_SUCH_DATA_IN_JSON_ERROR;
     }
 }

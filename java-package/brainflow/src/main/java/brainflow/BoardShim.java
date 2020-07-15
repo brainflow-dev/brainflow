@@ -115,7 +115,6 @@ public class BoardShim
             // need to extract libraries from jar
             unpack_from_jar (lib_name);
             unpack_from_jar (ganglion_name);
-            unpack_from_jar ("brainflow_boards.json");
         }
 
         instance = (DllInterface) Native.loadLibrary (lib_name, DllInterface.class);

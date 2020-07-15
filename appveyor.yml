@@ -187,7 +187,6 @@ deploy_script:
           .\github-release.exe upload --user brainflow-dev --repo brainflow --tag $env:APPVEYOR_REPO_TAG_NAME --name brainflow.jar --file $env:APPVEYOR_BUILD_FOLDER\java-package\brainflow\target\brainflow.jar
           .\github-release.exe upload --user brainflow-dev --repo brainflow --tag $env:APPVEYOR_REPO_TAG_NAME --name brainflow-jar-with-dependencies.jar --file $env:APPVEYOR_BUILD_FOLDER\java-package\brainflow\target\brainflow-jar-with-dependencies.jar
           .\github-release.exe upload --user brainflow-dev --repo brainflow --tag $env:APPVEYOR_REPO_TAG_NAME --name jniLibs.zip --file $env:APPVEYOR_BUILD_FOLDER\jniLibs.zip
-          .\github-release.exe upload --user brainflow-dev --repo brainflow --tag $env:APPVEYOR_REPO_TAG_NAME --name brainflow_boards.json --file $env:APPVEYOR_BUILD_FOLDER\brainflow_boards.json
         }
         Else {
           write-output "Skip deployment for non tag"
