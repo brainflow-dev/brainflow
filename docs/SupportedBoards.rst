@@ -209,7 +209,7 @@ Ganglion with WIFI Shield
 To choose this board in BoardShim constructor please specify:
 
 - board_id: 4
-- ip_address field of BrainFlowInputParams structure should contain WiFi Shield Ip address(in direct mode its 192.168.4.1)
+- ip_address field of BrainFlowInputParams structure should contain WiFi Shield Ip address(in direct mode its 192.168.4.1), if it's empty BrainFlow will try to autodiscover WIFI Shield and in case of failure will try to use 192.168.4.1
 - ip_port field of BrainFlowInputParams structure should be any local port which is free right now
 - optional: timeout field of BrainFlowInputParams structure, default is 10sec
 
@@ -241,7 +241,7 @@ Cyton with WIFI Shield
 To choose this board in BoardShim constructor please specify:
 
 - board_id: 5
-- ip_address field of BrainFlowInputParams structure should contain WiFi Shield Ip address(in direct mode its 192.168.4.1)
+- ip_address field of BrainFlowInputParams structure should contain WiFi Shield Ip address(in direct mode its 192.168.4.1), if it's empty BrainFlow will try to autodiscover WIFI Shield and in case of failure will try to use 192.168.4.1
 - ip_port field of BrainFlowInputParams structure should be any local port which is free right now
 - optional: timeout field of BrainFlowInputParams structure, default is 10sec
 
@@ -274,7 +274,7 @@ CytonDaisy with WIFI Shield
 To choose this board in BoardShim constructor please specify:
 
 - board_id: 6
-- ip_address field of BrainFlowInputParams structure should contain WiFi Shield Ip address(in direct mode its 192.168.4.1)
+- ip_address field of BrainFlowInputParams structure should contain WiFi Shield Ip address(in direct mode its 192.168.4.1), if it's empty BrainFlow will try to autodiscover WIFI Shield and in case of failure will try to use 192.168.4.1
 - ip_port field of BrainFlowInputParams structure should be any local port which is free right now
 - optional: timeout field of BrainFlowInputParams structure, default is 10sec
 
