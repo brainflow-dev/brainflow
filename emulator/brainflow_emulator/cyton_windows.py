@@ -45,9 +45,8 @@ def get_ports_windows ():
     logging.info ('remove stdout is %s' % stdout)
     logging.info ('remove stderr is %s' % stderr)
 
-    # hopefully hardcoded values are good enough for emulators and tests
-    m_name = 'COM8'
-    s_name = 'COM9'
+    m_name = 'COM14'
+    s_name = 'COM15'
 
     p = subprocess.Popen ([os.path.join (directory, 'setupc.exe'), 'install', 'PortName=%s' % m_name, 'PortName=%s' % s_name],
                         stdout = subprocess.PIPE, stderr = subprocess.PIPE, cwd = directory)
@@ -62,7 +61,7 @@ def get_ports_windows ():
     return m_name, s_name
 
 def test_serial (cmd_list, m_name, s_name):
-    master = Serial (m_name, timeout = 0)
+    master = Serial ('\\\\.\\%s' % m_name, timeout = 0)
     listen_thread = Listener (master, write, read)
     listen_thread.daemon = True
     listen_thread.start ()
