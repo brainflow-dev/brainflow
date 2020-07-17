@@ -1,4 +1,5 @@
 #include "serial.h"
+#include <string>
 #ifndef _WIN32
 #include <fcntl.h>
 #include <unistd.h>
@@ -11,7 +12,13 @@
 #ifdef _WIN32
 Serial::Serial (const char *port_name)
 {
-    strcpy (this->port_name, port_name);
+    std::string port_name_string (port_name);
+    // add winapi specific prefix for port name if not provided
+    if (port_name_string.find (std::string ("COM")) == 0)
+    {
+        port_name_string = std::string ("\\\\.\\") + port_name_string;
+    }
+    strcpy (this->port_name, port_name_string.c_str ());
     port_descriptor = NULL;
 }
 
