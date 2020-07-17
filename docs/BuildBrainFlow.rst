@@ -137,3 +137,66 @@ MacOS
         # need to run this file from project dir
         bash ./tools/build_mac.sh
 
+
+Android
+---------
+
+To check supported boards for Android visit :ref:`supported-boards-label`
+
+Installation instructions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Create Java project in Android Studio, Kotlin is not supported
+- Download *jniLibs.zip* from `Release page <https://github.com/brainflow-dev/brainflow/releases>`_
+- Unpack *jniLibs.zip* and copy it's content to *project/app/src/main/jniLibs*
+- Download *brainflow-jar-with-dependencies.jar* from `Release page <https://github.com/brainflow-dev/brainflow/releases>`_  or from `Github package <https://github.com/brainflow-dev/brainflow/packages/290893>`_
+- Copy *brainflow-jar-with-dependencies.jar* to *project/app/libs folder*
+
+Now you can use BrainFlow SDK in your Android application!
+
+Note: Android Studio inline compiler may show red errors but it should be compiled fine with Gradle. To fix inline compiler you can use *File > Sync Project with Gradle Files* or click at *File > Invalidate Cache/Restart > Invalidate and Restart*
+
+.. compound::
+    
+    For some API calls you need to provide additional permissions via manifest file of your application ::
+
+        # for devices which use network
+        <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+        <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
+        # to use read/write file from/to SD card
+        <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"></uses-permission>
+        <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
+
+
+Compilation using Android NDK
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**For BrainFlow developers**
+
+
+To test your changes in BrainFlow on Android you need to build it using Android NDK manually.
+
+Compilation instructions:
+
+- `Download Android NDK <https://developer.android.com/ndk/downloads>`_
+- `Download Ninja <https://github.com/ninja-build/ninja/releases>`_, for Windows there is exe file in tools folder, make sure that ninja.exe in search path
+- You can also try *MinGW Makefiles* instead Ninja, but it's not tested and may not work
+- Build C++ code using cmake and Ninja for **all ABIs**
+- Compiled libraries will be in tools/jniLibs folder
+
+.. compound::
+    
+    Command line examples ::
+
+        # to prepare project
+        # for arm64-v8a
+        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=E:\android-ndk-r21d-windows-x86_64\android-ndk-r21d\build\cmake\android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=android-19 -DANDROID_ABI=arm64-v8a ..
+        # for armeabi-v7a
+        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=E:\android-ndk-r21d-windows-x86_64\android-ndk-r21d\build\cmake\android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=android-19 -DANDROID_ABI=armeabi-v7a ..
+        # for x86_64
+        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=E:\android-ndk-r21d-windows-x86_64\android-ndk-r21d\build\cmake\android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=android-19 -DANDROID_ABI=x86_64 ..
+        # for x86
+        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=E:\android-ndk-r21d-windows-x86_64\android-ndk-r21d\build\cmake\android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=android-19 -DANDROID_ABI=x86 ..
+
+        # to build
+        cmake --build . --target install --config Release -j 2 --parallel 2

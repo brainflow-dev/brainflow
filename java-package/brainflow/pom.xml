@@ -58,7 +58,6 @@
           <include>BoardController.dll</include>
           <include>libBoardController.so</include>
           <include>libBoardController.dylib</include>
-          <include>brainflow_boards.json</include>
           <include>DataHandler.dll</include>
           <include>libDataHandler.so</include>
           <include>libDataHandler.dylib</include>

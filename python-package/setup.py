@@ -27,7 +27,6 @@ setup (
             os.path.join ('lib', 'BoardController32.dll'),
             os.path.join ('lib', 'libBoardController.so'),
             os.path.join ('lib', 'libBoardController.dylib'),
-            os.path.join ('lib', 'brainflow_boards.json'),
             os.path.join ('lib', 'DataHandler.dll'),
             os.path.join ('lib', 'DataHandler32.dll'),
             os.path.join ('lib', 'libDataHandler.so'),

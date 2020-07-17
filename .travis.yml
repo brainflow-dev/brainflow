@@ -69,8 +69,6 @@ before_script:
   - cd $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo && mkdir build && cd build && cmake -DCMAKE_PREFIX_PATH=$TRAVIS_BUILD_DIR/installed .. && make -j
   - cd $TRAVIS_BUILD_DIR/tests/cpp/signal_processing_demo && mkdir build && cd build && cmake -DCMAKE_PREFIX_PATH=$TRAVIS_BUILD_DIR/installed .. && make -j
   - cd $TRAVIS_BUILD_DIR && cd java-package/brainflow && mvn package
-  # to run java tests need to copypaste libs even if they are inside jar file
-  - cp $TRAVIS_BUILD_DIR/java-package/brainflow/target/classes/brainflow/*.json $TRAVIS_BUILD_DIR/java-package/brainflow/target/classes/
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       cp $TRAVIS_BUILD_DIR/java-package/brainflow/target/classes/brainflow/*.so $TRAVIS_BUILD_DIR/java-package/brainflow/target/classes/ ;
     fi
