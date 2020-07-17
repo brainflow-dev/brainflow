@@ -6,10 +6,10 @@ set (CMAKE_VERBOSE_MAKEFILE ON)
 set (BRAINFLOW_VERSION 2.1.0)
 
 # dont export sumbols on unix by default
-set(CMAKE_CXX_VISIBILITY_PRESET hidden)
-set(CMAKE_C_VISIBILITY_PRESET hidden)
+set (CMAKE_CXX_VISIBILITY_PRESET hidden)
+set (CMAKE_C_VISIBILITY_PRESET hidden)
 
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set (CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 macro (configure_msvc_runtime)
     if (MSVC)
@@ -140,8 +140,6 @@ target_include_directories (${GANGLION_LIB} PUBLIC
 )
 set_property (TARGET ${GANGLION_LIB} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-SET (BOARDS_JSON "brainflow_boards.json")
-
 set (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/utils/timestamp.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/data_buffer.cpp
@@ -254,6 +252,11 @@ if (UNIX AND NOT ANDROID)
 else (UNIX AND NOT ANDROID)
     target_link_libraries (${DATA_HANDLER_NAME} PRIVATE ${DSPFILTERS} ${WAVELIB})
 endif (UNIX AND NOT ANDROID)
+# link android logging library
+if (ANDROID)
+    find_library (log-lib log)
+    target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE log)
+endif (ANDROID)
 
 add_library (
     ${BRAINFLOW_CPP_BINDING_NAME} STATIC
@@ -361,20 +364,11 @@ endif (APPLE)
 if (ANDROID)
     add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${BOARD_CONTROLLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/tools/jniLibs/${ANDROID_ABI}/${BOARD_CONTROLLER_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/${BOARDS_JSON}" "${CMAKE_HOME_DIRECTORY}/tools/jniLibs/${ANDROID_ABI}/${BOARDS_JSON}"
     )
     add_custom_command (TARGET ${DATA_HANDLER_NAME} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/tools/jniLibs/${ANDROID_ABI}/${DATA_HANDLER_COMPILED_NAME}"
     )
 endif (ANDROID)
-
-# need to copy json file to bindings
-add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/${BOARDS_JSON}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${BOARDS_JSON}"
-    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/${BOARDS_JSON}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${BOARDS_JSON}"
-    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/${BOARDS_JSON}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/${BOARDS_JSON}"
-    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/${BOARDS_JSON}" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${BOARDS_JSON}"
-)
 
 # install
 set (VERSION_CONFIG ${CMAKE_HOME_DIRECTORY}/compiled/brainflowConfigVersion.cmake)
@@ -436,13 +430,6 @@ if (UNIX AND NOT APPLE)
         DESTINATION lib
     )
 endif (UNIX AND NOT APPLE)
-
-# need to put this file with libraries
-install (
-    FILES
-    ${BOARDS_JSON}
-    DESTINATION lib
-)
 
 install (
     TARGETS ${BOARD_CONTROLLER_NAME} ${DATA_HANDLER_NAME} ${DSPFILTERS} ${WAVELIB} ${GANGLION_LIB} ${BRAINFLOW_CPP_BINDING_NAME}

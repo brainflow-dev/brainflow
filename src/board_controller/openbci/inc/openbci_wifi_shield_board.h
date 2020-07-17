@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <thread>
 
 #include "board.h"
@@ -22,6 +23,8 @@ protected:
 
     SocketServerTCP *server_socket;
     int num_channels;
+
+    std::string find_wifi_shield ();
 
     virtual void read_thread () = 0;
     virtual int send_config (char *config);

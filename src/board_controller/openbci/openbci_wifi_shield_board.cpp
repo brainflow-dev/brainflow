@@ -1,3 +1,4 @@
+#include <regex>
 #include <sstream>
 #include <string.h>
 #include <string>
@@ -40,8 +41,7 @@ int OpenBCIWifiShieldBoard::prepare_session ()
     }
     if (params.ip_address.empty ())
     {
-        safe_logger (spdlog::level::warn, "use default ip address 192.168.4.1");
-        params.ip_address = "192.168.4.1";
+        params.ip_address = find_wifi_shield ();
     }
     if ((params.timeout > 0) && (params.timeout < 600))
     {
@@ -316,6 +316,74 @@ int OpenBCIWifiShieldBoard::release_session ()
         server_socket = NULL;
     }
     return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+std::string OpenBCIWifiShieldBoard::find_wifi_shield ()
+{
+    safe_logger (spdlog::level::info, "trying to autodiscover wifi shield using SSDP");
+    // try to find device using SSDP if there is an error try to use ip address for direct mode
+    // instead throwing exception
+    std::string ip_address = "192.168.4.1";
+
+    SocketClientUDP udp_client ("239.255.255.250", 1900); // ssdp ip and port
+    int res = udp_client.connect ();
+    if (res == (int)SocketClientUDPReturnCodes::STATUS_OK)
+    {
+        std::stringstream msearch;
+        msearch << "M-SEARCH * HTTP/1.1\r\nHost: 239.255.255.250:1900\r\nMAN: ssdp:discover\r\n";
+        msearch << "ST: urn:schemas-upnp-org:device:Basic:1\r\n";
+        msearch << "MX: 3\r\n";
+        msearch << "\r\n";
+        msearch << "\r\n";
+
+        safe_logger (spdlog::level::trace, "Using search request {}", msearch.str ().c_str ());
+
+        res = udp_client.send (msearch.str ().c_str (), strlen (msearch.str ().c_str ()));
+        if (res == strlen (msearch.str ().c_str ()))
+        {
+            unsigned char b[250];
+            res = udp_client.recv (b, 250);
+            if (res == 250)
+            {
+                std::string response ((const char *)b);
+                safe_logger (spdlog::level::trace, "Recived package {}", b);
+                std::regex rgx ("LOCATION: http://([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)");
+                std::smatch matches;
+                if (std::regex_search (response, matches, rgx) == true)
+                {
+                    if (matches.size () == 2)
+                    {
+                        ip_address = matches.str (1);
+                    }
+                    else
+                    {
+                        safe_logger (spdlog::level::err, "invalid number of groups found");
+                    }
+                }
+                else
+                {
+                    safe_logger (spdlog::level::err, "failed to find shield ip address");
+                }
+            }
+            else
+            {
+                safe_logger (spdlog::level::err, "Recv res {}", res);
+            }
+        }
+        else
+        {
+            safe_logger (spdlog::level::err, "Sent res {}", res);
+        }
+    }
+    else
+    {
+        safe_logger (spdlog::level::err, "Failed to connect socket {}", res);
+    }
+
+    udp_client.close ();
+
+    safe_logger (spdlog::level::info, "use ip address {}", ip_address.c_str ());
+    return ip_address;
 }
 
 int OpenBCIWifiShieldBoard::wait_for_http_resp (http_t *request)

@@ -177,7 +177,7 @@ For Windows it's almost the same.
 
 - for Linux and MacOS add them to LD_LIBRARY_PATH env variable
 - for Windows add them to PATH env variable
-- or just copypaste them to the folder where your executable is located, don’t forget to copypaste brainflow_boards.json too
+- or just copypaste them to the folder where your executable is located
 
 CMake File Example
 ~~~~~~~~~~~~~~~~~~~~~
