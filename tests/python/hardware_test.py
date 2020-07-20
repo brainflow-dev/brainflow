@@ -134,8 +134,9 @@ def main ():
                 for ch in emg_channels:
                     if ch not in temp_channels:
                         temp_channels.append (ch)
+                temp_channels = sorted (temp_channels)
                 for j in range (len (temp_channels)):
-                    if j in selected_channels:
+                    if temp_channels[j] in selected_channels:
                         total_channels.append (temp_channels[j])
             else:
                 # for cyton/ganglion eeg_channels and emg_channels are the same array because we can not split it
@@ -144,16 +145,21 @@ def main ():
                 for ch in emg_channels:
                     if ch not in total_channels:
                         total_channels.append (ch)
-            total_channels.append (timestamp_channel)
+            use_ppg_eda = True
             try:
                 total_channels.extend (BoardShim.get_ppg_channels (master_board_id))
                 total_channels.extend (BoardShim.get_eda_channels (master_board_id))
             except:
-                pass
+                use_ppg_eda = False
+            total_channels.append (timestamp_channel)
 
             columns = list ()
             for j in range (len (total_channels) - 1):
-                columns.append ('channel_%d' % (int(total_channels[j]) - 1))
+                columns.append ('channel_%d' % (int(total_channels[j])))
+            if use_ppg_eda:
+                columns[-3] = 'ppg_red'
+                columns[-2] = 'ppg_ir'
+                columns[-1] = 'eda'
             columns.append ('timestamp')
 
             df = pd.DataFrame (np.transpose (data))
