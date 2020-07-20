@@ -48,7 +48,7 @@ int SocketServerTCP::bind ()
     // ensure that library will not hang in blocking recv/send call
     DWORD timeout = 3000;
     DWORD value = 1;
-    DWORD buf_size = 65536 * 2;
+    DWORD buf_size = 65536 * 4;
     setsockopt (server_socket, IPPROTO_TCP, TCP_NODELAY, (const char *)&value, sizeof (value));
     setsockopt (server_socket, SOL_SOCKET, SO_RCVTIMEO, (const char *)&timeout, sizeof (timeout));
     setsockopt (server_socket, SOL_SOCKET, SO_SNDTIMEO, (const char *)&timeout, sizeof (timeout));
@@ -82,7 +82,7 @@ void SocketServerTCP::accept_worker ()
         // ensure that library will not hang in blocking recv/send call
         DWORD timeout = 3000;
         DWORD value = 1;
-        DWORD buf_size = 65536 * 2;
+        DWORD buf_size = 65536 * 4;
         setsockopt (
             connected_socket, IPPROTO_TCP, TCP_NODELAY, (const char *)&value, sizeof (value));
         setsockopt (
