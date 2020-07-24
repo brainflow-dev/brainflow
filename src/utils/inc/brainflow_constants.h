@@ -44,3 +44,32 @@ enum class BoardIds : int
     FASCIA_BOARD = 12,
     NOTION_OSC_BOARD = 13
 };
+
+enum class FilterTypes : int
+{
+    BUTTERWORTH = 0,
+    CHEBYSHEV_TYPE_1 = 1,
+    BESSEL = 2
+};
+
+enum class AggOperations : int
+{
+    MEAN = 0,
+    MEDIAN = 1,
+    EACH = 2
+};
+
+enum class WindowFunctions : int
+{
+    NO_WINDOW = 0,
+    HANNING = 1,
+    HAMMING = 2,
+    BLACKMAN_HARRIS = 3
+};
+
+enum class DetrendOperations : int
+{
+    NONE = 0,
+    CONSTANT = 1,
+    LINEAR = 2
+};

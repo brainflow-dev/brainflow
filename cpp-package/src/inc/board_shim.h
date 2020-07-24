@@ -5,6 +5,7 @@
 
 // include it here to allow user include only this single file
 #include "board_controller.h"
+#include "board_info_getter.h"
 #include "brainflow_constants.h"
 #include "brainflow_exception.h"
 #include "brainflow_input_params.h"

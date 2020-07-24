@@ -122,6 +122,24 @@ namespace brainflow
         }
 
         /// <summary>
+        /// detrend, unlike other bindings instead in-place calculation it returns new array
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="operation"></param>
+        /// <returns>data with removed trend</returns>
+        public static double[] detrend(double[] data, int operation)
+        {
+            double[] new_data = new double[data.Length];
+            Array.Copy(data, new_data, data.Length);
+            int res = DataHandlerLibrary.detrend(new_data, new_data.Length, operation);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException(res);
+            }
+            return new_data;
+        }
+
+        /// <summary>
         /// perform data downsampling, it just aggregates data without applying lowpass filter
         /// </summary>
         /// <param name="data"></param>
@@ -402,6 +420,60 @@ namespace brainflow
             double[] temp_freqs = new double[len / 2 + 1];
 
             int res = DataHandlerLibrary.get_log_psd(data_to_process, len, sampling_rate, window, temp_ampls, temp_freqs);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException(res);
+            }
+            Tuple<double[], double[]> return_data = new Tuple<double[], double[]>(temp_ampls, temp_freqs);
+            return return_data;
+        }
+
+        /// <summary>
+        /// calculate log PSD using Welch method
+        /// </summary>
+        /// <param name="data">data for log PSD</param>
+        /// <param name="nfft">FFT Size</param>
+        /// <param name="overlap">FFT Window overlap, must be between 0 and nfft</param>
+        /// <param name="sampling_rate">sampling rate</param>
+        /// <param name="window">window function</param>
+        /// <returns>Tuple of ampls and freqs arrays</returns>
+        public static Tuple<double[], double[]> get_log_psd_welch(double[] data, int nfft, int overlap, int sampling_rate, int window)
+        {
+            if ((nfft & (nfft - 1)) != 0)
+            {
+                throw new BrainFlowException((int)CustomExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            double[] temp_ampls = new double[nfft / 2 + 1];
+            double[] temp_freqs = new double[nfft / 2 + 1];
+
+            int res = DataHandlerLibrary.get_log_psd_welch(data, data.Length, nfft, overlap, sampling_rate, window, temp_ampls, temp_freqs);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException(res);
+            }
+            Tuple<double[], double[]> return_data = new Tuple<double[], double[]>(temp_ampls, temp_freqs);
+            return return_data;
+        }
+
+        /// <summary>
+        /// calculate PSD using Welch method
+        /// </summary>
+        /// <param name="data">data for log PSD</param>
+        /// <param name="nfft">FFT Size</param>
+        /// <param name="overlap">FFT Window overlap, must be between 0 and nfft</param>
+        /// <param name="sampling_rate">sampling rate</param>
+        /// <param name="window">window function</param>
+        /// <returns>Tuple of ampls and freqs arrays</returns>
+        public static Tuple<double[], double[]> get_psd_welch(double[] data, int nfft, int overlap, int sampling_rate, int window)
+        {
+            if ((nfft & (nfft - 1)) != 0)
+            {
+                throw new BrainFlowException((int)CustomExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            double[] temp_ampls = new double[nfft / 2 + 1];
+            double[] temp_freqs = new double[nfft / 2 + 1];
+
+            int res = DataHandlerLibrary.get_psd_welch(data, data.Length, nfft, overlap, sampling_rate, window, temp_ampls, temp_freqs);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException(res);

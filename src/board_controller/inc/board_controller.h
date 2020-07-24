@@ -1,7 +1,6 @@
 #pragma once
 
-#include "board_info_getter.h"
-#include "brainflow_constants.h"
+#include "board_info_getter.h" // include it here for matlab
 #include "shared_export.h"
 
 

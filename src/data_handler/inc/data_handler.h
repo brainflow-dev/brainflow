@@ -1,31 +1,6 @@
 #pragma once
 
-#include "brainflow_constants.h"
 #include "shared_export.h"
-
-
-enum class FilterTypes : int
-{
-    BUTTERWORTH = 0,
-    CHEBYSHEV_TYPE_1 = 1,
-    BESSEL = 2
-};
-
-enum class AggOperations : int
-{
-    MEAN = 0,
-    MEDIAN = 1,
-    EACH = 2
-};
-
-enum class WindowFunctions : int
-{
-    NO_WINDOW = 0,
-    HANNING = 1,
-    HAMMING = 2,
-    BLACKMAN_HARRIS = 3
-};
-
 
 #ifdef __cplusplus
 extern "C"
@@ -64,6 +39,14 @@ extern "C"
     SHARED_EXPORT int CALLING_CONVENTION get_nearest_power_of_two (int value, int *output);
     SHARED_EXPORT int CALLING_CONVENTION get_psd (double *data, int data_len, int sampling_rate,
         int window_function, double *output_ampl, double *output_freq);
+    SHARED_EXPORT int CALLING_CONVENTION detrend (
+        double *data, int data_len, int detrend_operation);
+    SHARED_EXPORT int CALLING_CONVENTION get_psd_welch (double *data, int data_len, int nfft,
+        int overlap, int sampling_rate, int window_function, double *output_ampl,
+        double *output_freq);
+    SHARED_EXPORT int CALLING_CONVENTION get_log_psd_welch (double *data, int data_len, int nfft,
+        int overlap, int sampling_rate, int window_function, double *output_ampl,
+        double *output_freq);
     SHARED_EXPORT int CALLING_CONVENTION get_log_psd (double *data, int data_len, int sampling_rate,
         int window_function, double *output_ampl, double *output_freq);
     SHARED_EXPORT int CALLING_CONVENTION get_band_power (double *ampl, double *freq, int data_len,
