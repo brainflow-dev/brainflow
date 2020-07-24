@@ -120,7 +120,9 @@ subtitle: How Biosensors Work
                             </div>
                             {% if post.image %}
                                 <div class="key-feature-image">
-                                    <img src="{{ post.image | relative_url }}">
+                                    <a href="{{ post.url | relative_url }}">
+                                        <img src="{{ post.image | relative_url }}">
+                                    </a>
                                 </div>
                             {% endif %}
                         </a>
