@@ -53,8 +53,6 @@ int main (int argc, char *argv[])
 
         int eeg_num_channels = 0;
         eeg_channels = BoardShim::get_eeg_channels (board_id, &eeg_num_channels);
-        int filtered_size = 0;
-        double *downsampled_data = NULL;
         for (int i = 0; i < eeg_num_channels; i++)
         {
             // demo for wavelet transform
