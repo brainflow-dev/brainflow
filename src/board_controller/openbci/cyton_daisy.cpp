@@ -29,7 +29,7 @@ void CytonDaisy::read_thread ()
     int res;
     unsigned char b[32];
     double package[30] = {0.};
-    bool first_sample = false;
+    bool first_sample = true;
     double accel[3] = {0.};
     while (keep_alive)
     {
@@ -64,13 +64,35 @@ void CytonDaisy::read_thread ()
             continue;
         }
 
+        // For Cyton Daisy Serial, sample IDs are sequenctial
+        // (0, 1, 2, 3...) so even sample IDs are the first sample (daisy)
+        // and odd sample IDs are the second sample (cyton)
+        // after the second sample, we commit the package below
+        first_sample = b[0] % 2 == 0;
+
         // place unprocessed bytes to other_channels for all modes
-        if ((b[0] % 2 == 0) && (first_sample))
+        if (first_sample)
         {
+            package[0] = (double)b[0];
             // eeg
             for (int i = 0; i < 8; i++)
             {
                 package[i + 9] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
+            }
+            // other_channels
+            package[21] = (double)b[25];
+            package[22] = (double)b[26];
+            package[23] = (double)b[27];
+            package[24] = (double)b[28];
+            package[25] = (double)b[29];
+            package[26] = (double)b[30];
+        }
+        else
+        {
+            // eeg
+            for (int i = 0; i < 8; i++)
+            {
+                package[i + 1] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
             }
             // need to average other_channels
             package[21] += (double)b[25];
@@ -87,23 +109,6 @@ void CytonDaisy::read_thread ()
             package[26] /= 2.0;
             package[20] = (double)b[31];
         }
-        else
-        {
-            first_sample = true;
-            package[0] = (double)b[0];
-            // eeg
-            for (int i = 0; i < 8; i++)
-            {
-                package[i + 1] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
-            }
-            // other_channels
-            package[21] = (double)b[25];
-            package[22] = (double)b[26];
-            package[23] = (double)b[27];
-            package[24] = (double)b[28];
-            package[25] = (double)b[29];
-            package[26] = (double)b[30];
-        }
 
         // place processed accel data
         if (b[31] == END_BYTE_STANDARD)
@@ -113,7 +118,18 @@ void CytonDaisy::read_thread ()
             accel_temp[1] = cast_16bit_to_int32 (b + 27);
             accel_temp[2] = cast_16bit_to_int32 (b + 29);
 
-            if ((b[0] % 2 == 0) && (first_sample))
+            if (first_sample)
+            {
+                package[0] = (double)b[0];
+                // accel
+                if (accel_temp[0] != 0)
+                {
+                    accel[0] = accel_scale * accel_temp[0];
+                    accel[1] = accel_scale * accel_temp[1];
+                    accel[2] = accel_scale * accel_temp[2];
+                }
+            }
+            else
             {
                 // need to average accel data
                 if (accel_temp[0] != 0)
@@ -129,18 +145,6 @@ void CytonDaisy::read_thread ()
 
                 package[20] = (double)b[31];
             }
-            else
-            {
-                first_sample = true;
-                package[0] = (double)b[0];
-                // accel
-                if (accel_temp[0] != 0)
-                {
-                    accel[0] = accel_scale * accel_temp[0];
-                    accel[1] = accel_scale * accel_temp[1];
-                    accel[2] = accel_scale * accel_temp[2];
-                }
-            }
 
             package[17] = accel[0];
             package[18] = accel[1];
@@ -149,7 +153,15 @@ void CytonDaisy::read_thread ()
         // place processed analog data
         if (b[31] == END_BYTE_ANALOG)
         {
-            if ((b[0] % 2 == 0) && (first_sample))
+            if (first_sample)
+            {
+                package[0] = (double)b[0];
+                // analog
+                package[27] = cast_16bit_to_int32 (b + 25);
+                package[28] = cast_16bit_to_int32 (b + 27);
+                package[29] = cast_16bit_to_int32 (b + 29);
+            }
+            else
             {
                 // need to average analog data
                 package[27] += cast_16bit_to_int32 (b + 25);
@@ -160,18 +172,9 @@ void CytonDaisy::read_thread ()
                 package[29] /= 2.0f;
                 package[20] = (double)b[31]; // cyton end byte
             }
-            else
-            {
-                first_sample = true;
-                package[0] = (double)b[0];
-                // analog
-                package[27] = cast_16bit_to_int32 (b + 25);
-                package[28] = cast_16bit_to_int32 (b + 27);
-                package[29] = cast_16bit_to_int32 (b + 29);
-            }
         }
         // commit package
-        if ((b[0] % 2 == 0) && (first_sample))
+        if (!first_sample)
         {
             double timestamp = get_timestamp ();
             db->add_data (timestamp, package);
