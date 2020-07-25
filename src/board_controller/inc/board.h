@@ -1,6 +1,8 @@
 #pragma once
 
 #include "board_controller.h"
+#include "board_info_getter.h"
+#include "brainflow_constants.h"
 #include "brainflow_input_params.h"
 #include "data_buffer.h"
 #include "spdlog/spdlog.h"

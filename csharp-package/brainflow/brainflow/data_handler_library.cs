@@ -24,6 +24,13 @@ namespace brainflow
         BLACKMAN_HARRIS = 3
     };
 
+    public enum DetrendOperations
+    {
+        NONE = 0,
+        CONSTANT = 1,
+        LINEAR = 2
+    };
+
     class DataHandlerLibrary64
     {
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -63,6 +70,14 @@ namespace brainflow
         public static extern int get_log_psd(double[] data, int data_len, int sampling_rate, int window, double[] ampls, double[] freqs);
         [DllImport("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_band_power(double[] ampls, double[] freqs, int data_len, double freq_start, double freq_end, double[] res);
+        [DllImport("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_psd_welch(double[] data, int data_len, int nfft, int overlap, int sampling_rate, int window, double[] ampls, double[] freqs);
+        [DllImport("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_log_psd(double[] data, int data_len, int nfft, int overlap, int sampling_rate, int window, double[] ampls, double[] freqs);
+        [DllImport("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int detrend(double[] data, int len, int operation);
+        [DllImport("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_log_psd_welch(double[] data, int data_len, int nfft, int overlap, int sampling_rate, int window, double[] ampls, double[] freqs);
     }
 
     class DataHandlerLibrary32
@@ -104,6 +119,14 @@ namespace brainflow
         public static extern int get_log_psd(double[] data, int data_len, int sampling_rate, int window, double[] ampls, double[] freqs);
         [DllImport("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_band_power(double[] ampls, double[] freqs, int data_len, double freq_start, double freq_end, double[] res);
+        [DllImport("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_psd_welch(double[] data, int data_len, int nfft, int overlap, int sampling_rate, int window, double[] ampls, double[] freqs);
+        [DllImport("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_log_psd(double[] data, int data_len, int nfft, int overlap, int sampling_rate, int window, double[] ampls, double[] freqs);
+        [DllImport("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int detrend(double[] data, int len, int operation);
+        [DllImport("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_log_psd_welch(double[] data, int data_len, int nfft, int overlap, int sampling_rate, int window, double[] ampls, double[] freqs);
     }
 
     class DataHandlerLibrary
@@ -146,6 +169,14 @@ namespace brainflow
                 return DataHandlerLibrary64.perform_rolling_filter (data, len, period, operation);
             else
                 return DataHandlerLibrary32.perform_rolling_filter (data, len, period, operation);
+        }
+
+        public static int detrend(double[] data, int len, int operation)
+        {
+            if (System.Environment.Is64BitProcess)
+                return DataHandlerLibrary64.detrend(data, len, operation);
+            else
+                return DataHandlerLibrary32.detrend(data, len, operation);
         }
 
         public static int perform_downsampling (double[] data, int len, int period, int operation, double[] filtered_data)
@@ -251,6 +282,22 @@ namespace brainflow
                 return DataHandlerLibrary64.perform_ifft (re, im, len, data);
             else
                 return DataHandlerLibrary32.perform_ifft (re, im, len, data);
+        }
+
+        public static int get_psd_welch(double[] data, int data_len, int nfft, int overlap, int sampling_rate, int window, double[] output_ampls, double[] output_freqs)
+        {
+            if (System.Environment.Is64BitProcess)
+                return DataHandlerLibrary64.get_psd_welch(data, data_len, nfft, overlap, sampling_rate, window, output_ampls, output_freqs);
+            else
+                return DataHandlerLibrary32.get_psd_welch(data, data_len, nfft, overlap, sampling_rate, window, output_ampls, output_freqs);
+        }
+
+        public static int get_log_psd_welch(double[] data, int data_len, int nfft, int overlap, int sampling_rate, int window, double[] output_ampls, double[] output_freqs)
+        {
+            if (System.Environment.Is64BitProcess)
+                return DataHandlerLibrary64.get_log_psd_welch(data, data_len, nfft, overlap, sampling_rate, window, output_ampls, output_freqs);
+            else
+                return DataHandlerLibrary32.get_log_psd_welch(data, data_len, nfft, overlap, sampling_rate, window, output_ampls, output_freqs);
         }
     }
 }

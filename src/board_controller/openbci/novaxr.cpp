@@ -203,9 +203,7 @@ int NovaXR::start_stream (int buffer_size, char *streamer_params)
         safe_logger (spdlog::level::err, "no data received in 3sec, stopping thread");
         this->is_streaming = true;
         this->stop_stream ();
-        // more likely error occured due to wrong ip address, return UNABLE_TO_OPEN_PORT instead
-        // SYNC_TIMEOUT_ERROR
-        return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
+        return (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
     }
 }
 

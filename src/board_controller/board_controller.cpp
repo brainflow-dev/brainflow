@@ -13,7 +13,9 @@
 
 #include "board.h"
 #include "board_controller.h"
+#include "board_info_getter.h"
 #include "brainbit.h"
+#include "brainflow_constants.h"
 #include "brainflow_input_params.h"
 #include "callibri_ecg.h"
 #include "callibri_eeg.h"

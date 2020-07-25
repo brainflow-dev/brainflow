@@ -37,6 +37,14 @@ class WindowFunctions (enum.Enum):
     BLACKMAN_HARRIS = 3 #:
 
 
+class DetrendOperations (enum.Enum):
+    """Enum to store all supported detrend options"""
+
+    NONE = 0 #:
+    CONSTANT = 1 #:
+    LINEAR = 2 #:
+
+
 class DataHandlerDLL (object):
 
     __instance = None
@@ -225,6 +233,40 @@ class DataHandlerDLL (object):
             ctypes.c_int,
             ndpointer (ctypes.c_double),
             ndpointer (ctypes.c_double),
+        ]
+
+        self.get_psd_welch = self.lib.get_psd_welch
+        self.get_psd_welch.restype = ctypes.c_int
+        self.get_psd_welch.argtypes = [
+            ndpointer (ctypes.c_double),
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ndpointer (ctypes.c_double),
+            ndpointer (ctypes.c_double),
+        ]
+
+        self.get_log_psd_welch = self.lib.get_log_psd_welch
+        self.get_log_psd_welch.restype = ctypes.c_int
+        self.get_log_psd_welch.argtypes = [
+            ndpointer (ctypes.c_double),
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ndpointer (ctypes.c_double),
+            ndpointer (ctypes.c_double),
+        ]
+
+        self.detrend = self.lib.detrend
+        self.detrend.restype = ctypes.c_int
+        self.detrend.argtypes = [
+            ndpointer (ctypes.c_double),
+            ctypes.c_int,
+            ctypes.c_int
         ]
 
         self.get_log_psd = self.lib.get_log_psd
@@ -548,6 +590,83 @@ class DataFilter (object):
         return ampls, freqs
 
     @classmethod
+    def get_psd_welch (cls, data, nfft, overlap, sampling_rate, window):
+        """calculate PSD using Welch method
+
+        :param data: data to calc psd
+        :type data: 1d numpy array
+        :param nfft: FFT Window size, must be power of 2
+        :type nfft: int
+        :param overlap: overlap of FFT Windows, must be between 0 and nfft
+        :type overlap: int
+        :param sampling_rate: sampling rate
+        :type sampling_rate: int
+        :param window: window function
+        :type window: int
+        :return: amplitude and frequency arrays of len N / 2 + 1
+        :rtype: tuple(ndarray, ndarray)
+        """
+        def is_power_of_two (n):
+            return (n != 0) and (n & (n - 1) == 0)
+
+        if (not is_power_of_two (nfft)):
+            raise BrainFlowError ('nfft is not power of 2: %d' % nfft, BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+
+        ampls = numpy.zeros (int (nfft / 2 + 1)).astype (numpy.float64)
+        freqs = numpy.zeros (int (nfft / 2 + 1)).astype (numpy.float64)
+        res = DataHandlerDLL.get_instance ().get_psd_welch (data, data.shape[0], nfft, overlap, sampling_rate, window, ampls, freqs)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to calc psd welch', res)
+
+        return ampls, freqs
+
+    @classmethod
+    def get_log_psd_welch (cls, data, nfft, overlap, sampling_rate, window):
+        """calculate log PSD using Welch method
+
+        :param data: data to calc psd
+        :type data: 1d numpy array
+        :param nfft: FFT Window size, must be power of 2
+        :type nfft: int
+        :param overlap: overlap of FFT Windows, must be between 0 and nfft
+        :type overlap: int
+        :param sampling_rate: sampling rate
+        :type sampling_rate: int
+        :param window: window function
+        :type window: int
+        :return: amplitude and frequency arrays of len N / 2 + 1
+        :rtype: tuple(ndarray, ndarray)
+        """
+        def is_power_of_two (n):
+            return (n != 0) and (n & (n - 1) == 0)
+
+        if (not is_power_of_two (nfft)):
+            raise BrainFlowError ('nfft is not power of 2: %d' % nfft, BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+
+        ampls = numpy.zeros (int (nfft / 2 + 1)).astype (numpy.float64)
+        freqs = numpy.zeros (int (nfft / 2 + 1)).astype (numpy.float64)
+        res = DataHandlerDLL.get_instance ().get_log_psd_welch (data, data.shape[0], nfft, overlap, sampling_rate, window, ampls, freqs)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to calc psd welch', res)
+
+        return ampls, freqs
+
+    @classmethod
+    def detrend (cls, data, detrend_operation):
+        """detrend data
+
+        :param data: data to calc psd
+        :type data: 1d numpy array
+        :param detrend_operation: Type of detrend operation
+        :type detrend_operation: int
+        """
+        if len (data.shape) != 1:
+            raise BrainFlowError ('wrong shape for data, should be 1d array', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        res = DataHandlerDLL.get_instance ().detrend (data, data.shape[0], detrend_operation)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to detrend data', res)
+
+    @classmethod
     def get_log_psd (cls, data, sampling_rate, window):
         """calculate log PSD
 
@@ -572,7 +691,7 @@ class DataFilter (object):
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to calc log psd', res)
 
-        return ampls, freqs\
+        return ampls, freqs
 
     @classmethod
     def get_log_psd (cls, data, sampling_rate, window):
