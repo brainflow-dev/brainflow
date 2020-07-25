@@ -41,35 +41,29 @@ int main (int argc, char *argv[])
         board->stop_stream ();
         int data_count = 0;
         int fft_len = DataFilter::get_nearest_power_of_two (sampling_rate);
-        data = board->get_current_board_data (fft_len, &data_count);
-        if (data_count != fft_len)
-        {
-            BoardShim::log_message ((int)LogLevels::LEVEL_ERROR,
-                "read %d packages, for this test we want exactly %d packages", data_count, fft_len);
-            return (int)BrainFlowExitCodes::GENERAL_ERROR;
-        }
+        data = board->get_board_data (&data_count);
         board->release_session ();
         num_rows = BoardShim::get_num_rows (board_id);
 
         int eeg_num_channels = 0;
         eeg_channels = BoardShim::get_eeg_channels (board_id, &eeg_num_channels);
-        int filtered_size = 0;
-        double *downsampled_data = NULL;
-        for (int i = 0; i < eeg_num_channels; i++)
+        // for synthetic board second channel is a sine wave at 10 Hz, should see big alpha
+        int channel = eeg_channels[1];
+        // optional - detrend
+        DataFilter::detrend (data[channel], data_count, (int)DetrendOperations::LINEAR);
+        std::pair<double *, double *> psd = DataFilter::get_psd_welch (data[channel], data_count,
+            fft_len, fft_len / 2, sampling_rate, (int)WindowFunctions::HANNING);
+        // calc band power
+        double band_power_alpha = DataFilter::get_band_power (psd, fft_len / 2 + 1, 7.0, 13.0);
+        double band_power_beta = DataFilter::get_band_power (psd, fft_len / 2 + 1, 14.0, 30.0);
+        std::cout << "alpha/beta:" << band_power_alpha / band_power_beta << std::endl;
+        // fail test if unexpected ratio
+        if (band_power_alpha / band_power_beta < 100)
         {
-            // optional: you can subtract mean from signal before FFT or apply filters
-            // calc psd
-            std::pair<double *, double *> psd = DataFilter::get_psd (
-                data[eeg_channels[i]], data_count, sampling_rate, (int)WindowFunctions::HAMMING);
-            // calc band power
-            double band_power_alpha =
-                DataFilter::get_band_power (psd, data_count / 2 + 1, 7.0, 13.0);
-            double band_power_beta =
-                DataFilter::get_band_power (psd, data_count / 2 + 1, 14.0, 30.0);
-            std::cout << "alpha/beta:" << band_power_alpha / band_power_beta << std::endl;
-            delete[] psd.first;
-            delete[] psd.second;
+            res = -1;
         }
+        delete[] psd.first;
+        delete[] psd.second;
     }
     catch (const BrainFlowException &err)
     {

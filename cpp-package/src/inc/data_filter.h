@@ -83,6 +83,13 @@ public:
     static std::pair<double *, double *> get_psd (
         double *data, int data_len, int sampling_rate, int window);
     /**
+     * subtract trend from data
+     * @param data input array
+     * @param data_len
+     * @param detrend_operation use DetrendOperations enum
+     */
+    static void detrend (double *data, int data_len, int detrend_operation);
+    /**
      * calculate log PSD
      * @param data input array
      * @param data_len must be power of 2
@@ -92,6 +99,30 @@ public:
      */
     static std::pair<double *, double *> get_log_psd (
         double *data, int data_len, int sampling_rate, int window);
+    /**
+     * calculate PSD using Welch method
+     * @param data input array
+     * @param data_len length of input data
+     * @param nfft FFT window size, must be power of two
+     * @param overlap FFT window overlap, must be between 0 and nfft
+     * @param sampling_rate sampling rate
+     * @param window window function
+     * @return pair of amplitude and freq arrays of size data_len / 2 + 1
+     */
+    static std::pair<double *, double *> get_psd_welch (
+        double *data, int data_len, int nfft, int overlap, int sampling_rate, int window);
+    /**
+     * calculate log PSD using Welch method
+     * @param data input array
+     * @param data_len length of input data
+     * @param nfft FFT window size, must be power of two
+     * @param overlap FFT window overlap, must be between 0 and nfft
+     * @param sampling_rate sampling rate
+     * @param window window function
+     * @return pair of amplitude and freq arrays of size data_len / 2 + 1
+     */
+    static std::pair<double *, double *> get_log_psd_welch (
+        double *data, int data_len, int nfft, int overlap, int sampling_rate, int window);
     /**
      * calculate band power
      * @param psd psd calculated using get_psd or get_log_psd

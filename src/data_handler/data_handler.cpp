@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+#include "brainflow_constants.h"
 #include "data_handler.h"
 #include "downsample_operators.h"
 #include "rolling_filter.h"
@@ -556,8 +557,8 @@ int perform_ifft (double *input_re, double *input_im, int data_len, double *rest
 int get_psd (double *data, int data_len, int sampling_rate, int window_function,
     double *output_ampl, double *output_freq)
 {
-    if ((data_len < 1) || (data_len & (data_len - 1)) || (output_ampl == NULL) ||
-        (output_freq == NULL))
+    if ((data == NULL) || (sampling_rate < 1) || (data_len < 1) || (data_len & (data_len - 1)) ||
+        (output_ampl == NULL) || (output_freq == NULL))
     {
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
@@ -791,4 +792,117 @@ int get_num_elements_in_file (char *file_name, int *num_elements)
     *num_elements = 0;
     fclose (fp);
     return (int)BrainFlowExitCodes::EMPTY_BUFFER_ERROR;
+}
+
+int detrend (double *data, int data_len, int detrend_operation)
+{
+    if ((data == NULL) || (data_len < 1))
+    {
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+    if (detrend_operation == (int)DetrendOperations::NONE)
+    {
+        return (int)BrainFlowExitCodes::STATUS_OK;
+    }
+    if (detrend_operation == (int)DetrendOperations::CONSTANT)
+    {
+        double mean = 0.0;
+        // subtract mean from data
+        for (int i = 0; i < data_len; i++)
+        {
+            mean += data[i];
+        }
+        mean /= data_len;
+        for (int i = 0; i < data_len; i++)
+        {
+            data[i] -= mean;
+        }
+        return (int)BrainFlowExitCodes::STATUS_OK;
+    }
+    if (detrend_operation == (int)DetrendOperations::LINEAR)
+    {
+        // use mean and gradient to find a line
+        double mean_x = data_len / 2.0;
+        double mean_y = 0;
+        for (int i = 0; i < data_len; i++)
+        {
+            mean_y += data[i];
+        }
+        mean_y /= data_len;
+        double temp_xy = 0.0;
+        double temp_xx = 0.0;
+        for (int i = 0; i < data_len; i++)
+        {
+            temp_xy += i * data[i];
+            temp_xx += i * i;
+        }
+        double s_xy = temp_xy / data_len - mean_x * mean_y;
+        double s_xx = temp_xx / data_len - mean_x * mean_x;
+        double grad = s_xy / s_xx;
+        double y_int = mean_y - grad * mean_x;
+        for (int i = 0; i < data_len; i++)
+        {
+            data[i] = data[i] - (grad * i + y_int);
+        }
+        return (int)BrainFlowExitCodes::STATUS_OK;
+    }
+    return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+}
+
+int get_psd_welch (double *data, int data_len, int nfft, int overlap, int sampling_rate,
+    int window_function, double *output_ampl, double *output_freq)
+{
+    if ((data == NULL) || (data_len < 1) || (nfft & (nfft - 1)) || (output_ampl == NULL) ||
+        (output_freq == NULL) || (sampling_rate < 1) || (overlap < 0) || (overlap > nfft))
+    {
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+    double *ampls = new double[nfft / 2 + 1];
+    int pos = 0;
+    int counter = 0;
+    for (int i = 0; i < nfft / 2 + 1; i++)
+    {
+        output_ampl[i] = 0.0;
+    }
+    for (int pos = 0; (pos + nfft) < data_len; pos += (nfft - overlap), counter++)
+    {
+        int res = get_psd (data + pos, nfft, sampling_rate, window_function, ampls, output_freq);
+        if (res != (int)BrainFlowExitCodes::STATUS_OK)
+        {
+            delete[] ampls;
+            return res;
+        }
+        for (int i = 0; i < nfft / 2 + 1; i++)
+        {
+            output_ampl[i] += ampls[i];
+        }
+    }
+    if (counter == 0)
+    {
+        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
+    }
+    delete[] ampls;
+    // average data
+    for (int i = 0; i < nfft / 2; i++)
+    {
+        output_ampl[i] /= counter;
+    }
+
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int get_log_psd_welch (double *data, int data_len, int nfft, int overlap, int sampling_rate,
+    int window_function, double *output_ampl, double *output_freq)
+{
+    int res = get_psd_welch (
+        data, data_len, nfft, overlap, sampling_rate, window_function, output_ampl, output_freq);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        return res;
+    }
+    for (int i = 0; i < nfft / 2 + 1; i++)
+    {
+        output_ampl[i] = log10 (output_ampl[i]);
+    }
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }

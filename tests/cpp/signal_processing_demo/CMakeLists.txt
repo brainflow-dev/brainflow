@@ -175,3 +175,24 @@ target_link_libraries (
     ${DataHandlerPath}
     ${BoardControllerPath}
 )
+
+###############
+## Perf Test ##
+###############
+add_executable (
+    perf_test
+    src/perf_test.cpp
+)
+
+target_include_directories (
+    perf_test PUBLIC
+    ${brainflow_INCLUDE_DIRS}
+)
+
+target_link_libraries (
+    perf_test PUBLIC
+    # for some systems(ubuntu for example) order matters
+    ${BrainflowPath}
+    ${DataHandlerPath}
+    ${BoardControllerPath}
+)

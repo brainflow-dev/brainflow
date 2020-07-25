@@ -26,6 +26,16 @@ end
 end
 
 
+@enum DetrendOperations begin
+
+    # NONE = 0 # will lead to invalid enum redefinitions since enums entries are global constants in fact
+    # its a temp hack, lets wait for fixed enums in julia
+    CONSTANT = 1
+    LINEAR = 2
+
+end
+
+
 function perform_lowpass(data, sampling_rate, cutoff, order, filter_type, ripple)
     ec = STATUS_OK
     # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
@@ -121,6 +131,26 @@ function perform_rolling_filter(data, period, operation)
     end
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in perform_rolling_filter ", ec), ec))
+    end
+    return
+end
+
+
+function detrend(data, operation)
+    ec = STATUS_OK
+    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
+    if Sys.iswindows()
+        ec = ccall((:detrend, "DataHandler.dll"), Cint, (Ptr{Float64}, Cint, Cint),
+            data, length(data), operation)
+    elseif Sys.isapple()
+        ec = ccall((:detrend, "libDataHandler.dylib"), Cint, (Ptr{Float64}, Cint, Cint),
+            data, length(data), operation)
+    else
+        ec = ccall((:detrend, "libDataHandler.so"), Cint, (Ptr{Float64}, Cint, Cint),
+            data, length(data), operation)
+    end
+    if ec != Integer(STATUS_OK)
+        throw(BrainFlowError(string("Error in detrend ", ec), ec))
     end
     return
 end
@@ -359,6 +389,7 @@ function perform_ifft(data)
     res
 end
 
+
 function get_psd(data, sampling_rate, window)
 
     function is_power_of_two(value)
@@ -371,7 +402,6 @@ function get_psd(data, sampling_rate, window)
 
     temp_ampls = Vector{Float64}(undef, Integer(length(data) / 2) + 1)
     temp_freqs = Vector{Float64}(undef, Integer(length(data) / 2) + 1)
-    res = Vector{Complex}(undef, Integer(length(data) / 2) + 1)
 
     ec = STATUS_OK
     # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
@@ -391,6 +421,71 @@ function get_psd(data, sampling_rate, window)
     temp_ampls, temp_freqs
 end
 
+
+function get_psd_welch(data, nfft, overlap, sampling_rate, window)
+
+    function is_power_of_two(value)
+        (value != 0) && (value & (value - 1) == 0)
+    end
+
+    if !is_power_of_two(nfft)
+        throw(BrainFlowError(string("nfft must be power of two ", INVALID_ARGUMENTS_ERROR), INVALID_ARGUMENTS_ERROR))
+    end
+
+    temp_ampls = Vector{Float64}(undef, Integer(nfft / 2) + 1)
+    temp_freqs = Vector{Float64}(undef, Integer(nfft / 2) + 1)
+
+    ec = STATUS_OK
+    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
+    if Sys.iswindows()
+        ec = ccall((:get_psd_welch, "DataHandler.dll"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
+            data, length(data), nfft, overlap, sampling_rate, window, temp_ampls, temp_freqs)
+    elseif Sys.isapple()
+        ec = ccall((:get_psd_welch, "libDataHandler.dylib"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
+            data, length(data), nfft, overlap, sampling_rate, window, temp_ampls, temp_freqs)
+    else
+        ec = ccall((:get_psd_welch, "libDataHandler.so"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
+            data, length(data), nfft, overlap, sampling_rate, window, temp_ampls, temp_freqs)
+    end
+    if ec != Integer(STATUS_OK)
+        throw(BrainFlowError(string("Error in get_psd_welch ", ec), ec))
+    end
+    temp_ampls, temp_freqs
+end
+
+
+function get_log_psd_welch(data, nfft, overlap, sampling_rate, window)
+
+    function is_power_of_two(value)
+        (value != 0) && (value & (value - 1) == 0)
+    end
+
+    if !is_power_of_two(nfft)
+        throw(BrainFlowError(string("nfft must be power of two ", INVALID_ARGUMENTS_ERROR), INVALID_ARGUMENTS_ERROR))
+    end
+
+    temp_ampls = Vector{Float64}(undef, Integer(nfft / 2) + 1)
+    temp_freqs = Vector{Float64}(undef, Integer(nfft / 2) + 1)
+
+    ec = STATUS_OK
+    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
+    if Sys.iswindows()
+        ec = ccall((:get_log_psd_welch, "DataHandler.dll"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
+            data, length(data), nfft, overlap, sampling_rate, window, temp_ampls, temp_freqs)
+    elseif Sys.isapple()
+        ec = ccall((:get_log_psd_welch, "libDataHandler.dylib"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
+            data, length(data), nfft, overlap, sampling_rate, window, temp_ampls, temp_freqs)
+    else
+        ec = ccall((:get_log_psd_welch, "libDataHandler.so"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
+            data, length(data), nfft, overlap, sampling_rate, window, temp_ampls, temp_freqs)
+    end
+    if ec != Integer(STATUS_OK)
+        throw(BrainFlowError(string("Error in get_log_psd_welch ", ec), ec))
+    end
+    temp_ampls, temp_freqs
+end
+
+
 function get_log_psd(data, sampling_rate, window)
 
     function is_power_of_two(value)
@@ -403,7 +498,6 @@ function get_log_psd(data, sampling_rate, window)
 
     temp_ampls = Vector{Float64}(undef, Integer(length(data) / 2) + 1)
     temp_freqs = Vector{Float64}(undef, Integer(length(data) / 2) + 1)
-    res = Vector{Complex}(undef, Integer(length(data) / 2) + 1)
 
     ec = STATUS_OK
     # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded

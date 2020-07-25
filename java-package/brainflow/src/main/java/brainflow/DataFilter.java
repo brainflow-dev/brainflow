@@ -36,6 +36,8 @@ public class DataFilter
 
         int perform_rolling_filter (double[] data, int data_len, int period, int operation);
 
+        int detrend (double[] data, int data_len, int operation);
+
         int perform_downsampling (double[] data, int data_len, int period, int operation, double[] filtered_data);
 
         int perform_wavelet_transform (double[] data, int data_len, String wavelet, int decomposition_level,
@@ -59,6 +61,12 @@ public class DataFilter
         int get_nearest_power_of_two (int value, int[] output);
 
         int get_psd (double[] data, int len, int sampling_rate, int window, double[] ampls, double[] freqs);
+
+        int get_psd_welch (double[] data, int len, int nfft, int overlap, int sampling_rate, int window, double[] ampls,
+                double[] freqs);
+
+        int get_log_psd_welch (double[] data, int len, int nfft, int overlap, int sampling_rate, int window,
+                double[] ampls, double[] freqs);
 
         int get_log_psd (double[] data, int len, int sampling_rate, int window, double[] ampls, double[] freqs);
 
@@ -171,6 +179,18 @@ public class DataFilter
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to apply filter", ec);
+        }
+    }
+
+    /**
+     * subtract trend from data in-place
+     */
+    public static void detrend (double[] data, int operation) throws BrainFlowError
+    {
+        int ec = instance.detrend (data, data.length, operation);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Failed to detrend", ec);
         }
     }
 
@@ -324,10 +344,12 @@ public class DataFilter
     /**
      * get PSD
      * 
-     * @param data      data to process
-     * @param start_pos starting position to calc PSD
-     * @param end_pos   end position to calc PSD, total_len must be a power of two
-     * @param window    window function
+     * @param data          data to process
+     * @param start_pos     starting position to calc PSD
+     * @param end_pos       end position to calc PSD, total_len must be a power of
+     *                      two
+     * @param sampling_rate sampling rate
+     * @param window        window function
      * @return pair of ampl and freq arrays with len N / 2 + 1
      */
     public static Pair<double[], double[]> get_psd (double[] data, int start_pos, int end_pos, int sampling_rate,
@@ -357,13 +379,70 @@ public class DataFilter
     }
 
     /**
+     * get PSD using Welch Method
+     * 
+     * @param data          data to process
+     * @param nfft          size of FFT, must be power of two
+     * @param overlap       overlap between FFT Windows, must be between 0 and nfft
+     * @param sampling_rate sampling rate
+     * @param window        window function
+     * @return pair of ampl and freq arrays
+     */
+    public static Pair<double[], double[]> get_psd_welch (double[] data, int nfft, int overlap, int sampling_rate,
+            int window) throws BrainFlowError
+    {
+        if ((nfft & (nfft - 1)) != 0)
+        {
+            throw new BrainFlowError ("nfft must be a power of 2", ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
+        double[] ampls = new double[nfft / 2 + 1];
+        double[] freqs = new double[nfft / 2 + 1];
+        int ec = instance.get_psd_welch (data, data.length, nfft, overlap, sampling_rate, window, ampls, freqs);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Failed to get_psd_welch", ec);
+        }
+        Pair<double[], double[]> res = new MutablePair<double[], double[]> (ampls, freqs);
+        return res;
+    }
+
+    /**
+     * get log PSD using Welch Method
+     * 
+     * @param data          data to process
+     * @param nfft          size of FFT, must be power of two
+     * @param overlap       overlap between FFT Windows, must be between 0 and nfft
+     * @param sampling_rate sampling rate
+     * @param window        window function
+     * @return pair of ampl and freq arrays
+     */
+    public static Pair<double[], double[]> get_log_psd_welch (double[] data, int nfft, int overlap, int sampling_rate,
+            int window) throws BrainFlowError
+    {
+        if ((nfft & (nfft - 1)) != 0)
+        {
+            throw new BrainFlowError ("nfft must be a power of 2", ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
+        double[] ampls = new double[nfft / 2 + 1];
+        double[] freqs = new double[nfft / 2 + 1];
+        int ec = instance.get_log_psd_welch (data, data.length, nfft, overlap, sampling_rate, window, ampls, freqs);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Failed to get_log_psd_welch", ec);
+        }
+        Pair<double[], double[]> res = new MutablePair<double[], double[]> (ampls, freqs);
+        return res;
+    }
+
+    /**
      * get log PSD
      * 
-     * @param data      data to process
-     * @param start_pos starting position to calc log PSD
-     * @param end_pos   end position to calc log PSD, total_len must be a power of
-     *                  two
-     * @param window    window function
+     * @param data          data to process
+     * @param start_pos     starting position to calc log PSD
+     * @param end_pos       end position to calc log PSD, total_len must be a power
+     *                      of two
+     * @param sampling_rate sampling rate
+     * @param window        window function
      * @return pair of ampl and freq arrays with len N / 2 + 1
      */
     public static Pair<double[], double[]> get_log_psd (double[] data, int start_pos, int end_pos, int sampling_rate,

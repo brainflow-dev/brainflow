@@ -155,6 +155,15 @@ std::complex<double> *DataFilter::perform_fft (double *data, int data_len, int w
     return output;
 }
 
+void DataFilter::detrend (double *data, int data_len, int detrend_operation)
+{
+    int res = ::detrend (data, data_len, detrend_operation);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to detrend", res);
+    }
+}
+
 std::pair<double *, double *> DataFilter::get_psd (
     double *data, int data_len, int sampling_rate, int window)
 {
@@ -191,6 +200,47 @@ std::pair<double *, double *> DataFilter::get_log_psd (
         delete[] ampl;
         delete[] freq;
         throw BrainFlowException ("failed to get log psd", res);
+    }
+    return std::make_pair (ampl, freq);
+}
+
+std::pair<double *, double *> DataFilter::get_log_psd_welch (
+    double *data, int data_len, int nfft, int overlap, int sampling_rate, int window)
+{
+    if ((nfft & (nfft - 1)) || (nfft <= 0))
+    {
+        throw BrainFlowException (
+            "nfft is not power of 2", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+    }
+    double *ampl = new double[nfft / 2 + 1];
+    double *freq = new double[nfft / 2 + 1];
+    int res =
+        ::get_log_psd_welch (data, data_len, nfft, overlap, sampling_rate, window, ampl, freq);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        delete[] ampl;
+        delete[] freq;
+        throw BrainFlowException ("failed to get_log_psd_welch", res);
+    }
+    return std::make_pair (ampl, freq);
+}
+
+std::pair<double *, double *> DataFilter::get_psd_welch (
+    double *data, int data_len, int nfft, int overlap, int sampling_rate, int window)
+{
+    if ((nfft & (nfft - 1)) || (nfft <= 0))
+    {
+        throw BrainFlowException (
+            "nfft is not power of 2", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+    }
+    double *ampl = new double[nfft / 2 + 1];
+    double *freq = new double[nfft / 2 + 1];
+    int res = ::get_psd_welch (data, data_len, nfft, overlap, sampling_rate, window, ampl, freq);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        delete[] ampl;
+        delete[] freq;
+        throw BrainFlowException ("failed to get_psd_welch", res);
     }
     return std::make_pair (ampl, freq);
 }
