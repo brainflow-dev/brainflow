@@ -22,7 +22,9 @@ enum class BrainFlowExitCodes : int
     GENERAL_ERROR = 17,
     SYNC_TIMEOUT_ERROR = 18,
     JSON_NOT_FOUND_ERROR = 19,
-    NO_SUCH_DATA_IN_JSON_ERROR = 20
+    NO_SUCH_DATA_IN_JSON_ERROR = 20,
+    SESSION_IS_NOT_PREPARED = 21,
+    ANOTHER_SESSION_IS_PREPARED = 22
 };
 
 enum class BoardIds : int
@@ -73,3 +75,9 @@ enum class DetrendOperations : int
     CONSTANT = 1,
     LINEAR = 2
 };
+
+enum class EEGMetricsCalculators : int
+{
+    MANUAL = 0,
+    SVM = 1,
+}
