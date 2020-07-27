@@ -243,3 +243,7 @@ figure { margin-bottom: 0 !important; }
 .gallery-page .card { background-color: whitesmoke; }
 
 .gallery-page h4 { float: left; }
+
+.post-read-more {
+  font-weight: 800;
+}
