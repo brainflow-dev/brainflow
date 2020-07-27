@@ -186,7 +186,7 @@ Edit file named *ProjectName.Build.cs*, in our example this file is called *Brai
         }
     }
 
-After that you need to copy headers and libraries from BrainFlow installation folder to your Unreal Engine project. Here we copied a content of *E:\\folder\\brainflow\\installed_temp\\inc* to a folder *E:\\gamedev\\BrainFlowUnreal\\Source\\BrainFlowUnreal\\include*. Also, you need to copy compiled libraries from *E:\\folder\brainflow\\installed_temp\\lib* to *E:\\gamedev\\BrainFlowUnreal\\Source\\BrainFlowUnreal\\x64*
+After that you need to copy headers and libraries from BrainFlow installation folder to your Unreal Engine project. Here we copied a content of *E:\\folder\\brainflow\\installed_temp\\inc* to a folder *E:\\gamedev\\BrainFlowUnreal\\Source\\BrainFlowUnreal\\include*. Also, you need to copy compiled libraries from *E:\\folder\\brainflow\\installed_temp\\lib* to *E:\\gamedev\\BrainFlowUnreal\\Source\\BrainFlowUnreal\\x64*
 
 .. image:: https://live.staticflickr.com/65535/50156604283_0ee27ace03_b.jpg
     :width: 1024px
