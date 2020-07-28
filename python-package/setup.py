@@ -43,5 +43,5 @@ setup (
         ]
     },
     zip_safe = True,
-    python_requires = '>=3.0'
+    python_requires = '>=3.5.6'
 )
