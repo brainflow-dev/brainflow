@@ -19,7 +19,8 @@ setup (
     author_email = 'a1994ndrey@gmail.com',
     packages = find_packages (),
     install_requires = [
-        'numpy'
+        'numpy',
+        'nptyping'
     ],
     package_data = {
         'brainflow': [
