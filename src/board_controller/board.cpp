@@ -92,8 +92,8 @@ int Board::prepare_streamer (char *streamer_params)
             return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
         }
         std::string streamer_type = streamer_params_str.substr (0, idx1);
-        size_t idx2 = streamer_params_str.find (":", idx1 + 3);
-        if (idx2 == std::string::npos)
+        size_t idx2 = streamer_params_str.find_last_of (":", std::string::npos);
+        if ((idx2 == std::string::npos) || (idx1 == idx2))
         {
             safe_logger (
                 spdlog::level::err, "format is streamer_type://streamer_dest:streamer_args");
@@ -104,6 +104,8 @@ int Board::prepare_streamer (char *streamer_params)
 
         if (streamer_type == "file")
         {
+            safe_logger (spdlog::level::trace, "File Streamer, file: {}, mods: {}",
+                streamer_dest.c_str (), streamer_mods.c_str ());
             streamer = new FileStreamer (streamer_dest.c_str (), streamer_mods.c_str ());
         }
         if (streamer_type == "streaming_board")
