@@ -33,9 +33,9 @@ Open OUTPUTDIR, you will see BrainFlow library and dependencies. For BrainFlow t
 
 Open your Unity project and copy **Managed(C#)** libraries from BrainFlow and **all dependencies** to the Assets folder, after that copy **Unmanaged(C++)** libraries from BrainFlow to the root folder of your project.
 
-.. image:: https://live.staticflickr.com/65535/50095628822_14538fede0_c.jpg
-    :width: 800px
-    :height: 402px
+.. image:: https://live.staticflickr.com/65535/50095628822_14538fede0_b.jpg
+    :width: 1024px
+    :height: 487px
 
 
 Now, you are able to use BrainFlow API in your C# scripts!
@@ -127,8 +127,73 @@ For demo we will create a simple script to read data and calculate band powers.
 
 If everything is fine, you will see Alpa and Beta bandpower ratio per each channel in Console.
 
-.. image:: https://live.staticflickr.com/65535/50102505902_f110fc89d8_c.jpg
-    :width: 800px
-    :height: 465px
+.. image:: https://live.staticflickr.com/65535/50102505902_f110fc89d8_b.jpg
+    :width: 1024px
+    :height: 595px
 
 After building your game you need to copy *Unmanaged(C++)* libraries to a folder where executable is located.
+
+
+Unreal Engine
+--------------
+
+First of all you need to compile BrainFlow from source. For Windows you need to specify an option to link MSVC Runtime *dynamically*. And you need to use the same version of Visual Studio as in your Unreal Project.
+
+.. compound::
+    
+    Command line example for Windows and MSVC 2017: ::
+
+        # install cmake, clone repo and run commands below
+        cd brainflow
+        mkdir build_dyn
+        cd build_dyn
+        cmake -G "Visual Studio 15 2017 Win64" -DMSVC_RUNTIME=dynamic -DCMAKE_SYSTEM_VERSION=10.0 -DCMAKE_INSTALL_PREFIX=FULL_PATH_TO_FOLDER_FOR_INSTALLATION ..
+        # e.g. cmake -G "Visual Studio 15 2017 Win64" -DMSVC_RUNTIME=dynamic -DCMAKE_SYSTEM_VERSION=10.0 -DCMAKE_INSTALL_PREFIX=E:\folder\brainflow\installed_temp ..
+        cmake --build . --target install --config Release -j 2 --parallel 2
+
+Add new entry to your *PATH* environemnt variable to point to a folder *FULL_PATH_TO_FOLDER_FOR_INSTALLATION\\lib* in example above it's *E:\\folder\\brainflow\\installed_temp\\lib*. If you have Unreal Engine Editor or Visual Studio running at this point you need to restart these processes.
+
+Open your Visual Studio Solution for your Unreal Engine project, here we created a project called *BrainFlowUnreal*.
+
+Edit file named *ProjectName.Build.cs*, in our example this file is called *BrainFlowUnreal.Build.cs*
+
+
+.. code-block:: csharp 
+
+    using UnrealBuildTool;
+    using System.IO;
+
+    public class BrainFlowUnreal : ModuleRules
+    {
+        public BrainFlowUnreal(ReadOnlyTargetRules Target) : base(Target)
+        {
+            PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+
+            PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay" });
+
+            // here I show it only for Windows, if you wanna target more OSes add similar code for them
+            if (Target.Platform == UnrealTargetPlatform.Win64)
+            {
+                // Add the import library
+                PublicLibraryPaths.Add(Path.Combine(ModuleDirectory, "x64"));
+                PublicAdditionalLibraries.Add("BrainFlow.lib");
+                PublicAdditionalLibraries.Add("DataHandler.lib");
+                PublicAdditionalLibraries.Add("BoardController.lib");
+
+                // add headers for static library
+                PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "include"));
+            }
+        }
+    }
+
+After that you need to copy headers and libraries from BrainFlow installation folder to your Unreal Engine project. Here we copied a content of *E:\\folder\\brainflow\\installed_temp\\inc* to a folder *E:\\gamedev\\BrainFlowUnreal\\Source\\BrainFlowUnreal\\include*. Also, you need to copy compiled libraries from *E:\\folder\\brainflow\\installed_temp\\lib* to *E:\\gamedev\\BrainFlowUnreal\\Source\\BrainFlowUnreal\\x64*
+
+.. image:: https://live.staticflickr.com/65535/50156604283_0ee27ace03_b.jpg
+    :width: 1024px
+    :height: 517px
+
+*Note: in this example we didn't create a new plugin as described* `here <https://docs.unrealengine.com/en-US/Programming/BuildTools/UnrealBuildTool/ThirdPartyLibraries/index.html>`_. *Also we linked only static libraries and didn't link or load dynamic libraries manually. And we don't recommend to configure it as a plugin.*
+
+Finally, you are able to use BrainFlow in your Unreal Engine project.
+
+When you will build a project for production put C++ libraries for BrainFlow in the folder with executable.

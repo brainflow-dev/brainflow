@@ -171,8 +171,9 @@ deploy_script:
         }
         (gc .\settings.xml).replace('USER','Andrey1994') | Out-File -encoding ASCII settings.xml
         (gc .\settings.xml).replace('TOKEN',$env:GITHUB_TOKEN) | Out-File -encoding ASCII settings.xml
-        mvn -s $env:APPVEYOR_BUILD_FOLDER\java-package\brainflow\settings.xml deploy -Dregistry=https://maven.pkg.github.com/brainflow-dev -Dtoken=$env:GITHUB_TOKEN
+        mvn clean
         mvn package > mvn_final_stdout.txt
+        mvn -s $env:APPVEYOR_BUILD_FOLDER\java-package\brainflow\settings.xml deploy -Dregistry=https://maven.pkg.github.com/brainflow-dev -Dtoken=$env:GITHUB_TOKEN
         #upload .jars to aws
         aws s3 cp %APPVEYOR_BUILD_FOLDER%\java-package\brainflow\target\ s3://brainflow/%APPVEYOR_REPO_COMMIT%/jars --recursive
         If ($env:APPVEYOR_REPO_TAG -eq "true" -And $env:APPVEYOR_REPO_BRANCH -eq "master") {

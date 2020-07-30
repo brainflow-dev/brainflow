@@ -162,10 +162,8 @@ Note: Android Studio inline compiler may show red errors but it should be compil
     
     For some API calls you need to provide additional permissions via manifest file of your application ::
 
-        # for devices which use network
         <uses-permission android:name="android.permission.INTERNET"></uses-permission>
         <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
-        # to use read/write file from/to SD card
         <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"></uses-permission>
         <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
 

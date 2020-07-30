@@ -27,6 +27,7 @@ BrainFlow is a library intended to obtain, parse and analyze EEG, EMG, ECG and o
 
 Compiled with:
 * MSVC on Windows
+* Android NDK with Ninja
 * GCC on Linux
 * Clang on MacOS
 
@@ -34,7 +35,7 @@ Compiled with:
 
 [![Build Status](https://travis-ci.com/brainflow-dev/brainflow.svg?branch=master)](https://travis-ci.com/brainflow-dev/brainflow)
 
-*Windows(AppVeyour)*:
+*Windows and Android NDK(AppVeyour)*:
 
 [![Build status](https://ci.appveyor.com/api/projects/status/nk6c8q4mcrfo9xgm/branch/master?svg=true)](https://ci.appveyor.com/project/Andrey1994/brainflow/branch/master)
 

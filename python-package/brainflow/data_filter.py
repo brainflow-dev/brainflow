@@ -7,6 +7,9 @@ import os
 import platform
 import sys
 import struct
+from typing import List, Set, Dict, Tuple
+
+from nptyping import NDArray, Float64, Complex128
 
 from brainflow.board_shim import BrainFlowError
 from brainflow.exit_codes import BrainflowExitCodes
@@ -296,13 +299,13 @@ class DataFilter (object):
     """DataFilter class contains methods for signal processig"""
 
     @classmethod
-    def perform_lowpass (cls, data, sampling_rate, cutoff, order, filter_type, ripple):
+    def perform_lowpass (cls, data: NDArray[Float64], sampling_rate: int, cutoff: float, order: int, filter_type: int, ripple: float) -> None:
         """apply low pass filter to provided data
 
         :param data: data to filter, filter works in-place
-        :type data: 1d numpy array
+        :type data: NDArray[Float64]
         :param sampling_rate: board's sampling rate
-        :type sampling_rate: float
+        :type sampling_rate: int
         :param cutoff: cutoff frequency
         :type cutoff: float
         :param order: filter order
@@ -323,13 +326,13 @@ class DataFilter (object):
             raise BrainFlowError ('unable to perform low pass filter', res)
 
     @classmethod
-    def perform_highpass (cls, data, sampling_rate, cutoff, order, filter_type, ripple):
+    def perform_highpass (cls, data: NDArray[Float64], sampling_rate: int, cutoff: float, order: int, filter_type: int , ripple: float) -> None:
         """apply high pass filter to provided data
 
         :param data: data to filter, filter works in-place
-        :type data: 1d numpy array
+        :type data: NDArray[Float64]
         :param sampling_rate: board's sampling rate
-        :type sampling_rate: float
+        :type sampling_rate: int
         :param cutoff: cutoff frequency
         :type cutoff: float
         :param order: filter order
@@ -350,13 +353,14 @@ class DataFilter (object):
             raise BrainFlowError ('unable to apply high pass filter', res)
 
     @classmethod
-    def perform_bandpass (cls, data, sampling_rate, center_freq, band_width, order, filter_type, ripple):
+    def perform_bandpass (cls, data: NDArray[Float64], sampling_rate: int, center_freq: float,
+        band_width: float, order: int, filter_type: int, ripple: float) -> None:
         """apply band pass filter to provided data
 
         :param data: data to filter, filter works in-place
-        :type data: 1d numpy array
+        :type data: NDArray[Float64]
         :param sampling_rate: board's sampling rate
-        :type sampling_rate: float
+        :type sampling_rate: int
         :param center_freq: center frequency
         :type center_freq: float
         :param band_width: band width
@@ -379,13 +383,14 @@ class DataFilter (object):
             raise BrainFlowError ('unable to apply band pass filter', res)
 
     @classmethod
-    def perform_bandstop (cls, data, sampling_rate, center_freq, band_width, order, filter_type, ripple):
+    def perform_bandstop (cls, data: NDArray[Float64], sampling_rate: int, center_freq: float,
+        band_width: float, order: int, filter_type: int, ripple: float) -> None:
         """apply band stop filter to provided data
 
         :param data: data to filter, filter works in-place
-        :type data: 1d numpy array
+        :type data: NDArray[Float64]
         :param sampling_rate: board's sampling rate
-        :type sampling_rate: float
+        :type sampling_rate: int
         :param center_freq: center frequency
         :type center_freq: float
         :param band_width: band width
@@ -408,11 +413,11 @@ class DataFilter (object):
             raise BrainFlowError ('unable to apply band stop filter', res)
 
     @classmethod
-    def perform_rolling_filter (cls, data, period, operation):
+    def perform_rolling_filter (cls, data: NDArray[Float64], period: int, operation: int) -> None:
         """smooth data using moving average or median
 
         :param data: data to smooth, it works in-place
-        :type data: 1d numpy array
+        :type data: NDArray[Float64]
         :param period: window size
         :type period: int
         :param operation: int value from AggOperation enum
@@ -429,17 +434,17 @@ class DataFilter (object):
             raise BrainFlowError ('unable to smooth data', res)
 
     @classmethod
-    def perform_downsampling (cls, data, period, operation):
+    def perform_downsampling (cls, data: NDArray[Float64], period: int, operation: int) -> NDArray[Float64]:
         """perform data downsampling, it doesnt apply lowpass filter for you, it just aggregates several data points
 
         :param data: initial data
-        :type data: 1d numpy array
+        :type data: NDArray[Float64]
         :param period: downsampling period
         :type period: int
         :param operation: int value from AggOperation enum
         :type operation: int
         :return: downsampled data
-        :rtype: 1d numpy array
+        :rtype: NDArray[Float64]
         """
         if not isinstance (period, int):
             raise BrainFlowError ('wrong type for period', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
@@ -458,11 +463,11 @@ class DataFilter (object):
         return downsampled_data
 
     @classmethod
-    def perform_wavelet_transform (cls, data, wavelet, decomposition_level):
+    def perform_wavelet_transform (cls, data: NDArray[Float64], wavelet: str, decomposition_level: int) -> Tuple:
         """perform wavelet transform
 
         :param data: initial data
-        :type data: 1d numpy array
+        :type data: NDArray[Float64]
         :param wavelet: supported vals: db1..db15,haar,sym2..sym10,coif1..coif5,bior1.1,bior1.3,bior1.5,bior2.2,bior2.4,bior2.6,bior2.8,bior3.1,bior3.3,bior3.5 ,bior3.7,bior3.9,bior4.4,bior5.5,bior6.8
         :type wavelet: str
         :param decomposition_level: level of decomposition
@@ -484,21 +489,19 @@ class DataFilter (object):
         return wavelet_coeffs[0: sum (lengths)], lengths
 
     @classmethod
-    def perform_inverse_wavelet_transform (cls, wavelet_output, original_data_len, wavelet, decomposition_level):
+    def perform_inverse_wavelet_transform (cls, wavelet_output: Tuple, original_data_len: int, wavelet: str, decomposition_level: int) -> NDArray[Float64]:
         """perform wavelet transform
 
         :param wavelet_output: tuple of wavelet_coeffs and array with lengths
-        :type wavelet_coeffs: typle of 2 1d numpy arrays
+        :type wavelet_coeffs: tuple
         :param original_data_len: len of signal before wavelet transform
         :type original_data_len: int
         :param wavelet: supported vals: db1..db15,haar,sym2..sym10,coif1..coif5,bior1.1,bior1.3,bior1.5,bior2.2,bior2.4,bior2.6,bior2.8,bior3.1,bior3.3,bior3.5 ,bior3.7,bior3.9,bior4.4,bior5.5,bior6.8
         :type wavelet: str
         :param decomposition_level: level of decomposition
         :type decomposition_level: int
-        :param decomposition_lengths: array with lengths for each block
-        :type decomposition_lengths: 1d numpy array
         :return: restored data
-        :rtype: 1d numpy array
+        :rtype: NDArray[Float64]
         """
         try:
             wavelet_func = wavelet.encode ()
@@ -514,11 +517,11 @@ class DataFilter (object):
         return original_data
 
     @classmethod
-    def perform_wavelet_denoising (cls, data, wavelet, decomposition_level):
+    def perform_wavelet_denoising (cls, data: NDArray[Float64], wavelet: str, decomposition_level: int) -> None:
         """perform wavelet denoising
 
         :param data: data to denoise
-        :type data: 1d numpy array
+        :type data: NDArray[Float64]
         :param wavelet: supported vals: db1..db15,haar,sym2..sym10,coif1..coif5,bior1.1,bior1.3,bior1.5,bior2.2,bior2.4,bior2.6,bior2.8,bior3.1,bior3.3,bior3.5 ,bior3.7,bior3.9,bior4.4,bior5.5,bior6.8
         :type wavelet: str
         :param decomposition_level: decomposition level
@@ -534,15 +537,15 @@ class DataFilter (object):
             raise BrainFlowError ('unable to denoise data', res)
 
     @classmethod
-    def perform_fft (cls, data, window):
+    def perform_fft (cls, data: NDArray[Float64], window: int) -> NDArray[Complex128]:
         """perform direct fft
 
         :param data: data for fft, len of data must be a power of 2
-        :type data: 1d numpy array
+        :type data: NDArray[Float64]
         :param window: window function
         :type window: int
         :return: numpy array of complex values, len of this array is N / 2 + 1
-        :rtype: 1d numpy array
+        :rtype: NDArray[Complex128]
         """
         def is_power_of_two (n):
             return (n != 0) and (n & (n - 1) == 0)
@@ -563,17 +566,17 @@ class DataFilter (object):
         return output
 
     @classmethod
-    def get_psd (cls, data, sampling_rate, window):
+    def get_psd (cls, data: NDArray[Float64], sampling_rate: int, window: int) -> Tuple:
         """calculate PSD
 
         :param data: data to calc psd, len of data must be a power of 2
-        :type data: 1d numpy array
+        :type data: NDArray[Float64]
         :param sampling_rate: sampling rate
         :type sampling_rate: int
         :param window: window function
         :type window: int
         :return: amplitude and frequency arrays of len N / 2 + 1
-        :rtype: tuple(ndarray, ndarray)
+        :rtype: tuple
         """
         def is_power_of_two (n):
             return (n != 0) and (n & (n - 1) == 0)
@@ -590,11 +593,11 @@ class DataFilter (object):
         return ampls, freqs
 
     @classmethod
-    def get_psd_welch (cls, data, nfft, overlap, sampling_rate, window):
+    def get_psd_welch (cls, data: NDArray[Float64], nfft: int, overlap: int, sampling_rate: int, window: int) -> Tuple:
         """calculate PSD using Welch method
 
         :param data: data to calc psd
-        :type data: 1d numpy array
+        :type data: NDArray[Float64]
         :param nfft: FFT Window size, must be power of 2
         :type nfft: int
         :param overlap: overlap of FFT Windows, must be between 0 and nfft
@@ -604,7 +607,7 @@ class DataFilter (object):
         :param window: window function
         :type window: int
         :return: amplitude and frequency arrays of len N / 2 + 1
-        :rtype: tuple(ndarray, ndarray)
+        :rtype: tuple
         """
         def is_power_of_two (n):
             return (n != 0) and (n & (n - 1) == 0)
@@ -621,11 +624,11 @@ class DataFilter (object):
         return ampls, freqs
 
     @classmethod
-    def get_log_psd_welch (cls, data, nfft, overlap, sampling_rate, window):
+    def get_log_psd_welch (cls, data: NDArray[Float64], nfft: int, overlap: int, sampling_rate: int, window: int) -> Tuple:
         """calculate log PSD using Welch method
 
         :param data: data to calc psd
-        :type data: 1d numpy array
+        :type data: NDArray[Float64]
         :param nfft: FFT Window size, must be power of 2
         :type nfft: int
         :param overlap: overlap of FFT Windows, must be between 0 and nfft
@@ -635,7 +638,7 @@ class DataFilter (object):
         :param window: window function
         :type window: int
         :return: amplitude and frequency arrays of len N / 2 + 1
-        :rtype: tuple(ndarray, ndarray)
+        :rtype: tuple
         """
         def is_power_of_two (n):
             return (n != 0) and (n & (n - 1) == 0)
@@ -652,11 +655,11 @@ class DataFilter (object):
         return ampls, freqs
 
     @classmethod
-    def detrend (cls, data, detrend_operation):
+    def detrend (cls, data: NDArray[Float64], detrend_operation: int) -> None:
         """detrend data
 
         :param data: data to calc psd
-        :type data: 1d numpy array
+        :type data: NDArray[Float64]
         :param detrend_operation: Type of detrend operation
         :type detrend_operation: int
         """
@@ -667,17 +670,17 @@ class DataFilter (object):
             raise BrainFlowError ('unable to detrend data', res)
 
     @classmethod
-    def get_log_psd (cls, data, sampling_rate, window):
+    def get_log_psd (cls, data: NDArray[Float64], sampling_rate: int, window: int) -> Tuple:
         """calculate log PSD
 
         :param data: data to calc log psd, len of data must be a power of 2
-        :type data: 1d numpy array
+        :type data: NDArray[Float64]
         :param sampling_rate: sampling rate
         :type sampling_rate: int
         :param window: window function
         :type window: int
         :return: amplitude and frequency arrays of len N / 2 + 1
-        :rtype: tuple(ndarray, ndarray)
+        :rtype: tuple
         """
         def is_power_of_two (n):
             return (n != 0) and (n & (n - 1) == 0)
@@ -694,17 +697,17 @@ class DataFilter (object):
         return ampls, freqs
 
     @classmethod
-    def get_log_psd (cls, data, sampling_rate, window):
+    def get_log_psd (cls, data: NDArray[Float64], sampling_rate: int, window: int) -> Tuple:
         """calculate log PSD
 
         :param data: data to calc log psd, len of data must be a power of 2
-        :type data: 1d numpy array
+        :type data: NDArray[Float64]
         :param sampling_rate: sampling rate
         :type sampling_rate: int
         :param window: window function
         :type window: int
         :return: amplitude and frequency arrays of len N / 2 + 1
-        :rtype: tuple(ndarray, ndarray)
+        :rtype: tuple
         """
         def is_power_of_two (n):
             return (n != 0) and (n & (n - 1) == 0)
@@ -721,17 +724,17 @@ class DataFilter (object):
         return ampls, freqs
 
     @classmethod
-    def get_band_power (cls, psd, freq_start, freq_end):
+    def get_band_power (cls, psd: Tuple, freq_start: float, freq_end: float) -> float:
         """calculate band power
 
         :param psd: psd from get_psd or get_log_psd
-        :type psd: typle(ndarray, ndarray)
+        :type psd: typle
         :param freq_start: start freq
         :type freq_start: int
         :param freq_end: end freq
         :type freq_end: int
         :return: band power
-        :rtype: float64 value
+        :rtype: float
         """
         band_power = numpy.zeros (1).astype (numpy.float64)
         res = DataHandlerDLL.get_instance ().get_band_power (psd[0], psd[1], psd[0].shape[0], freq_start, freq_end, band_power)
@@ -741,13 +744,13 @@ class DataFilter (object):
         return band_power[0]
 
     @classmethod
-    def perform_ifft (cls, data):
+    def perform_ifft (cls, data: NDArray[Complex128]) -> NDArray[Float64]:
         """perform inverse fft
 
         :param data: data from fft
-        :type data: 1d numpy array of numpy.complex128
+        :type data: NDArray[Complex128]
         :return: restored data
-        :rtype: 1d numpy array of doubles
+        :rtype: NDArray[Float64]
         """
         temp_re = numpy.zeros (data.shape[0]).astype (numpy.float64)
         temp_im = numpy.zeros (data.shape[0]).astype (numpy.float64)
@@ -763,7 +766,7 @@ class DataFilter (object):
         return output
 
     @classmethod
-    def get_nearest_power_of_two (cls, value):
+    def get_nearest_power_of_two (cls, value: int) -> int:
         """calc nearest power of two
 
         :param value: input value
@@ -779,7 +782,7 @@ class DataFilter (object):
         return output[0]
 
     @classmethod
-    def write_file (cls, data, file_name, file_mode):
+    def write_file (cls, data, file_name: str, file_mode: str) -> None:
         """write data to file, in file data will be transposed
 
         :param data: data to store in a file
@@ -805,7 +808,7 @@ class DataFilter (object):
             raise BrainFlowError ('unable to write file', res)
 
     @classmethod
-    def read_file (cls, file_name):
+    def read_file (cls, file_name: str):
         """read data from file
 
         :param file_name: file name to read

@@ -1,3 +1,7 @@
+AnyIntType = Union{Int8, Int32, Int64, Int128, Int}
+AnyDoubleType = Union{Int8, Int32, Int64, Int128, Int, Float16, Float32, Float64}
+
+
 @enum AggOperations begin
 
     MEAN = 0
@@ -36,18 +40,19 @@ end
 end
 
 
-function perform_lowpass(data, sampling_rate, cutoff, order, filter_type, ripple)
+function perform_lowpass(data, sampling_rate::AnyIntType, cutoff::AnyDoubleType, order::AnyIntType,
+    filter_type::AnyIntType, ripple::AnyDoubleType)
     ec = STATUS_OK
     # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
     if Sys.iswindows()
         ec = ccall((:perform_lowpass, "DataHandler.dll"), Cint, (Ptr{Float64}, Cint, Cint, Float64, Cint, Cint, Float64),
-            data, length(data), sampling_rate, cutoff, order, filter_type, ripple)
+            data, length(data), Int32(sampling_rate), Float64(cutoff), Int32(order), Int32(filter_type), Float64(ripple))
     elseif Sys.isapple()
         ec = ccall((:perform_lowpass, "libDataHandler.dylib"), Cint, (Ptr{Float64}, Cint, Cint, Float64, Cint, Cint, Float64),
-            data, length(data), sampling_rate, cutoff, order, filter_type, ripple)
+            data, length(data), Int32(sampling_rate), Float64(cutoff), Int32(order), Int32(filter_type), Float64(ripple))
     else
         ec = ccall((:perform_lowpass, "libDataHandler.so"), Cint, (Ptr{Float64}, Cint, Cint, Float64, Cint, Cint, Float64),
-            data, length(data), sampling_rate, cutoff, order, filter_type, ripple)
+            data, length(data), Int32(sampling_rate), Float64(cutoff), Int32(order), Int32(filter_type), Float64(ripple))
     end
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in perform_lowpass ", ec), ec))
@@ -56,18 +61,19 @@ function perform_lowpass(data, sampling_rate, cutoff, order, filter_type, ripple
 end
 
 
-function perform_highpass(data, sampling_rate, cutoff, order, filter_type, ripple)
+function perform_highpass(data, sampling_rate::AnyIntType, cutoff::AnyDoubleType, order::AnyIntType,
+    filter_type::AnyIntType, ripple::AnyDoubleType)
     ec = STATUS_OK
     # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
     if Sys.iswindows()
         ec = ccall((:perform_highpass, "DataHandler.dll"), Cint, (Ptr{Float64}, Cint, Cint, Float64, Cint, Cint, Float64),
-            data, length(data), sampling_rate, cutoff, order, filter_type, ripple)
+            data, length(data), Int32(sampling_rate), Float64(cutoff), Int32(order), Int32(filter_type), Float64(ripple))
     elseif Sys.isapple()
         ec = ccall((:perform_highpass, "libDataHandler.dylib"), Cint, (Ptr{Float64}, Cint, Cint, Float64, Cint, Cint, Float64),
-            data, length(data), sampling_rate, cutoff, order, filter_type, ripple)
+            data, length(data), Int32(sampling_rate), Float64(cutoff), Int32(order), Int32(filter_type), Float64(ripple))
     else
         ec = ccall((:perform_highpass, "libDataHandler.so"), Cint, (Ptr{Float64}, Cint, Cint, Float64, Cint, Cint, Float64),
-            data, length(data), sampling_rate, cutoff, order, filter_type, ripple)
+            data, length(data), Int32(sampling_rate), Float64(cutoff), Int32(order), Int32(filter_type), Float64(ripple))
     end
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in perform_highpass ", ec), ec))
@@ -76,18 +82,19 @@ function perform_highpass(data, sampling_rate, cutoff, order, filter_type, rippl
 end
 
 
-function perform_bandpass(data, sampling_rate, center_freq, band_width, order, filter_type, ripple)
+function perform_bandpass(data, sampling_rate::AnyIntType, center_freq::AnyDoubleType,
+    band_width::AnyDoubleType, order::AnyIntType, filter_type::AnyIntType, ripple::AnyDoubleType)
     ec = STATUS_OK
     # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
     if Sys.iswindows()
         ec = ccall((:perform_bandpass, "DataHandler.dll"), Cint, (Ptr{Float64}, Cint, Cint, Float64, Float64, Cint, Cint, Float64),
-            data, length(data), sampling_rate, center_freq, band_width, order, filter_type, ripple)
+            data, length(data), Int32(sampling_rate), Float64(center_freq), Float64(band_width), Int32(order), Int32(filter_type), Float64(ripple))
     elseif Sys.isapple()
         ec = ccall((:perform_bandpass, "libDataHandler.dylib"), Cint, (Ptr{Float64}, Cint, Cint, Float64, Float64, Cint, Cint, Float64),
-            data, length(data), sampling_rate, center_freq, band_width, order, filter_type, ripple)
+            data, length(data), Int32(sampling_rate), Float64(center_freq), Float64(band_width), Int32(order), Int32(filter_type), Float64(ripple))
     else
         ec = ccall((:perform_bandpass, "libDataHandler.so"), Cint, (Ptr{Float64}, Cint, Cint, Float64, Float64, Cint, Cint, Float64),
-            data, length(data), sampling_rate, center_freq, band_width, order, filter_type, ripple)
+            data, length(data), Int32(sampling_rate), Float64(center_freq), Float64(band_width), Int32(order), Int32(filter_type), Float64(ripple))
     end
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in perform_bandpass ", ec), ec))
@@ -96,18 +103,19 @@ function perform_bandpass(data, sampling_rate, center_freq, band_width, order, f
 end
 
 
-function perform_bandstop(data, sampling_rate, center_freq, band_width, order, filter_type, ripple)
+function perform_bandstop(data, sampling_rate::AnyIntType, center_freq::AnyDoubleType,
+    band_width::AnyDoubleType, order::AnyIntType, filter_type::AnyIntType, ripple::AnyDoubleType)
     ec = STATUS_OK
     # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
     if Sys.iswindows()
         ec = ccall((:perform_bandstop, "DataHandler.dll"), Cint, (Ptr{Float64}, Cint, Cint, Float64, Float64, Cint, Cint, Float64),
-            data, length(data), sampling_rate, center_freq, band_width, order, filter_type, ripple)
+            data, length(data), Int32(sampling_rate), Float64(center_freq), Float64(band_width), Int32(order), Int32(filter_type), Float64(ripple))
     elseif Sys.isapple()
         ec = ccall((:perform_bandstop, "libDataHandler.dylib"), Cint, (Ptr{Float64}, Cint, Cint, Float64, Float64, Cint, Cint, Float64),
-            data, length(data), sampling_rate, center_freq, band_width, order, filter_type, ripple)
+            data, length(data), Int32(sampling_rate), Float64(center_freq), Float64(band_width), Int32(order), Int32(filter_type), Float64(ripple))
     else
         ec = ccall((:perform_bandstop, "libDataHandler.so"), Cint, (Ptr{Float64}, Cint, Cint, Float64, Float64, Cint, Cint, Float64),
-            data, length(data), sampling_rate, center_freq, band_width, order, filter_type, ripple)
+            data, length(data), Int32(sampling_rate), Float64(center_freq), Float64(band_width), Int32(order), Int32(filter_type), Float64(ripple))
     end
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in perform_bandstop ", ec), ec))
@@ -116,18 +124,18 @@ function perform_bandstop(data, sampling_rate, center_freq, band_width, order, f
 end
 
 
-function perform_rolling_filter(data, period, operation)
+function perform_rolling_filter(data, period::AnyIntType, operation::AnyIntType)
     ec = STATUS_OK
     # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
     if Sys.iswindows()
         ec = ccall((:perform_rolling_filter, "DataHandler.dll"), Cint, (Ptr{Float64}, Cint, Cint, Cint),
-            data, length(data), period, operation)
+            data, length(data), Int32(period), Int32(operation))
     elseif Sys.isapple()
         ec = ccall((:perform_rolling_filter, "libDataHandler.dylib"), Cint, (Ptr{Float64}, Cint, Cint, Cint),
-            data, length(data), period, operation)
+            data, length(data), Int32(period), Int32(operation))
     else
         ec = ccall((:perform_rolling_filter, "libDataHandler.so"), Cint, (Ptr{Float64}, Cint, Cint, Cint),
-            data, length(data), period, operation)
+            data, length(data), Int32(period), Int32(operation))
     end
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in perform_rolling_filter ", ec), ec))
@@ -136,18 +144,18 @@ function perform_rolling_filter(data, period, operation)
 end
 
 
-function detrend(data, operation)
+function detrend(data, operation::AnyIntType)
     ec = STATUS_OK
     # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
     if Sys.iswindows()
         ec = ccall((:detrend, "DataHandler.dll"), Cint, (Ptr{Float64}, Cint, Cint),
-            data, length(data), operation)
+            data, length(data), Int32(operation))
     elseif Sys.isapple()
         ec = ccall((:detrend, "libDataHandler.dylib"), Cint, (Ptr{Float64}, Cint, Cint),
-            data, length(data), operation)
+            data, length(data), Int32(operation))
     else
         ec = ccall((:detrend, "libDataHandler.so"), Cint, (Ptr{Float64}, Cint, Cint),
-            data, length(data), operation)
+            data, length(data), Int32(operation))
     end
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in detrend ", ec), ec))
@@ -156,18 +164,18 @@ function detrend(data, operation)
 end
 
 
-function perform_wavelet_denoising(data, wavelet, decomposition_level)
+function perform_wavelet_denoising(data, wavelet::String, decomposition_level::AnyIntType)
     ec = STATUS_OK
     # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
     if Sys.iswindows()
         ec = ccall((:perform_wavelet_denoising, "DataHandler.dll"), Cint, (Ptr{Float64}, Cint, Ptr{UInt8}, Cint),
-            data, length(data), wavelet, decomposition_level)
+            data, length(data), wavelet, Int32(decomposition_level))
     elseif Sys.isapple()
         ec = ccall((:perform_wavelet_denoising, "libDataHandler.dylib"), Cint, (Ptr{Float64}, Cint, Ptr{UInt8}, Cint),
-            data, length(data), wavelet, decomposition_level)
+            data, length(data), wavelet, Int32(decomposition_level))
     else
         ec = ccall((:perform_wavelet_denoising, "libDataHandler.so"), Cint, (Ptr{Float64}, Cint, Ptr{UInt8}, Cint),
-            data, length(data), wavelet, decomposition_level)
+            data, length(data), wavelet, Int32(decomposition_level))
     end
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in perform_wavelet_denoising ", ec), ec))
@@ -175,20 +183,20 @@ function perform_wavelet_denoising(data, wavelet, decomposition_level)
     return
 end
 
-function perform_downsampling(data, period, operation)
+function perform_downsampling(data, period::AnyIntType, operation::AnyIntType)
     len = Integer(floor(length(data) / period))
     downsampled_data = Vector{Float64}(undef, len)
     ec = STATUS_OK
     # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
     if Sys.iswindows()
         ec = ccall((:perform_downsampling, "DataHandler.dll"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Ptr{Float64}),
-            data, length(data), period, operation, downsampled_data)
+            data, length(data), Int32(period), Int32(operation), downsampled_data)
     elseif Sys.isapple()
         ec = ccall((:perform_downsampling, "libDataHandler.dylib"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Ptr{Float64}),
-            data, length(data), period, operation, downsampled_data)
+            data, length(data), Int32(period), Int32(operation), downsampled_data)
     else
         ec = ccall((:perform_downsampling, "libDataHandler.so"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Ptr{Float64}),
-            data, length(data), period, operation, downsampled_data)
+            data, length(data), Int32(period), Int32(operation), downsampled_data)
     end
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in perform_downsampling ", ec), ec))
@@ -197,7 +205,7 @@ function perform_downsampling(data, period, operation)
 end
 
 
-function write_file(data, file_name, file_mode)
+function write_file(data, file_name::String, file_mode::String)
     shape = size(data)
     flatten = reshape(transpose(data), (1, shape[1] * shape[2]))
     flatten = copy(flatten)
@@ -220,19 +228,19 @@ function write_file(data, file_name, file_mode)
 end
 
 
-function get_nearest_power_of_two(value)
+function get_nearest_power_of_two(value::AnyIntType)
     power_of_two = Vector{Cint}(undef, 1)
     ec = STATUS_OK
     # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
     if Sys.iswindows()
         ec = ccall((:get_nearest_power_of_two, "DataHandler.dll"), Cint, (Cint, Ptr{Cint}),
-                value, power_of_two)
+                Int32(value), power_of_two)
     elseif Sys.isapple()
         ec = ccall((:get_nearest_power_of_two, "libDataHandler.dylib"), Cint, (Cint, Ptr{Cint}),
-                value, power_of_two)
+                Int32(value), power_of_two)
     else
         ec = ccall((:get_nearest_power_of_two, "libDataHandler.so"), Cint, (Cint, Ptr{Cint}),
-                value, power_of_two)
+                Int32(value), power_of_two)
     end
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in get_nearest_power_of_two ", ec), ec))
@@ -242,7 +250,7 @@ function get_nearest_power_of_two(value)
 end
 
 
-function read_file(file_name)
+function read_file(file_name::String)
     num_elements = Vector{Cint}(undef, 1)
     ec = STATUS_OK
     # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
@@ -282,20 +290,20 @@ function read_file(file_name)
 end
 
 
-function perform_wavelet_transform(data, wavelet, decomposition_level)
+function perform_wavelet_transform(data, wavelet::String, decomposition_level::AnyIntType)
     wavelet_coeffs = Vector{Float64}(undef, length(data) + 2 * (40 + 1))
     lengths = Vector{Cint}(undef, decomposition_level + 1)
     ec = STATUS_OK
     # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
     if Sys.iswindows()
         ec = ccall((:perform_wavelet_transform, "DataHandler.dll"), Cint, (Ptr{Float64}, Cint, Ptr{UInt8}, Cint, Ptr{Float64}, Ptr{Cint}),
-            data, length(data), wavelet, decomposition_level, wavelet_coeffs, lengths)
+            data, length(data), wavelet, Int32(decomposition_level), wavelet_coeffs, lengths)
     elseif Sys.isapple()
         ec = ccall((:perform_wavelet_transform, "libDataHandler.dylib"), Cint, (Ptr{Float64}, Cint, Ptr{UInt8}, Cint, Ptr{Float64}, Ptr{Cint}),
-            data, length(data), wavelet, decomposition_level, wavelet_coeffs, lengths)
+            data, length(data), wavelet, Int32(decomposition_level), wavelet_coeffs, lengths)
     else
         ec = ccall((:perform_wavelet_transform, "libDataHandler.so"), Cint, (Ptr{Float64}, Cint, Ptr{UInt8}, Cint, Ptr{Float64}, Ptr{Cint}),
-            data, length(data), wavelet, decomposition_level, wavelet_coeffs, lengths)
+            data, length(data), wavelet, Int32(decomposition_level), wavelet_coeffs, lengths)
     end
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in perform_wavelet_transform ", ec), ec))
@@ -304,19 +312,19 @@ function perform_wavelet_transform(data, wavelet, decomposition_level)
 end
 
 
-function perform_inverse_wavelet_transform(wavelet_output, original_data_len, wavelet, decomposition_level)
+function perform_inverse_wavelet_transform(wavelet_output, original_data_len::AnyIntType, wavelet::String, decomposition_level::AnyIntType)
     original_data = Vector{Float64}(undef, original_data_len)
     ec = STATUS_OK
     # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
     if Sys.iswindows()
         ec = ccall((:perform_inverse_wavelet_transform, "DataHandler.dll"), Cint, (Ptr{Float64}, Cint, Ptr{UInt8}, Cint, Ptr{Float64}, Ptr{Float64}),
-            wavelet_output[1], original_data_len, wavelet, decomposition_level, wavelet_output[2], original_data)
+            wavelet_output[1], Int32(original_data_len), wavelet, Int32(decomposition_level), wavelet_output[2], original_data)
     elseif Sys.isapple()
         ec = ccall((:perform_inverse_wavelet_transform, "libDataHandler.dylib"), Cint, (Ptr{Float64}, Cint, Ptr{UInt8}, Cint, Ptr{Float64}, Ptr{Float64}),
-            wavelet_output[1], original_data_len, wavelet, decomposition_level, wavelet_output[2], original_data)
+            wavelet_output[1], Int32(original_data_len), wavelet, Int32(decomposition_level), wavelet_output[2], original_data)
     else
         ec = ccall((:perform_inverse_wavelet_transform, "libDataHandler.so"), Cint, (Ptr{Float64}, Cint, Ptr{UInt8}, Cint, Ptr{Float64}, Ptr{Float64}),
-            wavelet_output[1], original_data_len, wavelet, decomposition_level, wavelet_output[2], original_data)
+            wavelet_output[1], Int32(original_data_len), wavelet, Int32(decomposition_level), wavelet_output[2], original_data)
     end
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in perform_inverse_wavelet_transform ", ec), ec))
@@ -325,7 +333,7 @@ function perform_inverse_wavelet_transform(wavelet_output, original_data_len, wa
 end
 
 
-function perform_fft(data, window)
+function perform_fft(data, window::AnyIntType)
 
     function is_power_of_two(value)
         (value != 0) && (value & (value - 1) == 0)
@@ -343,13 +351,13 @@ function perform_fft(data, window)
     # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
     if Sys.iswindows()
         ec = ccall((:perform_fft, "DataHandler.dll"), Cint, (Ptr{Float64}, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
-            data, length(data), window, temp_re, temp_im)
+            data, length(data), Int32(window), temp_re, temp_im)
     elseif Sys.isapple()
         ec = ccall((:perform_fft, "libDataHandler.dylib"), Cint, (Ptr{Float64}, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
-            data, length(data), window, temp_re, temp_im)
+            data, length(data), Int32(window), temp_re, temp_im)
     else
         ec = ccall((:perform_fft, "libDataHandler.so"), Cint, (Ptr{Float64}, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
-            data, length(data), window, temp_re, temp_im)
+            data, length(data), Int32(window), temp_re, temp_im)
     end
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in perform_fft ", ec), ec))
@@ -390,7 +398,7 @@ function perform_ifft(data)
 end
 
 
-function get_psd(data, sampling_rate, window)
+function get_psd(data, sampling_rate::AnyIntType, window::AnyIntType)
 
     function is_power_of_two(value)
         (value != 0) && (value & (value - 1) == 0)
@@ -407,13 +415,13 @@ function get_psd(data, sampling_rate, window)
     # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
     if Sys.iswindows()
         ec = ccall((:get_psd, "DataHandler.dll"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
-            data, length(data), sampling_rate, window, temp_ampls, temp_freqs)
+            data, length(data), Int32(sampling_rate), Int32(window), temp_ampls, temp_freqs)
     elseif Sys.isapple()
         ec = ccall((:get_psd, "libDataHandler.dylib"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
-            data, length(data), sampling_rate, window, temp_ampls, temp_freqs)
+            data, length(data), Int32(sampling_rate), Int32(window), temp_ampls, temp_freqs)
     else
         ec = ccall((:get_psd, "libDataHandler.so"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
-            data, length(data), sampling_rate, window, temp_ampls, temp_freqs)
+            data, length(data), Int32(sampling_rate), Int32(window), temp_ampls, temp_freqs)
     end
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in get_psd ", ec), ec))
@@ -422,7 +430,7 @@ function get_psd(data, sampling_rate, window)
 end
 
 
-function get_psd_welch(data, nfft, overlap, sampling_rate, window)
+function get_psd_welch(data, nfft::AnyIntType, overlap::AnyIntType, sampling_rate::AnyIntType, window::AnyIntType)
 
     function is_power_of_two(value)
         (value != 0) && (value & (value - 1) == 0)
@@ -439,13 +447,13 @@ function get_psd_welch(data, nfft, overlap, sampling_rate, window)
     # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
     if Sys.iswindows()
         ec = ccall((:get_psd_welch, "DataHandler.dll"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
-            data, length(data), nfft, overlap, sampling_rate, window, temp_ampls, temp_freqs)
+            data, length(data), Int32(nfft), Int32(overlap), Int32(sampling_rate), Int32(window), temp_ampls, temp_freqs)
     elseif Sys.isapple()
         ec = ccall((:get_psd_welch, "libDataHandler.dylib"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
-            data, length(data), nfft, overlap, sampling_rate, window, temp_ampls, temp_freqs)
+            data, length(data), Int32(nfft), Int32(overlap), Int32(sampling_rate), Int32(window), temp_ampls, temp_freqs)
     else
         ec = ccall((:get_psd_welch, "libDataHandler.so"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
-            data, length(data), nfft, overlap, sampling_rate, window, temp_ampls, temp_freqs)
+            data, length(data), Int32(nfft), Int32(overlap), Int32(sampling_rate), Int32(window), temp_ampls, temp_freqs)
     end
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in get_psd_welch ", ec), ec))
@@ -454,7 +462,7 @@ function get_psd_welch(data, nfft, overlap, sampling_rate, window)
 end
 
 
-function get_log_psd_welch(data, nfft, overlap, sampling_rate, window)
+function get_log_psd_welch(data, nfft::AnyIntType, overlap::AnyIntType, sampling_rate::AnyIntType, window::AnyIntType)
 
     function is_power_of_two(value)
         (value != 0) && (value & (value - 1) == 0)
@@ -471,13 +479,13 @@ function get_log_psd_welch(data, nfft, overlap, sampling_rate, window)
     # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
     if Sys.iswindows()
         ec = ccall((:get_log_psd_welch, "DataHandler.dll"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
-            data, length(data), nfft, overlap, sampling_rate, window, temp_ampls, temp_freqs)
+            data, length(data), Int32(nfft), Int32(overlap), Int32(sampling_rate), Int32(window), temp_ampls, temp_freqs)
     elseif Sys.isapple()
         ec = ccall((:get_log_psd_welch, "libDataHandler.dylib"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
-            data, length(data), nfft, overlap, sampling_rate, window, temp_ampls, temp_freqs)
+            data, length(data), Int32(nfft), Int32(overlap), Int32(sampling_rate), Int32(window), temp_ampls, temp_freqs)
     else
         ec = ccall((:get_log_psd_welch, "libDataHandler.so"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
-            data, length(data), nfft, overlap, sampling_rate, window, temp_ampls, temp_freqs)
+            data, length(data), Int32(nfft), Int32(overlap), Int32(sampling_rate), Int32(window), temp_ampls, temp_freqs)
     end
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in get_log_psd_welch ", ec), ec))
@@ -486,7 +494,7 @@ function get_log_psd_welch(data, nfft, overlap, sampling_rate, window)
 end
 
 
-function get_log_psd(data, sampling_rate, window)
+function get_log_psd(data, sampling_rate::AnyIntType, window::AnyIntType)
 
     function is_power_of_two(value)
         (value != 0) && (value & (value - 1) == 0)
@@ -503,13 +511,13 @@ function get_log_psd(data, sampling_rate, window)
     # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
     if Sys.iswindows()
         ec = ccall((:get_log_psd, "DataHandler.dll"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
-            data, length(data), sampling_rate, window, temp_re, temp_im)
+            data, length(data), Int32(sampling_rate), Int32(window), temp_re, temp_im)
     elseif Sys.isapple()
         ec = ccall((:get_log_psd, "libDataHandler.dylib"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
-            data, length(data), sampling_rate, window, temp_re, temp_im)
+            data, length(data), Int32(sampling_rate), Int32(window), temp_re, temp_im)
     else
         ec = ccall((:get_log_psd, "libDataHandler.so"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
-            data, length(data), sampling_rate, window, temp_re, temp_im)
+            data, length(data), Int32(sampling_rate), Int32(window), temp_re, temp_im)
     end
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in get_log_psd ", ec), ec))
@@ -517,20 +525,20 @@ function get_log_psd(data, sampling_rate, window)
     temp_ampls, temp_freqs
 end
 
-function get_band_power(psd, freq_start, freq_end)
+function get_band_power(psd, freq_start::AnyDoubleType, freq_end::AnyDoubleType)
     band_power = Vector{Float64}(undef, 1)
 
     ec = STATUS_OK
     # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
     if Sys.iswindows()
         ec = ccall((:get_band_power, "DataHandler.dll"), Cint, (Ptr{Float64}, Ptr{Float64}, Cint, Float64, Float64, Ptr{Float64}),
-            psd[1], psd[2], length(psd[1]), freq_start, freq_end, band_power)
+            psd[1], psd[2], length(psd[1]), Float64(freq_start), Float64(freq_end), band_power)
     elseif Sys.isapple()
         ec = ccall((:get_band_power, "libDataHandler.dylib"), Cint, (Ptr{Float64}, Ptr{Float64}, Cint, Float64, Float64, Ptr{Float64}),
-            psd[1], psd[2], length(psd[1]), freq_start, freq_end, band_power)
+            psd[1], psd[2], length(psd[1]), Float64(freq_start), Float64(freq_end), band_power)
     else
         ec = ccall((:get_band_power, "libDataHandler.so"), Cint, (Ptr{Float64}, Ptr{Float64}, Cint, Float64, Float64, Ptr{Float64}),
-            psd[1], psd[2], length(psd[1]), freq_start, freq_end, band_power)
+            psd[1], psd[2], length(psd[1]), Float64(freq_start), Float64(freq_end), band_power)
     end
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in get_band_power ", ec), ec))
