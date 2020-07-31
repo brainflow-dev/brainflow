@@ -1,11 +1,14 @@
 #include <math.h>
-#include <omp.h>
 #include <stdexcept>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <string>
 #include <vector>
+
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 #include "brainflow_constants.h"
 #include "data_handler.h"
