@@ -23,8 +23,9 @@ enum class BrainFlowExitCodes : int
     SYNC_TIMEOUT_ERROR = 18,
     JSON_NOT_FOUND_ERROR = 19,
     NO_SUCH_DATA_IN_JSON_ERROR = 20,
-    SESSION_IS_NOT_PREPARED = 21,
-    ANOTHER_SESSION_IS_PREPARED = 22
+    CLASSIFIER_IS_NOT_PREPARED_ERROR = 21,
+    ANOTHER_CLASSIFIER_IS_PREPARED_ERROR = 22,
+    UNSUPPORTED_CLASSIFIER_AND_METRIC_COMBINATION_ERROR = 23,
 };
 
 enum class BoardIds : int
@@ -76,8 +77,14 @@ enum class DetrendOperations : int
     LINEAR = 2
 };
 
-enum class EEGMetricsCalculators : int
+enum class BrainFlowMetrics : int
 {
-    MANUAL = 0,
+    RELAXATION = 0,
+    CONCENTRATION = 1
+};
+
+enum class BrainFlowClassifiers : int
+{
+    ALGORITHMIC = 0,
     SVM = 1,
-}
+};

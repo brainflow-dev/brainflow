@@ -74,25 +74,25 @@ if (CMAKE_SIZEOF_VOID_P EQUAL 8)
     SET (GANGLION_LIB "GanglionLib")
     SET (BOARD_CONTROLLER_NAME "BoardController")
     SET (DATA_HANDLER_NAME "DataHandler")
-    SET (METRICS_CALCULATOR_NAME "MetricsCalculator")
+    SET (ML_MODULE_NAME "MLModule")
     SET (BRAINFLOW_CPP_BINDING_NAME "Brainflow")
     if(APPLE)
         SET (GANGLION_LIB_NAME "libGanglionLib.dylib")
         SET (BOARD_CONTROLLER_COMPILED_NAME "libBoardController.dylib")
         SET (DATA_HANDLER_COMPILED_NAME "libDataHandler.dylib")
-        SET (METRICS_CALCULATOR_COMPILED_NAME "libMetricsCalculator.dylib")
+        SET (ML_MODULE_COMPILED_NAME "libMLModule.dylib")
         SET (NEUROSDK_LIB_NAME "neurosdk-shared")
     elseif (UNIX)
         SET (GANGLION_LIB_NAME "libGanglionLib.so")
         SET (BOARD_CONTROLLER_COMPILED_NAME "libBoardController.so")
         SET (DATA_HANDLER_COMPILED_NAME "libDataHandler.so")
-        SET (METRICS_CALCULATOR_COMPILED_NAME "libMetricsCalculator.so")
+        SET (ML_MODULE_COMPILED_NAME "libMLModule.so")
     else ()
         SET (GANGLION_LIB_NAME "GanglionLib.dll")
         SET (BOARD_CONTROLLER_COMPILED_NAME "BoardController.dll")
         SET (DATA_HANDLER_COMPILED_NAME "DataHandler.dll")
         SET (NEUROSDK_LIB_NAME "neurosdk-x64")
-        SET (METRICS_CALCULATOR_COMPILED_NAME "MetricsCalculator.dll")
+        SET (ML_MODULE_COMPILED_NAME "MLModule.dll")
     endif (APPLE)
 else (CMAKE_SIZEOF_VOID_P EQUAL 8)
     MESSAGE ("32 bits compiler detected")
@@ -108,8 +108,8 @@ else (CMAKE_SIZEOF_VOID_P EQUAL 8)
         SET (BRAINFLOW_CPP_BINDING_NAME "Brainflow")
         SET (BOARD_CONTROLLER_COMPILED_NAME "libBoardController.dylib")
         SET (DATA_HANDLER_COMPILED_NAME "libDataHandler.dylib")
-        SET (METRICS_CALCULATOR_NAME "MetricsCalculator")
-        SET (METRICS_CALCULATOR_COMPILED_NAME "libMetricsCalculator.dylib")
+        SET (ML_MODULE_NAME "MLModule")
+        SET (ML_MODULE_COMPILED_NAME "libMLModule.dylib")
     elseif (UNIX)
         SET (GANGLION_LIB "GanglionLib")
         SET (GANGLION_LIB_NAME "libGanglionLib.so")
@@ -118,8 +118,8 @@ else (CMAKE_SIZEOF_VOID_P EQUAL 8)
         SET (BRAINFLOW_CPP_BINDING_NAME "Brainflow")
         SET (BOARD_CONTROLLER_COMPILED_NAME "libBoardController.so")
         SET (DATA_HANDLER_COMPILED_NAME "libDataHandler.so")
-        SET (METRICS_CALCULATOR_NAME "MetricsCalculator")
-        SET (METRICS_CALCULATOR_COMPILED_NAME "libMetricsCalculator.so")
+        SET (ML_MODULE_NAME "MLModule")
+        SET (ML_MODULE_COMPILED_NAME "libMLModule.so")
     else ()
         SET (GANGLION_LIB "GanglionLib32")
         SET (GANGLION_LIB_NAME "GanglionLib32.dll")
@@ -129,8 +129,8 @@ else (CMAKE_SIZEOF_VOID_P EQUAL 8)
         SET (BOARD_CONTROLLER_COMPILED_NAME "BoardController32.dll")
         SET (DATA_HANDLER_COMPILED_NAME "DataHandler32.dll")
         SET (NEUROSDK_LIB_NAME "neurosdk-x86")
-        SET (METRICS_CALCULATOR_NAME "MetricsCalculator")
-        SET (METRICS_CALCULATOR_COMPILED_NAME "MetricsCalculator.dll")
+        SET (ML_MODULE_NAME "MLModule")
+        SET (ML_MODULE_COMPILED_NAME "MLModule.dll")
     endif (APPLE)
 endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
 
@@ -192,9 +192,9 @@ set (DATA_HANDLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/data_handler/data_handler.cpp
 )
 
-set (METRICS_CALCULATOR_SRC
+set (ML_MODULE_SRC
     ${DATA_HANDLER_SRC}
-    ${CMAKE_HOME_DIRECTORY}/src/metrics_calculator/metrics_calculator.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/ml/ml_module.cpp
 )
 
 add_library (
@@ -208,8 +208,8 @@ add_library (
 )
 
 add_library (
-    ${METRICS_CALCULATOR_NAME} SHARED
-    ${METRICS_CALCULATOR_SRC}
+    ${ML_MODULE_NAME} SHARED
+    ${ML_MODULE_SRC}
 )
 
 target_include_directories (
@@ -245,7 +245,7 @@ target_include_directories (
 )
 
 target_include_directories (
-    ${METRICS_CALCULATOR_NAME} PRIVATE
+    ${ML_MODULE_NAME} PRIVATE
     ${CMAKE_HOME_DIRECTORY}/third_party/
     ${CMAKE_HOME_DIRECTORY}/src/utils/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/inc
@@ -253,7 +253,7 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/third_party/DSPFilters/include
     ${CMAKE_HOME_DIRECTORY}/third_party/wavelib/header
     ${CMAKE_HOME_DIRECTORY}/third_party/fft/src
-    ${CMAKE_HOME_DIRECTORY}/src/metrics_calculator/inc
+    ${CMAKE_HOME_DIRECTORY}/src/ml/inc
 )
 
 set_target_properties (${BOARD_CONTROLLER_NAME}
@@ -277,26 +277,33 @@ set_target_properties (${DATA_HANDLER_NAME}
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
 )
 
-set_target_properties (${METRICS_CALCULATOR_NAME}
+set_target_properties (${ML_MODULE_NAME}
     PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
 )
 
+# link openmp if found
+find_package (OpenMP)
+if (OpenMP_CXX_FOUND)
+    target_link_libraries (${DATA_HANDLER_NAME} PRIVATE OpenMP::OpenMP_CXX)
+    target_link_libraries (${ML_MODULE_NAME} PRIVATE OpenMP::OpenMP_CXX)
+endif()
+
 # dont link pthread for Android
 if (UNIX AND NOT ANDROID)
     target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE pthread dl)
-    target_link_libraries (${METRICS_CALCULATOR_NAME} PRIVATE pthread dl)
+    target_link_libraries (${ML_MODULE_NAME} PRIVATE ${DSPFILTERS} ${WAVELIB} pthread dl)
     target_link_libraries (${DATA_HANDLER_NAME} PRIVATE ${DSPFILTERS} ${WAVELIB} pthread dl)
 else (UNIX AND NOT ANDROID)
     target_link_libraries (${DATA_HANDLER_NAME} PRIVATE ${DSPFILTERS} ${WAVELIB})
+    target_link_libraries (${ML_MODULE_NAME} PRIVATE ${DSPFILTERS} ${WAVELIB})
 endif (UNIX AND NOT ANDROID)
 # link android logging library
 if (ANDROID)
     find_library (log-lib log)
     target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE log)
-    target_link_libraries (${METRICS_CALCULATOR_NAME} PRIVATE log)
 endif (ANDROID)
 
 add_library (
@@ -315,9 +322,9 @@ target_include_directories (
 )
 
 if (UNIX AND NOT ANDROID)
-    target_link_libraries (${BRAINFLOW_CPP_BINDING_NAME} pthread ${BOARD_CONTROLLER_NAME} ${DATA_HANDLER_NAME} ${METRICS_CALCULATOR_NAME})
+    target_link_libraries (${BRAINFLOW_CPP_BINDING_NAME} pthread ${BOARD_CONTROLLER_NAME} ${DATA_HANDLER_NAME} ${ML_MODULE_NAME})
 else (UNIX AND NOT ANDROID)
-    target_link_libraries (${BRAINFLOW_CPP_BINDING_NAME} ${BOARD_CONTROLLER_NAME} ${DATA_HANDLER_NAME} ${METRICS_CALCULATOR_NAME})
+    target_link_libraries (${BRAINFLOW_CPP_BINDING_NAME} ${BOARD_CONTROLLER_NAME} ${DATA_HANDLER_NAME} ${ML_MODULE_NAME})
 endif (UNIX AND NOT ANDROID)
 
 # copy
@@ -351,13 +358,13 @@ if (MSVC)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/data_handler/inc/data_handler.h" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/inc/data_handler.h"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/utils/inc/shared_export_matlab.h" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/inc/shared_export.h"
     )
-    add_custom_command (TARGET ${METRICS_CALCULATOR_NAME} POST_BUILD
+    add_custom_command (TARGET ${ML_MODULE_NAME} POST_BUILD
         # copy data handler libs
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${METRICS_CALCULATOR_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${METRICS_CALCULATOR_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${METRICS_CALCULATOR_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${METRICS_CALCULATOR_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${METRICS_CALCULATOR_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/${METRICS_CALCULATOR_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${METRICS_CALCULATOR_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${METRICS_CALCULATOR_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/metrics_calculator/inc/metrics_calculator.h" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/inc/metrics_calculator.h"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${ML_MODULE_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${ML_MODULE_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${ML_MODULE_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${ML_MODULE_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${ML_MODULE_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/${ML_MODULE_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${ML_MODULE_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${ML_MODULE_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/ml/inc/ml_module.h" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/inc/ml_module.h"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/utils/inc/shared_export_matlab.h" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/inc/shared_export.h"
     )
 endif (MSVC)
@@ -388,14 +395,14 @@ if (UNIX AND NOT ANDROID)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/utils/inc/shared_export_matlab.h" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/inc/shared_export.h"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
     )
-    add_custom_command (TARGET ${METRICS_CALCULATOR_NAME} POST_BUILD
+    add_custom_command (TARGET ${ML_MODULE_NAME} POST_BUILD
         # copy ml libs
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${METRICS_CALCULATOR_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${METRICS_CALCULATOR_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${METRICS_CALCULATOR_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${METRICS_CALCULATOR_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${METRICS_CALCULATOR_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/${METRICS_CALCULATOR_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/metrics_calculator/inc/metrics_calculator.h" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/inc/metrics_calculator.h"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${ML_MODULE_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${ML_MODULE_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${ML_MODULE_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${ML_MODULE_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${ML_MODULE_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/${ML_MODULE_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/ml/inc/ml_module.h" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/inc/ml_module.h"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/utils/inc/shared_export_matlab.h" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/inc/shared_export.h"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${METRICS_CALCULATOR_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${METRICS_CALCULATOR_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${ML_MODULE_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${ML_MODULE_COMPILED_NAME}"
     )
 endif (UNIX AND NOT ANDROID)
 if (UNIX AND NOT APPLE AND NOT ANDROID)
@@ -425,7 +432,7 @@ if (ANDROID)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/tools/jniLibs/${ANDROID_ABI}/${DATA_HANDLER_COMPILED_NAME}"
     )
     add_custom_command (TARGET ${DATA_HANDLER_NAME} POST_BUILD
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${METRICS_CALCULATOR_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/tools/jniLibs/${ANDROID_ABI}/${METRICS_CALCULATOR_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${ML_MODULE_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/tools/jniLibs/${ANDROID_ABI}/${ML_MODULE_COMPILED_NAME}"
     )
 endif (ANDROID)
 
@@ -459,7 +466,7 @@ install (
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/inc/brainflow_input_params.h
     ${CMAKE_HOME_DIRECTORY}/src/utils/inc/shared_export.h
     ${CMAKE_HOME_DIRECTORY}/src/data_handler/inc/data_handler.h
-    ${CMAKE_HOME_DIRECTORY}/src/metrics_calculator/inc/metrics_calculator.h
+    ${CMAKE_HOME_DIRECTORY}/src/ml/inc/ml_module.h
     ${CMAKE_HOME_DIRECTORY}/cpp-package/src/inc/data_filter.h
     ${CMAKE_HOME_DIRECTORY}/cpp-package/src/inc/board_shim.h
     ${CMAKE_HOME_DIRECTORY}/cpp-package/src/inc/brainflow_exception.h
@@ -492,7 +499,7 @@ if (UNIX AND NOT APPLE)
 endif (UNIX AND NOT APPLE)
 
 install (
-    TARGETS ${BOARD_CONTROLLER_NAME} ${DATA_HANDLER_NAME} ${DSPFILTERS} ${WAVELIB} ${GANGLION_LIB} ${METRICS_CALCULATOR_NAME} ${BRAINFLOW_CPP_BINDING_NAME}
+    TARGETS ${BOARD_CONTROLLER_NAME} ${DATA_HANDLER_NAME} ${DSPFILTERS} ${WAVELIB} ${GANGLION_LIB} ${ML_MODULE_NAME} ${BRAINFLOW_CPP_BINDING_NAME}
     EXPORT ${TARGETS_EXPORT_NAME}
     RUNTIME DESTINATION lib
     LIBRARY DESTINATION lib

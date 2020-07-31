@@ -52,6 +52,9 @@ extern "C"
     SHARED_EXPORT int CALLING_CONVENTION get_band_power (double *ampl, double *freq, int data_len,
         double freq_start, double freq_end, double *band_power);
 
+    SHARED_EXPORT int CALLING_CONVENTION get_avg_band_powers (double *raw_data, int rows, int cols,
+        int sampling_rate, int aply_filters, double *avg_band_powers, double *stddev_band_powers);
+
     // file operations
     SHARED_EXPORT int CALLING_CONVENTION write_file (
         double *data, int num_rows, int num_cols, char *file_name, char *file_mode);
