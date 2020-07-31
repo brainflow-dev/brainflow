@@ -1,4 +1,5 @@
 #include <map>
+#include <memory>
 #include <mutex>
 #include <utility>
 

@@ -431,7 +431,7 @@ if (ANDROID)
     add_custom_command (TARGET ${DATA_HANDLER_NAME} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/tools/jniLibs/${ANDROID_ABI}/${DATA_HANDLER_COMPILED_NAME}"
     )
-    add_custom_command (TARGET ${DATA_HANDLER_NAME} POST_BUILD
+    add_custom_command (TARGET ${ML_MODULE_NAME} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${ML_MODULE_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/tools/jniLibs/${ANDROID_ABI}/${ML_MODULE_COMPILED_NAME}"
     )
 endif (ANDROID)
