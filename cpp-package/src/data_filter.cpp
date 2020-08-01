@@ -245,6 +245,34 @@ std::pair<double *, double *> DataFilter::get_psd_welch (
     return std::make_pair (ampl, freq);
 }
 
+std::pair<double *, double *> DataFilter::get_avg_band_powers (
+    double **data, int cols, int *channels, int channels_len, int sampling_rate, bool apply_filters)
+{
+    if ((data == NULL) || (channels == NULL) || (channels_len < 1))
+    {
+        throw BrainFlowException (
+            "Invalid params", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+    }
+    double *data_1d = new double[cols * channels_len];
+    double *avg_bands = new double[5];
+    double *stddev_bands = new double[5];
+    for (int i = 0; i < channels_len; i++)
+    {
+        memcpy (data_1d + i * cols, data[channels[i]], cols);
+    }
+    int res = ::get_avg_band_powers (
+        data_1d, channels_len, cols, sampling_rate, (int)apply_filters, avg_bands, stddev_bands);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        delete[] avg_bands;
+        delete[] stddev_bands;
+        delete[] data_1d;
+        throw BrainFlowException ("failed to get_avg_band_powers", res);
+    }
+    delete[] data_1d;
+    return std::make_pair (avg_bands, stddev_bands);
+}
+
 double DataFilter::get_band_power (
     std::pair<double *, double *> psd, int data_len, double freq_start, double freq_end)
 {

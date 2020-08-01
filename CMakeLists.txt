@@ -193,7 +193,6 @@ set (DATA_HANDLER_SRC
 )
 
 set (ML_MODULE_SRC
-    ${DATA_HANDLER_SRC}
     ${CMAKE_HOME_DIRECTORY}/src/ml/ml_module.cpp
 )
 
@@ -248,11 +247,6 @@ target_include_directories (
     ${ML_MODULE_NAME} PRIVATE
     ${CMAKE_HOME_DIRECTORY}/third_party/
     ${CMAKE_HOME_DIRECTORY}/src/utils/inc
-    ${CMAKE_HOME_DIRECTORY}/src/board_controller/inc
-    ${CMAKE_HOME_DIRECTORY}/src/data_handler/inc
-    ${CMAKE_HOME_DIRECTORY}/third_party/DSPFilters/include
-    ${CMAKE_HOME_DIRECTORY}/third_party/wavelib/header
-    ${CMAKE_HOME_DIRECTORY}/third_party/fft/src
     ${CMAKE_HOME_DIRECTORY}/src/ml/inc
 )
 
@@ -294,11 +288,10 @@ endif()
 # dont link pthread for Android
 if (UNIX AND NOT ANDROID)
     target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE pthread dl)
-    target_link_libraries (${ML_MODULE_NAME} PRIVATE ${DSPFILTERS} ${WAVELIB} pthread dl)
+    target_link_libraries (${ML_MODULE_NAME} PRIVATE pthread dl)
     target_link_libraries (${DATA_HANDLER_NAME} PRIVATE ${DSPFILTERS} ${WAVELIB} pthread dl)
 else (UNIX AND NOT ANDROID)
     target_link_libraries (${DATA_HANDLER_NAME} PRIVATE ${DSPFILTERS} ${WAVELIB})
-    target_link_libraries (${ML_MODULE_NAME} PRIVATE ${DSPFILTERS} ${WAVELIB})
 endif (UNIX AND NOT ANDROID)
 # link android logging library
 if (ANDROID)

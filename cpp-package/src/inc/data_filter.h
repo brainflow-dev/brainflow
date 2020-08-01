@@ -133,6 +133,18 @@ public:
      */
     static double get_band_power (
         std::pair<double *, double *> psd, int data_len, double freq_start, double freq_end);
+    /**
+     * calculate avg and stddev of BandPowers across all channels
+     * @param data input 2d array
+     * @param cols number of cols in 2d array - number of datapoints
+     * @param channels array of rows - eeg channels which should be used
+     * @param channels_len - len of channels array
+     * @param sampling_rate sampling rate
+     * @param apply_filters set to true to apply filters before band power calculations
+     * @return pair of double arrays of size 5, first of them - avg band powers, second stddev
+     */
+    static std::pair<double *, double *> get_avg_band_powers (double **data, int cols,
+        int *channels, int channels_len, int sampling_rate, bool apply_filters);
 
     /// write file, in file data will be transposed
     static void write_file (

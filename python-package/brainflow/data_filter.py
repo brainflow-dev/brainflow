@@ -227,6 +227,18 @@ class DataHandlerDLL (object):
             ctypes.c_int
         ]
 
+        self.get_avg_band_powers = self.lib.get_avg_band_powers
+        self.get_avg_band_powers.restype = ctypes.c_int
+        self.get_avg_band_powers.argtypes = [
+            ndpointer (ctypes.c_double),
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ndpointer (ctypes.c_double),
+            ndpointer (ctypes.c_double),
+        ]
+
         self.get_psd = self.lib.get_psd
         self.get_psd.restype = ctypes.c_int
         self.get_psd.argtypes = [
@@ -742,6 +754,38 @@ class DataFilter (object):
             raise BrainFlowError ('unable to calc band power', res)
 
         return band_power[0]
+
+    @classmethod
+    def get_avg_band_powers (cls, data: NDArray, channels: List, sampling_rate: int, apply_filter: bool) -> Tuple:
+        """calculate avg and stddev of BandPowers across all channels
+
+        :param data: 2d array for calculation
+        :type data: NDArray
+        :param channels: channels - rows of data array which should be used for calculation
+        :type channels: List
+        :param sampling_rate: sampling rate
+        :type sampling_rate: int
+        :param apply_filter: apply bandpass and bandstop filtrers or not
+        :type apply_filter: bool
+        :return: avg and stddev arrays for bandpowers
+        :rtype: tuple
+        """
+
+        if (data.ndim != 2):
+            raise BrainFlowError ('Shape of data array must be 2', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+
+        avg_bands = numpy.zeros (5).astype (numpy.float64)
+        stddev_bands = numpy.zeros (5).astype (numpy.float64)
+        data_1d = numpy.zeros (len (channels) * data.shape[1])
+        for i, channel in enumerate (channels):
+            for j in range (data.shape[1]):
+                data_1d[j + data.shape[1] * i] = data[channel][j]
+        res = DataHandlerDLL.get_instance ().get_avg_band_powers (data_1d, len (channels), data.shape[1], sampling_rate,
+            int (apply_filter), avg_bands, stddev_bands)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to get_avg_band_powers', res)
+
+        return avg_bands, stddev_bands
 
     @classmethod
     def perform_ifft (cls, data: NDArray[Complex128]) -> NDArray[Float64]:

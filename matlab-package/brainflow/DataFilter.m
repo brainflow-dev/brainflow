@@ -154,6 +154,21 @@ classdef DataFilter
             data = output.Value;
         end
         
+        function [avg_bands, stddev_bands] = get_avg_band_powers (data, channels, sampling_rate, apply_filters)
+            task_name = 'get_avg_band_powers';
+            data_1d = data (channels, :);
+            data_1d = transpose (data_1d);
+            data_1d = data_1d(:);
+            temp_input = libpointer ('doublePtr', data_1d);
+            lib_name = DataFilter.load_lib ();
+            temp_avgs = libpointer ('doublePtr', zeros (1, 5));
+            temp_stddevs = libpointer ('doublePtr', zeros (1, 5));
+            exit_code = calllib (lib_name, task_name, temp_input, size (channels, 2), size (data,2), sampling_rate, int32 (apply_filters), temp_avgs, temp_stddevs);
+            DataFilter.check_ec (exit_code, task_name);
+            avg_bands = temp_avgs.Value;
+            stddev_bands = temp_stddevs.Value;
+        end
+        
         function [ampls, freqs] = get_psd (data, sampling_rate, window)
             task_name = 'get_psd';
             n = size (data, 2);

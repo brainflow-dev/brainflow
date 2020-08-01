@@ -70,6 +70,9 @@ public class DataFilter
 
         int get_log_psd (double[] data, int len, int sampling_rate, int window, double[] ampls, double[] freqs);
 
+        int get_avg_band_powers (double[] data, int rows, int cols, int sampling_rate, int apply_filters, double[] avgs,
+                double[] stddevs);
+
         int get_band_power (double[] ampls, double[] freqs, int len, double start_freq, double stop_freq,
                 double[] output);
     }
@@ -339,6 +342,43 @@ public class DataFilter
             throw new BrainFlowError ("Failed to perform ifft", ec);
         }
         return output;
+    }
+
+    /**
+     * calc average and stddev of band powers across all channels
+     * 
+     * @param data          data to process
+     * @param channels      rows of data arrays which should be used in calculation
+     * @param sampling_rate sampling rate
+     * @param apply_filters apply bandpass and bandstop filters before calculation
+     * @return pair of avgs and stddevs for bandpowers
+     */
+    public static Pair<double[], double[]> get_avg_band_powers (double[][] data, int[] channels, int sampling_rate,
+            boolean apply_filters) throws BrainFlowError
+    {
+        if ((data == null) || (channels == null))
+        {
+            throw new BrainFlowError ("data or channels null", ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
+        double[] data_1d = new double[channels.length * data[channels[0]].length];
+        for (int i = 0; i < channels.length; i++)
+        {
+            for (int j = 0; j < data[channels[i]].length; j++)
+            {
+                data_1d[j + i * data[channels[i]].length] = data[channels[i]][j];
+            }
+        }
+        double[] avgs = new double[5];
+        double[] stddevs = new double[5];
+        int filters = (apply_filters) ? 1 : 0;
+        int ec = instance.get_avg_band_powers (data_1d, channels.length, data[channels[0]].length, sampling_rate,
+                filters, avgs, stddevs);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Failed to get_avg_band_powers", ec);
+        }
+        Pair<double[], double[]> res = new MutablePair<double[], double[]> (avgs, stddevs);
+        return res;
     }
 
     /**

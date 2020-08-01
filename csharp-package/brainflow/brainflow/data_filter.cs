@@ -361,6 +361,33 @@ namespace brainflow
         }
 
         /// <summary>
+        /// calculate avg and stddev bandpowers across channels
+        /// </summary>
+        /// <param name="data">2d array with values</param>
+        /// <param name="channels">rows of data array which should be used for calculation</param>
+        /// <param name="sampling_rate">sampling rate</param>
+        /// <param name="apply_filters">apply bandpass and bandstop filters before calculation</param>
+        /// <returns>Tuple of avgs and stddev arrays</returns>
+        public static Tuple<double[], double[]> get_avg_band_powers(double[,] data, int[] channels, int sampling_rate, bool apply_filters)
+        {
+            double[] data_1d = new double[data.GetRow (0).Length * channels.Length];
+            for (int i = 0; i < channels.Length; i++)
+            {
+                Array.Copy(data.GetRow(channels[i]), 0, data_1d, i * data.GetRow (channels[i]).Length, data.GetRow(channels[i]).Length);
+            }
+            double[] avgs = new double[5];
+            double[] stddevs = new double[5];
+
+            int res = DataHandlerLibrary.get_avg_band_powers(data_1d, channels.Length, data.GetRow(0).Length, sampling_rate, (apply_filters) ? 1 : 0, avgs, stddevs);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException(res);
+            }
+            Tuple<double[], double[]> return_data = new Tuple<double[], double[]>(avgs, stddevs);
+            return return_data;
+        }
+
+        /// <summary>
         /// calculate PSD
         /// </summary>
         /// <param name="data">data for PSD</param>

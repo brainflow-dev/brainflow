@@ -926,10 +926,9 @@ int get_avg_band_powers (double *raw_data, int rows, int cols, int sampling_rate
     {
         exit_codes[i] = (int)BrainFlowExitCodes::STATUS_OK;
     }
-    // for resolution ~ 0.5
     int nfft = 0;
     get_nearest_power_of_two (sampling_rate, &nfft);
-    nfft *= 2;
+    nfft *= 2; // for resolution ~ 0.5
     double **bands = new double *[5];
     for (int i = 0; i < 5; i++)
     {
@@ -946,8 +945,12 @@ int get_avg_band_powers (double *raw_data, int rows, int cols, int sampling_rate
 
         if (aply_filters)
         {
-            exit_codes[i] = perform_bandpass (thread_data, cols, sampling_rate, 24.0, 47.0, 4,
-                (int)FilterTypes::BUTTERWORTH, 0.0);
+            exit_codes[i] = detrend (thread_data, cols, (int)DetrendOperations::LINEAR);
+            if (exit_codes[i] == (int)BrainFlowExitCodes::STATUS_OK)
+            {
+                exit_codes[i] = perform_bandpass (thread_data, cols, sampling_rate, 24.0, 47.0, 4,
+                    (int)FilterTypes::BUTTERWORTH, 0.0);
+            }
             if (exit_codes[i] == (int)BrainFlowExitCodes::STATUS_OK)
             {
                 exit_codes[i] = perform_bandstop (thread_data, cols, sampling_rate, 50.0, 4.0, 4,
@@ -1022,22 +1025,20 @@ int get_avg_band_powers (double *raw_data, int rows, int cols, int sampling_rate
     }
     // scale to 0 and 1
     double max_avg = avg_bands[0];
-    double max_stddev = std_bands[0];
     for (int i = 1; i < 5; i++)
     {
         if (avg_bands[i] > max_avg)
         {
             max_avg = avg_bands[i];
         }
-        if (std_bands[i] > max_stddev)
-        {
-            max_stddev = std_bands[i];
-        }
     }
     for (int i = 0; i < 5; i++)
     {
         avg_band_powers[i] = avg_bands[i] / max_avg;
-        stddev_band_powers[i] = std_bands[i] / max_stddev;
+        // use relative stddev to 'normalize'(doesnt ensure range between 0 and 1) it and keep
+        // information about variance, division by max doesnt make any sense for stddev, it will
+        // lose information about ratio between mean and deviation
+        stddev_band_powers[i] = std_bands[i] / avg_bands[i];
     }
 
     delete[] exit_codes;

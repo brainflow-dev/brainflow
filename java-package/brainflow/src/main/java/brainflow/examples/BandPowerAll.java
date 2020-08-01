@@ -13,18 +13,17 @@ import brainflow.DetrendOperations;
 import brainflow.LogLevels;
 import brainflow.WindowFunctions;
 
-public class BandPower
+public class BandPowerAll
 {
 
     public static void main (String[] args) throws Exception
     {
-        // use synthetic board for demo
         BoardShim.enable_board_logger ();
         BrainFlowInputParams params = new BrainFlowInputParams ();
         int board_id = BoardIds.SYNTHETIC_BOARD.get_code ();
         BoardShim board_shim = new BoardShim (board_id, params);
         int sampling_rate = BoardShim.get_sampling_rate (board_id);
-        int nfft = DataFilter.get_nearest_power_of_two (sampling_rate);
+        int[] eeg_channels = BoardShim.get_eeg_channels (board_id);
 
         board_shim.prepare_session ();
         board_shim.start_stream (3600);
@@ -34,15 +33,10 @@ public class BandPower
         double[][] data = board_shim.get_board_data ();
         board_shim.release_session ();
 
-        int[] eeg_channels = BoardShim.get_eeg_channels (board_id);
-        // seconds channel of synthetic board has big 'alpha' use it for test
-        int eeg_channel = eeg_channels[1];
-        // optional: detrend before psd
-        DataFilter.detrend (data[eeg_channel], DetrendOperations.LINEAR.get_code ());
-        Pair<double[], double[]> psd = DataFilter.get_psd_welch (data[eeg_channel], nfft, nfft / 2, sampling_rate,
-                WindowFunctions.HANNING.get_code ());
-        double band_power_alpha = DataFilter.get_band_power (psd, 7.0, 13.0);
-        double band_power_beta = DataFilter.get_band_power (psd, 14.0, 30.0);
-        System.out.println ("Alpha/Beta Ratio: " + (band_power_alpha / band_power_beta));
+        Pair<double[], double[]> bands = DataFilter.get_avg_band_powers (data, eeg_channels, sampling_rate, true);
+        for (int i = 0; i < 5; i++)
+        {
+            System.out.println ("Avg: " + bands.getLeft ()[i] + " Stddev: " + bands.getRight ()[i]);
+        }
     }
 }

@@ -78,6 +78,8 @@ namespace brainflow
         public static extern int detrend(double[] data, int len, int operation);
         [DllImport("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_log_psd_welch(double[] data, int data_len, int nfft, int overlap, int sampling_rate, int window, double[] ampls, double[] freqs);
+        [DllImport("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_avg_band_powers(double[] data, int rows, int cols, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs);
     }
 
     class DataHandlerLibrary32
@@ -127,6 +129,8 @@ namespace brainflow
         public static extern int detrend(double[] data, int len, int operation);
         [DllImport("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_log_psd_welch(double[] data, int data_len, int nfft, int overlap, int sampling_rate, int window, double[] ampls, double[] freqs);
+        [DllImport("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_avg_band_powers(double[] data, int rows, int cols, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs);
     }
 
     class DataHandlerLibrary
@@ -250,6 +254,14 @@ namespace brainflow
                 return DataHandlerLibrary64.perform_fft (data, data_len, window, output_re, output_im);
             else
                 return DataHandlerLibrary32.perform_fft (data, data_len, window, output_re, output_im);
+        }
+
+        public static int get_avg_band_powers(double[] data, int rows, int cols, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs)
+        {
+            if (System.Environment.Is64BitProcess)
+                return DataHandlerLibrary64.get_avg_band_powers(data, rows, cols, sampling_rate, apply_filters, avgs, stddevs);
+            else
+                return DataHandlerLibrary32.get_avg_band_powers(data, rows, cols, sampling_rate, apply_filters, avgs, stddevs);
         }
 
         public static int get_psd(double[] data, int data_len, int sampling_rate, int window, double[] output_ampls, double[] output_freqs)
