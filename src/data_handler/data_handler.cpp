@@ -933,6 +933,11 @@ int get_avg_band_powers (double *raw_data, int rows, int cols, int sampling_rate
     for (int i = 0; i < 5; i++)
     {
         bands[i] = new double[rows];
+        // to make valgrind happy
+        for (int j = 0; j < rows; j++)
+        {
+            bands[i][j] = 0.0;
+        }
     }
 
 #pragma omp parallel for
@@ -1007,8 +1012,8 @@ int get_avg_band_powers (double *raw_data, int rows, int cols, int sampling_rate
     }
 
     // find average and stddev
-    double avg_bands[5] = {0.0};
-    double std_bands[5] = {0.0};
+    double avg_bands[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
+    double std_bands[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
     for (int i = 0; i < 5; i++)
     {
         for (int j = 0; j < rows; j++)
@@ -1024,8 +1029,8 @@ int get_avg_band_powers (double *raw_data, int rows, int cols, int sampling_rate
         std_bands[i] = sqrt (std_bands[i]);
     }
     // scale to 0 and 1
-    double max_avg = avg_bands[0];
-    for (int i = 1; i < 5; i++)
+    double max_avg = 0.0;
+    for (int i = 0; i < 5; i++)
     {
         if (avg_bands[i] > max_avg)
         {

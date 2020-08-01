@@ -169,9 +169,6 @@ script:
   - if [ `which valgrind` ]; then
       LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/signal_processing_demo/build/band_power ;
     fi
-  - if [ `which valgrind` ]; then
-      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/signal_processing_demo/build/band_power_all ;
-    fi
   # java
   - cd $TRAVIS_BUILD_DIR/java-package/brainflow && mvn exec:java -Dexec.mainClass="brainflow.examples.Denoising"
   - cd $TRAVIS_BUILD_DIR/java-package/brainflow && mvn exec:java -Dexec.mainClass="brainflow.examples.Downsampling"

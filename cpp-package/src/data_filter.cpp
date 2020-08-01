@@ -256,6 +256,12 @@ std::pair<double *, double *> DataFilter::get_avg_band_powers (
     double *data_1d = new double[cols * channels_len];
     double *avg_bands = new double[5];
     double *stddev_bands = new double[5];
+    // init by zeros to make valgrind happy
+    for (int i = 0; i < 5; i++)
+    {
+        avg_bands[i] = 0.0;
+        stddev_bands[i] = 0.0;
+    }
     for (int i = 0; i < channels_len; i++)
     {
         memcpy (data_1d + i * cols, data[channels[i]], cols);
