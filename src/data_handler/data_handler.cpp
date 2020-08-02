@@ -1038,18 +1038,15 @@ int get_avg_band_powers (double *raw_data, int rows, int cols, int sampling_rate
         std_bands[i] /= rows;
         std_bands[i] = sqrt (std_bands[i]);
     }
-    // scale to 0 and 1
-    double max_avg = 0.0;
+    // use relative band powers
+    double sum = 0.0;
     for (int i = 0; i < 5; i++)
     {
-        if (avg_bands[i] > max_avg)
-        {
-            max_avg = avg_bands[i];
-        }
+        sum += avg_bands[i];
     }
     for (int i = 0; i < 5; i++)
     {
-        avg_band_powers[i] = avg_bands[i] / max_avg;
+        avg_band_powers[i] = avg_bands[i] / sum;
         // use relative stddev to 'normalize'(doesnt ensure range between 0 and 1) it and keep
         // information about variance, division by max doesnt make any sense for stddev, it will
         // lose information about ratio between mean and deviation
