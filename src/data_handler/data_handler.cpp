@@ -929,6 +929,16 @@ int get_avg_band_powers (double *raw_data, int rows, int cols, int sampling_rate
     int nfft = 0;
     get_nearest_power_of_two (sampling_rate, &nfft);
     nfft *= 2; // for resolution ~ 0.5
+    // handle the case if nfft > number of data points
+    // its valid case but results will not be accurate
+    while (nfft > cols)
+    {
+        nfft /= 2;
+    }
+    if (nfft < 2)
+    {
+        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
+    }
     double **bands = new double *[5];
     for (int i = 0; i < 5; i++)
     {
