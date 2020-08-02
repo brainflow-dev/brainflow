@@ -194,6 +194,7 @@ set (DATA_HANDLER_SRC
 
 set (ML_MODULE_SRC
     ${CMAKE_HOME_DIRECTORY}/src/ml/ml_module.cpp
+    ${CMAKE_HOME_DIRECTORY}/third_party/libsvm/svm.cpp
 )
 
 add_library (
@@ -248,6 +249,7 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/third_party/
     ${CMAKE_HOME_DIRECTORY}/src/utils/inc
     ${CMAKE_HOME_DIRECTORY}/src/ml/inc
+    ${CMAKE_HOME_DIRECTORY}/third_party/libsvm
 )
 
 set_target_properties (${BOARD_CONTROLLER_NAME}
