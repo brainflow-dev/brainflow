@@ -5,7 +5,9 @@
 
 #include "base_classifier.h"
 #include "brainflow_constants.h"
+#include "concentration_algo_classifier.h"
 #include "ml_module.h"
+#include "relaxation_algo_classifier.h"
 
 
 std::map<std::pair<int, int>, std::shared_ptr<BaseClassifier>> ml_models;
@@ -29,24 +31,13 @@ int prepare (int metric, int classifier)
     if (key ==
         std::make_pair ((int)BrainFlowMetrics::RELAXATION, (int)BrainFlowClassifiers::ALGORITHMIC))
     {
-        // model = std::shared_ptr<BaseClassifier> (new RelaxationAlgoClassifier ());
-        return (int)BrainFlowExitCodes::UNSUPPORTED_CLASSIFIER_AND_METRIC_COMBINATION_ERROR;
-    }
-    else if (key ==
-        std::make_pair ((int)BrainFlowMetrics::RELAXATION, (int)BrainFlowClassifiers::SVM))
-    {
-        return (int)BrainFlowExitCodes::UNSUPPORTED_CLASSIFIER_AND_METRIC_COMBINATION_ERROR;
+        model = std::shared_ptr<BaseClassifier> (new RelaxationAlgoClassifier ());
     }
     else if (key ==
         std::make_pair (
             (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::ALGORITHMIC))
     {
-        return (int)BrainFlowExitCodes::UNSUPPORTED_CLASSIFIER_AND_METRIC_COMBINATION_ERROR;
-    }
-    else if (key ==
-        std::make_pair ((int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::SVM))
-    {
-        return (int)BrainFlowExitCodes::UNSUPPORTED_CLASSIFIER_AND_METRIC_COMBINATION_ERROR;
+        model = std::shared_ptr<BaseClassifier> (new ConcentrationAlgoClassifier ());
     }
     else
     {
