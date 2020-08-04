@@ -129,8 +129,8 @@ else (CMAKE_SIZEOF_VOID_P EQUAL 8)
         SET (BOARD_CONTROLLER_COMPILED_NAME "BoardController32.dll")
         SET (DATA_HANDLER_COMPILED_NAME "DataHandler32.dll")
         SET (NEUROSDK_LIB_NAME "neurosdk-x86")
-        SET (ML_MODULE_NAME "MLModule")
-        SET (ML_MODULE_COMPILED_NAME "MLModule.dll")
+        SET (ML_MODULE_NAME "MLModule32")
+        SET (ML_MODULE_COMPILED_NAME "MLModule32.dll")
     endif (APPLE)
 endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
 
@@ -305,6 +305,7 @@ endif (ANDROID)
 add_library (
     ${BRAINFLOW_CPP_BINDING_NAME} STATIC
     ${CMAKE_HOME_DIRECTORY}/cpp-package/src/board_shim.cpp
+    ${CMAKE_HOME_DIRECTORY}/cpp-package/src/ml_model.cpp
     ${CMAKE_HOME_DIRECTORY}/cpp-package/src/data_filter.cpp
 )
 
@@ -315,6 +316,7 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/src/data_handler/inc
     ${CMAKE_HOME_DIRECTORY}/cpp-package/src/inc
     ${CMAKE_HOME_DIRECTORY}/third_party/json
+    ${CMAKE_HOME_DIRECTORY}/src/ml/inc
 )
 
 if (UNIX AND NOT ANDROID)
@@ -466,6 +468,7 @@ install (
     ${CMAKE_HOME_DIRECTORY}/cpp-package/src/inc/data_filter.h
     ${CMAKE_HOME_DIRECTORY}/cpp-package/src/inc/board_shim.h
     ${CMAKE_HOME_DIRECTORY}/cpp-package/src/inc/brainflow_exception.h
+    ${CMAKE_HOME_DIRECTORY}/cpp-package/src/inc/ml_model.h
     DESTINATION inc
 )
 

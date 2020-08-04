@@ -18,6 +18,10 @@ int ConcentrationAlgoClassifier::predict (double *data, int data_len, double *ou
     // beta / (alpha + theta) as here
     // https://www.sciencedirect.com/science/article/abs/pii/0301051195051163
     double concentration = data[3] / (data[2] + data[1]);
+    if (concentration > 1.0)
+    {
+        concentration = 1.0;
+    }
     *output = concentration;
     return (int)BrainFlowExitCodes::STATUS_OK;
 }

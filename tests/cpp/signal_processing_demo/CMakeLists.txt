@@ -88,6 +88,7 @@ target_link_libraries (
     downsampling PUBLIC
     # for some systems(ubuntu for example) order matters
     ${BrainflowPath}
+    ${MLModulePath}
     ${DataHandlerPath}
     ${BoardControllerPath}
 )
@@ -109,6 +110,7 @@ target_link_libraries (
     signal_filtering PUBLIC
     # for some systems(ubuntu for example) order matters
     ${BrainflowPath}
+    ${MLModulePath}
     ${DataHandlerPath}
     ${BoardControllerPath}
 )
@@ -130,6 +132,7 @@ target_link_libraries (
     denoising PUBLIC
     # for some systems(ubuntu for example) order matters
     ${BrainflowPath}
+    ${MLModulePath}
     ${DataHandlerPath}
     ${BoardControllerPath}
 )
@@ -151,6 +154,7 @@ target_link_libraries (
     transforms PUBLIC
     # for some systems(ubuntu for example) order matters
     ${BrainflowPath}
+    ${MLModulePath}
     ${DataHandlerPath}
     ${BoardControllerPath}
 )
@@ -172,6 +176,7 @@ target_link_libraries (
     band_power PUBLIC
     # for some systems(ubuntu for example) order matters
     ${BrainflowPath}
+    ${MLModulePath}
     ${DataHandlerPath}
     ${BoardControllerPath}
 )
@@ -193,6 +198,7 @@ target_link_libraries (
     band_power_all PUBLIC
     # for some systems(ubuntu for example) order matters
     ${BrainflowPath}
+    ${MLModulePath}
     ${DataHandlerPath}
     ${BoardControllerPath}
 )
@@ -214,6 +220,7 @@ target_link_libraries (
     perf_test PUBLIC
     # for some systems(ubuntu for example) order matters
     ${BrainflowPath}
+    ${MLModulePath}
     ${DataHandlerPath}
     ${BoardControllerPath}
 )

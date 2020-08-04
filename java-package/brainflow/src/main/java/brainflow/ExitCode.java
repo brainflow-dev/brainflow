@@ -26,7 +26,10 @@ public enum ExitCode
     GENERAL_ERROR (17),
     SYNC_TIMEOUT_ERROR (18),
     JSON_NOT_FOUND_ERROR (19),
-    NO_SUCH_DATA_IN_JSON_ERROR (20);
+    NO_SUCH_DATA_IN_JSON_ERROR (20),
+    CLASSIFIER_IS_NOT_PREPARED_ERROR (21),
+    ANOTHER_CLASSIFIER_IS_PREPARED_ERROR (22),
+    UNSUPPORTED_CLASSIFIER_AND_METRIC_COMBINATION_ERROR (23);
 
     private final int exit_code;
     private static final Map<Integer, ExitCode> ec_map = new HashMap<Integer, ExitCode> ();

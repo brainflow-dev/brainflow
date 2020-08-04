@@ -379,8 +379,6 @@ class BoardShim (object):
             self.input_json = input_params.to_json ().encode ()
         except:
             self.input_json = input_params.to_json ()
-        else:
-            self.port_name = None
         self.board_id = board_id
         # we need it for streaming board
         if board_id == BoardIds.STREAMING_BOARD.value:

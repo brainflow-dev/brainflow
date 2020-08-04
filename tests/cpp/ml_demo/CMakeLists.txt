@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.10)
-project (BRAINFLOW_GET_DATA)
+project (BRAINFLOW_SIGNAL_PROCESSING)
 
 set (CMAKE_CXX_STANDARD 11)
 set (CMAKE_VERBOSE_MAKEFILE ON)
@@ -51,17 +51,17 @@ find_package (
 )
 
 add_executable (
-    brainflow_get_data
-    src/brainflow_get_data.cpp
+    eeg_metrics
+    src/eeg_metrics.cpp
 )
 
 target_include_directories (
-    brainflow_get_data PUBLIC
+    eeg_metrics PUBLIC
     ${brainflow_INCLUDE_DIRS}
 )
 
 target_link_libraries (
-    brainflow_get_data PUBLIC
+    eeg_metrics PUBLIC
     # for some systems(ubuntu for example) order matters
     ${BrainflowPath}
     ${MLModulePath}
