@@ -1,6 +1,7 @@
 ---
 layout: post
 title: BrainFlow 3.3.1
+image: /img/no-bugs-software.png
 tags: [release]
 ---
 

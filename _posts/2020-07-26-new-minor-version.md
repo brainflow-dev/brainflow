@@ -1,6 +1,7 @@
 ---
 layout: post
 title: BrainFlow 3.3.0
+image: /img/debug.png
 tags: [release]
 ---
 
