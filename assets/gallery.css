@@ -50,8 +50,6 @@
   .col-12 { width: 98%; }
   .hidden-sm { display: block; } }
 
-.row { display: -webkit-box; display: -webkit-flex; display: -ms-flexbox; display: flex; flex-wrap: wrap; }
-
 .row > [class*='col-'] { display: flex; flex-direction: column; }
 
 @media screen and (min-width: 600px) and (max-width: 1024px) { body { background-size: inherit; } }
