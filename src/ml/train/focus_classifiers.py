@@ -21,8 +21,6 @@ def prepare_data ():
     dataset_y = list ()
     algo_focused_scores = list ()
     algo_relaxed_scores = list ()
-    focus = MLModel (BrainFlowMetrics.CONCENTRATION.value, BrainFlowClassifiers.ALGORITHMIC.value)
-    focus.prepare ()
     for data_type in ('relaxed', 'focused'):
         for file in glob.glob (os.path.join ('data', data_type, '*', '*.csv')):
             print (file)
@@ -53,19 +51,13 @@ def prepare_data ():
                     dataset_x.append (feature_vector)
                     if data_type == 'relaxed':
                         dataset_y.append (0)
-                        algo_relaxed_scores.append (focus.predict (feature_vector))
                     else:
                         dataset_y.append (1)
-                        algo_focused_scores.append (focus.predict (feature_vector))
                     cur_pos = cur_pos + int (overlap * sampling_rate)
             except Exception as e:
                 print (str (e))
 
-    focus.release ()
-
     print ('Class 1: %d Class 0: %d' % (len ([x for x in dataset_y if x == 1]), len ([x for x in dataset_y if x == 0])))
-    print ('Algo output: concentration %f +- %f relaxation %f +- %f' % (statistics.mean (algo_focused_scores),
-        statistics.pstdev (algo_focused_scores), statistics.mean (algo_relaxed_scores), statistics.pstdev (algo_relaxed_scores)))
 
     return dataset_x, dataset_y
 
