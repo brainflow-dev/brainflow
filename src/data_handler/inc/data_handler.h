@@ -44,11 +44,6 @@ extern "C"
     SHARED_EXPORT int CALLING_CONVENTION get_psd_welch (double *data, int data_len, int nfft,
         int overlap, int sampling_rate, int window_function, double *output_ampl,
         double *output_freq);
-    SHARED_EXPORT int CALLING_CONVENTION get_log_psd_welch (double *data, int data_len, int nfft,
-        int overlap, int sampling_rate, int window_function, double *output_ampl,
-        double *output_freq);
-    SHARED_EXPORT int CALLING_CONVENTION get_log_psd (double *data, int data_len, int sampling_rate,
-        int window_function, double *output_ampl, double *output_freq);
     SHARED_EXPORT int CALLING_CONVENTION get_band_power (double *ampl, double *freq, int data_len,
         double freq_start, double freq_end, double *band_power);
 

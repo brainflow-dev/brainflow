@@ -185,41 +185,10 @@ classdef DataFilter
             freqs = temp_freqs.Value;
         end
         
-        function [ampls, freqs] = get_log_psd (data, sampling_rate, window)
-            task_name = 'get_log_psd';
-            n = size (data, 2);
-            if (bitand (n, n - 1) ~= 0)
-                error ('For FFT shape must be power of 2!');
-            end
-            temp_input = libpointer ('doublePtr', data);
-            lib_name = DataFilter.load_lib ();
-            temp_ampls = libpointer ('doublePtr', zeros (1, int32 (n / 2 + 1)));
-            temp_freqs = libpointer ('doublePtr', zeros (1, int32 (n / 2 + 1)));
-            exit_code = calllib (lib_name, task_name, temp_input, n, sampling_rate, window, temp_ampls, temp_freqs);
-            DataFilter.check_ec (exit_code, task_name);
-            ampls = temp_ampls.Value;
-            freqs = temp_freqs.Value;
-        end
-        
         function [ampls, freqs] = get_psd_welch (data, nfft, overlap, sampling_rate, window)
             task_name = 'get_psd_welch';
             if (bitand (nfft, nfft - 1) ~= 0)
                 error ('nfft must be power of 2!');
-            end
-            temp_input = libpointer ('doublePtr', data);
-            lib_name = DataFilter.load_lib ();
-            temp_ampls = libpointer ('doublePtr', zeros (1, int32 (nfft / 2 + 1)));
-            temp_freqs = libpointer ('doublePtr', zeros (1, int32 (nfft / 2 + 1)));
-            exit_code = calllib (lib_name, task_name, temp_input, size (data, 2), nfft, overlap, sampling_rate, window, temp_ampls, temp_freqs);
-            DataFilter.check_ec (exit_code, task_name);
-            ampls = temp_ampls.Value;
-            freqs = temp_freqs.Value;
-        end
-        
-        function [ampls, freqs] = get_log_psd_welch (data, nfft, overlap, sampling_rate, window)
-            task_name = 'get_log_psd_welch';
-            if (bitand (nfft, nfft - 1) ~= 0)
-                error ('For FFT shape must be power of 2!');
             end
             temp_input = libpointer ('doublePtr', data);
             lib_name = DataFilter.load_lib ();

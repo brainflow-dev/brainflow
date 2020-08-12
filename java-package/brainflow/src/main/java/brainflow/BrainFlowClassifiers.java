@@ -6,9 +6,7 @@ import java.util.Map;
 public enum BrainFlowClassifiers
 {
 
-    ALGORITHMIC (0),
-    REGRESSION (1),
-    SVM (2);
+    REGRESSION (0);
 
     private final int protocol;
     private static final Map<Integer, BrainFlowClassifiers> cl_map = new HashMap<Integer, BrainFlowClassifiers> ();

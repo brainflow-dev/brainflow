@@ -15,9 +15,7 @@ namespace brainflow
 
     public enum BrainFlowClassifiers
     {
-        ALGORITHMIC = 0,
-        REGRESSION = 1,
-        SVM = 2
+        REGRESSION = 0,
     };
 
     public static class MLModuleLibrary64

@@ -1,15 +1,15 @@
 #pragma once
 
 #include "brainflow_constants.h"
-#include "concentration_algo_classifier.h"
+#include "concentration_regression_classifier.h"
 
 
-class RelaxationAlgoClassifier : public ConcentrationAlgoClassifier
+class RelaxationRegressionClassifier : public ConcentrationRegressionClassifier
 {
 public:
     int predict (double *data, int data_len, double *output)
     {
-        int res = ConcentrationAlgoClassifier::predict (data, data_len, output);
+        int res = ConcentrationRegressionClassifier::predict (data, data_len, output);
         if (res != (int)BrainFlowExitCodes::STATUS_OK)
         {
             return res;

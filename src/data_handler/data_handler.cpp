@@ -591,45 +591,32 @@ int get_psd (double *data, int data_len, int sampling_rate, int window_function,
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int get_log_psd (double *data, int data_len, int sampling_rate, int window_function,
-    double *output_ampl, double *output_freq)
-{
-    int res = get_psd (data, data_len, sampling_rate, window_function, output_ampl, output_freq);
-    if (res != (int)BrainFlowExitCodes::STATUS_OK)
-    {
-        return res;
-    }
-    for (int i = 0; i < data_len / 2 + 1; i++)
-    {
-        output_ampl[i] = log10 (output_ampl[i]);
-    }
-    return (int)BrainFlowExitCodes::STATUS_OK;
-}
-
 int get_band_power (double *ampl, double *freq, int data_len, double freq_start, double freq_end,
     double *band_power)
 {
-    if ((ampl == NULL) || (freq == NULL) || (freq_start > freq_end) || (band_power == NULL))
+    if ((ampl == NULL) || (freq == NULL) || (freq_start > freq_end) || (band_power == NULL) ||
+        (data_len < 2))
     {
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
-    int counter = 0;
     double res = 0.0;
-    for (int i = 0; i < data_len; i++)
+    int counter = 0;
+    double freq_res = freq[1] - freq[0];
+    for (int i = 0; i < data_len - 1; i++)
     {
         if (freq[i] > freq_end)
         {
             break;
         }
-        if ((freq[i] >= freq_start) && (freq[i] <= freq_end))
+        if (freq[i] >= freq_start)
         {
-            res += ampl[i];
+            res += 0.5 * freq_res * (ampl[i] + ampl[i + 1]);
             counter++;
         }
     }
-    if (counter != 0)
+    if (counter == 0)
     {
-        res /= counter;
+        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
     *band_power = res;
     return (int)BrainFlowExitCodes::STATUS_OK;
@@ -895,22 +882,6 @@ int get_psd_welch (double *data, int data_len, int nfft, int overlap, int sampli
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int get_log_psd_welch (double *data, int data_len, int nfft, int overlap, int sampling_rate,
-    int window_function, double *output_ampl, double *output_freq)
-{
-    int res = get_psd_welch (
-        data, data_len, nfft, overlap, sampling_rate, window_function, output_ampl, output_freq);
-    if (res != (int)BrainFlowExitCodes::STATUS_OK)
-    {
-        return res;
-    }
-    for (int i = 0; i < nfft / 2 + 1; i++)
-    {
-        output_ampl[i] = log10 (output_ampl[i]);
-    }
-    return (int)BrainFlowExitCodes::STATUS_OK;
-}
-
 int get_avg_band_powers (double *raw_data, int rows, int cols, int sampling_rate, int aply_filters,
     double *avg_band_powers, double *stddev_band_powers)
 {
@@ -963,17 +934,17 @@ int get_avg_band_powers (double *raw_data, int rows, int cols, int sampling_rate
             exit_codes[i] = detrend (thread_data, cols, (int)DetrendOperations::LINEAR);
             if (exit_codes[i] == (int)BrainFlowExitCodes::STATUS_OK)
             {
-                exit_codes[i] = perform_bandpass (thread_data, cols, sampling_rate, 24.0, 47.0, 4,
-                    (int)FilterTypes::BUTTERWORTH, 0.0);
-            }
-            if (exit_codes[i] == (int)BrainFlowExitCodes::STATUS_OK)
-            {
                 exit_codes[i] = perform_bandstop (thread_data, cols, sampling_rate, 50.0, 4.0, 4,
                     (int)FilterTypes::BUTTERWORTH, 0.0);
             }
             if (exit_codes[i] == (int)BrainFlowExitCodes::STATUS_OK)
             {
                 exit_codes[i] = perform_bandstop (thread_data, cols, sampling_rate, 60.0, 4.0, 4,
+                    (int)FilterTypes::BUTTERWORTH, 0.0);
+            }
+            if (exit_codes[i] == (int)BrainFlowExitCodes::STATUS_OK)
+            {
+                exit_codes[i] = perform_bandpass (thread_data, cols, sampling_rate, 24.0, 47.0, 4,
                     (int)FilterTypes::BUTTERWORTH, 0.0);
             }
         }
@@ -998,7 +969,7 @@ int get_avg_band_powers (double *raw_data, int rows, int cols, int sampling_rate
         }
         if (exit_codes[i] == (int)BrainFlowExitCodes::STATUS_OK)
         {
-            exit_codes[i] = get_band_power (ampls, freqs, nfft / 2 + 1, 30.0, 48.0, &bands[4][i]);
+            exit_codes[i] = get_band_power (ampls, freqs, nfft / 2 + 1, 30.0, 45.0, &bands[4][i]);
         }
 
         delete[] ampls;

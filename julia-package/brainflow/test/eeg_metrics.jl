@@ -21,13 +21,13 @@ bands = brainflow.get_avg_band_powers(data, eeg_channels, sampling_rate, true)
 feature_vector = vcat(bands[1], bands[2])
 
 # calc concentration
-concentration = brainflow.MLModel(Integer(brainflow.CONCENTRATION), Integer(brainflow.ALGORITHMIC))
+concentration = brainflow.MLModel(Integer(brainflow.CONCENTRATION), Integer(brainflow.REGRESSION))
 brainflow.prepare(concentration)
 print(brainflow.predict(feature_vector, concentration))
 brainflow.release(concentration)
 
 # calc relaxation
-relaxation = brainflow.MLModel(Integer(brainflow.RELAXATION), Integer(brainflow.ALGORITHMIC))
+relaxation = brainflow.MLModel(Integer(brainflow.RELAXATION), Integer(brainflow.REGRESSION))
 brainflow.prepare(relaxation)
 print(brainflow.predict(feature_vector, relaxation))
 brainflow.release(relaxation)

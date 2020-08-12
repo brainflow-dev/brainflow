@@ -3,14 +3,14 @@
 #include "base_classifier.h"
 
 
-class ConcentrationAlgoClassifier : public BaseClassifier
+class ConcentrationRegressionClassifier : public BaseClassifier
 {
 public:
-    ConcentrationAlgoClassifier ()
+    ConcentrationRegressionClassifier ()
     {
     }
 
-    virtual ~ConcentrationAlgoClassifier ()
+    virtual ~ConcentrationRegressionClassifier ()
     {
         release ();
     }

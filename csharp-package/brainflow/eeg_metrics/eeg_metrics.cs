@@ -28,7 +28,7 @@ namespace test
 
             Tuple<double[], double[]> bands = DataFilter.get_avg_band_powers (data, eeg_channels, sampling_rate, true);
             double[] feature_vector = bands.Item1.Concatenate (bands.Item2);
-            MLModel concentration = new MLModel((int)BrainFlowMetrics.CONCENTRATION, (int)BrainFlowClassifiers.ALGORITHMIC);
+            MLModel concentration = new MLModel((int)BrainFlowMetrics.CONCENTRATION, (int)BrainFlowClassifiers.REGRESSION);
             concentration.prepare ();
             Console.WriteLine ("Concentration: " + concentration.predict (feature_vector));
             concentration.release ();

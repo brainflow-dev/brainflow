@@ -30,13 +30,13 @@ def main ():
     print(feature_vector)
     
     # calc concentration
-    concentration = MLModel (BrainFlowMetrics.CONCENTRATION.value, BrainFlowClassifiers.ALGORITHMIC.value)
+    concentration = MLModel (BrainFlowMetrics.CONCENTRATION.value, BrainFlowClassifiers.REGRESSION.value)
     concentration.prepare ()
     print ('Concentration: %f' % concentration.predict (feature_vector))
     concentration.release ()
     
     # calc relaxation
-    relaxation = MLModel (BrainFlowMetrics.RELAXATION.value, BrainFlowClassifiers.ALGORITHMIC.value)
+    relaxation = MLModel (BrainFlowMetrics.RELAXATION.value, BrainFlowClassifiers.REGRESSION.value)
     relaxation.prepare ()
     print ('Concentration: %f' % relaxation.predict (feature_vector))
     relaxation.release ()

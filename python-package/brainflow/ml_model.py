@@ -26,9 +26,7 @@ class BrainFlowMetrics (enum.Enum):
 class BrainFlowClassifiers (enum.Enum):
     """Enum to store all supported classifiers"""
 
-    ALGORITHMIC = 0 #:
-    REGRESSION = 1 #:
-    SVM = 2 #:
+    REGRESSION = 0 #:
 
 
 class BoardControllerDLL (object):

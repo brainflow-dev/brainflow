@@ -58,9 +58,9 @@ int main (int argc, char *argv[])
             feature_vector[i + 5] = bands.second[i];
         }
         MLModel concentration_model (
-            (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::ALGORITHMIC);
+            (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::REGRESSION);
         MLModel relaxation_model (
-            (int)BrainFlowMetrics::RELAXATION, (int)BrainFlowClassifiers::ALGORITHMIC);
+            (int)BrainFlowMetrics::RELAXATION, (int)BrainFlowClassifiers::REGRESSION);
         concentration_model.prepare ();
         relaxation_model.prepare ();
         std::cout << "Concentration: " << concentration_model.predict (feature_vector, 10)

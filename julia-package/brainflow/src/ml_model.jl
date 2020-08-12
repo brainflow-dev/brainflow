@@ -14,9 +14,7 @@ end
 
 @enum BrainFlowClassifiers begin
 
-    ALGORITHMIC = 0
-    REGRESSION = 1
-    SVM = 2
+    REGRESSION = 0
 
 end
 

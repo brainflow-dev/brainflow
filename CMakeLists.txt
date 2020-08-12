@@ -194,7 +194,7 @@ set (DATA_HANDLER_SRC
 
 set (ML_MODULE_SRC
     ${CMAKE_HOME_DIRECTORY}/src/ml/ml_module.cpp
-    ${CMAKE_HOME_DIRECTORY}/src/ml/concentration_algo_classifier.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/ml/concentration_regression_classifier.cpp
     ${CMAKE_HOME_DIRECTORY}/third_party/libsvm/svm.cpp
 )
 

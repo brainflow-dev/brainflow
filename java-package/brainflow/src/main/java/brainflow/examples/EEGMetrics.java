@@ -35,7 +35,7 @@ public class EEGMetrics
         Pair<double[], double[]> bands = DataFilter.get_avg_band_powers (data, eeg_channels, sampling_rate, true);
         double[] feature_vector = ArrayUtils.addAll (bands.getLeft (), bands.getRight ());
         MLModel concentration = new MLModel (BrainFlowMetrics.CONCENTRATION.get_code (),
-                BrainFlowClassifiers.ALGORITHMIC.get_code ());
+                BrainFlowClassifiers.REGRESSION.get_code ());
         concentration.prepare ();
         System.out.print ("Concentration: " + concentration.predict (feature_vector));
         concentration.release ();

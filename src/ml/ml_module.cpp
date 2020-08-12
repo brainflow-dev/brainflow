@@ -5,9 +5,9 @@
 
 #include "base_classifier.h"
 #include "brainflow_constants.h"
-#include "concentration_algo_classifier.h"
+#include "concentration_regression_classifier.h"
 #include "ml_module.h"
-#include "relaxation_algo_classifier.h"
+#include "relaxation_regression_classifier.h"
 
 
 std::map<std::pair<int, int>, std::shared_ptr<BaseClassifier>> ml_models;
@@ -29,15 +29,15 @@ int prepare (int metric, int classifier)
     }
 
     if (key ==
-        std::make_pair ((int)BrainFlowMetrics::RELAXATION, (int)BrainFlowClassifiers::ALGORITHMIC))
+        std::make_pair ((int)BrainFlowMetrics::RELAXATION, (int)BrainFlowClassifiers::REGRESSION))
     {
-        model = std::shared_ptr<BaseClassifier> (new RelaxationAlgoClassifier ());
+        model = std::shared_ptr<BaseClassifier> (new RelaxationRegressionClassifier ());
     }
     else if (key ==
         std::make_pair (
-            (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::ALGORITHMIC))
+            (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::REGRESSION))
     {
-        model = std::shared_ptr<BaseClassifier> (new ConcentrationAlgoClassifier ());
+        model = std::shared_ptr<BaseClassifier> (new ConcentrationRegressionClassifier ());
     }
     else
     {

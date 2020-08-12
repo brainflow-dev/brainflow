@@ -16,7 +16,7 @@ eeg_channels <- brainflow_python$BoardShim$get_eeg_channels (board_id)
 bands <- brainflow_python$DataFilter$get_avg_band_powers (data, eeg_channels, sampling_rate, TRUE)
 feature_vector <- np$array(c(bands[[1]], bands[[2]]))
 
-concentration <- brainflow_python$MLModel (brainflow_python$BrainFlowMetrics$CONCENTRATION$value, brainflow_python$BrainFlowClassifiers$ALGORITHMIC$value)
+concentration <- brainflow_python$MLModel (brainflow_python$BrainFlowMetrics$CONCENTRATION$value, brainflow_python$BrainFlowClassifiers$REGRESSION$value)
 concentration$prepare()
 score <- concentration$predict(feature_vector)
 concentration$release()
