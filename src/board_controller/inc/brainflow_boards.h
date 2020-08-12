@@ -76,8 +76,9 @@ json brainflow_boards_json = {
             {"timestamp_channel", 22},
             {"num_rows", 23},
             {"battery_channel", 21},
-            {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8, 15, 16}},
-            {"emg_channels", {9, 10, 11, 12, 13, 14}},
+            {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8, 10, 15}},
+            {"emg_channels", {9, 12, 14, 16}},
+            {"eog_channels", {11, 13}},
             {"eda_channels", {19}},
             {"ppg_channels", {17, 18}},
             {"temperature_channels", {20}}
