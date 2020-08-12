@@ -1,5 +1,5 @@
-#include "math.h"
-#include "stdlib.h"
+#include <cmath>
+#include <stdlib.h>
 
 #include "brainflow_constants.h"
 #include "concentration_algo_classifier.h"
