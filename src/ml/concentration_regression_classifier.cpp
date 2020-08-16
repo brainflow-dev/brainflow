@@ -18,11 +18,11 @@ int ConcentrationRegressionClassifier::predict (double *data, int data_len, doub
         return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
     double value = 0.0;
-    // coefficients from focus_classifier.py
-    const double coefficients[10] = {-13.8830376, -0.97060348, -4.12432519, 10.16475248, 8.85737357,
-        -4.52375507, 0.98010763, -2.62295152, 0.70503625, -0.17565674};
-    double intercept = 12.76772048;
-    // undocumented feature: may work without stddev but with worse accuracy
+    // coefficients from focus_classifier.py, first 5 - avg band powers, last 5 stddevs
+    const double coefficients[10] = {-16.2667611, -2.28242588, -5.36230643, 13.09650537,
+        10.83378249, -2.86296277, 0.60181123, -2.70714691, 0.84221735, -0.55413044};
+    double intercept = 14.87162803;
+    // undocumented feature(not recommended): may work without stddev but with worse accuracy
     for (int i = 0; i < std::min (data_len, 10); i++)
     {
         value += coefficients[i] * data[i];

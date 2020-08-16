@@ -277,6 +277,14 @@ class BoardControllerDLL (object):
             ndpointer (ctypes.c_int32)
         ]
 
+        self.get_exg_channels = self.lib.get_exg_channels
+        self.get_exg_channels.restype = ctypes.c_int
+        self.get_exg_channels.argtypes = [
+            ctypes.c_int,
+            ndpointer (ctypes.c_int32),
+            ndpointer (ctypes.c_int32)
+        ]
+
         self.get_emg_channels = self.lib.get_emg_channels
         self.get_emg_channels.restype = ctypes.c_int
         self.get_emg_channels.argtypes = [
@@ -564,6 +572,25 @@ class BoardShim (object):
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to request info about this board', res)
         result = eeg_channels.tolist () [0:num_channels[0]]
+        return result
+
+    @classmethod
+    def get_exg_channels (cls, board_id: int) -> List[int]:
+        """get list of exg channels in resulting data table for a board
+
+        :param board_id: Board Id
+        :type board_id: int
+        :return: list of eeg channels in returned numpy array
+        :rtype: List[int]
+        :raises BrainFlowError: If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+        """
+        num_channels = numpy.zeros (1).astype (numpy.int32)
+        exg_channels = numpy.zeros (512).astype (numpy.int32)
+
+        res = BoardControllerDLL.get_instance ().get_exg_channels (board_id, exg_channels, num_channels)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to request info about this board', res)
+        result = exg_channels.tolist () [0:num_channels[0]]
         return result
 
     @classmethod
