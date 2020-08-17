@@ -29,7 +29,30 @@ class BrainFlowClassifiers (enum.Enum):
     REGRESSION = 0 #:
 
 
-class BoardControllerDLL (object):
+class BrainFlowModelParams (object):
+    """ inputs parameters for prepare_session method
+
+    :param metric: metric to calculate
+    :type metric: int
+    :param classifier: classifier to use
+    :type classifier: int
+    :param file: file to load model
+    :type file: str
+    :param other_info: additional information
+    :type other_info: int
+    """
+    def __init__ (self, metric, classifier) -> None:
+        self.metric = metric
+        self.classifier = classifier
+        self.file = ''
+        self.other_info = ''
+
+    def to_json (self) -> None :
+        return json.dumps (self, default = lambda o: o.__dict__,
+            sort_keys = True, indent = 4)
+
+
+class MLModuleDLL (object):
 
     __instance = None
 
@@ -66,15 +89,13 @@ class BoardControllerDLL (object):
         self.prepare = self.lib.prepare
         self.prepare.restype = ctypes.c_int
         self.prepare.argtypes = [
-            ctypes.c_int,
-            ctypes.c_int
+            ctypes.c_char_p
         ]
 
         self.release = self.lib.release
         self.release.restype = ctypes.c_int
         self.release.argtypes = [
-            ctypes.c_int,
-            ctypes.c_int
+            ctypes.c_char_p
         ]
 
         self.predict = self.lib.predict
@@ -83,34 +104,34 @@ class BoardControllerDLL (object):
             ndpointer (ctypes.c_double),
             ctypes.c_int,
             ndpointer (ctypes.c_double),
-            ctypes.c_int,
-            ctypes.c_int
+            ctypes.c_char_p
         ]
 
 
 class MLModel (object):
     """MLModel class used to calc derivative metrics from raw data
 
-    :param metric: metric to calculate
-    :type metric: int
-    :param classifier: classifier which will be used for calculation
-    :type classifier: int
+    :param model_params: Model Params
+    :type model_params: BrainFlowModelParams
     """
-    def __init__ (self, metric: int, classifier: int) -> None:
-        self.metric = metric
-        self.classifier = classifier
+    def __init__ (self, model_params : BrainFlowModelParams) -> None:
+        self.model_params = model_params
+        try:
+            self.serialized_params = model_params.to_json ().encode ()
+        except:
+            self.serialized_params = model_params.to_json ()
 
     def prepare (self) -> None:
         """prepare classifier"""
 
-        res = BoardControllerDLL.get_instance ().prepare (self.metric, self.classifier)
+        res = MLModuleDLL.get_instance ().prepare (self.serialized_params)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to prepare classifier', res)
 
     def release (self) -> None:
         """release classifier"""
 
-        res = BoardControllerDLL.get_instance ().release (self.metric, self.classifier)
+        res = MLModuleDLL.get_instance ().release (self.serialized_params)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to release classifier', res)
 
@@ -123,7 +144,7 @@ class MLModel (object):
         :rtype: float
         """
         output = numpy.zeros (1).astype (numpy.float64)
-        res = BoardControllerDLL.get_instance ().predict (data, data.shape[0], output, self.metric, self.classifier)
+        res = MLModuleDLL.get_instance ().predict (data, data.shape[0], output, self.serialized_params)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to calc metric', res)
         return output[0]

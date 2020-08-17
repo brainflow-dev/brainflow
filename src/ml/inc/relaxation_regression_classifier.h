@@ -7,6 +7,11 @@
 class RelaxationRegressionClassifier : public ConcentrationRegressionClassifier
 {
 public:
+    RelaxationRegressionClassifier (struct BrainFlowModelParams params)
+        : ConcentrationRegressionClassifier (params)
+    {
+    }
+
     int predict (double *data, int data_len, double *output)
     {
         int res = ConcentrationRegressionClassifier::predict (data, data_len, output);

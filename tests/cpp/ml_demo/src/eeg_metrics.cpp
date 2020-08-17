@@ -15,11 +15,16 @@
 using namespace std;
 using namespace std::chrono;
 
+bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, int *board_id);
+
 int main (int argc, char *argv[])
 {
     struct BrainFlowInputParams params;
-    // use synthetic board for demo
-    int board_id = (int)BoardIds::SYNTHETIC_BOARD;
+    int board_id = 0;
+    if (!parse_args (argc, argv, &params, &board_id))
+    {
+        return -1;
+    }
 
     BoardShim::enable_dev_board_logger ();
 
@@ -32,21 +37,23 @@ int main (int argc, char *argv[])
 
     try
     {
+        // Collect data from device
         board->prepare_session ();
         board->start_stream ();
         BoardShim::log_message ((int)LogLevels::LEVEL_INFO, "Start sleeping in the main thread");
 #ifdef _WIN32
-        Sleep (20000);
+        Sleep (5000);
 #else
-        sleep (20);
+        sleep (5);
 #endif
-
         board->stop_stream ();
         int data_count = 0;
         data = board->get_board_data (&data_count);
+        std::cout << "Data Count: " << data_count << std::endl;
         board->release_session ();
         num_rows = BoardShim::get_num_rows (board_id);
 
+        // Calc bandpowers and build feature vector
         int eeg_num_channels = 0;
         eeg_channels = BoardShim::get_eeg_channels (board_id, &eeg_num_channels);
         std::pair<double *, double *> bands = DataFilter::get_avg_band_powers (
@@ -57,16 +64,24 @@ int main (int argc, char *argv[])
             feature_vector[i] = bands.first[i];
             feature_vector[i + 5] = bands.second[i];
         }
-        MLModel concentration_model (
-            (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::REGRESSION);
-        MLModel relaxation_model (
-            (int)BrainFlowMetrics::RELAXATION, (int)BrainFlowClassifiers::REGRESSION);
+        for (int i = 0; i < 10; i++)
+        {
+            std::cout << feature_vector[i] << " ";
+        }
+        std::cout << std::endl;
+
+        // Prepare Models and Calc Concentration and Relaxation
+        MLModel concentration_model (struct BrainFlowModelParams (
+            (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::REGRESSION));
+        MLModel relaxation_model (struct BrainFlowModelParams (
+            (int)BrainFlowMetrics::RELAXATION, (int)BrainFlowClassifiers::REGRESSION));
         concentration_model.prepare ();
         relaxation_model.prepare ();
         std::cout << "Concentration: " << concentration_model.predict (feature_vector, 10)
                   << " Relaxation: " << relaxation_model.predict (feature_vector, 10) << std::endl;
         concentration_model.release ();
         relaxation_model.release ();
+
         delete[] bands.first;
         delete[] bands.second;
     }
@@ -88,4 +103,137 @@ int main (int argc, char *argv[])
     delete board;
 
     return res;
+}
+
+
+bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, int *board_id)
+{
+    bool board_id_found = false;
+    for (int i = 1; i < argc; i++)
+    {
+        if (std::string (argv[i]) == std::string ("--board-id"))
+        {
+            if (i + 1 < argc)
+            {
+                i++;
+                board_id_found = true;
+                *board_id = std::stoi (std::string (argv[i]));
+            }
+            else
+            {
+                std::cerr << "missed argument" << std::endl;
+                return false;
+            }
+        }
+        if (std::string (argv[i]) == std::string ("--ip-address"))
+        {
+            if (i + 1 < argc)
+            {
+                i++;
+                params->ip_address = std::string (argv[i]);
+            }
+            else
+            {
+                std::cerr << "missed argument" << std::endl;
+                return false;
+            }
+        }
+        if (std::string (argv[i]) == std::string ("--ip-port"))
+        {
+            if (i + 1 < argc)
+            {
+                i++;
+                params->ip_port = std::stoi (std::string (argv[i]));
+            }
+            else
+            {
+                std::cerr << "missed argument" << std::endl;
+                return false;
+            }
+        }
+        if (std::string (argv[i]) == std::string ("--serial-port"))
+        {
+            if (i + 1 < argc)
+            {
+                i++;
+                params->serial_port = std::string (argv[i]);
+            }
+            else
+            {
+                std::cerr << "missed argument" << std::endl;
+                return false;
+            }
+        }
+        if (std::string (argv[i]) == std::string ("--ip-protocol"))
+        {
+            if (i + 1 < argc)
+            {
+                i++;
+                params->ip_protocol = std::stoi (std::string (argv[i]));
+            }
+            else
+            {
+                std::cerr << "missed argument" << std::endl;
+                return false;
+            }
+        }
+        if (std::string (argv[i]) == std::string ("--timeout"))
+        {
+            if (i + 1 < argc)
+            {
+                i++;
+                params->timeout = std::stoi (std::string (argv[i]));
+            }
+            else
+            {
+                std::cerr << "missed argument" << std::endl;
+                return false;
+            }
+        }
+        if (std::string (argv[i]) == std::string ("--other-info"))
+        {
+            if (i + 1 < argc)
+            {
+                i++;
+                params->other_info = std::string (argv[i]);
+            }
+            else
+            {
+                std::cerr << "missed argument" << std::endl;
+                return false;
+            }
+        }
+        if (std::string (argv[i]) == std::string ("--mac-address"))
+        {
+            if (i + 1 < argc)
+            {
+                i++;
+                params->mac_address = std::string (argv[i]);
+            }
+            else
+            {
+                std::cerr << "missed argument" << std::endl;
+                return false;
+            }
+        }
+        if (std::string (argv[i]) == std::string ("--serial-number"))
+        {
+            if (i + 1 < argc)
+            {
+                i++;
+                params->serial_number = std::string (argv[i]);
+            }
+            else
+            {
+                std::cerr << "missed argument" << std::endl;
+                return false;
+            }
+        }
+    }
+    if (!board_id_found)
+    {
+        std::cerr << "board id is not provided" << std::endl;
+        return false;
+    }
+    return true;
 }

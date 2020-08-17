@@ -6,10 +6,10 @@
 extern "C"
 {
 #endif
-    SHARED_EXPORT int CALLING_CONVENTION prepare (int metric, int classifier);
+    SHARED_EXPORT int CALLING_CONVENTION prepare (char *json_params);
     SHARED_EXPORT int CALLING_CONVENTION predict (
-        double *data, int data_len, double *output, int metric, int classifier);
-    SHARED_EXPORT int CALLING_CONVENTION release (int metric, int classifier);
+        double *data, int data_len, double *output, char *json_params);
+    SHARED_EXPORT int CALLING_CONVENTION release (char *json_params);
 #ifdef __cplusplus
 }
 #endif

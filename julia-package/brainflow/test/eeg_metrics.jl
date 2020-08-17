@@ -27,7 +27,8 @@ print(brainflow.predict(feature_vector, concentration))
 brainflow.release(concentration)
 
 # calc relaxation
-relaxation = brainflow.MLModel(Integer(brainflow.RELAXATION), Integer(brainflow.REGRESSION))
+model_params = brainflow.BrainFlowModelParams(Integer(brainflow.RELAXATION), Integer(brainflow.REGRESSION))
+relaxation = brainflow.MLModel(model_params)
 brainflow.prepare(relaxation)
 print(brainflow.predict(feature_vector, relaxation))
 brainflow.release(relaxation)

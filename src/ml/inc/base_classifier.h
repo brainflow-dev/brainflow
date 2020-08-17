@@ -1,10 +1,15 @@
 #pragma once
 
+#include "brainflow_model_params.h"
+
 
 class BaseClassifier
 {
+protected:
+    struct BrainFlowModelParams params;
+
 public:
-    BaseClassifier ()
+    BaseClassifier (struct BrainFlowModelParams model_params) : params (model_params)
     {
     }
 

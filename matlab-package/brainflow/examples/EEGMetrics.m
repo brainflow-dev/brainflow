@@ -16,7 +16,8 @@ eeg_channels = BoardShim.get_eeg_channels (int32 (BoardIDs.SYNTHETIC_BOARD));
 [avgs, stddevs] = DataFilter.get_avg_band_powers (data, eeg_channels, sampling_rate, true);
 feature_vector = double([avgs, stddevs]);
 
-concentration = MLModel (int32(BrainFlowMetrics.CONCENTRATION), int32(BrainFlowClassifiers.REGRESSION));
+concentration_params = BrainFlowModelParams (int32(BrainFlowMetrics.CONCENTRATION), int32(BrainFlowClassifiers.REGRESSION));
+concentration = MLModel (concentration_params);
 concentration.prepare ();
 score = concentration.predict (feature_vector);
 concentration.release ();

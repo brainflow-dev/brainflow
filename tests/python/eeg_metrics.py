@@ -5,40 +5,63 @@ import numpy as np
 
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels, BoardIds
 from brainflow.data_filter import DataFilter, FilterTypes, AggOperations, WindowFunctions, DetrendOperations
-from brainflow.ml_model import MLModel, BrainFlowMetrics, BrainFlowClassifiers
+from brainflow.ml_model import MLModel, BrainFlowMetrics, BrainFlowClassifiers, BrainFlowModelParams
 
 
 def main ():
     BoardShim.enable_dev_board_logger ()
 
-    # use synthetic board for demo
+    parser = argparse.ArgumentParser ()
+    # use docs to check which parameters are required for specific board, e.g. for Cyton - set serial port
+    parser.add_argument ('--timeout', type = int, help  = 'timeout for device discovery or connection', required = False, default = 0)
+    parser.add_argument ('--ip-port', type = int, help  = 'ip port', required = False, default = 0)
+    parser.add_argument ('--ip-protocol', type = int, help  = 'ip protocol, check IpProtocolType enum', required = False, default = 0)
+    parser.add_argument ('--ip-address', type = str, help  = 'ip address', required = False, default = '')
+    parser.add_argument ('--serial-port', type = str, help  = 'serial port', required = False, default = '')
+    parser.add_argument ('--mac-address', type = str, help  = 'mac address', required = False, default = '')
+    parser.add_argument ('--other-info', type = str, help  = 'other info', required = False, default = '')
+    parser.add_argument ('--streamer-params', type = str, help  = 'streamer params', required = False, default = '')
+    parser.add_argument ('--serial-number', type = str, help  = 'serial number', required = False, default = '')
+    parser.add_argument ('--board-id', type = int, help  = 'board id, check docs to get a list of supported boards', required = True)
+    args = parser.parse_args ()
+
     params = BrainFlowInputParams ()
-    board_id = BoardIds.SYNTHETIC_BOARD.value
-    sampling_rate = BoardShim.get_sampling_rate (board_id)
-    board = BoardShim (board_id, params)
+    params.ip_port = args.ip_port
+    params.serial_port = args.serial_port
+    params.mac_address = args.mac_address
+    params.other_info = args.other_info
+    params.serial_number = args.serial_number
+    params.ip_address = args.ip_address
+    params.ip_protocol = args.ip_protocol
+    params.timeout = args.timeout
+
+    board = BoardShim (args.board_id, params)
+    sampling_rate = BoardShim.get_sampling_rate (args.board_id)
     board.prepare_session ()
     board.start_stream ()
     BoardShim.log_message (LogLevels.LEVEL_INFO.value, 'start sleeping in the main thread')
-    time.sleep (10)
+    time.sleep (5)
     data = board.get_board_data ()
     board.stop_stream ()
     board.release_session ()
 
-    eeg_channels = BoardShim.get_eeg_channels (board_id)
+    eeg_channels = BoardShim.get_eeg_channels (args.board_id)
     bands = DataFilter.get_avg_band_powers (data, eeg_channels, sampling_rate, True)
     feature_vector = np.concatenate ((bands[0], bands[1]))
     print(feature_vector)
     
     # calc concentration
-    concentration = MLModel (BrainFlowMetrics.CONCENTRATION.value, BrainFlowClassifiers.REGRESSION.value)
+    concentration_params = BrainFlowModelParams (BrainFlowMetrics.CONCENTRATION.value, BrainFlowClassifiers.REGRESSION.value)
+    concentration = MLModel (concentration_params)
     concentration.prepare ()
     print ('Concentration: %f' % concentration.predict (feature_vector))
     concentration.release ()
-    
+
     # calc relaxation
-    relaxation = MLModel (BrainFlowMetrics.RELAXATION.value, BrainFlowClassifiers.REGRESSION.value)
+    relaxation_params = BrainFlowModelParams (BrainFlowMetrics.RELAXATION.value, BrainFlowClassifiers.REGRESSION.value)
+    relaxation = MLModel (relaxation_params)
     relaxation.prepare ()
-    print ('Concentration: %f' % relaxation.predict (feature_vector))
+    print ('Relaxation: %f' % relaxation.predict (feature_vector))
     relaxation.release ()
 
 

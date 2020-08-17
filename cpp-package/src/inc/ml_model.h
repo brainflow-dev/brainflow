@@ -5,18 +5,20 @@
 // include it here to allow user include only this single file
 #include "brainflow_constants.h"
 #include "brainflow_exception.h"
+#include "brainflow_model_params.h"
 #include "ml_module.h"
+
 
 /// Calculates different metrics from raw data
 class MLModel
 {
 private:
-    int metric;
-    int classifier;
+    struct BrainFlowModelParams params;
+    std::string serialized_params;
 
 public:
     // clang-format off
-    MLModel (int metric, int classifier);
+    MLModel (struct BrainFlowModelParams params);
     ~MLModel ();
 
     /// initialize classifier, should be called first

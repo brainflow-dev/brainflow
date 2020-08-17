@@ -14,11 +14,11 @@ public class MLModel
 {
     private interface DllInterface extends Library
     {
-        int prepare (int metric, int classifier);
+        int prepare (String params);
 
-        int release (int metric, int classifier);
+        int release (String params);
 
-        int predict (double[] data, int data_len, double[] output, int metric, int classifier);
+        int predict (double[] data, int data_len, double[] output, String params);
     }
 
     private static DllInterface instance;
@@ -70,16 +70,14 @@ public class MLModel
         }
     }
 
-    private int metric;
-    private int classifier;
+    private String input_params;
 
     /**
      * Create MLModel object
      */
-    public MLModel (int metric, int classifier)
+    public MLModel (BrainFlowModelParams params)
     {
-        this.metric = metric;
-        this.classifier = classifier;
+        input_params = params.to_json ();
     }
 
     /**
@@ -89,7 +87,7 @@ public class MLModel
      */
     public void prepare () throws BrainFlowError
     {
-        int ec = instance.prepare (metric, classifier);
+        int ec = instance.prepare (input_params);
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in prepare", ec);
@@ -103,7 +101,7 @@ public class MLModel
      */
     public void release () throws BrainFlowError
     {
-        int ec = instance.release (metric, classifier);
+        int ec = instance.release (input_params);
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in release", ec);
@@ -118,7 +116,7 @@ public class MLModel
     public double predict (double[] data) throws BrainFlowError
     {
         double[] val = new double[1];
-        int ec = instance.predict (data, data.length, val, metric, classifier);
+        int ec = instance.predict (data, data.length, val, input_params);
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in predict", ec);

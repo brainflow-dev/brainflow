@@ -5,46 +5,54 @@
 
 #include "base_classifier.h"
 #include "brainflow_constants.h"
+#include "brainflow_model_params.h"
 #include "concentration_regression_classifier.h"
 #include "ml_module.h"
 #include "relaxation_regression_classifier.h"
 
+#include "json.hpp"
 
-std::map<std::pair<int, int>, std::shared_ptr<BaseClassifier>> ml_models;
+using json = nlohmann::json;
+
+int string_to_brainflow_model_params (const char *json_params, struct BrainFlowModelParams *params);
+
+std::map<struct BrainFlowModelParams, std::shared_ptr<BaseClassifier>> ml_models;
 std::mutex models_mutex;
 
-std::pair<int, int> get_key (int metric, int classifier);
-int check_model (int metric, int classifier, std::pair<int, int> &key);
 
-
-int prepare (int metric, int classifier)
+int prepare (char *json_params)
 {
     std::lock_guard<std::mutex> lock (models_mutex);
 
     std::shared_ptr<BaseClassifier> model = NULL;
-    std::pair<int, int> key = get_key (metric, classifier);
+    struct BrainFlowModelParams key (
+        (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::REGRESSION);
+    int res = string_to_brainflow_model_params (json_params, &key);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        return res;
+    }
     if (ml_models.find (key) != ml_models.end ())
     {
         return (int)BrainFlowExitCodes::ANOTHER_CLASSIFIER_IS_PREPARED_ERROR;
     }
 
-    if (key ==
-        std::make_pair ((int)BrainFlowMetrics::RELAXATION, (int)BrainFlowClassifiers::REGRESSION))
+    if ((key.metric == (int)BrainFlowMetrics::RELAXATION) &&
+        (key.classifier == (int)BrainFlowClassifiers::REGRESSION))
     {
-        model = std::shared_ptr<BaseClassifier> (new RelaxationRegressionClassifier ());
+        model = std::shared_ptr<BaseClassifier> (new RelaxationRegressionClassifier (key));
     }
-    else if (key ==
-        std::make_pair (
-            (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::REGRESSION))
+    else if ((key.metric == (int)BrainFlowMetrics::CONCENTRATION) &&
+        (key.classifier == (int)BrainFlowClassifiers::REGRESSION))
     {
-        model = std::shared_ptr<BaseClassifier> (new ConcentrationRegressionClassifier ());
+        model = std::shared_ptr<BaseClassifier> (new ConcentrationRegressionClassifier (key));
     }
     else
     {
         return (int)BrainFlowExitCodes::UNSUPPORTED_CLASSIFIER_AND_METRIC_COMBINATION_ERROR;
     }
 
-    int res = model->prepare ();
+    res = model->prepare ();
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         model = NULL;
@@ -56,55 +64,60 @@ int prepare (int metric, int classifier)
     return res;
 }
 
-int predict (double *data, int data_len, double *output, int metric, int classifier)
+int predict (double *data, int data_len, double *output, char *json_params)
 {
     std::lock_guard<std::mutex> lock (models_mutex);
 
-    std::pair<int, int> key;
-    int res = check_model (metric, classifier, key);
+    struct BrainFlowModelParams key (
+        (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::REGRESSION);
+    int res = string_to_brainflow_model_params (json_params, &key);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
     auto model = ml_models.find (key);
+    if (model == ml_models.end ())
+    {
+        return (int)BrainFlowExitCodes::CLASSIFIER_IS_NOT_PREPARED_ERROR;
+    }
     return model->second->predict (data, data_len, output);
 }
 
-int release (int metric, int classifier)
+int release (char *json_params)
 {
     std::lock_guard<std::mutex> lock (models_mutex);
 
-    std::pair<int, int> key;
-    int res = check_model (metric, classifier, key);
+    struct BrainFlowModelParams key (
+        (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::REGRESSION);
+    int res = string_to_brainflow_model_params (json_params, &key);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
     auto model = ml_models.find (key);
+    if (model == ml_models.end ())
+    {
+        return (int)BrainFlowExitCodes::CLASSIFIER_IS_NOT_PREPARED_ERROR;
+    }
     res = model->second->release ();
     ml_models.erase (model);
     return res;
 }
 
-
-/////////////////////////////////////////////////
-//////////////////// helpers ////////////////////
-/////////////////////////////////////////////////
-
-
-std::pair<int, int> get_key (int metric, int classifier)
+int string_to_brainflow_model_params (const char *json_params, struct BrainFlowModelParams *params)
 {
-    std::pair<int, int> key = std::make_pair (metric, classifier);
-    return key;
-}
-
-int check_model (int metric, int classifier, std::pair<int, int> &key)
-{
-    key = get_key (metric, classifier);
-
-    if (ml_models.find (key) == ml_models.end ())
+    // input string -> json -> struct BrainFlowModelParams
+    try
     {
-        return (int)BrainFlowExitCodes::CLASSIFIER_IS_NOT_PREPARED_ERROR;
+        json config = json::parse (std::string (json_params));
+        params->metric = config["metric"];
+        params->classifier = config["classifier"];
+        params->file = config["file"];
+        params->other_info = config["other_info"];
+        return (int)BrainFlowExitCodes::STATUS_OK;
     }
-    return (int)BrainFlowExitCodes::STATUS_OK;
+    catch (json::exception &e)
+    {
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
 }

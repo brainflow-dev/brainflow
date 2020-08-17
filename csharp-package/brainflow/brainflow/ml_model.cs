@@ -8,18 +8,15 @@ namespace brainflow
 {
     public class MLModel
     {
-        private int metric;
-        private int classifier;
+        private string input_json;
 
         /// <summary>
         /// Create an instance of MLModel class
         /// </summary>
-        /// <param name="metric"></param>
-        /// <param name="classifier"></param>
-        public MLModel (int metric, int classifier)
+        /// <param name="input_params"></param>
+        public MLModel (BrainFlowModelParams input_params)
         {
-            this.metric = metric;
-            this.classifier = classifier;
+            this.input_json = input_params.to_json ();
         }
 
         /// <summary>
@@ -27,7 +24,7 @@ namespace brainflow
         /// </summary>
         public void prepare ()
         {
-            int res = MLModuleLibrary.prepare (metric, classifier);
+            int res = MLModuleLibrary.prepare (input_json);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException (res);
@@ -39,7 +36,7 @@ namespace brainflow
         /// </summary>
         public void release ()
         {
-            int res = MLModuleLibrary.release (metric, classifier);
+            int res = MLModuleLibrary.release (input_json);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException (res);
@@ -52,7 +49,7 @@ namespace brainflow
         public double predict (double[] data)
         {
             double[] val = new double[1];
-            int res = MLModuleLibrary.predict (data, data.Length, val, metric, classifier);
+            int res = MLModuleLibrary.predict (data, data.Length, val, input_json);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException (res);

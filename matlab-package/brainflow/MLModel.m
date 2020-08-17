@@ -1,8 +1,7 @@
 classdef MLModel
     
     properties
-        metric
-        classifier
+        input_json
     end
 
     methods (Static)
@@ -38,22 +37,21 @@ classdef MLModel
 
     methods
 
-        function obj = MLModel (metric, classifier)
-            obj.metric = metric;
-            obj.classifier = classifier;
+        function obj = MLModel (params)
+            obj.input_json = params.to_json ();
         end
 
         function prepare (obj)
             task_name = 'prepare';
             lib_name = MLModel.load_lib ();
-            exit_code = calllib (lib_name, task_name, obj.metric, obj.classifier);
+            exit_code = calllib (lib_name, task_name, obj.input_json);
             MLModel.check_ec (exit_code, task_name);
         end
         
         function release (obj)
             task_name = 'release';
             lib_name = MLModel.load_lib ();
-            exit_code = calllib (lib_name, task_name, obj.metric, obj.classifier);
+            exit_code = calllib (lib_name, task_name, obj.input_json);
             MLModel.check_ec (exit_code, task_name);
         end
 
@@ -62,7 +60,7 @@ classdef MLModel
             lib_name = MLModel.load_lib ();
             score_temp = libpointer ('doublePtr', 0.0);
             input_data_temp = libpointer ('doublePtr', input_data);
-            exit_code = calllib (lib_name, task_name, input_data_temp, size (input_data, 2), score_temp, obj.metric, obj.classifier);
+            exit_code = calllib (lib_name, task_name, input_data_temp, size (input_data, 2), score_temp, obj.input_json);
             BoardShim.check_ec (exit_code, task_name);
             score = score_temp.Value;
         end

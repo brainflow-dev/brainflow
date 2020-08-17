@@ -65,7 +65,7 @@ class BrainFlowInputParams (object):
     :type mac_address: str
     :param ip_address: ip address is used for boards which reads data from socket connection
     :type ip_address: str
-    :param ip_port: ip port for socket connection, for some boards where we know it in front you dont need this parameter(NovaXR for example)
+    :param ip_port: ip port for socket connection, for some boards where we know it in front you dont need this parameter
     :type ip_port: int
     :param ip_protocol: ip protocol type from IpProtocolType enum
     :type ip_protocol: int

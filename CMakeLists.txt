@@ -251,6 +251,7 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/src/utils/inc
     ${CMAKE_HOME_DIRECTORY}/src/ml/inc
     ${CMAKE_HOME_DIRECTORY}/third_party/libsvm
+    ${CMAKE_HOME_DIRECTORY}/third_party/json
 )
 
 set_target_properties (${BOARD_CONTROLLER_NAME}
@@ -465,6 +466,7 @@ install (
     ${CMAKE_HOME_DIRECTORY}/src/utils/inc/shared_export.h
     ${CMAKE_HOME_DIRECTORY}/src/data_handler/inc/data_handler.h
     ${CMAKE_HOME_DIRECTORY}/src/ml/inc/ml_module.h
+    ${CMAKE_HOME_DIRECTORY}/src/ml/inc/brainflow_model_params.h
     ${CMAKE_HOME_DIRECTORY}/cpp-package/src/inc/data_filter.h
     ${CMAKE_HOME_DIRECTORY}/cpp-package/src/inc/board_shim.h
     ${CMAKE_HOME_DIRECTORY}/cpp-package/src/inc/brainflow_exception.h
