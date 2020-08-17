@@ -906,7 +906,7 @@ int get_avg_band_powers (double *raw_data, int rows, int cols, int sampling_rate
     {
         nfft /= 2;
     }
-    if (nfft < 2)
+    if (nfft < 8)
     {
         return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
@@ -949,11 +949,12 @@ int get_avg_band_powers (double *raw_data, int rows, int cols, int sampling_rate
             }
         }
 
-        exit_codes[i] = get_psd_welch (thread_data, cols, nfft, nfft / 2, sampling_rate,
+        // use 80% overlap, as long as it works fast overlap param can be big
+        exit_codes[i] = get_psd_welch (thread_data, cols, nfft, 4 * nfft / 5, sampling_rate,
             (int)WindowFunctions::HANNING, ampls, freqs);
         if (exit_codes[i] == (int)BrainFlowExitCodes::STATUS_OK)
         {
-            exit_codes[i] = get_band_power (ampls, freqs, nfft / 2 + 1, 1.0, 4.0, &bands[0][i]);
+            exit_codes[i] = get_band_power (ampls, freqs, nfft / 2 + 1, 1.5, 4.0, &bands[0][i]);
         }
         if (exit_codes[i] == (int)BrainFlowExitCodes::STATUS_OK)
         {
@@ -961,7 +962,7 @@ int get_avg_band_powers (double *raw_data, int rows, int cols, int sampling_rate
         }
         if (exit_codes[i] == (int)BrainFlowExitCodes::STATUS_OK)
         {
-            exit_codes[i] = get_band_power (ampls, freqs, nfft / 2 + 1, 7.4, 13.0, &bands[2][i]);
+            exit_codes[i] = get_band_power (ampls, freqs, nfft / 2 + 1, 7.5, 13.0, &bands[2][i]);
         }
         if (exit_codes[i] == (int)BrainFlowExitCodes::STATUS_OK)
         {

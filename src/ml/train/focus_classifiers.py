@@ -15,8 +15,9 @@ from brainflow.ml_model import BrainFlowMetrics, BrainFlowClassifiers, MLModel
 
 
 def prepare_data ():
-    window_size = 2.5
-    overlap = 1.25
+    # use different windows, its kinda data augmentation
+    window_sizes = [4.0, 6.0, 8.0, 10.0]
+    overlaps = [0.5, 0.45, 0.4, 0.35] # percentage of window_size
     dataset_x = list ()
     dataset_y = list ()
     algo_focused_scores = list ()
@@ -43,17 +44,18 @@ def prepare_data ():
                 except Exception as e:
                     print (str (e))
                 print ('channels to use: %s' % str (eeg_channels))
-                cur_pos = sampling_rate * 3 # skip first 3 seconds of data
-                while cur_pos + int (window_size * sampling_rate) < data.shape[1]:
-                    data_in_window = data[:, cur_pos:cur_pos + int (window_size * sampling_rate)]
-                    bands = DataFilter.get_avg_band_powers (data_in_window, eeg_channels, sampling_rate, True)
-                    feature_vector = np.concatenate ((bands[0], bands[1]))
-                    dataset_x.append (feature_vector)
-                    if data_type == 'relaxed':
-                        dataset_y.append (0)
-                    else:
-                        dataset_y.append (1)
-                    cur_pos = cur_pos + int (overlap * sampling_rate)
+                for num, window_size in enumerate (window_sizes):
+                    cur_pos = sampling_rate * 3 # skip first 3 seconds of data
+                    while cur_pos + int (window_size * sampling_rate) < data.shape[1]:
+                        data_in_window = data[:, cur_pos:cur_pos + int (window_size * sampling_rate)]
+                        bands = DataFilter.get_avg_band_powers (data_in_window, eeg_channels, sampling_rate, True)
+                        feature_vector = np.concatenate ((bands[0], bands[1]))
+                        dataset_x.append (feature_vector)
+                        if data_type == 'relaxed':
+                            dataset_y.append (0)
+                        else:
+                            dataset_y.append (1)
+                        cur_pos = cur_pos + int (window_size * overlaps[num] * sampling_rate)
             except Exception as e:
                 print (str (e))
 
@@ -64,12 +66,12 @@ def prepare_data ():
 def train_regression (data):
     # print cross validation scores
     dummy_clf = DummyClassifier (strategy = 'stratified')
-    scores = cross_val_score (dummy_clf, data[0], data[1], cv = 5, scoring = 'f1_macro', n_jobs = 4)
+    scores = cross_val_score (dummy_clf, data[0], data[1], cv = 5, scoring = 'f1_macro', n_jobs = 8)
     print ('Dummy Scores:')
     print (scores)
 
-    model = LogisticRegression ()
-    scores = cross_val_score (model, data[0], data[1], cv = 5, scoring = 'f1_macro', n_jobs = 4)
+    model = LogisticRegression (class_weight = 'balanced', solver = 'liblinear', max_iter = 3000)
+    scores = cross_val_score (model, data[0], data[1], cv = 5, scoring = 'f1_macro', n_jobs = 8)
     print (scores)
 
     model.fit (data[0], data[1])

@@ -41,6 +41,8 @@ int main (int argc, char *argv[])
         board->prepare_session ();
         board->start_stream ();
         BoardShim::log_message ((int)LogLevels::LEVEL_INFO, "Start sleeping in the main thread");
+        // recommended window size for eeg metric calculation is at least 4 seconds, bigger is
+        // better
 #ifdef _WIN32
         Sleep (5000);
 #else
