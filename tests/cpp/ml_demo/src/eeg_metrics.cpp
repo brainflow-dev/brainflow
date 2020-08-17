@@ -46,9 +46,9 @@ int main (int argc, char *argv[])
 #else
         sleep (5);
 #endif
-        board->stop_stream ();
         int data_count = 0;
         data = board->get_board_data (&data_count);
+        board->stop_stream ();
         std::cout << "Data Count: " << data_count << std::endl;
         board->release_session ();
         num_rows = BoardShim::get_num_rows (board_id);
@@ -70,17 +70,21 @@ int main (int argc, char *argv[])
         }
         std::cout << std::endl;
 
-        // Prepare Models and Calc Concentration and Relaxation
-        MLModel concentration_model (struct BrainFlowModelParams (
-            (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::REGRESSION));
-        MLModel relaxation_model (struct BrainFlowModelParams (
-            (int)BrainFlowMetrics::RELAXATION, (int)BrainFlowClassifiers::REGRESSION));
+        // Prepare Models
+        struct BrainFlowModelParams conc_model_params (
+            (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::REGRESSION);
+        MLModel concentration_model (conc_model_params);
         concentration_model.prepare ();
-        relaxation_model.prepare ();
         std::cout << "Concentration: " << concentration_model.predict (feature_vector, 10)
-                  << " Relaxation: " << relaxation_model.predict (feature_vector, 10) << std::endl;
+                  << std::endl;
         concentration_model.release ();
-        relaxation_model.release ();
+
+        struct BrainFlowModelParams relax_model_params (
+            (int)BrainFlowMetrics::RELAXATION, (int)BrainFlowClassifiers::REGRESSION);
+        MLModel relax_model (relax_model_params);
+        relax_model.prepare ();
+        std::cout << "Relaxation: " << relax_model.predict (feature_vector, 10) << std::endl;
+        relax_model.release ();
 
         delete[] bands.first;
         delete[] bands.second;

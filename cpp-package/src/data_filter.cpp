@@ -223,7 +223,10 @@ std::pair<double *, double *> DataFilter::get_avg_band_powers (
     }
     for (int i = 0; i < channels_len; i++)
     {
-        memcpy (data_1d + i * cols, data[channels[i]], cols);
+        for (int j = 0; j < cols; j++)
+        {
+            data_1d[j + cols * i] = data[channels[i]][j];
+        }
     }
     int res = ::get_avg_band_powers (
         data_1d, channels_len, cols, sampling_rate, (int)apply_filters, avg_bands, stddev_bands);
