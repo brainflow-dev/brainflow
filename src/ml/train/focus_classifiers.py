@@ -45,7 +45,10 @@ def prepare_data ():
                     print (str (e))
                 print ('channels to use: %s' % str (eeg_channels))
                 for num, window_size in enumerate (window_sizes):
-                    cur_pos = sampling_rate * 3 # skip first 3 seconds of data
+                    if data_type == 'focused':
+                        cur_pos = sampling_rate * 10 # skip a little more for focus
+                    else:
+                        cur_pos = sampling_rate * 3
                     while cur_pos + int (window_size * sampling_rate) < data.shape[1]:
                         data_in_window = data[:, cur_pos:cur_pos + int (window_size * sampling_rate)]
                         bands = DataFilter.get_avg_band_powers (data_in_window, eeg_channels, sampling_rate, True)
