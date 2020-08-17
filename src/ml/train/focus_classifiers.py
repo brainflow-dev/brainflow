@@ -20,8 +20,6 @@ def prepare_data ():
     overlaps = [0.5, 0.45, 0.4, 0.35] # percentage of window_size
     dataset_x = list ()
     dataset_y = list ()
-    algo_focused_scores = list ()
-    algo_relaxed_scores = list ()
     for data_type in ('relaxed', 'focused'):
         for file in glob.glob (os.path.join ('data', data_type, '*', '*.csv')):
             print (file)
