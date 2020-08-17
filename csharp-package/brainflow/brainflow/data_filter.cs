@@ -451,7 +451,7 @@ namespace brainflow
         /// <summary>
         /// calculate band power
         /// </summary>
-        /// <param name="psd">psd data returned by get_psd or get_log_psd</param>
+        /// <param name="psd">psd data returned by get_psd or get_psd_welch</param>
         /// <param name="start_freq">lowest frequency of band</param>
         /// <param name="stop_freq">highest frequency of band</param>
         /// <returns>band power</returns>

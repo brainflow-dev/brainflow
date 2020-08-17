@@ -66,6 +66,12 @@ Python Band Power
 .. literalinclude:: ../tests/python/band_power.py
    :language: py
 
+Python EEG Metrics
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../tests/python/eeg_metrics.py
+   :language: py
+
 Java
 ------
 
@@ -109,6 +115,12 @@ Java Band Power
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. literalinclude:: ../java-package/brainflow/src/main/java/brainflow/examples/BandPower.java
+   :language: java
+
+Java EEG Metrics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../java-package/brainflow/src/main/java/brainflow/examples/EEGMetrics.java
    :language: java
 
 C#
@@ -156,6 +168,11 @@ C# Band Power
 .. literalinclude:: ../csharp-package/brainflow/band_power/band_power.cs
    :language: c#
 
+C# EEG Metrics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../csharp-package/brainflow/eeg_metrics/eeg_metrics.cs
+   :language: c#
 
 C++
 -----
@@ -227,6 +244,12 @@ C++ Band Power
 .. literalinclude:: ../tests/cpp/signal_processing_demo/src/band_power.cpp
    :language: cpp
 
+C++ EEG Metrics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../tests/cpp/ml_demo/src/eeg_metrics.cpp
+   :language: cpp
+
 R
 ----
 
@@ -264,6 +287,12 @@ R Band Power
 ~~~~~~~~~~~~~
 
 .. literalinclude:: ../tests/r/band_power.R
+   :language: r
+
+R EEG Metrics
+~~~~~~~~~~~~~~
+
+.. literalinclude:: ../tests/r/eeg_metrics.R
    :language: r
 
 Matlab
@@ -305,6 +334,12 @@ Matlab Band Power
 .. literalinclude:: ../matlab-package/brainflow/examples/BandPower.m
    :language: matlab
 
+Matlab EEG Metrics
+~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../matlab-package/brainflow/examples/EEGMetrics.m
+   :language: matlab
+
 Julia
 --------
 
@@ -342,6 +377,12 @@ Julia Band Power
 ~~~~~~~~~~~~~~~~~
 
 .. literalinclude:: ../julia-package/brainflow/test/band_power.jl
+   :language: julia
+
+Julia EEG Metrics
+~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../julia-package/brainflow/test/eeg_metrics.jl
    :language: julia
 
 Notebooks

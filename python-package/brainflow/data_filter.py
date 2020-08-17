@@ -627,37 +627,10 @@ class DataFilter (object):
             raise BrainFlowError ('unable to detrend data', res)
 
     @classmethod
-    def get_log_psd (cls, data: NDArray[Float64], sampling_rate: int, window: int) -> Tuple:
-        """calculate log PSD
-
-        :param data: data to calc log psd, len of data must be a power of 2
-        :type data: NDArray[Float64]
-        :param sampling_rate: sampling rate
-        :type sampling_rate: int
-        :param window: window function
-        :type window: int
-        :return: amplitude and frequency arrays of len N / 2 + 1
-        :rtype: tuple
-        """
-        def is_power_of_two (n):
-            return (n != 0) and (n & (n - 1) == 0)
-
-        if (not is_power_of_two (data.shape[0])):
-            raise BrainFlowError ('data len is not power of 2', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
-
-        ampls = numpy.zeros (int (data.shape[0] / 2 + 1)).astype (numpy.float64)
-        freqs = numpy.zeros (int (data.shape[0] / 2 + 1)).astype (numpy.float64)
-        res = DataHandlerDLL.get_instance ().get_log_psd (data, data.shape[0], sampling_rate, window, ampls, freqs)
-        if res != BrainflowExitCodes.STATUS_OK.value:
-            raise BrainFlowError ('unable to calc log psd', res)
-
-        return ampls, freqs
-
-    @classmethod
     def get_band_power (cls, psd: Tuple, freq_start: float, freq_end: float) -> float:
         """calculate band power
 
-        :param psd: psd from get_psd or get_log_psd
+        :param psd: psd from get_psd
         :type psd: typle
         :param freq_start: start freq
         :type freq_start: int

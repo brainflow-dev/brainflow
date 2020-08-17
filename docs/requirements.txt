@@ -1,5 +1,5 @@
-breathe==4.13.0
-sphinx==2.0.1
+sphinx==3.1.2
+breathe==4.19.2
 sphinx_rtd_theme
 brainflow
 pandas

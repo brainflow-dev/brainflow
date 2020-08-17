@@ -1,17 +1,18 @@
 User API
 ==========
 
-BrainFlow User API has only two classes:
+BrainFlow User API has three main modules:
 
 - BoardShim to read data from a board, it calls methods from underlying BoardController library
 - DataFilter to perform signal processing, it calls methods from underlying DataHandler library
+- MLModel to calculate derivative metrics, it calls methods from underlying MLModule library
 
 These classes are independent, so if you want, you can use BrainFlow API only for data streaming and perform signal processing by yourself and vice versa.
 
-BrainFlow API is board agnostic, so **to select a specific board you need to pass BrainFlow's board id to BoardShim's constructor and an instance of BrainFlowInputParams structure** which should hold information for your specific board, check :ref:`supported-boards-label`. for details.
+BrainFlow data acqusition API is board agnostic, so **to select a specific board you need to pass BrainFlow's board id to BoardShim's constructor and an instance of BrainFlowInputParams structure** which should hold information for your specific board, check :ref:`supported-boards-label`. for details.
 This abstraction allows you to switch boards without any changes in code.
 
-In BoardShim, all board data is returned as a 2d array. Rows in this array may contain timestamps: EEG and EMG data and so on. To see instructions how to query specific kind of data check :ref:`data-format-label` and :ref:`code-samples-label`.
+In BoardShim, all board data is returned as a 2d array. Rows in this array may contain timestamps, EEG and EMG data and so on. To see instructions how to query specific kind of data check :ref:`data-format-label` and :ref:`code-samples-label`.
 
 Python API Reference
 ----------------------
@@ -44,6 +45,15 @@ brainflow.data\_filter
    :show-inheritance:
    :member-order: bysource
 
+brainflow.ml\_model
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: brainflow.ml_model
+   :members:
+   :noindex:
+   :show-inheritance:
+   :member-order: bysource
+
 C++ API Reference
 -------------------
 
@@ -71,10 +81,26 @@ BrainFlowException class
    :project: BrainFlowCpp
    :undoc-members:
 
+BrainFlowModelParams class
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. doxygenclass:: BrainFlowModelParams
+   :members:
+   :project: BrainFlowCpp
+   :undoc-members:
+
+MLModel class
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. doxygenclass:: MLModel
+   :members:
+   :project: BrainFlowCpp
+   :undoc-members:
+
 BrainFlow constants
 ~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../src/board_controller/inc/brainflow_constants.h
+.. literalinclude:: ../src/utils/inc/brainflow_constants.h
    :language: cpp
 
 Java API Reference
