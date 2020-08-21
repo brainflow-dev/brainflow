@@ -9,13 +9,11 @@ This page provides an overview of the major themes in BrainFlow's development. E
 
 An item being on the roadmap does not mean that it will necessarily happen, even with unlimited funding. During the implementation period we may discover issues preventing the adoption of the feature.
 
-Additionally, an item not being on the roadmap does not exclude it from inclusion in BrainFlo. The roadmap is intended for larger, fundamental changes to the project that are likely to take months or years of developer time. Smaller-scoped items will continue to be tracked on our issue tracker.
+Additionally, an item not being on the roadmap does not exclude it from inclusion in BrainFlow. The roadmap is intended for larger, fundamental changes to the project that are likely to take months or years of developer time. Smaller-scoped items will continue to be tracked on our issue tracker.
 
 ## Support as many devices as possible
 
-We have powerful system for multi board expansion, which allows us to add support for new devices rather fast and easy.
-
-But to add new devices to BrainFlow API we need to buy them or work together with manufacturers.
+BrainFlow has built-in framework for adding new devices. It works great and simplifies this process, but to add new boards we need to buy them or collaborate with manufactorers.
 
 ## Port BrainFlow to new platforms and languages
 
@@ -24,31 +22,24 @@ So far we support:
 * Linux
 * Windows
 * MacOS
+* Raspberry Pi(for some devices)
+* Android(for some devices)
 
-For selected boards we are going to port BrainFlow to IOS and Android. For certain devices it's technically impossible (e.g. communication via serial port). But for some of them it's doable and will provide new opportunities and attract more users. Signal processing API can be ported to any platform without any limitations. Also, currently we don't provide compiled libraries for devices like Nvidia Jetson Nano, Raspberry Pi, etc, and force users to compile BrainFlow on these devices by themself.
+We are working on adding support for other OSes like IOS and adding more boards to Android and Raspberry Pi.
 
-Currently BrainFlow provides bindings for:
+Also, we are looking forward to add more bindings e.g. JavaScript.
 
-* C++
-* Java
-* Python
-* R
-* C#
-* Julia
-* Matlab
+The last but not the least we are integrating BrainFlow to Game Engines and other applications.
 
-We are looking forward to add more languages.
+## Signal Processing and ML API improvements 
 
-## Signal Processing API Improvement
+List of potential tasks:
 
-Existing signal processing API is quite poerful, but there is room for improvement. 
-
-Adding more options for signal denoising and artifacts removal will be really useful. One of the most popular methods for it is ICA based denoising which is not implemented in BrainFlow yet.
-
-
-## Implement Riemannian geometry for BCI classification
-
-There are many frameworks for machine learning and we are not going to create our own. But in BCI domain Riemannian geometry is one of the most powerful tools for signal classification. Unfortunately most of existing machine learning frameorks don't support it.
+* Implement ICA based signal denoising
+* Implement Common Spatial Patterns(CSP)
+* Add more ML classifiers for existing derivative metrics
+* Calculate more derivate metrics
+* Add the opportunity to load user's models via [onnxruntime](https://github.com/microsoft/onnxruntime)
 
 
 ## Documentation and website improvements
