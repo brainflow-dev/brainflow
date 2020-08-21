@@ -329,7 +329,7 @@ void NovaXR::read_thread ()
                     package[i - 3] =
                         emg_scale * (double)cast_24bit_to_int32 (b + offset + 5 + 3 * (i - 4));
             }
-            int16_t temperature;
+            uint16_t temperature;
             int32_t ppg_ir;
             int32_t ppg_red;
             float eda;
