@@ -7,7 +7,9 @@ tags: [release]
 
 ### ML Module
 
-In this version we've added methods to calculate derivative metrics from raw data. As of right now, it supports only Concentration and Relaxation calculation from EEG data using Logistic Regression Classifier. In upcoming versions we will add more metrics to calculate, new classifiers for existing metrics and API to load user defined models in ONNX format. Also, we are collecting more data to improve accuracy and recall of our models.
+In this version we've added methods to calculate derivative metrics from raw data. As of right now, it supports only Concentration and Relaxation calculation from EEG data using Logistic Regression Classifier.
+
+In upcoming versions we will add more metrics to calculate, new classifiers for existing metrics and API to load user defined models in ONNX format. Also, we are collecting more data to improve accuracy and recall of our models.
 
 Example:
 
