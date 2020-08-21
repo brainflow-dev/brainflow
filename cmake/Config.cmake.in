@@ -17,6 +17,7 @@ if (CMAKE_SIZEOF_VOID_P EQUAL 8)
     SET (PLATFORM_ACH "X64")
     SET (BOARD_CONTROLLER_NAME "BoardController" "libBoardController")
     SET (DATA_HANDLER_NAME "DataHandler" "libDataHandler")
+    SET (ML_MODULE_NAME "MLModule" "libMLModule")
     SET (BRAINFLOW_NAME "Brainflow" "libBrainflow")
 else (CMAKE_SIZEOF_VOID_P EQUAL 8)
     MESSAGE ("32 bits compiler detected")
@@ -24,10 +25,12 @@ else (CMAKE_SIZEOF_VOID_P EQUAL 8)
     if (MSVC)
         SET (BOARD_CONTROLLER_NAME "BoardController32" "libBoardController32")
         SET (DATA_HANDLER_NAME "DataHandler32" "libDataHandler32")
+        SET (ML_MODULE_NAME "MLModule32" "libMLModule32")
         SET (BRAINFLOW_NAME "Brainflow32" "libBrainflow32")
     else (MSVC)
         SET (BOARD_CONTROLLER_NAME "BoardController" "libBoardController")
         SET (DATA_HANDLER_NAME "DataHandler" "libDataHandler")
+        SET (ML_MODULE_NAME "MLModule" "libMLModule")
         SET (BRAINFLOW_NAME "Brainflow" "libBrainflow")
     endif (MSVC)
 endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -47,5 +50,11 @@ find_library (
 find_library (
     BrainflowPath
     ${BRAINFLOW_NAME}
+    PATHS @PACKAGE_LIB_INSTALL_DIR@
+)
+
+find_library (
+    MLModulePath
+    ${ML_MODULE_NAME}
     PATHS @PACKAGE_LIB_INSTALL_DIR@
 )

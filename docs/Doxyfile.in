@@ -948,12 +948,18 @@ EXCLUDE_SYMBOLS        = BoardControllerLibrary64 \
                          DataHandlerLibrary64 \
                          DataHandlerLibrary32 \
                          DataHandlerLibrary \
+                         MLModuleLibrary64 \
+                         MLModuleLibrary32 \
+                         MLModuleLibrary \
                          brainflow::BoardControllerLibrary64 \
                          brainflow::BoardControllerLibrary32 \
                          brainflow::BoardControllerLibrary \
                          brainflow::DataHandlerLibrary64 \
                          brainflow::DataHandlerLibrary32 \
                          brainflow::DataHandlerLibrary \
+                         brainflow::MLModuleLibrary64 \
+                         brainflow::MLModuleLibrary32 \
+                         brainflow::MLModuleLibrary \
                          BrainFlowTest \
                          brainflow::BrainFlowTest
 

@@ -213,6 +213,27 @@ function get_eeg_channels(board_id::AnyIntType)
 end
 
 
+function get_exg_channels(board_id::AnyIntType)
+    channels = Vector{Cint}(undef, 512)
+    len = Vector{Cint}(undef, 1)
+    ec = STATUS_OK
+    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
+    if Sys.iswindows()
+        ec = ccall((:get_exg_channels, "BoardController.dll"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
+    elseif Sys.isapple()
+        ec = ccall((:get_exg_channels, "libBoardController.dylib"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
+    else
+        ec = ccall((:get_exg_channels, "libBoardController.so"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
+    end
+    if ec != Integer(STATUS_OK)
+        throw(BrainFlowError(string("Error in get board info ", ec), ec))
+    end
+    # julia counts from 1
+    value = channels[1:len[1]] .+ 1
+    value
+end
+
+
 function get_emg_channels(board_id::AnyIntType)
     channels = Vector{Cint}(undef, 512)
     len = Vector{Cint}(undef, 1)

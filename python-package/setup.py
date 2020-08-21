@@ -39,7 +39,10 @@ setup (
             os.path.join ('lib', 'GanglionLib.dll'),
             os.path.join ('lib', 'GanglionLib32.dll'),
             os.path.join ('lib', 'libGanglionLib.so'),
-            os.path.join ('lib', 'libGanglionLib.dylib')
+            os.path.join ('lib', 'libGanglionLib.dylib'),
+            os.path.join ('lib', 'MLModule.dll'),
+            os.path.join ('lib', 'libMLModule.so'),
+            os.path.join ('lib', 'libMLModule.dylib')
         ]
     },
     zip_safe = True,

@@ -207,7 +207,8 @@ end
 
 function write_file(data, file_name::String, file_mode::String)
     shape = size(data)
-    flatten = reshape(transpose(data), (1, shape[1] * shape[2]))
+    flatten = transpose(vcat(data))
+    flaten = reshape(flatten, (1, shape[1] * shape[2]))
     flatten = copy(flatten)
     ec = STATUS_OK
     # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
@@ -398,6 +399,34 @@ function perform_ifft(data)
 end
 
 
+function get_avg_band_powers(data, channels, sampling_rate::AnyIntType, apply_filter::Bool)
+
+    shape = size(data)
+    data_1d = reshape(transpose(data[channels,:]), (1, size(channels)[1] * shape[2]))
+    data_1d = copy(data_1d)
+
+    temp_avgs = Vector{Float64}(undef, 5)
+    temp_stddevs = Vector{Float64}(undef, 5)
+
+    ec = STATUS_OK
+    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
+    if Sys.iswindows()
+        ec = ccall((:get_avg_band_powers, "DataHandler.dll"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
+            data_1d, size(channels)[1], shape[2], Int32(sampling_rate), Int32(apply_filter), temp_avgs, temp_stddevs)
+    elseif Sys.isapple()
+        ec = ccall((:get_avg_band_powers, "libDataHandler.dylib"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
+            data_1d, size(channels)[1], shape[2], Int32(sampling_rate), Int32(apply_filter), temp_avgs, temp_stddevs)
+    else
+        ec = ccall((:get_avg_band_powers, "libDataHandler.so"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
+            data_1d, size(channels)[1], shape[2], Int32(sampling_rate), Int32(apply_filter), temp_avgs, temp_stddevs)
+    end
+    if ec != Integer(STATUS_OK)
+        throw(BrainFlowError(string("Error in get_avg_band_powers ", ec), ec))
+    end
+    temp_avgs, temp_stddevs
+end
+
+
 function get_psd(data, sampling_rate::AnyIntType, window::AnyIntType)
 
     function is_power_of_two(value)
@@ -461,69 +490,6 @@ function get_psd_welch(data, nfft::AnyIntType, overlap::AnyIntType, sampling_rat
     temp_ampls, temp_freqs
 end
 
-
-function get_log_psd_welch(data, nfft::AnyIntType, overlap::AnyIntType, sampling_rate::AnyIntType, window::AnyIntType)
-
-    function is_power_of_two(value)
-        (value != 0) && (value & (value - 1) == 0)
-    end
-
-    if !is_power_of_two(nfft)
-        throw(BrainFlowError(string("nfft must be power of two ", INVALID_ARGUMENTS_ERROR), INVALID_ARGUMENTS_ERROR))
-    end
-
-    temp_ampls = Vector{Float64}(undef, Integer(nfft / 2) + 1)
-    temp_freqs = Vector{Float64}(undef, Integer(nfft / 2) + 1)
-
-    ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:get_log_psd_welch, "DataHandler.dll"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
-            data, length(data), Int32(nfft), Int32(overlap), Int32(sampling_rate), Int32(window), temp_ampls, temp_freqs)
-    elseif Sys.isapple()
-        ec = ccall((:get_log_psd_welch, "libDataHandler.dylib"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
-            data, length(data), Int32(nfft), Int32(overlap), Int32(sampling_rate), Int32(window), temp_ampls, temp_freqs)
-    else
-        ec = ccall((:get_log_psd_welch, "libDataHandler.so"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
-            data, length(data), Int32(nfft), Int32(overlap), Int32(sampling_rate), Int32(window), temp_ampls, temp_freqs)
-    end
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in get_log_psd_welch ", ec), ec))
-    end
-    temp_ampls, temp_freqs
-end
-
-
-function get_log_psd(data, sampling_rate::AnyIntType, window::AnyIntType)
-
-    function is_power_of_two(value)
-        (value != 0) && (value & (value - 1) == 0)
-    end
-
-    if !is_power_of_two(length(data))
-        throw(BrainFlowError(string("Data Len must be power of two ", INVALID_ARGUMENTS_ERROR), INVALID_ARGUMENTS_ERROR))
-    end
-
-    temp_ampls = Vector{Float64}(undef, Integer(length(data) / 2) + 1)
-    temp_freqs = Vector{Float64}(undef, Integer(length(data) / 2) + 1)
-
-    ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:get_log_psd, "DataHandler.dll"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
-            data, length(data), Int32(sampling_rate), Int32(window), temp_re, temp_im)
-    elseif Sys.isapple()
-        ec = ccall((:get_log_psd, "libDataHandler.dylib"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
-            data, length(data), Int32(sampling_rate), Int32(window), temp_re, temp_im)
-    else
-        ec = ccall((:get_log_psd, "libDataHandler.so"), Cint, (Ptr{Float64}, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
-            data, length(data), Int32(sampling_rate), Int32(window), temp_re, temp_im)
-    end
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in get_log_psd ", ec), ec))
-    end
-    temp_ampls, temp_freqs
-end
 
 function get_band_power(psd, freq_start::AnyDoubleType, freq_end::AnyDoubleType)
     band_power = Vector{Float64}(undef, 1)

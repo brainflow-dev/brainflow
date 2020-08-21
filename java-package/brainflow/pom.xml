@@ -67,6 +67,9 @@
           <include>GanglionLib.dll</include>
           <include>libGanglionLib.so</include>
           <include>libGanglionLib.dylib</include>
+          <include>MLModule.dll</include>
+          <include>libMLModule.so</include>
+          <include>libMLModule.dylib</include>
         </includes>
       </resource>
     </resources>

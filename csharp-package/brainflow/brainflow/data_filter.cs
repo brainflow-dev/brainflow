@@ -361,6 +361,33 @@ namespace brainflow
         }
 
         /// <summary>
+        /// calculate avg and stddev bandpowers across channels
+        /// </summary>
+        /// <param name="data">2d array with values</param>
+        /// <param name="channels">rows of data array which should be used for calculation</param>
+        /// <param name="sampling_rate">sampling rate</param>
+        /// <param name="apply_filters">apply bandpass and bandstop filters before calculation</param>
+        /// <returns>Tuple of avgs and stddev arrays</returns>
+        public static Tuple<double[], double[]> get_avg_band_powers(double[,] data, int[] channels, int sampling_rate, bool apply_filters)
+        {
+            double[] data_1d = new double[data.GetRow (0).Length * channels.Length];
+            for (int i = 0; i < channels.Length; i++)
+            {
+                Array.Copy(data.GetRow(channels[i]), 0, data_1d, i * data.GetRow (channels[i]).Length, data.GetRow(channels[i]).Length);
+            }
+            double[] avgs = new double[5];
+            double[] stddevs = new double[5];
+
+            int res = DataHandlerLibrary.get_avg_band_powers(data_1d, channels.Length, data.GetRow(0).Length, sampling_rate, (apply_filters) ? 1 : 0, avgs, stddevs);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException(res);
+            }
+            Tuple<double[], double[]> return_data = new Tuple<double[], double[]>(avgs, stddevs);
+            return return_data;
+        }
+
+        /// <summary>
         /// calculate PSD
         /// </summary>
         /// <param name="data">data for PSD</param>
@@ -386,67 +413,6 @@ namespace brainflow
             double[] temp_freqs = new double[len / 2 + 1];
 
             int res = DataHandlerLibrary.get_psd(data_to_process, len, sampling_rate, window, temp_ampls, temp_freqs);
-            if (res != (int)CustomExitCodes.STATUS_OK)
-            {
-                throw new BrainFlowException(res);
-            }
-            Tuple<double[], double[]> return_data = new Tuple<double[], double[]>(temp_ampls, temp_freqs);
-            return return_data;
-        }
-
-        /// <summary>
-        /// calculate log PSD
-        /// </summary>
-        /// <param name="data">data for log PSD</param>
-        /// <param name="start_pos">start pos</param>
-        /// <param name="end_pos">end pos, end_pos - start_pos must be a power of 2</param>
-        /// <param name="sampling_rate">sampling rate</param>
-        /// <param name="window">window function</param>
-        /// <returns>Tuple of ampls and freqs arrays of size N / 2 + 1</returns>
-        public static Tuple<double[], double[]> get_log_psd(double[] data, int start_pos, int end_pos, int sampling_rate, int window)
-        {
-            if ((start_pos < 0) || (end_pos > data.Length) || (start_pos >= end_pos))
-            {
-                throw new BrainFlowException((int)CustomExitCodes.INVALID_ARGUMENTS_ERROR);
-            }
-            int len = end_pos - start_pos;
-            if ((len & (len - 1)) != 0)
-            {
-                throw new BrainFlowException((int)CustomExitCodes.INVALID_ARGUMENTS_ERROR);
-            }
-            double[] data_to_process = new double[len];
-            Array.Copy(data, start_pos, data_to_process, 0, len);
-            double[] temp_ampls = new double[len / 2 + 1];
-            double[] temp_freqs = new double[len / 2 + 1];
-
-            int res = DataHandlerLibrary.get_log_psd(data_to_process, len, sampling_rate, window, temp_ampls, temp_freqs);
-            if (res != (int)CustomExitCodes.STATUS_OK)
-            {
-                throw new BrainFlowException(res);
-            }
-            Tuple<double[], double[]> return_data = new Tuple<double[], double[]>(temp_ampls, temp_freqs);
-            return return_data;
-        }
-
-        /// <summary>
-        /// calculate log PSD using Welch method
-        /// </summary>
-        /// <param name="data">data for log PSD</param>
-        /// <param name="nfft">FFT Size</param>
-        /// <param name="overlap">FFT Window overlap, must be between 0 and nfft</param>
-        /// <param name="sampling_rate">sampling rate</param>
-        /// <param name="window">window function</param>
-        /// <returns>Tuple of ampls and freqs arrays</returns>
-        public static Tuple<double[], double[]> get_log_psd_welch(double[] data, int nfft, int overlap, int sampling_rate, int window)
-        {
-            if ((nfft & (nfft - 1)) != 0)
-            {
-                throw new BrainFlowException((int)CustomExitCodes.INVALID_ARGUMENTS_ERROR);
-            }
-            double[] temp_ampls = new double[nfft / 2 + 1];
-            double[] temp_freqs = new double[nfft / 2 + 1];
-
-            int res = DataHandlerLibrary.get_log_psd_welch(data, data.Length, nfft, overlap, sampling_rate, window, temp_ampls, temp_freqs);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException(res);
@@ -485,7 +451,7 @@ namespace brainflow
         /// <summary>
         /// calculate band power
         /// </summary>
-        /// <param name="psd">psd data returned by get_psd or get_log_psd</param>
+        /// <param name="psd">psd data returned by get_psd or get_psd_welch</param>
         /// <param name="start_freq">lowest frequency of band</param>
         /// <param name="stop_freq">highest frequency of band</param>
         /// <returns>band power</returns>

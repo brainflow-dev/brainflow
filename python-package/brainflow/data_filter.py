@@ -227,6 +227,18 @@ class DataHandlerDLL (object):
             ctypes.c_int
         ]
 
+        self.get_avg_band_powers = self.lib.get_avg_band_powers
+        self.get_avg_band_powers.restype = ctypes.c_int
+        self.get_avg_band_powers.argtypes = [
+            ndpointer (ctypes.c_double),
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ndpointer (ctypes.c_double),
+            ndpointer (ctypes.c_double),
+        ]
+
         self.get_psd = self.lib.get_psd
         self.get_psd.restype = ctypes.c_int
         self.get_psd.argtypes = [
@@ -251,36 +263,12 @@ class DataHandlerDLL (object):
             ndpointer (ctypes.c_double),
         ]
 
-        self.get_log_psd_welch = self.lib.get_log_psd_welch
-        self.get_log_psd_welch.restype = ctypes.c_int
-        self.get_log_psd_welch.argtypes = [
-            ndpointer (ctypes.c_double),
-            ctypes.c_int,
-            ctypes.c_int,
-            ctypes.c_int,
-            ctypes.c_int,
-            ctypes.c_int,
-            ndpointer (ctypes.c_double),
-            ndpointer (ctypes.c_double),
-        ]
-
         self.detrend = self.lib.detrend
         self.detrend.restype = ctypes.c_int
         self.detrend.argtypes = [
             ndpointer (ctypes.c_double),
             ctypes.c_int,
             ctypes.c_int
-        ]
-
-        self.get_log_psd = self.lib.get_log_psd
-        self.get_log_psd.restype = ctypes.c_int
-        self.get_log_psd.argtypes = [
-            ndpointer (ctypes.c_double),
-            ctypes.c_int,
-            ctypes.c_int,
-            ctypes.c_int,
-            ndpointer (ctypes.c_double),
-            ndpointer (ctypes.c_double),
         ]
 
         self.get_band_power = self.lib.get_band_power
@@ -624,37 +612,6 @@ class DataFilter (object):
         return ampls, freqs
 
     @classmethod
-    def get_log_psd_welch (cls, data: NDArray[Float64], nfft: int, overlap: int, sampling_rate: int, window: int) -> Tuple:
-        """calculate log PSD using Welch method
-
-        :param data: data to calc psd
-        :type data: NDArray[Float64]
-        :param nfft: FFT Window size, must be power of 2
-        :type nfft: int
-        :param overlap: overlap of FFT Windows, must be between 0 and nfft
-        :type overlap: int
-        :param sampling_rate: sampling rate
-        :type sampling_rate: int
-        :param window: window function
-        :type window: int
-        :return: amplitude and frequency arrays of len N / 2 + 1
-        :rtype: tuple
-        """
-        def is_power_of_two (n):
-            return (n != 0) and (n & (n - 1) == 0)
-
-        if (not is_power_of_two (nfft)):
-            raise BrainFlowError ('nfft is not power of 2: %d' % nfft, BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
-
-        ampls = numpy.zeros (int (nfft / 2 + 1)).astype (numpy.float64)
-        freqs = numpy.zeros (int (nfft / 2 + 1)).astype (numpy.float64)
-        res = DataHandlerDLL.get_instance ().get_log_psd_welch (data, data.shape[0], nfft, overlap, sampling_rate, window, ampls, freqs)
-        if res != BrainflowExitCodes.STATUS_OK.value:
-            raise BrainFlowError ('unable to calc psd welch', res)
-
-        return ampls, freqs
-
-    @classmethod
     def detrend (cls, data: NDArray[Float64], detrend_operation: int) -> None:
         """detrend data
 
@@ -670,64 +627,10 @@ class DataFilter (object):
             raise BrainFlowError ('unable to detrend data', res)
 
     @classmethod
-    def get_log_psd (cls, data: NDArray[Float64], sampling_rate: int, window: int) -> Tuple:
-        """calculate log PSD
-
-        :param data: data to calc log psd, len of data must be a power of 2
-        :type data: NDArray[Float64]
-        :param sampling_rate: sampling rate
-        :type sampling_rate: int
-        :param window: window function
-        :type window: int
-        :return: amplitude and frequency arrays of len N / 2 + 1
-        :rtype: tuple
-        """
-        def is_power_of_two (n):
-            return (n != 0) and (n & (n - 1) == 0)
-
-        if (not is_power_of_two (data.shape[0])):
-            raise BrainFlowError ('data len is not power of 2: %d' % data.shape[0], BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
-
-        ampls = numpy.zeros (int (data.shape[0] / 2 + 1)).astype (numpy.float64)
-        freqs = numpy.zeros (int (data.shape[0] / 2 + 1)).astype (numpy.float64)
-        res = DataHandlerDLL.get_instance ().get_log_psd (data, data.shape[0], sampling_rate, window, ampls, freqs)
-        if res != BrainflowExitCodes.STATUS_OK.value:
-            raise BrainFlowError ('unable to calc log psd', res)
-
-        return ampls, freqs
-
-    @classmethod
-    def get_log_psd (cls, data: NDArray[Float64], sampling_rate: int, window: int) -> Tuple:
-        """calculate log PSD
-
-        :param data: data to calc log psd, len of data must be a power of 2
-        :type data: NDArray[Float64]
-        :param sampling_rate: sampling rate
-        :type sampling_rate: int
-        :param window: window function
-        :type window: int
-        :return: amplitude and frequency arrays of len N / 2 + 1
-        :rtype: tuple
-        """
-        def is_power_of_two (n):
-            return (n != 0) and (n & (n - 1) == 0)
-
-        if (not is_power_of_two (data.shape[0])):
-            raise BrainFlowError ('data len is not power of 2', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
-
-        ampls = numpy.zeros (int (data.shape[0] / 2 + 1)).astype (numpy.float64)
-        freqs = numpy.zeros (int (data.shape[0] / 2 + 1)).astype (numpy.float64)
-        res = DataHandlerDLL.get_instance ().get_log_psd (data, data.shape[0], sampling_rate, window, ampls, freqs)
-        if res != BrainflowExitCodes.STATUS_OK.value:
-            raise BrainFlowError ('unable to calc log psd', res)
-
-        return ampls, freqs
-
-    @classmethod
     def get_band_power (cls, psd: Tuple, freq_start: float, freq_end: float) -> float:
         """calculate band power
 
-        :param psd: psd from get_psd or get_log_psd
+        :param psd: psd from get_psd
         :type psd: typle
         :param freq_start: start freq
         :type freq_start: int
@@ -742,6 +645,38 @@ class DataFilter (object):
             raise BrainFlowError ('unable to calc band power', res)
 
         return band_power[0]
+
+    @classmethod
+    def get_avg_band_powers (cls, data: NDArray, channels: List, sampling_rate: int, apply_filter: bool) -> Tuple:
+        """calculate avg and stddev of BandPowers across all channels
+
+        :param data: 2d array for calculation
+        :type data: NDArray
+        :param channels: channels - rows of data array which should be used for calculation
+        :type channels: List
+        :param sampling_rate: sampling rate
+        :type sampling_rate: int
+        :param apply_filter: apply bandpass and bandstop filtrers or not
+        :type apply_filter: bool
+        :return: avg and stddev arrays for bandpowers
+        :rtype: tuple
+        """
+
+        if (data.ndim != 2):
+            raise BrainFlowError ('Shape of data array must be 2', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+
+        avg_bands = numpy.zeros (5).astype (numpy.float64)
+        stddev_bands = numpy.zeros (5).astype (numpy.float64)
+        data_1d = numpy.zeros (len (channels) * data.shape[1])
+        for i, channel in enumerate (channels):
+            for j in range (data.shape[1]):
+                data_1d[j + data.shape[1] * i] = data[channel][j]
+        res = DataHandlerDLL.get_instance ().get_avg_band_powers (data_1d, len (channels), data.shape[1], sampling_rate,
+            int (apply_filter), avg_bands, stddev_bands)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to get_avg_band_powers', res)
+
+        return avg_bands, stddev_bands
 
     @classmethod
     def perform_ifft (cls, data: NDArray[Complex128]) -> NDArray[Float64]:

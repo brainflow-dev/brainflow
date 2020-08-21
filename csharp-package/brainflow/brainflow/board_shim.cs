@@ -237,6 +237,29 @@ namespace brainflow
         }
 
         /// <summary>
+        /// get row indices of EXG channels for this board
+        /// </summary>
+        /// <param name="board_id"></param>
+        /// <returns>array of row nums</returns>
+        /// <exception cref="BrainFlowException">If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR</exception>
+        public static int[] get_exg_channels (int board_id)
+        {
+            int[] len = new int[1];
+            int[] channels = new int[512];
+            int res = BoardControllerLibrary.get_exg_channels (board_id, channels, len);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException (res);
+            }
+            int[] result = new int[len[0]];
+            for (int i = 0; i < len[0]; i++)
+            {
+                result[i] = channels[i];
+            }
+            return result;
+        }
+
+        /// <summary>
         /// get row indices of EDA channels for this board, for some board we can not split EMG\EEG\.. data and return the same array for all of them
         /// </summary>
         /// <param name="board_id"></param>

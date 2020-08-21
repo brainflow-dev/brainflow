@@ -31,7 +31,6 @@ public class BandPower
         BoardShim.log_message (LogLevels.LEVEL_INFO.get_code (), "Start sleeping in the main thread");
         Thread.sleep (10000);
         board_shim.stop_stream ();
-        int num_rows = BoardShim.get_num_rows (board_id);
         double[][] data = board_shim.get_board_data ();
         board_shim.release_session ();
 

@@ -6,6 +6,10 @@
 #include <string>
 #include <vector>
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 #include "brainflow_constants.h"
 #include "data_handler.h"
 #include "downsample_operators.h"
@@ -587,45 +591,32 @@ int get_psd (double *data, int data_len, int sampling_rate, int window_function,
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int get_log_psd (double *data, int data_len, int sampling_rate, int window_function,
-    double *output_ampl, double *output_freq)
-{
-    int res = get_psd (data, data_len, sampling_rate, window_function, output_ampl, output_freq);
-    if (res != (int)BrainFlowExitCodes::STATUS_OK)
-    {
-        return res;
-    }
-    for (int i = 0; i < data_len / 2 + 1; i++)
-    {
-        output_ampl[i] = log10 (output_ampl[i]);
-    }
-    return (int)BrainFlowExitCodes::STATUS_OK;
-}
-
 int get_band_power (double *ampl, double *freq, int data_len, double freq_start, double freq_end,
     double *band_power)
 {
-    if ((ampl == NULL) || (freq == NULL) || (freq_start > freq_end) || (band_power == NULL))
+    if ((ampl == NULL) || (freq == NULL) || (freq_start > freq_end) || (band_power == NULL) ||
+        (data_len < 2))
     {
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
-    int counter = 0;
     double res = 0.0;
-    for (int i = 0; i < data_len; i++)
+    int counter = 0;
+    double freq_res = freq[1] - freq[0];
+    for (int i = 0; i < data_len - 1; i++)
     {
         if (freq[i] > freq_end)
         {
             break;
         }
-        if ((freq[i] >= freq_start) && (freq[i] <= freq_end))
+        if (freq[i] >= freq_start)
         {
-            res += ampl[i];
+            res += 0.5 * freq_res * (ampl[i] + ampl[i + 1]);
             counter++;
         }
     }
-    if (counter != 0)
+    if (counter == 0)
     {
-        res /= counter;
+        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
     *band_power = res;
     return (int)BrainFlowExitCodes::STATUS_OK;
@@ -891,18 +882,155 @@ int get_psd_welch (double *data, int data_len, int nfft, int overlap, int sampli
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int get_log_psd_welch (double *data, int data_len, int nfft, int overlap, int sampling_rate,
-    int window_function, double *output_ampl, double *output_freq)
+int get_avg_band_powers (double *raw_data, int rows, int cols, int sampling_rate, int aply_filters,
+    double *avg_band_powers, double *stddev_band_powers)
 {
-    int res = get_psd_welch (
-        data, data_len, nfft, overlap, sampling_rate, window_function, output_ampl, output_freq);
-    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    if ((sampling_rate < 1) || (raw_data == NULL) || (rows < 1) || (cols < 1) ||
+        (avg_band_powers == NULL) || (stddev_band_powers == NULL))
     {
-        return res;
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
-    for (int i = 0; i < nfft / 2 + 1; i++)
+
+    // rows - channels, cols - datapoints
+    int *exit_codes = new int[rows];
+    for (int i = 0; i < rows; i++)
     {
-        output_ampl[i] = log10 (output_ampl[i]);
+        exit_codes[i] = (int)BrainFlowExitCodes::STATUS_OK;
     }
+    int nfft = 0;
+    get_nearest_power_of_two (sampling_rate, &nfft);
+    nfft *= 2; // for resolution ~ 0.5
+    // handle the case if nfft > number of data points
+    // its valid case but results will not be accurate
+    while (nfft > cols)
+    {
+        nfft /= 2;
+    }
+    if (nfft < 8)
+    {
+        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
+    }
+    double **bands = new double *[5];
+    for (int i = 0; i < 5; i++)
+    {
+        bands[i] = new double[rows];
+        // to make valgrind happy
+        for (int j = 0; j < rows; j++)
+        {
+            bands[i][j] = 0.0;
+        }
+    }
+
+#pragma omp parallel for
+    for (int i = 0; i < rows; i++)
+    {
+        double *ampls = new double[nfft / 2 + 1];
+        double *freqs = new double[nfft / 2 + 1];
+        double *thread_data = new double[cols];
+        memcpy (thread_data, raw_data + i * cols, sizeof (double) * cols);
+
+        if (aply_filters)
+        {
+            exit_codes[i] = detrend (thread_data, cols, (int)DetrendOperations::LINEAR);
+            if (exit_codes[i] == (int)BrainFlowExitCodes::STATUS_OK)
+            {
+                exit_codes[i] = perform_bandstop (thread_data, cols, sampling_rate, 50.0, 4.0, 4,
+                    (int)FilterTypes::BUTTERWORTH, 0.0);
+            }
+            if (exit_codes[i] == (int)BrainFlowExitCodes::STATUS_OK)
+            {
+                exit_codes[i] = perform_bandstop (thread_data, cols, sampling_rate, 60.0, 4.0, 4,
+                    (int)FilterTypes::BUTTERWORTH, 0.0);
+            }
+            if (exit_codes[i] == (int)BrainFlowExitCodes::STATUS_OK)
+            {
+                exit_codes[i] = perform_bandpass (thread_data, cols, sampling_rate, 24.0, 47.0, 4,
+                    (int)FilterTypes::BUTTERWORTH, 0.0);
+            }
+        }
+
+        // use 80% overlap, as long as it works fast overlap param can be big
+        exit_codes[i] = get_psd_welch (thread_data, cols, nfft, 4 * nfft / 5, sampling_rate,
+            (int)WindowFunctions::HANNING, ampls, freqs);
+        if (exit_codes[i] == (int)BrainFlowExitCodes::STATUS_OK)
+        {
+            exit_codes[i] = get_band_power (ampls, freqs, nfft / 2 + 1, 1.5, 4.0, &bands[0][i]);
+        }
+        if (exit_codes[i] == (int)BrainFlowExitCodes::STATUS_OK)
+        {
+            exit_codes[i] = get_band_power (ampls, freqs, nfft / 2 + 1, 4.0, 8.0, &bands[1][i]);
+        }
+        if (exit_codes[i] == (int)BrainFlowExitCodes::STATUS_OK)
+        {
+            exit_codes[i] = get_band_power (ampls, freqs, nfft / 2 + 1, 7.5, 13.0, &bands[2][i]);
+        }
+        if (exit_codes[i] == (int)BrainFlowExitCodes::STATUS_OK)
+        {
+            exit_codes[i] = get_band_power (ampls, freqs, nfft / 2 + 1, 13.0, 30.0, &bands[3][i]);
+        }
+        if (exit_codes[i] == (int)BrainFlowExitCodes::STATUS_OK)
+        {
+            exit_codes[i] = get_band_power (ampls, freqs, nfft / 2 + 1, 30.0, 45.0, &bands[4][i]);
+        }
+
+        delete[] ampls;
+        delete[] freqs;
+        delete[] thread_data;
+    }
+
+    for (int i = 0; i < rows; i++)
+    {
+        if (exit_codes[i] != (int)BrainFlowExitCodes::STATUS_OK)
+        {
+            int ec = exit_codes[i];
+            delete[] exit_codes;
+            for (int j = 0; j < 5; j++)
+            {
+                delete[] bands[j];
+            }
+            delete[] bands;
+            return ec;
+        }
+    }
+
+    // find average and stddev
+    double avg_bands[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
+    double std_bands[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
+    for (int i = 0; i < 5; i++)
+    {
+        for (int j = 0; j < rows; j++)
+        {
+            avg_bands[i] += bands[i][j];
+        }
+        avg_bands[i] /= rows;
+        for (int j = 0; j < rows; j++)
+        {
+            std_bands[i] += (bands[i][j] - avg_bands[i]) * (bands[i][j] - avg_bands[i]);
+        }
+        std_bands[i] /= rows;
+        std_bands[i] = sqrt (std_bands[i]);
+    }
+    // use relative band powers
+    double sum = 0.0;
+    for (int i = 0; i < 5; i++)
+    {
+        sum += avg_bands[i];
+    }
+    for (int i = 0; i < 5; i++)
+    {
+        avg_band_powers[i] = avg_bands[i] / sum;
+        // use relative stddev to 'normalize'(doesnt ensure range between 0 and 1) it and keep
+        // information about variance, division by max doesnt make any sense for stddev, it will
+        // lose information about ratio between mean and deviation
+        stddev_band_powers[i] = std_bands[i] / avg_bands[i];
+    }
+
+    delete[] exit_codes;
+    for (int j = 0; j < 5; j++)
+    {
+        delete[] bands[j];
+    }
+    delete[] bands;
+
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
