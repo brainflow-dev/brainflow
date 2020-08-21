@@ -89,43 +89,11 @@ public:
      * @param detrend_operation use DetrendOperations enum
      */
     static void detrend (double *data, int data_len, int detrend_operation);
-    /**
-     * calculate log PSD
-     * @param data input array
-     * @param data_len must be power of 2
-     * @param sampling_rate sampling rate
-     * @param window window function
-     * @return pair of log10(amplitude) and freq arrays of size data_len / 2 + 1
-     */
-    static std::pair<double *, double *> get_log_psd (
-        double *data, int data_len, int sampling_rate, int window);
-    /**
-     * calculate PSD using Welch method
-     * @param data input array
-     * @param data_len length of input data
-     * @param nfft FFT window size, must be power of two
-     * @param overlap FFT window overlap, must be between 0 and nfft
-     * @param sampling_rate sampling rate
-     * @param window window function
-     * @return pair of amplitude and freq arrays of size data_len / 2 + 1
-     */
     static std::pair<double *, double *> get_psd_welch (
         double *data, int data_len, int nfft, int overlap, int sampling_rate, int window);
     /**
-     * calculate log PSD using Welch method
-     * @param data input array
-     * @param data_len length of input data
-     * @param nfft FFT window size, must be power of two
-     * @param overlap FFT window overlap, must be between 0 and nfft
-     * @param sampling_rate sampling rate
-     * @param window window function
-     * @return pair of amplitude and freq arrays of size data_len / 2 + 1
-     */
-    static std::pair<double *, double *> get_log_psd_welch (
-        double *data, int data_len, int nfft, int overlap, int sampling_rate, int window);
-    /**
      * calculate band power
-     * @param psd psd calculated using get_psd or get_log_psd
+     * @param psd psd calculated using get_psd
      * @param data_len len of ampl and freq arrays: N / 2 + 1 where N is FFT size
      * @param freq_start lowest frequency
      * @param freq_end highest frequency
@@ -133,6 +101,18 @@ public:
      */
     static double get_band_power (
         std::pair<double *, double *> psd, int data_len, double freq_start, double freq_end);
+    /**
+     * calculate avg and stddev of BandPowers across all channels
+     * @param data input 2d array
+     * @param cols number of cols in 2d array - number of datapoints
+     * @param channels array of rows - eeg channels which should be used
+     * @param channels_len - len of channels array
+     * @param sampling_rate sampling rate
+     * @param apply_filters set to true to apply filters before band power calculations
+     * @return pair of double arrays of size 5, first of them - avg band powers, second stddev
+     */
+    static std::pair<double *, double *> get_avg_band_powers (double **data, int cols,
+        int *channels, int channels_len, int sampling_rate, bool apply_filters);
 
     /// write file, in file data will be transposed
     static void write_file (

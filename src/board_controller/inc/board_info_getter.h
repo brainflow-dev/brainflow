@@ -15,6 +15,8 @@ extern "C"
     SHARED_EXPORT int CALLING_CONVENTION get_battery_channel (int board_id, int *battery_channel);
     SHARED_EXPORT int CALLING_CONVENTION get_num_rows (int board_id, int *num_rows);
     SHARED_EXPORT int CALLING_CONVENTION get_eeg_names (int board_id, char *eeg_names, int *len);
+    SHARED_EXPORT int CALLING_CONVENTION get_exg_channels (
+        int board_id, int *exg_channels, int *len);
     SHARED_EXPORT int CALLING_CONVENTION get_eeg_channels (
         int board_id, int *eeg_channels, int *len);
     SHARED_EXPORT int CALLING_CONVENTION get_emg_channels (

@@ -338,6 +338,17 @@ int *BoardShim::get_eeg_channels (int board_id, int *len)
     return eeg_channels;
 }
 
+int *BoardShim::get_exg_channels (int board_id, int *len)
+{
+    int *exg_channels = new int[MAX_CHANNELS];
+    int res = ::get_exg_channels (board_id, exg_channels, len);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed get board info", res);
+    }
+    return exg_channels;
+}
+
 int *BoardShim::get_emg_channels (int board_id, int *len)
 {
     int *emg_channels = new int[MAX_CHANNELS];

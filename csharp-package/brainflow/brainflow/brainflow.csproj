@@ -117,10 +117,13 @@
   <ItemGroup>
     <Compile Include="board_shim.cs" />
     <Compile Include="board_controller_library.cs" />
+    <Compile Include="brainflow_model_params.cs" />
     <Compile Include="brainflow_input_params.cs" />
     <Compile Include="brainflow_exception.cs" />
     <Compile Include="data_filter.cs" />
     <Compile Include="data_handler_library.cs" />
+    <Compile Include="ml_model.cs" />
+    <Compile Include="ml_module_library.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

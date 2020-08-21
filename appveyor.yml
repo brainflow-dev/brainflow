@@ -114,6 +114,7 @@ test_script:
   - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\transforms\bin\Release\test.exe
   - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\signal_filtering\bin\Release\test.exe
   - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\band_power\bin\Release\test.exe
+  - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\band_power_all\bin\Release\test.exe
 
 deploy_script:
   - python -m pip install wheel > wheel_install.txt

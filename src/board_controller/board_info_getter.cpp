@@ -1,4 +1,5 @@
 #include <fstream>
+#include <set>
 #include <sstream>
 #include <string.h>
 #include <string>
@@ -10,9 +11,12 @@
 #include "brainflow_constants.h"
 
 inline std::string int_to_string (int val);
-inline int get_single_value (int board_id, const char *param_name, int *value);
-inline int get_string_value (int board_id, const char *param_name, char *string, int *len);
-inline int get_array_value (int board_id, const char *param_name, int *output_array, int *len);
+inline int get_single_value (
+    int board_id, const char *param_name, int *value, bool use_logger = true);
+inline int get_string_value (
+    int board_id, const char *param_name, char *string, int *len, bool use_logger = true);
+inline int get_array_value (
+    int board_id, const char *param_name, int *output_array, int *len, bool use_logger = true);
 
 
 int get_sampling_rate (int board_id, int *sampling_rate)
@@ -105,6 +109,37 @@ int get_resistance_channels (int board_id, int *resistance_channels, int *len)
     return get_array_value (board_id, "resistance_channels", resistance_channels, len);
 }
 
+int get_exg_channels (int board_id, int *exg_channels, int *len)
+{
+    std::set<int> unique_channels;
+    const char *data_types[4] = {"eeg_channels", "emg_channels", "ecg_channels", "eog_channels"};
+    for (int i = 0; i < 4; i++)
+    {
+        int channels[4096] = {0};
+        int channels_len = 0;
+        int res = get_array_value (board_id, data_types[i], channels, &channels_len, false);
+        if (res == (int)BrainFlowExitCodes::STATUS_OK)
+        {
+            for (int i = 0; i < channels_len; i++)
+            {
+                unique_channels.insert (channels[i]);
+            }
+        }
+    }
+    int counter = 0;
+    for (std::set<int>::iterator it = unique_channels.begin (); it != unique_channels.end (); it++)
+    {
+        exg_channels[counter] = *it;
+        counter++;
+    }
+    *len = counter;
+    if (counter == 0)
+    {
+        return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
+    }
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
 inline std::string int_to_string (int val)
 {
     std::ostringstream ss;
@@ -112,7 +147,7 @@ inline std::string int_to_string (int val)
     return ss.str ();
 }
 
-inline int get_single_value (int board_id, const char *param_name, int *value)
+inline int get_single_value (int board_id, const char *param_name, int *value, bool use_logger)
 {
     try
     {
@@ -122,12 +157,16 @@ inline int get_single_value (int board_id, const char *param_name, int *value)
     }
     catch (json::exception &e)
     {
-        Board::board_logger->error (e.what ());
-        return (int)BrainFlowExitCodes::NO_SUCH_DATA_IN_JSON_ERROR;
+        if (use_logger)
+        {
+            Board::board_logger->error (e.what ());
+        }
+        return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
     }
 }
 
-inline int get_array_value (int board_id, const char *param_name, int *output_array, int *len)
+inline int get_array_value (
+    int board_id, const char *param_name, int *output_array, int *len, bool use_logger)
 {
     try
     {
@@ -142,12 +181,16 @@ inline int get_array_value (int board_id, const char *param_name, int *output_ar
     }
     catch (json::exception &e)
     {
-        Board::board_logger->error (e.what ());
-        return (int)BrainFlowExitCodes::NO_SUCH_DATA_IN_JSON_ERROR;
+        if (use_logger)
+        {
+            Board::board_logger->error (e.what ());
+        }
+        return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
     }
 }
 
-inline int get_string_value (int board_id, const char *param_name, char *string, int *len)
+inline int get_string_value (
+    int board_id, const char *param_name, char *string, int *len, bool use_logger)
 {
     try
     {
@@ -158,7 +201,10 @@ inline int get_string_value (int board_id, const char *param_name, char *string,
     }
     catch (json::exception &e)
     {
-        Board::board_logger->error (e.what ());
-        return (int)BrainFlowExitCodes::NO_SUCH_DATA_IN_JSON_ERROR;
+        if (use_logger)
+        {
+            Board::board_logger->error (e.what ());
+        }
+        return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
     }
 }

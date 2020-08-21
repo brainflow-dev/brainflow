@@ -142,6 +142,7 @@ script:
   - python3 $TRAVIS_BUILD_DIR/tests/python/downsampling.py
   - python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_to_mne.py
   - python3 $TRAVIS_BUILD_DIR/tests/python/band_power.py
+  - python3 $TRAVIS_BUILD_DIR/tests/python/band_power_all.py
   # C++
   - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib $TRAVIS_BUILD_DIR/tests/cpp/signal_processing_demo/build/denoising
   - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib $TRAVIS_BUILD_DIR/tests/cpp/signal_processing_demo/build/downsampling
@@ -175,6 +176,7 @@ script:
   - cd $TRAVIS_BUILD_DIR/java-package/brainflow && mvn exec:java -Dexec.mainClass="brainflow.examples.SignalFiltering"
   - cd $TRAVIS_BUILD_DIR/java-package/brainflow && mvn exec:java -Dexec.mainClass="brainflow.examples.Transforms"
   - cd $TRAVIS_BUILD_DIR/java-package/brainflow && mvn exec:java -Dexec.mainClass="brainflow.examples.BandPower"
+  - cd $TRAVIS_BUILD_DIR/java-package/brainflow && mvn exec:java -Dexec.mainClass="brainflow.examples.BandPowerAll"
 
 after_success:
   # push libraries from docker!

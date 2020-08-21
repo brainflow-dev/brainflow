@@ -65,10 +65,8 @@ public class DataFilter
         int get_psd_welch (double[] data, int len, int nfft, int overlap, int sampling_rate, int window, double[] ampls,
                 double[] freqs);
 
-        int get_log_psd_welch (double[] data, int len, int nfft, int overlap, int sampling_rate, int window,
-                double[] ampls, double[] freqs);
-
-        int get_log_psd (double[] data, int len, int sampling_rate, int window, double[] ampls, double[] freqs);
+        int get_avg_band_powers (double[] data, int rows, int cols, int sampling_rate, int apply_filters, double[] avgs,
+                double[] stddevs);
 
         int get_band_power (double[] ampls, double[] freqs, int len, double start_freq, double stop_freq,
                 double[] output);
@@ -342,6 +340,43 @@ public class DataFilter
     }
 
     /**
+     * calc average and stddev of band powers across all channels
+     * 
+     * @param data          data to process
+     * @param channels      rows of data arrays which should be used in calculation
+     * @param sampling_rate sampling rate
+     * @param apply_filters apply bandpass and bandstop filters before calculation
+     * @return pair of avgs and stddevs for bandpowers
+     */
+    public static Pair<double[], double[]> get_avg_band_powers (double[][] data, int[] channels, int sampling_rate,
+            boolean apply_filters) throws BrainFlowError
+    {
+        if ((data == null) || (channels == null))
+        {
+            throw new BrainFlowError ("data or channels null", ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
+        double[] data_1d = new double[channels.length * data[channels[0]].length];
+        for (int i = 0; i < channels.length; i++)
+        {
+            for (int j = 0; j < data[channels[i]].length; j++)
+            {
+                data_1d[j + i * data[channels[i]].length] = data[channels[i]][j];
+            }
+        }
+        double[] avgs = new double[5];
+        double[] stddevs = new double[5];
+        int filters = (apply_filters) ? 1 : 0;
+        int ec = instance.get_avg_band_powers (data_1d, channels.length, data[channels[0]].length, sampling_rate,
+                filters, avgs, stddevs);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Failed to get_avg_band_powers", ec);
+        }
+        Pair<double[], double[]> res = new MutablePair<double[], double[]> (avgs, stddevs);
+        return res;
+    }
+
+    /**
      * get PSD
      * 
      * @param data          data to process
@@ -401,71 +436,6 @@ public class DataFilter
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to get_psd_welch", ec);
-        }
-        Pair<double[], double[]> res = new MutablePair<double[], double[]> (ampls, freqs);
-        return res;
-    }
-
-    /**
-     * get log PSD using Welch Method
-     * 
-     * @param data          data to process
-     * @param nfft          size of FFT, must be power of two
-     * @param overlap       overlap between FFT Windows, must be between 0 and nfft
-     * @param sampling_rate sampling rate
-     * @param window        window function
-     * @return pair of ampl and freq arrays
-     */
-    public static Pair<double[], double[]> get_log_psd_welch (double[] data, int nfft, int overlap, int sampling_rate,
-            int window) throws BrainFlowError
-    {
-        if ((nfft & (nfft - 1)) != 0)
-        {
-            throw new BrainFlowError ("nfft must be a power of 2", ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
-        }
-        double[] ampls = new double[nfft / 2 + 1];
-        double[] freqs = new double[nfft / 2 + 1];
-        int ec = instance.get_log_psd_welch (data, data.length, nfft, overlap, sampling_rate, window, ampls, freqs);
-        if (ec != ExitCode.STATUS_OK.get_code ())
-        {
-            throw new BrainFlowError ("Failed to get_log_psd_welch", ec);
-        }
-        Pair<double[], double[]> res = new MutablePair<double[], double[]> (ampls, freqs);
-        return res;
-    }
-
-    /**
-     * get log PSD
-     * 
-     * @param data          data to process
-     * @param start_pos     starting position to calc log PSD
-     * @param end_pos       end position to calc log PSD, total_len must be a power
-     *                      of two
-     * @param sampling_rate sampling rate
-     * @param window        window function
-     * @return pair of ampl and freq arrays with len N / 2 + 1
-     */
-    public static Pair<double[], double[]> get_log_psd (double[] data, int start_pos, int end_pos, int sampling_rate,
-            int window) throws BrainFlowError
-    {
-        if ((start_pos < 0) || (end_pos > data.length) || (start_pos >= end_pos))
-        {
-            throw new BrainFlowError ("invalid position arguments", ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
-        }
-        // I didnt find a way to pass an offset using pointers, copy array
-        double[] data_to_process = Arrays.copyOfRange (data, start_pos, end_pos);
-        int len = data_to_process.length;
-        if ((len & (len - 1)) != 0)
-        {
-            throw new BrainFlowError ("end_pos - start_pos must be a power of 2",
-                    ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
-        }
-        double[] ampls = new double[len / 2 + 1];
-        double[] freqs = new double[len / 2 + 1];
-        int ec = instance.get_log_psd (data_to_process, len, sampling_rate, window, ampls, freqs);
-        if (ec != ExitCode.STATUS_OK.get_code ())
-        {
-            throw new BrainFlowError ("Failed to get log psd", ec);
         }
         Pair<double[], double[]> res = new MutablePair<double[], double[]> (ampls, freqs);
         return res;

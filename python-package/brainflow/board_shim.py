@@ -65,7 +65,7 @@ class BrainFlowInputParams (object):
     :type mac_address: str
     :param ip_address: ip address is used for boards which reads data from socket connection
     :type ip_address: str
-    :param ip_port: ip port for socket connection, for some boards where we know it in front you dont need this parameter(NovaXR for example)
+    :param ip_port: ip port for socket connection, for some boards where we know it in front you dont need this parameter
     :type ip_port: int
     :param ip_protocol: ip protocol type from IpProtocolType enum
     :type ip_protocol: int
@@ -277,6 +277,14 @@ class BoardControllerDLL (object):
             ndpointer (ctypes.c_int32)
         ]
 
+        self.get_exg_channels = self.lib.get_exg_channels
+        self.get_exg_channels.restype = ctypes.c_int
+        self.get_exg_channels.argtypes = [
+            ctypes.c_int,
+            ndpointer (ctypes.c_int32),
+            ndpointer (ctypes.c_int32)
+        ]
+
         self.get_emg_channels = self.lib.get_emg_channels
         self.get_emg_channels.restype = ctypes.c_int
         self.get_emg_channels.argtypes = [
@@ -379,8 +387,6 @@ class BoardShim (object):
             self.input_json = input_params.to_json ().encode ()
         except:
             self.input_json = input_params.to_json ()
-        else:
-            self.port_name = None
         self.board_id = board_id
         # we need it for streaming board
         if board_id == BoardIds.STREAMING_BOARD.value:
@@ -566,6 +572,25 @@ class BoardShim (object):
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to request info about this board', res)
         result = eeg_channels.tolist () [0:num_channels[0]]
+        return result
+
+    @classmethod
+    def get_exg_channels (cls, board_id: int) -> List[int]:
+        """get list of exg channels in resulting data table for a board
+
+        :param board_id: Board Id
+        :type board_id: int
+        :return: list of eeg channels in returned numpy array
+        :rtype: List[int]
+        :raises BrainFlowError: If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+        """
+        num_channels = numpy.zeros (1).astype (numpy.int32)
+        exg_channels = numpy.zeros (512).astype (numpy.int32)
+
+        res = BoardControllerDLL.get_instance ().get_exg_channels (board_id, exg_channels, num_channels)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to request info about this board', res)
+        result = exg_channels.tolist () [0:num_channels[0]]
         return result
 
     @classmethod

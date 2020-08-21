@@ -184,47 +184,6 @@ std::pair<double *, double *> DataFilter::get_psd (
     return std::make_pair (ampl, freq);
 }
 
-std::pair<double *, double *> DataFilter::get_log_psd (
-    double *data, int data_len, int sampling_rate, int window)
-{
-    if ((data_len & (data_len - 1)) || (data_len <= 0))
-    {
-        throw BrainFlowException (
-            "data len is not power of 2", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
-    }
-    double *ampl = new double[data_len / 2 + 1];
-    double *freq = new double[data_len / 2 + 1];
-    int res = ::get_log_psd (data, data_len, sampling_rate, window, ampl, freq);
-    if (res != (int)BrainFlowExitCodes::STATUS_OK)
-    {
-        delete[] ampl;
-        delete[] freq;
-        throw BrainFlowException ("failed to get log psd", res);
-    }
-    return std::make_pair (ampl, freq);
-}
-
-std::pair<double *, double *> DataFilter::get_log_psd_welch (
-    double *data, int data_len, int nfft, int overlap, int sampling_rate, int window)
-{
-    if ((nfft & (nfft - 1)) || (nfft <= 0))
-    {
-        throw BrainFlowException (
-            "nfft is not power of 2", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
-    }
-    double *ampl = new double[nfft / 2 + 1];
-    double *freq = new double[nfft / 2 + 1];
-    int res =
-        ::get_log_psd_welch (data, data_len, nfft, overlap, sampling_rate, window, ampl, freq);
-    if (res != (int)BrainFlowExitCodes::STATUS_OK)
-    {
-        delete[] ampl;
-        delete[] freq;
-        throw BrainFlowException ("failed to get_log_psd_welch", res);
-    }
-    return std::make_pair (ampl, freq);
-}
-
 std::pair<double *, double *> DataFilter::get_psd_welch (
     double *data, int data_len, int nfft, int overlap, int sampling_rate, int window)
 {
@@ -243,6 +202,43 @@ std::pair<double *, double *> DataFilter::get_psd_welch (
         throw BrainFlowException ("failed to get_psd_welch", res);
     }
     return std::make_pair (ampl, freq);
+}
+
+std::pair<double *, double *> DataFilter::get_avg_band_powers (
+    double **data, int cols, int *channels, int channels_len, int sampling_rate, bool apply_filters)
+{
+    if ((data == NULL) || (channels == NULL) || (channels_len < 1))
+    {
+        throw BrainFlowException (
+            "Invalid params", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+    }
+    double *data_1d = new double[cols * channels_len];
+    double *avg_bands = new double[5];
+    double *stddev_bands = new double[5];
+    // init by zeros to make valgrind happy
+    for (int i = 0; i < 5; i++)
+    {
+        avg_bands[i] = 0.0;
+        stddev_bands[i] = 0.0;
+    }
+    for (int i = 0; i < channels_len; i++)
+    {
+        for (int j = 0; j < cols; j++)
+        {
+            data_1d[j + cols * i] = data[channels[i]][j];
+        }
+    }
+    int res = ::get_avg_band_powers (
+        data_1d, channels_len, cols, sampling_rate, (int)apply_filters, avg_bands, stddev_bands);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        delete[] avg_bands;
+        delete[] stddev_bands;
+        delete[] data_1d;
+        throw BrainFlowException ("failed to get_avg_band_powers", res);
+    }
+    delete[] data_1d;
+    return std::make_pair (avg_bands, stddev_bands);
 }
 
 double DataFilter::get_band_power (

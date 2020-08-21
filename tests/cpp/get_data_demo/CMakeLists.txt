@@ -64,6 +64,7 @@ target_link_libraries (
     brainflow_get_data PUBLIC
     # for some systems(ubuntu for example) order matters
     ${BrainflowPath}
+    ${MLModulePath}
     ${DataHandlerPath}
     ${BoardControllerPath}
 )
