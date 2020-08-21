@@ -7,7 +7,7 @@ tags: [release]
 
 ### ML Module
 
-In this version we've added and API to calculate derivative metrics from raw EEG data.
+In this version we've added methods to calculate derivative metrics from raw data. As of right now, it supports only Concentration and Relaxation calculation from EEG data using Logistic Regression Classifier. In upcoming versions we will add more metrics to calculate, new classifiers for existing metrics and API to load user defined models in ONNX format. Also, we are collecting more data to improve accuracy and recall of our models.
 
 Example:
 
@@ -32,14 +32,10 @@ print ('Relaxation: %f' % relaxation.predict (feature_vector))
 relaxation.release ()
 ```
 
-Currently it supports only Logistic Regression Classifier, supported metrics are Concentration and Relaxation.
-
-In upcomming versions we will add more classifiers(SVM, KNN) and add an API to load user defined models in ONNX format. Also, dataset we use will be extended, so implemented classifiers will work better.
-
 For implementation details refer to:
 
-* [get_avg_band_powers](https://github.com/brainflow-dev/brainflow/blob/ml/src/data_handler/data_handler.cpp)
-* [prepare data and train model](https://github.com/brainflow-dev/brainflow/blob/ml/src/ml/train/focus_classifiers.py)
+* [get_avg_band_powers](https://github.com/brainflow-dev/brainflow/blob/master/src/data_handler/data_handler.cpp)
+* [prepare data and train model](https://github.com/brainflow-dev/brainflow/blob/master/src/ml/train/focus_classifiers.py)
 * [final equation](https://github.com/brainflow-dev/brainflow/blob/master/src/ml/concentration_regression_classifier.cpp)
 
 ### Other Changes
@@ -50,9 +46,9 @@ Bug fixes:
 
 New Methods:
 
-* Drop *get_log_psd* and *get_log_psd_welch*
 * Add *get_avg_band_powers*
 * Add *get_exg_channels*
+* Drop *get_log_psd* and *get_log_psd_welch*
 
 For developers:
 
