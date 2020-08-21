@@ -28,20 +28,7 @@ def prepare_data ():
                 board_id = int (board_id)
                 data = DataFilter.read_file (file)
                 sampling_rate = BoardShim.get_sampling_rate (board_id)
-                eeg_channels = BoardShim.get_eeg_channels (board_id)
-                # optional: filter some channels we dont want to consider
-                try:
-                    eeg_names = BoardShim.get_eeg_names (board_id)
-                    selected_channels = list ()
-                    # blacklisted_channels = {'O1', 'O2'}
-                    blacklisted_channels = set ()
-                    for i, channel in enumerate (eeg_names):
-                        if not channel in blacklisted_channels:
-                            selected_channels.append (eeg_channels[i])
-                    eeg_channels = selected_channels
-                except Exception as e:
-                    print (str (e))
-                print ('channels to use: %s' % str (eeg_channels))
+                eeg_channels = get_eeg_channels(board_id)
                 for num, window_size in enumerate (window_sizes):
                     if data_type == 'focused':
                         cur_pos = sampling_rate * 10 # skip a little more for focus
@@ -63,6 +50,23 @@ def prepare_data ():
     print ('Class 1: %d Class 0: %d' % (len ([x for x in dataset_y if x == 1]), len ([x for x in dataset_y if x == 0])))
 
     return dataset_x, dataset_y
+
+def get_eeg_channels(board_id):
+    eeg_channels = BoardShim.get_eeg_channels (board_id)
+    # optional: filter some channels we dont want to consider
+    try:
+        eeg_names = BoardShim.get_eeg_names (board_id)
+        selected_channels = list ()
+        # blacklisted_channels = {'O1', 'O2'}
+        blacklisted_channels = set ()
+        for i, channel in enumerate (eeg_names):
+            if not channel in blacklisted_channels:
+                selected_channels.append (eeg_channels[i])
+        eeg_channels = selected_channels
+    except Exception as e:
+        print (str (e))
+    print ('channels to use: %s' % str (eeg_channels))
+    return eeg_channels
 
 def train_regression (data):
     # print cross validation scores
