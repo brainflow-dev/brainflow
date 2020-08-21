@@ -263,36 +263,6 @@ int NovaXR::release_session ()
 
 void NovaXR::read_thread ()
 {
-    /// -------------------------------------------------------
-    /// Packet Byte | Field Name | Description
-    /// ------------|------------|------------------------------
-    /// [0]         | Sample ID  | Data Packet/Point ID 0-255
-    /// [1:4]       | EDA        | Electrodermal Activity signal
-    /// [5:7]       | EEG_FC 0   | MainBoard ADS CH #0
-    /// [8:10]      | EEG_FC 1   | MainBoard ADS CH #1
-    /// [11:13]     | EEG_OL 0   | MainBoard ADS CH #2
-    /// [14:16]     | EEG_OL 1   | MainBoard ADS CH #3
-    /// [17:19]     | EEG_OL 2   | MainBoard ADS CH #4
-    /// [20:22]     | EEG_OL 3   | MainBoard ADS CH #5
-    /// [23:25]     | EEG_OL 4   | MainBoard ADS CH #6
-    /// [26:28]     | EEG_OL 5   | MainBoard ADS CH #7
-    /// [29:31]     | EEG_OL 6   | SisterBoard ADS CH #0
-    /// [32:34]     | EEG_OL 7   | SisterBoard ADS CH #1
-    /// [35:37]     | EOG 0      | SisterBoard ADS CH #2
-    /// [38:40]     | EOG 1      | SisterBoard ADS CH #3
-    /// [41:43]     | EMG 0      | SisterBoard ADS CH #4
-    /// [44:46]     | EMG 1      | SisterBoard ADS CH #5
-    /// [47:49]     | EMG 2      | SisterBoard ADS CH #6
-    /// [50:52]     | EMG 3      | SisterBoard ADS CH #7
-    /// [53]        | BATT       | Battery Level range: 0-100
-    /// [54:55]     | SKIN_T     | Skin Temperature
-    /// [56:59]     | PPGRED     | Photoplethysmogram Red Signal
-    /// [60:63]     | PPGIR      | Photoplethysmogram IR Signal
-    /// [64:71]     | Timestamp  | Timestamp in Microseconds
-    /// -------------------------------------------------------
-    /// Total 72 Bytes per Data Packet
-    /// -------------------------------------------------------
-
     int res;
     unsigned char b[NovaXR::transaction_size];
     long counter = 0;
@@ -352,12 +322,12 @@ void NovaXR::read_thread ()
                 if (tmp_counter < 8)
                     package[i - 3] = eeg_scale_main_board *
                         (double)cast_24bit_to_int32 (b + offset + 5 + 3 * (i - 4));
-                else if (tmp_counter < 14)
-                    package[i - 3] =
-                        emg_scale * (double)cast_24bit_to_int32 (b + offset + 5 + 3 * (i - 4));
-                else
+                else if ((tmp_counter == 9) || (tmp_counter == 14))
                     package[i - 3] = eeg_scale_sister_board *
                         (double)cast_24bit_to_int32 (b + offset + 5 + 3 * (i - 4));
+                else
+                    package[i - 3] =
+                        emg_scale * (double)cast_24bit_to_int32 (b + offset + 5 + 3 * (i - 4));
             }
             int16_t temperature;
             int32_t ppg_ir;
