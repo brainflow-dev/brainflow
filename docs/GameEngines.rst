@@ -40,7 +40,9 @@ Open your Unity project and copy **Managed(C#)** libraries from BrainFlow and **
 
 Now, you are able to use BrainFlow API in your C# scripts!
 
-For demo we will create a simple script to read data and calculate band powers.
+For demo we will create a simple script to read data and calculate concentration level.
+
+Add a Sphere object to the Scene and attach script below.
 
 .. code-block:: csharp 
 
@@ -56,6 +58,7 @@ For demo we will create a simple script to read data and calculate band powers.
     public class Sphere : MonoBehaviour
     {
         private BoardShim board_shim = null;
+        private MLModel concentration = null;
         private int sampling_rate = 0;
         private int[] eeg_channels = null;
 
@@ -72,6 +75,9 @@ For demo we will create a simple script to read data and calculate band powers.
                 board_shim = new BoardShim(board_id, input_params);
                 board_shim.prepare_session();
                 board_shim.start_stream(450000, "file://brainflow_data.csv:w");
+                BrainFlowModelParams concentration_params = new BrainFlowModelParams((int)BrainFlowMetrics.CONCENTRATION, (int)BrainFlowClassifiers.REGRESSION);
+                concentration = new MLModel(concentration_params);
+                concentration.prepare();
                 
                 sampling_rate = BoardShim.get_sampling_rate(board_id);
                 eeg_channels = BoardShim.get_eeg_channels(board_id);
@@ -86,26 +92,23 @@ For demo we will create a simple script to read data and calculate band powers.
         // Update is called once per frame
         void Update()
         {
-            if (board_shim == null)
+            if ((board_shim == null) || (concentration == null))
             {
                 return;
             }
-            int number_of_data_points = DataFilter.get_nearest_power_of_two(sampling_rate);
+            int number_of_data_points = sampling_rate * 4; // 4 second window is recommended for concentration and relaxation calculations
             double[,] data = board_shim.get_current_board_data(number_of_data_points);
             if (data.GetRow(0).Length < number_of_data_points)
             {
                 // wait for more data
                 return;
             }
-            // calc bandpowers per channel
-            for (int i = 0; i < eeg_channels.Length; i++)
-            {
-                Tuple<double[], double[]> psd = DataFilter.get_psd(data.GetRow(eeg_channels[i]), 0,
-                    data.GetRow(eeg_channels[i]).Length, sampling_rate, (int)WindowFunctions.HANNING);
-                double band_power_alpha = DataFilter.get_band_power(psd, 7.0, 13.0);
-                double band_power_beta = DataFilter.get_band_power(psd, 14.0, 30.0);
-                Debug.Log("Alpha/Beta Ratio:" + (band_power_alpha / band_power_beta));
-            }
+            // prepare feature vector 
+            Tuple<double[], double[]> bands = DataFilter.get_avg_band_powers (data, eeg_channels, sampling_rate, true);
+            double[] feature_vector = bands.Item1.Concatenate (bands.Item2);
+            // calc and print concetration level
+            // for synthetic board this value should be close to 1, because of sin waves ampls and freqs
+            Debug.Log("Concentration: " + concentration.predict (feature_vector));
         }
 
         private void OnDestroy()
@@ -115,6 +118,7 @@ For demo we will create a simple script to read data and calculate band powers.
                 try
                 {
                     board_shim.release_session();
+                    concentration.release();
                 }
                 catch (BrainFlowException e)
                 {
@@ -125,9 +129,10 @@ For demo we will create a simple script to read data and calculate band powers.
         }
     }
 
-If everything is fine, you will see Alpa and Beta bandpower ratio per each channel in Console.
 
-.. image:: https://live.staticflickr.com/65535/50102505902_f110fc89d8_b.jpg
+If everything is fine, you will see Concentration Score in Console.
+
+.. image:: https://live.staticflickr.com/65535/50256460737_cb35250727_b.jpg
     :width: 1024px
     :height: 595px
 
