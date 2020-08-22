@@ -179,10 +179,10 @@ To test your changes in BrainFlow on Android you need to build it using Android 
 Compilation instructions:
 
 - `Download Android NDK <https://developer.android.com/ndk/downloads>`_
-- `Download Ninja <https://github.com/ninja-build/ninja/releases>`_, for Windows there is exe file in tools folder, make sure that ninja.exe in search path
-- You can also try *MinGW Makefiles* instead Ninja, but it's not tested and may not work
-- Build C++ code using cmake and Ninja for **all ABIs**
-- Compiled libraries will be in tools/jniLibs folder
+- `Download Ninja <https://github.com/ninja-build/ninja/releases>`_ or get one from the *tools* folder, make sure that *ninja.exe*  is in search path
+- You can also try *MinGW Makefiles* instead *Ninja*, but it's not tested and may not work
+- Build C++ code using cmake and *Ninja* for **all ABIs**
+- Compiled libraries will be in *tools/jniLibs* folder
 
 .. compound::
     
