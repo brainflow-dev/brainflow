@@ -22,6 +22,7 @@ AnyIntType = Union{Int8, Int32, Int64, Int128, Int}
     CALLIBRI_ECG_BOARD = 11
     FASCIA_BOARD = 12
     NOTION_OSC_BOARD = 13
+    IRONBCI_BOARD = 14
 
 end
 

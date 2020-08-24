@@ -58,7 +58,8 @@ namespace brainflow
         CALLIBRI_EMG_BOARD = 10,
         CALLIBRI_ECG_BOARD = 11,
         FASCIA_BOARD = 12,
-        NOTION_OSC_BOARD = 13
+        NOTION_OSC_BOARD = 13,
+        IRONBCI_BOARD = 14
     };
 
 

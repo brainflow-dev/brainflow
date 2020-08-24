@@ -34,6 +34,7 @@ class BoardIds (enum.Enum):
     CALLIBRI_ECG_BOARD = 11 #:
     FASCIA_BOARD = 12 #:
     NOTION_OSC_BOARD = 13 #:
+    IRONBCI_BOARD = 14 #:
 
 
 class LogLevels (enum.Enum):
