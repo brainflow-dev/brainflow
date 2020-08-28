@@ -1,6 +1,9 @@
 import glob
+import argparse
 import statistics
 import os
+import time
+
 import numpy as np
 
 from sklearn import metrics
@@ -14,7 +17,7 @@ from sklearn.model_selection import train_test_split, cross_val_score
 import brainflow
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels, BoardIds
 from brainflow.data_filter import DataFilter, FilterTypes, AggOperations, WindowFunctions, DetrendOperations
-from brainflow.ml_model import BrainFlowMetrics, BrainFlowClassifiers, MLModel
+from brainflow.ml_model import BrainFlowMetrics, BrainFlowClassifiers, MLModel, BrainFlowModelParams
 
 
 def prepare_data ():
@@ -99,14 +102,13 @@ def train_knn (data):
     scores = cross_val_score (model, data_x, data[1], cv = 5, scoring = 'recall_macro', n_jobs = 8)
     print ('recall macro %s' % str (scores))
 
-
 def write_dataset (data):
     # we prepare dataset in C++ code in compile time, need to generate header for it
 
     y_string = '%s' % (', '.join ([str (x) for x in data[1]]))
     x_string_tmp = ['{' + ', '.join ([str (y) for y in x]) + '}' for x in data[0]]
     x_string = '%s' % (',\n'.join (x_string_tmp))
-    file_content = '''
+    file_content = '''// generated file, dont change manually
 #pragma once
 
 
@@ -122,13 +124,45 @@ int brainflow_focus_y[%d] = {%s};
     with open(file_path, 'w') as f:
         f.write (file_content)
 
+def test_brainflow_lr (data):
+    print ('Test BrainFlow LR')
+    params = BrainFlowModelParams (BrainFlowMetrics.CONCENTRATION.value, BrainFlowClassifiers.REGRESSION.value)
+    model = MLModel (params)
+    start_time = time.time ()
+    model.prepare ()
+    predicted = [model.predict (x) > 0.5 for x in data[0]]
+    model.release ()
+    stop_time = time.time ()
+    print ('Total time %f' % (stop_time - start_time))
+    print (confusion_matrix (data[1], predicted))
+
+def test_brainflow_knn (data):
+    print ('Test BrainFlow KNN')
+    params = BrainFlowModelParams (BrainFlowMetrics.CONCENTRATION.value, BrainFlowClassifiers.KNN.value)
+    model = MLModel (params)
+    start_time = time.time ()
+    model.prepare ()
+    predicted = [model.predict (x) > 0.5 for x in data[0]]
+    model.release ()
+    stop_time = time.time ()
+    print ('Total time %f' % (stop_time - start_time))
+    print (confusion_matrix (data[1], predicted))
 
 def main ():
-    data = prepare_data ()
-    train_regression (data)
-    train_knn (data)
-    write_dataset (data)
+    parser = argparse.ArgumentParser ()
+    parser.add_argument ('--test', action = 'store_true')
+    args = parser.parse_args ()
 
+    data = prepare_data ()
+    if args.test:
+        # since we port models from python to c++ we need to test it as well
+        test_brainflow_knn (data)
+        test_brainflow_lr (data)
+    else:
+        train_regression (data)
+        train_knn (data)
+        write_dataset (data)
+    
 
 if __name__ == '__main__':
     main ()
