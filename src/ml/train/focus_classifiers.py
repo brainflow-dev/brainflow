@@ -99,6 +99,7 @@ def train_knn (data):
     scores = cross_val_score (model, data_x, data[1], cv = 5, scoring = 'recall_macro', n_jobs = 8)
     print ('recall macro %s' % str (scores))
 
+
 def write_dataset (data):
     # we prepare dataset in C++ code in compile time, need to generate header for it
 
@@ -124,8 +125,8 @@ int brainflow_focus_y[%d] = {%s};
 
 def main ():
     data = prepare_data ()
-    #train_regression (data)
-    #train_knn (data)
+    train_regression (data)
+    train_knn (data)
     write_dataset (data)
 
 

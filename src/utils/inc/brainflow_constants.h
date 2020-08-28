@@ -85,5 +85,6 @@ enum class BrainFlowMetrics : int
 
 enum class BrainFlowClassifiers : int
 {
-    REGRESSION = 0
+    REGRESSION = 0,
+    KNN = 1
 };
