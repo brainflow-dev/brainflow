@@ -37,11 +37,6 @@ public:
     {
         value = other.value;
         vector_len = other.vector_len;
-        if (feature_vector != NULL)
-        {
-            delete[] feature_vector;
-            feature_vector = NULL;
-        }
         if (other.feature_vector != NULL)
         {
             feature_vector = new double[other.vector_len];

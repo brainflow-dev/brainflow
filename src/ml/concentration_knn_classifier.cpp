@@ -83,17 +83,23 @@ int ConcentrationKNNClassifier::predict (double *data, int data_len, double *out
         }
         std::vector<KNNEntry> search_vector (
             dataset.begin () + start_pos, dataset.begin () + end_pos);
+        int num_points = std::min (num_neighbors, end_pos - start_pos);
         std::nth_element (
-            search_vector.begin (), search_vector.begin () + num_neighbors, search_vector.end ());
-        chunks.at (i) = search_vector;
+            search_vector.begin (), search_vector.begin () + num_points, search_vector.end ());
+        for (int j = 0; j < num_points; j++)
+        {
+            chunks[i].push_back (search_vector[j]);
+        }
     }
 
     // join chunks and update mins
     std::vector<KNNEntry> all_sorted_data;
     for (int i = 0; i < num_chunks; i++)
     {
-        all_sorted_data.insert (
-            all_sorted_data.end (), chunks.at (i).begin (), chunks.at (i).begin () + num_neighbors);
+        for (int j = 0; j < chunks[i].size (); j++)
+        {
+            all_sorted_data.push_back (chunks[i][j]);
+        }
     }
     std::nth_element (
         all_sorted_data.begin (), all_sorted_data.begin () + num_neighbors, all_sorted_data.end ());
@@ -101,7 +107,7 @@ int ConcentrationKNNClassifier::predict (double *data, int data_len, double *out
     double num_ones = 0.0;
     for (int i = 0; i < num_neighbors; i++)
     {
-        if (all_sorted_data.at (i).value == 1)
+        if (all_sorted_data[i].value == 1)
         {
             num_ones = num_ones + 1;
         }
