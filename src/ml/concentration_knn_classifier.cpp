@@ -13,6 +13,22 @@
 
 int ConcentrationKNNClassifier::prepare ()
 {
+    if (!params.other_info.empty ())
+    {
+        try
+        {
+            num_neighbors = std::stoi (params.other_info);
+        }
+        catch (const std::exception &e)
+        {
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+        }
+    }
+    if ((num_neighbors < 1) || (num_neighbors > 100))
+    {
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
     int dataset_len = sizeof (brainflow_focus_y) / sizeof (brainflow_focus_y[0]);
     for (int i = 0; i < dataset_len; i++)
     {
@@ -51,10 +67,11 @@ int ConcentrationKNNClassifier::predict (double *data, int data_len, double *out
 #else
     int num_chunks = 1;
 #endif
-
-    std::vector<std::priority_queue<KNNEntry>> chunks (num_chunks);
     int chunk_size = dataset.size () / num_chunks;
 
+    std::vector<std::vector<KNNEntry>> chunks (num_chunks);
+
+    // find num_neighbors elements in each chunk
 #pragma omp parallel for
     for (int i = 0; i < num_chunks; i++)
     {
@@ -62,74 +79,38 @@ int ConcentrationKNNClassifier::predict (double *data, int data_len, double *out
         int end_pos = (i + 1) * chunk_size;
         if (i == num_chunks - 1)
         {
-            end_pos = dataset.size ();
+            end_pos = dataset.size () - 1;
         }
-        chunks.at (i) = get_k_smallest (start_pos, end_pos);
+        std::vector<KNNEntry> search_vector (
+            dataset.begin () + start_pos, dataset.begin () + end_pos);
+        std::nth_element (
+            search_vector.begin (), search_vector.begin () + num_neighbors, search_vector.end ());
+        chunks.at (i) = search_vector;
     }
 
-    double score = get_score (chunks);
+    // join chunks and update mins
+    std::vector<KNNEntry> all_sorted_data;
+    for (int i = 0; i < num_chunks; i++)
+    {
+        all_sorted_data.insert (
+            all_sorted_data.end (), chunks.at (i).begin (), chunks.at (i).begin () + num_neighbors);
+    }
+    std::nth_element (
+        all_sorted_data.begin (), all_sorted_data.begin () + num_neighbors, all_sorted_data.end ());
+    // calc probability as num ones / num neighbors
+    double num_ones = 0.0;
+    for (int i = 0; i < num_neighbors; i++)
+    {
+        if (all_sorted_data.at (i).value == 1)
+        {
+            num_ones = num_ones + 1;
+        }
+    }
+
+    double score = num_ones / num_neighbors;
     *output = score;
 
     return (int)BrainFlowExitCodes::STATUS_OK;
-}
-
-std::priority_queue<KNNEntry> ConcentrationKNNClassifier::get_k_smallest (
-    int start_pos, int end_pos)
-{
-    std::priority_queue<KNNEntry> queue;
-    for (auto data : dataset)
-    {
-        if ((queue.size () >= num_neighbors) && (queue.top () > data))
-        {
-            queue.push (data);
-            queue.pop ();
-        }
-        else
-        {
-            if (queue.size () < num_neighbors)
-            {
-                queue.push (data);
-            }
-        }
-    }
-    return queue;
-}
-
-double ConcentrationKNNClassifier::get_score (std::vector<std::priority_queue<KNNEntry>> chunks)
-{
-    // merge all queues to the single one
-    std::priority_queue<KNNEntry> queue;
-    for (int i = 0; i < chunks.size (); i++)
-    {
-        while (!chunks.at (i).empty ())
-        {
-            KNNEntry data = chunks.at (i).top ();
-            chunks.at (i).pop ();
-            if ((queue.size () >= num_neighbors) && (queue.top () > data))
-            {
-                queue.push (data);
-                queue.pop ();
-            }
-            else
-            {
-                if (queue.size () < num_neighbors)
-                {
-                    queue.push (data);
-                }
-            }
-        }
-    }
-    int num_ones = 0;
-    while (!queue.empty ())
-    {
-        KNNEntry data = queue.top ();
-        queue.pop ();
-        if (data.value == 1)
-        {
-            num_ones++;
-        }
-    }
-    return ((double)num_ones) / num_neighbors;
 }
 
 int ConcentrationKNNClassifier::release ()

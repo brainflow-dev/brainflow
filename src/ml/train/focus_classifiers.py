@@ -108,7 +108,7 @@ def write_dataset (data):
     y_string = '%s' % (', '.join ([str (x) for x in data[1]]))
     x_string_tmp = ['{' + ', '.join ([str (y) for y in x]) + '}' for x in data[0]]
     x_string = '%s' % (',\n'.join (x_string_tmp))
-    file_content = '''// generated file, dont change manually
+    file_content = '''
 #pragma once
 
 
