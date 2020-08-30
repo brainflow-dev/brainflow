@@ -99,15 +99,15 @@ public:
         return distance > other.distance;
     }
 
-    double set_distance (const KNNEntry &other)
+    void set_distance (const KNNEntry &other)
     {
         int size = std::min (vector_len, other.vector_len);
-        double distance = 0.0;
+        distance = 0.0;
         for (int i = 0; i < size; i++)
         {
             distance += (feature_vector[i] - other.feature_vector[i]) *
                 (feature_vector[i] - other.feature_vector[i]);
         }
-        return sqrt (distance);
+        distance = sqrt (distance);
     }
 };

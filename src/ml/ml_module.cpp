@@ -14,6 +14,7 @@
 
 #include "json.hpp"
 
+
 using json = nlohmann::json;
 
 int string_to_brainflow_model_params (const char *json_params, struct BrainFlowModelParams *params);
@@ -106,6 +107,7 @@ int release (char *json_params)
     {
         return res;
     }
+
     auto model = ml_models.find (key);
     if (model == ml_models.end ())
     {

@@ -15,6 +15,7 @@
 using namespace std;
 using namespace std::chrono;
 
+
 bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, int *board_id);
 
 int main (int argc, char *argv[])
