@@ -134,7 +134,7 @@ def test_brainflow_lr (data):
     model.release ()
     stop_time = time.time ()
     print ('Total time %f' % (stop_time - start_time))
-    print (confusion_matrix (data[1], predicted))
+    print (metrics.classification_report (data[1], predicted))
 
 def test_brainflow_knn (data):
     print ('Test BrainFlow KNN')
@@ -146,7 +146,7 @@ def test_brainflow_knn (data):
     model.release ()
     stop_time = time.time ()
     print ('Total time %f' % (stop_time - start_time))
-    print (confusion_matrix (data[1], predicted))
+    print (metrics.classification_report (data[1], predicted))
 
 def main ():
     parser = argparse.ArgumentParser ()

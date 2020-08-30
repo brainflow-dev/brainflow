@@ -34,9 +34,9 @@ int ConcentrationKNNClassifier::prepare ()
     {
         KNNEntry entry (brainflow_focus_x[i], brainflow_focus_y[i], 10);
         // decrease weight for stddev, 0.2 - experimental vlaue
-        for (int i = 5; i < 10; i++)
+        for (int j = 5; j < 10; j++)
         {
-            entry.feature_vector[i] *= 0.2;
+            entry.feature_vector[j] *= 0.2;
         }
         dataset.push_back (entry);
     }
