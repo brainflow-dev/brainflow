@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <exception>
 #include <functional>
+#include <math.h>
 #include <numeric>
 #include <vector>
 

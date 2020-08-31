@@ -159,9 +159,9 @@ def main ():
         test_brainflow_knn (data)
         test_brainflow_lr (data)
     else:
+        write_dataset (data)
         train_regression (data)
         train_knn (data)
-        write_dataset (data)
     
 
 if __name__ == '__main__':
