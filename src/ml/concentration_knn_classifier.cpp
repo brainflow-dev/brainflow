@@ -6,10 +6,6 @@
 #include "concentration_knn_classifier.h"
 #include "focus_dataset.h"
 
-#ifdef _OPENMP
-#include <omp.h>
-#endif
-
 
 int ConcentrationKNNClassifier::prepare ()
 {
@@ -56,23 +52,18 @@ int ConcentrationKNNClassifier::predict (double *data, int data_len, double *out
 
     KNNEntry sample_to_predict (data, 0, data_len);
 
-#pragma omp parallel for
+    int num_chunks = 1; // todo num_chunks == num threads
+    int chunk_size = dataset.size () / num_chunks;
+    // todo parallel using c++ threads
     for (int i = 0; i < dataset.size (); i++)
     {
         dataset.at (i).set_distance (sample_to_predict);
     }
 
-#ifdef _OPENMP
-    int num_chunks = omp_get_num_threads ();
-#else
-    int num_chunks = 1;
-#endif
-    int chunk_size = dataset.size () / num_chunks;
-
     std::vector<std::vector<KNNEntry>> chunks (num_chunks);
 
     // find num_neighbors elements in each chunk
-#pragma omp parallel for
+    // todo parallel using c++ threads
     for (int i = 0; i < num_chunks; i++)
     {
         int start_pos = i * chunk_size;
