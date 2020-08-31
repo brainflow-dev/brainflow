@@ -142,7 +142,7 @@ def test_brainflow_knn (data):
     model = MLModel (params)
     start_time = time.time ()
     model.prepare ()
-    predicted = [model.predict (x) > 0.5 for x in data[0]]
+    predicted = [model.predict (x) >= 0.5 for x in data[0]]
     model.release ()
     stop_time = time.time ()
     print ('Total time %f' % (stop_time - start_time))
