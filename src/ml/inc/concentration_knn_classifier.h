@@ -13,7 +13,7 @@ class ConcentrationKNNClassifier : public BaseClassifier
 public:
     ConcentrationKNNClassifier (struct BrainFlowModelParams params) : BaseClassifier (params)
     {
-        num_neighbors = 20;
+        num_neighbors = 5;
         kdtree = NULL;
     }
 

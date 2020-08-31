@@ -89,7 +89,7 @@ def train_regression (data):
     print (model.intercept_, model.coef_)
 
 def train_knn (data):
-    model = KNeighborsClassifier (n_neighbors = 20)
+    model = KNeighborsClassifier (n_neighbors = 5)
     print('#### KNN ####')
     data_x = data[0].copy()
     for i, x in enumerate (data_x):
@@ -118,7 +118,7 @@ double brainflow_focus_x[%d][10] = {%s};
 int brainflow_focus_y[%d] = {%s};
 
 // clang-format on
-''' % (len (data[0]), x_string, len (data[1]), y_string)
+''' % (len (data[1]), x_string, len (data[1]), y_string)
 
     file_path = os.path.join (os.path.dirname (os.path.realpath (__file__)), '..', 'inc', 'focus_dataset.h')
     with open(file_path, 'w') as f:
@@ -162,7 +162,7 @@ def main ():
         write_dataset (data)
         train_regression (data)
         train_knn (data)
-    
+
 
 if __name__ == '__main__':
     main ()

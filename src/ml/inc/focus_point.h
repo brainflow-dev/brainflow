@@ -23,13 +23,13 @@ public:
     FocusPoint (double *feature_vector, int vector_len, int value)
     {
         this->value = value;
-        int len = std::min (vector_len, FocusPoint::DIM);
+        int len = std::min (vector_len, 10);
         for (int i = 0; i < len; i++)
         {
             (*this)[i] = feature_vector[i];
         }
         // to work without stddev in feature vector if needed
-        for (int i = vector_len; i < FocusPoint::DIM; i++)
+        for (int i = vector_len; i < 10; i++)
         {
             (*this)[i] = 0.0;
         }

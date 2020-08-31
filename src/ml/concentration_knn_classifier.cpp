@@ -55,7 +55,20 @@ int ConcentrationKNNClassifier::predict (double *data, int data_len, double *out
         return (int)BrainFlowExitCodes::CLASSIFIER_IS_NOT_PREPARED_ERROR;
     }
 
-    FocusPoint sample_to_predict (data, data_len, 0.0);
+    double feature_vector[10] = {0.0};
+    for (int i = 0; i < data_len; i++)
+    {
+        if (i >= 5)
+        {
+            feature_vector[i] = data[i] * 0.2;
+        }
+        else
+        {
+            feature_vector[i] = data[i];
+        }
+    }
+
+    FocusPoint sample_to_predict (feature_vector, 10, 0.0);
     const std::vector<int> knn_ids = kdtree->knnSearch (sample_to_predict, num_neighbors);
     int num_ones = 0;
     for (int i = 0; i < knn_ids.size (); i++)
