@@ -9,6 +9,10 @@
 
 int ConcentrationKNNClassifier::prepare ()
 {
+    if (kdtree != NULL)
+    {
+        return (int)BrainFlowExitCodes::ANOTHER_CLASSIFIER_IS_PREPARED_ERROR;
+    }
     if (!params.other_info.empty ())
     {
         try
@@ -28,14 +32,15 @@ int ConcentrationKNNClassifier::prepare ()
     int dataset_len = sizeof (brainflow_focus_y) / sizeof (brainflow_focus_y[0]);
     for (int i = 0; i < dataset_len; i++)
     {
-        KNNEntry entry (brainflow_focus_x[i], brainflow_focus_y[i], 10);
+        FocusPoint point (brainflow_focus_x[i], 10, brainflow_focus_y[i]);
         // decrease weight for stddev, 0.2 - experimental vlaue
         for (int j = 5; j < 10; j++)
         {
-            entry.feature_vector[j] *= 0.2;
+            point[j] *= 0.2;
         }
-        dataset.push_back (entry);
+        dataset.push_back (point);
     }
+    kdtree = new kdt::KDTree<FocusPoint> (dataset);
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
@@ -45,66 +50,23 @@ int ConcentrationKNNClassifier::predict (double *data, int data_len, double *out
     {
         return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
-    if (dataset.empty ())
+    if (kdtree == NULL)
     {
         return (int)BrainFlowExitCodes::CLASSIFIER_IS_NOT_PREPARED_ERROR;
     }
 
-    KNNEntry sample_to_predict (data, 0, data_len);
-
-    int num_chunks = 1; // todo num_chunks == num threads
-    int chunk_size = dataset.size () / num_chunks;
-    // todo parallel using c++ threads
-    for (int i = 0; i < dataset.size (); i++)
+    FocusPoint sample_to_predict (data, data_len, 0.0);
+    const std::vector<int> knn_ids = kdtree->knnSearch (sample_to_predict, num_neighbors);
+    int num_ones = 0;
+    for (int i = 0; i < knn_ids.size (); i++)
     {
-        dataset.at (i).set_distance (sample_to_predict);
-    }
-
-    std::vector<std::vector<KNNEntry>> chunks (num_chunks);
-
-    // find num_neighbors elements in each chunk
-    // todo parallel using c++ threads
-    for (int i = 0; i < num_chunks; i++)
-    {
-        int start_pos = i * chunk_size;
-        int end_pos = (i + 1) * chunk_size;
-        if (i == num_chunks - 1)
+        if (dataset[knn_ids[i]].value == 1)
         {
-            end_pos = dataset.size () - 1;
-        }
-        std::vector<KNNEntry> search_vector (
-            dataset.begin () + start_pos, dataset.begin () + end_pos);
-        int num_points = std::min (num_neighbors, end_pos - start_pos);
-        std::nth_element (
-            search_vector.begin (), search_vector.begin () + num_points, search_vector.end ());
-        for (int j = 0; j < num_points; j++)
-        {
-            chunks[i].push_back (search_vector[j]);
+            num_ones++;
         }
     }
 
-    // join chunks and update mins
-    std::vector<KNNEntry> all_sorted_data;
-    for (int i = 0; i < num_chunks; i++)
-    {
-        for (int j = 0; j < chunks[i].size (); j++)
-        {
-            all_sorted_data.push_back (chunks[i][j]);
-        }
-    }
-    std::nth_element (
-        all_sorted_data.begin (), all_sorted_data.begin () + num_neighbors, all_sorted_data.end ());
-    // calc probability as num ones / num neighbors
-    double num_ones = 0.0;
-    for (int i = 0; i < num_neighbors; i++)
-    {
-        if (all_sorted_data[i].value == 1)
-        {
-            num_ones = num_ones + 1;
-        }
-    }
-
-    double score = num_ones / num_neighbors;
+    double score = ((double)num_ones) / num_neighbors;
     *output = score;
 
     return (int)BrainFlowExitCodes::STATUS_OK;
@@ -112,6 +74,8 @@ int ConcentrationKNNClassifier::predict (double *data, int data_len, double *out
 
 int ConcentrationKNNClassifier::release ()
 {
+    delete kdtree;
+    kdtree = NULL;
     dataset.clear ();
     return (int)BrainFlowExitCodes::STATUS_OK;
 }

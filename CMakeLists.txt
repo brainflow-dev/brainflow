@@ -253,6 +253,7 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/src/ml/inc
     ${CMAKE_HOME_DIRECTORY}/third_party/libsvm
     ${CMAKE_HOME_DIRECTORY}/third_party/json
+    ${CMAKE_HOME_DIRECTORY}/third_party/kdtree
 )
 
 set_target_properties (${BOARD_CONTROLLER_NAME}

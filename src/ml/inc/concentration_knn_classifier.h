@@ -3,7 +3,9 @@
 #include <vector>
 
 #include "base_classifier.h"
-#include "knn_entry.h"
+#include "focus_point.h"
+
+#include "kdtree.h"
 
 
 class ConcentrationKNNClassifier : public BaseClassifier
@@ -12,6 +14,7 @@ public:
     ConcentrationKNNClassifier (struct BrainFlowModelParams params) : BaseClassifier (params)
     {
         num_neighbors = 20;
+        kdtree = NULL;
     }
 
     virtual ~ConcentrationKNNClassifier ()
@@ -24,6 +27,7 @@ public:
     virtual int release ();
 
 private:
-    std::vector<KNNEntry> dataset;
+    std::vector<FocusPoint> dataset;
+    kdt::KDTree<FocusPoint> *kdtree;
     int num_neighbors;
 };
