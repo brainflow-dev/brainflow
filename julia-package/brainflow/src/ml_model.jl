@@ -15,6 +15,7 @@ end
 @enum BrainFlowClassifiers begin
 
     REGRESSION = 0
+    KNN = 1
 
 end
 

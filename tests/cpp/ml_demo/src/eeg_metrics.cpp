@@ -15,6 +15,7 @@
 using namespace std;
 using namespace std::chrono;
 
+
 bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, int *board_id);
 
 int main (int argc, char *argv[])
@@ -74,7 +75,7 @@ int main (int argc, char *argv[])
 
         // Prepare Models
         struct BrainFlowModelParams conc_model_params (
-            (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::REGRESSION);
+            (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::KNN);
         MLModel concentration_model (conc_model_params);
         concentration_model.prepare ();
         std::cout << "Concentration: " << concentration_model.predict (feature_vector, 10)
