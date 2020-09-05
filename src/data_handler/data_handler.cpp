@@ -6,10 +6,6 @@
 #include <string>
 #include <vector>
 
-#ifdef _OPENMP
-#include <omp.h>
-#endif
-
 #include "brainflow_constants.h"
 #include "data_handler.h"
 #include "downsample_operators.h"
@@ -920,8 +916,7 @@ int get_avg_band_powers (double *raw_data, int rows, int cols, int sampling_rate
             bands[i][j] = 0.0;
         }
     }
-
-#pragma omp parallel for
+    // todo parallel using c++ threads
     for (int i = 0; i < rows; i++)
     {
         double *ampls = new double[nfft / 2 + 1];
