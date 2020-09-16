@@ -44,8 +44,5 @@ public:
     int release_session ();
     int config_board (char *config);
 
-    static constexpr int package_size = 72;
-    static constexpr int num_packages = 19;
-    static constexpr int transaction_size = NovaXR::package_size * NovaXR::num_packages;
     static constexpr int num_channels = 22;
 };
