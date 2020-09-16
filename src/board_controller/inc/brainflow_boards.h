@@ -71,7 +71,7 @@ json brainflow_boards_json = {
         }},
         {"3",
             {{"name", "NovaXR"},
-            {"sampling_rate", 500},
+            {"sampling_rate", 250},
             {"package_num_channel", 0},
             {"timestamp_channel", 22},
             {"num_rows", 23},

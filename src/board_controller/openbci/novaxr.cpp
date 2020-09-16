@@ -10,9 +10,6 @@
 #include <errno.h>
 #endif
 
-constexpr int NovaXR::transaction_size;
-constexpr int NovaXR::num_packages;
-constexpr int NovaXR::package_size;
 constexpr int NovaXR::num_channels;
 
 NovaXR::NovaXR (struct BrainFlowInputParams params) : Board ((int)BoardIds::NOVAXR_BOARD, params)
@@ -66,8 +63,8 @@ int NovaXR::prepare_session ()
         socket = NULL;
         return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
     }
-    // force default sampling rate - 500
-    res = config_board ("~5");
+    // force default sampling rate - 250
+    res = config_board ("~6");
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to apply defaul sampling rate");
@@ -264,19 +261,30 @@ int NovaXR::release_session ()
 void NovaXR::read_thread ()
 {
     int res;
-    unsigned char b[NovaXR::transaction_size];
-    long counter = 0;
-    double recv_avg_time = 0;
-    double process_avg_time = 0;
+    int package_size = 72;
+    int num_packages = 19;
+    if (!params.other_info.empty ())
+    {
+        try
+        {
+            num_packages = std::stoi (params.other_info);
+        }
+        catch (...)
+        {
+            safe_logger (spdlog::level::err,
+                "invalid value in other_info, must be num_packages in transaction");
+            return;
+        }
+    }
+    int transaction_size = package_size * num_packages;
+    unsigned char *b = new unsigned char[transaction_size];
+    for (int i = 0; i < transaction_size; i++)
+    {
+        b[i] = 0;
+    }
     while (keep_alive)
     {
-        auto recv_start_time = std::chrono::high_resolution_clock::now ();
-        res = socket->recv (b, NovaXR::transaction_size);
-        auto recv_stop_time = std::chrono::high_resolution_clock::now ();
-        auto recv_duration =
-            std::chrono::duration_cast<std::chrono::microseconds> (recv_stop_time - recv_start_time)
-                .count ();
-
+        res = socket->recv (b, transaction_size);
         if (res == -1)
         {
 #ifdef _WIN32
@@ -285,10 +293,10 @@ void NovaXR::read_thread ()
             safe_logger (spdlog::level::err, "errno {} message {}", errno, strerror (errno));
 #endif
         }
-        if (res != NovaXR::transaction_size)
+        if (res != transaction_size)
         {
-            safe_logger (spdlog::level::trace, "unable to read {} bytes, read {}",
-                NovaXR::transaction_size, res);
+            safe_logger (
+                spdlog::level::trace, "unable to read {} bytes, read {}", transaction_size, res);
             continue;
         }
         else
@@ -308,11 +316,10 @@ void NovaXR::read_thread ()
             }
         }
 
-        auto processing_start_time = std::chrono::high_resolution_clock::now ();
-        for (int cur_package = 0; cur_package < NovaXR::num_packages; cur_package++)
+        for (int cur_package = 0; cur_package < num_packages; cur_package++)
         {
             double package[NovaXR::num_channels] = {0.};
-            int offset = cur_package * NovaXR::package_size;
+            int offset = cur_package * package_size;
             // package num
             package[0] = (double)b[0 + offset];
             // eeg and emg
@@ -354,16 +361,6 @@ void NovaXR::read_thread ()
             streamer->stream_data (package, NovaXR::num_channels, timestamp);
             db->add_data (timestamp, package);
         }
-        auto processing_stop_time = std::chrono::high_resolution_clock::now ();
-        auto processing_duration = std::chrono::duration_cast<std::chrono::microseconds> (
-            processing_stop_time - processing_start_time)
-                                       .count ();
-        recv_avg_time += recv_duration / 1000.0;
-        process_avg_time += processing_duration / 1000.0;
-        counter++;
     }
-    recv_avg_time /= counter;
-    process_avg_time /= counter;
-    safe_logger (spdlog::level::trace, "recv avg time in ms {}", recv_avg_time);
-    safe_logger (spdlog::level::trace, "process avg time in ms {}", process_avg_time);
+    delete[] b;
 }
