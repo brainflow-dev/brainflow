@@ -161,8 +161,7 @@ int SocketClientUDP::get_local_port ()
 
 int SocketClientUDP::send (const char *data, int size)
 {
-    int len = sizeof (socket_addr);
-    int res = sendto (connect_socket, data, size, 0, (sockaddr *)&socket_addr, len);
+    int res = sendto (connect_socket, data, size, 0, NULL, NULL);
     if (res == SOCKET_ERROR)
     {
         return -1;
@@ -172,8 +171,7 @@ int SocketClientUDP::send (const char *data, int size)
 
 int SocketClientUDP::recv (void *data, int size)
 {
-    int len = sizeof (socket_addr);
-    int res = recvfrom (connect_socket, (char *)data, size, 0, (sockaddr *)&socket_addr, &len);
+    int res = recvfrom (connect_socket, (char *)data, size, 0, NULL, NULL);
     if (res == SOCKET_ERROR)
     {
         return -1;
@@ -335,15 +333,13 @@ int SocketClientUDP::get_local_port ()
 
 int SocketClientUDP::send (const char *data, int size)
 {
-    socklen_t len = (socklen_t)sizeof (socket_addr);
-    int res = sendto (connect_socket, data, size, 0, (sockaddr *)&socket_addr, len);
+    int res = sendto (connect_socket, data, size, 0, NULL, NULL);
     return res;
 }
 
 int SocketClientUDP::recv (void *data, int size)
 {
-    socklen_t len = (socklen_t)sizeof (socket_addr);
-    int res = recvfrom (connect_socket, (char *)data, size, 0, (sockaddr *)&socket_addr, &len);
+    int res = recvfrom (connect_socket, (char *)data, size, 0, NULL, NULL);
     return res;
 }
 
