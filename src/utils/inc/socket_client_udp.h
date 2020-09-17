@@ -48,6 +48,7 @@ public:
     {
         return port;
     }
+    int get_local_port ();
 
 private:
     char ip_addr[32];

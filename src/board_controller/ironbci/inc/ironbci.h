@@ -39,10 +39,10 @@ public:
 
     static constexpr int num_channels = 9;
     static constexpr int ads_gain = 8;
-    static const std::string start_command; // command which starts streaming
-    static const std::string stop_command;  // command which stops streaming
-    static constexpr int package_size = 25; // number of bytes in package
-    static constexpr int num_packages = 10; // number of packages in single udp transaction
+    static const std::string start_command_prefix; // command prefix to start streaming
+    static const std::string stop_command;         // command which stops streaming
+    static constexpr int package_size = 25;        // number of bytes in package
+    static constexpr int num_packages = 10;        // number of packages in single udp transaction
     static constexpr int tcp_port = 2321;
     static constexpr int udp_port = 2322;
     static constexpr int transaction_size = IronBCI::package_size * IronBCI::num_packages;

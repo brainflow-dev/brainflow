@@ -16,7 +16,7 @@ constexpr int IronBCI::udp_port;
 constexpr int IronBCI::package_size;
 constexpr int IronBCI::num_channels;
 constexpr int IronBCI::ads_gain;
-const std::string IronBCI::start_command = "b";
+const std::string IronBCI::start_command_prefix = "b";
 const std::string IronBCI::stop_command = "s";
 
 
@@ -122,9 +122,18 @@ int IronBCI::start_stream (int buffer_size, char *streamer_params)
         return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
+    int local_udp_port = data_socket->get_local_port ();
+    safe_logger (spdlog::level::info, "Local UDP port is {}", local_udp_port);
+    if (local_udp_port <= 0)
+    {
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+
+    std::string start_command = IronBCI::start_command_prefix + std::to_string (local_udp_port);
+    int len = strlen (start_command.c_str ());
     // start streaming
-    res = command_socket->send (IronBCI::start_command.c_str (), 1);
-    if (res != 1)
+    res = command_socket->send (start_command.c_str (), len);
+    if (res != len)
     {
         if (res == -1)
         {
@@ -151,7 +160,7 @@ int IronBCI::start_stream (int buffer_size, char *streamer_params)
     }
     else
     {
-        safe_logger (spdlog::level::err, "no data received in 3sec, stopping thread");
+        safe_logger (spdlog::level::err, "no data received in 5 sec, stopping thread");
         this->is_streaming = true;
         this->stop_stream ();
         return (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;

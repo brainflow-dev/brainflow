@@ -87,8 +87,6 @@ test_script:
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\streaming_board_emulator.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
   # test for fascia
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\fascia_emulator_ci.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --board-id 12 --ip-port 7789
-  # test for ironbci
-  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\ironbci_windows.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board-id 14 --serial-port
   # tests for signal processing
   # python
   - python %APPVEYOR_BUILD_FOLDER%\tests\python\denoising.py

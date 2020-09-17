@@ -115,6 +115,12 @@ int SocketClientUDP::connect ()
     setsockopt (connect_socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof (timeout));
     setsockopt (connect_socket, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof (timeout));
 
+    if (::connect (connect_socket, (const struct sockaddr *)&socket_addr, sizeof (socket_addr)) ==
+        SOCKET_ERROR)
+    {
+        return (int)SocketClientUDPReturnCodes::CONNECT_ERROR;
+    }
+
     return (int)SocketClientUDPReturnCodes::STATUS_OK;
 }
 
@@ -132,6 +138,25 @@ int SocketClientUDP::bind ()
         return (int)SocketClientUDPReturnCodes::CONNECT_ERROR;
     }
     return (int)SocketClientUDPReturnCodes::STATUS_OK;
+}
+
+int SocketClientUDP::get_local_port ()
+{
+    if (connect_socket == INVALID_SOCKET)
+    {
+        return (int)SocketClientUDPReturnCodes::CREATE_SOCKET_ERROR;
+    }
+    struct sockaddr_in sin_local;
+    memset (&sin_local, 0, sizeof (sin_local));
+    socklen_t slen = (socklen_t)sizeof (sin_local);
+    if (getsockname (connect_socket, (struct sockaddr *)&sin_local, &slen) == 0)
+    {
+        return ntohs (sin_local.sin_port);
+    }
+    else
+    {
+        return -1;
+    }
 }
 
 int SocketClientUDP::send (const char *data, int size)
@@ -264,6 +289,12 @@ int SocketClientUDP::connect ()
     setsockopt (connect_socket, SOL_SOCKET, SO_RCVTIMEO, (const char *)&tv, sizeof (tv));
     setsockopt (connect_socket, SOL_SOCKET, SO_SNDTIMEO, (const char *)&tv, sizeof (tv));
 
+    if (::connect (connect_socket, (const struct sockaddr *)&socket_addr, sizeof (socket_addr)) ==
+        -1)
+    {
+        return (int)SocketClientUDPReturnCodes::CONNECT_ERROR;
+    }
+
     return (int)SocketClientUDPReturnCodes::STATUS_OK;
 }
 
@@ -281,6 +312,25 @@ int SocketClientUDP::bind ()
         return (int)SocketClientUDPReturnCodes::CONNECT_ERROR;
     }
     return (int)SocketClientUDPReturnCodes::STATUS_OK;
+}
+
+int SocketClientUDP::get_local_port ()
+{
+    if (connect_socket < 0)
+    {
+        return (int)SocketClientUDPReturnCodes::CREATE_SOCKET_ERROR;
+    }
+    struct sockaddr_in sin_local;
+    memset (&sin_local, 0, sizeof (sin_local));
+    socklen_t slen = (socklen_t)sizeof (sin_local);
+    if (getsockname (connect_socket, (struct sockaddr *)&sin_local, &slen) == 0)
+    {
+        return ntohs (sin_local.sin_port);
+    }
+    else
+    {
+        return -1;
+    }
 }
 
 int SocketClientUDP::send (const char *data, int size)
