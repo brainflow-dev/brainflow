@@ -261,23 +261,10 @@ int NovaXR::release_session ()
 void NovaXR::read_thread ()
 {
     int res;
-    int package_size = 72;
-    int num_packages = 19;
-    if (!params.other_info.empty ())
-    {
-        try
-        {
-            num_packages = std::stoi (params.other_info);
-        }
-        catch (...)
-        {
-            safe_logger (spdlog::level::err,
-                "invalid value in other_info, must be num_packages in transaction");
-            return;
-        }
-    }
-    int transaction_size = package_size * num_packages;
-    unsigned char *b = new unsigned char[transaction_size];
+    constexpr int package_size = 72;
+    constexpr int num_packages = 19;
+    constexpr int transaction_size = package_size * num_packages;
+    unsigned char b[transaction_size];
     for (int i = 0; i < transaction_size; i++)
     {
         b[i] = 0;
@@ -362,5 +349,4 @@ void NovaXR::read_thread ()
             db->add_data (timestamp, package);
         }
     }
-    delete[] b;
 }
