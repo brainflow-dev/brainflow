@@ -19,9 +19,9 @@ int ConcentrationRegressionClassifier::predict (double *data, int data_len, doub
     }
     double value = 0.0;
     // coefficients from focus_classifier.py, first 5 - avg band powers, last 5 stddevs
-    const double coefficients[10] = {-4.55141431, 0.64367822, -9.61285589, 4.96647132, 12.52338374,
-        -4.40990224, 4.09532588, -7.01725697, 2.75863581, 0.24754745};
-    double intercept = 3.96926308;
+    const double coefficients[10] = {-4.00053368, -1.41176333, -15.76696787, 7.03090858,
+        18.15572423, -3.69625477, 3.18110813, -8.27378987, 2.30053461, 2.94329616};
+    double intercept = 4.00736793;
     // undocumented feature(not recommended): may work without stddev but with worse accuracy
     for (int i = 0; i < std::min (data_len, 10); i++)
     {
