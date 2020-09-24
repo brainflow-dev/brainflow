@@ -196,6 +196,14 @@ json brainflow_boards_json = {
             {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
             {"eeg_names", "CP6,F6,C4,CP4,CP3,F5,C3,CP5"},
             {"other_channels", {9}}
+        }},
+        {"15",
+            {{"name", "GforcePro"},
+            {"sampling_rate", 500},
+            {"timestamp_channel", 9},
+            {"package_num_channel", 0},
+            {"num_rows", 10},
+            {"emg_channels", {1, 2, 3, 4, 5, 6, 7, 8}}
         }}
     }
 }};

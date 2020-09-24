@@ -11,9 +11,11 @@ public:
     ThreadSafeQueue ()
     {
     }
+
     ~ThreadSafeQueue ()
     {
     }
+
     void push (T val)
     {
         std::lock_guard<std::mutex> lgx (mQueueMx);
@@ -29,6 +31,7 @@ public:
         mDataQueue.pop ();
         return retval;
     }
+
     bool empty ()
     {
         std::lock_guard (mQueueMx);
