@@ -21,7 +21,8 @@ To create an instance of BoardShim class for your board check required inputs in
    "CallibriEEG", "BoardIds.CALLIBRI_EEG_BOARD (9)", "-", "-", "-", "-", "-", "Optional: ExternalSwitchInputMioUSB (default is ExternalSwitchInputMioElectrodes)", "Timeout for device discovery(default 15sec)", "-"
    "CallibriEMG", "BoardIds.CALLIBRI_EMG_BOARD (10)", "-", "-", "-", "-", "-", "Optional: ExternalSwitchInputMioUSB (default is ExternalSwitchInputMioElectrodes)", "Timeout for device discovery(default 15sec)", "-"
    "CallibriECG", "BoardIds.CALLIBRI_ECG_BOARD (11)", "-", "-", "-", "-", "-", "Optional: ExternalSwitchInputMioUSB (default is ExternalSwitchInputMioElectrodes)", "Timeout for device discovery(default 15sec)", "-"
-   "NotionOSC", "BoardIds.NOTION_OSC_BOARD (13)", "-", "-", "-", "Optional: IP Port(default 9000)", "-", "-", "-", "Optional: seial number"
+   "Notion 1", "BoardIds.NOTION_1_BOARD (13)", "-", "-", "-", "-", "-", "-", "-", "Optional: serial number"
+   "Notion 2", "BoardIds.NOTION_2_BOARD (14)", "-", "-", "-", "-", "-", "-", "-", "Optional: serial number"
 
 
 Streaming Board
@@ -391,8 +392,8 @@ Board Spec:
 Neurosity
 ----------
 
-Notion
-~~~~~~~
+Notion 1
+~~~~~~~~~
 
 .. image:: https://live.staticflickr.com/65535/50093731531_68f2183bb3_o.jpg
     :width: 250px
@@ -400,11 +401,40 @@ Notion
 
 `Notion website <https://neurosity.co/>`_
 
+`Link to Neurosity Tutorial <https://dev.to/neurosity/using-brainflow-with-the-neurosity-headset-2kof>`_
+
 To choose this board in BoardShim constructor please specify:
 
 - board_id: 13
 - optional: Serial Number field of BrainFlowInputParams structure, important if you have multiple devices in the same place
-- optional: IP Port field of BrainFlowInputParams structure, default is 9000
+
+Supported platforms:
+
+- Windows
+- Linux
+- MacOS
+
+Board Spec:
+
+- num eeg channels: 8
+- sampling rate: 250
+- communication: UDP BroadCast
+
+Notion 2
+~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/50093731531_68f2183bb3_o.jpg
+    :width: 250px
+    :height: 250px
+
+`Notion website <https://neurosity.co/>`_
+
+`Link to Neurosity Tutorial <https://dev.to/neurosity/using-brainflow-with-the-neurosity-headset-2kof>`_
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 14
+- optional: Serial Number field of BrainFlowInputParams structure, important if you have multiple devices in the same place
 
 Supported platforms:
 

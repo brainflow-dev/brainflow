@@ -13,7 +13,7 @@ constexpr int NotionOSC::num_channels;
 
 
 NotionOSC::NotionOSC (struct BrainFlowInputParams params)
-    : Board ((int)BoardIds::NOTION_OSC_BOARD, params)
+    : Board ((int)BoardIds::NOTION_1_BOARD, params)
 {
     socket = NULL;
     keep_alive = false;
