@@ -196,6 +196,16 @@ json brainflow_boards_json = {
             {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
             {"eeg_names", "CP6,F6,C4,CP4,CP3,F5,C3,CP5"},
             {"other_channels", {9}}
+        }},
+        {"14",
+            {{"name", "NotionOSC"},
+            {"sampling_rate", 250},
+            {"timestamp_channel", 10},
+            {"package_num_channel", 0},
+            {"num_rows", 11},
+            {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
+            {"eeg_names", "CP5,F5,C3,CP3,CP6,F6,C4,CP4"},
+            {"other_channels", {9}}
         }}
     }
 }};
