@@ -46,7 +46,7 @@ enum class BoardIds : int
     CALLIBRI_ECG_BOARD = 11,
     FASCIA_BOARD = 12,
     NOTION_OSC_BOARD = 13,
-    GFORCE_PRO_BOARD = 15
+    GFORCE_PRO_BOARD = 16
 };
 
 enum class FilterTypes : int
