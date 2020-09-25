@@ -101,14 +101,31 @@ int NovaXR::config_board (char *config)
     }
     if (!is_streaming)
     {
-        char response = 0;
-        res = socket->recv (&response, 1);
-        if (res != 1)
+        constexpr int package_size = 72;
+        constexpr int num_packages = 19;
+        constexpr int transaction_size = package_size * num_packages;
+        unsigned char b[transaction_size];
+        res = 0;
+        while (res != 1)
         {
-            safe_logger (spdlog::level::err, "failed to recv ack");
-            return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
+            res = socket->recv (b, transaction_size);
+            if (res == -1)
+            {
+#ifdef _WIN32
+                safe_logger (
+                    spdlog::level::err, "config_board WSAGetLastError is {}", WSAGetLastError ());
+#else
+                safe_logger (spdlog::level::err, "config_board errno {} message {}", errno,
+                    strerror (errno));
+#endif
+                return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
+            }
+            if (res != 1)
+            {
+                safe_logger (spdlog::level::warn, "config_board recv {} bytes instead 1", res);
+            }
         }
-        switch (response)
+        switch (b[0])
         {
             case 'A':
                 return (int)BrainFlowExitCodes::STATUS_OK;
@@ -116,7 +133,7 @@ int NovaXR::config_board (char *config)
                 safe_logger (spdlog::level::err, "invalid command");
                 return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
             default:
-                safe_logger (spdlog::level::err, "unknown char received: {}", response);
+                safe_logger (spdlog::level::err, "unknown char received: {}", b[0]);
                 return (int)BrainFlowExitCodes::GENERAL_ERROR;
         }
     }
