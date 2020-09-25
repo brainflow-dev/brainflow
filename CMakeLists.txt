@@ -197,6 +197,7 @@ set (ML_MODULE_SRC
     ${CMAKE_HOME_DIRECTORY}/src/ml/ml_module.cpp
     ${CMAKE_HOME_DIRECTORY}/src/ml/concentration_regression_classifier.cpp
     ${CMAKE_HOME_DIRECTORY}/third_party/libsvm/svm.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/ml/concentration_knn_classifier.cpp
 )
 
 add_library (
@@ -254,6 +255,7 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/src/ml/inc
     ${CMAKE_HOME_DIRECTORY}/third_party/libsvm
     ${CMAKE_HOME_DIRECTORY}/third_party/json
+    ${CMAKE_HOME_DIRECTORY}/third_party/kdtree
 )
 
 set_target_properties (${BOARD_CONTROLLER_NAME}
@@ -283,13 +285,6 @@ set_target_properties (${ML_MODULE_NAME}
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
 )
-
-# link openmp if found
-find_package (OpenMP)
-if (OpenMP_CXX_FOUND)
-    target_link_libraries (${DATA_HANDLER_NAME} PRIVATE OpenMP::OpenMP_CXX)
-    target_link_libraries (${ML_MODULE_NAME} PRIVATE OpenMP::OpenMP_CXX)
-endif()
 
 # dont link pthread for Android
 if (UNIX AND NOT ANDROID)

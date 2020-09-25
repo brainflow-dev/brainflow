@@ -9,3 +9,4 @@ ipykernel
 nbsphinx
 pandoc
 sphinxcontrib-ghcontributors
+Pygments==2.6.1

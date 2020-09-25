@@ -51,7 +51,7 @@ def main ():
     print(feature_vector)
     
     # calc concentration
-    concentration_params = BrainFlowModelParams (BrainFlowMetrics.CONCENTRATION.value, BrainFlowClassifiers.REGRESSION.value)
+    concentration_params = BrainFlowModelParams (BrainFlowMetrics.CONCENTRATION.value, BrainFlowClassifiers.KNN.value)
     concentration = MLModel (concentration_params)
     concentration.prepare ()
     print ('Concentration: %f' % concentration.predict (feature_vector))

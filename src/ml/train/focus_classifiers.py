@@ -1,17 +1,23 @@
 import glob
+import argparse
 import statistics
 import os
+import time
+
 import numpy as np
 
 from sklearn import metrics
 from sklearn.linear_model import LogisticRegression
 from sklearn.dummy import DummyClassifier
+from metric_learn import LMNN
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split, cross_val_score
 
 import brainflow
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels, BoardIds
 from brainflow.data_filter import DataFilter, FilterTypes, AggOperations, WindowFunctions, DetrendOperations
-from brainflow.ml_model import BrainFlowMetrics, BrainFlowClassifiers, MLModel
+from brainflow.ml_model import BrainFlowMetrics, BrainFlowClassifiers, MLModel, BrainFlowModelParams
 
 
 def prepare_data ():
@@ -69,24 +75,93 @@ def get_eeg_channels(board_id):
     return eeg_channels
 
 def train_regression (data):
-    # print cross validation scores
-    dummy_clf = DummyClassifier (strategy = 'stratified')
-    scores = cross_val_score (dummy_clf, data[0], data[1], cv = 5, scoring = 'f1_macro', n_jobs = 8)
-    print ('Dummy Scores:')
-    print (scores)
-
     model = LogisticRegression (class_weight = 'balanced', solver = 'liblinear', max_iter = 3000)
+    print('#### Logistic Regression ####')
     scores = cross_val_score (model, data[0], data[1], cv = 5, scoring = 'f1_macro', n_jobs = 8)
-    print (scores)
+    print ('f1 macro %s' % str (scores))
+    scores = cross_val_score (model, data[0], data[1], cv = 5, scoring = 'precision_macro', n_jobs = 8)
+    print ('precision macro %s' % str (scores))
+    scores = cross_val_score (model, data[0], data[1], cv = 5, scoring = 'recall_macro', n_jobs = 8)
+    print ('recall macro %s' % str (scores))
 
     model.fit (data[0], data[1])
     print ("Logistic Regressition Coefficients:")
     print (model.intercept_, model.coef_)
 
+def train_knn (data):
+    model = KNeighborsClassifier (n_neighbors = 5)
+    print('#### KNN ####')
+    data_x = data[0].copy()
+    for i, x in enumerate (data_x):
+        for j in range (5, 10):
+            data_x[i][j] = data_x[i][j] / 5 # idea to make stddev less important than avg, 5 random value
+    scores = cross_val_score (model, data_x, data[1], cv = 5, scoring = 'f1_macro', n_jobs = 8)
+    print ('f1 macro %s' % str (scores))
+    scores = cross_val_score (model, data_x, data[1], cv = 5, scoring = 'precision_macro', n_jobs = 8)
+    print ('precision macro %s' % str (scores))
+    scores = cross_val_score (model, data_x, data[1], cv = 5, scoring = 'recall_macro', n_jobs = 8)
+    print ('recall macro %s' % str (scores))
+
+def write_dataset (data):
+    # we prepare dataset in C++ code in compile time, need to generate header for it
+
+    y_string = '%s' % (', '.join ([str (x) for x in data[1]]))
+    x_string_tmp = ['{' + ', '.join ([str (y) for y in x]) + '}' for x in data[0]]
+    x_string = '%s' % (',\n'.join (x_string_tmp))
+    file_content = '''
+#pragma once
+
+
+// clang-format off
+
+double brainflow_focus_x[%d][10] = {%s};
+int brainflow_focus_y[%d] = {%s};
+
+// clang-format on
+''' % (len (data[1]), x_string, len (data[1]), y_string)
+
+    file_path = os.path.join (os.path.dirname (os.path.realpath (__file__)), '..', 'inc', 'focus_dataset.h')
+    with open(file_path, 'w') as f:
+        f.write (file_content)
+
+def test_brainflow_lr (data):
+    print ('Test BrainFlow LR')
+    params = BrainFlowModelParams (BrainFlowMetrics.CONCENTRATION.value, BrainFlowClassifiers.REGRESSION.value)
+    model = MLModel (params)
+    start_time = time.time ()
+    model.prepare ()
+    predicted = [model.predict (x) > 0.5 for x in data[0]]
+    model.release ()
+    stop_time = time.time ()
+    print ('Total time %f' % (stop_time - start_time))
+    print (metrics.classification_report (data[1], predicted))
+
+def test_brainflow_knn (data):
+    print ('Test BrainFlow KNN')
+    params = BrainFlowModelParams (BrainFlowMetrics.CONCENTRATION.value, BrainFlowClassifiers.KNN.value)
+    model = MLModel (params)
+    start_time = time.time ()
+    model.prepare ()
+    predicted = [model.predict (x) >= 0.5 for x in data[0]]
+    model.release ()
+    stop_time = time.time ()
+    print ('Total time %f' % (stop_time - start_time))
+    print (metrics.classification_report (data[1], predicted))
 
 def main ():
+    parser = argparse.ArgumentParser ()
+    parser.add_argument ('--test', action = 'store_true')
+    args = parser.parse_args ()
+
     data = prepare_data ()
-    train_regression (data)
+    if args.test:
+        # since we port models from python to c++ we need to test it as well
+        test_brainflow_knn (data)
+        test_brainflow_lr (data)
+    else:
+        write_dataset (data)
+        train_regression (data)
+        train_knn (data)
 
 
 if __name__ == '__main__':
