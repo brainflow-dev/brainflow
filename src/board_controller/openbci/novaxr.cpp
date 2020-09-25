@@ -11,6 +11,10 @@
 #endif
 
 constexpr int NovaXR::num_channels;
+constexpr int NovaXR::package_size;
+constexpr int NovaXR::num_packages;
+constexpr int NovaXR::transaction_size;
+
 
 NovaXR::NovaXR (struct BrainFlowInputParams params) : Board ((int)BoardIds::NOVAXR_BOARD, params)
 {
@@ -101,14 +105,11 @@ int NovaXR::config_board (char *config)
     }
     if (!is_streaming)
     {
-        constexpr int package_size = 72;
-        constexpr int num_packages = 19;
-        constexpr int transaction_size = package_size * num_packages;
-        unsigned char b[transaction_size];
+        unsigned char b[NovaXR::transaction_size];
         res = 0;
         while (res != 1)
         {
-            res = socket->recv (b, transaction_size);
+            res = socket->recv (b, NovaXR::transaction_size);
             if (res == -1)
             {
 #ifdef _WIN32
@@ -248,6 +249,24 @@ int NovaXR::stop_stream ()
             safe_logger (spdlog::level::err, "Failed to send a command to board");
             return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
         }
+
+        // free kernel buffer
+        unsigned char b[NovaXR::transaction_size];
+        res = 0;
+        int max_attempt = 1000; // to dont get to infinite loop
+        int current_attempt = 0;
+        while (res != -1)
+        {
+            res = socket->recv (b, NovaXR::transaction_size);
+            current_attempt++;
+            if (current_attempt == max_attempt)
+            {
+                safe_logger (
+                    spdlog::level::err, "Command 's' was sent but streaming is still running.");
+                return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
+            }
+        }
+
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
     else
@@ -278,17 +297,14 @@ int NovaXR::release_session ()
 void NovaXR::read_thread ()
 {
     int res;
-    constexpr int package_size = 72;
-    constexpr int num_packages = 19;
-    constexpr int transaction_size = package_size * num_packages;
-    unsigned char b[transaction_size];
-    for (int i = 0; i < transaction_size; i++)
+    unsigned char b[NovaXR::transaction_size];
+    for (int i = 0; i < NovaXR::transaction_size; i++)
     {
         b[i] = 0;
     }
     while (keep_alive)
     {
-        res = socket->recv (b, transaction_size);
+        res = socket->recv (b, NovaXR::transaction_size);
         if (res == -1)
         {
 #ifdef _WIN32
@@ -297,10 +313,10 @@ void NovaXR::read_thread ()
             safe_logger (spdlog::level::err, "errno {} message {}", errno, strerror (errno));
 #endif
         }
-        if (res != transaction_size)
+        if (res != NovaXR::transaction_size)
         {
-            safe_logger (
-                spdlog::level::trace, "unable to read {} bytes, read {}", transaction_size, res);
+            safe_logger (spdlog::level::trace, "unable to read {} bytes, read {}",
+                NovaXR::transaction_size, res);
             continue;
         }
         else
@@ -320,7 +336,7 @@ void NovaXR::read_thread ()
             }
         }
 
-        for (int cur_package = 0; cur_package < num_packages; cur_package++)
+        for (int cur_package = 0; cur_package < NovaXR::num_packages; cur_package++)
         {
             double package[NovaXR::num_channels] = {0.};
             int offset = cur_package * package_size;
