@@ -46,7 +46,7 @@ class NovaXREmulator (object):
                     self.state = State.stream.value
                 elif msg == Message.stop_stream.value:
                     self.state = State.wait.value
-                elif msg in Message.ack_values.value:
+                elif msg in Message.ack_values.value or msg.decode ('utf-8').startswith ('x'):
                     self.server_socket.sendto (Message.ack_from_device.value, self.addr)
                 elif msg == Message.temp_ack_from_host.value:
                     pass # just remove it from logs
