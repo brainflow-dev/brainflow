@@ -189,9 +189,10 @@ void SyntheticBoard::read_thread ()
         streamer->stream_data (package, SyntheticBoard::package_size, timestamp);
         counter++;
 #ifdef _WIN32
-        Sleep ((int)(1000.0 / sampling_rate));
+        // with 3 sampling rate is 250 on all machines
+        Sleep (3);
 #else
-        usleep ((int)(1000000.0 / sampling_rate));
+        usleep (3000);
 #endif
     }
 }
