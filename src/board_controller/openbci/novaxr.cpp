@@ -251,6 +251,7 @@ int NovaXR::stop_stream ()
         }
 
         // free kernel buffer
+        socket->set_timeout (2);
         unsigned char b[NovaXR::transaction_size];
         res = 0;
         int max_attempt = 1000; // to dont get to infinite loop
@@ -263,9 +264,11 @@ int NovaXR::stop_stream ()
             {
                 safe_logger (
                     spdlog::level::err, "Command 's' was sent but streaming is still running.");
+                socket->set_timeout (5);
                 return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
             }
         }
+        socket->set_timeout (5);
 
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
