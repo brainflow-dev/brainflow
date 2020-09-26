@@ -297,7 +297,7 @@ int SocketClientUDP::set_timeout (int num_seconds)
     }
 
     struct timeval tv;
-    tv.tv_sec = num_seconds * 1000;
+    tv.tv_sec = num_seconds;
     tv.tv_usec = 0;
     setsockopt (connect_socket, SOL_SOCKET, SO_RCVTIMEO, (const char *)&tv, sizeof (tv));
     setsockopt (connect_socket, SOL_SOCKET, SO_SNDTIMEO, (const char *)&tv, sizeof (tv));
