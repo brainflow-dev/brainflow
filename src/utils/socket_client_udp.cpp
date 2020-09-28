@@ -124,6 +124,24 @@ int SocketClientUDP::connect ()
     return (int)SocketClientUDPReturnCodes::STATUS_OK;
 }
 
+int SocketClientUDP::set_timeout (int num_seconds)
+{
+    if ((num_seconds < 1) || (num_seconds > 100))
+    {
+        return (int)SocketClientUDPReturnCodes::INVALID_ARGUMENT_ERROR;
+    }
+    if (connect_socket == INVALID_SOCKET)
+    {
+        return (int)SocketClientUDPReturnCodes::CREATE_SOCKET_ERROR;
+    }
+
+    DWORD timeout = 1000 * num_seconds;
+    setsockopt (connect_socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof (timeout));
+    setsockopt (connect_socket, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof (timeout));
+
+    return (int)SocketClientUDPReturnCodes::STATUS_OK;
+}
+
 int SocketClientUDP::bind ()
 {
     // for socket clients which dont call sendto before recvfrom bind should be called on client
@@ -292,6 +310,26 @@ int SocketClientUDP::connect ()
     {
         return (int)SocketClientUDPReturnCodes::CONNECT_ERROR;
     }
+
+    return (int)SocketClientUDPReturnCodes::STATUS_OK;
+}
+
+int SocketClientUDP::set_timeout (int num_seconds)
+{
+    if ((num_seconds < 1) || (num_seconds > 100))
+    {
+        return (int)SocketClientUDPReturnCodes::INVALID_ARGUMENT_ERROR;
+    }
+    if (connect_socket < 0)
+    {
+        return (int)SocketClientUDPReturnCodes::CREATE_SOCKET_ERROR;
+    }
+
+    struct timeval tv;
+    tv.tv_sec = num_seconds;
+    tv.tv_usec = 0;
+    setsockopt (connect_socket, SOL_SOCKET, SO_RCVTIMEO, (const char *)&tv, sizeof (tv));
+    setsockopt (connect_socket, SOL_SOCKET, SO_SNDTIMEO, (const char *)&tv, sizeof (tv));
 
     return (int)SocketClientUDPReturnCodes::STATUS_OK;
 }
