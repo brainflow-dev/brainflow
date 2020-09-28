@@ -194,6 +194,27 @@ int IronBCI::stop_stream ()
             safe_logger (spdlog::level::err, "Failed to send a command to board");
             return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
         }
+
+        // free kernel buffer
+        socket->set_timeout (2);
+        unsigned char b[IronBCI::transaction_size];
+        res = 0;
+        int max_attempt = 1000; // to dont get to infinite loop
+        int current_attempt = 0;
+        while (res != -1)
+        {
+            res = socket->recv (b, IronBCI::transaction_size);
+            current_attempt++;
+            if (current_attempt == max_attempt)
+            {
+                safe_logger (
+                    spdlog::level::err, "Command 's' was sent but streaming is still running.");
+                socket->set_timeout (5);
+                return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
+            }
+        }
+        socket->set_timeout (5);
+
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
     else
