@@ -18,6 +18,7 @@ from brainflow.exit_codes import BrainflowExitCodes
 class BoardIds (enum.Enum):
     """Enum to store all supported Board Ids"""
 
+    PLAYBACK_FILE_BOARD = -3 #:
     STREAMING_BOARD = -2 #:
     SYNTHETIC_BOARD = -1 #:
     CYTON_BOARD = 0 #:
@@ -390,11 +391,11 @@ class BoardShim (object):
             self.input_json = input_params.to_json ()
         self.board_id = board_id
         # we need it for streaming board
-        if board_id == BoardIds.STREAMING_BOARD.value:
+        if board_id == BoardIds.STREAMING_BOARD.value or board_id == BoardIds.PLAYBACK_FILE_BOARD.value:
             try:
                 self._master_board_id = int (input_params.other_info)
             except:
-                raise BrainFlowError ('set master board id using params.other_info for STREAMING_BOARD',
+                raise BrainFlowError ('set master board id using params.other_info',
                                     BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         else:
             self._master_board_id = self.board_id

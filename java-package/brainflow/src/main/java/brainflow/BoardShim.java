@@ -525,7 +525,7 @@ public class BoardShim
     {
         this.board_id = board_id;
         this.master_board_id = board_id;
-        if (board_id == BoardIds.STREAMING_BOARD.get_code ())
+        if ((board_id == BoardIds.STREAMING_BOARD.get_code ()) || (board_id == BoardIds.PLAYBACK_FILE_BOARD.get_code ()))
         {
             try
             {

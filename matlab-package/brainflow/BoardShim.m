@@ -251,7 +251,7 @@ classdef BoardShim
             obj.input_params_json = input_params.to_json ();
             obj.board_id = int32 (board_id);
             obj.master_board_id = obj.board_id;
-            if (board_id == int32 (BoardIDs.STREAMING_BOARD))
+            if ((board_id == int32 (BoardIDs.STREAMING_BOARD)) || (board_id == int32 (BoardIDs.PLAYBACK_FILE_BOARD)))
                 double_val = str2double (input_params.other_info);
                 if (isnan(double_val))
                     error("Write master board ID to other_info field");

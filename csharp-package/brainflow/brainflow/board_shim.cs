@@ -26,7 +26,7 @@ namespace brainflow
         {
             this.board_id = board_id;
             this.master_board_id = board_id;
-            if (board_id == (int)BoardIds.STREAMING_BOARD)
+            if ((board_id == (int)BoardIds.STREAMING_BOARD) || (board_id == (int)BoardIds.PLAYBACK_FILE_BOARD))
             {
                 try
                 {
