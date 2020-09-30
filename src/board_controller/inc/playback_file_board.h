@@ -14,6 +14,7 @@ class PlaybackFileBoard : public Board
 private:
     volatile bool keep_alive;
     volatile bool loopback;
+    volatile bool use_new_timestamps;
     std::thread streaming_thread;
     bool is_streaming;
     bool initialized;

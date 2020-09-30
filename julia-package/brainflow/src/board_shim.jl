@@ -66,9 +66,10 @@ mutable struct BrainFlowInputParams
     other_info::String
     timeout::Int32
     serial_number::String
+    file::String
 
     function BrainFlowInputParams()
-        new("", "", "", 0, Integer(NONE), "", 0, "")
+        new("", "", "", 0, Integer(NONE), "", 0, "", "")
     end
 
 end

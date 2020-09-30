@@ -11,9 +11,12 @@
 #endif
 
 #include "playback_file_board.h"
+#include "timestamp.h"
 
 #define SET_LOOPBACK_TRUE "loopback_true"
 #define SET_LOOPBACK_FALSE "loopback_false"
+#define NEW_TIMESTAMPS "new_timestamps"
+#define OLD_TIMESTAMPS "old_timestamps"
 
 
 PlaybackFileBoard::PlaybackFileBoard (struct BrainFlowInputParams params)
@@ -26,6 +29,7 @@ PlaybackFileBoard::PlaybackFileBoard (struct BrainFlowInputParams params)
     loopback = false;
     is_streaming = false;
     initialized = false;
+    use_new_timestamps = true;
     package_size = 0;
     this->state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
 }
@@ -187,6 +191,7 @@ void PlaybackFileBoard::read_thread ()
     double *package = new double[package_size];
     char buf[4096];
     double last_timestamp = -1.0;
+    bool new_timestamps = use_new_timestamps; // to prevent changing during streaming
 
     while (keep_alive)
     {
@@ -236,9 +241,13 @@ void PlaybackFileBoard::read_thread ()
             }
             this->cv.notify_one ();
         }
-        streamer->stream_data (
-            package, package_size - 1, package[package_size - 1]); // - 1 because of timestamp
-        db->add_data (package[package_size - 1], package);
+        double timestamp = get_timestamp ();
+        if (!new_timestamps)
+        {
+            timestamp = package[package_size - 1];
+        }
+        streamer->stream_data (package, package_size - 1, timestamp); // - 1 because of timestamp
+        db->add_data (timestamp, package);
         if (last_timestamp > 0)
         {
             double time_wait = package[package_size - 1] - last_timestamp; // in seconds
@@ -263,6 +272,14 @@ int PlaybackFileBoard::config_board (char *config)
     else if (strcmp (config, SET_LOOPBACK_FALSE) == 0)
     {
         loopback = false;
+    }
+    else if (strcmp (config, NEW_TIMESTAMPS) == 0)
+    {
+        use_new_timestamps = true;
+    }
+    else if (strcmp (config, OLD_TIMESTAMPS) == 0)
+    {
+        use_new_timestamps = false;
     }
     else
     {
