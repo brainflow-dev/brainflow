@@ -77,6 +77,10 @@ namespace test
                 {
                     input_params.serial_number = args[i + 1];
                 }
+                if (args[i].Equals ("--file"))
+                {
+                    input_params.file = args[i + 1];
+                }
             }
             return board_id;
         }
