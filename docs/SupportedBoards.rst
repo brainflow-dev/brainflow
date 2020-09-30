@@ -45,6 +45,15 @@ Supported platforms:
 - Linux
 - MacOS
 
+By default it generates new timestamps and stops at the end of the file. You can override it using commands:
+
+.. code-block:: python
+
+   board.config_board ('loopback_true')
+   board.config_board ('loopback_false')
+   board.config_board ('new_timestamps')
+   board.config_board ('old_timestamps')
+
 In methods like:
 
 .. code-block:: python
