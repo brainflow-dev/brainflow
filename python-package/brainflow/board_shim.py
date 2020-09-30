@@ -73,6 +73,10 @@ class BrainFlowInputParams (object):
     :type ip_protocol: int
     :param other_info: other info
     :type other_info: str
+    :param serial_number: serial number
+    :type serial_number: str
+    :param file: file
+    :type file: str
     """
     def __init__ (self) -> None:
         self.serial_port = ''
@@ -83,6 +87,7 @@ class BrainFlowInputParams (object):
         self.other_info = ''
         self.timeout = 0
         self.serial_number = ''
+        self.file = ''
 
     def to_json (self) -> None :
         return json.dumps (self, default = lambda o: o.__dict__,
