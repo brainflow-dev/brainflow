@@ -27,11 +27,11 @@ To create an instance of BoardShim class for your board check required inputs in
 
 
 Playback File Board
---------------------
+---------------------
 
 This board playbacks file recorded using another BrainFlow board.
 
-**It can be extremely useful during development.**
+**It allows you to test signal processing algorithms on real data without device.**
 
 To choose this board in BoardShim constructor please specify:
 
