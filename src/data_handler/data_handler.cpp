@@ -38,7 +38,7 @@ int perform_lowpass (double *data, int data_len, int sampling_rate, double cutof
     Dsp::Filter *f = NULL;
     if ((order < 1) || (order > MAX_FILTER_ORDER) || (!data))
     {
-        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     switch (static_cast<FilterTypes> (filter_type))
     {
