@@ -443,10 +443,6 @@ Neurosity
 Notion 1
 ~~~~~~~~~
 
-.. image:: https://live.staticflickr.com/65535/50093731531_68f2183bb3_o.jpg
-    :width: 250px
-    :height: 250px
-
 `Notion website <https://neurosity.co/>`_
 
 `Link to Neurosity Tutorial <https://dev.to/neurosity/using-brainflow-with-the-neurosity-headset-2kof>`_
@@ -470,10 +466,6 @@ Board Spec:
 
 Notion 2
 ~~~~~~~~~
-
-.. image:: https://live.staticflickr.com/65535/50093731531_68f2183bb3_o.jpg
-    :width: 250px
-    :height: 250px
 
 `Notion website <https://neurosity.co/>`_
 
