@@ -53,7 +53,7 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
 {
     std::lock_guard<std::mutex> lock (mutex);
 
-    Board::board_logger->info ("incomming json: {}", json_brainflow_input_params);
+    Board::board_logger->info ("incoming json: {}", json_brainflow_input_params);
     struct BrainFlowInputParams params;
     int res = string_to_brainflow_input_params (json_brainflow_input_params, &params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)

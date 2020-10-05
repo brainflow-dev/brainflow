@@ -20,7 +20,7 @@
 #include "FFTReal.h"
 #include "spdlog/sinks/null_sink.h"
 #include "spdlog/spdlog.h"
-#define LOGGER_NAME "brainflow_logger"
+#define LOGGER_NAME "data_logger"
 #define MAX_FILTER_ORDER 8
 
 #ifndef M_PI
@@ -30,7 +30,7 @@
 #ifdef __ANDROID__
 #include "spdlog/sinks/android_sink.h"
 std::shared_ptr<spdlog::logger> data_logger =
-    spdlog::android_logger (LOGGER_NAME, "brainflow_ndk_logger");
+    spdlog::android_logger (LOGGER_NAME, "data_ndk_logger");
 #else
 std::shared_ptr<spdlog::logger> data_logger = spdlog::stderr_logger_mt (LOGGER_NAME);
 #endif
@@ -90,7 +90,6 @@ int perform_lowpass (double *data, int data_len, int sampling_rate, double cutof
     int numSamples = 2000;
     double *filter_data[1];
     filter_data[0] = data;
-
     Dsp::Filter *f = NULL;
     if ((order < 1) || (order > MAX_FILTER_ORDER) || (!data))
     {
@@ -1000,7 +999,7 @@ int get_avg_band_powers (double *raw_data, int rows, int cols, int sampling_rate
     }
     if (nfft < 8)
     {
-        data_logger->error ("Sampling rate argument issue.");
+        data_logger->error ("Sampling rate argument issue..");
         return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
     double **bands = new double *[5];
