@@ -6,6 +6,7 @@ AnyIntType = Union{Int8, Int32, Int64, Int128, Int}
 
 @enum BoardIds begin
 
+    PLAYBACK_FILE_BOARD = -3
     STREAMING_BOARD = -2
     SYNTHETIC_BOARD = -1
     CYTON_BOARD = 0
@@ -66,9 +67,10 @@ mutable struct BrainFlowInputParams
     other_info::String
     timeout::Int32
     serial_number::String
+    file::String
 
     function BrainFlowInputParams()
-        new("", "", "", 0, Integer(NONE), "", 0, "")
+        new("", "", "", 0, Integer(NONE), "", 0, "", "")
     end
 
 end
@@ -538,11 +540,11 @@ struct BoardShim
 
     function BoardShim(id::AnyIntType, params::BrainFlowInputParams)
         master_id = id
-        if id == Integer(STREAMING_BOARD)
+        if id == Integer(STREAMING_BOARD) || id == Integer(PLAYBACK_FILE_BOARD)
             try
                 master_id = parse(Int, id)
             catch
-                throw(BrainFlowError("for streaming board you need to provide master board id to other_info field"))
+                throw(BrainFlowError("you need to provide master board id to other_info field"))
             end
         end
         new(master_id, id, JSON.json(params))

@@ -236,6 +236,19 @@ bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, in
                 return false;
             }
         }
+        if (std::string (argv[i]) == std::string ("--file"))
+        {
+            if (i + 1 < argc)
+            {
+                i++;
+                params->file = std::string (argv[i]);
+            }
+            else
+            {
+                std::cerr << "missed argument" << std::endl;
+                return false;
+            }
+        }
     }
     if (!board_id_found)
     {
