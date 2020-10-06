@@ -93,7 +93,7 @@ int perform_lowpass (double *data, int data_len, int sampling_rate, double cutof
     Dsp::Filter *f = NULL;
     if ((order < 1) || (order > MAX_FILTER_ORDER) || (!data))
     {
-        data_logger->error ("Order must be from 1-8 and data cannot be empty. Order:{} , Data:{}",order,*data);
+        data_logger->error ("Order must be from 1-8 and data cannot be empty. Order:{} , Data:{}",order,(data != NULL));
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     switch (static_cast<FilterTypes> (filter_type))
@@ -140,7 +140,7 @@ int perform_highpass (double *data, int data_len, int sampling_rate, double cuto
 
     if ((order < 1) || (order > MAX_FILTER_ORDER) || (!data))
     {
-        data_logger->error ("Order must be from 1-8 and data cannot be empty. Order:{} , Data:{}",order,*data);
+        data_logger->error ("Order must be from 1-8 and data cannot be empty. Order:{} , Data:{}",order,(data != NULL));
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     switch (static_cast<FilterTypes> (filter_type))
@@ -186,7 +186,7 @@ int perform_bandpass (double *data, int data_len, int sampling_rate, double cent
 
     if ((order < 1) || (order > MAX_FILTER_ORDER) || (!data))
     {
-        data_logger->error ("Order must be from 1-8 and data cannot be empty. Order:{} , Data:{}",order,*data);
+        data_logger->error ("Order must be from 1-8 and data cannot be empty. Order:{} , Data:{}",order,(data != NULL));
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     switch (static_cast<FilterTypes> (filter_type))
@@ -235,7 +235,7 @@ int perform_bandstop (double *data, int data_len, int sampling_rate, double cent
 
     if ((order < 1) || (order > MAX_FILTER_ORDER) || (!data))
     {
-        data_logger->error ("Order must be from 1-8 and data cannot be empty. Order:{} , Data:{}",order,*data);
+        data_logger->error ("Order must be from 1-8 and data cannot be empty. Order:{} , Data:{}",order,(data != NULL));
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     switch (static_cast<FilterTypes> (filter_type))
@@ -278,7 +278,7 @@ int perform_rolling_filter (double *data, int data_len, int period, int agg_oper
 {
     if ((data == NULL) || (period <= 0))
     {
-        data_logger->error ( "Period must be >= 0 and data cannot be empty. Data:{} , Period:{}",period,*data);
+        data_logger->error ( "Period must be >= 0 and data cannot be empty. Data:{} , Period:{}",period,(data != NULL));
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 

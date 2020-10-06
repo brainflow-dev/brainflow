@@ -7,31 +7,16 @@
 #include "brainflow_exception.h"
 #include "data_handler.h"
 
-enum class LogLevels : int
-{
-    LEVEL_TRACE = 0,    /// TRACE
-    LEVEL_DEBUG = 1,    /// DEBUG
-    LEVEL_INFO = 2,     /// INFO
-    LEVEL_WARN = 3,     /// WARN
-    LEVEL_ERROR = 4,    /// ERROR
-    LEVEL_CRITICAL = 5, /// CRITICAL
-    LEVEL_OFF = 6       // OFF
-};
-
 /// DataFilter class to perform signal processing
 class DataFilter
 {
 public:
-    static void set_log_level (int log_level);
     /// enable BrainFlow logger with LEVEL_INFO
     static void enable_board_logger ();
     /// disable BrainFlow loggers
     static void disable_board_logger ();
     /// enable BrainFlow logger with LEVEL_TRACE
     static void enable_dev_board_logger ();
-    /// redirect BrainFlow logger from stderr to file
-    static void set_log_file (char *log_file);
-
     /// perform low pass filter in-place
     static void perform_lowpass (double *data, int data_len, int sampling_rate, double cutoff,
         int order, int filter_type, double ripple);
@@ -141,6 +126,8 @@ public:
     static double **read_file (int *num_rows, int *num_cols, char *file_name);
 
 private:
+    static void set_log_level (int log_level);
+    static void set_log_file (char *log_file);
     static void reshape_data_to_2d (
         int num_rows, int num_cols, double *linear_buffer, double **output_buf);
     static void reshape_data_to_1d (int num_rows, int num_cols, double **buf, double *output_buf);

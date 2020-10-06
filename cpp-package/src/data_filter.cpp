@@ -2,6 +2,8 @@
 
 #include "data_filter.h"
 #include "data_handler.h"
+#include "brainflow_constants.h"
+
 
 /////////////////////////////////////////
 //////////// logging methods ////////////
