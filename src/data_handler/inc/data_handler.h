@@ -52,7 +52,6 @@ extern "C"
     // logging methods
     SHARED_EXPORT int CALLING_CONVENTION set_log_level (int log_level);
     SHARED_EXPORT int CALLING_CONVENTION set_log_file (char *log_file);
-    SHARED_EXPORT int CALLING_CONVENTION log_message (int log_level, char *message);
     // file operations
     SHARED_EXPORT int CALLING_CONVENTION write_file (
         double *data, int num_rows, int num_cols, char *file_name, char *file_mode);
