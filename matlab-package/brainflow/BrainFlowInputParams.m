@@ -8,6 +8,7 @@ classdef BrainFlowInputParams
         other_info
         timeout
         serial_number
+        file
     end
     methods
         function obj = BrainFlowInputParams ()
@@ -19,6 +20,7 @@ classdef BrainFlowInputParams
             obj.other_info = '';
             obj.timeout = 0;
             obj.serial_number = '';
+            obj.file = '';
         end
         function json_string = to_json (obj)
             json_string = jsonencode(obj);

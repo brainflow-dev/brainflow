@@ -23,11 +23,10 @@ public class BrainFlowGetData
         Thread.sleep (5000);
         board_shim.stop_stream ();
         System.out.println (board_shim.get_board_data_count ());
-        int num_rows = BoardShim.get_num_rows (board_id);
         double[][] data = board_shim.get_current_board_data (30); // doesnt flush it from ring buffer
         // double[][] data = board_shim.get_board_data (); // get all data and flush
         // from ring buffer
-        for (int i = 0; i < num_rows; i++)
+        for (int i = 0; i < data.length; i++)
         {
             System.out.println (Arrays.toString (data[i]));
         }
@@ -70,6 +69,10 @@ public class BrainFlowGetData
             if (args[i].equals ("--serial-number"))
             {
                 params.serial_number = args[i + 1];
+            }
+            if (args[i].equals ("--file"))
+            {
+                params.file = args[i + 1];
             }
         }
         return board_id;

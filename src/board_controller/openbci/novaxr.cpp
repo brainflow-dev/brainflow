@@ -215,7 +215,7 @@ int NovaXR::start_stream (int buffer_size, char *streamer_params)
     }
     else
     {
-        safe_logger (spdlog::level::err, "no data received in 3sec, stopping thread");
+        safe_logger (spdlog::level::err, "no data received in 5sec, stopping thread");
         this->is_streaming = true;
         this->stop_stream ();
         return (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;

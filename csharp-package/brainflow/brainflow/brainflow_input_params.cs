@@ -59,6 +59,11 @@ namespace brainflow
         /// </summary>
         [DataMember]
         public string serial_number;
+        /// <summary>
+        /// file
+        /// </summary>
+        [DataMember]
+        public string file;
 
         public BrainFlowInputParams ()
         {
@@ -70,6 +75,7 @@ namespace brainflow
             other_info = "";
             timeout = 0;
             serial_number = "";
+            file = "";
         }
 
         public string to_json ()
