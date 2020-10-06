@@ -31,7 +31,7 @@ public:
         close ();
     }
 
-    int connect (); // makes sense only for tcp
+    int connect ();
     int send (const char *data, int size);
     int recv (void *data, int size);
     void close ();

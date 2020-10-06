@@ -24,6 +24,7 @@ AnyIntType = Union{Int8, Int32, Int64, Int128, Int}
     FASCIA_BOARD = 12
     NOTION_1_BOARD = 13
     NOTION_2_BOARD = 14
+    IRONBCI_BOARD = 15
 
 end
 
