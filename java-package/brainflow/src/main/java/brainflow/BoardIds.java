@@ -8,6 +8,7 @@ import java.util.Map;
  */
 public enum BoardIds
 {
+    PLAYBACK_FILE_BOARD (-3),
     STREAMING_BOARD (-2),
     SYNTHETIC_BOARD (-1),
     CYTON_BOARD (0),

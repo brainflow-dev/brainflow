@@ -15,6 +15,7 @@ public class BrainFlowInputParams
     public String other_info;
     public int timeout;
     public String serial_number;
+    public String file;
 
     public BrainFlowInputParams ()
     {
@@ -26,6 +27,7 @@ public class BrainFlowInputParams
         other_info = "";
         timeout = 0;
         serial_number = "";
+        file = "";
     }
 
     public String to_json ()
@@ -111,5 +113,15 @@ public class BrainFlowInputParams
     public void set_serial_number (String serial_number)
     {
         this.serial_number = serial_number;
+    }
+
+    public String get_file ()
+    {
+        return file;
+    }
+
+    public void set_file (String file)
+    {
+        this.file = file;
     }
 }

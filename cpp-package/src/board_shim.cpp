@@ -28,6 +28,7 @@ std::string params_to_string (struct BrainFlowInputParams params)
     j["other_info"] = params.other_info;
     j["timeout"] = params.timeout;
     j["serial_number"] = params.serial_number;
+    j["file"] = params.file;
     std::string post_str = j.dump ();
     return post_str;
 }
@@ -226,7 +227,8 @@ void BoardShim::reshape_data (int num_data_points, double *linear_buffer, double
 int BoardShim::get_master_board_id ()
 {
     int master_board_id = board_id;
-    if (board_id == (int)BoardIds::STREAMING_BOARD)
+    if ((board_id == (int)BoardIds::STREAMING_BOARD) ||
+        (board_id == (int)BoardIds::PLAYBACK_FILE_BOARD))
     {
         try
         {
@@ -234,8 +236,7 @@ int BoardShim::get_master_board_id ()
         }
         catch (const std::exception &e)
         {
-            throw BrainFlowException (
-                "specify master board id for STREAMING_BOARD using params.other_info",
+            throw BrainFlowException ("specify master board id using params.other_info",
                 (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
         }
     }

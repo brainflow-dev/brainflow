@@ -174,6 +174,7 @@ set (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/board.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/streaming_board.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/synthetic_board.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/playback_file_board.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/novaxr.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/file_streamer.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/multicast_streamer.cpp
