@@ -7,6 +7,7 @@
 
 #include "board.h"
 #include "board_controller.h"
+#include "socket_client_tcp.h"
 #include "socket_client_udp.h"
 
 #define ADS1299_Vref 4.5
@@ -26,7 +27,8 @@ private:
     bool initialized;
     bool is_streaming;
     std::thread streaming_thread;
-    SocketClientUDP *socket;
+    SocketClientUDP *data_socket;
+    SocketClientTCP *command_socket;
 
     std::mutex m;
     std::condition_variable cv;
@@ -48,4 +50,8 @@ public:
     static constexpr int package_size = 72;
     static constexpr int num_packages = 19;
     static constexpr int transaction_size = package_size * num_packages;
+    static constexpr int tcp_port = 2391;
+    static constexpr int udp_port = 2390;
+    static const std::string start_command_prefix; // command prefix to start streaming
+    static const std::string stop_command;         // command which stops streaming
 };

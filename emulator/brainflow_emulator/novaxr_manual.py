@@ -16,46 +16,58 @@ class State (enum.Enum):
     stream = 'stream'
 
 
-class Message (enum.Enum):
-    start_stream = b'b'
-    stop_stream = b's'
-    ack_values = (b'd', b'~6', b'~5')
-    ack_from_device = b'A'
-    temp_ack_from_host = b'a' # maybe will be removed later
-
-
 class NovaXREmulator (object):
 
-    def __init__ (self):
-        self.local_ip = '127.0.0.1'
-        self.local_port = 2390
-        self.server_socket = socket.socket (family = socket.AF_INET, type = socket.SOCK_DGRAM)
-        self.server_socket.settimeout (0.1) # decreases sampling rate significantly because it will wait for recv 0.1 sec but it's just a test
-        self.server_socket.bind ((self.local_ip, self.local_port))
-        self.state = State.wait.value
-        self.addr = None
+    def __init__ (self, ip = '127.0.0.1'):
+        self.ip = ip
+        self.tcp_port = 2391
+        self.udp_port = 2390
         self.package_num = 0
-        self.transaction_size = 19
         self.package_size = 72
+        self.state = State.wait.value
+        self.udp_client_port = 0
+        self.transaction_size = 19
+
+    def init_tcp_socket (self):
+        self.tcp_socket = socket.socket (family = socket.AF_INET, type = socket.SOCK_STREAM)
+        self.tcp_socket.bind ((self.ip, self.tcp_port))
+        self.tcp_socket.listen ()
+        print ('waiting for the socket to connect')
+        self.tcp_conn, self.client_addr = self.tcp_socket.accept ()
+        print ('client addr is %s' % str (self.client_addr))
+        self.tcp_socket.settimeout (0.1)
+        self.tcp_conn.settimeout (0.1)
 
     def run (self):
+        self.init_tcp_socket ()
         while True:
             try:
-                msg, self.addr = self.server_socket.recvfrom (128)
-                if msg == Message.start_stream.value:
-                    self.state = State.stream.value
-                elif msg == Message.stop_stream.value:
-                    self.state = State.wait.value
-                elif msg in Message.ack_values.value or msg.decode ('utf-8').startswith ('x'):
-                    self.server_socket.sendto (Message.ack_from_device.value, self.addr)
-                elif msg == Message.temp_ack_from_host.value:
-                    pass # just remove it from logs
-                else:
-                    if msg:
-                        # we dont handle board config characters because they dont change package format
-                        logging.warn ('received unexpected string %s', str (msg))
+                msg = self.tcp_conn.recv (128)
+                if len (msg) == 0:
+                    # it means closed connection - reinitialize connection
+                    self.init_tcp_socket ()
+                    continue
+                msg = msg.decode ('utf-8')
+                if msg:
+                    for command in msg.split ('\n'):
+                        if command.startswith ('b'):
+                            self.state = State.stream.value
+                            self.udp_socket = socket.socket (family = socket.AF_INET, type = socket.SOCK_DGRAM)
+                            self.udp_socket.bind ((self.ip, self.udp_port))
+                            self.udp_socket.settimeout (0.1)
+                            self.udp_client_port = int (command[1:])
+                            print ('creating socket')
+                        elif command.startswith ('s'):
+                            self.udp_socket.close ()
+                            self.state = State.wait.value
+                            print ('closing socket')
+                        else:
+                            if command:
+                                logging.warn ('received unexpected string %s', str (command))
             except socket.timeout:
-                logging.debug ('timeout for recv')
+                pass
+            except socket.error as e:
+                print (e)
 
             if self.state == State.stream.value:
                 transaction = list ()
@@ -90,7 +102,8 @@ class NovaXREmulator (object):
                     package = list ()
                     for i in range (self.transaction_size):
                         package.extend (bytes (transaction[i]))
-                    self.server_socket.sendto (bytes (package), self.addr)
+                    dest = (self.client_addr[0], self.udp_client_port)
+                    self.udp_socket.sendto (bytes (package), dest)
                 except socket.timeout:
                     logging.info ('timeout for send')
 

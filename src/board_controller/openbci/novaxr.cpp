@@ -14,11 +14,16 @@ constexpr int NovaXR::num_channels;
 constexpr int NovaXR::package_size;
 constexpr int NovaXR::num_packages;
 constexpr int NovaXR::transaction_size;
+constexpr int NovaXR::tcp_port;
+constexpr int NovaXR::udp_port;
+const std::string NovaXR::start_command_prefix = "b";
+const std::string NovaXR::stop_command = "s";
 
 
 NovaXR::NovaXR (struct BrainFlowInputParams params) : Board ((int)BoardIds::NOVAXR_BOARD, params)
 {
-    this->socket = NULL;
+    this->data_socket = NULL;
+    this->command_socket = NULL;
     this->is_streaming = false;
     this->keep_alive = false;
     this->initialized = false;
@@ -49,22 +54,22 @@ int NovaXR::prepare_session ()
         safe_logger (spdlog::level::err, "ip protocol is UDP for novaxr");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
-    socket = new SocketClientUDP (params.ip_address.c_str (), 2390);
-    int res = socket->connect ();
-    if (res != (int)SocketClientUDPReturnCodes::STATUS_OK)
+    command_socket = new SocketClientTCP (params.ip_address.c_str (), NovaXR::tcp_port);
+    int res = command_socket->connect ();
+    if (res != (int)SocketClientTCPReturnCodes::STATUS_OK)
     {
-        safe_logger (spdlog::level::err, "failed to init socket: {}", res);
-        delete socket;
-        socket = NULL;
-        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+        safe_logger (spdlog::level::err, "failed to init command_socket: {}", res);
+        delete command_socket;
+        command_socket = NULL;
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     }
     // force default settings for device
     res = config_board ("d");
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to apply default settings");
-        delete socket;
-        socket = NULL;
+        delete command_socket;
+        command_socket = NULL;
         return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
     }
     // force default sampling rate - 250
@@ -72,8 +77,8 @@ int NovaXR::prepare_session ()
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to apply defaul sampling rate");
-        delete socket;
-        socket = NULL;
+        delete command_socket;
+        command_socket = NULL;
         return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
     }
     initialized = true;
@@ -82,14 +87,17 @@ int NovaXR::prepare_session ()
 
 int NovaXR::config_board (char *config)
 {
-    if (socket == NULL)
+    if (command_socket == NULL)
     {
         safe_logger (spdlog::level::err, "You need to call prepare_session before config_board");
         return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
     }
     safe_logger (spdlog::level::debug, "Trying to config NovaXR with {}", config);
-    int len = strlen (config);
-    int res = socket->send (config, len);
+    char config_with_nl[1024];
+    strcpy (config_with_nl, config);
+    strcat (config_with_nl, "\n");
+    int len = strlen (config) + 1; // + 1 for new line symbol
+    int res = command_socket->send (config_with_nl, len);
     if (len != res)
     {
         if (res == -1)
@@ -102,41 +110,6 @@ int NovaXR::config_board (char *config)
         }
         safe_logger (spdlog::level::err, "Failed to config a board");
         return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
-    }
-    if (!is_streaming)
-    {
-        unsigned char b[NovaXR::transaction_size];
-        res = 0;
-        while (res != 1)
-        {
-            res = socket->recv (b, NovaXR::transaction_size);
-            if (res == -1)
-            {
-#ifdef _WIN32
-                safe_logger (
-                    spdlog::level::err, "config_board WSAGetLastError is {}", WSAGetLastError ());
-#else
-                safe_logger (spdlog::level::err, "config_board errno {} message {}", errno,
-                    strerror (errno));
-#endif
-                return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
-            }
-            if (res != 1)
-            {
-                safe_logger (spdlog::level::warn, "config_board recv {} bytes instead 1", res);
-            }
-        }
-        switch (b[0])
-        {
-            case 'A':
-                return (int)BrainFlowExitCodes::STATUS_OK;
-            case 'I':
-                safe_logger (spdlog::level::err, "invalid command");
-                return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
-            default:
-                safe_logger (spdlog::level::err, "unknown char received: {}", b[0]);
-                return (int)BrainFlowExitCodes::GENERAL_ERROR;
-        }
     }
 
     return (int)BrainFlowExitCodes::STATUS_OK;
@@ -160,6 +133,16 @@ int NovaXR::start_stream (int buffer_size, char *streamer_params)
         return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
+    data_socket = new SocketClientUDP (params.ip_address.c_str (), NovaXR::udp_port);
+    int res = data_socket->connect ();
+    if (res != (int)SocketClientUDPReturnCodes::STATUS_OK)
+    {
+        safe_logger (spdlog::level::err, "failed to init data_socket: {}", res);
+        delete data_socket;
+        data_socket = NULL;
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+    }
+
     if (db)
     {
         delete db;
@@ -171,7 +154,7 @@ int NovaXR::start_stream (int buffer_size, char *streamer_params)
         streamer = NULL;
     }
 
-    int res = prepare_streamer (streamer_params);
+    res = prepare_streamer (streamer_params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
@@ -185,20 +168,20 @@ int NovaXR::start_stream (int buffer_size, char *streamer_params)
         return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
-    // start streaming
-    res = socket->send ("b", 1);
-    if (res != 1)
+    int local_udp_port = data_socket->get_local_port ();
+    safe_logger (spdlog::level::info, "Local UDP port is {}", local_udp_port);
+    if (local_udp_port <= 0)
     {
-        if (res == -1)
-        {
-#ifdef _WIN32
-            safe_logger (spdlog::level::err, "WSAGetLastError is {}", WSAGetLastError ());
-#else
-            safe_logger (spdlog::level::err, "errno {} message {}", errno, strerror (errno));
-#endif
-        }
-        safe_logger (spdlog::level::err, "Failed to send a command to board");
-        return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+
+    std::string start_command = NovaXR::start_command_prefix + std::to_string (local_udp_port);
+    int len = strlen (start_command.c_str ());
+    // start streaming
+    res = config_board (const_cast<char *> (start_command.c_str ()));
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        return res;
     }
     start_time = get_timestamp ();
 
@@ -234,43 +217,15 @@ int NovaXR::stop_stream ()
             delete streamer;
             streamer = NULL;
         }
+        if (data_socket)
+        {
+            data_socket->close ();
+            delete data_socket;
+            data_socket = NULL;
+        }
         this->state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
-        int res = socket->send ("s", 1);
-        if (res != 1)
-        {
-            if (res == -1)
-            {
-#ifdef _WIN32
-                safe_logger (spdlog::level::err, "WSAGetLastError is {}", WSAGetLastError ());
-#else
-                safe_logger (spdlog::level::err, "errno {} message {}", errno, strerror (errno));
-#endif
-            }
-            safe_logger (spdlog::level::err, "Failed to send a command to board");
-            return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
-        }
-
-        // free kernel buffer
-        socket->set_timeout (2);
-        unsigned char b[NovaXR::transaction_size];
-        res = 0;
-        int max_attempt = 1000; // to dont get to infinite loop
-        int current_attempt = 0;
-        while (res != -1)
-        {
-            res = socket->recv (b, NovaXR::transaction_size);
-            current_attempt++;
-            if (current_attempt == max_attempt)
-            {
-                safe_logger (
-                    spdlog::level::err, "Command 's' was sent but streaming is still running.");
-                socket->set_timeout (5);
-                return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
-            }
-        }
-        socket->set_timeout (5);
-
-        return (int)BrainFlowExitCodes::STATUS_OK;
+        int res = config_board (const_cast<char *> (NovaXR::stop_command.c_str ()));
+        return res;
     }
     else
     {
@@ -287,11 +242,11 @@ int NovaXR::release_session ()
             stop_stream ();
         }
         initialized = false;
-        if (socket)
+        if (command_socket)
         {
-            socket->close ();
-            delete socket;
-            socket = NULL;
+            command_socket->close ();
+            delete command_socket;
+            command_socket = NULL;
         }
     }
     return (int)BrainFlowExitCodes::STATUS_OK;
@@ -307,7 +262,7 @@ void NovaXR::read_thread ()
     }
     while (keep_alive)
     {
-        res = socket->recv (b, NovaXR::transaction_size);
+        res = data_socket->recv (b, NovaXR::transaction_size);
         if (res == -1)
         {
 #ifdef _WIN32
@@ -324,7 +279,6 @@ void NovaXR::read_thread ()
         }
         else
         {
-            socket->send ("a", sizeof (char)); // send ack that data received
             // inform main thread that everything is ok and first package was received
             if (this->state != (int)BrainFlowExitCodes::STATUS_OK)
             {
