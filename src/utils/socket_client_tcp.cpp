@@ -44,6 +44,12 @@ int SocketClientTCP::connect ()
     setsockopt (connect_socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof (timeout));
     setsockopt (connect_socket, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof (timeout));
 
+    if (::connect (connect_socket, (struct sockaddr *)&socket_addr, sizeof (socket_addr)) ==
+        SOCKET_ERROR)
+    {
+        return (int)SocketClientTCPReturnCodes::CONNECT_ERROR;
+    }
+
     return (int)SocketClientTCPReturnCodes::STATUS_OK;
 }
 
@@ -113,6 +119,11 @@ int SocketClientTCP::connect ()
     tv.tv_usec = 0;
     setsockopt (connect_socket, SOL_SOCKET, SO_RCVTIMEO, (const char *)&tv, sizeof (tv));
     setsockopt (connect_socket, SOL_SOCKET, SO_SNDTIMEO, (const char *)&tv, sizeof (tv));
+
+    if (::connect (connect_socket, (struct sockaddr *)&socket_addr, sizeof (socket_addr)) < 0)
+    {
+        return (int)SocketClientTCPReturnCodes::CONNECT_ERROR;
+    }
 
     return (int)SocketClientTCPReturnCodes::STATUS_OK;
 }
