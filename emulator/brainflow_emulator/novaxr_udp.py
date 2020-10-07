@@ -90,7 +90,7 @@ class NovaXREmulator (threading.Thread):
             except socket.timeout:
                 pass
             except socket.error as e:
-                print (e)
+                pass
 
             if self.state == State.stream.value:
                 transaction = list ()
