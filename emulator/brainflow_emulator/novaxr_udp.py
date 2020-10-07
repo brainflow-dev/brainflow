@@ -32,6 +32,7 @@ def test_socket (cmd_list):
 
 def run_socket_server ():
     novaxr_thread = NovaXREmulator ()
+    novaxr_thread.daemon = True
     novaxr_thread.start ()
     return novaxr_thread
 
@@ -67,9 +68,7 @@ class NovaXREmulator (threading.Thread):
             try:
                 msg = self.tcp_conn.recv (128)
                 if len (msg) == 0:
-                    # it means closed connection - reinitialize connection
-                    self.init_tcp_socket ()
-                    continue
+                    break
                 msg = msg.decode ('utf-8')
                 if msg:
                     for command in msg.split ('\n'):
