@@ -217,14 +217,14 @@ int NovaXR::stop_stream ()
             delete streamer;
             streamer = NULL;
         }
+        this->state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
+        int res = config_board (const_cast<char *> (NovaXR::stop_command.c_str ()));
         if (data_socket)
         {
             data_socket->close ();
             delete data_socket;
             data_socket = NULL;
         }
-        this->state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
-        int res = config_board (const_cast<char *> (NovaXR::stop_command.c_str ()));
         return res;
     }
     else
