@@ -254,7 +254,7 @@ int NovaXR::stop_stream ()
         socket->set_timeout (2);
         unsigned char b[NovaXR::transaction_size];
         res = 0;
-        int max_attempt = 1000; // to dont get to infinite loop
+        int max_attempt = 25; // to dont get to infinite loop
         int current_attempt = 0;
         while (res != -1)
         {
