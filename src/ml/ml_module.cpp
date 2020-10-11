@@ -20,6 +20,15 @@ int string_to_brainflow_model_params (const char *json_params, struct BrainFlowM
 
 std::map<struct BrainFlowModelParams, std::shared_ptr<BaseClassifier>> ml_models;
 std::mutex models_mutex;
+#define LOGGER_NAME "ml_logger"
+
+#ifdef __ANDROID__
+#include "spdlog/sinks/android_sink.h"
+std::shared_ptr<spdlog::logger> BaseC::BaseClassifier::ml_logger =
+    spdlog::android_logger (LOGGER_NAME, "ml_ndk_logger");
+#else
+std::shared_ptr<spdlog::logger> BaseClassifier::ml_logger = spdlog::stderr_logger_mt (LOGGER_NAME);
+#endif
 
 
 int prepare (char *json_params)
