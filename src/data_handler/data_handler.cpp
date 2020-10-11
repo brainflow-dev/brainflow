@@ -46,7 +46,7 @@ int set_log_file (char *log_file)
     {
         spdlog::level::level_enum level = data_logger->level ();
         data_logger = spdlog::create<spdlog::sinks::null_sink_st> (
-            "null_logger"); // to dont set logger to nullptr and avoid raice condition
+            "null_logger"); // to not set logger to nullptr and avoid race condition
         spdlog::drop (LOGGER_NAME);
         data_logger = spdlog::basic_logger_mt (LOGGER_NAME, log_file);
         data_logger ->set_level (level);

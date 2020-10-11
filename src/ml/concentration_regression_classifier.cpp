@@ -5,7 +5,6 @@
 #include "brainflow_constants.h"
 #include "concentration_regression_classifier.h"
 
-#include "spdlog/sinks/null_sink.h"
 
 int ConcentrationRegressionClassifier::prepare ()
 {

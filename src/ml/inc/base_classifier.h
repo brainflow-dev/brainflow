@@ -19,6 +19,7 @@ public:
 
     virtual ~BaseClassifier ()
     {
+        skip_logs = true;
     }
      // Classifier ml_logger should not be called from destructors, to ensure that there are safe log
     // methods Classifierml_logger still available but should be used only outside destructors

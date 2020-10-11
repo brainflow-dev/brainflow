@@ -16,7 +16,6 @@ private:
     struct BrainFlowModelParams params;
     std::string serialized_params;
     static void set_log_level (int log_level);
-    static void set_log_file (char *log_file);
 public:
     // clang-format off
     MLModel (struct BrainFlowModelParams params);
@@ -36,4 +35,5 @@ public:
     /// release classifier
     void release ();
     // clang-format on
+    static void set_log_file (char *log_file);
 };

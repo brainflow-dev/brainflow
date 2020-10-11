@@ -5,7 +5,6 @@
 #include "brainflow_constants.h"
 #include "concentration_knn_classifier.h"
 #include "focus_dataset.h"
-#include "spdlog/sinks/null_sink.h"
 
 
 

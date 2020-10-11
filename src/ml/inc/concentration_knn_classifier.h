@@ -23,6 +23,7 @@ public:
 
     virtual ~ConcentrationKNNClassifier ()
     {
+        skip_logs=true;
         release ();
     }
 

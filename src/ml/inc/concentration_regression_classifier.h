@@ -16,6 +16,7 @@ public:
 
     virtual ~ConcentrationRegressionClassifier ()
     {
+        skip_logs=true;
         release ();
     }
 
