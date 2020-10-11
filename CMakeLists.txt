@@ -298,7 +298,7 @@ if (ANDROID)
     find_library (log-lib log)
     target_link_libraries (${ML_MODULE_NAME} PRIVATE log)
     target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE log)
-    target_link_libraries (${DATA_HANDLER_NAME} PRIVATE ${DSPFILTERS} ${WAVELIB} log)
+    target_link_libraries (${DATA_HANDLER_NAME} PRIVATE  log)
 endif (ANDROID)
 
 add_library (
