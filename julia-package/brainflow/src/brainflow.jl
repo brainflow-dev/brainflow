@@ -1,6 +1,6 @@
 module brainflow
 
-include("brianflow_logs.jl")
+include("brainflow_logs.jl")
 include("exit_codes.jl")
 include("board_shim.jl")
 include("data_filter.jl")

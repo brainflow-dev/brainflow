@@ -24,7 +24,8 @@ bands = brainflow.get_avg_band_powers(data, eeg_channels, sampling_rate, true)
 feature_vector = vcat(bands[1], bands[2])
 
 # calc concentration
-concentration = brainflow.MLModel(Integer(brainflow.CONCENTRATION), Integer(brainflow.REGRESSION))
+model_params = brainflow.BrainFlowModelParams(Integer(brainflow.CONCENTRATION), Integer(brainflow.KNN))
+concentration = brainflow.MLModel(model_params)
 brainflow.prepare(concentration)
 print(brainflow.predict(feature_vector, concentration))
 brainflow.release(concentration)
