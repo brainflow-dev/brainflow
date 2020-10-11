@@ -20,13 +20,25 @@ public:
     virtual ~BaseClassifier ()
     {
     }
-    // Classifier ml_logger should not be called from destructors, to ensure that there are safe log
+     // Classifier ml_logger should not be called from destructors, to ensure that there are safe log
     // methods Classifierml_logger still available but should be used only outside destructors
     template <typename Arg1, typename... Args>
     void safe_logger (spdlog::level::level_enum log_level, const char *fmt, const Arg1 &arg1,
-        const Args &... args);
+        const Args &... args)
+    {
+        if (!skip_logs)
+        {
+             BaseClassifier::ml_logger->log (log_level, fmt, arg1, args...);
+        }
+    }
 
-    template <typename T> void safe_logger (spdlog::level::level_enum log_level, const T &msg);
+    template <typename T> void safe_logger (spdlog::level::level_enum log_level, const T &msg)
+    {
+        if (!skip_logs)
+        {
+             BaseClassifier::ml_logger->log (log_level, msg);
+        }
+    }
 
     virtual int prepare () = 0;
     virtual int predict (double *data, int data_len, double *output) = 0;
