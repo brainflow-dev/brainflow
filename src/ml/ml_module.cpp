@@ -143,12 +143,12 @@ int string_to_brainflow_model_params (const char *json_params, struct BrainFlowM
 
 int set_log_level (int log_level)
 {
-    std::lock_guard<std::mutex> lock (mutex);
+    std::lock_guard<std::mutex> lock (models_mutex);
     return BaseClassifier::set_log_level (log_level);
 }
 
 int set_log_file (char *log_file)
 {
-    std::lock_guard<std::mutex> lock (mutex);
+    std::lock_guard<std::mutex> lock (models_mutex);
     return BaseClassifier::set_log_file (log_file);
 }
