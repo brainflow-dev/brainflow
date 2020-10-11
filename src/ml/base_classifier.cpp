@@ -1,4 +1,7 @@
+#include "base_classifier.h"
 #include "spdlog/sinks/null_sink.h"
+#include "brainflow_constants.h"
+
 
 #define LOGGER_NAME "ml_logger"
 
