@@ -27,6 +27,7 @@ namespace GanglionLib
     extern volatile bd_addr connect_addr;
     extern volatile uint8 connection;
     extern volatile uint16 client_char_handle;
+    extern volatile uint16 ganglion_handle_send;
     extern char uart_port[1024];
     extern volatile State state;
     extern std::condition_variable cv;
@@ -83,7 +84,8 @@ namespace GanglionLib
         // send command to connect
         state = State::INITIAL_CONNECTION;
         // changing values here leads to package loss, dont touch it
-        ble_cmd_gap_connect_direct (&connect_addr, gap_address_type_random, 10, 76, 100, 0);
+        //@ ble_cmd_gap_connect_direct (&connect_addr, gap_address_type_random, 10, 76, 100, 0); for Ganglion
+        ble_cmd_gap_connect_direct (&connect_addr, gap_address_type_public, 8, 16, 100, 0); // for bitalino
         int res = wait_for_callback (timeout);
         if (res != (int)GanglionLib::STATUS_OK)
         {
@@ -109,6 +111,15 @@ namespace GanglionLib
         exit_code = (int)GanglionLib::SYNC_ERROR;
         ble_cmd_attclient_attribute_write (connection, client_char_handle, 2, &configuration);
         ble_cmd_attclient_execute_write (connection, 1);
+        // ____________ for setting sampling rate to 100Hz _______
+        uint8 b = 0x83;
+        uint8 *config1 = &b;
+        ble_cmd_attclient_attribute_write (connection, ganglion_handle_send, 1, &config1);
+		// ____________ for reading device status ________
+        ////////uint8 b1= 0x0b; // 0x32;
+        ////////uint8 *config2 = &b1;
+        ////////ble_cmd_attclient_attribute_write (connection, ganglion_handle_send, 1, &config2);
+
         return wait_for_callback (timeout);
     }
 

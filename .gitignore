@@ -365,3 +365,11 @@ matlab-package/lib/brainflow_boards.json
 python-package/brainflow/lib/brainflow_boards.json
 python-package/brainflow/lib/libBoardController.dylib
 python-package/brainflow/lib/libDataHandler.dylib
+src/board_controller/board_info_getter.cpp
+src/utils/socket_server_tcp.cpp
+src/utils/socket_server_udp.cpp
+*.cpp
+*.cpp
+*.cpp
+*.cpp
+src/utils/timestamp.cpp

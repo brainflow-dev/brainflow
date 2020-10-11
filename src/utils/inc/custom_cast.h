@@ -46,19 +46,19 @@ template <unsigned int N> inline int32_t cast_ganglion_bits_to_int32 (unsigned c
     int32_t result = 0;
 
     // check the most significant bit to figure out if it's a negative value
-    bool negative = bits.test (N - 1);
-    if (negative)
-    {
-        // 2's complement: to get a negative value, we flip the bits,
-        // add 1 to the value, then take the negative.
-        // because of a quirk in ganglion data, we need to add 2 to the value
-        bits.flip ();
-        result = -bits.to_ulong () - 2;
-    }
-    else
-    {
-        result = bits.to_ulong ();
-    }
+    //bool negative = bits.test (N - 1);
+    //if (negative)
+    //{
+    //    // 2's complement: to get a negative value, we flip the bits,
+    //    // add 1 to the value, then take the negative.
+    //    // because of a quirk in ganglion data, we need to add 2 to the value
+    //    bits.flip ();
+    //    result = -bits.to_ulong () - 2;
+    //}
+    //else
+    //{
+    result = bits.to_ulong ();
+    //}
 
     return result;
 }

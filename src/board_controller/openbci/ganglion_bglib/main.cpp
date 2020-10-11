@@ -167,6 +167,10 @@ namespace GanglionLib
 #else
     int stop_stream (void *param)
     {
+        ////uint8 b = 0x00; // 0x32;
+        ////uint8 *config1 = &b;
+        ////ble_cmd_attclient_attribute_write (connection, ganglion_handle_send, 1, (uint8
+        ///*)config1);
         // hack above doesnt work well on windows and not needed for windows/macos
         if (!should_stop_stream)
         {
@@ -245,16 +249,27 @@ namespace GanglionLib
         try
         {
             struct GanglionData *board_data = (struct GanglionData *)param;
-            struct GanglionData data = data_queue.front ();
-            board_data->timestamp = data.timestamp;
-            for (int i = 0; i < 20; i++)
+            // printf ("data_queue.size %x\n", data_queue.size ());
+            if (!data_queue.empty ())
             {
-                board_data->data[i] = data.data[i];
+                struct GanglionData data = data_queue.front ();
+                // printf ("data.timestamp %d,%x\n", data.timestamp, data.timestamp);
+                board_data->timestamp = data.timestamp;
+                for (int i = 0; i < 20; i++)
+                {
+                    board_data->data[i] = data.data[i];
+                    // printf ("data_queue: %d\n", data.data[i]);
+                    // printf ("data.timestamp %x\n", data.timestamp) ;
+                }
+                // printf ("data_queue: %d\n", board_data.size());
+
+                // printf ("data isn't empty\n");
+                data_queue.pop ();
             }
-            data_queue.pop ();
         }
         catch (...)
         {
+            // printf ("CATCH\n");
             // todo ?
         }
         return (int)CustomExitCodes::STATUS_OK;
@@ -274,12 +289,16 @@ namespace GanglionLib
         {
             return (int)CustomExitCodes::SEND_CHARACTERISTIC_NOT_FOUND_ERROR;
         }
-        ble_cmd_attclient_attribute_write (connection, ganglion_handle_send, len, (uint8 *)config);
+        // use it if you want one ecg channel and aone 50Hz sinuouse wave 0x16;
+        uint8 b = 0x16; // use 0x86 for one ecg channel and sin10Hz
+        uint8 *config1 = &b;
+        ble_cmd_attclient_attribute_write (connection, ganglion_handle_send, len, (uint8 *)config1);
         return wait_for_callback (timeout);
     }
 
     int release (void *param)
     {
+
         if (initialized)
         {
             close_ganglion (NULL);
@@ -287,6 +306,7 @@ namespace GanglionLib
             initialized = false;
             while (!data_queue.empty ())
             {
+                printf ("in release data isn't empty\n");
                 data_queue.pop ();
             }
         }

@@ -27,10 +27,8 @@
 #include "fascia.h"
 #include "ganglion.h"
 #include "ganglion_wifi.h"
-#include "ironbci.h"
 #include "notion_osc.h"
 #include "novaxr.h"
-#include "playback_file_board.h"
 #include "streaming_board.h"
 #include "synthetic_board.h"
 #include "unicorn_board.h"
@@ -74,9 +72,6 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
     std::shared_ptr<Board> board = NULL;
     switch (static_cast<BoardIds> (board_id))
     {
-        case BoardIds::PLAYBACK_FILE_BOARD:
-            board = std::shared_ptr<Board> (new PlaybackFileBoard (params));
-            break;
         case BoardIds::STREAMING_BOARD:
             board = std::shared_ptr<Board> (new StreamingBoard (params));
             break;
@@ -128,9 +123,6 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
             break;
         case BoardIds::NOTION_2_BOARD:
             board = std::shared_ptr<Board> (new NotionOSC (params));
-            break;
-        case BoardIds::IRONBCI_BOARD:
-            board = std::shared_ptr<Board> (new IronBCI (params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
@@ -356,7 +348,6 @@ int string_to_brainflow_input_params (
         params->ip_address = config["ip_address"];
         params->timeout = config["timeout"];
         params->serial_number = config["serial_number"];
-        params->file = config["file"];
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
     catch (json::exception &e)

@@ -18,8 +18,7 @@ enum class SocketClientUDPReturnCodes : int
     WSA_STARTUP_ERROR = 1,
     CREATE_SOCKET_ERROR = 2,
     CONNECT_ERROR = 3,
-    PTON_ERROR = 4,
-    INVALID_ARGUMENT_ERROR = 5
+    PTON_ERROR = 4
 };
 
 
@@ -37,7 +36,6 @@ public:
 
     int connect ();
     int bind ();
-    int set_timeout (int num_seconds);
     int send (const char *data, int size);
     int recv (void *data, int size);
     void close ();
@@ -50,7 +48,6 @@ public:
     {
         return port;
     }
-    int get_local_port ();
 
 private:
     char ip_addr[32];

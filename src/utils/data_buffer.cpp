@@ -1,4 +1,5 @@
 #include "data_buffer.h"
+#include "stdio.h"
 
 DataBuffer::DataBuffer (int num_samples, size_t buffer_size)
 {
@@ -7,6 +8,7 @@ DataBuffer::DataBuffer (int num_samples, size_t buffer_size)
     data = new double[buffer_size * num_samples];
     timestamps = new double[buffer_size];
     first_free = first_used = count = 0;
+    printf ("Bauffer Size:%d \n", buffer_size);
 }
 
 DataBuffer::~DataBuffer ()
@@ -23,12 +25,14 @@ bool DataBuffer::is_ready ()
 void DataBuffer::add_data (double timestamp, double *value)
 {
     lock.lock ();
+    //printf ("In add_data\n");
     this->timestamps[first_free] = timestamp;
     memcpy (this->data + first_free * num_samples, value, sizeof (double) * num_samples);
     first_free = next (first_free);
     count++;
     if (first_free == first_used)
     {
+        printf ("Buffer Full\n");
         first_used = next (first_used);
         count--;
     }

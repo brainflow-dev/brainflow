@@ -12,7 +12,8 @@
 #include "ganglion.h"
 #include "ganglion_types.h"
 #include "get_dll_dir.h"
-
+#include "stdio.h"
+#include <iostream>
 
 int Ganglion::num_objects = 0;
 
@@ -35,8 +36,8 @@ Ganglion::Ganglion (struct BrainFlowInputParams params)
     initialized = false;
     num_channels = 13;
     state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
-    start_command = "b";
-    stop_command = "s";
+    start_command = ">"; //"="; //"a"; //@ "b";
+    stop_command = "\0"; //"s";
 
     std::string ganglionlib_path = "";
     std::string ganglionlib_name = "";
@@ -160,11 +161,15 @@ int Ganglion::start_stream (int buffer_size, char *streamer_params)
     }
 
     int res = prepare_streamer (streamer_params);
+    printf ("RES for prepare_streamer  %d\n", res);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
+    printf ("before buffer\n");
     db = new DataBuffer (num_channels, buffer_size);
+    printf ("Buffer Size:%d \n", buffer_size);
+
     if (!db->is_ready ())
     {
         Board::board_logger->error ("unable to prepare buffer with size {}", buffer_size);
@@ -266,7 +271,9 @@ void Ganglion::read_thread ()
     double resist_third = 0.0;
     double resist_fourth = 0.0;
 
-    double *package = new double[num_channels];
+    double *mainpackage = new double[num_channels];
+    unsigned long package[13];
+
 
     int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("get_data");
     if (func == NULL)
@@ -280,14 +287,19 @@ void Ganglion::read_thread ()
         for (int i = 0; i < num_channels; i++)
         {
             package[i] = 0.0;
+            mainpackage[i] = 0.0;
+
         }
 
         struct GanglionLib::GanglionData data;
         int res = func ((void *)&data);
         if (res == (int)GanglionLib::CustomExitCodes::STATUS_OK)
         {
+
             if (state != (int)BrainFlowExitCodes::STATUS_OK)
             {
+                printf ("state in read thread and in if: %d\n", state);
+
                 {
                     std::lock_guard<std::mutex> lk (m);
                     state = (int)BrainFlowExitCodes::STATUS_OK;
@@ -297,176 +309,228 @@ void Ganglion::read_thread ()
             }
 
             // delta holds 8 nums (4 by each package)
-            float delta[8] = {0.f};
-            int bits_per_num = 0;
-            unsigned char package_bits[160] = {0}; // 20 * 8
-            for (int i = 0; i < 20; i++)
+            // float delta[8] = {0.f};
+            // int bits_per_num = 10;  //@ 0; // number of bits that must converts to desimal number
+            ////unsigned char package_bits[160] = {0}; // 20 * 8, bukding an array for reciving bit,
+            ///turn byte to bits /for (int i = 0; i < 20; i++)
+            ////{
+            ////    uchar_to_bits (data.data[i], package_bits + i * 8);
+            ////}
+            /* how to claculate packet buffers in bitalino
+               char nBytes = nChannels + 2;
+                if (nChannels >= 3 && nChannels <= 5)  nBytes++;
+                more info.
+                https://bitalino.com/datasheets/REVOLUTION_MCU_Block_Datasheet.pdf
+            */
+            // char nBytes = 7; // for testing number of channels is equals to 4 + 2, but for some
+            // reason it get one more;
+            ////for (int counter = 0; counter < 8; counter++)
+            ////{
+            ////    delta[counter] =
+            ////        (short(data.data[nBytes - 2] & 0x0F) << 6) | (data.data[nBytes - 3] >> 2);
+            ////}
+
+            //// bit to desimal
+            // package[0] = data.data[0];
+            // open bitalino packet
+// data packet for 100 Hz
+            int ptr = 0;
+            for (int i = 0; i < 5; i++)
             {
-                uchar_to_bits (data.data[i], package_bits + i * 8);
+				//blow code it work but i change a little
+                unsigned short d0 = data.data[ptr];
+                unsigned short d1 = data.data[ptr + 1];
+                unsigned short d2 = data.data[ptr + 2];
+                unsigned short d3 = data.data[ptr + 3];
+
+                package[0] = ((d2 & 0x000F) << 6) | (d1 >> 2);
+                package[1] = ((d1 & 0x0003) << 8) | (d0);
+
+                //printf ("data: %d, %d, %x, %x, %x, %x\n", package[0], package[1], d0, d1, d2, d3);
+
+                mainpackage[8] =  package[0];
+				mainpackage[1] =  package[1];
+                streamer->stream_data (mainpackage, num_channels, data.timestamp);
+                db->add_data (data.timestamp, mainpackage);
+                ptr += 4;
             }
+// data packet for 1000Hz
+
+
+
+            // package[3] = (short(data.data[2]) << 2) | (data.data[1] >> 6);
+            // package[4] = (short(data.data[1] & 0x3F) << 4) | (data.data[0] >> 4);
+
+            // package[1] = accel_x;
+            // package[2] = 1.0;
+
+            ////package[5] = 1.0;
+            ////package[6] = accel_y;
+            ////package[7] = accel_z;
+
+            // printf ("data.data: %x, %x, %x ", data.data[1], data.data[2], data.data[3]);
+            //         std::cout<< "The cube of 3 is: " << cast_24bit_to_int32 (data.data + 1)<<
+            //         "\n";
+            /*streamer->stream_data (package, num_channels, data.timestamp);
+            db->add_data (data.timestamp, package);
+*/
 
             // no compression, used to init variable
-            if (data.data[0] == 0)
-            {
-                // shift the last data packet to make room for a newer one
-                last_data[0] = last_data[4];
-                last_data[1] = last_data[5];
-                last_data[2] = last_data[6];
-                last_data[3] = last_data[7];
+            //@if (data.data[0] == 0)
+            //@{
+            // shift the last data packet to make room for a newer one
+            //////last_data[0] = last_data[4];
+            //////last_data[1] = last_data[5];
+            //////last_data[2] = last_data[6];
+            //////last_data[3] = last_data[7];
 
-                // add new packet
-                last_data[4] = cast_24bit_to_int32 (data.data + 1);
-                last_data[5] = cast_24bit_to_int32 (data.data + 4);
-                last_data[6] = cast_24bit_to_int32 (data.data + 7);
-                last_data[7] = cast_24bit_to_int32 (data.data + 10);
+            // add new packet, fill with new data.data
+            //////last_data[4] =  cast_24bit_to_int32 (data.data + 1);
+            //////last_data[5] =  cast_24bit_to_int32 (data.data + 4);
+            //////last_data[6] =  cast_24bit_to_int32 (data.data + 7);
+            //////last_data[7] =  cast_24bit_to_int32 (data.data + 10);
 
-                // scale new packet and insert into result
-                package[0] = 0.;
-                package[1] = eeg_scale * last_data[4];
-                package[2] = eeg_scale * last_data[5];
-                package[3] = eeg_scale * last_data[6];
-                package[4] = eeg_scale * last_data[7];
-                package[5] = accel_x;
-                package[6] = accel_y;
-                package[7] = accel_z;
-                streamer->stream_data (package, num_channels, data.timestamp);
-                db->add_data (data.timestamp, package);
-                continue;
-            }
+            // scale new packet and insert into result
+            //////package[0] = 0.;
+            //////package[1] = eeg_scale *last_data[4];
+            //////package[2] = eeg_scale * last_data[5];
+            //////package[3] = eeg_scale * last_data[6];
+            //////package[4] = eeg_scale * last_data[7];
+            //////package[5] = accel_x;
+            //////package[6] = accel_y;
+            //////package[7] = accel_z;
+            //////streamer->stream_data (package, num_channels, data.timestamp);
+            //////db->add_data (data.timestamp, package);
+            //@ bits_per_num = 19; // added by me
+            //@ continue;
+            //@}
             // 18 bit compression, sends delta from previous value instead of real value!
-            else if ((data.data[0] >= 1) && (data.data[0] <= 100))
-            {
-                int last_digit = data.data[0] % 10;
-                switch (last_digit)
-                {
-                    // accel data is signed, so we must cast it to signed char
-                    // due to a known bug in ganglion firmware, we must swap x and z, and invert z.
-                    case 0:
-                        accel_z = -accel_scale * (char)data.data[19];
-                        break;
-                    case 1:
-                        accel_y = accel_scale * (char)data.data[19];
-                        break;
-                    case 2:
-                        accel_x = accel_scale * (char)data.data[19];
-                        break;
-                    default:
-                        break;
-                }
-                bits_per_num = 18;
-            }
-            else if ((data.data[0] >= 101) && (data.data[0] <= 200))
-            {
-                bits_per_num = 19;
-            }
-            else if ((data.data[0] > 200) && (data.data[0] < 206))
-            {
-                // asci sting with value and 'Z' in the end
-                int val = 0;
-                int i = 0;
-                for (i = 1; i < 6; i++)
-                {
-                    if (data.data[i] == 'Z')
-                    {
-                        break;
-                    }
-                }
-                std::string asci_value ((const char *)(data.data + 1), i - 1);
+            ////else if ((data.data[0] >= 1) && (data.data[0] <= 100))
+            ////{
+            ////    int last_digit = data.data[0] % 10;
+            ////    switch (last_digit)
+            ////    {
+            ////        // accel data is signed, so we must cast it to signed char
+            ////        // due to a known bug in ganglion firmware, we must swap x and z, and invert
+            ///z. /        case 0: /            accel_z = -accel_scale * (char)data.data[19]; /
+            ///break; /        case 1: /            accel_y = accel_scale * (char)data.data[19]; /
+            ///break; /        case 2: /            accel_x = accel_scale * (char)data.data[19]; /
+            ///break; /        default: /            break; /    } /    bits_per_num = 18;
+            ////}
+            /*           else if ((data.data[0] >= 101) && (data.data[0] <= 200))
+                       {
+                           bits_per_num = 19;
+                       }*/
+            // inmedance stuff
+            ////////else if ((data.data[0] > 200) && (data.data[0] < 206))
+            ////////{
+            ////////    // asci sting with value and 'Z' in the end
+            ////////    int val = 0;
+            ////////    int i = 0;
+            ////////    for (i = 1; i < 6; i++)
+            ////////    {
+            ////////        if (data.data[i] == 'Z')
+            ////////        {
+            ////////            break;
+            ////////        }
+            ////////    }
+            ////////    std::string asci_value ((const char *)(data.data + 1), i - 1);
 
-                try
-                {
-                    val = std::stoi (asci_value);
-                }
-                catch (...)
-                {
-                    safe_logger (spdlog::level::err, "failed to parse impedance data: {}",
-                        asci_value.c_str ());
-                    continue;
-                }
+            ////////    try
+            ////////    {
+            ////////        val = std::stoi (asci_value);
+            ////////    }
+            ////////    catch (...)
+            ////////    {
+            ////////        safe_logger (spdlog::level::err, "failed to parse impedance data: {}",
+            ////////            asci_value.c_str ());
+            ////////        continue;
+            ////////    }
 
-                switch (data.data[0] % 10)
-                {
-                    case 1:
-                        resist_first = val;
-                        break;
-                    case 2:
-                        resist_second = val;
-                        break;
-                    case 3:
-                        resist_third = val;
-                        break;
-                    case 4:
-                        resist_fourth = val;
-                        break;
-                    case 5:
-                        resist_ref = val;
-                        break;
-                    default:
-                        break;
-                }
-                package[0] = data.data[0];
-                package[8] = resist_first;
-                package[9] = resist_second;
-                package[10] = resist_third;
-                package[11] = resist_fourth;
-                package[12] = resist_ref;
-                streamer->stream_data (package, num_channels, data.timestamp);
-                db->add_data (data.timestamp, package);
-                continue;
-            }
-            else
-            {
-                for (int i = 0; i < 20; i++)
-                {
-                    safe_logger (spdlog::level::warn, "byte {} value {}", i, data.data[i]);
-                }
-                continue;
-            }
+            ////////    switch (data.data[0] % 10)
+            ////////    {
+            ////////        case 1:
+            ////////            resist_first = val;
+            ////////            break;
+            ////////        case 2:
+            ////////            resist_second = val;
+            ////////            break;
+            ////////        case 3:
+            ////////            resist_third = val;
+            ////////            break;
+            ////////        case 4:
+            ////////            resist_fourth = val;
+            ////////            break;
+            ////////        case 5:
+            ////////            resist_ref = val;
+            ////////            break;
+            ////////        default:
+            ////////            break;
+            ////////    }
+            ////////    package[0] = data.data[0];
+            ////////    package[8] = resist_first;
+            ////////    package[9] = resist_second;
+            ////////    package[10] = resist_third;
+            ////////    package[11] = resist_fourth;
+            ////////    package[12] = resist_ref;
+            ////////    streamer->stream_data (package, num_channels, data.timestamp);
+            ////////    db->add_data (data.timestamp, package);
+            ////////    continue;
+            ////////}
+            ////////else // we are here for now
+            ////////{
+            ////////    for (int i = 0; i < 20; i++)
+            ////////    {
+            ////////        safe_logger (spdlog::level::warn, "byte {} value {}", i, data.data[i]);
+            ////////    }
+            ////////    continue;
+            ////////}
             // handle compressed data for 18 or 19 bits
-            for (int i = 8, counter = 0; i < bits_per_num * 8; i += bits_per_num, counter++)
-            {
-                if (bits_per_num == 18)
-                {
-                    delta[counter] = cast_ganglion_bits_to_int32<18> (package_bits + i);
-                }
-                else
-                {
-                    delta[counter] = cast_ganglion_bits_to_int32<19> (package_bits + i);
-                }
-            }
+            ////for (int i = 8, counter = 0; i < bits_per_num * 8; i += bits_per_num, counter++)
+            ////{
+            ////    ////if (bits_per_num == 18)
+            ////    ////{
+            ////        delta[counter] = cast_ganglion_bits_to_int32<18> (package_bits + i);
+
+            ////}
+            //////    else
+            //////    {
+            //////        delta[counter] = cast_ganglion_bits_to_int32<19> (package_bits + i);
+            //////    }
+            ////}
 
             // apply the first delta to the last data we got in the previous iteration
-            for (int i = 0; i < 4; i++)
-            {
-                last_data[i] = last_data[i + 4] - delta[i];
-            }
+            ////////@ for (int i = 0; i < 4; i++)
+            ////////@ {
+            ////////@     last_data[i] = last_data[i + 4] - delta[i];
+            ////////@ }
 
             // apply the second delta to the previous packet which we just decompressed above
-            for (int i = 4; i < 8; i++)
-            {
-                last_data[i] = last_data[i - 4] - delta[i];
-            }
+            ////////@ for (int i = 4; i < 8; i++)
+            ////////@ {
+            ////////@   last_data[i] = last_data[i - 4] - delta[i];
+            ////////@ }
 
-            // add first encoded package
-            package[0] = data.data[0];
-            package[1] = eeg_scale * last_data[0];
-            package[2] = eeg_scale * last_data[1];
-            package[3] = eeg_scale * last_data[2];
-            package[4] = eeg_scale * last_data[3];
-            package[5] = accel_x;
-            package[6] = accel_y;
-            package[7] = accel_z;
-            streamer->stream_data (package, num_channels, data.timestamp);
-            db->add_data (data.timestamp, package);
-            // add second package
-            package[1] = eeg_scale * last_data[4];
-            package[2] = eeg_scale * last_data[5];
-            package[3] = eeg_scale * last_data[6];
-            package[4] = eeg_scale * last_data[7];
-            streamer->stream_data (package, num_channels, data.timestamp);
-            db->add_data (data.timestamp, package);
+            //// add first encoded package
+            ////package[0] = data.data[0];
+            ////package[1] = eeg_scale * last_data[0];
+            ////package[2] = eeg_scale * last_data[1];
+            ////package[3] = eeg_scale * last_data[2];
+            ////package[4] = eeg_scale * last_data[3];
+            // package[5] = accel_x;
+            // package[6] = accel_y;
+            // package[7] = accel_z;
+            ////streamer->stream_data (package, num_channels, data.timestamp);
+            ////db->add_data (data.timestamp, package);
+            //// add second package
+            // package[1] = eeg_scale * last_data[4];
+            // package[2] = eeg_scale * last_data[5];
+            // package[3] = eeg_scale * last_data[6];
+            // package[4] = eeg_scale * last_data[7];
+            // streamer->stream_data (package, num_channels, data.timestamp);
+            // db->add_data (data.timestamp, package);
         }
-        else
+        else // we was here before
         {
             if (state == (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR)
             {
@@ -489,7 +553,7 @@ void Ganglion::read_thread ()
 #endif
         }
     }
-    delete[] package;
+    delete[] mainpackage;
 }
 
 int Ganglion::config_board (char *config)

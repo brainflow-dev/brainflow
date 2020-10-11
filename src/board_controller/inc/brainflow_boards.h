@@ -49,7 +49,7 @@ json brainflow_boards_json = {
             {"num_rows", 14},
             {"eeg_channels", {1, 2, 3, 4}},
             {"emg_channels", {1, 2, 3, 4}},
-            {"ecg_channels", {1, 2, 3, 4}},
+            {"ecg_channels", {8}},
             {"eog_channels", {1, 2, 3, 4}},
             {"accel_channels", {5, 6, 7}},
             {"resistance_channels", {8, 9, 10, 11, 12}}
@@ -206,14 +206,6 @@ json brainflow_boards_json = {
             {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
             {"eeg_names", "CP5,F5,C3,CP3,CP6,F6,C4,CP4"},
             {"other_channels", {9}}
-        }},
-        {"15",
-            {{"name", "IronBCI"},
-            {"sampling_rate", 250},
-            {"timestamp_channel", 9},
-            {"package_num_channel", 0},
-            {"num_rows", 10},
-            {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}}
         }}
     }
 }};
