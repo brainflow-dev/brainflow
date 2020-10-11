@@ -1,6 +1,6 @@
 #include <chrono>
 #include <ctype.h>
-#include <queue>
+#include <deque>
 #include <stdlib.h>
 #include <string.h>
 #include <thread>
@@ -8,6 +8,8 @@
 #include "cmd_def.h"
 #include "helpers.h"
 #include "uart.h"
+
+#include "ticket_lock.h"
 
 #include "ganglion_functions.h"
 #include "ganglion_types.h"
@@ -19,7 +21,8 @@ namespace GanglionLib
     volatile int exit_code = (int)GanglionLib::SYNC_ERROR;
     char uart_port[1024];
     int timeout = 15;
-    std::queue<struct GanglionLib::GanglionData> data_queue;
+    std::deque<struct GanglionLib::GanglionData> data_queue;
+    TicketLock lock;
     volatile bd_addr connect_addr;
     volatile uint8 connection = -1;
     volatile uint16 ganglion_handle_start = 0;
@@ -174,10 +177,7 @@ namespace GanglionLib
             read_characteristic_thread.join ();
         }
         int res = config_board ((char *)param);
-        while (!data_queue.empty ())
-        {
-            data_queue.pop ();
-        }
+        data_queue.clear ();
         return res;
     }
 #endif
@@ -237,27 +237,35 @@ namespace GanglionLib
         {
             return (int)CustomExitCodes::NO_DATA_ERROR;
         }
+
         state = State::GET_DATA_CALLED;
+        int res = (int)CustomExitCodes::STATUS_OK;
+        lock.lock ();
         if (data_queue.empty ())
         {
-            return (int)CustomExitCodes::NO_DATA_ERROR;
+            res = (int)CustomExitCodes::NO_DATA_ERROR;
         }
-        try
+        else
         {
-            struct GanglionData *board_data = (struct GanglionData *)param;
-            struct GanglionData data = data_queue.front ();
-            board_data->timestamp = data.timestamp;
-            for (int i = 0; i < 20; i++)
+            try
             {
-                board_data->data[i] = data.data[i];
+                struct GanglionData *board_data = (struct GanglionData *)param;
+                struct GanglionData data = data_queue.at (
+                    0); // at ensures out of range exception, front has undefined behavior
+                board_data->timestamp = data.timestamp;
+                for (int i = 0; i < 20; i++)
+                {
+                    board_data->data[i] = data.data[i];
+                }
+                data_queue.pop_front ();
             }
-            data_queue.pop ();
+            catch (...)
+            {
+                res = (int)CustomExitCodes::NO_DATA_ERROR;
+            }
         }
-        catch (...)
-        {
-            // todo ?
-        }
-        return (int)CustomExitCodes::STATUS_OK;
+        lock.unlock ();
+        return res;
     }
 
     int config_board (void *param)
@@ -285,10 +293,7 @@ namespace GanglionLib
             close_ganglion (NULL);
             state = State::NONE;
             initialized = false;
-            while (!data_queue.empty ())
-            {
-                data_queue.pop ();
-            }
+            data_queue.clear ();
         }
         return (int)CustomExitCodes::STATUS_OK;
     }

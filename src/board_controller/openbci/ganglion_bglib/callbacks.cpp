@@ -1,6 +1,6 @@
 #include <ctype.h>
+#include <deque>
 #include <math.h>
-#include <queue>
 #include <stdlib.h>
 #include <string.h>
 
@@ -10,6 +10,7 @@
 #include "timestamp.h"
 #include "uart.h"
 
+#include "ticket_lock.h"
 
 #define GANGLION_SERVICE_UUID 0xfe84
 #define CLIENT_CHARACTERISTIC_UUID 0x2902
@@ -27,7 +28,9 @@ namespace GanglionLib
     extern volatile uint16 client_char_handle;
     extern volatile State state;
 
-    extern std::queue<struct GanglionLib::GanglionData> data_queue;
+    extern TicketLock lock;
+
+    extern std::deque<struct GanglionLib::GanglionData> data_queue;
 
     // uuid - 2d30c083-f39f-4ce6-923f-3484ea480596
     const int send_char_uuid_bytes[16] = {
@@ -194,5 +197,7 @@ void ble_evt_attclient_attribute_value (const struct ble_msg_attclient_attribute
     memcpy (values, msg->value.data, msg->value.len * sizeof (unsigned char));
     double timestamp = get_timestamp ();
     struct GanglionLib::GanglionData data (values, timestamp);
-    GanglionLib::data_queue.push (data);
+    GanglionLib::lock.lock ();
+    GanglionLib::data_queue.push_back (data);
+    GanglionLib::lock.unlock ();
 }
