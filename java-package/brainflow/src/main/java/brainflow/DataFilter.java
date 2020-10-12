@@ -157,7 +157,7 @@ public class DataFilter
     /**
      * set log level
      */
-    public static void set_log_level (int log_level) throws BrainFlowError
+    private static void set_log_level (int log_level) throws BrainFlowError
     {
         int ec = instance.set_log_level (log_level);
         if (ec != ExitCode.STATUS_OK.get_code ())

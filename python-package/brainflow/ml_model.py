@@ -98,7 +98,7 @@ class MLModuleDLL (object):
         self.set_log_file.argtypes = [
             ctypes.c_char_p
         ]
-        
+
         self.prepare = self.lib.prepare
         self.prepare.restype = ctypes.c_int
         self.prepare.argtypes = [
@@ -135,7 +135,7 @@ class MLModel (object):
             self.serialized_params = model_params.to_json ()
 
     @classmethod
-    def set_log_level (cls, log_level: int) -> None:
+    def _set_log_level (cls, log_level: int) -> None:
         """set BrainFlow log level, use it only if you want to write your own messages to BrainFlow logger,
         otherwise use enable_board_logger, enable_dev_board_logger or disable_board_logger
 

@@ -447,7 +447,7 @@ namespace brainflow
         /// set log level, logger is disabled by default
         /// </summary>
         /// <param name="log_level"></param>
-        public static void set_log_level (int log_level)
+        private static void set_log_level (int log_level)
         {
             int res = BoardControllerLibrary.set_log_level (log_level);
             if (res != (int)CustomExitCodes.STATUS_OK)
