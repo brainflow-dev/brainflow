@@ -41,7 +41,7 @@ classdef MLModel
             obj.input_json = params.to_json ();
         end
 
-        function set_log_level(log_level)
+        function set_log_level (log_level)
             task_name = 'set_log_level';
             lib_name = MLModel.load_lib ();
             exit_code = calllib (lib_name, task_name, log_level);

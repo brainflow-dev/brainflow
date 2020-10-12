@@ -16,11 +16,14 @@ private:
     struct BrainFlowModelParams params;
     std::string serialized_params;
     static void set_log_level (int log_level);
+
 public:
     // clang-format off
     MLModel (struct BrainFlowModelParams params);
     ~MLModel ();
 
+    /// redirect logger to a file
+    static void set_log_file (char *log_file);
     /// enable BrainFlow logger with LEVEL_INFO
     static void enable_board_logger ();
     /// disable BrainFlow loggers
@@ -35,5 +38,4 @@ public:
     /// release classifier
     void release ();
     // clang-format on
-    static void set_log_file (char *log_file);
 };

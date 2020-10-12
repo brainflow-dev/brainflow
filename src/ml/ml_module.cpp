@@ -8,10 +8,10 @@
 #include "brainflow_model_params.h"
 #include "concentration_knn_classifier.h"
 #include "concentration_regression_classifier.h"
+#include "json.hpp"
 #include "ml_module.h"
 #include "relaxation_knn_classifier.h"
 #include "relaxation_regression_classifier.h"
-#include "json.hpp"
 
 
 using json = nlohmann::json;
@@ -104,7 +104,7 @@ int release (char *json_params)
 
     struct BrainFlowModelParams key (
         (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::REGRESSION);
-   BaseClassifier::ml_logger->info ("(Release)Incoming json: {}", json_params);
+    BaseClassifier::ml_logger->info ("(Release)Incoming json: {}", json_params);
     int res = string_to_brainflow_model_params (json_params, &key);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
@@ -114,7 +114,7 @@ int release (char *json_params)
     auto model = ml_models.find (key);
     if (model == ml_models.end ())
     {
-       BaseClassifier::ml_logger->error ("Must prepare model before releasing it.");
+        BaseClassifier::ml_logger->error ("Must prepare model before releasing it.");
         return (int)BrainFlowExitCodes::CLASSIFIER_IS_NOT_PREPARED_ERROR;
     }
     res = model->second->release ();
@@ -136,7 +136,8 @@ int string_to_brainflow_model_params (const char *json_params, struct BrainFlowM
     }
     catch (json::exception &e)
     {
-        BaseClassifier::ml_logger->error ("Unable to create Brainflow model params with these arguments.");
+        BaseClassifier::ml_logger->error (
+            "Unable to create Brainflow model params with these arguments.");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 }

@@ -6,34 +6,6 @@
 using json = nlohmann::json;
 
 
-/////////////////////////////////////////
-//////////// logging methods ////////////
-/////////////////////////////////////////
-
-void MLModel::set_log_level (int log_level)
-{
-    int res = ::set_log_level (log_level);
-    if (res != (int)BrainFlowExitCodes::STATUS_OK)
-    {
-        throw BrainFlowException ("failed to set log level", res);
-    }
-}
-
-void MLModel::enable_board_logger ()
-{
-    MLModel::set_log_level ((int)LogLevels::LEVEL_INFO);
-}
-
-void MLModel::disable_board_logger ()
-{
-    MLModel::set_log_level ((int)LogLevels::LEVEL_OFF);
-}
-
-void MLModel::enable_dev_board_logger()
-{
-    MLModel::set_log_level ((int)LogLevels::LEVEL_TRACE);
-}
-
 void MLModel::set_log_file (char *log_file)
 {
     int res = ::set_log_file (log_file);
@@ -98,4 +70,32 @@ void MLModel::release ()
     {
         throw BrainFlowException ("failed to release classifier", res);
     }
+}
+
+/////////////////////////////////////////
+//////////// logging methods ////////////
+/////////////////////////////////////////
+
+void MLModel::set_log_level (int log_level)
+{
+    int res = ::set_log_level (log_level);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to set log level", res);
+    }
+}
+
+void MLModel::enable_board_logger ()
+{
+    MLModel::set_log_level ((int)LogLevels::LEVEL_INFO);
+}
+
+void MLModel::disable_board_logger ()
+{
+    MLModel::set_log_level ((int)LogLevels::LEVEL_OFF);
+}
+
+void MLModel::enable_dev_board_logger ()
+{
+    MLModel::set_log_level ((int)LogLevels::LEVEL_TRACE);
 }
