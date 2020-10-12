@@ -56,6 +56,10 @@ public class DataFilter
 
         int read_file (double[] data, int[] num_rows, int[] num_cols, String file_name, int max_elements);
 
+        int set_log_level (int log_level);
+
+        int set_log_file (String log_file);
+
         int get_num_elements_in_file (String file_name, int[] num_elements);
 
         int get_nearest_power_of_two (int value, int[] output);
@@ -111,6 +115,54 @@ public class DataFilter
         } catch (Exception io)
         {
             System.err.println ("native library: " + lib_name + " is not found in jar file");
+        }
+    }
+
+    /**
+     * enable BrainFlow logger with level INFO
+     */
+    public static void enable_board_logger () throws BrainFlowError
+    {
+        set_log_level (2);
+    }
+
+    /**
+     * enable BrainFlow logger with level TRACE
+     */
+    public static void enable_dev_board_logger () throws BrainFlowError
+    {
+        set_log_level (0);
+    }
+
+    /**
+     * disable BrainFlow logger
+     */
+    public static void disable_board_logger () throws BrainFlowError
+    {
+        set_log_level (6);
+    }
+
+    /**
+     * redirect logger from stderr to a file
+     */
+    public static void set_log_file (String log_file) throws BrainFlowError
+    {
+        int ec = instance.set_log_file (log_file);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in set_log_file", ec);
+        }
+    }
+
+    /**
+     * set log level
+     */
+    public static void set_log_level (int log_level) throws BrainFlowError
+    {
+        int ec = instance.set_log_level (log_level);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in set_log_level", ec);
         }
     }
 
