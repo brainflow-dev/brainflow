@@ -24,19 +24,7 @@ AnyIntType = Union{Int8, Int32, Int64, Int128, Int}
     FASCIA_BOARD = 12
     NOTION_1_BOARD = 13
     NOTION_2_BOARD = 14
-
-end
-
-
-@enum LogLevels begin
-
-    LEVEL_TRACE = 0
-    LEVEL_DEBUG = 1
-    LEVEL_INFO = 2
-    LEVEL_WARN = 3
-    LEVEL_ERROR = 4
-    LEVEL_CRITICAL = 5
-    LEVEL_OFF = 6
+    IRONBCI_BOARD = 15
 
 end
 
@@ -465,69 +453,6 @@ function get_resistance_channels(board_id::AnyIntType)
     # julia counts from 1
     value = channels[1:len[1]] .+ 1
     value
-end
-
-
-function set_log_level(log_level::AnyIntType)
-    ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:set_log_level, "BoardController.dll"), Cint, (Cint,), Int32(log_level))
-    elseif Sys.isapple()
-        ec = ccall((:set_log_level, "libBoardController.dylib"), Cint, (Cint,), Int32(log_level))
-    else
-        ec = ccall((:set_log_level, "libBoardController.so"), Cint, (Cint,), Int32(log_level))
-    end
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in set_log_level ", ec), ec))
-    end
-end
-
-
-function enable_board_logger()
-    set_log_level(2)
-end
-
-
-function enable_dev_board_logger()
-    set_log_level(0)
-end
-
-
-function disable_board_logger()
-    set_log_level(6)
-end
-
-
-function log_message(log_level::AnyIntType, message::String)
-    ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:log_message, "BoardController.dll"), Cint, (Cint, Ptr{UInt8}), Int32(log_level), message)
-    elseif Sys.isapple()
-        ec = ccall((:log_message, "libBoardController.dylib"), Cint, (Cint, Ptr{UInt8}), Int32(log_level), message)
-    else
-        ec = ccall((:log_message, "libBoardController.so"), Cint, (Cint, Ptr{UInt8}), Int32(log_level), message)
-    end
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in log_message ", ec), ec))
-    end
-end
-
-
-function set_log_file(log_file::String)
-    ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:set_log_file, "BoardController.dll"), Cint, (Ptr{UInt8},), log_file)
-    elseif Sys.isapple()
-        ec = ccall((:set_log_file, "libBoardController.dylib"), Cint, (Ptr{UInt8},), log_file)
-    else
-        ec = ccall((:set_log_file, "libBoardController.so"), Cint, (Ptr{UInt8},), log_file)
-    end
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in set_log_file ", ec), ec))
-    end
 end
 
 
