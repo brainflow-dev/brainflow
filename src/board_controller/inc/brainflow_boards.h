@@ -49,7 +49,7 @@ json brainflow_boards_json = {
             {"num_rows", 14},
             {"eeg_channels", {1, 2, 3, 4}},
             {"emg_channels", {1, 2, 3, 4}},
-            {"ecg_channels", {8}},
+            {"ecg_channels", {1, 2, 3, 4}},
             {"eog_channels", {1, 2, 3, 4}},
             {"accel_channels", {5, 6, 7}},
             {"resistance_channels", {8, 9, 10, 11, 12}}
