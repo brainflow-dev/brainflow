@@ -8,6 +8,7 @@ class BaseClassifier
 protected:
     struct BrainFlowModelParams params;
     bool skip_logs;
+
 public:
     static std::shared_ptr<spdlog::logger> ml_logger;
     static int set_log_level (int log_level);
@@ -21,7 +22,7 @@ public:
     {
         skip_logs = true;
     }
-     // Classifier ml_logger should not be called from destructors, to ensure that there are safe log
+    // Classifier ml_logger should not be called from destructors, to ensure that there are safe log
     // methods Classifierml_logger still available but should be used only outside destructors
     template <typename Arg1, typename... Args>
     void safe_logger (spdlog::level::level_enum log_level, const char *fmt, const Arg1 &arg1,
@@ -29,7 +30,7 @@ public:
     {
         if (!skip_logs)
         {
-             BaseClassifier::ml_logger->log (log_level, fmt, arg1, args...);
+            BaseClassifier::ml_logger->log (log_level, fmt, arg1, args...);
         }
     }
 
@@ -37,7 +38,7 @@ public:
     {
         if (!skip_logs)
         {
-             BaseClassifier::ml_logger->log (log_level, msg);
+            BaseClassifier::ml_logger->log (log_level, msg);
         }
     }
 

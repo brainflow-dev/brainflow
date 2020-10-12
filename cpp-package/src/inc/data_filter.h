@@ -17,7 +17,7 @@ public:
     static void disable_board_logger ();
     /// enable BrainFlow logger with LEVEL_TRACE
     static void enable_dev_board_logger ();
-    
+
     static void set_log_file (char *log_file);
     /// perform low pass filter in-place
     static void perform_lowpass (double *data, int data_len, int sampling_rate, double cutoff,

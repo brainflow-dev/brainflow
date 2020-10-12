@@ -12,7 +12,7 @@ public:
 
     virtual ~ConcentrationRegressionClassifier ()
     {
-        skip_logs=true;
+        skip_logs = true;
         release ();
     }
 
