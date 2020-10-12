@@ -197,6 +197,7 @@ set (DATA_HANDLER_SRC
 set (ML_MODULE_SRC
     ${CMAKE_HOME_DIRECTORY}/src/ml/ml_module.cpp
     ${CMAKE_HOME_DIRECTORY}/src/ml/concentration_regression_classifier.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/ml/base_classifier.cpp
     ${CMAKE_HOME_DIRECTORY}/third_party/libsvm/svm.cpp
     ${CMAKE_HOME_DIRECTORY}/src/ml/concentration_knn_classifier.cpp
 )
@@ -298,7 +299,9 @@ endif (UNIX AND NOT ANDROID)
 # link android logging library
 if (ANDROID)
     find_library (log-lib log)
+    target_link_libraries (${ML_MODULE_NAME} PRIVATE log)
     target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE log)
+    target_link_libraries (${DATA_HANDLER_NAME} PRIVATE  log)
 endif (ANDROID)
 
 add_library (

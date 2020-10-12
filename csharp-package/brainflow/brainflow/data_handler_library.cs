@@ -34,6 +34,10 @@ namespace brainflow
     class DataHandlerLibrary64
     {
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int set_log_file (string log_file);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int set_log_level (int log_level);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_lowpass (double[] data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_highpass (double[] data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
@@ -79,6 +83,10 @@ namespace brainflow
     class DataHandlerLibrary32
     {
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int set_log_file (string log_file);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int set_log_level (int log_level);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_lowpass (double[] data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_highpass (double[] data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
@@ -123,6 +131,20 @@ namespace brainflow
 
     class DataHandlerLibrary
     {
+        public static int set_log_level (int log_level)
+        {
+            if (System.Environment.Is64BitProcess)
+                return DataHandlerLibrary64.set_log_level (log_level);
+            else
+                return DataHandlerLibrary32.set_log_level (log_level);
+        }
+        public static int set_log_file (string log_file)
+        {
+            if (System.Environment.Is64BitProcess)
+                return DataHandlerLibrary64.set_log_file (log_file);
+            else
+                return DataHandlerLibrary32.set_log_file (log_file);
+        }
         public static int perform_lowpass (double[] data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple)
         {
             if (System.Environment.Is64BitProcess)

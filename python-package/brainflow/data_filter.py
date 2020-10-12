@@ -144,6 +144,18 @@ class DataHandlerDLL (object):
             ctypes.c_int
         ]
 
+        self.set_log_level = self.lib.set_log_level
+        self.set_log_level.restype = ctypes.c_int
+        self.set_log_level.argtypes = [
+           ctypes.c_int
+        ]
+
+        self.set_log_file = self.lib.set_log_file
+        self.set_log_file.restype = ctypes.c_int
+        self.set_log_file.argtypes = [
+            ctypes.c_char_p
+        ]
+
         self.get_num_elements_in_file = self.lib.get_num_elements_in_file
         self.get_num_elements_in_file.restype = ctypes.c_int
         self.get_num_elements_in_file.argtypes = [
@@ -285,6 +297,48 @@ class DataHandlerDLL (object):
 
 class DataFilter (object):
     """DataFilter class contains methods for signal processig"""
+
+    @classmethod
+    def _set_log_level (cls, log_level: int) -> None:
+        """set BrainFlow log level, use it only if you want to write your own messages to BrainFlow logger,
+        otherwise use enable_board_logger, enable_dev_board_logger or disable_board_logger
+
+        :param log_level: log level, to specify it you should use values from LogLevels enum
+        :type log_level: int
+        """
+        res = DataHandlerDLL.get_instance ().set_log_level (log_level)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to enable logger', res)
+
+    @classmethod
+    def enable_board_logger (cls) -> None:
+        """enable BrainFlow Logger with level INFO, uses stderr for log messages by default"""
+        cls._set_log_level (LogLevels.LEVEL_INFO.value)
+
+    @classmethod
+    def disable_board_logger (cls) -> None:
+        """disable BrainFlow Logger"""
+        cls._set_log_level (LogLevels.LEVEL_OFF.value)
+
+    @classmethod
+    def enable_dev_board_logger (cls) -> None:
+        """enable BrainFlow Logger with level TRACE, uses stderr for log messages by default"""
+        cls._set_log_level (LogLevels.LEVEL_TRACE.value)
+
+    @classmethod
+    def set_log_file (cls, log_file: str) -> None:
+        """redirect logger from stderr to file, can be called any time
+
+        :param log_file: log file name
+        :type log_file: str
+        """
+        try:
+            file = log_file.encode ()
+        except:
+            file = log_file
+        res = DataHandlerDLL.get_instance ().set_log_file (file)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to redirect logs to a file', res)
 
     @classmethod
     def perform_lowpass (cls, data: NDArray[Float64], sampling_rate: int, cutoff: float, order: int, filter_type: int, ripple: float) -> None:

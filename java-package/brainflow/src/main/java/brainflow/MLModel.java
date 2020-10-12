@@ -14,6 +14,11 @@ public class MLModel
 {
     private interface DllInterface extends Library
     {
+
+        int set_log_level (int log_level);
+
+        int set_log_file (String log_file);
+
         int prepare (String params);
 
         int release (String params);
@@ -78,6 +83,54 @@ public class MLModel
     public MLModel (BrainFlowModelParams params)
     {
         input_params = params.to_json ();
+    }
+
+    /**
+     * enable BrainFlow logger with level INFO
+     */
+    public static void enable_board_logger () throws BrainFlowError
+    {
+        set_log_level (2);
+    }
+
+    /**
+     * enable BrainFlow logger with level TRACE
+     */
+    public static void enable_dev_board_logger () throws BrainFlowError
+    {
+        set_log_level (0);
+    }
+
+    /**
+     * disable BrainFlow logger
+     */
+    public static void disable_board_logger () throws BrainFlowError
+    {
+        set_log_level (6);
+    }
+
+    /**
+     * redirect logger from stderr to a file
+     */
+    public static void set_log_file (String log_file) throws BrainFlowError
+    {
+        int ec = instance.set_log_file (log_file);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in set_log_file", ec);
+        }
+    }
+
+    /**
+     * set log level
+     */
+    private static void set_log_level (int log_level) throws BrainFlowError
+    {
+        int ec = instance.set_log_level (log_level);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in set_log_level", ec);
+        }
     }
 
     /**

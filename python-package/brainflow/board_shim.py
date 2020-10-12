@@ -409,7 +409,7 @@ class BoardShim (object):
 
 
     @classmethod
-    def set_log_level (cls, log_level: int) -> None:
+    def _set_log_level (cls, log_level: int) -> None:
         """set BrainFlow log level, use it only if you want to write your own messages to BrainFlow logger,
         otherwise use enable_board_logger, enable_dev_board_logger or disable_board_logger
 
@@ -423,17 +423,17 @@ class BoardShim (object):
     @classmethod
     def enable_board_logger (cls) -> None:
         """enable BrainFlow Logger with level INFO, uses stderr for log messages by default"""
-        cls.set_log_level (LogLevels.LEVEL_INFO.value)
+        cls._set_log_level (LogLevels.LEVEL_INFO.value)
 
     @classmethod
     def disable_board_logger (cls) -> None:
         """disable BrainFlow Logger"""
-        cls.set_log_level (LogLevels.LEVEL_OFF.value)
+        cls._set_log_level (LogLevels.LEVEL_OFF.value)
 
     @classmethod
     def enable_dev_board_logger (cls) -> None:
         """enable BrainFlow Logger with level TRACE, uses stderr for log messages by default"""
-        cls.set_log_level (LogLevels.LEVEL_TRACE.value)
+        cls._set_log_level (LogLevels.LEVEL_TRACE.value)
 
     @classmethod
     def log_message (cls, log_level: int, message: str) -> None:

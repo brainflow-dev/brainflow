@@ -2,6 +2,45 @@
 
 #include "data_filter.h"
 #include "data_handler.h"
+#include "brainflow_constants.h"
+
+
+/////////////////////////////////////////
+//////////// logging methods ////////////
+/////////////////////////////////////////
+
+void DataFilter::set_log_level (int log_level)
+{
+    int res = ::set_log_level (log_level);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to set log level", res);
+    }
+}
+
+void DataFilter::enable_board_logger ()
+{
+    DataFilter::set_log_level ((int)LogLevels::LEVEL_INFO);
+}
+
+void DataFilter::disable_board_logger ()
+{
+    DataFilter::set_log_level ((int)LogLevels::LEVEL_OFF);
+}
+
+void DataFilter::enable_dev_board_logger()
+{
+    DataFilter::set_log_level ((int)LogLevels::LEVEL_TRACE);
+}
+
+void DataFilter::set_log_file (char *log_file)
+{
+    int res = ::set_log_file (log_file);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to set log file", res);
+    }
+}
 
 void DataFilter::perform_lowpass (double *data, int data_len, int sampling_rate, double cutoff,
     int order, int filter_type, double ripple)

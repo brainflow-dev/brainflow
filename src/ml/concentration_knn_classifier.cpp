@@ -7,10 +7,12 @@
 #include "focus_dataset.h"
 
 
+
 int ConcentrationKNNClassifier::prepare ()
 {
     if (kdtree != NULL)
     {
+        safe_logger (spdlog::level::err, "Classifier has already been prepared.");
         return (int)BrainFlowExitCodes::ANOTHER_CLASSIFIER_IS_PREPARED_ERROR;
     }
     if (!params.other_info.empty ())
@@ -21,11 +23,13 @@ int ConcentrationKNNClassifier::prepare ()
         }
         catch (const std::exception &e)
         {
+            safe_logger (spdlog::level::err, "Coudn't convert neighbors to integer value.");
             return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
         }
     }
     if ((num_neighbors < 1) || (num_neighbors > 100))
     {
+        safe_logger (spdlog::level::err, "You must pick from 1-100 neighbors.");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
@@ -48,10 +52,12 @@ int ConcentrationKNNClassifier::predict (double *data, int data_len, double *out
 {
     if ((data_len < 5) || (data == NULL) || (output == NULL))
     {
+        safe_logger (spdlog::level::err, "All argument must not be null, and data_len > 5.");
         return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
     if (kdtree == NULL)
     {
+        safe_logger (spdlog::level::err, "Please prepare classifier with prepare method.");
         return (int)BrainFlowExitCodes::CLASSIFIER_IS_NOT_PREPARED_ERROR;
     }
 
@@ -90,5 +96,6 @@ int ConcentrationKNNClassifier::release ()
     delete kdtree;
     kdtree = NULL;
     dataset.clear ();
+    safe_logger (spdlog::level::err, "Model has been cleared.");
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
