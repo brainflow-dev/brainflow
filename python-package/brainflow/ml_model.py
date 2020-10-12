@@ -86,7 +86,19 @@ class MLModuleDLL (object):
             self.lib = ctypes.cdll.LoadLibrary (full_path)
         else:
             raise FileNotFoundError ('Dynamic library %s is missed, did you forget to compile brainflow before installation of python package?' % full_path)
+        
+        self.set_log_level = self.lib.set_log_level
+        self.set_log_level.restype = ctypes.c_int
+        self.set_log_level.argtypes = [
+           ctypes.c_int
+        ]
 
+        self.set_log_file = self.lib.set_log_file
+        self.set_log_file.restype = ctypes.c_int
+        self.set_log_file.argtypes = [
+            ctypes.c_char_p
+        ]
+        
         self.prepare = self.lib.prepare
         self.prepare.restype = ctypes.c_int
         self.prepare.argtypes = [

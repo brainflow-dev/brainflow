@@ -143,6 +143,18 @@ class DataHandlerDLL (object):
             ctypes.c_char_p,
             ctypes.c_int
         ]
+        
+        self.set_log_level = self.lib.set_log_level
+        self.set_log_level.restype = ctypes.c_int
+        self.set_log_level.argtypes = [
+           ctypes.c_int
+        ]
+
+        self.set_log_file = self.lib.set_log_file
+        self.set_log_file.restype = ctypes.c_int
+        self.set_log_file.argtypes = [
+            ctypes.c_char_p
+        ]
 
         self.get_num_elements_in_file = self.lib.get_num_elements_in_file
         self.get_num_elements_in_file.restype = ctypes.c_int
