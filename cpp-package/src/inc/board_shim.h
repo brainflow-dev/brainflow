@@ -10,18 +10,6 @@
 #include "brainflow_exception.h"
 #include "brainflow_input_params.h"
 
-/// LogLevels enum to store all possible log levels
-enum class LogLevels : int
-{
-    LEVEL_TRACE = 0,    /// TRACE
-    LEVEL_DEBUG = 1,    /// DEBUG
-    LEVEL_INFO = 2,     /// INFO
-    LEVEL_WARN = 3,     /// WARN
-    LEVEL_ERROR = 4,    /// ERROR
-    LEVEL_CRITICAL = 5, /// CRITICAL
-    LEVEL_OFF = 6       // OFF
-};
-
 
 /// BoardShim class to communicate with a board
 class BoardShim

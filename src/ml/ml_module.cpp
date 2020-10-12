@@ -11,7 +11,6 @@
 #include "ml_module.h"
 #include "relaxation_knn_classifier.h"
 #include "relaxation_regression_classifier.h"
-
 #include "json.hpp"
 
 
@@ -28,6 +27,7 @@ int prepare (char *json_params)
     std::lock_guard<std::mutex> lock (models_mutex);
 
     std::shared_ptr<BaseClassifier> model = NULL;
+    BaseClassifier::ml_logger->info ("(Prepararing)Incoming json: {}", json_params);
     struct BrainFlowModelParams key (
         (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::REGRESSION);
     int res = string_to_brainflow_model_params (json_params, &key);
@@ -68,6 +68,7 @@ int prepare (char *json_params)
     res = model->prepare ();
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
+        BaseClassifier::ml_logger->error ("Unable to prepare model. Please refer to logs above.");
         model = NULL;
     }
     else
@@ -80,9 +81,9 @@ int prepare (char *json_params)
 int predict (double *data, int data_len, double *output, char *json_params)
 {
     std::lock_guard<std::mutex> lock (models_mutex);
-
     struct BrainFlowModelParams key (
         (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::REGRESSION);
+    BaseClassifier::ml_logger->info ("(Predict)Incoming json: {}", json_params);
     int res = string_to_brainflow_model_params (json_params, &key);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
@@ -91,6 +92,7 @@ int predict (double *data, int data_len, double *output, char *json_params)
     auto model = ml_models.find (key);
     if (model == ml_models.end ())
     {
+        BaseClassifier::ml_logger->error ("Must prepare model before using it for prediction.");
         return (int)BrainFlowExitCodes::CLASSIFIER_IS_NOT_PREPARED_ERROR;
     }
     return model->second->predict (data, data_len, output);
@@ -102,6 +104,7 @@ int release (char *json_params)
 
     struct BrainFlowModelParams key (
         (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::REGRESSION);
+   BaseClassifier::ml_logger->info ("(Release)Incoming json: {}", json_params);
     int res = string_to_brainflow_model_params (json_params, &key);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
@@ -111,6 +114,7 @@ int release (char *json_params)
     auto model = ml_models.find (key);
     if (model == ml_models.end ())
     {
+       BaseClassifier::ml_logger->error ("Must prepare model before releasing it.");
         return (int)BrainFlowExitCodes::CLASSIFIER_IS_NOT_PREPARED_ERROR;
     }
     res = model->second->release ();
@@ -132,6 +136,19 @@ int string_to_brainflow_model_params (const char *json_params, struct BrainFlowM
     }
     catch (json::exception &e)
     {
+        BaseClassifier::ml_logger->error ("Unable to create Brainflow model params with these arguments.");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
+}
+
+int set_log_level (int log_level)
+{
+    std::lock_guard<std::mutex> lock (models_mutex);
+    return BaseClassifier::set_log_level (log_level);
+}
+
+int set_log_file (char *log_file)
+{
+    std::lock_guard<std::mutex> lock (models_mutex);
+    return BaseClassifier::set_log_file (log_file);
 }
