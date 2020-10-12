@@ -1,16 +1,16 @@
 #include <chrono>
 #include <ctype.h>
-#include <queue>
+#include <deque>
 #include <stdlib.h>
 #include <string.h>
 #include <thread>
 
 #include "cmd_def.h"
-#include "helpers.h"
-#include "uart.h"
-
 #include "ganglion_functions.h"
 #include "ganglion_types.h"
+#include "helpers.h"
+#include "ticket_lock.h"
+#include "uart.h"
 
 // read Bluetooth_Smart_Software_v1.3.1_API_Reference.pdf to understand this code
 
@@ -19,7 +19,8 @@ namespace GanglionLib
     volatile int exit_code = (int)GanglionLib::SYNC_ERROR;
     char uart_port[1024];
     int timeout = 15;
-    std::queue<struct GanglionLib::GanglionData> data_queue;
+    std::deque<struct GanglionLib::GanglionData> data_queue;
+    TicketLock lock;
     volatile bd_addr connect_addr;
     volatile uint8 connection = -1;
     volatile uint16 ganglion_handle_start = 0;
@@ -167,10 +168,6 @@ namespace GanglionLib
 #else
     int stop_stream (void *param)
     {
-        ////uint8 b = 0x00; // 0x32;
-        ////uint8 *config1 = &b;
-        ////ble_cmd_attclient_attribute_write (connection, ganglion_handle_send, 1, (uint8
-        ///*)config1);
         // hack above doesnt work well on windows and not needed for windows/macos
         if (!should_stop_stream)
         {
@@ -178,10 +175,7 @@ namespace GanglionLib
             read_characteristic_thread.join ();
         }
         int res = config_board ((char *)param);
-        while (!data_queue.empty ())
-        {
-            data_queue.pop ();
-        }
+        data_queue.clear ();
         return res;
     }
 #endif
@@ -242,37 +236,33 @@ namespace GanglionLib
             return (int)CustomExitCodes::NO_DATA_ERROR;
         }
         state = State::GET_DATA_CALLED;
+        int res = (int)CustomExitCodes::STATUS_OK;
+        lock.lock ();
         if (data_queue.empty ())
         {
-            return (int)CustomExitCodes::NO_DATA_ERROR;
+            res = (int)CustomExitCodes::NO_DATA_ERROR;
         }
-        try
+        else
         {
-            struct GanglionData *board_data = (struct GanglionData *)param;
-            // printf ("data_queue.size %x\n", data_queue.size ());
-            if (!data_queue.empty ())
-            {
-                struct GanglionData data = data_queue.front ();
-                // printf ("data.timestamp %d,%x\n", data.timestamp, data.timestamp);
-                board_data->timestamp = data.timestamp;
-                for (int i = 0; i < 20; i++)
-                {
-                    board_data->data[i] = data.data[i];
-                    // printf ("data_queue: %d\n", data.data[i]);
-                    // printf ("data.timestamp %x\n", data.timestamp) ;
-                }
-                // printf ("data_queue: %d\n", board_data.size());
-
-                // printf ("data isn't empty\n");
-                data_queue.pop ();
-            }
-        }
-        catch (...)
-        {
-            // printf ("CATCH\n");
-            // todo ?
-        }
-        return (int)CustomExitCodes::STATUS_OK;
+        
+			try
+			{
+				struct GanglionData *board_data = (struct GanglionData *)param;
+				struct GanglionData data = data_queue.at (0); // at ensures out of range exception, front has undefined behavior
+				board_data->timestamp = data.timestamp;
+				for (int i = 0; i < 20; i++)
+				{
+					board_data->data[i] = data.data[i];
+				}
+                data_queue.pop_front ();
+			}
+			catch (...)
+			{
+                res = (int)CustomExitCodes::NO_DATA_ERROR;
+			}
+		}
+        lock.unlock ();
+        return res;
     }
 
     int config_board (void *param)
@@ -289,26 +279,18 @@ namespace GanglionLib
         {
             return (int)CustomExitCodes::SEND_CHARACTERISTIC_NOT_FOUND_ERROR;
         }
-        // use it if you want one ecg channel and aone 50Hz sinuouse wave 0x16;
-        uint8 b = 0x16; // use 0x86 for one ecg channel and sin10Hz
-        uint8 *config1 = &b;
-        ble_cmd_attclient_attribute_write (connection, ganglion_handle_send, len, (uint8 *)config1);
+        ble_cmd_attclient_attribute_write (connection, ganglion_handle_send, len, (uint8 *)config);
         return wait_for_callback (timeout);
     }
 
     int release (void *param)
     {
-
         if (initialized)
         {
             close_ganglion (NULL);
             state = State::NONE;
             initialized = false;
-            while (!data_queue.empty ())
-            {
-                printf ("in release data isn't empty\n");
-                data_queue.pop ();
-            }
+            data_queue.clear ();
         }
         return (int)CustomExitCodes::STATUS_OK;
     }

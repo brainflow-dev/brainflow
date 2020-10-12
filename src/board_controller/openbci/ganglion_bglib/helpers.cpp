@@ -83,9 +83,9 @@ namespace GanglionLib
         exit_code = (int)GanglionLib::SYNC_ERROR;
         // send command to connect
         state = State::INITIAL_CONNECTION;
-        // changing values here leads to package loss, dont touch it
-        //@ ble_cmd_gap_connect_direct (&connect_addr, gap_address_type_random, 10, 76, 100, 0); for Ganglion
-        ble_cmd_gap_connect_direct (&connect_addr, gap_address_type_public, 8, 16, 100, 0); // for bitalino
+        ble_cmd_gap_connect_direct (
+            &connect_addr, gap_address_type_public, 8, 16, 100, 0); // for bitalino
+
         int res = wait_for_callback (timeout);
         if (res != (int)GanglionLib::STATUS_OK)
         {
@@ -111,14 +111,12 @@ namespace GanglionLib
         exit_code = (int)GanglionLib::SYNC_ERROR;
         ble_cmd_attclient_attribute_write (connection, client_char_handle, 2, &configuration);
         ble_cmd_attclient_execute_write (connection, 1);
-        // ____________ for setting sampling rate to 100Hz _______
+//__________________________________ For BITalino _____________________________
+        // ____________ for setting sampling rate to 100Hz ___________
+		// https://bitalino.com/datasheets/REVOLUTION_MCU_Block_Datasheet.pdf
         uint8 b = 0x83;
         uint8 *config1 = &b;
         ble_cmd_attclient_attribute_write (connection, ganglion_handle_send, 1, &config1);
-		// ____________ for reading device status ________
-        ////////uint8 b1= 0x0b; // 0x32;
-        ////////uint8 *config2 = &b1;
-        ////////ble_cmd_attclient_attribute_write (connection, ganglion_handle_send, 1, &config2);
 
         return wait_for_callback (timeout);
     }
