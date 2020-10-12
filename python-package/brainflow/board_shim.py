@@ -18,6 +18,7 @@ from brainflow.exit_codes import BrainflowExitCodes
 class BoardIds (enum.Enum):
     """Enum to store all supported Board Ids"""
 
+    PLAYBACK_FILE_BOARD = -3 #:
     STREAMING_BOARD = -2 #:
     SYNTHETIC_BOARD = -1 #:
     CYTON_BOARD = 0 #:
@@ -34,6 +35,9 @@ class BoardIds (enum.Enum):
     CALLIBRI_ECG_BOARD = 11 #:
     FASCIA_BOARD = 12 #:
     NOTION_OSC_BOARD = 13 #:
+    NOTION_1_BOARD = 13 #:
+    NOTION_2_BOARD = 14 #:
+    IRONBCI_BOARD = 15 #:
 
 
 class LogLevels (enum.Enum):
@@ -71,6 +75,10 @@ class BrainFlowInputParams (object):
     :type ip_protocol: int
     :param other_info: other info
     :type other_info: str
+    :param serial_number: serial number
+    :type serial_number: str
+    :param file: file
+    :type file: str
     """
     def __init__ (self) -> None:
         self.serial_port = ''
@@ -81,6 +89,7 @@ class BrainFlowInputParams (object):
         self.other_info = ''
         self.timeout = 0
         self.serial_number = ''
+        self.file = ''
 
     def to_json (self) -> None :
         return json.dumps (self, default = lambda o: o.__dict__,
@@ -389,11 +398,11 @@ class BoardShim (object):
             self.input_json = input_params.to_json ()
         self.board_id = board_id
         # we need it for streaming board
-        if board_id == BoardIds.STREAMING_BOARD.value:
+        if board_id == BoardIds.STREAMING_BOARD.value or board_id == BoardIds.PLAYBACK_FILE_BOARD.value:
             try:
                 self._master_board_id = int (input_params.other_info)
             except:
-                raise BrainFlowError ('set master board id using params.other_info for STREAMING_BOARD',
+                raise BrainFlowError ('set master board id using params.other_info',
                                     BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         else:
             self._master_board_id = self.board_id

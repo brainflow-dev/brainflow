@@ -43,6 +43,7 @@ namespace brainflow
 
     public enum BoardIds
     {
+        PLAYBACK_FILE_BOARD = -3,
         STREAMING_BOARD = -2,
         SYNTHETIC_BOARD = -1,
         CYTON_BOARD = 0,
@@ -58,7 +59,9 @@ namespace brainflow
         CALLIBRI_EMG_BOARD = 10,
         CALLIBRI_ECG_BOARD = 11,
         FASCIA_BOARD = 12,
-        NOTION_OSC_BOARD = 13
+        NOTION_1_BOARD = 13,
+        NOTION_2_BOARD = 14,
+        IRONBCI_BOARD = 15
     };
 
 

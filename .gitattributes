@@ -1,3 +1,5 @@
+src/ml/inc/focus_dataset.h linguist-vendored
+src/board_controller/inc/brainflow_boards.h linguist-vendored
 tools/build_linux.sh eol=lf
 tools/build_mac.sh eol=lf
 *.sh eol=lf
