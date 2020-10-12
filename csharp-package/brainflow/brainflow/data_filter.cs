@@ -10,6 +10,57 @@ namespace brainflow
     /// </summary>
     public class DataFilter
     {
+
+        
+        /// <summary>
+        /// set log level, logger is disabled by default
+        /// </summary>
+        /// <param name="log_level"></param>
+        public static void set_log_level (int log_level)
+        {
+            int res = DataHandlerLibrary.set_log_level (log_level);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException (res);
+            }
+        }
+
+        /// <summary>
+        /// enable BrainFlow's logger with level INFO
+        /// </summary>
+        public static void enable_board_logger ()
+        {
+            DataHandlerLibrary.set_log_level ((int)LogLevels.LEVEL_INFO);
+        }
+
+        /// <summary>
+        /// disable BrainFlow's logger
+        /// </summary>
+        public static void disable_board_logger ()
+        {
+            DataHandlerLibrary.set_log_level ((int)LogLevels.LEVEL_OFF);
+        }
+
+        /// <summary>
+        /// enable BrainFLow's logger with level TRACE
+        /// </summary>
+        public static void enable_dev_board_logger ()
+        {
+            DataHandlerLibrary.set_log_level ((int)LogLevels.LEVEL_TRACE);
+        }
+
+        /// <summary>
+        /// redirect BrainFlow's logger from stderr to file
+        /// </summary>
+        /// <param name="log_file"></param>
+        public static void set_log_file (string log_file)
+        {
+            int res = DataHandlerLibrary.set_log_file (log_file);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException (res);
+            }
+        }
         // accord GetRow returns a copy instead pointer, so we can not easily update data in place like in other bindings
 
         /// <summary>

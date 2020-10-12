@@ -134,18 +134,6 @@ public class MLModel
     }
 
     /**
-     * send user defined strings to BrainFlow logger
-     */
-    public static void log_message (int log_level, String message) throws BrainFlowError
-    {
-        int ec = instance.log_message (log_level, message);
-        if (ec != ExitCode.STATUS_OK.get_code ())
-        {
-            throw new BrainFlowError ("Error in log_message", ec);
-        }
-    }
-
-    /**
      * Prepare classifier
      * 
      * @throws BrainFlowError
