@@ -186,6 +186,7 @@ set (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/callibri_emg.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/mit/fascia.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neurosity/notion_osc.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/oymotion/gforce_pro.cpp
 )
 
 set (DATA_HANDLER_SRC
@@ -224,12 +225,14 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/src/utils/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/inc
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/oymotion/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/gtec/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/mit/inc
     ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/inc/types
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neurosity/inc
+    ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/src/inc
 )
 
 # disable min max defines in windows.h

@@ -3,23 +3,23 @@
 #include <string.h>
 
 #pragma pack(push, 1)
-struct GForceData
+struct GforceData
 {
     double data[8];
     double timestamp;
 
-    GForceData (double *data, double timestamp)
+    GforceData (double *data, double timestamp)
     {
         memcpy (this->data, data, sizeof (double) * 8);
         this->timestamp = timestamp;
     }
 
-    GForceData ()
+    GforceData ()
     {
         timestamp = 0.0;
     }
 
-    GForceData (const GanglionData &other)
+    GforceData (const GforceData &other)
     {
         timestamp = other.timestamp;
         memcpy (data, other.data, sizeof (double) * 8);
@@ -27,7 +27,7 @@ struct GForceData
 };
 #pragma pack(pop)
 
-enum class CustomExitCodes : int
+enum class GforceWrapperExitCodes : int
 {
     STATUS_OK = 0,
     HUB_INIT_FAILED = 1,
