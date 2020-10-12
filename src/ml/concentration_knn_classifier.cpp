@@ -7,7 +7,6 @@
 #include "focus_dataset.h"
 
 
-
 int ConcentrationKNNClassifier::prepare ()
 {
     if (kdtree != NULL)

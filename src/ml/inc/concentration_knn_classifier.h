@@ -11,7 +11,6 @@
 class ConcentrationKNNClassifier : public BaseClassifier
 {
 public:
-
     ConcentrationKNNClassifier (struct BrainFlowModelParams params) : BaseClassifier (params)
     {
         num_neighbors = 5;
@@ -20,7 +19,7 @@ public:
 
     virtual ~ConcentrationKNNClassifier ()
     {
-        skip_logs=true;
+        skip_logs = true;
         release ();
     }
 
