@@ -67,7 +67,7 @@ namespace brainflow
 
 
     // lib name is const in DllImport directive, so I can not use only one class
-    // alternative solutios: call loadBoardController from kernel32.dll
+    // alternative solutios: call loadlibrary from kernel32.dll
     // or rename libs to have the same name and load them from different folders but I dont want to fix it in all bindings
     // so there is no really good solution
     public static class BoardControllerLibrary64
