@@ -26,7 +26,8 @@ public enum BoardIds
     FASCIA_BOARD (12),
     NOTION_1_BOARD (13),
     NOTION_2_BOARD (14),
-    IRONBCI_BOARD (15);
+    IRONBCI_BOARD (15),
+    GFORCE_PRO_BOARD (16);
 
     private final int board_id;
     private static final Map<Integer, BoardIds> bi_map = new HashMap<Integer, BoardIds> ();
