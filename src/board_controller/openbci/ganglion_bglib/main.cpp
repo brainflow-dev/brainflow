@@ -165,6 +165,9 @@ namespace GanglionLib
         {
             l = uart_rx (l, &temp_data, 1000);
         }
+        lock.lock ();
+        data_queue.clear ();
+        lock.unlock ();
         return res;
     }
 #else
@@ -177,7 +180,9 @@ namespace GanglionLib
             read_characteristic_thread.join ();
         }
         int res = config_board ((char *)param);
+        lock.lock ();
         data_queue.clear ();
+        lock.unlock ();
         return res;
     }
 #endif
@@ -293,7 +298,6 @@ namespace GanglionLib
             close_ganglion (NULL);
             state = State::NONE;
             initialized = false;
-            data_queue.clear ();
         }
         return (int)CustomExitCodes::STATUS_OK;
     }
