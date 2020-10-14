@@ -9,7 +9,7 @@
 #include "helpers.h"
 #include "uart.h"
 
-#include "ticket_lock.h"
+#include "spinlock.h"
 
 #include "ganglion_functions.h"
 #include "ganglion_types.h"
@@ -22,7 +22,7 @@ namespace GanglionLib
     char uart_port[1024];
     int timeout = 15;
     std::deque<struct GanglionLib::GanglionData> data_queue;
-    TicketLock lock;
+    SpinLock lock;
     volatile bd_addr connect_addr;
     volatile uint8 connection = -1;
     volatile uint16 ganglion_handle_start = 0;

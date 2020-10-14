@@ -10,7 +10,7 @@
 #include "timestamp.h"
 #include "uart.h"
 
-#include "ticket_lock.h"
+#include "spinlock.h"
 
 #define GANGLION_SERVICE_UUID 0xfe84
 #define CLIENT_CHARACTERISTIC_UUID 0x2902
@@ -28,7 +28,7 @@ namespace GanglionLib
     extern volatile uint16 client_char_handle;
     extern volatile State state;
 
-    extern TicketLock lock;
+    extern SpinLock lock;
 
     extern std::deque<struct GanglionLib::GanglionData> data_queue;
 
