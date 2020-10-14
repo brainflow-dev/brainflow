@@ -86,17 +86,17 @@ public class MLModel
     }
 
     /**
-     * enable BrainFlow logger with level INFO
+     * enable ML logger with level INFO
      */
-    public static void enable_board_logger () throws BrainFlowError
+    public static void enable_ml_logger () throws BrainFlowError
     {
         set_log_level (2);
     }
 
     /**
-     * enable BrainFlow logger with level TRACE
+     * enable ML logger with level TRACE
      */
-    public static void enable_dev_board_logger () throws BrainFlowError
+    public static void enable_dev_ml_logger () throws BrainFlowError
     {
         set_log_level (0);
     }
@@ -104,7 +104,7 @@ public class MLModel
     /**
      * disable BrainFlow logger
      */
-    public static void disable_board_logger () throws BrainFlowError
+    public static void disable_ml_logger () throws BrainFlowError
     {
         set_log_level (6);
     }

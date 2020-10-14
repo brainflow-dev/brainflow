@@ -368,17 +368,17 @@ void DataFilter::set_log_level (int log_level)
     }
 }
 
-void DataFilter::enable_board_logger ()
+void DataFilter::enable_data_logger ()
 {
     DataFilter::set_log_level ((int)LogLevels::LEVEL_INFO);
 }
 
-void DataFilter::disable_board_logger ()
+void DataFilter::disable_data_logger ()
 {
     DataFilter::set_log_level ((int)LogLevels::LEVEL_OFF);
 }
 
-void DataFilter::enable_dev_board_logger ()
+void DataFilter::enable_dev_data_logger ()
 {
     DataFilter::set_log_level ((int)LogLevels::LEVEL_TRACE);
 }

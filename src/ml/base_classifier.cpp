@@ -46,7 +46,7 @@ int BaseClassifier::set_log_file (char *log_file)
     {
         spdlog::level::level_enum level = BaseClassifier::ml_logger->level ();
         BaseClassifier::ml_logger = spdlog::create<spdlog::sinks::null_sink_st> (
-            "null_logger"); // to dont set logger to nullptr and avoid raice condition
+            "null_logger"); // to dont set logger to nullptr and avoid race condition
         spdlog::drop (LOGGER_NAME);
         BaseClassifier::ml_logger = spdlog::basic_logger_mt (LOGGER_NAME, log_file);
         BaseClassifier::ml_logger->set_level (level);

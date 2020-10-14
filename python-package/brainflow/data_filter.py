@@ -11,7 +11,7 @@ from typing import List, Set, Dict, Tuple
 
 from nptyping import NDArray, Float64, Complex128
 
-from brainflow.board_shim import BrainFlowError
+from brainflow.board_shim import BrainFlowError, LogLevels
 from brainflow.exit_codes import BrainflowExitCodes
 
 
@@ -301,7 +301,7 @@ class DataFilter (object):
     @classmethod
     def _set_log_level (cls, log_level: int) -> None:
         """set BrainFlow log level, use it only if you want to write your own messages to BrainFlow logger,
-        otherwise use enable_board_logger, enable_dev_board_logger or disable_board_logger
+        otherwise use enable_data_logger, enable_dev_data_logger or disable_data_logger
 
         :param log_level: log level, to specify it you should use values from LogLevels enum
         :type log_level: int
@@ -311,18 +311,18 @@ class DataFilter (object):
             raise BrainFlowError ('unable to enable logger', res)
 
     @classmethod
-    def enable_board_logger (cls) -> None:
-        """enable BrainFlow Logger with level INFO, uses stderr for log messages by default"""
+    def enable_data_logger (cls) -> None:
+        """enable Data Logger with level INFO, uses stderr for log messages by default"""
         cls._set_log_level (LogLevels.LEVEL_INFO.value)
 
     @classmethod
-    def disable_board_logger (cls) -> None:
-        """disable BrainFlow Logger"""
+    def disable_data_logger (cls) -> None:
+        """disable Data Logger"""
         cls._set_log_level (LogLevels.LEVEL_OFF.value)
 
     @classmethod
-    def enable_dev_board_logger (cls) -> None:
-        """enable BrainFlow Logger with level TRACE, uses stderr for log messages by default"""
+    def enable_dev_data_logger (cls) -> None:
+        """enable Data Logger with level TRACE, uses stderr for log messages by default"""
         cls._set_log_level (LogLevels.LEVEL_TRACE.value)
 
     @classmethod

@@ -34,25 +34,25 @@ namespace brainflow
         }
 
         /// <summary>
-        /// enable BrainFlow's logger with level INFO
+        /// enable ML logger with level INFO
         /// </summary>
-        public static void enable_board_logger ()
+        public static void enable_ml_logger ()
         {
             MLModuleLibrary.set_log_level ((int)LogLevels.LEVEL_INFO);
         }
 
         /// <summary>
-        /// disable BrainFlow's logger
+        /// disable ML logger
         /// </summary>
-        public static void disable_board_logger ()
+        public static void disable_ml_logger ()
         {
             MLModuleLibrary.set_log_level ((int)LogLevels.LEVEL_OFF);
         }
 
         /// <summary>
-        /// enable BrainFLow's logger with level TRACE
+        /// enable ML logger with level TRACE
         /// </summary>
-        public static void enable_dev_board_logger ()
+        public static void enable_dev_ml_logger ()
         {
             MLModuleLibrary.set_log_level ((int)LogLevels.LEVEL_TRACE);
         }

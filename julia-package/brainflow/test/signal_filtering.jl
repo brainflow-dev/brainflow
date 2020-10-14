@@ -2,7 +2,7 @@ import brainflow
 
 
 # specify logging library to use
-brainflow.enable_dev_board_logger(Integer(brainflow.BOARD_CONTROLLER))
+brainflow.enable_dev_brainflow_logger(Integer(brainflow.BOARD_CONTROLLER))
 
 params = brainflow.BrainFlowInputParams()
 board_shim = brainflow.BoardShim(Integer(brainflow.SYNTHETIC_BOARD), params)

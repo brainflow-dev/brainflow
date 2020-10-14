@@ -26,25 +26,25 @@ namespace brainflow
         }
 
         /// <summary>
-        /// enable BrainFlow's logger with level INFO
+        /// enable Data logger with level INFO
         /// </summary>
-        public static void enable_board_logger ()
+        public static void enable_data_logger ()
         {
             DataHandlerLibrary.set_log_level ((int)LogLevels.LEVEL_INFO);
         }
 
         /// <summary>
-        /// disable BrainFlow's logger
+        /// disable Data logger
         /// </summary>
-        public static void disable_board_logger ()
+        public static void disable_data_logger ()
         {
             DataHandlerLibrary.set_log_level ((int)LogLevels.LEVEL_OFF);
         }
 
         /// <summary>
-        /// enable BrainFLow's logger with level TRACE
+        /// enable Data logger with level TRACE
         /// </summary>
-        public static void enable_dev_board_logger ()
+        public static void enable_dev_data_logger ()
         {
             DataHandlerLibrary.set_log_level ((int)LogLevels.LEVEL_TRACE);
         }
