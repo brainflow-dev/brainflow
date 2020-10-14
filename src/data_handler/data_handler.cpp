@@ -101,17 +101,13 @@ int perform_lowpass (double *data, int data_len, int sampling_rate, double cutof
     switch (static_cast<FilterTypes> (filter_type))
     {
         case FilterTypes::BUTTERWORTH:
-            // "1024" is the number of samples over which to fade parameter changes
-            f = new Dsp::SmoothedFilterDesign<Dsp::Butterworth::Design::LowPass<MAX_FILTER_ORDER>,
-                1, Dsp::DirectFormII> (1024);
+            f = new Dsp::FilterDesign<Dsp::Butterworth::Design::LowPass<MAX_FILTER_ORDER>, 1> ();
             break;
         case FilterTypes::CHEBYSHEV_TYPE_1:
-            f = new Dsp::SmoothedFilterDesign<Dsp::ChebyshevI::Design::LowPass<MAX_FILTER_ORDER>, 1,
-                Dsp::DirectFormII> (1024);
+            f = new Dsp::FilterDesign<Dsp::ChebyshevI::Design::LowPass<MAX_FILTER_ORDER>, 1> ();
             break;
         case FilterTypes::BESSEL:
-            f = new Dsp::SmoothedFilterDesign<Dsp::Bessel::Design::LowPass<MAX_FILTER_ORDER>, 1,
-                Dsp::DirectFormII> (1024);
+            f = new Dsp::FilterDesign<Dsp::Bessel::Design::LowPass<MAX_FILTER_ORDER>, 1> ();
             break;
         default:
             data_logger->error ("Filter type {} is Invalid", filter_type);
@@ -149,17 +145,13 @@ int perform_highpass (double *data, int data_len, int sampling_rate, double cuto
     switch (static_cast<FilterTypes> (filter_type))
     {
         case FilterTypes::BUTTERWORTH:
-            // "1024" is the number of samples over which to fade parameter changes
-            f = new Dsp::SmoothedFilterDesign<Dsp::Butterworth::Design::HighPass<MAX_FILTER_ORDER>,
-                1, Dsp::DirectFormII> (1024);
+            f = new Dsp::FilterDesign<Dsp::Butterworth::Design::HighPass<MAX_FILTER_ORDER>, 1> ();
             break;
         case FilterTypes::CHEBYSHEV_TYPE_1:
-            f = new Dsp::SmoothedFilterDesign<Dsp::ChebyshevI::Design::HighPass<MAX_FILTER_ORDER>,
-                1, Dsp::DirectFormII> (1024);
+            f = new Dsp::FilterDesign<Dsp::ChebyshevI::Design::HighPass<MAX_FILTER_ORDER>, 1> ();
             break;
         case FilterTypes::BESSEL:
-            f = new Dsp::SmoothedFilterDesign<Dsp::Bessel::Design::HighPass<MAX_FILTER_ORDER>, 1,
-                Dsp::DirectFormII> (1024);
+            f = new Dsp::FilterDesign<Dsp::Bessel::Design::HighPass<MAX_FILTER_ORDER>, 1> ();
             break;
         default:
             data_logger->error ("Filter type {} is Invalid", filter_type);
@@ -196,17 +188,13 @@ int perform_bandpass (double *data, int data_len, int sampling_rate, double cent
     switch (static_cast<FilterTypes> (filter_type))
     {
         case FilterTypes::BUTTERWORTH:
-            // "1024" is the number of samples over which to fade parameter changes
-            f = new Dsp::SmoothedFilterDesign<Dsp::Butterworth::Design::BandPass<MAX_FILTER_ORDER>,
-                1, Dsp::DirectFormII> (1024);
+            f = new Dsp::FilterDesign<Dsp::Butterworth::Design::BandPass<MAX_FILTER_ORDER>, 1> ();
             break;
         case FilterTypes::CHEBYSHEV_TYPE_1:
-            f = new Dsp::SmoothedFilterDesign<Dsp::ChebyshevI::Design::BandPass<MAX_FILTER_ORDER>,
-                1, Dsp::DirectFormII> (1024);
+            f = new Dsp::FilterDesign<Dsp::ChebyshevI::Design::BandPass<MAX_FILTER_ORDER>, 1> ();
             break;
         case FilterTypes::BESSEL:
-            f = new Dsp::SmoothedFilterDesign<Dsp::Bessel::Design::BandPass<MAX_FILTER_ORDER>, 1,
-                Dsp::DirectFormII> (1024);
+            f = new Dsp::FilterDesign<Dsp::Bessel::Design::BandPass<MAX_FILTER_ORDER>, 1> ();
             break;
         default:
             data_logger->error ("Filter type {} is Invalid. ", filter_type);
@@ -246,17 +234,13 @@ int perform_bandstop (double *data, int data_len, int sampling_rate, double cent
     switch (static_cast<FilterTypes> (filter_type))
     {
         case FilterTypes::BUTTERWORTH:
-            // "1024" is the number of samples over which to fade parameter changes
-            f = new Dsp::SmoothedFilterDesign<Dsp::Butterworth::Design::BandStop<MAX_FILTER_ORDER>,
-                1, Dsp::DirectFormII> (1024);
+            f = new Dsp::FilterDesign<Dsp::Butterworth::Design::BandStop<MAX_FILTER_ORDER>, 1> ();
             break;
         case FilterTypes::CHEBYSHEV_TYPE_1:
-            f = new Dsp::SmoothedFilterDesign<Dsp::ChebyshevI::Design::BandStop<MAX_FILTER_ORDER>,
-                1, Dsp::DirectFormII> (1024);
+            f = new Dsp::FilterDesign<Dsp::ChebyshevI::Design::BandStop<MAX_FILTER_ORDER>, 1> ();
             break;
         case FilterTypes::BESSEL:
-            f = new Dsp::SmoothedFilterDesign<Dsp::Bessel::Design::BandStop<MAX_FILTER_ORDER>, 1,
-                Dsp::DirectFormII> (1024);
+            f = new Dsp::FilterDesign<Dsp::Bessel::Design::BandStop<MAX_FILTER_ORDER>, 1> ();
             break;
         default:
             data_logger->error ("Filter type {} is Invalid", filter_type);
