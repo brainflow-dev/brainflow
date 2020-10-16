@@ -1,4 +1,4 @@
-# [BrainFlow Website](https://brainflow.ai/)
+# [BrainFlow Website](https://brainflow.org/)
 
 ### Setup Docker Container For Development
 
