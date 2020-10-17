@@ -27,7 +27,7 @@ int prepare (char *json_params)
     std::lock_guard<std::mutex> lock (models_mutex);
 
     std::shared_ptr<BaseClassifier> model = NULL;
-    BaseClassifier::ml_logger->info ("(Prepararing)Incoming json: {}", json_params);
+    BaseClassifier::ml_logger->trace ("(Prepararing)Incoming json: {}", json_params);
     struct BrainFlowModelParams key (
         (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::REGRESSION);
     int res = string_to_brainflow_model_params (json_params, &key);
@@ -83,7 +83,7 @@ int predict (double *data, int data_len, double *output, char *json_params)
     std::lock_guard<std::mutex> lock (models_mutex);
     struct BrainFlowModelParams key (
         (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::REGRESSION);
-    BaseClassifier::ml_logger->info ("(Predict)Incoming json: {}", json_params);
+    BaseClassifier::ml_logger->trace ("(Predict)Incoming json: {}", json_params);
     int res = string_to_brainflow_model_params (json_params, &key);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
@@ -104,7 +104,7 @@ int release (char *json_params)
 
     struct BrainFlowModelParams key (
         (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::REGRESSION);
-    BaseClassifier::ml_logger->info ("(Release)Incoming json: {}", json_params);
+    BaseClassifier::ml_logger->trace ("(Release)Incoming json: {}", json_params);
     int res = string_to_brainflow_model_params (json_params, &key);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {

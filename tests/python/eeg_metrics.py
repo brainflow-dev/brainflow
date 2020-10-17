@@ -9,7 +9,9 @@ from brainflow.ml_model import MLModel, BrainFlowMetrics, BrainFlowClassifiers, 
 
 
 def main ():
-    BoardShim.enable_dev_board_logger ()
+    BoardShim.enable_board_logger ()
+    DataFilter.enable_data_logger ()
+    MLModel.enable_ml_logger ()
 
     parser = argparse.ArgumentParser ()
     # use docs to check which parameters are required for specific board, e.g. for Cyton - set serial port

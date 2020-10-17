@@ -119,25 +119,25 @@ public class DataFilter
     }
 
     /**
-     * enable BrainFlow logger with level INFO
+     * enable Data logger with level INFO
      */
-    public static void enable_board_logger () throws BrainFlowError
+    public static void enable_data_logger () throws BrainFlowError
     {
         set_log_level (2);
     }
 
     /**
-     * enable BrainFlow logger with level TRACE
+     * enable Data logger with level TRACE
      */
-    public static void enable_dev_board_logger () throws BrainFlowError
+    public static void enable_dev_data_logger () throws BrainFlowError
     {
         set_log_level (0);
     }
 
     /**
-     * disable BrainFlow logger
+     * disable Data logger
      */
-    public static void disable_board_logger () throws BrainFlowError
+    public static void disable_data_logger () throws BrainFlowError
     {
         set_log_level (6);
     }

@@ -11,12 +11,12 @@
 class DataFilter
 {
 public:
-    /// enable BrainFlow logger with LEVEL_INFO
-    static void enable_board_logger ();
-    /// disable BrainFlow loggers
-    static void disable_board_logger ();
-    /// enable BrainFlow logger with LEVEL_TRACE
-    static void enable_dev_board_logger ();
+    /// enable Data logger with LEVEL_INFO
+    static void enable_data_logger ();
+    /// disable Data loggers
+    static void disable_data_logger ();
+    /// enable Data logger with LEVEL_TRACE
+    static void enable_dev_data_logger ();
 
     static void set_log_file (char *log_file);
     /// perform low pass filter in-place

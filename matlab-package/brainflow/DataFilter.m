@@ -43,15 +43,15 @@ classdef DataFilter
             DataFilter.check_ec (exit_code, task_name);
         end
 
-        function enable_board_logger ()
+        function enable_data_logger ()
             DataFilter.set_log_level (int32 (2))
         end
 
-        function enable_dev_board_logger ()
+        function enable_dev_data_logger ()
             DataFilter.set_log_level (int32 (0))
         end
 
-        function disable_board_logger ()
+        function disable_data_logger ()
             DataFilter.set_log_level (int32 (6))
         end
 
