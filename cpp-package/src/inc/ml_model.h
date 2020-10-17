@@ -26,12 +26,12 @@ public:
 
     /// redirect logger to a file
     static void set_log_file (char *log_file);
-    /// enable BrainFlow logger with LEVEL_INFO
-    static void enable_board_logger ();
-    /// disable BrainFlow loggers
-    static void disable_board_logger ();
-    /// enable BrainFlow logger with LEVEL_TRACE
-    static void enable_dev_board_logger ();
+    /// enable ML logger with LEVEL_INFO
+    static void enable_ml_logger ();
+    /// disable ML loggers
+    static void disable_ml_logger ();
+    /// enable ML logger with LEVEL_TRACE
+    static void enable_dev_ml_logger ();
 
     /// initialize classifier, should be called first
     void prepare ();

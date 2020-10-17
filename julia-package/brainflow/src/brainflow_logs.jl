@@ -22,17 +22,17 @@ end
 
 end
 
-function enable_board_logger(log_lib::AnyIntType)
+function enable_brainflow_logger(log_lib::AnyIntType)
     set_log_level(Integer(LEVEL_INFO), Integer(log_lib))
 end
 
 
-function enable_dev_board_logger(log_lib::AnyIntType)
+function enable_dev_brainflow_logger(log_lib::AnyIntType)
     set_log_level(Integer(LEVEL_TRACE), Integer(log_lib))
 end
 
 
-function disable_board_logger(log_lib::AnyIntType)
+function disable_brainflow_logger(log_lib::AnyIntType)
     set_log_level(Integer(LEVEL_OFF), Integer(log_lib))
 end
 

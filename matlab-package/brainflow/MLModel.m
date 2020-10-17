@@ -55,15 +55,15 @@ classdef MLModel
             MLModel.check_ec (exit_code, task_name);
         end
 
-        function enable_board_logger ()
+        function enable_ml_logger ()
             MLModel.set_log_level (int32 (2))
         end
 
-        function enable_dev_board_logger ()
+        function enable_dev_ml_logger ()
             MLModel.set_log_level (int32 (0))
         end
 
-        function disable_board_logger ()
+        function disable_ml_logger ()
             MLModel.set_log_level (int32 (6))
         end
 

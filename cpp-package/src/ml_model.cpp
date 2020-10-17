@@ -73,17 +73,17 @@ void MLModel::set_log_level (int log_level)
     }
 }
 
-void MLModel::enable_board_logger ()
+void MLModel::enable_ml_logger ()
 {
     MLModel::set_log_level ((int)LogLevels::LEVEL_INFO);
 }
 
-void MLModel::disable_board_logger ()
+void MLModel::disable_ml_logger ()
 {
     MLModel::set_log_level ((int)LogLevels::LEVEL_OFF);
 }
 
-void MLModel::enable_dev_board_logger ()
+void MLModel::enable_dev_ml_logger ()
 {
     MLModel::set_log_level ((int)LogLevels::LEVEL_TRACE);
 }

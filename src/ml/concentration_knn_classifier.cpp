@@ -100,6 +100,6 @@ int ConcentrationKNNClassifier::release ()
     delete kdtree;
     kdtree = NULL;
     dataset.clear ();
-    safe_logger (spdlog::level::err, "Model has been cleared.");
+    safe_logger (spdlog::level::info, "Model has been cleared.");
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
