@@ -71,8 +71,8 @@ add_library (
 target_include_directories (
     ${GFORCE_SDK_WRAPPER_NAME} PRIVATE
     ${CMAKE_HOME_DIRECTORY}/src/inc
-    
+    ${CMAKE_HOME_DIRECTORY}/inc
 )
 
-find_library (GFORCE_SDK NAMES GFORCE_SDK_NAMES PATHS ${CMAKE_HOME_DIRECTORY}/lib)
+find_library (GFORCE_SDK NAMES ${GFORCE_SDK_NAMES} PATHS ${CMAKE_HOME_DIRECTORY}/lib)
 target_link_libraries (${GFORCE_SDK_WRAPPER_NAME} PRIVATE ${GFORCE_SDK})
