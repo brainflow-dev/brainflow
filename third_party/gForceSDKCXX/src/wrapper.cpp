@@ -14,7 +14,7 @@ volatile int iExitcode = (int)GforceWrapperExitCodes::SYNC_ERROR;
 volatile bool bShouldStopStream = true;
 volatile bool bInitialized = false;
 std::thread tReadThread;
-gfsPtr<Hub> pHub = HubManager::getHubInstance (_T("GForceBrainFlowWrapper"));
+gfsPtr<Hub> pHub = NULL;
 
 int gforce_initialize (void *param)
 {
@@ -22,6 +22,7 @@ int gforce_initialize (void *param)
     {
         return (int)GforceWrapperExitCodes::ALREADY_INITIALIZED;
     }
+    pHub = HubManager::getHubInstance (_T("GForceBrainFlowWrapper"));
     pHub->init ();
     GF_UINT32 period = 10; // ms, timeout which I dont understand
     GF_RET_CODE retCode = pHub->run (period);
