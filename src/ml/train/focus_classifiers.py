@@ -3,6 +3,7 @@ import argparse
 import statistics
 import os
 import time
+import pickle
 
 import numpy as np
 
@@ -54,6 +55,11 @@ def prepare_data ():
                 print (str (e))
 
     print ('Class 1: %d Class 0: %d' % (len ([x for x in dataset_y if x == 1]), len ([x for x in dataset_y if x == 0])))
+
+    with open ('dataset_x.pickle', 'wb') as f:
+        pickle.dump (dataset_x, f, protocol = 3)
+    with open ('dataset_y.pickle', 'wb') as f:
+        pickle.dump (dataset_y, f, protocol = 3)
 
     return dataset_x, dataset_y
 
@@ -151,15 +157,23 @@ def test_brainflow_knn (data):
 def main ():
     parser = argparse.ArgumentParser ()
     parser.add_argument ('--test', action = 'store_true')
+    parser.add_argument ('--reuse-dataset', action = 'store_true')
     args = parser.parse_args ()
 
-    data = prepare_data ()
+    if args.reuse_dataset:
+        with open ('dataset_x.pickle', 'rb') as f:
+            dataset_x = pickle.load (f)
+        with open ('dataset_y.pickle', 'rb') as f:
+            dataset_y = pickle.load (f)
+        data = dataset_x, dataset_y
+    else:
+        data = prepare_data ()
+        write_dataset (data)
     if args.test:
         # since we port models from python to c++ we need to test it as well
         test_brainflow_knn (data)
         test_brainflow_lr (data)
     else:
-        write_dataset (data)
         train_regression (data)
         train_knn (data)
 
