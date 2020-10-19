@@ -6,7 +6,7 @@ import time
 import pickle
 
 import numpy as np
-
+from svm_classifier import *
 from sklearn import metrics
 from sklearn.linear_model import LogisticRegression
 from sklearn.dummy import DummyClassifier
@@ -168,14 +168,21 @@ def main ():
         data = dataset_x, dataset_y
     else:
         data = prepare_data ()
-        write_dataset (data)
+        write_dataset(data)
+    (dataset_x, dataset_y) = data
+    xlist = list()
+    for i in dataset_x:
+        xlist.append(i.tolist())
+    (x_train, y_train, x_vald, y_vald, x_test, y_test) = split_data(xlist, dataset_y)
     if args.test:
         # since we port models from python to c++ we need to test it as well
         test_brainflow_knn (data)
-        test_brainflow_lr (data)
+        test_brainflow_lr(data)
+        test_brainflow_svm(y_test, x_test)
     else:
         train_regression (data)
-        train_knn (data)
+        train_knn(data)
+        train_brainflow_svm(x_train, y_train, x_vald, y_vald)
 
 
 if __name__ == '__main__':
