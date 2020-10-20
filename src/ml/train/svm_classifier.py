@@ -21,6 +21,7 @@ def train_model(C, gamma, x_train, y_train, x_vald, y_vald):
     return (metrics,C,gamma) 
 
 def train_brainflow_search_svm(x_train, y_train, x_vald, y_vald):
+    print("Train Brainflow Grid Search")
     C = [2 ** x for x in range(-4, 16)]
     gamma = [2 ** i for i in range(-16, 4)]
     pool = mp.Pool (mp.cpu_count())
@@ -53,7 +54,7 @@ def train_brainflow_svm(x_train, y_train, x_vald, y_vald):
     par_str = f'-c {C} -g {gamma} -b 1 '
     param = svm_parameter (par_str)
     model = svm_train(prob, param)
-    p_label, p_acc, p_val = svm_predict (y_vald, x_vald, m)
+    p_label, p_acc, p_val = svm_predict (y_vald, x_vald, model)
     metrics = classification_report(y_vald, p_label)
     print(metrics)
     svm_save_model ('brainflow_svm.model', model)

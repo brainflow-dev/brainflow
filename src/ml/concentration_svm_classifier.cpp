@@ -2,7 +2,7 @@
 #include <cmath>
 #include <stdlib.h>
 #include "brainflow_constants.h"
-#include "concentration_SVM_classifier.h"
+#include "concentration_svm_classifier.h"
 
 
 int ConcentrationSVMClassifier::prepare ()
