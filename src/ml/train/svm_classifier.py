@@ -13,15 +13,15 @@ def split_data(x_list,dataset_y):
 
 def train_model(C, gamma, x_train, y_train, x_vald, y_vald):
     prob = svm_problem (y_train, x_train)
-    par_str = f'-c {C} -g {gamma} -h 0'
+    par_str = f'-c {C} -g {gamma}  -b 1'
     param = svm_parameter (par_str)
     m = svm_train (prob, param)
     p_label, p_acc, p_val = svm_predict (y_vald, x_vald, m)
     metrics =  classification_report (y_vald,p_label,output_dict=True)
     return (metrics,C,gamma) 
 
-def train_brainflow_svm(x_train, y_train, x_vald, y_vald):
-    C = [2 ** x for x in range(-6, 16)]
+def train_brainflow_search_svm(x_train, y_train, x_vald, y_vald):
+    C = [2 ** x for x in range(-4, 16)]
     gamma = [2 ** i for i in range(-16, 4)]
     pool = mp.Pool (mp.cpu_count())
     M = pool.starmap_async (train_model, [(c, y, x_train, y_train, x_vald, y_vald) for c, y in zip (C, gamma)])
@@ -36,13 +36,27 @@ def train_brainflow_svm(x_train, y_train, x_vald, y_vald):
             max_metrics = metrics
             max_Gamma = gamma
     prob = svm_problem (y_train, x_train)
-    par_str = f'-c {max_C} -g {max_Gamma} -h 0'
+    par_str = f'-c {max_C} -g {max_Gamma} -b 1 '
     param = svm_parameter (par_str)
     model = svm_train (prob, param)
-    print ('#### SVM  ####')
+    print('#### SVM  ####')
+    print(f'Optimal C:{max_C}.\n Optimal gamma:{max_Gamma}.')
     print (metrics)
     svm_save_model ('brainflow_svm.model', model)
     return model
+
+def train_brainflow_svm(x_train, y_train, x_vald, y_vald):
+    C = 8192
+    gamma = 2
+    print('#### SVM  ####')
+    prob = svm_problem (y_train, x_train)
+    par_str = f'-c {C} -g {gamma} -b 1 '
+    param = svm_parameter (par_str)
+    model = svm_train(prob, param)
+    p_label, p_acc, p_val = svm_predict (y_vald, x_vald, m)
+    metrics = classification_report(y_vald, p_label)
+    print(metrics)
+    svm_save_model ('brainflow_svm.model', model)
 
 def test_brainflow_svm(y_test, x_test):
     print('Test BrainFlow SVM')
@@ -50,8 +64,9 @@ def test_brainflow_svm(y_test, x_test):
     model = svm_load_model('brainflow_svm.model')
     p_label, p_acc, p_val = svm_predict(y_test, x_test, model)
     stop_time = time.time ()
-    print ('Total time %f' % (stop_time - start_time))
-    print(f'Test Model Accuracy :{p_acc[0]}')
+    print('Total time %f' % (stop_time - start_time))
+    metrics =  classification_report (y_test,p_label)
+    print(f'Test Model Metrics :{metrics}')
 
 
 

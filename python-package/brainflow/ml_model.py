@@ -27,7 +27,8 @@ class BrainFlowClassifiers (enum.Enum):
     """Enum to store all supported classifiers"""
 
     REGRESSION = 0 #:
-    KNN = 1 #:
+    KNN = 1  #:
+    SVM = 2  #:
 
 
 class BrainFlowModelParams (object):

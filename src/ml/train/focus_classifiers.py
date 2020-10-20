@@ -157,7 +157,8 @@ def test_brainflow_knn (data):
 def main ():
     parser = argparse.ArgumentParser ()
     parser.add_argument ('--test', action = 'store_true')
-    parser.add_argument ('--reuse-dataset', action = 'store_true')
+    parser.add_argument('--reuse-dataset', action='store_true')
+    parser.add_argument('--grid-search',action='store_true')
     args = parser.parse_args ()
 
     if args.reuse_dataset:
@@ -170,19 +171,19 @@ def main ():
         data = prepare_data ()
         write_dataset(data)
     (dataset_x, dataset_y) = data
-    xlist = list()
+    x_list = list()
     for i in dataset_x:
-        xlist.append(i.tolist())
-    (x_train, y_train, x_vald, y_vald, x_test, y_test) = split_data(xlist, dataset_y)
+        x_list.append(i.tolist())
+    (x_train, y_train, x_vald, y_vald, x_test, y_test) = split_data(x_list, dataset_y)
     if args.test:
         # since we port models from python to c++ we need to test it as well
         test_brainflow_knn (data)
         test_brainflow_lr(data)
-        test_brainflow_svm(y_test, x_test)
+        test_brainflow_svm(dataset_y, x_list)
     else:
         train_regression (data)
         train_knn(data)
-        train_brainflow_svm(x_train, y_train, x_vald, y_vald)
+        train_brainflow_search_svm(x_train, y_train, x_vald, y_vald) if args.grid_search else train_brainflow_svm(x_train, y_train, x_vald, y_vald)
 
 
 if __name__ == '__main__':
