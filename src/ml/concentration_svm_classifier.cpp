@@ -1,13 +1,19 @@
 #include <algorithm>
 #include <cmath>
 #include <stdlib.h>
+#include <iostream>
 #include "brainflow_constants.h"
 #include "concentration_svm_classifier.h"
-
+#include "get_dll_dir.h"
 
 int ConcentrationSVMClassifier::prepare ()
 {
-    model = svm_load_model ("brainflow_svm.model");
+    char path[1024];
+    bool res = get_dll_path (path);
+    char * fullPath = new char [std::strlen(path)+std::strlen("brainflow_svm.model")+1];
+    std::strcpy (fullPath,path);
+    std::strcat (fullPath ,"brainflow_svm.model");
+    model = svm_load_model (fullPath);
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
@@ -19,14 +25,22 @@ int ConcentrationSVMClassifier::predict (double *data, int data_len, double *out
         return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
     struct svm_node *x;
-    x = (struct svm_node *) realloc (x,data_len*sizeof(struct svm_node));
+    x =  (struct svm_node *) malloc(data_len*sizeof(struct svm_node));
     for (int i = 0; i < data_len;i++)
     {
         x[i].index = i;
         x[i].value = data[i];
     }
-    double *prob_estimates = NULL;
+    int nr_class = svm_get_nr_class (model);
+    double *prob_estimates = (double *) malloc(nr_class * sizeof(double));
     double concentration = svm_predict_probability (model, x, prob_estimates);
+    for(int i = 0; i < nr_class;i++)
+    {
+        std::cout.precision(17);
+        std::cout << "Prob estimates "<< i << " is " << prob_estimates[i] << "." << std::endl;
+    }
+    std::cout.precision (17);
+    std::cout << "Concentration is " << prob_estimates[(int)concentration] << ".";
     *output = concentration;
     delete [] x;
     return (int)BrainFlowExitCodes::STATUS_OK;
