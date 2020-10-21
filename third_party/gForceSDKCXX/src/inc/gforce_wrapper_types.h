@@ -38,5 +38,6 @@ enum class GforceWrapperExitCodes : int
     NOT_INITIALIZED = 6,
     SERIAL_DETECT_ERROR = 7,
     FOUND_BUT_IN_CONNECTING_STATE = 8,
-    SYNC_ERROR = 9
+    SYNC_ERROR = 9,
+    RUN_ERROR = 10
 };

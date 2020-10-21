@@ -36,20 +36,26 @@
 
 #include "gforce_wrapper_types.h"
 
+#include "spdlog/sinks/null_sink.h"
+#include "spdlog/spdlog.h"
+
 using namespace gf;
 using namespace std;
-
-#ifdef DEBUG
-#include <iostream>
-#endif
 
 
 class GForceHandle : public HubListener
 {
 public:
-    GForceHandle (gfsPtr<Hub> &pHub) : mHub (pHub)
+    GForceHandle (gfsPtr<Hub> &pHub, int *pExitCode, bool *pShouldStopStream)
+        : mHub (pHub), mExitCode (pExitCode), mShouldStopStream (pShouldStopStream)
     {
-        iExitCode = (int)GforceWrapperExitCodes::SYNC_ERROR;
+#ifdef DEBUG
+        logger = spdlog::stderr_logger_mt ("GForceHandleLogger");
+        logger->set_level (spdlog::level::level_enum (0));
+        logger->flush_on (spdlog::level::level_enum (0));
+#else
+        logger = spdlog::create<spdlog::sinks::null_sink_st> ("GForceHandleLogger");
+#endif
     }
 
     /// This callback is called when the Hub finishes scanning devices.
@@ -57,7 +63,8 @@ public:
     {
         if (nullptr == mDevice)
         {
-            iExitCode = (int)GforceWrapperExitCodes::NO_DEVICE_FOUND;
+            logger->error ("device not found");
+            *mExitCode = (int)GforceWrapperExitCodes::NO_DEVICE_FOUND;
         }
         else
         {
@@ -67,16 +74,19 @@ public:
             {
                 if (GF_RET_CODE::GF_SUCCESS == mDevice->connect ())
                 {
-                    iExitCode = (int)GforceWrapperExitCodes::STATUS_OK;
+                    logger->info ("device connected");
+                    *mExitCode = (int)GforceWrapperExitCodes::STATUS_OK;
                 }
                 else
                 {
-                    iExitCode = (int)GforceWrapperExitCodes::CONNECT_ERROR;
+                    logger->error ("connect error");
+                    *mExitCode = (int)GforceWrapperExitCodes::CONNECT_ERROR;
                 }
             }
             else
             {
-                iExitCode = (int)GforceWrapperExitCodes::FOUND_BUT_IN_CONNECTING_STATE;
+                logger->error ("device found but in connecting state");
+                *mExitCode = (int)GforceWrapperExitCodes::FOUND_BUT_IN_CONNECTING_STATE;
             }
         }
     }
@@ -84,7 +94,7 @@ public:
     /// This callback is called when the state of the hub changed
     virtual void onStateChanged (HubState state) override
     {
-        // do nothing
+        logger->info ("onStateChanged");
     }
 
     /// This callback is called when the hub finds a device.
@@ -92,13 +102,16 @@ public:
     {
         if (nullptr != device)
         {
+            logger->info ("found valid device");
             // only search the first connected device if we connected it before
             if (nullptr == mDevice || device == mDevice)
             {
                 mDevice = device;
                 mHub->stopScan ();
+                logger->info ("stop scanning");
             }
         }
+        logger->info ("found nullptr device");
     }
 
     /// This callback is called a device has been connected successfully
@@ -111,6 +124,7 @@ public:
             {
                 ds->getFeatureMap (std::bind (&GForceHandle::featureCallback, this, ds,
                     std::placeholders::_1, std::placeholders::_2));
+                logger->info ("set FeatureMap");
             }
         }
     }
@@ -123,6 +137,7 @@ public:
         if (nullptr != device && device == mDevice)
         {
             mDevice->connect ();
+            logger->info ("reconneting");
         }
     }
 
@@ -130,31 +145,28 @@ public:
     virtual void onOrientationData (SPDEVICE device, const Quaternion &rotation) override
     {
         // dont use this data
+        logger->info ("onOrientationData");
     }
 
     /// This callback is called when the gesture data is recevied
     virtual void onGestureData (SPDEVICE device, Gesture gest) override
     {
         // dont use this data
+        logger->info ("onGestureData");
     }
 
     /// This callback is called when the button on gForce is pressed by user
     virtual void onDeviceStatusChanged (SPDEVICE device, DeviceStatus status) override
     {
         // do nothing
+        logger->info ("onDeviceStatusChanged");
     }
 
     /// This callback is called when extended data is received
     virtual void onExtendedDeviceData (
         SPDEVICE device, DeviceDataType dataType, gfsPtr<const std::vector<GF_UINT8>> data) override
     {
-#ifdef DEBUG
-        cout << __FUNCTION__ << ": datatype = " << (GF_UINT32)dataType
-             << ", datalength = " << data->size () << ", first byte: " << hex
-             << (GF_UINT32) ((data->size () > 0) ? data->at (0) : 0xFF) << ", last byte: "
-             << (GF_UINT32) ((data->size () > 0) ? data->at (data->size () - 1) : 0xFF) << dec
-             << endl;
-#endif
+        logger->info ("datatype {}, datalength {}", (GF_UINT32)dataType, data->size ());
 
         if (data->size () == 0)
         {
@@ -199,12 +211,11 @@ public:
     }
 
 private:
-    // return exit code
-    int iExitCode;
-    // keep an instance of hub.
     gfsPtr<Hub> mHub;
-    // keep a device to operate
+    int *mExitCode;
+    bool *mShouldStopStream;
     gfsPtr<Device> mDevice;
+    std::shared_ptr<spdlog::logger> logger;
 
     void featureCallback (gfsPtr<DeviceSetting> ds, ResponseResult res, GF_UINT32 featureMap)
     {
