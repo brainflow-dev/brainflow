@@ -197,7 +197,7 @@ void SyntheticBoard::read_thread ()
     }
 }
 
-int SyntheticBoard::config_board (char *config)
+int SyntheticBoard::config_board (std::string config, std::string &response)
 {
     return (int)BrainFlowExitCodes::STATUS_OK;
 }

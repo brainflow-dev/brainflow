@@ -219,7 +219,7 @@ int BrainBit::prepare_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int BrainBit::config_board (char *config)
+int BrainBit::config_board (std::string config, std::string &response)
 {
     if (device == NULL)
     {
@@ -235,22 +235,22 @@ int BrainBit::config_board (char *config)
     // get Command enum value from value name as char *
     // this enum has more values but looks like they are not supported by brainbit board and used by
     // other devices
-    if (strcmp (config, "CommandStartSignal") == 0)
+    if (strcmp (config.c_str (), "CommandStartSignal") == 0)
     {
         parsed = true;
         cmd = CommandStartSignal;
     }
-    if (strcmp (config, "CommandStopSignal") == 0)
+    if (strcmp (config.c_str (), "CommandStopSignal") == 0)
     {
         parsed = true;
         cmd = CommandStopSignal;
     }
-    if (strcmp (config, "CommandStartResist") == 0)
+    if (strcmp (config.c_str (), "CommandStartResist") == 0)
     {
         parsed = true;
         cmd = CommandStartResist;
     }
-    if (strcmp (config, "CommandStopResist") == 0)
+    if (strcmp (config.c_str (), "CommandStopResist") == 0)
     {
         parsed = true;
         cmd = CommandStopResist;
@@ -314,7 +314,9 @@ int BrainBit::start_stream (int buffer_size, char *streamer_params)
         return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
-    res = config_board ((char *)"CommandStartSignal");
+    std::string command_start = "CommandStartSignal";
+    std::string tmp = "";
+    res = config_board (command_start, tmp);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
@@ -338,7 +340,9 @@ int BrainBit::stop_stream ()
             delete streamer;
             streamer = NULL;
         }
-        int res = config_board ((char *)"CommandStopSignal");
+        std::string command_stop = "CommandStopSignal";
+        std::string tmp = "";
+        int res = config_board (command_stop, tmp);
         return res;
     }
     else
@@ -547,7 +551,7 @@ int BrainBit::prepare_session ()
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
-int BrainBit::config_board (char *config)
+int BrainBit::config_board (std::string config, std::string &response)
 {
     safe_logger (spdlog::level::err, "BrainBit doesnt support Linux.");
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

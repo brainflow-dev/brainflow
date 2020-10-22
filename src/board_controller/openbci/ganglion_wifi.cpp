@@ -14,8 +14,9 @@
 #define END_BYTE_MAX 0xC6
 
 
-int GanglionWifi::config_board (char *config)
+int GanglionWifi::config_board (std::string conf, std::string &response)
 {
+    const char *config = conf.c_str ();
     if ((config == NULL) || (strlen (config) == 0))
     {
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
