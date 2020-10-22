@@ -38,7 +38,7 @@ int OpenBCISerialBoard::open_port ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int OpenBCISerialBoard::config_board (char *config)
+int OpenBCISerialBoard::config_board (std::string config, std::string &response)
 {
     if (!initialized)
     {
@@ -53,10 +53,10 @@ int OpenBCISerialBoard::config_board (char *config)
     safe_logger (spdlog::level::warn,
         "If you change gain you may need to rescale data, in data returned by BrainFlow we use "
         "gain 24 to convert int24 to uV");
-    return send_to_board (config);
+    return send_to_board (config.c_str ());
 }
 
-int OpenBCISerialBoard::send_to_board (char *msg)
+int OpenBCISerialBoard::send_to_board (const char *msg)
 {
     int lenght = strlen (msg);
     safe_logger (spdlog::level::debug, "sending {} to the board", msg);

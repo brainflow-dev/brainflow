@@ -515,7 +515,7 @@ int Ganglion::config_board (std::string config, std::string &response)
         to handle it and keep it consistent with other devices we swap chars for command_start and
         command_stop
         */
-        if ((strlen (conf) && (conf[0] == 'z'))
+        if ((strlen (conf)) && (conf[0] == 'z'))
         {
             start_command = "z";
             stop_command = "Z";
@@ -557,7 +557,7 @@ int Ganglion::config_board (std::string config, std::string &response)
             }
             else
             {
-                return call_config (conf);
+                return call_config (const_cast<char *> (conf));
             }
         }
     }

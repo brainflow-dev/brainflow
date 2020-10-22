@@ -183,6 +183,6 @@ public:
     /// get all collected data and flush it from internal buffer
     double **get_board_data (int *num_data_points);
     /// send string to a board, use it carefully and only if you understand what you are doing
-    void config_board (char *config);
+    std::string config_board (char *config);
     // clang-format on
 };

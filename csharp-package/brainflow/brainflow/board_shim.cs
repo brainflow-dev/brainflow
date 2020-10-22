@@ -523,13 +523,17 @@ namespace brainflow
         /// send string to a board, use this method carefully and only if you understand what you are doing
         /// </summary>
         /// <param name="config"></param>
-        public void config_board (string config)
+        public string config_board (string config)
         {
-            int res = BoardControllerLibrary.config_board (config, board_id, input_json);
+            int[] len = new int[1];
+            byte[] str = new byte[4096];
+            int res = BoardControllerLibrary.config_board (config, str, len, board_id, input_json);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException (res);
             }
+            string response = System.Text.Encoding.UTF8.GetString (str, 0, len[0]);
+            return response;
         }
 
         /// <summary>

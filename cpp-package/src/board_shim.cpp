@@ -203,13 +203,18 @@ double **BoardShim::get_current_board_data (int num_samples, int *num_data_point
     return output_buf;
 }
 
-void BoardShim::config_board (char *config)
+std::string BoardShim::config_board (char *config)
 {
-    int res = ::config_board (config, board_id, const_cast<char *> (serialized_params.c_str ()));
+    int response_len = 0;
+    char response[8192];
+    int res = ::config_board (
+        config, response, &response_len, board_id, const_cast<char *> (serialized_params.c_str ()));
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to config board", res);
     }
+    std::string resp ((const char *)response, response_len);
+    return resp;
 }
 
 // for better user experience and consistency accross bindings we return 2d array from user api, we

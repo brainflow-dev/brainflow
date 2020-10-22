@@ -20,7 +20,7 @@ int CytonDaisyWifi::prepare_session ()
     {
         return res;
     }
-    return config_board ("d");
+    return send_config ("d");
 }
 
 void CytonDaisyWifi::read_thread ()

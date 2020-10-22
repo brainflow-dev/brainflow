@@ -107,7 +107,7 @@ int Callibri::config_board (std::string config, std::string &response)
     {
         return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
     }
-    if (config == NULL)
+    if (config.empty ())
     {
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
