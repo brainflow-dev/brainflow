@@ -154,6 +154,18 @@ def test_brainflow_knn (data):
     print ('Total time %f' % (stop_time - start_time))
     print (metrics.classification_report (data[1], predicted))
 
+def test_brainflow_svm (data):
+    print ('Test BrainFlow SVM')
+    params = BrainFlowModelParams (BrainFlowMetrics.CONCENTRATION.value, BrainFlowClassifiers.SVM.value)
+    model = MLModel (params)
+    start_time = time.time ()
+    model.prepare ()
+    predicted = [model.predict (x) >= 0.5 for x in data[0]]
+    model.release ()
+    stop_time = time.time ()
+    print ('Total time %f' % (stop_time - start_time))
+    print (metrics.classification_report (data[1], predicted))
+
 def main ():
     parser = argparse.ArgumentParser ()
     parser.add_argument ('--test', action = 'store_true')
@@ -179,7 +191,7 @@ def main ():
         # since we port models from python to c++ we need to test it as well
         test_brainflow_knn (data)
         test_brainflow_lr(data)
-        test_brainflow_svm(dataset_y, x_list)
+        test_brainflow_svm(data)
     else:
         train_regression (data)
         train_knn(data)

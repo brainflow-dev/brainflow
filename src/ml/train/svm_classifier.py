@@ -59,11 +59,12 @@ def train_brainflow_svm(x_train, y_train, x_vald, y_vald):
     print(metrics)
     svm_save_model ('brainflow_svm.model', model)
 
-def test_brainflow_svm(y_test, x_test):
+def test_brainflow_model_svm(y_test, x_test):
     print('Test BrainFlow SVM')
     start_time = time.time ()
     model = svm_load_model('brainflow_svm.model')
-    p_label, p_acc, p_val = svm_predict(y_test, x_test, model)
+    p_label, p_acc, p_val = svm_predict(y_test, x_test, model, '-b 1')
+    predicted = [x[1] >= 0.5 for x in p_val]
     stop_time = time.time ()
     print('Total time %f' % (stop_time - start_time))
     metrics =  classification_report (y_test,p_label)

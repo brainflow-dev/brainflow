@@ -28,14 +28,14 @@ int ConcentrationSVMClassifier::predict (double *data, int data_len, double *out
     x =  (struct svm_node *) malloc(data_len*sizeof(struct svm_node));
     for (int i = 0; i < data_len;i++)
     {
-        x[i].index = i + 1;
+        x[i].index = i+1 ;
         x[i].value = data[i];
     }
     x[data_len - 1].index = -1;
     int nr_class = svm_get_nr_class (model);
     double *prob_estimates = (double *) malloc(nr_class * sizeof(double));
     double concentration = svm_predict_probability (model, x, prob_estimates);
-    *output = prob_estimates[1];
+    *output = prob_estimates[((int)concentration) ];
     delete [] x;
     delete [] prob_estimates;
     return (int)BrainFlowExitCodes::STATUS_OK;
