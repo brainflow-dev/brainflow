@@ -87,7 +87,7 @@ class Handler (BaseHTTPRequestHandler):
         global ip
         global port
 
-        if self.path == '/tcp':
+        if self.path == '/udp':
             logging.info ('creating tcp socket')
             content_length = int (self.headers['Content-Length'])
             post_data = self.rfile.read (content_length)
@@ -96,7 +96,7 @@ class Handler (BaseHTTPRequestHandler):
             port = int (json_data.get ('port'))
             ip = str (json_data.get ('ip'))
             server_addr = (ip, port)
-            send_sock = socket.socket (socket.AF_INET, socket.SOCK_STREAM)
+            send_sock = socket.socket (socket.AF_INET, socket.SOCK_DGRAM)
             send_sock.connect (server_addr)
             logging.info ('socket was created')
 

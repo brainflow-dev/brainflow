@@ -48,50 +48,23 @@ int OpenBCIWifiShieldBoard::prepare_session ()
         http_timeout = params.timeout;
     }
     safe_logger (spdlog::level::info, "use {} as http timeout", http_timeout);
-    // user doent need to provide this param because we have only tcp impl,
-    // but if its specified and its UDP return an error
-    if (params.ip_protocol == (int)IpProtocolType::UDP)
-    {
-        safe_logger (spdlog::level::err, "ip protocol should be tcp");
-        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
-    }
     if (!params.ip_port)
     {
         safe_logger (spdlog::level::err, "ip port is empty");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
-    char local_ip[80];
-    int res = SocketClientUDP::get_local_ip_addr (
-        const_cast<char *> (params.ip_address.c_str ()), 80, local_ip);
-    if (res != 0)
-    {
-        safe_logger (spdlog::level::err, "failed to get local ip addr: {}", res);
-        return (int)BrainFlowExitCodes::GENERAL_ERROR;
-    }
-    safe_logger (spdlog::level::info, "local ip addr is {}", local_ip);
 
-    server_socket = new SocketServerTCP (local_ip, params.ip_port, true);
     // bind socket
-    res = server_socket->bind ();
-    if (res != (int)SocketServerTCPReturnCodes::STATUS_OK)
+    server_socket = new SocketServerUDP (params.ip_port);
+    int res = server_socket->bind ();
+    if (res != (int)SocketServerUDPReturnCodes::STATUS_OK)
     {
-        safe_logger (spdlog::level::err, "failed to create server socket with addr {} and port {}",
-            local_ip, params.ip_port);
+        safe_logger (spdlog::level::err, "failed to create server for port {}", params.ip_port);
         delete server_socket;
         server_socket = NULL;
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
     safe_logger (spdlog::level::trace, "bind socket, port  is {}", params.ip_port);
-
-    // run accept in another thread to dont block
-    res = server_socket->accept ();
-    if (res != (int)SocketServerTCPReturnCodes::STATUS_OK)
-    {
-        safe_logger (spdlog::level::err, "error in accept");
-        delete server_socket;
-        server_socket = NULL;
-        return (int)BrainFlowExitCodes::GENERAL_ERROR;
-    }
 
     std::string url = "http://" + params.ip_address + "/board";
     http_t *request = http_get (url.c_str (), NULL);
@@ -112,8 +85,21 @@ int OpenBCIWifiShieldBoard::prepare_session ()
     }
     http_release (request);
 
-    // send info about tcp socket we created
-    url = "http://" + params.ip_address + "/tcp";
+    // get local ip
+    char local_ip[80];
+    res = SocketClientUDP::get_local_ip_addr (
+        const_cast<char *> (params.ip_address.c_str ()), 80, local_ip);
+    if (res != 0)
+    {
+        safe_logger (spdlog::level::err, "failed to get local ip addr: {}", res);
+        delete server_socket;
+        server_socket = NULL;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    safe_logger (spdlog::level::info, "local ip addr is {}", local_ip);
+
+    // send info about socket we created
+    url = "http://" + params.ip_address + "/udp";
     json post_data;
     post_data["ip"] = std::string (local_ip);
     post_data["port"] = params.ip_port;
@@ -139,33 +125,6 @@ int OpenBCIWifiShieldBoard::prepare_session ()
         return send_res;
     }
     http_release (request);
-
-    // waiting for accept call
-    int max_attempts = 10;
-    for (int i = 0; i < max_attempts; i++)
-    {
-        safe_logger (spdlog::level::trace, "waiting for accept {}/{}", i, max_attempts);
-        if (server_socket->client_connected)
-        {
-            safe_logger (spdlog::level::trace, "connected");
-            break;
-        }
-        else
-        {
-#ifdef _WIN32
-            Sleep (300);
-#else
-            usleep (300000);
-#endif
-        }
-    }
-    if (!server_socket->client_connected)
-    {
-        safe_logger (spdlog::level::trace, "failed to establish connection");
-        delete server_socket;
-        server_socket = NULL;
-        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
-    }
 
     // freeze sampling rate
     initialized = true;
@@ -342,7 +301,7 @@ std::string OpenBCIWifiShieldBoard::find_wifi_shield ()
 
     SocketClientUDP udp_client ("239.255.255.250", 1900); // ssdp ip and port
     int res = udp_client.connect ();
-    if (res == (int)SocketClientUDPReturnCodes::STATUS_OK)
+    if (res == (int)SocketServerUDPReturnCodes::STATUS_OK)
     {
         std::stringstream msearch;
         msearch << "M-SEARCH * HTTP/1.1\r\nHost: 239.255.255.250:1900\r\nMAN: ssdp:discover\r\n";

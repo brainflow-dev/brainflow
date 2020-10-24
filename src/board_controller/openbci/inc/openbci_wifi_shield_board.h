@@ -5,7 +5,7 @@
 
 #include "board.h"
 #include "board_controller.h"
-#include "socket_server_tcp.h"
+#include "socket_server_udp.h"
 
 
 struct http_t; // forward declaration cause include "http.h" here leads to strange errors
@@ -21,7 +21,7 @@ protected:
     bool initialized;
     std::thread streaming_thread;
 
-    SocketServerTCP *server_socket;
+    SocketServerUDP *server_socket;
     int num_channels;
 
     std::string find_wifi_shield ();

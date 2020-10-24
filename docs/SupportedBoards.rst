@@ -274,7 +274,7 @@ Board Spec:
 - num eeg(emg,...) channels: 4
 - num acceleration channels: 3
 - sampling rate: 1600
-- communication: TCP socket to read data and HTTP to send commands
+- communication: Socket to read data and HTTP to send commands
 
 Cyton with WIFI Shield
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -306,7 +306,7 @@ Board Spec:
 - num eeg(emg,...) channels: 8
 - num acceleration channels: 3
 - sampling rate: 1000
-- communication: TCP socket to read data and HTTP to send commands
+- communication: Socket to read data and HTTP to send commands
 - signal gain: 24
 
 CytonDaisy with WIFI Shield
@@ -339,7 +339,7 @@ Board Spec:
 - num eeg(emg,...) channels: 16
 - num acceleration channels: 3
 - sampling rate: 1000
-- communication: TCP socket to read data and HTTP to send commands
+- communication: Socket to read data and HTTP to send commands
 - signal gain: 24
 
 NeuroMD

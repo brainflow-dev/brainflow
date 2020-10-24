@@ -171,7 +171,8 @@ void GanglionWifi::read_thread ()
         Byte 33: 0xCX where X is 0-F in hex
     */
     int res;
-    unsigned char b[OpenBCIWifiShieldBoard::package_size];
+    constexpr int max_bytes = 4000;
+    unsigned char b[max_bytes]; // it sends unknown number of packages
     double *package = new double[num_channels];
     for (int i = 0; i < num_channels; i++)
     {
@@ -180,8 +181,8 @@ void GanglionWifi::read_thread ()
     while (keep_alive)
     {
         // check start byte
-        res = server_socket->recv (b, OpenBCIWifiShieldBoard::package_size);
-        if (res != OpenBCIWifiShieldBoard::package_size)
+        res = server_socket->recv (b, max_bytes);
+        if (res % OpenBCIWifiShieldBoard::package_size != 0)
         {
             if (res < 0)
             {
@@ -191,57 +192,60 @@ void GanglionWifi::read_thread ()
                 safe_logger (spdlog::level::warn, "errno {} message {}", errno, strerror (errno));
 #endif
             }
-
             continue;
         }
+        int num_packages = res / OpenBCIWifiShieldBoard::package_size;
+        for (int cur_package = 0; cur_package < num_packages; cur_package++)
+        {
+            int offset = cur_package * OpenBCIWifiShieldBoard::package_size;
+            if (b[0 + offset] != START_BYTE)
+            {
+                continue;
+            }
+            if ((b[32 + offset] < END_BYTE_STANDARD) || (b[32 + offset] > END_BYTE_MAX))
+            {
+                safe_logger (spdlog::level::warn, "Wrong end byte, found {}", b[32 + offset]);
+                continue;
+            }
 
-        if (b[0] != START_BYTE)
-        {
-            continue;
-        }
-        if ((b[32] < END_BYTE_STANDARD) || (b[32] > END_BYTE_MAX))
-        {
-            safe_logger (spdlog::level::warn, "Wrong end byte, found {}", b[32]);
-            continue;
-        }
+            // package num
+            package[0] = (double)b[1 + offset];
+            // eeg
+            for (int i = 0; i < 4; i++)
+            {
+                package[i + 1] = eeg_scale * cast_24bit_to_int32 (b + 2 + 3 * i + offset);
+            }
+            // end byte
+            package[8] = (double)b[32 + offset];
+            // place raw bytes to other_channels with end byte
+            package[9] = (double)b[26 + offset];
+            package[10] = (double)b[27 + offset];
+            package[11] = (double)b[28 + offset];
+            package[12] = (double)b[29 + offset];
+            package[13] = (double)b[30 + offset];
+            package[14] = (double)b[31 + offset];
+            // place accel data
+            if (b[32 + offset] == END_BYTE_STANDARD)
+            {
+                // accel
+                // mistake in firmware in axis
+                package[5] = accel_scale * cast_16bit_to_int32 (b + 28 + offset);
+                package[6] = accel_scale * cast_16bit_to_int32 (b + 26 + offset);
+                package[7] = -accel_scale * cast_16bit_to_int32 (b + 30 + offset);
+            }
+            // place analog data
+            if (b[32 + offset] == END_BYTE_ANALOG)
+            {
+                // analog
+                package[15] = cast_16bit_to_int32 (b + 26 + offset);
+                package[16] = cast_16bit_to_int32 (b + 28 + offset);
+                package[17] = cast_16bit_to_int32 (b + 30 + offset);
+            }
 
-        // package num
-        package[0] = (double)b[1];
-        // eeg
-        for (int i = 0; i < 4; i++)
-        {
-            package[i + 1] = eeg_scale * cast_24bit_to_int32 (b + 2 + 3 * i);
+            double timestamp = get_timestamp ();
+            db->add_data (timestamp, package);
+            streamer->stream_data (package, num_channels, timestamp);
         }
-        // end byte
-        package[8] = (double)b[32];
-        // place raw bytes to other_channels with end byte
-        package[9] = (double)b[26];
-        package[10] = (double)b[27];
-        package[11] = (double)b[28];
-        package[12] = (double)b[29];
-        package[13] = (double)b[30];
-        package[14] = (double)b[31];
-        // place accel data
-        if (b[32] == END_BYTE_STANDARD)
-        {
-            // accel
-            // mistake in firmware in axis
-            package[5] = accel_scale * cast_16bit_to_int32 (b + 28);
-            package[6] = accel_scale * cast_16bit_to_int32 (b + 26);
-            package[7] = -accel_scale * cast_16bit_to_int32 (b + 30);
-        }
-        // place analog data
-        if (b[32] == END_BYTE_ANALOG)
-        {
-            // analog
-            package[15] = cast_16bit_to_int32 (b + 26);
-            package[16] = cast_16bit_to_int32 (b + 28);
-            package[17] = cast_16bit_to_int32 (b + 30);
-        }
-
-        double timestamp = get_timestamp ();
-        db->add_data (timestamp, package);
-        streamer->stream_data (package, num_channels, timestamp);
     }
     delete[] package;
 }
