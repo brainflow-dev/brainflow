@@ -1,31 +1,26 @@
 #pragma once
 
-#include <condition_variable>
-#include <math.h>
-#include <mutex>
+#include <string>
 #include <thread>
 
 #include "board.h"
 #include "board_controller.h"
-#include "socket_client_tcp.h"
-#include "socket_client_udp.h"
+#include "math.h"
+#include "serial.h"
 
 
 class IronBCI : public Board
 {
 
-private:
+protected:
     volatile bool keep_alive;
     bool initialized;
-    bool is_streaming;
     std::thread streaming_thread;
-    SocketClientUDP *data_socket;
-    SocketClientTCP *command_socket;
 
-    std::mutex m;
-    std::condition_variable cv;
-    volatile int state;
+    Serial *serial;
+
     void read_thread ();
+    int send_to_board (const char *msg);
 
 public:
     IronBCI (struct BrainFlowInputParams params);
@@ -39,11 +34,8 @@ public:
 
     static constexpr int num_channels = 9;
     static constexpr int ads_gain = 8;
-    static const std::string start_command_prefix; // command prefix to start streaming
-    static const std::string stop_command;         // command which stops streaming
-    static constexpr int package_size = 25;        // number of bytes in package
-    static constexpr int num_packages = 10;        // number of packages in single udp transaction
-    static constexpr int tcp_port = 2321;
-    static constexpr int udp_port = 2322;
-    static constexpr int transaction_size = IronBCI::package_size * IronBCI::num_packages;
+    static constexpr int start_byte = 0xA0; // package start byte
+    static constexpr int stop_byte = 0xC0;  // package stop byte
+    static const std::string start_command; // command which starts streaming
+    static const std::string stop_command;  // command which stops streaming
 };

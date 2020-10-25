@@ -138,6 +138,11 @@ script:
   - if [ `which valgrind` ]; then
       python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/fascia_emulator_ci.py valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 12 --ip-port 7789 ;
     fi
+  # tests for ironbci
+  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/ironbci_linux.py $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 15 --serial-port
+  - if [ `which valgrind` ]; then
+      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/ironbci_linux.py valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 15 --serial-port ;
+    fi
   # tests for signal processing
   # python
   - python3 $TRAVIS_BUILD_DIR/tests/python/denoising.py
