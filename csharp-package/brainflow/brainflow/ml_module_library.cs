@@ -10,14 +10,14 @@ namespace brainflow
     public enum BrainFlowMetrics
     {
         RELAXATION = 0,
-        CONCENTRATION = 1,
-        SVM = 2
+        CONCENTRATION = 1
     };
 
     public enum BrainFlowClassifiers
     {
         REGRESSION = 0,
-        KNN = 1
+        KNN = 1,
+        SVM = 2
     };
 
     public static class MLModuleLibrary64
