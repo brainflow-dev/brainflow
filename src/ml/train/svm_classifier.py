@@ -47,8 +47,8 @@ def train_brainflow_search_svm(x_train, y_train, x_vald, y_vald):
     return model
 
 def train_brainflow_svm(x_train, y_train, x_vald, y_vald):
-    C = 8192
-    gamma = 2
+    C = 256
+    gamma = 4
     print('#### SVM  ####')
     prob = svm_problem (y_train, x_train)
     par_str = f'-c {C} -g {gamma} -b 1 '

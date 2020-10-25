@@ -195,6 +195,7 @@ def main ():
     else:
         train_regression (data)
         train_knn(data)
+        # Don't use grid search method unless you have to as it takes a while to complete
         train_brainflow_search_svm(x_train, y_train, x_vald, y_vald) if args.grid_search else train_brainflow_svm(x_train, y_train, x_vald, y_vald)
 
 
