@@ -22,7 +22,7 @@ public class BoardShim
     {
         int prepare_session (int board_id, String params);
 
-        int config_board (String config, int board_id, String params);
+        int config_board (String config, byte[] names, int[] len, int board_id, String params);
 
         int start_stream (int buffer_size, String streamer_params, int board_id, String params);
 
@@ -557,13 +557,17 @@ public class BoardShim
      * send string to a board, use this method carefully and only if you understand
      * what you are doing
      */
-    public void config_board (String config) throws BrainFlowError
+    public String config_board (String config) throws BrainFlowError
     {
-        int ec = instance.config_board (config, board_id, input_json);
+        int[] len = new int[1];
+        byte[] str = new byte[4096];
+        int ec = instance.config_board (config, str, len, board_id, input_json);
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in config_board", ec);
         }
+        String resp = new String (str, 0, len[0]);
+        return resp;
     }
 
     /**

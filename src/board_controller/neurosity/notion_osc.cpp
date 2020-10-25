@@ -54,7 +54,7 @@ int NotionOSC::prepare_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int NotionOSC::config_board (char *config)
+int NotionOSC::config_board (std::string config, std::string &response)
 {
     safe_logger (spdlog::level::err, "Notion OSC doesnt support config_board");
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

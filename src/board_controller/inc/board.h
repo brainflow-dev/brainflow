@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "board_controller.h"
 #include "board_info_getter.h"
 #include "brainflow_constants.h"
@@ -46,7 +48,7 @@ public:
     virtual int start_stream (int buffer_size, char *streamer_params) = 0;
     virtual int stop_stream () = 0;
     virtual int release_session () = 0;
-    virtual int config_board (char *config) = 0;
+    virtual int config_board (std::string config, std::string &response) = 0;
 
     int get_current_board_data (int num_samples, double *data_buf, int *returned_samples);
     int get_board_data_count (int *result);

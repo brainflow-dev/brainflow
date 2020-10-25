@@ -54,7 +54,7 @@ int Fascia::prepare_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int Fascia::config_board (char *config)
+int Fascia::config_board (std::string config, std::string &response)
 {
     safe_logger (spdlog::level::err, "config_board is not supported for Fascia.");
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

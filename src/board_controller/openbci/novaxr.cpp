@@ -59,7 +59,9 @@ int NovaXR::prepare_session ()
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
     // force default settings for device
-    res = config_board ("d");
+    std::string tmp;
+    std::string default_settings = "d";
+    res = config_board (default_settings, tmp);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to apply default settings");
@@ -68,7 +70,8 @@ int NovaXR::prepare_session ()
         return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
     }
     // force default sampling rate - 250
-    res = config_board ("~6");
+    std::string sampl_rate = "~6";
+    res = config_board (sampl_rate, tmp);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to apply defaul sampling rate");
@@ -80,13 +83,14 @@ int NovaXR::prepare_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int NovaXR::config_board (char *config)
+int NovaXR::config_board (std::string conf, std::string &response)
 {
     if (socket == NULL)
     {
         safe_logger (spdlog::level::err, "You need to call prepare_session before config_board");
         return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
     }
+    const char *config = conf.c_str ();
     safe_logger (spdlog::level::debug, "Trying to config NovaXR with {}", config);
     int len = strlen (config);
     int res = socket->send (config, len);
@@ -105,11 +109,12 @@ int NovaXR::config_board (char *config)
     }
     if (!is_streaming)
     {
-        unsigned char b[NovaXR::transaction_size];
-        res = 0;
-        while (res != 1)
+        constexpr int max_string_size = 8192;
+        char b[max_string_size];
+        res = NovaXR::transaction_size;
+        while (res == NovaXR::transaction_size)
         {
-            res = socket->recv (b, NovaXR::transaction_size);
+            res = socket->recv (b, max_string_size);
             if (res == -1)
             {
 #ifdef _WIN32
@@ -121,10 +126,11 @@ int NovaXR::config_board (char *config)
 #endif
                 return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
             }
-            if (res != 1)
-            {
-                safe_logger (spdlog::level::warn, "config_board recv {} bytes instead 1", res);
-            }
+        }
+        // set response string
+        for (int i = 0; i < res; i++)
+        {
+            response = response + b[i];
         }
         switch (b[0])
         {
@@ -134,8 +140,8 @@ int NovaXR::config_board (char *config)
                 safe_logger (spdlog::level::err, "invalid command");
                 return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
             default:
-                safe_logger (spdlog::level::err, "unknown char received: {}", b[0]);
-                return (int)BrainFlowExitCodes::GENERAL_ERROR;
+                safe_logger (spdlog::level::warn, "unknown char received: {}", b[0]);
+                return (int)BrainFlowExitCodes::STATUS_OK;
         }
     }
 

@@ -90,7 +90,7 @@ namespace brainflow
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int log_message (int log_level, string message);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int config_board (string config, int board_id, string input_json);
+        public static extern int config_board (string config, byte[] response, int[] len, int board_id, string input_json);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_file (string log_file);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -156,7 +156,7 @@ namespace brainflow
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int log_message (int log_level, string message);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int config_board (string config, int board_id, string input_json);
+        public static extern int config_board (string config, byte[] response, int[] len, int board_id, string input_json);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_file (string log_file);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -283,12 +283,12 @@ namespace brainflow
                 return BoardControllerLibrary32.log_message (log_level, message);
         }
 
-        public static int config_board (string config, int board_id, string input_json)
+        public static int config_board (string config, byte[] str, int[] len, int board_id, string input_json)
         {
             if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.config_board (config, board_id, input_json);
+                return BoardControllerLibrary64.config_board (config, str, len, board_id, input_json);
             else
-                return BoardControllerLibrary32.config_board (config, board_id, input_json);
+                return BoardControllerLibrary32.config_board (config, str, len, board_id, input_json);
         }
 
         public static int set_log_file (string log_file)
