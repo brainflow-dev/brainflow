@@ -586,6 +586,27 @@ function release_session(board_shim::BoardShim)
     end
 end
 
+function config_board(config::String, board_shim::BoardShim)
+    ec = STATUS_OK
+    resp_string = Vector{Cuchar}(undef, 4096)
+    len = Vector{Cint}(undef, 1)
+    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
+    if Sys.iswindows()
+        ec = ccall((:config_board, "BoardController.dll"), Cint, (Ptr{UInt8}, Ptr{UInt8}, Ptr{Cint}, Cint, Ptr{UInt8}),
+            config, resp_string, len, board_shim.board_id, board_shim.input_json)
+    elseif Sys.isapple()
+        ec = ccall((:config_board, "libBoardController.dylib"), Cint, (Ptr{UInt8}, Ptr{UInt8}, Ptr{Cint}, Cint, Ptr{UInt8}),
+            config, resp_string, len, board_shim.board_id, board_shim.input_json)
+    else
+        ec = ccall((:config_board, "libBoardController.so"), Cint, (Ptr{UInt8}, Ptr{UInt8}, Ptr{Cint}, Cint, Ptr{UInt8}),
+            config, resp_string, len, board_shim.board_id, board_shim.input_json)
+    end
+    if ec != Integer(STATUS_OK)
+        throw(BrainFlowError(string("Error in config_board ", ec), ec))
+    end
+    sub_string = String(resp_string)[1:len[1]]
+    sub_string
+end
 
 function get_board_data(board_shim::BoardShim)
     data_size = get_board_data_count(board_shim)

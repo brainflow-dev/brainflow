@@ -73,7 +73,7 @@ int IronBCI::prepare_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int IronBCI::config_board (char *config)
+int IronBCI::config_board (std::string config, std::string &response)
 {
     safe_logger (spdlog::level::err, "config_board is not supported for IronBCI");
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

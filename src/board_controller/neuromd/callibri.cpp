@@ -101,25 +101,25 @@ int Callibri::prepare_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int Callibri::config_board (char *config)
+int Callibri::config_board (std::string config, std::string &response)
 {
     if (device == NULL)
     {
         return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
     }
-    if (config == NULL)
+    if (config.empty ())
     {
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
     Command cmd = CommandStartSignal;
     bool parsed = false;
-    if (strcmp (config, "CommandStartSignal") == 0)
+    if (strcmp (config.c_str (), "CommandStartSignal") == 0)
     {
         parsed = true;
         cmd = CommandStartSignal;
     }
-    if (strcmp (config, "CommandStopSignal") == 0)
+    if (strcmp (config.c_str (), "CommandStopSignal") == 0)
     {
         parsed = true;
         cmd = CommandStopSignal;
@@ -181,7 +181,9 @@ int Callibri::start_stream (int buffer_size, char *streamer_params)
         return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
-    res = config_board ((char *)"CommandStartSignal");
+    std::string command_start = "CommandStartSignal";
+    std::string tmp = "";
+    res = config_board (command_start, tmp);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
@@ -205,7 +207,9 @@ int Callibri::stop_stream ()
             delete streamer;
             streamer = NULL;
         }
-        int res = config_board ((char *)"CommandStopSignal");
+        std::string command_stop = "CommandStopSignal";
+        std::string tmp = "";
+        int res = config_board (command_stop, tmp);
         return res;
     }
     else
@@ -298,7 +302,7 @@ int Callibri::prepare_session ()
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
-int Callibri::config_board (char *config)
+int Callibri::config_board (std::string config, std::string &response)
 {
     safe_logger (spdlog::level::err, "Callibri doesnt support Linux.");
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

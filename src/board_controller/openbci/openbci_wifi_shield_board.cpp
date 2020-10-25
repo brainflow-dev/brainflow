@@ -155,7 +155,7 @@ int OpenBCIWifiShieldBoard::prepare_session ()
 
     // freeze sampling rate
     initialized = true;
-    res = config_board ("~4"); // for cyton based boards - 1000 for ganglion - 1600
+    res = send_config ("~4"); // for cyton based boards - 1000 for ganglion - 1600
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         initialized = false;
@@ -166,7 +166,7 @@ int OpenBCIWifiShieldBoard::prepare_session ()
 }
 
 
-int OpenBCIWifiShieldBoard::send_config (char *config)
+int OpenBCIWifiShieldBoard::send_config (const char *config)
 {
     if (!initialized)
     {
@@ -203,9 +203,9 @@ int OpenBCIWifiShieldBoard::send_config (char *config)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int OpenBCIWifiShieldBoard::config_board (char *config)
+int OpenBCIWifiShieldBoard::config_board (std::string config, std::string &response)
 {
-    return send_config (config);
+    return send_config (config.c_str ());
 }
 
 int OpenBCIWifiShieldBoard::start_stream (int buffer_size, char *streamer_params)

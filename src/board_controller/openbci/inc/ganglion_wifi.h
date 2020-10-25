@@ -29,5 +29,5 @@ public:
     // hacks for ganglion and impedance
     int start_stream (int buffer_size, char *streamer_params);
     int stop_stream ();
-    int config_board (char *config);
+    int config_board (std::string config, std::string &response);
 };

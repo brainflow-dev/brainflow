@@ -203,7 +203,7 @@ void UnicornBoard::read_thread ()
     }
 }
 
-int UnicornBoard::config_board (char *config)
+int UnicornBoard::config_board (std::string config, std::string &response)
 {
     // todo if there will be requests for it.
     // Unicorn API provides int Unicorn_SetConfiguration method
@@ -365,7 +365,7 @@ int UnicornBoard::prepare_session ()
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
-int UnicornBoard::config_board (char *config)
+int UnicornBoard::config_board (std::string config, std::string &response)
 {
     safe_logger (spdlog::level::err, "UnicornBoard supports only Linux.");
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
