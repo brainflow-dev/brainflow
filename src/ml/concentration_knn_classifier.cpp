@@ -92,6 +92,11 @@ int ConcentrationKNNClassifier::predict (double *data, int data_len, double *out
 
 int ConcentrationKNNClassifier::release ()
 {
+    if(kdtree == NULL)
+    {
+        safe_logger (spdlog::level::err, "Please prepare classifier with prepare method.");
+        return (int)BrainFlowExitCodes::CLASSIFIER_IS_NOT_PREPARED_ERROR;
+    }
     delete kdtree;
     kdtree = NULL;
     dataset.clear ();

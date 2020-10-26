@@ -123,11 +123,6 @@ int release (char *json_params)
     }
 
     auto model = ml_models.find (key);
-    if (model == ml_models.end ())
-    {
-        BaseClassifier::ml_logger->error ("Must prepare model before releasing it.");
-        return (int)BrainFlowExitCodes::CLASSIFIER_IS_NOT_PREPARED_ERROR;
-    }
     res = model->second->release ();
     ml_models.erase (model);
     return res;
