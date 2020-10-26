@@ -90,7 +90,8 @@ enum class BrainFlowClassifiers : int
 {
     REGRESSION = 0,
     KNN = 1,
-    SVM = 2
+    SVM = 2,
+    LDA = 3
 };
 /// LogLevels enum to store all possible log levels
 enum class LogLevels : int

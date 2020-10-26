@@ -114,7 +114,13 @@ int main (int argc, char *argv[])
                   << std::endl;
         concentration_model.release ();
 
-
+        conc_model_params = BrainFlowModelParams (
+            (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::LDA);
+        concentration_model = MLModel (conc_model_params);
+        concentration_model.prepare ();
+        std::cout << "Concentration LDA: " << concentration_model.predict (feature_vector, 10)
+                  << std::endl;
+        concentration_model.release ();
 
         struct BrainFlowModelParams relax_model_params (
             (int)BrainFlowMetrics::RELAXATION, (int)BrainFlowClassifiers::SVM);
@@ -136,6 +142,14 @@ int main (int argc, char *argv[])
         relax_model = MLModel (relax_model_params);
         relax_model.prepare ();
         std::cout << "Relaxation REGRESSION: " << relax_model.predict (feature_vector, 10)
+                  << std::endl;
+        relax_model.release ();
+        
+        relax_model_params = BrainFlowModelParams (
+            (int)BrainFlowMetrics::RELAXATION, (int)BrainFlowClassifiers::LDA);
+        relax_model = MLModel (relax_model_params);
+        relax_model.prepare ();
+        std::cout << "Relaxation LDA: " << relax_model.predict (feature_vector, 10)
                   << std::endl;
         relax_model.release ();
 

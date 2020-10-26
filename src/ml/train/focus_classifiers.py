@@ -10,6 +10,7 @@ from svm_classifier import *
 from sklearn import metrics
 from sklearn.linear_model import LogisticRegression
 from sklearn.dummy import DummyClassifier
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from metric_learn import LMNN
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.decomposition import PCA
@@ -79,6 +80,20 @@ def get_eeg_channels(board_id):
         print (str (e))
     print ('channels to use: %s' % str (eeg_channels))
     return eeg_channels
+
+def train_LDA(data):
+    model = LinearDiscriminantAnalysis()
+    print('#### Linear Discriminant Analysis ####')
+    scores = cross_val_score (model, data[0], data[1], cv = 5, scoring = 'f1_macro', n_jobs = 8)
+    print ('f1 macro %s' % str (scores))
+    scores = cross_val_score (model, data[0], data[1], cv = 5, scoring = 'precision_macro', n_jobs = 8)
+    print ('precision macro %s' % str (scores))
+    scores = cross_val_score (model, data[0], data[1], cv = 5, scoring = 'recall_macro', n_jobs = 8)
+    print('recall macro %s' % str(scores))
+    
+    model.fit(data[0], data[1])
+    print("LDA Coefficients:")
+    print (model.intercept_, model.coef_)
 
 def train_regression (data):
     model = LogisticRegression (class_weight = 'balanced', solver = 'liblinear', max_iter = 3000)
@@ -195,8 +210,9 @@ def main ():
     else:
         train_regression (data)
         train_knn(data)
+        train_LDA(data)
         # Don't use grid search method unless you have to as it takes a while to complete
-        train_brainflow_search_svm(x_train, y_train, x_vald, y_vald) if args.grid_search else train_brainflow_svm(x_train, y_train, x_vald, y_vald)
+        # train_brainflow_search_svm(x_train, y_train, x_vald, y_vald) if args.grid_search else train_brainflow_svm(x_train, y_train, x_vald, y_vald)
 
 
 if __name__ == '__main__':

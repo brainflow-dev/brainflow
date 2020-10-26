@@ -201,6 +201,7 @@ set (ML_MODULE_SRC
     ${CMAKE_HOME_DIRECTORY}/third_party/libsvm/svm.cpp
     ${CMAKE_HOME_DIRECTORY}/src/ml/concentration_knn_classifier.cpp
     ${CMAKE_HOME_DIRECTORY}/src/ml/concentration_svm_classifier.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/ml/concentration_lda_classifier.cpp
 )
 
 add_library (

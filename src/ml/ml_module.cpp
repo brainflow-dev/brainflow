@@ -6,10 +6,12 @@
 #include "base_classifier.h"
 #include "brainflow_constants.h"
 #include "brainflow_model_params.h"
+#include "concentration_lda_classifier.h"
 #include "concentration_knn_classifier.h"
 #include "concentration_regression_classifier.h"
 #include "json.hpp"
 #include "ml_module.h"
+#include "relaxation_lda_classifier.h"
 #include "relaxation_knn_classifier.h"
 #include "relaxation_regression_classifier.h"
 #include "relaxation_svm_classifier.h"
@@ -60,6 +62,16 @@ int prepare (char *json_params)
         (key.classifier == (int)BrainFlowClassifiers::SVM))
     {
         model = std::shared_ptr<BaseClassifier> (new ConcentrationSVMClassifier (key));
+    }
+    else if ((key.metric == (int)BrainFlowMetrics::RELAXATION) &&
+        (key.classifier == (int)BrainFlowClassifiers::LDA))
+    {
+        model = std::shared_ptr<BaseClassifier> (new RelaxationLDAClassifier (key));
+    }
+    else if ((key.metric == (int)BrainFlowMetrics::CONCENTRATION) &&
+        (key.classifier == (int)BrainFlowClassifiers::LDA))
+    {
+        model = std::shared_ptr<BaseClassifier> (new ConcentrationLDAClassifier (key));
     }
     else if ((key.metric == (int)BrainFlowMetrics::CONCENTRATION) &&
         (key.classifier == (int)BrainFlowClassifiers::KNN))
