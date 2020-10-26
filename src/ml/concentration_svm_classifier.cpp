@@ -64,8 +64,8 @@ int ConcentrationSVMClassifier::release ()
 #else
     if (model == NULL)
     {
-        safe_logger (spdlog::level::err, "Model needs to be prepared before releasing it.");
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
+        safe_logger (spdlog::level::err, "Please prepare classifier with prepare method.");
+        return (int)BrainFlowExitCodes::CLASSIFIER_IS_NOT_PREPARED_ERROR;
     }
     svm_free_model_content (model);
     free (model);
