@@ -91,18 +91,52 @@ int main (int argc, char *argv[])
 
         // Prepare Models
         struct BrainFlowModelParams conc_model_params (
-            (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::KNN);
+            (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::SVM);
         MLModel concentration_model (conc_model_params);
         concentration_model.prepare ();
-        std::cout << "Concentration: " << concentration_model.predict (feature_vector, 10)
+        std::cout << "Concentration SVM: " << concentration_model.predict (feature_vector, 10)
                   << std::endl;
         concentration_model.release ();
 
+        conc_model_params = BrainFlowModelParams (
+            (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::KNN);
+        concentration_model = MLModel (conc_model_params);
+        concentration_model.prepare ();
+        std::cout << "Concentration KNN: " << concentration_model.predict (feature_vector, 10)
+                  << std::endl;
+        concentration_model.release ();
+        
+        conc_model_params = BrainFlowModelParams (
+            (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::REGRESSION);
+        concentration_model = MLModel (conc_model_params);
+        concentration_model.prepare ();
+        std::cout << "Concentration REGRESSION: " << concentration_model.predict (feature_vector, 10)
+                  << std::endl;
+        concentration_model.release ();
+
+
+
         struct BrainFlowModelParams relax_model_params (
-            (int)BrainFlowMetrics::RELAXATION, (int)BrainFlowClassifiers::REGRESSION);
+            (int)BrainFlowMetrics::RELAXATION, (int)BrainFlowClassifiers::SVM);
         MLModel relax_model (relax_model_params);
         relax_model.prepare ();
-        std::cout << "Relaxation: " << relax_model.predict (feature_vector, 10) << std::endl;
+        std::cout << "Relaxation SVM : " << relax_model.predict (feature_vector, 10) << std::endl;
+        relax_model.release ();
+
+        relax_model_params = BrainFlowModelParams (
+            (int)BrainFlowMetrics::RELAXATION, (int)BrainFlowClassifiers::KNN);
+        relax_model = MLModel (relax_model_params);
+        relax_model.prepare ();
+        std::cout << "Relaxation KNN: " << relax_model.predict (feature_vector, 10)
+                  << std::endl;
+        relax_model.release ();
+
+        relax_model_params = BrainFlowModelParams (
+            (int)BrainFlowMetrics::RELAXATION, (int)BrainFlowClassifiers::REGRESSION);
+        relax_model = MLModel (relax_model_params);
+        relax_model.prepare ();
+        std::cout << "Relaxation REGRESSION: " << relax_model.predict (feature_vector, 10)
+                  << std::endl;
         relax_model.release ();
 
         delete[] bands.first;

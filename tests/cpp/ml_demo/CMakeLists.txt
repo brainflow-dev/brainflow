@@ -54,14 +54,30 @@ add_executable (
     eeg_metrics
     src/eeg_metrics.cpp
 )
+add_executable (
+    eeg_metrics_full
+    src/eeg_metrics_full.cpp
+)
 
 target_include_directories (
     eeg_metrics PUBLIC
     ${brainflow_INCLUDE_DIRS}
 )
+target_include_directories (
+    eeg_metrics_full PUBLIC
+    ${brainflow_INCLUDE_DIRS}
+)
 
 target_link_libraries (
     eeg_metrics PUBLIC
+    # for some systems(ubuntu for example) order matters
+    ${BrainflowPath}
+    ${MLModulePath}
+    ${DataHandlerPath}
+    ${BoardControllerPath}
+)
+target_link_libraries (
+    eeg_metrics_full PUBLIC
     # for some systems(ubuntu for example) order matters
     ${BrainflowPath}
     ${MLModulePath}

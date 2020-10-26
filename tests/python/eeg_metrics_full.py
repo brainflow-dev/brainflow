@@ -3,9 +3,10 @@ import time
 import brainflow
 import numpy as np
 
-from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels, BoardIds
+from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels, BoardIds,BrainFlowError
 from brainflow.data_filter import DataFilter, FilterTypes, AggOperations, WindowFunctions, DetrendOperations
 from brainflow.ml_model import MLModel, BrainFlowMetrics, BrainFlowClassifiers, BrainFlowModelParams
+from brainflow.exit_codes import *
 
 
 def main ():
@@ -59,18 +60,44 @@ def main ():
     feature_vector = np.concatenate ((bands[0], bands[1]))
     print(feature_vector)
     
-    # calc concentration
+    # calc concentration SVM
+    concentration_params = BrainFlowModelParams (BrainFlowMetrics.CONCENTRATION.value, BrainFlowClassifiers.SVM.value)
+    concentration = MLModel (concentration_params)
+    concentration.prepare ()
+    print ('Concentration SVM: %f' % concentration.predict (feature_vector))
+    concentration.release()
+    
+    # calc concentration KNN
     concentration_params = BrainFlowModelParams (BrainFlowMetrics.CONCENTRATION.value, BrainFlowClassifiers.KNN.value)
     concentration = MLModel (concentration_params)
     concentration.prepare ()
-    print ('Concentration: %f' % concentration.predict (feature_vector))
+    print ('Concentration KNN: %f' % concentration.predict (feature_vector))
     concentration.release ()
 
+    # calc concentration REGRESSION
+    concentration_params = BrainFlowModelParams (BrainFlowMetrics.CONCENTRATION.value, BrainFlowClassifiers.REGRESSION.value)
+    concentration = MLModel (concentration_params)
+    concentration.prepare ()
+    print ('Concentration REGRESSION: %f' % concentration.predict (feature_vector))
+    concentration.release()
+    
     # calc relaxation
+    relaxation_params = BrainFlowModelParams (BrainFlowMetrics.RELAXATION.value, BrainFlowClassifiers.SVM.value)
+    relaxation = MLModel (relaxation_params)
+    relaxation.prepare ()
+    print ('Relaxation SVM: %f' % relaxation.predict (feature_vector))
+    relaxation.release()
+    
+    relaxation_params = BrainFlowModelParams (BrainFlowMetrics.RELAXATION.value, BrainFlowClassifiers.KNN.value)
+    relaxation = MLModel (relaxation_params)
+    relaxation.prepare ()
+    print ('Relaxation KNN: %f' % relaxation.predict (feature_vector))
+    relaxation.release()
+    
     relaxation_params = BrainFlowModelParams (BrainFlowMetrics.RELAXATION.value, BrainFlowClassifiers.REGRESSION.value)
     relaxation = MLModel (relaxation_params)
     relaxation.prepare ()
-    print ('Relaxation: %f' % relaxation.predict (feature_vector))
+    print ('Relaxation REGRESSION: %f' % relaxation.predict (feature_vector))
     relaxation.release ()
 
 

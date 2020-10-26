@@ -20,5 +20,5 @@ public:
     virtual int predict (double *data, int data_len, double *output);
     virtual int release ();
 private:
-    struct svm_model *model;
+    struct svm_model *model = NULL;
 };
