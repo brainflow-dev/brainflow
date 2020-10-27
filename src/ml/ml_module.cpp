@@ -6,13 +6,13 @@
 #include "base_classifier.h"
 #include "brainflow_constants.h"
 #include "brainflow_model_params.h"
-#include "concentration_lda_classifier.h"
 #include "concentration_knn_classifier.h"
+#include "concentration_lda_classifier.h"
 #include "concentration_regression_classifier.h"
 #include "json.hpp"
 #include "ml_module.h"
-#include "relaxation_lda_classifier.h"
 #include "relaxation_knn_classifier.h"
+#include "relaxation_lda_classifier.h"
 #include "relaxation_regression_classifier.h"
 #include "relaxation_svm_classifier.h"
 
@@ -135,6 +135,11 @@ int release (char *json_params)
     }
 
     auto model = ml_models.find (key);
+    if (model == ml_models.end ())
+    {
+        BaseClassifier::ml_logger->error ("Must prepare model before releasing it.");
+        return (int)BrainFlowExitCodes::CLASSIFIER_IS_NOT_PREPARED_ERROR;
+    }
     res = model->second->release ();
     ml_models.erase (model);
     return res;

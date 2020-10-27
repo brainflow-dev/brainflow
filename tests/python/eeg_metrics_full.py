@@ -72,6 +72,13 @@ def main ():
     concentration = MLModel (concentration_params)
     concentration.prepare ()
     print ('Concentration KNN: %f' % concentration.predict (feature_vector))
+    concentration.release()
+    
+    # calc concentration LDA
+    concentration_params = BrainFlowModelParams (BrainFlowMetrics.CONCENTRATION.value, BrainFlowClassifiers.LDA.value)
+    concentration = MLModel (concentration_params)
+    concentration.prepare ()
+    print ('Concentration LDA: %f' % concentration.predict (feature_vector))
     concentration.release ()
 
     # calc concentration REGRESSION
@@ -81,19 +88,28 @@ def main ():
     print ('Concentration REGRESSION: %f' % concentration.predict (feature_vector))
     concentration.release()
     
-    # calc relaxation
+    # calc relaxation SVM
     relaxation_params = BrainFlowModelParams (BrainFlowMetrics.RELAXATION.value, BrainFlowClassifiers.SVM.value)
     relaxation = MLModel (relaxation_params)
     relaxation.prepare ()
     print ('Relaxation SVM: %f' % relaxation.predict (feature_vector))
     relaxation.release()
     
+    # calc relaxation KNN
     relaxation_params = BrainFlowModelParams (BrainFlowMetrics.RELAXATION.value, BrainFlowClassifiers.KNN.value)
     relaxation = MLModel (relaxation_params)
     relaxation.prepare ()
     print ('Relaxation KNN: %f' % relaxation.predict (feature_vector))
     relaxation.release()
+
+    # calc relaxation LDA
+    relaxation_params = BrainFlowModelParams (BrainFlowMetrics.RELAXATION.value, BrainFlowClassifiers.LDA.value)
+    relaxation = MLModel (relaxation_params)
+    relaxation.prepare ()
+    print ('Relaxation LDA: %f' % relaxation.predict (feature_vector))
+    relaxation.release()
     
+    # calc relaxation Regression
     relaxation_params = BrainFlowModelParams (BrainFlowMetrics.RELAXATION.value, BrainFlowClassifiers.REGRESSION.value)
     relaxation = MLModel (relaxation_params)
     relaxation.prepare ()
