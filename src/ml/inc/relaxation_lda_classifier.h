@@ -1,7 +1,7 @@
 #pragma once
 
 #include "brainflow_constants.h"
-#include "concentration_LDA_classifier.h"
+#include "concentration_lda_classifier.h"
 
 
 class RelaxationLDAClassifier : public ConcentrationLDAClassifier
