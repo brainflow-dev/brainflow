@@ -32,6 +32,5 @@ int ConcentrationLDAClassifier::predict (double *data, int data_len, double *out
 
 int ConcentrationLDAClassifier::release ()
 {
-    safe_logger (spdlog::level::info, "Model has been cleared.");
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
