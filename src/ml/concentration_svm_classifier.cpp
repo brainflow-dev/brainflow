@@ -70,6 +70,7 @@ int ConcentrationSVMClassifier::release ()
     svm_free_model_content (model);
     free (model);
     model = NULL;
+    safe_logger (spdlog::level::info, "Model has been cleared.");
     return (int)BrainFlowExitCodes::STATUS_OK;
 #endif
 }

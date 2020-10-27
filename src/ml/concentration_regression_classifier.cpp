@@ -32,5 +32,6 @@ int ConcentrationRegressionClassifier::predict (double *data, int data_len, doub
 
 int ConcentrationRegressionClassifier::release ()
 {
+    safe_logger (spdlog::level::info, "Model has been cleared.");
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
