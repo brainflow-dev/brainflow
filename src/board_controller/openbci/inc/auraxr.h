@@ -12,7 +12,7 @@
 #define ADS1299_Vref 4.5
 
 
-class NovaXR : public Board
+class AuraXR : public Board
 {
 
 private:
@@ -35,8 +35,8 @@ private:
     void read_thread ();
 
 public:
-    NovaXR (struct BrainFlowInputParams params);
-    ~NovaXR ();
+    AuraXR (struct BrainFlowInputParams params);
+    ~AuraXR ();
 
     int prepare_session ();
     int start_stream (int buffer_size, char *streamer_params);

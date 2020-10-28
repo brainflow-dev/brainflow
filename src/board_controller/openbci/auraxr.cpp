@@ -2,21 +2,21 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "auraxr.h"
 #include "custom_cast.h"
-#include "novaxr.h"
 #include "timestamp.h"
 
 #ifndef _WIN32
 #include <errno.h>
 #endif
 
-constexpr int NovaXR::num_channels;
-constexpr int NovaXR::package_size;
-constexpr int NovaXR::num_packages;
-constexpr int NovaXR::transaction_size;
+constexpr int AuraXR::num_channels;
+constexpr int AuraXR::package_size;
+constexpr int AuraXR::num_packages;
+constexpr int AuraXR::transaction_size;
 
 
-NovaXR::NovaXR (struct BrainFlowInputParams params) : Board ((int)BoardIds::NOVAXR_BOARD, params)
+AuraXR::AuraXR (struct BrainFlowInputParams params) : Board ((int)BoardIds::AURAXR_BOARD, params)
 {
     this->socket = NULL;
     this->is_streaming = false;
@@ -26,13 +26,13 @@ NovaXR::NovaXR (struct BrainFlowInputParams params) : Board ((int)BoardIds::NOVA
     this->state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
 }
 
-NovaXR::~NovaXR ()
+AuraXR::~AuraXR ()
 {
     skip_logs = true;
     release_session ();
 }
 
-int NovaXR::prepare_session ()
+int AuraXR::prepare_session ()
 {
     if (initialized)
     {
@@ -83,7 +83,7 @@ int NovaXR::prepare_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int NovaXR::config_board (std::string conf, std::string &response)
+int AuraXR::config_board (std::string conf, std::string &response)
 {
     if (socket == NULL)
     {
@@ -91,7 +91,7 @@ int NovaXR::config_board (std::string conf, std::string &response)
         return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
     }
     const char *config = conf.c_str ();
-    safe_logger (spdlog::level::debug, "Trying to config NovaXR with {}", config);
+    safe_logger (spdlog::level::debug, "Trying to config AuraXR with {}", config);
     int len = strlen (config);
     int res = socket->send (config, len);
     if (len != res)
@@ -111,8 +111,8 @@ int NovaXR::config_board (std::string conf, std::string &response)
     {
         constexpr int max_string_size = 8192;
         char b[max_string_size];
-        res = NovaXR::transaction_size;
-        while (res == NovaXR::transaction_size)
+        res = AuraXR::transaction_size;
+        while (res == AuraXR::transaction_size)
         {
             res = socket->recv (b, max_string_size);
             if (res == -1)
@@ -148,7 +148,7 @@ int NovaXR::config_board (std::string conf, std::string &response)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int NovaXR::start_stream (int buffer_size, char *streamer_params)
+int AuraXR::start_stream (int buffer_size, char *streamer_params)
 {
     if (!initialized)
     {
@@ -182,7 +182,7 @@ int NovaXR::start_stream (int buffer_size, char *streamer_params)
     {
         return res;
     }
-    db = new DataBuffer (NovaXR::num_channels, buffer_size);
+    db = new DataBuffer (AuraXR::num_channels, buffer_size);
     if (!db->is_ready ())
     {
         safe_logger (spdlog::level::err, "unable to prepare buffer");
@@ -228,7 +228,7 @@ int NovaXR::start_stream (int buffer_size, char *streamer_params)
     }
 }
 
-int NovaXR::stop_stream ()
+int AuraXR::stop_stream ()
 {
     if (is_streaming)
     {
@@ -258,13 +258,13 @@ int NovaXR::stop_stream ()
 
         // free kernel buffer
         socket->set_timeout (2);
-        unsigned char b[NovaXR::transaction_size];
+        unsigned char b[AuraXR::transaction_size];
         res = 0;
         int max_attempt = 25; // to dont get to infinite loop
         int current_attempt = 0;
         while (res != -1)
         {
-            res = socket->recv (b, NovaXR::transaction_size);
+            res = socket->recv (b, AuraXR::transaction_size);
             current_attempt++;
             if (current_attempt == max_attempt)
             {
@@ -284,7 +284,7 @@ int NovaXR::stop_stream ()
     }
 }
 
-int NovaXR::release_session ()
+int AuraXR::release_session ()
 {
     if (initialized)
     {
@@ -303,17 +303,17 @@ int NovaXR::release_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-void NovaXR::read_thread ()
+void AuraXR::read_thread ()
 {
     int res;
-    unsigned char b[NovaXR::transaction_size];
-    for (int i = 0; i < NovaXR::transaction_size; i++)
+    unsigned char b[AuraXR::transaction_size];
+    for (int i = 0; i < AuraXR::transaction_size; i++)
     {
         b[i] = 0;
     }
     while (keep_alive)
     {
-        res = socket->recv (b, NovaXR::transaction_size);
+        res = socket->recv (b, AuraXR::transaction_size);
         if (res == -1)
         {
 #ifdef _WIN32
@@ -322,10 +322,10 @@ void NovaXR::read_thread ()
             safe_logger (spdlog::level::err, "errno {} message {}", errno, strerror (errno));
 #endif
         }
-        if (res != NovaXR::transaction_size)
+        if (res != AuraXR::transaction_size)
         {
             safe_logger (spdlog::level::trace, "unable to read {} bytes, read {}",
-                NovaXR::transaction_size, res);
+                AuraXR::transaction_size, res);
             continue;
         }
         else
@@ -345,9 +345,9 @@ void NovaXR::read_thread ()
             }
         }
 
-        for (int cur_package = 0; cur_package < NovaXR::num_packages; cur_package++)
+        for (int cur_package = 0; cur_package < AuraXR::num_packages; cur_package++)
         {
-            double package[NovaXR::num_channels] = {0.};
+            double package[AuraXR::num_channels] = {0.};
             int offset = cur_package * package_size;
             // package num
             package[0] = (double)b[0 + offset];
@@ -387,7 +387,7 @@ void NovaXR::read_thread ()
             memcpy (&timestamp_device, b + 64 + offset, 8);
             timestamp_device /= 1e6; // convert usec to sec
             double timestamp = timestamp_device + start_time;
-            streamer->stream_data (package, NovaXR::num_channels, timestamp);
+            streamer->stream_data (package, AuraXR::num_channels, timestamp);
             db->add_data (timestamp, package);
         }
     }
