@@ -106,11 +106,11 @@ script:
   - if [ `which valgrind` ]; then
       LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 2 --serial-port ;
     fi
-  # tests for novaxr
-  - sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/novaxr_udp.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --board-id 3 --ip-address 127.0.0.1 --log
-  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/novaxr_udp.py $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 3 --ip-address 127.0.0.1
+  # tests for auraxr
+  - sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/auraxr_udp.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --board-id 3 --ip-address 127.0.0.1 --log
+  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/auraxr_udp.py $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 3 --ip-address 127.0.0.1
   - if [ `which valgrind` ]; then
-      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/novaxr_udp.py valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 3 --ip-address 127.0.0.1 ;
+      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/auraxr_udp.py valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 3 --ip-address 127.0.0.1 ;
     fi
   # tests for wifi shield, fails on macos due to an issue in emulator
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then

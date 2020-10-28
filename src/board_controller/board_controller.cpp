@@ -13,6 +13,7 @@
 #include <string>
 #include <utility>
 
+#include "auraxr.h"
 #include "board.h"
 #include "board_controller.h"
 #include "board_info_getter.h"
@@ -31,7 +32,6 @@
 #include "ganglion_wifi.h"
 #include "ironbci.h"
 #include "notion_osc.h"
-#include "novaxr.h"
 #include "playback_file_board.h"
 #include "streaming_board.h"
 #include "synthetic_board.h"
@@ -94,8 +94,8 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
         case BoardIds::CYTON_DAISY_BOARD:
             board = std::shared_ptr<Board> (new CytonDaisy (params));
             break;
-        case BoardIds::NOVAXR_BOARD:
-            board = std::shared_ptr<Board> (new NovaXR (params));
+        case BoardIds::AURAXR_BOARD:
+            board = std::shared_ptr<Board> (new AuraXR (params));
             break;
         case BoardIds::GANGLION_WIFI_BOARD:
             board = std::shared_ptr<Board> (new GanglionWifi (params));
