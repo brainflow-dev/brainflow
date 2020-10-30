@@ -8,6 +8,7 @@ class ConcentrationSVMClassifier : public BaseClassifier
 public:
     ConcentrationSVMClassifier (struct BrainFlowModelParams params) : BaseClassifier (params)
     {
+        model = NULL;
     }
 
     virtual ~ConcentrationSVMClassifier ()
