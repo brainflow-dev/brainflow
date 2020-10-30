@@ -66,7 +66,7 @@ def main ():
     model = MLModel (model_params)
     model.prepare ()
     print ('Model Score: %f' % model.predict (feature_vector))
-    concentration.release ()
+    model.release ()
 
 
 if __name__ == "__main__":
