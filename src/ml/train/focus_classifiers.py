@@ -98,7 +98,7 @@ def train_regression (data):
 def train_knn (data):
     model = KNeighborsClassifier (n_neighbors = 5)
     print('#### KNN ####')
-    data_x = data[0].copy()
+    data_x = data[0].copy ()
     for i, x in enumerate (data_x):
         for j in range (5, 10):
             data_x[i][j] = data_x[i][j] / 5 # idea to make stddev less important than avg, 5 random value
@@ -190,10 +190,10 @@ def main ():
         test_brainflow_lr (data)
         test_brainflow_svm (data)
     else:
-        train_regression (data)
-        train_knn (data)
         # Don't use grid search method unless you have to as it takes a while to complete
         train_brainflow_search_svm (data) if args.grid_search else train_brainflow_svm (data)
+        train_regression (data)
+        train_knn (data)
 
 
 if __name__ == '__main__':
