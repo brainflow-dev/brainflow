@@ -54,8 +54,8 @@ def train_brainflow_search_svm (data):
 
 def train_brainflow_svm (data):
     x_train, y_train, x_test, y_test = split_data (data)
-    C = 256
-    gamma = 4
+    C = 8192
+    gamma = 0.5
     print ('#### SVM ####')
     prob = svm_problem (y_train, x_train)
     par_str = f'-c {C} -g {gamma} -b 1 '

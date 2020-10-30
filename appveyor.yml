@@ -117,7 +117,7 @@ test_script:
   - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\band_power_all\bin\Release\test.exe
   # tests for ml module
   - python %APPVEYOR_BUILD_FOLDER%\tests\python\eeg_metrics.py --board-id -1
-  - python %APPVEYOR_BUILD_FOLDER%\tests\python\eeg_metrics.py --board-id -1 --metric 0 --classifier 2
+  - python %APPVEYOR_BUILD_FOLDER%\tests\python\eeg_metrics_ci.py --board-id -1 --metric 0 --classifier 2
   - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\tests\cpp\ml_demo\build\Release\eeg_metrics_ci.exe --board-id -1 --metric 1 --classifier 2
 
 deploy_script:
