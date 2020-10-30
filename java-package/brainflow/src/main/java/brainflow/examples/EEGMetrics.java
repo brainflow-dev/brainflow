@@ -13,7 +13,7 @@ import brainflow.DataFilter;
 import brainflow.LogLevels;
 import brainflow.MLModel;
 
-public class EEGMetrics
+public class EEGMetricsFull
 {
 
     public static void main (String[] args) throws Exception
@@ -22,8 +22,21 @@ public class EEGMetrics
         BrainFlowInputParams params = new BrainFlowInputParams ();
         int board_id = parse_args (args, params);
         BoardShim board_shim = new BoardShim (board_id, params);
-        int sampling_rate = BoardShim.get_sampling_rate (board_id);
-        int[] eeg_channels = BoardShim.get_eeg_channels (board_id);
+        int master_board_id = 0;
+        if ((board_id == BoardIds.STREAMING_BOARD.get_code ()) ||
+        (board_id == (int) BoardIds.PLAYBACK_FILE_BOARD.get_code ()))
+        {
+            try
+            {
+                master_board_id = Integer.parseInt(params.other_info);
+            }
+            catch (Exception e)
+            {
+                System.out.println("Other Info must be an integer when using Playback or streaming board.");
+            }
+        }
+        int sampling_rate = BoardShim.get_sampling_rate (master_board_id);
+        int[] eeg_channels = BoardShim.get_eeg_channels (master_board_id);
 
         board_shim.prepare_session ();
         board_shim.start_stream (3600);
@@ -36,12 +49,20 @@ public class EEGMetrics
 
         Pair<double[], double[]> bands = DataFilter.get_avg_band_powers (data, eeg_channels, sampling_rate, true);
         double[] feature_vector = ArrayUtils.addAll (bands.getLeft (), bands.getRight ());
-        BrainFlowModelParams model_params = new BrainFlowModelParams (BrainFlowMetrics.CONCENTRATION.get_code (),
-                BrainFlowClassifiers.REGRESSION.get_code ());
-        MLModel concentration = new MLModel (model_params);
-        concentration.prepare ();
-        System.out.print ("Concentration: " + concentration.predict (feature_vector));
-        concentration.release ();
+        BrainFlowModelParams model_params;
+        MLModel concentration;
+        for (BrainFlowMetrics metric :BrainFlowMetrics.values()) 
+        {
+            for(BrainFlowClassifiers classifier : BrainFlowClassifiers.values())
+            {
+                model_params = new BrainFlowModelParams (metric.get_code(),
+                    classifier.get_code ());
+                concentration = new MLModel (model_params);
+                concentration.prepare ();
+                System.out.println (metric.name() + " " + classifier.name() + ":" + concentration.predict (feature_vector));
+                concentration.release ();
+            }
+        }
     }
 
     private static int parse_args (String[] args, BrainFlowInputParams params)
@@ -80,6 +101,10 @@ public class EEGMetrics
             if (args[i].equals ("--serial-number"))
             {
                 params.serial_number = args[i + 1];
+            }
+            if (args[i].equals ("--file"))
+            {
+                params.file = args[i + 1];
             }
         }
         return board_id;
