@@ -15,7 +15,8 @@ int ConcentrationRegressionClassifier::predict (double *data, int data_len, doub
 {
     if ((data_len < 5) || (data == NULL) || (output == NULL))
     {
-        safe_logger (spdlog::level::err, "Classifier has already been prepared.");
+        safe_logger (spdlog::level::err,
+            "Incorrect arguments. Data len must be 10 and pointers should be non null.");
         return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
     double value = 0.0;

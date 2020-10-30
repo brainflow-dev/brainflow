@@ -182,6 +182,11 @@ script:
   - cd $TRAVIS_BUILD_DIR/java-package/brainflow && mvn exec:java -Dexec.mainClass="brainflow.examples.Transforms"
   - cd $TRAVIS_BUILD_DIR/java-package/brainflow && mvn exec:java -Dexec.mainClass="brainflow.examples.BandPower"
   - cd $TRAVIS_BUILD_DIR/java-package/brainflow && mvn exec:java -Dexec.mainClass="brainflow.examples.BandPowerAll"
+  # tests for ml module
+  - python3 $TRAVIS_BUILD_DIR/tests/python/eeg_metrics.py --board-id -1 
+  - python3 $TRAVIS_BUILD_DIR/tests/python/eeg_metrics_ci.py --board-id -1 --classifier 2 --metric 1
+  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib $TRAVIS_BUILD_DIR/tests/cpp/ml_demo/build/eeg_metrics --board-id -1
+  - cd $TRAVIS_BUILD_DIR/java-package/brainflow && mvn exec:java -Dexec.mainClass="brainflow.examples.EEGMetrics" -Dexec.args="--board-id -1"
 
 after_success:
   # push libraries from docker!

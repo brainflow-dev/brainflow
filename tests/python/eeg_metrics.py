@@ -38,13 +38,13 @@ def main ():
     params.ip_protocol = args.ip_protocol
     params.timeout = args.timeout
     params.file = args.file
-    board = BoardShim(args.board_id, params)
+    board = BoardShim (args.board_id, params)
     master_board_id = args.board_id
     if ((args.board_id == BoardIds.STREAMING_BOARD.value) or (args.board_id == BoardIds.PLAYBACK_FILE_BOARD.value)):
         try:
             master_board_id = params.other_info
         except:
-            raise BrainFlowError('specify master board id using params.other_info', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+            raise BrainFlowError ('specify master board id using params.other_info', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
     sampling_rate = BoardShim.get_sampling_rate (int(master_board_id))
     board.prepare_session ()
     board.start_stream (45000, args.streamer_params)
@@ -54,11 +54,11 @@ def main ():
     board.stop_stream ()
     board.release_session ()
 
-    eeg_channels = BoardShim.get_eeg_channels (int(master_board_id))
+    eeg_channels = BoardShim.get_eeg_channels (int (master_board_id))
     bands = DataFilter.get_avg_band_powers (data, eeg_channels, sampling_rate, True)
     feature_vector = np.concatenate ((bands[0], bands[1]))
-    print(feature_vector)
-    
+    print (feature_vector)
+
     # calc concentration
     concentration_params = BrainFlowModelParams (BrainFlowMetrics.CONCENTRATION.value, BrainFlowClassifiers.KNN.value)
     concentration = MLModel (concentration_params)

@@ -14,11 +14,11 @@ int ConcentrationSVMClassifier::prepare ()
 #else
     char path[1024];
     bool res = get_dll_path (path);
-    char *full_path = new char[std::strlen (path) + std::strlen ("brainflow_svm.model") + 1];
+    char *full_path = (char *)malloc (std::strlen (path) + std::strlen ("brainflow_svm.model") + 1);
     std::strcpy (full_path, path);
     std::strcat (full_path, "brainflow_svm.model");
     model = svm_load_model (full_path);
-    delete[] full_path;
+    free (full_path);
     return (int)BrainFlowExitCodes::STATUS_OK;
 #endif
 }
@@ -33,10 +33,10 @@ int ConcentrationSVMClassifier::predict (double *data, int data_len, double *out
         safe_logger (spdlog::level::err, "Please prepare classifier with prepare method.");
         return (int)BrainFlowExitCodes::CLASSIFIER_IS_NOT_PREPARED_ERROR;
     }
-    if ((data_len < 5) || (data == NULL) || (output == NULL))
+    if ((data_len != 10) || (data == NULL) || (output == NULL))
     {
         safe_logger (spdlog::level::err,
-            "Incorrect arguments. Data len must be >=5 and pointers should be non null.");
+            "Incorrect arguments. Data len must be 10 and pointers should be non null.");
         return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
     struct svm_node *x;

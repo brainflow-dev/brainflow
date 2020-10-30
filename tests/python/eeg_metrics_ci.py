@@ -27,6 +27,8 @@ def main ():
     parser.add_argument ('--serial-number', type = str, help  = 'serial number', required = False, default = '')
     parser.add_argument ('--board-id', type = int, help  = 'board id, check docs to get a list of supported boards', required = True)
     parser.add_argument ('--file', type = str, help  = 'file', required = False, default = '')
+    parser.add_argument ('--classifier', type = int, help  = 'classifier to use', required = True)
+    parser.add_argument ('--metric', type = int, help  = 'metric to use', required = True)
     args = parser.parse_args ()
 
     params = BrainFlowInputParams ()
@@ -39,14 +41,14 @@ def main ():
     params.ip_protocol = args.ip_protocol
     params.timeout = args.timeout
     params.file = args.file
-    board = BoardShim(args.board_id, params)
+    board = BoardShim (args.board_id, params)
     master_board_id = args.board_id
     if ((args.board_id == BoardIds.STREAMING_BOARD.value) or (args.board_id == BoardIds.PLAYBACK_FILE_BOARD.value)):
         try:
             master_board_id = params.other_info
         except:
-            raise BrainFlowError('specify master board id using params.other_info', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
-    sampling_rate = BoardShim.get_sampling_rate (int(master_board_id))
+            raise BrainFlowError ('specify master board id using params.other_info', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+    sampling_rate = BoardShim.get_sampling_rate (int (master_board_id))
     board.prepare_session ()
     board.start_stream (45000, args.streamer_params)
     BoardShim.log_message (LogLevels.LEVEL_INFO.value, 'start sleeping in the main thread')
@@ -58,47 +60,13 @@ def main ():
     eeg_channels = BoardShim.get_eeg_channels (int(master_board_id))
     bands = DataFilter.get_avg_band_powers (data, eeg_channels, sampling_rate, True)
     feature_vector = np.concatenate ((bands[0], bands[1]))
-    print(feature_vector)
+    print (feature_vector)
     
-    # calc concentration SVM
-    concentration_params = BrainFlowModelParams (BrainFlowMetrics.CONCENTRATION.value, BrainFlowClassifiers.SVM.value)
-    concentration = MLModel (concentration_params)
-    concentration.prepare ()
-    print ('Concentration SVM: %f' % concentration.predict (feature_vector))
-    concentration.release()
-    
-    # calc concentration KNN
-    concentration_params = BrainFlowModelParams (BrainFlowMetrics.CONCENTRATION.value, BrainFlowClassifiers.KNN.value)
-    concentration = MLModel (concentration_params)
-    concentration.prepare ()
-    print ('Concentration KNN: %f' % concentration.predict (feature_vector))
+    model_params = BrainFlowModelParams (args.metric, args.classifier)
+    model = MLModel (model_params)
+    model.prepare ()
+    print ('Model Score: %f' % model.predict (feature_vector))
     concentration.release ()
-
-    # calc concentration REGRESSION
-    concentration_params = BrainFlowModelParams (BrainFlowMetrics.CONCENTRATION.value, BrainFlowClassifiers.REGRESSION.value)
-    concentration = MLModel (concentration_params)
-    concentration.prepare ()
-    print ('Concentration REGRESSION: %f' % concentration.predict (feature_vector))
-    concentration.release()
-    
-    # calc relaxation
-    relaxation_params = BrainFlowModelParams (BrainFlowMetrics.RELAXATION.value, BrainFlowClassifiers.SVM.value)
-    relaxation = MLModel (relaxation_params)
-    relaxation.prepare ()
-    print ('Relaxation SVM: %f' % relaxation.predict (feature_vector))
-    relaxation.release()
-    
-    relaxation_params = BrainFlowModelParams (BrainFlowMetrics.RELAXATION.value, BrainFlowClassifiers.KNN.value)
-    relaxation = MLModel (relaxation_params)
-    relaxation.prepare ()
-    print ('Relaxation KNN: %f' % relaxation.predict (feature_vector))
-    relaxation.release()
-    
-    relaxation_params = BrainFlowModelParams (BrainFlowMetrics.RELAXATION.value, BrainFlowClassifiers.REGRESSION.value)
-    relaxation = MLModel (relaxation_params)
-    relaxation.prepare ()
-    print ('Relaxation REGRESSION: %f' % relaxation.predict (feature_vector))
-    relaxation.release ()
 
 
 if __name__ == "__main__":
