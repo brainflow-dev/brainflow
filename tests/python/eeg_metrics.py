@@ -57,13 +57,20 @@ def main ():
     bands = DataFilter.get_avg_band_powers (data, eeg_channels, sampling_rate, True)
     feature_vector = np.concatenate ((bands[0], bands[1]))
     print(feature_vector)
-    
-    for metric in BrainFlowMetrics:
-        for classifier in BrainFlowClassifiers:
-            concentration_params = BrainFlowModelParams (metric.value, classifier.value)
-            concentration = MLModel (concentration_params)
-            concentration.prepare ()
-            print (f'{metric.name} {classifier.name}: {concentration.predict (feature_vector)}')
-            concentration.release()
+
+    # calc concentration
+    concentration_params = BrainFlowModelParams (BrainFlowMetrics.CONCENTRATION.value, BrainFlowClassifiers.KNN.value)
+    concentration = MLModel (concentration_params)
+    concentration.prepare ()
+    print ('Concentration: %f' % concentration.predict (feature_vector))
+    concentration.release ()
+
+    # calc relaxation
+    relaxation_params = BrainFlowModelParams (BrainFlowMetrics.RELAXATION.value, BrainFlowClassifiers.REGRESSION.value)
+    relaxation = MLModel (relaxation_params)
+    relaxation.prepare ()
+    print ('Relaxation: %f' % relaxation.predict (feature_vector))
+    relaxation.release ()
+
 if __name__ == "__main__":
     main ()

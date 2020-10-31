@@ -29,7 +29,7 @@ class BrainFlowClassifiers (enum.Enum):
     REGRESSION = 0 #:
     KNN = 1 #:
     SVM = 2 #:
-
+    LDA = 3 #:
 
 class BrainFlowModelParams (object):
     """ inputs parameters for prepare_session method

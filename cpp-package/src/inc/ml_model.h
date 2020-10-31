@@ -20,7 +20,9 @@ private:
 public:
     // clang-format off
     MLModel (struct BrainFlowModelParams params);
-    ~MLModel ();
+    ~MLModel ()
+    {
+    }
 
     /// redirect logger to a file
     static void set_log_file (char *log_file);

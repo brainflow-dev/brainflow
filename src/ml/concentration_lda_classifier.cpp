@@ -3,35 +3,34 @@
 #include <stdlib.h>
 
 #include "brainflow_constants.h"
-#include "concentration_regression_classifier.h"
-#include "regression_model.h"
+#include "concentration_lda_classifier.h"
+#include "lda_model.h"
 
-
-int ConcentrationRegressionClassifier::prepare ()
+int ConcentrationLDAClassifier::prepare ()
 {
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int ConcentrationRegressionClassifier::predict (double *data, int data_len, double *output)
+int ConcentrationLDAClassifier::predict (double *data, int data_len, double *output)
 {
     if ((data_len < 5) || (data == NULL) || (output == NULL))
     {
-        safe_logger (spdlog::level::err,
-            "Incorrect arguments. Data len must be 10 and pointers should be non null.");
+        safe_logger (spdlog::level::err, "Classifier has already been prepared.");
         return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
     double value = 0.0;
+
     // undocumented feature(not recommended): may work without stddev but with worse accuracy
     for (int i = 0; i < std::min (data_len, 10); i++)
     {
-        value += regression_coefficients[i] * data[i];
+        value += lda_coefficients[i] * data[i];
     }
-    double concentration = 1.0 / (1.0 + exp (-1.0 * (regression_intercept + value)));
+    double concentration = 1.0 / (1.0 + exp (-1.0 * (lda_intercept + value)));
     *output = concentration;
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int ConcentrationRegressionClassifier::release ()
+int ConcentrationLDAClassifier::release ()
 {
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
