@@ -31,7 +31,6 @@ class BrainFlowClassifiers (enum.Enum):
     SVM = 2 #:
     LDA = 3 #:
 
-
 class BrainFlowModelParams (object):
     """ inputs parameters for prepare_session method
 

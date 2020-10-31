@@ -38,7 +38,7 @@ public:
     int start_stream (int buffer_size, char *streamer_params);
     int stop_stream ();
     int release_session ();
-    int config_board (char *config);
+    int config_board (std::string config, std::string &response);
 
     static constexpr int package_size = 68;
     static constexpr int num_packages = 20;

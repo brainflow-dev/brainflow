@@ -27,7 +27,7 @@ protected:
     std::string find_wifi_shield ();
 
     virtual void read_thread () = 0;
-    virtual int send_config (char *config);
+    virtual int send_config (const char *config);
 
 public:
     OpenBCIWifiShieldBoard (int num_channels, struct BrainFlowInputParams params, int board_id);
@@ -37,7 +37,7 @@ public:
     virtual int start_stream (int buffer_size, char *streamer_params);
     virtual int stop_stream ();
     virtual int release_session ();
-    virtual int config_board (char *config);
+    virtual int config_board (std::string config, std::string &response);
 
     static constexpr int package_size = 33;
 };
