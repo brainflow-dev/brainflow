@@ -84,14 +84,7 @@ int ConcentrationSVMClassifier::release ()
         safe_logger (spdlog::level::err, "Must prepare model before releasing it.");
         return (int)BrainFlowExitCodes::CLASSIFIER_IS_NOT_PREPARED_ERROR;
     }
-<<<<<<< HEAD
-    svm_free_model_content (model);
-    free (model);
-    model = NULL;
-    safe_logger (spdlog::level::info, "Model has been cleared.");
-=======
     svm_free_and_destroy_model (&model);
->>>>>>> e98c922539c3ced3f88ff38c9c263a74df52b332
     return (int)BrainFlowExitCodes::STATUS_OK;
 #endif
 }
