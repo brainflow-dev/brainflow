@@ -89,21 +89,25 @@ int main (int argc, char *argv[])
         }
         std::cout << std::endl;
 
-        // Prepare Models
-        struct BrainFlowModelParams conc_model_params (
-            (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::KNN);
+        // Testing all classifiers and metric types
+        struct BrainFlowModelParams conc_model_params (0, 0);
         MLModel concentration_model (conc_model_params);
-        concentration_model.prepare ();
-        std::cout << "Concentration: " << concentration_model.predict (feature_vector, 10)
-                  << std::endl;
-        concentration_model.release ();
-
-        struct BrainFlowModelParams relax_model_params (
-            (int)BrainFlowMetrics::RELAXATION, (int)BrainFlowClassifiers::REGRESSION);
-        MLModel relax_model (relax_model_params);
-        relax_model.prepare ();
-        std::cout << "Relaxation: " << relax_model.predict (feature_vector, 10) << std::endl;
-        relax_model.release ();
+        string metric_type = "Concentration";
+        for (int metric = 1; metric >= 0; metric--)
+        {
+            if (!metric)
+                metric_type = "Relaxation";
+            for (int classifier = (int)BrainFlowClassifiers::REGRESSION;
+                 classifier <= (int)BrainFlowClassifiers::LDA; classifier++)
+            {
+                conc_model_params = BrainFlowModelParams (metric, classifier);
+                concentration_model = MLModel (conc_model_params);
+                concentration_model.prepare ();
+                std::cout << metric_type << " Classifier " << classifier << ":"
+                          << concentration_model.predict (feature_vector, 10) << std::endl;
+                concentration_model.release ();
+            }
+        }
 
         delete[] bands.first;
         delete[] bands.second;
