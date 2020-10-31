@@ -492,9 +492,10 @@ void Ganglion::read_thread ()
     delete[] package;
 }
 
-int Ganglion::config_board (char *config)
+int Ganglion::config_board (std::string config, std::string &response)
 {
-    safe_logger (spdlog::level::debug, "Trying to config Ganglion with {}", config);
+    const char *conf = config.c_str ();
+    safe_logger (spdlog::level::debug, "Trying to config Ganglion with {}", conf);
     // need to pause, config and restart. I have no idea why it doesnt work if I restart it inside
     // bglib or just call call_stop call_start, full restart solves the issue
     if (keep_alive)
@@ -514,14 +515,14 @@ int Ganglion::config_board (char *config)
         to handle it and keep it consistent with other devices we swap chars for command_start and
         command_stop
         */
-        if ((strlen (config)) && (config[0] == 'z'))
+        if ((strlen (conf)) && (conf[0] == 'z'))
         {
             start_command = "z";
             stop_command = "Z";
         }
         else
         {
-            if ((strlen (config)) && (config[0] == 'Z'))
+            if ((strlen (conf)) && (conf[0] == 'Z'))
             {
                 start_command = "b";
                 stop_command = "s";
@@ -530,7 +531,7 @@ int Ganglion::config_board (char *config)
             else
             {
                 // call itself with disabled streaming
-                res = config_board (config);
+                res = config_board (config, response);
             }
         }
         if (res != (int)BrainFlowExitCodes::STATUS_OK)
@@ -542,21 +543,21 @@ int Ganglion::config_board (char *config)
     // streaming is not started, dont pause
     else
     {
-        if ((strlen (config)) && (config[0] == 'z'))
+        if ((strlen (conf)) && (conf[0] == 'z'))
         {
             start_command = "z";
             stop_command = "Z";
         }
         else
         {
-            if ((strlen (config)) && (config[0] == 'Z'))
+            if ((strlen (conf)) && (conf[0] == 'Z'))
             {
                 start_command = "b";
                 stop_command = "s";
             }
             else
             {
-                return call_config (config);
+                return call_config (const_cast<char *> (conf));
             }
         }
     }

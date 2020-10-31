@@ -9,8 +9,11 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <string.h>
+#include <string>
 #include <utility>
 
+#include "auraxr.h"
 #include "board.h"
 #include "board_controller.h"
 #include "board_info_getter.h"
@@ -29,7 +32,6 @@
 #include "ganglion_wifi.h"
 #include "ironbci.h"
 #include "notion_osc.h"
-#include "novaxr.h"
 #include "playback_file_board.h"
 #include "streaming_board.h"
 #include "synthetic_board.h"
@@ -92,8 +94,8 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
         case BoardIds::CYTON_DAISY_BOARD:
             board = std::shared_ptr<Board> (new CytonDaisy (params));
             break;
-        case BoardIds::NOVAXR_BOARD:
-            board = std::shared_ptr<Board> (new NovaXR (params));
+        case BoardIds::AURAXR_BOARD:
+            board = std::shared_ptr<Board> (new AuraXR (params));
             break;
         case BoardIds::GANGLION_WIFI_BOARD:
             board = std::shared_ptr<Board> (new GanglionWifi (params));
@@ -292,9 +294,14 @@ int set_log_file (char *log_file)
     return Board::set_log_file (log_file);
 }
 
-int config_board (char *config, int board_id, char *json_brainflow_input_params)
+int config_board (char *config, char *response, int *response_len, int board_id,
+    char *json_brainflow_input_params)
 {
     std::lock_guard<std::mutex> lock (mutex);
+    if ((config == NULL) || (response == NULL) || (response_len == NULL))
+    {
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
 
     std::pair<int, struct BrainFlowInputParams> key;
     int res = check_board_session (board_id, json_brainflow_input_params, key, false);
@@ -303,7 +310,15 @@ int config_board (char *config, int board_id, char *json_brainflow_input_params)
         return res;
     }
     auto board_it = boards.find (key);
-    return board_it->second->config_board (config);
+    std::string conf = config;
+    std::string resp = "";
+    res = board_it->second->config_board (conf, resp);
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        *response_len = resp.length ();
+        strcpy (response, resp.c_str ());
+    }
+    return res;
 }
 
 /////////////////////////////////////////////////

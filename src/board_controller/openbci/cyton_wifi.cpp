@@ -21,7 +21,7 @@ int CytonWifi::prepare_session ()
     {
         return res;
     }
-    return config_board ("d");
+    return send_config ("d");
 }
 
 void CytonWifi::read_thread ()

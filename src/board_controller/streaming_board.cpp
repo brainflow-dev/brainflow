@@ -68,7 +68,7 @@ int StreamingBoard::prepare_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int StreamingBoard::config_board (char *config)
+int StreamingBoard::config_board (std::string config, std::string &response)
 {
     // dont allow streaming boards to change config for master board
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

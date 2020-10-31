@@ -263,21 +263,21 @@ void PlaybackFileBoard::read_thread ()
     delete[] package;
 }
 
-int PlaybackFileBoard::config_board (char *config)
+int PlaybackFileBoard::config_board (std::string config, std::string &response)
 {
-    if (strcmp (config, SET_LOOPBACK_TRUE) == 0)
+    if (strcmp (config.c_str (), SET_LOOPBACK_TRUE) == 0)
     {
         loopback = true;
     }
-    else if (strcmp (config, SET_LOOPBACK_FALSE) == 0)
+    else if (strcmp (config.c_str (), SET_LOOPBACK_FALSE) == 0)
     {
         loopback = false;
     }
-    else if (strcmp (config, NEW_TIMESTAMPS) == 0)
+    else if (strcmp (config.c_str (), NEW_TIMESTAMPS) == 0)
     {
         use_new_timestamps = true;
     }
-    else if (strcmp (config, OLD_TIMESTAMPS) == 0)
+    else if (strcmp (config.c_str (), OLD_TIMESTAMPS) == 0)
     {
         use_new_timestamps = false;
     }

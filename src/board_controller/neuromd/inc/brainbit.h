@@ -47,7 +47,7 @@ public:
     int start_stream (int buffer_size, char *streamer_params);
     int stop_stream ();
     int release_session ();
-    int config_board (char *config);
+    int config_board (std::string config, std::string &response);
 
 #if defined _WIN32 || defined __APPLE__
     // callbacks must be public since they are called from plain C callbacks
