@@ -8,6 +8,7 @@ class ConcentrationSVMClassifier : public BaseClassifier
 public:
     ConcentrationSVMClassifier (struct BrainFlowModelParams params) : BaseClassifier (params)
     {
+        model = NULL;
     }
 
     virtual ~ConcentrationSVMClassifier ()
@@ -19,6 +20,7 @@ public:
     virtual int prepare ();
     virtual int predict (double *data, int data_len, double *output);
     virtual int release ();
+
 private:
-    struct svm_model *model = NULL;
+    struct svm_model *model;
 };

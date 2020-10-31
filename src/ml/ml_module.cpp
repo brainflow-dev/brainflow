@@ -8,12 +8,13 @@
 #include "brainflow_model_params.h"
 #include "concentration_knn_classifier.h"
 #include "concentration_regression_classifier.h"
-#include "json.hpp"
+#include "concentration_svm_classifier.h"
 #include "ml_module.h"
 #include "relaxation_knn_classifier.h"
 #include "relaxation_regression_classifier.h"
 #include "relaxation_svm_classifier.h"
 
+#include "json.hpp"
 
 using json = nlohmann::json;
 

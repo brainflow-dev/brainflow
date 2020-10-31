@@ -16,13 +16,16 @@ using namespace std;
 using namespace std::chrono;
 
 
-bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, int *board_id);
+bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, int *board_id,
+    int *metric, int *classifier);
 
 int main (int argc, char *argv[])
 {
     struct BrainFlowInputParams params;
     int board_id = 0;
-    if (!parse_args (argc, argv, &params, &board_id))
+    int classifier = 0;
+    int metric = 0;
+    if (!parse_args (argc, argv, &params, &board_id, &metric, &classifier))
     {
         return -1;
     }
@@ -90,54 +93,11 @@ int main (int argc, char *argv[])
         std::cout << std::endl;
 
         // Prepare Models
-        struct BrainFlowModelParams conc_model_params (
-            (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::SVM);
-        MLModel concentration_model (conc_model_params);
-        concentration_model.prepare ();
-        std::cout << "Concentration SVM: " << concentration_model.predict (feature_vector, 10)
-                  << std::endl;
-        concentration_model.release ();
-
-        conc_model_params = BrainFlowModelParams (
-            (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::KNN);
-        concentration_model = MLModel (conc_model_params);
-        concentration_model.prepare ();
-        std::cout << "Concentration KNN: " << concentration_model.predict (feature_vector, 10)
-                  << std::endl;
-        concentration_model.release ();
-        
-        conc_model_params = BrainFlowModelParams (
-            (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::REGRESSION);
-        concentration_model = MLModel (conc_model_params);
-        concentration_model.prepare ();
-        std::cout << "Concentration REGRESSION: " << concentration_model.predict (feature_vector, 10)
-                  << std::endl;
-        concentration_model.release ();
-
-
-
-        struct BrainFlowModelParams relax_model_params (
-            (int)BrainFlowMetrics::RELAXATION, (int)BrainFlowClassifiers::SVM);
-        MLModel relax_model (relax_model_params);
-        relax_model.prepare ();
-        std::cout << "Relaxation SVM : " << relax_model.predict (feature_vector, 10) << std::endl;
-        relax_model.release ();
-
-        relax_model_params = BrainFlowModelParams (
-            (int)BrainFlowMetrics::RELAXATION, (int)BrainFlowClassifiers::KNN);
-        relax_model = MLModel (relax_model_params);
-        relax_model.prepare ();
-        std::cout << "Relaxation KNN: " << relax_model.predict (feature_vector, 10)
-                  << std::endl;
-        relax_model.release ();
-
-        relax_model_params = BrainFlowModelParams (
-            (int)BrainFlowMetrics::RELAXATION, (int)BrainFlowClassifiers::REGRESSION);
-        relax_model = MLModel (relax_model_params);
-        relax_model.prepare ();
-        std::cout << "Relaxation REGRESSION: " << relax_model.predict (feature_vector, 10)
-                  << std::endl;
-        relax_model.release ();
+        struct BrainFlowModelParams model_params (metric, classifier);
+        MLModel model (model_params);
+        model.prepare ();
+        std::cout << "Model Score: " << model.predict (feature_vector, 10) << std::endl;
+        model.release ();
 
         delete[] bands.first;
         delete[] bands.second;
@@ -163,9 +123,12 @@ int main (int argc, char *argv[])
 }
 
 
-bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, int *board_id)
+bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, int *board_id,
+    int *metric, int *classifier)
 {
     bool board_id_found = false;
+    bool classifier_found = false;
+    bool metric_found = false;
     for (int i = 1; i < argc; i++)
     {
         if (std::string (argv[i]) == std::string ("--board-id"))
@@ -175,6 +138,34 @@ bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, in
                 i++;
                 board_id_found = true;
                 *board_id = std::stoi (std::string (argv[i]));
+            }
+            else
+            {
+                std::cerr << "missed argument" << std::endl;
+                return false;
+            }
+        }
+        if (std::string (argv[i]) == std::string ("--classifier"))
+        {
+            if (i + 1 < argc)
+            {
+                i++;
+                classifier_found = true;
+                *classifier = std::stoi (std::string (argv[i]));
+            }
+            else
+            {
+                std::cerr << "missed argument" << std::endl;
+                return false;
+            }
+        }
+        if (std::string (argv[i]) == std::string ("--metric"))
+        {
+            if (i + 1 < argc)
+            {
+                i++;
+                metric_found = true;
+                *metric = std::stoi (std::string (argv[i]));
             }
             else
             {
@@ -303,6 +294,16 @@ bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, in
     if (!board_id_found)
     {
         std::cerr << "board id is not provided" << std::endl;
+        return false;
+    }
+    if (!classifier)
+    {
+        std::cerr << "classifier is not provided" << std::endl;
+        return false;
+    }
+    if (!metric)
+    {
+        std::cerr << "metric is not provided" << std::endl;
         return false;
     }
     return true;
