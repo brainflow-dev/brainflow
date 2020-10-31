@@ -98,7 +98,7 @@ int main (int argc, char *argv[])
             if (!metric)
                 metric_type = "Relaxation";
             for (int classifier = (int)BrainFlowClassifiers::REGRESSION;
-                 classifier <= (int)BrainFlowClassifiers::LDA; classifier++)
+                 classifier <= (int)BrainFlowClassifiers::SVM; classifier++)
             {
                 conc_model_params = BrainFlowModelParams (metric, classifier);
                 concentration_model = MLModel (conc_model_params);

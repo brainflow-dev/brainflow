@@ -65,8 +65,10 @@ int ConcentrationSVMClassifier::predict (double *data, int data_len, double *out
     }
     x[data_len].index = -1;
     double prob_estimates[2];
+    int labels[2];
+    svm_get_labels (model, labels);
     svm_predict_probability (model, x, prob_estimates);
-    *output = prob_estimates[0];
+    *output = prob_estimates[(labels[1] & 1)];
     free (x);
     return (int)BrainFlowExitCodes::STATUS_OK;
 #endif
