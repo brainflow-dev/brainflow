@@ -8,11 +8,13 @@
 #include "brainflow_model_params.h"
 #include "concentration_knn_classifier.h"
 #include "concentration_regression_classifier.h"
-#include "json.hpp"
+#include "concentration_svm_classifier.h"
 #include "ml_module.h"
 #include "relaxation_knn_classifier.h"
 #include "relaxation_regression_classifier.h"
+#include "relaxation_svm_classifier.h"
 
+#include "json.hpp"
 
 using json = nlohmann::json;
 
@@ -49,6 +51,16 @@ int prepare (char *json_params)
         (key.classifier == (int)BrainFlowClassifiers::REGRESSION))
     {
         model = std::shared_ptr<BaseClassifier> (new ConcentrationRegressionClassifier (key));
+    }
+    else if ((key.metric == (int)BrainFlowMetrics::RELAXATION) &&
+        (key.classifier == (int)BrainFlowClassifiers::SVM))
+    {
+        model = std::shared_ptr<BaseClassifier> (new RelaxationSVMClassifier (key));
+    }
+    else if ((key.metric == (int)BrainFlowMetrics::CONCENTRATION) &&
+        (key.classifier == (int)BrainFlowClassifiers::SVM))
+    {
+        model = std::shared_ptr<BaseClassifier> (new ConcentrationSVMClassifier (key));
     }
     else if ((key.metric == (int)BrainFlowMetrics::CONCENTRATION) &&
         (key.classifier == (int)BrainFlowClassifiers::KNN))

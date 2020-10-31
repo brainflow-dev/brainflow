@@ -6,7 +6,6 @@ import time
 import pickle
 
 import numpy as np
-
 from sklearn import metrics
 from sklearn.linear_model import LogisticRegression
 from sklearn.dummy import DummyClassifier
@@ -19,6 +18,8 @@ import brainflow
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels, BoardIds
 from brainflow.data_filter import DataFilter, FilterTypes, AggOperations, WindowFunctions, DetrendOperations
 from brainflow.ml_model import BrainFlowMetrics, BrainFlowClassifiers, MLModel, BrainFlowModelParams
+
+from svm_classifier import train_brainflow_search_svm, train_brainflow_svm
 
 
 def prepare_data ():
@@ -63,7 +64,7 @@ def prepare_data ():
 
     return dataset_x, dataset_y
 
-def get_eeg_channels(board_id):
+def get_eeg_channels (board_id):
     eeg_channels = BoardShim.get_eeg_channels (board_id)
     # optional: filter some channels we dont want to consider
     try:
@@ -97,7 +98,7 @@ def train_regression (data):
 def train_knn (data):
     model = KNeighborsClassifier (n_neighbors = 5)
     print('#### KNN ####')
-    data_x = data[0].copy()
+    data_x = data[0].copy ()
     for i, x in enumerate (data_x):
         for j in range (5, 10):
             data_x[i][j] = data_x[i][j] / 5 # idea to make stddev less important than avg, 5 random value
@@ -154,10 +155,24 @@ def test_brainflow_knn (data):
     print ('Total time %f' % (stop_time - start_time))
     print (metrics.classification_report (data[1], predicted))
 
+def test_brainflow_svm (data):
+    print ('Test BrainFlow SVM')
+    params = BrainFlowModelParams (BrainFlowMetrics.CONCENTRATION.value, BrainFlowClassifiers.SVM.value)
+    model = MLModel (params)
+    start_time = time.time ()
+    model.prepare ()
+    predicted = [model.predict (x) >= 0.5 for x in data[0]]
+    model.release ()
+    stop_time = time.time ()
+    print ('Total time %f' % (stop_time - start_time))
+    print (metrics.classification_report (data[1], predicted))
+
+
 def main ():
     parser = argparse.ArgumentParser ()
     parser.add_argument ('--test', action = 'store_true')
-    parser.add_argument ('--reuse-dataset', action = 'store_true')
+    parser.add_argument('--reuse-dataset', action='store_true')
+    parser.add_argument('--grid-search',action='store_true')
     args = parser.parse_args ()
 
     if args.reuse_dataset:
@@ -173,7 +188,10 @@ def main ():
         # since we port models from python to c++ we need to test it as well
         test_brainflow_knn (data)
         test_brainflow_lr (data)
+        test_brainflow_svm (data)
     else:
+        # Don't use grid search method unless you have to as it takes a while to complete
+        train_brainflow_search_svm (data) if args.grid_search else train_brainflow_svm (data)
         train_regression (data)
         train_knn (data)
 

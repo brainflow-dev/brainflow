@@ -28,6 +28,7 @@ class BrainFlowClassifiers (enum.Enum):
 
     REGRESSION = 0 #:
     KNN = 1 #:
+    SVM = 2 #:
 
 
 class BrainFlowModelParams (object):

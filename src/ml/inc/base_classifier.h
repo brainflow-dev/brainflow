@@ -16,6 +16,7 @@ public:
 
     BaseClassifier (struct BrainFlowModelParams model_params) : params (model_params)
     {
+        skip_logs = false;
     }
 
     virtual ~BaseClassifier ()
