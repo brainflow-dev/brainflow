@@ -17,6 +17,7 @@ end
     REGRESSION = 0
     KNN = 1
     SVM = 2
+    LDA = 3
 
 end
 

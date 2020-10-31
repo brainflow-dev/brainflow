@@ -9,6 +9,7 @@ import numpy as np
 from sklearn import metrics
 from sklearn.linear_model import LogisticRegression
 from sklearn.dummy import DummyClassifier
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from metric_learn import LMNN
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.decomposition import PCA
@@ -81,6 +82,37 @@ def get_eeg_channels (board_id):
     print ('channels to use: %s' % str (eeg_channels))
     return eeg_channels
 
+def write_model(intercept,coefs,model_type):
+    # we prepare dataset in C++ code in compile time, need to generate header for it
+    coefficients_string = '%s' % (','.join([str(x) for x in coefs[0]]))
+    file_content = '''
+#pragma once
+
+
+// clang-format off
+
+const double %s_coefficients[10] = {%s};
+double %s_intercept = %lf ;
+
+// clang-format on
+''' % (model_type,coefficients_string, model_type,intercept)
+    file_name = f'{model_type}_model.h'
+    file_path = os.path.join (os.path.dirname (os.path.realpath (__file__)), '..', 'inc', file_name)
+    with open(file_path, 'w') as f:
+        f.write (file_content)
+
+def train_LDA(data):
+    model = LinearDiscriminantAnalysis()
+    print('#### Linear Discriminant Analysis ####')
+    scores = cross_val_score (model, data[0], data[1], cv = 5, scoring = 'f1_macro', n_jobs = 8)
+    print ('f1 macro %s' % str (scores))
+    scores = cross_val_score (model, data[0], data[1], cv = 5, scoring = 'precision_macro', n_jobs = 8)
+    print ('precision macro %s' % str (scores))
+    scores = cross_val_score (model, data[0], data[1], cv = 5, scoring = 'recall_macro', n_jobs = 8)
+    print('recall macro %s' % str(scores))
+    model.fit(data[0], data[1])
+    write_model(model.intercept_,model.coef_,'lda')
+
 def train_regression (data):
     model = LogisticRegression (class_weight = 'balanced', solver = 'liblinear', max_iter = 3000)
     print('#### Logistic Regression ####')
@@ -90,10 +122,8 @@ def train_regression (data):
     print ('precision macro %s' % str (scores))
     scores = cross_val_score (model, data[0], data[1], cv = 5, scoring = 'recall_macro', n_jobs = 8)
     print ('recall macro %s' % str (scores))
-
     model.fit (data[0], data[1])
-    print ("Logistic Regressition Coefficients:")
-    print (model.intercept_, model.coef_)
+    write_model(model.intercept_,model.coef_,'regression')
 
 def train_knn (data):
     model = KNeighborsClassifier (n_neighbors = 5)
@@ -155,6 +185,18 @@ def test_brainflow_knn (data):
     print ('Total time %f' % (stop_time - start_time))
     print (metrics.classification_report (data[1], predicted))
 
+def test_brainflow_lda (data):
+    print ('Test BrainFlow LDA')
+    params = BrainFlowModelParams (BrainFlowMetrics.CONCENTRATION.value, BrainFlowClassifiers.LDA.value)
+    model = MLModel (params)
+    start_time = time.time ()
+    model.prepare ()
+    predicted = [model.predict (x) >= 0.5 for x in data[0]]
+    model.release ()
+    stop_time = time.time ()
+    print ('Total time %f' % (stop_time - start_time))
+    print(metrics.classification_report(data[1], predicted))
+   
 def test_brainflow_svm (data):
     print ('Test BrainFlow SVM')
     params = BrainFlowModelParams (BrainFlowMetrics.CONCENTRATION.value, BrainFlowClassifiers.SVM.value)
@@ -187,13 +229,15 @@ def main ():
     if args.test:
         # since we port models from python to c++ we need to test it as well
         test_brainflow_knn (data)
-        test_brainflow_lr (data)
-        test_brainflow_svm (data)
+        test_brainflow_lr(data)
+        test_brainflow_svm(data)
+        test_brainflow_lda(data)
     else:
+        train_knn(data)
+        train_regression (data)
         # Don't use grid search method unless you have to as it takes a while to complete
         train_brainflow_search_svm (data) if args.grid_search else train_brainflow_svm (data)
-        train_regression (data)
-        train_knn (data)
+        train_LDA(data)
 
 
 if __name__ == '__main__':

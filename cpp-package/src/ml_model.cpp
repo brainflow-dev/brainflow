@@ -31,18 +31,6 @@ MLModel::MLModel (struct BrainFlowModelParams model_params) : params (model_para
     serialized_params = params_to_string (model_params);
 }
 
-MLModel::~MLModel ()
-{
-    try
-    {
-        release ();
-    }
-    catch (...)
-    {
-        // do nothing
-    }
-}
-
 void MLModel::prepare ()
 {
     int res = ::prepare (const_cast<char *> (serialized_params.c_str ()));
