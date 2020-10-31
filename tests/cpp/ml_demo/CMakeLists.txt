@@ -50,18 +50,39 @@ find_package (
     brainflow CONFIG REQUIRED
 )
 
+###############
+# eeg metrics #
+###############
 add_executable (
     eeg_metrics
     src/eeg_metrics.cpp
 )
-
 target_include_directories (
     eeg_metrics PUBLIC
     ${brainflow_INCLUDE_DIRS}
 )
-
 target_link_libraries (
     eeg_metrics PUBLIC
+    # for some systems(ubuntu for example) order matters
+    ${BrainflowPath}
+    ${MLModulePath}
+    ${DataHandlerPath}
+    ${BoardControllerPath}
+)
+
+###########
+# ci test #
+###########
+add_executable (
+    eeg_metrics_ci
+    src/eeg_metrics_ci.cpp
+)
+target_include_directories (
+    eeg_metrics_ci PUBLIC
+    ${brainflow_INCLUDE_DIRS}
+)
+target_link_libraries (
+    eeg_metrics_ci PUBLIC
     # for some systems(ubuntu for example) order matters
     ${BrainflowPath}
     ${MLModulePath}

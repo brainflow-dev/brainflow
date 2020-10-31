@@ -70,6 +70,7 @@
           <include>MLModule.dll</include>
           <include>libMLModule.so</include>
           <include>libMLModule.dylib</include>
+          <include>brainflow_svm.model</include>
         </includes>
       </resource>
     </resources>

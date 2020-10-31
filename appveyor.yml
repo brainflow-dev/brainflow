@@ -50,6 +50,7 @@ install:
   - mkdir %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build32 && cd %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build32 && cmake -G "Visual Studio 15 2017" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%APPVEYOR_BUILD_FOLDER%\installed32\ .. && cmake --build . --config Release -j 2 --parallel 2 > cpp_get_data_demo_build32_stdout.txt
   - mkdir %APPVEYOR_BUILD_FOLDER%\tests\cpp\signal_processing_demo\build && cd %APPVEYOR_BUILD_FOLDER%\tests\cpp\signal_processing_demo\build && cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%APPVEYOR_BUILD_FOLDER%\installed64\ .. && cmake --build . --config Release -j 2 --parallel 2 > cpp_signal_processing_demo_build64_stdout.txt
   - mkdir %APPVEYOR_BUILD_FOLDER%\tests\cpp\signal_processing_demo\build32 && cd %APPVEYOR_BUILD_FOLDER%\tests\cpp\signal_processing_demo\build32 && cmake -G "Visual Studio 15 2017" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%APPVEYOR_BUILD_FOLDER%\installed32\ .. && cmake --build . --config Release -j 2 --parallel 2 > cpp_signal_processing_demo_build32_stdout.txt
+  - mkdir %APPVEYOR_BUILD_FOLDER%\tests\cpp\ml_demo\build && cd %APPVEYOR_BUILD_FOLDER%\tests\cpp\ml_demo\build && cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%APPVEYOR_BUILD_FOLDER%\installed64\ .. && cmake --build . --config Release -j 2 --parallel 2 > cpp_ml_demo_build64_stdout.txt
   # mvn package for java
   - cd %APPVEYOR_BUILD_FOLDER%\java-package\brainflow && mvn package > maven_package_stdout.txt
 
@@ -116,6 +117,10 @@ test_script:
   - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\signal_filtering\bin\Release\test.exe
   - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\band_power\bin\Release\test.exe
   - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\band_power_all\bin\Release\test.exe
+  # tests for ml module
+  - python %APPVEYOR_BUILD_FOLDER%\tests\python\eeg_metrics.py --board-id -1
+  - python %APPVEYOR_BUILD_FOLDER%\tests\python\eeg_metrics_ci.py --board-id -1 --metric 0 --classifier 2
+  - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\tests\cpp\ml_demo\build\Release\eeg_metrics_ci.exe --board-id -1 --metric 1 --classifier 2
 
 deploy_script:
   - python -m pip install wheel > wheel_install.txt

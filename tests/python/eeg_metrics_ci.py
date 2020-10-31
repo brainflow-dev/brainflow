@@ -10,7 +10,9 @@ from brainflow.exit_codes import *
 
 
 def main ():
-    BoardShim.enable_dev_board_logger ()
+    BoardShim.enable_board_logger ()
+    DataFilter.enable_data_logger ()
+    MLModel.enable_ml_logger ()
 
     parser = argparse.ArgumentParser ()
     # use docs to check which parameters are required for specific board, e.g. for Cyton - set serial port
@@ -25,6 +27,8 @@ def main ():
     parser.add_argument ('--serial-number', type = str, help  = 'serial number', required = False, default = '')
     parser.add_argument ('--board-id', type = int, help  = 'board id, check docs to get a list of supported boards', required = True)
     parser.add_argument ('--file', type = str, help  = 'file', required = False, default = '')
+    parser.add_argument ('--classifier', type = int, help  = 'classifier to use', required = True)
+    parser.add_argument ('--metric', type = int, help  = 'metric to use', required = True)
     args = parser.parse_args ()
 
     params = BrainFlowInputParams ()
@@ -44,7 +48,7 @@ def main ():
             master_board_id = params.other_info
         except:
             raise BrainFlowError ('specify master board id using params.other_info', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
-    sampling_rate = BoardShim.get_sampling_rate (int(master_board_id))
+    sampling_rate = BoardShim.get_sampling_rate (int (master_board_id))
     board.prepare_session ()
     board.start_stream (45000, args.streamer_params)
     BoardShim.log_message (LogLevels.LEVEL_INFO.value, 'start sleeping in the main thread')
@@ -53,17 +57,17 @@ def main ():
     board.stop_stream ()
     board.release_session ()
 
-    eeg_channels = BoardShim.get_eeg_channels (int (master_board_id))
+    eeg_channels = BoardShim.get_eeg_channels (int(master_board_id))
     bands = DataFilter.get_avg_band_powers (data, eeg_channels, sampling_rate, True)
     feature_vector = np.concatenate ((bands[0], bands[1]))
-    print(feature_vector)
+    print (feature_vector)
     
-    for metric in BrainFlowMetrics:
-        for classifier in BrainFlowClassifiers:
-            concentration_params = BrainFlowModelParams (metric.value, classifier.value)
-            concentration = MLModel (concentration_params)
-            concentration.prepare ()
-            print (f'{metric.name} {classifier.name}: {concentration.predict (feature_vector)}')
-            concentration.release()
+    model_params = BrainFlowModelParams (args.metric, args.classifier)
+    model = MLModel (model_params)
+    model.prepare ()
+    print ('Model Score: %f' % model.predict (feature_vector))
+    model.release ()
+
+
 if __name__ == "__main__":
     main ()

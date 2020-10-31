@@ -2,3 +2,4 @@ scikit-learn
 brainflow
 glob3
 metric-learn
+libsvm

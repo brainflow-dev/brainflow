@@ -53,6 +53,7 @@ public class MLModel
         {
             // need to extract libraries from jar
             unpack_from_jar (lib_name);
+            unpack_from_jar ("brainflow_svm.model");
         }
 
         instance = (DllInterface) Native.loadLibrary (lib_name, DllInterface.class);
