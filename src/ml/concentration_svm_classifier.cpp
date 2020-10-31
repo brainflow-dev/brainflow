@@ -23,6 +23,19 @@ int ConcentrationSVMClassifier::prepare ()
     std::strcpy (full_path, path);
     std::strcat (full_path, "brainflow_svm.model");
     model = svm_load_model (full_path);
+    if (model == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to load model.");
+        free (full_path);
+        return (int)BrainFlowExitCodes::CLASSIFIER_IS_NOT_PREPARED_ERROR;
+    }
+    if (svm_check_probability_model (model) == 0)
+    {
+        safe_logger (spdlog::level::err, "Model does not support probabiliy estimates.");
+        free (full_path);
+        svm_free_and_destroy_model (&model);
+        return (int)BrainFlowExitCodes::CLASSIFIER_IS_NOT_PREPARED_ERROR;
+    }
     free (full_path);
     return (int)BrainFlowExitCodes::STATUS_OK;
 #endif
@@ -51,12 +64,10 @@ int ConcentrationSVMClassifier::predict (double *data, int data_len, double *out
         x[i].value = data[i];
     }
     x[data_len].index = -1;
-    int nr_class = svm_get_nr_class (model);
-    double *prob_estimates = (double *)malloc (nr_class * sizeof (double));
+    double prob_estimates[2];
     svm_predict_probability (model, x, prob_estimates);
     *output = prob_estimates[0];
     free (x);
-    free (prob_estimates);
     return (int)BrainFlowExitCodes::STATUS_OK;
 #endif
 }
@@ -71,9 +82,7 @@ int ConcentrationSVMClassifier::release ()
         safe_logger (spdlog::level::err, "Must prepare model before releasing it.");
         return (int)BrainFlowExitCodes::CLASSIFIER_IS_NOT_PREPARED_ERROR;
     }
-    svm_free_model_content (model);
-    free (model);
-    model = NULL;
+    svm_free_and_destroy_model (&model);
     return (int)BrainFlowExitCodes::STATUS_OK;
 #endif
 }
