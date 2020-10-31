@@ -51,18 +51,12 @@ public class EEGMetrics
         double[] feature_vector = ArrayUtils.addAll (bands.getLeft (), bands.getRight ());
         BrainFlowModelParams model_params;
         MLModel concentration;
-        for (BrainFlowMetrics metric :BrainFlowMetrics.values()) 
-        {
-            for(BrainFlowClassifiers classifier : BrainFlowClassifiers.values())
-            {
-                model_params = new BrainFlowModelParams (metric.get_code(),
-                    classifier.get_code ());
-                concentration = new MLModel (model_params);
-                concentration.prepare ();
-                System.out.println (metric.name() + " " + classifier.name() + ":" + concentration.predict (feature_vector));
-                concentration.release ();
-            }
-        }
+        BrainFlowModelParams model_params = new BrainFlowModelParams (BrainFlowMetrics.CONCENTRATION.get_code (),
+                BrainFlowClassifiers.REGRESSION.get_code ());
+        MLModel concentration = new MLModel (model_params);
+        concentration.prepare ();
+        System.out.print ("Concentration: " + concentration.predict (feature_vector));
+        concentration.release ();
     }
 
     private static int parse_args (String[] args, BrainFlowInputParams params)
