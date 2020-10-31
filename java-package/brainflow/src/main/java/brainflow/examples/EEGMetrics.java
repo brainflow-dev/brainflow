@@ -13,7 +13,7 @@ import brainflow.DataFilter;
 import brainflow.LogLevels;
 import brainflow.MLModel;
 
-public class EEGMetricsFull
+public class EEGMetrics
 {
 
     public static void main (String[] args) throws Exception

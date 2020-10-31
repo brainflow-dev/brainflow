@@ -51,7 +51,7 @@ int ConcentrationKNNClassifier::predict (double *data, int data_len, double *out
 {
     if ((data_len < 5) || (data == NULL) || (output == NULL))
     {
-        safe_logger (spdlog::level::err, "All argument must not be null, and data_len >= 5.");
+        safe_logger (spdlog::level::err, "All argument must not be null, and data_len must be 10");
         return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
     if (kdtree == NULL)

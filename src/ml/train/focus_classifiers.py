@@ -6,7 +6,6 @@ import time
 import pickle
 
 import numpy as np
-from svm_classifier import *
 from sklearn import metrics
 from sklearn.linear_model import LogisticRegression
 from sklearn.dummy import DummyClassifier
@@ -20,6 +19,8 @@ import brainflow
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels, BoardIds
 from brainflow.data_filter import DataFilter, FilterTypes, AggOperations, WindowFunctions, DetrendOperations
 from brainflow.ml_model import BrainFlowMetrics, BrainFlowClassifiers, MLModel, BrainFlowModelParams
+
+from svm_classifier import train_brainflow_search_svm, train_brainflow_svm
 
 
 def prepare_data ():
@@ -64,7 +65,7 @@ def prepare_data ():
 
     return dataset_x, dataset_y
 
-def get_eeg_channels(board_id):
+def get_eeg_channels (board_id):
     eeg_channels = BoardShim.get_eeg_channels (board_id)
     # optional: filter some channels we dont want to consider
     try:
@@ -127,7 +128,7 @@ def train_regression (data):
 def train_knn (data):
     model = KNeighborsClassifier (n_neighbors = 5)
     print('#### KNN ####')
-    data_x = data[0].copy()
+    data_x = data[0].copy ()
     for i, x in enumerate (data_x):
         for j in range (5, 10):
             data_x[i][j] = data_x[i][j] / 5 # idea to make stddev less important than avg, 5 random value
@@ -208,6 +209,7 @@ def test_brainflow_svm (data):
     print ('Total time %f' % (stop_time - start_time))
     print (metrics.classification_report (data[1], predicted))
 
+
 def main ():
     parser = argparse.ArgumentParser ()
     parser.add_argument ('--test', action = 'store_true')
@@ -223,12 +225,7 @@ def main ():
         data = dataset_x, dataset_y
     else:
         data = prepare_data ()
-        write_dataset(data)
-    (dataset_x, dataset_y) = data
-    x_list = list()
-    for i in dataset_x:
-        x_list.append(i.tolist())
-    (x_train, y_train, x_vald, y_vald, x_test, y_test) = split_data(x_list, dataset_y)
+        write_dataset (data)
     if args.test:
         # since we port models from python to c++ we need to test it as well
         test_brainflow_knn (data)
@@ -236,11 +233,11 @@ def main ():
         test_brainflow_svm(data)
         test_brainflow_lda(data)
     else:
-        train_regression (data)
         train_knn(data)
-        train_LDA(data)
+        train_regression (data)
         # Don't use grid search method unless you have to as it takes a while to complete
-        train_brainflow_search_svm(x_train, y_train, x_vald, y_vald) if args.grid_search else train_brainflow_svm(x_train, y_train, x_vald, y_vald)
+        train_brainflow_search_svm (data) if args.grid_search else train_brainflow_svm (data)
+        train_LDA(data)
 
 
 if __name__ == '__main__':
