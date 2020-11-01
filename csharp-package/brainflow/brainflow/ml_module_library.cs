@@ -27,11 +27,11 @@ namespace brainflow
         public static extern int set_log_file (string log_file);
         [DllImport ("MLModule.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_level (int log_level);
-        [DllImport("MLModule.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("MLModule.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int prepare(string input_json);
-        [DllImport("MLModule.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("MLModule.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int release(string input_json);
-        [DllImport("MLModule.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("MLModule.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int predict(double[] data, int data_len, double[] output, string input_json);
     }
 
@@ -41,11 +41,11 @@ namespace brainflow
         public static extern int set_log_file (string log_file);
         [DllImport ("MLModule32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_level (int log_level);
-        [DllImport("MLModule32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("MLModule32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int prepare(string input_json);
-        [DllImport("MLModule32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("MLModule32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int release(string input_json);
-        [DllImport("MLModule32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("MLModule32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int predict(double[] data, int data_len, double[] output, string input_json);
     }
 
