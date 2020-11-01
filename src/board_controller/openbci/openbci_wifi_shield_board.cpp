@@ -71,38 +71,49 @@ int OpenBCIWifiShieldBoard::prepare_session ()
     safe_logger (spdlog::level::info, "local ip addr is {}", local_ip);
 
     server_socket = new SocketServerTCP (local_ip, params.ip_port, true);
+    // bind socket
     res = server_socket->bind ();
     if (res != (int)SocketServerTCPReturnCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to create server socket with addr {} and port {}",
             local_ip, params.ip_port);
+        delete server_socket;
+        server_socket = NULL;
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
     safe_logger (spdlog::level::trace, "bind socket, port  is {}", params.ip_port);
+
+    // run accept in another thread to dont block
+    res = server_socket->accept ();
+    if (res != (int)SocketServerTCPReturnCodes::STATUS_OK)
+    {
+        safe_logger (spdlog::level::err, "error in accept");
+        delete server_socket;
+        server_socket = NULL;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
 
     std::string url = "http://" + params.ip_address + "/board";
     http_t *request = http_get (url.c_str (), NULL);
     if (!request)
     {
         safe_logger (spdlog::level::err, "error during request creation, to {}", url.c_str ());
+        delete server_socket;
+        server_socket = NULL;
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
     res = wait_for_http_resp (request);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         http_release (request);
+        delete server_socket;
+        server_socket = NULL;
         return res;
     }
     http_release (request);
 
-    res = server_socket->accept ();
-    if (res != (int)SocketServerTCPReturnCodes::STATUS_OK)
-    {
-        safe_logger (spdlog::level::err, "error in accept");
-        return (int)BrainFlowExitCodes::GENERAL_ERROR;
-    }
+    // send info about tcp socket we created
     url = "http://" + params.ip_address + "/tcp";
-
     json post_data;
     post_data["ip"] = std::string (local_ip);
     post_data["port"] = params.ip_port;
@@ -115,12 +126,16 @@ int OpenBCIWifiShieldBoard::prepare_session ()
     if (!request)
     {
         safe_logger (spdlog::level::err, "error during request creation, to {}", url.c_str ());
+        delete server_socket;
+        server_socket = NULL;
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
     int send_res = wait_for_http_resp (request);
     if (send_res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         http_release (request);
+        delete server_socket;
+        server_socket = NULL;
         return send_res;
     }
     http_release (request);
@@ -147,7 +162,6 @@ int OpenBCIWifiShieldBoard::prepare_session ()
     if (!server_socket->client_connected)
     {
         safe_logger (spdlog::level::trace, "failed to establish connection");
-        server_socket->close ();
         delete server_socket;
         server_socket = NULL;
         return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
@@ -155,10 +169,12 @@ int OpenBCIWifiShieldBoard::prepare_session ()
 
     // freeze sampling rate
     initialized = true;
-    res = config_board ("~4"); // for cyton based boards - 1000 for ganglion - 1600
+    res = send_config ("~4"); // for cyton based boards - 1000 for ganglion - 1600
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         initialized = false;
+        delete server_socket;
+        server_socket = NULL;
         return res;
     }
 
@@ -166,7 +182,7 @@ int OpenBCIWifiShieldBoard::prepare_session ()
 }
 
 
-int OpenBCIWifiShieldBoard::send_config (char *config)
+int OpenBCIWifiShieldBoard::send_config (const char *config)
 {
     if (!initialized)
     {
@@ -203,9 +219,9 @@ int OpenBCIWifiShieldBoard::send_config (char *config)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int OpenBCIWifiShieldBoard::config_board (char *config)
+int OpenBCIWifiShieldBoard::config_board (std::string config, std::string &response)
 {
-    return send_config (config);
+    return send_config (config.c_str ());
 }
 
 int OpenBCIWifiShieldBoard::start_stream (int buffer_size, char *streamer_params)
@@ -311,7 +327,6 @@ int OpenBCIWifiShieldBoard::release_session ()
     }
     if (server_socket)
     {
-        server_socket->close ();
         delete server_socket;
         server_socket = NULL;
     }

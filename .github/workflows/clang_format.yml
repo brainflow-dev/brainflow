@@ -1,0 +1,21 @@
+name: Clang Format
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  checkout-and-check-formatting:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run clang-format
+      uses: HorstBaerbel/action-clang-format@1.4
+      with:
+        scandir: '.'
+        excludedirs: 'third_party,tools'
+        extensions: 'c,h,C,H,cpp,hpp,checkout-and-check-formatting,hh,c++,h++,cxx,hxx'
+        style: 'file'

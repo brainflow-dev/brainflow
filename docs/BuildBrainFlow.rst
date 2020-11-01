@@ -50,7 +50,7 @@ You are able to download jar files directly from `release page <https://github.c
         cd brainflow
         mvn package
 
-Also, you can use `GitHub Package <https://github.com/brainflow-dev/brainflow/packages/290893>`_ and download BrainFlow using Maven or Gradle.
+Also, you can use `GitHub Package <https://github.com/brainflow-dev/brainflow/packages/450100>`_ and download BrainFlow using Maven or Gradle.
 To use Github packages you need to `change Maven settings <https://help.github.com/en/packages/using-github-packages-with-your-projects-ecosystem/configuring-apache-maven-for-use-with-github-packages>`_. `Example file <https://github.com/brainflow-dev/brainflow/blob/master/java-package/brainflow/settings.xml>`_  here you need to change OWNER and TOKEN by Github username and token with an access to Github Packages.
 
 Matlab

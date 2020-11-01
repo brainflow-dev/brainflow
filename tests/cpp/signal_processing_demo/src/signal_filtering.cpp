@@ -21,6 +21,7 @@ int main (int argc, char *argv[])
     int board_id = (int)BoardIds::SYNTHETIC_BOARD;
 
     BoardShim::enable_dev_board_logger ();
+    DataFilter::enable_dev_data_logger ();
 
     BoardShim *board = new BoardShim (board_id, params);
     double **data = NULL;

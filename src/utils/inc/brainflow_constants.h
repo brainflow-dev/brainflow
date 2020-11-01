@@ -36,7 +36,7 @@ enum class BoardIds : int
     CYTON_BOARD = 0,
     GANGLION_BOARD = 1,
     CYTON_DAISY_BOARD = 2,
-    NOVAXR_BOARD = 3,
+    AURAXR_BOARD = 3,
     GANGLION_WIFI_BOARD = 4,
     CYTON_WIFI_BOARD = 5,
     CYTON_DAISY_WIFI_BOARD = 6,
@@ -90,5 +90,18 @@ enum class BrainFlowMetrics : int
 enum class BrainFlowClassifiers : int
 {
     REGRESSION = 0,
-    KNN = 1
+    KNN = 1,
+    SVM = 2,
+    LDA = 3
+};
+/// LogLevels enum to store all possible log levels
+enum class LogLevels : int
+{
+    LEVEL_TRACE = 0,    /// TRACE
+    LEVEL_DEBUG = 1,    /// DEBUG
+    LEVEL_INFO = 2,     /// INFO
+    LEVEL_WARN = 3,     /// WARN
+    LEVEL_ERROR = 4,    /// ERROR
+    LEVEL_CRITICAL = 5, /// CRITICAL
+    LEVEL_OFF = 6       // OFF
 };

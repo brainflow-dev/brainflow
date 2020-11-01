@@ -1,9 +1,19 @@
 #include "ml_model.h"
-
+#include "brainflow_constants.h"
 #include "json.hpp"
+#include "ml_module.h"
 
 using json = nlohmann::json;
 
+
+void MLModel::set_log_file (char *log_file)
+{
+    int res = ::set_log_file (log_file);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to set log file", res);
+    }
+}
 
 std::string params_to_string (struct BrainFlowModelParams params)
 {
@@ -19,18 +29,6 @@ std::string params_to_string (struct BrainFlowModelParams params)
 MLModel::MLModel (struct BrainFlowModelParams model_params) : params (model_params)
 {
     serialized_params = params_to_string (model_params);
-}
-
-MLModel::~MLModel ()
-{
-    try
-    {
-        release ();
-    }
-    catch (...)
-    {
-        // do nothing
-    }
 }
 
 void MLModel::prepare ()
@@ -60,4 +58,32 @@ void MLModel::release ()
     {
         throw BrainFlowException ("failed to release classifier", res);
     }
+}
+
+/////////////////////////////////////////
+//////////// logging methods ////////////
+/////////////////////////////////////////
+
+void MLModel::set_log_level (int log_level)
+{
+    int res = ::set_log_level (log_level);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to set log level", res);
+    }
+}
+
+void MLModel::enable_ml_logger ()
+{
+    MLModel::set_log_level ((int)LogLevels::LEVEL_INFO);
+}
+
+void MLModel::disable_ml_logger ()
+{
+    MLModel::set_log_level ((int)LogLevels::LEVEL_OFF);
+}
+
+void MLModel::enable_dev_ml_logger ()
+{
+    MLModel::set_log_level ((int)LogLevels::LEVEL_TRACE);
 }

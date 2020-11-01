@@ -41,6 +41,32 @@ classdef MLModel
             obj.input_json = params.to_json ();
         end
 
+        function set_log_level (log_level)
+            task_name = 'set_log_level';
+            lib_name = MLModel.load_lib ();
+            exit_code = calllib (lib_name, task_name, log_level);
+            MLModel.check_ec (exit_code, task_name);
+        end
+
+        function set_log_file (log_file)
+            task_name = 'set_log_file';
+            lib_name = MLModel.load_lib ();
+            exit_code = calllib (lib_name, task_name, log_file);
+            MLModel.check_ec (exit_code, task_name);
+        end
+
+        function enable_ml_logger ()
+            MLModel.set_log_level (int32 (2))
+        end
+
+        function enable_dev_ml_logger ()
+            MLModel.set_log_level (int32 (0))
+        end
+
+        function disable_ml_logger ()
+            MLModel.set_log_level (int32 (6))
+        end
+
         function prepare (obj)
             task_name = 'prepare';
             lib_name = MLModel.load_lib ();
@@ -61,7 +87,7 @@ classdef MLModel
             score_temp = libpointer ('doublePtr', 0.0);
             input_data_temp = libpointer ('doublePtr', input_data);
             exit_code = calllib (lib_name, task_name, input_data_temp, size (input_data, 2), score_temp, obj.input_json);
-            BoardShim.check_ec (exit_code, task_name);
+            MLModel.check_ec (exit_code, task_name);
             score = score_temp.Value;
         end
         

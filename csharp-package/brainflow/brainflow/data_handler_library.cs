@@ -34,6 +34,10 @@ namespace brainflow
     class DataHandlerLibrary64
     {
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int set_log_file (string log_file);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int set_log_level (int log_level);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_lowpass (double[] data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_highpass (double[] data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
@@ -66,19 +70,23 @@ namespace brainflow
         public static extern int get_nearest_power_of_two(int value, int[] output);
         [DllImport("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_psd(double[] data, int data_len, int sampling_rate, int window, double[] ampls, double[] freqs);
-        [DllImport("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_band_power(double[] ampls, double[] freqs, int data_len, double freq_start, double freq_end, double[] res);
-        [DllImport("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_psd_welch(double[] data, int data_len, int nfft, int overlap, int sampling_rate, int window, double[] ampls, double[] freqs);
-        [DllImport("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int detrend(double[] data, int len, int operation);
-        [DllImport("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_avg_band_powers(double[] data, int rows, int cols, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs);
     }
 
     class DataHandlerLibrary32
     {
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int set_log_file (string log_file);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int set_log_level (int log_level);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_lowpass (double[] data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_highpass (double[] data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
@@ -107,22 +115,36 @@ namespace brainflow
         public static extern int perform_fft (double[] data, int data_len, int window, double[] re, double[] im);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_ifft (double[] re, double[] im, int data_len, double[] data);
-        [DllImport("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_nearest_power_of_two(int value, int[] output);
-        [DllImport("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_psd(double[] data, int data_len, int sampling_rate, int window, double[] ampls, double[] freqs);
-        [DllImport("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_band_power(double[] ampls, double[] freqs, int data_len, double freq_start, double freq_end, double[] res);
-        [DllImport("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_psd_welch(double[] data, int data_len, int nfft, int overlap, int sampling_rate, int window, double[] ampls, double[] freqs);
-        [DllImport("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int detrend(double[] data, int len, int operation);
-        [DllImport("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_avg_band_powers(double[] data, int rows, int cols, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs);
     }
 
     class DataHandlerLibrary
     {
+        public static int set_log_level (int log_level)
+        {
+            if (System.Environment.Is64BitProcess)
+                return DataHandlerLibrary64.set_log_level (log_level);
+            else
+                return DataHandlerLibrary32.set_log_level (log_level);
+        }
+        public static int set_log_file (string log_file)
+        {
+            if (System.Environment.Is64BitProcess)
+                return DataHandlerLibrary64.set_log_file (log_file);
+            else
+                return DataHandlerLibrary32.set_log_file (log_file);
+        }
         public static int perform_lowpass (double[] data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple)
         {
             if (System.Environment.Is64BitProcess)

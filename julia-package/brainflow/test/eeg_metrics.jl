@@ -1,7 +1,10 @@
 import brainflow
 
 
-brainflow.enable_dev_board_logger()
+# enable all possible logs from all three libs
+brainflow.enable_dev_brainflow_logger(Integer(brainflow.BOARD_CONTROLLER))
+brainflow.enable_dev_brainflow_logger(Integer(brainflow.DATA_HANDLER))
+brainflow.enable_dev_brainflow_logger(Integer(brainflow.ML_MODULE))
 
 params = brainflow.BrainFlowInputParams()
 board_shim = brainflow.BoardShim(Integer(brainflow.SYNTHETIC_BOARD), params)
@@ -21,7 +24,8 @@ bands = brainflow.get_avg_band_powers(data, eeg_channels, sampling_rate, true)
 feature_vector = vcat(bands[1], bands[2])
 
 # calc concentration
-concentration = brainflow.MLModel(Integer(brainflow.CONCENTRATION), Integer(brainflow.REGRESSION))
+model_params = brainflow.BrainFlowModelParams(Integer(brainflow.CONCENTRATION), Integer(brainflow.KNN))
+concentration = brainflow.MLModel(model_params)
 brainflow.prepare(concentration)
 print(brainflow.predict(feature_vector, concentration))
 brainflow.release(concentration)

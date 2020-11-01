@@ -1,7 +1,9 @@
 #include <string.h>
 
+#include "brainflow_constants.h"
 #include "data_filter.h"
 #include "data_handler.h"
+
 
 void DataFilter::perform_lowpass (double *data, int data_len, int sampling_rate, double cutoff,
     int order, int filter_type, double ripple)
@@ -349,5 +351,43 @@ void DataFilter::reshape_data_to_2d (
     for (int i = 0; i < num_rows; i++)
     {
         memcpy (output_buf[i], linear_buffer + i * num_cols, sizeof (double) * num_rows);
+    }
+}
+
+
+/////////////////////////////////////////
+//////////// logging methods ////////////
+/////////////////////////////////////////
+
+void DataFilter::set_log_level (int log_level)
+{
+    int res = ::set_log_level (log_level);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to set log level", res);
+    }
+}
+
+void DataFilter::enable_data_logger ()
+{
+    DataFilter::set_log_level ((int)LogLevels::LEVEL_INFO);
+}
+
+void DataFilter::disable_data_logger ()
+{
+    DataFilter::set_log_level ((int)LogLevels::LEVEL_OFF);
+}
+
+void DataFilter::enable_dev_data_logger ()
+{
+    DataFilter::set_log_level ((int)LogLevels::LEVEL_TRACE);
+}
+
+void DataFilter::set_log_file (char *log_file)
+{
+    int res = ::set_log_file (log_file);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to set log file", res);
     }
 }

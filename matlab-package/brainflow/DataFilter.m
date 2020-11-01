@@ -29,6 +29,32 @@ classdef DataFilter
             end
         end
 
+        function set_log_level(log_level)
+            task_name = 'set_log_level';
+            lib_name = DataFilter.load_lib ();
+            exit_code = calllib (lib_name, task_name, log_level);
+            DataFilter.check_ec (exit_code, task_name);
+        end
+
+        function set_log_file (log_file)
+            task_name = 'set_log_file';
+            lib_name = DataFilter.load_lib ();
+            exit_code = calllib (lib_name, task_name, log_file);
+            DataFilter.check_ec (exit_code, task_name);
+        end
+
+        function enable_data_logger ()
+            DataFilter.set_log_level (int32 (2))
+        end
+
+        function enable_dev_data_logger ()
+            DataFilter.set_log_level (int32 (0))
+        end
+
+        function disable_data_logger ()
+            DataFilter.set_log_level (int32 (6))
+        end
+
         function filtered_data = perform_lowpass (data, sampling_rate, cutoff, order, filter_type, ripple)
             task_name = 'perform_lowpass';
             temp = libpointer ('doublePtr', data);

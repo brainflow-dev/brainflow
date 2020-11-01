@@ -34,7 +34,23 @@ int main (int argc, char *argv[])
     int *eeg_channels = NULL;
     int num_rows = 0;
     int res = 0;
-    int sampling_rate = BoardShim::get_sampling_rate (board_id);
+    int master_board_id = 0;
+
+    if ((board_id == (int)BoardIds::STREAMING_BOARD) ||
+        (board_id == (int)BoardIds::PLAYBACK_FILE_BOARD))
+    {
+        try
+        {
+            master_board_id = std::stoi (params.other_info);
+        }
+        catch (const std::exception &e)
+        {
+            throw BrainFlowException ("specify master board id using params.other_info",
+                (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+        }
+    }
+
+    int sampling_rate = BoardShim::get_sampling_rate (master_board_id);
 
     try
     {
@@ -54,11 +70,11 @@ int main (int argc, char *argv[])
         board->stop_stream ();
         std::cout << "Data Count: " << data_count << std::endl;
         board->release_session ();
-        num_rows = BoardShim::get_num_rows (board_id);
+        num_rows = BoardShim::get_num_rows (master_board_id);
 
         // Calc bandpowers and build feature vector
         int eeg_num_channels = 0;
-        eeg_channels = BoardShim::get_eeg_channels (board_id, &eeg_num_channels);
+        eeg_channels = BoardShim::get_eeg_channels (master_board_id, &eeg_num_channels);
         std::pair<double *, double *> bands = DataFilter::get_avg_band_powers (
             data, data_count, eeg_channels, eeg_num_channels, sampling_rate, true);
         double feature_vector[10];
@@ -73,21 +89,18 @@ int main (int argc, char *argv[])
         }
         std::cout << std::endl;
 
-        // Prepare Models
-        struct BrainFlowModelParams conc_model_params (
-            (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::KNN);
+        // Testing all classifiers and metric types
+        struct BrainFlowModelParams conc_model_params ((int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::REGRESSION);
         MLModel concentration_model (conc_model_params);
         concentration_model.prepare ();
-        std::cout << "Concentration: " << concentration_model.predict (feature_vector, 10)
-                  << std::endl;
+        std::cout << "Concentration Regression :" << concentration_model.predict (feature_vector, 10) << std::endl;
         concentration_model.release ();
 
-        struct BrainFlowModelParams relax_model_params (
-            (int)BrainFlowMetrics::RELAXATION, (int)BrainFlowClassifiers::REGRESSION);
-        MLModel relax_model (relax_model_params);
-        relax_model.prepare ();
-        std::cout << "Relaxation: " << relax_model.predict (feature_vector, 10) << std::endl;
-        relax_model.release ();
+        struct BrainFlowModelParams relax_model_params ((int)BrainFlowMetrics::RELAXATION, (int)BrainFlowClassifiers::KNN);
+        MLModel relaxation_model (relax_model_params);
+        relaxation_model.prepare ();
+        std::cout << "Relaxation KNN :" << relaxation_model.predict (feature_vector, 10) << std::endl;
+        relaxation_model.release ();
 
         delete[] bands.first;
         delete[] bands.second;

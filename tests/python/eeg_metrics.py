@@ -3,13 +3,16 @@ import time
 import brainflow
 import numpy as np
 
-from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels, BoardIds
+from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels, BoardIds,BrainFlowError
 from brainflow.data_filter import DataFilter, FilterTypes, AggOperations, WindowFunctions, DetrendOperations
 from brainflow.ml_model import MLModel, BrainFlowMetrics, BrainFlowClassifiers, BrainFlowModelParams
+from brainflow.exit_codes import *
 
 
 def main ():
-    BoardShim.enable_dev_board_logger ()
+    BoardShim.enable_board_logger ()
+    DataFilter.enable_data_logger ()
+    MLModel.enable_ml_logger ()
 
     parser = argparse.ArgumentParser ()
     # use docs to check which parameters are required for specific board, e.g. for Cyton - set serial port
@@ -36,9 +39,14 @@ def main ():
     params.ip_protocol = args.ip_protocol
     params.timeout = args.timeout
     params.file = args.file
-
     board = BoardShim (args.board_id, params)
-    sampling_rate = BoardShim.get_sampling_rate (args.board_id)
+    master_board_id = args.board_id
+    if ((args.board_id == BoardIds.STREAMING_BOARD.value) or (args.board_id == BoardIds.PLAYBACK_FILE_BOARD.value)):
+        try:
+            master_board_id = params.other_info
+        except:
+            raise BrainFlowError ('specify master board id using params.other_info', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+    sampling_rate = BoardShim.get_sampling_rate (int(master_board_id))
     board.prepare_session ()
     board.start_stream (45000, args.streamer_params)
     BoardShim.log_message (LogLevels.LEVEL_INFO.value, 'start sleeping in the main thread')
@@ -47,11 +55,11 @@ def main ():
     board.stop_stream ()
     board.release_session ()
 
-    eeg_channels = BoardShim.get_eeg_channels (args.board_id)
+    eeg_channels = BoardShim.get_eeg_channels (int (master_board_id))
     bands = DataFilter.get_avg_band_powers (data, eeg_channels, sampling_rate, True)
     feature_vector = np.concatenate ((bands[0], bands[1]))
     print(feature_vector)
-    
+
     # calc concentration
     concentration_params = BrainFlowModelParams (BrainFlowMetrics.CONCENTRATION.value, BrainFlowClassifiers.KNN.value)
     concentration = MLModel (concentration_params)
@@ -65,7 +73,6 @@ def main ():
     relaxation.prepare ()
     print ('Relaxation: %f' % relaxation.predict (feature_vector))
     relaxation.release ()
-
 
 if __name__ == "__main__":
     main ()

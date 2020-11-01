@@ -41,6 +41,7 @@ setup (
             os.path.join ('lib', 'libGanglionLib.so'),
             os.path.join ('lib', 'libGanglionLib.dylib'),
             os.path.join ('lib', 'MLModule.dll'),
+            os.path.join ('lib', 'brainflow_svm.model'),
             os.path.join ('lib', 'libMLModule.so'),
             os.path.join ('lib', 'libMLModule.dylib')
         ]

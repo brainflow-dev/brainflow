@@ -51,6 +51,7 @@ install:
   - mkdir %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build32 && cd %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build32 && cmake -G "Visual Studio 15 2017" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%APPVEYOR_BUILD_FOLDER%\installed32\ .. && cmake --build . --config Release -j 2 --parallel 2 > cpp_get_data_demo_build32_stdout.txt
   - mkdir %APPVEYOR_BUILD_FOLDER%\tests\cpp\signal_processing_demo\build && cd %APPVEYOR_BUILD_FOLDER%\tests\cpp\signal_processing_demo\build && cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%APPVEYOR_BUILD_FOLDER%\installed64\ .. && cmake --build . --config Release -j 2 --parallel 2 > cpp_signal_processing_demo_build64_stdout.txt
   - mkdir %APPVEYOR_BUILD_FOLDER%\tests\cpp\signal_processing_demo\build32 && cd %APPVEYOR_BUILD_FOLDER%\tests\cpp\signal_processing_demo\build32 && cmake -G "Visual Studio 15 2017" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%APPVEYOR_BUILD_FOLDER%\installed32\ .. && cmake --build . --config Release -j 2 --parallel 2 > cpp_signal_processing_demo_build32_stdout.txt
+  - mkdir %APPVEYOR_BUILD_FOLDER%\tests\cpp\ml_demo\build && cd %APPVEYOR_BUILD_FOLDER%\tests\cpp\ml_demo\build && cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%APPVEYOR_BUILD_FOLDER%\installed64\ .. && cmake --build . --config Release -j 2 --parallel 2 > cpp_ml_demo_build64_stdout.txt
   # mvn package for java
   - cd %APPVEYOR_BUILD_FOLDER%\java-package\brainflow && mvn package > maven_package_stdout.txt
 
@@ -72,11 +73,11 @@ test_script:
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board-id 2 --streamer-params file://file_streamer.csv:a --serial-port
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 2 --serial-port
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 2 --serial-port
-  # tests for novaxr
-  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\novaxr_udp.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --board-id 3 --ip-address 127.0.0.1 --log
-  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\novaxr_udp.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 3 --ip-address 127.0.0.1
-  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\novaxr_udp.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build32\Release\brainflow_get_data.exe --board-id 3 --ip-address 127.0.0.1
-  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\novaxr_udp.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 3 --ip-address 127.0.0.1
+  # tests for auraxr
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\auraxr_udp.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --board-id 3 --ip-address 127.0.0.1 --log
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\auraxr_udp.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 3 --ip-address 127.0.0.1
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\auraxr_udp.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build32\Release\brainflow_get_data.exe --board-id 3 --ip-address 127.0.0.1
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\auraxr_udp.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 3 --ip-address 127.0.0.1
   # tests for wifi shield based boards
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --board-id 4 --ip-address 127.0.0.1 --ip-port 17982
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 5 --ip-address 127.0.0.1 --ip-port 17983
@@ -87,6 +88,8 @@ test_script:
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\streaming_board_emulator.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
   # test for fascia
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\fascia_emulator_ci.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --board-id 12 --ip-port 7789
+  # test for ironbci
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\ironbci_windows.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board-id 15 --serial-port
   # tests for signal processing
   # python
   - python %APPVEYOR_BUILD_FOLDER%\tests\python\denoising.py
@@ -115,6 +118,11 @@ test_script:
   - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\signal_filtering\bin\Release\test.exe
   - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\band_power\bin\Release\test.exe
   - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\band_power_all\bin\Release\test.exe
+  # tests for ml module
+  - python %APPVEYOR_BUILD_FOLDER%\tests\python\eeg_metrics.py --board-id -1
+  - python %APPVEYOR_BUILD_FOLDER%\tests\python\eeg_metrics_ci.py --board-id -1 --metric 0 --classifier 2
+  - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\tests\cpp\ml_demo\build\Release\eeg_metrics_ci.exe --board-id -1 --metric 1 --classifier 2
+  - echo "stub text to dont start command with special character" && %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\eeg_metrics\bin\Release\test.exe
 
 deploy_script:
   - python -m pip install wheel > wheel_install.txt

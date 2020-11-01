@@ -72,7 +72,7 @@ This code of conduct and its related procedures also applies to unacceptable beh
 
 ## 9. Contact info
 
-Slack Workspace, emails, etc. More information can be found [here](https://brainflow.ai/contact/).
+Slack Workspace, emails, etc. More information can be found [here](https://brainflow.org/contact/).
 
 ## 10. License and attribution
 
