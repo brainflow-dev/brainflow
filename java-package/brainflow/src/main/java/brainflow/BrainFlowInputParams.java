@@ -16,8 +16,6 @@ public class BrainFlowInputParams
     public int timeout;
     public String serial_number;
     public String file;
-    public int metric;
-    public int classifier;
 
     public BrainFlowInputParams ()
     {
@@ -30,8 +28,6 @@ public class BrainFlowInputParams
         timeout = 0;
         serial_number = "";
         file = "";
-        metric = 0;
-        classifier = 0;
     }
 
     public String to_json ()
@@ -127,25 +123,5 @@ public class BrainFlowInputParams
     public void set_file (String file)
     {
         this.file = file;
-    }
-
-    public int get_metric ()
-    {
-        return metric;
-    }
-
-    public void set_metric (int metric)
-    {
-        this.metric = metric;
-    }
-
-    public int get_classifier ()
-    {
-        return classifier;
-    }
-
-    public void set_classifier (int classifier)
-    {
-        this.classifier = classifier;
     }
 }
