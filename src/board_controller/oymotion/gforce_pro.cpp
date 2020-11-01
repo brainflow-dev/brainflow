@@ -254,7 +254,7 @@ void GforcePro::read_thread ()
     delete[] package;
 }
 
-int GforcePro::config_board (char *config)
+int GforcePro::config_board (std::string config, std::string &response)
 {
     safe_logger (spdlog::level::err, "Config board is not supported for Gforce PRO.");
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
@@ -365,7 +365,7 @@ int GforcePro::prepare_session ()
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
-int GforcePro::config_board (char *config)
+int GforcePro::config_board (std::string config, std::string &response)
 {
     safe_logger (spdlog::level::err, "GforcePro doesnt support Unix.");
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
