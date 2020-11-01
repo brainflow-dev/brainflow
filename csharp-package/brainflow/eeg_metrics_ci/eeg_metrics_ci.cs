@@ -6,7 +6,7 @@ using Accord.Math;
 
 namespace test
 {
-    class EEGMetrics
+    class EEGMetricsCi
     {
         static void Main (string[] args)
         {
@@ -28,10 +28,10 @@ namespace test
 
             Tuple<double[], double[]> bands = DataFilter.get_avg_band_powers (data, eeg_channels, sampling_rate, true);
             double[] feature_vector = bands.Item1.Concatenate (bands.Item2);
-            BrainFlowModelParams model_params = new BrainFlowModelParams ((int)BrainFlowMetrics.CONCENTRATION, (int)BrainFlowClassifiers.REGRESSION);
+            BrainFlowModelParams model_params = new BrainFlowModelParams (input_params.metric,input_params.classifier);
             MLModel concentration = new MLModel (model_params);
             concentration.prepare ();
-            Console.WriteLine ("Concentration: " + concentration.predict (feature_vector));
+            Console.WriteLine (Enum.GetName(typeof(BrainFlowMetrics),input_params.metric) + " " + Enum.GetName(typeof(BrainFlowClassifiers),input_params.classifier) + " : "  + concentration.predict (feature_vector));
             concentration.release ();
         }
 
@@ -39,6 +39,9 @@ namespace test
         {
             int board_id = (int)BoardIds.SYNTHETIC_BOARD; //assume synthetic board by default
             // use docs to get params for your specific board, e.g. set serial_port for Cyton
+            input_params.metric = (int)BrainFlowMetrics.RELAXATION;// assume relaxation metric and regression classifier for default
+            // use docs to get specific metric and classifier e.g BrainflowMetrics.CONCENTRATION and BrainflowClassifiers.LDA
+            input_params.classifier = (int)BrainFlowClassifiers.REGRESSION;
             for (int i = 0; i < args.Length; i++)
             {
                 if (args[i].Equals ("--ip-address"))
@@ -80,6 +83,14 @@ namespace test
                 if (args[i].Equals ("--file"))
                 {
                     input_params.file = args[i + 1];
+                }
+                if (args[i].Equals ("--metric"))
+                {
+                    input_params.metric = Convert.ToInt32(args[i + 1]);
+                }
+                if (args[i].Equals ("--classifier"))
+                {
+                    input_params.classifier = Convert.ToInt32(args[i + 1]);
                 }
             }
             return board_id;

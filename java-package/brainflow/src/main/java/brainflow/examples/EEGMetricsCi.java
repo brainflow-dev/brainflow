@@ -13,7 +13,7 @@ import brainflow.DataFilter;
 import brainflow.LogLevels;
 import brainflow.MLModel;
 
-public class EEGMetrics
+public class EEGMetricsCi
 {
 
     public static void main (String[] args) throws Exception
@@ -37,11 +37,10 @@ public class EEGMetrics
 
         Pair<double[], double[]> bands = DataFilter.get_avg_band_powers (data, eeg_channels, sampling_rate, true);
         double[] feature_vector = ArrayUtils.addAll (bands.getLeft (), bands.getRight ());
-        BrainFlowModelParams model_params = new BrainFlowModelParams (BrainFlowMetrics.CONCENTRATION.get_code (),
-                BrainFlowClassifiers.REGRESSION.get_code ());
+        BrainFlowModelParams model_params = new BrainFlowModelParams (params.metric,params.classifier);
         MLModel concentration = new MLModel (model_params);
         concentration.prepare ();
-        System.out.print ("Concentration: " + concentration.predict (feature_vector));
+        System.out.println (BrainFlowMetrics.string_from_code(params.metric) + " " + BrainFlowClassifiers.string_from_code(params.classifier) + " : " + concentration.predict (feature_vector));
         concentration.release ();
     }
 
@@ -85,6 +84,14 @@ public class EEGMetrics
             if (args[i].equals ("--file"))
             {
                 params.file = args[i + 1];
+            }
+            if (args[i].equals ("--metric"))
+            {
+                params.metric = Integer.parseInt(args[i + 1]);
+            }
+            if (args[i].equals ("--classifier"))
+            {
+                params.classifier = Integer.parseInt(args[i + 1]);
             }
         }
         return board_id;

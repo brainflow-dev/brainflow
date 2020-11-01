@@ -64,6 +64,16 @@ namespace brainflow
         /// </summary>
         [DataMember]
         public string file;
+        /// <summary>
+        /// metric to caclulate
+        /// </summary>
+        [DataMember]
+        public int metric;
+        /// <summary>
+        /// classifier to use
+        /// </summary>
+        [DataMember]
+        public int classifier;
 
         public BrainFlowInputParams ()
         {
