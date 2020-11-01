@@ -4,6 +4,7 @@ import statistics
 import os
 import time
 import pickle
+import copy
 
 import numpy as np
 from sklearn import metrics
@@ -21,6 +22,7 @@ from brainflow.data_filter import DataFilter, FilterTypes, AggOperations, Window
 from brainflow.ml_model import BrainFlowMetrics, BrainFlowClassifiers, MLModel, BrainFlowModelParams
 
 from svm_classifier import train_brainflow_search_svm, train_brainflow_svm
+from store_model import write_model, write_knn_model
 
 
 def prepare_data ():
@@ -37,7 +39,7 @@ def prepare_data ():
                 board_id = int (board_id)
                 data = DataFilter.read_file (file)
                 sampling_rate = BoardShim.get_sampling_rate (board_id)
-                eeg_channels = get_eeg_channels(board_id)
+                eeg_channels = get_eeg_channels (board_id)
                 for num, window_size in enumerate (window_sizes):
                     if data_type == 'focused':
                         cur_pos = sampling_rate * 10 # skip a little more for focus
@@ -82,39 +84,21 @@ def get_eeg_channels (board_id):
     print ('channels to use: %s' % str (eeg_channels))
     return eeg_channels
 
-def write_model(intercept,coefs,model_type):
-    # we prepare dataset in C++ code in compile time, need to generate header for it
-    coefficients_string = '%s' % (','.join([str(x) for x in coefs[0]]))
-    file_content = '''
-#pragma once
-
-
-// clang-format off
-
-const double %s_coefficients[10] = {%s};
-double %s_intercept = %lf ;
-
-// clang-format on
-''' % (model_type,coefficients_string, model_type,intercept)
-    file_name = f'{model_type}_model.h'
-    file_path = os.path.join (os.path.dirname (os.path.realpath (__file__)), '..', 'inc', file_name)
-    with open(file_path, 'w') as f:
-        f.write (file_content)
-
-def train_LDA(data):
-    model = LinearDiscriminantAnalysis()
-    print('#### Linear Discriminant Analysis ####')
+def train_lda (data):
+    model = LinearDiscriminantAnalysis ()
+    print ('#### Linear Discriminant Analysis ####')
     scores = cross_val_score (model, data[0], data[1], cv = 5, scoring = 'f1_macro', n_jobs = 8)
     print ('f1 macro %s' % str (scores))
     scores = cross_val_score (model, data[0], data[1], cv = 5, scoring = 'precision_macro', n_jobs = 8)
     print ('precision macro %s' % str (scores))
     scores = cross_val_score (model, data[0], data[1], cv = 5, scoring = 'recall_macro', n_jobs = 8)
-    print('recall macro %s' % str(scores))
-    model.fit(data[0], data[1])
-    write_model(model.intercept_,model.coef_,'lda')
+    print ('recall macro %s' % str (scores))
+    model.fit (data[0], data[1])
+    write_model (model.intercept_, model.coef_, 'lda')
 
 def train_regression (data):
-    model = LogisticRegression (class_weight = 'balanced', solver = 'liblinear', max_iter = 3000)
+    model = LogisticRegression (class_weight = 'balanced', solver = 'liblinear',
+        max_iter = 4000, penalty = 'l2', random_state = 1)
     print('#### Logistic Regression ####')
     scores = cross_val_score (model, data[0], data[1], cv = 5, scoring = 'f1_macro', n_jobs = 8)
     print ('f1 macro %s' % str (scores))
@@ -123,12 +107,12 @@ def train_regression (data):
     scores = cross_val_score (model, data[0], data[1], cv = 5, scoring = 'recall_macro', n_jobs = 8)
     print ('recall macro %s' % str (scores))
     model.fit (data[0], data[1])
-    write_model(model.intercept_,model.coef_,'regression')
+    write_model (model.intercept_, model.coef_, 'regression')
 
 def train_knn (data):
     model = KNeighborsClassifier (n_neighbors = 5)
-    print('#### KNN ####')
-    data_x = data[0].copy ()
+    print ('#### KNN ####')
+    data_x = copy.deepcopy (data[0])
     for i, x in enumerate (data_x):
         for j in range (5, 10):
             data_x[i][j] = data_x[i][j] / 5 # idea to make stddev less important than avg, 5 random value
@@ -138,28 +122,7 @@ def train_knn (data):
     print ('precision macro %s' % str (scores))
     scores = cross_val_score (model, data_x, data[1], cv = 5, scoring = 'recall_macro', n_jobs = 8)
     print ('recall macro %s' % str (scores))
-
-def write_dataset (data):
-    # we prepare dataset in C++ code in compile time, need to generate header for it
-
-    y_string = '%s' % (', '.join ([str (x) for x in data[1]]))
-    x_string_tmp = ['{' + ', '.join ([str (y) for y in x]) + '}' for x in data[0]]
-    x_string = '%s' % (',\n'.join (x_string_tmp))
-    file_content = '''
-#pragma once
-
-
-// clang-format off
-
-double brainflow_focus_x[%d][10] = {%s};
-int brainflow_focus_y[%d] = {%s};
-
-// clang-format on
-''' % (len (data[1]), x_string, len (data[1]), y_string)
-
-    file_path = os.path.join (os.path.dirname (os.path.realpath (__file__)), '..', 'inc', 'focus_dataset.h')
-    with open(file_path, 'w') as f:
-        f.write (file_content)
+    write_knn_model (data)
 
 def test_brainflow_lr (data):
     print ('Test BrainFlow LR')
@@ -195,7 +158,7 @@ def test_brainflow_lda (data):
     model.release ()
     stop_time = time.time ()
     print ('Total time %f' % (stop_time - start_time))
-    print(metrics.classification_report(data[1], predicted))
+    print (metrics.classification_report (data[1], predicted))
    
 def test_brainflow_svm (data):
     print ('Test BrainFlow SVM')
@@ -225,19 +188,18 @@ def main ():
         data = dataset_x, dataset_y
     else:
         data = prepare_data ()
-        write_dataset (data)
     if args.test:
         # since we port models from python to c++ we need to test it as well
         test_brainflow_knn (data)
-        test_brainflow_lr(data)
-        test_brainflow_svm(data)
-        test_brainflow_lda(data)
+        test_brainflow_lr (data)
+        test_brainflow_svm (data)
+        test_brainflow_lda (data)
     else:
-        train_knn(data)
         train_regression (data)
         # Don't use grid search method unless you have to as it takes a while to complete
         train_brainflow_search_svm (data) if args.grid_search else train_brainflow_svm (data)
-        train_LDA(data)
+        train_lda (data)
+        train_knn (data)
 
 
 if __name__ == '__main__':
