@@ -889,6 +889,15 @@ class BoardShim (object):
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to obtain buffer size', res)
         return data_size[0]
+    
+    def get_master_board_id(self) -> int:
+        """Get's the actual board id in case of playback or streaming board
+
+        :return: board id
+        :rtype: int
+        """
+        
+        return self._master_board_id
 
     def is_prepared (self) -> bool:
         """Check if session is ready or not

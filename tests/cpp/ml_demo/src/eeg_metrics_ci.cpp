@@ -37,6 +37,7 @@ int main (int argc, char *argv[])
     int *eeg_channels = NULL;
     int num_rows = 0;
     int res = 0;
+<<<<<<< HEAD
     int master_board_id = 0;
 
     if ((board_id == (int)BoardIds::STREAMING_BOARD) ||
@@ -52,6 +53,9 @@ int main (int argc, char *argv[])
                 (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
         }
     }
+=======
+    int master_board_id = board->get_master_board_id ();
+>>>>>>> 1d24ac118fdc58aac79ca8d42c5330eeae578c42
 
     int sampling_rate = BoardShim::get_sampling_rate (master_board_id);
 

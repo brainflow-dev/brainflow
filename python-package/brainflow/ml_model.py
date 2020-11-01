@@ -30,6 +30,10 @@ class BrainFlowClassifiers (enum.Enum):
     KNN = 1 #:
     SVM = 2 #:
     LDA = 3 #:
+<<<<<<< HEAD
+=======
+
+>>>>>>> 1d24ac118fdc58aac79ca8d42c5330eeae578c42
 
 class BrainFlowModelParams (object):
     """ inputs parameters for prepare_session method

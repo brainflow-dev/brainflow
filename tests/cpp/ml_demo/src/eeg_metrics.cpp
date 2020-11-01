@@ -34,6 +34,7 @@ int main (int argc, char *argv[])
     int *eeg_channels = NULL;
     int num_rows = 0;
     int res = 0;
+<<<<<<< HEAD
     int master_board_id = 0;
 
     if ((board_id == (int)BoardIds::STREAMING_BOARD) ||
@@ -49,6 +50,9 @@ int main (int argc, char *argv[])
                 (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
         }
     }
+=======
+    int master_board_id = board->get_master_board_id ();
+>>>>>>> 1d24ac118fdc58aac79ca8d42c5330eeae578c42
 
     int sampling_rate = BoardShim::get_sampling_rate (master_board_id);
 
@@ -90,6 +94,7 @@ int main (int argc, char *argv[])
         std::cout << std::endl;
 
         // Testing all classifiers and metric types
+<<<<<<< HEAD
         struct BrainFlowModelParams conc_model_params ((int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::REGRESSION);
         MLModel concentration_model (conc_model_params);
         concentration_model.prepare ();
@@ -101,6 +106,26 @@ int main (int argc, char *argv[])
         relaxation_model.prepare ();
         std::cout << "Relaxation KNN :" << relaxation_model.predict (feature_vector, 10) << std::endl;
         relaxation_model.release ();
+=======
+        struct BrainFlowModelParams conc_model_params (0, 0);
+        MLModel concentration_model (conc_model_params);
+        string metric_type = "Concentration";
+        for (int metric = 1; metric >= 0; metric--)
+        {
+            if (!metric)
+                metric_type = "Relaxation";
+            for (int classifier = (int)BrainFlowClassifiers::REGRESSION;
+                 classifier <= (int)BrainFlowClassifiers::LDA; classifier++)
+            {
+                conc_model_params = BrainFlowModelParams (metric, classifier);
+                concentration_model = MLModel (conc_model_params);
+                concentration_model.prepare ();
+                std::cout << metric_type << " Classifier " << classifier << ":"
+                          << concentration_model.predict (feature_vector, 10) << std::endl;
+                concentration_model.release ();
+            }
+        }
+>>>>>>> 1d24ac118fdc58aac79ca8d42c5330eeae578c42
 
         delete[] bands.first;
         delete[] bands.second;

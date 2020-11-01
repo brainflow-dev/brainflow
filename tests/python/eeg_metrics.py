@@ -40,12 +40,16 @@ def main ():
     params.timeout = args.timeout
     params.file = args.file
     board = BoardShim (args.board_id, params)
+<<<<<<< HEAD
     master_board_id = args.board_id
     if ((args.board_id == BoardIds.STREAMING_BOARD.value) or (args.board_id == BoardIds.PLAYBACK_FILE_BOARD.value)):
         try:
             master_board_id = params.other_info
         except:
             raise BrainFlowError ('specify master board id using params.other_info', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+=======
+    master_board_id = board.get_master_board_id()
+>>>>>>> 1d24ac118fdc58aac79ca8d42c5330eeae578c42
     sampling_rate = BoardShim.get_sampling_rate (int(master_board_id))
     board.prepare_session ()
     board.start_stream (45000, args.streamer_params)
@@ -59,6 +63,7 @@ def main ():
     bands = DataFilter.get_avg_band_powers (data, eeg_channels, sampling_rate, True)
     feature_vector = np.concatenate ((bands[0], bands[1]))
     print(feature_vector)
+<<<<<<< HEAD
 
     # calc concentration
     concentration_params = BrainFlowModelParams (BrainFlowMetrics.CONCENTRATION.value, BrainFlowClassifiers.KNN.value)
@@ -74,5 +79,15 @@ def main ():
     print ('Relaxation: %f' % relaxation.predict (feature_vector))
     relaxation.release ()
 
+=======
+    
+    for metric in BrainFlowMetrics:
+        for classifier in BrainFlowClassifiers:
+            concentration_params = BrainFlowModelParams (metric.value, classifier.value)
+            concentration = MLModel (concentration_params)
+            concentration.prepare ()
+            print (f'{metric.name} {classifier.name}: {concentration.predict (feature_vector)}')
+            concentration.release()
+>>>>>>> 1d24ac118fdc58aac79ca8d42c5330eeae578c42
 if __name__ == "__main__":
     main ()

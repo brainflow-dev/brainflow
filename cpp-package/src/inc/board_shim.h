@@ -19,7 +19,6 @@ class BoardShim
     // can not init master_board_id in constructor cause we can not raise an exception from
     // constructor, also can not do it only in prepare_session cause it might not be a first called
     // method.
-    int get_master_board_id ();
     std::string serialized_params;
     struct BrainFlowInputParams params;
 
@@ -178,6 +177,8 @@ public:
     void release_session ();
     /// get latest collected data, doesnt remove it from ringbuffer
     double **get_current_board_data (int num_samples, int *num_data_points);
+    /// Get board id in case of PLAYBACK or STREAMING board
+    int get_master_board_id ();
     /// get number of packages in ringbuffer
     int get_board_data_count ();
     /// get all collected data and flush it from internal buffer
