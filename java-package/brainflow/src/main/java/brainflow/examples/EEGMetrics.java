@@ -22,7 +22,7 @@ public class EEGMetrics
         BrainFlowInputParams params = new BrainFlowInputParams ();
         int board_id = parse_args (args, params);
         BoardShim board_shim = new BoardShim (board_id, params);
-        int master_board_id = board_shim.get_master_board_id ();
+        int master_board_id = board_shim.get_board_id ();
         int sampling_rate = BoardShim.get_sampling_rate (master_board_id);
         int[] eeg_channels = BoardShim.get_eeg_channels (master_board_id);
 

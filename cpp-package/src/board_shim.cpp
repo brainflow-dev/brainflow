@@ -159,7 +159,7 @@ int BoardShim::get_board_data_count ()
 double **BoardShim::get_board_data (int *num_data_points)
 {
     int num_samples = get_board_data_count ();
-    int num_data_channels = get_num_rows (get_master_board_id ());
+    int num_data_channels = get_num_rows (get_board_id ());
     double *buf = new double[num_samples * num_data_channels];
     int res = ::get_board_data (
         num_samples, buf, board_id, const_cast<char *> (serialized_params.c_str ()));
@@ -182,7 +182,7 @@ double **BoardShim::get_board_data (int *num_data_points)
 
 double **BoardShim::get_current_board_data (int num_samples, int *num_data_points)
 {
-    int num_data_channels = BoardShim::get_num_rows (get_master_board_id ());
+    int num_data_channels = BoardShim::get_num_rows (get_board_id ());
     double *buf = new double[num_samples * num_data_channels];
     int res = ::get_current_board_data (num_samples, buf, num_data_points, board_id,
         const_cast<char *> (serialized_params.c_str ()));
@@ -221,7 +221,7 @@ std::string BoardShim::config_board (char *config)
 // can not do it directly in low level api because some languages can not pass multidim array to C++
 void BoardShim::reshape_data (int num_data_points, double *linear_buffer, double **output_buf)
 {
-    int num_data_channels = BoardShim::get_num_rows (get_master_board_id ());
+    int num_data_channels = BoardShim::get_num_rows (get_board_id ());
     for (int i = 0; i < num_data_channels; i++)
     {
         memcpy (
@@ -229,7 +229,7 @@ void BoardShim::reshape_data (int num_data_points, double *linear_buffer, double
     }
 }
 
-int BoardShim::get_master_board_id ()
+int BoardShim::get_board_id ()
 {
     int master_board_id = board_id;
     if ((board_id == (int)BoardIds::STREAMING_BOARD) ||

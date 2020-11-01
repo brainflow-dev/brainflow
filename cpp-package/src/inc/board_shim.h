@@ -178,7 +178,7 @@ public:
     /// get latest collected data, doesnt remove it from ringbuffer
     double **get_current_board_data (int num_samples, int *num_data_points);
     /// Get board id in case of PLAYBACK or STREAMING board
-    int get_master_board_id ();
+    int get_board_id ();
     /// get number of packages in ringbuffer
     int get_board_data_count ();
     /// get all collected data and flush it from internal buffer

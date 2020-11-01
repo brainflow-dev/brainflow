@@ -94,11 +94,7 @@ int ConcentrationKNNClassifier::release ()
 {
     if (kdtree == NULL)
     {
-<<<<<<< HEAD
         safe_logger (spdlog::level::err, "Please prepare classifier with prepare method.");
-=======
-        safe_logger (spdlog::level::err, "Must prepare model before releasing it.");
->>>>>>> 1d24ac118fdc58aac79ca8d42c5330eeae578c42
         return (int)BrainFlowExitCodes::CLASSIFIER_IS_NOT_PREPARED_ERROR;
     }
     delete kdtree;

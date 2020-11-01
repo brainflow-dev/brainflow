@@ -2,11 +2,11 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle ("eeg_metrics")]
+[assembly: AssemblyTitle ("eeg_metrics_ci")]
 [assembly: AssemblyDescription ("")]
 [assembly: AssemblyConfiguration ("")]
 [assembly: AssemblyCompany ("")]
-[assembly: AssemblyProduct ("eeg_metrics")]
+[assembly: AssemblyProduct ("eeg_metrics_ci")]
 [assembly: AssemblyCopyright ("Copyright ©  2019")]
 [assembly: AssemblyTrademark ("")]
 [assembly: AssemblyCulture ("")]

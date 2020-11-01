@@ -593,7 +593,7 @@ namespace brainflow
         /// Get Master board id in case of PLAYBACK or STREAMING board
         ///</summary>
         /// <returns> Master board id </returns>
-        public int get_master_board_id()
+        public int get_board_id()
         {
             return master_board_id;
         }
