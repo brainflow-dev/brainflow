@@ -34,6 +34,8 @@ setup (
             os.path.join ('lib', 'libDataHandler.dylib'),
             os.path.join ('lib', 'neurosdk-x64.dll'),
             os.path.join ('lib', 'neurosdk-x86.dll'),
+            os.path.join ('lib', 'gForceSDKWrapper32.dll'),
+            os.path.join ('lib', 'gForceSDKWrapper.dll'),
             os.path.join ('lib', 'libneurosdk-shared.dylib'),
             os.path.join ('lib', 'libunicorn.so'),
             os.path.join ('lib', 'GanglionLib.dll'),

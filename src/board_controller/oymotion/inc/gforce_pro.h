@@ -6,7 +6,6 @@
 #include <thread>
 
 #include "board.h"
-#include "board_controller.h"
 #include "data_buffer.h"
 #include "runtime_dll_loader.h"
 

@@ -75,6 +75,11 @@ public:
         }
     }
 
+    int get_board_id ()
+    {
+        return board_id;
+    }
+
 protected:
     DataBuffer *db;
     bool skip_logs;

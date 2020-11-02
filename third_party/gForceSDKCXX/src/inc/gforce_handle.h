@@ -42,12 +42,13 @@
 using namespace gf;
 using namespace std;
 
+extern volatile int iExitCode;
+extern volatile bool bShouldStopStream;
 
 class GForceHandle : public HubListener
 {
 public:
-    GForceHandle (gfsPtr<Hub> &pHub, int *pExitCode, bool *pShouldStopStream)
-        : mHub (pHub), mExitCode (pExitCode), mShouldStopStream (pShouldStopStream)
+    GForceHandle (gfsPtr<Hub> &pHub) : mHub (pHub)
     {
 #ifdef DEBUG
         logger = spdlog::stderr_logger_mt ("GForceHandleLogger");
@@ -64,7 +65,7 @@ public:
         if (nullptr == mDevice)
         {
             logger->error ("device not found");
-            *mExitCode = (int)GforceWrapperExitCodes::NO_DEVICE_FOUND;
+            iExitCode = (int)GforceWrapperExitCodes::NO_DEVICE_FOUND;
         }
         else
         {
@@ -75,18 +76,18 @@ public:
                 if (GF_RET_CODE::GF_SUCCESS == mDevice->connect ())
                 {
                     logger->info ("device connected");
-                    *mExitCode = (int)GforceWrapperExitCodes::STATUS_OK;
+                    iExitCode = (int)GforceWrapperExitCodes::STATUS_OK;
                 }
                 else
                 {
                     logger->error ("connect error");
-                    *mExitCode = (int)GforceWrapperExitCodes::CONNECT_ERROR;
+                    iExitCode = (int)GforceWrapperExitCodes::CONNECT_ERROR;
                 }
             }
             else
             {
                 logger->error ("device found but in connecting state");
-                *mExitCode = (int)GforceWrapperExitCodes::FOUND_BUT_IN_CONNECTING_STATE;
+                iExitCode = (int)GforceWrapperExitCodes::FOUND_BUT_IN_CONNECTING_STATE;
             }
         }
     }
@@ -212,8 +213,6 @@ public:
 
 private:
     gfsPtr<Hub> mHub;
-    int *mExitCode;
-    bool *mShouldStopStream;
     gfsPtr<Device> mDevice;
     std::shared_ptr<spdlog::logger> logger;
 

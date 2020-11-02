@@ -38,9 +38,8 @@ int gforceInitialize (void *param)
     pHub = HubManager::getHubInstance (_T("GForceBrainFlowWrapper"));
     pHub->setWorkMode (WorkMode::Polling); // means that need to run loop manually
     // create the listener implementation and register to hub
-    gfsPtr<GForceHandle> gforceHandle =
-        make_shared<GForceHandle> (pHub, &iExitCode, &bShouldStopStream);
-    /*gfsPtr<HubListener> listener = static_pointer_cast<HubListener> (gforceHandle);
+    gfsPtr<GForceHandle> gforceHandle = make_shared<GForceHandle> (pHub);
+    gfsPtr<HubListener> listener = static_pointer_cast<HubListener> (gforceHandle);
     GF_RET_CODE retCode = pHub->registerListener (listener);
     if (retCode != GF_RET_CODE::GF_SUCCESS)
     {
@@ -77,7 +76,6 @@ int gforceInitialize (void *param)
         pHub->unRegisterListener (listener);
         pHub->deinit ();
     }
-*/
     return iExitCode;
 }
 

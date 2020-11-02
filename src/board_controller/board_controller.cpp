@@ -137,9 +137,11 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
             break;
         case BoardIds::GFORCE_PRO_BOARD:
             board = std::shared_ptr<Board> (new GforcePro (params));
+            break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
     }
+    Board::board_logger->trace ("Board object created {}", board->get_board_id ());
     res = board->prepare_session ();
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {

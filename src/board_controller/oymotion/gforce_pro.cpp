@@ -4,17 +4,12 @@
 
 #ifdef _WIN32
 #include <windows.h>
-#else
-#include <unistd.h>
-#endif
 
 #include "custom_cast.h"
 #include "get_dll_dir.h"
 #include "gforce_pro.h"
 
 #include "gforce_wrapper_types.h"
-
-#ifdef _WIN32
 
 int GforcePro::num_objects = 0;
 
@@ -43,11 +38,11 @@ GforcePro::GforcePro (struct BrainFlowInputParams params)
     bool res = get_dll_path (gforcelib_dir);
     if (sizeof (void *) == 4)
     {
-        gforcelib_name = "GforceLib32.dll";
+        gforcelib_name = "gForceSDKWrapper32.dll";
     }
     else
     {
-        gforcelib_name = "GforceLib.dll";
+        gforcelib_name = "gForceSDKWrapper.dll";
     }
 
 
@@ -244,11 +239,7 @@ void GforcePro::read_thread ()
         }
         else
         {
-#ifdef _WIN32
             Sleep (sleep_time);
-#else
-            usleep (sleep_time * 1000);
-#endif
         }
     }
     delete[] package;
