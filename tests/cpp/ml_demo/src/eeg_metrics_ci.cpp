@@ -17,15 +17,14 @@ using namespace std::chrono;
 
 
 bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, int *board_id,
-    int *metric, int *classifier);
+    struct BrainFlowModelParams *model_params);
 
 int main (int argc, char *argv[])
 {
     struct BrainFlowInputParams params;
+    struct BrainFlowModelParams model_params (0,0);
     int board_id = 0;
-    int classifier = 0;
-    int metric = 0;
-    if (!parse_args (argc, argv, &params, &board_id, &metric, &classifier))
+    if (!parse_args (argc, argv, &params, &board_id, &model_params))
     {
         return -1;
     }
@@ -37,21 +36,7 @@ int main (int argc, char *argv[])
     int *eeg_channels = NULL;
     int num_rows = 0;
     int res = 0;
-    int master_board_id = 0;
-
-    if ((board_id == (int)BoardIds::STREAMING_BOARD) ||
-        (board_id == (int)BoardIds::PLAYBACK_FILE_BOARD))
-    {
-        try
-        {
-            master_board_id = std::stoi (params.other_info);
-        }
-        catch (const std::exception &e)
-        {
-            throw BrainFlowException ("specify master board id using params.other_info",
-                (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
-        }
-    }
+    int master_board_id = board->get_board_id ();
 
     int sampling_rate = BoardShim::get_sampling_rate (master_board_id);
 
@@ -93,7 +78,6 @@ int main (int argc, char *argv[])
         std::cout << std::endl;
 
         // Prepare Models
-        struct BrainFlowModelParams model_params (metric, classifier);
         MLModel model (model_params);
         model.prepare ();
         std::cout << "Model Score: " << model.predict (feature_vector, 10) << std::endl;
@@ -124,7 +108,7 @@ int main (int argc, char *argv[])
 
 
 bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, int *board_id,
-    int *metric, int *classifier)
+    struct BrainFlowModelParams *model_params)
 {
     bool board_id_found = false;
     bool classifier_found = false;
@@ -151,7 +135,7 @@ bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, in
             {
                 i++;
                 classifier_found = true;
-                *classifier = std::stoi (std::string (argv[i]));
+                model_params->classifier = std::stoi (std::string (argv[i]));
             }
             else
             {
@@ -165,7 +149,7 @@ bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, in
             {
                 i++;
                 metric_found = true;
-                *metric = std::stoi (std::string (argv[i]));
+                model_params->metric = std::stoi (std::string (argv[i]));
             }
             else
             {
@@ -296,12 +280,12 @@ bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, in
         std::cerr << "board id is not provided" << std::endl;
         return false;
     }
-    if (!classifier)
+    if (!classifier_found)
     {
         std::cerr << "classifier is not provided" << std::endl;
         return false;
     }
-    if (!metric)
+    if (!metric_found)
     {
         std::cerr << "metric is not provided" << std::endl;
         return false;

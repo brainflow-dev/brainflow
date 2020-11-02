@@ -554,6 +554,14 @@ public class BoardShim
     }
 
     /**
+     * Get master board id incase of Playback or streaming board
+     */
+    public int get_board_id ()
+    {
+        return master_board_id;
+    }
+
+    /**
      * send string to a board, use this method carefully and only if you understand
      * what you are doing
      */

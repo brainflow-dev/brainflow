@@ -6,14 +6,15 @@ using Accord.Math;
 
 namespace test
 {
-    class EEGMetrics
+    class EEGMetricsCi
     {
         static void Main (string[] args)
         {
             // use synthetic board for demo
             BoardShim.enable_dev_board_logger ();
             BrainFlowInputParams input_params = new BrainFlowInputParams ();
-            int board_id = parse_args (args, input_params);
+            BrainFlowModelParams model_params = new BrainFlowModelParams (0,0);
+            int board_id = parse_args (args, input_params,model_params);
             BoardShim board_shim = new BoardShim (board_id, input_params);
             int sampling_rate = BoardShim.get_sampling_rate (board_shim.get_board_id());
             int nfft = DataFilter.get_nearest_power_of_two(sampling_rate);
@@ -28,14 +29,13 @@ namespace test
 
             Tuple<double[], double[]> bands = DataFilter.get_avg_band_powers (data, eeg_channels, sampling_rate, true);
             double[] feature_vector = bands.Item1.Concatenate (bands.Item2);
-            BrainFlowModelParams model_params = new BrainFlowModelParams ((int)BrainFlowMetrics.CONCENTRATION, (int)BrainFlowClassifiers.REGRESSION);
             MLModel concentration = new MLModel (model_params);
             concentration.prepare ();
-            Console.WriteLine ("Concentration: " + concentration.predict (feature_vector));
+            Console.WriteLine (Enum.GetName(typeof(BrainFlowMetrics),model_params.metric) + " " + Enum.GetName(typeof(BrainFlowClassifiers),model_params.classifier) + " : "  + concentration.predict (feature_vector));
             concentration.release ();
         }
 
-        static int parse_args (string[] args, BrainFlowInputParams input_params)
+        static int parse_args (string[] args, BrainFlowInputParams input_params,  BrainFlowModelParams model_params)
         {
             int board_id = (int)BoardIds.SYNTHETIC_BOARD; //assume synthetic board by default
             // use docs to get params for your specific board, e.g. set serial_port for Cyton
@@ -80,6 +80,14 @@ namespace test
                 if (args[i].Equals ("--file"))
                 {
                     input_params.file = args[i + 1];
+                }
+                if (args[i].Equals ("--metric"))
+                {
+                    model_params.metric = Convert.ToInt32(args[i + 1]);
+                }
+                if (args[i].Equals ("--classifier"))
+                {
+                    model_params.classifier = Convert.ToInt32(args[i + 1]);
                 }
             }
             return board_id;
