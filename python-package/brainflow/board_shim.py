@@ -890,8 +890,8 @@ class BoardShim (object):
             raise BrainFlowError ('unable to obtain buffer size', res)
         return data_size[0]
     
-    def get_board_id(self) -> int:
-        """Get's the actual board id in case of playback or streaming board
+    def get_board_id (self) -> int:
+        """Get's the actual board id, can be different than provided
 
         :return: board id
         :rtype: int

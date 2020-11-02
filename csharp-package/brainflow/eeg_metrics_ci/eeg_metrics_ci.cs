@@ -16,9 +16,9 @@ namespace test
             BrainFlowModelParams model_params = new BrainFlowModelParams (0,0);
             int board_id = parse_args (args, input_params,model_params);
             BoardShim board_shim = new BoardShim (board_id, input_params);
-            int sampling_rate = BoardShim.get_sampling_rate (board_shim.get_board_id());
-            int nfft = DataFilter.get_nearest_power_of_two(sampling_rate);
-            int[] eeg_channels = BoardShim.get_eeg_channels(board_shim.get_board_id());
+            int sampling_rate = BoardShim.get_sampling_rate (board_shim.get_board_id ());
+            int nfft = DataFilter.get_nearest_power_of_two (sampling_rate);
+            int[] eeg_channels = BoardShim.get_eeg_channels (board_shim.get_board_id ());
 
             board_shim.prepare_session ();
             board_shim.start_stream (3600);
@@ -31,7 +31,8 @@ namespace test
             double[] feature_vector = bands.Item1.Concatenate (bands.Item2);
             MLModel concentration = new MLModel (model_params);
             concentration.prepare ();
-            Console.WriteLine (Enum.GetName(typeof(BrainFlowMetrics),model_params.metric) + " " + Enum.GetName(typeof(BrainFlowClassifiers),model_params.classifier) + " : "  + concentration.predict (feature_vector));
+            Console.WriteLine (Enum.GetName (typeof (BrainFlowMetrics), model_params.metric) + " " + Enum.GetName (typeof (BrainFlowClassifiers), model_params.classifier) +
+                " : "  + concentration.predict (feature_vector));
             concentration.release ();
         }
 
@@ -83,11 +84,11 @@ namespace test
                 }
                 if (args[i].Equals ("--metric"))
                 {
-                    model_params.metric = Convert.ToInt32(args[i + 1]);
+                    model_params.metric = Convert.ToInt32 (args[i + 1]);
                 }
                 if (args[i].Equals ("--classifier"))
                 {
-                    model_params.classifier = Convert.ToInt32(args[i + 1]);
+                    model_params.classifier = Convert.ToInt32 (args[i + 1]);
                 }
             }
             return board_id;
