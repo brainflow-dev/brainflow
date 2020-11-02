@@ -195,7 +195,6 @@ def main ():
         test_brainflow_svm (data)
         test_brainflow_lda (data)
     else:
-        train_knn(data)
         train_regression (data)
         # Don't use grid search method unless you have to as it takes a while to complete
         train_brainflow_search_svm (data) if args.grid_search else train_brainflow_svm (data)

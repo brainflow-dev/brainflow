@@ -20,8 +20,8 @@ public class EEGMetricsCi
     {
         BoardShim.enable_board_logger ();
         BrainFlowInputParams params = new BrainFlowInputParams ();
-        BrainFlowModelParams model_params = new BrainFlowModelParams (0,0);
-        int board_id = parse_args (args, params,model_params);
+        BrainFlowModelParams model_params = new BrainFlowModelParams (0, 0);
+        int board_id = parse_args (args, params, model_params);
         BoardShim board_shim = new BoardShim (board_id, params);
         int master_board_id = board_shim.get_board_id ();
         int sampling_rate = BoardShim.get_sampling_rate (master_board_id);
@@ -30,7 +30,8 @@ public class EEGMetricsCi
         board_shim.prepare_session ();
         board_shim.start_stream (3600);
         BoardShim.log_message (LogLevels.LEVEL_INFO.get_code (), "Start sleeping in the main thread");
-        // recommended window size for eeg metric calculation is at least 4 seconds, bigger is better
+        // recommended window size for eeg metric calculation is at least 4 seconds,
+        // bigger is better
         Thread.sleep (5000);
         board_shim.stop_stream ();
         double[][] data = board_shim.get_board_data ();
@@ -40,11 +41,13 @@ public class EEGMetricsCi
         double[] feature_vector = ArrayUtils.addAll (bands.getLeft (), bands.getRight ());
         MLModel concentration = new MLModel (model_params);
         concentration.prepare ();
-        System.out.println (BrainFlowMetrics.string_from_code(model_params.metric) + " " + BrainFlowClassifiers.string_from_code(model_params.classifier) + " : " + concentration.predict (feature_vector));
+        System.out.println (BrainFlowMetrics.string_from_code (model_params.metric) + " "
+                + BrainFlowClassifiers.string_from_code (model_params.classifier) + " : "
+                + concentration.predict (feature_vector));
         concentration.release ();
     }
 
-    private static int parse_args (String[] args, BrainFlowInputParams params,BrainFlowModelParams model_params)
+    private static int parse_args (String[] args, BrainFlowInputParams params, BrainFlowModelParams model_params)
     {
         int board_id = -1;
         for (int i = 0; i < args.length; i++)
@@ -87,11 +90,11 @@ public class EEGMetricsCi
             }
             if (args[i].equals ("--metric"))
             {
-                model_params.metric = Integer.parseInt(args[i + 1]);
+                model_params.metric = Integer.parseInt (args[i + 1]);
             }
             if (args[i].equals ("--classifier"))
             {
-                model_params.classifier = Integer.parseInt(args[i + 1]);
+                model_params.classifier = Integer.parseInt (args[i + 1]);
             }
         }
         return board_id;

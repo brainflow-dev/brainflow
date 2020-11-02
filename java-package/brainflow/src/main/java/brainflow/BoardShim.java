@@ -554,7 +554,7 @@ public class BoardShim
     }
 
     /**
-     * Get master board id incase of Playback or streaming board
+     * Get Board Id, can be different than provided (playback or streaming board)
      */
     public int get_board_id ()
     {

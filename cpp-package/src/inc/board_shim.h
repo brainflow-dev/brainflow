@@ -177,7 +177,7 @@ public:
     void release_session ();
     /// get latest collected data, doesnt remove it from ringbuffer
     double **get_current_board_data (int num_samples, int *num_data_points);
-    /// Get board id in case of PLAYBACK or STREAMING board
+    /// Get board id, for some boards can be different than provided (playback, streaming)
     int get_board_id ();
     /// get number of packages in ringbuffer
     int get_board_data_count ();

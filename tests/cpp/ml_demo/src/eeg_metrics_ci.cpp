@@ -19,10 +19,11 @@ using namespace std::chrono;
 bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, int *board_id,
     struct BrainFlowModelParams *model_params);
 
+
 int main (int argc, char *argv[])
 {
     struct BrainFlowInputParams params;
-    struct BrainFlowModelParams model_params (0,0);
+    struct BrainFlowModelParams model_params (0, 0);
     int board_id = 0;
     if (!parse_args (argc, argv, &params, &board_id, &model_params))
     {

@@ -590,10 +590,10 @@ namespace brainflow
         }
 
         ///<summary>
-        /// Get Master board id in case of PLAYBACK or STREAMING board
+        /// Get Board Id, for some boards can be different than provided
         ///</summary>
         /// <returns> Master board id </returns>
-        public int get_board_id()
+        public int get_board_id ()
         {
             return master_board_id;
         }
