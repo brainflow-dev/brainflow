@@ -589,6 +589,14 @@ namespace brainflow
             return res[0] != 0;
         }
 
+        ///<summary>
+        /// Get Master board id in case of PLAYBACK or STREAMING board
+        ///</summary>
+        /// <returns> Master board id </returns>
+        public int get_board_id()
+        {
+            return master_board_id;
+        }
         /// <summary>
         /// get number of packages in ringbuffer
         /// </summary>

@@ -13,14 +13,15 @@ import brainflow.DataFilter;
 import brainflow.LogLevels;
 import brainflow.MLModel;
 
-public class EEGMetrics
+public class EEGMetricsCi
 {
 
     public static void main (String[] args) throws Exception
     {
         BoardShim.enable_board_logger ();
         BrainFlowInputParams params = new BrainFlowInputParams ();
-        int board_id = parse_args (args, params);
+        BrainFlowModelParams model_params = new BrainFlowModelParams (0,0);
+        int board_id = parse_args (args, params,model_params);
         BoardShim board_shim = new BoardShim (board_id, params);
         int master_board_id = board_shim.get_board_id ();
         int sampling_rate = BoardShim.get_sampling_rate (master_board_id);
@@ -37,15 +38,13 @@ public class EEGMetrics
 
         Pair<double[], double[]> bands = DataFilter.get_avg_band_powers (data, eeg_channels, sampling_rate, true);
         double[] feature_vector = ArrayUtils.addAll (bands.getLeft (), bands.getRight ());
-        BrainFlowModelParams model_params = new BrainFlowModelParams (BrainFlowMetrics.CONCENTRATION.get_code (),
-                BrainFlowClassifiers.REGRESSION.get_code ());
         MLModel concentration = new MLModel (model_params);
         concentration.prepare ();
-        System.out.print ("Concentration: " + concentration.predict (feature_vector));
+        System.out.println (BrainFlowMetrics.string_from_code(model_params.metric) + " " + BrainFlowClassifiers.string_from_code(model_params.classifier) + " : " + concentration.predict (feature_vector));
         concentration.release ();
     }
 
-    private static int parse_args (String[] args, BrainFlowInputParams params)
+    private static int parse_args (String[] args, BrainFlowInputParams params,BrainFlowModelParams model_params)
     {
         int board_id = -1;
         for (int i = 0; i < args.length; i++)
@@ -85,6 +84,14 @@ public class EEGMetrics
             if (args[i].equals ("--file"))
             {
                 params.file = args[i + 1];
+            }
+            if (args[i].equals ("--metric"))
+            {
+                model_params.metric = Integer.parseInt(args[i + 1]);
+            }
+            if (args[i].equals ("--classifier"))
+            {
+                model_params.classifier = Integer.parseInt(args[i + 1]);
             }
         }
         return board_id;

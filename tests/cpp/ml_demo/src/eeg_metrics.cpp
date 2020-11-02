@@ -34,21 +34,7 @@ int main (int argc, char *argv[])
     int *eeg_channels = NULL;
     int num_rows = 0;
     int res = 0;
-    int master_board_id = 0;
-
-    if ((board_id == (int)BoardIds::STREAMING_BOARD) ||
-        (board_id == (int)BoardIds::PLAYBACK_FILE_BOARD))
-    {
-        try
-        {
-            master_board_id = std::stoi (params.other_info);
-        }
-        catch (const std::exception &e)
-        {
-            throw BrainFlowException ("specify master board id using params.other_info",
-                (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
-        }
-    }
+    int master_board_id = board->get_board_id ();
 
     int sampling_rate = BoardShim::get_sampling_rate (master_board_id);
 
