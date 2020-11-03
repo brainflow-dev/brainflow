@@ -112,19 +112,27 @@ int AuraXR::config_board (std::string conf, std::string &response)
         constexpr int max_string_size = 8192;
         char b[max_string_size];
         res = AuraXR::transaction_size;
+        int max_attempt = 25; // to dont get to infinite loop
+        int current_attempt = 0;
         while (res == AuraXR::transaction_size)
         {
             res = socket->recv (b, max_string_size);
             if (res == -1)
             {
 #ifdef _WIN32
-                safe_logger (
-                    spdlog::level::err, "config_board WSAGetLastError is {}", WSAGetLastError ());
+                safe_logger (spdlog::level::err, "config_board recv ack WSAGetLastError is {}",
+                    WSAGetLastError ());
 #else
-                safe_logger (spdlog::level::err, "config_board errno {} message {}", errno,
+                safe_logger (spdlog::level::err, "config_board recv ack errno {} message {}", errno,
                     strerror (errno));
 #endif
                 return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
+            }
+            current_attempt++;
+            if (current_attempt == max_attempt)
+            {
+                safe_logger (spdlog::level::err, "Device is streaming data while it should not!");
+                return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
             }
         }
         // set response string
