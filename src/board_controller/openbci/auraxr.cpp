@@ -398,8 +398,11 @@ void AuraXR::read_thread ()
             timestamp_device_last /= 1e6;
             double time_delta = timestamp_device_last - timestamp_device_cur;
 
-            streamer->stream_data (package, AuraXR::num_channels, recv_time - time_delta);
-            db->add_data (recv_time - time_delta, package);
+            // workaround micros() overflow issue in firmware
+            double timestamp = (time_delta < 0) ? get_timestamp () : recv_time - time_delta;
+
+            streamer->stream_data (package, AuraXR::num_channels, timestamp);
+            db->add_data (timestamp, package);
         }
     }
 }
