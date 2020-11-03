@@ -22,7 +22,6 @@ AuraXR::AuraXR (struct BrainFlowInputParams params) : Board ((int)BoardIds::AURA
     this->is_streaming = false;
     this->keep_alive = false;
     this->initialized = false;
-    this->start_time = 0.0;
     this->state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
 }
 
@@ -112,19 +111,27 @@ int AuraXR::config_board (std::string conf, std::string &response)
         constexpr int max_string_size = 8192;
         char b[max_string_size];
         res = AuraXR::transaction_size;
+        int max_attempt = 25; // to dont get to infinite loop
+        int current_attempt = 0;
         while (res == AuraXR::transaction_size)
         {
             res = socket->recv (b, max_string_size);
             if (res == -1)
             {
 #ifdef _WIN32
-                safe_logger (
-                    spdlog::level::err, "config_board WSAGetLastError is {}", WSAGetLastError ());
+                safe_logger (spdlog::level::err, "config_board recv ack WSAGetLastError is {}",
+                    WSAGetLastError ());
 #else
-                safe_logger (spdlog::level::err, "config_board errno {} message {}", errno,
+                safe_logger (spdlog::level::err, "config_board recv ack errno {} message {}", errno,
                     strerror (errno));
 #endif
                 return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
+            }
+            current_attempt++;
+            if (current_attempt == max_attempt)
+            {
+                safe_logger (spdlog::level::err, "Device is streaming data while it should not!");
+                return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
             }
         }
         // set response string
@@ -206,7 +213,6 @@ int AuraXR::start_stream (int buffer_size, char *streamer_params)
         safe_logger (spdlog::level::err, "Failed to send a command to board");
         return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
     }
-    start_time = get_timestamp ();
 
     keep_alive = true;
     streaming_thread = std::thread ([this] { this->read_thread (); });
@@ -307,6 +313,7 @@ void AuraXR::read_thread ()
 {
     int res;
     unsigned char b[AuraXR::transaction_size];
+    constexpr int offset_last_package = AuraXR::package_size * (AuraXR::num_packages - 1);
     for (int i = 0; i < AuraXR::transaction_size; i++)
     {
         b[i] = 0;
@@ -314,6 +321,7 @@ void AuraXR::read_thread ()
     while (keep_alive)
     {
         res = socket->recv (b, AuraXR::transaction_size);
+        double recv_time = get_timestamp ();
         if (res == -1)
         {
 #ifdef _WIN32
@@ -330,7 +338,6 @@ void AuraXR::read_thread ()
         }
         else
         {
-            socket->send ("a", sizeof (char)); // send ack that data received
             // inform main thread that everything is ok and first package was received
             if (this->state != (int)BrainFlowExitCodes::STATUS_OK)
             {
@@ -383,10 +390,17 @@ void AuraXR::read_thread ()
             // battery
             package[21] = (double)b[53 + offset];
 
-            double timestamp_device;
-            memcpy (&timestamp_device, b + 64 + offset, 8);
-            timestamp_device /= 1e6; // convert usec to sec
-            double timestamp = timestamp_device + start_time;
+            double timestamp_device_cur;
+            memcpy (&timestamp_device_cur, b + 64 + offset, 8);
+            double timestamp_device_last;
+            memcpy (&timestamp_device_last, b + 64 + offset_last_package, 8);
+            timestamp_device_cur /= 1e6; // convert usec to sec
+            timestamp_device_last /= 1e6;
+            double time_delta = timestamp_device_last - timestamp_device_cur;
+
+            // workaround micros() overflow issue in firmware
+            double timestamp = (time_delta < 0) ? get_timestamp () : recv_time - time_delta;
+
             streamer->stream_data (package, AuraXR::num_channels, timestamp);
             db->add_data (timestamp, package);
         }
