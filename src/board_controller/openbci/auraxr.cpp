@@ -22,7 +22,6 @@ AuraXR::AuraXR (struct BrainFlowInputParams params) : Board ((int)BoardIds::AURA
     this->is_streaming = false;
     this->keep_alive = false;
     this->initialized = false;
-    this->start_time = 0.0;
     this->state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
 }
 
@@ -214,7 +213,6 @@ int AuraXR::start_stream (int buffer_size, char *streamer_params)
         safe_logger (spdlog::level::err, "Failed to send a command to board");
         return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
     }
-    start_time = get_timestamp ();
 
     keep_alive = true;
     streaming_thread = std::thread ([this] { this->read_thread (); });
@@ -315,6 +313,7 @@ void AuraXR::read_thread ()
 {
     int res;
     unsigned char b[AuraXR::transaction_size];
+    constexpr int offset_last_package = AuraXR::package_size * (AuraXR::num_packages - 1);
     for (int i = 0; i < AuraXR::transaction_size; i++)
     {
         b[i] = 0;
@@ -322,6 +321,7 @@ void AuraXR::read_thread ()
     while (keep_alive)
     {
         res = socket->recv (b, AuraXR::transaction_size);
+        double recv_time = get_timestamp ();
         if (res == -1)
         {
 #ifdef _WIN32
@@ -338,7 +338,6 @@ void AuraXR::read_thread ()
         }
         else
         {
-            socket->send ("a", sizeof (char)); // send ack that data received
             // inform main thread that everything is ok and first package was received
             if (this->state != (int)BrainFlowExitCodes::STATUS_OK)
             {
@@ -391,12 +390,16 @@ void AuraXR::read_thread ()
             // battery
             package[21] = (double)b[53 + offset];
 
-            double timestamp_device;
-            memcpy (&timestamp_device, b + 64 + offset, 8);
-            timestamp_device /= 1e6; // convert usec to sec
-            double timestamp = timestamp_device + start_time;
-            streamer->stream_data (package, AuraXR::num_channels, timestamp);
-            db->add_data (timestamp, package);
+            double timestamp_device_cur;
+            memcpy (&timestamp_device_cur, b + 64 + offset, 8);
+            double timestamp_device_last;
+            memcpy (&timestamp_device_last, b + 64 + offset_last_package, 8);
+            timestamp_device_cur /= 1e6; // convert usec to sec
+            timestamp_device_last /= 1e6;
+            double time_delta = timestamp_device_last - timestamp_device_cur;
+
+            streamer->stream_data (package, AuraXR::num_channels, recv_time - time_delta);
+            db->add_data (recv_time - time_delta, package);
         }
     }
 }
