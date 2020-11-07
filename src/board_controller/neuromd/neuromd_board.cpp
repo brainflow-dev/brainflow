@@ -63,6 +63,7 @@ NeuromdBoard::NeuromdBoard (int board_id, struct BrainFlowInputParams params)
     enumerator_get_device_list = NULL;
     free_DeviceInfoArray = NULL;
     device_read_Name = NULL;
+    device_read_SerialNumber = NULL;
     device_connect = NULL;
     device_read_State = NULL;
     device_set_SamplingFrequency = NULL;
@@ -174,6 +175,15 @@ int NeuromdBoard::prepare_session ()
     if (device_read_Name == NULL)
     {
         safe_logger (spdlog::level::err, "failed to get function address for device_read_Name");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    // device_read_SerialNumber
+    device_read_SerialNumber =
+        (int (*) (Device *, char *, size_t))dll_loader->get_address ("device_read_SerialNumber");
+    if (device_read_SerialNumber == NULL)
+    {
+        safe_logger (
+            spdlog::level::err, "failed to get function address for device_read_SerialNumber");
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
     // device_connect
@@ -545,17 +555,41 @@ int NeuromdBoard::find_device_info (DeviceEnumerator *enumerator, DeviceInfo *ou
                 return (int)BrainFlowExitCodes::STATUS_OK;
             }
         }
+        // its very different for callibri and brainbit, maybe in future versions of neurosdk will
+        // be similar
         else
         {
-            // device_read_SerialNumber returns random string for callibri
-            // validate that device name is CallibriYellow and thats all for now
             Device *temp_device = create_Device (enumerator, device_info_array.info_array[i]);
             if (temp_device == NULL)
             {
                 safe_logger (spdlog::level::trace, "failed to create device");
                 continue;
             }
+            // need to connect to read serial number
+            device_connect (temp_device);
+            DeviceState device_state = DeviceStateDisconnected;
+            for (int i = 0; (i < 3) && (device_state != DeviceStateConnected); i++)
+            {
+                int return_code = device_read_State (temp_device, &device_state);
+                if (return_code != SDK_NO_ERROR)
+                {
+                    break;
+                }
+#ifdef _WIN32
+                Sleep (1000);
+#else
+                usleep (1000000);
+#endif
+            }
+            if (device_state != DeviceStateConnected)
+            {
+                device_delete (temp_device);
+                temp_device = NULL;
+                continue;
+            }
+            // now can read device name and serial number
             char device_name[256];
+            char device_num[256];
             result_code = device_read_Name (temp_device, device_name, 256);
             if (result_code != SDK_NO_ERROR)
             {
@@ -565,15 +599,43 @@ int NeuromdBoard::find_device_info (DeviceEnumerator *enumerator, DeviceInfo *ou
                 temp_device = NULL;
                 continue;
             }
-            safe_logger (spdlog::level::info, "device name is {}", device_name);
+            result_code = device_read_SerialNumber (temp_device, device_num, 256);
+            if (result_code != SDK_NO_ERROR)
+            {
+                safe_logger (spdlog::level::trace, "failed to read device number");
+                device_disconnect (temp_device);
+                device_delete (temp_device);
+                temp_device = NULL;
+                continue;
+            }
+            safe_logger (spdlog::level::info, "device name is {}, Serial number is {}", device_name,
+                device_num);
             device_disconnect (temp_device);
             device_delete (temp_device);
             temp_device = NULL;
             if (strcmp (device_name, "Callibri_Yellow") == 0)
             {
-                *out_device_info = device_info_array.info_array[i];
-                free_DeviceInfoArray (device_info_array);
-                return (int)BrainFlowExitCodes::STATUS_OK;
+                // for callibri its a string
+                if (!params.serial_number.empty ())
+                {
+                    if (strcmp (device_num, params.serial_number.c_str ()) == 0)
+                    {
+                        *out_device_info = device_info_array.info_array[i];
+                        free_DeviceInfoArray (device_info_array);
+                        return (int)BrainFlowExitCodes::STATUS_OK;
+                    }
+                    else
+                    {
+                        safe_logger (
+                            spdlog::level::info, "device doesn't match provided serial number");
+                    }
+                }
+                else
+                {
+                    *out_device_info = device_info_array.info_array[i];
+                    free_DeviceInfoArray (device_info_array);
+                    return (int)BrainFlowExitCodes::STATUS_OK;
+                }
             }
         }
     }
