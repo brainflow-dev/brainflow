@@ -43,6 +43,7 @@ protected:
     int (*enumerator_get_device_list) (DeviceEnumerator *, DeviceInfoArray *);
     void (*free_DeviceInfoArray) (DeviceInfoArray);
     int (*device_read_Name) (Device *, char *, size_t);
+    int (*device_read_SerialNumber) (Device *, char *, size_t);
     int (*device_connect) (Device *);
     int (*device_read_State) (Device *, DeviceState *);
     int (*device_set_SamplingFrequency) (Device *, SamplingFrequency);
