@@ -1,9 +1,14 @@
-#include "serial.h"
 #include <string>
-#ifndef _WIN32
+
+#ifdef _WIN32
+#include <windows.h>
+#else
 #include <fcntl.h>
+#include <termios.h>
 #include <unistd.h>
 #endif
+
+#include "serial.h"
 
 /////////////////////////////////////////////////
 /////////////////// Windows /////////////////////
@@ -67,7 +72,13 @@ int Serial::set_serial_port_settings (int ms_timeout)
         CloseHandle (this->port_descriptor);
         return SerialExitCodes::SET_TIMEOUT_ERROR;
     }
-    return OK;
+    return SerialExitCodes::OK;
+}
+
+int Serial::flush_buffer ()
+{
+    PurgeComm (this->port_descriptor, PURGE_TXCLEAR | PURGE_RXCLEAR);
+    return SerialExitCodes::OK;
 }
 
 int Serial::read_from_serial_port (void *bytes_to_read, int size)
@@ -119,7 +130,7 @@ int Serial::open_serial_port ()
     this->port_descriptor = open (this->port_name, flags);
     if (this->port_descriptor < 0)
         return SerialExitCodes::OPEN_PORT_ERROR;
-    return OK;
+    return SerialExitCodes::OK;
 }
 
 int Serial::set_serial_port_settings (int ms_timeout)
@@ -152,7 +163,14 @@ int Serial::set_serial_port_settings (int ms_timeout)
 
 int Serial::read_from_serial_port (void *bytes_to_read, int size)
 {
-    return read (this->port_descriptor, bytes_to_read, size);
+    int res = read (this->port_descriptor, bytes_to_read, size);
+    return (res < 0) ? 0 : res;
+}
+
+int Serial::flush_buffer ()
+{
+    tcflush (this->port_descriptor, TCIOFLUSH);
+    return SerialExitCodes::OK;
 }
 
 int Serial::send_to_serial_port (const void *message, int length)

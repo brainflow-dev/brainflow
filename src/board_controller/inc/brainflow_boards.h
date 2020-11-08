@@ -214,6 +214,14 @@ json brainflow_boards_json = {
             {"package_num_channel", 0},
             {"num_rows", 10},
             {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}}
+        }},
+        {"17",
+            {{"name", "FreeEEG32"},
+            {"sampling_rate", 512},
+            {"timestamp_channel", 33},
+            {"package_num_channel", 0},
+            {"num_rows", 34},
+            {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32}}
         }}
     }
 }};
