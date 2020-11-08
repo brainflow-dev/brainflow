@@ -2,16 +2,16 @@
 
 // ioctl headers conflict with standard posix headers for serial port, ioctl needed for custom
 // baudrate, move this function to another compilation unit from serial.cpp
-#ifdef _WIN32
+#if defined _WIN32
 #include <windows.h>
-#elif __linux__
+#elif defined __linux__
 #include </usr/include/asm-generic/ioctls.h>
 #include </usr/include/asm-generic/termbits.h>
 #include <sys/ioctl.h>
 #endif
 
 
-#ifdef _WIN32
+#if defined _WIN32
 int Serial::set_custom_baudrate (int baudrate)
 {
     DCB dcb_serial_params = {0};
@@ -31,7 +31,7 @@ int Serial::set_custom_baudrate (int baudrate)
     return SerialExitCodes::OK;
 }
 
-#elif __linux__
+#elif defined __linux__
 int Serial::set_custom_baudrate (int baudrate)
 {
     struct termios2 port_settings;
