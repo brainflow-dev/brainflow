@@ -14,7 +14,8 @@ enum SerialExitCodes : int
     GET_PORT_STATE_ERROR = -2,
     SET_PORT_STATE_ERROR = -3,
     SET_TIMEOUT_ERROR = -4,
-    CLOSE_ERROR = -5
+    CLOSE_ERROR = -5,
+    NO_SYSTEM_HEADERS_FOUND_ERROR = -6
 };
 
 

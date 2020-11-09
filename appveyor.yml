@@ -90,6 +90,8 @@ test_script:
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\fascia_emulator_ci.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --board-id 12 --ip-port 7789
   # test for ironbci
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\ironbci_windows.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board-id 15 --serial-port
+  # test for freeeeg32
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\freeeeg32_windows.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board-id 17 --serial-port
   # tests for signal processing
   # python
   - python %APPVEYOR_BUILD_FOLDER%\tests\python\denoising.py

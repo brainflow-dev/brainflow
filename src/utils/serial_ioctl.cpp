@@ -4,10 +4,17 @@
 // baudrate, move this function to another compilation unit from serial.cpp
 #if defined(_WIN32)
 #include <windows.h>
+// linux, also need to check that system headers installed
 #elif defined(__linux__) && !defined(__ANDROID__)
-#include </usr/include/asm-generic/ioctls.h>
-#include </usr/include/asm-generic/termbits.h>
+#if __has_include(<sys/ioctl.h>) && __has_include(</usr/include/asm/ioctls.h>) && __has_include(</usr/include/asm/termbits.h>)
 #include <sys/ioctl.h>
+
+#include </usr/include/asm/ioctls.h>
+#include </usr/include/asm/termbits.h>
+#else
+#define NO_IOCTL_HEADERS
+#endif
+
 #endif
 
 
@@ -32,6 +39,12 @@ int Serial::set_custom_baudrate (int baudrate)
 }
 
 #elif defined(__linux__) && !defined(__ANDROID__)
+#ifdef NO_IOCTL_HEADERS
+int Serial::set_custom_baudrate (int baudrate)
+{
+    return SerialExitCodes::NO_SYSTEM_HEADERS_FOUND_ERROR;
+}
+#else
 int Serial::set_custom_baudrate (int baudrate)
 {
     struct termios2 port_settings;
@@ -53,6 +66,7 @@ int Serial::set_custom_baudrate (int baudrate)
         return SerialExitCodes::SET_PORT_STATE_ERROR;
     }
 }
+#endif
 
 #else
 int Serial::set_custom_baudrate (int baudrate)

@@ -38,6 +38,7 @@ class BoardIds (enum.Enum):
     NOTION_1_BOARD = 13 #:
     NOTION_2_BOARD = 14 #:
     IRONBCI_BOARD = 15 #:
+    FREEEEG32_BOARD = 17 #:
 
 
 class LogLevels (enum.Enum):
