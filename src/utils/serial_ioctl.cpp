@@ -4,6 +4,7 @@
 // baudrate, move this function to another compilation unit from serial.cpp
 #if defined(_WIN32)
 #include <windows.h>
+
 // linux, also need to check that system headers installed
 #elif defined(__linux__) && !defined(__ANDROID__)
 #if __has_include(<sys/ioctl.h>) && __has_include(</usr/include/asm/ioctls.h>) && __has_include(</usr/include/asm/termbits.h>)
@@ -14,6 +15,11 @@
 #else
 #define NO_IOCTL_HEADERS
 #endif
+
+#elif defined(__APPLE__)
+#include <fcntl.h>
+#include <termios.h>
+#include <unistd.h>
 
 #endif
 
@@ -68,10 +74,25 @@ int Serial::set_custom_baudrate (int baudrate)
 }
 #endif
 
+#elif defined(__APPLE__)
+int Serial::set_custom_baudrate (int baudrate)
+{
+    struct termios port_settings;
+    memset (&port_settings, 0, sizeof (port_settings));
+    tcgetattr (this->port_descriptor, &port_settings);
+
+    cfsetispeed (&port_settings, baudrate);
+    cfsetospeed (&port_settings, baudrate);
+
+    if (tcsetattr (this->port_descriptor, TCSANOW, &port_settings) != 0)
+        return SerialExitCodes::SET_PORT_STATE_ERROR;
+    tcflush (this->port_descriptor, TCIOFLUSH);
+    return SerialExitCodes::OK;
+}
+
 #else
 int Serial::set_custom_baudrate (int baudrate)
 {
-    // not implemented yet
     return SerialExitCodes::SET_PORT_STATE_ERROR;
 }
 #endif
