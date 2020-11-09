@@ -22,7 +22,7 @@ class Listener (threading.Thread):
         self.writer_process = FreeEEG32Writer (self.port, 0.005, self.write)
         self.writer_process.daemon = True
         self.writer_process.start ()
-        time.sleep (5)
+        time.sleep (10)
         self.writer_process.need_data = False
         self.writer_process.join ()
 

@@ -41,27 +41,30 @@ int Serial::open_serial_port ()
     return SerialExitCodes::OK;
 }
 
-int Serial::set_serial_port_settings (int ms_timeout)
+int Serial::set_serial_port_settings (int ms_timeout, bool timeout_only)
 {
-    DCB dcb_serial_params = {0};
+    if (!timeout_only)
+    {
+        DCB dcb_serial_params = {0};
+        dcb_serial_params.DCBlength = sizeof (dcb_serial_params);
+        if (GetCommState (this->port_descriptor, &dcb_serial_params) == 0)
+        {
+            CloseHandle (this->port_descriptor);
+            return SerialExitCodes::GET_PORT_STATE_ERROR;
+        }
+
+        dcb_serial_params.BaudRate = CBR_115200;
+        dcb_serial_params.ByteSize = 8;
+        dcb_serial_params.StopBits = ONESTOPBIT;
+        dcb_serial_params.Parity = NOPARITY;
+        if (SetCommState (this->port_descriptor, &dcb_serial_params) == 0)
+        {
+            CloseHandle (this->port_descriptor);
+            return SerialExitCodes::SET_PORT_STATE_ERROR;
+        }
+    }
+
     COMMTIMEOUTS timeouts = {0};
-    dcb_serial_params.DCBlength = sizeof (dcb_serial_params);
-    if (GetCommState (this->port_descriptor, &dcb_serial_params) == 0)
-    {
-        CloseHandle (this->port_descriptor);
-        return SerialExitCodes::GET_PORT_STATE_ERROR;
-    }
-
-    dcb_serial_params.BaudRate = CBR_115200;
-    dcb_serial_params.ByteSize = 8;
-    dcb_serial_params.StopBits = ONESTOPBIT;
-    dcb_serial_params.Parity = NOPARITY;
-    if (SetCommState (this->port_descriptor, &dcb_serial_params) == 0)
-    {
-        CloseHandle (this->port_descriptor);
-        return SerialExitCodes::SET_PORT_STATE_ERROR;
-    }
-
     timeouts.ReadIntervalTimeout = ms_timeout;
     timeouts.ReadTotalTimeoutConstant = ms_timeout;
     timeouts.ReadTotalTimeoutMultiplier = 100;
@@ -133,25 +136,28 @@ int Serial::open_serial_port ()
     return SerialExitCodes::OK;
 }
 
-int Serial::set_serial_port_settings (int ms_timeout)
+int Serial::set_serial_port_settings (int ms_timeout, bool timeout_only)
 {
     struct termios port_settings;
     memset (&port_settings, 0, sizeof (port_settings));
 
     tcgetattr (this->port_descriptor, &port_settings);
-    cfsetispeed (&port_settings, B115200);
-    cfsetospeed (&port_settings, B115200);
-    port_settings.c_cflag &= ~PARENB;
-    port_settings.c_cflag &= ~CSTOPB;
-    port_settings.c_cflag &= ~CSIZE;
-    port_settings.c_cflag |= CS8;
-    port_settings.c_cflag |= CREAD;
-    port_settings.c_cflag |= CLOCAL;
-    port_settings.c_cflag |= HUPCL;
-    port_settings.c_iflag = IGNPAR;
-    port_settings.c_iflag &= ~(ICANON | IXOFF | IXON | IXANY);
-    port_settings.c_oflag = 0;
-    port_settings.c_lflag = 0;
+    if (!timeout_only)
+    {
+        cfsetispeed (&port_settings, B115200);
+        cfsetospeed (&port_settings, B115200);
+        port_settings.c_cflag &= ~PARENB;
+        port_settings.c_cflag &= ~CSTOPB;
+        port_settings.c_cflag &= ~CSIZE;
+        port_settings.c_cflag |= CS8;
+        port_settings.c_cflag |= CREAD;
+        port_settings.c_cflag |= CLOCAL;
+        port_settings.c_cflag |= HUPCL;
+        port_settings.c_iflag = IGNPAR;
+        port_settings.c_iflag &= ~(ICANON | IXOFF | IXON | IXANY);
+        port_settings.c_oflag = 0;
+        port_settings.c_lflag = 0;
+    }
     port_settings.c_cc[VMIN] = 0;
     port_settings.c_cc[VTIME] = ms_timeout / 100; // vtime is in tenths of a second
 

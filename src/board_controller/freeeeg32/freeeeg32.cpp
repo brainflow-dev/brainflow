@@ -158,34 +158,12 @@ void FreeEEG32::read_thread ()
     // min_package_size and we can check start\stop bytes
     constexpr int min_package_size = 1 + 32 * 3;
     float eeg_scale =
-        FreeEEG32::ads_vref / float ((pow (2, 23) - 1)) / FreeEEG32::ads_gain * 1000000.;
+        FreeEEG32::ads_vref / float((pow (2, 23) - 1)) / FreeEEG32::ads_gain * 1000000.;
     double package[FreeEEG32::num_channels] = {0.0};
+    bool first_package_received = false;
 
     while (keep_alive)
     {
-        // check end byte from previous package
-        res = serial->read_from_serial_port (b, 1);
-        if (res != 1)
-        {
-            safe_logger (spdlog::level::debug, "unable to read 1 byte");
-            continue;
-        }
-        if (b[0] != FreeEEG32::end_byte)
-        {
-            continue;
-        }
-        // check start byte of new package
-        res = serial->read_from_serial_port (b, 1);
-        if (res != 1)
-        {
-            safe_logger (spdlog::level::debug, "unable to read 1 byte");
-            continue;
-        }
-        if (b[0] != FreeEEG32::start_byte)
-        {
-            continue;
-        }
-
         int pos = 0;
         bool complete_package = false;
         while ((keep_alive) && (pos < max_size - 2))
@@ -202,6 +180,12 @@ void FreeEEG32::read_thread ()
         }
         if (complete_package)
         {
+            // handle the case that we start reading in the middle of data stream
+            if (!first_package_received)
+            {
+                first_package_received = true;
+                continue;
+            }
             package[0] = (double)b[0];
             for (int i = 0; i < 32; i++)
             {
@@ -239,19 +223,30 @@ int FreeEEG32::open_port ()
 
 int FreeEEG32::set_port_settings ()
 {
-    int res = serial->set_serial_port_settings ();
+#ifdef _WIN32
+    // windows driver fails to set settings and in fact ignores them, no idea what drivers on others
+    // OSes do
+    int timeout_only = true;
+#else
+    int timeout_only = false;
+#endif
+    int res = serial->set_serial_port_settings (1000, timeout_only);
     if (res < 0)
     {
         safe_logger (spdlog::level::err, "Unable to set port settings, res is {}", res);
         return (int)BrainFlowExitCodes::SET_PORT_ERROR;
     }
+#ifndef _WIN32
+    // looks like stm driver on windows ignores all settings, no need to change them
     res = serial->set_custom_baudrate (921600);
     if (res < 0)
     {
-        safe_logger (spdlog::level::err, "Unable to set port settings, res is {}", res);
+        safe_logger (spdlog::level::err, "Unable to set custom baud rate, res is {}", res);
         return (int)BrainFlowExitCodes::SET_PORT_ERROR;
     }
+#endif
     safe_logger (spdlog::level::trace, "set port settings");
+
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 

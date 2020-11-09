@@ -31,7 +31,7 @@ public:
 
     int open_serial_port ();
     bool is_port_open ();
-    int set_serial_port_settings (int ms_timeout = 1000);
+    int set_serial_port_settings (int ms_timeout = 1000, bool timeout_only = false);
     int set_custom_baudrate (int baudrate);
     int flush_buffer ();
     int read_from_serial_port (void *bytes_to_read, int size);
