@@ -71,7 +71,7 @@ int OpenBCISerialBoard::send_to_board (const char *msg)
 
 int OpenBCISerialBoard::set_port_settings ()
 {
-    int res = serial->set_serial_port_settings ();
+    int res = serial->set_serial_port_settings (1000, false);
     if (res < 0)
     {
         safe_logger (spdlog::level::err, "Unable to set port settings, res is {}", res);

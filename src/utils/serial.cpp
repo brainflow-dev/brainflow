@@ -170,7 +170,11 @@ int Serial::set_serial_port_settings (int ms_timeout, bool timeout_only)
 int Serial::read_from_serial_port (void *bytes_to_read, int size)
 {
     int res = read (this->port_descriptor, bytes_to_read, size);
-    return (res < 0) ? 0 : res;
+    if (res < 0)
+    {
+        return 0;
+    }
+    return res;
 }
 
 int Serial::flush_buffer ()
