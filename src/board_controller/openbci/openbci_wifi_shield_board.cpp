@@ -362,7 +362,7 @@ std::string OpenBCIWifiShieldBoard::find_wifi_shield ()
             {
                 std::string response ((const char *)b);
                 safe_logger (spdlog::level::trace, "Recived package {}", b);
-                std::regex rgx ("LOCATION: http://([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)");
+                std::regex rgx ("LOCATION: http://([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)");
                 std::smatch matches;
                 if (std::regex_search (response, matches, rgx) == true)
                 {
