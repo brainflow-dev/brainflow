@@ -19,7 +19,7 @@ class State (enum.Enum):
 class Message (enum.Enum):
     start_stream = b'b'
     stop_stream = b's'
-    ack_values = (b'd', b'~6', b'~5')
+    ack_values = (b'd', b'~6', b'~5', b'o')
     ack_from_device = b'A'
     temp_ack_from_host = b'a' # maybe will be removed later
 

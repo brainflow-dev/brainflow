@@ -95,6 +95,7 @@ Windows
 
 - Install Cmake>=3.13 you can install it from PYPI via pip
 - Install Visual Studio 2017, you can use another version but you will need to change cmake generator in batch files or run cmake commands manually. Also in CI we test only VS2017
+- In VS installer make sure you selected "Visual C++ ATL support"
 - Build it as a cmake project manually or use cmd files from tools directory
 
 .. compound::

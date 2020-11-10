@@ -24,6 +24,7 @@ To create an instance of BoardShim class for your board check required inputs in
    "CallibriECG", "BoardIds.CALLIBRI_ECG_BOARD (11)", "-", "-", "-", "-", "-", "Optional: ExternalSwitchInputMioUSB (default is ExternalSwitchInputMioElectrodes)", "Timeout for device discovery(default 15sec)", "-", "-"
    "Notion 1", "BoardIds.NOTION_1_BOARD (13)", "-", "-", "-", "-", "-", "-", "-", "Optional: serial number", "-"
    "Notion 2", "BoardIds.NOTION_2_BOARD (14)", "-", "-", "-", "-", "-", "-", "-", "Optional: serial number", "-"
+   "FreeEEG32", "BoardIds.FREEEEG32_BOARD (17)", "dongle serial port", "-", "-", "-", "-", "-", "-", "-", "-"
 
 
 Playback File Board
@@ -487,3 +488,33 @@ Board Spec:
 - num eeg channels: 8
 - sampling rate: 250
 - communication: UDP BroadCast
+
+
+FreeEEG32
+----------
+
+FreeEEG32
+~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/50587672267_2f23300f5e_c.jpg
+    :width: 400px
+    :height: 225px
+
+`CrowdSupply <https://www.crowdsupply.com/neuroidss/freeeeg32>`_
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 17
+- serial_port field of BrainFlowInputParams structure
+
+Supported platforms:
+
+- Windows
+- Linux
+- MacOS
+
+Board Spec:
+
+- num eeg channels: 32
+- sampling rate: 512
+- communication: Serial Port
