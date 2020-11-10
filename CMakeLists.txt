@@ -154,6 +154,7 @@ set (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/utils/timestamp.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/data_buffer.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/serial.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/utils/serial_ioctl.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/socket_client_tcp.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/socket_client_udp.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/socket_server_tcp.cpp
@@ -188,6 +189,7 @@ set (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/mit/fascia.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neurosity/notion_osc.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ironbci/ironbci.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/freeeeg32/freeeeg32.cpp
 )
 
 set (DATA_HANDLER_SRC
@@ -236,6 +238,7 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/inc/types
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neurosity/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ironbci/inc
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/freeeeg32/inc
 )
 
 # disable min max defines in windows.h

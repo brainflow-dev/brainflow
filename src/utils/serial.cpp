@@ -1,9 +1,14 @@
-#include "serial.h"
 #include <string>
-#ifndef _WIN32
+
+#ifdef _WIN32
+#include <windows.h>
+#else
 #include <fcntl.h>
+#include <termios.h>
 #include <unistd.h>
 #endif
+
+#include "serial.h"
 
 /////////////////////////////////////////////////
 /////////////////// Windows /////////////////////
@@ -36,27 +41,30 @@ int Serial::open_serial_port ()
     return SerialExitCodes::OK;
 }
 
-int Serial::set_serial_port_settings (int ms_timeout)
+int Serial::set_serial_port_settings (int ms_timeout, bool timeout_only)
 {
-    DCB dcb_serial_params = {0};
+    if (!timeout_only)
+    {
+        DCB dcb_serial_params = {0};
+        dcb_serial_params.DCBlength = sizeof (dcb_serial_params);
+        if (GetCommState (this->port_descriptor, &dcb_serial_params) == 0)
+        {
+            CloseHandle (this->port_descriptor);
+            return SerialExitCodes::GET_PORT_STATE_ERROR;
+        }
+
+        dcb_serial_params.BaudRate = CBR_115200;
+        dcb_serial_params.ByteSize = 8;
+        dcb_serial_params.StopBits = ONESTOPBIT;
+        dcb_serial_params.Parity = NOPARITY;
+        if (SetCommState (this->port_descriptor, &dcb_serial_params) == 0)
+        {
+            CloseHandle (this->port_descriptor);
+            return SerialExitCodes::SET_PORT_STATE_ERROR;
+        }
+    }
+
     COMMTIMEOUTS timeouts = {0};
-    dcb_serial_params.DCBlength = sizeof (dcb_serial_params);
-    if (GetCommState (this->port_descriptor, &dcb_serial_params) == 0)
-    {
-        CloseHandle (this->port_descriptor);
-        return SerialExitCodes::GET_PORT_STATE_ERROR;
-    }
-
-    dcb_serial_params.BaudRate = CBR_115200;
-    dcb_serial_params.ByteSize = 8;
-    dcb_serial_params.StopBits = ONESTOPBIT;
-    dcb_serial_params.Parity = NOPARITY;
-    if (SetCommState (this->port_descriptor, &dcb_serial_params) == 0)
-    {
-        CloseHandle (this->port_descriptor);
-        return SerialExitCodes::SET_PORT_STATE_ERROR;
-    }
-
     timeouts.ReadIntervalTimeout = ms_timeout;
     timeouts.ReadTotalTimeoutConstant = ms_timeout;
     timeouts.ReadTotalTimeoutMultiplier = 100;
@@ -67,7 +75,13 @@ int Serial::set_serial_port_settings (int ms_timeout)
         CloseHandle (this->port_descriptor);
         return SerialExitCodes::SET_TIMEOUT_ERROR;
     }
-    return OK;
+    return SerialExitCodes::OK;
+}
+
+int Serial::flush_buffer ()
+{
+    PurgeComm (this->port_descriptor, PURGE_TXCLEAR | PURGE_RXCLEAR);
+    return SerialExitCodes::OK;
 }
 
 int Serial::read_from_serial_port (void *bytes_to_read, int size)
@@ -119,28 +133,31 @@ int Serial::open_serial_port ()
     this->port_descriptor = open (this->port_name, flags);
     if (this->port_descriptor < 0)
         return SerialExitCodes::OPEN_PORT_ERROR;
-    return OK;
+    return SerialExitCodes::OK;
 }
 
-int Serial::set_serial_port_settings (int ms_timeout)
+int Serial::set_serial_port_settings (int ms_timeout, bool timeout_only)
 {
     struct termios port_settings;
     memset (&port_settings, 0, sizeof (port_settings));
 
     tcgetattr (this->port_descriptor, &port_settings);
-    cfsetispeed (&port_settings, B115200);
-    cfsetospeed (&port_settings, B115200);
-    port_settings.c_cflag &= ~PARENB;
-    port_settings.c_cflag &= ~CSTOPB;
-    port_settings.c_cflag &= ~CSIZE;
-    port_settings.c_cflag |= CS8;
-    port_settings.c_cflag |= CREAD;
-    port_settings.c_cflag |= CLOCAL;
-    port_settings.c_cflag |= HUPCL;
-    port_settings.c_iflag = IGNPAR;
-    port_settings.c_iflag &= ~(ICANON | IXOFF | IXON | IXANY);
-    port_settings.c_oflag = 0;
-    port_settings.c_lflag = 0;
+    if (!timeout_only)
+    {
+        cfsetispeed (&port_settings, B115200);
+        cfsetospeed (&port_settings, B115200);
+        port_settings.c_cflag &= ~PARENB;
+        port_settings.c_cflag &= ~CSTOPB;
+        port_settings.c_cflag &= ~CSIZE;
+        port_settings.c_cflag |= CS8;
+        port_settings.c_cflag |= CREAD;
+        port_settings.c_cflag |= CLOCAL;
+        port_settings.c_cflag |= HUPCL;
+        port_settings.c_iflag = IGNPAR;
+        port_settings.c_iflag &= ~(ICANON | IXOFF | IXON | IXANY);
+        port_settings.c_oflag = 0;
+        port_settings.c_lflag = 0;
+    }
     port_settings.c_cc[VMIN] = 0;
     port_settings.c_cc[VTIME] = ms_timeout / 100; // vtime is in tenths of a second
 
@@ -152,7 +169,18 @@ int Serial::set_serial_port_settings (int ms_timeout)
 
 int Serial::read_from_serial_port (void *bytes_to_read, int size)
 {
-    return read (this->port_descriptor, bytes_to_read, size);
+    int res = read (this->port_descriptor, bytes_to_read, size);
+    if (res < 0)
+    {
+        return 0;
+    }
+    return res;
+}
+
+int Serial::flush_buffer ()
+{
+    tcflush (this->port_descriptor, TCIOFLUSH);
+    return SerialExitCodes::OK;
 }
 
 int Serial::send_to_serial_port (const void *message, int length)
