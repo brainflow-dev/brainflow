@@ -49,7 +49,7 @@ install:
 before_script:
   # need to build in manylinux docker container!
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-      docker pull dockcross/manylinux-x64 ;
+      docker pull dockcross/manylinux2014-x64 ;
     fi
     # for all tests except C++ we need libraries built inside docker and we need them for production
     # for C++ test we need libs to be compiled in the same env as test
@@ -57,7 +57,7 @@ before_script:
       cd $TRAVIS_BUILD_DIR && mkdir build_outside && cd build_outside && cmake -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR/installed -DCMAKE_BUILD_TYPE=Release .. && sudo -H make && make install;
     fi
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-      docker run -e TRAVIS_BUILD_DIR=$TRAVIS_BUILD_DIR -v $TRAVIS_BUILD_DIR:$TRAVIS_BUILD_DIR dockcross/manylinux-x64 /bin/bash -c "/opt/python/cp36-cp36m/bin/pip3.6 install cmake==3.13.3 && cd $TRAVIS_BUILD_DIR && mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR/installed_docker -DCMAKE_BUILD_TYPE=Release .. && make && make install" ;
+      docker run -e TRAVIS_BUILD_DIR=$TRAVIS_BUILD_DIR -v $TRAVIS_BUILD_DIR:$TRAVIS_BUILD_DIR dockcross/manylinux2014-x64 /bin/bash -c "/opt/python/cp36-cp36m/bin/pip3.6 install cmake==3.13.3 && cd $TRAVIS_BUILD_DIR && mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR/installed_docker -DCMAKE_BUILD_TYPE=Release .. && make && make install" ;
     fi
   # build for mac
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
@@ -104,9 +104,6 @@ script:
   # tests for cyton daisy
   - sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --log --board-id 2 --serial-port 
   - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 2 --serial-port
-  - if [ `which valgrind` ]; then
-      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 2 --serial-port ;
-    fi
   # tests for auraxr
   - sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/auraxr_udp.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --board-id 3 --ip-address 127.0.0.1 --log
   - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/auraxr_udp.py $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 3 --ip-address 127.0.0.1
@@ -143,6 +140,11 @@ script:
   - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/ironbci_linux.py $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 15 --serial-port
   - if [ `which valgrind` ]; then
       LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/ironbci_linux.py valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 15 --serial-port ;
+    fi
+  # tests for freeeeg32
+  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/freeeeg32_linux.py $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 17 --serial-port
+  - if [ `which valgrind` ]; then
+      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/freeeeg32_linux.py valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 17 --serial-port ;
     fi
   # tests for signal processing
   # python

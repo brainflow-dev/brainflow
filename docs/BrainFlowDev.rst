@@ -83,7 +83,7 @@ Example for Linux(for MacOS it's the same)::
     cd tests/cpp/get_data_demo
     mkdir build
     cd build
-    cmake -DCMAKE_PREFIX_PATH=TYPE_FULL_PATH_TO_BRAINFLOW_INSTALLED_FOLDER ..
+    cmake -DCMAKE_PREFIX_PATH=TYPE_FULL_PATH_TO_BRAINFLOW_INSTALLED_FOLDER -DCMAKE_BUILD_TYPE=Debug ..
     # e.g. cmake -DCMAKE_PREFIX_PATH=/home/andrey/brainflow/installed_linux -DCMAKE_BUILD_TYPE=Debug ..
     make
     # Run Valgrind to check memory errors

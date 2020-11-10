@@ -28,6 +28,7 @@
 #include "cyton_daisy_wifi.h"
 #include "cyton_wifi.h"
 #include "fascia.h"
+#include "freeeeg32.h"
 #include "ganglion.h"
 #include "ganglion_wifi.h"
 #include "ironbci.h"
@@ -133,6 +134,9 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
             break;
         case BoardIds::IRONBCI_BOARD:
             board = std::shared_ptr<Board> (new IronBCI (params));
+            break;
+        case BoardIds::FREEEEG32_BOARD:
+            board = std::shared_ptr<Board> (new FreeEEG32 (params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
