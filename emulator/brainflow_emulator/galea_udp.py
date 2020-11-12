@@ -39,12 +39,12 @@ def test_socket (cmd_list):
 
 
 def run_socket_server ():
-    novaxr_thread = AuraXREmulator ()
+    novaxr_thread = GaleaEmulator ()
     novaxr_thread.start ()
     return novaxr_thread
 
 
-class AuraXREmulator (threading.Thread):
+class GaleaEmulator (threading.Thread):
 
     def __init__ (self):
         threading.Thread.__init__ (self)

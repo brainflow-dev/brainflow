@@ -72,11 +72,11 @@ test_script:
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board-id 2 --streamer-params file://file_streamer.csv:a --serial-port
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 2 --serial-port
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 2 --serial-port
-  # tests for auraxr
-  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\auraxr_udp.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --board-id 3 --ip-address 127.0.0.1 --log
-  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\auraxr_udp.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 3 --ip-address 127.0.0.1
-  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\auraxr_udp.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build32\Release\brainflow_get_data.exe --board-id 3 --ip-address 127.0.0.1
-  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\auraxr_udp.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 3 --ip-address 127.0.0.1
+  # tests for galea
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\galea_udp.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --board-id 3 --ip-address 127.0.0.1 --log
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\galea_udp.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 3 --ip-address 127.0.0.1
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\galea_udp.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build32\Release\brainflow_get_data.exe --board-id 3 --ip-address 127.0.0.1
+  - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\galea_udp.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 3 --ip-address 127.0.0.1
   # tests for wifi shield based boards
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --board-id 4 --ip-address 127.0.0.1 --ip-port 17982
   - python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 5 --ip-address 127.0.0.1 --ip-port 17983

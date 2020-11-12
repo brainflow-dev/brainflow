@@ -24,7 +24,7 @@ class Message (enum.Enum):
     temp_ack_from_host = b'a' # maybe will be removed later
 
 
-class AuraXREmulator (object):
+class GaleaEmulator (object):
 
     def __init__ (self):
         self.local_ip = '127.0.0.1'
@@ -96,7 +96,7 @@ class AuraXREmulator (object):
 
 
 def main ():
-    emulator = AuraXREmulator ()
+    emulator = GaleaEmulator ()
     emulator.run ()
 
 
