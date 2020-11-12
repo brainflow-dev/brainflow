@@ -2,8 +2,8 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "Galea.h"
 #include "custom_cast.h"
+#include "galea.h"
 #include "timestamp.h"
 
 #ifndef _WIN32
@@ -16,7 +16,7 @@ constexpr int Galea::num_packages;
 constexpr int Galea::transaction_size;
 
 
-Galea::Galea (struct BrainFlowInputParams params) : Board ((int)BoardIds::Galea_BOARD, params)
+Galea::Galea (struct BrainFlowInputParams params) : Board ((int)BoardIds::GALEA_BOARD, params)
 {
     this->socket = NULL;
     this->is_streaming = false;
