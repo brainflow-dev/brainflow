@@ -36,7 +36,7 @@ enum class BoardIds : int
     CYTON_BOARD = 0,
     GANGLION_BOARD = 1,
     CYTON_DAISY_BOARD = 2,
-    AURAXR_BOARD = 3,
+    GALEA_BOARD = 3,
     GANGLION_WIFI_BOARD = 4,
     CYTON_WIFI_BOARD = 5,
     CYTON_DAISY_WIFI_BOARD = 6,
