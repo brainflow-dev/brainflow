@@ -3,7 +3,7 @@ name: Run MacOS
 on: [push, pull_request]
 
 jobs:
-  Run Mac:
+  RunMac:
     runs-on: macos-10.15
 
     steps:
