@@ -32,7 +32,7 @@ jobs:
     - name: Setup Python Package
       run: |
         cd $GITHUB_WORKSPACE/python-package
-        sudo python3 install -U .
+        sudo python3 -m pip install -U .
     - name: Setup Java package
       run: |
         cd $GITHUB_WORKSPACE/java-package/brainflow
