@@ -66,116 +66,113 @@ jobs:
   TestMac:
     needs: BuildMac
     runs-on: macos-10.15
-    steps:
-      
+    steps:      
     - name: Cyton Python
-      run: |
-        python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --log --board-id 0 --serial-port 
+      run: python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --log --board-id 0 --serial-port 
     - name: Multiboard Python
-      run: |
-        python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_multiboard_get_data.py --log --board-id 0 --serial-port
+      run: python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_multiboard_get_data.py --log --board-id 0 --serial-port
     - name: Cyton Cpp
+      run: python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 0 --serial-port
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: Synthetic Python
+        run: python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --log --board-id -1 --streamer-params file://$GITHUB_WORKSPACE/test.csv:w
+        env:
+          LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: Synthetic Cpp
+        run: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/installed/lib $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id -1
+        env:
+          LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: Synthetic Java
+        run: |
+          cd $GITHUB_WORKSPACE/java-package/brainflow
+          mvn exec:java -Dexec.mainClass="brainflow.examples.BrainFlowGetData" -Dexec.args="--board-id -1"
+    - name: Cyton Daisy Python
+        run: python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --log --board-id 2 --serial-port 
+    - name: Galea Python
+        run: python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/galea_udp.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --board-id 3 --ip-address 127.0.0.1 --log
+        env:
+          LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: Galea Cpp
+        run: python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/galea_udp.py $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 3 --ip-address 127.0.0.1
+        env:
+          LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: Streaming Python
+      run: python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/streaming_board_emulator.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --log --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
+    - name: Fascia Python
+      run: python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/fascia_emulator_ci.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --board-id 12 --ip-port 7789
+    - name: IronBCI Cpp
+      run: python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/ironbci_linux.py $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 15 --serial-port
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: FreeEEG32 Cpp
       run: |
-        LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/installed/lib python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 0 --serial-port
-  - name: Synthetic Python
-      run: |
-        python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --log --board-id -1 --streamer-params file://$GITHUB_WORKSPACE/test.csv:w
-  - name: Synthetic Cpp
-      run: |
-        LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/installed/lib $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id -1
-  - name: Synthetic Java
+        LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/installed/lib python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/freeeeg32_linux.py $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 17 --serial-port
+    - name: Denoising Python
+      run: python3 $GITHUB_WORKSPACE/tests/python/denoising.py
+    - name: Serialization Python
+      run: python3 $GITHUB_WORKSPACE/tests/python/serialization.py
+    - name: Filters Python
+      run: python3 $GITHUB_WORKSPACE/tests/python/signal_filtering.py
+    - name: Transforms Python
+      run: python3 $GITHUB_WORKSPACE/tests/python/transforms.py
+    - name: Downsampling Python
+      run: python3 $GITHUB_WORKSPACE/tests/python/downsampling.py
+    - name: MNE Python
+      run: python3 $GITHUB_WORKSPACE/tests/python/brainflow_to_mne.py
+    - name: BandPower Python
+      run: python3 $GITHUB_WORKSPACE/tests/python/band_power.py
+    - name: BandPowerAll Python
+      run: python3 $GITHUB_WORKSPACE/tests/python/band_power_all.py
+    - name: Denoising Cpp
+      run: $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/denoising
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: Downsampling Cpp
+      run: $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/downsampling
+      env:
+          LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: Filters Cpp
+      run: $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/signal_filtering
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: Serialization Cpp
+      run: $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/serialization
+      env:
+          LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: Transforms Cpp
+      run: $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/transforms
+      env:
+          LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: BandPower Cpp
+      run: $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/band_power
+        env:
+          LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: Denoising Java
       run: |
         cd $GITHUB_WORKSPACE/java-package/brainflow
-        mvn exec:java -Dexec.mainClass="brainflow.examples.BrainFlowGetData" -Dexec.args="--board-id -1"
-  - name: Cyton Daisy Python
+        mvn exec:java -Dexec.mainClass="brainflow.examples.Denoising"
+    - name: Downsampling Java
       run: |
-        python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --log --board-id 2 --serial-port 
-  - name: Galea Python
+        cd $GITHUB_WORKSPACE/java-package/brainflow
+        mvn exec:java -Dexec.mainClass="brainflow.examples.Downsampling"
+    - name: Transforms Java
       run: |
-        python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/galea_udp.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --board-id 3 --ip-address 127.0.0.1 --log
-  - name: Galea Cpp
+        cd $GITHUB_WORKSPACE/java-package/brainflow
+        mvn exec:java -Dexec.mainClass="brainflow.examples.Transforms"
+    - name: BandPower Java
       run: |
-        LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/installed/lib python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/galea_udp.py $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 3 --ip-address 127.0.0.1
-  - name: Streaming Python
-    run: |
-      python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/streaming_board_emulator.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --log --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
-  - name: Fascia Python
-    run: |
-      python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/fascia_emulator_ci.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --board-id 12 --ip-port 7789
-  - name: IronBCI Cpp
-    run: |
-      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/installed/lib python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/ironbci_linux.py $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 15 --serial-port
-  - name: FreeEEG32 Cpp
-    run: |
-      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/installed/lib python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/freeeeg32_linux.py $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 17 --serial-port
-  - name: Denoising Python
-    run: |
-      python3 $GITHUB_WORKSPACE/tests/python/denoising.py
-  - name: Serialization Python
-    run: |
-      python3 $GITHUB_WORKSPACE/tests/python/serialization.py
-  - name: Filters Python
-    run: |
-      python3 $GITHUB_WORKSPACE/tests/python/signal_filtering.py
-  - name: Transforms Python
-    run: |
-      python3 $GITHUB_WORKSPACE/tests/python/transforms.py
-  - name: Downsampling Python
-    run: |
-      python3 $GITHUB_WORKSPACE/tests/python/downsampling.py
-  - name: MNE Python
-    run: |
-      python3 $GITHUB_WORKSPACE/tests/python/brainflow_to_mne.py
-  - name: BandPower Python
-    run: |
-      python3 $GITHUB_WORKSPACE/tests/python/band_power.py
-  - name: BandPowerAll Python
-    run: |
-      python3 $GITHUB_WORKSPACE/tests/python/band_power_all.py
-  - name: Denoising Cpp
-    run: |
-      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/installed/lib $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/denoising
-  - name: Downsampling Cpp
-    run: |
-      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/installed/lib $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/downsampling
-  - name: Filters Cpp
-    run: |
-      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/installed/lib $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/signal_filtering
-  - name: Serialization Cpp
-    run: |
-      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/installed/lib $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/serialization
-  - name: Transforms Cpp
-    run: |
-      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/installed/lib $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/transforms
-  - name: BandPower Cpp
-    run: |
-      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/installed/lib $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/band_power
-  - name: Denoising Java
-    run: |
-      cd $GITHUB_WORKSPACE/java-package/brainflow
-      mvn exec:java -Dexec.mainClass="brainflow.examples.Denoising"
-  - name: Downsampling Java
-    run: |
-      cd $GITHUB_WORKSPACE/java-package/brainflow
-      mvn exec:java -Dexec.mainClass="brainflow.examples.Downsampling"
-  - name: Transforms Java
-    run: |
-      cd $GITHUB_WORKSPACE/java-package/brainflow
-      mvn exec:java -Dexec.mainClass="brainflow.examples.Transforms"
-  - name: BandPower Java
-    run: |
-      cd $GITHUB_WORKSPACE/java-package/brainflow
-      mvn exec:java -Dexec.mainClass="brainflow.examples.BandPower"
-  - name: EEG Metrics Python
-    run: |
-      python3 $GITHUB_WORKSPACE/tests/python/eeg_metrics.py --board-id -1
-  - name: EEG Metrics Custom Python
-    run: |
-      python3 $GITHUB_WORKSPACE/tests/python/eeg_metrics_ci.py --board-id -1 --classifier 2 --metric 1
-  - name: EEG Metrics Cpp
-    run: |
-      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/installed/lib $GITHUB_WORKSPACE/tests/cpp/ml_demo/build/eeg_metrics --board-id -1
-  - name: EEG Metrics Java
-    run: |
-      cd $GITHUB_WORKSPACE/java-package/brainflow
-      mvn exec:java -Dexec.mainClass="brainflow.examples.EEGMetrics" -Dexec.args="--board-id -1"
+        cd $GITHUB_WORKSPACE/java-package/brainflow
+        mvn exec:java -Dexec.mainClass="brainflow.examples.BandPower"
+    - name: EEG Metrics Python
+      run: python3 $GITHUB_WORKSPACE/tests/python/eeg_metrics.py --board-id -1
+    - name: EEG Metrics Custom Python
+      run: python3 $GITHUB_WORKSPACE/tests/python/eeg_metrics_ci.py --board-id -1 --classifier 2 --metric 1
+    - name: EEG Metrics Cpp
+      run: $GITHUB_WORKSPACE/tests/cpp/ml_demo/build/eeg_metrics --board-id -1
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: EEG Metrics Java
+      run: |
+        cd $GITHUB_WORKSPACE/java-package/brainflow
+        mvn exec:java -Dexec.mainClass="brainflow.examples.EEGMetrics" -Dexec.args="--board-id -1"
