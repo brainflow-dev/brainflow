@@ -1,9 +1,10 @@
 sudo: required
 dist: bionic
 
+# disable travis builds everywhere, because macos builds are paid now
 branches:
   only:
-    - master
+    - travis
 
 os:
   - linux
@@ -80,120 +81,6 @@ before_script:
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
       cp $TRAVIS_BUILD_DIR/java-package/brainflow/target/classes/brainflow/*.dylib $TRAVIS_BUILD_DIR/java-package/brainflow/target/classes/ ;
     fi
-
-script:
-  # tests for boards
-  # tests for cyton
-  - sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --log --board-id 0 --serial-port
-  - sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --log --board-id 0 --streamer-params file://file_streamer.csv:w --serial-port
-  - sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_multiboard_get_data.py --log --board-id 0 --serial-port
-  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 0 --serial-port
-  - if [ `which valgrind` ]; then
-      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 0 --serial-port ;
-    fi
-  # tests for synthetic board
-  - python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --log --board-id -1 --streamer-params file://$TRAVIS_BUILD_DIR/test.csv:w
-  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id -1
-  - if [ `which valgrind` ]; then
-      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id -1;
-    fi
-  - cd $TRAVIS_BUILD_DIR/java-package/brainflow && mvn exec:java -Dexec.mainClass="brainflow.examples.BrainFlowGetData" -Dexec.args="--board-id -1"
-  # R disabled. It's taking up too much time in CI
-  # - Rscript $TRAVIS_BUILD_DIR/tests/r/brainflow_get_data.R
-  # tests for cyton daisy
-  - sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --log --board-id 2 --serial-port 
-  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 2 --serial-port
-  # tests for galea
-  - sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/galea_udp.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --board-id 3 --ip-address 127.0.0.1 --log
-  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/galea_udp.py $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 3 --ip-address 127.0.0.1
-  - if [ `which valgrind` ]; then
-      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/galea_udp.py valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 3 --ip-address 127.0.0.1 ;
-    fi
-  # tests for wifi shield, fails on macos due to an issue in emulator
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-      sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/wifi_shield_emulator.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --log --board-id 4 --ip-address 127.0.0.1 --ip-port 17982 ;
-    fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-      sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/wifi_shield_emulator.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --log --board-id 5 --ip-address 127.0.0.1 --ip-port 17983 ;
-    fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-      sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/wifi_shield_emulator.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --log --board-id 6 --ip-address 127.0.0.1 --ip-port 17984 ;
-    fi
-  # tests for streaming board
-  - python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/streaming_board_emulator.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --log --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
-  - python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/streaming_board_emulator.py $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
-  - if [ `which valgrind` ]; then
-      python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/streaming_board_emulator.py valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1 ;
-    fi
-  # tests for playback board
-  # use file from run above
-  - if [ `which valgrind` ]; then
-      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --other-info -1 --file $TRAVIS_BUILD_DIR/test.csv --board-id -3;
-    fi
-  # test for fascia
-  - sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/fascia_emulator_ci.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --board-id 12 --ip-port 7789
-  - if [ `which valgrind` ]; then
-      python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/fascia_emulator_ci.py valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 12 --ip-port 7789 ;
-    fi
-  # tests for ironbci
-  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/ironbci_linux.py $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 15 --serial-port
-  - if [ `which valgrind` ]; then
-      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/ironbci_linux.py valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 15 --serial-port ;
-    fi
-  # tests for freeeeg32
-  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/freeeeg32_linux.py $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 17 --serial-port
-  - if [ `which valgrind` ]; then
-      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/freeeeg32_linux.py valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 17 --serial-port ;
-    fi
-  # tests for signal processing
-  # python
-  - python3 $TRAVIS_BUILD_DIR/tests/python/denoising.py
-  - python3 $TRAVIS_BUILD_DIR/tests/python/serialization.py
-  - python3 $TRAVIS_BUILD_DIR/tests/python/signal_filtering.py
-  - python3 $TRAVIS_BUILD_DIR/tests/python/transforms.py
-  - python3 $TRAVIS_BUILD_DIR/tests/python/downsampling.py
-  - python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_to_mne.py
-  - python3 $TRAVIS_BUILD_DIR/tests/python/band_power.py
-  - python3 $TRAVIS_BUILD_DIR/tests/python/band_power_all.py
-  # C++
-  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib $TRAVIS_BUILD_DIR/tests/cpp/signal_processing_demo/build/denoising
-  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib $TRAVIS_BUILD_DIR/tests/cpp/signal_processing_demo/build/downsampling
-  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib $TRAVIS_BUILD_DIR/tests/cpp/signal_processing_demo/build/signal_filtering
-  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib $TRAVIS_BUILD_DIR/tests/cpp/signal_processing_demo/build/serialization
-  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib $TRAVIS_BUILD_DIR/tests/cpp/signal_processing_demo/build/transforms
-  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib $TRAVIS_BUILD_DIR/tests/cpp/signal_processing_demo/build/band_power
-  # valgrind tests
-  - if [ `which valgrind` ]; then
-      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/signal_processing_demo/build/denoising ;
-    fi
-  - if [ `which valgrind` ]; then
-      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/signal_processing_demo/build/downsampling ;
-    fi
-  - if [ `which valgrind` ]; then
-      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/signal_processing_demo/build/signal_filtering ;
-    fi
-  - if [ `which valgrind` ]; then
-      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/signal_processing_demo/build/serialization ;
-    fi
-  - if [ `which valgrind` ]; then
-      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/signal_processing_demo/build/transforms ;
-    fi
-  - if [ `which valgrind` ]; then
-      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib valgrind --error-exitcode=1 --leak-check=full $TRAVIS_BUILD_DIR/tests/cpp/signal_processing_demo/build/band_power ;
-    fi
-  # java
-  - cd $TRAVIS_BUILD_DIR/java-package/brainflow && mvn exec:java -Dexec.mainClass="brainflow.examples.Denoising"
-  - cd $TRAVIS_BUILD_DIR/java-package/brainflow && mvn exec:java -Dexec.mainClass="brainflow.examples.Downsampling"
-  - cd $TRAVIS_BUILD_DIR/java-package/brainflow && mvn exec:java -Dexec.mainClass="brainflow.examples.Serialization"
-  - cd $TRAVIS_BUILD_DIR/java-package/brainflow && mvn exec:java -Dexec.mainClass="brainflow.examples.SignalFiltering"
-  - cd $TRAVIS_BUILD_DIR/java-package/brainflow && mvn exec:java -Dexec.mainClass="brainflow.examples.Transforms"
-  - cd $TRAVIS_BUILD_DIR/java-package/brainflow && mvn exec:java -Dexec.mainClass="brainflow.examples.BandPower"
-  - cd $TRAVIS_BUILD_DIR/java-package/brainflow && mvn exec:java -Dexec.mainClass="brainflow.examples.BandPowerAll"
-  # tests for ml module
-  - python3 $TRAVIS_BUILD_DIR/tests/python/eeg_metrics.py --board-id -1 
-  - python3 $TRAVIS_BUILD_DIR/tests/python/eeg_metrics_ci.py --board-id -1 --classifier 2 --metric 1
-  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/installed/lib $TRAVIS_BUILD_DIR/tests/cpp/ml_demo/build/eeg_metrics --board-id -1
-  - cd $TRAVIS_BUILD_DIR/java-package/brainflow && mvn exec:java -Dexec.mainClass="brainflow.examples.EEGMetrics" -Dexec.args="--board-id -1"
 
 after_success:
   # push libraries from docker!

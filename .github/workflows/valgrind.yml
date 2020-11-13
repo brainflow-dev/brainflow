@@ -1,0 +1,109 @@
+name: Run Unix
+
+on: [push, pull_request]
+
+jobs:
+  RunMac:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        os: [ubuntu-16.04]
+
+    steps:
+    # compile and prepare env
+    - name: Clone Repository
+      uses: actions/checkout@v2
+    - name: Setup Cmake
+      uses: jwlawson/actions-setup-cmake@v1.4
+      with:
+        cmake-version: '3.16.x'
+    - name: Compile BrainFlow
+      run: |
+        mkdir $GITHUB_WORKSPACE/build
+        cd $GITHUB_WORKSPACE/build
+        cmake -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
+        make -j
+        make install
+    - name: Build Get Data Test
+      run: |
+        cd $GITHUB_WORKSPACE/tests/cpp/get_data_demo
+        mkdir build
+        cd build
+        cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed ..
+        make -j
+    - name: Build Signal Processing Test
+      run: |
+        cd $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo
+        mkdir build
+        cd build
+        cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed ..
+        make -j
+    - name: Build ML Demo Test
+      run: |
+        cd $GITHUB_WORKSPACE/tests/cpp/ml_demo
+        mkdir build
+        cd build
+        cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed ..
+        make -j
+    - name: Install Emulator
+      run: |
+        cd $GITHUB_WORKSPACE/emulator
+        sudo python3 -m pip install -U .
+    - name: Install Python test Dependencies
+      run: sudo python3 -m pip install -r $GITHUB_WORKSPACE/tests/python/requirements.txt
+
+    # start testing
+    - name: Cyton Cpp
+      run: python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 0 --serial-port
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: Synthetic Cpp
+      run: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/installed/lib valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id -1
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: Galea Cpp
+      run: python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/galea_udp.py valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 3 --ip-address 127.0.0.1
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: Streaming Python
+      run: python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/streaming_board_emulator.py valgrind --error-exitcode=1 --leak-check=full python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --log --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
+    - name: IronBCI Cpp
+      run: python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/ironbci_linux.py valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 15 --serial-port
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: FreeEEG32 Cpp
+      run: python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/freeeeg32_linux.py valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 17 --serial-port
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: Denoising Cpp
+      run: valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/denoising
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: Downsampling Cpp
+      run: valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/downsampling
+      env:
+          LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: Filters Cpp
+      run: valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/signal_filtering
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: Serialization Cpp
+      run: valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/serialization
+      env:
+          LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: Transforms Cpp
+      run: valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/transforms
+      env:
+          LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: BandPower Cpp
+      run: valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/band_power
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: EEG Metrics Cpp
+      run: valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/ml_demo/build/eeg_metrics --board-id -1
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+  
