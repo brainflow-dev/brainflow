@@ -3,7 +3,7 @@ name: Run Valgrind
 on: [push, pull_request]
 
 jobs:
-  RunMac:
+  RunValgrind:
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -54,6 +54,22 @@ jobs:
         sudo apt-get install -y valgrind
       env:
         DEBIAN_FRONTEND: noninteractive
+    - name: Install Python 3.7
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.7.7'
+        architecture: 'x64'
+    - name: Install Python Dependencies
+      if: (matrix.os == 'ubuntu-18.04')
+      run: |
+        sudo apt-get update -y
+        sudo apt-get install -y python3-setuptools python3-pygments
+      env:
+        DEBIAN_FRONTEND: noninteractive
+    - name: Install Emulator
+      run: |
+        cd $GITHUB_WORKSPACE/emulator
+        sudo python3 -m pip install -U .
 
     # start testing
     - name: Cyton Cpp
