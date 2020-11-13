@@ -7,6 +7,7 @@ jobs:
     runs-on: macos-10.15
 
     steps:
+    # compile and prepare env
     - name: Clone Repository
       uses: actions/checkout@v2
     - name: Install Python 3.7
@@ -62,7 +63,10 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/emulator
         sudo python3 -m pip install -U .
-    # start testing, can not split by two jobs because checkout is stateless
+    - name: Install Python test Dependencies
+      run: sudo python3 -m pip install -r $GITHUB_WORKSPACE/tests/python/requirements.txt
+
+    # start testing
     - name: Cyton Python
       run: python3 ./emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --log --board-id 0 --serial-port 
     - name: Multiboard Python
