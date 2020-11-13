@@ -1,6 +1,10 @@
 sudo: required
 dist: bionic
 
+branches:
+  only:
+    - master
+
 os:
   - linux
   - osx
@@ -28,7 +32,6 @@ addons:
       # - r-base
       - libxml2-dev
       - valgrind
-      - cppcheck
   # R disabled. It's taking up too much time in CI
   # homebrew:
   #   packages:
@@ -79,10 +82,6 @@ before_script:
     fi
 
 script:
-  # static analyzer
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-      cd $TRAVIS_BUILD_DIR && cppcheck --xml --xml-version=2 --force src cpp-package third_party 2>cppcheck_res.xml && cppcheck-htmlreport --title=BrainFlow --file=cppcheck_res.xml --report-dir=report ;
-    fi
   # tests for boards
   # tests for cyton
   - sudo -H python3 $TRAVIS_BUILD_DIR/emulator/brainflow_emulator/cyton_linux.py python3 $TRAVIS_BUILD_DIR/tests/python/brainflow_get_data.py --log --board-id 0 --serial-port

@@ -1,0 +1,182 @@
+name: Run MacOS
+
+on: [push, pull_request]
+
+jobs:
+  BuildMac:
+    runs-on: macos-10.15
+
+    steps:
+    - name: Clone Repository
+      uses: actions/checkout@v2
+    - name: Install Python 3.7 version
+      uses: actions/setup-python@v1
+      with:
+        python-version: '3.7'
+        architecture: 'x64'
+    - name: Setup Cmake
+      uses: jwlawson/actions-setup-cmake@v1.4
+      with:
+        cmake-version: '3.16.x'
+    - uses: actions/checkout@v1
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.11
+    - name: Compile BrainFlow
+      run: |
+        mkdir $GITHUB_WORKSPACE/build
+        cd $GITHUB_WORKSPACE/build
+        cmake -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
+        make -j
+        make install
+    - name: Setup Python Package
+      run: |
+        cd $GITHUB_WORKSPACE/python-package
+        sudo python3 install -U .
+    - name: Setup Java package
+      run: |
+        cd $GITHUB_WORKSPACE/java-package/brainflow
+        mvn package
+    - name: Build Get Data Test
+      run: |
+        cd $GITHUB_WORKSPACE/tests/cpp/get_data_demo
+        mkdir build
+        cd build
+        cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed ..
+        make -j
+    - name: Build Signal Processing Test
+      run: |
+        cd $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo
+        mkdir build
+        cd build
+        cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed ..
+        make -j
+    - name: Build ML Demo Test
+      run: |
+        cd $GITHUB_WORKSPACE/tests/cpp/ml_demo
+        mkdir build
+        cd build
+        cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed ..
+        make -j
+    -name: Install Emulator
+      run: |
+        cd $GITHUB_WORKSPACE/emulator
+        sudo python3 -m pip install -U .
+
+  TestMac:
+    needs: BuildMac
+    runs-on: macos-10.15
+    steps:
+      
+    - name: Cyton Python
+      run: |
+        python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --log --board-id 0 --serial-port 
+    - name: Multiboard Python
+      run: |
+        python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_multiboard_get_data.py --log --board-id 0 --serial-port
+    - name: Cyton Cpp
+      run: |
+        LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/installed/lib python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 0 --serial-port
+  - name: Synthetic Python
+      run: |
+        python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --log --board-id -1 --streamer-params file://$GITHUB_WORKSPACE/test.csv:w
+  - name: Synthetic Cpp
+      run: |
+        LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/installed/lib $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id -1
+  - name: Synthetic Java
+      run: |
+        cd $GITHUB_WORKSPACE/java-package/brainflow
+        mvn exec:java -Dexec.mainClass="brainflow.examples.BrainFlowGetData" -Dexec.args="--board-id -1"
+  - name: Cyton Daisy Python
+      run: |
+        python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --log --board-id 2 --serial-port 
+  - name: Galea Python
+      run: |
+        python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/galea_udp.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --board-id 3 --ip-address 127.0.0.1 --log
+  - name: Galea Cpp
+      run: |
+        LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/installed/lib python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/galea_udp.py $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 3 --ip-address 127.0.0.1
+  - name: Streaming Python
+    run: |
+      python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/streaming_board_emulator.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --log --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
+  - name: Fascia Python
+    run: |
+      python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/fascia_emulator_ci.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --board-id 12 --ip-port 7789
+  - name: IronBCI Cpp
+    run: |
+      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/installed/lib python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/ironbci_linux.py $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 15 --serial-port
+  - name: FreeEEG32 Cpp
+    run: |
+      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/installed/lib python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/freeeeg32_linux.py $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 17 --serial-port
+  - name: Denoising Python
+    run: |
+      python3 $GITHUB_WORKSPACE/tests/python/denoising.py
+  - name: Serialization Python
+    run: |
+      python3 $GITHUB_WORKSPACE/tests/python/serialization.py
+  - name: Filters Python
+    run: |
+      python3 $GITHUB_WORKSPACE/tests/python/signal_filtering.py
+  - name: Transforms Python
+    run: |
+      python3 $GITHUB_WORKSPACE/tests/python/transforms.py
+  - name: Downsampling Python
+    run: |
+      python3 $GITHUB_WORKSPACE/tests/python/downsampling.py
+  - name: MNE Python
+    run: |
+      python3 $GITHUB_WORKSPACE/tests/python/brainflow_to_mne.py
+  - name: BandPower Python
+    run: |
+      python3 $GITHUB_WORKSPACE/tests/python/band_power.py
+  - name: BandPowerAll Python
+    run: |
+      python3 $GITHUB_WORKSPACE/tests/python/band_power_all.py
+  - name: Denoising Cpp
+    run: |
+      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/installed/lib $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/denoising
+  - name: Downsampling Cpp
+    run: |
+      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/installed/lib $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/downsampling
+  - name: Filters Cpp
+    run: |
+      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/installed/lib $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/signal_filtering
+  - name: Serialization Cpp
+    run: |
+      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/installed/lib $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/serialization
+  - name: Transforms Cpp
+    run: |
+      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/installed/lib $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/transforms
+  - name: BandPower Cpp
+    run: |
+      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/installed/lib $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/band_power
+  - name: Denoising Java
+    run: |
+      cd $GITHUB_WORKSPACE/java-package/brainflow
+      mvn exec:java -Dexec.mainClass="brainflow.examples.Denoising"
+  - name: Downsampling Java
+    run: |
+      cd $GITHUB_WORKSPACE/java-package/brainflow
+      mvn exec:java -Dexec.mainClass="brainflow.examples.Downsampling"
+  - name: Transforms Java
+    run: |
+      cd $GITHUB_WORKSPACE/java-package/brainflow
+      mvn exec:java -Dexec.mainClass="brainflow.examples.Transforms"
+  - name: BandPower Java
+    run: |
+      cd $GITHUB_WORKSPACE/java-package/brainflow
+      mvn exec:java -Dexec.mainClass="brainflow.examples.BandPower"
+  - name: EEG Metrics Python
+    run: |
+      python3 $GITHUB_WORKSPACE/tests/python/eeg_metrics.py --board-id -1
+  - name: EEG Metrics Custom Python
+    run: |
+      python3 $GITHUB_WORKSPACE/tests/python/eeg_metrics_ci.py --board-id -1 --classifier 2 --metric 1
+  - name: EEG Metrics Cpp
+    run: |
+      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/installed/lib $GITHUB_WORKSPACE/tests/cpp/ml_demo/build/eeg_metrics --board-id -1
+  - name: EEG Metrics Java
+    run: |
+      cd $GITHUB_WORKSPACE/java-package/brainflow
+      mvn exec:java -Dexec.mainClass="brainflow.examples.EEGMetrics" -Dexec.args="--board-id -1"
