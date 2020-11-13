@@ -58,7 +58,7 @@ jobs:
         cd build
         cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed ..
         make -j
-    -name: Install Emulator
+    - name: Install Emulator
       run: |
         cd $GITHUB_WORKSPACE/emulator
         sudo python3 -m pip install -U .
