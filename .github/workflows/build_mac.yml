@@ -76,7 +76,7 @@ jobs:
       env:
         LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: Synthetic Python
-        run: python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --log --board-id -1 --streamer-params file://$GITHUB_WORKSPACE/test.csv:w
+        run: python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --log --board-id -1
         env:
           LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: Synthetic Cpp
