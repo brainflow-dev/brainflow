@@ -1,4 +1,4 @@
-name: Run Unix
+name: Run Valgrind
 
 on: [push, pull_request]
 
@@ -10,7 +10,7 @@ jobs:
       fail-fast: false
       max-parallel: 1
       matrix:
-        os: [ubuntu-16.04]
+        os: [ubuntu-18.04]
 
     steps:
     # compile and prepare env
@@ -48,12 +48,12 @@ jobs:
         cd build
         cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed ..
         make -j
-    - name: Install Emulator
+    - name: Install Valgrind
       run: |
-        cd $GITHUB_WORKSPACE/emulator
-        sudo python3 -m pip install -U .
-    - name: Install Python test Dependencies
-      run: sudo python3 -m pip install -r $GITHUB_WORKSPACE/tests/python/requirements.txt
+        sudo apt-get update -y
+        sudo apt-get install -y valgrind
+      env:
+        DEBIAN_FRONTEND: noninteractive
 
     # start testing
     - name: Cyton Cpp
