@@ -37,7 +37,7 @@ This board playbacks file recorded using another BrainFlow board.
 To choose this board in BoardShim constructor please specify:
 
 - board_id: -3
-- other_info field of BrainFlowInputParams structure, write there board_id for a board which acts like data provider(master board)
+- other_info field of BrainFlowInputParams structure should contain board_id of device used to create playback file
 - file field of BrainFlowInputParams structure
 
 Supported platforms:
@@ -65,7 +65,7 @@ In methods like:
    # .......
 
 
-You need to use master board id instead Playback Board Id, because exact data format for streaming board is controlled by master board as well as sampling rate
+You need to use master board id instead Playback Board Id, because exact data format for playback board is controlled by master board as well as sampling rate.
 
 Board Specs:
 
