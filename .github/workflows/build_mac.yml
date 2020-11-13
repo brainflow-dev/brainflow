@@ -68,7 +68,7 @@ jobs:
     runs-on: macos-10.15
     steps:      
     - name: Cyton Python
-      run: python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --log --board-id 0 --serial-port 
+      run: python3 ./emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --log --board-id 0 --serial-port 
     - name: Multiboard Python
       run: python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_multiboard_get_data.py --log --board-id 0 --serial-port
     - name: Cyton Cpp
