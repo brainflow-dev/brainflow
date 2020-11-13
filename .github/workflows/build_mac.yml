@@ -76,27 +76,27 @@ jobs:
       env:
         LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: Synthetic Python
-        run: python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --log --board-id -1
-        env:
-          LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+      run: python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --log --board-id -1 --streamer-params file://$GITHUB_WORKSPACE/test.csv:w
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: Synthetic Cpp
-        run: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/installed/lib $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id -1
-        env:
-          LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+      run: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/installed/lib $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id -1
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: Synthetic Java
-        run: |
-          cd $GITHUB_WORKSPACE/java-package/brainflow
-          mvn exec:java -Dexec.mainClass="brainflow.examples.BrainFlowGetData" -Dexec.args="--board-id -1"
+      run: |
+        cd $GITHUB_WORKSPACE/java-package/brainflow
+        mvn exec:java -Dexec.mainClass="brainflow.examples.BrainFlowGetData" -Dexec.args="--board-id -1"
     - name: Cyton Daisy Python
-        run: python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --log --board-id 2 --serial-port 
+      run: python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --log --board-id 2 --serial-port 
     - name: Galea Python
-        run: python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/galea_udp.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --board-id 3 --ip-address 127.0.0.1 --log
-        env:
-          LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+      run: python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/galea_udp.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --board-id 3 --ip-address 127.0.0.1 --log
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: Galea Cpp
-        run: python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/galea_udp.py $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 3 --ip-address 127.0.0.1
-        env:
-          LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+      run: python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/galea_udp.py $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 3 --ip-address 127.0.0.1
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: Streaming Python
       run: python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/streaming_board_emulator.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --log --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
     - name: Fascia Python
