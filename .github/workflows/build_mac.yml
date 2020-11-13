@@ -146,8 +146,8 @@ jobs:
           LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: BandPower Cpp
       run: $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/band_power
-        env:
-          LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: Denoising Java
       run: |
         cd $GITHUB_WORKSPACE/java-package/brainflow
