@@ -3,16 +3,16 @@ name: Run MacOS
 on: [push, pull_request]
 
 jobs:
-  BuildMac:
+  Run Mac:
     runs-on: macos-10.15
 
     steps:
     - name: Clone Repository
       uses: actions/checkout@v2
-    - name: Install Python 3.7 version
-      uses: actions/setup-python@v1
+    - name: Install Python 3.7
+      uses: actions/setup-python@v2
       with:
-        python-version: '3.7'
+        python-version: '3.7.7'
         architecture: 'x64'
     - name: Setup Cmake
       uses: jwlawson/actions-setup-cmake@v1.4
@@ -62,11 +62,7 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/emulator
         sudo python3 -m pip install -U .
-
-  TestMac:
-    needs: BuildMac
-    runs-on: macos-10.15
-    steps:      
+    # start testing, can not split by two jobs because checkout is stateless
     - name: Cyton Python
       run: python3 ./emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --log --board-id 0 --serial-port 
     - name: Multiboard Python
