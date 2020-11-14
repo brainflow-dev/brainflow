@@ -117,7 +117,7 @@ jobs:
       env:
         LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: Denoising Python
-      run: python3 $GITHUB_WORKSPACE/tests/python/denoising.py
+      run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/denoising.py
     - name: Serialization Python
       run: |
         cd $GITHUB_WORKSPACE
