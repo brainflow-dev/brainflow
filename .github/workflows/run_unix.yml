@@ -51,8 +51,8 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/java-package/brainflow
         mvn package
-        cp $GITHUB_WORKSPACE/java-package/brainflow/target/classes/brainflow/*.so $GITHUB_WORKSPACE/java-package/brainflow/target/classes/ 
-        cp $GITHUB_WORKSPACE/java-package/brainflow/target/classes/brainflow/*.dylib $GITHUB_WORKSPACE/java-package/brainflow/target/classes/
+        cp -av $GITHUB_WORKSPACE/java-package/brainflow/target/classes/brainflow/. $GITHUB_WORKSPACE/java-package/brainflow/target/classes/ 
+        cp -av $GITHUB_WORKSPACE/java-package/brainflow/target/classes/brainflow/. $GITHUB_WORKSPACE/java-package/brainflow/target/classes/
     - name: Build Get Data Test
       run: |
         cd $GITHUB_WORKSPACE/tests/cpp/get_data_demo
