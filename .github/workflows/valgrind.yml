@@ -94,10 +94,6 @@ jobs:
       run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/ironbci_linux.py valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 15 --serial-port
       env:
         LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
-    - name: FreeEEG32 Cpp
-      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/freeeeg32_linux.py valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 17 --serial-port
-      env:
-        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: Denoising Cpp
       run: valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/denoising
       env:

@@ -51,6 +51,8 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/java-package/brainflow
         mvn package
+        cp $GITHUB_WORKSPACE/java-package/brainflow/target/classes/brainflow/*.so $GITHUB_WORKSPACE/java-package/brainflow/target/classes/ 
+        cp $GITHUB_WORKSPACE/java-package/brainflow/target/classes/brainflow/*.dylib $GITHUB_WORKSPACE/java-package/brainflow/target/classes/
     - name: Build Get Data Test
       run: |
         cd $GITHUB_WORKSPACE/tests/cpp/get_data_demo
@@ -112,11 +114,6 @@ jobs:
       run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/fascia_emulator_ci.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --board-id 12 --ip-port 7789
     - name: IronBCI Cpp
       run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/ironbci_linux.py $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 15 --serial-port
-      env:
-        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
-    - name: FreeEEG32 Cpp
-      run: |
-        sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/freeeeg32_linux.py $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 17 --serial-port
       env:
         LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: Denoising Python
