@@ -182,8 +182,6 @@ jobs:
       env:
         LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: BandPower Java
-      env:
-        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
       run: |
         cd $GITHUB_WORKSPACE/java-package/brainflow
         mvn exec:java -Dexec.mainClass="brainflow.examples.BandPower"
