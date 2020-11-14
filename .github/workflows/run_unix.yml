@@ -185,9 +185,9 @@ jobs:
       env:
         LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: EEG Metrics Python
-      run: python3 $GITHUB_WORKSPACE/tests/python/eeg_metrics.py --board-id -1
+      run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/eeg_metrics.py --board-id -1
     - name: EEG Metrics Custom Python
-      run: python3 $GITHUB_WORKSPACE/tests/python/eeg_metrics_ci.py --board-id -1 --classifier 2 --metric 1
+      run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/eeg_metrics_ci.py --board-id -1 --classifier 2 --metric 1
     - name: EEG Metrics Cpp
       run: $GITHUB_WORKSPACE/tests/cpp/ml_demo/build/eeg_metrics --board-id -1
       env:
