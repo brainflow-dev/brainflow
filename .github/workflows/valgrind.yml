@@ -8,7 +8,7 @@ jobs:
 
     strategy:
       fail-fast: false
-      max-parallel: 1
+      max-parallel: 4
       matrix:
         os: [ubuntu-18.04]
 
@@ -50,8 +50,8 @@ jobs:
         make -j
     - name: Install Valgrind
       run: |
-        sudo apt-get update -y
-        sudo apt-get install -y valgrind
+        sudo -H apt-get update -y
+        sudo -H apt-get install -y valgrind
       env:
         DEBIAN_FRONTEND: noninteractive
     - name: Install Python 3.7
@@ -62,20 +62,23 @@ jobs:
     - name: Install Python Dependencies
       if: (matrix.os == 'ubuntu-18.04')
       run: |
-        sudo apt-get update -y
-        sudo apt-get install -y python3-setuptools python3-pygments
+        sudo -H apt-get update -y
+        sudo -H apt-get install -y python3-setuptools python3-pygments
       env:
         DEBIAN_FRONTEND: noninteractive
     - name: Install Emulator
       run: |
+        sudo which python3
         cd $GITHUB_WORKSPACE/emulator
-        sudo python3 -m pip install -U .
+        sudo -H python3 -m pip install -U .
+    - name: Install Python test Dependencies
+      run: sudo -H python3 -m pip install -r $GITHUB_WORKSPACE/tests/python/requirements.txt
 
     # start testing
     - name: Cyton Cpp
-      run: python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 0 --serial-port
-      env:
-        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+      run: |
+      sudo which python3
+      python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 0 --serial-port
     - name: Synthetic Cpp
       run: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/installed/lib valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id -1
       env:
