@@ -98,6 +98,8 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/java-package/brainflow
         mvn exec:java -Dexec.mainClass="brainflow.examples.BrainFlowGetData" -Dexec.args="--board-id -1"
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: Cyton Daisy Python
       run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --log --board-id 2 --serial-port 
     - name: Galea Cpp
@@ -120,7 +122,9 @@ jobs:
     - name: Denoising Python
       run: python3 $GITHUB_WORKSPACE/tests/python/denoising.py
     - name: Serialization Python
-      run: python3 $GITHUB_WORKSPACE/tests/python/serialization.py
+      run: |
+        cd $GITHUB_WORKSPACE
+        sudo -H python3 $GITHUB_WORKSPACE/tests/python/serialization.py
     - name: Filters Python
       run: python3 $GITHUB_WORKSPACE/tests/python/signal_filtering.py
     - name: Transforms Python
@@ -146,7 +150,9 @@ jobs:
       env:
         LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: Serialization Cpp
-      run: $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/serialization
+      run: |
+        cd $GITHUB_WORKSPACE
+        sudo -H $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/serialization
       env:
           LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: Transforms Cpp
@@ -161,18 +167,28 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/java-package/brainflow
         mvn exec:java -Dexec.mainClass="brainflow.examples.Denoising"
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: Downsampling Java
       run: |
         cd $GITHUB_WORKSPACE/java-package/brainflow
         mvn exec:java -Dexec.mainClass="brainflow.examples.Downsampling"
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: Transforms Java
       run: |
         cd $GITHUB_WORKSPACE/java-package/brainflow
         mvn exec:java -Dexec.mainClass="brainflow.examples.Transforms"
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: BandPower Java
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
       run: |
         cd $GITHUB_WORKSPACE/java-package/brainflow
         mvn exec:java -Dexec.mainClass="brainflow.examples.BandPower"
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: EEG Metrics Python
       run: python3 $GITHUB_WORKSPACE/tests/python/eeg_metrics.py --board-id -1
     - name: EEG Metrics Custom Python
@@ -185,3 +201,5 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/java-package/brainflow
         mvn exec:java -Dexec.mainClass="brainflow.examples.EEGMetrics" -Dexec.args="--board-id -1"
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
