@@ -77,21 +77,21 @@ jobs:
     - name: Cyton Cpp
       run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 0 --serial-port
     - name: Synthetic Cpp
-      run: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/installed/lib valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id -1
+      run: valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id -1
       env:
         LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: Galea Cpp
-      run: python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/galea_udp.py valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 3 --ip-address 127.0.0.1
+      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/galea_udp.py valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 3 --ip-address 127.0.0.1
       env:
         LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: Streaming Python
-      run: python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/streaming_board_emulator.py valgrind --error-exitcode=1 --leak-check=full python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --log --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
+      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/streaming_board_emulator.py valgrind --error-exitcode=1 --leak-check=full python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --log --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
     - name: IronBCI Cpp
-      run: python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/ironbci_linux.py valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 15 --serial-port
+      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/ironbci_linux.py valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 15 --serial-port
       env:
         LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: FreeEEG32 Cpp
-      run: python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/freeeeg32_linux.py valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 17 --serial-port
+      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/freeeeg32_linux.py valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 17 --serial-port
       env:
         LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: Denoising Cpp
