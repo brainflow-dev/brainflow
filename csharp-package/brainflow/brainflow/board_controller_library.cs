@@ -202,254 +202,537 @@ namespace brainflow
         public static extern int get_exg_channels (int board_id, int[] channels, int[] len);
     }
 
+    public static class BoardControllerLibraryLinux
+    {
+        [DllImport("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int prepare_session(int board_id, string input_json);
+        [DllImport("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int start_stream(int buffer_size, string streamer_params, int board_id, string input_json);
+        [DllImport("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int stop_stream(int board_id, string input_json);
+        [DllImport("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int release_session(int board_id, string input_json);
+        [DllImport("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_current_board_data(int num_samples, double[] data_buf, int[] returned_samples, int board_id, string input_json);
+        [DllImport("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_board_data_count(int[] result, int board_id, string input_json);
+        [DllImport("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_board_data(int data_count, double[] data_buf, int board_id, string input_json);
+        [DllImport("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int set_log_level(int log_level);
+        [DllImport("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int log_message(int log_level, string message);
+        [DllImport("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int config_board(string config, byte[] response, int[] len, int board_id, string input_json);
+        [DllImport("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int set_log_file(string log_file);
+        [DllImport("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_sampling_rate(int board_id, int[] sampling_rate);
+        [DllImport("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_timestamp_channel(int board_id, int[] timestamp_channel);
+        [DllImport("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_package_num_channel(int board_id, int[] package_num_channel);
+        [DllImport("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_battery_channel(int board_id, int[] battery_channel);
+        [DllImport("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_num_rows(int board_id, int[] num_rows);
+        [DllImport("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_eeg_channels(int board_id, int[] channels, int[] len);
+        [DllImport("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_emg_channels(int board_id, int[] channels, int[] len);
+        [DllImport("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_ecg_channels(int board_id, int[] channels, int[] len);
+        [DllImport("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_eog_channels(int board_id, int[] channels, int[] len);
+        [DllImport("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_eda_channels(int board_id, int[] channels, int[] len);
+        [DllImport("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_ppg_channels(int board_id, int[] channels, int[] len);
+        [DllImport("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_accel_channels(int board_id, int[] channels, int[] len);
+        [DllImport("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_analog_channels(int board_id, int[] channels, int[] len);
+        [DllImport("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_gyro_channels(int board_id, int[] channels, int[] len);
+        [DllImport("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_other_channels(int board_id, int[] channels, int[] len);
+        [DllImport("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_temperature_channels(int board_id, int[] channels, int[] len);
+        [DllImport("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int is_prepared(int[] prepared, int board_id, string input_json);
+        [DllImport("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_eeg_names(int board_id, byte[] eeg_names, int[] len);
+        [DllImport("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_resistance_channels(int board_id, int[] channels, int[] len);
+        [DllImport("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_exg_channels(int board_id, int[] channels, int[] len);
+    }
+    
     public static class BoardControllerLibrary
     {
         public static int prepare_session (int board_id, string input_json)
         {
-            if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.prepare_session (board_id, input_json);
-            else
-                return BoardControllerLibrary32.prepare_session (board_id, input_json);
+            switch (PlatformHelper.GetLibraryEnvironment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.prepare_session(board_id, input_json);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.prepare_session(board_id, input_json);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.prepare_session(board_id, input_json);
+            }
+
+            return -1;
         }
 
         public static int start_stream (int buffer_size, string streamer_params, int board_id, string input_json)
         {
-            if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.start_stream (buffer_size, streamer_params, board_id, input_json);
-            else
-                return BoardControllerLibrary32.start_stream (buffer_size, streamer_params, board_id, input_json);
+            switch (PlatformHelper.GetLibraryEnvironment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.start_stream(buffer_size, streamer_params, board_id, input_json);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.start_stream(buffer_size, streamer_params, board_id, input_json);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.start_stream(buffer_size, streamer_params, board_id, input_json);
+            }
+
+            return -1;
         }
 
         public static int stop_stream (int board_id, string input_json)
         {
-            if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.stop_stream (board_id, input_json);
-            else
-                return BoardControllerLibrary32.stop_stream (board_id, input_json);
+            switch (PlatformHelper.GetLibraryEnvironment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.stop_stream(board_id, input_json);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.stop_stream(board_id, input_json);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.stop_stream(board_id, input_json);
+            }
+
+            return -1;
         }
 
         public static int release_session (int board_id, string input_json)
         {
-            if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.release_session (board_id, input_json);
-            else
-                return BoardControllerLibrary32.release_session (board_id, input_json);
+            switch (PlatformHelper.GetLibraryEnvironment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.release_session(board_id, input_json);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.release_session(board_id, input_json);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.release_session(board_id, input_json);
+            }
+
+            return -1;
         }
 
         public static int get_current_board_data (int num_samples, double[] data_buf, int[] returned_samples, int board_id, string input_json)
         {
-            if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.get_current_board_data (num_samples, data_buf, returned_samples, board_id, input_json);
-            else
-                return BoardControllerLibrary32.get_current_board_data (num_samples, data_buf, returned_samples, board_id, input_json);
+            switch (PlatformHelper.GetLibraryEnvironment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_current_board_data(num_samples, data_buf, returned_samples, board_id, input_json);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_current_board_data(num_samples, data_buf, returned_samples, board_id, input_json);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.get_current_board_data(num_samples, data_buf, returned_samples, board_id, input_json);
+            }
+
+            return -1;
         }
 
         public static int get_board_data_count (int[] result, int board_id, string input_json)
         {
-            if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.get_board_data_count (result, board_id, input_json);
-            else
-                return BoardControllerLibrary32.get_board_data_count (result, board_id, input_json);
+            switch (PlatformHelper.GetLibraryEnvironment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_board_data_count(result, board_id, input_json);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_board_data_count(result, board_id, input_json);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.get_board_data_count(result, board_id, input_json);
+            }
+
+            return -1;
         }
 
         public static int is_prepared(int[] result, int board_id, string input_json)
         {
-            if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.is_prepared(result, board_id, input_json);
-            else
-                return BoardControllerLibrary32.is_prepared(result, board_id, input_json);
+            switch (PlatformHelper.GetLibraryEnvironment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.is_prepared(result, board_id, input_json);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.is_prepared(result, board_id, input_json);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.is_prepared(result, board_id, input_json);
+            }
+
+            return -1;
         }
 
         public static int get_board_data (int data_count, double[] data_buf, int board_id, string input_json)
         {
-            if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.get_board_data (data_count, data_buf, board_id, input_json);
-            else
-                return BoardControllerLibrary32.get_board_data (data_count, data_buf, board_id, input_json);
+            switch (PlatformHelper.GetLibraryEnvironment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_board_data(data_count, data_buf, board_id, input_json);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_board_data(data_count, data_buf, board_id, input_json);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.get_board_data(data_count, data_buf, board_id, input_json);
+            }
+
+            return -1;
         }
 
         public static int set_log_level (int log_level)
         {
-            if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.set_log_level (log_level);
-            else
-                return BoardControllerLibrary32.set_log_level (log_level);
+            switch (PlatformHelper.GetLibraryEnvironment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.set_log_level(log_level);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.set_log_level(log_level);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.set_log_level(log_level);
+            }
+
+            return -1;
         }
 
         public static int log_message (int log_level, string message)
         {
-            if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.log_message (log_level, message);
-            else
-                return BoardControllerLibrary32.log_message (log_level, message);
+            switch (PlatformHelper.GetLibraryEnvironment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.log_message(log_level, message);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.log_message(log_level, message);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.log_message(log_level, message);
+            }
+
+            return -1;
         }
 
         public static int config_board (string config, byte[] str, int[] len, int board_id, string input_json)
         {
-            if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.config_board (config, str, len, board_id, input_json);
-            else
-                return BoardControllerLibrary32.config_board (config, str, len, board_id, input_json);
+            switch (PlatformHelper.GetLibraryEnvironment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.config_board(config, str, len, board_id, input_json);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.config_board(config, str, len, board_id, input_json);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.config_board(config, str, len, board_id, input_json);
+            }
+
+            return -1;
         }
 
         public static int set_log_file (string log_file)
         {
-            if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.set_log_file (log_file);
-            else
-                return BoardControllerLibrary32.set_log_file (log_file);
+            switch (PlatformHelper.GetLibraryEnvironment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.set_log_file(log_file);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.set_log_file(log_file);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.set_log_file(log_file);
+            }
+
+            return -1;
         }
-   
+
         public static int get_sampling_rate (int board_id, int[] sampling_rate)
         {
-            if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.get_sampling_rate (board_id, sampling_rate);
-            else
-                return BoardControllerLibrary32.get_sampling_rate (board_id, sampling_rate);
+            switch (PlatformHelper.GetLibraryEnvironment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_sampling_rate(board_id, sampling_rate);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_sampling_rate(board_id, sampling_rate);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.get_sampling_rate(board_id, sampling_rate);
+            }
+
+            return -1;
         }
 
         public static int get_package_num_channel (int board_id, int[] package_num)
         {
-            if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.get_package_num_channel (board_id, package_num);
-            else
-                return BoardControllerLibrary32.get_package_num_channel (board_id, package_num);
+            switch (PlatformHelper.GetLibraryEnvironment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_package_num_channel(board_id, package_num);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_package_num_channel(board_id, package_num);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.get_package_num_channel(board_id, package_num);
+            }
+
+            return -1;
         }
 
         public static int get_battery_channel (int board_id, int[] battery)
         {
-            if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.get_battery_channel (board_id, battery);
-            else
-                return BoardControllerLibrary32.get_battery_channel (board_id, battery);
+            switch (PlatformHelper.GetLibraryEnvironment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_battery_channel(board_id, battery);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_battery_channel(board_id, battery);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.get_battery_channel(board_id, battery);
+            }
+
+            return -1;
         }
 
         public static int get_num_rows (int board_id, int[] num_rows)
         {
-            if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.get_num_rows (board_id, num_rows);
-            else
-                return BoardControllerLibrary32.get_num_rows (board_id, num_rows);
+            switch (PlatformHelper.GetLibraryEnvironment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_num_rows(board_id, num_rows);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_num_rows(board_id, num_rows);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.get_num_rows(board_id, num_rows);
+            }
+
+            return -1;
         }
 
         public static int get_timestamp_channel (int board_id, int[] timestamp_channel)
         {
-            if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.get_timestamp_channel (board_id, timestamp_channel);
-            else
-                return BoardControllerLibrary32.get_timestamp_channel (board_id, timestamp_channel);
+            switch (PlatformHelper.GetLibraryEnvironment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_timestamp_channel(board_id, timestamp_channel);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_timestamp_channel(board_id, timestamp_channel);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.get_timestamp_channel(board_id, timestamp_channel);
+            }
+
+            return -1;
         }
 
         public static int get_eeg_names(int board_id, byte[] names, int[] len)
         {
-            if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.get_eeg_names(board_id, names, len);
-            else
-                return BoardControllerLibrary32.get_eeg_names(board_id, names, len);
+            switch (PlatformHelper.GetLibraryEnvironment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_eeg_names(board_id, names, len);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_eeg_names(board_id, names, len);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.get_eeg_names(board_id, names, len);
+            }
+
+            return -1;
         }
 
         public static int get_eeg_channels (int board_id, int[] channels, int[] len)
         {
-            if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.get_eeg_channels (board_id, channels, len);
-            else
-                return BoardControllerLibrary32.get_eeg_channels (board_id, channels, len);
+            switch (PlatformHelper.GetLibraryEnvironment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_eeg_channels(board_id, channels, len);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_eeg_channels(board_id, channels, len);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.get_eeg_channels(board_id, channels, len);
+            }
+
+            return -1;
         }
 
         public static int get_exg_channels (int board_id, int[] channels, int[] len)
         {
-            if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.get_exg_channels (board_id, channels, len);
-            else
-                return BoardControllerLibrary32.get_exg_channels (board_id, channels, len);
+            switch (PlatformHelper.GetLibraryEnvironment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_exg_channels(board_id, channels, len);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_exg_channels(board_id, channels, len);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.get_exg_channels(board_id, channels, len);
+            }
+
+            return -1;
         }
 
         public static int get_emg_channels (int board_id, int[] channels, int[] len)
         {
-            if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.get_emg_channels (board_id, channels, len);
-            else
-                return BoardControllerLibrary32.get_emg_channels (board_id, channels, len);
+            switch (PlatformHelper.GetLibraryEnvironment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_emg_channels(board_id, channels, len);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_emg_channels(board_id, channels, len);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.get_emg_channels(board_id, channels, len);
+            }
+
+            return -1;
         }
 
         public static int get_ecg_channels (int board_id, int[] channels, int[] len)
         {
-            if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.get_ecg_channels (board_id, channels, len);
-            else
-                return BoardControllerLibrary32.get_ecg_channels (board_id, channels, len);
+            switch (PlatformHelper.GetLibraryEnvironment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_ecg_channels(board_id, channels, len);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_ecg_channels(board_id, channels, len);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.get_ecg_channels(board_id, channels, len);
+            }
+
+            return -1;
         }
 
         public static int get_eog_channels (int board_id, int[] channels, int[] len)
         {
-            if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.get_eog_channels (board_id, channels, len);
-            else
-                return BoardControllerLibrary32.get_eog_channels (board_id, channels, len);
+            switch (PlatformHelper.GetLibraryEnvironment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_eog_channels(board_id, channels, len);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_eog_channels(board_id, channels, len);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.get_eog_channels(board_id, channels, len);
+            }
+
+            return -1;
         }
 
         public static int get_eda_channels (int board_id, int[] channels, int[] len)
         {
-            if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.get_eda_channels (board_id, channels, len);
-            else
-                return BoardControllerLibrary32.get_eda_channels (board_id, channels, len);
+            switch (PlatformHelper.GetLibraryEnvironment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_eda_channels(board_id, channels, len);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_eda_channels(board_id, channels, len);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.get_eda_channels(board_id, channels, len);
+            }
+
+            return -1;
         }
 
         public static int get_ppg_channels (int board_id, int[] channels, int[] len)
         {
-            if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.get_ppg_channels (board_id, channels, len);
-            else
-                return BoardControllerLibrary32.get_ppg_channels (board_id, channels, len);
+            switch (PlatformHelper.GetLibraryEnvironment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_ppg_channels(board_id, channels, len);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_ppg_channels(board_id, channels, len);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.get_ppg_channels(board_id, channels, len);
+            }
+
+            return -1;
         }
 
         public static int get_accel_channels (int board_id, int[] channels, int[] len)
         {
-            if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.get_accel_channels (board_id, channels, len);
-            else
-                return BoardControllerLibrary32.get_accel_channels (board_id, channels, len);
+            switch (PlatformHelper.GetLibraryEnvironment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_accel_channels(board_id, channels, len);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_accel_channels(board_id, channels, len);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.get_accel_channels(board_id, channels, len);
+            }
+
+            return -1;
         }
 
         public static int get_analog_channels (int board_id, int[] channels, int[] len)
         {
-            if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.get_analog_channels (board_id, channels, len);
-            else
-                return BoardControllerLibrary32.get_analog_channels (board_id, channels, len);
+            switch (PlatformHelper.GetLibraryEnvironment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_analog_channels(board_id, channels, len);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_analog_channels(board_id, channels, len);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.get_analog_channels(board_id, channels, len);
+            }
+
+            return -1;
         }
 
         public static int get_gyro_channels (int board_id, int[] channels, int[] len)
         {
-            if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.get_gyro_channels (board_id, channels, len);
-            else
-                return BoardControllerLibrary32.get_gyro_channels (board_id, channels, len);
+            switch (PlatformHelper.GetLibraryEnvironment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_gyro_channels(board_id, channels, len);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_gyro_channels(board_id, channels, len);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.get_gyro_channels(board_id, channels, len);
+            }
+
+            return -1;
         }
 
         public static int get_other_channels (int board_id, int[] channels, int[] len)
         {
-            if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.get_other_channels (board_id, channels, len);
-            else
-                return BoardControllerLibrary32.get_other_channels (board_id, channels, len);
+            switch (PlatformHelper.GetLibraryEnvironment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_other_channels(board_id, channels, len);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_other_channels(board_id, channels, len);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.get_other_channels(board_id, channels, len);
+            }
+
+            return -1;
         }
 
         public static int get_temperature_channels (int board_id, int[] channels, int[] len)
         {
-            if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.get_temperature_channels (board_id, channels, len);
-            else
-                return BoardControllerLibrary32.get_temperature_channels (board_id, channels, len);
+            switch (PlatformHelper.GetLibraryEnvironment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_temperature_channels(board_id, channels, len);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_temperature_channels(board_id, channels, len);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.get_temperature_channels(board_id, channels, len);
+            }
+
+            return -1;
         }
 
         public static int get_resistance_channels(int board_id, int[] channels, int[] len)
         {
-            if (System.Environment.Is64BitProcess)
-                return BoardControllerLibrary64.get_resistance_channels(board_id, channels, len);
-            else
-                return BoardControllerLibrary32.get_resistance_channels(board_id, channels, len);
+            switch (PlatformHelper.GetLibraryEnvironment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_resistance_channels(board_id, channels, len);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_resistance_channels(board_id, channels, len);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.get_resistance_channels(board_id, channels, len);
+            }
+
+            return -1;
         }
     }
 }

@@ -124,6 +124,7 @@
     <Compile Include="data_handler_library.cs" />
     <Compile Include="ml_model.cs" />
     <Compile Include="ml_module_library.cs" />
+    <Compile Include="PlatformHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
