@@ -123,17 +123,17 @@ jobs:
         cd $GITHUB_WORKSPACE
         sudo -H python3 $GITHUB_WORKSPACE/tests/python/serialization.py
     - name: Filters Python
-      run: python3 $GITHUB_WORKSPACE/tests/python/signal_filtering.py
+      run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/signal_filtering.py
     - name: Transforms Python
-      run: python3 $GITHUB_WORKSPACE/tests/python/transforms.py
+      run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/transforms.py
     - name: Downsampling Python
-      run: python3 $GITHUB_WORKSPACE/tests/python/downsampling.py
+      run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/downsampling.py
     - name: MNE Python
-      run: python3 $GITHUB_WORKSPACE/tests/python/brainflow_to_mne.py
+      run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/brainflow_to_mne.py
     - name: BandPower Python
-      run: python3 $GITHUB_WORKSPACE/tests/python/band_power.py
+      run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/band_power.py
     - name: BandPowerAll Python
-      run: python3 $GITHUB_WORKSPACE/tests/python/band_power_all.py
+      run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/band_power_all.py
     - name: Denoising Cpp
       run: $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/denoising
       env:
