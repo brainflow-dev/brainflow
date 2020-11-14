@@ -41,7 +41,7 @@ jobs:
       if: (matrix.os == 'ubuntu-18.04')
       run: |
         docker pull dockcross/manylinux2014-x64
-        docker run -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE dockcross/manylinux2014-x64 /bin/bash -c "/opt/python/cp36-cp36m/bin/pip3.6 install cmake==3.13.3 && cd $GITHUB_WORKSPACE && mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed_docker -DCMAKE_BUILD_TYPE=Release .. && make -j && make install"
+        docker run -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE dockcross/manylinux2014-x64 /bin/bash -c "/opt/python/cp36-cp36m/bin/pip3.6 install cmake==3.13.3 && cd $GITHUB_WORKSPACE && mkdir build_docker && cd build_docker && cmake -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed_docker -DCMAKE_BUILD_TYPE=Release .. && make -j && make install"
     - name: Compile BrainFlow
       run: |
         mkdir $GITHUB_WORKSPACE/build
