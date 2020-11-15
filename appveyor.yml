@@ -151,12 +151,12 @@ deploy_script:
         aws s3 ls s3://brainflow/$env:APPVEYOR_REPO_COMMIT/linux_success;
         $lin = $?;
         If ($env:APPVEYOR_REPO_TAG -eq "true" -And $env:APPVEYOR_REPO_BRANCH -eq "master") {
-          aws s3 ls s3://brainflow/$env:APPVEYOR_REPO_COMMIT/macos_dev_success;
-          $osx = $?
+          aws s3 ls s3://brainflow/$env:APPVEYOR_REPO_COMMIT/macos_release_success;
+          $osx = $?;
         }
         Else {
-          aws s3 ls s3://brainflow/$env:APPVEYOR_REPO_COMMIT/macos_release_success;
-          $osx = $?
+          aws s3 ls s3://brainflow/$env:APPVEYOR_REPO_COMMIT/macos_dev_success;
+          $osx = $?;
         }
         if($lin -and $osx) {break}
         Start-Sleep -s 60;
