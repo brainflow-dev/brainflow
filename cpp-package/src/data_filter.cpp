@@ -352,7 +352,7 @@ void DataFilter::reshape_data_to_2d (
     {
         for (int j = 0; j < num_cols; j++)
         {
-            output_buf[i] = linear_buffer[i * num_cols + j];
+            output_buf[i][j] = linear_buffer[i * num_cols + j];
         }
     }
 }
