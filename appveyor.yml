@@ -158,6 +158,7 @@ deploy_script:
           aws s3 ls s3://brainflow/$env:APPVEYOR_REPO_COMMIT/macos_release_success;
           $osx = $?
         }
+        if($lin -and $osx) {break}
         Start-Sleep -s 60;
         echo "not found"
       }
