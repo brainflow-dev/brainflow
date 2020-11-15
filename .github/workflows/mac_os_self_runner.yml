@@ -1,0 +1,25 @@
+name: Run MacOS Self-Hosted
+
+# run it only to build release
+# there is old MacOS version to target more devices than we can do using github actions image
+# on: [push, pull_request]
+on:
+  push:
+    tags: 
+      - '*'
+
+jobs:
+  RunSelfHosted:
+    runs-on: self-hosted
+
+    steps:
+    # compile and prepare env
+    - name: Clone Repository
+      uses: actions/checkout@v2
+    - name: Compile BrainFlow
+      run: |
+        mkdir $GITHUB_WORKSPACE/build
+        cd $GITHUB_WORKSPACE/build
+        cmake -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
+        make -j
+        make install
