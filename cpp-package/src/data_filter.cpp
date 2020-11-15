@@ -350,7 +350,10 @@ void DataFilter::reshape_data_to_2d (
 {
     for (int i = 0; i < num_rows; i++)
     {
-        memcpy (output_buf[i], linear_buffer + i * num_cols, sizeof (double) * num_rows);
+        for (int j = 0; j < num_cols; j++)
+        {
+            output_buf[i] = linear_buffer[i * num_cols + j];
+        }
     }
 }
 
