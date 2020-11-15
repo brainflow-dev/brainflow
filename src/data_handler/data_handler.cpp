@@ -791,7 +791,7 @@ int read_file (double *data, int *num_rows, int *num_cols, char *file_name, int 
 
     // count rows
     char c;
-    for (c = getc (fp); c != EOF; c = getc (fp))
+    for (c = getc (fp); !feof (fp); c = getc (fp))
     {
         if (c == '\n')
         {
@@ -849,7 +849,7 @@ int get_num_elements_in_file (char *file_name, int *num_elements)
 
     // count rows
     char c;
-    for (c = getc (fp); c != EOF; c = getc (fp))
+    for (c = getc (fp); !feof (fp); c = getc (fp))
     {
         if (c == '\n')
         {
