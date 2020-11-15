@@ -204,3 +204,26 @@ jobs:
         mvn exec:java -Dexec.mainClass="brainflow.examples.EEGMetrics" -Dexec.args="--board-id -1"
       env:
         LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    # deploy started
+    - name: Install AWS CLI
+      run: sudo -H python3 -m pip install awscli
+    - name: Push Libraries Linux Docker
+      if: (matrix.os == 'ubuntu-18.04')
+      run: |
+        aws s3 cp $GITHUB_WORKSPACE/installed_docker/lib/ s3://brainflow/$GITHUB_SHA/linux --recursive
+        echo success > linux_success
+        aws s3 cp linux_success s3://brainflow/$GITHUB_SHA/
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    - name: Push Libraries MacOS Dev
+      if: (matrix.os == 'macos-latest')
+      run: |
+        aws s3 cp $GITHUB_WORKSPACE/installed/lib/ s3://brainflow/$GITHUB_SHA/macos_dev --recursive
+        echo success > macos_dev_success
+        aws s3 cp macos_dev_success s3://brainflow/$GITHUB_SHA/
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+
