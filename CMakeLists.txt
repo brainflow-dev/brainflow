@@ -376,6 +376,13 @@ if (MSVC)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/utils/inc/shared_export_matlab.h" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/inc/shared_export.h"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/ml/train/brainflow_svm.model" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/brainflow_svm.model"
     )
+    # copy Unicorn.dll
+    add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/unicorn/lib/Unicorn.dll" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/Unicorn.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/unicorn/lib/Unicorn.dll" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/Unicorn.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/unicorn/lib/Unicorn.dll" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/Unicorn.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/unicorn/lib/Unicorn.dll" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/Unicorn.dll"
+    )
 endif (MSVC)
 if (UNIX AND NOT ANDROID)
     add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
@@ -518,6 +525,14 @@ if (UNIX AND NOT APPLE)
         DESTINATION lib
     )
 endif (UNIX AND NOT APPLE)
+
+if (MSVC)
+    install (
+        FILES
+        ${CMAKE_HOME_DIRECTORY}/third_party/unicorn/lib/Unicorn.dll
+        DESTINATION lib
+    )
+endif (MSVC)
 
 install (
     TARGETS ${BOARD_CONTROLLER_NAME} ${DATA_HANDLER_NAME} ${DSPFILTERS} ${WAVELIB} ${GANGLION_LIB} ${ML_MODULE_NAME} ${BRAINFLOW_CPP_BINDING_NAME}

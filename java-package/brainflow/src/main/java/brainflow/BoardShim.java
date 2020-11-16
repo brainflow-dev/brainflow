@@ -99,12 +99,15 @@ public class BoardShim
             lib_name = "BoardController.dll";
             ganglion_name = "GanglionLib.dll";
             unpack_from_jar ("neurosdk-x64.dll");
-
+            unpack_from_jar ("Unicorn.dll");
         } else if (SystemUtils.IS_OS_MAC)
         {
             lib_name = "libBoardController.dylib";
             ganglion_name = "libGanglionLib.dylib";
             unpack_from_jar ("libneurosdk-shared.dylib");
+        } else if ((SystemUtils.IS_OS_LINUX) && (!is_os_android))
+        {
+            unpack_from_jar ("libunicorn.so");
         }
 
         if (is_os_android)

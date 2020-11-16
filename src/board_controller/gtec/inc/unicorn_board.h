@@ -12,7 +12,7 @@ class UnicornBoard : public Board
 {
 
 private:
-#ifdef __linux__
+#if defined __linux__ || defined _WIN32
     UNICORN_HANDLE device_handle;
 
     volatile bool keep_alive;

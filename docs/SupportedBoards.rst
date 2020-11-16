@@ -429,6 +429,7 @@ To choose this board in BoardShim constructor please specify:
 Supported platforms:
 
 - Ubuntu 18.04, may work on other Linux OSes, it depends on dynamic library provided by Unicorn
+- Windows
 - May also work on Raspberry PI, if you replace libunicorn.so by library provided by Unicorn for Raspberry PI
 
 Board Spec:
