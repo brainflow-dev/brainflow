@@ -10,7 +10,7 @@ jobs:
       fail-fast: false
       max-parallel: 4
       matrix:
-        os: [ubuntu-18.04, macos-latest]
+        os: [ubuntu-18.04, macos-10.15]
 
     steps:
     # compile and prepare env
@@ -217,7 +217,7 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     - name: Push Libraries MacOS Dev
-      if: (matrix.os == 'macos-latest')
+      if: (matrix.os == 'macos-10.15')
       run: |
         aws s3 cp $GITHUB_WORKSPACE/installed/lib/ s3://brainflow/$GITHUB_SHA/macos_dev --recursive
         echo success > macos_dev_success
