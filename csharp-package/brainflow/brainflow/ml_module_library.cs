@@ -51,16 +51,30 @@ namespace brainflow
 
     public static class MLModuleLibraryLinux
     {
-        [DllImport("libMLModule.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int set_log_file(string log_file);
-        [DllImport("libMLModule.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int set_log_level(int log_level);
-        [DllImport("libMLModule.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int prepare(string input_json);
-        [DllImport("libMLModule.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int release(string input_json);
-        [DllImport("libMLModule.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int predict(double[] data, int data_len, double[] output, string input_json);
+        [DllImport ("libMLModule.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int set_log_file (string log_file);
+        [DllImport ("libMLModule.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int set_log_level (int log_level);
+        [DllImport ("libMLModule.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int prepare (string input_json);
+        [DllImport ("libMLModule.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int release (string input_json);
+        [DllImport ("libMLModule.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int predict (double[] data, int data_len, double[] output, string input_json);
+    }
+
+    public static class MLModuleLibraryMac
+    {
+        [DllImport ("libMLModule.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int set_log_file (string log_file);
+        [DllImport ("libMLModule.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int set_log_level (int log_level);
+        [DllImport ("libMLModule.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int prepare (string input_json);
+        [DllImport ("libMLModule.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int release (string input_json);
+        [DllImport ("libMLModule.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int predict (double[] data, int data_len, double[] output, string input_json);
     }
 
 
@@ -68,78 +82,88 @@ namespace brainflow
     {
         public static int set_log_level (int log_level)
         {
-            switch (PlatformHelper.GetLibraryEnvironment())
+            switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return MLModuleLibrary64.set_log_level(log_level);
+                    return MLModuleLibrary64.set_log_level (log_level);
                 case LibraryEnvironment.x86:
-                    return MLModuleLibrary32.set_log_level(log_level);
+                    return MLModuleLibrary32.set_log_level (log_level);
                 case LibraryEnvironment.Linux:
-                    return MLModuleLibraryLinux.set_log_level(log_level);
+                    return MLModuleLibraryLinux.set_log_level (log_level);
+                case LibraryEnvironment.MacOS:
+                    return MLModuleLibraryMac.set_log_level (log_level);
             }
 
-            return -1;
+            return (int)CustomExitCodes.GENERAL_ERROR;
         }
 
         public static int set_log_file (string log_file)
         {
-            switch (PlatformHelper.GetLibraryEnvironment())
+            switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return MLModuleLibrary64.set_log_file(log_file);
+                    return MLModuleLibrary64.set_log_file (log_file);
                 case LibraryEnvironment.x86:
-                    return MLModuleLibrary32.set_log_file(log_file);
+                    return MLModuleLibrary32.set_log_file (log_file);
                 case LibraryEnvironment.Linux:
-                    return MLModuleLibraryLinux.set_log_file(log_file);
+                    return MLModuleLibraryLinux.set_log_file (log_file);
+                case LibraryEnvironment.MacOS:
+                    return MLModuleLibraryMac.set_log_file (log_file);
             }
 
-            return -1;
+            return (int)CustomExitCodes.GENERAL_ERROR;
         }
 
         public static int prepare (string input_json)
         {
-            switch (PlatformHelper.GetLibraryEnvironment())
+            switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return MLModuleLibrary64.prepare(input_json);
+                    return MLModuleLibrary64.prepare (input_json);
                 case LibraryEnvironment.x86:
-                    return MLModuleLibrary32.prepare(input_json);
+                    return MLModuleLibrary32.prepare (input_json);
                 case LibraryEnvironment.Linux:
-                    return MLModuleLibraryLinux.prepare(input_json);
+                    return MLModuleLibraryLinux.prepare (input_json);
+                case LibraryEnvironment.MacOS:
+                    return MLModuleLibraryMac.prepare (input_json);
 
             }
 
-            return -1;
+            return (int)CustomExitCodes.GENERAL_ERROR;
         }
 
         public static int release (string input_json)
         {
-            switch (PlatformHelper.GetLibraryEnvironment())
+            switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return MLModuleLibrary64.release(input_json);
+                    return MLModuleLibrary64.release (input_json);
                 case LibraryEnvironment.x86:
-                    return MLModuleLibrary32.release(input_json);
+                    return MLModuleLibrary32.release (input_json);
                 case LibraryEnvironment.Linux:
-                    return MLModuleLibraryLinux.release(input_json);
+                    return MLModuleLibraryLinux.release (input_json);
+                case LibraryEnvironment.MacOS:
+                    return MLModuleLibraryMac.release (input_json);
             }
 
-            return -1;
+            return (int)CustomExitCodes.GENERAL_ERROR;
         }
 
         public static int predict (double[] data, int data_len, double[] output, string input_json)
         {
-            switch (PlatformHelper.GetLibraryEnvironment())
+            switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return MLModuleLibrary64.predict(data, data_len, output, input_json);
+                    return MLModuleLibrary64.predict (data, data_len, output, input_json);
                 case LibraryEnvironment.x86:
-                    return MLModuleLibrary32.predict(data, data_len, output, input_json);
+                    return MLModuleLibrary32.predict (data, data_len, output, input_json);
                 case LibraryEnvironment.Linux:
-                    return MLModuleLibraryLinux.predict(data, data_len, output, input_json);
+                    return MLModuleLibraryLinux.predict (data, data_len, output, input_json);
+                case LibraryEnvironment.MacOS:
+                    return MLModuleLibraryMac.predict (data, data_len, output, input_json);
             }
 
-            return -1;
+            return (int)CustomExitCodes.GENERAL_ERROR;
         }
     }
 }
