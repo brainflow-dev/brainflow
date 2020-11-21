@@ -4,7 +4,7 @@ Integration with Game Engines
 Unity
 -------
 
-Integration with Unity can be done only using C# binding. And currently it works only for Windows.
+Integration with Unity can be done only using C# binding. We tested it only on Windows, but it may work on Unix too.
 
 You can build C# binding from source or download compiled package directly from `Nuget <https://www.nuget.org/packages/brainflow/>`_.
 
