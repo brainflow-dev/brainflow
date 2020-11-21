@@ -22,7 +22,7 @@ Python
 C#
 ----
 
-For C#, only Windows is currently supported.
+**Windows(Visual Studio)**
 
 You are able to install the latest release from `Nuget <https://www.nuget.org/packages/brainflow/>`_ or build it yourself:
 
@@ -31,6 +31,33 @@ You are able to install the latest release from `Nuget <https://www.nuget.org/pa
 - install required nuget packages
 - build it using Visual Studio
 - **make sure that unmanaged(C++) libraries exist in search path** - set PATH env variable or copy them to correct folder
+
+**Unix(Mono)**
+
+- Compile BrainFlow's core module
+- install nuget and Mono on your system
+- install required nuget packages
+- build it using Mono
+- **make sure that unmanaged(C++) libraries exist in search path** - set LD_LIBRARY_PATH env variable or copy them to correct folder
+
+.. compound::
+
+    Example for Fedora: ::
+
+        # compile c++ code
+        tools/build_linux.sh
+        # install dependencies, we skip dnf configuration steps 
+        sudo dnf install nuget
+        sudo dnf install mono-devel
+        sudo dnf install mono-complete
+        sudo dnf install monodevelop
+        # install nuget packages
+        nuget restore csharp-package/brainflow/brainflow.sln
+        # build solution
+        xbuild csharp-package/brainflow/brainflow.sln
+        # run tests
+        export LD_LIBRARY_PATH=/home/andreyparfenov/brainflow/installed_linux/lib/
+        mono csharp-package/brainflow/denoising/bin/Debug/test.exe
 
 R
 -----
