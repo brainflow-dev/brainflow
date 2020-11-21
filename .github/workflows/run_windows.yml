@@ -18,6 +18,9 @@ jobs:
     - name: Set Path
       run: |
         echo "%GITHUB_WORKSPACE%\tools;" >> $GITHUB_PATH
+        echo "%GITHUB_WORKSPACE%\tools;" >> $PATH
+        echo "%GITHUB_WORKSPACE%\tools" >> $GITHUB_PATH
+        echo "%GITHUB_WORKSPACE%\tools" >> $PATH
       shell: cmd
     # compile Android Libs for all ABIs
     - name: Compile Android arm64-v8a
