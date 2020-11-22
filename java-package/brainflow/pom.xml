@@ -61,6 +61,7 @@
           <include>neurosdk-x64.dll</include>
           <include>libneurosdk-shared.dylib</include>
           <include>libunicorn.so</include>
+          <include>Unicorn.dll</include>
           <include>GanglionLib.dll</include>
           <include>libGanglionLib.so</include>
           <include>libGanglionLib.dylib</include>

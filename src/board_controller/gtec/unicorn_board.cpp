@@ -1,11 +1,15 @@
 #include "unicorn_board.h"
 
-// implementation for linux
-#ifdef __linux__
+// implementation for linux and windows
+#if defined __linux__ || defined _WIN32
 
 #include <string.h>
+#ifdef _WIN32
+#include <windows.h>
+#else
 #include <sys/utsname.h>
 #include <unistd.h>
+#endif
 
 #include "get_dll_dir.h"
 #include "timestamp.h"
@@ -23,13 +27,18 @@ UnicornBoard::UnicornBoard (struct BrainFlowInputParams params)
     device_handle = 0;
     bool res = get_dll_path (unicornlib_dir);
     std::string unicornlib_path = "";
+#ifdef _WIN32
+    std::string lib_name = "Unicorn.dll";
+#else
+    std::string lib_name = "libunicorn.so";
+#endif
     if (res)
     {
-        unicornlib_path = std::string (unicornlib_dir) + "libunicorn.so";
+        unicornlib_path = std::string (unicornlib_dir) + lib_name;
     }
     else
     {
-        unicornlib_path = "libunicorn.so";
+        unicornlib_path = lib_name;
     }
 
     safe_logger (spdlog::level::debug, "use dyn lib: {}", unicornlib_path.c_str ());
@@ -224,7 +233,13 @@ int UnicornBoard::call_open ()
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
     unsigned int available_device_count = 0;
+#ifdef _WIN32
+    // on widnows last param means only paired
+    int ec = func_get_available (NULL, &available_device_count, FALSE);
+#else
+    // on linux last param means rescan
     int ec = func_get_available (NULL, &available_device_count, TRUE);
+#endif
     if (ec != UNICORN_ERROR_SUCCESS)
     {
         safe_logger (spdlog::level::err, "Error in UNICORN_GetAvailableDevices {}", ec);
@@ -348,7 +363,7 @@ int UnicornBoard::call_close ()
 }
 
 
-// stub for windows and macos
+// stub for macos
 #else
 UnicornBoard::UnicornBoard (struct BrainFlowInputParams params)
     : Board ((int)BoardIds::UNICORN_BOARD, params)
