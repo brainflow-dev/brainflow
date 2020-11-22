@@ -42,15 +42,15 @@ jobs:
         nuget install Accord.Math -OutputDirectory %GITHUB_WORKSPACE%\csharp-package\brainflow\packages
       shell: cmd
     - name: C# build
-        run: |
-          cd %GITHUB_WORKSPACE%\csharp-package\brainflow
-          msbuild brainflow.sln /p:Configuration=Release /p:Platform="Any CPU"
+      run: |
+        cd %GITHUB_WORKSPACE%\csharp-package\brainflow
+        msbuild brainflow.sln /p:Configuration=Release /p:Platform="Any CPU"
     - name: Install Emulator
-        run: |
-          pip install %APPVEYOR_BUILD_FOLDER%\emulator\
-          cd %GITHUB_WORKSPACE%
-          .\emulator\brainflow_emulator\com0com\certmgr.exe  /add %GITHUB_WORKSPACE%\emulator\brainflow_emulator\com0com\com0com.cer /s /r localMachine root
-          .\emulator\brainflow_emulator\com0com\certmgr.exe /add %GITHUB_WORKSPACE%\emulator\brainflow_emulator\com0com\com0com.cer /s /r localMachine trustedpublisher
+      run: |
+        pip install %APPVEYOR_BUILD_FOLDER%\emulator\
+        cd %GITHUB_WORKSPACE%
+        .\emulator\brainflow_emulator\com0com\certmgr.exe  /add %GITHUB_WORKSPACE%\emulator\brainflow_emulator\com0com\com0com.cer /s /r localMachine root
+        .\emulator\brainflow_emulator\com0com\certmgr.exe /add %GITHUB_WORKSPACE%\emulator\brainflow_emulator\com0com\com0com.cer /s /r localMachine trustedpublisher
     - name: Install Python package
       run: |
         pip install %GITHUB_WORKSPACE%\python-package\
