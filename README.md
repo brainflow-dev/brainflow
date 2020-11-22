@@ -31,9 +31,9 @@ Compiled with:
 * GCC on Linux
 * Clang on MacOS
 
-*Linux and MacOS(Travis)*:
+*Linux and MacOS(Github Actions)*:
 
-[![Build Status](https://travis-ci.com/brainflow-dev/brainflow.svg?branch=master)](https://travis-ci.com/brainflow-dev/brainflow)
+[![Run Unix](https://github.com/brainflow-dev/brainflow/workflows/Run%20Unix//badge.svg)](https://github.com/brainflow-dev/brainflow/actions)
 
 *Windows and Android NDK(AppVeyour)*:
 
