@@ -147,18 +147,6 @@ jobs:
     - name: Galea Windows C# Test
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\galea_udp.py %GITHUB_WORKSPACE%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 3 --ip-address 127.0.0.1
       shell: cmd
-    - name: WIFI Shield Python Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\wifi_shield_emulator.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id 4 --ip-address 127.0.0.1 --ip-port 17982
-      shell: cmd
-    - name: WIFI Shield Cpp Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\wifi_shield_emulator.py %GITHUB_WORKSPACE%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 5 --ip-address 127.0.0.1 --ip-port 17983
-      shell: cmd
-    - name: WIFI Shield C# Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\wifi_shield_emulator.py %GITHUB_WORKSPACE%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 6 --ip-address 127.0.0.1 --ip-port 17984
-      shell: cmd
-    - name: Streaming Board Python Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\streaming_board_emulator.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --log --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
-      shell: cmd
     - name: Fascia Python Test
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\fascia_emulator_ci.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id 12 --ip-port 7789
       shell: cmd
