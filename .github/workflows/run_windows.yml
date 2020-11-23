@@ -83,8 +83,8 @@ jobs:
       shell: cmd
     - name: Build Cpp ML Test x32
       run: |
-        mkdir %GITHUB_WORKSPACE%\tests\cpp\ml_demo\build
-        cd %GITHUB_WORKSPACE%\tests\cpp\ml_demo\build
+        mkdir %GITHUB_WORKSPACE%\tests\cpp\ml_demo\build32
+        cd %GITHUB_WORKSPACE%\tests\cpp\ml_demo\build32
         cmake -G "Visual Studio 16 2019" -A Win32 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%GITHUB_WORKSPACE%\installed32\ ..
         cmake --build . --config Release -j 2 --parallel 2
       shell: cmd
