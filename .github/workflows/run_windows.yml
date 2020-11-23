@@ -95,97 +95,97 @@ jobs:
       shell: cmd
     # BoardController testing
     - name: Cyton Windows Python Test
-      run: python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board-id 0 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --log --board-id 0 --serial-port
       shell: cmd
     - name: Cyton Windows Python Test with Streamer
-      run: python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board-id 0 --streamer-params file://file_streamer.csv:w --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --log --board-id 0 --streamer-params file://file_streamer.csv:w --serial-port
       shell: cmd
     - name: Cyton Multiboard Windows Python Test
-      run: python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_multiboard_get_data.py --log --board-id 0 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_multiboard_get_data.py --log --board-id 0 --serial-port
       shell: cmd
     - name: Cyton Windows Cpp Test
-      run: python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 0 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 0 --serial-port
       shell: cmd
     - name: Cyton Windows C# Test
-      run: python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 0 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 0 --serial-port
       shell: cmd
     - name: Synthetic Windows Python Test
-      run: python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board-id -1
+      run: python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --log --board-id -1
       shell: cmd
     - name: Synthetic Windows Python Test with Streamer
-      run: python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board-id -1 --streamer-params file://file_streamer.csv:w
+      run: python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --log --board-id -1 --streamer-params file://file_streamer.csv:w
       shell: cmd
     - name: Synthetic Windows Cpp Test
       run: .\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id -1
       shell: cmd
     - name: Synthetic Windows C# Test
       run: |
-        cd %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow_get_data\bin\Release
+        cd %GITHUB_WORKSPACE%\csharp-package\brainflow\brainflow_get_data\bin\Release
         test.exe --board-id -1
       shell: cmd
     - name: Cyton Daisy Windows Python Test
-      run: python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board-id 2 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --log --board-id 2 --serial-port
       shell: cmd
     - name: Cyton Daisy Windows Python Test with Streamer
-      run: python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board-id 2 --streamer-params file://file_streamer.csv:w --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --log --board-id 2 --streamer-params file://file_streamer.csv:w --serial-port
       shell: cmd
     - name: Cyton Daisy Multiboard Windows Python Test
-      run: python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_multiboard_get_data.py --log --board-id 2 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_multiboard_get_data.py --log --board-id 2 --serial-port
       shell: cmd
     - name: Cyton Daisy Windows Cpp Test
-      run: python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 2 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 2 --serial-port
       shell: cmd
     - name: Cyton Daisy Windows C# Test
-      run: python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\cyton_windows.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 2 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 2 --serial-port
       shell: cmd
     - name: Galea Windows Python Test
-      run: python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\galea_udp.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --board-id 3 --ip-address 127.0.0.1 --log
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\galea_udp.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id 3 --ip-address 127.0.0.1 --log
       shell: cmd
     - name: Galea Windows Cpp Test
-      run: python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\galea_udp.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 3 --ip-address 127.0.0.1
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\galea_udp.py %GITHUB_WORKSPACE%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 3 --ip-address 127.0.0.1
       shell: cmd
     - name: Galea Windows C# Test
-      run: python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\galea_udp.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 3 --ip-address 127.0.0.1
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\galea_udp.py %GITHUB_WORKSPACE%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 3 --ip-address 127.0.0.1
       shell: cmd
     - name: WIFI Shield Python Test
-      run: python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --board-id 4 --ip-address 127.0.0.1 --ip-port 17982
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\wifi_shield_emulator.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id 4 --ip-address 127.0.0.1 --ip-port 17982
       shell: cmd
     - name: WIFI Shield Cpp Test
-      run: python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py %APPVEYOR_BUILD_FOLDER%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 5 --ip-address 127.0.0.1 --ip-port 17983
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\wifi_shield_emulator.py %GITHUB_WORKSPACE%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 5 --ip-address 127.0.0.1 --ip-port 17983
       shell: cmd
     - name: WIFI Shield C# Test
-      run: python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\wifi_shield_emulator.py %APPVEYOR_BUILD_FOLDER%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 6 --ip-address 127.0.0.1 --ip-port 17984
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\wifi_shield_emulator.py %GITHUB_WORKSPACE%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 6 --ip-address 127.0.0.1 --ip-port 17984
       shell: cmd
     - name: Streaming Board Python Test
-      run: python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\streaming_board_emulator.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\streaming_board_emulator.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --log --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
       shell: cmd
     - name: Fascia Python Test
-      run: python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\fascia_emulator_ci.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --board-id 12 --ip-port 7789
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\fascia_emulator_ci.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id 12 --ip-port 7789
       shell: cmd
     - name: IronBCI Python Test
-      run: python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\ironbci_windows.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board-id 15 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\ironbci_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --log --board-id 15 --serial-port
       shell: cmd
     - name: FreeEEG32 Python Test
-      run: python %APPVEYOR_BUILD_FOLDER%\emulator\brainflow_emulator\freeeeg32_windows.py python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_get_data.py --log --board-id 17 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\freeeeg32_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --log --board-id 17 --serial-port
       shell: cmd
     # Signal Processing Testing
     - name: Denoising Python Test
-      run: python %APPVEYOR_BUILD_FOLDER%\tests\python\denoising.py
+      run: python %GITHUB_WORKSPACE%\tests\python\denoising.py
       shell: cmd
     - name: Serialization Python Test
-      run: python %APPVEYOR_BUILD_FOLDER%\tests\python\serialization.py
+      run: python %GITHUB_WORKSPACE%\tests\python\serialization.py
       shell: cmd
     - name: Filtering Python Test
-      run: python %APPVEYOR_BUILD_FOLDER%\tests\python\signal_filtering.py
+      run: python %GITHUB_WORKSPACE%\tests\python\signal_filtering.py
       shell: cmd
     - name: Transforms Python Test
-      run: python %APPVEYOR_BUILD_FOLDER%\tests\python\transforms.py
+      run: python %GITHUB_WORKSPACE%\tests\python\transforms.py
       shell: cmd
     - name: Downsampling Python Test
-      run: python %APPVEYOR_BUILD_FOLDER%\tests\python\downsampling.py
+      run: python %GITHUB_WORKSPACE%\tests\python\downsampling.py
       shell: cmd
     - name: BrainFlow to MNE Python Test
-      run: python %APPVEYOR_BUILD_FOLDER%\tests\python\brainflow_to_mne.py
+      run: python %GITHUB_WORKSPACE%\tests\python\brainflow_to_mne.py
       shell: cmd
     - name: Denoising Cpp Test
       run: .\tests\cpp\signal_processing_demo\build\Release\denoising.exe
@@ -204,10 +204,10 @@ jobs:
       shell: cmd
     # Tests for MLModule
     - name: EEG Metrics Python Test
-      run: python %APPVEYOR_BUILD_FOLDER%\tests\python\eeg_metrics.py --board-id -1
+      run: python %GITHUB_WORKSPACE%\tests\python\eeg_metrics.py --board-id -1
       shell: cmd
     - name: EEG Metrics CI Python Test
-      run: python %APPVEYOR_BUILD_FOLDER%\tests\python\eeg_metrics_ci.py --board-id -1 --metric 0 --classifier 2
+      run: python %GITHUB_WORKSPACE%\tests\python\eeg_metrics_ci.py --board-id -1 --metric 0 --classifier 2
       shell: cmd
     - name: EEG Metrics CI Cpp Test
       run: .\tests\cpp\ml_demo\build\Release\eeg_metrics_ci.exe --board-id -1 --metric 1 --classifier 2
