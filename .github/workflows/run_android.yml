@@ -27,9 +27,7 @@ jobs:
         cmake-version: '3.16.x'
     - name: Install NDK
       run: |
-        echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;21.0.6113669" --sdk_root=${ANDROID_SDK_ROOT}
-        ls -l ${ANDROID_HOME}
-        ${ANDROID_HOME}/tools/bin
+        echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;21.0.6113669" --sdk_root=${ANDROID_SDK_ROOT} > /dev/null
         ls -l ${ANDROID_HOME}/ndk
         ls -l ${ANDROID_HOME}/ndk/21.0.6113669
     # build for all ABIs
