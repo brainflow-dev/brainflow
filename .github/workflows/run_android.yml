@@ -27,9 +27,11 @@ jobs:
         cmake-version: '3.16.x'
     - name: Install NDK
       run: |
-        echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanage --install "ndk;21.0.6113669" --sdk_root=${ANDROID_SDK_ROOT}
+        echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;21.0.6113669" --sdk_root=${ANDROID_SDK_ROOT}
         ls -l ${ANDROID_HOME}
-        ls -l ${ANDROID_HOME}/tools/bin/sdkmanage
+        ${ANDROID_HOME}/tools/bin
+        ls -l ${ANDROID_HOME}/ndk
+        ls -l ${ANDROID_HOME}/ndk/21.0.6113669
     # build for all ABIs
     - name: Compile BrainFlow armv8
       run: |
@@ -59,3 +61,9 @@ jobs:
         cmake -G Ninja -DANDROID_ABI=x86_64 -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 ..
         make -j
         make install
+
+        
+
+
+
+# -DCMAKE_TOOLCHAIN_FILE=/build/cmake/android.toolchain.cmake
