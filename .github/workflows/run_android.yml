@@ -1,0 +1,61 @@
+name: Run Android NDK
+
+on: [push, pull_request]
+
+jobs:
+  RunAndroid:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        os: [ubuntu-18.04]
+
+    steps:
+    - name: Clone Repository
+      uses: actions/checkout@v2
+    - name: Install Ninja
+      run: |
+        sudo -H apt-get update -y
+        sudo -H apt-get install -y ninja-build
+      env:
+        DEBIAN_FRONTEND: noninteractive
+    - name: Setup Cmake
+      uses: jwlawson/actions-setup-cmake@v1.4
+      with:
+        cmake-version: '3.16.x'
+    - name: Install NDK
+      run: |
+        echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanage --install "ndk;21.0.6113669" --sdk_root=${ANDROID_SDK_ROOT}
+        ls -l ${ANDROID_HOME}
+        ls -l ${ANDROID_HOME}/tools/bin/sdkmanage
+    # build for all ABIs
+    - name: Compile BrainFlow armv8
+      run: |
+        mkdir $GITHUB_WORKSPACE/build_armv8
+        cd $GITHUB_WORKSPACE/build_armv8
+        cmake -G Ninja -DANDROID_ABI=arm64-v8a -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 ..
+        make -j
+        make install
+    - name: Compile BrainFlow armv7
+      run: |
+        mkdir $GITHUB_WORKSPACE/build_armv7
+        cd $GITHUB_WORKSPACE/build_armv7
+        cmake -G Ninja -DANDROID_ABI=armeabi-v7a -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 ..
+        make -j
+        make install
+    - name: Compile BrainFlow Android x86
+      run: |
+        mkdir $GITHUB_WORKSPACE/build_android_x86
+        cd $GITHUB_WORKSPACE/build_android_x86
+        cmake -G Ninja -DANDROID_ABI=x86 -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 ..
+        make -j
+        make install
+    - name: Compile BrainFlow Android x64
+      run: |
+        mkdir $GITHUB_WORKSPACE/build_android_x64
+        cd $GITHUB_WORKSPACE/build_android_x64
+        cmake -G Ninja -DANDROID_ABI=x86_64 -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 ..
+        make -j
+        make install
