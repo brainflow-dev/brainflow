@@ -8,7 +8,7 @@ on:
         default: ""
         required: true
       publish:
-        description: Publish
+        description: Make Public(true or false)
         default: "false"
         required: true
 
@@ -30,6 +30,7 @@ jobs:
     - name: Print Inputs
       run: |
         echo ${{ github.event.inputs.version }}
+        echo ${{ github.event.inputs.publish }}
     # Download all artifacts from AWS
     - name: Download Linux Libs
       run: |
