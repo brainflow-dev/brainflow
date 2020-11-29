@@ -97,7 +97,7 @@ jobs:
         (gc .\setup.py).replace('0.0.1', $env:VERSION) | Out-File -encoding ASCII setup.py
         type setup.py
         python setup.py sdist bdist_wheel
-        aws s3 cp $env:GITHUB_WORKSPACE\python-package\brainflow\ s3://brainflow/$env:GITHUB_SHA/whl --recursive
+        aws s3 cp $env:GITHUB_WORKSPACE\python-package\ s3://brainflow/$env:GITHUB_SHA/whl --recursive
       env:
         PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -105,14 +105,18 @@ jobs:
         VERSION: ${{ github.event.inputs.version }}
     - name: Prepare Nuget Package
       run: |
-        cd $env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow
-        (gc .\brainflow.nuspec).replace('0.0.1', $env:VERSION) | Out-File -encoding ASCII brainflow.nuspec
-        type brainflow.nuspec
+        nuget install Accord -OutputDirectory $env:GITHUB_WORKSPACE\csharp-package\brainflow\packages
+        nuget install Accord.Math -OutputDirectory $env:GITHUB_WORKSPACE\csharp-package\brainflow\packages
         Copy-Item "$env:GITHUB_WORKSPACE\linux\*" -Destination "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" -Recurse -Force -Filter *.*
         Copy-Item "$env:GITHUB_WORKSPACE\macos\*" -Destination "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" -Recurse -Force -Filter *.*
         Copy-Item "$env:GITHUB_WORKSPACE\win64\*" -Destination "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" -Recurse -Force -Filter *.*
         Copy-Item "$env:GITHUB_WORKSPACE\win32\*" -Destination "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" -Recurse -Force -Filter *.*
         ls $env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib
+        cd $env:GITHUB_WORKSPACE\csharp-package\brainflow
+        msbuild brainflow.sln /p:Configuration=Release /p:Platform="Any CPU"
+        cd $env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow
+        (gc .\brainflow.nuspec).replace('0.0.1', $env:VERSION) | Out-File -encoding ASCII brainflow.nuspec
+        type brainflow.nuspec
         nuget pack brainflow.csproj -properties Configuration=Release -IncludeReferencedProjects
         aws s3 cp $env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow s3://brainflow/$env:GITHUB_SHA/nuget --recursive
       env:
