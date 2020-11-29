@@ -131,7 +131,7 @@ jobs:
       run: |
         cd $env:GITHUB_WORKSPACE\java-package\brainflow
         mvn -s $env:GITHUB_WORKSPACE\java-package\brainflow\settings.xml deploy -Dregistry=https://maven.pkg.github.com/brainflow-dev -Dtoken=$env:PUBLISH_TOKEN
-        cd $env:GITHUB_WORKSPACE\python-package\brainflow\
+        cd $env:GITHUB_WORKSPACE\python-package
         twine upload --skip-existing dist/*.whl --user Andrey1994 --password $env:PYPI_PASSWORD
       env:
         PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
