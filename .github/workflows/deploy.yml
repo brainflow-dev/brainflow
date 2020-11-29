@@ -73,10 +73,10 @@ jobs:
     - name: Publish Java Package
       run: |
         cd $env:GITHUB_WORKSPACE\java-package\brainflow
-        Copy-Item "$env:GITHUB_WORKSPACE\linux\*" -Destination "$env:GITHUB_WORKSPACE\java-package\brainflow\src\main\resources" -Recurse
-        Copy-Item "$env:GITHUB_WORKSPACE\macos\*" -Destination "$env:GITHUB_WORKSPACE\java-package\brainflow\src\main\resources" -Recurse
-        Copy-Item "$env:GITHUB_WORKSPACE\win64\*" -Destination "$env:GITHUB_WORKSPACE\java-package\brainflow\src\main\resources" -Recurse
-        Copy-Item "$env:GITHUB_WORKSPACE\win32\*" -Destination "$env:GITHUB_WORKSPACE\java-package\brainflow\src\main\resources" -Recurse
+        Copy-Item "$env:GITHUB_WORKSPACE\linux\*" -Destination "$env:GITHUB_WORKSPACE\java-package\brainflow\src\main\resources" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\macos\*" -Destination "$env:GITHUB_WORKSPACE\java-package\brainflow\src\main\resources" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\win64\*" -Destination "$env:GITHUB_WORKSPACE\java-package\brainflow\src\main\resources" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\win32\*" -Destination "$env:GITHUB_WORKSPACE\java-package\brainflow\src\main\resources" -Recurse -Force -Filter *.*
         ls $env:GITHUB_WORKSPACE\java-package\brainflow\src\main\resources
         (gc .\pom.xml).replace('0.0.1-SNAPSHOT',$env:SOURCE_TAG) | Out-File -encoding ASCII pom.xml
         (gc .\settings.xml).replace('USER',$env:PUBLISH_USER) | Out-File -encoding ASCII settings.xml
@@ -92,10 +92,10 @@ jobs:
     - name: Publish Python Package
       run: |
         cd $env:GITHUB_WORKSPACE\python-package\brainflow\
-        Copy-Item "$env:GITHUB_WORKSPACE\linux\*" -Destination "$env:GITHUB_WORKSPACE\python-package\brainflow\lib" -Recurse
-        Copy-Item "$env:GITHUB_WORKSPACE\osx\*" -Destination "$env:GITHUB_WORKSPACE\python-package\brainflow\lib" -Recurse
-        Copy-Item "$env:GITHUB_WORKSPACE\win64\*" -Destination "$env:GITHUB_WORKSPACE\python-package\brainflow\lib" -Recurse
-        Copy-Item "$env:GITHUB_WORKSPACE\win32\*" -Destination "$env:GITHUB_WORKSPACE\python-package\brainflow\lib" -Recurse
+        Copy-Item "$env:GITHUB_WORKSPACE\linux\*" -Destination "$env:GITHUB_WORKSPACE\python-package\brainflow\lib" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\macos\*" -Destination "$env:GITHUB_WORKSPACE\python-package\brainflow\lib" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\win64\*" -Destination "$env:GITHUB_WORKSPACE\python-package\brainflow\lib" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\win32\*" -Destination "$env:GITHUB_WORKSPACE\python-package\brainflow\lib" -Recurse -Force -Filter *.*
         ls $env:GITHUB_WORKSPACE\python-package\brainflow\lib
         (gc .\setup.py).replace('0.0.1',$env:SOURCE_TAG) | Out-File -encoding ASCII setup.py
         python setup.py sdist bdist_wheel
@@ -109,10 +109,10 @@ jobs:
       run: |
         cd $env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow
         (gc .\brainflow.nuspec).replace('0.0.1',$env:SOURCE_TAG) | Out-File -encoding ASCII brainflow.nuspec
-        Copy-Item "$env:GITHUB_WORKSPACE\linux\*" -Destination "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" -Recurse
-        Copy-Item "$env:GITHUB_WORKSPACE\osx\*" -Destination "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" -Recurse
-        Copy-Item "$env:GITHUB_WORKSPACE\win64\*" -Destination "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" -Recurse
-        Copy-Item "$env:GITHUB_WORKSPACE\win32\*" -Destination "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" -Recurse
+        Copy-Item "$env:GITHUB_WORKSPACE\linux\*" -Destination "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\macos\*" -Destination "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\win64\*" -Destination "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\win32\*" -Destination "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" -Recurse -Force -Filter *.*
         ls $env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib
         nuget pack brainflow.csproj -properties Configuration=Release -IncludeReferencedProjects
         aws s3 cp $env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow s3://brainflow/$env:GITHUB_SHA/nuget --recursive
