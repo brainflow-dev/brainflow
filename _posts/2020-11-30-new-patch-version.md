@@ -11,6 +11,7 @@ tags: [release]
 * Add C# support for Linux and MacOS 
 * Add support for Unicorn device on Windows
 
+
 #### Github Actions
 
 Despite the fact that this change doesn't affect end users directly, it's the most important and biggest update in this release. Also, it affects all BrainFlow developers.
