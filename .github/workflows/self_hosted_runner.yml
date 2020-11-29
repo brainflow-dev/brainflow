@@ -22,7 +22,7 @@ jobs:
         make install
 
     # deploy started
-    - name: Push Libraries MacOS Dev
+    - name: Push Libraries
       run: |
         aws s3 cp $GITHUB_WORKSPACE/installed/lib/ s3://brainflow/$GITHUB_SHA/macos_release --recursive
       env:
