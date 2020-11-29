@@ -1,15 +1,17 @@
 name: Run Deploy
 
 on:
-  push:
-    tags: 
-      - '*'
   workflow_dispatch:
     inputs:
       version:
-        description: Bump Version
+        description: New Version
         default: ""
         required: true
+      publish:
+        description: Publish
+        default: "false"
+        required: true
+
 
 jobs:
   RunDeploy:
@@ -25,21 +27,9 @@ jobs:
         python -m pip install twine
         python -m pip install awscli
       shell: cmd
-    # GITHUB_REF variable has some garbage before tag name
-    - name: Get Version
-      id: get_version
+    - name: Print Inputs
       run: |
-        $SOURCE_TAG = ${{ github.event.inputs.version }}
-        If ($SOURCE_TAG -eq "" -or $SOURCE_TAG -eq $null) {
-          $SOURCE_TAG = ${env:GITHUB_REF} -replace 'refs/\w+/', ''
-        }
-        echo "Version is $SOURCE_TAG"
-        echo "::set-output name=SOURCE_TAG::$SOURCE_TAG"
-        echo SOURCE_TAG=$SOURCE_TAG>>$GITHUB_ENV
-        echo SOURCE_TAG=$SOURCE_TAG>>$env:GITHUB_ENV
-        echo "::set-output name=SOURCE_TAG::$env:SOURCE_TAG"
-    - name: Print Version
-      run: echo $env:SOURCE_TAG
+        echo ${{ github.event.inputs.version }}
     # Download all artifacts from AWS
     - name: Download Linux Libs
       run: |
@@ -74,8 +64,8 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-    # Publish packages
-    - name: Publish Java Package
+    # Prepare packages
+    - name: Prepare Java Package
       run: |
         cd $env:GITHUB_WORKSPACE\java-package\brainflow
         Copy-Item "$env:GITHUB_WORKSPACE\linux\*" -Destination "$env:GITHUB_WORKSPACE\java-package\brainflow\src\main\resources" -Recurse -Force -Filter *.*
@@ -83,18 +73,17 @@ jobs:
         Copy-Item "$env:GITHUB_WORKSPACE\win64\*" -Destination "$env:GITHUB_WORKSPACE\java-package\brainflow\src\main\resources" -Recurse -Force -Filter *.*
         Copy-Item "$env:GITHUB_WORKSPACE\win32\*" -Destination "$env:GITHUB_WORKSPACE\java-package\brainflow\src\main\resources" -Recurse -Force -Filter *.*
         ls $env:GITHUB_WORKSPACE\java-package\brainflow\src\main\resources
-        (gc .\pom.xml).replace('0.0.1-SNAPSHOT',$env:SOURCE_TAG) | Out-File -encoding ASCII pom.xml
+        (gc .\pom.xml).replace('0.0.1-SNAPSHOT',${{ github.event.inputs.version }}) | Out-File -encoding ASCII pom.xml
         (gc .\settings.xml).replace('USER',$env:PUBLISH_USER) | Out-File -encoding ASCII settings.xml
         (gc .\settings.xml).replace('TOKEN',$env:PUBLISH_TOKEN) | Out-File -encoding ASCII settings.xml
         mvn package
-        mvn -s $env:GITHUB_WORKSPACE\java-package\brainflow\settings.xml deploy -Dregistry=https://maven.pkg.github.com/brainflow-dev -Dtoken=$env:PUBLISH_TOKEN
         aws s3 cp $env:GITHUB_WORKSPACE\java-package\brainflow\target\ s3://brainflow/$env:GITHUB_SHA/jars --recursive
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         PUBLISH_USER: ${{ secrets.PUBLISH_USER }}
         PUBLISH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
-    - name: Publish Python Package
+    - name: Prepare Python Package
       run: |
         cd $env:GITHUB_WORKSPACE\python-package\brainflow\
         Copy-Item "$env:GITHUB_WORKSPACE\linux\*" -Destination "$env:GITHUB_WORKSPACE\python-package\brainflow\lib" -Recurse -Force -Filter *.*
@@ -102,18 +91,17 @@ jobs:
         Copy-Item "$env:GITHUB_WORKSPACE\win64\*" -Destination "$env:GITHUB_WORKSPACE\python-package\brainflow\lib" -Recurse -Force -Filter *.*
         Copy-Item "$env:GITHUB_WORKSPACE\win32\*" -Destination "$env:GITHUB_WORKSPACE\python-package\brainflow\lib" -Recurse -Force -Filter *.*
         ls $env:GITHUB_WORKSPACE\python-package\brainflow\lib
-        (gc .\setup.py).replace('0.0.1',$env:SOURCE_TAG) | Out-File -encoding ASCII setup.py
+        (gc .\setup.py).replace('0.0.1',${{ github.event.inputs.version }}) | Out-File -encoding ASCII setup.py
         python setup.py sdist bdist_wheel
-        twine upload --skip-existing dist/*.whl --user Andrey1994 --password $env:PYPI_PASSWORD
         aws s3 cp $env:GITHUB_WORKSPACE\python-package\brainflow\ s3://brainflow/$env:GITHUB_SHA/whl --recursive
       env:
         PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    - name: Publish Nuget Package
+    - name: Prepare Nuget Package
       run: |
         cd $env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow
-        (gc .\brainflow.nuspec).replace('0.0.1',$env:SOURCE_TAG) | Out-File -encoding ASCII brainflow.nuspec
+        (gc .\brainflow.nuspec).replace('0.0.1',${{ github.event.inputs.version }}) | Out-File -encoding ASCII brainflow.nuspec
         Copy-Item "$env:GITHUB_WORKSPACE\linux\*" -Destination "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" -Recurse -Force -Filter *.*
         Copy-Item "$env:GITHUB_WORKSPACE\macos\*" -Destination "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" -Recurse -Force -Filter *.*
         Copy-Item "$env:GITHUB_WORKSPACE\win64\*" -Destination "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" -Recurse -Force -Filter *.*
@@ -124,3 +112,15 @@ jobs:
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    # publish packages
+    - name: Publish Packages
+      if: github.event.inputs.debug == 'true'
+      run: |
+        cd $env:GITHUB_WORKSPACE\python-package\brainflow\
+        twine upload --skip-existing dist/*.whl --user Andrey1994 --password $env:PYPI_PASSWORD
+        cd $env:GITHUB_WORKSPACE\java-package\brainflow
+        mvn -s $env:GITHUB_WORKSPACE\java-package\brainflow\settings.xml deploy -Dregistry=https://maven.pkg.github.com/brainflow-dev -Dtoken=$env:PUBLISH_TOKEN
+      env:
+        PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        PUBLISH_USER: ${{ secrets.PUBLISH_USER }}
+        PUBLISH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
