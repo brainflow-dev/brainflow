@@ -1,12 +1,9 @@
 name: Run MacOS Self-Hosted
 
-# run it only to build release
+# run it only to build release and trigger manually
 # there is old MacOS version to target more devices than we can do using github actions image
-# on: [push, pull_request]
-on:
-  push:
-    tags: 
-      - '*'
+
+on: [workflow_dispatch]
 
 jobs:
   RunSelfHosted:
@@ -28,11 +25,8 @@ jobs:
     - name: Install AWS CLI
       run: sudo -H python -m pip install awscli
     - name: Push Libraries MacOS Dev
-      if: (matrix.os == 'macos-latest')
       run: |
         aws s3 cp $GITHUB_WORKSPACE/installed/lib/ s3://brainflow/$GITHUB_SHA/macos_release --recursive
-        echo success > macos_release_success
-        aws s3 cp macos_release_success s3://brainflow/$GITHUB_SHA/
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
