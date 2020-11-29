@@ -27,6 +27,8 @@ jobs:
         python -m pip install twine
         python -m pip install awscli
       shell: cmd
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
     - name: Print Inputs
       run: |
         echo ${{ github.event.inputs.version }}
