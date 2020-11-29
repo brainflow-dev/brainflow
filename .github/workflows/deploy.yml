@@ -127,12 +127,12 @@ jobs:
         VERSION: ${{ github.event.inputs.version }}
     # publish packages
     - name: Publish Packages
-      if: github.event.inputs.debug == 'true'
+      if: github.event.inputs.publish == 'true'
       run: |
-        cd $env:GITHUB_WORKSPACE\python-package\brainflow\
-        twine upload --skip-existing dist/*.whl --user Andrey1994 --password $env:PYPI_PASSWORD
         cd $env:GITHUB_WORKSPACE\java-package\brainflow
         mvn -s $env:GITHUB_WORKSPACE\java-package\brainflow\settings.xml deploy -Dregistry=https://maven.pkg.github.com/brainflow-dev -Dtoken=$env:PUBLISH_TOKEN
+        cd $env:GITHUB_WORKSPACE\python-package\brainflow\
+        twine upload --skip-existing dist/*.whl --user Andrey1994 --password $env:PYPI_PASSWORD
       env:
         PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         PUBLISH_USER: ${{ secrets.PUBLISH_USER }}
