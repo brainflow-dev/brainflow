@@ -1,4 +1,4 @@
-name: Run MacOS Self-Hosted
+name: Run Self-Hosted
 
 # run it only to build release and trigger manually
 # there is old MacOS version to target more devices than we can do using github actions image
@@ -6,7 +6,7 @@ name: Run MacOS Self-Hosted
 on: [workflow_dispatch]
 
 jobs:
-  RunSelfHosted:
+  SelfHosted:
     runs-on: self-hosted
 
     steps:
