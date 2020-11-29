@@ -24,9 +24,7 @@ We try to keep the same code style for all bindings as well, even if it doesn't 
 CI and tests
 --------------
 
-If you want to commit to core module of brainflow project please check that all tests are passed, you can enable `Travis CI <https://travis-ci.com/>`_ and `AppVeyour <https://ci.appveyor.com>`_ for your fork of BrainFlow to run tests automatically, or check CI status directly in your PR.
-
-Also you can run integration tests manually for any board even if you dont have real hardware using BrainFlow Emulator.
+If you want to commit to the core module of BrainFlow project please check that all tests are passed, you should check CI status in your PR and fix all errors if any. Also, you are able to run failed tests locally using BrainFlow emulator.
 
 Pull Requests
 --------------
@@ -42,9 +40,9 @@ Instructions to add new boards to BrainFlow
 - add information about your board to `brainflow_boards.h <https://github.com/brainflow-dev/brainflow/tree/master/src/board_controller/inc/brainflow_boards.h>`_
 - add new files to BOARD_CONTROLLER_SRC variable in `CmakeLists.txt <https://github.com/brainflow-dev/brainflow/blob/master/CMakeLists.txt>`_, you may also need to add new directory to *target_include_directories* for BOARD_CONTROLLER_NAME variable
 
-**You've just written Python, Java, C#, R, C++ ... SDKs for your board! Also now you can use your new board with applications and frameworks which use BrainFlow API.**
+**You've just written Python, Java, C#, R, C++ ... SDKs for your board! Also, now you can use your new board with applications and frameworks built on top of BrainFlow API.**
 
-Optional: We use CI to run tests automatically, to add your board to CI pipelines you can develop a simple emulator for your device. Use `emulators for existing boards <https://github.com/brainflow-dev/brainflow/tree/master/emulator/brainflow_emulator>`_ as a reference and add tests for your device to *Travis* and *Appveyour*.
+Optional: We use CI to run tests automatically, to add your board to CI pipelines you can develop a simple emulator for your device. Use `emulators for existing boards <https://github.com/brainflow-dev/brainflow/tree/master/emulator/brainflow_emulator>`_ as a reference and add tests for your device to Github Acttions workflows.
 
 Instructions to build docs locally
 ------------------------------------
@@ -100,6 +98,8 @@ BrainFlow Emulator
 
 BrainFlow Emulator allows you to run all integration tests for all supported boards without real hardware. Our CI uses it for test automation. Also, you can run it on your own PC!
 
+Emulators listed here intended for CI and run process to test automatically. It's great for automation but not easy to use if you need to test it in GUI. So, for some devices there are manual emulators as well. Such emulators don't run process to test for you. Manual emulators make it easier to run tests in GUI based applications.
+
 Streaming Board
 ~~~~~~~~~~~~~~~~~~
 
@@ -114,7 +114,7 @@ Run tests ::
 
     python emulator\brainflow_emulator\streaming_board_emulator.py python tests\python\brainflow_get_data.py --log --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
 
-This emulator uses synthetic board as a master board and the IP address and port are hardcoded.
+This emulator uses synthetic board as a master board and, IP address and port are hardcoded.
 
 OpenBCI Cyton
 ~~~~~~~~~~~~~~~
@@ -138,10 +138,10 @@ Run tests for Linux\MacOS and Windows (port argument will be added by Emulator!)
     python brainflow_emulator\cyton_windows.py python ..\tests\python\brainflow_get_data.py --log --board-id 0 --serial-port
 
 
-OpenBCI NovaXR
-~~~~~~~~~~~~~~~~
+Galea
+~~~~~~~
 
-NovaXR emulator creates socket server and streams data to BrainFlow like it's a real board, but with much lower sampling rate.
+Galea emulator creates socket server and streams data to BrainFlow like it's a real board.
 
 Install emulator package::
 
@@ -150,7 +150,7 @@ Install emulator package::
 
 Run tests::
 
-    python brainflow_emulator/novaxr_udp.py python ../tests/python/brainflow_get_data.py --log --ip-address 127.0.0.1 --board-id 3
+    python brainflow_emulator/galea_udp.py python ../tests/python/brainflow_get_data.py --log --ip-address 127.0.0.1 --board-id 3
 
 OpenBCI Wifi Shield based boards
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -168,3 +168,23 @@ Run tests for Ganglion, Cyton and Daisy with Wifi Shield::
     python brainflow_emulator/wifi_shield_emulator.py python ../tests/python/brainflow_get_data.py --log --ip-address 127.0.0.1 --board-id 5 --ip-protocol 2 --ip-port 17982
     python brainflow_emulator/wifi_shield_emulator.py python ../tests/python/brainflow_get_data.py --log --ip-address 127.0.0.1 --board-id 6 --ip-protocol 2 --ip-port 17982
 
+FreeEEG32
+~~~~~~~~~~~
+
+FreeEEG32 emulator simulate COM port using:
+
+- `com0com <http://com0com.sourceforge.net/>`_ for Windows
+- pty for Linux and MacOS
+
+You should pass test command line directly to freeeeg32_linux.py or to freeeeg32_windows.py. The script will add the port automatically to provided command line and will start an application.
+
+
+Install emulator package::
+
+    cd emulator
+    python -m pip install -U .
+
+Run tests for Linux\MacOS and Windows (port argument will be added by Emulator!) ::
+
+    python brainflow_emulator/freeeeg32_linux.py python ../tests/python/brainflow_get_data.py --log --board-id 17 --serial-port
+    python brainflow_emulator\freeeeg32_windows.py python ..\tests\python\brainflow_get_data.py --log --board-id 17 --serial-port

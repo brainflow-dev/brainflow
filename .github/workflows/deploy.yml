@@ -8,7 +8,7 @@ on:
     inputs:
       version:
         description: Bump Version
-        default: 1.0.0
+        default: ""
         required: true
 
 jobs:
@@ -29,12 +29,17 @@ jobs:
     - name: Get Version
       id: get_version
       run: |
-        $SOURCE_TAG = ${env:GITHUB_REF} -replace "refs/tags/", ""
+        $SOURCE_TAG = ${{ github.event.inputs.version }}
         If ($SOURCE_TAG -eq "" -or $SOURCE_TAG -eq $null) {
-          $SOURCE_TAG = ${{ github.event.inputs.version }}
+          $SOURCE_TAG = ${env:GITHUB_REF} -replace 'refs/\w+/', ''
         }
+        echo "Version is $SOURCE_TAG"
         echo "::set-output name=SOURCE_TAG::$SOURCE_TAG"
-        echo SOURCE_TAG=$SOURCE_TAG>>${env:GITHUB_ENV}
+        echo SOURCE_TAG=$SOURCE_TAG>>$GITHUB_ENV
+        echo SOURCE_TAG=$SOURCE_TAG>>$env:GITHUB_ENV
+        echo "::set-output name=SOURCE_TAG::$env:SOURCE_TAG"
+    - name: Print Version
+      run: echo $env:SOURCE_TAG
     # Download all artifacts from AWS
     - name: Download Linux Libs
       run: |
