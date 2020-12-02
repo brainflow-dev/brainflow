@@ -20,18 +20,19 @@ end
 
 end
 
+enable_brainflow_logger(log_lib::BrainFlowLogLib) = enable_brainflow_logger(Integer(log_lib))
 function enable_brainflow_logger(log_lib::Integer)
-    set_log_level(Integer(LEVEL_INFO), Integer(log_lib))
+    set_log_level(Integer(LEVEL_INFO), log_lib)
 end
 
-
+enable_dev_brainflow_logger(log_lib::BrainFlowLogLib) = enable_dev_brainflow_logger(Integer(log_lib))
 function enable_dev_brainflow_logger(log_lib::Integer)
-    set_log_level(Integer(LEVEL_TRACE), Integer(log_lib))
+    set_log_level(Integer(LEVEL_TRACE), log_lib)
 end
 
-
+disable_brainflow_logger(log_lib::BrainFlowLogLib) = disable_brainflow_logger(Integer(log_lib))
 function disable_brainflow_logger(log_lib::Integer)
-    set_log_level(Integer(LEVEL_OFF), Integer(log_lib))
+    set_log_level(Integer(LEVEL_OFF), log_lib)
 end
 
 
