@@ -1,9 +1,5 @@
 import JSON
 
-
-AnyIntType = Union{Int8, Int32, Int64, Int128, Int}
-
-
 @enum BoardIds begin
 
     PLAYBACK_FILE_BOARD = -3
@@ -64,17 +60,10 @@ mutable struct BrainFlowInputParams
 end
 
 
-function get_timestamp_channel(board_id::AnyIntType)
+function get_timestamp_channel(board_id::Integer)
     channel = Vector{Cint}(undef, 1)
     ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:get_timestamp_channel, "BoardController.dll"), Cint, (Cint, Ptr{Cint}), Int32(board_id), channel)
-    elseif Sys.isapple()
-        ec = ccall((:get_timestamp_channel, "libBoardController.dylib"), Cint, (Cint, Ptr{Cint}), Int32(board_id), channel)
-    else
-        ec = ccall((:get_timestamp_channel, "libBoardController.so"), Cint, (Cint, Ptr{Cint}), Int32(board_id), channel)
-    end
+    ec = ccall((:get_timestamp_channel, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}), Int32(board_id), channel)
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in get board info ", ec), ec))
     end
@@ -84,17 +73,10 @@ function get_timestamp_channel(board_id::AnyIntType)
 end
 
 
-function get_package_num_channel(board_id::AnyIntType)
+function get_package_num_channel(board_id::Integer)
     channel = Vector{Cint}(undef, 1)
     ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:get_package_num_channel, "BoardController.dll"), Cint, (Cint, Ptr{Cint}), Int32(board_id), channel)
-    elseif Sys.isapple()
-        ec = ccall((:get_package_num_channel, "libBoardController.dylib"), Cint, (Cint, Ptr{Cint}), Int32(board_id), channel)
-    else
-        ec = ccall((:get_package_num_channel, "libBoardController.so"), Cint, (Cint, Ptr{Cint}), Int32(board_id), channel)
-    end
+    ec = ccall((:get_package_num_channel, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}), Int32(board_id), channel)
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in get board info ", ec), ec))
     end
@@ -104,17 +86,10 @@ function get_package_num_channel(board_id::AnyIntType)
 end
 
 
-function get_battery_channel(board_id::AnyIntType)
+function get_battery_channel(board_id::Integer)
     channel = Vector{Cint}(undef, 1)
     ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:get_battery_channel, "BoardController.dll"), Cint, (Cint, Ptr{Cint}), Int32(board_id), channel)
-    elseif Sys.isapple()
-        ec = ccall((:get_battery_channel, "libBoardController.dylib"), Cint, (Cint, Ptr{Cint}), Int32(board_id), channel)
-    else
-        ec = ccall((:get_battery_channel, "libBoardController.so"), Cint, (Cint, Ptr{Cint}), Int32(board_id), channel)
-    end
+    ec = ccall((:get_battery_channel, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}), Int32(board_id), channel)
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in get board info ", ec), ec))
     end
@@ -124,17 +99,10 @@ function get_battery_channel(board_id::AnyIntType)
 end
 
 
-function get_sampling_rate(board_id::AnyIntType)
+function get_sampling_rate(board_id::Integer)
     val = Vector{Cint}(undef, 1)
     ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:get_sampling_rate, "BoardController.dll"), Cint, (Cint, Ptr{Cint}), Int32(board_id), val)
-    elseif Sys.isapple()
-        ec = ccall((:get_sampling_rate, "libBoardController.dylib"), Cint, (Cint, Ptr{Cint}), Int32(board_id), val)
-    else
-        ec = ccall((:get_sampling_rate, "libBoardController.so"), Cint, (Cint, Ptr{Cint}), Int32(board_id), val)
-    end
+    ec = ccall((:get_sampling_rate, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}), Int32(board_id), val)
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in get board info ", ec), ec))
     end
@@ -143,17 +111,10 @@ function get_sampling_rate(board_id::AnyIntType)
 end
 
 
-function get_num_rows(board_id::AnyIntType)
+function get_num_rows(board_id::Integer)
     val = Vector{Cint}(undef, 1)
     ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:get_num_rows, "BoardController.dll"), Cint, (Cint, Ptr{Cint}), Int32(board_id), val)
-    elseif Sys.isapple()
-        ec = ccall((:get_num_rows, "libBoardController.dylib"), Cint, (Cint, Ptr{Cint}), Int32(board_id), val)
-    else
-        ec = ccall((:get_num_rows, "libBoardController.so"), Cint, (Cint, Ptr{Cint}), Int32(board_id), val)
-    end
+    ec = ccall((:get_num_rows, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}), Int32(board_id), val)
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in get board info ", ec), ec))
     end
@@ -163,18 +124,11 @@ function get_num_rows(board_id::AnyIntType)
 end
 
 
-function get_eeg_names(board_id::AnyIntType)
+function get_eeg_names(board_id::Integer)
     names_string = Vector{Cuchar}(undef, 4096)
     len = Vector{Cint}(undef, 1)
     ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:get_eeg_names, "BoardController.dll"), Cint, (Cint, Ptr{UInt8}, Ptr{Cint}), Int32(board_id), names_string, len)
-    elseif Sys.isapple()
-        ec = ccall((:get_eeg_names, "libBoardController.dylib"), Cint, (Cint, Ptr{UInt8}, Ptr{Cint}), Int32(board_id), names_string, len)
-    else
-        ec = ccall((:get_eeg_names, "libBoardController.so"), Cint, (Cint, Ptr{UInt8}, Ptr{Cint}), Int32(board_id), names_string, len)
-    end
+    ec = ccall((:get_eeg_names, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}, Ptr{Cint}), Int32(board_id), names_string, len)
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in get board info ", ec), ec))
     end
@@ -184,18 +138,11 @@ function get_eeg_names(board_id::AnyIntType)
 end
 
 
-function get_eeg_channels(board_id::AnyIntType)
+function get_eeg_channels(board_id::Integer)
     channels = Vector{Cint}(undef, 512)
     len = Vector{Cint}(undef, 1)
     ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:get_eeg_channels, "BoardController.dll"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    elseif Sys.isapple()
-        ec = ccall((:get_eeg_channels, "libBoardController.dylib"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    else
-        ec = ccall((:get_eeg_channels, "libBoardController.so"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    end
+    ec = ccall((:get_eeg_channels, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in get board info ", ec), ec))
     end
@@ -205,18 +152,11 @@ function get_eeg_channels(board_id::AnyIntType)
 end
 
 
-function get_exg_channels(board_id::AnyIntType)
+function get_exg_channels(board_id::Integer)
     channels = Vector{Cint}(undef, 512)
     len = Vector{Cint}(undef, 1)
     ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:get_exg_channels, "BoardController.dll"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    elseif Sys.isapple()
-        ec = ccall((:get_exg_channels, "libBoardController.dylib"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    else
-        ec = ccall((:get_exg_channels, "libBoardController.so"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    end
+    ec = ccall((:get_exg_channels, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in get board info ", ec), ec))
     end
@@ -226,18 +166,11 @@ function get_exg_channels(board_id::AnyIntType)
 end
 
 
-function get_emg_channels(board_id::AnyIntType)
+function get_emg_channels(board_id::Integer)
     channels = Vector{Cint}(undef, 512)
     len = Vector{Cint}(undef, 1)
     ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:get_emg_channels, "BoardController.dll"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    elseif Sys.isapple()
-        ec = ccall((:get_emg_channels, "libBoardController.dylib"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    else
-        ec = ccall((:get_emg_channels, "libBoardController.so"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    end
+    ec = ccall((:get_emg_channels, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in get board info ", ec), ec))
     end
@@ -247,18 +180,11 @@ function get_emg_channels(board_id::AnyIntType)
 end
 
 
-function get_ecg_channels(board_id::AnyIntType)
+function get_ecg_channels(board_id::Integer)
     channels = Vector{Cint}(undef, 512)
     len = Vector{Cint}(undef, 1)
     ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:get_ecg_channels, "BoardController.dll"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    elseif Sys.isapple()
-        ec = ccall((:get_ecg_channels, "libBoardController.dylib"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    else
-        ec = ccall((:get_ecg_channels, "libBoardController.so"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    end
+    ec = ccall((:get_ecg_channels, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in get board info ", ec), ec))
     end
@@ -268,18 +194,11 @@ function get_ecg_channels(board_id::AnyIntType)
 end
 
 
-function get_eog_channels(board_id::AnyIntType)
+function get_eog_channels(board_id::Integer)
     channels = Vector{Cint}(undef, 512)
     len = Vector{Cint}(undef, 1)
     ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:get_eog_channels, "BoardController.dll"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    elseif Sys.isapple()
-        ec = ccall((:get_eog_channels, "libBoardController.dylib"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    else
-        ec = ccall((:get_eog_channels, "libBoardController.so"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    end
+    ec = ccall((:get_eog_channels, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in get board info ", ec), ec))
     end
@@ -289,18 +208,11 @@ function get_eog_channels(board_id::AnyIntType)
 end
 
 
-function get_eda_channels(board_id::AnyIntType)
+function get_eda_channels(board_id::Integer)
     channels = Vector{Cint}(undef, 512)
     len = Vector{Cint}(undef, 1)
     ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:get_eda_channels, "BoardController.dll"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    elseif Sys.isapple()
-        ec = ccall((:get_eda_channels, "libBoardController.dylib"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    else
-        ec = ccall((:get_eda_channels, "libBoardController.so"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    end
+    ec = ccall((:get_eda_channels, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in get board info ", ec), ec))
     end
@@ -310,18 +222,11 @@ function get_eda_channels(board_id::AnyIntType)
 end
 
 
-function get_ppg_channels(board_id::AnyIntType)
+function get_ppg_channels(board_id::Integer)
     channels = Vector{Cint}(undef, 512)
     len = Vector{Cint}(undef, 1)
     ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:get_ppg_channels, "BoardController.dll"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    elseif Sys.isapple()
-        ec = ccall((:get_ppg_channels, "libBoardController.dylib"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    else
-        ec = ccall((:get_ppg_channels, "libBoardController.so"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    end
+    ec = ccall((:get_ppg_channels, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in get board info ", ec), ec))
     end
@@ -331,18 +236,11 @@ function get_ppg_channels(board_id::AnyIntType)
 end
 
 
-function get_accel_channels(board_id::AnyIntType)
+function get_accel_channels(board_id::Integer)
     channels = Vector{Cint}(undef, 512)
     len = Vector{Cint}(undef, 1)
     ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:get_accel_channels, "BoardController.dll"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    elseif Sys.isapple()
-        ec = ccall((:get_accel_channels, "libBoardController.dylib"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    else
-        ec = ccall((:get_accel_channels, "libBoardController.so"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    end
+    ec = ccall((:get_accel_channels, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in get board info ", ec), ec))
     end
@@ -352,18 +250,11 @@ function get_accel_channels(board_id::AnyIntType)
 end
 
 
-function get_analog_channels(board_id::AnyIntType)
+function get_analog_channels(board_id::Integer)
     channels = Vector{Cint}(undef, 512)
     len = Vector{Cint}(undef, 1)
     ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:get_analog_channels, "BoardController.dll"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    elseif Sys.isapple()
-        ec = ccall((:get_analog_channels, "libBoardController.dylib"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    else
-        ec = ccall((:get_analog_channels, "libBoardController.so"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    end
+    ec = ccall((:get_analog_channels, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in get board info ", ec), ec))
     end
@@ -373,18 +264,11 @@ function get_analog_channels(board_id::AnyIntType)
 end
 
 
-function get_gyro_channels(board_id::AnyIntType)
+function get_gyro_channels(board_id::Integer)
     channels = Vector{Cint}(undef, 512)
     len = Vector{Cint}(undef, 1)
     ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:get_gyro_channels, "BoardController.dll"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    elseif Sys.isapple()
-        ec = ccall((:get_gyro_channels, "libBoardController.dylib"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    else
-        ec = ccall((:get_gyro_channels, "libBoardController.so"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    end
+        ec = ccall((:get_gyro_channels, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in get board info ", ec), ec))
     end
@@ -394,18 +278,11 @@ function get_gyro_channels(board_id::AnyIntType)
 end
 
 
-function get_other_channels(board_id::AnyIntType)
+function get_other_channels(board_id::Integer)
     channels = Vector{Cint}(undef, 512)
     len = Vector{Cint}(undef, 1)
     ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:get_other_channels, "BoardController.dll"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    elseif Sys.isapple()
-        ec = ccall((:get_other_channels, "libBoardController.dylib"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    else
-        ec = ccall((:get_other_channels, "libBoardController.so"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    end
+        ec = ccall((:get_other_channels, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in get board info ", ec), ec))
     end
@@ -415,18 +292,11 @@ function get_other_channels(board_id::AnyIntType)
 end
 
 
-function get_temperature_channels(board_id::AnyIntType)
+function get_temperature_channels(board_id::Integer)
     channels = Vector{Cint}(undef, 512)
     len = Vector{Cint}(undef, 1)
     ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:get_temperature_channels, "BoardController.dll"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    elseif Sys.isapple()
-        ec = ccall((:get_temperature_channels, "libBoardController.dylib"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    else
-        ec = ccall((:get_temperature_channels, "libBoardController.so"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    end
+        ec = ccall((:get_temperature_channels, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in get board info ", ec), ec))
     end
@@ -436,18 +306,11 @@ function get_temperature_channels(board_id::AnyIntType)
 end
 
 
-function get_resistance_channels(board_id::AnyIntType)
+function get_resistance_channels(board_id::Integer)
     channels = Vector{Cint}(undef, 512)
     len = Vector{Cint}(undef, 1)
     ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:get_resistance_channels, "BoardController.dll"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    elseif Sys.isapple()
-        ec = ccall((:get_resistance_channels, "libBoardController.dylib"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    else
-        ec = ccall((:get_resistance_channels, "libBoardController.so"), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    end
+        ec = ccall((:get_resistance_channels, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in get board info ", ec), ec))
     end
@@ -463,7 +326,7 @@ struct BoardShim
     board_id::Int32
     input_json::String
 
-    function BoardShim(id::AnyIntType, params::BrainFlowInputParams)
+    function BoardShim(id::Integer, params::BrainFlowInputParams)
         master_id = id
         if id == Integer(STREAMING_BOARD) || id == Integer(PLAYBACK_FILE_BOARD)
             try
@@ -480,33 +343,17 @@ end
 
 function prepare_session(board_shim::BoardShim)
     ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:prepare_session, "BoardController.dll"), Cint, (Cint, Ptr{UInt8}), board_shim.board_id, board_shim.input_json)
-    elseif Sys.isapple()
-        ec = ccall((:prepare_session, "libBoardController.dylib"), Cint, (Cint, Ptr{UInt8}), board_shim.board_id, board_shim.input_json)
-    else
-        ec = ccall((:prepare_session, "libBoardController.so"), Cint, (Cint, Ptr{UInt8}), board_shim.board_id, board_shim.input_json)
-    end
+        ec = ccall((:prepare_session, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}), board_shim.board_id, board_shim.input_json)
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in prepare_session ", ec), ec))
     end
 end
 
 
-function start_stream(board_shim::BoardShim, num_samples::AnyIntType, streamer_params::String)
+function start_stream(board_shim::BoardShim, num_samples::Int, streamer_params::String)
     ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:start_stream, "BoardController.dll"), Cint, (Cint, Ptr{UInt8}, Cint, Ptr{UInt8}), num_samples, streamer_params,
+        ec = ccall((:start_stream, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}, Cint, Ptr{UInt8}), num_samples, streamer_params,
             board_shim.board_id, board_shim.input_json)
-    elseif Sys.isapple()
-        ec = ccall((:start_stream, "libBoardController.dylib"), Cint, (Cint, Ptr{UInt8}, Cint, Ptr{UInt8}), num_samples, streamer_params,
-            board_shim.board_id, board_shim.input_json)
-    else
-        ec = ccall((:start_stream, "libBoardController.so"), Cint, (Cint, Ptr{UInt8}, Cint, Ptr{UInt8}), num_samples, streamer_params,
-            board_shim.board_id, board_shim.input_json)
-    end
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in start_stream ", ec), ec))
     end
@@ -521,14 +368,7 @@ end
 function is_prepared(board_shim::BoardShim)
     val = Vector{Cint}(undef, 1)
     ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:is_prepared, "BoardController.dll"), Cint, (Ptr{Cint}, Cint, Ptr{UInt8}), val, board_shim.board_id, board_shim.input_json)
-    elseif Sys.isapple()
-        ec = ccall((:is_prepared, "libBoardController.dylib"), Cint, (Ptr{Cint}, Cint, Ptr{UInt8}), val, board_shim.board_id, board_shim.input_json)
-    else
-        ec = ccall((:is_prepared, "libBoardController.so"), Cint, (Ptr{Cint}, Cint, Ptr{UInt8}), val, board_shim.board_id, board_shim.input_json)
-    end
+        ec = ccall((:is_prepared, BOARD_CONTROLLER_INTERFACE), Cint, (Ptr{Cint}, Cint, Ptr{UInt8}), val, board_shim.board_id, board_shim.input_json)
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in is_prepared ", ec), ec))
     end
@@ -540,14 +380,7 @@ end
 function get_board_data_count(board_shim::BoardShim)
     val = Vector{Cint}(undef, 1)
     ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:get_board_data_count, "BoardController.dll"), Cint, (Ptr{Cint}, Cint, Ptr{UInt8}), val, board_shim.board_id, board_shim.input_json)
-    elseif Sys.isapple()
-        ec = ccall((:get_board_data_count, "libBoardController.dylib"), Cint, (Ptr{Cint}, Cint, Ptr{UInt8}), val, board_shim.board_id, board_shim.input_json)
-    else
-        ec = ccall((:get_board_data_count, "libBoardController.so"), Cint, (Ptr{Cint}, Cint, Ptr{UInt8}), val, board_shim.board_id, board_shim.input_json)
-    end
+        ec = ccall((:get_board_data_count, BOARD_CONTROLLER_INTERFACE), Cint, (Ptr{Cint}, Cint, Ptr{UInt8}), val, board_shim.board_id, board_shim.input_json)
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in get_board_data_count ", ec), ec))
     end
@@ -558,14 +391,7 @@ end
 
 function stop_stream(board_shim::BoardShim)
     ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:stop_stream, "BoardController.dll"), Cint, (Cint, Ptr{UInt8}), board_shim.board_id, board_shim.input_json)
-    elseif Sys.isapple()
-        ec = ccall((:stop_stream, "libBoardController.dylib"), Cint, (Cint, Ptr{UInt8}), board_shim.board_id, board_shim.input_json)
-    else
-        ec = ccall((:stop_stream, "libBoardController.so"), Cint, (Cint, Ptr{UInt8}), board_shim.board_id, board_shim.input_json)
-    end
+        ec = ccall((:stop_stream, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}), board_shim.board_id, board_shim.input_json)
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in stop_stream ", ec), ec))
     end
@@ -574,14 +400,7 @@ end
 
 function release_session(board_shim::BoardShim)
     ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:release_session, "BoardController.dll"), Cint, (Cint, Ptr{UInt8}), board_shim.board_id, board_shim.input_json)
-    elseif Sys.isapple()
-        ec = ccall((:release_session, "libBoardController.dylib"), Cint, (Cint, Ptr{UInt8}), board_shim.board_id, board_shim.input_json)
-    else
-        ec = ccall((:release_session, "libBoardController.so"), Cint, (Cint, Ptr{UInt8}), board_shim.board_id, board_shim.input_json)
-    end
+        ec = ccall((:release_session, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}), board_shim.board_id, board_shim.input_json)
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in release_session ", ec), ec))
     end
@@ -591,17 +410,8 @@ function config_board(config::String, board_shim::BoardShim)
     ec = STATUS_OK
     resp_string = Vector{Cuchar}(undef, 4096)
     len = Vector{Cint}(undef, 1)
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:config_board, "BoardController.dll"), Cint, (Ptr{UInt8}, Ptr{UInt8}, Ptr{Cint}, Cint, Ptr{UInt8}),
+        ec = ccall((:config_board, BOARD_CONTROLLER_INTERFACE), Cint, (Ptr{UInt8}, Ptr{UInt8}, Ptr{Cint}, Cint, Ptr{UInt8}),
             config, resp_string, len, board_shim.board_id, board_shim.input_json)
-    elseif Sys.isapple()
-        ec = ccall((:config_board, "libBoardController.dylib"), Cint, (Ptr{UInt8}, Ptr{UInt8}, Ptr{Cint}, Cint, Ptr{UInt8}),
-            config, resp_string, len, board_shim.board_id, board_shim.input_json)
-    else
-        ec = ccall((:config_board, "libBoardController.so"), Cint, (Ptr{UInt8}, Ptr{UInt8}, Ptr{Cint}, Cint, Ptr{UInt8}),
-            config, resp_string, len, board_shim.board_id, board_shim.input_json)
-    end
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in config_board ", ec), ec))
     end
@@ -614,17 +424,8 @@ function get_board_data(board_shim::BoardShim)
     num_rows = get_num_rows(board_shim.master_board_id)
     val = Vector{Float64}(undef, num_rows * data_size)
     ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:get_board_data, "BoardController.dll"), Cint, (Cint, Ptr{Float64}, Cint, Ptr{UInt8}), 
+        ec = ccall((:get_board_data, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Float64}, Cint, Ptr{UInt8}), 
             data_size, val, board_shim.board_id, board_shim.input_json)
-    elseif Sys.isapple()
-        ec = ccall((:get_board_data, "libBoardController.dylib"), Cint, (Cint, Ptr{Float64}, Cint, Ptr{UInt8}),
-            data_size, val, board_shim.board_id, board_shim.input_json)
-    else
-        ec = ccall((:get_board_data, "libBoardController.so"), Cint, (Cint, Ptr{Float64}, Cint, Ptr{UInt8}),
-            data_size, val, board_shim.board_id, board_shim.input_json)
-    end
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in get_board_data ", ec), ec))
     end
@@ -633,22 +434,13 @@ function get_board_data(board_shim::BoardShim)
 end
 
 
-function get_current_board_data(num_samples::AnyIntType, board_shim::BoardShim)
+function get_current_board_data(num_samples::Integer, board_shim::BoardShim)
     data_size = Vector{Cint}(undef, 1)
     num_rows = get_num_rows(board_shim.master_board_id)
     val = Vector{Float64}(undef, num_rows * num_samples)
     ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:get_current_board_data, "BoardController.dll"), Cint, (Cint, Ptr{Float64}, Ptr{Cint}, Cint, Ptr{UInt8}), 
+        ec = ccall((:get_current_board_data, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Float64}, Ptr{Cint}, Cint, Ptr{UInt8}), 
             num_samples, val, data_size, board_shim.board_id, board_shim.input_json)
-    elseif Sys.isapple()
-        ec = ccall((:get_current_board_data, "libBoardController.dylib"), Cint, (Cint, Ptr{Float64}, Ptr{Cint}, Cint, Ptr{UInt8}),
-            num_samples, val, data_size, board_shim.board_id, board_shim.input_json)
-    else
-        ec = ccall((:get_current_board_data, "libBoardController.so"), Cint, (Cint, Ptr{Float64}, Ptr{Cint}, Cint, Ptr{UInt8}),
-            num_samples, val, data_size, board_shim.board_id, board_shim.input_json)
-    end
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in get_current_board_data ", ec), ec))
     end

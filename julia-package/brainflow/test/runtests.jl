@@ -1,3 +1,7 @@
+#!/usr/bin/env julia
+using Test
+using brainflow
+
 include("brainflow_get_data.jl")
 include("signal_filtering.jl")
 include("denoising.jl")

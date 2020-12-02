@@ -1,5 +1,3 @@
-AnyIntType = Union{Int8, Int32, Int64, Int128, Int}
-
 
 @enum BrainFlowLogLib begin
 
@@ -22,65 +20,40 @@ end
 
 end
 
-function enable_brainflow_logger(log_lib::AnyIntType)
+function enable_brainflow_logger(log_lib::Integer)
     set_log_level(Integer(LEVEL_INFO), Integer(log_lib))
 end
 
 
-function enable_dev_brainflow_logger(log_lib::AnyIntType)
+function enable_dev_brainflow_logger(log_lib::Integer)
     set_log_level(Integer(LEVEL_TRACE), Integer(log_lib))
 end
 
 
-function disable_brainflow_logger(log_lib::AnyIntType)
+function disable_brainflow_logger(log_lib::Integer)
     set_log_level(Integer(LEVEL_OFF), Integer(log_lib))
 end
 
 
 # available only for BoardController, no need to provide log_lib
-function log_message(log_level::AnyIntType, message::String)
+function log_message(log_level::Integer, message::String)
     ec = Integer(STATUS_OK)
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:log_message, "BoardController.dll"), Cint, (Cint, Ptr{UInt8}), Int32(log_level), message)
-    elseif Sys.isapple()
-        ec = ccall((:log_message, "libBoardController.dylib"), Cint, (Cint, Ptr{UInt8}), Int32(log_level), message)
-    else
-        ec = ccall((:log_message, "libBoardController.so"), Cint, (Cint, Ptr{UInt8}), Int32(log_level), message)
-    end
+    ec = ccall((:log_message, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}), Int32(log_level), message)
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in log_message ", ec), ec))
     end
 end
 
 
-function set_log_file(log_file::String, log_lib::AnyIntType)
+function set_log_file(log_file::String, log_lib::Integer)
     ec = STATUS_OK
     # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
     if Integer(log_lib) == Integer(BOARD_CONTROLLER)
-        if Sys.iswindows()
-            ec = ccall((:set_log_file, "BoardController.dll"), Cint, (Ptr{UInt8},), log_file)
-        elseif Sys.isapple()
-            ec = ccall((:set_log_file, "libBoardController.dylib"), Cint, (Ptr{UInt8},), log_file)
-        else
-            ec = ccall((:set_log_file, "libBoardController.so"), Cint, (Ptr{UInt8},), log_file)
-        end
+        ec = ccall((:set_log_file, BOARD_CONTROLLER_INTERFACE), Cint, (Ptr{UInt8},), log_file)
     elseif Integer(log_lib) == Integer(DATA_HANDLER)
-        if Sys.iswindows()
-            ec = ccall((:set_log_file, "DataHandler.dll"), Cint, (Ptr{UInt8},), log_file)
-        elseif Sys.isapple()
-            ec = ccall((:set_log_file, "libDataHandler.dylib"), Cint, (Ptr{UInt8},), log_file)
-        else
-            ec = ccall((:set_log_file, "libDataHandler.so"), Cint, (Ptr{UInt8},), log_file)
-        end
+        ec = ccall((:set_log_file, DATA_HANDLER_INTERFACE), Cint, (Ptr{UInt8},), log_file)
     elseif Integer(log_lib) == Integer(ML_MODULE)
-        if Sys.iswindows()
-            ec = ccall((:set_log_file, "MLModule.dll"), Cint, (Ptr{UInt8},), log_file)
-        elseif Sys.isapple()
-            ec = ccall((:set_log_file, "libMLModule.dylib"), Cint, (Ptr{UInt8},), log_file)
-        else
-            ec = ccall((:set_log_file, "libMLModule.so"), Cint, (Ptr{UInt8},), log_file)
-        end
+        ec = ccall((:set_log_file, ML_MODULE_INTERFACE), Cint, (Ptr{UInt8},), log_file)
     else
         ec = Integer(INVALID_ARGUMENTS_ERROR)
     end
@@ -91,33 +64,15 @@ end
 
 
 
-function set_log_level(log_level::AnyIntType, log_lib::AnyIntType)
+function set_log_level(log_level::Integer, log_lib::Integer)
     ec = Integer(STATUS_OK)
     # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
     if Integer(log_lib) == Integer(BOARD_CONTROLLER)
-        if Sys.iswindows()
-            ec = ccall((:set_log_level, "BoardController.dll"), Cint, (Cint,), Int32(log_level))
-        elseif Sys.isapple()
-            ec = ccall((:set_log_level, "libBoardController.dylib"), Cint, (Cint,), Int32(log_level))
-        else
-            ec = ccall((:set_log_level, "libBoardController.so"), Cint, (Cint,), Int32(log_level))
-        end
+        ec = ccall((:set_log_level, BOARD_CONTROLLER_INTERFACE), Cint, (Cint,), Int32(log_level))
     elseif Integer(log_lib) == Integer(DATA_HANDLER)
-        if Sys.iswindows()
-            ec = ccall((:set_log_level, "DataHandler.dll"), Cint, (Cint,), Int32(log_level))
-        elseif Sys.isapple()
-            ec = ccall((:set_log_level, "libDataHandler.dylib"), Cint, (Cint,), Int32(log_level))
-        else
-            ec = ccall((:set_log_level, "libDataHandler.so"), Cint, (Cint,), Int32(log_level))
-        end
+        ec = ccall((:set_log_level, DATA_HANDLER_INTERFACE), Cint, (Cint,), Int32(log_level))
     elseif Integer(log_lib) == Integer(ML_MODULE)
-        if Sys.iswindows()
-            ec = ccall((:set_log_level, "MLModule.dll"), Cint, (Cint,), Int32(log_level))
-        elseif Sys.isapple()
-            ec = ccall((:set_log_level, "libMLModule.dylib"), Cint, (Cint,), Int32(log_level))
-        else
-            ec = ccall((:set_log_level, "libMLModule.so"), Cint, (Cint,), Int32(log_level))
-        end
+        ec = ccall((:set_log_level, ML_MODULE_INTERFACE), Cint, (Cint,), Int32(log_level))
     else
         ec = Integer(INVALID_ARGUMENTS_ERROR)
     end
