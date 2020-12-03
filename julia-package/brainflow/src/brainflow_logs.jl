@@ -1,12 +1,16 @@
 
-@enum BrainFlowLogLib begin
+abstract type BrainFlowLib end
+struct BoardControllerLib <: BrainFlowLib end
+struct DataHandlerLib <: BrainFlowLib end
+struct MlModuleLib <: BrainFlowLib end
+library_path(::BoardControllerLib) = BOARD_CONTROLLER_INTERFACE
+library_path(::DataHandlerLib) = DATA_HANDLER_INTERFACE
+library_path(::MlModuleLib) = ML_MODULE_INTERFACE
 
-    BOARD_CONTROLLER = 0
-    DATA_HANDLER = 1
-    ML_MODULE = 2
-
-end
-
+# during refactoring
+const BOARD_CONTROLLER = BoardControllerLib()
+const DATA_HANDLER = DataHandlerLib()
+const ML_MODULE = MlModuleLib()
 
 @enum LogLevels begin
 
@@ -20,18 +24,15 @@ end
 
 end
 
-enable_brainflow_logger(log_lib::BrainFlowLogLib) = enable_brainflow_logger(Integer(log_lib))
-function enable_brainflow_logger(log_lib::Integer)
+function enable_brainflow_logger(log_lib::BrainFlowLib)
     set_log_level(Integer(LEVEL_INFO), log_lib)
 end
 
-enable_dev_brainflow_logger(log_lib::BrainFlowLogLib) = enable_dev_brainflow_logger(Integer(log_lib))
-function enable_dev_brainflow_logger(log_lib::Integer)
+function enable_dev_brainflow_logger(log_lib::BrainFlowLib)
     set_log_level(Integer(LEVEL_TRACE), log_lib)
 end
 
-disable_brainflow_logger(log_lib::BrainFlowLogLib) = disable_brainflow_logger(Integer(log_lib))
-function disable_brainflow_logger(log_lib::Integer)
+function disable_brainflow_logger(log_lib::BrainFlowLib)
     set_log_level(Integer(LEVEL_OFF), log_lib)
 end
 
@@ -45,39 +46,32 @@ function log_message(log_level::Integer, message::String)
     end
 end
 
-
-function set_log_file(log_file::String, log_lib::Integer)
-    ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Integer(log_lib) == Integer(BOARD_CONTROLLER)
-        ec = ccall((:set_log_file, BOARD_CONTROLLER_INTERFACE), Cint, (Ptr{UInt8},), log_file)
-    elseif Integer(log_lib) == Integer(DATA_HANDLER)
-        ec = ccall((:set_log_file, DATA_HANDLER_INTERFACE), Cint, (Ptr{UInt8},), log_file)
-    elseif Integer(log_lib) == Integer(ML_MODULE)
-        ec = ccall((:set_log_file, ML_MODULE_INTERFACE), Cint, (Ptr{UInt8},), log_file)
-    else
-        ec = Integer(INVALID_ARGUMENTS_ERROR)
-    end
+# TODO: convert into a macro?
+function set_log_file(log_file, log_lib::BrainFlowLib)
+    ec = Integer(STATUS_OK)
+    lib_cglobal = log_file_cglobal(log_lib)
+    ec = ccall(lib_cglobal, Cint, (Ptr{UInt8},), log_file)
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in set_log_file ", ec), ec))
     end
 end
 
+# need to hardcode the cglobal input symbols, related to https://github.com/JuliaLang/julia/issues/29602
+log_file_cglobal(::BoardControllerLib) = cglobal((:set_log_file, BOARD_CONTROLLER_INTERFACE)) 
+log_file_cglobal(::DataHandlerLib) = cglobal((:set_log_file, DATA_HANDLER_INTERFACE)) 
+log_file_cglobal(::MlModuleLib) = cglobal((:set_log_file, ML_MODULE_INTERFACE)) 
 
-
-function set_log_level(log_level::Integer, log_lib::Integer)
+function set_log_level(log_level::Integer, log_lib::BrainFlowLib)
     ec = Integer(STATUS_OK)
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Integer(log_lib) == Integer(BOARD_CONTROLLER)
-        ec = ccall((:set_log_level, BOARD_CONTROLLER_INTERFACE), Cint, (Cint,), Int32(log_level))
-    elseif Integer(log_lib) == Integer(DATA_HANDLER)
-        ec = ccall((:set_log_level, DATA_HANDLER_INTERFACE), Cint, (Cint,), Int32(log_level))
-    elseif Integer(log_lib) == Integer(ML_MODULE)
-        ec = ccall((:set_log_level, ML_MODULE_INTERFACE), Cint, (Cint,), Int32(log_level))
-    else
-        ec = Integer(INVALID_ARGUMENTS_ERROR)
-    end
+    lib_cglobal = log_level_cglobal(log_lib)
+    ec = ccall(lib_cglobal, Cint, (Cint,), Int32(log_level))
     if ec != Integer(STATUS_OK)
         throw(BrainFlowError(string("Error in set_log_level ", ec), ec))
     end
 end
+
+# need to hardcode the cglobal input symbols, related to https://github.com/JuliaLang/julia/issues/29602
+log_level_cglobal(::BoardControllerLib) = cglobal((:set_log_level, BOARD_CONTROLLER_INTERFACE)) 
+log_level_cglobal(::DataHandlerLib) = cglobal((:set_log_level, DATA_HANDLER_INTERFACE)) 
+log_level_cglobal(::MlModuleLib) = cglobal((:set_log_level, ML_MODULE_INTERFACE)) 
+
