@@ -212,7 +212,8 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/julia-package/brainflow
         julia --project=. -e "import Pkg; Pkg.test()"
-      LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     # deploy started
     - name: Install AWS CLI
       run: sudo -H python3 -m pip install awscli
