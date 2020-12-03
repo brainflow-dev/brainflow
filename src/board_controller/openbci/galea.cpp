@@ -1,4 +1,5 @@
 #include <chrono>
+#include <numeric>
 #include <stdint.h>
 #include <string.h>
 
@@ -18,11 +19,12 @@ constexpr int Galea::transaction_size;
 
 Galea::Galea (struct BrainFlowInputParams params) : Board ((int)BoardIds::GALEA_BOARD, params)
 {
-    this->socket = NULL;
-    this->is_streaming = false;
-    this->keep_alive = false;
-    this->initialized = false;
-    this->state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
+    socket = NULL;
+    is_streaming = false;
+    keep_alive = false;
+    initialized = false;
+    state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
+    time_delay = 0.0;
 }
 
 Galea::~Galea ()
@@ -66,7 +68,7 @@ int Galea::prepare_session ()
         safe_logger (spdlog::level::err, "failed to apply default settings");
         delete socket;
         socket = NULL;
-        return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     }
     // force default sampling rate - 250
     std::string sampl_rate = "~6";
@@ -76,7 +78,7 @@ int Galea::prepare_session ()
         safe_logger (spdlog::level::err, "failed to apply defaul sampling rate");
         delete socket;
         socket = NULL;
-        return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     }
     initialized = true;
     return (int)BrainFlowExitCodes::STATUS_OK;
@@ -196,6 +198,13 @@ int Galea::start_stream (int buffer_size, char *streamer_params)
         delete db;
         db = NULL;
         return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
+    }
+
+    // calc delay before start stream
+    res = calc_delay ();
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        return res;
     }
 
     // start streaming
@@ -321,7 +330,7 @@ void Galea::read_thread ()
     while (keep_alive)
     {
         res = socket->recv (b, Galea::transaction_size);
-        double recv_time = get_timestamp ();
+        double recv_time = get_timestamp () - time_delay;
         if (res == -1)
         {
 #ifdef _WIN32
@@ -334,6 +343,12 @@ void Galea::read_thread ()
         {
             safe_logger (spdlog::level::trace, "unable to read {} bytes, read {}",
                 Galea::transaction_size, res);
+            if (res > 0)
+            {
+                // more likely its a string received, try to print it
+                b[res] = '\0';
+                safe_logger (spdlog::level::warn, "Received: {}", b);
+            }
             continue;
         }
         else
@@ -399,10 +414,51 @@ void Galea::read_thread ()
             double time_delta = timestamp_device_last - timestamp_device_cur;
 
             // workaround micros() overflow issue in firmware
-            double timestamp = (time_delta < 0) ? get_timestamp () : recv_time - time_delta;
+            double timestamp = (time_delta < 0) ? recv_time : recv_time - time_delta;
 
             streamer->stream_data (package, Galea::num_channels, timestamp);
             db->add_data (timestamp, package);
         }
     }
+}
+
+int Galea::calc_delay ()
+{
+    int num_repeats = 5;
+    std::vector<double> times;
+    int num_fails = 0;
+    unsigned char b[Galea::transaction_size];
+
+    for (int i = 0; i < num_repeats; i++)
+    {
+        auto started = std::chrono::high_resolution_clock::now ();
+        int res = socket->send ("F4", 2);
+        if (res != 2)
+        {
+            safe_logger (spdlog::level::warn, "failed to send time calc command to device");
+            num_fails++;
+            continue;
+        }
+        res = socket->recv (b, Galea::transaction_size);
+        if (res != Galea::transaction_size)
+        {
+            safe_logger (spdlog::level::warn,
+                "failed to recv resp from time calc command, resp size {}", res);
+            num_fails++;
+            continue;
+        }
+        auto done = std::chrono::high_resolution_clock::now ();
+        times.push_back (
+            std::chrono::duration_cast<std::chrono::milliseconds> (done - started).count ());
+    }
+    if (num_fails > 1)
+    {
+        safe_logger (spdlog::level::err,
+            "Failed to calc time delay between PC and device. Too many lost packages.");
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+    }
+    time_delay =
+        times.empty () ? 0.0 : std::accumulate (times.begin (), times.end (), 0.0) / times.size ();
+    time_delay /= 2;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
