@@ -25,6 +25,7 @@ import JSON
 
 end
 
+BoardIdType = Union{BoardIds, Integer}
 
 @enum IpProtocolType begin
 
@@ -60,7 +61,7 @@ mutable struct BrainFlowInputParams
 end
 
 
-function get_timestamp_channel(board_id::Integer)
+function get_timestamp_channel(board_id::BoardIdType)
     channel = Vector{Cint}(undef, 1)
     ec = STATUS_OK
     ec = ccall((:get_timestamp_channel, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}), Int32(board_id), channel)
@@ -73,7 +74,7 @@ function get_timestamp_channel(board_id::Integer)
 end
 
 
-function get_package_num_channel(board_id::Integer)
+function get_package_num_channel(board_id::BoardIdType)
     channel = Vector{Cint}(undef, 1)
     ec = STATUS_OK
     ec = ccall((:get_package_num_channel, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}), Int32(board_id), channel)
@@ -86,7 +87,7 @@ function get_package_num_channel(board_id::Integer)
 end
 
 
-function get_battery_channel(board_id::Integer)
+function get_battery_channel(board_id::BoardIdType)
     channel = Vector{Cint}(undef, 1)
     ec = STATUS_OK
     ec = ccall((:get_battery_channel, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}), Int32(board_id), channel)
@@ -99,7 +100,7 @@ function get_battery_channel(board_id::Integer)
 end
 
 
-function get_sampling_rate(board_id::Integer)
+function get_sampling_rate(board_id::BoardIdType)
     val = Vector{Cint}(undef, 1)
     ec = STATUS_OK
     ec = ccall((:get_sampling_rate, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}), Int32(board_id), val)
@@ -111,7 +112,7 @@ function get_sampling_rate(board_id::Integer)
 end
 
 
-function get_num_rows(board_id::Integer)
+function get_num_rows(board_id::BoardIdType)
     val = Vector{Cint}(undef, 1)
     ec = STATUS_OK
     ec = ccall((:get_num_rows, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}), Int32(board_id), val)
@@ -124,7 +125,7 @@ function get_num_rows(board_id::Integer)
 end
 
 
-function get_eeg_names(board_id::Integer)
+function get_eeg_names(board_id::BoardIdType)
     names_string = Vector{Cuchar}(undef, 4096)
     len = Vector{Cint}(undef, 1)
     ec = STATUS_OK
@@ -138,7 +139,7 @@ function get_eeg_names(board_id::Integer)
 end
 
 
-function get_eeg_channels(board_id::Integer)
+function get_eeg_channels(board_id::BoardIdType)
     channels = Vector{Cint}(undef, 512)
     len = Vector{Cint}(undef, 1)
     ec = STATUS_OK
@@ -152,7 +153,7 @@ function get_eeg_channels(board_id::Integer)
 end
 
 
-function get_exg_channels(board_id::Integer)
+function get_exg_channels(board_id::BoardIdType)
     channels = Vector{Cint}(undef, 512)
     len = Vector{Cint}(undef, 1)
     ec = STATUS_OK
@@ -166,7 +167,7 @@ function get_exg_channels(board_id::Integer)
 end
 
 
-function get_emg_channels(board_id::Integer)
+function get_emg_channels(board_id::BoardIdType)
     channels = Vector{Cint}(undef, 512)
     len = Vector{Cint}(undef, 1)
     ec = STATUS_OK
@@ -180,7 +181,7 @@ function get_emg_channels(board_id::Integer)
 end
 
 
-function get_ecg_channels(board_id::Integer)
+function get_ecg_channels(board_id::BoardIdType)
     channels = Vector{Cint}(undef, 512)
     len = Vector{Cint}(undef, 1)
     ec = STATUS_OK
@@ -194,7 +195,7 @@ function get_ecg_channels(board_id::Integer)
 end
 
 
-function get_eog_channels(board_id::Integer)
+function get_eog_channels(board_id::BoardIdType)
     channels = Vector{Cint}(undef, 512)
     len = Vector{Cint}(undef, 1)
     ec = STATUS_OK
@@ -208,7 +209,7 @@ function get_eog_channels(board_id::Integer)
 end
 
 
-function get_eda_channels(board_id::Integer)
+function get_eda_channels(board_id::BoardIdType)
     channels = Vector{Cint}(undef, 512)
     len = Vector{Cint}(undef, 1)
     ec = STATUS_OK
@@ -222,7 +223,7 @@ function get_eda_channels(board_id::Integer)
 end
 
 
-function get_ppg_channels(board_id::Integer)
+function get_ppg_channels(board_id::BoardIdType)
     channels = Vector{Cint}(undef, 512)
     len = Vector{Cint}(undef, 1)
     ec = STATUS_OK
@@ -236,7 +237,7 @@ function get_ppg_channels(board_id::Integer)
 end
 
 
-function get_accel_channels(board_id::Integer)
+function get_accel_channels(board_id::BoardIdType)
     channels = Vector{Cint}(undef, 512)
     len = Vector{Cint}(undef, 1)
     ec = STATUS_OK
@@ -250,7 +251,7 @@ function get_accel_channels(board_id::Integer)
 end
 
 
-function get_analog_channels(board_id::Integer)
+function get_analog_channels(board_id::BoardIdType)
     channels = Vector{Cint}(undef, 512)
     len = Vector{Cint}(undef, 1)
     ec = STATUS_OK
@@ -264,7 +265,7 @@ function get_analog_channels(board_id::Integer)
 end
 
 
-function get_gyro_channels(board_id::Integer)
+function get_gyro_channels(board_id::BoardIdType)
     channels = Vector{Cint}(undef, 512)
     len = Vector{Cint}(undef, 1)
     ec = STATUS_OK
@@ -278,7 +279,7 @@ function get_gyro_channels(board_id::Integer)
 end
 
 
-function get_other_channels(board_id::Integer)
+function get_other_channels(board_id::BoardIdType)
     channels = Vector{Cint}(undef, 512)
     len = Vector{Cint}(undef, 1)
     ec = STATUS_OK
@@ -292,7 +293,7 @@ function get_other_channels(board_id::Integer)
 end
 
 
-function get_temperature_channels(board_id::Integer)
+function get_temperature_channels(board_id::BoardIdType)
     channels = Vector{Cint}(undef, 512)
     len = Vector{Cint}(undef, 1)
     ec = STATUS_OK
@@ -306,7 +307,7 @@ function get_temperature_channels(board_id::Integer)
 end
 
 
-function get_resistance_channels(board_id::Integer)
+function get_resistance_channels(board_id::BoardIdType)
     channels = Vector{Cint}(undef, 512)
     len = Vector{Cint}(undef, 1)
     ec = STATUS_OK
