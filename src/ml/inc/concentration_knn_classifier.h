@@ -14,7 +14,6 @@ public:
     ConcentrationKNNClassifier (struct BrainFlowModelParams params) : BaseClassifier (params)
     {
         num_neighbors = 5;
-        kdtree = NULL;
     }
 
     virtual ~ConcentrationKNNClassifier ()
@@ -28,7 +27,7 @@ public:
     virtual int release ();
 
 private:
-    std::vector<FocusPoint> dataset;
-    kdt::KDTree<FocusPoint> *kdtree;
+    std::vector<std::vector<FocusPoint>> datasets;
+    std::vector<kdt::KDTree<FocusPoint> *> kdtrees;
     int num_neighbors;
 };
