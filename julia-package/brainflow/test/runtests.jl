@@ -1,5 +1,4 @@
 #!/usr/bin/env julia
-using Test
 using brainflow
 
 include("brainflow_get_data.jl")

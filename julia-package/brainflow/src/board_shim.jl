@@ -332,14 +332,15 @@ struct BoardShim
             try
                 master_id = parse(Int, id)
             catch
-                throw(BrainFlowError("you need to provide master board id to other_info field"))
+                throw(BrainFlowError("you need to provide master board id to other_info field", 1))
             end
         end
         new(master_id, id, JSON.json(params))
     end
 
 end
-
+BoardShim(id::BoardIds, params::BrainFlowInputParams) = BoardShim(Integer(id), params)
+BoardShim(id) = BoardShim(id, BrainFlowInputParams())
 
 function prepare_session(board_shim::BoardShim)
     ec = STATUS_OK

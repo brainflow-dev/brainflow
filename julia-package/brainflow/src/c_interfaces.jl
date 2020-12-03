@@ -1,5 +1,3 @@
-using Libdl
-
 function interface_path(library::AbstractString)
     return abspath(INTERFACE_PATH, interface_name(library))
 end
