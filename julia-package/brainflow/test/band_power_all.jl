@@ -1,11 +1,10 @@
 import brainflow
 
-
 # specify logging library to use
-brainflow.enable_dev_brainflow_logger(Integer(brainflow.BOARD_CONTROLLER))
+brainflow.enable_dev_brainflow_logger(brainflow.BOARD_CONTROLLER)
 
 params = brainflow.BrainFlowInputParams()
-board_shim = brainflow.BoardShim(Integer(brainflow.SYNTHETIC_BOARD), params)
+board_shim = brainflow.BoardShim(brainflow.SYNTHETIC_BOARD, params)
 sampling_rate = brainflow.get_sampling_rate(Integer(brainflow.SYNTHETIC_BOARD))
 nfft = brainflow.get_nearest_power_of_two(sampling_rate)
 

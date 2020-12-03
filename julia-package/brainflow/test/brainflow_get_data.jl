@@ -1,4 +1,3 @@
-#!/usr/bin/env julia
 import brainflow
 
 # specify logging library to use
