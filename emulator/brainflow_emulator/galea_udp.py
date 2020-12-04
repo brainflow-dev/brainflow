@@ -14,6 +14,7 @@ from brainflow_emulator.emulate_common import TestFailureError, log_multilines
 class State (enum.Enum):
     wait = 'wait'
     stream = 'stream'
+    send_once = 'send_once'
 
 
 class Message (enum.Enum):
@@ -21,7 +22,7 @@ class Message (enum.Enum):
     stop_stream = b's'
     ack_values = (b'd', b'~6')
     ack_from_device = b'A'
-    temp_ack_from_host = b'a' # maybe will be removed later
+    time_calc_command = b'F4'
 
 
 def test_socket (cmd_list):
@@ -69,8 +70,8 @@ class GaleaEmulator (threading.Thread):
                     self.state = State.wait.value
                 elif msg in Message.ack_values.value:
                     self.server_socket.sendto (Message.ack_from_device.value, self.addr)
-                elif msg == Message.temp_ack_from_host.value:
-                    pass # just remove it from logs
+                elif msg == Message.time_calc_command.value:
+                    self.state = State.send_once.value
                 else:
                     if msg:
                         # we dont handle board config characters because they dont change package format
@@ -80,7 +81,7 @@ class GaleaEmulator (threading.Thread):
             except Exception:
                 break
 
-            if self.state == State.stream.value:
+            if self.state == State.stream.value or self.state == State.send_once.value:
                 package = list ()
                 for _ in range (19):
                     package.append (self.package_num)
@@ -95,6 +96,8 @@ class GaleaEmulator (threading.Thread):
                     self.server_socket.sendto (bytes (package), self.addr)
                 except socket.timeout:
                     logging.info ('timeout for send')
+                if self.state == State.send_once.value:
+                    self.state = State.wait.value
 
 
 def main (cmd_list):

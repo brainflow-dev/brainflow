@@ -31,7 +31,9 @@ private:
     std::mutex m;
     std::condition_variable cv;
     volatile int state;
+    volatile double time_delay;
     void read_thread ();
+    int calc_delay ();
 
 public:
     Galea (struct BrainFlowInputParams params);
