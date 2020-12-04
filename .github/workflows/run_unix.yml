@@ -209,9 +209,7 @@ jobs:
       env:
         LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: Run Julia Tests
-      run: |
-        cd $GITHUB_WORKSPACE/julia-package/brainflow
-        julia --project=. -e "import Pkg; Pkg.test()"
+      run: julia --project=$GITHUB_WORKSPACE/julia-package/brainflow -e "import Pkg; Pkg.test()"
       env:
         LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     # deploy started
