@@ -309,7 +309,7 @@ int BoardShim::get_num_rows (int board_id)
 
 std::string *BoardShim::get_eeg_names (int board_id, int *len)
 {
-    char *eeg_names = new char[4096];
+    char eeg_names[4096];
     int string_len = 0;
     int res = ::get_eeg_names (board_id, eeg_names, &string_len);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
@@ -324,7 +324,6 @@ std::string *BoardShim::get_eeg_names (int board_id, int *len)
     {
         out.push_back (single_name);
     }
-    delete[] eeg_names;
 
     std::string *result = new std::string[out.size ()];
     std::copy (out.begin (), out.end (), result);
