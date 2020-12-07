@@ -8,4 +8,4 @@ JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 MacroTools = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
 
 [compat]
-julia = "1.4"
+julia = "1.2"
