@@ -1,9 +1,9 @@
-import brainflow
+using brainflow
 
 # specify logging library to use
 brainflow.enable_dev_brainflow_logger(brainflow.BOARD_CONTROLLER)
 
-params = brainflow.BrainFlowInputParams()
+params = BrainFlowInputParams()
 board_shim = brainflow.BoardShim(brainflow.SYNTHETIC_BOARD, params)
 
 brainflow.prepare_session(board_shim)
@@ -19,7 +19,7 @@ sampling_rate = brainflow.get_sampling_rate(brainflow.SYNTHETIC_BOARD)
 data_first_channel = data[eeg_channels[1], :]
 println("Original Data First Channel")
 println(data_first_channel)
-brainflow.perform_rolling_filter(data_first_channel, 3, Integer(brainflow.MEAN))
+brainflow.perform_rolling_filter(data_first_channel, 3, brainflow.MEAN)
 println("After Rolling Filter")
 println(data_first_channel)
 

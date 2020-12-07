@@ -1,37 +1,51 @@
 
-@enum AggOperations begin
+abstract type AggOperation <: Integer end
+Base.Int32(d::AggOperation) = Int32(Integer(d))
+struct Mean <: AggOperation end
+struct Median <: AggOperation end
+struct Each <: AggOperation end
+Base.Integer(::Mean) = 0
+Base.Integer(::Median) = 1
+Base.Integer(::Each) = 2
+const MEAN = Mean()
+const MEDIAN = Median()
+const EACH = Each()
 
-    MEAN = 0
-    MEDIAN = 1
-    EACH = 2
+abstract type FilterType <: Integer end
+Base.Int32(d::FilterType) = Int32(Integer(d))
+struct Butterworth <: FilterType end
+struct Chebyshev <: FilterType end
+struct Bessel <: FilterType end
+Base.Integer(::Butterworth) = 0
+Base.Integer(::Chebyshev) = 1
+Base.Integer(::Bessel) = 2
+const BUTTERWORTH = Butterworth()
+const CHEBYSHEV_TYPE_1 = Chebyshev()
+const BESSEL = Bessel()
 
-end
+abstract type WindowFunction <: Integer end
+Base.Int32(d::WindowFunction) = Int32(Integer(d))
+struct NoWindow <: WindowFunction end
+struct Hanning <: WindowFunction end
+struct Hamming <: WindowFunction end
+struct BlackmanHarris <: WindowFunction end
+Base.Integer(::NoWindow) = 0
+Base.Integer(::Hanning) = 1
+Base.Integer(::Hamming) = 2
+Base.Integer(::BlackmanHarris) = 3
+const NO_WINDOW = NoWindow()
+const HANNING = Hanning()
+const HAMMING = Hamming()
+const BLACKMAN_HARRIS = BlackmanHarris()
 
-@enum FilterTypes begin
-
-    BUTTERWORTH = 0
-    CHEBYSHEV_TYPE_1 = 1
-    BESSEL = 2
-
-end
-
-@enum WindowFunctions begin
-
-    NO_WINDOW = 0
-    HANNING = 1
-    HAMMING = 2
-    BLACKMAN_HARRIS = 3
-
-end
-
-@enum DetrendOperations begin
-
-    # NONE = 0 # will lead to invalid enum redefinitions since enums entries are global constants in fact
-    # its a temp hack, lets wait for fixed enums in julia
-    CONSTANT = 1
-    LINEAR = 2
-
-end
+abstract type DetrendOperation <: Integer end
+Base.Int32(d::DetrendOperation) = Int32(Integer(d))
+struct Constant <: DetrendOperation end
+struct Linear <: DetrendOperation end
+Base.Integer(::Constant) = 1
+Base.Integer(::Linear) = 2
+const CONSTANT = Constant()
+const LINEAR = Linear()
 
 @brainflow_rethrow function perform_lowpass(data, sampling_rate::Integer, cutoff::Float64, order::Integer,
     filter_type::Integer, ripple::Float64)
@@ -73,7 +87,7 @@ end
     return
 end
 
-@brainflow_rethrow function detrend(data, operation::Integer)
+@brainflow_rethrow function detrend(data, operation)
     ccall((:detrend, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint),
             data, length(data), Int32(operation))
     return

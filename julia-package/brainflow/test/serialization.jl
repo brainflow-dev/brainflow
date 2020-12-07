@@ -1,10 +1,10 @@
-import brainflow
+using brainflow
 
 
 # specify logging library to use
 brainflow.enable_dev_brainflow_logger(brainflow.BOARD_CONTROLLER)
 
-params = brainflow.BrainFlowInputParams()
+params = BrainFlowInputParams()
 board_shim = brainflow.BoardShim(brainflow.SYNTHETIC_BOARD, params)
 
 brainflow.prepare_session(board_shim)

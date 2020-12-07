@@ -1,4 +1,5 @@
 import JSON
+export BrainFlowInputParams
 
 @enum BoardIds begin
 
@@ -35,46 +36,16 @@ BoardIdType = Union{BoardIds, Integer}
 
 end
 
-mutable struct BrainFlowInputParams
-
-    serial_port::String
-    mac_address::String
-    ip_address::String
-    ip_port::Int32
-    ip_protocol::Int32
-    other_info::String
-    timeout::Int32
-    serial_number::String
-    file::String
-
-    function BrainFlowInputParams()
-        new("", "", "", 0, Integer(NONE), "", 0, "", "")
-    end
-
-end
-
-@brainflow_rethrow function get_timestamp_channel(board_id::BoardIdType)
-    channel = Vector{Cint}(undef, 1)
-    ccall((:get_timestamp_channel, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}), Int32(board_id), channel)
-    # julia counts from 1
-    value = channel[1] + 1
-    return value
-end
-
-@brainflow_rethrow function get_package_num_channel(board_id::BoardIdType)
-    channel = Vector{Cint}(undef, 1)
-    ccall((:get_package_num_channel, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}), Int32(board_id), channel)
-    # julia counts from 1
-    value = channel[1] + 1
-    return value
-end
-
-@brainflow_rethrow function get_battery_channel(board_id::BoardIdType)
-    channel = Vector{Cint}(undef, 1)
-    ccall((:get_battery_channel, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}), Int32(board_id), channel)
-    # julia counts from 1
-    value = channel[1] + 1
-    return value
+@Base.kwdef mutable struct BrainFlowInputParams
+    serial_port::String = ""
+    mac_address::String = ""
+    ip_address::String = ""
+    ip_port::Int32 = 0
+    ip_protocol::Int32 = Integer(NONE)
+    other_info::String = ""
+    timeout::Int32 = 0
+    serial_number::String = ""
+    file::String = ""
 end
 
 @brainflow_rethrow function get_sampling_rate(board_id::BoardIdType)
@@ -99,6 +70,29 @@ end
     sub_string = String(names_string)[1:len[1]]
     value = split(sub_string, ',')
     return value
+end
+
+single_channel_function_names = (
+    :get_timestamp_channel,
+    :get_package_num_channel,
+    :get_battery_channel,
+)
+
+# need to hardcode the cglobal input symbols, probably related to https://github.com/JuliaLang/julia/issues/29602
+brainflow_cglobal(::Val{:get_timestamp_channel}) = cglobal((:get_timestamp_channel, BOARD_CONTROLLER_INTERFACE))
+brainflow_cglobal(::Val{:get_package_num_channel}) = cglobal((:get_package_num_channel, BOARD_CONTROLLER_INTERFACE))
+brainflow_cglobal(::Val{:get_battery_channel}) = cglobal((:get_battery_channel, BOARD_CONTROLLER_INTERFACE))
+
+# generating the channels functions
+for func_name = single_channel_function_names
+    @eval @brainflow_rethrow function $func_name(board_id::BoardIdType)
+        channel = Vector{Cint}(undef, 1)
+        lib_cglobal = brainflow_cglobal(Val(Symbol($func_name)))
+        ccall(lib_cglobal, Cint, (Cint, Ptr{Cint}), Int32(board_id), channel)
+        # julia counts from 1
+        @inbounds value = channel[1] + 1
+        return value
+    end
 end
 
 channel_function_names = (
@@ -140,7 +134,7 @@ for func_name = channel_function_names
         lib_cglobal = brainflow_cglobal(Val(Symbol($func_name)))
         ccall(lib_cglobal, Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
         # julia counts from 1
-        value = channels[1:len[1]] .+ 1
+        @inbounds value = channels[1:len[1]] .+ 1
         return value
     end
 end

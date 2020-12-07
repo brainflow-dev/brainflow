@@ -1,10 +1,10 @@
-import brainflow
+using brainflow
 
 # enable logs
 brainflow.enable_dev_brainflow_logger(brainflow.BOARD_CONTROLLER)
 brainflow.enable_dev_brainflow_logger(brainflow.DATA_HANDLER)
 
-params = brainflow.BrainFlowInputParams()
+params = BrainFlowInputParams()
 board_shim = brainflow.BoardShim(brainflow.SYNTHETIC_BOARD, params)
 sampling_rate = brainflow.get_sampling_rate(brainflow.SYNTHETIC_BOARD)
 
@@ -22,7 +22,7 @@ data_first_channel = data[eeg_channels[1], :]
 wavelet_data = brainflow.perform_wavelet_transform(data_first_channel, "db4", 2)
 restored_wavelet_data = brainflow.perform_inverse_wavelet_transform(wavelet_data, length(data_first_channel), "db4", 2)
 
-fft_data = brainflow.perform_fft(data_first_channel, Integer(brainflow.NO_WINDOW))
+fft_data = brainflow.perform_fft(data_first_channel, brainflow.NO_WINDOW)
 restored_fft_data = brainflow.perform_ifft(fft_data)
 
 println("Original Data")

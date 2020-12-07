@@ -13,6 +13,24 @@ end
     @test brainflow.get_eeg_channels isa Function
 end
 
+@testset "data filtering" begin
+    @test Int32(brainflow.CONSTANT) == 1
+    @test Int32(brainflow.LINEAR) == 2
+
+    @test Int32(brainflow.MEAN) == 0
+    @test Int32(brainflow.MEDIAN) == 1
+    @test Int32(brainflow.EACH) == 2
+
+    @test Int32(brainflow.BUTTERWORTH) == 0
+    @test Int32(brainflow.CHEBYSHEV_TYPE_1) == 1
+    @test Int32(brainflow.BESSEL) == 2
+
+    @test Int32(brainflow.NO_WINDOW) == 0
+    @test Int32(brainflow.HANNING) == 1
+    @test Int32(brainflow.HAMMING) == 2
+    @test Int32(brainflow.BLACKMAN_HARRIS) == 3
+end
+
 @testset "model params" begin
     params = BrainFlowModelParams(metric = "concentration")
     @test params.metric == brainflow.Concentration()
