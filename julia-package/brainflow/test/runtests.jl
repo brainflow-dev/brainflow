@@ -1,7 +1,7 @@
 #!/usr/bin/env julia
 using brainflow
 
-include("test_errors.jl")
+include("julia_tests.jl")
 include("brainflow_get_data.jl")
 include("signal_filtering.jl")
 include("denoising.jl")

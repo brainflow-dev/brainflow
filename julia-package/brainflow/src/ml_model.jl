@@ -43,33 +43,20 @@ struct MLModel
 
 end
 
-
-function prepare(ml_model::MLModel)
-    ec = STATUS_OK
-    ec = ccall((:prepare, ML_MODULE_INTERFACE), Cint, (Ptr{UInt8},), ml_model.input_json)
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in prepare ", ec), ec))
-    end
+@brainflow_rethrow function prepare(ml_model::MLModel)
+    ccall((:prepare, ML_MODULE_INTERFACE), Cint, (Ptr{UInt8},), ml_model.input_json)
+    return
 end
 
-
-function release(ml_model::MLModel)
-    ec = STATUS_OK
-    ec = ccall((:release, ML_MODULE_INTERFACE), Cint, (Ptr{UInt8},), ml_model.input_json)
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in release ", ec), ec))
-    end
+@brainflow_rethrow function release(ml_model::MLModel)
+    ccall((:release, ML_MODULE_INTERFACE), Cint, (Ptr{UInt8},), ml_model.input_json)
+    return
 end
 
-
-function predict(data, ml_model::MLModel)
+@brainflow_rethrow function predict(data, ml_model::MLModel)
     val = Vector{Float64}(undef, 1)
-    ec = STATUS_OK
-    ec = ccall((:predict, ML_MODULE_INTERFACE), Cint, (Ptr{Float64}, Cint, Ptr{Float64}, Ptr{UInt8}),
+    ccall((:predict, ML_MODULE_INTERFACE), Cint, (Ptr{Float64}, Cint, Ptr{Float64}, Ptr{UInt8}),
         data, length(data), val, ml_model.input_json)
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in predict ", ec), ec))
-    end
     value = val[1]
-    value
+    return value
 end

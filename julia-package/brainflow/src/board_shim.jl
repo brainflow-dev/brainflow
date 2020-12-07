@@ -53,266 +53,97 @@ mutable struct BrainFlowInputParams
 
 end
 
-
-function get_timestamp_channel(board_id::BoardIdType)
+@brainflow_rethrow function get_timestamp_channel(board_id::BoardIdType)
     channel = Vector{Cint}(undef, 1)
-    ec = STATUS_OK
-    ec = ccall((:get_timestamp_channel, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}), Int32(board_id), channel)
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in get board info ", ec), ec))
-    end
+    ccall((:get_timestamp_channel, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}), Int32(board_id), channel)
     # julia counts from 1
     value = channel[1] + 1
-    value
+    return value
 end
 
-
-function get_package_num_channel(board_id::BoardIdType)
+@brainflow_rethrow function get_package_num_channel(board_id::BoardIdType)
     channel = Vector{Cint}(undef, 1)
-    ec = STATUS_OK
-    ec = ccall((:get_package_num_channel, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}), Int32(board_id), channel)
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in get board info ", ec), ec))
-    end
+    ccall((:get_package_num_channel, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}), Int32(board_id), channel)
     # julia counts from 1
     value = channel[1] + 1
-    value
+    return value
 end
 
-
-function get_battery_channel(board_id::BoardIdType)
+@brainflow_rethrow function get_battery_channel(board_id::BoardIdType)
     channel = Vector{Cint}(undef, 1)
-    ec = STATUS_OK
-    ec = ccall((:get_battery_channel, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}), Int32(board_id), channel)
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in get board info ", ec), ec))
-    end
+    ccall((:get_battery_channel, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}), Int32(board_id), channel)
     # julia counts from 1
     value = channel[1] + 1
-    value
+    return value
 end
 
-
-function get_sampling_rate(board_id::BoardIdType)
+@brainflow_rethrow function get_sampling_rate(board_id::BoardIdType)
     val = Vector{Cint}(undef, 1)
-    ec = STATUS_OK
-    ec = ccall((:get_sampling_rate, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}), Int32(board_id), val)
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in get board info ", ec), ec))
-    end
+    ccall((:get_sampling_rate, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}), Int32(board_id), val)
     value = val[1]
-    value
+    return value
 end
 
-
-function get_num_rows(board_id::BoardIdType)
+@brainflow_rethrow function get_num_rows(board_id::BoardIdType)
     val = Vector{Cint}(undef, 1)
-    ec = STATUS_OK
-    ec = ccall((:get_num_rows, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}), Int32(board_id), val)
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in get board info ", ec), ec))
-    end
+    ccall((:get_num_rows, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}), Int32(board_id), val)
     # here dont need to add 1, last element included
     value = val[1]
-    value
+    return value
 end
 
-
-function get_eeg_names(board_id::BoardIdType)
+@brainflow_rethrow function get_eeg_names(board_id::BoardIdType)
     names_string = Vector{Cuchar}(undef, 4096)
     len = Vector{Cint}(undef, 1)
-    ec = STATUS_OK
-    ec = ccall((:get_eeg_names, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}, Ptr{Cint}), Int32(board_id), names_string, len)
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in get board info ", ec), ec))
-    end
+    ccall((:get_eeg_names, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}, Ptr{Cint}), Int32(board_id), names_string, len)
     sub_string = String(names_string)[1:len[1]]
     value = split(sub_string, ',')
-    value
+    return value
 end
 
+channel_function_names = (
+    :get_eeg_channels,
+    :get_exg_channels,
+    :get_emg_channels,
+    :get_ecg_channels,
+    :get_eog_channels,
+    :get_eda_channels,
+    :get_ppg_channels,
+    :get_accel_channels,
+    :get_analog_channels,
+    :get_gyro_channels,
+    :get_other_channels,
+    :get_temperature_channels,
+    :get_resistance_channels,
+)
 
-function get_eeg_channels(board_id::BoardIdType)
-    channels = Vector{Cint}(undef, 512)
-    len = Vector{Cint}(undef, 1)
-    ec = STATUS_OK
-    ec = ccall((:get_eeg_channels, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in get board info ", ec), ec))
+# need to hardcode the cglobal input symbols, probably related to https://github.com/JuliaLang/julia/issues/29602
+brainflow_cglobal(::Val{:get_eeg_channels}) = cglobal((:get_eeg_channels, BOARD_CONTROLLER_INTERFACE))
+brainflow_cglobal(::Val{:get_exg_channels}) = cglobal((:get_exg_channels, BOARD_CONTROLLER_INTERFACE))
+brainflow_cglobal(::Val{:get_emg_channels}) = cglobal((:get_emg_channels, BOARD_CONTROLLER_INTERFACE))
+brainflow_cglobal(::Val{:get_ecg_channels}) = cglobal((:get_ecg_channels, BOARD_CONTROLLER_INTERFACE))
+brainflow_cglobal(::Val{:get_eog_channels}) = cglobal((:get_eog_channels, BOARD_CONTROLLER_INTERFACE))
+brainflow_cglobal(::Val{:get_eda_channels}) = cglobal((:get_eda_channels, BOARD_CONTROLLER_INTERFACE))
+brainflow_cglobal(::Val{:get_ppg_channels}) = cglobal((:get_ppg_channels, BOARD_CONTROLLER_INTERFACE))
+brainflow_cglobal(::Val{:get_accel_channels}) = cglobal((:get_accel_channels, BOARD_CONTROLLER_INTERFACE))
+brainflow_cglobal(::Val{:get_analog_channels}) = cglobal((:get_analog_channels, BOARD_CONTROLLER_INTERFACE))
+brainflow_cglobal(::Val{:get_gyro_channels}) = cglobal((:get_gyro_channels, BOARD_CONTROLLER_INTERFACE))
+brainflow_cglobal(::Val{:get_other_channels}) = cglobal((:get_other_channels, BOARD_CONTROLLER_INTERFACE))
+brainflow_cglobal(::Val{:get_temperature_channels}) = cglobal((:get_temperature_channels, BOARD_CONTROLLER_INTERFACE))
+brainflow_cglobal(::Val{:get_resistance_channels}) = cglobal((:get_resistance_channels, BOARD_CONTROLLER_INTERFACE))
+
+# generating the channels functions
+for func_name = channel_function_names
+    @eval @brainflow_rethrow function $func_name(board_id::BoardIdType)
+        channels = Vector{Cint}(undef, 512)
+        len = Vector{Cint}(undef, 1)
+        lib_cglobal = brainflow_cglobal(Val(Symbol($func_name)))
+        ccall(lib_cglobal, Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
+        # julia counts from 1
+        value = channels[1:len[1]] .+ 1
+        return value
     end
-    # julia counts from 1
-    value = channels[1:len[1]] .+ 1
-    value
 end
-
-
-function get_exg_channels(board_id::BoardIdType)
-    channels = Vector{Cint}(undef, 512)
-    len = Vector{Cint}(undef, 1)
-    ec = STATUS_OK
-    ec = ccall((:get_exg_channels, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in get board info ", ec), ec))
-    end
-    # julia counts from 1
-    value = channels[1:len[1]] .+ 1
-    value
-end
-
-
-function get_emg_channels(board_id::BoardIdType)
-    channels = Vector{Cint}(undef, 512)
-    len = Vector{Cint}(undef, 1)
-    ec = STATUS_OK
-    ec = ccall((:get_emg_channels, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in get board info ", ec), ec))
-    end
-    # julia counts from 1
-    value = channels[1:len[1]] .+ 1
-    value
-end
-
-
-function get_ecg_channels(board_id::BoardIdType)
-    channels = Vector{Cint}(undef, 512)
-    len = Vector{Cint}(undef, 1)
-    ec = STATUS_OK
-    ec = ccall((:get_ecg_channels, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in get board info ", ec), ec))
-    end
-    # julia counts from 1
-    value = channels[1:len[1]] .+ 1
-    value
-end
-
-
-function get_eog_channels(board_id::BoardIdType)
-    channels = Vector{Cint}(undef, 512)
-    len = Vector{Cint}(undef, 1)
-    ec = STATUS_OK
-    ec = ccall((:get_eog_channels, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in get board info ", ec), ec))
-    end
-    # julia counts from 1
-    value = channels[1:len[1]] .+ 1
-    value
-end
-
-
-function get_eda_channels(board_id::BoardIdType)
-    channels = Vector{Cint}(undef, 512)
-    len = Vector{Cint}(undef, 1)
-    ec = STATUS_OK
-    ec = ccall((:get_eda_channels, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in get board info ", ec), ec))
-    end
-    # julia counts from 1
-    value = channels[1:len[1]] .+ 1
-    value
-end
-
-
-function get_ppg_channels(board_id::BoardIdType)
-    channels = Vector{Cint}(undef, 512)
-    len = Vector{Cint}(undef, 1)
-    ec = STATUS_OK
-    ec = ccall((:get_ppg_channels, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in get board info ", ec), ec))
-    end
-    # julia counts from 1
-    value = channels[1:len[1]] .+ 1
-    value
-end
-
-
-function get_accel_channels(board_id::BoardIdType)
-    channels = Vector{Cint}(undef, 512)
-    len = Vector{Cint}(undef, 1)
-    ec = STATUS_OK
-    ec = ccall((:get_accel_channels, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in get board info ", ec), ec))
-    end
-    # julia counts from 1
-    value = channels[1:len[1]] .+ 1
-    value
-end
-
-
-function get_analog_channels(board_id::BoardIdType)
-    channels = Vector{Cint}(undef, 512)
-    len = Vector{Cint}(undef, 1)
-    ec = STATUS_OK
-    ec = ccall((:get_analog_channels, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in get board info ", ec), ec))
-    end
-    # julia counts from 1
-    value = channels[1:len[1]] .+ 1
-    value
-end
-
-
-function get_gyro_channels(board_id::BoardIdType)
-    channels = Vector{Cint}(undef, 512)
-    len = Vector{Cint}(undef, 1)
-    ec = STATUS_OK
-        ec = ccall((:get_gyro_channels, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in get board info ", ec), ec))
-    end
-    # julia counts from 1
-    value = channels[1:len[1]] .+ 1
-    value
-end
-
-
-function get_other_channels(board_id::BoardIdType)
-    channels = Vector{Cint}(undef, 512)
-    len = Vector{Cint}(undef, 1)
-    ec = STATUS_OK
-        ec = ccall((:get_other_channels, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in get board info ", ec), ec))
-    end
-    # julia counts from 1
-    value = channels[1:len[1]] .+ 1
-    value
-end
-
-
-function get_temperature_channels(board_id::BoardIdType)
-    channels = Vector{Cint}(undef, 512)
-    len = Vector{Cint}(undef, 1)
-    ec = STATUS_OK
-        ec = ccall((:get_temperature_channels, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in get board info ", ec), ec))
-    end
-    # julia counts from 1
-    value = channels[1:len[1]] .+ 1
-    value
-end
-
-
-function get_resistance_channels(board_id::BoardIdType)
-    channels = Vector{Cint}(undef, 512)
-    len = Vector{Cint}(undef, 1)
-    ec = STATUS_OK
-        ec = ccall((:get_resistance_channels, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in get board info ", ec), ec))
-    end
-    # julia counts from 1
-    value = channels[1:len[1]] .+ 1
-    value
-end
-
 
 struct BoardShim
 
@@ -340,17 +171,14 @@ BoardShim(id) = BoardShim(id, BrainFlowInputParams())
     ccall((:prepare_session, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}), board_shim.board_id, board_shim.input_json)
 end
 
-
 @brainflow_rethrow function start_stream(board_shim::BoardShim, num_samples::Int, streamer_params::String)
     ccall((:start_stream, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}, Cint, Ptr{UInt8}), num_samples, streamer_params,
             board_shim.board_id, board_shim.input_json)
 end
 
-
 function start_stream(board_shim::BoardShim)
     start_stream(board_shim, 45000, "")
 end
-
 
 @brainflow_rethrow function is_prepared(board_shim::BoardShim)
     val = Vector{Cint}(undef, 1)
@@ -359,14 +187,12 @@ end
     return value
 end
 
-
 @brainflow_rethrow function get_board_data_count(board_shim::BoardShim)
     val = Vector{Cint}(undef, 1)
     ccall((:get_board_data_count, BOARD_CONTROLLER_INTERFACE), Cint, (Ptr{Cint}, Cint, Ptr{UInt8}), val, board_shim.board_id, board_shim.input_json)
     value = val[1]
     return value
 end
-
 
 @brainflow_rethrow function stop_stream(board_shim::BoardShim)
     ccall((:stop_stream, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}), board_shim.board_id, board_shim.input_json)
@@ -395,7 +221,6 @@ end
     value = transpose(reshape(val, (data_size, num_rows)))
     return value
 end
-
 
 @brainflow_rethrow function get_current_board_data(num_samples::Integer, board_shim::BoardShim)
     data_size = Vector{Cint}(undef, 1)
