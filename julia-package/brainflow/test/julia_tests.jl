@@ -1,5 +1,6 @@
 using Test
 using brainflow
+using JSON
 
 @testset "prepare_session error" begin
     # use a board that is not connected
@@ -10,4 +11,20 @@ end
 
 @testset "generated functions" begin
     @test brainflow.get_eeg_channels isa Function
+end
+
+@testset "model params" begin
+    params = BrainFlowModelParams(metric = "concentration")
+    @test params.metric == brainflow.Concentration()
+
+    params = BrainFlowModelParams(metric = "Relaxation", classifier = "KNN")
+    @test params.metric == brainflow.Relaxation()
+    @test params.classifier == brainflow.Knn()
+
+    json = JSON.json(BrainFlowModelParams())
+    d = JSON.parse(json)
+    @test d["classifier"] == 0
+    @test d["metric"] == 0
+    @test d["file"] == ""
+    @test d["other_info"] == ""
 end

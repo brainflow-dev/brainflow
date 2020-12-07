@@ -40,8 +40,14 @@ end
     return
 end
 
-@brainflow_rethrow function perform_highpass(data, sampling_rate::Integer, cutoff::Float64, order::Integer,
-    filter_type::Integer, ripple::Float64)
+@brainflow_rethrow function perform_highpass(
+    data, 
+    sampling_rate::Integer, 
+    cutoff::Float64, 
+    order::Integer,
+    filter_type::Integer, 
+    ripple::Float64
+)
     ccall((:perform_highpass, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Float64, Cint, Cint, Float64),
             data, length(data), Int32(sampling_rate), Float64(cutoff), Int32(order), Int32(filter_type), Float64(ripple))
     return
