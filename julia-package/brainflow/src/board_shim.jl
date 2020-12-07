@@ -35,13 +35,6 @@ BoardIdType = Union{BoardIds, Integer}
 
 end
 
-
-struct BrainFlowError <: Exception
-    msg::String
-    ec::Int32
-end
-
-
 mutable struct BrainFlowInputParams
 
     serial_port::String
@@ -343,12 +336,8 @@ end
 BoardShim(id::BoardIds, params::BrainFlowInputParams) = BoardShim(Integer(id), params)
 BoardShim(id) = BoardShim(id, BrainFlowInputParams())
 
-function prepare_session(board_shim::BoardShim)
-    ec = STATUS_OK
-        ec = ccall((:prepare_session, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}), board_shim.board_id, board_shim.input_json)
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in prepare_session ", ec), ec))
-    end
+@brainflow_rethrow function prepare_session(board_shim::BoardShim)
+    ccall((:prepare_session, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}), board_shim.board_id, board_shim.input_json)
 end
 
 
