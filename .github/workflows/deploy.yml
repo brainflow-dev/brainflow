@@ -164,6 +164,13 @@ jobs:
         (gc .\pom.xml).replace('<source>11</source>', '<source>1.8</source>') | Out-File -encoding ASCII pom.xml
         (gc .\pom.xml).replace('<target>11</target>', '<target>1.8</target>') | Out-File -encoding ASCII pom.xml
         type pom.xml
+        mvn clean
+        Remove-Item "$env:GITHUB_WORKSPACE\java-package\brainflow\src\main\java\module-info.java"
+        Copy-Item "$env:GITHUB_WORKSPACE\linux\*" -Destination "$env:GITHUB_WORKSPACE\java-package\brainflow\src\main\resources" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\macos\*" -Destination "$env:GITHUB_WORKSPACE\java-package\brainflow\src\main\resources" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\win64\*" -Destination "$env:GITHUB_WORKSPACE\java-package\brainflow\src\main\resources" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\win32\*" -Destination "$env:GITHUB_WORKSPACE\java-package\brainflow\src\main\resources" -Recurse -Force -Filter *.*
+        ls $env:GITHUB_WORKSPACE\java-package\brainflow\src\main\resources
         mvn package
         aws s3 cp $env:GITHUB_WORKSPACE\java-package\brainflow\target\ s3://brainflow/$env:GITHUB_SHA/jars_java8 --recursive
       env:
