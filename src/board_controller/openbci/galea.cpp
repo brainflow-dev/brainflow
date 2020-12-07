@@ -461,5 +461,6 @@ int Galea::calc_delay ()
     time_delay =
         times.empty () ? 0.0 : std::accumulate (times.begin (), times.end (), 0.0) / times.size ();
     time_delay /= 2000; // 2 to get a half and 1000 to convert to secs
+    safe_logger (spdlog::level::debug, "Time delta: {} seconds", time_delay);
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
