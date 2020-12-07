@@ -94,7 +94,7 @@ url-pretty: "brainflow.org"  # eg. "deanattali.com/beautiful-jekyll"
 #gtag: ""
 
 # Fill in your Google Analytics ID to track your website using GA
-#google_analytics: ""
+google_analytics: "G-B4K9ZY2MZQ"
 
 # Google Tag Manager ID
 #gtm: ""
