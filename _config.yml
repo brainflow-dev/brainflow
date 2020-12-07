@@ -91,7 +91,7 @@ url-pretty: "brainflow.org"  # eg. "deanattali.com/beautiful-jekyll"
 # --- Web Statistics Section --- #
 
 # Fill in your Google Analytics gtag.js ID to track your website using gtag
-#gtag: ""
+gtag: "UA-185008119-1"
 
 # Fill in your Google Analytics ID to track your website using GA
 google_analytics: "UA-185008119-1"
