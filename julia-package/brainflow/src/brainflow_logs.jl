@@ -7,7 +7,6 @@ library_path(::BoardControllerLib) = BOARD_CONTROLLER_INTERFACE
 library_path(::DataHandlerLib) = DATA_HANDLER_INTERFACE
 library_path(::MlModuleLib) = ML_MODULE_INTERFACE
 
-# during refactoring
 const BOARD_CONTROLLER = BoardControllerLib()
 const DATA_HANDLER = DataHandlerLib()
 const ML_MODULE = MlModuleLib()
@@ -33,7 +32,6 @@ disable_brainflow_logger(log_lib::BrainFlowLib) = set_log_level(Integer(LEVEL_OF
     ccall((:log_message, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}), Int32(log_level), message)
 end
 
-# TODO: convert into a macro?
 @brainflow_rethrow function set_log_file(log_file, log_lib::BrainFlowLib)
     lib_cglobal = log_file_cglobal(log_lib)
     ccall(lib_cglobal, Cint, (Ptr{UInt8},), log_file)
