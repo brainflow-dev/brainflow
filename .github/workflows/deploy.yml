@@ -83,8 +83,8 @@ jobs:
         Copy-Item "$env:GITHUB_WORKSPACE\win64\*" -Destination "$env:GITHUB_WORKSPACE\compiled_libs" -Recurse -Force -Filter *.*
         Copy-Item "$env:GITHUB_WORKSPACE\win32\*" -Destination "$env:GITHUB_WORKSPACE\compiled_libs" -Recurse -Force -Filter *.*
         ls $env:GITHUB_WORKSPACE\compiled_libs
-        Compress-7Zip -Path $env:GITHUB_WORKSPACE\compiled_libs -ArchiveFileName $env:GITHUB_WORKSPACE\compiled_libs.zip -Format Zip
-        aws s3 cp $env:GITHUB_WORKSPACE\compiled_libs.zip s3://brainflow/$env:GITHUB_SHA/compiled_libs.zip
+        Compress-7Zip -Path $env:GITHUB_WORKSPACE\compiled_libs -ArchiveFileName $env:GITHUB_WORKSPACE\compiled_libs.tar -Format Tar
+        aws s3 cp $env:GITHUB_WORKSPACE\compiled_libs.tar s3://brainflow/$env:GITHUB_SHA/compiled_libs.tar
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
