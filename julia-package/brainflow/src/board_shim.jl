@@ -341,13 +341,9 @@ BoardShim(id) = BoardShim(id, BrainFlowInputParams())
 end
 
 
-function start_stream(board_shim::BoardShim, num_samples::Int, streamer_params::String)
-    ec = STATUS_OK
-        ec = ccall((:start_stream, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}, Cint, Ptr{UInt8}), num_samples, streamer_params,
+@brainflow_rethrow function start_stream(board_shim::BoardShim, num_samples::Int, streamer_params::String)
+    ccall((:start_stream, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}, Cint, Ptr{UInt8}), num_samples, streamer_params,
             board_shim.board_id, board_shim.input_json)
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in start_stream ", ec), ec))
-    end
 end
 
 
@@ -356,85 +352,57 @@ function start_stream(board_shim::BoardShim)
 end
 
 
-function is_prepared(board_shim::BoardShim)
+@brainflow_rethrow function is_prepared(board_shim::BoardShim)
     val = Vector{Cint}(undef, 1)
-    ec = STATUS_OK
-        ec = ccall((:is_prepared, BOARD_CONTROLLER_INTERFACE), Cint, (Ptr{Cint}, Cint, Ptr{UInt8}), val, board_shim.board_id, board_shim.input_json)
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in is_prepared ", ec), ec))
-    end
+    ccall((:is_prepared, BOARD_CONTROLLER_INTERFACE), Cint, (Ptr{Cint}, Cint, Ptr{UInt8}), val, board_shim.board_id, board_shim.input_json)
     value = Bool(val[1])
-    value
+    return value
 end
 
 
-function get_board_data_count(board_shim::BoardShim)
+@brainflow_rethrow function get_board_data_count(board_shim::BoardShim)
     val = Vector{Cint}(undef, 1)
-    ec = STATUS_OK
-        ec = ccall((:get_board_data_count, BOARD_CONTROLLER_INTERFACE), Cint, (Ptr{Cint}, Cint, Ptr{UInt8}), val, board_shim.board_id, board_shim.input_json)
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in get_board_data_count ", ec), ec))
-    end
+    ccall((:get_board_data_count, BOARD_CONTROLLER_INTERFACE), Cint, (Ptr{Cint}, Cint, Ptr{UInt8}), val, board_shim.board_id, board_shim.input_json)
     value = val[1]
-    value
+    return value
 end
 
 
-function stop_stream(board_shim::BoardShim)
-    ec = STATUS_OK
-        ec = ccall((:stop_stream, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}), board_shim.board_id, board_shim.input_json)
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in stop_stream ", ec), ec))
-    end
+@brainflow_rethrow function stop_stream(board_shim::BoardShim)
+    ccall((:stop_stream, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}), board_shim.board_id, board_shim.input_json)
 end
 
 
-function release_session(board_shim::BoardShim)
-    ec = STATUS_OK
-        ec = ccall((:release_session, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}), board_shim.board_id, board_shim.input_json)
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in release_session ", ec), ec))
-    end
+@brainflow_rethrow function release_session(board_shim::BoardShim)
+    ccall((:release_session, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}), board_shim.board_id, board_shim.input_json)
 end
 
-function config_board(config::String, board_shim::BoardShim)
-    ec = STATUS_OK
+@brainflow_rethrow function config_board(config::String, board_shim::BoardShim)
     resp_string = Vector{Cuchar}(undef, 4096)
     len = Vector{Cint}(undef, 1)
-        ec = ccall((:config_board, BOARD_CONTROLLER_INTERFACE), Cint, (Ptr{UInt8}, Ptr{UInt8}, Ptr{Cint}, Cint, Ptr{UInt8}),
+    ccall((:config_board, BOARD_CONTROLLER_INTERFACE), Cint, (Ptr{UInt8}, Ptr{UInt8}, Ptr{Cint}, Cint, Ptr{UInt8}),
             config, resp_string, len, board_shim.board_id, board_shim.input_json)
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in config_board ", ec), ec))
-    end
     sub_string = String(resp_string)[1:len[1]]
-    sub_string
+    return sub_string
 end
 
-function get_board_data(board_shim::BoardShim)
+@brainflow_rethrow function get_board_data(board_shim::BoardShim)
     data_size = get_board_data_count(board_shim)
     num_rows = get_num_rows(board_shim.master_board_id)
     val = Vector{Float64}(undef, num_rows * data_size)
-    ec = STATUS_OK
-        ec = ccall((:get_board_data, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Float64}, Cint, Ptr{UInt8}), 
+    ccall((:get_board_data, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Float64}, Cint, Ptr{UInt8}), 
             data_size, val, board_shim.board_id, board_shim.input_json)
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in get_board_data ", ec), ec))
-    end
     value = transpose(reshape(val, (data_size, num_rows)))
-    value
+    return value
 end
 
 
-function get_current_board_data(num_samples::Integer, board_shim::BoardShim)
+@brainflow_rethrow function get_current_board_data(num_samples::Integer, board_shim::BoardShim)
     data_size = Vector{Cint}(undef, 1)
     num_rows = get_num_rows(board_shim.master_board_id)
     val = Vector{Float64}(undef, num_rows * num_samples)
-    ec = STATUS_OK
-        ec = ccall((:get_current_board_data, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Float64}, Ptr{Cint}, Cint, Ptr{UInt8}), 
+    ccall((:get_current_board_data, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Float64}, Ptr{Cint}, Cint, Ptr{UInt8}), 
             num_samples, val, data_size, board_shim.board_id, board_shim.input_json)
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in get_current_board_data ", ec), ec))
-    end
     value = transpose(reshape(val[1:data_size[1] * num_rows], (data_size[1], num_rows)))
-    value
+    return value
 end
