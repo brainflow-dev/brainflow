@@ -78,17 +78,12 @@ single_channel_function_names = (
     :get_battery_channel,
 )
 
-# need to hardcode the cglobal input symbols, probably related to https://github.com/JuliaLang/julia/issues/29602
-brainflow_cglobal(::Val{:get_timestamp_channel}) = cglobal((:get_timestamp_channel, BOARD_CONTROLLER_INTERFACE))
-brainflow_cglobal(::Val{:get_package_num_channel}) = cglobal((:get_package_num_channel, BOARD_CONTROLLER_INTERFACE))
-brainflow_cglobal(::Val{:get_battery_channel}) = cglobal((:get_battery_channel, BOARD_CONTROLLER_INTERFACE))
-
 # generating the channels functions
 for func_name = single_channel_function_names
+    cglobal_expr = Meta.parse("cglobal((:$func_name, BOARD_CONTROLLER_INTERFACE))")
     @eval @brainflow_rethrow function $func_name(board_id::BoardIdType)
         channel = Vector{Cint}(undef, 1)
-        lib_cglobal = brainflow_cglobal(Val(Symbol($func_name)))
-        ccall(lib_cglobal, Cint, (Cint, Ptr{Cint}), Int32(board_id), channel)
+        ccall($cglobal_expr, Cint, (Cint, Ptr{Cint}), Int32(board_id), channel)
         # julia counts from 1
         @inbounds value = channel[1] + 1
         return value
@@ -111,28 +106,13 @@ channel_function_names = (
     :get_resistance_channels,
 )
 
-# need to hardcode the cglobal input symbols, probably related to https://github.com/JuliaLang/julia/issues/29602
-brainflow_cglobal(::Val{:get_eeg_channels}) = cglobal((:get_eeg_channels, BOARD_CONTROLLER_INTERFACE))
-brainflow_cglobal(::Val{:get_exg_channels}) = cglobal((:get_exg_channels, BOARD_CONTROLLER_INTERFACE))
-brainflow_cglobal(::Val{:get_emg_channels}) = cglobal((:get_emg_channels, BOARD_CONTROLLER_INTERFACE))
-brainflow_cglobal(::Val{:get_ecg_channels}) = cglobal((:get_ecg_channels, BOARD_CONTROLLER_INTERFACE))
-brainflow_cglobal(::Val{:get_eog_channels}) = cglobal((:get_eog_channels, BOARD_CONTROLLER_INTERFACE))
-brainflow_cglobal(::Val{:get_eda_channels}) = cglobal((:get_eda_channels, BOARD_CONTROLLER_INTERFACE))
-brainflow_cglobal(::Val{:get_ppg_channels}) = cglobal((:get_ppg_channels, BOARD_CONTROLLER_INTERFACE))
-brainflow_cglobal(::Val{:get_accel_channels}) = cglobal((:get_accel_channels, BOARD_CONTROLLER_INTERFACE))
-brainflow_cglobal(::Val{:get_analog_channels}) = cglobal((:get_analog_channels, BOARD_CONTROLLER_INTERFACE))
-brainflow_cglobal(::Val{:get_gyro_channels}) = cglobal((:get_gyro_channels, BOARD_CONTROLLER_INTERFACE))
-brainflow_cglobal(::Val{:get_other_channels}) = cglobal((:get_other_channels, BOARD_CONTROLLER_INTERFACE))
-brainflow_cglobal(::Val{:get_temperature_channels}) = cglobal((:get_temperature_channels, BOARD_CONTROLLER_INTERFACE))
-brainflow_cglobal(::Val{:get_resistance_channels}) = cglobal((:get_resistance_channels, BOARD_CONTROLLER_INTERFACE))
-
 # generating the channels functions
 for func_name = channel_function_names
+    cglobal_expr = Meta.parse("cglobal((:$func_name, BOARD_CONTROLLER_INTERFACE))")
     @eval @brainflow_rethrow function $func_name(board_id::BoardIdType)
         channels = Vector{Cint}(undef, 512)
         len = Vector{Cint}(undef, 1)
-        lib_cglobal = brainflow_cglobal(Val(Symbol($func_name)))
-        ccall(lib_cglobal, Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
+        ccall($cglobal_expr, Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), channels, len)
         # julia counts from 1
         @inbounds value = channels[1:len[1]] .+ 1
         return value
