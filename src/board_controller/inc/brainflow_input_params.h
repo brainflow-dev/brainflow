@@ -47,7 +47,7 @@ struct BrainFlowInputParams
 
     bool operator> (const struct BrainFlowInputParams &other) const
     {
-        return !(*this < other);
+        return (!(*this < other)) && ((*this != other));
     }
 
     bool operator== (const struct BrainFlowInputParams &other) const
