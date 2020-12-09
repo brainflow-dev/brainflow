@@ -145,6 +145,25 @@ namespace brainflow
         }
 
         /// <summary>
+        /// get device name
+        /// </summary>
+        /// <param name="board_id"></param>
+        /// <returns>device name</returns>
+        /// <exception cref="BrainFlowException">If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR</exception>
+        public static string get_device_name (int board_id)
+        {
+            int[] len = new int[1];
+            byte[] str = new byte[4096];
+            int res = BoardControllerLibrary.get_device_name (board_id, str, len);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException (res);
+            }
+            string name = System.Text.Encoding.UTF8.GetString (str, 0, len[0]);
+            return name;
+        }
+
+        /// <summary>
         /// get row indices of EEG channels for this board, for some board we can not split EMG\EEG\.. data and return the same array for all of them
         /// </summary>
         /// <param name="board_id"></param>

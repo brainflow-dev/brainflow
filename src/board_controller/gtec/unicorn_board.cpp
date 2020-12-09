@@ -233,13 +233,7 @@ int UnicornBoard::call_open ()
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
     unsigned int available_device_count = 0;
-#ifdef _WIN32
-    // on widnows last param means only paired
-    int ec = func_get_available (NULL, &available_device_count, FALSE);
-#else
-    // on linux last param means rescan
     int ec = func_get_available (NULL, &available_device_count, TRUE);
-#endif
     if (ec != UNICORN_ERROR_SUCCESS)
     {
         safe_logger (spdlog::level::err, "Error in UNICORN_GetAvailableDevices {}", ec);

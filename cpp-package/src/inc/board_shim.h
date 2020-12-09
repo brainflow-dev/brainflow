@@ -68,6 +68,12 @@ public:
      */
     static int get_num_rows (int board_id);
     /**
+     * get device name
+     * @param board_id board id of your device
+     * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+     */
+    static std::string get_device_name (int board_id);
+    /**
      * get eeg channel names in 10-20 system for devices with fixed electrode locations
      * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR

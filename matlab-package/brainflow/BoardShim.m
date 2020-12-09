@@ -123,6 +123,15 @@ classdef BoardShim
             eeg_names = split (eeg_names, ',');
         end
         
+        function device_name = get_device_name (board_id)
+            task_name = 'get_device_name';
+            lib_name = BoardShim.load_lib ();
+            % no way to understand how it works in matlab used this link
+            % https://nl.mathworks.com/matlabcentral/answers/131446-what-data-type-do-i-need-to-calllib-with-pointer-argument-char%
+            [exit_code, device_name] = calllib (lib_name, task_name, board_id, blanks(4096), 4096);
+            BoardShim.check_ec (exit_code, task_name);
+        end
+        
         function eeg_channels = get_eeg_channels (board_id)
             task_name = 'get_eeg_channels';
             num_channels = libpointer ('int32Ptr', 0);

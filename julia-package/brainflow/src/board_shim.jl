@@ -72,6 +72,14 @@ end
     return value
 end
 
+@brainflow_rethrow function get_device_name(board_id::BoardIdType)
+    names_string = Vector{Cuchar}(undef, 4096)
+    len = Vector{Cint}(undef, 1)
+    ccall((:get_device_name, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}, Ptr{Cint}), Int32(board_id), names_string, len)
+    sub_string = String(names_string)[1:len[1]]
+    return sub_string
+end
+
 single_channel_function_names = (
     :get_timestamp_channel,
     :get_package_num_channel,
@@ -131,7 +139,7 @@ struct BoardShim
             try
                 master_id = parse(Int, params.other_info)
             catch
-                throw(BrainFlowError("you need to provide master board id to other_info field of BrainFlowInputParams", 1))
+                throw(BrainFlowError("you need to provide master board id to other_info field of BrainFlowInputParams", Integer(INVALID_ARGUMENTS_ERROR)))
             end
         end
         new(master_id, id, JSON.json(params))

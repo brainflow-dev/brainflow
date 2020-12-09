@@ -44,4 +44,19 @@ struct BrainFlowInputParams
             std::tie (other.serial_port, other.mac_address, other.ip_address, other.ip_port,
                 other.ip_protocol, other.other_info, timeout, serial_number, file);
     }
+
+    bool operator> (const struct BrainFlowInputParams &other) const
+    {
+        return (!(*this < other)) && ((*this != other));
+    }
+
+    bool operator== (const struct BrainFlowInputParams &other) const
+    {
+        return (!(*this < other)) && (!(other < *this));
+    }
+
+    bool operator!= (const struct BrainFlowInputParams &other) const
+    {
+        return !(*this == other);
+    }
 };

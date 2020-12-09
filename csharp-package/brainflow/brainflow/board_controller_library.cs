@@ -134,6 +134,8 @@ namespace brainflow
         public static extern int get_resistance_channels(int board_id, int[] channels, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_exg_channels (int board_id, int[] channels, int[] len);
+        [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_device_name (int board_id, byte[] name, int[] len);
     }
 
     public static class BoardControllerLibrary32
@@ -200,6 +202,8 @@ namespace brainflow
         public static extern int get_resistance_channels(int board_id, int[] channels, int[] len);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_exg_channels (int board_id, int[] channels, int[] len);
+        [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_device_name (int board_id, byte[] name, int[] len);
     }
 
     public static class BoardControllerLibraryLinux
@@ -266,6 +270,8 @@ namespace brainflow
         public static extern int get_resistance_channels (int board_id, int[] channels, int[] len);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_exg_channels (int board_id, int[] channels, int[] len);
+        [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_device_name (int board_id, byte[] name, int[] len);
     }
 
     public static class BoardControllerLibraryMac
@@ -332,6 +338,8 @@ namespace brainflow
         public static extern int get_resistance_channels (int board_id, int[] channels, int[] len);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_exg_channels (int board_id, int[] channels, int[] len);
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_device_name (int board_id, byte[] name, int[] len);
     }
 
     public static class BoardControllerLibrary
@@ -637,6 +645,23 @@ namespace brainflow
                     return BoardControllerLibraryLinux.get_eeg_names (board_id, names, len);
                 case LibraryEnvironment.MacOS:
                     return BoardControllerLibraryMac.get_eeg_names (board_id, names, len);
+            }
+
+            return (int)CustomExitCodes.GENERAL_ERROR;
+        }
+
+        public static int get_device_name (int board_id, byte[] name, int[] len)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_device_name (board_id, name, len);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_device_name (board_id, name, len);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.get_device_name (board_id, name, len);
+                case LibraryEnvironment.MacOS:
+                    return BoardControllerLibraryMac.get_device_name (board_id, name, len);
             }
 
             return (int)CustomExitCodes.GENERAL_ERROR;

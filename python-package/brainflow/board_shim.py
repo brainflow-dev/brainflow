@@ -281,6 +281,14 @@ class BoardControllerDLL (object):
             ndpointer (ctypes.c_int32)
         ]
 
+        self.get_device_name = self.lib.get_device_name
+        self.get_device_name.restype = ctypes.c_int
+        self.get_device_name.argtypes = [
+            ctypes.c_int,
+            ndpointer (ctypes.c_ubyte),
+            ndpointer (ctypes.c_int32)
+        ]
+
         self.get_eeg_channels = self.lib.get_eeg_channels
         self.get_eeg_channels.restype = ctypes.c_int
         self.get_eeg_channels.argtypes = [
@@ -566,6 +574,23 @@ class BoardShim (object):
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to request info about this board', res)
         return string.tobytes ().decode ('utf-8')[0:string_len[0]].split (',')
+
+    @classmethod
+    def get_device_name (cls, board_id: int) -> str:
+        """get device name
+
+        :param board_id: Board Id
+        :type board_id: int
+        :return: Device Name
+        :rtype: str
+        :raises BrainFlowError: If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+        """
+        string = numpy.zeros (4096).astype (numpy.ubyte)
+        string_len = numpy.zeros (1).astype (numpy.int32)
+        res = BoardControllerDLL.get_instance ().get_device_name (board_id, string, string_len)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to request info about this board', res)
+        return string.tobytes ().decode ('utf-8')[0:string_len[0]]
 
     @classmethod
     def get_eeg_channels (cls, board_id: int) -> List[int]:
