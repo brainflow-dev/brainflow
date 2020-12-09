@@ -432,6 +432,11 @@ Supported platforms:
 - Windows
 - May also work on Raspberry PI, if you replace libunicorn.so by library provided by Unicorn for Raspberry PI
 
+Steps to Setup:
+
+- Connect the dongle
+- Make sure that you paired Unicorn device with PC using provided dongle instead built-in Bluetooth
+
 Board Spec:
 
 - num eeg channels: 8
@@ -460,6 +465,8 @@ Supported platforms:
 - Linux
 - MacOS
 
+*Note: On Windows you may need to disable firewall to allow broadcast messages.*
+
 Board Spec:
 
 - num eeg channels: 8
@@ -483,6 +490,8 @@ Supported platforms:
 - Windows
 - Linux
 - MacOS
+
+*Note: On Windows you may need to disable firewall to allow broadcast messages.*
 
 Board Spec:
 
