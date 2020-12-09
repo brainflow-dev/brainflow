@@ -129,9 +129,9 @@ struct BoardShim
         master_id = id
         if id == Integer(STREAMING_BOARD) || id == Integer(PLAYBACK_FILE_BOARD)
             try
-                master_id = parse(Int, id)
+                master_id = parse(Int, params.other_info)
             catch
-                throw(BrainFlowError("you need to provide master board id to other_info field", 1))
+                throw(BrainFlowError("you need to provide master board id to other_info field of BrainFlowInputParams", 1))
             end
         end
         new(master_id, id, JSON.json(params))

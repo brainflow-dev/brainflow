@@ -2,6 +2,22 @@ using Test
 using brainflow
 using JSON
 
+@testset "BoardShim constructor" begin
+    # for most boards the master_id == the regular id
+    params = brainflow.BrainFlowInputParams()
+    board_shim = brainflow.BoardShim(brainflow.CYTON_BOARD, params)
+    @test board_shim.master_board_id == Integer(brainflow.CYTON_BOARD)
+
+    # for some special boards you need to provide the master_id in the other_info as string...
+    params = brainflow.BrainFlowInputParams(other_info = "1")
+    board_shim = brainflow.BoardShim(brainflow.STREAMING_BOARD, params)
+    @test board_shim.master_board_id == 1
+
+    # test the error if the other_info cannot be parsed as Int32
+    params = brainflow.BrainFlowInputParams(other_info = "")
+    @test_throws brainflow.BrainFlowError brainflow.BoardShim(brainflow.STREAMING_BOARD, params)
+end
+
 @testset "prepare_session error" begin
     # use a board that is not connected
     params = brainflow.BrainFlowInputParams()
