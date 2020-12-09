@@ -189,7 +189,7 @@ json brainflow_boards_json = {
             {"other_channels", {1}}
         }},
         {"13",
-            {{"name", "NotionOSC"},
+            {{"name", "NotionOSC1"},
             {"sampling_rate", 250},
             {"timestamp_channel", 10},
             {"package_num_channel", 0},
@@ -199,7 +199,7 @@ json brainflow_boards_json = {
             {"other_channels", {9}}
         }},
         {"14",
-            {{"name", "NotionOSC"},
+            {{"name", "NotionOSC2"},
             {"sampling_rate", 250},
             {"timestamp_channel", 10},
             {"package_num_channel", 0},

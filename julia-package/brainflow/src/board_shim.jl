@@ -184,6 +184,26 @@ function get_eeg_names(board_id::AnyIntType)
 end
 
 
+function get_device_name(board_id::AnyIntType)
+    name_string = Vector{Cuchar}(undef, 4096)
+    len = Vector{Cint}(undef, 1)
+    ec = STATUS_OK
+    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
+    if Sys.iswindows()
+        ec = ccall((:get_device_name, "BoardController.dll"), Cint, (Cint, Ptr{UInt8}, Ptr{Cint}), Int32(board_id), name_string, len)
+    elseif Sys.isapple()
+        ec = ccall((:get_device_name, "libBoardController.dylib"), Cint, (Cint, Ptr{UInt8}, Ptr{Cint}), Int32(board_id), name_string, len)
+    else
+        ec = ccall((:get_device_name, "libBoardController.so"), Cint, (Cint, Ptr{UInt8}, Ptr{Cint}), Int32(board_id), name_string, len)
+    end
+    if ec != Integer(STATUS_OK)
+        throw(BrainFlowError(string("Error in get board info ", ec), ec))
+    end
+    sub_string = String(name_string)[1:len[1]]
+    sub_string
+end
+
+
 function get_eeg_channels(board_id::AnyIntType)
     channels = Vector{Cint}(undef, 512)
     len = Vector{Cint}(undef, 1)

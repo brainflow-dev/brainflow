@@ -332,6 +332,19 @@ std::string *BoardShim::get_eeg_names (int board_id, int *len)
     return result;
 }
 
+std::string BoardShim::get_device_name (int board_id)
+{
+    char name[4096];
+    int string_len = 0;
+    int res = ::get_device_name (board_id, name, &string_len);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed get board info", res);
+    }
+    std::string result (name, 0, string_len);
+    return result;
+}
+
 int *BoardShim::get_eeg_channels (int board_id, int *len)
 {
     int *eeg_channels = new int[MAX_CHANNELS];
