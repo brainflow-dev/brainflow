@@ -42,6 +42,10 @@ jobs:
         cmake -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed64\ ..
         cmake --build . --target install --config Release -j 2 --parallel 2
       shell: cmd
+    # copy vcomp lib to installed64 folder only because for 32 bit its the same file
+    # will be used in deploy to bundle openmp library with distributed package
+    - name: Copy vcomp lib
+      run: Copy-Item "C:\Windows\System32\vcomp140.dll" -Destination "$env:GITHUB_WORKSPACE\installed64\"
     - name: Nuget
       run: |
         nuget install Accord -OutputDirectory %GITHUB_WORKSPACE%\csharp-package\brainflow\packages

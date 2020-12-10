@@ -64,6 +64,7 @@
           <include>libMLModule.so</include>
           <include>libMLModule.dylib</include>
           <include>brainflow_svm.model</include>
+          <include>vcomp140.dll</include>
         </includes>
       </resource>
     </resources>

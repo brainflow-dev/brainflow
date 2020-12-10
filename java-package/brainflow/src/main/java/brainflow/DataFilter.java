@@ -86,6 +86,7 @@ public class DataFilter
         if (SystemUtils.IS_OS_WINDOWS)
         {
             lib_name = "DataHandler.dll";
+            unpack_from_jar ("vcomp140.dll");
 
         } else if (SystemUtils.IS_OS_MAC)
         {

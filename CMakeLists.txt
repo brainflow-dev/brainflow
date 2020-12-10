@@ -294,11 +294,13 @@ set_target_properties (${ML_MODULE_NAME}
 )
 
 # link openmp if found
-find_package (OpenMP)
-if (OpenMP_CXX_FOUND)
-    target_link_libraries (${DATA_HANDLER_NAME} PRIVATE OpenMP::OpenMP_CXX)
-    target_link_libraries (${ML_MODULE_NAME} PRIVATE OpenMP::OpenMP_CXX)
-endif()
+if (NOT ANDROID)
+    find_package (OpenMP)
+    if (OpenMP_CXX_FOUND)
+        target_link_libraries (${DATA_HANDLER_NAME} PRIVATE OpenMP::OpenMP_CXX)
+        target_link_libraries (${ML_MODULE_NAME} PRIVATE OpenMP::OpenMP_CXX)
+    endif(OpenMP_CXX_FOUND)
+endif (NOT ANDROID)
 
 # dont link pthread for Android
 if (UNIX AND NOT ANDROID)
