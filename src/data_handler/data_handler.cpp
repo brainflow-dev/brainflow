@@ -12,6 +12,7 @@
 #include "data_handler.h"
 #include "downsample_operators.h"
 #include "rolling_filter.h"
+#include "thread_helpers.h"
 #include "wavelet_helpers.h"
 
 #include "DspFilters/Dsp.h"
@@ -1028,7 +1029,7 @@ int get_avg_band_powers (double *raw_data, int rows, int cols, int sampling_rate
         }
     }
 
-    int num_threads = std::thread::hardware_concurrency ();
+    int num_threads = get_num_threads ();
     std::vector<std::thread> pool;
     int rows_per_thread = rows / num_threads;
     if (rows_per_thread == 0)
