@@ -293,6 +293,13 @@ set_target_properties (${ML_MODULE_NAME}
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
 )
 
+# link openmp if found
+find_package (OpenMP)
+if (OpenMP_CXX_FOUND)
+    target_link_libraries (${DATA_HANDLER_NAME} PRIVATE OpenMP::OpenMP_CXX)
+    target_link_libraries (${ML_MODULE_NAME} PRIVATE OpenMP::OpenMP_CXX)
+endif()
+
 # dont link pthread for Android
 if (UNIX AND NOT ANDROID)
     target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE pthread dl)
