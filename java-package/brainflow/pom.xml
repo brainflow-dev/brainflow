@@ -65,6 +65,7 @@
           <include>libMLModule.dylib</include>
           <include>brainflow_svm.model</include>
           <include>vcomp140.dll</include>
+          <include>libomp.dylib</include>
         </includes>
       </resource>
     </resources>
