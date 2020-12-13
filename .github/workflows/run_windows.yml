@@ -44,8 +44,8 @@ jobs:
       shell: cmd
     # copy vcomp lib to installed64 folder only because for 32 bit its the same file
     # will be used in deploy to bundle openmp library with distributed package
-    - name: Copy vcomp lib
-      run: Copy-Item "C:\Windows\System32\vcomp140.dll" -Destination "$env:GITHUB_WORKSPACE\installed64\"
+    - name: Copy VCOMP Lib
+      run: Copy-Item "C:\Windows\System32\vcomp140.dll" -Destination "$env:GITHUB_WORKSPACE\installed64\lib"
     - name: Nuget
       run: |
         nuget install Accord -OutputDirectory %GITHUB_WORKSPACE%\csharp-package\brainflow\packages

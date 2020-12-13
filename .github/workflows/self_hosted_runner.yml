@@ -20,6 +20,9 @@ jobs:
         cmake -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
         make -j
         make install
+    - name: Copy OpenMP Lib
+      if: (matrix.os == 'macos-10.15')
+      run: cp /usr/local/opt/libomp/lib/libomp.dylib $GITHUB_WORKSPACE/installed/lib/
 
     # deploy started
     - name: Push Libraries

@@ -40,6 +40,9 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11.0.3
+    - name: Prepare OpenMP Lib
+      if: (matrix.os == 'macos-10.15')
+      run: brew install libomp
     - name: Compile BrainFlow
       run: |
         mkdir $GITHUB_WORKSPACE/build
@@ -47,6 +50,9 @@ jobs:
         cmake -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
         make -j
         make install
+    - name: Copy OpenMP Lib
+      if: (matrix.os == 'macos-10.15')
+      run: cp /usr/local/opt/libomp/lib/libomp.dylib $GITHUB_WORKSPACE/installed/lib/
     - name: Compile BrainFlow in ManyLinux
       # bindings in production have to use libraries compiled inside this image!
       if: (matrix.os == 'ubuntu-18.04')
