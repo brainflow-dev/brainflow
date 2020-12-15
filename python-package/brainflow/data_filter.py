@@ -66,7 +66,7 @@ class DataHandlerDLL (object):
             else:
                 dll_path = 'lib\\DataHandler32.dll'
         elif platform.system () == 'Darwin':
-            openmp_path = 'lib\\vcomp140.dll'
+            openmp_path = 'lib/libomp.dylib'
             dll_path = 'lib/libDataHandler.dylib'
         else:
             openmp_path = 'lib\\vcomp140.dll'

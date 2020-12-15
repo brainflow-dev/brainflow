@@ -72,7 +72,7 @@ class MLModuleDLL (object):
             else:
                 dll_path = 'lib\\MLModule32.dll'
         elif platform.system () == 'Darwin':
-            openmp_path = 'lib\\vcomp140.dll'
+            openmp_path = 'lib/libomp.dylib'
             dll_path = 'lib/libMLModule.dylib'
         else:
             openmp_path = 'lib\\vcomp140.dll'
