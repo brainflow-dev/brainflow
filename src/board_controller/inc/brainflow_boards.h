@@ -7,6 +7,12 @@ using json = nlohmann::json;
 // clang-format off
 json brainflow_boards_json = {
     {"boards", {
+        {"-3",
+            {{"name", "PlayBack"}
+        }},
+        {"-2",
+            {{"name", "Streaming"}
+        }},
         {"-1",
             {{"name", "Synthetic"},
             {"sampling_rate", 250},
