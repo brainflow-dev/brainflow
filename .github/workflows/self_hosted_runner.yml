@@ -21,7 +21,6 @@ jobs:
         make -j
         make install
     - name: Copy OpenMP Lib
-      if: (matrix.os == 'macos-10.15')
       run: cp /usr/local/opt/libomp/lib/libomp.dylib $GITHUB_WORKSPACE/installed/lib/
 
     # deploy started
