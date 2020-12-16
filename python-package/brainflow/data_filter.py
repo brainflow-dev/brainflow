@@ -204,6 +204,15 @@ class DataHandlerDLL (object):
             ndpointer (ctypes.c_double)
         ]
 
+        self.perform_windowing = self.lib.perform_windowing
+        self.perform_windowing.restype = ctypes.c_int
+        self.perform_windowing.argtypes = [
+            ndpointer (ctypes.c_double),
+            ctypes.c_int,
+            ctypes.c_int,
+            ndpointer (ctypes.c_double)
+        ]
+
         self.perform_fft = self.lib.perform_fft
         self.perform_fft.restype = ctypes.c_int
         self.perform_fft.argtypes = [
@@ -578,6 +587,30 @@ class DataFilter (object):
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to denoise data', res)
 
+    @classmethod
+    def perform_windowing (cls, data: NDArray[Float64], window: int) -> NDArray[Float64]:
+         """perform data windowing
+
+        :param data: data for windowing, len of data must be a power of 2
+        :type data: NDArray[Float64]
+        :param window: window function
+        :type window: int
+        :return: numpy array of complex values, len of the array is the same as data
+        :rtype: NDArray[Float64]
+        """
+        def is_power_of_two (n):
+            return (n != 0) and (n & (n - 1) == 0)
+
+        if (not is_power_of_two (data.shape[0])):
+            raise BrainFlowError ('data len is not power of 2: %d' % data.shape[0], BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+
+        windowed_data = numpy.zeros (data.shape[0]).astype (numpy.float64)
+        res = DataHandlerDLL.get_instance ().perform_windowing (data, data.shape[0], window, windowed_data)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to perform windowing', res)
+
+        return windowed_data
+    
     @classmethod
     def perform_fft (cls, data: NDArray[Float64], window: int) -> NDArray[Complex128]:
         """perform direct fft

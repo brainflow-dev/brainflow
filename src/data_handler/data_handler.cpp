@@ -495,6 +495,77 @@ int perform_wavelet_denoising (double *data, int data_len, char *wavelet, int de
     }
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
+  
+int perform_windowing (
+    double *data, int data_len, int window_function, double *output_data)
+{
+    // must be power of 2
+    if ((!data) || (!output_data) || (data_len <= 0) || (data_len & (data_len - 1)))
+    {
+        data_logger->error ("Please check to make sure all arguments aren't empty and data_len is "
+                            "a postive power of 2.");
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    double *temp = new double[data_len];
+    try {
+        if (data == 0)
+        {
+            throw new std::runtime_error ("invalid x and f arguments");
+        }
+
+        // from https://www.edn.com/windowing-functions-improve-fft-results-part-i/
+        switch (static_cast<WindowFunctions> (window_function))
+        {
+            case WindowFunctions::NO_WINDOW:
+                for (int i = 0; i < data_len; i++)
+                {
+                    temp[i] = data[i];
+                }
+                break;
+            case WindowFunctions::HAMMING:
+                for (int i = 0; i < data_len; i++)
+                {
+                    temp[i] = data[i] * (0.54 - 0.46 * cos (2.0 * M_PI * i / data_len));
+                }
+                break;
+            case WindowFunctions::HANNING:
+                for (int i = 0; i < data_len; i++)
+                {
+                    temp[i] = data[i] * (0.5 - 0.5 * cos (2.0 * M_PI * i / data_len));
+                }
+                break;
+            case WindowFunctions::BLACKMAN_HARRIS:
+                for (int i = 0; i < data_len; i++)
+                {
+                    temp[i] = data[i] *
+                        (0.355768 - 0.487396 * cos (2.0 * M_PI * i / data_len) +
+                            0.144232 * cos (4.0 * M_PI * i / data_len) -
+                            0.012604 * cos (6.0 * M_PI * i / data_len));
+                }
+                break;
+            default:
+                data_logger->error ("Invalid Window function. Window function:{}", window_function);
+                return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+        }
+            
+        for (int i = 0; i < data_len; i++)
+        {
+            output_data[i] = temp[i];
+        }
+    }
+    catch (const std::exception &e)
+    {
+        if (temp)
+        {
+            delete[] temp;
+        }
+        data_logger->error ("Error with doing data windowing process.");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
 
 /*
    FFTReal output | Positive FFT equiv.   | Negative FFT equiv.
@@ -530,41 +601,9 @@ int perform_fft (
                             "a postive power of 2.");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
+
     double *windowed_data = new double[data_len];
-    // from https://www.edn.com/windowing-functions-improve-fft-results-part-i/
-    switch (static_cast<WindowFunctions> (window_function))
-    {
-        case WindowFunctions::NO_WINDOW:
-            for (int i = 0; i < data_len; i++)
-            {
-                windowed_data[i] = data[i];
-            }
-            break;
-        case WindowFunctions::HAMMING:
-            for (int i = 0; i < data_len; i++)
-            {
-                windowed_data[i] = data[i] * (0.54 - 0.46 * cos (2.0 * M_PI * i / data_len));
-            }
-            break;
-        case WindowFunctions::HANNING:
-            for (int i = 0; i < data_len; i++)
-            {
-                windowed_data[i] = data[i] * (0.5 - 0.5 * cos (2.0 * M_PI * i / data_len));
-            }
-            break;
-        case WindowFunctions::BLACKMAN_HARRIS:
-            for (int i = 0; i < data_len; i++)
-            {
-                windowed_data[i] = data[i] *
-                    (0.355768 - 0.487396 * cos (2.0 * M_PI * i / data_len) +
-                        0.144232 * cos (4.0 * M_PI * i / data_len) -
-                        0.012604 * cos (6.0 * M_PI * i / data_len));
-            }
-            break;
-        default:
-            data_logger->error ("Invalid Window function. Window function:{}", window_function);
-            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
-    }
+    perform_windowing(data, data_len, window_function, windowed_data);
     double *temp = new double[data_len];
     try
     {
