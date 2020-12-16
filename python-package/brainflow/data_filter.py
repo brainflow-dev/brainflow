@@ -15,7 +15,7 @@ from brainflow.board_shim import BrainFlowError, LogLevels
 from brainflow.exit_codes import BrainflowExitCodes
 
 
-class FilterTypes (enum.Enum):
+class FilterTypes (enum.IntEnum):
     """Enum to store all supported Filter Types"""
 
     BUTTERWORTH = 0 #:
@@ -23,7 +23,7 @@ class FilterTypes (enum.Enum):
     BESSEL = 2 #:
 
 
-class AggOperations (enum.Enum):
+class AggOperations (enum.IntEnum):
     """Enum to store all supported aggregation operations"""
 
     MEAN = 0 #:
@@ -31,7 +31,7 @@ class AggOperations (enum.Enum):
     EACH = 2 #:
 
 
-class WindowFunctions (enum.Enum):
+class WindowFunctions (enum.IntEnum):
     """Enum to store all supported window functions"""
 
     NO_WINDOW = 0 #:
@@ -40,7 +40,7 @@ class WindowFunctions (enum.Enum):
     BLACKMAN_HARRIS = 3 #:
 
 
-class DetrendOperations (enum.Enum):
+class DetrendOperations (enum.IntEnum):
     """Enum to store all supported detrend options"""
 
     NONE = 0 #:

@@ -15,7 +15,7 @@ from nptyping import NDArray, Float64
 from brainflow.exit_codes import BrainflowExitCodes
 
 
-class BoardIds (enum.Enum):
+class BoardIds (enum.IntEnum):
     """Enum to store all supported Board Ids"""
 
     PLAYBACK_FILE_BOARD = -3 #:
@@ -41,7 +41,7 @@ class BoardIds (enum.Enum):
     FREEEEG32_BOARD = 17 #:
 
 
-class LogLevels (enum.Enum):
+class LogLevels (enum.IntEnum):
     """Enum to store all log levels supported by BrainFlow"""
 
     LEVEL_TRACE = 0 #:
@@ -53,7 +53,7 @@ class LogLevels (enum.Enum):
     LEVEL_OFF = 6 #:
 
 
-class IpProtocolType (enum.Enum):
+class IpProtocolType (enum.IntEnum):
     """Enum to store Ip Protocol types"""
 
     NONE = 0 #:

@@ -16,14 +16,14 @@ from brainflow.board_shim import BrainFlowError, LogLevels
 from brainflow.exit_codes import BrainflowExitCodes
 
 
-class BrainFlowMetrics (enum.Enum):
+class BrainFlowMetrics (enum.IntEnum):
     """Enum to store all supported metrics"""
 
     RELAXATION = 0 #:
     CONCENTRATION = 1 #:
 
 
-class BrainFlowClassifiers (enum.Enum):
+class BrainFlowClassifiers (enum.IntEnum):
     """Enum to store all supported classifiers"""
 
     REGRESSION = 0 #:
