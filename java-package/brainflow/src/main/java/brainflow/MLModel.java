@@ -36,7 +36,6 @@ public class MLModel
         boolean is_os_android = "The Android Project".equals (System.getProperty ("java.specification.vendor"));
 
         String lib_name = "libMLModule.so";
-        String omp_name = "";
         if (SystemUtils.IS_OS_WINDOWS)
         {
             lib_name = "MLModule.dll";
@@ -57,20 +56,6 @@ public class MLModel
             // need to extract libraries from jar
             unpack_from_jar (lib_name);
             unpack_from_jar ("brainflow_svm.model");
-        }
-        // try to preload openmp lib
-        try
-        {
-            if (!omp_name.isEmpty ())
-            {
-                unpack_from_jar (omp_name);
-                String lib_path = Paths.get (".").toAbsolutePath ().normalize ().toString () + File.pathSeparator
-                        + omp_name;
-                System.load (lib_path);
-            }
-        } catch (Throwable t)
-        {
-            // do nothing
         }
 
         instance = (DllInterface) Native.loadLibrary (lib_name, DllInterface.class);

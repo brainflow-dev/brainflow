@@ -172,9 +172,11 @@ MacOS
 Compilation with OpenMP
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Some data processing algorithms work much faster if you run them in multiple threads. To parallel computations we use OpenMP library.
+Some data processing and machine learning algorithms work much faster if you run them in multiple threads. To parallel computations we use OpenMP library.
 
-Libraries which you download from PYPI/Nuget/Maven/etc compiled with OpenMP support for Windows and Linux, if you are using MacOS, Android or ARM devices and want to speed up computations you need to build these libraries on your machine from the source and enable OpenMP option.
+**Precompiled libraries which you download from PYPI/Nuget/Maven/etc built without OpenMP support and work in single thread.**
+
+If you need to increase performance of signal processing algorithms you need to compile BrainFlow from the source and turn on *USE_OPENMP* option.
 
 To build BrainFlow with OpenMP support first of all you need to install OpenMP.
 
@@ -182,7 +184,7 @@ To build BrainFlow with OpenMP support first of all you need to install OpenMP.
 - On Linux you may need to install libgomp if it's not currently installed
 - On MacOS you need to run :code:`brew install libomp`
 
-After that you need to compile BrainFlow with OpenMP support, steps are exactly the same but you need to run bash or cmd scripts whith _omp postfix.
+After that you need to compile BrainFlow with OpenMP support, steps are exactly the same as above, but you need to run bash or cmd scripts whith _omp postfix.
 
 .. compound::
 
@@ -194,6 +196,8 @@ After that you need to compile BrainFlow with OpenMP support, steps are exactly 
         bash ./tools/build_mac_omp.sh
         # for Windows
         .\tools\build_win64_omp.cmd
+
+If you use Cmake directly to build BrainFlow you need to add :code:`-DUSE_OPENMP=ON ` to Cmake config command line.
 
 
 Android

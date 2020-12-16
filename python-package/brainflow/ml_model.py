@@ -65,9 +65,7 @@ class MLModuleDLL (object):
         return cls.__instance
 
     def __init__ (self):
-        openmp_path = None
         if platform.system () == 'Windows':
-            openmp_path = 'lib\\vcomp140.dll'
             if struct.calcsize ("P") * 8 == 64:
                 dll_path = 'lib\\MLModule.dll'
             else:
@@ -76,14 +74,6 @@ class MLModuleDLL (object):
             dll_path = 'lib/libMLModule.dylib'
         else:
             dll_path = 'lib/libMLModule.so'
-        # try to preload openmp, if exception system will try to load it from env vars
-        if openmp_path is not None:
-            openmp_path = pkg_resources.resource_filename (__name__, openmp_path)
-            if os.path.isfile (openmp_path):
-                try:
-                    ctypes.cdll.LoadLibrary (full_path)
-                except BaseException:
-                    pass
         full_path = pkg_resources.resource_filename (__name__, dll_path)
         if os.path.isfile (full_path):
             # for python we load dll by direct path but this dll may depend on other dlls and they will not be found!
