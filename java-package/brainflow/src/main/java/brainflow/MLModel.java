@@ -39,7 +39,6 @@ public class MLModel
         if (SystemUtils.IS_OS_WINDOWS)
         {
             lib_name = "MLModule.dll";
-            omp_name = "vcomp140.dll";
 
         } else if (SystemUtils.IS_OS_MAC)
         {
