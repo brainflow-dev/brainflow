@@ -1,6 +1,6 @@
 name: Greetings
 
-on: [pull_request, issues]
+on: [issues]
 
 jobs:
   greeting:
@@ -10,4 +10,3 @@ jobs:
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         issue-message: 'Welcome to BrainFlow project and thanks for your contribution! We will try to fix your issue ASAP. Make sure that you have read about issue format in the docs'
-        pr-message: 'Welcome to BrainFlow project and thanks for your contribution! We will try to review your PR ASAP. Make sure that you have read about requirements to pull requests in the docs'
