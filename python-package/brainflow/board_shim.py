@@ -15,7 +15,7 @@ from nptyping import NDArray, Float64
 from brainflow.exit_codes import BrainflowExitCodes
 
 
-class BoardIds (enum.Enum):
+class BoardIds (enum.IntEnum):
     """Enum to store all supported Board Ids"""
 
     PLAYBACK_FILE_BOARD = -3 #:
