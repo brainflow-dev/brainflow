@@ -339,6 +339,30 @@ public class DataFilter
     }
 
     /**
+     * perform data windowing
+     * 
+     * @param data      data for windowing
+     * @param window    window function
+     * @return array with the same length as data
+     */
+    public static double[] perform_windowing (double[] data, int window) throws BrainFlowError
+    {
+        int len = data.length;
+        if ((len & (len - 1)) != 0)
+        {
+            throw new BrainFlowError ("len of data must be a power of 2",
+                    ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
+        double[] windowed_data = new double[(int) (data.length)];
+        int ec = instance.perform_windowing (data, data.length, window, downsampled_data);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Failed to perform windowing", ec);
+        }
+        return windowed_data;
+    }
+
+    /**
      * perform direct fft
      * 
      * @param data      data for fft transform
