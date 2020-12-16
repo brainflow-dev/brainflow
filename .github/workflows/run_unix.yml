@@ -43,6 +43,13 @@ jobs:
     - name: Prepare MacOS OpenMP Lib
       if: (matrix.os == 'macos-10.15')
       run: brew install libomp
+    - name: Prepare Linux OpenMP Lib
+      if: (matrix.os == 'ubuntu-18.04')
+      run: |
+        sudo -H apt-get update -y
+        sudo -H apt-get install -y libgomp1
+      env:
+        DEBIAN_FRONTEND: noninteractive
     - name: Compile BrainFlow
       run: |
         mkdir $GITHUB_WORKSPACE/build
