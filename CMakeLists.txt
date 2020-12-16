@@ -1,15 +1,17 @@
-cmake_minimum_required (VERSION 3.10)
+cmake_minimum_required (VERSION 3.13)
 project (brainflow)
 
 set (CMAKE_CXX_STANDARD 11)
 set (CMAKE_VERBOSE_MAKEFILE ON)
-set (BRAINFLOW_VERSION 2.1.0)
+set (BRAINFLOW_VERSION 3.7.3)
 
 # dont export sumbols on unix by default
 set (CMAKE_CXX_VISIBILITY_PRESET hidden)
 set (CMAKE_C_VISIBILITY_PRESET hidden)
 
 set (CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+option(USE_OPENMP "USE_OPENMP" OFF)
 
 macro (configure_msvc_runtime)
     if (MSVC)
@@ -293,14 +295,15 @@ set_target_properties (${ML_MODULE_NAME}
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
 )
 
-# link openmp if found
-if (NOT ANDROID)
+if (USE_OPENMP)
     find_package (OpenMP)
     if (OpenMP_CXX_FOUND)
         target_link_libraries (${DATA_HANDLER_NAME} PRIVATE OpenMP::OpenMP_CXX)
         target_link_libraries (${ML_MODULE_NAME} PRIVATE OpenMP::OpenMP_CXX)
-    endif(OpenMP_CXX_FOUND)
-endif (NOT ANDROID)
+    else (OpenMP_CXX_FOUND)
+        message (FATAL_ERROR "ENABLE_OPENMP set but no OpenMP found.")
+    endif (OpenMP_CXX_FOUND)
+endif (USE_OPENMP)
 
 # dont link pthread for Android
 if (UNIX AND NOT ANDROID)

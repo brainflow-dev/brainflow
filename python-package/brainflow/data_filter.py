@@ -59,6 +59,7 @@ class DataHandlerDLL (object):
         return cls.__instance
 
     def __init__ (self):
+        openmp_path = None
         if platform.system () == 'Windows':
             openmp_path = 'lib\\vcomp140.dll'
             if struct.calcsize ("P") * 8 == 64:
@@ -66,10 +67,8 @@ class DataHandlerDLL (object):
             else:
                 dll_path = 'lib\\DataHandler32.dll'
         elif platform.system () == 'Darwin':
-            openmp_path = 'lib\\vcomp140.dll'
             dll_path = 'lib/libDataHandler.dylib'
         else:
-            openmp_path = 'lib\\vcomp140.dll'
             dll_path = 'lib/libDataHandler.so'
         # try to preload openmp, if exception system will try to load it from env vars
         if openmp_path is not None:

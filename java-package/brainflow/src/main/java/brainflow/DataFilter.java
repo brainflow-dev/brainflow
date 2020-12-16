@@ -92,7 +92,6 @@ public class DataFilter
 
         } else if (SystemUtils.IS_OS_MAC)
         {
-            omp_name = "libomp.dylib";
             lib_name = "libDataHandler.dylib";
         }
 

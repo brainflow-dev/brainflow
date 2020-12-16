@@ -44,7 +44,6 @@ public class MLModel
 
         } else if (SystemUtils.IS_OS_MAC)
         {
-            omp_name = "libomp.dylib";
             lib_name = "libMLModule.dylib";
         }
 

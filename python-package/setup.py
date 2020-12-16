@@ -45,8 +45,7 @@ setup (
             os.path.join ('lib', 'brainflow_svm.model'),
             os.path.join ('lib', 'libMLModule.so'),
             os.path.join ('lib', 'libMLModule.dylib'),
-            os.path.join ('lib', 'vcomp140.dll'),
-            os.path.join ('lib', 'libomp.dylib')
+            os.path.join ('lib', 'vcomp140.dll')
         ]
     },
     zip_safe = True,
