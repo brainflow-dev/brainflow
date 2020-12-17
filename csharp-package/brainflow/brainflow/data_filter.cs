@@ -286,6 +286,27 @@ namespace brainflow
         }
 
         /// <summary>
+        /// perform windowing
+        /// </summary>
+        /// <param name="data">data for windowing</param>
+        /// <param name="window">window function</param>
+        /// <returns>array the same len as data </returns>
+        public static double[] perform_fft(double[] data, int window)
+        {
+            int len = data.Length;
+            if ((len & (len - 1)) != 0)
+            {
+                throw new BrainFlowException ((int)CustomExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            int res = DataHandlerLibrary.perform_windowing (data, len, window, windowed_data);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException (res);
+            }
+            return windowed_data;
+        }
+
+        /// <summary>
         /// perform direct fft
         /// </summary>
         /// <param name="data">data for fft</param>

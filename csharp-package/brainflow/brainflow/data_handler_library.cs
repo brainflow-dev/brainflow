@@ -63,6 +63,8 @@ namespace brainflow
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_wavelet_denoising (double[] data, int data_len, string wavelet, int decomposition_level);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int perform_windowing (double[] data, int data_len, int window, double[] output_data);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_fft (double[] data, int data_len, int window, double[] re, double[] im);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_ifft (double[] re, double[] im, int data_len, double[] data);

@@ -58,6 +58,9 @@ public:
     /// perform wavelet denoising
     static void perform_wavelet_denoising (
         double *data, int data_len, char *wavelet, int decomposition_level);
+    /// perform data windowing
+    static double *perform_windowing (
+        double *data, int data_len, int window);
     /**
      * perform direct fft
      * @param data input array
