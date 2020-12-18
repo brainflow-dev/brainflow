@@ -166,7 +166,7 @@ end
     end
 
     if !is_power_of_two(length(data))
-        throw(BrainFlowError(string("Data Len must be power of two ", INVALID_ARGUMENTS_ERROR), INVALID_ARGUMENTS_ERROR))
+        throw(BrainFlowError(string("Data Len must be power of two ", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))
     end
 
     temp_re = Vector{Float64}(undef, Integer(length(data) / 2) + 1)
@@ -218,7 +218,7 @@ end
     end
 
     if !is_power_of_two(length(data))
-        throw(BrainFlowError(string("Data Len must be power of two ", INVALID_ARGUMENTS_ERROR), INVALID_ARGUMENTS_ERROR))
+        throw(BrainFlowError(string("Data Len must be power of two ", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))
     end
 
     temp_ampls = Vector{Float64}(undef, Integer(length(data) / 2) + 1)
@@ -236,7 +236,7 @@ end
     end
 
     if !is_power_of_two(nfft)
-        throw(BrainFlowError(string("nfft must be power of two ", INVALID_ARGUMENTS_ERROR), INVALID_ARGUMENTS_ERROR))
+        throw(BrainFlowError(string("nfft must be power of two ", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))
     end
 
     temp_ampls = Vector{Float64}(undef, Integer(nfft / 2) + 1)

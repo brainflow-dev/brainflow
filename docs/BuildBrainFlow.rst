@@ -120,16 +120,16 @@ Compilation of Core Module and C++ Binding
 Windows
 ~~~~~~~~
 
-- Install Cmake>=3.13 you can install it from PYPI via pip
-- Install Visual Studio 2017, you can use another version but you will need to change cmake generator in batch files or run cmake commands manually. Also in CI we test only VS2017
+- Install CMake>=3.13 you can install it from PYPI via pip
+- Install Visual Studio 2017, you can use another version but you will need to change CMake generator in batch files or run CMake commands manually. Also in CI we test only VS2017
 - In VS installer make sure you selected "Visual C++ ATL support"
-- Build it as a cmake project manually or use cmd files from tools directory
+- Build it as a CMake project manually or use cmd files from tools directory
 
 .. compound::
 
-    Compilation using cmd files ::
+    Compilation using cmd files: ::
 
-        python -m pip install cmake==3.13.3
+        python -m pip install cmake
         # need to run these files from project dir
         .\tools\build_win32.cmd
         .\tools\build_win64.cmd
@@ -137,16 +137,16 @@ Windows
 Linux
 ~~~~~~
 
-- Install Cmake>=3.13 you can install it from PYPI via pip
+- Install CMake>=3.13 you can install it from PYPI via pip
 - If you wanna distribute compiled Linux libraries you HAVE to build it inside manylinux Docker container
-- Build it as a cmake project manually or use bash file from tools directory
+- Build it as a CMake project manually or use bash file from tools directory
 - You can use any compiler but for Linux we test only GCC, also we test only 64bit libraries for Linux
 
 .. compound::
 
-    Compilation using bash file ::
+    Compilation using bash file: ::
 
-        python -m pip install cmake==3.13.3
+        python -m pip install cmake
         # you may need to change line endings using dos2unix or text editor for file below
         # need to run this file from project dir
         bash ./tools/build_linux.sh
@@ -154,18 +154,50 @@ Linux
 MacOS
 ~~~~~~~
 
-- Install Cmake>=3.13 you can install it from PYPI via pip
-- Build it as a cmake project manually or use bash file from tools directory
+- Install CMake>=3.13 you can install it from PYPI via pip
+- Build it as a CMake project manually or use bash file from tools directory
 - You can use any compiler but for MacOS we test only Clang
 
 .. compound::
 
-    Compilation using bash file ::
+    Compilation using bash file: ::
 
-        python -m pip install cmake==3.13.3
+        python -m pip install cmake
         # you may need to change line endings using dos2unix or text editor for file below
         # need to run this file from project dir
         bash ./tools/build_mac.sh
+
+
+
+Compilation with OpenMP
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Some data processing and machine learning algorithms work much faster if you run them in multiple threads. To parallel computations we use OpenMP library.
+
+**Precompiled libraries which you download from PYPI/Nuget/Maven/etc built without OpenMP support and work in single thread.**
+
+If you want to increase performance of signal processing algorithms you can compile BrainFlow from the source and turn on *USE_OPENMP* option.
+
+To build BrainFlow with OpenMP support first of all you need to install OpenMP.
+
+- On Windows all you need is Visual C++ Redist package which is installed automatically with Visual Studio
+- On Linux you may need to install libgomp if it's not currently installed
+- On MacOS you need to run :code:`brew install libomp`
+
+After that you need to compile BrainFlow with OpenMP support, steps are exactly the same as above, but you need to run bash or cmd scripts whith _omp postfix.
+
+.. compound::
+
+    Example: ::
+
+        # for Linux
+        bash ./tools/build_linux_omp.sh
+        # for MacOS
+        bash ./tools/build_mac_omp.sh
+        # for Windows
+        .\tools\build_win64_omp.cmd
+
+If you use CMake directly to build BrainFlow you need to add :code:`-DUSE_OPENMP=ON` to CMake config command line.
 
 
 Android
@@ -214,9 +246,9 @@ Compilation instructions:
 
 .. compound::
     
-    Command line examples ::
+    Command line examples: ::
 
-        # to prepare project
+        # to prepare project(choose ABIs which you need)
         # for arm64-v8a
         cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=E:\android-ndk-r21d-windows-x86_64\android-ndk-r21d\build\cmake\android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=android-19 -DANDROID_ABI=arm64-v8a ..
         # for armeabi-v7a
@@ -226,5 +258,5 @@ Compilation instructions:
         # for x86
         cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=E:\android-ndk-r21d-windows-x86_64\android-ndk-r21d\build\cmake\android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=android-19 -DANDROID_ABI=x86 ..
 
-        # to build
+        # to build(should be run for each ABI from previous step)
         cmake --build . --target install --config Release -j 2 --parallel 2

@@ -61,8 +61,8 @@ macro brainflow_rethrow(defun)
     # use the function name in the error message
     wrapup_ccall = quote 
         if ec != Integer(STATUS_OK)
-            msg = string("Error in ", $(name), " ", ec)
-            throw(BrainFlowError(msg, ec))
+            msg = string("Error in ", $(name), " ", Integer(ec))
+            throw(BrainFlowError(msg, Integer(ec)))
         end
     end
 
