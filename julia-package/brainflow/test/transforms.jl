@@ -10,7 +10,7 @@ sampling_rate = brainflow.get_sampling_rate(brainflow.SYNTHETIC_BOARD)
 
 brainflow.prepare_session(board_shim)
 brainflow.start_stream(board_shim)
-sleep(5)
+sleep(10)
 brainflow.stop_stream(board_shim)
 data = brainflow.get_current_board_data(brainflow.get_nearest_power_of_two(sampling_rate), board_shim)
 brainflow.release_session(board_shim)
