@@ -2,6 +2,7 @@ FROM ubuntu:20.04
 
 # Prerequisites
 ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get -qq update && \
 apt-get install -yqq dirmngr gnupg apt-transport-https ca-certificates software-properties-common && \
 apt-add-repository ppa:apt-fast/stable -y && \
@@ -16,16 +17,52 @@ echo debconf apt-fast/dlflag boolean true | debconf-set-selections && \
 echo debconf apt-fast/aptmanager string apt-get | debconf-set-selections && \
 apt-fast -yqq upgrade
 # Installing Dependencies
-RUN apt-fast -yqq install python3 openjdk-13-jdk git curl wget build-essential cmake python3-jira r-base nuget nuget mono-devel mono-complete monodevelop
+RUN apt-fast -yqq install python3 python3-pip python3-venv openjdk-13-jdk git curl wget build-essential cmake python3-jira r-base nuget nuget mono-devel mono-complete monodevelop
 
+RUN mkdir -p /root/local/bin
+
+WORKDIR /root/local/bin
+
+RUN curl "https://miroir.univ-lorraine.fr/apache/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz" -o maven.tar.gz
+RUN mkdir -p maven
+RUN tar xzf maven.tar.gz -C ./maven
+RUN export PATH=$PATH:/root/local/bin/maven/apache-maven-3.6.3/bin
+RUN curl "https://julialang-s3.julialang.org/bin/linux/x64/1.5/julia-1.5.3-linux-x86_64.tar.gz" -o julia.tar.gz
+RUN mkdir -p julia
+RUN tar xzf julia.tar.gz -C ./julia
+RUN export PATH=$PATH:/root/local/bin/julia/julia-1.5.3/bin
 WORKDIR /root
 
 ARG tag
 ARG branch
 
-RUN if [ -z "${tag}" ] || [ -z "${branch}" ]; then git clone "https://github.com/brainflow-dev/brainflow.git"; else git clone --branch "${tag}" --single-branch "https://github.com/brainflow-dev/brainflow.git"; fi
+RUN if [ -z "${tag}" ] || [ -z "${branch}" ]; then git clone "https://github.com/brainflow-dev/brainflow.git"; elif [ ! -z "${tag}" ]; then git clone --branch "${tag}" --single-branch "https://github.com/brainflow-dev/brainflow.git"; else git clone --branch "${branch}" --single-branch "https://github.com/brainflow-dev/brainflow.git"; fi
 
+# Python Binding
 WORKDIR /root/brainflow
+RUN python3 -m pip install --user virtualenv
+RUN python3 -m virtualenv venv
+RUN bash ./tools/build_linux.sh
+WORKDIR /root/brainflow/python-package
+RUN python3 -m pip install -e .
 
-RUN bash ./tools/build_docker.sh
+WORKDIR /root/brainflow/
+# C# Binding
+RUN nuget restore csharp-package/brainflow/brainflow.sln
+RUN xbuild csharp-package/brainflow/brainflow.sln
+ENV LD_LIBRARY_PATH=/root/brainflow/installed_linux/lib/
+RUN mono csharp-package/brainflow/denoising/bin/Debug/test.exe
+
+WORKDIR /root/brainflow/java-package/brainflow
+#Java Binding
+RUN /root/local/bin/maven/apache-maven-3.6.3/bin/mvn package
+
+#WORKDIR /root/brainflow/julia-package/brainflow
+#Julia Bindings
+#RUN /root/local/bin/julia/julia-1.5.3/bin/julia
+#RUN ]
+#RUN activate .
+
+#WORKDIR /root/brainflow/r-package/brainflow
+#RUN R CMD build .
 
