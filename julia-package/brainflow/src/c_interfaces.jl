@@ -21,15 +21,16 @@ function download_brainflow_artifact()
 end
 
 function get_brainflow_artifact_path()
-    try
-        return artifact"brainflow"
-    catch
-        @warn "Could not automatically retrieve brainflow artifact, attempting manual download"
-        # we have a known issue with unpack(), so wrote a custom download
-        # https://discourse.julialang.org/t/unable-to-automatically-install-artifact/51984/2
-        download_brainflow_artifact()
-        return artifact"brainflow"
-    end
+    return ensure_artifact_installed("brainflow", "Artifacts.toml", verbose=true)
+    # try
+    #     return artifact"brainflow"
+    # catch
+    #     @warn "Could not automatically retrieve brainflow artifact, attempting manual download"
+    #     # we have a known issue with unpack(), so wrote a custom download
+    #     # https://discourse.julialang.org/t/unable-to-automatically-install-artifact/51984/2
+    #     download_brainflow_artifact()
+    #     return artifact"brainflow"
+    # end
 end
 
 function interface_path(library::AbstractString)
