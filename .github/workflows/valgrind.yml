@@ -24,7 +24,7 @@ jobs:
       run: |
         mkdir $GITHUB_WORKSPACE/build
         cd $GITHUB_WORKSPACE/build
-        cmake -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
+        cmake -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Debug ..
         make -j
         make install
     - name: Build Get Data Test
@@ -32,21 +32,21 @@ jobs:
         cd $GITHUB_WORKSPACE/tests/cpp/get_data_demo
         mkdir build
         cd build
-        cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed ..
+        cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Debug ..
         make -j
     - name: Build Signal Processing Test
       run: |
         cd $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo
         mkdir build
         cd build
-        cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed ..
+        cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Debug ..
         make -j
     - name: Build ML Demo Test
       run: |
         cd $GITHUB_WORKSPACE/tests/cpp/ml_demo
         mkdir build
         cd build
-        cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed ..
+        cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Debug ..
         make -j
     - name: Install Valgrind
       run: |
@@ -118,8 +118,3 @@ jobs:
       run: valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/band_power
       env:
         LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
-    - name: EEG Metrics Cpp
-      run: valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/ml_demo/build/eeg_metrics --board-id -1
-      env:
-        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
-  
