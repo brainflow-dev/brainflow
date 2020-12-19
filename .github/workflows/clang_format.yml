@@ -9,7 +9,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Run clang-format
-      uses: RafikFarhad/clang-format-github-action@v1
+      uses: DoozyX/clang-format-lint-action@v0.11
       with:
-        sources: "src/**/*.h,src/**/*.c,src/**/*.cpp"
-        style: "file"
+        source: 'src'
+        exclude: './third_party'
+        extensions: 'h,cpp,c'
+        clangFormatVersion: 11
+        inplace: False
