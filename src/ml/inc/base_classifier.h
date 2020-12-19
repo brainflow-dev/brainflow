@@ -26,8 +26,10 @@ public:
     // Classifier ml_logger should not be called from destructors, to ensure that there are safe log
     // methods Classifierml_logger still available but should be used only outside destructors
     template <typename Arg1, typename... Args>
-    void safe_logger (spdlog::level::level_enum log_level, const char *fmt, const Arg1 &arg1,
-        const Args &... args)
+    // clang-format off
+    void safe_logger (
+        spdlog::level::level_enum log_level, const char *fmt, const Arg1 &arg1, const Args &... args)
+    // clang-format on
     {
         if (!skip_logs)
         {

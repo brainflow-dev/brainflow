@@ -158,7 +158,7 @@ void FreeEEG32::read_thread ()
     // min_package_size and we can check start\stop bytes
     constexpr int min_package_size = 1 + 32 * 3;
     float eeg_scale =
-        FreeEEG32::ads_vref / float((pow (2, 23) - 1)) / FreeEEG32::ads_gain * 1000000.;
+        FreeEEG32::ads_vref / float ((pow (2, 23) - 1)) / FreeEEG32::ads_gain * 1000000.;
     double package[FreeEEG32::num_channels] = {0.0};
     bool first_package_received = false;
 
