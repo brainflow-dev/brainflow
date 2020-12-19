@@ -253,7 +253,6 @@ void Ganglion::read_thread ()
     int num_attempts = 0;
     int sleep_time = 10;
     int max_attempts = params.timeout * 1000 / sleep_time;
-    bool was_reset = false;
     float last_data[8] = {0};
 
     double accel_x = 0.;

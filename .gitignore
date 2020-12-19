@@ -353,16 +353,22 @@ docs/Doxyfile*
 java-package/brainflow/target
 java-package/brainflow/.classpath
 java-package/brainflow/.project
-csharp-package/brainflow/brainflow/lib/brainflow_boards.json
-csharp-package/brainflow/brainflow/libBoardController.dylib
-csharp-package/brainflow/brainflow/libDataHandler.dylib
+csharp-package/brainflow/brainflow/lib*
 java-package/brainflow/.settings/org.eclipse.jdt.apt.core.prefs
 java-package/brainflow/.settings/org.eclipse.jdt.core.prefs
 java-package/brainflow/.settings/org.eclipse.m2e.core.prefs
-java-package/brainflow/src/main/resources/brainflow_boards.json
-java-package/brainflow/src/main/resources/libBoardController.dylib
-java-package/brainflow/src/main/resources/libDataHandler.dylib
+java-package/brainflow/src/main/resources/
 matlab-package/lib/brainflow_boards.json
-python-package/brainflow/lib/brainflow_boards.json
-python-package/brainflow/lib/libBoardController.dylib
-python-package/brainflow/lib/libDataHandler.dylib
+matlab-package/brainflow/inc/
+matlab-package/brainflow/lib/
+python-package/brainflow/lib/
+
+# CMake & GNU Make
+CMakeCache.txt
+CMakeFiles/
+Makefile
+*.cmake
+
+# Libraries
+*.so
+*.a

@@ -271,20 +271,15 @@ int log_message (int log_level, char *log_message)
     // its a method for loggging from high level api dont add it to Board class since it should not
     // be used internally
     std::lock_guard<std::mutex> lock (mutex);
-    int level;
     if (log_level < 0)
     {
         Board::board_logger->warn ("log level should be >= 0");
-        level = 0;
+        log_level = 0;
     }
     else if (log_level > 6)
     {
         Board::board_logger->warn ("log level should be <= 6");
-        level = 6;
-    }
-    else
-    {
-        level = log_level;
+        log_level = 6;
     }
 
     Board::board_logger->log (spdlog::level::level_enum (log_level), "{}", log_message);
