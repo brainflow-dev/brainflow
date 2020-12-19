@@ -13,6 +13,7 @@
 #include "downsample_operators.h"
 #include "rolling_filter.h"
 #include "wavelet_helpers.h"
+#include "window_functions.h"
 
 #include "DspFilters/Dsp.h"
 
@@ -24,10 +25,6 @@
 #include "spdlog/spdlog.h"
 #define LOGGER_NAME "data_logger"
 #define MAX_FILTER_ORDER 8
-
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
 
 #ifdef __ANDROID__
 #include "spdlog/sinks/android_sink.h"
@@ -499,15 +496,15 @@ int perform_wavelet_denoising (double *data, int data_len, char *wavelet, int de
 int perform_windowing (
     double *data, int data_len, int window_function, double *output_data)
 {
-    // must be power of 2
-    if ((!data) || (!output_data) || (data_len <= 0) || (data_len & (data_len - 1)))
+    if ((data == NULL) || (data_len <= 0) || (window_function < 0) || (output_data == NULL))
     {
-        data_logger->error ("Please check to make sure all arguments aren't empty and data_len is "
-                            "a postive power of 2.");
+        data_logger->error ("Pleck check the arguments: data must be >= 0, data_len > 0, window_function >= 0 and output_data cannot be empty. data:{} , "
+                            "window_function:{}, data_len:{}, output_data:{}",
+                            *data, window_function, data_len, *output_data);
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
-    double *temp = new double[data_len];
+    double *windowed_data = new double[data_len];
     try {
         if (data == 0)
         {
@@ -518,31 +515,16 @@ int perform_windowing (
         switch (static_cast<WindowFunctions> (window_function))
         {
             case WindowFunctions::NO_WINDOW:
-                for (int i = 0; i < data_len; i++)
-                {
-                    temp[i] = data[i];
-                }
+                windowed_data = no_window_function(data, data_len);
                 break;
             case WindowFunctions::HAMMING:
-                for (int i = 0; i < data_len; i++)
-                {
-                    temp[i] = data[i] * (0.54 - 0.46 * cos (2.0 * M_PI * i / data_len));
-                }
+                windowed_data = hamming_function(data, data_len);
                 break;
             case WindowFunctions::HANNING:
-                for (int i = 0; i < data_len; i++)
-                {
-                    temp[i] = data[i] * (0.5 - 0.5 * cos (2.0 * M_PI * i / data_len));
-                }
+                windowed_data = hanning_function(data, data_len);
                 break;
             case WindowFunctions::BLACKMAN_HARRIS:
-                for (int i = 0; i < data_len; i++)
-                {
-                    temp[i] = data[i] *
-                        (0.355768 - 0.487396 * cos (2.0 * M_PI * i / data_len) +
-                            0.144232 * cos (4.0 * M_PI * i / data_len) -
-                            0.012604 * cos (6.0 * M_PI * i / data_len));
-                }
+                windowed_data = blackman_harris_function(data, data_len);
                 break;
             default:
                 data_logger->error ("Invalid Window function. Window function:{}", window_function);
@@ -551,14 +533,14 @@ int perform_windowing (
             
         for (int i = 0; i < data_len; i++)
         {
-            output_data[i] = temp[i];
+            output_data[i] = windowed_data[i];
         }
     }
     catch (const std::exception &e)
     {
-        if (temp)
+        if (windowed_data)
         {
-            delete[] temp;
+            delete[] windowed_data;
         }
         data_logger->error ("Error with doing data windowing process.");
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
