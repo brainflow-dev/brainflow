@@ -58,8 +58,8 @@ public:
     // Board::board_logger should not be called from destructors, to ensure that there are safe log
     // methods Board::board_logger still available but should be used only outside destructors
     template <typename Arg1, typename... Args>
-    void safe_logger (spdlog::level::level_enum log_level, const char *fmt, const Arg1 &arg1,
-        const Args &... args)
+    void safe_logger (
+        spdlog::level::level_enum log_level, const char *fmt, const Arg1 &arg1, const Args &...args)
     {
         if (!skip_logs)
         {

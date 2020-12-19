@@ -1,6 +1,8 @@
 #ifndef cmd_def_h
 #define cmd_def_h
 
+// clang-format off
+
 /*****************************************************************************
  *
  *
@@ -2788,4 +2790,5 @@ extern "C"
 }
 #endif
 /*lint -restore*/
+// clang-format on
 #endif

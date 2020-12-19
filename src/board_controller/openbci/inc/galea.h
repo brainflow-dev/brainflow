@@ -17,10 +17,10 @@ class Galea : public Board
 
 private:
     // different default gains
-    const double eeg_scale_main_board = ADS1299_Vref / double((pow (2, 23) - 1)) / 8.0 * 1000000.;
+    const double eeg_scale_main_board = ADS1299_Vref / double ((pow (2, 23) - 1)) / 8.0 * 1000000.;
     const double eeg_scale_sister_board =
-        ADS1299_Vref / double((pow (2, 23) - 1)) / 12.0 * 1000000.;
-    const double emg_scale = ADS1299_Vref / double((pow (2, 23) - 1)) / 4.0 * 1000000.;
+        ADS1299_Vref / double ((pow (2, 23) - 1)) / 12.0 * 1000000.;
+    const double emg_scale = ADS1299_Vref / double ((pow (2, 23) - 1)) / 4.0 * 1000000.;
 
     volatile bool keep_alive;
     bool initialized;
