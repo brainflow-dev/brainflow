@@ -1,21 +1,14 @@
 name: Clang Format
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+on: [push, pull_request]
 
 jobs:
   checkout-and-check-formatting:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
     - name: Run clang-format
-      uses: HorstBaerbel/action-clang-format@1.4
+      uses: RafikFarhad/clang-format-github-action@v1
       with:
-        scandir: '.'
-        excludedirs: 'third_party,tools'
-        extensions: 'c,h,C,H,cpp,hpp,checkout-and-check-formatting,hh,c++,h++,cxx,hxx'
-        style: 'file'
+        sources: "src/**/*.h,src/**/*.c,src/**/*.cpp"
