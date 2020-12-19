@@ -148,7 +148,7 @@ namespace GanglionLib
             return (int)CustomExitCodes::SEND_CHARACTERISTIC_NOT_FOUND_ERROR;
         }
         volatile bool stop_config_thread = false;
-        std::thread config_thread = std::thread ([&]() {
+        std::thread config_thread = std::thread ([&] () {
             while (!stop_config_thread)
             {
                 ble_cmd_attclient_attribute_write (
