@@ -8,14 +8,16 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Install CppCheck
+      run: |
+        sudo -H apt-get update -y
+        sudo -H apt-get install cppcheck
+      env:
+        DEBIAN_FRONTEND: noninteractive
     - name: Run Cppcheck
-      uses: Bedzior/cppcheck-action@v1.0.0
-      with:
-        enabled checks: all
-        enable inconclusive: true
-        generate report: true
-        verbose: true
-        path: "src cpp-package third_party"
+      run: |
+        cppcheck --enable=all --xml --xml-version=2 --force src cpp-package third_party 2>cppcheck_res.xml
+        cppcheck-htmlreport --title=BrainFlow --file=cppcheck_res.xml --report-dir=report
     - name: Upload Report
       uses: actions/upload-artifact@v1
       with:
