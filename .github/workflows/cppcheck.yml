@@ -9,7 +9,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Run Cppcheck
-      uses: Bedzior/cppcheck-action@v1.0
+      uses: Bedzior/cppcheck-action@v1.0.0
       with:
         enabled checks: all
         enable inconclusive: true
