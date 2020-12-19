@@ -14,6 +14,8 @@ jobs:
         enabled checks: all
         enable inconclusive: true
         generate report: true
+        verbose: true
+        path: "src cpp-package third_party"
     - name: Upload Report
       uses: actions/upload-artifact@v1
       with:
