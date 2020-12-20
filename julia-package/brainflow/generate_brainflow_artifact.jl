@@ -31,7 +31,8 @@ function add_brainflow_artifact!(
         artifact_name, 
         brainflow_hash; 
         download_info=[(url, tar_hash_sha256)], 
-        force=true
+        force=true,
+        lazy=true,
     )
 
     return brainflow_hash

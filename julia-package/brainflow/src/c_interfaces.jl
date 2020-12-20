@@ -21,16 +21,23 @@ function download_brainflow_artifact()
 end
 
 function get_brainflow_artifact_path()
-    return ensure_artifact_installed("brainflow", "Artifacts.toml", verbose=true)
-    # try
-    #     return artifact"brainflow"
-    # catch
-    #     @warn "Could not automatically retrieve brainflow artifact, attempting manual download"
-    #     # we have a known issue with unpack(), so wrote a custom download
-    #     # https://discourse.julialang.org/t/unable-to-automatically-install-artifact/51984/2
-    #     download_brainflow_artifact()
-    #     return artifact"brainflow"
-    # end
+    # we have an issue with unpack() on Windows, so wrote a custom download
+    # https://discourse.julialang.org/t/unable-to-automatically-install-artifact/51984/2
+    artifacts_toml = find_artifacts_toml(@__DIR__) # is there a better way? this makes brainflow non-relocatable I believe.
+    brainflow_hash = artifact_hash("brainflow", artifacts_toml)
+    if artifact_exists(brainflow_hash)
+        return artifact_path(brainflow_hash)
+    else
+        if Sys.iswindows()
+            result = Pkg.Artifacts.with_show_download_info("brainflow", false) do
+                download_brainflow_artifact()
+            end
+        else
+            # no issues on other platforms?
+            result = artifact"brainflow"
+        end
+        return result
+    end
 end
 
 function interface_path(library::AbstractString)
