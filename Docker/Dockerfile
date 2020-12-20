@@ -26,9 +26,9 @@ RUN curl "https://miroir.univ-lorraine.fr/apache/maven/maven-3/3.6.3/binaries/ap
 RUN mkdir -p maven
 RUN tar xzf maven.tar.gz -C ./maven
 RUN export PATH=$PATH:/root/local/bin/maven/apache-maven-3.6.3/bin
-RUN curl "https://julialang-s3.julialang.org/bin/linux/x64/1.5/julia-1.5.3-linux-x86_64.tar.gz" -o julia.tar.gz
+RUN wget "https://julialang-s3.julialang.org/bin/linux/x64/1.5/julia-1.5.3-linux-x86_64.tar.gz"
 RUN mkdir -p julia
-RUN tar xzf julia.tar.gz -C ./julia
+RUN tar xf julia-1.5.3-linux-x86_64.tar.gz -C ./julia
 RUN export PATH=$PATH:/root/local/bin/julia/julia-1.5.3/bin
 
 # Install useful python packages not required by BrainFlow
