@@ -102,6 +102,11 @@ jobs:
       with:
         version: 1.3.1
     # BoardController testing
+    - name: Run Julia Tests
+      run: |
+        cd %GITHUB_WORKSPACE%\julia-package\brainflow
+        julia --project=. -e "import Pkg; Pkg.test()"
+      shell: cmd
     - name: Cyton Windows Python Test
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --log --board-id 0 --serial-port
       shell: cmd
@@ -213,11 +218,6 @@ jobs:
       shell: cmd
     - name: EEG Metrics CI C# Test
       run: .\csharp-package\brainflow\eeg_metrics\bin\Release\test.exe
-      shell: cmd
-    - name: Run Julia Tests
-      run: |
-        cd %GITHUB_WORKSPACE%\julia-package\brainflow
-        julia --project=. -e "import Pkg; Pkg.test()"
       shell: cmd
     # Start Deploy Stage
     - name: Install Python AWS Tools

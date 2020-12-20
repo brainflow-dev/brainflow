@@ -28,15 +28,9 @@ function get_brainflow_artifact_path()
     if artifact_exists(brainflow_hash)
         return artifact_path(brainflow_hash)
     else
-        if Sys.iswindows()
-            result = Pkg.Artifacts.with_show_download_info("brainflow", false) do
-                download_brainflow_artifact()
-            end
-        else
-            # no issues on other platforms?
-            result = artifact"brainflow"
-        end
-        return result
+        println("Downloading artifact: brainflow")
+        brainflow_hash = download_brainflow_artifact()
+        return artifact_path(brainflow_hash)
     end
 end
 
