@@ -102,7 +102,7 @@ Steps to setup Julia binding for BrainFlow:
 
 .. compound::
 
-    Example ::
+    Example: ::
 
         # compile core module first
         # set env variable
@@ -113,6 +113,35 @@ Steps to setup Julia binding for BrainFlow:
         activate . # activate BrainFlow's env
         
 
+Docker Image
+--------------
+
+There are docker images with precompiled BrainFlow. You can get them from `DockerHub <https://hub.docker.com/r/brainflow/brainflow>`_.
+
+All bindings except Matlab are preinstalled there and libraries compiled with OpenMP support.
+
+Also, there are other packages for BCI research and development:
+
+- mne
+- pyriemann
+- scipy
+- matplotlib
+- jupyter
+- pandas
+- etc
+
+If your devices uses TCP\IP to send data, you need to run docker container with :code:`--network host`. For serial port connection you need to pass serial port to docker using :code:`--device %your port here%`
+
+.. compound::
+
+    Example:  ::
+
+        # pull container from DockerHub
+        docker pull brainflow/brainflow:3.7.2
+        # run docker container with serial port /dev/ttyUSB0
+        docker run -it --device /dev/ttyUSB0 brainflow/brainflow:3.7.2 /bin/bash
+        # run docker container for boards which use networking
+        docker run -it --network host brainflow/brainflow:3.7.2 /bin/bash
 
 Compilation of Core Module and C++ Binding
 -------------------------------------------

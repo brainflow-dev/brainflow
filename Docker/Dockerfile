@@ -47,7 +47,7 @@ ENV LD_LIBRARY_PATH=/root/brainflow/installed_linux/lib/
 WORKDIR /root/brainflow
 RUN python3 -m pip install --user virtualenv
 WORKDIR /root/brainflow/python-package
-RUN python3 -m pip install -e .
+RUN python3 -m pip install -U .
 
 WORKDIR /root/brainflow/
 # C# Binding
