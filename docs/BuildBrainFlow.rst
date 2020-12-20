@@ -138,7 +138,7 @@ Linux
 ~~~~~~
 
 - Install CMake>=3.13 you can install it from PYPI via pip
-- If you wanna distribute compiled Linux libraries you HAVE to build it inside manylinux Docker container
+- If you are going to distribute compiled Linux libraries you HAVE to build it inside manylinux Docker container
 - Build it as a CMake project manually or use bash file from tools directory
 - You can use any compiler but for Linux we test only GCC, also we test only 64bit libraries for Linux
 
