@@ -32,7 +32,7 @@ RUN tar xzf julia.tar.gz -C ./julia
 RUN export PATH=$PATH:/root/local/bin/julia/julia-1.5.3/bin
 
 # Install useful python packages not required by BrainFlow
-RUN python3 -m pip install scipy pandas matplotlib mne jupyterlab notebook opencv-python 
+RUN python3 -m pip install scipy pandas matplotlib mne jupyterlab notebook opencv-python pyriemann
 
 WORKDIR /root
 ARG checkout_id
