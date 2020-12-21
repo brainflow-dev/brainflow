@@ -23,9 +23,8 @@ function download_brainflow_artifact()
 end
 
 # library path you can optionally use while developing
-# please then copy the compiled libraries into julia-package/brainflow/lib
 function dev_library_path()
-    return abspath(joinpath(@__DIR__, "../lib"))
+    return abspath(joinpath(dirname(@__DIR__), "lib"))
 end
 
 function get_brainflow_artifact_path()
@@ -33,6 +32,7 @@ function get_brainflow_artifact_path()
     brainflow_hash = artifact_hash("brainflow", artifacts_toml)
     if isdir(dev_library_path())
         # developer library takes precedence
+        println(string("Using local libraries: ", dev_library_path()))
         return dev_library_path()
     elseif artifact_exists(brainflow_hash)
         # libraries are automatically stored here for users of brainflow
