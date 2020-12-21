@@ -180,6 +180,9 @@ jobs:
     - name: Downsampling Python Test
       run: python %GITHUB_WORKSPACE%\tests\python\downsampling.py
       shell: cmd
+    - name: Windowing Python Test
+      run: python %GITHUB_WORKSPACE%\tests\python\windowing.py
+      shell: cmd
     - name: BrainFlow to MNE Python Test
       run: python %GITHUB_WORKSPACE%\tests\python\brainflow_to_mne.py
       shell: cmd
@@ -188,6 +191,9 @@ jobs:
       shell: cmd
     - name: Downsampling Cpp Test
       run: .\tests\cpp\signal_processing_demo\build\Release\downsampling.exe
+      shell: cmd
+    - name: Windowing Cpp Test
+      run: .\tests\cpp\signal_processing_demo\build\Release\windowing.exe
       shell: cmd
     - name: Transforms Cpp Test
       run: .\tests\cpp\signal_processing_demo\build\Release\transforms.exe
