@@ -22,10 +22,20 @@ function download_brainflow_artifact()
     return brainflow_hash
 end
 
+# library path you can optionally use while developing
+# please then copy the compiled libraries into julia-package/brainflow/lib
+function dev_library_path()
+    return abspath(joinpath(@__DIR__, "../lib"))
+end
+
 function get_brainflow_artifact_path()
     artifacts_toml = find_artifacts_toml(@__DIR__) # is there a better way? @__DIR__ makes brainflow non-relocatable I believe.
     brainflow_hash = artifact_hash("brainflow", artifacts_toml)
-    if artifact_exists(brainflow_hash)
+    if isdir(dev_library_path())
+        # developer library takes precedence
+        return dev_library_path()
+    elseif artifact_exists(brainflow_hash)
+        # libraries are automatically stored here for users of brainflow
         return artifact_path(brainflow_hash)
     else
         println("Downloading artifact: brainflow")
