@@ -94,24 +94,16 @@ Steps to setup Matlab binding for BrainFlow:
 Julia
 --------
 
-Steps to setup Julia binding for BrainFlow:
-
-- Compile Core Module, using instructions below
-- Set PATH(on Windows) or LD_LIBRARY_PATH(on Unix) env variables to ensure that compiled libraries are in search path
-- Install BrainFlow package locally
+brainflow is a registered package in the Julia general registry, so it can be installed via the Pkg manager:
 
 .. compound::
 
     Example: ::
 
-        # compile core module first
-        # set env variable
-        export LD_LIBRARY_PATH=/home/andreyparfenov/brainflow/installed_linux/lib/:$LD_LIBRARY_PATH
-        cd julia-package/brainflow
-        julia
-        # type ']' to switch to pkg terminal
-        activate . # activate BrainFlow's env
+        import Pkg
+		Pkg.add("brainflow")
         
+When using brainflow for the first time in Julia, the brainflow artifact containing the compiled brainflow libraries will be downloaded.
 
 Docker Image
 --------------
