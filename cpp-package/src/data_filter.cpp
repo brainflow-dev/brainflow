@@ -128,11 +128,6 @@ void DataFilter::perform_wavelet_denoising (
 
 double *DataFilter::perform_windowing (double *data, int data_len, int window)
 {
-    if ((data_len & (data_len - 1)) || (data_len <= 0))
-    {
-        throw BrainFlowException (
-            "data len is not power of 2", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
-    }
     double *windowed_data = new double[data_len];
     int res = ::perform_windowing (data, data_len, window, windowed_data);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)

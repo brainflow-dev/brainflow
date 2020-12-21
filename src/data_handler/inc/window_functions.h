@@ -7,9 +7,9 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-inline double* no_window_function (double *data, int data_len)
+inline double no_window_function (double *data, int data_len)
 {
-    double *windowed_data = new double[data_len];
+    double windowed_data[data_len];
     for (int i = 0; i < data_len; i++)
     {
         windowed_data[i] = data[i];
@@ -17,9 +17,9 @@ inline double* no_window_function (double *data, int data_len)
     return windowed_data;
 }
 
-inline double* hanning_function (double *data, int data_len)
+inline double hanning_function (double data, int data_len)
 {
-    double *windowed_data = new double[data_len];
+    double windowed_data[data_len];
     for (int i = 0; i < data_len; i++)
     {
         windowed_data[i] = data[i] * (0.5 - 0.5 * cos (2.0 * M_PI * i / data_len));
@@ -27,9 +27,9 @@ inline double* hanning_function (double *data, int data_len)
     return windowed_data;
 }
 
-inline double* hamming_function (double *data, int data_len)
+inline double hamming_function (double *data, int data_len)
 {
-    double *windowed_data = new double[data_len];
+    double windowed_data[data_len];
     for (int i = 0; i < data_len; i++)
     {
         windowed_data[i] = data[i] * (0.54 - 0.46 * cos (2.0 * M_PI * i / data_len));
@@ -37,9 +37,9 @@ inline double* hamming_function (double *data, int data_len)
     return windowed_data;
 }
 
-inline double* blackman_harris_function (double *data, int data_len)
+inline double blackman_harris_function (double *data, int data_len)
 {
-    double *windowed_data = new double[data_len];
+    double windowed_data[data_len];
     for (int i = 0; i < data_len; i++)
     {
         windowed_data[i] = data[i] *

@@ -294,10 +294,6 @@ namespace brainflow
         public static double[] perform_fft(double[] data, int window)
         {
             int len = data.Length;
-            if ((len & (len - 1)) != 0)
-            {
-                throw new BrainFlowException ((int)CustomExitCodes.INVALID_ARGUMENTS_ERROR);
-            }
             int res = DataHandlerLibrary.perform_windowing (data, len, window, windowed_data);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {

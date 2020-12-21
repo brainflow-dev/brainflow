@@ -151,12 +151,9 @@ classdef DataFilter
             denoised_data = temp.Value;
         end
         
-        function windowed_data = perform_windowing (data, period, operation)
+        function windowed_data = perform_windowing (data, window)
             task_name = 'perform_windowing';
             n = size (data, 2);
-            if (bitand (n, n - 1) ~= 0)
-                error ('For windowing shape must be power of 2!');
-            end
             temp_input = libpointer ('doublePtr', data);
             lib_name = DataFilter.load_lib ();
             temp_output = libpointer ('doublePtr', zeros (1, int32 (n)));

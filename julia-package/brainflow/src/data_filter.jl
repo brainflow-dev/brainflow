@@ -160,15 +160,6 @@ end
 end
 
 @brainflow_rethrow function perform_windowing(data, window::Integer)
-
-    function is_power_of_two(value)
-        (value != 0) && (value & (value - 1) == 0)
-    end
-
-    if !is_power_of_two(length(data))
-        throw(BrainFlowError(string("Data Len must be power of two ", INVALID_ARGUMENTS_ERROR), INVALID_ARGUMENTS_ERROR))
-    end
-
     windowed_data = Vector{Float64}(undef, Integer(length(data)))
     ccall((:perform_windowing, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Ptr{Float64}),
     data, length(data), Int32(window), windowed_data)

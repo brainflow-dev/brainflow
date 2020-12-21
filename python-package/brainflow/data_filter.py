@@ -591,11 +591,11 @@ class DataFilter (object):
 	def perform_windowing (cls, data: NDArray[Float64], window: int) -> NDArray[Float64]:
 		"""perform data windowing
 
-		:param data: data for windowing, len of data must be a power of 2
+		:param data: data for windowing
 		:type data: NDArray[Float64]
 		:param window: window function
 		:type window: int
-		:return: numpy array of complex values, len of the array is the same as data
+		:return: numpy array, len of the array is the same as data
 		:rtype: NDArray[Float64]
 		"""
 		windowed_data = numpy.zeros (int (data.shape[0])).astype (numpy.float64)
