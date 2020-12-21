@@ -3,6 +3,8 @@ using Pkg.Artifacts
 using SHA
 using Tar
 
+# we have an issue with unpack(), so wrote a custom download
+# https://discourse.julialang.org/t/unable-to-automatically-install-artifact/51984/2
 function download_brainflow_artifact()
 
     url = brainflow_url()
@@ -21,9 +23,7 @@ function download_brainflow_artifact()
 end
 
 function get_brainflow_artifact_path()
-    # we have an issue with unpack() on Windows, so wrote a custom download
-    # https://discourse.julialang.org/t/unable-to-automatically-install-artifact/51984/2
-    artifacts_toml = find_artifacts_toml(@__DIR__) # is there a better way? this makes brainflow non-relocatable I believe.
+    artifacts_toml = find_artifacts_toml(@__DIR__) # is there a better way? @__DIR__ makes brainflow non-relocatable I believe.
     brainflow_hash = artifact_hash("brainflow", artifacts_toml)
     if artifact_exists(brainflow_hash)
         return artifact_path(brainflow_hash)
@@ -48,14 +48,8 @@ function interface_name(library::AbstractString)
     end
 end
 
-# We can later replace this with:
-# using Pkg.Artifacts
-# const INTERFACE_PATH = artifact"brainflow"
-# Right now using a hardcoded path during refactoring, with manual /lib location
-#const INTERFACE_PATH = abspath(joinpath(@__DIR__, "../lib"))
 const INTERFACE_PATH = get_brainflow_artifact_path()
 
-# we should instead use dlopen(interface_path())?
 const DATA_HANDLER_INTERFACE = interface_path("DataHandler")
 const BOARD_CONTROLLER_INTERFACE = interface_path("BoardController")
 const ML_MODULE_INTERFACE = interface_path("MLModule")

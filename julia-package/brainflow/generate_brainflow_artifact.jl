@@ -1,3 +1,5 @@
+# when new brainflow binaries are released, then this script needs to be re-executed.
+
 using SHA
 using Pkg
 using Pkg.Artifacts
@@ -41,8 +43,3 @@ end
 cd(@__DIR__)
 include("src/brainflow_url.jl")
 add_brainflow_artifact!(brainflow_url())
-
-# # try it out; remove artifact and try to retrieve it again
-# brainflow_hash = artifact_hash("brainflow", "Artifacts.toml")
-# remove_artifact(brainflow_hash)
-# brainflow_artifact_path = artifact"brainflow"

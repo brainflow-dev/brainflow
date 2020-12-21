@@ -11,4 +11,4 @@ SHA = "ea8e919c-243c-51af-8825-aaa63cd721ce"
 Tar = "a4e569a6-e804-4fa4-b0f3-eef7a1d5b13e"
 
 [compat]
-julia = "1.2"
+julia = "1.3"
