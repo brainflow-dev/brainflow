@@ -198,7 +198,7 @@ void IronBCI::read_thread ()
     */
     int res;
     unsigned char b[26];
-    float eeg_scale = 4.5 / float((pow (2, 23) - 1)) / IronBCI::ads_gain * 1000000.;
+    float eeg_scale = 4.5 / float ((pow (2, 23) - 1)) / IronBCI::ads_gain * 1000000.;
     while (keep_alive)
     {
         // check start byte

@@ -98,12 +98,42 @@ brainflow is a registered package in the Julia general registry, so it can be in
 
 .. compound::
 
-    Example ::
+    Example: ::
 
         import Pkg
 		Pkg.add("brainflow")
         
 When using brainflow for the first time in Julia, the brainflow artifact containing the compiled brainflow libraries will be downloaded.
+
+Docker Image
+--------------
+
+There are docker images with precompiled BrainFlow. You can get them from `DockerHub <https://hub.docker.com/r/brainflow/brainflow>`_.
+
+All bindings except Matlab are preinstalled there and libraries compiled with OpenMP support.
+
+Also, there are other packages for BCI research and development:
+
+- mne
+- pyriemann
+- scipy
+- matplotlib
+- jupyter
+- pandas
+- etc
+
+If your devices uses TCP\IP to send data, you need to run docker container with :code:`--network host`. For serial port connection you need to pass serial port to docker using :code:`--device %your port here%`
+
+.. compound::
+
+    Example:  ::
+
+        # pull container from DockerHub
+        docker pull brainflow/brainflow:3.7.2
+        # run docker container with serial port /dev/ttyUSB0
+        docker run -it --device /dev/ttyUSB0 brainflow/brainflow:3.7.2 /bin/bash
+        # run docker container for boards which use networking
+        docker run -it --network host brainflow/brainflow:3.7.2 /bin/bash
 
 Compilation of Core Module and C++ Binding
 -------------------------------------------
@@ -129,7 +159,7 @@ Linux
 ~~~~~~
 
 - Install CMake>=3.13 you can install it from PYPI via pip
-- If you wanna distribute compiled Linux libraries you HAVE to build it inside manylinux Docker container
+- If you are going to distribute compiled Linux libraries you HAVE to build it inside manylinux Docker container
 - Build it as a CMake project manually or use bash file from tools directory
 - You can use any compiler but for Linux we test only GCC, also we test only 64bit libraries for Linux
 
