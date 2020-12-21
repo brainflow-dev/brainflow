@@ -17,6 +17,13 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
+    # check users permission
+    - name: "Check Permissions"
+      uses: "lannonbr/repo-permission-check-action@2.0.0"
+      with:
+        permission: "admin"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Clone Repository
       uses: actions/checkout@v2
     - name: Build Docker Container
