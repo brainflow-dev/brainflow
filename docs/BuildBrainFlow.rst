@@ -94,7 +94,7 @@ Steps to setup Matlab binding for BrainFlow:
 Julia
 --------
 
-brainflow is a registered package in the Julia general registry, so it can be installed via the Pkg manager:
+BrainFlow is a registered package in the Julia general registry, so it can be installed via the Pkg manager:
 
 .. compound::
 
@@ -103,7 +103,7 @@ brainflow is a registered package in the Julia general registry, so it can be in
         import Pkg
 		Pkg.add("brainflow")
         
-When using brainflow for the first time in Julia, the brainflow artifact containing the compiled brainflow libraries will be downloaded.
+When using BrainFlow for the first time in Julia, the brainflow artifact containing the compiled BrainFlow libraries will be downloaded.
 
 Docker Image
 --------------

@@ -96,8 +96,6 @@ jobs:
       run: |
         export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/installed/lib:$LD_LIBRARY_PATH
         julia --project=$GITHUB_WORKSPACE/julia-package/brainflow -e "import Pkg; Pkg.test()"
-      env:
-        LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Cyton Python
       run: sudo -H python3 ./emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --log --board-id 0 --serial-port 
     - name: Multiboard Python
