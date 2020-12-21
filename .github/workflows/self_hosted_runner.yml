@@ -10,6 +10,13 @@ jobs:
     runs-on: self-hosted
 
     steps:
+    # check users permission
+    - name: "Check Permissions"
+      uses: "lannonbr/repo-permission-check-action@2.0.0"
+      with:
+        permission: "admin"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     # compile and prepare env, assuming everything is preinstalled
     - name: Clone Repository
       uses: actions/checkout@v2

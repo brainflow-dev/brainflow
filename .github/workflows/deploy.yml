@@ -18,6 +18,13 @@ jobs:
     runs-on: windows-2019
 
     steps:
+    # check users permission
+    - name: "Check Permissions"
+      uses: "lannonbr/repo-permission-check-action@2.0.0"
+      with:
+        permission: "admin"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     # Install Dependencies
     - name: Clone Repository
       uses: actions/checkout@v2
