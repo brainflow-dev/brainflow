@@ -40,7 +40,6 @@ jobs:
         julia --project=. -e "import Pkg; Pkg.test()"
       shell: cmd
 
-jobs:
   TestUnixRelease:
     runs-on: ${{ matrix.os }}
 
