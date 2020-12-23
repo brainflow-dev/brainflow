@@ -136,13 +136,10 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
         case BoardIds::IRONBCI_BOARD:
             board = std::shared_ptr<Board> (new IronBCI (params));
             break;
-<<<<<<< HEAD
         case BoardIds::GFORCE_PRO_BOARD:
             board = std::shared_ptr<Board> (new GforcePro (params));
-=======
         case BoardIds::FREEEEG32_BOARD:
             board = std::shared_ptr<Board> (new FreeEEG32 (params));
->>>>>>> master
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
