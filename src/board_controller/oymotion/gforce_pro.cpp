@@ -1,4 +1,5 @@
 #include <chrono>
+#include <stdlib.h>
 #include <string.h>
 #include <string>
 
@@ -50,6 +51,18 @@ GforcePro::GforcePro (struct BrainFlowInputParams params)
     if (res)
     {
         gforcelib_path = std::string (gforcelib_dir) + gforcelib_name;
+        // gforcewrapper depends on gforcedll need to ensure that its in search path
+        if (const char *env_p = std::getenv ("PATH"))
+        {
+            std::string path_env ("PATH=");
+            path_env += env_p;
+            path_env += ";";
+            path_env += std::string (gforcelib_dir);
+            if (_putenv (path_env.c_str ()) != 0)
+            {
+                safe_logger (spdlog::level::warn, "Failed to set PATH to {}", path_env.c_str ());
+            }
+        }
     }
     else
     {

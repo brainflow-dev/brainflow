@@ -102,6 +102,8 @@ public class BoardShim
             ganglion_name = "GanglionLib.dll";
             unpack_from_jar ("neurosdk-x64.dll");
             unpack_from_jar ("Unicorn.dll");
+            unpack_from_jar ("gForceSDKWrapper.dll");
+            unpack_from_jar ("gforce64.dll");
         } else if (SystemUtils.IS_OS_MAC)
         {
             lib_name = "libBoardController.dylib";
