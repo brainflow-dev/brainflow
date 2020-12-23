@@ -101,9 +101,9 @@ BrainFlow is a registered package in the Julia general registry, so it can be in
     Example: ::
 
         import Pkg
-		Pkg.add("brainflow")
+		Pkg.add("BrainFlow")
         
-When using BrainFlow for the first time in Julia, the brainflow artifact containing the compiled BrainFlow libraries will be downloaded.
+When using BrainFlow for the first time in Julia, the BrainFlow artifact containing the compiled BrainFlow libraries will be downloaded.
 
 Docker Image
 --------------

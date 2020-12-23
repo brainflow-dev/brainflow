@@ -1,5 +1,5 @@
 #!/usr/bin/env julia
-using brainflow
+using BrainFlow
 
 include("julia_tests.jl")
 include("brainflow_get_data.jl")
