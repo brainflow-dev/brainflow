@@ -1,0 +1,69 @@
+name: Run Android NDK
+
+on: [push, pull_request]
+
+jobs:
+  RunAndroid:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        os: [ubuntu-18.04]
+
+    steps:
+    - name: Clone Repository
+      uses: actions/checkout@v2
+    - name: Install Ninja
+      run: |
+        sudo -H apt-get update -y
+        sudo -H apt-get install -y ninja-build zip unzip
+      env:
+        DEBIAN_FRONTEND: noninteractive
+    - name: Setup Cmake
+      uses: jwlawson/actions-setup-cmake@v1.4
+      with:
+        cmake-version: '3.16.x'
+    - name: Install NDK
+      run: |
+        echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;21.0.6113669" --sdk_root=${ANDROID_SDK_ROOT} > /dev/null
+    # build for all ABIs
+    - name: Compile BrainFlow armv8
+      run: |
+        mkdir $GITHUB_WORKSPACE/build_armv8
+        cd $GITHUB_WORKSPACE/build_armv8
+        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/21.0.6113669/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 ..
+        ninja
+    - name: Compile BrainFlow armv7
+      run: |
+        mkdir $GITHUB_WORKSPACE/build_armv7
+        cd $GITHUB_WORKSPACE/build_armv7
+        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/21.0.6113669/build/cmake/android.toolchain.cmake -DANDROID_ABI=armeabi-v7a -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 ..
+        ninja
+    - name: Compile BrainFlow Android x86
+      run: |
+        mkdir $GITHUB_WORKSPACE/build_android_x86
+        cd $GITHUB_WORKSPACE/build_android_x86
+        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/21.0.6113669/build/cmake/android.toolchain.cmake -DANDROID_ABI=x86 -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 ..
+        ninja
+    - name: Compile BrainFlow Android x64
+      run: |
+        mkdir $GITHUB_WORKSPACE/build_android_x64
+        cd $GITHUB_WORKSPACE/build_android_x64
+        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/21.0.6113669/build/cmake/android.toolchain.cmake -DANDROID_ABI=x86_64 -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 ..
+        ninja
+    - name: Prepare Zip
+      run: |
+        cd $GITHUB_WORKSPACE/tools
+        zip -r jniLibs.zip jniLibs
+    - name: Install AWS CLI
+      run: sudo -H python -m pip install awscli
+    - name: Upload To AWS
+      if: ${{ github.event_name == 'push' }}
+      run: |
+        cd $GITHUB_WORKSPACE/tools
+        aws s3 cp jniLibs.zip s3://brainflow/$GITHUB_SHA/
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

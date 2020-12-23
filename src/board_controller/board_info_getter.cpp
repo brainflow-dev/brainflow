@@ -49,6 +49,11 @@ int get_eeg_names (int board_id, char *eeg_names, int *len)
     return get_string_value (board_id, "eeg_names", eeg_names, len);
 }
 
+int get_device_name (int board_id, char *name, int *len)
+{
+    return get_string_value (board_id, "name", name, len);
+}
+
 int get_eeg_channels (int board_id, int *eeg_channels, int *len)
 {
     return get_array_value (board_id, "eeg_channels", eeg_channels, len);

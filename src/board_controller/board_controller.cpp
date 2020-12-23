@@ -13,7 +13,6 @@
 #include <string>
 #include <utility>
 
-#include "auraxr.h"
 #include "board.h"
 #include "board_controller.h"
 #include "board_info_getter.h"
@@ -28,6 +27,8 @@
 #include "cyton_daisy_wifi.h"
 #include "cyton_wifi.h"
 #include "fascia.h"
+#include "freeeeg32.h"
+#include "galea.h"
 #include "ganglion.h"
 #include "ganglion_wifi.h"
 #include "gforce_pro.h"
@@ -95,8 +96,8 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
         case BoardIds::CYTON_DAISY_BOARD:
             board = std::shared_ptr<Board> (new CytonDaisy (params));
             break;
-        case BoardIds::AURAXR_BOARD:
-            board = std::shared_ptr<Board> (new AuraXR (params));
+        case BoardIds::GALEA_BOARD:
+            board = std::shared_ptr<Board> (new Galea (params));
             break;
         case BoardIds::GANGLION_WIFI_BOARD:
             board = std::shared_ptr<Board> (new GanglionWifi (params));
@@ -135,8 +136,13 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
         case BoardIds::IRONBCI_BOARD:
             board = std::shared_ptr<Board> (new IronBCI (params));
             break;
+<<<<<<< HEAD
         case BoardIds::GFORCE_PRO_BOARD:
             board = std::shared_ptr<Board> (new GforcePro (params));
+=======
+        case BoardIds::FREEEEG32_BOARD:
+            board = std::shared_ptr<Board> (new FreeEEG32 (params));
+>>>>>>> master
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

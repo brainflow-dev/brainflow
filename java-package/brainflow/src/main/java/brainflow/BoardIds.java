@@ -14,7 +14,7 @@ public enum BoardIds
     CYTON_BOARD (0),
     GANGLION_BOARD (1),
     CYTON_DAISY_BOARD (2),
-    AURAXR_BOARD (3),
+    GALEA_BOARD (3),
     GANGLION_WIFI_BOARD (4),
     CYTON_WIFI_BOARD (5),
     CYTON_DAISY_WIFI_BOARD (6),
@@ -27,7 +27,8 @@ public enum BoardIds
     NOTION_1_BOARD (13),
     NOTION_2_BOARD (14),
     IRONBCI_BOARD (15),
-    GFORCE_PRO_BOARD (16);
+    GFORCE_PRO_BOARD (16),
+    FREEEEG32_BOARD (17);
 
     private final int board_id;
     private static final Map<Integer, BoardIds> bi_map = new HashMap<Integer, BoardIds> ();

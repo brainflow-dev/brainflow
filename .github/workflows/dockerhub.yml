@@ -1,0 +1,45 @@
+name: Upload to DockerHub
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: New Version
+        default: ""
+        required: true
+      publish:
+        description: Make Public(true or false)
+        default: "false"
+        required: true
+
+jobs:
+  Upload:
+    runs-on: ubuntu-20.04
+
+    steps:
+    # check users permission
+    - name: "Check Permissions"
+      uses: "lannonbr/repo-permission-check-action@2.0.0"
+      with:
+        permission: "admin"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Clone Repository
+      uses: actions/checkout@v2
+    - name: Build Docker Container
+      run: |
+        cd Docker
+        sudo docker build --tag brainflow/brainflow:${VERSION} --build-arg checkout_id=${VERSION} .
+      env:
+        VERSION: ${{ github.event.inputs.version }}
+    - name: Check Images
+      run: sudo -H docker images
+    - name: DockerHub Login
+      run: sudo -H docker login --username=brainflow --password ${DOCKERHUB_PASSWORD}
+      env:
+        DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+    - name: DockerHub Push
+      if: github.event.inputs.publish == 'true'
+      run: sudo -H docker push brainflow/brainflow:${VERSION} 
+      env:
+        VERSION: ${{ github.event.inputs.version }}

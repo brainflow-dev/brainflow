@@ -19,7 +19,6 @@ class BoardShim
     // can not init master_board_id in constructor cause we can not raise an exception from
     // constructor, also can not do it only in prepare_session cause it might not be a first called
     // method.
-    int get_master_board_id ();
     std::string serialized_params;
     struct BrainFlowInputParams params;
 
@@ -68,6 +67,12 @@ public:
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static int get_num_rows (int board_id);
+    /**
+     * get device name
+     * @param board_id board id of your device
+     * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+     */
+    static std::string get_device_name (int board_id);
     /**
      * get eeg channel names in 10-20 system for devices with fixed electrode locations
      * @param board_id board id of your device
@@ -178,6 +183,8 @@ public:
     void release_session ();
     /// get latest collected data, doesnt remove it from ringbuffer
     double **get_current_board_data (int num_samples, int *num_data_points);
+    /// Get board id, for some boards can be different than provided (playback, streaming)
+    int get_board_id ();
     /// get number of packages in ringbuffer
     int get_board_data_count ();
     /// get all collected data and flush it from internal buffer

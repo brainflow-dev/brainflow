@@ -1,0 +1,77 @@
+name: Test Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Test Version
+        default: ""
+        required: true
+
+jobs:
+  TestWinRelease:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        os: [windows-2019]
+
+    steps:
+    # install dependencies
+    - name: Clone Repository
+      uses: actions/checkout@v2
+    - name: Install Julia
+      uses: julia-actions/setup-julia@v1
+      with:
+        version: 1.3.1
+    - name: Install Python Package
+      run: python -m pip install brainflow==$env:VERSION
+      env:
+        VERSION: ${{ github.event.inputs.version }}
+    # run tests, single test per language is ok here
+    - name: EEG Metrics Python Test
+      run: python %GITHUB_WORKSPACE%\tests\python\eeg_metrics.py --board-id -1
+      shell: cmd
+    - name: Run Julia Tests
+      run: |
+        cd %GITHUB_WORKSPACE%\julia-package\brainflow
+        julia --project=. -e "import Pkg; Pkg.test()"
+      shell: cmd
+
+  TestUnixRelease:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        os: [ubuntu-18.04, ubuntu-20.04, macos-10.15, macos-11.0]
+
+    steps:
+    # install dependencies
+    - name: Clone Repository
+      uses: actions/checkout@v2
+    - name: Install Julia
+      uses: julia-actions/setup-julia@v1
+      with:
+        version: 1.3.1
+    - name: Install Python Dependencies
+      if: (matrix.os == 'ubuntu-18.04') || (matrix.os == 'ubuntu-20.04')
+      run: |
+        sudo -H apt-get update -y
+        sudo -H apt-get install -y python3-setuptools python3-pygments
+      env:
+        DEBIAN_FRONTEND: noninteractive
+    - name: Install Python Package
+      run: sudo -H python3 -m pip install brainflow==${VERSION}
+      env:
+        VERSION: ${{ github.event.inputs.version }}
+    # run tests, single test per language is ok here
+    - name: EEG Metrics Python
+      run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/eeg_metrics.py --board-id -1
+    - name: Run All Julia Tests
+      run: |
+        export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/installed/lib:$LD_LIBRARY_PATH
+        julia --project=$GITHUB_WORKSPACE/julia-package/brainflow -e "import Pkg; Pkg.test()"

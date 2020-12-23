@@ -10,7 +10,7 @@ with open (os.path.join (this_directory, 'README.md')) as f:
 
 setup (
     name = 'brainflow',
-    version = os.environ.get('BRAINFLOW_VERSION', '1.0.8'),
+    version = '0.0.1',  # replaced in CI
     description = 'Python Binding for BrainFlow',
     long_description = long_description,
     long_description_content_type = 'text/markdown',
@@ -38,6 +38,7 @@ setup (
             os.path.join ('lib', 'gForceSDKWrapper.dll'),
             os.path.join ('lib', 'libneurosdk-shared.dylib'),
             os.path.join ('lib', 'libunicorn.so'),
+            os.path.join ('lib', 'Unicorn.dll'),
             os.path.join ('lib', 'GanglionLib.dll'),
             os.path.join ('lib', 'GanglionLib32.dll'),
             os.path.join ('lib', 'libGanglionLib.so'),

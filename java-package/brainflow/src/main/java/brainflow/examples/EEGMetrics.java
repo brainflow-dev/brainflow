@@ -22,26 +22,15 @@ public class EEGMetrics
         BrainFlowInputParams params = new BrainFlowInputParams ();
         int board_id = parse_args (args, params);
         BoardShim board_shim = new BoardShim (board_id, params);
-        int master_board_id = 0;
-        if ((board_id == BoardIds.STREAMING_BOARD.get_code ()) ||
-        (board_id == (int) BoardIds.PLAYBACK_FILE_BOARD.get_code ()))
-        {
-            try
-            {
-                master_board_id = Integer.parseInt(params.other_info);
-            }
-            catch (Exception e)
-            {
-                System.out.println("Other Info must be an integer when using Playback or streaming board.");
-            }
-        }
+        int master_board_id = board_shim.get_board_id ();
         int sampling_rate = BoardShim.get_sampling_rate (master_board_id);
         int[] eeg_channels = BoardShim.get_eeg_channels (master_board_id);
 
         board_shim.prepare_session ();
         board_shim.start_stream (3600);
         BoardShim.log_message (LogLevels.LEVEL_INFO.get_code (), "Start sleeping in the main thread");
-        // recommended window size for eeg metric calculation is at least 4 seconds, bigger is better
+        // recommended window size for eeg metric calculation is at least 4 seconds,
+        // bigger is better
         Thread.sleep (5000);
         board_shim.stop_stream ();
         double[][] data = board_shim.get_board_data ();

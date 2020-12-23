@@ -12,15 +12,15 @@
 #define ADS1299_Vref 4.5
 
 
-class AuraXR : public Board
+class Galea : public Board
 {
 
 private:
     // different default gains
-    const double eeg_scale_main_board = ADS1299_Vref / double((pow (2, 23) - 1)) / 8.0 * 1000000.;
+    const double eeg_scale_main_board = ADS1299_Vref / double ((pow (2, 23) - 1)) / 8.0 * 1000000.;
     const double eeg_scale_sister_board =
-        ADS1299_Vref / double((pow (2, 23) - 1)) / 12.0 * 1000000.;
-    const double emg_scale = ADS1299_Vref / double((pow (2, 23) - 1)) / 4.0 * 1000000.;
+        ADS1299_Vref / double ((pow (2, 23) - 1)) / 12.0 * 1000000.;
+    const double emg_scale = ADS1299_Vref / double ((pow (2, 23) - 1)) / 4.0 * 1000000.;
 
     volatile bool keep_alive;
     bool initialized;
@@ -31,12 +31,13 @@ private:
     std::mutex m;
     std::condition_variable cv;
     volatile int state;
-    volatile double start_time;
+    volatile double time_delay;
     void read_thread ();
+    int calc_delay ();
 
 public:
-    AuraXR (struct BrainFlowInputParams params);
-    ~AuraXR ();
+    Galea (struct BrainFlowInputParams params);
+    ~Galea ();
 
     int prepare_session ();
     int start_stream (int buffer_size, char *streamer_params);

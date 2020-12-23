@@ -31,13 +31,17 @@ Compiled with:
 * GCC on Linux
 * Clang on MacOS
 
-*Linux and MacOS(Travis)*:
+*Linux and MacOS*:
 
-[![Build Status](https://travis-ci.com/brainflow-dev/brainflow.svg?branch=master)](https://travis-ci.com/brainflow-dev/brainflow)
+[![Run Unix](https://github.com/brainflow-dev/brainflow/workflows/Run%20Unix//badge.svg?branch=master)](https://github.com/brainflow-dev/brainflow/actions)
 
-*Windows and Android NDK(AppVeyour)*:
+*Windows*:
 
-[![Build status](https://ci.appveyor.com/api/projects/status/nk6c8q4mcrfo9xgm/branch/master?svg=true)](https://ci.appveyor.com/project/Andrey1994/brainflow/branch/master)
+[![Run Unix](https://github.com/brainflow-dev/brainflow/workflows/Run%20Windows//badge.svg?branch=master)](https://github.com/brainflow-dev/brainflow/actions)
+
+*Android NDK*:
+
+[![Run Android NDK](https://github.com/brainflow-dev/brainflow/workflows/Run%20Android%20NDK//badge.svg?branch=master)](https://github.com/brainflow-dev/brainflow/actions)
 
 ## Brainflow Bindings
 

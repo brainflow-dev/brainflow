@@ -1,0 +1,37 @@
+name: Run Self-Hosted
+
+# run it only to build release and trigger manually
+# there is old MacOS version to target more devices than we can do using github actions image
+
+on: [workflow_dispatch]
+
+jobs:
+  SelfHosted:
+    runs-on: self-hosted
+
+    steps:
+    # check users permission
+    - name: "Check Permissions"
+      uses: "lannonbr/repo-permission-check-action@2.0.0"
+      with:
+        permission: "admin"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    # compile and prepare env, assuming everything is preinstalled
+    - name: Clone Repository
+      uses: actions/checkout@v2
+    - name: Compile BrainFlow
+      run: |
+        mkdir $GITHUB_WORKSPACE/build
+        cd $GITHUB_WORKSPACE/build
+        cmake -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
+        make -j
+        make install
+
+    # deploy started
+    - name: Push Libraries
+      run: |
+        aws s3 cp $GITHUB_WORKSPACE/installed/lib/ s3://brainflow/$GITHUB_SHA/macos_release --recursive
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

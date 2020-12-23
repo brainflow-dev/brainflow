@@ -8,7 +8,7 @@
  ****************************************************************************/
 
 
-
+// clang-format off
 #include <stdio.h>
 
 #include "cmd_def.h"
@@ -607,3 +607,5 @@ const struct ble_class_handler_t ble_class_evt_handlers[ble_cls_last]=
 	{NULL,0},
 	{ble_class_dfu_evt_handlers,1},
 };
+
+// clang-format on

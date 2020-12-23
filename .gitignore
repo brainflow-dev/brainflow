@@ -339,6 +339,7 @@ ASALocalRun/
 .vscode/
 
 build*
+!tools/*
 installed*
 compiled/
 python/flowcat.egg-info/

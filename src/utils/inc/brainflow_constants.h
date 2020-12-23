@@ -25,7 +25,7 @@ enum class BrainFlowExitCodes : int
     NO_SUCH_DATA_IN_JSON_ERROR = 20,
     CLASSIFIER_IS_NOT_PREPARED_ERROR = 21,
     ANOTHER_CLASSIFIER_IS_PREPARED_ERROR = 22,
-    UNSUPPORTED_CLASSIFIER_AND_METRIC_COMBINATION_ERROR = 23,
+    UNSUPPORTED_CLASSIFIER_AND_METRIC_COMBINATION_ERROR = 23
 };
 
 enum class BoardIds : int
@@ -36,7 +36,7 @@ enum class BoardIds : int
     CYTON_BOARD = 0,
     GANGLION_BOARD = 1,
     CYTON_DAISY_BOARD = 2,
-    AURAXR_BOARD = 3,
+    GALEA_BOARD = 3,
     GANGLION_WIFI_BOARD = 4,
     CYTON_WIFI_BOARD = 5,
     CYTON_DAISY_WIFI_BOARD = 6,
@@ -49,7 +49,11 @@ enum class BoardIds : int
     NOTION_1_BOARD = 13,
     NOTION_2_BOARD = 14,
     IRONBCI_BOARD = 15,
-    GFORCE_PRO_BOARD = 16
+    GFORCE_PRO_BOARD = 16,
+    FREEEEG32_BOARD = 17,
+    // use it to iterate
+    FIRST = PLAYBACK_FILE_BOARD,
+    LAST = FREEEEG32_BOARD
 };
 
 enum class FilterTypes : int
@@ -94,6 +98,7 @@ enum class BrainFlowClassifiers : int
     SVM = 2,
     LDA = 3
 };
+
 /// LogLevels enum to store all possible log levels
 enum class LogLevels : int
 {

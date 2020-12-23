@@ -24,6 +24,7 @@ To create an instance of BoardShim class for your board check required inputs in
    "CallibriECG", "BoardIds.CALLIBRI_ECG_BOARD (11)", "-", "-", "-", "-", "-", "Optional: ExternalSwitchInputMioUSB (default is ExternalSwitchInputMioElectrodes)", "Timeout for device discovery(default 15sec)", "-", "-"
    "Notion 1", "BoardIds.NOTION_1_BOARD (13)", "-", "-", "-", "-", "-", "-", "-", "Optional: serial number", "-"
    "Notion 2", "BoardIds.NOTION_2_BOARD (14)", "-", "-", "-", "-", "-", "-", "-", "Optional: serial number", "-"
+   "FreeEEG32", "BoardIds.FREEEEG32_BOARD (17)", "dongle serial port", "-", "-", "-", "-", "-", "-", "-", "-"
 
 
 Playback File Board
@@ -36,7 +37,7 @@ This board playbacks file recorded using another BrainFlow board.
 To choose this board in BoardShim constructor please specify:
 
 - board_id: -3
-- other_info field of BrainFlowInputParams structure, write there board_id for a board which acts like data provider(master board)
+- other_info field of BrainFlowInputParams structure should contain board_id of device used to create playback file
 - file field of BrainFlowInputParams structure
 
 Supported platforms:
@@ -64,7 +65,7 @@ In methods like:
    # .......
 
 
-You need to use master board id instead Playback Board Id, because exact data format for streaming board is controlled by master board as well as sampling rate
+You need to use master board id instead Playback Board Id, because exact data format for playback board is controlled by master board as well as sampling rate.
 
 Board Specs:
 
@@ -428,7 +429,13 @@ To choose this board in BoardShim constructor please specify:
 Supported platforms:
 
 - Ubuntu 18.04, may work on other Linux OSes, it depends on dynamic library provided by Unicorn
+- Windows
 - May also work on Raspberry PI, if you replace libunicorn.so by library provided by Unicorn for Raspberry PI
+
+Steps to Setup:
+
+- Connect the dongle
+- Make sure that you paired Unicorn device with PC using provided dongle instead built-in Bluetooth
 
 Board Spec:
 
@@ -458,6 +465,8 @@ Supported platforms:
 - Linux
 - MacOS
 
+*Note: On Windows you may need to disable firewall to allow broadcast messages.*
+
 Board Spec:
 
 - num eeg channels: 8
@@ -482,8 +491,40 @@ Supported platforms:
 - Linux
 - MacOS
 
+*Note: On Windows you may need to disable firewall to allow broadcast messages.*
+
 Board Spec:
 
 - num eeg channels: 8
 - sampling rate: 250
 - communication: UDP BroadCast
+
+
+FreeEEG32
+----------
+
+FreeEEG32
+~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/50587672267_2f23300f5e_c.jpg
+    :width: 400px
+    :height: 225px
+
+`CrowdSupply <https://www.crowdsupply.com/neuroidss/freeeeg32>`_
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 17
+- serial_port field of BrainFlowInputParams structure
+
+Supported platforms:
+
+- Windows
+- Linux
+- MacOS
+
+Board Spec:
+
+- num eeg channels: 32
+- sampling rate: 512
+- communication: Serial Port

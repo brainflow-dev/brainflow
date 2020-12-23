@@ -41,6 +41,7 @@ extern "C"
         int board_id, int *temperature_channels, int *len);
     SHARED_EXPORT int CALLING_CONVENTION get_resistance_channels (
         int board_id, int *resistance_channels, int *len);
+    SHARED_EXPORT int CALLING_CONVENTION get_device_name (int board_id, char *name, int *len);
 
 #ifdef __cplusplus
 }

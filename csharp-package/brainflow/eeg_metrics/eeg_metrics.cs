@@ -14,11 +14,11 @@ namespace test
             BoardShim.enable_dev_board_logger ();
             BrainFlowInputParams input_params = new BrainFlowInputParams ();
             int board_id = parse_args (args, input_params);
-            int sampling_rate = BoardShim.get_sampling_rate (board_id);
-            int nfft = DataFilter.get_nearest_power_of_two(sampling_rate);
-            int[] eeg_channels = BoardShim.get_eeg_channels(board_id);
-
             BoardShim board_shim = new BoardShim (board_id, input_params);
+            int sampling_rate = BoardShim.get_sampling_rate (board_shim.get_board_id ());
+            int nfft = DataFilter.get_nearest_power_of_two (sampling_rate);
+            int[] eeg_channels = BoardShim.get_eeg_channels (board_shim.get_board_id ());
+
             board_shim.prepare_session ();
             board_shim.start_stream (3600);
             System.Threading.Thread.Sleep (10000);

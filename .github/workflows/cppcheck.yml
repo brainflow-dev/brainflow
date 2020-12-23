@@ -1,0 +1,25 @@
+name: CppCheck
+
+on: [push, pull_request]
+
+jobs:
+  cppcheck:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install CppCheck
+      run: |
+        sudo -H apt-get update -y
+        sudo -H apt-get install cppcheck
+      env:
+        DEBIAN_FRONTEND: noninteractive
+    - name: Run Cppcheck
+      run: |
+        cppcheck --enable=warning,performance,portability --xml --xml-version=2 --force src cpp-package third_party 2>cppcheck_res.xml
+        cppcheck-htmlreport --title=BrainFlow --file=cppcheck_res.xml --report-dir=report
+    - name: Upload Report
+      uses: actions/upload-artifact@v1
+      with:
+        name: report
+        path: report

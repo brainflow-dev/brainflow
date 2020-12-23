@@ -69,6 +69,7 @@ double *DataFilter::perform_downsampling (
     int res = ::perform_downsampling (data, data_len, period, agg_operation, filtered_data);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
+        delete[] filtered_data;
         throw BrainFlowException ("failed to filter signal", res);
     }
     *filtered_size = data_len / period;
@@ -91,6 +92,8 @@ std::pair<double *, int *> DataFilter::perform_wavelet_transform (
         data, data_len, wavelet, decomposition_level, wavelet_output, decomposition_lengths);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
+        delete[] wavelet_output;
+        delete[] decomposition_lengths;
         throw BrainFlowException ("failed to perform wavelet", res);
     }
     return std::make_pair (wavelet_output, decomposition_lengths);
@@ -350,7 +353,10 @@ void DataFilter::reshape_data_to_2d (
 {
     for (int i = 0; i < num_rows; i++)
     {
-        memcpy (output_buf[i], linear_buffer + i * num_cols, sizeof (double) * num_rows);
+        for (int j = 0; j < num_cols; j++)
+        {
+            output_buf[i][j] = linear_buffer[i * num_cols + j];
+        }
     }
 }
 

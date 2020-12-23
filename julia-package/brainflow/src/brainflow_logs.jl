@@ -1,14 +1,15 @@
-AnyIntType = Union{Int8, Int32, Int64, Int128, Int}
 
+abstract type BrainFlowLib end
+struct BoardControllerLib <: BrainFlowLib end
+struct DataHandlerLib <: BrainFlowLib end
+struct MlModuleLib <: BrainFlowLib end
+library_path(::BoardControllerLib) = BOARD_CONTROLLER_INTERFACE
+library_path(::DataHandlerLib) = DATA_HANDLER_INTERFACE
+library_path(::MlModuleLib) = ML_MODULE_INTERFACE
 
-@enum BrainFlowLogLib begin
-
-    BOARD_CONTROLLER = 0
-    DATA_HANDLER = 1
-    ML_MODULE = 2
-
-end
-
+const BOARD_CONTROLLER = BoardControllerLib()
+const DATA_HANDLER = DataHandlerLib()
+const ML_MODULE = MlModuleLib()
 
 @enum LogLevels begin
 
@@ -22,106 +23,32 @@ end
 
 end
 
-function enable_brainflow_logger(log_lib::AnyIntType)
-    set_log_level(Integer(LEVEL_INFO), Integer(log_lib))
-end
-
-
-function enable_dev_brainflow_logger(log_lib::AnyIntType)
-    set_log_level(Integer(LEVEL_TRACE), Integer(log_lib))
-end
-
-
-function disable_brainflow_logger(log_lib::AnyIntType)
-    set_log_level(Integer(LEVEL_OFF), Integer(log_lib))
-end
-
+enable_brainflow_logger(log_lib::BrainFlowLib) = set_log_level(Integer(LEVEL_INFO), log_lib)
+enable_dev_brainflow_logger(log_lib::BrainFlowLib) = set_log_level(Integer(LEVEL_TRACE), log_lib)
+disable_brainflow_logger(log_lib::BrainFlowLib) = set_log_level(Integer(LEVEL_OFF), log_lib)
 
 # available only for BoardController, no need to provide log_lib
-function log_message(log_level::AnyIntType, message::String)
-    ec = Integer(STATUS_OK)
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Sys.iswindows()
-        ec = ccall((:log_message, "BoardController.dll"), Cint, (Cint, Ptr{UInt8}), Int32(log_level), message)
-    elseif Sys.isapple()
-        ec = ccall((:log_message, "libBoardController.dylib"), Cint, (Cint, Ptr{UInt8}), Int32(log_level), message)
-    else
-        ec = ccall((:log_message, "libBoardController.so"), Cint, (Cint, Ptr{UInt8}), Int32(log_level), message)
-    end
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in log_message ", ec), ec))
-    end
+@brainflow_rethrow function log_message(log_level::Integer, message::String)
+    ccall((:log_message, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}), Int32(log_level), message)
 end
 
-
-function set_log_file(log_file::String, log_lib::AnyIntType)
-    ec = STATUS_OK
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Integer(log_lib) == Integer(BOARD_CONTROLLER)
-        if Sys.iswindows()
-            ec = ccall((:set_log_file, "BoardController.dll"), Cint, (Ptr{UInt8},), log_file)
-        elseif Sys.isapple()
-            ec = ccall((:set_log_file, "libBoardController.dylib"), Cint, (Ptr{UInt8},), log_file)
-        else
-            ec = ccall((:set_log_file, "libBoardController.so"), Cint, (Ptr{UInt8},), log_file)
-        end
-    elseif Integer(log_lib) == Integer(DATA_HANDLER)
-        if Sys.iswindows()
-            ec = ccall((:set_log_file, "DataHandler.dll"), Cint, (Ptr{UInt8},), log_file)
-        elseif Sys.isapple()
-            ec = ccall((:set_log_file, "libDataHandler.dylib"), Cint, (Ptr{UInt8},), log_file)
-        else
-            ec = ccall((:set_log_file, "libDataHandler.so"), Cint, (Ptr{UInt8},), log_file)
-        end
-    elseif Integer(log_lib) == Integer(ML_MODULE)
-        if Sys.iswindows()
-            ec = ccall((:set_log_file, "MLModule.dll"), Cint, (Ptr{UInt8},), log_file)
-        elseif Sys.isapple()
-            ec = ccall((:set_log_file, "libMLModule.dylib"), Cint, (Ptr{UInt8},), log_file)
-        else
-            ec = ccall((:set_log_file, "libMLModule.so"), Cint, (Ptr{UInt8},), log_file)
-        end
-    else
-        ec = Integer(INVALID_ARGUMENTS_ERROR)
-    end
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in set_log_file ", ec), ec))
-    end
+@brainflow_rethrow function set_log_file(log_file, log_lib::BrainFlowLib)
+    lib_cglobal = log_file_cglobal(log_lib)
+    ccall(lib_cglobal, Cint, (Ptr{UInt8},), log_file)
 end
 
+# need to hardcode the cglobal input symbols, related to https://github.com/JuliaLang/julia/issues/29602
+log_file_cglobal(::BoardControllerLib) = cglobal((:set_log_file, BOARD_CONTROLLER_INTERFACE)) 
+log_file_cglobal(::DataHandlerLib) = cglobal((:set_log_file, DATA_HANDLER_INTERFACE)) 
+log_file_cglobal(::MlModuleLib) = cglobal((:set_log_file, ML_MODULE_INTERFACE)) 
 
-
-function set_log_level(log_level::AnyIntType, log_lib::AnyIntType)
-    ec = Integer(STATUS_OK)
-    # due to this bug https://github.com/JuliaLang/julia/issues/29602 libname should be hardcoded
-    if Integer(log_lib) == Integer(BOARD_CONTROLLER)
-        if Sys.iswindows()
-            ec = ccall((:set_log_level, "BoardController.dll"), Cint, (Cint,), Int32(log_level))
-        elseif Sys.isapple()
-            ec = ccall((:set_log_level, "libBoardController.dylib"), Cint, (Cint,), Int32(log_level))
-        else
-            ec = ccall((:set_log_level, "libBoardController.so"), Cint, (Cint,), Int32(log_level))
-        end
-    elseif Integer(log_lib) == Integer(DATA_HANDLER)
-        if Sys.iswindows()
-            ec = ccall((:set_log_level, "DataHandler.dll"), Cint, (Cint,), Int32(log_level))
-        elseif Sys.isapple()
-            ec = ccall((:set_log_level, "libDataHandler.dylib"), Cint, (Cint,), Int32(log_level))
-        else
-            ec = ccall((:set_log_level, "libDataHandler.so"), Cint, (Cint,), Int32(log_level))
-        end
-    elseif Integer(log_lib) == Integer(ML_MODULE)
-        if Sys.iswindows()
-            ec = ccall((:set_log_level, "MLModule.dll"), Cint, (Cint,), Int32(log_level))
-        elseif Sys.isapple()
-            ec = ccall((:set_log_level, "libMLModule.dylib"), Cint, (Cint,), Int32(log_level))
-        else
-            ec = ccall((:set_log_level, "libMLModule.so"), Cint, (Cint,), Int32(log_level))
-        end
-    else
-        ec = Integer(INVALID_ARGUMENTS_ERROR)
-    end
-    if ec != Integer(STATUS_OK)
-        throw(BrainFlowError(string("Error in set_log_level ", ec), ec))
-    end
+@brainflow_rethrow function set_log_level(log_level::Integer, log_lib::BrainFlowLib)
+    lib_cglobal = log_level_cglobal(log_lib)
+    ccall(lib_cglobal, Cint, (Cint,), Int32(log_level))
 end
+
+# need to hardcode the cglobal input symbols, related to https://github.com/JuliaLang/julia/issues/29602
+log_level_cglobal(::BoardControllerLib) = cglobal((:set_log_level, BOARD_CONTROLLER_INTERFACE)) 
+log_level_cglobal(::DataHandlerLib) = cglobal((:set_log_level, DATA_HANDLER_INTERFACE)) 
+log_level_cglobal(::MlModuleLib) = cglobal((:set_log_level, ML_MODULE_INTERFACE)) 
+

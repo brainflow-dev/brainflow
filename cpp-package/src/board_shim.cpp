@@ -159,7 +159,7 @@ int BoardShim::get_board_data_count ()
 double **BoardShim::get_board_data (int *num_data_points)
 {
     int num_samples = get_board_data_count ();
-    int num_data_channels = get_num_rows (get_master_board_id ());
+    int num_data_channels = get_num_rows (get_board_id ());
     double *buf = new double[num_samples * num_data_channels];
     int res = ::get_board_data (
         num_samples, buf, board_id, const_cast<char *> (serialized_params.c_str ()));
@@ -182,7 +182,7 @@ double **BoardShim::get_board_data (int *num_data_points)
 
 double **BoardShim::get_current_board_data (int num_samples, int *num_data_points)
 {
-    int num_data_channels = BoardShim::get_num_rows (get_master_board_id ());
+    int num_data_channels = BoardShim::get_num_rows (get_board_id ());
     double *buf = new double[num_samples * num_data_channels];
     int res = ::get_current_board_data (num_samples, buf, num_data_points, board_id,
         const_cast<char *> (serialized_params.c_str ()));
@@ -221,7 +221,7 @@ std::string BoardShim::config_board (char *config)
 // can not do it directly in low level api because some languages can not pass multidim array to C++
 void BoardShim::reshape_data (int num_data_points, double *linear_buffer, double **output_buf)
 {
-    int num_data_channels = BoardShim::get_num_rows (get_master_board_id ());
+    int num_data_channels = BoardShim::get_num_rows (get_board_id ());
     for (int i = 0; i < num_data_channels; i++)
     {
         memcpy (
@@ -229,7 +229,7 @@ void BoardShim::reshape_data (int num_data_points, double *linear_buffer, double
     }
 }
 
-int BoardShim::get_master_board_id ()
+int BoardShim::get_board_id ()
 {
     int master_board_id = board_id;
     if ((board_id == (int)BoardIds::STREAMING_BOARD) ||
@@ -309,7 +309,7 @@ int BoardShim::get_num_rows (int board_id)
 
 std::string *BoardShim::get_eeg_names (int board_id, int *len)
 {
-    char *eeg_names = new char[4096];
+    char eeg_names[4096];
     int string_len = 0;
     int res = ::get_eeg_names (board_id, eeg_names, &string_len);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
@@ -324,12 +324,24 @@ std::string *BoardShim::get_eeg_names (int board_id, int *len)
     {
         out.push_back (single_name);
     }
-    delete[] eeg_names;
 
     std::string *result = new std::string[out.size ()];
     std::copy (out.begin (), out.end (), result);
     *len = out.size ();
 
+    return result;
+}
+
+std::string BoardShim::get_device_name (int board_id)
+{
+    char name[4096];
+    int string_len = 0;
+    int res = ::get_device_name (board_id, name, &string_len);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed get board info", res);
+    }
+    std::string result (name, 0, string_len);
     return result;
 }
 

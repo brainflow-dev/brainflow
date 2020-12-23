@@ -1,10 +1,6 @@
 name: Clang Format
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+on: [push, pull_request]
 
 jobs:
   checkout-and-check-formatting:
@@ -13,9 +9,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Run clang-format
-      uses: HorstBaerbel/action-clang-format@1.4
+      uses: DoozyX/clang-format-lint-action@v0.11
       with:
-        scandir: '.'
-        excludedirs: 'third_party,tools'
-        extensions: 'c,h,C,H,cpp,hpp,checkout-and-check-formatting,hh,c++,h++,cxx,hxx'
-        style: 'file'
+        source: 'src'
+        exclude: './third_party'
+        extensions: 'h,cpp,c'
+        clangFormatVersion: 11
+        inplace: False

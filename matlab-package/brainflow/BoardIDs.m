@@ -6,7 +6,7 @@ classdef BoardIDs < int32
         CYTON_BOARD (0)
         GANGLION_BOARD (1)
         CYTON_DAISY_BOARD (2)
-        AURAXR_BOARD (3)
+        GALEA_BOARD (3)
         GANGLION_WIFI (4)
         CYTON_WIFI (5)
         CYTON_DAISY_WIFI (6)
@@ -20,5 +20,6 @@ classdef BoardIDs < int32
         NOTION_2_BOARD (14)
         IRONBCI_BOARD (15)
         GFORCE_PRO_BOARD (16)
+        FREEEEG32_BOARD (17)
     end
 end

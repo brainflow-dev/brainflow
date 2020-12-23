@@ -82,6 +82,8 @@ public class BoardShim
         int is_prepared (int[] prepared, int board_id, String params);
 
         int get_eeg_names (int board_id, byte[] names, int[] len);
+
+        int get_device_name (int board_id, byte[] name, int[] len);
     }
 
     private static DllInterface instance;
@@ -99,12 +101,15 @@ public class BoardShim
             lib_name = "BoardController.dll";
             ganglion_name = "GanglionLib.dll";
             unpack_from_jar ("neurosdk-x64.dll");
-
+            unpack_from_jar ("Unicorn.dll");
         } else if (SystemUtils.IS_OS_MAC)
         {
             lib_name = "libBoardController.dylib";
             ganglion_name = "libGanglionLib.dylib";
             unpack_from_jar ("libneurosdk-shared.dylib");
+        } else if ((SystemUtils.IS_OS_LINUX) && (!is_os_android))
+        {
+            unpack_from_jar ("libunicorn.so");
         }
 
         if (is_os_android)
@@ -287,6 +292,22 @@ public class BoardShim
         }
         String eeg_names_string = new String (str, 0, len[0]);
         return eeg_names_string.split (",");
+    }
+
+    /**
+     * Get device name
+     */
+    public static String get_device_name (int board_id) throws BrainFlowError
+    {
+        int[] len = new int[1];
+        byte[] str = new byte[4096];
+        int ec = instance.get_device_name (board_id, str, len);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in board info getter", ec);
+        }
+        String name = new String (str, 0, len[0]);
+        return name;
     }
 
     /**
@@ -551,6 +572,14 @@ public class BoardShim
         {
             throw new BrainFlowError ("Error in prepare_session", ec);
         }
+    }
+
+    /**
+     * Get Board Id, can be different than provided (playback or streaming board)
+     */
+    public int get_board_id ()
+    {
+        return master_board_id;
     }
 
     /**

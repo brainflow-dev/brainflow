@@ -3,6 +3,7 @@ package brainflow;
 /**
  * BrainFlowError exception to notify about errors
  */
+@SuppressWarnings ("serial")
 public class BrainFlowError extends Exception
 {
     public String msg;

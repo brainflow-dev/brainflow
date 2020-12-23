@@ -22,7 +22,7 @@ Python
 C#
 ----
 
-For C#, only Windows is currently supported.
+**Windows(Visual Studio)**
 
 You are able to install the latest release from `Nuget <https://www.nuget.org/packages/brainflow/>`_ or build it yourself:
 
@@ -31,6 +31,33 @@ You are able to install the latest release from `Nuget <https://www.nuget.org/pa
 - install required nuget packages
 - build it using Visual Studio
 - **make sure that unmanaged(C++) libraries exist in search path** - set PATH env variable or copy them to correct folder
+
+**Unix(Mono)**
+
+- Compile BrainFlow's core module
+- install nuget and Mono on your system
+- install required nuget packages
+- build it using Mono
+- **make sure that unmanaged(C++) libraries exist in search path** - set LD_LIBRARY_PATH env variable or copy them to correct folder
+
+.. compound::
+
+    Example for Fedora: ::
+
+        # compile c++ code
+        tools/build_linux.sh
+        # install dependencies, we skip dnf configuration steps 
+        sudo dnf install nuget
+        sudo dnf install mono-devel
+        sudo dnf install mono-complete
+        sudo dnf install monodevelop
+        # install nuget packages
+        nuget restore csharp-package/brainflow/brainflow.sln
+        # build solution
+        xbuild csharp-package/brainflow/brainflow.sln
+        # run tests
+        export LD_LIBRARY_PATH=/home/andreyparfenov/brainflow/installed_linux/lib/
+        mono csharp-package/brainflow/denoising/bin/Debug/test.exe
 
 R
 -----
@@ -67,25 +94,46 @@ Steps to setup Matlab binding for BrainFlow:
 Julia
 --------
 
-Steps to setup Julia binding for BrainFlow:
-
-- Compile Core Module, using instructions below
-- Set PATH(on Windows) or LD_LIBRARY_PATH(on Unix) env variables to ensure that compiled libraries are in search path
-- Install BrainFlow package locally
+BrainFlow is a registered package in the Julia general registry, so it can be installed via the Pkg manager:
 
 .. compound::
 
-    Example ::
+    Example: ::
 
-        # compile core module first
-        # set env variable
-        export LD_LIBRARY_PATH=/home/andreyparfenov/brainflow/installed_linux/lib/:$LD_LIBRARY_PATH
-        cd julia-package/brainflow
-        julia
-        # type ']' to switch to pkg terminal
-        activate . # activate BrainFlow's env
+        import Pkg
+		Pkg.add("brainflow")
         
+When using BrainFlow for the first time in Julia, the brainflow artifact containing the compiled BrainFlow libraries will be downloaded.
 
+Docker Image
+--------------
+
+There are docker images with precompiled BrainFlow. You can get them from `DockerHub <https://hub.docker.com/r/brainflow/brainflow>`_.
+
+All bindings except Matlab are preinstalled there and libraries compiled with OpenMP support.
+
+Also, there are other packages for BCI research and development:
+
+- mne
+- pyriemann
+- scipy
+- matplotlib
+- jupyter
+- pandas
+- etc
+
+If your devices uses TCP\IP to send data, you need to run docker container with :code:`--network host`. For serial port connection you need to pass serial port to docker using :code:`--device %your port here%`
+
+.. compound::
+
+    Example:  ::
+
+        # pull container from DockerHub
+        docker pull brainflow/brainflow:3.7.2
+        # run docker container with serial port /dev/ttyUSB0
+        docker run -it --device /dev/ttyUSB0 brainflow/brainflow:3.7.2 /bin/bash
+        # run docker container for boards which use networking
+        docker run -it --network host brainflow/brainflow:3.7.2 /bin/bash
 
 Compilation of Core Module and C++ Binding
 -------------------------------------------
@@ -93,15 +141,16 @@ Compilation of Core Module and C++ Binding
 Windows
 ~~~~~~~~
 
-- Install Cmake>=3.13 you can install it from PYPI via pip
-- Install Visual Studio 2017, you can use another version but you will need to change cmake generator in batch files or run cmake commands manually. Also in CI we test only VS2017
-- Build it as a cmake project manually or use cmd files from tools directory
+- Install CMake>=3.13 you can install it from PYPI via pip
+- Install Visual Studio 2017, you can use another version but you will need to change CMake generator in batch files or run CMake commands manually. Also in CI we test only VS2017
+- In VS installer make sure you selected "Visual C++ ATL support"
+- Build it as a CMake project manually or use cmd files from tools directory
 
 .. compound::
 
-    Compilation using cmd files ::
+    Compilation using cmd files: ::
 
-        python -m pip install cmake==3.13.3
+        python -m pip install cmake
         # need to run these files from project dir
         .\tools\build_win32.cmd
         .\tools\build_win64.cmd
@@ -109,16 +158,16 @@ Windows
 Linux
 ~~~~~~
 
-- Install Cmake>=3.13 you can install it from PYPI via pip
-- If you wanna distribute compiled Linux libraries you HAVE to build it inside manylinux Docker container
-- Build it as a cmake project manually or use bash file from tools directory
+- Install CMake>=3.13 you can install it from PYPI via pip
+- If you are going to distribute compiled Linux libraries you HAVE to build it inside manylinux Docker container
+- Build it as a CMake project manually or use bash file from tools directory
 - You can use any compiler but for Linux we test only GCC, also we test only 64bit libraries for Linux
 
 .. compound::
 
-    Compilation using bash file ::
+    Compilation using bash file: ::
 
-        python -m pip install cmake==3.13.3
+        python -m pip install cmake
         # you may need to change line endings using dos2unix or text editor for file below
         # need to run this file from project dir
         bash ./tools/build_linux.sh
@@ -126,18 +175,50 @@ Linux
 MacOS
 ~~~~~~~
 
-- Install Cmake>=3.13 you can install it from PYPI via pip
-- Build it as a cmake project manually or use bash file from tools directory
+- Install CMake>=3.13 you can install it from PYPI via pip
+- Build it as a CMake project manually or use bash file from tools directory
 - You can use any compiler but for MacOS we test only Clang
 
 .. compound::
 
-    Compilation using bash file ::
+    Compilation using bash file: ::
 
-        python -m pip install cmake==3.13.3
+        python -m pip install cmake
         # you may need to change line endings using dos2unix or text editor for file below
         # need to run this file from project dir
         bash ./tools/build_mac.sh
+
+
+
+Compilation with OpenMP
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Some data processing and machine learning algorithms work much faster if you run them in multiple threads. To parallel computations we use OpenMP library.
+
+**Precompiled libraries which you download from PYPI/Nuget/Maven/etc built without OpenMP support and work in single thread.**
+
+If you want to increase performance of signal processing algorithms you can compile BrainFlow from the source and turn on *USE_OPENMP* option.
+
+To build BrainFlow with OpenMP support first of all you need to install OpenMP.
+
+- On Windows all you need is Visual C++ Redist package which is installed automatically with Visual Studio
+- On Linux you may need to install libgomp if it's not currently installed
+- On MacOS you need to run :code:`brew install libomp`
+
+After that you need to compile BrainFlow with OpenMP support, steps are exactly the same as above, but you need to run bash or cmd scripts whith _omp postfix.
+
+.. compound::
+
+    Example: ::
+
+        # for Linux
+        bash ./tools/build_linux_omp.sh
+        # for MacOS
+        bash ./tools/build_mac_omp.sh
+        # for Windows
+        .\tools\build_win64_omp.cmd
+
+If you use CMake directly to build BrainFlow you need to add :code:`-DUSE_OPENMP=ON` to CMake config command line.
 
 
 Android
@@ -186,9 +267,9 @@ Compilation instructions:
 
 .. compound::
     
-    Command line examples ::
+    Command line examples: ::
 
-        # to prepare project
+        # to prepare project(choose ABIs which you need)
         # for arm64-v8a
         cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=E:\android-ndk-r21d-windows-x86_64\android-ndk-r21d\build\cmake\android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=android-19 -DANDROID_ABI=arm64-v8a ..
         # for armeabi-v7a
@@ -198,5 +279,5 @@ Compilation instructions:
         # for x86
         cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=E:\android-ndk-r21d-windows-x86_64\android-ndk-r21d\build\cmake\android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=android-19 -DANDROID_ABI=x86 ..
 
-        # to build
+        # to build(should be run for each ABI from previous step)
         cmake --build . --target install --config Release -j 2 --parallel 2
