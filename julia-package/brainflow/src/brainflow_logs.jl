@@ -23,9 +23,9 @@ const ML_MODULE = MlModuleLib()
 
 end
 
-enable_brainflow_logger(log_lib::BrainFlowLib) = set_log_level(Integer(LEVEL_INFO), log_lib)
-enable_dev_brainflow_logger(log_lib::BrainFlowLib) = set_log_level(Integer(LEVEL_TRACE), log_lib)
-disable_brainflow_logger(log_lib::BrainFlowLib) = set_log_level(Integer(LEVEL_OFF), log_lib)
+enable_logger(log_lib::BrainFlowLib) = set_log_level(Integer(LEVEL_INFO), log_lib)
+enable_dev_logger(log_lib::BrainFlowLib) = set_log_level(Integer(LEVEL_TRACE), log_lib)
+disable_logger(log_lib::BrainFlowLib) = set_log_level(Integer(LEVEL_OFF), log_lib)
 
 # available only for BoardController, no need to provide log_lib
 @brainflow_rethrow function log_message(log_level::Integer, message::String)

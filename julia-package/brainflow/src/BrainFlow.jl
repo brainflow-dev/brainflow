@@ -1,4 +1,4 @@
-module brainflow
+module BrainFlow
 
 include("errors.jl")
 include("brainflow_url.jl")
