@@ -2,12 +2,13 @@
 #include <string.h>
 #include <string>
 
+#include "gforce_pro.h"
+
 #ifdef _WIN32
 #include <windows.h>
 
 #include "custom_cast.h"
 #include "get_dll_dir.h"
-#include "gforce_pro.h"
 
 #include "gforce_wrapper_types.h"
 
