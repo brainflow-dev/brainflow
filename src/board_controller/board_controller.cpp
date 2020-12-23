@@ -138,6 +138,7 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
             break;
         case BoardIds::GFORCE_PRO_BOARD:
             board = std::shared_ptr<Board> (new GforcePro (params));
+            break;
         case BoardIds::FREEEEG32_BOARD:
             board = std::shared_ptr<Board> (new FreeEEG32 (params));
             break;
