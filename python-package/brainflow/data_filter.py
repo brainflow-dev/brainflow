@@ -587,17 +587,17 @@ class DataFilter (object):
 			raise BrainFlowError ('unable to denoise data', res)
 
 	@classmethod
-	def perform_windowing (cls, window: int, window_len: int) -> NDArray[Float64]:
+	def perform_windowing (cls, window_function: int, window_len: int) -> NDArray[Float64]:
 		"""perform data windowing
 
-		:param window: window function
+		:param window_function: window function
 		:type window: int
 		:param window_len: len of the window function
 		:return: numpy array, len of the array is the same as data
 		:rtype: NDArray[Float64]
 		"""
 		window_data = numpy.zeros (int (window_len)).astype (numpy.float64)
-		res = DataHandlerDLL.get_instance ().perform_windowing (window, window_len, window_data)
+		res = DataHandlerDLL.get_instance ().perform_windowing (window_function, window_len, window_data)
 		if res != BrainflowExitCodes.STATUS_OK.value:
 			raise BrainFlowError ('unable to perform windowing', res)
 

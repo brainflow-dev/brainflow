@@ -288,18 +288,18 @@ namespace brainflow
         /// <summary>
         /// perform windowing
         /// </summary>
-        /// <param name="data">data for windowing</param>
-        /// <param name="window">window function</param>
-        /// <returns>array the same len as data </returns>
-        public static double[] perform_fft(double[] data, int window)
+        /// <param name="window_function">window function</param>
+        /// <param name="window_len">len of the window</param>
+        /// <returns>array of the size specified in window_len</returns>
+        public static double[] perform_windowing(int window_function, int window_len)
         {
-            int len = data.Length;
-            int res = DataHandlerLibrary.perform_windowing (data, len, window, windowed_data);
+            double[] window_data = new double[window_len];
+            int res = DataHandlerLibrary.perform_windowing (window_function, window_len, window_data);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException (res);
             }
-            return windowed_data;
+            return window_data;
         }
 
         /// <summary>

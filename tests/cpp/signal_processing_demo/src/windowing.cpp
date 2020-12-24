@@ -12,74 +12,36 @@
 
 using namespace std;
 
-void print_one_row (double *data, int num_data_points);
-
 int main (int argc, char *argv[])
 {
-    struct BrainFlowInputParams params;
-    // use synthetic board for demo
-    int board_id = (int)BoardIds::SYNTHETIC_BOARD;
-
-    BoardShim::enable_dev_board_logger ();
-
-    BoardShim *board = new BoardShim (board_id, params);
-    double **data = NULL;
-    int *eeg_channels = NULL;
-    int num_rows = 0;
     int res = 0;
-
     try
     {
-        board->prepare_session ();
-        board->start_stream ();
-        BoardShim::log_message ((int)LogLevels::LEVEL_INFO, "Start sleeping in the main thread");
-#ifdef _WIN32
-        Sleep (5000);
-#else
-        sleep (5);
-#endif
-
-        board->stop_stream ();
-        int data_count = 0;
-        data = board->get_board_data (&data_count);
-        BoardShim::log_message ((int)LogLevels::LEVEL_INFO, "read %d packages", data_count);
-        board->release_session ();
-        num_rows = BoardShim::get_num_rows (board_id);
-
-        // window only eeg channels and print them
-        int eeg_num_channels = 0;
-        eeg_channels = BoardShim::get_eeg_channels (board_id, &eeg_num_channels);
-        double *windowed_data = NULL;
-        int filtered_size = 0;
-        for (int i = 0; i < eeg_num_channels; i++)
+        double *window_data = NULL;
+        int window_len = 20;
+        for (int window_function = 0; i < 4; i++)
         {
-            std::cout << "Data from :" << eeg_channels[i] << " before downsampling " << std::endl;
-            print_one_row (data[eeg_channels[i]], data_count);
+            std::cout << "Window data :" << std::endl;
 
-            // just for demo apply different windowing algorithms to different channels
+            // just apply different windowing algorithms and print results
             switch (i)
             {
+                case 0:
+                    window_data = DataFilter::perform_windowing (window_function, window_len);
+                    break;
                 case 1:
-                    windowed_data = DataFilter::perform_windowing (data[eeg_channels[i]],
-                        data_count, i);
+                    window_data = DataFilter::perform_windowing (window_function, window_len);
                     break;
                 case 2:
-                    windowed_data = DataFilter::perform_windowing (data[eeg_channels[i]],
-                        data_count, i);
+                    window_data = DataFilter::perform_windowing (window_function, window_len);
                     break;                
                 case 3:
-                    windowed_data = DataFilter::perform_windowing (data[eeg_channels[i]],
-                        data_count, i);
-                    break;
-                default:
-                    windowed_data = DataFilter::perform_windowing (data[eeg_channels[i]],
-                        data_count, 0);
+                    window_data = DataFilter::perform_windowing (window_function, window_len);
                     break;
             }
+            std::cout << window_data << std::endl;
 
-            std::cout << "Data from :" << eeg_channels[i] << " after windowing " << std::endl;
-            print_one_row (windowed_data, filtered_size);
-            delete[] windowed_data;
+            delete[] window_data;
         }
     }
     catch (const BrainFlowException &err)
@@ -88,27 +50,5 @@ int main (int argc, char *argv[])
         res = err.exit_code;
     }
 
-    if (data != NULL)
-    {
-        for (int i = 0; i < num_rows; i++)
-        {
-            delete[] data[i];
-        }
-    }
-    delete[] data;
-    delete[] eeg_channels;
-    delete board;
-
     return res;
-}
-
-void print_one_row (double *data, int num_data_points)
-{
-    // print only first 10 data points
-    int num_points = (num_data_points < 10) ? num_data_points : 10;
-    for (int i = 0; i < num_points; i++)
-    {
-        std::cout << data[i] << " ";
-    }
-    std::cout << std::endl;
 }

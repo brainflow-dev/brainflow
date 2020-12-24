@@ -151,15 +151,13 @@ classdef DataFilter
             denoised_data = temp.Value;
         end
         
-        function windowed_data = perform_windowing (data, window)
+        function window_data = perform_windowing (window_function, window_len)
             task_name = 'perform_windowing';
-            n = size (data, 2);
-            temp_input = libpointer ('doublePtr', data);
             lib_name = DataFilter.load_lib ();
-            temp_output = libpointer ('doublePtr', zeros (1, int32 (n)));
-            exit_code = calllib (lib_name, task_name, temp_input, n, window, temp_output);
+            temp_output = libpointer ('doublePtr', zeros (1, int32 (window_len)));
+            exit_code = calllib (lib_name, task_name, window_function, window_len, temp_output);
             DataFilter.check_ec (exit_code, task_name);
-            windowed_data = temp_output.Value;
+            window_data = temp_output.Value;
         end
 
         function fft_data = perform_fft (data, window)

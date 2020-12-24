@@ -48,7 +48,7 @@ public class DataFilter
 
         int perform_wavelet_denoising (double[] data, int data_len, String wavelet, int decomposition_level);
 
-        int perform_windowing (double[] data, int data_len, int window, double[] windowed_data);
+        int perform_windowing (int window_function, int data_len, double[] window_data);
 
         int perform_fft (double[] data, int data_len, int window, double[] output_re, double[] output_im);
 
@@ -343,19 +343,19 @@ public class DataFilter
     /**
      * perform data windowing
      * 
-     * @param data      data for windowing
-     * @param window    window function
-     * @return array with the same length as data
+     * @param window     window function
+     * @param window_len lenght of the window function
+     * @return           array of the size specified in window_len
      */
-    public static double[] perform_windowing (double[] data, int window) throws BrainFlowError
+    public static double[] perform_windowing (int window, int window_len) throws BrainFlowError
     {
-        double[] windowed_data = new double[(int) (data.length)];
-        int ec = instance.perform_windowing (data, data.length, window, windowed_data);
+        double[] window_data = new double[window_len];
+        int ec = instance.perform_windowing (window, window_len, window_data);
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to perform windowing", ec);
         }
-        return windowed_data;
+        return window_data;
     }
 
     /**

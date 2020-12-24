@@ -14,15 +14,15 @@ def main ():
     BLACKMAN_HARRIS = 3
     window_len = 20
 
-    for count in range(4):
+    for window_function in range(4):
 
-        if count == NO_WINDOW:
+        if window_function == NO_WINDOW:
             print ('Window data for NO_WINDOW function:')
             window_data = DataFilter.perform_windowing (NO_WINDOW, window_len)
-        elif count == HANNING:
+        elif window_function == HANNING:
             print ('Window data for HANNING function:')
             window_data = DataFilter.perform_windowing (HANNING, window_len)
-        elif count == HAMMING:
+        elif window_function == HAMMING:
             print ('Window data for HAMMING function:')
             window_data = DataFilter.perform_windowing (HAMMING, window_len)
         else:

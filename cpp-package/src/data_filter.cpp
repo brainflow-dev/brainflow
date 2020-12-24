@@ -126,15 +126,16 @@ void DataFilter::perform_wavelet_denoising (
     }
 }
 
-double *DataFilter::perform_windowing (double *data, int data_len, int window)
+double *DataFilter::perform_windowing (int window_function, int window_len)
 {
-    double *windowed_data = new double[data_len];
-    int res = ::perform_windowing (data, data_len, window, windowed_data);
+    double *window_data = new double[window_len];
+    int res = ::perform_windowing (window_function, window_len, window_data);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
+        delete[] window_data;
         throw BrainFlowException ("failed to filter signal", res);
     }
-    return windowed_data;
+    return window_data;
 }
 
 std::complex<double> *DataFilter::perform_fft (double *data, int data_len, int window)

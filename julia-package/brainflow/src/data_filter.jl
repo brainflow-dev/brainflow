@@ -159,11 +159,11 @@ end
     return original_data
 end
 
-@brainflow_rethrow function perform_windowing(data, window::Integer)
-    windowed_data = Vector{Float64}(undef, Integer(length(data)))
-    ccall((:perform_windowing, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Ptr{Float64}),
-    data, length(data), Int32(window), windowed_data)
-    return windowed_data
+@brainflow_rethrow function perform_windowing(window_function::Integer, window_len::Integer)
+    window_data = Vector{Float64}(undef, Integer(window_len))
+    ccall((:perform_windowing, DATA_HANDLER_INTERFACE), Cint, (Cint, Cint, Ptr{Float64}),
+    Int32(window_function), Int32(window_len), window_data)
+    return window_data
 end
 
 @brainflow_rethrow function perform_fft(data, window::Integer)
