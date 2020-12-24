@@ -7,45 +7,36 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-inline double no_window_function (double *data, int data_len)
+inline void no_window_function (int window_len, double *wind)
 {
-    double windowed_data[data_len];
-    for (int i = 0; i < data_len; i++)
+    for (int i = 0; i < window_len; i++)
     {
-        windowed_data[i] = data[i];
+        wind[i] = 1.0;
     }
-    return windowed_data;
 }
 
-inline double hanning_function (double data, int data_len)
+inline void hanning_function (int window_len, double *wind)
 {
-    double windowed_data[data_len];
-    for (int i = 0; i < data_len; i++)
+    for (int i = 0; i < window_len; i++)
     {
-        windowed_data[i] = data[i] * (0.5 - 0.5 * cos (2.0 * M_PI * i / data_len));
+        wind[i] = 0.5 - 0.5 * cos (2.0 * M_PI * i / window_len);
     }
-    return windowed_data;
 }
 
-inline double hamming_function (double *data, int data_len)
+inline void hamming_function (int window_len, double *wind)
 {
-    double windowed_data[data_len];
-    for (int i = 0; i < data_len; i++)
+    for (int i = 0; i < window_len; i++)
     {
-        windowed_data[i] = data[i] * (0.54 - 0.46 * cos (2.0 * M_PI * i / data_len));
+        wind[i] = 0.54 - 0.46 * cos (2.0 * M_PI * i / window_len);
     }
-    return windowed_data;
 }
 
-inline double blackman_harris_function (double *data, int data_len)
+inline void blackman_harris_function (int window_len, double *wind)
 {
-    double windowed_data[data_len];
-    for (int i = 0; i < data_len; i++)
+    for (int i = 0; i < window_len; i++)
     {
-        windowed_data[i] = data[i] *
-                            (0.355768 - 0.487396 * cos (2.0 * M_PI * i / data_len) +
-                            0.144232 * cos (4.0 * M_PI * i / data_len) -
-                            0.012604 * cos (6.0 * M_PI * i / data_len));
+        wind[i] = 0.355768 - 0.487396 * cos (2.0 * M_PI * i / window_len) +
+                            0.144232 * cos (4.0 * M_PI * i / window_len) -
+                            0.012604 * cos (6.0 * M_PI * i / window_len);
     }
-    return windowed_data;
 }

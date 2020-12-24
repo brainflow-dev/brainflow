@@ -494,54 +494,41 @@ int perform_wavelet_denoising (double *data, int data_len, char *wavelet, int de
 }
   
 int perform_windowing (
-    double *data, int data_len, int window_function, double *output_data)
+    int window_function, int window_len, double *output_window)
 {
-    if ((data == NULL) || (data_len <= 0) || (window_function < 0) || (output_data == NULL))
+    if ((window_len <= 0) || (window_function < 0) || (output_window == NULL))
     {
-        data_logger->error ("Pleck check the arguments: data must be >= 0, data_len > 0, window_function >= 0 and output_data cannot be empty. data:{} , "
+        data_logger->error ("Please check the arguments: data_len must be > 0, window_function >= 0 and output_window cannot be empty. "
                             "window_function:{}, data_len:{}, output_data:{}",
-                            *data, window_function, data_len, *output_data);
+                            window_function, window_len, *output_window);
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
-    double *windowed_data = new double[data_len];
-    try {
-        if (data == 0)
-        {
-            throw new std::runtime_error ("invalid x and f arguments");
-        }
-
+    try 
+    {
         // from https://www.edn.com/windowing-functions-improve-fft-results-part-i/
         switch (static_cast<WindowFunctions> (window_function))
         {
             case WindowFunctions::NO_WINDOW:
-                windowed_data = no_window_function(data, data_len);
+                no_window_function(window_len, output_window);
                 break;
             case WindowFunctions::HAMMING:
-                windowed_data = hamming_function(data, data_len);
+                hamming_function(window_len, output_window);
                 break;
             case WindowFunctions::HANNING:
-                windowed_data = hanning_function(data, data_len);
+                hanning_function(window_len, output_window);
                 break;
             case WindowFunctions::BLACKMAN_HARRIS:
-                windowed_data = blackman_harris_function(data, data_len);
+                blackman_harris_function(window_len, output_window);
                 break;
             default:
                 data_logger->error ("Invalid Window function. Window function:{}", window_function);
                 return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
         }
-            
-        for (int i = 0; i < data_len; i++)
-        {
-            output_data[i] = windowed_data[i];
-        }
     }
+
     catch (const std::exception &e)
     {
-        if (windowed_data)
-        {
-            delete[] windowed_data;
-        }
         data_logger->error ("Error with doing data windowing process.");
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
@@ -585,7 +572,11 @@ int perform_fft (
     }
 
     double *windowed_data = new double[data_len];
-    perform_windowing(data, data_len, window_function, windowed_data);
+    // perform_windowing(data, data_len, window_function, windowed_data);
+    for (int i = 0; i < data_len; i++)
+    {
+        windowed_data[i] = data[i];
+    }
     double *temp = new double[data_len];
     try
     {
