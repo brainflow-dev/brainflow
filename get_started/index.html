@@ -7,6 +7,54 @@ title: Get Started
 <script src="/assets/js/installation_options.js"></script>
 
 <style>
+
+/* Drop down */
+.dropbtn { background-color: #E7C60B; color: white; font-size: 17px; margin: 0px; border: none; min-width: 100%; padding: 10px; }
+
+li.opt.manufactorers { padding: 10px; }
+
+li.opt.manufactorers:hover { background-color: #E7C60B; }
+
+li.opt.manufactorers:hover a { color: whitesmoke; }
+
+.dropdown { position: relative; display: inline-block; margin: 5px; font-size: 17px; }
+
+ul.dropdown-content, ul.manufactorer-dropdown { display: none; position: absolute; left: 40%; text-align: center; background-color: #d5e4f2; box-shadow: none; z-index: 100000; margin: 0px; padding: 0px; list-style-type: none; }
+
+ul.manufactorer-dropdown { left: 0px; width: 100%; }
+
+.current-manufactorer.dropbtn.btn:focus { outline: 0; }
+
+.current-manufactorer .dropdown-caret { position: relative; top: 4px; }
+
+.manufactorer-dropdown .active a { color: whitesmoke; }
+
+.manufactorer-dropdown a, .dropdown-content a { color: #333447; text-decoration: none; display: block; padding-left: 5px; padding-right: 5px; font-size: 17px; }
+
+.manufactorer-dropdown a:hover, .dropdown-content a:hover { color: orangered; }
+
+.dropdown-content .active a { color: whitesmoke; }
+
+.dropdown:hover .dropdown-content { display: block; }
+
+.dropdown:hover .dropbtn { background-color: #E7C60B; }
+
+dropdown { position: relative; display: inline-block; }
+
+.dropdown-content { display: none; position: absolute; background-color: #E7C60B; min-width: 160px; box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2); padding: 12px 16px; z-index: 100000; text-align: left; }
+
+.dropdown:hover .dropdown-content { display: block; }
+
+.dropdown-header { color: #ffffff; display: inline-flex; }
+
+.dropdown-caret { width: 18px; }
+
+.trigger .dropdown-caret { height: 57px; }
+
+.dropdown-caret-path { fill: #ffffff; }
+
+/* Drop end */
+
 .text-after-selector .row [class^="col"] { float: left; margin: 0.5rem 1%; min-height: 0.125rem; }
 
 .col-1, .col-2, .col-3, .col-4, .col-5, .col-6, .col-7, .col-8, .col-9, .col-10, .col-11, .col-12 { width: 98%; }
@@ -37,13 +85,13 @@ title: Get Started
 
 @media only screen and (min-width: 45em) { .col-1 { width: 6.3333333333%; }
 .col-2 { width: 14.6666666667%; }
-.col-3 { width: 23%; }
+.col-3 { width: 21%; }
 .col-4 { width: 31.3333333333%; }
 .col-5 { width: 39.6666666667%; }
 .col-6 { width: 48%; }
 .col-7 { width: 56.3333333333%; }
 .col-8 { width: 64.6666666667%; }
-.col-9 { width: 73%; }
+.col-9 { width: 75%; }
 .col-10 { width: 81.3333333333%; }
 .col-11 { width: 89.6666666667%; }
 .col-12 { width: 98%; }
@@ -93,13 +141,21 @@ title: Get Started
             <span>Manufacturer</span>
         </div>
         <div class="col-9 install-right">
-            <div class="btn-group opt-group" role="group">
-                <button type="button" class="btn btn-default opt active manufactorers">BrainFlow</button>
-                <button type="button" class="btn btn-default opt manufactorers">OpenBCI</button>
-                <button type="button" class="btn btn-default opt manufactorers">G.Tec</button>
-                <button type="button" class="btn btn-default opt manufactorers">NeuroMD</button>
-                <button type="button" class="btn btn-default opt manufactorers">Neurosity</button>
-                <button type="button" class="btn btn-default opt manufactorers">OYMotion</button>
+            <div class="dropdown" id="manufactorer-dropdown-container">
+                <button class="current-manufactorer dropbtn btn" type="button" data-toggle="dropdown">
+                    BrainFlow
+                    <svg class="dropdown-caret" viewBox="0 0 32 32" class="icon icon-caret-bottom" aria-hidden="true">
+                        <path class="dropdown-caret-path" d="M24 11.305l-7.997 11.39L8 11.305z"></path>
+                    </svg>
+                </button>
+                <ul class="opt-group manufactorer-dropdown">
+                    <li class="opt active manufactorers"><a href="#">BrainFlow</a></li>
+                    <li class="opt manufactorers"><a href="#">OpenBCI</a></li>
+                    <li class="opt manufactorers"><a href="#">G.Tec</a></li>
+                    <li class="opt manufactorers"><a href="#">NeuroMD</a></li>
+                    <li class="opt manufactorers"><a href="#">Neurosity</a></li>
+                    <li class="opt manufactorers"><a href="#">OYMotion</a></li>
+                </ul>
             </div>
         </div>
     </div>

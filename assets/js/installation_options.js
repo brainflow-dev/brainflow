@@ -1,7 +1,10 @@
 $(document).ready(function() {
+  const dropdownManufactorers = $("#manufactorer-dropdown-container ul li")
+    .toArray()
+    .map((li) => li.innerText);
+
   function label(lbl) {
     lbl = lbl.replace(/[ .]/g, '-').toLowerCase();
-
     return lbl;
   }
 
@@ -10,13 +13,16 @@ $(document).ready(function() {
     let searchParams = searchString.substring(1).split("&");
     searchParams.forEach(function(element) {
       kvPair = element.split("=");
+      if (kvPair[0] === 'manufactorer' &&
+          dropdownManufactorers.indexOf(kvPair[1]) == -1) {
+        kvPair[1] = dropdownManufactorers[0];
+      }
       searchDict.set(kvPair[0], kvPair[1]);
     });
     return searchDict;
   }
 
   function is_a_match(elem, text) {
-
     if (label(elem.text()).includes(label(text))) {
       elem.addClass(('active'))
     }
@@ -25,15 +31,16 @@ $(document).ready(function() {
   function setSelects(urlParams, dontPushState) {
     let queryString = '?';
     $('button.opt').removeClass('active');
-    if (urlParams.get('version')) {
-      versionSelect = urlParams.get('version');
+    if (urlParams.get('manufactorer')) {
+      manufactorerSelect = urlParams.get('manufactorer');
       $('li.versions').removeClass('active');
-      $('li.versions').each(function() { is_a_match($(this), versionSelect) });
-      $('.current-version')
+      $('li.versions')
+          .each(function() { is_a_match($(this), manufactorerSelect) });
+      $('.current-manufactorer')
           .html(
-              versionSelect +
+              manufactorerSelect +
               '<svg class="dropdown-caret" viewBox="0 0 32 32" class="icon icon-caret-bottom" aria-hidden="true"><path class="dropdown-caret-path" d="M24 11.305l-7.997 11.39L8 11.305z"></path></svg>');
-      queryString += 'version=' + versionSelect + '&';
+      queryString += 'manufactorer=' + manufactorerSelect + '&';
     }
     if (urlParams.get('platform')) {
       platformSelect = label(urlParams.get('platform'));
@@ -58,12 +65,6 @@ $(document).ready(function() {
       iotSelect = label(urlParams.get('iot'));
       $('button.opt').each(function() { is_a_match($(this), iotSelect) });
       queryString += 'iot=' + iotSelect + '&';
-    }
-    if (urlParams.get('manufactorer')) {
-      manufactorerSelect = label(urlParams.get('manufactorer'));
-      $('button.opt')
-          .each(function() { is_a_match($(this), manufactorerSelect) });
-      queryString += 'manufactorer=' + manufactorerSelect + '&';
     }
     if (urlParams.get('board')) {
       boardSelect = label(urlParams.get('board'));
@@ -92,9 +93,9 @@ $(document).ready(function() {
     let urlParams = urlSearchParams(window.location.search);
     el.siblings().removeClass('active');
     el.addClass('active');
-    if ($(this).hasClass("versions")) {
-      $('.current-version').html($(this).text());
-      urlParams.set("version", $(this).text());
+    if ($(this).hasClass("manufactorers")) {
+      $('.current-manufactorer').html($(this).text());
+      urlParams.set("manufactorer", $(this).text());
     } else if ($(this).hasClass("platforms")) {
       urlParams.set("platform", label($(this).text()));
     } else if ($(this).hasClass("languages")) {
@@ -104,9 +105,6 @@ $(document).ready(function() {
     } else if ($(this).hasClass("iots")) {
       console.log($(this));
       urlParams.set("iot", label($(this).text()));
-    } else if ($(this).hasClass("manufactorers")) {
-      console.log($(this));
-      urlParams.set("manufactorer", label($(this).text()));
     } else if ($(this).hasClass("boards")) {
       console.log($(this));
       urlParams.set("board", label($(this).text()));
@@ -127,16 +125,17 @@ $(document).ready(function() {
     if (timer)
       clearTimeout(timer);
     if (showContent) {
-      timer = setTimeout(function() { $(".version-dropdown").show() }, 250);
+      timer =
+        setTimeout(function() { $(".manufactorer-dropdown").show() }, 250);
     } else {
-      $(".version-dropdown").hide()
+      $(".manufactorer-dropdown").hide()
     }
   }
 
-      $("#version-dropdown-container")
-          .mouseenter(toggleDropdown.bind(null, true))
-          .mouseleave(toggleDropdown.bind(null, false))
-          .click(function() { $(".version-dropdown").toggle() });
+  $("#manufactorer-dropdown-container")
+    .mouseenter(toggleDropdown.bind(null, true))
+    .mouseleave(toggleDropdown.bind(null, false))
+    .click(function() { $(".manufactorer-dropdown").toggle() });
 
-  $("ul.version-dropdown").click(function(e) { e.preventDefault(); });
+  $("ul.manufactorer-dropdown").click(function(e) { e.preventDefault(); });
 });
