@@ -36,6 +36,7 @@ public:
 #endif
         bIsEMGConfigured = false;
         bIsFeatureMapConfigured = false;
+        counter = 0;
     }
 
     /// This callback is called when the Hub finishes scanning devices.
@@ -169,12 +170,13 @@ public:
         }
 
         auto ptr = data->data ();
-        double emgData[8] = {0.0};
+        double emgData[9] = {0.0};
         if (dataType == DeviceDataType::DDT_EMGRAW)
         {
+            emgData[0] = counter++;
             for (int i = 0; i < 8; i++)
             {
-                emgData[i] = (double)*(reinterpret_cast<const uint16_t *> (ptr));
+                emgData[i + 1] = (double)*(reinterpret_cast<const uint16_t *> (ptr));
                 ptr += 2;
             }
             struct GforceData gforceData (emgData, timestamp);
@@ -191,6 +193,7 @@ public:
 private:
     gfsPtr<Hub> mHub;
     gfsPtr<Device> mDevice;
+    int counter;
 
     void featureCallback (gfsPtr<DeviceSetting> ds, ResponseResult res, GF_UINT32 featureMap)
     {

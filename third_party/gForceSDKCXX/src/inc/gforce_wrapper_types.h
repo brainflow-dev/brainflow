@@ -5,7 +5,7 @@
 #pragma pack(push, 1)
 struct GforceData
 {
-    double data[8];
+    double data[9];
     double timestamp;
 
     GforceData (double *data, double timestamp)

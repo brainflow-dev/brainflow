@@ -31,7 +31,7 @@ GforcePro::GforcePro (struct BrainFlowInputParams params)
     is_streaming = false;
     keep_alive = false;
     initialized = false;
-    num_channels = 8;
+    num_channels = 9;
     state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
 
     std::string gforcelib_path = "";

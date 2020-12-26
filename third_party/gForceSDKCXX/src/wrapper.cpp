@@ -27,7 +27,7 @@ std::deque<struct GforceData> data_queue;
 
 void threadFunc ()
 {
-    GF_UINT32 period = 20; // ms
+    GF_UINT32 period = 1; // ms
     while (!bShouldStopThread)
     {
         GF_RET_CODE retCode = pHub->run (period);
