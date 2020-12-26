@@ -20,7 +20,7 @@ volatile bool bShouldStopThread = true;
 volatile bool bInitialized = false;
 std::thread tReadThread; // thread for pooling
 gfsPtr<Hub> pHub = NULL;
-gfsPtr<GForceHandle> gforceHandle = NULL;
+gfsPtr<GforceHandle> gforceHandle = NULL;
 gfsPtr<HubListener> listener = NULL;
 SpinLock spinLock;
 std::deque<struct GforceData> data_queue;
@@ -44,7 +44,7 @@ int gforceInitialize (void *param)
     pHub = HubManager::getHubInstance (_T("GForceBrainFlowWrapper"));
     pHub->setWorkMode (WorkMode::Polling); // means that need to run loop manually
     // create the listener implementation and register to hub
-    gforceHandle = make_shared<GForceHandle> (pHub);
+    gforceHandle = make_shared<GforceHandle> (pHub);
     listener = static_pointer_cast<HubListener> (gforceHandle);
     GF_RET_CODE retCode = pHub->registerListener (listener);
     if (retCode != GF_RET_CODE::GF_SUCCESS)

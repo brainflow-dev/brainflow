@@ -22,10 +22,10 @@ extern std::deque<struct GforceData> data_queue;
 
 //#define ENABLE_LOGGER
 
-class GForceHandle : public HubListener
+class GforceHandle : public HubListener
 {
 public:
-    GForceHandle (gfsPtr<Hub> &pHub) : mHub (pHub)
+    GforceHandle (gfsPtr<Hub> &pHub) : mHub (pHub)
     {
 #ifdef ENABLE_LOGGER
         logger = spdlog::stderr_logger_mt ("GForceHandleLogger");
@@ -36,7 +36,7 @@ public:
 #endif
         bIsEMGConfigured = false;
         bIsFeatureMapConfigured = false;
-        counter = 0;
+        iCounter = 0;
     }
 
     /// This callback is called when the Hub finishes scanning devices.
@@ -103,7 +103,7 @@ public:
             gfsPtr<DeviceSetting> ds = device->getDeviceSetting ();
             if (nullptr != ds)
             {
-                ds->getFeatureMap (std::bind (&GForceHandle::featureCallback, this, ds,
+                ds->getFeatureMap (std::bind (&GforceHandle::featureCallback, this, ds,
                     std::placeholders::_1, std::placeholders::_2));
                 logger->info ("set FeatureMap");
             }
@@ -164,7 +164,7 @@ public:
             return;
         }
 
-        if (data->size () != 128)
+        if (data->size () != GforceHandle::iTransactionSize)
         {
             return;
         }
@@ -173,16 +173,20 @@ public:
         double emgData[9] = {0.0};
         if (dataType == DeviceDataType::DDT_EMGRAW)
         {
-            emgData[0] = counter++;
-            for (int i = 0; i < 8; i++)
+            emgData[0] = iCounter++;
+            for (int packageNum = 0; packageNum < GforceHandle::iNumPackages; packageNum++)
             {
-                emgData[i + 1] = (double)*(reinterpret_cast<const uint16_t *> (ptr));
-                ptr += 2;
+                emgData[0] = iCounter++;
+                for (int i = 0; i < 8; i++)
+                {
+                    emgData[i + 1] = (double)*(reinterpret_cast<const uint16_t *> (ptr));
+                    ptr += 2;
+                }
+                struct GforceData gforceData (emgData, timestamp);
+                spinLock.lock ();
+                data_queue.push_back (gforceData);
+                spinLock.unlock ();
             }
-            struct GforceData gforceData (emgData, timestamp);
-            spinLock.lock ();
-            data_queue.push_back (gforceData);
-            spinLock.unlock ();
         }
     }
 
@@ -190,10 +194,15 @@ public:
     bool bIsFeatureMapConfigured;
     bool bIsEMGConfigured;
 
+    static const int iADCResolution = 12;
+    static const int iTransactionSize = 128;
+    static const int iNumPackages = 8;
+    static const int iSamplingRate = 500;
+
 private:
     gfsPtr<Hub> mHub;
     gfsPtr<Device> mDevice;
-    int counter;
+    int iCounter;
 
     void featureCallback (gfsPtr<DeviceSetting> ds, ResponseResult res, GF_UINT32 featureMap)
     {
@@ -223,10 +232,10 @@ private:
                 this->logger->info ("setDataNotifSwitch result: {}", res);
             });
 
-        ds->setEMGRawDataConfig (500,                     // sample rate
-            (DeviceSetting::EMGRowDataChannels) (0x00FF), // channel 0~7
-            128,                                          // data length
-            12,                                           // adc resolution
+        ds->setEMGRawDataConfig (GforceHandle::iSamplingRate, // sample rate
+            (DeviceSetting::EMGRowDataChannels) (0x00FF),     // channel 0~7
+            GforceHandle::iTransactionSize,                   // data length
+            GforceHandle::iADCResolution,                     // adc resolution
             [this] (ResponseResult result) {
                 std::string res =
                     (result == ResponseResult::RREST_SUCCESS) ? ("sucess") : ("failed");
