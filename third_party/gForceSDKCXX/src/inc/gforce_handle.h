@@ -211,7 +211,8 @@ private:
                 | DeviceSetting::DNF_EMG_RAW
                 //| DeviceSetting::DNF_HID_MOUSE
                 //| DeviceSetting::DNF_HID_JOYSTICK
-                | DeviceSetting::DNF_DEVICE_STATUS);
+                //| DeviceSetting::DNF_DEVICE_STATUS
+            );
 
         ds->setDataNotifSwitch (
             (DeviceSetting::DataNotifFlags) (flags & featureMap), [this] (ResponseResult result) {
