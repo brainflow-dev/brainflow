@@ -1,6 +1,6 @@
 ---
 layout: post
-title: BrainFlow 3.7.3
+title: BrainFlow 3.8.0
 image: /img/gforcearmband.jpg
 tags: [release]
 ---
