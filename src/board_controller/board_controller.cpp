@@ -13,6 +13,7 @@
 #include <string>
 #include <utility>
 
+
 #include "board.h"
 #include "board_controller.h"
 #include "board_info_getter.h"
@@ -31,13 +32,13 @@
 #include "galea.h"
 #include "ganglion.h"
 #include "ganglion_wifi.h"
-#include "gforce_pro.h"
 #include "ironbci.h"
 #include "notion_osc.h"
 #include "playback_file_board.h"
 #include "streaming_board.h"
 #include "synthetic_board.h"
 #include "unicorn_board.h"
+#include "bitalino.h" 
 
 #include "json.hpp"
 
@@ -136,8 +137,8 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
         case BoardIds::IRONBCI_BOARD:
             board = std::shared_ptr<Board> (new IronBCI (params));
             break;
-        case BoardIds::GFORCE_PRO_BOARD:
-            board = std::shared_ptr<Board> (new GforcePro (params));
+		case BoardIds::BITALINO_BOARD: 
+            board = std::shared_ptr<Board> (new BITalino (params));
             break;
         case BoardIds::FREEEEG32_BOARD:
             board = std::shared_ptr<Board> (new FreeEEG32 (params));
@@ -145,7 +146,6 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
     }
-    Board::board_logger->trace ("Board object created {}", board->get_board_id ());
     res = board->prepare_session ();
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
@@ -380,7 +380,9 @@ int string_to_brainflow_input_params (
         params->ip_address = config["ip_address"];
         params->timeout = config["timeout"];
         params->serial_number = config["serial_number"];
-        params->file = config["file"];
+        //params->file = config["file"];
+
+		
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
     catch (json::exception &e)
