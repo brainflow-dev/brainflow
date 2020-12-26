@@ -35,7 +35,7 @@ public:
     int send (const char *data, int size);
     int recv (void *data, int size);
     void close ();
-    int get_local_ip_addr (char *local_ip);
+    int get_local_ip_addr (const char *local_ip);
     char *get_ip_addr ()
     {
         return ip_addr;

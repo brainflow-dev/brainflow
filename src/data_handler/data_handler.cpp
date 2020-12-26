@@ -95,7 +95,6 @@ int set_log_level (int level)
 int perform_lowpass (double *data, int data_len, int sampling_rate, double cutoff, int order,
     int filter_type, double ripple)
 {
-    int numSamples = 2000;
     double *filter_data[1];
     filter_data[0] = data;
     Dsp::Filter *f = NULL;
@@ -950,7 +949,6 @@ int get_psd_welch (double *data, int data_len, int nfft, int overlap, int sampli
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     double *ampls = new double[nfft / 2 + 1];
-    int pos = 0;
     int counter = 0;
     for (int i = 0; i < nfft / 2 + 1; i++)
     {

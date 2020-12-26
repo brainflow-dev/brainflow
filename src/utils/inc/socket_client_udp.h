@@ -27,7 +27,7 @@ class SocketClientUDP
 {
 
 public:
-    static int get_local_ip_addr (char *connect_ip, int port, char *local_ip);
+    static int get_local_ip_addr (const char *connect_ip, int port, char *local_ip);
 
     SocketClientUDP (const char *ip_addr, int port);
     ~SocketClientUDP ()
@@ -41,7 +41,7 @@ public:
     int send (const char *data, int size);
     int recv (void *data, int size);
     void close ();
-    int get_local_ip_addr (char *local_ip);
+    int get_local_ip_addr (const char *local_ip);
     char *get_ip_addr ()
     {
         return ip_addr;

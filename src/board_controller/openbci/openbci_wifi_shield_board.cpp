@@ -344,17 +344,18 @@ std::string OpenBCIWifiShieldBoard::find_wifi_shield ()
     int res = udp_client.connect ();
     if (res == (int)SocketClientUDPReturnCodes::STATUS_OK)
     {
-        std::stringstream msearch;
-        msearch << "M-SEARCH * HTTP/1.1\r\nHost: 239.255.255.250:1900\r\nMAN: ssdp:discover\r\n";
-        msearch << "ST: urn:schemas-upnp-org:device:Basic:1\r\n";
-        msearch << "MX: 3\r\n";
-        msearch << "\r\n";
-        msearch << "\r\n";
+        std::string msearch = (
+            "M-SEARCH * HTTP/1.1\r\nHost: 239.255.255.250:1900\r\nMAN: ssdp:discover\r\n"
+            "ST: urn:schemas-upnp-org:device:Basic:1\r\n"
+            "MX: 3\r\n"
+            "\r\n"
+            "\r\n"
+        );
 
-        safe_logger (spdlog::level::trace, "Using search request {}", msearch.str ().c_str ());
+        safe_logger (spdlog::level::trace, "Using search request {}", msearch.c_str ());
 
-        res = udp_client.send (msearch.str ().c_str (), strlen (msearch.str ().c_str ()));
-        if (res == strlen (msearch.str ().c_str ()))
+        res = udp_client.send (msearch.c_str (), msearch.size());
+        if (res == msearch.size())
         {
             unsigned char b[250];
             res = udp_client.recv (b, 250);

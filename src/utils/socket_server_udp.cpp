@@ -108,7 +108,6 @@ int SocketServerUDP::bind ()
     struct timeval tv;
     tv.tv_sec = 3;
     tv.tv_usec = 0;
-    int value = 1;
     setsockopt (server_socket, SOL_SOCKET, SO_RCVTIMEO, (const char *)&tv, sizeof (tv));
     setsockopt (server_socket, SOL_SOCKET, SO_SNDTIMEO, (const char *)&tv, sizeof (tv));
 

@@ -158,7 +158,11 @@ int OpenBCISerialBoard::prepare_session ()
         return initted;
     }
 
-    int res = send_to_board ("d");
+    int send_res = send_to_board ("d");
+    if (send_res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        return send_res;
+    }
     // cyton sends response back, clean serial buffer and analyze response
     constexpr int max_tmp_size = 1024;
     unsigned char tmp_array[max_tmp_size];
