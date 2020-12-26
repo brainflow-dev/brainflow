@@ -61,6 +61,7 @@ endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
 
 set (GFORCE_WRAPPER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/wrapper.cpp
+    ${CMAKE_HOME_DIRECTORY}/../../src/utils/timestamp.cpp
 )
 
 add_library (
@@ -73,6 +74,7 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/src/inc
     ${CMAKE_HOME_DIRECTORY}/inc
     ${CMAKE_HOME_DIRECTORY}/..
+    ${CMAKE_HOME_DIRECTORY}/../../src/utils/inc
 )
 
 find_library (GFORCE_SDK NAMES ${GFORCE_SDK_NAMES} PATHS ${CMAKE_HOME_DIRECTORY}/lib)

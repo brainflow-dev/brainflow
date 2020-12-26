@@ -1,4 +1,5 @@
 #include <atomic>
+#include <deque>
 #include <thread>
 #include <windows.h>
 
@@ -7,6 +8,8 @@
 #include "gforce_handle.h"
 #include "gforce_wrapper_functions.h"
 #include "gforce_wrapper_types.h"
+
+#include "spinlock.h"
 
 using namespace gf;
 using namespace std;
@@ -17,7 +20,10 @@ volatile bool bShouldStopThread = true;
 volatile bool bInitialized = false;
 std::thread tReadThread; // thread for pooling
 gfsPtr<Hub> pHub = NULL;
+gfsPtr<GForceHandle> gforceHandle = NULL;
 gfsPtr<HubListener> listener = NULL;
+SpinLock spinLock;
+std::deque<struct GforceData> data_queue;
 
 void threadFunc ()
 {
@@ -38,8 +44,8 @@ int gforceInitialize (void *param)
     pHub = HubManager::getHubInstance (_T("GForceBrainFlowWrapper"));
     pHub->setWorkMode (WorkMode::Polling); // means that need to run loop manually
     // create the listener implementation and register to hub
-    gfsPtr<GForceHandle> gforceHandle = make_shared<GForceHandle> (pHub);
-    gfsPtr<HubListener> listener = static_pointer_cast<HubListener> (gforceHandle);
+    gforceHandle = make_shared<GForceHandle> (pHub);
+    listener = static_pointer_cast<HubListener> (gforceHandle);
     GF_RET_CODE retCode = pHub->registerListener (listener);
     if (retCode != GF_RET_CODE::GF_SUCCESS)
     {
@@ -85,6 +91,7 @@ int gforceStartStreaming (void *param)
     {
         return (int)GforceWrapperExitCodes::NOT_INITIALIZED;
     }
+    gforceHandle->logger->info ("starting acqusition.");
     bShouldStopStream = false;
 
     return (int)GforceWrapperExitCodes::STATUS_OK;
@@ -96,6 +103,7 @@ int gforceStopStreaming (void *param)
     {
         return (int)GforceWrapperExitCodes::NOT_INITIALIZED;
     }
+    gforceHandle->logger->info ("stop acqusition.");
     bShouldStopStream = true;
 
     return (int)GforceWrapperExitCodes::STATUS_OK;
@@ -112,6 +120,10 @@ int gforceRelease (void *param)
     tReadThread.join ();
     pHub->unRegisterListener (listener);
     pHub->deinit ();
+    bInitialized = false;
+    spinLock.lock ();
+    data_queue.clear ();
+    spinLock.unlock ();
 
     return (int)GforceWrapperExitCodes::STATUS_OK;
 }
@@ -122,5 +134,33 @@ int gforceGetData (void *param)
     {
         return (int)GforceWrapperExitCodes::NOT_INITIALIZED;
     }
-    return (int)GforceWrapperExitCodes::STATUS_OK;
+
+    int res = (int)GforceWrapperExitCodes::STATUS_OK;
+    spinLock.lock ();
+
+    if (data_queue.empty ())
+    {
+        res = (int)GforceWrapperExitCodes::NO_DATA_ERROR;
+    }
+    else
+    {
+        try
+        {
+            struct GforceData *board_data = (struct GforceData *)param;
+            struct GforceData data = data_queue.at (
+                0); // at ensures out of range exception, front has undefined behavior
+            board_data->timestamp = data.timestamp;
+            for (int i = 0; i < 8; i++)
+            {
+                board_data->data[i] = data.data[i];
+            }
+            data_queue.pop_front ();
+        }
+        catch (...)
+        {
+            res = (int)GforceWrapperExitCodes::NO_DATA_ERROR;
+        }
+    }
+    spinLock.unlock ();
+    return res;
 }

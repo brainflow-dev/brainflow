@@ -1,35 +1,5 @@
-/*
- * Copyright 2017, OYMotion Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in
- *    the documentation and/or other materials provided with the
- *    distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
- * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- * COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
- * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
- * THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
- *
- */
-
 #include <atomic>
+#include <deque>
 #include <functional>
 
 #include "gforce.h"
@@ -39,24 +9,33 @@
 #include "spdlog/sinks/null_sink.h"
 #include "spdlog/spdlog.h"
 
+#include "spinlock.h"
+#include "timestamp.h"
+
 using namespace gf;
 using namespace std;
 
 extern volatile int iExitCode;
+extern SpinLock spinLock;
 extern volatile bool bShouldStopStream;
+extern std::deque<struct GforceData> data_queue;
+
+//#define ENABLE_LOGGER
 
 class GForceHandle : public HubListener
 {
 public:
     GForceHandle (gfsPtr<Hub> &pHub) : mHub (pHub)
     {
-#ifdef DEBUG
+#ifdef ENABLE_LOGGER
         logger = spdlog::stderr_logger_mt ("GForceHandleLogger");
         logger->set_level (spdlog::level::level_enum (0));
         logger->flush_on (spdlog::level::level_enum (0));
 #else
         logger = spdlog::create<spdlog::sinks::null_sink_st> ("GForceHandleLogger");
 #endif
+        bIsEMGConfigured = false;
+        bIsFeatureMapConfigured = false;
     }
 
     /// This callback is called when the Hub finishes scanning devices.
@@ -112,12 +91,12 @@ public:
                 logger->info ("stop scanning");
             }
         }
-        logger->info ("found nullptr device");
     }
 
-    /// This callback is called a device has been connected successfully
+    /// This callback is called if device has been connected successfully
     virtual void onDeviceConnected (SPDEVICE device) override
     {
+        logger->info ("onDeviceConnected");
         if (nullptr != device)
         {
             gfsPtr<DeviceSetting> ds = device->getDeviceSetting ();
@@ -167,78 +146,88 @@ public:
     virtual void onExtendedDeviceData (
         SPDEVICE device, DeviceDataType dataType, gfsPtr<const std::vector<GF_UINT8>> data) override
     {
-        logger->info ("datatype {}, datalength {}", (GF_UINT32)dataType, data->size ());
+        double timestamp = get_timestamp ();
+        if (bShouldStopStream)
+        {
+            logger->trace ("data received but acqusition is off.");
+            return;
+        }
+        if (!bIsEMGConfigured)
+        {
+            logger->trace ("EMG is not configured.");
+            return;
+        }
+        if (!bIsFeatureMapConfigured)
+        {
+            logger->trace ("featureMap is not configured.");
+            return;
+        }
 
-        if (data->size () == 0)
+        if (data->size () != 128)
         {
             return;
         }
 
-        switch (dataType)
+        auto ptr = data->data ();
+        double emgData[8] = {0.0};
+        if (dataType == DeviceDataType::DDT_EMGRAW)
         {
-            case DeviceDataType::DDT_ACCELERATE:
-                break;
-
-            case DeviceDataType::DDT_GYROSCOPE:
-                break;
-
-            case DeviceDataType::DDT_MAGNETOMETER:
-                break;
-
-            case DeviceDataType::DDT_EULERANGLE:
-                break;
-
-            case DeviceDataType::DDT_QUATERNION:
-                break;
-
-            case DeviceDataType::DDT_ROTATIONMATRIX:
-                break;
-
-            case DeviceDataType::DDT_GESTURE:
-                break;
-
-            case DeviceDataType::DDT_EMGRAW:
-                break;
-
-            case DeviceDataType::DDT_HIDMOUSE:
-                break;
-
-            case DeviceDataType::DDT_HIDJOYSTICK:
-                break;
-
-            case DeviceDataType::DDT_DEVICESTATUS:
-                break;
+            for (int i = 0; i < 8; i++)
+            {
+                emgData[i] = (double)*(reinterpret_cast<const uint16_t *> (ptr));
+                ptr += 2;
+            }
+            struct GforceData gforceData (emgData, timestamp);
+            spinLock.lock ();
+            data_queue.push_back (gforceData);
+            spinLock.unlock ();
         }
     }
+
+    std::shared_ptr<spdlog::logger> logger;
+    bool bIsFeatureMapConfigured;
+    bool bIsEMGConfigured;
 
 private:
     gfsPtr<Hub> mHub;
     gfsPtr<Device> mDevice;
-    std::shared_ptr<spdlog::logger> logger;
 
     void featureCallback (gfsPtr<DeviceSetting> ds, ResponseResult res, GF_UINT32 featureMap)
     {
         featureMap >>= 6; // Convert feature map to notification flags
 
-        DeviceSetting::DataNotifFlags flags = (DeviceSetting::DataNotifFlags) (
-            DeviceSetting::DNF_OFF | DeviceSetting::DNF_ACCELERATE | DeviceSetting::DNF_GYROSCOPE |
-            DeviceSetting::DNF_MAGNETOMETER
-            //| DeviceSetting::DNF_EULERANGLE
-            //| DeviceSetting::DNF_QUATERNION
-            //| DeviceSetting::DNF_ROTATIONMATRIX
-            //| DeviceSetting::DNF_EMG_GESTURE
-            | DeviceSetting::DNF_EMG_RAW
-            //| DeviceSetting::DNF_HID_MOUSE
-            //| DeviceSetting::DNF_HID_JOYSTICK
-            | DeviceSetting::DNF_DEVICE_STATUS);
+        DeviceSetting::DataNotifFlags flags =
+            (DeviceSetting::DataNotifFlags) (DeviceSetting::DNF_OFF
+                //| DeviceSetting::DNF_ACCELERATE
+                //| DeviceSetting::DNF_GYROSCOPE
+                //| DeviceSetting::DNF_MAGNETOMETER
+                //| DeviceSetting::DNF_EULERANGLE
+                //| DeviceSetting::DNF_QUATERNION
+                //| DeviceSetting::DNF_ROTATIONMATRIX
+                //| DeviceSetting::DNF_EMG_GESTURE
+                | DeviceSetting::DNF_EMG_RAW
+                //| DeviceSetting::DNF_HID_MOUSE
+                //| DeviceSetting::DNF_HID_JOYSTICK
+                | DeviceSetting::DNF_DEVICE_STATUS);
 
         ds->setDataNotifSwitch (
-            (DeviceSetting::DataNotifFlags) (flags & featureMap), [](ResponseResult res) {});
+            (DeviceSetting::DataNotifFlags) (flags & featureMap), [this] (ResponseResult result) {
+                std::string res =
+                    (result == ResponseResult::RREST_SUCCESS) ? ("sucess") : ("failed");
+                bIsFeatureMapConfigured =
+                    (result == ResponseResult::RREST_SUCCESS) ? (true) : (false);
+                this->logger->info ("setDataNotifSwitch result: {}", res);
+            });
 
         ds->setEMGRawDataConfig (500,                     // sample rate
             (DeviceSetting::EMGRowDataChannels) (0x00FF), // channel 0~7
             128,                                          // data length
             12,                                           // adc resolution
-            [](ResponseResult result) {});
+            [this] (ResponseResult result) {
+                std::string res =
+                    (result == ResponseResult::RREST_SUCCESS) ? ("sucess") : ("failed");
+                bIsEMGConfigured = (result == ResponseResult::RREST_SUCCESS) ? (true) : (false);
+                this->logger->info ("setEMGRawDataConfig result: {}", res);
+            });
     }
 };
