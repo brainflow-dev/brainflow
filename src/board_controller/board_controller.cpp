@@ -31,6 +31,7 @@
 #include "galea.h"
 #include "ganglion.h"
 #include "ganglion_wifi.h"
+#include "gforce_pro.h"
 #include "ironbci.h"
 #include "notion_osc.h"
 #include "playback_file_board.h"
@@ -135,12 +136,16 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
         case BoardIds::IRONBCI_BOARD:
             board = std::shared_ptr<Board> (new IronBCI (params));
             break;
+        case BoardIds::GFORCE_PRO_BOARD:
+            board = std::shared_ptr<Board> (new GforcePro (params));
+            break;
         case BoardIds::FREEEEG32_BOARD:
             board = std::shared_ptr<Board> (new FreeEEG32 (params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
     }
+    Board::board_logger->trace ("Board object created {}", board->get_board_id ());
     res = board->prepare_session ();
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {

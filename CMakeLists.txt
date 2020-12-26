@@ -190,6 +190,7 @@ set (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/callibri_emg.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/mit/fascia.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neurosity/notion_osc.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/oymotion/gforce_pro.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ironbci/ironbci.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/freeeeg32/freeeeg32.cpp
 )
@@ -233,12 +234,14 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/src/utils/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/inc
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/oymotion/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/gtec/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/mit/inc
     ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/inc/types
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neurosity/inc
+    ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/src/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ironbci/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/freeeeg32/inc
 )
@@ -368,6 +371,24 @@ if (MSVC)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib/${NEUROSDK_LIB_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/julia-package/brainflow/lib/${NEUROSDK_LIB_NAME}.dll"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib/${NEUROSDK_LIB_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${NEUROSDK_LIB_NAME}.dll"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib/${NEUROSDK_LIB_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${NEUROSDK_LIB_NAME}.dll"
+        # copy gforcewrapper
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper.dll" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/gForceSDKWrapper.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper32.dll" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/gForceSDKWrapper32.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper.dll" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/gForceSDKWrapper.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper32.dll" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/gForceSDKWrapper32.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper.dll" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/gForceSDKWrapper.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper32.dll" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/gForceSDKWrapper32.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper.dll" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/gForceSDKWrapper.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper32.dll" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/gForceSDKWrapper32.dll"
+        # copy gforcesdk
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce32.dll" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/gforce32.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce64.dll" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/gforce64.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce32.dll" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/gforce32.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce64.dll" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/gforce64.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce32.dll" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/gforce32.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce64.dll" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/gforce64.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce32.dll" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/gforce32.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce64.dll" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/gforce64.dll"
     )
     add_custom_command (TARGET ${DATA_HANDLER_NAME} POST_BUILD
         # copy data handler libs
@@ -522,6 +543,10 @@ install (
 install (
     FILES
     ${CMAKE_HOME_DIRECTORY}/src/ml/train/brainflow_svm.model
+    ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper32.dll
+    ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper.dll
+    ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce32.dll
+    ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce64.dll
     DESTINATION lib
 )
 

@@ -22,6 +22,7 @@ export BrainFlowInputParams
     NOTION_1_BOARD = 13
     NOTION_2_BOARD = 14
     IRONBCI_BOARD = 15
+    GFORCE_PRO_BOARD = 16
     FREEEEG32_BOARD = 17
 
 end

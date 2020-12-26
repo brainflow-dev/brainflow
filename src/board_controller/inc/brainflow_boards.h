@@ -222,6 +222,14 @@ json brainflow_boards_json = {
             {"num_rows", 10},
             {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}}
         }},
+        {"16",
+            {{"name", "GforcePro"},
+            {"sampling_rate", 500},
+            {"package_num_channel", 0},
+            {"timestamp_channel", 9},
+            {"num_rows", 10},
+            {"emg_channels", {1, 2, 3, 4, 5, 6, 7, 8}}
+        }},
         {"17",
             {{"name", "FreeEEG32"},
             {"sampling_rate", 512},

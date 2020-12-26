@@ -27,6 +27,7 @@ public enum BoardIds
     NOTION_1_BOARD (13),
     NOTION_2_BOARD (14),
     IRONBCI_BOARD (15),
+    GFORCE_PRO_BOARD (16),
     FREEEEG32_BOARD (17);
 
     private final int board_id;
