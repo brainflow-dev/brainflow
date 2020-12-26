@@ -7,12 +7,6 @@ using json = nlohmann::json;
 // clang-format off
 json brainflow_boards_json = {
     {"boards", {
-        {"-3",
-            {{"name", "PlayBack"}
-        }},
-        {"-2",
-            {{"name", "Streaming"}
-        }},
         {"-1",
             {{"name", "Synthetic"},
             {"sampling_rate", 250},
@@ -76,14 +70,13 @@ json brainflow_boards_json = {
             {"other_channels", {20, 21, 22, 23, 24, 25, 26}}
         }},
         {"3",
-            {{"name", "Galea"},
+            {{"name", "NovaXR"},
             {"sampling_rate", 250},
             {"package_num_channel", 0},
             {"timestamp_channel", 22},
             {"num_rows", 23},
             {"battery_channel", 21},
             {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8, 10, 15}},
-            {"eeg_names", "Fz,C3,Cz,C4,Pz,PO7,Oz,PO8,F5,F7"},
             {"emg_channels", {9, 12, 14, 16}},
             {"eog_channels", {11, 13}},
             {"eda_channels", {19}},
@@ -195,7 +188,7 @@ json brainflow_boards_json = {
             {"other_channels", {1}}
         }},
         {"13",
-            {{"name", "NotionOSC1"},
+            {{"name", "NotionOSC"},
             {"sampling_rate", 250},
             {"timestamp_channel", 10},
             {"package_num_channel", 0},
@@ -205,7 +198,7 @@ json brainflow_boards_json = {
             {"other_channels", {9}}
         }},
         {"14",
-            {{"name", "NotionOSC2"},
+            {{"name", "NotionOSC"},
             {"sampling_rate", 250},
             {"timestamp_channel", 10},
             {"package_num_channel", 0},
@@ -222,13 +215,18 @@ json brainflow_boards_json = {
             {"num_rows", 10},
             {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}}
         }},
-        {"16",
-            {{"name", "GforcePro"},
-            {"sampling_rate", 500},
+		{"16",
+            {{"name", "BITalino"},
+            {"sampling_rate", 100},
             {"package_num_channel", 0},
-            {"timestamp_channel", 9},
-            {"num_rows", 10},
-            {"emg_channels", {1, 2, 3, 4, 5, 6, 7, 8}}
+            {"timestamp_channel", 6},
+			{"num_rows", 7},
+            {"eeg_channels", {1, 2}},
+            {"ecg_channels", {1, 2}},
+            {"emg_channels", {1, 2}},
+            {"eog_channels", {1, 2}},
+            {"accel_channels", {3, 4, 5}}
+
         }},
         {"17",
             {{"name", "FreeEEG32"},
