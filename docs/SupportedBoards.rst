@@ -24,6 +24,7 @@ To create an instance of BoardShim class for your board check required inputs in
    "CallibriECG", "BoardIds.CALLIBRI_ECG_BOARD (11)", "-", "-", "-", "-", "-", "Optional: ExternalSwitchInputMioUSB (default is ExternalSwitchInputMioElectrodes)", "Timeout for device discovery(default 15sec)", "-", "-"
    "Notion 1", "BoardIds.NOTION_1_BOARD (13)", "-", "-", "-", "-", "-", "-", "-", "Optional: serial number", "-"
    "Notion 2", "BoardIds.NOTION_2_BOARD (14)", "-", "-", "-", "-", "-", "-", "-", "Optional: serial number", "-"
+   "GforcePro", "BoardIds.GFORCE_PRO_BOARD (16)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
    "FreeEEG32", "BoardIds.FREEEEG32_BOARD (17)", "dongle serial port", "-", "-", "-", "-", "-", "-", "-", "-"
 
 
@@ -499,6 +500,33 @@ Board Spec:
 - sampling rate: 250
 - communication: UDP BroadCast
 
+OYMotion
+---------
+
+gForcePro ArmBand
+~~~~~~~~~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/50760349443_368326974c_o.jpg
+    :width: 484px
+    :height: 430px
+
+`OYMNotion website <http://www.oymotion.com/en/product32/149>`_
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 16
+
+Supported platforms:
+
+- Windows
+
+*Note: Unlike other boards it returns ADC value instead uV.*
+
+Board Spec:
+
+- num emg channels: 8
+- sampling rate: 500
+- communication: FTDI
 
 FreeEEG32
 ----------
