@@ -46,10 +46,6 @@ int main (int argc, char *argv[])
     }
     catch (const BrainFlowException &err)
     {
-        if (window_data)
-        {
-            delete[] window_data;
-        }
         BoardShim::log_message ((int)LogLevels::LEVEL_ERROR, err.what ());
         res = err.exit_code;
     }
