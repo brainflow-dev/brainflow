@@ -492,34 +492,34 @@ int perform_wavelet_denoising (double *data, int data_len, char *wavelet, int de
     }
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
-  
-int perform_windowing (
-    int window_function, int window_len, double *output_window)
+
+int get_window (int window_function, int window_len, double *output_window)
 {
     if ((window_len <= 0) || (window_function < 0) || (output_window == NULL))
     {
-        data_logger->error ("Please check the arguments: data_len must be > 0, window_function >= 0 and output_window cannot be empty. "
+        data_logger->error ("Please check the arguments: data_len must be > 0, window_function >= "
+                            "0 and output_window cannot be empty. "
                             "window_function:{}, data_len:{}, output_data:{}",
-                            window_function, window_len, *output_window);
+            window_function, window_len, *output_window);
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
-    try 
+    try
     {
         // from https://www.edn.com/windowing-functions-improve-fft-results-part-i/
         switch (static_cast<WindowFunctions> (window_function))
         {
             case WindowFunctions::NO_WINDOW:
-                no_window_function(window_len, output_window);
+                no_window_function (window_len, output_window);
                 break;
             case WindowFunctions::HAMMING:
-                hamming_function(window_len, output_window);
+                hamming_function (window_len, output_window);
                 break;
             case WindowFunctions::HANNING:
-                hanning_function(window_len, output_window);
+                hanning_function (window_len, output_window);
                 break;
             case WindowFunctions::BLACKMAN_HARRIS:
-                blackman_harris_function(window_len, output_window);
+                blackman_harris_function (window_len, output_window);
                 break;
             default:
                 data_logger->error ("Invalid Window function. Window function:{}", window_function);
@@ -532,7 +532,7 @@ int perform_windowing (
         data_logger->error ("Error with doing data windowing process.");
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    
+
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
@@ -572,10 +572,10 @@ int perform_fft (
     }
 
     double *windowed_data = new double[data_len];
-    // perform_windowing(data, data_len, window_function, windowed_data);
+    get_window (window_function, data_len, windowed_data);
     for (int i = 0; i < data_len; i++)
     {
-        windowed_data[i] = data[i];
+        windowed_data[i] *= data[i];
     }
     double *temp = new double[data_len];
     try

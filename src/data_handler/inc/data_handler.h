@@ -32,7 +32,7 @@ extern "C"
         double *output_data);
     SHARED_EXPORT int CALLING_CONVENTION perform_wavelet_denoising (
         double *data, int data_len, char *wavelet, int decomposition_level);
-    SHARED_EXPORT int CALLING_CONVENTION perform_windowing (
+    SHARED_EXPORT int CALLING_CONVENTION get_window (
         int window_function, int window_len, double *output_window);
     SHARED_EXPORT int CALLING_CONVENTION perform_fft (
         double *data, int data_len, int window_function, double *output_re, double *output_im);
