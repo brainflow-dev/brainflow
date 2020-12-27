@@ -59,8 +59,7 @@ public:
     static void perform_wavelet_denoising (
         double *data, int data_len, char *wavelet, int decomposition_level);
     /// perform data windowing
-    static double *perform_windowing (
-        int window_function, int window_len);
+    static double *get_window (int window_function, int window_len);
     /**
      * perform direct fft
      * @param data input array

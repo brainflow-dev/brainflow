@@ -126,10 +126,10 @@ void DataFilter::perform_wavelet_denoising (
     }
 }
 
-double *DataFilter::perform_windowing (int window_function, int window_len)
+double *DataFilter::get_window (int window_function, int window_len)
 {
     double *window_data = new double[window_len];
-    int res = ::perform_windowing (window_function, window_len, window_data);
+    int res = ::get_window (window_function, window_len, window_data);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         delete[] window_data;
