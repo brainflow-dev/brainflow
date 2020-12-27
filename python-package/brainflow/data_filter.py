@@ -18,7 +18,7 @@ from brainflow.exit_codes import BrainflowExitCodes
 class FilterTypes (enum.Enum):
 	"""Enum to store all supported Filter Types"""
 
-	BUTTERWORTH = 0 #:
+    BUTTERWORTH = 0 #:
 	CHEBYSHEV_TYPE_1 = 1 #:
 	BESSEL = 2 #:
 
@@ -41,7 +41,7 @@ class WindowFunctions (enum.Enum):
 
 
 class DetrendOperations (enum.Enum):
-	"""Enum to store all supported detrend options"""
+    """Enum to store all supported detrend options"""
 
 	NONE = 0 #:
 	CONSTANT = 1 #:
@@ -204,9 +204,9 @@ class DataHandlerDLL (object):
 			ndpointer (ctypes.c_double)
 		]
 
-		self.perform_windowing = self.lib.perform_windowing
-		self.perform_windowing.restype = ctypes.c_int
-		self.perform_windowing.argtypes = [
+		self.get_window = self.lib.get_window
+		self.get_window.restype = ctypes.c_int
+		self.get_window.argtypes = [
 			ctypes.c_int,
 			ctypes.c_int,
 			ndpointer (ctypes.c_double)
@@ -587,7 +587,7 @@ class DataFilter (object):
 			raise BrainFlowError ('unable to denoise data', res)
 
 	@classmethod
-	def perform_windowing (cls, window_function: int, window_len: int) -> NDArray[Float64]:
+	def get_window (cls, window_function: int, window_len: int) -> NDArray[Float64]:
 		"""perform data windowing
 
 		:param window_function: window function
@@ -597,7 +597,7 @@ class DataFilter (object):
 		:rtype: NDArray[Float64]
 		"""
 		window_data = numpy.zeros (int (window_len)).astype (numpy.float64)
-		res = DataHandlerDLL.get_instance ().perform_windowing (window_function, window_len, window_data)
+		res = DataHandlerDLL.get_instance ().get_window (window_function, window_len, window_data)
 		if res != BrainflowExitCodes.STATUS_OK.value:
 			raise BrainFlowError ('unable to perform windowing', res)
 
