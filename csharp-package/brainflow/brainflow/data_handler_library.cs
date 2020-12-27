@@ -512,6 +512,23 @@ namespace brainflow
             return (int)CustomExitCodes.GENERAL_ERROR;
         }
 
+        public static int get_window (int window_function, int window_len, double[] window_data)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.get_window (window_function, window_len, window_data);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.get_window (window_function, window_len, window_data);
+                case LibraryEnvironment.Linux:
+                    return DataHandlerLibraryLinux.get_window (window_function, window_len, window_data);
+                case LibraryEnvironment.MacOS:
+                    return DataHandlerLibraryMac.get_window (window_function, window_len, window_data);
+            }
+
+            return (int)CustomExitCodes.GENERAL_ERROR;
+        }
+
         public static int perform_fft (double[] data, int data_len, int window, double[] output_re, double[] output_im)
         {
             switch (PlatformHelper.get_library_environment ())
