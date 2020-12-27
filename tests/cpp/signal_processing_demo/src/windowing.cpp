@@ -19,13 +19,13 @@ int main (int argc, char *argv[])
     {
         double *window_data = NULL;
         int window_len = 20;
-        for (int window_function = 0; i < 4; i++)
+        for (int window_function = 0; window_function < 4; window_function++)
         {
-            std::cout << "Current window ID: " << window_function << std::endl;
+            std::cout << "Current window function ID: " << window_function << std::endl;
             std::cout << "Window data :" << std::endl;
 
             // just apply different windowing algorithms and print results
-            switch (i)
+            switch (window_function)
             {
                 case 0:
                     window_data = DataFilter::get_window (window_function, window_len);
