@@ -21,31 +21,37 @@ int main (int argc, char *argv[])
         int window_len = 20;
         for (int window_function = 0; i < 4; i++)
         {
+            std::cout << "Current window ID: " << window_function << std::endl;
             std::cout << "Window data :" << std::endl;
 
             // just apply different windowing algorithms and print results
             switch (i)
             {
                 case 0:
-                    window_data = DataFilter::perform_windowing (window_function, window_len);
+                    window_data = DataFilter::get_window (window_function, window_len);
                     break;
                 case 1:
-                    window_data = DataFilter::perform_windowing (window_function, window_len);
+                    window_data = DataFilter::get_window (window_function, window_len);
                     break;
                 case 2:
-                    window_data = DataFilter::perform_windowing (window_function, window_len);
-                    break;                
+                    window_data = DataFilter::get_window (window_function, window_len);
+                    break;
                 case 3:
-                    window_data = DataFilter::perform_windowing (window_function, window_len);
+                    window_data = DataFilter::get_window (window_function, window_len);
                     break;
             }
             std::cout << window_data << std::endl;
 
             delete[] window_data;
+            window_data = NULL;
         }
     }
     catch (const BrainFlowException &err)
     {
+        if (window_data)
+        {
+            delete[] window_data;
+        }
         BoardShim::log_message ((int)LogLevels::LEVEL_ERROR, err.what ());
         res = err.exit_code;
     }

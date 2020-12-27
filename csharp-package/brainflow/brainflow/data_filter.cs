@@ -291,10 +291,10 @@ namespace brainflow
         /// <param name="window_function">window function</param>
         /// <param name="window_len">len of the window</param>
         /// <returns>array of the size specified in window_len</returns>
-        public static double[] perform_windowing(int window_function, int window_len)
+        public static double[] get_window(int window_function, int window_len)
         {
             double[] window_data = new double[window_len];
-            int res = DataHandlerLibrary.perform_windowing (window_function, window_len, window_data);
+            int res = DataHandlerLibrary.get_window (window_function, window_len, window_data);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException (res);

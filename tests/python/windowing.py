@@ -18,16 +18,16 @@ def main ():
 
         if window_function == NO_WINDOW:
             print ('Window data for NO_WINDOW function:')
-            window_data = DataFilter.perform_windowing (NO_WINDOW, window_len)
+            window_data = DataFilter.get_window (NO_WINDOW, window_len)
         elif window_function == HANNING:
             print ('Window data for HANNING function:')
-            window_data = DataFilter.perform_windowing (HANNING, window_len)
+            window_data = DataFilter.get_window (HANNING, window_len)
         elif window_function == HAMMING:
             print ('Window data for HAMMING function:')
-            window_data = DataFilter.perform_windowing (HAMMING, window_len)
+            window_data = DataFilter.get_window (HAMMING, window_len)
         else:
             print ('Window data for BLACKMAN_HARRIS function:')
-            window_data = DataFilter.perform_windowing (BLACKMAN_HARRIS, window_len)
+            window_data = DataFilter.get_window (BLACKMAN_HARRIS, window_len)
 
         print (window_data)
 

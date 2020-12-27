@@ -10,7 +10,7 @@ public class Windowing
         int window_len = 20;
         for (int window_id = 0; i < 4; i++)
         {
-            double[] window_data = DataFilter.perform_windowing (window_id, window_len);
+            double[] window_data = DataFilter.get_window (window_id, window_len);
             System.out.println ("Window data:");
             System.out.println (Arrays.toString (window_data));
         }
