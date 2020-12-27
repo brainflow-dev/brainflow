@@ -41,10 +41,9 @@ int main (int argc, char *argv[])
                     break;
             }
             std::cout << window_data << std::endl;
-
-            delete[] window_data;
-            window_data = NULL;
         }
+        delete[] window_data;
+        window_data = NULL;
     }
     catch (const BrainFlowException &err)
     {
