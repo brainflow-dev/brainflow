@@ -11,10 +11,11 @@ Plugins for text editors and IDEs:
 
 - `Sublime <https://packagecontrol.io/packages/Clang%20Format>`_
 - `VSCode <https://marketplace.visualstudio.com/items?itemName=xaver.clang-format>`_
--  clang-format tool is preinstalled for Visual Studio
+-  `Guide for Visual Studio <https://devblogs.microsoft.com/cppblog/clangformat-support-in-visual-studio-2017-15-7-preview-1/>`_
 
 
 Unfortunately clang-format cannot handle naming, so some additional rules are:
+
 - methods and variables should be in lower case with underscore
 - class names should be in camel case
 - use brackets even for single line if and for statements
