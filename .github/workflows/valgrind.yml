@@ -102,6 +102,10 @@ jobs:
       run: valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/downsampling
       env:
           LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: Windowing Cpp
+      run: valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/windowing
+      env:
+          LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: Filters Cpp
       run: valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/signal_filtering
       env:

@@ -13,6 +13,7 @@
 #include "downsample_operators.h"
 #include "rolling_filter.h"
 #include "wavelet_helpers.h"
+#include "window_functions.h"
 
 #include "DspFilters/Dsp.h"
 
@@ -29,10 +30,6 @@
 
 #define LOGGER_NAME "data_logger"
 #define MAX_FILTER_ORDER 8
-
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
 
 #ifdef __ANDROID__
 #include "spdlog/sinks/android_sink.h"
@@ -492,6 +489,49 @@ int perform_wavelet_denoising (double *data, int data_len, char *wavelet, int de
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
+int get_window (int window_function, int window_len, double *output_window)
+{
+    if ((window_len <= 0) || (window_function < 0) || (output_window == NULL))
+    {
+        data_logger->error ("Please check the arguments: data_len must be > 0, window_function >= "
+                            "0 and output_window cannot be empty. "
+                            "window_function:{}, data_len:{}, output_data:{}",
+            window_function, window_len, *output_window);
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    try
+    {
+        // from https://www.edn.com/windowing-functions-improve-fft-results-part-i/
+        switch (static_cast<WindowFunctions> (window_function))
+        {
+            case WindowFunctions::NO_WINDOW:
+                no_window_function (window_len, output_window);
+                break;
+            case WindowFunctions::HAMMING:
+                hamming_function (window_len, output_window);
+                break;
+            case WindowFunctions::HANNING:
+                hanning_function (window_len, output_window);
+                break;
+            case WindowFunctions::BLACKMAN_HARRIS:
+                blackman_harris_function (window_len, output_window);
+                break;
+            default:
+                data_logger->error ("Invalid Window function. Window function:{}", window_function);
+                return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+        }
+    }
+
+    catch (const std::exception &e)
+    {
+        data_logger->error ("Error with doing data windowing process.");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
 /*
    FFTReal output | Positive FFT equiv.   | Negative FFT equiv.
    ---------------+-----------------------+-----------------------
@@ -526,40 +566,12 @@ int perform_fft (
                             "a postive power of 2.");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
+
     double *windowed_data = new double[data_len];
-    // from https://www.edn.com/windowing-functions-improve-fft-results-part-i/
-    switch (static_cast<WindowFunctions> (window_function))
+    get_window (window_function, data_len, windowed_data);
+    for (int i = 0; i < data_len; i++)
     {
-        case WindowFunctions::NO_WINDOW:
-            for (int i = 0; i < data_len; i++)
-            {
-                windowed_data[i] = data[i];
-            }
-            break;
-        case WindowFunctions::HAMMING:
-            for (int i = 0; i < data_len; i++)
-            {
-                windowed_data[i] = data[i] * (0.54 - 0.46 * cos (2.0 * M_PI * i / data_len));
-            }
-            break;
-        case WindowFunctions::HANNING:
-            for (int i = 0; i < data_len; i++)
-            {
-                windowed_data[i] = data[i] * (0.5 - 0.5 * cos (2.0 * M_PI * i / data_len));
-            }
-            break;
-        case WindowFunctions::BLACKMAN_HARRIS:
-            for (int i = 0; i < data_len; i++)
-            {
-                windowed_data[i] = data[i] *
-                    (0.355768 - 0.487396 * cos (2.0 * M_PI * i / data_len) +
-                        0.144232 * cos (4.0 * M_PI * i / data_len) -
-                        0.012604 * cos (6.0 * M_PI * i / data_len));
-            }
-            break;
-        default:
-            data_logger->error ("Invalid Window function. Window function:{}", window_function);
-            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+        windowed_data[i] *= data[i];
     }
     double *temp = new double[data_len];
     try

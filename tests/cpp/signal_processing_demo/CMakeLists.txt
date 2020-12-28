@@ -93,6 +93,28 @@ target_link_libraries (
     ${BoardControllerPath}
 )
 
+###########################
+## Demo for windowing ##
+###########################
+add_executable (
+    windowing
+    src/windowing.cpp
+)
+
+target_include_directories (
+    windowing PUBLIC
+    ${brainflow_INCLUDE_DIRS}
+)
+
+target_link_libraries (
+    windowing PUBLIC
+    # for some systems(ubuntu for example) order matters
+    ${BrainflowPath}
+    ${MLModulePath}
+    ${DataHandlerPath}
+    ${BoardControllerPath}
+)
+
 ###############################
 ## Demo for signal filtering ##
 ###############################

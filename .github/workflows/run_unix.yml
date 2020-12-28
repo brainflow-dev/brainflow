@@ -142,6 +142,8 @@ jobs:
       run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/transforms.py
     - name: Downsampling Python
       run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/downsampling.py
+    - name: Windowing Python
+      run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/windowing.py
     - name: MNE Python
       run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/brainflow_to_mne.py
     - name: BandPower Python
@@ -154,6 +156,10 @@ jobs:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Downsampling Cpp
       run: $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/downsampling
+      env:
+          LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
+    - name: Windowing Cpp
+      run: $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/windowing
       env:
           LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Filters Cpp
@@ -184,6 +190,12 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/java-package/brainflow
         mvn exec:java -Dexec.mainClass="brainflow.examples.Downsampling"
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
+    - name: Windowing Java
+      run: |
+        cd $GITHUB_WORKSPACE/java-package/brainflow
+        mvn exec:java -Dexec.mainClass="brainflow.examples.Windowing"
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Transforms Java

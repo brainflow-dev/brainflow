@@ -159,6 +159,13 @@ end
     return original_data
 end
 
+@brainflow_rethrow function get_window(window_function::Integer, window_len::Integer)
+    window_data = Vector{Float64}(undef, Integer(window_len))
+    ccall((:get_window, DATA_HANDLER_INTERFACE), Cint, (Cint, Cint, Ptr{Float64}),
+    Int32(window_function), Int32(window_len), window_data)
+    return window_data
+end
+
 @brainflow_rethrow function perform_fft(data, window::Integer)
 
     function is_power_of_two(value)

@@ -63,6 +63,8 @@ namespace brainflow
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_wavelet_denoising (double[] data, int data_len, string wavelet, int decomposition_level);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_window (int window_function, int window_len, double[] window_data);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_fft (double[] data, int data_len, int window, double[] re, double[] im);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_ifft (double[] re, double[] im, int data_len, double[] data);
@@ -111,6 +113,8 @@ namespace brainflow
                                                                     int[] decomposition_lengths, double[] output_data);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_wavelet_denoising (double[] data, int data_len, string wavelet, int decomposition_level);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_window (int window_function, int window_len, double[] window_data);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_fft (double[] data, int data_len, int window, double[] re, double[] im);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -161,6 +165,8 @@ namespace brainflow
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_wavelet_denoising (double[] data, int data_len, string wavelet, int decomposition_level);
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_window (int window_function, int window_len, double[] window_data);
+        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_fft (double[] data, int data_len, int window, double[] re, double[] im);
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_ifft (double[] re, double[] im, int data_len, double[] data);
@@ -209,6 +215,8 @@ namespace brainflow
                                                                     int[] decomposition_lengths, double[] output_data);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_wavelet_denoising (double[] data, int data_len, string wavelet, int decomposition_level);
+        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_window (int window_function, int window_len, double[] window_data);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_fft (double[] data, int data_len, int window, double[] re, double[] im);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -499,6 +507,23 @@ namespace brainflow
                     return DataHandlerLibraryLinux.perform_wavelet_denoising (data, data_len, wavelet, decomposition_level);
                 case LibraryEnvironment.MacOS:
                     return DataHandlerLibraryMac.perform_wavelet_denoising (data, data_len, wavelet, decomposition_level);
+            }
+
+            return (int)CustomExitCodes.GENERAL_ERROR;
+        }
+
+        public static int get_window (int window_function, int window_len, double[] window_data)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.get_window (window_function, window_len, window_data);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.get_window (window_function, window_len, window_data);
+                case LibraryEnvironment.Linux:
+                    return DataHandlerLibraryLinux.get_window (window_function, window_len, window_data);
+                case LibraryEnvironment.MacOS:
+                    return DataHandlerLibraryMac.get_window (window_function, window_len, window_data);
             }
 
             return (int)CustomExitCodes.GENERAL_ERROR;

@@ -209,6 +209,14 @@ class DataHandlerDLL (object):
             ndpointer (ctypes.c_double)
         ]
 
+        self.get_window = self.lib.get_window
+        self.get_window.restype = ctypes.c_int
+        self.get_window.argtypes = [
+            ctypes.c_int,
+            ctypes.c_int,
+            ndpointer (ctypes.c_double)
+        ]
+        
         self.perform_fft = self.lib.perform_fft
         self.perform_fft.restype = ctypes.c_int
         self.perform_fft.argtypes = [
@@ -582,6 +590,23 @@ class DataFilter (object):
         res = DataHandlerDLL.get_instance ().perform_wavelet_denoising (data, data.shape[0], wavelet_func, decomposition_level)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError ('unable to denoise data', res)
+
+    @classmethod
+    def get_window (cls, window_function: int, window_len: int) -> NDArray[Float64]:
+        """perform data windowing
+
+        :param window_function: window function
+        :type window: int
+        :param window_len: len of the window function
+        :return: numpy array, len of the array is the same as data
+        :rtype: NDArray[Float64]
+        """
+        window_data = numpy.zeros (int (window_len)).astype (numpy.float64)
+        res = DataHandlerDLL.get_instance ().get_window (window_function, window_len, window_data)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError ('unable to perform windowing', res)
+
+        return window_data
 
     @classmethod
     def perform_fft (cls, data: NDArray[Float64], window: int) -> NDArray[Complex128]:
