@@ -621,6 +621,12 @@ int Ganglion::call_open ()
     }
     if (res != GanglionLib::CustomExitCodes::STATUS_OK)
     {
+        if (res == GanglionLib::CustomExitCodes::PORT_OPEN_ERROR)
+        {
+            safe_logger (spdlog::level::err,
+                "make sure you provided correct port name and have permissions to open serial "
+                "port.");
+        }
         safe_logger (spdlog::level::err, "failed to Open Ganglion Device {}", res);
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }

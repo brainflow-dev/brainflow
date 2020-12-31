@@ -32,6 +32,9 @@ int OpenBCISerialBoard::open_port ()
     int res = serial->open_serial_port ();
     if (res < 0)
     {
+        safe_logger (spdlog::level::err,
+            "make sure you provided correct port name and have permissions to open serial "
+            "port.");
         return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
     }
     safe_logger (spdlog::level::trace, "port {} is open", serial->get_port_name ());

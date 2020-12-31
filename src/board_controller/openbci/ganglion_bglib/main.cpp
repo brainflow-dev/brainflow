@@ -91,7 +91,7 @@ namespace GanglionLib
     {
         if (uart_open (uart_port))
         {
-            return (int)CustomExitCodes::GANGLION_NOT_FOUND_ERROR;
+            return (int)CustomExitCodes::PORT_OPEN_ERROR;
         }
         int res = reset_ble_dev ();
         if (res != (int)CustomExitCodes::STATUS_OK)
