@@ -13,7 +13,6 @@
 #include <string>
 #include <utility>
 
-
 #include "board.h"
 #include "board_controller.h"
 #include "board_info_getter.h"
@@ -32,6 +31,7 @@
 #include "galea.h"
 #include "ganglion.h"
 #include "ganglion_wifi.h"
+#include "gforce_pro.h"
 #include "ironbci.h"
 #include "notion_osc.h"
 #include "playback_file_board.h"
@@ -137,15 +137,19 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
         case BoardIds::IRONBCI_BOARD:
             board = std::shared_ptr<Board> (new IronBCI (params));
             break;
-		case BoardIds::BITALINO_BOARD: 
-            board = std::shared_ptr<Board> (new BITalino (params));
+        case BoardIds::GFORCE_PRO_BOARD:
+            board = std::shared_ptr<Board> (new GforcePro (params));
             break;
         case BoardIds::FREEEEG32_BOARD:
             board = std::shared_ptr<Board> (new FreeEEG32 (params));
             break;
+        case BoardIds::BITALINO_BOARD: 
+            board = std::shared_ptr<Board> (new BITalino (params));
+            break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
     }
+    Board::board_logger->trace ("Board object created {}", board->get_board_id ());
     res = board->prepare_session ();
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
@@ -276,20 +280,15 @@ int log_message (int log_level, char *log_message)
     // its a method for loggging from high level api dont add it to Board class since it should not
     // be used internally
     std::lock_guard<std::mutex> lock (mutex);
-    int level;
     if (log_level < 0)
     {
         Board::board_logger->warn ("log level should be >= 0");
-        level = 0;
+        log_level = 0;
     }
     else if (log_level > 6)
     {
         Board::board_logger->warn ("log level should be <= 6");
-        level = 6;
-    }
-    else
-    {
-        level = log_level;
+        log_level = 6;
     }
 
     Board::board_logger->log (spdlog::level::level_enum (log_level), "{}", log_message);
@@ -380,9 +379,7 @@ int string_to_brainflow_input_params (
         params->ip_address = config["ip_address"];
         params->timeout = config["timeout"];
         params->serial_number = config["serial_number"];
-        //params->file = config["file"];
-
-		
+        params->file = config["file"];
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
     catch (json::exception &e)
