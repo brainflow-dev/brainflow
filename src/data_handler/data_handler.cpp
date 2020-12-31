@@ -966,7 +966,7 @@ int get_psd_welch (double *data, int data_len, int nfft, int overlap, int sampli
     {
         output_ampl[i] = 0.0;
     }
-    for (int pos = 0; (pos + nfft) < data_len; pos += (nfft - overlap), counter++)
+    for (int pos = 0; (pos + nfft) <= data_len; pos += (nfft - overlap), counter++)
     {
         int res = get_psd (data + pos, nfft, sampling_rate, window_function, ampls, output_freq);
         if (res != (int)BrainFlowExitCodes::STATUS_OK)
