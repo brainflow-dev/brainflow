@@ -139,16 +139,15 @@ void SyntheticBoard::read_thread ()
     double sin_phase_rad[exg_channels] = {0.0};
     double package[SyntheticBoard::package_size] = {0.0};
     int sampling_rate = 250;
-    std::normal_distribution<double> accel_dist (0.0, 0.35);
-    std::normal_distribution<double> temperature_dist (36.0, 0.5);
-    std::normal_distribution<double> dist_mean_thousand (1000.0, 200.0);
-    std::normal_distribution<double> eda_dist (1.08, 0.01);
+    int initial_sleep_time = 1000 / sampling_rate;
+    std::uniform_real_distribution<double> dist_around_one (0.90, 1.10);
 
     uint64_t seed = std::chrono::high_resolution_clock::now ().time_since_epoch ().count ();
     std::mt19937 mt (static_cast<uint32_t> (seed));
-
+    double accumulated_time_delta = 0.0;
     while (keep_alive)
     {
+        auto start = std::chrono::high_resolution_clock::now ();
         package[0] = (double)counter;
         // exg
         for (int i = 0; i < exg_channels; i++)
@@ -169,31 +168,42 @@ void SyntheticBoard::read_thread ()
         // accel and gyro
         for (int i = 0; i < imu_channels; i++)
         {
-            package[i + 1 + exg_channels] = accel_dist (mt);
+            package[i + 1 + exg_channels] = dist_around_one (mt) - 0.1;
         }
         // eda
-        package[23] = eda_dist (mt);
+        package[23] = dist_around_one (mt);
         // ppg
-        package[24] = 5.0 * dist_mean_thousand (mt);
-        package[25] = 5.0 * dist_mean_thousand (mt);
+        package[24] = 5000.0 * dist_around_one (mt);
+        package[25] = 5000.0 * dist_around_one (mt);
         // temperature
-        package[26] = temperature_dist (mt);
+        package[26] = dist_around_one (mt) / 10.0 + 36.5;
         // resistance (add just 2 channels)
-        package[27] = dist_mean_thousand (mt);
-        package[28] = dist_mean_thousand (mt);
+        package[27] = dist_around_one (mt) * 1000;
+        package[28] = dist_around_one (mt) * 1000;
         // battery
-        package[29] = 95.0;
+        package[29] = (dist_around_one (mt) - 0.1) * 100;
 
         double timestamp = get_timestamp ();
         db->add_data (timestamp, package);
         streamer->stream_data (package, SyntheticBoard::package_size, timestamp);
         counter++;
+
+        auto stop = std::chrono::high_resolution_clock::now ();
+        auto duration =
+            std::chrono::duration_cast<std::chrono::microseconds> (stop - start).count ();
+        accumulated_time_delta += duration;
+        int sleep_time = initial_sleep_time;
+        sleep_time = initial_sleep_time - (int)(accumulated_time_delta / 1000.0);
+        accumulated_time_delta =
+            accumulated_time_delta - 1000.0 * (int)(accumulated_time_delta / 1000.0);
+        if (sleep_time > 0)
+        {
 #ifdef _WIN32
-        // with 3 sampling rate is 250 on all machines
-        Sleep (3);
+            Sleep (sleep_time);
 #else
-        usleep (3000);
+            usleep (sleep_time * 1000);
 #endif
+        }
     }
 }
 
