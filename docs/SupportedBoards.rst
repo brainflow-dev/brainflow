@@ -169,6 +169,8 @@ Supported platforms:
 
 **On MacOS there are two serial ports for each device: /dev/tty..... and /dev/cu..... You HAVE to specify /dev/cu.....**
 
+**Also, on Unix-like systems you may need to configure permissions for serial port or run with sudo.**
+
 Board Spec:
 
 - num eeg(emg,...) channels: 8
@@ -187,6 +189,8 @@ Ganglion
 `Ganglion Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/GanglionGS>`_
 
 **To use Ganglion board you need a** `dongle <https://shop.openbci.com/collections/frontpage/products/ganglion-dongle>`_
+
+**Also, on Unix-like systems you may need to configure permissions for serial port or run with sudo.**
 
 To choose this board in BoardShim constructor please specify:
 
@@ -236,6 +240,8 @@ Supported platforms:
 - MacOS
 
 **On MacOS there are two serial ports for each device: /dev/tty..... and /dev/cu..... You HAVE to specify /dev/cu.....**
+
+**Also, on Unix-like systems you may need to configure permissions for serial port or run with sudo.**
 
 Board Spec:
 
@@ -544,6 +550,8 @@ To choose this board in BoardShim constructor please specify:
 
 - board_id: 17
 - serial_port field of BrainFlowInputParams structure
+
+**On Unix-like systems you may need to configure permissions for serial port or run with sudo.**
 
 Supported platforms:
 
