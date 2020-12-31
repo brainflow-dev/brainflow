@@ -140,6 +140,7 @@ void SyntheticBoard::read_thread ()
     double package[SyntheticBoard::package_size] = {0.0};
     int sampling_rate = 250;
     int initial_sleep_time = 1000 / sampling_rate;
+    int sleep_time = initial_sleep_time;
     std::uniform_real_distribution<double> dist_around_one (0.90, 1.10);
 
     uint64_t seed = std::chrono::high_resolution_clock::now ().time_since_epoch ().count ();
@@ -188,14 +189,6 @@ void SyntheticBoard::read_thread ()
         streamer->stream_data (package, SyntheticBoard::package_size, timestamp);
         counter++;
 
-        auto stop = std::chrono::high_resolution_clock::now ();
-        auto duration =
-            std::chrono::duration_cast<std::chrono::microseconds> (stop - start).count ();
-        accumulated_time_delta += duration;
-        int sleep_time = initial_sleep_time;
-        sleep_time = initial_sleep_time - (int)(accumulated_time_delta / 1000.0);
-        accumulated_time_delta =
-            accumulated_time_delta - 1000.0 * (int)(accumulated_time_delta / 1000.0);
         if (sleep_time > 0)
         {
 #ifdef _WIN32
@@ -204,6 +197,14 @@ void SyntheticBoard::read_thread ()
             usleep (sleep_time * 1000);
 #endif
         }
+
+        auto stop = std::chrono::high_resolution_clock::now ();
+        auto duration =
+            std::chrono::duration_cast<std::chrono::microseconds> (stop - start).count ();
+        accumulated_time_delta += duration - initial_sleep_time * 1000;
+        sleep_time = initial_sleep_time - (int)(accumulated_time_delta / 1000.0);
+        accumulated_time_delta =
+            accumulated_time_delta - 1000.0 * (int)(accumulated_time_delta / 1000.0);
     }
 }
 
