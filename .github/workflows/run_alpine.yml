@@ -19,7 +19,7 @@ jobs:
     - name: Compile BrainFlow in Alpine Docker container
       run: |
         docker pull alpine
-        docker run -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE alpine /bin/sh -c "apk add gcc g++ cmake py3-pi && cd $GITHUB_WORKSPACE && mkdir build_docker && cd build_docker && cmake -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release .. && make -j && make install"
+        docker run -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE alpine /bin/sh -c "apk add gcc g++ cmake py3-pip && cd $GITHUB_WORKSPACE && mkdir build_docker && cd build_docker && cmake -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release .. && make -j && make install"
     - name: Build Get Data Test
       run: |
         docker run -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE alpine /bin/sh -c "cd $GITHUB_WORKSPACE/tests/cpp/get_data_demo && mkdir build cd build && cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed .. && make -j"
