@@ -4,4 +4,4 @@ lazy = true
 
     [[brainflow.download]]
     sha256 = "92bd7485de8ccbd19d27a9b203e8176806269415b1087c767bb36539efe063d9"
-    url = "https://github.com/brainflow-dev/brainflow/releases/download/3.8.0/compiled_libs.tar"
+    url = "https://github.com/brainflow-dev/brainflow/releases/download/3.8.1/compiled_libs.tar"
