@@ -5,19 +5,21 @@
 #pragma pack(push, 1)
 struct GforceData
 {
-    double data[9];
+    static const int SIZE = 9;
+
+    double data[SIZE];
     double timestamp;
 
     GforceData (double *data, double timestamp)
     {
-        memcpy (this->data, data, sizeof (double) * 8);
+        memcpy (this->data, data, sizeof (double) * SIZE);
         this->timestamp = timestamp;
     }
 
     GforceData ()
     {
         timestamp = 0.0;
-        for (int i = 0; i < 8; i++)
+        for (int i = 0; i < SIZE; i++)
         {
             data[i] = 0;
         }
@@ -26,7 +28,7 @@ struct GforceData
     GforceData (const GforceData &other)
     {
         timestamp = other.timestamp;
-        memcpy (data, other.data, sizeof (double) * 8);
+        memcpy (data, other.data, sizeof (double) * SIZE);
     }
 };
 #pragma pack(pop)
