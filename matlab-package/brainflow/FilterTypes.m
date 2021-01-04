@@ -1,4 +1,5 @@
 classdef FilterTypes < int32
+    % Store all possible filters
     enumeration
         BUTTERWORTH (0)
         CHEBYSHEV_TYPE_1 (1)

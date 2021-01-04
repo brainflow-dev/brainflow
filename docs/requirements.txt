@@ -10,3 +10,4 @@ nbsphinx
 pandoc
 sphinxcontrib-ghcontributors
 Pygments==2.6.1
+git+https://github.com/Andrey1994/matlabdomain.git

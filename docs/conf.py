@@ -46,8 +46,11 @@ extensions = [
     'breathe',
     'sphinxcontrib.ghcontributors',
     'nbsphinx',
-    'sphinx.ext.mathjax'
+    'sphinx.ext.mathjax',
+    'sphinxcontrib.matlab'
 ]
+
+matlab_src_dir = os.path.abspath(os.path.join('..', 'matlab-package'))
 
 # Breathe and Doxygen setup
 

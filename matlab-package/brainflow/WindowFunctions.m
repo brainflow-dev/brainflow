@@ -1,4 +1,5 @@
 classdef WindowFunctions < int32
+    % Store window functions
     enumeration
         NO_WINDOW (0)
         HANNING (1)

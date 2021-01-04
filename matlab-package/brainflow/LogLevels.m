@@ -1,4 +1,5 @@
 classdef LogLevels < int32
+    % Store all possible log levels
     enumeration
         LEVEL_TRACE (0)
         LEVEL_DEBUG (1)

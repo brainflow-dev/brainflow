@@ -1,5 +1,5 @@
 classdef BoardShim
-    
+    % BoardShim object to communicate with device
     properties
         board_id
         master_board_id
@@ -36,6 +36,7 @@ classdef BoardShim
         end
 
         function set_log_level(log_level)
+            % set log level for BoardShim
             task_name = 'set_log_level';
             lib_name = BoardShim.load_lib ();
             exit_code = calllib (lib_name, task_name, log_level);
@@ -43,6 +44,7 @@ classdef BoardShim
         end
 
         function set_log_file (log_file)
+            % set log file for BoardShim, logger uses stderr by default
             task_name = 'set_log_file';
             lib_name = BoardShim.load_lib ();
             exit_code = calllib (lib_name, task_name, log_file);
@@ -50,18 +52,22 @@ classdef BoardShim
         end
 
         function enable_board_logger ()
+            % enable logger with level INFO
             BoardShim.set_log_level (int32 (2))
         end
 
         function enable_dev_board_logger ()
+            % enable logger with level TRACE
             BoardShim.set_log_level (int32 (0))
         end
 
         function disable_board_logger ()
+            % disable logger
             BoardShim.set_log_level (int32 (6))
         end
         
         function log_message (log_level, message)
+            % write message to BoardShim logger
             task_name = 'log_message';
             lib_name = BoardShim.load_lib ();
             exit_code = calllib (lib_name, task_name, log_level, message);
@@ -69,6 +75,7 @@ classdef BoardShim
         end
         
         function sampling_rate = get_sampling_rate (board_id)
+            % get sampling rate for provided board id
             task_name = 'get_sampling_rate';
             lib_name = BoardShim.load_lib ();
             res = libpointer ('int32Ptr', 0);
@@ -78,6 +85,7 @@ classdef BoardShim
         end
         
         function package_num_channel = get_package_num_channel (board_id)
+            % get package num channel for provided board id
             task_name = 'get_package_num_channel';
             lib_name = BoardShim.load_lib ();
             res = libpointer ('int32Ptr', 0);
@@ -88,6 +96,7 @@ classdef BoardShim
         end
 
         function battery_channel = get_battery_channel (board_id)
+            % get battery channel for provided board id
             task_name = 'get_battery_channel';
             res = libpointer ('int32Ptr', 0);
             exit_code = calllib (lib_name, task_name, board_id, res);
@@ -96,6 +105,7 @@ classdef BoardShim
         end
         
         function num_rows = get_num_rows (board_id)
+            % get num rows for provided board id
             task_name = 'get_num_rows';
             lib_name = BoardShim.load_lib ();
             res = libpointer ('int32Ptr', 0);
@@ -105,6 +115,7 @@ classdef BoardShim
         end
         
         function timestamp_channel = get_timestamp_channel (board_id)
+            % get timestamp channel for provided board id
             task_name = 'get_timestamp_channel';
             lib_name = BoardShim.load_lib ();
             res = libpointer ('int32Ptr', 0);
@@ -114,6 +125,7 @@ classdef BoardShim
         end
         
         function eeg_names = get_eeg_names (board_id)
+            % get eeg names for provided board id
             task_name = 'get_eeg_names';
             lib_name = BoardShim.load_lib ();
             % no way to understand how it works in matlab used this link
@@ -124,6 +136,7 @@ classdef BoardShim
         end
         
         function device_name = get_device_name (board_id)
+            % get device name for provided board id
             task_name = 'get_device_name';
             lib_name = BoardShim.load_lib ();
             % no way to understand how it works in matlab used this link
@@ -133,6 +146,7 @@ classdef BoardShim
         end
         
         function eeg_channels = get_eeg_channels (board_id)
+            % get eeg channels for provided board id
             task_name = 'get_eeg_channels';
             num_channels = libpointer ('int32Ptr', 0);
             lib_name = BoardShim.load_lib ();
@@ -143,6 +157,7 @@ classdef BoardShim
         end
         
         function exg_channels = get_exg_channels (board_id)
+            % get exg channels for provided board id
             task_name = 'get_exg_channels';
             num_channels = libpointer ('int32Ptr', 0);
             lib_name = BoardShim.load_lib ();
@@ -153,6 +168,7 @@ classdef BoardShim
         end
         
         function emg_channels = get_emg_channels (board_id)
+            % get emg channels for provided board id
             task_name = 'get_emg_channels';
             lib_name = BoardShim.load_lib ();
             num_channels = libpointer ('int32Ptr', 0);
@@ -163,6 +179,7 @@ classdef BoardShim
         end
         
         function ecg_channels = get_ecg_channels (board_id)
+            % get ecg channels for provided board id
             task_name = 'get_ecg_channels';
             lib_name = BoardShim.load_lib ();
             num_channels = libpointer ('int32Ptr', 0);
@@ -173,6 +190,7 @@ classdef BoardShim
         end
         
         function eog_channels = get_eog_channels (board_id)
+            % get eog channels for provided board id
             task_name = 'get_eog_channels';
             lib_name = BoardShim.load_lib ();
             num_channels = libpointer ('int32Ptr', 0);
@@ -183,6 +201,7 @@ classdef BoardShim
         end
         
         function ppg_channels = get_ppg_channels (board_id)
+            % get ppg channels for provided board id
             task_name = 'get_ppg_channels';
             num_channels = libpointer ('int32Ptr', 0);
             data = libpointer ('int32Ptr', zeros (1, 512));
@@ -193,6 +212,7 @@ classdef BoardShim
         end
         
         function eda_channels = get_eda_channels (board_id)
+            % get eda channels for provided board id
             task_name = 'get_eda_channels';
             lib_name = BoardShim.load_lib ();
             num_channels = libpointer ('int32Ptr', 0);
@@ -203,6 +223,7 @@ classdef BoardShim
         end
         
         function accel_channels = get_accel_channels (board_id)
+            % get accel channels for provided board id
             task_name = 'get_accel_channels';
             lib_name = BoardShim.load_lib ();
             num_channels = libpointer ('int32Ptr', 0);
@@ -213,6 +234,7 @@ classdef BoardShim
         end
         
         function analog_channels = get_analog_channels (board_id)
+            % get analog channels for provided board id
             task_name = 'get_analog_channels';
             lib_name = BoardShim.load_lib ();
             num_channels = libpointer ('int32Ptr', 0);
@@ -223,6 +245,7 @@ classdef BoardShim
         end
         
         function other_channels = get_other_channels (board_id)
+            % get other channels for provided board id
             task_name = 'get_other_channels';
             lib_name = BoardShim.load_lib ();
             num_channels = libpointer ('int32Ptr', 0);
@@ -233,6 +256,7 @@ classdef BoardShim
         end
         
         function temperature_channels = get_temperature_channels (board_id)
+            % get temperature channels for provided board id
             task_name = 'get_temperature_channels';
             lib_name = BoardShim.load_lib ();
             num_channels = libpointer ('int32Ptr', 0);
@@ -243,6 +267,7 @@ classdef BoardShim
         end
         
         function resistance_channels = get_resistance_channels (board_id)
+            % get resistance channels for provided board id
             task_name = 'get_resistance_channels';
             lib_name = BoardShim.load_lib ();
             num_channels = libpointer ('int32Ptr', 0);
@@ -257,6 +282,7 @@ classdef BoardShim
     methods
 
         function obj = BoardShim (board_id, input_params)
+            % BoardShim constructor
             obj.input_params_json = input_params.to_json ();
             obj.board_id = int32 (board_id);
             obj.master_board_id = obj.board_id;
@@ -270,6 +296,7 @@ classdef BoardShim
         end
 
         function prepare_session (obj)
+            % prepare BoardShim session
             task_name = 'prepare_session';
             lib_name = BoardShim.load_lib ();
             exit_code = calllib (lib_name, task_name, obj.board_id, obj.input_params_json);
@@ -277,6 +304,7 @@ classdef BoardShim
         end
 
         function response = config_board (obj, config)
+            % send string to the board
             task_name = 'config_board';
             lib_name = BoardShim.load_lib ();
             % no way to understand how it works in matlab used this link
@@ -286,6 +314,7 @@ classdef BoardShim
         end
 
         function start_stream (obj, buffer_size, streamer_params)
+            % start data acqusition
             task_name = 'start_stream';
             lib_name = BoardShim.load_lib ();
             exit_code = calllib (lib_name, task_name, buffer_size, streamer_params, obj.board_id, obj.input_params_json);
@@ -293,6 +322,7 @@ classdef BoardShim
         end
 
         function stop_stream (obj)
+            % stop acqusition
             task_name = 'stop_stream';
             lib_name = BoardShim.load_lib ();
             exit_code = calllib (lib_name, task_name, obj.board_id, obj.input_params_json);
@@ -300,6 +330,7 @@ classdef BoardShim
         end
 
         function release_session (obj)
+            % release session
             task_name = 'release_session';
             lib_name = BoardShim.load_lib ();
             exit_code = calllib (lib_name, task_name, obj.board_id, obj.input_params_json);
@@ -307,6 +338,7 @@ classdef BoardShim
         end
 
         function num_data_point = get_board_data_count (obj)
+            % get amount of datapoints in internal buffer
             task_name = 'get_board_data_count';
             data_count = libpointer ('int32Ptr', 0);
             lib_name = BoardShim.load_lib ();
@@ -316,6 +348,7 @@ classdef BoardShim
         end
 
         function data_buf = get_board_data (obj)
+            % get all collected data and remove it from the buffer
             task_name = 'get_board_data';
             data_count = obj.get_board_data_count ();
             num_rows = BoardShim.get_num_rows (obj.master_board_id);
@@ -327,6 +360,7 @@ classdef BoardShim
         end
 
         function data_buf = get_current_board_data (obj, num_samples)
+            % get latest datapoints, doesnt remove it from internal buffer
             task_name = 'get_current_board_data';
             data_count = libpointer ('int32Ptr', 0);
             num_rows = BoardShim.get_num_rows (obj.master_board_id);
@@ -338,6 +372,7 @@ classdef BoardShim
         end
         
         function prepared = is_prepared (obj)
+           % check if brainflow session prepared
            task_name = 'is_prepared';
            res = libpointer ('int32Ptr', 0);
            lib_name = BoardShim.load_lib ();

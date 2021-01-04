@@ -1,4 +1,5 @@
 classdef BrainFlowInputParams
+    % BrainFlow input params, check docs for params for your device
     properties
         serial_port
         mac_address

@@ -1,4 +1,5 @@
 classdef BrainFlowModelParams
+    % Store MLModel params
     properties
         metric
         classifier

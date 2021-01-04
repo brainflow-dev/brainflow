@@ -1,4 +1,5 @@
 classdef ExitCodes < int32
+    % Store all possible exit codes
     enumeration
         STATUS_OK (0)
         PORT_ALREADY_OPEN_ERROR (1)
