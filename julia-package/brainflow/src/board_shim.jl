@@ -160,7 +160,7 @@ end
 end
 
 function start_stream(board_shim::BoardShim)
-    start_stream(board_shim, 45000, "")
+    start_stream(board_shim, 450000, "")
 end
 
 @brainflow_rethrow function is_prepared(board_shim::BoardShim)

@@ -46,7 +46,10 @@ extensions = [
     'breathe',
     'sphinxcontrib.ghcontributors',
     'nbsphinx',
-    'sphinx.ext.mathjax'
+    'sphinx.ext.mathjax',
+    'sphinxjulia.juliadomain',
+    'sphinxjulia.juliaautodoc',
+    'sphinx.ext.napoleon'
 ]
 
 # Breathe and Doxygen setup

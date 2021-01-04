@@ -128,6 +128,19 @@ Content of brainflow namespace:
    :members:
    :content-only:
 
+
+Julia API Reference
+---------------------
+
+.. jl:autofile:: ./julia-package/brainflow/src/board_shim.jl
+
+.. jl:autofile:: ./julia-package/brainflow/src/data_filter.jl
+
+.. jl:autofile:: ./julia-package/brainflow/src/ml_model.jl
+
+.. jl:autofile:: ./julia-package/brainflow/src/brainflow_logs.jl
+
+
 R API Reference
 -----------------
 
@@ -139,6 +152,7 @@ Full code for R binding:
 
 .. literalinclude:: ../r-package/brainflow/R/package.R
    :language: r
+
 
 Matlab API Reference
 ----------------------
@@ -154,16 +168,3 @@ Like here:
 
 .. literalinclude:: ../matlab-package/brainflow/examples/Serialization.m
    :language: matlab
-
-
-Julia API Reference
----------------------
-
-Julia binding calls C\C++ code as any other binding. Use Julia examples and API reference for other languaes as a starting point.
-
-Since Julia is not Object-Oriented language, there is no DataFilter class. BoardShim class exists but all BoardShim class methods were moved to BrainFlow package and you need to pass BoardShim object to them.
-
-Like here:
-
-.. literalinclude:: ../julia-package/brainflow/test/serialization.jl
-   :language: julia
