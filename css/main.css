@@ -518,6 +518,9 @@ footer .theme-by {
   -webkit-box-shadow: 1px 1px 3px #000;
   -moz-box-shadow: 1px 1px 3px #000;
 }
+.post-heading .post-meta a {
+  color: #60809c;
+}
 .intro-header.big-img .post-heading .post-meta {
   color: #EEE;
   text-align: center;

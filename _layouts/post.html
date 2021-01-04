@@ -2,7 +2,12 @@
 layout: base
 ---
 
-{% include header.html type="post" %}
+{% assign author = site.data.authors[page.author] %}
+{% if author %}
+  {% include header.html type="post" author=author %}
+{% else %}
+  {% include header.html type="post"%}
+{% endif %}
 
 <div class="container">
   <div class="row">

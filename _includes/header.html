@@ -34,9 +34,13 @@
 			<h2 class="{{ include.type }}-subheading">{{ page.subtitle }}</h2>
 			{% endif %}
 		  {% endif %}
-		  
+
 		  {% if include.type == "post" %}
-		  <h4 class="post-meta">Posted on {{ page.date | date: site.date_format }}</h4>
+		  	{% if include.author %}
+		  	  <h4 class="post-meta">Posted on {{ page.date | date: site.date_format }} by <a href="{{ author.web }}">{{ author.name }}</a></h4>
+		  	{% else %}
+		  	  <h4 class="post-meta">Posted on {{ page.date | date: site.date_format }}</h4>
+		  	{% endif %}
 		  {% endif %}
         </div>
       </div>
@@ -61,7 +65,11 @@
 		  {% endif %}
 		  
 		  {% if include.type == "post" %}
-		  <h4 class="post-meta">Posted on {{ page.date | date: site.date_format }}</h4>
+		  	{% if include.author %}
+		  	  <h4 class="post-meta">Posted on {{ page.date | date: site.date_format }} by <a href="{{ author.web }}">{{ author.name }}</a></h4>
+		  	{% else %}
+		  	  <h4 class="post-meta">Posted on {{ page.date | date: site.date_format }}</h4>
+		  	{% endif %}
 		  {% endif %}
         </div>
       </div>
