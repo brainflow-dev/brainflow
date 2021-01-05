@@ -2786,7 +2786,7 @@ static const double meyer[102] = {-0.000001509740857, 0.000001278766757, 0.00000
 
 int filtlength (const char *name)
 {
-    int len = strlen (name);
+    int len = (int)strlen (name);
     int i = 0;
     char *new_str = NULL;
     int N = 0;

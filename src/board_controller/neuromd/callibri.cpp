@@ -245,7 +245,7 @@ void Callibri::read_thread ()
         do
         {
             AnyChannel_get_total_length ((AnyChannel *)signal_channel, &length);
-        } while ((keep_alive) && (length < (counter + 1)));
+        } while ((keep_alive) && (length < ((size_t)counter + 1)));
 
         // check that inner loop ended not because of stop_stream invocation
         if (!keep_alive)

@@ -12,6 +12,8 @@
 #define PACKSTRUCT(decl) __pragma (pack (push, 1)) decl __pragma (pack (pop))
 #define ALIGNED
 
+#pragma warning(disable : 4200)
+
 #endif
 
 typedef unsigned char uint8;

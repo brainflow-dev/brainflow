@@ -42,6 +42,8 @@
 #include <vector>
 #undef FMT_INCLUDE
 
+#pragma warning(disable : 4244)
+
 // The fmt library version in the form major * 10000 + minor * 100 + patch.
 #define FMT_VERSION 40100
 

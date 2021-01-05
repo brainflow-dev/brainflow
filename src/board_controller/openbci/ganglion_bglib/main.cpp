@@ -112,7 +112,7 @@ namespace GanglionLib
         {
             for (int i = 0; i < 6; i++)
             {
-                connect_addr.addr[i] = addr[i];
+                connect_addr.addr[i] = (uint8)addr[i];
             }
         }
         else
@@ -281,7 +281,7 @@ namespace GanglionLib
         }
         exit_code = (int)CustomExitCodes::SYNC_ERROR;
         char *config = (char *)param;
-        int len = strlen (config);
+        int len = (int)strlen (config);
         state = State::CONFIG_CALLED;
         if (!ganglion_handle_send)
         {

@@ -369,7 +369,7 @@ int perform_wavelet_transform (double *data, int data_len, char *wavelet, int de
         wave_free (obj);
         wt_free (wt);
     }
-    catch (const std::exception &e)
+    catch (...)
     {
         if (obj)
         {
@@ -425,7 +425,7 @@ int perform_inverse_wavelet_transform (double *wavelet_coeffs, int original_data
         wave_free (obj);
         wt_free (wt);
     }
-    catch (const std::exception &e)
+    catch (...)
     {
         if (obj)
         {
@@ -471,7 +471,7 @@ int perform_wavelet_denoising (double *data, int data_len, char *wavelet, int de
         temp = NULL;
         denoise_free (obj);
     }
-    catch (const std::exception &e)
+    catch (...)
     {
         if (temp)
         {
@@ -499,36 +499,25 @@ int get_window (int window_function, int window_len, double *output_window)
             window_function, window_len, *output_window);
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
-
-    try
+    // from https://www.edn.com/windowing-functions-improve-fft-results-part-i/
+    switch (static_cast<WindowFunctions> (window_function))
     {
-        // from https://www.edn.com/windowing-functions-improve-fft-results-part-i/
-        switch (static_cast<WindowFunctions> (window_function))
-        {
-            case WindowFunctions::NO_WINDOW:
-                no_window_function (window_len, output_window);
-                break;
-            case WindowFunctions::HAMMING:
-                hamming_function (window_len, output_window);
-                break;
-            case WindowFunctions::HANNING:
-                hanning_function (window_len, output_window);
-                break;
-            case WindowFunctions::BLACKMAN_HARRIS:
-                blackman_harris_function (window_len, output_window);
-                break;
-            default:
-                data_logger->error ("Invalid Window function. Window function:{}", window_function);
-                return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
-        }
+        case WindowFunctions::NO_WINDOW:
+            no_window_function (window_len, output_window);
+            break;
+        case WindowFunctions::HAMMING:
+            hamming_function (window_len, output_window);
+            break;
+        case WindowFunctions::HANNING:
+            hanning_function (window_len, output_window);
+            break;
+        case WindowFunctions::BLACKMAN_HARRIS:
+            blackman_harris_function (window_len, output_window);
+            break;
+        default:
+            data_logger->error ("Invalid Window function. Window function:{}", window_function);
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
-
-    catch (const std::exception &e)
-    {
-        data_logger->error ("Error with doing data windowing process.");
-        return (int)BrainFlowExitCodes::GENERAL_ERROR;
-    }
-
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
@@ -594,7 +583,7 @@ int perform_fft (
         windowed_data = NULL;
         temp = NULL;
     }
-    catch (const std::exception &e)
+    catch (...)
     {
         if (temp)
         {
@@ -639,7 +628,7 @@ int perform_ifft (double *input_re, double *input_im, int data_len, double *rest
         delete[] temp;
         temp = NULL;
     }
-    catch (const std::exception &e)
+    catch (...)
     {
         if (temp)
         {
@@ -820,7 +809,7 @@ int read_file (double *data, int *num_rows, int *num_cols, char *file_name, int 
         {
             splitted.push_back (tmp);
         }
-        total_cols = splitted.size ();
+        total_cols = (int)splitted.size ();
         for (int i = 0; i < total_cols; i++)
         {
             data[i * total_rows + current_row] = std::stod (splitted[i]);
@@ -883,7 +872,7 @@ int get_num_elements_in_file (char *file_name, int *num_elements)
         {
             splitted.push_back (tmp);
         }
-        *num_elements = splitted.size () * total_rows;
+        *num_elements = (int)splitted.size () * total_rows;
         fclose (fp);
         return (int)BrainFlowExitCodes::STATUS_OK;
     }

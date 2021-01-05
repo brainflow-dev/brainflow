@@ -9,8 +9,8 @@
 
 class CytonDaisyWifi : public OpenBCIWifiShieldBoard
 {
-    float eeg_scale = ADS1299_Vref / float ((pow (2, 23) - 1)) / ADS1299_gain * 1000000.;
-    float accel_scale = 0.002 / (pow (2, 4));
+    double eeg_scale = (double)(ADS1299_Vref / float ((pow (2, 23) - 1)) / ADS1299_gain * 1000000.);
+    double accel_scale = (double)(0.002 / (pow (2, 4)));
 
 protected:
     void read_thread ();

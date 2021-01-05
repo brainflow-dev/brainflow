@@ -485,7 +485,7 @@ int NeuromdBoard::find_device ()
         }
         if (res != (int)BrainFlowExitCodes::STATUS_OK)
         {
-#ifdef _WIN32:
+#ifdef _WIN32
             Sleep (sleep_delay);
 #else
             usleep (sleep_delay * 1000);
@@ -652,7 +652,7 @@ int NeuromdBoard::connect_device ()
         return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
     }
 
-#ifndef _WIN32:
+#ifndef _WIN32
     // "Fix" a race condition in BrainBit SDK on MacOS
     usleep (5000000);
 #endif

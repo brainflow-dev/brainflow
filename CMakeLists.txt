@@ -12,9 +12,11 @@ set (CMAKE_C_VISIBILITY_PRESET hidden)
 set (CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 option(USE_OPENMP "USE_OPENMP" OFF)
+option(WARNINGS_AS_ERRORS "WARNINGS_AS_ERRORS" OFF)
 
 macro (configure_msvc_runtime)
     if (MSVC)
+        add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING -D_CRT_NONSTDC_NO_DEPRECATE)
         # Default to statically-linked runtime.
         if ("${MSVC_RUNTIME}" STREQUAL "")
             set (MSVC_RUNTIME "static")
@@ -54,6 +56,15 @@ endmacro ()
 
 # link msvc runtime statically
 configure_msvc_runtime ()
+
+# warnings as errors but with default(low) level
+if (WARNINGS_AS_ERRORS)
+    if (MSVC)
+        add_compile_options(/WX)
+    else()
+        add_compile_options(-Werror)
+    endif()
+endif (WARNINGS_AS_ERRORS)
 
 # add_subfolder doesnt work on linux if you need to istall packages, add it in top level file
 SET (DSPFILTERS "DSPFilters")

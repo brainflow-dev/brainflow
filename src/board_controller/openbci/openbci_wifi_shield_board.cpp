@@ -353,7 +353,7 @@ std::string OpenBCIWifiShieldBoard::find_wifi_shield ()
 
         safe_logger (spdlog::level::trace, "Using search request {}", msearch.c_str ());
 
-        res = udp_client.send (msearch.c_str (), msearch.size ());
+        res = (int)udp_client.send (msearch.c_str (), (int)msearch.size ());
         if (res == msearch.size ())
         {
             unsigned char b[250];

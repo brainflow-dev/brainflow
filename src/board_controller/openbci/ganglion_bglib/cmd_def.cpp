@@ -13,6 +13,8 @@
 
 #include "cmd_def.h"
 
+#pragma warning(disable:4244)
+
 
 void (*bglib_output)(uint8 len1,uint8* data1,uint16 len2,uint8* data2)=0;    
 static const struct ble_msg  apis[]={

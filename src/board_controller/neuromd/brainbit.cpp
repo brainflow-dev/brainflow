@@ -379,7 +379,7 @@ void BrainBit::read_thread ()
     double package[BrainBit::package_size] = {0.0};
     // I dont see method to flush data from buffer, so need to keep offset and track package num to
     // get only new data
-    long long counter = 0;
+    size_t counter = 0;
     while (keep_alive)
     {
         size_t length_t3 = 0;
