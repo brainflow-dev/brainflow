@@ -77,7 +77,7 @@ int ConcentrationKNNClassifier::predict (double *data, int data_len, double *out
     FocusPoint sample_to_predict (feature_vector, 10, 0);
     const std::vector<int> knn_ids = kdtree->knnSearch (sample_to_predict, num_neighbors);
     int num_ones = 0;
-    for (int i = 0; i < knn_ids.size (); i++)
+    for (int i = 0; i < (int)knn_ids.size (); i++)
     {
         if (dataset[knn_ids[i]].value == 1)
         {
