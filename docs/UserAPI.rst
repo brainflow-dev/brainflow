@@ -147,13 +147,13 @@ Matlab binding calls C\C++ code as any other binding, it's not compatible with O
 
 A few general rules to keep in mind:
 
-- Use char arrays instead strings to work with BrainFlow API, it means 'my_string' instead "my_string", otherwise you will get calllib error
-- Use int32 values intead enums, it means int32 (BoardIDs.SYNTHETIC_BOARD) instead BoardIDs.SYNTHETIC_BOARD, the same is true for all enums in BrainFlow API
+- Use char arrays instead strings to work with BrainFlow API, it means :code:`'my_string'` instead :code:`"my_string"`, otherwise you will get calllib error
+- Use int32 values intead enums, it means :code:`int32 (BoardIDs.SYNTHETIC_BOARD)` instead :code:`BoardIDs.SYNTHETIC_BOARD`, the same is true for all enums in BrainFlow API
 
-Like here:
-
-.. literalinclude:: ../matlab-package/brainflow/examples/Serialization.m
-   :language: matlab
+.. mat:automodule:: brainflow
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 
 Julia API Reference
