@@ -1,35 +1,36 @@
 ---
 layout: post
 title: Realtime biosignal visualization
-subtitle: How to use BrainFlow with the gForce Pro
+subtitle: How to use BrainFlow with the gForcePro
 image: /img/EMGdataPhoto.jpg
 tags: [tutorial]
+author: matthijs_cox
 ---
 
 ## Introduction
 
 So you obtained a nifty neurotechnology gadget? And now you would like to work with the data in your favorite development environment? In the past it took me months to achieve this, but thanks to BrainFlow it can work in minutes! Let me show you how I did it.
 
-Most of the code should work for any device, but I will use the OYMotion gForce Pro armband we used in a [past project](https://medium.com/symbionic-project). It streams 8 channels of electromyographic (EMG) data at 600 Hz. I just want to see this data realtime in a plot. In the past I always used Python for this task, but the experience was not smooth, because it had difficulties with handling this high data rate. I could try to write everything in c++, but that would take me ages. I recently found the [Julia language](https://julialang.org/), which is aimed to be both fast and easy to use. With Julia I succeeded with ease, so I'll show you how to visualize the data in Julia. Python is still fine for acquiring data and doing offline analysis, but I would never use it again for such a high performance task on realtime data.
+Most of the code should work for any device, but I will use the [OYMotion gForcePro](https://brainflow.org/get_started/?manufactorer=OYMotion&platform=windows&language=julia&board=gforcepro&) armband we used in a [past project](https://medium.com/symbionic-project). It streams 8 channels of electromyographic (EMG) data at 500 Hz. I just want to see this data realtime in a plot. In the past I always used Python for this task, but the experience was not smooth, because it had difficulties with handling this high data rate. I could try to write everything in c++, but that would take me ages. I recently found the [Julia language](https://julialang.org/), which is aimed to be both fast and easy to use. With Julia I succeeded with ease, so I'll show you how to visualize the data in Julia.
 
 ### Installing BrainFlow.jl
 
-Assuming you have Julia installed, you should start by adding the BrainFlow.jl package. Since BrainFlow 3.8.0 we have an automated Julia package, which installs everything for you. Adding packages in Julia is easy with the internal Julia package manager, just type in the Julia REPL:
+Assuming you have Julia installed, you should start by adding the BrainFlow.jl package. Since BrainFlow 3.8.1 we have an automated Julia package, which installs everything for you. Adding packages in Julia is easy with the internal Julia package manager, just type in the Julia REPL:
 
-```
+```julia
 using Pkg
 Pkg.add("BrainFlow")
 ```
 
-This may take a moment, since it has to download the compiled BrainFlow c++ libraries.
+This may take a moment, since it has to download the compiled BrainFlow C++ libraries.
 
 ## Starting small
 
 Let's start by acquiring a small data sample and plotting it. We'll get to streaming the data later. 
 
-First we have to connect to the gForce Pro device using BrainFlow. You can find how to do this in other languages in the BrainFlow docs [examples section](https://brainflow.readthedocs.io/en/stable/Examples.html).
+First we have to connect to the gForcePro device using BrainFlow. You can find how to do this in other languages in the BrainFlow docs [examples section](https://brainflow.readthedocs.io/en/stable/Examples.html).
 
-```
+```julia
 using BrainFlow
 BrainFlow.enable_dev_logger(BrainFlow.BOARD_CONTROLLER)
 params = BrainFlowInputParams()
@@ -39,21 +40,20 @@ BrainFlow.start_stream(board_shim)
 ```
 
 You should receive some messages that you are succesfull, such as:
-```
-LoadLinkKey done!! with status = 1 
+``` 
 [2021-01-04 20:00:52.424] [brainflow_logger] [debug] start streaming
 ```
 
 That's it! I assume the code is pretty self-explanatory.
 
 Once the stream is started, you can make some gestures. Then you get the collected data from BrainFlow directly via:
-```
+```julia
 data = BrainFlow.get_board_data(board_shim) |> transpose
 ```
 The output data is a matrix where the columns are the available channels and the rows are the samples. Andrey from BrainFlow tranposed the matrix, because he didn't yet know Julia is column-major, so I transposed it back. We may remove this transpose in a future version, so beware.
 
 This data matrix has 10 channels, while we know the gForce armband has only 8 EMG channels. We can easily get the EMG channels as follows:
-```
+```julia
 emg_channels = BrainFlow.get_emg_channels(BrainFlow.GFORCE_PRO_BOARD)
 emg_data = data[:, emg_channels]
 ```
@@ -64,14 +64,14 @@ Now let's make a plot from the data. For this single static plot, I'll use the V
 
 In order to best use VegaLite, we first create a dataframe using [DataFrames.jl](https://github.com/JuliaData/DataFrames.jl).
 
-```
+```julia
 df = DataFrame(emg_data)
 emg_names = Symbol.(["emg$x" for x in 1:8])
 DataFrames.rename!(df, emg_names)
 ```
 
 Let's also add a time column for use as x-axis. I could probably use the timestamp channel, but I'm lazy and will just construct it on the fly from the number of rows:
-```
+```julia
 sampling_rate = BrainFlow.get_sampling_rate(BrainFlow.GFORCE_PRO_BOARD)
 nrows = size(df)[1]
 df.time = (1:nrows)/sampling_rate
@@ -86,11 +86,11 @@ julia> df
 ──────┼─────────────────────────────────────────────────────────────────────────────────
     1 │ 31095.0  31342.0  29554.0  30069.0  31095.0  31860.0  29299.0  30069.0    0.002
   ⋮   │    ⋮        ⋮        ⋮        ⋮        ⋮        ⋮        ⋮        ⋮        ⋮
-                                                                       2575 rows omitted
+2575 rows omitted
 ```
 
 The Grammar of Graphics is a little special, it's typically best to go for the most tall dataframe as possible. You'll see in a moment why, but let's just stack all the emg channels into two columns:
-```
+```julia
 df2 = stack(df, 1:8)
 rename!(df2, [:time, :channel, :value])
 ```
@@ -104,12 +104,12 @@ julia> df2
 ───────┼───────────────────────────
      1 │   0.002  emg1     31095.0
    ⋮   │    ⋮        ⋮        ⋮
-                 20607 rows omitted
+20607 rows omitted
 ```
 
 Alright, that's it. Now we can start plotting. Well... one last thing I quickly filtered the start of the signals with Query.jl, because the data was a bit spikey there due to somekind of startup effect. Ok for real now, let's pipe it into a VegaLite plot:
 
-```
+```julia
 df2 |> @filter(_.time > 0.2) |>
 @vlplot(
     :line,
@@ -141,7 +141,7 @@ First make sure the BrainFlow has started a stream, just like in the previous se
 
 Then I wrote a custom function to acquire some EMG data and detrend it.
 
-```
+```julia
 function get_some_board_data(board_shim, nsamples)
     data = BrainFlow.get_current_board_data(nsamples, board_shim)
     data = transpose(data)
@@ -154,11 +154,11 @@ function get_some_board_data(board_shim, nsamples)
 end
 ```
 
-The function `BrainFlow.get_current_board_data` is slightly different from `BrainFlow.get_board_data` in that it retrieves only the last n-samples of data and does not clear the internal brainflow buffer. This will be helpful for continuously requesting a slice of data and plotting it. Beware that at the very start of the stream the internal buffer is not yet full, so you may get a matrix with less rows than the requested number of samples.
+The function `BrainFlow.get_current_board_data` is slightly different from `BrainFlow.get_board_data` in that it retrieves only the last n-samples of data and does not clear the internal BrainFlow buffer. This will be helpful for continuously requesting a slice of data and plotting it. Beware that at the very start of the stream the internal buffer is not yet full, so you may get a matrix with less rows than the requested number of samples.
 
 Next I select the EMG data channels as a `view` for performance, because that creates a kind of reference to the data instead of making a copy.
 
-In a quick for-loop, I then continue to detrend each 'viewed' EMG channel individual with `BrainFlow.detrend()`. A constant detrend means we just remove the average per channel. I could probably have done this efficiently with some Julia code, but wanted to try out calling a brainflow data filtering function from Julia. This function directly passes an array from Julia to the brainflow c++ libraries, using the same allocated memory.
+In a quick for-loop, I then continue to detrend each 'viewed' EMG channel individual with `BrainFlow.detrend()`. A constant detrend means we just remove the average per channel. I could probably have done this efficiently with some Julia code, but wanted to try out calling a BrainFlow data filtering function from Julia. This function directly passes an array from Julia to the BrainFlow c++ libraries, using the same allocated memory.
 
 As a small interlude, you can read the BrainFlow [julia-package source code](https://github.com/brainflow-dev/brainflow/blob/master/julia-package/brainflow/src/data_filter.jl#L91) you would see just how easy it is to do this in Julia:
 ```
@@ -170,9 +170,9 @@ We are now ready to start plotting the data.
 
 ### Plotting the data
 
-I made a nice convenience function for plotting the brainflow data from any data retrieval function. Here's what I used to make my video. Beforehand, I called the `get_some_board_data()` function once while wearing the armband to check what would be good y-scale limits.
+I made a nice convenience function for plotting the BrainFlow data from any data retrieval function. Here's what I used to make my video. Beforehand, I called the `get_some_board_data()` function once while wearing the armband to check what would be good y-scale limits.
 
-```
+```julia
 using BrainFlowViz
 nchannels = 8
 nsamples = 512
@@ -206,7 +206,7 @@ To start with Makie and multiple plots, you need a `Scene` with a layout. This i
 
 Now let's make that initial scene:
 
-```
+```julia
 using Makie, AbstractPlotting
 
 outer_padding = 30
@@ -225,7 +225,7 @@ end
 
 Now while the EMG data is streaming we need to acquire it and update the y-axis Nodes. Remember that Makie will refresh the plot for us if we do that right. So you need something like this:
 
-```
+```julia
 while(true)
     sleep(delay) # wait a small moment (use a time interval below your desired frame rate)
 
@@ -247,19 +247,17 @@ Ok, one last thing.
 
 This animated plot will block your REPL, because it uses the same thread. You can kill it with `ctrl+c`, but if you want some easy parallel processing you can use [Julia tasks](https://docs.julialang.org/en/v1/base/parallel/). Again this is trivial, just create a task using the macro and schedule it:
 
-```
+```julia
 t = @task BrainFlowViz.plot_data(...)
 sleep(0.5) # sometimes I have to give it a little time
 schedule(t)
 ```
 
 You can stop the task by scheduling an InterruptException, which is similar to what happens when you hit ctrl+c:
-``` 
+```julia 
 schedule(t, InterruptException(), error=true)
 ```
 
 ## Conclusion
 
-I showed you how I visualized the streaming data from the gForce Pro armband. For me it was a very smooth experience and I hope you learned just how easy it is nowadays to get started with your bio-sensor data. Please reach out if you do things with BrainFlow! You can also join our [BrainFlow Slack channel](https://c6ber255cc.execute-api.eu-west-1.amazonaws.com/Express/) if you have further questions or suggestions.
-
-
+I showed you how I visualized the streaming data from the gForcePro armband. For me it was a very smooth experience and I hope you learned just how easy it is nowadays to get started with your bio-sensor data. Please reach out if you do things with BrainFlow! You can also join our [BrainFlow Slack channel](https://c6ber255cc.execute-api.eu-west-1.amazonaws.com/Express/) if you have further questions or suggestions.
