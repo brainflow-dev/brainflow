@@ -3,6 +3,7 @@
 using SHA
 using Pkg
 using Pkg.Artifacts
+Pkg.add("Tar")
 using Tar
 
 function sha256sum(tarball_path)
