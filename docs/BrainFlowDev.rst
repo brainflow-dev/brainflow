@@ -20,7 +20,8 @@ Unfortunately clang-format cannot handle naming, so some additional rules are:
 - class names should be in camel case
 - use brackets even for single line if and for statements
 
-We try to keep the same code style for all bindings as well, even if it doesn't match PEP or other standards. For example we add spaces before and after assignment operator to specify default value for method's params and add spaces before brackets.
+For C# we use the same code style as for C++, for java there is a formatter file to take care of code style.
+
 
 CI and tests
 --------------

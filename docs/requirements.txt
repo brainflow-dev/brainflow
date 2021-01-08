@@ -10,3 +10,4 @@ nbsphinx
 pandoc
 sphinxcontrib-ghcontributors
 Pygments==2.6.1
+sphinxcontrib-matlabdomain==0.11.4

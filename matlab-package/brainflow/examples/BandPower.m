@@ -19,4 +19,4 @@ detrended = DataFilter.detrend(original_data, int32(DetrendOperations.LINEAR));
 [ampls, freqs] = DataFilter.get_psd_welch(detrended, nfft, nfft / 2, sampling_rate, int32(WindowFunctions.HANNING));
 band_power_alpha = DataFilter.get_band_power(ampls, freqs, 7.0, 13.0);
 band_power_beta = DataFilter.get_band_power(ampls, freqs, 14.0, 30.0);
-ratio = band_power_alpha / band_power_beta
+ratio = band_power_alpha / band_power_beta;
