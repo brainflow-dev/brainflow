@@ -8,12 +8,21 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Setup Cmake
+      uses: jwlawson/actions-setup-cmake@v1.4
+      with:
+        cmake-version: '3.16.x'
+    # need newer version than available from apt-get
     - name: Install CppCheck
       run: |
-        sudo -H apt-get update -y
-        sudo -H apt-get install cppcheck
-      env:
-        DEBIAN_FRONTEND: noninteractive
+        git clone https://github.com/danmar/cppcheck
+        cd cppcheck
+        git checkout 2.3
+        mkdir build
+        cd build
+        cmake ..
+        make -j
+        sudo -H make install
     - name: Run Cppcheck
       run: cppcheck --std=c++11 --error-exitcode=1 --xml --xml-version=2 --force src cpp-package third_party 2>cppcheck_res.xml
     - name: Generate Report
