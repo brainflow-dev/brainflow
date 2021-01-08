@@ -28,6 +28,8 @@ CI and tests
 
 If you want to commit to the core module of BrainFlow project please check that all tests are passed, you should check CI status in your PR and fix all errors if any. Also, you are able to run failed tests locally using BrainFlow emulator.
 
+In CI warnings as errors option is enabled for C++ code and you need to fix all of them. Also, we have `CppCheck <http://cppcheck.sourceforge.net/>`_ static analysis tool. If you see that such check failed you need to download artifact from `CppCheck Github Acttion <https://github.com/brainflow-dev/brainflow/actions?query=workflow%3ACppCheck>`_, open generated html report and fix errors. 
+
 Pull Requests
 --------------
 

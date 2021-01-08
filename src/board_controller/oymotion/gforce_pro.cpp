@@ -221,14 +221,15 @@ void GforcePro::read_thread ()
 {
     int sleep_time = 2;
 
-    double *package = new double[num_channels];
-
     int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("gforceGetData");
     if (func == NULL)
     {
         safe_logger (spdlog::level::err, "failed to get function address for gforceGetData");
         return;
     }
+
+    double *package = new double[num_channels];
+
     while (keep_alive)
     {
         for (int i = 0; i < num_channels; i++)

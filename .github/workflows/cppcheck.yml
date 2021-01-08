@@ -16,8 +16,10 @@ jobs:
         DEBIAN_FRONTEND: noninteractive
     - name: Run Cppcheck
       run: |
-        cppcheck --enable=warning,performance,portability --xml --xml-version=2 --force src cpp-package third_party 2>cppcheck_res.xml
+        cppcheck --std=c++11 --error-exitcode=1 --xml --xml-version=2 --force src cpp-package third_party 2>cppcheck_res.xml
+        exit_code=$?
         cppcheck-htmlreport --title=BrainFlow --file=cppcheck_res.xml --report-dir=report
+        exit $exit_code
     - name: Upload Report
       uses: actions/upload-artifact@v1
       with:

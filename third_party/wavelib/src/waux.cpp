@@ -309,6 +309,7 @@ void getDWTRecCoeff (double *coeff, int *length, const char *ctype, const char *
     }
     else
     {
+        free (out);
         throw std::runtime_error ("wrong signal extension");
     }
 
