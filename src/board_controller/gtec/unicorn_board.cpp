@@ -254,7 +254,7 @@ int UnicornBoard::call_open ()
     }
 
     // search for device
-    int device_num = 0;
+    unsigned int device_num = 0;
     if (params.serial_number.empty ())
     {
         safe_logger (spdlog::level::warn,

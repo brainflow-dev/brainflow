@@ -41,7 +41,7 @@ int IronBCI::send_to_board (const char *msg)
     {
         return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     }
-    int lenght = strlen (msg);
+    int lenght = (int)strlen (msg);
     safe_logger (spdlog::level::debug, "Sending {} to the board", msg);
     int res = serial->send_to_serial_port ((const void *)msg, lenght);
     if (res != lenght)

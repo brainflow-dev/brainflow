@@ -239,7 +239,7 @@ int BoardShim::get_board_id ()
         {
             master_board_id = std::stoi (params.other_info);
         }
-        catch (const std::exception &e)
+        catch (...)
         {
             throw BrainFlowException ("specify master board id using params.other_info",
                 (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
@@ -327,7 +327,7 @@ std::string *BoardShim::get_eeg_names (int board_id, int *len)
 
     std::string *result = new std::string[out.size ()];
     std::copy (out.begin (), out.end (), result);
-    *len = out.size ();
+    *len = (int)out.size ();
 
     return result;
 }

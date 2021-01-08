@@ -314,10 +314,10 @@ void Ganglion::read_thread ()
                 last_data[3] = last_data[7];
 
                 // add new packet
-                last_data[4] = cast_24bit_to_int32 (data.data + 1);
-                last_data[5] = cast_24bit_to_int32 (data.data + 4);
-                last_data[6] = cast_24bit_to_int32 (data.data + 7);
-                last_data[7] = cast_24bit_to_int32 (data.data + 10);
+                last_data[4] = (float)cast_24bit_to_int32 (data.data + 1);
+                last_data[5] = (float)cast_24bit_to_int32 (data.data + 4);
+                last_data[6] = (float)cast_24bit_to_int32 (data.data + 7);
+                last_data[7] = (float)cast_24bit_to_int32 (data.data + 10);
 
                 // scale new packet and insert into result
                 package[0] = 0.;
@@ -426,11 +426,11 @@ void Ganglion::read_thread ()
             {
                 if (bits_per_num == 18)
                 {
-                    delta[counter] = cast_ganglion_bits_to_int32<18> (package_bits + i);
+                    delta[counter] = (float)cast_ganglion_bits_to_int32<18> (package_bits + i);
                 }
                 else
                 {
-                    delta[counter] = cast_ganglion_bits_to_int32<19> (package_bits + i);
+                    delta[counter] = (float)cast_ganglion_bits_to_int32<19> (package_bits + i);
                 }
             }
 

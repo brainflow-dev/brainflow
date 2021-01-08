@@ -14,7 +14,7 @@ class Fascia : public Board
 {
 
 private:
-    const float accel_scale = 0.002 / (pow (2, 4));
+    const double accel_scale = 0.002 / (pow (2, 4));
 
     volatile bool keep_alive;
     bool initialized;

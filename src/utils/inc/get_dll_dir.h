@@ -33,7 +33,9 @@ inline bool get_dll_path (char *res)
 }
 
 #else
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 #include <dlfcn.h>
 #include <string.h>
 #include <string>

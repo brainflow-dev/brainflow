@@ -61,7 +61,7 @@ int OpenBCISerialBoard::config_board (std::string config, std::string &response)
 
 int OpenBCISerialBoard::send_to_board (const char *msg)
 {
-    int lenght = strlen (msg);
+    int lenght = (int)strlen (msg);
     safe_logger (spdlog::level::debug, "sending {} to the board", msg);
     int res = serial->send_to_serial_port ((const void *)msg, lenght);
     if (res != lenght)

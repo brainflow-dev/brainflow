@@ -115,7 +115,7 @@ int SocketServerTCP::recv (void *data, int size)
     // and we were not sure that it works correctly with timeout
     if (recv_all_or_nothing)
     {
-        if (temp_buffer.size () < size)
+        if ((int)temp_buffer.size () < size)
         {
             return 0;
         }

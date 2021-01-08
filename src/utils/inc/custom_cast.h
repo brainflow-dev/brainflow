@@ -3,6 +3,8 @@
 #include <bitset>
 #include <stdint.h>
 
+#pragma warning(disable : 4146)
+
 // copypasted from OpenBCI_JavaScript_Utilities
 inline int32_t cast_24bit_to_int32 (unsigned char *byte_array)
 {

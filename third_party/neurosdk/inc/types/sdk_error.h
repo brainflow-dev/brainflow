@@ -11,9 +11,15 @@ extern "C"
 
     typedef int ret_code;
 
+#ifndef SDK_NO_ERROR
 #define SDK_NO_ERROR 0
+#endif
+#ifndef ERROR_UNHANDLED_EXCEPTION
 #define ERROR_UNHANDLED_EXCEPTION 1
+#endif
+#ifndef ERROR_EXCEPTION_WITH_MESSAGE
 #define ERROR_EXCEPTION_WITH_MESSAGE 2
+#endif
 
 #ifdef __cplusplus
 }

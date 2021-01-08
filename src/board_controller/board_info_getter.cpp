@@ -181,7 +181,7 @@ inline int get_array_value (
         {
             memcpy (output_array, &values[0], sizeof (int) * values.size ());
         }
-        *len = values.size ();
+        *len = (int)values.size ();
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
     catch (json::exception &e)
@@ -201,7 +201,7 @@ inline int get_string_value (
     {
         std::string val = brainflow_boards_json["boards"][int_to_string (board_id)][param_name];
         strcpy (string, val.c_str ());
-        *len = strlen (val.c_str ());
+        *len = (int)strlen (val.c_str ());
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
     catch (json::exception &e)

@@ -93,7 +93,7 @@ int Galea::config_board (std::string conf, std::string &response)
     }
     const char *config = conf.c_str ();
     safe_logger (spdlog::level::debug, "Trying to config Galea with {}", config);
-    int len = strlen (config);
+    int len = (int)strlen (config);
     int res = socket->send (config, len);
     if (len != res)
     {

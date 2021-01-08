@@ -319,7 +319,7 @@ int config_board (char *config, char *response, int *response_len, int board_id,
     res = board_it->second->config_board (conf, resp);
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        *response_len = resp.length ();
+        *response_len = (int)resp.length ();
         strcpy (response, resp.c_str ());
     }
     return res;
