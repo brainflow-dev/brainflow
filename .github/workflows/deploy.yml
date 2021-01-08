@@ -197,7 +197,7 @@ jobs:
         (gc .\Artifacts.toml) -replace '[0-9]+.[0-9]+.[0-9]+', $env:VERSION | Out-File -encoding ASCII Artifacts.toml
         (gc .\Project.toml) -replace 'version = "[0-9]+.[0-9]+.[0-9]+"', "version = `"$env:VERSION`"" | Out-File -encoding ASCII Project.toml
         julia generate_brainflow_artifact.jl
-        git diff > $env:GITHUB_WORKSPACE\julia.patch
+        git diff $env:GITHUB_WORKSPACE\julia-package > $env:GITHUB_WORKSPACE\julia.patch
       env:
         VERSION: ${{ github.event.inputs.version }}
     - name: Upload Julia Diff
