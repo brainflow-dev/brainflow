@@ -103,9 +103,9 @@ BrainFlow is a registered package in the Julia general registry, so it can be in
         import Pkg
         Pkg.add("BrainFlow")
         
-When using BrainFlow for the first time in Julia, the BrainFlow artifact containing the compiled BrainFlow libraries will be downloaded.
+When using BrainFlow for the first time in Julia, the BrainFlow artifact containing the compiled BrainFlow libraries will be downloaded from release page automatically.
 
-BrainFlow developers or expert users may also place compiled libraries into /lib inside the julia package root folder. These will take precedence over the artifact.
+If you compile BrainFlow from source local libraries will take precedence over the artifact.
 
 Docker Image
 --------------
