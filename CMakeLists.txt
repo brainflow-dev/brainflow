@@ -62,7 +62,7 @@ if (WARNINGS_AS_ERRORS)
     if (MSVC)
         add_compile_options(/WX)
     else()
-        add_compile_options(-Werror)
+        add_compile_options(-Werror -Wno-varargs)
     endif()
 endif (WARNINGS_AS_ERRORS)
 
