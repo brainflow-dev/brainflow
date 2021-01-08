@@ -209,7 +209,7 @@ jobs:
       if: github.event.inputs.publish == 'true'
       uses: EndBug/add-and-commit@v6
       with:
-        add: '-u'
+        add: '-u julia-package'
         author_name: Andrey1994
         author_email: a1994ndrey@gmail.com
         message: 'Bump Julia Version'
