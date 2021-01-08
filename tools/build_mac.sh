@@ -6,7 +6,7 @@ fi
 mkdir build_mac
 cd build_mac
 
-cmake -DWARNINGS_AS_ERRORS=ON -DCMAKE_INSTALL_PREFIX=../installed_mac -DCMAKE_BUILD_TYPE=Release ..
+cmake -DCMAKE_INSTALL_PREFIX=../installed_mac -DCMAKE_BUILD_TYPE=Release ..
 nice -n 10 make -j
 make install
 cd ..
