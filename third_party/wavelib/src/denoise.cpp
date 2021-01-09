@@ -107,6 +107,8 @@ void visushrink (double *signal, int N, int J, const char *wname, const char *me
     }
     else
     {
+        free (dout);
+        free (lnoise);
         throw std::runtime_error ("acceptable noise extimation values are first and all");
     }
 
@@ -243,6 +245,10 @@ void sureshrink (double *signal, int N, int J, const char *wname, const char *me
     }
     else
     {
+        free (dout);
+        free (risk);
+        free (dsum);
+        free (lnoise);
         throw std::runtime_error ("wrong noise estimation level value");
     }
 

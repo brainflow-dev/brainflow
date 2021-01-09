@@ -304,9 +304,7 @@ int perform_downsampling (
 {
     if ((data == NULL) || (data_len <= 0) || (period <= 0) || (output_data == NULL))
     {
-        data_logger->error ("Period must be >= 0 and data/output_data cannot be empty. Data:{} , "
-                            "Period:{}, Output_data:{}",
-            *data, period, *output_data);
+        data_logger->error ("Period must be >= 0 and data and output_data cannot be NULL.");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     double (*downsampling_op) (double *, int);
@@ -494,9 +492,7 @@ int get_window (int window_function, int window_len, double *output_window)
     if ((window_len <= 0) || (window_function < 0) || (output_window == NULL))
     {
         data_logger->error ("Please check the arguments: data_len must be > 0, window_function >= "
-                            "0 and output_window cannot be empty. "
-                            "window_function:{}, data_len:{}, output_data:{}",
-            window_function, window_len, *output_window);
+                            "0 and output_window cannot be empty.");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     // from https://www.edn.com/windowing-functions-improve-fft-results-part-i/
@@ -968,12 +964,12 @@ int get_psd_welch (double *data, int data_len, int nfft, int overlap, int sampli
             output_ampl[i] += ampls[i];
         }
     }
+    delete[] ampls;
     if (counter == 0)
     {
         data_logger->error ("Nfft must be less than data_len.");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
-    delete[] ampls;
     // average data
     for (int i = 0; i < nfft / 2; i++)
     {
@@ -1011,6 +1007,7 @@ int get_avg_band_powers (double *raw_data, int rows, int cols, int sampling_rate
     if (nfft < 8)
     {
         data_logger->error ("Not enough data for calculation.");
+        delete[] exit_codes;
         return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
     double **bands = new double *[5];

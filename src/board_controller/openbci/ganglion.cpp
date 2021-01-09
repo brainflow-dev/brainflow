@@ -265,14 +265,14 @@ void Ganglion::read_thread ()
     double resist_third = 0.0;
     double resist_fourth = 0.0;
 
-    double *package = new double[num_channels];
-
     int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("get_data");
     if (func == NULL)
     {
         safe_logger (spdlog::level::err, "failed to get function address for get_data");
         return;
     }
+
+    double *package = new double[num_channels];
 
     while (keep_alive)
     {
