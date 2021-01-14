@@ -8,6 +8,8 @@ from brainflow.data_filter import DataFilter, FilterTypes, AggOperations
 
 
 def main():
+    BoardShim.enable_board_logger()
+
     parser = argparse.ArgumentParser()
     # use docs to check which parameters are required for specific board, e.g. for Cyton - set serial port
     parser.add_argument('--timeout', type=int, help='timeout for device discovery or connection', required=False,
@@ -24,7 +26,6 @@ def main():
     parser.add_argument('--board-id', type=int, help='board id, check docs to get a list of supported boards',
                         required=True)
     parser.add_argument('--file', type=str, help='file', required=False, default='')
-    parser.add_argument('--log', action='store_true')
     args = parser.parse_args()
 
     params = BrainFlowInputParams()
@@ -37,11 +38,6 @@ def main():
     params.ip_protocol = args.ip_protocol
     params.timeout = args.timeout
     params.file = args.file
-
-    if (args.log):
-        BoardShim.enable_dev_board_logger()
-    else:
-        BoardShim.disable_board_logger()
 
     board = BoardShim(args.board_id, params)
     board.prepare_session()
