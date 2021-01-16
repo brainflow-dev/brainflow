@@ -151,9 +151,6 @@ jobs:
     - name: Cyton Daisy Windows C# Test
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 2 --serial-port
       shell: cmd
-    - name: Galea Windows Python Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\galea_udp.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id 3 --ip-address 127.0.0.1 --log
-      shell: cmd
     - name: Galea Windows Cpp Test
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\galea_udp.py %GITHUB_WORKSPACE%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 3 --ip-address 127.0.0.1
       shell: cmd
