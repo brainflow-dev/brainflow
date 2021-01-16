@@ -17,6 +17,8 @@
 
 #include "DspFilters/Dsp.h"
 
+#include "Eigen/Dense"
+
 #include "wauxlib.h"
 #include "wavelib.h"
 
@@ -483,6 +485,69 @@ int perform_wavelet_denoising (double *data, int data_len, char *wavelet, int de
         // transform
         data_logger->error ("Input buffer size issue(likely too small.");
         return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
+    }
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int get_csp (double ***data1, double ***data2, int *labels, int n_epochs, int n_channels,
+    int n_times, double **output_w, double *output_d)
+{
+    if ((!data1) || (!data2) || (!labels) || n_epochs <= 0 || n_channels <= 0, n_times <= 0)
+    {
+        data_logger->error ("Invalid function arguments provided. Please verify that all integer "
+                            "arguments are positive and data1/data2 and labels aren't empty.");
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+    try
+    {
+        Eigen::MatrixXd s1 = Eigen::MatrixXd::Zero (n_channels, n_channels);
+        Eigen::MatrixXd s2 = Eigen::MatrixXd::Zero (n_channels, n_channels);
+        int n_class1 = 0;
+        int n_class2 = 0;
+        for (int e = 0; e < n_epochs; e++)
+        {
+            Eigen::MatrixXd X (n_channels, n_times);
+            for (int c = 0; c < n_channels; c++)
+            {
+                for (int t = 0; t < n_times; t++)
+                {
+                    X (c, t) = labels[e] ? data1[e][c][t] : data2[e][c][t];
+                }
+            }
+            switch (labels[e])
+            {
+                case 0:
+                    s1.noalias () += X * X.transpose ();
+                    n_class1++;
+                    break;
+                case 1:
+                    s2.noalias () += X * X.transpose ();
+                    n_class2++;
+                    break;
+                default:
+                    data_logger->error ("Invalid class label. Label:{}", labels[e]);
+                    return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+                    break;
+            }
+        }
+        s1 /= n_class1;
+        s2 /= n_class2;
+
+        Eigen::GeneralizedSelfAdjointEigenSolver<Eigen::MatrixXd> ges (s1, s1 + s2);
+
+        for (int i = 0; i < n_channels; i++)
+        {
+            output_d[i] = ges.eigenvalues () (i);
+            for (int j = 0; j < n_channels; j++)
+            {
+                output_w[i][j] = ges.eigenvectors () (i, j);
+            }
+        }
+    }
+    catch (...)
+    {
+        data_logger->error ("Error with doing CSP filtering.");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
