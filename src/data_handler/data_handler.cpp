@@ -500,8 +500,8 @@ int get_csp (double ***data1, double ***data2, int *labels, int n_epochs, int n_
     }
     try
     {
-        Eigen::MatrixXd s1 = Eigen::MatrixXd::Zero (n_channels, n_channels);
-        Eigen::MatrixXd s2 = Eigen::MatrixXd::Zero (n_channels, n_channels);
+        Eigen::MatrixXd sum1 (n_channels, n_channels);
+        Eigen::MatrixXd sum2 (n_channels, n_channels);
         int n_class1 = 0;
         int n_class2 = 0;
         for (int e = 0; e < n_epochs; e++)
@@ -517,23 +517,23 @@ int get_csp (double ***data1, double ***data2, int *labels, int n_epochs, int n_
             switch (labels[e])
             {
                 case 0:
-                    s1.noalias () += X * X.transpose ();
+                    sum1.noalias () += X * X.transpose ();
                     n_class1++;
                     break;
                 case 1:
-                    s2.noalias () += X * X.transpose ();
+                    sum2.noalias () += X * X.transpose ();
                     n_class2++;
                     break;
                 default:
-                    data_logger->error ("Invalid class label. Label:{}", labels[e]);
+                    data_logger->error ("Invalid class label. Label: {}", labels[e]);
                     return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
                     break;
             }
         }
-        s1 /= n_class1;
-        s2 /= n_class2;
+        sum1 /= n_class1;
+        sum2 /= n_class2;
 
-        Eigen::GeneralizedSelfAdjointEigenSolver<Eigen::MatrixXd> ges (s1, s1 + s2);
+        Eigen::GeneralizedSelfAdjointEigenSolver<Eigen::MatrixXd> ges (sum1, sum1 + sum2);
 
         for (int i = 0; i < n_channels; i++)
         {
