@@ -18,9 +18,6 @@
 #if defined _WIN32 || defined __APPLE__
 
 
-constexpr int Callibri::package_size;
-
-
 Callibri::Callibri (int board_id, struct BrainFlowInputParams params)
     : NeuromdBoard (board_id, params)
 {
@@ -150,35 +147,10 @@ int Callibri::start_stream (int buffer_size, char *streamer_params)
         safe_logger (spdlog::level::err, "Streaming thread already running");
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
-    if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
-    {
-        safe_logger (spdlog::level::err, "invalid array size");
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
-    }
-
-    if (db)
-    {
-        delete db;
-        db = NULL;
-    }
-    if (streamer)
-    {
-        delete streamer;
-        streamer = NULL;
-    }
-
-    int res = prepare_streamer (streamer_params);
+    int res = prepare_buffers (buffer_size, streamer_params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
-    }
-    db = new DataBuffer (Callibri::package_size, buffer_size);
-    if (!db->is_ready ())
-    {
-        safe_logger (spdlog::level::err, "unable to prepare buffer");
-        delete db;
-        db = NULL;
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     std::string command_start = "CommandStartSignal";
@@ -236,7 +208,14 @@ int Callibri::release_session ()
 
 void Callibri::read_thread ()
 {
-    double package[Callibri::package_size] = {0.0};
+    int package_size = 0;
+    get_num_rows (board_id, &package_size);
+    double *package = new double[package_size];
+    for (int i = 0; i < package_size; i++)
+    {
+        package[i] = 0.0;
+    }
+
     long long counter = 0;
     while (keep_alive)
     {
@@ -267,8 +246,8 @@ void Callibri::read_thread ()
 
         package[0] = (double)counter;
         package[1] = data * 1e6;
-        db->add_data (timestamp, package);
-        streamer->stream_data (package, Callibri::package_size, timestamp);
+        package[2] = get_timestamp ();
+        push_package (package);
     }
 }
 

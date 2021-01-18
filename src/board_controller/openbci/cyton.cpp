@@ -28,6 +28,14 @@ void Cyton::read_thread ()
     int res;
     unsigned char b[32];
     double accel[3] = {0.};
+    int num_channels = 0;
+    get_num_rows (board_id, &num_channels);
+    double *package = new double[num_channels];
+    for (int i = 0; i < num_channels; i++)
+    {
+        package[i] = 0.0;
+    }
+
     while (keep_alive)
     {
         // check start byte
@@ -61,7 +69,6 @@ void Cyton::read_thread ()
             continue;
         }
 
-        double package[22] = {0.};
         // package num
         package[0] = (double)b[0];
         // eeg
@@ -106,8 +113,10 @@ void Cyton::read_thread ()
             package[21] = cast_16bit_to_int32 (b + 29);
         }
 
-        double timestamp = get_timestamp ();
-        db->add_data (timestamp, package);
-        streamer->stream_data (package, 22, timestamp);
+        // timestamp
+        package[22] = get_timestamp ();
+
+        push_package (package);
     }
+    delete[] package;
 }

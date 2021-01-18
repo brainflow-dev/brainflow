@@ -43,6 +43,14 @@ void CytonWifi::read_thread ()
     int res;
     unsigned char b[OpenBCIWifiShieldBoard::package_size];
     double accel[3] = {0.};
+    int num_channels = 0;
+    get_num_rows (board_id, &num_channels);
+    double *package = new double[num_channels];
+    for (int i = 0; i < num_channels; i++)
+    {
+        package[i] = 0.0;
+    }
+
     while (keep_alive)
     {
         // check start byte
@@ -74,7 +82,6 @@ void CytonWifi::read_thread ()
             continue;
         }
 
-        double package[22] = {0.};
         // package num
         package[0] = (double)bytes[0];
         // eeg
@@ -117,8 +124,8 @@ void CytonWifi::read_thread ()
             package[21] = cast_16bit_to_int32 (bytes + 29);
         }
 
-        double timestamp = get_timestamp ();
-        db->add_data (timestamp, package);
-        streamer->stream_data (package, 22, timestamp);
+        package[22] = get_timestamp ();
+        push_package (package);
     }
+    delete[] package;
 }

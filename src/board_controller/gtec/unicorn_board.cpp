@@ -96,35 +96,11 @@ int UnicornBoard::start_stream (int buffer_size, char *streamer_params)
         safe_logger (spdlog::level::err, "Streaming thread already running");
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
-    if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
-    {
-        safe_logger (spdlog::level::err, "Invalid array size");
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
-    }
 
-    if (db)
-    {
-        delete db;
-        db = NULL;
-    }
-    if (streamer)
-    {
-        delete streamer;
-        streamer = NULL;
-    }
-    int res = prepare_streamer (streamer_params);
+    int res = prepare_buffers (buffer_size, streamer_params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
-    }
-
-    db = new DataBuffer (UnicornBoard::package_size, buffer_size);
-    if (!db->is_ready ())
-    {
-        Board::board_logger->error ("Unable to prepare buffer with size {}", buffer_size);
-        delete db;
-        db = NULL;
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     res = call_start ();
@@ -146,6 +122,11 @@ int UnicornBoard::stop_stream ()
         keep_alive = false;
         is_streaming = false;
         streaming_thread.join ();
+        if (streamer)
+        {
+            delete streamer;
+            streamer = NULL;
+        }
         return call_stop ();
     }
     else
@@ -174,7 +155,13 @@ int UnicornBoard::release_session ()
 
 void UnicornBoard::read_thread ()
 {
-    double package[UnicornBoard::package_size];
+    int package_size = 0;
+    get_num_rows (board_id, &package_size);
+    double *package = new double[package_size];
+    for (int i = 0; i < package_size; i++)
+    {
+        package[i] = 0.0;
+    }
     float temp_buffer[UnicornBoard::package_size];
 
     while (keep_alive)
@@ -206,10 +193,10 @@ void UnicornBoard::read_thread ()
         package[15] = (double)temp_buffer[UNICORN_COUNTER_CONFIG_INDEX];
         // validation config index? place it to other channels
         package[16] = (double)temp_buffer[UNICORN_VALIDATION_CONFIG_INDEX];
-
-        db->add_data (timestamp, package);
-        streamer->stream_data (package, UnicornBoard::package_size, timestamp);
+        package[17] = get_timestamp ();
+        push_package (package);
     }
+    delete[] package;
 }
 
 int UnicornBoard::config_board (std::string config, std::string &response)

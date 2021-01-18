@@ -12,7 +12,6 @@
 constexpr int Fascia::transaction_size;
 constexpr int Fascia::num_packages;
 constexpr int Fascia::package_size;
-constexpr int Fascia::num_channels;
 
 Fascia::Fascia (struct BrainFlowInputParams params) : Board ((int)BoardIds::FASCIA_BOARD, params)
 {
@@ -72,35 +71,10 @@ int Fascia::start_stream (int buffer_size, char *streamer_params)
         safe_logger (spdlog::level::err, "Streaming thread already running");
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
-    if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
-    {
-        safe_logger (spdlog::level::err, "invalid array size");
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
-    }
-
-    if (db)
-    {
-        delete db;
-        db = NULL;
-    }
-    if (streamer)
-    {
-        delete streamer;
-        streamer = NULL;
-    }
-
-    int res = prepare_streamer (streamer_params);
+    int res = prepare_buffers (buffer_size, streamer_params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
-    }
-    db = new DataBuffer (Fascia::num_channels, buffer_size);
-    if (!db->is_ready ())
-    {
-        safe_logger (spdlog::level::err, "unable to prepare buffer");
-        delete db;
-        db = NULL;
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     // no command to start streaming, its on all the time, just create thread to read it
@@ -172,6 +146,14 @@ void Fascia::read_thread ()
 {
     int res;
     unsigned char b[Fascia::transaction_size];
+    int package_size = 0;
+    get_num_rows (board_id, &package_size);
+    double *package = new double[package_size];
+    for (int i = 0; i < package_size; i++)
+    {
+        package[i] = 0.0;
+    }
+
     while (keep_alive)
     {
         res = socket->recv (b, Fascia::transaction_size);
@@ -210,7 +192,6 @@ void Fascia::read_thread ()
         // start parsing
         for (int cur_package = 0; cur_package < Fascia::num_packages; cur_package++)
         {
-            double package[Fascia::num_channels] = {0.};
             int offset = cur_package * Fascia::package_size;
             // package num
             int32_t package_num = 0;
@@ -235,7 +216,6 @@ void Fascia::read_thread ()
             }
 
             int32_t eda, temperature, timestamp, ppg;
-            // I hope I didnt make a mistake in indexes
             memcpy (&eda, b + offset + 52, 4);
             memcpy (&temperature, b + offset + 56, 4);
             memcpy (&ppg, b + offset + 60, 4);
@@ -243,17 +223,10 @@ void Fascia::read_thread ()
             package[16] = (double)eda;
             package[17] = (double)temperature;
             package[18] = (double)ppg;
+            package[19] = get_timestamp ();
 
-            /*
-              in BrainFlow timestamp is required for all boards and it is in UNIX format
-              its not crucial but will be nice to convert to UNIX format for consistency with other
-              devices check novaxr or cyton(there are 2 different approaches for timestamps)
-              also in users code it will be possible to compare this timestamps with smth like
-              import time
-              time.time()
-            */
-            streamer->stream_data (package, Fascia::num_channels, (double)timestamp);
-            db->add_data ((double)timestamp, package);
+            push_package (package);
         }
     }
+    delete[] package;
 }

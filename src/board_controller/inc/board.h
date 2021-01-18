@@ -39,8 +39,8 @@ public:
     Board (int board_id, struct BrainFlowInputParams params)
     {
         skip_logs = false;
-        db = NULL;       // should be initialized in start_stream
-        streamer = NULL; // should be initialized in start_stream
+        db = NULL;
+        streamer = NULL;
         this->board_id = board_id;
         this->params = params;
     }
@@ -53,7 +53,6 @@ public:
     int get_current_board_data (int num_samples, double *data_buf, int *returned_samples);
     int get_board_data_count (int *result);
     int get_board_data (int data_count, double *data_buf);
-    int prepare_streamer (char *streamer_params);
 
     // Board::board_logger should not be called from destructors, to ensure that there are safe log
     // methods Board::board_logger still available but should be used only outside destructors
@@ -89,8 +88,11 @@ protected:
     struct BrainFlowInputParams params;
     Streamer *streamer;
 
+    int prepare_buffers (int buffer_size, char *streamer_params);
+    void push_package (double *package);
+
 private:
-    // reshapes data from DataBuffer format where all channels are mixed to linear buffer with
-    // sorted data
-    void reshape_data (int data_count, const double *buf, const double *ts_buf, double *output_buf);
+    int prepare_streamer (char *streamer_params);
+    // reshapes data from DataBuffer format where all channels are mixed to linear buffer
+    void reshape_data (int data_count, const double *buf, double *output_buf);
 };

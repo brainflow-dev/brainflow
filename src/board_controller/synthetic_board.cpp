@@ -19,9 +19,6 @@
 #endif
 
 
-constexpr int SyntheticBoard::package_size;
-
-
 SyntheticBoard::SyntheticBoard (struct BrainFlowInputParams params)
     : Board ((int)BoardIds::SYNTHETIC_BOARD, params)
 {
@@ -51,40 +48,16 @@ int SyntheticBoard::prepare_session ()
 
 int SyntheticBoard::start_stream (int buffer_size, char *streamer_params)
 {
-    safe_logger (spdlog::level::trace, "start stream");
     if (is_streaming)
     {
         safe_logger (spdlog::level::err, "Streaming thread already running");
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
-    if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
-    {
-        safe_logger (spdlog::level::err, "invalid array size");
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
-    }
 
-    if (streamer)
-    {
-        delete streamer;
-        streamer = NULL;
-    }
-    if (db)
-    {
-        delete db;
-        db = NULL;
-    }
-    int res = prepare_streamer (streamer_params);
+    int res = prepare_buffers (buffer_size, streamer_params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
-    }
-    db = new DataBuffer (SyntheticBoard::package_size, buffer_size);
-    if (!db->is_ready ())
-    {
-        safe_logger (spdlog::level::err, "unable to prepare buffer with size {}", buffer_size);
-        delete db;
-        db = NULL;
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     keep_alive = true;
@@ -137,7 +110,6 @@ void SyntheticBoard::read_thread ()
     constexpr int exg_channels = 16;
     constexpr int imu_channels = 6; // accel + gyro
     double sin_phase_rad[exg_channels] = {0.0};
-    double package[SyntheticBoard::package_size] = {0.0};
     int sampling_rate = 250;
     int initial_sleep_time = 1000 / sampling_rate;
     int sleep_time = initial_sleep_time;
@@ -146,6 +118,15 @@ void SyntheticBoard::read_thread ()
     uint64_t seed = std::chrono::high_resolution_clock::now ().time_since_epoch ().count ();
     std::mt19937 mt (static_cast<uint32_t> (seed));
     double accumulated_time_delta = 0.0;
+
+    int package_size = 0;
+    get_num_rows (board_id, &package_size);
+    double *package = new double[package_size];
+    for (int i = 0; i < package_size; i++)
+    {
+        package[i] = 0.0;
+    }
+
     while (keep_alive)
     {
         auto start = std::chrono::high_resolution_clock::now ();
@@ -183,12 +164,12 @@ void SyntheticBoard::read_thread ()
         package[28] = dist_around_one (mt) * 1000;
         // battery
         package[29] = (dist_around_one (mt) - 0.1) * 100;
+        // timestamp
+        package[30] = get_timestamp ();
 
-        double timestamp = get_timestamp ();
-        db->add_data (timestamp, package);
-        streamer->stream_data (package, SyntheticBoard::package_size, timestamp);
+        push_package (package); // use this method to submit data to buffers
+
         counter++;
-
         if (sleep_time > 0)
         {
 #ifdef _WIN32
@@ -206,6 +187,8 @@ void SyntheticBoard::read_thread ()
         accumulated_time_delta =
             accumulated_time_delta - 1000.0 * (int)(accumulated_time_delta / 1000.0);
     }
+
+    delete[] package;
 }
 
 int SyntheticBoard::config_board (std::string config, std::string &response)

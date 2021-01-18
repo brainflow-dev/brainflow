@@ -81,40 +81,10 @@ int StreamingBoard::start_stream (int buffer_size, char *streamer_params)
         safe_logger (spdlog::level::err, "Streaming thread already running");
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
-    if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
-    {
-        safe_logger (spdlog::level::err, "invalid array size");
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
-    }
-
-    if (db)
-    {
-        delete db;
-        db = NULL;
-    }
-    if (streamer)
-    {
-        delete streamer;
-        streamer = NULL;
-    }
-
-    int res = prepare_streamer (streamer_params);
+    int res = prepare_buffers (buffer_size, streamer_params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
-    }
-    int num_channels = 0;
-    res = get_num_rows (board_id, &num_channels);
-    if (res != (int)BrainFlowExitCodes::STATUS_OK)
-    {
-        safe_logger (spdlog::level::err, "failed to get num rows for {}", board_id);
-        return res;
-    }
-    db = new DataBuffer (num_channels - 1, buffer_size); // -1 due to timestamps
-    if (!db->is_ready ())
-    {
-        safe_logger (spdlog::level::err, "unable to prepare buffer");
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     keep_alive = true;
@@ -168,25 +138,17 @@ void StreamingBoard::read_thread ()
     get_num_rows (board_id, &num_channels);
     int bytes_per_recv = sizeof (double) * num_channels;
     double *package = new double[num_channels];
-    num_channels--;
-    int timestamp_channel = 0;
-    get_timestamp_channel (board_id, &timestamp_channel);
-    int res = 0;
 
     while (keep_alive)
     {
-        res = client->recv (package, bytes_per_recv);
+        int res = client->recv (package, bytes_per_recv);
         if (res != bytes_per_recv)
         {
             safe_logger (
                 spdlog::level::trace, "unable to read {} bytes, read {}", bytes_per_recv, res);
             continue;
         }
-
-        double timestamp = package[timestamp_channel];
-        streamer->stream_data (package, num_channels, timestamp);
-        db->add_data (timestamp,
-            package); // here package is bigger but add_data will not copy bytes for timestamp
+        push_package (package);
     }
     delete[] package;
 }

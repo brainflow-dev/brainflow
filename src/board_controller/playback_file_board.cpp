@@ -92,34 +92,11 @@ int PlaybackFileBoard::start_stream (int buffer_size, char *streamer_params)
         safe_logger (spdlog::level::err, "Streaming thread already running");
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
-    if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
-    {
-        safe_logger (spdlog::level::err, "invalid array size");
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
-    }
 
-    if (streamer)
-    {
-        delete streamer;
-        streamer = NULL;
-    }
-    if (db)
-    {
-        delete db;
-        db = NULL;
-    }
-    int res = prepare_streamer (streamer_params);
+    int res = prepare_buffers (buffer_size, streamer_params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
-    }
-    db = new DataBuffer (package_size - 1, buffer_size); // - 1 because of timestamp
-    if (!db->is_ready ())
-    {
-        safe_logger (spdlog::level::err, "unable to prepare buffer with size {}", buffer_size);
-        delete db;
-        db = NULL;
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     keep_alive = true;
@@ -192,6 +169,8 @@ void PlaybackFileBoard::read_thread ()
     char buf[4096];
     double last_timestamp = -1.0;
     bool new_timestamps = use_new_timestamps; // to prevent changing during streaming
+    int timestamp_channel = 0;
+    get_timestamp_channel (board_id, &timestamp_channel);
 
     while (keep_alive)
     {
@@ -241,23 +220,22 @@ void PlaybackFileBoard::read_thread ()
             }
             this->cv.notify_one ();
         }
-        double timestamp = get_timestamp ();
-        if (!new_timestamps)
-        {
-            timestamp = package[package_size - 1];
-        }
-        streamer->stream_data (package, package_size - 1, timestamp); // - 1 because of timestamp
-        db->add_data (timestamp, package);
         if (last_timestamp > 0)
         {
-            double time_wait = package[package_size - 1] - last_timestamp; // in seconds
+            double time_wait = package[timestamp_channel] - last_timestamp; // in seconds
 #ifdef _WIN32
             Sleep ((int)(time_wait * 1000 + 0.5));
 #else
             usleep ((int)(time_wait * 1000000 + 0.5));
 #endif
         }
-        last_timestamp = package[package_size - 1];
+        last_timestamp = package[timestamp_channel];
+
+        if (new_timestamps)
+        {
+            package[timestamp_channel] = get_timestamp ();
+        }
+        push_package (package);
     }
     fclose (fp);
     delete[] package;

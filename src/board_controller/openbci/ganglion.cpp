@@ -33,7 +33,6 @@ Ganglion::Ganglion (struct BrainFlowInputParams params)
     is_streaming = false;
     keep_alive = false;
     initialized = false;
-    num_channels = 13;
     state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
     start_command = "b";
     stop_command = "s";
@@ -142,35 +141,11 @@ int Ganglion::start_stream (int buffer_size, char *streamer_params)
         safe_logger (spdlog::level::err, "Streaming thread already running");
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
-    if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
-    {
-        safe_logger (spdlog::level::err, "invalid array size");
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
-    }
 
-    if (db)
-    {
-        delete db;
-        db = NULL;
-    }
-    if (streamer)
-    {
-        delete streamer;
-        streamer = NULL;
-    }
-
-    int res = prepare_streamer (streamer_params);
+    int res = prepare_buffers (buffer_size, streamer_params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
-    }
-    db = new DataBuffer (num_channels, buffer_size);
-    if (!db->is_ready ())
-    {
-        Board::board_logger->error ("unable to prepare buffer with size {}", buffer_size);
-        delete db;
-        db = NULL;
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     return start_streaming_prepared ();
@@ -272,6 +247,8 @@ void Ganglion::read_thread ()
         return;
     }
 
+    int num_channels = 0;
+    get_num_rows (board_id, &num_channels);
     double *package = new double[num_channels];
 
     while (keep_alive)
@@ -328,8 +305,8 @@ void Ganglion::read_thread ()
                 package[5] = accel_x;
                 package[6] = accel_y;
                 package[7] = accel_z;
-                streamer->stream_data (package, num_channels, data.timestamp);
-                db->add_data (data.timestamp, package);
+                package[13] = data.timestamp;
+                push_package (package);
                 continue;
             }
             // 18 bit compression, sends delta from previous value instead of real value!
@@ -409,8 +386,8 @@ void Ganglion::read_thread ()
                 package[10] = resist_third;
                 package[11] = resist_fourth;
                 package[12] = resist_ref;
-                streamer->stream_data (package, num_channels, data.timestamp);
-                db->add_data (data.timestamp, package);
+                package[13] = data.timestamp;
+                push_package (package);
                 continue;
             }
             else
@@ -455,15 +432,15 @@ void Ganglion::read_thread ()
             package[5] = accel_x;
             package[6] = accel_y;
             package[7] = accel_z;
-            streamer->stream_data (package, num_channels, data.timestamp);
-            db->add_data (data.timestamp, package);
+            package[13] = data.timestamp;
+            push_package (package);
             // add second package
             package[1] = eeg_scale * last_data[4];
             package[2] = eeg_scale * last_data[5];
             package[3] = eeg_scale * last_data[6];
             package[4] = eeg_scale * last_data[7];
-            streamer->stream_data (package, num_channels, data.timestamp);
-            db->add_data (data.timestamp, package);
+            package[13] = data.timestamp;
+            push_package (package);
         }
         else
         {

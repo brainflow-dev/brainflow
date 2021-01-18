@@ -18,8 +18,6 @@
 #if defined _WIN32 || defined __APPLE__
 
 
-constexpr int BrainBit::package_size;
-
 namespace BrainBitCallbacks
 {
     // convert plain C callbacks to class methods
@@ -283,35 +281,10 @@ int BrainBit::start_stream (int buffer_size, char *streamer_params)
         safe_logger (spdlog::level::err, "Streaming thread already running");
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
-    if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
-    {
-        safe_logger (spdlog::level::err, "invalid array size");
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
-    }
-
-    if (db)
-    {
-        delete db;
-        db = NULL;
-    }
-    if (streamer)
-    {
-        delete streamer;
-        streamer = NULL;
-    }
-
-    int res = prepare_streamer (streamer_params);
+    int res = prepare_buffers (buffer_size, streamer_params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
-    }
-    db = new DataBuffer (BrainBit::package_size, buffer_size);
-    if (!db->is_ready ())
-    {
-        safe_logger (spdlog::level::err, "unable to prepare buffer");
-        delete db;
-        db = NULL;
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     std::string command_start = "CommandStartSignal";
@@ -376,7 +349,13 @@ void BrainBit::read_thread ()
      * package[5-8] - resistance t3, t4, o1, o2. Place it to other_channels
      * package[9] - battery
      */
-    double package[BrainBit::package_size] = {0.0};
+    int package_size = 0;
+    get_num_rows (board_id, &package_size);
+    double *package = new double[package_size];
+    for (int i = 0; i < package_size; i++)
+    {
+        package[i] = 0.0;
+    }
     // I dont see method to flush data from buffer, so need to keep offset and track package num to
     // get only new data
     size_t counter = 0;
@@ -448,8 +427,8 @@ void BrainBit::read_thread ()
         package[7] = last_resistance_o1;
         package[8] = last_resistance_o2;
         package[9] = last_battery;
-        db->add_data (timestamp, package);
-        streamer->stream_data (package, BrainBit::package_size, timestamp);
+        package[10] = get_timestamp ();
+        push_package (package);
     }
 }
 

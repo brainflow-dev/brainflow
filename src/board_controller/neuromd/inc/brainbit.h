@@ -56,7 +56,5 @@ public:
     void on_resistance_received (
         Device *device, ChannelInfo channel_info, DoubleDataArray data_array);
 
-    static constexpr int package_size = 10;
-
 #endif
 };

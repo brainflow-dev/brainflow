@@ -47,35 +47,11 @@ int GanglionWifi::start_stream (int buffer_size, char *streamer_params)
         safe_logger (spdlog::level::err, "Streaming thread already running");
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
-    if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
-    {
-        safe_logger (spdlog::level::err, "invalid array size");
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
-    }
 
-    if (db)
-    {
-        delete db;
-        db = NULL;
-    }
-    if (streamer)
-    {
-        delete streamer;
-        streamer = NULL;
-    }
-
-    int res = prepare_streamer (streamer_params);
+    int res = prepare_buffers (buffer_size, streamer_params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
-    }
-    db = new DataBuffer (num_channels, buffer_size);
-    if (!db->is_ready ())
-    {
-        safe_logger (spdlog::level::err, "unable to prepare buffer");
-        delete db;
-        db = NULL;
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     // need to start impedance streaming
@@ -173,11 +149,14 @@ void GanglionWifi::read_thread ()
     */
     int res;
     unsigned char b[OpenBCIWifiShieldBoard::package_size];
+    int num_channels = 0;
+    get_num_rows (board_id, &num_channels);
     double *package = new double[num_channels];
     for (int i = 0; i < num_channels; i++)
     {
         package[i] = 0.0;
     }
+
     while (keep_alive)
     {
         // check start byte
@@ -240,9 +219,8 @@ void GanglionWifi::read_thread ()
             package[17] = cast_16bit_to_int32 (b + 30);
         }
 
-        double timestamp = get_timestamp ();
-        db->add_data (timestamp, package);
-        streamer->stream_data (package, num_channels, timestamp);
+        package[23] = get_timestamp ();
+        push_package (package);
     }
     delete[] package;
 }
@@ -251,11 +229,14 @@ void GanglionWifi::read_thread_impedance ()
 {
     int res;
     unsigned char b[OpenBCIWifiShieldBoard::package_size];
+    int num_channels = 0;
+    get_num_rows (board_id, &num_channels);
     double *package = new double[num_channels];
     for (int i = 0; i < num_channels; i++)
     {
         package[i] = 0.0;
     }
+
     while (keep_alive)
     {
         // check start byte
@@ -313,9 +294,8 @@ void GanglionWifi::read_thread_impedance ()
         }
         package[18 + channel_num - 1] = val;
 
-        double timestamp = get_timestamp ();
-        db->add_data (timestamp, package);
-        streamer->stream_data (package, num_channels, timestamp);
+        package[23] = get_timestamp ();
+        push_package (package);
     }
     delete[] package;
 }

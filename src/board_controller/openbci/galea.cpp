@@ -11,7 +11,6 @@
 #include <errno.h>
 #endif
 
-constexpr int Galea::num_channels;
 constexpr int Galea::package_size;
 constexpr int Galea::num_packages;
 constexpr int Galea::transaction_size;
@@ -169,39 +168,15 @@ int Galea::start_stream (int buffer_size, char *streamer_params)
         safe_logger (spdlog::level::err, "Streaming thread already running");
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
-    if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
-    {
-        safe_logger (spdlog::level::err, "invalid array size");
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
-    }
 
-    if (db)
-    {
-        delete db;
-        db = NULL;
-    }
-    if (streamer)
-    {
-        delete streamer;
-        streamer = NULL;
-    }
-
-    int res = prepare_streamer (streamer_params);
+    // calc delay before start stream
+    int res = calc_delay ();
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
-    db = new DataBuffer (Galea::num_channels, buffer_size);
-    if (!db->is_ready ())
-    {
-        safe_logger (spdlog::level::err, "unable to prepare buffer");
-        delete db;
-        db = NULL;
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
-    }
 
-    // calc delay before start stream
-    res = calc_delay ();
+    res = prepare_buffers (buffer_size, streamer_params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
@@ -327,6 +302,14 @@ void Galea::read_thread ()
     {
         b[i] = 0;
     }
+    int num_channels = 0;
+    get_num_rows (board_id, &num_channels);
+    double *package = new double[num_channels];
+    for (int i = 0; i < num_channels; i++)
+    {
+        package[i] = 0.0;
+    }
+
     while (keep_alive)
     {
         res = socket->recv (b, Galea::transaction_size);
@@ -369,7 +352,6 @@ void Galea::read_thread ()
 
         for (int cur_package = 0; cur_package < Galea::num_packages; cur_package++)
         {
-            double package[Galea::num_channels] = {0.};
             int offset = cur_package * package_size;
             // package num
             package[0] = (double)b[0 + offset];
@@ -415,11 +397,12 @@ void Galea::read_thread ()
 
             // workaround micros() overflow issue in firmware
             double timestamp = (time_delta < 0) ? recv_time : recv_time - time_delta;
+            package[22] = timestamp;
 
-            streamer->stream_data (package, Galea::num_channels, timestamp);
-            db->add_data (timestamp, package);
+            push_package (package);
         }
     }
+    delete[] package;
 }
 
 int Galea::calc_delay ()

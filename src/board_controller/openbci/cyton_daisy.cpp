@@ -28,9 +28,16 @@ void CytonDaisy::read_thread ()
     */
     int res;
     unsigned char b[32];
-    double package[30] = {0.};
     bool first_sample = true;
     double accel[3] = {0.};
+    int num_channels = 0;
+    get_num_rows (board_id, &num_channels);
+    double *package = new double[num_channels];
+    for (int i = 0; i < num_channels; i++)
+    {
+        package[i] = 0.0;
+    }
+
     while (keep_alive)
     {
         // check start byte
@@ -176,9 +183,9 @@ void CytonDaisy::read_thread ()
         // commit package
         if (!first_sample)
         {
-            double timestamp = get_timestamp ();
-            db->add_data (timestamp, package);
-            streamer->stream_data (package, 30, timestamp);
+            package[30] = get_timestamp ();
+            push_package (package);
         }
     }
+    delete[] package;
 }

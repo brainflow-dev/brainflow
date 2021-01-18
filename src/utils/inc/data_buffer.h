@@ -8,8 +8,6 @@ class DataBuffer
 {
 
     SpinLock lock;
-
-    double *timestamps;
     double *data;
 
     size_t buffer_size;
@@ -22,15 +20,15 @@ class DataBuffer
         return (index + 1) % buffer_size;
     }
 
-    void get_chunk (size_t start, size_t size, double *tsBuf, double *data_buf);
+    void get_chunk (size_t start, size_t size, double *data_buf);
 
 public:
     DataBuffer (int num_samples, size_t buffer_size);
     ~DataBuffer ();
 
-    void add_data (double timestamp, double *value);
-    size_t get_data (size_t max_count, double *ts_buf, double *data_buf);
-    size_t get_current_data (size_t max_count, double *ts_buf, double *data_buf);
+    void add_data (double *value);
+    size_t get_data (size_t max_count, double *data_buf);
+    size_t get_current_data (size_t max_count, double *data_buf);
     size_t get_data_count ();
     bool is_ready ();
 };

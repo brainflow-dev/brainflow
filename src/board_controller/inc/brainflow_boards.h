@@ -5,6 +5,18 @@
 using json = nlohmann::json;
 
 // clang-format off
+
+/* For all real boards there are four required fields:
+ *   name
+ *   num_rows
+ *   timestamp_channel
+ *   marker_channel
+ * Nice to set:
+ *   package_num
+ *   sampling_rate
+ * Everything else is optional and up to device
+*/
+
 json brainflow_boards_json = {
     {"boards", {
         {"-3",

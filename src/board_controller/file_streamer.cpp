@@ -4,7 +4,8 @@
 #include "file_streamer.h"
 
 
-FileStreamer::FileStreamer (const char *file, const char *file_mode) : Streamer ()
+FileStreamer::FileStreamer (const char *file, const char *file_mode, int data_len)
+    : Streamer (data_len)
 {
     strcpy (this->file, file);
     strcpy (this->file_mode, file_mode);
@@ -34,11 +35,10 @@ int FileStreamer::init_streamer ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-void FileStreamer::stream_data (double *data, int len, double timestamp)
+void FileStreamer::stream_data (double *data)
 {
     for (int i = 0; i < len; i++)
     {
         fprintf (fp, "%lf,", data[i]);
     }
-    fprintf (fp, "%lf\n", timestamp);
 }

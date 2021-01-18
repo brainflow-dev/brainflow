@@ -5,7 +5,6 @@
 #include "serial.h"
 #include "timestamp.h"
 
-constexpr int IronBCI::num_channels;
 constexpr int IronBCI::ads_gain;
 constexpr int IronBCI::start_byte;
 constexpr int IronBCI::stop_byte;
@@ -97,35 +96,10 @@ int IronBCI::start_stream (int buffer_size, char *streamer_params)
         safe_logger (spdlog::level::err, "Streaming thread already running");
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
-    if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
-    {
-        safe_logger (spdlog::level::err, "Invalid array size");
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
-    }
-
-    if (db)
-    {
-        delete db;
-        db = NULL;
-    }
-    if (streamer)
-    {
-        delete streamer;
-        streamer = NULL;
-    }
-
-    int res = prepare_streamer (streamer_params);
+    int res = prepare_buffers (buffer_size, streamer_params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
-    }
-    db = new DataBuffer (IronBCI::num_channels, buffer_size);
-    if (!db->is_ready ())
-    {
-        safe_logger (spdlog::level::err, "Unable to prepare buffer");
-        delete db;
-        db = NULL;
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     // start streaming
@@ -199,6 +173,14 @@ void IronBCI::read_thread ()
     int res;
     unsigned char b[26];
     float eeg_scale = 4.5 / float ((pow (2, 23) - 1)) / IronBCI::ads_gain * 1000000.;
+    int package_size = 0;
+    get_num_rows (board_id, &package_size);
+    double *package = new double[package_size];
+    for (int i = 0; i < package_size; i++)
+    {
+        package[i] = 0.0;
+    }
+
     while (keep_alive)
     {
         // check start byte
@@ -233,7 +215,6 @@ void IronBCI::read_thread ()
             continue;
         }
 
-        double package[IronBCI::num_channels] = {0.};
         // package num
         package[0] = (double)b[0];
         // eeg
@@ -242,8 +223,8 @@ void IronBCI::read_thread ()
             package[i + 1] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
         }
 
-        double timestamp = get_timestamp ();
-        db->add_data (timestamp, package);
-        streamer->stream_data (package, 22, timestamp);
+        package[9] = get_timestamp ();
+        push_package (package);
     }
+    delete[] package;
 }
