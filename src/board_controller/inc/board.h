@@ -3,7 +3,7 @@
 #include <string>
 
 #include "board_controller.h"
-#include "board_info_getter.h"
+#include "brainflow_boards.h"
 #include "brainflow_constants.h"
 #include "brainflow_input_params.h"
 #include "data_buffer.h"
@@ -24,18 +24,9 @@ public:
     {
         skip_logs = true; // also should be set in inherited class destructor because it will be
                           // called before
-        if (db != NULL)
-        {
-            delete db;
-            db = NULL;
-        }
-
-        if (streamer != NULL)
-        {
-            delete streamer;
-            streamer = NULL;
-        }
+        free_packages ();
     }
+
     Board (int board_id, struct BrainFlowInputParams params)
     {
         skip_logs = false;
@@ -87,8 +78,10 @@ protected:
     int board_id;
     struct BrainFlowInputParams params;
     Streamer *streamer;
+    json board_descr;
 
-    int prepare_buffers (int buffer_size, char *streamer_params);
+    int prepare_for_acquisition (int buffer_size, char *streamer_params);
+    void free_packages ();
     void push_package (double *package);
 
 private:

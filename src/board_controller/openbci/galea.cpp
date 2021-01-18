@@ -176,7 +176,7 @@ int Galea::start_stream (int buffer_size, char *streamer_params)
         return res;
     }
 
-    res = prepare_buffers (buffer_size, streamer_params);
+    res = prepare_for_acquisition (buffer_size, streamer_params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;

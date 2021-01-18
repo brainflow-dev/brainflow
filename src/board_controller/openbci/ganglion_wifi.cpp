@@ -48,7 +48,7 @@ int GanglionWifi::start_stream (int buffer_size, char *streamer_params)
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
 
-    int res = prepare_buffers (buffer_size, streamer_params);
+    int res = prepare_for_acquisition (buffer_size, streamer_params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;

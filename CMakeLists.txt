@@ -186,6 +186,7 @@ set (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/board_controller.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/board_info_getter.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/board.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/brainflow_boards.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/streaming_board.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/synthetic_board.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/playback_file_board.cpp

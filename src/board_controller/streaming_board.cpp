@@ -81,7 +81,7 @@ int StreamingBoard::start_stream (int buffer_size, char *streamer_params)
         safe_logger (spdlog::level::err, "Streaming thread already running");
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
-    int res = prepare_buffers (buffer_size, streamer_params);
+    int res = prepare_for_acquisition (buffer_size, streamer_params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
@@ -100,11 +100,6 @@ int StreamingBoard::stop_stream ()
         keep_alive = false;
         is_streaming = false;
         streaming_thread.join ();
-        if (streamer)
-        {
-            delete streamer;
-            streamer = NULL;
-        }
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
     else
@@ -121,6 +116,7 @@ int StreamingBoard::release_session ()
         {
             stop_stream ();
         }
+        free_packages ();
         initialized = false;
         if (client)
         {
@@ -134,10 +130,13 @@ int StreamingBoard::release_session ()
 void StreamingBoard::read_thread ()
 {
     // format for incomming package is determined by original board
-    int num_channels = 0;
-    get_num_rows (board_id, &num_channels);
-    int bytes_per_recv = sizeof (double) * num_channels;
-    double *package = new double[num_channels];
+    int num_rows = board_descr["num_rows"];
+    int bytes_per_recv = sizeof (double) * num_rows;
+    double *package = new double[num_rows];
+    for (int i = 0; i < num_rows; i++)
+    {
+        package[i] = 0.0;
+    }
 
     while (keep_alive)
     {

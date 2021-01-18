@@ -30,7 +30,6 @@ PlaybackFileBoard::PlaybackFileBoard (struct BrainFlowInputParams params)
     is_streaming = false;
     initialized = false;
     use_new_timestamps = true;
-    package_size = 0;
     this->state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
 }
 
@@ -73,13 +72,6 @@ int PlaybackFileBoard::prepare_session ()
     }
     fclose (fp);
 
-    // get package size for master board
-    int res = get_num_rows (board_id, &package_size);
-    if (res != (int)BrainFlowExitCodes::STATUS_OK)
-    {
-        return res;
-    }
-
     initialized = true;
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
@@ -93,7 +85,7 @@ int PlaybackFileBoard::start_stream (int buffer_size, char *streamer_params)
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
 
-    int res = prepare_buffers (buffer_size, streamer_params);
+    int res = prepare_for_acquisition (buffer_size, streamer_params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
@@ -127,11 +119,6 @@ int PlaybackFileBoard::stop_stream ()
         is_streaming = false;
         streaming_thread.join ();
         this->state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
-        if (streamer)
-        {
-            delete streamer;
-            streamer = NULL;
-        }
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
     else
@@ -145,12 +132,7 @@ int PlaybackFileBoard::release_session ()
     if (initialized)
     {
         stop_stream ();
-
-        if (db)
-        {
-            delete db;
-            db = NULL;
-        }
+        free_packages ();
         initialized = false;
     }
     return (int)BrainFlowExitCodes::STATUS_OK;
@@ -165,12 +147,16 @@ void PlaybackFileBoard::read_thread ()
         safe_logger (spdlog::level::err, "failed to open file in thread");
         return;
     }
-    double *package = new double[package_size];
+    int num_rows = board_descr["num_rows"];
+    double *package = new double[num_rows];
+    for (int i = 0; i < num_rows; i++)
+    {
+        package[i] = 0.0;
+    }
     char buf[4096];
     double last_timestamp = -1.0;
     bool new_timestamps = use_new_timestamps; // to prevent changing during streaming
-    int timestamp_channel = 0;
-    get_timestamp_channel (board_id, &timestamp_channel);
+    int timestamp_channel = board_descr["timestamp_channel"];
 
     while (keep_alive)
     {
@@ -200,14 +186,14 @@ void PlaybackFileBoard::read_thread ()
         {
             splitted.push_back (tmp);
         }
-        if (splitted.size () != package_size)
+        if (splitted.size () != num_rows)
         {
             safe_logger (spdlog::level::err,
                 "invalid string in file, check provided board id. String size {}, expected size {}",
-                splitted.size (), package_size);
+                splitted.size (), num_rows);
             continue;
         }
-        for (int i = 0; i < package_size; i++)
+        for (int i = 0; i < num_rows; i++)
         {
             package[i] = std::stod (splitted[i]);
         }

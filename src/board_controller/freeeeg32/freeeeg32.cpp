@@ -68,7 +68,7 @@ int FreeEEG32::start_stream (int buffer_size, char *streamer_params)
         safe_logger (spdlog::level::err, "Streaming thread already running");
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
-    int res = prepare_buffers (buffer_size, streamer_params);
+    int res = prepare_for_acquisition (buffer_size, streamer_params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
@@ -92,11 +92,6 @@ int FreeEEG32::stop_stream ()
         {
             streaming_thread.join ();
         }
-        if (streamer)
-        {
-            delete streamer;
-            streamer = NULL;
-        }
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
     else
@@ -113,6 +108,7 @@ int FreeEEG32::release_session ()
         {
             stop_stream ();
         }
+        free_packages ();
         initialized = false;
     }
     if (serial)
@@ -134,9 +130,12 @@ void FreeEEG32::read_thread ()
     constexpr int min_package_size = 1 + 32 * 3;
     float eeg_scale =
         FreeEEG32::ads_vref / float ((pow (2, 23) - 1)) / FreeEEG32::ads_gain * 1000000.;
-    int package_size = 0;
-    get_num_rows (board_id, &package_size);
-    double *package = new double[package_size];
+    int num_rows = board_descr["num_rows"];
+    double *package = new double[num_rows];
+    for (int i = 0; i < num_rows; i++)
+    {
+        package[i] = 0.0;
+    }
     bool first_package_received = false;
 
     while (keep_alive)
@@ -163,12 +162,13 @@ void FreeEEG32::read_thread ()
                 first_package_received = true;
                 continue;
             }
-            package[0] = (double)b[0];
-            for (int i = 0; i < 32; i++)
+            package[(int)board_descr["package_num_channel"]] = (double)b[0];
+            for (int i = 0; i < board_descr["eeg_channels"].size (); i++)
             {
-                package[i + 1] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
+                package[board_descr["eeg_channels"][i]] =
+                    eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
             }
-            package[33] = get_timestamp ();
+            package[(int)board_descr["timestamp_channel"]] = get_timestamp ();
             push_package (package);
         }
         else

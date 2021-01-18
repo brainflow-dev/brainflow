@@ -18,7 +18,6 @@ private:
     std::thread streaming_thread;
     bool is_streaming;
     bool initialized;
-    int package_size;
     std::mutex m;
     std::condition_variable cv;
     volatile int state;

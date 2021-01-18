@@ -6,12 +6,9 @@
 #include "openbci_wifi_shield_board.h"
 #include "socket_client_udp.h"
 
-#include "json.hpp"
-
 #define HTTP_IMPLEMENTATION
 #include "http.h"
 
-using json = nlohmann::json;
 
 constexpr int OpenBCIWifiShieldBoard::package_size;
 
@@ -229,7 +226,7 @@ int OpenBCIWifiShieldBoard::start_stream (int buffer_size, char *streamer_params
         safe_logger (spdlog::level::err, "Streaming thread already running");
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
-    int res = prepare_buffers (buffer_size, streamer_params);
+    int res = prepare_for_acquisition (buffer_size, streamer_params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;

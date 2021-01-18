@@ -1,7 +1,10 @@
 #pragma once
 
 #include <bitset>
+#include <sstream>
 #include <stdint.h>
+#include <string.h>
+#include <string>
 
 #pragma warning(disable : 4146)
 
@@ -63,4 +66,11 @@ template <unsigned int N> inline int32_t cast_ganglion_bits_to_int32 (unsigned c
     }
 
     return result;
+}
+
+inline std::string int_to_string (int val)
+{
+    std::ostringstream ss;
+    ss << val;
+    return ss.str ();
 }

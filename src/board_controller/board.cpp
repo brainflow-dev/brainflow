@@ -1,7 +1,9 @@
 #include <string>
+#include <vector>
 
 #include "board.h"
 #include "board_controller.h"
+#include "custom_cast.h"
 #include "file_streamer.h"
 #include "multicast_streamer.h"
 #include "stub_streamer.h"
@@ -66,7 +68,7 @@ int Board::set_log_file (char *log_file)
 #endif
 }
 
-int Board::prepare_buffers (int buffer_size, char *streamer_params)
+int Board::prepare_for_acquisition (int buffer_size, char *streamer_params)
 {
     if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
     {
@@ -85,20 +87,33 @@ int Board::prepare_buffers (int buffer_size, char *streamer_params)
         db = NULL;
     }
 
-    int num_data_channels = 0;
-    int res = get_num_rows (board_id, &num_data_channels);
+    try
+    {
+        board_descr = brainflow_boards_json["boards"][int_to_string (board_id)];
+        std::vector<std::string> required_fields {"num_rows", "timestamp_channel", "name"};
+        for (std::string field : required_fields)
+        {
+            if (board_descr.find (field) == board_descr.end ())
+            {
+                safe_logger (spdlog::level::err,
+                    "Field {} is not found in brainflow_boards.h for id {}", field, board_id);
+                return (int)BrainFlowExitCodes::GENERAL_ERROR;
+            }
+        }
+    }
+    catch (json::exception &e)
+    {
+        safe_logger (spdlog::level::err, e.what ());
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+
+    int res = prepare_streamer (streamer_params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
 
-    res = prepare_streamer (streamer_params);
-    if (res != (int)BrainFlowExitCodes::STATUS_OK)
-    {
-        return res;
-    }
-
-    db = new DataBuffer (num_data_channels, buffer_size);
+    db = new DataBuffer ((int)board_descr["num_rows"], buffer_size);
     if (!db->is_ready ())
     {
         safe_logger (spdlog::level::err, "unable to prepare buffer with size {}", buffer_size);
@@ -122,21 +137,35 @@ void Board::push_package (double *package)
     }
 }
 
+void Board::free_packages ()
+{
+    if (db != NULL)
+    {
+        delete db;
+        db = NULL;
+    }
+
+    if (streamer != NULL)
+    {
+        delete streamer;
+        streamer = NULL;
+    }
+}
+
 int Board::prepare_streamer (char *streamer_params)
 {
-    int num_data_channels = 0;
-    get_num_rows (board_id, &num_data_channels);
+    int num_rows = (int)board_descr["num_rows"];
     // to dont write smth like if (streamer) every time for all boards create dummy streamer which
     // does nothing and return an instance of this streamer if user dont specify streamer_params
     if (streamer_params == NULL)
     {
         safe_logger (spdlog::level::debug, "use stub streamer");
-        streamer = new StubStreamer (num_data_channels);
+        streamer = new StubStreamer (num_rows);
     }
     else if (streamer_params[0] == '\0')
     {
         safe_logger (spdlog::level::debug, "use stub streamer");
-        streamer = new StubStreamer (num_data_channels);
+        streamer = new StubStreamer (num_rows);
     }
     else
     {
@@ -164,8 +193,7 @@ int Board::prepare_streamer (char *streamer_params)
         {
             safe_logger (spdlog::level::trace, "File Streamer, file: {}, mods: {}",
                 streamer_dest.c_str (), streamer_mods.c_str ());
-            streamer = new FileStreamer (
-                streamer_dest.c_str (), streamer_mods.c_str (), num_data_channels);
+            streamer = new FileStreamer (streamer_dest.c_str (), streamer_mods.c_str (), num_rows);
         }
         if (streamer_type == "streaming_board")
         {
@@ -179,7 +207,7 @@ int Board::prepare_streamer (char *streamer_params)
                 safe_logger (spdlog::level::err, e.what ());
                 return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
             }
-            streamer = new MultiCastStreamer (streamer_dest.c_str (), port, num_data_channels);
+            streamer = new MultiCastStreamer (streamer_dest.c_str (), port, num_rows);
         }
 
         if (streamer == NULL)
@@ -203,26 +231,22 @@ int Board::prepare_streamer (char *streamer_params)
 
 int Board::get_current_board_data (int num_samples, double *data_buf, int *returned_samples)
 {
-    if (db && data_buf && returned_samples)
+    if (!db)
     {
-        int num_data_channels = 0;
-        int res = get_num_rows (board_id, &num_data_channels);
-        if (res != (int)BrainFlowExitCodes::STATUS_OK)
-        {
-            return res;
-        }
-
-        double *buf = new double[num_samples * num_data_channels];
-        int num_data_points = (int)db->get_current_data (num_samples, buf);
-        reshape_data (num_data_points, buf, data_buf);
-        delete[] buf;
-        *returned_samples = num_data_points;
-        return (int)BrainFlowExitCodes::STATUS_OK;
+        return (int)BrainFlowExitCodes::EMPTY_BUFFER_ERROR;
     }
-    else
+    if ((!data_buf) || (!returned_samples))
     {
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
+    int num_rows = (int)board_descr["num_rows"];
+
+    double *buf = new double[num_samples * num_rows];
+    int num_data_points = (int)db->get_current_data (num_samples, buf);
+    reshape_data (num_data_points, buf, data_buf);
+    delete[] buf;
+    *returned_samples = num_data_points;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int Board::get_board_data_count (int *result)
@@ -250,14 +274,8 @@ int Board::get_board_data (int data_count, double *data_buf)
     {
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
-    int num_data_channels = 0;
-    int res = get_num_rows (board_id, &num_data_channels);
-    if (res != (int)BrainFlowExitCodes::STATUS_OK)
-    {
-        return res;
-    }
-
-    double *buf = new double[data_count * num_data_channels];
+    int num_rows = (int)board_descr["num_rows"];
+    double *buf = new double[data_count * num_rows];
     int num_data_points = (int)db->get_data (data_count, buf);
     reshape_data (num_data_points, buf, data_buf);
     delete[] buf;
@@ -266,14 +284,13 @@ int Board::get_board_data (int data_count, double *data_buf)
 
 void Board::reshape_data (int data_count, const double *buf, double *output_buf)
 {
-    int num_data_channels = 0;
-    get_num_rows (board_id, &num_data_channels); // here we know that board id is valid
+    int num_rows = (int)board_descr["num_rows"];
 
     for (int i = 0; i < data_count; i++)
     {
-        for (int j = 0; j < num_data_channels; j++)
+        for (int j = 0; j < num_rows; j++)
         {
-            output_buf[j * data_count + i] = buf[i * num_data_channels + j];
+            output_buf[j * data_count + i] = buf[i * num_rows + j];
         }
     }
 }
