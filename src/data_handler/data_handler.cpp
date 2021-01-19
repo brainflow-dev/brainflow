@@ -489,10 +489,14 @@ int perform_wavelet_denoising (double *data, int data_len, char *wavelet, int de
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int get_csp (double ***data1, double ***data2, int *labels, int n_epochs, int n_channels,
-    int n_times, double **output_w, double *output_d)
+/*
+data must be band-pass filtered, centered and scaled
+license issue: turn off some features
+*/
+int get_csp (double *data, int *labels, int n_epochs, int n_channels, int n_times, double *output_w,
+    double *output_d)
 {
-    if ((!data1) || (!data2) || (!labels) || n_epochs <= 0 || n_channels <= 0, n_times <= 0)
+    if ((!data) || (!labels) || n_epochs <= 0 || n_channels <= 0, n_times <= 0)
     {
         data_logger->error ("Invalid function arguments provided. Please verify that all integer "
                             "arguments are positive and data1/data2 and labels aren't empty.");
@@ -507,13 +511,8 @@ int get_csp (double ***data1, double ***data2, int *labels, int n_epochs, int n_
         for (int e = 0; e < n_epochs; e++)
         {
             Eigen::MatrixXd X (n_channels, n_times);
-            for (int c = 0; c < n_channels; c++)
-            {
-                for (int t = 0; t < n_times; t++)
-                {
-                    X (c, t) = labels[e] ? data1[e][c][t] : data2[e][c][t];
-                }
-            }
+            X = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>> (
+                data + e * n_channels * n_times, n_channels, n_times);
             switch (labels[e])
             {
                 case 0:
@@ -534,13 +533,14 @@ int get_csp (double ***data1, double ***data2, int *labels, int n_epochs, int n_
         sum2 /= n_class2;
 
         Eigen::GeneralizedSelfAdjointEigenSolver<Eigen::MatrixXd> ges (sum1, sum1 + sum2);
-
+        // better to use mapping instead of copying
         for (int i = 0; i < n_channels; i++)
         {
             output_d[i] = ges.eigenvalues () (i);
+            // transposed eigenvectors
             for (int j = 0; j < n_channels; j++)
             {
-                output_w[i][j] = ges.eigenvectors () (i, j);
+                output_w[i * n_channels + j] = ges.eigenvectors () (j, i);
             }
         }
     }
