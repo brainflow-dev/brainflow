@@ -372,3 +372,4 @@ Makefile
 # Libraries
 *.so
 *.a
+*.cmd
