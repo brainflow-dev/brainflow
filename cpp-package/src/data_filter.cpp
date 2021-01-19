@@ -157,17 +157,17 @@ std::pair<double **, double *> DataFilter::get_csp (double ***data, int *labels)
     double *temp_filters = new double[n_channels * n_channels];
     double *output_eigenvalues = new double[n_channels];
 
-    int res = ::get_avg_band_powers (
+    int res = ::get_csp (
         temp_data1d, labels, n_epochs, n_channels, n_times, temp_filters, output_eigenvalues);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         delete[] output_eigenvalues;
         delete[] temp_filters;
         delete[] temp_data1d;
-        throw BrainFlowException ("failed to get_avg_band_powers", res);
+        throw BrainFlowException ("failed to get_csp", res);
     }
 
-    double **output_filters = new *double[n_channels];
+    double **output_filters = new double *[n_channels];
     for (int i = 0; i < n_channels; i++)
     {
         output_filters[i] = new double[n_channels];
