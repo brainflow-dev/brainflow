@@ -286,6 +286,53 @@ namespace brainflow
         }
 
         /// <summary>
+        /// get common spatial patterns
+        /// </summary>
+        /// <param name="data">data for csp</param>
+        /// <param name="labels">labels for each class</param>
+        /// <returns>Tuple of two arrays: [n_channels x n_channels] shaped array of filters and n_channels length array of eigenvalues</returns>
+        public static Tuple<double[,], double[]> get_csp(double[,,] data, int[] labels)
+        {
+            int n_epochs = data.GetLength(0);
+            int n_channels = data.GetLength(1);
+            int n_times = data.GetLength(2);
+
+            double[] temp_data1d = new double[n_epochs * n_channels * n_times];
+            for (int e = 0; e < n_epochs; e++) 
+            {
+                for (int c = 0; c < n_channels; c++) 
+                {
+                    for (int t = 0; t < n_times; t++)
+                    {
+                        int idx = e * n_channels * n_times + c * n_times + t;
+                        temp_data1d[idx] = data[e, c, t];
+                    }
+                }
+            }
+
+            double[] temp_filters = new double[n_channels * n_channels];
+            double[] output_eigenvalues = new double[n_channels];
+
+            int res = DataHandlerLibrary.get_csp (temp_data1d, labels, n_epochs, n_channels, n_times, temp_filters, output_eigenvalues);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException (res);
+            }
+
+            double[,] output_filters = new double[n_channels, n_channels];
+            for (int i = 0; i < n_channels; i++)
+            {
+                for (int j = 0; j < n_channels; j++)
+                {
+                    output_filters[i, j] = temp_filters[i * n_channels + j];
+                }
+            }
+            
+            Tuple<double[], double[]> return_data = new Tuple<double[,], double[]>(output_filters, output_eigenvalues);
+            return return_data;
+        }
+
+        /// <summary>
         /// perform windowing
         /// </summary>
         /// <param name="window_function">window function</param>

@@ -159,6 +159,29 @@ end
     return original_data
 end
 
+@brainflow_rethrow function get_csp(data, labels)
+    n_epochs = size(data, 1)
+    n_channels = size(data, 2)
+    n_times = size(data, 3)
+    
+    temp_data1d = Vector{Float64}(undef, Integer(n_epochs * n_channels * n_times))
+    for e=1:n_epochs
+        for c=1:n_channels
+            for t=1:n_times
+                temp_data1d[e * n_channels * n_times + c * n_times + t] = data[e, c, t]
+    
+    temp_filters = Vector{Float64}(undef, Integer(n_channels * n_channels))
+    output_eigenvalues = Vector{Float64}(undef, Integer(n_channels))
+
+    ccall((:get_csp, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Ptr{Float64}, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
+    data, labels, n_epochs, n_channels, n_times, temp_filters, output_eigenvalues)
+    output_filters = Array{Float64,2}(undef, n_channels, n_channels)
+    for i=1:n_channels
+        for j=1:n_channels
+            output_filters[i, j] = temp_filters[i * n_channels + j]
+    return output_filters, output_eigenvalues
+end
+
 @brainflow_rethrow function get_window(window_function::Integer, window_len::Integer)
     window_data = Vector{Float64}(undef, Integer(window_len))
     ccall((:get_window, DATA_HANDLER_INTERFACE), Cint, (Cint, Cint, Ptr{Float64}),

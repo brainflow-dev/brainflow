@@ -49,6 +49,8 @@ public class DataFilter
 
         int perform_wavelet_denoising (double[] data, int data_len, String wavelet, int decomposition_level);
 
+        int get_csp (double[] data, double[] labels, int n_epochs, int n_channels, int n_times, double[] output_filters, double[] output_eigenvalues);
+
         int get_window (int window_function, int window_len, double[] window_data);
 
         int perform_fft (double[] data, int data_len, int window, double[] output_re, double[] output_im);
@@ -339,6 +341,42 @@ public class DataFilter
             throw new BrainFlowError ("Failed to perform inverse wavelet transform", ec);
         }
         return output_array;
+    }
+
+    /**
+     * get common spatial filters
+     * 
+     * @return           array of the size specified in window_len
+     */
+    public static Pair<double[][], double[]> get_csp (double[][][] data, int[] labels) throws BrainFlowError
+    {
+        int n_epochs = data.length;
+        int n_channels = data[0].length;
+        int n_times = data[0][0].length;
+
+        double[] temp_data1d = new double[n_epochs * n_channels * n_times];
+        for (int e = 0; e < n_ep; e++) 
+        {
+            for (int c = 0; c < n_ch; c++) 
+            {
+                for (int t = 0; t < n_times; t++)
+                {
+                    int idx = e * n_channels * n_times + c * n_times + t;
+                    temp_data1d[idx] = data[e][c][t];
+                }
+            }
+        }
+
+        double[] output_filters = new double[n_channels * n_channels];
+        double[] output_eigenvalues = new double[n_channels];
+        
+        int ec = instance.get_csp (temp_data1d, labels, n_epochs, n_channels, n_times, output_filters, output_eigenvalues);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Failed to perform windowing", ec);
+        }
+        
+        return Pair<double[][], double[]> res = new MutablePair<double[][], double[]> (reshape_data_to_2d (n_channels, n_channels, output_filters), output_eigenvalues);
     }
 
     /**
