@@ -168,7 +168,7 @@ end
     for e=1:n_epochs
         for c=1:n_channels
             for t=1:n_times
-                temp_data1d[e * n_channels * n_times + c * n_times + t] = data[e, c, t]
+                temp_data1d[(e-1) * n_channels * n_times + (c-1) * n_times + t] = data[e, c, t]
     
     temp_filters = Vector{Float64}(undef, Integer(n_channels * n_channels))
     output_eigenvalues = Vector{Float64}(undef, Integer(n_channels))
@@ -178,7 +178,7 @@ end
     output_filters = Array{Float64,2}(undef, n_channels, n_channels)
     for i=1:n_channels
         for j=1:n_channels
-            output_filters[i, j] = temp_filters[i * n_channels + j]
+            output_filters[i, j] = temp_filters[(i-1) * n_channels + j]
     return output_filters, output_eigenvalues
 end
 
