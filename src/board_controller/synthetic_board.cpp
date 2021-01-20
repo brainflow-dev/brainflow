@@ -100,7 +100,7 @@ void SyntheticBoard::read_thread ()
     unsigned char counter = 0;
     std::vector<int> exg_channels = board_descr["eeg_channels"]; // same channels for eeg\emg\ecg
     double *sin_phase_rad = new double[exg_channels.size ()];
-    for (int i = 0; i < board_descr["eeg_channels"].size (); i++)
+    for (unsigned int i = 0; i < board_descr["eeg_channels"].size (); i++)
     {
         sin_phase_rad[i] = 0.0;
     }
@@ -123,7 +123,7 @@ void SyntheticBoard::read_thread ()
     {
         auto start = std::chrono::high_resolution_clock::now ();
         package[board_descr["package_num_channel"].get<int> ()] = (double)counter;
-        for (int i = 0; i < exg_channels.size (); i++)
+        for (unsigned int i = 0; i < exg_channels.size (); i++)
         {
             double amplitude = 10.0 * (i + 1);
             double noise = 0.1 * (i + 1);

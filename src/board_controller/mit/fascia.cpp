@@ -129,9 +129,8 @@ int Fascia::release_session ()
         }
         free_packages ();
         initialized = false;
-
-        return (int)BrainFlowExitCodes::STATUS_OK;
     }
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 void Fascia::read_thread ()

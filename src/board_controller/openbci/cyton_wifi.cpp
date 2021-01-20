@@ -87,7 +87,7 @@ void CytonWifi::read_thread ()
         // package num
         package[board_descr["package_num_channel"].get<int> ()] = (double)bytes[0];
         // eeg
-        for (int i = 0; i < eeg_channels.size (); i++)
+        for (unsigned int i = 0; i < eeg_channels.size (); i++)
         {
             package[eeg_channels[i]] = eeg_scale * cast_24bit_to_int32 (bytes + 1 + 3 * i);
         }
