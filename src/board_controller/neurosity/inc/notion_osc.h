@@ -27,7 +27,7 @@ private:
     volatile int state;
     void read_thread ();
 
-    void handle_packet (const OSCPP::Server::Packet &packet);
+    void handle_packet (double *package, const OSCPP::Server::Packet &packet);
 
 public:
     NotionOSC (struct BrainFlowInputParams params);

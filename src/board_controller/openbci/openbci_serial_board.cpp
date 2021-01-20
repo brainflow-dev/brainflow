@@ -230,11 +230,6 @@ int OpenBCISerialBoard::stop_stream ()
         {
             streaming_thread.join ();
         }
-        if (streamer)
-        {
-            delete streamer;
-            streamer = NULL;
-        }
         return send_to_board ("s");
     }
     else
@@ -251,6 +246,7 @@ int OpenBCISerialBoard::release_session ()
         {
             stop_stream ();
         }
+        free_packages ();
         initialized = false;
     }
     if (serial)

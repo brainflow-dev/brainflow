@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <string.h>
+#include <vector>
 
 #include "custom_cast.h"
 #include "fascia.h"
@@ -107,11 +108,6 @@ int Fascia::stop_stream ()
         keep_alive = false;
         is_streaming = false;
         streaming_thread.join ();
-        if (streamer)
-        {
-            delete streamer;
-            streamer = NULL;
-        }
         state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
         // no command to stop, if you add to firmware send it here
         return (int)BrainFlowExitCodes::STATUS_OK;
@@ -131,28 +127,24 @@ int Fascia::release_session ()
         {
             stop_stream ();
         }
+        free_packages ();
         initialized = false;
-        if (socket)
-        {
-            socket->close ();
-            delete socket;
-            socket = NULL;
-        }
+
+        return (int)BrainFlowExitCodes::STATUS_OK;
     }
-    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 void Fascia::read_thread ()
 {
     int res;
     unsigned char b[Fascia::transaction_size];
-    int package_size = 0;
-    get_num_rows (board_id, &package_size);
-    double *package = new double[package_size];
-    for (int i = 0; i < package_size; i++)
+    int num_rows = board_descr["num_rows"];
+    double *package = new double[num_rows];
+    for (int i = 0; i < num_rows; i++)
     {
         package[i] = 0.0;
     }
+    std::vector<int> eeg_channels = board_descr["eeg_channels"];
 
     while (keep_alive)
     {
@@ -193,26 +185,28 @@ void Fascia::read_thread ()
         for (int cur_package = 0; cur_package < Fascia::num_packages; cur_package++)
         {
             int offset = cur_package * Fascia::package_size;
-            // package num
             int32_t package_num = 0;
             memcpy (&package_num, b + offset, 4);
-            package[0] = (double)package_num;
-            // valid indicator
+            package[board_descr["package_num_channel"].get<int> ()] = (double)package_num;
             int32_t valid = 0;
             memcpy (&valid, b + 4 + offset, 4);
-            package[1] = (double)valid;
-            // 8 adc datapoints
-            for (int i = 2; i < 10; i++)
+            package[board_descr["other_channels"][0].get<int> ()] = (double)valid;
+            for (int i = 2, counter = 0; i < 10; i++, counter++)
             {
                 float val;
                 // sends data in volts
                 memcpy (&val, b + offset + 8 + (i - 2) * 4, 4);
-                package[i] = 1000000.0 * val; // convert to uV(its a standard unit in brainflow)
+                package[board_descr["eeg_channels"][counter].get<int> ()] = 1000000.0 * val;
             }
-            // IMU (need to cast from int16)
-            for (int i = 10; i < 16; i++)
+            for (int i = 10, counter = 0; i < 13; i++, counter++)
             {
-                package[i] = accel_scale * cast_16bit_to_int32 (b + offset + 40 + (i - 10) * 2);
+                package[board_descr["accel_channels"][counter].get<int> ()] =
+                    accel_scale * cast_16bit_to_int32 (b + offset + 40 + (i - 10) * 2);
+            }
+            for (int i = 13, counter = 0; i < 16; i++, counter++)
+            {
+                package[board_descr["gyro_channels"][counter].get<int> ()] =
+                    accel_scale * cast_16bit_to_int32 (b + offset + 40 + (i - 10) * 2);
             }
 
             int32_t eda, temperature, timestamp, ppg;
@@ -220,10 +214,10 @@ void Fascia::read_thread ()
             memcpy (&temperature, b + offset + 56, 4);
             memcpy (&ppg, b + offset + 60, 4);
             memcpy (&timestamp, b + offset + 64, 4);
-            package[16] = (double)eda;
-            package[17] = (double)temperature;
-            package[18] = (double)ppg;
-            package[19] = get_timestamp ();
+            package[board_descr["eda_channels"][0].get<int> ()] = (double)eda;
+            package[board_descr["temperature_channels"][0].get<int> ()] = (double)temperature;
+            package[board_descr["ppg_channels"][0].get<int> ()] = (double)ppg;
+            package[board_descr["timestamp_channel"].get<int> ()] = get_timestamp ();
 
             push_package (package);
         }

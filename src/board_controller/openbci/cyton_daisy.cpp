@@ -1,5 +1,7 @@
-#include "cyton_daisy.h"
+#include <vector>
+
 #include "custom_cast.h"
+#include "cyton_daisy.h"
 #include "serial.h"
 #include "timestamp.h"
 
@@ -30,10 +32,8 @@ void CytonDaisy::read_thread ()
     unsigned char b[32];
     bool first_sample = true;
     double accel[3] = {0.};
-    int num_channels = 0;
-    get_num_rows (board_id, &num_channels);
-    double *package = new double[num_channels];
-    for (int i = 0; i < num_channels; i++)
+    double *package = new double[board_descr["num_rows"].get<int> ()];
+    for (int i = 0; i < board_descr["num_rows"].get<int> (); i++)
     {
         package[i] = 0.0;
     }
@@ -80,7 +80,7 @@ void CytonDaisy::read_thread ()
         // place unprocessed bytes to other_channels for all modes
         if (first_sample)
         {
-            package[0] = (double)b[0];
+            package[board_descr["package_num_channel"].get<int> ()] = (double)b[0];
             // eeg
             for (int i = 0; i < 8; i++)
             {
@@ -183,7 +183,7 @@ void CytonDaisy::read_thread ()
         // commit package
         if (!first_sample)
         {
-            package[30] = get_timestamp ();
+            package[board_descr["timestamp_channel"].get<int> ()] = get_timestamp ();
             push_package (package);
         }
     }

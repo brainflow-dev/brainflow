@@ -170,7 +170,7 @@ public:
         }
 
         auto ptr = data->data ();
-        double emgData[9] = {0.0};
+        double emgData[GforceData::SIZE] = {0.0};
         if (dataType == DeviceDataType::DDT_EMGRAW)
         {
             emgData[0] = iCounter++;
@@ -182,7 +182,8 @@ public:
                     emgData[i + 1] = (double)*(reinterpret_cast<const uint16_t *> (ptr));
                     ptr += 2;
                 }
-                struct GforceData gforceData (emgData, timestamp);
+                emgData[9] = timestamp;
+                struct GforceData gforceData (emgData);
                 spinLock.lock ();
                 data_queue.push_back (gforceData);
                 spinLock.unlock ();

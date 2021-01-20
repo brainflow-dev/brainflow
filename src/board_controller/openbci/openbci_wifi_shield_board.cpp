@@ -258,11 +258,6 @@ int OpenBCIWifiShieldBoard::stop_stream ()
     {
         keep_alive = false;
         streaming_thread.join ();
-        if (streamer)
-        {
-            delete streamer;
-            streamer = NULL;
-        }
         std::string url = "http://" + params.ip_address + "/stream/stop";
         http_t *request = http_get (url.c_str (), NULL);
         if (!request)
@@ -293,6 +288,7 @@ int OpenBCIWifiShieldBoard::release_session ()
         {
             stop_stream ();
         }
+        free_packages ();
         initialized = false;
     }
     if (server_socket)

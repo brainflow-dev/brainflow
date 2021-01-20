@@ -174,11 +174,6 @@ int Callibri::stop_stream ()
         keep_alive = false;
         is_streaming = false;
         streaming_thread.join ();
-        if (streamer)
-        {
-            delete streamer;
-            streamer = NULL;
-        }
         std::string command_stop = "CommandStopSignal";
         std::string tmp = "";
         int res = config_board (command_stop, tmp);
@@ -198,6 +193,7 @@ int Callibri::release_session ()
         {
             stop_stream ();
         }
+        free_packages ();
         initialized = false;
         free_channels ();
     }
@@ -208,10 +204,9 @@ int Callibri::release_session ()
 
 void Callibri::read_thread ()
 {
-    int package_size = 0;
-    get_num_rows (board_id, &package_size);
-    double *package = new double[package_size];
-    for (int i = 0; i < package_size; i++)
+    int num_rows = board_descr["num_rows"];
+    double *package = new double[num_rows];
+    for (int i = 0; i < num_rows; i++)
     {
         package[i] = 0.0;
     }
@@ -244,9 +239,9 @@ void Callibri::read_thread ()
         }
         counter++;
 
-        package[0] = (double)counter;
-        package[1] = data * 1e6;
-        package[2] = get_timestamp ();
+        package[board_descr["package_num_channel"].get<int> ()] = (double)counter;
+        package[1] = data * 1e6; // hardcode channel num here because there are 3 different types
+        package[board_descr["timestamp_channel"].get<int> ()] = timestamp;
         push_package (package);
     }
 }

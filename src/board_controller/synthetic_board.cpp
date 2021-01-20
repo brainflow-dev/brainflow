@@ -122,7 +122,7 @@ void SyntheticBoard::read_thread ()
     while (keep_alive)
     {
         auto start = std::chrono::high_resolution_clock::now ();
-        package[(int)board_descr["package_num_channel"]] = (double)counter;
+        package[board_descr["package_num_channel"].get<int> ()] = (double)counter;
         for (int i = 0; i < exg_channels.size (); i++)
         {
             double amplitude = 10.0 * (i + 1);
@@ -163,8 +163,8 @@ void SyntheticBoard::read_thread ()
         {
             package[channel] = 1000.0 * dist_around_one (mt);
         }
-        package[(int)board_descr["battery_channel"]] = (dist_around_one (mt) - 0.1) * 100;
-        package[(int)board_descr["timestamp_channel"]] = get_timestamp ();
+        package[board_descr["battery_channel"].get<int> ()] = (dist_around_one (mt) - 0.1) * 100;
+        package[board_descr["timestamp_channel"].get<int> ()] = get_timestamp ();
 
         push_package (package); // use this method to submit data to buffers
 

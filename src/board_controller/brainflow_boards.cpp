@@ -199,7 +199,8 @@ json brainflow_boards_json = {
             {"eeg_channels", {2, 3, 4, 5, 6, 7, 8, 9}},
             {"accel_channels", {10, 11, 12}},
             {"gyro_channels", {13, 14, 15}},
-            {"eda_channels", {16}}, {"ppg_channels", {18}},
+            {"eda_channels", {16}},
+            {"ppg_channels", {18}},
             {"temperature_channels", {17}},
             {"other_channels", {1}}
         }},

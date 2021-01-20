@@ -1,5 +1,6 @@
 #include <math.h>
 #include <string.h>
+#include <vector>
 
 #include "custom_cast.h"
 #include "freeeeg32.h"
@@ -138,6 +139,8 @@ void FreeEEG32::read_thread ()
     }
     bool first_package_received = false;
 
+    std::vector<int> eeg_channels = board_descr["eeg_channels"];
+
     while (keep_alive)
     {
         int pos = 0;
@@ -162,13 +165,12 @@ void FreeEEG32::read_thread ()
                 first_package_received = true;
                 continue;
             }
-            package[(int)board_descr["package_num_channel"]] = (double)b[0];
-            for (int i = 0; i < board_descr["eeg_channels"].size (); i++)
+            package[board_descr["package_num_channel"].get<int> ()] = (double)b[0];
+            for (int i = 0; i < eeg_channels.size (); i++)
             {
-                package[board_descr["eeg_channels"][i]] =
-                    eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
+                package[eeg_channels[i]] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
             }
-            package[(int)board_descr["timestamp_channel"]] = get_timestamp ();
+            package[board_descr["timestamp_channel"].get<int> ()] = get_timestamp ();
             push_package (package);
         }
         else

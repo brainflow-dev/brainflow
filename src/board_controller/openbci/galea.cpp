@@ -225,11 +225,6 @@ int Galea::stop_stream ()
         keep_alive = false;
         is_streaming = false;
         streaming_thread.join ();
-        if (streamer)
-        {
-            delete streamer;
-            streamer = NULL;
-        }
         this->state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
         int res = socket->send ("s", 1);
         if (res != 1)
@@ -282,6 +277,7 @@ int Galea::release_session ()
         {
             stop_stream ();
         }
+        free_packages ();
         initialized = false;
         if (socket)
         {
@@ -302,10 +298,9 @@ void Galea::read_thread ()
     {
         b[i] = 0;
     }
-    int num_channels = 0;
-    get_num_rows (board_id, &num_channels);
-    double *package = new double[num_channels];
-    for (int i = 0; i < num_channels; i++)
+    int num_rows = board_descr["num_rows"];
+    double *package = new double[num_rows];
+    for (int i = 0; i < num_rows; i++)
     {
         package[i] = 0.0;
     }
@@ -354,7 +349,7 @@ void Galea::read_thread ()
         {
             int offset = cur_package * package_size;
             // package num
-            package[0] = (double)b[0 + offset];
+            package[board_descr["package_num_channel"].get<int> ()] = (double)b[0 + offset];
             // eeg and emg
             for (int i = 4, tmp_counter = 0; i < 20; i++, tmp_counter++)
             {
@@ -378,14 +373,14 @@ void Galea::read_thread ()
             memcpy (&ppg_red, b + 56 + offset, 4);
             memcpy (&ppg_ir, b + 60 + offset, 4);
             // ppg
-            package[17] = (double)ppg_red;
-            package[18] = (double)ppg_ir;
+            package[board_descr["ppg_channels"][0].get<int> ()] = (double)ppg_red;
+            package[board_descr["ppg_channels"][1].get<int> ()] = (double)ppg_ir;
             // eda
-            package[19] = (double)eda;
+            package[board_descr["eda_channels"][0].get<int> ()] = (double)eda;
             // temperature
-            package[20] = temperature / 100.0;
+            package[board_descr["temperature_channels"][0].get<int> ()] = temperature / 100.0;
             // battery
-            package[21] = (double)b[53 + offset];
+            package[board_descr["battery_channel"].get<int> ()] = (double)b[53 + offset];
 
             double timestamp_device_cur;
             memcpy (&timestamp_device_cur, b + 64 + offset, 8);
@@ -397,7 +392,7 @@ void Galea::read_thread ()
 
             // workaround micros() overflow issue in firmware
             double timestamp = (time_delta < 0) ? recv_time : recv_time - time_delta;
-            package[22] = timestamp;
+            package[board_descr["timestamp_channel"].get<int> ()] = timestamp;
 
             push_package (package);
         }

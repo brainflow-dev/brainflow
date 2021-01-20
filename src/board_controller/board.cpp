@@ -10,7 +10,7 @@
 
 #include "spdlog/sinks/null_sink.h"
 
-#define LOGGER_NAME "brainflow_logger"
+#define LOGGER_NAME "board_logger"
 
 #ifdef __ANDROID__
 #include "spdlog/sinks/android_sink.h"

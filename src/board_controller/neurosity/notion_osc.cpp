@@ -100,11 +100,6 @@ int NotionOSC::stop_stream ()
     {
         keep_alive = false;
         streaming_thread.join ();
-        if (streamer)
-        {
-            delete streamer;
-            streamer = NULL;
-        }
         state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
@@ -122,6 +117,7 @@ int NotionOSC::release_session ()
         {
             stop_stream ();
         }
+        free_packages ();
         initialized = false;
         if (socket)
         {
@@ -138,6 +134,13 @@ void NotionOSC::read_thread ()
     int res;
     constexpr int max_package_size = 8192;
     unsigned char b[max_package_size];
+    int num_rows = board_descr["num_rows"];
+    double *package = new double[num_rows];
+    for (int i = 0; i < num_rows; i++)
+    {
+        package[i] = 0.0;
+    }
+
     while (keep_alive)
     {
         res = socket->recv (b, max_package_size);
@@ -165,7 +168,7 @@ void NotionOSC::read_thread ()
             }
             try
             {
-                handle_packet (OSCPP::Server::Packet (b, res));
+                handle_packet (package, OSCPP::Server::Packet (b, res));
             }
             catch (...)
             {
@@ -173,9 +176,10 @@ void NotionOSC::read_thread ()
             }
         }
     }
+    delete[] package;
 }
 
-void NotionOSC::handle_packet (const OSCPP::Server::Packet &packet)
+void NotionOSC::handle_packet (double *package, const OSCPP::Server::Packet &packet)
 {
     if (packet.isBundle ())
     {
@@ -183,7 +187,7 @@ void NotionOSC::handle_packet (const OSCPP::Server::Packet &packet)
         OSCPP::Server::PacketStream packets (bundle.packets ());
         while (!packets.atEnd ())
         {
-            handle_packet (packets.next ());
+            handle_packet (package, packets.next ());
         }
     }
     else
@@ -205,24 +209,15 @@ void NotionOSC::handle_packet (const OSCPP::Server::Packet &packet)
                 }
             }
 
-            // todo do it once, not per package
-            int package_size = 0;
-            get_num_rows (board_id, &package_size);
-            double *package = new double[package_size];
-            for (int i = 0; i < package_size; i++)
-            {
-                package[i] = 0.0;
-            }
-
             // parse data
             try
             {
-                // eeg
                 OSCPP::Server::ArgStream eeg_data (args.array ());
                 int counter = 0;
                 while (!eeg_data.atEnd ())
                 {
-                    package[1 + counter] = (double)eeg_data.float32 ();
+                    package[board_descr["eeg_channels"][counter].get<int> ()] =
+                        (double)eeg_data.float32 ();
                     counter++;
                 }
                 if (counter != 8)
@@ -231,16 +226,14 @@ void NotionOSC::handle_packet (const OSCPP::Server::Packet &packet)
                         "wrong format for eeg data, must be 8 values, found {}", counter);
                 }
                 std::string timestamp_str = args.string ();
-                package[10] = std::stod (timestamp_str);
-                // package num
-                package[0] = (double)args.int32 ();
-                // marker
+                package[board_descr["timestamp_channel"].get<int> ()] = std::stod (timestamp_str);
+                package[board_descr["package_num_channel"].get<int> ()] = (double)args.int32 ();
                 std::string marker = std::string (args.string ());
                 if (!marker.empty ())
                 {
                     try
                     {
-                        package[9] = std::stod (marker);
+                        package[board_descr["other_channels"][0].get<int> ()] = std::stod (marker);
                     }
                     catch (...)
                     {
@@ -255,7 +248,6 @@ void NotionOSC::handle_packet (const OSCPP::Server::Packet &packet)
                 safe_logger (
                     spdlog::level::trace, "Exception in parsing OSC packet: {}", e.what ());
             }
-            delete[] package;
         }
         else
         {

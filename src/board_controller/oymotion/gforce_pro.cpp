@@ -159,11 +159,6 @@ int GforcePro::stop_stream ()
         keep_alive = false;
         is_streaming = false;
         streaming_thread.join ();
-        if (streamer)
-        {
-            delete streamer;
-            streamer = NULL;
-        }
         state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
         return call_stop ();
     }
@@ -181,6 +176,7 @@ int GforcePro::release_session ()
         call_release ();
         initialized = false;
     }
+    free_packages ();
 
     if (dll_loader != NULL)
     {
@@ -203,20 +199,8 @@ void GforcePro::read_thread ()
         return;
     }
 
-    int num_channels = 0;
-    get_num_rows (board_id, &num_channels);
-    double *package = new double[num_channels];
-    for (int i = 0; i < num_channels; i++)
-    {
-        package[i] = 0.0;
-    }
-
     while (keep_alive)
     {
-        for (int i = 0; i < num_channels; i++)
-        {
-            package[i] = 0.0;
-        }
         struct GforceData data;
         int res = func ((void *)&data);
         if (res == (int)GforceWrapperExitCodes::STATUS_OK)
@@ -230,15 +214,13 @@ void GforcePro::read_thread ()
                 cv.notify_one ();
                 safe_logger (spdlog::level::debug, "start streaming");
             }
-            package[9] = data.timestamp;
-            push_package (package);
+            push_package (data.data);
         }
         else
         {
             Sleep (sleep_time);
         }
     }
-    delete[] package;
 }
 
 int GforcePro::config_board (std::string config, std::string &response)

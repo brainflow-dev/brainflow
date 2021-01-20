@@ -1,4 +1,5 @@
 #include <string.h>
+#include <vector>
 
 #include "custom_cast.h"
 #include "ironbci.h"
@@ -176,6 +177,8 @@ void IronBCI::read_thread ()
         package[i] = 0.0;
     }
 
+    std::vector<int> eeg_channels = board_descr["eeg_channels"];
+
     while (keep_alive)
     {
         // check start byte
@@ -211,15 +214,14 @@ void IronBCI::read_thread ()
         }
 
         // package num
-        package[board_descr["package_num_channel"]] = (double)b[0];
+        package[board_descr["package_num_channel"].get<int> ()] = (double)b[0];
         // eeg
-        for (int i = 0; i < board_descr["eeg_channels"].size (); i++)
+        for (int i = 0; i < eeg_channels.size (); i++)
         {
-            package[board_descr["eeg_channels"][i]] =
-                eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
+            package[eeg_channels[i]] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
         }
 
-        package[board_descr["timestamp_channel"]] = get_timestamp ();
+        package[board_descr["timestamp_channel"].get<int> ()] = get_timestamp ();
         push_package (package);
     }
     delete[] package;

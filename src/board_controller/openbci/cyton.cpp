@@ -1,5 +1,7 @@
-#include "cyton.h"
+#include <vector>
+
 #include "custom_cast.h"
+#include "cyton.h"
 #include "serial.h"
 #include "timestamp.h"
 
@@ -28,13 +30,12 @@ void Cyton::read_thread ()
     int res;
     unsigned char b[32];
     double accel[3] = {0.};
-    int num_channels = 0;
-    get_num_rows (board_id, &num_channels);
-    double *package = new double[num_channels];
-    for (int i = 0; i < num_channels; i++)
+    double *package = new double[board_descr["num_rows"].get<int> ()];
+    for (int i = 0; i < board_descr["num_rows"].get<int> (); i++)
     {
         package[i] = 0.0;
     }
+    std::vector<int> eeg_channels = board_descr["eeg_channels"];
 
     while (keep_alive)
     {
@@ -70,21 +71,21 @@ void Cyton::read_thread ()
         }
 
         // package num
-        package[0] = (double)b[0];
+        package[board_descr["package_num_channel"].get<int> ()] = (double)b[0];
         // eeg
-        for (int i = 0; i < 8; i++)
+        for (int i = 0; i < eeg_channels.size (); i++)
         {
-            package[i + 1] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
+            package[eeg_channels[i]] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
         }
         // end byte
-        package[12] = (double)b[31];
+        package[board_descr["other_channels"][0].get<int> ()] = (double)b[31];
         // place unprocessed bytes for all modes to other_channels
-        package[13] = (double)b[25];
-        package[14] = (double)b[26];
-        package[15] = (double)b[27];
-        package[16] = (double)b[28];
-        package[17] = (double)b[29];
-        package[18] = (double)b[30];
+        package[board_descr["other_channels"][1].get<int> ()] = (double)b[25];
+        package[board_descr["other_channels"][2].get<int> ()] = (double)b[26];
+        package[board_descr["other_channels"][3].get<int> ()] = (double)b[27];
+        package[board_descr["other_channels"][4].get<int> ()] = (double)b[28];
+        package[board_descr["other_channels"][5].get<int> ()] = (double)b[29];
+        package[board_descr["other_channels"][6].get<int> ()] = (double)b[30];
         // place processed bytes for accel
         if (b[31] == END_BYTE_STANDARD)
         {
@@ -100,21 +101,20 @@ void Cyton::read_thread ()
                 accel[2] = accel_scale * accel_temp[2];
             }
 
-            package[9] = accel[0];
-            package[10] = accel[1];
-            package[11] = accel[2];
+            package[board_descr["accel_channels"][0].get<int> ()] = accel[0];
+            package[board_descr["accel_channels"][1].get<int> ()] = accel[1];
+            package[board_descr["accel_channels"][2].get<int> ()] = accel[2];
         }
 
         // place processed bytes for analog
         if (b[31] == END_BYTE_ANALOG)
         {
-            package[19] = cast_16bit_to_int32 (b + 25);
-            package[20] = cast_16bit_to_int32 (b + 27);
-            package[21] = cast_16bit_to_int32 (b + 29);
+            package[board_descr["analog_channels"][0].get<int> ()] = cast_16bit_to_int32 (b + 25);
+            package[board_descr["analog_channels"][1].get<int> ()] = cast_16bit_to_int32 (b + 27);
+            package[board_descr["analog_channels"][2].get<int> ()] = cast_16bit_to_int32 (b + 29);
         }
 
-        // timestamp
-        package[22] = get_timestamp ();
+        package[board_descr["timestamp_channel"].get<int> ()] = get_timestamp ();
 
         push_package (package);
     }
