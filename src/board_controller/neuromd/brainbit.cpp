@@ -374,7 +374,7 @@ void BrainBit::read_thread ()
         // check that inner loop ended not because of stop_stream invocation
         if (!keep_alive)
         {
-            return;
+            break;
         }
 
         // get timestamp as soon as loop ends

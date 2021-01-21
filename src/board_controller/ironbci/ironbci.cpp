@@ -204,7 +204,7 @@ void IronBCI::read_thread ()
         }
         if (!keep_alive)
         {
-            return;
+            break;
         }
         // check stop byte
         if (b[25] != IronBCI::stop_byte)

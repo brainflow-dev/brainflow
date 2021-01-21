@@ -230,6 +230,7 @@ int OpenBCISerialBoard::stop_stream ()
         {
             streaming_thread.join ();
         }
+
         return send_to_board ("s");
     }
     else

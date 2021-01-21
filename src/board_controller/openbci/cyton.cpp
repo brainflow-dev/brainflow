@@ -30,8 +30,9 @@ void Cyton::read_thread ()
     int res;
     unsigned char b[32];
     double accel[3] = {0.};
-    double *package = new double[board_descr["num_rows"].get<int> ()];
-    for (int i = 0; i < board_descr["num_rows"].get<int> (); i++)
+    int num_rows = board_descr["num_rows"];
+    double *package = new double[num_rows];
+    for (int i = 0; i < num_rows; i++)
     {
         package[i] = 0.0;
     }
@@ -61,7 +62,7 @@ void Cyton::read_thread ()
         }
         if (!keep_alive)
         {
-            return;
+            break;
         }
 
         if ((b[31] < END_BYTE_STANDARD) || (b[31] > END_BYTE_MAX))

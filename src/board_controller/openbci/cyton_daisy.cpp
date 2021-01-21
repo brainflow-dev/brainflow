@@ -62,7 +62,7 @@ void CytonDaisy::read_thread ()
         }
         if (!keep_alive)
         {
-            return;
+            break;
         }
 
         if ((b[31] < END_BYTE_STANDARD) || (b[31] > END_BYTE_MAX))

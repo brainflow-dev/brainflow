@@ -224,7 +224,7 @@ void Callibri::read_thread ()
         // check that inner loop ended not because of stop_stream invocation
         if (!keep_alive)
         {
-            return;
+            break;
         }
 
         double timestamp = get_timestamp ();
