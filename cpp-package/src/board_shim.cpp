@@ -285,6 +285,17 @@ int BoardShim::get_timestamp_channel (int board_id)
     return timestamp_channel;
 }
 
+int BoardShim::get_marker_channel (int board_id)
+{
+    int marker_channel = 0;
+    int res = ::get_marker_channel (board_id, &marker_channel);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed get board info", res);
+    }
+    return marker_channel;
+}
+
 int BoardShim::get_battery_channel (int board_id)
 {
     int battery_channel = 0;

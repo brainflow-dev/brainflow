@@ -100,6 +100,8 @@ namespace brainflow
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_timestamp_channel (int board_id, int[] timestamp_channel);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_marker_channel (int board_id, int[] marker_channel);
+        [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_package_num_channel (int board_id, int[] package_num_channel);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_battery_channel (int board_id, int[] battery_channel);
@@ -167,6 +169,8 @@ namespace brainflow
         public static extern int get_sampling_rate (int board_id, int[] sampling_rate);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_timestamp_channel (int board_id, int[] timestamp_channel);
+        [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_marker_channel (int board_id, int[] marker_channel);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_package_num_channel (int board_id, int[] package_num_channel);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -236,6 +240,8 @@ namespace brainflow
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_timestamp_channel (int board_id, int[] timestamp_channel);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_marker_channel (int board_id, int[] marker_channel);
+        [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_package_num_channel (int board_id, int[] package_num_channel);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_battery_channel (int board_id, int[] battery_channel);
@@ -303,6 +309,8 @@ namespace brainflow
         public static extern int get_sampling_rate (int board_id, int[] sampling_rate);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_timestamp_channel (int board_id, int[] timestamp_channel);
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_marker_channel (int board_id, int[] marker_channel);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_package_num_channel (int board_id, int[] package_num_channel);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -629,6 +637,23 @@ namespace brainflow
                     return BoardControllerLibraryLinux.get_timestamp_channel(board_id, timestamp_channel);
                 case LibraryEnvironment.MacOS:
                     return BoardControllerLibraryMac.get_timestamp_channel (board_id, timestamp_channel);
+            }
+
+            return (int)CustomExitCodes.GENERAL_ERROR;
+        }
+
+        public static int get_marker_channel (int board_id, int[] marker_channel)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_marker_channel (board_id, marker_channel);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_marker_channel (board_id, marker_channel);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.get_marker_channel (board_id, marker_channel);
+                case LibraryEnvironment.MacOS:
+                    return BoardControllerLibraryMac.get_marker_channel (board_id, marker_channel);
             }
 
             return (int)CustomExitCodes.GENERAL_ERROR;

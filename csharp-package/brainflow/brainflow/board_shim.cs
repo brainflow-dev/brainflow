@@ -58,7 +58,7 @@ namespace brainflow
         }
 
         /// <summary>
-        /// get row index in returned by get_board_data() 2d array which hold package nums
+        /// get row index in returned by get_board_data() 2d array which holds package nums
         /// </summary>
         /// <param name="board_id"></param>
         /// <returns>row num in 2d array</returns>
@@ -75,7 +75,7 @@ namespace brainflow
         }
 
         /// <summary>
-        /// get row index which hold timestamps
+        /// get row index which holds timestamps
         /// </summary>
         /// <param name="board_id"></param>
         /// <returns>row num in 2d array</returns>
@@ -84,6 +84,23 @@ namespace brainflow
         {
             int[] val = new int[1];
             int res = BoardControllerLibrary.get_timestamp_channel (board_id, val);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException (res);
+            }
+            return val[0];
+        }
+
+        /// <summary>
+        /// get row index which holds marker
+        /// </summary>
+        /// <param name="board_id"></param>
+        /// <returns>row num in 2d array</returns>
+        /// <exception cref="BrainFlowException">If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR</exception>
+        public static int get_marker_channel (int board_id)
+        {
+            int[] val = new int[1];
+            int res = BoardControllerLibrary.get_marker_channel (board_id, val);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException (res);

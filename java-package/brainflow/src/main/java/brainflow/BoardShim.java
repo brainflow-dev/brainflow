@@ -53,6 +53,8 @@ public class BoardShim
 
         int get_timestamp_channel (int board_id, int[] timestamp_channel);
 
+        int get_marker_channel (int board_id, int[] marker_channel);
+
         int get_eeg_channels (int board_id, int[] eeg_channels, int[] len);
 
         int get_exg_channels (int board_id, int[] eeg_channels, int[] len);
@@ -228,6 +230,20 @@ public class BoardShim
     {
         int[] res = new int[1];
         int ec = instance.get_timestamp_channel (board_id, res);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in board info getter", ec);
+        }
+        return res[0];
+    }
+
+    /**
+     * get row index in returned by get_board_data() 2d array which contains markers
+     */
+    public static int get_marker_channel (int board_id) throws BrainFlowError
+    {
+        int[] res = new int[1];
+        int ec = instance.get_marker_channel (board_id, res);
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in board info getter", ec);

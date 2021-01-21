@@ -85,6 +85,7 @@ single_channel_function_names = (
     :get_timestamp_channel,
     :get_package_num_channel,
     :get_battery_channel,
+    :get_marker_channel,
 )
 
 # generating the channels functions

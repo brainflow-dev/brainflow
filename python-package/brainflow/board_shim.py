@@ -270,6 +270,13 @@ class BoardControllerDLL(object):
             ndpointer(ctypes.c_int32)
         ]
 
+        self.get_marker_channel = self.lib.get_marker_channel
+        self.get_marker_channel.restype = ctypes.c_int
+        self.get_marker_channel.argtypes = [
+            ctypes.c_int,
+            ndpointer(ctypes.c_int32)
+        ]
+
         self.get_num_rows = self.lib.get_num_rows
         self.get_num_rows.restype = ctypes.c_int
         self.get_num_rows.argtypes = [
@@ -561,6 +568,22 @@ class BoardShim(object):
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         return int(timestamp_channel[0])
+
+    @classmethod
+    def get_marker_channel(cls, board_id: int) -> int:
+        """get marker channel in resulting data table for a board
+
+        :param board_id: Board Id
+        :type board_id: int
+        :return: number of marker channel in returned numpy array
+        :rtype: int
+        :raises BrainFlowError: If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+        """
+        marker_channel = numpy.zeros(1).astype(numpy.int32)
+        res = BoardControllerDLL.get_instance().get_marker_channel(board_id, marker_channel)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to request info about this board', res)
+        return int(marker_channel[0])
 
     @classmethod
     def get_eeg_names(cls, board_id: int) -> List[str]:

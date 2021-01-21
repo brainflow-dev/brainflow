@@ -56,6 +56,12 @@ public:
      */
     static int get_timestamp_channel (int board_id);
     /**
+     * get row index which holds markers
+     * @param board_id board id of your device
+     * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+     */
+    static int get_marker_channel (int board_id);
+    /**
      * get row index which holds battery level info
      * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR

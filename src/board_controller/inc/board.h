@@ -32,6 +32,7 @@ public:
         skip_logs = false;
         db = NULL;
         streamer = NULL;
+        marker = 0.0;
         this->board_id = board_id;
         this->params = params;
     }
@@ -72,6 +73,11 @@ public:
         return board_id;
     }
 
+    int insert_marker (double value)
+    {
+        marker = value;
+    }
+
 protected:
     DataBuffer *db;
     bool skip_logs;
@@ -79,6 +85,7 @@ protected:
     struct BrainFlowInputParams params;
     Streamer *streamer;
     json board_descr;
+    volatile double marker;
 
     int prepare_for_acquisition (int buffer_size, char *streamer_params);
     void free_packages ();

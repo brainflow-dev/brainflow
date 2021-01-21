@@ -127,6 +127,16 @@ int Board::prepare_for_acquisition (int buffer_size, char *streamer_params)
 
 void Board::push_package (double *package)
 {
+    try
+    {
+        int marker_channel = board_descr["marker_channel"];
+        package[marker_channel] = marker;
+        marker = 0.0;
+    }
+    catch (json::exception &e)
+    {
+        safe_logger (spdlog::level::err, e.what ());
+    }
     if (db != NULL)
     {
         db->add_data (package);
