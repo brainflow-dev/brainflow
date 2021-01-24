@@ -291,7 +291,7 @@ namespace brainflow
         /// <param name="data">data for csp</param>
         /// <param name="labels">labels for each class</param>
         /// <returns>Tuple of two arrays: [n_channels x n_channels] shaped array of filters and n_channels length array of eigenvalues</returns>
-        public static Tuple<double[,], double[]> get_csp(double[,,] data, int[] labels)
+        public static Tuple<double[,], double[]> get_csp(double[,,] data, double[] labels)
         {
             int n_epochs = data.GetLength(0);
             int n_channels = data.GetLength(1);
@@ -328,7 +328,7 @@ namespace brainflow
                 }
             }
             
-            Tuple<double[], double[]> return_data = new Tuple<double[,], double[]>(output_filters, output_eigenvalues);
+            Tuple<double[,], double[]> return_data = new Tuple<double[,], double[]>(output_filters, output_eigenvalues);
             return return_data;
         }
 
