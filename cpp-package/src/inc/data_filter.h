@@ -59,7 +59,8 @@ public:
     static void perform_wavelet_denoising (
         double *data, int data_len, char *wavelet, int decomposition_level);
     /// get common spatial patterns
-    static std::pair<double **, double *> DataFilter::get_csp (double ***data, int *labels);
+    static std::pair<double **, double *> get_csp (
+        double ***data, double *labels, int n_epochs, int n_channels, int n_times);
     /// perform data windowing
     static double *get_window (int window_function, int window_len);
     /**
