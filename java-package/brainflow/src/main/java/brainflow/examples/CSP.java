@@ -1,6 +1,11 @@
 package brainflow.examples;
 
+import java.io.InputStream;
 import java.util.Arrays;
+
+import org.apache.commons.lang3.SystemUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import brainflow.DataFilter;
 
