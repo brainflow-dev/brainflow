@@ -97,7 +97,7 @@ target_link_libraries (
 ## Demo for csp ##
 ###########################
 add_executable (
-    csp PUBLIC
+    csp
     src/csp.cpp
 )
 
