@@ -384,8 +384,9 @@ public class DataFilter
                 output_filters[i][j] = temp_filters[i * n_channels + j];
             }
         }
-
-        return Pair<double[][], double[]> res = new MutablePair<double[][], double[]> (output_filters, output_eigenvalues);
+        
+        Pair<double[][], double[]> res = new MutablePair<double[][], double[]> (output_filters, output_eigenvalues);
+        return res;
     }
 
     /**
