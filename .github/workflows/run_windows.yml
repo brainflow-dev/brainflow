@@ -185,6 +185,9 @@ jobs:
     - name: Downsampling Python Test
       run: python %GITHUB_WORKSPACE%\tests\python\downsampling.py
       shell: cmd
+    - name: CSP Python Test
+      run: python %GITHUB_WORKSPACE%\tests\python\csp.py
+      shell: cmd
     - name: Windowing Python Test
       run: python %GITHUB_WORKSPACE%\tests\python\windowing.py
       shell: cmd
@@ -196,6 +199,9 @@ jobs:
       shell: cmd
     - name: Downsampling Cpp Test
       run: .\tests\cpp\signal_processing_demo\build\Release\downsampling.exe
+      shell: cmd
+    - name: CSP Cpp Test
+      run: .\tests\cpp\signal_processing_demo\build\Release\csp.exe
       shell: cmd
     - name: Windowing Cpp Test
       run: .\tests\cpp\signal_processing_demo\build\Release\windowing.exe
