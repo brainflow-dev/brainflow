@@ -355,9 +355,9 @@ public class DataFilter
         int n_times = data[0][0].length;
 
         double[] temp_data1d = new double[n_epochs * n_channels * n_times];
-        for (int e = 0; e < n_ep; e++) 
+        for (int e = 0; e < n_epochs; e++) 
         {
-            for (int c = 0; c < n_ch; c++) 
+            for (int c = 0; c < n_channels; c++) 
             {
                 for (int t = 0; t < n_times; t++)
                 {
@@ -367,16 +367,25 @@ public class DataFilter
             }
         }
 
-        double[] output_filters = new double[n_channels * n_channels];
+        double[] temp_filters = new double[n_channels * n_channels];
         double[] output_eigenvalues = new double[n_channels];
         
-        int ec = instance.get_csp (temp_data1d, labels, n_epochs, n_channels, n_times, output_filters, output_eigenvalues);
+        int ec = instance.get_csp (temp_data1d, labels, n_epochs, n_channels, n_times, temp_filters, output_eigenvalues);
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to perform windowing", ec);
         }
         
-        return Pair<double[][], double[]> res = new MutablePair<double[][], double[]> (reshape_data_to_2d (n_channels, n_channels, output_filters), output_eigenvalues);
+        double[][] output_filters = new double [n_channels][n_channels];
+        for (int i = 0; i < n_channels; i++)
+        {
+            for (int j = 0; j < n_channels; j++)
+            {
+                output_filters[i][j] = temp_filters[i * n_channels + j];
+            }
+        }
+
+        return Pair<double[][], double[]> res = new MutablePair<double[][], double[]> (output_filters, output_eigenvalues);
     }
 
     /**
