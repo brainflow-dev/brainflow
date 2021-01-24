@@ -9,7 +9,7 @@ import sys
 import struct
 from typing import List, Set, Dict, Tuple
 
-from nptyping import NDArray, Float64, Complex128
+from nptyping import NDArray, Float64, Complex128, Int64
 
 from brainflow.board_shim import BrainFlowError, LogLevels
 from brainflow.exit_codes import BrainflowExitCodes
@@ -212,8 +212,8 @@ class DataHandlerDLL(object):
         self.get_csp = self.lib.get_csp
         self.get_csp.restype = ctypes.c_int
         self.get_csp.argtypes = [
-            ndpointer(ctypes.c_double)
-            ndpointer(ctypes.c_int)
+            ndpointer(ctypes.c_double),
+            ndpointer(ctypes.c_int),
             ctypes.c_int,
             ctypes.c_int,
             ctypes.c_int,
@@ -622,7 +622,7 @@ class DataFilter(object):
             raise BrainFlowError('unable to denoise data', res)
 
     @classmethod
-    def get_csp(cls, data: NDArray[Float64], labels: NDArray[Int64]) -> Tuple
+    def get_csp(cls, data: NDArray[Float64], labels: NDArray[Int64]) -> Tuple:
         """calculate common spatial filters
 
         :param data: [epochs x channels x times]-shaped 3D array of data for two classes
@@ -632,30 +632,46 @@ class DataFilter(object):
         :return: [channels x channels]-shaped 2D array of filters and [channels]-length 1D array of corresponding eigenvalues
         :rtype: Tuple
         """
+        # better to do this:
+        # labels = np.asarray(labels, dtype=np.float64)
         if not (len(labels.shape) == 1):
             raise BrainFlowError('Invalid shape of array <labels>', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
-        if not (len(labels) == data.shape[1]):
+        if not (len(labels) == data.shape[0]):
             raise BrainFlowError('Invalid number of elements in array <labels>', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         
         n_epochs, n_channels, n_times = data.shape
-        
+        print("data3d")
+        print(data)
         temp_data1d = numpy.zeros((int(n_epochs * n_channels * n_times))).astype(numpy.float64)
         for e in range(n_epochs):
             for c in range(n_channels):
                 for t in range(n_times):
                     temp_data1d[e * n_channels * n_times + c * n_times + t] = data[e, c, t]
 
-        temp_filters = numpy.zeros((int(n_channels * n_channels))).astype(numpy.float64)
-        output_eigenvalues = numpy.zeros(int(n_channels)).astype(numpy.float64)
-
+        # temp_filters = numpy.zeros((int(n_channels * n_channels))).astype(numpy.float64)
+        # output_eigenvalues = numpy.zeros(int(n_channels)).astype(numpy.float64)
+        temp_filters = numpy.zeros(4)
+        output_eigenvalues = numpy.zeros(2)
+        print("data1d")
+        print(temp_data1d)
+        print("labels")
+        print(labels)
+        print("data shape")
+        print(n_epochs, n_channels, n_times)
         res = DataHandlerDLL.get_instance().get_csp(temp_data1d, labels, n_epochs, n_channels, n_times, temp_filters, output_eigenvalues)
         if res != BrainflowExitCodes.STATUS_OK.value:
-            raise BrainFlowError('unable to calc psd', res)
-
+            raise BrainFlowError('unable to calc csp', res)
+        print("1d_filters")
+        print(temp_filters)
+        print(" ")
         output_filters = numpy.zeros((n_channels, n_channels)).astype(numpy.float64)
         for i in range(n_channels):
             for j in range(n_channels):
                 output_filters[i, j] = temp_filters[i * n_channels + j]
+        print("2d_filters")
+        print(output_filters)
+        print("eigenvalues")
+        print(output_eigenvalues)
         return output_filters, output_eigenvalues
 
     @classmethod
