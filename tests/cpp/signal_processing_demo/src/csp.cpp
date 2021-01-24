@@ -61,7 +61,8 @@ int main (int argc, char *argv[])
         }
     }
 
-    std::pair<double **, double *> output = get_csp (data, labels, n_ep, n_ch, n_times);
+    std::pair<double **, double *> output = DataFilter::get_csp (data, labels, n_ep, n_ch, n_times);
+
     std::cout << "\noutput.first[i][j] = \n";
     for (int i = 0; i < n_ch; i++)
     {
