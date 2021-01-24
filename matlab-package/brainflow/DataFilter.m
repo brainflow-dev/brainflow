@@ -182,7 +182,7 @@ classdef DataFilter
                 for c=1:n_channels
                     for t=1:n_times
                         idx = (e-1) * n_channels * n_times + (c-1) * n_times + t;
-                        data1d[idx] = data[c,t,e]; 
+                        data1d(idx) = data(c,t,e); 
                     end
                 end
             end
@@ -195,7 +195,7 @@ classdef DataFilter
             output_filters = repmat(0, [n_channels n_times n_epochs]);
             for i=1:n_channels
                 for j=1:n_channels
-                    output_filters[i, j] = temp_output_filters[(i-1) * n_channels + j];
+                    output_filters(i, j) = temp_output_filters((i-1) * n_channels + j);
                 end 
             end
             filters = output_filters.Value;
