@@ -346,7 +346,7 @@ public class DataFilter
     /**
      * get common spatial filters
      * 
-     * @return           array of the size specified in window_len
+     * @return           two arrays of the size [channels x channels] and [channels]  
      */
     public static Pair<double[][], double[]> get_csp (double[][][] data, int[] labels) throws BrainFlowError
     {
