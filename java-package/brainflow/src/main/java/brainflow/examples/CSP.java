@@ -19,15 +19,10 @@ public class CSP
                             {{6, 3, 1, 5}, {3, 0, 5, 1}},
                             {{1, 5, 6, 2}, {5, 1, 2, 2}}
                          };
+                         
         Pair<double[][], double[]> csp_data = DataFilter.get_csp(data, labels);
+
         System.out.print ("filters = \n");
-            for (int i = 0; i < 2; i++)
-            {
-                for (int j = 0; j < 2; j++) 
-                {
-                    System.out.print (csp_data.getLeft()[i][j] + " ");
-                }
-            }
-            System.out.println ();
+        System.out.println(Arrays.toString(csp_data.getLeft()));
     }
 }

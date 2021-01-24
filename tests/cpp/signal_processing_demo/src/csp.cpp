@@ -45,7 +45,7 @@ int main (int argc, char *argv[])
     for (int e = 0; e < n_ep; e++)
     {
         data[e] = new double *[n_ch];
-        std::cout << "\n";
+        std::cout << "\ndata = \n";
         std::cout << "\n";
         for (int c = 0; c < n_ch; c++)
         {
@@ -54,16 +54,15 @@ int main (int argc, char *argv[])
             std::cout << "\n";
             for (int t = 0; t < n_times; t++)
             {
-                // data[e][c][t] = e * n_ch * n_times + c * n_times + t;
                 data[e][c][t] = ar[e][c][t];
-                // std::cout << data[e][c][t] << "  ";
+                std::cout << data[e][c][t] << "  ";
             }
         }
     }
 
     std::pair<double **, double *> output = DataFilter::get_csp (data, labels, n_ep, n_ch, n_times);
 
-    std::cout << "\noutput.first[i][j] = \n";
+    std::cout << "\nfilters = \n";
     for (int i = 0; i < n_ch; i++)
     {
         std::cout << "\n";
