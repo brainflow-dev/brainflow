@@ -496,7 +496,7 @@ license issue: turn off some features
 int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_times,
     double *output_w, double *output_d)
 {
-    if ((!data) || (!labels) || n_epochs <= 0 || n_channels <= 0, n_times <= 0)
+    if ((!data) || (!labels) || n_epochs <= 0 || n_channels <= 0 || n_times <= 0)
     {
         data_logger->error ("Invalid function arguments provided. Please verify that all integer "
                             "arguments are positive and data1/data2 and labels aren't empty.");
