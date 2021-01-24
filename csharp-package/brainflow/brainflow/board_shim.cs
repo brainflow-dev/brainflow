@@ -573,6 +573,18 @@ namespace brainflow
         }
 
         /// <summary>
+        /// insert marker to data array
+        /// </summary>
+        public void insert_marker (double value)
+        {
+            int res = BoardControllerLibrary.insert_marker (value, board_id, input_json);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException (res);
+            }
+        }
+
+        /// <summary>
         /// start streaming thread, store data in internal ringbuffer
         /// </summary>
         /// <param name="buffer_size">size of internal ringbuffer</param>

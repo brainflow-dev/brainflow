@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>
+#include <limits>
 #include <string>
 
 #include "board_controller.h"
@@ -75,7 +77,14 @@ public:
 
     int insert_marker (double value)
     {
+        if (std::fabs (value) < std::numeric_limits<double>::epsilon ())
+        {
+            safe_logger (
+                spdlog::level::warn, "0 is a default value for marker, you can not use it.");
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+        }
         marker = value;
+        return (int)BrainFlowExitCodes::STATUS_OK;
     }
 
 protected:

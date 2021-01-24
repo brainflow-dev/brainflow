@@ -347,6 +347,14 @@ classdef BoardShim
             exit_code = calllib(lib_name, task_name, obj.board_id, obj.input_params_json);
             BoardShim.check_ec(exit_code, task_name);
         end
+        
+        function insert_marker(obj, value)
+            % insert marker
+            task_name = 'insert_marker';
+            lib_name = BoardShim.load_lib();
+            exit_code = calllib(lib_name, task_name, double(value), obj.board_id, obj.input_params_json);
+            BoardShim.check_ec(exit_code, task_name);
+        end
 
         function num_data_point = get_board_data_count(obj)
             % get amount of datapoints in internal buffer

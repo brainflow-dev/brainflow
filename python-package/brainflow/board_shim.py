@@ -205,6 +205,14 @@ class BoardControllerDLL(object):
             ctypes.c_char_p
         ]
 
+        self.insert_marker = self.lib.insert_marker
+        self.insert_marker.restype = ctypes.c_int
+        self.insert_marker.argtypes = [
+            ctypes.c_double,
+            ctypes.c_int,
+            ctypes.c_char_p
+        ]
+
         self.get_board_data_count = self.lib.get_board_data_count
         self.get_board_data_count.restype = ctypes.c_int
         self.get_board_data_count.argtypes = [
@@ -952,6 +960,19 @@ class BoardShim(object):
         """
 
         return self._master_board_id
+
+    def insert_marker(self, value: float) -> None:
+        """Insert Marker to Data Stream
+
+        :param value: value to insert
+        :type value: float
+        :return: board id
+        :rtype: int
+        """
+
+        res = BoardControllerDLL.get_instance().insert_marker(value, self.board_id, self.input_json)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to insert marker', res)
 
     def is_prepared(self) -> bool:
         """Check if session is ready or not

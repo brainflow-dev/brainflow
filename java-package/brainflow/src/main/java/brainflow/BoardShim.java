@@ -30,6 +30,8 @@ public class BoardShim
 
         int release_session (int board_id, String params);
 
+        int insert_marker (double value, int board_id, String params);
+
         int get_current_board_data (int num_samples, double[] data_buf, int[] returned_samples, int board_id,
                 String params);
 
@@ -690,6 +692,18 @@ public class BoardShim
             throw new BrainFlowError ("Error in get_board_data_count", ec);
         }
         return res[0];
+    }
+
+    /**
+     * insert marker to data stream
+     */
+    public void insert_marker (double value) throws BrainFlowError
+    {
+        int ec = instance.insert_marker (value, board_id, input_json);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in insert_marker", ec);
+        }
     }
 
     /**

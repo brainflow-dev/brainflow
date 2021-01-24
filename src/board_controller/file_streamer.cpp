@@ -41,4 +41,5 @@ void FileStreamer::stream_data (double *data)
     {
         fprintf (fp, "%lf,", data[i]);
     }
+    fputs ("\n", fp);
 }

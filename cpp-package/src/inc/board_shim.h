@@ -197,5 +197,7 @@ public:
     double **get_board_data (int *num_data_points);
     /// send string to a board, use it carefully and only if you understand what you are doing
     std::string config_board (char *config);
+    /// insert marker in data stream
+    void insert_marker (double value);
     // clang-format on
 };
