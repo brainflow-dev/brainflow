@@ -493,8 +493,8 @@ int perform_wavelet_denoising (double *data, int data_len, char *wavelet, int de
 data must be band-pass filtered, centered and scaled
 license issue: turn off some features
 */
-int get_csp (double *data, int *labels, int n_epochs, int n_channels, int n_times, double *output_w,
-    double *output_d)
+int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_times,
+    double *output_w, double *output_d)
 {
     if ((!data) || (!labels) || n_epochs <= 0 || n_channels <= 0, n_times <= 0)
     {
@@ -504,44 +504,86 @@ int get_csp (double *data, int *labels, int n_epochs, int n_channels, int n_time
     }
     try
     {
-        Eigen::MatrixXd sum1 (n_channels, n_channels);
-        Eigen::MatrixXd sum2 (n_channels, n_channels);
+        // make all matrices row major
+        Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> sum1 (
+            n_channels, n_channels);
+        Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> sum2 (
+            n_channels, n_channels);
         int n_class1 = 0;
         int n_class2 = 0;
         for (int e = 0; e < n_epochs; e++)
         {
-            Eigen::MatrixXd X (n_channels, n_times);
-            X = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>> (
-                data + e * n_channels * n_times, n_channels, n_times);
-            switch (labels[e])
+            // Eigen::MatrixXd X (n_channels, n_times);
+            // X = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
+            // Eigen::RowMajor>> (
+            //     data + e * n_channels * n_times, n_channels, n_times);
+
+            // std::cout << std::endl << "X = " << std::endl << X << std::endl;
+            Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> X (
+                n_channels, n_times);
+            for (int c = 0; c < n_channels; c++)
+            {
+                for (int t = 0; t < n_times; t++)
+                {
+                    X (c, t) = data[e * n_channels * n_times + c * n_times + t];
+                }
+            }
+            // std::cout << "X =" << std::endl << X << std::endl;
+
+            for (int i = 0; i < n_channels; i++)
+            {
+                double ctr = X.row (i).mean ();
+                for (int j = 0; j < n_times; j++)
+                {
+                    X (i, j) -= ctr;
+                }
+            }
+            // std::cout << "X_centered =" << std::endl << X << std::endl;
+            // std::cout << "cov =" << std::endl
+            //           << (X * X.transpose ()) / double (n_times) << std::endl;
+
+            // because cov(A + ctr) = cov(A)
+            switch (int (labels[e]))
             {
                 case 0:
-                    sum1.noalias () += X * X.transpose ();
+                    sum1.noalias () += (X * X.transpose ()) / double (n_times);
                     n_class1++;
                     break;
                 case 1:
-                    sum2.noalias () += X * X.transpose ();
+                    sum2.noalias () += X * X.transpose () / double (n_times);
                     n_class2++;
                     break;
                 default:
-                    data_logger->error ("Invalid class label. Label: {}", labels[e]);
+                    data_logger->error ("Invalid class label. Current class label: {}", labels[e]);
                     return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
                     break;
             }
         }
+
         sum1 /= n_class1;
         sum2 /= n_class2;
+        // std::cout << "sum1 =" << std::endl << sum1 << std::endl;
+        // std::cout << "sum2 =" << std::endl << sum2 << std::endl;
+        // std::cout << "sum1 + sum2 =" << std::endl << sum1 + sum2 << std::endl;
 
-        Eigen::GeneralizedSelfAdjointEigenSolver<Eigen::MatrixXd> ges (sum1, sum1 + sum2);
-        // better to use mapping instead of copying
+        Eigen::GeneralizedSelfAdjointEigenSolver<
+            Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>
+            ges (sum1, sum1 + sum2);
+
+        // std::cout << "The eigenvalues are:\n " << ges.eigenvalues ().transpose () << std::endl;
+        // std::cout << "The eigenvectors are:\n " << ges.eigenvectors ().transpose () << std::endl;
+        // std::cout << "The eigenvectors are:\n " << ges.eigenvectors ().transpose () << std::endl;
+
         for (int i = 0; i < n_channels; i++)
         {
             output_d[i] = ges.eigenvalues () (i);
-            // transposed eigenvectors
+            // std::cout << std::endl;
             for (int j = 0; j < n_channels; j++)
             {
                 output_w[i * n_channels + j] = ges.eigenvectors () (j, i);
+                // std::cout << " " << output_w[i * n_channels + j];
             }
+            // std::cout << " " << output_d[i];
         }
     }
     catch (...)
