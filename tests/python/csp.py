@@ -21,8 +21,8 @@ def main():
 
     true_filters = np.array([[-0.313406, 0.0792153], [-0.280803, -0.480046]])
     print("true filters = ")
-   	print(real_filters)
-   	# filters = 
+    print(real_filters)
+    # filters = 
     # -0.313406  0.0792153
     # -0.280803  -0.480046
 
