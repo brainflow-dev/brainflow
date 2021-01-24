@@ -213,7 +213,7 @@ class DataHandlerDLL(object):
         self.get_csp.restype = ctypes.c_int
         self.get_csp.argtypes = [
             ndpointer(ctypes.c_double),
-            ndpointer(ctypes.c_int),
+            ndpointer(ctypes.c_double),
             ctypes.c_int,
             ctypes.c_int,
             ctypes.c_int,
@@ -622,7 +622,7 @@ class DataFilter(object):
             raise BrainFlowError('unable to denoise data', res)
 
     @classmethod
-    def get_csp(cls, data: NDArray[Float64], labels: NDArray[Int64]) -> Tuple:
+    def get_csp(cls, data: NDArray[Float64], labels: NDArray[Float64]) -> Tuple:
         """calculate common spatial filters
 
         :param data: [epochs x channels x times]-shaped 3D array of data for two classes
