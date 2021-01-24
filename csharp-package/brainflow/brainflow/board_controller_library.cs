@@ -63,7 +63,9 @@ namespace brainflow
         NOTION_2_BOARD = 14,
         IRONBCI_BOARD = 15,
         GFORCE_PRO_BOARD = 16,
-        FREEEEG32_BOARD = 17
+        FREEEEG32_BOARD = 17,
+        MUSE_1_BOARD = 18,
+        MUSE_2_BOARD = 19,
     };
 
 

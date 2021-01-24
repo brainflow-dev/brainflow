@@ -22,5 +22,7 @@ classdef BoardIDs < int32
         IRONBCI_BOARD(15)
         GFORCE_PRO_BOARD(16)
         FREEEEG32_BOARD(17)
+        MUSE_1_BOARD(18)
+        MUSE_2_BOARD(19)
     end
 end

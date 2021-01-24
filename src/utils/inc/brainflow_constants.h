@@ -51,9 +51,11 @@ enum class BoardIds : int
     IRONBCI_BOARD = 15,
     GFORCE_PRO_BOARD = 16,
     FREEEEG32_BOARD = 17,
+    MUSE_1_BOARD = 18, // Muse 2014
+    MUSE_2_BOARD = 19, // Muse 2016, Muse 2, Muse S
     // use it to iterate
     FIRST = PLAYBACK_FILE_BOARD,
-    LAST = FREEEEG32_BOARD
+    LAST = MUSE_2_BOARD
 };
 
 enum class FilterTypes : int

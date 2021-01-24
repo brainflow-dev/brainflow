@@ -1,0 +1,35 @@
+Optionally see https://github.com/brainflow-dev/brainflow/issues/148
+
+Instructions to add new boards to BrainFlow [from docs/BrainFlowDev.rst]
+
+- [X] add new board Id to BoardIds enum in C code  src/utils/inc/brainflow_constants.h
+- [X] and to the same enum in all bindings
+    The new enum names are MUSE_1_BOARD (plain BT) and MUSE_2_BOARD (gatt BTLE).
+    All new muses are MUSE_2, BTLE.
+
+- [X] add new object creation to board controller C interface [src/board_controller/board_controller.cpp]
+
+- [ ] inherit your board from Board class [src/board_controller/inc/board.h]
+      and implement all pure virtual methods, store data in DataBuffer object, use
+      synthetic board [src/board_controller/inc/synthetic_board.h] as a reference,
+      try to reuse code from utils [src/utils] folder
+
+    - [ ] we'll probably want to add BLE functions to src/utils
+        A cross-platform BLE library is https://github.com/mbientlab/Warble but it may not have osx support yet, which is done via CoreBluetooth.
+        If a common interface is developed in src/utils, then libraries could be popped in and out for different platforms or other needs.
+        Warble looks like it would work as a place to send additional BLE work upstream, however, to share bugfixing work with them.
+
+    - [ ] in Muse2 class, implement device selection (probably configuration, or skip this and just pick the first nearby device found)
+    - [ ] in Muse2 class, implement stream configuration (preset selection)
+
+    - [ ] in Muse2 class, implement session initialisation / releasing
+
+    - [ ] in Muse2 class, implement stream starting / stopping
+    - [ ] in Muse2 class, implement data forwarding
+
+- [ ] add information about your board to [src/board_controller/inc/brainflow_boards.h]
+
+- [ ] add new files to BOARD_CONTROLLER_SRC variable in CmakeLists.txt, you may also need to add new directory to target_include_directories for BOARD_CONTROLLER_NAME variable
+
+- [ ] optionally develop a simple emulator for the device [emulator/brainflow_emulator] and add tests to the github actions workflows.
+
