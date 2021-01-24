@@ -348,7 +348,7 @@ public class DataFilter
      * 
      * @return           two arrays of the size [channels x channels] and [channels]  
      */
-    public static Pair<double[][], double[]> get_csp (double[][][] data, int[] labels) throws BrainFlowError
+    public static Pair<double[][], double[]> get_csp (double[][][] data, double[] labels) throws BrainFlowError
     {
         int n_epochs = data.length;
         int n_channels = data[0].length;
@@ -384,7 +384,7 @@ public class DataFilter
                 output_filters[i][j] = temp_filters[i * n_channels + j];
             }
         }
-        
+
         Pair<double[][], double[]> res = new MutablePair<double[][], double[]> (output_filters, output_eigenvalues);
         return res;
     }
