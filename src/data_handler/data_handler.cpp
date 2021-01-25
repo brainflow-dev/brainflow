@@ -543,6 +543,7 @@ int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_t
             //           << (X * X.transpose ()) / double (n_times) << std::endl;
 
             // because cov(A + ctr) = cov(A)
+            // .noalias might be wrond
             switch (int (labels[e]))
             {
                 case 0:
