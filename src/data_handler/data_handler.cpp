@@ -569,7 +569,9 @@ int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_t
 
         Eigen::GeneralizedSelfAdjointEigenSolver<
             Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>
-            ges (sum1, sum1 + sum2);
+            ges (sum1, sum1 + sum2); // valgrind: ==9795== Conditional jump or move depends on
+                                     // uninitialised value(s)
+
 
         // std::cout << "The eigenvalues are:\n " << ges.eigenvalues ().transpose () << std::endl;
         // std::cout << "The eigenvectors are:\n " << ges.eigenvectors ().transpose () << std::endl;

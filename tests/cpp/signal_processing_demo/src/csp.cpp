@@ -43,17 +43,16 @@ int main (int argc, char *argv[])
     for (int e = 0; e < n_ep; e++)
     {
         data[e] = new double *[n_ch];
-        std::cout << "\ndata = \n";
-        std::cout << "\n";
+        std::cout << "data = " << std::endl;
         for (int c = 0; c < n_ch; c++)
         {
             data[e][c] = new double[n_times];
-            std::cout << "\n";
             for (int t = 0; t < n_times; t++)
             {
                 data[e][c][t] = ar[e][c][t];
                 std::cout << data[e][c][t] << "  ";
             }
+            std::cout << std::endl;
         }
     }
 
@@ -67,7 +66,10 @@ int main (int argc, char *argv[])
         std::cout << "\n";
         for (int j = 0; j < n_ch; j++)
         {
-            std::cout << output.first[i][j] << "  ";
+            std::cout << output.first[i][j]
+                      << "  "; // Here valgrind complains: 1) ==9795== Conditional jump or move
+                               // depends on uninitialised value(s); 2) ==9795== Use of
+                               // uninitialised value of size 8
         }
     }
     std::cout << "\n";
