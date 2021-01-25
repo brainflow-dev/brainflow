@@ -42,6 +42,7 @@ int main (int argc, char *argv[])
     double **w = new double *[n_ch];
     double *d = new double[n_ch];
 
+    // Init data array
     for (int e = 0; e < n_ep; e++)
     {
         data[e] = new double *[n_ch];
@@ -60,9 +61,11 @@ int main (int argc, char *argv[])
         }
     }
 
+    // Get CSP filters
     std::pair<double **, double *> output = DataFilter::get_csp (data, labels, n_ep, n_ch, n_times);
 
-    std::cout << "\nfilters = \n";
+    // Print results
+    std::cout << "\nfilters = ";
     for (int i = 0; i < n_ch; i++)
     {
         std::cout << "\n";
@@ -72,4 +75,18 @@ int main (int argc, char *argv[])
         }
     }
     std::cout << "\n";
+
+    // Release allocated memory
+    for (int e = 0; e < n_ep; e++)
+    {
+        for (int c = 0; c < n_ch; c++)
+        {
+            delete[] data[e][c];
+            delete[] w[c];
+        }
+        delete[] data[e];
+    }
+    delete[] data;
+    delete[] w;
+    delete[] d;
 }
