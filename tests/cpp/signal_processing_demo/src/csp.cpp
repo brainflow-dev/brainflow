@@ -78,7 +78,6 @@ int main (int argc, char *argv[])
         for (int c = 0; c < n_ch; c++)
         {
             delete[] data[e][c];
-            delete[] output.first[c];
         }
         delete[] data[e];
     }
