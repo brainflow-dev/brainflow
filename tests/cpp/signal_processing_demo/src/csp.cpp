@@ -39,9 +39,6 @@ int main (int argc, char *argv[])
 
     double ***data = new double **[n_ep];
 
-    double **w = new double *[n_ch];
-    double *d = new double[n_ch];
-
     // Init data array
     for (int e = 0; e < n_ep; e++)
     {
@@ -51,7 +48,6 @@ int main (int argc, char *argv[])
         for (int c = 0; c < n_ch; c++)
         {
             data[e][c] = new double[n_times];
-            w[c] = new double[n_ch];
             std::cout << "\n";
             for (int t = 0; t < n_times; t++)
             {
@@ -82,11 +78,11 @@ int main (int argc, char *argv[])
         for (int c = 0; c < n_ch; c++)
         {
             delete[] data[e][c];
-            delete[] w[c];
+            delete[] output.first[c];
         }
         delete[] data[e];
     }
     delete[] data;
-    delete[] w;
-    delete[] d;
+    delete[] output.first;
+    delete[] output.second;
 }
