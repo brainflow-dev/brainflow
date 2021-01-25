@@ -153,6 +153,15 @@ std::pair<double **, double *> DataFilter::get_csp (
 
     double *temp_filters = new double[n_channels * n_channels];
     double *output_eigenvalues = new double[n_channels];
+    for (int i = 0; i < n_channels; i++)
+    {
+        output_eigenvalues[i] = 0;
+        for (int j = 0; j < n_channels; j++)
+        {
+            temp_filters[i * n_channels + j] = 0;
+        }
+    }
+
     int res = ::get_csp (
         temp_data1d, labels, n_epochs, n_channels, n_times, temp_filters, output_eigenvalues);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
