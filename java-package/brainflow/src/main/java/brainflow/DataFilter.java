@@ -367,6 +367,14 @@ public class DataFilter
             }
         }
 
+        System.out.println ("data1d =");
+        System.out.println (Arrays.toString (temp_data1d));
+        System.out.println ();
+
+        System.out.println ("labels =");
+        System.out.println (Arrays.toString (labels));
+        System.out.println ();
+
         double[] temp_filters = new double[n_channels * n_channels];
         double[] output_eigenvalues = new double[n_channels];
         
