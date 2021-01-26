@@ -603,17 +603,23 @@ int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_t
         // std::cout << "The eigenvectors are:\n " << ges.eigenvectors ().transpose () << std::endl;
         // std::cout << "The eigenvectors are:\n " << ges.eigenvectors ().transpose () << std::endl;
 
+        std::cout << "\nfilters = " << std::endl;
         for (int i = 0; i < n_channels; i++)
         {
             output_d[i] = ges.eigenvalues () (i);
-            // std::cout << std::endl;
             for (int j = 0; j < n_channels; j++)
             {
                 output_w[i * n_channels + j] = ges.eigenvectors () (j, i);
-                // std::cout << " " << output_w[i * n_channels + j];
+                std::cout << output_w[i * n_channels + j] << "  ";
             }
+            std::cout << std::endl;
             // std::cout << " " << output_d[i];
         }
+
+        std::cout << "\neigenvalues = " << std::endl;
+        std::cout << ges.eigenvalues () << std::endl;
+
+
         std::cout << "\nend data_handler/get_csp ################################# " << std::endl;
     }
     catch (...)
