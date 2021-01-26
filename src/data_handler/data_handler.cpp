@@ -527,7 +527,7 @@ int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_t
         }
         std::cout << std::endl;
 
-        std::cout << "\nn_epochs, n_channels, n_times = " << endl;
+        std::cout << "\nn_epochs, n_channels, n_times = " << std::endl;
         std::cout << n_epochs << "  " << n_channels << "  " << n_times << std::endl;
 
         // make all matrices row major
