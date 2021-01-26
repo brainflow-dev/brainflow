@@ -350,6 +350,7 @@ public class DataFilter
      */
     public static Pair<double[][], double[]> get_csp (double[][][] data, double[] labels) throws BrainFlowError
     {
+        System.out.println ("start Java binding ##################################");
         int n_epochs = data.length;
         int n_channels = data[0].length;
         int n_times = data[0][0].length;
@@ -394,6 +395,8 @@ public class DataFilter
         }
 
         Pair<double[][], double[]> res = new MutablePair<double[][], double[]> (output_filters, output_eigenvalues);
+        System.out.println ("end Java binding ##################################");
+        System.out.println ();
         return res;
     }
 

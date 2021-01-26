@@ -639,6 +639,7 @@ class DataFilter(object):
         if not (len(labels) == data.shape[0]):
             raise BrainFlowError('Invalid number of elements in array <labels>', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         
+        print("start Python binding ##################################")
         n_epochs, n_channels, n_times = data.shape
         print("data3d")
         print(data)
@@ -650,8 +651,8 @@ class DataFilter(object):
 
         # temp_filters = numpy.zeros((int(n_channels * n_channels))).astype(numpy.float64)
         # output_eigenvalues = numpy.zeros(int(n_channels)).astype(numpy.float64)
-        temp_filters = numpy.zeros(4)
-        output_eigenvalues = numpy.zeros(2)
+        temp_filters = numpy.zeros(int(n_channels * n_channels)).astype(numpy.float64)
+        output_eigenvalues = numpy.zeros(int(n_channels)).astype(numpy.float64)
         print("data1d")
         print(temp_data1d)
         print("labels")
@@ -672,6 +673,8 @@ class DataFilter(object):
         print(output_filters)
         print("eigenvalues")
         print(output_eigenvalues)
+        print("end Python binding ##################################")
+        print()
         return output_filters, output_eigenvalues
 
     @classmethod

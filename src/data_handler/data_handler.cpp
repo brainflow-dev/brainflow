@@ -505,6 +505,7 @@ int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_t
     }
     try
     {
+        std::cout << "\nstart data_handler/get_csp ################################# " << std::endl;
 
         for (int e = 0; e < n_epochs; e++)
         {
@@ -526,8 +527,8 @@ int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_t
         }
         std::cout << std::endl;
 
-        std::cout << "\nn_epochs, n_channels, n_times = " << n_epochs << "  " << n_channels << "  "
-                  << n_times << std::endl;
+        std::cout << "\nn_epochs, n_channels, n_times = " << endl;
+        std::cout << n_epochs << "  " << n_channels << "  " << n_times << std::endl;
 
         // make all matrices row major
         Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> sum1 (
@@ -613,6 +614,7 @@ int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_t
             }
             // std::cout << " " << output_d[i];
         }
+        std::cout << "\nend data_handler/get_csp ################################# " << std::endl;
     }
     catch (...)
     {
