@@ -568,15 +568,18 @@ int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_t
             std::cout << "X_centered =" << std::endl << X << std::endl;
 
             // For centered data cov(X) = (X * X_T) / n
-            // .noalias might be wrond
+            // In Eigen all expressions are lazy-evaluated. Here .eval() make the code much safer at
+            // the cost of performance
             switch (int (labels[e]))
             {
                 case 0:
-                    sum1.noalias () += (X * X.transpose ()) / double (n_times);
+                    // sum1.noalias () += (X * X.transpose ()) / double (n_times);
+                    sum1 += ((X * X.transpose ()).eval ()) / double (n_times);
                     n_class1++;
                     break;
                 case 1:
-                    sum2.noalias () += X * X.transpose () / double (n_times);
+                    // sum2.noalias () += X * X.transpose () / double (n_times);
+                    sum2 += ((X * X.transpose ()).eval ()) / double (n_times);
                     n_class2++;
                     break;
                 default:
