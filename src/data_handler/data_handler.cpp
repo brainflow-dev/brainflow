@@ -554,7 +554,7 @@ int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_t
                     X (c, t) = data[e * n_channels * n_times + c * n_times + t];
                 }
             }
-            // std::cout << "X =" << std::endl << X << std::endl;
+            std::cout << "\nX =" << std::endl << X << std::endl;
 
             for (int i = 0; i < n_channels; i++)
             {
@@ -589,8 +589,9 @@ int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_t
 
         sum1 /= n_class1;
         sum2 /= n_class2;
-        // std::cout << "sum1 =" << std::endl << sum1 << std::endl;
-        // std::cout << "sum2 =" << std::endl << sum2 << std::endl;
+
+        std::cout << "\nsum1 =" << std::endl << sum1 << std::endl;
+        std::cout << "\nsum2 =" << std::endl << sum2 << std::endl;
         // std::cout << "sum1 + sum2 =" << std::endl << sum1 + sum2 << std::endl;
 
         Eigen::GeneralizedSelfAdjointEigenSolver<
@@ -598,10 +599,8 @@ int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_t
             ges (sum1, sum1 + sum2); // valgrind: ==9795== Conditional jump or move depends on
                                      // uninitialised value(s)
 
-
-        // std::cout << "The eigenvalues are:\n " << ges.eigenvalues ().transpose () << std::endl;
-        // std::cout << "The eigenvectors are:\n " << ges.eigenvectors ().transpose () << std::endl;
-        // std::cout << "The eigenvectors are:\n " << ges.eigenvectors ().transpose () << std::endl;
+        std::cout << "\neigenvalues = " << std::endl << ges.eigenvalues () << std::endl;
+        std::cout << "\neigenvectors = " << std::endl << ges.eigenvectors () << std::endl;
 
         std::cout << "\nfilters = " << std::endl;
         for (int i = 0; i < n_channels; i++)
