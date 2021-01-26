@@ -26,7 +26,7 @@ OpenBCI is a partner of BrainFlow and uses BrainFlow as a primary SDK to work wi
 
 We continue working with OpenBCI and help them to integrate new devices like Galea.
 
-**Benefits of BrainFlow which makes it great for hardware development:**
+**Benefits of BrainFlow which make it great for hardware development and for end users:**
 
 * powerful API with many features to simplify development
     * Straightforward API for data acquisition
