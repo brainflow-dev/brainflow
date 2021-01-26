@@ -499,7 +499,7 @@ int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_t
     if ((!data) || (!labels) || n_epochs <= 0 || n_channels <= 0 || n_times <= 0)
     {
         data_logger->error ("Invalid function arguments provided. Please verify that all integer "
-                            "arguments are positive and data and labels arrays aren't empty.");
+                            "arguments are positive and data1/data2 and labels aren't empty.");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     try
@@ -513,7 +513,12 @@ int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_t
         int n_class2 = 0;
         for (int e = 0; e < n_epochs; e++)
         {
-            // declare current matrix
+            // Eigen::MatrixXd X (n_channels, n_times);
+            // X = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
+            // Eigen::RowMajor>> (
+            //     data + e * n_channels * n_times, n_channels, n_times);
+
+            // std::cout << std::endl << "X = " << std::endl << X << std::endl;
             Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> X (
                 n_channels, n_times);
             for (int c = 0; c < n_channels; c++)
@@ -523,8 +528,8 @@ int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_t
                     X (c, t) = data[e * n_channels * n_times + c * n_times + t];
                 }
             }
+            // std::cout << "X =" << std::endl << X << std::endl;
 
-            // center matrix
             for (int i = 0; i < n_channels; i++)
             {
                 double ctr = X.row (i).mean ();
@@ -533,17 +538,20 @@ int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_t
                     X (i, j) -= ctr;
                 }
             }
+            // std::cout << "X_centered =" << std::endl << X << std::endl;
+            // std::cout << "cov =" << std::endl
+            //           << (X * X.transpose ()) / double (n_times) << std::endl;
 
-            // cov = X*X_T/n for centered data, because cov(A + ctr) = cov(A)
-            // <cov> is then averaged for each class
+            // because cov(A + ctr) = cov(A)
+            // .noalias might be wrond
             switch (int (labels[e]))
             {
                 case 0:
-                    sum1 () += ((X * X.transpose ()).eval ()) / double (n_times);
+                    sum1.noalias () += (X * X.transpose ()) / double (n_times);
                     n_class1++;
                     break;
                 case 1:
-                    sum2 () += ((X * X.transpose ()).eval ()) / double (n_times);
+                    sum2.noalias () += X * X.transpose () / double (n_times);
                     n_class2++;
                     break;
                 default:
@@ -555,19 +563,30 @@ int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_t
 
         sum1 /= n_class1;
         sum2 /= n_class2;
+        // std::cout << "sum1 =" << std::endl << sum1 << std::endl;
+        // std::cout << "sum2 =" << std::endl << sum2 << std::endl;
+        // std::cout << "sum1 + sum2 =" << std::endl << sum1 + sum2 << std::endl;
 
         Eigen::GeneralizedSelfAdjointEigenSolver<
             Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>
             ges (sum1, sum1 + sum2); // valgrind: ==9795== Conditional jump or move depends on
                                      // uninitialised value(s)
 
+
+        // std::cout << "The eigenvalues are:\n " << ges.eigenvalues ().transpose () << std::endl;
+        // std::cout << "The eigenvectors are:\n " << ges.eigenvectors ().transpose () << std::endl;
+        // std::cout << "The eigenvectors are:\n " << ges.eigenvectors ().transpose () << std::endl;
+
         for (int i = 0; i < n_channels; i++)
         {
             output_d[i] = ges.eigenvalues () (i);
+            // std::cout << std::endl;
             for (int j = 0; j < n_channels; j++)
             {
                 output_w[i * n_channels + j] = ges.eigenvectors () (j, i);
+                // std::cout << " " << output_w[i * n_channels + j];
             }
+            // std::cout << " " << output_d[i];
         }
     }
     catch (...)
