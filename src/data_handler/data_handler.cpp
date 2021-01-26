@@ -515,7 +515,7 @@ int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_t
                 {
                     std::cout << data[e * n_channels * n_times + c * n_times + t] << "  ";
                 }
-                std::out << std::endl;
+                std::cout << std::endl;
             }
         }
         std::cout << "\nlabels = " << std::endl;
@@ -524,7 +524,7 @@ int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_t
         {
             std::cout << labels[c] << "  ";
         }
-        std::out << std::endl;
+        std::cout << std::endl;
 
         std::cout << "\nn_epochs, n_channels, n_times = " << n_epochs << "  " << n_channels << "  "
                   << n_times << std::endl;
