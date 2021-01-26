@@ -632,7 +632,7 @@ class DataFilter(object):
         :return: [channels x channels]-shaped 2D array of filters and [channels]-length 1D array of corresponding eigenvalues
         :rtype: Tuple
         """
-        # better do this:
+        # better to do this:
         # labels = np.asarray(labels, dtype=np.float64)
         if not (len(labels.shape) == 1):
             raise BrainFlowError('Invalid shape of array <labels>', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
