@@ -14,6 +14,7 @@ public class CSP
 
     public static void main (String[] args) throws Exception
     {
+        int n_channels = 2;
         double[] labels = {0, 1};
         double[][][] data = {
                             {{6, 3, 1, 5}, {3, 0, 5, 1}},
@@ -23,6 +24,11 @@ public class CSP
         Pair<double[][], double[]> csp_data = DataFilter.get_csp(data, labels);
 
         System.out.print ("filters = \n");
-        System.out.println(Arrays.toString(csp_data.getLeft()));
+        
+        for (int i = 0; i < n_channels; i++)
+        {
+            System.out.println (Arrays.toString (csp_data.getLeft()[i]));
+        }
+        System.out.println ();
     }
 }
