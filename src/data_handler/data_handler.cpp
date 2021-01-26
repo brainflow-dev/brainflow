@@ -535,6 +535,12 @@ int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_t
             n_channels, n_channels);
         Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> sum2 (
             n_channels, n_channels);
+
+        std::cout << "\nsum1_before = " << std::endl << sum1 << std::endl;
+        sum1.setZero ();
+        sum2.setZero ();
+        std::cout << "\nsum1_after = " << std::endl << sum1 << std::endl;
+
         int n_class1 = 0;
         int n_class2 = 0;
         for (int e = 0; e < n_epochs; e++)
@@ -564,7 +570,9 @@ int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_t
                     X (i, j) -= ctr;
                 }
             }
-            // std::cout << "X_centered =" << std::endl << X << std::endl;
+
+            std::cout << "X_centered =" << std::endl << X << std::endl;
+
             // std::cout << "cov =" << std::endl
             //           << (X * X.transpose ()) / double (n_times) << std::endl;
 
@@ -590,8 +598,8 @@ int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_t
         sum1 /= n_class1;
         sum2 /= n_class2;
 
-        std::cout << "\nsum1 =" << std::endl << sum1 << std::endl;
-        std::cout << "\nsum2 =" << std::endl << sum2 << std::endl;
+        std::cout << "\nsum1_avg =" << std::endl << sum1 << std::endl;
+        std::cout << "\nsum2_avg =" << std::endl << sum2 << std::endl;
         // std::cout << "sum1 + sum2 =" << std::endl << sum1 + sum2 << std::endl;
 
         Eigen::GeneralizedSelfAdjointEigenSolver<
