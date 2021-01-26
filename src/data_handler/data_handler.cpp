@@ -1,3 +1,4 @@
+#include <iostream>
 #include <math.h>
 #include <sstream>
 #include <stdexcept>
@@ -504,6 +505,30 @@ int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_t
     }
     try
     {
+
+        for (int e = 0; e < n_epochs; e++)
+        {
+            std::cout << "\ndata = " << std::endl;
+            for (int c = 0; c < n_channels; c++)
+            {
+                for (int t = 0; t < n_times; t++)
+                {
+                    std::cout << data[e * n_channels * n_times + c * n_times + t] << "  ";
+                }
+                std::out << std::endl;
+            }
+        }
+        std::cout << "\nlabels = " << std::endl;
+
+        for (int c = 0; c < n_channels; c++)
+        {
+            std::cout << labels[c] << "  ";
+        }
+        std::out << std::endl;
+
+        std::cout << "\nn_epochs, n_channels, n_times = " << n_epochs << "  " << n_channels << "  "
+                  << n_times << std::endl;
+
         // make all matrices row major
         Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> sum1 (
             n_channels, n_channels);
