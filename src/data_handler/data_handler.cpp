@@ -539,11 +539,11 @@ int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_t
             switch (int (labels[e]))
             {
                 case 0:
-                    sum1 += ((X * X.transpose ()).eval ()) / double (n_times);
+                    sum1 () += ((X * X.transpose ()).eval ()) / double (n_times);
                     n_class1++;
                     break;
                 case 1:
-                    sum2 += ((X * X.transpose ()).eval ()) / double (n_times);
+                    sum2 () += ((X * X.transpose ()).eval ()) / double (n_times);
                     n_class2++;
                     break;
                 default:
