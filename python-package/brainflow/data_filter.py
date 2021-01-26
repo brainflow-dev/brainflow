@@ -632,8 +632,6 @@ class DataFilter(object):
         :return: [channels x channels]-shaped 2D array of filters and [channels]-length 1D array of corresponding eigenvalues
         :rtype: Tuple
         """
-        # better to do this:
-        # labels = np.asarray(labels, dtype=np.float64)
         if not (len(labels.shape) == 1):
             raise BrainFlowError('Invalid shape of array <labels>', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not (len(labels) == data.shape[0]):
@@ -655,13 +653,8 @@ class DataFilter(object):
                 for t in range(n_times):
                     temp_data1d[e * n_channels * n_times + c * n_times + t] = data[e, c, t]
 
-        # temp_filters = numpy.zeros((int(n_channels * n_channels))).astype(numpy.float64)
-        # output_eigenvalues = numpy.zeros(int(n_channels)).astype(numpy.float64)
         temp_filters = numpy.zeros(int(n_channels * n_channels)).astype(numpy.float64)
         output_eigenvalues = numpy.zeros(int(n_channels)).astype(numpy.float64)
-
-        # print("data1d")
-        # print(temp_data1d)
 
         print("labels")
         print(labels)
@@ -674,9 +667,7 @@ class DataFilter(object):
         res = DataHandlerDLL.get_instance().get_csp(temp_data1d, labels, n_epochs, n_channels, n_times, temp_filters, output_eigenvalues)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to calc csp', res)
-        # print("1d_filters")
-        # print(temp_filters)
-        # print(" ")
+
         output_filters = numpy.zeros((n_channels, n_channels)).astype(numpy.float64)
         for i in range(n_channels):
             for j in range(n_channels):
@@ -692,6 +683,7 @@ class DataFilter(object):
         
         print("end Python binding ##################################")
         print()
+
         return output_filters, output_eigenvalues
 
     @classmethod
