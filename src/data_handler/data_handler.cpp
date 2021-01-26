@@ -530,7 +530,6 @@ int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_t
         std::cout << "\nn_epochs, n_channels, n_times = " << std::endl;
         std::cout << n_epochs << "  " << n_channels << "  " << n_times << std::endl;
 
-        // make all matrices row major
         Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> sum1 (
             n_channels, n_channels);
         Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> sum2 (
@@ -541,14 +540,10 @@ int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_t
 
         int n_class1 = 0;
         int n_class2 = 0;
+
+        // Compute averaged covariance matrices for each class
         for (int e = 0; e < n_epochs; e++)
         {
-            // Eigen::MatrixXd X (n_channels, n_times);
-            // X = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
-            // Eigen::RowMajor>> (
-            //     data + e * n_channels * n_times, n_channels, n_times);
-
-            // std::cout << std::endl << "X = " << std::endl << X << std::endl;
             Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> X (
                 n_channels, n_times);
             for (int c = 0; c < n_channels; c++)
@@ -560,6 +555,7 @@ int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_t
             }
             std::cout << "\nX =" << std::endl << X << std::endl;
 
+            // center data
             for (int i = 0; i < n_channels; i++)
             {
                 double ctr = X.row (i).mean ();
@@ -571,10 +567,7 @@ int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_t
 
             std::cout << "X_centered =" << std::endl << X << std::endl;
 
-            // std::cout << "cov =" << std::endl
-            //           << (X * X.transpose ()) / double (n_times) << std::endl;
-
-            // because cov(A + ctr) = cov(A)
+            // For centered data cov(X) = (X * X_T) / n
             // .noalias might be wrond
             switch (int (labels[e]))
             {
@@ -593,12 +586,13 @@ int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_t
             }
         }
 
-        sum1 /= n_class1;
-        sum2 /= n_class2;
+        sum1 /= double (n_class1);
+        sum2 /= double (n_class2);
 
         std::cout << "\nsum1_avg =" << std::endl << sum1 << std::endl;
         std::cout << "\nsum2_avg =" << std::endl << sum2 << std::endl;
 
+        // Compute the CSP filters
         Eigen::GeneralizedSelfAdjointEigenSolver<
             Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>
             ges (sum1, sum1 + sum2); // valgrind: ==9795== Conditional jump or move depends on
