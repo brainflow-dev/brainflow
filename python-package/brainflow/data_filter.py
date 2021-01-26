@@ -647,14 +647,14 @@ class DataFilter(object):
                 for t in range(n_times):
                     temp_data1d[e * n_channels * n_times + c * n_times + t] = data[e, c, t]
 
-        temp_filters = numpy.zeros(n_channels * n_channels)
-        output_eigenvalues = numpy.zeros(n_channels)
+        temp_filters = numpy.zeros(int(n_channels * n_channels)).astype(numpy.float64)
+        output_eigenvalues = numpy.zeros(int(n_channels)).astype(numpy.float64)
 
         res = DataHandlerDLL.get_instance().get_csp(temp_data1d, labels, n_epochs, n_channels, n_times, temp_filters, output_eigenvalues)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to calc csp', res)
 
-        output_filters = numpy.zeros((n_channels, n_channels)).astype(numpy.float64)
+        output_filters = numpy.zeros((int(n_channels), int(n_channels))).astype(numpy.float64)
         for i in range(n_channels):
             for j in range(n_channels):
                 output_filters[i, j] = temp_filters[i * n_channels + j]
