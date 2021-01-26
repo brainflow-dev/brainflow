@@ -1,7 +1,11 @@
 cmake_minimum_required (VERSION 3.13)
 project (brainflow)
 
-set (CMAKE_CXX_STANDARD 11)
+# changed from 11 to 17 for nativeble
+set (CMAKE_CXX_STANDARD 17)
+set (CMAKE_CXX_STANDARD_REQUIRED ON)
+set (CMAKE_CXX_EXTENSIONS OFF)
+
 set (CMAKE_VERBOSE_MAKEFILE ON)
 set (BRAINFLOW_VERSION 3.7.3)
 
@@ -178,6 +182,7 @@ set (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/utils/multicast_client.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/multicast_server.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/broadcast_client.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/openbci_serial_board.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/openbci_wifi_shield_board.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_wifi.cpp
@@ -208,6 +213,7 @@ set (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/oymotion/gforce_pro.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ironbci/ironbci.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/freeeeg32/freeeeg32.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse2.cpp
 )
 
 set (DATA_HANDLER_SRC
@@ -257,12 +263,12 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/mit/inc
-    ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/inc
     ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/inc/types
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neurosity/inc
     ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/src/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ironbci/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/freeeeg32/inc
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/inc
 )
 
 # disable min max defines in windows.h
@@ -345,6 +351,15 @@ if (USE_OPENMP)
         message (FATAL_ERROR "ENABLE_OPENMP set but no OpenMP found.")
     endif (OpenMP_CXX_FOUND)
 endif (USE_OPENMP)
+
+# what library is used for bluetooth is currently decided by a preprocessor define at the top of src/utils/bluetooth.cpp
+target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE nativeble)
+
+find_package(PkgConfig REQUIRED)
+pkg_search_module(GATTLIB REQUIRED gattlib)
+pkg_search_module(GLIB REQUIRED glib-2.0)
+include_directories(${GLIB_INCLUDE_DIRS})
+target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE ${GATTLIB_LIBRARIES} ${GATTLIB_LDFLAGS} ${GLIB_LDFLAGS})
 
 # dont link pthread for Android
 if (UNIX AND NOT ANDROID)

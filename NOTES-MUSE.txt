@@ -14,13 +14,12 @@ Instructions to add new boards to BrainFlow [from docs/BrainFlowDev.rst]
       synthetic board [src/board_controller/inc/synthetic_board.h] as a reference,
       try to reuse code from utils [src/utils] folder
 
-    - [ ] we'll probably want to add BLE functions to src/utils
-        A cross-platform BLE library is https://github.com/mbientlab/Warble but it may not have osx support yet, which is done via CoreBluetooth.
-        If a common interface is developed in src/utils, then libraries could be popped in and out for different platforms or other needs.
-        Warble looks like it would work as a place to send additional BLE work upstream, however, to share bugfixing work with them.
+    - [X] we'll probably want to add BLE functions to src/utils
+            NativeBLE support has been drafted.  it has code for linux/mac/windows. https://github.com/kdewald/nativeble
+            It looks like nativeble has only one user, the dev, so if there is a driver with more activity there's value to adding another.
 
-    - [ ] in Muse2 class, implement device selection (probably configuration, or skip this and just pick the first nearby device found)
-    - [ ] in Muse2 class, implement stream configuration (preset selection)
+    - [X] in Muse2 class, implement device selection (probably configuration, or skip this and just pick the first nearby device found)
+    - [X] in Muse2 class, implement stream configuration (preset selection)
 
     - [X] in Muse2 class, implement session initialisation / releasing
 

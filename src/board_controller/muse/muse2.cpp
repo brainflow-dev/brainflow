@@ -1,4 +1,10 @@
 #include "muse2.h"
+#include "muse_constants.h"
+
+#include <iostream>
+#include <stdexcept>
+
+using json = nlohmann::json;
 
 Muse2::Muse2 (struct BrainFlowInputParams params) : Board ((int)BoardIds::MUSE_2_BOARD, params)
 {
@@ -22,11 +28,206 @@ int Muse2::prepare_session ()
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
 
-    // STUB
+    if (bt.open_bt_adapter () != (int)BluetoothExitCodes::OK)
+    {
+        // Error codes could be processed better.
+        // The current error code selections in this sourcefile could be considered stubs if
+        // insufficient.
+        return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
+    }
 
-    // initialized = true;
-    // return (int)BrainFlowExitCodes::STATUS_OK;
-    return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
+    // find and connect to device
+
+    if (params.mac_address.empty ())
+    {
+        std::cerr << "No mac address provided, scanning for a nearby muse ..." << std::endl;
+
+        std::promise<std::string> device_found {};
+
+        // TODO: check serial number if provided in params.  this can be queried for on connection
+        // ("s" reply) if not available in scanning data.
+
+        std::string muse_mac_prefix = "00:55:DA";
+        std::string muse_name_prefix =
+            "Muse"; // note the user can rename their devices, so this may be undesired
+
+        auto callback = [&] (const char *address, const char *name) {
+            if (muse_mac_prefix.compare (
+                    0, muse_mac_prefix.size (), address, muse_mac_prefix.size ()) == 0 ||
+                muse_name_prefix.compare (
+                    0, muse_name_prefix.size (), name, muse_name_prefix.size ()) == 0)
+            {
+                try
+                {
+                    device_found.set_value (address);
+                }
+                catch (std::future_error const &)
+                {
+                    // already found a muse
+                    return;
+                }
+                std::cerr << "Found " << name << std::endl;
+            }
+        };
+
+        if (bt.start_bt_scanning (callback) != (int)BluetoothExitCodes::OK)
+        {
+            bt.close_bt_adapter ();
+            return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
+        }
+
+        params.mac_address = device_found.get_future ().get ();
+
+        bt.stop_bt_scanning ();
+    }
+
+    if (bt.connect_bt_dev (params.mac_address.c_str ()) != (int)BluetoothExitCodes::OK)
+    {
+        bt.close_bt_adapter ();
+        return (int)BrainFlowExitCodes::SET_PORT_ERROR;
+    }
+
+    // connect to serial port on device
+
+    bt.subscribe_bt_dev_characteristic (INTERAXON_GATT_SERVICE, MUSE_GATT_SERIAL, true,
+        std::bind (&Muse2::serial_on_response, this, std::placeholders::_1, std::placeholders::_2));
+
+    // configure device
+    std::string preset_str;
+    if (params.other_info.size () > 0)
+    {
+        if (params.other_info[0] != 'p')
+        {
+            preset_str = params.other_info;
+        }
+        else
+        {
+            preset_str = params.other_info.substr (1);
+        }
+    }
+    else
+    {
+        preset_str = "63"; // this default preset enables all channels on the Muse S, including
+                           // diagnostic ones.  untested on other muses.  on the original muse
+                           // enabling all channels reduced the bit precision available in each
+                           // channel.  feel free to change this default.
+        std::cerr << "No muse preset set in other_info: defaulting to " << preset_str << std::endl;
+    }
+
+    try
+    {
+        json hwinfo = serial_write_throws ("v");
+        json status = serial_write_throws ("s");
+
+        // TODO: check serial number from hwinfo if specified in params
+        // TODO: store featureset of device by parsing responses (2016, 2, S)
+
+        std::cerr << "Muse version response: " << hwinfo.dump () << std::endl;
+        std::cerr << "Muse status response: " << status.dump () << std::endl;
+
+        // xloem's Muse S gives these version and status responses:
+        //  {"ap":"headset","bl":"0.0.28","bn":61,"fi":"74058d3","hw":"00.7","rc":0,"sp":"Aster_revD"}
+        //  {"bp":25,"hn":"MuseS-1C52","hs":"F006-4M2Z-3620","id":"0024003b 3152500e
+        //  20383748","ma":"00-55-da-bb-1c-52","ps":81,"rc":0,"sn":"5007-CPYZ-1C52","ts":0}
+
+        serial_write_throws ("p" + preset_str);
+        if (serial_write_throws ("s")["ps"] != std::stol (preset_str, nullptr, 16))
+        {
+            // failed to set preset
+            throw std::runtime_error (status.dump ());
+        }
+    }
+    catch (...)
+    {
+        bt.close_bt_adapter ();
+        return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
+    }
+
+    initialized = true;
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+void Muse2::serial_on_response (const uint8_t *data, size_t len)
+{
+
+    // the muse serial data is formed of 20-byte data packets where each packet
+    // has a 1-byte length, and then string data.
+
+    // this author finds it worrying that uncleared memory containing leftover
+    // internal state is sent over the wire after the string data.  the data is
+    // truncated by the length in the first byte to remove the cruft data.
+    // each reply is a json object, possibly sent via multiple packets.
+
+    // given the muse also has no authentication process, and has a publicly
+    // selectable preset that places it in a separate runstate possibly for
+    // updating firmware, this author would not trust the muse with brainwaves
+    // that need to be private or unaltered.
+
+    try
+    {
+        std::string str (reinterpret_cast<const char *> (data), len);
+        if (len % 20 != 0)
+        {
+            throw std::runtime_error (str);
+        }
+
+        // some drivers prefix new packets with copies of old ones.
+        // maybe this is because the old ones haven't received their
+        // notification reply yet?
+        size_t offset = len - 20;
+        size_t packetlen = str.at (offset);
+        if (packetlen > 19)
+        {
+            throw std::runtime_error (str);
+        }
+        std::string packetstr = str.substr (offset + 1, packetlen);
+
+        // std::cerr << "Serial reply data len=" << packetlen << "/" << len << ": " << packetstr
+        //           << std::endl;
+
+        std::unique_lock lk (serial_data_lock);
+        serial_data_needslock += packetstr;
+
+        if (packetstr[packetlen - 1] == '}')
+        {
+            std::string serial_data = std::move (serial_data_needslock);
+            json result = json::parse (serial_data);
+
+            if (result["rc"] != 0)
+            {
+                throw std::runtime_error (str);
+            }
+            serial_reply.set_value (result);
+        }
+    }
+    catch (...)
+    {
+        try
+        {
+            serial_reply.set_exception (std::current_exception ());
+        }
+        catch (std::future_error const &)
+        {
+        }
+    }
+}
+
+json Muse2::serial_write_throws (std::string cmd)
+{
+    serial_reply = std::promise<json> ();
+
+    cmd.reserve (cmd.size () + 2);
+    cmd.insert (cmd.begin (), cmd.size () + 1);
+    cmd += '\n';
+
+    if (bt.write_bt_dev_characteristic (INTERAXON_GATT_SERVICE, MUSE_GATT_SERIAL, false,
+            reinterpret_cast<const uint8_t *> (cmd.data ()),
+            cmd.size ()) != (int)BluetoothExitCodes::OK)
+    {
+        throw std::runtime_error ("failed to write characteristic");
+    }
+
+    return serial_reply.get_future ().get ();
 }
 
 int Muse2::start_stream (int buffer_size, char *streamer_params)
@@ -76,11 +277,13 @@ int Muse2::release_session ()
     {
         stop_stream ();
         free_packages ();
-        // STUB
+
+        bt.disconnect_bt_dev ();
+        bt.close_bt_adapter ();
+
         initialized = false;
     }
-    // return (int)BrainFlowExitCodes::STATUS_OK;
-    return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 void Muse2::read_thread ()
