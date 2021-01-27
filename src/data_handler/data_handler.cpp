@@ -1,4 +1,3 @@
-#include <iostream>
 #include <math.h>
 #include <sstream>
 #include <stdexcept>
@@ -490,53 +489,24 @@ int perform_wavelet_denoising (double *data, int data_len, char *wavelet, int de
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-/*
-data must be band-pass filtered, centered and scaled
-license issue: turn off some features
-*/
 int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_times,
     double *output_w, double *output_d)
 {
     if ((!data) || (!labels) || n_epochs <= 0 || n_channels <= 0 || n_times <= 0)
     {
         data_logger->error ("Invalid function arguments provided. Please verify that all integer "
-                            "arguments are positive and data1/data2 and labels aren't empty.");
+                            "arguments are positive and data and labels arrays aren't empty.");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     try
     {
-        std::cout << "\nstart data_handler/get_csp ################################# " << std::endl;
-
-        for (int e = 0; e < n_epochs; e++)
-        {
-            std::cout << "\ndata = " << std::endl;
-            for (int c = 0; c < n_channels; c++)
-            {
-                for (int t = 0; t < n_times; t++)
-                {
-                    std::cout << data[e * n_channels * n_times + c * n_times + t] << "  ";
-                }
-                std::cout << std::endl;
-            }
-        }
-        std::cout << "\nlabels = " << std::endl;
-
-        for (int c = 0; c < n_channels; c++)
-        {
-            std::cout << labels[c] << "  ";
-        }
-        std::cout << std::endl;
-
-        std::cout << "\nn_epochs, n_channels, n_times = " << std::endl;
-        std::cout << n_epochs << "  " << n_channels << "  " << n_times << std::endl;
-
         Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> sum1 (
             n_channels, n_channels);
         Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> sum2 (
             n_channels, n_channels);
+
         sum1.setZero ();
         sum2.setZero ();
-        std::cout << "\nsum1_after = " << std::endl << sum1 << std::endl;
 
         int n_class1 = 0;
         int n_class2 = 0;
@@ -553,7 +523,6 @@ int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_t
                     X (c, t) = data[e * n_channels * n_times + c * n_times + t];
                 }
             }
-            std::cout << "\nX =" << std::endl << X << std::endl;
 
             // center data
             for (int i = 0; i < n_channels; i++)
@@ -565,20 +534,14 @@ int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_t
                 }
             }
 
-            std::cout << "X_centered =" << std::endl << X << std::endl;
-
             // For centered data cov(X) = (X * X_T) / n
-            // In Eigen all expressions are lazy-evaluated. Here .eval() make the code much safer at
-            // the cost of performance
             switch (int (labels[e]))
             {
                 case 0:
-                    // sum1.noalias () += (X * X.transpose ()) / double (n_times);
                     sum1 += ((X * X.transpose ()).eval ()) / double (n_times);
                     n_class1++;
                     break;
                 case 1:
-                    // sum2.noalias () += X * X.transpose () / double (n_times);
                     sum2 += ((X * X.transpose ()).eval ()) / double (n_times);
                     n_class2++;
                     break;
@@ -592,35 +555,19 @@ int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_t
         sum1 /= double (n_class1);
         sum2 /= double (n_class2);
 
-        std::cout << "\nsum1_avg =" << std::endl << sum1 << std::endl;
-        std::cout << "\nsum2_avg =" << std::endl << sum2 << std::endl;
-
         // Compute the CSP filters
         Eigen::GeneralizedSelfAdjointEigenSolver<
             Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>
-            ges (sum1, sum1 + sum2); // valgrind: ==9795== Conditional jump or move depends on
-                                     // uninitialised value(s)
+            ges (sum1, sum1 + sum2);
 
-        std::cout << "\neigenvalues = " << std::endl << ges.eigenvalues () << std::endl;
-        std::cout << "\neigenvectors = " << std::endl << ges.eigenvectors () << std::endl;
-
-        std::cout << "\nfilters = " << std::endl;
         for (int i = 0; i < n_channels; i++)
         {
             output_d[i] = ges.eigenvalues () (i);
             for (int j = 0; j < n_channels; j++)
             {
                 output_w[i * n_channels + j] = ges.eigenvectors () (j, i);
-                std::cout << output_w[i * n_channels + j] << "  ";
             }
-            std::cout << std::endl;
         }
-
-        std::cout << "\neigenvalues = " << std::endl;
-        std::cout << ges.eigenvalues () << std::endl;
-
-
-        std::cout << "\nend data_handler/get_csp ################################# " << std::endl;
     }
     catch (...)
     {
