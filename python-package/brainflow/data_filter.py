@@ -637,15 +637,7 @@ class DataFilter(object):
         if not (len(labels) == data.shape[0]):
             raise BrainFlowError('Invalid number of elements in array <labels>', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         
-        print()
-        print("start Python binding ##################################")
-        print()
-
         n_epochs, n_channels, n_times = data.shape
-
-        print("data")
-        print(data)
-        print()
 
         temp_data1d = numpy.zeros((int(n_epochs * n_channels * n_times))).astype(numpy.float64)
         for e in range(n_epochs):
@@ -656,14 +648,6 @@ class DataFilter(object):
         temp_filters = numpy.zeros(int(n_channels * n_channels)).astype(numpy.float64)
         output_eigenvalues = numpy.zeros(int(n_channels)).astype(numpy.float64)
 
-        print("labels")
-        print(labels)
-        print()
-
-        print("data shape")
-        print(n_epochs, n_channels, n_times)
-        print()
-
         res = DataHandlerDLL.get_instance().get_csp(temp_data1d, labels, n_epochs, n_channels, n_times, temp_filters, output_eigenvalues)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to calc csp', res)
@@ -672,17 +656,6 @@ class DataFilter(object):
         for i in range(n_channels):
             for j in range(n_channels):
                 output_filters[i, j] = temp_filters[i * n_channels + j]
-        
-        print("filters")
-        print(output_filters)
-        print()
-
-        print("eigenvalues")
-        print(output_eigenvalues)
-        print()
-        
-        print("end Python binding ##################################")
-        print()
 
         return output_filters, output_eigenvalues
 

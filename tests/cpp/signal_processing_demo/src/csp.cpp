@@ -12,22 +12,6 @@
 
 using namespace std;
 
-// #include "brainflow_constants.h"
-
-// #include "Eigen/Dense"
-
-// using namespace Eigen;
-
-/*
-data must be band-pass filtered, centered and scaled
-license issue: turn off some features
-input:
-matrix_classum1 ~ [Ep x Ch x T]
-matrix_classum2 ~ [Ep x Ch x T]
-Labels ~ [1,0,...]
-
-return w ~ [Ch x Ch]
-*/
 int main (int argc, char *argv[])
 {
     int n_ep = 2;
@@ -66,10 +50,7 @@ int main (int argc, char *argv[])
         std::cout << "\n";
         for (int j = 0; j < n_ch; j++)
         {
-            std::cout << output.first[i][j]
-                      << "  "; // Here valgrind complains: 1) ==9795== Conditional jump or move
-                               // depends on uninitialised value(s); 2) ==9795== Use of
-                               // uninitialised value of size 8
+            std::cout << output.first[i][j] << "  ";
         }
     }
     std::cout << "\n";

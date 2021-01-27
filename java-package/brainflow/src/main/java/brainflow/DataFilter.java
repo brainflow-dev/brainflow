@@ -345,12 +345,9 @@ public class DataFilter
 
     /**
      * get common spatial filters
-     * 
-     * @return           two arrays of the size [channels x channels] and [channels]  
      */
     public static Pair<double[][], double[]> get_csp (double[][][] data, double[] labels) throws BrainFlowError
     {
-        System.out.println ("start Java binding ##################################");
         int n_epochs = data.length;
         int n_channels = data[0].length;
         int n_times = data[0][0].length;
@@ -368,21 +365,13 @@ public class DataFilter
             }
         }
 
-        System.out.println ("data1d =");
-        System.out.println (Arrays.toString (temp_data1d));
-        System.out.println ();
-
-        System.out.println ("labels =");
-        System.out.println (Arrays.toString (labels));
-        System.out.println ();
-
         double[] temp_filters = new double[n_channels * n_channels];
         double[] output_eigenvalues = new double[n_channels];
         
         int ec = instance.get_csp (temp_data1d, labels, n_epochs, n_channels, n_times, temp_filters, output_eigenvalues);
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
-            throw new BrainFlowError ("Failed to perform windowing", ec);
+            throw new BrainFlowError ("Failed to get the CSP filters", ec);
         }
         
         double[][] output_filters = new double [n_channels][n_channels];
@@ -395,8 +384,6 @@ public class DataFilter
         }
 
         Pair<double[][], double[]> res = new MutablePair<double[][], double[]> (output_filters, output_eigenvalues);
-        System.out.println ("end Java binding ##################################");
-        System.out.println ();
         return res;
     }
 
