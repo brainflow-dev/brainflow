@@ -15,7 +15,7 @@ public class Markers
 
         board_shim.prepare_session ();
         board_shim.start_stream (450000, "file://file_stream.csv:w");
-        for (int i = 0; i < 5; i++)
+        for (int i = 1; i < 5; i++)
         {
             Thread.sleep (1000);
             board_shim.insert_marker (i);

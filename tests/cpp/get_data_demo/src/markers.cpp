@@ -37,9 +37,9 @@ int main (int argc, char *argv[])
         board->prepare_session ();
         board->start_stream (45000, (char *)"file://data.csv:w");
         BoardShim::log_message ((int)LogLevels::LEVEL_INFO, "Start sleeping in the main thread");
-        for (int i = 0; i < 5; i++)
+        for (int i = 1; i < 5; i++)
         {
-            board->insert_marker (1.0);
+            board->insert_marker (i);
 #ifdef _WIN32
             Sleep (1000);
 #else

@@ -45,7 +45,7 @@ def main():
     board.start_stream(45000, args.streamer_params)
     for i in range(10):
         time.sleep(1)
-        board.insert_marker(i)
+        board.insert_marker(i + 1)
     data = board.get_board_data()
     board.stop_stream()
     board.release_session()
