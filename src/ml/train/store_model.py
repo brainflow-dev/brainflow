@@ -27,7 +27,6 @@ int brainflow_focus_y[%d] = {%s};
 
 extern double brainflow_focus_x[%d][10];
 extern int brainflow_focus_y[%d];
-
 ''' % (len(data[1]), len(data[1]))
 
     file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'inc', 'focus_dataset.h')
