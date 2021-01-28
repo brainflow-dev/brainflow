@@ -8,8 +8,6 @@ def write_knn_model(data):
     x_string_tmp = ['{' + ', '.join([str(y) for y in x]) + '}' for x in data[0]]
     x_string = '%s' % (',\n'.join(x_string_tmp))
     file_content = '''
-#pragma once
-
 #include "focus_dataset.h"
 
 // clang-format off
@@ -41,8 +39,6 @@ def write_model(intercept, coefs, model_type):
     # we prepare dataset in C++ code in compile time, need to generate header for it
     coefficients_string = '%s' % (','.join([str(x) for x in coefs[0]]))
     file_content = '''
-#pragma once
-
 #include "%s"
 
 // clang-format off

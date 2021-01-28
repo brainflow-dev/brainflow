@@ -1,6 +1,4 @@
 
-#pragma once
-
 #include "regression_model.h"
 
 // clang-format off
