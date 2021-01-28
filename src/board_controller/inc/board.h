@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include <deque>
 #include <limits>
 #include <string>
 
@@ -9,8 +10,10 @@
 #include "brainflow_constants.h"
 #include "brainflow_input_params.h"
 #include "data_buffer.h"
-#include "spdlog/spdlog.h"
+#include "spinlock.h"
 #include "streamer.h"
+
+#include "spdlog/spdlog.h"
 
 #define MAX_CAPTURE_SAMPLES (86400 * 250) // should be enough for one day of capturing
 
@@ -34,7 +37,6 @@ public:
         skip_logs = false;
         db = NULL;
         streamer = NULL;
-        marker = 0.0;
         this->board_id = board_id;
         this->params = params;
     }
@@ -47,6 +49,7 @@ public:
     int get_current_board_data (int num_samples, double *data_buf, int *returned_samples);
     int get_board_data_count (int *result);
     int get_board_data (int data_count, double *data_buf);
+    int insert_marker (double value);
 
     // Board::board_logger should not be called from destructors, to ensure that there are safe log
     // methods Board::board_logger still available but should be used only outside destructors
@@ -75,18 +78,6 @@ public:
         return board_id;
     }
 
-    int insert_marker (double value)
-    {
-        if (std::fabs (value) < std::numeric_limits<double>::epsilon ())
-        {
-            safe_logger (
-                spdlog::level::warn, "0 is a default value for marker, you can not use it.");
-            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
-        }
-        marker = value;
-        return (int)BrainFlowExitCodes::STATUS_OK;
-    }
-
 protected:
     DataBuffer *db;
     bool skip_logs;
@@ -94,7 +85,8 @@ protected:
     struct BrainFlowInputParams params;
     Streamer *streamer;
     json board_descr;
-    volatile double marker;
+    SpinLock lock;
+    std::deque<int> marker_queue;
 
     int prepare_for_acquisition (int buffer_size, char *streamer_params);
     void free_packages ();

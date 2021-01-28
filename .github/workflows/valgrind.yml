@@ -94,6 +94,22 @@ jobs:
       run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/ironbci_linux.py valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 15 --serial-port
       env:
         LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: Cyton Cpp Markers
+      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/markers --board-id 0 --serial-port
+    - name: Synthetic Cpp
+      run: valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/markers --board-id -1
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: Galea Cpp Markers
+      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/galea_udp.py valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/markers --board-id 3 --ip-address 127.0.0.1
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: Streaming Cpp Markers
+      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/streaming_board_emulator.py valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/markers --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
+    - name: IronBCI Cpp Markers
+      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/ironbci_linux.py valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/markers --board-id 15 --serial-port
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: Denoising Cpp
       run: valgrind --error-exitcode=1 --leak-check=full $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/denoising
       env:

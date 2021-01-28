@@ -10,6 +10,7 @@ def write_knn_model(data):
     file_content = '''
 #pragma once
 
+#include "focus_dataset.h"
 
 // clang-format off
 
@@ -19,9 +20,21 @@ int brainflow_focus_y[%d] = {%s};
 // clang-format on
 ''' % (len(data[1]), x_string, len(data[1]), y_string)
 
-    file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'inc', 'focus_dataset.h')
+    file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'generated', 'focus_dataset.cpp')
     with open(file_path, 'w') as f:
         f.write(file_content)
+
+    header_content = '''
+#pragma once
+
+extern double brainflow_focus_x[%d][10];
+extern int brainflow_focus_y[%d];
+
+''' % (len(data[1]), len(data[1]))
+
+    file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'inc', 'focus_dataset.h')
+    with open(file_path, 'w') as f:
+        f.write(header_content)
 
 
 def write_model(intercept, coefs, model_type):
@@ -30,6 +43,7 @@ def write_model(intercept, coefs, model_type):
     file_content = '''
 #pragma once
 
+#include "%s"
 
 // clang-format off
 
@@ -37,8 +51,8 @@ const double %s_coefficients[10] = {%s};
 double %s_intercept = %lf;
 
 // clang-format on
-''' % (model_type, coefficients_string, model_type, intercept)
-    file_name = f'{model_type}_model.h'
-    file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'inc', file_name)
+''' % (f'{model_type}_model.h', model_type, coefficients_string, model_type, intercept)
+    file_name = f'{model_type}_model.cpp'
+    file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'generated', file_name)
     with open(file_path, 'w') as f:
         f.write(file_content)

@@ -127,16 +127,27 @@ int Board::prepare_for_acquisition (int buffer_size, char *streamer_params)
 
 void Board::push_package (double *package)
 {
+    lock.lock ();
     try
     {
         int marker_channel = board_descr["marker_channel"];
-        package[marker_channel] = marker;
-        marker = 0.0;
+        if (marker_queue.empty ())
+        {
+            package[marker_channel] = 0.0;
+        }
+        else
+        {
+            int marker = marker_queue.at (0);
+            package[marker_channel] = marker;
+            marker_queue.pop_front ();
+        }
     }
-    catch (json::exception &e)
+    catch (...)
     {
-        safe_logger (spdlog::level::err, e.what ());
+        safe_logger (spdlog::level::err, "Failed to get marker channel/value");
     }
+    lock.unlock ();
+
     if (db != NULL)
     {
         db->add_data (package);
@@ -145,6 +156,19 @@ void Board::push_package (double *package)
     {
         streamer->stream_data (package);
     }
+}
+
+int Board::insert_marker (double value)
+{
+    if (std::fabs (value) < std::numeric_limits<double>::epsilon ())
+    {
+        safe_logger (spdlog::level::warn, "0 is a default value for marker, you can not use it.");
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+    lock.lock ();
+    marker_queue.push_back (value);
+    lock.unlock ();
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 void Board::free_packages ()
