@@ -29,6 +29,11 @@ int get_package_num_channel (int board_id, int *package_num_channel)
     return get_single_value (board_id, "package_num_channel", package_num_channel);
 }
 
+int get_marker_channel (int board_id, int *marker_channel)
+{
+    return get_single_value (board_id, "marker_channel", marker_channel);
+}
+
 int get_battery_channel (int board_id, int *battery_channel)
 {
     return get_single_value (board_id, "battery_channel", battery_channel);

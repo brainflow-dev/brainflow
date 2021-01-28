@@ -6,7 +6,7 @@
 #include "multicast_streamer.h"
 
 
-MultiCastStreamer::MultiCastStreamer (const char *ip, int port) : Streamer ()
+MultiCastStreamer::MultiCastStreamer (const char *ip, int port, int data_len) : Streamer (data_len)
 {
     strcpy (this->ip, ip);
     this->port = port;
@@ -34,11 +34,7 @@ int MultiCastStreamer::init_streamer ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-void MultiCastStreamer::stream_data (double *data, int len, double timestamp)
+void MultiCastStreamer::stream_data (double *data)
 {
-    double *send_array = new double[len + 1];
-    memcpy (send_array, data, sizeof (double) * len);
-    send_array[len] = timestamp;
-    server->send (send_array, sizeof (double) * (len + 1));
-    delete[] send_array;
+    server->send (data, sizeof (double) * len);
 }

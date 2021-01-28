@@ -85,6 +85,7 @@ single_channel_function_names = (
     :get_timestamp_channel,
     :get_package_num_channel,
     :get_battery_channel,
+    :get_marker_channel,
 )
 
 # generating the channels functions
@@ -160,7 +161,7 @@ end
 end
 
 function start_stream(board_shim::BoardShim)
-    start_stream(board_shim, 45000, "")
+    start_stream(board_shim, 450000, "")
 end
 
 @brainflow_rethrow function is_prepared(board_shim::BoardShim)
@@ -175,6 +176,10 @@ end
     ccall((:get_board_data_count, BOARD_CONTROLLER_INTERFACE), Cint, (Ptr{Cint}, Cint, Ptr{UInt8}), val, board_shim.board_id, board_shim.input_json)
     value = val[1]
     return value
+end
+
+@brainflow_rethrow function insert_marker(value::Float64, board_shim::BoardShim)
+    ccall((:insert_marker, BOARD_CONTROLLER_INTERFACE), Cint, (Float64, Cint, Ptr{UInt8}), value, board_shim.board_id, board_shim.input_json)
 end
 
 @brainflow_rethrow function stop_stream(board_shim::BoardShim)

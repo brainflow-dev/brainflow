@@ -17,7 +17,7 @@ protected:
 
 public:
     CytonDaisy (struct BrainFlowInputParams params)
-        : OpenBCISerialBoard (30, params, (int)BoardIds::CYTON_DAISY_BOARD)
+        : OpenBCISerialBoard (params, (int)BoardIds::CYTON_DAISY_BOARD)
     {
     }
 };

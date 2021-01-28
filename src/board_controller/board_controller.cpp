@@ -205,6 +205,20 @@ int stop_stream (int board_id, char *json_brainflow_input_params)
     return board_it->second->stop_stream ();
 }
 
+int insert_marker (double value, int board_id, char *json_brainflow_input_params)
+{
+    std::lock_guard<std::mutex> lock (mutex);
+
+    std::pair<int, struct BrainFlowInputParams> key;
+    int res = check_board_session (board_id, json_brainflow_input_params, key, false);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        return res;
+    }
+    auto board_it = boards.find (key);
+    return board_it->second->insert_marker (value);
+}
+
 int release_session (int board_id, char *json_brainflow_input_params)
 {
     std::lock_guard<std::mutex> lock (mutex);

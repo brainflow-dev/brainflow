@@ -8,7 +8,7 @@ class StubStreamer : public Streamer
 {
 
 public:
-    StubStreamer ()
+    StubStreamer (int data_len) : Streamer (data_len)
     {
     }
     ~StubStreamer ()
@@ -19,7 +19,7 @@ public:
     {
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
-    void stream_data (double *data, int size, double timestamp)
+    void stream_data (double *data)
     {
     }
 };

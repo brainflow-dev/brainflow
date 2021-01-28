@@ -100,6 +100,8 @@ namespace brainflow
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_timestamp_channel (int board_id, int[] timestamp_channel);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_marker_channel (int board_id, int[] marker_channel);
+        [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_package_num_channel (int board_id, int[] package_num_channel);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_battery_channel (int board_id, int[] battery_channel);
@@ -137,6 +139,8 @@ namespace brainflow
         public static extern int get_exg_channels (int board_id, int[] channels, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_device_name (int board_id, byte[] name, int[] len);
+        [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int insert_marker (double value, int board_id, string input_json);
     }
 
     public static class BoardControllerLibrary32
@@ -168,6 +172,8 @@ namespace brainflow
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_timestamp_channel (int board_id, int[] timestamp_channel);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_marker_channel (int board_id, int[] marker_channel);
+        [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_package_num_channel (int board_id, int[] package_num_channel);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_battery_channel (int board_id, int[] battery_channel);
@@ -205,6 +211,8 @@ namespace brainflow
         public static extern int get_exg_channels (int board_id, int[] channels, int[] len);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_device_name (int board_id, byte[] name, int[] len);
+        [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int insert_marker (double value, int board_id, string input_json);
     }
 
     public static class BoardControllerLibraryLinux
@@ -235,6 +243,8 @@ namespace brainflow
         public static extern int get_sampling_rate (int board_id, int[] sampling_rate);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_timestamp_channel (int board_id, int[] timestamp_channel);
+        [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_marker_channel (int board_id, int[] marker_channel);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_package_num_channel (int board_id, int[] package_num_channel);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -273,6 +283,8 @@ namespace brainflow
         public static extern int get_exg_channels (int board_id, int[] channels, int[] len);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_device_name (int board_id, byte[] name, int[] len);
+        [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int insert_marker (double value, int board_id, string input_json);
     }
 
     public static class BoardControllerLibraryMac
@@ -281,6 +293,8 @@ namespace brainflow
         public static extern int prepare_session (int board_id, string input_json);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int start_stream (int buffer_size, string streamer_params, int board_id, string input_json);
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int insert_marker (double value, int board_id, string input_json);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int stop_stream (int board_id, string input_json);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -303,6 +317,8 @@ namespace brainflow
         public static extern int get_sampling_rate (int board_id, int[] sampling_rate);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_timestamp_channel (int board_id, int[] timestamp_channel);
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_marker_channel (int board_id, int[] marker_channel);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_package_num_channel (int board_id, int[] package_num_channel);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -515,6 +531,24 @@ namespace brainflow
             return (int)CustomExitCodes.GENERAL_ERROR;
         }
 
+        public static int insert_marker (double value, int board_id, string input_json)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.insert_marker (value, board_id, input_json);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.insert_marker (value, board_id, input_json);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.insert_marker (value, board_id, input_json);
+                case LibraryEnvironment.MacOS:
+                    return BoardControllerLibraryMac.insert_marker (value, board_id, input_json);
+            }
+
+            return (int)CustomExitCodes.GENERAL_ERROR;
+        }
+
+
         public static int config_board (string config, byte[] str, int[] len, int board_id, string input_json)
         {
             switch (PlatformHelper.get_library_environment ())
@@ -629,6 +663,23 @@ namespace brainflow
                     return BoardControllerLibraryLinux.get_timestamp_channel(board_id, timestamp_channel);
                 case LibraryEnvironment.MacOS:
                     return BoardControllerLibraryMac.get_timestamp_channel (board_id, timestamp_channel);
+            }
+
+            return (int)CustomExitCodes.GENERAL_ERROR;
+        }
+
+        public static int get_marker_channel (int board_id, int[] marker_channel)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_marker_channel (board_id, marker_channel);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_marker_channel (board_id, marker_channel);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.get_marker_channel (board_id, marker_channel);
+                case LibraryEnvironment.MacOS:
+                    return BoardControllerLibraryMac.get_marker_channel (board_id, marker_channel);
             }
 
             return (int)CustomExitCodes.GENERAL_ERROR;

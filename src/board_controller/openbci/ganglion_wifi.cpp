@@ -1,5 +1,7 @@
-#include "ganglion_wifi.h"
+#include <vector>
+
 #include "custom_cast.h"
+#include "ganglion_wifi.h"
 #include "timestamp.h"
 
 #include "http.h"
@@ -47,35 +49,11 @@ int GanglionWifi::start_stream (int buffer_size, char *streamer_params)
         safe_logger (spdlog::level::err, "Streaming thread already running");
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
-    if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
-    {
-        safe_logger (spdlog::level::err, "invalid array size");
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
-    }
 
-    if (db)
-    {
-        delete db;
-        db = NULL;
-    }
-    if (streamer)
-    {
-        delete streamer;
-        streamer = NULL;
-    }
-
-    int res = prepare_streamer (streamer_params);
+    int res = prepare_for_acquisition (buffer_size, streamer_params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
-    }
-    db = new DataBuffer (num_channels, buffer_size);
-    if (!db->is_ready ())
-    {
-        safe_logger (spdlog::level::err, "unable to prepare buffer");
-        delete db;
-        db = NULL;
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     // need to start impedance streaming
@@ -124,11 +102,6 @@ int GanglionWifi::stop_stream ()
     {
         keep_alive = false;
         streaming_thread.join ();
-        if (streamer)
-        {
-            delete streamer;
-            streamer = NULL;
-        }
         // Board fails to receive/handle "Z" almost all the time
         // workaround - still send 'Z' and send /stream/stop after that, maybe it will work
         if (is_cheking_impedance)
@@ -173,11 +146,14 @@ void GanglionWifi::read_thread ()
     */
     int res;
     unsigned char b[OpenBCIWifiShieldBoard::package_size];
-    double *package = new double[num_channels];
-    for (int i = 0; i < num_channels; i++)
+    int num_rows = board_descr["num_rows"];
+    double *package = new double[num_rows];
+    for (int i = 0; i < num_rows; i++)
     {
         package[i] = 0.0;
     }
+    std::vector<int> eeg_channels = board_descr["eeg_channels"];
+
     while (keep_alive)
     {
         // check start byte
@@ -207,42 +183,44 @@ void GanglionWifi::read_thread ()
         }
 
         // package num
-        package[0] = (double)b[1];
+        package[board_descr["package_num_channel"].get<int> ()] = (double)b[1];
         // eeg
-        for (int i = 0; i < 4; i++)
+        for (unsigned int i = 0; i < eeg_channels.size (); i++)
         {
-            package[i + 1] = eeg_scale * cast_24bit_to_int32 (b + 2 + 3 * i);
+            package[eeg_channels[i]] = eeg_scale * cast_24bit_to_int32 (b + 2 + 3 * i);
         }
         // end byte
-        package[8] = (double)b[32];
+        package[board_descr["other_channels"][0].get<int> ()] = (double)b[32];
         // place raw bytes to other_channels with end byte
-        package[9] = (double)b[26];
-        package[10] = (double)b[27];
-        package[11] = (double)b[28];
-        package[12] = (double)b[29];
-        package[13] = (double)b[30];
-        package[14] = (double)b[31];
+        package[board_descr["other_channels"][1].get<int> ()] = (double)b[26];
+        package[board_descr["other_channels"][2].get<int> ()] = (double)b[27];
+        package[board_descr["other_channels"][3].get<int> ()] = (double)b[28];
+        package[board_descr["other_channels"][4].get<int> ()] = (double)b[29];
+        package[board_descr["other_channels"][5].get<int> ()] = (double)b[30];
+        package[board_descr["other_channels"][6].get<int> ()] = (double)b[31];
         // place accel data
         if (b[32] == END_BYTE_STANDARD)
         {
             // accel
             // mistake in firmware in axis
-            package[5] = accel_scale * cast_16bit_to_int32 (b + 28);
-            package[6] = accel_scale * cast_16bit_to_int32 (b + 26);
-            package[7] = -accel_scale * cast_16bit_to_int32 (b + 30);
+            package[board_descr["accel_channels"][0].get<int> ()] =
+                accel_scale * cast_16bit_to_int32 (b + 28);
+            package[board_descr["accel_channels"][1].get<int> ()] =
+                accel_scale * cast_16bit_to_int32 (b + 26);
+            package[board_descr["accel_channels"][2].get<int> ()] =
+                -accel_scale * cast_16bit_to_int32 (b + 30);
         }
         // place analog data
         if (b[32] == END_BYTE_ANALOG)
         {
             // analog
-            package[15] = cast_16bit_to_int32 (b + 26);
-            package[16] = cast_16bit_to_int32 (b + 28);
-            package[17] = cast_16bit_to_int32 (b + 30);
+            package[board_descr["analog_channels"][0].get<int> ()] = cast_16bit_to_int32 (b + 26);
+            package[board_descr["analog_channels"][1].get<int> ()] = cast_16bit_to_int32 (b + 28);
+            package[board_descr["analog_channels"][2].get<int> ()] = cast_16bit_to_int32 (b + 30);
         }
 
-        double timestamp = get_timestamp ();
-        db->add_data (timestamp, package);
-        streamer->stream_data (package, num_channels, timestamp);
+        package[board_descr["timestamp_channel"].get<int> ()] = get_timestamp ();
+        push_package (package);
     }
     delete[] package;
 }
@@ -251,11 +229,14 @@ void GanglionWifi::read_thread_impedance ()
 {
     int res;
     unsigned char b[OpenBCIWifiShieldBoard::package_size];
+    int num_channels = 0;
+    get_num_rows (board_id, &num_channels);
     double *package = new double[num_channels];
     for (int i = 0; i < num_channels; i++)
     {
         package[i] = 0.0;
     }
+
     while (keep_alive)
     {
         // check start byte
@@ -313,9 +294,8 @@ void GanglionWifi::read_thread_impedance ()
         }
         package[18 + channel_num - 1] = val;
 
-        double timestamp = get_timestamp ();
-        db->add_data (timestamp, package);
-        streamer->stream_data (package, num_channels, timestamp);
+        package[23] = get_timestamp ();
+        push_package (package);
     }
     delete[] package;
 }

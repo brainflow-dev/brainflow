@@ -43,5 +43,4 @@ public:
     static constexpr int package_size = 68;
     static constexpr int num_packages = 20;
     static constexpr int transaction_size = Fascia::package_size * Fascia::num_packages;
-    static constexpr int num_channels = 19;
 };

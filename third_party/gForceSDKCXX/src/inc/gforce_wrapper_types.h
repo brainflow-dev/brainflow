@@ -5,20 +5,17 @@
 #pragma pack(push, 1)
 struct GforceData
 {
-    static const int SIZE = 9;
+    static const int SIZE = 10;
 
     double data[SIZE];
-    double timestamp;
 
-    GforceData (double *data, double timestamp)
+    GforceData (double *data)
     {
         memcpy (this->data, data, sizeof (double) * SIZE);
-        this->timestamp = timestamp;
     }
 
     GforceData ()
     {
-        timestamp = 0.0;
         for (int i = 0; i < SIZE; i++)
         {
             data[i] = 0;
@@ -27,7 +24,6 @@ struct GforceData
 
     GforceData (const GforceData &other)
     {
-        timestamp = other.timestamp;
         memcpy (data, other.data, sizeof (double) * SIZE);
     }
 };

@@ -96,35 +96,11 @@ int UnicornBoard::start_stream (int buffer_size, char *streamer_params)
         safe_logger (spdlog::level::err, "Streaming thread already running");
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
-    if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
-    {
-        safe_logger (spdlog::level::err, "Invalid array size");
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
-    }
 
-    if (db)
-    {
-        delete db;
-        db = NULL;
-    }
-    if (streamer)
-    {
-        delete streamer;
-        streamer = NULL;
-    }
-    int res = prepare_streamer (streamer_params);
+    int res = prepare_for_acquisition (buffer_size, streamer_params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
-    }
-
-    db = new DataBuffer (UnicornBoard::package_size, buffer_size);
-    if (!db->is_ready ())
-    {
-        Board::board_logger->error ("Unable to prepare buffer with size {}", buffer_size);
-        delete db;
-        db = NULL;
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     res = call_start ();
@@ -159,6 +135,7 @@ int UnicornBoard::release_session ()
     if (initialized)
     {
         stop_stream ();
+        free_packages ();
         initialized = false;
     }
     if (dll_loader != NULL)
@@ -174,42 +151,56 @@ int UnicornBoard::release_session ()
 
 void UnicornBoard::read_thread ()
 {
-    double package[UnicornBoard::package_size];
+    int num_rows = board_descr["num_rows"];
+    double *package = new double[num_rows];
+    for (int i = 0; i < num_rows; i++)
+    {
+        package[i] = 0.0;
+    }
     float temp_buffer[UnicornBoard::package_size];
+    std::vector<int> eeg_channels = board_descr["eeg_channels"];
 
     while (keep_alive)
     {
         // unicorn uses similar idea as in brainflow - return single array with different kinds of
         // data and provide API(defines in this case) to mark this data
         func_get_data (device_handle, 1, temp_buffer, UnicornBoard::package_size * sizeof (float));
-        double timestamp = get_timestamp ();
+        package[board_descr["timestamp_channel"].get<int> ()] = get_timestamp ();
         // eeg data
-        package[0] = (double)temp_buffer[UNICORN_EEG_CONFIG_INDEX];
-        package[1] = (double)temp_buffer[UNICORN_EEG_CONFIG_INDEX + 1];
-        package[2] = (double)temp_buffer[UNICORN_EEG_CONFIG_INDEX + 2];
-        package[3] = (double)temp_buffer[UNICORN_EEG_CONFIG_INDEX + 3];
-        package[4] = (double)temp_buffer[UNICORN_EEG_CONFIG_INDEX + 4];
-        package[5] = (double)temp_buffer[UNICORN_EEG_CONFIG_INDEX + 5];
-        package[6] = (double)temp_buffer[UNICORN_EEG_CONFIG_INDEX + 6];
-        package[7] = (double)temp_buffer[UNICORN_EEG_CONFIG_INDEX + 7];
+        package[eeg_channels[0]] = (double)temp_buffer[UNICORN_EEG_CONFIG_INDEX];
+        package[eeg_channels[1]] = (double)temp_buffer[UNICORN_EEG_CONFIG_INDEX + 1];
+        package[eeg_channels[2]] = (double)temp_buffer[UNICORN_EEG_CONFIG_INDEX + 2];
+        package[eeg_channels[3]] = (double)temp_buffer[UNICORN_EEG_CONFIG_INDEX + 3];
+        package[eeg_channels[4]] = (double)temp_buffer[UNICORN_EEG_CONFIG_INDEX + 4];
+        package[eeg_channels[5]] = (double)temp_buffer[UNICORN_EEG_CONFIG_INDEX + 5];
+        package[eeg_channels[6]] = (double)temp_buffer[UNICORN_EEG_CONFIG_INDEX + 6];
+        package[eeg_channels[7]] = (double)temp_buffer[UNICORN_EEG_CONFIG_INDEX + 7];
         // accel data
-        package[8] = (double)temp_buffer[UNICORN_ACCELEROMETER_CONFIG_INDEX];
-        package[9] = (double)temp_buffer[UNICORN_ACCELEROMETER_CONFIG_INDEX + 1];
-        package[10] = (double)temp_buffer[UNICORN_ACCELEROMETER_CONFIG_INDEX + 2];
+        package[board_descr["accel_channels"][0].get<int> ()] =
+            (double)temp_buffer[UNICORN_ACCELEROMETER_CONFIG_INDEX];
+        package[board_descr["accel_channels"][1].get<int> ()] =
+            (double)temp_buffer[UNICORN_ACCELEROMETER_CONFIG_INDEX + 1];
+        package[board_descr["accel_channels"][2].get<int> ()] =
+            (double)temp_buffer[UNICORN_ACCELEROMETER_CONFIG_INDEX + 2];
         // gyro data
-        package[11] = (double)temp_buffer[UNICORN_GYROSCOPE_CONFIG_INDEX];
-        package[12] = (double)temp_buffer[UNICORN_GYROSCOPE_CONFIG_INDEX + 1];
-        package[13] = (double)temp_buffer[UNICORN_GYROSCOPE_CONFIG_INDEX + 2];
+        package[board_descr["gyro_channels"][0].get<int> ()] =
+            (double)temp_buffer[UNICORN_GYROSCOPE_CONFIG_INDEX];
+        package[board_descr["gyro_channels"][1].get<int> ()] =
+            (double)temp_buffer[UNICORN_GYROSCOPE_CONFIG_INDEX + 1];
+        package[board_descr["gyro_channels"][2].get<int> ()] =
+            (double)temp_buffer[UNICORN_GYROSCOPE_CONFIG_INDEX + 2];
         // battery data
-        package[14] = (double)temp_buffer[UNICORN_BATTERY_CONFIG_INDEX];
+        package[board_descr["battery_channel"].get<int> ()] =
+            (double)temp_buffer[UNICORN_BATTERY_CONFIG_INDEX];
         // counter / package num
-        package[15] = (double)temp_buffer[UNICORN_COUNTER_CONFIG_INDEX];
+        package[board_descr["package_num_channel"].get<int> ()] =
+            (double)temp_buffer[UNICORN_COUNTER_CONFIG_INDEX];
         // validation config index? place it to other channels
-        package[16] = (double)temp_buffer[UNICORN_VALIDATION_CONFIG_INDEX];
-
-        db->add_data (timestamp, package);
-        streamer->stream_data (package, UnicornBoard::package_size, timestamp);
+        package[board_descr["other_channels"][0].get<int> ()] =
+            (double)temp_buffer[UNICORN_VALIDATION_CONFIG_INDEX];
+        push_package (package);
     }
+    delete[] package;
 }
 
 int UnicornBoard::config_board (std::string config, std::string &response)

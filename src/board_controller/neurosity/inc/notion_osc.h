@@ -27,7 +27,7 @@ private:
     volatile int state;
     void read_thread ();
 
-    void handle_packet (const OSCPP::Server::Packet &packet);
+    void handle_packet (double *package, const OSCPP::Server::Packet &packet);
 
 public:
     NotionOSC (struct BrainFlowInputParams params);
@@ -38,6 +38,4 @@ public:
     int stop_stream ();
     int release_session ();
     int config_board (std::string config, std::string &response);
-
-    static constexpr int num_channels = 10;
 };

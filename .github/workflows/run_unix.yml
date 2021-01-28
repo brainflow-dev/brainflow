@@ -98,6 +98,8 @@ jobs:
         julia --project=$GITHUB_WORKSPACE/julia-package/brainflow -e "import Pkg; Pkg.test()"
     - name: Cyton Python
       run: sudo -H python3 ./emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --board-id 0 --serial-port 
+    - name: Cyton Python Markers
+      run: sudo -H python3 ./emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/markers.py --board-id 0 --serial-port 
     - name: Multiboard Python
       run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_multiboard_get_data.py --board-id 0 --serial-port
     - name: Cyton Cpp
@@ -116,10 +118,22 @@ jobs:
         mvn exec:java -Dexec.mainClass="brainflow.examples.BrainFlowGetData" -Dexec.args="--board-id -1"
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
+    - name: Synthetic Java Markers
+      run: |
+        cd $GITHUB_WORKSPACE/java-package/brainflow
+        mvn exec:java -Dexec.mainClass="brainflow.examples.Markers" -Dexec.args="--board-id -1"
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Cyton Daisy Python
       run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --board-id 2 --serial-port 
+    - name: Cyton Daisy Python Markers
+      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/markers.py --board-id 2 --serial-port 
     - name: Galea Cpp
       run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/galea_udp.py $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 3 --ip-address 127.0.0.1
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
+    - name: Galea Cpp Markers
+      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/galea_udp.py $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/markers --board-id 3 --ip-address 127.0.0.1
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Streaming Python
@@ -128,6 +142,14 @@ jobs:
       run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/fascia_emulator_ci.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --board-id 12 --ip-port 7789
     - name: IronBCI Cpp
       run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/ironbci_linux.py $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 15 --serial-port
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
+    - name: Streaming Python Markers
+      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/streaming_board_emulator.py python3 $GITHUB_WORKSPACE/tests/python/markers.py --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
+    - name: Fascia Python Markers
+      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/fascia_emulator_ci.py python3 $GITHUB_WORKSPACE/tests/python/markers.py --board-id 12 --ip-port 7789
+    - name: IronBCI Cpp Markers
+      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/ironbci_linux.py $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/markers --board-id 15 --serial-port
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Denoising Python

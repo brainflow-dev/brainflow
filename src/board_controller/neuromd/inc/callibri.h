@@ -36,6 +36,4 @@ public:
     int stop_stream ();
     int release_session ();
     int config_board (std::string config, std::string &response);
-
-    static constexpr int package_size = 2;
 };

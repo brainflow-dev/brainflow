@@ -32,7 +32,6 @@ public:
     int release_session ();
     int config_board (std::string config, std::string &response);
 
-    static constexpr int num_channels = 9;
     static constexpr int ads_gain = 8;
     static constexpr int start_byte = 0xA0; // package start byte
     static constexpr int stop_byte = 0xC0;  // package stop byte
