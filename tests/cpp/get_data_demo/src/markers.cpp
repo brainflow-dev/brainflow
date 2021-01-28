@@ -35,7 +35,7 @@ int main (int argc, char *argv[])
     try
     {
         board->prepare_session ();
-        board->start_stream (45000, (char *)"file://data.csv:w");
+        board->start_stream ();
         BoardShim::log_message ((int)LogLevels::LEVEL_INFO, "Start sleeping in the main thread");
         for (int i = 1; i < 5; i++)
         {
