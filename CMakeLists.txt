@@ -11,6 +11,7 @@ set (CMAKE_C_VISIBILITY_PRESET hidden)
 
 set (CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+option(USE_LIBFTDIPP "USE_LIBFTDIPP" OFF)
 option(USE_OPENMP "USE_OPENMP" OFF)
 option(WARNINGS_AS_ERRORS "WARNINGS_AS_ERRORS" OFF)
 
@@ -312,6 +313,17 @@ set_target_properties (${ML_MODULE_NAME}
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
 )
+
+if (USE_LIBFTDIPP)
+    find_package (LibFTDI1 NO_MODULE)
+    if (LibFTDI1_FOUND)
+        include ( ${LIBFTDI_USE_FILE} )
+        target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE ${LIBFTDIPP_LIBRARIES})
+        target_compile_definitions (${BOARD_CONTROLLER_NAME} PRIVATE "USE_LIBFTDIPP")
+    else (LibFTDI1_FOUND)
+        message (FATAL_ERROR "ENABLE_LIBFTDI set but not LibFTDI found.")
+    endif (LibFTDI1_FOUND)
+endif (USE_LIBFTDIPP)
 
 if (USE_OPENMP)
     find_package (OpenMP)

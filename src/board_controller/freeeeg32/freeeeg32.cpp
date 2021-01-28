@@ -41,7 +41,7 @@ int FreeEEG32::prepare_session ()
         safe_logger (spdlog::level::err, "serial port is empty");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
-    serial = new Serial (params.serial_port.c_str ());
+    serial = Serial::create (params.serial_port.c_str ());
     int port_open = open_port ();
     if (port_open != (int)BrainFlowExitCodes::STATUS_OK)
     {

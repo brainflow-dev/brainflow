@@ -23,6 +23,8 @@
 
 #endif
 
+// For platform-specific definition code
+#define Serial OSSerial
 
 #if defined(_WIN32)
 int Serial::set_custom_baudrate (int baudrate)
