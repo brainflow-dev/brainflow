@@ -321,7 +321,7 @@ if (USE_LIBFTDIPP)
         target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE ${LIBFTDIPP_LIBRARIES})
         target_compile_definitions (${BOARD_CONTROLLER_NAME} PRIVATE "USE_LIBFTDIPP")
     else (LibFTDI1_FOUND)
-        message (FATAL_ERROR "ENABLE_LIBFTDI set but not LibFTDI found.")
+        message (FATAL_ERROR "USE_LIBFTDIPP set but LibFTDI not found.")
     endif (LibFTDI1_FOUND)
 endif (USE_LIBFTDIPP)
 
