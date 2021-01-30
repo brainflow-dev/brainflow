@@ -176,8 +176,8 @@ end
     temp_filters = Vector{Float64}(undef, Integer(n_channels * n_channels))
     output_eigenvalues = Vector{Float64}(undef, Integer(n_channels))
 
-    ccall((:get_csp, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Ptr{Float64}, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}), data, labels, Int32(n_epochs), Int32(n_channels), Int32(n_times), temp_filters, output_eigenvalues)
-    
+    ccall((:get_csp, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Ptr{Float64}, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}), temp_data1d, labels, Int32(n_epochs), Int32(n_channels), Int32(n_times), temp_filters, output_eigenvalues)
+
     output_filters = Array{Float64,2}(undef, n_channels, n_channels)
     for i=1:n_channels
         for j=1:n_channels
