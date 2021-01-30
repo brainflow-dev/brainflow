@@ -49,7 +49,8 @@ public class DataFilter
 
         int perform_wavelet_denoising (double[] data, int data_len, String wavelet, int decomposition_level);
 
-        int get_csp (double[] data, double[] labels, int n_epochs, int n_channels, int n_times, double[] output_filters, double[] output_eigenvalues);
+        int get_csp (double[] data, double[] labels, int n_epochs, int n_channels, int n_times, double[] output_filters,
+                double[] output_eigenvalues);
 
         int get_window (int window_function, int window_len, double[] window_data);
 
@@ -353,9 +354,9 @@ public class DataFilter
         int n_times = data[0][0].length;
 
         double[] temp_data1d = new double[n_epochs * n_channels * n_times];
-        for (int e = 0; e < n_epochs; e++) 
+        for (int e = 0; e < n_epochs; e++)
         {
-            for (int c = 0; c < n_channels; c++) 
+            for (int c = 0; c < n_channels; c++)
             {
                 for (int t = 0; t < n_times; t++)
                 {
@@ -367,14 +368,15 @@ public class DataFilter
 
         double[] temp_filters = new double[n_channels * n_channels];
         double[] output_eigenvalues = new double[n_channels];
-        
-        int ec = instance.get_csp (temp_data1d, labels, n_epochs, n_channels, n_times, temp_filters, output_eigenvalues);
+
+        int ec = instance.get_csp (temp_data1d, labels, n_epochs, n_channels, n_times, temp_filters,
+                output_eigenvalues);
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to get the CSP filters", ec);
         }
-        
-        double[][] output_filters = new double [n_channels][n_channels];
+
+        double[][] output_filters = new double[n_channels][n_channels];
         for (int i = 0; i < n_channels; i++)
         {
             for (int j = 0; j < n_channels; j++)
@@ -392,7 +394,7 @@ public class DataFilter
      * 
      * @param window     window function
      * @param window_len lenght of the window function
-     * @return           array of the size specified in window_len
+     * @return array of the size specified in window_len
      */
     public static double[] get_window (int window, int window_len) throws BrainFlowError
     {
