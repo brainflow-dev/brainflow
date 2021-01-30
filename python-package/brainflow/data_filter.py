@@ -623,13 +623,13 @@ class DataFilter(object):
 
     @classmethod
     def get_csp(cls, data: NDArray[Float64], labels: NDArray[Float64]) -> Tuple:
-        """calculate common spatial filters
+        """calculate filters and the corresponding eigenvalues using the Common Spatial Patterns
 
         :param data: [epochs x channels x times]-shaped 3D array of data for two classes
         :type data: NDArray[Float64]
         :param labels: n_epochs-length 1D array of zeros and ones that assigns class labels for each epoch. Zero corresponds to the first class
         :type labels: NDArray[Int64] 
-        :return: [channels x channels]-shaped 2D array of filters and [channels]-length 1D array of corresponding eigenvalues
+        :return: [channels x channels]-shaped 2D array of filters and [channels]-length 1D array of the corresponding eigenvalues
         :rtype: Tuple
         """
         if not (len(labels.shape) == 1):
