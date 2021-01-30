@@ -511,7 +511,7 @@ int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_t
         int n_class1 = 0;
         int n_class2 = 0;
 
-        // Compute averaged covariance matrices for each class
+        // Compute an averaged covariance matrix for each class
         for (int e = 0; e < n_epochs; e++)
         {
             Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> X (
