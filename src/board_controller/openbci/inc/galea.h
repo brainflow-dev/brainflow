@@ -45,7 +45,6 @@ public:
     int release_session ();
     int config_board (std::string config, std::string &response);
 
-    static constexpr int num_channels = 22;
     static constexpr int package_size = 72;
     static constexpr int num_packages = 19;
     static constexpr int transaction_size = package_size * num_packages;

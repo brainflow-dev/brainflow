@@ -73,8 +73,8 @@ public:
             {
                 return false;
             }
-            return true;
         }
+        return true;
     }
 
     void *get_address (const char *function_name)

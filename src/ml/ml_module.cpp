@@ -161,7 +161,8 @@ int string_to_brainflow_model_params (const char *json_params, struct BrainFlowM
     catch (json::exception &e)
     {
         BaseClassifier::ml_logger->error (
-            "Unable to create Brainflow model params with these arguments.");
+            "Unable to create Brainflow model params with these arguments. Exception: {}",
+            e.what ());
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 }

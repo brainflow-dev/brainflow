@@ -18,9 +18,6 @@
 #if defined _WIN32 || defined __APPLE__
 
 
-constexpr int Callibri::package_size;
-
-
 Callibri::Callibri (int board_id, struct BrainFlowInputParams params)
     : NeuromdBoard (board_id, params)
 {
@@ -150,35 +147,10 @@ int Callibri::start_stream (int buffer_size, char *streamer_params)
         safe_logger (spdlog::level::err, "Streaming thread already running");
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
-    if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
-    {
-        safe_logger (spdlog::level::err, "invalid array size");
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
-    }
-
-    if (db)
-    {
-        delete db;
-        db = NULL;
-    }
-    if (streamer)
-    {
-        delete streamer;
-        streamer = NULL;
-    }
-
-    int res = prepare_streamer (streamer_params);
+    int res = prepare_for_acquisition (buffer_size, streamer_params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
-    }
-    db = new DataBuffer (Callibri::package_size, buffer_size);
-    if (!db->is_ready ())
-    {
-        safe_logger (spdlog::level::err, "unable to prepare buffer");
-        delete db;
-        db = NULL;
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     std::string command_start = "CommandStartSignal";
@@ -202,11 +174,6 @@ int Callibri::stop_stream ()
         keep_alive = false;
         is_streaming = false;
         streaming_thread.join ();
-        if (streamer)
-        {
-            delete streamer;
-            streamer = NULL;
-        }
         std::string command_stop = "CommandStopSignal";
         std::string tmp = "";
         int res = config_board (command_stop, tmp);
@@ -226,6 +193,7 @@ int Callibri::release_session ()
         {
             stop_stream ();
         }
+        free_packages ();
         initialized = false;
         free_channels ();
     }
@@ -236,7 +204,13 @@ int Callibri::release_session ()
 
 void Callibri::read_thread ()
 {
-    double package[Callibri::package_size] = {0.0};
+    int num_rows = board_descr["num_rows"];
+    double *package = new double[num_rows];
+    for (int i = 0; i < num_rows; i++)
+    {
+        package[i] = 0.0;
+    }
+
     long long counter = 0;
     while (keep_alive)
     {
@@ -245,12 +219,12 @@ void Callibri::read_thread ()
         do
         {
             AnyChannel_get_total_length ((AnyChannel *)signal_channel, &length);
-        } while ((keep_alive) && (length < (counter + 1)));
+        } while ((keep_alive) && (length < ((size_t)counter + 1)));
 
         // check that inner loop ended not because of stop_stream invocation
         if (!keep_alive)
         {
-            return;
+            break;
         }
 
         double timestamp = get_timestamp ();
@@ -265,10 +239,10 @@ void Callibri::read_thread ()
         }
         counter++;
 
-        package[0] = (double)counter;
-        package[1] = data * 1e6;
-        db->add_data (timestamp, package);
-        streamer->stream_data (package, Callibri::package_size, timestamp);
+        package[board_descr["package_num_channel"].get<int> ()] = (double)counter;
+        package[1] = data * 1e6; // hardcode channel num here because there are 3 different types
+        package[board_descr["timestamp_channel"].get<int> ()] = timestamp;
+        push_package (package);
     }
 }
 

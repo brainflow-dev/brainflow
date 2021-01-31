@@ -32,14 +32,14 @@ jobs:
       run: |
         mkdir %GITHUB_WORKSPACE%\build32
         cd %GITHUB_WORKSPACE%\build32
-        cmake -G "Visual Studio 16 2019" -A Win32 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed32\ ..
+        cmake -DWARNINGS_AS_ERRORS=ON -G "Visual Studio 16 2019" -A Win32 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed32\ ..
         cmake --build . --target install --config Release -j 2 --parallel 2
       shell: cmd
     - name: Compile x64
       run: |
         mkdir %GITHUB_WORKSPACE%\build64
         cd %GITHUB_WORKSPACE%\build64
-        cmake -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed64\ ..
+        cmake -DWARNINGS_AS_ERRORS=ON -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed64\ ..
         cmake --build . --target install --config Release -j 2 --parallel 2
       shell: cmd
     - name: Nuget
@@ -108,13 +108,13 @@ jobs:
         julia --project=. -e "import Pkg; Pkg.test()"
       shell: cmd
     - name: Cyton Windows Python Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --log --board-id 0 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id 0 --serial-port
       shell: cmd
     - name: Cyton Windows Python Test with Streamer
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --log --board-id 0 --streamer-params file://file_streamer.csv:w --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id 0 --streamer-params file://file_streamer.csv:w --serial-port
       shell: cmd
     - name: Cyton Multiboard Windows Python Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_multiboard_get_data.py --log --board-id 0 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_multiboard_get_data.py --board-id 0 --serial-port
       shell: cmd
     - name: Cyton Windows Cpp Test
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 0 --serial-port
@@ -123,10 +123,10 @@ jobs:
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 0 --serial-port
       shell: cmd
     - name: Synthetic Windows Python Test
-      run: python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --log --board-id -1
+      run: python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id -1
       shell: cmd
     - name: Synthetic Windows Python Test with Streamer
-      run: python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --log --board-id -1 --streamer-params file://file_streamer.csv:w
+      run: python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id -1 --streamer-params file://file_streamer.csv:w
       shell: cmd
     - name: Synthetic Windows Cpp Test
       run: .\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id -1
@@ -137,22 +137,19 @@ jobs:
         test.exe --board-id -1
       shell: cmd
     - name: Cyton Daisy Windows Python Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --log --board-id 2 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id 2 --serial-port
       shell: cmd
     - name: Cyton Daisy Windows Python Test with Streamer
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --log --board-id 2 --streamer-params file://file_streamer.csv:w --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id 2 --streamer-params file://file_streamer.csv:w --serial-port
       shell: cmd
     - name: Cyton Daisy Multiboard Windows Python Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_multiboard_get_data.py --log --board-id 2 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_multiboard_get_data.py --board-id 2 --serial-port
       shell: cmd
     - name: Cyton Daisy Windows Cpp Test
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 2 --serial-port
       shell: cmd
     - name: Cyton Daisy Windows C# Test
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 2 --serial-port
-      shell: cmd
-    - name: Galea Windows Python Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\galea_udp.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id 3 --ip-address 127.0.0.1 --log
       shell: cmd
     - name: Galea Windows Cpp Test
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\galea_udp.py %GITHUB_WORKSPACE%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 3 --ip-address 127.0.0.1
@@ -164,10 +161,10 @@ jobs:
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\fascia_emulator_ci.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id 12 --ip-port 7789
       shell: cmd
     - name: IronBCI Python Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\ironbci_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --log --board-id 15 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\ironbci_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id 15 --serial-port
       shell: cmd
     - name: FreeEEG32 Python Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\freeeeg32_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --log --board-id 17 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\freeeeg32_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id 17 --serial-port
       shell: cmd
     # Signal Processing Testing
     - name: Denoising Python Test
@@ -185,6 +182,9 @@ jobs:
     - name: Downsampling Python Test
       run: python %GITHUB_WORKSPACE%\tests\python\downsampling.py
       shell: cmd
+    - name: Windowing Python Test
+      run: python %GITHUB_WORKSPACE%\tests\python\windowing.py
+      shell: cmd
     - name: BrainFlow to MNE Python Test
       run: python %GITHUB_WORKSPACE%\tests\python\brainflow_to_mne.py
       shell: cmd
@@ -193,6 +193,9 @@ jobs:
       shell: cmd
     - name: Downsampling Cpp Test
       run: .\tests\cpp\signal_processing_demo\build\Release\downsampling.exe
+      shell: cmd
+    - name: Windowing Cpp Test
+      run: .\tests\cpp\signal_processing_demo\build\Release\windowing.exe
       shell: cmd
     - name: Transforms Cpp Test
       run: .\tests\cpp\signal_processing_demo\build\Release\transforms.exe

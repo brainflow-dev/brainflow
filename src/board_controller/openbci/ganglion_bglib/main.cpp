@@ -91,7 +91,7 @@ namespace GanglionLib
     {
         if (uart_open (uart_port))
         {
-            return (int)CustomExitCodes::GANGLION_NOT_FOUND_ERROR;
+            return (int)CustomExitCodes::PORT_OPEN_ERROR;
         }
         int res = reset_ble_dev ();
         if (res != (int)CustomExitCodes::STATUS_OK)
@@ -102,7 +102,7 @@ namespace GanglionLib
         state = State::OPEN_CALLED;
         char *mac_addr = (char *)param;
         // convert string mac addr to bd_addr struct
-        for (int i = 0; i < strlen (mac_addr); i++)
+        for (int i = 0; i < (int)strlen (mac_addr); i++)
         {
             mac_addr[i] = tolower (mac_addr[i]);
         }
@@ -112,7 +112,7 @@ namespace GanglionLib
         {
             for (int i = 0; i < 6; i++)
             {
-                connect_addr.addr[i] = addr[i];
+                connect_addr.addr[i] = (uint8)addr[i];
             }
         }
         else
@@ -281,7 +281,7 @@ namespace GanglionLib
         }
         exit_code = (int)CustomExitCodes::SYNC_ERROR;
         char *config = (char *)param;
-        int len = strlen (config);
+        int len = (int)strlen (config);
         state = State::CONFIG_CALLED;
         if (!ganglion_handle_send)
         {

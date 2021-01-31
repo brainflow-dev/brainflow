@@ -11,20 +11,24 @@ Plugins for text editors and IDEs:
 
 - `Sublime <https://packagecontrol.io/packages/Clang%20Format>`_
 - `VSCode <https://marketplace.visualstudio.com/items?itemName=xaver.clang-format>`_
--  clang-format tool is preinstalled for Visual Studio
+-  `Guide for Visual Studio <https://devblogs.microsoft.com/cppblog/clangformat-support-in-visual-studio-2017-15-7-preview-1/>`_
 
 
 Unfortunately clang-format cannot handle naming, so some additional rules are:
+
 - methods and variables should be in lower case with underscore
 - class names should be in camel case
 - use brackets even for single line if and for statements
 
-We try to keep the same code style for all bindings as well, even if it doesn't match PEP or other standards. For example we add spaces before and after assignment operator to specify default value for method's params and add spaces before brackets.
+For C# we use the same code style as for C++, for java there is a formatter file to take care of code style.
+
 
 CI and tests
 --------------
 
 If you want to commit to the core module of BrainFlow project please check that all tests are passed, you should check CI status in your PR and fix all errors if any. Also, you are able to run failed tests locally using BrainFlow emulator.
+
+In CI warnings as errors option is enabled for C++ code and you need to fix all of them. Also, we have `CppCheck <http://cppcheck.sourceforge.net/>`_ static analysis tool. If you see that such check failed you need to download artifact from `CppCheck Github Acttion <https://github.com/brainflow-dev/brainflow/actions?query=workflow%3ACppCheck>`_, open generated html report and fix errors. 
 
 Pull Requests
 --------------
@@ -37,7 +41,7 @@ Instructions to add new boards to BrainFlow
 - add new board Id to `BoardIds enum in C code <https://github.com/brainflow-dev/brainflow/blob/master/src/utils/inc/brainflow_constants.h>`_ and to the same enum in all bindings
 - add new object creation to `board controller C interface <https://github.com/brainflow-dev/brainflow/blob/master/src/board_controller/board_controller.cpp>`_
 - inherit your board from `Board class <https://github.com/brainflow-dev/brainflow/blob/master/src/board_controller/inc/board.h>`_ and implement all pure virtual methods, store data in DataBuffer object, use `synthetic board <https://github.com/brainflow-dev/brainflow/blob/master/src/board_controller/inc/synthetic_board.h>`_ as a reference, try to reuse code from `utils <https://github.com/brainflow-dev/brainflow/tree/master/src/utils>`_ folder
-- add information about your board to `brainflow_boards.h <https://github.com/brainflow-dev/brainflow/tree/master/src/board_controller/inc/brainflow_boards.h>`_
+- add information about your board to `brainflow_boards.cpp <https://github.com/brainflow-dev/brainflow/blob/master/src/board_controller/brainflow_boards.cpp>`_
 - add new files to BOARD_CONTROLLER_SRC variable in `CmakeLists.txt <https://github.com/brainflow-dev/brainflow/blob/master/CMakeLists.txt>`_, you may also need to add new directory to *target_include_directories* for BOARD_CONTROLLER_NAME variable
 
 **You've just written Python, Java, C#, R, C++ ... SDKs for your board! Also, now you can use your new board with applications and frameworks built on top of BrainFlow API.**

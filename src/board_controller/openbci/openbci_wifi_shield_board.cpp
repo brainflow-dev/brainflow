@@ -6,20 +6,15 @@
 #include "openbci_wifi_shield_board.h"
 #include "socket_client_udp.h"
 
-#include "json.hpp"
-
 #define HTTP_IMPLEMENTATION
 #include "http.h"
 
-using json = nlohmann::json;
 
 constexpr int OpenBCIWifiShieldBoard::package_size;
 
-OpenBCIWifiShieldBoard::OpenBCIWifiShieldBoard (
-    int num_channels, struct BrainFlowInputParams params, int board_id)
+OpenBCIWifiShieldBoard::OpenBCIWifiShieldBoard (struct BrainFlowInputParams params, int board_id)
     : Board (board_id, params)
 {
-    this->num_channels = num_channels;
     server_socket = NULL;
     keep_alive = false;
     initialized = false;
@@ -231,35 +226,10 @@ int OpenBCIWifiShieldBoard::start_stream (int buffer_size, char *streamer_params
         safe_logger (spdlog::level::err, "Streaming thread already running");
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
-    if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
-    {
-        safe_logger (spdlog::level::err, "invalid array size");
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
-    }
-
-    if (db)
-    {
-        delete db;
-        db = NULL;
-    }
-    if (streamer)
-    {
-        delete streamer;
-        streamer = NULL;
-    }
-
-    int res = prepare_streamer (streamer_params);
+    int res = prepare_for_acquisition (buffer_size, streamer_params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
-    }
-    db = new DataBuffer (num_channels, buffer_size);
-    if (!db->is_ready ())
-    {
-        safe_logger (spdlog::level::err, "unable to prepare buffer");
-        delete db;
-        db = NULL;
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     std::string url = "http://" + params.ip_address + "/stream/start";
@@ -288,11 +258,6 @@ int OpenBCIWifiShieldBoard::stop_stream ()
     {
         keep_alive = false;
         streaming_thread.join ();
-        if (streamer)
-        {
-            delete streamer;
-            streamer = NULL;
-        }
         std::string url = "http://" + params.ip_address + "/stream/stop";
         http_t *request = http_get (url.c_str (), NULL);
         if (!request)
@@ -323,6 +288,7 @@ int OpenBCIWifiShieldBoard::release_session ()
         {
             stop_stream ();
         }
+        free_packages ();
         initialized = false;
     }
     if (server_socket)
@@ -344,17 +310,17 @@ std::string OpenBCIWifiShieldBoard::find_wifi_shield ()
     int res = udp_client.connect ();
     if (res == (int)SocketClientUDPReturnCodes::STATUS_OK)
     {
-        std::stringstream msearch;
-        msearch << "M-SEARCH * HTTP/1.1\r\nHost: 239.255.255.250:1900\r\nMAN: ssdp:discover\r\n";
-        msearch << "ST: urn:schemas-upnp-org:device:Basic:1\r\n";
-        msearch << "MX: 3\r\n";
-        msearch << "\r\n";
-        msearch << "\r\n";
+        std::string msearch =
+            ("M-SEARCH * HTTP/1.1\r\nHost: 239.255.255.250:1900\r\nMAN: ssdp:discover\r\n"
+             "ST: urn:schemas-upnp-org:device:Basic:1\r\n"
+             "MX: 3\r\n"
+             "\r\n"
+             "\r\n");
 
-        safe_logger (spdlog::level::trace, "Using search request {}", msearch.str ().c_str ());
+        safe_logger (spdlog::level::trace, "Using search request {}", msearch.c_str ());
 
-        res = udp_client.send (msearch.str ().c_str (), strlen (msearch.str ().c_str ()));
-        if (res == strlen (msearch.str ().c_str ()))
+        res = (int)udp_client.send (msearch.c_str (), (int)msearch.size ());
+        if (res == msearch.size ())
         {
             unsigned char b[250];
             res = udp_client.recv (b, 250);

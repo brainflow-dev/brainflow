@@ -129,6 +129,18 @@ void DataFilter::perform_wavelet_denoising (
     }
 }
 
+double *DataFilter::get_window (int window_function, int window_len)
+{
+    double *window_data = new double[window_len];
+    int res = ::get_window (window_function, window_len, window_data);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        delete[] window_data;
+        throw BrainFlowException ("failed to filter signal", res);
+    }
+    return window_data;
+}
+
 std::complex<double> *DataFilter::perform_fft (double *data, int data_len, int window)
 {
     if ((data_len & (data_len - 1)) || (data_len <= 0))

@@ -22,7 +22,6 @@ protected:
     std::thread streaming_thread;
 
     SocketServerTCP *server_socket;
-    int num_channels;
 
     std::string find_wifi_shield ();
 
@@ -30,7 +29,7 @@ protected:
     virtual int send_config (const char *config);
 
 public:
-    OpenBCIWifiShieldBoard (int num_channels, struct BrainFlowInputParams params, int board_id);
+    OpenBCIWifiShieldBoard (struct BrainFlowInputParams params, int board_id);
     virtual ~OpenBCIWifiShieldBoard ();
 
     virtual int prepare_session ();

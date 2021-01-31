@@ -13,6 +13,7 @@
 #include "downsample_operators.h"
 #include "rolling_filter.h"
 #include "wavelet_helpers.h"
+#include "window_functions.h"
 
 #include "DspFilters/Dsp.h"
 
@@ -29,10 +30,6 @@
 
 #define LOGGER_NAME "data_logger"
 #define MAX_FILTER_ORDER 8
-
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
 
 #ifdef __ANDROID__
 #include "spdlog/sinks/android_sink.h"
@@ -95,7 +92,6 @@ int set_log_level (int level)
 int perform_lowpass (double *data, int data_len, int sampling_rate, double cutoff, int order,
     int filter_type, double ripple)
 {
-    int numSamples = 2000;
     double *filter_data[1];
     filter_data[0] = data;
     Dsp::Filter *f = NULL;
@@ -308,9 +304,7 @@ int perform_downsampling (
 {
     if ((data == NULL) || (data_len <= 0) || (period <= 0) || (output_data == NULL))
     {
-        data_logger->error ("Period must be >= 0 and data/output_data cannot be empty. Data:{} , "
-                            "Period:{}, Output_data:{}",
-            *data, period, *output_data);
+        data_logger->error ("Period must be >= 0 and data and output_data cannot be NULL.");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     double (*downsampling_op) (double *, int);
@@ -373,7 +367,7 @@ int perform_wavelet_transform (double *data, int data_len, char *wavelet, int de
         wave_free (obj);
         wt_free (wt);
     }
-    catch (const std::exception &e)
+    catch (...)
     {
         if (obj)
         {
@@ -429,7 +423,7 @@ int perform_inverse_wavelet_transform (double *wavelet_coeffs, int original_data
         wave_free (obj);
         wt_free (wt);
     }
-    catch (const std::exception &e)
+    catch (...)
     {
         if (obj)
         {
@@ -475,7 +469,7 @@ int perform_wavelet_denoising (double *data, int data_len, char *wavelet, int de
         temp = NULL;
         denoise_free (obj);
     }
-    catch (const std::exception &e)
+    catch (...)
     {
         if (temp)
         {
@@ -489,6 +483,36 @@ int perform_wavelet_denoising (double *data, int data_len, char *wavelet, int de
         // transform
         data_logger->error ("Input buffer size issue(likely too small.");
         return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
+    }
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int get_window (int window_function, int window_len, double *output_window)
+{
+    if ((window_len <= 0) || (window_function < 0) || (output_window == NULL))
+    {
+        data_logger->error ("Please check the arguments: data_len must be > 0, window_function >= "
+                            "0 and output_window cannot be empty.");
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+    // from https://www.edn.com/windowing-functions-improve-fft-results-part-i/
+    switch (static_cast<WindowFunctions> (window_function))
+    {
+        case WindowFunctions::NO_WINDOW:
+            no_window_function (window_len, output_window);
+            break;
+        case WindowFunctions::HAMMING:
+            hamming_function (window_len, output_window);
+            break;
+        case WindowFunctions::HANNING:
+            hanning_function (window_len, output_window);
+            break;
+        case WindowFunctions::BLACKMAN_HARRIS:
+            blackman_harris_function (window_len, output_window);
+            break;
+        default:
+            data_logger->error ("Invalid Window function. Window function:{}", window_function);
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
@@ -527,40 +551,12 @@ int perform_fft (
                             "a postive power of 2.");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
+
     double *windowed_data = new double[data_len];
-    // from https://www.edn.com/windowing-functions-improve-fft-results-part-i/
-    switch (static_cast<WindowFunctions> (window_function))
+    get_window (window_function, data_len, windowed_data);
+    for (int i = 0; i < data_len; i++)
     {
-        case WindowFunctions::NO_WINDOW:
-            for (int i = 0; i < data_len; i++)
-            {
-                windowed_data[i] = data[i];
-            }
-            break;
-        case WindowFunctions::HAMMING:
-            for (int i = 0; i < data_len; i++)
-            {
-                windowed_data[i] = data[i] * (0.54 - 0.46 * cos (2.0 * M_PI * i / data_len));
-            }
-            break;
-        case WindowFunctions::HANNING:
-            for (int i = 0; i < data_len; i++)
-            {
-                windowed_data[i] = data[i] * (0.5 - 0.5 * cos (2.0 * M_PI * i / data_len));
-            }
-            break;
-        case WindowFunctions::BLACKMAN_HARRIS:
-            for (int i = 0; i < data_len; i++)
-            {
-                windowed_data[i] = data[i] *
-                    (0.355768 - 0.487396 * cos (2.0 * M_PI * i / data_len) +
-                        0.144232 * cos (4.0 * M_PI * i / data_len) -
-                        0.012604 * cos (6.0 * M_PI * i / data_len));
-            }
-            break;
-        default:
-            data_logger->error ("Invalid Window function. Window function:{}", window_function);
-            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+        windowed_data[i] *= data[i];
     }
     double *temp = new double[data_len];
     try
@@ -583,7 +579,7 @@ int perform_fft (
         windowed_data = NULL;
         temp = NULL;
     }
-    catch (const std::exception &e)
+    catch (...)
     {
         if (temp)
         {
@@ -628,7 +624,7 @@ int perform_ifft (double *input_re, double *input_im, int data_len, double *rest
         delete[] temp;
         temp = NULL;
     }
-    catch (const std::exception &e)
+    catch (...)
     {
         if (temp)
         {
@@ -809,7 +805,7 @@ int read_file (double *data, int *num_rows, int *num_cols, char *file_name, int 
         {
             splitted.push_back (tmp);
         }
-        total_cols = splitted.size ();
+        total_cols = (int)splitted.size ();
         for (int i = 0; i < total_cols; i++)
         {
             data[i * total_rows + current_row] = std::stod (splitted[i]);
@@ -872,7 +868,7 @@ int get_num_elements_in_file (char *file_name, int *num_elements)
         {
             splitted.push_back (tmp);
         }
-        *num_elements = splitted.size () * total_rows;
+        *num_elements = (int)splitted.size () * total_rows;
         fclose (fp);
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
@@ -950,13 +946,12 @@ int get_psd_welch (double *data, int data_len, int nfft, int overlap, int sampli
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     double *ampls = new double[nfft / 2 + 1];
-    int pos = 0;
     int counter = 0;
     for (int i = 0; i < nfft / 2 + 1; i++)
     {
         output_ampl[i] = 0.0;
     }
-    for (int pos = 0; (pos + nfft) < data_len; pos += (nfft - overlap), counter++)
+    for (int pos = 0; (pos + nfft) <= data_len; pos += (nfft - overlap), counter++)
     {
         int res = get_psd (data + pos, nfft, sampling_rate, window_function, ampls, output_freq);
         if (res != (int)BrainFlowExitCodes::STATUS_OK)
@@ -969,12 +964,12 @@ int get_psd_welch (double *data, int data_len, int nfft, int overlap, int sampli
             output_ampl[i] += ampls[i];
         }
     }
+    delete[] ampls;
     if (counter == 0)
     {
         data_logger->error ("Nfft must be less than data_len.");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
-    delete[] ampls;
     // average data
     for (int i = 0; i < nfft / 2; i++)
     {
@@ -1012,6 +1007,7 @@ int get_avg_band_powers (double *raw_data, int rows, int cols, int sampling_rate
     if (nfft < 8)
     {
         data_logger->error ("Not enough data for calculation.");
+        delete[] exit_codes;
         return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
     double **bands = new double *[5];

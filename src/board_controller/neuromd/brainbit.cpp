@@ -18,8 +18,6 @@
 #if defined _WIN32 || defined __APPLE__
 
 
-constexpr int BrainBit::package_size;
-
 namespace BrainBitCallbacks
 {
     // convert plain C callbacks to class methods
@@ -283,35 +281,10 @@ int BrainBit::start_stream (int buffer_size, char *streamer_params)
         safe_logger (spdlog::level::err, "Streaming thread already running");
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
-    if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
-    {
-        safe_logger (spdlog::level::err, "invalid array size");
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
-    }
-
-    if (db)
-    {
-        delete db;
-        db = NULL;
-    }
-    if (streamer)
-    {
-        delete streamer;
-        streamer = NULL;
-    }
-
-    int res = prepare_streamer (streamer_params);
+    int res = prepare_for_acquisition (buffer_size, streamer_params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
-    }
-    db = new DataBuffer (BrainBit::package_size, buffer_size);
-    if (!db->is_ready ())
-    {
-        safe_logger (spdlog::level::err, "unable to prepare buffer");
-        delete db;
-        db = NULL;
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     std::string command_start = "CommandStartSignal";
@@ -335,11 +308,6 @@ int BrainBit::stop_stream ()
         keep_alive = false;
         is_streaming = false;
         streaming_thread.join ();
-        if (streamer)
-        {
-            delete streamer;
-            streamer = NULL;
-        }
         std::string command_stop = "CommandStopSignal";
         std::string tmp = "";
         int res = config_board (command_stop, tmp);
@@ -359,6 +327,7 @@ int BrainBit::release_session ()
         {
             stop_stream ();
         }
+        free_packages ();
         initialized = false;
         free_listeners ();
         free_channels ();
@@ -376,10 +345,15 @@ void BrainBit::read_thread ()
      * package[5-8] - resistance t3, t4, o1, o2. Place it to other_channels
      * package[9] - battery
      */
-    double package[BrainBit::package_size] = {0.0};
+    int num_rows = board_descr["num_rows"];
+    double *package = new double[num_rows];
+    for (int i = 0; i < num_rows; i++)
+    {
+        package[i] = 0.0;
+    }
     // I dont see method to flush data from buffer, so need to keep offset and track package num to
     // get only new data
-    long long counter = 0;
+    size_t counter = 0;
     while (keep_alive)
     {
         size_t length_t3 = 0;
@@ -400,7 +374,7 @@ void BrainBit::read_thread ()
         // check that inner loop ended not because of stop_stream invocation
         if (!keep_alive)
         {
-            return;
+            break;
         }
 
         // get timestamp as soon as loop ends
@@ -438,18 +412,18 @@ void BrainBit::read_thread ()
         }
         counter++;
 
-        package[0] = (double)counter;
-        package[1] = t3_data * 1e6;
-        package[2] = t4_data * 1e6;
-        package[3] = o1_data * 1e6;
-        package[4] = o2_data * 1e6;
-        package[5] = last_resistance_t3;
-        package[6] = last_resistance_t4;
-        package[7] = last_resistance_o1;
-        package[8] = last_resistance_o2;
-        package[9] = last_battery;
-        db->add_data (timestamp, package);
-        streamer->stream_data (package, BrainBit::package_size, timestamp);
+        package[board_descr["package_num_channel"].get<int> ()] = (double)counter;
+        package[board_descr["eeg_channels"][0].get<int> ()] = t3_data * 1e6;
+        package[board_descr["eeg_channels"][1].get<int> ()] = t4_data * 1e6;
+        package[board_descr["eeg_channels"][2].get<int> ()] = o1_data * 1e6;
+        package[board_descr["eeg_channels"][3].get<int> ()] = o2_data * 1e6;
+        package[board_descr["resistance_channels"][0].get<int> ()] = last_resistance_t3;
+        package[board_descr["resistance_channels"][1].get<int> ()] = last_resistance_t4;
+        package[board_descr["resistance_channels"][2].get<int> ()] = last_resistance_o1;
+        package[board_descr["resistance_channels"][3].get<int> ()] = last_resistance_o2;
+        package[board_descr["battery_channel"].get<int> ()] = last_battery;
+        package[board_descr["timestamp_channel"].get<int> ()] = timestamp;
+        push_package (package);
     }
 }
 

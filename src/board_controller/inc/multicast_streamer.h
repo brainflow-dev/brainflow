@@ -9,11 +9,11 @@ class MultiCastStreamer : public Streamer
 {
 
 public:
-    MultiCastStreamer (const char *ip, int port);
+    MultiCastStreamer (const char *ip, int port, int data_len);
     ~MultiCastStreamer ();
 
     int init_streamer ();
-    void stream_data (double *data, int len, double timestamp);
+    void stream_data (double *data);
 
 private:
     char ip[128];

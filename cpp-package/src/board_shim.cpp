@@ -217,6 +217,15 @@ std::string BoardShim::config_board (char *config)
     return resp;
 }
 
+void BoardShim::insert_marker (double value)
+{
+    int res = ::insert_marker (value, board_id, const_cast<char *> (serialized_params.c_str ()));
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to insert marker", res);
+    }
+}
+
 // for better user experience and consistency accross bindings we return 2d array from user api, we
 // can not do it directly in low level api because some languages can not pass multidim array to C++
 void BoardShim::reshape_data (int num_data_points, double *linear_buffer, double **output_buf)
@@ -239,7 +248,7 @@ int BoardShim::get_board_id ()
         {
             master_board_id = std::stoi (params.other_info);
         }
-        catch (const std::exception &e)
+        catch (...)
         {
             throw BrainFlowException ("specify master board id using params.other_info",
                 (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
@@ -285,6 +294,17 @@ int BoardShim::get_timestamp_channel (int board_id)
     return timestamp_channel;
 }
 
+int BoardShim::get_marker_channel (int board_id)
+{
+    int marker_channel = 0;
+    int res = ::get_marker_channel (board_id, &marker_channel);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed get board info", res);
+    }
+    return marker_channel;
+}
+
 int BoardShim::get_battery_channel (int board_id)
 {
     int battery_channel = 0;
@@ -327,7 +347,7 @@ std::string *BoardShim::get_eeg_names (int board_id, int *len)
 
     std::string *result = new std::string[out.size ()];
     std::copy (out.begin (), out.end (), result);
-    *len = out.size ();
+    *len = (int)out.size ();
 
     return result;
 }

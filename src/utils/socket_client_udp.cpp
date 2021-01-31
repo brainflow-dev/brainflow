@@ -12,7 +12,7 @@
 #pragma comment(lib, "AdvApi32.lib")
 
 
-int SocketClientUDP::get_local_ip_addr (char *connect_ip, int port, char *local_ip)
+int SocketClientUDP::get_local_ip_addr (const char *connect_ip, int port, char *local_ip)
 {
     WSADATA wsadata;
     int return_value = (int)SocketClientUDPReturnCodes::STATUS_OK;
@@ -212,7 +212,7 @@ void SocketClientUDP::close ()
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 
-int SocketClientUDP::get_local_ip_addr (char *connect_ip, int port, char *local_ip)
+int SocketClientUDP::get_local_ip_addr (const char *connect_ip, int port, char *local_ip)
 {
     int return_value = (int)SocketClientUDPReturnCodes::STATUS_OK;
     struct sockaddr_in serv;
@@ -371,7 +371,7 @@ int SocketClientUDP::get_local_port ()
 
 int SocketClientUDP::send (const char *data, int size)
 {
-    int res = sendto (connect_socket, data, size, 0, NULL, NULL);
+    int res = sendto (connect_socket, data, size, 0, NULL, 0);
     return res;
 }
 

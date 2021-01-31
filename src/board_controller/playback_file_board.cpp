@@ -30,7 +30,6 @@ PlaybackFileBoard::PlaybackFileBoard (struct BrainFlowInputParams params)
     is_streaming = false;
     initialized = false;
     use_new_timestamps = true;
-    package_size = 0;
     this->state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
 }
 
@@ -73,13 +72,6 @@ int PlaybackFileBoard::prepare_session ()
     }
     fclose (fp);
 
-    // get package size for master board
-    int res = get_num_rows (board_id, &package_size);
-    if (res != (int)BrainFlowExitCodes::STATUS_OK)
-    {
-        return res;
-    }
-
     initialized = true;
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
@@ -92,34 +84,11 @@ int PlaybackFileBoard::start_stream (int buffer_size, char *streamer_params)
         safe_logger (spdlog::level::err, "Streaming thread already running");
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
-    if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
-    {
-        safe_logger (spdlog::level::err, "invalid array size");
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
-    }
 
-    if (streamer)
-    {
-        delete streamer;
-        streamer = NULL;
-    }
-    if (db)
-    {
-        delete db;
-        db = NULL;
-    }
-    int res = prepare_streamer (streamer_params);
+    int res = prepare_for_acquisition (buffer_size, streamer_params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
-    }
-    db = new DataBuffer (package_size - 1, buffer_size); // - 1 because of timestamp
-    if (!db->is_ready ())
-    {
-        safe_logger (spdlog::level::err, "unable to prepare buffer with size {}", buffer_size);
-        delete db;
-        db = NULL;
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     keep_alive = true;
@@ -150,11 +119,6 @@ int PlaybackFileBoard::stop_stream ()
         is_streaming = false;
         streaming_thread.join ();
         this->state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
-        if (streamer)
-        {
-            delete streamer;
-            streamer = NULL;
-        }
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
     else
@@ -168,12 +132,7 @@ int PlaybackFileBoard::release_session ()
     if (initialized)
     {
         stop_stream ();
-
-        if (db)
-        {
-            delete db;
-            db = NULL;
-        }
+        free_packages ();
         initialized = false;
     }
     return (int)BrainFlowExitCodes::STATUS_OK;
@@ -188,10 +147,16 @@ void PlaybackFileBoard::read_thread ()
         safe_logger (spdlog::level::err, "failed to open file in thread");
         return;
     }
-    double *package = new double[package_size];
+    int num_rows = board_descr["num_rows"];
+    double *package = new double[num_rows];
+    for (int i = 0; i < num_rows; i++)
+    {
+        package[i] = 0.0;
+    }
     char buf[4096];
     double last_timestamp = -1.0;
     bool new_timestamps = use_new_timestamps; // to prevent changing during streaming
+    int timestamp_channel = board_descr["timestamp_channel"];
 
     while (keep_alive)
     {
@@ -221,14 +186,14 @@ void PlaybackFileBoard::read_thread ()
         {
             splitted.push_back (tmp);
         }
-        if (splitted.size () != package_size)
+        if (splitted.size () != num_rows)
         {
             safe_logger (spdlog::level::err,
                 "invalid string in file, check provided board id. String size {}, expected size {}",
-                splitted.size (), package_size);
+                splitted.size (), num_rows);
             continue;
         }
-        for (int i = 0; i < package_size; i++)
+        for (int i = 0; i < num_rows; i++)
         {
             package[i] = std::stod (splitted[i]);
         }
@@ -241,23 +206,22 @@ void PlaybackFileBoard::read_thread ()
             }
             this->cv.notify_one ();
         }
-        double timestamp = get_timestamp ();
-        if (!new_timestamps)
-        {
-            timestamp = package[package_size - 1];
-        }
-        streamer->stream_data (package, package_size - 1, timestamp); // - 1 because of timestamp
-        db->add_data (timestamp, package);
         if (last_timestamp > 0)
         {
-            double time_wait = package[package_size - 1] - last_timestamp; // in seconds
+            double time_wait = package[timestamp_channel] - last_timestamp; // in seconds
 #ifdef _WIN32
             Sleep ((int)(time_wait * 1000 + 0.5));
 #else
             usleep ((int)(time_wait * 1000000 + 0.5));
 #endif
         }
-        last_timestamp = package[package_size - 1];
+        last_timestamp = package[timestamp_channel];
+
+        if (new_timestamps)
+        {
+            package[timestamp_channel] = get_timestamp ();
+        }
+        push_package (package);
     }
     fclose (fp);
     delete[] package;

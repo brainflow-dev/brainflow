@@ -29,6 +29,11 @@ int get_package_num_channel (int board_id, int *package_num_channel)
     return get_single_value (board_id, "package_num_channel", package_num_channel);
 }
 
+int get_marker_channel (int board_id, int *marker_channel)
+{
+    return get_single_value (board_id, "marker_channel", marker_channel);
+}
+
 int get_battery_channel (int board_id, int *battery_channel)
 {
     return get_single_value (board_id, "battery_channel", battery_channel);
@@ -181,7 +186,7 @@ inline int get_array_value (
         {
             memcpy (output_array, &values[0], sizeof (int) * values.size ());
         }
-        *len = values.size ();
+        *len = (int)values.size ();
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
     catch (json::exception &e)
@@ -201,7 +206,7 @@ inline int get_string_value (
     {
         std::string val = brainflow_boards_json["boards"][int_to_string (board_id)][param_name];
         strcpy (string, val.c_str ());
-        *len = strlen (val.c_str ());
+        *len = (int)strlen (val.c_str ());
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
     catch (json::exception &e)

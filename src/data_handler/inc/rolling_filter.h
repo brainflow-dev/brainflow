@@ -44,7 +44,7 @@ public:
     // https://leetcode.com/problems/sliding-window-median/
     T get_value ()
     {
-        if (this->dataset.size () < this->period)
+        if ((int)this->dataset.size () < this->period)
         {
             // to simplify algorithm if there are less data just return the last value
             return this->deque.back ();
@@ -79,7 +79,7 @@ public:
     {
         this->sum += num;
         this->dataset.push_back (num);
-        if (this->dataset.size () > this->period)
+        if ((int)this->dataset.size () > this->period)
         {
             this->sum -= this->dataset.front ();
             this->dataset.pop_front ();
@@ -88,7 +88,7 @@ public:
 
     T get_value ()
     {
-        if (this->dataset.size () < this->period)
+        if ((int)this->dataset.size () < this->period)
         {
             return this->sum / this->dataset.size ();
         }

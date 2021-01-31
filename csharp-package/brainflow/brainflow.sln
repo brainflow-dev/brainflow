@@ -30,6 +30,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eeg_metrics", "eeg_metrics\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eeg_metrics_ci", "eeg_metrics_ci\eeg_metrics_ci.csproj", "{AE26BA17-F5FD-49EA-98F3-FAF23DB8EE3A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "markers", "markers\markers.csproj", "{51A28D43-97FD-4F78-BFF3-988ABC6B6407}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -172,6 +174,18 @@ Global
 		{AE26BA17-F5FD-49EA-98F3-FAF23DB8EE3A}.Release|x64.Build.0 = Release|Any CPU
 		{AE26BA17-F5FD-49EA-98F3-FAF23DB8EE3A}.Release|x86.ActiveCfg = Release|x86
 		{AE26BA17-F5FD-49EA-98F3-FAF23DB8EE3A}.Release|x86.Build.0 = Release|x86
+		{51A28D43-97FD-4F78-BFF3-988ABC6B6407}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51A28D43-97FD-4F78-BFF3-988ABC6B6407}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51A28D43-97FD-4F78-BFF3-988ABC6B6407}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{51A28D43-97FD-4F78-BFF3-988ABC6B6407}.Debug|x64.Build.0 = Debug|Any CPU
+		{51A28D43-97FD-4F78-BFF3-988ABC6B6407}.Debug|x86.ActiveCfg = Debug|x86
+		{51A28D43-97FD-4F78-BFF3-988ABC6B6407}.Debug|x86.Build.0 = Debug|x86
+		{51A28D43-97FD-4F78-BFF3-988ABC6B6407}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51A28D43-97FD-4F78-BFF3-988ABC6B6407}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51A28D43-97FD-4F78-BFF3-988ABC6B6407}.Release|x64.ActiveCfg = Release|Any CPU
+		{51A28D43-97FD-4F78-BFF3-988ABC6B6407}.Release|x64.Build.0 = Release|Any CPU
+		{51A28D43-97FD-4F78-BFF3-988ABC6B6407}.Release|x86.ActiveCfg = Release|x86
+		{51A28D43-97FD-4F78-BFF3-988ABC6B6407}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -187,6 +201,7 @@ Global
 		{49BE97BC-D00C-4DAF-86F6-39B18B3B954C} = {FF155433-168F-4A55-BA98-DFD197A98185}
 		{5BC6B59F-E41D-4B6F-9718-81553405F846} = {FF155433-168F-4A55-BA98-DFD197A98185}
 		{AE26BA17-F5FD-49EA-98F3-FAF23DB8EE3A} = {FF155433-168F-4A55-BA98-DFD197A98185}
+		{51A28D43-97FD-4F78-BFF3-988ABC6B6407} = {FF155433-168F-4A55-BA98-DFD197A98185}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C8CE9ED2-4273-45D4-AD7D-4B9227349E89}

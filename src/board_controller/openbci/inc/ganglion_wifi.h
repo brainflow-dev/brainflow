@@ -9,8 +9,8 @@
 
 class GanglionWifi : public OpenBCIWifiShieldBoard
 {
-    float const accel_scale = (0.02f / 16.0f) / 1.25f; // 1.25 experimental number
-    float const eeg_scale = (1.2f * 1000000) / (8388607.0f * 1.5f * 51.0f);
+    double const accel_scale = (0.02 / 16.0) / 1.25; // 1.25 experimental number
+    double const eeg_scale = (1.2 * 1000000) / (8388607.0 * 1.5 * 51.0);
 
     volatile bool is_cheking_impedance;
 
@@ -21,7 +21,7 @@ protected:
 public:
     // package num, 4 eeg channels, 3 accel channels
     GanglionWifi (struct BrainFlowInputParams params)
-        : OpenBCIWifiShieldBoard (23, params, (int)BoardIds::GANGLION_WIFI_BOARD)
+        : OpenBCIWifiShieldBoard (params, (int)BoardIds::GANGLION_WIFI_BOARD)
     {
         is_cheking_impedance = false;
     }

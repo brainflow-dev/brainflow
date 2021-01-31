@@ -50,7 +50,7 @@ We support bindings for:
 * [Java](./java-package/brainflow/)
 * [R](./r-package/)
 * [C++](./cpp-package/)
-* [C# (Windows only)](./csharp-package/brainflow/)
+* [C#](./csharp-package/brainflow/)
 * [Matlab](./matlab-package/brainflow)
 * [Julia](.julia-package/brainflow)
 

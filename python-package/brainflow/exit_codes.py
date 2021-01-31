@@ -1,7 +1,7 @@
 import enum
 
 
-class BrainflowExitCodes (enum.IntEnum):
+class BrainflowExitCodes(enum.IntEnum):
     """Enum to store all possible exit codes"""
 
     STATUS_OK = 0

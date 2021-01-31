@@ -33,7 +33,6 @@ Ganglion::Ganglion (struct BrainFlowInputParams params)
     is_streaming = false;
     keep_alive = false;
     initialized = false;
-    num_channels = 13;
     state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
     start_command = "b";
     stop_command = "s";
@@ -142,35 +141,11 @@ int Ganglion::start_stream (int buffer_size, char *streamer_params)
         safe_logger (spdlog::level::err, "Streaming thread already running");
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
-    if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
-    {
-        safe_logger (spdlog::level::err, "invalid array size");
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
-    }
 
-    if (db)
-    {
-        delete db;
-        db = NULL;
-    }
-    if (streamer)
-    {
-        delete streamer;
-        streamer = NULL;
-    }
-
-    int res = prepare_streamer (streamer_params);
+    int res = prepare_for_acquisition (buffer_size, streamer_params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
-    }
-    db = new DataBuffer (num_channels, buffer_size);
-    if (!db->is_ready ())
-    {
-        Board::board_logger->error ("unable to prepare buffer with size {}", buffer_size);
-        delete db;
-        db = NULL;
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     return start_streaming_prepared ();
@@ -213,11 +188,6 @@ int Ganglion::stop_stream ()
         keep_alive = false;
         is_streaming = false;
         streaming_thread.join ();
-        if (streamer)
-        {
-            delete streamer;
-            streamer = NULL;
-        }
         state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
         return call_stop ();
     }
@@ -234,6 +204,7 @@ int Ganglion::release_session ()
         stop_stream ();
         initialized = false;
     }
+    free_packages ();
     call_close ();
     call_release ();
 
@@ -253,7 +224,6 @@ void Ganglion::read_thread ()
     int num_attempts = 0;
     int sleep_time = 10;
     int max_attempts = params.timeout * 1000 / sleep_time;
-    bool was_reset = false;
     float last_data[8] = {0};
 
     double accel_x = 0.;
@@ -266,8 +236,6 @@ void Ganglion::read_thread ()
     double resist_third = 0.0;
     double resist_fourth = 0.0;
 
-    double *package = new double[num_channels];
-
     int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("get_data");
     if (func == NULL)
     {
@@ -275,9 +243,12 @@ void Ganglion::read_thread ()
         return;
     }
 
+    int num_rows = board_descr["num_rows"];
+    double *package = new double[num_rows];
+
     while (keep_alive)
     {
-        for (int i = 0; i < num_channels; i++)
+        for (int i = 0; i < num_rows; i++)
         {
             package[i] = 0.0;
         }
@@ -315,22 +286,22 @@ void Ganglion::read_thread ()
                 last_data[3] = last_data[7];
 
                 // add new packet
-                last_data[4] = cast_24bit_to_int32 (data.data + 1);
-                last_data[5] = cast_24bit_to_int32 (data.data + 4);
-                last_data[6] = cast_24bit_to_int32 (data.data + 7);
-                last_data[7] = cast_24bit_to_int32 (data.data + 10);
+                last_data[4] = (float)cast_24bit_to_int32 (data.data + 1);
+                last_data[5] = (float)cast_24bit_to_int32 (data.data + 4);
+                last_data[6] = (float)cast_24bit_to_int32 (data.data + 7);
+                last_data[7] = (float)cast_24bit_to_int32 (data.data + 10);
 
                 // scale new packet and insert into result
-                package[0] = 0.;
-                package[1] = eeg_scale * last_data[4];
-                package[2] = eeg_scale * last_data[5];
-                package[3] = eeg_scale * last_data[6];
-                package[4] = eeg_scale * last_data[7];
-                package[5] = accel_x;
-                package[6] = accel_y;
-                package[7] = accel_z;
-                streamer->stream_data (package, num_channels, data.timestamp);
-                db->add_data (data.timestamp, package);
+                package[board_descr["package_num_channel"].get<int> ()] = 0.;
+                package[board_descr["eeg_channels"][0].get<int> ()] = eeg_scale * last_data[4];
+                package[board_descr["eeg_channels"][1].get<int> ()] = eeg_scale * last_data[5];
+                package[board_descr["eeg_channels"][2].get<int> ()] = eeg_scale * last_data[6];
+                package[board_descr["eeg_channels"][3].get<int> ()] = eeg_scale * last_data[7];
+                package[board_descr["accel_channels"][0].get<int> ()] = accel_x;
+                package[board_descr["accel_channels"][1].get<int> ()] = accel_y;
+                package[board_descr["accel_channels"][2].get<int> ()] = accel_z;
+                package[board_descr["timestamp_channel"].get<int> ()] = data.timestamp;
+                push_package (package);
                 continue;
             }
             // 18 bit compression, sends delta from previous value instead of real value!
@@ -404,14 +375,14 @@ void Ganglion::read_thread ()
                     default:
                         break;
                 }
-                package[0] = data.data[0];
-                package[8] = resist_first;
-                package[9] = resist_second;
-                package[10] = resist_third;
-                package[11] = resist_fourth;
-                package[12] = resist_ref;
-                streamer->stream_data (package, num_channels, data.timestamp);
-                db->add_data (data.timestamp, package);
+                package[board_descr["package_num_channel"].get<int> ()] = data.data[0];
+                package[board_descr["resistance_channels"][0].get<int> ()] = resist_first;
+                package[board_descr["resistance_channels"][1].get<int> ()] = resist_second;
+                package[board_descr["resistance_channels"][2].get<int> ()] = resist_third;
+                package[board_descr["resistance_channels"][3].get<int> ()] = resist_fourth;
+                package[board_descr["resistance_channels"][4].get<int> ()] = resist_ref;
+                package[board_descr["timestamp_channel"].get<int> ()] = data.timestamp;
+                push_package (package);
                 continue;
             }
             else
@@ -427,11 +398,11 @@ void Ganglion::read_thread ()
             {
                 if (bits_per_num == 18)
                 {
-                    delta[counter] = cast_ganglion_bits_to_int32<18> (package_bits + i);
+                    delta[counter] = (float)cast_ganglion_bits_to_int32<18> (package_bits + i);
                 }
                 else
                 {
-                    delta[counter] = cast_ganglion_bits_to_int32<19> (package_bits + i);
+                    delta[counter] = (float)cast_ganglion_bits_to_int32<19> (package_bits + i);
                 }
             }
 
@@ -448,23 +419,23 @@ void Ganglion::read_thread ()
             }
 
             // add first encoded package
-            package[0] = data.data[0];
-            package[1] = eeg_scale * last_data[0];
-            package[2] = eeg_scale * last_data[1];
-            package[3] = eeg_scale * last_data[2];
-            package[4] = eeg_scale * last_data[3];
-            package[5] = accel_x;
-            package[6] = accel_y;
-            package[7] = accel_z;
-            streamer->stream_data (package, num_channels, data.timestamp);
-            db->add_data (data.timestamp, package);
+            package[board_descr["package_num_channel"].get<int> ()] = data.data[0];
+            package[board_descr["eeg_channels"][0].get<int> ()] = eeg_scale * last_data[0];
+            package[board_descr["eeg_channels"][1].get<int> ()] = eeg_scale * last_data[1];
+            package[board_descr["eeg_channels"][2].get<int> ()] = eeg_scale * last_data[2];
+            package[board_descr["eeg_channels"][3].get<int> ()] = eeg_scale * last_data[3];
+            package[board_descr["accel_channels"][0].get<int> ()] = accel_x;
+            package[board_descr["accel_channels"][1].get<int> ()] = accel_y;
+            package[board_descr["accel_channels"][2].get<int> ()] = accel_z;
+            package[board_descr["timestamp_channel"].get<int> ()] = data.timestamp;
+            push_package (package);
             // add second package
-            package[1] = eeg_scale * last_data[4];
-            package[2] = eeg_scale * last_data[5];
-            package[3] = eeg_scale * last_data[6];
-            package[4] = eeg_scale * last_data[7];
-            streamer->stream_data (package, num_channels, data.timestamp);
-            db->add_data (data.timestamp, package);
+            package[board_descr["eeg_channels"][0].get<int> ()] = eeg_scale * last_data[4];
+            package[board_descr["eeg_channels"][1].get<int> ()] = eeg_scale * last_data[5];
+            package[board_descr["eeg_channels"][2].get<int> ()] = eeg_scale * last_data[6];
+            package[board_descr["eeg_channels"][3].get<int> ()] = eeg_scale * last_data[7];
+            package[board_descr["timestamp_channel"].get<int> ()] = data.timestamp;
+            push_package (package);
         }
         else
         {
@@ -622,6 +593,12 @@ int Ganglion::call_open ()
     }
     if (res != GanglionLib::CustomExitCodes::STATUS_OK)
     {
+        if (res == GanglionLib::CustomExitCodes::PORT_OPEN_ERROR)
+        {
+            safe_logger (spdlog::level::err,
+                "Make sure you provided correct port name and have permissions to open it(run with "
+                "sudo/admin). And close all other apps using this port.");
+        }
         safe_logger (spdlog::level::err, "failed to Open Ganglion Device {}", res);
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }

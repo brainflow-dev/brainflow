@@ -9,15 +9,15 @@
 
 class Cyton : public OpenBCISerialBoard
 {
-    float eeg_scale = ADS1299_Vref / float ((pow (2, 23) - 1)) / ADS1299_gain * 1000000.;
-    float accel_scale = 0.002 / (pow (2, 4));
+    double eeg_scale = (double)(ADS1299_Vref / float ((pow (2, 23) - 1)) / ADS1299_gain * 1000000.);
+    double accel_scale = (double)(0.002 / (pow (2, 4)));
 
 protected:
     void read_thread ();
 
 public:
     Cyton (struct BrainFlowInputParams params)
-        : OpenBCISerialBoard (22, params, (int)BoardIds::CYTON_BOARD)
+        : OpenBCISerialBoard (params, (int)BoardIds::CYTON_BOARD)
     {
     }
 };

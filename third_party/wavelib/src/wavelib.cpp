@@ -311,10 +311,10 @@ wpt_object wpt_init (wave_object wave, int siglength, int J)
 cwt_object cwt_init (const char *wave, double param, int siglength, double dt, int J)
 {
     cwt_object obj = NULL;
-    int N, i, nj2, ibase2, mother;
-    double s0, dj;
-    double t1;
-    int m, odd;
+    int N = 0, i = 0, nj2 = 0, ibase2 = 0, mother = 0;
+    double s0 = 0.0, dj = 0.0;
+    double t1 = 0.0;
+    int m = 0, odd = 0;
     const char *pdefault = "pow";
 
     m = (int)param;
@@ -335,6 +335,7 @@ cwt_object cwt_init (const char *wave, double param, int siglength, double dt, i
         mother = 0;
         if (param < 0.0)
         {
+            free (obj);
             throw std::runtime_error ("morlet wavelet parameter should be >= 0");
         }
         if (param == 0)
@@ -350,6 +351,7 @@ cwt_object cwt_init (const char *wave, double param, int siglength, double dt, i
         mother = 1;
         if (param < 0 || param > 20)
         {
+            free (obj);
             throw std::runtime_error ("Paul wavelet parameter should be >0 and <= 20");
         }
         if (param == 0)
@@ -365,6 +367,7 @@ cwt_object cwt_init (const char *wave, double param, int siglength, double dt, i
         mother = 2;
         if (param < 0 || odd == 1)
         {
+            free (obj);
             throw std::runtime_error ("DOF wavelet parameter should be > 0 and even");
         }
         if (param == 0)
@@ -755,6 +758,7 @@ static void dwt1 (wt_object wt, double *sig, int len_sig, double *cA, double *cD
         }
         else if (!(wt->wave->lpd_len == wt->wave->hpd_len))
         {
+            free (cA_undec);
             throw std::runtime_error ("decomposition filters must have the same lenth");
         }
 
@@ -785,6 +789,7 @@ static void dwt1 (wt_object wt, double *sig, int len_sig, double *cA, double *cD
         }
         else if (!(wt->wave->lpd_len == wt->wave->hpd_len))
         {
+            free (cA_undec);
             throw std::runtime_error ("decomposition filters must have the same length");
         }
 
@@ -1106,6 +1111,7 @@ static void getDWTRecCoeff (double *coeff, int *length, const char *ctype, const
     }
     else
     {
+        free (out);
         throw std::runtime_error ("wavelib error");
     }
 
@@ -1266,6 +1272,7 @@ void wtree (wtree_object wt, const double *inp)
     }
     else
     {
+        free (orig);
         throw std::runtime_error ("wavelib error");
     }
 
@@ -1454,6 +1461,8 @@ void dwpt (wpt_object wt, const double *inp)
     }
     else
     {
+        free (tree);
+        free (nodelength);
         throw std::runtime_error ("wavelib error");
     }
 
@@ -2082,6 +2091,7 @@ void idwt (wt_object wt, double *dwtop)
     }
     else
     {
+        free (out);
         throw std::runtime_error ("wavelib error");
     }
 
@@ -2463,6 +2473,12 @@ void idwpt (wpt_object wt, double *dwtop)
         }
         else
         {
+            free (X_lp);
+            free (X);
+            free (out);
+            free (out2);
+            free (prep);
+            free (ptemp);
             throw std::runtime_error ("wavelib error");
         }
 
@@ -2925,6 +2941,11 @@ void iswt (wt_object wt, double *swtop)
             }
             else if (!(wt->wave->lpd_len == wt->wave->hpd_len))
             {
+                free (appx1);
+                free (det1);
+                free (appx_sig);
+                free (det_sig);
+                free (oup00);
                 throw std::runtime_error ("wavelib error");
             }
 
@@ -3095,7 +3116,7 @@ static void modwt_direct (wt_object wt, const double *inp)
 
 static void modwt_fft (wt_object wt, const double *inp)
 {
-    int i, J, temp_len, iter, M, N, len_avg;
+    int i, J, temp_len, iter, M, N = 0, len_avg;
     int lenacc;
     double s, tmp1, tmp2;
     fft_data *cA, *cD, *low_pass, *high_pass, *sig;
@@ -3347,7 +3368,7 @@ static void getMODWTRecCoeff (fft_object fft_fd, fft_object fft_bd, fft_data *ap
 double *getMODWTmra (wt_object wt, double *wavecoeffs)
 {
     double *mra;
-    int i, J, temp_len, iter, M, N, len_avg, lmra;
+    int i, J, temp_len = 0, iter, M, N, len_avg, lmra;
     int lenacc;
     double s;
     fft_data *cA, *cD, *low_pass, *high_pass, *sig, *ninp;
@@ -3833,7 +3854,7 @@ void setWTConv (wt_object wt, const char *cmethod)
 
 double *dwt2 (wt2_object wt, double *inp)
 {
-    double *wavecoeff;
+    double *wavecoeff = NULL;
     int i, J, iter, N, lp, rows_n, cols_n, rows_i, cols_i;
     int ir, ic, istride, ostride;
     int aLL, aLH, aHL, aHH, cdim, clen;
@@ -4005,8 +4026,7 @@ void idwt2 (wt2_object wt, double *wavecoeff, double *oup)
     rows = wt->rows;
     cols = wt->cols;
     J = wt->J;
-    double *out;
-
+    double *out = NULL;
 
     if (!strcmp (wt->ext, "per"))
     {

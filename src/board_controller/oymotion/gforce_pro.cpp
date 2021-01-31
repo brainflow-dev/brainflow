@@ -31,7 +31,6 @@ GforcePro::GforcePro (struct BrainFlowInputParams params)
     is_streaming = false;
     keep_alive = false;
     initialized = false;
-    num_channels = 9;
     state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
 
     std::string gforcelib_path = "";
@@ -119,38 +118,14 @@ int GforcePro::start_stream (int buffer_size, char *streamer_params)
         safe_logger (spdlog::level::err, "Streaming thread already running");
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
-    if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
-    {
-        safe_logger (spdlog::level::err, "invalid array size");
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
-    }
 
-    if (db)
-    {
-        delete db;
-        db = NULL;
-    }
-    if (streamer)
-    {
-        delete streamer;
-        streamer = NULL;
-    }
-
-    int res = prepare_streamer (streamer_params);
+    int res = call_start ();
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
-    db = new DataBuffer (num_channels, buffer_size);
-    if (!db->is_ready ())
-    {
-        Board::board_logger->error ("unable to prepare buffer with size {}", buffer_size);
-        delete db;
-        db = NULL;
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
-    }
 
-    res = call_start ();
+    res = prepare_for_acquisition (buffer_size, streamer_params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
@@ -184,11 +159,6 @@ int GforcePro::stop_stream ()
         keep_alive = false;
         is_streaming = false;
         streaming_thread.join ();
-        if (streamer)
-        {
-            delete streamer;
-            streamer = NULL;
-        }
         state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
         return call_stop ();
     }
@@ -206,6 +176,7 @@ int GforcePro::release_session ()
         call_release ();
         initialized = false;
     }
+    free_packages ();
 
     if (dll_loader != NULL)
     {
@@ -221,20 +192,15 @@ void GforcePro::read_thread ()
 {
     int sleep_time = 2;
 
-    double *package = new double[num_channels];
-
     int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("gforceGetData");
     if (func == NULL)
     {
         safe_logger (spdlog::level::err, "failed to get function address for gforceGetData");
         return;
     }
+
     while (keep_alive)
     {
-        for (int i = 0; i < num_channels; i++)
-        {
-            package[i] = 0.0;
-        }
         struct GforceData data;
         int res = func ((void *)&data);
         if (res == (int)GforceWrapperExitCodes::STATUS_OK)
@@ -248,15 +214,13 @@ void GforcePro::read_thread ()
                 cv.notify_one ();
                 safe_logger (spdlog::level::debug, "start streaming");
             }
-            streamer->stream_data (data.data, num_channels, data.timestamp);
-            db->add_data (data.timestamp, data.data);
+            push_package (data.data);
         }
         else
         {
             Sleep (sleep_time);
         }
     }
-    delete[] package;
 }
 
 int GforcePro::config_board (std::string config, std::string &response)

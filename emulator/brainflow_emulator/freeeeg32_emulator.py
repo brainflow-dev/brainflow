@@ -34,7 +34,7 @@ class FreeEEG32Writer (threading.Thread):
         self.port = port
         self.write = write
         self.delay = delay
-        self.package_size = 105
+        self.package_size = 106
         self.package_num = 0
         self.need_data = True
 
@@ -47,9 +47,9 @@ class FreeEEG32Writer (threading.Thread):
             package.append (0xA0)
             package.append (self.package_num)
             for i in range (2, self.package_size - 1):
-                package.append (randint (0, 255))
+                package.append (i)
             package.append (0xC0)
-            logging.debug ('package is %s' % ' '.join ([str (x) for x in package]))
+            logging.info (bytes (package))
             self.write (self.port, bytes (package))
 
             self.package_num = self.package_num + 1

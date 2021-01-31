@@ -1,0 +1,65 @@
+name: Bump Julia Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: New Version
+        default: ""
+        required: true
+      publish:
+        description: Make Public(true or false)
+        default: "false"
+        required: true
+
+
+jobs:
+  BumpJuliaVersion:
+    runs-on: windows-2019
+
+    steps:
+    # check users permission
+    - name: "Check Permissions"
+      uses: "lannonbr/repo-permission-check-action@2.0.0"
+      with:
+        permission: "admin"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    # Install Dependencies
+    - name: Clone Repository
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.head_ref }}
+    - name: Install Julia
+      uses: julia-actions/setup-julia@v1
+      with:
+        version: 1.3.1
+    - name: Print Inputs
+      run: |
+        echo ${{ github.event.inputs.version }}
+        echo ${{ github.event.inputs.publish }}
+    - name: Change Julia Files
+      run: |
+        cd $env:GITHUB_WORKSPACE\julia-package\brainflow\src
+        (gc .\brainflow_url.jl) -replace '[0-9]+.[0-9]+.[0-9]+', $env:VERSION | Out-File -encoding ASCII brainflow_url.jl
+        cd $env:GITHUB_WORKSPACE\julia-package\brainflow
+        (gc .\Artifacts.toml) -replace '[0-9]+.[0-9]+.[0-9]+', $env:VERSION | Out-File -encoding ASCII Artifacts.toml
+        (gc .\Project.toml) -replace 'version = "[0-9]+.[0-9]+.[0-9]+"', "version = `"$env:VERSION`"" | Out-File -encoding ASCII Project.toml
+        julia generate_brainflow_artifact.jl
+        git diff $env:GITHUB_WORKSPACE\julia-package > $env:GITHUB_WORKSPACE\julia.patch
+      env:
+        VERSION: ${{ github.event.inputs.version }}
+    - name: Upload Julia Diff
+      uses: actions/upload-artifact@v1
+      with:
+        name: julia.patch
+        path: julia.patch
+    - name: Commit Changes
+      if: github.event.inputs.publish == 'true'
+      uses: EndBug/add-and-commit@v6
+      with:
+        add: '-u julia-package'
+        author_name: Andrey1994
+        author_email: a1994ndrey@gmail.com
+        message: 'Bump Julia Version'
+        token: ${{ secrets.GITHUB_TOKEN }}

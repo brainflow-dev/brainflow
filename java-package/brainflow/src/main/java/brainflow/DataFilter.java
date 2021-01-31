@@ -49,6 +49,8 @@ public class DataFilter
 
         int perform_wavelet_denoising (double[] data, int data_len, String wavelet, int decomposition_level);
 
+        int get_window (int window_function, int window_len, double[] window_data);
+
         int perform_fft (double[] data, int data_len, int window, double[] output_re, double[] output_im);
 
         int perform_ifft (double[] re, double[] im, int data_len, double[] data);
@@ -337,6 +339,24 @@ public class DataFilter
             throw new BrainFlowError ("Failed to perform inverse wavelet transform", ec);
         }
         return output_array;
+    }
+
+    /**
+     * perform data windowing
+     * 
+     * @param window     window function
+     * @param window_len lenght of the window function
+     * @return           array of the size specified in window_len
+     */
+    public static double[] get_window (int window, int window_len) throws BrainFlowError
+    {
+        double[] window_data = new double[window_len];
+        int ec = instance.get_window (window, window_len, window_data);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Failed to perform windowing", ec);
+        }
+        return window_data;
     }
 
     /**

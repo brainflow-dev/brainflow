@@ -23,8 +23,6 @@ private:
     bool is_streaming;
     std::thread streaming_thread;
 
-    int num_channels;
-
     int call_init ();
     int call_start ();
     int call_stop ();
