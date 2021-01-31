@@ -8,22 +8,20 @@
 #include <unistd.h>
 #endif
 
-#include "custom_cast.h"
 #include "bitalino.h"
 #include "bitalino_types.h"
+#include "custom_cast.h"
 #include "get_dll_dir.h"
-#include <iostream>
+
+int Bitalino::num_objects = 0;
 
 
-int BITalino::num_objects = 0;
-
-
-BITalino::BITalino (struct BrainFlowInputParams params)
+Bitalino::Bitalino (struct BrainFlowInputParams params)
     : Board ((int)BoardIds::BITALINO_BOARD, params)
 {
-    BITalino::num_objects++;
+    Bitalino::num_objects++;
 
-    if (BITalino::num_objects > 1)
+    if (Bitalino::num_objects > 1)
     {
         is_valid = false;
     }
@@ -35,14 +33,9 @@ BITalino::BITalino (struct BrainFlowInputParams params)
     is_streaming = false;
     keep_alive = false;
     initialized = false;
-    num_channels = 6;
     state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
-    // Send command is depends on number of active channels and live or simulated mode
-    // for example 22 is 22decimal value of 0x16 and it means simulated mode, one ecg channel
-    //	and one 50Hz sinusoidal wave.
-    // https://bitalino.com/datasheets/REVOLUTION_MCU_Block_Datasheet.pdf
-    // Found the right command
-    start_command = 13; //0x0d
+    // https://bitalino.com/storage/uploads/media/revolution-mcu-block-datasheet.pdf
+    start_command = 253; // all channels on, live mode
     stop_command = "\0";
 
     std::string bitalinolib_path = "";
@@ -53,18 +46,18 @@ BITalino::BITalino (struct BrainFlowInputParams params)
 #ifdef _WIN32
     if (sizeof (void *) == 4)
     {
-        bitalinolib_name = "BITalinoLib32.dll";
+        bitalinolib_name = "BitalinoLib32.dll";
     }
     else
     {
-        bitalinolib_name = "BITalinoLib.dll";
+        bitalinolib_name = "BitalinoLib.dll";
     }
 #endif
 #ifdef __linux__
-    bitalinolib_name = "libBITalinoLib.so";
+    bitalinolib_name = "libBitalinoLib.so";
 #endif
 #ifdef __APPLE__
-    bitalinolib_name = "libBITalinoLib.dylib";
+    bitalinolib_name = "libBitalinoLib.dylib";
 #endif
 
     if (res)
@@ -80,14 +73,14 @@ BITalino::BITalino (struct BrainFlowInputParams params)
     dll_loader = new DLLLoader (bitalinolib_path.c_str ());
 }
 
-BITalino::~BITalino ()
+Bitalino::~Bitalino ()
 {
     skip_logs = true;
-    BITalino::num_objects--;
+    Bitalino::num_objects--;
     release_session ();
 }
 
-int BITalino::prepare_session ()
+int Bitalino::prepare_session ()
 {
     if (initialized)
     {
@@ -140,9 +133,8 @@ int BITalino::prepare_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int BITalino::start_stream (int buffer_size, char *streamer_params)
+int Bitalino::start_stream (int buffer_size, char *streamer_params)
 {
-    safe_logger (spdlog::level::err, "Streaming thread already running");
     if (is_streaming)
     {
         safe_logger (spdlog::level::err, "Streaming thread already running");
@@ -154,37 +146,13 @@ int BITalino::start_stream (int buffer_size, char *streamer_params)
         return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
-    if (db)
-    {
-        delete db;
-        db = NULL;
-    }
-    if (streamer)
-    {
-        delete streamer;
-        streamer = NULL;
-    }
-
-    int res = prepare_streamer (streamer_params);
+    int res = prepare_for_acquisition (buffer_size, streamer_params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
-    db = new DataBuffer (num_channels, buffer_size);
-    if (!db->is_ready ())
-    {
-        Board::board_logger->error ("unable to prepare buffer with size {}", buffer_size);
-        delete db;
-        db = NULL;
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
-    }
 
-    return start_streaming_prepared ();
-}
-
-int BITalino::start_streaming_prepared ()
-{
-    int res = call_start ();
+    res = call_start ();
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
@@ -212,18 +180,13 @@ int BITalino::start_streaming_prepared ()
     }
 }
 
-int BITalino::stop_stream ()
+int Bitalino::stop_stream ()
 {
     if (is_streaming)
     {
         keep_alive = false;
         is_streaming = false;
         streaming_thread.join ();
-        if (streamer)
-        {
-            delete streamer;
-            streamer = NULL;
-        }
         state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
         return call_stop ();
     }
@@ -233,13 +196,16 @@ int BITalino::stop_stream ()
     }
 }
 
-int BITalino::release_session ()
+int Bitalino::release_session ()
 {
     if (initialized)
     {
         stop_stream ();
         initialized = false;
     }
+
+    free_packages ();
+
     call_close ();
     call_release ();
 
@@ -253,18 +219,17 @@ int BITalino::release_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-void BITalino::read_thread ()
+void Bitalino::read_thread ()
 {
     int num_attempts = 0;
     int sleep_time = 10;
     int max_attempts = params.timeout * 1000 / sleep_time;
-    double accel_x = 0.;
-    double accel_y = 0.;
-    double accel_z = 0.;
-    double *mainpackage = new double[num_channels];
-    unsigned long package[6];
-
-    static const unsigned char CRC4tab[16] = {0, 3, 6, 5, 12, 15, 10, 9, 11, 8, 13, 14, 7, 4, 1, 2};
+    int num_rows = board_descr["num_rows"];
+    double *package = new double[num_rows];
+    for (int i = 0; i < num_channels; i++)
+    {
+        package[i] = 0.0;
+    }
 
     int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("get_data");
     if (func == NULL)
@@ -275,15 +240,9 @@ void BITalino::read_thread ()
 
     while (keep_alive)
     {
-        for (int i = 0; i < num_channels; i++)
-        {
-            package[i] = 0.0;
-            mainpackage[i] = 0.0;
-        }
-
-        struct GanglionLib::GanglionData data;
+        struct BitalinoLib::BitalinoData data;
         int res = func ((void *)&data);
-        if (res == (int)GanglionLib::CustomExitCodes::STATUS_OK)
+        if (res == (int)BitalinoLib::CustomExitCodes::STATUS_OK)
         {
             if (state != (int)BrainFlowExitCodes::STATUS_OK)
             {
@@ -295,8 +254,8 @@ void BITalino::read_thread ()
                 safe_logger (spdlog::level::debug, "start streaming");
             }
 
-            //_____________________________ BITalino data packet ______________________________
-            // For BITalino data format use
+            //_____________________________ Bitalino data packet ______________________________
+            // For Bitalino data format use
             // https://bitalino.com/datasheets/REVOLUTION_MCU_Block_Datasheet.pdf
 
             int ptr = 0;
@@ -324,12 +283,12 @@ void BITalino::read_thread ()
                     unsigned short d2 = data.data[ptr + 2];
                     unsigned short d3 = data.data[ptr + 3];
                     ////////////////_______________________________________
-                    package[1] = ((d2 & 0x000F) << 6) | (d1 >> 2); // A1 
-                    package[2] = ((d1 & 0x0003) << 8) | (d0);      // A2 
+                    package[1] = ((d2 & 0x000F) << 6) | (d1 >> 2); // A1
+                    package[2] = ((d1 & 0x0003) << 8) | (d0);      // A2
 
-					mainpackage[1] = uvolt * (eeg_scale * package[1] - eegMP);
-					mainpackage[2] = uvolt * (eeg_scale * package[2] - eegMP);
-						
+                    mainpackage[1] = uvolt * (eeg_scale * package[1] - eegMP);
+                    mainpackage[2] = uvolt * (eeg_scale * package[2] - eegMP);
+
                     mainpackage[3] = accel_x;
                     mainpackage[4] = accel_y;
                     mainpackage[5] = accel_z;
@@ -371,12 +330,12 @@ void BITalino::read_thread ()
     delete[] mainpackage;
 }
 
-int BITalino::config_board (std::string config, std::string &response)
+int Bitalino::config_board (std::string config, std::string &response)
 {
-    return (int)BrainFlowExitCodes::STATUS_OK;
+    return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
-int BITalino::call_init ()
+int Bitalino::call_init ()
 {
     if (dll_loader == NULL)
     {
@@ -389,9 +348,9 @@ int BITalino::call_init ()
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
 
-    struct GanglionLib::GanglionInputData input_data (params.timeout, params.serial_port.c_str ());
+    struct BitalinoLib::BitalinoInputData input_data (params.timeout, params.serial_port.c_str ());
     int res = func ((void *)&input_data);
-    if (res != (int)GanglionLib::CustomExitCodes::STATUS_OK)
+    if (res != (int)BitalinoLib::CustomExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to init BITalinoLib {}", res);
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
@@ -399,20 +358,20 @@ int BITalino::call_init ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int BITalino::call_open ()
+int Bitalino::call_open ()
 {
     if (dll_loader == NULL)
     {
         return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     }
-    int res = GanglionLib::CustomExitCodes::GENERAL_ERROR;
+    int res = BitalinoLib::CustomExitCodes::GENERAL_ERROR;
     if (use_mac_addr)
     {
-        int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("open_ganglion_mac_addr");
+        int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("open_bitalino_mac_addr");
         if (func == NULL)
         {
             safe_logger (
-                spdlog::level::err, "failed to get function address for open_ganglion_mac_addr");
+                spdlog::level::err, "failed to get function address for open_bitalino_mac_addr");
             return (int)BrainFlowExitCodes::GENERAL_ERROR;
         }
 
@@ -421,48 +380,26 @@ int BITalino::call_open ()
     }
     else
     {
-        int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("open_ganglion");
+        int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("open_bitalino");
         if (func == NULL)
         {
-            safe_logger (spdlog::level::err, "failed to get function address for open_ganglion");
+            safe_logger (spdlog::level::err, "failed to get function address for open_bitalino");
             return (int)BrainFlowExitCodes::GENERAL_ERROR;
         }
 
         safe_logger (
-            spdlog::level::info, "mac address is not specified, try to find ganglion without it");
+            spdlog::level::info, "mac address is not specified, try to find bitalino without it");
         res = func (NULL);
     }
-    if (res != GanglionLib::CustomExitCodes::STATUS_OK)
+    if (res != BitalinoLib::CustomExitCodes::STATUS_OK)
     {
-        safe_logger (spdlog::level::err, "failed to Open Ganglion Device {}", res);
+        safe_logger (spdlog::level::err, "failed to Open Bitalino Device {}", res);
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int BITalino::call_config (char *config)
-{
-    if (dll_loader == NULL)
-    {
-        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
-    }
-    int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("config_board");
-    if (func == NULL)
-    {
-        safe_logger (spdlog::level::err, "failed to get function address for config_board");
-        return (int)BrainFlowExitCodes::GENERAL_ERROR;
-    }
-
-    int res = func (config);
-    if (res != GanglionLib::CustomExitCodes::STATUS_OK)
-    {
-        safe_logger (spdlog::level::err, "failed to config board {}", res);
-        return (int)BrainFlowExitCodes::GENERAL_ERROR;
-    }
-    return (int)BrainFlowExitCodes::STATUS_OK;
-}
-
-int BITalino::call_start ()
+int Bitalino::call_start ()
 {
     if (dll_loader == NULL)
     {
@@ -476,7 +413,7 @@ int BITalino::call_start ()
     }
 
     int res = func ((void *)start_command.c_str ());
-    if (res != (int)GanglionLib::CustomExitCodes::STATUS_OK)
+    if (res != (int)BitalinoLib::CustomExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to start streaming {}", res);
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
@@ -484,7 +421,7 @@ int BITalino::call_start ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int BITalino::call_stop ()
+int Bitalino::call_stop ()
 {
     if (dll_loader == NULL)
     {
@@ -498,7 +435,7 @@ int BITalino::call_stop ()
     }
 
     int res = func ((void *)stop_command.c_str ());
-    if (res != (int)GanglionLib::CustomExitCodes::STATUS_OK)
+    if (res != (int)BitalinoLib::CustomExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to stop streaming {}", res);
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
@@ -506,29 +443,29 @@ int BITalino::call_stop ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int BITalino::call_close ()
+int Bitalino::call_close ()
 {
     if (dll_loader == NULL)
     {
         return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     }
-    int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("close_ganglion");
+    int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("close_bitalino");
     if (func == NULL)
     {
-        safe_logger (spdlog::level::err, "failed to get function address for close_ganglion");
+        safe_logger (spdlog::level::err, "failed to get function address for close_bitalino");
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
 
     int res = func (NULL);
-    if (res != (int)GanglionLib::CustomExitCodes::STATUS_OK)
+    if (res != (int)BitalinoLib::CustomExitCodes::STATUS_OK)
     {
-        safe_logger (spdlog::level::err, "failed to close ganglion {}", res);
+        safe_logger (spdlog::level::err, "failed to close bitalino {}", res);
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int BITalino::call_release ()
+int Bitalino::call_release ()
 {
     if (dll_loader == NULL)
     {
@@ -542,9 +479,9 @@ int BITalino::call_release ()
     }
 
     int res = func (NULL);
-    if (res != (int)GanglionLib::CustomExitCodes::STATUS_OK)
+    if (res != (int)BitalinoLib::CustomExitCodes::STATUS_OK)
     {
-        safe_logger (spdlog::level::err, "failed to release ganglion library {}", res);
+        safe_logger (spdlog::level::err, "failed to release bitalino library {}", res);
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
     return (int)BrainFlowExitCodes::STATUS_OK;

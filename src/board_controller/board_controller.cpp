@@ -13,6 +13,7 @@
 #include <string>
 #include <utility>
 
+#include "bitalino.h"
 #include "board.h"
 #include "board_controller.h"
 #include "board_info_getter.h"
@@ -38,7 +39,6 @@
 #include "streaming_board.h"
 #include "synthetic_board.h"
 #include "unicorn_board.h"
-#include "bitalino.h" 
 
 #include "json.hpp"
 
@@ -143,8 +143,8 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
         case BoardIds::FREEEEG32_BOARD:
             board = std::shared_ptr<Board> (new FreeEEG32 (params));
             break;
-        case BoardIds::BITALINO_BOARD: 
-            board = std::shared_ptr<Board> (new BITalino (params));
+        case BoardIds::BITALINO_BOARD:
+            board = std::shared_ptr<Board> (new Bitalino (params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
