@@ -1,0 +1,59 @@
+name: Run libFTDI
+
+on: [push, pull_request]
+
+jobs:
+  RunlibFTDI:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        os: [ubuntu-18.04, macos-10.15]
+
+    steps:
+    # compile and prepare env
+    - name: Clone Repository
+      uses: actions/checkout@v2
+    - name: Install Python 3.7
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.7.7'
+        architecture: 'x64'
+    - name: Install Python Dependencies
+      if: (matrix.os == 'ubuntu-18.04')
+      run: |
+        sudo -H apt-get update -y
+        sudo -H apt-get install -y python3-setuptools python3-pygments
+      env:
+        DEBIAN_FRONTEND: noninteractive
+    - name: Setup Cmake
+      uses: jwlawson/actions-setup-cmake@v1.4
+      with:
+        cmake-version: '3.16.x'
+      # todo compile with libftdi enabled
+    - name: Compile BrainFlow
+      run: |
+        mkdir $GITHUB_WORKSPACE/build
+        cd $GITHUB_WORKSPACE/build
+        cmake -DWARNINGS_AS_ERRORS=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
+        make -j
+        make install
+    - name: Setup Python Package
+      run: |
+        cd $GITHUB_WORKSPACE/python-package
+        sudo -H python3 -m pip install -U .
+    - name: Install Emulator
+      run: |
+        cd $GITHUB_WORKSPACE/emulator
+        sudo -H python3 -m pip install -U .
+    - name: Install Python test Dependencies
+      run: sudo -H python3 -m pip install -r $GITHUB_WORKSPACE/tests/python/requirements.txt
+
+    # start testing
+    - name: Cyton Python
+      run: sudo -H python3 ./emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --board-id 0 --serial-port 
+    - name: IronBCI Python
+      if: (matrix.os == 'ubuntu-18.04')
+      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/ironbci_linux.py $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --board-id 15 --serial-port 
