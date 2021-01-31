@@ -5,7 +5,7 @@
 #pragma pack(push, 1)
 struct GforceData
 {
-    static const int SIZE = 10;
+    static const int SIZE = 11;
 
     double data[SIZE];
 
