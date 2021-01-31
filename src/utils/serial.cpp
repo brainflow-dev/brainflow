@@ -147,17 +147,16 @@ public:
 
         auto deadline = std::chrono::steady_clock::now () +
             std::chrono::milliseconds (ctx.get_usb_read_timeout ());
-        int bytes_read;
-        do
+        int bytes_read = 0;
+        while (bytes_read == 0 && size > 0 && std::chrono::steady_clock::now () < deadline)
         {
             bytes_read = ctx.read (static_cast<unsigned char *> (bytes_to_read), size);
             // TODO: negative values are libusb error codes, -666 means usb device unavailable
             if (bytes_read < 0)
             {
                 log_error ("read_from_serial_port");
-                return bytes_read;
             }
-        } while (bytes_read == 0 && std::chrono::steady_clock::now () < deadline);
+        }
 
         return bytes_read;
     }
