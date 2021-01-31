@@ -55,4 +55,5 @@ jobs:
     - name: Cyton Python
       run: sudo -H python3 ./emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --board-id 0 --serial-port 
     - name: IronBCI Python
+      if: (matrix.os == 'ubuntu-18.04')
       run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/ironbci_linux.py $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --board-id 15 --serial-port 
