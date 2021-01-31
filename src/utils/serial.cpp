@@ -136,26 +136,30 @@ public:
 
     int read_from_serial_port (void *bytes_to_read, int size)
     {
-        // it looks like the ftdi will send us data after its latency (max 255ms) times out,
-        // even if its buffer is empty, so the read is repeated until the timeout is reached.
+        // the ftdi will send us data after its latency (max 255ms, default
+        // 16ms) times out, even if its buffer is empty, despite the usb
+        // timeout.  libftdi does not enforce waiting for the usb timeout if
+        // the chip responds, even if the chip responds with an empty buffer.
+        // so, the read is repeated until the timeout is reached.
+
+        // this latency behavior is documented in
+        // http://www.ftdichip.com/Support/Documents/AppNotes/AN232B-04_DataLatencyFlow.pdf
 
         auto deadline = std::chrono::steady_clock::now () +
             std::chrono::milliseconds (ctx.get_usb_read_timeout ());
-        unsigned char *next_bytes = static_cast<unsigned char *> (bytes_to_read);
+        int bytes_read;
         do
         {
-            int bytes_read = ctx.read (next_bytes, size);
+            bytes_read = ctx.read (static_cast<unsigned char *> (bytes_to_read), size);
             // TODO: negative values are libusb error codes, -666 means usb device unavailable
             if (bytes_read < 0)
             {
                 log_error ("read_from_serial_port");
                 return bytes_read;
             }
-            next_bytes += bytes_read;
-            size -= bytes_read;
-        } while (next_bytes == bytes_to_read && std::chrono::steady_clock::now () < deadline);
+        } while (bytes_read == 0 && std::chrono::steady_clock::now () < deadline);
 
-        return next_bytes - static_cast<unsigned char *> (bytes_to_read);
+        return bytes_read;
     }
 
     int send_to_serial_port (const void *message, int length)
