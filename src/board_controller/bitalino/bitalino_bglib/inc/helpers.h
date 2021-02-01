@@ -27,4 +27,5 @@ namespace BitalinoLib
     int open_ble_dev ();
     int wait_for_callback (int num_seconds);
     int reset_ble_dev ();
+    int config_board (uint8 *command, int len);
 }

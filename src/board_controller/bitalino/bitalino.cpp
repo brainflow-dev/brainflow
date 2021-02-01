@@ -34,9 +34,6 @@ Bitalino::Bitalino (struct BrainFlowInputParams params)
     keep_alive = false;
     initialized = false;
     state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
-    // https://bitalino.com/storage/uploads/media/revolution-mcu-block-datasheet.pdf
-    start_command = 253; // all channels on, live mode
-    stop_command = "\0";
 
     std::string bitalinolib_path = "";
     std::string bitalinolib_name = "";
@@ -356,7 +353,7 @@ int Bitalino::call_start ()
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
 
-    int res = func ((void *)start_command.c_str ());
+    int res = func (NULL);
     if (res != (int)BitalinoLib::CustomExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to start streaming {}", res);
@@ -378,7 +375,7 @@ int Bitalino::call_stop ()
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
 
-    int res = func ((void *)stop_command.c_str ());
+    int res = func (NULL);
     if (res != (int)BitalinoLib::CustomExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to stop streaming {}", res);

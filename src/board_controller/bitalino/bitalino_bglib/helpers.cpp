@@ -24,6 +24,7 @@ namespace BitalinoLib
 {
     extern volatile int exit_code;
     extern int timeout;
+    extern bool initialized;
 
     extern volatile bd_addr connect_addr;
     extern volatile uint8 connection;
@@ -165,5 +166,21 @@ namespace BitalinoLib
             return (int)BitalinoLib::PORT_OPEN_ERROR;
         }
         return (int)BitalinoLib::STATUS_OK;
+    }
+
+    int config_board (uint8 *config, int len)
+    {
+        if (!initialized)
+        {
+            return (int)CustomExitCodes::BITALINO_IS_NOT_OPEN_ERROR;
+        }
+        exit_code = (int)CustomExitCodes::SYNC_ERROR;
+        state = State::CONFIG_CALLED;
+        if (!bitalino_handle_send)
+        {
+            return (int)CustomExitCodes::SEND_CHARACTERISTIC_NOT_FOUND_ERROR;
+        }
+        ble_cmd_attclient_attribute_write (connection, bitalino_handle_send, len, config);
+        return wait_for_callback (timeout);
     }
 }

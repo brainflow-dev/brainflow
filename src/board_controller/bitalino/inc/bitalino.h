@@ -19,9 +19,6 @@ private:
 
     bool is_valid;
 
-    std::string start_command;
-    std::string stop_command;
-
     volatile bool keep_alive;
     bool initialized;
     bool is_streaming;

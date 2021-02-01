@@ -153,7 +153,7 @@ namespace BitalinoLib
             while (!stop_config_thread)
             {
                 ble_cmd_attclient_attribute_write (
-                    connection, bitalino_handle_send, 1, (uint8 *)param);
+                    connection, bitalino_handle_send, 1, (uint8 *)"\0");
             }
         });
         int res = wait_for_callback (timeout);
@@ -177,7 +177,8 @@ namespace BitalinoLib
             should_stop_stream = true;
             read_characteristic_thread.join ();
         }
-        int res = config_board ((char *)param);
+        uint8 stop_command = 0;
+        int res = config_board (&stop_command, 1);
         data_queue.clear ();
         return res;
     }
@@ -185,7 +186,9 @@ namespace BitalinoLib
 
     int start_stream (void *param)
     {
-        int res = config_board ((char *)param);
+        // https://bitalino.com/storage/uploads/media/revolution-mcu-block-datasheet.pdf
+        uint8 start_command = 253; // all channels on, live mode
+        int res = config_board (&start_command, 1);
         if (res != (int)CustomExitCodes::STATUS_OK)
         {
             return res;
@@ -267,24 +270,6 @@ namespace BitalinoLib
         }
         lock.unlock ();
         return res;
-    }
-
-    int config_board (void *param)
-    {
-        if (!initialized)
-        {
-            return (int)CustomExitCodes::BITALINO_IS_NOT_OPEN_ERROR;
-        }
-        exit_code = (int)CustomExitCodes::SYNC_ERROR;
-        char *config = (char *)param;
-        int len = strlen (config);
-        state = State::CONFIG_CALLED;
-        if (!bitalino_handle_send)
-        {
-            return (int)CustomExitCodes::SEND_CHARACTERISTIC_NOT_FOUND_ERROR;
-        }
-        ble_cmd_attclient_attribute_write (connection, bitalino_handle_send, len, (uint8 *)config);
-        return wait_for_callback (timeout);
     }
 
     int release (void *param)
