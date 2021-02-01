@@ -17,6 +17,7 @@ FileStreamer::~FileStreamer ()
     if (fp != NULL)
     {
         fclose (fp);
+        fp = NULL;
     }
 }
 
