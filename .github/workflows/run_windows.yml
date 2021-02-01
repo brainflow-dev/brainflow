@@ -203,6 +203,9 @@ jobs:
     - name: CSP Cpp Test
       run: .\tests\cpp\signal_processing_demo\build\Release\csp.exe
       shell: cmd
+    - name: CSP C# Test
+      run: .\csharp-package\brainflow\csp\bin\Release\test.exe
+      shell: cmd
     - name: Windowing Cpp Test
       run: .\tests\cpp\signal_processing_demo\build\Release\windowing.exe
       shell: cmd
