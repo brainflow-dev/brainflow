@@ -3,60 +3,58 @@
 #include "shared_export.h"
 #include <string.h>
 
-namespace GanglionLib
+namespace BitalinoLib
 {
 #pragma pack(push, 1)
-    struct GanglionData
+    struct BitalinoData
     {
-        unsigned char data[20];
-        double timestamp;
+        static const int SIZE = 12;
 
-        GanglionData (unsigned char *data, double timestamp)
+        double data[SIZE];
+
+        BitalinoData (double *data)
         {
-            memcpy (this->data, data, sizeof (unsigned char) * 20);
-            this->timestamp = timestamp;
+            memcpy (this->data, data, sizeof (double) * SIZE);
         }
 
-        GanglionData ()
+        BitalinoData ()
         {
-            timestamp = 0.0;
         }
 
-        GanglionData (const GanglionData &other)
+        BitalinoData (const BitalinoData &other)
         {
-            timestamp = other.timestamp;
-            memcpy (data, other.data, sizeof (unsigned char) * 20);
+            memcpy (data, other.data, sizeof (double) * SIZE);
         }
     };
-	
+
     // just to pass two args to initialize
-    struct GanglionInputData
+    struct BitalinoInputData
     {
         int timeout;
         char uart_port[1024];
 
-        GanglionInputData (int timeout, const char *uart_port)
+        BitalinoInputData (int timeout, const char *uart_port)
         {
             this->timeout = timeout;
             strcpy (this->uart_port, uart_port);
         }
 
-        GanglionInputData (const GanglionInputData &other)
+        BitalinoInputData (const BitalinoInputData &other)
         {
             timeout = other.timeout;
             strcpy (uart_port, other.uart_port);
         }
     };
-    
+
 #pragma pack(pop)
 
     enum CustomExitCodes
     {
         STATUS_OK = 0,
-        GANGLION_NOT_FOUND_ERROR = 1,
-        GANGLION_IS_NOT_OPEN_ERROR = 2,
-        GANGLION_ALREADY_PAIR_ERROR = 3,
-        GANGLION_ALREADY_OPEN_ERROR = 4,
+        BITALINO_NOT_FOUND_ERROR = 1,
+        BITALINO_IS_NOT_OPEN_ERROR = 2,
+        BITALINO_ALREADY_PAIR_ERROR = 3,
+        BITALINO_ALREADY_OPEN_ERROR = 4,
         SERVICE_NOT_FOUND_ERROR = 5,
         SEND_CHARACTERISTIC_NOT_FOUND_ERROR = 6,
         RECEIVE_CHARACTERISTIC_NOT_FOUND_ERROR = 7,

@@ -16,13 +16,13 @@
 
 // read Bluetooth_Smart_Software_v1.3.1_API_Reference.pdf to understand this code
 
-namespace GanglionLib
+namespace BitalinoLib
 {
-    volatile int exit_code = (int)GanglionLib::SYNC_ERROR;
+    volatile int exit_code = (int)BitalinoLib::SYNC_ERROR;
     char uart_port[1024];
     int timeout = 15;
 
-    std::deque<struct GanglionLib::GanglionData> data_queue;
+    std::deque<struct BitalinoLib::BitalinoData> data_queue;
     TicketLock lock;
     volatile bd_addr connect_addr;
 
@@ -56,7 +56,7 @@ namespace GanglionLib
             {
                 return (int)CustomExitCodes::PORT_OPEN_ERROR;
             }
-			struct GanglionInputData *input = (struct GanglionInputData *)param;
+            struct BitalinoInputData *input = (struct BitalinoInputData *)param;
             strcpy (uart_port, input->uart_port);
             timeout = input->timeout;
             bglib_output = output;
@@ -66,7 +66,7 @@ namespace GanglionLib
         return (int)CustomExitCodes::STATUS_OK;
     }
 
-    int open_ganglion (void *param)
+    int open_bitalino (void *param)
     {
         if (uart_open (uart_port))
         {
@@ -90,11 +90,11 @@ namespace GanglionLib
         return open_ble_dev ();
     }
 
-    int open_ganglion_mac_addr (void *param)
+    int open_bitalino_mac_addr (void *param)
     {
         if (uart_open (uart_port))
         {
-            return (int)CustomExitCodes::GANGLION_NOT_FOUND_ERROR;
+            return (int)CustomExitCodes::BITALINO_NOT_FOUND_ERROR;
         }
         int res = reset_ble_dev ();
         if (res != (int)CustomExitCodes::STATUS_OK)
@@ -128,16 +128,14 @@ namespace GanglionLib
 #ifdef __linux__
     int stop_stream (void *param)
     {
-        // dirty hack to solve https://github.com/Andrey1994/brainflow/issues/24
+        // dirty hack to solve https://github.com/brainflow-dev/brainflow/issues/24
         // for Ubuntu callbacks for config_board are not triggered often if streaming is running.
         // Assumption - maybe serial buffer size is smaller in Ubuntu and notification messages fill
         // entire buffer. Solution for this assumption - call ble_cmd_attclient_attribute_write all
         // the time in the thread instead single invocation.
-        // No idea about value for serial buffer size, educated guess - maybe its equal to page
-        // size(4kb) and no idea about ways to check/change it
         if (!initialized)
         {
-            return (int)CustomExitCodes::GANGLION_IS_NOT_OPEN_ERROR;
+            return (int)CustomExitCodes::BITALINO_IS_NOT_OPEN_ERROR;
         }
         if (!should_stop_stream)
         {
@@ -151,7 +149,7 @@ namespace GanglionLib
             return (int)CustomExitCodes::SEND_CHARACTERISTIC_NOT_FOUND_ERROR;
         }
         volatile bool stop_config_thread = false;
-        std::thread config_thread = std::thread ([&]() {
+        std::thread config_thread = std::thread ([&] () {
             while (!stop_config_thread)
             {
                 ble_cmd_attclient_attribute_write (
@@ -179,7 +177,7 @@ namespace GanglionLib
             should_stop_stream = true;
             read_characteristic_thread.join ();
         }
-		int res = config_board ((char *)param);
+        int res = config_board ((char *)param);
         data_queue.clear ();
         return res;
     }
@@ -195,7 +193,7 @@ namespace GanglionLib
         // from silicanlabs forum - write 0x00001 to enable notifications
         uint8 configuration[] = {0x01, 0x00};
         state = State::WRITE_TO_CLIENT_CHAR;
-        exit_code = (int)GanglionLib::SYNC_ERROR;
+        exit_code = (int)BitalinoLib::SYNC_ERROR;
         ble_cmd_attclient_attribute_write (connection, client_char_handle, 2, &configuration);
         res = wait_for_callback (timeout);
 
@@ -208,11 +206,11 @@ namespace GanglionLib
         return res;
     }
 
-    int close_ganglion (void *param)
+    int close_bitalino (void *param)
     {
         if (!initialized)
         {
-            return (int)CustomExitCodes::GANGLION_IS_NOT_OPEN_ERROR;
+            return (int)CustomExitCodes::BITALINO_IS_NOT_OPEN_ERROR;
         }
         state = State::CLOSE_CALLED;
 
@@ -236,7 +234,7 @@ namespace GanglionLib
     {
         if (!initialized)
         {
-            return (int)CustomExitCodes::GANGLION_IS_NOT_OPEN_ERROR;
+            return (int)CustomExitCodes::BITALINO_IS_NOT_OPEN_ERROR;
         }
         if (should_stop_stream)
         {
@@ -251,22 +249,22 @@ namespace GanglionLib
         }
         else
         {
-			try
-			{
-				struct GanglionData *board_data = (struct GanglionData *)param;
-				struct GanglionData data = data_queue.at (0); // at ensures out of range exception, front has undefined behavior
-				board_data->timestamp = data.timestamp;
-                for (int i = 0; i < 20; i++)
+            try
+            {
+                struct BitalinoData *board_data = (struct BitalinoData *)param;
+                struct BitalinoData data = data_queue.at (
+                    0); // at ensures out of range exception, front has undefined behavior
+                for (int i = 0; i < BitalinoData::SIZE; i++)
                 {
                     board_data->data[i] = data.data[i];
                 }
                 data_queue.pop_front ();
-			}
-			catch (...)
-			{
+            }
+            catch (...)
+            {
                 res = (int)CustomExitCodes::NO_DATA_ERROR;
-			}
-		}
+            }
+        }
         lock.unlock ();
         return res;
     }
@@ -275,7 +273,7 @@ namespace GanglionLib
     {
         if (!initialized)
         {
-            return (int)CustomExitCodes::GANGLION_IS_NOT_OPEN_ERROR;
+            return (int)CustomExitCodes::BITALINO_IS_NOT_OPEN_ERROR;
         }
         exit_code = (int)CustomExitCodes::SYNC_ERROR;
         char *config = (char *)param;
@@ -293,7 +291,7 @@ namespace GanglionLib
     {
         if (initialized)
         {
-            close_ganglion (NULL);
+            close_bitalino (NULL);
             state = State::NONE;
             initialized = false;
             data_queue.clear ();
@@ -301,4 +299,4 @@ namespace GanglionLib
         return (int)CustomExitCodes::STATUS_OK;
     }
 
-} // GanglionLib
+} // BitalinoLib

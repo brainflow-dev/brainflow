@@ -224,12 +224,6 @@ void Bitalino::read_thread ()
     int num_attempts = 0;
     int sleep_time = 10;
     int max_attempts = params.timeout * 1000 / sleep_time;
-    int num_rows = board_descr["num_rows"];
-    double *package = new double[num_rows];
-    for (int i = 0; i < num_channels; i++)
-    {
-        package[i] = 0.0;
-    }
 
     int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("get_data");
     if (func == NULL)
@@ -253,56 +247,7 @@ void Bitalino::read_thread ()
                 cv.notify_one ();
                 safe_logger (spdlog::level::debug, "start streaming");
             }
-
-            //_____________________________ Bitalino data packet ______________________________
-            // For Bitalino data format use
-            // https://bitalino.com/datasheets/REVOLUTION_MCU_Block_Datasheet.pdf
-
-            int ptr = 0;
-            for (int i = 0; i < 5; i++)
-            {
-                // CRC4 check function
-                unsigned char crc = 0;
-                unsigned char FinalCRC = 0;
-
-                for (int ii = 0; ii < 3; ii++)
-                {
-                    const unsigned char b = data.data[ptr + ii];
-                    crc = CRC4tab[crc] ^ (b >> 4);
-                    crc = CRC4tab[crc] ^ (b & 0x0F);
-                }
-                // CRC for last byte
-                crc = CRC4tab[crc] ^ (data.data[ptr + 3] >> 4);
-                crc = CRC4tab[crc];
-
-                FinalCRC = data.data[ptr + 3] & 0x0F;
-                if (FinalCRC == crc)
-                {
-                    unsigned short d0 = data.data[ptr];
-                    unsigned short d1 = data.data[ptr + 1];
-                    unsigned short d2 = data.data[ptr + 2];
-                    unsigned short d3 = data.data[ptr + 3];
-                    ////////////////_______________________________________
-                    package[1] = ((d2 & 0x000F) << 6) | (d1 >> 2); // A1
-                    package[2] = ((d1 & 0x0003) << 8) | (d0);      // A2
-
-                    mainpackage[1] = uvolt * (eeg_scale * package[1] - eegMP);
-                    mainpackage[2] = uvolt * (eeg_scale * package[2] - eegMP);
-
-                    mainpackage[3] = accel_x;
-                    mainpackage[4] = accel_y;
-                    mainpackage[5] = accel_z;
-
-                    streamer->stream_data (mainpackage, num_channels, data.timestamp);
-                    db->add_data (data.timestamp, mainpackage);
-                    ptr += 4;
-                }
-                else
-                {
-                    ptr += 4;
-                    continue;
-                }
-            }
+            push_package (data.data);
         }
         else
         {
@@ -327,7 +272,6 @@ void Bitalino::read_thread ()
 #endif
         }
     }
-    delete[] mainpackage;
 }
 
 int Bitalino::config_board (std::string config, std::string &response)

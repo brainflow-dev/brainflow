@@ -8,7 +8,7 @@
 
 #define UART_TIMEOUT 1000
 
-namespace GanglionLib
+namespace BitalinoLib
 {
     enum State
     {

@@ -1,23 +1,23 @@
 #include <ctype.h>
-#include <math.h>
 #include <deque>
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "cmd_def.h"
 #include "bitalino_types.h"
+#include "cmd_def.h"
 #include "helpers.h"
+#include "ticket_lock.h"
 #include "timestamp.h"
 #include "uart.h"
-#include "ticket_lock.h"
 #include <chrono>
-#include <ctime>  
+#include <ctime>
 
 #define CLIENT_CHARACTERISTIC_UUID 0x2902
 
 #define FIRST_FIND_THIS 0x1101
 
-namespace GanglionLib
+namespace BitalinoLib
 {
     extern volatile int exit_code;
     extern volatile bd_addr connect_addr;
@@ -31,9 +31,9 @@ namespace GanglionLib
     extern volatile State state;
     extern TicketLock lock;
 
-    extern std::deque<struct GanglionLib::GanglionData> data_queue;
+    extern std::deque<struct BitalinoLib::BitalinoData> data_queue;
 
-	// uuid="4051eb11-bf0a-4c74-8730-a48f4193fcea" - Commands BITalino
+    // uuid="4051eb11-bf0a-4c74-8730-a48f4193fcea" - Commands BITalino
     const int send_char_uuid_bytes[16] = {
         234, 252, 147, 65, 143, 164, 48, 135, 116, 76, 10, 191, 17, 235, 81, 64};
     // uuid = "40fdba6b-672e-47c4-808a-e529adff3633" - Frames
@@ -46,12 +46,12 @@ void ble_evt_connection_status (const struct ble_msg_connection_status_evt_t *ms
     // New connection
     if (msg->flags & connection_connected)
     {
-        GanglionLib::connection = msg->connection;
+        BitalinoLib::connection = msg->connection;
         // this method is called from ble_evt_connection_disconnected need to set exit code only
         // when we call this method from open_ble_device
-        if (GanglionLib::state == GanglionLib::State::INITIAL_CONNECTION)
+        if (BitalinoLib::state == BitalinoLib::State::INITIAL_CONNECTION)
         {
-            GanglionLib::exit_code = (int)GanglionLib::STATUS_OK;
+            BitalinoLib::exit_code = (int)BitalinoLib::STATUS_OK;
         }
     }
 }
@@ -61,7 +61,7 @@ void ble_evt_connection_disconnected (const struct ble_msg_connection_disconnect
     // atempt to reconnect
     // changing values here leads to package loss, dont touch it
     ble_cmd_gap_connect_direct (
-        &GanglionLib::connect_addr, gap_address_type_random, 10, 76, 100, 0);
+        &BitalinoLib::connect_addr, gap_address_type_random, 10, 76, 100, 0);
 }
 
 // ble_evt_attclient_group_found and ble_evt_attclient_procedure_completed are called after the same
@@ -75,51 +75,51 @@ void ble_evt_attclient_group_found (const struct ble_msg_attclient_group_found_e
     uint16 uuid = (msg->uuid.data[1] << 8) | msg->uuid.data[0];
     if (msg->uuid.len == 16)
     {
-        GanglionLib::bitalino_handle_start = msg->start;
-        GanglionLib::bitalino_handle_end = msg->end;
+        BitalinoLib::bitalino_handle_start = msg->start;
+        BitalinoLib::bitalino_handle_end = msg->end;
     }
 }
 
 void ble_evt_attclient_procedure_completed (
     const struct ble_msg_attclient_procedure_completed_evt_t *msg)
 {
-    if (GanglionLib::state == GanglionLib::State::WRITE_TO_CLIENT_CHAR)
+    if (BitalinoLib::state == BitalinoLib::State::WRITE_TO_CLIENT_CHAR)
     {
         if (msg->result == 0)
         {
-            GanglionLib::exit_code = (int)GanglionLib::STATUS_OK;
+            BitalinoLib::exit_code = (int)BitalinoLib::STATUS_OK;
         }
     }
-    if (GanglionLib::state == GanglionLib::State::OPEN_CALLED)
+    if (BitalinoLib::state == BitalinoLib::State::OPEN_CALLED)
     {
-        if ((GanglionLib::bitalino_handle_start) && (GanglionLib::bitalino_handle_end))
+        if ((BitalinoLib::bitalino_handle_start) && (BitalinoLib::bitalino_handle_end))
         {
-            ble_cmd_attclient_find_information (msg->connection, GanglionLib::bitalino_handle_start,
-                GanglionLib::bitalino_handle_end); // triggers
+            ble_cmd_attclient_find_information (msg->connection, BitalinoLib::bitalino_handle_start,
+                BitalinoLib::bitalino_handle_end); // triggers
                                                    // ble_evt_attclient_find_information_found
         }
     }
-    else if (GanglionLib::state == GanglionLib::State::CONFIG_CALLED)
+    else if (BitalinoLib::state == BitalinoLib::State::CONFIG_CALLED)
     {
         if (msg->result == 0)
         {
-            GanglionLib::exit_code = (int)GanglionLib::STATUS_OK;
+            BitalinoLib::exit_code = (int)BitalinoLib::STATUS_OK;
         }
     }
 }
 
-// finds characteristic handles and set exit_code for open_ganglion call
+// finds characteristic handles and set exit_code for open_bitalino call
 void ble_evt_attclient_find_information_found (
     const struct ble_msg_attclient_find_information_found_evt_t *msg)
 {
-    if (GanglionLib::state == GanglionLib::State::OPEN_CALLED)
+    if (BitalinoLib::state == BitalinoLib::State::OPEN_CALLED)
     {
-        if ((GanglionLib::bitalino_handle_recv) && msg->uuid.len == 2)
+        if ((BitalinoLib::bitalino_handle_recv) && msg->uuid.len == 2)
         {
             uint16 uuid = (msg->uuid.data[1] << 8) | msg->uuid.data[0];
             if (uuid == CLIENT_CHARACTERISTIC_UUID)
             {
-                GanglionLib::client_char_handle = msg->chrhandle;
+                BitalinoLib::client_char_handle = msg->chrhandle;
             }
         }
         if (msg->uuid.len == 16)
@@ -128,31 +128,30 @@ void ble_evt_attclient_find_information_found (
             bool is_recv = true;
             for (int i = 0; i < 16; i++)
             {
-                if (msg->uuid.data[i] != GanglionLib::send_char_uuid_bytes[i])
+                if (msg->uuid.data[i] != BitalinoLib::send_char_uuid_bytes[i])
                 {
                     is_send = false;
                 }
-                if (msg->uuid.data[i] != GanglionLib::recv_char_uuid_bytes[i])
+                if (msg->uuid.data[i] != BitalinoLib::recv_char_uuid_bytes[i])
                 {
                     is_recv = false;
                 }
             }
             if (is_recv)
             {
-                GanglionLib::bitalino_handle_recv = msg->chrhandle;
+                BitalinoLib::bitalino_handle_recv = msg->chrhandle;
             }
             if (is_send)
             {
-                GanglionLib::bitalino_handle_send = msg->chrhandle;
+                BitalinoLib::bitalino_handle_send = msg->chrhandle;
             }
         }
-        if ((GanglionLib::bitalino_handle_send) && (GanglionLib::bitalino_handle_recv) &&
-            (GanglionLib::client_char_handle) &&
-            (GanglionLib::state == GanglionLib::State::OPEN_CALLED))
+        if ((BitalinoLib::bitalino_handle_send) && (BitalinoLib::bitalino_handle_recv) &&
+            (BitalinoLib::client_char_handle) &&
+            (BitalinoLib::state == BitalinoLib::State::OPEN_CALLED))
         {
-            GanglionLib::exit_code = (int)GanglionLib::STATUS_OK;
+            BitalinoLib::exit_code = (int)BitalinoLib::STATUS_OK;
         }
-
     }
 }
 
@@ -161,8 +160,13 @@ void ble_evt_attclient_attribute_value (const struct ble_msg_attclient_attribute
     unsigned char values[20] = {0};
     memcpy (values, msg->value.data, msg->value.len * sizeof (unsigned char));
     double timestamp = get_timestamp ();
-    struct GanglionLib::GanglionData data (values, timestamp);
-    GanglionLib::lock.lock ();
-    GanglionLib::data_queue.push_back (data);
-    GanglionLib::lock.unlock ();
+    double package[BitalinoLib::BitalinoData::SIZE] = {0.0};
+
+    // TODO parse message and write data to package
+
+    struct BitalinoLib::BitalinoData data (package);
+
+    BitalinoLib::lock.lock ();
+    BitalinoLib::data_queue.push_back (data);
+    BitalinoLib::lock.unlock ();
 }

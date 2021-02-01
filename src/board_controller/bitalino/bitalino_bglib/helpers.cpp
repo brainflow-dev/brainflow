@@ -20,7 +20,7 @@
 #define LAST_HANDLE 0xffff
 
 
-namespace GanglionLib
+namespace BitalinoLib
 {
     extern volatile int exit_code;
     extern int timeout;
@@ -37,7 +37,7 @@ namespace GanglionLib
     {
         if (uart_tx (len1, data1) || uart_tx (len2, data2))
         {
-            exit_code = (int)GanglionLib::PORT_OPEN_ERROR;
+            exit_code = (int)BitalinoLib::PORT_OPEN_ERROR;
         }
     }
 
@@ -55,7 +55,7 @@ namespace GanglionLib
         }
         else if (r < 0)
         {
-            exit_code = (int)GanglionLib::PORT_OPEN_ERROR;
+            exit_code = (int)BitalinoLib::PORT_OPEN_ERROR;
             return 1; // fails to read
         }
         if (hdr.lolen)
@@ -64,7 +64,7 @@ namespace GanglionLib
             r = uart_rx (hdr.lolen, data, UART_TIMEOUT);
             if (r <= 0)
             {
-                exit_code = (int)GanglionLib::PORT_OPEN_ERROR;
+                exit_code = (int)BitalinoLib::PORT_OPEN_ERROR;
                 delete[] data;
                 return 1; // fails to read
             }
@@ -81,20 +81,20 @@ namespace GanglionLib
 
     int open_ble_dev ()
     {
-        exit_code = (int)GanglionLib::SYNC_ERROR;
+        exit_code = (int)BitalinoLib::SYNC_ERROR;
         // send command to connect
         state = State::INITIAL_CONNECTION;
         ble_cmd_gap_connect_direct (
             &connect_addr, gap_address_type_public, 8, 16, 100, 0); // for bitalino
 
         int res = wait_for_callback (timeout);
-        if (res != (int)GanglionLib::STATUS_OK)
+        if (res != (int)BitalinoLib::STATUS_OK)
         {
             return res;
         }
         state = State::OPEN_CALLED;
 
-        exit_code = (int)GanglionLib::SYNC_ERROR;
+        exit_code = (int)BitalinoLib::SYNC_ERROR;
         uint8 primary_service_uuid[] = {0x00, 0x28};
 
         ble_cmd_attclient_read_by_group_type (
@@ -102,7 +102,7 @@ namespace GanglionLib
 
         res = wait_for_callback (timeout);
 
-        if (res != (int)GanglionLib::STATUS_OK)
+        if (res != (int)BitalinoLib::STATUS_OK)
         {
             return res;
         }
@@ -111,14 +111,14 @@ namespace GanglionLib
         // copypasted in start_stream method but lets keep it in 2 places
         uint8 configuration[] = {0x01, 0x00};
         state = State::WRITE_TO_CLIENT_CHAR;
-        exit_code = (int)GanglionLib::SYNC_ERROR;
+        exit_code = (int)BitalinoLib::SYNC_ERROR;
         ble_cmd_attclient_attribute_write (connection, client_char_handle, 2, &configuration);
-        ble_cmd_attclient_execute_write (connection, 1); 
-//__________________________________ For BITalino _____________________________
+        ble_cmd_attclient_execute_write (connection, 1);
+        //__________________________________ For BITalino _____________________________
         // ____________ for setting sampling rate  _____________
-		// https://bitalino.com/datasheets/REVOLUTION_MCU_Block_Datasheet.pdf
+        // https://bitalino.com/datasheets/REVOLUTION_MCU_Block_Datasheet.pdf
         // added for BoarBLE
-        uint8 b = 0x83; // defult 
+        uint8 b = 0x83; // set sampling rate 100
         uint8 *config1 = &b;
         ble_cmd_attclient_attribute_write (connection, bitalino_handle_send, 1, &config1);
 
@@ -129,7 +129,7 @@ namespace GanglionLib
     {
         auto start_time = std::chrono::high_resolution_clock::now ();
         int run_time = 0;
-        while ((run_time < num_seconds) && (exit_code == (int)GanglionLib::SYNC_ERROR))
+        while ((run_time < num_seconds) && (exit_code == (int)BitalinoLib::SYNC_ERROR))
         {
             if (read_message (UART_TIMEOUT) > 0)
             {
@@ -162,8 +162,8 @@ namespace GanglionLib
         }
         if (i == 5)
         {
-            return (int)GanglionLib::PORT_OPEN_ERROR;
+            return (int)BitalinoLib::PORT_OPEN_ERROR;
         }
-        return (int)GanglionLib::STATUS_OK;
+        return (int)BitalinoLib::STATUS_OK;
     }
 }
