@@ -105,7 +105,7 @@ namespace BitalinoLib
         state = State::OPEN_CALLED;
         char *mac_addr = (char *)param;
         // convert string mac addr to bd_addr struct
-        for (int i = 0; i < strlen (mac_addr); i++)
+        for (unsigned int i = 0; i < strlen (mac_addr); i++)
         {
             mac_addr[i] = tolower (mac_addr[i]);
         }
