@@ -8,10 +8,12 @@
  ****************************************************************************/
 
 
-
+// clang-format off
 #include <stdio.h>
 
 #include "cmd_def.h"
+
+#pragma warning(disable:4244)
 
 
 void (*bglib_output)(uint8 len1,uint8* data1,uint16 len2,uint8* data2)=0;    
@@ -607,3 +609,5 @@ const struct ble_class_handler_t ble_class_evt_handlers[ble_cls_last]=
 	{NULL,0},
 	{ble_class_dfu_evt_handlers,1},
 };
+
+// clang-format on

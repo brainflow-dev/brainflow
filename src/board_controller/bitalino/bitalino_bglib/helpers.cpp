@@ -137,8 +137,8 @@ namespace BitalinoLib
                 break;
             }
             auto end_time = std::chrono::high_resolution_clock::now ();
-            run_time =
-                std::chrono::duration_cast<std::chrono::seconds> (end_time - start_time).count ();
+            run_time = (int)std::chrono::duration_cast<std::chrono::seconds> (end_time - start_time)
+                           .count ();
         }
         return exit_code;
     }

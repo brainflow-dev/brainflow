@@ -115,7 +115,7 @@ namespace BitalinoLib
         {
             for (int i = 0; i < 6; i++)
             {
-                connect_addr.addr[i] = addr[i];
+                connect_addr.addr[i] = (uint8)addr[i];
             }
         }
         else
