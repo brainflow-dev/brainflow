@@ -23,7 +23,7 @@ class Board;
 class Serial
 {
 public:
-    static Serial *create (const char *port_name, Board * board = nullptr);
+    static Serial *create (const char *port_name, Board *board = nullptr);
 
     virtual ~Serial () = 0;
     virtual int open_serial_port () = 0;
