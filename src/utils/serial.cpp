@@ -36,7 +36,10 @@ public:
     //      first device with given vendor id, product id and serial string
     // there are also other ftdi constructors that take these items without parsing a string
     LibFTDISerial (const char *description)
-        : ftdi (ftdi_new ()), description (description), port_open (false), logger (spdlog::get ("brainflow_logger"))
+        : ftdi (ftdi_new ())
+        , description (description)
+        , port_open (false)
+        , logger (spdlog::get ("brainflow_logger"))
     {
     }
 
@@ -46,12 +49,12 @@ public:
         {
             ftdi_usb_close (ftdi);
         }
-        ftdi_free(ftdi);
+        ftdi_free (ftdi);
     }
 
     static bool is_libftdi (const char *port_name)
     {
-        struct ftdi_context * ftdi = ftdi_new ();
+        struct ftdi_context *ftdi = ftdi_new ();
         int open_result = ftdi_usb_open_string (ftdi, port_name);
         if (open_result == 0)
         {
@@ -63,7 +66,8 @@ public:
 
     void log_error (const char *action, const char *message = nullptr)
     {
-        logger->error ("libftdi {}: {} -> {}", description, action, message ? message : ftdi_get_error_string (ftdi));
+        logger->error ("libftdi {}: {} -> {}", description, action,
+            message ? message : ftdi_get_error_string (ftdi));
     }
 
     int open_serial_port ()
@@ -104,7 +108,7 @@ public:
             {
                 return result;
             }
-            result = ftdi_setdtr_rts(ftdi, 1, 1);
+            result = ftdi_setdtr_rts (ftdi, 1, 1);
             result |= ftdi_setflowctrl (ftdi, SIO_DISABLE_FLOW_CTRL);
             if (result != 0)
             {
@@ -165,8 +169,8 @@ public:
         // this latency behavior is documented in
         // http://www.ftdichip.com/Support/Documents/AppNotes/AN232B-04_DataLatencyFlow.pdf
 
-        auto deadline = std::chrono::steady_clock::now () +
-            std::chrono::milliseconds (ftdi->usb_read_timeout);
+        auto deadline =
+            std::chrono::steady_clock::now () + std::chrono::milliseconds (ftdi->usb_read_timeout);
         int bytes_read = 0;
         while (bytes_read == 0 && size > 0 && std::chrono::steady_clock::now () < deadline)
         {
@@ -183,7 +187,8 @@ public:
 
     int send_to_serial_port (const void *message, int length)
     {
-        int bytes_written = ftdi_write_data (ftdi, static_cast<unsigned const char *> (message), length);
+        int bytes_written =
+            ftdi_write_data (ftdi, static_cast<unsigned const char *> (message), length);
         // TODO: negative values are libusb error codes, -666 means usb device unavailable
         if (bytes_written < 0)
         {
@@ -212,8 +217,8 @@ public:
     }
 
 private:
-    struct ftdi_context* ftdi;
-    struct libusb_device* dev;
+    struct ftdi_context *ftdi;
+    struct libusb_device *dev;
     std::string description;
     bool port_open;
     std::shared_ptr<spdlog::logger> logger;
