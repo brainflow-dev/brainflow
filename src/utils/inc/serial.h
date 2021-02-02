@@ -18,11 +18,12 @@ enum SerialExitCodes : int
     NO_SYSTEM_HEADERS_FOUND_ERROR = -6
 };
 
+class Board;
 
 class Serial
 {
 public:
-    static Serial *create (const char *port_name);
+    static Serial *create (const char *port_name, Board * board = nullptr);
 
     virtual ~Serial () = 0;
     virtual int open_serial_port () = 0;

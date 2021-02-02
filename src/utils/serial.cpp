@@ -2,6 +2,8 @@
 
 #include "serial.h"
 
+#include "board.h"
+
 Serial::~Serial ()
 {
 }
@@ -18,7 +20,6 @@ Serial::~Serial ()
 #include <thread>
 
 #include <ftdi.h>
-#include <spdlog/spdlog.h>
 
 class LibFTDISerial : public Serial
 {
@@ -35,11 +36,8 @@ public:
     // "s:<vendor>:<product>:<serial>"
     //      first device with given vendor id, product id and serial string
     // there are also other ftdi constructors that take these items without parsing a string
-    LibFTDISerial (const char *description)
-        : ftdi (ftdi_new ())
-        , description (description)
-        , port_open (false)
-        , logger (spdlog::get ("brainflow_logger"))
+    LibFTDISerial (const char *description, Board *board = nullptr)
+        : ftdi (ftdi_new ()), description (description), port_open (false), board (board)
     {
     }
 
@@ -54,20 +52,22 @@ public:
 
     static bool is_libftdi (const char *port_name)
     {
-        struct ftdi_context *ftdi = ftdi_new ();
-        int open_result = ftdi_usb_open_string (ftdi, port_name);
+        LibFTDISerial serial (port_name);
+        int open_result = ftdi_usb_open_string (serial.ftdi, port_name);
         if (open_result == 0)
         {
-            ftdi_usb_close (ftdi);
+            ftdi_usb_close (serial.ftdi);
         }
-        ftdi_free (ftdi);
         return open_result != -11;
     }
 
     void log_error (const char *action, const char *message = nullptr)
     {
-        logger->error ("libftdi {}: {} -> {}", description, action,
-            message ? message : ftdi_get_error_string (ftdi));
+        if (board != nullptr)
+        {
+            board->safe_logger (spdlog::level::err, "libftdi {}: {} -> {}", description, action,
+                message ? message : ftdi_get_error_string (ftdi));
+        }
     }
 
     int open_serial_port ()
@@ -221,7 +221,7 @@ private:
     struct libusb_device *dev;
     std::string description;
     bool port_open;
-    std::shared_ptr<spdlog::logger> logger;
+    Board *board;
 };
 
 #endif
@@ -438,12 +438,12 @@ int Serial::close_serial_port ()
 /////////////// Factory Function ////////////////
 /////////////////////////////////////////////////
 
-Serial *Serial::create (const char *port_name)
+Serial *Serial::create (const char *port_name, Board *board)
 {
 #ifdef USE_LIBFTDI
     if (LibFTDISerial::is_libftdi (port_name))
     {
-        return new LibFTDISerial (port_name);
+        return new LibFTDISerial (port_name, board);
     }
 #endif
 

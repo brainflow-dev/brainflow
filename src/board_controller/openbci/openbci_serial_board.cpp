@@ -134,7 +134,7 @@ int OpenBCISerialBoard::prepare_session ()
         safe_logger (spdlog::level::err, "serial port is empty");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
-    serial = Serial::create (params.serial_port.c_str ());
+    serial = Serial::create (params.serial_port.c_str (), this);
     int port_open = open_port ();
     if (port_open != (int)BrainFlowExitCodes::STATUS_OK)
     {
