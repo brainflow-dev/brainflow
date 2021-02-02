@@ -25,7 +25,7 @@ jobs:
       if: (matrix.os == 'ubuntu-18.04')
       run: |
         sudo -H apt-get update -y
-        sudo -H apt-get install -y python3-setuptools python3-pygments libftdipp1-dev
+        sudo -H apt-get install -y python3-setuptools python3-pygments libftdi1-dev
       env:
         DEBIAN_FRONTEND: noninteractive
     - name: Install Macos Dependencies
