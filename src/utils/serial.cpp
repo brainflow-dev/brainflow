@@ -46,9 +46,9 @@ public:
         return test.ctx.open (port_name) != -11;
     }
 
-    void log_error (const char *action)
+    void log_error (const char *action, const char *message = nullptr)
     {
-        logger->error ("libftdi {}: {} -> {}", description, action, ctx.error_string ());
+        logger->error ("libftdi {}: {} -> {}", description, action, message ? message : ctx.error_string ());
     }
 
     int open_serial_port ()
@@ -121,6 +121,8 @@ public:
 
     int flush_buffer ()
     {
+#if FTDI_MAJOR_VERSION > 2 || (FTDI_MAJOR_VERSION == 1 && FTDI_MINOR_VERSIOM >= 5)
+        // correct tcflush was added in libftdi 1.5
         switch (ctx.tcflush (Ftdi::Context::Input | Ftdi::Context::Output))
         {
             case 0:
@@ -130,8 +132,11 @@ public:
                 return (int)SerialExitCodes::OPEN_PORT_ERROR;
             default: // -1,-2 chip failed to purge a buffer
                 log_error ("flush_buffer ()");
-                return (int)SerialExitCodes::SET_PORT_STATE_ERROR;
         }
+#else
+        log_error ("flush_buffer ()", "libftdi version <=1.4, tcflush unimplemented");
+#endif
+        return (int)SerialExitCodes::SET_PORT_STATE_ERROR;
     }
 
     int read_from_serial_port (void *bytes_to_read, int size)
