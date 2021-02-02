@@ -10,14 +10,14 @@ Serial::~Serial ()
 /////////////////// LibFTDI /////////////////////
 /////////////////////////////////////////////////
 
-#ifdef USE_LIBFTDIPP
+#ifdef USE_LIBFTDI
 
 // Note: LibFTDI also supports listing all connected devies.  This is not used yet.
 
 #include <chrono>
 #include <thread>
 
-#include <ftdi.hpp>
+#include <ftdi.h>
 #include <spdlog/spdlog.h>
 
 class LibFTDISerial : public Serial
@@ -36,25 +36,40 @@ public:
     //      first device with given vendor id, product id and serial string
     // there are also other ftdi constructors that take these items without parsing a string
     LibFTDISerial (const char *description)
-        : description (description), port_open (false), logger (spdlog::get ("brainflow_logger"))
+        : ftdi (ftdi_new ()), description (description), port_open (false), logger (spdlog::get ("brainflow_logger"))
     {
+    }
+
+    ~LibFTDISerial ()
+    {
+        if (port_open)
+        {
+            ftdi_usb_close (ftdi);
+        }
+        ftdi_free(ftdi);
     }
 
     static bool is_libftdi (const char *port_name)
     {
-        LibFTDISerial test (port_name);
-        return test.ctx.open (port_name) != -11;
+        struct ftdi_context * ftdi = ftdi_new ();
+        int open_result = ftdi_usb_open_string (ftdi, port_name);
+        if (open_result == 0)
+        {
+            ftdi_usb_close (ftdi);
+        }
+        ftdi_free (ftdi);
+        return open_result != -11;
     }
 
     void log_error (const char *action, const char *message = nullptr)
     {
-        logger->error ("libftdi {}: {} -> {}", description, action, message ? message : ctx.error_string ());
+        logger->error ("libftdi {}: {} -> {}", description, action, message ? message : ftdi_get_error_string (ftdi));
     }
 
     int open_serial_port ()
     {
         // https://www.intra2net.com/en/developer/libftdi/documentation/ftdi_8c.html#aae805b82251a61dae46b98345cd84d5c
-        switch (ctx.open (description))
+        switch (ftdi_usb_open_string (ftdi, description.c_str ()))
         {
             case 0:
                 port_open = true;
@@ -78,7 +93,7 @@ public:
         int result;
         if (!timeout_only)
         {
-            result = ctx.set_line_property (BITS_8, STOP_BIT_1, NONE);
+            result = ftdi_set_line_property (ftdi, BITS_8, STOP_BIT_1, NONE);
             if (result != 0)
             {
                 log_error ("set_serial_port_settings");
@@ -89,8 +104,8 @@ public:
             {
                 return result;
             }
-            result = ctx.set_modem_control (Ftdi::Context::Dtr | Ftdi::Context::Rts);
-            result |= ctx.set_flow_control (SIO_DISABLE_FLOW_CTRL);
+            result = ftdi_setdtr_rts(ftdi, 1, 1);
+            result |= ftdi_setflowctrl (ftdi, SIO_DISABLE_FLOW_CTRL);
             if (result != 0)
             {
                 // -1 setting failed, -2 usb device unavailable
@@ -99,14 +114,14 @@ public:
             }
         }
 
-        ctx.set_usb_read_timeout (ms_timeout);
+        ftdi->usb_read_timeout = ms_timeout;
 
         return (int)SerialExitCodes::OK;
     }
 
     int set_custom_baudrate (int baudrate)
     {
-        switch (ctx.set_baud_rate (115200))
+        switch (ftdi_set_baudrate (ftdi, 115200))
         {
             case 0:
                 return (int)SerialExitCodes::OK;
@@ -123,7 +138,7 @@ public:
     {
 #if FTDI_MAJOR_VERSION > 2 || (FTDI_MAJOR_VERSION == 1 && FTDI_MINOR_VERSIOM >= 5)
         // correct tcflush was added in libftdi 1.5
-        switch (ctx.tcflush (Ftdi::Context::Input | Ftdi::Context::Output))
+        switch (ftdi_tcioflush (ftdi))
         {
             case 0:
                 return (int)SerialExitCodes::OK;
@@ -151,11 +166,11 @@ public:
         // http://www.ftdichip.com/Support/Documents/AppNotes/AN232B-04_DataLatencyFlow.pdf
 
         auto deadline = std::chrono::steady_clock::now () +
-            std::chrono::milliseconds (ctx.get_usb_read_timeout ());
+            std::chrono::milliseconds (ftdi->usb_read_timeout);
         int bytes_read = 0;
         while (bytes_read == 0 && size > 0 && std::chrono::steady_clock::now () < deadline)
         {
-            bytes_read = ctx.read (static_cast<unsigned char *> (bytes_to_read), size);
+            bytes_read = ftdi_read_data (ftdi, static_cast<unsigned char *> (bytes_to_read), size);
             // TODO: negative values are libusb error codes, -666 means usb device unavailable
             if (bytes_read < 0)
             {
@@ -168,7 +183,7 @@ public:
 
     int send_to_serial_port (const void *message, int length)
     {
-        int bytes_written = ctx.write (static_cast<unsigned const char *> (message), length);
+        int bytes_written = ftdi_write_data (ftdi, static_cast<unsigned const char *> (message), length);
         // TODO: negative values are libusb error codes, -666 means usb device unavailable
         if (bytes_written < 0)
         {
@@ -179,7 +194,7 @@ public:
 
     int close_serial_port ()
     {
-        if (ctx.close () == 0)
+        if (ftdi_usb_close (ftdi) == 0)
         {
             port_open = false;
             return (int)SerialExitCodes::OK;
@@ -197,7 +212,8 @@ public:
     }
 
 private:
-    Ftdi::Context ctx;
+    struct ftdi_context* ftdi;
+    struct libusb_device* dev;
     std::string description;
     bool port_open;
     std::shared_ptr<spdlog::logger> logger;
@@ -419,7 +435,7 @@ int Serial::close_serial_port ()
 
 Serial *Serial::create (const char *port_name)
 {
-#ifdef USE_LIBFTDIPP
+#ifdef USE_LIBFTDI
     if (LibFTDISerial::is_libftdi (port_name))
     {
         return new LibFTDISerial (port_name);
