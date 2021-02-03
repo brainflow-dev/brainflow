@@ -65,7 +65,7 @@ int IronBCI::prepare_session ()
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
-    serial = new Serial (params.serial_port.c_str ());
+    serial = Serial::create (params.serial_port.c_str (), this);
 
     safe_logger (spdlog::level::info, "Openning port {}", serial->get_port_name ());
     int res = serial->open_serial_port ();

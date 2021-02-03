@@ -11,6 +11,7 @@ set (CMAKE_C_VISIBILITY_PRESET hidden)
 
 set (CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+option(USE_LIBFTDI "USE_LIBFTDI" OFF)
 option(USE_OPENMP "USE_OPENMP" OFF)
 option(WARNINGS_AS_ERRORS "WARNINGS_AS_ERRORS" OFF)
 
@@ -312,6 +313,20 @@ set_target_properties (${ML_MODULE_NAME}
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
 )
+
+if (USE_LIBFTDI)
+    find_package (LibFTDI1 NO_MODULE)
+    if (LibFTDI1_FOUND)
+        # this line could set up the directories if included before targets are defined
+        #include ( ${LIBFTDI_USE_FILE} )
+        target_compile_definitions (${BOARD_CONTROLLER_NAME} PRIVATE ${LIBFTDI_DEFINITIONS} "USE_LIBFTDI")
+        target_include_directories (${BOARD_CONTROLLER_NAME} PRIVATE ${LIBFTDI_INCLUDE_DIRS})
+        target_link_directories (${BOARD_CONTROLLER_NAME} PRIVATE ${LIBFTDI_LIBRARY_DIRS})
+        target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE ${LIBFTDI_LIBRARIES})
+    else (LibFTDI1_FOUND)
+        message (FATAL_ERROR "USE_LIBFTDI set but LibFTDI not found.")
+    endif (LibFTDI1_FOUND)
+endif (USE_LIBFTDI)
 
 if (USE_OPENMP)
     find_package (OpenMP)

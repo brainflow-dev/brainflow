@@ -21,23 +21,29 @@ jobs:
       with:
         python-version: '3.7.7'
         architecture: 'x64'
-    - name: Install Python Dependencies
+    - name: Install Ubuntu Dependencies
       if: (matrix.os == 'ubuntu-18.04')
       run: |
         sudo -H apt-get update -y
-        sudo -H apt-get install -y python3-setuptools python3-pygments
+        sudo -H apt-get install -y python3-setuptools python3-pygments libftdi1-dev
+      env:
+        DEBIAN_FRONTEND: noninteractive
+    - name: Install Macos Dependencies
+      if: (matrix.os == 'macos-10.15')
+      run: |
+        brew update
+        brew install -d -v libftdi
       env:
         DEBIAN_FRONTEND: noninteractive
     - name: Setup Cmake
       uses: jwlawson/actions-setup-cmake@v1.4
       with:
         cmake-version: '3.16.x'
-      # todo compile with libftdi enabled
     - name: Compile BrainFlow
       run: |
         mkdir $GITHUB_WORKSPACE/build
         cd $GITHUB_WORKSPACE/build
-        cmake -DWARNINGS_AS_ERRORS=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
+        cmake -DWARNINGS_AS_ERRORS=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release -DUSE_LIBFTDI=ON ..
         make -j
         make install
     - name: Setup Python Package
