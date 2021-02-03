@@ -17,9 +17,9 @@ author: andrey_parfenov
 
 ### Why do we need it and how collected money will be used?
 
-As you probably know there is no university, research grant or company behind BrainFlow. All ***features available for free*** for everybody and distributed under permissive ***MIT license***. We ***do not charge for support*** via slack and do not sell hardware. We really like such model and want to continue this way.
+As you probably know there is no university, research grant or company behind BrainFlow. All ***features are available for free*** to everybody and distributed under permissive ***MIT license***. We ***do not charge for support*** via slack and do not sell hardware. We really like such model and want to continue this way.
 
-But to integrate new devices into BrainFlow in majority of cases we ***need to buy*** them, and unfortunately it is a pretty ***expensive research equipment***.
+But to integrate new devices into BrainFlow in majority of cases we ***need to buy*** them, and unfortunately it is pretty ***expensive research equipment***.
 Development related costs are quite high as well, BrainFlow works on all popular OSes and devices, to make it possible we need to run tests on all these platforms, and we ***need to buy required hardware and software.***
 
 After all, it ***requires a lot of efforts and time*** and core developers need to pay their bills. Also, we would like to have the ability to ***organize competitions and hackatons***, as well as pay outside collaborators for their work and ***speed up further development.***
