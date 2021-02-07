@@ -86,7 +86,7 @@ protected:
     Streamer *streamer;
     json board_descr;
     SpinLock lock;
-    std::deque<int> marker_queue;
+    volatile std::deque<double> marker_queue;
 
     int prepare_for_acquisition (int buffer_size, char *streamer_params);
     void free_packages ();
