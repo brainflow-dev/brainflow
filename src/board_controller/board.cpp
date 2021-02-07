@@ -137,7 +137,7 @@ void Board::push_package (double *package)
         }
         else
         {
-            int marker = marker_queue.at (0);
+            double marker = marker_queue.at (0);
             package[marker_channel] = marker;
             marker_queue.pop_front ();
         }
