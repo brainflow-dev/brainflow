@@ -1,0 +1,38 @@
+#pragma once
+
+#include "serial.h"
+
+#ifdef USE_LIBFTDI
+#include <ftdi.h>
+#endif
+
+class LibFTDISerial : public Serial
+{
+
+public:
+    static bool is_libftdi (const char *port_name);
+
+    LibFTDISerial (const char *description, Board *board = nullptr);
+    virtual ~LibFTDISerial ();
+
+    int open_serial_port ();
+    bool is_port_open ();
+    int set_serial_port_settings (int ms_timeout = 1000, bool timeout_only = false);
+    int set_custom_baudrate (int baudrate);
+    int flush_buffer ();
+    int read_from_serial_port (void *bytes_to_read, int size);
+    int send_to_serial_port (const void *message, int length);
+    int close_serial_port ();
+    const char *get_port_name ();
+
+private:
+#ifdef USE_LIBFTDI
+    void log_error (const char *action, const char *message = nullptr);
+
+    struct ftdi_context *ftdi;
+    struct libusb_device *dev;
+    std::string description;
+    bool port_open;
+    Board *board;
+#endif
+};

@@ -167,8 +167,10 @@ set_property (TARGET ${GANGLION_LIB} PROPERTY POSITION_INDEPENDENT_CODE ON)
 set (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/utils/timestamp.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/data_buffer.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/utils/os_serial.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/utils/os_serial_ioctl.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/serial.cpp
-    ${CMAKE_HOME_DIRECTORY}/src/utils/serial_ioctl.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/utils/libftdi_serial.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/socket_client_tcp.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/socket_client_udp.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/socket_server_tcp.cpp
