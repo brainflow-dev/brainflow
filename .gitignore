@@ -372,3 +372,5 @@ Makefile
 # Libraries
 *.so
 *.a
+CMakeSettings.json
+._.gitignore

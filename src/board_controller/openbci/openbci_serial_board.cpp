@@ -62,6 +62,7 @@ int OpenBCISerialBoard::send_to_board (const char *msg)
     int lenght = (int)strlen (msg);
     safe_logger (spdlog::level::debug, "sending {} to the board", msg);
     int res = serial->send_to_serial_port ((const void *)msg, lenght);
+    //  TODO - get the response here
     if (res != lenght)
     {
         return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
