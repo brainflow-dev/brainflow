@@ -206,7 +206,7 @@ bool LibFTDISerial::is_libftdi (const char *port_name)
 
 int LibFTDISerial::open_serial_port ()
 {
-    return (int)SerialExitCodes::NO_LIBFTDI;
+    return (int)SerialExitCodes::NO_LIBFTDI_ERROR;
 }
 
 bool LibFTDISerial::is_port_open ()
@@ -216,32 +216,32 @@ bool LibFTDISerial::is_port_open ()
 
 int LibFTDISerial::set_serial_port_settings (int ms_timeout, bool timeout_only)
 {
-    return (int)SerialExitCodes::NO_LIBFTDI;
+    return (int)SerialExitCodes::NO_LIBFTDI_ERROR;
 }
 
 int LibFTDISerial::set_custom_baudrate (int baudrate)
 {
-    return (int)SerialExitCodes::NO_LIBFTDI;
+    return (int)SerialExitCodes::NO_LIBFTDI_ERROR;
 }
 
 int LibFTDISerial::flush_buffer ()
 {
-    return (int)SerialExitCodes::NO_LIBFTDI;
+    return (int)SerialExitCodes::NO_LIBFTDI_ERROR;
 }
 
 int LibFTDISerial::read_from_serial_port (void *bytes_to_read, int size)
 {
-    return (int)SerialExitCodes::NO_LIBFTDI;
+    return (int)SerialExitCodes::NO_LIBFTDI_ERROR;
 }
 
 int LibFTDISerial::send_to_serial_port (const void *message, int length)
 {
-    return (int)SerialExitCodes::NO_LIBFTDI;
+    return (int)SerialExitCodes::NO_LIBFTDI_ERROR;
 }
 
 int LibFTDISerial::close_serial_port ()
 {
-    return (int)SerialExitCodes::NO_LIBFTDI;
+    return (int)SerialExitCodes::NO_LIBFTDI_ERROR;
 }
 
 const char *LibFTDISerial::get_port_name ()

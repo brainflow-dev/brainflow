@@ -10,7 +10,7 @@ enum SerialExitCodes : int
     SET_TIMEOUT_ERROR = -4,
     CLOSE_ERROR = -5,
     NO_SYSTEM_HEADERS_FOUND_ERROR = -6,
-    NO_LIBFTDI = -7
+    NO_LIBFTDI_ERROR = -7
 };
 
 class Board;
