@@ -1,3 +1,5 @@
+#include <string>
+
 #include "libftdi_serial.h"
 #include "serial.h"
 
