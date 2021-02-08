@@ -54,21 +54,49 @@ int OpenBCISerialBoard::config_board (std::string config, std::string &response)
     safe_logger (spdlog::level::warn,
         "If you change gain you may need to rescale data, in data returned by BrainFlow we use "
         "gain 24 to convert int24 to uV");
-    return send_to_board (config.c_str ());
+    return send_to_board (config.c_str (), response);
 }
 
 int OpenBCISerialBoard::send_to_board (const char *msg)
 {
-    int lenght = (int)strlen (msg);
+    std::string discard = "";
+    return send_to_board (msg, discard);
+}
+
+int OpenBCISerialBoard::send_to_board (const char *msg, std::string &response)
+{
+    int length = (int)strlen (msg);
     safe_logger (spdlog::level::debug, "sending {} to the board", msg);
-    int res = serial->send_to_serial_port ((const void *)msg, lenght);
-    //  TODO - get the response here
-    if (res != lenght)
+    int res = serial->send_to_serial_port ((const void *)msg, length);
+    if (res != length)
     {
+        response = "";
         return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
     }
+    //  get the response
+    response = read_serial_response ();
 
     return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+std::string OpenBCISerialBoard::read_serial_response ()
+{
+    constexpr int max_tmp_size = 1024;
+    unsigned char tmp_array[max_tmp_size];
+    unsigned char tmp;
+    int tmp_id = 0;
+    while (serial->read_from_serial_port (&tmp, 1) == 1)
+    {
+        if (tmp_id < max_tmp_size)
+        {
+            tmp_array[tmp_id] = tmp;
+            tmp_id++;
+        }
+    }
+    tmp_id = (tmp_id == max_tmp_size) ? tmp_id - 1 : tmp_id;
+    tmp_array[tmp_id] = '\0';
+    
+    return std::string ((const char *)tmp_array);
 }
 
 int OpenBCISerialBoard::set_port_settings ()
@@ -166,26 +194,12 @@ int OpenBCISerialBoard::prepare_session ()
         return send_res;
     }
     // cyton sends response back, clean serial buffer and analyze response
-    constexpr int max_tmp_size = 1024;
-    unsigned char tmp_array[max_tmp_size];
-    unsigned char tmp;
-    int tmp_id = 0;
-    while (serial->read_from_serial_port (&tmp, 1) == 1)
-    {
-        if (tmp_id < max_tmp_size)
-        {
-            tmp_array[tmp_id] = tmp;
-            tmp_id++;
-        }
-    }
-    tmp_id = (tmp_id == max_tmp_size) ? tmp_id - 1 : tmp_id;
-    tmp_array[tmp_id] = '\0';
-
-    if (strncmp ((const char *)tmp_array, "Failure", 7) == 0)
+    std::string response = read_serial_response ();
+    if (response.compare("Failure") == 0)
     {
         safe_logger (spdlog::level::err,
             "Board config error, probably dongle is inserted but Cyton is off.");
-        safe_logger (spdlog::level::trace, "read {}", tmp_array);
+        safe_logger (spdlog::level::trace, "read {}", response.c_str());
         delete serial;
         serial = NULL;
         return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
