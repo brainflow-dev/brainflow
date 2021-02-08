@@ -6,6 +6,8 @@
 #include <chrono>
 #include <ftdi.h>
 
+#include "board.h"
+
 
 LibFTDISerial::LibFTDISerial (const char *description, Board *board)
     : ftdi (ftdi_new ()), description (description), port_open (false), board (board)
