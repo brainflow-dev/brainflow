@@ -203,7 +203,7 @@ int OpenBCISerialBoard::prepare_session ()
     }
     // cyton sends response back, clean serial buffer and analyze response
     std::string response = read_serial_response ();
-    if (response.compare("Failure") == 0)
+    if (response.substr(0,7).compare("Failure") == 0)
     {
         safe_logger (spdlog::level::err,
             "Board config error, probably dongle is inserted but Cyton is off.");
