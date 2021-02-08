@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "serial.h"
 
 #ifdef USE_LIBFTDI
