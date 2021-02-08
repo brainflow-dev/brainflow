@@ -1,3 +1,6 @@
+#include <stdlib.h>
+#include <string.h>
+
 #include "os_serial.h"
 
 // ioctl headers conflict with standard posix headers for serial port, ioctl needed for custom
