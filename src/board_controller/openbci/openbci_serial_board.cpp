@@ -59,8 +59,16 @@ int OpenBCISerialBoard::config_board (std::string config, std::string &response)
 
 int OpenBCISerialBoard::send_to_board (const char *msg)
 {
-    std::string discard = "";
-    return send_to_board (msg, discard);
+    int length = (int)strlen (msg);
+    safe_logger (spdlog::level::debug, "sending {} to the board", msg);
+    int res = serial->send_to_serial_port ((const void *)msg, length);
+    if (res != length)
+    {
+        
+        return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
+    }
+   
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int OpenBCISerialBoard::send_to_board (const char *msg, std::string &response)
