@@ -12,6 +12,9 @@ jobs:
       matrix:
         os: [ubuntu-18.04]
 
+    env:
+      ANDROID_NDK_VERSION: 21.4.7075529
+
     steps:
     - name: Clone Repository
       uses: actions/checkout@v2
@@ -27,14 +30,14 @@ jobs:
         cmake-version: '3.16.x'
     - name: Install NDK
       run: |
-        echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;21.4.7075529" --sdk_root=${ANDROID_SDK_ROOT}
+        echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;${ANDROID_NDK_VERSION}" --sdk_root=${ANDROID_SDK_ROOT}
         mkdir $GITHUB_WORKSPACE/android-prefix
     # build for all ABIs
     - name: Compile libusb
       run: |
         git clone --depth 1 --branch v1.0.24 https://github.com/libusb/libusb.git
         cd libusb/android/jni
-        ${ANDROID_HOME}/ndk/*/ndk-build
+        ${ANDROID_HOME}/ndk/${ANDROID_NDK_VERSION}/ndk-build
     - name: Fetch libftdi
       run: |
         git clone --depth 1 --branch v1.5 git://developer.intra2net.com/libftdi
@@ -42,47 +45,47 @@ jobs:
       run: |
         mkdir libftdi/build_armv8
         cd libftdi/build_armv8
-        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/*/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 -DEXAMPLES=OFF -DFTDI_EEPROM=OFF -DLIBUSB_LIBRARIES=$GITHUB_WORKSPACE/libusb/android/libs/arm64-v8a/libusb1.0.so -DLIBUSB_INCLUDE_DIR=$GITHUB_WORKSPACE/libusb/libusb ..
+        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/${ANDROID_NDK_VERSION}/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 -DEXAMPLES=OFF -DFTDI_EEPROM=OFF -DLIBUSB_LIBRARIES=$GITHUB_WORKSPACE/libusb/android/libs/arm64-v8a/libusb1.0.so -DLIBUSB_INCLUDE_DIR=$GITHUB_WORKSPACE/libusb/libusb ..
         ninja
     - name: Compile libftdi armv7
       run: |
         mkdir libftdi/build_armv7
         cd libftdi/build_armv7
-        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/*/build/cmake/android.toolchain.cmake -DANDROID_ABI=armeabi-v7a -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 -DEXAMPLES=OFF -DFTDI_EEPROM=OFF -DLIBUSB_LIBRARIES=$GITHUB_WORKSPACE/libusb/android/libs/armeabi-v7a/libusb1.0.so -DLIBUSB_INCLUDE_DIR=$GITHUB_WORKSPACE/libusb/libusb ..
+        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/${ANDROID_NDK_VERSION}/build/cmake/android.toolchain.cmake -DANDROID_ABI=armeabi-v7a -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 -DEXAMPLES=OFF -DFTDI_EEPROM=OFF -DLIBUSB_LIBRARIES=$GITHUB_WORKSPACE/libusb/android/libs/armeabi-v7a/libusb1.0.so -DLIBUSB_INCLUDE_DIR=$GITHUB_WORKSPACE/libusb/libusb ..
         ninja
     - name: Compile libftdi Android x86
       run: |
         mkdir libftdi/build_armv7
         cd libftdi/build_armv7
-        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/*/build/cmake/android.toolchain.cmake -DANDROID_ABI=x86 -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 -DEXAMPLES=OFF -DFTDI_EEPROM=OFF -DLIBUSB_LIBRARIES=$GITHUB_WORKSPACE/libusb/android/libs/x86/libusb1.0.so -DLIBUSB_INCLUDE_DIR=$GITHUB_WORKSPACE/libusb/libusb ..
+        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/${ANDROID_NDK_VERSION}/build/cmake/android.toolchain.cmake -DANDROID_ABI=x86 -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 -DEXAMPLES=OFF -DFTDI_EEPROM=OFF -DLIBUSB_LIBRARIES=$GITHUB_WORKSPACE/libusb/android/libs/x86/libusb1.0.so -DLIBUSB_INCLUDE_DIR=$GITHUB_WORKSPACE/libusb/libusb ..
         ninja
     - name: Compile libftdi Android x86_64
       run: |
         mkdir libftdi/build_armv7
         cd libftdi/build_armv7
-        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/*/build/cmake/android.toolchain.cmake -DANDROID_ABI=x86_64 -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 -DEXAMPLES=OFF -DFTDI_EEPROM=OFF -DLIBUSB_LIBRARIES=$GITHUB_WORKSPACE/libusb/android/libs/x86_64/libusb1.0.so -DLIBUSB_INCLUDE_DIR=$GITHUB_WORKSPACE/libusb/libusb ..
+        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/${ANDROID_NDK_VERSION}/build/cmake/android.toolchain.cmake -DANDROID_ABI=x86_64 -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 -DEXAMPLES=OFF -DFTDI_EEPROM=OFF -DLIBUSB_LIBRARIES=$GITHUB_WORKSPACE/libusb/android/libs/x86_64/libusb1.0.so -DLIBUSB_INCLUDE_DIR=$GITHUB_WORKSPACE/libusb/libusb ..
         ninja
     - name: Compile BrainFlow armv8
       run: |
         mkdir $GITHUB_WORKSPACE/build_armv8
         cd $GITHUB_WORKSPACE/build_armv8
-        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/21.0.6113669/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 -DUSE_LIBFTDI=ON -DLIBFTDI_LIBRARIES=$GITHUB_WORKSPACE/libftdi/build_armv8/src/libftdi1.so -DLIBFTDI_INCLUDE_DIR=$GITHUB_WORKSPACE/libftdi/src ..
+        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/${NDK_VERSION}/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 -DUSE_LIBFTDI=ON -DLIBFTDI_LIBRARIES=$GITHUB_WORKSPACE/libftdi/build_armv8/src/libftdi1.so -DLIBFTDI_INCLUDE_DIR=$GITHUB_WORKSPACE/libftdi/src ..
         ninja
     - name: Compile BrainFlow armv7
       run: |
         mkdir $GITHUB_WORKSPACE/build_armv7
         cd $GITHUB_WORKSPACE/build_armv7
-        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/21.0.6113669/build/cmake/android.toolchain.cmake -DANDROID_ABI=armeabi-v7a -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 -DUSE_LIBFTDI=ON -DLIBFTDI_LIBRARIES=$GITHUB_WORKSPACE/libftdi/build_armv7/src/libftdi1.so -DLIBFTDI_INCLUDE_DIR=$GITHUB_WORKSPACE/libftdi/src ..
+        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/${NDK_VERSION}/build/cmake/android.toolchain.cmake -DANDROID_ABI=armeabi-v7a -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 -DUSE_LIBFTDI=ON -DLIBFTDI_LIBRARIES=$GITHUB_WORKSPACE/libftdi/build_armv7/src/libftdi1.so -DLIBFTDI_INCLUDE_DIR=$GITHUB_WORKSPACE/libftdi/src ..
         ninja
     - name: Compile BrainFlow Android x86
       run: |
         mkdir $GITHUB_WORKSPACE/build_android_x86
         cd $GITHUB_WORKSPACE/build_android_x86
-        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/21.0.6113669/build/cmake/android.toolchain.cmake -DANDROID_ABI=x86 -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 -DUSE_LIBFTDI=ON -DLIBFTDI_LIBRARIES=$GITHUB_WORKSPACE/libftdi/build_x86/src/libftdi1.so -DLIBFTDI_INCLUDE_DIR=$GITHUB_WORKSPACE/libftdi/src ..
+        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/${NDK_VERSION}/build/cmake/android.toolchain.cmake -DANDROID_ABI=x86 -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 -DUSE_LIBFTDI=ON -DLIBFTDI_LIBRARIES=$GITHUB_WORKSPACE/libftdi/build_x86/src/libftdi1.so -DLIBFTDI_INCLUDE_DIR=$GITHUB_WORKSPACE/libftdi/src ..
         ninja
     - name: Compile BrainFlow Android x64
       run: |
         mkdir $GITHUB_WORKSPACE/build_android_x64
         cd $GITHUB_WORKSPACE/build_android_x64
-        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/21.0.6113669/build/cmake/android.toolchain.cmake -DANDROID_ABI=x86_64 -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 -DUSE_LIBFTDI=ON -DLIBFTDI_LIBRARIES=$GITHUB_WORKSPACE/libftdi/build_x86_64/src/libftdi1.so -DLIBFTDI_INCLUDE_DIR=$GITHUB_WORKSPACE/libftdi/src ..
+        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/${NDK_VERSION}/build/cmake/android.toolchain.cmake -DANDROID_ABI=x86_64 -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 -DUSE_LIBFTDI=ON -DLIBFTDI_LIBRARIES=$GITHUB_WORKSPACE/libftdi/build_x86_64/src/libftdi1.so -DLIBFTDI_INCLUDE_DIR=$GITHUB_WORKSPACE/libftdi/src ..
         ninja
