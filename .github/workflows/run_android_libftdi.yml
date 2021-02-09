@@ -55,14 +55,14 @@ jobs:
         ninja
     - name: Compile libftdi Android x86
       run: |
-        mkdir libftdi/build_armv7
-        cd libftdi/build_armv7
+        mkdir libftdi/build_x86
+        cd libftdi/build_x86
         cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/${ANDROID_NDK_VERSION}/build/cmake/android.toolchain.cmake -DANDROID_ABI=x86 -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 -DEXAMPLES=OFF -DFTDI_EEPROM=OFF -DLIBUSB_LIBRARIES=$GITHUB_WORKSPACE/libusb/android/libs/x86/libusb1.0.so -DLIBUSB_INCLUDE_DIR=$GITHUB_WORKSPACE/libusb/libusb ..
         ninja
     - name: Compile libftdi Android x86_64
       run: |
-        mkdir libftdi/build_armv7
-        cd libftdi/build_armv7
+        mkdir libftdi/build_x86_64
+        cd libftdi/build_x86_64
         cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/${ANDROID_NDK_VERSION}/build/cmake/android.toolchain.cmake -DANDROID_ABI=x86_64 -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 -DEXAMPLES=OFF -DFTDI_EEPROM=OFF -DLIBUSB_LIBRARIES=$GITHUB_WORKSPACE/libusb/android/libs/x86_64/libusb1.0.so -DLIBUSB_INCLUDE_DIR=$GITHUB_WORKSPACE/libusb/libusb ..
         ninja
     - name: Compile BrainFlow armv8
