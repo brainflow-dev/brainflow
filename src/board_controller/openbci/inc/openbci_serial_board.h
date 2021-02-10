@@ -24,6 +24,7 @@ protected:
     virtual void read_thread () = 0;
     virtual int send_to_board (const char *msg);
     virtual int send_to_board (const char *msg, std::string &response);
+    virtual std::string read_serial_response ();
 
 public:
     OpenBCISerialBoard (struct BrainFlowInputParams params, int board_id);
@@ -34,6 +35,4 @@ public:
     virtual int stop_stream ();
     virtual int release_session ();
     virtual int config_board (std::string config, std::string &response);
-
-    virtual std::string read_serial_response ();
 };

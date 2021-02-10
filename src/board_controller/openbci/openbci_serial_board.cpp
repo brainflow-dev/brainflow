@@ -3,6 +3,7 @@
 #include "openbci_serial_board.h"
 #include "serial.h"
 
+
 OpenBCISerialBoard::OpenBCISerialBoard (struct BrainFlowInputParams params, int board_id)
     : Board (board_id, params)
 {
@@ -45,16 +46,23 @@ int OpenBCISerialBoard::config_board (std::string config, std::string &response)
     {
         return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     }
+    int res = (int)BrainFlowExitCodes::STATUS_OK;
     if (is_streaming)
     {
         safe_logger (spdlog::level::warn,
             "You are changing board params during streaming, it may lead to sync mismatch between "
             "data acquisition thread and device");
+        res = send_to_board (config.c_str ());
+    }
+    else
+    {
+        // read response if streaming is not running
+        res = send_to_board (config.c_str (), response);
     }
     safe_logger (spdlog::level::warn,
         "If you change gain you may need to rescale data, in data returned by BrainFlow we use "
         "gain 24 to convert int24 to uV");
-    return send_to_board (config.c_str (), response);
+    return res;
 }
 
 int OpenBCISerialBoard::send_to_board (const char *msg)
@@ -64,10 +72,9 @@ int OpenBCISerialBoard::send_to_board (const char *msg)
     int res = serial->send_to_serial_port ((const void *)msg, length);
     if (res != length)
     {
-        
         return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
     }
-   
+
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
@@ -81,7 +88,6 @@ int OpenBCISerialBoard::send_to_board (const char *msg, std::string &response)
         response = "";
         return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
     }
-    //  get the response
     response = read_serial_response ();
 
     return (int)BrainFlowExitCodes::STATUS_OK;
@@ -103,7 +109,7 @@ std::string OpenBCISerialBoard::read_serial_response ()
     }
     tmp_id = (tmp_id == max_tmp_size) ? tmp_id - 1 : tmp_id;
     tmp_array[tmp_id] = '\0';
-    
+
     return std::string ((const char *)tmp_array);
 }
 
@@ -203,11 +209,11 @@ int OpenBCISerialBoard::prepare_session ()
     }
     // cyton sends response back, clean serial buffer and analyze response
     std::string response = read_serial_response ();
-    if (response.substr(0,7).compare("Failure") == 0)
+    if (response.substr (0, 7).compare ("Failure") == 0)
     {
         safe_logger (spdlog::level::err,
             "Board config error, probably dongle is inserted but Cyton is off.");
-        safe_logger (spdlog::level::trace, "read {}", response.c_str());
+        safe_logger (spdlog::level::trace, "read {}", response.c_str ());
         delete serial;
         serial = NULL;
         return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
