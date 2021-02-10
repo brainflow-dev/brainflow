@@ -94,6 +94,28 @@ target_link_libraries (
 )
 
 ###########################
+## Demo for csp ##
+###########################
+add_executable (
+    csp
+    src/csp.cpp
+)
+
+target_include_directories (
+    csp PUBLIC
+    ${brainflow_INCLUDE_DIRS}
+)
+
+target_link_libraries (
+    csp PUBLIC
+    # for some systems(ubuntu for example) order matters
+    ${BrainflowPath}
+    ${MLModulePath}
+    ${DataHandlerPath}
+    ${BoardControllerPath}
+)
+
+###########################
 ## Demo for windowing ##
 ###########################
 add_executable (

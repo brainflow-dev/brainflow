@@ -17,6 +17,8 @@
 
 #include "DspFilters/Dsp.h"
 
+#include "Eigen/Dense"
+
 #include "wauxlib.h"
 #include "wavelib.h"
 
@@ -483,6 +485,94 @@ int perform_wavelet_denoising (double *data, int data_len, char *wavelet, int de
         // transform
         data_logger->error ("Input buffer size issue(likely too small.");
         return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
+    }
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_times,
+    double *output_w, double *output_d)
+{
+    if ((!data) || (!labels) || n_epochs <= 0 || n_channels <= 0 || n_times <= 0)
+    {
+        data_logger->error ("Invalid function arguments provided. Please verify that all integer "
+                            "arguments are positive and data and labels arrays aren't empty.");
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+    try
+    {
+        Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> sum1 (
+            n_channels, n_channels);
+        Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> sum2 (
+            n_channels, n_channels);
+
+        sum1.setZero ();
+        sum2.setZero ();
+
+        int n_class1 = 0;
+        int n_class2 = 0;
+
+        // Compute an averaged covariance matrix for each class
+        for (int e = 0; e < n_epochs; e++)
+        {
+            Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> X (
+                n_channels, n_times);
+            for (int c = 0; c < n_channels; c++)
+            {
+                for (int t = 0; t < n_times; t++)
+                {
+                    X (c, t) = data[e * n_channels * n_times + c * n_times + t];
+                }
+            }
+
+            // center data
+            for (int i = 0; i < n_channels; i++)
+            {
+                double ctr = X.row (i).mean ();
+                for (int j = 0; j < n_times; j++)
+                {
+                    X (i, j) -= ctr;
+                }
+            }
+
+            // For centered data cov(X) = (X * X_T) / n
+            switch (int (labels[e]))
+            {
+                case 0:
+                    sum1 += ((X * X.transpose ()).eval ()) / double (n_times);
+                    n_class1++;
+                    break;
+                case 1:
+                    sum2 += ((X * X.transpose ()).eval ()) / double (n_times);
+                    n_class2++;
+                    break;
+                default:
+                    data_logger->error ("Invalid class label. Current class label: {}", labels[e]);
+                    return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+                    break;
+            }
+        }
+
+        sum1 /= double (n_class1);
+        sum2 /= double (n_class2);
+
+        // Compute the CSP filters
+        Eigen::GeneralizedSelfAdjointEigenSolver<
+            Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>
+            ges (sum1, sum1 + sum2);
+
+        for (int i = 0; i < n_channels; i++)
+        {
+            output_d[i] = ges.eigenvalues () (i);
+            for (int j = 0; j < n_channels; j++)
+            {
+                output_w[i * n_channels + j] = ges.eigenvectors () (j, i);
+            }
+        }
+    }
+    catch (...)
+    {
+        data_logger->error ("Error with doing CSP filtering.");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
     return (int)BrainFlowExitCodes::STATUS_OK;
 }

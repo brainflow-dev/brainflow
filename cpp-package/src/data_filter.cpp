@@ -129,6 +129,64 @@ void DataFilter::perform_wavelet_denoising (
     }
 }
 
+std::pair<double **, double *> DataFilter::get_csp (
+    double ***data, double *labels, int n_epochs, int n_channels, int n_times)
+{
+    if ((data == NULL) || (labels == NULL))
+    {
+        throw BrainFlowException (
+            "Invalid params", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+    }
+
+    double *temp_data1d = new double[n_epochs * n_channels * n_times];
+    for (int e = 0; e < n_epochs; e++)
+    {
+        for (int c = 0; c < n_channels; c++)
+        {
+            for (int t = 0; t < n_times; t++)
+            {
+                int idx = e * n_channels * n_times + c * n_times + t;
+                temp_data1d[idx] = data[e][c][t];
+            }
+        }
+    }
+
+    double *temp_filters = new double[n_channels * n_channels];
+    double *output_eigenvalues = new double[n_channels];
+    for (int i = 0; i < n_channels; i++)
+    {
+        output_eigenvalues[i] = 0;
+        for (int j = 0; j < n_channels; j++)
+        {
+            temp_filters[i * n_channels + j] = 0;
+        }
+    }
+
+    int res = ::get_csp (
+        temp_data1d, labels, n_epochs, n_channels, n_times, temp_filters, output_eigenvalues);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        delete[] output_eigenvalues;
+        delete[] temp_filters;
+        delete[] temp_data1d;
+        throw BrainFlowException ("failed to compute the CSP filters", res);
+    }
+
+    double **output_filters = new double *[n_channels];
+    for (int i = 0; i < n_channels; i++)
+    {
+        output_filters[i] = new double[n_channels];
+        for (int j = 0; j < n_channels; j++)
+        {
+            output_filters[i][j] = temp_filters[i * n_channels + j];
+        }
+    }
+
+    delete[] temp_data1d;
+    delete[] temp_filters;
+    return std::make_pair (output_filters, output_eigenvalues);
+}
+
 double *DataFilter::get_window (int window_function, int window_len)
 {
     double *window_data = new double[window_len];

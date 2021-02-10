@@ -58,6 +58,19 @@ public:
     /// perform wavelet denoising
     static void perform_wavelet_denoising (
         double *data, int data_len, char *wavelet, int decomposition_level);
+    // clang-format off
+    /**
+    * calculate filters and the corresponding eigenvalues using the Common Spatial Patterns
+    * @param data [n_epochs x n_channels x n_times]-shaped 3D array of data for two classes
+    * @param labels n_epochs-length 1D array of zeros and ones that assigns class labels for each epoch. Zero corresponds to the first class
+    * @param n_epochs the total number of epochs
+    * @param n_channels the number of EEG channels
+    * @param n_times the number of samples (observations) for a single epoch for a single channel 
+    * @return pair of two arrays. The first [n_channel x n_channel]-shaped 2D array represents filters. The second n-channel length 1D array represents eigenvalues
+    */
+    static std::pair<double **, double *> get_csp (
+        double ***data, double *labels, int n_epochs, int n_channels, int n_times);
+    // clang-format on
     /// perform data windowing
     static double *get_window (int window_function, int window_len);
     /**
