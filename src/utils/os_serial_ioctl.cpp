@@ -1,4 +1,7 @@
-#include "serial.h"
+#include <stdlib.h>
+#include <string.h>
+
+#include "os_serial.h"
 
 // ioctl headers conflict with standard posix headers for serial port, ioctl needed for custom
 // baudrate, move this function to another compilation unit from serial.cpp
@@ -25,7 +28,7 @@
 
 
 #if defined(_WIN32)
-int Serial::set_custom_baudrate (int baudrate)
+int OSSerial::set_custom_baudrate (int baudrate)
 {
     DCB dcb_serial_params = {0};
     dcb_serial_params.DCBlength = sizeof (dcb_serial_params);
@@ -46,12 +49,12 @@ int Serial::set_custom_baudrate (int baudrate)
 
 #elif defined(__linux__) && !defined(__ANDROID__)
 #ifdef NO_IOCTL_HEADERS
-int Serial::set_custom_baudrate (int baudrate)
+int OSSerial::set_custom_baudrate (int baudrate)
 {
     return SerialExitCodes::NO_SYSTEM_HEADERS_FOUND_ERROR;
 }
 #else
-int Serial::set_custom_baudrate (int baudrate)
+int OSSerial::set_custom_baudrate (int baudrate)
 {
     struct termios2 port_settings;
     memset (&port_settings, 0, sizeof (port_settings));
@@ -75,7 +78,7 @@ int Serial::set_custom_baudrate (int baudrate)
 #endif
 
 #elif defined(__APPLE__)
-int Serial::set_custom_baudrate (int baudrate)
+int OSSerial::set_custom_baudrate (int baudrate)
 {
     struct termios port_settings;
     memset (&port_settings, 0, sizeof (port_settings));
@@ -91,7 +94,7 @@ int Serial::set_custom_baudrate (int baudrate)
 }
 
 #else
-int Serial::set_custom_baudrate (int baudrate)
+int OSSerial::set_custom_baudrate (int baudrate)
 {
     return SerialExitCodes::SET_PORT_STATE_ERROR;
 }

@@ -17,7 +17,7 @@ protected:
 
 public:
     Cyton (struct BrainFlowInputParams params)
-        : OpenBCISerialBoard (22, params, (int)BoardIds::CYTON_BOARD)
+        : OpenBCISerialBoard (params, (int)BoardIds::CYTON_BOARD)
     {
     }
 };

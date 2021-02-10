@@ -56,6 +56,12 @@ public:
      */
     static int get_timestamp_channel (int board_id);
     /**
+     * get row index which holds markers
+     * @param board_id board id of your device
+     * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+     */
+    static int get_marker_channel (int board_id);
+    /**
      * get row index which holds battery level info
      * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
@@ -191,5 +197,7 @@ public:
     double **get_board_data (int *num_data_points);
     /// send string to a board, use it carefully and only if you understand what you are doing
     std::string config_board (char *config);
+    /// insert marker in data stream
+    void insert_marker (double value);
     // clang-format on
 };

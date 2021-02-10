@@ -373,3 +373,5 @@ Makefile
 *.so
 *.a
 *.cmd
+CMakeSettings.json
+._.gitignore

@@ -94,6 +94,17 @@ classdef BoardShim
             % Matlab counts array elements from 1 while BrainFlow Core counts from 0%
             package_num_channel = res.value + 1;
         end
+        
+        function marker_channel = get_marker_channel(board_id)
+            % get marker channel for provided board id
+            task_name = 'get_marker_channel';
+            lib_name = BoardShim.load_lib();
+            res = libpointer('int32Ptr', 0);
+            exit_code = calllib(lib_name, task_name, board_id, res);
+            BoardShim.check_ec(exit_code, task_name);
+            % Matlab counts array elements from 1 while BrainFlow Core counts from 0%
+            marker_channel = res.value + 1;
+        end
 
         function battery_channel = get_battery_channel(board_id)
             % get battery channel for provided board id
@@ -334,6 +345,14 @@ classdef BoardShim
             task_name = 'release_session';
             lib_name = BoardShim.load_lib();
             exit_code = calllib(lib_name, task_name, obj.board_id, obj.input_params_json);
+            BoardShim.check_ec(exit_code, task_name);
+        end
+        
+        function insert_marker(obj, value)
+            % insert marker
+            task_name = 'insert_marker';
+            lib_name = BoardShim.load_lib();
+            exit_code = calllib(lib_name, task_name, double(value), obj.board_id, obj.input_params_json);
             BoardShim.check_ec(exit_code, task_name);
         end
 

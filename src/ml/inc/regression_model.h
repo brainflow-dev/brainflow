@@ -1,10 +1,5 @@
-
 #pragma once
 
 
-// clang-format off
-
-const double regression_coefficients[10] = {-4.0005336849514554,-1.411763334598988,-15.766967866925972,7.030908582525752,18.155724234279667,-3.696254771999123,3.181108125986904,-8.273789871998755,2.300534610387398,2.9432961577823678};
-double regression_intercept = 4.007368;
-
-// clang-format on
+extern const double regression_coefficients[10];
+extern double regression_intercept;

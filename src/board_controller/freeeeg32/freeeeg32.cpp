@@ -1,5 +1,6 @@
 #include <math.h>
 #include <string.h>
+#include <vector>
 
 #include "custom_cast.h"
 #include "freeeeg32.h"
@@ -7,7 +8,6 @@
 #include "timestamp.h"
 
 
-constexpr int FreeEEG32::num_channels;
 constexpr int FreeEEG32::start_byte;
 constexpr int FreeEEG32::end_byte;
 constexpr double FreeEEG32::ads_gain;
@@ -41,7 +41,7 @@ int FreeEEG32::prepare_session ()
         safe_logger (spdlog::level::err, "serial port is empty");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
-    serial = new Serial (params.serial_port.c_str ());
+    serial = Serial::create (params.serial_port.c_str (), this);
     int port_open = open_port ();
     if (port_open != (int)BrainFlowExitCodes::STATUS_OK)
     {
@@ -69,36 +69,12 @@ int FreeEEG32::start_stream (int buffer_size, char *streamer_params)
         safe_logger (spdlog::level::err, "Streaming thread already running");
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
-    if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
-    {
-        safe_logger (spdlog::level::err, "invalid array size");
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
-    }
-
-    if (db)
-    {
-        delete db;
-        db = NULL;
-    }
-    if (streamer)
-    {
-        delete streamer;
-        streamer = NULL;
-    }
-
-    int res = prepare_streamer (streamer_params);
+    int res = prepare_for_acquisition (buffer_size, streamer_params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
-    db = new DataBuffer (FreeEEG32::num_channels, buffer_size);
-    if (!db->is_ready ())
-    {
-        safe_logger (spdlog::level::err, "unable to prepare buffer");
-        delete db;
-        db = NULL;
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
-    }
+
     serial->flush_buffer ();
 
     keep_alive = true;
@@ -117,11 +93,6 @@ int FreeEEG32::stop_stream ()
         {
             streaming_thread.join ();
         }
-        if (streamer)
-        {
-            delete streamer;
-            streamer = NULL;
-        }
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
     else
@@ -138,6 +109,7 @@ int FreeEEG32::release_session ()
         {
             stop_stream ();
         }
+        free_packages ();
         initialized = false;
     }
     if (serial)
@@ -159,8 +131,15 @@ void FreeEEG32::read_thread ()
     constexpr int min_package_size = 1 + 32 * 3;
     float eeg_scale =
         FreeEEG32::ads_vref / float ((pow (2, 23) - 1)) / FreeEEG32::ads_gain * 1000000.;
-    double package[FreeEEG32::num_channels] = {0.0};
+    int num_rows = board_descr["num_rows"];
+    double *package = new double[num_rows];
+    for (int i = 0; i < num_rows; i++)
+    {
+        package[i] = 0.0;
+    }
     bool first_package_received = false;
+
+    std::vector<int> eeg_channels = board_descr["eeg_channels"];
 
     while (keep_alive)
     {
@@ -186,14 +165,13 @@ void FreeEEG32::read_thread ()
                 first_package_received = true;
                 continue;
             }
-            package[0] = (double)b[0];
-            for (int i = 0; i < 32; i++)
+            package[board_descr["package_num_channel"].get<int> ()] = (double)b[0];
+            for (unsigned int i = 0; i < eeg_channels.size (); i++)
             {
-                package[i + 1] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
+                package[eeg_channels[i]] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
             }
-            double timestamp = get_timestamp ();
-            db->add_data (timestamp, package);
-            streamer->stream_data (package, FreeEEG32::num_channels, timestamp);
+            package[board_descr["timestamp_channel"].get<int> ()] = get_timestamp ();
+            push_package (package);
         }
         else
         {
@@ -201,6 +179,7 @@ void FreeEEG32::read_thread ()
                 spdlog::level::trace, "stopped with pos: {}, keep_alive: {}", pos, keep_alive);
         }
     }
+    delete[] package;
 }
 
 int FreeEEG32::open_port ()

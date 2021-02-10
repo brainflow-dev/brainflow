@@ -9,8 +9,6 @@
 
 #include <iostream>
 
-constexpr int NotionOSC::num_channels;
-
 
 NotionOSC::NotionOSC (struct BrainFlowInputParams params)
     : Board ((int)BoardIds::NOTION_1_BOARD, params)
@@ -72,35 +70,10 @@ int NotionOSC::start_stream (int buffer_size, char *streamer_params)
         safe_logger (spdlog::level::err, "Streaming thread already running");
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
-    if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
-    {
-        safe_logger (spdlog::level::err, "invalid array size");
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
-    }
-
-    if (db)
-    {
-        delete db;
-        db = NULL;
-    }
-    if (streamer)
-    {
-        delete streamer;
-        streamer = NULL;
-    }
-
-    int res = prepare_streamer (streamer_params);
+    int res = prepare_for_acquisition (buffer_size, streamer_params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
-    }
-    db = new DataBuffer (NotionOSC::num_channels, buffer_size);
-    if (!db->is_ready ())
-    {
-        safe_logger (spdlog::level::err, "unable to prepare buffer");
-        delete db;
-        db = NULL;
-        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
 
     keep_alive = true;
@@ -127,11 +100,6 @@ int NotionOSC::stop_stream ()
     {
         keep_alive = false;
         streaming_thread.join ();
-        if (streamer)
-        {
-            delete streamer;
-            streamer = NULL;
-        }
         state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
@@ -149,6 +117,7 @@ int NotionOSC::release_session ()
         {
             stop_stream ();
         }
+        free_packages ();
         initialized = false;
         if (socket)
         {
@@ -165,6 +134,13 @@ void NotionOSC::read_thread ()
     int res;
     constexpr int max_package_size = 8192;
     unsigned char b[max_package_size];
+    int num_rows = board_descr["num_rows"];
+    double *package = new double[num_rows];
+    for (int i = 0; i < num_rows; i++)
+    {
+        package[i] = 0.0;
+    }
+
     while (keep_alive)
     {
         res = socket->recv (b, max_package_size);
@@ -192,7 +168,7 @@ void NotionOSC::read_thread ()
             }
             try
             {
-                handle_packet (OSCPP::Server::Packet (b, res));
+                handle_packet (package, OSCPP::Server::Packet (b, res));
             }
             catch (...)
             {
@@ -200,9 +176,10 @@ void NotionOSC::read_thread ()
             }
         }
     }
+    delete[] package;
 }
 
-void NotionOSC::handle_packet (const OSCPP::Server::Packet &packet)
+void NotionOSC::handle_packet (double *package, const OSCPP::Server::Packet &packet)
 {
     if (packet.isBundle ())
     {
@@ -210,13 +187,11 @@ void NotionOSC::handle_packet (const OSCPP::Server::Packet &packet)
         OSCPP::Server::PacketStream packets (bundle.packets ());
         while (!packets.atEnd ())
         {
-            handle_packet (packets.next ());
+            handle_packet (package, packets.next ());
         }
     }
     else
     {
-        double package[NotionOSC::num_channels] = {0.0};
-
         OSCPP::Server::Message msg (packet);
         std::string msg_address = std::string (msg.address ());
         OSCPP::Server::ArgStream args (msg.args ());
@@ -233,15 +208,16 @@ void NotionOSC::handle_packet (const OSCPP::Server::Packet &packet)
                     return;
                 }
             }
+
             // parse data
             try
             {
-                // eeg
                 OSCPP::Server::ArgStream eeg_data (args.array ());
                 int counter = 0;
                 while (!eeg_data.atEnd ())
                 {
-                    package[1 + counter] = (double)eeg_data.float32 ();
+                    package[board_descr["eeg_channels"][counter].get<int> ()] =
+                        (double)eeg_data.float32 ();
                     counter++;
                 }
                 if (counter != 8)
@@ -250,16 +226,14 @@ void NotionOSC::handle_packet (const OSCPP::Server::Packet &packet)
                         "wrong format for eeg data, must be 8 values, found {}", counter);
                 }
                 std::string timestamp_str = args.string ();
-                double timestamp = std::stod (timestamp_str);
-                // package num
-                package[0] = (double)args.int32 ();
-                // marker
+                package[board_descr["timestamp_channel"].get<int> ()] = std::stod (timestamp_str);
+                package[board_descr["package_num_channel"].get<int> ()] = (double)args.int32 ();
                 std::string marker = std::string (args.string ());
                 if (!marker.empty ())
                 {
                     try
                     {
-                        package[9] = std::stod (marker);
+                        package[board_descr["other_channels"][0].get<int> ()] = std::stod (marker);
                     }
                     catch (...)
                     {
@@ -267,15 +241,12 @@ void NotionOSC::handle_packet (const OSCPP::Server::Packet &packet)
                             spdlog::level::err, "For BrainFlow marker should be numeric value.");
                     }
                 }
-                // commit package
-                db->add_data (timestamp, package);
-                streamer->stream_data (package, NotionOSC::num_channels, timestamp);
+                push_package (package);
             }
             catch (std::exception &e)
             {
                 safe_logger (
                     spdlog::level::trace, "Exception in parsing OSC packet: {}", e.what ());
-                return;
             }
         }
         else

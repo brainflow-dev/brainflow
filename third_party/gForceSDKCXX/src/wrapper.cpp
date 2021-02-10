@@ -149,7 +149,6 @@ int gforceGetData (void *param)
             struct GforceData *board_data = (struct GforceData *)param;
             struct GforceData data = data_queue.at (
                 0); // at ensures out of range exception, front has undefined behavior
-            board_data->timestamp = data.timestamp;
             for (int i = 0; i < GforceData::SIZE; i++)
             {
                 board_data->data[i] = data.data[i];

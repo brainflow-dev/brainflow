@@ -11,6 +11,7 @@ set (CMAKE_C_VISIBILITY_PRESET hidden)
 
 set (CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+option(USE_LIBFTDI "USE_LIBFTDI" OFF)
 option(USE_OPENMP "USE_OPENMP" OFF)
 option(WARNINGS_AS_ERRORS "WARNINGS_AS_ERRORS" OFF)
 
@@ -166,8 +167,10 @@ set_property (TARGET ${GANGLION_LIB} PROPERTY POSITION_INDEPENDENT_CODE ON)
 set (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/utils/timestamp.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/data_buffer.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/utils/os_serial.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/utils/os_serial_ioctl.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/serial.cpp
-    ${CMAKE_HOME_DIRECTORY}/src/utils/serial_ioctl.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/utils/libftdi_serial.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/socket_client_tcp.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/socket_client_udp.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/socket_server_tcp.cpp
@@ -186,6 +189,7 @@ set (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/board_controller.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/board_info_getter.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/board.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/brainflow_boards.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/streaming_board.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/synthetic_board.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/playback_file_board.cpp
@@ -218,6 +222,9 @@ set (ML_MODULE_SRC
     ${CMAKE_HOME_DIRECTORY}/src/ml/concentration_knn_classifier.cpp
     ${CMAKE_HOME_DIRECTORY}/src/ml/concentration_svm_classifier.cpp
     ${CMAKE_HOME_DIRECTORY}/src/ml/concentration_lda_classifier.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/ml/generated/focus_dataset.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/ml/generated/lda_model.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/ml/generated/regression_model.cpp
 )
 
 add_library (
@@ -308,6 +315,20 @@ set_target_properties (${ML_MODULE_NAME}
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
 )
+
+if (USE_LIBFTDI)
+    find_package (LibFTDI1 NO_MODULE)
+    if (LibFTDI1_FOUND)
+        # this line could set up the directories if included before targets are defined
+        #include ( ${LIBFTDI_USE_FILE} )
+        target_compile_definitions (${BOARD_CONTROLLER_NAME} PRIVATE ${LIBFTDI_DEFINITIONS} "USE_LIBFTDI")
+        target_include_directories (${BOARD_CONTROLLER_NAME} PRIVATE ${LIBFTDI_INCLUDE_DIRS})
+        target_link_directories (${BOARD_CONTROLLER_NAME} PRIVATE ${LIBFTDI_LIBRARY_DIRS})
+        target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE ${LIBFTDI_LIBRARIES})
+    else (LibFTDI1_FOUND)
+        message (FATAL_ERROR "USE_LIBFTDI set but LibFTDI not found.")
+    endif (LibFTDI1_FOUND)
+endif (USE_LIBFTDI)
 
 if (USE_OPENMP)
     find_package (OpenMP)

@@ -143,7 +143,7 @@ Full code for R binding:
 Matlab API Reference
 ----------------------
 
-Matlab binding calls C\C++ code as any other binding, it's not compatible with Octave. Use Matlab examples and API reference for other languaes as a starting point.
+Matlab binding calls C/C++ code as any other binding, it's not compatible with Octave.
 
 A few general rules to keep in mind:
 

@@ -12,6 +12,7 @@ extern "C"
         int board_id, int *package_num_channel);
     SHARED_EXPORT int CALLING_CONVENTION get_timestamp_channel (
         int board_id, int *timestamp_channel);
+    SHARED_EXPORT int CALLING_CONVENTION get_marker_channel (int board_id, int *marker_channel);
     SHARED_EXPORT int CALLING_CONVENTION get_battery_channel (int board_id, int *battery_channel);
     SHARED_EXPORT int CALLING_CONVENTION get_num_rows (int board_id, int *num_rows);
     SHARED_EXPORT int CALLING_CONVENTION get_eeg_names (int board_id, char *eeg_names, int *len);

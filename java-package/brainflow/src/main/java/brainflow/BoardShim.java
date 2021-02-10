@@ -30,6 +30,8 @@ public class BoardShim
 
         int release_session (int board_id, String params);
 
+        int insert_marker (double value, int board_id, String params);
+
         int get_current_board_data (int num_samples, double[] data_buf, int[] returned_samples, int board_id,
                 String params);
 
@@ -52,6 +54,8 @@ public class BoardShim
         int get_num_rows (int board_id, int[] num_rows);
 
         int get_timestamp_channel (int board_id, int[] timestamp_channel);
+
+        int get_marker_channel (int board_id, int[] marker_channel);
 
         int get_eeg_channels (int board_id, int[] eeg_channels, int[] len);
 
@@ -228,6 +232,20 @@ public class BoardShim
     {
         int[] res = new int[1];
         int ec = instance.get_timestamp_channel (board_id, res);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in board info getter", ec);
+        }
+        return res[0];
+    }
+
+    /**
+     * get row index in returned by get_board_data() 2d array which contains markers
+     */
+    public static int get_marker_channel (int board_id) throws BrainFlowError
+    {
+        int[] res = new int[1];
+        int ec = instance.get_marker_channel (board_id, res);
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in board info getter", ec);
@@ -674,6 +692,18 @@ public class BoardShim
             throw new BrainFlowError ("Error in get_board_data_count", ec);
         }
         return res[0];
+    }
+
+    /**
+     * insert marker to data stream
+     */
+    public void insert_marker (double value) throws BrainFlowError
+    {
+        int ec = instance.insert_marker (value, board_id, input_json);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in insert_marker", ec);
+        }
     }
 
     /**

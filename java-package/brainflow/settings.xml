@@ -196,8 +196,8 @@ under the License.
         </repository>
         <repository>
           <id>github</id>
-          <name>GitHub brianflow-dev Apache Maven Packages</name>
-          <url>https://maven.pkg.github.com/brianflow-dev/brainflow</url>
+          <name>GitHub brainflow-dev Apache Maven Packages</name>
+          <url>https://maven.pkg.github.com/brainflow-dev/brainflow</url>
         </repository>
       </repositories>
     </profile>

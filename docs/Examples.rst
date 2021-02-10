@@ -24,6 +24,12 @@ Python Get Data from a Board
 .. literalinclude:: ../tests/python/brainflow_get_data.py
    :language: py
 
+Python Markers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../tests/python/markers.py
+   :language: py
+
 Python Read Write File
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -81,6 +87,12 @@ Java Get Data from a Board
 .. literalinclude:: ../java-package/brainflow/src/main/java/brainflow/examples/BrainFlowGetData.java
    :language: java
 
+Java Markers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../java-package/brainflow/src/main/java/brainflow/examples/Markers.java
+   :language: java
+
 Java Read Write File
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -130,6 +142,12 @@ C# Read Data from a Board
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. literalinclude:: ../csharp-package/brainflow/brainflow_get_data/brainflow_get_data.cs
+   :language: c#
+
+C# Markers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../csharp-package/brainflow/brainflow_get_data/markers.cs
    :language: c#
 
 C# Read Write File
@@ -208,6 +226,12 @@ C++ Read Data from a Board
 .. literalinclude:: ../tests/cpp/get_data_demo/src/brainflow_get_data.cpp
    :language: cpp
 
+C++ Markers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../tests/cpp/get_data_demo/src/markers.cpp
+   :language: cpp
+
 C++ Read Write File
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -259,6 +283,12 @@ R Get Data from a Board
 .. literalinclude:: ../tests/r/brainflow_get_data.R
    :language: r
 
+R Get Data from a Board
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../tests/r/markers.R
+   :language: r
+
 R Read Write File
 ~~~~~~~~~~~~~~~~~~~
 
@@ -304,6 +334,12 @@ Matlab Get Data from a Board
 .. literalinclude:: ../matlab-package/brainflow/examples/BrainFlowGetData.m
    :language: matlab
 
+Matlab Markers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../matlab-package/brainflow/examples/Markers.m
+   :language: matlab
+
 Matlab Read Write File
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -347,6 +383,12 @@ Julia Get Data from a Board
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. literalinclude:: ../julia-package/brainflow/test/brainflow_get_data.jl
+   :language: julia
+
+Julia Markers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../julia-package/brainflow/test/markers.jl
    :language: julia
 
 Julia Read Write File
