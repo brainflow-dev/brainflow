@@ -98,6 +98,8 @@ jobs:
         julia --project=$GITHUB_WORKSPACE/julia-package/brainflow -e "import Pkg; Pkg.test()"
     - name: Cyton Python
       run: sudo -H python3 ./emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --board-id 0 --serial-port 
+    - name: Cyton Python Commands
+      run: sudo -H python3 ./emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/cyton_commands.py --serial-port 
     - name: Cyton Python Markers
       run: sudo -H python3 ./emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/markers.py --board-id 0 --serial-port 
     - name: Multiboard Python

@@ -110,6 +110,9 @@ jobs:
     - name: Cyton Windows Python Test
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id 0 --serial-port
       shell: cmd
+    - name: Cyton Windows Python Test Commands
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\tests\python\cyton_commands.py --serial-port
+      shell: cmd
     - name: Cyton Windows Python Test with Streamer
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id 0 --streamer-params file://file_streamer.csv:w --serial-port
       shell: cmd
