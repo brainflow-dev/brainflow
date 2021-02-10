@@ -29,30 +29,14 @@ jobs:
       run: |
         echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;21.0.6113669" --sdk_root=${ANDROID_SDK_ROOT} > /dev/null
     # build for all ABIs
-    - name: Compile BrainFlow armv8
+    - name: Compile BrainFlow
       run: |
-        mkdir $GITHUB_WORKSPACE/build_armv8
-        cd $GITHUB_WORKSPACE/build_armv8
-        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/21.0.6113669/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 ..
-        ninja
-    - name: Compile BrainFlow armv7
-      run: |
-        mkdir $GITHUB_WORKSPACE/build_armv7
-        cd $GITHUB_WORKSPACE/build_armv7
-        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/21.0.6113669/build/cmake/android.toolchain.cmake -DANDROID_ABI=armeabi-v7a -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 ..
-        ninja
-    - name: Compile BrainFlow Android x86
-      run: |
-        mkdir $GITHUB_WORKSPACE/build_android_x86
-        cd $GITHUB_WORKSPACE/build_android_x86
-        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/21.0.6113669/build/cmake/android.toolchain.cmake -DANDROID_ABI=x86 -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 ..
-        ninja
-    - name: Compile BrainFlow Android x64
-      run: |
-        mkdir $GITHUB_WORKSPACE/build_android_x64
-        cd $GITHUB_WORKSPACE/build_android_x64
-        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/21.0.6113669/build/cmake/android.toolchain.cmake -DANDROID_ABI=x86_64 -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 ..
-        ninja
+        for ABI in arm64-v8a armeabi-v7a x86 x86_64; do
+          mkdir $GITHUB_WORKSPACE/build-$ABI
+          cd $GITHUB_WORKSPACE/build-$ABI
+          cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/21.0.6113669/build/cmake/android.toolchain.cmake -DANDROID_ABI=$ABI -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 ..
+          ninja
+        done
     - name: Prepare Zip
       run: |
         cd $GITHUB_WORKSPACE/tools
