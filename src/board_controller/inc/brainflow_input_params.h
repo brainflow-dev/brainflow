@@ -22,6 +22,7 @@ struct BrainFlowInputParams
     int timeout;
     std::string serial_number;
     std::string file;
+    void * platform_ptr;
 
     BrainFlowInputParams ()
     {
@@ -34,6 +35,7 @@ struct BrainFlowInputParams
         timeout = 0;
         serial_number = "";
         file = "";
+        platform_ptr = 0;
     }
 
     // default copy constructor and assignment operator are ok, need less operator to use in map

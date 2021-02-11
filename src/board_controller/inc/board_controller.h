@@ -12,8 +12,9 @@ extern "C"
     // languages support passing const char * instead char *
 
     // data acquisition methods
+typedef const struct JNINativeInterface_ *JNIEnv;
     SHARED_EXPORT int CALLING_CONVENTION prepare_session (
-        int board_id, char *json_brainflow_input_params);
+        int board_id, char *json_brainflow_input_params, JNIEnv *platform_ptr = 0);
     SHARED_EXPORT int CALLING_CONVENTION start_stream (
         int buffer_size, char *streamer_params, int board_id, char *json_brainflow_input_params);
     SHARED_EXPORT int CALLING_CONVENTION stop_stream (

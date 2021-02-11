@@ -79,6 +79,8 @@ public:
     }
 
 protected:
+    friend class LibFTDISerial;
+
     DataBuffer *db;
     bool skip_logs;
     int board_id;
