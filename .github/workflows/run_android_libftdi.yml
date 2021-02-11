@@ -41,55 +41,33 @@ jobs:
     - name: Fetch libftdi
       run: |
         git clone --depth 1 --branch v1.5 git://developer.intra2net.com/libftdi
-    - name: Compile libftdi armv8
+    - name: Compile libftdi
       run: |
-        mkdir libftdi/build_armv8
-        cd libftdi/build_armv8
-        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/${ANDROID_NDK_VERSION}/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 -DEXAMPLES=OFF -DFTDI_EEPROM=OFF -DLIBUSB_LIBRARIES=$GITHUB_WORKSPACE/libusb/android/libs/arm64-v8a/libusb1.0.so -DLIBUSB_INCLUDE_DIR=$GITHUB_WORKSPACE/libusb/libusb ..
-        ninja
-    - name: Compile libftdi armv7
+        for ABI in arm64-v8a armeabi-v7a x86 x86_64; do
+          mkdir libftdi/build-$ABI
+          cd libftdi/build-$ABI
+          cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/${ANDROID_NDK_VERSION}/build/cmake/android.toolchain.cmake -DANDROID_ABI=$ABI -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 -DEXAMPLES=OFF -DFTDI_EEPROM=OFF -DLIBUSB_LIBRARIES=$GITHUB_WORKSPACE/libusb/android/libs/$ABI/libusb1.0.so -DLIBUSB_INCLUDE_DIR=$GITHUB_WORKSPACE/libusb/libusb ..
+          ninja
+        done
+    - name: Compile BrainFlow
       run: |
-        mkdir libftdi/build_armv7
-        cd libftdi/build_armv7
-        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/${ANDROID_NDK_VERSION}/build/cmake/android.toolchain.cmake -DANDROID_ABI=armeabi-v7a -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 -DEXAMPLES=OFF -DFTDI_EEPROM=OFF -DLIBUSB_LIBRARIES=$GITHUB_WORKSPACE/libusb/android/libs/armeabi-v7a/libusb1.0.so -DLIBUSB_INCLUDE_DIR=$GITHUB_WORKSPACE/libusb/libusb ..
-        ninja
-    - name: Compile libftdi Android x86
-      run: |
-        mkdir libftdi/build_x86
-        cd libftdi/build_x86
-        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/${ANDROID_NDK_VERSION}/build/cmake/android.toolchain.cmake -DANDROID_ABI=x86 -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 -DEXAMPLES=OFF -DFTDI_EEPROM=OFF -DLIBUSB_LIBRARIES=$GITHUB_WORKSPACE/libusb/android/libs/x86/libusb1.0.so -DLIBUSB_INCLUDE_DIR=$GITHUB_WORKSPACE/libusb/libusb ..
-        ninja
-    - name: Compile libftdi Android x86_64
-      run: |
-        mkdir libftdi/build_x86_64
-        cd libftdi/build_x86_64
-        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/${ANDROID_NDK_VERSION}/build/cmake/android.toolchain.cmake -DANDROID_ABI=x86_64 -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 -DEXAMPLES=OFF -DFTDI_EEPROM=OFF -DLIBUSB_LIBRARIES=$GITHUB_WORKSPACE/libusb/android/libs/x86_64/libusb1.0.so -DLIBUSB_INCLUDE_DIR=$GITHUB_WORKSPACE/libusb/libusb ..
-        ninja
-    - name: Compile BrainFlow armv8
-      run: |
-        mkdir $GITHUB_WORKSPACE/build_armv8
-        cd $GITHUB_WORKSPACE/build_armv8
-        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/${ANDROID_NDK_VERSION}/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 -DUSE_LIBFTDI=ON -DLIBFTDI_LIBRARIES=$GITHUB_WORKSPACE/libftdi/build_armv8/src/libftdi1.so\;$GITHUB_WORKSPACE/libusb/android/libs/arm64-v8a/libusb1.0.so -DLIBFTDI_INCLUDE_DIRS=$GITHUB_WORKSPACE/libftdi/src ..
-        ninja
-    - name: Compile BrainFlow armv7
-      run: |
-        mkdir $GITHUB_WORKSPACE/build_armv7
-        cd $GITHUB_WORKSPACE/build_armv7
-        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/${ANDROID_NDK_VERSION}/build/cmake/android.toolchain.cmake -DANDROID_ABI=armeabi-v7a -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 -DUSE_LIBFTDI=ON -DLIBFTDI_LIBRARIES=$GITHUB_WORKSPACE/libftdi/build_armv7/src/libftdi1.so\;$GITHUB_WORKSPACE/libusb/android/libs/armeabi-v7a/libusb1.0.so -DLIBFTDI_INCLUDE_DIRS=$GITHUB_WORKSPACE/libftdi/src ..
-        ninja
-    - name: Compile BrainFlow Android x86
-      run: |
-        mkdir $GITHUB_WORKSPACE/build_android_x86
-        cd $GITHUB_WORKSPACE/build_android_x86
-        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/${ANDROID_NDK_VERSION}/build/cmake/android.toolchain.cmake -DANDROID_ABI=x86 -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 -DUSE_LIBFTDI=ON -DLIBFTDI_LIBRARIES=$GITHUB_WORKSPACE/libftdi/build_x86/src/libftdi1.so\;$GITHUB_WORKSPACE/libusb/android/libs/x86/libusb1.0.so -DLIBFTDI_INCLUDE_DIRS=$GITHUB_WORKSPACE/libftdi/src ..
-        ninja
-    - name: Compile BrainFlow Android x64
-      run: |
-        mkdir $GITHUB_WORKSPACE/build_android_x64
-        cd $GITHUB_WORKSPACE/build_android_x64
-        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/${ANDROID_NDK_VERSION}/build/cmake/android.toolchain.cmake -DANDROID_ABI=x86_64 -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 -DUSE_LIBFTDI=ON -DLIBFTDI_LIBRARIES=$GITHUB_WORKSPACE/libftdi/build_x86_64/src/libftdi1.so\;$GITHUB_WORKSPACE/libusb/android/libs/x86_64/libusb1.0.so -DLIBFTDI_INCLUDE_DIRS=$GITHUB_WORKSPACE/libftdi/src ..
-        ninja
+        for ABI in arm64-v8a armeabi-v7a x86 x86_64; do
+          mkdir $GITHUB_WORKSPACE/build-$ABI
+          cd $GITHUB_WORKSPACE/build-$ABI
+          cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/${ANDROID_NDK_VERSION}/build/cmake/android.toolchain.cmake -DANDROID_ABI=$ABI -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 -DUSE_LIBFTDI=ON -DLIBFTDI_LIBRARIES=$GITHUB_WORKSPACE/libftdi/build-$ABI/src/libftdi1.so\;$GITHUB_WORKSPACE/libusb/android/libs/$ABI/libusb1.0.so -DLIBFTDI_INCLUDE_DIRS=$GITHUB_WORKSPACE/libftdi/src ..
+          ninja
+        done
     - name: Prepare Zip
       run: |
         cd $GITHUB_WORKSPACE/tools
         zip -r jniLibs.zip jniLibs
+    - name: Install AWS CLI
+      run: sudo -H python -m pip install awscli
+    - name: Upload To AWS
+      if: ${{ github.event_name == 'push' }}
+      run: |
+        cd $GITHUB_WORKSPACE/tools
+        #aws s3 cp jniLibs.zip s3://brainflow/$GITHUB_SHA/
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
