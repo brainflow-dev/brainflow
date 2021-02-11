@@ -95,7 +95,7 @@ int OpenBCISerialBoard::send_to_board (const char *msg, std::string &response)
 
 std::string OpenBCISerialBoard::read_serial_response ()
 {
-    constexpr int max_tmp_size = 1024;
+    constexpr int max_tmp_size = 4096;
     unsigned char tmp_array[max_tmp_size];
     unsigned char tmp;
     int tmp_id = 0;
@@ -105,6 +105,11 @@ std::string OpenBCISerialBoard::read_serial_response ()
         {
             tmp_array[tmp_id] = tmp;
             tmp_id++;
+        }
+        else
+        {
+            serial->flush_buffer ();
+            break;
         }
     }
     tmp_id = (tmp_id == max_tmp_size) ? tmp_id - 1 : tmp_id;
