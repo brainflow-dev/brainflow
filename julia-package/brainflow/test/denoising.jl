@@ -16,14 +16,14 @@ BrainFlow.release_session(board_shim)
 eeg_channels = BrainFlow.get_eeg_channels(BrainFlow.SYNTHETIC_BOARD)
 sampling_rate = BrainFlow.get_sampling_rate(BrainFlow.SYNTHETIC_BOARD)
 
-data_first_channel = data[eeg_channels[1], :]
+data_first_channel = data[:, eeg_channels[1]]
 println("Original Data First Channel")
 println(data_first_channel)
 BrainFlow.perform_rolling_filter(data_first_channel, 3, BrainFlow.MEAN)
 println("After Rolling Filter")
 println(data_first_channel)
 
-data_second_channel = data[eeg_channels[2], :]
+data_second_channel = data[:, eeg_channels[2]]
 println("Original Data Second Channel")
 println(data_second_channel)
 BrainFlow.perform_wavelet_denoising(data_second_channel, "db4", 2)

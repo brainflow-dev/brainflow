@@ -22,7 +22,7 @@ end
     # use a board that is not connected
     params = BrainFlow.BrainFlowInputParams()
     board_shim = BrainFlow.BoardShim(BrainFlow.CYTON_BOARD, params)
-    @test_throws BrainFlow.BrainFlowError("Error in prepare_session 13", 13) BrainFlow.prepare_session(board_shim)
+    @test_throws BrainFlow.BrainFlowError("Error in prepare_session INVALID_ARGUMENTS_ERROR", 13) BrainFlow.prepare_session(board_shim)
 end
 
 @testset "generated functions" begin
@@ -61,4 +61,21 @@ end
     @test d["metric"] == 0
     @test d["file"] == ""
     @test d["other_info"] == ""
+end
+
+@testset "get_*_channel tests" begin
+    params = BrainFlow.BrainFlowInputParams()
+    board_shim = BrainFlow.BoardShim(BrainFlow.SYNTHETIC_BOARD, params)
+
+    eeg_channels = BrainFlow.get_eeg_channels(board_shim.board_id)
+    @test length(eeg_channels) == 16
+
+    eeg_channels2 = BrainFlow.get_eeg_channels(board_shim)
+    @test eeg_channels == eeg_channels2
+
+    timestamp_chan = BrainFlow.get_timestamp_channel(board_shim.board_id)
+    @test BrainFlow.get_timestamp_channel(board_shim) == timestamp_chan
+
+    sampling_rate = BrainFlow.get_sampling_rate(board_shim.board_id)
+    @test BrainFlow.get_sampling_rate(board_shim) == sampling_rate
 end

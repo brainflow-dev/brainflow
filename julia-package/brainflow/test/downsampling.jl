@@ -16,7 +16,7 @@ BrainFlow.release_session(board_shim)
 eeg_channels = BrainFlow.get_eeg_channels(BrainFlow.SYNTHETIC_BOARD)
 sampling_rate = BrainFlow.get_sampling_rate(BrainFlow.SYNTHETIC_BOARD)
 
-data_first_channel = data[eeg_channels[1], :]
+data_first_channel = data[:, eeg_channels[1]]
 println("Original Data First Channel")
 println(data_first_channel)
 downsampled_data = BrainFlow.perform_downsampling(data_first_channel, 3, BrainFlow.EACH)

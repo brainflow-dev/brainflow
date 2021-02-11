@@ -49,12 +49,35 @@ end
     file::String = ""
 end
 
+struct BoardShim
+
+    master_board_id::Int32
+    board_id::Int32
+    input_json::String
+
+    function BoardShim(id::Integer, params::BrainFlowInputParams)
+        master_id = id
+        if id == Integer(STREAMING_BOARD) || id == Integer(PLAYBACK_FILE_BOARD)
+            try
+                master_id = parse(Int, params.other_info)
+            catch
+                throw(BrainFlowError("you need to provide master board id to other_info field of BrainFlowInputParams", Integer(INVALID_ARGUMENTS_ERROR)))
+            end
+        end
+        new(master_id, id, JSON.json(params))
+    end
+
+end
+BoardShim(id::BoardIds, params::BrainFlowInputParams) = BoardShim(Integer(id), params)
+BoardShim(id) = BoardShim(id, BrainFlowInputParams())
+
 @brainflow_rethrow function get_sampling_rate(board_id::BoardIdType)
     val = Vector{Cint}(undef, 1)
     ccall((:get_sampling_rate, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}), Int32(board_id), val)
     value = val[1]
     return value
 end
+get_sampling_rate(board_shim::BoardShim) = get_sampling_rate(board_shim.board_id)
 
 @brainflow_rethrow function get_num_rows(board_id::BoardIdType)
     val = Vector{Cint}(undef, 1)
@@ -98,6 +121,9 @@ for func_name = single_channel_function_names
         @inbounds value = channel[1] + 1
         return value
     end
+    @eval function $func_name(board_shim::BoardShim)
+        return $func_name(board_shim.board_id)
+    end
 end
 
 channel_function_names = (
@@ -127,29 +153,10 @@ for func_name = channel_function_names
         @inbounds value = channels[1:len[1]] .+ 1
         return value
     end
-end
-
-struct BoardShim
-
-    master_board_id::Int32
-    board_id::Int32
-    input_json::String
-
-    function BoardShim(id::Integer, params::BrainFlowInputParams)
-        master_id = id
-        if id == Integer(STREAMING_BOARD) || id == Integer(PLAYBACK_FILE_BOARD)
-            try
-                master_id = parse(Int, params.other_info)
-            catch
-                throw(BrainFlowError("you need to provide master board id to other_info field of BrainFlowInputParams", Integer(INVALID_ARGUMENTS_ERROR)))
-            end
-        end
-        new(master_id, id, JSON.json(params))
+    @eval function $func_name(board_shim::BoardShim)
+        return $func_name(board_shim.board_id)
     end
-
 end
-BoardShim(id::BoardIds, params::BrainFlowInputParams) = BoardShim(Integer(id), params)
-BoardShim(id) = BoardShim(id, BrainFlowInputParams())
 
 @brainflow_rethrow function prepare_session(board_shim::BoardShim)
     ccall((:prepare_session, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}), board_shim.board_id, board_shim.input_json)
@@ -206,7 +213,7 @@ end
     val = Vector{Float64}(undef, num_rows * data_size)
     ccall((:get_board_data, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Float64}, Cint, Ptr{UInt8}), 
             data_size, val, board_shim.board_id, board_shim.input_json)
-    value = transpose(reshape(val, (data_size, num_rows)))
+    value = reshape(val, (data_size, num_rows))
     return value
 end
 
@@ -216,6 +223,6 @@ end
     val = Vector{Float64}(undef, num_rows * num_samples)
     ccall((:get_current_board_data, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Float64}, Ptr{Cint}, Cint, Ptr{UInt8}), 
             num_samples, val, data_size, board_shim.board_id, board_shim.input_json)
-    value = transpose(reshape(val[1:data_size[1] * num_rows], (data_size[1], num_rows)))
+    value = reshape(val[1:data_size[1] * num_rows], (data_size[1], num_rows))
     return value
 end

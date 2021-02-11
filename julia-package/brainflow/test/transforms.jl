@@ -16,7 +16,7 @@ data = BrainFlow.get_current_board_data(BrainFlow.get_nearest_power_of_two(sampl
 BrainFlow.release_session(board_shim)
 
 eeg_channels = BrainFlow.get_eeg_channels(BrainFlow.SYNTHETIC_BOARD)
-data_first_channel = data[eeg_channels[1], :]
+data_first_channel = data[:, eeg_channels[1]]
 
 # returns tuple of wavelet coeffs and lengths
 wavelet_data = BrainFlow.perform_wavelet_transform(data_first_channel, "db4", 2)

@@ -7,5 +7,4 @@ labels = [0.0, 1.0]
 
 filters, eigvals = BrainFlow.get_csp(data, labels)
 
-println("filters = ")
-println(filters)
+println("filters = $filters")

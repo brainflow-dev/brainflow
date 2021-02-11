@@ -17,7 +17,7 @@ BrainFlow.release_session(board_shim)
 
 eeg_channels = BrainFlow.get_eeg_channels(BrainFlow.SYNTHETIC_BOARD)
 # second channel of synthetic board is sine wave at 10 Hz, should see huge 'alpha'
-data_second_channel = data[eeg_channels[2], :]
+data_second_channel = data[:, eeg_channels[2]]
 
 # optional: detrend
 BrainFlow.detrend(data_second_channel, BrainFlow.LINEAR)
