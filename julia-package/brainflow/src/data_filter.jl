@@ -254,16 +254,16 @@ end
 
 @brainflow_rethrow function get_avg_band_powers(data, channels::AbstractVector, sampling_rate::Integer, apply_filter::Bool)
 
-    nrows = size(data, 1)
-    nchannels = length(channels)
+    num_rows = size(data, 1)
+    num_channels = length(channels)
     copied_channel_data = data[:, channels] # note: slicing returns a copy, this is intentional
-    data_1d = reshape(copied_channel_data, (1, nchannels * nrows))
+    data_1d = reshape(copied_channel_data, (1, num_channels * num_rows))
 
     temp_avgs = Vector{Float64}(undef, 5)
     temp_stddevs = Vector{Float64}(undef, 5)
 
     ccall((:get_avg_band_powers, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
-            data_1d, nchannels, nrows, Int32(sampling_rate), Int32(apply_filter), temp_avgs, temp_stddevs)
+            data_1d, num_channels, num_rows, Int32(sampling_rate), Int32(apply_filter), temp_avgs, temp_stddevs)
     return temp_avgs, temp_stddevs
 end
 
