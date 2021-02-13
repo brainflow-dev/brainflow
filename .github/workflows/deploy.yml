@@ -134,8 +134,6 @@ jobs:
         VERSION: ${{ github.event.inputs.version }}
     - name: Prepare Nuget Package
       run: |
-        nuget install Accord -OutputDirectory $env:GITHUB_WORKSPACE\csharp-package\brainflow\packages
-        nuget install Accord.Math -OutputDirectory $env:GITHUB_WORKSPACE\csharp-package\brainflow\packages
         Copy-Item "$env:GITHUB_WORKSPACE\linux\*" -Destination "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" -Recurse -Force -Filter *.*
         Copy-Item "$env:GITHUB_WORKSPACE\macos\*" -Destination "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" -Recurse -Force -Filter *.*
         Copy-Item "$env:GITHUB_WORKSPACE\win64\*" -Destination "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" -Recurse -Force -Filter *.*

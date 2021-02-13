@@ -1,5 +1,4 @@
 ﻿using System;
-using Accord.Math;
 
 
 namespace brainflow

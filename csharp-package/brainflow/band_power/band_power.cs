@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Numerics;
 using brainflow;
 
-using Accord.Math;
 
 namespace test
 {
