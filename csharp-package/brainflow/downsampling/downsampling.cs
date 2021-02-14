@@ -1,7 +1,6 @@
 ﻿using System;
 using brainflow;
 
-using Accord.Math;
 
 namespace test
 {
