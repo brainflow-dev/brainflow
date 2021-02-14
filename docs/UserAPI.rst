@@ -12,7 +12,7 @@ These classes are independent, so if you want, you can use BrainFlow API only fo
 BrainFlow data acqusition API is board agnostic, so **to select a specific board you need to pass BrainFlow's board id to BoardShim's constructor and an instance of BrainFlowInputParams structure** which should hold information for your specific board, check :ref:`supported-boards-label`. for details.
 This abstraction allows you to switch boards without any changes in code.
 
-In BoardShim, all board data is returned as a 2d array. Rows in this array may contain timestamps, EEG and EMG data and so on. To see instructions how to query specific kind of data check :ref:`data-format-label` and :ref:`code-samples-label`.
+In BoardShim, all board data is returned as a 2d array. This array may contain samples of timestamps, EEG and EMG data and so on. In row-major languages the rows are the channels and the columns the data samples, in column-major languages (MATLAB, Julia) it's the opposite; the columns are the channels and the rows the samples. To see instructions how to query specific kind of data check :ref:`data-format-label` and :ref:`code-samples-label`.
 
 Python API Reference
 ----------------------
