@@ -247,7 +247,6 @@ classdef DataFilter
             % calculate average band powers
             task_name = 'get_avg_band_powers';
             data_1d = data(channels, :);
-            data_1d = transpose(data_1d);
             data_1d = data_1d(:);
             temp_input = libpointer('doublePtr', data_1d);
             lib_name = DataFilter.load_lib();
@@ -315,12 +314,11 @@ classdef DataFilter
         end
 
         function write_file(data, file_name, file_mode)
-            % write data to file, in file data will be transposed
+            % write data to file
             task_name = 'write_file';
             lib_name = DataFilter.load_lib();
             % convert to 1d array 1xnum_datapoints %
-            transposed = transpose(data);
-            flatten = transpose(transposed(:));
+            flatten = data(:)
             temp = libpointer('doublePtr', flatten);
             exit_code = calllib(lib_name, task_name, temp, size(data,1), size(data, 2), file_name, file_mode);
             DataFilter.check_ec(exit_code, task_name);
@@ -341,7 +339,7 @@ classdef DataFilter
             task_name = 'read_file';
             exit_code = calllib(lib_name, task_name, data_array, num_rows, num_cols, file_name, data_count.Value);
             DataFilter.check_ec(exit_code, task_name);
-            data =  transpose(reshape(data_array.Value(1, 1:data_count.Value), [num_cols.Value, num_rows.value]));
+            data =  reshape(data_array.Value(1, 1:data_count.Value), [num_cols.Value, num_rows.value]);
         end
         
     end

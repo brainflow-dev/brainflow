@@ -375,7 +375,7 @@ classdef BoardShim
             data = libpointer('doublePtr', zeros(1, data_count * num_rows));
             exit_code = calllib(lib_name, task_name, data_count, data, obj.board_id, obj.input_params_json);
             BoardShim.check_ec(exit_code, task_name);
-            data_buf = transpose(reshape(data.Value, [data_count, num_rows]));
+            data_buf = reshape(data.Value, [data_count, num_rows]);
         end
 
         function data_buf = get_current_board_data(obj, num_samples)
@@ -387,7 +387,7 @@ classdef BoardShim
             data = libpointer('doublePtr', zeros(1, num_samples * num_rows));
             exit_code = calllib(lib_name, task_name, num_samples, data, data_count, obj.board_id, obj.input_params_json);
             BoardShim.check_ec(exit_code, task_name);
-            data_buf = transpose(reshape(data.Value(1,1:data_count.Value * num_rows), [data_count.Value, num_rows]));
+            data_buf = reshape(data.Value(1,1:data_count.Value * num_rows), [data_count.Value, num_rows]);
         end
         
         function prepared = is_prepared(obj)

@@ -13,5 +13,5 @@ board_shim.release_session();
 eeg_channels = BoardShim.get_eeg_channels(int32(BoardIDs.SYNTHETIC_BOARD));
 % apply downsampling to the first eeg channel %
 first_eeg_channel = eeg_channels(1);
-original_data = data(first_eeg_channel, :);
+original_data = data(:, first_eeg_channel);
 downsampled_data = DataFilter.perform_downsampling(original_data, 3, int32(AggOperations.MEAN));

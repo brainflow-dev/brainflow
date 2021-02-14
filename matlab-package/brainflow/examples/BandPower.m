@@ -14,7 +14,7 @@ board_shim.release_session();
 
 eeg_channels = BoardShim.get_eeg_channels(int32(BoardIDs.SYNTHETIC_BOARD));
 eeg_channel = eeg_channels(2);
-original_data = data(eeg_channel, :);
+original_data = data(:, eeg_channel);
 detrended = DataFilter.detrend(original_data, int32(DetrendOperations.LINEAR));
 [ampls, freqs] = DataFilter.get_psd_welch(detrended, nfft, nfft / 2, sampling_rate, int32(WindowFunctions.HANNING));
 band_power_alpha = DataFilter.get_band_power(ampls, freqs, 7.0, 13.0);

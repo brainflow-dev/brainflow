@@ -14,7 +14,7 @@ board_shim.release_session();
 eeg_channels = BoardShim.get_eeg_channels(int32(BoardIDs.SYNTHETIC_BOARD));
 % wavelet for first eeg channel %
 first_eeg_channel = eeg_channels(1);
-original_data = data(first_eeg_channel, :);
+original_data = data(:, first_eeg_channel);
 [wavelet_data, wavelet_lenghts] = DataFilter.perform_wavelet_transform(original_data, 'db4', 2);
 restored_data = DataFilter.perform_inverse_wavelet_transform(wavelet_data, wavelet_lenghts, size(original_data, 2), 'db4', 2);
 % fft for first eeg channel %
