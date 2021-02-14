@@ -90,11 +90,11 @@ end
 @brainflow_rethrow function perform_bandstop(
     data, 
     sampling_rate::Integer,
-    center_freq::Float64 = 50.0, #Hz
-    band_width::Float64 = 4.0, #Hz
-    order::Integer = 4, 
-    filter_type::Integer = BUTTERWORTH, 
-    ripple::Float64 = 0.0, #dB
+    center_freq::Float64,
+    band_width::Float64,
+    order::Integer,
+    filter_type::Integer,
+    ripple::Float64
 )
     ccall((:perform_bandstop, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Float64, Float64, Cint, Cint, Float64),
             data, length(data), Int32(sampling_rate), Float64(center_freq), Float64(band_width), Int32(order), Int32(filter_type), Float64(ripple))

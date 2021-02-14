@@ -69,7 +69,6 @@ struct BoardShim
 
 end
 BoardShim(id::BoardIds, params::BrainFlowInputParams) = BoardShim(Integer(id), params)
-BoardShim(id) = BoardShim(id, BrainFlowInputParams())
 
 @brainflow_rethrow function get_sampling_rate(board_id::BoardIdType)
     val = Vector{Cint}(undef, 1)
@@ -77,7 +76,6 @@ BoardShim(id) = BoardShim(id, BrainFlowInputParams())
     value = val[1]
     return value
 end
-get_sampling_rate(board_shim::BoardShim) = get_sampling_rate(board_shim.master_board_id)
 
 @brainflow_rethrow function get_num_rows(board_id::BoardIdType)
     val = Vector{Cint}(undef, 1)
@@ -86,7 +84,6 @@ get_sampling_rate(board_shim::BoardShim) = get_sampling_rate(board_shim.master_b
     value = val[1]
     return value
 end
-get_num_rows(board_shim::BoardShim) = get_num_rows(board_shim.master_board_id)
 
 @brainflow_rethrow function get_eeg_names(board_id::BoardIdType)
     names_string = Vector{Cuchar}(undef, 4096)
@@ -96,7 +93,6 @@ get_num_rows(board_shim::BoardShim) = get_num_rows(board_shim.master_board_id)
     value = split(sub_string, ',')
     return value
 end
-get_eeg_names(board_shim::BoardShim) = get_eeg_names(board_shim.master_board_id)
 
 @brainflow_rethrow function get_device_name(board_id::BoardIdType)
     names_string = Vector{Cuchar}(undef, 4096)
@@ -105,7 +101,6 @@ get_eeg_names(board_shim::BoardShim) = get_eeg_names(board_shim.master_board_id)
     sub_string = String(names_string)[1:len[1]]
     return sub_string
 end
-get_device_name(board_shim::BoardShim) = get_device_name(board_shim.master_board_id)
 
 single_channel_function_names = (
     :get_timestamp_channel,
@@ -123,9 +118,6 @@ for func_name = single_channel_function_names
         # julia counts from 1
         @inbounds value = channel[1] + 1
         return value
-    end
-    @eval function $func_name(board_shim::BoardShim)
-        return $func_name(board_shim.master_board_id)
     end
 end
 
@@ -155,9 +147,6 @@ for func_name = channel_function_names
         # julia counts from 1
         @inbounds value = channels[1:len[1]] .+ 1
         return value
-    end
-    @eval function $func_name(board_shim::BoardShim)
-        return $func_name(board_shim.master_board_id)
     end
 end
 
@@ -212,7 +201,7 @@ end
 
 @brainflow_rethrow function get_board_data(board_shim::BoardShim)
     data_size = get_board_data_count(board_shim)
-    num_rows = get_num_rows(board_shim)
+    num_rows = get_num_rows(board_shim.master_board_id)
     val = Vector{Float64}(undef, num_rows * data_size)
     ccall((:get_board_data, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Float64}, Cint, Ptr{UInt8}), 
             data_size, val, board_shim.board_id, board_shim.input_json)
@@ -222,7 +211,7 @@ end
 
 function get_current_board_data(num_samples::Integer, board_shim::BoardShim)
     data_size = Vector{Cint}(undef, 1)
-    num_rows = get_num_rows(board_shim)
+    num_rows = get_num_rows(board_shim.master_board_id)
     val = Vector{Float64}(undef, num_rows * num_samples)
     ccall((:get_current_board_data, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Float64}, Ptr{Cint}, Cint, Ptr{UInt8}), 
             num_samples, val, data_size, board_shim.board_id, board_shim.input_json)

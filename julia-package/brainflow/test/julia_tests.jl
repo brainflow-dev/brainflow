@@ -25,10 +25,6 @@ end
     @test_throws BrainFlow.BrainFlowError("Error in prepare_session INVALID_ARGUMENTS_ERROR", 13) BrainFlow.prepare_session(board_shim)
 end
 
-@testset "generated functions" begin
-    @test BrainFlow.get_eeg_channels isa Function
-end
-
 @testset "data filtering" begin
     @test Int32(BrainFlow.CONSTANT) == 1
     @test Int32(BrainFlow.LINEAR) == 2
@@ -63,19 +59,17 @@ end
     @test d["other_info"] == ""
 end
 
-@testset "get_*_channel tests" begin
-    params = BrainFlow.BrainFlowInputParams()
-    board_shim = BrainFlow.BoardShim(BrainFlow.SYNTHETIC_BOARD, params)
+@testset "board info getters" begin
+    @test BrainFlow.get_eeg_channels isa Function
 
-    eeg_channels = BrainFlow.get_eeg_channels(board_shim.board_id)
+    board_id = BrainFlow.SYNTHETIC_BOARD
+
+    eeg_channels = BrainFlow.get_eeg_channels(board_id)
     @test length(eeg_channels) == 16
 
-    eeg_channels2 = BrainFlow.get_eeg_channels(board_shim)
-    @test eeg_channels == eeg_channels2
+    timestamp_chan = BrainFlow.get_timestamp_channel(board_id)
+    @test timestamp_chan == 31 # 30 in 0-index languages, 31 in 1-index languages
 
-    timestamp_chan = BrainFlow.get_timestamp_channel(board_shim.board_id)
-    @test BrainFlow.get_timestamp_channel(board_shim) == timestamp_chan
-
-    sampling_rate = BrainFlow.get_sampling_rate(board_shim.board_id)
-    @test BrainFlow.get_sampling_rate(board_shim) == sampling_rate
+    sampling_rate = BrainFlow.get_sampling_rate(board_id)
+    @test sampling_rate isa Integer
 end
