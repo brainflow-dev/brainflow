@@ -12,20 +12,36 @@
 LibFTDISerial::LibFTDISerial (const char *description, Board *board)
     : ftdi (ftdi_new ()), description (description), port_open (false), board (board)
 {
+    if (ftdi == nullptr)
+    {
+        log_error ("LibFTDISerial");
+    }
 }
 
 LibFTDISerial::~LibFTDISerial ()
 {
-    if (port_open)
+    if (ftdi != nullptr)
     {
-        ftdi_usb_close (ftdi);
+        if (port_open)
+        {
+            ftdi_usb_close (ftdi);
+        }
+        ftdi_free (ftdi);
     }
-    ftdi_free (ftdi);
 }
 
 bool LibFTDISerial::is_libftdi (const char *port_name)
 {
     LibFTDISerial serial (port_name);
+    if (serial.ftdi == nullptr)
+    {
+        // failed to init libftdi; do a manual check
+        if (port_name[0] == 0 || port_name[0] == '/')
+        {
+            return false;
+        }
+        return port_name[1] == ':';
+    }
     int open_result = ftdi_usb_open_string (serial.ftdi, port_name);
     if (open_result == 0)
     {
@@ -38,8 +54,19 @@ void LibFTDISerial::log_error (const char *action, const char *message)
 {
     if (board != nullptr)
     {
-        board->safe_logger (spdlog::level::err, "libftdi {}: {} -> {}", description, action,
-            message ? message : ftdi_get_error_string (ftdi));
+        if (message == nullptr)
+        {
+            if (ftdi == nullptr)
+            {
+                message = "failed to create ftdi context";
+            }
+            else
+            {
+                message = ftdi_get_error_string (ftdi);
+            }
+        }
+        board->safe_logger (
+            spdlog::level::err, "libftdi {}: {} -> {}", description, action, message);
     }
 }
 
