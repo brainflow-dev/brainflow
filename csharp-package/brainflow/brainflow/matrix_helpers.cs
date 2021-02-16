@@ -1,9 +1,4 @@
-﻿using System;
-using System.Runtime.InteropServices;
-using brainflow;
-
-
-namespace brainflow
+namespace brainflow.math
 {
     /// <summary>
     /// Matrix major order. The default is to use C-style Row-Major order.

@@ -118,7 +118,7 @@ jobs:
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 0 --serial-port
       shell: cmd
     - name: Cyton Windows C# Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 0 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\csharp-package\brainflow\tests\brainflow_get_data\bin\Release\test.exe --board-id 0 --serial-port
       shell: cmd
     - name: Synthetic Windows Python Test
       run: python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id -1
@@ -131,7 +131,7 @@ jobs:
       shell: cmd
     - name: Synthetic Windows C# Test
       run: |
-        cd %GITHUB_WORKSPACE%\csharp-package\brainflow\brainflow_get_data\bin\Release
+        cd %GITHUB_WORKSPACE%\csharp-package\brainflow\tests\brainflow_get_data\bin\Release
         test.exe --board-id -1
       shell: cmd
     - name: Cyton Daisy Windows Python Test
@@ -147,13 +147,13 @@ jobs:
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 2 --serial-port
       shell: cmd
     - name: Cyton Daisy Windows C# Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 2 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\csharp-package\brainflow\tests\brainflow_get_data\bin\Release\test.exe --board-id 2 --serial-port
       shell: cmd
     - name: Galea Windows Cpp Test
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\galea_udp.py %GITHUB_WORKSPACE%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 3 --ip-address 127.0.0.1
       shell: cmd
     - name: Galea Windows C# Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\galea_udp.py %GITHUB_WORKSPACE%\csharp-package\brainflow\brainflow_get_data\bin\Release\test.exe --board-id 3 --ip-address 127.0.0.1
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\galea_udp.py %GITHUB_WORKSPACE%\csharp-package\brainflow\tests\brainflow_get_data\bin\Release\test.exe --board-id 3 --ip-address 127.0.0.1
       shell: cmd
     #- name: Fascia Python Test
     #  run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\fascia_emulator_ci.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id 12 --ip-port 7789
@@ -224,7 +224,7 @@ jobs:
       run: .\tests\cpp\ml_demo\build32\Release\eeg_metrics_ci.exe --board-id -1 --metric 1 --classifier 2
       shell: cmd
     - name: EEG Metrics CI C# Test
-      run: .\csharp-package\brainflow\eeg_metrics\bin\Release\test.exe
+      run: .\csharp-package\brainflow\tests\eeg_metrics\bin\Release\test.exe
       shell: cmd
     # Start Deploy Stage
     - name: Install Python AWS Tools
