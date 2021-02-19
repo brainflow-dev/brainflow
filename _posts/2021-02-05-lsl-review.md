@@ -1,7 +1,6 @@
 ---
 layout: post
 title: BrainFlow vs LSL
-subtitle: Why you should stop using LSL and move to BrainFlow
 image: /img/lsl.jpeg
 author: andrey_parfenov
 ---
@@ -13,33 +12,27 @@ author: andrey_parfenov
     </a>
 </div>
 
-### Why does LSL fail and is not needed in many cases? 
 
-***LSL is*** quite an ***old*** protocol, and ***it is the main reason why it is widely used among BCI devices and researchers***. It doesn't provide any benefits to the applications and devices.
+### What is LSL? 
 
-The key idea behind ***LSL***, that it provides synchronized data among different sensors and it ***is no so***. In theory, LSL could work, but in practice ***devices do NOT stream LSL data directly***. LSL requires multiple sockets to work, while 99.9% of devices work via serial port or Bluetooth/Bluetooth Low Energy protocol. It means that ***LSL can NOT be used as a protocol for SDK development*** for such boards.
+The lab streaming layer (LSL) is a system for the unified collection of measurement time series in research experiments that handles both the networking, time-synchronization, (near-) real-time access as well as optionally the centralized collection, viewing and disk recording of the data.
 
-A huge amount of researchers still think that LSL provides synchronizations between different streams, but it is not so also. ***Devices do NOT stream data via LSL***, in 99.9% of cases it looks like: device sends data via serial port\BLE\socket\etc and someone writes an application that converts one stream to another which doesn't make any sense(muse-lsl, OpenBCI GUI networking widget, etc). It also means that timestamp synchronization just does not work because LSL stream has no information about transmission speed from device to LSL app.
 
-***Even if your board has a WIFI chip on it, in 99.9% of cases LSL still can not be used directly and still requires an intermediate app***, because the majority of BCI devices use Arduino and there is no Arduino library to work with LSL. Such a library more likely can not be developed because LSL is too complicated and will consume too much memory and power on embedded devices.
+### Comparison of BrainFlow and LSL
 
-After all, using ***LSL you can not send commands to a device***, even to start or stop data streaming! The ***device can not be reconfigured using LSL*** and can not change its state. 
+LSL works on top of TCP\IP stack, so it means that devices, which use BT, BLE or serial port for communication can not stream LSL data directly. Also, many boards use Arduino which is not supported by LSL.
 
-All the above make LSL is not suitable for uniform SDK development.
+Because of this in most cases, a workflow that uses LSL is as follows:
 
-#### How does BrainFlow solves the problems above?
+1. The device sends data via a serial port, Bluetooth Low Energy (BLE), a socket, or other. 
+2. The researcher develops an application that converts the device data to an LSL stream. Examples of this include the OpenBCI GUI Networking Widget, and Muse-LSL.
+3. The output LSL streams can be read by other applications to perform data analysis.
 
-Unlike LSL ***BrainFlow***:
+Such pipeline works fine for researchers, but not ideal for software engineers, because it's difficult to automate it, not perfect from UX point of view and requires sophisticated Inter Process Communication.
 
-* Can send commands to reconfigure device and to control data streaming
-* Works with a serial port, BLE, BT, sockets, and other communication protocols
-* Works with Arduino libraries
-* Works directly with device and does not require application in between which is completely useless, terrible for automation, and not acceptable for production software development
-* Provides synthetic boards to speed up development
-* Provides signal processing API which is the same across different languages
+Additionally, LSL doesn’t allow sending/receiving commands to/from a device, which means its state cannot be changed during streaming. This lack of communication with the device can also cause problems with timestamp synchronization, since LSL has no information about the transmission period from the device to the LSL application.
 
-BrainFlow has much more functions and works directly with the device. ***BrainFlow does not require intermediate applications and supports more OSes\Boards.***
+To overcome these limitations, BrainFlow allows sending/receiving commands to a device through a serial port, BLE, sockets, and more, because it's not attached to particular communication protocol. Also, BrainFlow works directly with device and doesn't require additional applications.
 
-Finally, LSL is a communication protocol, while BrainFlow is an SDK. It means that using LSL you need to design the API to store data and provide collected data to the users, while in BrainFlow it is available from the box.
 
-In our opinion LSL in 99% of cases is not needed, provides additional complexity without any benefits for software developers. LSL was designed as something to synchronize different data streams, but right now many researchers are trying to use it as a replacement for SDK. ***LSL was not designed for it and should not be used for it.***
+***LSL was originally designed as a tool to synchronize data streams. It is not intended to be a replacement for device-specific SDKs. In contrast, BrainFlow is designed to be a device agnostic SDK for a growing list of supported devices, which standardizes the data stream at the software level.***
