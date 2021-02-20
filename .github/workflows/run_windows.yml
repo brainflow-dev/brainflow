@@ -231,7 +231,7 @@ jobs:
         python -m pip install awscli
       shell: cmd
     - name: Upload x86 Libs to AWS
-      if: ${{ github.event_name == 'push' }}
+      if: ${{ github.event_name == 'push' && github.repository == 'brainflow-dev/brainflow' }}
       run: |
         aws s3 cp %GITHUB_WORKSPACE%\installed32\ s3://brainflow/%GITHUB_SHA%/win32 --recursive
       shell: cmd
@@ -239,7 +239,7 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     - name: Upload x64 Libs to AWS
-      if: ${{ github.event_name == 'push' }}
+      if: ${{ github.event_name == 'push' && github.repository == 'brainflow-dev/brainflow' }}
       run: |
         aws s3 cp %GITHUB_WORKSPACE%\installed64\ s3://brainflow/%GITHUB_SHA%/win64 --recursive
       shell: cmd
