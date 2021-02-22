@@ -22,6 +22,7 @@ class Board
 {
 public:
     static std::shared_ptr<spdlog::logger> board_logger;
+    static const struct JNINativeInterface *java_jnienv;
     static int set_log_level (int log_level);
     static int set_log_file (char *log_file);
 

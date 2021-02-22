@@ -38,6 +38,10 @@ extern "C"
     SHARED_EXPORT int CALLING_CONVENTION set_log_file (char *log_file);
     SHARED_EXPORT int CALLING_CONVENTION log_message (int log_level, char *message);
 
+    // platform methods
+    SHARED_EXPORT int CALLING_CONVENTION java_set_jnienv (
+        const struct JNINativeInterface *java_jnienv);
+
 #ifdef __cplusplus
 }
 #endif
