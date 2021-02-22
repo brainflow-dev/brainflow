@@ -312,6 +312,12 @@ int set_log_file (char *log_file)
     return Board::set_log_file (log_file);
 }
 
+int java_set_jnienv (JNIEnv *java_jnienv)
+{
+    Board::java_jnienv = java_jnienv;
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
 int config_board (char *config, char *response, int *response_len, int board_id,
     char *json_brainflow_input_params)
 {

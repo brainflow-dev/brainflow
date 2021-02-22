@@ -6,9 +6,11 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.apache.commons.lang3.SystemUtils;
 
+import com.sun.jna.JNIEnv;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 
@@ -44,6 +46,8 @@ public class BoardShim
         int log_message (int log_level, String message);
 
         int set_log_file (String log_file);
+
+        int java_set_jnienv (JNIEnv java_jnienv);
 
         int get_sampling_rate (int board_id, int[] sampling_rate);
 
@@ -130,7 +134,8 @@ public class BoardShim
             unpack_from_jar (ganglion_name);
         }
 
-        instance = (DllInterface) Native.loadLibrary (lib_name, DllInterface.class);
+        instance = (DllInterface) Native.loadLibrary (lib_name, DllInterface.class, Collections.singletonMap(Library.OPTION_ALLOW_OBJECTS, Boolean.TRUE));
+        instance.java_set_jnienv (JNIEnv.CURRENT);
     }
 
     private static Path unpack_from_jar (String lib_name)
