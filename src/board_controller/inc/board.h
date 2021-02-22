@@ -78,6 +78,11 @@ public:
         return board_id;
     }
 
+    struct BrainFlowInputParams const &get_params ()
+    {
+        return params;
+    }
+
 protected:
     DataBuffer *db;
     bool skip_logs;

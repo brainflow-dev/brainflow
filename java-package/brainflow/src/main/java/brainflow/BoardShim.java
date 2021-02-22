@@ -6,9 +6,11 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.apache.commons.lang3.SystemUtils;
 
+import com.sun.jna.JNIEnv;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 
@@ -20,7 +22,7 @@ public class BoardShim
 
     private interface DllInterface extends Library
     {
-        int prepare_session (int board_id, String params);
+        int prepare_session (int board_id, String params, JNIEnv platform_ptr);
 
         int config_board (String config, byte[] names, int[] len, int board_id, String params);
 
@@ -130,7 +132,7 @@ public class BoardShim
             unpack_from_jar (ganglion_name);
         }
 
-        instance = (DllInterface) Native.loadLibrary (lib_name, DllInterface.class);
+        instance = (DllInterface) Native.loadLibrary (lib_name, DllInterface.class, Collections.singletonMap(Library.OPTION_ALLOW_OBJECTS, Boolean.TRUE));
     }
 
     private static Path unpack_from_jar (String lib_name)
@@ -587,7 +589,7 @@ public class BoardShim
      */
     public void prepare_session () throws BrainFlowError
     {
-        int ec = instance.prepare_session (board_id, input_json);
+        int ec = instance.prepare_session (board_id, input_json, JNIEnv.CURRENT);
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in prepare_session", ec);

@@ -13,7 +13,7 @@ extern "C"
 
     // data acquisition methods
     SHARED_EXPORT int CALLING_CONVENTION prepare_session (
-        int board_id, char *json_brainflow_input_params);
+        int board_id, char *json_brainflow_input_params, void *platform_ptr = 0);
     SHARED_EXPORT int CALLING_CONVENTION start_stream (
         int buffer_size, char *streamer_params, int board_id, char *json_brainflow_input_params);
     SHARED_EXPORT int CALLING_CONVENTION stop_stream (

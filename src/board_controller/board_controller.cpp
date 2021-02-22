@@ -55,7 +55,7 @@ static int string_to_brainflow_input_params (
     const char *json_brainflow_input_params, struct BrainFlowInputParams *params);
 
 
-int prepare_session (int board_id, char *json_brainflow_input_params)
+int prepare_session (int board_id, char *json_brainflow_input_params, void *platform_ptr)
 {
     std::lock_guard<std::mutex> lock (mutex);
 
@@ -66,6 +66,8 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
     {
         return res;
     }
+
+    params.platform_ptr = platform_ptr;
 
     std::pair<int, struct BrainFlowInputParams> key = get_key (board_id, params);
     if (boards.find (key) != boards.end ())
