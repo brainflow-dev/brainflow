@@ -12,6 +12,9 @@ jobs:
       matrix:
         os: [ubuntu-18.04]
 
+    env:
+      ANDROID_NDK_VERSION: 21.4.7075529
+
     steps:
     - name: Clone Repository
       uses: actions/checkout@v2
@@ -27,14 +30,14 @@ jobs:
         cmake-version: '3.16.x'
     - name: Install NDK
       run: |
-        echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;21.0.6113669" --sdk_root=${ANDROID_SDK_ROOT} > /dev/null
+        echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;${ANDROID_NDK_VERSION}" --sdk_root=${ANDROID_SDK_ROOT} > /dev/null
     # build for all ABIs
     - name: Compile BrainFlow
       run: |
         for ABI in arm64-v8a armeabi-v7a x86 x86_64; do
           mkdir $GITHUB_WORKSPACE/build-$ABI
           cd $GITHUB_WORKSPACE/build-$ABI
-          cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/21.0.6113669/build/cmake/android.toolchain.cmake -DANDROID_ABI=$ABI -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 ..
+          cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/${ANDROID_NDK_VERSION}/build/cmake/android.toolchain.cmake -DANDROID_ABI=$ABI -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 ..
           ninja
         done
     - name: Prepare Zip
