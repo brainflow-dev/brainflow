@@ -148,8 +148,8 @@ jobs:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Streaming Python Markers
       run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/streaming_board_emulator.py python3 $GITHUB_WORKSPACE/tests/python/markers.py --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
-    - name: Fascia Python Markers
-      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/fascia_emulator_ci.py python3 $GITHUB_WORKSPACE/tests/python/markers.py --board-id 12 --ip-port 7789
+    #- name: Fascia Python Markers
+    #  run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/fascia_emulator_ci.py python3 $GITHUB_WORKSPACE/tests/python/markers.py --board-id 12 --ip-port 7789
     - name: IronBCI Cpp Markers
       run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/ironbci_linux.py $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/markers --board-id 15 --serial-port
       env:
