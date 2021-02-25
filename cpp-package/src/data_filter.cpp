@@ -129,8 +129,8 @@ void DataFilter::perform_wavelet_denoising (
     }
 }
 
-std::pair<double **, double *> DataFilter::get_csp (
-    double ***data, double *labels, int n_epochs, int n_channels, int n_times)
+std::pair<BrainFlowArray<double, 2>, double *> DataFilter::get_csp (
+    BrainFlowArray<double, 3> data, double *labels, int n_epochs, int n_channels, int n_times)
 {
     if ((data == NULL) || (labels == NULL))
     {
@@ -138,53 +138,22 @@ std::pair<double **, double *> DataFilter::get_csp (
             "Invalid params", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
     }
 
-    double *temp_data1d = new double[n_epochs * n_channels * n_times];
-    for (int e = 0; e < n_epochs; e++)
-    {
-        for (int c = 0; c < n_channels; c++)
-        {
-            for (int t = 0; t < n_times; t++)
-            {
-                int idx = e * n_channels * n_times + c * n_times + t;
-                temp_data1d[idx] = data[e][c][t];
-            }
-        }
-    }
-
-    double *temp_filters = new double[n_channels * n_channels];
+    BrainFlowArray<double, 2> filters (n_channels, n_channels);
     double *output_eigenvalues = new double[n_channels];
     for (int i = 0; i < n_channels; i++)
     {
         output_eigenvalues[i] = 0;
-        for (int j = 0; j < n_channels; j++)
-        {
-            temp_filters[i * n_channels + j] = 0;
-        }
     }
 
-    int res = ::get_csp (
-        temp_data1d, labels, n_epochs, n_channels, n_times, temp_filters, output_eigenvalues);
+    int res = ::get_csp (data.get_raw_ptr (), labels, n_epochs, n_channels, n_times,
+        filters.get_raw_ptr (), output_eigenvalues);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         delete[] output_eigenvalues;
-        delete[] temp_filters;
-        delete[] temp_data1d;
         throw BrainFlowException ("failed to compute the CSP filters", res);
     }
 
-    double **output_filters = new double *[n_channels];
-    for (int i = 0; i < n_channels; i++)
-    {
-        output_filters[i] = new double[n_channels];
-        for (int j = 0; j < n_channels; j++)
-        {
-            output_filters[i][j] = temp_filters[i * n_channels + j];
-        }
-    }
-
-    delete[] temp_data1d;
-    delete[] temp_filters;
-    return std::make_pair (output_filters, output_eigenvalues);
+    return std::make_pair (std::move (filters), output_eigenvalues);
 }
 
 double *DataFilter::get_window (int window_function, int window_len)
@@ -280,13 +249,17 @@ std::pair<double *, double *> DataFilter::get_psd_welch (
 }
 
 std::pair<double *, double *> DataFilter::get_avg_band_powers (
-    double **data, int cols, int *channels, int channels_len, int sampling_rate, bool apply_filters)
+    const BrainFlowArray<double, 2> &data, std::vector<int> channels, int sampling_rate,
+    bool apply_filters)
 {
-    if ((data == NULL) || (channels == NULL) || (channels_len < 1))
+    if ((data.empty ()) || (channels.empty ()))
     {
         throw BrainFlowException (
             "Invalid params", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
     }
+    // todo refactor here and in low level api, no need to copy data
+    int cols = data.get_size (1);
+    int channels_len = (int)channels.size ();
     double *data_1d = new double[cols * channels_len];
     double *avg_bands = new double[5];
     double *stddev_bands = new double[5];
@@ -300,7 +273,7 @@ std::pair<double *, double *> DataFilter::get_avg_band_powers (
     {
         for (int j = 0; j < cols; j++)
         {
-            data_1d[j + cols * i] = data[channels[i]][j];
+            data_1d[j + cols * i] = data.at (channels[i], j);
         }
     }
     int res = ::get_avg_band_powers (
@@ -366,70 +339,42 @@ int DataFilter::get_nearest_power_of_two (int value)
     return output;
 }
 
-double **DataFilter::read_file (int *num_rows, int *num_cols, char *file_name)
+BrainFlowArray<double, 2> DataFilter::read_file (std::string file_name)
 {
     int max_elements = 0;
-    int res = get_num_elements_in_file (file_name, &max_elements);
+    int res = get_num_elements_in_file (const_cast<char *> (file_name.c_str ()), &max_elements);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to determine file size", res);
     }
     double *data_linear = new double[max_elements];
-    res = ::read_file (data_linear, num_rows, num_cols, file_name, max_elements);
+    int num_rows = 0;
+    int num_cols = 0;
+    res = ::read_file (
+        data_linear, &num_rows, &num_cols, const_cast<char *> (file_name.c_str ()), max_elements);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         delete[] data_linear;
         throw BrainFlowException ("failed to read file", res);
     }
-    double **output_buf = new double *[*num_rows];
-    for (int i = 0; i < *num_rows; i++)
-    {
-        output_buf[i] = new double[*num_cols];
-    }
+    BrainFlowArray<double, 2> data (data_linear, num_rows, num_cols);
 
-    DataFilter::reshape_data_to_2d (*num_rows, *num_cols, data_linear, output_buf);
     delete[] data_linear;
 
-    return output_buf;
+    return data;
 }
 
 void DataFilter::write_file (
-    double **data, int num_rows, int num_cols, char *file_name, char *file_mode)
+    const BrainFlowArray<double, 2> &data, std::string file_name, std::string file_mode)
 {
-    double *data_linear = new double[num_rows * num_cols];
-    DataFilter::reshape_data_to_1d (num_rows, num_cols, data, data_linear);
-    int res = ::write_file (data_linear, num_rows, num_cols, file_name, file_mode);
+    int res = ::write_file (const_cast<double *> (data.get_raw_ptr ()), data.get_size (0),
+        data.get_size (1), const_cast<char *> (file_name.c_str ()),
+        const_cast<char *> (file_mode.c_str ()));
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
-        delete[] data_linear;
         throw BrainFlowException ("failed to write file", res);
     }
-    delete[] data_linear;
 }
-
-void DataFilter::reshape_data_to_1d (int num_rows, int num_cols, double **buf, double *output_buf)
-{
-    for (int i = 0; i < num_cols; i++)
-    {
-        for (int j = 0; j < num_rows; j++)
-        {
-            output_buf[j * num_cols + i] = buf[j][i];
-        }
-    }
-}
-
-void DataFilter::reshape_data_to_2d (
-    int num_rows, int num_cols, double *linear_buffer, double **output_buf)
-{
-    for (int i = 0; i < num_rows; i++)
-    {
-        for (int j = 0; j < num_cols; j++)
-        {
-            output_buf[i][j] = linear_buffer[i * num_cols + j];
-        }
-    }
-}
-
 
 /////////////////////////////////////////
 //////////// logging methods ////////////
@@ -459,9 +404,9 @@ void DataFilter::enable_dev_data_logger ()
     DataFilter::set_log_level ((int)LogLevels::LEVEL_TRACE);
 }
 
-void DataFilter::set_log_file (char *log_file)
+void DataFilter::set_log_file (std::string log_file)
 {
-    int res = ::set_log_file (log_file);
+    int res = ::set_log_file (const_cast<char *> (log_file.c_str ()));
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to set log file", res);

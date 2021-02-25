@@ -2,10 +2,13 @@
 
 #include <complex>
 #include <utility>
+#include <vector>
 // include it here to allow user include only this single file
+#include "brainflow_array.h"
 #include "brainflow_constants.h"
 #include "brainflow_exception.h"
 #include "data_handler.h"
+
 
 /// DataFilter class to perform signal processing
 class DataFilter
@@ -18,7 +21,7 @@ public:
     /// enable Data logger with LEVEL_TRACE
     static void enable_dev_data_logger ();
 
-    static void set_log_file (char *log_file);
+    static void set_log_file (std::string log_file);
     /// perform low pass filter in-place
     static void perform_lowpass (double *data, int data_len, int sampling_rate, double cutoff,
         int order, int filter_type, double ripple);
@@ -68,8 +71,8 @@ public:
     * @param n_times the number of samples (observations) for a single epoch for a single channel 
     * @return pair of two arrays. The first [n_channel x n_channel]-shaped 2D array represents filters. The second n-channel length 1D array represents eigenvalues
     */
-    static std::pair<double **, double *> get_csp (
-        double ***data, double *labels, int n_epochs, int n_channels, int n_times);
+    static std::pair<BrainFlowArray<double, 2>, double *> get_csp (
+        BrainFlowArray<double, 3> data, double *labels, int n_epochs, int n_channels, int n_times);
     // clang-format on
     /// perform data windowing
     static double *get_window (int window_function, int window_len);
@@ -127,24 +130,20 @@ public:
      * calculate avg and stddev of BandPowers across all channels
      * @param data input 2d array
      * @param cols number of cols in 2d array - number of datapoints
-     * @param channels array of rows - eeg channels which should be used
-     * @param channels_len - len of channels array
+     * @param channels vector of rows - eeg channels which should be used
      * @param sampling_rate sampling rate
      * @param apply_filters set to true to apply filters before band power calculations
      * @return pair of double arrays of size 5, first of them - avg band powers, second stddev
      */
-    static std::pair<double *, double *> get_avg_band_powers (double **data, int cols,
-        int *channels, int channels_len, int sampling_rate, bool apply_filters);
+    static std::pair<double *, double *> get_avg_band_powers (const BrainFlowArray<double, 2> &data,
+        std::vector<int> channels, int sampling_rate, bool apply_filters);
 
     /// write file, in file data will be transposed
     static void write_file (
-        double **data, int num_rows, int num_cols, char *file_name, char *file_mode);
+        const BrainFlowArray<double, 2> &data, std::string file_name, std::string file_mode);
     /// read data from file, data will be transposed to original format
-    static double **read_file (int *num_rows, int *num_cols, char *file_name);
+    static BrainFlowArray<double, 2> read_file (std::string file_name);
 
 private:
     static void set_log_level (int log_level);
-    static void reshape_data_to_2d (
-        int num_rows, int num_cols, double *linear_buffer, double **output_buf);
-    static void reshape_data_to_1d (int num_rows, int num_cols, double **buf, double *output_buf);
 };

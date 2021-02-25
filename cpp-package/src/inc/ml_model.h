@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdlib.h>
+#include <string>
 
 // include it here to allow user include only this single file
 #include "brainflow_constants.h"
@@ -25,7 +26,7 @@ public:
     }
 
     /// redirect logger to a file
-    static void set_log_file (char *log_file);
+    static void set_log_file (std::string log_file);
     /// enable ML logger with LEVEL_INFO
     static void enable_ml_logger ();
     /// disable ML loggers
