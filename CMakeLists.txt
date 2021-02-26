@@ -530,6 +530,23 @@ if (ANDROID)
     add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${BOARD_CONTROLLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/tools/jniLibs/${ANDROID_ABI}/${BOARD_CONTROLLER_COMPILED_NAME}"
     )
+    if (LibFTDI1_FOUND) # this 'if. could be removed if more dependency libraries exist
+        add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
+            COMMAND "${CMAKE_COMMAND}" -E make_directory "${CMAKE_HOME_DIRECTORY}/java-package/android/src/main/libs/${ANDROID_ABI}/"
+        )
+        foreach (DEPENDENCY_LIBRARY ${LIBFTDI_LIBRARIES})
+            string (REGEX REPLACE "^-l" "" DEPENDENCY_LIBRARY ${DEPENDENCY_LIBRARY})
+            if (DEPENDENCY_LIBRARY STREQUAL "log")
+                continue ()
+            endif (DEPENDENCY_LIBRARY STREQUAL "log")
+            find_library (DEPENDENCY_LIBRARY_LOCATION NAMES ${DEPENDENCY_LIBRARY} HINTS ${LIBFTDI_LIBRARY_DIRS} / NO_CMAKE_PATH NO_CMAKE_FIND_ROOT_PATH)
+            add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
+                COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${DEPENDENCY_LIBRARY_LOCATION}" "${CMAKE_HOME_DIRECTORY}/tools/jniLibs/${ANDROID_ABI}/"
+                COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${DEPENDENCY_LIBRARY_LOCATION}" "${CMAKE_HOME_DIRECTORY}/java-package/android/src/main/libs/${ANDROID_ABI}/"
+            )
+            unset (DEPENDENCY_LIBRARY_LOCATION CACHE)
+        endforeach (DEPENDENCY_LIBRARY)
+    endif (LibFTDI1_FOUND)
     add_custom_command (TARGET ${DATA_HANDLER_NAME} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/tools/jniLibs/${ANDROID_ABI}/${DATA_HANDLER_COMPILED_NAME}"
     )
