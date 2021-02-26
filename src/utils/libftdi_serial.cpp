@@ -8,10 +8,17 @@
 
 #include "board.h"
 
+#if defined(__ANDROID__)
+static void android_ensure_libusb_init ();
+#endif
 
 LibFTDISerial::LibFTDISerial (const char *description, Board *board)
     : description (description), port_open (false), lib_init (false), board (board)
 {
+#if defined(__ANDROID__)
+    android_ensure_libusb_init ();
+#endif
+
     // setup libftdi
     if (ftdi_init (&ftdi) == 0)
     {
@@ -218,6 +225,72 @@ const char *LibFTDISerial::get_port_name ()
 {
     return description.c_str ();
 }
+
+#if defined(__ANDROID__)
+//////
+// on android we can pass the jnienv pointer to libusb
+//////
+
+extern "C"
+{
+    // forward declarations from libusb.h
+    struct libusb_version
+    {
+        const uint16_t major, minor, micro, nano;
+    };
+    enum libusb_option
+    {
+        LIBUSB_OPTION_WEAK_AUTHORITY = 2,
+        LIBUSB_OPTION_ANDROID_JNIENV = 3
+    };
+    const struct libusb_version *libusb_get_version ();
+    int libusb_set_option (struct libusb_context *ctx, enum libusb_option option, ...);
+}
+
+void android_ensure_libusb_init ()
+{
+    // constructed on first call
+    class Init
+    {
+    public:
+        Init ()
+        {
+            libusb_version const &ver_obj = *libusb_get_version ();
+            uint64_t usb_version = 0;
+            for (uint64_t ver_part : {ver_obj.major, ver_obj.minor, ver_obj.micro, ver_obj.nano})
+            {
+                usb_version = (usb_version << 16) | ver_part;
+            }
+
+            // libusb_set_option was officially introduced in 1.0.22
+            if (usb_version >= 0x0001000000160000)
+            {
+                jnienv_set = false;
+                // on android, this disables device scan during usb_init, which lets it succeed
+                libusb_set_option (nullptr, LIBUSB_OPTION_WEAK_AUTHORITY, nullptr);
+            }
+            else
+            {
+                // libusb is too old to pass options in
+                jnienv_set = true;
+            }
+        }
+        bool jnienv_set;
+    } static init;
+
+    if (!init.jnienv_set && Board::java_jnienv != nullptr)
+    {
+        // pass jnienv pointer to libusb
+        int r =
+            libusb_set_option (nullptr, LIBUSB_OPTION_ANDROID_JNIENV, Board::java_jnienv, nullptr);
+        if (r == 0)
+        {
+            // disable weak authority
+            libusb_set_option (nullptr, LIBUSB_OPTION_WEAK_AUTHORITY, -1, nullptr);
+        }
+    }
+}
+#endif // defined(__ANDROID__)
 
 #else
 
