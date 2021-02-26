@@ -31,10 +31,10 @@ private:
 #ifdef USE_LIBFTDI
     void log_error (const char *action, const char *message = nullptr);
 
-    struct ftdi_context *ftdi;
-    struct libusb_device *dev;
+    struct ftdi_context ftdi;
     std::string description;
     bool port_open;
+    bool lib_init;
     Board *board;
 #endif
 };
