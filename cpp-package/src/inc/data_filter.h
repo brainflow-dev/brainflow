@@ -20,8 +20,11 @@ public:
     static void disable_data_logger ();
     /// enable Data logger with LEVEL_TRACE
     static void enable_dev_data_logger ();
-
+    /// set log level
+    static void set_log_level (int log_level);
+    /// set log file
     static void set_log_file (std::string log_file);
+
     /// perform low pass filter in-place
     static void perform_lowpass (double *data, int data_len, int sampling_rate, double cutoff,
         int order, int filter_type, double ripple);
@@ -53,14 +56,14 @@ public:
      *              in wavelet coeffs array, length of this array is decomposition_level + 1
      */
     static std::pair<double *, int *> perform_wavelet_transform (
-        double *data, int data_len, char *wavelet, int decomposition_level);
+        double *data, int data_len, std::string wavelet, int decomposition_level);
     // clang-format on
     /// performs inverse wavelet transform
     static double *perform_inverse_wavelet_transform (std::pair<double *, int *> wavelet_output,
-        int original_data_len, char *wavelet, int decomposition_level);
+        int original_data_len, std::string wavelet, int decomposition_level);
     /// perform wavelet denoising
     static void perform_wavelet_denoising (
-        double *data, int data_len, char *wavelet, int decomposition_level);
+        double *data, int data_len, std::string wavelet, int decomposition_level);
     // clang-format off
     /**
     * calculate filters and the corresponding eigenvalues using the Common Spatial Patterns
@@ -71,8 +74,8 @@ public:
     * @param n_times the number of samples (observations) for a single epoch for a single channel 
     * @return pair of two arrays. The first [n_channel x n_channel]-shaped 2D array represents filters. The second n-channel length 1D array represents eigenvalues
     */
-    static std::pair<BrainFlowArray<double, 2>, double *> get_csp (
-        BrainFlowArray<double, 3> data, double *labels, int n_epochs, int n_channels, int n_times);
+    static std::pair<BrainFlowArray<double, 2>, BrainFlowArray<double, 1>> get_csp (
+        const BrainFlowArray<double, 3> &data, const BrainFlowArray<double,1> &labels);
     // clang-format on
     /// perform data windowing
     static double *get_window (int window_function, int window_len);
@@ -143,7 +146,4 @@ public:
         const BrainFlowArray<double, 2> &data, std::string file_name, std::string file_mode);
     /// read data from file, data will be transposed to original format
     static BrainFlowArray<double, 2> read_file (std::string file_name);
-
-private:
-    static void set_log_level (int log_level);
 };

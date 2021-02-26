@@ -129,31 +129,26 @@ void DataFilter::perform_wavelet_denoising (
     }
 }
 
-std::pair<BrainFlowArray<double, 2>, double *> DataFilter::get_csp (
-    BrainFlowArray<double, 3> data, double *labels, int n_epochs, int n_channels, int n_times)
+std::pair<BrainFlowArray<double, 2>, BrainFlowArray<double, 1>> DataFilter::get_csp (
+    const BrainFlowArray<double, 3> &data, const BrainFlowArray<double, 1> &labels)
 {
-    if ((data == NULL) || (labels == NULL))
+    if ((data.empty ()) || (labels.empty ()))
     {
         throw BrainFlowException (
             "Invalid params", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
     }
 
     BrainFlowArray<double, 2> filters (n_channels, n_channels);
-    double *output_eigenvalues = new double[n_channels];
-    for (int i = 0; i < n_channels; i++)
-    {
-        output_eigenvalues[i] = 0;
-    }
+    BrainFlowArray<double, 1> output_eigenvalues (n_channels);
 
     int res = ::get_csp (data.get_raw_ptr (), labels, n_epochs, n_channels, n_times,
-        filters.get_raw_ptr (), output_eigenvalues);
+        filters.get_raw_ptr (), output_eigenvalues.get_raw_ptr ());
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
-        delete[] output_eigenvalues;
         throw BrainFlowException ("failed to compute the CSP filters", res);
     }
 
-    return std::make_pair (std::move (filters), output_eigenvalues);
+    return std::make_pair (std::move (filters), std::move (output_eigenvalues));
 }
 
 double *DataFilter::get_window (int window_function, int window_len)

@@ -28,8 +28,6 @@ public:
     /// enable BrainFlow logger with LEVEL_TRACE
     static void enable_dev_board_logger ();
     /// redirect BrainFlow logger from stderr to file
-    static void set_log_file (char *log_file);
-    /// redirect BrainFlow logger from stderr to file
     static void set_log_file (std::string log_file);
     /// use set_log_level only if you want to write your own log messages to BrainFlow logger
     static void set_log_level (int log_level);

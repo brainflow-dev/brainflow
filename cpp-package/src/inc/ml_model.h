@@ -16,10 +16,8 @@ class MLModel
 private:
     struct BrainFlowModelParams params;
     std::string serialized_params;
-    static void set_log_level (int log_level);
 
 public:
-    // clang-format off
     MLModel (struct BrainFlowModelParams params);
     ~MLModel ()
     {
@@ -33,6 +31,8 @@ public:
     static void disable_ml_logger ();
     /// enable ML logger with LEVEL_TRACE
     static void enable_dev_ml_logger ();
+    /// set log level
+    static void set_log_level (int log_level);
 
     /// initialize classifier, should be called first
     void prepare ();
@@ -40,5 +40,4 @@ public:
     double predict (double *data, int data_len);
     /// release classifier
     void release ();
-    // clang-format on
 };

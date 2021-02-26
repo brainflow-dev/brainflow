@@ -43,7 +43,7 @@ static inline std::array<int, 1> make_array (int size0)
 {
     std::array<int, 1> result;
     result[0] = size0;
-    return result;
+    return std::move (result);
 }
 
 static inline std::array<int, 2> make_array (int size0, int size1)
@@ -51,7 +51,7 @@ static inline std::array<int, 2> make_array (int size0, int size1)
     std::array<int, 2> result;
     result[0] = size0;
     result[1] = size1;
-    return result;
+    return std::move (result);
 }
 
 static inline std::array<int, 3> make_array (int size0, int size1, int size2)
@@ -60,7 +60,7 @@ static inline std::array<int, 3> make_array (int size0, int size1, int size2)
     result[0] = size0;
     result[1] = size1;
     result[2] = size2;
-    return result;
+    return std::move (result);
 }
 
 template <size_t N>
@@ -383,12 +383,6 @@ public:
     }
 
     /// check if array is empty
-    bool empty ()
-    {
-        return get_raw_ptr () == nullptr || get_length () == 0;
-    }
-
-    /// check if array is empty
     bool empty () const
     {
         return get_raw_ptr () == nullptr || get_length () == 0;
@@ -402,6 +396,19 @@ public:
 
     /// use it to get pointer to row in 3d array
     T *get_address (int index0, int index1)
+    {
+        static_assert (Dim >= 2, "Dim should be >= 2");
+        return &origin[index0 * get_stride (0) + index1 * get_stride (1)];
+    }
+
+    /// use it to get pointer to row in matrix or to get pointer to matrix from 3d array
+    const T *get_address (int index0) const
+    {
+        return &origin[index0 * get_stride (0)];
+    }
+
+    /// use it to get pointer to row in 3d array
+    const T *get_address (int index0, int index1) const
     {
         static_assert (Dim >= 2, "Dim should be >= 2");
         return &origin[index0 * get_stride (0) + index1 * get_stride (1)];
