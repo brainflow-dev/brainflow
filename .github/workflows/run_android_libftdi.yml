@@ -1,0 +1,74 @@
+name: Run libFTDI Android NDK
+
+on: [push, pull_request]
+
+jobs:
+  RunAndroidlibFTDI:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        os: [ubuntu-18.04]
+
+    env:
+      ANDROID_NDK_VERSION: 21.4.7075529
+
+    steps:
+    - name: Clone Repository
+      uses: actions/checkout@v2
+    - name: Install Ninja
+      run: |
+        sudo -H apt-get update -y
+        sudo -H apt-get install -y ninja-build zip unzip
+      env:
+        DEBIAN_FRONTEND: noninteractive
+    - name: Setup Cmake
+      uses: jwlawson/actions-setup-cmake@v1.4
+      with:
+        cmake-version: '3.16.x'
+    - name: Install NDK
+      run: |
+        echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;${ANDROID_NDK_VERSION}" --sdk_root=${ANDROID_SDK_ROOT}
+        mkdir $GITHUB_WORKSPACE/android-prefix
+    # build for all ABIs
+    - name: Compile libusb
+      run: |
+        git clone --depth 1 --branch android https://github.com/xloem/libusb.git
+        cd libusb/android/jni
+        ${ANDROID_HOME}/ndk/${ANDROID_NDK_VERSION}/ndk-build
+    - name: Fetch libftdi
+      run: |
+        git clone --depth 1 --branch v1.5 git://developer.intra2net.com/libftdi
+    - name: Compile libftdi
+      run: |
+        for ABI in arm64-v8a armeabi-v7a x86 x86_64; do
+          mkdir $GITHUB_WORKSPACE/libftdi/build-$ABI
+          cd $GITHUB_WORKSPACE/libftdi/build-$ABI
+          cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/${ANDROID_NDK_VERSION}/build/cmake/android.toolchain.cmake -DANDROID_ABI=$ABI -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 -DEXAMPLES=OFF -DFTDI_EEPROM=OFF -DLIBUSB_LIBRARIES=$GITHUB_WORKSPACE/libusb/android/libs/$ABI/libusb1.0.so -DLIBUSB_INCLUDE_DIR=$GITHUB_WORKSPACE/libusb/libusb -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/install-$ABI ..
+          ninja
+          ninja install
+        done
+    - name: Compile BrainFlow
+      run: |
+        for ABI in arm64-v8a armeabi-v7a x86 x86_64; do
+          mkdir $GITHUB_WORKSPACE/build-$ABI
+          cd $GITHUB_WORKSPACE/build-$ABI
+          cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/${ANDROID_NDK_VERSION}/build/cmake/android.toolchain.cmake -DANDROID_ABI=$ABI -DCMAKE_BUILD_TYPE=Release -DANDROID_NATIVE_API_LEVEL=android-19 -DCMAKE_FIND_ROOT_PATH=$GITHUB_WORKSPACE/install-$ABI -DUSE_LIBFTDI=ON ..
+          ninja
+        done
+    - name: Prepare Zip
+      run: |
+        cd $GITHUB_WORKSPACE/tools
+        zip -r jniLibs_ftdi.zip jniLibs
+    - name: Install AWS CLI
+      run: sudo -H python -m pip install awscli
+    - name: Upload To AWS
+      if: ${{ github.event_name == 'push' && github.repository == 'brainflow-dev/brainflow' }}
+      run: |
+        cd $GITHUB_WORKSPACE/tools
+        aws s3 cp jniLibs_ftdi.zip s3://brainflow/$GITHUB_SHA/
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
