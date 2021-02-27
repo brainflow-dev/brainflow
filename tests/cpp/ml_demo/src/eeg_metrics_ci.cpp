@@ -1,6 +1,6 @@
-#include <chrono>
 #include <iostream>
 #include <stdlib.h>
+#include <string>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -9,12 +9,8 @@
 #endif
 
 #include "board_shim.h"
-#include "data_filter.h"
-#include "ml_model.h"
 
 using namespace std;
-using namespace std::chrono;
-
 
 bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, int *board_id,
     struct BrainFlowModelParams *model_params);
@@ -22,6 +18,8 @@ bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, in
 
 int main (int argc, char *argv[])
 {
+    BoardShim::enable_dev_board_logger ();
+
     struct BrainFlowInputParams params;
     struct BrainFlowModelParams model_params (0, 0);
     int board_id = 0;
@@ -29,43 +27,31 @@ int main (int argc, char *argv[])
     {
         return -1;
     }
-
-    BoardShim::enable_dev_board_logger ();
+    int res = 0;
 
     BoardShim *board = new BoardShim (board_id, params);
-    double **data = NULL;
-    int *eeg_channels = NULL;
-    int num_rows = 0;
-    int res = 0;
-    int master_board_id = board->get_board_id ();
-
-    int sampling_rate = BoardShim::get_sampling_rate (master_board_id);
 
     try
     {
-        // Collect data from device
         board->prepare_session ();
         board->start_stream ();
-        BoardShim::log_message ((int)LogLevels::LEVEL_INFO, "Start sleeping in the main thread");
-        // recommended window size for eeg metric calculation is at least 4 seconds, bigger is
-        // better
+
 #ifdef _WIN32
         Sleep (5000);
 #else
         sleep (5);
 #endif
-        int data_count = 0;
-        data = board->get_board_data (&data_count);
-        board->stop_stream ();
-        std::cout << "Data Count: " << data_count << std::endl;
-        board->release_session ();
-        num_rows = BoardShim::get_num_rows (master_board_id);
 
-        // Calc bandpowers and build feature vector
-        int eeg_num_channels = 0;
-        eeg_channels = BoardShim::get_eeg_channels (master_board_id, &eeg_num_channels);
-        std::pair<double *, double *> bands = DataFilter::get_avg_band_powers (
-            data, data_count, eeg_channels, eeg_num_channels, sampling_rate, true);
+        board->stop_stream ();
+        BrainFlowArray<double, 2> data = board->get_board_data ();
+        board->release_session ();
+        std::cout << data << std::endl;
+        // calc band powers
+        int sampling_rate = BoardShim::get_sampling_rate ((int)BoardIds::SYNTHETIC_BOARD);
+        std::vector<int> eeg_channels = BoardShim::get_eeg_channels (board_id);
+        std::pair<double *, double *> bands =
+            DataFilter::get_avg_band_powers (data, eeg_channels, sampling_rate, true);
+
         double feature_vector[10];
         for (int i = 0; i < 5; i++)
         {
@@ -78,11 +64,21 @@ int main (int argc, char *argv[])
         }
         std::cout << std::endl;
 
-        // Prepare Models
-        MLModel model (model_params);
-        model.prepare ();
-        std::cout << "Model Score: " << model.predict (feature_vector, 10) << std::endl;
-        model.release ();
+        struct BrainFlowModelParams conc_model_params (
+            (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::REGRESSION);
+        MLModel concentration_model (conc_model_params);
+        concentration_model.prepare ();
+        std::cout << "Concentration Regression :"
+                  << concentration_model.predict (feature_vector, 10) << std::endl;
+        concentration_model.release ();
+
+        struct BrainFlowModelParams relax_model_params (
+            (int)BrainFlowMetrics::RELAXATION, (int)BrainFlowClassifiers::KNN);
+        MLModel relaxation_model (relax_model_params);
+        relaxation_model.prepare ();
+        std::cout << "Relaxation KNN :" << relaxation_model.predict (feature_vector, 10)
+                  << std::endl;
+        relaxation_model.release ();
 
         delete[] bands.first;
         delete[] bands.second;
@@ -91,22 +87,16 @@ int main (int argc, char *argv[])
     {
         BoardShim::log_message ((int)LogLevels::LEVEL_ERROR, err.what ());
         res = err.exit_code;
-    }
-
-    if (data != NULL)
-    {
-        for (int i = 0; i < num_rows; i++)
+        if (board->is_prepared ())
         {
-            delete[] data[i];
+            board->release_session ();
         }
     }
-    delete[] data;
-    delete[] eeg_channels;
+
     delete board;
 
     return res;
 }
-
 
 bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, int *board_id,
     struct BrainFlowModelParams *model_params)

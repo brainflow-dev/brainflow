@@ -69,7 +69,7 @@ static inline std::array<int, N> make_stride (const std::array<int, N> &size)
     std::array<int, N> stride;
 
     stride[N - 1] = 1;
-    for (int i = N - 2; i >= 0; i--)
+    for (int i = (int)N - 2; i >= 0; i--)
     {
         stride[i] = stride[i + 1] * size[i + 1];
     }
@@ -175,7 +175,7 @@ public:
         , stride (make_stride<3> (make_array (size0, size1, size2)))
         , origin (nullptr)
     {
-        static_assert (Dim == 2, "This function is only for BrainFlowArray<T, 2>");
+        static_assert (Dim == 3, "This function is only for BrainFlowArray<T, 3>");
         origin = new T[size0 * size1 * size2];
         memcpy (origin, ptr, size0 * size1 * size2 * sizeof (T));
     }
@@ -254,7 +254,7 @@ public:
     /// get size in dim
     int get_size (int dim) const
     {
-        if ((dim < 1) || (dim > Dim))
+        if ((dim < 0) || (dim >= Dim))
         {
             throw BrainFlowException (
                 "invalid dim argument", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
@@ -438,15 +438,15 @@ std::ostream &operator<< (std::ostream &os, const BrainFlowArray<T, Dim> &array)
     }
     os << std::endl;
 
+    const T *raw_ptr = array.get_raw_ptr ();
     if (Dim == 2)
     {
-        std::array<int, Dim> size = array.get_sizes ();
-
-        for (int i = 0; i < size[0]; i++)
+        for (int i = 0; i < sizes[0]; i++)
         {
-            for (int j = 0; j < std::min<int> (size[1], 10); j++)
+            for (int j = 0; j < std::min<int> (sizes[1], 10); j++)
             {
-                os << std::to_string (array.at (i, j)) << " ";
+                int idx = i * strides[0] + j * strides[1];
+                os << std::to_string (raw_ptr[idx]) << " ";
             }
             os << std::endl;
         }
@@ -455,7 +455,6 @@ std::ostream &operator<< (std::ostream &os, const BrainFlowArray<T, Dim> &array)
     else
     {
         int len = array.get_length ();
-        const T *raw_ptr = array.get_raw_ptr ();
         for (int i = 0; i < std::min<int> (len, 10); i++)
         {
             os << std::to_string (raw_ptr[i]) << " ";

@@ -9,6 +9,7 @@
 #endif
 
 #include "board_shim.h"
+#include "data_filter.h"
 
 using namespace std;
 
@@ -19,8 +20,9 @@ int main (int argc, char *argv[])
 
     struct BrainFlowInputParams params;
     int res = 0;
+    int board_id = (int)BoardIds::SYNTHETIC_BOARD;
     // use synthetic board for demo
-    BoardShim *board = new BoardShim ((int)BoardIds::SYNTHETIC_BOARD, params);
+    BoardShim *board = new BoardShim (board_id, params);
 
     try
     {
@@ -39,8 +41,8 @@ int main (int argc, char *argv[])
         std::cout << "Original data:" << std::endl << data << std::endl;
 
         // calc band powers
+        int sampling_rate = BoardShim::get_sampling_rate (board_id);
         int fft_len = DataFilter::get_nearest_power_of_two (sampling_rate);
-        int sampling_rate = BoardShim::get_sampling_rate ((int)BoardIds::SYNTHETIC_BOARD);
         std::vector<int> eeg_channels = BoardShim::get_eeg_channels (board_id);
         // for synthetic board second channel is a sine wave at 10 Hz, should see big alpha
         int channel = eeg_channels[1];

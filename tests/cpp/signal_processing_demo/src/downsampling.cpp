@@ -9,6 +9,7 @@
 #endif
 
 #include "board_shim.h"
+#include "data_filter.h"
 
 using namespace std;
 
@@ -21,8 +22,9 @@ int main (int argc, char *argv[])
 
     struct BrainFlowInputParams params;
     int res = 0;
+    int board_id = (int)BoardIds::SYNTHETIC_BOARD;
     // use synthetic board for demo
-    BoardShim *board = new BoardShim ((int)BoardIds::SYNTHETIC_BOARD, params);
+    BoardShim *board = new BoardShim (board_id, params);
 
     try
     {
@@ -41,10 +43,12 @@ int main (int argc, char *argv[])
 
         double *downsampled_data = NULL;
         int filtered_size = 0;
+        std::vector<int> eeg_channels = BoardShim::get_eeg_channels (board_id);
+
         for (int i = 0; i < eeg_channels.size (); i++)
         {
             std::cout << "Data from :" << eeg_channels[i] << " before downsampling " << std::endl;
-            print_one_row (data[eeg_channels[i]], data_count);
+            print_one_row (data.get_address (eeg_channels[i]), data.get_size (0));
 
             // just for demo apply different downsampling algorithms to different channels
             // downsampling here just aggregates data points

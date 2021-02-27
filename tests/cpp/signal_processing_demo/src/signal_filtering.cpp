@@ -9,6 +9,7 @@
 #endif
 
 #include "board_shim.h"
+#include "data_filter.h"
 
 using namespace std;
 
@@ -19,8 +20,9 @@ int main (int argc, char *argv[])
 
     struct BrainFlowInputParams params;
     int res = 0;
+    int board_id = (int)BoardIds::SYNTHETIC_BOARD;
     // use synthetic board for demo
-    BoardShim *board = new BoardShim ((int)BoardIds::SYNTHETIC_BOARD, params);
+    BoardShim *board = new BoardShim (board_id, params);
 
     try
     {

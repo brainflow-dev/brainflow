@@ -7,70 +7,26 @@
 #include <unistd.h>
 #endif
 
-#include "board_shim.h"
 #include "data_filter.h"
 
-using namespace std;
 
 int main (int argc, char *argv[])
 {
-    int n_ep = 2;
-    int n_ch = 2;
-    int n_times = 4;
+    constexpr int n_ep = 2;
+    constexpr int n_ch = 2;
+    constexpr int n_times = 4;
+    constexpr int total_len = n_ep * n_ch * n_times;
 
-    double labels[3] = {0, 1};
-    double ar[2][2][4] = {{{6, 3, 1, 5}, {3, 0, 5, 1}}, {{1, 5, 6, 2}, {5, 1, 2, 2}}};
+    double labels_array[n_ep] = {0, 1};
+    double data_array[total_len] = {6, 3, 1, 5, 3, 0, 5, 1, 1, 5, 6, 2, 5, 1, 2, 2};
 
-    double ***data = new double **[n_ep];
+    BrainFlowArray<double, 1> labels (labels_array, n_ep);
+    BrainFlowArray<double, 3> data (data_array, n_ep, n_ch, n_times);
+    std::cout << data << std::endl;
 
-    // Init data array
-    for (int e = 0; e < n_ep; e++)
-    {
-        data[e] = new double *[n_ch];
-        std::cout << "data = " << std::endl;
-        for (int c = 0; c < n_ch; c++)
-        {
-            data[e][c] = new double[n_times];
-            for (int t = 0; t < n_times; t++)
-            {
-                data[e][c][t] = ar[e][c][t];
-                std::cout << data[e][c][t] << "  ";
-            }
-            std::cout << std::endl;
-        }
-    }
+    std::pair<BrainFlowArray<double, 2>, BrainFlowArray<double, 1>> output =
+        DataFilter::get_csp (data, labels);
 
-    // Get CSP filters
-    std::pair<double **, double *> output = DataFilter::get_csp (data, labels, n_ep, n_ch, n_times);
-
-    // Print results
-    std::cout << "\nfilters = ";
-    for (int i = 0; i < n_ch; i++)
-    {
-        std::cout << "\n";
-        for (int j = 0; j < n_ch; j++)
-        {
-            std::cout << output.first[i][j] << "  ";
-        }
-    }
-    std::cout << "\n";
-
-    // Release allocated memory
-    for (int e = 0; e < n_ep; e++)
-    {
-        for (int c = 0; c < n_ch; c++)
-        {
-            delete[] data[e][c];
-        }
-        delete[] data[e];
-    }
-
-    for (int c = 0; c < n_ch; c++)
-    {
-        delete[] output.first[c];
-    }
-
-    delete[] data;
-    delete[] output.first;
-    delete[] output.second;
+    std::cout << output.first << std::endl;
+    std::cout << output.second << std::endl;
 }
