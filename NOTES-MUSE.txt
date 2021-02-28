@@ -22,10 +22,25 @@ Instructions to add new boards to BrainFlow [from docs/BrainFlowDev.rst]
     - [ ] in Muse2 class, implement device selection (probably configuration, or skip this and just pick the first nearby device found)
     - [ ] in Muse2 class, implement stream configuration (preset selection)
 
-    - [ ] in Muse2 class, implement session initialisation / releasing
+    - [X] in Muse2 class, implement session initialisation / releasing
+
+    - [ ] test the bluetooth backend on at least the development platform and fix encountered bugs
+            the nativeble project may have existing pull requests
+            xloem also has a fork at https://github.com/xloem/nativeble
+            it is also totally fine to pick or build a different backend
+    
+            NOTE: the normal way to do bluetooth is with the BLED112 dongle,
+            so if you're making a general bluetooth backend interface, you'll want
+            to port the BGLIB code to use it, too.
+
+    - [ ] implement detection of bluetooth libraries in CMakeLists.txt
+            this may mean adding a new error code to bluetooth for building without it.
 
     - [ ] in Muse2 class, implement stream starting / stopping
     - [ ] in Muse2 class, implement data forwarding
+
+    - [ ] clean up any debugging output or work that's just for testing.  Make sure to use appropriate logging rather than iostreams.
+    - [ ] remove the muse 1 board code, since it is unimplemented
 
 - [ ] add information about your board to [src/board_controller/inc/brainflow_boards.h]
 
