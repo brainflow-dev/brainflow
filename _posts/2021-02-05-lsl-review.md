@@ -30,7 +30,7 @@ Because of this in most cases, a workflow that uses LSL is as follows:
 
 Such pipeline works fine for researchers, but not ideal for software engineers, because it's difficult to automate it, not perfect from UX point of view and requires sophisticated Inter Process Communication.
 
-Additionally, LSL doesn’t allow sending/receiving commands to/from a device, which means its state cannot be changed during streaming. This lack of communication with the device can also cause problems with timestamp synchronization, since LSL has no information about the transmission period from the device to the LSL application.
+Additionally, LSL doesn’t allow sending/receiving commands to/from a device, which means its state cannot be changed during streaming.
 
 To overcome these limitations, BrainFlow allows sending/receiving commands to a device through a serial port, BLE, sockets, and more, because it's not attached to particular communication protocol. Also, BrainFlow works directly with device and doesn't require additional applications.
 
