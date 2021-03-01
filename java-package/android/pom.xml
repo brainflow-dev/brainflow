@@ -1,0 +1,81 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.brainflow</groupId>
+  <artifactId>android</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>brainflow</name>
+  <description>android binding for brainflow library</description>
+  <url>https://brainflow.org/</url>
+  <packaging>aar</packaging>
+
+  <licenses>
+    <license>
+      <name>MIT</name>
+      <url>https://github.com/brainflow-dev/brainflow/blob/master/LICENSE</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <scm>
+    <connection>scm:git:git@github.com:brainflow-dev/brainflow.git</connection>
+    <url>scm:git:git@github.com:brainflow-dev/brainflow.git</url>
+    <developerConnection>scm:git:git@github.com:brainflow-dev/brainflow.git</developerConnection>
+  </scm>
+
+  <developers>
+    <developer>
+      <name>Andrey Parfenov</name>
+      <email>a1994ndrey@gmail.com</email>
+       <organization>brainflow-dev</organization>
+       <organizationUrl>https://github.com/brainflow-dev</organizationUrl>
+    </developer>
+  </developers>
+
+  <distributionManagement>
+    <repository>
+      <id>github</id>
+      <name>GitHub brainflow-dev Apache Maven Packages</name>
+      <url>https://maven.pkg.github.com/brainflow-dev/brainflow</url>
+    </repository>
+  </distributionManagement>
+
+  <build>
+    <finalName>brainflow</finalName>
+
+    <plugins>
+      <plugin>
+        <groupId>com.simpligility.maven.plugins</groupId>
+        <artifactId>android-maven-plugin</artifactId>
+        <version>4.4.3</version>
+        <extensions>true</extensions>
+        <configuration>
+            <ndkArchitecture>arm64-v8a armeabi-v7a x86 x86_64</ndkArchitecture>
+        </configuration>
+      </plugin>
+    </plugins>
+
+  </build>
+  <dependencies>
+    <dependency>
+      <groupId>org.brainflow</groupId>
+      <artifactId>brainflow</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+      <exclusions>
+        <exclusion>
+          <groupId>net.java.dev.jna</groupId>
+          <artifactId>jna</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>net.java.dev.jna</groupId>
+          <artifactId>jna-platform</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>net.java.dev.jna</groupId>
+      <artifactId>jna</artifactId>
+      <version>5.7.0</version>
+      <type>aar</type>
+    </dependency>
+  </dependencies>
+</project>
