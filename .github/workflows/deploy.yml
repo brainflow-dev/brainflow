@@ -80,6 +80,12 @@ jobs:
     - name: Install 7Zip PowerShell Module
       shell: powershell
       run: Install-Module 7Zip4PowerShell -Force -Verbose
+    - name: Download Android Libs
+      run: |
+        New-Item $env:GITHUB_WORKSPACE\android -itemtype directory
+        aws s3 cp s3://brainflow/$env:GITHUB_SHA/jniLibs.zip $env:GITHUB_WORKSPACE\android\
+        Expand-7Zip -ArchiveFilename $env:GITHUB_WORKSPACE\android\jniLibs.zip -TargetPath $env:GITHUB_WORKSPACE\android\
+        ls $env:$GITHUB_WORKSPACE\android\jniLibs
 
     # Prepare packages
     - name: Prepare Libs
@@ -109,6 +115,23 @@ jobs:
         (gc .\settings.xml).replace('TOKEN',$env:PUBLISH_TOKEN) | Out-File -encoding ASCII settings.xml
         mvn package
         aws s3 cp $env:GITHUB_WORKSPACE\java-package\brainflow\target\ s3://brainflow/$env:GITHUB_SHA/jars --recursive
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        PUBLISH_USER: ${{ secrets.PUBLISH_USER }}
+        PUBLISH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
+        VERSION: ${{ github.event.inputs.version }}
+    - name: Prepare Android Package
+      run: |
+        cd $env:GITHUB_WORKSPACE\java-package\android
+        Copy-Item "$env:GITHUB_WORKSPACE\android\jniLibs\*" -Destination "$env:GITHUB_WORKSPACE\java-package\android\src\main\libs" -Recurse -Force -Exclude jnidispatch.so
+        ls $env:GITHUB_WORKSPACE\java-package\android\src\main\libs
+        (gc .\pom.xml).replace('0.0.1-SNAPSHOT', $env:VERSION) | Out-File -encoding ASCII pom.xml
+        type pom.xml
+        (gc .\settings.xml).replace('USER',$env:PUBLISH_USER) | Out-File -encoding ASCII settings.xml
+        (gc .\settings.xml).replace('TOKEN',$env:PUBLISH_TOKEN) | Out-File -encoding ASCII settings.xml
+        mvn package
+        aws s3 cp $env:GITHUB_WORKSPACE\java-package\android\target\ s3://brainflow/$env:GITHUB_SHA/aars --recursive
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
