@@ -5,6 +5,7 @@
 #include <iostream>
 #include <memory>
 
+#include "brainflow_constants.h"
 #include "brainflow_exception.h"
 
 
