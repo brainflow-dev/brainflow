@@ -13,7 +13,8 @@ LibFTDISerial::LibFTDISerial (const char *description, Board *board)
     : description (description), port_open (false), lib_init (false), board (board)
 {
     // setup libftdi
-    if (ftdi_init (&ftdi) == 0)
+    last_result = ftdi_init (&ftdi);
+    if (last_result == 0)
     {
         lib_init = true;
     }
@@ -27,35 +28,12 @@ LibFTDISerial::~LibFTDISerial ()
 {
     if (port_open)
     {
-        ftdi_usb_close (&ftdi);
+        last_result = ftdi_usb_close (&ftdi);
     }
     if (lib_init)
     {
         ftdi_deinit (&ftdi);
     }
-}
-
-bool LibFTDISerial::is_libftdi (const char *port_name)
-{
-    struct ftdi_context ftdi;
-    int init_result = ftdi_init (&ftdi);
-    int open_result;
-    if (init_result != 0)
-    {
-        // failed to init libftdi; do a manual check
-        if (port_name[0] == 0 || port_name[0] == '/')
-        {
-            return false;
-        }
-        return port_name[1] == ':';
-    }
-    open_result = ftdi_usb_open_string (&ftdi, port_name);
-    if (open_result == 0)
-    {
-        ftdi_usb_close (&ftdi);
-    }
-    ftdi_deinit (&ftdi);
-    return open_result != -11;
 }
 
 void LibFTDISerial::log_error (const char *action, const char *message)
@@ -73,17 +51,34 @@ void LibFTDISerial::log_error (const char *action, const char *message)
 
 int LibFTDISerial::open_serial_port ()
 {
-    // https://www.intra2net.com/en/developer/libftdi/documentation/ftdi_8c.html#aae805b82251a61dae46b98345cd84d5c
-    switch (ftdi_usb_open_string (&ftdi, description.c_str ()))
+    if (!lib_init)
     {
-        case 0:
-            port_open = true;
-            return (int)SerialExitCodes::OK;
+        // failed to init libftdi; at least check the port name
+        if (description.size () < 4)
+        {
+            return SerialExitCodes::PORT_NAME_ERROR;
+        }
+        if (description[0] == '/' || description[1] != ':')
+        {
+            return SerialExitCodes::PORT_NAME_ERROR;
+        }
+        return SerialExitCodes::OPEN_PORT_ERROR;
+    }
+    // https://www.intra2net.com/en/developer/libftdi/documentation/ftdi_8c.html#aae805b82251a61dae46b98345cd84d5c
+    last_result = ftdi_usb_open_string (&ftdi, description.c_str ());
+    if (last_result == 0)
+    {
+        port_open = true;
+        return (int)SerialExitCodes::OK;
+    }
+    log_error ("open_serial_port ()");
+    switch (last_result)
+    {
         case -10:
-            log_error ("open_serial_port ()");
             return (int)SerialExitCodes::CLOSE_ERROR;
+        case -11:
+            return (int)SerialExitCodes::PORT_NAME_ERROR;
         default:
-            log_error ("open_serial_port ()");
             return (int)SerialExitCodes::OPEN_PORT_ERROR;
     }
 }
@@ -95,23 +90,22 @@ bool LibFTDISerial::is_port_open ()
 
 int LibFTDISerial::set_serial_port_settings (int ms_timeout, bool timeout_only)
 {
-    int result;
     if (!timeout_only)
     {
-        result = ftdi_set_line_property (&ftdi, BITS_8, STOP_BIT_1, NONE);
-        if (result != 0)
+        last_result = ftdi_set_line_property (&ftdi, BITS_8, STOP_BIT_1, NONE);
+        if (last_result != 0)
         {
             log_error ("set_serial_port_settings");
             return (int)SerialExitCodes::SET_PORT_STATE_ERROR;
         }
-        result = set_custom_baudrate (115200);
-        if (result != (int)SerialExitCodes::OK)
+        last_result = set_custom_baudrate (115200);
+        if (last_result != (int)SerialExitCodes::OK)
         {
-            return result;
+            return last_result;
         }
-        result = ftdi_setdtr_rts (&ftdi, 1, 1);
-        result |= ftdi_setflowctrl (&ftdi, SIO_DISABLE_FLOW_CTRL);
-        if (result != 0)
+        last_result = ftdi_setdtr_rts (&ftdi, 1, 1);
+        last_result |= ftdi_setflowctrl (&ftdi, SIO_DISABLE_FLOW_CTRL);
+        if (last_result != 0)
         {
             // -1 setting failed, -2 usb device unavailable
             log_error ("set_serial_port_settings");
@@ -126,7 +120,8 @@ int LibFTDISerial::set_serial_port_settings (int ms_timeout, bool timeout_only)
 
 int LibFTDISerial::set_custom_baudrate (int baudrate)
 {
-    switch (ftdi_set_baudrate (&ftdi, baudrate))
+    last_result = ftdi_set_baudrate (&ftdi, baudrate);
+    switch (last_result)
     {
         case 0:
             return (int)SerialExitCodes::OK;
@@ -141,9 +136,10 @@ int LibFTDISerial::set_custom_baudrate (int baudrate)
 
 int LibFTDISerial::flush_buffer ()
 {
-#if FTDI_MAJOR_VERSION > 2 || (FTDI_MAJOR_VERSION == 1 && FTDI_MINOR_VERSIOM >= 5)
+#if FTDI_MAJOR_VERSION >= 2 || (FTDI_MAJOR_VERSION == 1 && FTDI_MINOR_VERSIOM >= 5)
     // correct tcflush was added in libftdi 1.5
-    switch (ftdi_tcioflush (&ftdi))
+    last_result = ftdi_tcioflush (&ftdi);
+    switch (last_result)
     {
         case 0:
             return (int)SerialExitCodes::OK;
@@ -172,35 +168,35 @@ int LibFTDISerial::read_from_serial_port (void *bytes_to_read, int size)
 
     auto deadline =
         std::chrono::steady_clock::now () + std::chrono::milliseconds (ftdi.usb_read_timeout);
-    int bytes_read = 0;
-    while (bytes_read == 0 && size > 0 && std::chrono::steady_clock::now () < deadline)
+    last_result = 0;
+    while (last_result == 0 && size > 0 && std::chrono::steady_clock::now () < deadline)
     {
-        bytes_read = ftdi_read_data (&ftdi, static_cast<unsigned char *> (bytes_to_read), size);
+        last_result = ftdi_read_data (&ftdi, static_cast<unsigned char *> (bytes_to_read), size);
         // TODO: negative values are libusb error codes, -666 means usb device unavailable
-        if (bytes_read < 0)
+        if (last_result < 0)
         {
             log_error ("read_from_serial_port");
         }
     }
 
-    return bytes_read;
+    return last_result;
 }
 
 int LibFTDISerial::send_to_serial_port (const void *message, int length)
 {
-    int bytes_written =
-        ftdi_write_data (&ftdi, static_cast<unsigned const char *> (message), length);
+    last_result = ftdi_write_data (&ftdi, static_cast<unsigned const char *> (message), length);
     // TODO: negative values are libusb error codes, -666 means usb device unavailable
-    if (bytes_written < 0)
+    if (last_result < 0)
     {
         log_error ("send_to_serial_port");
     }
-    return bytes_written;
+    return last_result;
 }
 
 int LibFTDISerial::close_serial_port ()
 {
-    if (ftdi_usb_close (&ftdi) == 0)
+    last_result = ftdi_usb_close (&ftdi);
+    if (last_result == 0)
     {
         port_open = false;
         return (int)SerialExitCodes::OK;
@@ -225,11 +221,6 @@ LibFTDISerial::LibFTDISerial (const char *description, Board *board)
 
 LibFTDISerial::~LibFTDISerial ()
 {
-}
-
-bool LibFTDISerial::is_libftdi (const char *port_name)
-{
-    return false;
 }
 
 int LibFTDISerial::open_serial_port ()

@@ -12,8 +12,6 @@ class LibFTDISerial : public Serial
 {
 
 public:
-    static bool is_libftdi (const char *port_name);
-
     LibFTDISerial (const char *description, Board *board = nullptr);
     virtual ~LibFTDISerial ();
 
@@ -33,6 +31,7 @@ private:
 
     struct ftdi_context ftdi;
     std::string description;
+    int last_result;
     bool port_open;
     bool lib_init;
     Board *board;

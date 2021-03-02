@@ -6,9 +6,12 @@
 Serial *Serial::create (const char *port_name, Board *board)
 {
 #ifdef USE_LIBFTDI
-    if (LibFTDISerial::is_libftdi (port_name))
     {
-        return new LibFTDISerial (port_name, board);
+        LibFTDISerial ftdi_probe (port_name);
+        if (ftdi_probe.open_serial_port () != SerialExitCodes::PORT_NAME_ERROR)
+        {
+            return new LibFTDISerial (port_name, board);
+        }
     }
 #endif
 
