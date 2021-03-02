@@ -48,7 +48,7 @@ int main (int argc, char *argv[])
         for (int i = 0; i < eeg_channels.size (); i++)
         {
             std::cout << "Data from :" << eeg_channels[i] << " before downsampling " << std::endl;
-            print_one_row (data.get_address (eeg_channels[i]), data.get_size (0));
+            print_one_row (data.get_address (eeg_channels[i]), data.get_size (1));
 
             // just for demo apply different downsampling algorithms to different channels
             // downsampling here just aggregates data points
@@ -57,17 +57,17 @@ int main (int argc, char *argv[])
                 case 0:
                     downsampled_data =
                         DataFilter::perform_downsampling (data.get_address (eeg_channels[i]),
-                            data.get_size (0), 2, (int)AggOperations::MEAN, &filtered_size);
+                            data.get_size (1), 2, (int)AggOperations::MEAN, &filtered_size);
                     break;
                 case 1:
                     downsampled_data =
                         DataFilter::perform_downsampling (data.get_address (eeg_channels[i]),
-                            data.get_size (0), 3, (int)AggOperations::MEDIAN, &filtered_size);
+                            data.get_size (1), 3, (int)AggOperations::MEDIAN, &filtered_size);
                     break;
                 default:
                     downsampled_data =
                         DataFilter::perform_downsampling (data.get_address (eeg_channels[i]),
-                            data.get_size (0), 2, (int)AggOperations::EACH, &filtered_size);
+                            data.get_size (1), 2, (int)AggOperations::EACH, &filtered_size);
                     break;
             }
 

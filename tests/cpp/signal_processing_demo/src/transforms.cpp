@@ -46,7 +46,7 @@ int main (int argc, char *argv[])
         int sampling_rate = BoardShim::get_sampling_rate ((int)BoardIds::SYNTHETIC_BOARD);
         std::vector<int> eeg_channels =
             BoardShim::get_eeg_channels ((int)BoardIds::SYNTHETIC_BOARD);
-        int data_count = data.get_size (0);
+        int data_count = data.get_size (1);
         for (int i = 0; i < eeg_channels.size (); i++)
         {
             // demo for wavelet transform
