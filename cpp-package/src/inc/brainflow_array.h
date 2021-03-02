@@ -4,6 +4,8 @@
 #include <array>
 #include <iostream>
 #include <memory>
+#include <stdlib.h>
+#include <string.h>
 
 #include "brainflow_constants.h"
 #include "brainflow_exception.h"
