@@ -9,6 +9,8 @@
 #endif
 
 #include "board_shim.h"
+#include "data_filter.h"
+#include "ml_model.h"
 
 using namespace std;
 
