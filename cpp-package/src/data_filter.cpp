@@ -151,7 +151,7 @@ std::pair<BrainFlowArray<double, 2>, BrainFlowArray<double, 1>> DataFilter::get_
         throw BrainFlowException ("failed to compute the CSP filters", res);
     }
 
-    return std::make_pair (std::move (filters), std::move (output_eigenvalues));
+    return std::make_pair (filters, output_eigenvalues);
 }
 
 double *DataFilter::get_window (int window_function, int window_len)

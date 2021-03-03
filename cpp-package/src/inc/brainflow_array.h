@@ -33,20 +33,15 @@ template <size_t N>
 static inline std::array<int, N> zero_array ()
 {
     std::array<int, N> result;
-
-    for (int i = 0; i < N; i++)
-    {
-        result[i] = 0;
-    }
-
-    return std::move (result);
+    result.fill (0);
+    return result;
 }
 
 static inline std::array<int, 1> make_array (int size0)
 {
     std::array<int, 1> result;
     result[0] = size0;
-    return std::move (result);
+    return result;
 }
 
 static inline std::array<int, 2> make_array (int size0, int size1)
@@ -54,7 +49,7 @@ static inline std::array<int, 2> make_array (int size0, int size1)
     std::array<int, 2> result;
     result[0] = size0;
     result[1] = size1;
-    return std::move (result);
+    return result;
 }
 
 static inline std::array<int, 3> make_array (int size0, int size1, int size2)
@@ -63,7 +58,7 @@ static inline std::array<int, 3> make_array (int size0, int size1, int size2)
     result[0] = size0;
     result[1] = size1;
     result[2] = size2;
-    return std::move (result);
+    return result;
 }
 
 template <size_t N>
@@ -77,7 +72,7 @@ static inline std::array<int, N> make_stride (const std::array<int, N> &size)
         stride[i] = stride[i + 1] * size[i + 1];
     }
 
-    return std::move (stride);
+    return stride;
 }
 
 /// Class to represent NDArrays, row major order, continuous memory
@@ -207,12 +202,10 @@ public:
         , stride (std::move (other.stride))
         , origin (nullptr)
     {
-        origin = new T[other.length];
-        memcpy (origin, other.origin, sizeof (T) * other.length);
-
+        origin = other.origin;
+        other.origin = nullptr;
         other.length = 0;
         other.size = zero_array<Dim> ();
-        other.origin = nullptr;
     }
 
     const BrainFlowArray &operator= (BrainFlowArray &&other)
@@ -220,13 +213,14 @@ public:
         length = other.length;
         size = std::move (other.size);
         stride = std::move (other.stride);
-        origin = new T[other.length];
-        memcpy (origin, other.origin, sizeof (T) * other.length);
-
+        if (origin != nullptr)
+        {
+            delete[] origin;
+        }
+        origin = other.origin;
+        other.origin = nullptr;
         other.length = 0;
         other.size = zero_array<Dim> ();
-        other.origin = nullptr;
-
         return *this;
     }
 
@@ -300,13 +294,25 @@ public:
     /// access element at index
     T &at (int index0)
     {
-        return origin[index0 * get_stride (0)];
+        int idx = index0 * get_stride (0);
+        if (idx >= length)
+        {
+            throw BrainFlowException (
+                "out of range", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+        }
+        return origin[idx];
     }
 
     /// access element at index
     const T &at (int index0) const
     {
-        return origin[index0 * get_stride (0)];
+        int idx = index0 * get_stride (0);
+        if (idx >= length)
+        {
+            throw BrainFlowException (
+                "out of range", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+        }
+        return origin[idx];
     }
 
     /// access element at index
@@ -324,27 +330,39 @@ public:
     /// access element at index
     T &operator[] (int index0)
     {
-        return at (index0);
+        return origin[index0];
     }
 
     /// access element at index
     const T &operator[] (int index0) const
     {
-        return at (index0);
+        return origin[index0];
     }
 
     /// access element at index
     T &at (int index0, int index1)
     {
         static_assert (Dim >= 2, "BrainFlowArray dimension bounds error");
-        return origin[index0 * get_stride (0) + index1 * get_stride (1)];
+        int idx = index0 * get_stride (0) + index1 * get_stride (1);
+        if (idx >= length)
+        {
+            throw BrainFlowException (
+                "out of range", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+        }
+        return origin[idx];
     }
 
     /// access element at index
     const T &at (int index0, int index1) const
     {
         static_assert (Dim >= 2, "BrainFlowArray dimension bounds error");
-        return origin[index0 * get_stride (0) + index1 * get_stride (1)];
+        int idx = index0 * get_stride (0) + index1 * get_stride (1);
+        if (idx >= length)
+        {
+            throw BrainFlowException (
+                "out of range", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+        }
+        return origin[idx];
     }
 
     /// access element at index
@@ -363,14 +381,26 @@ public:
     T &at (int index0, int index1, int index2)
     {
         static_assert (Dim >= 3, "BrainFlowArray dimension bounds error");
-        return origin[index0 * get_stride (0) + index1 * get_stride (1) + index2 * get_stride (2)];
+        int idx = index0 * get_stride (0) + index1 * get_stride (1) + index2 * get_stride (2);
+        if (idx >= length)
+        {
+            throw BrainFlowException (
+                "out of range", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+        }
+        return origin[idx];
     }
 
     /// access element at index
     const T &at (int index0, int index1, int index2) const
     {
         static_assert (Dim >= 3, "BrainFlowArray dimension bounds error");
-        return origin[index0 * get_stride (0) + index1 * get_stride (1) + index2 * get_stride (2)];
+        int idx = index0 * get_stride (0) + index1 * get_stride (1) + index2 * get_stride (2);
+        if (idx >= length)
+        {
+            throw BrainFlowException (
+                "out of range", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+        }
+        return origin[idx];
     }
 
     /// access element at index
