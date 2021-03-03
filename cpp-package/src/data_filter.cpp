@@ -346,6 +346,7 @@ BrainFlowArray<double, 2> DataFilter::read_file (std::string file_name)
         throw BrainFlowException ("failed to determine file size", res);
     }
     double *data_linear = new double[max_elements];
+    memset (data_linear, 0, sizeof (double) * max_elements);
     int num_rows = 0;
     int num_cols = 0;
     res = ::read_file (
