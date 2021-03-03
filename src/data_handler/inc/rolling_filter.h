@@ -3,7 +3,8 @@
 #include <deque>
 #include <set>
 
-template <typename T> class RollingFilter
+template <typename T>
+class RollingFilter
 {
 
 protected:
@@ -23,7 +24,8 @@ public:
     virtual T get_value () = 0;
 };
 
-template <typename T> class RollingMedian : public RollingFilter<T>
+template <typename T>
+class RollingMedian : public RollingFilter<T>
 {
 
 private:
@@ -62,7 +64,8 @@ public:
     }
 };
 
-template <typename T> class RollingAverage : public RollingFilter<T>
+template <typename T>
+class RollingAverage : public RollingFilter<T>
 {
 
 private:

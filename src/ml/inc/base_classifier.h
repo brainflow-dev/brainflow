@@ -37,7 +37,8 @@ public:
         }
     }
 
-    template <typename T> void safe_logger (spdlog::level::level_enum log_level, const T &msg)
+    template <typename T>
+    void safe_logger (spdlog::level::level_enum log_level, const T &msg)
     {
         if (!skip_logs)
         {

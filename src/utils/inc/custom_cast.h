@@ -40,7 +40,8 @@ inline void uchar_to_bits (unsigned char c, unsigned char *bits)
 // this function is specific to the ganglion board, as it deals with its quirks
 // input array is an array of 0 and 1 (not the chartacters '0' and '1',
 // but 8-bit unsigned integers 0 and 1)
-template <unsigned int N> inline int32_t cast_ganglion_bits_to_int32 (unsigned char *array)
+template <unsigned int N>
+inline int32_t cast_ganglion_bits_to_int32 (unsigned char *array)
 {
     // need to convert to std::string to feed the bitset
     std::string bitstring ((char *)array, N);

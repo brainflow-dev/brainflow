@@ -2,10 +2,12 @@
 
 #include <cstdarg>
 #include <string>
+#include <vector>
 
 // include it here to allow user include only this single file
 #include "board_controller.h"
 #include "board_info_getter.h"
+#include "brainflow_array.h"
 #include "brainflow_constants.h"
 #include "brainflow_exception.h"
 #include "brainflow_input_params.h"
@@ -14,11 +16,6 @@
 /// BoardShim class to communicate with a board
 class BoardShim
 {
-
-    void reshape_data (int data_points, double *linear_buffer, double **output_buf);
-    // can not init master_board_id in constructor cause we can not raise an exception from
-    // constructor, also can not do it only in prepare_session cause it might not be a first called
-    // method.
     std::string serialized_params;
     struct BrainFlowInputParams params;
 
@@ -31,7 +28,7 @@ public:
     /// enable BrainFlow logger with LEVEL_TRACE
     static void enable_dev_board_logger ();
     /// redirect BrainFlow logger from stderr to file
-    static void set_log_file (char *log_file);
+    static void set_log_file (std::string log_file);
     /// use set_log_level only if you want to write your own log messages to BrainFlow logger
     static void set_log_level (int log_level);
     /// write user defined string to BrainFlow logger
@@ -84,85 +81,85 @@ public:
      * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
-    static std::string *get_eeg_names (int board_id, int *len);
+    static std::vector<std::string> get_eeg_names (int board_id);
     /**
      * get row indices which hold EEG data, for some board we can not split EEG\EMG\...
      * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
-    static int *get_eeg_channels (int board_id, int *len);
+    static std::vector<int> get_eeg_channels (int board_id);
     /**
      * get row indices which hold EMG data, for some board we can not split EEG\EMG\...
      * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
-    static int *get_emg_channels (int board_id, int *len);
+    static std::vector<int> get_emg_channels (int board_id);
     /**
      * get row indices which hold ECG data, for some board we can not split EEG\EMG\...
      * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
-    static int *get_ecg_channels (int board_id, int *len);
+    static std::vector<int> get_ecg_channels (int board_id);
     /**
      * get row indices which hold EOG data, for some board we can not split EEG\EMG\...
      * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
-    static int *get_eog_channels (int board_id, int *len);
+    static std::vector<int> get_eog_channels (int board_id);
     /**
      * get row indices which hold EXG data
      * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
-    static int *get_exg_channels (int board_id, int *len);
+    static std::vector<int> get_exg_channels (int board_id);
     /**
      * get row indices which hold PPG data
      * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
-    static int *get_ppg_channels (int board_id, int *len);
+    static std::vector<int> get_ppg_channels (int board_id);
     /**
      * get row indices which hold EDA data
      * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
-    static int *get_eda_channels (int board_id, int *len);
+    static std::vector<int> get_eda_channels (int board_id);
     /**
      * get row indices which hold accel data
      * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
-    static int *get_accel_channels (int board_id, int *len);
+    static std::vector<int> get_accel_channels (int board_id);
     /**
      * get row indices which hold analog data
      * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
-    static int *get_analog_channels (int board_id, int *len);
+    static std::vector<int> get_analog_channels (int board_id);
     /**
      * get row indices which hold gyro data
      * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
-    static int *get_gyro_channels (int board_id, int *len);
+    static std::vector<int> get_gyro_channels (int board_id);
     /**
      * get row indices which hold other information
      * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
-    static int *get_other_channels (int board_id, int *len);
+    static std::vector<int> get_other_channels (int board_id);
     /**
      * get row indices which hold temperature data
      * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
-    static int *get_temperature_channels (int board_id, int *len);
+    static std::vector<int> get_temperature_channels (int board_id);
     /**
      * get row indices which hold resistance data
      * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
-    static int *get_resistance_channels (int board_id, int *len);
+    static std::vector<int> get_resistance_channels (int board_id);
 
     int board_id;
 
@@ -180,7 +177,7 @@ public:
                     supported values: "file://%file_name%:w", "file://%file_name%:a", "streaming_board://%multicast_group_ip%:%port%"".
                     Range for multicast addresses is from "224.0.0.0" to "239.255.255.255"
      */
-    void start_stream (int buffer_size = 450000, char *streamer_params = NULL);
+    void start_stream (int buffer_size = 450000, std::string streamer_params = "");
     /// check if session is ready or not
     bool is_prepared ();
     /// stop streaming thread, doesnt release other resources
@@ -188,13 +185,13 @@ public:
     /// release streaming session
     void release_session ();
     /// get latest collected data, doesnt remove it from ringbuffer
-    double **get_current_board_data (int num_samples, int *num_data_points);
+    BrainFlowArray<double, 2> get_current_board_data (int num_samples);
     /// Get board id, for some boards can be different than provided (playback, streaming)
     int get_board_id ();
     /// get number of packages in ringbuffer
     int get_board_data_count ();
     /// get all collected data and flush it from internal buffer
-    double **get_board_data (int *num_data_points);
+    BrainFlowArray<double, 2> get_board_data ();
     /// send string to a board, use it carefully and only if you understand what you are doing
     std::string config_board (char *config);
     /// insert marker in data stream
