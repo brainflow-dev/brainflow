@@ -52,7 +52,7 @@ class GaleaEmulator(object):
                     self.server_socket.sendto(Message.ack_from_device.value, self.addr)
                 elif msg == Message.time_calc_command.value:
                     cur_time = time.time ()
-                    resp = bytearray (struct.pack ('d', (cur_time - start_time_ms) * 1000))
+                    resp = bytearray (struct.pack ('d', (cur_time - start_time) * 1000))
                     self.server_socket.sendto (resp, self.addr)
                 else:
                     if msg:
@@ -70,7 +70,7 @@ class GaleaEmulator(object):
                     single_package[0] = self.package_num
 
                     cur_time = time.time ()
-                    timestamp = bytearray (struct.pack ('d', (cur_time - start_time_ms) * 1000))
+                    timestamp = bytearray (struct.pack ('d', (cur_time - start_time) * 1000))
                     eda = bytearray (struct.pack ('f', random.random ()))
                     ppg_red = bytearray (struct.pack ('i', int (random.random () * 5000)))
                     ppg_ir = bytearray (struct.pack ('i', int (random.random () * 5000)))
