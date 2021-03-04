@@ -1,4 +1,3 @@
-#include <chrono>
 #include <numeric>
 #include <stdint.h>
 #include <string.h>
@@ -23,7 +22,7 @@ Galea::Galea (struct BrainFlowInputParams params) : Board ((int)BoardIds::GALEA_
     keep_alive = false;
     initialized = false;
     state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
-    time_delay = 0.0;
+    half_rtt = 0.0;
 }
 
 Galea::~Galea ()
@@ -41,12 +40,7 @@ int Galea::prepare_session ()
     }
     if (params.ip_address.empty ())
     {
-        safe_logger (spdlog::level::info, "use default IP address 192.168.4.1");
-        params.ip_address = "192.168.4.1";
-    }
-    if (params.ip_protocol == (int)IpProtocolType::TCP)
-    {
-        safe_logger (spdlog::level::err, "ip protocol is UDP for novaxr");
+        safe_logger (spdlog::level::err, "ip address is not specified.");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     socket = new SocketClientUDP (params.ip_address.c_str (), 2390);
@@ -58,6 +52,7 @@ int Galea::prepare_session ()
         socket = NULL;
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
+    socket->set_timeout (2);
     // force default settings for device
     std::string tmp;
     std::string default_settings = "d";
@@ -90,6 +85,19 @@ int Galea::config_board (std::string conf, std::string &response)
         safe_logger (spdlog::level::err, "You need to call prepare_session before config_board");
         return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
     }
+    // special handling for calc_delay command
+    if (conf == "calc_delay")
+    {
+        if (is_streaming)
+        {
+            safe_logger (spdlog::level::err, "can not calc delay during the streaming.");
+            return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
+        }
+        int res = calc_time ();
+        response = std::to_string (half_rtt);
+        return res;
+    }
+
     const char *config = conf.c_str ();
     safe_logger (spdlog::level::debug, "Trying to config Galea with {}", config);
     int len = (int)strlen (config);
@@ -169,8 +177,8 @@ int Galea::start_stream (int buffer_size, char *streamer_params)
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
 
-    // calc delay before start stream
-    int res = calc_delay ();
+    // calc time before start stream
+    int res = calc_time ();
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
@@ -203,7 +211,7 @@ int Galea::start_stream (int buffer_size, char *streamer_params)
     // wait for data to ensure that everything is okay
     std::unique_lock<std::mutex> lk (this->m);
     auto sec = std::chrono::seconds (1);
-    if (cv.wait_for (lk, 5 * sec,
+    if (cv.wait_for (lk, 3 * sec,
             [this] { return this->state != (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR; }))
     {
         this->is_streaming = true;
@@ -242,7 +250,6 @@ int Galea::stop_stream ()
         }
 
         // free kernel buffer
-        socket->set_timeout (2);
         unsigned char b[Galea::transaction_size];
         res = 0;
         int max_attempt = 25; // to dont get to infinite loop
@@ -255,11 +262,9 @@ int Galea::stop_stream ()
             {
                 safe_logger (
                     spdlog::level::err, "Command 's' was sent but streaming is still running.");
-                socket->set_timeout (5);
                 return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
             }
         }
-        socket->set_timeout (5);
 
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
@@ -293,6 +298,8 @@ void Galea::read_thread ()
 {
     int res;
     unsigned char b[Galea::transaction_size];
+    DataBuffer time_buffer (1, 11);
+    double latest_times[10];
     constexpr int offset_last_package = Galea::package_size * (Galea::num_packages - 1);
     for (int i = 0; i < Galea::transaction_size; i++)
     {
@@ -308,7 +315,22 @@ void Galea::read_thread ()
     while (keep_alive)
     {
         res = socket->recv (b, Galea::transaction_size);
-        double recv_time = get_timestamp () - time_delay;
+        // calc delta between PC timestamp and device timestamp in last 10 packages,
+        // use this delta later on to assign timestamps
+        double pc_timestamp = get_timestamp ();
+        double timestamp_last_package = 0.0;
+        memcpy (&timestamp_last_package, b + 64 + offset_last_package, 8);
+        timestamp_last_package /= 1000; // from ms to seconds
+        double time_delta = pc_timestamp - timestamp_last_package;
+        time_buffer.add_data (&time_delta);
+        int num_time_deltas = (int)time_buffer.get_current_data (10, latest_times);
+        time_delta = 0.0;
+        for (int i = 0; i < num_time_deltas; i++)
+        {
+            time_delta += latest_times[i];
+        }
+        time_delta /= num_time_deltas;
+
         if (res == -1)
         {
 #ifdef _WIN32
@@ -382,17 +404,14 @@ void Galea::read_thread ()
             // battery
             package[board_descr["battery_channel"].get<int> ()] = (double)b[53 + offset];
 
-            double timestamp_device_cur;
-            memcpy (&timestamp_device_cur, b + 64 + offset, 8);
-            double timestamp_device_last;
-            memcpy (&timestamp_device_last, b + 64 + offset_last_package, 8);
-            timestamp_device_cur /= 1e6; // convert usec to sec
-            timestamp_device_last /= 1e6;
-            double time_delta = timestamp_device_last - timestamp_device_cur;
+            double timestamp_device = 0.0;
+            memcpy (&timestamp_device, b + 64 + offset, 8);
+            timestamp_device /= 1000; // from ms to seconds
 
-            // workaround micros() overflow issue in firmware
-            double timestamp = (time_delta < 0) ? recv_time : recv_time - time_delta;
-            package[board_descr["timestamp_channel"].get<int> ()] = timestamp;
+            package[board_descr["timestamp_channel"].get<int> ()] =
+                timestamp_device + time_delta - half_rtt;
+            package[board_descr["other_channels"][0].get<int> ()] = pc_timestamp;
+            package[board_descr["other_channels"][1].get<int> ()] = timestamp_device;
 
             push_package (package);
         }
@@ -400,45 +419,53 @@ void Galea::read_thread ()
     delete[] package;
 }
 
-int Galea::calc_delay ()
+int Galea::calc_time ()
 {
-    int num_repeats = 5;
-    std::vector<double> times;
-    int num_fails = 0;
-    unsigned char b[Galea::transaction_size];
+    constexpr int num_repeats = 5;
+    constexpr int bytes_to_calc_rtt = 8;
 
-    for (int i = 0; i < num_repeats; i++)
+    std::vector<double> durations; // diff between unix time on pc and firmware time
+
+    int num_fails = 0;
+    int max_num_fails = 1;
+    double firmware_delay = 0.0; // seconds, todo measure it in firmware or write experimental value
+    unsigned char b[bytes_to_calc_rtt];
+
+    for (int i = 0; (i < num_repeats) && (num_fails <= max_num_fails); i++)
     {
-        auto started = std::chrono::high_resolution_clock::now ();
-        int res = socket->send ("F4", 2);
-        if (res != 2)
+        double start1 = get_timestamp ();
+        int res = socket->send ("F4444444", bytes_to_calc_rtt);
+        double start2 = get_timestamp ();
+        double start = (start1 + start2) / 2; // for better accuracy
+
+        if (res != bytes_to_calc_rtt)
         {
             safe_logger (spdlog::level::warn, "failed to send time calc command to device");
             num_fails++;
             continue;
         }
-        res = socket->recv (b, Galea::transaction_size);
-        if (res != Galea::transaction_size)
+        res = socket->recv (b, bytes_to_calc_rtt);
+        double done = get_timestamp ();
+        if (res != bytes_to_calc_rtt)
         {
             safe_logger (spdlog::level::warn,
                 "failed to recv resp from time calc command, resp size {}", res);
             num_fails++;
             continue;
         }
-        auto done = std::chrono::high_resolution_clock::now ();
-        double duration =
-            (double)std::chrono::duration_cast<std::chrono::milliseconds> (done - started).count ();
-        times.push_back (duration);
+        // calc half of round trip
+        double duration = (done - start - firmware_delay) / 2;
+        durations.push_back (duration);
     }
-    if (num_fails > 1)
+    if (num_fails > max_num_fails)
     {
         safe_logger (spdlog::level::err,
             "Failed to calc time delay between PC and device. Too many lost packages.");
         return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     }
-    time_delay =
-        times.empty () ? 0.0 : std::accumulate (times.begin (), times.end (), 0.0) / times.size ();
-    time_delay /= 2000; // 2 to get a half and 1000 to convert to secs
-    safe_logger (spdlog::level::debug, "Time delta: {} seconds", time_delay);
+    half_rtt = durations.empty () ?
+        0.0 :
+        std::accumulate (durations.begin (), durations.end (), 0.0) / durations.size ();
+    safe_logger (spdlog::level::trace, "average sending time is {}", half_rtt);
     return (int)BrainFlowExitCodes::STATUS_OK;
 }

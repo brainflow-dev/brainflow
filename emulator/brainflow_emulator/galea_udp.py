@@ -14,7 +14,6 @@ from brainflow_emulator.emulate_common import TestFailureError, log_multilines
 class State(enum.Enum):
     wait = 'wait'
     stream = 'stream'
-    send_once = 'send_once'
 
 
 class Message(enum.Enum):
@@ -22,7 +21,7 @@ class Message(enum.Enum):
     stop_stream = b's'
     ack_values = (b'd', b'~6')
     ack_from_device = b'A'
-    time_calc_command = b'F4'
+    time_calc_command = b'F4444444'
 
 
 def test_socket(cmd_list):
@@ -61,7 +60,9 @@ class GaleaEmulator(threading.Thread):
         self.package_size = 72
         self.keep_alive = True
 
-    def run(self):
+
+    def run (self):
+        start_time = time.time ()
         while self.keep_alive:
             try:
                 msg, self.addr = self.server_socket.recvfrom(128)
@@ -72,7 +73,9 @@ class GaleaEmulator(threading.Thread):
                 elif msg in Message.ack_values.value:
                     self.server_socket.sendto(Message.ack_from_device.value, self.addr)
                 elif msg == Message.time_calc_command.value:
-                    self.state = State.send_once.value
+                    cur_time = time.time ()
+                    resp = bytearray (struct.pack ('d', (cur_time - start_time) * 1000))
+                    self.server_socket.sendto (resp, self.addr)
                 else:
                     if msg:
                         # we dont handle board config characters because they dont change package format
@@ -82,23 +85,22 @@ class GaleaEmulator(threading.Thread):
             except Exception:
                 break
 
-            if self.state == State.stream.value or self.state == State.send_once.value:
-                package = list()
-                for _ in range(19):
-                    package.append(self.package_num)
+            if self.state == State.stream.value:
+                package = list ()
+                for _ in range (19):
+                    package.append (self.package_num)
                     self.package_num = self.package_num + 1
                     if self.package_num % 256 == 0:
                         self.package_num = 0
-                    for i in range(1, self.package_size - 8):
-                        package.append(random.randint(0, 255))
-                    timestamp = bytearray(struct.pack("d", time.time()))
-                    package.extend(timestamp)
+                    for i in range (1, self.package_size - 8):
+                        package.append (random.randint (0, 255))
+                    cur_time = time.time ()
+                    timestamp = bytearray (struct.pack ('d', (cur_time - start_time) * 1000))
+                    package.extend (timestamp)
                 try:
                     self.server_socket.sendto(bytes(package), self.addr)
                 except socket.timeout:
-                    logging.info('timeout for send')
-                if self.state == State.send_once.value:
-                    self.state = State.wait.value
+                    logging.info ('timeout for send')
 
 
 def main(cmd_list):
