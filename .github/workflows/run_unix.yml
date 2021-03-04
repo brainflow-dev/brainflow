@@ -148,8 +148,8 @@ jobs:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Streaming Python Markers
       run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/streaming_board_emulator.py python3 $GITHUB_WORKSPACE/tests/python/markers.py --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
-    - name: Fascia Python Markers
-      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/fascia_emulator_ci.py python3 $GITHUB_WORKSPACE/tests/python/markers.py --board-id 12 --ip-port 7789
+    #- name: Fascia Python Markers
+    #  run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/fascia_emulator_ci.py python3 $GITHUB_WORKSPACE/tests/python/markers.py --board-id 12 --ip-port 7789
     - name: IronBCI Cpp Markers
       run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/ironbci_linux.py $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/markers --board-id 15 --serial-port
       env:
@@ -252,14 +252,14 @@ jobs:
     - name: Install AWS CLI
       run: sudo -H python3 -m pip install awscli
     - name: Push Libraries Linux Docker
-      if: ${{ github.event_name == 'push' && matrix.os == 'ubuntu-18.04'}}
+      if: ${{ github.event_name == 'push' && matrix.os == 'ubuntu-18.04' && github.repository == 'brainflow-dev/brainflow' }}
       run: |
         aws s3 cp $GITHUB_WORKSPACE/installed_docker/lib/ s3://brainflow/$GITHUB_SHA/linux --recursive
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     - name: Push Libraries MacOS Dev
-      if: ${{ github.event_name == 'push' && matrix.os == 'macos-10.15'}}
+      if: ${{ github.event_name == 'push' && matrix.os == 'macos-10.15' && github.repository == 'brainflow-dev/brainflow' }}
       run: |
         aws s3 cp $GITHUB_WORKSPACE/installed/lib/ s3://brainflow/$GITHUB_SHA/macos_dev --recursive
       env:
