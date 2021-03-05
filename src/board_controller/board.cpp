@@ -20,6 +20,8 @@ std::shared_ptr<spdlog::logger> Board::board_logger =
 std::shared_ptr<spdlog::logger> Board::board_logger = spdlog::stderr_logger_mt (LOGGER_NAME);
 #endif
 
+JNIEnv *Board::java_jnienv = nullptr;
+
 int Board::set_log_level (int level)
 {
     int log_level = level;
