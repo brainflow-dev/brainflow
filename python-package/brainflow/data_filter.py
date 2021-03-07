@@ -9,10 +9,11 @@ import sys
 import struct
 from typing import List, Set, Dict, Tuple
 
-from nptyping import NDArray, Float64, Complex128
+from nptyping import NDArray, Float64, Complex128, Int64
 
 from brainflow.board_shim import BrainFlowError, LogLevels
 from brainflow.exit_codes import BrainflowExitCodes
+from brainflow.utils import check_memory_layout_row_major
 
 
 class FilterTypes(enum.IntEnum):
@@ -209,6 +210,18 @@ class DataHandlerDLL(object):
             ndpointer(ctypes.c_double)
         ]
 
+        self.get_csp = self.lib.get_csp
+        self.get_csp.restype = ctypes.c_int
+        self.get_csp.argtypes = [
+            ndpointer(ctypes.c_double),
+            ndpointer(ctypes.c_double),
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ndpointer(ctypes.c_double),
+            ndpointer(ctypes.c_double)
+        ]
+
         self.get_window = self.lib.get_window
         self.get_window.restype = ctypes.c_int
         self.get_window.argtypes = [
@@ -371,13 +384,11 @@ class DataFilter(object):
         :param ripple: ripple value for Chebyshev filter
         :type ripple: float
         """
+        check_memory_layout_row_major(data, 1)
         if not isinstance(sampling_rate, int):
             raise BrainFlowError('wrong type for sampling rate', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not isinstance(filter_type, int):
             raise BrainFlowError('wrong type for filter type', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
-        if len(data.shape) != 1:
-            raise BrainFlowError('wrong shape for filter data array, it should be 1d array',
-                                 BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         res = DataHandlerDLL.get_instance().perform_lowpass(data, data.shape[0], sampling_rate, cutoff, order,
                                                             filter_type, ripple)
         if res != BrainflowExitCodes.STATUS_OK.value:
@@ -401,13 +412,11 @@ class DataFilter(object):
         :param ripple: ripple value for Chebyshev filter
         :type ripple: float
         """
+        check_memory_layout_row_major(data, 1)
         if not isinstance(sampling_rate, int):
             raise BrainFlowError('wrong type for sampling rate', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not isinstance(filter_type, int):
             raise BrainFlowError('wrong type for filter type', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
-        if len(data.shape) != 1:
-            raise BrainFlowError('wrong shape for filter data array, it should be 1d array',
-                                 BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         res = DataHandlerDLL.get_instance().perform_highpass(data, data.shape[0], sampling_rate, cutoff, order,
                                                              filter_type, ripple)
         if res != BrainflowExitCodes.STATUS_OK.value:
@@ -433,13 +442,11 @@ class DataFilter(object):
         :param ripple: ripple value for Chebyshev filter
         :type ripple: float
         """
+        check_memory_layout_row_major(data, 1)
         if not isinstance(sampling_rate, int):
             raise BrainFlowError('wrong type for sampling rate', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not isinstance(filter_type, int):
             raise BrainFlowError('wrong type for filter type', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
-        if len(data.shape) != 1:
-            raise BrainFlowError('wrong shape for filter data array, it should be 1d array',
-                                 BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         res = DataHandlerDLL.get_instance().perform_bandpass(data, data.shape[0], sampling_rate, center_freq,
                                                              band_width, order, filter_type, ripple)
         if res != BrainflowExitCodes.STATUS_OK.value:
@@ -465,13 +472,11 @@ class DataFilter(object):
         :param ripple: ripple value for Chebyshev filter
         :type ripple: float
         """
+        check_memory_layout_row_major(data, 1)
         if not isinstance(sampling_rate, int):
             raise BrainFlowError('wrong type for sampling rate', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not isinstance(filter_type, int):
             raise BrainFlowError('wrong type for filter type', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
-        if len(data.shape) != 1:
-            raise BrainFlowError('wrong shape for filter data array, it should be 1d array',
-                                 BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         res = DataHandlerDLL.get_instance().perform_bandstop(data, data.shape[0], sampling_rate, center_freq,
                                                              band_width, order, filter_type, ripple)
         if res != BrainflowExitCodes.STATUS_OK.value:
@@ -488,13 +493,11 @@ class DataFilter(object):
         :param operation: int value from AggOperation enum
         :type operation: int
         """
+        check_memory_layout_row_major(data, 1)
         if not isinstance(period, int):
             raise BrainFlowError('wrong type for period', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not isinstance(operation, int):
             raise BrainFlowError('wrong type for operation', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
-        if len(data.shape) != 1:
-            raise BrainFlowError('wrong shape for filter data array, it should be 1d array',
-                                 BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         res = DataHandlerDLL.get_instance().perform_rolling_filter(data, data.shape[0], period, operation)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to smooth data', res)
@@ -512,13 +515,11 @@ class DataFilter(object):
         :return: downsampled data
         :rtype: NDArray[Float64]
         """
+        check_memory_layout_row_major(data, 1)
         if not isinstance(period, int):
             raise BrainFlowError('wrong type for period', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not isinstance(operation, int):
             raise BrainFlowError('wrong type for operation', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
-        if len(data.shape) != 1:
-            raise BrainFlowError('wrong shape for filter data array, it should be 1d array',
-                                 BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if period <= 0:
             raise BrainFlowError('Invalid value for period', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
 
@@ -543,6 +544,7 @@ class DataFilter(object):
         :return: tuple of wavelet coeffs in format [A(J) D(J) D(J-1) ..... D(1)] where J is decomposition level, A - app coeffs, D - detailed coeffs, and array with lengths for each block
         :rtype: tuple
         """
+        check_memory_layout_row_major(data, 1)
         try:
             wavelet_func = wavelet.encode()
         except:
@@ -599,6 +601,7 @@ class DataFilter(object):
         :param decomposition_level: decomposition level
         :type decomposition_level: int
         """
+        check_memory_layout_row_major(data, 1)
         try:
             wavelet_func = wavelet.encode()
         except:
@@ -608,6 +611,37 @@ class DataFilter(object):
                                                                       decomposition_level)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to denoise data', res)
+
+    @classmethod
+    def get_csp(cls, data: NDArray[Float64], labels: NDArray[Float64]) -> Tuple:
+        """calculate filters and the corresponding eigenvalues using the Common Spatial Patterns
+
+        :param data: [epochs x channels x times]-shaped 3D array of data for two classes
+        :type data: NDArray[Float64]
+        :param labels: n_epochs-length 1D array of zeros and ones that assigns class labels for each epoch. Zero corresponds to the first class
+        :type labels: NDArray[Int64] 
+        :return: [channels x channels]-shaped 2D array of filters and [channels]-length 1D array of the corresponding eigenvalues
+        :rtype: Tuple
+        """
+        if not (len(labels.shape) == 1):
+            raise BrainFlowError('Invalid shape of array <labels>', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        if not (len(labels) == data.shape[0]):
+            raise BrainFlowError('Invalid number of elements in array <labels>', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        
+        n_epochs, n_channels, n_times = data.shape
+
+        temp_data1d = numpy.reshape(data,(n_epochs*n_channels*n_times,))
+
+        output_filters = numpy.zeros(int(n_channels * n_channels)).astype(numpy.float64)
+        output_eigenvalues = numpy.zeros(int(n_channels)).astype(numpy.float64)
+
+        res = DataHandlerDLL.get_instance().get_csp(temp_data1d, labels, n_epochs, n_channels, n_times, output_filters, output_eigenvalues)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to calc csp', res)
+
+        output_filters = numpy.reshape(output_filters, (n_channels, n_channels))
+
+        return output_filters, output_eigenvalues
 
     @classmethod
     def get_window(cls, window_function: int, window_len: int) -> NDArray[Float64]:
@@ -638,6 +672,7 @@ class DataFilter(object):
         :rtype: NDArray[Complex128]
         """
 
+        check_memory_layout_row_major(data, 1)
         def is_power_of_two(n):
             return (n != 0) and (n & (n - 1) == 0)
 
@@ -671,6 +706,7 @@ class DataFilter(object):
         :rtype: tuple
         """
 
+        check_memory_layout_row_major(data, 1)
         def is_power_of_two(n):
             return (n != 0) and (n & (n - 1) == 0)
 
@@ -704,6 +740,7 @@ class DataFilter(object):
         :rtype: tuple
         """
 
+        check_memory_layout_row_major(data, 1)
         def is_power_of_two(n):
             return (n != 0) and (n & (n - 1) == 0)
 
@@ -728,9 +765,8 @@ class DataFilter(object):
         :param detrend_operation: Type of detrend operation
         :type detrend_operation: int
         """
-        if len(data.shape) != 1:
-            raise BrainFlowError('wrong shape for data, should be 1d array',
-                                 BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+
+        check_memory_layout_row_major(data, 1)
         res = DataHandlerDLL.get_instance().detrend(data, data.shape[0], detrend_operation)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to detrend data', res)
@@ -772,9 +808,7 @@ class DataFilter(object):
         :rtype: tuple
         """
 
-        if (data.ndim != 2):
-            raise BrainFlowError('Shape of data array must be 2', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
-
+        check_memory_layout_row_major(data, 2)
         avg_bands = numpy.zeros(5).astype(numpy.float64)
         stddev_bands = numpy.zeros(5).astype(numpy.float64)
         data_1d = numpy.zeros(len(channels) * data.shape[1])
@@ -837,9 +871,8 @@ class DataFilter(object):
         :param file_mode: 'w' to rewrite file or 'a' to append data to file
         :type file_mode: str
         """
-        if len(data.shape) != 2:
-            raise BrainFlowError('wrong shape for filter data array, it should be 2d array',
-                                 BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+
+        check_memory_layout_row_major(data, 2)
         try:
             file = file_name.encode()
         except:

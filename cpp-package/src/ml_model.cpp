@@ -6,9 +6,9 @@
 using json = nlohmann::json;
 
 
-void MLModel::set_log_file (char *log_file)
+void MLModel::set_log_file (std::string log_file)
 {
-    int res = ::set_log_file (log_file);
+    int res = ::set_log_file (const_cast<char *> (log_file.c_str ()));
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to set log file", res);

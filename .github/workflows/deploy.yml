@@ -44,6 +44,13 @@ jobs:
       run: |
         echo ${{ github.event.inputs.version }}
         echo ${{ github.event.inputs.publish }}
+    - name: Compile x64
+      run: |
+        mkdir %GITHUB_WORKSPACE%\build64
+        cd %GITHUB_WORKSPACE%\build64
+        cmake -DWARNINGS_AS_ERRORS=ON -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed64\ ..
+        cmake --build . --target install --config Release -j 2 --parallel 2
+      shell: cmd
     # Download all artifacts from AWS
     - name: Download Linux Libs
       run: |
@@ -134,8 +141,6 @@ jobs:
         VERSION: ${{ github.event.inputs.version }}
     - name: Prepare Nuget Package
       run: |
-        nuget install Accord -OutputDirectory $env:GITHUB_WORKSPACE\csharp-package\brainflow\packages
-        nuget install Accord.Math -OutputDirectory $env:GITHUB_WORKSPACE\csharp-package\brainflow\packages
         Copy-Item "$env:GITHUB_WORKSPACE\linux\*" -Destination "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" -Recurse -Force -Filter *.*
         Copy-Item "$env:GITHUB_WORKSPACE\macos\*" -Destination "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" -Recurse -Force -Filter *.*
         Copy-Item "$env:GITHUB_WORKSPACE\win64\*" -Destination "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" -Recurse -Force -Filter *.*
@@ -148,6 +153,19 @@ jobs:
         type brainflow.nuspec
         nuget pack brainflow.csproj -properties Configuration=Release -IncludeReferencedProjects
         aws s3 cp $env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow s3://brainflow/$env:GITHUB_SHA/nuget --recursive
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        VERSION: ${{ github.event.inputs.version }}
+    - name: Prepare Matlab Package
+      run: |
+        Copy-Item "$env:GITHUB_WORKSPACE\linux\*" -Destination "$env:GITHUB_WORKSPACE\matlab-package\brainflow\lib" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\macos\*" -Destination "$env:GITHUB_WORKSPACE\matlab-package\brainflow\lib" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\win64\*" -Destination "$env:GITHUB_WORKSPACE\matlab-package\brainflow\lib" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\win32\*" -Destination "$env:GITHUB_WORKSPACE\matlab-package\brainflow\lib" -Recurse -Force -Filter *.*
+        ls $env:GITHUB_WORKSPACE\matlab-package\brainflow\lib
+        Compress-7Zip -Path $env:GITHUB_WORKSPACE\matlab-package -ArchiveFileName $env:GITHUB_WORKSPACE\matlab_package.tar -Format Tar
+        aws s3 cp $env:GITHUB_WORKSPACE\matlab_package.tar s3://brainflow/$env:GITHUB_SHA/matlab_package.tar
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

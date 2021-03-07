@@ -55,11 +55,11 @@ const LINEAR = Linear()
 end
 
 @brainflow_rethrow function perform_highpass(
-    data, 
-    sampling_rate::Integer, 
-    cutoff::Float64, 
+    data,
+    sampling_rate::Integer,
+    cutoff::Float64,
     order::Integer,
-    filter_type::Integer, 
+    filter_type::Integer,
     ripple::Float64
 )
     ccall((:perform_highpass, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Float64, Cint, Cint, Float64),
@@ -157,6 +157,34 @@ end
     ccall((:perform_inverse_wavelet_transform, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Ptr{UInt8}, Cint, Ptr{Float64}, Ptr{Float64}),
             wavelet_output[1], Int32(original_data_len), wavelet, Int32(decomposition_level), wavelet_output[2], original_data)
     return original_data
+end
+
+@brainflow_rethrow function get_csp(data, labels)
+    n_epochs = size(data, 3)
+    n_channels = size(data, 1)
+    n_times = size(data, 2)
+
+    temp_data1d = Vector{Float64}(undef, Integer(n_epochs * n_channels * n_times))
+    for e=1:n_epochs
+        for c=1:n_channels
+            for t=1:n_times
+                temp_data1d[(e-1) * n_channels * n_times + (c-1) * n_times + t] = data[c, t, e]
+            end
+        end
+    end
+
+    temp_filters = Vector{Float64}(undef, Integer(n_channels * n_channels))
+    output_eigenvalues = Vector{Float64}(undef, Integer(n_channels))
+
+    ccall((:get_csp, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Ptr{Float64}, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}), temp_data1d, labels, Int32(n_epochs), Int32(n_channels), Int32(n_times), temp_filters, output_eigenvalues)
+
+    output_filters = Array{Float64,2}(undef, n_channels, n_channels)
+    for i=1:n_channels
+        for j=1:n_channels
+            output_filters[i, j] = temp_filters[(i-1) * n_channels + j]
+        end
+    end
+    return output_filters, output_eigenvalues
 end
 
 @brainflow_rethrow function get_window(window_function::Integer, window_len::Integer)

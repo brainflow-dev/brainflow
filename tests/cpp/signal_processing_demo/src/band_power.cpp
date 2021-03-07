@@ -1,5 +1,6 @@
 #include <iostream>
 #include <stdlib.h>
+#include <string>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -12,56 +13,49 @@
 
 using namespace std;
 
+
 int main (int argc, char *argv[])
 {
-    struct BrainFlowInputParams params;
-    // use synthetic board for demo
-    int board_id = (int)BoardIds::SYNTHETIC_BOARD;
-
     BoardShim::enable_dev_board_logger ();
 
-    BoardShim *board = new BoardShim (board_id, params);
-    double **data = NULL;
-    int *eeg_channels = NULL;
-    int num_rows = 0;
+    struct BrainFlowInputParams params;
     int res = 0;
-    int sampling_rate = BoardShim::get_sampling_rate (board_id);
+    int board_id = (int)BoardIds::SYNTHETIC_BOARD;
+    // use synthetic board for demo
+    BoardShim *board = new BoardShim (board_id, params);
 
     try
     {
         board->prepare_session ();
         board->start_stream ();
-        BoardShim::log_message ((int)LogLevels::LEVEL_INFO, "Start sleeping in the main thread");
+
 #ifdef _WIN32
-        Sleep (10000);
+        Sleep (5000);
 #else
-        sleep (10);
+        sleep (5);
 #endif
 
         board->stop_stream ();
-        int data_count = 0;
-        int fft_len = DataFilter::get_nearest_power_of_two (sampling_rate);
-        data = board->get_board_data (&data_count);
+        BrainFlowArray<double, 2> data = board->get_board_data ();
         board->release_session ();
-        num_rows = BoardShim::get_num_rows (board_id);
+        std::cout << "Original data:" << std::endl << data << std::endl;
 
-        int eeg_num_channels = 0;
-        eeg_channels = BoardShim::get_eeg_channels (board_id, &eeg_num_channels);
+        // calc band powers
+        int sampling_rate = BoardShim::get_sampling_rate (board_id);
+        int fft_len = DataFilter::get_nearest_power_of_two (sampling_rate);
+        std::vector<int> eeg_channels = BoardShim::get_eeg_channels (board_id);
         // for synthetic board second channel is a sine wave at 10 Hz, should see big alpha
         int channel = eeg_channels[1];
         // optional - detrend
-        DataFilter::detrend (data[channel], data_count, (int)DetrendOperations::LINEAR);
-        std::pair<double *, double *> psd = DataFilter::get_psd_welch (data[channel], data_count,
-            fft_len, fft_len / 2, sampling_rate, (int)WindowFunctions::HANNING);
+        DataFilter::detrend (
+            data.get_address (channel), data.get_size (1), (int)DetrendOperations::LINEAR);
+        std::cout << "Data after detrend:" << std::endl << data << std::endl;
+        std::pair<double *, double *> psd = DataFilter::get_psd_welch (data.get_address (channel),
+            data.get_size (1), fft_len, fft_len / 2, sampling_rate, (int)WindowFunctions::HANNING);
         // calc band power
         double band_power_alpha = DataFilter::get_band_power (psd, fft_len / 2 + 1, 7.0, 13.0);
         double band_power_beta = DataFilter::get_band_power (psd, fft_len / 2 + 1, 14.0, 30.0);
         std::cout << "alpha/beta:" << band_power_alpha / band_power_beta << std::endl;
-        // fail test if unexpected ratio
-        if (band_power_alpha / band_power_beta < 100)
-        {
-            res = -1;
-        }
         delete[] psd.first;
         delete[] psd.second;
     }
@@ -69,17 +63,12 @@ int main (int argc, char *argv[])
     {
         BoardShim::log_message ((int)LogLevels::LEVEL_ERROR, err.what ());
         res = err.exit_code;
-    }
-
-    if (data != NULL)
-    {
-        for (int i = 0; i < num_rows; i++)
+        if (board->is_prepared ())
         {
-            delete[] data[i];
+            board->release_session ();
         }
     }
-    delete[] data;
-    delete[] eeg_channels;
+
     delete board;
 
     return res;

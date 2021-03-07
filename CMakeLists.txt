@@ -591,6 +591,7 @@ install (
     ${CMAKE_HOME_DIRECTORY}/cpp-package/src/inc/board_shim.h
     ${CMAKE_HOME_DIRECTORY}/cpp-package/src/inc/brainflow_exception.h
     ${CMAKE_HOME_DIRECTORY}/cpp-package/src/inc/ml_model.h
+    ${CMAKE_HOME_DIRECTORY}/cpp-package/src/inc/brainflow_array.h
     DESTINATION inc
 )
 # install svm_model
