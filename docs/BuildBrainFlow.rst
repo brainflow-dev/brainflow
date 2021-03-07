@@ -85,7 +85,7 @@ Matlab
 
 Steps to setup Matlab binding for BrainFlow:
 
-- Compile Core Module, using instructions below
+- Compile Core Module, using instructions below. If you don't want to compile C++ code you can download Matlab package with precompiled libs from `Release page <https://github.com/brainflow-dev/brainflow/releases>`_
 - Open Matlab IDE and open brainflow/matlab-package/brainflow folder there
 - Add folders lib and inc to Matlab path
 - If you want to run Matlab scripts from folders different than brainflow/matlab-package/brainflow you need to add it to your Matlab path too
