@@ -50,6 +50,7 @@ jobs:
         cd %GITHUB_WORKSPACE%\build64
         cmake -DWARNINGS_AS_ERRORS=ON -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed64\ ..
         cmake --build . --target install --config Release -j 2 --parallel 2
+      shell: cmd
     # Download all artifacts from AWS
     - name: Download Linux Libs
       run: |
