@@ -945,8 +945,15 @@ EXCLUDE_PATTERNS       =
 EXCLUDE_SYMBOLS        = BoardControllerLibrary64 \
                          BoardControllerLibrary32 \
                          BoardControllerLibrary \
+                         LibraryEnvironment \
+                         BoardControllerLibraryLinux \
+                         BoardControllerLibraryMac \
                          DataHandlerLibrary64 \
                          DataHandlerLibrary32 \
+                         DataHandlerLibraryLinux \
+                         DataHandlerLibraryMac \
+                         MLModuleLibraryLinux \
+                         MLModuleLibraryMac \
                          DataHandlerLibrary \
                          MLModuleLibrary64 \
                          MLModuleLibrary32 \
@@ -954,6 +961,17 @@ EXCLUDE_SYMBOLS        = BoardControllerLibrary64 \
                          brainflow::BoardControllerLibrary64 \
                          brainflow::BoardControllerLibrary32 \
                          brainflow::BoardControllerLibrary \
+                         brainflow::LibraryEnvironment \
+                         brainflow::DataHandlerLibraryLinux \
+                         brainflow::DataHandlerLibraryMac \
+                         brainflow::MLModuleLibraryLinux \
+                         brainflow::MLModuleLibraryMac \
+                         brainflow::brainflow::DataHandlerLibraryLinux \
+                         brainflow::brainflow::DataHandlerLibraryMac \
+                         brainflow::brainflow::MLModuleLibraryLinux \
+                         brainflow::brainflow::MLModuleLibraryMac \
+                         brainflow::BoardControllerLibraryLinux \
+                         brainflow::BoardControllerLibraryMac \
                          brainflow::DataHandlerLibrary64 \
                          brainflow::DataHandlerLibrary32 \
                          brainflow::DataHandlerLibrary \

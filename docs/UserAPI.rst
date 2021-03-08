@@ -97,6 +97,14 @@ MLModel class
    :project: BrainFlowCpp
    :undoc-members:
 
+BrainFlowArray class
+~~~~~~~~~~~~~~~~~~~~~
+
+.. doxygenclass:: BrainFlowArray
+   :members:
+   :project: BrainFlowCpp
+   :undoc-members:
+
 BrainFlow constants
 ~~~~~~~~~~~~~~~~~~~~~
 
