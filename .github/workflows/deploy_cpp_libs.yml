@@ -8,7 +8,7 @@ jobs:
 
     strategy:
       fail-fast: false
-      max-parallel: 4
+      max-parallel: 16
       matrix:
         msvc_runtime: [static, dynamic]
         build_type: [Release, Debug]

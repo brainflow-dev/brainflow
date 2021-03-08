@@ -71,7 +71,8 @@
     defined(__ia64__) || defined(_M_IX86) || defined(_M_IA64) ||     \
     defined(_M_ALPHA) || defined(__amd64) || defined(__amd64__) ||   \
     defined(_M_AMD64) || defined(__x86_64) || defined(__x86_64__) || \
-    defined(_M_X64) || defined(__bfin__) || defined(__arm__)
+    defined(_M_X64) || defined(__bfin__) || defined(__arm__) || \
+    defined(_M_ARM64) || defined(_M_ARM)
 
 #    define OSCPP_LITTLE_ENDIAN
 #    define OSCPP_BYTE_ORDER OSCPP_BYTE_ORDER_LITTLE_ENDIAN
