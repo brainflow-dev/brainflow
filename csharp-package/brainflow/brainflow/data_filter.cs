@@ -178,11 +178,11 @@ namespace brainflow
         /// <param name="data"></param>
         /// <param name="operation"></param>
         /// <returns>data with removed trend</returns>
-        public static double[] detrend(double[] data, int operation)
+        public static double[] detrend (double[] data, int operation)
         {
             double[] new_data = new double[data.Length];
-            Array.Copy(data, new_data, data.Length);
-            int res = DataHandlerLibrary.detrend(new_data, new_data.Length, operation);
+            Array.Copy (data, new_data, data.Length);
+            int res = DataHandlerLibrary.detrend (new_data, new_data.Length, operation);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException(res);
@@ -291,11 +291,11 @@ namespace brainflow
         /// <param name="data">data for csp</param>
         /// <param name="labels">labels for each class</param>
         /// <returns>Tuple of two arrays: [n_channels x n_channels] shaped array of filters and n_channels length array of eigenvalues</returns>
-        public static Tuple<double[,], double[]> get_csp(double[,,] data, double[] labels)
+        public static Tuple<double[,], double[]> get_csp (double[,,] data, double[] labels)
         {
-            int n_epochs = data.GetLength(0);
-            int n_channels = data.GetLength(1);
-            int n_times = data.GetLength(2);
+            int n_epochs = data.GetLength (0);
+            int n_channels = data.GetLength (1);
+            int n_times = data.GetLength (2);
 
             double[] temp_data1d = new double[n_epochs * n_channels * n_times];
             for (int e = 0; e < n_epochs; e++) 
@@ -338,7 +338,7 @@ namespace brainflow
         /// <param name="window_function">window function</param>
         /// <param name="window_len">len of the window</param>
         /// <returns>array of the size specified in window_len</returns>
-        public static double[] get_window(int window_function, int window_len)
+        public static double[] get_window (int window_function, int window_len)
         {
             double[] window_data = new double[window_len];
             int res = DataHandlerLibrary.get_window (window_function, window_len, window_data);
@@ -357,7 +357,7 @@ namespace brainflow
         /// <param name="end_pos">end pos, end_pos - start_pos must be a power of 2</param>
         /// <param name="window">window function</param>
         /// <returns>complex array of size N / 2 + 1 of fft data</returns>
-        public static Complex[] perform_fft(double[] data, int start_pos, int end_pos, int window)
+        public static Complex[] perform_fft (double[] data, int start_pos, int end_pos, int window)
         {
             if ((start_pos < 0) || (end_pos > data.Length) || (start_pos >= end_pos))
             {
@@ -391,7 +391,7 @@ namespace brainflow
         /// </summary>
         /// <param name="data">data from perform_fft</param>
         /// <returns>restored data</returns>
-        public static double[] perform_ifft(Complex[] data)
+        public static double[] perform_ifft (Complex[] data)
         {
             int len = (data.Length - 1) * 2;
             double[] temp_re = new double[data.Length];
@@ -464,13 +464,13 @@ namespace brainflow
         /// </summary>
         /// <param name="value"></param>
         /// <returns>nearest power of two</returns>
-        public static int get_nearest_power_of_two(int value)
+        public static int get_nearest_power_of_two (int value)
         {
             int[] output = new int[1];
-            int res = DataHandlerLibrary.get_nearest_power_of_two(value, output);
+            int res = DataHandlerLibrary.get_nearest_power_of_two (value, output);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException(res);
+                throw new BrainFlowException (res);
             }
             return output[0];
         }
@@ -483,7 +483,7 @@ namespace brainflow
         /// <param name="sampling_rate">sampling rate</param>
         /// <param name="apply_filters">apply bandpass and bandstop filters before calculation</param>
         /// <returns>Tuple of avgs and stddev arrays</returns>
-        public static Tuple<double[], double[]> get_avg_band_powers(double[,] data, int[] channels, int sampling_rate, bool apply_filters)
+        public static Tuple<double[], double[]> get_avg_band_powers (double[,] data, int[] channels, int sampling_rate, bool apply_filters)
         {
             double[] data_1d = new double[data.GetRow (0).Length * channels.Length];
             for (int i = 0; i < channels.Length; i++)
@@ -493,7 +493,7 @@ namespace brainflow
             double[] avgs = new double[5];
             double[] stddevs = new double[5];
 
-            int res = DataHandlerLibrary.get_avg_band_powers(data_1d, channels.Length, data.GetRow(0).Length, sampling_rate, (apply_filters) ? 1 : 0, avgs, stddevs);
+            int res = DataHandlerLibrary.get_avg_band_powers (data_1d, channels.Length, data.GetRow (0).Length, sampling_rate, (apply_filters) ? 1 : 0, avgs, stddevs);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException(res);
@@ -511,26 +511,26 @@ namespace brainflow
         /// <param name="sampling_rate">sampling rate</param>
         /// <param name="window">window function</param>
         /// <returns>Tuple of ampls and freqs arrays of size N / 2 + 1</returns>
-        public static Tuple<double[], double[]> get_psd(double[] data, int start_pos, int end_pos, int sampling_rate, int window)
+        public static Tuple<double[], double[]> get_psd (double[] data, int start_pos, int end_pos, int sampling_rate, int window)
         {
             if ((start_pos < 0) || (end_pos > data.Length) || (start_pos >= end_pos))
             {
-                throw new BrainFlowException((int)CustomExitCodes.INVALID_ARGUMENTS_ERROR);
+                throw new BrainFlowException ((int)CustomExitCodes.INVALID_ARGUMENTS_ERROR);
             }
             int len = end_pos - start_pos;
             if ((len & (len - 1)) != 0)
             {
-                throw new BrainFlowException((int)CustomExitCodes.INVALID_ARGUMENTS_ERROR);
+                throw new BrainFlowException ((int)CustomExitCodes.INVALID_ARGUMENTS_ERROR);
             }
             double[] data_to_process = new double[len];
             Array.Copy(data, start_pos, data_to_process, 0, len);
             double[] temp_ampls = new double[len / 2 + 1];
             double[] temp_freqs = new double[len / 2 + 1];
 
-            int res = DataHandlerLibrary.get_psd(data_to_process, len, sampling_rate, window, temp_ampls, temp_freqs);
+            int res = DataHandlerLibrary.get_psd (data_to_process, len, sampling_rate, window, temp_ampls, temp_freqs);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException(res);
+                throw new BrainFlowException (res);
             }
             Tuple<double[], double[]> return_data = new Tuple<double[], double[]>(temp_ampls, temp_freqs);
             return return_data;
@@ -545,7 +545,7 @@ namespace brainflow
         /// <param name="sampling_rate">sampling rate</param>
         /// <param name="window">window function</param>
         /// <returns>Tuple of ampls and freqs arrays</returns>
-        public static Tuple<double[], double[]> get_psd_welch(double[] data, int nfft, int overlap, int sampling_rate, int window)
+        public static Tuple<double[], double[]> get_psd_welch (double[] data, int nfft, int overlap, int sampling_rate, int window)
         {
             if ((nfft & (nfft - 1)) != 0)
             {
@@ -554,10 +554,10 @@ namespace brainflow
             double[] temp_ampls = new double[nfft / 2 + 1];
             double[] temp_freqs = new double[nfft / 2 + 1];
 
-            int res = DataHandlerLibrary.get_psd_welch(data, data.Length, nfft, overlap, sampling_rate, window, temp_ampls, temp_freqs);
+            int res = DataHandlerLibrary.get_psd_welch (data, data.Length, nfft, overlap, sampling_rate, window, temp_ampls, temp_freqs);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException(res);
+                throw new BrainFlowException (res);
             }
             Tuple<double[], double[]> return_data = new Tuple<double[], double[]>(temp_ampls, temp_freqs);
             return return_data;
@@ -570,14 +570,14 @@ namespace brainflow
         /// <param name="start_freq">lowest frequency of band</param>
         /// <param name="stop_freq">highest frequency of band</param>
         /// <returns>band power</returns>
-        public static double get_band_power(Tuple<double[], double[]> psd, double start_freq, double stop_freq)
+        public static double get_band_power (Tuple<double[], double[]> psd, double start_freq, double stop_freq)
         {
             double[] band_power = new double[1];
 
-            int res = DataHandlerLibrary.get_band_power(psd.Item1, psd.Item2, psd.Item1.Length, start_freq, stop_freq, band_power);
+            int res = DataHandlerLibrary.get_band_power (psd.Item1, psd.Item2, psd.Item1.Length, start_freq, stop_freq, band_power);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException(res);
+                throw new BrainFlowException (res);
             }
             return band_power[0];
         }

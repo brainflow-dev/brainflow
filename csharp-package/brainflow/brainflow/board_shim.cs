@@ -147,11 +147,11 @@ namespace brainflow
         /// <param name="board_id"></param>
         /// <returns>array of 10-20 locations</returns>
         /// <exception cref="BrainFlowException">If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR</exception>
-        public static string[] get_eeg_names(int board_id)
+        public static string[] get_eeg_names (int board_id)
         {
             int[] len = new int[1];
             byte[] str = new byte[4096];
-            int res = BoardControllerLibrary.get_eeg_names(board_id, str, len);
+            int res = BoardControllerLibrary.get_eeg_names (board_id, str, len);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException(res);
@@ -461,11 +461,11 @@ namespace brainflow
         /// <param name="board_id"></param>
         /// <returns>array of row nums</returns>
         /// <exception cref="BrainFlowException">If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR</exception>
-        public static int[] get_resistance_channels(int board_id)
+        public static int[] get_resistance_channels (int board_id)
         {
             int[] len = new int[1];
             int[] channels = new int[512];
-            int res = BoardControllerLibrary.get_resistance_channels(board_id, channels, len);
+            int res = BoardControllerLibrary.get_resistance_channels (board_id, channels, len);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException(res);
