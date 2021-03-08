@@ -43,7 +43,7 @@ jobs:
         python -m pip install awscli
       shell: cmd
     - name: Upload Libs to AWS
-      if: ${{ github.event_name == 'push' && github.repository == 'brainflow-dev/brainflow' }}
+      if: ${{ github.repository == 'brainflow-dev/brainflow' }}
       run: |
         aws s3 cp %GITHUB_WORKSPACE%\artifacts\%BUILD%_%RUNTIME%_%ARCH%\ s3://brainflow/%GITHUB_SHA%/artifacts/%BUILD%_%RUNTIME%_%ARCH% --recursive
       shell: cmd
@@ -53,3 +53,75 @@ jobs:
         RUNTIME: ${{ matrix.msvc_runtime }}
         BUILD: ${{ matrix.build_type }}
         ARCH: ${{ matrix.arch }}
+
+  CppUnix:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      max-parallel: 16
+      matrix:
+        build_type: [Release, Debug]
+        os: [ubuntu-18.04, macos-10.15]
+
+    steps:
+    - name: Install Python 3.7
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.7.7'
+        architecture: 'x64'
+    - name: Install Python Dependencies
+      if: (matrix.os == 'ubuntu-18.04')
+      run: |
+        sudo -H apt-get update -y
+        sudo -H apt-get install -y python3-setuptools python3-pygments
+      env:
+        DEBIAN_FRONTEND: noninteractive
+    - name: Setup Cmake
+      uses: jwlawson/actions-setup-cmake@v1.4
+      with:
+        cmake-version: '3.16.x'
+    # compile for macos and linux
+    - name: Compile BrainFlow for MacOS
+      if: (matrix.os == 'macos-10.15')
+      run: |
+        mkdir $GITHUB_WORKSPACE/build
+        cd $GITHUB_WORKSPACE/build
+        cmake -DWARNINGS_AS_ERRORS=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/artifacts/macos_$BUILD -DCMAKE_BUILD_TYPE=$BUILD ..
+        make -j
+        make install
+      env:
+        BUILD: ${{ matrix.build_type }}
+    - name: Compile BrainFlow in ManyLinux
+      if: (matrix.os == 'ubuntu-18.04')
+      run: |
+        docker pull dockcross/manylinux2014-x64
+        docker run -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE BUILD=$BUILD -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE dockcross/manylinux2014-x64 /bin/bash -c "/opt/python/cp36-cp36m/bin/pip3.6 install cmake==3.13.3 && cd $GITHUB_WORKSPACE && mkdir build_docker && cd build_docker && cmake -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/artifacts/linux_${BUILD} -DCMAKE_BUILD_TYPE=$BUILD .. && make -j && make install"
+      nv:
+        BUILD: ${{ matrix.build_type }}
+    # start deploy stage
+    - name: Install Python AWS Tools
+      run: |
+        sudo -H python -m pip install awscli
+      shell: cmd
+    - name: Upload MacOS Libs to AWS
+      if: ${{ matrix.os == 'macos-10.15' && github.repository == 'brainflow-dev/brainflow' }}
+      run: |
+        aws s3 cp $GITHUB_WORKSPACE/artifacts/macos_$BUILD s3://brainflow/$GITHUB_SHA/artifacts/macos_$BUILD --recursive
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        BUILD: ${{ matrix.build_type }}
+    - name: Upload Linux Libs to AWS
+      if: ${{ matrix.os == 'ubuntu-18.04' && github.repository == 'brainflow-dev/brainflow' }}
+      run: |
+        aws s3 cp $GITHUB_WORKSPACE/artifacts/linux_$BUILD s3://brainflow/$GITHUB_SHA/artifacts/linux_$BUILD --recursive
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        BUILD: ${{ matrix.build_type }}
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: ${{ matrix.os }}_${{ matrix.build_type }}
+        path: artifacts
