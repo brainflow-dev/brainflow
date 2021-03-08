@@ -24,7 +24,7 @@ jobs:
       run: |
         mkdir %GITHUB_WORKSPACE%\%BUILD%_%RUNTIME%_%ARCH%
         cd %GITHUB_WORKSPACE%\%BUILD%_%RUNTIME%_%ARCH%
-        cmake -DWARNINGS_AS_ERRORS=ON -G "Visual Studio 16 2019" -A %ARCH% -DCMAKE_SYSTEM_VERSION=8.1 -DMSVC_RUNTIME=%RUNTIME% -DCMAKE_INSTALL_PREFIX=..\artifacts\%BUILD%_%RUNTIME%_%ARCH%\ ..
+        cmake -G "Visual Studio 16 2019" -A %ARCH% -DCMAKE_SYSTEM_VERSION=8.1 -DMSVC_RUNTIME=%RUNTIME% -DCMAKE_INSTALL_PREFIX=..\artifacts\%BUILD%_%RUNTIME%_%ARCH%\ ..
         cmake --build . --target install --config %BUILD% -j 2 --parallel 2
       shell: cmd
       env:
