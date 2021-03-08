@@ -65,6 +65,8 @@ jobs:
         os: [ubuntu-18.04, macos-10.15]
 
     steps:
+    - name: Clone Repository
+      uses: actions/checkout@v2
     - name: Install Python 3.7
       uses: actions/setup-python@v2
       with:
@@ -87,7 +89,7 @@ jobs:
       run: |
         mkdir $GITHUB_WORKSPACE/build
         cd $GITHUB_WORKSPACE/build
-        cmake -DWARNINGS_AS_ERRORS=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
+        cmake -DWARNINGS_AS_ERRORS=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/artifacts/macos_$BUILD -DCMAKE_BUILD_TYPE=$BUILD ..
         make -j
         make install
       env:
