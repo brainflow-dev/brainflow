@@ -14,8 +14,6 @@
     <copyright>Copyright (c) 2018 Andrey Parfenov</copyright>
     <tags>BrainFlow EEG EMG BCI OpenBCI</tags>
     <dependencies>
-      <dependency id="Accord" version="3.8.0" />
-      <dependency id="Accord.Math" version="3.8.0" />
     </dependencies>
   </metadata>
   <files>
