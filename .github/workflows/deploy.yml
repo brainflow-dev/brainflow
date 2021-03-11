@@ -145,6 +145,8 @@ jobs:
         Copy-Item "$env:GITHUB_WORKSPACE\macos\*" -Destination "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" -Recurse -Force -Filter *.*
         Copy-Item "$env:GITHUB_WORKSPACE\win64\*" -Destination "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" -Recurse -Force -Filter *.*
         Copy-Item "$env:GITHUB_WORKSPACE\win32\*" -Destination "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" -Recurse -Force -Filter *.*
+        Get-ChildItem -Path "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" *.a | foreach { Remove-Item -Path $_.FullName }
+        Get-ChildItem -Path "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" *.lib | foreach { Remove-Item -Path $_.FullName }
         ls $env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib
         cd $env:GITHUB_WORKSPACE\csharp-package\brainflow
         msbuild brainflow.sln /p:Configuration=Release /p:Platform="Any CPU"
