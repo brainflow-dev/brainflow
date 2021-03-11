@@ -141,55 +141,55 @@ C#
 C# Read Data from a Board
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../csharp-package/brainflow/brainflow_get_data/brainflow_get_data.cs
+.. literalinclude:: ../csharp-package/brainflow/tests/brainflow_get_data/brainflow_get_data.cs
    :language: c#
 
 C# Markers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../csharp-package/brainflow/brainflow_get_data/markers.cs
+.. literalinclude:: ../csharp-package/brainflow/tests/markers/markers.cs
    :language: c#
 
 C# Read Write File
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../csharp-package/brainflow/serialization/serialization.cs
+.. literalinclude:: ../csharp-package/brainflow/tests/serialization/serialization.cs
    :language: c#
 
 C# Downsample Data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../csharp-package/brainflow/downsampling/downsampling.cs
+.. literalinclude:: ../csharp-package/brainflow/tests/downsampling/downsampling.cs
    :language: c#
 
 C# Transforms
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../csharp-package/brainflow/transforms/transforms.cs
+.. literalinclude:: ../csharp-package/brainflow/tests/transforms/transforms.cs
    :language: c#
 
 C# Signal Filtering
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../csharp-package/brainflow/signal_filtering/signal_filtering.cs
+.. literalinclude:: ../csharp-package/brainflow/tests/signal_filtering/signal_filtering.cs
    :language: c#
 
 C# Denoising
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../csharp-package/brainflow/denoising/denoising.cs
+.. literalinclude:: ../csharp-package/brainflow/tests/denoising/denoising.cs
    :language: c#
 
 C# Band Power
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../csharp-package/brainflow/band_power/band_power.cs
+.. literalinclude:: ../csharp-package/brainflow/tests/band_power/band_power.cs
    :language: c#
 
 C# EEG Metrics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../csharp-package/brainflow/eeg_metrics/eeg_metrics.cs
+.. literalinclude:: ../csharp-package/brainflow/tests/eeg_metrics/eeg_metrics.cs
    :language: c#
 
 C++

@@ -4,11 +4,11 @@ Integration with Game Engines
 Unity
 -------
 
-Integration with Unity can be done only using C# binding. We tested it only on Windows, but it may work on Unix too.
+Integration with Unity can be done only using C# binding. We tested it only on Windows, but it may work on Linux and MacOS too. Android and IOS are not supported.
 
 You can build C# binding from source or download compiled package directly from `Nuget <https://www.nuget.org/packages/brainflow/>`_.
 
-Here we will use Nuget to download and install BrainFlow with dependencies.
+Here we will use Nuget to download and install BrainFlow.
 
 .. compound::
 
@@ -16,33 +16,31 @@ Here we will use Nuget to download and install BrainFlow with dependencies.
 
         nuget.exe install brainflow -OutputDirectory <OUTPUTDIR>
 
-.. image:: https://live.staticflickr.com/65535/50095400941_73e7915009_z.jpg
-    :width: 640
-    :height: 288px
-
-Open OUTPUTDIR, you will see BrainFlow library and dependencies. For BrainFlow there are *Managed(C#)* and *Unmanaged(C++)* files. For dependencies like Accord there are only *Managed(C#)* libraries.
-
-.. image:: https://live.staticflickr.com/65535/50095414856_fc6ca1b231_z.jpg
-    :width: 640px
-    :height: 304px
-
-
-.. image:: https://live.staticflickr.com/65535/50095400991_d10cc177e5_z.jpg
-    :width: 640px
-    :height: 304px
-
-Open your Unity project and copy **Managed(C#)** libraries from BrainFlow and **all dependencies** to the Assets folder, after that copy **Unmanaged(C++)** libraries from BrainFlow to the root folder of your project.
-
-.. image:: https://live.staticflickr.com/65535/50095628822_14538fede0_b.jpg
+.. image:: https://live.staticflickr.com/65535/51025831037_c88425a0bd_b.jpg
     :width: 1024px
-    :height: 487px
+    :height: 576px
+
+Open OUTPUTDIR, in our example it is *D:\\BrainFlowNuget*. At the moment of writing this tutorial latest BrainFlow version is 4.0.1, it is ok if you download newer version from Nuget, it does not affect the process of integration with Unity.
+
+For BrainFlow there are *Managed(C#)* and *Unmanaged(C++)* libraries.
+C++ libraries are located inside folder *D:\\BrainFlowNuget\\brainflow.4.0.1\\lib*, C# libraries are located inside folder *D:\\BrainFlowNuget\\brainflow.4.0.1\\lib\\net45*.
+
+.. image:: https://live.staticflickr.com/65535/51025831062_a90515e1e5_b.jpg
+    :width: 1024px
+    :height: 576px
 
 
-Now, you are able to use BrainFlow API in your C# scripts!
+Open your Unity project and copy **Managed(C#)** libraries to the Assets folder, after that copy **Unmanaged(C++)** libraries to the root folder of your project.
 
-For demo we will create a simple script to read data and calculate concentration level.
+.. image:: https://live.staticflickr.com/65535/51025001523_63cb77ed83_b.jpg
+    :width: 1024px
+    :height: 576px
 
-Add a Sphere object to the Scene and attach script below.
+Now, you are able to use BrainFlow API in your Unity project.
+
+For demo we will create a simple script to read data.
+
+Add a game object to the Scene and attach script below.
 
 .. code-block:: csharp 
 
@@ -51,16 +49,13 @@ Add a Sphere object to the Scene and attach script below.
     using System.Collections.Generic;
     using UnityEngine;
 
-    using Accord;
-    using Accord.Math;
     using brainflow;
+    using brainflow.math;
 
-    public class Sphere : MonoBehaviour
+    public class SimpleGetData : MonoBehaviour
     {
         private BoardShim board_shim = null;
-        private MLModel concentration = null;
         private int sampling_rate = 0;
-        private int[] eeg_channels = null;
 
         // Start is called before the first frame update
         void Start()
@@ -75,12 +70,7 @@ Add a Sphere object to the Scene and attach script below.
                 board_shim = new BoardShim(board_id, input_params);
                 board_shim.prepare_session();
                 board_shim.start_stream(450000, "file://brainflow_data.csv:w");
-                BrainFlowModelParams concentration_params = new BrainFlowModelParams((int)BrainFlowMetrics.CONCENTRATION, (int)BrainFlowClassifiers.REGRESSION);
-                concentration = new MLModel(concentration_params);
-                concentration.prepare();
-                
                 sampling_rate = BoardShim.get_sampling_rate(board_id);
-                eeg_channels = BoardShim.get_eeg_channels(board_id);
                 Debug.Log("Brainflow streaming was started");
             }
             catch (BrainFlowException e)
@@ -92,25 +82,17 @@ Add a Sphere object to the Scene and attach script below.
         // Update is called once per frame
         void Update()
         {
-            if ((board_shim == null) || (concentration == null))
+            if (board_shim == null)
             {
                 return;
             }
-            int number_of_data_points = sampling_rate * 4; // 4 second window is recommended for concentration and relaxation calculations
+            int number_of_data_points = sampling_rate * 4;
             double[,] data = board_shim.get_current_board_data(number_of_data_points);
-            if (data.GetRow(0).Length < number_of_data_points)
-            {
-                // wait for more data
-                return;
-            }
-            // prepare feature vector 
-            Tuple<double[], double[]> bands = DataFilter.get_avg_band_powers (data, eeg_channels, sampling_rate, true);
-            double[] feature_vector = bands.Item1.Concatenate (bands.Item2);
-            // calc and print concetration level
-            // for synthetic board this value should be close to 1, because of sin waves ampls and freqs
-            Debug.Log("Concentration: " + concentration.predict (feature_vector));
+            // check https://brainflow.readthedocs.io/en/stable/index.html for api ref and more code samples
+            Debug.Log("Num elements: " + data.GetLength(1));
         }
 
+        // you need to call release_session and ensure that all resources correctly released
         private void OnDestroy()
         {
             if (board_shim != null)
@@ -118,7 +100,6 @@ Add a Sphere object to the Scene and attach script below.
                 try
                 {
                     board_shim.release_session();
-                    concentration.release();
                 }
                 catch (BrainFlowException e)
                 {
@@ -130,13 +111,7 @@ Add a Sphere object to the Scene and attach script below.
     }
 
 
-If everything is fine, you will see Concentration Score in Console.
-
-.. image:: https://live.staticflickr.com/65535/50256460737_cb35250727_b.jpg
-    :width: 1024px
-    :height: 595px
-
-After building your game you need to copy *Unmanaged(C++)* libraries to a folder where executable is located.
+After building your game for production don't forget to copy *Unmanaged(C++)* libraries to a folder where executable is located.
 
 
 Unreal Engine

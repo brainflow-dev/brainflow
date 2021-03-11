@@ -126,8 +126,6 @@ Content of Brainflow Package:
 C# API Reference
 -------------------
 
-To simplify 2D array manipulation we use `Accord Library <http://accord-framework.net/>`_. 
-
 Content of brainflow namespace:
 
 .. doxygennamespace:: brainflow
