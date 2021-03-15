@@ -120,3 +120,10 @@ Unreal Engine
 We provide `Unreal Engine Plugin <https://github.com/brainflow-dev/BrainFlowUnrealPlugin>`_ with precompiled libraries for most commonly used configurations. Check Readme for installtion details.
 
 This `blog post <https://unreal.blog/how-to-include-any-third-party-library>`_ can help if you want to write your own plugin or extend existing one.
+
+CryEngine
+----------
+
+CryEngine uses CMake, build BrainFlow by yourself first and check C++ examples for instructions to integrate BrainFlow into CMake projects.
+
+Keep in mind MSVC runtime linking, default in BrainFlow is static, you can provide :code:`-DMSVC_RUNTIME=dynamic` or :code:`-DMSVC_RUNTIME=static` to control it.
