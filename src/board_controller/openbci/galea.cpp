@@ -421,7 +421,7 @@ void Galea::read_thread ()
 
 int Galea::calc_time ()
 {
-    constexpr int num_repeats = 5;
+    constexpr int num_repeats = 10;
     constexpr int bytes_to_calc_rtt = 8;
 
     std::vector<double> durations; // diff between unix time on pc and firmware time
