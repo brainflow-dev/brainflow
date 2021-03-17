@@ -455,6 +455,7 @@ int Galea::calc_time ()
         }
         // calc half of round trip
         double duration = (done - start - firmware_delay) / 2;
+        safe_logger (spdlog::level::trace, "half rtt is {}", duration);
         durations.push_back (duration);
     }
     if (num_fails > max_num_fails)
