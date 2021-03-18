@@ -6,6 +6,10 @@
 #include "galea.h"
 #include "timestamp.h"
 
+#include "json.hpp"
+
+using json = nlohmann::json;
+
 #ifndef _WIN32
 #include <errno.h>
 #endif
@@ -52,10 +56,15 @@ int Galea::prepare_session ()
         socket = NULL;
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    socket->set_timeout (2);
+    if ((params.timeout > 600) || (params.timeout < 1))
+    {
+        params.timeout = 2;
+    }
+    safe_logger (spdlog::level::trace, "timeout for socket is {}", params.timeout);
+    socket->set_timeout (params.timeout);
     // force default settings for device
     std::string tmp;
-    std::string default_settings = "d";
+    std::string default_settings = "o"; // use demo mode with agnd
     res = config_board (default_settings, tmp);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
@@ -85,16 +94,15 @@ int Galea::config_board (std::string conf, std::string &response)
         safe_logger (spdlog::level::err, "You need to call prepare_session before config_board");
         return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
     }
-    // special handling for calc_delay command
-    if (conf == "calc_delay")
+    // special handling for calc_time command
+    if (conf == "calc_time")
     {
         if (is_streaming)
         {
             safe_logger (spdlog::level::err, "can not calc delay during the streaming.");
             return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
         }
-        int res = calc_time ();
-        response = std::to_string (half_rtt);
+        int res = calc_time (response);
         return res;
     }
 
@@ -178,13 +186,17 @@ int Galea::start_stream (int buffer_size, char *streamer_params)
     }
 
     // calc time before start stream
-    int res = calc_time ();
-    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    std::string resp;
+    for (int i = 0; i < 3; i++)
     {
-        return res;
+        int res = calc_time (resp);
+        if (res != (int)BrainFlowExitCodes::STATUS_OK)
+        {
+            return res;
+        }
     }
 
-    res = prepare_for_acquisition (buffer_size, streamer_params);
+    int res = prepare_for_acquisition (buffer_size, streamer_params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
@@ -266,6 +278,11 @@ int Galea::stop_stream ()
             }
         }
 
+        std::string resp;
+        for (int i = 0; i < 3; i++)
+        {
+            calc_time (resp); // call it in the end once to print time in the end
+        }
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
     else
@@ -419,54 +436,39 @@ void Galea::read_thread ()
     delete[] package;
 }
 
-int Galea::calc_time ()
+int Galea::calc_time (std::string &resp)
 {
-    constexpr int num_repeats = 10;
     constexpr int bytes_to_calc_rtt = 8;
-
-    std::vector<double> durations; // diff between unix time on pc and firmware time
-
-    int num_fails = 0;
-    int max_num_fails = 1;
-    double firmware_delay = 0.0; // seconds, todo measure it in firmware or write experimental value
     unsigned char b[bytes_to_calc_rtt];
 
-    for (int i = 0; (i < num_repeats) && (num_fails <= max_num_fails); i++)
+    double start = get_timestamp ();
+    int res = socket->send ("F4444444", bytes_to_calc_rtt);
+    if (res != bytes_to_calc_rtt)
     {
-        double start1 = get_timestamp ();
-        int res = socket->send ("F4444444", bytes_to_calc_rtt);
-        double start2 = get_timestamp ();
-        double start = (start1 + start2) / 2; // for better accuracy
+        safe_logger (spdlog::level::warn, "failed to send time calc command to device");
+        return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
+    }
+    res = socket->recv (b, bytes_to_calc_rtt);
+    double done = get_timestamp ();
+    if (res != bytes_to_calc_rtt)
+    {
+        safe_logger (
+            spdlog::level::warn, "failed to recv resp from time calc command, resp size {}", res);
+        return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
+    }
+    double duration = done - start;
+    double timestamp_device = 0;
+    memcpy (&timestamp_device, b, 8);
+    timestamp_device /= 1000;
+    half_rtt = duration / 2;
 
-        if (res != bytes_to_calc_rtt)
-        {
-            safe_logger (spdlog::level::warn, "failed to send time calc command to device");
-            num_fails++;
-            continue;
-        }
-        res = socket->recv (b, bytes_to_calc_rtt);
-        double done = get_timestamp ();
-        if (res != bytes_to_calc_rtt)
-        {
-            safe_logger (spdlog::level::warn,
-                "failed to recv resp from time calc command, resp size {}", res);
-            num_fails++;
-            continue;
-        }
-        // calc half of round trip
-        double duration = (done - start - firmware_delay) / 2;
-        safe_logger (spdlog::level::trace, "half rtt is {}", duration);
-        durations.push_back (duration);
-    }
-    if (num_fails > max_num_fails)
-    {
-        safe_logger (spdlog::level::err,
-            "Failed to calc time delay between PC and device. Too many lost packages.");
-        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
-    }
-    half_rtt = durations.empty () ?
-        0.0 :
-        std::accumulate (durations.begin (), durations.end (), 0.0) / durations.size ();
-    safe_logger (spdlog::level::trace, "average sending time is {}", half_rtt);
+    json result;
+    result["rtt"] = duration;
+    result["timestamp_device"] = timestamp_device;
+    result["pc_timestamp"] = start + half_rtt;
+
+    resp = result.dump ();
+    safe_logger (spdlog::level::info, "calc_time output: {}", resp);
+
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
