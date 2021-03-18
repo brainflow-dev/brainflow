@@ -97,7 +97,7 @@ json brainflow_boards_json = {
             {"num_rows", 26},
             {"battery_channel", 23},
             {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8, 10, 15}},
-            {"eeg_names", "Fz,C3,Cz,C4,Pz,PO7,Oz,PO8,F5,F7"},
+            {"eeg_names", "CPz,PO4,O2,Oz,O1,PO3,POz,FCz,FP1,FP2"},
             {"emg_channels", {9, 12, 14, 16}},
             {"eog_channels", {11, 13}},
             {"eda_channels", {19}},
