@@ -117,63 +117,13 @@ After building your game for production don't forget to copy *Unmanaged(C++)* li
 Unreal Engine
 --------------
 
-First of all you need to compile BrainFlow from source. For Windows you need to specify an option to link MSVC Runtime *dynamically*. And you need to use the same version of Visual Studio as in your Unreal Project.
+We provide `Unreal Engine Plugin <https://github.com/brainflow-dev/BrainFlowUnrealPlugin>`_ with precompiled libraries for most commonly used configurations. Check Readme for installtion details.
 
-.. compound::
-    
-    Command line example for Windows and MSVC 2017: ::
+This `blog post <https://unreal.blog/how-to-include-any-third-party-library>`_ can help if you want to write your own plugin or extend existing one.
 
-        # install cmake, clone repo and run commands below
-        cd brainflow
-        mkdir build_dyn
-        cd build_dyn
-        cmake -G "Visual Studio 15 2017 Win64" -DMSVC_RUNTIME=dynamic -DCMAKE_SYSTEM_VERSION=10.0 -DCMAKE_INSTALL_PREFIX=FULL_PATH_TO_FOLDER_FOR_INSTALLATION ..
-        # e.g. cmake -G "Visual Studio 15 2017 Win64" -DMSVC_RUNTIME=dynamic -DCMAKE_SYSTEM_VERSION=10.0 -DCMAKE_INSTALL_PREFIX=E:\folder\brainflow\installed_temp ..
-        cmake --build . --target install --config Release -j 2 --parallel 2
+CryEngine
+----------
 
-Add new entry to your *PATH* environemnt variable to point to a folder *FULL_PATH_TO_FOLDER_FOR_INSTALLATION\\lib* in example above it's *E:\\folder\\brainflow\\installed_temp\\lib*. If you have Unreal Engine Editor or Visual Studio running at this point you need to restart these processes.
+CryEngine uses CMake, build BrainFlow by yourself first and check C++ examples for instructions to integrate BrainFlow into CMake projects.
 
-Open your Visual Studio Solution for your Unreal Engine project, here we created a project called *BrainFlowUnreal*.
-
-Edit file named *ProjectName.Build.cs*, in our example this file is called *BrainFlowUnreal.Build.cs*
-
-
-.. code-block:: csharp 
-
-    using UnrealBuildTool;
-    using System.IO;
-
-    public class BrainFlowUnreal : ModuleRules
-    {
-        public BrainFlowUnreal(ReadOnlyTargetRules Target) : base(Target)
-        {
-            PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-
-            PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay" });
-
-            // here I show it only for Windows, if you wanna target more OSes add similar code for them
-            if (Target.Platform == UnrealTargetPlatform.Win64)
-            {
-                // Add the import library
-                PublicLibraryPaths.Add(Path.Combine(ModuleDirectory, "x64"));
-                PublicAdditionalLibraries.Add("BrainFlow.lib");
-                PublicAdditionalLibraries.Add("DataHandler.lib");
-                PublicAdditionalLibraries.Add("BoardController.lib");
-
-                // add headers for static library
-                PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "include"));
-            }
-        }
-    }
-
-After that you need to copy headers and libraries from BrainFlow installation folder to your Unreal Engine project. Here we copied a content of *E:\\folder\\brainflow\\installed_temp\\inc* to a folder *E:\\gamedev\\BrainFlowUnreal\\Source\\BrainFlowUnreal\\include*. Also, you need to copy compiled libraries from *E:\\folder\\brainflow\\installed_temp\\lib* to *E:\\gamedev\\BrainFlowUnreal\\Source\\BrainFlowUnreal\\x64*
-
-.. image:: https://live.staticflickr.com/65535/50156604283_0ee27ace03_b.jpg
-    :width: 1024px
-    :height: 517px
-
-*Note: in this example we didn't create a new plugin as described* `here <https://docs.unrealengine.com/en-US/Programming/BuildTools/UnrealBuildTool/ThirdPartyLibraries/index.html>`_. *Also we linked only static libraries and didn't link or load dynamic libraries manually. And we don't recommend to configure it as a plugin.*
-
-Finally, you are able to use BrainFlow in your Unreal Engine project.
-
-When you will build a project for production put C++ libraries for BrainFlow in the folder with executable.
+Keep in mind MSVC runtime linking, default in BrainFlow is static, you can provide :code:`-DMSVC_RUNTIME=dynamic` or :code:`-DMSVC_RUNTIME=static` to control it.

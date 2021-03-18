@@ -3,6 +3,7 @@
 #include <condition_variable>
 #include <math.h>
 #include <mutex>
+#include <string>
 #include <thread>
 
 #include "board.h"
@@ -33,7 +34,7 @@ private:
     volatile int state;
     volatile double half_rtt;
     void read_thread ();
-    int calc_time ();
+    int calc_time (std::string &resp);
 
 
 public:
