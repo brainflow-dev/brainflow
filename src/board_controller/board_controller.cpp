@@ -38,6 +38,7 @@
 #include "streaming_board.h"
 #include "synthetic_board.h"
 #include "unicorn_board.h"
+#include "brainbit_bled.h"
 
 #include "json.hpp"
 
@@ -141,6 +142,9 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
             break;
         case BoardIds::FREEEEG32_BOARD:
             board = std::shared_ptr<Board> (new FreeEEG32 (params));
+            break;
+        case BoardIds::BRAINBIT_BLED_BOARD:
+            board = std::shared_ptr<Board> (new BrainBitBLED (params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
