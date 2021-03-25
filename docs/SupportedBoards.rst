@@ -73,7 +73,7 @@ Board Specs:
 - num eeg(emg,...) channels: like in master board
 - num acceleration channels: like in master board
 - sampling rate: like in master board
-- communication: UDP multicast socket to read data from master board
+- communication: None
 
 Streaming Board
 ------------------
