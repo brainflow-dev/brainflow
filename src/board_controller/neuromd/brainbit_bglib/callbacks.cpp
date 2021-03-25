@@ -144,6 +144,12 @@ void ble_evt_attclient_find_information_found (
         {
             std::cout << (int)msg->uuid.data[i] << " ";
         }
+        if (msg->uuid.len == 2)
+        {
+            uint16 uuid = (msg->uuid.data[1] << 8) | msg->uuid.data[0];
+            std::cout << (int)uuid << " uuid " << std::endl;
+        }
+
         std::cout << std::endl;
         if (msg->uuid.len == 16)
         {
@@ -152,15 +158,15 @@ void ble_evt_attclient_find_information_found (
             bool is_status = true;
             for (int i = 0; i < 16; i++)
             {
-                if (msg->uuid.data[i] != BrainBitBLEDLib::brainbit_handle_send[i])
+                if (msg->uuid.data[i] != BrainBitBLEDLib::command_char_uuid_bytes[i])
                 {
                     is_send = false;
                 }
-                if (msg->uuid.data[i] != BrainBitBLEDLib::brainbit_handle_recv[i])
+                if (msg->uuid.data[i] != BrainBitBLEDLib::signal_char_uuid_bytes[i])
                 {
                     is_recv = false;
                 }
-                if (msg->uuid.data[i] != BrainBitBLEDLib::brainbit_handle_status[i])
+                if (msg->uuid.data[i] != BrainBitBLEDLib::status_char_uuid_bytes[i])
                 {
                     is_status = false;
                 }
@@ -179,7 +185,7 @@ void ble_evt_attclient_find_information_found (
             }
         }
         if ((BrainBitBLEDLib::brainbit_handle_send) && (BrainBitBLEDLib::brainbit_handle_recv) &&
-            (BrainBitBLEDLib::client_char_handle) &&
+            (BrainBitBLEDLib::brainbit_handle_status) &&
             (BrainBitBLEDLib::state == BrainBitBLEDLib::State::OPEN_CALLED))
         {
             BrainBitBLEDLib::exit_code = (int)BrainBitBLEDLib::STATUS_OK;
@@ -195,6 +201,7 @@ void ble_evt_attclient_attribute_value (const struct ble_msg_attclient_attribute
     double package[BrainBitBLEDLib::BrainBitData::SIZE] = {0.0};
 
     // TODO parse message and write data to package
+    std::cout << "called" << std::endl;
 
     struct BrainBitBLEDLib::BrainBitData data (package);
 

@@ -84,7 +84,6 @@ namespace BrainBitBLEDLib
 
     int open_ble_dev ()
     {
-        std::cout << "open called" << std::endl;
         exit_code = (int)BrainBitBLEDLib::SYNC_ERROR;
         // send command to connect
         state = State::INITIAL_CONNECTION;
@@ -116,6 +115,17 @@ namespace BrainBitBLEDLib
         state = State::WRITE_TO_CLIENT_CHAR;
         exit_code = (int)BrainBitBLEDLib::SYNC_ERROR;
         ble_cmd_attclient_attribute_write (connection, brainbit_handle_status, 2, &configuration);
+        ble_cmd_attclient_execute_write (connection, 1);
+        exit_code = (int)BrainBitBLEDLib::SYNC_ERROR;
+        ble_cmd_attclient_attribute_write (connection, brainbit_handle_send, 2, &configuration);
+        ble_cmd_attclient_execute_write (connection, 1);
+
+        uint8 signal_command[] = {2, 0, 0, 0, 0};
+        state = State::WRITE_TO_CLIENT_CHAR;
+        exit_code = (int)BrainBitBLEDLib::SYNC_ERROR;
+        ble_cmd_attclient_attribute_write (connection, brainbit_handle_send, 4, &signal_command);
+        exit_code = (int)BrainBitBLEDLib::SYNC_ERROR;
+        ble_cmd_attclient_attribute_write (connection, brainbit_handle_status, 4, &signal_command);
         ble_cmd_attclient_execute_write (connection, 1);
 
         return wait_for_callback (timeout);

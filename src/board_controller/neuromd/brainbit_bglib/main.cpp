@@ -81,9 +81,7 @@ namespace BrainBitBLEDLib
         }
         exit_code = (int)CustomExitCodes::SYNC_ERROR;
         state = State::OPEN_CALLED;
-        std::cout << "before" << std::endl;
         ble_cmd_gap_discover (gap_discover_observation);
-
         res = wait_for_callback (timeout);
         if (res != (int)CustomExitCodes::STATUS_OK)
         {
@@ -132,10 +130,6 @@ namespace BrainBitBLEDLib
     int stop_stream (void *param)
     {
         // dirty hack to solve https://github.com/brainflow-dev/brainflow/issues/24
-        // for Ubuntu callbacks for config_board are not triggered often if streaming is running.
-        // Assumption - maybe serial buffer size is smaller in Ubuntu and notification messages fill
-        // entire buffer. Solution for this assumption - call ble_cmd_attclient_attribute_write all
-        // the time in the thread instead single invocation.
         if (!initialized)
         {
             return (int)CustomExitCodes::BITALINO_IS_NOT_OPEN_ERROR;
@@ -194,7 +188,24 @@ namespace BrainBitBLEDLib
         state = State::WRITE_TO_CLIENT_CHAR;
         exit_code = (int)BrainBitBLEDLib::SYNC_ERROR;
         ble_cmd_attclient_attribute_write (connection, brainbit_handle_status, 2, &configuration);
+        ble_cmd_attclient_execute_write (connection, 1);
         int res = wait_for_callback (timeout);
+        exit_code = (int)BrainBitBLEDLib::SYNC_ERROR;
+        ble_cmd_attclient_attribute_write (connection, brainbit_handle_send, 2, &configuration);
+        ble_cmd_attclient_execute_write (connection, 1);
+        wait_for_callback (timeout);
+
+        // from brainbit docs
+        uint8 signal_command[] = {2, 0, 0, 0, 0};
+        state = State::WRITE_TO_CLIENT_CHAR;
+        exit_code = (int)BrainBitBLEDLib::SYNC_ERROR;
+        ble_cmd_attclient_attribute_write (connection, brainbit_handle_status, 5, &signal_command);
+        ble_cmd_attclient_execute_write (connection, 1);
+        res = wait_for_callback (timeout);
+        exit_code = (int)BrainBitBLEDLib::SYNC_ERROR;
+        ble_cmd_attclient_attribute_write (connection, brainbit_handle_send, 5, &signal_command);
+        ble_cmd_attclient_execute_write (connection, 1);
+        res = wait_for_callback (timeout);
 
         if (res == (int)CustomExitCodes::STATUS_OK)
         {
