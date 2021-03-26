@@ -7,7 +7,7 @@ namespace BrainBitBLEDLib
 #pragma pack(push, 1)
     struct BrainBitData
     {
-        static const int SIZE = 6;
+        static const int SIZE = 8;
 
         double data[SIZE];
 

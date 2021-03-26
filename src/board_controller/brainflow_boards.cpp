@@ -275,10 +275,11 @@ json brainflow_boards_json = {
         {"18",
             {{"name", "BrainBitBLED"},
             {"sampling_rate", 250},
-            {"timestamp_channel", 5},
-            {"marker_channel", 6},
+            {"battery_channel", 5},
+            {"timestamp_channel", 6},
+            {"marker_channel", 7},
             {"package_num_channel", 0},
-            {"num_rows", 7},
+            {"num_rows", 8},
             {"eeg_channels", {1, 2, 3, 4}},
             {"eeg_names", "T3,T4,O1,O2"}
         }}

@@ -1,6 +1,7 @@
 #include <chrono>
 #include <condition_variable>
 #include <ctype.h>
+#include <set>
 #include <stdlib.h>
 #include <string.h>
 #include <string>
@@ -15,8 +16,6 @@
 #else
 #include <unistd.h>
 #endif
-
-#include <iostream>
 
 #define FIRST_HANDLE 0x0001
 #define LAST_HANDLE 0xffff
@@ -33,8 +32,11 @@ namespace BrainBitBLEDLib
     extern volatile uint16 brainbit_handle_status;
     extern volatile uint16 brainbit_handle_send;
     extern char uart_port[1024];
+    extern std::set<uint16> ccids;
     extern volatile State state;
     extern std::condition_variable cv;
+    extern volatile uint16 brainbit_handle_start;
+    extern volatile uint16 brainbit_handle_end;
 
     void output (uint8 len1, uint8 *data1, uint16 len2, uint8 *data2)
     {
@@ -112,23 +114,15 @@ namespace BrainBitBLEDLib
         // from siliconlabs forum - write 0x00001 to enable notifications
         // copypasted in start_stream method but lets keep it in 2 places
         uint8 configuration[] = {0x01, 0x00};
-        state = State::WRITE_TO_CLIENT_CHAR;
-        exit_code = (int)BrainBitBLEDLib::SYNC_ERROR;
-        ble_cmd_attclient_attribute_write (connection, brainbit_handle_status, 2, &configuration);
-        ble_cmd_attclient_execute_write (connection, 1);
-        exit_code = (int)BrainBitBLEDLib::SYNC_ERROR;
-        ble_cmd_attclient_attribute_write (connection, brainbit_handle_send, 2, &configuration);
-        ble_cmd_attclient_execute_write (connection, 1);
-
-        uint8 signal_command[] = {2, 0, 0, 0, 0};
-        state = State::WRITE_TO_CLIENT_CHAR;
-        exit_code = (int)BrainBitBLEDLib::SYNC_ERROR;
-        ble_cmd_attclient_attribute_write (connection, brainbit_handle_send, 4, &signal_command);
-        exit_code = (int)BrainBitBLEDLib::SYNC_ERROR;
-        ble_cmd_attclient_attribute_write (connection, brainbit_handle_status, 4, &signal_command);
-        ble_cmd_attclient_execute_write (connection, 1);
-
-        return wait_for_callback (timeout);
+        for (uint16 ccid : ccids)
+        {
+            state = State::WRITE_TO_CLIENT_CHAR;
+            exit_code = (int)BrainBitBLEDLib::SYNC_ERROR;
+            ble_cmd_attclient_attribute_write (connection, ccid, 2, &configuration);
+            ble_cmd_attclient_execute_write (connection, 1);
+            wait_for_callback (timeout);
+        }
+        return (int)BrainBitBLEDLib::STATUS_OK;
     }
 
     int wait_for_callback (int num_seconds)
@@ -186,6 +180,7 @@ namespace BrainBitBLEDLib
             return (int)CustomExitCodes::SEND_CHARACTERISTIC_NOT_FOUND_ERROR;
         }
         ble_cmd_attclient_attribute_write (connection, brainbit_handle_send, len, config);
+        ble_cmd_attclient_execute_write (connection, 1);
         return wait_for_callback (timeout);
     }
 }

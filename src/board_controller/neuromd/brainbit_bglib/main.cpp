@@ -1,6 +1,7 @@
 #include <chrono>
 #include <ctype.h>
 #include <deque>
+#include <set>
 #include <stdlib.h>
 #include <string.h>
 #include <thread>
@@ -14,7 +15,6 @@
 #include "brainbit_functions.h"
 #include "brainbit_types.h"
 
-#include <iostream>
 
 // read Bluetooth_Smart_Software_v1.3.1_API_Reference.pdf to understand this code
 
@@ -34,6 +34,8 @@ namespace BrainBitBLEDLib
     volatile uint16 brainbit_handle_recv = 0;
     volatile uint16 brainbit_handle_send = 0;
     volatile uint16 brainbit_handle_status = 0;
+    volatile double battery_level = 0.0;
+    std::set<uint16> ccids;
 
     volatile State state =
         State::NONE; // same callbacks are triggered by different methods we need to differ them
@@ -147,10 +149,12 @@ namespace BrainBitBLEDLib
         }
         volatile bool stop_config_thread = false;
         std::thread config_thread = std::thread ([&] () {
+            uint8 signal_command[] = {0x01};
             while (!stop_config_thread)
             {
                 ble_cmd_attclient_attribute_write (
-                    connection, brainbit_handle_send, 1, (uint8 *)"\0");
+                    connection, brainbit_handle_send, 1, signal_command);
+                ble_cmd_attclient_execute_write (connection, 1);
             }
         });
         int res = wait_for_callback (timeout);
@@ -163,6 +167,7 @@ namespace BrainBitBLEDLib
         {
             l = uart_rx (l, &temp_data, 1000);
         }
+        data_queue.clear ();
         return res;
     }
 #else
@@ -174,8 +179,8 @@ namespace BrainBitBLEDLib
             should_stop_stream = true;
             read_characteristic_thread.join ();
         }
-        uint8 stop_command = 0;
-        int res = config_board (&stop_command, 1);
+        uint8 signal_command[] = {0x01}; // from brainbit web
+        int res = config_board (signal_command, 1);
         data_queue.clear ();
         return res;
     }
@@ -185,27 +190,26 @@ namespace BrainBitBLEDLib
     {
         // from silicanlabs forum - write 0x00001 to enable notifications
         uint8 configuration[] = {0x01, 0x00};
-        state = State::WRITE_TO_CLIENT_CHAR;
-        exit_code = (int)BrainBitBLEDLib::SYNC_ERROR;
-        ble_cmd_attclient_attribute_write (connection, brainbit_handle_status, 2, &configuration);
-        ble_cmd_attclient_execute_write (connection, 1);
-        int res = wait_for_callback (timeout);
-        exit_code = (int)BrainBitBLEDLib::SYNC_ERROR;
-        ble_cmd_attclient_attribute_write (connection, brainbit_handle_send, 2, &configuration);
-        ble_cmd_attclient_execute_write (connection, 1);
-        wait_for_callback (timeout);
+        for (uint16 ccid : ccids)
+        {
+            state = State::WRITE_TO_CLIENT_CHAR;
+            exit_code = (int)BrainBitBLEDLib::SYNC_ERROR;
+            ble_cmd_attclient_attribute_write (connection, ccid, 2, &configuration);
+            ble_cmd_attclient_execute_write (connection, 1);
+            int res = wait_for_callback (timeout);
+            if (res != (int)BrainBitBLEDLib::STATUS_OK)
+            {
+                return res;
+            }
+        }
 
-        // from brainbit docs
-        uint8 signal_command[] = {2, 0, 0, 0, 0};
+        // from brainbit web
+        uint8 signal_command[] = {0x02, 0x00, 0x00, 0x00, 0x00};
         state = State::WRITE_TO_CLIENT_CHAR;
-        exit_code = (int)BrainBitBLEDLib::SYNC_ERROR;
-        ble_cmd_attclient_attribute_write (connection, brainbit_handle_status, 5, &signal_command);
-        ble_cmd_attclient_execute_write (connection, 1);
-        res = wait_for_callback (timeout);
         exit_code = (int)BrainBitBLEDLib::SYNC_ERROR;
         ble_cmd_attclient_attribute_write (connection, brainbit_handle_send, 5, &signal_command);
         ble_cmd_attclient_execute_write (connection, 1);
-        res = wait_for_callback (timeout);
+        int res = wait_for_callback (timeout);
 
         if (res == (int)CustomExitCodes::STATUS_OK)
         {
