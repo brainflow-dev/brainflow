@@ -218,7 +218,7 @@ namespace GanglionLib
 
         if (!should_stop_stream)
         {
-            stop_stream (NULL);
+            stop_stream ((void *)"s");
         }
 
         connection = -1;
