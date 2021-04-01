@@ -134,7 +134,7 @@ namespace BrainBitBLEDLib
         // dirty hack to solve https://github.com/brainflow-dev/brainflow/issues/24
         if (!initialized)
         {
-            return (int)CustomExitCodes::BITALINO_IS_NOT_OPEN_ERROR;
+            return (int)CustomExitCodes::DEVICE_IS_NOT_OPEN_ERROR;
         }
         if (!should_stop_stream)
         {

@@ -2,5 +2,7 @@
 src/ml/generated/focus_dataset.cpp
 src/board_controller/openbci/ganglion_bglib/cmd_def.cpp
 src/board_controller/openbci/ganglion_bglib/inc/cmd_def.h
+src/board_controller/neuromd/brainbit_bglib/cmd_def.cpp
+src/board_controller/neuromd/brainbit_bglib/inc/cmd_def.h
 # third party
 third_party/*
