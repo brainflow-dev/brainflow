@@ -17,6 +17,7 @@
 #include "board_controller.h"
 #include "board_info_getter.h"
 #include "brainbit.h"
+#include "brainbit_bled.h"
 #include "brainflow_constants.h"
 #include "brainflow_input_params.h"
 #include "callibri_ecg.h"
@@ -38,7 +39,6 @@
 #include "streaming_board.h"
 #include "synthetic_board.h"
 #include "unicorn_board.h"
-#include "brainbit_bled.h"
 
 #include "json.hpp"
 
