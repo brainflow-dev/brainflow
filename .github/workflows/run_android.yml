@@ -21,7 +21,7 @@ jobs:
     - name: Install Ninja
       run: |
         sudo -H apt-get update -y
-        sudo -H apt-get install -y ninja-build zip unzip
+        sudo -H apt-get install -y ninja-build zip unzip python3-setuptools python3-pygments
       env:
         DEBIAN_FRONTEND: noninteractive
     - name: Setup Cmake
