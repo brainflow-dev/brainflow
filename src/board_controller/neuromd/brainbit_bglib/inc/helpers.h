@@ -7,6 +7,7 @@
 #include "uart.h"
 
 #define UART_TIMEOUT 1000
+#define BRAINBIT_BLED_DATA_SIZE 8
 
 namespace BrainBitBLEDLib
 {

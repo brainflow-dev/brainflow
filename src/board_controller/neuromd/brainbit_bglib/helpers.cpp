@@ -17,6 +17,8 @@
 #include <unistd.h>
 #endif
 
+#include "brainflow_constants.h"
+
 #define FIRST_HANDLE 0x0001
 #define LAST_HANDLE 0xffff
 
@@ -42,7 +44,7 @@ namespace BrainBitBLEDLib
     {
         if (uart_tx (len1, data1) || uart_tx (len2, data2))
         {
-            exit_code = (int)BrainBitBLEDLib::PORT_OPEN_ERROR;
+            exit_code = (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
         }
     }
 
@@ -60,7 +62,7 @@ namespace BrainBitBLEDLib
         }
         else if (r < 0)
         {
-            exit_code = (int)BrainBitBLEDLib::PORT_OPEN_ERROR;
+            exit_code = (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
             return 1; // fails to read
         }
         if (hdr.lolen)
@@ -69,7 +71,7 @@ namespace BrainBitBLEDLib
             r = uart_rx (hdr.lolen, data, UART_TIMEOUT);
             if (r <= 0)
             {
-                exit_code = (int)BrainBitBLEDLib::PORT_OPEN_ERROR;
+                exit_code = (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
                 delete[] data;
                 return 1; // fails to read
             }
@@ -86,19 +88,19 @@ namespace BrainBitBLEDLib
 
     int open_ble_dev ()
     {
-        exit_code = (int)BrainBitBLEDLib::SYNC_ERROR;
+        exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
         // send command to connect
         state = State::INITIAL_CONNECTION;
         ble_cmd_gap_connect_direct (&connect_addr, gap_address_type_random, 10, 76, 100, 0);
 
         int res = wait_for_callback (timeout);
-        if (res != (int)BrainBitBLEDLib::STATUS_OK)
+        if (res != (int)BrainFlowExitCodes::STATUS_OK)
         {
             return res;
         }
         state = State::OPEN_CALLED;
 
-        exit_code = (int)BrainBitBLEDLib::SYNC_ERROR;
+        exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
         uint8 primary_service_uuid[] = {0x00, 0x28};
 
         ble_cmd_attclient_read_by_group_type (
@@ -106,7 +108,7 @@ namespace BrainBitBLEDLib
 
         res = wait_for_callback (timeout);
 
-        if (res != (int)BrainBitBLEDLib::STATUS_OK)
+        if (res != (int)BrainFlowExitCodes::STATUS_OK)
         {
             return res;
         }
@@ -117,19 +119,20 @@ namespace BrainBitBLEDLib
         for (uint16 ccid : ccids)
         {
             state = State::WRITE_TO_CLIENT_CHAR;
-            exit_code = (int)BrainBitBLEDLib::SYNC_ERROR;
+            exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
             ble_cmd_attclient_attribute_write (connection, ccid, 2, &configuration);
             ble_cmd_attclient_execute_write (connection, 1);
             wait_for_callback (timeout);
         }
-        return (int)BrainBitBLEDLib::STATUS_OK;
+        return (int)BrainFlowExitCodes::STATUS_OK;
     }
 
     int wait_for_callback (int num_seconds)
     {
         auto start_time = std::chrono::high_resolution_clock::now ();
         int run_time = 0;
-        while ((run_time < num_seconds) && (exit_code == (int)BrainBitBLEDLib::SYNC_ERROR))
+        while (
+            (run_time < num_seconds) && (exit_code == (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR))
         {
             if (read_message (UART_TIMEOUT) > 0)
             {
@@ -162,22 +165,22 @@ namespace BrainBitBLEDLib
         }
         if (i == 5)
         {
-            return (int)BrainBitBLEDLib::PORT_OPEN_ERROR;
+            return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
         }
-        return (int)BrainBitBLEDLib::STATUS_OK;
+        return (int)BrainFlowExitCodes::STATUS_OK;
     }
 
     int config_board (uint8 *config, int len)
     {
         if (!initialized)
         {
-            return (int)CustomExitCodes::DEVICE_IS_NOT_OPEN_ERROR;
+            return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
         }
-        exit_code = (int)CustomExitCodes::SYNC_ERROR;
+        exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
         state = State::CONFIG_CALLED;
         if (!brainbit_handle_send)
         {
-            return (int)CustomExitCodes::SEND_CHARACTERISTIC_NOT_FOUND_ERROR;
+            return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
         }
         ble_cmd_attclient_attribute_write (connection, brainbit_handle_send, len, config);
         ble_cmd_attclient_execute_write (connection, 1);

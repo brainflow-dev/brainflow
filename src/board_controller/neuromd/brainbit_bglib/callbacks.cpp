@@ -1,3 +1,6 @@
+#include <array>
+#include <chrono>
+#include <ctime>
 #include <ctype.h>
 #include <deque>
 #include <math.h>
@@ -6,13 +9,12 @@
 #include <string.h>
 
 #include "brainbit_types.h"
+#include "brainflow_constants.h"
 #include "cmd_def.h"
 #include "helpers.h"
 #include "ticket_lock.h"
 #include "timestamp.h"
 #include "uart.h"
-#include <chrono>
-#include <ctime>
 
 
 /*
@@ -41,7 +43,7 @@ namespace BrainBitBLEDLib
     extern TicketLock lock;
     extern volatile double battery_level;
 
-    extern std::deque<struct BrainBitBLEDLib::BrainBitData> data_queue;
+    extern std::deque<std::array<double, BRAINBIT_BLED_DATA_SIZE>> data_queue;
 
     // 6e400001-b534-f393-68a9-e50e24dcca9e
     const int service_uuid_bytes[16] = {
@@ -68,7 +70,7 @@ void ble_evt_connection_status (const struct ble_msg_connection_status_evt_t *ms
         // when we call this method from open_ble_device
         if (BrainBitBLEDLib::state == BrainBitBLEDLib::State::INITIAL_CONNECTION)
         {
-            BrainBitBLEDLib::exit_code = (int)BrainBitBLEDLib::STATUS_OK;
+            BrainBitBLEDLib::exit_code = (int)BrainFlowExitCodes::STATUS_OK;
         }
     }
 }
@@ -118,7 +120,7 @@ void ble_evt_attclient_procedure_completed (
     {
         if (msg->result == 0)
         {
-            BrainBitBLEDLib::exit_code = (int)BrainBitBLEDLib::STATUS_OK;
+            BrainBitBLEDLib::exit_code = (int)BrainFlowExitCodes::STATUS_OK;
         }
     }
     if (BrainBitBLEDLib::state == BrainBitBLEDLib::State::OPEN_CALLED)
@@ -135,7 +137,7 @@ void ble_evt_attclient_procedure_completed (
     {
         if (msg->result == 0)
         {
-            BrainBitBLEDLib::exit_code = (int)BrainBitBLEDLib::STATUS_OK;
+            BrainBitBLEDLib::exit_code = (int)BrainFlowExitCodes::STATUS_OK;
         }
     }
 }
@@ -191,7 +193,7 @@ void ble_evt_attclient_find_information_found (
             (BrainBitBLEDLib::brainbit_handle_status) && (BrainBitBLEDLib::ccids.size () > 1) &&
             (BrainBitBLEDLib::state == BrainBitBLEDLib::State::OPEN_CALLED))
         {
-            BrainBitBLEDLib::exit_code = (int)BrainBitBLEDLib::STATUS_OK;
+            BrainBitBLEDLib::exit_code = (int)BrainFlowExitCodes::STATUS_OK;
         }
     }
 }
@@ -203,7 +205,7 @@ void ble_evt_attclient_attribute_value (const struct ble_msg_attclient_attribute
         unsigned char values[20] = {0};
         memcpy (values, msg->value.data, msg->value.len * sizeof (unsigned char));
         double timestamp = get_timestamp ();
-        double package[BrainBitBLEDLib::BrainBitData::SIZE] = {0.0};
+        std::array<double, BRAINBIT_BLED_DATA_SIZE> package;
 
         double multiplier = 2.4 * 1000000 / (0xFFFFF * 6);
         package[0] = (double)((msg->value.data[0] << 3) | (msg->value.data[1] >> 5));
@@ -230,30 +232,29 @@ void ble_evt_attclient_attribute_value (const struct ble_msg_attclient_attribute
         double eeg14 = (msg->value.data[18] << 24) | (msg->value.data[19] << 16);
         eeg14 = eeg14 / 65536 + eeg04;
 
-        package[1] = eeg01 * multiplier;
-        package[2] = eeg02 * multiplier;
-        package[3] = eeg03 * multiplier;
+        // order of packages: 0 - O1, 1 - T3, 2- T4, 3 - O2, need to  swap them to match BrainBit
+        // board (t3, t4, o1, o2)
+        package[1] = eeg02 * multiplier;
+        package[2] = eeg03 * multiplier;
+        package[3] = eeg01 * multiplier;
         package[4] = eeg04 * multiplier;
         package[5] = BrainBitBLEDLib::battery_level;
         package[6] = get_timestamp ();
 
-        struct BrainBitBLEDLib::BrainBitData data (package);
-
         BrainBitBLEDLib::lock.lock ();
-        BrainBitBLEDLib::data_queue.push_back (data);
+        BrainBitBLEDLib::data_queue.push_back (package);
         BrainBitBLEDLib::lock.unlock ();
 
-        package[1] = eeg11 * multiplier;
-        package[2] = eeg12 * multiplier;
-        package[3] = eeg13 * multiplier;
+        package[1] = eeg12 * multiplier;
+        package[2] = eeg13 * multiplier;
+        package[3] = eeg11 * multiplier;
         package[4] = eeg14 * multiplier;
         package[5] = BrainBitBLEDLib::battery_level;
         package[6] = get_timestamp ();
 
-        struct BrainBitBLEDLib::BrainBitData data2 (package);
 
         BrainBitBLEDLib::lock.lock ();
-        BrainBitBLEDLib::data_queue.push_back (data2);
+        BrainBitBLEDLib::data_queue.push_back (package);
         BrainBitBLEDLib::lock.unlock ();
     }
     if (msg->value.len == 4)
@@ -293,7 +294,7 @@ void ble_evt_gap_scan_response (const struct ble_msg_gap_scan_response_evt_t *ms
         if (strstr (name, "BrainBit") != NULL)
         {
             memcpy ((void *)BrainBitBLEDLib::connect_addr.addr, msg->sender.addr, sizeof (bd_addr));
-            BrainBitBLEDLib::exit_code = (int)BrainBitBLEDLib::STATUS_OK;
+            BrainBitBLEDLib::exit_code = (int)BrainFlowExitCodes::STATUS_OK;
         }
     }
 }

@@ -1,3 +1,4 @@
+#include <array>
 #include <chrono>
 #include <ctype.h>
 #include <deque>
@@ -15,16 +16,18 @@
 #include "brainbit_functions.h"
 #include "brainbit_types.h"
 
+#include "brainflow_constants.h"
+
 
 // read Bluetooth_Smart_Software_v1.3.1_API_Reference.pdf to understand this code
 
 namespace BrainBitBLEDLib
 {
-    volatile int exit_code = (int)BrainBitBLEDLib::SYNC_ERROR;
+    volatile int exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
     char uart_port[1024];
     int timeout = 15;
 
-    std::deque<struct BrainBitBLEDLib::BrainBitData> data_queue;
+    std::deque<std::array<double, BRAINBIT_BLED_DATA_SIZE>> data_queue;
     TicketLock lock;
     volatile bd_addr connect_addr;
 
@@ -58,34 +61,34 @@ namespace BrainBitBLEDLib
         {
             if (param == NULL)
             {
-                return (int)CustomExitCodes::PORT_OPEN_ERROR;
+                return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
             }
             struct BrainBitInputData *input = (struct BrainBitInputData *)param;
             strcpy (uart_port, input->uart_port);
             timeout = input->timeout;
             bglib_output = output;
-            exit_code = (int)CustomExitCodes::SYNC_ERROR;
+            exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
             initialized = true;
         }
-        return (int)CustomExitCodes::STATUS_OK;
+        return (int)BrainFlowExitCodes::STATUS_OK;
     }
 
     int open_device (void *param)
     {
         if (uart_open (uart_port))
         {
-            return (int)CustomExitCodes::PORT_OPEN_ERROR;
+            return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
         }
         int res = reset_ble_dev ();
-        if (res != (int)CustomExitCodes::STATUS_OK)
+        if (res != (int)BrainFlowExitCodes::STATUS_OK)
         {
             return res;
         }
-        exit_code = (int)CustomExitCodes::SYNC_ERROR;
+        exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
         state = State::OPEN_CALLED;
         ble_cmd_gap_discover (gap_discover_observation);
         res = wait_for_callback (timeout);
-        if (res != (int)CustomExitCodes::STATUS_OK)
+        if (res != (int)BrainFlowExitCodes::STATUS_OK)
         {
             return res;
         }
@@ -97,14 +100,14 @@ namespace BrainBitBLEDLib
     {
         if (uart_open (uart_port))
         {
-            return (int)CustomExitCodes::DEVICE_NOT_FOUND_ERROR;
+            return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
         }
         int res = reset_ble_dev ();
-        if (res != (int)CustomExitCodes::STATUS_OK)
+        if (res != (int)BrainFlowExitCodes::STATUS_OK)
         {
             return res;
         }
-        exit_code = (int)CustomExitCodes::SYNC_ERROR;
+        exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
         state = State::OPEN_CALLED;
         char *mac_addr = (char *)param;
         // convert string mac addr to bd_addr struct
@@ -123,7 +126,7 @@ namespace BrainBitBLEDLib
         }
         else
         {
-            return (int)CustomExitCodes::INVALID_MAC_ADDR_ERROR;
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
         }
         return open_ble_dev ();
     }
@@ -134,18 +137,18 @@ namespace BrainBitBLEDLib
         // dirty hack to solve https://github.com/brainflow-dev/brainflow/issues/24
         if (!initialized)
         {
-            return (int)CustomExitCodes::DEVICE_IS_NOT_OPEN_ERROR;
+            return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
         }
         if (!should_stop_stream)
         {
             should_stop_stream = true;
             read_characteristic_thread.join ();
         }
-        exit_code = (int)CustomExitCodes::SYNC_ERROR;
+        exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
         state = State::CONFIG_CALLED;
         if (!brainbit_handle_send)
         {
-            return (int)CustomExitCodes::SEND_CHARACTERISTIC_NOT_FOUND_ERROR;
+            return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
         }
         volatile bool stop_config_thread = false;
         std::thread config_thread = std::thread ([&] () {
@@ -193,11 +196,11 @@ namespace BrainBitBLEDLib
         for (uint16 ccid : ccids)
         {
             state = State::WRITE_TO_CLIENT_CHAR;
-            exit_code = (int)BrainBitBLEDLib::SYNC_ERROR;
+            exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
             ble_cmd_attclient_attribute_write (connection, ccid, 2, &configuration);
             ble_cmd_attclient_execute_write (connection, 1);
             int res = wait_for_callback (timeout);
-            if (res != (int)BrainBitBLEDLib::STATUS_OK)
+            if (res != (int)BrainFlowExitCodes::STATUS_OK)
             {
                 return res;
             }
@@ -206,12 +209,12 @@ namespace BrainBitBLEDLib
         // from brainbit web
         uint8 signal_command[] = {0x02, 0x00, 0x00, 0x00, 0x00};
         state = State::WRITE_TO_CLIENT_CHAR;
-        exit_code = (int)BrainBitBLEDLib::SYNC_ERROR;
+        exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
         ble_cmd_attclient_attribute_write (connection, brainbit_handle_send, 5, &signal_command);
         ble_cmd_attclient_execute_write (connection, 1);
         int res = wait_for_callback (timeout);
 
-        if (res == (int)CustomExitCodes::STATUS_OK)
+        if (res == (int)BrainFlowExitCodes::STATUS_OK)
         {
             should_stop_stream = false;
             read_characteristic_thread = std::thread (read_characteristic_worker);
@@ -224,7 +227,7 @@ namespace BrainBitBLEDLib
     {
         if (!initialized)
         {
-            return (int)CustomExitCodes::DEVICE_IS_NOT_OPEN_ERROR;
+            return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
         }
         state = State::CLOSE_CALLED;
 
@@ -241,42 +244,42 @@ namespace BrainBitBLEDLib
 
         uart_close ();
 
-        return (int)CustomExitCodes::STATUS_OK;
+        return (int)BrainFlowExitCodes::STATUS_OK;
     }
 
     int get_data (void *param)
     {
         if (!initialized)
         {
-            return (int)CustomExitCodes::DEVICE_IS_NOT_OPEN_ERROR;
+            return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
         }
         if (should_stop_stream)
         {
-            return (int)CustomExitCodes::NO_DATA_ERROR;
+            return (int)BrainFlowExitCodes::EMPTY_BUFFER_ERROR;
         }
         state = State::GET_DATA_CALLED;
-        int res = (int)CustomExitCodes::STATUS_OK;
+        int res = (int)BrainFlowExitCodes::STATUS_OK;
         lock.lock ();
         if (data_queue.empty ())
         {
-            res = (int)CustomExitCodes::NO_DATA_ERROR;
+            res = (int)BrainFlowExitCodes::EMPTY_BUFFER_ERROR;
         }
         else
         {
             try
             {
-                struct BrainBitData *board_data = (struct BrainBitData *)param;
-                struct BrainBitData data = data_queue.at (
+                double *board_data = (double *)param;
+                std::array<double, BRAINBIT_BLED_DATA_SIZE> data = data_queue.at (
                     0); // at ensures out of range exception, front has undefined behavior
-                for (int i = 0; i < BrainBitData::SIZE; i++)
+                for (int i = 0; i < BRAINBIT_BLED_DATA_SIZE; i++)
                 {
-                    board_data->data[i] = data.data[i];
+                    board_data[i] = data[i];
                 }
                 data_queue.pop_front ();
             }
             catch (...)
             {
-                res = (int)CustomExitCodes::NO_DATA_ERROR;
+                res = (int)BrainFlowExitCodes::EMPTY_BUFFER_ERROR;
             }
         }
         lock.unlock ();
@@ -292,7 +295,12 @@ namespace BrainBitBLEDLib
             initialized = false;
             data_queue.clear ();
         }
-        return (int)CustomExitCodes::STATUS_OK;
+        return (int)BrainFlowExitCodes::STATUS_OK;
+    }
+
+    int config_device (void *param)
+    {
+        return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
     }
 
 } // BrainBitBLEDLib

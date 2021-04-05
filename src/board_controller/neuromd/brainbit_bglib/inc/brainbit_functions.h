@@ -14,6 +14,7 @@ namespace BrainBitBLEDLib
         SHARED_EXPORT int CALLING_CONVENTION close_device (void *param);
         SHARED_EXPORT int CALLING_CONVENTION get_data (void *param);
         SHARED_EXPORT int CALLING_CONVENTION release (void *param);
+        SHARED_EXPORT int CALLING_CONVENTION config_device (void *param);
 #ifdef __cplusplus
     }
 #endif
