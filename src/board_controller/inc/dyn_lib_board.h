@@ -45,3 +45,5 @@ public:
     virtual int release_session ();
     virtual int config_board (std::string config, std::string &response);
 };
+
+#include "../dyn_lib_board.cpp"
