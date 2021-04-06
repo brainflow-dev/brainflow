@@ -331,5 +331,3 @@ int DynLibBoard<N>::call_config (char *config)
     }
     return func ((void *)config);
 }
-
-template DynLibBoard<8>;
