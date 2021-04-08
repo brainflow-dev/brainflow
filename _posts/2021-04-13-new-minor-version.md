@@ -77,7 +77,7 @@ public:
 };
 ```
 
-By default it calls the following methods from the library loaded in runtime:
+By default it calls the following methods from library loaded in runtime:
 
 ```cpp
 SHARED_EXPORT int CALLING_CONVENTION initialize (void *param);
@@ -91,3 +91,5 @@ SHARED_EXPORT int CALLING_CONVENTION config_device (void *param);
 ```
 
 You can override such methods and customize them as you need.
+
+Use code for BrainBitBLED board or OYMotion boards as example.
