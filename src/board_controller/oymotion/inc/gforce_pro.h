@@ -1,42 +1,34 @@
 #pragma once
 
-#include <condition_variable>
-#include <mutex>
-#include <string>
-#include <thread>
-
-#include "board.h"
-#include "data_buffer.h"
-#include "runtime_dll_loader.h"
+#ifdef _WIN32
+#include "dyn_lib_board.h"
 
 
-class GforcePro : public Board
+class GforcePro : public DynLibBoard<11>
 {
 
-#ifdef _WIN32
 private:
     static int num_objects;
     bool is_valid;
 
-    volatile bool keep_alive;
-    bool initialized;
-    bool is_streaming;
-    std::thread streaming_thread;
+public:
+    GforcePro (struct BrainFlowInputParams params);
+    ~GforcePro ();
 
+    int prepare_session ();
+
+protected:
+    std::string get_lib_name ();
     int call_init ();
-    int call_start ();
-    int call_stop ();
-    int call_release ();
+};
 
-    std::mutex m;
-    std::condition_variable cv;
-    volatile int state;
+#else
 
-    void read_thread ();
+#include "board.h"
 
-    DLLLoader *dll_loader;
-#endif
 
+class GforcePro : public Board
+{
 public:
     GforcePro (struct BrainFlowInputParams params);
     ~GforcePro ();
@@ -47,3 +39,5 @@ public:
     int release_session ();
     int config_board (std::string config, std::string &response);
 };
+
+#endif

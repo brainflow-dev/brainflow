@@ -4,13 +4,16 @@
 
 #include "gforce.h"
 
-#include "gforce_wrapper_types.h"
-
 #include "spdlog/sinks/null_sink.h"
 #include "spdlog/spdlog.h"
 
+#include "brainflow_array.h"
+#include "brainflow_constants.h"
+#include "gforce_wrapper_types.h"
 #include "spinlock.h"
 #include "timestamp.h"
+
+//#define ENABLE_LOGGER
 
 using namespace gf;
 using namespace std;
@@ -18,14 +21,13 @@ using namespace std;
 extern volatile int iExitCode;
 extern SpinLock spinLock;
 extern volatile bool bShouldStopStream;
-extern std::deque<struct GforceData> data_queue;
+extern std::deque<BrainFlowArray<double, 1>> dataQueue;
 
-//#define ENABLE_LOGGER
 
 class GforceHandle : public HubListener
 {
 public:
-    GforceHandle (gfsPtr<Hub> &pHub) : mHub (pHub)
+    GforceHandle (gfsPtr<Hub> &pHub, int iBoardType) : mHub (pHub)
     {
 #ifdef ENABLE_LOGGER
         logger = spdlog::stderr_logger_mt ("GForceHandleLogger");
@@ -37,6 +39,7 @@ public:
         bIsEMGConfigured = false;
         bIsFeatureMapConfigured = false;
         iCounter = 0;
+        this->iBoardType = iBoardType;
     }
 
     /// This callback is called when the Hub finishes scanning devices.
@@ -45,7 +48,7 @@ public:
         if (nullptr == mDevice)
         {
             logger->error ("device not found");
-            iExitCode = (int)GforceWrapperExitCodes::NO_DEVICE_FOUND;
+            iExitCode = (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
         }
         else
         {
@@ -56,18 +59,18 @@ public:
                 if (GF_RET_CODE::GF_SUCCESS == mDevice->connect ())
                 {
                     logger->info ("device connected");
-                    iExitCode = (int)GforceWrapperExitCodes::STATUS_OK;
+                    iExitCode = (int)BrainFlowExitCodes::STATUS_OK;
                 }
                 else
                 {
                     logger->error ("connect error");
-                    iExitCode = (int)GforceWrapperExitCodes::CONNECT_ERROR;
+                    iExitCode = (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
                 }
             }
             else
             {
                 logger->error ("device found but in connecting state");
-                iExitCode = (int)GforceWrapperExitCodes::FOUND_BUT_IN_CONNECTING_STATE;
+                iExitCode = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
             }
         }
     }
@@ -170,30 +173,36 @@ public:
         }
 
         auto ptr = data->data ();
-        double emgData[GforceData::SIZE] = {0.0};
-        if (dataType == DeviceDataType::DDT_EMGRAW)
+        if (iBoardType == (int)GforceDeviceType::EIGHT_CHANNEL_BOARD)
         {
-            emgData[0] = iCounter++;
-            for (int packageNum = 0; packageNum < GforceHandle::iNumPackages; packageNum++)
+            constexpr int size = 11;
+            double emgData[size] = {0.0};
+            if (dataType == DeviceDataType::DDT_EMGRAW)
             {
                 emgData[0] = iCounter++;
-                for (int i = 0; i < 8; i++)
+                for (int packageNum = 0; packageNum < GforceHandle::iNumPackages; packageNum++)
                 {
-                    emgData[i + 1] = (double)*(reinterpret_cast<const uint16_t *> (ptr));
-                    ptr += 2;
+                    emgData[0] = iCounter++;
+                    for (int i = 0; i < 8; i++)
+                    {
+                        emgData[i + 1] = (double)*(reinterpret_cast<const uint16_t *> (ptr));
+                        ptr += 2;
+                    }
+                    emgData[9] = timestamp;
+                    BrainFlowArray<double, 1> gforceData (emgData, size);
+                    spinLock.lock ();
+                    dataQueue.push_back (std::move (gforceData));
+                    spinLock.unlock ();
                 }
-                emgData[9] = timestamp;
-                struct GforceData gforceData (emgData);
-                spinLock.lock ();
-                data_queue.push_back (gforceData);
-                spinLock.unlock ();
             }
         }
+        // todo add 2 channels board
     }
 
     std::shared_ptr<spdlog::logger> logger;
     bool bIsFeatureMapConfigured;
     bool bIsEMGConfigured;
+    int iBoardType;
 
     static const int iADCResolution = 12;
     static const int iTransactionSize = 128;

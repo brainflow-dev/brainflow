@@ -14,6 +14,7 @@ set (CMAKE_POSITION_INDEPENDENT_CODE ON)
 option(USE_LIBFTDI "USE_LIBFTDI" OFF)
 option(USE_OPENMP "USE_OPENMP" OFF)
 option(WARNINGS_AS_ERRORS "WARNINGS_AS_ERRORS" OFF)
+option(BUILD_OYMOTION_SDK "BUILD_OYMOTION_SDK" OFF)
 
 macro (configure_msvc_runtime)
     if (MSVC)
@@ -86,23 +87,27 @@ if (CMAKE_SIZEOF_VOID_P EQUAL 8)
     MESSAGE ("64 bits compiler detected")
     SET (PLATFORM_ACH "X64")
     SET (GANGLION_LIB "GanglionLib")
+    SET (BRAINBIT_BLED_LIB "BrainBitLib")
     SET (BOARD_CONTROLLER_NAME "BoardController")
     SET (DATA_HANDLER_NAME "DataHandler")
     SET (ML_MODULE_NAME "MLModule")
     SET (BRAINFLOW_CPP_BINDING_NAME "Brainflow")
     if(APPLE)
         SET (GANGLION_LIB_NAME "libGanglionLib.dylib")
+        SET (BRAINBIT_BLED_LIB_NAME "libBrainBitLib.dylib")
         SET (BOARD_CONTROLLER_COMPILED_NAME "libBoardController.dylib")
         SET (DATA_HANDLER_COMPILED_NAME "libDataHandler.dylib")
         SET (ML_MODULE_COMPILED_NAME "libMLModule.dylib")
         SET (NEUROSDK_LIB_NAME "neurosdk-shared")
     elseif (UNIX)
         SET (GANGLION_LIB_NAME "libGanglionLib.so")
+        SET (BRAINBIT_BLED_LIB_NAME "libBrainBitLib.so")
         SET (BOARD_CONTROLLER_COMPILED_NAME "libBoardController.so")
         SET (DATA_HANDLER_COMPILED_NAME "libDataHandler.so")
         SET (ML_MODULE_COMPILED_NAME "libMLModule.so")
     else ()
         SET (GANGLION_LIB_NAME "GanglionLib.dll")
+        SET (BRAINBIT_BLED_LIB_NAME "BrainBitLib.dll")
         SET (BOARD_CONTROLLER_COMPILED_NAME "BoardController.dll")
         SET (DATA_HANDLER_COMPILED_NAME "DataHandler.dll")
         SET (NEUROSDK_LIB_NAME "neurosdk-x64")
@@ -115,8 +120,10 @@ else (CMAKE_SIZEOF_VOID_P EQUAL 8)
     # to dont write code like if(32 bits) if(64 bits) in bindings and keep the ability to use them if brainflow was built from src
     # use the same name for 32 and 64 bits
     if (APPLE)
+        SET (BRAINBIT_BLED_LIB "BrainBitLib")
         SET (GANGLION_LIB "GanglionLib")
         SET (GANGLION_LIB_NAME "libGanglionLib.dylib")
+        SET (BRAINBIT_BLED_LIB_NAME "libBrainBitLib.dylib")
         SET (BOARD_CONTROLLER_NAME "BoardController")
         SET (DATA_HANDLER_NAME "DataHandler")
         SET (BRAINFLOW_CPP_BINDING_NAME "Brainflow")
@@ -127,6 +134,8 @@ else (CMAKE_SIZEOF_VOID_P EQUAL 8)
     elseif (UNIX)
         SET (GANGLION_LIB "GanglionLib")
         SET (GANGLION_LIB_NAME "libGanglionLib.so")
+        SET (BRAINBIT_BLED_LIB "BrainBitLib")
+        SET (BRAINBIT_BLED_LIB_NAME "libBrainBitLib.so")
         SET (BOARD_CONTROLLER_NAME "BoardController")
         SET (DATA_HANDLER_NAME "DataHandler")
         SET (BRAINFLOW_CPP_BINDING_NAME "Brainflow")
@@ -137,6 +146,8 @@ else (CMAKE_SIZEOF_VOID_P EQUAL 8)
     else ()
         SET (GANGLION_LIB "GanglionLib32")
         SET (GANGLION_LIB_NAME "GanglionLib32.dll")
+        SET (BRAINBIT_BLED_LIB "BrainBitLib32")
+        SET (BRAINBIT_BLED_LIB_NAME "BrainBitLib32.dll")
         SET (BOARD_CONTROLLER_NAME "BoardController32")
         SET (DATA_HANDLER_NAME "DataHandler32")
         SET (BRAINFLOW_CPP_BINDING_NAME "Brainflow32")
@@ -163,6 +174,22 @@ target_include_directories (${GANGLION_LIB} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/inc>
 )
 set_property (TARGET ${GANGLION_LIB} PROPERTY POSITION_INDEPENDENT_CODE ON)
+
+set (BRAINBIT_BLED_SOURCE_LIB
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/brainbit_bglib/callbacks.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/brainbit_bglib/cmd_def.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/brainbit_bglib/helpers.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/brainbit_bglib/main.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/brainbit_bglib/stubs.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/brainbit_bglib/uart.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/utils/timestamp.cpp
+)
+add_library (${BRAINBIT_BLED_LIB} SHARED ${BRAINBIT_BLED_SOURCE_LIB})
+target_include_directories (${BRAINBIT_BLED_LIB} PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_HOME_DIRECTORY}/src/utils/inc>
+    $<BUILD_INTERFACE:${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/brainbit_bglib/inc>
+)
+set_property (TARGET ${BRAINBIT_BLED_LIB} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 set (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/utils/timestamp.cpp
@@ -208,6 +235,7 @@ set (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/oymotion/gforce_pro.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ironbci/ironbci.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/freeeeg32/freeeeg32.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/brainbit_bled.cpp
 )
 
 set (DATA_HANDLER_SRC
@@ -256,6 +284,7 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/gtec/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/inc
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/brainbit_bglib/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/mit/inc
     ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/inc/types
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neurosity/inc
@@ -302,6 +331,13 @@ set_target_properties (${GANGLION_LIB}
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
 )
 
+set_target_properties (${BRAINBIT_BLED_LIB}
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
+)
+
 set_target_properties (${DATA_HANDLER_NAME}
     PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
@@ -315,6 +351,10 @@ set_target_properties (${ML_MODULE_NAME}
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
 )
+
+if (BUILD_OYMOTION_SDK)
+    add_subdirectory (${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX)
+endif (BUILD_OYMOTION_SDK)
 
 if (USE_LIBFTDI)
     find_package (LibFTDI1 NO_MODULE)
@@ -393,6 +433,13 @@ if (MSVC)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${GANGLION_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${GANGLION_LIB_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${GANGLION_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/julia-package/brainflow/lib/${GANGLION_LIB_NAME}"
     )
+    add_custom_command (TARGET ${BRAINBIT_BLED_LIB} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BRAINBIT_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${BRAINBIT_BLED_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BRAINBIT_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${BRAINBIT_BLED_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BRAINBIT_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/${BRAINBIT_BLED_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BRAINBIT_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${BRAINBIT_BLED_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BRAINBIT_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/julia-package/brainflow/lib/${BRAINBIT_BLED_LIB_NAME}"
+    )
     add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
         # copy board controller libs
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BOARD_CONTROLLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${BOARD_CONTROLLER_COMPILED_NAME}"
@@ -408,24 +455,6 @@ if (MSVC)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib/${NEUROSDK_LIB_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/julia-package/brainflow/lib/${NEUROSDK_LIB_NAME}.dll"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib/${NEUROSDK_LIB_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${NEUROSDK_LIB_NAME}.dll"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib/${NEUROSDK_LIB_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${NEUROSDK_LIB_NAME}.dll"
-        # copy gforcewrapper
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper.dll" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/gForceSDKWrapper.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper32.dll" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/gForceSDKWrapper32.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper.dll" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/gForceSDKWrapper.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper32.dll" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/gForceSDKWrapper32.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper.dll" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/gForceSDKWrapper.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper32.dll" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/gForceSDKWrapper32.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper.dll" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/gForceSDKWrapper.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper32.dll" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/gForceSDKWrapper32.dll"
-        # copy gforcesdk
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce32.dll" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/gforce32.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce64.dll" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/gforce64.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce32.dll" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/gforce32.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce64.dll" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/gforce64.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce32.dll" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/gforce32.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce64.dll" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/gforce64.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce32.dll" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/gforce32.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce64.dll" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/gforce64.dll"
     )
     add_custom_command (TARGET ${DATA_HANDLER_NAME} POST_BUILD
         # copy data handler libs
@@ -467,6 +496,13 @@ if (UNIX AND NOT ANDROID)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${GANGLION_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${GANGLION_LIB_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${GANGLION_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/${GANGLION_LIB_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${GANGLION_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${GANGLION_LIB_NAME}"
+    )
+    add_custom_command (TARGET ${BRAINBIT_BLED_LIB} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${BRAINBIT_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${BRAINBIT_BLED_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${BRAINBIT_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/julia-package/brainflow/lib/${BRAINBIT_BLED_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${BRAINBIT_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${BRAINBIT_BLED_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${BRAINBIT_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/${BRAINBIT_BLED_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${BRAINBIT_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${BRAINBIT_BLED_LIB_NAME}"
     )
     add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
         # copy board controller libs
@@ -589,9 +625,9 @@ install (
     ${CMAKE_HOME_DIRECTORY}/src/ml/inc/brainflow_model_params.h
     ${CMAKE_HOME_DIRECTORY}/cpp-package/src/inc/data_filter.h
     ${CMAKE_HOME_DIRECTORY}/cpp-package/src/inc/board_shim.h
-    ${CMAKE_HOME_DIRECTORY}/cpp-package/src/inc/brainflow_exception.h
     ${CMAKE_HOME_DIRECTORY}/cpp-package/src/inc/ml_model.h
-    ${CMAKE_HOME_DIRECTORY}/cpp-package/src/inc/brainflow_array.h
+    ${CMAKE_HOME_DIRECTORY}/src/utils/inc/brainflow_array.h
+    ${CMAKE_HOME_DIRECTORY}/src/utils/inc/brainflow_exception.h
     DESTINATION inc
 )
 # install svm_model
@@ -601,18 +637,31 @@ install (
     DESTINATION lib
 )
 
-# install neurosdk
+# install 3rd party deps
 if (MSVC)
     install (
         FILES
         ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib/${NEUROSDK_LIB_NAME}.dll
-        ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper32.dll
-        ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper.dll
-        ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce32.dll
-        ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce64.dll
         DESTINATION lib
     )
+    if (CMAKE_SIZEOF_VOID_P EQUAL 8 AND BUILD_OYMOTION_SDK)
+        install (
+            FILES
+            ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper.dll
+            ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce64.dll
+            DESTINATION lib
+        )
+    endif (CMAKE_SIZEOF_VOID_P EQUAL 8 AND BUILD_OYMOTION_SDK)
+    if (CMAKE_SIZEOF_VOID_P EQUAL 4 AND BUILD_OYMOTION_SDK)
+        install (
+            FILES
+            ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper32.dll
+            ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce32.dll
+            DESTINATION lib
+        )
+    endif (CMAKE_SIZEOF_VOID_P EQUAL 4 AND BUILD_OYMOTION_SDK)
 endif (MSVC)
+
 if (APPLE)
     install (
         FILES
@@ -639,7 +688,7 @@ if (MSVC)
 endif (MSVC)
 
 install (
-    TARGETS ${BOARD_CONTROLLER_NAME} ${DATA_HANDLER_NAME} ${DSPFILTERS} ${WAVELIB} ${GANGLION_LIB} ${ML_MODULE_NAME} ${BRAINFLOW_CPP_BINDING_NAME}
+    TARGETS ${BOARD_CONTROLLER_NAME} ${DATA_HANDLER_NAME} ${DSPFILTERS} ${WAVELIB} ${GANGLION_LIB} ${BRAINBIT_BLED_LIB} ${ML_MODULE_NAME} ${BRAINFLOW_CPP_BINDING_NAME}
     EXPORT ${TARGETS_EXPORT_NAME}
     RUNTIME DESTINATION lib
     LIBRARY DESTINATION lib

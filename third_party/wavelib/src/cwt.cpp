@@ -348,12 +348,12 @@ static int maxabs (double *array, int N)
 
 double cdelta (int mother, double param, double psi0)
 {
-    int N, i, j, iter;
-    double *delta, *scale, *period, *wave, *coi, *mval;
-    double den, cdel;
-    double subscale, dt, dj, s0;
-    int jtot;
-    int maxarr;
+    int N = 0, i = 0, j = 0, iter = 0;
+    double *delta = NULL, *scale = NULL, *period = NULL, *wave = NULL, *coi = NULL, *mval = NULL;
+    double den = 0.0, cdel = 0.0;
+    double subscale = 0.0, dt = 0.0, dj = 0.0, s0 = 0.0;
+    int jtot = 0;
+    int maxarr = 0;
 
     subscale = 8.0;
     dt = 0.25;

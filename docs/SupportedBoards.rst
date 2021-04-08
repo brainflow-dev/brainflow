@@ -26,6 +26,7 @@ To create an instance of BoardShim class for your board check required inputs in
    "Notion 2", "BoardIds.NOTION_2_BOARD (14)", "-", "-", "-", "-", "-", "-", "-", "Optional: serial number", "-"
    "GforcePro", "BoardIds.GFORCE_PRO_BOARD (16)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
    "FreeEEG32", "BoardIds.FREEEEG32_BOARD (17)", "dongle serial port", "-", "-", "-", "-", "-", "-", "-", "-"
+   "BrainBitBLED", "BoardIds.BRAINBIT_BLED_BOARD (18)", "dongle serial port", "Optional: MAC address", "-", "-", "-", "-", "-", "-", "-"
 
 
 Playback File Board
@@ -380,6 +381,31 @@ Board Spec:
 - sampling rate: 250
 - communication: Bluetooth Low Energy
 
+BrainBitBLED
+~~~~~~~~~~~~~~
+
+This board allows you to use `BLED112 dongle <https://www.silabs.com/wireless/bluetooth/bluegiga-low-energy-legacy-modules/device.bled112>`_ instead native API to work with BLE. Unlike original BrainBit libraries it works on Linux and devices like Raspberry Pi.
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 18
+- serial port field of BrainFlowInputParams structure
+- optional: MAC address for your BrainBit device
+
+Supported platforms:
+
+- Windows
+- MacOS
+- Linux
+- Devices like Raspberry Pi
+
+Board Spec:
+
+- num eeg channels: 4
+- num acceleration channels: None
+- sampling rate: 250
+- communication: Bluetooth Low Energy with serial port dongle
+
 
 Callibri(Yellow)
 ~~~~~~~~~~~~~~~~~
@@ -516,7 +542,7 @@ gForcePro ArmBand
     :width: 484px
     :height: 430px
 
-`OYMNotion website <http://www.oymotion.com/en/product32/149>`_
+`OYMotion website <http://www.oymotion.com/en/product32/149>`_
 
 To choose this board in BoardShim constructor please specify:
 
