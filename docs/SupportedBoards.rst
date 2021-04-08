@@ -542,7 +542,7 @@ gForcePro ArmBand
     :width: 484px
     :height: 430px
 
-`OYMNotion website <http://www.oymotion.com/en/product32/149>`_
+`OYMotion website <http://www.oymotion.com/en/product32/149>`_
 
 To choose this board in BoardShim constructor please specify:
 
