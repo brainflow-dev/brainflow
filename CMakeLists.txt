@@ -14,6 +14,7 @@ set (CMAKE_POSITION_INDEPENDENT_CODE ON)
 option(USE_LIBFTDI "USE_LIBFTDI" OFF)
 option(USE_OPENMP "USE_OPENMP" OFF)
 option(WARNINGS_AS_ERRORS "WARNINGS_AS_ERRORS" OFF)
+option(BUILD_OYMOTION_SDK "BUILD_OYMOTION_SDK" OFF)
 
 macro (configure_msvc_runtime)
     if (MSVC)
@@ -351,6 +352,10 @@ set_target_properties (${ML_MODULE_NAME}
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
 )
 
+if (BUILD_OYMOTION_SDK)
+    add_subdirectory (${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX)
+endif (BUILD_OYMOTION_SDK)
+
 if (USE_LIBFTDI)
     find_package (LibFTDI1 NO_MODULE)
     if (LibFTDI1_FOUND)
@@ -450,24 +455,6 @@ if (MSVC)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib/${NEUROSDK_LIB_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/julia-package/brainflow/lib/${NEUROSDK_LIB_NAME}.dll"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib/${NEUROSDK_LIB_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${NEUROSDK_LIB_NAME}.dll"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib/${NEUROSDK_LIB_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${NEUROSDK_LIB_NAME}.dll"
-        # copy gforcewrapper
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper.dll" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/gForceSDKWrapper.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper32.dll" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/gForceSDKWrapper32.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper.dll" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/gForceSDKWrapper.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper32.dll" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/gForceSDKWrapper32.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper.dll" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/gForceSDKWrapper.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper32.dll" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/gForceSDKWrapper32.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper.dll" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/gForceSDKWrapper.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper32.dll" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/gForceSDKWrapper32.dll"
-        # copy gforcesdk
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce32.dll" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/gforce32.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce64.dll" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/gforce64.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce32.dll" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/gforce32.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce64.dll" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/gforce64.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce32.dll" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/gforce32.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce64.dll" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/gforce64.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce32.dll" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/gforce32.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce64.dll" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/gforce64.dll"
     )
     add_custom_command (TARGET ${DATA_HANDLER_NAME} POST_BUILD
         # copy data handler libs
@@ -638,9 +625,9 @@ install (
     ${CMAKE_HOME_DIRECTORY}/src/ml/inc/brainflow_model_params.h
     ${CMAKE_HOME_DIRECTORY}/cpp-package/src/inc/data_filter.h
     ${CMAKE_HOME_DIRECTORY}/cpp-package/src/inc/board_shim.h
-    ${CMAKE_HOME_DIRECTORY}/cpp-package/src/inc/brainflow_exception.h
     ${CMAKE_HOME_DIRECTORY}/cpp-package/src/inc/ml_model.h
-    ${CMAKE_HOME_DIRECTORY}/cpp-package/src/inc/brainflow_array.h
+    ${CMAKE_HOME_DIRECTORY}/src/utils/inc/brainflow_array.h
+    ${CMAKE_HOME_DIRECTORY}/src/utils/inc/brainflow_exception.h
     DESTINATION inc
 )
 # install svm_model
@@ -650,18 +637,31 @@ install (
     DESTINATION lib
 )
 
-# install neurosdk
+# install 3rd party deps
 if (MSVC)
     install (
         FILES
         ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/lib/${NEUROSDK_LIB_NAME}.dll
-        ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper32.dll
-        ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper.dll
-        ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce32.dll
-        ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce64.dll
         DESTINATION lib
     )
+    if (CMAKE_SIZEOF_VOID_P EQUAL 8 AND BUILD_OYMOTION_SDK)
+        install (
+            FILES
+            ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper.dll
+            ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce64.dll
+            DESTINATION lib
+        )
+    endif (CMAKE_SIZEOF_VOID_P EQUAL 8 AND BUILD_OYMOTION_SDK)
+    if (CMAKE_SIZEOF_VOID_P EQUAL 4 AND BUILD_OYMOTION_SDK)
+        install (
+            FILES
+            ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper32.dll
+            ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce32.dll
+            DESTINATION lib
+        )
+    endif (CMAKE_SIZEOF_VOID_P EQUAL 4 AND BUILD_OYMOTION_SDK)
 endif (MSVC)
+
 if (APPLE)
     install (
         FILES

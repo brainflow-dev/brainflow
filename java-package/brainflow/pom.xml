@@ -66,6 +66,9 @@
           <include>brainflow_svm.model</include>
           <include>gForceSDKWrapper.dll</include>
           <include>gforce64.dll</include>
+          <include>BrainBitLib.dll</include>
+          <include>libBrainBitLib.so</include>
+          <include>libBrainBitLib.dylib</include>
         </includes>
       </resource>
     </resources>

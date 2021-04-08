@@ -178,7 +178,7 @@ public:
         memcpy (origin, ptr, size0 * size1 * size2 * sizeof (T));
     }
 
-    explicit BrainFlowArray (const BrainFlowArray &other)
+    BrainFlowArray (const BrainFlowArray &other)
         : length (other.length), size (other.size), stride (other.stride), origin (nullptr)
     {
         origin = new T[other.length];

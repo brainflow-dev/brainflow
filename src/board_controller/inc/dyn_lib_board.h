@@ -1,9 +1,17 @@
 #pragma once
 
+#include <chrono>
 #include <condition_variable>
 #include <mutex>
+#include <string.h>
 #include <string>
 #include <thread>
+
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
 
 #include "board.h"
 #include "board_controller.h"
@@ -46,4 +54,4 @@ public:
     virtual int config_board (std::string config, std::string &response);
 };
 
-#include "../dyn_lib_board.cpp"
+#include "../dyn_lib_board.tpp"

@@ -1,16 +1,3 @@
-#include <chrono>
-#include <string.h>
-#include <string>
-
-#ifdef _WIN32
-#include <windows.h>
-#else
-#include <unistd.h>
-#endif
-
-#include "dyn_lib_board.h"
-
-
 template <int N>
 DynLibBoard<N>::DynLibBoard (int board_id, struct BrainFlowInputParams params)
     : Board (board_id, params)
