@@ -268,6 +268,33 @@ int perform_bandstop (double *data, int data_len, int sampling_rate, double cent
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
+int remove_environmental_noise (double *data, int data_len, int sampling_rate, int noise_type)
+{
+    if ((data_len < 1) || (sampling_rate < 1) || (!data))
+    {
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    int res = (int)BrainFlowExitCodes::STATUS_OK;
+
+    switch (static_cast<NoiseTypes> (noise_type))
+    {
+        case NoiseTypes::FIFTY:
+            res = perform_bandstop (
+                data, data_len, sampling_rate, 50.0, 4.0, 4, (int)FilterTypes::BUTTERWORTH, 0.0);
+            break;
+        case NoiseTypes::SIXTY:
+            res = perform_bandstop (
+                data, data_len, sampling_rate, 60.0, 4.0, 4, (int)FilterTypes::BUTTERWORTH, 0.0);
+            break;
+        default:
+            data_logger->error ("Invalid noise type");
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    return res;
+}
+
 int perform_rolling_filter (double *data, int data_len, int period, int agg_operation)
 {
     if ((data == NULL) || (period <= 0))

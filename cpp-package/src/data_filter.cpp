@@ -48,6 +48,16 @@ void DataFilter::perform_bandstop (double *data, int data_len, int sampling_rate
     }
 }
 
+void DataFilter::remove_environmental_noise (
+    double *data, int data_len, int sampling_rate, int noise_type)
+{
+    int res = ::remove_environmental_noise (data, data_len, sampling_rate, noise_type);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to remove environmental noise", res);
+    }
+}
+
 void DataFilter::perform_rolling_filter (double *data, int data_len, int period, int agg_operation)
 {
     int res = ::perform_rolling_filter (data, data_len, period, agg_operation);

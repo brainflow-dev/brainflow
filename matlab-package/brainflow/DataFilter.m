@@ -103,6 +103,16 @@ classdef DataFilter
             DataFilter.check_ec(exit_code, task_name);
             filtered_data = temp.Value;
         end
+        
+        function filtered_data = remove_environmental_noise(data, sampling_rate, noise_type)
+            % perform noth filtering
+            task_name = 'remove_environmental_noise';
+            temp = libpointer('doublePtr', data);
+            lib_name = DataFilter.load_lib();
+            exit_code = calllib(lib_name, task_name, temp, size(data, 2), sampling_rate, int32(noise_type));
+            DataFilter.check_ec(exit_code, task_name);
+            filtered_data = temp.Value;
+        end
 
         function filtered_data = perform_rolling_filter(data, period, operation)
             % apply rolling filter

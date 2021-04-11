@@ -8,6 +8,7 @@ import brainflow.BrainFlowInputParams;
 import brainflow.DataFilter;
 import brainflow.FilterTypes;
 import brainflow.LogLevels;
+import brainflow.NoiseTypes;
 
 public class SignalFiltering
 {
@@ -55,6 +56,10 @@ public class SignalFiltering
                 case 3:
                     DataFilter.perform_bandstop (data[eeg_channels[i]], BoardShim.get_sampling_rate (board_id), 50.0,
                             1.0, 4, FilterTypes.CHEBYSHEV_TYPE_1.get_code (), 1.0);
+                    break;
+                default:
+                    DataFilter.remove_environmental_noise (data[eeg_channels[i]],
+                            BoardShim.get_sampling_rate (board_id), NoiseTypes.FIFTY.get_code ());;
                     break;
             }
         }

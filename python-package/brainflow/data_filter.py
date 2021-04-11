@@ -49,6 +49,13 @@ class DetrendOperations(enum.IntEnum):
     LINEAR = 2  #:
 
 
+class NoiseTypes(enum.IntEnum):
+    """Enum to store noise types"""
+
+    FIFTY = 0
+    SIXTY = 1
+
+
 class DataHandlerDLL(object):
     __instance = None
 
@@ -128,6 +135,15 @@ class DataHandlerDLL(object):
             ctypes.c_int,
             ctypes.c_int,
             ctypes.c_double
+        ]
+
+        self.remove_environmental_noise = self.lib.remove_environmental_noise
+        self.remove_environmental_noise.restype = ctypes.c_int
+        self.remove_environmental_noise.argtypes = [
+            ndpointer(ctypes.c_double),
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int
         ]
 
         self.write_file = self.lib.write_file
@@ -481,6 +497,26 @@ class DataFilter(object):
                                                              band_width, order, filter_type, ripple)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to apply band stop filter', res)
+
+    @classmethod
+    def remove_environmental_noise(cls, data: NDArray[Float64], sampling_rate: int, noise_type: float) -> None:
+        """remove env noise using notch filter
+
+        :param data: data to filter, filter works in-place
+        :type data: NDArray[Float64]
+        :param sampling_rate: board's sampling rate
+        :type sampling_rate: int
+        :param noise_type: noise type
+        :type noise_type: int
+        """
+        check_memory_layout_row_major(data, 1)
+        if not isinstance(sampling_rate, int):
+            raise BrainFlowError('wrong type for sampling rate', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        if not isinstance(noise_type, int):
+            raise BrainFlowError('wrong type for noise type', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        res = DataHandlerDLL.get_instance().remove_environmental_noise(data, data.shape[0], sampling_rate, noise_type)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to apply notch filter', res)
 
     @classmethod
     def perform_rolling_filter(cls, data: NDArray[Float64], period: int, operation: int) -> None:
