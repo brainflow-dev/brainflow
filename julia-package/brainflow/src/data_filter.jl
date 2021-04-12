@@ -47,6 +47,15 @@ Base.Integer(::Linear) = 2
 const CONSTANT = Constant()
 const LINEAR = Linear()
 
+abstract type NoiseType <: Integer end
+Base.Int32(d::NoiseType) = Int32(Integer(d))
+struct Fifty <: NoiseType end
+struct Sixty <: NoiseType end
+Base.Integer(::Fifty) = 1
+Base.Integer(::Sixty) = 2
+const FIFTY = Fifty()
+const SIXTY = Sixty()
+
 @brainflow_rethrow function perform_lowpass(data, sampling_rate::Integer, cutoff::Float64, order::Integer,
     filter_type::Integer, ripple::Float64)
     ccall((:perform_lowpass, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Float64, Cint, Cint, Float64),
@@ -54,13 +63,8 @@ const LINEAR = Linear()
     return
 end
 
-@brainflow_rethrow function perform_highpass(
-    data,
-    sampling_rate::Integer,
-    cutoff::Float64,
-    order::Integer,
-    filter_type::Integer,
-    ripple::Float64
+@brainflow_rethrow function perform_highpass(data, sampling_rate::Integer, cutoff::Float64, order::Integer,
+    filter_type::Integer, ripple::Float64
 )
     ccall((:perform_highpass, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Float64, Cint, Cint, Float64),
             data, length(data), Int32(sampling_rate), Float64(cutoff), Int32(order), Int32(filter_type), Float64(ripple))
@@ -78,6 +82,12 @@ end
     band_width::Float64, order::Integer, filter_type::Integer, ripple::Float64)
     ccall((:perform_bandstop, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Float64, Float64, Cint, Cint, Float64),
             data, length(data), Int32(sampling_rate), Float64(center_freq), Float64(band_width), Int32(order), Int32(filter_type), Float64(ripple))
+    return
+end
+
+@brainflow_rethrow function remove_environmental_noise(data, sampling_rate::Integer, noise_type::Integer)
+    ccall((:remove_environmental_noise, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Cint),
+            data, length(data), Int32(sampling_rate), Int32(noise_type))
     return
 end
 

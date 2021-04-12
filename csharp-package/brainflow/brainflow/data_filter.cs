@@ -86,6 +86,25 @@ namespace brainflow
         }
 
         /// <summary>
+        /// remove env noise using notch filter
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="sampling_rate"></param>
+        /// <param name="noise_type"></param>
+        /// <returns>filtered data</returns>
+        public static double[] remove_environmental_noise(double[] data, int sampling_rate, int noise_type)
+        {
+            double[] filtered_data = new double[data.Length];
+            Array.Copy(data, filtered_data, data.Length);
+            int res = DataHandlerLibrary.remove_environmental_noise(filtered_data, data.Length, sampling_rate, noise_type);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException(res);
+            }
+            return filtered_data;
+        }
+
+        /// <summary>
         /// perform highpass filter, unlike other bindings instead in-place calculation it returns new array
         /// </summary>
         /// <param name="data"></param>

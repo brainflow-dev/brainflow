@@ -37,6 +37,9 @@ public:
     /// perform bandstop filter in-place
     static void perform_bandstop (double *data, int data_len, int sampling_rate, double center_freq,
         double band_width, int order, int filter_type, double ripple);
+    /// apply notch filter to remove env noise
+    static void remove_environmental_noise (
+        double *data, int data_len, int sampling_rate, int noise_type);
     /// perform moving average or moving median filter in-place
     static void perform_rolling_filter (double *data, int data_len, int period, int agg_operation);
     /// perform data downsampling, it just aggregates several data points
