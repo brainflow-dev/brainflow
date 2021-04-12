@@ -281,7 +281,11 @@ int Galea::stop_stream ()
         std::string resp;
         for (int i = 0; i < 3; i++)
         {
-            calc_time (resp); // call it in the end once to print time in the end
+            res = calc_time (resp); // call it in the end once to print time in the end
+            if (res != (int)BrainFlowExitCodes::STATUS_OK)
+            {
+                break; // dont send exit code
+            }
         }
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
