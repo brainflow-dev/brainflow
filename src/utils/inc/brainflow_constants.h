@@ -111,3 +111,9 @@ enum class LogLevels : int
     LEVEL_CRITICAL = 5, /// CRITICAL
     LEVEL_OFF = 6       // OFF
 };
+
+enum class NoiseTypes : int
+{
+    FIFTY = 0,
+    SIXTY = 1
+};

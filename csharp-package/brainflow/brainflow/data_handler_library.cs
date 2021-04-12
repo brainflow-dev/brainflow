@@ -31,6 +31,12 @@ namespace brainflow
         LINEAR = 2
     };
 
+    public enum NoiseTypes
+    {
+        FIFTY = 0,
+        SIXTY = 1
+    };
+
     class DataHandlerLibrary64
     {
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -80,6 +86,8 @@ namespace brainflow
         public static extern int get_psd_welch (double[] data, int data_len, int nfft, int overlap, int sampling_rate, int window, double[] ampls, double[] freqs);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int detrend (double[] data, int len, int operation);
+        [DllImport("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int remove_environmental_noise(double[] data, int len, int sampling_rate, int noise_type);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_avg_band_powers (double[] data, int rows, int cols, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs);
     }
@@ -135,6 +143,8 @@ namespace brainflow
         public static extern int detrend (double[] data, int len, int operation);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_avg_band_powers (double[] data, int rows, int cols, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs);
+        [DllImport("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int remove_environmental_noise(double[] data, int len, int sampling_rate, int noise_type);
     }
 
     class DataHandlerLibraryLinux
@@ -188,6 +198,8 @@ namespace brainflow
         public static extern int detrend (double[] data, int len, int operation);
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_avg_band_powers (double[] data, int rows, int cols, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs);
+        [DllImport("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int remove_environmental_noise(double[] data, int len, int sampling_rate, int noise_type);
     }
 
     class DataHandlerLibraryMac
@@ -241,6 +253,8 @@ namespace brainflow
         public static extern int detrend (double[] data, int len, int operation);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_avg_band_powers (double[] data, int rows, int cols, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs);
+        [DllImport("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int remove_environmental_noise(double[] data, int len, int sampling_rate, int noise_type);
     }
 
     class DataHandlerLibrary
@@ -274,6 +288,23 @@ namespace brainflow
                     return DataHandlerLibraryLinux.set_log_file (log_file);
                 case LibraryEnvironment.MacOS:
                     return DataHandlerLibraryMac.set_log_file (log_file);
+            }
+
+            return (int)CustomExitCodes.GENERAL_ERROR;
+        }
+
+        public static int remove_environmental_noise(double[] data, int len, int sampling_rate, int noise_type)
+        {
+            switch (PlatformHelper.get_library_environment())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.remove_environmental_noise(data, len, sampling_rate, noise_type);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.remove_environmental_noise(data, len, sampling_rate, noise_type);
+                case LibraryEnvironment.Linux:
+                    return DataHandlerLibraryLinux.remove_environmental_noise(data, len, sampling_rate, noise_type);
+                case LibraryEnvironment.MacOS:
+                    return DataHandlerLibraryMac.remove_environmental_noise(data, len, sampling_rate, noise_type);
             }
 
             return (int)CustomExitCodes.GENERAL_ERROR;

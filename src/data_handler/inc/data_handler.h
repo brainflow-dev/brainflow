@@ -18,6 +18,8 @@ extern "C"
     SHARED_EXPORT int CALLING_CONVENTION perform_bandstop (double *data, int data_len,
         int sampling_rate, double center_freq, double band_width, int order, int filter_type,
         double ripple);
+    SHARED_EXPORT int CALLING_CONVENTION remove_environmental_noise (
+        double *data, int data_len, int sampling_rate, int noise_type);
 
     SHARED_EXPORT int CALLING_CONVENTION perform_rolling_filter (
         double *data, int data_len, int period, int agg_operation);

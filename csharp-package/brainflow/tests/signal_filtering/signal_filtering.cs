@@ -52,6 +52,11 @@ namespace test
                         Console.WriteLine ("Filtered channel " + eeg_channels[i]);
                         Console.WriteLine ("[{0}]", string.Join (", ", filtered));
                         break;
+                    default:
+                        filtered = DataFilter.remove_environmental_noise(unprocessed_data.GetRow(eeg_channels[i]), BoardShim.get_sampling_rate(board_id), (int)NoiseTypes.FIFTY);
+                        Console.WriteLine("Filtered channel " + eeg_channels[i]);
+                        Console.WriteLine("[{0}]", string.Join(", ", filtered));
+                        break;
                 }
             }
         }

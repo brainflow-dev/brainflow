@@ -41,6 +41,8 @@ public class DataFilter
 
         int perform_downsampling (double[] data, int data_len, int period, int operation, double[] filtered_data);
 
+        int remove_environmental_noise (double[] data, int data_len, int sampling_rate, int noise_type);
+
         int perform_wavelet_transform (double[] data, int data_len, String wavelet, int decomposition_level,
                 double[] output_data, int[] decomposition_lengths);
 
@@ -271,6 +273,19 @@ public class DataFilter
             throw new BrainFlowError ("Failed to perform downsampling", ec);
         }
         return downsampled_data;
+    }
+
+    /**
+     * removes noise using notch filter
+     */
+    public static void remove_environmental_noise (double[] data, int sampling_rate, int noise_type)
+            throws BrainFlowError
+    {
+        int ec = instance.remove_environmental_noise (data, data.length, sampling_rate, noise_type);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Failed to remove noise", ec);
+        }
     }
 
     /**
