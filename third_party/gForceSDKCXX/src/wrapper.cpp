@@ -7,7 +7,6 @@
 
 #include "gforce_handle.h"
 #include "gforce_wrapper_functions.h"
-#include "gforce_wrapper_types.h"
 
 #include "brainflow_array.h"
 #include "spinlock.h"

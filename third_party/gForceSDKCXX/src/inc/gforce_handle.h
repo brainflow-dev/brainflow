@@ -9,7 +9,6 @@
 
 #include "brainflow_array.h"
 #include "brainflow_constants.h"
-#include "gforce_wrapper_types.h"
 #include "spinlock.h"
 #include "timestamp.h"
 
@@ -173,14 +172,13 @@ public:
         }
 
         auto ptr = data->data ();
-        if (iBoardType == (int)GforceDeviceType::EIGHT_CHANNEL_BOARD)
+        if (iBoardType == (int)BoardIds::GFORCE_PRO_BOARD)
         {
             constexpr int size = 11;
             double emgData[size] = {0.0};
             if (dataType == DeviceDataType::DDT_EMGRAW)
             {
-                emgData[0] = iCounter++;
-                for (int packageNum = 0; packageNum < GforceHandle::iNumPackages; packageNum++)
+                for (int packageNum = 0; packageNum < 8; packageNum++)
                 {
                     emgData[0] = iCounter++;
                     for (int i = 0; i < 8; i++)
@@ -196,7 +194,32 @@ public:
                 }
             }
         }
-        // todo add 2 channels board
+        if (iBoardType == (int)BoardIds::GFORCE_DUAL_BOARD)
+        {
+            constexpr int size = 5;
+            double emgData[size] = {0.0};
+            if (dataType == DeviceDataType::DDT_EMGRAW)
+            {
+                // its my guess, todo check it and patch
+                emgData[0] = iCounter++;
+                // transaction size is 128, 2 channels, 2 bytes per channel - 128 / 4 packages in
+                // single transaction
+                for (int packageNum = 0; packageNum < 32; packageNum++)
+                {
+                    emgData[0] = iCounter++;
+                    for (int i = 0; i < 2; i++)
+                    {
+                        emgData[i + 1] = (double)*(reinterpret_cast<const uint16_t *> (ptr));
+                        ptr += 2;
+                    }
+                    emgData[3] = timestamp;
+                    BrainFlowArray<double, 1> gforceData (emgData, size);
+                    spinLock.lock ();
+                    dataQueue.push_back (std::move (gforceData));
+                    spinLock.unlock ();
+                }
+            }
+        }
     }
 
     std::shared_ptr<spdlog::logger> logger;
@@ -206,7 +229,6 @@ public:
 
     static const int iADCResolution = 12;
     static const int iTransactionSize = 128;
-    static const int iNumPackages = 8;
     static const int iSamplingRate = 500;
 
 private:

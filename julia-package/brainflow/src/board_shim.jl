@@ -24,6 +24,8 @@ export BrainFlowInputParams
     IRONBCI_BOARD = 15
     GFORCE_PRO_BOARD = 16
     FREEEEG32_BOARD = 17
+    BRAINBIT_BLED_BOARD = 18
+    GFORCE_DUAL_BOARD = 19
 
 end
 

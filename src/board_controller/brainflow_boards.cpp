@@ -282,6 +282,15 @@ json brainflow_boards_json = {
             {"num_rows", 8},
             {"eeg_channels", {1, 2, 3, 4}},
             {"eeg_names", "T3,T4,O1,O2"}
+        }},
+        {"19",
+            {{"name", "GforceDual"},
+            {"sampling_rate", 500}, // todo check sampling rate
+            {"timestamp_channel", 3},
+            {"marker_channel", 4},
+            {"package_num_channel", 0},
+            {"num_rows", 5},
+            {"eeg_channels", {1, 2}}
         }}
     }
 }};
