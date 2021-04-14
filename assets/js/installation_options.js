@@ -33,8 +33,8 @@ $(document).ready(function() {
     $('button.opt').removeClass('active');
     if (urlParams.get('manufactorer')) {
       manufactorerSelect = urlParams.get('manufactorer');
-      $('li.versions').removeClass('active');
-      $('li.versions')
+      $('li.manufactorers').removeClass('active');
+      $('li.manufactorers')
           .each(function() { is_a_match($(this), manufactorerSelect) });
       $('.current-manufactorer')
           .html(
