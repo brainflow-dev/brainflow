@@ -32,7 +32,3 @@ Partners and Sponsors
     :height: 89px
     :target: https://openbci.com
 
-Search
-========
-
-* :ref:`search`
