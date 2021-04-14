@@ -647,7 +647,7 @@ if (MSVC)
     if (CMAKE_SIZEOF_VOID_P EQUAL 8 AND BUILD_OYMOTION_SDK)
         install (
             FILES
-            ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper.dll
+            ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/$<CONFIG>/gForceSDKWrapper.dll
             ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce64.dll
             DESTINATION lib
         )
@@ -655,7 +655,7 @@ if (MSVC)
     if (CMAKE_SIZEOF_VOID_P EQUAL 4 AND BUILD_OYMOTION_SDK)
         install (
             FILES
-            ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/Release/gForceSDKWrapper32.dll
+            ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/$<CONFIG>/gForceSDKWrapper32.dll
             ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce32.dll
             DESTINATION lib
         )
