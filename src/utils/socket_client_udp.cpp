@@ -115,12 +115,6 @@ int SocketClientUDP::connect ()
     setsockopt (connect_socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof (timeout));
     setsockopt (connect_socket, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof (timeout));
 
-    if (::connect (connect_socket, (const struct sockaddr *)&socket_addr, sizeof (socket_addr)) ==
-        SOCKET_ERROR)
-    {
-        return (int)SocketClientUDPReturnCodes::CONNECT_ERROR;
-    }
-
     return (int)SocketClientUDPReturnCodes::STATUS_OK;
 }
 
@@ -179,7 +173,8 @@ int SocketClientUDP::get_local_port ()
 
 int SocketClientUDP::send (const char *data, int size)
 {
-    int res = sendto (connect_socket, data, size, 0, NULL, NULL);
+    int res = sendto (connect_socket, data, size, 0, (const struct sockaddr *)&socket_addr,
+        (int)sizeof (socket_addr));
     if (res == SOCKET_ERROR)
     {
         return -1;
@@ -189,7 +184,7 @@ int SocketClientUDP::send (const char *data, int size)
 
 int SocketClientUDP::recv (void *data, int size)
 {
-    int res = recvfrom (connect_socket, (char *)data, size, 0, NULL, NULL);
+    int res = recvfrom (connect_socket, (char *)data, size, 0, NULL, 0);
     if (res == SOCKET_ERROR)
     {
         return -1;
@@ -305,12 +300,6 @@ int SocketClientUDP::connect ()
     setsockopt (connect_socket, SOL_SOCKET, SO_RCVTIMEO, (const char *)&tv, sizeof (tv));
     setsockopt (connect_socket, SOL_SOCKET, SO_SNDTIMEO, (const char *)&tv, sizeof (tv));
 
-    if (::connect (connect_socket, (const struct sockaddr *)&socket_addr, sizeof (socket_addr)) ==
-        -1)
-    {
-        return (int)SocketClientUDPReturnCodes::CONNECT_ERROR;
-    }
-
     return (int)SocketClientUDPReturnCodes::STATUS_OK;
 }
 
@@ -371,13 +360,14 @@ int SocketClientUDP::get_local_port ()
 
 int SocketClientUDP::send (const char *data, int size)
 {
-    int res = sendto (connect_socket, data, size, 0, NULL, 0);
+    int res = sendto (connect_socket, data, size, 0, (const struct sockaddr *)&socket_addr,
+        (socklen_t)sizeof (socket_addr));
     return res;
 }
 
 int SocketClientUDP::recv (void *data, int size)
 {
-    int res = recvfrom (connect_socket, (char *)data, size, 0, NULL, NULL);
+    int res = recvfrom (connect_socket, (char *)data, size, 0, NULL, 0);
     return res;
 }
 
