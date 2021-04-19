@@ -1,6 +1,6 @@
 sphinx==3.1.2
 breathe==4.19.2
-sphinx_rtd_theme==0.5.0
+sphinx_rtd_theme==0.4.3
 brainflow
 pandas
 mne
