@@ -38,15 +38,15 @@ This board playbacks file recorded using another BrainFlow board.
 
 To choose this board in BoardShim constructor please specify:
 
-- board_id: -3
-- other_info field of BrainFlowInputParams structure should contain board_id of device used to create playback file
-- file field of BrainFlowInputParams structure
+* board_id: -3
+* other_info field of BrainFlowInputParams structure should contain board_id of device used to create playback file
+* file field of BrainFlowInputParams structure
 
 Supported platforms:
 
-- Windows >= 8.1
-- Linux
-- MacOS
+* Windows >= 8.1
+* Linux
+* MacOS
 
 By default it generates new timestamps and stops at the end of the file. You can override it using commands:
 
