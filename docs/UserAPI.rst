@@ -73,34 +73,10 @@ DataFilter class
    :project: BrainFlowCpp
    :undoc-members:
 
-BrainFlowException class
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. doxygenclass:: BrainFlowException
-   :members:
-   :project: BrainFlowCpp
-   :undoc-members:
-
-BrainFlowModelParams class
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. doxygenclass:: BrainFlowModelParams
-   :members:
-   :project: BrainFlowCpp
-   :undoc-members:
-
 MLModel class
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. doxygenclass:: MLModel
-   :members:
-   :project: BrainFlowCpp
-   :undoc-members:
-
-BrainFlowArray class
-~~~~~~~~~~~~~~~~~~~~~
-
-.. doxygenclass:: BrainFlowArray
    :members:
    :project: BrainFlowCpp
    :undoc-members:
