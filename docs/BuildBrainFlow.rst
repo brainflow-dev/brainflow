@@ -17,7 +17,7 @@ Python
     If you want to install it from source files or build unreleased version from Github, you should compile core module first and run ::
 
         cd python-package
-        python -m pip install -e .
+        python -m pip install -U .
 
 C#
 ----

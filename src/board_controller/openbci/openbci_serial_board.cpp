@@ -127,29 +127,47 @@ int OpenBCISerialBoard::set_port_settings ()
         return (int)BrainFlowExitCodes::SET_PORT_ERROR;
     }
     safe_logger (spdlog::level::trace, "set port settings");
-    return (int)BrainFlowExitCodes::STATUS_OK;
+    return send_to_board ("v");
 }
 
 int OpenBCISerialBoard::status_check ()
 {
-    if (is_streaming)
-    {
-        return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
-    }
+    unsigned char buf[1];
+    int count = 0;
+    int max_empty_seq = 5;
+    int num_empty_attempts = 0;
 
-    std::string response = "";
-    int res = send_to_board ("v", response);
-    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    for (int i = 0; i < 500; i++)
     {
-        return res;
+        int res = serial->read_from_serial_port (buf, 1);
+        if (res > 0)
+        {
+            num_empty_attempts = 0;
+            // board is ready if there are '$$$'
+            if (buf[0] == '$')
+            {
+                count++;
+            }
+            else
+            {
+                count = 0;
+            }
+            if (count == 3)
+            {
+                return (int)BrainFlowExitCodes::STATUS_OK;
+            }
+        }
+        else
+        {
+            num_empty_attempts++;
+            if (num_empty_attempts > max_empty_seq)
+            {
+                safe_logger (spdlog::level::err, "board doesnt send welcome characters!");
+                return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+            }
+        }
     }
-    safe_logger (spdlog::level::info, "Message from the board : {}", response.c_str ());
-    std::size_t found = response.find ("$$$");
-    if (found == std::string::npos)
-    {
-        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
-    }
-    return (int)BrainFlowExitCodes::STATUS_OK;
+    return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
 }
 
 int OpenBCISerialBoard::prepare_session ()
