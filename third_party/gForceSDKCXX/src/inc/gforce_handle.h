@@ -178,13 +178,12 @@ public:
             double emgData[size] = {0.0};
             if (dataType == DeviceDataType::DDT_EMGRAW)
             {
-                for (int packageNum = 0; packageNum < 8; packageNum++)
+                for (int packageNum = 0; packageNum < 16; packageNum++)
                 {
                     emgData[0] = iCounter++;
                     for (int i = 0; i < 8; i++)
                     {
-                        emgData[i + 1] = (double)*(reinterpret_cast<const uint16_t *> (ptr));
-                        ptr += 2;
+                        emgData[i + 1] = (double)*(reinterpret_cast<const uint8_t *> (ptr++));
                     }
                     emgData[9] = timestamp;
                     BrainFlowArray<double, 1> gforceData (emgData, size);
@@ -202,15 +201,14 @@ public:
             {
                 // its my guess, todo check it and patch
                 emgData[0] = iCounter++;
-                // transaction size is 128, 2 channels, 2 bytes per channel - 128 / 4 packages in
+                // transaction size is 128, 2 channels, 2 bytes per channel - 128 / 2 packages in
                 // single transaction
-                for (int packageNum = 0; packageNum < 32; packageNum++)
+                for (int packageNum = 0; packageNum < 64; packageNum++)
                 {
                     emgData[0] = iCounter++;
                     for (int i = 0; i < 2; i++)
                     {
-                        emgData[i + 1] = (double)*(reinterpret_cast<const uint16_t *> (ptr));
-                        ptr += 2;
+                        emgData[i + 1] = (double)*(reinterpret_cast<const uint8_t *> (ptr++));
                     }
                     emgData[3] = timestamp;
                     BrainFlowArray<double, 1> gforceData (emgData, size);
@@ -227,9 +225,9 @@ public:
     bool bIsEMGConfigured;
     int iBoardType;
 
-    static const int iADCResolution = 12;
+    static const int iADCResolution = 8;
     static const int iTransactionSize = 128;
-    static const int iSamplingRate = 500;
+    static const int iSamplingRate = 650;
 
 private:
     gfsPtr<Hub> mHub;
@@ -264,10 +262,19 @@ private:
                 this->logger->info ("setDataNotifSwitch result: {}", res);
             });
 
+        int channelMap = 0;
+        if (iBoardType == (int)BoardIds::GFORCE_PRO_BOARD)
+        {
+            channelMap = 0x00FF; // channels 0-7
+        }
+        if (iBoardType == (int)BoardIds::GFORCE_DUAL_BOARD)
+        {
+            channelMap = 0x0001 | 0x0002; // channels 0 and 1
+        }
         ds->setEMGRawDataConfig (GforceHandle::iSamplingRate, // sample rate
-            (DeviceSetting::EMGRowDataChannels) (0x00FF),     // channel 0~7
-            GforceHandle::iTransactionSize,                   // data length
-            GforceHandle::iADCResolution,                     // adc resolution
+            (DeviceSetting::EMGRowDataChannels) (channelMap),
+            GforceHandle::iTransactionSize, // data length
+            GforceHandle::iADCResolution,   // adc resolution
             [this] (ResponseResult result) {
                 std::string res =
                     (result == ResponseResult::RREST_SUCCESS) ? ("sucess") : ("failed");
