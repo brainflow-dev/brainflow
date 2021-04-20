@@ -74,7 +74,7 @@ breathe_projects = {}
 
 if read_the_docs_build:
     # cpp binding
-    input_dir = '../cpp-package/src ../src'
+    input_dir = '../cpp-package/src'
     output_dir = 'build-cpp'
     configure_doxyfile(input_dir, output_dir, 'BrainFlowCpp')
     subprocess.call('doxygen', shell=True)
