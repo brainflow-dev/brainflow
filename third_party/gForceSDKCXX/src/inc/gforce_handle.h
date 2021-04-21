@@ -39,6 +39,20 @@ public:
         bIsFeatureMapConfigured = false;
         iCounter = 0;
         this->iBoardType = iBoardType;
+        if (iBoardType == (int)BoardIds::GFORCE_PRO_BOARD)
+        {
+            iSamplingRate = 650;
+            iTransactionSize = 128;
+            iNumPackages = iTransactionSize / GforceHandle::iADCResolution;
+            iChannelMap = 0x00FF;
+        }
+        if (iBoardType == (int)BoardIds::GFORCE_DUAL_BOARD)
+        {
+            iSamplingRate = 500;
+            iTransactionSize = 32;
+            iNumPackages = iTransactionSize / GforceHandle::iADCResolution;
+            iChannelMap = 0x0001 | 0x0002;
+        }
     }
 
     /// This callback is called when the Hub finishes scanning devices.
@@ -178,7 +192,7 @@ public:
             double emgData[size] = {0.0};
             if (dataType == DeviceDataType::DDT_EMGRAW)
             {
-                for (int packageNum = 0; packageNum < 16; packageNum++)
+                for (int packageNum = 0; packageNum < iNumPackages; packageNum++)
                 {
                     emgData[0] = iCounter++;
                     for (int i = 0; i < 8; i++)
@@ -199,11 +213,8 @@ public:
             double emgData[size] = {0.0};
             if (dataType == DeviceDataType::DDT_EMGRAW)
             {
-                // its my guess, todo check it and patch
                 emgData[0] = iCounter++;
-                // transaction size is 128, 2 channels, 2 bytes per channel - 128 / 2 packages in
-                // single transaction
-                for (int packageNum = 0; packageNum < 64; packageNum++)
+                for (int packageNum = 0; packageNum < iNumPackages; packageNum++)
                 {
                     emgData[0] = iCounter++;
                     for (int i = 0; i < 2; i++)
@@ -224,10 +235,12 @@ public:
     bool bIsFeatureMapConfigured;
     bool bIsEMGConfigured;
     int iBoardType;
+    int iSamplingRate;
+    int iTransactionSize;
+    int iNumPackages;
+    int iChannelMap;
 
     static const int iADCResolution = 8;
-    static const int iTransactionSize = 128;
-    static const int iSamplingRate = 650;
 
 private:
     gfsPtr<Hub> mHub;
@@ -261,21 +274,8 @@ private:
                     (result == ResponseResult::RREST_SUCCESS) ? (true) : (false);
                 this->logger->info ("setDataNotifSwitch result: {}", res);
             });
-
-        int channelMap = 0;
-        if (iBoardType == (int)BoardIds::GFORCE_PRO_BOARD)
-        {
-            channelMap = 0x00FF; // channels 0-7
-        }
-        if (iBoardType == (int)BoardIds::GFORCE_DUAL_BOARD)
-        {
-            channelMap = 0x0001 | 0x0002; // channels 0 and 1
-        }
-        ds->setEMGRawDataConfig (GforceHandle::iSamplingRate, // sample rate
-            (DeviceSetting::EMGRowDataChannels) (channelMap),
-            GforceHandle::iTransactionSize, // data length
-            GforceHandle::iADCResolution,   // adc resolution
-            [this] (ResponseResult result) {
+        ds->setEMGRawDataConfig (iSamplingRate, (DeviceSetting::EMGRowDataChannels) (iChannelMap),
+            iTransactionSize, GforceHandle::iADCResolution, [this] (ResponseResult result) {
                 std::string res =
                     (result == ResponseResult::RREST_SUCCESS) ? ("sucess") : ("failed");
                 bIsEMGConfigured = (result == ResponseResult::RREST_SUCCESS) ? (true) : (false);

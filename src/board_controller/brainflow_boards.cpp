@@ -285,7 +285,7 @@ json brainflow_boards_json = {
         }},
         {"19",
             {{"name", "GforceDual"},
-            {"sampling_rate", 650}, // todo check sampling rate
+            {"sampling_rate", 500},
             {"timestamp_channel", 3},
             {"marker_channel", 4},
             {"package_num_channel", 0},
