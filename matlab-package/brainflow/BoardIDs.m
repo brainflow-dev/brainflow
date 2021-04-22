@@ -23,5 +23,6 @@ classdef BoardIDs < int32
         GFORCE_PRO_BOARD(16)
         FREEEEG32_BOARD(17)
         BRAINBIT_BLED_BOARD(18)
+        GALEA_SERIAL_BOARD(20)
     end
 end

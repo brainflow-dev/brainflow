@@ -282,6 +282,23 @@ json brainflow_boards_json = {
             {"num_rows", 8},
             {"eeg_channels", {1, 2, 3, 4}},
             {"eeg_names", "T3,T4,O1,O2"}
+        }},
+        {"20",
+            {{"name", "GaleaSerial"},
+            {"sampling_rate", 250},
+            {"package_num_channel", 0},
+            {"timestamp_channel", 24},
+            {"marker_channel", 25},
+            {"num_rows", 26},
+            {"battery_channel", 23},
+            {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8, 10, 15}},
+            {"eeg_names", "CPz,PO4,O2,Oz,O1,PO3,POz,FCz,FP1,FP2"},
+            {"emg_channels", {9, 12, 14, 16}},
+            {"eog_channels", {11, 13}},
+            {"eda_channels", {19}},
+            {"ppg_channels", {17, 18}},
+            {"other_channels", {21, 22}},
+            {"temperature_channels", {20}}
         }}
     }
 }};

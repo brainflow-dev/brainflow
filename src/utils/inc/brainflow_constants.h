@@ -52,9 +52,10 @@ enum class BoardIds : int
     GFORCE_PRO_BOARD = 16,
     FREEEEG32_BOARD = 17,
     BRAINBIT_BLED_BOARD = 18,
+    GALEA_SERIAL_BOARD = 20,
     // use it to iterate
     FIRST = PLAYBACK_FILE_BOARD,
-    LAST = BRAINBIT_BLED_BOARD
+    LAST = GALEA_SERIAL_BOARD
 };
 
 enum class FilterTypes : int
