@@ -254,7 +254,7 @@ json brainflow_boards_json = {
         }},
         {"16",
             {{"name", "GforcePro"},
-            {"sampling_rate", 500},
+            {"sampling_rate", 650},
             {"package_num_channel", 0},
             {"timestamp_channel", 9},
             {"marker_channel", 10},
@@ -282,6 +282,15 @@ json brainflow_boards_json = {
             {"num_rows", 8},
             {"eeg_channels", {1, 2, 3, 4}},
             {"eeg_names", "T3,T4,O1,O2"}
+        }},
+        {"19",
+            {{"name", "GforceDual"},
+            {"sampling_rate", 500},
+            {"timestamp_channel", 3},
+            {"marker_channel", 4},
+            {"package_num_channel", 0},
+            {"num_rows", 5},
+            {"emg_channels", {1, 2}}
         }}
     }
 }};

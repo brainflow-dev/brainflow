@@ -1,6 +1,6 @@
 #include <string>
 
-#include "gforce_pro.h"
+#include "gforce_dual.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -8,14 +8,14 @@
 #include "get_dll_dir.h"
 
 
-int GforcePro::num_objects = 0;
+int GforceDual::num_objects = 0;
 
 
-GforcePro::GforcePro (struct BrainFlowInputParams params)
-    : DynLibBoard<11> ((int)BoardIds::GFORCE_PRO_BOARD, params)
+GforceDual::GforceDual (struct BrainFlowInputParams params)
+    : DynLibBoard<5> ((int)BoardIds::GFORCE_DUAL_BOARD, params)
 {
-    GforcePro::num_objects++;
-    if (GforcePro::num_objects > 1)
+    GforceDual::num_objects++;
+    if (GforceDual::num_objects > 1)
     {
         is_valid = false;
     }
@@ -25,14 +25,14 @@ GforcePro::GforcePro (struct BrainFlowInputParams params)
     }
 }
 
-GforcePro::~GforcePro ()
+GforceDual::~GforceDual ()
 {
     skip_logs = true;
-    GforcePro::num_objects--;
+    GforceDual::num_objects--;
     release_session ();
 }
 
-std::string GforcePro::get_lib_name ()
+std::string GforceDual::get_lib_name ()
 {
     std::string gforcelib_path = "";
     std::string gforcelib_name = "";
@@ -72,17 +72,17 @@ std::string GforcePro::get_lib_name ()
     return gforcelib_path;
 }
 
-int GforcePro::prepare_session ()
+int GforceDual::prepare_session ()
 {
     if (!is_valid)
     {
         safe_logger (spdlog::level::info, "only one GForceLib per process is allowed");
         return (int)BrainFlowExitCodes::ANOTHER_BOARD_IS_CREATED_ERROR;
     }
-    return DynLibBoard<11>::prepare_session ();
+    return DynLibBoard<5>::prepare_session ();
 }
 
-int GforcePro::call_init ()
+int GforceDual::call_init ()
 {
     if (dll_loader == NULL)
     {
@@ -100,42 +100,42 @@ int GforcePro::call_init ()
 
 #else
 
-GforcePro::GforcePro (struct BrainFlowInputParams params)
-    : Board ((int)BoardIds::GFORCE_PRO_BOARD, params)
+GforceDual::GforceDual (struct BrainFlowInputParams params)
+    : Board ((int)BoardIds::GFORCE_DUAL_BOARD, params)
 {
 }
 
-GforcePro::~GforcePro ()
+GforceDual::~GforceDual ()
 {
 }
 
-int GforcePro::prepare_session ()
+int GforceDual::prepare_session ()
 {
-    safe_logger (spdlog::level::err, "GforcePro doesnt support Unix.");
+    safe_logger (spdlog::level::err, "GforceDual doesnt support Unix.");
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
-int GforcePro::config_board (std::string config, std::string &response)
+int GforceDual::config_board (std::string config, std::string &response)
 {
-    safe_logger (spdlog::level::err, "GforcePro doesnt support Unix.");
+    safe_logger (spdlog::level::err, "GforceDual doesnt support Unix.");
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
-int GforcePro::release_session ()
+int GforceDual::release_session ()
 {
-    safe_logger (spdlog::level::err, "GforcePro doesnt support Unix.");
+    safe_logger (spdlog::level::err, "GforceDual doesnt support Unix.");
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
-int GforcePro::stop_stream ()
+int GforceDual::stop_stream ()
 {
-    safe_logger (spdlog::level::err, "GforcePro doesnt support Unix.");
+    safe_logger (spdlog::level::err, "GforceDual doesnt support Unix.");
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
-int GforcePro::start_stream (int buffer_size, char *streamer_params)
+int GforceDual::start_stream (int buffer_size, char *streamer_params)
 {
-    safe_logger (spdlog::level::err, "GforcePro doesnt support Unix.");
+    safe_logger (spdlog::level::err, "GforceDual doesnt support Unix.");
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 

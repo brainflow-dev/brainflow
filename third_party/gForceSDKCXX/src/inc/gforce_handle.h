@@ -9,7 +9,6 @@
 
 #include "brainflow_array.h"
 #include "brainflow_constants.h"
-#include "gforce_wrapper_types.h"
 #include "spinlock.h"
 #include "timestamp.h"
 
@@ -40,6 +39,20 @@ public:
         bIsFeatureMapConfigured = false;
         iCounter = 0;
         this->iBoardType = iBoardType;
+        if (iBoardType == (int)BoardIds::GFORCE_PRO_BOARD)
+        {
+            iSamplingRate = 650;
+            iTransactionSize = 128;
+            iNumPackages = iTransactionSize / GforceHandle::iADCResolution;
+            iChannelMap = 0x00FF;
+        }
+        if (iBoardType == (int)BoardIds::GFORCE_DUAL_BOARD)
+        {
+            iSamplingRate = 500;
+            iTransactionSize = 32;
+            iNumPackages = iTransactionSize / GforceHandle::iADCResolution;
+            iChannelMap = 0x0001 | 0x0002;
+        }
     }
 
     /// This callback is called when the Hub finishes scanning devices.
@@ -173,20 +186,18 @@ public:
         }
 
         auto ptr = data->data ();
-        if (iBoardType == (int)GforceDeviceType::EIGHT_CHANNEL_BOARD)
+        if (iBoardType == (int)BoardIds::GFORCE_PRO_BOARD)
         {
             constexpr int size = 11;
             double emgData[size] = {0.0};
             if (dataType == DeviceDataType::DDT_EMGRAW)
             {
-                emgData[0] = iCounter++;
-                for (int packageNum = 0; packageNum < GforceHandle::iNumPackages; packageNum++)
+                for (int packageNum = 0; packageNum < iNumPackages; packageNum++)
                 {
                     emgData[0] = iCounter++;
                     for (int i = 0; i < 8; i++)
                     {
-                        emgData[i + 1] = (double)*(reinterpret_cast<const uint16_t *> (ptr));
-                        ptr += 2;
+                        emgData[i + 1] = (double)*(reinterpret_cast<const uint8_t *> (ptr++));
                     }
                     emgData[9] = timestamp;
                     BrainFlowArray<double, 1> gforceData (emgData, size);
@@ -196,18 +207,40 @@ public:
                 }
             }
         }
-        // todo add 2 channels board
+        if (iBoardType == (int)BoardIds::GFORCE_DUAL_BOARD)
+        {
+            constexpr int size = 5;
+            double emgData[size] = {0.0};
+            if (dataType == DeviceDataType::DDT_EMGRAW)
+            {
+                emgData[0] = iCounter++;
+                for (int packageNum = 0; packageNum < iNumPackages; packageNum++)
+                {
+                    emgData[0] = iCounter++;
+                    for (int i = 0; i < 2; i++)
+                    {
+                        emgData[i + 1] = (double)*(reinterpret_cast<const uint8_t *> (ptr++));
+                    }
+                    emgData[3] = timestamp;
+                    BrainFlowArray<double, 1> gforceData (emgData, size);
+                    spinLock.lock ();
+                    dataQueue.push_back (std::move (gforceData));
+                    spinLock.unlock ();
+                }
+            }
+        }
     }
 
     std::shared_ptr<spdlog::logger> logger;
     bool bIsFeatureMapConfigured;
     bool bIsEMGConfigured;
     int iBoardType;
+    int iSamplingRate;
+    int iTransactionSize;
+    int iNumPackages;
+    int iChannelMap;
 
-    static const int iADCResolution = 12;
-    static const int iTransactionSize = 128;
-    static const int iNumPackages = 8;
-    static const int iSamplingRate = 500;
+    static const int iADCResolution = 8;
 
 private:
     gfsPtr<Hub> mHub;
@@ -241,12 +274,8 @@ private:
                     (result == ResponseResult::RREST_SUCCESS) ? (true) : (false);
                 this->logger->info ("setDataNotifSwitch result: {}", res);
             });
-
-        ds->setEMGRawDataConfig (GforceHandle::iSamplingRate, // sample rate
-            (DeviceSetting::EMGRowDataChannels) (0x00FF),     // channel 0~7
-            GforceHandle::iTransactionSize,                   // data length
-            GforceHandle::iADCResolution,                     // adc resolution
-            [this] (ResponseResult result) {
+        ds->setEMGRawDataConfig (iSamplingRate, (DeviceSetting::EMGRowDataChannels) (iChannelMap),
+            iTransactionSize, GforceHandle::iADCResolution, [this] (ResponseResult result) {
                 std::string res =
                     (result == ResponseResult::RREST_SUCCESS) ? ("sucess") : ("failed");
                 bIsEMGConfigured = (result == ResponseResult::RREST_SUCCESS) ? (true) : (false);

@@ -32,6 +32,7 @@
 #include "galea.h"
 #include "ganglion.h"
 #include "ganglion_wifi.h"
+#include "gforce_dual.h"
 #include "gforce_pro.h"
 #include "ironbci.h"
 #include "notion_osc.h"
@@ -145,6 +146,9 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
             break;
         case BoardIds::BRAINBIT_BLED_BOARD:
             board = std::shared_ptr<Board> (new BrainBitBLED (params));
+            break;
+        case BoardIds::GFORCE_DUAL_BOARD:
+            board = std::shared_ptr<Board> (new GforceDual (params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

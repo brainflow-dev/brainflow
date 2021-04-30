@@ -233,6 +233,7 @@ set (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/mit/fascia.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neurosity/notion_osc.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/oymotion/gforce_pro.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/oymotion/gforce_dual.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ironbci/ironbci.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/freeeeg32/freeeeg32.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/brainbit_bled.cpp
