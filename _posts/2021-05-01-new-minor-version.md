@@ -16,4 +16,4 @@ author: andrey_parfenov
     </a>
 </div>
 
-In this version we added support for gForceDual board from [OYMNotion](http://www.oymotion.com/en/page41). It's similar to gForcePro Board but has 2 channels which you can connect wherever you want.
+In this version we added support for gForceDual board from [OYMotion](http://www.oymotion.com/en/page41). It's similar to gForcePro Board but has 2 channels which you can connect wherever you want.
