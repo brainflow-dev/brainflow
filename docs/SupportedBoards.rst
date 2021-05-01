@@ -27,6 +27,7 @@ To create an instance of BoardShim class for your board check required inputs in
    "GforcePro", "BoardIds.GFORCE_PRO_BOARD (16)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
    "FreeEEG32", "BoardIds.FREEEEG32_BOARD (17)", "dongle serial port", "-", "-", "-", "-", "-", "-", "-", "-"
    "BrainBitBLED", "BoardIds.BRAINBIT_BLED_BOARD (18)", "dongle serial port", "Optional: MAC address", "-", "-", "-", "-", "-", "-", "-"
+   "GforceDual", "BoardIds.GFORCE_DUAL_BOARD (19)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
 
 
 Playback File Board
@@ -557,8 +558,27 @@ Supported platforms:
 Board Spec:
 
 - num emg channels: 8
+- sampling rate: 650
+
+gForceDual ArmBand
+~~~~~~~~~~~~~~~~~~~
+
+`OYMotion website <http://www.oymotion.com/en>`_
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 19
+
+Supported platforms:
+
+- Windows
+
+*Note: Unlike other boards it returns ADC value instead uV.*
+
+Board Spec:
+
+- num emg channels: 2
 - sampling rate: 500
-- communication: FTDI
 
 FreeEEG32
 ----------
