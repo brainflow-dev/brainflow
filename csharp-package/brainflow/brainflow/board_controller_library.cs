@@ -66,7 +66,8 @@ namespace brainflow
         GFORCE_PRO_BOARD = 16,
         FREEEEG32_BOARD = 17,
         BRAINBIT_BLED_BOARD = 18,
-        GFORCE_DUAL_BOARD = 19
+        GFORCE_DUAL_BOARD = 19,
+        GALEA_SERIAL_BOARD = 20
     };
 
 

@@ -30,7 +30,8 @@ public enum BoardIds
     GFORCE_PRO_BOARD (16),
     FREEEEG32_BOARD (17),
     BRAINBIT_BLED_BOARD (18),
-    GFORCE_DUAL_BOARD (19);
+    GFORCE_DUAL_BOARD (19),
+    GALEA_SERIAL_BOARD (20);
 
     private final int board_id;
     private static final Map<Integer, BoardIds> bi_map = new HashMap<Integer, BoardIds> ();

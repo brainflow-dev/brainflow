@@ -30,6 +30,7 @@
 #include "fascia.h"
 #include "freeeeg32.h"
 #include "galea.h"
+#include "galea_serial.h"
 #include "ganglion.h"
 #include "ganglion_wifi.h"
 #include "gforce_dual.h"
@@ -149,6 +150,9 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
             break;
         case BoardIds::GFORCE_DUAL_BOARD:
             board = std::shared_ptr<Board> (new GforceDual (params));
+            break;
+        case BoardIds::GALEA_SERIAL_BOARD:
+            board = std::shared_ptr<Board> (new GaleaSerial (params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
