@@ -25,7 +25,7 @@ jobs:
         mkdir $GITHUB_WORKSPACE/build
         cd $GITHUB_WORKSPACE/build
         cmake -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
-        make -j
+        make
         make install
 
     # deploy started

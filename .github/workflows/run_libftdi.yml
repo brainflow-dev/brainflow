@@ -44,7 +44,7 @@ jobs:
         mkdir $GITHUB_WORKSPACE/build
         cd $GITHUB_WORKSPACE/build
         cmake -DWARNINGS_AS_ERRORS=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release -DUSE_LIBFTDI=ON ..
-        make -j
+        make
         make install
     - name: Setup Python Package
       run: |

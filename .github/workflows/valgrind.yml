@@ -25,7 +25,7 @@ jobs:
         mkdir $GITHUB_WORKSPACE/build
         cd $GITHUB_WORKSPACE/build
         cmake -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Debug ..
-        make -j
+        make
         make install
     - name: Build Get Data Test
       run: |
@@ -33,21 +33,21 @@ jobs:
         mkdir build
         cd build
         cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Debug ..
-        make -j
+        make
     - name: Build Signal Processing Test
       run: |
         cd $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo
         mkdir build
         cd build
         cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Debug ..
-        make -j
+        make
     - name: Build ML Demo Test
       run: |
         cd $GITHUB_WORKSPACE/tests/cpp/ml_demo
         mkdir build
         cd build
         cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Debug ..
-        make -j
+        make
     - name: Install Valgrind
       run: |
         sudo -H apt-get update -y

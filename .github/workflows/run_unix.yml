@@ -45,14 +45,14 @@ jobs:
         mkdir $GITHUB_WORKSPACE/build
         cd $GITHUB_WORKSPACE/build
         cmake -DWARNINGS_AS_ERRORS=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
-        make -j
+        make
         make install
     - name: Compile BrainFlow in ManyLinux
       # bindings in production have to use libraries compiled inside this image!
       if: (matrix.os == 'ubuntu-18.04')
       run: |
         docker pull dockcross/manylinux2014-x64
-        docker run -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE dockcross/manylinux2014-x64 /bin/bash -c "/opt/python/cp36-cp36m/bin/pip3.6 install cmake==3.13.3 && cd $GITHUB_WORKSPACE && mkdir build_docker && cd build_docker && cmake -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed_docker -DCMAKE_BUILD_TYPE=Release .. && make -j && make install"
+        docker run -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE dockcross/manylinux2014-x64 /bin/bash -c "/opt/python/cp36-cp36m/bin/pip3.6 install cmake==3.13.3 && cd $GITHUB_WORKSPACE && mkdir build_docker && cd build_docker && cmake -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed_docker -DCMAKE_BUILD_TYPE=Release .. && make && make install"
     - name: Setup Python Package
       run: |
         cd $GITHUB_WORKSPACE/python-package
@@ -69,21 +69,21 @@ jobs:
         mkdir build
         cd build
         cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed ..
-        make -j
+        make
     - name: Build Signal Processing Test
       run: |
         cd $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo
         mkdir build
         cd build
         cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed ..
-        make -j
+        make
     - name: Build ML Demo Test
       run: |
         cd $GITHUB_WORKSPACE/tests/cpp/ml_demo
         mkdir build
         cd build
         cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed ..
-        make -j
+        make
     - name: Install Emulator
       run: |
         cd $GITHUB_WORKSPACE/emulator
