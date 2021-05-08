@@ -871,7 +871,7 @@ int write_file (double *data, int num_rows, int num_cols, char *file_name, char 
     {
         for (int j = 0; j < num_rows - 1; j++)
         {
-            fprintf (fp, "%lf,", data[j * num_cols + i]);
+            fprintf (fp, "%lf\t", data[j * num_cols + i]);
         }
         fprintf (fp, "%lf\n", data[(num_rows - 1) * num_cols + i]);
     }
@@ -895,7 +895,7 @@ int read_file (double *data, int *num_rows, int *num_cols, char *file_name, int 
     }
 
     char buf[4096];
-    // rows and cols in csv file, in data array its transposed!
+    // rows and cols in tsv file, in data array its transposed!
     int total_rows = 0;
     int total_cols = 0;
 
@@ -914,13 +914,21 @@ int read_file (double *data, int *num_rows, int *num_cols, char *file_name, int 
     int cur_pos = 0;
     while (fgets (buf, sizeof (buf), fp) != NULL)
     {
-        std::string csv_string (buf);
-        std::stringstream ss (csv_string);
+        std::string tsv_string (buf);
+        std::stringstream ss (tsv_string);
         std::vector<std::string> splitted;
         std::string tmp;
-        while (getline (ss, tmp, ','))
+        char sep = '\t';
+        if (tsv_string.find ('\t') == std::string::npos)
         {
-            splitted.push_back (tmp);
+            sep = ',';
+        }
+        while (std::getline (ss, tmp, sep))
+        {
+            if (tmp != "\n")
+            {
+                splitted.push_back (tmp);
+            }
         }
         total_cols = (int)splitted.size ();
         for (int i = 0; i < total_cols; i++)
@@ -977,13 +985,21 @@ int get_num_elements_in_file (char *file_name, int *num_elements)
     fseek (fp, 0, SEEK_SET);
     while (fgets (buf, sizeof (buf), fp) != NULL)
     {
-        std::string csv_string (buf);
-        std::stringstream ss (csv_string);
+        std::string tsv_string (buf);
+        std::stringstream ss (tsv_string);
         std::vector<std::string> splitted;
         std::string tmp;
-        while (getline (ss, tmp, ','))
+        char sep = '\t';
+        if (tsv_string.find ('\t') == std::string::npos)
         {
-            splitted.push_back (tmp);
+            sep = ',';
+        }
+        while (std::getline (ss, tmp, sep))
+        {
+            if (tmp != "\n")
+            {
+                splitted.push_back (tmp);
+            }
         }
         *num_elements = (int)splitted.size () * total_rows;
         fclose (fp);

@@ -178,13 +178,21 @@ void PlaybackFileBoard::read_thread ()
             continue;
         }
         // res not NULL
-        std::string csv_string (buf);
-        std::stringstream ss (csv_string);
+        std::string tsv_string (buf);
+        std::stringstream ss (tsv_string);
         std::vector<std::string> splitted;
         std::string tmp;
-        while (getline (ss, tmp, ','))
+        char sep = '\t';
+        if (tsv_string.find ('\t') == std::string::npos)
         {
-            splitted.push_back (tmp);
+            sep = ',';
+        }
+        while (std::getline (ss, tmp, sep))
+        {
+            if (tmp != "\n")
+            {
+                splitted.push_back (tmp);
+            }
         }
         if (splitted.size () != num_rows)
         {

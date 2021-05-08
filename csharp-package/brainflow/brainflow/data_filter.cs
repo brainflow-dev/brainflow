@@ -430,7 +430,7 @@ namespace brainflow
         }
 
         /// <summary>
-        /// write data to csv file, data will be transposed
+        /// write data to tsv file, data will be transposed
         /// </summary>
         /// <param name="data"></param>
         /// <param name="file_name"></param>

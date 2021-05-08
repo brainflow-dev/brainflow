@@ -38,9 +38,9 @@ int FileStreamer::init_streamer ()
 
 void FileStreamer::stream_data (double *data)
 {
-    for (int i = 0; i < len; i++)
+    for (int i = 0; i < len - 1; i++)
     {
-        fprintf (fp, "%lf,", data[i]);
+        fprintf (fp, "%lf\t", data[i]);
     }
-    fputs ("\n", fp);
+    fprintf (fp, "%lf\n", data[len - 1]);
 }
