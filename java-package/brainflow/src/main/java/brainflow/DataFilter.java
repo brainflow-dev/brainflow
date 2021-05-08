@@ -613,7 +613,7 @@ public class DataFilter
     }
 
     /**
-     * write data to csv file, in file data will be transposed
+     * write data to tsv file, in file data will be transposed
      */
     public static void write_file (double[][] data, String file_name, String file_mode) throws BrainFlowError
     {
