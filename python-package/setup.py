@@ -51,7 +51,11 @@ setup(
             os.path.join('lib', 'BrainBitLib.dll'),
             os.path.join('lib', 'BrainBitLib32.dll'),
             os.path.join('lib', 'libBrainBitLib.so'),
-            os.path.join('lib', 'libBrainBitLib.dylib')
+            os.path.join('lib', 'libBrainBitLib.dylib'),
+            os.path.join('lib', 'MuseLib.dll'),
+            os.path.join('lib', 'MuseLib32.dll'),
+            os.path.join('lib', 'libMuseLib.so'),
+            os.path.join('lib', 'libMuseLib.dylib')
         ]
     },
     zip_safe=True,

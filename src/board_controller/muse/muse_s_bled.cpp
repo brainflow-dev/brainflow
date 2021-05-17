@@ -1,0 +1,136 @@
+#include <string>
+
+#include "get_dll_dir.h"
+#include "muse_s_bled.h"
+#include "muse_types.h"
+
+#include "brainflow_constants.h"
+
+
+int MuseSBLED::num_objects = 0;
+
+
+MuseSBLED::MuseSBLED (struct BrainFlowInputParams params)
+    : DynLibBoard<15> ((int)BoardIds::MUSE_S_BLED_BOARD, params)
+{
+    MuseSBLED::num_objects++;
+
+    if (MuseSBLED::num_objects > 1)
+    {
+        is_valid = false;
+    }
+    else
+    {
+        is_valid = true;
+    }
+    use_mac_addr = (params.mac_address.empty ()) ? false : true;
+}
+
+MuseSBLED::~MuseSBLED ()
+{
+    skip_logs = true;
+    MuseSBLED::num_objects--;
+    release_session ();
+}
+
+std::string MuseSBLED::get_lib_name ()
+{
+    std::string muselib_path = "";
+    std::string muselib_name = "";
+    char muselib_dir[1024];
+    bool res = get_dll_path (muselib_dir);
+
+#ifdef _WIN32
+    if (sizeof (void *) == 4)
+    {
+        muselib_name = "MuseLib32.dll";
+    }
+    else
+    {
+        muselib_name = "MuseLib.dll";
+    }
+#endif
+#ifdef __linux__
+    muselib_name = "libMuseLib.so";
+#endif
+#ifdef __APPLE__
+    muselib_name = "libMuseLib.dylib";
+#endif
+
+    if (res)
+    {
+        muselib_path = std::string (muselib_dir) + muselib_name;
+    }
+    else
+    {
+        muselib_path = muselib_name;
+    }
+    return muselib_path;
+}
+
+int MuseSBLED::prepare_session ()
+{
+    if (!is_valid)
+    {
+        safe_logger (spdlog::level::info, "only one MuseSBLED per process is allowed");
+        return (int)BrainFlowExitCodes::ANOTHER_BOARD_IS_CREATED_ERROR;
+    }
+    return DynLibBoard<15>::prepare_session ();
+}
+
+int MuseSBLED::call_init ()
+{
+    if (dll_loader == NULL)
+    {
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+    }
+    int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("initialize");
+    if (func == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to get function address for initialize");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+
+    struct MuseBLEDLib::MuseInputData input_data (params.timeout, params.serial_port.c_str ());
+    int res = func ((void *)&input_data);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        safe_logger (spdlog::level::err, "failed to initialize {}", res);
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int MuseSBLED::call_open ()
+{
+    if (dll_loader == NULL)
+    {
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+    }
+    int res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+    if (use_mac_addr)
+    {
+        int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("open_device_mac_addr");
+        if (func == NULL)
+        {
+            safe_logger (
+                spdlog::level::err, "failed to get function address for open_device_mac_addr");
+            return (int)BrainFlowExitCodes::GENERAL_ERROR;
+        }
+        safe_logger (spdlog::level::info, "search for {}", params.mac_address.c_str ());
+        res = func (const_cast<char *> (params.mac_address.c_str ()));
+    }
+    else
+    {
+        int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("open_device");
+        if (func == NULL)
+        {
+            safe_logger (spdlog::level::err, "failed to get function address for open_device");
+            return (int)BrainFlowExitCodes::GENERAL_ERROR;
+        }
+        safe_logger (
+            spdlog::level::info, "mac address is not specified, try to find muse s without it");
+        res = func (NULL);
+    }
+    return res;
+}
