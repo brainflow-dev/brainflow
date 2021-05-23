@@ -30,9 +30,9 @@ int main (int argc, char *argv[])
         board->start_stream ();
 
 #ifdef _WIN32
-        Sleep (5000);
+        Sleep (10000);
 #else
-        sleep (5);
+        sleep (10);
 #endif
 
         board->stop_stream ();

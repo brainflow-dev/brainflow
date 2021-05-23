@@ -243,6 +243,8 @@ int Board::prepare_streamer (char *streamer_params)
                 safe_logger (spdlog::level::err, e.what ());
                 return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
             }
+            safe_logger (spdlog::level::trace, "MultiCast Streamer, ip addr: {}, port: {}",
+                streamer_dest.c_str (), streamer_mods.c_str ());
             streamer = new MultiCastStreamer (streamer_dest.c_str (), port, num_rows);
         }
 

@@ -42,9 +42,11 @@ int MultiCastServer::init ()
     // ensure that library will not hang in blocking recv/send call
     DWORD timeout = 5000;
     DWORD value = 1;
+    DWORD buf_size = 65000;
     setsockopt (server_socket, SOL_SOCKET, SO_REUSEADDR, (char *)&value, sizeof (value));
     setsockopt (server_socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof (timeout));
     setsockopt (server_socket, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof (timeout));
+    setsockopt (server_socket, SOL_SOCKET, SO_SNDBUF, (const char *)&buf_size, sizeof (buf_size));
 
     return (int)MultiCastReturnCodes::STATUS_OK;
 }
@@ -105,9 +107,12 @@ int MultiCastServer::init ()
     timeout.tv_sec = 5;
     timeout.tv_usec = 0;
     int value = 1;
+    int buf_size = 65000;
     setsockopt (server_socket, SOL_SOCKET, SO_REUSEADDR, (char *)&value, sizeof (value));
     setsockopt (server_socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof (timeout));
     setsockopt (server_socket, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof (timeout));
+    setsockopt (server_socket, SOL_SOCKET, SO_SNDBUF, &buf_size, sizeof (buf_size));
+    setsockopt (server_socket, SOL_SOCKET, SO_RCVBUF, &buf_size, sizeof (buf_size));
 
     return (int)MultiCastReturnCodes::STATUS_OK;
 }
