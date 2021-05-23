@@ -86,6 +86,15 @@ int IronBCI::prepare_session ()
         return (int)BrainFlowExitCodes::SET_PORT_ERROR;
     }
 
+    res = serial->set_custom_baudrate (256000);
+    if (res < 0)
+    {
+        safe_logger (spdlog::level::err, "Unable to set custom baud rate, res is {}", res);
+        delete serial;
+        serial = NULL;
+        return (int)BrainFlowExitCodes::SET_PORT_ERROR;
+    }
+
     initialized = true;
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
