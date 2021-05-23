@@ -84,7 +84,7 @@ void MultiCastStreamer::thread_worker ()
     }
     while (is_streaming)
     {
-        if (db->get_data_count () >= num_packages)
+        if (db->get_data_count () >= (size_t)num_packages)
         {
             db->get_data (num_packages, transaction);
             server->send (transaction, sizeof (double) * transaction_len);
