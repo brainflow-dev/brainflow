@@ -254,7 +254,7 @@ json brainflow_boards_json = {
         }},
         {"16",
             {{"name", "GforcePro"},
-            {"sampling_rate", 650},
+            {"sampling_rate", 500},
             {"package_num_channel", 0},
             {"timestamp_channel", 9},
             {"marker_channel", 10},

@@ -41,7 +41,7 @@ public:
         this->iBoardType = iBoardType;
         if (iBoardType == (int)BoardIds::GFORCE_PRO_BOARD)
         {
-            iSamplingRate = 650;
+            iSamplingRate = 500;
             iTransactionSize = 128;
             iNumPackages = iTransactionSize / GforceHandle::iADCResolution;
             iChannelMap = 0x00FF;
@@ -197,7 +197,8 @@ public:
                     emgData[0] = iCounter++;
                     for (int i = 0; i < 8; i++)
                     {
-                        emgData[i + 1] = (double)*(reinterpret_cast<const uint8_t *> (ptr++));
+                        emgData[i + 1] = (double)*(reinterpret_cast<const uint16_t *> (ptr));
+                        ptr += 2;
                     }
                     emgData[9] = timestamp;
                     BrainFlowArray<double, 1> gforceData (emgData, size);
@@ -219,7 +220,8 @@ public:
                     emgData[0] = iCounter++;
                     for (int i = 0; i < 2; i++)
                     {
-                        emgData[i + 1] = (double)*(reinterpret_cast<const uint8_t *> (ptr++));
+                        emgData[i + 1] = (double)*(reinterpret_cast<const uint16_t *> (ptr));
+                        ptr += 2;
                     }
                     emgData[3] = timestamp;
                     BrainFlowArray<double, 1> gforceData (emgData, size);
@@ -240,7 +242,7 @@ public:
     int iNumPackages;
     int iChannelMap;
 
-    static const int iADCResolution = 8;
+    static const int iADCResolution = 12;
 
 private:
     gfsPtr<Hub> mHub;
@@ -263,23 +265,27 @@ private:
                 | DeviceSetting::DNF_EMG_RAW
                 //| DeviceSetting::DNF_HID_MOUSE
                 //| DeviceSetting::DNF_HID_JOYSTICK
-                //| DeviceSetting::DNF_DEVICE_STATUS
-            );
+                | DeviceSetting::DNF_DEVICE_STATUS);
 
-        ds->setDataNotifSwitch (
-            (DeviceSetting::DataNotifFlags) (flags & featureMap), [this] (ResponseResult result) {
-                std::string res =
-                    (result == ResponseResult::RREST_SUCCESS) ? ("sucess") : ("failed");
-                bIsFeatureMapConfigured =
-                    (result == ResponseResult::RREST_SUCCESS) ? (true) : (false);
-                this->logger->info ("setDataNotifSwitch result: {}", res);
-            });
+        flags = (DeviceSetting::DataNotifFlags) (flags & featureMap);
+
         ds->setEMGRawDataConfig (iSamplingRate, (DeviceSetting::EMGRowDataChannels) (iChannelMap),
-            iTransactionSize, GforceHandle::iADCResolution, [this] (ResponseResult result) {
+            iTransactionSize, GforceHandle::iADCResolution,
+            [ds, flags, this] (ResponseResult result) {
                 std::string res =
                     (result == ResponseResult::RREST_SUCCESS) ? ("sucess") : ("failed");
                 bIsEMGConfigured = (result == ResponseResult::RREST_SUCCESS) ? (true) : (false);
                 this->logger->info ("setEMGRawDataConfig result: {}", res);
+                if (bIsEMGConfigured)
+                {
+                    ds->setDataNotifSwitch (flags, [this] (ResponseResult result) {
+                        std::string res =
+                            (result == ResponseResult::RREST_SUCCESS) ? ("sucess") : ("failed");
+                        bIsFeatureMapConfigured =
+                            (result == ResponseResult::RREST_SUCCESS) ? (true) : (false);
+                        this->logger->info ("setDataNotifSwitch result: {}", res);
+                    });
+                }
             });
     }
 };
