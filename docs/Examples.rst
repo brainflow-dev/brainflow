@@ -82,7 +82,7 @@ Python EEG Metrics
 Python Real Time Plot
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../tests/python/plot_real_time.py
+.. literalinclude:: ../python-package/examples/plot_real_time.py
    :language: py
 
 Java
