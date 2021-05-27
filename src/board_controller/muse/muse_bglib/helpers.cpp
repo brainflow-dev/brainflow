@@ -6,10 +6,12 @@
 #include <string.h>
 #include <string>
 
+#include "brainflow_constants.h"
+#include "cmd_def.h"
 #include "helpers.h"
-#include "uart.h"
-
+#include "muse_constants.h"
 #include "muse_types.h"
+#include "uart.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -17,27 +19,16 @@
 #include <unistd.h>
 #endif
 
-#include "brainflow_constants.h"
-
-#define FIRST_HANDLE 0x0001
-#define LAST_HANDLE 0xffff
-
 
 namespace MuseBLEDLib
 {
     extern volatile int exit_code;
     extern int timeout;
-    extern bool initialized;
-
     extern volatile bd_addr connect_addr;
     extern volatile uint8 connection;
-    extern volatile uint16 muse_handle_send;
     extern char uart_port[1024];
     extern std::set<uint16> ccids;
     extern volatile State state;
-    extern std::condition_variable cv;
-    extern volatile uint16 muse_handle_start;
-    extern volatile uint16 muse_handle_end;
 
     void output (uint8 len1, uint8 *data1, uint16 len2, uint8 *data2)
     {
@@ -47,7 +38,7 @@ namespace MuseBLEDLib
         }
     }
 
-    // reads messages and calls required callbacks (copypaste from sample)
+    // reads messages and calls required callbacks
     int read_message (int timeout_ms)
     {
         unsigned char *data = NULL;
@@ -91,13 +82,11 @@ namespace MuseBLEDLib
         // send command to connect
         state = State::INITIAL_CONNECTION;
         ble_cmd_gap_connect_direct (&connect_addr, gap_address_type_public, 10, 76, 100, 0);
-        std::cout << "connect direct" << std::endl;
         int res = wait_for_callback (timeout);
         if (res != (int)BrainFlowExitCodes::STATUS_OK)
         {
             return res;
         }
-        std::cout << "connect direct after" << std::endl;
         state = State::OPEN_CALLED;
 
         exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
@@ -107,12 +96,10 @@ namespace MuseBLEDLib
             connection, FIRST_HANDLE, LAST_HANDLE, 2, primary_service_uuid);
 
         res = wait_for_callback (timeout);
-
         if (res != (int)BrainFlowExitCodes::STATUS_OK)
         {
             return res;
         }
-        std::cout << "read after" << std::endl;
 
         // from siliconlabs forum - write 0x00001 to enable notifications
         // copypasted in start_stream method but lets keep it in 2 places
@@ -169,22 +156,5 @@ namespace MuseBLEDLib
             return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
         }
         return (int)BrainFlowExitCodes::STATUS_OK;
-    }
-
-    int config_board (uint8 *config, int len)
-    {
-        if (!initialized)
-        {
-            return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
-        }
-        exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
-        state = State::CONFIG_CALLED;
-        if (!muse_handle_send)
-        {
-            return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
-        }
-        ble_cmd_attclient_attribute_write (connection, muse_handle_send, len, config);
-        ble_cmd_attclient_execute_write (connection, 1);
-        return wait_for_callback (timeout);
     }
 }

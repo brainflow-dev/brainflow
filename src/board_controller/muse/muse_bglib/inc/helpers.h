@@ -1,16 +1,7 @@
 #pragma once
 
 #include <ctype.h>
-#include <string>
 
-#include "cmd_def.h"
-#include "uart.h"
-
-
-#include <iostream>
-
-#define UART_TIMEOUT 1000
-#define MUSE_S_DATA_SIZE 15
 
 namespace MuseBLEDLib
 {
@@ -31,5 +22,4 @@ namespace MuseBLEDLib
     int open_ble_dev ();
     int wait_for_callback (int num_seconds);
     int reset_ble_dev ();
-    int config_board (uint8 *command, int len);
 }

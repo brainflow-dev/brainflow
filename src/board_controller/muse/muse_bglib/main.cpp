@@ -1,22 +1,20 @@
 #include <array>
 #include <chrono>
 #include <ctype.h>
-#include <deque>
+#include <map>
 #include <set>
 #include <stdlib.h>
 #include <string.h>
+#include <string>
 #include <thread>
 
+#include "brainflow_constants.h"
 #include "cmd_def.h"
 #include "helpers.h"
-#include "uart.h"
-
-#include "ticket_lock.h"
-
+#include "muse_constants.h"
 #include "muse_functions.h"
 #include "muse_types.h"
-
-#include "brainflow_constants.h"
+#include "uart.h"
 
 
 // read Bluetooth_Smart_Software_v1.3.1_API_Reference.pdf to understand this code
@@ -26,19 +24,17 @@ namespace MuseBLEDLib
     volatile int exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
     char uart_port[1024];
     int timeout = 15;
-    std::deque<std::array<double, MUSE_S_DATA_SIZE>> data_queue;
-    TicketLock lock;
     volatile bd_addr connect_addr;
     volatile uint8 connection = -1;
     volatile uint16 muse_handle_start = 0;
     volatile uint16 muse_handle_end = 0;
-    volatile uint16 muse_handle_send = 0;
     volatile State state =
         State::NONE; // same callbacks are triggered by different methods we need to differ them
     volatile bool should_stop_stream = true;
     bool initialized = false;
     std::thread read_characteristic_thread;
     std::set<uint16> ccids;
+    std::map<std::string, uint16> characteristics;
 
     void read_characteristic_worker ()
     {
@@ -86,7 +82,6 @@ namespace MuseBLEDLib
             return res;
         }
         ble_cmd_gap_end_procedure ();
-        std::cout << "found" << std::endl;
         return open_ble_dev ();
     }
 
@@ -140,7 +135,7 @@ namespace MuseBLEDLib
         }
         exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
         state = State::CONFIG_CALLED;
-        if (!muse_handle_send)
+        if (characteristics.find ("CONTROL") == characteristics.end ())
         {
             return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
         }
@@ -151,7 +146,7 @@ namespace MuseBLEDLib
             while (!stop_config_thread)
             {
                 ble_cmd_attclient_attribute_write (
-                    connection, muse_handle_send, len, (uint8 *)stop_cmd);
+                    connection, characteristics.find ("CONTROL"), len, (uint8 *)stop_cmd);
                 ble_cmd_attclient_execute_write (connection, 1);
             }
         });
@@ -165,7 +160,6 @@ namespace MuseBLEDLib
         {
             l = uart_rx (l, &temp_data, 1000);
         }
-        data_queue.clear ();
         return res;
     }
 #else
@@ -179,7 +173,6 @@ namespace MuseBLEDLib
         }
         const char *stop_cmd = "h";
         int res = config_device ((void *)stop_cmd);
-        data_queue.clear ();
         return res;
     }
 #endif
@@ -200,7 +193,17 @@ namespace MuseBLEDLib
                 return res;
             }
         }
-        int res = config_device ((void *)"d");
+        int res = config_device ((void *)"v1");
+        if (res != (int)BrainFlowExitCodes::STATUS_OK)
+        {
+            return res;
+        }
+        res = config_device ((void *)"p63");
+        if (res != (int)BrainFlowExitCodes::STATUS_OK)
+        {
+            return res;
+        }
+        res = config_device ((void *)"d");
         if (res == (int)BrainFlowExitCodes::STATUS_OK)
         {
             should_stop_stream = false;
@@ -226,7 +229,6 @@ namespace MuseBLEDLib
         connection = -1;
         muse_handle_start = 0;
         muse_handle_end = 0;
-        muse_handle_send = 0;
 
         uart_close ();
 
@@ -245,30 +247,7 @@ namespace MuseBLEDLib
         }
         state = State::GET_DATA_CALLED;
         int res = (int)BrainFlowExitCodes::STATUS_OK;
-        lock.lock ();
-        if (data_queue.empty ())
-        {
-            res = (int)BrainFlowExitCodes::EMPTY_BUFFER_ERROR;
-        }
-        else
-        {
-            try
-            {
-                double *board_data = (double *)param;
-                std::array<double, MUSE_S_DATA_SIZE> data = data_queue.at (
-                    0); // at ensures out of range exception, front has undefined behavior
-                for (int i = 0; i < MUSE_S_DATA_SIZE; i++)
-                {
-                    board_data[i] = data[i];
-                }
-                data_queue.pop_front ();
-            }
-            catch (...)
-            {
-                res = (int)BrainFlowExitCodes::EMPTY_BUFFER_ERROR;
-            }
-        }
-        lock.unlock ();
+        // todo
         return res;
     }
 
@@ -279,8 +258,11 @@ namespace MuseBLEDLib
             close_device (NULL);
             state = State::NONE;
             initialized = false;
-            data_queue.clear ();
+            exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
+            ccids.clear ();
+            characteristics.clear ();
         }
+
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
 
@@ -294,11 +276,12 @@ namespace MuseBLEDLib
         char *config = (char *)param;
         int len = (int)strlen (config);
         state = State::CONFIG_CALLED;
-        if (!muse_handle_send)
+        if (characteristics.find ("CONTROL") == characteristics.end ())
         {
             return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
         }
-        ble_cmd_attclient_attribute_write (connection, muse_handle_send, len, (uint8 *)config);
+        ble_cmd_attclient_attribute_write (
+            connection, characteristics.find ("CONTROL"), len, (uint8 *)config);
         ble_cmd_attclient_execute_write (connection, 1);
         return wait_for_callback (timeout);
     }
