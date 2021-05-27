@@ -1,5 +1,7 @@
 ﻿using System;
-
+using System.IO;
+using System.Runtime.Serialization.Json;
+using System.Text;
 
 namespace brainflow
 {
@@ -158,6 +160,29 @@ namespace brainflow
             }
             string eeg_str = System.Text.Encoding.UTF8.GetString (str, 0, len[0]);
             return eeg_str.Split (new Char[] {','});
+        }
+
+        /// <summary>
+        /// get board description
+        /// </summary>
+        /// <param name="board_id"></param>
+        /// <returns>board description</returns>
+        /// <exception cref="BrainFlowException">If board id is not valid exit code is UNSUPPORTED_BOARD_ERROR</exception>
+        public static T get_board_descr<T> (int board_id) where T : class
+        {
+            int[] len = new int[1];
+            byte[] str = new byte[16000];
+            int res = BoardControllerLibrary.get_board_descr (board_id, str, len);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException(res);
+            }
+            string descr_str = System.Text.Encoding.UTF8.GetString (str, 0, len[0]);
+            var ms = new MemoryStream(Encoding.UTF8.GetBytes(descr_str));
+            var serializer = new DataContractJsonSerializer(typeof(T));
+            var obj = serializer.ReadObject(ms) as T;
+            ms.Close();
+            return obj;
         }
 
         /// <summary>

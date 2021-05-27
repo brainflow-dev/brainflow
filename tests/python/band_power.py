@@ -13,7 +13,8 @@ def main():
     # use synthetic board for demo
     params = BrainFlowInputParams()
     board_id = BoardIds.SYNTHETIC_BOARD.value
-    sampling_rate = BoardShim.get_sampling_rate(board_id)
+    board_descr = BoardShim.get_board_descr(board_id)
+    sampling_rate = int(board_descr['sampling_rate'])
     board = BoardShim(board_id, params)
     board.prepare_session()
     board.start_stream()
@@ -24,7 +25,7 @@ def main():
     board.stop_stream()
     board.release_session()
 
-    eeg_channels = BoardShim.get_eeg_channels(board_id)
+    eeg_channels = board_descr['eeg_channels']
     # second eeg channel of synthetic board is a sine wave at 10Hz, should see huge alpha
     eeg_channel = eeg_channels[1]
     # optional detrend

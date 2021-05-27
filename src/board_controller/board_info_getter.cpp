@@ -19,6 +19,22 @@ inline int get_array_value (
     int board_id, const char *param_name, int *output_array, int *len, bool use_logger = true);
 
 
+int get_board_descr (int board_id, char *board_descr, int *len)
+{
+    try
+    {
+        std::string res = brainflow_boards_json["boards"][int_to_string (board_id)].dump ();
+        strcpy (board_descr, res.c_str ());
+        *len = (int)strlen (res.c_str ());
+        return (int)BrainFlowExitCodes::STATUS_OK;
+    }
+    catch (json::exception &e)
+    {
+        Board::board_logger->error (e.what ());
+        return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
+    }
+}
+
 int get_sampling_rate (int board_id, int *sampling_rate)
 {
     return get_single_value (board_id, "sampling_rate", sampling_rate);

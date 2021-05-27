@@ -7,9 +7,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.lang3.SystemUtils;
 
+import com.google.gson.Gson;
 import com.sun.jna.JNIEnv;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
@@ -91,6 +94,8 @@ public class BoardShim
 
         int get_eeg_names (int board_id, byte[] names, int[] len);
 
+        int get_board_descr (int board_id, byte[] names, int[] len);
+
         int get_device_name (int board_id, byte[] name, int[] len);
     }
 
@@ -134,7 +139,8 @@ public class BoardShim
             unpack_from_jar (ganglion_name);
         }
 
-        instance = (DllInterface) Native.loadLibrary (lib_name, DllInterface.class, Collections.singletonMap(Library.OPTION_ALLOW_OBJECTS, Boolean.TRUE));
+        instance = (DllInterface) Native.loadLibrary (lib_name, DllInterface.class,
+                Collections.singletonMap (Library.OPTION_ALLOW_OBJECTS, Boolean.TRUE));
         instance.java_set_jnienv (JNIEnv.CURRENT);
     }
 
@@ -317,6 +323,26 @@ public class BoardShim
         }
         String eeg_names_string = new String (str, 0, len[0]);
         return eeg_names_string.split (",");
+    }
+
+    /**
+     * Get board description
+     */
+    @SuppressWarnings ("unchecked")
+    public static Map<String, Object> get_board_descr (int board_id) throws BrainFlowError
+    {
+        int[] len = new int[1];
+        byte[] str = new byte[16000];
+        int ec = instance.get_board_descr (board_id, str, len);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in board info getter", ec);
+        }
+        String descr_string = new String (str, 0, len[0]);
+        Gson gson = new Gson ();
+        Map<String, Object> map = new HashMap<String, Object> ();
+        map = (Map<String, Object>) gson.fromJson (descr_string, map.getClass ());
+        return map;
     }
 
     /**
