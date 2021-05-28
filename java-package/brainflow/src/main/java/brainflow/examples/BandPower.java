@@ -1,6 +1,8 @@
 package brainflow.examples;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math3.complex.Complex;
@@ -23,7 +25,8 @@ public class BandPower
         BrainFlowInputParams params = new BrainFlowInputParams ();
         int board_id = BoardIds.SYNTHETIC_BOARD.get_code ();
         BoardShim board_shim = new BoardShim (board_id, params);
-        int sampling_rate = BoardShim.get_sampling_rate (board_id);
+        Map<String, Object> board_descr = BoardShim.get_board_descr (board_id);
+        int sampling_rate = ((Double) board_descr.get ("sampling_rate")).intValue ();
         int nfft = DataFilter.get_nearest_power_of_two (sampling_rate);
 
         board_shim.prepare_session ();
@@ -34,9 +37,10 @@ public class BandPower
         double[][] data = board_shim.get_board_data ();
         board_shim.release_session ();
 
-        int[] eeg_channels = BoardShim.get_eeg_channels (board_id);
+        @SuppressWarnings ("unchecked")
+        List<Double> eeg_channels = (List<Double>) board_descr.get ("eeg_channels");
         // seconds channel of synthetic board has big 'alpha' use it for test
-        int eeg_channel = eeg_channels[1];
+        int eeg_channel = eeg_channels.get (1).intValue ();
         // optional: detrend before psd
         DataFilter.detrend (data[eeg_channel], DetrendOperations.LINEAR.get_code ());
         Pair<double[], double[]> psd = DataFilter.get_psd_welch (data[eeg_channel], nfft, nfft / 2, sampling_rate,

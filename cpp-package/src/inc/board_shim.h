@@ -12,6 +12,9 @@
 #include "brainflow_exception.h"
 #include "brainflow_input_params.h"
 
+#include "json.hpp"
+
+using json = nlohmann::json;
 
 /// BoardShim class to communicate with a board
 class BoardShim
@@ -34,6 +37,12 @@ public:
     /// write user defined string to BrainFlow logger
     static void log_message (int log_level, const char *format, ...);
 
+    /**
+     * get board description as json
+     * @param board_id board id of your device
+     * @throw BrainFlowException If board id is not valid exit code is UNSUPPORTED_BOARD_ERROR
+     */
+    static json get_board_descr (int board_id);
     /**
      * get sampling rate for this board
      * @param board_id board id of your device

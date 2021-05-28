@@ -106,6 +106,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="board_descr.cs" />
     <Compile Include="board_shim.cs" />
     <Compile Include="board_controller_library.cs" />
     <Compile Include="brainflow_model_params.cs" />

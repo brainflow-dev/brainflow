@@ -135,11 +135,22 @@ classdef BoardShim
             timestamp_channel = res.value + 1;
         end
         
+        function board_descr = get_board_descr(board_id)
+            % get board descr for provided board id
+            task_name = 'get_board_descr';
+            lib_name = BoardShim.load_lib();
+            % no way to understand how it works in matlab, used this link
+            % https://nl.mathworks.com/matlabcentral/answers/131446-what-data-type-do-i-need-to-calllib-with-pointer-argument-char%
+            [exit_code, board_descr] = calllib(lib_name, task_name, board_id, blanks(16000), 16000);
+            BoardShim.check_ec(exit_code, task_name);
+            board_descr = jsondecode(board_descr);
+        end
+        
         function eeg_names = get_eeg_names(board_id)
             % get eeg names for provided board id
             task_name = 'get_eeg_names';
             lib_name = BoardShim.load_lib();
-            % no way to understand how it works in matlab used this link
+            % no way to understand how it works in matlab, used this link
             % https://nl.mathworks.com/matlabcentral/answers/131446-what-data-type-do-i-need-to-calllib-with-pointer-argument-char%
             [exit_code, eeg_names] = calllib(lib_name, task_name, board_id, blanks(4096), 4096);
             BoardShim.check_ec(exit_code, task_name);

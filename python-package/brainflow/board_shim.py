@@ -303,6 +303,14 @@ class BoardControllerDLL(object):
             ndpointer(ctypes.c_int32)
         ]
 
+        self.get_board_descr = self.lib.get_board_descr
+        self.get_board_descr.restype = ctypes.c_int
+        self.get_board_descr.argtypes = [
+            ctypes.c_int,
+            ndpointer(ctypes.c_ubyte),
+            ndpointer(ctypes.c_int32)
+        ]
+
         self.get_device_name = self.lib.get_device_name
         self.get_device_name.restype = ctypes.c_int
         self.get_device_name.argtypes = [
@@ -612,6 +620,23 @@ class BoardShim(object):
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         return string.tobytes().decode('utf-8')[0:string_len[0]].split(',')
+
+    @classmethod
+    def get_board_descr(cls, board_id: int):
+        """get board description as json
+
+        :param board_id: Board Id
+        :type board_id: int
+        :return: info about board
+        :rtype: json
+        :raises BrainFlowError: If there is no such board id exit code is UNSUPPORTED_BOARD_ERROR
+        """
+        string = numpy.zeros(16000).astype(numpy.ubyte)
+        string_len = numpy.zeros(1).astype(numpy.int32)
+        res = BoardControllerDLL.get_instance().get_board_descr(board_id, string, string_len)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to request info about this board', res)
+        return json.loads(string.tobytes().decode('utf-8')[0:string_len[0]])
 
     @classmethod
     def get_device_name(cls, board_id: int) -> str:
