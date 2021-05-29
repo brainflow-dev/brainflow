@@ -20,7 +20,7 @@ class Graph:
         self.board_shim = board_shim
         self.exg_channels = BoardShim.get_exg_channels(self.board_id)
         self.sampling_rate = BoardShim.get_sampling_rate(self.board_id)
-        self.update_speed_ms = 10
+        self.update_speed_ms = 50
         self.window_size = 4
         self.num_points = self.window_size * self.sampling_rate
 
@@ -61,7 +61,7 @@ class Graph:
             self.plots.append(p)
             hist_pen = pg.mkPen((170, 57, 57, 255), width=1.)
             curve = p.plot(pen=self.pens[i % len(self.pens)])
-            curve.setDownsampling(auto=True, method='mean', ds=3)
+            #curve.setDownsampling(auto=True, method='mean', ds=3)
             self.curves.append(curve)
 
     def _init_psd(self):
@@ -118,7 +118,6 @@ class Graph:
         self.band_bar.setOpts(height=avg_bands)
 
         self.app.processEvents()
-       
 
 
 def main():
@@ -157,11 +156,14 @@ def main():
     try:
         board_shim = BoardShim(args.board_id, params)
         board_shim.prepare_session()
-        board_shim.start_stream()
+        board_shim.start_stream(450000, args.streamer_params)
         g = Graph(board_shim)
     except BaseException as e:
-        logging.warning("Exception", exc_info=True)
+        logging.warning('Exception', exc_info=True)
+    finally:
+        logging.info('End')
         if board_shim.is_prepared():
+            logging.info('Releasing session')
             board_shim.release_session()
 
 
