@@ -76,6 +76,15 @@ end
     return value
 end
 
+@brainflow_rethrow function get_board_descr(board_id::BoardIdType)
+    names_string = Vector{Cuchar}(undef, 16000)
+    len = Vector{Cint}(undef, 1)
+    ccall((:get_board_descr, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}, Ptr{Cint}), Int32(board_id), names_string, len)
+    sub_string = String(names_string)[1:len[1]]
+    value = JSON.parse(sub_string)
+    return value
+end
+
 @brainflow_rethrow function get_device_name(board_id::BoardIdType)
     names_string = Vector{Cuchar}(undef, 4096)
     len = Vector{Cint}(undef, 1)

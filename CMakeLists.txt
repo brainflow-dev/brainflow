@@ -681,6 +681,7 @@ install (
     ${CMAKE_HOME_DIRECTORY}/cpp-package/src/inc/ml_model.h
     ${CMAKE_HOME_DIRECTORY}/src/utils/inc/brainflow_array.h
     ${CMAKE_HOME_DIRECTORY}/src/utils/inc/brainflow_exception.h
+    ${CMAKE_HOME_DIRECTORY}/third_party/json/json.hpp
     DESTINATION inc
 )
 # install svm_model

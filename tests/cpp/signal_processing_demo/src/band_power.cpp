@@ -30,9 +30,9 @@ int main (int argc, char *argv[])
         board->start_stream ();
 
 #ifdef _WIN32
-        Sleep (5000);
+        Sleep (10000);
 #else
-        sleep (5);
+        sleep (10);
 #endif
 
         board->stop_stream ();
@@ -41,9 +41,10 @@ int main (int argc, char *argv[])
         std::cout << "Original data:" << std::endl << data << std::endl;
 
         // calc band powers
-        int sampling_rate = BoardShim::get_sampling_rate (board_id);
+        json board_descr = BoardShim::get_board_descr (board_id);
+        int sampling_rate = (int)board_descr["sampling_rate"];
         int fft_len = DataFilter::get_nearest_power_of_two (sampling_rate);
-        std::vector<int> eeg_channels = BoardShim::get_eeg_channels (board_id);
+        std::vector<int> eeg_channels = board_descr["eeg_channels"];
         // for synthetic board second channel is a sine wave at 10 Hz, should see big alpha
         int channel = eeg_channels[1];
         // optional - detrend

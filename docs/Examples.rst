@@ -15,6 +15,7 @@ Python
 - matplotlib
 - pandas
 - mne
+- pyqtgraph
 
 BrainFlow doesn't use these packages and doesn't install them, but the packages will be used in demos below.
 
@@ -76,6 +77,12 @@ Python EEG Metrics
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. literalinclude:: ../tests/python/eeg_metrics.py
+   :language: py
+
+Python Real Time Plot
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../python-package/examples/plot_real_time.py
    :language: py
 
 Java

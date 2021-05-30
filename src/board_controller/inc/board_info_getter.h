@@ -7,6 +7,8 @@ extern "C"
 {
 #endif
     // data and board desc methods
+    SHARED_EXPORT int CALLING_CONVENTION get_board_descr (
+        int board_id, char *board_descr, int *len);
     SHARED_EXPORT int CALLING_CONVENTION get_sampling_rate (int board_id, int *sampling_rate);
     SHARED_EXPORT int CALLING_CONVENTION get_package_num_channel (
         int board_id, int *package_num_channel);

@@ -9,10 +9,6 @@
 
 #define MAX_CHANNELS 512
 
-#include "json.hpp"
-
-using json = nlohmann::json;
-
 /////////////////////////////////////////
 /////// serialize struct to json ////////
 /////////////////////////////////////////
@@ -235,6 +231,19 @@ int BoardShim::get_board_id ()
 //////////////////////////////////////////
 ///////////// data desc methods //////////
 //////////////////////////////////////////
+
+json BoardShim::get_board_descr (int board_id)
+{
+    char board_descr_str[16000];
+    int string_len = 0;
+    int res = ::get_board_descr (board_id, board_descr_str, &string_len);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to get board info", res);
+    }
+    std::string data (board_descr_str, 0, string_len);
+    return json::parse (data);
+}
 
 int BoardShim::get_sampling_rate (int board_id)
 {

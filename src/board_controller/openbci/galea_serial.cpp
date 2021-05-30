@@ -356,15 +356,15 @@ void GaleaSerial::read_thread ()
             for (int i = 4, tmp_counter = 0; i < 20; i++, tmp_counter++)
             {
                 // put them directly after package num in brainflow
-                if (tmp_counter < 8)
-                    package[i - 3] = eeg_scale_main_board *
-                        (double)cast_24bit_to_int32 (b + offset + 5 + 3 * (i - 4));
-                else if ((tmp_counter == 9) || (tmp_counter == 14))
+                if (tmp_counter < 6)
+                    package[i - 3] =
+                        emg_scale * (double)cast_24bit_to_int32 (b + offset + 5 + 3 * (i - 4));
+                else if ((tmp_counter == 6) || (tmp_counter == 7)) // fp1 and fp2
                     package[i - 3] = eeg_scale_sister_board *
                         (double)cast_24bit_to_int32 (b + offset + 5 + 3 * (i - 4));
                 else
-                    package[i - 3] =
-                        emg_scale * (double)cast_24bit_to_int32 (b + offset + 5 + 3 * (i - 4));
+                    package[i - 3] = eeg_scale_main_board *
+                        (double)cast_24bit_to_int32 (b + offset + 5 + 3 * (i - 4));
             }
             uint16_t temperature;
             int32_t ppg_ir;
