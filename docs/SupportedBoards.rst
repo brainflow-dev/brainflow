@@ -558,7 +558,7 @@ Supported platforms:
 Board Spec:
 
 - num emg channels: 8
-- sampling rate: 650
+- sampling rate: 500
 
 gForceDual ArmBand
 ~~~~~~~~~~~~~~~~~~~
