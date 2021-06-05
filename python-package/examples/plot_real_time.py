@@ -162,7 +162,6 @@ def main():
     except BaseException as e:
         logging.warning('Exception', exc_info=True)
     finally:
-        logging.info('End')
         if board_shim.is_prepared():
             logging.info('Releasing session')
             board_shim.release_session()

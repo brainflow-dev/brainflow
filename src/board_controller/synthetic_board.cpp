@@ -182,9 +182,15 @@ void SyntheticBoard::read_thread ()
         auto duration =
             std::chrono::duration_cast<std::chrono::microseconds> (stop - start).count ();
         accumulated_time_delta += duration - initial_sleep_time * 1000;
-        sleep_time = initial_sleep_time - (int)(accumulated_time_delta / 1000.0);
-        accumulated_time_delta =
-            accumulated_time_delta - 1000.0 * (int)(accumulated_time_delta / 1000.0);
+        if (accumulated_time_delta > 1000.0)
+        {
+            sleep_time = initial_sleep_time - (int)(accumulated_time_delta / 1000.0);
+            accumulated_time_delta -= 1000.0;
+        }
+        else
+        {
+            sleep_time = initial_sleep_time;
+        }
     }
     delete[] sin_phase_rad;
     delete[] package;
