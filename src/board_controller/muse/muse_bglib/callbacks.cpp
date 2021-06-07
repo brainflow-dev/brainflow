@@ -74,6 +74,9 @@ void ble_evt_attclient_group_found (const struct ble_msg_attclient_group_found_e
 void ble_evt_attclient_procedure_completed (
     const struct ble_msg_attclient_procedure_completed_evt_t *msg)
 {
+    std::cout << "control handle in send " << (int)msg->chrhandle << std::endl;
+    std::cout << "completed called " << (int)MuseBLEDLib::state << " " << (int)msg->result
+              << std::endl;
     if ((MuseBLEDLib::state == MuseBLEDLib::State::WRITE_TO_CLIENT_CHAR) ||
         (MuseBLEDLib::state == MuseBLEDLib::State::CONFIG_CALLED))
     {
@@ -119,6 +122,7 @@ void ble_evt_attclient_find_information_found (
             std::cout << "uuid " << str << " " << (int)msg->chrhandle << std::endl;
             if (strcmp (str, MUSE_GATT_ATTR_STREAM_TOGGLE) == 0)
             {
+                std::cout << "control handle " << (int)msg->chrhandle << std::endl;
                 MuseBLEDLib::characteristics["CONTROL"] = msg->chrhandle;
             }
             if (strcmp (str, MUSE_GATT_ATTR_TP9) == 0)

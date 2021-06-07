@@ -16,6 +16,7 @@
 #include "muse_types.h"
 #include "uart.h"
 
+#include <iostream>
 
 // read Bluetooth_Smart_Software_v1.3.1_API_Reference.pdf to understand this code
 
@@ -196,11 +197,13 @@ namespace MuseBLEDLib
         int res = config_device ((void *)"v1");
         if (res != (int)BrainFlowExitCodes::STATUS_OK)
         {
+            std::cout << "failed to write 1" << std::endl;
             return res;
         }
         res = config_device ((void *)"p63");
         if (res != (int)BrainFlowExitCodes::STATUS_OK)
         {
+            std::cout << "failed to write 2" << std::endl;
             return res;
         }
         res = config_device ((void *)"d");
@@ -272,18 +275,27 @@ namespace MuseBLEDLib
         {
             return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
         }
-        exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
-        char *config = (char *)param;
-        int len = (int)strlen (config);
-        state = State::CONFIG_CALLED;
+        unsigned char *config = (unsigned char *)param;
+        uint8 command[16];
+        int len = (int)strlen ((char *)config);
+        command[0] = (uint8)len + 1;
+        for (int i = 0; i < len; i++)
+        {
+            command[i + 1] = int (config[i]);
+        }
+        command[len + 1] = 10;
+        for (int i = 0; i < len + 2; i++)
+        {
+            std::cout << (int)command[i] << " ";
+        }
+        std::cout << std::endl;
+
         if (characteristics.find ("CONTROL") == characteristics.end ())
         {
             return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
         }
-        ble_cmd_attclient_attribute_write (
-            connection, characteristics.find ("CONTROL"), len, (uint8 *)config);
-        ble_cmd_attclient_execute_write (connection, 1);
-        return wait_for_callback (timeout);
+        ble_cmd_attclient_write_command (connection, characteristics["CONTROL"], len + 2, command);
+        return (int)BrainFlowExitCodes::STATUS_OK;
     }
 
 } // MuseBLEDLib
