@@ -91,7 +91,7 @@ int MuseSBLED::call_init ()
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
 
-    struct MuseBLEDLib::MuseInputData input_data (params.timeout, params.serial_port.c_str ());
+    struct MuseInputData input_data (params.timeout, params.serial_port.c_str ());
     int res = func ((void *)&input_data);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {

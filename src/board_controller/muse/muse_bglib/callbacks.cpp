@@ -1,48 +1,29 @@
-#include <array>
-#include <chrono>
-#include <ctime>
 #include <ctype.h>
-#include <map>
-#include <math.h>
-#include <set>
 #include <stdlib.h>
 #include <string.h>
 #include <string>
 
 #include "brainflow_constants.h"
 #include "cmd_def.h"
-#include "helpers.h"
+#include "muse_bglib_helper.h"
 #include "muse_constants.h"
-#include "muse_types.h"
-#include "ticket_lock.h"
 #include "timestamp.h"
-#include "uart.h"
 
 #include <iostream>
 
-namespace MuseBLEDLib
-{
-    extern volatile int exit_code;
-    extern volatile bd_addr connect_addr;
-    extern volatile uint8 connection;
-    extern volatile uint16 muse_handle_start;
-    extern volatile uint16 muse_handle_end;
-    extern std::set<uint16> ccids;
-    extern std::map<std::string, uint16> characteristics;
-    extern volatile State state;
-}
 
 void ble_evt_connection_status (const struct ble_msg_connection_status_evt_t *msg)
 {
+    MuseBGLibHelper *helper = MuseBGLibHelper::get_instance ();
     // New connection
     if (msg->flags & connection_connected)
     {
-        MuseBLEDLib::connection = msg->connection;
+        helper->connection = msg->connection;
         // this method is called from ble_evt_connection_disconnected need to set exit code only
         // when we call this method from open_ble_device
-        if (MuseBLEDLib::state == MuseBLEDLib::State::INITIAL_CONNECTION)
+        if (helper->state == (int)DeviceState::INITIAL_CONNECTION)
         {
-            MuseBLEDLib::exit_code = (int)BrainFlowExitCodes::STATUS_OK;
+            helper->exit_code = (int)BrainFlowExitCodes::STATUS_OK;
         }
     }
 }
@@ -51,8 +32,8 @@ void ble_evt_connection_disconnected (const struct ble_msg_connection_disconnect
 {
     // atempt to reconnect
     // changing values here leads to package loss, dont touch it
-    ble_cmd_gap_connect_direct (
-        &MuseBLEDLib::connect_addr, gap_address_type_random, 10, 76, 100, 0);
+    MuseBGLibHelper *helper = MuseBGLibHelper::get_instance ();
+    ble_cmd_gap_connect_direct (&(helper->connect_addr), gap_address_type_random, 10, 76, 100, 0);
 }
 
 // ble_evt_attclient_group_found and ble_evt_attclient_procedure_completed are called after the same
@@ -63,35 +44,34 @@ void ble_evt_attclient_group_found (const struct ble_msg_attclient_group_found_e
     {
         return;
     }
+    MuseBGLibHelper *helper = MuseBGLibHelper::get_instance ();
     uint16 uuid = (msg->uuid.data[1] << 8) | msg->uuid.data[0];
     if (uuid == MUSE_SERVICE_UUID)
     {
-        MuseBLEDLib::muse_handle_start = msg->start;
-        MuseBLEDLib::muse_handle_end = msg->end;
+        helper->muse_handle_start = msg->start;
+        helper->muse_handle_end = msg->end;
     }
 }
 
 void ble_evt_attclient_procedure_completed (
     const struct ble_msg_attclient_procedure_completed_evt_t *msg)
 {
-    std::cout << "control handle in send " << (int)msg->chrhandle << std::endl;
-    std::cout << "completed called " << (int)MuseBLEDLib::state << " " << (int)msg->result
-              << std::endl;
-    if ((MuseBLEDLib::state == MuseBLEDLib::State::WRITE_TO_CLIENT_CHAR) ||
-        (MuseBLEDLib::state == MuseBLEDLib::State::CONFIG_CALLED))
+    MuseBGLibHelper *helper = MuseBGLibHelper::get_instance ();
+    if ((helper->state == (int)DeviceState::WRITE_TO_CLIENT_CHAR) ||
+        (helper->state == (int)DeviceState::CONFIG_CALLED))
     {
         if (msg->result == 0)
         {
-            MuseBLEDLib::exit_code = (int)BrainFlowExitCodes::STATUS_OK;
+            helper->exit_code = (int)BrainFlowExitCodes::STATUS_OK;
         }
     }
-    if (MuseBLEDLib::state == MuseBLEDLib::State::OPEN_CALLED)
+    if (helper->state == (int)DeviceState::OPEN_CALLED)
     {
-        if ((MuseBLEDLib::muse_handle_start) && (MuseBLEDLib::muse_handle_end))
+        if ((helper->muse_handle_start) && (helper->muse_handle_end))
         {
-            ble_cmd_attclient_find_information (msg->connection, MuseBLEDLib::muse_handle_start,
-                MuseBLEDLib::muse_handle_end); // triggers
-                                               // ble_evt_attclient_find_information_found
+            ble_cmd_attclient_find_information (msg->connection, helper->muse_handle_start,
+                helper->muse_handle_end); // triggers
+                                          // ble_evt_attclient_find_information_found
         }
     }
 }
@@ -99,7 +79,8 @@ void ble_evt_attclient_procedure_completed (
 void ble_evt_attclient_find_information_found (
     const struct ble_msg_attclient_find_information_found_evt_t *msg)
 {
-    if (MuseBLEDLib::state == MuseBLEDLib::State::OPEN_CALLED)
+    MuseBGLibHelper *helper = MuseBGLibHelper::get_instance ();
+    if (helper->state == (int)DeviceState::OPEN_CALLED)
     {
         if (msg->uuid.len == 2)
         {
@@ -107,7 +88,7 @@ void ble_evt_attclient_find_information_found (
             std::cout << "uuid " << (int)uuid << " " << (int)msg->chrhandle << std::endl;
             if (uuid == CLIENT_CHARACTERISTIC_UUID)
             {
-                MuseBLEDLib::ccids.insert (msg->chrhandle);
+                helper->ccids.insert (msg->chrhandle);
             }
         }
 
@@ -123,30 +104,30 @@ void ble_evt_attclient_find_information_found (
             if (strcmp (str, MUSE_GATT_ATTR_STREAM_TOGGLE) == 0)
             {
                 std::cout << "control handle " << (int)msg->chrhandle << std::endl;
-                MuseBLEDLib::characteristics["CONTROL"] = msg->chrhandle;
+                helper->characteristics["CONTROL"] = msg->chrhandle;
             }
             if (strcmp (str, MUSE_GATT_ATTR_TP9) == 0)
             {
-                MuseBLEDLib::characteristics["TP9"] = msg->chrhandle;
+                helper->characteristics["TP9"] = msg->chrhandle;
             }
             if (strcmp (str, MUSE_GATT_ATTR_AF7) == 0)
             {
-                MuseBLEDLib::characteristics["AF7"] = msg->chrhandle;
+                helper->characteristics["AF7"] = msg->chrhandle;
             }
             if (strcmp (str, MUSE_GATT_ATTR_AF8) == 0)
             {
-                MuseBLEDLib::characteristics["AF8"] = msg->chrhandle;
+                helper->characteristics["AF8"] = msg->chrhandle;
             }
             if (strcmp (str, MUSE_GATT_ATTR_TP10) == 0)
             {
-                MuseBLEDLib::characteristics["TP10"] = msg->chrhandle;
+                helper->characteristics["TP10"] = msg->chrhandle;
             }
         }
-        if ((MuseBLEDLib::characteristics.size () == 5) &&
-            (MuseBLEDLib::state == MuseBLEDLib::State::OPEN_CALLED))
+        if ((helper->characteristics.size () == 5) &&
+            (helper->state == (int)DeviceState::OPEN_CALLED))
         {
-            std::cout << "all found" << MuseBLEDLib::ccids.size () << std::endl;
-            MuseBLEDLib::exit_code = (int)BrainFlowExitCodes::STATUS_OK;
+            std::cout << "all found" << helper->ccids.size () << std::endl;
+            helper->exit_code = (int)BrainFlowExitCodes::STATUS_OK;
         }
     }
 }
@@ -187,8 +168,9 @@ void ble_evt_gap_scan_response (const struct ble_msg_gap_scan_response_evt_t *ms
     {
         if (strstr (name, "Muse") != NULL)
         {
-            memcpy ((void *)MuseBLEDLib::connect_addr.addr, msg->sender.addr, sizeof (bd_addr));
-            MuseBLEDLib::exit_code = (int)BrainFlowExitCodes::STATUS_OK;
+            MuseBGLibHelper *helper = MuseBGLibHelper::get_instance ();
+            memcpy ((void *)helper->connect_addr.addr, msg->sender.addr, sizeof (bd_addr));
+            helper->exit_code = (int)BrainFlowExitCodes::STATUS_OK;
         }
     }
 }

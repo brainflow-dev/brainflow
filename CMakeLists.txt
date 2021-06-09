@@ -204,7 +204,7 @@ set_property (TARGET ${BRAINBIT_BLED_LIB} PROPERTY POSITION_INDEPENDENT_CODE ON)
 set (MUSE_BLED_SOURCE_LIB
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse_bglib/callbacks.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse_bglib/cmd_def.cpp
-    ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse_bglib/helpers.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse_bglib/muse_bglib_helper.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse_bglib/main.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse_bglib/stubs.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse_bglib/uart.cpp

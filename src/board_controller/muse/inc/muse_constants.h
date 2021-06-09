@@ -1,7 +1,6 @@
 #pragma once
 
 // common constants
-#define UART_TIMEOUT 1000
 #define MUSE_S_DATA_SIZE 15
 
 // handles for bglib
