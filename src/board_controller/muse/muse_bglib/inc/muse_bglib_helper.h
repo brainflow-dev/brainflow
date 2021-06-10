@@ -11,11 +11,6 @@
 #include "cmd_def.h"
 
 
-int read_message (int timeout_ms);
-int open_ble_dev ();
-int wait_for_callback (int num_seconds);
-int reset_ble_dev ();
-
 enum class DeviceState : int
 {
     NONE = 0,
@@ -48,6 +43,10 @@ private:
 public:
     static MuseBGLibHelper *get_instance ();
     void reset ();
+    int read_message (int timeout);
+    int open_ble_dev ();
+    int wait_for_callback ();
+    int reset_ble_dev ();
 
     ~MuseBGLibHelper ()
     {

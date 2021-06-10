@@ -55,7 +55,7 @@ int open_device (void *param)
     {
         return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
     }
-    int res = reset_ble_dev ();
+    int res = helper->reset_ble_dev ();
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
@@ -63,13 +63,13 @@ int open_device (void *param)
     helper->exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
     helper->state = (int)DeviceState::OPEN_CALLED;
     ble_cmd_gap_discover (gap_discover_observation);
-    res = wait_for_callback (helper->timeout);
+    res = helper->wait_for_callback ();
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
     ble_cmd_gap_end_procedure ();
-    return open_ble_dev ();
+    return helper->open_ble_dev ();
 }
 
 int open_device_mac_addr (void *param)
@@ -83,7 +83,7 @@ int open_device_mac_addr (void *param)
     {
         return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     }
-    int res = reset_ble_dev ();
+    int res = helper->reset_ble_dev ();
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
@@ -109,7 +109,7 @@ int open_device_mac_addr (void *param)
     {
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
-    return open_ble_dev ();
+    return helper->open_ble_dev ();
 }
 
 int stop_stream (void *param)
@@ -145,7 +145,7 @@ int start_stream (void *param)
         helper->exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
         ble_cmd_attclient_attribute_write (helper->connection, ccid, 2, &configuration);
         ble_cmd_attclient_execute_write (helper->connection, 1);
-        int res = wait_for_callback (helper->timeout);
+        int res = helper->wait_for_callback ();
         if (res != (int)BrainFlowExitCodes::STATUS_OK)
         {
             return res;
