@@ -77,7 +77,7 @@ public:
 };
 ```
 
-By default it calls the following methods from library loaded in runtime:
+By default it calls the following methods from a library loaded in runtime:
 
 ```cpp
 SHARED_EXPORT int CALLING_CONVENTION initialize (void *param);
@@ -90,6 +90,6 @@ SHARED_EXPORT int CALLING_CONVENTION release (void *param);
 SHARED_EXPORT int CALLING_CONVENTION config_device (void *param);
 ```
 
-You can override such methods and customize them as you need.
+You can override such methods and customize them as you need. The only method which must be implemented in subclasses is `virtual std::string get_lib_name () = 0;`, it should return a full path to a library or it's name(if library is in search path).
 
-Use code for BrainBitBLED board or OYMotion boards as example.
+Use code for BrainBitBLED board or OYMotion boards as an example.
