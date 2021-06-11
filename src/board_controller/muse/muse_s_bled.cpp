@@ -1,4 +1,5 @@
 #include <string>
+#include <utility>
 
 #include "get_dll_dir.h"
 #include "muse_s_bled.h"
@@ -75,6 +76,12 @@ int MuseSBLED::prepare_session ()
         safe_logger (spdlog::level::info, "only one MuseSBLED per process is allowed");
         return (int)BrainFlowExitCodes::ANOTHER_BOARD_IS_CREATED_ERROR;
     }
+    if (params.serial_port.empty ())
+    {
+        safe_logger (spdlog::level::err, "you need to specify dongle port");
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
     return DynLibBoard<15>::prepare_session ();
 }
 
@@ -91,46 +98,12 @@ int MuseSBLED::call_init ()
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
 
-    struct MuseInputData input_data (params.timeout, params.serial_port.c_str ());
-    int res = func ((void *)&input_data);
+    std::pair<int, struct BrainFlowInputParams> info = std::make_pair (board_id, params);
+    int res = func ((void *)&info);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to initialize {}", res);
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
     return (int)BrainFlowExitCodes::STATUS_OK;
-}
-
-int MuseSBLED::call_open ()
-{
-    if (dll_loader == NULL)
-    {
-        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
-    }
-    int res = (int)BrainFlowExitCodes::GENERAL_ERROR;
-    if (use_mac_addr)
-    {
-        int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("open_device_mac_addr");
-        if (func == NULL)
-        {
-            safe_logger (
-                spdlog::level::err, "failed to get function address for open_device_mac_addr");
-            return (int)BrainFlowExitCodes::GENERAL_ERROR;
-        }
-        safe_logger (spdlog::level::info, "search for {}", params.mac_address.c_str ());
-        res = func (const_cast<char *> (params.mac_address.c_str ()));
-    }
-    else
-    {
-        int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("open_device");
-        if (func == NULL)
-        {
-            safe_logger (spdlog::level::err, "failed to get function address for open_device");
-            return (int)BrainFlowExitCodes::GENERAL_ERROR;
-        }
-        safe_logger (
-            spdlog::level::info, "mac address is not specified, try to find muse s without it");
-        res = func (NULL);
-    }
-    return res;
 }

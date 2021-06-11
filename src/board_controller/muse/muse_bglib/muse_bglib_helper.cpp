@@ -4,7 +4,10 @@
 #include "brainflow_constants.h"
 #include "muse_bglib_helper.h"
 #include "muse_constants.h"
+#include "muse_types.h"
 #include "uart.h"
+
+#include <iostream>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -15,6 +18,16 @@
 #define UART_TIMEOUT 1000
 
 MuseBGLibHelper *MuseBGLibHelper::instance = NULL;
+
+
+void output (uint8 len1, uint8 *data1, uint16 len2, uint8 *data2)
+{
+    if (uart_tx (len1, data1) || uart_tx (len2, data2))
+    {
+        MuseBGLibHelper::get_instance ()->exit_code =
+            (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
+    }
+}
 
 MuseBGLibHelper *MuseBGLibHelper::get_instance ()
 {
@@ -31,29 +44,14 @@ void MuseBGLibHelper::reset ()
     stop_stream ();
     exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
     connection = -1;
-    timeout = 15;
     muse_handle_start = 0;
     muse_handle_end = 0;
     state = (int)DeviceState::NONE;
     should_stop_stream = true;
     initialized = false;
+    board_id = (int)BoardIds::SYNTHETIC_BOARD;
     ccids.clear ();
     characteristics.clear ();
-}
-
-void MuseBGLibHelper::start_stream ()
-{
-    should_stop_stream = false;
-    read_characteristic_thread = std::thread ([this] { this->thread_worker (); });
-}
-
-void MuseBGLibHelper::stop_stream ()
-{
-    if (!should_stop_stream)
-    {
-        should_stop_stream = true;
-        read_characteristic_thread.join ();
-    }
 }
 
 void MuseBGLibHelper::thread_worker ()
@@ -143,7 +141,8 @@ int MuseBGLibHelper::wait_for_callback ()
 {
     auto start_time = std::chrono::high_resolution_clock::now ();
     int run_time = 0;
-    while ((run_time < timeout) && (exit_code == (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR))
+    while ((run_time < input_params.timeout) &&
+        (exit_code == (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR))
     {
         if (read_message (UART_TIMEOUT) > 0)
         {
@@ -169,7 +168,7 @@ int MuseBGLibHelper::reset_ble_dev ()
 #else
         usleep (500000);
 #endif
-        if (!uart_open (uart_port))
+        if (!uart_open (input_params.serial_port.c_str ()))
         {
             break;
         }
@@ -178,5 +177,178 @@ int MuseBGLibHelper::reset_ble_dev ()
     {
         return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
     }
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int MuseBGLibHelper::initialize (void *param)
+{
+    if (!initialized)
+    {
+        if (param == NULL)
+        {
+            return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
+        }
+
+        std::pair<int, struct BrainFlowInputParams> *info =
+            (std::pair<int, struct BrainFlowInputParams> *)param;
+        board_id = info->first;
+        input_params = info->second;
+        bglib_output = output;
+        exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
+        initialized = true;
+    }
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int MuseBGLibHelper::open_device ()
+{
+    if (!initialized)
+    {
+        return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
+    }
+    if (uart_open (input_params.serial_port.c_str ()))
+    {
+        return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
+    }
+    int res = reset_ble_dev ();
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        return res;
+    }
+    exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
+    state = (int)DeviceState::OPEN_CALLED;
+    ble_cmd_gap_discover (gap_discover_observation);
+    res = wait_for_callback ();
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        return res;
+    }
+    ble_cmd_gap_end_procedure ();
+    return open_ble_dev ();
+}
+
+int MuseBGLibHelper::stop_stream ()
+{
+    if (!initialized)
+    {
+        return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
+    }
+    if (!should_stop_stream)
+    {
+        should_stop_stream = true;
+        read_characteristic_thread.join ();
+    }
+    int res = (int)BrainFlowExitCodes::STATUS_OK;
+    // for sanity check
+    for (int i = 0; i < 5; i++)
+    {
+        const char *stop_cmd = "h";
+        res = config_device ((void *)stop_cmd);
+    }
+    return res;
+}
+
+int MuseBGLibHelper::start_stream ()
+{
+    // from silicanlabs forum - write 0x00001 to enable notifications
+    MuseBGLibHelper *helper = MuseBGLibHelper::get_instance ();
+    if (!initialized)
+    {
+        return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
+    }
+    uint8 configuration[] = {0x01, 0x00};
+    for (uint16 ccid : ccids)
+    {
+        state = (int)DeviceState::WRITE_TO_CLIENT_CHAR;
+        exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
+        ble_cmd_attclient_attribute_write (connection, ccid, 2, &configuration);
+        ble_cmd_attclient_execute_write (connection, 1);
+        int res = wait_for_callback ();
+        if (res != (int)BrainFlowExitCodes::STATUS_OK)
+        {
+            return res;
+        }
+    }
+    int res = config_device ((void *)"v1");
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        return res;
+    }
+    res = config_device ((void *)"p63");
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        return res;
+    }
+    res = config_device ((void *)"d");
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        should_stop_stream = false;
+        read_characteristic_thread = std::thread ([this] { this->thread_worker (); });
+    }
+
+    return res;
+}
+
+int MuseBGLibHelper::close_device ()
+{
+    if (!initialized)
+    {
+        return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
+    }
+    state = (int)DeviceState::CLOSE_CALLED;
+    stop_stream ();
+    uart_close ();
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int MuseBGLibHelper::get_data (void *param)
+{
+    if (!initialized)
+    {
+        return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
+    }
+    state = (int)DeviceState::GET_DATA_CALLED;
+    int res = (int)BrainFlowExitCodes::EMPTY_BUFFER_ERROR;
+    return res;
+}
+
+int MuseBGLibHelper::release ()
+{
+    if (initialized)
+    {
+        close_device ();
+        reset ();
+    }
+
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int MuseBGLibHelper::config_device (void *param)
+{
+    MuseBGLibHelper *helper = MuseBGLibHelper::get_instance ();
+    if (!initialized)
+    {
+        return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
+    }
+    unsigned char *config = (unsigned char *)param;
+    uint8 command[16];
+    int len = (int)strlen ((char *)config);
+    command[0] = (uint8)len + 1;
+    for (int i = 0; i < len; i++)
+    {
+        command[i + 1] = int (config[i]);
+    }
+    command[len + 1] = 10;
+    for (int i = 0; i < len + 2; i++)
+    {
+        std::cout << (int)command[i] << " ";
+    }
+    std::cout << std::endl;
+
+    if (characteristics.find ("CONTROL") == characteristics.end ())
+    {
+        return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
+    }
+    ble_cmd_attclient_write_command (connection, characteristics["CONTROL"], len + 2, command);
     return (int)BrainFlowExitCodes::STATUS_OK;
 }

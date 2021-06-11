@@ -10,6 +10,8 @@
 
 #include "cmd_def.h"
 
+#include "brainflow_input_params.h"
+
 
 enum class DeviceState : int
 {
@@ -48,22 +50,28 @@ public:
     int wait_for_callback ();
     int reset_ble_dev ();
 
+    int initialize (void *param);
+    int open_device ();
+    int stop_stream ();
+    int start_stream ();
+    int close_device ();
+    int get_data (void *param);
+    int release ();
+    int config_device (void *param);
+
     ~MuseBGLibHelper ()
     {
     }
 
     volatile int exit_code;
-    char uart_port[1024];
-    volatile int timeout;
     volatile bd_addr connect_addr;
     volatile uint8 connection;
     volatile uint16 muse_handle_start;
     volatile uint16 muse_handle_end;
     volatile int state;
     volatile bool initialized;
+    int board_id;
+    struct BrainFlowInputParams input_params;
     std::set<uint16> ccids;
     std::map<std::string, uint16> characteristics;
-
-    void start_stream ();
-    void stop_stream ();
 };

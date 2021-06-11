@@ -140,6 +140,7 @@ void ble_evt_attclient_attribute_value (const struct ble_msg_attclient_attribute
 
 void ble_evt_gap_scan_response (const struct ble_msg_gap_scan_response_evt_t *msg)
 {
+    MuseBGLibHelper *helper = MuseBGLibHelper::get_instance ();
     char name[512];
     bool name_found_in_response = false;
     for (int i = 0; i < msg->data.len;)
@@ -164,11 +165,25 @@ void ble_evt_gap_scan_response (const struct ble_msg_gap_scan_response_evt_t *ms
         i += len - 1;
     }
 
+    bool is_valid = true;
     if (name_found_in_response)
     {
-        if (strstr (name, "Muse") != NULL)
+        if (!helper->input_params.serial_number.empty ())
         {
-            MuseBGLibHelper *helper = MuseBGLibHelper::get_instance ();
+            if (strcmp (name, helper->input_params.serial_number.c_str ()) != 0)
+            {
+                is_valid = false;
+            }
+        }
+        else
+        {
+            if (strstr (name, "Muse") == NULL)
+            {
+                is_valid = false;
+            }
+        }
+        if (is_valid)
+        {
             memcpy ((void *)helper->connect_addr.addr, msg->sender.addr, sizeof (bd_addr));
             helper->exit_code = (int)BrainFlowExitCodes::STATUS_OK;
         }

@@ -19,6 +19,5 @@ public:
 
 protected:
     std::string get_lib_name ();
-    virtual int call_init ();
-    virtual int call_open ();
+    int call_init ();
 };
