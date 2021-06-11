@@ -157,9 +157,11 @@ void PlaybackFileBoard::read_thread ()
     double last_timestamp = -1.0;
     bool new_timestamps = use_new_timestamps; // to prevent changing during streaming
     int timestamp_channel = board_descr["timestamp_channel"];
+    double accumulated_time_delta = 0.0;
 
     while (keep_alive)
     {
+        auto start = std::chrono::high_resolution_clock::now ();
         char *res = fgets (buf, sizeof (buf), fp);
         if ((loopback) && (res == NULL))
         {
@@ -214,14 +216,27 @@ void PlaybackFileBoard::read_thread ()
             }
             this->cv.notify_one ();
         }
+        auto stop = std::chrono::high_resolution_clock::now ();
+        auto duration =
+            std::chrono::duration_cast<std::chrono::microseconds> (stop - start).count ();
+
         if (last_timestamp > 0)
         {
             double time_wait = package[timestamp_channel] - last_timestamp; // in seconds
+            accumulated_time_delta += duration;
+            if (accumulated_time_delta > 1000.0)
+            {
+                time_wait = time_wait - (int)(accumulated_time_delta / 1000.0);
+                accumulated_time_delta -= 1000.0;
+            }
+            if (time_wait > 0.001)
+            {
 #ifdef _WIN32
-            Sleep ((int)(time_wait * 1000 + 0.5));
+                Sleep ((int)(time_wait * 1000));
 #else
-            usleep ((int)(time_wait * 1000000 + 0.5));
+                usleep ((int)(time_wait * 1000000));
 #endif
+            }
         }
         last_timestamp = package[timestamp_channel];
 
