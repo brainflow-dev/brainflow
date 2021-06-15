@@ -2,6 +2,7 @@
 #include <string.h>
 #include <string>
 
+#include "custom_cast.h"
 #include "muse_bglib_helper.h"
 #include "muse_constants.h"
 #include "muse_types.h"
@@ -346,25 +347,19 @@ void MuseBGLibHelper::ble_evt_attclient_attribute_value (
 
     if (uuid == MUSE_GATT_ATTR_ACCELEROMETER)
     {
-        for (int axis = 0; axis < 3; axis++)
+        for (int i = 0; i < 3; i++)
         {
-            double accel_val1 = msg->value.data[2 + axis * 6] * 256 + msg->value.data[3 + axis * 6];
-            double accel_val2 = msg->value.data[4 + axis * 6] * 256 + msg->value.data[5 + axis * 6];
-            double accel_val3 = msg->value.data[6 + axis * 6] * 256 + msg->value.data[7 + axis * 6];
-            for (int counter = 0; counter < current_buf.size (); counter++)
+            double accel_valx =
+                (double)cast_16bit_to_int32 ((unsigned char *)&msg->value.data[2 + i * 6]);
+            double accel_valy =
+                (double)cast_16bit_to_int32 ((unsigned char *)&msg->value.data[4 + i * 6]);
+            double accel_valz =
+                (double)cast_16bit_to_int32 ((unsigned char *)&msg->value.data[6 + i * 6]);
+            for (int j = 0; j < 4; j++)
             {
-                if (counter < 4)
-                {
-                    current_buf[counter][axis + 5] = accel_val1 * MUSE_ACCELEROMETER_SCALE_FACTOR;
-                }
-                else if (counter < 8)
-                {
-                    current_buf[counter][axis + 5] = accel_val2 * MUSE_ACCELEROMETER_SCALE_FACTOR;
-                }
-                else
-                {
-                    current_buf[counter][axis + 5] = accel_val3 * MUSE_ACCELEROMETER_SCALE_FACTOR;
-                }
+                current_buf[i * 4 + j][5] = accel_valx / 16384;
+                current_buf[i * 4 + j][6] = accel_valy / 16384;
+                current_buf[i * 4 + j][7] = accel_valz / 16384;
             }
         }
     }
