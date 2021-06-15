@@ -12,7 +12,7 @@ int MuseSBLED::num_objects = 0;
 
 
 MuseSBLED::MuseSBLED (struct BrainFlowInputParams params)
-    : DynLibBoard<15> ((int)BoardIds::MUSE_S_BLED_BOARD, params)
+    : DynLibBoard<10> ((int)BoardIds::MUSE_S_BLED_BOARD, params)
 {
     MuseSBLED::num_objects++;
 
@@ -82,7 +82,7 @@ int MuseSBLED::prepare_session ()
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
-    return DynLibBoard<15>::prepare_session ();
+    return DynLibBoard<10>::prepare_session ();
 }
 
 int MuseSBLED::call_init ()

@@ -209,6 +209,7 @@ set (MUSE_BLED_SOURCE_LIB
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse_bglib/stubs.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse_bglib/uart.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/timestamp.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/utils/data_buffer.cpp
 )
 add_library (${MUSE_BLED_LIB} SHARED ${MUSE_BLED_SOURCE_LIB})
 target_include_directories (${MUSE_BLED_LIB} PUBLIC

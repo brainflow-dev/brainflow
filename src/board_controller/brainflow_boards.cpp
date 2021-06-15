@@ -312,15 +312,13 @@ json brainflow_boards_json = {
         {"21",
             {{"name", "MuseSBLED"},
             {"sampling_rate", 256},
-            {"timestamp_channel", 13},
-            {"marker_channel", 14},
+            {"timestamp_channel", 8},
+            {"marker_channel", 9},
             {"package_num_channel", 0},
-            {"num_rows", 15},
+            {"num_rows", 10},
             {"eeg_channels", {1, 2, 3, 4}},
             {"eeg_names", "TP9,Fp1,Fp2,TP10"},
-            {"accel_channels", {5, 6, 7}},
-            {"gyro_channels", {8, 9, 10}},
-            {"ppg_channels", {11, 12}}
+            {"accel_channels", {5, 6, 7}}
         }}
     }
 }};

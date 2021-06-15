@@ -34,7 +34,7 @@ int initialize (void *param)
     switch (static_cast<BoardIds> (info->first))
     {
         case BoardIds::MUSE_S_BLED_BOARD:
-            helper = new MuseBGLibHelper ();
+            helper = new MuseBGLibHelper (info->first);
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

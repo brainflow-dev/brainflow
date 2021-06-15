@@ -7,11 +7,13 @@
 #include <string.h>
 #include <string>
 #include <thread>
+#include <vector>
 
 #include "cmd_def.h"
 
 #include "brainflow_constants.h"
 #include "brainflow_input_params.h"
+#include "data_buffer.h"
 
 
 enum class DeviceState : int
@@ -41,15 +43,21 @@ protected:
     volatile bool initialized;
     struct BrainFlowInputParams input_params;
     std::set<uint16> ccids;
-    std::map<std::string, uint16> characteristics;
+    uint16 control_char_handle;
+    std::map<uint16, std::string> characteristics;
+    DataBuffer *db;
+    std::vector<std::vector<double>> current_buf;
+    std::vector<bool> new_eeg_data;
+    int board_id;
 
     void thread_worker ();
 
 public:
     volatile int exit_code;
 
-    MuseBGLibHelper ()
+    MuseBGLibHelper (int board_id)
     {
+        this->board_id = board_id;
         exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
         connection = -1;
         muse_handle_start = 0;
@@ -57,10 +65,13 @@ public:
         state = (int)DeviceState::NONE;
         should_stop_stream = true;
         initialized = false;
+        control_char_handle = 0;
+        db = NULL;
     }
 
     virtual ~MuseBGLibHelper ()
     {
+        release ();
     }
 
     MuseBGLibHelper (const MuseBGLibHelper &other) = delete;
@@ -75,6 +86,15 @@ public:
     virtual int get_data (void *param);
     virtual int release ();
     virtual int config_device (const char *config);
+
+    virtual std::string get_preset ()
+    {
+        return "p21";
+    }
+    virtual int get_buffer_size ()
+    {
+        return 10;
+    }
 
     // callbacks from bglib which we need
     virtual void ble_evt_connection_status (const struct ble_msg_connection_status_evt_t *msg);
@@ -91,7 +111,6 @@ public:
     virtual void ble_evt_gap_scan_response (const struct ble_msg_gap_scan_response_evt_t *msg);
 
     // helpers
-    void reset ();
     int read_message (int timeout);
     int open_ble_dev ();
     int wait_for_callback ();
