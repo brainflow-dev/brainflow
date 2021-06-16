@@ -169,7 +169,7 @@ int MuseBGLibHelper::release ()
         db = NULL;
     }
     new_eeg_data.clear ();
-    for (int i = 0; i < current_buf.size (); i++)
+    for (size_t i = 0; i < current_buf.size (); i++)
     {
         current_buf[i].clear ();
     }
@@ -402,7 +402,7 @@ void MuseBGLibHelper::ble_evt_attclient_attribute_value (
         }
 
         int num_trues = 0;
-        for (int i = 0; i < new_eeg_data.size (); i++)
+        for (size_t i = 0; i < new_eeg_data.size (); i++)
         {
             if (new_eeg_data[i])
             {
@@ -420,7 +420,7 @@ void MuseBGLibHelper::ble_evt_attclient_attribute_value (
             double step = (timestamp - last_timestamp) / current_buf.size ();
             last_timestamp = timestamp;
             size_t size = current_buf.size ();
-            for (int i = 0; i < size; i++)
+            for (size_t i = 0; i < size; i++)
             {
                 current_buf[size - 1 - i][8] = timestamp - i * step;
             }
@@ -428,7 +428,7 @@ void MuseBGLibHelper::ble_evt_attclient_attribute_value (
 
         if (std::find (new_eeg_data.begin (), new_eeg_data.end (), false) == new_eeg_data.end ())
         {
-            for (int i = 0; i < current_buf.size (); i++)
+            for (size_t i = 0; i < current_buf.size (); i++)
             {
                 if (current_buf[i][8] > 1.0) // ski[ first package to set timestamp
                 {
