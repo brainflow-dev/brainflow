@@ -76,15 +76,19 @@ int MuseBGLibHelper::stop_stream ()
     {
         should_stop_stream = true;
         read_characteristic_thread.join ();
+        int res = (int)BrainFlowExitCodes::STATUS_OK;
+        // for sanity check
+        for (int i = 0; i < 5; i++)
+        {
+            const char *stop_cmd = "h";
+            res = config_device (stop_cmd);
+        }
+        return res;
     }
-    int res = (int)BrainFlowExitCodes::STATUS_OK;
-    // for sanity check
-    for (int i = 0; i < 5; i++)
+    else
     {
-        const char *stop_cmd = "h";
-        res = config_device (stop_cmd);
+        return (int)BrainFlowExitCodes::STREAM_THREAD_IS_NOT_RUNNING;
     }
-    return res;
 }
 
 int MuseBGLibHelper::start_stream ()
@@ -93,6 +97,10 @@ int MuseBGLibHelper::start_stream ()
     if (!initialized)
     {
         return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
+    }
+    if (should_stop_stream == false)
+    {
+        return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
     uint8 configuration[] = {0x01, 0x00};
     for (uint16 ccid : ccids)
