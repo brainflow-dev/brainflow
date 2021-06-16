@@ -48,16 +48,15 @@ protected:
     DataBuffer *db;
     std::vector<std::vector<double>> current_buf;
     std::vector<bool> new_eeg_data;
-    int board_id;
+    double last_timestamp;
 
     void thread_worker ();
 
 public:
     volatile int exit_code;
 
-    MuseBGLibHelper (int board_id)
+    MuseBGLibHelper ()
     {
-        this->board_id = board_id;
         exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
         connection = -1;
         muse_handle_start = 0;
@@ -67,6 +66,7 @@ public:
         initialized = false;
         control_char_handle = 0;
         db = NULL;
+        last_timestamp = -1.0;
     }
 
     virtual ~MuseBGLibHelper ()
@@ -87,14 +87,8 @@ public:
     virtual int release ();
     virtual int config_device (const char *config);
 
-    virtual std::string get_preset ()
-    {
-        return "p21";
-    }
-    virtual int get_buffer_size ()
-    {
-        return 10;
-    }
+    virtual std::string get_preset () = 0;
+    virtual int get_buffer_size () = 0;
 
     // callbacks from bglib which we need
     virtual void ble_evt_connection_status (const struct ble_msg_connection_status_evt_t *msg);
@@ -111,8 +105,8 @@ public:
     virtual void ble_evt_gap_scan_response (const struct ble_msg_gap_scan_response_evt_t *msg);
 
     // helpers
-    int read_message (int timeout);
-    int open_ble_dev ();
-    int wait_for_callback ();
-    int reset_ble_dev ();
+    virtual int read_message ();
+    virtual int connect_ble_dev ();
+    virtual int wait_for_callback ();
+    virtual int reset_ble_dev ();
 };

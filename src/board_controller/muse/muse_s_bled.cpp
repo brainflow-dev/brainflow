@@ -24,7 +24,6 @@ MuseSBLED::MuseSBLED (struct BrainFlowInputParams params)
     {
         is_valid = true;
     }
-    use_mac_addr = (params.mac_address.empty ()) ? false : true;
 }
 
 MuseSBLED::~MuseSBLED ()

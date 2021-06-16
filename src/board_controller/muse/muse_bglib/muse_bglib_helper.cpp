@@ -6,17 +6,14 @@
 #include "muse_bglib_helper.h"
 #include "muse_constants.h"
 #include "muse_types.h"
+#include "timestamp.h"
 #include "uart.h"
-
-#include <iostream>
 
 #ifdef _WIN32
 #include <windows.h>
 #else
 #include <unistd.h>
 #endif
-
-#define UART_TIMEOUT 1000
 
 
 int MuseBGLibHelper::initialize (struct BrainFlowInputParams params)
@@ -27,17 +24,21 @@ int MuseBGLibHelper::initialize (struct BrainFlowInputParams params)
         exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
         initialized = true;
         int buffer_size = get_buffer_size ();
+        if (db != NULL)
+        {
+            delete db;
+            db = NULL;
+        }
         db = new DataBuffer (buffer_size, 1000);
-        constexpr int packages_in_transaction = 12;
-        current_buf.resize (packages_in_transaction);
-        new_eeg_data.resize (4); // 4 eeg channels
-        for (int i = 0; i < packages_in_transaction; i++)
+        last_timestamp = -1.0;
+        current_buf.resize (12); // 12 eeg packages in single ble transaction
+        new_eeg_data.resize (4); // 4 eeg channels total
+        for (int i = 0; i < 12; i++)
         {
             current_buf[i].resize (buffer_size);
             std::fill (current_buf[i].begin (), current_buf[i].end (), 0.0);
             std::fill (new_eeg_data.begin (), new_eeg_data.end (), false);
         }
-        new_eeg_data.reserve (4);
     }
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
@@ -47,10 +48,6 @@ int MuseBGLibHelper::open_device ()
     if (!initialized)
     {
         return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
-    }
-    if (uart_open (input_params.serial_port.c_str ()))
-    {
-        return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
     }
     int res = reset_ble_dev ();
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
@@ -66,7 +63,7 @@ int MuseBGLibHelper::open_device ()
         return res;
     }
     ble_cmd_gap_end_procedure ();
-    return open_ble_dev ();
+    return connect_ble_dev ();
 }
 
 int MuseBGLibHelper::stop_stream ()
@@ -177,6 +174,7 @@ int MuseBGLibHelper::release ()
         current_buf[i].clear ();
     }
     current_buf.clear ();
+    last_timestamp = -1.0;
 
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
@@ -214,7 +212,7 @@ void MuseBGLibHelper::ble_evt_connection_status (const struct ble_msg_connection
     {
         connection = msg->connection;
         // this method is called from ble_evt_connection_disconnected need to set exit code only
-        // when we call this method from open_ble_device
+        // when we call this method from connect_ble_device
         if (state == (int)DeviceState::INITIAL_CONNECTION)
         {
             exit_code = (int)BrainFlowExitCodes::STATUS_OK;
@@ -286,7 +284,6 @@ void MuseBGLibHelper::ble_evt_attclient_find_information_found (
         if (msg->uuid.len == 16)
         {
             uint16 uuid_int = (msg->uuid.data[1] << 8) | msg->uuid.data[0];
-            std::cout << (int)uuid_int << std::endl;
             char str[37] = {};
             sprintf (str, "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",
                 msg->uuid.data[15], msg->uuid.data[14], msg->uuid.data[13], msg->uuid.data[12],
@@ -318,7 +315,6 @@ void MuseBGLibHelper::ble_evt_attclient_find_information_found (
             {
                 characteristics[msg->chrhandle] = uuid;
             }
-            std::cout << uuid << std::endl;
         }
         if ((characteristics.size () == 5) && (state == (int)DeviceState::OPEN_CALLED) &&
             (ccids.size () == 10))
@@ -405,11 +401,39 @@ void MuseBGLibHelper::ble_evt_attclient_attribute_value (
             current_buf[counter + 1][0] = package_num;
         }
 
+        int num_trues = 0;
+        for (int i = 0; i < new_eeg_data.size (); i++)
+        {
+            if (new_eeg_data[i])
+            {
+                num_trues++;
+            }
+        }
+        if (num_trues == 1)
+        {
+            double timestamp = get_timestamp ();
+            if (last_timestamp < 0)
+            {
+                last_timestamp = timestamp;
+                return;
+            }
+            double step = (timestamp - last_timestamp) / current_buf.size ();
+            last_timestamp = timestamp;
+            size_t size = current_buf.size ();
+            for (int i = 0; i < size; i++)
+            {
+                current_buf[size - 1 - i][8] = timestamp - i * step;
+            }
+        }
+
         if (std::find (new_eeg_data.begin (), new_eeg_data.end (), false) == new_eeg_data.end ())
         {
             for (int i = 0; i < current_buf.size (); i++)
             {
-                db->add_data (&current_buf[i][0]);
+                if (current_buf[i][8] > 1.0) // ski[ first package to set timestamp
+                {
+                    db->add_data (&current_buf[i][0]);
+                }
             }
             std::fill (new_eeg_data.begin (), new_eeg_data.end (), false);
         }
@@ -475,33 +499,33 @@ void MuseBGLibHelper::thread_worker ()
 {
     while (!should_stop_stream)
     {
-        read_message (UART_TIMEOUT);
+        read_message ();
     }
 }
 
-int MuseBGLibHelper::read_message (int timeout_ms)
+int MuseBGLibHelper::read_message ()
 {
     unsigned char *data = NULL;
     struct ble_header hdr;
     int r;
 
-    r = uart_rx (sizeof (hdr), (unsigned char *)&hdr, timeout_ms);
+    r = uart_rx (sizeof (hdr), (unsigned char *)&hdr, 1000);
     if (!r)
     {
         return -1; // timeout
     }
     else if (r < 0)
     {
-        exit_code = (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
+        exit_code = (int)BrainFlowExitCodes::INITIAL_MSG_ERROR;
         return 1; // fails to read
     }
     if (hdr.lolen)
     {
         data = new unsigned char[hdr.lolen];
-        r = uart_rx (hdr.lolen, data, UART_TIMEOUT);
+        r = uart_rx (hdr.lolen, data, 3000);
         if (r <= 0)
         {
-            exit_code = (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
+            exit_code = (int)BrainFlowExitCodes::INCOMMING_MSG_ERROR;
             delete[] data;
             return 1; // fails to read
         }
@@ -516,7 +540,7 @@ int MuseBGLibHelper::read_message (int timeout_ms)
     return 0;
 }
 
-int MuseBGLibHelper::open_ble_dev ()
+int MuseBGLibHelper::connect_ble_dev ()
 {
     exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
     // send command to connect
@@ -539,7 +563,6 @@ int MuseBGLibHelper::open_ble_dev ()
     {
         return res;
     }
-
     // from siliconlabs forum - write 0x00001 to enable notifications
     // copypasted in start_stream method but lets keep it in 2 places
     uint8 configuration[] = {0x01, 0x00};
@@ -561,7 +584,7 @@ int MuseBGLibHelper::wait_for_callback ()
     while ((run_time < input_params.timeout) &&
         (exit_code == (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR))
     {
-        if (read_message (UART_TIMEOUT) > 0)
+        if (read_message () > 0)
         {
             break;
         }
@@ -575,22 +598,32 @@ int MuseBGLibHelper::wait_for_callback ()
 int MuseBGLibHelper::reset_ble_dev ()
 {
     // Reset dongle to get it into known state
+    if (uart_open (input_params.serial_port.c_str ()))
+    {
+        return (int)BrainFlowExitCodes::SET_PORT_ERROR;
+    }
     ble_cmd_system_reset (0);
     uart_close ();
-    int i;
-    for (i = 0; i < 5; i++)
+    bool is_open = false;
+    for (int i = 0; i < 5; i++)
     {
 #ifdef _WIN32
-        Sleep (500);
+        Sleep (1000);
 #else
-        usleep (500000);
+        usleep (1000000);
 #endif
         if (!uart_open (input_params.serial_port.c_str ()))
         {
+            is_open = true;
             break;
         }
     }
-    if (i == 5)
+#ifdef _WIN32
+    Sleep (100);
+#else
+    usleep (100000);
+#endif
+    if (!is_open)
     {
         return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
     }

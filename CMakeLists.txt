@@ -102,7 +102,7 @@ if (CMAKE_SIZEOF_VOID_P EQUAL 8)
         SET (ML_MODULE_COMPILED_NAME "libMLModule.dylib")
         SET (NEUROSDK_LIB_NAME "neurosdk-shared")
     elseif (UNIX)
-        SET (GANGLION_LIB_NAME "libGanglionLib.so")
+        SET (GANGLION_LIB_NAME "libGanglionLib.so") 
         SET (BRAINBIT_BLED_LIB_NAME "libBrainBitLib.so")
         SET (MUSE_BLED_LIB_NAME "libMuseLib.so")
         SET (BOARD_CONTROLLER_COMPILED_NAME "libBoardController.so")
@@ -268,6 +268,7 @@ set (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/freeeeg32/freeeeg32.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/brainbit_bled.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse_s_bled.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse_2_bled.cpp
 )
 
 set (DATA_HANDLER_SRC

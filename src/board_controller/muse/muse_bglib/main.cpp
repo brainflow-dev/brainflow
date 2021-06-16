@@ -4,8 +4,10 @@
 #include "brainflow_constants.h"
 #include "brainflow_input_params.h"
 
+#include "muse_2_bglib_helper.h"
 #include "muse_bglib_helper.h"
 #include "muse_functions.h"
+#include "muse_s_bglib_helper.h"
 #include "uart.h"
 
 
@@ -18,7 +20,6 @@ void output (uint8 len1, uint8 *data1, uint16 len2, uint8 *data2)
     {
         if (uart_tx (len1, data1) || uart_tx (len2, data2))
         {
-            helper->exit_code = (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
         }
     }
 }
@@ -34,7 +35,10 @@ int initialize (void *param)
     switch (static_cast<BoardIds> (info->first))
     {
         case BoardIds::MUSE_S_BLED_BOARD:
-            helper = new MuseBGLibHelper (info->first);
+            helper = new MuseSBGLibHelper ();
+            break;
+        case BoardIds::MUSE_2_BLED_BOARD:
+            helper = new Muse2BGLibHelper ();
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

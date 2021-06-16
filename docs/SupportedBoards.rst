@@ -28,6 +28,8 @@ To create an instance of BoardShim class for your board check required inputs in
    "FreeEEG32", "BoardIds.FREEEEG32_BOARD (17)", "dongle serial port", "-", "-", "-", "-", "-", "-", "-", "-"
    "BrainBitBLED", "BoardIds.BRAINBIT_BLED_BOARD (18)", "dongle serial port", "Optional: MAC address", "-", "-", "-", "-", "-", "-", "-"
    "GforceDual", "BoardIds.GFORCE_DUAL_BOARD (19)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "MuseSBLED", "BoardIds.MUSE_S_BLED_BOARD (21)", "dongle serial port", "-", "-", "-", "-", "-", "-", "Optional: device name", "-"
+   "Muse2BLED", "BoardIds.MUSE_2_BLED_BOARD (22)", "dongle serial port", "-", "-", "-", "-", "-", "-", "Optional: device name", "-"
 
 
 Playback File Board
@@ -610,3 +612,68 @@ Board Spec:
 - num eeg channels: 32
 - sampling rate: 512
 - communication: Serial Port
+
+Muse
+------
+
+Muse S BLED
+~~~~~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/51249005962_026502fee0.jpg
+    :width: 500px
+    :height: 500px
+
+`Muse Website <https://choosemuse.com/>`_
+
+To use this board you need to get `BLED112 dongle <https://www.silabs.com/wireless/bluetooth/bluegiga-low-energy-legacy-modules/device.bled112>`_.
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 21
+- serial port field of BrainFlowInputParams structure
+- optional: serial number(device name)
+
+Supported platforms:
+
+- Windows
+- MacOS
+- Linux
+- Devices like Raspberry Pi
+
+Board Spec:
+
+- num eeg channels: 4
+- num acceleration channels: 3
+- sampling rate: 250
+- communication: Bluetooth Low Energy with serial port dongle
+
+Muse 2 BLED
+~~~~~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/51250482419_32ce8454dd.jpg
+    :width: 500px
+    :height: 500px
+
+`Muse Website <https://choosemuse.com/>`_
+
+To use this board you need to get `BLED112 dongle <https://www.silabs.com/wireless/bluetooth/bluegiga-low-energy-legacy-modules/device.bled112>`_.
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 22
+- serial port field of BrainFlowInputParams structure
+- optional: serial number(device name)
+
+Supported platforms:
+
+- Windows
+- MacOS
+- Linux
+- Devices like Raspberry Pi
+
+Board Spec:
+
+- num eeg channels: 4
+- num acceleration channels: 3
+- sampling rate: 250
+- communication: Bluetooth Low Energy with serial port dongle
