@@ -620,12 +620,14 @@ Muse S BLED
 ~~~~~~~~~~~~~~
 
 .. image:: https://live.staticflickr.com/65535/51249005962_026502fee0.jpg
-    :width: 500px
-    :height: 500px
+    :width: 350px
+    :height: 350px
 
 `Muse Website <https://choosemuse.com/>`_
 
 To use this board you need to get `BLED112 dongle <https://www.silabs.com/wireless/bluetooth/bluegiga-low-energy-legacy-modules/device.bled112>`_.
+
+**Also, on Unix-like systems you may need to configure permissions for serial port or run with sudo.**
 
 To choose this board in BoardShim constructor please specify:
 
@@ -651,12 +653,14 @@ Muse 2 BLED
 ~~~~~~~~~~~~~~
 
 .. image:: https://live.staticflickr.com/65535/51250482419_32ce8454dd.jpg
-    :width: 500px
-    :height: 500px
+    :width: 350px
+    :height: 350px
 
 `Muse Website <https://choosemuse.com/>`_
 
 To use this board you need to get `BLED112 dongle <https://www.silabs.com/wireless/bluetooth/bluegiga-low-energy-legacy-modules/device.bled112>`_.
+
+**Also, on Unix-like systems you may need to configure permissions for serial port or run with sudo.**
 
 To choose this board in BoardShim constructor please specify:
 
