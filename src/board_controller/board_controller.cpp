@@ -36,6 +36,8 @@
 #include "gforce_dual.h"
 #include "gforce_pro.h"
 #include "ironbci.h"
+#include "muse_2_bled.h"
+#include "muse_s_bled.h"
 #include "notion_osc.h"
 #include "playback_file_board.h"
 #include "streaming_board.h"
@@ -153,6 +155,12 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
             break;
         case BoardIds::GALEA_SERIAL_BOARD:
             board = std::shared_ptr<Board> (new GaleaSerial (params));
+            break;
+        case BoardIds::MUSE_S_BLED_BOARD:
+            board = std::shared_ptr<Board> (new MuseSBLED (params));
+            break;
+        case BoardIds::MUSE_2_BLED_BOARD:
+            board = std::shared_ptr<Board> (new Muse2BLED (params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

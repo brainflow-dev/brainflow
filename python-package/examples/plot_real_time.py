@@ -59,7 +59,6 @@ class Graph:
             if i == 0:
                 p.setTitle('TimeSeries Plot')
             self.plots.append(p)
-            hist_pen = pg.mkPen((170, 57, 57, 255), width=1.)
             curve = p.plot(pen=self.pens[i % len(self.pens)])
             #curve.setDownsampling(auto=True, method='mean', ds=3)
             self.curves.append(curve)

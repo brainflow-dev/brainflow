@@ -308,7 +308,29 @@ json brainflow_boards_json = {
             {"ppg_channels", {17, 18}},
             {"other_channels", {21, 22}},
             {"temperature_channels", {20}}
-        }}
+        }},
+        {"21",
+            {{"name", "MuseSBLED"},
+            {"sampling_rate", 256},
+            {"timestamp_channel", 8},
+            {"marker_channel", 9},
+            {"package_num_channel", 0},
+            {"num_rows", 10},
+            {"eeg_channels", {1, 2, 3, 4}},
+            {"eeg_names", "TP9,Fp1,Fp2,TP10"},
+            {"accel_channels", {5, 6, 7}}
+        }},
+        {"22",
+            {{"name", "Muse2BLED"},
+            {"sampling_rate", 256},
+            {"timestamp_channel", 8},
+            {"marker_channel", 9},
+            {"package_num_channel", 0},
+            {"num_rows", 10},
+            {"eeg_channels", {1, 2, 3, 4}},
+            {"eeg_names", "TP9,Fp1,Fp2,TP10"},
+            {"accel_channels", {5, 6, 7}}
+        }},
     }
 }};
 // clang-format on

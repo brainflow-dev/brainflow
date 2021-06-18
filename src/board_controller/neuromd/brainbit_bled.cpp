@@ -75,6 +75,11 @@ int BrainBitBLED::prepare_session ()
         safe_logger (spdlog::level::info, "only one BrainBitBLED per process is allowed");
         return (int)BrainFlowExitCodes::ANOTHER_BOARD_IS_CREATED_ERROR;
     }
+    if (params.serial_port.empty ())
+    {
+        safe_logger (spdlog::level::err, "you need to specify dongle port");
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
     return DynLibBoard<8>::prepare_session ();
 }
 
