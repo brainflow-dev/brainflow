@@ -5,9 +5,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.SystemUtils;
@@ -328,8 +330,7 @@ public class BoardShim
     /**
      * Get board description
      */
-    @SuppressWarnings ("unchecked")
-    public static Map<String, Object> get_board_descr (int board_id) throws BrainFlowError
+    public static <T> T get_board_descr (Class<T> type, int board_id) throws BrainFlowError
     {
         int[] len = new int[1];
         byte[] str = new byte[16000];
@@ -340,9 +341,8 @@ public class BoardShim
         }
         String descr_string = new String (str, 0, len[0]);
         Gson gson = new Gson ();
-        Map<String, Object> map = new HashMap<String, Object> ();
-        map = (Map<String, Object>) gson.fromJson (descr_string, map.getClass ());
-        return map;
+        T res = (T) gson.fromJson (descr_string, type);
+        return res;
     }
 
     /**
