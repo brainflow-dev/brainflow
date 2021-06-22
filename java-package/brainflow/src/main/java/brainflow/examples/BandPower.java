@@ -14,6 +14,7 @@ import brainflow.DataFilter;
 import brainflow.DetrendOperations;
 import brainflow.LogLevels;
 import brainflow.WindowFunctions;
+import brainflow.BoardDescr;
 
 public class BandPower
 {
@@ -25,8 +26,8 @@ public class BandPower
         BrainFlowInputParams params = new BrainFlowInputParams ();
         int board_id = BoardIds.SYNTHETIC_BOARD.get_code ();
         BoardShim board_shim = new BoardShim (board_id, params);
-        Map<String, Object> board_descr = BoardShim.get_board_descr (board_id);
-        int sampling_rate = ((Double) board_descr.get ("sampling_rate")).intValue ();
+        BoardDescr board_descr = BoardShim.get_board_descr (BoardDescr.class, board_id);
+        int sampling_rate = board_descr.sampling_rate;
         int nfft = DataFilter.get_nearest_power_of_two (sampling_rate);
 
         board_shim.prepare_session ();
@@ -37,8 +38,7 @@ public class BandPower
         double[][] data = board_shim.get_board_data ();
         board_shim.release_session ();
 
-        @SuppressWarnings ("unchecked")
-        List<Double> eeg_channels = (List<Double>) board_descr.get ("eeg_channels");
+        List<Integer> eeg_channels = board_descr.eeg_channels;
         // seconds channel of synthetic board has big 'alpha' use it for test
         int eeg_channel = eeg_channels.get (1).intValue ();
         // optional: detrend before psd
