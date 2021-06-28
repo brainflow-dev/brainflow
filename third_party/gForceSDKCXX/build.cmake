@@ -7,8 +7,8 @@ else (CMAKE_SIZEOF_VOID_P EQUAL 8)
 endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
 
 SET (GFORCE_WRAPPER_SRC
-    ${PROJECT_SOURCE_DIR}/src/wrapper.cpp
-    ${PROJECT_SOURCE_DIR}/../../src/utils/timestamp.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/wrapper.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/utils/timestamp.cpp
 )
 
 add_library (
@@ -20,34 +20,34 @@ target_compile_definitions(${GFORCE_SDK_WRAPPER_NAME} PRIVATE -DUNICODE -D_UNICO
 
 target_include_directories (
     ${GFORCE_SDK_WRAPPER_NAME} PRIVATE
-    ${PROJECT_SOURCE_DIR}/src/inc
-    ${PROJECT_SOURCE_DIR}/inc
-    ${PROJECT_SOURCE_DIR}/..
-    ${PROJECT_SOURCE_DIR}/../../src/utils/inc
+    ${CMAKE_CURRENT_LIST_DIR}/src/inc
+    ${CMAKE_CURRENT_LIST_DIR}/inc
+    ${CMAKE_CURRENT_LIST_DIR}/..
+    ${CMAKE_HOME_DIRECTORY}/src/utils/inc
 )
 
-find_library (GFORCE_SDK NAMES ${GFORCE_SDK_NAME} PATHS ${PROJECT_SOURCE_DIR}/lib)
+find_library (GFORCE_SDK NAMES ${GFORCE_SDK_NAME} PATHS ${CMAKE_CURRENT_LIST_DIR}/lib)
 target_link_libraries (${GFORCE_SDK_WRAPPER_NAME} PRIVATE ${GFORCE_SDK})
 
 set_target_properties (${GFORCE_SDK_WRAPPER_NAME}
     PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/compiled
-    LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/compiled
-    RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/compiled
+    ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
 )
 
 if (MSVC)
     add_custom_command (TARGET ${GFORCE_SDK_WRAPPER_NAME} POST_BUILD
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${PROJECT_SOURCE_DIR}/compiled/$<CONFIG>/${GFORCE_SDK_WRAPPER_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${GFORCE_SDK_WRAPPER_NAME}.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${PROJECT_SOURCE_DIR}/compiled/$<CONFIG>/${GFORCE_SDK_WRAPPER_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${GFORCE_SDK_WRAPPER_NAME}.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${PROJECT_SOURCE_DIR}/compiled/$<CONFIG>/${GFORCE_SDK_WRAPPER_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/${GFORCE_SDK_WRAPPER_NAME}.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${PROJECT_SOURCE_DIR}/compiled/$<CONFIG>/${GFORCE_SDK_WRAPPER_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${GFORCE_SDK_WRAPPER_NAME}.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${PROJECT_SOURCE_DIR}/compiled/$<CONFIG>/${GFORCE_SDK_WRAPPER_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/julia-package/brainflow/lib/${GFORCE_SDK_WRAPPER_NAME}.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${PROJECT_SOURCE_DIR}/lib/${GFORCE_SDK_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${GFORCE_SDK_NAME}.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${PROJECT_SOURCE_DIR}/lib/${GFORCE_SDK_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${GFORCE_SDK_NAME}.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${PROJECT_SOURCE_DIR}/lib/${GFORCE_SDK_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/${GFORCE_SDK_NAME}.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${PROJECT_SOURCE_DIR}/lib/${GFORCE_SDK_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${GFORCE_SDK_NAME}.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${PROJECT_SOURCE_DIR}/lib/${GFORCE_SDK_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/julia-package/brainflow/lib/${GFORCE_SDK_NAME}.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${GFORCE_SDK_WRAPPER_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${GFORCE_SDK_WRAPPER_NAME}.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${GFORCE_SDK_WRAPPER_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${GFORCE_SDK_WRAPPER_NAME}.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${GFORCE_SDK_WRAPPER_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/${GFORCE_SDK_WRAPPER_NAME}.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${GFORCE_SDK_WRAPPER_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${GFORCE_SDK_WRAPPER_NAME}.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${GFORCE_SDK_WRAPPER_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/julia-package/brainflow/lib/${GFORCE_SDK_WRAPPER_NAME}.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/lib/${GFORCE_SDK_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${GFORCE_SDK_NAME}.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/lib/${GFORCE_SDK_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${GFORCE_SDK_NAME}.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/lib/${GFORCE_SDK_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/${GFORCE_SDK_NAME}.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/lib/${GFORCE_SDK_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${GFORCE_SDK_NAME}.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/lib/${GFORCE_SDK_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/julia-package/brainflow/lib/${GFORCE_SDK_NAME}.dll"
     )
 endif (MSVC)
 
