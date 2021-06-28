@@ -55,14 +55,14 @@ if (MSVC)
     if (CMAKE_SIZEOF_VOID_P EQUAL 8)
         install (
             FILES
-            ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/$<CONFIG>/gForceSDKWrapper.dll
+            ${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/gForceSDKWrapper.dll
             ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce64.dll
             DESTINATION lib
         )
     else (CMAKE_SIZEOF_VOID_P EQUAL 8)
         install (
             FILES
-            ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/compiled/$<CONFIG>/gForceSDKWrapper32.dll
+            ${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/gForceSDKWrapper32.dll
             ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/lib/gforce32.dll
             DESTINATION lib
         )
