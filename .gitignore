@@ -367,7 +367,6 @@ python-package/brainflow/lib/
 CMakeCache.txt
 CMakeFiles/
 Makefile
-*.cmake
 
 # Libraries
 *.so
