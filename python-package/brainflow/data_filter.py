@@ -812,7 +812,7 @@ class DataFilter(object):
         """calculate band power
 
         :param psd: psd from get_psd
-        :type psd: typle
+        :type psd: tuple
         :param freq_start: start freq
         :type freq_start: int
         :param freq_end: end freq
