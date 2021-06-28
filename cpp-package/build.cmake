@@ -1,4 +1,14 @@
-SET (BRAINFLOW_CPP_BINDING_NAME "Brainflow")
+if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+    SET (BRAINFLOW_CPP_BINDING_NAME "Brainflow")
+else (CMAKE_SIZEOF_VOID_P EQUAL 8)
+    if (APPLE)
+        SET (BRAINFLOW_CPP_BINDING_NAME "Brainflow")
+    elseif (UNIX)
+        SET (BRAINFLOW_CPP_BINDING_NAME "Brainflow")
+    else ()
+        SET (BRAINFLOW_CPP_BINDING_NAME "Brainflow32")
+    endif (APPLE)
+endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
 
 add_library (
     ${BRAINFLOW_CPP_BINDING_NAME} STATIC
