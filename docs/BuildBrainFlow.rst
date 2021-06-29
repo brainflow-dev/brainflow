@@ -150,7 +150,7 @@ Windows
 
 .. compound::
 
-    If you are not familiar with CMake you can use build.py from tools folder: ::
+    If you are not familiar with CMake you can use `build.py <https://github.com/brainflow-dev/brainflow/blob/master/tools/build.py>`_ : ::
 
         # install python3 and run
         python -m pip install cmake
@@ -170,7 +170,7 @@ Linux
 
 .. compound::
 
-    If you are not familiar with CMake you can use build.py from tools folder: ::
+    If you are not familiar with CMake you can use `build.py <https://github.com/brainflow-dev/brainflow/blob/master/tools/build.py>`_ : ::
 
         python3 -m pip install cmake
         cd tools
@@ -187,7 +187,7 @@ MacOS
 
 .. compound::
 
-    If you are not familiar with CMake you can use build.py from tools folder: ::
+    If you are not familiar with CMake you can use `build.py <https://github.com/brainflow-dev/brainflow/blob/master/tools/build.py>`_ : ::
 
         python3 -m pip install cmake
         cd tools
