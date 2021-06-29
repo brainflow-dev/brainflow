@@ -112,7 +112,7 @@ def prepare_args():
         try:
             output = subprocess.check_output(['ninja', '--version'])
             print(output)
-            parser.add_argument('--generator', type=str, help='CMake generator', required=False, default='ninja')
+            parser.add_argument('--generator', type=str, help='CMake generator', required=False, default='Ninja')
         except BaseException:
             parser.add_argument('--generator', type=str, help='CMake generator', required=False, default='')
             print('Ninja is a recommended generator for MacOS and is not found')
