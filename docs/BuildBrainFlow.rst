@@ -112,7 +112,7 @@ Docker Image
 
 There are docker images with precompiled BrainFlow. You can get them from `DockerHub <https://hub.docker.com/r/brainflow/brainflow>`_.
 
-All bindings except Matlab are preinstalled there and libraries compiled with OpenMP support.
+All bindings except Matlab are preinstalled there.
 
 Also, there are other packages for BCI research and development:
 
@@ -143,84 +143,57 @@ Compilation of Core Module and C++ Binding
 Windows
 ~~~~~~~~
 
-- Install CMake>=3.13 you can install it from PYPI via pip
-- Install Visual Studio 2017, you can use another version but you will need to change CMake generator in batch files or run CMake commands manually. Also in CI we test only VS2017
+- Install CMake>=3.16 you can install it from PYPI via pip
+- Install Visual Studio 2019(preferred) or Visual Studio 2017. Other versions may work but not tested.
 - In VS installer make sure you selected "Visual C++ ATL support"
-- Build it as a CMake project manually or use cmd files from tools directory
+- Build it as a standard CMake project, you don't need to set any options
 
 .. compound::
 
-    Compilation using cmd files: ::
+    If you are not familiar with CMake you can use build.py from tools folder: ::
 
+        # install python3 and run
         python -m pip install cmake
-        # need to run these files from project dir
-        .\tools\build_win32.cmd
-        .\tools\build_win64.cmd
+        cd tools
+        python build.py
+        # to get info about args and configure your build you can run
+        python build.py --help
+
 
 Linux
 ~~~~~~
 
-- Install CMake>=3.13 you can install it from PYPI via pip
+- Install CMake>=3.16 you can install it from PYPI via pip
 - If you are going to distribute compiled Linux libraries you HAVE to build it inside manylinux Docker container
-- Build it as a CMake project manually or use bash file from tools directory
-- You can use any compiler but for Linux we test only GCC, also we test only 64bit libraries for Linux
+- Build it as a standard CMake project, you don't need to set any options
+- You can use any compiler but for Linux we test only GCC
 
 .. compound::
 
-    Compilation using bash file: ::
+    If you are not familiar with CMake you can use build.py from tools folder: ::
 
-        python -m pip install cmake
-        # you may need to change line endings using dos2unix or text editor for file below
-        # need to run this file from project dir
-        bash ./tools/build_linux.sh
+        python3 -m pip install cmake
+        cd tools
+        python3 build.py
+        # to get info about args and configure your build you can run
+        python3 build.py --help
 
 MacOS
 ~~~~~~~
 
-- Install CMake>=3.13 you can install it from PYPI via pip
-- Build it as a CMake project manually or use bash file from tools directory
+- Install CMake>=3.16 you can install it from PYPI via pip
+- Build it as a standard CMake project, you don't need to set any options
 - You can use any compiler but for MacOS we test only Clang
 
 .. compound::
 
-    Compilation using bash file: ::
+    If you are not familiar with CMake you can use build.py from tools folder: ::
 
-        python -m pip install cmake
-        # you may need to change line endings using dos2unix or text editor for file below
-        # need to run this file from project dir
-        bash ./tools/build_mac.sh
-
-
-
-Compilation with OpenMP
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Some data processing and machine learning algorithms work much faster if you run them in multiple threads. To parallel computations we use OpenMP library.
-
-**Precompiled libraries which you download from PYPI/Nuget/Maven/etc built without OpenMP support and work in single thread.**
-
-If you want to increase performance of signal processing algorithms you can compile BrainFlow from the source and turn on *USE_OPENMP* option.
-
-To build BrainFlow with OpenMP support first of all you need to install OpenMP.
-
-- On Windows all you need is Visual C++ Redist package which is installed automatically with Visual Studio
-- On Linux you may need to install libgomp if it's not currently installed
-- On MacOS you need to run :code:`brew install libomp`
-
-After that you need to compile BrainFlow with OpenMP support, steps are exactly the same as above, but you need to run bash or cmd scripts whith _omp postfix.
-
-.. compound::
-
-    Example: ::
-
-        # for Linux
-        bash ./tools/build_linux_omp.sh
-        # for MacOS
-        bash ./tools/build_mac_omp.sh
-        # for Windows
-        .\tools\build_win64_omp.cmd
-
-If you use CMake directly to build BrainFlow you need to add :code:`-DUSE_OPENMP=ON` to CMake config command line.
+        python3 -m pip install cmake
+        cd tools
+        python3 build.py
+        # to get info about args and configure your build you can run
+        python3 build.py --help
 
 
 Android
