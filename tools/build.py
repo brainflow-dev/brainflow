@@ -100,7 +100,6 @@ def prepare_args():
             else:
                 parser.add_argument('--arch', type=str, choices=['x64', 'Win32', 'ARM', 'ARM64'], help='arch for CMake', required=False)
         parser.add_argument('--cmake-system-version', type=str, help='system version for win', required=False, default='8.1')
-
     elif platform.system() == 'Darwin':
         macos_ver = platform.mac_ver()[0]
         versions = [int(x) for x in macos_ver.split('.')]
