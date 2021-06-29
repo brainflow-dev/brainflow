@@ -105,15 +105,17 @@ def prepare_args():
         versions = [int(x) for x in macos_ver.split('.')]
         if versions[0] >= 11:
             parser.add_argument('--cmake-osx-architectures', type=str, help='archs for osx', required=False, default='"arm64;x86_64"')
-            parser.add_argument('--cmake-osx-deployment-target', type=str, help='min supported version of osx', required=False, default='10.13')
-            parser.add_argument('--use-libftdi', action='store_true')
-            try:
-                output = subprocess.check_output(['ninja', '--version'])
-                print(output)
-                parser.add_argument('--generator', type=str, help='CMake generator', required=False, default='ninja')
-            except BaseException:
-                parser.add_argument('--generator', type=str, help='CMake generator', required=False, default='')
-                print('Ninja is a recommended generator for MacOS and is not found')
+        else:
+            parser.add_argument('--cmake-osx-architectures', type=str, help='archs for osx', required=False)
+        parser.add_argument('--cmake-osx-deployment-target', type=str, help='min supported version of osx', required=False, default='10.13')
+        parser.add_argument('--use-libftdi', action='store_true')
+        try:
+            output = subprocess.check_output(['ninja', '--version'])
+            print(output)
+            parser.add_argument('--generator', type=str, help='CMake generator', required=False, default='ninja')
+        except BaseException:
+            parser.add_argument('--generator', type=str, help='CMake generator', required=False, default='')
+            print('Ninja is a recommended generator for MacOS and is not found')
     else:
         parser.add_argument('--generator', type=str, help='CMake generator', required=False)
         parser.add_argument('--use-libftdi', action='store_true')
