@@ -17,7 +17,7 @@
 #include "board_controller.h"
 #include "runtime_dll_loader.h"
 
-template <int N>
+
 class DynLibBoard : public Board
 {
 
@@ -53,5 +53,3 @@ public:
     virtual int release_session ();
     virtual int config_board (std::string config, std::string &response);
 };
-
-#include "../dyn_lib_board.tpp"

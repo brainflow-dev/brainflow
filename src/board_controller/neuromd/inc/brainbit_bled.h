@@ -3,7 +3,7 @@
 #include "dyn_lib_board.h"
 
 
-class BrainBitBLED : public DynLibBoard<8>
+class BrainBitBLED : public DynLibBoard
 {
 
 private:

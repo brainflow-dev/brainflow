@@ -11,7 +11,7 @@ int BrainBitBLED::num_objects = 0;
 
 
 BrainBitBLED::BrainBitBLED (struct BrainFlowInputParams params)
-    : DynLibBoard<8> ((int)BoardIds::BRAINBIT_BLED_BOARD, params)
+    : DynLibBoard ((int)BoardIds::BRAINBIT_BLED_BOARD, params)
 {
     BrainBitBLED::num_objects++;
 
@@ -80,7 +80,7 @@ int BrainBitBLED::prepare_session ()
         safe_logger (spdlog::level::err, "you need to specify dongle port");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
-    return DynLibBoard<8>::prepare_session ();
+    return DynLibBoard::prepare_session ();
 }
 
 int BrainBitBLED::call_init ()

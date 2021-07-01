@@ -3,7 +3,7 @@
 #include "dyn_lib_board.h"
 
 
-class Muse2BLED : public DynLibBoard<10>
+class Muse2BLED : public DynLibBoard
 {
 
 private:

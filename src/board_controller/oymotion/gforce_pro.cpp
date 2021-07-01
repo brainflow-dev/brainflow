@@ -12,7 +12,7 @@ int GforcePro::num_objects = 0;
 
 
 GforcePro::GforcePro (struct BrainFlowInputParams params)
-    : DynLibBoard<11> ((int)BoardIds::GFORCE_PRO_BOARD, params)
+    : DynLibBoard ((int)BoardIds::GFORCE_PRO_BOARD, params)
 {
     GforcePro::num_objects++;
     if (GforcePro::num_objects > 1)
@@ -79,7 +79,7 @@ int GforcePro::prepare_session ()
         safe_logger (spdlog::level::info, "only one GForceLib per process is allowed");
         return (int)BrainFlowExitCodes::ANOTHER_BOARD_IS_CREATED_ERROR;
     }
-    return DynLibBoard<11>::prepare_session ();
+    return DynLibBoard::prepare_session ();
 }
 
 int GforcePro::call_init ()

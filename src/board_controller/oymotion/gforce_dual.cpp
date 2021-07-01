@@ -12,7 +12,7 @@ int GforceDual::num_objects = 0;
 
 
 GforceDual::GforceDual (struct BrainFlowInputParams params)
-    : DynLibBoard<5> ((int)BoardIds::GFORCE_DUAL_BOARD, params)
+    : DynLibBoard ((int)BoardIds::GFORCE_DUAL_BOARD, params)
 {
     GforceDual::num_objects++;
     if (GforceDual::num_objects > 1)
@@ -79,7 +79,7 @@ int GforceDual::prepare_session ()
         safe_logger (spdlog::level::info, "only one GForceLib per process is allowed");
         return (int)BrainFlowExitCodes::ANOTHER_BOARD_IS_CREATED_ERROR;
     }
-    return DynLibBoard<5>::prepare_session ();
+    return DynLibBoard::prepare_session ();
 }
 
 int GforceDual::call_init ()
