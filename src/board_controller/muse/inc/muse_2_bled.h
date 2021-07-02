@@ -18,5 +18,4 @@ public:
 
 protected:
     std::string get_lib_name ();
-    int call_init ();
 };

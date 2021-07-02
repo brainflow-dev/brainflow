@@ -39,6 +39,7 @@ target_include_directories (${MUSE_BLED_LIB} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse_bglib/inc>
     $<BUILD_INTERFACE:${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/inc>
     $<BUILD_INTERFACE:${CMAKE_HOME_DIRECTORY}/src/board_controller/inc>
+    $<BUILD_INTERFACE:${CMAKE_HOME_DIRECTORY}/third_party/json>
 )
 set_property (TARGET ${MUSE_BLED_LIB} PROPERTY POSITION_INDEPENDENT_CODE ON)
 

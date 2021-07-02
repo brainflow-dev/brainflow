@@ -82,22 +82,6 @@ int GforcePro::prepare_session ()
     return DynLibBoard::prepare_session ();
 }
 
-int GforcePro::call_init ()
-{
-    if (dll_loader == NULL)
-    {
-        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
-    }
-    int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("initialize");
-    if (func == NULL)
-    {
-        safe_logger (spdlog::level::err, "failed to get function address for initialize");
-        return (int)BrainFlowExitCodes::GENERAL_ERROR;
-    }
-
-    return func ((void *)&board_id);
-}
-
 #else
 
 GforcePro::GforcePro (struct BrainFlowInputParams params)

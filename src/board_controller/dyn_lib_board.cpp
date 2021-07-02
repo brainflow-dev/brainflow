@@ -1,4 +1,6 @@
-#include <dyn_lib_board.h>
+#include <tuple>
+
+#include "dyn_lib_board.h"
 
 
 DynLibBoard::DynLibBoard (int board_id, struct BrainFlowInputParams params)
@@ -152,14 +154,25 @@ void DynLibBoard::read_thread ()
     if (func == NULL)
     {
         safe_logger (spdlog::level::err, "failed to get function address for get_data");
+        state = (int)BrainFlowExitCodes::GENERAL_ERROR;
         return;
     }
 
     int num_rows = board_descr["num_rows"];
     double *data = new double[num_rows];
+    if (data == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to allocate data");
+        state = (int)BrainFlowExitCodes::GENERAL_ERROR;
+        return;
+    }
+    for (int i = 0; i < num_rows; i++)
+    {
+        data[i] = 0.0;
+    }
     while (keep_alive)
     {
-        int res = func ((void *)&data);
+        int res = func ((void *)data);
         if (res == (int)BrainFlowExitCodes::STATUS_OK)
         {
             if (state != (int)BrainFlowExitCodes::STATUS_OK)
@@ -216,7 +229,14 @@ int DynLibBoard::call_init ()
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
 
-    return func (NULL);
+    std::tuple<int, struct BrainFlowInputParams, json> info =
+        std::make_tuple (board_id, params, board_descr);
+    int res = func ((void *)&info);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        safe_logger (spdlog::level::err, "failed to initialize {}", res);
+    }
+    return res;
 }
 
 int DynLibBoard::call_open ()

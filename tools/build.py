@@ -126,6 +126,7 @@ def prepare_args():
     parser.add_argument('--warnings-as-errors', action='store_true')
     parser.add_argument('--debug', action='store_true')
     parser.add_argument('--clear-build-dir', action='store_true')
+    parser.add_argument('--num-jobs', type=int, help='num jobs to run in parallel', required=False, default=4)
     args = parser.parse_args()
     return args
 
@@ -174,14 +175,14 @@ def build(args):
         config = 'Release'
         if args.debug:
             config = 'Debug'
-        cmd_build = ['cmake', '--build', '.', '--target', 'install', '--config', config, '-j', '4', '--parallel', '4']
+        cmd_build = ['cmake', '--build', '.', '--target', 'install', '--config', config, '-j', str(args.num_jobs), '--parallel', str(args.num_jobs)]
         run_command(cmd_build, cwd=args.build_dir)
     else:
-        if hasattr(args, 'generator') and args.generator.lower() == 'ninja':
-            run_command(['ninja'], cwd=args.build_dir)
+        if hasattr(args, 'generator') and args.generator and args.generator.lower() == 'ninja':
+            run_command(['ninja', '-j', str(args.num_jobs)], cwd=args.build_dir)
             run_command(['ninja', 'install'], cwd=args.build_dir)
         else:
-            run_command(['make'], cwd=args.build_dir)
+            run_command(['make', '-j', str(args.num_jobs)], cwd=args.build_dir)
             run_command(['make', 'install'], cwd=args.build_dir)
 
 

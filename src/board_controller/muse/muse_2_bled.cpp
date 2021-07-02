@@ -83,26 +83,3 @@ int Muse2BLED::prepare_session ()
 
     return DynLibBoard::prepare_session ();
 }
-
-int Muse2BLED::call_init ()
-{
-    if (dll_loader == NULL)
-    {
-        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
-    }
-    int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("initialize");
-    if (func == NULL)
-    {
-        safe_logger (spdlog::level::err, "failed to get function address for initialize");
-        return (int)BrainFlowExitCodes::GENERAL_ERROR;
-    }
-
-    std::pair<int, struct BrainFlowInputParams> info = std::make_pair (board_id, params);
-    int res = func ((void *)&info);
-    if (res != (int)BrainFlowExitCodes::STATUS_OK)
-    {
-        safe_logger (spdlog::level::err, "failed to initialize {}", res);
-        return (int)BrainFlowExitCodes::GENERAL_ERROR;
-    }
-    return (int)BrainFlowExitCodes::STATUS_OK;
-}

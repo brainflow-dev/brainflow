@@ -1,6 +1,7 @@
 #include <atomic>
 #include <deque>
 #include <thread>
+#include <utility>
 #include <windows.h>
 
 #include "gforce.h"
@@ -9,8 +10,12 @@
 #include "gforce_wrapper_functions.h"
 
 #include "brainflow_array.h"
+#include "brainflow_input_params.h"
 #include "spinlock.h"
 
+#include "json.hpp"
+
+using json = nlohmann::json;
 using namespace gf;
 using namespace std;
 
@@ -44,8 +49,9 @@ int initialize (void *param)
     pHub = HubManager::getHubInstance (_T("GForceBrainFlowWrapper"));
     pHub->setWorkMode (WorkMode::Polling); // means that need to run loop manually
     // create the listener implementation and register to hub
-    int *boardType = (int *)param;
-    gforceHandle = make_shared<GforceHandle> (pHub, *boardType);
+    std::tuple<int, struct BrainFlowInputParams, json> *info =
+        (std::tuple<int, struct BrainFlowInputParams, json> *)param;
+    gforceHandle = make_shared<GforceHandle> (pHub, std::get<0> (*info));
     listener = static_pointer_cast<HubListener> (gforceHandle);
     GF_RET_CODE retCode = pHub->registerListener (listener);
     if (retCode != GF_RET_CODE::GF_SUCCESS)

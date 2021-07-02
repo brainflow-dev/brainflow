@@ -1,7 +1,6 @@
 #include <string>
 
 #include "brainbit_bled.h"
-#include "brainbit_types.h"
 #include "get_dll_dir.h"
 
 #include "brainflow_constants.h"
@@ -81,30 +80,6 @@ int BrainBitBLED::prepare_session ()
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     return DynLibBoard::prepare_session ();
-}
-
-int BrainBitBLED::call_init ()
-{
-    if (dll_loader == NULL)
-    {
-        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
-    }
-    int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("initialize");
-    if (func == NULL)
-    {
-        safe_logger (spdlog::level::err, "failed to get function address for initialize");
-        return (int)BrainFlowExitCodes::GENERAL_ERROR;
-    }
-
-    struct BrainBitBLEDLib::BrainBitInputData input_data (
-        params.timeout, params.serial_port.c_str ());
-    int res = func ((void *)&input_data);
-    if (res != (int)BrainFlowExitCodes::STATUS_OK)
-    {
-        safe_logger (spdlog::level::err, "failed to initialize {}", res);
-        return (int)BrainFlowExitCodes::GENERAL_ERROR;
-    }
-    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int BrainBitBLED::call_open ()

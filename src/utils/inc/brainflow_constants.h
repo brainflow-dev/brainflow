@@ -61,6 +61,13 @@ enum class BoardIds : int
     LAST = MUSE_2_BLED_BOARD
 };
 
+enum class IpProtocolType : int
+{
+    NONE = 0,
+    UDP = 1,
+    TCP = 2
+};
+
 enum class FilterTypes : int
 {
     BUTTERWORTH = 0,

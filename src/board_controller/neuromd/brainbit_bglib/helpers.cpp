@@ -9,8 +9,6 @@
 #include "helpers.h"
 #include "uart.h"
 
-#include "brainbit_types.h"
-
 #ifdef _WIN32
 #include <windows.h>
 #else
