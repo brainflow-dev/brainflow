@@ -58,6 +58,7 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/brainflow_boards.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/streaming_board.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/synthetic_board.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/dyn_lib_board.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/playback_file_board.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/galea.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/file_streamer.cpp

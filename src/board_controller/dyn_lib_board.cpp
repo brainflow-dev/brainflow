@@ -1,5 +1,9 @@
-template <int N>
-DynLibBoard<N>::DynLibBoard (int board_id, struct BrainFlowInputParams params)
+#include <tuple>
+
+#include "dyn_lib_board.h"
+
+
+DynLibBoard::DynLibBoard (int board_id, struct BrainFlowInputParams params)
     : Board (board_id, params)
 {
     is_streaming = false;
@@ -9,15 +13,13 @@ DynLibBoard<N>::DynLibBoard (int board_id, struct BrainFlowInputParams params)
     dll_loader = NULL;
 }
 
-template <int N>
-DynLibBoard<N>::~DynLibBoard ()
+DynLibBoard::~DynLibBoard ()
 {
     skip_logs = true;
     release_session ();
 }
 
-template <int N>
-int DynLibBoard<N>::prepare_session ()
+int DynLibBoard::prepare_session ()
 {
     if (initialized)
     {
@@ -56,8 +58,7 @@ int DynLibBoard<N>::prepare_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-template <int N>
-int DynLibBoard<N>::start_stream (int buffer_size, char *streamer_params)
+int DynLibBoard::start_stream (int buffer_size, char *streamer_params)
 {
     if (is_streaming)
     {
@@ -104,8 +105,7 @@ int DynLibBoard<N>::start_stream (int buffer_size, char *streamer_params)
     }
 }
 
-template <int N>
-int DynLibBoard<N>::stop_stream ()
+int DynLibBoard::stop_stream ()
 {
     if (is_streaming)
     {
@@ -121,8 +121,7 @@ int DynLibBoard<N>::stop_stream ()
     }
 }
 
-template <int N>
-int DynLibBoard<N>::release_session ()
+int DynLibBoard::release_session ()
 {
     if (initialized)
     {
@@ -145,8 +144,7 @@ int DynLibBoard<N>::release_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-template <int N>
-void DynLibBoard<N>::read_thread ()
+void DynLibBoard::read_thread ()
 {
     int num_attempts = 0;
     int sleep_time = 10;
@@ -156,13 +154,25 @@ void DynLibBoard<N>::read_thread ()
     if (func == NULL)
     {
         safe_logger (spdlog::level::err, "failed to get function address for get_data");
+        state = (int)BrainFlowExitCodes::GENERAL_ERROR;
         return;
     }
 
+    int num_rows = board_descr["num_rows"];
+    double *data = new double[num_rows];
+    if (data == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to allocate data");
+        state = (int)BrainFlowExitCodes::GENERAL_ERROR;
+        return;
+    }
+    for (int i = 0; i < num_rows; i++)
+    {
+        data[i] = 0.0;
+    }
     while (keep_alive)
     {
-        double data[N];
-        int res = func ((void *)&data);
+        int res = func ((void *)data);
         if (res == (int)BrainFlowExitCodes::STATUS_OK)
         {
             if (state != (int)BrainFlowExitCodes::STATUS_OK)
@@ -198,16 +208,15 @@ void DynLibBoard<N>::read_thread ()
 #endif
         }
     }
+    delete[] data;
 }
 
-template <int N>
-int DynLibBoard<N>::config_board (std::string config, std::string &response)
+int DynLibBoard::config_board (std::string config, std::string &response)
 {
     return call_config ((char *)config.c_str ());
 }
 
-template <int N>
-int DynLibBoard<N>::call_init ()
+int DynLibBoard::call_init ()
 {
     if (dll_loader == NULL)
     {
@@ -220,11 +229,17 @@ int DynLibBoard<N>::call_init ()
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
 
-    return func (NULL);
+    std::tuple<int, struct BrainFlowInputParams, json> info =
+        std::make_tuple (board_id, params, board_descr);
+    int res = func ((void *)&info);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        safe_logger (spdlog::level::err, "failed to initialize {}", res);
+    }
+    return res;
 }
 
-template <int N>
-int DynLibBoard<N>::call_open ()
+int DynLibBoard::call_open ()
 {
     if (dll_loader == NULL)
     {
@@ -239,8 +254,7 @@ int DynLibBoard<N>::call_open ()
     return func (NULL);
 }
 
-template <int N>
-int DynLibBoard<N>::call_start ()
+int DynLibBoard::call_start ()
 {
     if (dll_loader == NULL)
     {
@@ -255,8 +269,7 @@ int DynLibBoard<N>::call_start ()
     return func (NULL);
 }
 
-template <int N>
-int DynLibBoard<N>::call_stop ()
+int DynLibBoard::call_stop ()
 {
     if (dll_loader == NULL)
     {
@@ -271,8 +284,7 @@ int DynLibBoard<N>::call_stop ()
     return func (NULL);
 }
 
-template <int N>
-int DynLibBoard<N>::call_close ()
+int DynLibBoard::call_close ()
 {
     if (dll_loader == NULL)
     {
@@ -287,8 +299,7 @@ int DynLibBoard<N>::call_close ()
     return func (NULL);
 }
 
-template <int N>
-int DynLibBoard<N>::call_release ()
+int DynLibBoard::call_release ()
 {
     if (dll_loader == NULL)
     {
@@ -303,8 +314,7 @@ int DynLibBoard<N>::call_release ()
     return func (NULL);
 }
 
-template <int N>
-int DynLibBoard<N>::call_config (char *config)
+int DynLibBoard::call_config (char *config)
 {
     if (dll_loader == NULL)
     {

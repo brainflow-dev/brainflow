@@ -3,13 +3,6 @@
 #include <string>
 #include <tuple>
 
-enum class IpProtocolType
-{
-    NONE = 0,
-    UDP = 1,
-    TCP = 2
-};
-
 // we pass this structure from user API as a json string
 struct BrainFlowInputParams
 {
@@ -29,7 +22,7 @@ struct BrainFlowInputParams
         mac_address = "";
         ip_address = "";
         ip_port = 0;
-        ip_protocol = (int)IpProtocolType::NONE;
+        ip_protocol = 0;
         other_info = "";
         timeout = 0;
         serial_number = "";

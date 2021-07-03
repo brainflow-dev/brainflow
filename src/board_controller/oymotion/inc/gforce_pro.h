@@ -4,7 +4,7 @@
 #include "dyn_lib_board.h"
 
 
-class GforcePro : public DynLibBoard<11>
+class GforcePro : public DynLibBoard
 {
 
 private:
@@ -19,7 +19,6 @@ public:
 
 protected:
     std::string get_lib_name ();
-    int call_init ();
 };
 
 #else

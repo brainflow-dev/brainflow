@@ -12,7 +12,7 @@ int GforcePro::num_objects = 0;
 
 
 GforcePro::GforcePro (struct BrainFlowInputParams params)
-    : DynLibBoard<11> ((int)BoardIds::GFORCE_PRO_BOARD, params)
+    : DynLibBoard ((int)BoardIds::GFORCE_PRO_BOARD, params)
 {
     GforcePro::num_objects++;
     if (GforcePro::num_objects > 1)
@@ -79,23 +79,7 @@ int GforcePro::prepare_session ()
         safe_logger (spdlog::level::info, "only one GForceLib per process is allowed");
         return (int)BrainFlowExitCodes::ANOTHER_BOARD_IS_CREATED_ERROR;
     }
-    return DynLibBoard<11>::prepare_session ();
-}
-
-int GforcePro::call_init ()
-{
-    if (dll_loader == NULL)
-    {
-        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
-    }
-    int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("initialize");
-    if (func == NULL)
-    {
-        safe_logger (spdlog::level::err, "failed to get function address for initialize");
-        return (int)BrainFlowExitCodes::GENERAL_ERROR;
-    }
-
-    return func ((void *)&board_id);
+    return DynLibBoard::prepare_session ();
 }
 
 #else

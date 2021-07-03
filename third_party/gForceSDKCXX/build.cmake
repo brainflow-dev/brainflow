@@ -24,6 +24,8 @@ target_include_directories (
     ${CMAKE_CURRENT_LIST_DIR}/inc
     ${CMAKE_CURRENT_LIST_DIR}/..
     ${CMAKE_HOME_DIRECTORY}/src/utils/inc
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/inc
+    ${CMAKE_HOME_DIRECTORY}/third_party/json
 )
 
 find_library (GFORCE_SDK NAMES ${GFORCE_SDK_NAME} PATHS ${CMAKE_CURRENT_LIST_DIR}/lib)

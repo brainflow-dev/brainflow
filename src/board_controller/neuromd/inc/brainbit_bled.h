@@ -3,7 +3,7 @@
 #include "dyn_lib_board.h"
 
 
-class BrainBitBLED : public DynLibBoard<8>
+class BrainBitBLED : public DynLibBoard
 {
 
 private:
@@ -19,6 +19,5 @@ public:
 
 protected:
     std::string get_lib_name ();
-    virtual int call_init ();
     virtual int call_open ();
 };

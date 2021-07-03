@@ -8,7 +8,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "brainbit_types.h"
 #include "brainflow_constants.h"
 #include "cmd_def.h"
 #include "helpers.h"

@@ -14,10 +14,12 @@
 #include "ticket_lock.h"
 
 #include "brainbit_functions.h"
-#include "brainbit_types.h"
 
 #include "brainflow_constants.h"
+#include "brainflow_input_params.h"
 
+#include "json.hpp"
+using json = nlohmann::json;
 
 // read Bluetooth_Smart_Software_v1.3.1_API_Reference.pdf to understand this code
 
@@ -63,9 +65,11 @@ namespace BrainBitBLEDLib
             {
                 return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
             }
-            struct BrainBitInputData *input = (struct BrainBitInputData *)param;
-            strcpy (uart_port, input->uart_port);
-            timeout = input->timeout;
+            std::tuple<int, struct BrainFlowInputParams, json> *info =
+                (std::tuple<int, struct BrainFlowInputParams, json> *)param;
+            BrainFlowInputParams params = std::get<1> (*info);
+            strcpy (uart_port, params.serial_port.c_str ());
+            timeout = params.timeout;
             bglib_output = output;
             exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
             initialized = true;

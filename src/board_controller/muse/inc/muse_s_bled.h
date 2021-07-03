@@ -3,7 +3,7 @@
 #include "dyn_lib_board.h"
 
 
-class MuseSBLED : public DynLibBoard<10>
+class MuseSBLED : public DynLibBoard
 {
 
 private:
@@ -19,5 +19,4 @@ public:
 
 protected:
     std::string get_lib_name ();
-    int call_init ();
 };
