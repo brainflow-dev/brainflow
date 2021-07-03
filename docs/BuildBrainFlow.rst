@@ -27,18 +27,16 @@ C#
 You are able to install the latest release from `Nuget <https://www.nuget.org/packages/brainflow/>`_ or build it yourself:
 
 - Compile BrainFlow's core module
-- open Visual Studio Solution
-- install required nuget packages
-- build it using Visual Studio
-- **make sure that unmanaged(C++) libraries exist in search path** - set PATH env variable or copy them to correct folder
+- Open Visual Studio Solution
+- Build it using Visual Studio
+- **Make sure that unmanaged(C++) libraries exist in search path** - set PATH env variable or copy them to correct folder
 
 **Unix(Mono)**
 
 - Compile BrainFlow's core module
-- install nuget and Mono on your system
-- install required nuget packages
-- build it using Mono
-- **make sure that unmanaged(C++) libraries exist in search path** - set LD_LIBRARY_PATH env variable or copy them to correct folder
+- Install Mono on your system
+- Build it using Mono
+- **Make sure that unmanaged(C++) libraries exist in search path** - set LD_LIBRARY_PATH env variable or copy them to correct folder
 
 .. compound::
 
@@ -51,8 +49,6 @@ You are able to install the latest release from `Nuget <https://www.nuget.org/pa
         sudo dnf install mono-devel
         sudo dnf install mono-complete
         sudo dnf install monodevelop
-        # install nuget packages
-        nuget restore csharp-package/brainflow/brainflow.sln
         # build solution
         xbuild csharp-package/brainflow/brainflow.sln
         # run tests
