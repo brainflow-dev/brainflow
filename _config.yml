@@ -24,7 +24,9 @@ navbar-links:
   Github: "https://github.com/brainflow-dev/brainflow/"
   Docs: "https://brainflow.readthedocs.io/en/stable/"
   Features: "features"
-  Gallery: "gallery"
+  Gallery:
+    - Gallery: "gallery"
+    - Citations: "citations"
   Blog: "blog"
   About BrainFlow:
     - Contact us: "contact"
