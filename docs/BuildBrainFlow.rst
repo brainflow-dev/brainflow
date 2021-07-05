@@ -120,7 +120,7 @@ Also, there are other packages for BCI research and development:
 - pandas
 - etc
 
-If your devices uses TCP\IP to send data, you need to run docker container with :code:`--network host`. For serial port connection you need to pass serial port to docker using :code:`--device %your port here%`
+If your devices uses TCP/IP to send data, you need to run docker container with :code:`--network host`. For serial port connection you need to pass serial port to docker using :code:`--device %your port here%`
 
 .. compound::
 
