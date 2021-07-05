@@ -40,7 +40,7 @@ ARG checkout_id
 RUN git clone "https://github.com/brainflow-dev/brainflow.git"
 WORKDIR /root/brainflow
 RUN if [ -z "${checkout_id}" ]; then git checkout "${checkout_id}"; fi
-RUN bash ./tools/build_linux_omp.sh
+RUN python3 ./tools/build.py --use-openmp
 ENV LD_LIBRARY_PATH=/root/brainflow/installed_linux/lib/
 
 # Python Binding
