@@ -830,7 +830,7 @@ class DataFilter(object):
 
     @classmethod
     def get_avg_band_powers(cls, data: NDArray, channels: List, sampling_rate: int, apply_filter: bool) -> Tuple:
-        """calculate avg and stddev of BandPowers across all channels
+        """calculate avg and stddev of BandPowers across all channels, bands are 1-4,4-8,8-13,13-30,30-50
 
         :param data: 2d array for calculation
         :type data: NDArray

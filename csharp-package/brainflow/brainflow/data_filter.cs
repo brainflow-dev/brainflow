@@ -495,7 +495,7 @@ namespace brainflow
         }
 
         /// <summary>
-        /// calculate avg and stddev bandpowers across channels
+        /// calculate avg and stddev bandpowers across channels, bands are 1-4,4-8,8-13,13-30,30-50
         /// </summary>
         /// <param name="data">2d array with values</param>
         /// <param name="channels">rows of data array which should be used for calculation</param>

@@ -254,7 +254,7 @@ classdef DataFilter
         end
         
         function [avg_bands, stddev_bands] = get_avg_band_powers(data, channels, sampling_rate, apply_filters)
-            % calculate average band powers
+            % calculate average band powers, bands are 1-4,4-8,8-13,13-30,30-50
             task_name = 'get_avg_band_powers';
             data_1d = data(channels, :);
             data_1d = transpose(data_1d);

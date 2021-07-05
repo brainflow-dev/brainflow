@@ -476,7 +476,8 @@ public class DataFilter
     }
 
     /**
-     * calc average and stddev of band powers across all channels
+     * calc average and stddev of band powers across all channels, bands are
+     * 1-4,4-8,8-13,13-30,30-50
      * 
      * @param data          data to process
      * @param channels      rows of data arrays which should be used in calculation
