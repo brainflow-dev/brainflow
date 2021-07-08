@@ -1,12 +1,3 @@
-include (${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/build.cmake)
-include (${CMAKE_HOME_DIRECTORY}/src/board_controller/gtec/build.cmake)
-include (${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse_bglib/build.cmake)
-include (${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/build.cmake)
-
-if (BUILD_OYMOTION_SDK)
-    include (${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/build.cmake)
-endif (BUILD_OYMOTION_SDK)
-
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)
     SET (BOARD_CONTROLLER_NAME "BoardController")
     if (APPLE)
@@ -83,6 +74,14 @@ SET (BOARD_CONTROLLER_SRC
 )
 
 include (${CMAKE_HOME_DIRECTORY}/src/board_controller/ant_neuro/build.cmake)
+include (${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/build.cmake)
+include (${CMAKE_HOME_DIRECTORY}/src/board_controller/gtec/build.cmake)
+include (${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse_bglib/build.cmake)
+include (${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/build.cmake)
+
+if (BUILD_OYMOTION_SDK)
+    include (${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/build.cmake)
+endif (BUILD_OYMOTION_SDK)
 
 add_library (
     ${BOARD_CONTROLLER_NAME} SHARED

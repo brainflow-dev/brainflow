@@ -331,9 +331,9 @@ json brainflow_boards_json = {
             {"eeg_names", "TP9,Fp1,Fp2,TP10"},
             {"accel_channels", {5, 6, 7}}
         }},
-        {"22",
+        {"23",
             {{"name", "AntNeuroEE411"},
-            {"sampling_rate", 2048}, // todo check 2000 or 2048?
+            {"sampling_rate", 2000},
             {"timestamp_channel", 10},
             {"marker_channel", 11},
             {"package_num_channel", 0},

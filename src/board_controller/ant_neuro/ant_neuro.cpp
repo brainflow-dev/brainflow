@@ -213,9 +213,8 @@ void AntNeuroBoard::read_thread ()
 
 int AntNeuroBoard::config_board (std::string config, std::string &response)
 {
-    // todo if there will be requests for it.
-    // Unicorn API provides int Unicorn_SetConfiguration method
-    safe_logger (spdlog::level::debug, "config_board is not supported for Unicorn.");
+    // todo do we need some options?
+    safe_logger (spdlog::level::debug, "config_board is not supported for Ant Neuro.");
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
