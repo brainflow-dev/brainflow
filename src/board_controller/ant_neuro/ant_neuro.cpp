@@ -1,7 +1,7 @@
 #include "ant_neuro.h"
 
 // implementation for linux and windows
-#if defined __linux__ || defined _WIN32
+#if defined(_WIN32) || defined(__linux__) && !defined(__ANDROID__)
 
 #include <string.h>
 #ifdef _WIN32
