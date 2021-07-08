@@ -2,7 +2,6 @@ include (${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_bglib/bui
 include (${CMAKE_HOME_DIRECTORY}/src/board_controller/gtec/build.cmake)
 include (${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse_bglib/build.cmake)
 include (${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/build.cmake)
-include (${CMAKE_HOME_DIRECTORY}/src/board_controller/ant_neuro/build.cmake)
 
 if (BUILD_OYMOTION_SDK)
     include (${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/build.cmake)
@@ -81,8 +80,9 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse_s_bled.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse_2_bled.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ant_neuro/ant_neuro.cpp
-    ${CMAKE_HOME_DIRECTORY}/third_party/ant_neuro/eemagine/sdk/wrapper.cc
 )
+
+include (${CMAKE_HOME_DIRECTORY}/src/board_controller/ant_neuro/build.cmake)
 
 add_library (
     ${BOARD_CONTROLLER_NAME} SHARED

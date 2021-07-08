@@ -5,45 +5,25 @@
  * Copyright 2015, eemagine Medical Imaging Solutions GmbH
  *
  *
- * 1. Redistributions of source code must retain the copyright notice this list of conditions and
- * the following disclaimer.
+ * 1. Redistributions of source code must retain the copyright notice this list of conditions and the following disclaimer.
  *
- * 2. Redistributions in binary form must reproduce the above copyright notice, this list of
- * conditions and the following disclaimer in the documentation and/or other materials provided with
- * the distribution.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
  *
- * 3. All advertising materials mentioning features or use of this software must display the
- * following acknowledgement: This product includes software developed by the eemagine Medical
- * Imaging Solutions GmbH.
+ * 3. All advertising materials mentioning features or use of this software must display the following acknowledgement: This product includes software developed by the eemagine Medical Imaging Solutions GmbH.
  *
- * 4. Neither the name of the eemagine Medical Imaging Solutions GmbH nor the names of its
- * contributors or products may be used to endorse or promote products derived from this software
- * without specific prior written permission by eemagine
+ * 4. Neither the name of the eemagine Medical Imaging Solutions GmbH nor the names of its contributors or products may be used to endorse or promote products derived from this software without specific prior written permission by eemagine
  *
  *
- * This Software is provided by eemagine Medical Imaging Solutions GmbH ''As Is'' and any express or
- * implied warranties, including, but not limited to, the implied warranties merchantability and
- * fitness for a particular purpose are disclaimed. In no event shall eemagine be liable for any
- * direct, indirect, incidental, special, exemplary, or consequential damages (including but not
- * limited to, procurement of substitute goods or services, loss of use, data, or profits, or
- * business interruption) however caused and on any theory of liability, whether in contract, strict
- * liability, or tort (including negligence or otherwise) arising in any way out of the use of this
- * software, even if advised of the possibility of such damage.
+ * This Software is provided by eemagine Medical Imaging Solutions GmbH ''As Is'' and any express or implied warranties, including, but not limited to, the implied warranties merchantability and fitness for a particular purpose are disclaimed. In no event shall eemagine be liable for any direct, indirect, incidental, special, exemplary, or consequential damages (including but not limited to, procurement of substitute goods or services, loss of use, data, or profits, or business interruption) however caused and on any theory of liability, whether in contract, strict liability, or tort (including negligence or otherwise) arising in any way out of the use of this software, even if advised of the possibility of such damage.
  *
- * The eego amplifier comes with its own user manual, which must be read carefully before making use
- * of this SDK or any derived software.
+ * The eego amplifier comes with its own user manual, which must be read carefully before making use of this SDK or any derived software.
  *
  *
- * You need to run full testing and qualification based on your own requirements to claim any
- * performance of the combined system.
+ * You need to run full testing and qualification based on your own requirements to claim any performance of the combined system.
  *
  *
- * Please be especially advised that any certification holding for the eego amplifier is not valid
- * for a combined system of your application software and the eego amplifier. You must obtain your
- * own certification for a combined system of amplifier and software.
+ * Please be especially advised that any certification holding for the eego amplifier is not valid for a combined system of your application software and the eego amplifier. You must obtain your own certification for a combined system of amplifier and software.
  */
-
-// clang-format off
 
 // system
 #pragma warning(disable: 4996)
@@ -69,10 +49,10 @@
 #define _UNICODE
 #endif
 
-// Find out what operating system we are using and default to __unix__
+// Find out what operating system we are using and default to _WIN32
 #if !(defined(_WIN32) ^ defined(__unix__))
-#pragma message ("Neither _WIN32 nor __unix__ has been defined. Default to __unix__.")
-#define __unix__
+#pragma message ("Neither _WIN32 nor __unix__ has been defined. Default to _WIN32.")
+#define _WIN32
 #endif
 
 // For windows we are using UTF16 in any case!
@@ -868,5 +848,3 @@ eemagine::sdk::factory::getVersion() const {
 	rv.build = EEGO_SDK_VERSION;
 	return rv;
 }
-
-// clang-format on
