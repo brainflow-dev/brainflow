@@ -331,6 +331,16 @@ json brainflow_boards_json = {
             {"eeg_names", "TP9,Fp1,Fp2,TP10"},
             {"accel_channels", {5, 6, 7}}
         }},
+        {"22",
+            {{"name", "AntNeuroEE411"},
+            {"sampling_rate", 2048}, // todo check 2000 or 2048?
+            {"timestamp_channel", 10},
+            {"marker_channel", 11},
+            {"package_num_channel", 0},
+            {"num_rows", 12},
+            {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}}, // todo add eeg names?
+            {"other_channels", {9}}
+        }}
     }
 }};
 // clang-format on

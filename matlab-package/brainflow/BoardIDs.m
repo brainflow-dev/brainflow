@@ -27,5 +27,6 @@ classdef BoardIDs < int32
         GALEA_SERIAL_BOARD(20)
         MUSE_S_BLED_BOARD(21)
         MUSE_2_BLED_BOARD(22)
+        ANT_NEURO_EE_411_BOARD(23)
     end
 end
