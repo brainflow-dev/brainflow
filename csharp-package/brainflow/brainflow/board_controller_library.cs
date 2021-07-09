@@ -69,7 +69,8 @@ namespace brainflow
         GFORCE_DUAL_BOARD = 19,
         GALEA_SERIAL_BOARD = 20,
         MUSE_S_BLED_BOARD = 21,
-        MUSE_2_BLED_BOARD = 22
+        MUSE_2_BLED_BOARD = 22,
+        CROWN_BOARD = 23
     };
 
 
