@@ -16,4 +16,4 @@ If you want to report a bug, feel free to create issues at [BrainFlow's Github P
 
 * [Linkedin](https://www.linkedin.com/in/andreyparfenov)
 * [Github](https://github.com/Andrey1994)
-* [Email](a1994ndrey@gmail.com)
+* [Email](mailto:a1994ndrey@gmail.com)
