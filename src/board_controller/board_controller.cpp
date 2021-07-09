@@ -131,11 +131,15 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
         case BoardIds::FASCIA_BOARD:
             board = std::shared_ptr<Board> (new Fascia (params));
             break;
-        // notion 1 and notion 2 have the same class, the only difference is get_eeg_names
+        // notion 1, notion 2 and crown have the same class
+        // the only difference are get_eeg_names and sampling_rate
         case BoardIds::NOTION_1_BOARD:
             board = std::shared_ptr<Board> (new NotionOSC (params));
             break;
         case BoardIds::NOTION_2_BOARD:
+            board = std::shared_ptr<Board> (new NotionOSC (params));
+            break;
+        case BoardIds::CROWN_BOARD:
             board = std::shared_ptr<Board> (new NotionOSC (params));
             break;
         case BoardIds::IRONBCI_BOARD:
