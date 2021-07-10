@@ -56,7 +56,8 @@ enum class BoardIds : int
     GALEA_SERIAL_BOARD = 20,
     MUSE_S_BLED_BOARD = 21,
     MUSE_2_BLED_BOARD = 22,
-    ANT_NEURO_EE_411_BOARD = 23,
+    CROWN_BOARD = 23,
+    ANT_NEURO_EE_411_BOARD = 24,
     // use it to iterate
     FIRST = PLAYBACK_FILE_BOARD,
     LAST = ANT_NEURO_EE_411_BOARD

@@ -30,6 +30,7 @@ To create an instance of BoardShim class for your board check required inputs in
    "GforceDual", "BoardIds.GFORCE_DUAL_BOARD (19)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
    "MuseSBLED", "BoardIds.MUSE_S_BLED_BOARD (21)", "dongle serial port", "-", "-", "-", "-", "-", "-", "Optional: device name", "-"
    "Muse2BLED", "BoardIds.MUSE_2_BLED_BOARD (22)", "dongle serial port", "-", "-", "-", "-", "-", "-", "Optional: device name", "-"
+   "Crown", "BoardIds.CROWN_BOARD (23)", "-", "-", "-", "-", "-", "-", "-", "Optional: serial number", "-"
 
 
 Playback File Board
@@ -486,7 +487,11 @@ Neurosity
 Notion 1
 ~~~~~~~~~
 
-`Notion website <https://neurosity.co/>`_
+.. image:: https://live.staticflickr.com/65535/51302873810_715f51b408.jpg
+    :width: 500px
+    :height: 353px
+
+`Neurosity website <https://neurosity.co/>`_
 
 `Link to Neurosity Tutorial <https://dev.to/neurosity/using-brainflow-with-the-neurosity-headset-2kof>`_
 
@@ -512,13 +517,18 @@ Board Spec:
 Notion 2
 ~~~~~~~~~
 
-`Notion website <https://neurosity.co/>`_
+.. image:: https://live.staticflickr.com/65535/51302045358_b375380804.jpg
+    :width: 500px
+    :height: 353px
+
+
+`Neurosity website <https://neurosity.co/>`_
 
 `Link to Neurosity Tutorial <https://dev.to/neurosity/using-brainflow-with-the-neurosity-headset-2kof>`_
 
 To choose this board in BoardShim constructor please specify:
 
-- board_id: 14
+- board_id: 23
 - optional: Serial Number field of BrainFlowInputParams structure, important if you have multiple devices in the same place
 
 Supported platforms:
@@ -533,6 +543,36 @@ Board Spec:
 
 - num eeg channels: 8
 - sampling rate: 250
+- communication: UDP BroadCast
+
+Crown
+~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/51301110182_9d05de3948.jpg
+    :width: 500px
+    :height: 353px
+
+`Neurosity website <https://neurosity.co/>`_
+
+`Link to Neurosity Tutorial <https://dev.to/neurosity/using-brainflow-with-the-neurosity-headset-2kof>`_
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 23
+- optional: Serial Number field of BrainFlowInputParams structure, important if you have multiple devices in the same place
+
+Supported platforms:
+
+- Windows
+- Linux
+- MacOS
+
+*Note: On Windows you may need to disable firewall to allow broadcast messages.*
+
+Board Spec:
+
+- num eeg channels: 8
+- sampling rate: 256
 - communication: UDP BroadCast
 
 OYMotion

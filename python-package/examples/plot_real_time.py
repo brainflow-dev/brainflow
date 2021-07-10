@@ -93,7 +93,7 @@ class Graph:
         avg_bands = [0, 0, 0, 0, 0]
         for count, channel in enumerate(self.exg_channels):
             # plot timeseries
-            DataFilter.detrend(data[channel], DetrendOperations.LINEAR.value)
+            DataFilter.detrend(data[channel], DetrendOperations.CONSTANT.value)
             DataFilter.perform_bandpass(data[channel], self.sampling_rate, 30.0, 56.0, 2,
                                         FilterTypes.BUTTERWORTH.value, 0)
             DataFilter.perform_bandstop(data[channel], self.sampling_rate, 50.0, 4.0, 2,
