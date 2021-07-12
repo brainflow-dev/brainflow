@@ -10,12 +10,12 @@
 #include "brainflow_boards.h"
 #include "brainflow_constants.h"
 
-inline std::string int_to_string (int val);
-inline int get_single_value (
+static std::string int_to_string (int val);
+static int get_single_value (
     int board_id, const char *param_name, int *value, bool use_logger = true);
-inline int get_string_value (
+static int get_string_value (
     int board_id, const char *param_name, char *string, int *len, bool use_logger = true);
-inline int get_array_value (
+static int get_array_value (
     int board_id, const char *param_name, int *output_array, int *len, bool use_logger = true);
 
 
@@ -166,14 +166,14 @@ int get_exg_channels (int board_id, int *exg_channels, int *len)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-inline std::string int_to_string (int val)
+static std::string int_to_string (int val)
 {
     std::ostringstream ss;
     ss << val;
     return ss.str ();
 }
 
-inline int get_single_value (int board_id, const char *param_name, int *value, bool use_logger)
+static int get_single_value (int board_id, const char *param_name, int *value, bool use_logger)
 {
     try
     {
@@ -191,7 +191,7 @@ inline int get_single_value (int board_id, const char *param_name, int *value, b
     }
 }
 
-inline int get_array_value (
+static int get_array_value (
     int board_id, const char *param_name, int *output_array, int *len, bool use_logger)
 {
     try
@@ -215,7 +215,7 @@ inline int get_array_value (
     }
 }
 
-inline int get_string_value (
+static int get_string_value (
     int board_id, const char *param_name, char *string, int *len, bool use_logger)
 {
     try
