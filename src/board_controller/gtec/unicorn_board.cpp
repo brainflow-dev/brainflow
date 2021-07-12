@@ -29,6 +29,8 @@ UnicornBoard::UnicornBoard (struct BrainFlowInputParams params)
     std::string unicornlib_path = "";
 #ifdef _WIN32
     std::string lib_name = "Unicorn.dll";
+#elif defined(__arm__)
+    std::string lib_name = "libunicorn_raspberry.so";
 #else
     std::string lib_name = "libunicorn.so";
 #endif
