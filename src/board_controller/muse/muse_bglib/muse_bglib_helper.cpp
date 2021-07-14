@@ -5,7 +5,6 @@
 #include "custom_cast.h"
 #include "muse_bglib_helper.h"
 #include "muse_constants.h"
-#include "muse_types.h"
 #include "timestamp.h"
 #include "uart.h"
 
