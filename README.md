@@ -4,6 +4,8 @@
 
 BrainFlow is a library intended to obtain, parse and analyze EEG, EMG, ECG and other kinds of data from biosensors.
 
+It provides a uniform SDK to work with biosensors with primary focus on neurointerfaces, all features available for free!
+
 #### Advantages of BrainFlow:
 
 * powerful API with many features to simplify development

@@ -39,6 +39,7 @@ setup(
             os.path.join('lib', 'gforce32.dll'),
             os.path.join('lib', 'libneurosdk-shared.dylib'),
             os.path.join('lib', 'libunicorn.so'),
+            os.path.join('lib', 'libunicorn_raspberry.so'),
             os.path.join('lib', 'Unicorn.dll'),
             os.path.join('lib', 'GanglionLib.dll'),
             os.path.join('lib', 'GanglionLib32.dll'),

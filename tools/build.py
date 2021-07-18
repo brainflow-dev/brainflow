@@ -63,7 +63,7 @@ def get_win_generators():
     result = list()
     try:
         output = subprocess.check_output(['C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe', '-property', 'displayName'])
-        output = output.decode('utf-8') 
+        output = output.decode('utf-8', 'ignore')
         print(output)
         if '2019' in output:
             result.append(VS2019())

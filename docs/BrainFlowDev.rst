@@ -72,21 +72,20 @@ Since bindings just call methods from dynamic libraries, more likely errors occu
 
 Steps to get more information about errors in C++ code:
 
-- build BrainFlow's core module and C++ binding in debug mode. In files like tools/build_linux.sh default config is Release, so you need to change it to Debug
+- build BrainFlow's core module and C++ binding in debug mode
 - reproduce your issue using C++ binding
 - run it with debuger and memory checker
 
-Example for Linux(for MacOS it's the same)::
+Example for Linux, for other OSes it's similar::
 
-    vim tools/build_linux.sh
     # Change build type to Debug
-    bash tools/build_linux.sh
+    python3 tools/build.py --debug --clear-build-dir --num-jobs 8
     # Create a test to reproduce your issue in C++, here we will use get_data_demo
     cd tests/cpp/get_data_demo
     mkdir build
     cd build
     cmake -DCMAKE_PREFIX_PATH=TYPE_FULL_PATH_TO_BRAINFLOW_INSTALLED_FOLDER -DCMAKE_BUILD_TYPE=Debug ..
-    # e.g. cmake -DCMAKE_PREFIX_PATH=/home/andrey/brainflow/installed_linux -DCMAKE_BUILD_TYPE=Debug ..
+    # e.g. cmake -DCMAKE_PREFIX_PATH=/home/andrey/brainflow/installed -DCMAKE_BUILD_TYPE=Debug ..
     make
     # Run Valgrind to check memory errors
     # Here we use command line for Ganglion
