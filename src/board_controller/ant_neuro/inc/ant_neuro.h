@@ -25,6 +25,7 @@ private:
     std::string ant_neuro_lib_path;
     eemagine::sdk::amplifier *amp;
     eemagine::sdk::stream *stream;
+    int sampling_rate;
 
     void read_thread ();
 #endif
