@@ -251,7 +251,7 @@ int AntNeuroBoard::config_board (std::string config, std::string &response)
         else
         {
             safe_logger (spdlog::level::err, "not supported value provided");
-            for (int i = 0; i < allowed_values.size (); i++)
+            for (int i = 0; i < (int)allowed_values.size (); i++)
             {
                 safe_logger (spdlog::level::debug, "supported value: {}", allowed_values[i]);
             }
