@@ -20,4 +20,6 @@ In this version we've added support for the following Ant Neuro devices:
 * ANT_NEURO_EE_411_BOARD
 * ANT_NEURO_EE_430_BOARD
 
+Ant Neuro provides medical grade FDA certified devices and we are looking forward to add other boards from this company soon.
+
 We've used SDK provided by Ant Neuro company which works for Windows and Linux OSes.
