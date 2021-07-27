@@ -66,7 +66,7 @@ AntNeuroBoard::AntNeuroBoard (int board_id, struct BrainFlowInputParams params)
     }
     catch (...)
     {
-        sampling_rate = 512;
+        sampling_rate = 2000;
     }
 }
 
