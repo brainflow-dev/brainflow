@@ -162,7 +162,7 @@ Cyton
     :width: 200px
     :height: 200px
 
-`Cyton Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/CytonGS>`_
+`Cyton Getting Started Guide from OpenBCI <https://docs.openbci.com/GettingStarted/Boards/CytonGS/>`_
 
 To choose this board in BoardShim constructor please specify:
 
@@ -194,7 +194,7 @@ Ganglion
     :width: 400px
     :height: 230px
 
-`Ganglion Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/GanglionGS>`_
+`Ganglion Getting Started Guide from OpenBCI <https://docs.openbci.com/GettingStarted/Boards/GanglionGS/>`_
 
 **To use Ganglion board you need a** `dongle <https://shop.openbci.com/collections/frontpage/products/ganglion-dongle>`_
 
@@ -234,7 +234,7 @@ Cyton Daisy
     :width: 400px
     :height: 394px
 
-`CytonDaisy Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/DaisyGS>`_
+`CytonDaisy Getting Started Guide from OpenBCI <https://docs.openbci.com/GettingStarted/Boards/DaisyGS/>`_
 
 To choose this board in BoardShim constructor please specify:
 
@@ -267,9 +267,9 @@ Ganglion with WIFI Shield
     :width: 300px
     :height: 300px
 
-`WIFI Shield Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_
+`WIFI Shield Getting Started Guide from OpenBCI <https://docs.openbci.com/GettingStarted/Boards/WiFiGS/>`_
 
-`WIFI Shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_
+`WIFI Shield Programming Guide from OpenBCI <https://docs.openbci.com/ThirdParty/WiFiShield/WiFiProgam/>`_
 
 To choose this board in BoardShim constructor please specify:
 
@@ -299,9 +299,9 @@ Cyton with WIFI Shield
     :width: 400px
     :height: 325px
 
-`WIFI shield Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_
+`WIFI shield Getting Started Guide from OpenBCI <https://docs.openbci.com/GettingStarted/Boards/WiFiGS/>`_
 
-`WIFI shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_
+`WIFI shield Programming Guide from OpenBCI <https://docs.openbci.com/ThirdParty/WiFiShield/WiFiProgam/>`_
 
 To choose this board in BoardShim constructor please specify:
 
@@ -332,9 +332,9 @@ CytonDaisy with WIFI Shield
     :width: 400px
     :height: 400px
 
-`WIFI Shield Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_
+`WIFI Shield Getting Started Guide from OpenBCI <https://docs.openbci.com/GettingStarted/Boards/WiFiGS/>`_
 
-`WIFI Shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_
+`WIFI Shield Programming Guide from OpenBCI <https://docs.openbci.com/ThirdParty/WiFiShield/WiFiProgam/>`_
 
 To choose this board in BoardShim constructor please specify:
 
