@@ -351,7 +351,7 @@ json brainflow_boards_json = {
             {"marker_channel", 11},
             {"package_num_channel", 0},
             {"num_rows", 12},
-            {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}}, // todo add eeg names?
+            {"emg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
             {"other_channels", {9}}
         }},
         {"25",
@@ -361,7 +361,7 @@ json brainflow_boards_json = {
             {"marker_channel", 11},
             {"package_num_channel", 0},
             {"num_rows", 12},
-            {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}}, // todo add eeg names?
+            {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
             {"other_channels", {9}}
         }},
         {"26",
@@ -371,7 +371,7 @@ json brainflow_boards_json = {
             {"marker_channel", 11},
             {"package_num_channel", 0},
             {"num_rows", 12},
-            {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}}, // todo add eeg names?
+            {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
             {"other_channels", {9}}
         }}
     }

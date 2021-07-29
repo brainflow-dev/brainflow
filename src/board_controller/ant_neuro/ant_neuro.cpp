@@ -178,32 +178,71 @@ int AntNeuroBoard::release_session ()
 
 void AntNeuroBoard::read_thread ()
 {
+    if ((amp == NULL) || (stream == NULL))
+    {
+        safe_logger (spdlog::level::err, "amp or stream not created in thread");
+        return;
+    }
+
     int num_rows = board_descr["num_rows"];
     double *package = new double[num_rows];
     for (int i = 0; i < num_rows; i++)
     {
         package[i] = 0.0;
     }
-    std::vector<int> eeg_channels = board_descr["eeg_channels"];
+    std::vector<int> emg_channels;
+    std::vector<int> eeg_channels;
+    try
+    {
+        emg_channels = board_descr["emg_channels"].get<std::vector<int>> ();
+    }
+    catch (...)
+    {
+        safe_logger (spdlog::level::trace, "device has no emg channels");
+    }
+    try
+    {
+        eeg_channels = board_descr["eeg_channels"].get<std::vector<int>> ();
+    }
+    catch (...)
+    {
+        safe_logger (spdlog::level::trace, "device has no eeg channels");
+    }
+    std::vector<channel> ant_channels = amp->getChannelList ();
+    int eeg_counter = 0;
+    int emg_counter = 0;
 
     while (keep_alive)
     {
         try
         {
             buffer buf = stream->getData ();
-            int buf_channels = buf.getChannelCount ();
+            int buf_channels_len = buf.getChannelCount ();
             for (int i = 0; i < (int)buf.getSampleCount (); i++)
             {
-                // two channels reserved for trigger and sample counter
-                for (int j = 0; j < std::min ((int)eeg_channels.size (), (int)(buf_channels - 2));
-                     j++)
+                for (int j = 0; j < buf_channels_len; j++)
                 {
-                    package[eeg_channels[j]] = buf.getSample (j, i);
+                    if ((ant_channels[j].getType () == channel::reference) &&
+                        (eeg_counter < (int)eeg_channels.size ()))
+                    {
+                        package[eeg_channels[eeg_counter++]] = buf.getSample (j, i);
+                    }
+                    if ((ant_channels[j].getType () == channel::bipolar) &&
+                        (emg_counter < (int)emg_channels.size ()))
+                    {
+                        package[emg_channels[emg_counter++]] = buf.getSample (j, i);
+                    }
+                    if (ant_channels[j].getType () == channel::sample_counter)
+                    {
+                        package[board_descr["package_num_channel"].get<int> ()] =
+                            buf.getSample (j, i);
+                    }
+                    if (ant_channels[j].getType () == channel::trigger)
+                    {
+                        package[board_descr["other_channels"][0].get<int> ()] =
+                            buf.getSample (j, i);
+                    }
                 }
-                package[board_descr["package_num_channel"].get<int> ()] =
-                    buf.getSample (buf_channels - 1, i);
-                package[board_descr["other_channels"][0].get<int> ()] =
-                    buf.getSample (buf_channels - 2, i); // place trigger into other channels
                 package[board_descr["timestamp_channel"].get<int> ()] = get_timestamp ();
                 push_package (package);
             }
