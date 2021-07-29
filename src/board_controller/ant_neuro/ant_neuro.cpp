@@ -208,7 +208,7 @@ void AntNeuroBoard::read_thread ()
     {
         safe_logger (spdlog::level::trace, "device has no eeg channels");
     }
-    std::vector<channel> ant_channels = amp->getChannelList ();
+    std::vector<channel> ant_channels = stream->getChannelList ();
     int eeg_counter = 0;
     int emg_counter = 0;
 
