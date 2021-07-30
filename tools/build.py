@@ -12,7 +12,7 @@ def run_command(cmd, cwd=None):
         p.stdout.flush()
         line = p.stdout.read(1)
         if line:
-            print(line.decode('utf-8'), end='')
+            print(line.decode('utf-8', 'ignore'), end='')
         else:
             if p.poll() != None:
                 break
