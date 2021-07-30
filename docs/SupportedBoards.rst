@@ -31,6 +31,9 @@ To create an instance of BoardShim class for your board check required inputs in
    "MuseSBLED", "BoardIds.MUSE_S_BLED_BOARD (21)", "dongle serial port", "-", "-", "-", "-", "-", "-", "Optional: device name", "-"
    "Muse2BLED", "BoardIds.MUSE_2_BLED_BOARD (22)", "dongle serial port", "-", "-", "-", "-", "-", "-", "Optional: device name", "-"
    "Crown", "BoardIds.CROWN_BOARD (23)", "-", "-", "-", "-", "-", "-", "-", "Optional: serial number", "-"
+   "AntNeuroBoardEE410", "BoardIds.ANT_NEURO_EE_410_BOARD (24)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE411", "BoardIds.ANT_NEURO_EE_411_BOARD (25)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE430", "BoardIds.ANT_NEURO_EE_430_BOARD (26)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
 
 
 Playback File Board
@@ -159,7 +162,7 @@ Cyton
     :width: 200px
     :height: 200px
 
-`Cyton Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/CytonGS>`_
+`Cyton Getting Started Guide from OpenBCI <https://docs.openbci.com/GettingStarted/Boards/CytonGS/>`_
 
 To choose this board in BoardShim constructor please specify:
 
@@ -191,7 +194,7 @@ Ganglion
     :width: 400px
     :height: 230px
 
-`Ganglion Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/GanglionGS>`_
+`Ganglion Getting Started Guide from OpenBCI <https://docs.openbci.com/GettingStarted/Boards/GanglionGS/>`_
 
 **To use Ganglion board you need a** `dongle <https://shop.openbci.com/collections/frontpage/products/ganglion-dongle>`_
 
@@ -231,7 +234,7 @@ Cyton Daisy
     :width: 400px
     :height: 394px
 
-`CytonDaisy Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/DaisyGS>`_
+`CytonDaisy Getting Started Guide from OpenBCI <https://docs.openbci.com/GettingStarted/Boards/DaisyGS/>`_
 
 To choose this board in BoardShim constructor please specify:
 
@@ -264,9 +267,9 @@ Ganglion with WIFI Shield
     :width: 300px
     :height: 300px
 
-`WIFI Shield Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_
+`WIFI Shield Getting Started Guide from OpenBCI <https://docs.openbci.com/GettingStarted/Boards/WiFiGS/>`_
 
-`WIFI Shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_
+`WIFI Shield Programming Guide from OpenBCI <https://docs.openbci.com/ThirdParty/WiFiShield/WiFiProgam/>`_
 
 To choose this board in BoardShim constructor please specify:
 
@@ -296,9 +299,9 @@ Cyton with WIFI Shield
     :width: 400px
     :height: 325px
 
-`WIFI shield Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_
+`WIFI shield Getting Started Guide from OpenBCI <https://docs.openbci.com/GettingStarted/Boards/WiFiGS/>`_
 
-`WIFI shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_
+`WIFI shield Programming Guide from OpenBCI <https://docs.openbci.com/ThirdParty/WiFiShield/WiFiProgam/>`_
 
 To choose this board in BoardShim constructor please specify:
 
@@ -329,9 +332,9 @@ CytonDaisy with WIFI Shield
     :width: 400px
     :height: 400px
 
-`WIFI Shield Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_
+`WIFI Shield Getting Started Guide from OpenBCI <https://docs.openbci.com/GettingStarted/Boards/WiFiGS/>`_
 
-`WIFI Shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_
+`WIFI Shield Programming Guide from OpenBCI <https://docs.openbci.com/ThirdParty/WiFiShield/WiFiProgam/>`_
 
 To choose this board in BoardShim constructor please specify:
 
@@ -721,3 +724,75 @@ Board Spec:
 - num acceleration channels: 3
 - sampling rate: 250
 - communication: Bluetooth Low Energy with serial port dongle
+
+Ant Neuro
+----------
+
+Ant Neuro EE 410
+~~~~~~~~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/51331462280_580d890535.jpg
+    :width: 500px
+    :height: 490px
+
+`Ant Website <https://www.ant-neuro.com/products>`_
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 24
+
+Supported platforms:
+
+- Windows
+- Linux
+
+Board Spec:
+
+- num eeg channels: 8
+- sampling rate: 2000
+
+Ant Neuro EE 411
+~~~~~~~~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/51331191524_5cea43c2f2.jpg
+    :width: 500px
+    :height: 399px
+
+`Ant Website <https://www.ant-neuro.com/products>`_
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 25
+
+Supported platforms:
+
+- Windows
+- Linux
+
+Board Spec:
+
+- num eeg channels: 8
+- sampling rate: 2000
+
+Ant Neuro EE 430
+~~~~~~~~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/51329836457_6438dce763.jpg
+    :width: 500px
+    :height: 438px
+
+`Ant Website <https://www.ant-neuro.com/products>`_
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 26
+
+Supported platforms:
+
+- Windows
+- Linux
+
+Board Spec:
+
+- num eeg channels: 8
+- sampling rate: 512

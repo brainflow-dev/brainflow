@@ -13,6 +13,7 @@
 #include <string>
 #include <utility>
 
+#include "ant_neuro.h"
 #include "board.h"
 #include "board_controller.h"
 #include "board_info_getter.h"
@@ -165,6 +166,18 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
             break;
         case BoardIds::MUSE_2_BLED_BOARD:
             board = std::shared_ptr<Board> (new Muse2BLED (params));
+            break;
+        case BoardIds::ANT_NEURO_EE_410_BOARD:
+            board = std::shared_ptr<Board> (
+                new AntNeuroBoard ((int)BoardIds::ANT_NEURO_EE_410_BOARD, params));
+            break;
+        case BoardIds::ANT_NEURO_EE_411_BOARD:
+            board = std::shared_ptr<Board> (
+                new AntNeuroBoard ((int)BoardIds::ANT_NEURO_EE_411_BOARD, params));
+            break;
+        case BoardIds::ANT_NEURO_EE_430_BOARD:
+            board = std::shared_ptr<Board> (
+                new AntNeuroBoard ((int)BoardIds::ANT_NEURO_EE_430_BOARD, params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

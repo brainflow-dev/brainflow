@@ -343,6 +343,36 @@ json brainflow_boards_json = {
             {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
             {"eeg_names", "CP3,C3,F5,PO3,PO4,F6,C4,CP4"},
             {"other_channels", {9}}
+        }},
+        {"24",
+            {{"name", "AntNeuroEE410"},
+            {"sampling_rate", 2000},
+            {"timestamp_channel", 10},
+            {"marker_channel", 11},
+            {"package_num_channel", 0},
+            {"num_rows", 12},
+            {"emg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
+            {"other_channels", {9}}
+        }},
+        {"25",
+            {{"name", "AntNeuroEE411"},
+            {"sampling_rate", 2000},
+            {"timestamp_channel", 10},
+            {"marker_channel", 11},
+            {"package_num_channel", 0},
+            {"num_rows", 12},
+            {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
+            {"other_channels", {9}}
+        }},
+        {"26",
+            {{"name", "AntNeuroEE430"},
+            {"sampling_rate", 512},
+            {"timestamp_channel", 10},
+            {"marker_channel", 11},
+            {"package_num_channel", 0},
+            {"num_rows", 12},
+            {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
+            {"other_channels", {9}}
         }}
     }
 }};
