@@ -9,3 +9,4 @@ subtitle: Articles which use BrainFlow
 * [Biomedical Signal Processing Using Non-Invasive Sensors for Healthcare](https://www.hindawi.com/journals/jhe/2021/5535810/)
 * [PERFORMANCE OF OPENBCI EEG BINARY INTENT
 CLASSIFICATION WITH LARYNGEAL IMAGERY](https://arxiv.org/pdf/2107.00045.pdf)
+* [M.G. Mussi, Development of a simultaneous Hybrid Brain-Computer Interface using SSVEP and P300](https://www.resna.org/sites/default/files/conference/2021/NewEmergingTechnology/75_Mussi/75_Mussi.pdf)

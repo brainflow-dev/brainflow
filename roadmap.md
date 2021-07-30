@@ -21,6 +21,8 @@ Primary goal is to simplify process of adding new boards using Rust, also we wan
 
 BrainFlow has built-in framework for adding new devices. It works great and simplifies this process, but to add new boards we need to buy them or collaborate with manufactorers.
 
+At the beginning of BrainFlow we were focused on low-cost DIY boards and devices for researchers and software engineers. Now we are working on integration of medical grade and consumer devices from different price segments and use cases. In the feasible future percentage of consumer and medical grade devices in BrainFlow will grow, and it will be our primary focus.
+
 ## Port BrainFlow to new platforms and languages
 
 So far we support:
