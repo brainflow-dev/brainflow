@@ -3,10 +3,9 @@ layout: post
 title: BrainFlow 4.0.0
 subtitle: New BrainFlow Version Released
 image: /img/rowmajor.jpg
-tags: [release]
+tags: [release, history]
 author: andrey_parfenov
 ---
-
 
 
 ### Breaking change for C++ and C# bindings

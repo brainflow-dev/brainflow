@@ -2,6 +2,8 @@
 layout: post
 title: Initial Commit
 subtitle: BrainFlow officially started
+tags: [history]
 ---
 
-All hope to fix existing SDKs was lost, so I started BrainFlow project. Created first commit added multiple helpers like ring buffer, functions to get unix timestampts, etc. Thinking about general architecture.
+First commit to BrainFlow repository was made. BrainFlow lives on Github in public repository from day 1, so first commit has only basic helpers. 
+Some of them like spinlock, data_buffer class, timestamps, etc are still available from the [utils folder](https://github.com/brainflow-dev/brainflow/tree/master/src/utils).

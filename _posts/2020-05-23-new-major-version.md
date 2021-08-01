@@ -3,7 +3,7 @@ layout: post
 title: BrainFlow 3.0.0
 subtitle: New Major Release
 image: /img/callibri.jpg
-tags: [release]
+tags: [release, history]
 ---
 
 ### Changes in this release:
@@ -13,6 +13,10 @@ tags: [release]
 
 
 #### Callibri
+
+<p align="center">
+    <img src="https://live.staticflickr.com/65535/49906443867_315307d6fc.jpg">
+</p>
 
 Callibri – a wearable device embedded with multiple sensors to monitor physiological data spanning across muscle movement, breathing & heart rates, and more.
 
