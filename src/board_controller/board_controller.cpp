@@ -179,6 +179,46 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
             board = std::shared_ptr<Board> (
                 new AntNeuroBoard ((int)BoardIds::ANT_NEURO_EE_430_BOARD, params));
             break;
+        case BoardIds::ANT_NEURO_EE_211_BOARD:
+            board = std::shared_ptr<Board> (
+                new AntNeuroBoard ((int)BoardIds::ANT_NEURO_EE_211_BOARD, params));
+            break;
+        case BoardIds::ANT_NEURO_EE_212_BOARD:
+            board = std::shared_ptr<Board> (
+                new AntNeuroBoard ((int)BoardIds::ANT_NEURO_EE_212_BOARD, params));
+            break;
+        case BoardIds::ANT_NEURO_EE_213_BOARD:
+            board = std::shared_ptr<Board> (
+                new AntNeuroBoard ((int)BoardIds::ANT_NEURO_EE_213_BOARD, params));
+            break;
+        case BoardIds::ANT_NEURO_EE_214_BOARD:
+            board = std::shared_ptr<Board> (
+                new AntNeuroBoard ((int)BoardIds::ANT_NEURO_EE_214_BOARD, params));
+            break;
+        case BoardIds::ANT_NEURO_EE_215_BOARD:
+            board = std::shared_ptr<Board> (
+                new AntNeuroBoard ((int)BoardIds::ANT_NEURO_EE_215_BOARD, params));
+            break;
+        case BoardIds::ANT_NEURO_EE_221_BOARD:
+            board = std::shared_ptr<Board> (
+                new AntNeuroBoard ((int)BoardIds::ANT_NEURO_EE_221_BOARD, params));
+            break;
+        case BoardIds::ANT_NEURO_EE_222_BOARD:
+            board = std::shared_ptr<Board> (
+                new AntNeuroBoard ((int)BoardIds::ANT_NEURO_EE_222_BOARD, params));
+            break;
+        case BoardIds::ANT_NEURO_EE_223_BOARD:
+            board = std::shared_ptr<Board> (
+                new AntNeuroBoard ((int)BoardIds::ANT_NEURO_EE_223_BOARD, params));
+            break;
+        case BoardIds::ANT_NEURO_EE_224_BOARD:
+            board = std::shared_ptr<Board> (
+                new AntNeuroBoard ((int)BoardIds::ANT_NEURO_EE_224_BOARD, params));
+            break;
+        case BoardIds::ANT_NEURO_EE_225_BOARD:
+            board = std::shared_ptr<Board> (
+                new AntNeuroBoard ((int)BoardIds::ANT_NEURO_EE_225_BOARD, params));
+            break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
     }
