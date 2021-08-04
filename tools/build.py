@@ -123,6 +123,7 @@ def prepare_args():
     parser.add_argument('--build-dir', type=str, help='build folder', required=False, default=os.path.join(cur_folder, '..', 'build'))
     parser.add_argument('--cmake-install-prefix', type=str, help='installation folder, full path', required=False, default=os.path.join(cur_folder, '..', 'installed'))
     parser.add_argument('--use-openmp', action='store_true')
+    parser.add_argument('--build-bluetooth', action='store_true')
     parser.add_argument('--warnings-as-errors', action='store_true')
     parser.add_argument('--debug', action='store_true')
     parser.add_argument('--clear-build-dir', action='store_true')
@@ -154,6 +155,8 @@ def config(args):
         cmd_config.append('-DUSE_OPENMP=ON')
     if hasattr(args, 'oymotion') and args.oymotion:
         cmd_config.append('-DBUILD_OYMOTION_SDK=ON')
+    if hasattr(args, 'build_bluetooth') and args.build_bluetooth:
+        cmd_config.append('-DBUILD_BLUETOOTH=ON')
     if hasattr(args, 'cmake_osx_architecture') and args.cmake_osx_architecture:
         cmd_config.append('-DCMAKE_OSX_ARCHITECTURES=%s' % args.cmake_osx_architecture)
     if hasattr(args, 'cmake_osx_deployment_target') and args.cmake_osx_deployment_target:

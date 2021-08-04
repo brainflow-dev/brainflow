@@ -28,6 +28,7 @@
 #include "cyton_daisy.h"
 #include "cyton_daisy_wifi.h"
 #include "cyton_wifi.h"
+#include "enophone.h"
 #include "fascia.h"
 #include "freeeeg32.h"
 #include "galea.h"
@@ -178,6 +179,9 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
         case BoardIds::ANT_NEURO_EE_430_BOARD:
             board = std::shared_ptr<Board> (
                 new AntNeuroBoard ((int)BoardIds::ANT_NEURO_EE_430_BOARD, params));
+            break;
+        case BoardIds::ENOPHONE_BOARD:
+            board = std::shared_ptr<Board> (new Enophone (params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
