@@ -117,7 +117,7 @@ After building your game for production don't forget to copy *Unmanaged(C++)* li
 Unreal Engine
 --------------
 
-We provide `Unreal Engine Plugin <https://github.com/brainflow-dev/BrainFlowUnrealPlugin>`_ with precompiled libraries for most commonly used configurations. Check Readme for installtion details.
+We provide `Unreal Engine Plugin <https://github.com/brainflow-dev/BrainFlowUnrealPlugin>`_ with instructions how to compile and use it. Check Readme for installtion details.
 
 This `blog post <https://unreal.blog/how-to-include-any-third-party-library>`_ can help if you want to write your own plugin or extend existing one.
 

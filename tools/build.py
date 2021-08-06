@@ -88,6 +88,7 @@ def prepare_args():
         parser.add_argument('--oymotion', dest='oymotion', action='store_true')
         parser.add_argument('--no-oymotion-sdk', dest='oymotion', action='store_false')
         parser.set_defaults(oymotion=True)
+        parser.add_argument('--msvc-runtime', type=str, choices=['static', 'dynamic'], help='how to link MSVC runtime', required=False, default='static')
         generators = get_win_generators()
         if not generators:
             parser.add_argument('--generator', type=str, help='generator for CMake', required=True)
@@ -165,6 +166,8 @@ def config(args):
         cmd_config.extend(['-G', args.generator])
     if hasattr(args, 'arch') and args.arch:
         cmd_config.extend(['-A', args.arch])
+    if hasattr(args, 'msvc_runtime'):
+        cmd_config.append('-DMSVC_RUNTIME=%s' % (args.msvc_runtime))
     if platform.system() != 'Windows':
         if hasattr(args, 'debug') and args.debug:
             cmd_config.append('-DCMAKE_BUILD_TYPE=Debug')
