@@ -75,8 +75,8 @@ jobs:
     - name: Compile BrainFlow in ManyLinux
       if: (matrix.os == 'ubuntu-18.04')
       run: |
-        docker pull dockcross/manylinux2014-x64
-        docker run -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -e BUILD=$BUILD -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE dockcross/manylinux2014-x64 /bin/bash -c "/opt/python/cp36-cp36m/bin/pip3.6 install cmake==3.13.3 && cd $GITHUB_WORKSPACE && mkdir build_docker && cd build_docker && cmake -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/artifacts/linux_${BUILD} -DCMAKE_BUILD_TYPE=$BUILD .. && make && make install"
+        docker pull dockcross/manylinux2014-x64:20210708-94745ff
+        docker run -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -e BUILD=$BUILD -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE dockcross/manylinux2014-x64:20210708-94745ff /bin/bash -c "/opt/python/cp36-cp36m/bin/pip3.6 install cmake==3.13.3 && cd $GITHUB_WORKSPACE && mkdir build_docker && cd build_docker && cmake -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/artifacts/linux_${BUILD} -DCMAKE_BUILD_TYPE=$BUILD .. && make && make install"
       env:
         BUILD: ${{ matrix.build_type }}
     - name: Upload Artifacts
