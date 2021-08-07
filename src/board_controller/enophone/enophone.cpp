@@ -5,22 +5,9 @@
 #include "timestamp.h"
 
 
-int Enophone::num_objects = 0;
-
-
 Enophone::Enophone (struct BrainFlowInputParams params)
     : Board ((int)BoardIds::ENOPHONE_BOARD, params)
 {
-    Enophone::num_objects++;
-    if (Enophone::num_objects > 1)
-    {
-        is_valid = false;
-    }
-    else
-    {
-        is_valid = true;
-    }
-
     char bluetoothlib_dir[1024];
     bool res = get_dll_path (bluetoothlib_dir);
     std::string bluetoothlib_path = "";
@@ -59,7 +46,6 @@ Enophone::Enophone (struct BrainFlowInputParams params)
 Enophone::~Enophone ()
 {
     skip_logs = true;
-    Enophone::num_objects--;
     release_session ();
 }
 
@@ -69,11 +55,6 @@ int Enophone::prepare_session ()
     {
         safe_logger (spdlog::level::info, "Session is already prepared");
         return (int)BrainFlowExitCodes::STATUS_OK;
-    }
-    if (!is_valid)
-    {
-        safe_logger (spdlog::level::info, "only one Enophone board per process is supported");
-        return (int)BrainFlowExitCodes::ANOTHER_BOARD_IS_CREATED_ERROR;
     }
     if (params.mac_address.empty ())
     {

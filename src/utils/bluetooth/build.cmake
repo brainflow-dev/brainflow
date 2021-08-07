@@ -20,8 +20,15 @@ else (CMAKE_SIZEOF_VOID_P EQUAL 8)
     endif (APPLE)
 endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
 
+if (MSVC)
+    SET (BLUETOOTH_SRC
+        ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/socket_bluetooth_win.cpp
+    )
+endif (MSVC)
+
 SET (BLUETOOTH_SRC
-    ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/bluetooth_windows.cpp
+    ${BLUETOOTH_SRC}
+    ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/bluetooth_function.cpp
 )
 
 add_library (

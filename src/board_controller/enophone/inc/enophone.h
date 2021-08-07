@@ -12,15 +12,12 @@ class Enophone : public Board
 {
 
 private:
-    static int num_objects;
-
     volatile BLUETOOTH_HANDLE bluetooth_handle;
     volatile bool keep_alive;
     bool initialized;
     bool is_streaming;
     std::thread streaming_thread;
     DLLLoader *dll_loader;
-    bool is_valid;
 
     void read_thread ();
     int call_start ();
