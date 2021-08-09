@@ -85,8 +85,8 @@ if (BUILD_OYMOTION_SDK)
 endif (BUILD_OYMOTION_SDK)
 
 if (BUILD_BLUETOOTH)
-    include (${CMAKE_HOME_DIRECTORY}/utils/bluetooth/build.cmake)
-endif (BUILD_OYMOTION_SDK)
+    include (${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/build.cmake)
+endif (BUILD_BLUETOOTH)
 
 add_library (
     ${BOARD_CONTROLLER_NAME} SHARED

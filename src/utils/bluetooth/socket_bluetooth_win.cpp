@@ -1,5 +1,6 @@
+#include "bluetooth_functions.h"
 #include "socket_bluetooth.h"
-
+#include <iostream>
 #undef UNICODE
 #undef _UNICODE
 
@@ -31,7 +32,7 @@ int SocketBluetooth::connect ()
     SOCKADDR_BTH addr = {0};
     int addr_size = sizeof (SOCKADDR_BTH);
     char mac_addr_c[40];
-    strncpy (mac_addr_c, mac_addr, 40);
+    strncpy (mac_addr_c, mac_addr.c_str (), 40);
     status = WSAStringToAddress (mac_addr_c, AF_BTH, NULL, (LPSOCKADDR)&addr, &addr_size);
     if (status == SOCKET_ERROR)
     {
@@ -40,7 +41,7 @@ int SocketBluetooth::connect ()
     }
     addr.port = this->port;
 
-    status = connect (data->s, (LPSOCKADDR)&addr, addrSize);
+    status = ::connect (socket_bt, (LPSOCKADDR)&addr, addr_size);
     if (status == SOCKET_ERROR)
     {
         close ();
@@ -71,32 +72,34 @@ int SocketBluetooth::send (const char *data, int size)
     return res;
 }
 
-int SocketBluetooth::recv (void *data, int size)
+int SocketBluetooth::recv (char *data, int size)
 {
     if (socket_bt == INVALID_SOCKET)
     {
         return -1;
     }
+    // waiting for exact amount of bytes
+    int e = bytes_available ();
+    std::cout << e << std::endl;
+    if (e < size)
+    {
+        // return 0;
+    }
     fd_set set;
     FD_ZERO (&set);
     FD_SET (socket_bt, &set);
-    // waiting for exact amount of bytes
-    if (bytes_available () < size)
-    {
-        return 0;
-    }
 
-    int size = -1;
+    int res = -1;
 
     timeval timeout {0, 0};
     if (select (1, &set, nullptr, nullptr, &timeout) >= 0)
     {
         if (FD_ISSET (socket_bt, &set))
         {
-            size = recv (socket_bt, data, size, 0);
+            res = ::recv (socket_bt, data, size, 0);
         }
     }
-    return size;
+    return res;
 }
 
 int SocketBluetooth::bytes_available ()
@@ -106,7 +109,7 @@ int SocketBluetooth::bytes_available ()
         return -1;
     }
     u_long count;
-    ioctlsocket (data->s, FIONREAD, &count);
+    ioctlsocket (socket_bt, FIONREAD, &count);
     return count;
 }
 

@@ -2,7 +2,6 @@
 
 #include <thread>
 
-#include "bluetooth_types.h"
 #include "board.h"
 #include "board_controller.h"
 #include "runtime_dll_loader.h"
@@ -12,7 +11,6 @@ class Enophone : public Board
 {
 
 private:
-    volatile BLUETOOTH_HANDLE bluetooth_handle;
     volatile bool keep_alive;
     bool initialized;
     bool is_streaming;

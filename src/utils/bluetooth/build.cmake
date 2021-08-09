@@ -28,7 +28,7 @@ endif (MSVC)
 
 SET (BLUETOOTH_SRC
     ${BLUETOOTH_SRC}
-    ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/bluetooth_function.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/bluetooth_functions.cpp
 )
 
 add_library (

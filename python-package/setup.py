@@ -60,7 +60,11 @@ setup(
             os.path.join('lib', 'eego-SDK32.dll'),
             os.path.join('lib', 'eego-SDK.dll'),
             os.path.join('lib', 'libeego-SDK.so'),
-            os.path.join('lib', 'libeego-SDK32.so')
+            os.path.join('lib', 'libeego-SDK32.so'),
+            os.path.join('lib', 'BrainFlowBluetooth.dll'),
+            os.path.join('lib', 'BrainFlowBluetooth32.dll'),
+            os.path.join('lib', 'libBrainFlowBluetooth.so'),
+            os.path.join('lib', 'libBrainFlowBluetooth.dylib')
         ]
     },
     zip_safe=True,

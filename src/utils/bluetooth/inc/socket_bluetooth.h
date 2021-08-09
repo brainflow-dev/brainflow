@@ -1,27 +1,20 @@
 #pragma once
 
 #ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include <windows.h>
 #include <winsock2.h>
 #include <ws2bth.h>
-#include <ws2tcpip.h>
 #endif
 
 #include <stdlib.h>
 #include <string.h>
+#include <string>
 
-
-enum class SocketBluetoothReturnCodes : int
-{
-    STATUS_OK = 0,
-    WSA_STARTUP_ERROR = 1,
-    CREATE_SOCKET_ERROR = 2,
-    CONNECT_ERROR = 3,
-    WSA_ADDR_ERROR = 4,
-    CONNECT_ERROR = 5,
-    IOCTL_ERROR = 6
-};
 
 class SocketBluetooth
 {
@@ -35,7 +28,7 @@ public:
 
     int connect ();
     int send (const char *data, int size);
-    int recv (void *data, int size);
+    int recv (char *data, int size);
     int bytes_available ();
     int close ();
 

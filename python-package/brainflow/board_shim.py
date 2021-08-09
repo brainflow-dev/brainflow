@@ -49,6 +49,7 @@ class BoardIds(enum.IntEnum):
     ANT_NEURO_EE_410_BOARD = 24 #:
     ANT_NEURO_EE_411_BOARD = 25 #:
     ANT_NEURO_EE_430_BOARD = 26 #:
+    ENOPHONE_BOARD = 37 #:
 
 
 class LogLevels(enum.IntEnum):
