@@ -212,7 +212,12 @@ int FreeEEG32::set_port_settings ()
     if (res < 0)
     {
         safe_logger (spdlog::level::err, "Unable to set custom baud rate, res is {}", res);
+        #ifndef _WIN32
+        // Setting the baudrate may return an error on Windows for some serial drivers.
+        // We do not throw an exception, because it will still work with USB.
+        // Optical connection will fail, though.
         return (int)BrainFlowExitCodes::SET_PORT_ERROR;
+        #endif
     }
     safe_logger (spdlog::level::trace, "set port settings");
     return (int)BrainFlowExitCodes::STATUS_OK;
