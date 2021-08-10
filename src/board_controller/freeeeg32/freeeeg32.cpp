@@ -202,30 +202,19 @@ int FreeEEG32::open_port ()
 
 int FreeEEG32::set_port_settings ()
 {
-#ifdef _WIN32
-    // windows driver fails to set settings and in fact ignores them, no idea what drivers on others
-    // OSes do
-    int timeout_only = true;
-#else
-    int timeout_only = false;
-#endif
-    int res = serial->set_serial_port_settings (1000, timeout_only);
+    int res = serial->set_serial_port_settings (1000, false);
     if (res < 0)
     {
         safe_logger (spdlog::level::err, "Unable to set port settings, res is {}", res);
         return (int)BrainFlowExitCodes::SET_PORT_ERROR;
     }
-#ifndef _WIN32
-    // looks like stm driver on windows ignores all settings, no need to change them
     res = serial->set_custom_baudrate (921600);
     if (res < 0)
     {
         safe_logger (spdlog::level::err, "Unable to set custom baud rate, res is {}", res);
         return (int)BrainFlowExitCodes::SET_PORT_ERROR;
     }
-#endif
     safe_logger (spdlog::level::trace, "set port settings");
-
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
