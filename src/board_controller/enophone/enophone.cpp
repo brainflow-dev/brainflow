@@ -244,7 +244,7 @@ void Enophone::read_thread ()
             }
         }
 
-        // first two bytes received, ready to read data bytes(20)
+        // first two bytes received, ready to read data bytes
         if (is_ready)
         {
             while ((keep_alive) && (res >= 0))
@@ -263,8 +263,13 @@ void Enophone::read_thread ()
                         {
                             package[board_descr["package_num_channel"].get<int> ()] = val % 65536;
                         }
-
-                        safe_logger (spdlog::level::info, "i = {}, val = {}", i, val);
+                        else
+                        {
+                            double value = ((double)(val / 256)) * 5.0 / 8388608.0;
+                            double gain = 100.0;
+                            value = value / gain * 1000000.0;
+                            package[eeg_channels[i - 1]] = value;
+                        }
                     }
                     package[board_descr["timestamp_channel"].get<int> ()] = timestamp;
                     push_package (package);
