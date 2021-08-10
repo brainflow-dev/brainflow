@@ -206,7 +206,9 @@ int FreeEEG32::set_port_settings ()
     if (res < 0)
     {
         safe_logger (spdlog::level::err, "Unable to set port settings, res is {}", res);
+#ifndef _WIN32
         return (int)BrainFlowExitCodes::SET_PORT_ERROR;
+#endif
     }
     res = serial->set_custom_baudrate (921600);
     if (res < 0)
