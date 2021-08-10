@@ -3,7 +3,7 @@ layout: post
 title: OpenBCI GUI with BrainFlow
 subtitle: OpenBCI GUI 5.0 uses BrainFlow
 image: /img/openbci_gui_5.jpg
-tags: [apps]
+tags: [apps, history]
 ---
 
 The [OpenBCI GUI](https://github.com/OpenBCI/OpenBCI_GUI) is OpenBCI's powerful software tool for visualizing, recording, and streaming data from the OpenBCI Boards. Data can be displayed in live-time, played back, saved to your computer in .txt format, as well as streamed in live-time to third-party softwares such as MATLAB. It can be launched as a standalone application or as a sketch from Processing (a Java-based programming language). In this guide, we will cover both scenarios.
