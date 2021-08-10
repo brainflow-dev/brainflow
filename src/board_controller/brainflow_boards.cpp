@@ -491,6 +491,7 @@ json brainflow_boards_json = {
             {"num_rows", 7},
             {"eeg_channels", {1, 2, 3, 4}},
             {"eeg_names", "A1,A2,C3,C4"}
+        }}
     }
 }};
 // clang-format on
