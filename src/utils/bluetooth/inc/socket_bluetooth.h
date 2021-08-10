@@ -6,14 +6,17 @@
 #endif
 
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
-#include <windows.h>
+// clang-format off
 #include <winsock2.h>
+#include <windows.h>
 #include <ws2bth.h>
+// clang-format on
 #endif
 
 #include <stdlib.h>
 #include <string.h>
 #include <string>
+#include <utility>
 
 
 class SocketBluetooth
@@ -31,6 +34,8 @@ public:
     int recv (char *data, int size);
     int bytes_available ();
     int close ();
+
+    static std::pair<std::string, int> discover (char *device_selector);
 
 private:
     std::string mac_addr;

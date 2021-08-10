@@ -1,5 +1,7 @@
 #pragma once
 
+#include <condition_variable>
+#include <mutex>
 #include <thread>
 
 #include "board.h"
@@ -16,6 +18,11 @@ private:
     bool is_streaming;
     std::thread streaming_thread;
     DLLLoader *dll_loader;
+    std::mutex m;
+    std::condition_variable cv;
+    volatile int state;
+
+    int (*func_get_data) (char *, int, char *);
 
     void read_thread ();
     int call_start ();
@@ -30,4 +37,7 @@ public:
     int stop_stream ();
     int release_session ();
     int config_board (std::string config, std::string &response);
+
+protected:
+    int find_enophone_addr ();
 };
