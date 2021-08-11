@@ -24,6 +24,14 @@ if (MSVC)
     SET (BLUETOOTH_SRC
         ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/socket_bluetooth_win.cpp
     )
+elseif (APPLE)
+    SET (BLUETOOTH_SRC
+        ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/socket_bluetooth_macos.cpp
+    )
+else ()
+    SET (BLUETOOTH_SRC
+        ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/socket_bluetooth_linux.cpp
+    )
 endif (MSVC)
 
 SET (BLUETOOTH_SRC

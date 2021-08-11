@@ -42,5 +42,7 @@ private:
     int port;
 #ifdef _WIN32
     SOCKET socket_bt;
+#elif defined(__linux__)
+    int socket_bt;
 #endif
 };
