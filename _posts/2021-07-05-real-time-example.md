@@ -12,7 +12,7 @@ Significant number of users asked about real time plotting examples in Python an
 
 Also, feel free to check Matthijs [blog post](https://brainflow.org/2021-01-04-data-visualization/) about visualization in Julia.
 
-Full code for this example can be found [here](https://github.com/brainflow-dev/brainflow/blob/master/python-package/examples/plot_real_time_min.py).
+Full code for this example can be found [here](https://github.com/brainflow-dev/brainflow/blob/master/python-package/examples/plot_real_time/plot_real_time_min.py).
 
 ## Installing dependencies
 
@@ -23,7 +23,7 @@ python -m pip install -U brainflow
 python -m pip install pyqtgraph==0.12.1
 ```
 
-Or use [requirements.txt file](https://github.com/brainflow-dev/brainflow/blob/master/python-package/examples/requirements.txt)
+Or use [requirements.txt file](https://github.com/brainflow-dev/brainflow/blob/master/python-package/examples/plot_real_time/requirements.txt)
 
 pyqtgraph requires PyQT preinstalled, on unix like systems process of installation is different based on OS. On Fedora it's as simple as:
 
