@@ -77,7 +77,7 @@ if (UNIX AND NOT ANDROID)
 endif (UNIX AND NOT ANDROID)
 
 if (UNIX AND NOT ANDROID)
-    target_link_libraries (${BLUETOOTH_LIB_NAME} PRIVATE pthread dl)
+    target_link_libraries (${BLUETOOTH_LIB_NAME} PRIVATE pthread dl bluetooth)
 endif (UNIX AND NOT ANDROID)
 
 install (

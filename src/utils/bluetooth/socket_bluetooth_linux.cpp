@@ -96,7 +96,7 @@ int SocketBluetooth::bytes_available ()
     }
     int count;
     ioctl (socket_bt, FIONREAD, &count);
-    return count > 0;
+    return count;
 }
 
 int SocketBluetooth::close ()
