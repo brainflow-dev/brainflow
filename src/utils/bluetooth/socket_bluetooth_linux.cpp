@@ -109,5 +109,5 @@ int SocketBluetooth::close ()
 std::pair<std::string, int> SocketBluetooth::discover (char *selector)
 {
     return std::make_pair<std::string, int> (
-        "", (int)SocketBluetoothReturnCodes::DEVICE_IS_NOT_CREATED_ERROR);
+        "", (int)SocketBluetoothReturnCodes::UNIMPLEMENTED_ERROR);
 }
