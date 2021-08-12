@@ -490,7 +490,7 @@ json brainflow_boards_json = {
             {"package_num_channel", 0},
             {"num_rows", 7},
             {"eeg_channels", {1, 2, 3, 4}},
-            {"eeg_names", "A1,A2,C3,C4"}
+            {"eeg_names", "A2,A1,C4,C3"}
         }}
     }
 }};
