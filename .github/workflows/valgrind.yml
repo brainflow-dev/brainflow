@@ -20,6 +20,13 @@ jobs:
       uses: jwlawson/actions-setup-cmake@v1.4
       with:
         cmake-version: '3.16.x'
+    - name: Install Dependencies
+      if: (matrix.os == 'ubuntu-latest')
+      run: |
+        sudo -H apt-get update -y
+        sudo -H apt-get install -y libbluetooth-dev
+      env:
+        DEBIAN_FRONTEND: noninteractive
     - name: Compile BrainFlow
       run: |
         mkdir $GITHUB_WORKSPACE/build

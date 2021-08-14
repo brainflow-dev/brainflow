@@ -536,8 +536,11 @@ pipe_t* pipe_new(size_t elem_size, size_t limit)
     // Change the limit from being in "elements" to being in "bytes".
     limit *= elem_size;
 
-    if(unlikely(p == NULL || buf == NULL))
-        return free(p), free(buf), NULL;
+    if((p == NULL) || (buf == NULL)) {
+        free(p);
+        free(buf);
+        return NULL;
+    }
 
     *p = (pipe_t) {
         .elem_size  = elem_size,
