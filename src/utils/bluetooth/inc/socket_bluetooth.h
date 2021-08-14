@@ -13,6 +13,11 @@
 // clang-format on
 #endif
 
+#ifdef __APPLE__
+#include "pipe.h"
+#include <queue>
+#endif
+
 #include <stdlib.h>
 #include <string.h>
 #include <string>
@@ -44,5 +49,8 @@ private:
     SOCKET socket_bt;
 #elif defined(__linux__)
     int socket_bt;
+#elif defined(__APPLE__)
+    pipe_consumer_t *consumer;
+    std::queue<char> temp_buffer;
 #endif
 };

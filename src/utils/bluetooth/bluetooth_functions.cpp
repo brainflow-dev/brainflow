@@ -79,11 +79,10 @@ int bluetooth_discover_device (char *device_selector, char *mac_addr, int *len)
 {
     std::lock_guard<std::mutex> lock (mutex);
     std::pair<std::string, int> discovered = SocketBluetooth::discover (device_selector);
-    if (discovered.first.empty ())
+    if (!discovered.first.empty ())
     {
-        return (int)SocketBluetoothReturnCodes::DEVICE_IS_NOT_CREATED_ERROR;
+        strcpy (mac_addr, discovered.first.c_str ());
+        *len = (int)discovered.first.size ();
     }
-    strcpy (mac_addr, discovered.first.c_str ());
-    *len = (int)discovered.first.size ();
     return discovered.second;
 }

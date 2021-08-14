@@ -26,7 +26,10 @@ if (MSVC)
     )
 elseif (APPLE)
     SET (BLUETOOTH_SRC
-        ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/socket_bluetooth_macos.cpp
+        ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/socket_bluetooth_macos.mm
+        ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/macos_third_party/BluetoothDeviceResources.mm
+        ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/macos_third_party/BluetoothWorker.mm
+        ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/macos_third_party/pipe.c
     )
 else ()
     SET (BLUETOOTH_SRC
@@ -48,6 +51,7 @@ target_include_directories (
     ${BLUETOOTH_LIB_NAME} PRIVATE
     ${CMAKE_HOME_DIRECTORY}/src/utils/inc
     ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/inc
+    ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/macos_third_party
 )
 
 set_target_properties (${BLUETOOTH_LIB_NAME}
@@ -76,9 +80,12 @@ if (UNIX AND NOT ANDROID)
     )
 endif (UNIX AND NOT ANDROID)
 
-if (UNIX AND NOT ANDROID)
+if (UNIX AND NOT ANDROID AND NOT APPLE)
     target_link_libraries (${BLUETOOTH_LIB_NAME} PRIVATE pthread dl bluetooth)
-endif (UNIX AND NOT ANDROID)
+endif (UNIX AND NOT ANDROID AND NOT APPLE)
+if (APPLE)
+    target_link_libraries (${BLUETOOTH_LIB_NAME} "-framework foundation -framework IOBluetooth")
+endif (APPLE)
 
 install (
     TARGETS ${BLUETOOTH_LIB_NAME}

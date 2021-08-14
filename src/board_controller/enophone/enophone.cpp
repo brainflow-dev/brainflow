@@ -24,7 +24,7 @@ Enophone::Enophone (struct BrainFlowInputParams params)
     {
         lib_name = "BrainFlowBluetooth.dll";
     }
-#elif defined(__apple__)
+#elif defined(__APPLE__)
     std::string lib_name = "libBrainFlowBluetooth.dylib";
 #else
     std::string lib_name = "libBrainFlowBluetooth.so";

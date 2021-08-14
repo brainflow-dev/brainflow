@@ -824,6 +824,7 @@ Steps to find MAC address:
 
 - On Windows: open device manager, navigate to enophone device, click properties and select Bluetooth Address
 - On Linux: install bluez-utils and run :code:`bluetoothctl paired-devices`
+- On MacOS: run :code:`system_profiler SPBluetoothDataType`
 
 Board Spec:
 
