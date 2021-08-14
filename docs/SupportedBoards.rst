@@ -826,6 +826,9 @@ Steps to find MAC address:
 - On Linux: install bluez-utils and run :code:`bluetoothctl paired-devices`
 - On MacOS: run :code:`system_profiler SPBluetoothDataType`
 
+**On Linux in order to compile and use it you may need to install :code:`libbluetooth-dev` for Debian like systems and :code:`bluez-libs-devel` for Fedora like.**
+
+
 Board Spec:
 
 - num emg channels: 4
