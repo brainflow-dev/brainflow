@@ -170,13 +170,8 @@ BrainFlowArray<double, 2> BoardShim::get_board_data ()
 }
 BrainFlowArray<double, 2> BoardShim::get_board_data (int num_datapoints)
 {
-    if (num_datapoints <= 0)
-    {
-        throw std::invalid_argument (
-            "INVALID_ARGUMENTS_ERROR : data size should be greater than 0");
-    }
     int num_samples = get_board_data_count ();
-    num_samples = std::min (num_samples, num_datapoints);
+    num_samples = std::min(num_samples, num_datapoints);
     int num_data_channels = get_num_rows (get_board_id ());
     double *buf = new double[num_samples * num_data_channels];
     int res = ::get_board_data (
