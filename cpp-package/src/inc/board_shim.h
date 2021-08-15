@@ -201,6 +201,7 @@ public:
     int get_board_data_count ();
     /// get all collected data and flush it from internal buffer
     BrainFlowArray<double, 2> get_board_data ();
+    /// get required amount of datapoints from board data and flush it from internal buffer
     BrainFlowArray<double, 2> get_board_data (int);
     /// send string to a board, use it carefully and only if you understand what you are doing
     std::string config_board (char *config);

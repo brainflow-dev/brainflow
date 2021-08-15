@@ -1047,6 +1047,23 @@ class BoardShim(object):
 
         return data_arr.reshape(package_length, data_size)
 
+    def get_board_data(self, num_datapoints) -> NDArray[Float64]:
+        """Get required amount of  board data and remove them from ringbuffer
+
+        :return: required data points from a board
+        :rtype: NDArray[Float64]
+        """
+        data_size = self.get_board_data_count()
+        data_size  = min(num_datapoints, data_size)
+        package_length = BoardShim.get_num_rows(self._master_board_id)
+        data_arr = numpy.zeros(data_size * package_length).astype(numpy.float64)
+
+        res = BoardControllerDLL.get_instance().get_board_data(data_size, data_arr, self.board_id, self.input_json)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to get board data', res)
+
+        return data_arr.reshape(package_length, data_size)
+
     def config_board(self, config) -> None:
         """Use this method carefully and only if you understand what you are doing, do NOT use it to start or stop streaming
 

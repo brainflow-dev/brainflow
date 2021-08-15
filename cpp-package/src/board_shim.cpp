@@ -168,11 +168,12 @@ BrainFlowArray<double, 2> BoardShim::get_board_data ()
     delete[] buf;
     return matrix;
 }
-BrainFlowArray<double, 2> BoardShim::get_board_data (int num_samples)
+BrainFlowArray<double, 2> BoardShim::get_board_data (int num_datapoints)
 {
+    int num_samples = get_board_data_count ();
+    num_samples = std::min(num_samples, num_datapoints);
     int num_data_channels = get_num_rows (get_board_id ());
     double *buf = new double[num_samples * num_data_channels];
-    int len = 0;
     int res = ::get_board_data (
         num_samples, buf, board_id, const_cast<char *> (serialized_params.c_str ()));
     if (res != (int)BrainFlowExitCodes::STATUS_OK)

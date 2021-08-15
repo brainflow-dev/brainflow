@@ -793,4 +793,23 @@ public class BoardShim
         }
         return result;
     }
+
+    public double[][] get_board_data (int num_datapoints) throws BrainFlowError
+    {
+        int size = get_board_data_count ();
+        size = (size >= num_datapoints)? num_datapoints: size;
+        int num_rows = BoardShim.get_num_rows (master_board_id);
+        double[] data_arr = new double[size * num_rows];
+        int ec = instance.get_board_data (size, data_arr, board_id, input_json);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in get_board_data", ec);
+        }
+        double[][] result = new double[num_rows][];
+        for (int i = 0; i < num_rows; i++)
+        {
+            result[i] = Arrays.copyOfRange (data_arr, (i * size), (i + 1) * size);
+        }
+        return result;
+    }
 }
