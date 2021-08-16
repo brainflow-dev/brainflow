@@ -24,7 +24,7 @@ jobs:
       run: |
         mkdir %GITHUB_WORKSPACE%\%BUILD%_%RUNTIME%_%ARCH%
         cd %GITHUB_WORKSPACE%\%BUILD%_%RUNTIME%_%ARCH%
-        cmake -DBUILD_OYMOTION_SDK=ON -DWARNINGS_AS_ERRORS=ON -G "Visual Studio 16 2019" -A %ARCH% -DCMAKE_SYSTEM_VERSION=8.1 -DMSVC_RUNTIME=%RUNTIME% -DCMAKE_INSTALL_PREFIX=..\artifacts\%ARCH%_%BUILD%_%RUNTIME%\ ..
+        cmake -DBUILD_BLUETOOTH=ON -DBUILD_OYMOTION_SDK=ON -DWARNINGS_AS_ERRORS=ON -G "Visual Studio 16 2019" -A %ARCH% -DCMAKE_SYSTEM_VERSION=8.1 -DMSVC_RUNTIME=%RUNTIME% -DCMAKE_INSTALL_PREFIX=..\artifacts\%ARCH%_%BUILD%_%RUNTIME%\ ..
         cmake --build . --target install --config %BUILD% -j 2 --parallel 2
       shell: cmd
       env:
@@ -47,7 +47,7 @@ jobs:
       max-parallel: 16
       matrix:
         build_type: [Release, Debug]
-        os: [ubuntu-18.04, macos-11.0]
+        os: [ubuntu-latest, macos-11.0]
 
     steps:
     - name: Clone Repository
@@ -67,16 +67,16 @@ jobs:
       run: |
         mkdir $GITHUB_WORKSPACE/build
         cd $GITHUB_WORKSPACE/build
-        cmake -G Ninja -DWARNINGS_AS_ERRORS=ON -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/artifacts/macos_$BUILD -DCMAKE_BUILD_TYPE=$BUILD ..
+        cmake -G Ninja -DBUILD_BLUETOOTH=ON -DWARNINGS_AS_ERRORS=ON -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/artifacts/macos_$BUILD -DCMAKE_BUILD_TYPE=$BUILD ..
         ninja
         ninja install
       env:
         BUILD: ${{ matrix.build_type }}
     - name: Compile BrainFlow in ManyLinux
-      if: (matrix.os == 'ubuntu-18.04')
+      if: (matrix.os == 'ubuntu-latest')
       run: |
         docker pull dockcross/manylinux2014-x64:20210708-94745ff
-        docker run -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -e BUILD=$BUILD -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE dockcross/manylinux2014-x64:20210708-94745ff /bin/bash -c "/opt/python/cp36-cp36m/bin/pip3.6 install cmake==3.13.3 && cd $GITHUB_WORKSPACE && mkdir build_docker && cd build_docker && cmake -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/artifacts/linux_${BUILD} -DCMAKE_BUILD_TYPE=$BUILD .. && make && make install"
+        docker run -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -e BUILD=$BUILD -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE dockcross/manylinux2014-x64:20210708-94745ff /bin/bash -c "yum install -y bluez-libs-devel && /opt/python/cp36-cp36m/bin/pip3.6 install cmake==3.13.3 && cd $GITHUB_WORKSPACE && mkdir build_docker && cd build_docker && cmake -DBUILD_BLUETOOTH=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/artifacts/linux_${BUILD} -DCMAKE_BUILD_TYPE=$BUILD .. && make && make install"
       env:
         BUILD: ${{ matrix.build_type }}
     - name: Upload Artifacts

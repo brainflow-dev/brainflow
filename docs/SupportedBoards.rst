@@ -34,7 +34,7 @@ To create an instance of BoardShim class for your board check required inputs in
    "AntNeuroBoardEE410", "BoardIds.ANT_NEURO_EE_410_BOARD (24)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
    "AntNeuroBoardEE411", "BoardIds.ANT_NEURO_EE_411_BOARD (25)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
    "AntNeuroBoardEE430", "BoardIds.ANT_NEURO_EE_430_BOARD (26)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
-
+   "Enophone", "BoardIds.ENOPHONE_BOARD (37)", "-", "MAC adress", "-", "-", "-", "-", "-", "-", "-"
 
 Playback File Board
 ---------------------
@@ -796,3 +796,41 @@ Board Spec:
 
 - num eeg channels: 8
 - sampling rate: 512
+
+Enophone
+---------
+
+Enophone Headphones
+~~~~~~~~~~~~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/51374388843_f60c07991e.jpg
+    :width: 401px
+    :height: 500px
+
+`Enophone website <https://enophone.com/enophones/>`_
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 37
+- mac address field of BrainFlowInputParams structure
+
+Supported platforms:
+
+- Windows
+- Linux
+- MacOS
+
+Steps to find MAC address:
+
+- On Windows: open device manager, navigate to enophone device, click properties and select Bluetooth Address
+- On Linux: install bluez-utils and run :code:`bluetoothctl paired-devices`
+- On MacOS: run :code:`system_profiler SPBluetoothDataType`
+
+**On Linux in order to compile and use it you may need to install :code:`libbluetooth-dev` for Debian like systems and :code:`bluez-libs-devel` for Fedora like.**
+
+
+Board Spec:
+
+- num emg channels: 4
+- sampling rate: 250
+- communication: Bluetooth

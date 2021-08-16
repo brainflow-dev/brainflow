@@ -1,0 +1,17 @@
+#pragma once
+
+
+enum class SocketBluetoothReturnCodes : int
+{
+    STATUS_OK = 0,
+    WSA_STARTUP_ERROR = 1,
+    CREATE_SOCKET_ERROR = 2,
+    CONNECT_ERROR = 3,
+    WSA_ADDR_ERROR = 4,
+    IOCTL_ERROR = 5,
+    ANOTHER_DEVICE_IS_CREATED_ERROR = 6,
+    DEVICE_IS_NOT_CREATED_ERROR = 7,
+    UNIMPLEMENTED_ERROR = 8,
+    GENERAL_ERROR = 9,
+    WSA_LOOKUP_BEGIN_ERROR = 10
+};
