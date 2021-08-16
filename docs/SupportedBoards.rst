@@ -34,6 +34,16 @@ To create an instance of BoardShim class for your board check required inputs in
    "AntNeuroBoardEE410", "BoardIds.ANT_NEURO_EE_410_BOARD (24)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
    "AntNeuroBoardEE411", "BoardIds.ANT_NEURO_EE_411_BOARD (25)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
    "AntNeuroBoardEE430", "BoardIds.ANT_NEURO_EE_430_BOARD (26)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE211", "BoardIds.ANT_NEURO_EE_211_BOARD (27)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE212", "BoardIds.ANT_NEURO_EE_212_BOARD (28)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE213", "BoardIds.ANT_NEURO_EE_213_BOARD (29)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE214", "BoardIds.ANT_NEURO_EE_214_BOARD (30)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE215", "BoardIds.ANT_NEURO_EE_215_BOARD (31)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE221", "BoardIds.ANT_NEURO_EE_221_BOARD (32)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE222", "BoardIds.ANT_NEURO_EE_222_BOARD (33)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE223", "BoardIds.ANT_NEURO_EE_223_BOARD (34)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE224", "BoardIds.ANT_NEURO_EE_224_BOARD (35)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE225", "BoardIds.ANT_NEURO_EE_225_BOARD (36)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
    "Enophone", "BoardIds.ENOPHONE_BOARD (37)", "-", "MAC adress", "-", "-", "-", "-", "-", "-", "-"
 
 Playback File Board
@@ -728,74 +738,33 @@ Board Spec:
 Ant Neuro
 ----------
 
-Ant Neuro EE 410
-~~~~~~~~~~~~~~~~~
-
 .. image:: https://live.staticflickr.com/65535/51331462280_580d890535.jpg
     :width: 500px
     :height: 490px
 
 `Ant Website <https://www.ant-neuro.com/products>`_
 
-To choose this board in BoardShim constructor please specify:
+Ant Neuro has many devices and all of them are supported by BrainFlow:
 
-- board_id: 24
-
-Supported platforms:
-
-- Windows
-- Linux
-
-Board Spec:
-
-- num eeg channels: 8
-- sampling rate: 2000
-
-Ant Neuro EE 411
-~~~~~~~~~~~~~~~~~
-
-.. image:: https://live.staticflickr.com/65535/51331191524_5cea43c2f2.jpg
-    :width: 500px
-    :height: 399px
-
-`Ant Website <https://www.ant-neuro.com/products>`_
-
-To choose this board in BoardShim constructor please specify:
-
-- board_id: 25
+- ANT_NEURO_EE_410_BOARD (board id 24)
+- ANT_NEURO_EE_411_BOARD (board id 25)
+- ANT_NEURO_EE_430_BOARD (board id 26)
+- ANT_NEURO_EE_211_BOARD (board id 27)
+- ANT_NEURO_EE_212_BOARD (board id 28)
+- ANT_NEURO_EE_213_BOARD (board id 29)
+- ANT_NEURO_EE_214_BOARD (board id 30)
+- ANT_NEURO_EE_215_BOARD (board id 31)
+- ANT_NEURO_EE_221_BOARD (board id 32)
+- ANT_NEURO_EE_222_BOARD (board id 33)
+- ANT_NEURO_EE_223_BOARD (board id 34)
+- ANT_NEURO_EE_224_BOARD (board id 35)
+- ANT_NEURO_EE_225_BOARD (board id 36)
 
 Supported platforms:
 
 - Windows
 - Linux
 
-Board Spec:
-
-- num eeg channels: 8
-- sampling rate: 2000
-
-Ant Neuro EE 430
-~~~~~~~~~~~~~~~~~
-
-.. image:: https://live.staticflickr.com/65535/51329836457_6438dce763.jpg
-    :width: 500px
-    :height: 438px
-
-`Ant Website <https://www.ant-neuro.com/products>`_
-
-To choose this board in BoardShim constructor please specify:
-
-- board_id: 26
-
-Supported platforms:
-
-- Windows
-- Linux
-
-Board Spec:
-
-- num eeg channels: 8
-- sampling rate: 512
 
 Enophone
 ---------
