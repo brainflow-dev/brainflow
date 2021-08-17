@@ -71,6 +71,7 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse_s_bled.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse_2_bled.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ant_neuro/ant_neuro.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/enophone/enophone.cpp
 )
 
 include (${CMAKE_HOME_DIRECTORY}/src/board_controller/ant_neuro/build.cmake)
@@ -82,6 +83,10 @@ include (${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/build.cmake)
 if (BUILD_OYMOTION_SDK)
     include (${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/build.cmake)
 endif (BUILD_OYMOTION_SDK)
+
+if (BUILD_BLUETOOTH)
+    include (${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/build.cmake)
+endif (BUILD_BLUETOOTH)
 
 add_library (
     ${BOARD_CONTROLLER_NAME} SHARED
@@ -96,6 +101,7 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/third_party/unicorn/inc
     ${CMAKE_HOME_DIRECTORY}/third_party/oscpp/include
     ${CMAKE_HOME_DIRECTORY}/src/utils/inc
+    ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/oymotion/inc
@@ -113,6 +119,7 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/freeeeg32/inc
     ${CMAKE_HOME_DIRECTORY}/third_party/ant_neuro
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ant_neuro/inc
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/enophone/inc
 )
 
 target_compile_definitions(${BOARD_CONTROLLER_NAME} PRIVATE -DNOMINMAX)

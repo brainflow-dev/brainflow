@@ -43,6 +43,7 @@ export BrainFlowInputParams
     ANT_NEURO_EE_223_BOARD = 34
     ANT_NEURO_EE_224_BOARD = 35
     ANT_NEURO_EE_225_BOARD = 36
+    ENOPHONE_BOARD = 37
 
 end
 

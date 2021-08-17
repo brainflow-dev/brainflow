@@ -47,20 +47,21 @@ class BoardIds(enum.IntEnum):
     MUSE_S_BLED_BOARD = 21  #:
     MUSE_2_BLED_BOARD = 22  #:
     CROWN_BOARD = 23  #:
-    ANT_NEURO_EE_410_BOARD = 24  # :
-    ANT_NEURO_EE_411_BOARD = 25  # :
-    ANT_NEURO_EE_430_BOARD = 26  # :
-    ANT_NEURO_EE_211_BOARD = 27  # :
-    ANT_NEURO_EE_212_BOARD = 28  # :
-    ANT_NEURO_EE_213_BOARD = 29  # :
-    ANT_NEURO_EE_214_BOARD = 30  # :
-    ANT_NEURO_EE_215_BOARD = 31  # :
-    ANT_NEURO_EE_221_BOARD = 32  # :
-    ANT_NEURO_EE_222_BOARD = 33  # :
-    ANT_NEURO_EE_223_BOARD = 34  # :
-    ANT_NEURO_EE_224_BOARD = 35  # :
-    ANT_NEURO_EE_225_BOARD = 36  # :
 
+    ANT_NEURO_EE_410_BOARD = 24 #:
+    ANT_NEURO_EE_411_BOARD = 25 #:
+    ANT_NEURO_EE_430_BOARD = 26 #:
+    ANT_NEURO_EE_211_BOARD = 27 #:
+    ANT_NEURO_EE_212_BOARD = 28 #:
+    ANT_NEURO_EE_213_BOARD = 29 #:
+    ANT_NEURO_EE_214_BOARD = 30 #:
+    ANT_NEURO_EE_215_BOARD = 31 #:
+    ANT_NEURO_EE_221_BOARD = 32 #:
+    ANT_NEURO_EE_222_BOARD = 33 #:
+    ANT_NEURO_EE_223_BOARD = 34 #:
+    ANT_NEURO_EE_224_BOARD = 35 #:
+    ANT_NEURO_EE_225_BOARD = 36 #:
+    ENOPHONE_BOARD = 37 #:
 
 class LogLevels(enum.IntEnum):
     """Enum to store all log levels supported by BrainFlow"""

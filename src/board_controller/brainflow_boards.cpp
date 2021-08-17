@@ -481,6 +481,16 @@ json brainflow_boards_json = {
                 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64}},
             {"emg_channels", {65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88}},
             {"other_channels", {89}}
+        }},
+        {"37",
+            {{"name", "Enophone"},
+            {"sampling_rate", 250},
+            {"timestamp_channel", 5},
+            {"marker_channel", 6},
+            {"package_num_channel", 0},
+            {"num_rows", 7},
+            {"eeg_channels", {1, 2, 3, 4}},
+            {"eeg_names", "A2,A1,C4,C3"}
         }}
     }
 }};

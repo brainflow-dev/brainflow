@@ -10,7 +10,7 @@ jobs:
       fail-fast: false
       max-parallel: 4
       matrix:
-        os: [ubuntu-18.04, macos-11.0]
+        os: [ubuntu-latest, macos-11.0]
 
     steps:
     # compile and prepare env
@@ -22,10 +22,10 @@ jobs:
         python-version: '3.7.7'
         architecture: 'x64'
     - name: Install Python Dependencies
-      if: (matrix.os == 'ubuntu-18.04')
+      if: (matrix.os == 'ubuntu-latest')
       run: |
         sudo -H apt-get update -y
-        sudo -H apt-get install -y python3-setuptools python3-pygments
+        sudo -H apt-get install -y python3-setuptools python3-pygments libbluetooth-dev
       env:
         DEBIAN_FRONTEND: noninteractive
     - name: Install Ninja
@@ -50,23 +50,23 @@ jobs:
       run: |
         mkdir $GITHUB_WORKSPACE/build
         cd $GITHUB_WORKSPACE/build
-        cmake -G Ninja -DWARNINGS_AS_ERRORS=ON -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
+        cmake -G Ninja -DBUILD_BLUETOOTH=ON -DWARNINGS_AS_ERRORS=ON -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
         ninja
         ninja install
     - name: Compile BrainFlow Ubuntu
-      if: (matrix.os == 'ubuntu-18.04')
+      if: (matrix.os == 'ubuntu-latest')
       run: |
         mkdir $GITHUB_WORKSPACE/build
         cd $GITHUB_WORKSPACE/build
-        cmake -DWARNINGS_AS_ERRORS=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
+        cmake -DBUILD_BLUETOOTH=ON -DWARNINGS_AS_ERRORS=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
         make
         make install
     - name: Compile BrainFlow in ManyLinux
       # bindings in production have to use libraries compiled inside this image!
-      if: (matrix.os == 'ubuntu-18.04')
+      if: (matrix.os == 'ubuntu-latest')
       run: |
         docker pull dockcross/manylinux2014-x64:20210708-94745ff
-        docker run -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE dockcross/manylinux2014-x64:20210708-94745ff /bin/bash -c "/opt/python/cp36-cp36m/bin/pip3.6 install cmake==3.13.3 && cd $GITHUB_WORKSPACE && mkdir build_docker && cd build_docker && cmake -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed_docker -DCMAKE_BUILD_TYPE=Release .. && make && make install"
+        docker run -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE dockcross/manylinux2014-x64:20210708-94745ff /bin/bash -c "yum install -y bluez-libs-devel && /opt/python/cp36-cp36m/bin/pip3.6 install cmake==3.13.3 && cd $GITHUB_WORKSPACE && mkdir build_docker && cd build_docker && cmake -DBUILD_BLUETOOTH=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed_docker -DCMAKE_BUILD_TYPE=Release .. && make && make install"
     - name: Setup Python Package
       run: |
         cd $GITHUB_WORKSPACE/python-package
@@ -278,7 +278,7 @@ jobs:
     - name: Install AWS CLI
       run: sudo -H python3 -m pip install awscli
     - name: Push Libraries Linux Docker
-      if: ${{ github.event_name == 'push' && matrix.os == 'ubuntu-18.04' && github.repository == 'brainflow-dev/brainflow' }}
+      if: ${{ github.event_name == 'push' && matrix.os == 'ubuntu-latest' && github.repository == 'brainflow-dev/brainflow' }}
       run: |
         aws s3 cp $GITHUB_WORKSPACE/installed_docker/lib/ s3://brainflow/$GITHUB_SHA/linux --recursive
       env:
@@ -291,5 +291,3 @@ jobs:
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-
