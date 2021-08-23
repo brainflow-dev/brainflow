@@ -229,8 +229,13 @@ end
     return sub_string
 end
 
-@brainflow_rethrow function get_board_data(board_shim::BoardShim)
+@brainflow_rethrow function get_board_data(board_shim::BoardShim, num_samples::Int64=1)
     data_size = get_board_data_count(board_shim)
+    if num_samples != nothing
+        if num_samples <= 0
+            throw(DomainError(num_samples, " data size should be greater than 0."))
+        else
+            data_size = (data_size >= num_samples)? num_samples : data_size
     num_rows = get_num_rows(board_shim.master_board_id)
     val = Vector{Float64}(undef, num_rows * data_size)
     ccall((:get_board_data, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Float64}, Cint, Ptr{UInt8}), 

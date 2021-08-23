@@ -796,6 +796,9 @@ public class BoardShim
 
     public double[][] get_board_data (int num_datapoints) throws BrainFlowError
     {
+        if(num_datapoints <= 0){
+            throw new IllegalArgumentException ("data size should be greater than 0");
+        }
         int size = get_board_data_count ();
         size = (size >= num_datapoints)? num_datapoints: size;
         int num_rows = BoardShim.get_num_rows (master_board_id);
