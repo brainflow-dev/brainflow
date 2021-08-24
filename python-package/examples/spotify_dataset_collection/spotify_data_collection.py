@@ -43,19 +43,23 @@ class DataThread(threading.Thread):
             time.sleep(time_sleep)
             track = self.spotify.current_user_playing_track()
             if track is not None:
-                if track.get('item', {}).get('id') != current_song_id and current_song_id is not None:
-                    is_end = True
-                if track.get('is_playing', False) and not is_end:
-                    try:
-                        # despite the check above track object can become None, no idea how
-                        current_song_id = track.get('item', {}).get('id')
-                        counter_for_duration = counter_for_duration + 1
-                        is_end = False
-                        is_playing = True
-                    except:
-                        pass
-                elif not track.get('is_playing', True):
-                    is_end = True
+                # despite the check above track obj can become None in case of ads
+                try:
+                    if track.get('item', {}).get('id') != current_song_id and current_song_id is not None:
+                        is_end = True
+                    if track.get('is_playing', False) and not is_end:
+                        try:
+                            # despite the check above track object can become None, no idea how
+                            current_song_id = track.get('item', {}).get('id')
+                            counter_for_duration = counter_for_duration + 1
+                            is_end = False
+                            is_playing = True
+                        except:
+                            pass
+                    elif not track.get('is_playing', True):
+                        is_end = True
+                except AttributeError as e:
+                    BoardShim.log_message(LogLevels.LEVEL_WARN.value, 'Exception occured, more likely because of ads(its ok): %s' % str(e))
             else:
                 is_end = True
 
@@ -95,7 +99,7 @@ def get_input():
     parser.add_argument('--streamer-params', type=str, help='streamer params', required=False, default='')
     parser.add_argument('--serial-number', type=str, help='serial number', required=False, default='')
     parser.add_argument('--board-id', type=int, help='board id, check docs to get a list of supported boards',
-                        required=False, default=BoardIds.ENOPHONE_BOARD)
+                        required=False, default=int(BoardIds.ENOPHONE_BOARD))
     parser.add_argument('--file', type=str, help='file', required=False, default='')
     # spotify args
     parser.add_argument('--redirect-uri', type=str, default=None)
