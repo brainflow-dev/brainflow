@@ -21,11 +21,10 @@ class Graph:
         self.sampling_rate = BoardShim.get_sampling_rate(self.board_id)
         self.update_speed_ms = 50
         self.window_size = 2500
-        self.plot_names = ['A2','A1','C4','C3']
+        self.plot_names = ['Quality A2','Quality A1','Quality C4','Quality C3']
         self.mains = None
         self.app = QtGui.QApplication([])
         self.win = pg.GraphicsWindow(title='Enophone Live Streaming',size=(800, 600))
-
         self._init_timeseries()
 
         timer = QtCore.QTimer()
