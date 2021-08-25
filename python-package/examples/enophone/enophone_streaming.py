@@ -20,7 +20,8 @@ class Graph:
         self.exg_channels = BoardShim.get_exg_channels(self.board_id)
         self.sampling_rate = BoardShim.get_sampling_rate(self.board_id)
         self.update_speed_ms = 50
-        self.window_size = 2500
+        self.window_size = 10
+        self.num_points = self.window_size * self.sampling_rate
         self.plot_names = ['Quality A2','Quality A1','Quality C4','Quality C3']
         self.mains = None
         self.app = QtGui.QApplication([])
@@ -55,14 +56,14 @@ class Graph:
 
     def update(self):
 
-        data = self.board_shim.get_current_board_data(self.window_size)
+        data = self.board_shim.get_current_board_data(self.num_points)
 
-        if data.shape[1] > 750:
+        if data.shape[1] > 3*self.sampling_rate:
             if self.mains is None:
                 self.mains = enotools.detect_mains(data)
             quality = enotools.quality(data)
             data = enotools.referencing(data, mode='mastoid')
-            data = enotools.signal_filtering(data,filter_cut=250,bandpass_range=[1,40],bandstop_range=self.mains)
+            data = enotools.signal_filtering(data,filter_cut=250,bandpass_range=[3,40],bandstop_range=self.mains)
 
             for count, channel in enumerate(self.exg_channels):
                 name = self.plot_names[count] + ': ' + str(quality[count])
@@ -83,38 +84,16 @@ def main():
     logging.basicConfig(level=logging.DEBUG)
 
     parser = argparse.ArgumentParser()
-    # use docs to check which parameters are required for specific board, e.g. for Cyton - set serial port
-    parser.add_argument('--timeout', type=int, help='timeout for device discovery or connection', required=False,
-                        default=0)
-    parser.add_argument('--ip-port', type=int, help='ip port', required=False, default=0)
-    parser.add_argument('--ip-protocol', type=int, help='ip protocol, check IpProtocolType enum', required=False,
-                        default=0)
-    parser.add_argument('--ip-address', type=str, help='ip address', required=False, default='')
-    parser.add_argument('--serial-port', type=str, help='serial port', required=False, default='')
     parser.add_argument('--mac-address', type=str, help='mac address', required=False, default='')
-    parser.add_argument('--other-info', type=str, help='other info', required=False, default='')
-    parser.add_argument('--streamer-params', type=str, help='streamer params', required=False, default='')
-    parser.add_argument('--serial-number', type=str, help='serial number', required=False, default='')
-    parser.add_argument('--board-id', type=int, help='board id, check docs to get a list of supported boards',
-                        required=False, default='37')
-    parser.add_argument('--file', type=str, help='file', required=False, default='')
     args = parser.parse_args()
 
     params = BrainFlowInputParams()
-    params.ip_port = args.ip_port
-    params.serial_port = args.serial_port
     params.mac_address = args.mac_address
-    params.other_info = args.other_info
-    params.serial_number = args.serial_number
-    params.ip_address = args.ip_address
-    params.ip_protocol = args.ip_protocol
-    params.timeout = args.timeout
-    params.file = args.file
 
     try:
-        board_shim = BoardShim(args.board_id, params)
+        board_shim = BoardShim(37, params)
         board_shim.prepare_session()
-        board_shim.start_stream(450000, args.streamer_params)
+        board_shim.start_stream(450000, '')
         g = Graph(board_shim)
     except BaseException as e:
         logging.warning('Exception', exc_info=True)
