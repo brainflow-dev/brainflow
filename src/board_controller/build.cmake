@@ -72,6 +72,7 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse_2_bled.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ant_neuro/ant_neuro.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/enophone/enophone.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/evomind/evomind.cpp
 )
 
 include (${CMAKE_HOME_DIRECTORY}/src/board_controller/ant_neuro/build.cmake)
@@ -120,6 +121,7 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/third_party/ant_neuro
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ant_neuro/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/enophone/inc
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/evomind/inc
 )
 
 target_compile_definitions(${BOARD_CONTROLLER_NAME} PRIVATE -DNOMINMAX)

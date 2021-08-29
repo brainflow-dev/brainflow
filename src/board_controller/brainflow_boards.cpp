@@ -491,7 +491,23 @@ json brainflow_boards_json = {
             {"num_rows", 7},
             {"eeg_channels", {1, 2, 3, 4}},
             {"eeg_names", "A2,A1,C4,C3"}
-        }}
+        }},
+        {"38",
+            {{"name", "Evomind"},
+            {"sampling_rate", 250},
+            {"package_num_channel", 0},
+            {"timestamp_channel", 22},
+            {"marker_channel", 23},
+            {"num_rows", 24},
+            {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
+            {"eeg_names", "Fp1,Fp2,C3,C4,P7,P8,O1,O2"},
+            {"emg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
+            {"ecg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
+            {"eog_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
+            {"accel_channels", {9, 10, 11}},
+            {"analog_channels", {19, 20, 21}},
+            {"other_channels", {12, 13, 14, 15, 16, 17, 18}}
+        }},
     }
 }};
 // clang-format on
