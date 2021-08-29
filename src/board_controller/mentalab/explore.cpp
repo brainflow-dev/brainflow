@@ -117,7 +117,7 @@ void Explore::read_thread ()
         package[i] = 0.0;
     }
     constexpr int max_payload = 4096;
-    char payload_buffer[max_payload];
+    unsigned char payload_buffer[max_payload];
     for (int i = 0; i < num_rows; i++)
     {
         payload_buffer[i] = 0;
@@ -136,7 +136,7 @@ void Explore::read_thread ()
             get_timestamp (); // dont take timestamp from device into account for now, todo
         while ((res != header.payload_size) && (keep_alive))
         {
-            res = bluetooth_get_data (payload_buffer, header.payload_size);
+            res = bluetooth_get_data ((char *)payload_buffer, header.payload_size);
         }
         if (!keep_alive)
         {
@@ -177,7 +177,7 @@ std::string Explore::get_name_selector ()
     return "Explore";
 }
 
-void Explore::parse_orientation_data (double *package, char *payload, int payload_size)
+void Explore::parse_orientation_data (double *package, unsigned char *payload, int payload_size)
 {
     if ((payload[payload_size - 4] != 0xAF) || (payload[payload_size - 3] != 0xBE) ||
         (payload[payload_size - 2] != 0xAD) || (payload[payload_size - 1] != 0xDE))
@@ -222,7 +222,7 @@ void Explore::parse_orientation_data (double *package, char *payload, int payloa
 }
 
 void Explore::parse_eeg_data (
-    double *package, char *payload, int payload_size, double vref, int n_packages)
+    double *package, unsigned char *payload, int payload_size, double vref, int n_packages)
 {
     if ((payload[payload_size - 4] != 0xAF) || (payload[payload_size - 3] != 0xBE) ||
         (payload[payload_size - 2] != 0xAD) || (payload[payload_size - 1] != 0xDE))

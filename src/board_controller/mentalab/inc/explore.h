@@ -20,8 +20,8 @@ protected:
     void read_thread ();
     std::string get_name_selector ();
     void parse_eeg_data (
-        double *package, char *payload, int payload_size, double vref, int n_packages);
-    void parse_orientation_data (double *package, char *payload, int payload_size);
+        double *package, unsigned char *payload, int payload_size, double vref, int n_packages);
+    void parse_orientation_data (double *package, unsigned char *payload, int payload_size);
 
 public:
     Explore (int board_id, struct BrainFlowInputParams params);
