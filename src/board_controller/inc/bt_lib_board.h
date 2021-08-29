@@ -16,7 +16,7 @@ protected:
 
     int bluetooth_open_device (int port);
     int bluetooth_get_data (char *data, int len);
-    int bluetooth_write_data (const char *data);
+    int bluetooth_write_data (const char *data, int len);
     int bluetooth_close_device ();
     int find_bt_addr (const char *name_selector);
 

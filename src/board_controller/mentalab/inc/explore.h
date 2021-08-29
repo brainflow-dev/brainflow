@@ -4,41 +4,30 @@
 #include <mutex>
 #include <thread>
 
-#include "board.h"
-#include "board_controller.h"
-#include "runtime_dll_loader.h"
+#include "bt_lib_board.h"
 
 
-class Explore : public Board
+class Explore : public BTLibBoard
 {
 
-private:
+protected:
     volatile bool keep_alive;
-    bool initialized;
-    bool is_streaming;
+    volatile int state;
     std::thread streaming_thread;
-    DLLLoader *dll_loader;
     std::mutex m;
     std::condition_variable cv;
-    volatile int state;
-
-    int (*func_get_data) (char *, int, char *);
 
     void read_thread ();
-    int call_open ();
-    int call_close ();
-    int call_config (const char *);
+    std::string get_name_selector ();
+    void parse_eeg_data (
+        double *package, char *payload, int payload_size, double vref, int n_packages);
+    void parse_orientation_data (double *package, char *payload, int payload_size);
 
 public:
     Explore (int board_id, struct BrainFlowInputParams params);
     ~Explore ();
 
-    int prepare_session ();
     int start_stream (int buffer_size, char *streamer_params);
     int stop_stream ();
     int release_session ();
-    int config_board (std::string config, std::string &response);
-
-protected:
-    int find_explore_addr ();
 };

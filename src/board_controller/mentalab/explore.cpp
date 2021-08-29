@@ -1,48 +1,35 @@
 #include <string.h>
+#include <vector>
 
 #include "explore.h"
 
-#include "bluetooth_types.h"
 #include "custom_cast.h"
 #include "get_dll_dir.h"
 #include "timestamp.h"
 
 
-Explore::Explore (int board_id, struct BrainFlowInputParams params) : Board (board_id, params)
+#pragma pack(push, 1)
+struct ExploreHeader
 {
-    char bluetoothlib_dir[1024];
-    bool res = get_dll_path (bluetoothlib_dir);
-    std::string bluetoothlib_path = "";
-#ifdef _WIN32
-    std::string lib_name;
-    if (sizeof (void *) == 4)
-    {
-        lib_name = "BrainFlowBluetooth32.dll";
-    }
-    else
-    {
-        lib_name = "BrainFlowBluetooth.dll";
-    }
-#elif defined(__APPLE__)
-    std::string lib_name = "libBrainFlowBluetooth.dylib";
-#else
-    std::string lib_name = "libBrainFlowBluetooth.so";
-#endif
-    if (res)
-    {
-        bluetoothlib_path = std::string (bluetoothlib_dir) + lib_name;
-    }
-    else
-    {
-        bluetoothlib_path = lib_name;
-    }
+    unsigned char pid;
+    uint16_t payload_size;
+    unsigned char counter;
+    uint32_t timestamp;
 
-    safe_logger (spdlog::level::debug, "use dyn lib: {}", bluetoothlib_path.c_str ());
-    dll_loader = new DLLLoader (bluetoothlib_path.c_str ());
+    ExploreHeader ()
+    {
+        pid = 0;
+        payload_size = 0;
+        counter = 0;
+        timestamp = 0;
+    }
+};
+#pragma pack(pop)
 
+
+Explore::Explore (int board_id, struct BrainFlowInputParams params) : BTLibBoard (board_id, params)
+{
     keep_alive = false;
-    initialized = false;
-    func_get_data = NULL;
     state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
 }
 
@@ -50,73 +37,6 @@ Explore::~Explore ()
 {
     skip_logs = true;
     release_session ();
-}
-
-int Explore::prepare_session ()
-{
-    if (initialized)
-    {
-        safe_logger (spdlog::level::info, "Session is already prepared");
-        return (int)BrainFlowExitCodes::STATUS_OK;
-    }
-
-    if (!dll_loader->load_library ())
-    {
-        safe_logger (spdlog::level::err, "Failed to load library");
-        return (int)BrainFlowExitCodes::GENERAL_ERROR;
-    }
-    safe_logger (spdlog::level::debug, "Library is loaded");
-
-    int return_res = (int)BrainFlowExitCodes::STATUS_OK;
-
-    func_get_data = (int (*) (char *, int, char *))dll_loader->get_address ("bluetooth_get_data");
-    if (func_get_data == NULL)
-    {
-        safe_logger (spdlog::level::err, "failed to find bluetooth_get_data");
-        return_res = (int)BrainFlowExitCodes::GENERAL_ERROR;
-    }
-
-    if (params.mac_address.empty ())
-    {
-        safe_logger (
-            spdlog::level::warn, "mac address is not provided, trying to autodiscover explore");
-        int res = find_explore_addr ();
-        if (res == (int)SocketBluetoothReturnCodes::UNIMPLEMENTED_ERROR)
-        {
-            safe_logger (spdlog::level::err, "autodiscovery for this OS is not supported");
-            return_res = (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
-        }
-        else if (res == (int)SocketBluetoothReturnCodes::DEVICE_IS_NOT_CREATED_ERROR)
-        {
-            safe_logger (spdlog::level::err, "check that device paired and connected");
-            return_res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
-        }
-        else if (res != (int)SocketBluetoothReturnCodes::STATUS_OK)
-        {
-            safe_logger (spdlog::level::err, "failed to autodiscover device: {}", res);
-            return_res = (int)BrainFlowExitCodes::GENERAL_ERROR;
-        }
-        else
-        {
-            safe_logger (spdlog::level::info, "found device {}", params.mac_address.c_str ());
-        }
-    }
-    if (return_res == (int)BrainFlowExitCodes::STATUS_OK)
-    {
-        return_res = call_open ();
-    }
-    if (return_res == (int)BrainFlowExitCodes::STATUS_OK)
-    {
-        initialized = true;
-    }
-    else
-    {
-        dll_loader->free_library ();
-        delete dll_loader;
-        dll_loader = NULL;
-    }
-
-    return return_res;
 }
 
 int Explore::start_stream (int buffer_size, char *streamer_params)
@@ -138,7 +58,7 @@ int Explore::start_stream (int buffer_size, char *streamer_params)
         return res;
     }
 
-    res = call_config (""); // todo command to start?
+    res = bluetooth_open_device (5);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
@@ -170,7 +90,7 @@ int Explore::stop_stream ()
         keep_alive = false;
         streaming_thread.join ();
         state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
-        return call_config (""); // todo command to stop?
+        return bluetooth_close_device ();
     }
     else
     {
@@ -183,17 +103,9 @@ int Explore::release_session ()
     if (initialized)
     {
         stop_stream ();
-        call_close ();
         free_packages ();
-        initialized = false;
     }
-    if (dll_loader != NULL)
-    {
-        dll_loader->free_library ();
-        delete dll_loader;
-        dll_loader = NULL;
-    }
-    return (int)BrainFlowExitCodes::STATUS_OK;
+    return BTLibBoard::release_session ();
 }
 
 void Explore::read_thread ()
@@ -204,97 +116,158 @@ void Explore::read_thread ()
     {
         package[i] = 0.0;
     }
+    constexpr int max_payload = 4096;
+    char payload_buffer[max_payload];
+    for (int i = 0; i < num_rows; i++)
+    {
+        payload_buffer[i] = 0;
+    }
 
     while (keep_alive)
     {
-        // todo parsing
+        struct ExploreHeader header;
+        int res = bluetooth_get_data ((char *)&header, sizeof (header));
+        if (res != 8)
+        {
+            continue;
+        }
+        res = 0;
+        double timestamp =
+            get_timestamp (); // dont take timestamp from device into account for now, todo
+        while ((res != header.payload_size) && (keep_alive))
+        {
+            res = bluetooth_get_data (payload_buffer, header.payload_size);
+        }
+        if (!keep_alive)
+        {
+            break;
+        }
+        switch (header.pid)
+        {
+            case 0x0d:
+                parse_orientation_data (package, payload_buffer, header.payload_size);
+                break;
+            case 0x90: // eeg94
+                parse_eeg_data (package, payload_buffer, header.payload_size, 2.4, 33);
+                break;
+            case 0xD0: // eeg94r
+                parse_eeg_data (package, payload_buffer, header.payload_size, 2.4, 33);
+                break;
+            case 0x92: // eeg98
+                parse_eeg_data (package, payload_buffer, header.payload_size, 2.4, 16);
+                break;
+            case 0xD2: // eeg98r
+                parse_eeg_data (package, payload_buffer, header.payload_size, 2.4, 16);
+                break;
+            case 0x3e: // eeg99
+                parse_eeg_data (package, payload_buffer, header.payload_size, 4.5, 16);
+                break;
+            case 0x1e: // eeg99s
+                parse_eeg_data (package, payload_buffer, header.payload_size, 4.5, 16);
+                break;
+            default:
+                break;
+        }
     }
     delete[] package;
 }
 
-int Explore::config_board (std::string config, std::string &response)
+std::string Explore::get_name_selector ()
 {
-    return call_config (config.c_str ());
+    return "Explore";
 }
 
-int Explore::call_open ()
+void Explore::parse_orientation_data (double *package, char *payload, int payload_size)
 {
-    int (*func_open) (int, char *) =
-        (int (*) (int, char *))dll_loader->get_address ("bluetooth_open_device");
-    if (func_open == NULL)
+    if ((payload[payload_size - 4] != 0xAF) || (payload[payload_size - 3] != 0xBE) ||
+        (payload[payload_size - 2] != 0xAD) || (payload[payload_size - 1] != 0xDE))
+    {
+        safe_logger (spdlog::level::warn, "checksum failed, {} {} {} {}", payload[payload_size - 4],
+            payload[payload_size - 3], payload[payload_size - 2], payload[payload_size - 1]);
+        return;
+    }
+    payload_size = payload_size - 4;
+    if (payload_size % 2 != 0)
     {
         safe_logger (
-            spdlog::level::err, "failed to get function address for bluetooth_open_device");
-        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+            spdlog::level::warn, "Invalid payload size for orientation package: {}", payload_size);
+        return;
     }
+    int num_datapoints = payload_size / 2;
 
-    int res = func_open (5, const_cast<char *> (params.mac_address.c_str ()));
-    if (res != (int)SocketBluetoothReturnCodes::STATUS_OK)
+    std::vector<int> accel_channels = board_descr["accel_channels"];
+    std::vector<int> gyro_channels = board_descr["gyro_channels"];
+    std::vector<int> other_channels = board_descr["other_channels"];
+
+    for (int i = 0; i < num_datapoints; i++)
     {
-        safe_logger (spdlog::level::err, "failed to open bt connection: {}", res);
-        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+        double data = cast_16bit_to_int32 ((unsigned char *)(payload + 2 * i));
+        if (i < 3)
+        {
+            package[accel_channels[i]] = 0.061 * data;
+        }
+        else if (i < 6)
+        {
+            package[gyro_channels[i - 3]] = 8.750 * data;
+        }
+        else
+        {
+            package[other_channels[i - 6]] = 1.52 * data;
+            if (i == 6)
+            {
+                data *= -1; // no idea why, copypaste
+            }
+        }
     }
-    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int Explore::call_close ()
+void Explore::parse_eeg_data (
+    double *package, char *payload, int payload_size, double vref, int n_packages)
 {
-    int (*func_close) (char *) =
-        (int (*) (char *))dll_loader->get_address ("bluetooth_close_device");
-    if (func_close == NULL)
+    if ((payload[payload_size - 4] != 0xAF) || (payload[payload_size - 3] != 0xBE) ||
+        (payload[payload_size - 2] != 0xAD) || (payload[payload_size - 1] != 0xDE))
     {
-        safe_logger (
-            spdlog::level::err, "failed to get function address for bluetooth_close_device");
-        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+        safe_logger (spdlog::level::warn, "checksum failed, {} {} {} {}", payload[payload_size - 4],
+            payload[payload_size - 3], payload[payload_size - 2], payload[payload_size - 1]);
+        return;
     }
-    int res = func_close (const_cast<char *> (params.mac_address.c_str ()));
-    if (res != (int)SocketBluetoothReturnCodes::STATUS_OK)
+    payload_size = payload_size - 4;
+    if (payload_size % 3 != 0)
     {
-        safe_logger (spdlog::level::err, "failed to close bt connection: {}", res);
-        return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
+        safe_logger (spdlog::level::warn, "Invalid payload size for EEG package: {}", payload_size);
+        return;
     }
-    return (int)BrainFlowExitCodes::STATUS_OK;
-}
-
-int Explore::call_config (const char *command)
-{
-    int (*func_config) (char *, int, char *) =
-        (int (*) (char *, int, char *))dll_loader->get_address ("bluetooth_write_data");
-    if (func_config == NULL)
+    int num_datapoints = payload_size / 3;
+    if (num_datapoints % n_packages != 0)
     {
-        safe_logger (spdlog::level::err, "failed to get function address for bluetooth_write_data");
-        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+        safe_logger (spdlog::level::warn,
+            "Invalid payload size or n_packages for EEG package: {}, {}", payload_size, n_packages);
+        return;
     }
-
-    int res = func_config (const_cast<char *> (command), (int)strlen (command),
-        const_cast<char *> (params.mac_address.c_str ()));
-    if (res != (int)SocketBluetoothReturnCodes::STATUS_OK)
+    std::vector<int> eeg_channels = board_descr["eeg_channels"];
+    if (num_datapoints % eeg_channels.size () != 0)
     {
-        safe_logger (spdlog::level::err, "failed to config board: {}", res);
-        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
-    }
-    return (int)BrainFlowExitCodes::STATUS_OK;
-}
-
-int Explore::find_explore_addr ()
-{
-    int (*func_find) (char *, char *, int *) =
-        (int (*) (char *, char *, int *))dll_loader->get_address ("bluetooth_discover_device");
-    if (func_find == NULL)
-    {
-        safe_logger (
-            spdlog::level::err, "failed to get function address for bluetooth_discover_device");
-        return (int)BrainFlowExitCodes::GENERAL_ERROR;
-    }
-    char mac_addr[40];
-    int len = 0;
-    std::string find_keyword = "Explore"; // todo check that
-    int res = func_find (const_cast<char *> (find_keyword.c_str ()), mac_addr, &len);
-    if (res == (int)SocketBluetoothReturnCodes::STATUS_OK)
-    {
-        std::string mac_string = mac_addr;
-        params.mac_address = mac_string.substr (0, len);
+        safe_logger (spdlog::level::warn, "Invalid payload size for num_eeg_channels: {}, {}",
+            payload_size, eeg_channels.size ());
+        return;
     }
 
-    return res;
+    // convert to uV
+    std::vector<double> data;
+    for (int i = 0; i < num_datapoints; i++)
+    {
+        double gain = 1.E-6 * (pow (2, 23) - 1) * 6.0;
+        double datapoint = (double)cast_24bit_to_int32 ((unsigned char *)(payload + i * 3));
+        datapoint = datapoint * vref / gain;
+        data.push_back (datapoint);
+    }
+    // submit packages
+    for (int i = 0; i < n_packages; i++)
+    {
+        for (int j = 0; j < (int)eeg_channels.size (); j++)
+        {
+            package[eeg_channels[j]] = data[i * eeg_channels.size () + j];
+        }
+        push_package (package);
+    }
 }

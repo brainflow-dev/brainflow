@@ -119,7 +119,7 @@ int BTLibBoard::release_session ()
 
 int BTLibBoard::config_board (std::string config, std::string &response)
 {
-    return bluetooth_write_data (config.c_str ());
+    return bluetooth_write_data (config.c_str (), (int)strlen (config.c_str ()));
 }
 
 int BTLibBoard::bluetooth_open_device (int port)
@@ -161,7 +161,7 @@ int BTLibBoard::bluetooth_close_device ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int BTLibBoard::bluetooth_write_data (const char *command)
+int BTLibBoard::bluetooth_write_data (const char *command, int len)
 {
     int (*func_config) (char *, int, char *) =
         (int (*) (char *, int, char *))dll_loader->get_address ("bluetooth_write_data");
@@ -171,8 +171,8 @@ int BTLibBoard::bluetooth_write_data (const char *command)
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
 
-    int res = func_config (const_cast<char *> (command), (int)strlen (command),
-        const_cast<char *> (params.mac_address.c_str ()));
+    int res = func_config (
+        const_cast<char *> (command), len, const_cast<char *> (params.mac_address.c_str ()));
     if (res != (int)SocketBluetoothReturnCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to config board: {}", res);

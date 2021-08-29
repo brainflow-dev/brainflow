@@ -495,28 +495,30 @@ json brainflow_boards_json = {
         {"38",
             {{"name", "Explore4Chan"},
             {"sampling_rate", 500},
-            {"timestamp_channel", 11},
-            {"marker_channel", 12},
+            {"timestamp_channel", 14},
+            {"marker_channel", 15},
             {"package_num_channel", 0},
-            {"num_rows", 13},
+            {"num_rows", 16},
             {"eeg_channels", {1, 2, 3, 4}},
             {"emg_channels", {1, 2, 3, 4}},
             {"ecg_channels", {1, 2, 3, 4}},
             {"accel_channels", {5, 6, 7}},
-            {"gyro_channels", {8, 9, 10}}
+            {"gyro_channels", {8, 9, 10}},
+            {"other_channels", {11, 12, 13}}
         }},
         {"39",
             {{"name", "Explore8Chan"},
             {"sampling_rate", 500},
-            {"timestamp_channel", 15},
-            {"marker_channel", 16},
+            {"timestamp_channel", 18},
+            {"marker_channel", 19},
             {"package_num_channel", 0},
-            {"num_rows", 17},
+            {"num_rows", 20},
             {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
             {"emg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
             {"ecg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
             {"accel_channels", {9, 10, 11}},
-            {"gyro_channels", {12, 13, 14}}
+            {"gyro_channels", {12, 13, 14}},
+            {"other_channels", {15, 16, 17}}
         }}
     }
 }};

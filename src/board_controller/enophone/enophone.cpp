@@ -2,7 +2,6 @@
 
 #include "enophone.h"
 
-#include "bluetooth_types.h"
 #include "custom_cast.h"
 #include "get_dll_dir.h"
 #include "timestamp.h"
@@ -85,6 +84,7 @@ int Enophone::release_session ()
     if (initialized)
     {
         stop_stream ();
+        free_packages ();
     }
     return BTLibBoard::release_session ();
 }
