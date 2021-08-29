@@ -507,7 +507,7 @@ json brainflow_boards_json = {
             {"accel_channels", {9, 10, 11}},
             {"analog_channels", {19, 20, 21}},
             {"other_channels", {12, 13, 14, 15, 16, 17, 18}}
-        }},
+        }}
     }
 }};
 // clang-format on
