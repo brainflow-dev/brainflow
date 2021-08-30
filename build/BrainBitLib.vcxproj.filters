@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="D:\D Drive\New_BrainFlow\brainflow\src\board_controller\neuromd\brainbit_bglib\callbacks.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\D Drive\New_BrainFlow\brainflow\src\board_controller\neuromd\brainbit_bglib\cmd_def.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\D Drive\New_BrainFlow\brainflow\src\board_controller\neuromd\brainbit_bglib\helpers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\D Drive\New_BrainFlow\brainflow\src\board_controller\neuromd\brainbit_bglib\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\D Drive\New_BrainFlow\brainflow\src\board_controller\neuromd\brainbit_bglib\stubs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\D Drive\New_BrainFlow\brainflow\src\board_controller\neuromd\brainbit_bglib\uart.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\D Drive\New_BrainFlow\brainflow\src\utils\timestamp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\D Drive\New_BrainFlow\brainflow\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{01A40986-8EF8-34AC-9E71-81A2FCB8DDC9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

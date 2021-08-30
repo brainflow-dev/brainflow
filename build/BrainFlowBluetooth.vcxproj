@@ -1,0 +1,414 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|x64">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{18ACEA6D-8145-3B65-9DB8-F69E9695F435}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>x64</Platform>
+    <ProjectName>BrainFlowBluetooth</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\D Drive\New_BrainFlow\brainflow\compiled\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">BrainFlowBluetooth.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">BrainFlowBluetooth</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">D:\D Drive\New_BrainFlow\brainflow\compiled\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">BrainFlowBluetooth.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">BrainFlowBluetooth</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">D:\D Drive\New_BrainFlow\brainflow\compiled\MinSizeRel\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">BrainFlowBluetooth.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">BrainFlowBluetooth</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">D:\D Drive\New_BrainFlow\brainflow\compiled\RelWithDebInfo\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">BrainFlowBluetooth.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">BrainFlowBluetooth</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\D Drive\New_BrainFlow\brainflow\src\utils\inc;D:\D Drive\New_BrainFlow\brainflow\src\utils\bluetooth\inc;D:\D Drive\New_BrainFlow\brainflow\src\utils\bluetooth\macos_third_party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /MDdd</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SuppressStartupBanner></SuppressStartupBanner>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR="Debug";BrainFlowBluetooth_EXPORTS</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR=\"Debug\";BrainFlowBluetooth_EXPORTS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\D Drive\New_BrainFlow\brainflow\src\utils\inc;D:\D Drive\New_BrainFlow\brainflow\src\utils\bluetooth\inc;D:\D Drive\New_BrainFlow\brainflow\src\utils\bluetooth\macos_third_party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\D Drive\New_BrainFlow\brainflow\src\utils\inc;D:\D Drive\New_BrainFlow\brainflow\src\utils\bluetooth\inc;D:\D Drive\New_BrainFlow\brainflow\src\utils\bluetooth\macos_third_party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PostBuildEvent>
+      <Message></Message>
+      <Command>setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/compiled/Debug/BrainFlowBluetooth.dll" "D:/D Drive/New_BrainFlow/brainflow/python-package/brainflow/lib/BrainFlowBluetooth.dll"
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/compiled/Debug/BrainFlowBluetooth.dll" "D:/D Drive/New_BrainFlow/brainflow/julia-package/brainflow/lib/BrainFlowBluetooth.dll"
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/compiled/Debug/BrainFlowBluetooth.dll" "D:/D Drive/New_BrainFlow/brainflow/java-package/brainflow/src/main/resources/BrainFlowBluetooth.dll"
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/compiled/Debug/BrainFlowBluetooth.dll" "D:/D Drive/New_BrainFlow/brainflow/csharp-package/brainflow/brainflow/lib/BrainFlowBluetooth.dll"
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/compiled/Debug/BrainFlowBluetooth.dll" "D:/D Drive/New_BrainFlow/brainflow/matlab-package/brainflow/lib/BrainFlowBluetooth.dll"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>D:/D Drive/New_BrainFlow/brainflow/compiled/Debug/BrainFlowBluetooth.lib</ImportLibrary>
+      <ProgramDataBaseFile>D:/D Drive/New_BrainFlow/brainflow/compiled/Debug/BrainFlowBluetooth.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\D Drive\New_BrainFlow\brainflow\src\utils\inc;D:\D Drive\New_BrainFlow\brainflow\src\utils\bluetooth\inc;D:\D Drive\New_BrainFlow\brainflow\src\utils\bluetooth\macos_third_party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SuppressStartupBanner></SuppressStartupBanner>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR="Release";BrainFlowBluetooth_EXPORTS</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR=\"Release\";BrainFlowBluetooth_EXPORTS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\D Drive\New_BrainFlow\brainflow\src\utils\inc;D:\D Drive\New_BrainFlow\brainflow\src\utils\bluetooth\inc;D:\D Drive\New_BrainFlow\brainflow\src\utils\bluetooth\macos_third_party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\D Drive\New_BrainFlow\brainflow\src\utils\inc;D:\D Drive\New_BrainFlow\brainflow\src\utils\bluetooth\inc;D:\D Drive\New_BrainFlow\brainflow\src\utils\bluetooth\macos_third_party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PostBuildEvent>
+      <Message></Message>
+      <Command>setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/compiled/Release/BrainFlowBluetooth.dll" "D:/D Drive/New_BrainFlow/brainflow/python-package/brainflow/lib/BrainFlowBluetooth.dll"
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/compiled/Release/BrainFlowBluetooth.dll" "D:/D Drive/New_BrainFlow/brainflow/julia-package/brainflow/lib/BrainFlowBluetooth.dll"
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/compiled/Release/BrainFlowBluetooth.dll" "D:/D Drive/New_BrainFlow/brainflow/java-package/brainflow/src/main/resources/BrainFlowBluetooth.dll"
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/compiled/Release/BrainFlowBluetooth.dll" "D:/D Drive/New_BrainFlow/brainflow/csharp-package/brainflow/brainflow/lib/BrainFlowBluetooth.dll"
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/compiled/Release/BrainFlowBluetooth.dll" "D:/D Drive/New_BrainFlow/brainflow/matlab-package/brainflow/lib/BrainFlowBluetooth.dll"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>D:/D Drive/New_BrainFlow/brainflow/compiled/Release/BrainFlowBluetooth.lib</ImportLibrary>
+      <ProgramDataBaseFile>D:/D Drive/New_BrainFlow/brainflow/compiled/Release/BrainFlowBluetooth.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\D Drive\New_BrainFlow\brainflow\src\utils\inc;D:\D Drive\New_BrainFlow\brainflow\src\utils\bluetooth\inc;D:\D Drive\New_BrainFlow\brainflow\src\utils\bluetooth\macos_third_party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SuppressStartupBanner></SuppressStartupBanner>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR="MinSizeRel";BrainFlowBluetooth_EXPORTS</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR=\"MinSizeRel\";BrainFlowBluetooth_EXPORTS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\D Drive\New_BrainFlow\brainflow\src\utils\inc;D:\D Drive\New_BrainFlow\brainflow\src\utils\bluetooth\inc;D:\D Drive\New_BrainFlow\brainflow\src\utils\bluetooth\macos_third_party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\D Drive\New_BrainFlow\brainflow\src\utils\inc;D:\D Drive\New_BrainFlow\brainflow\src\utils\bluetooth\inc;D:\D Drive\New_BrainFlow\brainflow\src\utils\bluetooth\macos_third_party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PostBuildEvent>
+      <Message></Message>
+      <Command>setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/compiled/MinSizeRel/BrainFlowBluetooth.dll" "D:/D Drive/New_BrainFlow/brainflow/python-package/brainflow/lib/BrainFlowBluetooth.dll"
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/compiled/MinSizeRel/BrainFlowBluetooth.dll" "D:/D Drive/New_BrainFlow/brainflow/julia-package/brainflow/lib/BrainFlowBluetooth.dll"
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/compiled/MinSizeRel/BrainFlowBluetooth.dll" "D:/D Drive/New_BrainFlow/brainflow/java-package/brainflow/src/main/resources/BrainFlowBluetooth.dll"
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/compiled/MinSizeRel/BrainFlowBluetooth.dll" "D:/D Drive/New_BrainFlow/brainflow/csharp-package/brainflow/brainflow/lib/BrainFlowBluetooth.dll"
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/compiled/MinSizeRel/BrainFlowBluetooth.dll" "D:/D Drive/New_BrainFlow/brainflow/matlab-package/brainflow/lib/BrainFlowBluetooth.dll"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>D:/D Drive/New_BrainFlow/brainflow/compiled/MinSizeRel/BrainFlowBluetooth.lib</ImportLibrary>
+      <ProgramDataBaseFile>D:/D Drive/New_BrainFlow/brainflow/compiled/MinSizeRel/BrainFlowBluetooth.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\D Drive\New_BrainFlow\brainflow\src\utils\inc;D:\D Drive\New_BrainFlow\brainflow\src\utils\bluetooth\inc;D:\D Drive\New_BrainFlow\brainflow\src\utils\bluetooth\macos_third_party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SuppressStartupBanner></SuppressStartupBanner>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR="RelWithDebInfo";BrainFlowBluetooth_EXPORTS</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR=\"RelWithDebInfo\";BrainFlowBluetooth_EXPORTS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\D Drive\New_BrainFlow\brainflow\src\utils\inc;D:\D Drive\New_BrainFlow\brainflow\src\utils\bluetooth\inc;D:\D Drive\New_BrainFlow\brainflow\src\utils\bluetooth\macos_third_party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\D Drive\New_BrainFlow\brainflow\src\utils\inc;D:\D Drive\New_BrainFlow\brainflow\src\utils\bluetooth\inc;D:\D Drive\New_BrainFlow\brainflow\src\utils\bluetooth\macos_third_party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PostBuildEvent>
+      <Message></Message>
+      <Command>setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/compiled/RelWithDebInfo/BrainFlowBluetooth.dll" "D:/D Drive/New_BrainFlow/brainflow/python-package/brainflow/lib/BrainFlowBluetooth.dll"
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/compiled/RelWithDebInfo/BrainFlowBluetooth.dll" "D:/D Drive/New_BrainFlow/brainflow/julia-package/brainflow/lib/BrainFlowBluetooth.dll"
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/compiled/RelWithDebInfo/BrainFlowBluetooth.dll" "D:/D Drive/New_BrainFlow/brainflow/java-package/brainflow/src/main/resources/BrainFlowBluetooth.dll"
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/compiled/RelWithDebInfo/BrainFlowBluetooth.dll" "D:/D Drive/New_BrainFlow/brainflow/csharp-package/brainflow/brainflow/lib/BrainFlowBluetooth.dll"
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/compiled/RelWithDebInfo/BrainFlowBluetooth.dll" "D:/D Drive/New_BrainFlow/brainflow/matlab-package/brainflow/lib/BrainFlowBluetooth.dll"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>D:/D Drive/New_BrainFlow/brainflow/compiled/RelWithDebInfo/BrainFlowBluetooth.lib</ImportLibrary>
+      <ProgramDataBaseFile>D:/D Drive/New_BrainFlow/brainflow/compiled/RelWithDebInfo/BrainFlowBluetooth.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\D Drive\New_BrainFlow\brainflow\CMakeLists.txt">
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule D:/D Drive/New_BrainFlow/brainflow/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" "-SD:/D Drive/New_BrainFlow/brainflow" "-BD:/D Drive/New_BrainFlow/brainflow/build" --check-stamp-file "D:/D Drive/New_BrainFlow/brainflow/build/CMakeFiles/generate.stamp"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Program Files\CMake\share\cmake-3.21\Modules\BasicConfigVersion-AnyNewerVersion.cmake.in;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakePackageConfigHelpers.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\WriteBasicConfigVersionFile.cmake;D:\D Drive\New_BrainFlow\brainflow\build\CMakeFiles\3.21.1\CMakeCCompiler.cmake;D:\D Drive\New_BrainFlow\brainflow\build\CMakeFiles\3.21.1\CMakeCXXCompiler.cmake;D:\D Drive\New_BrainFlow\brainflow\build\CMakeFiles\3.21.1\CMakeRCCompiler.cmake;D:\D Drive\New_BrainFlow\brainflow\build\CMakeFiles\3.21.1\CMakeSystem.cmake;D:\D Drive\New_BrainFlow\brainflow\cmake\Config.cmake.in;D:\D Drive\New_BrainFlow\brainflow\cmake\macros.cmake;D:\D Drive\New_BrainFlow\brainflow\cpp-package\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\board_controller\ant_neuro\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\board_controller\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\board_controller\gtec\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\board_controller\muse\muse_bglib\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\board_controller\neuromd\brainbit_bglib\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\board_controller\neuromd\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\board_controller\openbci\ganglion_bglib\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\data_handler\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\ml\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\utils\bluetooth\build.cmake;D:\D Drive\New_BrainFlow\brainflow\third_party\DSPFilters\build.cmake;D:\D Drive\New_BrainFlow\brainflow\third_party\gForceSDKCXX\build.cmake;D:\D Drive\New_BrainFlow\brainflow\third_party\wavelib\build.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\D Drive\New_BrainFlow\brainflow\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule D:/D Drive/New_BrainFlow/brainflow/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" "-SD:/D Drive/New_BrainFlow/brainflow" "-BD:/D Drive/New_BrainFlow/brainflow/build" --check-stamp-file "D:/D Drive/New_BrainFlow/brainflow/build/CMakeFiles/generate.stamp"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Program Files\CMake\share\cmake-3.21\Modules\BasicConfigVersion-AnyNewerVersion.cmake.in;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakePackageConfigHelpers.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\WriteBasicConfigVersionFile.cmake;D:\D Drive\New_BrainFlow\brainflow\build\CMakeFiles\3.21.1\CMakeCCompiler.cmake;D:\D Drive\New_BrainFlow\brainflow\build\CMakeFiles\3.21.1\CMakeCXXCompiler.cmake;D:\D Drive\New_BrainFlow\brainflow\build\CMakeFiles\3.21.1\CMakeRCCompiler.cmake;D:\D Drive\New_BrainFlow\brainflow\build\CMakeFiles\3.21.1\CMakeSystem.cmake;D:\D Drive\New_BrainFlow\brainflow\cmake\Config.cmake.in;D:\D Drive\New_BrainFlow\brainflow\cmake\macros.cmake;D:\D Drive\New_BrainFlow\brainflow\cpp-package\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\board_controller\ant_neuro\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\board_controller\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\board_controller\gtec\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\board_controller\muse\muse_bglib\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\board_controller\neuromd\brainbit_bglib\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\board_controller\neuromd\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\board_controller\openbci\ganglion_bglib\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\data_handler\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\ml\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\utils\bluetooth\build.cmake;D:\D Drive\New_BrainFlow\brainflow\third_party\DSPFilters\build.cmake;D:\D Drive\New_BrainFlow\brainflow\third_party\gForceSDKCXX\build.cmake;D:\D Drive\New_BrainFlow\brainflow\third_party\wavelib\build.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">D:\D Drive\New_BrainFlow\brainflow\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule D:/D Drive/New_BrainFlow/brainflow/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" "-SD:/D Drive/New_BrainFlow/brainflow" "-BD:/D Drive/New_BrainFlow/brainflow/build" --check-stamp-file "D:/D Drive/New_BrainFlow/brainflow/build/CMakeFiles/generate.stamp"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Program Files\CMake\share\cmake-3.21\Modules\BasicConfigVersion-AnyNewerVersion.cmake.in;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakePackageConfigHelpers.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\WriteBasicConfigVersionFile.cmake;D:\D Drive\New_BrainFlow\brainflow\build\CMakeFiles\3.21.1\CMakeCCompiler.cmake;D:\D Drive\New_BrainFlow\brainflow\build\CMakeFiles\3.21.1\CMakeCXXCompiler.cmake;D:\D Drive\New_BrainFlow\brainflow\build\CMakeFiles\3.21.1\CMakeRCCompiler.cmake;D:\D Drive\New_BrainFlow\brainflow\build\CMakeFiles\3.21.1\CMakeSystem.cmake;D:\D Drive\New_BrainFlow\brainflow\cmake\Config.cmake.in;D:\D Drive\New_BrainFlow\brainflow\cmake\macros.cmake;D:\D Drive\New_BrainFlow\brainflow\cpp-package\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\board_controller\ant_neuro\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\board_controller\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\board_controller\gtec\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\board_controller\muse\muse_bglib\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\board_controller\neuromd\brainbit_bglib\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\board_controller\neuromd\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\board_controller\openbci\ganglion_bglib\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\data_handler\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\ml\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\utils\bluetooth\build.cmake;D:\D Drive\New_BrainFlow\brainflow\third_party\DSPFilters\build.cmake;D:\D Drive\New_BrainFlow\brainflow\third_party\gForceSDKCXX\build.cmake;D:\D Drive\New_BrainFlow\brainflow\third_party\wavelib\build.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">D:\D Drive\New_BrainFlow\brainflow\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule D:/D Drive/New_BrainFlow/brainflow/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" "-SD:/D Drive/New_BrainFlow/brainflow" "-BD:/D Drive/New_BrainFlow/brainflow/build" --check-stamp-file "D:/D Drive/New_BrainFlow/brainflow/build/CMakeFiles/generate.stamp"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Program Files\CMake\share\cmake-3.21\Modules\BasicConfigVersion-AnyNewerVersion.cmake.in;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakePackageConfigHelpers.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\WriteBasicConfigVersionFile.cmake;D:\D Drive\New_BrainFlow\brainflow\build\CMakeFiles\3.21.1\CMakeCCompiler.cmake;D:\D Drive\New_BrainFlow\brainflow\build\CMakeFiles\3.21.1\CMakeCXXCompiler.cmake;D:\D Drive\New_BrainFlow\brainflow\build\CMakeFiles\3.21.1\CMakeRCCompiler.cmake;D:\D Drive\New_BrainFlow\brainflow\build\CMakeFiles\3.21.1\CMakeSystem.cmake;D:\D Drive\New_BrainFlow\brainflow\cmake\Config.cmake.in;D:\D Drive\New_BrainFlow\brainflow\cmake\macros.cmake;D:\D Drive\New_BrainFlow\brainflow\cpp-package\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\board_controller\ant_neuro\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\board_controller\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\board_controller\gtec\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\board_controller\muse\muse_bglib\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\board_controller\neuromd\brainbit_bglib\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\board_controller\neuromd\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\board_controller\openbci\ganglion_bglib\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\data_handler\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\ml\build.cmake;D:\D Drive\New_BrainFlow\brainflow\src\utils\bluetooth\build.cmake;D:\D Drive\New_BrainFlow\brainflow\third_party\DSPFilters\build.cmake;D:\D Drive\New_BrainFlow\brainflow\third_party\gForceSDKCXX\build.cmake;D:\D Drive\New_BrainFlow\brainflow\third_party\wavelib\build.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">D:\D Drive\New_BrainFlow\brainflow\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\D Drive\New_BrainFlow\brainflow\src\utils\bluetooth\socket_bluetooth_win.cpp" />
+    <ClCompile Include="D:\D Drive\New_BrainFlow\brainflow\src\utils\bluetooth\bluetooth_functions.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="D:\D Drive\New_BrainFlow\brainflow\build\ZERO_CHECK.vcxproj">
+      <Project>{4F157272-DF6C-36F3-B527-7413B55FC426}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

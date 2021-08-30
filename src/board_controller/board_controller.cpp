@@ -45,6 +45,7 @@
 #include "streaming_board.h"
 #include "synthetic_board.h"
 #include "unicorn_board.h"
+#include "BrainAlive/inc/BrainAlive.h"
 
 #include "json.hpp"
 
@@ -222,6 +223,9 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
             break;
         case BoardIds::ENOPHONE_BOARD:
             board = std::shared_ptr<Board> (new Enophone (params));
+            break;
+        case BoardIds::BRAINALIVE_BOARD:
+            board = std::shared_ptr<Board> (new BrainAlive_Device (params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

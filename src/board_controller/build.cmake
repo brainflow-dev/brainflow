@@ -6,6 +6,10 @@ if (CMAKE_SIZEOF_VOID_P EQUAL 8)
         SET (BOARD_CONTROLLER_COMPILED_NAME "libBoardController.so")
     else ()
         SET (BOARD_CONTROLLER_COMPILED_NAME "BoardController.dll")
+	SET (BRAINALIVE_NATIVE_LIB_NAME "BA_Native_BLE.dll")
+	SET (BRAINALIVE_LIB_NAME "BA_BLE_Lib.dll")
+	SET (BRAINALIVE_NATIVE_LIB_PATH "${CMAKE_HOME_DIRECTORY}/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_Native_BLE.dll") 
+	SET (BRAINALIVE_LIB_PATH "${CMAKE_HOME_DIRECTORY}/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_BLE_Lib.dll") 
     endif (APPLE)
 else (CMAKE_SIZEOF_VOID_P EQUAL 8)
     if (APPLE)
@@ -72,6 +76,8 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse_2_bled.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ant_neuro/ant_neuro.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/enophone/enophone.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/BrainAlive/BrainAlive.cpp
+
 )
 
 include (${CMAKE_HOME_DIRECTORY}/src/board_controller/ant_neuro/build.cmake)
@@ -120,6 +126,8 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/third_party/ant_neuro
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ant_neuro/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/enophone/inc
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/BrainAlive/inc
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/BrainAlive/inc/BrainALive_Lib/BA_Native_Interface
 )
 
 target_compile_definitions(${BOARD_CONTROLLER_NAME} PRIVATE -DNOMINMAX)
@@ -158,6 +166,16 @@ if (MSVC)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/board_controller/inc/board_controller.h" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/inc/board_controller.h"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/board_controller/inc/board_info_getter.h" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/inc/board_info_getter.h"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/utils/inc/shared_export_matlab.h" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/inc/shared_export.h"
+ 	COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${BRAINALIVE_NATIVE_LIB_PATH}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${BRAINALIVE_NATIVE_LIB_NAME}"
+	COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${BRAINALIVE_NATIVE_LIB_PATH}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${BRAINALIVE_NATIVE_LIB_NAME}"
+	COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${BRAINALIVE_NATIVE_LIB_PATH}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/${BRAINALIVE_NATIVE_LIB_NAME}"
+ 	COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${BRAINALIVE_NATIVE_LIB_PATH}" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${BRAINALIVE_NATIVE_LIB_NAME}"
+	COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${BRAINALIVE_NATIVE_LIB_PATH}" "${CMAKE_HOME_DIRECTORY}/julia-package/brainflow/lib/${BRAINALIVE_NATIVE_LIB_NAME}"
+	COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${BRAINALIVE_LIB_PATH}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${BRAINALIVE_LIB_NAME}"
+	COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${BRAINALIVE_LIB_PATH}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${BRAINALIVE_LIB_NAME}"
+	COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${BRAINALIVE_LIB_PATH}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/${BRAINALIVE_LIB_NAME}"
+ 	COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${BRAINALIVE_LIB_PATH}" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${BRAINALIVE_LIB_NAME}"
+	COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${BRAINALIVE_LIB_PATH}" "${CMAKE_HOME_DIRECTORY}/julia-package/brainflow/lib/${BRAINALIVE_LIB_NAME}"
     )
 endif (MSVC)
 if (UNIX AND NOT ANDROID)
@@ -204,6 +222,15 @@ if (ANDROID)
     find_library (log-lib log)
     target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE log)
 endif (ANDROID)
+
+if (MSVC)
+    install (
+        FILES
+        "${BRAINALIVE_NATIVE_LIB_PATH}"
+        "${BRAINALIVE_LIB_PATH}"
+        DESTINATION lib
+    )
+endif (MSVC)
 
 install (
     FILES

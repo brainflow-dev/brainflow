@@ -491,6 +491,17 @@ json brainflow_boards_json = {
             {"num_rows", 7},
             {"eeg_channels", {1, 2, 3, 4}},
             {"eeg_names", "A2,A1,C4,C3"}
+        }},
+        {"38",
+            {{"name", "BrainAlive"},
+            {"sampling_rate", 250},
+            {"timestamp_channel", 14},
+            {"marker_channel", 15},
+            {"package_num_channel", 0},
+            {"num_rows", 16},
+            {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
+            {"ppg_channels", {9, 10}},
+            {"accel_channels", {11, 12, 13}}
         }}
     }
 }};

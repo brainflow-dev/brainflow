@@ -64,7 +64,9 @@ setup(
             os.path.join('lib', 'BrainFlowBluetooth.dll'),
             os.path.join('lib', 'BrainFlowBluetooth32.dll'),
             os.path.join('lib', 'libBrainFlowBluetooth.so'),
-            os.path.join('lib', 'libBrainFlowBluetooth.dylib')
+            os.path.join('lib', 'libBrainFlowBluetooth.dylib'),
+            os.path.join('lib', 'BA_BLE_Lib.dll'),
+	    os.path.join('lib', 'BA_Native_BLE.dll')
         ]
     },
     zip_safe=True,
