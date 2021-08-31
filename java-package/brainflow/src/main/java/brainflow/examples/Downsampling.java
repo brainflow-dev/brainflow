@@ -26,7 +26,7 @@ public class Downsampling
         Thread.sleep (5000);
         board_shim.stop_stream ();
         System.out.println (board_shim.get_board_data_count ());
-        double[][] data = board_shim.get_current_board_data (30);
+        double[][] data = board_shim.get_board_data (30);
         board_shim.release_session ();
 
         int[] eeg_channels = BoardShim.get_eeg_channels (board_id);

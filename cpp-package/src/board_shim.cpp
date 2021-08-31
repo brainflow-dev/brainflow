@@ -154,30 +154,17 @@ int BoardShim::get_board_data_count ()
 
 BrainFlowArray<double, 2> BoardShim::get_board_data ()
 {
-    int num_samples = get_board_data_count ();
-    int num_data_channels = get_num_rows (get_board_id ());
-    double *buf = new double[num_samples * num_data_channels];
-    int res = ::get_board_data (
-        num_samples, buf, board_id, const_cast<char *> (serialized_params.c_str ()));
-    if (res != (int)BrainFlowExitCodes::STATUS_OK)
-    {
-        delete[] buf;
-        throw BrainFlowException ("failed to get board data", res);
-    }
-    BrainFlowArray<double, 2> matrix (buf, num_data_channels, num_samples);
-    delete[] buf;
-    return matrix;
+    return get_board_data (get_board_data_count ());
 }
+
 BrainFlowArray<double, 2> BoardShim::get_board_data (int num_datapoints)
 {
-
     if (num_datapoints <= 0)
     {
-        throw std::invalid_argument (
-            "INVALID_ARGUMENTS_ERROR : data size should be greater than 0");
+        throw BrainFlowException (
+            "invalid num_datapoints", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
     }
-    int num_samples = get_board_data_count ();
-    num_samples = std::min (num_samples, num_datapoints);
+    int num_samples = std::min (get_board_data_count (), num_datapoints);
     int num_data_channels = get_num_rows (get_board_id ());
     double *buf = new double[num_samples * num_data_channels];
     int res = ::get_board_data (
