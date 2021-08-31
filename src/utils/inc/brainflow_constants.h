@@ -74,7 +74,7 @@ enum class BoardIds : int
     EVOMIND_BOARD = 38,
     // use it to iterate
     FIRST = PLAYBACK_FILE_BOARD,
-    LAST = ENOPHONE_BOARD
+    LAST = EVOMIND_BOARD
 };
 
 enum class IpProtocolType : int

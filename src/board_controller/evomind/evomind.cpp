@@ -239,7 +239,7 @@ void Evomind::read_thread ()
             safe_logger (spdlog::level::info, "NO start byte! res: {}", res);
             continue;
         }
-        safe_logger (spdlog::level::info, 'start byte has been found!');
+        safe_logger (spdlog::level::info, "start byte has been found!");
         double timestamp = get_timestamp ();
         // notify main thread that 1st byte received
         if (state != (int)BrainFlowExitCodes::STATUS_OK)
