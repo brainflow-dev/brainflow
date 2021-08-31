@@ -1,5 +1,5 @@
-Partners, Sponsors and Contributors
-====================================
+Partners, Sponsors, and Contributors
+=====================================
 
 OpenBCI
 --------
