@@ -60,6 +60,7 @@ class BoardIds(enum.IntEnum):
     ANT_NEURO_EE_224_BOARD = 35 #:
     ANT_NEURO_EE_225_BOARD = 36 #:
     ENOPHONE_BOARD = 37 #:
+    EVOMIND_BOARD = 38 #:
 
 
 class LogLevels(enum.IntEnum):

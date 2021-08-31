@@ -1,4 +1,5 @@
 #include <string.h>
+#include <iomanip>
 
 #include "evomind.h"
 
@@ -6,6 +7,12 @@
 #include "custom_cast.h"
 #include "get_dll_dir.h"
 #include "timestamp.h"
+
+#define START_BYTE 0xA0
+#define END_BYTE_STANDARD 0xC0
+#define END_BYTE_ANALOG 0xC1
+#define END_BYTE_MAX 0xC6
+
 
 
 Evomind::Evomind (struct BrainFlowInputParams params)
@@ -193,6 +200,15 @@ int Evomind::release_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
+template<typename T>std::string int_to_hex( T i )
+{
+  std::stringstream stream;
+  stream << "0x"
+         << std::setfill ('0') << std::setw(sizeof(T)*2)
+         << std::hex << i;
+  return stream.str();
+}
+
 void Evomind::read_thread ()
 {
     int num_rows = board_descr["num_rows"];
@@ -201,7 +217,7 @@ void Evomind::read_thread ()
     {
         package[i] = 0.0;
     }
-    constexpr int buf_size = 20;
+    constexpr int buf_size = 32;
     char temp_buffer[buf_size];
     for (int i = 0; i < buf_size; i++)
     {
@@ -213,10 +229,17 @@ void Evomind::read_thread ()
         bool is_ready = false;
         // check first byte is 'b'
         int res = func_get_data (temp_buffer, 1, const_cast<char *> (params.mac_address.c_str ()));
+        safe_logger (spdlog::level::info, "first byte is: {}", int_to_hex((int) temp_buffer[0]));
+        for (int i = 0; i < buf_size; i++)
+        {
+            safe_logger (spdlog::level::info, "Byte num {} is {}", i, int_to_hex((int) temp_buffer[i]));
+        }
         if ((res != 1) || (temp_buffer[0] != 'b'))
         {
+            safe_logger (spdlog::level::info, "NO start byte! res: {}", res);
             continue;
         }
+        safe_logger (spdlog::level::info, 'start byte has been found!');
         double timestamp = get_timestamp ();
         // notify main thread that 1st byte received
         if (state != (int)BrainFlowExitCodes::STATUS_OK)
@@ -226,7 +249,7 @@ void Evomind::read_thread ()
                 state = (int)BrainFlowExitCodes::STATUS_OK;
             }
             cv.notify_one ();
-            safe_logger (spdlog::level::debug, "start streaming");
+            safe_logger (spdlog::level::info, "start streaming");
         }
 
         // check second byte is 'S'
