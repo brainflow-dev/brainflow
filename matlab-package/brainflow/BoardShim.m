@@ -30,7 +30,7 @@ classdef BoardShim
         end
         
         function check_ec(ec, task_name)
-            if(ec ~= int32(ExitCodes.STATUS_OK))
+            if (ec ~= int32(ExitCodes.STATUS_OK))
                 error('Non zero ec: %d, for task: %s', ec, task_name)
             end
         end
@@ -377,15 +377,17 @@ classdef BoardShim
             num_data_point = data_count.value;
         end
 
-        function data_buf = get_board_data(obj, num_data_point)
-            % get all collected data by default, or get required amount of data by specifying it and remove it from the buffer
+        function data_buf = get_board_data(obj, num_datapoints)
+            % get required amount of data by specifying it and remove it from the buffer
             task_name = 'get_board_data';
             data_count = obj.get_board_data_count();
-            if (isa(obj, 'int32'))
-                if( num_data_point <= 0)
-                    error("data size should be greater than 0");
-                else
-                    data_count = (data_count >= num_data_point) ? num_data_point : data_count;
+            if (num_datapoints <= 0)
+                BoardShim.check_ec(int32(ExitCodes.INVALID_ARGUMENTS_ERROR), 'invalid num_datapoints');
+            else
+                if (data_count >= num_datapoints)
+                    data_count = num_datapoints;
+                end
+            end
             num_rows = BoardShim.get_num_rows(obj.master_board_id);
             lib_name = BoardShim.load_lib();
             data = libpointer('doublePtr', zeros(1, data_count * num_rows));

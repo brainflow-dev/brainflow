@@ -10,6 +10,6 @@ pause(2);
 board_shim.insert_marker(1);
 pause(2);
 board_shim.stop_stream();
-data = board_shim.get_board_data();
+data = board_shim.get_board_data(board_shim.get_board_data_count());
 disp(data);
 board_shim.release_session();
