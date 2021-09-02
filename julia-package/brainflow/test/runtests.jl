@@ -3,6 +3,7 @@ using BrainFlow
 
 include("julia_tests.jl")
 include("brainflow_get_data.jl")
+include("brainflow_get_data_twice.jl")
 include("signal_filtering.jl")
 include("denoising.jl")
 include("downsampling.jl")
