@@ -119,15 +119,11 @@ void Evomind::read_thread ()
         bool is_ready = false;
         // check first byte is 'b'
         int res = bluetooth_get_data (temp_buffer, 1);
-        safe_logger (spdlog::level::info, "first byte is: {}", int_to_hex((int) temp_buffer[0]));
-        for (int i = 0; i < buf_size; i++)
-        {
-            safe_logger (spdlog::level::info, "Byte num {} is {}", i, int_to_hex((int) temp_buffer[i]));
-        }
-        if ((res != 1) || (temp_buffer[0] != 'b'))
+        if (res != 1)
         {
             continue;
         }
+        safe_logger (spdlog::level::info, "res is: {}, byte: {}", res, int_to_hex((int)temp_buffer[0]));
         double timestamp = get_timestamp ();
         // notify main thread that 1st byte received
         if (state != (int)BrainFlowExitCodes::STATUS_OK)
