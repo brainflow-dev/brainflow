@@ -231,7 +231,7 @@ end
 
 @brainflow_rethrow function get_board_data(num_samples::Integer, board_shim::BoardShim)
     data_size = get_board_data_count(board_shim)
-    if num_samples <= 0
+    if num_samples < 0
         throw(BrainFlowError("Invalid num_samples", Integer(INVALID_ARGUMENTS_ERROR)))
     else
         data_size = (data_size >= num_samples) ? num_samples : data_size

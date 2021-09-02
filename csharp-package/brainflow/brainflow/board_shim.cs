@@ -725,7 +725,7 @@ namespace brainflow
         public double[,] get_board_data (int num_datapoints)
         {
             int size = get_board_data_count ();
-            if (num_datapoints < 1)
+            if (num_datapoints < 0)
             {
                 throw new BrainFlowException ((int)CustomExitCodes.INVALID_ARGUMENTS_ERROR);
             }

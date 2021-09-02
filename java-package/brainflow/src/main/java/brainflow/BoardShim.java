@@ -792,7 +792,7 @@ public class BoardShim
 
     public double[][] get_board_data (int num_datapoints) throws BrainFlowError
     {
-        if (num_datapoints <= 0)
+        if (num_datapoints < 0)
         {
             throw new BrainFlowError ("data size should be greater than 0",
                     ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());

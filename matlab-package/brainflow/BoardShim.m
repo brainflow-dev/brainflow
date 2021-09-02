@@ -381,7 +381,7 @@ classdef BoardShim
             % get required amount of data by specifying it and remove it from the buffer
             task_name = 'get_board_data';
             data_count = obj.get_board_data_count();
-            if (num_datapoints <= 0)
+            if (num_datapoints < 0)
                 BoardShim.check_ec(int32(ExitCodes.INVALID_ARGUMENTS_ERROR), 'invalid num_datapoints');
             else
                 if (data_count >= num_datapoints)

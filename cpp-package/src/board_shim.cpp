@@ -159,7 +159,7 @@ BrainFlowArray<double, 2> BoardShim::get_board_data ()
 
 BrainFlowArray<double, 2> BoardShim::get_board_data (int num_datapoints)
 {
-    if (num_datapoints <= 0)
+    if (num_datapoints < 0)
     {
         throw BrainFlowException (
             "invalid num_datapoints", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
