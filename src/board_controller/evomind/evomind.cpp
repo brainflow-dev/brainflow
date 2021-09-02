@@ -9,7 +9,7 @@
 
 
 Evomind::Evomind (struct BrainFlowInputParams params)
-    : BTLibBoard ((int)BoardIds::ENOPHONE_BOARD, params)
+    : BTLibBoard ((int)BoardIds::EVOMIND_BOARD, params)
 {
     keep_alive = false;
     state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
