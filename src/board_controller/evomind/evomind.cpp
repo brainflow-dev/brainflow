@@ -108,7 +108,7 @@ void Evomind::read_thread ()
         package[i] = 0.0;
     }
     constexpr int buf_size = 32;
-    char temp_buffer[buf_size];
+    unsigned char temp_buffer[buf_size];
     for (int i = 0; i < buf_size; i++)
     {
         temp_buffer[i] = 0;
@@ -118,12 +118,12 @@ void Evomind::read_thread ()
     {
         bool is_ready = false;
         // check first byte is 'b'
-        int res = bluetooth_get_data (temp_buffer, 1);
+        int res = bluetooth_get_data ((char *)temp_buffer, 1);
         if (res != 1)
         {
             continue;
         }
-        safe_logger (spdlog::level::info, "res is: {}, byte: {}", res, int_to_hex((int)temp_buffer[0]));
+        safe_logger (spdlog::level::info, "res is: {}, byte: {}", res, (int)temp_buffer[0]);
         double timestamp = get_timestamp ();
         // notify main thread that 1st byte received
         if (state != (int)BrainFlowExitCodes::STATUS_OK)
@@ -139,7 +139,7 @@ void Evomind::read_thread ()
         // check second byte is 'S'
         while ((keep_alive) && (res >= 0))
         {
-            res = bluetooth_get_data (temp_buffer + 1, 1);
+            res = bluetooth_get_data ((char *) (temp_buffer + 1), 1);
             if (res == 1)
             {
                 if (temp_buffer[1] == 'S')
@@ -155,7 +155,7 @@ void Evomind::read_thread ()
         {
             while ((keep_alive) && (res >= 0))
             {
-                res = bluetooth_get_data (temp_buffer + 2, buf_size - 2);
+                res = bluetooth_get_data ((char *) (temp_buffer + 2), buf_size - 2);
                 if (res == buf_size - 2)
                 {
                     std::vector<int> eeg_channels = board_descr["eeg_channels"];
