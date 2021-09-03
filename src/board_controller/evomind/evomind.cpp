@@ -138,14 +138,13 @@ void Evomind::read_thread ()
     {
         bool is_ready = false;
         int res = bluetooth_get_data ((char *)temp_buffer, 1);
-        safe_logger (spdlog::level::info, "res is: {}, byte: {}", res, (int)temp_buffer[0]);
+        safe_logger (spdlog::level::info, "CHECK START BYTE. res: {}, byte: {}", res, (int)temp_buffer[0]);
         if ((res == 1) && (temp_buffer[0] == START_BYTE))
         {
             is_ready = true;
         }
         else
         {
-            sleep (0);
             continue;
         }
 
@@ -169,20 +168,13 @@ void Evomind::read_thread ()
                 {
                     temp_buffer[i] = 0;
                 }
-                safe_logger (spdlog::level::info, "Before");
-                safe_logger (spdlog::level::info, "new data byte res: {}", res);
-
-                for (int i = 0; i < buf_size; i++) {
-                    safe_logger (spdlog::level::info, "new data byte #{} = {}", i, temp_buffer[i]);
-                }
                 res = bluetooth_get_data ((char *)temp_buffer + 1, buf_size - 1);
                 if (res == 0) {
-                    sleep (0);
+                    sleep (5);
                 }
-                safe_logger (spdlog::level::info, "After");
-                safe_logger (spdlog::level::info, "new data byte res: {}", res);
+                safe_logger (spdlog::level::info, "DATA BYTES. res: {}", res);
                 for (int i = 0; i < buf_size; i++) {
-                    safe_logger (spdlog::level::info, "new data byte #{} = {}", i, temp_buffer[i]);
+                    safe_logger (spdlog::level::info, "data byte #{} = {}", i, temp_buffer[i]);
                 }
                 if (res == buf_size - 1)
                 {
