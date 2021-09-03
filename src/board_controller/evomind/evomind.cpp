@@ -7,6 +7,11 @@
 #include "get_dll_dir.h"
 #include "timestamp.h"
 
+#define START_BYTE 0xA0
+#define END_BYTE_STANDARD 0xC0
+#define END_BYTE_ANALOG 0xC1
+#define END_BYTE_MAX 0xC6
+
 
 Evomind::Evomind (struct BrainFlowInputParams params)
     : BTLibBoard ((int)BoardIds::EVOMIND_BOARD, params)
@@ -101,13 +106,28 @@ template<typename T>std::string int_to_hex( T i )
 
 void Evomind::read_thread ()
 {
+    /*
+    Byte 1: 0xA0
+    Byte 2: Sample Number
+    Bytes 3-5: Data value for EEG channel 1
+    Bytes 6-8: Data value for EEG channel 2
+    Bytes 9-11: Data value for EEG channel 3
+    Bytes 12-14: Data value for EEG channel 4
+    Bytes 15-17: Data value for EEG channel 5
+    Bytes 18-20: Data value for EEG channel 6
+    Bytes 21-23: Data value for EEG channel 6
+    Bytes 24-26: Data value for EEG channel 8
+    Aux Data Bytes 27-32: 6 bytes of data
+    Byte 33: 0xCX where X is 0-F in hex
+*/
+
     int num_rows = board_descr["num_rows"];
     double *package = new double[num_rows];
     for (int i = 0; i < num_rows; i++)
     {
         package[i] = 0.0;
     }
-    constexpr int buf_size = 32;
+    constexpr int buf_size = 33;
     unsigned char temp_buffer[buf_size];
     for (int i = 0; i < buf_size; i++)
     {
@@ -117,13 +137,17 @@ void Evomind::read_thread ()
     while (keep_alive)
     {
         bool is_ready = false;
-        // check first byte is 'b'
         int res = bluetooth_get_data ((char *)temp_buffer, 1);
-        if (res != 1)
+        safe_logger (spdlog::level::info, "res is: {}, byte: {}", res, (int)temp_buffer[0]);
+        if ((res == 1) && (temp_buffer[0] == START_BYTE))
+        {
+            is_ready = true;
+        }
+        else
         {
             continue;
         }
-        safe_logger (spdlog::level::info, "res is: {}, byte: {}", res, (int)temp_buffer[0]);
+
         double timestamp = get_timestamp ();
         // notify main thread that 1st byte received
         if (state != (int)BrainFlowExitCodes::STATUS_OK)
@@ -133,33 +157,22 @@ void Evomind::read_thread ()
                 state = (int)BrainFlowExitCodes::STATUS_OK;
             }
             cv.notify_one ();
-            safe_logger (spdlog::level::debug, "start streaming");
+            safe_logger (spdlog::level::info, "start streaming");
         }
 
-        // check second byte is 'S'
-        while ((keep_alive) && (res >= 0))
-        {
-            res = bluetooth_get_data ((char *) (temp_buffer + 1), 1);
-            if (res == 1)
-            {
-                if (temp_buffer[1] == 'S')
-                {
-                    is_ready = true;
-                }
-                break;
-            }
-        }
-
-        // first two bytes received, ready to read data bytes
         if (is_ready)
         {
             while ((keep_alive) && (res >= 0))
             {
-                res = bluetooth_get_data ((char *) (temp_buffer + 2), buf_size - 2);
-                if (res == buf_size - 2)
+                res = bluetooth_get_data ((char *)temp_buffer + 1, buf_size - 1);
+                safe_logger (spdlog::level::info, "new data byte res: {}", res);
+                for (int i = 0; i < buf_size; i++) {
+                    safe_logger (spdlog::level::info, "new data byte #{} = {}", i, temp_buffer[i]);
+                }
+                if (res == buf_size - 1)
                 {
                     std::vector<int> eeg_channels = board_descr["eeg_channels"];
-                    for (int i = 0; i < 5; i++)
+                    for (int i = 0; i <= 9; i++)
                     {
                         int32_t val = 0;
                         memcpy (&val, temp_buffer + i * sizeof (int32_t), sizeof (int32_t));
@@ -182,13 +195,45 @@ void Evomind::read_thread ()
                 }
             }
         }
+
+//        int remaining_bytes = 32;
+//        int pos = 0;
+//        while ((remaining_bytes > 0) && (keep_alive))
+//        {
+//            res = bluetooth_get_data ((char *)(temp_buffer + pos), remaining_bytes);
+//            if (res == 1)
+//                safe_logger (spdlog::level::info, "read new data byte: {}", res);
+//            remaining_bytes -= res;
+//            pos += res;
+//        }
+//        if (!keep_alive)
+//        {
+//            break;
+//        }
+//
+//        if ((temp_buffer[31] < END_BYTE_STANDARD) || (temp_buffer[31] > END_BYTE_MAX))
+//        {
+//            safe_logger (spdlog::level::warn, "Wrong end byte {}", temp_buffer[31]);
+//            continue;
+//        }
+//
+//        // package num
+//        package[board_descr["package_num_channel"].get<int> ()] = (double)temp_buffer[0];
+//        // eeg
+//        for (unsigned int i = 0; i < eeg_channels.size (); i++)
+//        {
+//            package[eeg_channels[i]] = eeg_scale * cast_24bit_to_int32 (temp_buffer + 1 + 3 * i);
+//        }
+//
+//        package[board_descr["timestamp_channel"].get<int> ()] = get_timestamp ();
+//        push_package (package);
     }
     delete[] package;
 }
 
 int Evomind::config_board (std::string config, std::string &response)
 {
-    safe_logger (spdlog::level::debug, "config_board is not supported for Enophone");
+    safe_logger (spdlog::level::debug, "config_board is not supported for Evomind");
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
