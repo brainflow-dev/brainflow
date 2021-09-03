@@ -154,7 +154,17 @@ int BoardShim::get_board_data_count ()
 
 BrainFlowArray<double, 2> BoardShim::get_board_data ()
 {
-    int num_samples = get_board_data_count ();
+    return get_board_data (get_board_data_count ());
+}
+
+BrainFlowArray<double, 2> BoardShim::get_board_data (int num_datapoints)
+{
+    if (num_datapoints < 0)
+    {
+        throw BrainFlowException (
+            "invalid num_datapoints", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+    }
+    int num_samples = std::min (get_board_data_count (), num_datapoints);
     int num_data_channels = get_num_rows (get_board_id ());
     double *buf = new double[num_samples * num_data_channels];
     int res = ::get_board_data (

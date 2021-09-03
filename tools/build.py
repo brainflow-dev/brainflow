@@ -1,6 +1,7 @@
 import argparse
 import platform
 import subprocess
+import multiprocessing
 import os
 from shutil import rmtree
 
@@ -130,7 +131,7 @@ def prepare_args():
     parser.add_argument('--warnings-as-errors', action='store_true')
     parser.add_argument('--debug', action='store_true')
     parser.add_argument('--clear-build-dir', action='store_true')
-    parser.add_argument('--num-jobs', type=int, help='num jobs to run in parallel', required=False, default=4)
+    parser.add_argument('--num-jobs', type=int, help='num jobs to run in parallel', required=False, default=max(1, multiprocessing.cpu_count() // 2))
     parser.add_argument('--bluetooth', dest='bluetooth', action='store_true')
     parser.add_argument('--no-bluetooth', dest='bluetooth', action='store_false')
     parser.set_defaults(bluetooth=bluetooth_default)

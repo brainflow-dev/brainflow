@@ -38,14 +38,15 @@ int main (int argc, char *argv[])
         {
             board->insert_marker (i);
 #ifdef _WIN32
-            Sleep (1000);
+            Sleep (2000);
 #else
-            sleep (1);
+            sleep (2);
 #endif
         }
 
         board->stop_stream ();
         BrainFlowArray<double, 2> data = board->get_board_data ();
+        data = board->get_board_data ();
         board->release_session ();
         std::cout << data << std::endl;
     }

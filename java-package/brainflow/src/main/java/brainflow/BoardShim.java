@@ -5,12 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang3.SystemUtils;
 
@@ -141,7 +137,7 @@ public class BoardShim
             unpack_from_jar (ganglion_name);
         }
 
-        instance = (DllInterface) Native.loadLibrary (lib_name, DllInterface.class,
+        instance = Native.loadLibrary (lib_name, DllInterface.class,
                 Collections.singletonMap (Library.OPTION_ALLOW_OBJECTS, Boolean.TRUE));
         instance.java_set_jnienv (JNIEnv.CURRENT);
     }
@@ -341,7 +337,7 @@ public class BoardShim
         }
         String descr_string = new String (str, 0, len[0]);
         Gson gson = new Gson ();
-        T res = (T) gson.fromJson (descr_string, type);
+        T res = gson.fromJson (descr_string, type);
         return res;
     }
 
@@ -779,6 +775,30 @@ public class BoardShim
     public double[][] get_board_data () throws BrainFlowError
     {
         int size = get_board_data_count ();
+        int num_rows = BoardShim.get_num_rows (master_board_id);
+        double[] data_arr = new double[size * num_rows];
+        int ec = instance.get_board_data (size, data_arr, board_id, input_json);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in get_board_data", ec);
+        }
+        double[][] result = new double[num_rows][];
+        for (int i = 0; i < num_rows; i++)
+        {
+            result[i] = Arrays.copyOfRange (data_arr, (i * size), (i + 1) * size);
+        }
+        return result;
+    }
+
+    public double[][] get_board_data (int num_datapoints) throws BrainFlowError
+    {
+        if (num_datapoints < 0)
+        {
+            throw new BrainFlowError ("data size should be greater than 0",
+                    ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
+        int size = get_board_data_count ();
+        size = (size >= num_datapoints) ? num_datapoints : size;
         int num_rows = BoardShim.get_num_rows (master_board_id);
         double[] data_arr = new double[size * num_rows];
         int ec = instance.get_board_data (size, data_arr, board_id, input_json);

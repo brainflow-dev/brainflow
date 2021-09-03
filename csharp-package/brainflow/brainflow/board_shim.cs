@@ -715,11 +715,26 @@ namespace brainflow
         /// <returns>all collected data</returns>
         public double[,] get_board_data ()
         {
-		    int size = get_board_data_count ();
+            return get_board_data (get_board_data_count ());
+        }
+
+        /// <summary>
+        /// get collected data and remove it from ringbuffer
+        /// </summary>
+        /// <returns>all collected data</returns>
+        public double[,] get_board_data (int num_datapoints)
+        {
+            int size = get_board_data_count ();
+            if (num_datapoints < 0)
+            {
+                throw new BrainFlowException ((int)CustomExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            size = Math.Min (size, num_datapoints);
             int num_rows = BoardShim.get_num_rows (master_board_id);
             double[] data_arr = new double[size * num_rows];
             int ec = BoardControllerLibrary.get_board_data (size, data_arr, board_id, input_json);
-		    if (ec != (int) CustomExitCodes.STATUS_OK) {
+            if (ec != (int)CustomExitCodes.STATUS_OK)
+            {
                 throw new BrainFlowException (ec);
             }
             double[,] result = new double[num_rows, size];
