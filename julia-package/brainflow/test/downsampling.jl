@@ -10,7 +10,7 @@ BrainFlow.prepare_session(board_shim)
 BrainFlow.start_stream(board_shim)
 sleep(5)
 BrainFlow.stop_stream(board_shim)
-data = BrainFlow.get_current_board_data(32, board_shim)
+data = BrainFlow.get_board_data(32, board_shim)
 BrainFlow.release_session(board_shim)
 
 eeg_channels = BrainFlow.get_eeg_channels(BrainFlow.SYNTHETIC_BOARD)

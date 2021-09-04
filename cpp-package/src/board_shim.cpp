@@ -154,7 +154,17 @@ int BoardShim::get_board_data_count ()
 
 BrainFlowArray<double, 2> BoardShim::get_board_data ()
 {
-    int num_samples = get_board_data_count ();
+    return get_board_data (get_board_data_count ());
+}
+
+BrainFlowArray<double, 2> BoardShim::get_board_data (int num_datapoints)
+{
+    if (num_datapoints < 0)
+    {
+        throw BrainFlowException (
+            "invalid num_datapoints", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+    }
+    int num_samples = std::min (get_board_data_count (), num_datapoints);
     int num_data_channels = get_num_rows (get_board_id ());
     double *buf = new double[num_samples * num_data_channels];
     int res = ::get_board_data (
@@ -434,6 +444,18 @@ std::vector<int> BoardShim::get_accel_channels (int board_id)
     int channels[MAX_CHANNELS];
     int len = 0;
     int res = ::get_accel_channels (board_id, channels, &len);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to get board info", res);
+    }
+    return std::vector<int> (channels, channels + len);
+}
+
+std::vector<int> BoardShim::get_gyro_channels (int board_id)
+{
+    int channels[MAX_CHANNELS];
+    int len = 0;
+    int res = ::get_gyro_channels (board_id, channels, &len);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to get board info", res);

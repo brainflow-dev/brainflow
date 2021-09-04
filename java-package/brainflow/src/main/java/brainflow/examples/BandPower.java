@@ -1,12 +1,10 @@
 package brainflow.examples;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.math3.complex.Complex;
 
+import brainflow.BoardDescr;
 import brainflow.BoardIds;
 import brainflow.BoardShim;
 import brainflow.BrainFlowInputParams;
@@ -14,7 +12,6 @@ import brainflow.DataFilter;
 import brainflow.DetrendOperations;
 import brainflow.LogLevels;
 import brainflow.WindowFunctions;
-import brainflow.BoardDescr;
 
 public class BandPower
 {

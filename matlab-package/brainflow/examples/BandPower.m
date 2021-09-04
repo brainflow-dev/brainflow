@@ -11,7 +11,7 @@ board_shim.start_stream(45000, '');
 pause(10);
 board_shim.stop_stream();
 nfft = DataFilter.get_nearest_power_of_two(sampling_rate);
-data = board_shim.get_board_data();
+data = board_shim.get_board_data(board_shim.get_board_data_count());
 board_shim.release_session();
 
 eeg_channels = board_descr.eeg_channels;
