@@ -14,7 +14,7 @@ protected:
     bool initialized;
     DLLLoader *dll_loader;
 
-    int bluetooth_open_device (int port);
+    int bluetooth_open_device ();
     int bluetooth_get_data (char *data, int len);
     int bluetooth_write_data (const char *data, int len);
     int bluetooth_close_device ();

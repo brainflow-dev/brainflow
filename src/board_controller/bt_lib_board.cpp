@@ -65,10 +65,16 @@ int BTLibBoard::prepare_session ()
         safe_logger (spdlog::level::debug, "Library is loaded");
     }
 
+    if (params.ip_port <= 0)
+    {
+        params.ip_port = 1;
+        safe_logger (spdlog::level::warn, "Port for Bluetooth is not provided, default is: {}",
+            params.ip_port);
+    }
     if ((params.mac_address.empty ()) && (return_res == (int)BrainFlowExitCodes::STATUS_OK))
     {
         safe_logger (
-            spdlog::level::warn, "mac address is not provided, trying to autodiscover explore");
+            spdlog::level::warn, "mac address is not provided, trying to autodiscover device");
         int res = find_bt_addr (get_name_selector ().c_str ());
         if (res == (int)SocketBluetoothReturnCodes::UNIMPLEMENTED_ERROR)
         {
@@ -122,7 +128,7 @@ int BTLibBoard::config_board (std::string config, std::string &response)
     return bluetooth_write_data (config.c_str (), (int)strlen (config.c_str ()));
 }
 
-int BTLibBoard::bluetooth_open_device (int port)
+int BTLibBoard::bluetooth_open_device ()
 {
     int (*func_open) (int, char *) =
         (int (*) (int, char *))dll_loader->get_address ("bluetooth_open_device");
@@ -133,7 +139,7 @@ int BTLibBoard::bluetooth_open_device (int port)
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
 
-    int res = func_open (port, const_cast<char *> (params.mac_address.c_str ()));
+    int res = func_open (params.ip_port, const_cast<char *> (params.mac_address.c_str ()));
     if (res != (int)SocketBluetoothReturnCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to open bt connection: {}", res);

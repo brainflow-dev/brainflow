@@ -58,7 +58,7 @@ int Explore::start_stream (int buffer_size, char *streamer_params)
         return res;
     }
 
-    res = bluetooth_open_device (5);
+    res = bluetooth_open_device ();
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
