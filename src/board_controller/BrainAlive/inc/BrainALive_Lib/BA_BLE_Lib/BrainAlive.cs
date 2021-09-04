@@ -1,7 +1,4 @@
 ﻿using System;
-using Windows;
-using Windows.Foundation.Collections;
-using Windows.Foundation.Metadata;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Windows.Devices.Enumeration;
@@ -53,6 +50,7 @@ namespace BrainAlive_Lib
             {
                 var task_open = open_brainalive_async(mac_addr);
                 task_open.Wait();
+                
                 if (task_open.Result != (int)CustomExitCodes.STATUS_OK)
                 {
                     return task_open.Result;

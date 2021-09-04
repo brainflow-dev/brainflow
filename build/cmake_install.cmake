@@ -166,8 +166,8 @@ endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE FILE FILES
-    "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_Native_BLE.dll"
-    "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_BLE_Lib.dll"
+    "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_Native_BLE.dll"
+    "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_BLE_Lib.dll"
     )
 endif()
 

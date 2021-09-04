@@ -232,20 +232,28 @@ void BrainAlive_Device::read_thread ()
 
 int BrainAlive_Device::call_start ()
 {
-   void *mac_addr;
-    DLLFunc func_open_device = (DLLFunc) dll_loader->get_address ("open_brainalive_mac_addr_native");
+    int *mac_addr;
+   /* int* (*func_open_device) (void *);
+
+    func_open_device = ( int* (*) (void*))dll_loader->get_address ("open_brainalive_mac_addr_native");
+
+    func_open_device ("1567");*/
+
+    int (*func_open_device) (void*) =
+        (int(*)(void*))dll_loader->get_address ("open_brainalive_mac_addr_native");
+   
     if (func_open_device == NULL)
     {
         safe_logger (spdlog::level::err, "failed to find open brainalive funtion address");
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
-    }
-    safe_logger (spdlog::level::err, "brfore connect");
+    }   
+     safe_logger (spdlog::level::debug, "beforeconnect");
     
-    int res = func_open_device(mac_addr);
-    //Sleep (3000);
+     int res = func_open_device (const_cast<char *> (params.mac_address.c_str ()));
+
    // printf (mac_addr);
-    safe_logger (spdlog::level::err, "after connect");
-    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    safe_logger (spdlog::level::debug, "after connect");
+  if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to open bt connection: {}", res);
         return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;

@@ -14,7 +14,7 @@ public
         }
 
     public:
-        BrainAlive ^ brainalive_obj;
-        static BrainAliveLibWrapper ^ instance = gcnew BrainAliveLibWrapper ();
+        BrainAlive ^brainalive_obj;
+        static BrainAliveLibWrapper ^instance = gcnew BrainAliveLibWrapper ();
     };
 }

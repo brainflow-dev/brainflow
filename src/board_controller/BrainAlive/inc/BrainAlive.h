@@ -7,7 +7,7 @@
 #include "board.h"
 #include "board_controller.h"
 #include "runtime_dll_loader.h"
-typedef __declspec(dllimport) int (__cdecl *DLLFunc) (LPVOID);
+typedef __declspec(dllimport) int (__cdecl *DLLFunc) (LPCVOID);
 class BrainAlive_Device : public Board
 {
 private:

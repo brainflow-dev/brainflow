@@ -28,12 +28,15 @@
     <Platform>x64</Platform>
     <ProjectName>BoardController</ProjectName>
     <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v142</PlatformToolset>
+    <CLRSupport>false</CLRSupport>
+    <UseDebugLibraries>false</UseDebugLibraries>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -92,17 +95,19 @@
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <ExceptionHandling>Sync</ExceptionHandling>
-      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <RuntimeTypeInfo>
+      </RuntimeTypeInfo>
       <SuppressStartupBanner>
       </SuppressStartupBanner>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR="Debug";BoardController_EXPORTS</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <SDLCheck>false</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR=\"Debug\";BoardController_EXPORTS</PreprocessorDefinitions>
@@ -136,25 +141,25 @@ if %errorlevel% neq 0 goto :cmEnd
 if %errorlevel% neq 0 goto :cmEnd
 "C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/utils/inc/shared_export_matlab.h" "D:/D Drive/New_BrainFlow/brainflow/matlab-package/brainflow/inc/shared_export.h"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/python-package/brainflow/lib/BA_Native_BLE.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/python-package/brainflow/lib/BA_Native_BLE.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/java-package/brainflow/src/main/resources/BA_Native_BLE.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/java-package/brainflow/src/main/resources/BA_Native_BLE.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/csharp-package/brainflow/brainflow/lib/BA_Native_BLE.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/csharp-package/brainflow/brainflow/lib/BA_Native_BLE.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/matlab-package/brainflow/lib/BA_Native_BLE.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/matlab-package/brainflow/lib/BA_Native_BLE.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/julia-package/brainflow/lib/BA_Native_BLE.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/julia-package/brainflow/lib/BA_Native_BLE.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/python-package/brainflow/lib/BA_BLE_Lib.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/python-package/brainflow/lib/BA_BLE_Lib.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/java-package/brainflow/src/main/resources/BA_BLE_Lib.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/java-package/brainflow/src/main/resources/BA_BLE_Lib.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/csharp-package/brainflow/brainflow/lib/BA_BLE_Lib.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/csharp-package/brainflow/brainflow/lib/BA_BLE_Lib.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/matlab-package/brainflow/lib/BA_BLE_Lib.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/matlab-package/brainflow/lib/BA_BLE_Lib.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/julia-package/brainflow/lib/BA_BLE_Lib.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/julia-package/brainflow/lib/BA_BLE_Lib.dll"
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -228,25 +233,25 @@ if %errorlevel% neq 0 goto :cmEnd
 if %errorlevel% neq 0 goto :cmEnd
 "C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/utils/inc/shared_export_matlab.h" "D:/D Drive/New_BrainFlow/brainflow/matlab-package/brainflow/inc/shared_export.h"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/python-package/brainflow/lib/BA_Native_BLE.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/python-package/brainflow/lib/BA_Native_BLE.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/java-package/brainflow/src/main/resources/BA_Native_BLE.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/java-package/brainflow/src/main/resources/BA_Native_BLE.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/csharp-package/brainflow/brainflow/lib/BA_Native_BLE.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/csharp-package/brainflow/brainflow/lib/BA_Native_BLE.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/matlab-package/brainflow/lib/BA_Native_BLE.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/matlab-package/brainflow/lib/BA_Native_BLE.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/julia-package/brainflow/lib/BA_Native_BLE.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/julia-package/brainflow/lib/BA_Native_BLE.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/python-package/brainflow/lib/BA_BLE_Lib.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/python-package/brainflow/lib/BA_BLE_Lib.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/java-package/brainflow/src/main/resources/BA_BLE_Lib.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/java-package/brainflow/src/main/resources/BA_BLE_Lib.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/csharp-package/brainflow/brainflow/lib/BA_BLE_Lib.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/csharp-package/brainflow/brainflow/lib/BA_BLE_Lib.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/matlab-package/brainflow/lib/BA_BLE_Lib.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/matlab-package/brainflow/lib/BA_BLE_Lib.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/julia-package/brainflow/lib/BA_BLE_Lib.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/julia-package/brainflow/lib/BA_BLE_Lib.dll"
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -320,25 +325,25 @@ if %errorlevel% neq 0 goto :cmEnd
 if %errorlevel% neq 0 goto :cmEnd
 "C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/utils/inc/shared_export_matlab.h" "D:/D Drive/New_BrainFlow/brainflow/matlab-package/brainflow/inc/shared_export.h"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/python-package/brainflow/lib/BA_Native_BLE.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/python-package/brainflow/lib/BA_Native_BLE.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/java-package/brainflow/src/main/resources/BA_Native_BLE.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/java-package/brainflow/src/main/resources/BA_Native_BLE.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/csharp-package/brainflow/brainflow/lib/BA_Native_BLE.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/csharp-package/brainflow/brainflow/lib/BA_Native_BLE.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/matlab-package/brainflow/lib/BA_Native_BLE.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/matlab-package/brainflow/lib/BA_Native_BLE.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/julia-package/brainflow/lib/BA_Native_BLE.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/julia-package/brainflow/lib/BA_Native_BLE.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/python-package/brainflow/lib/BA_BLE_Lib.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/python-package/brainflow/lib/BA_BLE_Lib.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/java-package/brainflow/src/main/resources/BA_BLE_Lib.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/java-package/brainflow/src/main/resources/BA_BLE_Lib.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/csharp-package/brainflow/brainflow/lib/BA_BLE_Lib.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/csharp-package/brainflow/brainflow/lib/BA_BLE_Lib.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/matlab-package/brainflow/lib/BA_BLE_Lib.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/matlab-package/brainflow/lib/BA_BLE_Lib.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/julia-package/brainflow/lib/BA_BLE_Lib.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/julia-package/brainflow/lib/BA_BLE_Lib.dll"
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -411,25 +416,25 @@ if %errorlevel% neq 0 goto :cmEnd
 if %errorlevel% neq 0 goto :cmEnd
 "C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/utils/inc/shared_export_matlab.h" "D:/D Drive/New_BrainFlow/brainflow/matlab-package/brainflow/inc/shared_export.h"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/python-package/brainflow/lib/BA_Native_BLE.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/python-package/brainflow/lib/BA_Native_BLE.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/java-package/brainflow/src/main/resources/BA_Native_BLE.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/java-package/brainflow/src/main/resources/BA_Native_BLE.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/csharp-package/brainflow/brainflow/lib/BA_Native_BLE.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/csharp-package/brainflow/brainflow/lib/BA_Native_BLE.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/matlab-package/brainflow/lib/BA_Native_BLE.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/matlab-package/brainflow/lib/BA_Native_BLE.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/julia-package/brainflow/lib/BA_Native_BLE.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_Native_BLE.dll" "D:/D Drive/New_BrainFlow/brainflow/julia-package/brainflow/lib/BA_Native_BLE.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/python-package/brainflow/lib/BA_BLE_Lib.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/python-package/brainflow/lib/BA_BLE_Lib.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/java-package/brainflow/src/main/resources/BA_BLE_Lib.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/java-package/brainflow/src/main/resources/BA_BLE_Lib.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/csharp-package/brainflow/brainflow/lib/BA_BLE_Lib.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/csharp-package/brainflow/brainflow/lib/BA_BLE_Lib.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/matlab-package/brainflow/lib/BA_BLE_Lib.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/matlab-package/brainflow/lib/BA_BLE_Lib.dll"
 if %errorlevel% neq 0 goto :cmEnd
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Release/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/julia-package/brainflow/lib/BA_BLE_Lib.dll"
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "D:/D Drive/New_BrainFlow/brainflow/src/board_controller/BrainAlive/inc/BrainAlive_Lib/x64/Debug/BA_BLE_Lib.dll" "D:/D Drive/New_BrainFlow/brainflow/julia-package/brainflow/lib/BA_BLE_Lib.dll"
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
