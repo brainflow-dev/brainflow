@@ -88,10 +88,6 @@ if (BUILD_BLUETOOTH)
     include (${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/build.cmake)
 endif (BUILD_BLUETOOTH)
 
-if (USE_PERIPHERY)
-    include (${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/build.cmake)
-endif (USE_PERIPHERY)
-
 add_library (
     ${BOARD_CONTROLLER_NAME} SHARED
     ${BOARD_CONTROLLER_SRC}
@@ -156,6 +152,7 @@ if (USE_PERIPHERY)
     include (${CMAKE_HOME_DIRECTORY}/third_party/c-periphery/build.cmake)
     target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE ${PERIPHERY})
     target_include_directories (${BOARD_CONTROLLER_NAME} PRIVATE ${CMAKE_HOME_DIRECTORY}/third_party/c-periphery/src)
+    target_compile_definitions (${BOARD_CONTROLLER_NAME} USE_PERIPHERY)
 endif (USE_PERIPHERY)
 
 if (MSVC)

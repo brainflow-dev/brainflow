@@ -6,21 +6,24 @@
 #include "board.h"
 #include "board_controller.h"
 #include "math.h"
-#include "serial.h"
+
+#ifdef USE_PERIPHERY
+#include "spi.h"
+#endif
 
 
 class IronBCI : public Board
 {
 
 protected:
+#ifdef USE_PERIPHERY
     volatile bool keep_alive;
     bool initialized;
     std::thread streaming_thread;
-
-    Serial *serial;
+    spi_t *spi;
 
     void read_thread ();
-    int send_to_board (const char *msg);
+#endif
 
 public:
     IronBCI (struct BrainFlowInputParams params);
