@@ -123,6 +123,7 @@ def prepare_args():
     else:
         parser.add_argument('--generator', type=str, help='CMake generator', required=False)
         parser.add_argument('--use-libftdi', action='store_true')
+        parser.add_argument('--use-periphery', action='store_true')
 
     parser.add_argument('--build-dir', type=str, help='build folder', required=False, default=os.path.join(cur_folder, '..', 'build'))
     parser.add_argument('--cmake-install-prefix', type=str, help='installation folder, full path', required=False, default=os.path.join(cur_folder, '..', 'installed'))
@@ -156,6 +157,8 @@ def config(args):
         cmd_config.append('-DCMAKE_SYSTEM_VERSION=%s' % args.cmake_system_version)
     if hasattr(args, 'use_libftdi') and args.use_libftdi:
         cmd_config.append('-DUSE_LIBFTDI=ON')
+    if hasattr(args, 'use_periphery') and args.use_periphery:
+        cmd_config.append('-DUSE_PERIPHERY=ON')
     if args.warnings_as_errors:
         cmd_config.append('-DWARNINGS_AS_ERRORS=ON')
     if args.use_openmp:

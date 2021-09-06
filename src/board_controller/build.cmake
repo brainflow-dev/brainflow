@@ -88,6 +88,10 @@ if (BUILD_BLUETOOTH)
     include (${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/build.cmake)
 endif (BUILD_BLUETOOTH)
 
+if (USE_PERIPHERY)
+    include (${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/build.cmake)
+endif (USE_PERIPHERY)
+
 add_library (
     ${BOARD_CONTROLLER_NAME} SHARED
     ${BOARD_CONTROLLER_SRC}
@@ -147,6 +151,12 @@ if (USE_LIBFTDI)
         message (FATAL_ERROR "USE_LIBFTDI SET but LibFTDI not found.")
     endif (LibFTDI1_FOUND)
 endif (USE_LIBFTDI)
+
+if (USE_PERIPHERY)
+    include (${CMAKE_HOME_DIRECTORY}/third_party/c-periphery/build.cmake)
+    target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE ${PERIPHERY})
+    target_include_directories (${BOARD_CONTROLLER_NAME} PRIVATE ${CMAKE_HOME_DIRECTORY}/third_party/c-periphery/src)
+endif (USE_PERIPHERY)
 
 if (MSVC)
     add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
