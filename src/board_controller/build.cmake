@@ -152,7 +152,7 @@ if (USE_PERIPHERY)
     include (${CMAKE_HOME_DIRECTORY}/third_party/c-periphery/build.cmake)
     target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE ${PERIPHERY})
     target_include_directories (${BOARD_CONTROLLER_NAME} PRIVATE ${CMAKE_HOME_DIRECTORY}/third_party/c-periphery/src)
-    target_compile_definitions (${BOARD_CONTROLLER_NAME} USE_PERIPHERY)
+    target_compile_definitions (${BOARD_CONTROLLER_NAME} PRIVATE USE_PERIPHERY)
 endif (USE_PERIPHERY)
 
 if (MSVC)
