@@ -25,6 +25,8 @@ It provides a uniform SDK to work with biosensors with primary focus on neuroint
 
 ## [BrainFlow's slack workspace](https://openbraintalk.slack.com/), use this [link to join](https://c6ber255cc.execute-api.eu-west-1.amazonaws.com/Express/)
 
+## [For BrainFlow Developers](https://brainflow.readthedocs.io/en/master/BrainFlowDev.html)
+
 ## Build Status
 
 Compiled with:
