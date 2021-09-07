@@ -88,6 +88,10 @@ if (BUILD_BLUETOOTH)
     include (${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/build.cmake)
 endif (BUILD_BLUETOOTH)
 
+if (BUILD_BLE)
+    add_subdirectory (${CMAKE_HOME_DIRECTORY}/third_party/SimpleBLE)
+endif (BUILD_BLE)
+
 add_library (
     ${BOARD_CONTROLLER_NAME} SHARED
     ${BOARD_CONTROLLER_SRC}

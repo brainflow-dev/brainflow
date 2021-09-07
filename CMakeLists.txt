@@ -20,6 +20,7 @@ option (USE_OPENMP "USE_OPENMP" OFF)
 option (WARNINGS_AS_ERRORS "WARNINGS_AS_ERRORS" OFF)
 option (BUILD_OYMOTION_SDK "BUILD_OYMOTION_SDK" OFF)
 option (BUILD_BLUETOOTH "BUILD_BLUETOOTH" OFF)
+option (BUILD_BLE "BUILD_BLE" OFF)
 
 include (${CMAKE_HOME_DIRECTORY}/cmake/macros.cmake)
 configure_msvc_runtime ()
