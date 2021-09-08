@@ -62,6 +62,14 @@ include_directories(${SIMPLEBLE_INCLUDES})
     - `SimpleBLE::Adapter` and `SimpleBLE::Peripheral` classes.
     - These objects hold a shared pointer to `SimpleBLE::AdapterBase` 
       and `SimpleBLE::PeripheralBase` respectively.
+- Safe layer
+    - `SimpleBLE::AdapterSafe` and `SimpleBLE::PeripheralSafe` classes.
+    - These objects wrap all `SimpleBLE::Adapter` and `SimpleBLE::Peripheral`
+      objects and provide an interface that does not throw exceptions.
+      Instead, it will return an `std::optional<T>` object if the function
+      returns a value, or a boolean indicating whether the function succeeded
+      if the original function did not return a value. The usage is functionally
+      equivalent to their respective counterparts in the external layer.
 - API layer (OS-dependent)
     - `SimpleBLE::AdapterBase` and `SimpleBLE::PeripheralBase` classes.
     - These classes specify the API of the library on top of which

@@ -260,8 +260,7 @@ typedef struct {
     [self notify:service_uuid characteristic_uuid:characteristic_uuid callback:callback];
 }
 
-- (void)unsubscribe:(NSString*)service_uuid
-    characteristic_uuid:(NSString*)characteristic_uuid {
+- (void)unsubscribe:(NSString*)service_uuid characteristic_uuid:(NSString*)characteristic_uuid {
     std::pair<CBService*, CBCharacteristic*> serviceAndCharacteristic = [self findServiceAndCharacteristic:service_uuid
                                                                                        characteristic_uuid:characteristic_uuid];
 
@@ -283,7 +282,7 @@ typedef struct {
         // TODO: Raise an exception.
         NSLog(@"Could not disable notifications for characteristic %@", characteristic.UUID);
     } else {
-        // Only delete the callback if the characteristic is no longer notifying, to 
+        // Only delete the callback if the characteristic is no longer notifying, to
         // prevent triggering a segfault.
         characteristic_extras_[uuidToSimpleBLE(characteristic.UUID)].valueChangedCallback = nil;
     }

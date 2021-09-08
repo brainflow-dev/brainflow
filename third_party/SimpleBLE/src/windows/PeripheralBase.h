@@ -65,7 +65,7 @@ class PeripheralBase {
 
     bool _attempt_connect();
     GattCharacteristic _fetch_characteristic(const BluetoothUUID& service_uuid,
-                                              const BluetoothUUID& characteristic_uuid);
+                                             const BluetoothUUID& characteristic_uuid);
 };
 
 }  // namespace SimpleBLE

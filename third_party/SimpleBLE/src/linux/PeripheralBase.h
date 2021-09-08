@@ -57,7 +57,8 @@ class PeripheralBase {
 
     std::shared_ptr<BluezDevice> _get_device();
 
-    std::shared_ptr<BluezGattCharacteristic> _get_characteristic(BluetoothUUID service_uuid, BluetoothUUID characteristic_uuid);
+    std::shared_ptr<BluezGattCharacteristic> _get_characteristic(BluetoothUUID service_uuid,
+                                                                 BluetoothUUID characteristic_uuid);
 };
 
 }  // namespace SimpleBLE

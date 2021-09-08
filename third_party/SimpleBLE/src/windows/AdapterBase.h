@@ -1,11 +1,11 @@
 #pragma once
 
+#include <atomic>
+#include <condition_variable>
 #include <functional>
 #include <memory>
 #include <string>
 #include <vector>
-#include <atomic>
-#include <condition_variable>
 
 #include <simpleble/Exceptions.h>
 #include <simpleble/Peripheral.h>
@@ -47,10 +47,10 @@ class AdapterBase {
     std::string identifier_;
     struct Advertisement::BluetoothLEAdvertisementWatcher scanner_;
 
-    std::atomic_bool scan_is_active_ {false};
+    std::atomic_bool scan_is_active_{false};
     std::condition_variable scan_stop_cv_;
     std::mutex scan_stop_mutex_;
-    std::map<BluetoothAddress, std::shared_ptr<PeripheralBase> > peripherals_;
+    std::map<BluetoothAddress, std::shared_ptr<PeripheralBase>> peripherals_;
 
     void _scan_stopped_callback();
     void _scan_received_callback(advertising_data_t data);

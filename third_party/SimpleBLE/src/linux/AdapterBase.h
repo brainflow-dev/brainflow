@@ -2,9 +2,9 @@
 
 #include <functional>
 #include <memory>
+#include <set>
 #include <string>
 #include <vector>
-#include <set>
 
 #include <simpleble/Exceptions.h>
 #include <simpleble/Peripheral.h>
@@ -15,7 +15,7 @@
 namespace SimpleBLE {
 
 class AdapterBase {
-  public:   
+  public:
     AdapterBase(std::shared_ptr<BluezAdapter> adapter);
     ~AdapterBase();
 
@@ -34,7 +34,7 @@ class AdapterBase {
 
     static std::vector<std::shared_ptr<AdapterBase>> get_adapters();
 
-  private: 
+  private:
     std::weak_ptr<BluezAdapter> adapter_;
 
     std::set<BluetoothAddress> seen_devices_;

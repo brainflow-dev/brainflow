@@ -1,7 +1,7 @@
 #pragma once
 
-#include <thread>
 #include <atomic>
+#include <thread>
 #include "bluezdbus/BluezService.h"
 
 namespace SimpleBLE {
@@ -9,7 +9,7 @@ namespace SimpleBLE {
 class Bluez {
   public:
     static Bluez* get();
-    
+
     BluezService bluez_service;
 
   private:
@@ -18,7 +18,7 @@ class Bluez {
     Bluez(Bluez& other) = delete;           // Remove the copy constructor
     void operator=(const Bluez&) = delete;  // Remove the copy assignment
 
-    std::thread *async_thread;
+    std::thread* async_thread;
     std::atomic_bool async_thread_active;
     void async_thread_function();
 };

@@ -49,6 +49,8 @@ set(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Exceptions.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AdapterBuilder.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/PeripheralBuilder.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AdapterSafe.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/PeripheralSafe.cpp
 )
 
 # Detect the operating system and load the necessary dependencies

@@ -11,7 +11,7 @@ typedef struct {
     std::string identifier;
     BluetoothAddress mac_address;
     bool connectable;
-    int8_t rssi; // TODO: Might be useful at some point.
+    int8_t rssi;  // TODO: Might be useful at some point.
 
     // TODO: Considering that per advertising report only one manufacturer
     // identifier is supported, maybe it is not necessary to use a map.

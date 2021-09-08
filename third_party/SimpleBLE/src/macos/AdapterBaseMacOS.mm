@@ -93,7 +93,7 @@
     didDiscoverPeripheral:(CBPeripheral*)peripheral
         advertisementData:(NSDictionary<NSString*, id>*)advertisementData
                      RSSI:(NSNumber*)RSSI {
-    advertising_data_t advertisingData;
+    SimpleBLE::advertising_data_t advertisingData;
 
     // Parse advertisementData to extract all relevant information
 

@@ -1,33 +1,39 @@
 #pragma once
 
 #include <stdexcept>
+#include <string>
 #include "Types.h"
 
 namespace SimpleBLE {
 
 namespace Exception {
 
-class InvalidReference : public std::runtime_error {
+class BaseException : public std::runtime_error {
+  public:
+    BaseException(const std::string& __arg) : std::runtime_error(__arg) {}
+};
+
+class InvalidReference : public BaseException {
   public:
     InvalidReference();
 };
 
-class ServiceNotFound : public std::runtime_error {
+class ServiceNotFound : public BaseException {
   public:
     ServiceNotFound(BluetoothUUID uuid);
 };
 
-class CharacteristicNotFound : public std::runtime_error {
+class CharacteristicNotFound : public BaseException {
   public:
     CharacteristicNotFound(BluetoothUUID uuid);
 };
 
-class OperationNotSupported : public std::runtime_error {
+class OperationNotSupported : public BaseException {
   public:
     OperationNotSupported();
 };
 
-class OperationFailed : public std::runtime_error {
+class OperationFailed : public BaseException {
   public:
     OperationFailed();
 };

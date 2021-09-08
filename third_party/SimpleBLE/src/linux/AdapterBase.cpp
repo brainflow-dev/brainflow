@@ -45,7 +45,7 @@ void AdapterBase::scan_start() {
         this->seen_devices_.clear();
         adapter->OnDeviceUpdated = [&](std::shared_ptr<BluezDevice> device) {
             PeripheralBuilder peripheral_builder(std::make_shared<PeripheralBase>(device));
-            
+
             if (this->seen_devices_.count(peripheral_builder.address()) == 0) {
                 this->seen_devices_.insert(peripheral_builder.address());
                 if (this->callback_on_scan_found_) {

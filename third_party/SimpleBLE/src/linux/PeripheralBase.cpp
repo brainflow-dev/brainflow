@@ -85,13 +85,13 @@ ByteArray PeripheralBase::read(BluetoothUUID service, BluetoothUUID characterist
 void PeripheralBase::write_request(BluetoothUUID service, BluetoothUUID characteristic, ByteArray data) {
     // TODO: Check if the characteristic is writable.
     auto characteristic_object = _get_characteristic(service, characteristic);
-    characteristic_object->write_request((const uint8_t*) data.c_str(), data.size());
+    characteristic_object->write_request((const uint8_t*)data.c_str(), data.size());
 }
 
 void PeripheralBase::write_command(BluetoothUUID service, BluetoothUUID characteristic, ByteArray data) {
     // TODO: Check if the characteristic is writable.
     auto characteristic_object = _get_characteristic(service, characteristic);
-    characteristic_object->write_command((const uint8_t*) data.c_str(), data.size());
+    characteristic_object->write_command((const uint8_t*)data.c_str(), data.size());
 }
 
 void PeripheralBase::notify(BluetoothUUID service, BluetoothUUID characteristic,
