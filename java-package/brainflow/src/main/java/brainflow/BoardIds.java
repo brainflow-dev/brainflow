@@ -48,7 +48,9 @@ public enum BoardIds
     ANT_NEURO_EE_223_BOARD (34),
     ANT_NEURO_EE_224_BOARD (35),
     ANT_NEURO_EE_225_BOARD (36),
-    ENOPHONE_BOARD (37);
+    ENOPHONE_BOARD (37),
+    EXPLORE_4_CHAN_BOARD (38),
+    EXPLORE_8_CHAN_BOARD (39);
 
     private final int board_id;
     private static final Map<Integer, BoardIds> bi_map = new HashMap<Integer, BoardIds> ();
