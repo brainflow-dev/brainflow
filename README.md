@@ -31,31 +31,31 @@ It provides a uniform SDK to work with biosensors with primary focus on neuroint
     * Powerful CI/CD system which runs integrations tests for each commit automatically using BrainFlow's Emulator
     * Simplified process to add new boards and methods
 
-## [BrainFlow Docs, Dev and User guides and other information](https://brainflow.readthedocs.io)
+## Resources
 
-## [BrainFlow's slack workspace](https://openbraintalk.slack.com/), use this [link to join](https://c6ber255cc.execute-api.eu-west-1.amazonaws.com/Express/)
+* [***BrainFlow Docs, Dev and User guides and other information***](https://brainflow.readthedocs.io)
+* [***BrainFlow's slack workspace***](https://openbraintalk.slack.com/)***, use this*** [***link to join***](https://c6ber255cc.execute-api.eu-west-1.amazonaws.com/Express/)
+* [***For BrainFlow Developers***](https://brainflow.readthedocs.io/en/master/BrainFlowDev.html)
 
-## [For BrainFlow Developers](https://brainflow.readthedocs.io/en/master/BrainFlowDev.html)
+## Contribution guidelines
+
+If you want to contribute to BrainFlow, be sure to review the [contribution guidelines](https://brainflow.readthedocs.io/en/stable/BrainFlowDev.html). This project adheres to [BrainFlow's code of conduct](https://github.com/brainflow-dev/brainflow/blob/master/CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
+
+We use [GitHub issues](https://github.com/brainflow-dev/brainflow/issues) for tracking requests and bugs, please use BrainFlow's slack for general discussions.
+
+The BrainFlow project strives to abide by generally accepted best practices in open-source software development.
 
 ## Build Status
-
-Compiled with:
-* MSVC on Windows
-* Android NDK with Ninja
-* GCC on Linux
-* Clang on MacOS
-
-*Linux and MacOS*:
-
-[![Run Unix](https://github.com/brainflow-dev/brainflow/workflows/Run%20Unix//badge.svg?branch=master)](https://github.com/brainflow-dev/brainflow/actions)
-
-*Windows*:
-
-[![Run Unix](https://github.com/brainflow-dev/brainflow/workflows/Run%20Windows//badge.svg?branch=master)](https://github.com/brainflow-dev/brainflow/actions)
-
-*Android NDK*:
-
-[![Run Android NDK](https://github.com/brainflow-dev/brainflow/workflows/Run%20Android%20NDK//badge.svg?branch=master)](https://github.com/brainflow-dev/brainflow/actions)
+|          Build Type         	|                                                                                Status                                                                               	|
+|:---------------------------:	|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------:	|
+|        All Workflows        	|               [![GitHub branch checks state](https://img.shields.io/github/checks-status/brainflow-dev/brainflow/master?color=yellow&label=Build%20All)](https://github.com/brainflow-dev/brainflow/actions)              	|
+|        Windows Tests        	|   [![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/brainflow-dev/brainflow/Run%20Windows/master?color=yellow&label=Windows%202019)](https://github.com/brainflow-dev/brainflow/actions/workflows/run_windows.yml)  	|
+| Unix(Linix and MacOS) Tests 	| [![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/brainflow-dev/brainflow/Run%20Unix/master?color=yellow&label=Ubuntu%20and%20MacOS)](https://github.com/brainflow-dev/brainflow/actions/workflows/run_unix.yml) 	|
+|        Android Tests        	|   [![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/brainflow-dev/brainflow/Run%20Android%20NDK/master?color=yellow&label=Android)](https://github.com/brainflow-dev/brainflow/actions/workflows/run_android.yml)   	|
+|         Alpine Tests        	|       [![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/brainflow-dev/brainflow/Run%20Alpine/master?color=yellow&label=Alpine)](https://github.com/brainflow-dev/brainflow/actions/workflows/run_alpine.yml)       	|
+|        Valgrind Tests       	|     [![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/brainflow-dev/brainflow/Run%20Valgrind/master?color=yellow&label=Valgrind)](https://github.com/brainflow-dev/brainflow/actions/workflows/valgrind.yml)      	|
+|           CppCheck          	|    [![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/brainflow-dev/brainflow/CppCheck/master?color=yellow&label=Static%20Analyzer)](https://github.com/brainflow-dev/brainflow/actions/workflows/cppcheck.yml)   	|
+|         Clang-Format        	|   [![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/brainflow-dev/brainflow/Clang%20Format/master?color=yellow&label=Code%20Style)](https://github.com/brainflow-dev/brainflow/actions/workflows/clang_format.yml)   	|  
 
 ## Brainflow Bindings
 
@@ -73,4 +73,4 @@ We support bindings for:
 [![OpenBCI](https://live.staticflickr.com/65535/49913349191_0cbd41157c_w.jpg)](https://openbci.com/)
 
 ## License: 
-MIT
+[MIT](https://github.com/brainflow-dev/brainflow/blob/master/LICENSE)
