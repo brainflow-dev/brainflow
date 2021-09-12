@@ -29,6 +29,7 @@
 #include "cyton_daisy_wifi.h"
 #include "cyton_wifi.h"
 #include "enophone.h"
+#include "explore.h"
 #include "fascia.h"
 #include "freeeeg32.h"
 #include "galea.h"
@@ -222,6 +223,12 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
             break;
         case BoardIds::ENOPHONE_BOARD:
             board = std::shared_ptr<Board> (new Enophone (params));
+            break;
+        case BoardIds::EXPLORE_4_CHAN_BOARD:
+            board = std::shared_ptr<Board> (new Explore (board_id, params));
+            break;
+        case BoardIds::EXPLORE_8_CHAN_BOARD:
+            board = std::shared_ptr<Board> (new Explore (board_id, params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
