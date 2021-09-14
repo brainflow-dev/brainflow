@@ -232,15 +232,10 @@ void BrainAlive_Device::read_thread ()
 
 int BrainAlive_Device::call_start ()
 {
-    int *mac_addr;
-   /* int* (*func_open_device) (void *);
-
-    func_open_device = ( int* (*) (void*))dll_loader->get_address ("open_brainalive_mac_addr_native");
-
-    func_open_device ("1567");*/
-
+ 
+    char *mac_addr;
     int (*func_open_device) (void*) =
-        (int(*)(void*))dll_loader->get_address ("open_brainalive_mac_addr_native");
+        (int (*) (void *))(dll_loader->get_address ("open_brainalive_mac_addr_native"));
    
     if (func_open_device == NULL)
     {
@@ -249,7 +244,7 @@ int BrainAlive_Device::call_start ()
     }   
      safe_logger (spdlog::level::debug, "beforeconnect");
     
-     int res = func_open_device (const_cast<char *> (params.mac_address.c_str ()));
+     int res = func_open_device (&mac_addr);
 
    // printf (mac_addr);
     safe_logger (spdlog::level::debug, "after connect");

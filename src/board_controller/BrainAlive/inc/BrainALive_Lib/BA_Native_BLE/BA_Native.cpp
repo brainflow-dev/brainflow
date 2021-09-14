@@ -118,8 +118,7 @@ namespace BrainAliveNativeLib
         BrainAlive ^ wrapper =
            BrainAliveLibWrapper::instance->brainalive_obj;
         String ^ mac_new = gcnew String ((char *)param);
-        //return wrapper->open_brainalive (mac_new);
-        return 1;
+        return wrapper->open_brainalive (mac_new);
     }
 
     int close_brainalive_native (void *param)

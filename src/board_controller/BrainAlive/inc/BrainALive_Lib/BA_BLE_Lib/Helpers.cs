@@ -15,7 +15,7 @@ namespace BrainAlive_Lib
         public int exit_code;
     }
 
-    public class BrainAliveConstants
+    public class BrainAliveConstants 
     {
         // name format is BrainALive-....
         public const string name_prefix = "BrainAlive";

@@ -44,7 +44,8 @@ int main(int argc, char *argv[])
         return 2;
     }
     int res = (func) (argv[1]);
-    check_exit_code (res, "open");
+
+   check_exit_code (res, "open");
     
     func = dll_loader->get_address ("start_stream_native");
     if (func == NULL)

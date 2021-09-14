@@ -76,7 +76,7 @@ namespace BrainAlive_Lib
             catch (InvalidOperationException ie)
             {
                 BoardData tmp;
-                tmp.data = new byte[20];
+                tmp.data = new byte[46];
                 tmp.timestamp = 0;
                 tmp.exit_code = (int)CustomExitCodes.NO_DATA_ERROR;
                 return tmp;
@@ -84,7 +84,7 @@ namespace BrainAlive_Lib
             catch (Exception e)
             {
                 BoardData tmp;
-                tmp.data = new byte[20];
+                tmp.data = new byte[46];
                 tmp.timestamp = 0;
                 tmp.exit_code = (int)CustomExitCodes.GENERAL_ERROR;
                 return tmp;
