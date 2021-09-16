@@ -57,6 +57,14 @@ bool PeripheralBase::is_connected() {
     return device->Property_Connected() && device->Property_ServicesResolved();
 }
 
+bool PeripheralBase::is_connectable() {
+    // TODO its a stub, replace with real implementation
+    if (is_connected()) {
+        return false;
+    }
+    return true;
+}
+
 std::vector<BluetoothService> PeripheralBase::services() {
     auto device = _get_device();
 

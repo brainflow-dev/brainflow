@@ -62,6 +62,10 @@ include_directories(${SIMPLEBLE_INCLUDES})
     - `SimpleBLE::Adapter` and `SimpleBLE::Peripheral` classes.
     - These objects hold a shared pointer to `SimpleBLE::AdapterBase` 
       and `SimpleBLE::PeripheralBase` respectively.
+- C-style wrapper layer
+    - This layer is a C-style wrapper around the safe C++, designed
+      to allow integration of SimpleBLE into other languages that
+      have support for C bindings.
 - Safe layer
     - `SimpleBLE::AdapterSafe` and `SimpleBLE::PeripheralSafe` classes.
     - These objects wrap all `SimpleBLE::Adapter` and `SimpleBLE::Peripheral`
@@ -138,7 +142,7 @@ or just be ignored.
 | `SimpleBLE::Peripheral::read`                        | No    | Yes     | Yes   |
 | `SimpleBLE::Peripheral::write_request`               | Yes   | Yes     | Yes   |
 | `SimpleBLE::Peripheral::write_command`               | Yes   | Yes     | Yes   |
-| `SimpleBLE::Peripheral::notify`                      | No    | Yes     | Yes   |
+| `SimpleBLE::Peripheral::notify`                      | Yes   | Yes     | Yes   |
 | `SimpleBLE::Peripheral::indicate`                    | Yes   | Yes     | Yes   |
 | `SimpleBLE::Peripheral::unsubscribe`                 | Yes   | Yes     | Yes   |
 | `SimpleBLE::Peripheral::set_callback_on_connected`   | Yes   | Yes     | No    |
@@ -147,7 +151,7 @@ or just be ignored.
 ## Known Issues / To-Do's
 - [Linux] Fork safety is not guaranteed.
 - [Linux] `SimpleBLE::Peripheral::read` does not work.
-- [Linux] `SimpleBLE::Peripheral::notify` runs slowly..
+- [Linux] `SimpleBLE::Peripheral::notify` runs slowly.
 - [MacOS] Only the main system adapter can be detected.
 - [MacOS] Implementation has incomplete error handling and might crash if invalid parameters are passed.
 - [MacOS] Timeout logic can be DRYed up.
@@ -157,7 +161,6 @@ or just be ignored.
 - [All] Add a signal handler to ensure all objects are disconnected when the program exits.
 - [All] Add safe version of the library that won't trigger any exceptions.
 - [All] Replace C-style casts with C++ style casts.
-- [All] Add C wrappers for the library.
 - [All] Add Python bindings for the library.
 - [All] Add Javascript bindings for the library.
 - [All] Add Kotlin bindings for the library.

@@ -40,6 +40,14 @@ bool PeripheralBase::is_connected() {
     return [internal isConnected];
 }
 
+bool PeripheralBase::is_connectable() {
+    // TODO, its a stub, replace with real implementation
+    if (is_connected()) {
+        return false;
+    }
+    return true;
+}
+
 std::vector<BluetoothService> PeripheralBase::services() {
     PeripheralBaseMacOS* internal = (PeripheralBaseMacOS*)opaque_internal_;
     return [internal getServices];

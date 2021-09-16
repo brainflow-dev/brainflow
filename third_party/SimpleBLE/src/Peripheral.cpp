@@ -22,6 +22,8 @@ void Peripheral::disconnect() { return internal_->disconnect(); }
 
 bool Peripheral::is_connected() { return internal_->is_connected(); }
 
+bool Peripheral::is_connectable() { return internal_->is_connectable(); }
+
 std::vector<BluetoothService> Peripheral::services() {
     if (!is_connected()) {
         throw Exception::OperationFailed();
