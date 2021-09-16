@@ -7,26 +7,27 @@
 #include "bt_lib_board.h"
 
 
-class Enophone : public BTLibBoard
+class Explore : public BTLibBoard
 {
 
 protected:
     volatile bool keep_alive;
-    bool is_streaming;
+    volatile int state;
     std::thread streaming_thread;
     std::mutex m;
     std::condition_variable cv;
-    volatile int state;
 
     void read_thread ();
     std::string get_name_selector ();
+    void parse_eeg_data (
+        double *package, unsigned char *payload, int payload_size, double vref, int n_packages);
+    void parse_orientation_data (double *package, unsigned char *payload, int payload_size);
 
 public:
-    Enophone (struct BrainFlowInputParams params);
-    ~Enophone ();
+    Explore (int board_id, struct BrainFlowInputParams params);
+    ~Explore ();
 
     int start_stream (int buffer_size, char *streamer_params);
     int stop_stream ();
     int release_session ();
-    int config_board (std::string config, std::string &response);
 };

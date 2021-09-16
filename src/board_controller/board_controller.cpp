@@ -29,6 +29,7 @@
 #include "cyton_daisy_wifi.h"
 #include "cyton_wifi.h"
 #include "enophone.h"
+#include "explore.h"
 #include "fascia.h"
 #include "freeeeg32.h"
 #include "galea.h"
