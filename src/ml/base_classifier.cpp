@@ -36,7 +36,7 @@ int BaseClassifier::set_log_level (int level)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int BaseClassifier::set_log_file (char *log_file)
+int BaseClassifier::set_log_file (const char *log_file)
 {
 #ifdef __ANDROID__
     BaseClassifier::ml_logger->error ("For Android set_log_file is unavailable");

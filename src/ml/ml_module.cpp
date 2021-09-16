@@ -26,7 +26,7 @@ std::map<struct BrainFlowModelParams, std::shared_ptr<BaseClassifier>> ml_models
 std::mutex models_mutex;
 
 
-int prepare (char *json_params)
+int prepare (const char *json_params)
 {
     std::lock_guard<std::mutex> lock (models_mutex);
 
@@ -102,7 +102,7 @@ int prepare (char *json_params)
     return res;
 }
 
-int predict (double *data, int data_len, double *output, char *json_params)
+int predict (double *data, int data_len, double *output, const char *json_params)
 {
     std::lock_guard<std::mutex> lock (models_mutex);
     struct BrainFlowModelParams key (
@@ -122,7 +122,7 @@ int predict (double *data, int data_len, double *output, char *json_params)
     return model->second->predict (data, data_len, output);
 }
 
-int release (char *json_params)
+int release (const char *json_params)
 {
     std::lock_guard<std::mutex> lock (models_mutex);
 
@@ -173,7 +173,7 @@ int set_log_level (int log_level)
     return BaseClassifier::set_log_level (log_level);
 }
 
-int set_log_file (char *log_file)
+int set_log_file (const char *log_file)
 {
     std::lock_guard<std::mutex> lock (models_mutex);
     return BaseClassifier::set_log_file (log_file);

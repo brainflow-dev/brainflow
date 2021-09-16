@@ -228,7 +228,7 @@ int OpenBCISerialBoard::prepare_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int OpenBCISerialBoard::start_stream (int buffer_size, char *streamer_params)
+int OpenBCISerialBoard::start_stream (int buffer_size, const char *streamer_params)
 {
     if (is_streaming)
     {

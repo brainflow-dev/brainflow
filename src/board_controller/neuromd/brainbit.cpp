@@ -274,7 +274,7 @@ int BrainBit::config_board (std::string config, std::string &response)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int BrainBit::start_stream (int buffer_size, char *streamer_params)
+int BrainBit::start_stream (int buffer_size, const char *streamer_params)
 {
     if (is_streaming)
     {
@@ -543,7 +543,7 @@ int BrainBit::stop_stream ()
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
-int BrainBit::start_stream (int buffer_size, char *streamer_params)
+int BrainBit::start_stream (int buffer_size, const char *streamer_params)
 {
     safe_logger (spdlog::level::err, "BrainBit doesnt support Linux.");
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

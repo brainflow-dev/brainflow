@@ -28,14 +28,15 @@ extern "C"
         double *data, int data_len, int period, int agg_operation, double *output_data);
 
     SHARED_EXPORT int CALLING_CONVENTION perform_wavelet_transform (double *data, int data_len,
-        char *wavelet, int decomposition_level, double *output_data, int *decomposition_lengths);
+        const char *wavelet, int decomposition_level, double *output_data,
+        int *decomposition_lengths);
     SHARED_EXPORT int CALLING_CONVENTION perform_inverse_wavelet_transform (double *wavelet_coeffs,
-        int original_data_len, char *wavelet, int decomposition_level, int *decomposition_lengths,
-        double *output_data);
+        int original_data_len, const char *wavelet, int decomposition_level,
+        int *decomposition_lengths, double *output_data);
     SHARED_EXPORT int CALLING_CONVENTION perform_wavelet_denoising (
-        double *data, int data_len, char *wavelet, int decomposition_level);
-    SHARED_EXPORT int CALLING_CONVENTION get_csp (double *data, double *labels, int n_epochs,
-        int n_channels, int n_times, double *output_w, double *output_d);
+        double *data, int data_len, const char *wavelet, int decomposition_level);
+    SHARED_EXPORT int CALLING_CONVENTION get_csp (const double *data, const double *labels,
+        int n_epochs, int n_channels, int n_times, double *output_w, double *output_d);
     SHARED_EXPORT int CALLING_CONVENTION get_window (
         int window_function, int window_len, double *output_window);
     SHARED_EXPORT int CALLING_CONVENTION perform_fft (
@@ -57,15 +58,15 @@ extern "C"
         int sampling_rate, int apply_filters, double *avg_band_powers, double *stddev_band_powers);
     // logging methods
     SHARED_EXPORT int CALLING_CONVENTION set_log_level (int log_level);
-    SHARED_EXPORT int CALLING_CONVENTION set_log_file (char *log_file);
+    SHARED_EXPORT int CALLING_CONVENTION set_log_file (const char *log_file);
     // file operations
-    SHARED_EXPORT int CALLING_CONVENTION write_file (
-        double *data, int num_rows, int num_cols, char *file_name, char *file_mode);
+    SHARED_EXPORT int CALLING_CONVENTION write_file (const double *data, int num_rows, int num_cols,
+        const char *file_name, const char *file_mode);
     SHARED_EXPORT int CALLING_CONVENTION read_file (
-        double *data, int *num_rows, int *num_cols, char *file_name, int num_elements);
+        double *data, int *num_rows, int *num_cols, const char *file_name, int num_elements);
     SHARED_EXPORT int CALLING_CONVENTION get_num_elements_in_file (
-        char *file_name, int *num_elements); // its an internal method for bindings its not
-                                             // available via high level api
+        const char *file_name, int *num_elements); // its an internal method for bindings its not
+                                                   // available via high level api
 #ifdef __cplusplus
 }
 #endif

@@ -58,7 +58,7 @@ int NotionOSC::config_board (std::string config, std::string &response)
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
-int NotionOSC::start_stream (int buffer_size, char *streamer_params)
+int NotionOSC::start_stream (int buffer_size, const char *streamer_params)
 {
     if (!initialized)
     {

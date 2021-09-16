@@ -8,7 +8,7 @@ using json = nlohmann::json;
 
 void MLModel::set_log_file (std::string log_file)
 {
-    int res = ::set_log_file (const_cast<char *> (log_file.c_str ()));
+    int res = ::set_log_file (log_file.c_str ());
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to set log file", res);
@@ -33,7 +33,7 @@ MLModel::MLModel (struct BrainFlowModelParams model_params) : params (model_para
 
 void MLModel::prepare ()
 {
-    int res = ::prepare (const_cast<char *> (serialized_params.c_str ()));
+    int res = ::prepare (serialized_params.c_str ());
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to prepare classifier", res);
@@ -43,7 +43,7 @@ void MLModel::prepare ()
 double MLModel::predict (double *data, int data_len)
 {
     double output = 0.0;
-    int res = ::predict (data, data_len, &output, const_cast<char *> (serialized_params.c_str ()));
+    int res = ::predict (data, data_len, &output, serialized_params.c_str ());
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to predict", res);
@@ -53,7 +53,7 @@ double MLModel::predict (double *data, int data_len)
 
 void MLModel::release ()
 {
-    int res = ::release (const_cast<char *> (serialized_params.c_str ()));
+    int res = ::release (serialized_params.c_str ());
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to release classifier", res);

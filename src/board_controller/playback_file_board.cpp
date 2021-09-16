@@ -84,7 +84,7 @@ int PlaybackFileBoard::prepare_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int PlaybackFileBoard::start_stream (int buffer_size, char *streamer_params)
+int PlaybackFileBoard::start_stream (int buffer_size, const char *streamer_params)
 {
     safe_logger (spdlog::level::trace, "start stream");
     if (is_streaming)

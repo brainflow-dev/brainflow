@@ -62,7 +62,7 @@ int FreeEEG32::prepare_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int FreeEEG32::start_stream (int buffer_size, char *streamer_params)
+int FreeEEG32::start_stream (int buffer_size, const char *streamer_params)
 {
     if (is_streaming)
     {
