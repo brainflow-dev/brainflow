@@ -4,6 +4,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 project(SimpleBLE VERSION 0.1 LANGUAGES CXX)
 
+# TODO add 32 bit for windows
 if(APPLE)
     SET(FILE_NAME "libsimpleble-c.dylib")
 elseif(UNIX)

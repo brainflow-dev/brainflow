@@ -92,6 +92,10 @@ endif (BUILD_BLUETOOTH)
 
 if (BUILD_BLE)
     add_subdirectory (${CMAKE_HOME_DIRECTORY}/third_party/SimpleBLE)
+    target_include_directories (
+        ${BOARD_CONTROLLER_NAME} PRIVATE
+        ${CMAKE_HOME_DIRECTORY}/third_party/SimpleBLE/include
+    )
 endif (BUILD_BLE)
 
 add_library (
