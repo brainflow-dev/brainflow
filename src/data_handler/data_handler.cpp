@@ -1,4 +1,3 @@
-#include <math.h>
 #include <sstream>
 #include <stdexcept>
 #include <stdint.h>

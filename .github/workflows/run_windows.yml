@@ -73,6 +73,13 @@ jobs:
         cmake -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%GITHUB_WORKSPACE%\installed64\ ..
         cmake --build . --config Release -j 2 --parallel 2
       shell: cmd
+    - name: Build Cpp data_handler Test x64
+      run: |
+        mkdir %GITHUB_WORKSPACE%\tests\cpp\data_handler\build
+        cd %GITHUB_WORKSPACE%\tests\cpp\data_handler\build
+        cmake -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%GITHUB_WORKSPACE%\installed64\ ..
+        cmake --build . --config Release -j 2 --parallel 2
+      shell: cmd
     - name: Build Cpp ML Test x64
       run: |
         mkdir %GITHUB_WORKSPACE%\tests\cpp\ml_demo\build
@@ -206,6 +213,12 @@ jobs:
       shell: cmd
     - name: Serialization Cpp Test
       run: .\tests\cpp\signal_processing_demo\build\Release\serialization.exe
+      shell: cmd
+    - name: Signal filtering with state Cpp Test
+      run: .\tests\cpp\data_handler\build\Release\signal_filtering_with_state.exe
+      shell: cmd
+    - name: Signal filtering with state using C API Cpp Test
+      run: .\tests\cpp\data_handler\build\Release\signal_filtering_with_state.exe
       shell: cmd
     # Tests for MLModule
     - name: EEG Metrics Python Test

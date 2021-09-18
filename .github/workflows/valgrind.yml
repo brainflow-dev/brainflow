@@ -55,6 +55,13 @@ jobs:
         cd build
         cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Debug ..
         make
+    - name: Build Signal filtering with state Test
+      run: |
+        cd $GITHUB_WORKSPACE/tests/cpp/data_handler
+        mkdir build
+        cd build
+        cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Debug ..
+        make
     - name: Install Valgrind
       run: |
         sudo -H apt-get update -y
@@ -153,5 +160,13 @@ jobs:
           LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: BandPower Cpp
       run: valgrind --error-exitcode=1 --track-origins=yes --leak-check=full $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/band_power
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: Signal filtering with state Cpp
+      run: valgrind --error-exitcode=1 --track-origins=yes --leak-check=full $GITHUB_WORKSPACE/tests/cpp/data_handler/build/signal_filtering_with_state
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: Signal filtering with state using C API Cpp
+      run: valgrind --error-exitcode=1 --track-origins=yes --leak-check=full $GITHUB_WORKSPACE/tests/cpp/data_handler/build/signal_filtering_c_with_state
       env:
         LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib

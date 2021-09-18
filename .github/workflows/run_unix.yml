@@ -91,6 +91,13 @@ jobs:
         cd build
         cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed ..
         make
+    - name: Build data_handler Test
+      run: |
+        cd $GITHUB_WORKSPACE/tests/cpp/data_handler
+        mkdir build
+        cd build
+        cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed ..
+        make
     - name: Build ML Demo Test
       run: |
         cd $GITHUB_WORKSPACE/tests/cpp/ml_demo
@@ -220,6 +227,18 @@ jobs:
       run: $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/band_power
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
+    - name: Signal filtering with state Cpp
+      run: |
+        cd $GITHUB_WORKSPACE
+        sudo -H $GITHUB_WORKSPACE/tests/cpp/data_handler/build/signal_filtering_with_state
+      env:
+          LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
+    - name: Signal filtering with state using C API Cpp
+      run: |
+        cd $GITHUB_WORKSPACE
+        sudo -H $GITHUB_WORKSPACE/tests/cpp/data_handler/build/signal_filtering_c_with_state
+      env:
+          LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Denoising Java
       run: |
         cd $GITHUB_WORKSPACE/java-package/brainflow

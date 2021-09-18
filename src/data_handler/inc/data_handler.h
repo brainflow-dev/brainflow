@@ -3,11 +3,38 @@
 #include "shared_export.h"
 
 #ifdef __cplusplus
+class brainflow_filter;
+#else
+typedef struct brainflow_filter brainflow_filter;
+#endif
+
+#ifdef __cplusplus
 extern "C"
 {
 #endif
     // signal processing methods
     // ripple param is used only for chebyshev filter
+    SHARED_EXPORT int CALLING_CONVENTION create_lowpass (brainflow_filter **filter_out,
+        int sampling_rate, double cutoff, int order, int filter_type, double ripple);
+    SHARED_EXPORT int CALLING_CONVENTION create_highpass (brainflow_filter **filter_out,
+        int sampling_rate, double cutoff, int order, int filter_type, double ripple);
+    SHARED_EXPORT int CALLING_CONVENTION create_bandpass (brainflow_filter **filter_out,
+        int sampling_rate, double center_freq, double band_width, int order, int filter_type,
+        double ripple);
+    SHARED_EXPORT int CALLING_CONVENTION create_bandstop (brainflow_filter **filter_out,
+        int sampling_rate, double center_freq, double band_width, int order, int filter_type,
+        double ripple);
+    SHARED_EXPORT int CALLING_CONVENTION create_remove_environmental_noise (
+        brainflow_filter **filter_out, int sampling_rate, int noise_type);
+
+    SHARED_EXPORT int CALLING_CONVENTION create_rolling (
+        brainflow_filter **filter_out, int period, int agg_operation);
+
+    SHARED_EXPORT int CALLING_CONVENTION perform_filtering (
+        brainflow_filter *filter, double *data, int data_len);
+    SHARED_EXPORT int CALLING_CONVENTION destroy_filter (brainflow_filter **filter);
+
+
     SHARED_EXPORT int CALLING_CONVENTION perform_lowpass (double *data, int data_len,
         int sampling_rate, double cutoff, int order, int filter_type, double ripple);
     SHARED_EXPORT int CALLING_CONVENTION perform_highpass (double *data, int data_len,

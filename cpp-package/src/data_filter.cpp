@@ -3,7 +3,49 @@
 #include "brainflow_constants.h"
 #include "data_filter.h"
 #include "data_handler.h"
+#include "brainflow_filter.h"
 
+
+std::unique_ptr<brainflow_filter> DataFilter::create_lowpass_filter (int sampling_rate, double cutoff,
+    int order, int filter_type, double ripple)
+{
+    return ::create_lowpass_filter(sampling_rate, cutoff, order, filter_type, ripple);
+}
+
+std::unique_ptr<brainflow_filter> DataFilter::create_highpass_filter (int sampling_rate, double cutoff,
+    int order, int filter_type, double ripple)
+{
+    return ::create_highpass_filter(sampling_rate, cutoff, order, filter_type, ripple);
+}
+
+std::unique_ptr<brainflow_filter> DataFilter::create_bandpass_filter (int sampling_rate,
+    double center_freq, double band_width, int order, int filter_type, double ripple)
+{
+    return ::create_bandpass_filter(sampling_rate, center_freq, band_width, order, filter_type, ripple);
+}
+
+std::unique_ptr<brainflow_filter> DataFilter::create_bandstop_filter (int sampling_rate,
+    double center_freq, double band_width, int order, int filter_type, double ripple)
+{
+    return ::create_bandstop_filter(sampling_rate, center_freq, band_width, order, filter_type, ripple);
+}
+
+std::unique_ptr<brainflow_filter> DataFilter::create_environmental_noise_filter (
+    int sampling_rate, int noise_type)
+{
+    return ::create_environmental_noise_filter(sampling_rate, noise_type);
+}
+
+std::unique_ptr<brainflow_filter> DataFilter::create_rolling_filter (int period, int agg_operation)
+{
+    return ::create_rolling_filter(period, agg_operation);
+}
+
+std::unique_ptr<brainflow_filter> DataFilter::create_downsampling_filter (
+    int period, int agg_operation)
+{
+    return ::create_downsampling_filter(period, agg_operation);
+}
 
 void DataFilter::perform_lowpass (double *data, int data_len, int sampling_rate, double cutoff,
     int order, int filter_type, double ripple)

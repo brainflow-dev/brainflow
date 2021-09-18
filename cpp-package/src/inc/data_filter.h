@@ -3,6 +3,7 @@
 #include <complex>
 #include <utility>
 #include <vector>
+#include <memory>
 // include it here to allow user include only this single file
 #include "brainflow_array.h"
 #include "brainflow_constants.h"
@@ -24,6 +25,23 @@ public:
     static void set_log_level (int log_level);
     /// set log file
     static void set_log_file (std::string log_file);
+
+    static std::unique_ptr<brainflow_filter> create_lowpass_filter (int sampling_rate, double cutoff,
+        int order, int filter_type, double ripple);
+    static std::unique_ptr<brainflow_filter> create_highpass_filter (int sampling_rate, double cutoff,
+        int order, int filter_type, double ripple);
+    static std::unique_ptr<brainflow_filter> create_bandpass_filter (int sampling_rate, double center_freq,
+        double band_width, int order, int filter_type, double ripple);
+    static std::unique_ptr<brainflow_filter> create_bandstop_filter (int sampling_rate, double center_freq,
+        double band_width, int order, int filter_type, double ripple);
+    /// create notch filter to remove env noise
+    static std::unique_ptr<brainflow_filter> create_environmental_noise_filter (
+        int sampling_rate, int noise_type);
+    /// create moving average or moving median filter
+    static std::unique_ptr<brainflow_filter> create_rolling_filter (int period, int agg_operation);
+    /// create data downsampling, it just aggregates several data points
+    static std::unique_ptr<brainflow_filter> create_downsampling_filter (
+        int period, int agg_operation);
 
     /// perform low pass filter in-place
     static void perform_lowpass (double *data, int data_len, int sampling_rate, double cutoff,

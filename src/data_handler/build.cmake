@@ -25,6 +25,7 @@ endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
 
 SET (DATA_HANDLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/data_handler/data_handler.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/data_handler/brainflow_filter.cpp
 )
 
 add_library (
@@ -100,6 +101,7 @@ endif (ANDROID)
 install (
     FILES
     ${CMAKE_HOME_DIRECTORY}/src/data_handler/inc/data_handler.h
+    ${CMAKE_HOME_DIRECTORY}/src/data_handler/inc/brainflow_filter.h
     DESTINATION inc
 )
 
