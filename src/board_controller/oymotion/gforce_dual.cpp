@@ -117,7 +117,7 @@ int GforceDual::stop_stream ()
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
-int GforceDual::start_stream (int buffer_size, char *streamer_params)
+int GforceDual::start_stream (int buffer_size, const char *streamer_params)
 {
     safe_logger (spdlog::level::err, "GforceDual doesnt support Unix.");
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

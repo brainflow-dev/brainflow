@@ -1,6 +1,17 @@
 BrainFlow Dev
 ===============
 
+We encourage contributions to BrainFlow project from individuals at all levels - students, postdocs, academics, industry coders, etc. Knowledge of the domain of signal processing and/or neurotechx is helpful but not required.
+
+If you want to pick up and try an existing improvement project, you will note that we have indicated levels of difficulty with labels. We recommend you to pick a task marked by `good first issue label <https://github.com/brainflow-dev/brainflow/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22>`_. Most internal hacks will require knowledge of C/C++. Also, we are looking for Rust developers. Knowledge of other languages is useful for binding development.
+
+Navigation
+-----------
+
+.. image:: https://live.staticflickr.com/65535/51430879732_1ecb68f409_b.jpg
+    :width: 1024px
+    :height: 768px
+
 Code style
 -----------
 
@@ -11,8 +22,7 @@ Plugins for text editors and IDEs:
 
 - `Sublime <https://packagecontrol.io/packages/Clang%20Format>`_
 - `VSCode <https://marketplace.visualstudio.com/items?itemName=xaver.clang-format>`_
--  `Guide for Visual Studio <https://devblogs.microsoft.com/cppblog/clangformat-support-in-visual-studio-2017-15-7-preview-1/>`_
-
+- `Guide for Visual Studio <https://devblogs.microsoft.com/cppblog/clangformat-support-in-visual-studio-2017-15-7-preview-1/>`_
 
 Unfortunately clang-format cannot handle naming, so some additional rules are:
 
@@ -99,95 +109,14 @@ Example for Linux, for other OSes it's similar::
 BrainFlow Emulator
 --------------------
 
-BrainFlow Emulator allows you to run all integration tests for all supported boards without real hardware. Our CI uses it for test automation. Also, you can run it on your own PC!
+BrainFlow Emulator allows you to run all integration tests for some of supported boards without real hardware. Our CI uses it for test automation. Also, you can run it on your own PC!
 
-Emulators listed here intended for CI and run process to test automatically. It's great for automation but not easy to use if you need to test it in GUI. So, for some devices there are manual emulators as well. Such emulators don't run process to test for you. Manual emulators make it easier to run tests in GUI based applications.
+Emulators are intended to test BrainFlow code for particular device. Also, some advanced emulators are capable to test very device specific features. BrainFlow users should use Synthetic board or Playback board for development.
 
-Streaming Board
-~~~~~~~~~~~~~~~~~~
+Contributors
+-------------
 
-Streaming Board emulator works using Python binding for BrainFlow, so **you need to install Python binding first.**
+`Andrey1994 <https://github.com/Andrey1994>`_ is an author and maintainer of BrainFlow project. Full list of developers who can commit directly to this project and merge Pull Requests can be found `here <https://github.com/orgs/brainflow-dev/people>`_.
 
-Install emulator package::
-
-    cd emulator
-    python -m pip install -U .
-
-Run tests ::
-
-    python emulator\brainflow_emulator\streaming_board_emulator.py python tests\python\brainflow_get_data.py --log --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
-
-This emulator uses synthetic board as a master board and, IP address and port are hardcoded.
-
-OpenBCI Cyton
-~~~~~~~~~~~~~~~
-
-Cyton emulator simulate COM port using:
-
-- `com0com <http://com0com.sourceforge.net/>`_ for Windows
-- pty for Linux and MacOS
-
-You should pass test command line directly to cyton_linux.py or to cyton_windows.py. The script will add the port automatically to provided command line and will start an application.
-
-
-Install emulator package::
-
-    cd emulator
-    python -m pip install -U .
-
-Run tests for Linux\MacOS and Windows (port argument will be added by Emulator!) ::
-
-    python brainflow_emulator/cyton_linux.py python ../tests/python/brainflow_get_data.py --log --board-id 0 --serial-port
-    python brainflow_emulator\cyton_windows.py python ..\tests\python\brainflow_get_data.py --log --board-id 0 --serial-port
-
-
-Galea
-~~~~~~~
-
-Galea emulator creates socket server and streams data to BrainFlow like it's a real board.
-
-Install emulator package::
-
-    cd emulator
-    python -m pip install -U .
-
-Run tests::
-
-    python brainflow_emulator/galea_udp.py python ../tests/python/brainflow_get_data.py --log --ip-address 127.0.0.1 --board-id 3
-
-OpenBCI Wifi Shield based boards
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Wifi shield emulator starts http server to read commands and creates client socket to stream data.
-
-Install emulator package::
-
-    cd emulator
-    python -m pip install -U .
-
-Run tests for Ganglion, Cyton and Daisy with Wifi Shield::
-
-    python brainflow_emulator/wifi_shield_emulator.py python ../tests/python/brainflow_get_data.py --log --ip-address 127.0.0.1 --board-id 4 --ip-protocol 2 --ip-port 17982
-    python brainflow_emulator/wifi_shield_emulator.py python ../tests/python/brainflow_get_data.py --log --ip-address 127.0.0.1 --board-id 5 --ip-protocol 2 --ip-port 17982
-    python brainflow_emulator/wifi_shield_emulator.py python ../tests/python/brainflow_get_data.py --log --ip-address 127.0.0.1 --board-id 6 --ip-protocol 2 --ip-port 17982
-
-FreeEEG32
-~~~~~~~~~~~
-
-FreeEEG32 emulator simulate COM port using:
-
-- `com0com <http://com0com.sourceforge.net/>`_ for Windows
-- pty for Linux and MacOS
-
-You should pass test command line directly to freeeeg32_linux.py or to freeeeg32_windows.py. The script will add the port automatically to provided command line and will start an application.
-
-
-Install emulator package::
-
-    cd emulator
-    python -m pip install -U .
-
-Run tests for Linux\MacOS and Windows (port argument will be added by Emulator!) ::
-
-    python brainflow_emulator/freeeeg32_linux.py python ../tests/python/brainflow_get_data.py --log --board-id 17 --serial-port
-    python brainflow_emulator\freeeeg32_windows.py python ..\tests\python\brainflow_get_data.py --log --board-id 17 --serial-port
+..  ghcontributors:: brainflow-dev/brainflow
+    :limit: 25

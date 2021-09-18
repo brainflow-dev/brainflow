@@ -50,6 +50,7 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/streaming_board.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/synthetic_board.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/dyn_lib_board.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/bt_lib_board.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/playback_file_board.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/galea.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/file_streamer.cpp
@@ -72,6 +73,7 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse_2_bled.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ant_neuro/ant_neuro.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/enophone/enophone.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/mentalab/explore.cpp
 )
 
 include (${CMAKE_HOME_DIRECTORY}/src/board_controller/ant_neuro/build.cmake)
@@ -120,6 +122,7 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/third_party/ant_neuro
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ant_neuro/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/enophone/inc
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/mentalab/inc
 )
 
 target_compile_definitions(${BOARD_CONTROLLER_NAME} PRIVATE -DNOMINMAX)

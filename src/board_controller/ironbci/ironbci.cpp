@@ -61,7 +61,7 @@ int IronBCI::prepare_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int IronBCI::start_stream (int buffer_size, char *streamer_params)
+int IronBCI::start_stream (int buffer_size, const char *streamer_params)
 {
     if (keep_alive)
     {
