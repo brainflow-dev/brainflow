@@ -24,7 +24,7 @@ public:
     static std::shared_ptr<spdlog::logger> board_logger;
     static JNIEnv *java_jnienv; // nullptr unless on java
     static int set_log_level (int log_level);
-    static int set_log_file (char *log_file);
+    static int set_log_file (const char *log_file);
 
     virtual ~Board ()
     {
@@ -50,7 +50,7 @@ public:
         }
     }
     virtual int prepare_session () = 0;
-    virtual int start_stream (int buffer_size, char *streamer_params) = 0;
+    virtual int start_stream (int buffer_size, const char *streamer_params) = 0;
     virtual int stop_stream () = 0;
     virtual int release_session () = 0;
     virtual int config_board (std::string config, std::string &response) = 0;
@@ -98,12 +98,12 @@ protected:
     SpinLock lock;
     std::deque<double> marker_queue;
 
-    int prepare_for_acquisition (int buffer_size, char *streamer_params);
+    int prepare_for_acquisition (int buffer_size, const char *streamer_params);
     void free_packages ();
     void push_package (double *package);
 
 private:
-    int prepare_streamer (char *streamer_params);
+    int prepare_streamer (const char *streamer_params);
     // reshapes data from DataBuffer format where all channels are mixed to linear buffer
     void reshape_data (int data_count, const double *buf, double *output_buf);
 };

@@ -172,7 +172,7 @@ int Galea::config_board (std::string conf, std::string &response)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int Galea::start_stream (int buffer_size, char *streamer_params)
+int Galea::start_stream (int buffer_size, const char *streamer_params)
 {
     if (!initialized)
     {

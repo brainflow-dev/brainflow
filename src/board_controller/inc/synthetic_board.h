@@ -22,7 +22,7 @@ public:
     ~SyntheticBoard ();
 
     int prepare_session ();
-    int start_stream (int buffer_size, char *streamer_params);
+    int start_stream (int buffer_size, const char *streamer_params);
     int stop_stream ();
     int release_session ();
     int config_board (std::string config, std::string &response);
