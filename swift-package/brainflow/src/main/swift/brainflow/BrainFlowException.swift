@@ -22,7 +22,7 @@ class BrainFlowException: Error, Equatable {
     
 }
 
-func checkErrorCode(errorMsg: String, errorCode: Int32) throws {
+func checkErrorCode(_ errorMsg: String, _ errorCode: Int32) throws {
     if let bfErrorCode = BrainFlowExitCodes(rawValue: errorCode) {
         if bfErrorCode != BrainFlowExitCodes.STATUS_OK {
             throw BrainFlowException (errorMsg, bfErrorCode)

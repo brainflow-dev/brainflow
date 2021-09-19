@@ -63,9 +63,9 @@ struct BoardShim {
     /**
      * send user defined strings to BrainFlow logger
      */
-    static func logMessage (logLevel: Int32, message: String) throws {
+    static func logMessage (logLevel: LogLevels, message: String) throws {
         var cMessage = message.cString(using: String.Encoding.utf8)!
-        let errorCode = log_message (logLevel, &cMessage)
+        let errorCode = log_message (logLevel.rawValue, &cMessage)
         try checkErrorCode("Error in log_message", errorCode)
     }
 
@@ -153,17 +153,19 @@ struct BoardShim {
     /**
      * Get board description
      */
-    static func getBoardDescr (boardId: BoardIds) throws -> String {
+    static func getBoardDescr (boardId: BoardIds) throws -> BoardDescription {
         var boardDescrStr = [CChar](repeating: CChar(0), count: 16000)
         var stringLen: Int32 = 0
         let errorCode = get_board_descr (boardId.rawValue, &boardDescrStr, &stringLen)
         try checkErrorCode("failed to get board info", errorCode)
 
-        if let description = String(data: Data(bytes: &boardDescrStr, count: Int(stringLen)), encoding: .utf8) {
-            return description }
-        else {
-            return "no data found"
-        }
+        return try BoardDescription(boardDescrStr.toString(stringLen))
+//        let descrData = Data(bytes: &boardDescrStr, count: Int(stringLen))
+//        if let description = String(data: descrData, encoding: .utf8) {
+//            return description }
+//        else {
+//            return "no data found"
+//        }
     }
 
     /**

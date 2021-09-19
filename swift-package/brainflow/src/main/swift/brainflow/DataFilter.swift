@@ -85,7 +85,7 @@ struct DataFilter {
     /**
      * perform bandpass filter in-place
      */
-    func performBandpass (data: inout [Double], samplingRate: Int32, centerFreq: Double, bandWidth: Double,
+    static func performBandpass (data: inout [Double], samplingRate: Int32, centerFreq: Double, bandWidth: Double,
                           order: Int32, filterType: FilterTypes, ripple: Double) throws {
         let dataLen = Int32(data.count)
         let filterVal = filterType.rawValue
@@ -118,9 +118,9 @@ struct DataFilter {
     /**
      * subtract trend from data in-place
      */
-    func deTrend (data: inout [Double], operation: Int32) throws {
+    static func deTrend (data: inout [Double], operation: DetrendOperations) throws {
         let dataLen = Int32(data.count)
-        let errorCode = detrend (&data, dataLen, operation)
+        let errorCode = detrend (&data, dataLen, operation.rawValue)
         try checkErrorCode("Failed to detrend", errorCode)
     }
     
@@ -151,7 +151,7 @@ struct DataFilter {
     /**
      * removes noise using notch filter
      */
-    func removeEnvironmentalNoise (data: inout [Double], samplingRate: Int32, noiseType: NoiseTypes) throws {
+    static func removeEnvironmentalNoise (data: inout [Double], samplingRate: Int32, noiseType: NoiseTypes) throws {
         let dataLen = Int32(data.count)
         let errorCode = remove_environmental_noise (&data, dataLen, samplingRate, noiseType.rawValue)
         try checkErrorCode("Failed to remove noise", errorCode)
@@ -166,7 +166,7 @@ struct DataFilter {
      *
      * @param decomposition_level level of decomposition of wavelet transform
      */
-    func performWaveletDenoising (data: inout [Double], wavelet: String, decompositionLevel: Int32) throws {
+    static func performWaveletDenoising (data: inout [Double], wavelet: String, decompositionLevel: Int32) throws {
         let dataLen = Int32(data.count)
         var cWavelet = wavelet.cString(using: String.Encoding.utf8)!
         let errorCode = perform_wavelet_denoising (&data, dataLen, &cWavelet, decompositionLevel)
@@ -406,7 +406,8 @@ struct DataFilter {
       * @param window        window function
       * @return pair of ampl and freq arrays
       */
-    static func getPSDwelch (data: [Double], nfft: Int32, overlap: Int32, samplingRate: Int32, window: Int32) throws -> ([Double], [Double]) {
+    static func getPSDwelch (data: [Double], nfft: Int32, overlap: Int32, samplingRate: Int32,
+                             window: WindowFunctions) throws -> ([Double], [Double]) {
          guard ((nfft & (nfft - 1)) == 0) else {
              throw BrainFlowException ("nfft must be a power of 2", .INVALID_ARGUMENTS_ERROR)
          }
@@ -414,7 +415,8 @@ struct DataFilter {
         var cData = data
         var ampls = [Double](repeating: 0.0, count: Int(nfft) / 2 + 1)
         var freqs = [Double](repeating: 0.0, count: Int(nfft) / 2 + 1)
-        let errorCode = get_psd_welch (&cData, Int32(data.count), nfft, overlap, samplingRate, window, &ampls,
+        let errorCode = get_psd_welch (&cData, Int32(data.count), nfft, overlap, samplingRate,
+                                       window.rawValue, &ampls,
                                        &freqs)
         try checkErrorCode("Failed to get_psd_welch", errorCode)
 
