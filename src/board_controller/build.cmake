@@ -91,18 +91,14 @@ if (BUILD_BLUETOOTH)
     include (${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/build.cmake)
 endif (BUILD_BLUETOOTH)
 
+if (BUILD_BLE)
+    add_subdirectory (${CMAKE_HOME_DIRECTORY}/third_party/SimpleBLE)
+endif (BUILD_BLE)
+
 add_library (
     ${BOARD_CONTROLLER_NAME} SHARED
     ${BOARD_CONTROLLER_SRC}
 )
-
-if (BUILD_BLE)
-    target_include_directories (
-        ${BOARD_CONTROLLER_NAME} PRIVATE
-        ${CMAKE_HOME_DIRECTORY}/third_party/SimpleBLE/include
-    )
-    add_subdirectory (${CMAKE_HOME_DIRECTORY}/third_party/SimpleBLE)
-endif (BUILD_BLE)
 
 target_include_directories (
     ${BOARD_CONTROLLER_NAME} PRIVATE
@@ -132,6 +128,7 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ant_neuro/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/enophone/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/mentalab/inc
+    ${CMAKE_HOME_DIRECTORY}/third_party/SimpleBLE/include
 )
 
 target_compile_definitions(${BOARD_CONTROLLER_NAME} PRIVATE -DNOMINMAX)
