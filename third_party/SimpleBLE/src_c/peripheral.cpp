@@ -5,18 +5,16 @@
 #include <cstring>
 #include <map>
 
-std::map<simpleble_peripheral_t, std::map<std::string, SimpleBLE::ByteArray>> cache_read_data;
-std::map<simpleble_peripheral_t, std::vector<SimpleBLE::BluetoothService>> cache_bluetooth_services;
-std::map<simpleble_peripheral_t, std::vector<std::pair<uint16_t, SimpleBLE::ByteArray>>> cache_manufacturer_data;
-
 const char* simpleble_peripheral_identifier(simpleble_peripheral_t handle) {
     if (handle == nullptr) {
         return nullptr;
     }
 
-    // TODO: This is a memory leak.
     SimpleBLE::Safe::Peripheral* peripheral = (SimpleBLE::Safe::Peripheral*)handle;
-    return peripheral->identifier().value_or("").c_str();
+    std::string identifier = peripheral->identifier().value_or("");
+    char* c_identifier = (char*)malloc(identifier.size() + 1);
+    strcpy(c_identifier, identifier.c_str());
+    return c_identifier;
 }
 
 const char* simpleble_peripheral_address(simpleble_peripheral_t handle) {
@@ -24,9 +22,11 @@ const char* simpleble_peripheral_address(simpleble_peripheral_t handle) {
         return nullptr;
     }
 
-    // TODO: This is a memory leak.
     SimpleBLE::Safe::Peripheral* peripheral = (SimpleBLE::Safe::Peripheral*)handle;
-    return peripheral->address().value_or("").c_str();
+    std::string address = peripheral->address().value_or("");
+    char* c_address = (char*)malloc(address.size() + 1);
+    strcpy(c_address, address.c_str());
+    return c_address;
 }
 
 simpleble_err_t simpleble_peripheral_connect(simpleble_peripheral_t handle) {
@@ -71,28 +71,18 @@ simpleble_err_t simpleble_peripheral_is_connectable(simpleble_peripheral_t handl
     return is_connectable.has_value() ? SIMPLEBLE_SUCCESS : SIMPLEBLE_FAILURE;
 }
 
-simpleble_err_t simpleble_peripheral_services(simpleble_peripheral_t handle) {
-    if (handle == nullptr) {
-        return SIMPLEBLE_FAILURE;
-    }
-
-    SimpleBLE::Safe::Peripheral* peripheral = (SimpleBLE::Safe::Peripheral*)handle;
-
-    auto services = peripheral->services();
-    if (services.has_value()) {
-        cache_bluetooth_services[handle] = services.value();
-        return SIMPLEBLE_SUCCESS;
-    } else {
-        return SIMPLEBLE_FAILURE;
-    }
-}
-
 size_t simpleble_peripheral_services_count(simpleble_peripheral_t handle) {
     if (handle == nullptr) {
         return 0;
     }
 
-    return cache_bluetooth_services[handle].size();
+    SimpleBLE::Safe::Peripheral* peripheral = (SimpleBLE::Safe::Peripheral*)handle;
+    auto services = peripheral->services();
+    if (services.has_value()) {
+        return services.value().size();
+    } else {
+        return 0;
+    }
 }
 
 simpleble_err_t simpleble_peripheral_services_get(simpleble_peripheral_t handle, size_t index,
@@ -101,15 +91,17 @@ simpleble_err_t simpleble_peripheral_services_get(simpleble_peripheral_t handle,
         return SIMPLEBLE_FAILURE;
     }
 
-    if (cache_bluetooth_services.find(handle) == cache_bluetooth_services.end()) {
+    SimpleBLE::Safe::Peripheral* peripheral = (SimpleBLE::Safe::Peripheral*)handle;
+    auto peripheral_services = peripheral->services();
+    if (!peripheral_services.has_value()) {
         return SIMPLEBLE_FAILURE;
     }
 
-    if (index >= cache_bluetooth_services[handle].size()) {
+    if (index >= peripheral_services.value().size()) {
         return SIMPLEBLE_FAILURE;
     }
 
-    SimpleBLE::BluetoothService& service = cache_bluetooth_services[handle][index];
+    SimpleBLE::BluetoothService& service = peripheral_services.value()[index];
 
     memcpy(services->uuid.value, service.uuid.c_str(), SIMPLEBLE_UUID_STR_LEN);
     services->characteristic_count = service.characteristics.size();
@@ -125,30 +117,19 @@ simpleble_err_t simpleble_peripheral_services_get(simpleble_peripheral_t handle,
     return SIMPLEBLE_SUCCESS;
 }
 
-simpleble_err_t simpleble_peripheral_manufacturer_data(simpleble_peripheral_t handle) {
+size_t simpleble_peripheral_manufacturer_data_count(simpleble_peripheral_t handle) {
     if (handle == nullptr) {
-        return SIMPLEBLE_FAILURE;
+        return 0;
     }
 
     SimpleBLE::Safe::Peripheral* peripheral = (SimpleBLE::Safe::Peripheral*)handle;
 
     auto manufacturer_data = peripheral->manufacturer_data();
     if (manufacturer_data.has_value()) {
-        for (auto& [manufacturer_id, data] : manufacturer_data.value()) {
-            cache_manufacturer_data[handle].push_back({manufacturer_id, data});
-        }
-        return SIMPLEBLE_SUCCESS;
+        return manufacturer_data.value().size();
     } else {
-        return SIMPLEBLE_FAILURE;
-    }
-}
-
-size_t simpleble_peripheral_manufacturer_data_count(simpleble_peripheral_t handle) {
-    if (handle == nullptr) {
         return 0;
     }
-
-    return cache_manufacturer_data[handle].size();
 }
 
 simpleble_err_t simpleble_peripheral_manufacturer_data_get(simpleble_peripheral_t handle, size_t index,
@@ -157,19 +138,27 @@ simpleble_err_t simpleble_peripheral_manufacturer_data_get(simpleble_peripheral_
         return SIMPLEBLE_FAILURE;
     }
 
-    if (cache_manufacturer_data.find(handle) == cache_manufacturer_data.end()) {
+    SimpleBLE::Safe::Peripheral* peripheral = (SimpleBLE::Safe::Peripheral*)handle;
+
+    auto peripheral_manufacturer_data = peripheral->manufacturer_data();
+    if (!peripheral_manufacturer_data.has_value()) {
         return SIMPLEBLE_FAILURE;
     }
 
-    if (index >= cache_manufacturer_data[handle].size()) {
+    if (index >= peripheral_manufacturer_data.value().size()) {
         return SIMPLEBLE_FAILURE;
     }
 
-    auto& cached_manufacturer_data = cache_manufacturer_data[handle][index];
+    // Build an iterator and advance to the expected element
+    std::map<uint16_t, SimpleBLE::ByteArray>::iterator it = peripheral_manufacturer_data.value().begin();
+    for (size_t i = 0; i < index; i++) {
+        it++;
+    }
 
-    manufacturer_data->manufacturer_id = cached_manufacturer_data.first;
-    manufacturer_data->data_length = cached_manufacturer_data.second.size();
-    memcpy(manufacturer_data->data, cached_manufacturer_data.second.data(), cached_manufacturer_data.second.size());
+    auto& selected_manufacturer_data = *it;
+    manufacturer_data->manufacturer_id = selected_manufacturer_data.first;
+    manufacturer_data->data_length = selected_manufacturer_data.second.size();
+    memcpy(manufacturer_data->data, selected_manufacturer_data.second.data(), selected_manufacturer_data.second.size());
 
     return SIMPLEBLE_SUCCESS;
 }
@@ -180,22 +169,23 @@ simpleble_err_t simpleble_peripheral_read(simpleble_peripheral_t handle, simpleb
         return SIMPLEBLE_FAILURE;
     }
 
-    SimpleBLE::Safe::Peripheral* peripheral = (SimpleBLE::Safe::Peripheral*)handle;
+    // Clear the initial values for safety
+    *data = nullptr;
+    *data_length = 0;
 
+    // Perform the read operation
+    SimpleBLE::Safe::Peripheral* peripheral = (SimpleBLE::Safe::Peripheral*)handle;
     std::optional<SimpleBLE::ByteArray> read_data = peripheral->read(SimpleBLE::BluetoothUUID(service.value),
                                                                      SimpleBLE::BluetoothUUID(characteristic.value));
 
+    // Early return if the operation failed
     if (!read_data.has_value()) {
         return SIMPLEBLE_FAILURE;
     }
 
-    // Create a combined UUID between the service and characteristic UUIDs
-    std::string combined_uuid = std::string(service.value) + ":" + std::string(characteristic.value);
-    cache_read_data[handle][combined_uuid] = read_data.value();
-
-    // We'll return pointers to the cached data as a way to provide some degree of memory safety
-    *data = (uint8_t*)cache_read_data[handle][combined_uuid].data();
-    *data_length = cache_read_data[handle][combined_uuid].size();
+    *data_length = read_data.value().size();
+    *data = static_cast<uint8_t*>(malloc(*data_length));
+    memcpy(*data, read_data.value().c_str(), *data_length);
 
     return SIMPLEBLE_SUCCESS;
 }

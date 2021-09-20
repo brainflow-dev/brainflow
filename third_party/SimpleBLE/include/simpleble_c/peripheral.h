@@ -62,16 +62,6 @@ simpleble_err_t simpleble_peripheral_is_connectable(simpleble_peripheral_t handl
 /**
  * @brief
  *
- * @note
- *
- * @param handle
- * @return size_t
- */
-simpleble_err_t simpleble_peripheral_services(simpleble_peripheral_t handle);
-
-/**
- * @brief
- *
  * @param handle
  * @return size_t
  */
@@ -94,14 +84,6 @@ simpleble_err_t simpleble_peripheral_services_get(simpleble_peripheral_t handle,
  * @param handle
  * @return size_t
  */
-simpleble_err_t simpleble_peripheral_manufacturer_data(simpleble_peripheral_t handle);
-
-/**
- * @brief
- *
- * @param handle
- * @return size_t
- */
 size_t simpleble_peripheral_manufacturer_data_count(simpleble_peripheral_t handle);
 
 /**
@@ -117,6 +99,8 @@ simpleble_err_t simpleble_peripheral_manufacturer_data_get(simpleble_peripheral_
 
 /**
  * @brief
+ *
+ * @note The user is responsible for freeing the pointer returned in data.
  *
  * @param handle
  * @param service

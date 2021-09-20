@@ -74,6 +74,7 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ant_neuro/ant_neuro.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/enophone/enophone.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/mentalab/explore.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/ble_lib_board.cpp
 )
 
 include (${CMAKE_HOME_DIRECTORY}/src/board_controller/ant_neuro/build.cmake)
@@ -90,18 +91,18 @@ if (BUILD_BLUETOOTH)
     include (${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/build.cmake)
 endif (BUILD_BLUETOOTH)
 
-if (BUILD_BLE)
-    add_subdirectory (${CMAKE_HOME_DIRECTORY}/third_party/SimpleBLE)
-    target_include_directories (
-        ${BOARD_CONTROLLER_NAME} PRIVATE
-        ${CMAKE_HOME_DIRECTORY}/third_party/SimpleBLE/include
-    )
-endif (BUILD_BLE)
-
 add_library (
     ${BOARD_CONTROLLER_NAME} SHARED
     ${BOARD_CONTROLLER_SRC}
 )
+
+if (BUILD_BLE)
+    target_include_directories (
+        ${BOARD_CONTROLLER_NAME} PRIVATE
+        ${CMAKE_HOME_DIRECTORY}/third_party/SimpleBLE/include
+    )
+    add_subdirectory (${CMAKE_HOME_DIRECTORY}/third_party/SimpleBLE)
+endif (BUILD_BLE)
 
 target_include_directories (
     ${BOARD_CONTROLLER_NAME} PRIVATE

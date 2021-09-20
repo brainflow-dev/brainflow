@@ -2,6 +2,8 @@
 
 #include <simpleble/AdapterSafe.h>
 
+#include <cstring>
+
 static std::vector<SimpleBLE::Safe::Adapter> adapter_list;
 
 size_t simpleble_adapter_get_adapter_count(void) {
@@ -22,9 +24,11 @@ const char* simpleble_adapter_identifier(simpleble_adapter_t handle) {
         return nullptr;
     }
 
-    // TODO: This is a memory leak.
     SimpleBLE::Safe::Adapter* adapter = (SimpleBLE::Safe::Adapter*)handle;
-    return adapter->identifier().value_or("").c_str();
+    std::string identifier = adapter->identifier().value_or("");
+    char* c_identifier = (char*) malloc(identifier.size() + 1);
+    strcpy(c_identifier, identifier.c_str());
+    return c_identifier;
 }
 
 const char* simpleble_adapter_address(simpleble_adapter_t handle) {
@@ -32,9 +36,11 @@ const char* simpleble_adapter_address(simpleble_adapter_t handle) {
         return nullptr;
     }
 
-    // TODO: This is a memory leak.
     SimpleBLE::Safe::Adapter* adapter = (SimpleBLE::Safe::Adapter*)handle;
-    return adapter->address().value_or("").c_str();
+    std::string address = adapter->address().value_or("");
+    char* c_address = (char*) malloc(address.size() + 1);
+    strcpy(c_address, address.c_str());
+    return c_address;
 }
 
 simpleble_err_t simpleble_adapter_scan_start(simpleble_adapter_t handle) {
