@@ -140,7 +140,7 @@ int Callibri::config_board (std::string config, std::string &response)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int Callibri::start_stream (int buffer_size, char *streamer_params)
+int Callibri::start_stream (int buffer_size, const char *streamer_params)
 {
     if (is_streaming)
     {
@@ -294,7 +294,7 @@ int Callibri::stop_stream ()
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
-int Callibri::start_stream (int buffer_size, char *streamer_params)
+int Callibri::start_stream (int buffer_size, const char *streamer_params)
 {
     safe_logger (spdlog::level::err, "Callibri doesnt support Linux.");
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

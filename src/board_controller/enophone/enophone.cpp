@@ -20,7 +20,7 @@ Enophone::~Enophone ()
     release_session ();
 }
 
-int Enophone::start_stream (int buffer_size, char *streamer_params)
+int Enophone::start_stream (int buffer_size, const char *streamer_params)
 {
     if (!initialized)
     {

@@ -39,7 +39,7 @@ Explore::~Explore ()
     release_session ();
 }
 
-int Explore::start_stream (int buffer_size, char *streamer_params)
+int Explore::start_stream (int buffer_size, const char *streamer_params)
 {
     if (!initialized)
     {

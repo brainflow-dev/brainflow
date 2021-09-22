@@ -91,7 +91,7 @@ int UnicornBoard::prepare_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int UnicornBoard::start_stream (int buffer_size, char *streamer_params)
+int UnicornBoard::start_stream (int buffer_size, const char *streamer_params)
 {
     if (is_streaming)
     {
@@ -385,7 +385,7 @@ int UnicornBoard::stop_stream ()
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
-int UnicornBoard::start_stream (int buffer_size, char *streamer_params)
+int UnicornBoard::start_stream (int buffer_size, const char *streamer_params)
 {
     safe_logger (spdlog::level::err, "UnicornBoard doesnt support MacOS.");
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

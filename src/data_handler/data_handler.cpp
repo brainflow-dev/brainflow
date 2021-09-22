@@ -42,7 +42,7 @@ std::shared_ptr<spdlog::logger> data_logger = spdlog::stderr_logger_mt (LOGGER_N
 #endif
 
 
-int set_log_file (char *log_file)
+int set_log_file (const char *log_file)
 {
 #ifdef __ANDROID__
     data_logger->error ("For Android set_log_file is unavailable");
@@ -362,8 +362,8 @@ int perform_downsampling (
 }
 
 // https://github.com/rafat/wavelib/wiki/DWT-Example-Code
-int perform_wavelet_transform (double *data, int data_len, char *wavelet, int decomposition_level,
-    double *output_data, int *decomposition_lengths)
+int perform_wavelet_transform (double *data, int data_len, const char *wavelet,
+    int decomposition_level, double *output_data, int *decomposition_lengths)
 {
     if ((data == NULL) || (data_len <= 0) || (wavelet == NULL) || (output_data == NULL) ||
         (!validate_wavelet (wavelet)) || (decomposition_lengths == NULL) ||
@@ -416,8 +416,8 @@ int perform_wavelet_transform (double *data, int data_len, char *wavelet, int de
 
 // inside wavelib inverse transform uses internal state from direct transform, dirty hack to restore
 // it here
-int perform_inverse_wavelet_transform (double *wavelet_coeffs, int original_data_len, char *wavelet,
-    int decomposition_level, int *decomposition_lengths, double *output_data)
+int perform_inverse_wavelet_transform (double *wavelet_coeffs, int original_data_len,
+    const char *wavelet, int decomposition_level, int *decomposition_lengths, double *output_data)
 {
     if ((wavelet_coeffs == NULL) || (decomposition_level <= 0) || (original_data_len <= 0) ||
         (wavelet == NULL) || (output_data == NULL) || (!validate_wavelet (wavelet)) ||
@@ -470,7 +470,8 @@ int perform_inverse_wavelet_transform (double *wavelet_coeffs, int original_data
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int perform_wavelet_denoising (double *data, int data_len, char *wavelet, int decomposition_level)
+int perform_wavelet_denoising (
+    double *data, int data_len, const char *wavelet, int decomposition_level)
 {
     if ((data == NULL) || (data_len <= 0) || (decomposition_level <= 0) ||
         (!validate_wavelet (wavelet)))
@@ -516,7 +517,7 @@ int perform_wavelet_denoising (double *data, int data_len, char *wavelet, int de
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_times,
+int get_csp (const double *data, const double *labels, int n_epochs, int n_channels, int n_times,
     double *output_w, double *output_d)
 {
     if ((!data) || (!labels) || n_epochs <= 0 || n_channels <= 0 || n_times <= 0)
@@ -848,7 +849,8 @@ int get_nearest_power_of_two (int value, int *output)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int write_file (double *data, int num_rows, int num_cols, char *file_name, char *file_mode)
+int write_file (
+    const double *data, int num_rows, int num_cols, const char *file_name, const char *file_mode)
 {
     if ((strcmp (file_mode, "w") != 0) && (strcmp (file_mode, "w+") != 0) &&
         (strcmp (file_mode, "a") != 0) && (strcmp (file_mode, "a+") != 0))
@@ -879,7 +881,7 @@ int write_file (double *data, int num_rows, int num_cols, char *file_name, char 
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int read_file (double *data, int *num_rows, int *num_cols, char *file_name, int num_elements)
+int read_file (double *data, int *num_rows, int *num_cols, const char *file_name, int num_elements)
 {
     if (num_elements <= 0)
     {
@@ -952,7 +954,7 @@ int read_file (double *data, int *num_rows, int *num_cols, char *file_name, int 
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int get_num_elements_in_file (char *file_name, int *num_elements)
+int get_num_elements_in_file (const char *file_name, int *num_elements)
 {
     FILE *fp;
     fp = fopen (file_name, "r");

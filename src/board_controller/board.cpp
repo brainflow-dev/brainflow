@@ -45,7 +45,7 @@ int Board::set_log_level (int level)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int Board::set_log_file (char *log_file)
+int Board::set_log_file (const char *log_file)
 {
 #ifdef __ANDROID__
     Board::board_logger->error ("For Android set_log_file is unavailable");
@@ -70,7 +70,7 @@ int Board::set_log_file (char *log_file)
 #endif
 }
 
-int Board::prepare_for_acquisition (int buffer_size, char *streamer_params)
+int Board::prepare_for_acquisition (int buffer_size, const char *streamer_params)
 {
     if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
     {
@@ -179,7 +179,7 @@ void Board::free_packages ()
     }
 }
 
-int Board::prepare_streamer (char *streamer_params)
+int Board::prepare_streamer (const char *streamer_params)
 {
     int num_rows = (int)board_descr["num_rows"];
     // to dont write smth like if (streamer) every time for all boards create dummy streamer which
