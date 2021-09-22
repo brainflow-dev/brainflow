@@ -151,7 +151,6 @@ or just be ignored.
 ## Known Issues / To-Do's
 - [Linux] Fork safety is not guaranteed.
 - [Linux] `SimpleBLE::Peripheral::read` does not work.
-- [Linux] `SimpleBLE::Peripheral::notify` runs slowly.
 - [MacOS] Only the main system adapter can be detected.
 - [MacOS] Implementation has incomplete error handling and might crash if invalid parameters are passed.
 - [MacOS] Timeout logic can be DRYed up.

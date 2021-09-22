@@ -2,6 +2,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #include <simpleble_c/types.h>
 
@@ -14,15 +15,26 @@ extern "C" {
  *
  * @return size_t
  */
-size_t simpleble_adapter_get_adapter_count(void);
+size_t simpleble_adapter_get_count(void);
 
 /**
  * @brief
  *
+ * @note The user is responsible for freeing the returned adapter object
+ *       by calling `simpleble_adapter_release_handle`.
+ * 
  * @param index
  * @return simpleble_adapter_t
  */
-simpleble_adapter_t simpleble_adapter_get_adapter_handle(size_t index);
+simpleble_adapter_t simpleble_adapter_get_handle(size_t index);
+
+/**
+ * @brief Releases all memory and resources consumed by the specific
+ *        instance of simpleble_adapter_t.
+ * 
+ * @param handle
+ */
+void simpleble_adapter_release_handle(simpleble_adapter_t handle);
 
 /**
  * @brief Returns the identifier of a given adapter.
@@ -30,9 +42,9 @@ simpleble_adapter_t simpleble_adapter_get_adapter_handle(size_t index);
  * @note The user is responsible for freeing the returned value.
  *
  * @param handle
- * @return const char*
+ * @return char*
  */
-const char* simpleble_adapter_identifier(simpleble_adapter_t handle);
+char* simpleble_adapter_identifier(simpleble_adapter_t handle);
 
 /**
  * @brief Returns the MAC address of a given adapter.
@@ -40,9 +52,9 @@ const char* simpleble_adapter_identifier(simpleble_adapter_t handle);
  * @note The user is responsible for freeing the returned value.
  *
  * @param handle
- * @return const char*
+ * @return char*
  */
-const char* simpleble_adapter_address(simpleble_adapter_t handle);
+char* simpleble_adapter_address(simpleble_adapter_t handle);
 
 /**
  * @brief
@@ -88,6 +100,9 @@ size_t simpleble_adapter_scan_get_results_count(simpleble_adapter_t handle);
 
 /**
  * @brief
+ * 
+ * @note The user is responsible for freeing the returned adapter object
+ *       by calling `simpleble_peripheral_release_handle`.
  *
  * @param handle
  * @param index

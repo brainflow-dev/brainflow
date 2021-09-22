@@ -18,7 +18,7 @@ int Muse2::prepare_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int Muse2::start_stream (int buffer_size, char *streamer_params)
+int Muse2::start_stream (int buffer_size, const char *streamer_params)
 {
     return (int)BrainFlowExitCodes::STATUS_OK;
 }

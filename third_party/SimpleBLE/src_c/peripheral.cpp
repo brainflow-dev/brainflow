@@ -1,11 +1,22 @@
 #include <simpleble_c/peripheral.h>
 
 #include <simpleble/PeripheralSafe.h>
+#include "PeripheralBase.h"
+#include "PeripheralBuilder.h"
 
 #include <cstring>
 #include <map>
 
-const char* simpleble_peripheral_identifier(simpleble_peripheral_t handle) {
+void simpleble_peripheral_release_handle(simpleble_peripheral_t handle) {
+    if (handle == nullptr) {
+        return;
+    }
+
+    SimpleBLE::Safe::Peripheral* peripheral = (SimpleBLE::Safe::Peripheral*)handle;
+    delete peripheral;
+}
+
+char* simpleble_peripheral_identifier(simpleble_peripheral_t handle) {
     if (handle == nullptr) {
         return nullptr;
     }
@@ -17,7 +28,7 @@ const char* simpleble_peripheral_identifier(simpleble_peripheral_t handle) {
     return c_identifier;
 }
 
-const char* simpleble_peripheral_address(simpleble_peripheral_t handle) {
+char* simpleble_peripheral_address(simpleble_peripheral_t handle) {
     if (handle == nullptr) {
         return nullptr;
     }

@@ -2,6 +2,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #include <simpleble_c/types.h>
 
@@ -10,20 +11,28 @@ extern "C" {
 #endif
 
 /**
- * @brief
- *
+ * @brief Releases all memory and resources consumed by the specific
+ *        instance of simpleble_peripheral_t.
+ * 
  * @param handle
- * @return const char*
  */
-const char* simpleble_peripheral_identifier(simpleble_peripheral_t handle);
+void simpleble_peripheral_release_handle(simpleble_peripheral_t handle);
 
 /**
  * @brief
  *
  * @param handle
- * @return const char*
+ * @return char*
  */
-const char* simpleble_peripheral_address(simpleble_peripheral_t handle);
+char* simpleble_peripheral_identifier(simpleble_peripheral_t handle);
+
+/**
+ * @brief
+ *
+ * @param handle
+ * @return char*
+ */
+char* simpleble_peripheral_address(simpleble_peripheral_t handle);
 
 /**
  * @brief

@@ -18,15 +18,18 @@ private:
 protected:
     static bool init_dll_loader ();
     // adapter
-    size_t simpleble_adapter_get_adapter_count (void);
-    simpleble_adapter_t simpleble_adapter_get_adapter_handle (size_t index);
+    size_t simpleble_adapter_get_count (void);
+    simpleble_adapter_t simpleble_adapter_get_handle (size_t index);
+    void simpleble_adapter_release_handle (simpleble_adapter_t handle);
     simpleble_err_t simpleble_adapter_scan_for (simpleble_adapter_t handle, int timeout_ms);
     simpleble_err_t simpleble_adapter_scan_start (simpleble_adapter_t handle);
     simpleble_err_t simpleble_adapter_scan_stop (simpleble_adapter_t handle);
     simpleble_err_t simpleble_adapter_set_callback_on_scan_updated (
         simpleble_adapter_t handle, void (*) (simpleble_adapter_t, simpleble_peripheral_t));
     // peripheral
-    const char *simpleble_peripheral_address (simpleble_peripheral_t handle);
+    char *simpleble_peripheral_address (simpleble_peripheral_t handle);
+    char *simpleble_peripheral_identifier (simpleble_peripheral_t handle);
+    void simpleble_peripheral_release_handle (simpleble_peripheral_t handle);
     simpleble_err_t simpleble_peripheral_connect (simpleble_peripheral_t handle);
     simpleble_err_t simpleble_peripheral_disconnect (simpleble_peripheral_t handle);
     size_t simpleble_peripheral_services_count (simpleble_peripheral_t handle);
