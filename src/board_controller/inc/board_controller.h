@@ -7,9 +7,6 @@
 extern "C"
 {
 #endif
-    // I dont use const char * because I am not sure that all
-    // languages support passing const char * instead char *
-
     // data acquisition methods
     SHARED_EXPORT int CALLING_CONVENTION prepare_session (
         int board_id, const char *json_brainflow_input_params);
