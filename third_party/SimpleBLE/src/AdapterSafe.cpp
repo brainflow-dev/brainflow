@@ -92,7 +92,7 @@ bool SimpleBLE::Safe::Adapter::set_callback_on_scan_updated(
 bool SimpleBLE::Safe::Adapter::set_callback_on_scan_found(
     std::function<void(SimpleBLE::Safe::Peripheral)> on_scan_found) noexcept {
     try {
-        SimpleBLE::Adapter::set_callback_on_scan_updated(
+        SimpleBLE::Adapter::set_callback_on_scan_found(
             [=](SimpleBLE::Peripheral p) { on_scan_found(SimpleBLE::Safe::Peripheral(p)); });
         return true;
     } catch (const SimpleBLE::Exception::BaseException& e) {

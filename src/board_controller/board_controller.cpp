@@ -39,7 +39,9 @@
 #include "gforce_dual.h"
 #include "gforce_pro.h"
 #include "ironbci.h"
+#include "muse_2.h"
 #include "muse_2_bled.h"
+#include "muse_s.h"
 #include "muse_s_bled.h"
 #include "notion_osc.h"
 #include "playback_file_board.h"
@@ -223,6 +225,12 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
             break;
         case BoardIds::ENOPHONE_BOARD:
             board = std::shared_ptr<Board> (new Enophone (params));
+            break;
+        case BoardIds::MUSE_2_BOARD:
+            board = std::shared_ptr<Board> (new Muse2 (params));
+            break;
+        case BoardIds::MUSE_S_BOARD:
+            board = std::shared_ptr<Board> (new MuseS (params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
