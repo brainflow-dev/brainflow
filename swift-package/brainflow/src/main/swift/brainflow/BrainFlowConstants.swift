@@ -5,7 +5,7 @@
 //  Created by Scott Miller for Aeris Rising, LLC on 8/23/21.
 //
 
-enum BrainFlowExitCodes : Int32 {
+enum BrainFlowExitCodes : Int32, Error {
     case UNKNOWN_CODE = -1
     case STATUS_OK = 0
     case PORT_ALREADY_OPEN_ERROR = 1
@@ -98,7 +98,7 @@ enum AggOperations : Int32 {
     case EACH = 2
 }
 
-enum WindowFunctions : Int32 {
+enum WindowFunctions : Int32, CaseIterable {
     case NO_WINDOW = 0
     case HANNING = 1
     case HAMMING = 2

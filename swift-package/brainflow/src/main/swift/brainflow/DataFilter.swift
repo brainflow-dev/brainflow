@@ -15,7 +15,7 @@ struct DataFilter {
      */
     func enableDataLogger () throws {
         do {
-            try setLogLevel (.LEVEL_INFO) }
+            try DataFilter.setLogLevel (.LEVEL_INFO) }
         catch {
             throw error
         }
@@ -24,7 +24,7 @@ struct DataFilter {
     /**
      * enable Data logger with level TRACE
      */
-    func enableDevDataLogger () throws {
+    static func enableDevDataLogger () throws {
         do {
             try setLogLevel (.LEVEL_TRACE) }
         catch {
@@ -35,7 +35,7 @@ struct DataFilter {
     /**
      * disable Data logger
      */
-    func disableDataLogger () throws {
+    static func disableDataLogger () throws {
         do {
             try setLogLevel (.LEVEL_OFF) }
         catch {
@@ -46,7 +46,7 @@ struct DataFilter {
     /**
      * redirect logger from stderr to a file
      */
-    func setLogFile (_ logFile: String) throws {
+    static func setLogFile (_ logFile: String) throws {
         var cLogFile = logFile.cString(using: String.Encoding.utf8)!
         let errorCode = set_log_file (&cLogFile)
         try checkErrorCode("Error in set_log_file", errorCode)
@@ -55,7 +55,7 @@ struct DataFilter {
     /**
      * set log level
      */
-    private func setLogLevel (_ logLevel: LogLevels) throws {
+    static func setLogLevel (_ logLevel: LogLevels) throws {
         let errorCode = set_log_level (logLevel.rawValue)
         try checkErrorCode("Error in set_log_level", errorCode)
     }
@@ -63,7 +63,7 @@ struct DataFilter {
     /**
     * perform lowpass filter in-place
     */
-    func performLowpass (data: inout [Double], samplingRate: Int32, cutoff: Double,
+    static func performLowpass (data: inout [Double], samplingRate: Int32, cutoff: Double,
                          order: Int32, filterType: FilterTypes, ripple: Double) throws {
         let dataLen = Int32(data.count)
         let filterVal = filterType.rawValue
@@ -74,7 +74,7 @@ struct DataFilter {
     /**
     * perform highpass filter in-place
     */
-    func performHighpass (data: inout [Double], samplingRate: Int32, cutoff: Double,
+    static func performHighpass (data: inout [Double], samplingRate: Int32, cutoff: Double,
                          order: Int32, filterType: FilterTypes, ripple: Double) throws {
         let dataLen = Int32(data.count)
         let filterVal = filterType.rawValue
@@ -97,7 +97,7 @@ struct DataFilter {
     /**
      * perform bandstop filter in-place
      */
-    func performBandstop (data: inout [Double], samplingRate: Int32, centerFreq: Double, bandWidth: Double,
+    static func performBandstop (data: inout [Double], samplingRate: Int32, centerFreq: Double, bandWidth: Double,
                           order: Int32, filterType: FilterTypes, ripple: Double) throws {
         let dataLen = Int32(data.count)
         let filterVal = filterType.rawValue
@@ -109,9 +109,9 @@ struct DataFilter {
     /**
      * perform moving average or moving median filter in-place
      */
-    func performRollingFilter (data: inout [Double], period: Int32, operation: Int32) throws {
+    static func performRollingFilter (data: inout [Double], period: Int32, operation: AggOperations) throws {
         let dataLen = Int32(data.count)
-        let errorCode = perform_rolling_filter (&data, dataLen, period, operation)
+        let errorCode = perform_rolling_filter (&data, dataLen, period, operation.rawValue)
         try checkErrorCode("Failed to apply filter", errorCode)
     }
     
@@ -128,7 +128,7 @@ struct DataFilter {
      * perform data downsampling, it doesnt apply lowpass filter for you, it just
      * aggregates several data points
      */
-    static func performDownsampling (data: [Double], period: Int32, operation: Int32) throws -> [Double] {
+    static func performDownsampling (data: [Double], period: Int32, operation: AggOperations) throws -> [Double] {
         guard (period > 0) else {
             throw BrainFlowException("Invalid period", .INVALID_ARGUMENTS_ERROR)
         }
@@ -142,14 +142,14 @@ struct DataFilter {
         
         var downsampledData = [Double](repeating: 0.0, count: Int(newSize))
         var cData = data
-        let errorCode = perform_downsampling (&cData, dataLen, period, operation, &downsampledData)
+        let errorCode = perform_downsampling (&cData, dataLen, period, operation.rawValue, &downsampledData)
         try checkErrorCode("Failed to perform downsampling", errorCode)
 
         return downsampledData
     }
     
     /**
-     * removes noise using notch filter
+     * removes noise using notch filter in-place
      */
     static func removeEnvironmentalNoise (data: inout [Double], samplingRate: Int32, noiseType: NoiseTypes) throws {
         let dataLen = Int32(data.count)
@@ -227,10 +227,11 @@ struct DataFilter {
     /**
      * get common spatial filters
      */
-    static func getCsp (data: [[[Double]]], labels: inout [Double]) throws -> ([[Double]], [Double]) {
+    static func getCSP (data: [[[Double]]], labels: [Double]) throws -> ([[Double]], [Double]) {
         let nEpochs = data.count
         let nChannels = data[0].count
         let nTimes = data[0][0].count
+        var cLabels = labels
 
         var tempData1d = [Double](repeating: 0.0, count: Int(nEpochs * nChannels * nTimes))
         for e in 0..<nEpochs {
@@ -245,7 +246,7 @@ struct DataFilter {
         var tempFilters = [Double](repeating: 0.0, count: nChannels * nChannels)
         var outputEigenvalues = [Double](repeating: 0.0, count: nChannels)
 
-        let errorCode = get_csp (&tempData1d, &labels, Int32(nEpochs), Int32(nChannels), Int32(nTimes),
+        let errorCode = get_csp (&tempData1d, &cLabels, Int32(nEpochs), Int32(nChannels), Int32(nTimes),
                                  &tempFilters, &outputEigenvalues)
         try checkErrorCode("Failed to get the CSP filters", errorCode)
 
@@ -266,9 +267,12 @@ struct DataFilter {
      * @param window_len lenght of the window function
      * @return array of the size specified in window_len
      */
-    static func getWindow (window: Int32, windowLen: Int32) throws -> [Double] {
+    static func getWindow (window: WindowFunctions, windowLen: Int32) throws -> [Double] {
+        guard windowLen > 0 else {
+            throw BrainFlowException("Window length must be >= 0", .INVALID_ARGUMENTS_ERROR)
+        }
         var windowData = [Double](repeating: 0.0, count: Int(windowLen))
-        let errorCode = get_window (window, windowLen, &windowData)
+        let errorCode = get_window (window.rawValue, windowLen, &windowData)
         try checkErrorCode("Failed to perform windowing", errorCode)
 
         return windowData
@@ -283,10 +287,19 @@ struct DataFilter {
      * @param window    window function
      * @return array of complex values with size N / 2 + 1
      */
-    static func performFFT (data: [Double], startPos: Int32, endPos: Int32, window: Int32) throws -> [Complex<Double>] {
+    static func performFFT (data: [Double], window: WindowFunctions) throws -> [Complex<Double>] {
+        if let startPos = data.indices.first {
+            let endPos = startPos + data.count
+            return try performFFT(data: data, startPos: Int32(startPos), endPos: Int32(endPos), window: window)
+        } else {
+            throw BrainFlowException("Empty data buffer in performFFT", .EMPTY_BUFFER_ERROR)
+        }
+    }
+    
+    static func performFFT (data: [Double], startPos: Int32, endPos: Int32, window: WindowFunctions) throws -> [Complex<Double>] {
         let dataLen = data.count
         guard (startPos >= 0) && (endPos <= dataLen) && (startPos < endPos) else {
-            throw BrainFlowException ("invalid position arguments", .INVALID_ARGUMENTS_ERROR)
+            throw BrainFlowException ("Invalid position arguments in performFFT", .INVALID_ARGUMENTS_ERROR)
         }
         
         // I didnt find a way to pass an offset using pointers, copy array
@@ -294,12 +307,13 @@ struct DataFilter {
         let len = dataToProcess.count
         
         guard ((len & (len - 1)) == 0) else {
-            throw BrainFlowException ("end_pos - start_pos must be a power of 2", .INVALID_ARGUMENTS_ERROR)
+            throw BrainFlowException ("end_pos - start_pos must be a power of 2 in performFFT", .INVALID_ARGUMENTS_ERROR)
         }
         
         var complexReal = [Double](repeating: 0.0, count: (len / 2 + 1))
         var complexImaginary = [Double](repeating: 0.0, count: (len / 2 + 1))
-        let errorCode = perform_fft (&dataToProcess, Int32(len), window, &complexReal, &complexImaginary)
+        
+        let errorCode = perform_fft (&dataToProcess, Int32(len), window.rawValue, &complexReal, &complexImaginary)
         try checkErrorCode("Failed to perform fft", errorCode)
 
         let complexResult = zip(complexReal, complexImaginary).map{Complex<Double>($0, $1)}
@@ -444,7 +458,7 @@ struct DataFilter {
     /**
      * calculate nearest power of two
      */
-    static func getNearestPowerOfTwo (value: Int32) throws -> Int32 {
+    static func getNearestPowerOfTwo (_ value: Int32) throws -> Int32 {
         var powerOfTwo = [Int32](repeating: 0, count: 1)
         let errorCode = get_nearest_power_of_two (value, &powerOfTwo)
         try checkErrorCode("Failed to calc nearest power of two", errorCode)

@@ -19,7 +19,6 @@ class BrainFlowException: Error, Equatable {
         message = errorMessage
         errorCode = code
     }
-    
 }
 
 func checkErrorCode(_ errorMsg: String, _ errorCode: Int32) throws {

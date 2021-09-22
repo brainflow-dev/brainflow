@@ -72,7 +72,7 @@ struct BoardShim {
     /**
      * get sampling rate for this board
      */
-    static func getSamplingRate (boardId: BoardIds) throws -> Int32 {
+    static func getSamplingRate (_ boardId: BoardIds) throws -> Int32 {
         var samplingRate: Int32 = 0
         let errorCode = get_sampling_rate (boardId.rawValue, &samplingRate)
         try checkErrorCode("Error in board info getter", errorCode)
@@ -83,7 +83,7 @@ struct BoardShim {
     /**
      * get row index in returned by get_board_data() 2d array which contains timestamps
      */
-    static func getTimestampChannel (boardId: BoardIds) throws -> Int32 {
+    static func getTimestampChannel (_ boardId: BoardIds) throws -> Int32 {
         var timestampChannel: Int32 = 0
         let errorCode = get_timestamp_channel (boardId.rawValue, &timestampChannel)
         try checkErrorCode("Error in board info getter", errorCode)
@@ -94,7 +94,7 @@ struct BoardShim {
     /**
      * get row index in returned by get_board_data() 2d array which contains markers
      */
-    static func getMarkerChannel (boardId: BoardIds) throws -> Int32
+    static func getMarkerChannel (_ boardId: BoardIds) throws -> Int32
     {
         var markerChannel: Int32 = 0
         let errorCode = get_marker_channel (boardId.rawValue, &markerChannel)
@@ -106,7 +106,7 @@ struct BoardShim {
     /**
      * get number of rows in returned by get_board_data() 2d array
      */
-    static func getNumRows (boardId: BoardIds) throws -> Int32 {
+    static func getNumRows (_ boardId: BoardIds) throws -> Int32 {
         var numRows: Int32 = 0
         let errorCode = get_num_rows (boardId.rawValue, &numRows)
         try checkErrorCode("Error in board info getter", errorCode)
@@ -117,7 +117,7 @@ struct BoardShim {
     /**
      * get row index in returned by get_board_data() 2d array which contains package nums
      */
-    static func getPackageNumChannel (boardId: BoardIds) throws -> Int32 {
+    static func getPackageNumChannel (_ boardId: BoardIds) throws -> Int32 {
         var pkgNumChannel: Int32 = 0
         let errorCode = get_package_num_channel (boardId.rawValue, &pkgNumChannel)
         try checkErrorCode("Error in board info getter", errorCode)
@@ -128,7 +128,7 @@ struct BoardShim {
     /**
      * get row index in returned by get_board_data() 2d array which contains battery level
      */
-    static func getBatteryChannel (boardId: BoardIds) throws -> Int32 {
+    static func getBatteryChannel (_ boardId: BoardIds) throws -> Int32 {
         var batteryChannel: Int32 = 0
         let errorCode = get_battery_channel (boardId.rawValue, &batteryChannel)
         try checkErrorCode("Error in board info getter", errorCode)
@@ -140,7 +140,7 @@ struct BoardShim {
      * Get names of EEG electrodes in 10-20 system. Only if electrodes have freezed
      * locations
      */
-    static func getEEGnames (boardId: BoardIds) throws -> [String] {
+    static func getEEGnames (_ boardId: BoardIds) throws -> [String] {
         var stringLen: Int32 = 0
         var bytes = [CChar](repeating: 0, count: 4096)
         let errorCode = get_eeg_names (boardId.rawValue, &bytes, &stringLen)
@@ -153,7 +153,7 @@ struct BoardShim {
     /**
      * Get board description
      */
-    static func getBoardDescr (boardId: BoardIds) throws -> BoardDescription {
+    static func getBoardDescr (_ boardId: BoardIds) throws -> BoardDescription {
         var boardDescrStr = [CChar](repeating: CChar(0), count: 16000)
         var stringLen: Int32 = 0
         let errorCode = get_board_descr (boardId.rawValue, &boardDescrStr, &stringLen)
@@ -171,7 +171,7 @@ struct BoardShim {
     /**
      * Get device name
      */
-    static func getDeviceName (boardId: BoardIds) throws -> String {
+    static func getDeviceName (_ boardId: BoardIds) throws -> String {
         var stringLen: Int32 = 0
         var deviceName = [CChar](repeating: CChar(0), count: 4096)
         let errorCode = get_device_name (boardId.rawValue, &deviceName, &stringLen)
@@ -184,7 +184,7 @@ struct BoardShim {
      * get row indices in returned by get_board_data() 2d array which contain EEG
      * data, for some boards we can not split EEG\EMG\... and return the same array
      */
-    static func getEEGchannels (boardId: BoardIds) throws -> [Int32] {
+    static func getEEGchannels (_ boardId: BoardIds) throws -> [Int32] {
         var len: Int32 = 0
         var channels = [Int32](repeating: 0, count: 512)
         let errorCode = get_eeg_channels (boardId.rawValue, &channels, &len)
@@ -197,7 +197,7 @@ struct BoardShim {
      * get row indices in returned by get_board_data() 2d array which contain EMG
      * data, for some boards we can not split EEG\EMG\... and return the same array
      */
-    static func getEMGchannels (boardId: BoardIds) throws -> [Int32] {
+    static func getEMGchannels (_ boardId: BoardIds) throws -> [Int32] {
         var len: Int32 = 0
         var channels = [Int32](repeating: 0, count: 512)
         let errorCode = get_emg_channels (boardId.rawValue, &channels, &len)
@@ -210,7 +210,7 @@ struct BoardShim {
      * get row indices in returned by get_board_data() 2d array which contain ECG
      * data, for some boards we can not split EEG\EMG\... and return the same array
      */
-    static func getECGchannels (boardId: BoardIds) throws -> [Int32] {
+    static func getECGchannels (_ boardId: BoardIds) throws -> [Int32] {
         var len: Int32 = 0
         var channels = [Int32](repeating: 0, count: 512)
         let errorCode = get_ecg_channels (boardId.rawValue, &channels, &len)
@@ -223,7 +223,7 @@ struct BoardShim {
      * get row indices in returned by get_board_data() 2d array which contain
      * temperature data
      */
-    static func getTemperatureChannels (boardId: BoardIds) throws -> [Int32] {
+    static func getTemperatureChannels (_ boardId: BoardIds) throws -> [Int32] {
         var len: Int32 = 0
         var channels = [Int32](repeating: 0, count: 512)
         let errorCode = get_temperature_channels (boardId.rawValue, &channels, &len)
@@ -236,7 +236,7 @@ struct BoardShim {
      * get row indices in returned by get_board_data() 2d array which contain
      * resistance data
      */
-    static func getResistanceChannels (boardId: BoardIds) throws -> [Int32] {
+    static func getResistanceChannels (_ boardId: BoardIds) throws -> [Int32] {
         var len: Int32 = 0
         var channels = [Int32](repeating: 0, count: 512)
         let errorCode = get_resistance_channels (boardId.rawValue, &channels, &len)
@@ -249,7 +249,7 @@ struct BoardShim {
      * get row indices in returned by get_board_data() 2d array which contain EOG
      * data, for some boards we can not split EEG\EMG\... and return the same array
      */
-    static func getEOGchannels (boardId: BoardIds) throws -> [Int32] {
+    static func getEOGchannels (_ boardId: BoardIds) throws -> [Int32] {
         var len: Int32 = 0
         var channels = [Int32](repeating: 0, count: 512)
         let errorCode = get_eog_channels (boardId.rawValue, &channels, &len)
@@ -262,7 +262,7 @@ struct BoardShim {
      * get row indices in returned by get_board_data() 2d array which contain EXG
      * data
      */
-    static func getEXGchannels (boardId: BoardIds) throws -> [Int32] {
+    static func getEXGchannels (_ boardId: BoardIds) throws -> [Int32] {
         var len: Int32 = 0
         var channels = [Int32](repeating: 0, count: 512)
         let errorCode = get_exg_channels (boardId.rawValue, &channels, &len)
@@ -275,7 +275,7 @@ struct BoardShim {
      * get row indices in returned by get_board_data() 2d array which contain EDA
      * data, for some boards we can not split EEG\EMG\... and return the same array
      */
-    static func getEDAchannels (boardId: BoardIds) throws -> [Int32] {
+    static func getEDAchannels (_ boardId: BoardIds) throws -> [Int32] {
         var len: Int32 = 0
         var channels = [Int32](repeating: 0, count: 512)
         let errorCode = get_eda_channels (boardId.rawValue, &channels, &len)
@@ -288,7 +288,7 @@ struct BoardShim {
      * get row indices in returned by get_board_data() 2d array which contain PPG
      * data, for some boards we can not split EEG\EMG\... and return the same array
      */
-    static func getPPGchannels (boardId: BoardIds) throws -> [Int32] {
+    static func getPPGchannels (_ boardId: BoardIds) throws -> [Int32] {
         var len: Int32 = 0
         var channels = [Int32](repeating: 0, count: 512)
         let errorCode = get_ppg_channels (boardId.rawValue, &channels, &len)
@@ -301,7 +301,7 @@ struct BoardShim {
      * get row indices in returned by get_board_data() 2d array which contain accel
      * data
      */
-    static func getAccelChannels (boardId: BoardIds) throws -> [Int32] {
+    static func getAccelChannels (_ boardId: BoardIds) throws -> [Int32] {
         var len: Int32 = 0
         var channels = [Int32](repeating: 0, count: 512)
         let errorCode = get_accel_channels (boardId.rawValue, &channels, &len)
@@ -314,7 +314,7 @@ struct BoardShim {
      * get row indices in returned by get_board_data() 2d array which contain analog
      * data
      */
-    static func getAnalogChannels (boardId: BoardIds) throws -> [Int32] {
+    static func getAnalogChannels (_ boardId: BoardIds) throws -> [Int32] {
         var len: Int32 = 0
         var channels = [Int32](repeating: 0, count: 512)
         let errorCode = get_analog_channels (boardId.rawValue, &channels, &len)
@@ -327,7 +327,7 @@ struct BoardShim {
       * get row indices in returned by get_board_data() 2d array which contain gyro
       * data
       */
-    static func getGyroChannels (boardId: BoardIds) throws -> [Int32] {
+    static func getGyroChannels (_ boardId: BoardIds) throws -> [Int32] {
         var len: Int32 = 0
         var channels = [Int32](repeating: 0, count: 512)
         let errorCode = get_gyro_channels (boardId.rawValue, &channels, &len)
@@ -340,7 +340,7 @@ struct BoardShim {
      * get row indices in returned by get_board_data() 2d array which contain other
      * data
      */
-    static func getOtherChannels (boardId: BoardIds) throws -> [Int32] {
+    static func getOtherChannels (_ boardId: BoardIds) throws -> [Int32] {
         var len: Int32 = 0
         var channels = [Int32](repeating: 0, count: 512)
         let errorCode = get_other_channels (boardId.rawValue, &channels, &len)
@@ -484,14 +484,14 @@ struct BoardShim {
      * get latest collected data, can return less than "num_samples", doesnt flush
      * it from ringbuffer
      */
-    func getCurrentBoardData (_ numSamples: Int32) throws -> [Double]
+    func getCurrentBoardData (_ numSamples: Int32) throws -> [[Double]]
     {
         var numRows: Int32 = 0
         var currentSize: Int32 = 0
         var jsonBFParams = self.jsonBrainFlowInputParams
 
         do {
-            numRows = try BoardShim.getNumRows (boardId: getBoardId()) }
+            numRows = try BoardShim.getNumRows (getBoardId()) }
         catch {
             throw error
         }
@@ -500,27 +500,24 @@ struct BoardShim {
         let errorCode = get_current_board_data (numSamples, &buffer, &currentSize, boardId.rawValue, &jsonBFParams)
         try checkErrorCode("Error in get_current_board_data", errorCode)
         
-        return buffer
+        return buffer.matrix2D(rowLength: Int(numSamples))
     }
 
     /**
      * get all data from ringbuffer and flush it
      */
     func getBoardData () throws -> [[Double]] {
-        var size: Int32 = 0
-        var numRows: Int32 = 0
-        var jsonBFParams = self.jsonBrainFlowInputParams
-
-        do {
-            size = try getBoardDataCount()
-            guard size > 0 else {
-                return [[Double]]()
-            }
-            numRows = try BoardShim.getNumRows (boardId: getBoardId()) }
-        catch {
-            throw error
+        let size = try getBoardDataCount()
+        guard size > 0 else {
+            return [[Double]]()
         }
         
+        return try getBoardData(size)
+    }
+    
+    func getBoardData (_ size: Int32) throws -> [[Double]] {
+        var jsonBFParams = self.jsonBrainFlowInputParams
+        let numRows = try BoardShim.getNumRows (getBoardId())
         var buffer = [Double](repeating: 0.0, count: Int(size * numRows))
         
         let errorCode = get_board_data (size, &buffer, boardId.rawValue, &jsonBFParams)

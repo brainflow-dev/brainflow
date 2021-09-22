@@ -13,7 +13,7 @@ extension Array {
         return stride(from: 0, to: count, by: rowLength).map {
             Array(self[$0 ..< Swift.min($0 + rowLength, count)])
         }
-    }    
+    }
 }
 
 extension Array where Element == CChar {

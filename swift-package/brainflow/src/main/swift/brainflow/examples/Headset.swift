@@ -53,12 +53,12 @@ class Headset {
         do {
             print("setup headset")
             board = try BoardShim(boardId, params)
-            boardDescription = try BoardShim.getBoardDescr(boardId: boardId)
-            samplingRate = try BoardShim.getSamplingRate(boardId: boardId)
-            eegChannels = try BoardShim.getEEGchannels(boardId: boardId)
-            markerChannel = try Int(BoardShim.getMarkerChannel(boardId: boardId))
-            pkgIDchannel = try Int(BoardShim.getPackageNumChannel(boardId: boardId))
-            timestampChannel = try Int(BoardShim.getTimestampChannel(boardId: boardId))
+            boardDescription = try BoardShim.getBoardDescr(boardId)
+            samplingRate = try BoardShim.getSamplingRate(boardId)
+            eegChannels = try BoardShim.getEEGchannels(boardId)
+            markerChannel = try Int(BoardShim.getMarkerChannel(boardId))
+            pkgIDchannel = try Int(BoardShim.getPackageNumChannel(boardId))
+            timestampChannel = try Int(BoardShim.getTimestampChannel(boardId))
             
             print("board description:\n\(boardDescription)")
             print("preparing session")
