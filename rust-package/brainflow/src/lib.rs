@@ -1,7 +1,5 @@
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}
+use brainflow_sys::root as ffi;
+
+mod board_shim;
+mod data_filter;
+mod ml_model;
