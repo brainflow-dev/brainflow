@@ -6,31 +6,15 @@ use std::{fmt::Display, path::Path};
 #[cfg(feature = "generate_binding")]
 fn generate_binding() {
     let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
-    dbg!(&out_path);
     let header_path = out_path.join("inc");
-    dbg!(&header_path);
     let header_path = header_path.display();
 
-    dbg!(&header_path);
-    dbg!(&out_path);
     let bindings = bindgen::Builder::default()
-        // The input header we would like to generate
-        // bindings for.
         .header(format!("{}/board_controller.h", &header_path))
         .header(format!("{}/board_info_getter.h", &header_path))
         .header(format!("{}/data_handler.h", &header_path))
         .header(format!("{}/ml_module.h", &header_path))
-        .clang_arg("-std=c++11")
-        .clang_arg("-x")
-        .clang_arg("c++")
-        .enable_cxx_namespaces()
-        // .opaque_type("std::.*")
-        // Tell cargo to invalidate the built crate whenever any of the
-        // included header files changed.
-        .parse_callbacks(Box::new(bindgen::CargoCallbacks))
-        // Finish the builder and generate the bindings.
         .generate()
-        // Unwrap the Result and panic on failure.
         .expect("Unable to generate bindings");
 
     let binding_target_path = PathBuf::new().join("src").join("lib.rs");
@@ -72,7 +56,4 @@ fn main() {
 
     #[cfg(feature = "generate_binding")]
     generate_binding();
-
-    println!("cargo:rerun-if-changed=src/lib.rs");
-    println!("cargo:rerun-if-changed=build.rs");
 }
