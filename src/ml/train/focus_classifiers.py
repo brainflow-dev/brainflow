@@ -1,6 +1,5 @@
 import glob
 import argparse
-import statistics
 import os
 import time
 import pickle
@@ -9,16 +8,12 @@ import copy
 import numpy as np
 from sklearn import metrics
 from sklearn.linear_model import LogisticRegression
-from sklearn.dummy import DummyClassifier
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from metric_learn import LMNN
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.decomposition import PCA
-from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.model_selection import cross_val_score
 
-import brainflow
-from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels, BoardIds
-from brainflow.data_filter import DataFilter, FilterTypes, AggOperations, WindowFunctions, DetrendOperations
+from brainflow.board_shim import BoardShim
+from brainflow.data_filter import DataFilter
 from brainflow.ml_model import BrainFlowMetrics, BrainFlowClassifiers, MLModel, BrainFlowModelParams
 
 from svm_classifier import train_brainflow_search_svm, train_brainflow_svm

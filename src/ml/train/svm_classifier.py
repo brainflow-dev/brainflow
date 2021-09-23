@@ -1,10 +1,7 @@
-import pickle
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 from libsvm.svmutil import *
 import multiprocessing as mp
-import argparse
-import time
 
 
 def split_data(data):
@@ -36,13 +33,11 @@ def train_brainflow_search_svm(data):
     M = pool.starmap_async(train_model, [(c, y, x_train, y_train, x_test, y_test) for c, y in zip(C, gamma)])
     M = M.get()
     max_f1_score, max_C, max_Gamma = 0, 0, 0
-    max_metrics = dict()
     pool.close()
     for metrics, C, gamma in M:
         if metrics["weighted avg"]["f1-score"] > max_f1_score:
             max_f1_score = metrics["weighted avg"]["f1-score"]
             max_C = C
-            max_metrics = metrics
             max_Gamma = gamma
     prob = svm_problem(y_train, x_train)
     par_str = f'-c {max_C} -g {max_Gamma} -b 1 '

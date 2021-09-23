@@ -7,7 +7,7 @@
 class RelaxationLDAClassifier : public ConcentrationLDAClassifier
 {
 public:
-    RelaxationLDAClassifier (struct BrainFlowModelParams params)
+    RelaxationLDAClassifier (const struct BrainFlowModelParams &params)
         : ConcentrationLDAClassifier (params)
     {
     }

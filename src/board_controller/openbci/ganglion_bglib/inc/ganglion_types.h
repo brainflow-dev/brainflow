@@ -27,6 +27,10 @@ namespace GanglionLib
             timestamp = other.timestamp;
             memcpy (data, other.data, sizeof (unsigned char) * 20);
         }
+
+        GanglionData& operator= (const GanglionData &other) {
+            timestamp = other.timestamp;
+        }
     };
 
     // just to pass two args to initialize
@@ -45,6 +49,10 @@ namespace GanglionLib
         {
             timeout = other.timeout;
             strcpy (uart_port, other.uart_port);
+        }
+
+         GanglionInputData& operator= (const GanglionInputData &other) {
+            timeout = other.timeout;
         }
     };
 

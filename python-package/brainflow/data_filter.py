@@ -5,11 +5,10 @@ import pkg_resources
 import enum
 import os
 import platform
-import sys
 import struct
-from typing import List, Set, Dict, Tuple
+from typing import List, Tuple
 
-from nptyping import NDArray, Float64, Complex128, Int64
+from nptyping import NDArray, Float64, Complex128
 
 from brainflow.board_shim import BrainFlowError, LogLevels
 from brainflow.exit_codes import BrainflowExitCodes
@@ -376,7 +375,7 @@ class DataFilter(object):
         """
         try:
             file = log_file.encode()
-        except:
+        except BaseException:
             file = log_file
         res = DataHandlerDLL.get_instance().set_log_file(file)
         if res != BrainflowExitCodes.STATUS_OK.value:
@@ -583,7 +582,7 @@ class DataFilter(object):
         check_memory_layout_row_major(data, 1)
         try:
             wavelet_func = wavelet.encode()
-        except:
+        except BaseException:
             wavelet_func = wavelet
 
         wavelet_coeffs = numpy.zeros(data.shape[0] + 2 * (40 + 1)).astype(numpy.float64)
@@ -613,7 +612,7 @@ class DataFilter(object):
         """
         try:
             wavelet_func = wavelet.encode()
-        except:
+        except BaseException:
             wavelet_func = wavelet
 
         original_data = numpy.zeros(original_data_len).astype(numpy.float64)
@@ -640,7 +639,7 @@ class DataFilter(object):
         check_memory_layout_row_major(data, 1)
         try:
             wavelet_func = wavelet.encode()
-        except:
+        except BaseException:
             wavelet_func = wavelet
 
         res = DataHandlerDLL.get_instance().perform_wavelet_denoising(data, data.shape[0], wavelet_func,
@@ -911,11 +910,11 @@ class DataFilter(object):
         check_memory_layout_row_major(data, 2)
         try:
             file = file_name.encode()
-        except:
+        except BaseException:
             file = file_name
         try:
             mode = file_mode.encode()
-        except:
+        except BaseException:
             mode = file_mode
         data_flatten = data.flatten()
         res = DataHandlerDLL.get_instance().write_file(data_flatten, data.shape[0], data.shape[1], file, mode)
@@ -933,7 +932,7 @@ class DataFilter(object):
         """
         try:
             file = file_name.encode()
-        except:
+        except BaseException:
             file = file_name
 
         num_elements = numpy.zeros(1).astype(numpy.int32)

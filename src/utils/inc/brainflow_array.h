@@ -164,7 +164,7 @@ public:
     {
         static_assert (Dim == 2, "This function is only for BrainFlowArray<T, 2>");
         origin = new T[size0 * size1];
-        memcpy (origin, ptr, size0 * size1 * sizeof (T));
+        memcpy (origin, ptr, (long)size0 * size1 * sizeof (T));
     }
 
     BrainFlowArray (T *ptr, int size0, int size1, int size2)

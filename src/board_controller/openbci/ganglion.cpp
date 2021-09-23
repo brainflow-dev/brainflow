@@ -17,7 +17,7 @@
 int Ganglion::num_objects = 0;
 
 
-Ganglion::Ganglion (struct BrainFlowInputParams params)
+Ganglion::Ganglion (const struct BrainFlowInputParams &params)
     : Board ((int)BoardIds::GANGLION_BOARD, params)
 {
     Ganglion::num_objects++;

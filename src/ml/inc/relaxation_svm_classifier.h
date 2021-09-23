@@ -7,7 +7,7 @@
 class RelaxationSVMClassifier : public ConcentrationSVMClassifier
 {
 public:
-    RelaxationSVMClassifier (struct BrainFlowModelParams params)
+    RelaxationSVMClassifier (const struct BrainFlowModelParams &params)
         : ConcentrationSVMClassifier (params)
     {
     }

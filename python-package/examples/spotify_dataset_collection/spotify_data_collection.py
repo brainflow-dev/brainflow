@@ -3,13 +3,10 @@ import time
 import argparse
 import threading
 
-import numpy as np
 import pandas as pd
-import brainflow
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels, BoardIds
-from brainflow.data_filter import DataFilter, FilterTypes, AggOperations
+from brainflow.data_filter import DataFilter
 import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
 import spotipy.util as util
 
 
@@ -25,7 +22,6 @@ class DataThread(threading.Thread):
         current_song_id = None
         prev_song_id = None
         is_playing = False
-        duration = 0
         is_end = False
         # handle the case of skipping songs
         needed_duration = 10  # in seconds
@@ -54,7 +50,7 @@ class DataThread(threading.Thread):
                             counter_for_duration = counter_for_duration + 1
                             is_end = False
                             is_playing = True
-                        except:
+                        except BaseException:
                             pass
                     elif not track.get('is_playing', True):
                         is_end = True

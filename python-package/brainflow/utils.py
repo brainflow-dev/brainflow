@@ -1,5 +1,3 @@
-import numpy as np
-
 from brainflow.board_shim import BrainFlowError
 from brainflow.exit_codes import BrainflowExitCodes
 

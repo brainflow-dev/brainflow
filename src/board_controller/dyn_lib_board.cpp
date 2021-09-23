@@ -3,7 +3,7 @@
 #include "dyn_lib_board.h"
 
 
-DynLibBoard::DynLibBoard (int board_id, struct BrainFlowInputParams params)
+DynLibBoard::DynLibBoard (int board_id, const struct BrainFlowInputParams &params)
     : Board (board_id, params)
 {
     is_streaming = false;

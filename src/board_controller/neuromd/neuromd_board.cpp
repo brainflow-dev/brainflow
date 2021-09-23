@@ -19,7 +19,7 @@
 #if defined _WIN32 || defined __APPLE__
 
 
-NeuromdBoard::NeuromdBoard (int board_id, struct BrainFlowInputParams params)
+NeuromdBoard::NeuromdBoard (int board_id, const struct BrainFlowInputParams &params)
     : Board (board_id, params)
 {
     device = NULL;

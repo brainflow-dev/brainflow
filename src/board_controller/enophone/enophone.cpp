@@ -7,7 +7,7 @@
 #include "timestamp.h"
 
 
-Enophone::Enophone (struct BrainFlowInputParams params)
+Enophone::Enophone (const struct BrainFlowInputParams &params)
     : BTLibBoard ((int)BoardIds::ENOPHONE_BOARD, params)
 {
     keep_alive = false;

@@ -7,7 +7,7 @@
 class RelaxationRegressionClassifier : public ConcentrationRegressionClassifier
 {
 public:
-    RelaxationRegressionClassifier (struct BrainFlowModelParams params)
+    RelaxationRegressionClassifier (const struct BrainFlowModelParams &params)
         : ConcentrationRegressionClassifier (params)
     {
     }

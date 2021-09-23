@@ -27,7 +27,7 @@ struct ExploreHeader
 #pragma pack(pop)
 
 
-Explore::Explore (int board_id, struct BrainFlowInputParams params) : BTLibBoard (board_id, params)
+Explore::Explore (int board_id, const struct BrainFlowInputParams &params) : BTLibBoard (board_id, params)
 {
     keep_alive = false;
     state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;

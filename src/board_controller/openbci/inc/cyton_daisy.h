@@ -16,7 +16,7 @@ protected:
     void read_thread ();
 
 public:
-    CytonDaisy (struct BrainFlowInputParams params)
+    CytonDaisy (const struct BrainFlowInputParams &params)
         : OpenBCISerialBoard (params, (int)BoardIds::CYTON_DAISY_BOARD)
     {
     }

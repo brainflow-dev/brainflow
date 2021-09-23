@@ -19,7 +19,7 @@ constexpr int Galea::num_packages;
 constexpr int Galea::transaction_size;
 
 
-Galea::Galea (struct BrainFlowInputParams params) : Board ((int)BoardIds::GALEA_BOARD, params)
+Galea::Galea (const struct BrainFlowInputParams &params) : Board ((int)BoardIds::GALEA_BOARD, params)
 {
     socket = NULL;
     is_streaming = false;

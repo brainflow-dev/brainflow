@@ -18,7 +18,7 @@ using json = nlohmann::json;
 #define END_BYTE 0xC0
 
 
-GaleaSerial::GaleaSerial (struct BrainFlowInputParams params)
+GaleaSerial::GaleaSerial (const struct BrainFlowInputParams &params)
     : Board ((int)BoardIds::GALEA_SERIAL_BOARD, params)
 {
     serial = NULL;

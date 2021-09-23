@@ -19,7 +19,7 @@
 #define OLD_TIMESTAMPS "old_timestamps"
 
 
-PlaybackFileBoard::PlaybackFileBoard (struct BrainFlowInputParams params)
+PlaybackFileBoard::PlaybackFileBoard (const struct BrainFlowInputParams &params)
     : Board ((int)BoardIds::PLAYBACK_FILE_BOARD,
           params) // its a hack - set board_id for playback board here temporary and override it
                   // with master board id in prepare_session, board_id is protected and there is no

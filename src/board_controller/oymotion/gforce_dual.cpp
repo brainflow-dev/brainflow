@@ -11,7 +11,7 @@
 int GforceDual::num_objects = 0;
 
 
-GforceDual::GforceDual (struct BrainFlowInputParams params)
+GforceDual::GforceDual (const struct BrainFlowInputParams &params)
     : DynLibBoard ((int)BoardIds::GFORCE_DUAL_BOARD, params)
 {
     GforceDual::num_objects++;

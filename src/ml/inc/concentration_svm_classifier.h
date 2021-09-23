@@ -6,7 +6,7 @@
 class ConcentrationSVMClassifier : public BaseClassifier
 {
 public:
-    ConcentrationSVMClassifier (struct BrainFlowModelParams params) : BaseClassifier (params)
+    ConcentrationSVMClassifier (const struct BrainFlowModelParams &params) : BaseClassifier (params)
     {
         model = NULL;
     }

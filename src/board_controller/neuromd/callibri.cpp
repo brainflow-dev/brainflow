@@ -18,7 +18,7 @@
 #if defined _WIN32 || defined __APPLE__
 
 
-Callibri::Callibri (int board_id, struct BrainFlowInputParams params)
+Callibri::Callibri (int board_id, const struct BrainFlowInputParams &params)
     : NeuromdBoard (board_id, params)
 {
     is_streaming = false;

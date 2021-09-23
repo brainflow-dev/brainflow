@@ -23,7 +23,7 @@
 using namespace eemagine::sdk;
 
 
-AntNeuroBoard::AntNeuroBoard (int board_id, struct BrainFlowInputParams params)
+AntNeuroBoard::AntNeuroBoard (int board_id, const struct BrainFlowInputParams &params)
     : Board (board_id, params)
 {
     // get full path of and neuro library with assumption that this lib is in the same folder

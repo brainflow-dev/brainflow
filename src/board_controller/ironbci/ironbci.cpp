@@ -13,7 +13,7 @@ const std::string IronBCI::start_command = "b";
 const std::string IronBCI::stop_command = "s";
 
 
-IronBCI::IronBCI (struct BrainFlowInputParams params) : Board ((int)BoardIds::IRONBCI_BOARD, params)
+IronBCI::IronBCI (const struct BrainFlowInputParams &params) : Board ((int)BoardIds::IRONBCI_BOARD, params)
 {
     serial = NULL;
     keep_alive = false;
@@ -231,7 +231,7 @@ void IronBCI::read_thread ()
         // eeg
         for (unsigned int i = 0; i < eeg_channels.size (); i++)
         {
-            package[eeg_channels[i]] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
+            package[eeg_channels[i]] = (double)eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
         }
 
         package[board_descr["timestamp_channel"].get<int> ()] = get_timestamp ();

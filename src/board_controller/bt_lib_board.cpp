@@ -6,7 +6,7 @@
 #include "get_dll_dir.h"
 
 
-BTLibBoard::BTLibBoard (int board_id, struct BrainFlowInputParams params) : Board (board_id, params)
+BTLibBoard::BTLibBoard (int board_id, const struct BrainFlowInputParams &params) : Board (board_id, params)
 {
     char bluetoothlib_dir[1024];
     bool res = get_dll_path (bluetoothlib_dir);
@@ -43,7 +43,7 @@ BTLibBoard::BTLibBoard (int board_id, struct BrainFlowInputParams params) : Boar
 BTLibBoard::~BTLibBoard ()
 {
     skip_logs = true;
-    release_session ();
+    this->release_session();
 }
 
 int BTLibBoard::prepare_session ()

@@ -85,7 +85,7 @@ void BoardShim::log_message (int log_level, const char *format, ...)
 /////// data acquisition methods /////////
 //////////////////////////////////////////
 
-BoardShim::BoardShim (int board_id, struct BrainFlowInputParams params)
+BoardShim::BoardShim (int board_id, const struct BrainFlowInputParams &params)
 {
     serialized_params = params_to_string (params);
     this->params = params;

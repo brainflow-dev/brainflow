@@ -10,7 +10,7 @@
 #include <iostream>
 
 
-NotionOSC::NotionOSC (struct BrainFlowInputParams params)
+NotionOSC::NotionOSC (const struct BrainFlowInputParams &params)
     : Board ((int)BoardIds::NOTION_1_BOARD, params)
 {
     socket = NULL;

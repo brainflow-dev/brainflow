@@ -1,7 +1,6 @@
 import subprocess
 import threading
 import socket
-import enum
 import logging
 import sys
 import random

@@ -4,7 +4,7 @@
 #include "serial.h"
 
 
-OpenBCISerialBoard::OpenBCISerialBoard (struct BrainFlowInputParams params, int board_id)
+OpenBCISerialBoard::OpenBCISerialBoard (const struct BrainFlowInputParams &params, int board_id)
     : Board (board_id, params)
 {
     serial = NULL;
