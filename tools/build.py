@@ -90,7 +90,7 @@ def prepare_args():
         bluetooth_default = True
         parser.add_argument('--oymotion', dest='oymotion', action='store_true')
         parser.add_argument('--no-oymotion', dest='oymotion', action='store_false')
-        parser.set_defaults(oymotion=True)
+        parser.set_defaults(oymotion=False)
         parser.add_argument('--msvc-runtime', type=str, choices=['static', 'dynamic'], help='how to link MSVC runtime', required=False, default='static')
         generators = get_win_generators()
         if not generators:
