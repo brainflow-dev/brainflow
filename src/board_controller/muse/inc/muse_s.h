@@ -13,6 +13,7 @@ private:
     volatile bool keep_alive;
     bool initialized;
     std::thread streaming_thread;
+    simpleble_adapter_t muse_adapter;
 
     void read_thread ();
 
@@ -25,4 +26,6 @@ public:
     int stop_stream ();
     int release_session ();
     int config_board (std::string config, std::string &response);
+
+    void adapter_on_scan_found (simpleble_adapter_t adapter, simpleble_peripheral_t peripheral);
 };

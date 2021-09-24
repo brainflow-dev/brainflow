@@ -24,8 +24,10 @@ protected:
     simpleble_err_t simpleble_adapter_scan_for (simpleble_adapter_t handle, int timeout_ms);
     simpleble_err_t simpleble_adapter_scan_start (simpleble_adapter_t handle);
     simpleble_err_t simpleble_adapter_scan_stop (simpleble_adapter_t handle);
-    simpleble_err_t simpleble_adapter_set_callback_on_scan_updated (
-        simpleble_adapter_t handle, void (*) (simpleble_adapter_t, simpleble_peripheral_t));
+    simpleble_err_t simpleble_adapter_set_callback_on_scan_updated (simpleble_adapter_t handle,
+        void (*) (simpleble_adapter_t, simpleble_peripheral_t, void *), void *);
+    simpleble_err_t simpleble_adapter_set_callback_on_scan_found (simpleble_adapter_t handle,
+        void (*) (simpleble_adapter_t, simpleble_peripheral_t, void *), void *);
     // peripheral
     char *simpleble_peripheral_address (simpleble_peripheral_t handle);
     char *simpleble_peripheral_identifier (simpleble_peripheral_t handle);
@@ -43,7 +45,7 @@ protected:
         size_t data_length);
     simpleble_err_t simpleble_peripheral_notify (simpleble_peripheral_t handle,
         simpleble_uuid_t service, simpleble_uuid_t characteristic,
-        void (*) (simpleble_uuid_t, simpleble_uuid_t, uint8_t *, size_t));
+        void (*) (simpleble_uuid_t, simpleble_uuid_t, uint8_t *, size_t, void *), void *);
     simpleble_err_t simpleble_peripheral_unsubscribe (
         simpleble_peripheral_t handle, simpleble_uuid_t service, simpleble_uuid_t characteristic);
 

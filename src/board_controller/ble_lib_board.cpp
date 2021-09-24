@@ -32,11 +32,11 @@ bool BLELibBoard::init_dll_loader ()
         std::string lib_name;
         if (sizeof (void *) == 4)
         {
-            lib_name = "simpleble-c.dll";
+            lib_name = "simpleble-c32.dll";
         }
         else
         {
-            lib_name = "simpleble-c32.dll";
+            lib_name = "simpleble-c.dll";
         }
 #elif defined(__APPLE__)
         std::string lib_name = "libsimpleble-c.dylib";
@@ -188,7 +188,9 @@ simpleble_err_t BLELibBoard::simpleble_adapter_scan_stop (simpleble_adapter_t ha
 
 simpleble_err_t BLELibBoard::simpleble_adapter_set_callback_on_scan_updated (
     simpleble_adapter_t handle,
-    void (*callback) (simpleble_adapter_t adapter, simpleble_peripheral_t peripheral))
+    void (*callback) (
+        simpleble_adapter_t adapter, simpleble_peripheral_t peripheral, void *userdata),
+    void *userdata)
 {
     std::lock_guard<std::mutex> lock (BLELibBoard::mutex);
     if (BLELibBoard::dll_loader == NULL)
@@ -196,10 +198,10 @@ simpleble_err_t BLELibBoard::simpleble_adapter_set_callback_on_scan_updated (
         safe_logger (spdlog::level::err, "BLELibBoard::dll_loader is not initialized");
         return SIMPLEBLE_FAILURE;
     }
-    simpleble_err_t (*func) (
-        simpleble_adapter_t, void (*) (simpleble_adapter_t, simpleble_peripheral_t)) =
-        (simpleble_err_t (*) (
-            simpleble_adapter_t, void (*) (simpleble_adapter_t, simpleble_peripheral_t)))
+    simpleble_err_t (*func) (simpleble_adapter_t,
+        void (*) (simpleble_adapter_t, simpleble_peripheral_t, void *), void *) =
+        (simpleble_err_t (*) (simpleble_adapter_t,
+            void (*) (simpleble_adapter_t, simpleble_peripheral_t, void *), void *))
             BLELibBoard::dll_loader->get_address ("simpleble_adapter_set_callback_on_scan_updated");
     if (func == NULL)
     {
@@ -208,7 +210,34 @@ simpleble_err_t BLELibBoard::simpleble_adapter_set_callback_on_scan_updated (
         return SIMPLEBLE_FAILURE;
     }
 
-    return func (handle, callback);
+    return func (handle, callback, userdata);
+}
+
+simpleble_err_t BLELibBoard::simpleble_adapter_set_callback_on_scan_found (
+    simpleble_adapter_t handle,
+    void (*callback) (
+        simpleble_adapter_t adapter, simpleble_peripheral_t peripheral, void *userdata),
+    void *userdata)
+{
+    std::lock_guard<std::mutex> lock (BLELibBoard::mutex);
+    if (BLELibBoard::dll_loader == NULL)
+    {
+        safe_logger (spdlog::level::err, "BLELibBoard::dll_loader is not initialized");
+        return SIMPLEBLE_FAILURE;
+    }
+    simpleble_err_t (*func) (simpleble_adapter_t,
+        void (*) (simpleble_adapter_t, simpleble_peripheral_t, void *), void *) =
+        (simpleble_err_t (*) (simpleble_adapter_t,
+            void (*) (simpleble_adapter_t, simpleble_peripheral_t, void *), void *))
+            BLELibBoard::dll_loader->get_address ("simpleble_adapter_set_callback_on_scan_found");
+    if (func == NULL)
+    {
+        safe_logger (spdlog::level::err,
+            "failed to get function address for simpleble_adapter_set_callback_on_scan_found");
+        return SIMPLEBLE_FAILURE;
+    }
+
+    return func (handle, callback, userdata);
 }
 
 char *BLELibBoard::simpleble_peripheral_address (simpleble_peripheral_t handle)
@@ -409,7 +438,8 @@ simpleble_err_t BLELibBoard::simpleble_peripheral_write_command (simpleble_perip
 simpleble_err_t BLELibBoard::simpleble_peripheral_notify (simpleble_peripheral_t handle,
     simpleble_uuid_t service, simpleble_uuid_t characteristic,
     void (*callback) (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
-        size_t data_length))
+        size_t data_length, void *userdata),
+    void *userdata)
 {
     std::lock_guard<std::mutex> lock (BLELibBoard::mutex);
     if (BLELibBoard::dll_loader == NULL)
@@ -418,10 +448,10 @@ simpleble_err_t BLELibBoard::simpleble_peripheral_notify (simpleble_peripheral_t
         return SIMPLEBLE_FAILURE;
     }
     simpleble_err_t (*func) (simpleble_peripheral_t, simpleble_uuid_t, simpleble_uuid_t,
-        void (*) (simpleble_uuid_t, simpleble_uuid_t, uint8_t *, size_t)) =
+        void (*) (simpleble_uuid_t, simpleble_uuid_t, uint8_t *, size_t, void *), void *) =
         (simpleble_err_t (*) (simpleble_peripheral_t, simpleble_uuid_t, simpleble_uuid_t,
-            void (*) (simpleble_uuid_t, simpleble_uuid_t, uint8_t *,
-                size_t)))BLELibBoard::dll_loader->get_address ("simpleble_peripheral_notify");
+            void (*) (simpleble_uuid_t, simpleble_uuid_t, uint8_t *, size_t, void *),
+            void *))BLELibBoard::dll_loader->get_address ("simpleble_peripheral_notify");
     if (func == NULL)
     {
         safe_logger (
@@ -429,7 +459,7 @@ simpleble_err_t BLELibBoard::simpleble_peripheral_notify (simpleble_peripheral_t
         return SIMPLEBLE_FAILURE;
     }
 
-    return func (handle, service, characteristic, callback);
+    return func (handle, service, characteristic, callback, userdata);
 }
 
 simpleble_err_t BLELibBoard::simpleble_peripheral_unsubscribe (
