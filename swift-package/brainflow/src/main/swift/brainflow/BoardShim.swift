@@ -23,22 +23,22 @@ struct BoardShim {
     /**
      * enable BrainFlow logger with level INFO
      */
-    static func enableBoardLogger () {
-        set_log_level (LogLevels.LEVEL_INFO.rawValue)
+    static func enableBoardLogger() throws {
+        try setLogLevel(.LEVEL_INFO)
     }
 
     /**
      * enable BrainFlow logger with level TRACE
      */
-    static func enableDevBoardLogger () {
-        set_log_level (LogLevels.LEVEL_TRACE.rawValue)
+    static func enableDevBoardLogger() throws {
+        try setLogLevel(.LEVEL_TRACE)
     }
 
     /**
     * disable BrainFlow logger
     */
-    static func disableBoardLogger () {
-        set_log_level (LogLevels.LEVEL_OFF.rawValue)
+    static func disableBoardLogger() throws {
+        try setLogLevel(.LEVEL_OFF)
     }
 
     /**

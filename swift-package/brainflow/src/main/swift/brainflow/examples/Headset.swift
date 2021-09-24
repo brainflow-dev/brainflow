@@ -63,6 +63,7 @@ class Headset {
             print("board description:\n\(boardDescription)")
             print("preparing session")
             
+            try BoardShim.enableDevBoardLogger()
             try board.prepareSession()
             while try !board.isPrepared() {
                 print("waiting for session...")
@@ -87,7 +88,6 @@ class Headset {
             try? BoardShim.logMessage (logLevel: .LEVEL_ERROR, message: "undefined exception")
             throw error
         }
-        BoardShim.enableDevBoardLogger()
         isReady = true
     }
     
@@ -184,8 +184,8 @@ class Headset {
                     rawSamples.append(rawSample)
                     filteredSamples.append(filteredSample)
                 }
-                rawFile.writeSamples(pkgIDs: pkgIDs, timestamps: timestamps, markers: markers, samples: rawSamples)
-                filteredFile.writeSamples(pkgIDs: pkgIDs, timestamps: timestamps, markers: markers, samples: filteredSamples)
+                rawFile.writeEEGsamples(pkgIDs: pkgIDs, timestamps: timestamps, markers: markers, samples: rawSamples)
+                filteredFile.writeEEGsamples(pkgIDs: pkgIDs, timestamps: timestamps, markers: markers, samples: filteredSamples)
                 sleep(2)
             }
         }

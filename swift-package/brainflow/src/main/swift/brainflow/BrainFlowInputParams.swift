@@ -7,8 +7,7 @@
 
 import Foundation
 
-struct BrainFlowInputParams: Encodable
-{
+struct BrainFlowInputParams: Encodable {
     var serial_port: String = ""
     var mac_address: String = ""
     var ip_address: String = ""

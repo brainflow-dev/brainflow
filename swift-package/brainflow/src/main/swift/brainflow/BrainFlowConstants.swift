@@ -111,12 +111,12 @@ enum DetrendOperations : Int32 {
     case LINEAR = 2
 }
 
-enum BrainFlowMetrics : Int32 {
+enum BrainFlowMetrics : Int32, Encodable {
     case RELAXATION = 0
     case CONCENTRATION = 1
 }
 
-enum BrainFlowClassifiers : Int32 {
+enum BrainFlowClassifiers : Int32, Encodable {
     case REGRESSION = 0
     case KNN = 1
     case SVM = 2

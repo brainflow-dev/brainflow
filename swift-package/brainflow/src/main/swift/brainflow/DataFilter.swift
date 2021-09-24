@@ -13,7 +13,7 @@ struct DataFilter {
     /**
      * enable Data logger with level INFO
      */
-    func enableDataLogger () throws {
+    static func enableDataLogger () throws {
         do {
             try DataFilter.setLogLevel (.LEVEL_INFO) }
         catch {
@@ -474,10 +474,13 @@ struct DataFilter {
         }
 
         var linearData = data.flatMap {$0}
-        var cFileName = fileName.cString(using: String.Encoding.utf8)!
+        let docDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let fileURL = docDir.appendingPathComponent(fileName)
+        var cFileName = fileURL.path.cString(using: String.Encoding.utf8)!
         var cFileMode = fileMode.cString(using: String.Encoding.utf8)!
+
         let errorCode = write_file (&linearData, Int32(data.count), Int32(data[0].count), &cFileName, &cFileMode)
-        try checkErrorCode("Failed to write data to file", errorCode)
+        try checkErrorCode("Failed to write data to file: \(fileName)", errorCode)
     }
 
     /**
@@ -485,15 +488,17 @@ struct DataFilter {
      */
     static func readFile (fileName: String) throws -> [[Double]] {
         var numElements = [Int32](repeating: 0, count: 1)
-        var cFileName = fileName.cString(using: String.Encoding.utf8)!
+        let docDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let fileURL = docDir.appendingPathComponent(fileName)
+        var cFileName = fileURL.path.cString(using: String.Encoding.utf8)!
         var errorCode = get_num_elements_in_file (&cFileName, &numElements)
-        try checkErrorCode("Failed to determine number of elements in a file", errorCode)
+        try checkErrorCode("Failed to determine number of elements in file: \(fileName)", errorCode)
 
         var dataArr = [Double](repeating: 0.0, count: Int(numElements[0]))
         var numRows = [Int32](repeating: 0, count: 1)
         var numCols = [Int32](repeating: 0, count: 1)
         errorCode = read_file (&dataArr, &numRows, &numCols, &cFileName, numElements[0])
-        try checkErrorCode("Failed to read data from file", errorCode)
+        try checkErrorCode("Failed to read data from file: \(fileName)", errorCode)
 
         return dataArr.matrix2D(rowLength: Int(numCols[0]))
     }
