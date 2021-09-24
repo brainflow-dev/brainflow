@@ -23,7 +23,6 @@ void output (uint8 len1, uint8 *data1, uint16 len2, uint8 *data2)
     {
         if (uart_tx (len1, data1) || uart_tx (len2, data2))
         {
-            exit_code = (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
         }
     }
 }

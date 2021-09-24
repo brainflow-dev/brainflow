@@ -43,7 +43,7 @@ BTLibBoard::BTLibBoard (int board_id, struct BrainFlowInputParams params) : Boar
 BTLibBoard::~BTLibBoard ()
 {
     skip_logs = true;
-    this->release_session();
+    this->release_session ();
 }
 
 int BTLibBoard::prepare_session ()
