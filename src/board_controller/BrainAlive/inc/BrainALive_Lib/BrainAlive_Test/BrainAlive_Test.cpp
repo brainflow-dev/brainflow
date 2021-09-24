@@ -23,6 +23,7 @@ void check_exit_code (int ec, const char *message)
 
 int main(int argc, char *argv[])
 {
+    
     DLLLoader *dll_loader = NULL;
     if (sizeof (void *) == 8)
     {

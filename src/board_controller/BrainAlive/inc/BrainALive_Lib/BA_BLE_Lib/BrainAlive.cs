@@ -106,7 +106,7 @@ namespace BrainAlive_Lib
                 res = (int)CustomExitCodes.GENERAL_ERROR;
             }
             stop_stream();
-            config_board(" ", false); // use disc characteristic instead send characteristic
+            //config_board(, false); // use disc characteristic instead send characteristic
             if (brainalive_device == null)
             {
                 return (int)CustomExitCodes.BRAINALIVE_IS_NOT_OPEN_ERROR;
@@ -130,7 +130,7 @@ namespace BrainAlive_Lib
             return res;
         }
 
-        public int config_board(string config, bool use_send_characteristic = true)
+        public int config_board(byte[] config, bool use_send_characteristic = true)
         {
             try
             {
@@ -146,12 +146,24 @@ namespace BrainAlive_Lib
 
         public int stop_stream()
         {
-            return config_board("0x0a4000000d");
+            byte[] mSop_cmd = new byte[5];
+            mSop_cmd[0] = 0x0a;
+            mSop_cmd[1] = 0x40;
+            mSop_cmd[2] = 0x00;
+            mSop_cmd[3] = 0x00;
+            mSop_cmd[4] = 0x0d;
+            return config_board(mSop_cmd);
         }
 
         public int start_stream()
         {
-            return config_board("0x0a8000000d");
+            byte[] mStart_cmd = new byte[5];
+            mStart_cmd[0] = 0x0a;
+            mStart_cmd[1] = 0x80;
+            mStart_cmd[2] = 0x00;
+            mStart_cmd[3] = 0x00;
+            mStart_cmd[4] = 0x0d;
+            return config_board(mStart_cmd);
         }
 
         ~BrainAlive()
@@ -159,7 +171,7 @@ namespace BrainAlive_Lib
             close_brainalive();
         }
 
-        private async Task<int> send_command_async(string command, bool use_send_characteristic = true)
+        private async Task<int> send_command_async(byte[] command, bool use_send_characteristic = true)
         {
             if (brainalive_device == null)
             {
@@ -171,7 +183,7 @@ namespace BrainAlive_Lib
             }
 
             var writer = new Windows.Storage.Streams.DataWriter();
-            writer.WriteString(command);
+            writer.WriteBytes(command);
             try
             {
                 GattWriteResult result = null;

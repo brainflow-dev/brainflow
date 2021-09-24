@@ -23,8 +23,8 @@ namespace BrainAlive_Lib
         public const string alt_name = "BA_SRV";
         public const string service_id = "0000fe40-cc7a-482a-984a-7f2ed5b3e58f";
         public const string characteristic_send_id = "0000fe41-8e22-4541-9d4c-21edae82ed19";
-        public const string characteristic_receive_id = "0000fe41-8e22-4541-9d4c-21edae82ed19";
-        public const string characteristic_disconnect_id = "0000fe41-8e22-4541-9d4c-21edae82ed19";
+        public const string characteristic_receive_id = "0000fe42-8e22-4541-9d4c-21edae82ed19";
+        public const string characteristic_disconnect_id = "0000fe43-8e22-4541-9d4c-21edae82ed19";
         public const int sampling_rate = 250;
     }
 

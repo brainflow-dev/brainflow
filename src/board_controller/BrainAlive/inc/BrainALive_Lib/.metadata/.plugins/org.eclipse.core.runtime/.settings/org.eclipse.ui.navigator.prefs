@@ -1,0 +1,2 @@
+eclipse.preferences.version=1
+org.eclipse.ui.navigator.ProjectExplorer.filterActivation=\:org.eclipse.ui.navigator.resources.filters.startsWithDot\:org.eclipse.cdt.ui.navigator.filters.AnonymousStructFilter\:org.eclipse.ui.navigator.resources.nested.HideTopLevelProjectIfNested\:org.eclipse.tracecompass.tmf.ui.shadowProjectFilter\:org.eclipse.mylyn.tasks.ui.navigator.filters.tasks\:org.eclipse.ui.navigator.resources.nested.HideFolderWhenProjectIsShownAsNested\:org.eclipse.cdt.ui.navigator.filters.ForwardDeclarationFilter\:

@@ -24,11 +24,8 @@ BrainAlive_Device::BrainAlive_Device (struct BrainFlowInputParams params)
     {
         lib_name = "BA_Native_BLE.dll";
     }
-#elif defined(__APPLE__)
-    std::string lib_name = "libBrainFlowBluetooth.dylib";
-#else
-    std::string lib_name = "libBrainFlowBluetooth.so";
 #endif
+
     if (res)
     {
         brainalivelib_path = std::string (Brainalivelib_dir) + lib_name;
@@ -233,7 +230,8 @@ void BrainAlive_Device::read_thread ()
 int BrainAlive_Device::call_start ()
 {
  
-    char *mac_addr;
+     char *argv_1[1] = {NULL};
+    //mac_addr[1] = 0x0000;
     int (*func_open_device) (void*) =
         (int (*) (void *))(dll_loader->get_address ("open_brainalive_mac_addr_native"));
    
@@ -243,17 +241,15 @@ int BrainAlive_Device::call_start ()
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }   
      safe_logger (spdlog::level::debug, "beforeconnect");
-    
-     int res = func_open_device (&mac_addr);
-
-   // printf (mac_addr);
+     int res = (func_open_device)(argv_1[1]);
+    printf ("\n%d\n", res);
     safe_logger (spdlog::level::debug, "after connect");
   if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to open bt connection: {}", res);
         return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     }
-   /* int (*func_start_stream) (void *) = (int (*) (void *))dll_loader->get_address ("start_stream_native");
+   int (*func_start_stream) (void *) = (int (*) (void *))dll_loader->get_address ("start_stream_native");
     if (func_start_stream == NULL)
     {
         safe_logger (spdlog::level::err, "failed to find start_stream_native funtion address");
@@ -264,9 +260,17 @@ int BrainAlive_Device::call_start ()
     {
         safe_logger (spdlog::level::err, "Not able to write the command");
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
-    }*/
-   // func_get_data = (int (*) (void *))dll_loader->get_address ("get_data_native");
-    return (int)BrainFlowExitCodes::STATUS_OK;
+    }
+   func_get_data = (int (*) (void *))dll_loader->get_address ("get_data_native");
+    res = func_get_data (NULL);
+   if (res != (int)BrainFlowExitCodes::STATUS_OK)
+   {
+       return (int)BrainFlowExitCodes::STATUS_OK;
+   }
+   else
+   {
+       return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+   }
 }
 
 int BrainAlive_Device::call_stop ()

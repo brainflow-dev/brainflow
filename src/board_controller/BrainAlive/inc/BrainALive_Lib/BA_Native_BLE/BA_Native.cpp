@@ -115,10 +115,13 @@ namespace BrainAliveNativeLib
 
     int open_brainalive_mac_addr_native (void *param)
     {
+        /*return 1;*/
+
         BrainAlive ^ wrapper =
            BrainAliveLibWrapper::instance->brainalive_obj;
         String ^ mac_new = gcnew String ((char *)param);
         return wrapper->open_brainalive (mac_new);
+
     }
 
     int close_brainalive_native (void *param)
@@ -156,12 +159,12 @@ namespace BrainAliveNativeLib
         return (int)CustomExitCodesNative::STATUS_OK;
     }
 
-    int config_board_native (void *param)
-    {
-        BrainAlive ^ wrapper = BrainAliveLibWrapper::instance->brainalive_obj;
-        String ^ conf_str = gcnew String ((char *)param);
-        return wrapper->config_board (conf_str, true); // use send characteristic
-    }
+    //int config_board_native (void *param)
+    //{
+    //    BrainAlive ^ wrapper = BrainAliveLibWrapper::instance->brainalive_obj;
+    //    String ^ conf_str = gcnew String ((char *)param);
+    //    return wrapper->config_board (conf_str, true); // use send characteristic
+    //}
 
     int release_native (void *param)
     {
