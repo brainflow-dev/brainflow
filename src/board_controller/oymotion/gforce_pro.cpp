@@ -11,7 +11,7 @@
 int GforcePro::num_objects = 0;
 
 
-GforcePro::GforcePro (const struct BrainFlowInputParams &params)
+GforcePro::GforcePro (struct BrainFlowInputParams params)
     : DynLibBoard ((int)BoardIds::GFORCE_PRO_BOARD, params)
 {
     GforcePro::num_objects++;

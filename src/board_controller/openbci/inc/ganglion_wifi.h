@@ -20,7 +20,7 @@ protected:
 
 public:
     // package num, 4 eeg channels, 3 accel channels
-    GanglionWifi (const struct BrainFlowInputParams &params)
+    GanglionWifi (struct BrainFlowInputParams params)
         : OpenBCIWifiShieldBoard (params, (int)BoardIds::GANGLION_WIFI_BOARD)
     {
         is_cheking_impedance = false;

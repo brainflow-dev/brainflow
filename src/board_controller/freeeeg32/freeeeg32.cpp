@@ -14,7 +14,7 @@ constexpr double FreeEEG32::ads_gain;
 constexpr double FreeEEG32::ads_vref;
 
 
-FreeEEG32::FreeEEG32 (const struct BrainFlowInputParams &params)
+FreeEEG32::FreeEEG32 (struct BrainFlowInputParams params)
     : Board ((int)BoardIds::FREEEEG32_BOARD, params)
 {
     serial = NULL;

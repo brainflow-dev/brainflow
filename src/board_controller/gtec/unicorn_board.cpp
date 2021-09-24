@@ -19,7 +19,7 @@
 constexpr int UnicornBoard::package_size;
 
 
-UnicornBoard::UnicornBoard (const struct BrainFlowInputParams &params)
+UnicornBoard::UnicornBoard (struct BrainFlowInputParams params)
     : Board ((int)BoardIds::UNICORN_BOARD, params)
 {
     // get full path of libunicorn.so with assumption that this lib is in the same folder

@@ -10,7 +10,7 @@
 int Muse2BLED::num_objects = 0;
 
 
-Muse2BLED::Muse2BLED (const struct BrainFlowInputParams &params)
+Muse2BLED::Muse2BLED (struct BrainFlowInputParams params)
     : DynLibBoard ((int)BoardIds::MUSE_2_BLED_BOARD, params)
 {
     Muse2BLED::num_objects++;

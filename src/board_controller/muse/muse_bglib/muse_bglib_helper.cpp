@@ -15,7 +15,7 @@
 #endif
 
 
-int MuseBGLibHelper::initialize (const struct BrainFlowInputParams &params)
+int MuseBGLibHelper::initialize (struct BrainFlowInputParams params)
 {
     if (!initialized)
     {

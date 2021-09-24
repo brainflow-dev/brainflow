@@ -9,7 +9,7 @@
 int BrainBitBLED::num_objects = 0;
 
 
-BrainBitBLED::BrainBitBLED (const struct BrainFlowInputParams &params)
+BrainBitBLED::BrainBitBLED (struct BrainFlowInputParams params)
     : DynLibBoard ((int)BoardIds::BRAINBIT_BLED_BOARD, params)
 {
     BrainBitBLED::num_objects++;

@@ -9,7 +9,7 @@
 #endif
 
 
-StreamingBoard::StreamingBoard (const struct BrainFlowInputParams &params)
+StreamingBoard::StreamingBoard (struct BrainFlowInputParams params)
     : Board ((int)BoardIds::STREAMING_BOARD,
           params) // its a hack - set board_id for streaming board here temporary and override it
                   // with master board id in prepare_session, board_id is protected and there is no

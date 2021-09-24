@@ -12,7 +12,7 @@ protected:
 #endif
 
 public:
-    CallibriEMG (const struct BrainFlowInputParams &params)
+    CallibriEMG (struct BrainFlowInputParams params)
         : Callibri ((int)BoardIds::CALLIBRI_EMG_BOARD, params)
     {
     }

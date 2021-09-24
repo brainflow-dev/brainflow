@@ -26,7 +26,7 @@ std::string params_to_string (struct BrainFlowModelParams params)
     return post_str;
 }
 
-MLModel::MLModel (const struct BrainFlowModelParams &model_params) : params (model_params)
+MLModel::MLModel (struct BrainFlowModelParams model_params) : params (model_params)
 {
     serialized_params = params_to_string (model_params);
 }

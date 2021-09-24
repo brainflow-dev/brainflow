@@ -21,7 +21,7 @@ struct BrainFlowModelParams
     }
 
     // default copy constructor and assignment operator are ok, need less operator to use in map
-    bool operator< (const struct BrainFlowModelParams &other) const
+    bool operator< (struct BrainFlowModelParams other) const
     {
         return std::tie (metric, classifier, file, other_info) <
             std::tie (other.metric, other.classifier, other.file, other.other_info);

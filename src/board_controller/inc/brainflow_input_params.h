@@ -30,7 +30,7 @@ struct BrainFlowInputParams
     }
 
     // default copy constructor and assignment operator are ok, need less operator to use in map
-    bool operator< (const struct BrainFlowInputParams &other) const
+    bool operator< (struct BrainFlowInputParams other) const
     {
         return std::tie (serial_port, mac_address, ip_address, ip_port, ip_protocol, other_info,
                    timeout, serial_number, file) <
@@ -38,17 +38,17 @@ struct BrainFlowInputParams
                 other.ip_protocol, other.other_info, timeout, serial_number, file);
     }
 
-    bool operator> (const struct BrainFlowInputParams &other) const
+    bool operator> (struct BrainFlowInputParams other) const
     {
         return (!(*this < other)) && ((*this != other));
     }
 
-    bool operator== (const struct BrainFlowInputParams &other) const
+    bool operator== (struct BrainFlowInputParams other) const
     {
         return (!(*this < other)) && (!(other < *this));
     }
 
-    bool operator!= (const struct BrainFlowInputParams &other) const
+    bool operator!= (struct BrainFlowInputParams other) const
     {
         return !(*this == other);
     }

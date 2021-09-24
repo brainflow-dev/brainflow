@@ -14,7 +14,7 @@ constexpr int Fascia::transaction_size;
 constexpr int Fascia::num_packages;
 constexpr int Fascia::package_size;
 
-Fascia::Fascia (const struct BrainFlowInputParams &params) : Board ((int)BoardIds::FASCIA_BOARD, params)
+Fascia::Fascia (struct BrainFlowInputParams params) : Board ((int)BoardIds::FASCIA_BOARD, params)
 {
     socket = NULL;
     is_streaming = false;

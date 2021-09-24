@@ -14,7 +14,7 @@ public:
     static int set_log_level (int log_level);
     static int set_log_file (const char *log_file);
 
-    BaseClassifier (const struct BrainFlowModelParams &model_params) : params (model_params)
+    BaseClassifier (struct BrainFlowModelParams model_params) : params (model_params)
     {
         skip_logs = false;
     }

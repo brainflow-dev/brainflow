@@ -20,7 +20,7 @@
 #endif
 
 
-SyntheticBoard::SyntheticBoard (const struct BrainFlowInputParams &params)
+SyntheticBoard::SyntheticBoard (struct BrainFlowInputParams params)
     : Board ((int)BoardIds::SYNTHETIC_BOARD, params)
 {
     is_streaming = false;

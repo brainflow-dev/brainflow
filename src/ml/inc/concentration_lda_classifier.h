@@ -6,7 +6,7 @@
 class ConcentrationLDAClassifier : public BaseClassifier
 {
 public:
-    ConcentrationLDAClassifier (const struct BrainFlowModelParams &params) : BaseClassifier (params)
+    ConcentrationLDAClassifier (struct BrainFlowModelParams params) : BaseClassifier (params)
     {
     }
 

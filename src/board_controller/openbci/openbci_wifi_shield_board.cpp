@@ -12,7 +12,7 @@
 
 constexpr int OpenBCIWifiShieldBoard::package_size;
 
-OpenBCIWifiShieldBoard::OpenBCIWifiShieldBoard (const struct BrainFlowInputParams &params, int board_id)
+OpenBCIWifiShieldBoard::OpenBCIWifiShieldBoard (struct BrainFlowInputParams params, int board_id)
     : Board (board_id, params)
 {
     server_socket = NULL;

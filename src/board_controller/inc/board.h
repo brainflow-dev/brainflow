@@ -33,7 +33,7 @@ public:
         free_packages ();
     }
 
-    Board (int board_id, const struct BrainFlowInputParams &params)
+    Board (int board_id, struct BrainFlowInputParams params)
     {
         skip_logs = false;
         db = NULL;

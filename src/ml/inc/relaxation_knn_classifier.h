@@ -7,7 +7,7 @@
 class RelaxationKNNClassifier : public ConcentrationKNNClassifier
 {
 public:
-    RelaxationKNNClassifier (const struct BrainFlowModelParams &params)
+    RelaxationKNNClassifier (struct BrainFlowModelParams params)
         : ConcentrationKNNClassifier (params)
     {
     }

@@ -13,7 +13,7 @@ const std::string IronBCI::start_command = "b";
 const std::string IronBCI::stop_command = "s";
 
 
-IronBCI::IronBCI (const struct BrainFlowInputParams &params) : Board ((int)BoardIds::IRONBCI_BOARD, params)
+IronBCI::IronBCI (struct BrainFlowInputParams params) : Board ((int)BoardIds::IRONBCI_BOARD, params)
 {
     serial = NULL;
     keep_alive = false;
