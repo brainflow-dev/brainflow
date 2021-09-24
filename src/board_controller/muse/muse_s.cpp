@@ -96,7 +96,6 @@ void MuseS::adapter_on_scan_found (simpleble_adapter_t adapter, simpleble_periph
     char *peripheral_address = simpleble_peripheral_address (peripheral);
 
     safe_logger (spdlog::level::info, "identifier {}", peripheral_identifier);
-
     safe_logger (spdlog::level::info, "address {}", peripheral_address);
 
     free (peripheral_identifier);
