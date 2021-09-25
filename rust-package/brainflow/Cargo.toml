@@ -7,3 +7,6 @@ edition = "2018"
 
 [dependencies]
 brainflow-sys = { path = "../brainflow-sys" }
+serde = { version ="1.0.130", features=["derive"] }
+serde_json = "1.0.68"
+thiserror = "1.0.29"
