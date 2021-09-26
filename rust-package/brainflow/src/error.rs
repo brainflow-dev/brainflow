@@ -1,3 +1,5 @@
+use std::str::Utf8Error;
+
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -11,6 +13,9 @@ pub enum Error {
     /// Some JSON error
     #[error("JSON error")]
     JsonError(#[from] serde_json::Error),
+
+    #[error("Cannot convert from Utf8")]
+    Utf8Error(#[from] Utf8Error),
 }
 
 #[derive(Debug, Error)]

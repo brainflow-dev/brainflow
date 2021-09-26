@@ -1,11 +1,20 @@
+extern crate num;
+#[macro_use]
+extern crate num_derive;
+
 use brainflow_sys as ffi;
 use error::{BrainFlowError, Error};
 
+mod board_id;
 pub mod board_shim;
 pub mod brainflow_input_params;
 pub mod data_filter;
 mod error;
 pub mod ml_model;
+
+pub use board_id::BoardId;
+
+use ffi::LogLevels;
 
 type BrainFlowExitCode = i32;
 
