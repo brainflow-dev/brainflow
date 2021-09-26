@@ -1,7 +1,4 @@
-import os
-import sys
 import threading
-import subprocess
 import logging
 import time
 from random import randint

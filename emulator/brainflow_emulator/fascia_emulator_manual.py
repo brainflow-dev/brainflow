@@ -1,5 +1,4 @@
 import socket
-import enum
 import logging
 import sys
 import random

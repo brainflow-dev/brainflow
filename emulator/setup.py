@@ -1,5 +1,4 @@
 import os
-import platform
 from setuptools import setup, find_packages
 
 setup(

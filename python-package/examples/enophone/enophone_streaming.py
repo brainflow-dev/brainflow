@@ -1,16 +1,11 @@
 import argparse
-import time
 import logging
-import random
-import numpy as np
 
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui, QtCore
 
-import brainflow
 import enotools
-from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds, BrainFlowError
-from brainflow.data_filter import DataFilter, FilterTypes, AggOperations, WindowFunctions, DetrendOperations
+from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 
 
 class Graph:
@@ -94,8 +89,7 @@ def main():
         board_shim = BoardShim(BoardIds.ENOPHONE_BOARD, params)
         board_shim.prepare_session()
         board_shim.start_stream(450000, '')
-        g = Graph(board_shim)
-    except BaseException as e:
+    except BaseException:
         logging.warning('Exception', exc_info=True)
     finally:
         logging.info('End')

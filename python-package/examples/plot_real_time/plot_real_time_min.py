@@ -1,14 +1,11 @@
 import argparse
-import time
 import logging
-import random
 
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui, QtCore
 
-import brainflow
-from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds, BrainFlowError
-from brainflow.data_filter import DataFilter, FilterTypes, AggOperations, WindowFunctions, DetrendOperations
+from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
+from brainflow.data_filter import DataFilter, FilterTypes, DetrendOperations
 
 
 class Graph:
@@ -49,7 +46,6 @@ class Graph:
 
     def update(self):
         data = self.board_shim.get_current_board_data(self.num_points)
-        avg_bands = [0, 0, 0, 0, 0]
         for count, channel in enumerate(self.exg_channels):
             # plot timeseries
             DataFilter.detrend(data[channel], DetrendOperations.CONSTANT.value)
@@ -103,8 +99,7 @@ def main():
         board_shim = BoardShim(args.board_id, params)
         board_shim.prepare_session()
         board_shim.start_stream(450000, args.streamer_params)
-        g = Graph(board_shim)
-    except BaseException as e:
+    except BaseException:
         logging.warning('Exception', exc_info=True)
     finally:
         logging.info('End')
