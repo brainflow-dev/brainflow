@@ -12,5 +12,8 @@ fn main() {
 
     board.prepare_session().unwrap();
 
+    dbg!(brainflow::board_shim::eeg_names(BoardId::CytonBoard).unwrap());
+    dbg!(brainflow::board_shim::eeg_channels(BoardId::CytonBoard).unwrap());
+
     dbg!(board.is_prepared().unwrap());
 }

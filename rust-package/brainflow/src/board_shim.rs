@@ -1,3 +1,4 @@
+use paste::paste;
 use std::{
     ffi::CString,
     os::raw::{c_double, c_int},
@@ -12,11 +13,12 @@ use crate::{
     ffi, BoardId, Result,
 };
 
+const MAX_CHANNELS: usize = 512;
+
 pub struct BoardShim {
     board_id: BoardId,
     input_params: BrainFlowInputParams,
     json_brainflow_input_params: CString,
-    num_rows: usize,
 }
 
 impl BoardShim {
@@ -24,12 +26,10 @@ impl BoardShim {
         dbg!(&input_params);
         let json_input_params = serde_json::to_string(&input_params)?;
         let json_input_params = CString::new(json_input_params)?;
-        let num_rows = num_rows(board_id)?;
         Ok(Self {
             board_id,
             input_params,
             json_brainflow_input_params: json_input_params,
-            num_rows,
         })
     }
 
@@ -111,12 +111,13 @@ impl BoardShim {
     }
 
     pub fn board_data(&self, n_data_points: Option<usize>) -> Result<Vec<Vec<f64>>> {
+        let num_rows = num_rows(self.board_id)?;
         let num_samples = if let Some(n) = n_data_points {
             self.board_data_count()?.min(n)
         } else {
             self.board_data_count()?
         };
-        let mut data_buf = Vec::with_capacity(num_samples * self.num_rows);
+        let mut data_buf = Vec::with_capacity(num_samples * num_rows);
         let res = unsafe {
             ffi::get_board_data(
                 num_samples as c_int,
@@ -127,7 +128,7 @@ impl BoardShim {
         };
         check_brainflow_exit_code(res)?;
 
-        let data_buf = data_buf.chunks(self.num_rows).map(|d| d.to_vec()).collect();
+        let data_buf = data_buf.chunks(num_samples).map(|d| d.to_vec()).collect();
         Ok(data_buf)
     }
 
@@ -136,7 +137,8 @@ impl BoardShim {
     }
 
     pub fn current_board_data(&self, num_samples: usize) -> Result<Vec<Vec<f64>>> {
-        let mut data_buf = Vec::with_capacity(num_samples * self.num_rows);
+        let num_rows = num_rows(self.board_id)?;
+        let mut data_buf = Vec::with_capacity(num_samples * num_rows);
         let mut len = 0;
         let res = unsafe {
             ffi::get_current_board_data(
@@ -149,7 +151,7 @@ impl BoardShim {
         };
         check_brainflow_exit_code(res)?;
 
-        let data_buf = data_buf.chunks(self.num_rows).map(|d| d.to_vec()).collect();
+        let data_buf = data_buf.chunks(num_samples).map(|d| d.to_vec()).collect();
         Ok(data_buf)
     }
 
@@ -176,7 +178,11 @@ impl BoardShim {
             (res, response)
         };
         check_brainflow_exit_code(res)?;
-        Ok(response.to_str()?.to_string())
+        Ok(response
+            .to_str()?
+            .split_at(response_len as usize)
+            .0
+            .to_string())
     }
 
     pub fn insert_marker(&self, value: f64) -> Result<()> {
@@ -237,13 +243,125 @@ pub fn log_message<S: AsRef<str>>(log_level: LogLevels, message: S) -> Result<()
     Ok(check_brainflow_exit_code(res)?)
 }
 
-pub fn num_rows(board_id: BoardId) -> Result<usize> {
-    let mut num_rows: i32 = 0;
-    let res = unsafe { ffi::get_num_rows(board_id as c_int, &mut num_rows) };
+pub fn board_descr(board_id: BoardId) -> Result<String> {
+    let mut response_len = 0;
+    let response = CString::new(Vec::with_capacity(16000))?;
+    let response = response.into_raw();
+    let (res, response) = unsafe {
+        let res = ffi::get_board_descr(board_id as c_int, response, &mut response_len);
+        let response = CString::from_raw(response);
+        (res, response)
+    };
     check_brainflow_exit_code(res)?;
-    Ok(num_rows as usize)
+    Ok(response
+        .to_str()?
+        .split_at(response_len as usize)
+        .0
+        .to_string())
 }
 
-pub fn get_num_rows(board_id: BoardId) -> Result<usize> {
-    num_rows(board_id)
+pub fn get_board_descr(board_id: BoardId) -> Result<String> {
+    board_descr(board_id)
 }
+
+macro_rules! gen_fn {
+    ($fn_name:ident, $return_type:ident, $initial_value:literal) => {
+        paste! {
+            pub fn $fn_name(board_id: BoardId) -> Result<$return_type> {
+                let mut value = $initial_value;
+                let res = unsafe { ffi::[<get_$fn_name>](board_id as c_int, &mut value) };
+                check_brainflow_exit_code(res)?;
+                Ok(value as $return_type)
+            }
+
+            pub fn [<get_$fn_name>](board_id: BoardId) -> Result<$return_type> {
+                $fn_name(board_id)
+            }
+        }
+    };
+}
+
+gen_fn!(sampling_rate, isize, -1);
+gen_fn!(package_num_channel, isize, -1);
+gen_fn!(timestamp_channel, isize, 0);
+gen_fn!(marker_channel, isize, 0);
+gen_fn!(battery_channel, isize, 0);
+gen_fn!(num_rows, usize, 0);
+
+pub fn eeg_names(board_id: BoardId) -> Result<Vec<String>> {
+    let mut response_len = 0;
+    let response = CString::new(Vec::with_capacity(16000))?;
+    let response = response.into_raw();
+    let (res, response) = unsafe {
+        let res = ffi::get_eeg_names(board_id as c_int, response, &mut response_len);
+        let response = CString::from_raw(response);
+        (res, response)
+    };
+    check_brainflow_exit_code(res)?;
+    let names = response.to_str()?.split_at(response_len as usize).0;
+
+    Ok(names
+        .split(',')
+        .map(|s| s.to_string())
+        .collect::<Vec<String>>())
+}
+
+pub fn get_eeg_names(board_id: BoardId) -> Result<Vec<String>> {
+    eeg_names(board_id)
+}
+
+pub fn device_name(board_id: BoardId) -> Result<String> {
+    let mut response_len = 0;
+    let response = CString::new(Vec::with_capacity(4096))?;
+    let response = response.into_raw();
+    let (res, response) = unsafe {
+        let res = ffi::get_device_name(board_id as c_int, response, &mut response_len);
+        let response = CString::from_raw(response);
+        (res, response)
+    };
+    check_brainflow_exit_code(res)?;
+    Ok(response
+        .to_str()?
+        .split_at(response_len as usize)
+        .0
+        .to_string())
+}
+
+macro_rules! gen_vec_fn {
+    ($fn_name:ident) => {
+        paste! {
+            pub fn $fn_name(board_id: BoardId) -> Result<Vec<isize>> {
+                let mut channels: Vec<isize> = Vec::with_capacity(MAX_CHANNELS);
+                let mut len = 0;
+                let res = unsafe {
+                    ffi::[<get_$fn_name>](
+                        board_id as c_int,
+                        channels.as_mut_ptr() as *mut c_int,
+                        &mut len,
+                    )
+                };
+                check_brainflow_exit_code(res)?;
+                channels.resize(len as usize, 0);
+                Ok(channels)
+            }
+
+            pub fn [<get_$fn_name>](board_id: BoardId) -> Result<Vec<isize>> {
+                $fn_name(board_id)
+            }
+        }
+    };
+}
+
+gen_vec_fn!(eeg_channels);
+gen_vec_fn!(exg_channels);
+gen_vec_fn!(emg_channels);
+gen_vec_fn!(ecg_channels);
+gen_vec_fn!(eog_channels);
+gen_vec_fn!(eda_channels);
+gen_vec_fn!(ppg_channels);
+gen_vec_fn!(accel_channels);
+gen_vec_fn!(gyro_channels);
+gen_vec_fn!(analog_channels);
+gen_vec_fn!(other_channels);
+gen_vec_fn!(temperature_channels);
+gen_vec_fn!(resistance_channels);

@@ -14,8 +14,6 @@ pub mod ml_model;
 
 pub use board_id::BoardId;
 
-use ffi::LogLevels;
-
 type BrainFlowExitCode = i32;
 
 pub fn check_brainflow_exit_code(
