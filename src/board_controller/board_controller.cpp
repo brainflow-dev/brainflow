@@ -29,8 +29,6 @@
 #include "cyton_daisy_wifi.h"
 #include "cyton_wifi.h"
 #include "enophone.h"
-#include "explore.h"
-#include "fascia.h"
 #include "freeeeg32.h"
 #include "galea.h"
 #include "galea_serial.h"
@@ -132,9 +130,6 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
             break;
         case BoardIds::CALLIBRI_ECG_BOARD:
             board = std::shared_ptr<Board> (new CallibriECG (params));
-            break;
-        case BoardIds::FASCIA_BOARD:
-            board = std::shared_ptr<Board> (new Fascia (params));
             break;
         // notion 1, notion 2 and crown have the same class
         // the only difference are get_eeg_names and sampling_rate

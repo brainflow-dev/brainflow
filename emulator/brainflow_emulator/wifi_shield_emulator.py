@@ -1,7 +1,6 @@
 import threading
 import time
 import json
-import http.client
 import socket
 import subprocess
 import sys

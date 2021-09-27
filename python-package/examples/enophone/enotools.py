@@ -33,7 +33,7 @@ def signal_filtering(data,filter_cut=None,bandpass_range=None,bandstop_range=Non
         try:
             for i in (1,2,3,4):
                 local_data[i] = filter(local_data[i], bandpass_range[0], bandpass_range[1], samplerate/2, filtertype='bandpass', order=4)
-        except:
+        except BaseException:
             print('ERROR: Bandpass filtering failed. Try setting different parameters.')
             sys.exit(1)
 
@@ -54,7 +54,7 @@ def signal_filtering(data,filter_cut=None,bandpass_range=None,bandstop_range=Non
         try:
             for i in (1,2,3,4):
                 local_data[i] = filter(local_data[i], bandstop_range[0], bandstop_range[1], samplerate/2, filtertype='bandstop', order=4)
-        except:
+        except BaseException:
             print('ERROR: Bandpass filtering failed. Try setting different parameters.')
             sys.exit(1)
 
