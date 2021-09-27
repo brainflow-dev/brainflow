@@ -42,6 +42,10 @@ class PeripheralBase {
      */
     void* opaque_internal_;
 
+    bool is_connectable_;
+
+    bool manual_disconnect_triggered_;
+
     std::function<void()> callback_on_connected_;
     std::function<void()> callback_on_disconnected_;
 };

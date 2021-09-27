@@ -483,3 +483,46 @@ simpleble_err_t BLELibBoard::simpleble_peripheral_unsubscribe (
 
     return func (handle, service, characteristic);
 }
+
+size_t BLELibBoard::simpleble_peripheral_manufacturer_data_count (simpleble_peripheral_t handle)
+{
+    std::lock_guard<std::mutex> lock (BLELibBoard::mutex);
+    if (BLELibBoard::dll_loader == NULL)
+    {
+        safe_logger (spdlog::level::err, "BLELibBoard::dll_loader is not initialized");
+        return 0;
+    }
+    size_t (*func) (simpleble_peripheral_t) =
+        (size_t (*) (simpleble_peripheral_t))BLELibBoard::dll_loader->get_address (
+            "simpleble_peripheral_manufacturer_data_count");
+    if (func == NULL)
+    {
+        safe_logger (spdlog::level::err,
+            "failed to get function address for simpleble_peripheral_manufacturer_data_count");
+        return 0;
+    }
+
+    return func (handle);
+}
+
+simpleble_err_t BLELibBoard::simpleble_peripheral_manufacturer_data_get (
+    simpleble_peripheral_t handle, size_t index, simpleble_manufacturer_data_t *manufacturer_data)
+{
+    std::lock_guard<std::mutex> lock (BLELibBoard::mutex);
+    if (BLELibBoard::dll_loader == NULL)
+    {
+        safe_logger (spdlog::level::err, "BLELibBoard::dll_loader is not initialized");
+        return SIMPLEBLE_FAILURE;
+    }
+    simpleble_err_t (*func) (simpleble_peripheral_t, size_t, simpleble_manufacturer_data_t *) =
+        (simpleble_err_t (*) (simpleble_peripheral_t, size_t, simpleble_manufacturer_data_t *))
+            BLELibBoard::dll_loader->get_address ("simpleble_peripheral_manufacturer_data_get");
+    if (func == NULL)
+    {
+        safe_logger (spdlog::level::err,
+            "failed to get function address for simpleble_peripheral_manufacturer_data_get");
+        return SIMPLEBLE_FAILURE;
+    }
+
+    return func (handle, index, manufacturer_data);
+}

@@ -34,6 +34,7 @@ class AdapterBase {
     void scan_stop();
     void scan_for(int timeout_ms);
     bool scan_is_active();
+    std::vector<Peripheral> scan_get_results();
 
     void set_callback_on_scan_start(std::function<void()> on_scan_start);
     void set_callback_on_scan_stop(std::function<void()> on_scan_stop);

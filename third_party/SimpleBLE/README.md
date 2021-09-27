@@ -124,7 +124,7 @@ or just be ignored.
 | `SimpleBLE::Adapter::scan_stop`                      | Yes   | Yes     | Yes   |
 | `SimpleBLE::Adapter::scan_for`                       | Yes   | Yes     | Yes   |
 | `SimpleBLE::Adapter::scan_is_active`                 | Yes   | Yes     | Yes   |
-| `SimpleBLE::Adapter::scan_get_results`               | No    | No      | No    |
+| `SimpleBLE::Adapter::scan_get_results`               | Yes   | Yes     | Yes   |
 | `SimpleBLE::Adapter::set_callback_on_scan_start`     | Yes   | Yes     | Yes   |
 | `SimpleBLE::Adapter::set_callback_on_scan_stop`      | Yes   | Yes     | Yes   |
 | `SimpleBLE::Adapter::set_callback_on_scan_updated`   | Yes   | Yes     | Yes   |
@@ -136,7 +136,7 @@ or just be ignored.
 | `SimpleBLE::Peripheral::connect`                     | Yes   | Yes     | Yes   |
 | `SimpleBLE::Peripheral::disconnect`                  | Yes   | Yes     | Yes   |
 | `SimpleBLE::Peripheral::is_connected`                | Yes   | Yes     | Yes   |
-| `SimpleBLE::Peripheral::is_connectable`              | No    | No      | No    |
+| `SimpleBLE::Peripheral::is_connectable`              | No    | No      | Yes   |
 | `SimpleBLE::Peripheral::services`                    | Yes   | Yes     | Yes   |
 | `SimpleBLE::Peripheral::manufacturer_data`           | No    | No      | No    |
 | `SimpleBLE::Peripheral::read`                        | No    | Yes     | Yes   |
@@ -145,8 +145,8 @@ or just be ignored.
 | `SimpleBLE::Peripheral::notify`                      | Yes   | Yes     | Yes   |
 | `SimpleBLE::Peripheral::indicate`                    | Yes   | Yes     | Yes   |
 | `SimpleBLE::Peripheral::unsubscribe`                 | Yes   | Yes     | Yes   |
-| `SimpleBLE::Peripheral::set_callback_on_connected`   | Yes   | Yes     | No    |
-| `SimpleBLE::Peripheral::set_callback_on_disconnected`| Yes   | Yes     | No    |
+| `SimpleBLE::Peripheral::set_callback_on_connected`   | Yes   | Yes     | Yes   |
+| `SimpleBLE::Peripheral::set_callback_on_disconnected`| Yes   | Yes     | Yes   |
 
 ## Known Issues / To-Do's
 - [Linux] Fork safety is not guaranteed.

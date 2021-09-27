@@ -27,13 +27,22 @@ int main(int argc, char* argv[]) {
         std::cout << "Updated device: " << peripheral.identifier() << " [" << peripheral.address() << "]" << std::endl;
     });
 
-    // Scan for 5 seconds and return.
+    // Scan for 5 seconds.
     adapter.scan_for(5000);
 
-    // Sleep for an additional second before returning.
+    std::cout << "Scan complete." << std::endl;
+
+    // Sleep for an additional second before continuing.
     // If there are any detections during this period, it means that the
     // internal peripheral took longer to stop than anticipated.
     std::this_thread::sleep_for(std::chrono::seconds(1));
+
+    std::vector<SimpleBLE::Peripheral> peripherals = adapter.scan_get_results();
+    std::cout << "The following devices were found:" << std::endl;
+    for (int i = 0; i < peripherals.size(); i++) {
+        std::cout << "[" << i << "] " << peripherals[i].identifier() << " [" << peripherals[i].address() << "]"
+                  << std::endl;
+    }
 
     return 0;
 }

@@ -62,6 +62,10 @@
     [self.centralManager stopScan];
 }
 
+- (bool)scanIsActive {
+    return [self.centralManager isScanning];
+}
+
 #pragma mark - CBCentralManagerDelegate
 
 - (void)centralManagerDidUpdateState:(CBCentralManager*)central {
@@ -116,8 +120,6 @@
         SimpleBLE::ByteArray manufacturerData = SimpleBLE::ByteArray(&manufacturerDataBytes[2], (size_t)(rawManufacturerData.length - 2));
         advertisingData.manufacturer_data[manufacturerID] = manufacturerData;
     }
-
-    // TODO: Should we create a PeripheralBaseMacOS here?
 
     // TODO: Should we use @synchronized (self)??
     _adapter->delegate_did_discover_peripheral(peripheral, self.centralManager, advertisingData);

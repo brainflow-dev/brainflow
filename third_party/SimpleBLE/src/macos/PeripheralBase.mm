@@ -8,7 +8,8 @@ using namespace SimpleBLE;
 PeripheralBase::PeripheralBase(void* opaque_peripheral, void* opaque_adapter, advertising_data_t advertising_data) {
     this->opaque_internal_ = [[PeripheralBaseMacOS alloc] init:(CBPeripheral*)opaque_peripheral
                                                 centralManager:(CBCentralManager*)opaque_adapter];
-    // TODO: Set advertising data
+    this->is_connectable_ = advertising_data.connectable;
+    this->manual_disconnect_triggered_ = false;
 }
 
 PeripheralBase::~PeripheralBase() {}
@@ -26,13 +27,20 @@ BluetoothAddress PeripheralBase::address() {
 void PeripheralBase::connect() {
     PeripheralBaseMacOS* internal = (PeripheralBaseMacOS*)opaque_internal_;
     [internal connect];
-    // TODO: Call callback
+    if (callback_on_connected_) {
+        callback_on_connected_();
+    }
 }
 
 void PeripheralBase::disconnect() {
     PeripheralBaseMacOS* internal = (PeripheralBaseMacOS*)opaque_internal_;
+
+    manual_disconnect_triggered_ = true;
     [internal disconnect];
-    // TODO: Call callback
+    if (callback_on_disconnected_) {
+        callback_on_disconnected_();
+    }
+    manual_disconnect_triggered_ = false;
 }
 
 bool PeripheralBase::is_connected() {
@@ -40,13 +48,7 @@ bool PeripheralBase::is_connected() {
     return [internal isConnected];
 }
 
-bool PeripheralBase::is_connectable() {
-    // TODO, its a stub, replace with real implementation
-    if (is_connected()) {
-        return false;
-    }
-    return true;
-}
+bool PeripheralBase::is_connectable() { return is_connectable_; }
 
 std::vector<BluetoothService> PeripheralBase::services() {
     PeripheralBaseMacOS* internal = (PeripheralBaseMacOS*)opaque_internal_;
@@ -118,4 +120,9 @@ void PeripheralBase::delegate_did_connect() {
 void PeripheralBase::delegate_did_disconnect() {
     PeripheralBaseMacOS* internal = (PeripheralBaseMacOS*)opaque_internal_;
     [internal delegateDidDisconnect];
+
+    // If the user manually disconnects the peripheral, don't call the callback at this point.
+    if (callback_on_disconnected_ && !manual_disconnect_triggered_) {
+        callback_on_disconnected_();
+    }
 }

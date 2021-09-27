@@ -90,6 +90,16 @@ void AdapterBase::scan_for(int timeout_ms) {
 
 bool AdapterBase::scan_is_active() { return scan_is_active_; }
 
+std::vector<Peripheral> AdapterBase::scan_get_results() {
+    std::vector<Peripheral> peripherals;
+    for (auto& [address, base_peripheral] : this->peripherals_) {
+        PeripheralBuilder peripheral_builder(base_peripheral);
+        peripherals.push_back(peripheral_builder);
+    }
+
+    return peripherals;
+}
+
 void AdapterBase::set_callback_on_scan_start(std::function<void()> on_scan_start) {
     callback_on_scan_start_ = on_scan_start;
 }

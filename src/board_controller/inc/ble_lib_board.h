@@ -48,6 +48,9 @@ protected:
         void (*) (simpleble_uuid_t, simpleble_uuid_t, uint8_t *, size_t, void *), void *);
     simpleble_err_t simpleble_peripheral_unsubscribe (
         simpleble_peripheral_t handle, simpleble_uuid_t service, simpleble_uuid_t characteristic);
+    size_t simpleble_peripheral_manufacturer_data_count (simpleble_peripheral_t handle);
+    simpleble_err_t simpleble_peripheral_manufacturer_data_get (simpleble_peripheral_t handle,
+        size_t index, simpleble_manufacturer_data_t *manufacturer_data);
 
 public:
     BLELibBoard (int board_id, struct BrainFlowInputParams params);

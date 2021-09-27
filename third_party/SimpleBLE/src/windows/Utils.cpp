@@ -82,9 +82,11 @@ std::string guid_to_uuid(const winrt::guid& guid) {
 ByteArray ibuffer_to_bytearray(const IBuffer& buffer) { return ByteArray((const char*)buffer.data(), buffer.Length()); }
 
 IBuffer bytearray_to_ibuffer(const ByteArray& array) {
-    Buffer buffer = Buffer(array.size());
-    memcpy(buffer.data(), array.data(), array.size());
-    return buffer;
+    DataWriter writer;
+    for (auto& byte : array) {
+        writer.WriteByte(byte);
+    }
+    return writer.DetachBuffer();
 }
 
 }  // namespace SimpleBLE

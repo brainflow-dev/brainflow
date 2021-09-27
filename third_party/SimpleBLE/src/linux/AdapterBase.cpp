@@ -47,7 +47,7 @@ void AdapterBase::scan_start() {
             PeripheralBuilder peripheral_builder(std::make_shared<PeripheralBase>(device));
 
             if (this->seen_devices_.count(peripheral_builder.address()) == 0) {
-                this->seen_devices_.insert(peripheral_builder.address());
+                this->seen_devices_.insert(std::make_pair<>(peripheral_builder.address(), peripheral_builder));
                 if (this->callback_on_scan_found_) {
                     this->callback_on_scan_found_(peripheral_builder);
                 }
@@ -99,6 +99,14 @@ bool AdapterBase::scan_is_active() {
     } else {
         throw Exception::InvalidReference();
     }
+}
+
+std::vector<Peripheral> AdapterBase::scan_get_results() {
+    std::vector<Peripheral> peripherals;
+    for (auto& [address, peripheral] : this->seen_devices_) {
+        peripherals.push_back(peripheral);
+    }
+    return peripherals;
 }
 
 void AdapterBase::set_callback_on_scan_start(std::function<void()> on_scan_start) {

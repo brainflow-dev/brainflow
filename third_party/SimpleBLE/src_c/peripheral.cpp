@@ -35,7 +35,7 @@ char* simpleble_peripheral_address(simpleble_peripheral_t handle) {
 
     SimpleBLE::Safe::Peripheral* peripheral = (SimpleBLE::Safe::Peripheral*)handle;
     std::string address = peripheral->address().value_or("");
-    char* c_address = (char*)malloc(address.size() + 20);
+    char* c_address = (char*)malloc(address.size() + 1);
     strcpy(c_address, address.c_str());
     return c_address;
 }

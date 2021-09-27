@@ -14,4 +14,6 @@
 
 - (void)scanStop;
 
+- (bool)scanIsActive;
+
 @end
