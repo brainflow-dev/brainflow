@@ -1,5 +1,8 @@
 #pragma once
 
+#include <chrono>
+#include <condition_variable>
+#include <mutex>
 #include <string>
 #include <thread>
 
@@ -14,6 +17,9 @@ private:
     bool initialized;
     std::thread streaming_thread;
     simpleble_adapter_t muse_adapter;
+    simpleble_peripheral_t muse_peripheral;
+    std::mutex m;
+    std::condition_variable cv;
 
     void read_thread ();
 

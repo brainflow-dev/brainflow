@@ -55,6 +55,7 @@ set(
 
 set(
     SRC_SIMPLEBLE_C_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/src_c/simpleble.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src_c/adapter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src_c/peripheral.cpp
 )
@@ -97,8 +98,12 @@ elseif (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
 
     set(WINVERSION_CODE 0x0A00) # Selected Windows 10 based on https://docs.microsoft.com/en-us/cpp/porting/modifying-winver-and-win32-winnt
     
-    # Add all the special definitions that need to be added for the program to properly compile on windows.
-    set(SPECIAL_DEFINITIONS "/D_WIN32_WINNT=${WINVERSION_CODE} /D_USE_MATH_DEFINES")
+    # /D_WIN32_WINNT -> Specifies the minimum version of Windows that the application is compatible with.
+    # /D_USE_MATH_DEFINES -> Specifies that the math.h header file should be included.
+    # /Gd -> Use __cdecl as the default calling convention. https://docs.microsoft.com/en-us/cpp/cpp/cdecl
+    string(APPEND SPECIAL_DEFINITIONS "/D_WIN32_WINNT=${WINVERSION_CODE}")
+    string(APPEND SPECIAL_DEFINITIONS "/D_USE_MATH_DEFINES")
+    string(APPEND SPECIAL_DEFINITIONS "/Gd")
 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W2 /wd4251 ${SPECIAL_DEFINITIONS}")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W2 /wd4251 ${SPECIAL_DEFINITIONS}")

@@ -17,6 +17,8 @@ private:
 
 protected:
     static bool init_dll_loader ();
+    // common
+    void simpleble_free (void *handle);
     // adapter
     size_t simpleble_adapter_get_count (void);
     simpleble_adapter_t simpleble_adapter_get_handle (size_t index);
@@ -51,6 +53,8 @@ protected:
     size_t simpleble_peripheral_manufacturer_data_count (simpleble_peripheral_t handle);
     simpleble_err_t simpleble_peripheral_manufacturer_data_get (simpleble_peripheral_t handle,
         size_t index, simpleble_manufacturer_data_t *manufacturer_data);
+    simpleble_err_t simpleble_peripheral_is_connected (
+        simpleble_peripheral_t handle, bool *connected);
 
 public:
     BLELibBoard (int board_id, struct BrainFlowInputParams params);
