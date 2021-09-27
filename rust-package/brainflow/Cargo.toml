@@ -8,7 +8,9 @@ edition = "2018"
 [dependencies]
 brainflow-sys = { path = "../brainflow-sys" }
 getset = "0.1.1"
+ndarray = "0.15.3"
 num = "0.4.0"
+num-complex = "0.4.0"
 num-derive = "0.3.3"
 num-traits = "0.2.14"
 paste = "1.0.5"
