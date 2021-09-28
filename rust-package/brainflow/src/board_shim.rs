@@ -23,7 +23,6 @@ pub struct BoardShim {
 
 impl BoardShim {
     pub fn new(board_id: BoardId, input_params: BrainFlowInputParams) -> Result<Self> {
-        dbg!(&input_params);
         let json_input_params = serde_json::to_string(&input_params)?;
         let json_input_params = CString::new(json_input_params)?;
         Ok(Self {

@@ -1,11 +1,10 @@
+use ffi::{AggOperations, DetrendOperations, FilterTypes, LogLevels, NoiseTypes, WindowFunctions};
 use getset::Getters;
-use ndarray::{Array1, Array2, ArrayBase, AsArray, Ix1, Ix3};
+use ndarray::{Array1, Array2, ArrayBase, AsArray, Ix1, Ix2, Ix3};
 use num::Complex;
 use num_complex::Complex64;
 use std::os::raw::c_int;
 use std::{ffi::CString, os::raw::c_double};
-
-use ffi::{AggOperations, DetrendOperations, FilterTypes, LogLevels, NoiseTypes, WindowFunctions};
 
 use crate::error::{BrainFlowError, Error};
 use crate::{check_brainflow_exit_code, ffi, Result};
@@ -19,11 +18,11 @@ pub fn enable_data_logger() -> Result<()> {
     set_log_level(LogLevels::LEVEL_INFO)
 }
 
-pub fn disable_board_logger() -> Result<()> {
+pub fn disable_data_logger() -> Result<()> {
     set_log_level(LogLevels::LEVEL_OFF)
 }
 
-pub fn enable_dev_board_logger() -> Result<()> {
+pub fn enable_dev_data_logger() -> Result<()> {
     set_log_level(LogLevels::LEVEL_TRACE)
 }
 
@@ -416,23 +415,200 @@ pub fn detrend(data: &mut [f64], detrend_operation: DetrendOperations) -> Result
     Ok(check_brainflow_exit_code(res)?)
 }
 
+#[derive(Getters)]
+#[getset(get = "pub")]
+pub struct Psd {
+    amplitude: Vec<f64>,
+    frequency: Vec<f64>,
+}
+
 pub fn psd(
     data: &mut [f64],
     sampling_rate: usize,
     window_function: WindowFunctions,
-) -> Result<(Vec<f64>, Vec<f64>)> {
-    let mut output_ampl = Vec::<f64>::with_capacity(data.len() / 2 + 1);
-    let mut output_freq = Vec::<f64>::with_capacity(data.len() / 2 + 1);
+) -> Result<Psd> {
+    let mut amplitude = Vec::<f64>::with_capacity(data.len() / 2 + 1);
+    let mut frequency = Vec::<f64>::with_capacity(data.len() / 2 + 1);
     let res = unsafe {
         ffi::get_psd(
             data.as_mut_ptr() as *mut c_double,
             data.len() as c_int,
             sampling_rate as c_int,
             window_function as c_int,
-            output_ampl.as_mut_ptr() as *mut c_double,
-            output_freq.as_mut_ptr() as *mut c_double,
+            amplitude.as_mut_ptr() as *mut c_double,
+            frequency.as_mut_ptr() as *mut c_double,
         )
     };
     check_brainflow_exit_code(res)?;
-    Ok((output_ampl, output_freq))
+    Ok(Psd {
+        amplitude,
+        frequency,
+    })
+}
+
+pub fn get_psd(
+    data: &mut [f64],
+    sampling_rate: usize,
+    window_function: WindowFunctions,
+) -> Result<Psd> {
+    psd(data, sampling_rate, window_function)
+}
+
+pub fn psd_welch(
+    data: &mut [f64],
+    nfft: usize,
+    overlap: usize,
+    sampling_rate: usize,
+    window_function: WindowFunctions,
+) -> Result<Psd> {
+    let mut amplitude = Vec::<f64>::with_capacity(nfft / 2 + 1);
+    let mut frequency = Vec::<f64>::with_capacity(nfft / 2 + 1);
+    let res = unsafe {
+        ffi::get_psd_welch(
+            data.as_mut_ptr() as *mut c_double,
+            data.len() as c_int,
+            nfft as c_int,
+            overlap as c_int,
+            sampling_rate as c_int,
+            window_function as c_int,
+            amplitude.as_mut_ptr() as *mut c_double,
+            frequency.as_mut_ptr() as *mut c_double,
+        )
+    };
+    check_brainflow_exit_code(res)?;
+    Ok(Psd {
+        amplitude,
+        frequency,
+    })
+}
+
+pub fn get_psd_welch(
+    data: &mut [f64],
+    nfft: usize,
+    overlap: usize,
+    sampling_rate: usize,
+    window_function: WindowFunctions,
+) -> Result<Psd> {
+    psd_welch(data, nfft, overlap, sampling_rate, window_function)
+}
+
+pub fn avg_band_powers<'a, Data>(
+    data: Data,
+    sampling_rate: usize,
+    apply_filters: bool,
+) -> Result<(Vec<f64>, Vec<f64>)>
+where
+    Data: AsArray<'a, f64, Ix2>,
+{
+    let data = data.into();
+    let shape = data.shape();
+    let (cols, rows) = (shape[0], shape[1]);
+
+    let mut avg_band_powers = Vec::with_capacity(5);
+    let mut stddev_band_powers = Vec::with_capacity(5);
+    let mut raw_data: Vec<&f64> = data.iter().collect();
+    let res = unsafe {
+        ffi::get_avg_band_powers(
+            raw_data.as_mut_ptr() as *mut c_double,
+            rows as c_int,
+            cols as c_int,
+            sampling_rate as c_int,
+            apply_filters as c_int,
+            avg_band_powers.as_mut_ptr() as *mut c_double,
+            stddev_band_powers.as_mut_ptr() as *mut c_double,
+        )
+    };
+    check_brainflow_exit_code(res)?;
+    Ok((avg_band_powers, stddev_band_powers))
+}
+
+pub fn get_avg_band_powers<'a, Data>(
+    data: Data,
+    sampling_rate: usize,
+    apply_filters: bool,
+) -> Result<(Vec<f64>, Vec<f64>)>
+where
+    Data: AsArray<'a, f64, Ix2>,
+{
+    avg_band_powers(data, sampling_rate, apply_filters)
+}
+
+pub fn band_power(psd: Psd, freq_start: f64, freq_end: f64) -> Result<f64> {
+    let mut band_power = 0.0;
+    let mut psd = psd;
+    let res = unsafe {
+        ffi::get_band_power(
+            psd.amplitude.as_mut_ptr() as *mut c_double,
+            psd.frequency.as_mut_ptr() as *mut c_double,
+            psd.amplitude.len() as c_int,
+            freq_start,
+            freq_end,
+            &mut band_power,
+        )
+    };
+    check_brainflow_exit_code(res)?;
+    Ok(band_power)
+}
+
+pub fn get_band_power(psd: Psd, freq_start: f64, freq_end: f64) -> Result<f64> {
+    band_power(psd, freq_start, freq_end)
+}
+
+pub fn nearest_power_of_two(value: usize) -> Result<usize> {
+    let mut output = 0;
+    let res = unsafe { ffi::get_nearest_power_of_two(value as c_int, &mut output) };
+    check_brainflow_exit_code(res)?;
+    Ok(output as usize)
+}
+
+pub fn get_nearest_power_of_two(value: usize) -> Result<usize> {
+    nearest_power_of_two(value)
+}
+
+pub fn read_file<S: AsRef<str>>(file_name: S) -> Result<Array2<f64>> {
+    let file_name = CString::new(file_name.as_ref())?;
+    let mut num_elements = 0;
+    let res = unsafe { ffi::get_num_elements_in_file(file_name.as_ptr(), &mut num_elements) };
+    check_brainflow_exit_code(res)?;
+
+    let mut data = Vec::with_capacity(num_elements as usize);
+    let mut rows = 0;
+    let mut cols = 0;
+    let res = unsafe {
+        ffi::read_file(
+            data.as_mut_ptr() as *mut c_double,
+            &mut rows,
+            &mut cols,
+            file_name.as_ptr(),
+            num_elements as c_int,
+        )
+    };
+    check_brainflow_exit_code(res)?;
+
+    let data = ArrayBase::from_vec(data);
+    let data = data.into_shape((cols as usize, rows as usize)).unwrap();
+    Ok(data)
+}
+
+pub fn write_file<'a, Data, S>(data: Data, file_name: S, file_mode: S) -> Result<()>
+where
+    Data: AsArray<'a, f64, Ix2>,
+    S: AsRef<str>,
+{
+    let file_name = CString::new(file_name.as_ref())?;
+    let file_mode = CString::new(file_mode.as_ref())?;
+    let data = data.into();
+    let shape = data.shape();
+    let (cols, rows) = (shape[0], shape[1]);
+    let mut data: Vec<&f64> = data.iter().collect();
+    let res = unsafe {
+        ffi::write_file(
+            data.as_mut_ptr() as *mut c_double,
+            rows as c_int,
+            cols as c_int,
+            file_name.as_ptr(),
+            file_mode.as_ptr(),
+        )
+    };
+    Ok(check_brainflow_exit_code(res)?)
 }
