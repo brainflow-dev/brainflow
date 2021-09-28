@@ -4,8 +4,8 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Default, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Getters)]
 #[getset(get = "pub", set = "pub")]
 pub struct BrainFlowModelParams {
-    metric: String,
-    classifier: String,
+    metric: usize,
+    classifier: usize,
     file: String,
     other_info: String,
 }
@@ -20,13 +20,13 @@ impl BrainFlowModelParamsBuilder {
         Default::default()
     }
 
-    pub fn metric<S: AsRef<str>>(mut self, metric: S) -> Self {
-        self.params.metric = metric.as_ref().to_string();
+    pub fn metric(mut self, metric: usize) -> Self {
+        self.params.metric = metric;
         self
     }
 
-    pub fn classifier<S: AsRef<str>>(mut self, classifier: S) -> Self {
-        self.params.classifier = classifier.as_ref().to_string();
+    pub fn classifier(mut self, classifier: usize) -> Self {
+        self.params.classifier = classifier;
         self
     }
 
