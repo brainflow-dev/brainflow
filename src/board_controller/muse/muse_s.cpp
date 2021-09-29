@@ -60,7 +60,7 @@ int MuseS::prepare_session ()
     int res = (int)BrainFlowExitCodes::STATUS_OK;
     std::unique_lock<std::mutex> lk (m);
     auto sec = std::chrono::seconds (1);
-    if (cv.wait_for (lk, params.timeout * sec, [this] { return this->muse_adapter == NULL; }))
+    if (cv.wait_for (lk, params.timeout * sec, [this] { return this->muse_peripheral != NULL; }))
     {
         safe_logger (spdlog::level::info, "Found Muse device");
     }
@@ -80,6 +80,27 @@ int MuseS::prepare_session ()
         {
             safe_logger (spdlog::level::err, "Failed to connect to Muse Device");
             res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+        }
+    }
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        size_t services_count = simpleble_peripheral_services_count (muse_peripheral);
+        for (size_t i = 0; i < services_count; i++)
+        {
+            simpleble_service_t service;
+            if (simpleble_peripheral_services_get (muse_peripheral, i, &service) !=
+                SIMPLEBLE_SUCCESS)
+            {
+                safe_logger (spdlog::level::err, "failed to get service");
+                res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+            }
+
+            safe_logger (spdlog::level::info, "found servce {}", service.uuid.value);
+            for (size_t j = 0; j < service.characteristic_count; j++)
+            {
+                safe_logger (spdlog::level::info, "found characteristic {}",
+                    service.characteristics[j].value);
+            }
         }
     }
 

@@ -6,12 +6,6 @@
 
 #include <simpleble_c/types.h>
 
-#ifdef _WIN32
-#define EXPORT_SYMBOL __declspec(dllexport)
-#else
-#define EXPORT_SYMBOL
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -21,7 +15,7 @@ extern "C" {
  *
  * @return size_t
  */
-EXPORT_SYMBOL size_t simpleble_adapter_get_count(void);
+size_t simpleble_adapter_get_count(void);
 
 /**
  * @brief
@@ -32,7 +26,7 @@ EXPORT_SYMBOL size_t simpleble_adapter_get_count(void);
  * @param index
  * @return simpleble_adapter_t
  */
-EXPORT_SYMBOL simpleble_adapter_t simpleble_adapter_get_handle(size_t index);
+simpleble_adapter_t simpleble_adapter_get_handle(size_t index);
 
 /**
  * @brief Releases all memory and resources consumed by the specific
@@ -40,7 +34,7 @@ EXPORT_SYMBOL simpleble_adapter_t simpleble_adapter_get_handle(size_t index);
  *
  * @param handle
  */
-EXPORT_SYMBOL void simpleble_adapter_release_handle(simpleble_adapter_t handle);
+void simpleble_adapter_release_handle(simpleble_adapter_t handle);
 
 /**
  * @brief Returns the identifier of a given adapter.
@@ -50,7 +44,7 @@ EXPORT_SYMBOL void simpleble_adapter_release_handle(simpleble_adapter_t handle);
  * @param handle
  * @return char*
  */
-EXPORT_SYMBOL char* simpleble_adapter_identifier(simpleble_adapter_t handle);
+char* simpleble_adapter_identifier(simpleble_adapter_t handle);
 
 /**
  * @brief Returns the MAC address of a given adapter.
@@ -60,7 +54,7 @@ EXPORT_SYMBOL char* simpleble_adapter_identifier(simpleble_adapter_t handle);
  * @param handle
  * @return char*
  */
-EXPORT_SYMBOL char* simpleble_adapter_address(simpleble_adapter_t handle);
+char* simpleble_adapter_address(simpleble_adapter_t handle);
 
 /**
  * @brief
@@ -68,7 +62,7 @@ EXPORT_SYMBOL char* simpleble_adapter_address(simpleble_adapter_t handle);
  * @param handle
  * @return simpleble_err_t
  */
-EXPORT_SYMBOL simpleble_err_t simpleble_adapter_scan_start(simpleble_adapter_t handle);
+simpleble_err_t simpleble_adapter_scan_start(simpleble_adapter_t handle);
 
 /**
  * @brief
@@ -76,7 +70,7 @@ EXPORT_SYMBOL simpleble_err_t simpleble_adapter_scan_start(simpleble_adapter_t h
  * @param handle
  * @return simpleble_err_t
  */
-EXPORT_SYMBOL simpleble_err_t simpleble_adapter_scan_stop(simpleble_adapter_t handle);
+simpleble_err_t simpleble_adapter_scan_stop(simpleble_adapter_t handle);
 
 /**
  * @brief
@@ -85,7 +79,7 @@ EXPORT_SYMBOL simpleble_err_t simpleble_adapter_scan_stop(simpleble_adapter_t ha
  * @param active
  * @return simpleble_err_t
  */
-EXPORT_SYMBOL simpleble_err_t simpleble_adapter_scan_is_active(simpleble_adapter_t handle, bool* active);
+simpleble_err_t simpleble_adapter_scan_is_active(simpleble_adapter_t handle, bool* active);
 
 /**
  * @brief
@@ -94,7 +88,7 @@ EXPORT_SYMBOL simpleble_err_t simpleble_adapter_scan_is_active(simpleble_adapter
  * @param timeout_ms
  * @return simpleble_err_t
  */
-EXPORT_SYMBOL simpleble_err_t simpleble_adapter_scan_for(simpleble_adapter_t handle, int timeout_ms);
+simpleble_err_t simpleble_adapter_scan_for(simpleble_adapter_t handle, int timeout_ms);
 
 /**
  * @brief
@@ -102,7 +96,7 @@ EXPORT_SYMBOL simpleble_err_t simpleble_adapter_scan_for(simpleble_adapter_t han
  * @param handle
  * @return size_t
  */
-EXPORT_SYMBOL size_t simpleble_adapter_scan_get_results_count(simpleble_adapter_t handle);
+size_t simpleble_adapter_scan_get_results_count(simpleble_adapter_t handle);
 
 /**
  * @brief
@@ -114,7 +108,7 @@ EXPORT_SYMBOL size_t simpleble_adapter_scan_get_results_count(simpleble_adapter_
  * @param index
  * @return simpleble_peripheral_t
  */
-EXPORT_SYMBOL simpleble_peripheral_t simpleble_adapter_scan_get_results_handle(simpleble_adapter_t handle, size_t index);
+simpleble_peripheral_t simpleble_adapter_scan_get_results_handle(simpleble_adapter_t handle, size_t index);
 
 /**
  * @brief
@@ -123,7 +117,7 @@ EXPORT_SYMBOL simpleble_peripheral_t simpleble_adapter_scan_get_results_handle(s
  * @param callback
  * @return simpleble_err_t
  */
-EXPORT_SYMBOL simpleble_err_t simpleble_adapter_set_callback_on_scan_start(
+simpleble_err_t simpleble_adapter_set_callback_on_scan_start(
     simpleble_adapter_t handle, void (*callback)(simpleble_adapter_t adapter, void* userdata), void* userdata);
 
 /**
@@ -133,7 +127,7 @@ EXPORT_SYMBOL simpleble_err_t simpleble_adapter_set_callback_on_scan_start(
  * @param callback
  * @return simpleble_err_t
  */
-EXPORT_SYMBOL simpleble_err_t simpleble_adapter_set_callback_on_scan_stop(
+simpleble_err_t simpleble_adapter_set_callback_on_scan_stop(
     simpleble_adapter_t handle, void (*callback)(simpleble_adapter_t adapter, void* userdata), void* userdata);
 
 /**
@@ -143,7 +137,7 @@ EXPORT_SYMBOL simpleble_err_t simpleble_adapter_set_callback_on_scan_stop(
  * @param callback
  * @return simpleble_err_t
  */
-EXPORT_SYMBOL simpleble_err_t simpleble_adapter_set_callback_on_scan_updated(
+simpleble_err_t simpleble_adapter_set_callback_on_scan_updated(
     simpleble_adapter_t handle,
     void (*callback)(simpleble_adapter_t adapter, simpleble_peripheral_t peripheral, void* userdata), void* userdata);
 
@@ -154,7 +148,7 @@ EXPORT_SYMBOL simpleble_err_t simpleble_adapter_set_callback_on_scan_updated(
  * @param callback
  * @return simpleble_err_t
  */
-EXPORT_SYMBOL simpleble_err_t simpleble_adapter_set_callback_on_scan_found(
+simpleble_err_t simpleble_adapter_set_callback_on_scan_found(
     simpleble_adapter_t handle,
     void (*callback)(simpleble_adapter_t adapter, simpleble_peripheral_t peripheral, void* userdata), void* userdata);
 

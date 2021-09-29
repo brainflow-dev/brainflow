@@ -1,12 +1,11 @@
 #pragma once
 
+#include "ble_lib_board.h"
 #include <chrono>
 #include <condition_variable>
 #include <mutex>
 #include <string>
 #include <thread>
-
-#include "ble_lib_board.h"
 
 
 class MuseS : public BLELibBoard
@@ -14,10 +13,10 @@ class MuseS : public BLELibBoard
 
 private:
     volatile bool keep_alive;
+    volatile simpleble_adapter_t muse_adapter;
+    volatile simpleble_peripheral_t muse_peripheral;
     bool initialized;
     std::thread streaming_thread;
-    simpleble_adapter_t muse_adapter;
-    simpleble_peripheral_t muse_peripheral;
     std::mutex m;
     std::condition_variable cv;
 

@@ -170,6 +170,8 @@ set_property(TARGET simpleble-static PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_property(TARGET simpleble PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_property(TARGET simpleble-c-static PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_property(TARGET simpleble-c PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_property(TARGET simpleble PROPERTY WINDOWS_EXPORT_ALL_SYMBOLS ON)
+set_property(TARGET simpleble-c PROPERTY WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 target_include_directories(simpleble-static PRIVATE ${SIMPLE_BLE_ALL_INCLUDE_DIRS})
 target_include_directories(simpleble PRIVATE ${SIMPLE_BLE_ALL_INCLUDE_DIRS})

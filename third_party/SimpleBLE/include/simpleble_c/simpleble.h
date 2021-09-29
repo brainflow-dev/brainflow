@@ -3,12 +3,6 @@
 #include <simpleble_c/adapter.h>
 #include <simpleble_c/peripheral.h>
 
-#ifdef _WIN32
-#define EXPORT_SYMBOL __declspec(dllexport)
-#else
-#define EXPORT_SYMBOL
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -19,7 +13,7 @@ extern "C" {
  *
  * @param handle
  */
-EXPORT_SYMBOL void simpleble_free(void* handle);
+void simpleble_free(void* handle);
 
 #ifdef __cplusplus
 }

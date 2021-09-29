@@ -31,7 +31,7 @@ BluetoothAddress Adapter::address() { return internal_->address(); }
 
 void Adapter::scan_start() { internal_->scan_start(); }
 
-void Adapter::scan_stop() { internal_->scan_start(); }
+void Adapter::scan_stop() { internal_->scan_stop(); }
 
 void Adapter::scan_for(int timeout_ms) { internal_->scan_for(timeout_ms); }
 
