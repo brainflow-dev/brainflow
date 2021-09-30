@@ -10,3 +10,4 @@ subtitle: Articles which use BrainFlow
 * [PERFORMANCE OF OPENBCI EEG BINARY INTENT
 CLASSIFICATION WITH LARYNGEAL IMAGERY](https://arxiv.org/pdf/2107.00045.pdf)
 * [M.G. Mussi, Development of a simultaneous Hybrid Brain-Computer Interface using SSVEP and P300](https://www.resna.org/sites/default/files/conference/2021/NewEmergingTechnology/75_Mussi/75_Mussi.pdf)
+* [Rakhmatulin, I., Parfenov, A., Traylor, Z. et al. Low-cost brain computer interface for everyday use. Exp Brain Res (2021). https://doi.org/10.1007/s00221-021-06231-4](https://link.springer.com/article/10.1007/s00221-021-06231-4)
