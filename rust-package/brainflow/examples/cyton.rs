@@ -4,8 +4,8 @@ use brainflow::ml_model::{BrainFlowModelParamsBuilder, MlModel};
 use brainflow::BoardId;
 
 fn main() {
-    brainflow::ml_model::enable_ml_logger().unwrap();
     brainflow::board_shim::enable_dev_board_logger().unwrap();
+    brainflow::ml_model::enable_ml_logger().unwrap();
     let params = BrainFlowInputParamsBuilder::default()
         .serial_port("/dev/ttyUSB0")
         .build();

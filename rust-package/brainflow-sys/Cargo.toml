@@ -16,3 +16,6 @@ build_bluetooth = []
 [build-dependencies]
 bindgen = { version = "0.59.1", optional = true }
 cmake = "0.1"
+
+[dependencies]
+libloading = "0.7.0"

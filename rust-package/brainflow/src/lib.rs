@@ -2,7 +2,6 @@ extern crate num;
 #[macro_use]
 extern crate num_derive;
 
-use brainflow_sys as ffi;
 use error::{BrainFlowError, Error};
 
 mod board_id;
