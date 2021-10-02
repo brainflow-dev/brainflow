@@ -10,14 +10,30 @@ use crate::{check_brainflow_exit_code, Result};
 mod brainflow_model_param;
 pub use brainflow_model_param::{BrainFlowModelParams, BrainFlowModelParamsBuilder};
 
-use brainflow_sys::constants::LogLevels;
-use brainflow_sys::ml_model::MlModule;
+use crate::ffi::constants::LogLevels;
+use crate::ffi::ml_model::MlModule;
 use once_cell::sync::Lazy;
 
+#[cfg(target_os = "windows")]
 pub static ML_MODULE: Lazy<Mutex<MlModule>> = Lazy::new(|| {
-    let lib_path = Path::new(
-        "../brainflow-sys/target/debug/build/brainflow-sys-7b10940f08b63c04/out/lib/libMLModule.so",
-    );
+    #[cfg(target_pointer_width = "64")]
+    let lib_path = Path::new("lib\\libMLModule.dll");
+    #[cfg(target_pointer_width = "32")]
+    let lib_path = Path::new("lib\\libMLModule32.dll");
+    let ml_module = unsafe { MlModule::new(lib_path).unwrap() };
+    Mutex::new(ml_module)
+});
+
+#[cfg(target_os = "macos")]
+pub static ML_MODULE: Lazy<Mutex<MlModule>> = Lazy::new(|| {
+    let lib_path = Path::new("lib/libMLModule.dylib");
+    let ml_module = unsafe { MlModule::new(lib_path).unwrap() };
+    Mutex::new(ml_module)
+});
+
+#[cfg(target_os = "linux")]
+pub static ML_MODULE: Lazy<Mutex<MlModule>> = Lazy::new(|| {
+    let lib_path = Path::new("lib/libMLModule.so");
     let ml_module = unsafe { MlModule::new(lib_path).unwrap() };
     Mutex::new(ml_module)
 });

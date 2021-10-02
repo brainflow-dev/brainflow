@@ -1,3 +1,0 @@
-[submodule "rust-package/brainflow-sys/brainflow"]
-	path = rust-package/brainflow-sys/brainflow
-	url = git@github.com:brainflow-dev/brainflow.git

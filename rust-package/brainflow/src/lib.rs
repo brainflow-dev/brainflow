@@ -9,6 +9,7 @@ pub mod board_shim;
 pub mod brainflow_input_params;
 pub mod data_filter;
 mod error;
+mod ffi;
 pub mod ml_model;
 
 pub use board_id::BoardId;

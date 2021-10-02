@@ -5,9 +5,12 @@ edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+generate_binding = []
+
 [dependencies]
-brainflow-sys = { path = "../brainflow-sys" }
 getset = "0.1.1"
+libloading = "0.7.0"
 ndarray = "0.15.3"
 num = "0.4.0"
 num-complex = "0.4.0"
@@ -18,3 +21,6 @@ paste = "1.0.5"
 serde = { version ="1.0.130", features=["derive"] }
 serde_json = "1.0.68"
 thiserror = "1.0.29"
+
+[build-dependencies]
+bindgen = "0.59.1"

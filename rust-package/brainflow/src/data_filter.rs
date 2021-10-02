@@ -9,20 +9,37 @@ use std::sync::Mutex;
 use std::{ffi::CString, os::raw::c_double};
 
 use crate::error::{BrainFlowError, Error};
+use crate::ffi::{
+    constants::{
+        AggOperations, DetrendOperations, FilterTypes, LogLevels, NoiseTypes, WindowFunctions,
+    },
+    data_handler::DataHandler,
+};
 use crate::{check_brainflow_exit_code, Result};
-use brainflow_sys::data_handler::DataHandler;
 
+#[cfg(target_os = "windows")]
 pub static DATA_FILTER: Lazy<Mutex<DataHandler>> = Lazy::new(|| {
-    let lib_path = Path::new(
-        "../brainflow-sys/target/debug/build/brainflow-sys-7b10940f08b63c04/out/lib/libDataHandler.so",
-    );
+    #[cfg(target_pointer_width = "64")]
+    let lib_path = Path::new("lib\\libDataHandler.dll");
+    #[cfg(target_pointer_width = "32")]
+    let lib_path = Path::new("lib\\libDataHandler32.dll");
     let data_filter = unsafe { DataHandler::new(lib_path).unwrap() };
     Mutex::new(data_filter)
 });
 
-use brainflow_sys::constants::{
-    AggOperations, DetrendOperations, FilterTypes, LogLevels, NoiseTypes, WindowFunctions,
-};
+#[cfg(target_os = "macos")]
+pub static DATA_FILTER: Lazy<Mutex<DataHandler>> = Lazy::new(|| {
+    let lib_path = Path::new("lib/libDataHandler.dylib");
+    let data_filter = unsafe { DataHandler::new(lib_path).unwrap() };
+    Mutex::new(data_filter)
+});
+
+#[cfg(target_os = "linux")]
+pub static DATA_FILTER: Lazy<Mutex<DataHandler>> = Lazy::new(|| {
+    let lib_path = Path::new("lib/libDataHandler.so");
+    let data_filter = unsafe { DataHandler::new(lib_path).unwrap() };
+    Mutex::new(data_filter)
+});
 
 pub fn set_log_level(log_level: LogLevels) -> Result<()> {
     let res = unsafe {

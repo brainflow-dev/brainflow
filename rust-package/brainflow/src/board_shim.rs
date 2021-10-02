@@ -14,15 +14,31 @@ use crate::{
     BoardId, Result,
 };
 
-use brainflow_sys::board_controller::BoardController;
-use brainflow_sys::constants::LogLevels;
+use crate::ffi::board_controller::BoardController;
+use crate::ffi::constants::LogLevels;
 
 const MAX_CHANNELS: usize = 512;
 
+#[cfg(target_os = "windows")]
 pub static BOARD_CONTROLLER: Lazy<Mutex<BoardController>> = Lazy::new(|| {
-    let lib_path = Path::new(
-        "../brainflow-sys/target/debug/build/brainflow-sys-7b10940f08b63c04/out/lib/libBoardController.so",
-    );
+    #[cfg(target_pointer_width = "64")]
+    let lib_path = Path::new("lib\\libBoardController.dll");
+    #[cfg(target_pointer_width = "32")]
+    let lib_path = Path::new("lib\\libBoardController32.dll");
+    let board_controller = unsafe { BoardController::new(lib_path).unwrap() };
+    Mutex::new(board_controller)
+});
+
+#[cfg(target_os = "macos")]
+pub static BOARD_CONTROLLER: Lazy<Mutex<BoardController>> = Lazy::new(|| {
+    let lib_path = Path::new("lib/libBoardController.dylib");
+    let board_controller = unsafe { BoardController::new(lib_path).unwrap() };
+    Mutex::new(board_controller)
+});
+
+#[cfg(target_os = "linux")]
+pub static BOARD_CONTROLLER: Lazy<Mutex<BoardController>> = Lazy::new(|| {
+    let lib_path = Path::new("lib/libBoardController.so");
     let board_controller = unsafe { BoardController::new(lib_path).unwrap() };
     Mutex::new(board_controller)
 });

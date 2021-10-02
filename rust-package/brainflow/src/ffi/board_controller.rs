@@ -2,7 +2,6 @@
 
 #![allow(non_camel_case_types)]
 
-
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct JNINativeInterface {

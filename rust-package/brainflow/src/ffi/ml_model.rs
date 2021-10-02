@@ -2,7 +2,6 @@
 
 #![allow(non_camel_case_types)]
 
-
 extern crate libloading;
 pub struct MlModule {
     __library: ::libloading::Library,
