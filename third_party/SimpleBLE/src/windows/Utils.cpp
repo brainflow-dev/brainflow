@@ -42,9 +42,9 @@ winrt::guid uuid_to_guid(const std::string& uuid) {
     winrt::guid guid;
     uint64_t* data4_ptr = (uint64_t*)guid.Data4;
 
-    guid.Data1 = std::strtoul(clean_uuid.substr(0, 8).c_str(), nullptr, 16);
-    guid.Data2 = std::strtoul(clean_uuid.substr(8, 4).c_str(), nullptr, 16);
-    guid.Data3 = std::strtoul(clean_uuid.substr(12, 4).c_str(), nullptr, 16);
+    guid.Data1 = (uint16_t)std::strtoul(clean_uuid.substr(0, 8).c_str(), nullptr, 16);
+    guid.Data2 = (uint16_t)std::strtoul(clean_uuid.substr(8, 4).c_str(), nullptr, 16);
+    guid.Data3 = (uint16_t)std::strtoul(clean_uuid.substr(12, 4).c_str(), nullptr, 16);
     *data4_ptr = _byteswap_uint64(std::strtoull(clean_uuid.substr(16, 16).c_str(), nullptr, 16));
 
     return guid;

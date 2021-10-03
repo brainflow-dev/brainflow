@@ -11,7 +11,7 @@ SimpleBLE::Safe::Peripheral::~Peripheral() {}
 std::optional<std::string> SimpleBLE::Safe::Peripheral::identifier() noexcept {
     try {
         return SimpleBLE::Peripheral::identifier();
-    } catch (const SimpleBLE::Exception::BaseException& e) {
+    } catch (const SimpleBLE::Exception::BaseException&) {
         return std::nullopt;
     }
 }
@@ -19,7 +19,7 @@ std::optional<std::string> SimpleBLE::Safe::Peripheral::identifier() noexcept {
 std::optional<SimpleBLE::BluetoothAddress> SimpleBLE::Safe::Peripheral::address() noexcept {
     try {
         return SimpleBLE::Peripheral::address();
-    } catch (const SimpleBLE::Exception::BaseException& e) {
+    } catch (const SimpleBLE::Exception::BaseException&) {
         return std::nullopt;
     }
 }
@@ -28,7 +28,7 @@ bool SimpleBLE::Safe::Peripheral::connect() noexcept {
     try {
         SimpleBLE::Peripheral::connect();
         return true;
-    } catch (const SimpleBLE::Exception::BaseException& e) {
+    } catch (const SimpleBLE::Exception::BaseException&) {
         return false;
     }
 }
@@ -37,7 +37,7 @@ bool SimpleBLE::Safe::Peripheral::disconnect() noexcept {
     try {
         SimpleBLE::Peripheral::disconnect();
         return true;
-    } catch (const SimpleBLE::Exception::BaseException& e) {
+    } catch (const SimpleBLE::Exception::BaseException&) {
         return false;
     }
 }
@@ -45,7 +45,7 @@ bool SimpleBLE::Safe::Peripheral::disconnect() noexcept {
 std::optional<bool> SimpleBLE::Safe::Peripheral::is_connected() noexcept {
     try {
         return SimpleBLE::Peripheral::is_connected();
-    } catch (const SimpleBLE::Exception::BaseException& e) {
+    } catch (const SimpleBLE::Exception::BaseException&) {
         return std::nullopt;
     }
 }
@@ -53,7 +53,7 @@ std::optional<bool> SimpleBLE::Safe::Peripheral::is_connected() noexcept {
 std::optional<bool> SimpleBLE::Safe::Peripheral::is_connectable() noexcept {
     try {
         return SimpleBLE::Peripheral::is_connectable();
-    } catch (const SimpleBLE::Exception::BaseException& e) {
+    } catch (const SimpleBLE::Exception::BaseException&) {
         return std::nullopt;
     }
 }
@@ -66,7 +66,7 @@ std::optional<std::map<uint16_t, SimpleBLE::ByteArray>> SimpleBLE::Safe::Periphe
 std::optional<std::vector<SimpleBLE::BluetoothService>> SimpleBLE::Safe::Peripheral::services() noexcept {
     try {
         return SimpleBLE::Peripheral::services();
-    } catch (const SimpleBLE::Exception::BaseException& e) {
+    } catch (const SimpleBLE::Exception::BaseException&) {
         return std::nullopt;
     }
 }
@@ -75,7 +75,7 @@ std::optional<SimpleBLE::ByteArray> SimpleBLE::Safe::Peripheral::read(BluetoothU
                                                                       BluetoothUUID characteristic) noexcept {
     try {
         return SimpleBLE::Peripheral::read(service, characteristic);
-    } catch (const SimpleBLE::Exception::BaseException& e) {
+    } catch (const SimpleBLE::Exception::BaseException&) {
         return std::nullopt;
     }
 }
@@ -85,7 +85,7 @@ bool SimpleBLE::Safe::Peripheral::write_request(BluetoothUUID service, Bluetooth
     try {
         SimpleBLE::Peripheral::write_request(service, characteristic, data);
         return true;
-    } catch (const SimpleBLE::Exception::BaseException& e) {
+    } catch (const SimpleBLE::Exception::BaseException&) {
         return false;
     }
 }
@@ -95,7 +95,7 @@ bool SimpleBLE::Safe::Peripheral::write_command(BluetoothUUID service, Bluetooth
     try {
         SimpleBLE::Peripheral::write_command(service, characteristic, data);
         return true;
-    } catch (const SimpleBLE::Exception::BaseException& e) {
+    } catch (const SimpleBLE::Exception::BaseException&) {
         return false;
     }
 }
@@ -105,7 +105,7 @@ bool SimpleBLE::Safe::Peripheral::notify(BluetoothUUID service, BluetoothUUID ch
     try {
         SimpleBLE::Peripheral::notify(service, characteristic, callback);
         return true;
-    } catch (const SimpleBLE::Exception::BaseException& e) {
+    } catch (const SimpleBLE::Exception::BaseException&) {
         return false;
     }
 }
@@ -115,7 +115,7 @@ bool SimpleBLE::Safe::Peripheral::indicate(BluetoothUUID service, BluetoothUUID 
     try {
         SimpleBLE::Peripheral::indicate(service, characteristic, callback);
         return true;
-    } catch (const SimpleBLE::Exception::BaseException& e) {
+    } catch (const SimpleBLE::Exception::BaseException&) {
         return false;
     }
 }
@@ -124,7 +124,7 @@ bool SimpleBLE::Safe::Peripheral::unsubscribe(BluetoothUUID service, BluetoothUU
     try {
         SimpleBLE::Peripheral::unsubscribe(service, characteristic);
         return true;
-    } catch (const SimpleBLE::Exception::BaseException& e) {
+    } catch (const SimpleBLE::Exception::BaseException&) {
         return false;
     }
 }
@@ -133,7 +133,7 @@ bool SimpleBLE::Safe::Peripheral::set_callback_on_connected(std::function<void()
     try {
         SimpleBLE::Peripheral::set_callback_on_connected(on_connected);
         return true;
-    } catch (const SimpleBLE::Exception::BaseException& e) {
+    } catch (const SimpleBLE::Exception::BaseException&) {
         return false;
     }
 }
@@ -142,7 +142,7 @@ bool SimpleBLE::Safe::Peripheral::set_callback_on_disconnected(std::function<voi
     try {
         SimpleBLE::Peripheral::set_callback_on_disconnected(on_disconnected);
         return true;
-    } catch (const SimpleBLE::Exception::BaseException& e) {
+    } catch (const SimpleBLE::Exception::BaseException&) {
         return false;
     }
 }

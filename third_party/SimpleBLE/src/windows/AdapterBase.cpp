@@ -42,8 +42,13 @@ AdapterBase::AdapterBase(std::string device_id)
 AdapterBase::~AdapterBase() {}
 
 std::vector<std::shared_ptr<AdapterBase>> AdapterBase::get_adapters() {
-    // Initialize the WinRT backend.
-    winrt::init_apartment();
+    // Attempt to initialize the WinRT backend if not already set.
+    // NOTE: Not using the winrt::init_apartment() function
+    // as it will throw an exception if the backend is already initialized.
+    // This way, the call can fail silently.
+    // TODO: Investigate if multi or single threaded initialization is needed.
+    winrt::apartment_type const type = winrt::apartment_type::single_threaded;
+    winrt::hresult const result = WINRT_RoInitialize(static_cast<uint32_t>(type));
 
     auto device_selector = BluetoothAdapter::GetDeviceSelector();
     auto device_information_collection = Devices::Enumeration::DeviceInformation::FindAllAsync(device_selector).get();

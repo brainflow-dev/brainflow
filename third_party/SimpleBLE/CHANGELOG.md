@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Compilation errors that came up during development. _(Thanks fidoriel!)_
 - WinRT buffer allocation would fail. _(Thanks PatrykSajdok!)_
 - `SimpleBLE::Adapter` would fail to stop scanning. _(Thanks PatrykSajdok!)_
+- Switched WinRT initialization to single-threaded.
 
 ## [0.0.1] - 2021-09-06
 
