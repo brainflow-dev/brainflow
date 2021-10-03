@@ -39,20 +39,18 @@ pub static ML_MODULE: Lazy<Mutex<MlModule>> = Lazy::new(|| {
 });
 
 pub struct MlModel {
-    model_params: BrainFlowModelParams,
     json_model_params: CString,
 }
 
 impl MlModel {
+    /// Create a new MlModel.
     pub fn new(model_params: BrainFlowModelParams) -> Result<Self> {
         let json_model_params = serde_json::to_string(&model_params)?;
         let json_model_params = CString::new(json_model_params)?;
-        Ok(Self {
-            model_params,
-            json_model_params,
-        })
+        Ok(Self { json_model_params })
     }
 
+    /// Prepare classifier.
     pub fn prepare(&self) -> Result<()> {
         let res = unsafe {
             ML_MODULE
@@ -63,6 +61,7 @@ impl MlModel {
         Ok(check_brainflow_exit_code(res)?)
     }
 
+    /// Calculate metric from data.
     pub fn predict(&self, data: &mut [f64]) -> Result<f64> {
         let mut output = 0.0;
         let res = unsafe {
@@ -77,6 +76,7 @@ impl MlModel {
         Ok(output)
     }
 
+    /// Release classifier.
     pub fn release(&self) -> Result<()> {
         let res = unsafe {
             ML_MODULE
@@ -88,23 +88,30 @@ impl MlModel {
     }
 }
 
+/// Set BrainFlow ML log level.
+/// Use it only if you want to write your own messages to BrainFlow logger.
+/// Otherwise use [enable_ml_logger], [enable_dev_ml_logger], or [disable_ml_logger].
 pub fn set_log_level(log_level: LogLevels) -> Result<()> {
     let res = unsafe { ML_MODULE.lock().unwrap().set_log_level(log_level as c_int) };
     Ok(check_brainflow_exit_code(res)?)
 }
 
+/// Enable ML logger with level INFO, uses stderr for log messages by default.
 pub fn enable_ml_logger() -> Result<()> {
     set_log_level(LogLevels::LEVEL_INFO)
 }
 
+/// Disable BrainFlow ML logger.
 pub fn disable_ml_logger() -> Result<()> {
     set_log_level(LogLevels::LEVEL_OFF)
 }
 
+/// Enable ML logger with level TRACE, uses stderr for log messages by default.
 pub fn enable_dev_ml_logger() -> Result<()> {
     set_log_level(LogLevels::LEVEL_TRACE)
 }
 
+/// Redirect ML logger from stderr to file, can be called any time.
 pub fn set_log_file<S: AsRef<str>>(log_file: S) -> Result<()> {
     let log_file = log_file.as_ref();
     let log_file = CString::new(log_file)?;

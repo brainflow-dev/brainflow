@@ -5,20 +5,25 @@ extern crate num_derive;
 use error::{BrainFlowError, Error};
 
 mod board_id;
+/// The primary interface to all boards.
 pub mod board_shim;
+/// Input parameters for [board_shim::BoardShim].
 pub mod brainflow_input_params;
+
+/// Methods for signal processig.
 pub mod data_filter;
 mod error;
 mod ffi;
+/// Used to calculate derivative metrics from raw data.
 pub mod ml_model;
 
+/// Enum to store all supported Board Ids.
 pub use board_id::BoardId;
 
 type BrainFlowExitCode = i32;
 
-pub fn check_brainflow_exit_code(
-    value: BrainFlowExitCode,
-) -> std::result::Result<(), BrainFlowError> {
+/// Convert the brainflow exit code to [BrainFlowError].
+fn check_brainflow_exit_code(value: BrainFlowExitCode) -> std::result::Result<(), BrainFlowError> {
     if value == 0 {
         Ok(())
     } else {

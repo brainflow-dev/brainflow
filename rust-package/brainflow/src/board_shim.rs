@@ -43,6 +43,7 @@ pub static BOARD_CONTROLLER: Lazy<Mutex<BoardController>> = Lazy::new(|| {
     Mutex::new(board_controller)
 });
 
+/// BoardShim is a primary interface to all boards
 pub struct BoardShim {
     board_id: BoardId,
     input_params: BrainFlowInputParams,
@@ -50,6 +51,7 @@ pub struct BoardShim {
 }
 
 impl BoardShim {
+    /// Creates a new [BoardShim].
     pub fn new(board_id: BoardId, input_params: BrainFlowInputParams) -> Result<Self> {
         let json_input_params = serde_json::to_string(&input_params)?;
         let json_input_params = CString::new(json_input_params)?;
@@ -59,7 +61,8 @@ impl BoardShim {
             json_brainflow_input_params: json_input_params,
         })
     }
-
+    /// Prepare streaming sesssion and initialize resources.
+    /// You need to call it before any other BoardShim object methods.
     pub fn prepare_session(&self) -> Result<()> {
         let res = unsafe {
             BOARD_CONTROLLER.lock().unwrap().prepare_session(
@@ -70,6 +73,7 @@ impl BoardShim {
         Ok(check_brainflow_exit_code(res)?)
     }
 
+    /// Returns true if the session is ready.
     pub fn is_prepared(&self) -> Result<bool> {
         let mut prepared = 0;
         let res = unsafe {
@@ -83,6 +87,7 @@ impl BoardShim {
         Ok(prepared > 0)
     }
 
+    /// Start streaming data, this methods stores data in ringbuffer.
     pub fn start_stream<S: AsRef<str>>(
         &self,
         buffer_size: usize,
@@ -100,6 +105,7 @@ impl BoardShim {
         Ok(check_brainflow_exit_code(res)?)
     }
 
+    /// Stop streaming data.
     pub fn stop_stream(&self) -> Result<()> {
         let res = unsafe {
             BOARD_CONTROLLER.lock().unwrap().stop_stream(
@@ -110,6 +116,7 @@ impl BoardShim {
         Ok(check_brainflow_exit_code(res)?)
     }
 
+    /// Release all resources.
     pub fn release_session(&self) -> Result<()> {
         let res = unsafe {
             BOARD_CONTROLLER.lock().unwrap().release_session(
@@ -120,6 +127,7 @@ impl BoardShim {
         Ok(check_brainflow_exit_code(res)?)
     }
 
+    /// Get num of elements in ringbuffer.
     pub fn board_data_count(&self) -> Result<usize> {
         let mut data_count = 0;
         let res = unsafe {
@@ -133,10 +141,12 @@ impl BoardShim {
         Ok(data_count as usize)
     }
 
+    /// Get num of elements in ringbuffer.
     pub fn get_board_data_count(&self) -> Result<usize> {
         self.board_data_count()
     }
 
+    /// Get board data and remove data from ringbuffer
     pub fn board_data(&self, n_data_points: Option<usize>) -> Result<Vec<Vec<f64>>> {
         let num_rows = num_rows(self.board_id)?;
         let num_samples = if let Some(n) = n_data_points {
@@ -159,10 +169,12 @@ impl BoardShim {
         Ok(data_buf)
     }
 
+    /// Get board data and remove data from ringbuffer
     pub fn get_board_data(&self, n_data_points: Option<usize>) -> Result<Vec<Vec<f64>>> {
         self.board_data(n_data_points)
     }
 
+    /// Get specified amount of data or less if there is not enough data, doesnt remove data from ringbuffer.
     pub fn current_board_data(&self, num_samples: usize) -> Result<Vec<Vec<f64>>> {
         let num_rows = num_rows(self.board_id)?;
         let mut data_buf = Vec::with_capacity(num_samples * num_rows);
@@ -182,10 +194,12 @@ impl BoardShim {
         Ok(data_buf)
     }
 
+    /// Get specified amount of data or less if there is not enough data, doesnt remove data from ringbuffer.
     pub fn get_current_board_data(&self, num_samples: usize) -> Result<Vec<Vec<f64>>> {
         self.current_board_data(num_samples)
     }
 
+    /// Use this method carefully and only if you understand what you are doing, do NOT use it to start or stop streaming
     pub fn config_board<S: AsRef<str>>(&self, config: S) -> Result<String> {
         let config = CString::new(config.as_ref())?;
         let mut response_len = 0;
@@ -212,6 +226,7 @@ impl BoardShim {
             .to_string())
     }
 
+    /// Insert Marker to Data Stream.
     pub fn insert_marker(&self, value: f64) -> Result<()> {
         let res = unsafe {
             BOARD_CONTROLLER.lock().unwrap().insert_marker(
@@ -223,6 +238,7 @@ impl BoardShim {
         Ok(check_brainflow_exit_code(res)?)
     }
 
+    /// Get's the actual board id, can be different than provided.
     pub fn board_id(&self) -> Result<BoardId> {
         Ok(match &self.board_id {
             BoardId::StreamingBoard | BoardId::PlaybackFileBoard => {
@@ -234,6 +250,9 @@ impl BoardShim {
         })
     }
 }
+
+/// Set BrainFlow log level, use it only if you want to write your own messages to BrainFlow logger,
+/// otherwise use [enable_board_logger], [enable_dev_board_logger] or [disable_board_logger].
 pub fn set_log_level(log_level: LogLevels) -> Result<()> {
     let res = unsafe {
         BOARD_CONTROLLER
@@ -244,18 +263,22 @@ pub fn set_log_level(log_level: LogLevels) -> Result<()> {
     Ok(check_brainflow_exit_code(res)?)
 }
 
+/// Enable BrainFlow board logger with level INFO, uses stderr for log messages by default.
 pub fn enable_board_logger() -> Result<()> {
     set_log_level(LogLevels::LEVEL_INFO)
 }
 
+/// Disable BrainFlow board logger.
 pub fn disable_board_logger() -> Result<()> {
     set_log_level(LogLevels::LEVEL_OFF)
 }
 
+/// Enable BrainFlow board logger with level TRACE, uses stderr for log messages by default.
 pub fn enable_dev_board_logger() -> Result<()> {
     set_log_level(LogLevels::LEVEL_TRACE)
 }
 
+/// Redirect board logger from stderr to file, can be called any time.
 pub fn set_log_file<S: AsRef<str>>(log_file: S) -> Result<()> {
     let log_file = log_file.as_ref();
     let log_file = CString::new(log_file)?;
@@ -269,8 +292,9 @@ pub fn set_log_file<S: AsRef<str>>(log_file: S) -> Result<()> {
 }
 
 macro_rules! gen_fn {
-        ($fn_name:ident, $return_type:ident, $initial_value:literal) => {
+        ($fn_name:ident, $return_type:ident, $initial_value:literal, $doc:literal) => {
             paste! {
+                    #[doc = $doc]
                     pub fn $fn_name( board_id: BoardId) -> Result<$return_type> {
                         let mut value = $initial_value;
                         let res = unsafe { BOARD_CONTROLLER.lock().unwrap().[<get_$fn_name>](board_id as c_int, &mut value) };
@@ -278,6 +302,7 @@ macro_rules! gen_fn {
                         Ok(value as $return_type)
                     }
 
+                    #[doc = $doc]
                     pub fn [<get_$fn_name>]( board_id: BoardId) -> Result<$return_type> {
                         $fn_name(board_id)
                 }
@@ -285,13 +310,39 @@ macro_rules! gen_fn {
         };
 }
 
-gen_fn!(sampling_rate, isize, -1);
-gen_fn!(package_num_channel, isize, -1);
-gen_fn!(timestamp_channel, isize, 0);
-gen_fn!(marker_channel, isize, 0);
-gen_fn!(battery_channel, isize, 0);
-gen_fn!(num_rows, usize, 0);
+gen_fn!(sampling_rate, isize, -1, "Write your own log message to BrainFlow logger, use it if you wanna have single logger for your own code and BrainFlow's code.");
+gen_fn!(
+    package_num_channel,
+    isize,
+    -1,
+    "Get package num channel for a board."
+);
+gen_fn!(
+    timestamp_channel,
+    isize,
+    0,
+    "Get timestamp channel in resulting data table for a board."
+);
+gen_fn!(
+    marker_channel,
+    isize,
+    0,
+    "Get marker channel in resulting data table for a board."
+);
+gen_fn!(
+    battery_channel,
+    isize,
+    0,
+    "Get battery channel for a board."
+);
+gen_fn!(
+    num_rows,
+    usize,
+    0,
+    "Get number of rows in resulting data table for a board."
+);
 
+/// Write your own log message to BrainFlow board logger, use it if you wanna have single logger for your own code and BrainFlow's code.
 pub fn log_message<S: AsRef<str>>(log_level: LogLevels, message: S) -> Result<()> {
     let message = message.as_ref();
     let message = CString::new(message)?.into_raw();
@@ -306,6 +357,7 @@ pub fn log_message<S: AsRef<str>>(log_level: LogLevels, message: S) -> Result<()
     Ok(check_brainflow_exit_code(res)?)
 }
 
+/// Get board description as json.
 pub fn board_descr(board_id: BoardId) -> Result<String> {
     let mut response_len = 0;
     let response = CString::new(Vec::with_capacity(16000))?;
@@ -327,10 +379,12 @@ pub fn board_descr(board_id: BoardId) -> Result<String> {
         .to_string())
 }
 
+/// Get board description as json.
 pub fn get_board_descr(board_id: BoardId) -> Result<String> {
     board_descr(board_id)
 }
 
+/// Get names of EEG channels in 10-20 system if their location is fixed.
 pub fn eeg_names(board_id: BoardId) -> Result<Vec<String>> {
     let mut response_len = 0;
     let response = CString::new(Vec::with_capacity(16000))?;
@@ -352,11 +406,12 @@ pub fn eeg_names(board_id: BoardId) -> Result<Vec<String>> {
         .map(|s| s.to_string())
         .collect::<Vec<String>>())
 }
-
+/// Get names of EEG channels in 10-20 system if their location is fixed.
 pub fn get_eeg_names(board_id: BoardId) -> Result<Vec<String>> {
     eeg_names(board_id)
 }
 
+/// Get device name.
 pub fn device_name(board_id: BoardId) -> Result<String> {
     let mut response_len = 0;
     let response = CString::new(Vec::with_capacity(4096))?;
@@ -378,9 +433,15 @@ pub fn device_name(board_id: BoardId) -> Result<String> {
         .to_string())
 }
 
+/// Get device name.
+pub fn get_device_name(board_id: BoardId) -> Result<String> {
+    device_name(board_id)
+}
+
 macro_rules! gen_vec_fn {
-    ($fn_name:ident) => {
+    ($fn_name:ident, $doc:literal) => {
         paste! {
+            #[doc = $doc]
             pub fn $fn_name(board_id: BoardId) -> Result<Vec<isize>> {
                 let mut channels: Vec<isize> = Vec::with_capacity(MAX_CHANNELS);
                 let mut len = 0;
@@ -396,6 +457,7 @@ macro_rules! gen_vec_fn {
                 Ok(channels)
             }
 
+            #[doc = $doc]
             pub fn [<get_$fn_name>](board_id: BoardId) -> Result<Vec<isize>> {
                 $fn_name(board_id)
             }
@@ -403,16 +465,55 @@ macro_rules! gen_vec_fn {
     };
 }
 
-gen_vec_fn!(eeg_channels);
-gen_vec_fn!(exg_channels);
-gen_vec_fn!(emg_channels);
-gen_vec_fn!(ecg_channels);
-gen_vec_fn!(eog_channels);
-gen_vec_fn!(eda_channels);
-gen_vec_fn!(ppg_channels);
-gen_vec_fn!(accel_channels);
-gen_vec_fn!(gyro_channels);
-gen_vec_fn!(analog_channels);
-gen_vec_fn!(other_channels);
-gen_vec_fn!(temperature_channels);
-gen_vec_fn!(resistance_channels);
+gen_vec_fn!(
+    eeg_channels,
+    "Get list of eeg channels in resulting data table for a board."
+);
+gen_vec_fn!(
+    exg_channels,
+    "Get list of exg channels in resulting data table for a board."
+);
+gen_vec_fn!(
+    emg_channels,
+    "Get list of emg channels in resulting data table for a board."
+);
+gen_vec_fn!(
+    ecg_channels,
+    "Get list of ecg channels in resulting data table for a board."
+);
+gen_vec_fn!(
+    eog_channels,
+    "Get list of eog channels in resulting data table for a board."
+);
+gen_vec_fn!(
+    eda_channels,
+    "Get list of eda channels in resulting data table for a board."
+);
+gen_vec_fn!(
+    ppg_channels,
+    "Get list of ppg channels in resulting data table for a board."
+);
+gen_vec_fn!(
+    accel_channels,
+    "Get list of accel channels in resulting data table for a board."
+);
+gen_vec_fn!(
+    gyro_channels,
+    "Get list of gyro channels in resulting data table for a board."
+);
+gen_vec_fn!(
+    analog_channels,
+    "Get list of analog channels in resulting data table for a board."
+);
+gen_vec_fn!(
+    other_channels,
+    "Get list of other channels in resulting data table for a board."
+);
+gen_vec_fn!(
+    temperature_channels,
+    "Get list of temperature channels in resulting data table for a board."
+);
+gen_vec_fn!(
+    resistance_channels,
+    "Get list of resistance channels in resulting data table for a board."
+);

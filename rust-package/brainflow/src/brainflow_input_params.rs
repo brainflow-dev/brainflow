@@ -1,6 +1,7 @@
 use getset::Getters;
 use serde::{Deserialize, Serialize};
 
+/// Input parameters for [crate::board_shim::BoardShim].
 #[derive(Debug, Default, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Getters)]
 #[getset(get = "pub", set = "pub")]
 pub struct BrainFlowInputParams {
@@ -15,41 +16,49 @@ pub struct BrainFlowInputParams {
     file: String,
 }
 
+/// Builder for [BrainFlowInputParams].
 #[derive(Default)]
 pub struct BrainFlowInputParamsBuilder {
     params: BrainFlowInputParams,
 }
 
 impl BrainFlowInputParamsBuilder {
+    /// Create a new builder.
     pub fn new() -> Self {
         Default::default()
     }
 
+    /// Serial port name is used for boards which reads data from serial port.
     pub fn serial_port<S: AsRef<str>>(mut self, port: S) -> Self {
         self.params.serial_port = port.as_ref().to_string();
         self
     }
 
+    /// Mac address, for example, is used for bluetooth based boards.
     pub fn mac_address<S: AsRef<str>>(mut self, address: S) -> Self {
         self.params.mac_address = address.as_ref().to_string();
         self
     }
 
+    /// IP address is used for boards which reads data from socket connection.
     pub fn ip_address<S: AsRef<str>>(mut self, address: S) -> Self {
         self.params.ip_address = address.as_ref().to_string();
         self
     }
 
+    /// IP port for socket connection, for some boards where we know it in front you dont need this parameter.
     pub fn ip_port(mut self, port: usize) -> Self {
         self.params.ip_port = port;
         self
     }
 
+    /// IP protocol type from IpProtocolType enum.
     pub fn ip_protocol(mut self, protocol: i32) -> Self {
         self.params.ip_protocol = protocol;
         self
     }
 
+    /// Other info.
     pub fn other_info<S: AsRef<str>>(mut self, info: S) -> Self {
         self.params.other_info = info.as_ref().to_string();
         self
@@ -70,6 +79,7 @@ impl BrainFlowInputParamsBuilder {
         self
     }
 
+    /// Build BrainFlowInputParams with the given options.
     pub fn build(self) -> BrainFlowInputParams {
         self.params
     }

@@ -41,6 +41,9 @@ pub static DATA_FILTER: Lazy<Mutex<DataHandler>> = Lazy::new(|| {
     Mutex::new(data_filter)
 });
 
+/// Set BrainFlow data logger log level.
+/// Use it only if you want to write your own messages to BrainFlow logger.
+/// Otherwise use [enable_data_logger], [enable_dev_data_logger] or [disable_data_logger].
 pub fn set_log_level(log_level: LogLevels) -> Result<()> {
     let res = unsafe {
         DATA_FILTER
@@ -51,18 +54,22 @@ pub fn set_log_level(log_level: LogLevels) -> Result<()> {
     Ok(check_brainflow_exit_code(res)?)
 }
 
+/// Enable data logger with level INFO, uses stderr for log messages by default
 pub fn enable_data_logger() -> Result<()> {
     set_log_level(LogLevels::LEVEL_INFO)
 }
 
+/// Disable data logger.
 pub fn disable_data_logger() -> Result<()> {
     set_log_level(LogLevels::LEVEL_OFF)
 }
 
+/// Enable data logger with level TRACE, uses stderr for log messages by default.
 pub fn enable_dev_data_logger() -> Result<()> {
     set_log_level(LogLevels::LEVEL_TRACE)
 }
 
+/// Redirect data logger from stderr to file, can be called any time.
 pub fn set_log_file<S: AsRef<str>>(log_file: S) -> Result<()> {
     let log_file = log_file.as_ref();
     let log_file = CString::new(log_file)?;
@@ -70,6 +77,7 @@ pub fn set_log_file<S: AsRef<str>>(log_file: S) -> Result<()> {
     Ok(check_brainflow_exit_code(res)?)
 }
 
+/// Apply low pass filter to provided data.
 pub fn perform_lowpass(
     data: &mut [f64],
     sampling_rate: usize,
@@ -93,6 +101,7 @@ pub fn perform_lowpass(
     Ok(())
 }
 
+/// Apply high pass filter to provided data.
 pub fn perform_highpass(
     data: &mut [f64],
     sampling_rate: usize,
@@ -116,6 +125,7 @@ pub fn perform_highpass(
     Ok(())
 }
 
+/// Apply band pass filter to provided data.
 pub fn perform_bandpass(
     data: &mut [f64],
     sampling_rate: usize,
@@ -141,6 +151,7 @@ pub fn perform_bandpass(
     Ok(())
 }
 
+/// Apply band stop filter to provided data.
 pub fn perform_bandstop(
     data: &mut [f64],
     sampling_rate: usize,
@@ -166,6 +177,7 @@ pub fn perform_bandstop(
     Ok(())
 }
 
+/// Remove environmantal noise using notch filter.
 pub fn remove_environmental_noise(
     data: &mut [f64],
     sampling_rate: usize,
@@ -183,6 +195,7 @@ pub fn remove_environmental_noise(
     Ok(())
 }
 
+/// Smooth data using moving average or median.
 pub fn perform_rolling_filter(
     data: &mut [f64],
     period: usize,
@@ -200,6 +213,7 @@ pub fn perform_rolling_filter(
     Ok(())
 }
 
+/// Perform data downsampling, it doesnt apply lowpass filter for you, it just aggregates several data points.
 pub fn perform_downsampling(
     data: &mut [f64],
     period: usize,
@@ -222,6 +236,7 @@ pub fn perform_downsampling(
     Ok(output)
 }
 
+/// Data struct for output of wavelet transformations.
 #[derive(Getters)]
 #[getset(get = "pub")]
 pub struct WaveletTransform {
@@ -248,6 +263,8 @@ impl WaveletTransform {
         }
     }
 
+    /// Create new WaveletTransform with coefficients.
+    /// This function can be used to create input data for [perform_inverse_wavelet_transform].
     pub fn with_coefficients(
         coefficients: Vec<f64>,
         decomposition_level: usize,
@@ -265,6 +282,7 @@ impl WaveletTransform {
     }
 }
 
+/// Perform wavelet transform.
 pub fn perform_wavelet_transform<S: AsRef<str>>(
     data: &mut [f64],
     wavelet: S,
@@ -295,6 +313,7 @@ pub fn perform_wavelet_transform<S: AsRef<str>>(
     Ok(wavelet_transform)
 }
 
+/// Perform inverse wavelet transform.
 pub fn perform_inverse_wavelet_transform(wavelet_transform: WaveletTransform) -> Result<Vec<f64>> {
     let mut wavelet_transform = wavelet_transform;
     let mut output = Vec::<f64>::with_capacity(wavelet_transform.original_data_len);
@@ -316,6 +335,7 @@ pub fn perform_inverse_wavelet_transform(wavelet_transform: WaveletTransform) ->
     Ok(output)
 }
 
+/// Perform wavelet denoising.
 pub fn perform_wavelet_denoising<S: AsRef<str>>(
     data: &mut [f64],
     wavelet: S,
@@ -334,6 +354,7 @@ pub fn perform_wavelet_denoising<S: AsRef<str>>(
     Ok(())
 }
 
+/// Calculate filters and the corresponding eigenvalues using the Common Spatial Patterns.
 pub fn csp<'a, Data, Labels>(data: Data, labels: Labels) -> Result<(Array2<f64>, Array1<f64>)>
 where
     Data: AsArray<'a, f64, Ix3>,
@@ -371,6 +392,7 @@ where
     Ok((output_filters, output_eigenvalues))
 }
 
+/// Calculate filters and the corresponding eigenvalues using the Common Spatial Patterns.
 pub fn get_csp<'a, Data, Labels>(data: Data, labels: Labels) -> Result<(Array2<f64>, Array1<f64>)>
 where
     Data: AsArray<'a, f64, Ix3>,
@@ -379,6 +401,7 @@ where
     csp(data, labels)
 }
 
+/// Perform data windowing.
 pub fn window(window_function: WindowFunctions, window_len: usize) -> Result<Vec<f64>> {
     let mut output = Vec::<f64>::with_capacity(window_len);
     let res = unsafe {
@@ -392,10 +415,12 @@ pub fn window(window_function: WindowFunctions, window_len: usize) -> Result<Vec
     Ok(output)
 }
 
+/// Perform data windowing.
 pub fn get_window(window_function: WindowFunctions, window_len: usize) -> Result<Vec<f64>> {
     window(window_function, window_len)
 }
 
+/// Perform direct FFT.
 pub fn perform_fft(data: &mut [f64], window_function: WindowFunctions) -> Result<Vec<Complex64>> {
     let mut output_re = Vec::<f64>::with_capacity(data.len() / 2 + 1);
     let mut output_im = Vec::<f64>::with_capacity(data.len() / 2 + 1);
@@ -417,6 +442,7 @@ pub fn perform_fft(data: &mut [f64], window_function: WindowFunctions) -> Result
     Ok(output)
 }
 
+/// Perform inverse FFT.
 pub fn perform_ifft(data: &[Complex64], original_data_len: usize) -> Result<Vec<f64>> {
     let mut restored_data = Vec::<f64>::with_capacity(original_data_len);
     let (mut input_re, mut input_im): (Vec<f64>, Vec<f64>) =
@@ -433,6 +459,7 @@ pub fn perform_ifft(data: &[Complex64], original_data_len: usize) -> Result<Vec<
     Ok(restored_data)
 }
 
+/// Detrend data.
 pub fn detrend(data: &mut [f64], detrend_operation: DetrendOperations) -> Result<()> {
     let res = unsafe {
         DATA_FILTER.lock().unwrap().detrend(
@@ -444,6 +471,7 @@ pub fn detrend(data: &mut [f64], detrend_operation: DetrendOperations) -> Result
     Ok(check_brainflow_exit_code(res)?)
 }
 
+/// Data struct for output of PSD calculations.
 #[derive(Getters)]
 #[getset(get = "pub")]
 pub struct Psd {
@@ -451,6 +479,7 @@ pub struct Psd {
     frequency: Vec<f64>,
 }
 
+/// Calculate PSD.
 pub fn psd(
     data: &mut [f64],
     sampling_rate: usize,
@@ -475,6 +504,7 @@ pub fn psd(
     })
 }
 
+/// Calculate PSD.
 pub fn get_psd(
     data: &mut [f64],
     sampling_rate: usize,
@@ -483,6 +513,7 @@ pub fn get_psd(
     psd(data, sampling_rate, window_function)
 }
 
+/// Calculate PSD using Welch method.
 pub fn psd_welch(
     data: &mut [f64],
     nfft: usize,
@@ -511,6 +542,7 @@ pub fn psd_welch(
     })
 }
 
+/// Calculate PSD using Welch method.
 pub fn get_psd_welch(
     data: &mut [f64],
     nfft: usize,
@@ -521,6 +553,7 @@ pub fn get_psd_welch(
     psd_welch(data, nfft, overlap, sampling_rate, window_function)
 }
 
+/// Calculate avg and stddev of BandPowers across all channels, bands are 1-4,4-8,8-13,13-30,30-50.
 pub fn avg_band_powers<'a, Data>(
     data: Data,
     sampling_rate: usize,
@@ -551,6 +584,7 @@ where
     Ok((avg_band_powers, stddev_band_powers))
 }
 
+/// Calculate avg and stddev of BandPowers across all channels, bands are 1-4,4-8,8-13,13-30,30-50.
 pub fn get_avg_band_powers<'a, Data>(
     data: Data,
     sampling_rate: usize,
@@ -562,6 +596,7 @@ where
     avg_band_powers(data, sampling_rate, apply_filters)
 }
 
+/// Calculate band power.
 pub fn band_power(psd: Psd, freq_start: f64, freq_end: f64) -> Result<f64> {
     let mut band_power = 0.0;
     let mut psd = psd;
@@ -579,10 +614,12 @@ pub fn band_power(psd: Psd, freq_start: f64, freq_end: f64) -> Result<f64> {
     Ok(band_power)
 }
 
+/// Calculate band power.
 pub fn get_band_power(psd: Psd, freq_start: f64, freq_end: f64) -> Result<f64> {
     band_power(psd, freq_start, freq_end)
 }
 
+/// Calculate nearest power of two.
 pub fn nearest_power_of_two(value: usize) -> Result<usize> {
     let mut output = 0;
     let res = unsafe {
@@ -595,10 +632,12 @@ pub fn nearest_power_of_two(value: usize) -> Result<usize> {
     Ok(output as usize)
 }
 
+/// Calculate nearest power of two.
 pub fn get_nearest_power_of_two(value: usize) -> Result<usize> {
     nearest_power_of_two(value)
 }
 
+/// Read data from file.
 pub fn read_file<S: AsRef<str>>(file_name: S) -> Result<Array2<f64>> {
     let file_name = CString::new(file_name.as_ref())?;
     let mut num_elements = 0;
@@ -629,6 +668,7 @@ pub fn read_file<S: AsRef<str>>(file_name: S) -> Result<Array2<f64>> {
     Ok(data)
 }
 
+/// Write data to file, in file data will be transposed.
 pub fn write_file<'a, Data, S>(data: Data, file_name: S, file_mode: S) -> Result<()>
 where
     Data: AsArray<'a, f64, Ix2>,
