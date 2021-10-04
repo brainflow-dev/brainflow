@@ -33,8 +33,16 @@ class Generator:
         raise NotImplementedError
 
     def __lt__(self, other):
-         return self.priority < other.priority
+        return self.priority < other.priority
 
+    def __gt__(self, other):
+        return self.priority > other.priority
+
+    def __le__(self, other):
+        return self.priority <= other.priority
+
+    def __ge__(self, other):
+        return self.priority >= other.priority
 
 class VS2019(Generator):
 
@@ -70,13 +78,13 @@ def get_win_generators():
             result.append(VS2019())
         if '2017' in output:
             result.append(VS2017())
-    except BaseException as e:
+    except BaseException:
         print('No Visual Studio Installations Found')
     return sorted(result, reverse=True)
 
 def check_deps():
     try:
-        cmake = subprocess.check_output(['cmake', '--version'])
+        subprocess.check_output(['cmake', '--version'])
     except BaseException as e:
         print('You need to install CMake first. Run: python -m pip install cmake')
         raise e
@@ -90,7 +98,7 @@ def prepare_args():
         bluetooth_default = True
         parser.add_argument('--oymotion', dest='oymotion', action='store_true')
         parser.add_argument('--no-oymotion', dest='oymotion', action='store_false')
-        parser.set_defaults(oymotion=True)
+        parser.set_defaults(oymotion=False)
         parser.add_argument('--msvc-runtime', type=str, choices=['static', 'dynamic'], help='how to link MSVC runtime', required=False, default='static')
         generators = get_win_generators()
         if not generators:

@@ -47,9 +47,9 @@ public:
     DynLibBoard (int board_id, struct BrainFlowInputParams params);
     virtual ~DynLibBoard ();
 
-    virtual int prepare_session () override;
-    virtual int start_stream (int buffer_size, const char *streamer_params) override;
-    virtual int stop_stream () override;
-    virtual int release_session () override;
-    virtual int config_board (std::string config, std::string &response) override;
+    int prepare_session () override;
+    int start_stream (int buffer_size, const char *streamer_params) override;
+    int stop_stream () override;
+    int release_session () override;
+    int config_board (std::string config, std::string &response) override;
 };

@@ -135,7 +135,49 @@ void IronBCI::read_thread ()
 
     while (keep_alive)
     {
+<<<<<<< HEAD
         // todo parse data
+=======
+        // check start byte
+        res = serial->read_from_serial_port (b, 1);
+        if (res != 1)
+        {
+            safe_logger (spdlog::level::debug, "Unable to read 1 byte");
+            continue;
+        }
+        if (b[0] != IronBCI::start_byte)
+        {
+            continue;
+        }
+
+        // read remaining 26 bytes
+        int remaining_bytes = 26;
+        int pos = 0;
+        while ((remaining_bytes > 0) && (keep_alive))
+        {
+            res = serial->read_from_serial_port (b + pos, remaining_bytes);
+            remaining_bytes -= res;
+            pos += res;
+        }
+        if (!keep_alive)
+        {
+            break;
+        }
+        // check stop byte
+        if (b[25] != IronBCI::stop_byte)
+        {
+            safe_logger (spdlog::level::warn, "Wrong end byte {}", b[25]);
+            continue;
+        }
+
+        // package num
+        package[board_descr["package_num_channel"].get<int> ()] = (double)b[0];
+        // eeg
+        for (unsigned int i = 0; i < eeg_channels.size (); i++)
+        {
+            package[eeg_channels[i]] = (double)eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
+        }
+>>>>>>> master
 
         package[board_descr["timestamp_channel"].get<int> ()] = get_timestamp ();
         push_package (package);

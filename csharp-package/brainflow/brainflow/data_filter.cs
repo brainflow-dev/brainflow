@@ -437,7 +437,6 @@ namespace brainflow
         /// <param name="file_mode"></param>
         public static void write_file (double[,] data, string file_name, string file_mode)
         {
-            int num_rows = data.Rows();
             int res = DataHandlerLibrary.write_file (data.Flatten(), data.Rows (), data.Columns (), file_name, file_mode);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
