@@ -38,7 +38,6 @@ def main():
     params.ip_protocol = args.ip_protocol
     params.timeout = args.timeout
     params.file = args.file
-    input()
 
     board = BoardShim(args.board_id, params)
     board.prepare_session()
