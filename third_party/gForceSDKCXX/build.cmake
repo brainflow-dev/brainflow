@@ -50,6 +50,7 @@ if (MSVC)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/lib/${GFORCE_SDK_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/${GFORCE_SDK_NAME}.dll"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/lib/${GFORCE_SDK_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${GFORCE_SDK_NAME}.dll"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/lib/${GFORCE_SDK_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/julia-package/brainflow/lib/${GFORCE_SDK_NAME}.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/lib/${GFORCE_SDK_NAME}.dll" "${CMAKE_HOME_DIRECTORY}/swift-package/brainflow/lib/${GFORCE_SDK_NAME}.dll"
     )
 endif (MSVC)
 
