@@ -63,7 +63,7 @@ struct BoardShim {
     /**
      * send user defined strings to BrainFlow logger
      */
-    static func logMessage (logLevel: LogLevels, message: String) throws {
+    static func logMessage (_ logLevel: LogLevels, _ message: String) throws {
         var cMessage = message.cString(using: String.Encoding.utf8)!
         let errorCode = log_message (logLevel.rawValue, &cMessage)
         try checkErrorCode("Error in log_message", errorCode)
@@ -370,6 +370,7 @@ struct BoardShim {
      * prepare steaming session, allocate resources
      */
     func prepareSession() throws {
+        try? BoardShim.logMessage(.LEVEL_INFO, "prepare session")
         var jsonBFParams = self.jsonBrainFlowInputParams
         let errorCode = prepare_session(boardId.rawValue, &jsonBFParams)
         try checkErrorCode("failed to prepare session", errorCode)
@@ -409,6 +410,7 @@ struct BoardShim {
      *                        "239.255.255.255"
      */
     func startStream (bufferSize: Int32, streamerParams: String) throws {
+        try? BoardShim.logMessage(.LEVEL_INFO, "start streaming.  buffer size: \(bufferSize)")
         var cStreamerParams = streamerParams.cString(using: String.Encoding.utf8)!
         var jsonBFParams = self.jsonBrainFlowInputParams
         let errorCode = start_stream (bufferSize, &cStreamerParams, boardId.rawValue, &jsonBFParams)
@@ -433,6 +435,7 @@ struct BoardShim {
      * stop streaming thread
      */
     func stopStream () throws {
+        try? BoardShim.logMessage(.LEVEL_INFO, "stop streaming")
         var jsonBFParams = self.jsonBrainFlowInputParams
         let errorCode = stop_stream (boardId.rawValue, &jsonBFParams)
         try checkErrorCode("Error in stop_stream", errorCode)
@@ -442,6 +445,7 @@ struct BoardShim {
      * release all resources
      */
     func releaseSession () throws {
+        try? BoardShim.logMessage(.LEVEL_INFO, "release session")
         var jsonBFParams = self.jsonBrainFlowInputParams
         let errorCode = release_session (boardId.rawValue, &jsonBFParams)
         try checkErrorCode("failed to release session", errorCode)

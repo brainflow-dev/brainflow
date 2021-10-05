@@ -24,7 +24,7 @@ struct BrainFlowInputParams: Encodable {
         encoder.outputFormatting = .prettyPrinted.union(.withoutEscapingSlashes)
 
         guard let jsonParams = try? encoder.encode(self) else {
-            print("Cannot convert BrainFlowInputParams to JSON")
+            try? BoardShim.logMessage(.LEVEL_ERROR, "Cannot convert BrainFlowInputParams to JSON")
             return ""
         }
 

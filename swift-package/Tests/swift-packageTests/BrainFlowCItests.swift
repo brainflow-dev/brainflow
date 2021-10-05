@@ -34,19 +34,6 @@ class BrainFlowCItests: XCTestCase {
         print(data)
     }
     
-    func findUqMarkers(data: [[Double]], boardDescription: BoardDescription) -> Set<Double> {
-        let markerCh = Int(boardDescription.marker_channel)
-        var result = Set<Double>()
-        for i in data[markerCh].indices {
-            let datum = data[markerCh][i]
-            if !result.contains(datum) {
-                result.insert(datum)
-            }
-        }
-        
-        return result
-    }
-    
     func testMarkers() throws {
         try BoardShim.enableDevBoardLogger()
         let params = BrainFlowInputParams()
@@ -62,7 +49,8 @@ class BrainFlowCItests: XCTestCase {
         try board.stopStream()
         try board.releaseSession()
 
-        let uqMarkers = findUqMarkers(data: data, boardDescription: boardDescription)
+        let markerCh = Int(boardDescription.marker_channel)
+        let  uqMarkers = Set(data[markerCh])
         XCTAssert((data.count == 32) && (data[0].count > 100) && (uqMarkers.count == 10))
         print(data)
     }
@@ -73,7 +61,7 @@ class BrainFlowCItests: XCTestCase {
         let board = try BoardShim(.SYNTHETIC_BOARD, params)
         try board.prepareSession()
         try board.startStream()
-        try BoardShim.logMessage(logLevel: .LEVEL_INFO, message: "start sleeping in the main thread")
+        try BoardShim.logMessage(.LEVEL_INFO, "start sleeping in the main thread")
         sleep(10)
         let data = try board.getBoardData()
         try board.stopStream()
@@ -101,7 +89,7 @@ class BrainFlowCItests: XCTestCase {
         let board = try BoardShim(.SYNTHETIC_BOARD, params)
         try board.prepareSession()
         try board.startStream()
-        try BoardShim.logMessage(logLevel: .LEVEL_INFO, message: "start sleeping in the main thread")
+        try BoardShim.logMessage(.LEVEL_INFO, "start sleeping in the main thread")
         sleep(10)
         let data = try board.getBoardData(20)
         try board.stopStream()
@@ -133,23 +121,19 @@ class BrainFlowCItests: XCTestCase {
     }
     
     private func compareData(from: [Double], to: [Double], tol: Double) -> Bool {
+        // return true if all elements match to within given tolerance
         guard ((from.count > 0) && (from.indices == to.indices)) else {
             print("compareData: sizes mismatch")
             return false
         }
         
-        var total = 0
-        var mismatches = 0
         for i in from.indices {
-            total += 1
             if abs(from[i] - to[i]) > tol {
-                mismatches += 1
-                print("mismatch: \(from[i]) - \(to[i])")
+                return false
             }
         }
     
-        print("\(mismatches) out of \(total) total")
-        return (mismatches == 0)
+        return true
     }
     
     func testTransforms() throws {
@@ -159,7 +143,7 @@ class BrainFlowCItests: XCTestCase {
         try board.prepareSession()
         let samplingRate = try BoardShim.getSamplingRate(board.boardId)
         try board.startStream()
-        try BoardShim.logMessage(logLevel: .LEVEL_INFO, message: "start sleeping in the main thread")
+        try BoardShim.logMessage(.LEVEL_INFO, "start sleeping in the main thread")
         sleep(10)
         let data = try board.getCurrentBoardData(DataFilter.getNearestPowerOfTwo(samplingRate))
         try board.stopStream()
@@ -204,7 +188,7 @@ class BrainFlowCItests: XCTestCase {
         let board = try BoardShim(.SYNTHETIC_BOARD, params)
         try board.prepareSession()
         try board.startStream()
-        try BoardShim.logMessage(logLevel: .LEVEL_INFO, message: "start sleeping in the main thread")
+        try BoardShim.logMessage(.LEVEL_INFO, "start sleeping in the main thread")
         sleep(10)
         var data = try board.getBoardData()
         try board.stopStream()
@@ -265,7 +249,7 @@ class BrainFlowCItests: XCTestCase {
         let board = try BoardShim(.SYNTHETIC_BOARD, params)
         try board.prepareSession()
         try board.startStream()
-        try BoardShim.logMessage(logLevel: .LEVEL_INFO, message: "start sleeping in the main thread")
+        try BoardShim.logMessage(.LEVEL_INFO, "start sleeping in the main thread")
         sleep(20)
         var data = try board.getBoardData()
         try board.stopStream()
@@ -342,7 +326,7 @@ class BrainFlowCItests: XCTestCase {
         let board = try BoardShim(boardId, params)
         try board.prepareSession()
         try board.startStream()
-        try BoardShim.logMessage(logLevel: .LEVEL_INFO, message: "start sleeping in the main thread")
+        try BoardShim.logMessage(.LEVEL_INFO, "start sleeping in the main thread")
         sleep(5)
         let nfft = try DataFilter.getNearestPowerOfTwo(samplingRate)
         var data = try board.getBoardData()
@@ -379,7 +363,7 @@ class BrainFlowCItests: XCTestCase {
         let samplingRate = try BoardShim.getSamplingRate(masterBoardId)
         try board.prepareSession()
         try board.startStream(bufferSize: 45000)
-        try BoardShim.logMessage(logLevel: .LEVEL_INFO, message: "start sleeping in the main thread")
+        try BoardShim.logMessage(.LEVEL_INFO, "start sleeping in the main thread")
         sleep(5)  // recommended window size for eeg metric calculation is at least 4 seconds, bigger is better
         let data = try board.getBoardData()
         try board.stopStream()

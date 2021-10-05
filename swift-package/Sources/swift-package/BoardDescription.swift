@@ -1,5 +1,6 @@
 //
 //  BoardDescription.swift
+//  a Swift reimagining of BrainFlow's board_description data type
 //
 //  Created by Scott Miller for Aeris Rising, LLC on 8/23/21.
 //
@@ -18,7 +19,7 @@ struct BoardDescription: Codable, Equatable {
     let package_num_channel: Int32
     let sampling_rate: Int32
     let timestamp_channel: Int32
-    
+    // optionals:
     let battery_channel: Int32?
     let eda_channels: [Int32]?
     let gyro_channels: [Int32]?
@@ -26,13 +27,14 @@ struct BoardDescription: Codable, Equatable {
     let resistance_channels: [Int32]?
     let temperature_channels: [Int32]?
     
-    init(_ description: String) throws {
-        guard description != "" else {
+    // decode the input JSON into self:
+    init(_ descriptionJSON: String) throws {
+        guard descriptionJSON != "" else {
             throw BrainFlowException("Nil board description JSON", .JSON_NOT_FOUND_ERROR)
         }
         
         let decoder = JSONDecoder()
-        let jsonData = Data(description.utf8)
+        let jsonData = Data(descriptionJSON.utf8)
         
         do {
             let json = try decoder.decode(type(of: self), from: jsonData)
