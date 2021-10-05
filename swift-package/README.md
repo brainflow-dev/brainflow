@@ -2,8 +2,9 @@
     <img width="400" height="160" src="https://live.staticflickr.com/65535/49908747533_f359f83610_w.jpg">
 </p>
 
-
 BrainFlow is a library intended to obtain, parse and analyze EEG, EMG, ECG and other kinds of data from biosensors.
+
+It provides a uniform SDK to work with biosensors with primary focus on neurointerfaces, all features available for free!
 
 #### Advantages of BrainFlow:
 
@@ -23,6 +24,37 @@ BrainFlow is a library intended to obtain, parse and analyze EEG, EMG, ECG and o
 ## [BrainFlow Docs, Dev and User guides and other information](https://brainflow.readthedocs.io)
 
 ## [BrainFlow's slack workspace](https://openbraintalk.slack.com/), use this [link to join](https://c6ber255cc.execute-api.eu-west-1.amazonaws.com/Express/)
+
+## Build Status
+
+Compiled with:
+* MSVC on Windows
+* Android NDK with Ninja
+* GCC on Linux
+* Clang on MacOS
+
+*Linux and MacOS*:
+
+[![Run Unix](https://github.com/brainflow-dev/brainflow/workflows/Run%20Unix//badge.svg?branch=master)](https://github.com/brainflow-dev/brainflow/actions)
+
+*Windows*:
+
+[![Run Unix](https://github.com/brainflow-dev/brainflow/workflows/Run%20Windows//badge.svg?branch=master)](https://github.com/brainflow-dev/brainflow/actions)
+
+*Android NDK*:
+
+[![Run Android NDK](https://github.com/brainflow-dev/brainflow/workflows/Run%20Android%20NDK//badge.svg?branch=master)](https://github.com/brainflow-dev/brainflow/actions)
+
+## Brainflow Bindings
+
+We support bindings for:
+* [Python](./python-package)
+* [Java](./java-package/brainflow/)
+* [R](./r-package/)
+* [C++](./cpp-package/)
+* [C#](./csharp-package/brainflow/)
+* [Matlab](./matlab-package/brainflow)
+* [Julia](.julia-package/brainflow)
 
 ## Partners and Sponsors
 
