@@ -41,7 +41,11 @@ extension Encodable {
     // Convert the current struct to a JSON string:
     func encodeJSON() throws -> String {
         let encoder = JSONEncoder()
-        encoder.outputFormatting = .prettyPrinted.union(.withoutEscapingSlashes)
+        if #available(macOS 10.15, *) {
+            encoder.outputFormatting = .prettyPrinted.union(.withoutEscapingSlashes)
+        } else {
+            // Fallback on earlier versions
+        }
         
         do {
 //            return try encoder.encode(self).description

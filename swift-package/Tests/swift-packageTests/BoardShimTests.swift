@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import BCILab
+
 
 class BoardShimTests: XCTestCase {
     let cytonBoardID = BoardIds.CYTON_BOARD

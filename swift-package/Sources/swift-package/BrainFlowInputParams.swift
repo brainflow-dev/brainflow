@@ -21,7 +21,11 @@ struct BrainFlowInputParams: Encodable {
     // Convert the BrainFlowInputParams struct to a JSON string:
     func json() -> String {
         let encoder = JSONEncoder()
-        encoder.outputFormatting = .prettyPrinted.union(.withoutEscapingSlashes)
+        if #available(macOS 10.15, *) {
+            encoder.outputFormatting = .prettyPrinted.union(.withoutEscapingSlashes)
+        } else {
+            // Fallback on earlier versions
+        }
 
         guard let jsonParams = try? encoder.encode(self) else {
             try? BoardShim.logMessage(.LEVEL_ERROR, "Cannot convert BrainFlowInputParams to JSON")

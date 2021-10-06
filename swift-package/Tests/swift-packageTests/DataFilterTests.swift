@@ -4,7 +4,6 @@
 //  https://github.com/brainflow-dev/brainflow/tree/master/tests/python
 
 import XCTest
-@testable import BCILab
 
 class DataFilterTests: XCTestCase {
     func testBandPowerAll() {
@@ -17,7 +16,7 @@ class DataFilterTests: XCTestCase {
             let board = try BoardShim(boardId, params)
             try board.prepareSession()
             try board.startStream()
-            try BoardShim.logMessage(logLevel: .LEVEL_INFO, message: "start sleeping in the main thread")
+            try BoardShim.logMessage(.LEVEL_INFO, "start sleeping in the main thread")
             sleep(5)
             let data = try board.getBoardData()
             try board.stopStream()
@@ -33,11 +32,11 @@ class DataFilterTests: XCTestCase {
                       (avgSum > 0) && (avgSum <= 1) && (stdSum > 0) && (stdSum < 10))
         }
         catch let bfError as BrainFlowException {
-            try? BoardShim.logMessage (logLevel: .LEVEL_ERROR, message: bfError.message)
-            try? BoardShim.logMessage (logLevel: .LEVEL_ERROR, message: "Error code: \(bfError.errorCode)")
+            try? BoardShim.logMessage (.LEVEL_ERROR, bfError.message)
+            try? BoardShim.logMessage (.LEVEL_ERROR, "Error code: \(bfError.errorCode)")
             }
         catch {
-            try? BoardShim.logMessage (logLevel: .LEVEL_ERROR, message: "undefined exception")
+            try? BoardShim.logMessage (.LEVEL_ERROR, "undefined exception")
         }
     }
     
@@ -57,11 +56,11 @@ class DataFilterTests: XCTestCase {
             XCTAssert(roundEigVals == trueEigVals)
         }
         catch let bfError as BrainFlowException {
-            try? BoardShim.logMessage (logLevel: .LEVEL_ERROR, message: bfError.message)
-            try? BoardShim.logMessage (logLevel: .LEVEL_ERROR, message: "Error code: \(bfError.errorCode)")
+            try? BoardShim.logMessage (.LEVEL_ERROR, bfError.message)
+            try? BoardShim.logMessage (.LEVEL_ERROR, "Error code: \(bfError.errorCode)")
             }
         catch {
-            try? BoardShim.logMessage (logLevel: .LEVEL_ERROR, message: "undefined exception")
+            try? BoardShim.logMessage (.LEVEL_ERROR, "undefined exception")
         }
     }
     
@@ -100,10 +99,10 @@ class DataFilterTests: XCTestCase {
             }
         }
         catch let bfError as BrainFlowException {
-            try? BoardShim.logMessage (logLevel: .LEVEL_ERROR, message: bfError.message)
+            try? BoardShim.logMessage (.LEVEL_ERROR, bfError.message)
         }
         catch {
-            try? BoardShim.logMessage (logLevel: .LEVEL_ERROR, message: "undefined exception")
+            try? BoardShim.logMessage (.LEVEL_ERROR, "undefined exception")
         }
     }
 }

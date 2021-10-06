@@ -9,7 +9,6 @@ import Foundation
 
 
 import XCTest
-@testable import BCILab
 
 class BrainFlowCItests: XCTestCase {
     let cytonBoardID = BoardIds.CYTON_BOARD
