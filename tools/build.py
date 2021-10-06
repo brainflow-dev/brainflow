@@ -120,7 +120,7 @@ def prepare_args():
             parser.add_argument('--cmake-osx-architectures', type=str, help='archs for osx', required=False, default='"arm64;x86_64"')
         else:
             parser.add_argument('--cmake-osx-architectures', type=str, help='archs for osx', required=False)
-        parser.add_argument('--cmake-osx-deployment-target', type=str, help='min supported version of osx', required=False, default='10.13')
+        parser.add_argument('--cmake-osx-deployment-target', type=str, help='min supported version of osx', required=False, default='10.15')
         parser.add_argument('--use-libftdi', action='store_true')
         try:
             output = subprocess.check_output(['ninja', '--version'])

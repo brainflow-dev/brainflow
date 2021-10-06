@@ -3,6 +3,8 @@
 #include <simpleble_c/adapter.h>
 #include <simpleble_c/peripheral.h>
 
+#include "shared_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -13,7 +15,7 @@ extern "C" {
  *
  * @param handle
  */
-void simpleble_free(void* handle);
+SHARED_EXPORT void CALLING_CONVENTION simpleble_free(void* handle);
 
 #ifdef __cplusplus
 }

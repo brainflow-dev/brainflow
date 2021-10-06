@@ -52,6 +52,7 @@ Muse::Muse (struct BrainFlowInputParams params) : BLELibBoard ((int)BoardIds::MU
     initialized = false;
     muse_adapter = NULL;
     muse_peripheral = NULL;
+    is_streaming = false;
 }
 
 Muse::~Muse ()
@@ -290,6 +291,10 @@ int Muse::start_stream (int buffer_size, const char *streamer_params)
     {
         res = config_board ("d");
     }
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        is_streaming = true;
+    }
 
     return res;
 }
@@ -300,17 +305,26 @@ int Muse::stop_stream ()
     {
         return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
     }
-    int res = config_board ("h");
-    for (auto notified : notified_characteristics)
+    int res = (int)BrainFlowExitCodes::STATUS_OK;
+    if (is_streaming)
     {
-        if (simpleble_peripheral_unsubscribe (muse_peripheral, notified.first, notified.second) !=
-            SIMPLEBLE_SUCCESS)
+        res = config_board ("h");
+        for (auto notified : notified_characteristics)
         {
-            safe_logger (spdlog::level::err, "failed to unsubscribe for {} {}",
-                notified.first.value, notified.second.value);
-            res = (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
+            if (simpleble_peripheral_unsubscribe (
+                    muse_peripheral, notified.first, notified.second) != SIMPLEBLE_SUCCESS)
+            {
+                safe_logger (spdlog::level::err, "failed to unsubscribe for {} {}",
+                    notified.first.value, notified.second.value);
+                res = (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
+            }
         }
     }
+    else
+    {
+        res = (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
+    }
+    is_streaming = false;
     return res;
 }
 
@@ -321,11 +335,6 @@ int Muse::release_session ()
         stop_stream ();
         free_packages ();
         initialized = false;
-    }
-    if (muse_adapter != NULL)
-    {
-        simpleble_adapter_release_handle (muse_adapter);
-        muse_adapter = NULL;
     }
     if (muse_peripheral != NULL)
     {
@@ -339,6 +348,11 @@ int Muse::release_session ()
         }
         simpleble_peripheral_release_handle (muse_peripheral);
         muse_peripheral = NULL;
+    }
+    if (muse_adapter != NULL)
+    {
+        simpleble_adapter_release_handle (muse_adapter);
+        muse_adapter = NULL;
     }
 
     for (size_t i = 0; i < current_buf.size (); i++)

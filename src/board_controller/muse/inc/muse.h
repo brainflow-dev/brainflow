@@ -14,6 +14,7 @@ protected:
     volatile simpleble_adapter_t muse_adapter;
     volatile simpleble_peripheral_t muse_peripheral;
     bool initialized;
+    bool is_streaming;
     std::mutex m;
     std::condition_variable cv;
     std::vector<std::pair<simpleble_uuid_t, simpleble_uuid_t>> notified_characteristics;

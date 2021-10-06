@@ -133,7 +133,7 @@
     if (error != nil) {
         NSLog(@"Peripheral %@ disconnected: %@\n", peripheral.name, error);
     }
-    _adapter->delegate_did_connect_peripheral(peripheral);
+    _adapter->delegate_did_disconnect_peripheral(peripheral);
 }
 
 - (void)centralManager:(CBCentralManager*)central didFailToConnectPeripheral:(CBPeripheral*)peripheral error:(NSError*)error {

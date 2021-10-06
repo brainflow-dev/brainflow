@@ -253,11 +253,11 @@ endif (UNIX AND NOT ANDROID)
 if (MSVC)
     install (
         FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/../..//compiled/$<CONFIG>/${FILE_NAME}
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../compiled/$<CONFIG>/${FILE_NAME}
         DESTINATION lib
     )
 endif (MSVC)
-if (UNIX AND NOT APPLE AND NOT ANDROID)
+if (UNIX AND NOT ANDROID)
     install (
         FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../compiled/${FILE_NAME}

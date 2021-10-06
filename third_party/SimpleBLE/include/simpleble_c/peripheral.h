@@ -6,6 +6,8 @@
 
 #include <simpleble_c/types.h>
 
+#include "shared_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -16,7 +18,7 @@ extern "C" {
  *
  * @param handle
  */
-void simpleble_peripheral_release_handle(simpleble_peripheral_t handle);
+SHARED_EXPORT void CALLING_CONVENTION simpleble_peripheral_release_handle(simpleble_peripheral_t handle);
 
 /**
  * @brief
@@ -24,7 +26,7 @@ void simpleble_peripheral_release_handle(simpleble_peripheral_t handle);
  * @param handle
  * @return char*
  */
-char* simpleble_peripheral_identifier(simpleble_peripheral_t handle);
+SHARED_EXPORT char* CALLING_CONVENTION simpleble_peripheral_identifier(simpleble_peripheral_t handle);
 
 /**
  * @brief
@@ -32,7 +34,7 @@ char* simpleble_peripheral_identifier(simpleble_peripheral_t handle);
  * @param handle
  * @return char*
  */
-char* simpleble_peripheral_address(simpleble_peripheral_t handle);
+SHARED_EXPORT char* CALLING_CONVENTION simpleble_peripheral_address(simpleble_peripheral_t handle);
 
 /**
  * @brief
@@ -40,7 +42,7 @@ char* simpleble_peripheral_address(simpleble_peripheral_t handle);
  * @param handle
  * @return simpleble_err_t
  */
-simpleble_err_t simpleble_peripheral_connect(simpleble_peripheral_t handle);
+SHARED_EXPORT simpleble_err_t CALLING_CONVENTION simpleble_peripheral_connect(simpleble_peripheral_t handle);
 
 /**
  * @brief
@@ -48,7 +50,7 @@ simpleble_err_t simpleble_peripheral_connect(simpleble_peripheral_t handle);
  * @param handle
  * @return simpleble_err_t
  */
-simpleble_err_t simpleble_peripheral_disconnect(simpleble_peripheral_t handle);
+SHARED_EXPORT simpleble_err_t CALLING_CONVENTION simpleble_peripheral_disconnect(simpleble_peripheral_t handle);
 
 /**
  * @brief
@@ -57,7 +59,8 @@ simpleble_err_t simpleble_peripheral_disconnect(simpleble_peripheral_t handle);
  * @param connected
  * @return simpleble_err_t
  */
-simpleble_err_t simpleble_peripheral_is_connected(simpleble_peripheral_t handle, bool* connected);
+SHARED_EXPORT simpleble_err_t CALLING_CONVENTION simpleble_peripheral_is_connected(simpleble_peripheral_t handle,
+                                                                                   bool* connected);
 
 /**
  * @brief
@@ -66,7 +69,8 @@ simpleble_err_t simpleble_peripheral_is_connected(simpleble_peripheral_t handle,
  * @param connectable
  * @return simpleble_err_t
  */
-simpleble_err_t simpleble_peripheral_is_connectable(simpleble_peripheral_t handle, bool* connectable);
+SHARED_EXPORT simpleble_err_t CALLING_CONVENTION simpleble_peripheral_is_connectable(simpleble_peripheral_t handle,
+                                                                                     bool* connectable);
 
 /**
  * @brief
@@ -74,7 +78,7 @@ simpleble_err_t simpleble_peripheral_is_connectable(simpleble_peripheral_t handl
  * @param handle
  * @return size_t
  */
-size_t simpleble_peripheral_services_count(simpleble_peripheral_t handle);
+SHARED_EXPORT size_t CALLING_CONVENTION simpleble_peripheral_services_count(simpleble_peripheral_t handle);
 
 /**
  * @brief
@@ -84,8 +88,9 @@ size_t simpleble_peripheral_services_count(simpleble_peripheral_t handle);
  * @param services
  * @return simpleble_err_t
  */
-simpleble_err_t simpleble_peripheral_services_get(simpleble_peripheral_t handle, size_t index,
-                                                  simpleble_service_t* services);
+SHARED_EXPORT simpleble_err_t CALLING_CONVENTION simpleble_peripheral_services_get(simpleble_peripheral_t handle,
+                                                                                   size_t index,
+                                                                                   simpleble_service_t* services);
 
 /**
  * @brief
@@ -93,7 +98,7 @@ simpleble_err_t simpleble_peripheral_services_get(simpleble_peripheral_t handle,
  * @param handle
  * @return size_t
  */
-size_t simpleble_peripheral_manufacturer_data_count(simpleble_peripheral_t handle);
+SHARED_EXPORT size_t CALLING_CONVENTION simpleble_peripheral_manufacturer_data_count(simpleble_peripheral_t handle);
 
 /**
  * @brief
@@ -103,8 +108,8 @@ size_t simpleble_peripheral_manufacturer_data_count(simpleble_peripheral_t handl
  * @param manufacturer_data
  * @return simpleble_err_t
  */
-simpleble_err_t simpleble_peripheral_manufacturer_data_get(simpleble_peripheral_t handle, size_t index,
-                                                           simpleble_manufacturer_data_t* manufacturer_data);
+SHARED_EXPORT simpleble_err_t CALLING_CONVENTION simpleble_peripheral_manufacturer_data_get(
+    simpleble_peripheral_t handle, size_t index, simpleble_manufacturer_data_t* manufacturer_data);
 
 /**
  * @brief
@@ -118,8 +123,10 @@ simpleble_err_t simpleble_peripheral_manufacturer_data_get(simpleble_peripheral_
  * @param data_length
  * @return simpleble_err_t
  */
-simpleble_err_t simpleble_peripheral_read(simpleble_peripheral_t handle, simpleble_uuid_t service,
-                                          simpleble_uuid_t characteristic, uint8_t** data, size_t* data_length);
+SHARED_EXPORT simpleble_err_t CALLING_CONVENTION simpleble_peripheral_read(simpleble_peripheral_t handle,
+                                                                           simpleble_uuid_t service,
+                                                                           simpleble_uuid_t characteristic,
+                                                                           uint8_t** data, size_t* data_length);
 
 /**
  * @brief
@@ -131,8 +138,10 @@ simpleble_err_t simpleble_peripheral_read(simpleble_peripheral_t handle, simpleb
  * @param data_length
  * @return simpleble_err_t
  */
-simpleble_err_t simpleble_peripheral_write_request(simpleble_peripheral_t handle, simpleble_uuid_t service,
-                                                   simpleble_uuid_t characteristic, uint8_t* data, size_t data_length);
+SHARED_EXPORT simpleble_err_t CALLING_CONVENTION simpleble_peripheral_write_request(simpleble_peripheral_t handle,
+                                                                                    simpleble_uuid_t service,
+                                                                                    simpleble_uuid_t characteristic,
+                                                                                    uint8_t* data, size_t data_length);
 
 /**
  * @brief
@@ -144,8 +153,10 @@ simpleble_err_t simpleble_peripheral_write_request(simpleble_peripheral_t handle
  * @param data_length
  * @return simpleble_err_t
  */
-simpleble_err_t simpleble_peripheral_write_command(simpleble_peripheral_t handle, simpleble_uuid_t service,
-                                                   simpleble_uuid_t characteristic, uint8_t* data, size_t data_length);
+SHARED_EXPORT simpleble_err_t CALLING_CONVENTION simpleble_peripheral_write_command(simpleble_peripheral_t handle,
+                                                                                    simpleble_uuid_t service,
+                                                                                    simpleble_uuid_t characteristic,
+                                                                                    uint8_t* data, size_t data_length);
 
 /**
  * @brief
@@ -156,11 +167,11 @@ simpleble_err_t simpleble_peripheral_write_command(simpleble_peripheral_t handle
  * @param callback
  * @return simpleble_err_t
  */
-simpleble_err_t simpleble_peripheral_notify(simpleble_peripheral_t handle, simpleble_uuid_t service,
-                                            simpleble_uuid_t characteristic,
-                                            void (*callback)(simpleble_uuid_t service, simpleble_uuid_t characteristic,
-                                                             uint8_t* data, size_t data_length, void* userdata),
-                                            void* userdata);
+SHARED_EXPORT simpleble_err_t CALLING_CONVENTION
+simpleble_peripheral_notify(simpleble_peripheral_t handle, simpleble_uuid_t service, simpleble_uuid_t characteristic,
+                            void (*callback)(simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t* data,
+                                             size_t data_length, void* userdata),
+                            void* userdata);
 
 /**
  * @brief
@@ -171,12 +182,11 @@ simpleble_err_t simpleble_peripheral_notify(simpleble_peripheral_t handle, simpl
  * @param callback
  * @return simpleble_err_t
  */
-simpleble_err_t simpleble_peripheral_indicate(simpleble_peripheral_t handle, simpleble_uuid_t service,
-                                              simpleble_uuid_t characteristic,
-                                              void (*callback)(simpleble_uuid_t service,
-                                                               simpleble_uuid_t characteristic, uint8_t* data,
-                                                               size_t data_length, void* userdata),
-                                              void* userdata);
+SHARED_EXPORT simpleble_err_t CALLING_CONVENTION
+simpleble_peripheral_indicate(simpleble_peripheral_t handle, simpleble_uuid_t service, simpleble_uuid_t characteristic,
+                              void (*callback)(simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t* data,
+                                               size_t data_length, void* userdata),
+                              void* userdata);
 
 /**
  * @brief
@@ -186,8 +196,9 @@ simpleble_err_t simpleble_peripheral_indicate(simpleble_peripheral_t handle, sim
  * @param characteristic
  * @return simpleble_err_t
  */
-simpleble_err_t simpleble_peripheral_unsubscribe(simpleble_peripheral_t handle, simpleble_uuid_t service,
-                                                 simpleble_uuid_t characteristic);
+SHARED_EXPORT simpleble_err_t CALLING_CONVENTION simpleble_peripheral_unsubscribe(simpleble_peripheral_t handle,
+                                                                                  simpleble_uuid_t service,
+                                                                                  simpleble_uuid_t characteristic);
 
 /**
  * @brief
@@ -196,7 +207,7 @@ simpleble_err_t simpleble_peripheral_unsubscribe(simpleble_peripheral_t handle, 
  * @param callback
  * @return simpleble_err_t
  */
-simpleble_err_t simpleble_peripheral_set_callback_on_connected(
+SHARED_EXPORT simpleble_err_t CALLING_CONVENTION simpleble_peripheral_set_callback_on_connected(
     simpleble_peripheral_t handle, void (*callback)(simpleble_peripheral_t peripheral, void* userdata), void* userdata);
 
 /**
@@ -206,7 +217,7 @@ simpleble_err_t simpleble_peripheral_set_callback_on_connected(
  * @param callback
  * @return simpleble_err_t
  */
-simpleble_err_t simpleble_peripheral_set_callback_on_disconnected(
+SHARED_EXPORT simpleble_err_t CALLING_CONVENTION simpleble_peripheral_set_callback_on_disconnected(
     simpleble_peripheral_t handle, void (*callback)(simpleble_peripheral_t peripheral, void* userdata), void* userdata);
 
 #ifdef __cplusplus
