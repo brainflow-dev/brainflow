@@ -45,6 +45,8 @@ To create an instance of BoardShim class for your board check required inputs in
    "AntNeuroBoardEE224", "BoardIds.ANT_NEURO_EE_224_BOARD (35)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
    "AntNeuroBoardEE225", "BoardIds.ANT_NEURO_EE_225_BOARD (36)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
    "Enophone", "BoardIds.ENOPHONE_BOARD (37)", "-", "MAC adress", "-", "-", "-", "-", "-", "-", "-"
+   "Muse2", "BoardIds.MUSE_2_BOARD (38)", "-", "Optional: MAC adress", "-", "-", "-", "-", "-", "Optional: device name", "-"
+   "MuseS", "BoardIds.MUSE_S_BOARD (39)", "-", "Optional: MAC adress", "-", "-", "-", "-", "-", "Optional: device name", "-"
 
 Playback File Board
 ---------------------
@@ -734,6 +736,78 @@ Board Spec:
 - num acceleration channels: 3
 - sampling rate: 250
 - communication: Bluetooth Low Energy with serial port dongle
+
+Muse 2
+~~~~~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/51250482419_32ce8454dd.jpg
+    :width: 350px
+    :height: 350px
+
+`Muse Website <https://choosemuse.com/>`_
+
+.. compound::
+
+    On Linux systems you may need to install libdbus and we recommend to compile BrainFlow from the source code ::
+
+        sudo apt-get install libdbus-1-dev # for ubuntu
+        sudo dnf install libdbus-1-devel # for fedora
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 38
+- optional: MAC address
+- optional: serial number(device name)
+
+Supported platforms:
+
+- Windows 10.0.19041.0+
+- MacOS 10.15+
+- Linux, compilation from source code can be needed
+- Devices like Raspberry Pi
+
+Muse S
+~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/51249005962_026502fee0.jpg
+    :width: 350px
+    :height: 350px
+
+`Muse Website <https://choosemuse.com/>`_
+
+.. compound::
+
+    On Linux systems you may need to install libdbus and we recommend to compile BrainFlow from the source code ::
+
+        sudo apt-get install libdbus-1-dev # for ubuntu
+        sudo dnf install libdbus-1-devel # for fedora
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 39
+- optional: MAC address
+- optional: serial number(device name)
+
+Supported platforms:
+
+- Windows 10.0.19041.0+
+- MacOS 10.15+
+- Linux, compilation from source code can be needed
+- Devices like Raspberry Pi
+
+Board Spec:
+
+- num eeg channels: 4
+- num acceleration channels: 3
+- sampling rate: 250
+- communication: Bluetooth Low Energy
+
+Board Spec:
+
+- num eeg channels: 4
+- num acceleration channels: 3
+- sampling rate: 250
+- communication: Bluetooth Low Energy
 
 Ant Neuro
 ----------
