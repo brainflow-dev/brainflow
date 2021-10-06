@@ -440,7 +440,7 @@ void Muse::peripheral_on_eeg (simpleble_uuid_t service, simpleble_uuid_t charact
 
     std::vector<int> eeg_channels = board_descr["eeg_channels"];
     unsigned int package_num = data[0] * 256 + data[1];
-    for (int i = 2, counter = 0; i < size; i += 3, counter += 2)
+    for (size_t i = 2, counter = 0; i < size; i += 3, counter += 2)
     {
         double val1 = data[i] << 4 | data[i + 1] >> 4;
         double val2 = (data[i + 1] & 0xF) << 8 | data[i + 2];
