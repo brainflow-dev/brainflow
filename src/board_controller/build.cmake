@@ -73,8 +73,7 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ant_neuro/ant_neuro.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/enophone/enophone.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ble_lib_board.cpp
-    ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse_s.cpp
-    ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse_2.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse.cpp
 )
 
 include (${CMAKE_HOME_DIRECTORY}/src/board_controller/ant_neuro/build.cmake)

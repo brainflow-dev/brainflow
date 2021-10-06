@@ -4,6 +4,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 project(SimpleBLE VERSION 0.1 LANGUAGES CXX)
 
+include (${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/macros.cmake)
+configure_msvc_runtime ()
+
 if(APPLE)
     SET(SIMPLEBLE-C simpleble-c)
     SET(FILE_NAME "libsimpleble-c.dylib")
@@ -223,41 +226,41 @@ if(NOT ${STANDALONE})
 endif()
 set_target_properties(${SIMPLEBLE-C}
     PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
-    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
+    ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../compiled
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../compiled
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../compiled
 )
 
 if (MSVC)
     add_custom_command (TARGET ${SIMPLEBLE-C} POST_BUILD
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${FILE_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${FILE_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/${FILE_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${FILE_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/julia-package/brainflow/lib/${FILE_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../compiled/$<CONFIG>/${FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../python-package/brainflow/lib/${FILE_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../compiled/$<CONFIG>/${FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../java-package/brainflow/src/main/resources/${FILE_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../compiled/$<CONFIG>/${FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../csharp-package/brainflow/brainflow/lib/${FILE_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../compiled/$<CONFIG>/${FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../matlab-package/brainflow/lib/${FILE_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../compiled/$<CONFIG>/${FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../julia-package/brainflow/lib/${FILE_NAME}"
     )
 endif (MSVC)
 if (UNIX AND NOT ANDROID)
     add_custom_command (TARGET ${SIMPLEBLE-C} POST_BUILD
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${FILE_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/julia-package/brainflow/lib/${FILE_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${FILE_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/${FILE_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${FILE_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${FILE_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../compiled/${FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../python-package/brainflow/lib/${FILE_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../compiled/${FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../julia-package/brainflow/lib/${FILE_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../compiled/${FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../java-package/brainflow/src/main/resources/${FILE_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../compiled/${FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../csharp-package/brainflow/brainflow/${FILE_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../compiled/${FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../matlab-package/brainflow/lib/${FILE_NAME}"
     )
 endif (UNIX AND NOT ANDROID)
 
 if (MSVC)
     install (
         FILES
-        ${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${FILE_NAME}
+        ${CMAKE_CURRENT_SOURCE_DIR}/../..//compiled/$<CONFIG>/${FILE_NAME}
         DESTINATION lib
     )
 endif (MSVC)
 if (UNIX AND NOT APPLE AND NOT ANDROID)
     install (
         FILES
-        ${CMAKE_HOME_DIRECTORY}/compiled/${FILE_NAME}
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../compiled/${FILE_NAME}
         DESTINATION lib
     )
 endif (UNIX AND NOT APPLE AND NOT ANDROID)
