@@ -751,7 +751,8 @@ Muse 2
     On Linux systems you may need to install libdbus and we recommend to compile BrainFlow from the source code ::
 
         sudo apt-get install libdbus-1-dev # for ubuntu
-        sudo dnf install libdbus-1-devel # for fedora
+        sudo yum install dbus-devel # for centos
+        python3 tools/build.py --ble # to compile
 
 To choose this board in BoardShim constructor please specify:
 
@@ -780,7 +781,8 @@ Muse S
     On Linux systems you may need to install libdbus and we recommend to compile BrainFlow from the source code ::
 
         sudo apt-get install libdbus-1-dev # for ubuntu
-        sudo dnf install libdbus-1-devel # for fedora
+        sudo yum install dbus-devel # for centos
+        python3 tools/build.py --ble # to compile
 
 To choose this board in BoardShim constructor please specify:
 
