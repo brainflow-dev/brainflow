@@ -20,7 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'cpp', 'csharp', 'java', 'python' ]
+        language: [ 'cpp', 'java', 'python' ]
 
     steps:
     - name: Checkout repository
@@ -65,8 +65,5 @@ jobs:
         mvn package
         cp -av $GITHUB_WORKSPACE/java-package/brainflow/target/classes/brainflow/. $GITHUB_WORKSPACE/java-package/brainflow/target/classes/ 
         cp -av $GITHUB_WORKSPACE/java-package/brainflow/target/classes/brainflow/. $GITHUB_WORKSPACE/java-package/brainflow/target/classes/
-    - name: Run Autobuild
-      if: (matrix.language == 'csharp' )
-      uses: github/codeql-action/autobuild@v1
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
