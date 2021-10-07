@@ -46,7 +46,7 @@ if(NOT SIMPLEDBUS_GIT_TAG)
 endif()
 
 # Perform some overall CMake configurations
-#set(CMAKE_CXX_STANDARD 17) // TODO: Specify the standard only for this library
+set(CMAKE_CXX_STANDARD 17)
 
 # Configure the external header path
 set(SIMPLEBLE_USER_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
