@@ -386,6 +386,9 @@ where
     };
     check_brainflow_exit_code(res)?;
 
+    unsafe { output_filters.set_len(n_channels * n_channels) };
+    unsafe { output_eigenvalues.set_len(n_channels) };
+
     let output_filters = ArrayBase::from_vec(output_filters);
     let output_filters = output_filters.into_shape((n_channels, n_channels)).unwrap();
     let output_eigenvalues = Array1::from(output_eigenvalues);
@@ -403,6 +406,8 @@ pub fn get_window(window_function: WindowFunctions, window_len: usize) -> Result
         )
     };
     check_brainflow_exit_code(res)?;
+
+    unsafe { output.set_len(window_len) };
     Ok(output)
 }
 
@@ -419,12 +424,15 @@ pub fn perform_fft(data: &mut [f64], window_function: WindowFunctions) -> Result
             output_im.as_mut_ptr() as *mut c_double,
         )
     };
+    check_brainflow_exit_code(res)?;
+
+    unsafe { output_re.set_len(data.len() / 2 + 1) };
+    unsafe { output_im.set_len(data.len() / 2 + 1) };
     let output = output_re
         .into_iter()
         .zip(output_im)
         .map(|(re, im)| Complex { re, im })
         .collect();
-    check_brainflow_exit_code(res)?;
     Ok(output)
 }
 
@@ -442,6 +450,8 @@ pub fn perform_ifft(data: &[Complex64], original_data_len: usize) -> Result<Vec<
         )
     };
     check_brainflow_exit_code(res)?;
+
+    unsafe { restored_data.set_len(original_data_len) };
     Ok(restored_data)
 }
 
@@ -484,6 +494,9 @@ pub fn get_psd(
         )
     };
     check_brainflow_exit_code(res)?;
+
+    unsafe { amplitude.set_len(data.len() / 2 + 1) };
+    unsafe { frequency.set_len(data.len() / 2 + 1) };
     Ok(Psd {
         amplitude,
         frequency,
@@ -513,6 +526,9 @@ pub fn get_psd_welch(
         )
     };
     check_brainflow_exit_code(res)?;
+
+    unsafe { amplitude.set_len(nfft / 2 + 1) };
+    unsafe { frequency.set_len(nfft / 2 + 1) };
     Ok(Psd {
         amplitude,
         frequency,
@@ -547,6 +563,9 @@ where
         )
     };
     check_brainflow_exit_code(res)?;
+
+    unsafe { avg_band_powers.set_len(5) };
+    unsafe { stddev_band_powers.set_len(5) };
     Ok((avg_band_powers, stddev_band_powers))
 }
 
@@ -607,6 +626,7 @@ pub fn read_file<S: AsRef<str>>(file_name: S) -> Result<Array2<f64>> {
     };
     check_brainflow_exit_code(res)?;
 
+    unsafe { data.set_len(num_elements as usize) };
     let data = ArrayBase::from_vec(data);
     let data = data.into_shape((cols as usize, rows as usize)).unwrap();
     Ok(data)

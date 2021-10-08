@@ -2,9 +2,11 @@ use once_cell::sync::Lazy;
 use paste::paste;
 use std::{
     ffi::CString,
+    mem,
     os::raw::{c_double, c_int},
     path::Path,
     sync::Mutex,
+    vec,
 };
 
 use crate::{
@@ -149,7 +151,9 @@ impl BoardShim {
         } else {
             self.get_board_data_count()?
         };
-        let mut data_buf = Vec::with_capacity(num_samples * num_rows);
+
+        let capacity = num_samples * num_rows;
+        let mut data_buf = Vec::with_capacity(capacity);
         let res = unsafe {
             BOARD_CONTROLLER.lock().unwrap().get_board_data(
                 num_samples as c_int,
@@ -160,28 +164,28 @@ impl BoardShim {
         };
         check_brainflow_exit_code(res)?;
 
-        let data_buf = data_buf.chunks(num_samples).map(|d| d.to_vec()).collect();
-        Ok(data_buf)
+        unsafe { data_buf.set_len(capacity) };
+        Ok(data_buf.chunks(num_samples).map(|d| d.to_vec()).collect())
     }
 
     /// Get specified amount of data or less if there is not enough data, doesnt remove data from ringbuffer.
     pub fn get_current_board_data(&self, num_samples: usize) -> Result<Vec<Vec<f64>>> {
         let num_rows = get_num_rows(self.board_id)?;
-        let mut data_buf = Vec::with_capacity(num_samples * num_rows);
-        let mut len = 0;
+        let capacity = num_samples * num_rows;
+        let mut data_buf = Vec::with_capacity(capacity);
         let res = unsafe {
             BOARD_CONTROLLER.lock().unwrap().get_current_board_data(
                 num_samples as c_int,
                 data_buf.as_mut_ptr(),
-                &mut len,
+                &mut 0,
                 self.board_id as c_int,
                 self.json_brainflow_input_params.as_ptr(),
             )
         };
         check_brainflow_exit_code(res)?;
 
-        let data_buf = data_buf.chunks(num_samples).map(|d| d.to_vec()).collect();
-        Ok(data_buf)
+        unsafe { data_buf.set_len(capacity) };
+        Ok(data_buf.chunks(num_samples).map(|d| d.to_vec()).collect())
     }
 
     /// Use this method carefully and only if you understand what you are doing, do NOT use it to start or stop streaming
@@ -410,16 +414,18 @@ macro_rules! gen_vec_fn {
             #[doc = $doc]
             pub fn [<get_$fn_name>](board_id: BoardId) -> Result<Vec<isize>> {
                 let mut channels: Vec<isize> = Vec::with_capacity(MAX_CHANNELS);
+                let channels_ptr = channels.as_mut_ptr();
                 let mut len = 0;
                 let res = unsafe {
+                    mem::forget(channels);
                     BOARD_CONTROLLER.lock().unwrap().[<get_$fn_name>](
                         board_id as c_int,
-                        channels.as_mut_ptr() as *mut c_int,
+                        channels_ptr as *mut c_int,
                         &mut len,
                     )
                 };
                 check_brainflow_exit_code(res)?;
-                channels.resize(len as usize, 0);
+                let channels: Vec<isize> = unsafe {Vec::from_raw_parts(channels_ptr, len as usize, MAX_CHANNELS)};
                 Ok(channels)
             }
         }
