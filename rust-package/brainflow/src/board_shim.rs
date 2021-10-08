@@ -128,7 +128,7 @@ impl BoardShim {
     }
 
     /// Get num of elements in ringbuffer.
-    pub fn board_data_count(&self) -> Result<usize> {
+    pub fn get_board_data_count(&self) -> Result<usize> {
         let mut data_count = 0;
         let res = unsafe {
             BOARD_CONTROLLER.lock().unwrap().get_board_data_count(
@@ -141,18 +141,13 @@ impl BoardShim {
         Ok(data_count as usize)
     }
 
-    /// Get num of elements in ringbuffer.
-    pub fn get_board_data_count(&self) -> Result<usize> {
-        self.board_data_count()
-    }
-
     /// Get board data and remove data from ringbuffer
-    pub fn board_data(&self, n_data_points: Option<usize>) -> Result<Vec<Vec<f64>>> {
-        let num_rows = num_rows(self.board_id)?;
+    pub fn get_board_data(&self, n_data_points: Option<usize>) -> Result<Vec<Vec<f64>>> {
+        let num_rows = get_num_rows(self.board_id)?;
         let num_samples = if let Some(n) = n_data_points {
-            self.board_data_count()?.min(n)
+            self.get_board_data_count()?.min(n)
         } else {
-            self.board_data_count()?
+            self.get_board_data_count()?
         };
         let mut data_buf = Vec::with_capacity(num_samples * num_rows);
         let res = unsafe {
@@ -169,14 +164,9 @@ impl BoardShim {
         Ok(data_buf)
     }
 
-    /// Get board data and remove data from ringbuffer
-    pub fn get_board_data(&self, n_data_points: Option<usize>) -> Result<Vec<Vec<f64>>> {
-        self.board_data(n_data_points)
-    }
-
     /// Get specified amount of data or less if there is not enough data, doesnt remove data from ringbuffer.
-    pub fn current_board_data(&self, num_samples: usize) -> Result<Vec<Vec<f64>>> {
-        let num_rows = num_rows(self.board_id)?;
+    pub fn get_current_board_data(&self, num_samples: usize) -> Result<Vec<Vec<f64>>> {
+        let num_rows = get_num_rows(self.board_id)?;
         let mut data_buf = Vec::with_capacity(num_samples * num_rows);
         let mut len = 0;
         let res = unsafe {
@@ -192,11 +182,6 @@ impl BoardShim {
 
         let data_buf = data_buf.chunks(num_samples).map(|d| d.to_vec()).collect();
         Ok(data_buf)
-    }
-
-    /// Get specified amount of data or less if there is not enough data, doesnt remove data from ringbuffer.
-    pub fn get_current_board_data(&self, num_samples: usize) -> Result<Vec<Vec<f64>>> {
-        self.current_board_data(num_samples)
     }
 
     /// Use this method carefully and only if you understand what you are doing, do NOT use it to start or stop streaming
@@ -239,7 +224,7 @@ impl BoardShim {
     }
 
     /// Get's the actual board id, can be different than provided.
-    pub fn board_id(&self) -> Result<BoardId> {
+    pub fn get_board_id(&self) -> Result<BoardId> {
         Ok(match &self.board_id {
             BoardId::StreamingBoard | BoardId::PlaybackFileBoard => {
                 let id = self.input_params.other_info().parse::<i32>().unwrap();
@@ -292,22 +277,17 @@ pub fn set_log_file<S: AsRef<str>>(log_file: S) -> Result<()> {
 }
 
 macro_rules! gen_fn {
-        ($fn_name:ident, $return_type:ident, $initial_value:literal, $doc:literal) => {
-            paste! {
-                    #[doc = $doc]
-                    pub fn $fn_name( board_id: BoardId) -> Result<$return_type> {
-                        let mut value = $initial_value;
-                        let res = unsafe { BOARD_CONTROLLER.lock().unwrap().[<get_$fn_name>](board_id as c_int, &mut value) };
-                        check_brainflow_exit_code(res)?;
-                        Ok(value as $return_type)
-                    }
-
-                    #[doc = $doc]
-                    pub fn [<get_$fn_name>]( board_id: BoardId) -> Result<$return_type> {
-                        $fn_name(board_id)
-                }
+    ($fn_name:ident, $return_type:ident, $initial_value:literal, $doc:literal) => {
+        paste! {
+            #[doc = $doc]
+            pub fn [<get_$fn_name>]( board_id: BoardId) -> Result<$return_type> {
+                let mut value = $initial_value;
+                let res = unsafe { BOARD_CONTROLLER.lock().unwrap().[<get_$fn_name>](board_id as c_int, &mut value) };
+                check_brainflow_exit_code(res)?;
+                Ok(value as $return_type)
             }
-        };
+        }
+    };
 }
 
 gen_fn!(sampling_rate, isize, -1, "Write your own log message to BrainFlow logger, use it if you wanna have single logger for your own code and BrainFlow's code.");
@@ -358,7 +338,7 @@ pub fn log_message<S: AsRef<str>>(log_level: LogLevels, message: S) -> Result<()
 }
 
 /// Get board description as json.
-pub fn board_descr(board_id: BoardId) -> Result<String> {
+pub fn get_board_descr(board_id: BoardId) -> Result<String> {
     let mut response_len = 0;
     let response = CString::new(Vec::with_capacity(16000))?;
     let response = response.into_raw();
@@ -379,13 +359,8 @@ pub fn board_descr(board_id: BoardId) -> Result<String> {
         .to_string())
 }
 
-/// Get board description as json.
-pub fn get_board_descr(board_id: BoardId) -> Result<String> {
-    board_descr(board_id)
-}
-
 /// Get names of EEG channels in 10-20 system if their location is fixed.
-pub fn eeg_names(board_id: BoardId) -> Result<Vec<String>> {
+pub fn get_eeg_names(board_id: BoardId) -> Result<Vec<String>> {
     let mut response_len = 0;
     let response = CString::new(Vec::with_capacity(16000))?;
     let response = response.into_raw();
@@ -406,13 +381,9 @@ pub fn eeg_names(board_id: BoardId) -> Result<Vec<String>> {
         .map(|s| s.to_string())
         .collect::<Vec<String>>())
 }
-/// Get names of EEG channels in 10-20 system if their location is fixed.
-pub fn get_eeg_names(board_id: BoardId) -> Result<Vec<String>> {
-    eeg_names(board_id)
-}
 
 /// Get device name.
-pub fn device_name(board_id: BoardId) -> Result<String> {
+pub fn get_device_name(board_id: BoardId) -> Result<String> {
     let mut response_len = 0;
     let response = CString::new(Vec::with_capacity(4096))?;
     let response = response.into_raw();
@@ -433,16 +404,11 @@ pub fn device_name(board_id: BoardId) -> Result<String> {
         .to_string())
 }
 
-/// Get device name.
-pub fn get_device_name(board_id: BoardId) -> Result<String> {
-    device_name(board_id)
-}
-
 macro_rules! gen_vec_fn {
     ($fn_name:ident, $doc:literal) => {
         paste! {
             #[doc = $doc]
-            pub fn $fn_name(board_id: BoardId) -> Result<Vec<isize>> {
+            pub fn [<get_$fn_name>](board_id: BoardId) -> Result<Vec<isize>> {
                 let mut channels: Vec<isize> = Vec::with_capacity(MAX_CHANNELS);
                 let mut len = 0;
                 let res = unsafe {
@@ -455,11 +421,6 @@ macro_rules! gen_vec_fn {
                 check_brainflow_exit_code(res)?;
                 channels.resize(len as usize, 0);
                 Ok(channels)
-            }
-
-            #[doc = $doc]
-            pub fn [<get_$fn_name>](board_id: BoardId) -> Result<Vec<isize>> {
-                $fn_name(board_id)
             }
         }
     };

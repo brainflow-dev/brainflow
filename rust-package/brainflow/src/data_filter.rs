@@ -355,7 +355,7 @@ pub fn perform_wavelet_denoising<S: AsRef<str>>(
 }
 
 /// Calculate filters and the corresponding eigenvalues using the Common Spatial Patterns.
-pub fn csp<'a, Data, Labels>(data: Data, labels: Labels) -> Result<(Array2<f64>, Array1<f64>)>
+pub fn get_csp<'a, Data, Labels>(data: Data, labels: Labels) -> Result<(Array2<f64>, Array1<f64>)>
 where
     Data: AsArray<'a, f64, Ix3>,
     Labels: AsArray<'a, f64, Ix1>,
@@ -392,17 +392,8 @@ where
     Ok((output_filters, output_eigenvalues))
 }
 
-/// Calculate filters and the corresponding eigenvalues using the Common Spatial Patterns.
-pub fn get_csp<'a, Data, Labels>(data: Data, labels: Labels) -> Result<(Array2<f64>, Array1<f64>)>
-where
-    Data: AsArray<'a, f64, Ix3>,
-    Labels: AsArray<'a, f64, Ix1>,
-{
-    csp(data, labels)
-}
-
 /// Perform data windowing.
-pub fn window(window_function: WindowFunctions, window_len: usize) -> Result<Vec<f64>> {
+pub fn get_window(window_function: WindowFunctions, window_len: usize) -> Result<Vec<f64>> {
     let mut output = Vec::<f64>::with_capacity(window_len);
     let res = unsafe {
         DATA_FILTER.lock().unwrap().get_window(
@@ -413,11 +404,6 @@ pub fn window(window_function: WindowFunctions, window_len: usize) -> Result<Vec
     };
     check_brainflow_exit_code(res)?;
     Ok(output)
-}
-
-/// Perform data windowing.
-pub fn get_window(window_function: WindowFunctions, window_len: usize) -> Result<Vec<f64>> {
-    window(window_function, window_len)
 }
 
 /// Perform direct FFT.
@@ -480,7 +466,7 @@ pub struct Psd {
 }
 
 /// Calculate PSD.
-pub fn psd(
+pub fn get_psd(
     data: &mut [f64],
     sampling_rate: usize,
     window_function: WindowFunctions,
@@ -504,17 +490,8 @@ pub fn psd(
     })
 }
 
-/// Calculate PSD.
-pub fn get_psd(
-    data: &mut [f64],
-    sampling_rate: usize,
-    window_function: WindowFunctions,
-) -> Result<Psd> {
-    psd(data, sampling_rate, window_function)
-}
-
 /// Calculate PSD using Welch method.
-pub fn psd_welch(
+pub fn get_psd_welch(
     data: &mut [f64],
     nfft: usize,
     overlap: usize,
@@ -542,19 +519,8 @@ pub fn psd_welch(
     })
 }
 
-/// Calculate PSD using Welch method.
-pub fn get_psd_welch(
-    data: &mut [f64],
-    nfft: usize,
-    overlap: usize,
-    sampling_rate: usize,
-    window_function: WindowFunctions,
-) -> Result<Psd> {
-    psd_welch(data, nfft, overlap, sampling_rate, window_function)
-}
-
 /// Calculate avg and stddev of BandPowers across all channels, bands are 1-4,4-8,8-13,13-30,30-50.
-pub fn avg_band_powers<'a, Data>(
+pub fn get_avg_band_powers<'a, Data>(
     data: Data,
     sampling_rate: usize,
     apply_filters: bool,
@@ -584,20 +550,8 @@ where
     Ok((avg_band_powers, stddev_band_powers))
 }
 
-/// Calculate avg and stddev of BandPowers across all channels, bands are 1-4,4-8,8-13,13-30,30-50.
-pub fn get_avg_band_powers<'a, Data>(
-    data: Data,
-    sampling_rate: usize,
-    apply_filters: bool,
-) -> Result<(Vec<f64>, Vec<f64>)>
-where
-    Data: AsArray<'a, f64, Ix2>,
-{
-    avg_band_powers(data, sampling_rate, apply_filters)
-}
-
 /// Calculate band power.
-pub fn band_power(psd: Psd, freq_start: f64, freq_end: f64) -> Result<f64> {
+pub fn get_band_power(psd: Psd, freq_start: f64, freq_end: f64) -> Result<f64> {
     let mut band_power = 0.0;
     let mut psd = psd;
     let res = unsafe {
@@ -614,13 +568,8 @@ pub fn band_power(psd: Psd, freq_start: f64, freq_end: f64) -> Result<f64> {
     Ok(band_power)
 }
 
-/// Calculate band power.
-pub fn get_band_power(psd: Psd, freq_start: f64, freq_end: f64) -> Result<f64> {
-    band_power(psd, freq_start, freq_end)
-}
-
 /// Calculate nearest power of two.
-pub fn nearest_power_of_two(value: usize) -> Result<usize> {
+pub fn get_nearest_power_of_two(value: usize) -> Result<usize> {
     let mut output = 0;
     let res = unsafe {
         DATA_FILTER
@@ -630,11 +579,6 @@ pub fn nearest_power_of_two(value: usize) -> Result<usize> {
     };
     check_brainflow_exit_code(res)?;
     Ok(output as usize)
-}
-
-/// Calculate nearest power of two.
-pub fn get_nearest_power_of_two(value: usize) -> Result<usize> {
-    nearest_power_of_two(value)
 }
 
 /// Read data from file.
