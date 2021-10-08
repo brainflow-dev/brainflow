@@ -1,6 +1,8 @@
+use std::thread;
+use std::time::Duration;
+
 use brainflow::board_shim::BoardShim;
 use brainflow::brainflow_input_params::BrainFlowInputParamsBuilder;
-use brainflow::ml_model::{BrainFlowModelParamsBuilder, MlModel};
 use brainflow::BoardId;
 
 fn main() {
@@ -15,13 +17,13 @@ fn main() {
 
     board.prepare_session().unwrap();
 
-    dbg!(brainflow::board_shim::get_eeg_names(BoardId::CytonBoard).unwrap());
-    dbg!(brainflow::board_shim::get_eeg_channels(BoardId::CytonBoard).unwrap());
+    board.start_stream(20, "").unwrap();
+    thread::sleep(Duration::from_secs(5));
+    board.stop_stream().unwrap();
 
-    dbg!(board.is_prepared().unwrap());
+    let cnt = dbg!(board.get_board_data_count().unwrap());
+    let data = board.get_current_board_data(cnt).unwrap();
+    board.release_session().unwrap();
 
-    let ml_params = BrainFlowModelParamsBuilder::default().build();
-    let ml = MlModel::new(ml_params).unwrap();
-
-    ml.prepare().unwrap();
+    dbg!(data);
 }
