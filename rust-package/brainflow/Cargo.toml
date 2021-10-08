@@ -7,6 +7,7 @@ description = "BrainFlow is a library intended to obtain, parse and analyze EEG,
 repository = "https://github.com/brainflow-dev/brainflow"
 license = "MIT"
 readme = "README.md"
+documentation = "https://brainflow.readthedocs.io"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
