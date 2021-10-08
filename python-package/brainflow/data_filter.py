@@ -86,6 +86,82 @@ class DataHandlerDLL(object):
             raise FileNotFoundError(
                 'Dynamic library %s is missed, did you forget to compile brainflow before installation of python package?' % full_path)
 
+        self.create_lowpass = self.lib.create_lowpass
+        self.create_lowpass.restype = ctypes.c_int
+        self.create_lowpass.argtypes = [
+            ctypes.POINTER(ctypes.c_int),
+            ctypes.c_int,
+            ctypes.c_double,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_double
+        ]
+
+        self.create_highpass = self.lib.create_highpass
+        self.create_highpass.restype = ctypes.c_int
+        self.create_highpass.argtypes = [
+            ctypes.POINTER(ctypes.c_int),
+            ctypes.c_int,
+            ctypes.c_double,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_double
+        ]
+
+        self.create_bandpass = self.lib.create_bandpass
+        self.create_bandpass.restype = ctypes.c_int
+        self.create_bandpass.argtypes = [
+            ctypes.POINTER(ctypes.c_int),
+            ctypes.c_int,
+            ctypes.c_double,
+            ctypes.c_double,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_double
+        ]
+
+        self.create_bandstop = self.lib.create_bandstop
+        self.create_bandstop.restype = ctypes.c_int
+        self.create_bandstop.argtypes = [
+            ctypes.POINTER(ctypes.c_int),
+            ctypes.c_int,
+            ctypes.c_double,
+            ctypes.c_double,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_double
+        ]
+
+        self.create_remove_environmental_noise = self.lib.create_remove_environmental_noise
+        self.create_remove_environmental_noise.restype = ctypes.c_int
+        self.create_remove_environmental_noise.argtypes = [
+            ctypes.POINTER(ctypes.c_int),
+            ctypes.c_int,
+            ctypes.c_int
+        ]
+
+        self.create_rolling = self.lib.create_rolling
+        self.create_rolling.restype = ctypes.c_int
+        self.create_rolling.argtypes = [
+            ctypes.POINTER(ctypes.c_int),
+            ctypes.c_int,
+            ctypes.c_int
+        ]
+
+        self.perform_filtering = self.lib.perform_filtering
+        self.perform_filtering.restype = ctypes.c_int
+        self.perform_filtering.argtypes = [
+            ctypes.c_int,
+            ndpointer(ctypes.c_double),
+            ctypes.c_int,
+        ]
+
+        self.destroy_filter = self.lib.destroy_filter
+        self.destroy_filter.restype = ctypes.c_int
+        self.destroy_filter.argtypes = [
+            ctypes.c_int,
+        ]
+
         self.perform_lowpass = self.lib.perform_lowpass
         self.perform_lowpass.restype = ctypes.c_int
         self.perform_lowpass.argtypes = [
@@ -336,6 +412,25 @@ class DataHandlerDLL(object):
         ]
 
 
+class BrainflowFilter:
+    """BrainflowFilter class encapsulates signal processing filter for streaming data"""
+
+    def __init__(self, filter_id: ctypes.c_int):
+        self.filter_id = filter_id
+
+    def process(self, data: NDArray[Float64]):
+        """apply filter to provided data
+
+        :param data: data to filter, filter works in-place
+        :type data: NDArray[Float64]
+        """
+        check_memory_layout_row_major(data, 1)
+
+        res = DataHandlerDLL.get_instance().perform_filtering(self.filter_id, data, data.shape[0])
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to perform low pass filter', res)
+
+
 class DataFilter(object):
     """DataFilter class contains methods for signal processig"""
 
@@ -380,6 +475,165 @@ class DataFilter(object):
         res = DataHandlerDLL.get_instance().set_log_file(file)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to redirect logs to a file', res)
+
+    @classmethod
+    def create_lowpass_filter(cls, sampling_rate: int, cutoff: float, order: int, filter_type: int,
+                        ripple: float) -> None:
+        """create low pass filter
+
+        :param sampling_rate: board's sampling rate
+        :type sampling_rate: int
+        :param cutoff: cutoff frequency
+        :type cutoff: float
+        :param order: filter order
+        :type order: int
+        :param filter_type: filter type from special enum
+        :type filter_type: int
+        :param ripple: ripple value for Chebyshev filter
+        :type ripple: float
+        """
+        if not isinstance(sampling_rate, int):
+            raise BrainFlowError('wrong type for sampling rate', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        if not isinstance(filter_type, int):
+            raise BrainFlowError('wrong type for filter type', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        filter_id = ctypes.c_int(-1)
+        res = DataHandlerDLL.get_instance().create_lowpass(ctypes.byref(filter_id), sampling_rate, cutoff, order,
+                                                            filter_type, ripple)
+        if res != BrainflowExitCodes.STATUS_OK.value or filter_id == -1:
+            raise BrainFlowError('unable to create low pass filter', res)
+
+        return BrainflowFilter(filter_id)
+
+    @classmethod
+    def create_highpass_filter(cls, sampling_rate: int, cutoff: float, order: int, filter_type: int,
+                         ripple: float) -> None:
+        """create high pass filter
+
+        :param sampling_rate: board's sampling rate
+        :type sampling_rate: int
+        :param cutoff: cutoff frequency
+        :type cutoff: float
+        :param order: filter order
+        :type order: int
+        :param filter_type: filter type from special enum
+        :type filter_type: int
+        :param ripple: ripple value for Chebyshev filter
+        :type ripple: float
+        """
+        if not isinstance(sampling_rate, int):
+            raise BrainFlowError('wrong type for sampling rate', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        if not isinstance(filter_type, int):
+            raise BrainFlowError('wrong type for filter type', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        filter_id = ctypes.c_int(-1)
+        res = DataHandlerDLL.get_instance().create_highpass(ctypes.byref(filter_id), sampling_rate, cutoff, order,
+                                                             filter_type, ripple)
+        if res != BrainflowExitCodes.STATUS_OK.value or filter_id == -1:
+            raise BrainFlowError('unable to create high pass filter', res)
+
+        return BrainflowFilter(filter_id)
+
+
+    @classmethod
+    def create_bandpass_filter(cls, sampling_rate: int, center_freq: float,
+                         band_width: float, order: int, filter_type: int, ripple: float) -> None:
+        """create band pass filter
+
+        :param sampling_rate: board's sampling rate
+        :type sampling_rate: int
+        :param center_freq: center frequency
+        :type center_freq: float
+        :param band_width: band width
+        :type band_width: float
+        :param order: filter order
+        :type order: int
+        :param filter_type: filter type from special enum
+        :type filter_type: int
+        :param ripple: ripple value for Chebyshev filter
+        :type ripple: float
+        """
+        if not isinstance(sampling_rate, int):
+            raise BrainFlowError('wrong type for sampling rate', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        if not isinstance(filter_type, int):
+            raise BrainFlowError('wrong type for filter type', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        filter_id = ctypes.c_int(-1)
+        res = DataHandlerDLL.get_instance().create_bandpass(ctypes.byref(filter_id), sampling_rate, center_freq,
+                                                             band_width, order, filter_type, ripple)
+        if res != BrainflowExitCodes.STATUS_OK.value or filter_id == -1:
+            raise BrainFlowError('unable to create band pass filter', res)
+
+        return BrainflowFilter(filter_id)
+
+    @classmethod
+    def create_bandstop_filter(cls, sampling_rate: int, center_freq: float,
+                         band_width: float, order: int, filter_type: int, ripple: float) -> None:
+        """create band stop filter
+
+        :param sampling_rate: board's sampling rate
+        :type sampling_rate: int
+        :param center_freq: center frequency
+        :type center_freq: float
+        :param band_width: band width
+        :type band_width: float
+        :param order: filter order
+        :type order: int
+        :param filter_type: filter type from special enum
+        :type filter_type: int
+        :param ripple: ripple value for Chebyshev filter
+        :type ripple: float
+        """
+        if not isinstance(sampling_rate, int):
+            raise BrainFlowError('wrong type for sampling rate', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        if not isinstance(filter_type, int):
+            raise BrainFlowError('wrong type for filter type', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        filter_id = ctypes.c_int(-1)
+        res = DataHandlerDLL.get_instance().create_bandstop(ctypes.byref(filter_id), sampling_rate, center_freq,
+                                                             band_width, order, filter_type, ripple)
+        if res != BrainflowExitCodes.STATUS_OK.value or filter_id == -1:
+            raise BrainFlowError('unable to create band stop filter', res)
+
+        return BrainflowFilter(filter_id)
+
+    @classmethod
+    def create_environmental_noise_filter(cls, sampling_rate: int, noise_type: float) -> None:
+        """create notch filter to remove env noise
+
+        :param sampling_rate: board's sampling rate
+        :type sampling_rate: int
+        :param noise_type: noise type
+        :type noise_type: int
+        """
+        if not isinstance(sampling_rate, int):
+            raise BrainFlowError('wrong type for sampling rate', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        if not isinstance(noise_type, int):
+            raise BrainFlowError('wrong type for noise type', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        filter_id = ctypes.c_int(-1)
+        res = DataHandlerDLL.get_instance().create_remove_environmental_noise(ctypes.byref(filter_id), sampling_rate, noise_type)
+
+        if res != BrainflowExitCodes.STATUS_OK.value or filter_id == -1:
+            raise BrainFlowError('unable to create notch filter', res)
+
+        return BrainflowFilter(filter_id)
+
+    @classmethod
+    def create_rolling_filter(cls, period: int, operation: int) -> None:
+        """create rolling filter using moving average or median
+
+        :param period: window size
+        :type period: int
+        :param operation: int value from AggOperation enum
+        :type operation: int
+        """
+        if not isinstance(period, int):
+            raise BrainFlowError('wrong type for period', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        if not isinstance(operation, int):
+            raise BrainFlowError('wrong type for operation', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        filter_id = ctypes.c_int(-1)
+        res = DataHandlerDLL.get_instance().create_rolling(ctypes.byref(filter_id), period, operation)
+
+        if res != BrainflowExitCodes.STATUS_OK.value or filter_id == -1:
+            raise BrainFlowError('unable to create rolling filter', res)
+
+        return BrainflowFilter(filter_id)
 
     @classmethod
     def perform_lowpass(cls, data: NDArray[Float64], sampling_rate: int, cutoff: float, order: int, filter_type: int,

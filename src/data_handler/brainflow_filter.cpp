@@ -14,6 +14,9 @@
 
 extern std::shared_ptr<spdlog::logger> data_logger;
 
+static std::vector<std::unique_ptr<brainflow_filter>> filters;
+static std::mutex filters_mutex;
+
 brainflow_filter::~brainflow_filter ()
 {
 }
@@ -297,7 +300,7 @@ std::unique_ptr<brainflow_filter> create_bandstop_filter (int sampling_rate, dou
 std::unique_ptr<brainflow_filter> create_environmental_noise_filter (
     int sampling_rate, int noise_type)
 {
-    brainflow_filter *filter_out = nullptr;
+    std::unique_ptr<brainflow_filter> filter;
     if (sampling_rate < 1)
     {
         throw BrainFlowException {
@@ -309,25 +312,25 @@ std::unique_ptr<brainflow_filter> create_environmental_noise_filter (
     switch (static_cast<NoiseTypes> (noise_type))
     {
         case NoiseTypes::FIFTY:
-            res = create_bandstop (&filter_out, sampling_rate, 50.0, 4.0, 4,
-                static_cast<int> (FilterTypes::BUTTERWORTH), 0.0);
+            filter = create_bandstop_filter (
+                sampling_rate, 50.0, 4.0, 4, static_cast<int> (FilterTypes::BUTTERWORTH), 0.0);
             break;
         case NoiseTypes::SIXTY:
-            res = create_bandstop (&filter_out, sampling_rate, 60.0, 4.0, 4,
-                static_cast<int> (FilterTypes::BUTTERWORTH), 0.0);
+            filter = create_bandstop_filter (
+                sampling_rate, 60.0, 4.0, 4, static_cast<int> (FilterTypes::BUTTERWORTH), 0.0);
             break;
         default:
             data_logger->error ("Invalid noise type");
             throw BrainFlowException {"Invalid noise type",
                 static_cast<int> (BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR)};
     }
-    if (res != (int)BrainFlowExitCodes::STATUS_OK || !filter_out)
+    if (res != (int)BrainFlowExitCodes::STATUS_OK || !filter)
     {
         throw BrainFlowException {"Failed to create filter",
             static_cast<int> (BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR)};
     }
 
-    return std::unique_ptr<brainflow_filter> {filter_out};
+    return filter;
 }
 
 std::unique_ptr<brainflow_filter> create_rolling_filter (int period, int agg_operation)
@@ -390,14 +393,18 @@ std::unique_ptr<brainflow_filter> create_downsampling_filter (int period, int ag
     return std::unique_ptr<brainflow_filter> {filter};
 }
 
-int create_lowpass (brainflow_filter **filter_out, int sampling_rate, double cutoff, int order,
-    int filter_type, double ripple)
+int create_lowpass (
+    int *filter_id, int sampling_rate, double cutoff, int order, int filter_type, double ripple)
 {
     int result = static_cast<int> (BrainFlowExitCodes::STATUS_OK);
     try
     {
-        auto filter = create_lowpass_filter (sampling_rate, cutoff, order, filter_type, ripple);
-        *filter_out = filter.release ();
+        const std::lock_guard<std::mutex> filters_lock (filters_mutex);
+
+        const int id = static_cast<int> (filters.size ());
+        filters.push_back (
+            create_lowpass_filter (sampling_rate, cutoff, order, filter_type, ripple));
+        *filter_id = id;
     }
     catch (const BrainFlowException &e)
     {
@@ -410,14 +417,18 @@ int create_lowpass (brainflow_filter **filter_out, int sampling_rate, double cut
     return result;
 }
 
-int create_highpass (brainflow_filter **filter_out, int sampling_rate, double cutoff, int order,
-    int filter_type, double ripple)
+int create_highpass (
+    int *filter_id, int sampling_rate, double cutoff, int order, int filter_type, double ripple)
 {
     int result = static_cast<int> (BrainFlowExitCodes::STATUS_OK);
     try
     {
-        auto filter = create_highpass_filter (sampling_rate, cutoff, order, filter_type, ripple);
-        *filter_out = filter.release ();
+        const std::lock_guard<std::mutex> filters_lock (filters_mutex);
+
+        const int id = static_cast<int> (filters.size ());
+        filters.push_back (
+            create_highpass_filter (sampling_rate, cutoff, order, filter_type, ripple));
+        *filter_id = id;
     }
     catch (const BrainFlowException &e)
     {
@@ -430,15 +441,18 @@ int create_highpass (brainflow_filter **filter_out, int sampling_rate, double cu
     return result;
 }
 
-int create_bandpass (brainflow_filter **filter_out, int sampling_rate, double center_freq,
-    double band_width, int order, int filter_type, double ripple)
+int create_bandpass (int *filter_id, int sampling_rate, double center_freq, double band_width,
+    int order, int filter_type, double ripple)
 {
     int result = static_cast<int> (BrainFlowExitCodes::STATUS_OK);
     try
     {
-        auto filter = create_bandpass_filter (
-            sampling_rate, center_freq, band_width, order, filter_type, ripple);
-        *filter_out = filter.release ();
+        const std::lock_guard<std::mutex> filters_lock (filters_mutex);
+
+        const int id = static_cast<int> (filters.size ());
+        filters.push_back (create_bandpass_filter (
+            sampling_rate, center_freq, band_width, order, filter_type, ripple));
+        *filter_id = id;
     }
     catch (const BrainFlowException &e)
     {
@@ -451,15 +465,18 @@ int create_bandpass (brainflow_filter **filter_out, int sampling_rate, double ce
     return result;
 }
 
-int create_bandstop (brainflow_filter **filter_out, int sampling_rate, double center_freq,
-    double band_width, int order, int filter_type, double ripple)
+int create_bandstop (int *filter_id, int sampling_rate, double center_freq, double band_width,
+    int order, int filter_type, double ripple)
 {
     int result = static_cast<int> (BrainFlowExitCodes::STATUS_OK);
     try
     {
-        auto filter = create_bandstop_filter (
-            sampling_rate, center_freq, band_width, order, filter_type, ripple);
-        *filter_out = filter.release ();
+        const std::lock_guard<std::mutex> filters_lock (filters_mutex);
+
+        const int id = static_cast<int> (filters.size ());
+        filters.push_back (create_bandstop_filter (
+            sampling_rate, center_freq, band_width, order, filter_type, ripple));
+        *filter_id = id;
     }
     catch (const BrainFlowException &e)
     {
@@ -472,14 +489,16 @@ int create_bandstop (brainflow_filter **filter_out, int sampling_rate, double ce
     return result;
 }
 
-int create_remove_environmental_noise (
-    brainflow_filter **filter_out, int sampling_rate, int noise_type)
+int create_remove_environmental_noise (int *filter_id, int sampling_rate, int noise_type)
 {
     int result = static_cast<int> (BrainFlowExitCodes::STATUS_OK);
     try
     {
-        auto filter = create_environmental_noise_filter (sampling_rate, noise_type);
-        *filter_out = filter.release ();
+        const std::lock_guard<std::mutex> filters_lock (filters_mutex);
+
+        const int id = static_cast<int> (filters.size ());
+        filters.push_back (create_environmental_noise_filter (sampling_rate, noise_type));
+        *filter_id = id;
     }
     catch (const BrainFlowException &e)
     {
@@ -492,13 +511,16 @@ int create_remove_environmental_noise (
     return result;
 }
 
-int create_rolling (brainflow_filter **filter_out, int period, int agg_operation)
+int create_rolling (int *filter_id, int period, int agg_operation)
 {
     int result = static_cast<int> (BrainFlowExitCodes::STATUS_OK);
     try
     {
-        auto filter = create_rolling_filter (period, agg_operation);
-        *filter_out = filter.release ();
+        const std::lock_guard<std::mutex> filters_lock (filters_mutex);
+
+        const int id = static_cast<int> (filters.size ());
+        filters.push_back (create_rolling_filter (period, agg_operation));
+        *filter_id = id;
     }
     catch (const BrainFlowException &e)
     {
@@ -511,12 +533,20 @@ int create_rolling (brainflow_filter **filter_out, int period, int agg_operation
     return result;
 }
 
-int perform_filtering (brainflow_filter *filter, double *data, int data_len)
+int perform_filtering (int filter_id, double *data, int data_len)
 {
     int result = static_cast<int> (BrainFlowExitCodes::STATUS_OK);
     try
     {
-        filter->process (data, data_len);
+        auto &&filter = filters[filter_id];
+        if (filter)
+        {
+            filter->process (data, data_len);
+        }
+        else
+        {
+            result = static_cast<int> (BrainFlowExitCodes::GENERAL_ERROR);
+        }
     }
     catch (const BrainFlowException &e)
     {
@@ -528,12 +558,14 @@ int perform_filtering (brainflow_filter *filter, double *data, int data_len)
     }
     return result;
 }
-int destroy_filter (brainflow_filter **filter)
+int destroy_filter (int filter_id)
 {
     int result = static_cast<int> (BrainFlowExitCodes::STATUS_OK);
     try
     {
-        std::unique_ptr<brainflow_filter> f {*filter};
+        const std::lock_guard<std::mutex> filters_lock (filters_mutex);
+
+        filters[filter_id].reset (nullptr);
     }
     catch (const BrainFlowException &e)
     {

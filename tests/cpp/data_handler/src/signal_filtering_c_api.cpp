@@ -56,13 +56,14 @@ int main (int argc, char *argv[])
         std::random_device rd;
         std::uniform_int_distribution<size_t> draw_length {0, 1U + data_length / 5U};
 
-        auto stateful_filtering = [&draw_length, &rd] (brainflow_filter *filter, double *data,
-                                      const size_t data_length) {
+        auto stateful_filtering = [&draw_length, &rd] (
+                                      int filter_id, double *data, const size_t data_length) {
             size_t current_idx = 0;
             while (current_idx < data_length)
             {
                 const size_t batch_length = std::max (draw_length (rd), data_length - current_idx);
-                ::perform_filtering (filter, data + current_idx, static_cast<int>(batch_length));
+                ::perform_filtering (
+                    filter_id, data + current_idx, static_cast<int> (batch_length));
                 current_idx += batch_length;
             }
         };
@@ -82,11 +83,11 @@ int main (int argc, char *argv[])
                     DataFilter::perform_lowpass (batch_data.get (), data_length,
                         BoardShim::get_sampling_rate (board_id), 30.0, 3,
                         (int)FilterTypes::BUTTERWORTH, 0);
-                    brainflow_filter *filter;
-                    create_lowpass (&filter, BoardShim::get_sampling_rate (board_id), 30.0, 3,
+                    int filter_id;
+                    create_lowpass (&filter_id, BoardShim::get_sampling_rate (board_id), 30.0, 3,
                         (int)FilterTypes::BUTTERWORTH, 0);
-                    stateful_filtering (filter, state_data.get (), data_length);
-                    ::destroy_filter (&filter);
+                    stateful_filtering (filter_id, state_data.get (), data_length);
+                    ::destroy_filter (filter_id);
                 }
                 break;
                 case 1:
@@ -94,11 +95,11 @@ int main (int argc, char *argv[])
                     DataFilter::perform_highpass (batch_data.get (), data_length,
                         BoardShim::get_sampling_rate (board_id), 5.0, 5,
                         (int)FilterTypes::CHEBYSHEV_TYPE_1, 1);
-                    brainflow_filter *filter;
-                    ::create_highpass (&filter, BoardShim::get_sampling_rate (board_id), 5.0, 5,
+                    int filter_id;
+                    ::create_highpass (&filter_id, BoardShim::get_sampling_rate (board_id), 5.0, 5,
                         (int)FilterTypes::CHEBYSHEV_TYPE_1, 1);
-                    stateful_filtering (filter, state_data.get (), data_length);
-                    ::destroy_filter (&filter);
+                    stateful_filtering (filter_id, state_data.get (), data_length);
+                    ::destroy_filter (filter_id);
                 }
                 break;
                 case 2:
@@ -106,11 +107,11 @@ int main (int argc, char *argv[])
                     DataFilter::perform_bandpass (batch_data.get (), data_length,
                         BoardShim::get_sampling_rate (board_id), 15.0, 10.0, 3,
                         (int)FilterTypes::BESSEL, 0);
-                    brainflow_filter *filter;
-                    ::create_bandpass (&filter, BoardShim::get_sampling_rate (board_id), 15.0, 10.0,
-                        3, (int)FilterTypes::BESSEL, 0);
-                    stateful_filtering (filter, state_data.get (), data_length);
-                    ::destroy_filter (&filter);
+                    int filter_id;
+                    ::create_bandpass (&filter_id, BoardShim::get_sampling_rate (board_id), 15.0,
+                        10.0, 3, (int)FilterTypes::BESSEL, 0);
+                    stateful_filtering (filter_id, state_data.get (), data_length);
+                    ::destroy_filter (filter_id);
                 }
                 break;
                 case 3:
@@ -118,22 +119,22 @@ int main (int argc, char *argv[])
                     DataFilter::perform_bandstop (batch_data.get (), data_length,
                         BoardShim::get_sampling_rate (board_id), 50.0, 4.0, 4,
                         (int)FilterTypes::BUTTERWORTH, 0);
-                    brainflow_filter *filter;
-                    ::create_bandstop (&filter, BoardShim::get_sampling_rate (board_id), 50.0, 4.0,
-                        4, (int)FilterTypes::BUTTERWORTH, 0);
-                    stateful_filtering (filter, state_data.get (), data_length);
-                    ::destroy_filter (&filter);
+                    int filter_id;
+                    ::create_bandstop (&filter_id, BoardShim::get_sampling_rate (board_id), 50.0,
+                        4.0, 4, (int)FilterTypes::BUTTERWORTH, 0);
+                    stateful_filtering (filter_id, state_data.get (), data_length);
+                    ::destroy_filter (filter_id);
                 }
                 break;
                 default:
                 {
                     DataFilter::remove_environmental_noise (batch_data.get (), data_length,
                         BoardShim::get_sampling_rate (board_id), (int)NoiseTypes::FIFTY);
-                    brainflow_filter *filter;
-                    ::create_remove_environmental_noise (
-                        &filter, BoardShim::get_sampling_rate (board_id), (int)NoiseTypes::FIFTY);
-                    stateful_filtering (filter, state_data.get (), data_length);
-                    ::destroy_filter (&filter);
+                    int filter_id;
+                    ::create_remove_environmental_noise (&filter_id,
+                        BoardShim::get_sampling_rate (board_id), (int)NoiseTypes::FIFTY);
+                    stateful_filtering (filter_id, state_data.get (), data_length);
+                    ::destroy_filter (filter_id);
                 }
                 break;
             }

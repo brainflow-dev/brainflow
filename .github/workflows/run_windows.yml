@@ -178,6 +178,9 @@ jobs:
     - name: Filtering Python Test
       run: python %GITHUB_WORKSPACE%\tests\python\signal_filtering.py
       shell: cmd
+    - name: Filtering with state Python Test
+      run: python %GITHUB_WORKSPACE%\tests\python\signal_filtering_with_state.py
+      shell: cmd
     - name: Transforms Python Test
       run: python %GITHUB_WORKSPACE%\tests\python\transforms.py
       shell: cmd

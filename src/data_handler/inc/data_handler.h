@@ -14,25 +14,23 @@ extern "C"
 #endif
     // signal processing methods
     // ripple param is used only for chebyshev filter
-    SHARED_EXPORT int CALLING_CONVENTION create_lowpass (brainflow_filter **filter_out,
-        int sampling_rate, double cutoff, int order, int filter_type, double ripple);
-    SHARED_EXPORT int CALLING_CONVENTION create_highpass (brainflow_filter **filter_out,
-        int sampling_rate, double cutoff, int order, int filter_type, double ripple);
-    SHARED_EXPORT int CALLING_CONVENTION create_bandpass (brainflow_filter **filter_out,
-        int sampling_rate, double center_freq, double band_width, int order, int filter_type,
-        double ripple);
-    SHARED_EXPORT int CALLING_CONVENTION create_bandstop (brainflow_filter **filter_out,
-        int sampling_rate, double center_freq, double band_width, int order, int filter_type,
-        double ripple);
+    SHARED_EXPORT int CALLING_CONVENTION create_lowpass (int *filter_id, int sampling_rate,
+        double cutoff, int order, int filter_type, double ripple);
+    SHARED_EXPORT int CALLING_CONVENTION create_highpass (int *filter_id, int sampling_rate,
+        double cutoff, int order, int filter_type, double ripple);
+    SHARED_EXPORT int CALLING_CONVENTION create_bandpass (int *filter_id, int sampling_rate,
+        double center_freq, double band_width, int order, int filter_type, double ripple);
+    SHARED_EXPORT int CALLING_CONVENTION create_bandstop (int *filter_id, int sampling_rate,
+        double center_freq, double band_width, int order, int filter_type, double ripple);
     SHARED_EXPORT int CALLING_CONVENTION create_remove_environmental_noise (
-        brainflow_filter **filter_out, int sampling_rate, int noise_type);
+        int *filter_id, int sampling_rate, int noise_type);
 
     SHARED_EXPORT int CALLING_CONVENTION create_rolling (
-        brainflow_filter **filter_out, int period, int agg_operation);
+        int *filter_id, int period, int agg_operation);
 
     SHARED_EXPORT int CALLING_CONVENTION perform_filtering (
-        brainflow_filter *filter, double *data, int data_len);
-    SHARED_EXPORT int CALLING_CONVENTION destroy_filter (brainflow_filter **filter);
+        int filter_id, double *data, int data_len);
+    SHARED_EXPORT int CALLING_CONVENTION destroy_filter (int filter_id);
 
 
     SHARED_EXPORT int CALLING_CONVENTION perform_lowpass (double *data, int data_len,

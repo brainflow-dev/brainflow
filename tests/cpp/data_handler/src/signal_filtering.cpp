@@ -61,7 +61,7 @@ int main (int argc, char *argv[])
             while (current_idx < data_length)
             {
                 const size_t batch_length = std::max (draw_length (rd), data_length - current_idx);
-                filter->process (data + current_idx, static_cast<int>(batch_length));
+                filter->process (data + current_idx, static_cast<int> (batch_length));
                 current_idx += batch_length;
             }
         };

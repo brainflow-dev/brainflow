@@ -179,6 +179,8 @@ jobs:
         sudo -H python3 $GITHUB_WORKSPACE/tests/python/serialization.py
     - name: Filters Python
       run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/signal_filtering.py
+    - name: Filters with state Python
+      run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/signal_filtering_with_state.py
     - name: Transforms Python
       run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/transforms.py
     - name: Downsampling Python
