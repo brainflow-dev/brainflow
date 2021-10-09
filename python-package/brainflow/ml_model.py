@@ -5,12 +5,10 @@ import pkg_resources
 import enum
 import os
 import platform
-import sys
 import struct
 import json
-from typing import List, Set, Dict, Tuple
 
-from nptyping import NDArray, Float64
+from nptyping import NDArray
 
 from brainflow.board_shim import BrainFlowError, LogLevels
 from brainflow.exit_codes import BrainflowExitCodes
@@ -135,7 +133,7 @@ class MLModel(object):
         self.model_params = model_params
         try:
             self.serialized_params = model_params.to_json().encode()
-        except:
+        except BaseException:
             self.serialized_params = model_params.to_json()
 
     @classmethod
@@ -174,7 +172,7 @@ class MLModel(object):
         """
         try:
             file = log_file.encode()
-        except:
+        except BaseException:
             file = log_file
         res = MLModuleDLL.get_instance().set_log_file(file)
         if res != BrainflowExitCodes.STATUS_OK.value:

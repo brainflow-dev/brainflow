@@ -5,10 +5,9 @@ import pkg_resources
 import enum
 import os
 import platform
-import sys
 import struct
 import json
-from typing import List, Set, Dict, Tuple
+from typing import List
 
 from nptyping import NDArray, Float64
 
@@ -33,7 +32,6 @@ class BoardIds(enum.IntEnum):
     CALLIBRI_EEG_BOARD = 9  #:
     CALLIBRI_EMG_BOARD = 10  #:
     CALLIBRI_ECG_BOARD = 11  #:
-    FASCIA_BOARD = 12  #:
     NOTION_OSC_BOARD = 13  #:
     NOTION_1_BOARD = 13  #:
     NOTION_2_BOARD = 14  #:
@@ -450,7 +448,7 @@ class BoardShim(object):
     def __init__(self, board_id: int, input_params: BrainFlowInputParams) -> None:
         try:
             self.input_json = input_params.to_json().encode()
-        except:
+        except BaseException:
             self.input_json = input_params.to_json()
         self.board_id = board_id
         # we need it for streaming board
@@ -499,7 +497,7 @@ class BoardShim(object):
         """
         try:
             msg = message.encode()
-        except:
+        except BaseException:
             msg = message
         res = BoardControllerDLL.get_instance().log_message(log_level, msg)
         if res != BrainflowExitCodes.STATUS_OK.value:
@@ -513,7 +511,7 @@ class BoardShim(object):
         """
         try:
             file = log_file.encode()
-        except:
+        except BaseException:
             file = log_file
         res = BoardControllerDLL.get_instance().set_log_file(file)
         if res != BrainflowExitCodes.STATUS_OK.value:
@@ -911,7 +909,7 @@ class BoardShim(object):
         else:
             try:
                 streamer = streamer_params.encode()
-            except:
+            except BaseException:
                 streamer = streamer_params
 
         res = BoardControllerDLL.get_instance().start_stream(num_samples, streamer, self.board_id, self.input_json)
@@ -1029,7 +1027,7 @@ class BoardShim(object):
         """
         try:
             config_string = config.encode()
-        except:
+        except BaseException:
             config_string = config
         string = numpy.zeros(4096).astype(numpy.ubyte)
         string_len = numpy.zeros(1).astype(numpy.int32)

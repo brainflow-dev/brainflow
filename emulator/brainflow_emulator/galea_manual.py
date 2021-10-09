@@ -1,14 +1,9 @@
-import subprocess
-import threading
 import socket
 import enum
 import logging
-import sys
 import random
 import time
 import struct
-
-from brainflow_emulator.emulate_common import TestFailureError, log_multilines
 
 
 class State(enum.Enum):
@@ -74,7 +69,6 @@ class GaleaEmulator(object):
                     eda = bytearray (struct.pack ('f', random.random ()))
                     ppg_red = bytearray (struct.pack ('i', int (random.random () * 5000)))
                     ppg_ir = bytearray (struct.pack ('i', int (random.random () * 5000)))
-                    battery = bytearray (struct.pack ('i', int (random.random () * 100)))
 
                     for i in range (64, 72):
                         single_package[i] = timestamp[i - 64]
