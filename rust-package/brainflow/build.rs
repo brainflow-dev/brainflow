@@ -1,5 +1,28 @@
+use std::{
+    env, fs,
+    path::{Path, PathBuf},
+};
+
 #[cfg(feature = "generate_binding")]
-use std::path::PathBuf;
+use regex::Regex;
+#[cfg(feature = "generate_binding")]
+use std::{
+    fs::File,
+    io::prelude::{Read, Write},
+};
+
+#[cfg(feature = "generate_binding")]
+fn add_link_attribute(path: &Path, library_name: &str) {
+    let re = Regex::new(r"extern").unwrap();
+    let mut file = File::open(path).unwrap();
+    let mut s = String::new();
+    file.read_to_string(&mut s).unwrap();
+    let out = re
+        .replace_all(&s, format!("#[link(name = \"{}\")]\nextern", library_name))
+        .to_string();
+    let mut file = File::create(path).unwrap();
+    file.write_all(out.as_bytes()).unwrap();
+}
 
 #[cfg(feature = "generate_binding")]
 fn generate_board_controller_binding() {
@@ -12,7 +35,6 @@ fn generate_board_controller_binding() {
         .header(format!("{}/board_controller.h", &header_path))
         .header(format!("{}/board_info_getter.h", &header_path))
         .raw_line(ALLOW_UNCONVENTIONALS)
-        .dynamic_library_name("BoardController")
         .clang_arg("-std=c++11")
         .clang_arg("-x")
         .clang_arg("c++")
@@ -25,8 +47,10 @@ fn generate_board_controller_binding() {
         .join("board_controller.rs");
 
     bindings
-        .write_to_file(binding_target_path)
+        .write_to_file(binding_target_path.clone())
         .expect("Could not write binding to `src/ffi/board_controller.rs`");
+
+    add_link_attribute(binding_target_path.as_path(), "BoardController");
 }
 
 #[cfg(feature = "generate_binding")]
@@ -39,7 +63,6 @@ fn generate_data_handler_binding() {
     let bindings = bindgen::Builder::default()
         .header(format!("{}/data_handler.h", &header_path))
         .raw_line(ALLOW_UNCONVENTIONALS)
-        .dynamic_library_name("DataHandler")
         .clang_arg("-std=c++11")
         .clang_arg("-x")
         .clang_arg("c++")
@@ -52,8 +75,10 @@ fn generate_data_handler_binding() {
         .join("data_handler.rs");
 
     bindings
-        .write_to_file(binding_target_path)
+        .write_to_file(binding_target_path.clone())
         .expect("Could not write binding to `src/ffi/data_handler.rs`");
+
+    add_link_attribute(binding_target_path.as_path(), "DataHandler");
 }
 
 #[cfg(feature = "generate_binding")]
@@ -66,7 +91,6 @@ fn generate_ml_model_binding() {
     let bindings = bindgen::Builder::default()
         .header(format!("{}/ml_module.h", &header_path))
         .raw_line(ALLOW_UNCONVENTIONALS)
-        .dynamic_library_name("MlModule")
         .clang_arg("-std=c++11")
         .clang_arg("-x")
         .clang_arg("c++")
@@ -76,8 +100,10 @@ fn generate_ml_model_binding() {
     let binding_target_path = PathBuf::new().join("src").join("ffi").join("ml_model.rs");
 
     bindings
-        .write_to_file(binding_target_path)
+        .write_to_file(binding_target_path.clone())
         .expect("Could not write binding to `src/ffi/ml_model.rs`");
+
+    add_link_attribute(binding_target_path.as_path(), "MLModule");
 }
 
 #[cfg(feature = "generate_binding")]
@@ -119,4 +145,20 @@ fn generate_binding() {
 fn main() {
     #[cfg(feature = "generate_binding")]
     generate_binding();
+
+    let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
+    let lib_out_path = Path::new(&out_path).join("lib");
+    fs::create_dir_all(&lib_out_path).unwrap();
+    fs::copy(
+        "lib/libBoardController.so",
+        lib_out_path.join("libBoardController.so"),
+    )
+    .unwrap();
+    fs::copy(
+        "lib/libDataHandler.so",
+        lib_out_path.join("libDataHandler.so"),
+    )
+    .unwrap();
+    fs::copy("lib/libMLModule.so", lib_out_path.join("libMLModule.so")).unwrap();
+    println!("cargo:rustc-link-search=native={}/lib", out_path.display());
 }

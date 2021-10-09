@@ -1,12 +1,8 @@
-use once_cell::sync::Lazy;
 use paste::paste;
 use std::{
     ffi::CString,
     mem,
     os::raw::{c_double, c_int},
-    path::Path,
-    sync::Mutex,
-    vec,
 };
 
 use crate::{
@@ -16,34 +12,10 @@ use crate::{
     BoardId, Result,
 };
 
-use crate::ffi::board_controller::BoardController;
+use crate::ffi::board_controller;
 use crate::ffi::constants::LogLevels;
 
 const MAX_CHANNELS: usize = 512;
-
-#[cfg(target_os = "windows")]
-pub static BOARD_CONTROLLER: Lazy<Mutex<BoardController>> = Lazy::new(|| {
-    #[cfg(target_pointer_width = "64")]
-    let lib_path = Path::new("lib\\libBoardController.dll");
-    #[cfg(target_pointer_width = "32")]
-    let lib_path = Path::new("lib\\libBoardController32.dll");
-    let board_controller = unsafe { BoardController::new(lib_path).unwrap() };
-    Mutex::new(board_controller)
-});
-
-#[cfg(target_os = "macos")]
-pub static BOARD_CONTROLLER: Lazy<Mutex<BoardController>> = Lazy::new(|| {
-    let lib_path = Path::new("lib/libBoardController.dylib");
-    let board_controller = unsafe { BoardController::new(lib_path).unwrap() };
-    Mutex::new(board_controller)
-});
-
-#[cfg(target_os = "linux")]
-pub static BOARD_CONTROLLER: Lazy<Mutex<BoardController>> = Lazy::new(|| {
-    let lib_path = Path::new("lib/libBoardController.so");
-    let board_controller = unsafe { BoardController::new(lib_path).unwrap() };
-    Mutex::new(board_controller)
-});
 
 /// BoardShim is a primary interface to all boards
 pub struct BoardShim {
@@ -67,7 +39,7 @@ impl BoardShim {
     /// You need to call it before any other BoardShim object methods.
     pub fn prepare_session(&self) -> Result<()> {
         let res = unsafe {
-            BOARD_CONTROLLER.lock().unwrap().prepare_session(
+            board_controller::prepare_session(
                 self.board_id as c_int,
                 self.json_brainflow_input_params.as_ptr(),
             )
@@ -79,7 +51,7 @@ impl BoardShim {
     pub fn is_prepared(&self) -> Result<bool> {
         let mut prepared = 0;
         let res = unsafe {
-            BOARD_CONTROLLER.lock().unwrap().is_prepared(
+            board_controller::is_prepared(
                 &mut prepared,
                 self.board_id as c_int,
                 self.json_brainflow_input_params.as_ptr(),
@@ -97,7 +69,7 @@ impl BoardShim {
     ) -> Result<()> {
         let streamer_params = CString::new(streamer_params.as_ref())?;
         let res = unsafe {
-            BOARD_CONTROLLER.lock().unwrap().start_stream(
+            board_controller::start_stream(
                 buffer_size as c_int,
                 streamer_params.as_ptr(),
                 self.board_id as c_int,
@@ -110,7 +82,7 @@ impl BoardShim {
     /// Stop streaming data.
     pub fn stop_stream(&self) -> Result<()> {
         let res = unsafe {
-            BOARD_CONTROLLER.lock().unwrap().stop_stream(
+            board_controller::stop_stream(
                 self.board_id as c_int,
                 self.json_brainflow_input_params.as_ptr(),
             )
@@ -121,7 +93,7 @@ impl BoardShim {
     /// Release all resources.
     pub fn release_session(&self) -> Result<()> {
         let res = unsafe {
-            BOARD_CONTROLLER.lock().unwrap().release_session(
+            board_controller::release_session(
                 self.board_id as c_int,
                 self.json_brainflow_input_params.as_ptr(),
             )
@@ -133,7 +105,7 @@ impl BoardShim {
     pub fn get_board_data_count(&self) -> Result<usize> {
         let mut data_count = 0;
         let res = unsafe {
-            BOARD_CONTROLLER.lock().unwrap().get_board_data_count(
+            board_controller::get_board_data_count(
                 &mut data_count,
                 self.board_id as c_int,
                 self.json_brainflow_input_params.as_ptr(),
@@ -155,7 +127,7 @@ impl BoardShim {
         let capacity = num_samples * num_rows;
         let mut data_buf = Vec::with_capacity(capacity);
         let res = unsafe {
-            BOARD_CONTROLLER.lock().unwrap().get_board_data(
+            board_controller::get_board_data(
                 num_samples as c_int,
                 data_buf.as_mut_ptr(),
                 self.board_id as c_int,
@@ -174,7 +146,7 @@ impl BoardShim {
         let capacity = num_samples * num_rows;
         let mut data_buf = Vec::with_capacity(capacity);
         let res = unsafe {
-            BOARD_CONTROLLER.lock().unwrap().get_current_board_data(
+            board_controller::get_current_board_data(
                 num_samples as c_int,
                 data_buf.as_mut_ptr(),
                 &mut 0,
@@ -196,7 +168,7 @@ impl BoardShim {
         let response = response.into_raw();
         let config = config.into_raw();
         let (res, response) = unsafe {
-            let res = BOARD_CONTROLLER.lock().unwrap().config_board(
+            let res = board_controller::config_board(
                 config,
                 response,
                 &mut response_len,
@@ -218,7 +190,7 @@ impl BoardShim {
     /// Insert Marker to Data Stream.
     pub fn insert_marker(&self, value: f64) -> Result<()> {
         let res = unsafe {
-            BOARD_CONTROLLER.lock().unwrap().insert_marker(
+            board_controller::insert_marker(
                 value as c_double,
                 self.board_id as c_int,
                 self.json_brainflow_input_params.as_ptr(),
@@ -243,12 +215,7 @@ impl BoardShim {
 /// Set BrainFlow log level, use it only if you want to write your own messages to BrainFlow logger,
 /// otherwise use [enable_board_logger], [enable_dev_board_logger] or [disable_board_logger].
 pub fn set_log_level(log_level: LogLevels) -> Result<()> {
-    let res = unsafe {
-        BOARD_CONTROLLER
-            .lock()
-            .unwrap()
-            .set_log_level(log_level as c_int)
-    };
+    let res = unsafe { board_controller::set_log_level(log_level as c_int) };
     Ok(check_brainflow_exit_code(res)?)
 }
 
@@ -271,12 +238,7 @@ pub fn enable_dev_board_logger() -> Result<()> {
 pub fn set_log_file<S: AsRef<str>>(log_file: S) -> Result<()> {
     let log_file = log_file.as_ref();
     let log_file = CString::new(log_file)?;
-    let res = unsafe {
-        BOARD_CONTROLLER
-            .lock()
-            .unwrap()
-            .set_log_file(log_file.as_ptr())
-    };
+    let res = unsafe { board_controller::set_log_file(log_file.as_ptr()) };
     Ok(check_brainflow_exit_code(res)?)
 }
 
@@ -286,7 +248,7 @@ macro_rules! gen_fn {
             #[doc = $doc]
             pub fn [<get_$fn_name>]( board_id: BoardId) -> Result<$return_type> {
                 let mut value = $initial_value;
-                let res = unsafe { BOARD_CONTROLLER.lock().unwrap().[<get_$fn_name>](board_id as c_int, &mut value) };
+                let res = unsafe { board_controller::[<get_$fn_name>](board_id as c_int, &mut value) };
                 check_brainflow_exit_code(res)?;
                 Ok(value as $return_type)
             }
@@ -331,10 +293,7 @@ pub fn log_message<S: AsRef<str>>(log_level: LogLevels, message: S) -> Result<()
     let message = message.as_ref();
     let message = CString::new(message)?.into_raw();
     let res = unsafe {
-        let res = BOARD_CONTROLLER
-            .lock()
-            .unwrap()
-            .log_message(log_level as c_int, message);
+        let res = board_controller::log_message(log_level as c_int, message);
         let _ = CString::from_raw(message);
         res
     };
@@ -347,11 +306,7 @@ pub fn get_board_descr(board_id: BoardId) -> Result<String> {
     let response = CString::new(Vec::with_capacity(16000))?;
     let response = response.into_raw();
     let (res, response) = unsafe {
-        let res = BOARD_CONTROLLER.lock().unwrap().get_board_descr(
-            board_id as c_int,
-            response,
-            &mut response_len,
-        );
+        let res = board_controller::get_board_descr(board_id as c_int, response, &mut response_len);
         let response = CString::from_raw(response);
         (res, response)
     };
@@ -369,11 +324,7 @@ pub fn get_eeg_names(board_id: BoardId) -> Result<Vec<String>> {
     let response = CString::new(Vec::with_capacity(16000))?;
     let response = response.into_raw();
     let (res, response) = unsafe {
-        let res = BOARD_CONTROLLER.lock().unwrap().get_eeg_names(
-            board_id as c_int,
-            response,
-            &mut response_len,
-        );
+        let res = board_controller::get_eeg_names(board_id as c_int, response, &mut response_len);
         let response = CString::from_raw(response);
         (res, response)
     };
@@ -392,11 +343,7 @@ pub fn get_device_name(board_id: BoardId) -> Result<String> {
     let response = CString::new(Vec::with_capacity(4096))?;
     let response = response.into_raw();
     let (res, response) = unsafe {
-        let res = BOARD_CONTROLLER.lock().unwrap().get_device_name(
-            board_id as c_int,
-            response,
-            &mut response_len,
-        );
+        let res = board_controller::get_device_name(board_id as c_int, response, &mut response_len);
         let response = CString::from_raw(response);
         (res, response)
     };
@@ -418,7 +365,7 @@ macro_rules! gen_vec_fn {
                 let mut len = 0;
                 let res = unsafe {
                     mem::forget(channels);
-                    BOARD_CONTROLLER.lock().unwrap().[<get_$fn_name>](
+                    board_controller::[<get_$fn_name>](
                         board_id as c_int,
                         channels_ptr as *mut c_int,
                         &mut len,

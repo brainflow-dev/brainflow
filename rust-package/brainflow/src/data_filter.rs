@@ -2,10 +2,7 @@ use getset::Getters;
 use ndarray::{Array1, Array2, ArrayBase, AsArray, Ix1, Ix2, Ix3};
 use num::Complex;
 use num_complex::Complex64;
-use once_cell::sync::Lazy;
 use std::os::raw::c_int;
-use std::path::Path;
-use std::sync::Mutex;
 use std::{ffi::CString, os::raw::c_double};
 
 use crate::error::{BrainFlowError, Error};
@@ -13,44 +10,15 @@ use crate::ffi::{
     constants::{
         AggOperations, DetrendOperations, FilterTypes, LogLevels, NoiseTypes, WindowFunctions,
     },
-    data_handler::DataHandler,
+    data_handler,
 };
 use crate::{check_brainflow_exit_code, Result};
-
-#[cfg(target_os = "windows")]
-pub static DATA_FILTER: Lazy<Mutex<DataHandler>> = Lazy::new(|| {
-    #[cfg(target_pointer_width = "64")]
-    let lib_path = Path::new("lib\\libDataHandler.dll");
-    #[cfg(target_pointer_width = "32")]
-    let lib_path = Path::new("lib\\libDataHandler32.dll");
-    let data_filter = unsafe { DataHandler::new(lib_path).unwrap() };
-    Mutex::new(data_filter)
-});
-
-#[cfg(target_os = "macos")]
-pub static DATA_FILTER: Lazy<Mutex<DataHandler>> = Lazy::new(|| {
-    let lib_path = Path::new("lib/libDataHandler.dylib");
-    let data_filter = unsafe { DataHandler::new(lib_path).unwrap() };
-    Mutex::new(data_filter)
-});
-
-#[cfg(target_os = "linux")]
-pub static DATA_FILTER: Lazy<Mutex<DataHandler>> = Lazy::new(|| {
-    let lib_path = Path::new("lib/libDataHandler.so");
-    let data_filter = unsafe { DataHandler::new(lib_path).unwrap() };
-    Mutex::new(data_filter)
-});
 
 /// Set BrainFlow data logger log level.
 /// Use it only if you want to write your own messages to BrainFlow logger.
 /// Otherwise use [enable_data_logger], [enable_dev_data_logger] or [disable_data_logger].
 pub fn set_log_level(log_level: LogLevels) -> Result<()> {
-    let res = unsafe {
-        DATA_FILTER
-            .lock()
-            .unwrap()
-            .set_log_level(log_level as c_int)
-    };
+    let res = unsafe { data_handler::set_log_level(log_level as c_int) };
     Ok(check_brainflow_exit_code(res)?)
 }
 
@@ -73,7 +41,7 @@ pub fn enable_dev_data_logger() -> Result<()> {
 pub fn set_log_file<S: AsRef<str>>(log_file: S) -> Result<()> {
     let log_file = log_file.as_ref();
     let log_file = CString::new(log_file)?;
-    let res = unsafe { DATA_FILTER.lock().unwrap().set_log_file(log_file.as_ptr()) };
+    let res = unsafe { data_handler::set_log_file(log_file.as_ptr()) };
     Ok(check_brainflow_exit_code(res)?)
 }
 
@@ -87,7 +55,7 @@ pub fn perform_lowpass(
     ripple: f64,
 ) -> Result<()> {
     let res = unsafe {
-        DATA_FILTER.lock().unwrap().perform_lowpass(
+        data_handler::perform_lowpass(
             data.as_mut_ptr() as *mut c_double,
             data.len() as c_int,
             sampling_rate as c_int,
@@ -111,7 +79,7 @@ pub fn perform_highpass(
     ripple: f64,
 ) -> Result<()> {
     let res = unsafe {
-        DATA_FILTER.lock().unwrap().perform_highpass(
+        data_handler::perform_highpass(
             data.as_mut_ptr() as *mut c_double,
             data.len() as c_int,
             sampling_rate as c_int,
@@ -136,7 +104,7 @@ pub fn perform_bandpass(
     ripple: f64,
 ) -> Result<()> {
     let res = unsafe {
-        DATA_FILTER.lock().unwrap().perform_bandpass(
+        data_handler::perform_bandpass(
             data.as_mut_ptr() as *mut c_double,
             data.len() as c_int,
             sampling_rate as c_int,
@@ -162,7 +130,7 @@ pub fn perform_bandstop(
     ripple: f64,
 ) -> Result<()> {
     let res = unsafe {
-        DATA_FILTER.lock().unwrap().perform_bandstop(
+        data_handler::perform_bandstop(
             data.as_mut_ptr() as *mut c_double,
             data.len() as c_int,
             sampling_rate as c_int,
@@ -184,7 +152,7 @@ pub fn remove_environmental_noise(
     noise_type: NoiseTypes,
 ) -> Result<()> {
     let res = unsafe {
-        DATA_FILTER.lock().unwrap().remove_environmental_noise(
+        data_handler::remove_environmental_noise(
             data.as_mut_ptr() as *mut c_double,
             data.len() as c_int,
             sampling_rate as c_int,
@@ -202,7 +170,7 @@ pub fn perform_rolling_filter(
     agg_operation: AggOperations,
 ) -> Result<()> {
     let res = unsafe {
-        DATA_FILTER.lock().unwrap().perform_rolling_filter(
+        data_handler::perform_rolling_filter(
             data.as_mut_ptr() as *mut c_double,
             data.len() as c_int,
             period as c_int,
@@ -224,7 +192,7 @@ pub fn perform_downsampling(
     }
     let mut output = Vec::<f64>::with_capacity(data.len() / period as usize);
     let res = unsafe {
-        DATA_FILTER.lock().unwrap().perform_downsampling(
+        data_handler::perform_downsampling(
             data.as_mut_ptr() as *mut c_double,
             data.len() as c_int,
             period as c_int,
@@ -300,7 +268,7 @@ pub fn perform_wavelet_transform<S: AsRef<str>>(
         let output = wavelet_transform.coefficients.as_mut_ptr() as *mut c_double;
         let decomposition_lengths =
             wavelet_transform.decomposition_lengths.as_mut_ptr() as *mut c_int;
-        DATA_FILTER.lock().unwrap().perform_wavelet_transform(
+        data_handler::perform_wavelet_transform(
             data.as_mut_ptr() as *mut c_double,
             data.len() as c_int,
             wavelet.as_ptr(),
@@ -319,17 +287,14 @@ pub fn perform_inverse_wavelet_transform(wavelet_transform: WaveletTransform) ->
     let mut output = Vec::<f64>::with_capacity(wavelet_transform.original_data_len);
     let wavelet = CString::new(wavelet_transform.wavelet)?;
     let res = unsafe {
-        DATA_FILTER
-            .lock()
-            .unwrap()
-            .perform_inverse_wavelet_transform(
-                wavelet_transform.coefficients.as_mut_ptr() as *mut c_double,
-                wavelet_transform.original_data_len as c_int,
-                wavelet.as_ptr(),
-                wavelet_transform.decomposition_level as c_int,
-                wavelet_transform.decomposition_lengths.as_ptr() as *mut c_int,
-                output.as_mut_ptr() as *mut c_double,
-            )
+        data_handler::perform_inverse_wavelet_transform(
+            wavelet_transform.coefficients.as_mut_ptr() as *mut c_double,
+            wavelet_transform.original_data_len as c_int,
+            wavelet.as_ptr(),
+            wavelet_transform.decomposition_level as c_int,
+            wavelet_transform.decomposition_lengths.as_ptr() as *mut c_int,
+            output.as_mut_ptr() as *mut c_double,
+        )
     };
     check_brainflow_exit_code(res)?;
     Ok(output)
@@ -343,7 +308,7 @@ pub fn perform_wavelet_denoising<S: AsRef<str>>(
 ) -> Result<()> {
     let wavelet = CString::new(wavelet.as_ref())?;
     let res = unsafe {
-        DATA_FILTER.lock().unwrap().perform_wavelet_denoising(
+        data_handler::perform_wavelet_denoising(
             data.as_mut_ptr() as *mut c_double,
             data.len() as c_int,
             wavelet.as_ptr(),
@@ -374,7 +339,7 @@ where
     let mut output_eigenvalues = Vec::<f64>::with_capacity(n_channels);
 
     let res = unsafe {
-        DATA_FILTER.lock().unwrap().get_csp(
+        data_handler::get_csp(
             data.as_ptr() as *const c_double,
             labels.as_ptr() as *const c_double,
             n_epochs as c_int,
@@ -399,7 +364,7 @@ where
 pub fn get_window(window_function: WindowFunctions, window_len: usize) -> Result<Vec<f64>> {
     let mut output = Vec::<f64>::with_capacity(window_len);
     let res = unsafe {
-        DATA_FILTER.lock().unwrap().get_window(
+        data_handler::get_window(
             window_function as c_int,
             window_len as c_int,
             output.as_mut_ptr() as *mut c_double,
@@ -416,7 +381,7 @@ pub fn perform_fft(data: &mut [f64], window_function: WindowFunctions) -> Result
     let mut output_re = Vec::<f64>::with_capacity(data.len() / 2 + 1);
     let mut output_im = Vec::<f64>::with_capacity(data.len() / 2 + 1);
     let res = unsafe {
-        DATA_FILTER.lock().unwrap().perform_fft(
+        data_handler::perform_fft(
             data.as_mut_ptr() as *mut c_double,
             data.len() as c_int,
             window_function as c_int,
@@ -442,7 +407,7 @@ pub fn perform_ifft(data: &[Complex64], original_data_len: usize) -> Result<Vec<
     let (mut input_re, mut input_im): (Vec<f64>, Vec<f64>) =
         data.iter().map(|d| (d.re, d.im)).unzip();
     let res = unsafe {
-        DATA_FILTER.lock().unwrap().perform_ifft(
+        data_handler::perform_ifft(
             input_re.as_mut_ptr() as *mut c_double,
             input_im.as_mut_ptr() as *mut c_double,
             original_data_len as c_int,
@@ -458,7 +423,7 @@ pub fn perform_ifft(data: &[Complex64], original_data_len: usize) -> Result<Vec<
 /// Detrend data.
 pub fn detrend(data: &mut [f64], detrend_operation: DetrendOperations) -> Result<()> {
     let res = unsafe {
-        DATA_FILTER.lock().unwrap().detrend(
+        data_handler::detrend(
             data.as_mut_ptr() as *mut c_double,
             data.len() as c_int,
             detrend_operation as c_int,
@@ -484,7 +449,7 @@ pub fn get_psd(
     let mut amplitude = Vec::<f64>::with_capacity(data.len() / 2 + 1);
     let mut frequency = Vec::<f64>::with_capacity(data.len() / 2 + 1);
     let res = unsafe {
-        DATA_FILTER.lock().unwrap().get_psd(
+        data_handler::get_psd(
             data.as_mut_ptr() as *mut c_double,
             data.len() as c_int,
             sampling_rate as c_int,
@@ -514,7 +479,7 @@ pub fn get_psd_welch(
     let mut amplitude = Vec::<f64>::with_capacity(nfft / 2 + 1);
     let mut frequency = Vec::<f64>::with_capacity(nfft / 2 + 1);
     let res = unsafe {
-        DATA_FILTER.lock().unwrap().get_psd_welch(
+        data_handler::get_psd_welch(
             data.as_mut_ptr() as *mut c_double,
             data.len() as c_int,
             nfft as c_int,
@@ -552,7 +517,7 @@ where
     let mut stddev_band_powers = Vec::with_capacity(5);
     let mut raw_data: Vec<&f64> = data.iter().collect();
     let res = unsafe {
-        DATA_FILTER.lock().unwrap().get_avg_band_powers(
+        data_handler::get_avg_band_powers(
             raw_data.as_mut_ptr() as *mut c_double,
             rows as c_int,
             cols as c_int,
@@ -574,7 +539,7 @@ pub fn get_band_power(psd: Psd, freq_start: f64, freq_end: f64) -> Result<f64> {
     let mut band_power = 0.0;
     let mut psd = psd;
     let res = unsafe {
-        DATA_FILTER.lock().unwrap().get_band_power(
+        data_handler::get_band_power(
             psd.amplitude.as_mut_ptr() as *mut c_double,
             psd.frequency.as_mut_ptr() as *mut c_double,
             psd.amplitude.len() as c_int,
@@ -590,12 +555,7 @@ pub fn get_band_power(psd: Psd, freq_start: f64, freq_end: f64) -> Result<f64> {
 /// Calculate nearest power of two.
 pub fn get_nearest_power_of_two(value: usize) -> Result<usize> {
     let mut output = 0;
-    let res = unsafe {
-        DATA_FILTER
-            .lock()
-            .unwrap()
-            .get_nearest_power_of_two(value as c_int, &mut output)
-    };
+    let res = unsafe { data_handler::get_nearest_power_of_two(value as c_int, &mut output) };
     check_brainflow_exit_code(res)?;
     Ok(output as usize)
 }
@@ -604,19 +564,15 @@ pub fn get_nearest_power_of_two(value: usize) -> Result<usize> {
 pub fn read_file<S: AsRef<str>>(file_name: S) -> Result<Array2<f64>> {
     let file_name = CString::new(file_name.as_ref())?;
     let mut num_elements = 0;
-    let res = unsafe {
-        DATA_FILTER
-            .lock()
-            .unwrap()
-            .get_num_elements_in_file(file_name.as_ptr(), &mut num_elements)
-    };
+    let res =
+        unsafe { data_handler::get_num_elements_in_file(file_name.as_ptr(), &mut num_elements) };
     check_brainflow_exit_code(res)?;
 
     let mut data = Vec::with_capacity(num_elements as usize);
     let mut rows = 0;
     let mut cols = 0;
     let res = unsafe {
-        DATA_FILTER.lock().unwrap().read_file(
+        data_handler::read_file(
             data.as_mut_ptr() as *mut c_double,
             &mut rows,
             &mut cols,
@@ -645,7 +601,7 @@ where
     let (cols, rows) = (shape[0], shape[1]);
     let mut data: Vec<&f64> = data.iter().collect();
     let res = unsafe {
-        DATA_FILTER.lock().unwrap().write_file(
+        data_handler::write_file(
             data.as_mut_ptr() as *mut c_double,
             rows as c_int,
             cols as c_int,
