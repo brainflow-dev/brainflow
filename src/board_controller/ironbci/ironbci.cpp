@@ -57,7 +57,7 @@ int IronBCI::prepare_session ()
     int spi_res = spi_transfer (spi, wakeup, wakeup, 1);
     if (spi_res < 0)
     {
-        safe_logger (spdlog::level::error, "failed to wakeup: {}", spi_res);
+        safe_logger (spdlog::level::err, "failed to wakeup: {}", spi_res);
     }
     else
     {
@@ -66,7 +66,7 @@ int IronBCI::prepare_session ()
     }
     if (spi_res < 0)
     {
-        safe_logger (spdlog::level::error, "failed to reset: {}", spi_res);
+        safe_logger (spdlog::level::err, "failed to reset: {}", spi_res);
     }
     else
     {
@@ -106,7 +106,7 @@ int IronBCI::start_stream (int buffer_size, const char *streamer_params)
     spi_res = spi_transfer (spi, buf, buf, 3);
     if (spi_res < 0)
     {
-        safe_logger (spdlog::level::error, "failed to set led: {}", spi_res);
+        safe_logger (spdlog::level::err, "failed to set led: {}", spi_res);
     }
     else
     {
@@ -117,7 +117,7 @@ int IronBCI::start_stream (int buffer_size, const char *streamer_params)
     }
     if (spi_res < 0)
     {
-        safe_logger (spdlog::level::error, "failed to set config1: {}", spi_res);
+        safe_logger (spdlog::level::err, "failed to set config1: {}", spi_res);
     }
     else
     {
@@ -128,7 +128,7 @@ int IronBCI::start_stream (int buffer_size, const char *streamer_params)
     }
     if (spi_res < 0)
     {
-        safe_logger (spdlog::level::error, "failed to set config2: {}", spi_res);
+        safe_logger (spdlog::level::err, "failed to set config2: {}", spi_res);
     }
     else
     {
@@ -139,7 +139,7 @@ int IronBCI::start_stream (int buffer_size, const char *streamer_params)
     }
     if (spi_res < 0)
     {
-        safe_logger (spdlog::level::error, "failed to set config3: {}", spi_res);
+        safe_logger (spdlog::level::err, "failed to set config3: {}", spi_res);
     }
     else
     {
@@ -150,7 +150,7 @@ int IronBCI::start_stream (int buffer_size, const char *streamer_params)
     }
     if (spi_res < 0)
     {
-        safe_logger (spdlog::level::error, "failed to set misc1: {}", spi_res);
+        safe_logger (spdlog::level::err, "failed to set misc1: {}", spi_res);
     }
     else
     {
@@ -160,7 +160,7 @@ int IronBCI::start_stream (int buffer_size, const char *streamer_params)
     }
     if (spi_res < 0)
     {
-        safe_logger (spdlog::level::error, "failed to set send command1: {}", spi_res);
+        safe_logger (spdlog::level::err, "failed to set send command1: {}", spi_res);
     }
     else
     {
@@ -170,7 +170,7 @@ int IronBCI::start_stream (int buffer_size, const char *streamer_params)
     }
     if (spi_res < 0)
     {
-        safe_logger (spdlog::level::error, "failed to set send command2: {}", spi_res);
+        safe_logger (spdlog::level::err, "failed to set send command2: {}", spi_res);
         return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
     }
 
@@ -285,7 +285,8 @@ void IronBCI::read_thread ()
             }
             for (size_t i = 0; i < eeg_channels.size (); i++)
             {
-                package[eeg_channels[i]] = (double)eeg_scale * cast_24bit_to_int32 (b + 3 + 3 * i);
+                package[eeg_channels[i]] =
+                    (double)eeg_scale * cast_24bit_to_int32 (buf + 3 + 3 * i);
             }
             package[board_descr["timestamp_channel"].get<int> ()] = timestamp;
             package[board_descr["package_num_channel"].get<int> ()] = counter++;
