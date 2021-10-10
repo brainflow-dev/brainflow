@@ -14,6 +14,7 @@ author: andrey_parfenov
 * Muse 2 and Muse S work without dongle
 * Rust binding for BrainFlow
 * Swift binding for BrainFlow
+* Fix `set_log_file` issue for C++ API
 
 ### SimpleBLE library 
 
