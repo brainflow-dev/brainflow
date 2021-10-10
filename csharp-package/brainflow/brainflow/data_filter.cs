@@ -18,7 +18,7 @@ namespace brainflow
         /// <param name="log_level"></param>
         private static void set_log_level (int log_level)
         {
-            int res = DataHandlerLibrary.set_log_level (log_level);
+            int res = DataHandlerLibrary.set_log_level_data_handler (log_level);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException (res);
@@ -30,7 +30,7 @@ namespace brainflow
         /// </summary>
         public static void enable_data_logger ()
         {
-            DataHandlerLibrary.set_log_level ((int)LogLevels.LEVEL_INFO);
+            set_log_level ((int)LogLevels.LEVEL_INFO);
         }
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace brainflow
         /// </summary>
         public static void disable_data_logger ()
         {
-            DataHandlerLibrary.set_log_level ((int)LogLevels.LEVEL_OFF);
+            set_log_level ((int)LogLevels.LEVEL_OFF);
         }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace brainflow
         /// </summary>
         public static void enable_dev_data_logger ()
         {
-            DataHandlerLibrary.set_log_level ((int)LogLevels.LEVEL_TRACE);
+            set_log_level ((int)LogLevels.LEVEL_TRACE);
         }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace brainflow
         /// <param name="log_file"></param>
         public static void set_log_file (string log_file)
         {
-            int res = DataHandlerLibrary.set_log_file (log_file);
+            int res = DataHandlerLibrary.set_log_file_data_handler (log_file);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException (res);

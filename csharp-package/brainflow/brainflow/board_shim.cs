@@ -509,7 +509,7 @@ namespace brainflow
         /// <param name="log_level"></param>
         public static void set_log_level (int log_level)
         {
-            int res = BoardControllerLibrary.set_log_level (log_level);
+            int res = BoardControllerLibrary.set_log_level_board_controller (log_level);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException (res);
@@ -521,7 +521,7 @@ namespace brainflow
         /// </summary>
         public static void enable_board_logger ()
         {
-            BoardControllerLibrary.set_log_level ((int)LogLevels.LEVEL_INFO);
+            set_log_level ((int)LogLevels.LEVEL_INFO);
         }
 
         /// <summary>
@@ -529,7 +529,7 @@ namespace brainflow
         /// </summary>
         public static void disable_board_logger ()
         {
-            BoardControllerLibrary.set_log_level ((int)LogLevels.LEVEL_OFF);
+            set_log_level ((int)LogLevels.LEVEL_OFF);
         }
 
         /// <summary>
@@ -537,7 +537,7 @@ namespace brainflow
         /// </summary>
         public static void enable_dev_board_logger ()
         {
-            BoardControllerLibrary.set_log_level ((int)LogLevels.LEVEL_TRACE);
+            set_log_level ((int)LogLevels.LEVEL_TRACE);
         }
 
         /// <summary>
@@ -546,7 +546,7 @@ namespace brainflow
         /// <param name="log_file"></param>
         public static void set_log_file (string log_file)
         {
-            int res = BoardControllerLibrary.set_log_file (log_file);
+            int res = BoardControllerLibrary.set_log_file_board_controller (log_file);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException (res);
@@ -560,7 +560,7 @@ namespace brainflow
         /// <param name="message"></param>
         public static void log_message (int log_level, string message)
         {
-            int res = BoardControllerLibrary.log_message (log_level, message);
+            int res = BoardControllerLibrary.log_message_board_controller (log_level, message);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException (res);

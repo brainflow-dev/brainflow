@@ -6,15 +6,6 @@
 using json = nlohmann::json;
 
 
-void MLModel::set_log_file (std::string log_file)
-{
-    int res = ::set_log_file (log_file.c_str ());
-    if (res != (int)BrainFlowExitCodes::STATUS_OK)
-    {
-        throw BrainFlowException ("failed to set log file", res);
-    }
-}
-
 std::string params_to_string (struct BrainFlowModelParams params)
 {
     json j;
@@ -64,9 +55,18 @@ void MLModel::release ()
 //////////// logging methods ////////////
 /////////////////////////////////////////
 
+void MLModel::set_log_file (std::string log_file)
+{
+    int res = set_log_file_ml_module (log_file.c_str ());
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to set log file", res);
+    }
+}
+
 void MLModel::set_log_level (int log_level)
 {
-    int res = ::set_log_level (log_level);
+    int res = set_log_level_ml_module (log_level);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to set log level", res);

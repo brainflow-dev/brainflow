@@ -37,7 +37,7 @@ classdef BoardShim
 
         function set_log_level(log_level)
             % set log level for BoardShim
-            task_name = 'set_log_level';
+            task_name = 'set_log_level_board_controller';
             lib_name = BoardShim.load_lib();
             exit_code = calllib(lib_name, task_name, log_level);
             BoardShim.check_ec(exit_code, task_name);
@@ -45,7 +45,7 @@ classdef BoardShim
 
         function set_log_file(log_file)
             % set log file for BoardShim, logger uses stderr by default
-            task_name = 'set_log_file';
+            task_name = 'set_log_file_board_controller';
             lib_name = BoardShim.load_lib();
             exit_code = calllib(lib_name, task_name, log_file);
             BoardShim.check_ec(exit_code, task_name);
@@ -68,7 +68,7 @@ classdef BoardShim
         
         function log_message(log_level, message)
             % write message to BoardShim logger
-            task_name = 'log_message';
+            task_name = 'log_message_board_controller';
             lib_name = BoardShim.load_lib();
             exit_code = calllib(lib_name, task_name, log_level, message);
             BoardShim.check_ec(exit_code, task_name);
