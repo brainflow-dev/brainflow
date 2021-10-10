@@ -3,12 +3,6 @@
 #include "shared_export.h"
 
 #ifdef __cplusplus
-class brainflow_filter;
-#else
-typedef struct brainflow_filter brainflow_filter;
-#endif
-
-#ifdef __cplusplus
 extern "C"
 {
 #endif

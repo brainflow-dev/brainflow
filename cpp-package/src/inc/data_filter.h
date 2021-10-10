@@ -10,6 +10,7 @@
 #include "brainflow_exception.h"
 #include "data_handler.h"
 
+class brainflow_filter;
 
 /// DataFilter class to perform signal processing
 class DataFilter
