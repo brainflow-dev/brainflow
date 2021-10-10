@@ -29,7 +29,7 @@ disable_logger(log_lib::BrainFlowLib) = set_log_level(Integer(LEVEL_OFF), log_li
 
 # available only for BoardController, no need to provide log_lib
 @brainflow_rethrow function log_message(log_level::Integer, message::String)
-    ccall((:log_message, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}), Int32(log_level), message)
+    ccall((:log_message_board_controller, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}), Int32(log_level), message)
 end
 
 @brainflow_rethrow function set_log_file(log_file, log_lib::BrainFlowLib)
@@ -38,9 +38,9 @@ end
 end
 
 # need to hardcode the cglobal input symbols, related to https://github.com/JuliaLang/julia/issues/29602
-log_file_cglobal(::BoardControllerLib) = cglobal((:set_log_file, BOARD_CONTROLLER_INTERFACE)) 
-log_file_cglobal(::DataHandlerLib) = cglobal((:set_log_file, DATA_HANDLER_INTERFACE)) 
-log_file_cglobal(::MlModuleLib) = cglobal((:set_log_file, ML_MODULE_INTERFACE)) 
+log_file_cglobal(::BoardControllerLib) = cglobal((:set_log_file_board_controller, BOARD_CONTROLLER_INTERFACE)) 
+log_file_cglobal(::DataHandlerLib) = cglobal((:set_log_file_data_handler, DATA_HANDLER_INTERFACE)) 
+log_file_cglobal(::MlModuleLib) = cglobal((:set_log_file_ml_module, ML_MODULE_INTERFACE)) 
 
 @brainflow_rethrow function set_log_level(log_level::Integer, log_lib::BrainFlowLib)
     lib_cglobal = log_level_cglobal(log_lib)
@@ -48,7 +48,7 @@ log_file_cglobal(::MlModuleLib) = cglobal((:set_log_file, ML_MODULE_INTERFACE))
 end
 
 # need to hardcode the cglobal input symbols, related to https://github.com/JuliaLang/julia/issues/29602
-log_level_cglobal(::BoardControllerLib) = cglobal((:set_log_level, BOARD_CONTROLLER_INTERFACE)) 
-log_level_cglobal(::DataHandlerLib) = cglobal((:set_log_level, DATA_HANDLER_INTERFACE)) 
-log_level_cglobal(::MlModuleLib) = cglobal((:set_log_level, ML_MODULE_INTERFACE)) 
+log_level_cglobal(::BoardControllerLib) = cglobal((:set_log_level_board_controller, BOARD_CONTROLLER_INTERFACE)) 
+log_level_cglobal(::DataHandlerLib) = cglobal((:set_log_level_data_handler, DATA_HANDLER_INTERFACE)) 
+log_level_cglobal(::MlModuleLib) = cglobal((:set_log_level_ml_module, ML_MODULE_INTERFACE)) 
 

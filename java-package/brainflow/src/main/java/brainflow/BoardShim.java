@@ -42,11 +42,11 @@ public class BoardShim
 
         int get_board_data (int data_count, double[] data_buf, int board_id, String params);
 
-        int set_log_level (int log_level);
+        int set_log_level_board_controller (int log_level);
 
-        int log_message (int log_level, String message);
+        int log_message_board_controller (int log_level, String message);
 
-        int set_log_file (String log_file);
+        int set_log_file_board_controller (String log_file);
 
         int java_set_jnienv (JNIEnv java_jnienv);
 
@@ -188,7 +188,7 @@ public class BoardShim
      */
     public static void set_log_file (String log_file) throws BrainFlowError
     {
-        int ec = instance.set_log_file (log_file);
+        int ec = instance.set_log_file_board_controller (log_file);
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in set_log_file", ec);
@@ -200,7 +200,7 @@ public class BoardShim
      */
     public static void set_log_level (int log_level) throws BrainFlowError
     {
-        int ec = instance.set_log_level (log_level);
+        int ec = instance.set_log_level_board_controller (log_level);
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in set_log_level", ec);
@@ -212,7 +212,7 @@ public class BoardShim
      */
     public static void log_message (int log_level, String message) throws BrainFlowError
     {
-        int ec = instance.log_message (log_level, message);
+        int ec = instance.log_message_board_controller (log_level, message);
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in log_message", ec);

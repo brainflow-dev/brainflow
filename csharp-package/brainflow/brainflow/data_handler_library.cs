@@ -40,9 +40,9 @@ namespace brainflow
     class DataHandlerLibrary64
     {
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int set_log_file (string log_file);
+        public static extern int set_log_file_data_handler (string log_file);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int set_log_level (int log_level);
+        public static extern int set_log_level_data_handler (int log_level);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_lowpass (double[] data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -95,9 +95,9 @@ namespace brainflow
     class DataHandlerLibrary32
     {
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int set_log_file (string log_file);
+        public static extern int set_log_file_data_handler(string log_file);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int set_log_level (int log_level);
+        public static extern int set_log_level_data_handler (int log_level);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_lowpass (double[] data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -150,9 +150,9 @@ namespace brainflow
     class DataHandlerLibraryLinux
     {
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int set_log_file (string log_file);
+        public static extern int set_log_file_data_handler(string log_file);
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int set_log_level (int log_level);
+        public static extern int set_log_level_data_handler (int log_level);
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_lowpass (double[] data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -205,9 +205,9 @@ namespace brainflow
     class DataHandlerLibraryMac
     {
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int set_log_file (string log_file);
+        public static extern int set_log_file_data_handler(string log_file);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int set_log_level (int log_level);
+        public static extern int set_log_level_data_handler(int log_level);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_lowpass (double[] data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -259,35 +259,35 @@ namespace brainflow
 
     class DataHandlerLibrary
     {
-        public static int set_log_level (int log_level)
+        public static int set_log_level_data_handler (int log_level)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return DataHandlerLibrary64.set_log_level (log_level);
+                    return DataHandlerLibrary64.set_log_level_data_handler(log_level);
                 case LibraryEnvironment.x86:
-                    return DataHandlerLibrary32.set_log_level (log_level);
+                    return DataHandlerLibrary32.set_log_level_data_handler(log_level);
                 case LibraryEnvironment.Linux:
-                    return DataHandlerLibraryLinux.set_log_level (log_level);
+                    return DataHandlerLibraryLinux.set_log_level_data_handler(log_level);
                 case LibraryEnvironment.MacOS:
-                    return DataHandlerLibraryMac.set_log_level (log_level);
+                    return DataHandlerLibraryMac.set_log_level_data_handler(log_level);
             }
 
             return (int)CustomExitCodes.GENERAL_ERROR;
         }
 
-        public static int set_log_file (string log_file)
+        public static int set_log_file_data_handler (string log_file)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return DataHandlerLibrary64.set_log_file (log_file);
+                    return DataHandlerLibrary64.set_log_file_data_handler(log_file);
                 case LibraryEnvironment.x86:
-                    return DataHandlerLibrary32.set_log_file (log_file);
+                    return DataHandlerLibrary32.set_log_file_data_handler(log_file);
                 case LibraryEnvironment.Linux:
-                    return DataHandlerLibraryLinux.set_log_file (log_file);
+                    return DataHandlerLibraryLinux.set_log_file_data_handler(log_file);
                 case LibraryEnvironment.MacOS:
-                    return DataHandlerLibraryMac.set_log_file (log_file);
+                    return DataHandlerLibraryMac.set_log_file_data_handler(log_file);
             }
 
             return (int)CustomExitCodes.GENERAL_ERROR;

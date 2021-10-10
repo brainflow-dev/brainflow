@@ -12,8 +12,8 @@ extern "C"
     SHARED_EXPORT int CALLING_CONVENTION release (const char *json_params);
 
     // logging methods
-    SHARED_EXPORT int CALLING_CONVENTION set_log_level (int log_level);
-    SHARED_EXPORT int CALLING_CONVENTION set_log_file (const char *log_file);
+    SHARED_EXPORT int CALLING_CONVENTION set_log_level_ml_module (int log_level);
+    SHARED_EXPORT int CALLING_CONVENTION set_log_file_ml_module (const char *log_file);
 #ifdef __cplusplus
 }
 #endif

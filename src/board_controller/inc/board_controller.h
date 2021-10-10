@@ -30,9 +30,10 @@ extern "C"
         double marker_value, int board_id, const char *json_brainflow_input_params);
 
     // logging methods
-    SHARED_EXPORT int CALLING_CONVENTION set_log_level (int log_level);
-    SHARED_EXPORT int CALLING_CONVENTION set_log_file (const char *log_file);
-    SHARED_EXPORT int CALLING_CONVENTION log_message (int log_level, char *message);
+    SHARED_EXPORT int CALLING_CONVENTION set_log_level_board_controller (int log_level);
+    SHARED_EXPORT int CALLING_CONVENTION set_log_file_board_controller (const char *log_file);
+    SHARED_EXPORT int CALLING_CONVENTION log_message_board_controller (
+        int log_level, char *message);
 
     // platform types and methods
     typedef const struct JNINativeInterface *JNIEnv; // A handle to use Java's JNI

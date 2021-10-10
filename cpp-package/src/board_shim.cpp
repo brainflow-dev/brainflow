@@ -50,7 +50,7 @@ void BoardShim::enable_dev_board_logger ()
 
 void BoardShim::set_log_file (std::string log_file)
 {
-    int res = ::set_log_file (log_file.c_str ());
+    int res = set_log_file_board_controller (log_file.c_str ());
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to set log file", res);
@@ -59,7 +59,7 @@ void BoardShim::set_log_file (std::string log_file)
 
 void BoardShim::set_log_level (int log_level)
 {
-    int res = ::set_log_level (log_level);
+    int res = set_log_level_board_controller (log_level);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to set log level", res);
@@ -74,7 +74,7 @@ void BoardShim::log_message (int log_level, const char *format, ...)
     vsnprintf (buffer, 1024, format, ap);
     va_end (ap);
 
-    int res = ::log_message (log_level, buffer);
+    int res = log_message_board_controller (log_level, buffer);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to write log message", res);

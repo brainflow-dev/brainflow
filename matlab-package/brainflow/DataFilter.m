@@ -31,7 +31,7 @@ classdef DataFilter
 
         function set_log_level(log_level)
             % set log level for DataFilter
-            task_name = 'set_log_level';
+            task_name = 'set_log_level_data_handler';
             lib_name = DataFilter.load_lib();
             exit_code = calllib(lib_name, task_name, log_level);
             DataFilter.check_ec(exit_code, task_name);
@@ -39,7 +39,7 @@ classdef DataFilter
 
         function set_log_file(log_file)
             % set log file for DataFilter
-            task_name = 'set_log_file';
+            task_name = 'set_log_file_data_handler';
             lib_name = DataFilter.load_lib();
             exit_code = calllib(lib_name, task_name, log_file);
             DataFilter.check_ec(exit_code, task_name);
