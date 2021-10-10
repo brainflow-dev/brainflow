@@ -1,5 +1,5 @@
 use std::{
-    env, fs,
+    env,
     path::{Path, PathBuf},
 };
 
@@ -147,18 +147,15 @@ fn main() {
     generate_binding();
 
     let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
-    let lib_out_path = Path::new(&out_path).join("lib");
-    fs::create_dir_all(&lib_out_path).unwrap();
-    fs::copy(
-        "lib/libBoardController.so",
-        lib_out_path.join("libBoardController.so"),
-    )
-    .unwrap();
-    fs::copy(
-        "lib/libDataHandler.so",
-        lib_out_path.join("libDataHandler.so"),
-    )
-    .unwrap();
-    fs::copy("lib/libMLModule.so", lib_out_path.join("libMLModule.so")).unwrap();
+    let lib_out_path = Path::new(&out_path);
+
+    let lib_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
+    let lib_path = Path::new(&lib_path).join("lib");
+
+    let mut options = fs_extra::dir::CopyOptions::new();
+    options.overwrite = true;
+    options.copy_inside = true;
+    fs_extra::dir::copy(lib_path, lib_out_path, &options).unwrap();
+
     println!("cargo:rustc-link-search=native={}/lib", out_path.display());
 }

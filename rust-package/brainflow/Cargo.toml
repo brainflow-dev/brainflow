@@ -28,4 +28,5 @@ thiserror = "1.0.29"
 
 [build-dependencies]
 bindgen = "0.59.1"
+fs_extra = "1.2.0"
 regex = "1"
