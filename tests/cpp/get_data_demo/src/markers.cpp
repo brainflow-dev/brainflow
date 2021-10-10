@@ -18,6 +18,7 @@ bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, in
 int main (int argc, char *argv[])
 {
     BoardShim::enable_dev_board_logger ();
+    BoardShim::set_log_file ("brainflow_log.txt");
 
     struct BrainFlowInputParams params;
     int board_id = 0;
@@ -46,7 +47,6 @@ int main (int argc, char *argv[])
 
         board->stop_stream ();
         BrainFlowArray<double, 2> data = board->get_board_data ();
-        data = board->get_board_data ();
         board->release_session ();
         std::cout << data << std::endl;
     }
