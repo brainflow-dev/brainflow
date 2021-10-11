@@ -36,6 +36,7 @@ private:
     SignalDoubleChannel *signal_t3;
     SignalDoubleChannel *signal_o1;
     SignalDoubleChannel *signal_o2;
+    volatile size_t counter;
 
 #endif
 

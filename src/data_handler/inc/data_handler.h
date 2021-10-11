@@ -57,8 +57,8 @@ extern "C"
     SHARED_EXPORT int CALLING_CONVENTION get_avg_band_powers (double *raw_data, int rows, int cols,
         int sampling_rate, int apply_filters, double *avg_band_powers, double *stddev_band_powers);
     // logging methods
-    SHARED_EXPORT int CALLING_CONVENTION set_log_level (int log_level);
-    SHARED_EXPORT int CALLING_CONVENTION set_log_file (const char *log_file);
+    SHARED_EXPORT int CALLING_CONVENTION set_log_level_data_handler (int log_level);
+    SHARED_EXPORT int CALLING_CONVENTION set_log_file_data_handler (const char *log_file);
     // file operations
     SHARED_EXPORT int CALLING_CONVENTION write_file (const double *data, int num_rows, int num_cols,
         const char *file_name, const char *file_mode);

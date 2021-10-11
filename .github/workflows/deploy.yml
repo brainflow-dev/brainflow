@@ -172,6 +172,12 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         VERSION: ${{ github.event.inputs.version }}
+    - name: Prepare Rust Package
+      run: |
+        cd $env:GITHUB_WORKSPACE\rust-package\brainflow
+        (gc .\Cargo.toml).replace('0.0.0', $env:VERSION) | Out-File -encoding ASCII Cargo.toml
+      env:
+        VERSION: ${{ github.event.inputs.version }}
     # publish packages
     - name: Publish Packages
       if: github.event.inputs.publish == 'true'

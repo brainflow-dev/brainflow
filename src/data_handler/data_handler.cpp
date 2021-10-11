@@ -42,7 +42,7 @@ std::shared_ptr<spdlog::logger> data_logger = spdlog::stderr_logger_mt (LOGGER_N
 #endif
 
 
-int set_log_file (const char *log_file)
+int set_log_file_data_handler (const char *log_file)
 {
 #ifdef __ANDROID__
     data_logger->error ("For Android set_log_file is unavailable");
@@ -67,7 +67,7 @@ int set_log_file (const char *log_file)
 #endif
 }
 
-int set_log_level (int level)
+int set_log_level_data_handler (int level)
 {
     int log_level = level;
     if (level > 6)

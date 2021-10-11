@@ -165,15 +165,15 @@ class DataHandlerDLL(object):
             ctypes.c_int
         ]
 
-        self.set_log_level = self.lib.set_log_level
-        self.set_log_level.restype = ctypes.c_int
-        self.set_log_level.argtypes = [
+        self.set_log_level_data_handler = self.lib.set_log_level_data_handler
+        self.set_log_level_data_handler.restype = ctypes.c_int
+        self.set_log_level_data_handler.argtypes = [
             ctypes.c_int
         ]
 
-        self.set_log_file = self.lib.set_log_file
-        self.set_log_file.restype = ctypes.c_int
-        self.set_log_file.argtypes = [
+        self.set_log_file_data_handler = self.lib.set_log_file_data_handler
+        self.set_log_file_data_handler.restype = ctypes.c_int
+        self.set_log_file_data_handler.argtypes = [
             ctypes.c_char_p
         ]
 
@@ -347,7 +347,7 @@ class DataFilter(object):
         :param log_level: log level, to specify it you should use values from LogLevels enum
         :type log_level: int
         """
-        res = DataHandlerDLL.get_instance().set_log_level(log_level)
+        res = DataHandlerDLL.get_instance().set_log_level_data_handler(log_level)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to enable logger', res)
 
@@ -377,7 +377,7 @@ class DataFilter(object):
             file = log_file.encode()
         except BaseException:
             file = log_file
-        res = DataHandlerDLL.get_instance().set_log_file(file)
+        res = DataHandlerDLL.get_instance().set_log_file_data_handler(file)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to redirect logs to a file', res)
 

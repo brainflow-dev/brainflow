@@ -250,5 +250,12 @@ Compilation instructions:
         # for x86
         cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=E:\android-ndk-r21d-windows-x86_64\android-ndk-r21d\build\cmake\android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=android-19 -DANDROID_ABI=x86 ..
 
-        # to build(should be run for each ABI from previous step)
+        # to build(should be run for each ABI from previous step**
         cmake --build . --target install --config Release -j 2 --parallel 2
+
+
+Rust
+----
+
+** For brainflow developers **
+Run `cargo build --features="generate_binding"` to generate the binding.

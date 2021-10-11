@@ -363,13 +363,13 @@ int get_board_data (
     return board_it->second->get_board_data (data_count, data_buf);
 }
 
-int set_log_level (int log_level)
+int set_log_level_board_controller (int log_level)
 {
     std::lock_guard<std::mutex> lock (mutex);
     return Board::set_log_level (log_level);
 }
 
-int log_message (int log_level, char *log_message)
+int log_message_board_controller (int log_level, char *log_message)
 {
     // its a method for loggging from high level api dont add it to Board class since it should not
     // be used internally
@@ -390,7 +390,7 @@ int log_message (int log_level, char *log_message)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int set_log_file (const char *log_file)
+int set_log_file_board_controller (const char *log_file)
 {
     std::lock_guard<std::mutex> lock (mutex);
     return Board::set_log_file (log_file);
