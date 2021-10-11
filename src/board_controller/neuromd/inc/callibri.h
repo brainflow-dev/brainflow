@@ -19,6 +19,7 @@ private:
     bool initialized;
     bool is_streaming;
     std::thread streaming_thread;
+    volatile size_t counter;
 
     void read_thread ();
     void free_channels ();
