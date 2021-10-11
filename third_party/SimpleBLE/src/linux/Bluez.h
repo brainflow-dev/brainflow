@@ -2,7 +2,7 @@
 
 #include <atomic>
 #include <thread>
-#include "bluezdbus/BluezService.h"
+#include "BluezService.h"
 
 namespace SimpleBLE {
 

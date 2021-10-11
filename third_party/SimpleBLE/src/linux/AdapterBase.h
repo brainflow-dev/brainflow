@@ -10,7 +10,7 @@
 #include <simpleble/Peripheral.h>
 #include <simpleble/Types.h>
 
-#include <bluezdbus/BluezAdapter.h>
+#include <BluezAdapter.h>
 
 namespace SimpleBLE {
 

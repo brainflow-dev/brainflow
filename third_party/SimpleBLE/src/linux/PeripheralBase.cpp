@@ -57,13 +57,7 @@ bool PeripheralBase::is_connected() {
     return device->Property_Connected() && device->Property_ServicesResolved();
 }
 
-bool PeripheralBase::is_connectable() {
-    // TODO its a stub, replace with real implementation
-    if (is_connected()) {
-        return false;
-    }
-    return true;
-}
+bool PeripheralBase::is_connectable() { return identifier_ != ""; }
 
 std::vector<BluetoothService> PeripheralBase::services() {
     auto device = _get_device();
@@ -87,7 +81,8 @@ ByteArray PeripheralBase::read(BluetoothUUID service, BluetoothUUID characterist
     // std::vector<uint8_t> value = characteristic_object->get_value();
     // return ByteArray((const char*)value.data(), value.size());
 
-    return ByteArray();
+    std::vector<uint8_t> value = characteristic_object->Property_Value();
+    return ByteArray((const char*)value.data(), value.size());
 }
 
 void PeripheralBase::write_request(BluetoothUUID service, BluetoothUUID characteristic, ByteArray data) {

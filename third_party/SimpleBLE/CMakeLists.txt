@@ -37,14 +37,6 @@ else()
     set(STANDALONE false)
 endif()
 
-# Load default parameters passed in through the command line.
-if(NOT SIMPLEDBUS_GIT_REPOSITORY)
-    set(SIMPLEDBUS_GIT_REPOSITORY "https://github.com/kdewald/SimpleDBus.git")
-endif()
-if(NOT SIMPLEDBUS_GIT_TAG)
-    set(SIMPLEDBUS_GIT_TAG "feature/simpleble")
-endif()
-
 # Perform some overall CMake configurations
 set(CMAKE_CXX_STANDARD 17)
 
@@ -74,21 +66,16 @@ set(
 if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
     message("-- [INFO] Linux Host Detected")
 
-    FetchContent_Declare(
-        simpledbus
-        GIT_REPOSITORY ${SIMPLEDBUS_GIT_REPOSITORY}
-        GIT_TAG ${SIMPLEDBUS_GIT_TAG}
-    )
-    FetchContent_MakeAvailable(simpledbus)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../SimpleBluez ${CMAKE_CURRENT_BINARY_DIR}/simplebluez)
 
     set(
         EXTERNAL_LIBRARIES
-        bluezdbus-static
+        simplebluez-static
         pthread
     )
     set(
         EXTERNAL_INCLUDE_DIRS
-        ${SIMPLEDBUS_INCLUDES}
+        ${SIMPLEBLUEZ_INCLUDES}
         ${CMAKE_CURRENT_SOURCE_DIR}/src/linux
     )
     set(
@@ -108,7 +95,6 @@ elseif (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
 
     set(
         EXTERNAL_INCLUDE_DIRS
-        ${SIMPLEDBUS_INCLUDES}
         ${CMAKE_CURRENT_SOURCE_DIR}/src/windows
     )
     set(
@@ -238,6 +224,7 @@ if (MSVC)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../compiled/$<CONFIG>/${FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../csharp-package/brainflow/brainflow/lib/${FILE_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../compiled/$<CONFIG>/${FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../matlab-package/brainflow/lib/${FILE_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../compiled/$<CONFIG>/${FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../julia-package/brainflow/lib/${FILE_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../compiled/$<CONFIG>/${FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../rust-package/brainflow/lib/${FILE_NAME}"
     )
 endif (MSVC)
 if (UNIX AND NOT ANDROID)
@@ -247,6 +234,7 @@ if (UNIX AND NOT ANDROID)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../compiled/${FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../java-package/brainflow/src/main/resources/${FILE_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../compiled/${FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../csharp-package/brainflow/brainflow/${FILE_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../compiled/${FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../matlab-package/brainflow/lib/${FILE_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../compiled/${FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../rust-package/brainflow/lib/${FILE_NAME}"
     )
 endif (UNIX AND NOT ANDROID)
 

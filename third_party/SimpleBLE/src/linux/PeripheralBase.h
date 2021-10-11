@@ -5,7 +5,7 @@
 #include <simpleble/Exceptions.h>
 #include <simpleble/Types.h>
 
-#include <bluezdbus/BluezDevice.h>
+#include <BluezDevice.h>
 
 #include <condition_variable>
 
