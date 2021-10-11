@@ -51,6 +51,7 @@ BrainBit::BrainBit (struct BrainFlowInputParams params)
     signal_t3 = NULL;
     signal_o1 = NULL;
     signal_o2 = NULL;
+    counter = 0;
 }
 
 BrainBit::~BrainBit ()
@@ -213,6 +214,7 @@ int BrainBit::prepare_session ()
     free_ChannelInfoArray (device_channels);
 
     initialized = true;
+    counter = 0;
 
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
@@ -335,7 +337,6 @@ int BrainBit::release_session ()
     return NeuromdBoard::release_session ();
 }
 
-
 void BrainBit::read_thread ()
 {
     /*
@@ -353,7 +354,6 @@ void BrainBit::read_thread ()
     }
     // I dont see method to flush data from buffer, so need to keep offset and track package num to
     // get only new data
-    size_t counter = 0;
     while (keep_alive)
     {
         size_t length_t3 = 0;
