@@ -284,10 +284,10 @@ void IronBCI::read_thread ()
         }
         else
         {
-            res = spi_transfer (spi, buf, buf, 27);
-            if (res != 0)
+            int spi_res = spi_transfer (spi, buf, buf, 27);
+            if (spi_res != 0)
             {
-                safe_logger (spdlog::level::warn, "failed to read from spi: {}", res);
+                safe_logger (spdlog::level::warn, "failed to read from spi: {}", spi_res);
                 continue;
             }
             for (size_t i = 0; i < eeg_channels.size (); i++)
