@@ -76,11 +76,25 @@ int IronBCI::prepare_session ()
 
     if (spi_res < 0)
     {
+        safe_logger (spdlog::level::err, "failed to sdatac: {}", spi_res);
         gpio_free (gpio_in);
         gpio_in = NULL;
         spi_free (spi);
         spi = NULL;
         return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
+    }
+    else
+    {
+        int gpio_res = gpio_set_edge (gpio_in, GPIO_EDGE_FALLING);
+        if (gpio_res != 0)
+        {
+            safe_logger (spdlog::level::err, "Failed to set gpio edge event: {}", gpio_res);
+            gpio_free (gpio_in);
+            gpio_in = NULL;
+            spi_free (spi);
+            spi = NULL;
+            return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
+        }
     }
     initialized = true;
     return (int)BrainFlowExitCodes::STATUS_OK;
@@ -252,31 +266,24 @@ void IronBCI::read_thread ()
 
     std::vector<int> eeg_channels = board_descr["eeg_channels"];
 
-    bool was_one = false;
     double eeg_scale = 4.5 / float ((pow (2, 23) - 1)) / 8 * 1000000.;
     double timestamp = 0;
     int counter = 0;
+    int timeout_ms = 1000;
 
     while (keep_alive)
     {
-        bool value;
-        int res = gpio_read (gpio_in, &value);
-        if (res != 0)
+        int gpio_res = gpio_poll (gpio_in, timeout_ms);
+        if (gpio_res == 0)
         {
-            safe_logger (spdlog::level::warn, "failed to read from gpio: {}", res);
-            continue;
+            safe_logger (spdlog::level::trace, "no gpio event in {} ms", timeout_ms);
         }
-
-        if (value == 1)
+        else if (gpio_res < 0)
         {
-            timestamp = get_timestamp ();
-            was_one = true;
-            continue;
+            safe_logger (spdlog::level::warn, "error in gpio_poll: {}", gpio_res);
         }
-
-        if ((value == 0) && (was_one))
+        else
         {
-            was_one = false;
             res = spi_transfer (spi, buf, buf, 27);
             if (res != 0)
             {
