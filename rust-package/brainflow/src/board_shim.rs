@@ -215,7 +215,7 @@ impl BoardShim {
 /// Set BrainFlow log level, use it only if you want to write your own messages to BrainFlow logger,
 /// otherwise use [enable_board_logger], [enable_dev_board_logger] or [disable_board_logger].
 pub fn set_log_level(log_level: LogLevels) -> Result<()> {
-    let res = unsafe { board_controller::set_log_level(log_level as c_int) };
+    let res = unsafe { board_controller::set_log_level_board_controller(log_level as c_int) };
     Ok(check_brainflow_exit_code(res)?)
 }
 
@@ -238,7 +238,7 @@ pub fn enable_dev_board_logger() -> Result<()> {
 pub fn set_log_file<S: AsRef<str>>(log_file: S) -> Result<()> {
     let log_file = log_file.as_ref();
     let log_file = CString::new(log_file)?;
-    let res = unsafe { board_controller::set_log_file(log_file.as_ptr()) };
+    let res = unsafe { board_controller::set_log_file_board_controller(log_file.as_ptr()) };
     Ok(check_brainflow_exit_code(res)?)
 }
 
@@ -293,7 +293,7 @@ pub fn log_message<S: AsRef<str>>(log_level: LogLevels, message: S) -> Result<()
     let message = message.as_ref();
     let message = CString::new(message)?.into_raw();
     let res = unsafe {
-        let res = board_controller::log_message(log_level as c_int, message);
+        let res = board_controller::log_message_board_controller(log_level as c_int, message);
         let _ = CString::from_raw(message);
         res
     };

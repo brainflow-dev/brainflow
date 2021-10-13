@@ -22,9 +22,10 @@ extern "C" {
 }
 #[link(name = "MLModule")]
 extern "C" {
-    pub fn set_log_level(log_level: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+    pub fn set_log_level_ml_module(log_level: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 #[link(name = "MLModule")]
 extern "C" {
-    pub fn set_log_file(log_file: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
+    pub fn set_log_file_ml_module(log_file: *const ::std::os::raw::c_char)
+        -> ::std::os::raw::c_int;
 }

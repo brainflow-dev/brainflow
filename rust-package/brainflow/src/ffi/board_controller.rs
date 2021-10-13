@@ -258,15 +258,19 @@ extern "C" {
 }
 #[link(name = "BoardController")]
 extern "C" {
-    pub fn set_log_level(log_level: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+    pub fn set_log_level_board_controller(
+        log_level: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int;
 }
 #[link(name = "BoardController")]
 extern "C" {
-    pub fn set_log_file(log_file: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
+    pub fn set_log_file_board_controller(
+        log_file: *const ::std::os::raw::c_char,
+    ) -> ::std::os::raw::c_int;
 }
 #[link(name = "BoardController")]
 extern "C" {
-    pub fn log_message(
+    pub fn log_message_board_controller(
         log_level: ::std::os::raw::c_int,
         message: *mut ::std::os::raw::c_char,
     ) -> ::std::os::raw::c_int;

@@ -18,7 +18,7 @@ use crate::{check_brainflow_exit_code, Result};
 /// Use it only if you want to write your own messages to BrainFlow logger.
 /// Otherwise use [enable_data_logger], [enable_dev_data_logger] or [disable_data_logger].
 pub fn set_log_level(log_level: LogLevels) -> Result<()> {
-    let res = unsafe { data_handler::set_log_level(log_level as c_int) };
+    let res = unsafe { data_handler::set_log_level_data_handler(log_level as c_int) };
     Ok(check_brainflow_exit_code(res)?)
 }
 
@@ -41,7 +41,7 @@ pub fn enable_dev_data_logger() -> Result<()> {
 pub fn set_log_file<S: AsRef<str>>(log_file: S) -> Result<()> {
     let log_file = log_file.as_ref();
     let log_file = CString::new(log_file)?;
-    let res = unsafe { data_handler::set_log_file(log_file.as_ptr()) };
+    let res = unsafe { data_handler::set_log_file_data_handler(log_file.as_ptr()) };
     Ok(check_brainflow_exit_code(res)?)
 }
 

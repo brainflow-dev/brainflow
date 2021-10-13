@@ -215,11 +215,13 @@ extern "C" {
 }
 #[link(name = "DataHandler")]
 extern "C" {
-    pub fn set_log_level(log_level: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+    pub fn set_log_level_data_handler(log_level: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 #[link(name = "DataHandler")]
 extern "C" {
-    pub fn set_log_file(log_file: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
+    pub fn set_log_file_data_handler(
+        log_file: *const ::std::os::raw::c_char,
+    ) -> ::std::os::raw::c_int;
 }
 #[link(name = "DataHandler")]
 extern "C" {
