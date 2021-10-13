@@ -10,21 +10,6 @@ use std::{
 };
 
 #[cfg(feature = "generate_binding")]
-#[allow(dead_code)]
-fn add_link_attribute(path: &Path, library_name: &str) {
-    use regex::Regex;
-    let re = Regex::new(r"extern").unwrap();
-    let mut file = File::open(path).unwrap();
-    let mut s = String::new();
-    file.read_to_string(&mut s).unwrap();
-    let out = re
-        .replace_all(&s, format!("#[link(name = \"{}\")]\nextern", library_name))
-        .to_string();
-    let mut file = File::create(path).unwrap();
-    file.write_all(out.as_bytes()).unwrap();
-}
-
-#[cfg(feature = "generate_binding")]
 fn generate_board_controller_binding() {
     const ALLOW_UNCONVENTIONALS: &'static str = "#![allow(non_camel_case_types)]\n";
 
@@ -49,8 +34,6 @@ fn generate_board_controller_binding() {
     bindings
         .write_to_file(binding_target_path.clone())
         .expect("Could not write binding to `src/ffi/board_controller.rs`");
-
-    // add_link_attribute(binding_target_path.as_path(), "BoardController");
 }
 
 #[cfg(feature = "generate_binding")]
@@ -77,8 +60,6 @@ fn generate_data_handler_binding() {
     bindings
         .write_to_file(binding_target_path.clone())
         .expect("Could not write binding to `src/ffi/data_handler.rs`");
-
-    // add_link_attribute(binding_target_path.as_path(), "DataHandler");
 }
 
 #[cfg(feature = "generate_binding")]
@@ -102,8 +83,6 @@ fn generate_ml_model_binding() {
     bindings
         .write_to_file(binding_target_path.clone())
         .expect("Could not write binding to `src/ffi/ml_model.rs`");
-
-    // add_link_attribute(binding_target_path.as_path(), "MLModule");
 }
 
 #[cfg(feature = "generate_binding")]
