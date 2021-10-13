@@ -3,11 +3,9 @@
 #![allow(non_camel_case_types)]
 
 
-#[link(name = "MLModule")]
 extern "C" {
     pub fn prepare(json_params: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
 }
-#[link(name = "MLModule")]
 extern "C" {
     pub fn predict(
         data: *mut f64,
@@ -16,15 +14,12 @@ extern "C" {
         json_params: *const ::std::os::raw::c_char,
     ) -> ::std::os::raw::c_int;
 }
-#[link(name = "MLModule")]
 extern "C" {
     pub fn release(json_params: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
 }
-#[link(name = "MLModule")]
 extern "C" {
     pub fn set_log_level_ml_module(log_level: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
-#[link(name = "MLModule")]
 extern "C" {
     pub fn set_log_file_ml_module(log_file: *const ::std::os::raw::c_char)
         -> ::std::os::raw::c_int;

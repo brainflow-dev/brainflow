@@ -4,15 +4,15 @@ use std::{
 };
 
 #[cfg(feature = "generate_binding")]
-use regex::Regex;
-#[cfg(feature = "generate_binding")]
 use std::{
     fs::File,
     io::prelude::{Read, Write},
 };
 
 #[cfg(feature = "generate_binding")]
+#[allow(dead_code)]
 fn add_link_attribute(path: &Path, library_name: &str) {
+    use regex::Regex;
     let re = Regex::new(r"extern").unwrap();
     let mut file = File::open(path).unwrap();
     let mut s = String::new();
@@ -50,7 +50,7 @@ fn generate_board_controller_binding() {
         .write_to_file(binding_target_path.clone())
         .expect("Could not write binding to `src/ffi/board_controller.rs`");
 
-    add_link_attribute(binding_target_path.as_path(), "BoardController");
+    // add_link_attribute(binding_target_path.as_path(), "BoardController");
 }
 
 #[cfg(feature = "generate_binding")]
@@ -78,7 +78,7 @@ fn generate_data_handler_binding() {
         .write_to_file(binding_target_path.clone())
         .expect("Could not write binding to `src/ffi/data_handler.rs`");
 
-    add_link_attribute(binding_target_path.as_path(), "DataHandler");
+    // add_link_attribute(binding_target_path.as_path(), "DataHandler");
 }
 
 #[cfg(feature = "generate_binding")]
@@ -103,7 +103,7 @@ fn generate_ml_model_binding() {
         .write_to_file(binding_target_path.clone())
         .expect("Could not write binding to `src/ffi/ml_model.rs`");
 
-    add_link_attribute(binding_target_path.as_path(), "MLModule");
+    // add_link_attribute(binding_target_path.as_path(), "MLModule");
 }
 
 #[cfg(feature = "generate_binding")]
@@ -158,4 +158,7 @@ fn main() {
     fs_extra::dir::copy(lib_path, lib_out_path, &options).unwrap();
 
     println!("cargo:rustc-link-search=native={}/lib", out_path.display());
+    println!("cargo:rustc-link-lib=dylib=BoardController");
+    println!("cargo:rustc-link-lib=dylib=DataHandler");
+    println!("cargo:rustc-link-lib=dylib=MLModule");
 }

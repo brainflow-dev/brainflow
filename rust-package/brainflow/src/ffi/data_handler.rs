@@ -3,7 +3,6 @@
 #![allow(non_camel_case_types)]
 
 
-#[link(name = "DataHandler")]
 extern "C" {
     pub fn perform_lowpass(
         data: *mut f64,
@@ -15,7 +14,6 @@ extern "C" {
         ripple: f64,
     ) -> ::std::os::raw::c_int;
 }
-#[link(name = "DataHandler")]
 extern "C" {
     pub fn perform_highpass(
         data: *mut f64,
@@ -27,7 +25,6 @@ extern "C" {
         ripple: f64,
     ) -> ::std::os::raw::c_int;
 }
-#[link(name = "DataHandler")]
 extern "C" {
     pub fn perform_bandpass(
         data: *mut f64,
@@ -40,7 +37,6 @@ extern "C" {
         ripple: f64,
     ) -> ::std::os::raw::c_int;
 }
-#[link(name = "DataHandler")]
 extern "C" {
     pub fn perform_bandstop(
         data: *mut f64,
@@ -53,7 +49,6 @@ extern "C" {
         ripple: f64,
     ) -> ::std::os::raw::c_int;
 }
-#[link(name = "DataHandler")]
 extern "C" {
     pub fn remove_environmental_noise(
         data: *mut f64,
@@ -62,7 +57,6 @@ extern "C" {
         noise_type: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
 }
-#[link(name = "DataHandler")]
 extern "C" {
     pub fn perform_rolling_filter(
         data: *mut f64,
@@ -71,7 +65,6 @@ extern "C" {
         agg_operation: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
 }
-#[link(name = "DataHandler")]
 extern "C" {
     pub fn perform_downsampling(
         data: *mut f64,
@@ -81,7 +74,6 @@ extern "C" {
         output_data: *mut f64,
     ) -> ::std::os::raw::c_int;
 }
-#[link(name = "DataHandler")]
 extern "C" {
     pub fn perform_wavelet_transform(
         data: *mut f64,
@@ -92,7 +84,6 @@ extern "C" {
         decomposition_lengths: *mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
 }
-#[link(name = "DataHandler")]
 extern "C" {
     pub fn perform_inverse_wavelet_transform(
         wavelet_coeffs: *mut f64,
@@ -103,7 +94,6 @@ extern "C" {
         output_data: *mut f64,
     ) -> ::std::os::raw::c_int;
 }
-#[link(name = "DataHandler")]
 extern "C" {
     pub fn perform_wavelet_denoising(
         data: *mut f64,
@@ -112,7 +102,6 @@ extern "C" {
         decomposition_level: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
 }
-#[link(name = "DataHandler")]
 extern "C" {
     pub fn get_csp(
         data: *const f64,
@@ -124,7 +113,6 @@ extern "C" {
         output_d: *mut f64,
     ) -> ::std::os::raw::c_int;
 }
-#[link(name = "DataHandler")]
 extern "C" {
     pub fn get_window(
         window_function: ::std::os::raw::c_int,
@@ -132,7 +120,6 @@ extern "C" {
         output_window: *mut f64,
     ) -> ::std::os::raw::c_int;
 }
-#[link(name = "DataHandler")]
 extern "C" {
     pub fn perform_fft(
         data: *mut f64,
@@ -142,7 +129,6 @@ extern "C" {
         output_im: *mut f64,
     ) -> ::std::os::raw::c_int;
 }
-#[link(name = "DataHandler")]
 extern "C" {
     pub fn perform_ifft(
         input_re: *mut f64,
@@ -151,14 +137,12 @@ extern "C" {
         restored_data: *mut f64,
     ) -> ::std::os::raw::c_int;
 }
-#[link(name = "DataHandler")]
 extern "C" {
     pub fn get_nearest_power_of_two(
         value: ::std::os::raw::c_int,
         output: *mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
 }
-#[link(name = "DataHandler")]
 extern "C" {
     pub fn get_psd(
         data: *mut f64,
@@ -169,7 +153,6 @@ extern "C" {
         output_freq: *mut f64,
     ) -> ::std::os::raw::c_int;
 }
-#[link(name = "DataHandler")]
 extern "C" {
     pub fn detrend(
         data: *mut f64,
@@ -177,7 +160,6 @@ extern "C" {
         detrend_operation: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
 }
-#[link(name = "DataHandler")]
 extern "C" {
     pub fn get_psd_welch(
         data: *mut f64,
@@ -190,7 +172,6 @@ extern "C" {
         output_freq: *mut f64,
     ) -> ::std::os::raw::c_int;
 }
-#[link(name = "DataHandler")]
 extern "C" {
     pub fn get_band_power(
         ampl: *mut f64,
@@ -201,7 +182,6 @@ extern "C" {
         band_power: *mut f64,
     ) -> ::std::os::raw::c_int;
 }
-#[link(name = "DataHandler")]
 extern "C" {
     pub fn get_avg_band_powers(
         raw_data: *mut f64,
@@ -213,17 +193,14 @@ extern "C" {
         stddev_band_powers: *mut f64,
     ) -> ::std::os::raw::c_int;
 }
-#[link(name = "DataHandler")]
 extern "C" {
     pub fn set_log_level_data_handler(log_level: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
-#[link(name = "DataHandler")]
 extern "C" {
     pub fn set_log_file_data_handler(
         log_file: *const ::std::os::raw::c_char,
     ) -> ::std::os::raw::c_int;
 }
-#[link(name = "DataHandler")]
 extern "C" {
     pub fn write_file(
         data: *const f64,
@@ -233,7 +210,6 @@ extern "C" {
         file_mode: *const ::std::os::raw::c_char,
     ) -> ::std::os::raw::c_int;
 }
-#[link(name = "DataHandler")]
 extern "C" {
     pub fn read_file(
         data: *mut f64,
@@ -243,7 +219,6 @@ extern "C" {
         num_elements: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
 }
-#[link(name = "DataHandler")]
 extern "C" {
     pub fn get_num_elements_in_file(
         file_name: *const ::std::os::raw::c_char,
