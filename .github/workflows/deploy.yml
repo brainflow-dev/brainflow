@@ -175,7 +175,7 @@ jobs:
     - name: Prepare Rust Package
       run: |
         cd $env:GITHUB_WORKSPACE\rust-package\brainflow
-       (gc .\Cargo.toml).replace('0.0.0', $env:VERSION) | Out-File -encoding ASCII Cargo.toml
+        (gc .\Cargo.toml).replace('0.0.0', $env:VERSION) | Out-File -encoding ASCII Cargo.toml
       env:
         VERSION: ${{ github.event.inputs.version }}
     # publish packages

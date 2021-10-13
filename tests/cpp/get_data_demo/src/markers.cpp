@@ -46,7 +46,6 @@ int main (int argc, char *argv[])
 
         board->stop_stream ();
         BrainFlowArray<double, 2> data = board->get_board_data ();
-        data = board->get_board_data ();
         board->release_session ();
         std::cout << data << std::endl;
     }

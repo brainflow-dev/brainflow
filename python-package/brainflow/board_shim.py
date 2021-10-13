@@ -237,21 +237,21 @@ class BoardControllerDLL(object):
             ctypes.c_char_p
         ]
 
-        self.set_log_level = self.lib.set_log_level
-        self.set_log_level.restype = ctypes.c_int
-        self.set_log_level.argtypes = [
+        self.set_log_level_board_controller = self.lib.set_log_level_board_controller
+        self.set_log_level_board_controller.restype = ctypes.c_int
+        self.set_log_level_board_controller.argtypes = [
             ctypes.c_int
         ]
 
-        self.set_log_file = self.lib.set_log_file
-        self.set_log_file.restype = ctypes.c_int
-        self.set_log_file.argtypes = [
+        self.set_log_file_board_controller = self.lib.set_log_file_board_controller
+        self.set_log_file_board_controller.restype = ctypes.c_int
+        self.set_log_file_board_controller.argtypes = [
             ctypes.c_char_p
         ]
 
-        self.log_message = self.lib.log_message
-        self.log_message.restype = ctypes.c_int
-        self.log_message.argtypes = [
+        self.log_message_board_controller = self.lib.log_message_board_controller
+        self.log_message_board_controller.restype = ctypes.c_int
+        self.log_message_board_controller.argtypes = [
             ctypes.c_int,
             ctypes.c_char_p
         ]
@@ -468,7 +468,7 @@ class BoardShim(object):
         :param log_level: log level, to specify it you should use values from LogLevels enum
         :type log_level: int
         """
-        res = BoardControllerDLL.get_instance().set_log_level(log_level)
+        res = BoardControllerDLL.get_instance().set_log_level_board_controller(log_level)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to enable logger', res)
 
@@ -499,7 +499,7 @@ class BoardShim(object):
             msg = message.encode()
         except BaseException:
             msg = message
-        res = BoardControllerDLL.get_instance().log_message(log_level, msg)
+        res = BoardControllerDLL.get_instance().log_message_board_controller(log_level, msg)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to write log message', res)
 
@@ -513,7 +513,7 @@ class BoardShim(object):
             file = log_file.encode()
         except BaseException:
             file = log_file
-        res = BoardControllerDLL.get_instance().set_log_file(file)
+        res = BoardControllerDLL.get_instance().set_log_file_board_controller(file)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to redirect logs to a file', res)
 
