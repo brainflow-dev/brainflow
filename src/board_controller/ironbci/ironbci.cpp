@@ -274,6 +274,7 @@ void IronBCI::read_thread ()
     while (keep_alive)
     {
         int gpio_res = gpio_poll (gpio_in, timeout_ms);
+        timestamp = get_timestamp ();
         if (gpio_res == 0)
         {
             safe_logger (spdlog::level::trace, "no gpio event in {} ms", timeout_ms);
@@ -284,6 +285,17 @@ void IronBCI::read_thread ()
         }
         else
         {
+            gpio_edge_t edge_type = GPIO_EDGE_NONE;
+            gpio_res = gpio_read_event (gpio_in, &edge, NULL);
+            if (gpio_res != 0)
+            {
+                safe_logger (spdlog::level::warn, "failed to get gpio event: {}", gpio_res);
+                continue;
+            }
+            if (edge != GPIO_EDGE_FALLING)
+            {
+                continue;
+            }
             int spi_res = spi_transfer (spi, buf, buf, 27);
             if (spi_res != 0)
             {
