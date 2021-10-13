@@ -285,7 +285,7 @@ void IronBCI::read_thread ()
         }
         else
         {
-            gpio_edge_t edge_type = GPIO_EDGE_NONE;
+            gpio_edge_t edge = GPIO_EDGE_NONE;
             gpio_res = gpio_read_event (gpio_in, &edge, NULL);
             if (gpio_res != 0)
             {
