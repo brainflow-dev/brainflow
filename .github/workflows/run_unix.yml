@@ -17,9 +17,9 @@ jobs:
     - name: Clone Repository
       uses: actions/checkout@v2
     - name: Intall Rust
-        uses: ATiltedTree/setup-rust@v1
-        with:
-          rust-version: stable
+      uses: ATiltedTree/setup-rust@v1
+      with:
+        rust-version: stable
     - name: Install Python 3.7
       uses: actions/setup-python@v2
       with:

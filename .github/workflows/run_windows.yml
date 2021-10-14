@@ -28,9 +28,9 @@ jobs:
       with:
         java-version: 11.0.3
     - name: Install Rust
-        uses: ATiltedTree/setup-rust@v1
-        with:
-          rust-version: stable
+      uses: ATiltedTree/setup-rust@v1
+      with:
+        rust-version: stable
     # compile and prepare everything
     - name: Compile x32
       run: |
