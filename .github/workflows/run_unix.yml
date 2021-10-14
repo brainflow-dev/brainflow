@@ -83,7 +83,7 @@ jobs:
         cp -av $GITHUB_WORKSPACE/java-package/brainflow/target/classes/brainflow/. $GITHUB_WORKSPACE/java-package/brainflow/target/classes/
     - name: Install Rust package
       run: |
-        cd %GITHUB_WORKSPACE%/rust-package/brainflow
+        cd $GITHUB_WORKSPACE/rust-package/brainflow
         cargo build --features="generate_binding"
     - name: Build Get Data Test
       run: |
