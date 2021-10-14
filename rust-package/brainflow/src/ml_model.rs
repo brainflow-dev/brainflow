@@ -1,8 +1,6 @@
 use std::{
     ffi::CString,
     os::raw::{c_double, c_int},
-    path::Path,
-    sync::Mutex,
 };
 
 use crate::{check_brainflow_exit_code, Result};
@@ -11,32 +9,7 @@ mod brainflow_model_param;
 pub use brainflow_model_param::{BrainFlowModelParams, BrainFlowModelParamsBuilder};
 
 use crate::ffi::constants::LogLevels;
-use crate::ffi::ml_model::MlModule;
-use once_cell::sync::Lazy;
-
-#[cfg(target_os = "windows")]
-pub static ML_MODULE: Lazy<Mutex<MlModule>> = Lazy::new(|| {
-    #[cfg(target_pointer_width = "64")]
-    let lib_path = Path::new("lib\\libMLModule.dll");
-    #[cfg(target_pointer_width = "32")]
-    let lib_path = Path::new("lib\\libMLModule32.dll");
-    let ml_module = unsafe { MlModule::new(lib_path).unwrap() };
-    Mutex::new(ml_module)
-});
-
-#[cfg(target_os = "macos")]
-pub static ML_MODULE: Lazy<Mutex<MlModule>> = Lazy::new(|| {
-    let lib_path = Path::new("lib/libMLModule.dylib");
-    let ml_module = unsafe { MlModule::new(lib_path).unwrap() };
-    Mutex::new(ml_module)
-});
-
-#[cfg(target_os = "linux")]
-pub static ML_MODULE: Lazy<Mutex<MlModule>> = Lazy::new(|| {
-    let lib_path = Path::new("lib/libMLModule.so");
-    let ml_module = unsafe { MlModule::new(lib_path).unwrap() };
-    Mutex::new(ml_module)
-});
+use crate::ffi::ml_model;
 
 pub struct MlModel {
     json_model_params: CString,
@@ -52,12 +25,7 @@ impl MlModel {
 
     /// Prepare classifier.
     pub fn prepare(&self) -> Result<()> {
-        let res = unsafe {
-            ML_MODULE
-                .lock()
-                .unwrap()
-                .prepare(self.json_model_params.as_ptr())
-        };
+        let res = unsafe { ml_model::prepare(self.json_model_params.as_ptr()) };
         Ok(check_brainflow_exit_code(res)?)
     }
 
@@ -65,7 +33,7 @@ impl MlModel {
     pub fn predict(&self, data: &mut [f64]) -> Result<f64> {
         let mut output = 0.0;
         let res = unsafe {
-            ML_MODULE.lock().unwrap().predict(
+            ml_model::predict(
                 data.as_mut_ptr() as *mut c_double,
                 data.len() as c_int,
                 &mut output,
@@ -78,12 +46,7 @@ impl MlModel {
 
     /// Release classifier.
     pub fn release(&self) -> Result<()> {
-        let res = unsafe {
-            ML_MODULE
-                .lock()
-                .unwrap()
-                .release(self.json_model_params.as_ptr())
-        };
+        let res = unsafe { ml_model::release(self.json_model_params.as_ptr()) };
         Ok(check_brainflow_exit_code(res)?)
     }
 }
@@ -92,7 +55,7 @@ impl MlModel {
 /// Use it only if you want to write your own messages to BrainFlow logger.
 /// Otherwise use [enable_ml_logger], [enable_dev_ml_logger], or [disable_ml_logger].
 pub fn set_log_level(log_level: LogLevels) -> Result<()> {
-    let res = unsafe { ML_MODULE.lock().unwrap().set_log_level(log_level as c_int) };
+    let res = unsafe { ml_model::set_log_level_ml_module(log_level as c_int) };
     Ok(check_brainflow_exit_code(res)?)
 }
 
@@ -115,6 +78,6 @@ pub fn enable_dev_ml_logger() -> Result<()> {
 pub fn set_log_file<S: AsRef<str>>(log_file: S) -> Result<()> {
     let log_file = log_file.as_ref();
     let log_file = CString::new(log_file)?;
-    let res = unsafe { ML_MODULE.lock().unwrap().set_log_file(log_file.as_ptr()) };
+    let res = unsafe { ml_model::set_log_file_ml_module(log_file.as_ptr()) };
     Ok(check_brainflow_exit_code(res)?)
 }

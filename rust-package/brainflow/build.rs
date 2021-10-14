@@ -1,5 +1,13 @@
+use std::{
+    env,
+    path::{Path, PathBuf},
+};
+
 #[cfg(feature = "generate_binding")]
-use std::path::PathBuf;
+use std::{
+    fs::File,
+    io::prelude::{Read, Write},
+};
 
 #[cfg(feature = "generate_binding")]
 fn generate_board_controller_binding() {
@@ -12,7 +20,6 @@ fn generate_board_controller_binding() {
         .header(format!("{}/board_controller.h", &header_path))
         .header(format!("{}/board_info_getter.h", &header_path))
         .raw_line(ALLOW_UNCONVENTIONALS)
-        .dynamic_library_name("BoardController")
         .clang_arg("-std=c++11")
         .clang_arg("-x")
         .clang_arg("c++")
@@ -25,7 +32,7 @@ fn generate_board_controller_binding() {
         .join("board_controller.rs");
 
     bindings
-        .write_to_file(binding_target_path)
+        .write_to_file(binding_target_path.clone())
         .expect("Could not write binding to `src/ffi/board_controller.rs`");
 }
 
@@ -39,7 +46,6 @@ fn generate_data_handler_binding() {
     let bindings = bindgen::Builder::default()
         .header(format!("{}/data_handler.h", &header_path))
         .raw_line(ALLOW_UNCONVENTIONALS)
-        .dynamic_library_name("DataHandler")
         .clang_arg("-std=c++11")
         .clang_arg("-x")
         .clang_arg("c++")
@@ -52,7 +58,7 @@ fn generate_data_handler_binding() {
         .join("data_handler.rs");
 
     bindings
-        .write_to_file(binding_target_path)
+        .write_to_file(binding_target_path.clone())
         .expect("Could not write binding to `src/ffi/data_handler.rs`");
 }
 
@@ -66,7 +72,6 @@ fn generate_ml_model_binding() {
     let bindings = bindgen::Builder::default()
         .header(format!("{}/ml_module.h", &header_path))
         .raw_line(ALLOW_UNCONVENTIONALS)
-        .dynamic_library_name("MlModule")
         .clang_arg("-std=c++11")
         .clang_arg("-x")
         .clang_arg("c++")
@@ -76,7 +81,7 @@ fn generate_ml_model_binding() {
     let binding_target_path = PathBuf::new().join("src").join("ffi").join("ml_model.rs");
 
     bindings
-        .write_to_file(binding_target_path)
+        .write_to_file(binding_target_path.clone())
         .expect("Could not write binding to `src/ffi/ml_model.rs`");
 }
 
@@ -119,4 +124,20 @@ fn generate_binding() {
 fn main() {
     #[cfg(feature = "generate_binding")]
     generate_binding();
+
+    let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
+    let lib_out_path = Path::new(&out_path);
+
+    let lib_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
+    let lib_path = Path::new(&lib_path).join("lib");
+
+    let mut options = fs_extra::dir::CopyOptions::new();
+    options.overwrite = true;
+    options.copy_inside = true;
+    fs_extra::dir::copy(lib_path, lib_out_path, &options).unwrap();
+
+    println!("cargo:rustc-link-search=native={}/lib", out_path.display());
+    println!("cargo:rustc-link-lib=dylib=BoardController");
+    println!("cargo:rustc-link-lib=dylib=DataHandler");
+    println!("cargo:rustc-link-lib=dylib=MLModule");
 }
