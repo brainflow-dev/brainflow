@@ -3,10 +3,10 @@ use std::{
     os::raw::{c_double, c_int},
 };
 
-use crate::{check_brainflow_exit_code, Result};
-
-mod brainflow_model_param;
-pub use brainflow_model_param::{BrainFlowModelParams, BrainFlowModelParamsBuilder};
+use crate::{
+    brainflow_model_params::BrainFlowModelParams,
+    check_brainflow_exit_code, Result
+};
 
 use crate::ffi::constants::LogLevels;
 use crate::ffi::ml_model;

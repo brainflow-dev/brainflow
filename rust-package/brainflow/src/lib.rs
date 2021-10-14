@@ -4,7 +4,7 @@ extern crate num_derive;
 
 use error::{BrainFlowError, Error};
 
-mod board_id;
+pub mod board_id;
 /// The primary interface to all boards.
 pub mod board_shim;
 /// Input parameters for [board_shim::BoardShim].
@@ -14,6 +14,8 @@ pub mod brainflow_input_params;
 pub mod data_filter;
 mod error;
 mod ffi;
+/// Input parameters for [ml_model::MLModel].
+pub mod brainflow_model_params;
 /// Used to calculate derivative metrics from raw data.
 pub mod ml_model;
 
