@@ -1,0 +1,17 @@
+[package]
+name = "rust"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[[bin]]
+name = "brainflow_get_data"
+path = "src/brainflow_get_data/main.rs"
+
+[[bin]]
+name = "signal_filtering"
+path = "src/signal_filtering/main.rs"
+
+[dependencies]
+brainflow = { path = "../../rust-package/brainflow" }
