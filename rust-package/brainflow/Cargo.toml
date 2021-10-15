@@ -12,7 +12,7 @@ documentation = "https://brainflow.readthedocs.io"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-generate_binding = []
+generate_binding = ["bindgen"]
 
 [dependencies]
 getset = "0.1.1"
@@ -22,11 +22,10 @@ num-complex = "0.4.0"
 num-derive = "0.3.3"
 num-traits = "0.2.14"
 paste = "1.0.5"
-serde = { version ="1.0.130", features=["derive"] }
+serde = { version = "1.0.130", features = ["derive"] }
 serde_json = "1.0.68"
 thiserror = "1.0.29"
 
 [build-dependencies]
-bindgen = "0.59.1"
+bindgen = { version = "0.59.1", optional = true }
 fs_extra = "1.2.0"
-regex = "1"

@@ -4,12 +4,6 @@ use std::{
 };
 
 #[cfg(feature = "generate_binding")]
-use std::{
-    fs::File,
-    io::prelude::{Read, Write},
-};
-
-#[cfg(feature = "generate_binding")]
 fn generate_board_controller_binding() {
     const ALLOW_UNCONVENTIONALS: &'static str = "#![allow(non_camel_case_types)]\n";
 
