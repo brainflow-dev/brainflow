@@ -15,7 +15,7 @@ fn main() {
     board.start_stream(45000, "").unwrap();
     thread::sleep(Duration::from_secs(5));
     board.stop_stream().unwrap();
-    let data = board.get_board_data(None).unwrap();
+    let data = board.get_current_board_data(10).unwrap();
     board.release_session().unwrap();
 
     dbg!(data);

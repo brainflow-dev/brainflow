@@ -6,6 +6,7 @@ if (CMAKE_SIZEOF_VOID_P EQUAL 8)
         SET (BOARD_CONTROLLER_COMPILED_NAME "libBoardController.so")
     else ()
         SET (BOARD_CONTROLLER_COMPILED_NAME "BoardController.dll")
+        SET (BOARD_CONTROLLER_COMPILED_NAME_DOT_LIB "BoardController.lib")
     endif (APPLE)
 else (CMAKE_SIZEOF_VOID_P EQUAL 8)
     if (APPLE)
@@ -17,6 +18,7 @@ else (CMAKE_SIZEOF_VOID_P EQUAL 8)
     else ()
         SET (BOARD_CONTROLLER_NAME "BoardController32")
         SET (BOARD_CONTROLLER_COMPILED_NAME "BoardController32.dll")
+        SET (BOARD_CONTROLLER_COMPILED_NAME_DOT_LIB "BoardController32.lib")
     endif (APPLE)
 endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
 
@@ -158,6 +160,7 @@ if (MSVC)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/board_controller/inc/board_info_getter.h" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/inc/board_info_getter.h"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/utils/inc/shared_export_matlab.h" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/inc/shared_export.h"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BOARD_CONTROLLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/rust-package/brainflow/lib/${BOARD_CONTROLLER_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BOARD_CONTROLLER_COMPILED_NAME_DOT_LIB}" "${CMAKE_HOME_DIRECTORY}/rust-package/brainflow/lib/${BOARD_CONTROLLER_COMPILED_NAME_DOT_LIB}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/board_controller/inc/board_controller.h" "${CMAKE_HOME_DIRECTORY}/rust-package/brainflow/inc/board_controller.h"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/board_controller/inc/board_info_getter.h" "${CMAKE_HOME_DIRECTORY}/rust-package/brainflow/inc/board_info_getter.h"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/utils/inc/brainflow_constants.h" "${CMAKE_HOME_DIRECTORY}/rust-package/brainflow/inc/brainflow_constants.h"

@@ -6,6 +6,7 @@ if (CMAKE_SIZEOF_VOID_P EQUAL 8)
         SET (ML_MODULE_COMPILED_NAME "libMLModule.so")
     else ()
         SET (ML_MODULE_COMPILED_NAME "MLModule.dll")
+        SET (ML_MODULE_COMPILED_NAME_DOT_LIB "MLModule.lib")
     endif (APPLE)
 else (CMAKE_SIZEOF_VOID_P EQUAL 8)
     if (APPLE)
@@ -17,6 +18,7 @@ else (CMAKE_SIZEOF_VOID_P EQUAL 8)
     else ()
         SET (ML_MODULE_NAME "MLModule32")
         SET (ML_MODULE_COMPILED_NAME "MLModule32.dll")
+        SET (ML_MODULE_COMPILED_NAME_DOT_LIB "MLModule32.lib")
     endif (APPLE)
 endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
 
@@ -86,6 +88,7 @@ if (MSVC)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/utils/inc/shared_export_matlab.h" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/inc/shared_export.h"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/ml/train/brainflow_svm.model" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/brainflow_svm.model"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${ML_MODULE_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/rust-package/brainflow/lib/${ML_MODULE_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${ML_MODULE_COMPILED_NAME_DOT_LIB}" "${CMAKE_HOME_DIRECTORY}/rust-package/brainflow/lib/${ML_MODULE_COMPILED_NAME_DOT_LIB}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/ml/train/brainflow_svm.model" "${CMAKE_HOME_DIRECTORY}/rust-package/brainflow/lib/brainflow_svm.model"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/ml/inc/ml_module.h" "${CMAKE_HOME_DIRECTORY}/rust-package/brainflow/inc/ml_module.h"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/utils/inc/shared_export_matlab.h" "${CMAKE_HOME_DIRECTORY}/rust-package/brainflow/inc/shared_export.h"
