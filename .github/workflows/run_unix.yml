@@ -84,7 +84,7 @@ jobs:
     - name: Install Rust package
       run: |
         cd $GITHUB_WORKSPACE/rust-package/brainflow
-        cargo build --features="generate_binding"
+        cargo build
     - name: Build Get Data Test
       run: |
         cd $GITHUB_WORKSPACE/tests/cpp/get_data_demo

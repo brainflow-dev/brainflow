@@ -3,13 +3,13 @@ use std::time::Duration;
 
 use brainflow::board_shim::BoardShim;
 use brainflow::brainflow_input_params::BrainFlowInputParamsBuilder;
-use brainflow::BoardId;
+use brainflow::BoardIds;
 
 fn main() {
     brainflow::board_shim::enable_dev_board_logger().unwrap();
     let params = BrainFlowInputParamsBuilder::default()
         .build();
-    let board = BoardShim::new(BoardId::SyntheticBoard, params).unwrap();
+    let board = BoardShim::new(BoardIds::SyntheticBoard as i32, params).unwrap();
 
     board.prepare_session().unwrap();
     board.start_stream(45000, "").unwrap();
@@ -18,5 +18,6 @@ fn main() {
     let data = board.get_current_board_data(10).unwrap();
     board.release_session().unwrap();
 
-    dbg!(data);
+    println!("{}", data.len());
+    println!("{:?}", data);
 }

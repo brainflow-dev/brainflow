@@ -5,10 +5,10 @@ use std::{
 
 use crate::{
     brainflow_model_params::BrainFlowModelParams,
-    check_brainflow_exit_code, Result
+    check_brainflow_exit_code,
+    log_levels::LogLevels, Result
 };
 
-use crate::ffi::constants::LogLevels;
 use crate::ffi::ml_model;
 
 pub struct MlModel {
@@ -54,24 +54,24 @@ impl MlModel {
 /// Set BrainFlow ML log level.
 /// Use it only if you want to write your own messages to BrainFlow logger.
 /// Otherwise use [enable_ml_logger], [enable_dev_ml_logger], or [disable_ml_logger].
-pub fn set_log_level(log_level: LogLevels) -> Result<()> {
+pub fn set_log_level(log_level: c_int) -> Result<()> {
     let res = unsafe { ml_model::set_log_level_ml_module(log_level as c_int) };
     Ok(check_brainflow_exit_code(res)?)
 }
 
 /// Enable ML logger with level INFO, uses stderr for log messages by default.
 pub fn enable_ml_logger() -> Result<()> {
-    set_log_level(LogLevels::LEVEL_INFO)
+    set_log_level(LogLevels::LevelInfo as c_int)
 }
 
 /// Disable BrainFlow ML logger.
 pub fn disable_ml_logger() -> Result<()> {
-    set_log_level(LogLevels::LEVEL_OFF)
+    set_log_level(LogLevels::LevelOff as c_int)
 }
 
 /// Enable ML logger with level TRACE, uses stderr for log messages by default.
 pub fn enable_dev_ml_logger() -> Result<()> {
-    set_log_level(LogLevels::LEVEL_TRACE)
+    set_log_level(LogLevels::LevelTrace as c_int)
 }
 
 /// Redirect ML logger from stderr to file, can be called any time.

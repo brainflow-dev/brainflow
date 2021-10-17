@@ -97,7 +97,8 @@ You should build core module code first using instruction below after that build
 
         cd rust-package
         cd brainflow
-        cargo build --features="generate_binding"
+        cargo build
+        # for developers, if you want to regenerate binding add --features="generate_binding"
 
 
 Julia
