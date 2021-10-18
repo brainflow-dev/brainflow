@@ -106,6 +106,10 @@ jobs:
         cd build
         cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed ..
         make
+    - name: Build Rust Tests
+      run: |
+        cd $GITHUB_WORKSPACE/tests/rust
+        cargo build
     - name: Install Emulator
       run: |
         cd $GITHUB_WORKSPACE/emulator
@@ -172,6 +176,18 @@ jobs:
       run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/ironbci_linux.py $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/markers --board-id 15 --serial-port
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
+    - name: Denoising Rust
+      run: |
+        cd  $GITHUB_WORKSPACE/tests/rust
+        sudo -H cargo run --bin denoising
+    - name: Downsampling Rust
+      run: |
+        cd  $GITHUB_WORKSPACE/tests/rust
+        sudo -H cargo run --bin downsampling
+    - name: Transforms Rust
+      run: |
+        cd  $GITHUB_WORKSPACE/tests/rust
+        sudo -H cargo run --bin transforms
     - name: Denoising Python
       run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/denoising.py
     - name: Serialization Python
