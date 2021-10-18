@@ -13,5 +13,25 @@ path = "src/brainflow_get_data/main.rs"
 name = "signal_filtering"
 path = "src/signal_filtering/main.rs"
 
+[[bin]]
+name = "band_power"
+path = "src/band_power/main.rs"
+
+[[bin]]
+name = "denoising"
+path = "src/denoising/main.rs"
+
+[[bin]]
+name = "markers"
+path = "src/markers/main.rs"
+
+[[bin]]
+name = "transforms"
+path = "src/transforms/main.rs"
+
+[[bin]]
+name = "downsampling"
+path = "src/downsampling/main.rs"
+
 [dependencies]
 brainflow = { path = "../../rust-package/brainflow" }

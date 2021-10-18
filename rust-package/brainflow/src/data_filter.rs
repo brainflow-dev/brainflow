@@ -204,7 +204,7 @@ pub fn perform_downsampling(
 }
 
 /// Data struct for output of wavelet transformations.
-#[derive(Getters)]
+#[derive(Getters, Clone)]
 #[getset(get = "pub")]
 pub struct WaveletTransform {
     coefficients: Vec<f64>,
@@ -432,7 +432,7 @@ pub fn detrend(data: &mut [f64], detrend_operation: c_int) -> Result<()> {
 }
 
 /// Data struct for output of PSD calculations.
-#[derive(Getters)]
+#[derive(Getters, Clone)]
 #[getset(get = "pub")]
 pub struct Psd {
     amplitude: Vec<f64>,
@@ -534,9 +534,8 @@ where
 }
 
 /// Calculate band power.
-pub fn get_band_power(psd: Psd, freq_start: f64, freq_end: f64) -> Result<f64> {
+pub fn get_band_power(psd: &mut Psd, freq_start: f64, freq_end: f64) -> Result<f64> {
     let mut band_power = 0.0;
-    let mut psd = psd;
     let res = unsafe {
         data_handler::get_band_power(
             psd.amplitude.as_mut_ptr() as *mut c_double,

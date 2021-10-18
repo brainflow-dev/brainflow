@@ -1,7 +1,6 @@
 use paste::paste;
 use std::{
     ffi::CString,
-    mem,
     os::raw::{c_double, c_int},
 };
 
@@ -151,19 +150,20 @@ impl BoardShim {
     pub fn get_current_board_data(&self, num_samples: usize) -> Result<Vec<Vec<f64>>> {
         let num_rows = get_num_rows(self.board_id)?;
         let capacity = num_samples * num_rows;
+        let mut len = 0;
         let mut data_buf = Vec::with_capacity(capacity);
         let res = unsafe {
             board_controller::get_current_board_data(
                 num_samples as c_int,
                 data_buf.as_mut_ptr(),
-                &mut 0,
+                &mut len,
                 self.board_id,
                 self.json_brainflow_input_params.as_ptr(),
             )
         };
         check_brainflow_exit_code(res)?;
 
-        unsafe { data_buf.set_len(capacity) };
+        unsafe { data_buf.set_len(len as usize * num_rows) };
         Ok(data_buf.chunks(num_samples).map(|d| d.to_vec()).collect())
     }
 
@@ -360,18 +360,19 @@ macro_rules! gen_vec_fn {
         paste! {
             #[doc = $doc]
             pub fn [<get_$fn_name>](board_id: c_int) -> Result<Vec<usize>> {
-                let mut channels: Vec<usize> = Vec::with_capacity(MAX_CHANNELS);
+                let mut channels: Vec<i32> = Vec::with_capacity(MAX_CHANNELS);
                 let mut len = 0;
                 let res = unsafe {
                     board_controller::[<get_$fn_name>](
                         board_id,
-                        channels.as_mut_ptr() as *mut c_int,
+                        channels.as_mut_ptr(),
                         &mut len,
                     )
                 };
                 check_brainflow_exit_code(res)?;
                 unsafe { channels.set_len(len as usize) };
-                Ok(channels)
+                let channels_casted = channels.into_iter().map(|c| c as usize).collect::<Vec<usize>>();
+                Ok(channels_casted)
             }
         }
     };
