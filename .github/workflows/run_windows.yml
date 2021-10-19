@@ -27,10 +27,10 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11.0.3
-    - name: Install Rust
-      uses: ATiltedTree/setup-rust@v1
+    - uses: hecrj/setup-rust-action@v1
       with:
         rust-version: stable
+        components: cargo,rustc,rust-std
     # compile and prepare everything
     - name: Compile x32
       run: |
