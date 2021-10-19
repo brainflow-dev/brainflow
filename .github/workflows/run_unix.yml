@@ -16,11 +16,6 @@ jobs:
     # compile and prepare env
     - name: Clone Repository
       uses: actions/checkout@v2
-    - name: Install Rust
-      uses: hecrj/setup-rust-action@v1
-      with:
-        rust-version: stable
-        components: cargo,rustc,rust-std
     - name: Install Python 3.7
       uses: actions/setup-python@v2
       with:
@@ -82,10 +77,6 @@ jobs:
         mvn package
         cp -av $GITHUB_WORKSPACE/java-package/brainflow/target/classes/brainflow/. $GITHUB_WORKSPACE/java-package/brainflow/target/classes/ 
         cp -av $GITHUB_WORKSPACE/java-package/brainflow/target/classes/brainflow/. $GITHUB_WORKSPACE/java-package/brainflow/target/classes/
-    - name: Install Rust package
-      run: |
-        cd $GITHUB_WORKSPACE/rust-package/brainflow
-        sudo -H cargo build
     - name: Build Get Data Test
       run: |
         cd $GITHUB_WORKSPACE/tests/cpp/get_data_demo
@@ -107,10 +98,6 @@ jobs:
         cd build
         cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed ..
         make
-    - name: Build Rust Tests
-      run: |
-        cd $GITHUB_WORKSPACE/tests/rust
-        sudo -H cargo build
     - name: Install Emulator
       run: |
         cd $GITHUB_WORKSPACE/emulator
@@ -177,18 +164,6 @@ jobs:
       run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/ironbci_linux.py $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/markers --board-id 15 --serial-port
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
-    - name: Denoising Rust
-      run: |
-        cd $GITHUB_WORKSPACE/tests/rust
-        sudo -H cargo run --bin denoising
-    - name: Downsampling Rust
-      run: |
-        cd  $GITHUB_WORKSPACE/tests/rust
-        sudo -H cargo run --bin downsampling
-    - name: Transforms Rust
-      run: |
-        cd  $GITHUB_WORKSPACE/tests/rust
-        sudo -H cargo run --bin transforms
     - name: Denoising Python
       run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/denoising.py
     - name: Serialization Python
