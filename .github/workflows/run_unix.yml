@@ -16,7 +16,7 @@ jobs:
     # compile and prepare env
     - name: Clone Repository
       uses: actions/checkout@v2
-    - name: Intall Rust
+    - name: Install Rust
       uses: ATiltedTree/setup-rust@v1
       with:
         rust-version: stable
@@ -84,7 +84,7 @@ jobs:
     - name: Install Rust package
       run: |
         cd $GITHUB_WORKSPACE/rust-package/brainflow
-        cargo build
+        sudo -H cargo build
     - name: Build Get Data Test
       run: |
         cd $GITHUB_WORKSPACE/tests/cpp/get_data_demo
@@ -109,7 +109,7 @@ jobs:
     - name: Build Rust Tests
       run: |
         cd $GITHUB_WORKSPACE/tests/rust
-        cargo build
+        sudo -H cargo build
     - name: Install Emulator
       run: |
         cd $GITHUB_WORKSPACE/emulator
@@ -178,7 +178,7 @@ jobs:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Denoising Rust
       run: |
-        cd  $GITHUB_WORKSPACE/tests/rust
+        cd $GITHUB_WORKSPACE/tests/rust
         sudo -H cargo run --bin denoising
     - name: Downsampling Rust
       run: |
