@@ -139,12 +139,12 @@ jobs:
       shell: cmd
     - name: Synthetic Windows Rust Test
       run: |
-        cd %GITHUB_WORKSPACE%\tests\rust-package
+        cd %GITHUB_WORKSPACE%\tests\rust
         cargo run --bin brainflow_get_data
       shell: cmd
     - name: Synthetic Windows Rust Test Markers
       run: |
-        cd %GITHUB_WORKSPACE%\tests\rust-package
+        cd %GITHUB_WORKSPACE%\tests\rust
         cargo run --bin markers
       shell: cmd
     - name: Synthetic Windows Python Test with Streamer
@@ -191,22 +191,22 @@ jobs:
       shell: cmd
     - name: Denoising Rust Test
       run: |
-        cd %GITHUB_WORKSPACE%\tests\rust-package
+        cd %GITHUB_WORKSPACE%\tests\rust
         cargo run --bin denoising
       shell: cmd
     - name: Downsampling Rust Test
       run: |
-        cd %GITHUB_WORKSPACE%\tests\rust-package
+        cd %GITHUB_WORKSPACE%\tests\rust
         cargo run --bin downsampling
       shell: cmd
     - name: Filtering Rust Test
       run: |
-        cd %GITHUB_WORKSPACE%\tests\rust-package
+        cd %GITHUB_WORKSPACE%\tests\rust
         cargo run --bin signal_filtering
       shell: cmd
     - name: Transforms Rust Test
       run: |
-        cd %GITHUB_WORKSPACE%\tests\rust-package
+        cd %GITHUB_WORKSPACE%\tests\rust
         cargo run --bin transforms
       shell: cmd
     - name: Serialization Python Test
