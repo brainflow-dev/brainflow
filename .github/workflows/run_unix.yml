@@ -16,7 +16,8 @@ jobs:
     # compile and prepare env
     - name: Clone Repository
       uses: actions/checkout@v2
-    - uses: hecrj/setup-rust-action@v1
+    - name: Install Rust
+      uses: hecrj/setup-rust-action@v1
       with:
         rust-version: stable
         components: cargo,rustc,rust-std
