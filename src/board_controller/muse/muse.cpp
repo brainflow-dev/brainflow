@@ -484,7 +484,7 @@ void Muse::peripheral_on_eeg (simpleble_uuid_t service, simpleble_uuid_t charact
         }
         double step = (timestamp - last_timestamp) / current_buf.size ();
         last_timestamp = timestamp;
-        for (size_t i = 0; i < size; i++)
+        for (size_t i = 0; i < current_buf.size (); i++)
         {
             current_buf[current_buf.size () - 1 - i][board_descr["timestamp_channel"].get<int> ()] =
                 timestamp - i * step;
