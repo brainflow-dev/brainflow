@@ -10,6 +10,7 @@ PeripheralBase::PeripheralBase(void* opaque_peripheral, void* opaque_adapter, ad
                                                 centralManager:(CBCentralManager*)opaque_adapter];
     this->is_connectable_ = advertising_data.connectable;
     this->manual_disconnect_triggered_ = false;
+    this->manufacturer_data_ = advertising_data.manufacturer_data;
 }
 
 PeripheralBase::~PeripheralBase() {}
@@ -53,6 +54,10 @@ bool PeripheralBase::is_connectable() { return is_connectable_; }
 std::vector<BluetoothService> PeripheralBase::services() {
     PeripheralBaseMacOS* internal = (PeripheralBaseMacOS*)opaque_internal_;
     return [internal getServices];
+}
+
+std::map<uint16_t, ByteArray> PeripheralBase::manufacturer_data() {
+    return manufacturer_data_;
 }
 
 ByteArray PeripheralBase::read(BluetoothUUID service, BluetoothUUID characteristic) {

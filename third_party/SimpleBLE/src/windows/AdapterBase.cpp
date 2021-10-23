@@ -19,9 +19,9 @@ using namespace SimpleBLE;
 using namespace std::chrono_literals;
 
 AdapterBase::AdapterBase(std::string device_id)
-    : adapter_(BluetoothAdapter::FromIdAsync(winrt::to_hstring(device_id)).get()) {
-    auto device_information =
-        Devices::Enumeration::DeviceInformation::CreateFromIdAsync(winrt::to_hstring(device_id)).get();
+    : adapter_(async_get(BluetoothAdapter::FromIdAsync(winrt::to_hstring(device_id)))) {
+    auto device_information = async_get(
+        Devices::Enumeration::DeviceInformation::CreateFromIdAsync(winrt::to_hstring(device_id)));
     identifier_ = winrt::to_string(device_information.Name());
 
     // Configure the scanner object
@@ -34,7 +34,15 @@ AdapterBase::AdapterBase(std::string device_id)
         data.mac_address = _mac_address_to_str(args.BluetoothAddress());
         data.identifier = winrt::to_string(args.Advertisement().LocalName());
         data.connectable = args.IsConnectable();
-        // TODO: Extract manufacturer data
+
+        // Parse manufacturer data
+        auto manufacturer_data = args.Advertisement().ManufacturerData();
+        for (auto& item : manufacturer_data) {
+            uint16_t company_id = item.CompanyId();
+            ByteArray manufacturer_data_buffer = ibuffer_to_bytearray(item.Data());
+            data.manufacturer_data[company_id] = manufacturer_data_buffer;
+        }
+
         this->_scan_received_callback(data);
     });
 }
@@ -42,16 +50,11 @@ AdapterBase::AdapterBase(std::string device_id)
 AdapterBase::~AdapterBase() {}
 
 std::vector<std::shared_ptr<AdapterBase>> AdapterBase::get_adapters() {
-    // Attempt to initialize the WinRT backend if not already set.
-    // NOTE: Not using the winrt::init_apartment() function
-    // as it will throw an exception if the backend is already initialized.
-    // This way, the call can fail silently.
-    // TODO: Investigate if multi or single threaded initialization is needed.
-    winrt::apartment_type const type = winrt::apartment_type::single_threaded;
-    winrt::hresult const result = WINRT_RoInitialize(static_cast<uint32_t>(type));
+    initialize_winrt();
 
     auto device_selector = BluetoothAdapter::GetDeviceSelector();
-    auto device_information_collection = Devices::Enumeration::DeviceInformation::FindAllAsync(device_selector).get();
+    auto device_information_collection = async_get(
+        Devices::Enumeration::DeviceInformation::FindAllAsync(device_selector));
 
     std::vector<std::shared_ptr<AdapterBase>> adapter_list;
     for (uint32_t i = 0; i < device_information_collection.Size(); i++) {

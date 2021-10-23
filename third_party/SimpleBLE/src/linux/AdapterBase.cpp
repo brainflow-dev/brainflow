@@ -75,7 +75,7 @@ void AdapterBase::scan_stop() {
         // Due to the fact that Bluez takes some time to process the command
         // and for SimpleDBus to flush the queue, wait until the driver
         // has acknowledged that it is no longer discovering.
-        while (adapter->is_discovering()) {
+        while (adapter->Property_Discovering()) {
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
         if (callback_on_scan_stop_) {
@@ -95,7 +95,7 @@ void AdapterBase::scan_for(int timeout_ms) {
 bool AdapterBase::scan_is_active() {
     auto adapter = adapter_.lock();
     if (adapter) {
-        return adapter->is_discovering();
+        return adapter->Property_Discovering();
     } else {
         throw Exception::InvalidReference();
     }

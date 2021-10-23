@@ -22,6 +22,7 @@ class PeripheralBase {
     bool is_connectable();
 
     std::vector<BluetoothService> services();
+    std::map<uint16_t, ByteArray> manufacturer_data();
 
     ByteArray read(BluetoothUUID service, BluetoothUUID characteristic);
     void write_request(BluetoothUUID service, BluetoothUUID characteristic, ByteArray data);
@@ -45,6 +46,8 @@ class PeripheralBase {
     bool is_connectable_;
 
     bool manual_disconnect_triggered_;
+
+    std::map<uint16_t, SimpleBLE::ByteArray> manufacturer_data_;
 
     std::function<void()> callback_on_connected_;
     std::function<void()> callback_on_disconnected_;

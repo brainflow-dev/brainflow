@@ -73,13 +73,20 @@ std::vector<BluetoothService> PeripheralBase::services() {
     return service_list;
 }
 
+std::map<uint16_t, ByteArray> PeripheralBase::manufacturer_data() {
+    auto device = _get_device();
+
+    std::map<uint16_t, ByteArray> manufacturer_data;
+    for (auto& [manufacturer_id, value_array] : device->get_manufacturer_data()) {
+        manufacturer_data[manufacturer_id] = ByteArray((const char*)value_array.data(), value_array.size());
+    }
+
+    return manufacturer_data;
+}
+
 ByteArray PeripheralBase::read(BluetoothUUID service, BluetoothUUID characteristic) {
     // TODO: Check if the characteristic is readable.
     auto characteristic_object = _get_characteristic(service, characteristic);
-
-    // FIXME: SimpleDBus does not have this feature yet.
-    // std::vector<uint8_t> value = characteristic_object->get_value();
-    // return ByteArray((const char*)value.data(), value.size());
 
     std::vector<uint8_t> value = characteristic_object->Property_Value();
     return ByteArray((const char*)value.data(), value.size());

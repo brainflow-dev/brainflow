@@ -55,6 +55,7 @@ class PeripheralBase {
     // https://docs.microsoft.com/en-us/uwp/api/windows.devices.bluetooth.bluetoothledevice.frombluetoothaddressasync
     std::string identifier_;
     BluetoothAddress address_;
+    bool connectable_;
 
     std::condition_variable disconnection_cv_;
     std::mutex disconnection_mutex_;
@@ -62,6 +63,8 @@ class PeripheralBase {
 
     std::function<void()> callback_on_connected_;
     std::function<void()> callback_on_disconnected_;
+
+    std::map<uint16_t, SimpleBLE::ByteArray> manufacturer_data_;
 
     bool _attempt_connect();
     GattCharacteristic _fetch_characteristic(const BluetoothUUID& service_uuid,

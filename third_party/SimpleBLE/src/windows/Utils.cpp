@@ -1,32 +1,40 @@
 #include "Utils.h"
 
 #include <iomanip>
+#include <iostream>
 #include <sstream>
 
 #define MAC_ADDRESS_STR_LENGTH (size_t)17  // Two chars per byte, 5 chars for colon
 
 namespace SimpleBLE {
 
-std::string _mac_address_to_str(uint64_t mac_address) {
-    uint8_t* mac_address_ptr = (uint8_t*)&mac_address;
-    char mac_address_str[MAC_ADDRESS_STR_LENGTH + 1] = {0};  // Include null terminator.
+void initialize_winrt() {
+    // Attempt to initialize the WinRT backend if not already set.
+    int32_t cotype, qualifier;
+    WINRT_CoGetApartmentType(&cotype, &qualifier);
 
-    int position = 0;
-    position += sprintf(&mac_address_str[position], "%02x:%02x:%02x:", mac_address_ptr[5], mac_address_ptr[4],
-                        mac_address_ptr[3]);
-    position += sprintf(&mac_address_str[position], "%02x:%02x:%02x", mac_address_ptr[2], mac_address_ptr[1],
-                        mac_address_ptr[0]);
-    return std::string((const char*)mac_address_str);
+    if (cotype == -1 /* APTTYPE_CURRENT */) {
+        // TODO: Investigate if multi or single threaded initialization is needed.
+        winrt::apartment_type const type = winrt::apartment_type::multi_threaded;
+        winrt::hresult const result = WINRT_RoInitialize(static_cast<uint32_t>(type));
+    }
 }
 
-uint64_t _str_to_mac_address(std::string mac_address) {
+std::string _mac_address_to_str(uint64_t mac_address) {
+    uint8_t* mac_ptr = (uint8_t*)&mac_address;
+    char mac_str[MAC_ADDRESS_STR_LENGTH + 1] = {0};  // Include null terminator.
+
+    snprintf(mac_str, MAC_ADDRESS_STR_LENGTH + 1, "%02x:%02x:%02x:%02x:%02x:%02x", mac_ptr[5], mac_ptr[4], mac_ptr[3],
+             mac_ptr[2], mac_ptr[1], mac_ptr[0]);
+    return std::string(mac_str);
+}
+
+uint64_t _str_to_mac_address(std::string mac_str) {
     // TODO: Validate input - Expected Format: XX:XX:XX:XX:XX:XX
     uint64_t mac_address_number = 0;
-    uint8_t* mac_address_ptr = (uint8_t*)&mac_address_number;
-    sscanf(&mac_address.c_str()[0], "%02hhx:%02hhx:%02hhx:", &mac_address_ptr[5], &mac_address_ptr[4],
-           &mac_address_ptr[3]);
-    sscanf(&mac_address.c_str()[9], "%02hhx:%02hhx:%02hhx:", &mac_address_ptr[2], &mac_address_ptr[1],
-           &mac_address_ptr[0]);
+    uint8_t* mac_ptr = (uint8_t*)&mac_address_number;
+    sscanf(mac_str.c_str(), "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx", &mac_ptr[5], &mac_ptr[4], &mac_ptr[3],
+           &mac_ptr[2], &mac_ptr[1], &mac_ptr[0]);
     return mac_address_number;
 }
 
@@ -42,9 +50,9 @@ winrt::guid uuid_to_guid(const std::string& uuid) {
     winrt::guid guid;
     uint64_t* data4_ptr = (uint64_t*)guid.Data4;
 
-    guid.Data1 = (uint16_t)std::strtoul(clean_uuid.substr(0, 8).c_str(), nullptr, 16);
-    guid.Data2 = (uint16_t)std::strtoul(clean_uuid.substr(8, 4).c_str(), nullptr, 16);
-    guid.Data3 = (uint16_t)std::strtoul(clean_uuid.substr(12, 4).c_str(), nullptr, 16);
+    guid.Data1 = static_cast<uint32_t>(std::strtoul(clean_uuid.substr(0, 8).c_str(), nullptr, 16));
+    guid.Data2 = static_cast<uint16_t>(std::strtoul(clean_uuid.substr(8, 4).c_str(), nullptr, 16));
+    guid.Data3 = static_cast<uint16_t>(std::strtoul(clean_uuid.substr(12, 4).c_str(), nullptr, 16));
     *data4_ptr = _byteswap_uint64(std::strtoull(clean_uuid.substr(16, 16).c_str(), nullptr, 16));
 
     return guid;

@@ -32,6 +32,8 @@ std::vector<BluetoothService> Peripheral::services() {
     return internal_->services();
 }
 
+std::map<uint16_t, ByteArray> Peripheral::manufacturer_data() { return internal_->manufacturer_data(); }
+
 ByteArray Peripheral::read(BluetoothUUID service, BluetoothUUID characteristic) {
     if (!is_connected()) {
         throw Exception::OperationFailed();

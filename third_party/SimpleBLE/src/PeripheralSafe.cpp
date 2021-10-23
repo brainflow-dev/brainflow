@@ -59,8 +59,11 @@ std::optional<bool> SimpleBLE::Safe::Peripheral::is_connectable() noexcept {
 }
 
 std::optional<std::map<uint16_t, SimpleBLE::ByteArray>> SimpleBLE::Safe::Peripheral::manufacturer_data() noexcept {
-    // TODO: implement it, its a stub
-    return std::nullopt;
+    try {
+        return SimpleBLE::Peripheral::manufacturer_data();
+    } catch (const SimpleBLE::Exception::BaseException&) {
+        return std::nullopt;
+    }
 }
 
 std::optional<std::vector<SimpleBLE::BluetoothService>> SimpleBLE::Safe::Peripheral::services() noexcept {
