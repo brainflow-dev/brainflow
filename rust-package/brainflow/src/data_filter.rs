@@ -6,12 +6,8 @@ use std::os::raw::c_int;
 use std::{ffi::CString, os::raw::c_double};
 
 use crate::error::{BrainFlowError, Error};
-use crate::ffi::{
-    data_handler,
-};
-use crate::{check_brainflow_exit_code, 
-    log_levels::LogLevels, Result,
-};
+use crate::ffi::data_handler;
+use crate::{check_brainflow_exit_code, log_levels::LogLevels, Result};
 
 /// Set BrainFlow data logger log level.
 /// Use it only if you want to write your own messages to BrainFlow logger.
@@ -163,11 +159,7 @@ pub fn remove_environmental_noise(
 }
 
 /// Smooth data using moving average or median.
-pub fn perform_rolling_filter(
-    data: &mut [f64],
-    period: usize,
-    agg_operation: c_int,
-) -> Result<()> {
+pub fn perform_rolling_filter(data: &mut [f64], period: usize, agg_operation: c_int) -> Result<()> {
     let res = unsafe {
         data_handler::perform_rolling_filter(
             data.as_mut_ptr() as *mut c_double,
@@ -189,7 +181,8 @@ pub fn perform_downsampling(
     if period == 0 {
         return Err(Error::BrainFlowError(BrainFlowError::InvalidArgumentsError));
     }
-    let mut output = Vec::<f64>::with_capacity(data.len() / period as usize);
+    let output_len = data.len() / period as usize;
+    let mut output = Vec::<f64>::with_capacity(output_len);
     let res = unsafe {
         data_handler::perform_downsampling(
             data.as_mut_ptr() as *mut c_double,
@@ -200,6 +193,7 @@ pub fn perform_downsampling(
         )
     };
     check_brainflow_exit_code(res)?;
+    unsafe { output.set_len(output_len) }
     Ok(output)
 }
 
@@ -296,6 +290,7 @@ pub fn perform_inverse_wavelet_transform(wavelet_transform: WaveletTransform) ->
         )
     };
     check_brainflow_exit_code(res)?;
+    unsafe { output.set_len(wavelet_transform.original_data_len) }
     Ok(output)
 }
 
@@ -440,11 +435,7 @@ pub struct Psd {
 }
 
 /// Calculate PSD.
-pub fn get_psd(
-    data: &mut [f64],
-    sampling_rate: usize,
-    window_function: c_int,
-) -> Result<Psd> {
+pub fn get_psd(data: &mut [f64], sampling_rate: usize, window_function: c_int) -> Result<Psd> {
     let mut amplitude = Vec::<f64>::with_capacity(data.len() / 2 + 1);
     let mut frequency = Vec::<f64>::with_capacity(data.len() / 2 + 1);
     let res = unsafe {
