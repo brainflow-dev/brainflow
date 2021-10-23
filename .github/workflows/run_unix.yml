@@ -16,10 +16,6 @@ jobs:
     # compile and prepare env
     - name: Clone Repository
       uses: actions/checkout@v2
-    - name: Intall Rust
-      uses: ATiltedTree/setup-rust@v1
-      with:
-        rust-version: stable
     - name: Install Python 3.7
       uses: actions/setup-python@v2
       with:
@@ -81,10 +77,6 @@ jobs:
         mvn package
         cp -av $GITHUB_WORKSPACE/java-package/brainflow/target/classes/brainflow/. $GITHUB_WORKSPACE/java-package/brainflow/target/classes/ 
         cp -av $GITHUB_WORKSPACE/java-package/brainflow/target/classes/brainflow/. $GITHUB_WORKSPACE/java-package/brainflow/target/classes/
-    - name: Install Rust package
-      run: |
-        cd $GITHUB_WORKSPACE/rust-package/brainflow
-        cargo build --features="generate_binding"
     - name: Build Get Data Test
       run: |
         cd $GITHUB_WORKSPACE/tests/cpp/get_data_demo

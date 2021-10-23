@@ -79,40 +79,12 @@ fn generate_ml_model_binding() {
         .expect("Could not write binding to `src/ffi/ml_model.rs`");
 }
 
-#[cfg(feature = "generate_binding")]
-fn generate_constants_binding() {
-    const ALLOW_UNCONVENTIONALS: &'static str = "#![allow(non_camel_case_types)]\n";
-
-    let header_path = PathBuf::from("inc");
-    let header_path = header_path.display();
-
-    let bindings = bindgen::Builder::default()
-        .header(format!("{}/brainflow_constants.h", &header_path))
-        .raw_line(ALLOW_UNCONVENTIONALS)
-        .clang_arg("-std=c++11")
-        .clang_arg("-x")
-        .clang_arg("c++")
-        .default_enum_style(bindgen::EnumVariation::Rust {
-            non_exhaustive: false,
-        })
-        .rustified_non_exhaustive_enum("BrainFlowExitCodes")
-        .rustified_non_exhaustive_enum("BoardIds")
-        .generate()
-        .expect("Unable to generate bindings");
-
-    let binding_target_path = PathBuf::new().join("src").join("ffi").join("constants.rs");
-
-    bindings
-        .write_to_file(binding_target_path)
-        .expect("Could not write binding to `src/ffi/constants.rs`");
-}
 
 #[cfg(feature = "generate_binding")]
 fn generate_binding() {
     generate_board_controller_binding();
     generate_data_handler_binding();
     generate_ml_model_binding();
-    generate_constants_binding();
 }
 
 fn main() {

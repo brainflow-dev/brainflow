@@ -1,5 +1,5 @@
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, FromPrimitive)]
-pub enum BoardId {
+pub enum BoardIds {
     PlaybackFileBoard = -3,
     StreamingBoard = -2,
     SyntheticBoard = -1,
