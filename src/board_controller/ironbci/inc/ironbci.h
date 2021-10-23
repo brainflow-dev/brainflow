@@ -25,6 +25,8 @@ protected:
     gpio_t *gpio_in;
 
     void read_thread ();
+    int write_reg (uint8_t reg_address, uint8_t val);
+    int send_command (uint8_t command);
 #endif
 
 public:

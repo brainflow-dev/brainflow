@@ -35,67 +35,23 @@ int IronBCI::prepare_session ()
         safe_logger (spdlog::level::info, "Use serial port {}", params.serial_port.c_str ());
     }
 
-    spi = spi_new ();
     gpio_in = gpio_new ();
-    if (spi_open (spi, params.serial_port.c_str (), 0b01, 100000) < 0)
-    {
-        spi_free (spi);
-        spi = NULL;
-        return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
-    }
-
     if (gpio_open (gpio_in, "/dev/gpiochip0", 26, GPIO_DIR_IN) < 0)
     {
         gpio_free (gpio_in);
         gpio_in = NULL;
+        return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
+    }
+    spi = spi_new ();
+    if (spi_open_advanced (spi, params.serial_port.c_str (), 0b01, 1000000, MBS_FIRST, 8, 1) < 0)
+    {
         spi_free (spi);
         spi = NULL;
+        gpio_free (gpio_in);
+        gpio_in = NULL;
         return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
     }
 
-    uint8_t wakeup[1] = {0x02};
-    int spi_res = spi_transfer (spi, wakeup, wakeup, 1);
-    if (spi_res < 0)
-    {
-        safe_logger (spdlog::level::err, "failed to wakeup: {}", spi_res);
-    }
-    else
-    {
-        uint8_t buf_reset[1] = {0x06};
-        spi_res = spi_transfer (spi, buf_reset, buf_reset, 1);
-    }
-    if (spi_res < 0)
-    {
-        safe_logger (spdlog::level::err, "failed to reset: {}", spi_res);
-    }
-    else
-    {
-        uint8_t sdatac[1] = {0x11};
-        spi_res = spi_transfer (spi, sdatac, sdatac, 1);
-    }
-
-    if (spi_res < 0)
-    {
-        safe_logger (spdlog::level::err, "failed to sdatac: {}", spi_res);
-        gpio_free (gpio_in);
-        gpio_in = NULL;
-        spi_free (spi);
-        spi = NULL;
-        return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
-    }
-    else
-    {
-        int gpio_res = gpio_set_edge (gpio_in, GPIO_EDGE_FALLING);
-        if (gpio_res != 0)
-        {
-            safe_logger (spdlog::level::err, "Failed to set gpio edge event: {}", gpio_res);
-            gpio_free (gpio_in);
-            gpio_in = NULL;
-            spi_free (spi);
-            spi = NULL;
-            return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
-        }
-    }
     initialized = true;
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
@@ -113,79 +69,67 @@ int IronBCI::start_stream (int buffer_size, const char *streamer_params)
         return res;
     }
 
-    int spi_res = 0;
-    // led
-    uint8_t adress = 0x40 | 0x14;
-    uint8_t buf[3] = {adress, 0x00, 0x80};
-    spi_res = spi_transfer (spi, buf, buf, 3);
-    if (spi_res < 0)
+    int spi_res = write_reg (0x14, 0x80); // led
+    if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        safe_logger (spdlog::level::err, "failed to set led: {}", spi_res);
+        spi_res = write_reg (0x05, 0x00); // ch1
     }
-    else
+    if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        // config 1
-        uint8_t adress1 = 0x40 | 0x01;
-        uint8_t buf1[3] = {adress1, 0x00, 0x96};
-        spi_res = spi_transfer (spi, buf1, buf1, 3);
+        spi_res = write_reg (0x06, 0x0); // ch2
     }
-    if (spi_res < 0)
+    if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        safe_logger (spdlog::level::err, "failed to set config1: {}", spi_res);
+        spi_res = write_reg (0x07, 0x00); // ch3
     }
-    else
+    if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        // config 2
-        uint8_t adress2 = 0x40 | 0x02;
-        uint8_t buf2[3] = {adress2, 0x00, 0xD4};
-        spi_res = spi_transfer (spi, buf2, buf2, 3);
+        spi_res = write_reg (0x08, 0x00); // ch4
     }
-    if (spi_res < 0)
+    if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        safe_logger (spdlog::level::err, "failed to set config2: {}", spi_res);
+        spi_res = write_reg (0x09, 0x00); // ch5
     }
-    else
+    if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        // config 3
-        uint8_t adress3 = 0x40 | 0x03;
-        uint8_t buf3[3] = {adress3, 0x00, 0xEC};
-        spi_res = spi_transfer (spi, buf3, buf3, 3);
+        spi_res = write_reg (0x0A, 0x00); // ch6
     }
-    if (spi_res < 0)
+    if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        safe_logger (spdlog::level::err, "failed to set config3: {}", spi_res);
+        spi_res = write_reg (0x0B, 0x00); // ch7
     }
-    else
+    if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        // misc1
-        uint8_t adress4 = 0x40 | 0x15;
-        uint8_t buf4[3] = {adress4, 0x00, 0x20};
-        spi_res = spi_transfer (spi, buf4, buf4, 3);
+        spi_res = write_reg (0x0C, 0x00); // ch8
     }
-    if (spi_res < 0)
+    if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        safe_logger (spdlog::level::err, "failed to set misc1: {}", spi_res);
+        spi_res = write_reg (0x15, 0x20); // mics
     }
-    else
+    if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        // send command 1
-        uint8_t buf5[1] = {0x10};
-        spi_res = spi_transfer (spi, buf5, buf5, 1);
+        spi_res = write_reg (0x01, 0x96); // reg1
     }
-    if (spi_res < 0)
+    if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        safe_logger (spdlog::level::err, "failed to set send command1: {}", spi_res);
+        spi_res = write_reg (0x02, 0xD4); // reg2
     }
-    else
+    if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        // send command 2
-        uint8_t buf6[1] = {0x08};
-        spi_res = spi_transfer (spi, buf6, buf6, 1);
+        spi_res = write_reg (0x03, 0xE0); // reg3
     }
-    if (spi_res < 0)
+    if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        safe_logger (spdlog::level::err, "failed to set send command2: {}", spi_res);
-        return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
+        spi_res = send_command (0x10); // sdatc
+    }
+    if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        spi_res = send_command (0x08); // start
+    }
+
+    if (spi_res != (int)BrainFlowExitCodes)
+    {
+        return spi_res;
     }
 
     keep_alive = true;
@@ -202,15 +146,7 @@ int IronBCI::stop_stream ()
         {
             streaming_thread.join ();
         }
-        uint8_t stop[1] = {0x0A};
-        if (spi_transfer (spi, stop, stop, 1) < 0)
-        {
-            return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
-        }
-        else
-        {
-            return (int)BrainFlowExitCodes::STATUS_OK;
-        }
+        return send_command (0x0A); // stop
     }
     else
     {
@@ -257,6 +193,7 @@ int IronBCI::config_board (std::string config, std::string &response)
 void IronBCI::read_thread ()
 {
     uint8_t buf[27] = {0};
+    uint8_t zero27[27] = {0};
     int num_rows = board_descr["num_rows"];
     double *package = new double[num_rows];
     for (int i = 0; i < num_rows; i++)
@@ -270,6 +207,8 @@ void IronBCI::read_thread ()
     double timestamp = 0;
     int counter = 0;
     int timeout_ms = 1000;
+    uint32_t data_test = 0x7FFFFF;
+    uint32_t data_check = 0xFFFFFF;
 
     while (keep_alive)
     {
@@ -294,9 +233,10 @@ void IronBCI::read_thread ()
             }
             if (edge != GPIO_EDGE_FALLING)
             {
+                safe_logger (spdlog::level::warn, "unexpected gpio event");
                 continue;
             }
-            int spi_res = spi_transfer (spi, buf, buf, 27);
+            int spi_res = spi_transfer (spi, zero27, buf, 27);
             if (spi_res != 0)
             {
                 safe_logger (spdlog::level::warn, "failed to read from spi: {}", spi_res);
@@ -304,8 +244,16 @@ void IronBCI::read_thread ()
             }
             for (size_t i = 0; i < eeg_channels.size (); i++)
             {
-                package[eeg_channels[i]] =
-                    (double)eeg_scale * cast_24bit_to_int32 (buf + 3 + 3 * i);
+                int offset = 3 * i;
+                uint32_t voltage = (buf[offset] << 8) | buf[offset + 1];
+                voltage = (voltage << 8) | buf[offset + 2];
+                uint32_t voltage_test = voltage | data_test;
+                if (voltage_test == data_check)
+                {
+                    voltage = 16777214 - voltage;
+                }
+
+                package[eeg_channels[i]] = 0.27 * voltage;
             }
             package[board_descr["timestamp_channel"].get<int> ()] = timestamp;
             package[board_descr["package_num_channel"].get<int> ()] = counter++;
@@ -313,6 +261,34 @@ void IronBCI::read_thread ()
         }
     }
     delete[] package;
+}
+
+void IronBCI::write_reg (uint8_t reg_address, uint8_t val)
+{
+    uint8_t zero3[3] = {0, 0, 0};
+    uint8_t reg_address_shift = 0x40 | reg_address;
+    uint8_t write[3] = {reg_address_shift, 0x00, val};
+    int spi_res = spi_transfer (spi, write, zero3, 3);
+    if (spi_res < 0)
+    {
+        safe_logger (
+            spdlog::level::err, "failed to write reg {}, error: {}", (int)reg_address, spi_res);
+        return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
+    }
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+void IronBCI::send_command (uint8_t command)
+{
+    uint8_t zero = 0;
+    int spi_res = spi_transfer (spi, &command, &zero, 1);
+    if (spi_res < 0)
+    {
+        safe_logger (
+            spdlog::level::err, "failed to write command {}, error: {}", (int)command, spi_res);
+        return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
+    }
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 #else
