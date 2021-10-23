@@ -127,7 +127,7 @@ int IronBCI::start_stream (int buffer_size, const char *streamer_params)
         spi_res = send_command (0x08); // start
     }
 
-    if (spi_res != (int)BrainFlowExitCodes)
+    if (spi_res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return spi_res;
     }
