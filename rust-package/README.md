@@ -58,7 +58,7 @@ The BrainFlow project strives to abide by generally accepted best practices in o
 
 ## Partners and Sponsors
 
-[![OpenBCI](https://live.staticflickr.com/65535/49913349191_0cbd41157c_w.jpg)](https://openbci.com/)
+[![OpenBCI](https://live.staticflickr.com/65535/51618456586_7b533781e2.jpg)](https://openbci.com/)
 
 ## License: 
 [MIT](https://github.com/brainflow-dev/brainflow/blob/master/LICENSE)
