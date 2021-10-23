@@ -43,7 +43,7 @@ int IronBCI::prepare_session ()
         return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
     }
     spi = spi_new ();
-    if (spi_open_advanced (spi, params.serial_port.c_str (), 0b01, 1000000, MBS_FIRST, 8, 1) < 0)
+    if (spi_open_advanced (spi, params.serial_port.c_str (), 0b01, 1000000, MSB_FIRST, 8, 1) < 0)
     {
         spi_free (spi);
         spi = NULL;
@@ -263,7 +263,7 @@ void IronBCI::read_thread ()
     delete[] package;
 }
 
-void IronBCI::write_reg (uint8_t reg_address, uint8_t val)
+int IronBCI::write_reg (uint8_t reg_address, uint8_t val)
 {
     uint8_t zero3[3] = {0, 0, 0};
     uint8_t reg_address_shift = 0x40 | reg_address;
@@ -278,7 +278,7 @@ void IronBCI::write_reg (uint8_t reg_address, uint8_t val)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-void IronBCI::send_command (uint8_t command)
+int IronBCI::send_command (uint8_t command)
 {
     uint8_t zero = 0;
     int spi_res = spi_transfer (spi, &command, &zero, 1);
