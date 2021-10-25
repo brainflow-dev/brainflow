@@ -38,6 +38,7 @@ int IronBCI::prepare_session ()
     gpio_in = gpio_new ();
     if (gpio_open (gpio_in, "/dev/gpiochip0", 26, GPIO_DIR_IN) < 0)
     {
+        safe_logger (spdlog::level::err, "failed to open gpio");
         gpio_free (gpio_in);
         gpio_in = NULL;
         return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
@@ -45,6 +46,17 @@ int IronBCI::prepare_session ()
     spi = spi_new ();
     if (spi_open_advanced (spi, params.serial_port.c_str (), 0b01, 1000000, MSB_FIRST, 8, 1) < 0)
     {
+        safe_logger (spdlog::level::err, "failed to open spi dev");
+        spi_free (spi);
+        spi = NULL;
+        gpio_free (gpio_in);
+        gpio_in = NULL;
+        return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
+    }
+    int gpio_res = gpio_set_edge (gpio_in, GPIO_EDGE_FALLING);
+    if (gpio_res != 0)
+    {
+        safe_logger (spdlog::level::err, "failed to set gpio edge event handler: {}", gpio_res);
         spi_free (spi);
         spi = NULL;
         gpio_free (gpio_in);
