@@ -2,7 +2,7 @@ use std::{thread, time::Duration};
 
 use brainflow::{board_shim, brainflow_input_params::BrainFlowInputParamsBuilder, BoardIds};
 
-pub fn board_data(n_data_points: Option<usize>) -> Vec<Vec<f64>> {
+fn main() {
     brainflow::board_shim::enable_dev_board_logger().unwrap();
     let params = BrainFlowInputParamsBuilder::default().build();
     let board_id = BoardIds::SyntheticBoard as i32;
@@ -12,8 +12,9 @@ pub fn board_data(n_data_points: Option<usize>) -> Vec<Vec<f64>> {
     board.start_stream(45000, "").unwrap();
     thread::sleep(Duration::from_secs(5));
     board.stop_stream().unwrap();
-    let data = board.get_board_data(n_data_points).unwrap();
+    let data = board.get_board_data(Some(10)).unwrap();
     board.release_session().unwrap();
 
-    data
+    println!("{}", data.len());
+    println!("{:?}", data);
 }

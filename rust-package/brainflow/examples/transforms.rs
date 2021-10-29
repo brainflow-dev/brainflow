@@ -1,20 +1,28 @@
-#[macro_use]
-extern crate approx;
+use std::{thread, time::Duration};
 
-use brainflow::board_shim;
-use brainflow::data_filter;
-use brainflow::BoardIds;
-use brainflow::WindowFunctions;
+use brainflow::{
+    board_shim, brainflow_input_params::BrainFlowInputParamsBuilder, data_filter, BoardIds,
+    WindowFunctions,
+};
 
-mod common;
+fn main() {
+    brainflow::board_shim::enable_dev_board_logger().unwrap();
 
-#[test]
-fn wavelet_inverse_transform_equals_input_data() {
     let board_id = BoardIds::SyntheticBoard as i32;
     let eeg_channels = board_shim::get_eeg_channels(board_id).unwrap();
     println!("{:?}", eeg_channels);
 
-    let mut data = common::board_data(Some(64));
+    let params = BrainFlowInputParamsBuilder::default().build();
+    let board_id = BoardIds::SyntheticBoard as i32;
+    let board = board_shim::BoardShim::new(board_id, params).unwrap();
+
+    board.prepare_session().unwrap();
+    board.start_stream(45000, "").unwrap();
+    thread::sleep(Duration::from_secs(5));
+    board.stop_stream().unwrap();
+    let mut data = board.get_board_data(Some(64)).unwrap();
+    board.release_session().unwrap();
+
     let data_len = data[0].len();
 
     let fft_data = data_filter::perform_fft(
@@ -30,7 +38,4 @@ fn wavelet_inverse_transform_equals_input_data() {
         data_filter::perform_wavelet_transform(&mut data[eeg_channels[1]], "db3", 3).unwrap();
     let restored_wavelet = data_filter::perform_inverse_wavelet_transform(wavelet_data).unwrap();
     println!("{:?}", restored_wavelet);
-    for (d, r) in data[eeg_channels[1]].iter().zip(restored_wavelet) {
-        assert_relative_eq!(*d, r, max_relative = 1e-14);
-    }
 }

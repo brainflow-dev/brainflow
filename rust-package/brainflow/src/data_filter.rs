@@ -1,5 +1,7 @@
 use getset::Getters;
-use ndarray::{Array1, Array2, ArrayBase, AsArray, Ix1, Ix2, Ix3};
+use ndarray::{
+    Array1, Array2, ArrayBase, ArrayView2, AsArray, Ix1, Ix2, Ix3, SliceInfo, SliceInfoElem,
+};
 use num::Complex;
 use num_complex::Complex64;
 use std::os::raw::c_int;
@@ -7,7 +9,7 @@ use std::{ffi::CString, os::raw::c_double};
 
 use crate::error::{BrainFlowError, Error};
 use crate::ffi::data_handler;
-use crate::{check_brainflow_exit_code, log_levels::LogLevels, Result};
+use crate::{check_brainflow_exit_code, LogLevels, Result};
 
 /// Set BrainFlow data logger log level.
 /// Use it only if you want to write your own messages to BrainFlow logger.
@@ -493,6 +495,7 @@ pub fn get_psd_welch(
 /// Calculate avg and stddev of BandPowers across all channels, bands are 1-4,4-8,8-13,13-30,30-50.
 pub fn get_avg_band_powers<'a, Data>(
     data: Data,
+    eeg_channels: Vec<usize>,
     sampling_rate: usize,
     apply_filters: bool,
 ) -> Result<(Vec<f64>, Vec<f64>)>
@@ -500,8 +503,19 @@ where
     Data: AsArray<'a, f64, Ix2>,
 {
     let data = data.into();
+    let data: ArrayView2<f64> = unsafe {
+        data.slice(
+            SliceInfo::new(
+                eeg_channels
+                    .into_iter()
+                    .map(|c| SliceInfoElem::Index(c as isize))
+                    .collect::<Vec<SliceInfoElem>>(),
+            )
+            .unwrap(),
+        )
+    };
     let shape = data.shape();
-    let (cols, rows) = (shape[0], shape[1]);
+    let (cols, rows) = (shape[1], shape[0]);
 
     let mut avg_band_powers = Vec::with_capacity(5);
     let mut stddev_band_powers = Vec::with_capacity(5);
@@ -599,4 +613,28 @@ where
         )
     };
     Ok(check_brainflow_exit_code(res)?)
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::ffi::constants::WindowFunctions;
+
+    use super::*;
+
+    #[test]
+    fn wavelet_inverse_transform_equals_input_data() {
+        let mut data = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0];
+
+        let fft_data = perform_fft(&mut data, WindowFunctions::BlackmanHarris as i32).unwrap();
+        let restored_fft = perform_ifft(&fft_data, data.len()).unwrap();
+        println!("{:?}", restored_fft);
+
+        println!("{:?}", data);
+        let wavelet_data = perform_wavelet_transform(&mut data, "db3", 3).unwrap();
+        let restored_wavelet = perform_inverse_wavelet_transform(wavelet_data).unwrap();
+        println!("{:?}", restored_wavelet);
+        for (d, r) in data.iter().zip(restored_wavelet) {
+            assert_relative_eq!(*d, r, max_relative = 1e-14);
+        }
+    }
 }
