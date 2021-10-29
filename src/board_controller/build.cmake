@@ -149,6 +149,13 @@ if (USE_LIBFTDI)
     endif (LibFTDI1_FOUND)
 endif (USE_LIBFTDI)
 
+if (USE_PERIPHERY)
+    include (${CMAKE_HOME_DIRECTORY}/third_party/c-periphery/build.cmake)
+    target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE ${PERIPHERY})
+    target_include_directories (${BOARD_CONTROLLER_NAME} PRIVATE ${CMAKE_HOME_DIRECTORY}/third_party/c-periphery/src)
+    target_compile_definitions (${BOARD_CONTROLLER_NAME} PRIVATE USE_PERIPHERY)
+endif (USE_PERIPHERY)
+
 if (MSVC)
     add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BOARD_CONTROLLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${BOARD_CONTROLLER_COMPILED_NAME}"
