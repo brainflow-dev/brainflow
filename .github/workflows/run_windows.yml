@@ -170,9 +170,6 @@ jobs:
     - name: Galea Windows C# Test
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\galea_udp.py %GITHUB_WORKSPACE%\csharp-package\brainflow\tests\brainflow_get_data\bin\Release\test.exe --board-id 3 --ip-address 127.0.0.1
       shell: cmd
-    - name: IronBCI Python Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\ironbci_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id 15 --serial-port
-      shell: cmd
     - name: FreeEEG32 Python Test
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\freeeeg32_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id 17 --serial-port
       shell: cmd

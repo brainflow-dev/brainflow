@@ -99,6 +99,7 @@ def main():
         board_shim = BoardShim(args.board_id, params)
         board_shim.prepare_session()
         board_shim.start_stream(450000, args.streamer_params)
+        Graph(board_shim)
     except BaseException:
         logging.warning('Exception', exc_info=True)
     finally:
