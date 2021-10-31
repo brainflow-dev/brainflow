@@ -149,13 +149,13 @@ jobs:
       shell: cmd
     - name: Synthetic Windows Rust Test
       run: |
-        cd %GITHUB_WORKSPACE%\tests\rust
-        cargo run --bin brainflow_get_data
+        cd %GITHUB_WORKSPACE%\rust-package\brainflow
+        cargo run --example=brainflow_get_data
       shell: cmd
     - name: Synthetic Windows Rust Test Markers
       run: |
-        cd %GITHUB_WORKSPACE%\tests\rust
-        cargo run --bin markers
+        cd %GITHUB_WORKSPACE%\rust-package\brainflow
+        cargo run --example=markers
       shell: cmd
     - name: Synthetic Windows Python Test with Streamer
       run: python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id -1 --streamer-params file://file_streamer.csv:w
