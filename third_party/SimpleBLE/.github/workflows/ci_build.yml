@@ -1,0 +1,129 @@
+name: CI Build
+
+on: [push, pull_request]
+
+jobs:
+
+  # ------------------------------------------------------------
+  build-windows:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        os: [windows-2019]
+
+    steps:
+    - name: Clone Repository
+      uses: actions/checkout@v2
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
+    - name: Compile Lib for Windows x86
+      run: |
+        mkdir %GITHUB_WORKSPACE%\build32
+        cd %GITHUB_WORKSPACE%\build32
+        cmake -G "Visual Studio 16 2019" -A Win32 -DCMAKE_SYSTEM_VERSION=10.0.19041.0 ..
+        cmake --build . --config Release -j 2 --parallel 2
+      shell: cmd
+    - name: Compile Lib for Windows x64
+      run: |
+        mkdir %GITHUB_WORKSPACE%\build64
+        cd %GITHUB_WORKSPACE%\build64
+        cmake -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=10.0.19041.0 ..
+        cmake --build . --config Release -j 2 --parallel 2
+      shell: cmd
+    - name: Compile Examples for Windows x86
+      run: |
+        mkdir %GITHUB_WORKSPACE%\build32examples
+        cd %GITHUB_WORKSPACE%\build32examples
+        cmake -G "Visual Studio 16 2019" -A Win32 -DCMAKE_SYSTEM_VERSION=10.0.19041.0 ../examples
+        cmake --build . --config Release -j 2 --parallel 2
+      shell: cmd
+    - name: Compile Examples for Windows x64
+      run: |
+        mkdir %GITHUB_WORKSPACE%\build64examples
+        cd %GITHUB_WORKSPACE%\build64examples
+        cmake -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=10.0.19041.0 ../examples
+        cmake --build . --config Release -j 2 --parallel 2
+      shell: cmd
+
+  # ------------------------------------------------------------
+  
+  build-macos:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        os: [macos-11.0]
+
+    steps:
+    - name: Clone Repository
+      uses: actions/checkout@v2
+    - name: Setup Cmake
+      uses: jwlawson/actions-setup-cmake@v1.4
+      with:
+        cmake-version: '3.16.x'
+    - name: Compile Lib for MacOS arm64
+      run: |
+        mkdir $GITHUB_WORKSPACE/build_arm64
+        cd $GITHUB_WORKSPACE/build_arm64
+        cmake -DCMAKE_OSX_ARCHITECTURES="arm64" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
+        make -j2
+    - name: Compile Examples for MacOS arm64
+      run: |
+        mkdir $GITHUB_WORKSPACE/build_examples_arm64
+        cd $GITHUB_WORKSPACE/build_examples_arm64
+        cmake -DCMAKE_OSX_ARCHITECTURES="arm64" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ../examples
+        make -j2
+    - name: Compile Lib for MacOS x86
+      run: |
+        mkdir $GITHUB_WORKSPACE/build_x86
+        cd $GITHUB_WORKSPACE/build_x86
+        cmake -DCMAKE_OSX_ARCHITECTURES="x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
+        make -j2
+    - name: Compile Examples for MacOS x86
+      run: |
+        mkdir $GITHUB_WORKSPACE/build_examples_x86
+        cd $GITHUB_WORKSPACE/build_examples_x86
+        cmake -DCMAKE_OSX_ARCHITECTURES="x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ../examples
+        make -j2
+
+  # ------------------------------------------------------------
+
+  build-linux:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        os: [ubuntu-20.04]
+
+    steps:
+    - name: Clone Repository
+      uses: actions/checkout@v2
+    - name: Install Dependencies
+      run: |
+        sudo -H apt-get update -y
+        sudo -H apt-get install -y libdbus-1-dev
+      env:
+        DEBIAN_FRONTEND: noninteractive
+    - name: Setup Cmake
+      uses: jwlawson/actions-setup-cmake@v1.4
+      with:
+        cmake-version: '3.16.x'
+    - name:  Compile Lib for Ubuntu
+      run: |
+        mkdir $GITHUB_WORKSPACE/build
+        cd $GITHUB_WORKSPACE/build
+        cmake -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
+        make -j2
+    - name:  Compile Examples for Ubuntu
+      run: |
+        mkdir $GITHUB_WORKSPACE/build_examples
+        cd $GITHUB_WORKSPACE/build_examples
+        cmake -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ../examples
+        make -j2

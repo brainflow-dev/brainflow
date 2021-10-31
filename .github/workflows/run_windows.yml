@@ -42,6 +42,21 @@ jobs:
         cmake -DBUILD_OYMOTION_SDK=ON -DBUILD_BLUETOOTH=ON -DWARNINGS_AS_ERRORS=ON -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed64\ ..
         cmake --build . --target install --config Release -j 2 --parallel 2
       shell: cmd
+    # need to build SimpleBLE outside from BrainFlow because they have different Windows System Versions
+    - name: Compile SimpleBLE x32
+      run: |
+        mkdir %GITHUB_WORKSPACE%\third_party\SimpleBLE\build32
+        cd %GITHUB_WORKSPACE%\third_party\SimpleBLE\build32
+        cmake -G "Visual Studio 16 2019" -A Win32 -DCMAKE_SYSTEM_VERSION=10.0.19041.0 -DCMAKE_INSTALL_PREFIX=%GITHUB_WORKSPACE%\installed32\ ..
+        cmake --build . --target install --config Release -j 2 --parallel 2
+      shell: cmd
+    - name: Compile SimpleBLE x64
+      run: |
+        mkdir %GITHUB_WORKSPACE%\third_party\SimpleBLE\build64
+        cd %GITHUB_WORKSPACE%\third_party\SimpleBLE\build64
+        cmake -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=10.0.19041.0 -DCMAKE_INSTALL_PREFIX=%GITHUB_WORKSPACE%\installed64\ ..
+        cmake --build . --target install --config Release -j 2 --parallel 2
+      shell: cmd
     - name: C# build
       run: |
         cd %GITHUB_WORKSPACE%\csharp-package\brainflow

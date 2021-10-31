@@ -1,0 +1,17 @@
+name: ClangFormat
+
+on: [push, pull_request]
+
+jobs:
+  clang-format:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run clang-format
+      uses: DoozyX/clang-format-lint-action@v0.11
+      with:
+        source: 'src'
+        extensions: 'h,cpp,c'
+        clangFormatVersion: 11
+        inplace: False

@@ -493,32 +493,28 @@ json brainflow_boards_json = {
             {"eeg_names", "A2,A1,C4,C3"}
         }},
         {"38",
-            {{"name", "Explore4Chan"},
-            {"sampling_rate", 500},
-            {"timestamp_channel", 14},
-            {"marker_channel", 15},
+            {{"name", "Muse2"},
+            {"sampling_rate", 256},
+            {"timestamp_channel", 11},
+            {"marker_channel", 12},
             {"package_num_channel", 0},
-            {"num_rows", 16},
+            {"num_rows", 13},
             {"eeg_channels", {1, 2, 3, 4}},
-            {"emg_channels", {1, 2, 3, 4}},
-            {"ecg_channels", {1, 2, 3, 4}},
+            {"eeg_names", "TP9,Fp1,Fp2,TP10"},
             {"accel_channels", {5, 6, 7}},
-            {"gyro_channels", {8, 9, 10}},
-            {"other_channels", {11, 12, 13}}
+            {"gyro_channels", {8, 9, 10}}
         }},
         {"39",
-            {{"name", "Explore8Chan"},
-            {"sampling_rate", 500},
-            {"timestamp_channel", 18},
-            {"marker_channel", 19},
+            {{"name", "MuseS"},
+            {"sampling_rate", 256},
+            {"timestamp_channel", 11},
+            {"marker_channel", 12},
             {"package_num_channel", 0},
-            {"num_rows", 20},
-            {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
-            {"emg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
-            {"ecg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
-            {"accel_channels", {9, 10, 11}},
-            {"gyro_channels", {12, 13, 14}},
-            {"other_channels", {15, 16, 17}}
+            {"num_rows", 13},
+            {"eeg_channels", {1, 2, 3, 4}},
+            {"eeg_names", "TP9,Fp1,Fp2,TP10"},
+            {"accel_channels", {5, 6, 7}},
+            {"gyro_channels", {8, 9, 10}}
         }}
     }
 }};
