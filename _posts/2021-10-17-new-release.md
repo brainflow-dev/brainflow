@@ -13,8 +13,8 @@ author: andrey_parfenov
 * New helper library for BLE devices
 * Muse 2 and Muse S work without dongle
 * Rust binding for BrainFlow
-* Fix the issue with loggers in C++ binding
-* Fix the issue with NeuroMD boards(BrainBit, Callibli) with start, stop, repeat
+* Fix `set_log_file` issue for C++ API - [#359](https://github.com/brainflow-dev/brainflow/issues/359)
+* Fix start, stop, repeat issue for BrainBit and Callibri - [#363](https://github.com/brainflow-dev/brainflow/issues/363)
 
 ### SimpleBLE library 
 
