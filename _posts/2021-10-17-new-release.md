@@ -13,7 +13,8 @@ author: andrey_parfenov
 * New helper library for BLE devices
 * Muse 2 and Muse S work without dongle
 * Rust binding for BrainFlow
-* Swift binding for BrainFlow
+* Fix the issue with loggers in C++ binding
+* Fix the issue with NeuroMD boards(BrainBit, Callibli) with start, stop, repeat
 
 ### SimpleBLE library 
 
@@ -39,6 +40,6 @@ Feel free to test them and report [issues](https://github.com/brainflow-dev/brai
 
 ### New programming languages supported
 
-Thanks [Scott Miller](https://github.com/ScottThomasMiller) and [Daniel](https://github.com/trobanga) for implementing Swift and Rust packages for BrainFlow respectively.
+Thanks [Daniel](https://github.com/trobanga) for implementing Rust package for BrainFlow.
 
-Check [code samples](https://brainflow.readthedocs.io/en/stable/Examples.html) for usage examples. Also, some minor changes in docs and packaging for these languages will be done in upcoming PRs. 
+Check [code samples](https://brainflow.readthedocs.io/en/stable/Examples.html) for usage examples. Also, some minor changes in docs, packaging and bug fixes for these languages will be done in upcoming PRs. 
