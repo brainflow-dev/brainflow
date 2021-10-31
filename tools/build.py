@@ -94,6 +94,7 @@ def prepare_args():
     cur_folder = os.path.dirname(os.path.abspath(__file__))
 
     bluetooth_default = False
+    ble_default = False
     if platform.system() == 'Windows':
         bluetooth_default = True
         parser.add_argument('--oymotion', dest='oymotion', action='store_true')
@@ -119,7 +120,7 @@ def prepare_args():
             parser.add_argument('--cmake-osx-architectures', type=str, help='archs for osx', required=False, default='"arm64;x86_64"')
         else:
             parser.add_argument('--cmake-osx-architectures', type=str, help='archs for osx', required=False)
-        parser.add_argument('--cmake-osx-deployment-target', type=str, help='min supported version of osx', required=False, default='10.13')
+        parser.add_argument('--cmake-osx-deployment-target', type=str, help='min supported version of osx', required=False, default='10.15')
         parser.add_argument('--use-libftdi', action='store_true')
         try:
             output = subprocess.check_output(['ninja', '--version'])
@@ -136,7 +137,6 @@ def prepare_args():
     parser.add_argument('--build-dir', type=str, help='build folder', required=False, default=os.path.join(cur_folder, '..', 'build'))
     parser.add_argument('--cmake-install-prefix', type=str, help='installation folder, full path', required=False, default=os.path.join(cur_folder, '..', 'installed'))
     parser.add_argument('--use-openmp', action='store_true')
-    parser.add_argument('--build-bluetooth', action='store_true')
     parser.add_argument('--warnings-as-errors', action='store_true')
     parser.add_argument('--debug', action='store_true')
     parser.add_argument('--clear-build-dir', action='store_true')
@@ -144,6 +144,9 @@ def prepare_args():
     parser.add_argument('--bluetooth', dest='bluetooth', action='store_true')
     parser.add_argument('--no-bluetooth', dest='bluetooth', action='store_false')
     parser.set_defaults(bluetooth=bluetooth_default)
+    parser.add_argument('--ble', dest='ble', action='store_true')
+    parser.add_argument('--no-ble', dest='ble', action='store_false')
+    parser.set_defaults(ble=ble_default)
     args = parser.parse_args()
     return args
 
@@ -173,8 +176,6 @@ def config(args):
         cmd_config.append('-DUSE_OPENMP=ON')
     if hasattr(args, 'oymotion') and args.oymotion:
         cmd_config.append('-DBUILD_OYMOTION_SDK=ON')
-    if hasattr(args, 'build_bluetooth') and args.build_bluetooth:
-        cmd_config.append('-DBUILD_BLUETOOTH=ON')
     if hasattr(args, 'cmake_osx_architecture') and args.cmake_osx_architecture:
         cmd_config.append('-DCMAKE_OSX_ARCHITECTURES=%s' % args.cmake_osx_architecture)
     if hasattr(args, 'cmake_osx_deployment_target') and args.cmake_osx_deployment_target:
@@ -192,6 +193,8 @@ def config(args):
             cmd_config.append('-DCMAKE_BUILD_TYPE=Release')
     if hasattr(args, 'bluetooth') and args.bluetooth:
         cmd_config.append('-DBUILD_BLUETOOTH=ON')
+    if hasattr(args, 'ble') and args.ble:
+        cmd_config.append('-DBUILD_BLE=ON')
     cmd_config.append(brainflow_root_folder)
     run_command(cmd_config, args.build_dir)
 

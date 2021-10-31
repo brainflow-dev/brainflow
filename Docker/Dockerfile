@@ -17,7 +17,7 @@ echo debconf apt-fast/dlflag boolean true | debconf-set-selections && \
 echo debconf apt-fast/aptmanager string apt-get | debconf-set-selections && \
 apt-fast -yqq upgrade
 # Installing Dependencies
-RUN apt-fast -yqq install python3 python3-pip python3-venv openjdk-13-jdk git curl wget build-essential cmake python3-jira r-base nuget nuget mono-devel mono-complete monodevelop libxml2-dev libbluetooth-dev
+RUN apt-fast -yqq install python3 python3-pip python3-venv openjdk-13-jdk git curl wget build-essential cmake python3-jira r-base nuget nuget mono-devel mono-complete monodevelop libxml2-dev libbluetooth-dev libdbus-1-dev
 RUN mkdir -p /root/local/bin
 
 WORKDIR /root/local/bin
@@ -40,7 +40,7 @@ ARG checkout_id
 RUN git clone "https://github.com/brainflow-dev/brainflow.git"
 WORKDIR /root/brainflow
 RUN if [ -z "${checkout_id}" ]; then git checkout "${checkout_id}"; fi
-RUN python3 ./tools/build.py --use-openmp --bluetooth
+RUN python3 ./tools/build.py --use-openmp --bluetooth --ble
 ENV LD_LIBRARY_PATH=/root/brainflow/installed_linux/lib/
 
 # Python Binding

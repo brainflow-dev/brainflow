@@ -45,6 +45,15 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11.0.3
+    # build simpleble outside from brainflow because of different deployment targets
+    - name: Compile SimpleBLE MacOS
+      if: (matrix.os == 'macos-11.0')
+      run: |
+        mkdir $GITHUB_WORKSPACE/third_party/SimpleBLE/build
+        cd $GITHUB_WORKSPACE/third_party/SimpleBLE/build
+        cmake -G Ninja -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
+        ninja
+        ninja install
     - name: Compile BrainFlow MacOS
       if: (matrix.os == 'macos-11.0')
       run: |
@@ -66,7 +75,7 @@ jobs:
       if: (matrix.os == 'ubuntu-latest')
       run: |
         docker pull dockcross/manylinux2014-x64:20210708-94745ff
-        docker run -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE dockcross/manylinux2014-x64:20210708-94745ff /bin/bash -c "yum install -y bluez-libs-devel && /opt/python/cp36-cp36m/bin/pip3.6 install cmake==3.13.3 && cd $GITHUB_WORKSPACE && mkdir build_docker && cd build_docker && cmake -DBUILD_BLUETOOTH=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed_docker -DCMAKE_BUILD_TYPE=Release .. && make && make install"
+        docker run -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE dockcross/manylinux2014-x64:20210708-94745ff /bin/bash -c "yum install -y bluez-libs-devel dbus-devel && /opt/python/cp36-cp36m/bin/pip3.6 install cmake==3.13.3 && cd $GITHUB_WORKSPACE && mkdir build_docker && cd build_docker && cmake -DBUILD_BLE=ON -DBUILD_BLUETOOTH=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed_docker -DCMAKE_BUILD_TYPE=Release .. && make && make install"
     - name: Setup Python Package
       run: |
         cd $GITHUB_WORKSPACE/python-package

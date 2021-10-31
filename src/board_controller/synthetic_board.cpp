@@ -36,7 +36,6 @@ SyntheticBoard::~SyntheticBoard ()
 
 int SyntheticBoard::prepare_session ()
 {
-    safe_logger (spdlog::level::trace, "prepare session");
     if (initialized)
     {
         safe_logger (spdlog::level::info, "Session is already prepared");
@@ -69,7 +68,6 @@ int SyntheticBoard::start_stream (int buffer_size, const char *streamer_params)
 
 int SyntheticBoard::stop_stream ()
 {
-    safe_logger (spdlog::level::trace, "stop stream");
     if (is_streaming)
     {
         keep_alive = false;
@@ -85,7 +83,6 @@ int SyntheticBoard::stop_stream ()
 
 int SyntheticBoard::release_session ()
 {
-    safe_logger (spdlog::level::trace, "release session");
     if (initialized)
     {
         stop_stream ();

@@ -1,0 +1,33 @@
+name: Run Windows
+
+on: [push, pull_request]
+
+jobs:
+  RunWindows:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        os: [windows-2019]
+
+    steps:
+    - name: Clone Repository
+      uses: actions/checkout@v2
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
+    - name: Compile x32
+      run: |
+        mkdir %GITHUB_WORKSPACE%\build32
+        cd %GITHUB_WORKSPACE%\build32
+        cmake -G "Visual Studio 16 2019" -A Win32 -DCMAKE_SYSTEM_VERSION=10.0.19041.0 ..
+        cmake --build . --config Release -j 2 --parallel 2
+      shell: cmd
+    - name: Compile x64
+      run: |
+        mkdir %GITHUB_WORKSPACE%\build64
+        cd %GITHUB_WORKSPACE%\build64
+        cmake -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=10.0.19041.0 ..
+        cmake --build . --config Release -j 2 --parallel 2
+      shell: cmd
