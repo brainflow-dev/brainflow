@@ -120,10 +120,6 @@ jobs:
       uses: julia-actions/setup-julia@v1
       with:
         version: 1.3.1
-    - name: Build Rust Test
-      run: |
-        cd %GITHUB_WORKSPACE%\tests\rust
-        cargo build
       shell: cmd
     # BoardController testing
     - name: Run Julia Tests
@@ -203,23 +199,23 @@ jobs:
       shell: cmd
     - name: Denoising Rust Test
       run: |
-        cd %GITHUB_WORKSPACE%\tests\rust
-        cargo run --bin denoising
+        cd %GITHUB_WORKSPACE%\rust-package\brainflow
+        cargo run --example=denoising
       shell: cmd
     - name: Downsampling Rust Test
       run: |
-        cd %GITHUB_WORKSPACE%\tests\rust
-        cargo run --bin downsampling
+        cd %GITHUB_WORKSPACE%\rust-package\brainflow
+        cargo run --example=downsampling
       shell: cmd
     - name: Filtering Rust Test
       run: |
-        cd %GITHUB_WORKSPACE%\tests\rust
-        cargo run --bin signal_filtering
+        cd %GITHUB_WORKSPACE%\rust-package\brainflow
+        cargo run --example=signal_filtering
       shell: cmd
     - name: Transforms Rust Test
       run: |
-        cd %GITHUB_WORKSPACE%\tests\rust
-        cargo run --bin transforms
+        cd %GITHUB_WORKSPACE%\rust-package\brainflow
+        cargo run --example=transforms
       shell: cmd
     - name: Serialization Python Test
       run: python %GITHUB_WORKSPACE%\tests\python\serialization.py
