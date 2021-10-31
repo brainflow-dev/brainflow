@@ -256,7 +256,7 @@ void IronBCI::read_thread ()
             }
             for (size_t i = 0; i < eeg_channels.size (); i++)
             {
-                int offset = 3 * i;
+                int offset = 3 * i + 3;
                 uint32_t voltage = (buf[offset] << 8) | buf[offset + 1];
                 voltage = (voltage << 8) | buf[offset + 2];
                 uint32_t voltage_test = voltage | data_test;

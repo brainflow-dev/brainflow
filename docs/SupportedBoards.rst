@@ -667,6 +667,66 @@ Supported platforms:
 - Linux, compilation from source code probably will be needed
 - Devices like Raspberry Pi
 
+Muse 2
+~~~~~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/51250482419_32ce8454dd.jpg
+    :width: 350px
+    :height: 350px
+
+`Muse Website <https://choosemuse.com/>`_
+
+.. compound::
+
+    On Linux systems you may need to install libdbus and we recommend to compile BrainFlow from the source code ::
+
+        sudo apt-get install libdbus-1-dev # for ubuntu
+        sudo yum install dbus-devel # for centos
+        python3 tools/build.py --ble # to compile
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 38
+- optional: MAC address
+- optional: serial number(device name)
+
+Supported platforms:
+
+- Windows 10.0.19041.0+
+- MacOS 10.15+
+- Linux, compilation from source code can be needed
+- Devices like Raspberry Pi
+
+Muse S
+~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/51249005962_026502fee0.jpg
+    :width: 350px
+    :height: 350px
+
+`Muse Website <https://choosemuse.com/>`_
+
+.. compound::
+
+    On Linux systems you may need to install libdbus and we recommend to compile BrainFlow from the source code ::
+
+        sudo apt-get install libdbus-1-dev # for ubuntu
+        sudo yum install dbus-devel # for centos
+        python3 tools/build.py --ble # to compile
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 39
+- optional: MAC address
+- optional: serial number(device name)
+
+Supported platforms:
+
+- Windows 10.0.19041.0+
+- MacOS 10.15+
+- Linux, compilation from source code can be needed
+- Devices like Raspberry Pi
+
 Ant Neuro
 ----------
 
