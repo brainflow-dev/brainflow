@@ -150,7 +150,7 @@ jobs:
     - name: Synthetic Windows Rust Test
       run: |
         cd %GITHUB_WORKSPACE%\rust-package\brainflow
-        cargo run --example=brainflow_get_data
+        cargo run --example=get_data
       shell: cmd
     - name: Synthetic Windows Rust Test Markers
       run: |
