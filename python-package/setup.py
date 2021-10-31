@@ -62,7 +62,11 @@ setup(
             os.path.join('lib', 'BrainFlowBluetooth.dll'),
             os.path.join('lib', 'BrainFlowBluetooth32.dll'),
             os.path.join('lib', 'libBrainFlowBluetooth.so'),
-            os.path.join('lib', 'libBrainFlowBluetooth.dylib')
+            os.path.join('lib', 'libBrainFlowBluetooth.dylib'),
+            os.path.join('lib', 'simpleble-c.dll'),
+            os.path.join('lib', 'simpleble-c32.dll'),
+            os.path.join('lib', 'libsimpleble-c.so'),
+            os.path.join('lib', 'libsimpleble-c.dylib')
         ]
     },
     zip_safe=True,

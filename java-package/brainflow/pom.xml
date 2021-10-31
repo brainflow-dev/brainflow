@@ -80,6 +80,9 @@
           <include>BrainFlowBluetooth.dll</include>
           <include>libBrainFlowBluetooth.so</include>
           <include>libBrainFlowBluetooth.dylib</include>
+          <include>simpleble-c.dll</include>
+          <include>libsimpleble-c.so</include>
+          <include>libsimpleble-c.dylib</include>
         </includes>
       </resource>
     </resources>

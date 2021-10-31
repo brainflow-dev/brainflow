@@ -74,6 +74,8 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse_2_bled.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ant_neuro/ant_neuro.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/enophone/enophone.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/ble_lib_board.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse.cpp
 )
 
 include (${CMAKE_HOME_DIRECTORY}/src/board_controller/ant_neuro/build.cmake)
@@ -89,6 +91,10 @@ endif (BUILD_OYMOTION_SDK)
 if (BUILD_BLUETOOTH)
     include (${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/build.cmake)
 endif (BUILD_BLUETOOTH)
+
+if (BUILD_BLE)
+    add_subdirectory (${CMAKE_HOME_DIRECTORY}/third_party/SimpleBLE)
+endif (BUILD_BLE)
 
 add_library (
     ${BOARD_CONTROLLER_NAME} SHARED
@@ -121,6 +127,7 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/third_party/ant_neuro
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ant_neuro/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/enophone/inc
+    ${CMAKE_HOME_DIRECTORY}/third_party/SimpleBLE/include
 )
 
 target_compile_definitions(${BOARD_CONTROLLER_NAME} PRIVATE -DNOMINMAX)
