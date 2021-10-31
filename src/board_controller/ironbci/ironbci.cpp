@@ -3,19 +3,15 @@
 
 #include "custom_cast.h"
 #include "ironbci.h"
-#include "serial.h"
+#include "math.h"
 #include "timestamp.h"
 
-constexpr int IronBCI::ads_gain;
-constexpr int IronBCI::start_byte;
-constexpr int IronBCI::stop_byte;
-const std::string IronBCI::start_command = "b";
-const std::string IronBCI::stop_command = "s";
 
-
+#ifdef USE_PERIPHERY
 IronBCI::IronBCI (struct BrainFlowInputParams params) : Board ((int)BoardIds::IRONBCI_BOARD, params)
 {
-    serial = NULL;
+    spi = NULL;
+    gpio_in = NULL;
     keep_alive = false;
     initialized = false;
 }
@@ -24,32 +20,6 @@ IronBCI::~IronBCI ()
 {
     skip_logs = true;
     release_session ();
-}
-
-int IronBCI::config_board (std::string config, std::string &response)
-{
-    if (!initialized)
-    {
-        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
-    }
-    return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
-}
-
-int IronBCI::send_to_board (const char *msg)
-{
-    if ((!initialized) || (serial == NULL))
-    {
-        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
-    }
-    int lenght = (int)strlen (msg);
-    safe_logger (spdlog::level::debug, "Sending {} to the board", msg);
-    int res = serial->send_to_serial_port ((const void *)msg, lenght);
-    if (res != lenght)
-    {
-        return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
-    }
-
-    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int IronBCI::prepare_session ()
@@ -61,42 +31,37 @@ int IronBCI::prepare_session ()
     }
     if (params.serial_port.empty ())
     {
-        safe_logger (spdlog::level::err, "Serial port is empty");
-        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+        params.serial_port = "/dev/spidev0.0";
+        safe_logger (spdlog::level::info, "Use serial port {}", params.serial_port.c_str ());
     }
 
-    serial = Serial::create (params.serial_port.c_str (), this);
-
-    safe_logger (spdlog::level::info, "Openning port {}", serial->get_port_name ());
-    int res = serial->open_serial_port ();
-    if (res < 0)
+    gpio_in = gpio_new ();
+    if (gpio_open (gpio_in, "/dev/gpiochip0", 26, GPIO_DIR_IN) < 0)
     {
-        safe_logger (spdlog::level::err, "Open port error {}", res);
-        delete serial;
-        serial = NULL;
+        safe_logger (spdlog::level::err, "failed to open gpio");
+        gpio_free (gpio_in);
+        gpio_in = NULL;
         return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
     }
-
-    res = serial->set_serial_port_settings ();
-    if (res < 0)
+    spi = spi_new ();
+    if (spi_open_advanced (spi, params.serial_port.c_str (), 0b01, 1000000, MSB_FIRST, 8, 1) < 0)
     {
-        safe_logger (spdlog::level::err, "Unable to set port settings, res is {}", res);
-        delete serial;
-        serial = NULL;
-        return (int)BrainFlowExitCodes::SET_PORT_ERROR;
+        safe_logger (spdlog::level::err, "failed to open spi dev");
+        spi_free (spi);
+        spi = NULL;
+        gpio_free (gpio_in);
+        gpio_in = NULL;
+        return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
     }
-
-    // dont set custom baudrate for unix emulator
-    if (params.serial_port.find ("/dev/pts") == std::string::npos)
+    int gpio_res = gpio_set_edge (gpio_in, GPIO_EDGE_FALLING);
+    if (gpio_res != 0)
     {
-        res = serial->set_custom_baudrate (256000);
-        if (res < 0)
-        {
-            safe_logger (spdlog::level::err, "Unable to set custom baud rate, res is {}", res);
-            delete serial;
-            serial = NULL;
-            return (int)BrainFlowExitCodes::SET_PORT_ERROR;
-        }
+        safe_logger (spdlog::level::err, "failed to set gpio edge event handler: {}", gpio_res);
+        spi_free (spi);
+        spi = NULL;
+        gpio_free (gpio_in);
+        gpio_in = NULL;
+        return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
     }
 
     initialized = true;
@@ -116,12 +81,69 @@ int IronBCI::start_stream (int buffer_size, const char *streamer_params)
         return res;
     }
 
-    // start streaming
-    int send_res = send_to_board (IronBCI::start_command.c_str ());
-    if (send_res != (int)BrainFlowExitCodes::STATUS_OK)
+    int spi_res = write_reg (0x14, 0x80); // led
+    if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        return send_res;
+        spi_res = write_reg (0x05, 0x00); // ch1
     }
+    if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        spi_res = write_reg (0x06, 0x0); // ch2
+    }
+    if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        spi_res = write_reg (0x07, 0x00); // ch3
+    }
+    if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        spi_res = write_reg (0x08, 0x00); // ch4
+    }
+    if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        spi_res = write_reg (0x09, 0x00); // ch5
+    }
+    if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        spi_res = write_reg (0x0A, 0x00); // ch6
+    }
+    if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        spi_res = write_reg (0x0B, 0x00); // ch7
+    }
+    if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        spi_res = write_reg (0x0C, 0x00); // ch8
+    }
+    if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        spi_res = write_reg (0x15, 0x20); // mics
+    }
+    if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        spi_res = write_reg (0x01, 0x96); // reg1
+    }
+    if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        spi_res = write_reg (0x02, 0xD4); // reg2
+    }
+    if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        spi_res = write_reg (0x03, 0xE0); // reg3
+    }
+    if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        spi_res = send_command (0x10); // sdatc
+    }
+    if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        spi_res = send_command (0x08); // start
+    }
+
+    if (spi_res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        return spi_res;
+    }
+
     keep_alive = true;
     streaming_thread = std::thread ([this] { this->read_thread (); });
     return (int)BrainFlowExitCodes::STATUS_OK;
@@ -136,7 +158,7 @@ int IronBCI::stop_stream ()
         {
             streaming_thread.join ();
         }
-        return send_to_board (IronBCI::stop_command.c_str ());
+        return send_command (0x0A); // stop
     }
     else
     {
@@ -155,34 +177,35 @@ int IronBCI::release_session ()
         free_packages ();
         initialized = false;
     }
-    if (serial)
+    if (spi)
     {
-        serial->close_serial_port ();
-        delete serial;
-        serial = NULL;
+        spi_close (spi);
+        spi_free (spi);
+        spi = NULL;
     }
+    if (gpio_in)
+    {
+        gpio_close (gpio_in);
+        gpio_free (gpio_in);
+        gpio_in = NULL;
+    }
+
     return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int IronBCI::config_board (std::string config, std::string &response)
+{
+    if (!initialized)
+    {
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+    }
+    return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
 void IronBCI::read_thread ()
 {
-    // format for data package, 27 bytes total
-    /*
-        Byte 0: 0xA0
-        Byte 1: Sample Number
-        Bytes 2-4: Data value for EEG channel 1
-        Bytes 5-7: Data value for EEG channel 2
-        Bytes 8-10: Data value for EEG channel 3
-        Bytes 11-13: Data value for EEG channel 4
-        Bytes 14-16: Data value for EEG channel 5
-        Bytes 17-19: Data value for EEG channel 6
-        Bytes 20-22: Data value for EEG channel 6
-        Bytes 23-25: Data value for EEG channel 8
-        Byte 26: 0xC0
-    */
-    int res;
-    unsigned char b[26];
-    float eeg_scale = 4.5 / float ((pow (2, 23) - 1)) / IronBCI::ads_gain * 1000000.;
+    uint8_t buf[27] = {0};
+    uint8_t zero27[27] = {0};
     int num_rows = board_descr["num_rows"];
     double *package = new double[num_rows];
     for (int i = 0; i < num_rows; i++)
@@ -192,50 +215,127 @@ void IronBCI::read_thread ()
 
     std::vector<int> eeg_channels = board_descr["eeg_channels"];
 
+    double eeg_scale = 4.5 / float ((pow (2, 23) - 1)) / 8 * 1000000.;
+    double timestamp = 0;
+    int counter = 0;
+    int timeout_ms = 1000;
+    uint32_t data_test = 0x7FFFFF;
+    uint32_t data_check = 0xFFFFFF;
+
     while (keep_alive)
     {
-        // check start byte
-        res = serial->read_from_serial_port (b, 1);
-        if (res != 1)
+        int gpio_res = gpio_poll (gpio_in, timeout_ms);
+        timestamp = get_timestamp ();
+        if (gpio_res == 0)
         {
-            safe_logger (spdlog::level::debug, "Unable to read 1 byte");
-            continue;
+            safe_logger (spdlog::level::trace, "no gpio event in {} ms", timeout_ms);
         }
-        if (b[0] != IronBCI::start_byte)
+        else if (gpio_res < 0)
         {
-            continue;
+            safe_logger (spdlog::level::warn, "error in gpio_poll: {}", gpio_res);
         }
+        else
+        {
+            gpio_edge_t edge = GPIO_EDGE_NONE;
+            gpio_res = gpio_read_event (gpio_in, &edge, NULL);
+            if (gpio_res != 0)
+            {
+                safe_logger (spdlog::level::warn, "failed to get gpio event: {}", gpio_res);
+                continue;
+            }
+            if (edge != GPIO_EDGE_FALLING)
+            {
+                safe_logger (spdlog::level::warn, "unexpected gpio event");
+                continue;
+            }
+            int spi_res = spi_transfer (spi, zero27, buf, 27);
+            if (spi_res != 0)
+            {
+                safe_logger (spdlog::level::warn, "failed to read from spi: {}", spi_res);
+                continue;
+            }
+            for (size_t i = 0; i < eeg_channels.size (); i++)
+            {
+                int offset = 3 * i + 3;
+                uint32_t voltage = (buf[offset] << 8) | buf[offset + 1];
+                voltage = (voltage << 8) | buf[offset + 2];
+                uint32_t voltage_test = voltage | data_test;
+                if (voltage_test == data_check)
+                {
+                    voltage = 16777214 - voltage;
+                }
 
-        // read remaining 26 bytes
-        int remaining_bytes = 26;
-        int pos = 0;
-        while ((remaining_bytes > 0) && (keep_alive))
-        {
-            res = serial->read_from_serial_port (b + pos, remaining_bytes);
-            remaining_bytes -= res;
-            pos += res;
+                package[eeg_channels[i]] = 0.27 * voltage;
+            }
+            package[board_descr["timestamp_channel"].get<int> ()] = timestamp;
+            package[board_descr["package_num_channel"].get<int> ()] = counter++;
+            push_package (package);
         }
-        if (!keep_alive)
-        {
-            break;
-        }
-        // check stop byte
-        if (b[25] != IronBCI::stop_byte)
-        {
-            safe_logger (spdlog::level::warn, "Wrong end byte {}", b[25]);
-            continue;
-        }
-
-        // package num
-        package[board_descr["package_num_channel"].get<int> ()] = (double)b[0];
-        // eeg
-        for (unsigned int i = 0; i < eeg_channels.size (); i++)
-        {
-            package[eeg_channels[i]] = (double)eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
-        }
-
-        package[board_descr["timestamp_channel"].get<int> ()] = get_timestamp ();
-        push_package (package);
     }
     delete[] package;
 }
+
+int IronBCI::write_reg (uint8_t reg_address, uint8_t val)
+{
+    uint8_t zero3[3] = {0, 0, 0};
+    uint8_t reg_address_shift = 0x40 | reg_address;
+    uint8_t write[3] = {reg_address_shift, 0x00, val};
+    int spi_res = spi_transfer (spi, write, zero3, 3);
+    if (spi_res < 0)
+    {
+        safe_logger (
+            spdlog::level::err, "failed to write reg {}, error: {}", (int)reg_address, spi_res);
+        return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
+    }
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int IronBCI::send_command (uint8_t command)
+{
+    uint8_t zero = 0;
+    int spi_res = spi_transfer (spi, &command, &zero, 1);
+    if (spi_res < 0)
+    {
+        safe_logger (
+            spdlog::level::err, "failed to write command {}, error: {}", (int)command, spi_res);
+        return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
+    }
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+#else
+
+IronBCI::IronBCI (struct BrainFlowInputParams params) : Board ((int)BoardIds::IRONBCI_BOARD, params)
+{
+}
+
+IronBCI::~IronBCI ()
+{
+}
+
+int IronBCI::prepare_session ()
+{
+    return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
+}
+
+int IronBCI::config_board (std::string config, std::string &response)
+{
+    return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
+}
+
+int IronBCI::release_session ()
+{
+    return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
+}
+
+int IronBCI::stop_stream ()
+{
+    return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
+}
+
+int IronBCI::start_stream (int buffer_size, const char *streamer_params)
+{
+    return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
+}
+
+#endif

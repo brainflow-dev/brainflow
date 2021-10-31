@@ -4,9 +4,7 @@ use std::{
 };
 
 use crate::{
-    brainflow_model_params::BrainFlowModelParams,
-    check_brainflow_exit_code,
-    log_levels::LogLevels, Result
+    brainflow_model_params::BrainFlowModelParams, check_brainflow_exit_code, LogLevels, Result,
 };
 
 use crate::ffi::ml_model;

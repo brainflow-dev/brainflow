@@ -5,10 +5,8 @@ use std::{
 };
 
 use crate::{
-    brainflow_input_params::BrainFlowInputParams,
-    check_brainflow_exit_code, 
-    board_ids::BoardIds,
-    log_levels::LogLevels, Result,
+    brainflow_input_params::BrainFlowInputParams, check_brainflow_exit_code, BoardIds, LogLevels,
+    Result,
 };
 
 use crate::ffi::board_controller;
@@ -29,7 +27,9 @@ impl BoardShim {
     pub fn new(board_id: c_int, input_params: BrainFlowInputParams) -> Result<Self> {
         let json_input_params = serde_json::to_string(&input_params)?;
         let json_input_params = CString::new(json_input_params)?;
-        let master_board_id = if board_id == BoardIds::StreamingBoard as c_int || board_id == BoardIds::PlaybackFileBoard as c_int {
+        let master_board_id = if board_id == BoardIds::StreamingBoard as c_int
+            || board_id == BoardIds::PlaybackFileBoard as c_int
+        {
             input_params.other_info().parse::<i32>().unwrap()
         } else {
             board_id
@@ -88,10 +88,7 @@ impl BoardShim {
     /// Stop streaming data.
     pub fn stop_stream(&self) -> Result<()> {
         let res = unsafe {
-            board_controller::stop_stream(
-                self.board_id,
-                self.json_brainflow_input_params.as_ptr(),
-            )
+            board_controller::stop_stream(self.board_id, self.json_brainflow_input_params.as_ptr())
         };
         Ok(check_brainflow_exit_code(res)?)
     }

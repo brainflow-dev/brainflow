@@ -5,33 +5,6 @@ edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[[bin]]
-name = "brainflow_get_data"
-path = "src/brainflow_get_data/main.rs"
-
-[[bin]]
-name = "signal_filtering"
-path = "src/signal_filtering/main.rs"
-
-[[bin]]
-name = "band_power"
-path = "src/band_power/main.rs"
-
-[[bin]]
-name = "denoising"
-path = "src/denoising/main.rs"
-
-[[bin]]
-name = "markers"
-path = "src/markers/main.rs"
-
-[[bin]]
-name = "transforms"
-path = "src/transforms/main.rs"
-
-[[bin]]
-name = "downsampling"
-path = "src/downsampling/main.rs"
-
-[dependencies]
+[dev-dependencies]
+approx = "0.5.0"
 brainflow = { path = "../../rust-package/brainflow" }
