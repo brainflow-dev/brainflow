@@ -6,10 +6,10 @@ Data Format Description
 Units of Measure
 ------------------
 
-For EEG, EMG, etc BrainFlow returns uV.
+For EXG channels BrainFlow returns uV wherever possible. 
 
-For timestamps BrainFlow uses UNIX timestamp, this count starts at the Unix Epoch on January 1st, 1970 at UTC.
-Precision is microsecond, but for some boards timestamps are generated on PC side as soon as package was received.
+For timestamps BrainFlow uses UNIX timestamp, this counter starts at the Unix Epoch on January 1st, 1970 at UTC.
+Precision is microsecond, but for some boards timestamps are generated on PC side as soon as packages were received.
 
 You can compare BrainFlow's timestamp with time returned by code like this:
 
@@ -46,49 +46,14 @@ Exact format for this array is board specific. To keep the API uniform, we have 
    get_timestamp_channel (board_id)
    # and so on
 
-**For some boards like OpenBCI Cyton, OpenBCI Ganglion, etc we cannot separate EMG, EEG, EDA and ECG and in this case we return exactly the same array for all these methods but for some devices EMG and EEG channels will differ.**
+**For some boards like OpenBCI Cyton, OpenBCI Ganglion, etc we cannot separate EMG, EEG, EDA and ECG and in this case we return exactly the same array for all these methods but for some devices EMG and EEG channels will be different.**
 
 **If board has no such data these methods throw an exception with UNSUPPORTED_BOARD_ERROR exit code.**
 
-Using the methods above, you can write completely board agnostic code and switch boards using a single parameter! Even if you have only one board using these methods you can easily switch to Synthetic Board or Streaming Board.
+Using the methods above, you can write completely board agnostic code and switch boards using a single parameter! Even if you have only one board using these methods you can easily switch to dummy BrainFlow boards and it will help you during developemnent and testing.
 
-OpenBCI Specific Data
-------------------------
+Other Channels
+----------------
 
-Special Channels for OpenBCI Cyton Based Boards
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Some boards have pretty unique data types and we do not have dedicated methods for them, for such devices we return data in :code:`get_other_channels()`. Please refer to the source code to get more info about it.
 
-`Cyton-based boards from OpenBCI <https://docs.openbci.com/docs/02Cyton/CytonLanding>`_ support different output formats, described `here <https://docs.openbci.com/docs/02Cyton/CytonDataFormat#firmware-version-200-fall-2016-to-now-1>`_.
-
-For Cyton based boards, we add Cyton End byte to a first channel from:
-
-.. code-block:: python
-
-   get_other_channels (board_id)
-
-If Cyton End byte is equal to 0xC0 we add accel data. To get rows which contain accel data use:
-
-.. code-block:: python
-
-   get_accel_channels (board_id)
-
-If Cyton End byte is equal to 0xC1 we add analog data. To get rows which contain analog data use:
-
-.. code-block:: python
-
-   get_analog_channels (board_id)
-
-For analog data, we return int32 values. But since from low level API, we return double array, these values are converted to double without any changes.
-
-Also we add raw unprocessed bytes to the second and next channels returned by:
-
-.. code-block:: python
-
-   get_other_channels (board_id)
-
-If Cyton End Byte is outside `this range <https://docs.openbci.com/docs/02Cyton/CytonDataFormat#firmware-version-200-fall-2016-to-now-1>`_, we drop the entire package.
-
-Check this example for details:
-
-.. literalinclude:: ../tests/python/cyton_analog_mode_other_data.py
-   :language: py
