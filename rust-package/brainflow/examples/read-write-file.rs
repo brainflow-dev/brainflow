@@ -26,7 +26,7 @@ fn main() {
     let filename = tmp_dir.to_str().unwrap();
 
     dbg!(&data);
-    data_filter::write_file(data, filename, "w").unwrap();
+    data_filter::write_file(&data, filename, "w").unwrap();
     let read_data = data_filter::read_file(filename).unwrap();
     dbg!(read_data);
 }

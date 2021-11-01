@@ -589,7 +589,7 @@ pub fn read_file<S: AsRef<str>>(file_name: S) -> Result<Array2<f64>> {
 }
 
 /// Write data to file, in file data will be transposed.
-pub fn write_file<S>(data: Array2<f64>, file_name: S, file_mode: S) -> Result<()>
+pub fn write_file<S>(data: &Array2<f64>, file_name: S, file_mode: S) -> Result<()>
 where
     S: AsRef<str>,
 {
@@ -597,7 +597,8 @@ where
     let file_mode = CString::new(file_mode.as_ref())?;
     let shape = data.shape();
     let (cols, rows) = (shape[0], shape[1]);
-    let mut data: Vec<&f64> = data.iter().collect();
+    let mut data: Vec<f64> = data.into_iter().cloned().collect();
+
     let res = unsafe {
         data_handler::write_file(
             data.as_mut_ptr() as *mut c_double,

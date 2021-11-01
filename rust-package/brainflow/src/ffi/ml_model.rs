@@ -2,6 +2,7 @@
 
 #![allow(non_camel_case_types)]
 
+
 extern "C" {
     pub fn prepare(json_params: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
 }
