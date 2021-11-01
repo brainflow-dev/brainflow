@@ -9,7 +9,7 @@ subtitle: Third Party Contributors to BrainFlow Project
 
 <div style="text-align: center">
     <a href="https://openbci.com" title="OpenBCI" target="_blank" align="center">
-        <img width="400" height="89" src="https://live.staticflickr.com/65535/49739828092_fa2f4d78c1_h.jpg">
+        <img width="400" height="89" src="https://live.staticflickr.com/65535/51618456586_7b533781e2.jpg">
     </a>
 </div>
 
