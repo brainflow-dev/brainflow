@@ -4,10 +4,9 @@ use std::{
 };
 
 #[cfg(feature = "generate_binding")]
-use std::{
-    fs::File,
-    io::prelude::{Read, Write},
-};
+use convert_case::{Case, Casing};
+#[cfg(feature = "generate_binding")]
+use std::fs::File;
 
 #[cfg(feature = "generate_binding")]
 fn generate_board_controller_binding() {
@@ -87,30 +86,36 @@ fn generate_ml_model_binding() {
 
 #[cfg(feature = "generate_binding")]
 fn generate_constants_binding() {
-    const ALLOW_UNCONVENTIONALS: &'static str = "#![allow(non_camel_case_types)]\n";
+    use std::io::Write;
 
     let header_path = PathBuf::from("inc");
     let header_path = header_path.display();
 
     let bindings = bindgen::Builder::default()
         .header(format!("{}/brainflow_constants.h", &header_path))
-        .raw_line(ALLOW_UNCONVENTIONALS)
         .clang_arg("-std=c++11")
         .clang_arg("-x")
         .clang_arg("c++")
         .default_enum_style(bindgen::EnumVariation::Rust {
             non_exhaustive: false,
         })
-        .rustified_non_exhaustive_enum("BrainFlowExitCodes")
-        .rustified_non_exhaustive_enum("BoardIds")
         .generate()
         .expect("Unable to generate bindings");
 
-    let binding_target_path = PathBuf::new().join("src").join("ffi").join("constants.rs");
+    let bindings = bindings.to_string();
 
-    bindings
-        .write_to_file(binding_target_path)
-        .expect("Could not write binding to `src/ffi/constants.rs`");
+    let re = regex::Regex::new(r"\b[A-Z0-9]+(_[A-Z0-9]+)*\b").unwrap();
+    let bindings = re.replace_all(&bindings, |s: &regex::Captures| {
+        s[0].to_string().to_case(Case::Pascal)
+    });
+
+    let bindings = bindings.replace("const First", "const FIRST");
+    let bindings = bindings.replace("const Last", "const LAST");
+
+    let binding_target_path = PathBuf::new().join("src").join("ffi").join("constants.rs");
+    let mut file = File::create(&binding_target_path).unwrap();
+
+    file.write_all(bindings.as_bytes()).unwrap();
 }
 
 #[cfg(feature = "generate_binding")]

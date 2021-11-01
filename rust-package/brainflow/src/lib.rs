@@ -1,24 +1,48 @@
-extern crate num;
+#[cfg(test)]
 #[macro_use]
+extern crate approx;
+
+extern crate num;
 extern crate num_derive;
 
-use error::{BrainFlowError, Error};
+use error::Error;
 
-mod board_id;
 /// The primary interface to all boards.
 pub mod board_shim;
 /// Input parameters for [board_shim::BoardShim].
 pub mod brainflow_input_params;
+pub mod error;
 
+/// Input parameters for [ml_model::MLModel].
+pub mod brainflow_model_params;
 /// Methods for signal processig.
 pub mod data_filter;
-mod error;
 mod ffi;
 /// Used to calculate derivative metrics from raw data.
 pub mod ml_model;
 
+/// Store all supported BrainFlow Errors.
+pub use error::BrainFlowError;
+/// Enum to store all supported Agg Operations.
+pub use ffi::constants::AggOperations;
 /// Enum to store all supported Board Ids.
-pub use board_id::BoardId;
+pub use ffi::constants::BoardIds;
+/// Enum to store all supported BrainFlow Classifiers.
+pub use ffi::constants::BrainFlowClassifiers;
+/// Enum to store all Brainflow Exit Codes.
+pub use ffi::constants::BrainFlowExitCodes;
+/// Enum to store all supported Detrend Operations.
+pub use ffi::constants::DetrendOperations;
+/// Enum to store all supported Filter Types.
+pub use ffi::constants::FilterTypes;
+/// Enum to store all supported Ip Protocol Types.
+pub use ffi::constants::IpProtocolType;
+/// Enum to store all supported Log Levels.
+pub use ffi::constants::LogLevels;
+/// Enum to store all supported Noise Types.
+pub use ffi::constants::NoiseTypes;
+/// Enum to store all supported Window Functions.
+pub use ffi::constants::WindowFunctions;
 
 type BrainFlowExitCode = i32;
 

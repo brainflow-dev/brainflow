@@ -1,40 +1,37 @@
 use getset::Getters;
-use ndarray::{Array1, Array2, ArrayBase, AsArray, Ix1, Ix2, Ix3};
+use ndarray::{
+    Array1, Array2, ArrayBase, ArrayView2, AsArray, Ix1, Ix2, Ix3, SliceInfo, SliceInfoElem,
+};
 use num::Complex;
 use num_complex::Complex64;
 use std::os::raw::c_int;
 use std::{ffi::CString, os::raw::c_double};
 
 use crate::error::{BrainFlowError, Error};
-use crate::ffi::{
-    constants::{
-        AggOperations, DetrendOperations, FilterTypes, LogLevels, NoiseTypes, WindowFunctions,
-    },
-    data_handler,
-};
-use crate::{check_brainflow_exit_code, Result};
+use crate::ffi::data_handler;
+use crate::{check_brainflow_exit_code, LogLevels, Result};
 
 /// Set BrainFlow data logger log level.
 /// Use it only if you want to write your own messages to BrainFlow logger.
 /// Otherwise use [enable_data_logger], [enable_dev_data_logger] or [disable_data_logger].
-pub fn set_log_level(log_level: LogLevels) -> Result<()> {
-    let res = unsafe { data_handler::set_log_level_data_handler(log_level as c_int) };
+pub fn set_log_level(log_level: c_int) -> Result<()> {
+    let res = unsafe { data_handler::set_log_level_data_handler(log_level) };
     Ok(check_brainflow_exit_code(res)?)
 }
 
 /// Enable data logger with level INFO, uses stderr for log messages by default
 pub fn enable_data_logger() -> Result<()> {
-    set_log_level(LogLevels::LEVEL_INFO)
+    set_log_level(LogLevels::LevelInfo as c_int)
 }
 
 /// Disable data logger.
 pub fn disable_data_logger() -> Result<()> {
-    set_log_level(LogLevels::LEVEL_OFF)
+    set_log_level(LogLevels::LevelOff as c_int)
 }
 
 /// Enable data logger with level TRACE, uses stderr for log messages by default.
 pub fn enable_dev_data_logger() -> Result<()> {
-    set_log_level(LogLevels::LEVEL_TRACE)
+    set_log_level(LogLevels::LevelTrace as c_int)
 }
 
 /// Redirect data logger from stderr to file, can be called any time.
@@ -51,7 +48,7 @@ pub fn perform_lowpass(
     sampling_rate: usize,
     cutoff: f64,
     order: usize,
-    filter_type: FilterTypes,
+    filter_type: c_int,
     ripple: f64,
 ) -> Result<()> {
     let res = unsafe {
@@ -61,7 +58,7 @@ pub fn perform_lowpass(
             sampling_rate as c_int,
             cutoff as c_double,
             order as c_int,
-            filter_type as c_int,
+            filter_type,
             ripple as c_double,
         )
     };
@@ -75,7 +72,7 @@ pub fn perform_highpass(
     sampling_rate: usize,
     cutoff: f64,
     order: usize,
-    filter_type: FilterTypes,
+    filter_type: c_int,
     ripple: f64,
 ) -> Result<()> {
     let res = unsafe {
@@ -85,7 +82,7 @@ pub fn perform_highpass(
             sampling_rate as c_int,
             cutoff as c_double,
             order as c_int,
-            filter_type as c_int,
+            filter_type,
             ripple as c_double,
         )
     };
@@ -100,7 +97,7 @@ pub fn perform_bandpass(
     center_freq: f64,
     band_width: f64,
     order: usize,
-    filter_type: FilterTypes,
+    filter_type: c_int,
     ripple: f64,
 ) -> Result<()> {
     let res = unsafe {
@@ -111,7 +108,7 @@ pub fn perform_bandpass(
             center_freq as c_double,
             band_width as c_double,
             order as c_int,
-            filter_type as c_int,
+            filter_type,
             ripple as c_double,
         )
     };
@@ -126,7 +123,7 @@ pub fn perform_bandstop(
     center_freq: f64,
     band_width: f64,
     order: usize,
-    filter_type: FilterTypes,
+    filter_type: c_int,
     ripple: f64,
 ) -> Result<()> {
     let res = unsafe {
@@ -137,7 +134,7 @@ pub fn perform_bandstop(
             center_freq as c_double,
             band_width as c_double,
             order as c_int,
-            filter_type as c_int,
+            filter_type,
             ripple as c_double,
         )
     };
@@ -149,14 +146,14 @@ pub fn perform_bandstop(
 pub fn remove_environmental_noise(
     data: &mut [f64],
     sampling_rate: usize,
-    noise_type: NoiseTypes,
+    noise_type: c_int,
 ) -> Result<()> {
     let res = unsafe {
         data_handler::remove_environmental_noise(
             data.as_mut_ptr() as *mut c_double,
             data.len() as c_int,
             sampling_rate as c_int,
-            noise_type as c_int,
+            noise_type,
         )
     };
     check_brainflow_exit_code(res)?;
@@ -164,17 +161,13 @@ pub fn remove_environmental_noise(
 }
 
 /// Smooth data using moving average or median.
-pub fn perform_rolling_filter(
-    data: &mut [f64],
-    period: usize,
-    agg_operation: AggOperations,
-) -> Result<()> {
+pub fn perform_rolling_filter(data: &mut [f64], period: usize, agg_operation: c_int) -> Result<()> {
     let res = unsafe {
         data_handler::perform_rolling_filter(
             data.as_mut_ptr() as *mut c_double,
             data.len() as c_int,
             period as c_int,
-            agg_operation as c_int,
+            agg_operation,
         )
     };
     check_brainflow_exit_code(res)?;
@@ -185,27 +178,29 @@ pub fn perform_rolling_filter(
 pub fn perform_downsampling(
     data: &mut [f64],
     period: usize,
-    agg_operation: AggOperations,
+    agg_operation: c_int,
 ) -> Result<Vec<f64>> {
     if period == 0 {
         return Err(Error::BrainFlowError(BrainFlowError::InvalidArgumentsError));
     }
-    let mut output = Vec::<f64>::with_capacity(data.len() / period as usize);
+    let output_len = data.len() / period as usize;
+    let mut output = Vec::<f64>::with_capacity(output_len);
     let res = unsafe {
         data_handler::perform_downsampling(
             data.as_mut_ptr() as *mut c_double,
             data.len() as c_int,
             period as c_int,
-            agg_operation as c_int,
+            agg_operation,
             output.as_mut_ptr() as *mut c_double,
         )
     };
     check_brainflow_exit_code(res)?;
+    unsafe { output.set_len(output_len) }
     Ok(output)
 }
 
 /// Data struct for output of wavelet transformations.
-#[derive(Getters)]
+#[derive(Getters, Clone)]
 #[getset(get = "pub")]
 pub struct WaveletTransform {
     coefficients: Vec<f64>,
@@ -297,6 +292,7 @@ pub fn perform_inverse_wavelet_transform(wavelet_transform: WaveletTransform) ->
         )
     };
     check_brainflow_exit_code(res)?;
+    unsafe { output.set_len(wavelet_transform.original_data_len) }
     Ok(output)
 }
 
@@ -361,11 +357,11 @@ where
 }
 
 /// Perform data windowing.
-pub fn get_window(window_function: WindowFunctions, window_len: usize) -> Result<Vec<f64>> {
+pub fn get_window(window_function: c_int, window_len: usize) -> Result<Vec<f64>> {
     let mut output = Vec::<f64>::with_capacity(window_len);
     let res = unsafe {
         data_handler::get_window(
-            window_function as c_int,
+            window_function,
             window_len as c_int,
             output.as_mut_ptr() as *mut c_double,
         )
@@ -377,14 +373,14 @@ pub fn get_window(window_function: WindowFunctions, window_len: usize) -> Result
 }
 
 /// Perform direct FFT.
-pub fn perform_fft(data: &mut [f64], window_function: WindowFunctions) -> Result<Vec<Complex64>> {
+pub fn perform_fft(data: &mut [f64], window_function: c_int) -> Result<Vec<Complex64>> {
     let mut output_re = Vec::<f64>::with_capacity(data.len() / 2 + 1);
     let mut output_im = Vec::<f64>::with_capacity(data.len() / 2 + 1);
     let res = unsafe {
         data_handler::perform_fft(
             data.as_mut_ptr() as *mut c_double,
             data.len() as c_int,
-            window_function as c_int,
+            window_function,
             output_re.as_mut_ptr() as *mut c_double,
             output_im.as_mut_ptr() as *mut c_double,
         )
@@ -421,19 +417,19 @@ pub fn perform_ifft(data: &[Complex64], original_data_len: usize) -> Result<Vec<
 }
 
 /// Detrend data.
-pub fn detrend(data: &mut [f64], detrend_operation: DetrendOperations) -> Result<()> {
+pub fn detrend(data: &mut [f64], detrend_operation: c_int) -> Result<()> {
     let res = unsafe {
         data_handler::detrend(
             data.as_mut_ptr() as *mut c_double,
             data.len() as c_int,
-            detrend_operation as c_int,
+            detrend_operation,
         )
     };
     Ok(check_brainflow_exit_code(res)?)
 }
 
 /// Data struct for output of PSD calculations.
-#[derive(Getters)]
+#[derive(Getters, Clone)]
 #[getset(get = "pub")]
 pub struct Psd {
     amplitude: Vec<f64>,
@@ -441,11 +437,7 @@ pub struct Psd {
 }
 
 /// Calculate PSD.
-pub fn get_psd(
-    data: &mut [f64],
-    sampling_rate: usize,
-    window_function: WindowFunctions,
-) -> Result<Psd> {
+pub fn get_psd(data: &mut [f64], sampling_rate: usize, window_function: c_int) -> Result<Psd> {
     let mut amplitude = Vec::<f64>::with_capacity(data.len() / 2 + 1);
     let mut frequency = Vec::<f64>::with_capacity(data.len() / 2 + 1);
     let res = unsafe {
@@ -453,7 +445,7 @@ pub fn get_psd(
             data.as_mut_ptr() as *mut c_double,
             data.len() as c_int,
             sampling_rate as c_int,
-            window_function as c_int,
+            window_function,
             amplitude.as_mut_ptr() as *mut c_double,
             frequency.as_mut_ptr() as *mut c_double,
         )
@@ -474,7 +466,7 @@ pub fn get_psd_welch(
     nfft: usize,
     overlap: usize,
     sampling_rate: usize,
-    window_function: WindowFunctions,
+    window_function: c_int,
 ) -> Result<Psd> {
     let mut amplitude = Vec::<f64>::with_capacity(nfft / 2 + 1);
     let mut frequency = Vec::<f64>::with_capacity(nfft / 2 + 1);
@@ -485,7 +477,7 @@ pub fn get_psd_welch(
             nfft as c_int,
             overlap as c_int,
             sampling_rate as c_int,
-            window_function as c_int,
+            window_function,
             amplitude.as_mut_ptr() as *mut c_double,
             frequency.as_mut_ptr() as *mut c_double,
         )
@@ -503,6 +495,7 @@ pub fn get_psd_welch(
 /// Calculate avg and stddev of BandPowers across all channels, bands are 1-4,4-8,8-13,13-30,30-50.
 pub fn get_avg_band_powers<'a, Data>(
     data: Data,
+    eeg_channels: Vec<usize>,
     sampling_rate: usize,
     apply_filters: bool,
 ) -> Result<(Vec<f64>, Vec<f64>)>
@@ -510,8 +503,19 @@ where
     Data: AsArray<'a, f64, Ix2>,
 {
     let data = data.into();
+    let data: ArrayView2<f64> = unsafe {
+        data.slice(
+            SliceInfo::new(
+                eeg_channels
+                    .into_iter()
+                    .map(|c| SliceInfoElem::Index(c as isize))
+                    .collect::<Vec<SliceInfoElem>>(),
+            )
+            .unwrap(),
+        )
+    };
     let shape = data.shape();
-    let (cols, rows) = (shape[0], shape[1]);
+    let (cols, rows) = (shape[1], shape[0]);
 
     let mut avg_band_powers = Vec::with_capacity(5);
     let mut stddev_band_powers = Vec::with_capacity(5);
@@ -535,9 +539,8 @@ where
 }
 
 /// Calculate band power.
-pub fn get_band_power(psd: Psd, freq_start: f64, freq_end: f64) -> Result<f64> {
+pub fn get_band_power(psd: &mut Psd, freq_start: f64, freq_end: f64) -> Result<f64> {
     let mut band_power = 0.0;
-    let mut psd = psd;
     let res = unsafe {
         data_handler::get_band_power(
             psd.amplitude.as_mut_ptr() as *mut c_double,
@@ -610,4 +613,36 @@ where
         )
     };
     Ok(check_brainflow_exit_code(res)?)
+}
+
+#[cfg(test)]
+mod tests {
+    use std::f64::consts::PI;
+
+    use crate::ffi::constants::WindowFunctions;
+
+    use super::*;
+
+    #[test]
+    fn wavelet_inverse_transform_equals_input_data() {
+        let step = 2.0 * PI / 256.0;
+        let mut data = vec![];
+        let mut value = -PI;
+        for _ in 0..256 {
+            data.push(value.sin());
+            value += step;
+        }
+
+        let fft_data = perform_fft(&mut data, WindowFunctions::BlackmanHarris as i32).unwrap();
+        let restored_fft = perform_ifft(&fft_data, data.len()).unwrap();
+        println!("{:?}", restored_fft);
+
+        println!("{:?}", data);
+        let wavelet_data = perform_wavelet_transform(&mut data, "db3", 3).unwrap();
+        let restored_wavelet = perform_inverse_wavelet_transform(wavelet_data).unwrap();
+        println!("{:?}", restored_wavelet);
+        for (d, r) in data.iter().zip(restored_wavelet) {
+            assert_relative_eq!(*d, r, max_relative = 1e-14);
+        }
+    }
 }
