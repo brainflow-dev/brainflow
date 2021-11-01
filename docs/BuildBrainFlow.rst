@@ -86,21 +86,6 @@ Steps to setup Matlab binding for BrainFlow:
 - Add folders lib and inc to Matlab path
 - If you want to run Matlab scripts from folders different than brainflow/matlab-package/brainflow you need to add it to your Matlab path too
 
-Rust
-----
-
-You should build core module code first using instruction below after that build Rust package.
-
-.. compound::
-
-    Commands to build Rust package ::
-
-        cd rust-package
-        cd brainflow
-        cargo build
-        # for developers, if you want to regenerate binding add --features="generate_binding"
-
-
 Julia
 --------
 

@@ -434,45 +434,6 @@ Julia EEG Metrics
 .. literalinclude:: ../julia-package/brainflow/test/eeg_metrics.jl
    :language: julia
 
-Rust
---------
-
-Rust Get Data from a Board
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. literalinclude:: ../tests/rust/src/brainflow_get_data/main.rs
-   :language: rust
-
-Rust Markers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. literalinclude:: ../tests/rust/src/markers/main.rs
-   :language: rust
-
-Rust Denoising
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. literalinclude:: ../tests/rust/src/denoising/main.rs
-   :language: rust
-
-Rust Downsampling
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. literalinclude:: ../tests/rust/src/downsampling/main.rs
-   :language: rust
-
-Rust Signal Filtering
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. literalinclude:: ../tests/rust/src/signal_filtering/main.rs
-   :language: rust
-
-Rust Transforms
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. literalinclude:: ../tests/rust/src/transforms/main.rs
-   :language: rust
-
 Notebooks
 ------------
 .. toctree::
