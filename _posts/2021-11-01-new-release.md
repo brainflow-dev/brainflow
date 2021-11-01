@@ -1,8 +1,8 @@
 ---
 layout: post
 title: BrainFlow 4.7.0
-subtitle: Rust and Swift packages, update for Muse devices and more.
-image: /img/update.jpg
+subtitle: Built-in BLE library, Muse devices wo dongles
+image: /img/ble.png
 tags: [release]
 author: andrey_parfenov
 ---
@@ -12,7 +12,6 @@ author: andrey_parfenov
 
 * New helper library for BLE devices
 * Muse 2 and Muse S work without dongle
-* Rust binding for BrainFlow
 * Fix `set_log_file` issue for C++ API - [#359](https://github.com/brainflow-dev/brainflow/issues/359)
 * Fix start, stop, repeat issue for BrainBit and Callibri - [#363](https://github.com/brainflow-dev/brainflow/issues/363)
 
@@ -37,9 +36,3 @@ As of right now, we have no plans to remove code for old BrainFlow boards which 
 We've used this library to add support for Muse devices without dongle, old boards(`MUSE_2_BLED_BOARD`  and `MUSE_S_BLED_BOARD`) are still available and still work via BLED112 dongle. Here we've added new BrainFlow boards `MUSE_2_BOARD` and `MUSE_S_BOARD`, they work via native API and require no dongle. 
 
 Feel free to test them and report [issues](https://github.com/brainflow-dev/brainflow/issues) if any!
-
-### New programming languages supported
-
-Thanks [Daniel](https://github.com/trobanga) for implementing Rust package for BrainFlow.
-
-Check [code samples](https://brainflow.readthedocs.io/en/stable/Examples.html) for usage examples. Also, some minor changes in docs, packaging and bug fixes for these languages will be done in upcoming PRs. 
