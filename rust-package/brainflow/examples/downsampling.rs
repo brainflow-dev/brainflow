@@ -4,6 +4,7 @@ use brainflow::{
     board_shim, brainflow_input_params::BrainFlowInputParamsBuilder, data_filter, AggOperations,
     BoardIds,
 };
+use ndarray::s;
 
 fn main() {
     brainflow::board_shim::enable_dev_board_logger().unwrap();
@@ -21,9 +22,11 @@ fn main() {
     let mut data = board.get_board_data(Some(128)).unwrap();
     board.release_session().unwrap();
 
-    println!("{:?}", &data[eeg_channels[0]]);
+    println!("{:?}", data.slice(s![eeg_channels[0], ..]));
     let downsampled = data_filter::perform_downsampling(
-        &mut data[eeg_channels[0]],
+        data.slice_mut(s![eeg_channels[0], ..])
+            .as_slice_mut()
+            .unwrap(),
         3,
         AggOperations::Each as i32,
     )

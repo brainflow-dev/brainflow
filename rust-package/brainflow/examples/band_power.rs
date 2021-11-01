@@ -4,6 +4,7 @@ use brainflow::{
     board_shim, brainflow_input_params::BrainFlowInputParamsBuilder, data_filter, BoardIds,
     DetrendOperations, WindowFunctions,
 };
+use ndarray::s;
 
 fn main() {
     brainflow::board_shim::enable_dev_board_logger().unwrap();
@@ -23,9 +24,17 @@ fn main() {
     let mut data = board.get_board_data(None).unwrap();
     board.release_session().unwrap();
 
-    data_filter::detrend(&mut data[eeg_channels[1]], DetrendOperations::Linear as i32).unwrap();
+    data_filter::detrend(
+        data.slice_mut(s![eeg_channels[1], ..])
+            .as_slice_mut()
+            .unwrap(),
+        DetrendOperations::Linear as i32,
+    )
+    .unwrap();
     let mut psd = data_filter::get_psd_welch(
-        &mut data[eeg_channels[1]],
+        data.slice_mut(s![eeg_channels[1], ..])
+            .as_slice_mut()
+            .unwrap(),
         nfft,
         nfft / 2,
         sampling_rate,

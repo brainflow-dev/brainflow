@@ -1,6 +1,6 @@
 use getset::Getters;
 use ndarray::{
-    Array1, Array2, ArrayBase, ArrayView2, AsArray, Ix1, Ix2, Ix3, SliceInfo, SliceInfoElem,
+    Array1, Array2, Array3, ArrayBase, ArrayView2, AsArray, Ix2, SliceInfo, SliceInfoElem,
 };
 use num::Complex;
 use num_complex::Complex64;
@@ -316,19 +316,16 @@ pub fn perform_wavelet_denoising<S: AsRef<str>>(
 }
 
 /// Calculate filters and the corresponding eigenvalues using the Common Spatial Patterns.
-pub fn get_csp<'a, Data, Labels>(data: Data, labels: Labels) -> Result<(Array2<f64>, Array1<f64>)>
-where
-    Data: AsArray<'a, f64, Ix3>,
-    Labels: AsArray<'a, f64, Ix1>,
-{
-    let data = data.into();
+pub fn get_csp<Labels>(
+    data: Array3<f64>,
+    labels: Array1<f64>,
+) -> Result<(Array2<f64>, Array1<f64>)> {
     let shape = data.shape();
     let n_epochs = shape[0];
     let n_channels = shape[1];
     let n_times = shape[2];
     let data: Vec<&f64> = data.iter().collect();
 
-    let labels = labels.into();
     let labels: Vec<&f64> = labels.iter().collect();
 
     let mut output_filters = Vec::<f64>::with_capacity(n_channels * n_channels);
@@ -592,14 +589,12 @@ pub fn read_file<S: AsRef<str>>(file_name: S) -> Result<Array2<f64>> {
 }
 
 /// Write data to file, in file data will be transposed.
-pub fn write_file<'a, Data, S>(data: Data, file_name: S, file_mode: S) -> Result<()>
+pub fn write_file<S>(data: Array2<f64>, file_name: S, file_mode: S) -> Result<()>
 where
-    Data: AsArray<'a, f64, Ix2>,
     S: AsRef<str>,
 {
     let file_name = CString::new(file_name.as_ref())?;
     let file_mode = CString::new(file_mode.as_ref())?;
-    let data = data.into();
     let shape = data.shape();
     let (cols, rows) = (shape[0], shape[1]);
     let mut data: Vec<&f64> = data.iter().collect();

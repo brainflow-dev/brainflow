@@ -16,6 +16,9 @@ pub enum Error {
 
     #[error("Cannot convert from Utf8")]
     Utf8Error(#[from] Utf8Error),
+
+    #[error("{0}")]
+    ShapeError(#[from] ndarray::ShapeError),
 }
 
 #[derive(Debug, Error)]

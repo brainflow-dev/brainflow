@@ -4,6 +4,7 @@ use brainflow::{
     board_shim, brainflow_input_params::BrainFlowInputParamsBuilder, data_filter, BoardIds,
     WindowFunctions,
 };
+use ndarray::s;
 
 fn main() {
     brainflow::board_shim::enable_dev_board_logger().unwrap();
@@ -23,19 +24,27 @@ fn main() {
     let mut data = board.get_board_data(Some(64)).unwrap();
     board.release_session().unwrap();
 
-    let data_len = data[0].len();
+    let data_len = data.slice(s![0, ..]).len();
 
     let fft_data = data_filter::perform_fft(
-        &mut data[eeg_channels[0]],
+        data.slice_mut(s![eeg_channels[0], ..])
+            .as_slice_mut()
+            .unwrap(),
         WindowFunctions::BlackmanHarris as i32,
     )
     .unwrap();
     let restored_fft = data_filter::perform_ifft(&fft_data, data_len).unwrap();
     println!("{:?}", restored_fft);
 
-    println!("{:?}", data[eeg_channels[1]]);
-    let wavelet_data =
-        data_filter::perform_wavelet_transform(&mut data[eeg_channels[1]], "db3", 3).unwrap();
+    println!("{:?}", data.slice(s![1, ..]));
+    let wavelet_data = data_filter::perform_wavelet_transform(
+        data.slice_mut(s![eeg_channels[1], ..])
+            .as_slice_mut()
+            .unwrap(),
+        "db3",
+        3,
+    )
+    .unwrap();
     let restored_wavelet = data_filter::perform_inverse_wavelet_transform(wavelet_data).unwrap();
     println!("{:?}", restored_wavelet);
 }
