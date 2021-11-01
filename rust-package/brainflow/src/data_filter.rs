@@ -1,6 +1,6 @@
 use getset::Getters;
 use ndarray::{
-    Array1, Array2, Array3, ArrayBase, ArrayView2, AsArray, Ix1, Ix2, Ix3, SliceInfo, SliceInfoElem,
+    Array1, Array2, Array3, ArrayBase, ArrayView2, AsArray, Ix2, SliceInfo, SliceInfoElem,
 };
 use num::Complex;
 use num_complex::Complex64;
@@ -612,13 +612,21 @@ where
 
 #[cfg(test)]
 mod tests {
+    use std::f64::consts::PI;
+
     use crate::ffi::constants::WindowFunctions;
 
     use super::*;
 
     #[test]
     fn wavelet_inverse_transform_equals_input_data() {
-        let mut data = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0];
+        let step = 2.0 * PI / 256.0;
+        let mut data = vec![];
+        let mut value = -PI;
+        for _ in 0..256 {
+            data.push(value.sin());
+            value += step;
+        }
 
         let fft_data = perform_fft(&mut data, WindowFunctions::BlackmanHarris as i32).unwrap();
         let restored_fft = perform_ifft(&fft_data, data.len()).unwrap();

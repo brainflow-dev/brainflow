@@ -141,11 +141,11 @@ A few general rules to keep in mind:
 Julia API Reference
 ---------------------
 
-Julia binding calls C\C++ code as any other binding. Use Julia examples and API reference for other languaes as a starting point.
+Julia binding calls C/C++ code as any other binding. Use Julia examples and API reference for other languaes as a starting point.
 
 Since Julia is not Object-Oriented language, there is no DataFilter class. BoardShim class exists but all BoardShim class methods were moved to BrainFlow package and you need to pass BoardShim object to them.
 
-Like here:
+Example:
 
 .. literalinclude:: ../julia-package/brainflow/test/serialization.jl
    :language: julia
