@@ -16,7 +16,7 @@ def main():
     board.start_stream()
     BoardShim.log_message(LogLevels.LEVEL_INFO.value, 'start sleeping in the main thread')
     time.sleep(10)
-    data = board.get_board_data(20)
+    data = board.get_board_data()
     board.stop_stream()
     board.release_session()
 
