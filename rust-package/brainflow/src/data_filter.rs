@@ -613,7 +613,9 @@ where
 
 #[cfg(test)]
 mod tests {
-    use std::f64::consts::PI;
+    use std::{env, f64::consts::PI, fs};
+
+    use ndarray::array;
 
     use crate::ffi::constants::WindowFunctions;
 
@@ -640,5 +642,21 @@ mod tests {
         for (d, r) in data.iter().zip(restored_wavelet) {
             assert_relative_eq!(*d, r, max_relative = 1e-14);
         }
+    }
+
+    #[test]
+    fn read_written_data_is_same_as_input() {
+        let data = array![[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]];
+
+        let mut tmp_dir = env::temp_dir();
+        tmp_dir.push("brainflow_tests");
+        tmp_dir.push("rust");
+        fs::create_dir_all(&tmp_dir).unwrap();
+        tmp_dir.push("read_written_data_is_same_as_input.csv");
+        let filename = tmp_dir.to_str().unwrap();
+
+        write_file(&data, filename, "w").unwrap();
+        let read_data = read_file(filename).unwrap();
+        assert_eq!(data, read_data);
     }
 }
