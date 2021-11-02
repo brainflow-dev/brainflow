@@ -317,16 +317,16 @@ pub fn perform_wavelet_denoising<S: AsRef<str>>(
 
 /// Calculate filters and the corresponding eigenvalues using the Common Spatial Patterns.
 pub fn get_csp<Labels>(
-    data: Array3<f64>,
-    labels: Array1<f64>,
+    data: &Array3<f64>,
+    labels: &Array1<f64>,
 ) -> Result<(Array2<f64>, Array1<f64>)> {
     let shape = data.shape();
     let n_epochs = shape[0];
     let n_channels = shape[1];
     let n_times = shape[2];
-    let data: Vec<&f64> = data.iter().collect();
+    let data: Vec<f64> = data.into_iter().cloned().collect();
 
-    let labels: Vec<&f64> = labels.iter().collect();
+    let labels: Vec<f64> = labels.into_iter().cloned().collect();
 
     let mut output_filters = Vec::<f64>::with_capacity(n_channels * n_channels);
     let mut output_eigenvalues = Vec::<f64>::with_capacity(n_channels);
@@ -512,7 +512,7 @@ where
         )
     };
     let shape = data.shape();
-    let (cols, rows) = (shape[1], shape[0]);
+    let (rows, cols) = (shape[0], shape[1]);
 
     let mut avg_band_powers = Vec::with_capacity(5);
     let mut stddev_band_powers = Vec::with_capacity(5);
@@ -584,7 +584,7 @@ pub fn read_file<S: AsRef<str>>(file_name: S) -> Result<Array2<f64>> {
 
     unsafe { data.set_len(num_elements as usize) };
     let data = ArrayBase::from_vec(data);
-    let data = data.into_shape((cols as usize, rows as usize)).unwrap();
+    let data = data.into_shape((rows as usize, cols as usize)).unwrap();
     Ok(data)
 }
 
@@ -596,7 +596,7 @@ where
     let file_name = CString::new(file_name.as_ref())?;
     let file_mode = CString::new(file_mode.as_ref())?;
     let shape = data.shape();
-    let (cols, rows) = (shape[0], shape[1]);
+    let (rows, cols) = (shape[0], shape[1]);
     let mut data: Vec<f64> = data.into_iter().cloned().collect();
 
     let res = unsafe {

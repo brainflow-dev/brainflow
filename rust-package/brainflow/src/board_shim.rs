@@ -142,7 +142,7 @@ impl BoardShim {
 
         unsafe { data_buf.set_len(capacity) };
 
-        Ok(Array2::from_shape_vec((num_samples, num_rows), data_buf)?)
+        Ok(Array2::from_shape_vec((num_rows, num_samples), data_buf)?)
     }
 
     /// Get specified amount of data or less if there is not enough data, doesnt remove data from ringbuffer.
@@ -163,7 +163,7 @@ impl BoardShim {
         check_brainflow_exit_code(res)?;
 
         unsafe { data_buf.set_len(len as usize * num_rows) };
-        Ok(Array2::from_shape_vec((num_samples, num_rows), data_buf)?)
+        Ok(Array2::from_shape_vec((num_rows, len as usize), data_buf)?)
     }
 
     /// Use this method carefully and only if you understand what you are doing, do NOT use it to start or stop streaming
