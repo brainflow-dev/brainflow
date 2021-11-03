@@ -117,7 +117,8 @@ enum class DetrendOperations : int
 enum class BrainFlowMetrics : int
 {
     RELAXATION = 0,
-    CONCENTRATION = 1
+    CONCENTRATION = 1,
+    USER_DEFINED = 2
 };
 
 enum class BrainFlowClassifiers : int
@@ -125,7 +126,8 @@ enum class BrainFlowClassifiers : int
     REGRESSION = 0,
     KNN = 1,
     SVM = 2,
-    LDA = 3
+    LDA = 3,
+    DYN_LIB_CLASSIFIER = 4
 };
 
 /// LogLevels enum to store all possible log levels
