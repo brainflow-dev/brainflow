@@ -1,7 +1,7 @@
 name = "BrainFlow"
 uuid = "abd5acf9-0fc9-4730-984d-e27a37823580"
 authors = ["Andrey1994 <a1994ndrey@gmail.com>"]
-version = "4.7.0"
+version = "4.7.1"
 
 [deps]
 JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
