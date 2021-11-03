@@ -1,3 +1,4 @@
+use ndarray::Array2;
 use paste::paste;
 use std::{
     ffi::CString,
@@ -119,7 +120,7 @@ impl BoardShim {
     }
 
     /// Get board data and remove data from ringbuffer
-    pub fn get_board_data(&self, n_data_points: Option<usize>) -> Result<Vec<Vec<f64>>> {
+    pub fn get_board_data(&self, n_data_points: Option<usize>) -> Result<Array2<f64>> {
         let num_rows = get_num_rows(self.board_id)?;
         let num_samples = if let Some(n) = n_data_points {
             self.get_board_data_count()?.min(n)
@@ -140,11 +141,12 @@ impl BoardShim {
         check_brainflow_exit_code(res)?;
 
         unsafe { data_buf.set_len(capacity) };
-        Ok(data_buf.chunks(num_samples).map(|d| d.to_vec()).collect())
+
+        Ok(Array2::from_shape_vec((num_rows, num_samples), data_buf)?)
     }
 
     /// Get specified amount of data or less if there is not enough data, doesnt remove data from ringbuffer.
-    pub fn get_current_board_data(&self, num_samples: usize) -> Result<Vec<Vec<f64>>> {
+    pub fn get_current_board_data(&self, num_samples: usize) -> Result<Array2<f64>> {
         let num_rows = get_num_rows(self.board_id)?;
         let capacity = num_samples * num_rows;
         let mut len = 0;
@@ -161,7 +163,7 @@ impl BoardShim {
         check_brainflow_exit_code(res)?;
 
         unsafe { data_buf.set_len(len as usize * num_rows) };
-        Ok(data_buf.chunks(num_samples).map(|d| d.to_vec()).collect())
+        Ok(Array2::from_shape_vec((num_rows, len as usize), data_buf)?)
     }
 
     /// Use this method carefully and only if you understand what you are doing, do NOT use it to start or stop streaming
