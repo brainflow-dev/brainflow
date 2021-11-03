@@ -19,6 +19,5 @@ fn main() {
     let data = board.get_board_data(Some(10)).unwrap();
     board.release_session().unwrap();
 
-    assert_eq!(data.len(), 32);
     println!("{:?}", data);
 }
