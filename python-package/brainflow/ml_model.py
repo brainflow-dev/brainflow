@@ -19,6 +19,7 @@ class BrainFlowMetrics(enum.IntEnum):
 
     RELAXATION = 0  #:
     CONCENTRATION = 1  #:
+    USER_DEFINED = 2  #:
 
 
 class BrainFlowClassifiers(enum.IntEnum):
@@ -28,6 +29,7 @@ class BrainFlowClassifiers(enum.IntEnum):
     KNN = 1  #:
     SVM = 2  #:
     LDA = 3  #:
+    DYN_LIB_CLASSIFIER = 4  #:
 
 
 class BrainFlowModelParams(object):

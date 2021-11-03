@@ -4,26 +4,32 @@ export BrainFlowModelParams
 abstract type BrainFlowMetric end
 struct Relaxation <: BrainFlowMetric end
 struct Concentration <: BrainFlowMetric end
+struct UserDefined <: BrainFlowMetric end
 Base.Integer(::Relaxation) = 0
 Base.Integer(::Concentration) = 1
+Base.Integer(::UserDefined) = 2
 Base.convert(::Type{BrainFlowMetric}, s::AbstractString) = BrainFlowMetric(Val(Symbol(lowercase(s))))
 BrainFlowMetric(::Val{:relaxation}) = Relaxation()
 BrainFlowMetric(::Val{:concentration}) = Concentration()
+BrainFlowMetric(::Val{:userdefined}) = UserDefined()
 
 abstract type BrainFlowClassifier end
 struct Regression <: BrainFlowClassifier end
 struct Knn <: BrainFlowClassifier end
 struct Svm <: BrainFlowClassifier end
 struct Lda <: BrainFlowClassifier end
+struct DynLibClassifier <: BrainFlowClassifier end
 Base.Integer(::Regression) = 0
 Base.Integer(::Knn) = 1
 Base.Integer(::Svm) = 2
 Base.Integer(::Lda) = 3
+Base.Integer(::DynLibClassifier) = 4
 Base.convert(::Type{BrainFlowClassifier}, s::AbstractString) = BrainFlowClassifier(Val(Symbol(lowercase(s))))
 BrainFlowClassifier(::Val{:regression}) = Regression()
 BrainFlowClassifier(::Val{:knn}) = Knn()
 BrainFlowClassifier(::Val{:svm}) = Svm()
 BrainFlowClassifier(::Val{:lda}) = Lda()
+BrainFlowClassifier(::Val{:dynlibclassifier}) = DynLibClassifier()
 
 @Base.kwdef mutable struct BrainFlowModelParams
     metric::BrainFlowMetric = Relaxation()
