@@ -9,7 +9,8 @@ public enum BrainFlowClassifiers
     REGRESSION (0),
     KNN (1),
     SVM (2),
-    LDA (3);
+    LDA (3),
+    DYN_LIB_CLASSIFIER (4);
 
     private final int protocol;
     private static final Map<Integer, BrainFlowClassifiers> cl_map = new HashMap<Integer, BrainFlowClassifiers> ();

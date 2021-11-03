@@ -89,3 +89,16 @@ target_link_libraries (
     ${DataHandlerPath}
     ${BoardControllerPath}
 )
+
+###########
+# dyn lib #
+###########
+add_library (
+    dyn_lib_test SHARED
+    src/dyn_lib_test/dyn_lib_test.cpp
+)
+
+target_include_directories (
+    dyn_lib_test PUBLIC
+    ${brainflow_INCLUDE_DIRS}
+)

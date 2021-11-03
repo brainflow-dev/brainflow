@@ -122,6 +122,7 @@ pub enum DetrendOperations {
 pub enum BrainFlowMetrics {
     Relaxation = 0,
     Concentration = 1,
+    UserDefined = 2,
 }
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -130,6 +131,7 @@ pub enum BrainFlowClassifiers {
     Knn = 1,
     Svm = 2,
     Lda = 3,
+    DynLibClassifier = 4,
 }
 #[repr(i32)]
 #[doc = " LogLevels enum to store all possible log levels"]
