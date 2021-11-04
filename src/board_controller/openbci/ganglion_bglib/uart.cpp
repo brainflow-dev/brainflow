@@ -144,7 +144,7 @@ int uart_find_serialport (char *name)
     return -1;
 }
 
-int uart_open (char *port)
+int uart_open (const char *port)
 {
     char str[20];
 
@@ -180,9 +180,14 @@ int uart_open (char *port)
 
     return 0;
 }
+
 void uart_close ()
 {
-    CloseHandle (serial_handle);
+    if (serial_handle != INVALID_HANDLE_VALUE)
+    {
+        CloseHandle (serial_handle);
+        serial_handle = INVALID_HANDLE_VALUE;
+    }
 }
 
 int uart_tx (int len, unsigned char *data)
@@ -250,7 +255,7 @@ void uart_list_devices ()
 {
 }
 
-int uart_open (char *port)
+int uart_open (const char *port)
 {
     struct termios options;
     int i;
@@ -297,9 +302,14 @@ int uart_open (char *port)
 
     return 0;
 }
+
 void uart_close ()
 {
-    close (serial_handle);
+    if (serial_handle >= 0)
+    {
+        close (serial_handle);
+        serial_handle = -1;
+    }
 }
 
 int uart_tx (int len, unsigned char *data)
