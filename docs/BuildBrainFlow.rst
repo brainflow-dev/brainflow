@@ -3,6 +3,19 @@
 Installation Instructions
 ==========================
 
+Precompiled libraries in package managers(Nuget, PYPI, etc)
+-------------------------------------------------------------
+
+Core part of BrainFlow is written in C/C++ and distributed as dynamic libraries, for some programming languages we publish packages with precompiled libraries to package managers like Nuget or PYPI.
+
+C/C++ code should be compiled for each CPU architecture and for each OS and we cannot cover all possible cases, as of right now we support:
+
+- x64 libraries for Windows starting from 8.1, for some devices newer version of Windows can be required
+- x64 libraries for Linux, they are compiled inside manylinux docker container
+- x64/ARM libraries for MacOS, they are universal binaries
+
+If your CPU and OS is not listed above(e.g. Raspberry Pi or Windows with ARM)  you still can use BrainFlow, but you need to compile it by yourself first.
+
 Python
 -------
 
@@ -126,11 +139,11 @@ If your devices uses TCP/IP to send data, you need to run docker container with 
     Example:  ::
 
         # pull container from DockerHub
-        docker pull brainflow/brainflow:3.7.2
+        docker pull brainflow/brainflow:latest
         # run docker container with serial port /dev/ttyUSB0
-        docker run -it --device /dev/ttyUSB0 brainflow/brainflow:3.7.2 /bin/bash
+        docker run -it --device /dev/ttyUSB0 brainflow/brainflow:latest /bin/bash
         # run docker container for boards which use networking
-        docker run -it --network host brainflow/brainflow:3.7.2 /bin/bash
+        docker run -it --network host brainflow/brainflow:latest /bin/bash
 
 Compilation of Core Module and C++ Binding
 -------------------------------------------
@@ -138,8 +151,8 @@ Compilation of Core Module and C++ Binding
 Windows
 ~~~~~~~~
 
-- Install CMake>=3.16 you can install it from PYPI via pip
-- Install Visual Studio 2019(preferred) or Visual Studio 2017. Other versions may work but not tested.
+- Install CMake>=3.16 you can install it from PYPI via pip or from `CMake website <https://cmake.org/>`_
+- Install Visual Studio 2019(preferred) or Visual Studio 2017. Other versions may work but not tested
 - In VS installer make sure you selected "Visual C++ ATL support"
 - Build it as a standard CMake project, you don't need to set any options
 
@@ -158,7 +171,7 @@ Windows
 Linux
 ~~~~~~
 
-- Install CMake>=3.16 you can install it from PYPI via pip
+- Install CMake>=3.16 you can install it from PYPI via pip, via package managers for your OS(apt, dnf, etc) or from `CMake website <https://cmake.org/>`_
 - If you are going to distribute compiled Linux libraries you HAVE to build it inside manylinux Docker container
 - Build it as a standard CMake project, you don't need to set any options
 - You can use any compiler but for Linux we test only GCC
@@ -176,7 +189,7 @@ Linux
 MacOS
 ~~~~~~~
 
-- Install CMake>=3.16 you can install it from PYPI via pip
+- Install CMake>=3.16 you can install it from PYPI via pip, using :code:`brew` or from `CMake website <https://cmake.org/>`_
 - Build it as a standard CMake project, you don't need to set any options
 - You can use any compiler but for MacOS we test only Clang
 
