@@ -115,6 +115,19 @@ When using BrainFlow for the first time in Julia, the BrainFlow artifact contain
 
 If you compile BrainFlow from source local libraries will take precedence over the artifact.
 
+Rust
+-------
+
+You can get BrainFlow package from `crates.io <https://crates.io/>`_.
+
+.. compound::
+
+    You can also build Rust binding locally using commands below, but you need to compile C/C++ code first ::
+
+        cd rust-package
+        cd brainflow
+        cargo build --features generate_binding
+
 Docker Image
 --------------
 

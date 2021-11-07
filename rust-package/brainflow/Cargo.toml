@@ -1,6 +1,6 @@
 [package]
 name = "brainflow"
-version = "0.0.0"
+version = "0.0.1"
 authors = ["Andrey Parfenov <a1994ndrey@gmail.com>", "Daniel Hahne <brainflow@niel.re>"]
 edition = "2018"
 description = "BrainFlow is a library intended to obtain, parse and analyze EEG, EMG, ECG, and other kinds of data from biosensors."
