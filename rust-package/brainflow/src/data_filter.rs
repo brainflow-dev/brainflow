@@ -496,7 +496,7 @@ pub fn get_avg_band_powers(
 ) -> Result<(Vec<f64>, Vec<f64>)> {
     let shape = data.shape();
     let (rows, cols) = (eeg_channels.len(), shape[1]);
-    let mut data = data
+    let mut raw_data = data
         .outer_iter()
         .enumerate()
         .filter(|(i, _)| eeg_channels.contains(i))
@@ -510,7 +510,7 @@ pub fn get_avg_band_powers(
 
     let res = unsafe {
         data_handler::get_avg_band_powers(
-            data.as_mut_ptr() as *mut c_double,
+            raw_data.as_mut_ptr() as *mut c_double,
             rows as c_int,
             cols as c_int,
             sampling_rate as c_int,

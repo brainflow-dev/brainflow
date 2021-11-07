@@ -16,7 +16,7 @@ fn main() {
     board.start_stream(45000, "").unwrap();
     thread::sleep(Duration::from_secs(5));
     board.stop_stream().unwrap();
-    let data = board.get_board_data(Some(10)).unwrap();
+    let data = board.get_board_data(None).unwrap();
     board.release_session().unwrap();
 
     let eeg_channels = board_shim::get_eeg_channels(board_id).unwrap();
@@ -25,7 +25,7 @@ fn main() {
         data_filter::get_avg_band_powers(data, eeg_channels, sampling_rate, true).unwrap();
     let mut feature_vector = bands.0;
     feature_vector.append(&mut bands.1);
-    println!("{:?}", feature_vector);
+    println!("feature_vector: {:?}", feature_vector);
 
     // calc concentration
     let concentration_params = BrainFlowModelParamsBuilder::new()
