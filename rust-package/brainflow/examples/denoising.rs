@@ -8,11 +8,10 @@ use ndarray::s;
 
 fn main() {
     brainflow::board_shim::enable_dev_board_logger().unwrap();
-    let board_id = BoardIds::SyntheticBoard as i32;
+    let board_id = BoardIds::SyntheticBoard;
     let eeg_channels = board_shim::get_eeg_channels(board_id).unwrap();
 
     let params = BrainFlowInputParamsBuilder::default().build();
-    let board_id = BoardIds::SyntheticBoard as i32;
     let board = board_shim::BoardShim::new(board_id, params).unwrap();
 
     board.prepare_session().unwrap();
@@ -28,7 +27,7 @@ fn main() {
             .as_slice_mut()
             .unwrap(),
         3,
-        AggOperations::Mean as i32,
+        AggOperations::Mean,
     )
     .unwrap();
     println!("{:?}", data.slice(s![eeg_channels[0], ..]));

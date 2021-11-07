@@ -19,6 +19,9 @@ pub enum Error {
 
     #[error("{0}")]
     ShapeError(#[from] ndarray::ShapeError),
+
+    #[error("{0}")]
+    FromPrimitive(#[from] std::num::ParseIntError),
 }
 
 #[derive(Debug, Error)]

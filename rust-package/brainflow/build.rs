@@ -111,6 +111,7 @@ fn generate_constants_binding() {
 
     let bindings = bindings.replace("const First", "const FIRST");
     let bindings = bindings.replace("const Last", "const LAST");
+    let bindings = bindings.replace("#[derive(", "#[derive(FromPrimitive, ToPrimitive, ");
 
     let binding_target_path = PathBuf::new().join("src").join("ffi").join("constants.rs");
     let mut file = File::create(&binding_target_path).unwrap();

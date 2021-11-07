@@ -2,6 +2,7 @@
 
 #![allow(non_camel_case_types)]
 
+
 extern "C" {
     pub fn get_board_descr(
         board_id: ::std::os::raw::c_int,

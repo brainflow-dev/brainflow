@@ -52,24 +52,24 @@ impl MlModel {
 /// Set BrainFlow ML log level.
 /// Use it only if you want to write your own messages to BrainFlow logger.
 /// Otherwise use [enable_ml_logger], [enable_dev_ml_logger], or [disable_ml_logger].
-pub fn set_log_level(log_level: c_int) -> Result<()> {
+pub fn set_log_level(log_level: LogLevels) -> Result<()> {
     let res = unsafe { ml_model::set_log_level_ml_module(log_level as c_int) };
     Ok(check_brainflow_exit_code(res)?)
 }
 
 /// Enable ML logger with level INFO, uses stderr for log messages by default.
 pub fn enable_ml_logger() -> Result<()> {
-    set_log_level(LogLevels::LevelInfo as c_int)
+    set_log_level(LogLevels::LevelInfo)
 }
 
 /// Disable BrainFlow ML logger.
 pub fn disable_ml_logger() -> Result<()> {
-    set_log_level(LogLevels::LevelOff as c_int)
+    set_log_level(LogLevels::LevelOff)
 }
 
 /// Enable ML logger with level TRACE, uses stderr for log messages by default.
 pub fn enable_dev_ml_logger() -> Result<()> {
-    set_log_level(LogLevels::LevelTrace as c_int)
+    set_log_level(LogLevels::LevelTrace)
 }
 
 /// Redirect ML logger from stderr to file, can be called any time.
