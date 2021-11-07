@@ -1,7 +1,5 @@
 use getset::Getters;
-use ndarray::{
-    Array1, Array2, Array3, ArrayBase, ArrayView2, AsArray, Ix2, SliceInfo, SliceInfoElem,
-};
+use ndarray::{Array1, Array2, Array3, ArrayBase};
 use num::Complex;
 use num_complex::Complex64;
 use std::os::raw::c_int;
@@ -490,33 +488,26 @@ pub fn get_psd_welch(
 }
 
 /// Calculate avg and stddev of BandPowers across all channels, bands are 1-4,4-8,8-13,13-30,30-50.
-pub fn get_avg_band_powers<'a, Data>(
-    data: Data,
+pub fn get_avg_band_powers(
+    data: Array2<f64>,
     eeg_channels: Vec<usize>,
     sampling_rate: usize,
     apply_filters: bool,
-) -> Result<(Vec<f64>, Vec<f64>)>
-where
-    Data: AsArray<'a, f64, Ix2>,
-{
-    let data = data.into();
-    let data: ArrayView2<f64> = unsafe {
-        data.slice(
-            SliceInfo::new(
-                eeg_channels
-                    .into_iter()
-                    .map(|c| SliceInfoElem::Index(c as isize))
-                    .collect::<Vec<SliceInfoElem>>(),
-            )
-            .unwrap(),
-        )
-    };
+) -> Result<(Vec<f64>, Vec<f64>)> {
     let shape = data.shape();
-    let (rows, cols) = (shape[0], shape[1]);
+    let (rows, cols) = (eeg_channels.len(), shape[1]);
+    let mut raw_data = data
+        .outer_iter()
+        .enumerate()
+        .filter(|(i, _)| eeg_channels.contains(i))
+        .map(|(_, x)| x)
+        .flatten()
+        .copied()
+        .collect::<Vec<f64>>();
 
     let mut avg_band_powers = Vec::with_capacity(5);
     let mut stddev_band_powers = Vec::with_capacity(5);
-    let mut raw_data: Vec<&f64> = data.iter().collect();
+
     let res = unsafe {
         data_handler::get_avg_band_powers(
             raw_data.as_mut_ptr() as *mut c_double,

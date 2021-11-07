@@ -1,14 +1,41 @@
 use getset::Getters;
-use serde::{Deserialize, Serialize};
+use serde::{ser::SerializeStruct, Serialize};
+
+use crate::{BrainFlowClassifiers, BrainFlowMetrics};
 
 /// Inputs parameters for MlModel.
-#[derive(Debug, Default, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Getters)]
+#[derive(Debug, Getters)]
 #[getset(get = "pub", set = "pub")]
 pub struct BrainFlowModelParams {
-    metric: usize,
-    classifier: usize,
+    metric: BrainFlowMetrics,
+    classifier: BrainFlowClassifiers,
     file: String,
     other_info: String,
+}
+
+impl Serialize for BrainFlowModelParams {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut state = serializer.serialize_struct("BrainFlowModelParams", 4)?;
+        state.serialize_field("metric", &(self.metric as usize))?;
+        state.serialize_field("classifier", &(self.classifier as usize))?;
+        state.serialize_field("file", &self.file.to_string())?;
+        state.serialize_field("other_info", &self.other_info.to_string())?;
+        state.end()
+    }
+}
+
+impl Default for BrainFlowModelParams {
+    fn default() -> Self {
+        Self {
+            metric: BrainFlowMetrics::Concentration,
+            classifier: BrainFlowClassifiers::Knn,
+            file: Default::default(),
+            other_info: Default::default(),
+        }
+    }
 }
 
 /// Builder for [BrainFlowModelParams].
@@ -24,13 +51,13 @@ impl BrainFlowModelParamsBuilder {
     }
 
     /// Metric to calculate.
-    pub fn metric(mut self, metric: usize) -> Self {
+    pub fn metric(mut self, metric: BrainFlowMetrics) -> Self {
         self.params.metric = metric;
         self
     }
 
     /// Classifier to use.
-    pub fn classifier(mut self, classifier: usize) -> Self {
+    pub fn classifier(mut self, classifier: BrainFlowClassifiers) -> Self {
         self.params.classifier = classifier;
         self
     }

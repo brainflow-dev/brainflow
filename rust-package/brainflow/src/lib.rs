@@ -31,6 +31,8 @@ pub use ffi::constants::BoardIds;
 pub use ffi::constants::BrainFlowClassifiers;
 /// Enum to store all Brainflow Exit Codes.
 pub use ffi::constants::BrainFlowExitCodes;
+/// Enum to store BrainFlow metrics
+pub use ffi::constants::BrainFlowMetrics;
 /// Enum to store all supported Detrend Operations.
 pub use ffi::constants::DetrendOperations;
 /// Enum to store all supported Filter Types.

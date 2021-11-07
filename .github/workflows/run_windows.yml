@@ -274,6 +274,11 @@ jobs:
     - name: EEG Metrics CI C# Test
       run: .\csharp-package\brainflow\tests\eeg_metrics\bin\Release\test.exe
       shell: cmd
+    - name: EEG Metrics CI Rust Test
+      run: |
+        cd %GITHUB_WORKSPACE%\rust-package\brainflow
+        cargo run --example=eeg_metrics
+      shell: cmd
     # Start Deploy Stage
     - name: Install Python AWS Tools
       run: |
