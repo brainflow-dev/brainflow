@@ -149,3 +149,13 @@ Example:
 
 .. literalinclude:: ../julia-package/brainflow/test/serialization.jl
    :language: julia
+
+Rust API Reference
+---------------------
+
+Rust binding calls C/C++ code as any other binding. Use Rust examples and API reference for other languaes as a starting point.
+
+Example:
+
+.. literalinclude:: ../rust-package/brainflow/examples/get_data.rs
+   :language: rust
