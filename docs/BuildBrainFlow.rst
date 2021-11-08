@@ -98,6 +98,7 @@ Steps to setup Matlab binding for BrainFlow:
 - Open Matlab IDE and open brainflow/matlab-package/brainflow folder there
 - Add folders lib and inc to Matlab path
 - If you want to run Matlab scripts from folders different than brainflow/matlab-package/brainflow you need to add it to your Matlab path too
+- If you see errors you may need to configure Matlab to use C++ compiler instead C, run this command in Matlab terminal :code:`mex -setup cpp` followed by :code:`MinGW64 Compiler (C++)` or any other C++ compiler. More info can be found `here <https://www.mathworks.com/help/matlab/matlab_external/choose-c-or-c-compilers.html>`_.
 
 Julia
 --------
