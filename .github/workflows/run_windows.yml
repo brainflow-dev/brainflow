@@ -193,8 +193,10 @@ jobs:
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\freeeeg32_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id 17 --serial-port
       shell: cmd
     # Signal Processing Testing
-    - name: Denoising Python Test
-      run: python %GITHUB_WORKSPACE%\tests\python\denoising.py
+    - name: Serialization Rust Test
+      run: |
+        cd %GITHUB_WORKSPACE%\rust-package\brainflow
+        cargo run --example=read_write_file
       shell: cmd
     - name: Denoising Rust Test
       run: |
@@ -215,6 +217,9 @@ jobs:
       run: |
         cd %GITHUB_WORKSPACE%\rust-package\brainflow
         cargo run --example=transforms
+      shell: cmd
+    - name: Denoising Python Test
+      run: python %GITHUB_WORKSPACE%\tests\python\denoising.py
       shell: cmd
     - name: Serialization Python Test
       run: python %GITHUB_WORKSPACE%\tests\python\serialization.py

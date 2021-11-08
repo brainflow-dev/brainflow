@@ -434,6 +434,57 @@ Julia EEG Metrics
 .. literalinclude:: ../julia-package/brainflow/test/eeg_metrics.jl
    :language: julia
 
+Rust
+--------
+
+Rust Get Data from a Board
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../rust-package/brainflow/examples/get_data.rs
+   :language: rust
+
+Rust Markers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../rust-package/brainflow/examples/markers.rs
+   :language: rust
+
+Rust Read Write File
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../rust-package/brainflow/examples/read_write_file.rs
+   :language: rust
+
+Rust Transforms
+~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../rust-package/brainflow/examples/transforms.rs
+   :language: rust
+
+Rust Signal Filtering
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../rust-package/brainflow/examples/get_data.rs
+   :language: rust
+
+Rust Denoising
+~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../rust-package/brainflow/examples/denoising.rs
+   :language: rust
+
+Rust Band Power
+~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../rust-package/brainflow/examples/band_power.rs
+   :language: rust
+
+Rust EEG Metrics
+~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../rust-package/brainflow/examples/eeg_metrics.rs
+   :language: rust
+
 Notebooks
 ------------
 .. toctree::
