@@ -62,7 +62,7 @@ jobs:
         cd $GITHUB_WORKSPACE/tools
         zip -r jniLibs.zip jniLibs
     - name: Install AWS CLI
-      run: sudo -H python3 -m pip install awscli
+      run: sudo -H python3 -m pip install awscli==1.21.10
     - name: Upload To AWS
       if: ${{ github.event_name == 'push' && github.repository == 'brainflow-dev/brainflow' }}
       run: |

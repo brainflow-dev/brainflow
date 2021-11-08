@@ -273,7 +273,7 @@ jobs:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     # deploy started
     - name: Install AWS CLI
-      run: sudo -H python3 -m pip install awscli
+      run: sudo -H python3 -m pip install awscli==1.21.10
     - name: Push Libraries Linux Docker
       if: ${{ github.event_name == 'push' && matrix.os == 'ubuntu-latest' && github.repository == 'brainflow-dev/brainflow' }}
       run: |
