@@ -119,11 +119,9 @@ If you compile BrainFlow from source local libraries will take precedence over t
 Rust
 -------
 
-You can get BrainFlow package from `crates.io <https://crates.io/>`_.
-
 .. compound::
 
-    You can also build Rust binding locally using commands below, but you need to compile C/C++ code first ::
+    You can build Rust binding locally using commands below, but you need to compile C/C++ code first ::
 
         cd rust-package
         cd brainflow
