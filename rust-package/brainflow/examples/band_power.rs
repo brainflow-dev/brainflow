@@ -8,13 +8,12 @@ use ndarray::s;
 
 fn main() {
     brainflow::board_shim::enable_dev_board_logger().unwrap();
-    let board_id = BoardIds::SyntheticBoard as i32;
+    let board_id = BoardIds::SyntheticBoard;
     let eeg_channels = board_shim::get_eeg_channels(board_id).unwrap();
     let sampling_rate = board_shim::get_sampling_rate(board_id).unwrap();
     let nfft = data_filter::get_nearest_power_of_two(sampling_rate).unwrap();
 
     let params = BrainFlowInputParamsBuilder::default().build();
-    let board_id = BoardIds::SyntheticBoard as i32;
     let board = board_shim::BoardShim::new(board_id, params).unwrap();
 
     board.prepare_session().unwrap();
@@ -28,7 +27,7 @@ fn main() {
         data.slice_mut(s![eeg_channels[1], ..])
             .as_slice_mut()
             .unwrap(),
-        DetrendOperations::Linear as i32,
+        DetrendOperations::Linear,
     )
     .unwrap();
     let mut psd = data_filter::get_psd_welch(
@@ -38,7 +37,7 @@ fn main() {
         nfft,
         nfft / 2,
         sampling_rate,
-        WindowFunctions::BlackmanHarris as i32,
+        WindowFunctions::BlackmanHarris,
     )
     .unwrap();
     let band_power_alpha = data_filter::get_band_power(&mut psd, 7.0, 13.0).unwrap();

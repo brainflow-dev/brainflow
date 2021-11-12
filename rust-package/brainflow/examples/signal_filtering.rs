@@ -8,12 +8,11 @@ use ndarray::s;
 
 fn main() {
     brainflow::board_shim::enable_dev_board_logger().unwrap();
-    let board_id = BoardIds::SyntheticBoard as i32;
+    let board_id = BoardIds::SyntheticBoard;
     let sampling_rate = board_shim::get_sampling_rate(board_id).unwrap();
     let eeg_channels = board_shim::get_eeg_channels(board_id).unwrap();
 
     let params = BrainFlowInputParamsBuilder::default().build();
-    let board_id = BoardIds::SyntheticBoard as i32;
     let board = board_shim::BoardShim::new(board_id, params).unwrap();
 
     board.prepare_session().unwrap();
@@ -33,7 +32,7 @@ fn main() {
         sampling_rate,
         13.0,
         3,
-        FilterTypes::Bessel as i32,
+        FilterTypes::Bessel,
         0.0,
     )
     .unwrap();

@@ -1,6 +1,8 @@
 use getset::Getters;
 use serde::{Deserialize, Serialize};
 
+use crate::IpProtocolType;
+
 /// Input parameters for [crate::board_shim::BoardShim].
 #[derive(Debug, Default, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Getters)]
 #[getset(get = "pub", set = "pub")]
@@ -9,7 +11,7 @@ pub struct BrainFlowInputParams {
     mac_address: String,
     ip_address: String,
     ip_port: usize,
-    ip_protocol: i32,
+    ip_protocol: usize,
     other_info: String,
     timeout: usize,
     serial_number: String,
@@ -53,8 +55,8 @@ impl BrainFlowInputParamsBuilder {
     }
 
     /// IP protocol type from IpProtocolType enum.
-    pub fn ip_protocol(mut self, protocol: i32) -> Self {
-        self.params.ip_protocol = protocol;
+    pub fn ip_protocol(mut self, protocol: IpProtocolType) -> Self {
+        self.params.ip_protocol = protocol as usize;
         self
     }
 

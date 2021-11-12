@@ -3,6 +3,7 @@
 extern crate approx;
 
 extern crate num;
+#[macro_use]
 extern crate num_derive;
 
 use error::Error;

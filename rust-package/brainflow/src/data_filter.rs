@@ -7,29 +7,32 @@ use std::{ffi::CString, os::raw::c_double};
 
 use crate::error::{BrainFlowError, Error};
 use crate::ffi::data_handler;
-use crate::{check_brainflow_exit_code, LogLevels, Result};
+use crate::{
+    check_brainflow_exit_code, AggOperations, DetrendOperations, FilterTypes, LogLevels,
+    NoiseTypes, Result, WindowFunctions,
+};
 
 /// Set BrainFlow data logger log level.
 /// Use it only if you want to write your own messages to BrainFlow logger.
 /// Otherwise use [enable_data_logger], [enable_dev_data_logger] or [disable_data_logger].
-pub fn set_log_level(log_level: c_int) -> Result<()> {
-    let res = unsafe { data_handler::set_log_level_data_handler(log_level) };
+pub fn set_log_level(log_level: LogLevels) -> Result<()> {
+    let res = unsafe { data_handler::set_log_level_data_handler(log_level as c_int) };
     Ok(check_brainflow_exit_code(res)?)
 }
 
 /// Enable data logger with level INFO, uses stderr for log messages by default
 pub fn enable_data_logger() -> Result<()> {
-    set_log_level(LogLevels::LevelInfo as c_int)
+    set_log_level(LogLevels::LevelInfo)
 }
 
 /// Disable data logger.
 pub fn disable_data_logger() -> Result<()> {
-    set_log_level(LogLevels::LevelOff as c_int)
+    set_log_level(LogLevels::LevelOff)
 }
 
 /// Enable data logger with level TRACE, uses stderr for log messages by default.
 pub fn enable_dev_data_logger() -> Result<()> {
-    set_log_level(LogLevels::LevelTrace as c_int)
+    set_log_level(LogLevels::LevelTrace)
 }
 
 /// Redirect data logger from stderr to file, can be called any time.
@@ -46,7 +49,7 @@ pub fn perform_lowpass(
     sampling_rate: usize,
     cutoff: f64,
     order: usize,
-    filter_type: c_int,
+    filter_type: FilterTypes,
     ripple: f64,
 ) -> Result<()> {
     let res = unsafe {
@@ -56,7 +59,7 @@ pub fn perform_lowpass(
             sampling_rate as c_int,
             cutoff as c_double,
             order as c_int,
-            filter_type,
+            filter_type as c_int,
             ripple as c_double,
         )
     };
@@ -70,7 +73,7 @@ pub fn perform_highpass(
     sampling_rate: usize,
     cutoff: f64,
     order: usize,
-    filter_type: c_int,
+    filter_type: FilterTypes,
     ripple: f64,
 ) -> Result<()> {
     let res = unsafe {
@@ -80,7 +83,7 @@ pub fn perform_highpass(
             sampling_rate as c_int,
             cutoff as c_double,
             order as c_int,
-            filter_type,
+            filter_type as c_int,
             ripple as c_double,
         )
     };
@@ -95,7 +98,7 @@ pub fn perform_bandpass(
     center_freq: f64,
     band_width: f64,
     order: usize,
-    filter_type: c_int,
+    filter_type: FilterTypes,
     ripple: f64,
 ) -> Result<()> {
     let res = unsafe {
@@ -106,7 +109,7 @@ pub fn perform_bandpass(
             center_freq as c_double,
             band_width as c_double,
             order as c_int,
-            filter_type,
+            filter_type as c_int,
             ripple as c_double,
         )
     };
@@ -121,7 +124,7 @@ pub fn perform_bandstop(
     center_freq: f64,
     band_width: f64,
     order: usize,
-    filter_type: c_int,
+    filter_type: FilterTypes,
     ripple: f64,
 ) -> Result<()> {
     let res = unsafe {
@@ -132,7 +135,7 @@ pub fn perform_bandstop(
             center_freq as c_double,
             band_width as c_double,
             order as c_int,
-            filter_type,
+            filter_type as c_int,
             ripple as c_double,
         )
     };
@@ -144,14 +147,14 @@ pub fn perform_bandstop(
 pub fn remove_environmental_noise(
     data: &mut [f64],
     sampling_rate: usize,
-    noise_type: c_int,
+    noise_type: NoiseTypes,
 ) -> Result<()> {
     let res = unsafe {
         data_handler::remove_environmental_noise(
             data.as_mut_ptr() as *mut c_double,
             data.len() as c_int,
             sampling_rate as c_int,
-            noise_type,
+            noise_type as c_int,
         )
     };
     check_brainflow_exit_code(res)?;
@@ -159,13 +162,17 @@ pub fn remove_environmental_noise(
 }
 
 /// Smooth data using moving average or median.
-pub fn perform_rolling_filter(data: &mut [f64], period: usize, agg_operation: c_int) -> Result<()> {
+pub fn perform_rolling_filter(
+    data: &mut [f64],
+    period: usize,
+    agg_operation: AggOperations,
+) -> Result<()> {
     let res = unsafe {
         data_handler::perform_rolling_filter(
             data.as_mut_ptr() as *mut c_double,
             data.len() as c_int,
             period as c_int,
-            agg_operation,
+            agg_operation as c_int,
         )
     };
     check_brainflow_exit_code(res)?;
@@ -176,7 +183,7 @@ pub fn perform_rolling_filter(data: &mut [f64], period: usize, agg_operation: c_
 pub fn perform_downsampling(
     data: &mut [f64],
     period: usize,
-    agg_operation: c_int,
+    agg_operation: AggOperations,
 ) -> Result<Vec<f64>> {
     if period == 0 {
         return Err(Error::BrainFlowError(BrainFlowError::InvalidArgumentsError));
@@ -188,7 +195,7 @@ pub fn perform_downsampling(
             data.as_mut_ptr() as *mut c_double,
             data.len() as c_int,
             period as c_int,
-            agg_operation,
+            agg_operation as c_int,
             output.as_mut_ptr() as *mut c_double,
         )
     };
@@ -207,7 +214,6 @@ pub struct WaveletTransform {
     wavelet: String,
     original_data_len: usize,
 }
-
 impl WaveletTransform {
     pub fn new(
         capacity: usize,
@@ -352,11 +358,11 @@ pub fn get_csp<Labels>(
 }
 
 /// Perform data windowing.
-pub fn get_window(window_function: c_int, window_len: usize) -> Result<Vec<f64>> {
+pub fn get_window(window_function: WindowFunctions, window_len: usize) -> Result<Vec<f64>> {
     let mut output = Vec::<f64>::with_capacity(window_len);
     let res = unsafe {
         data_handler::get_window(
-            window_function,
+            window_function as c_int,
             window_len as c_int,
             output.as_mut_ptr() as *mut c_double,
         )
@@ -368,14 +374,14 @@ pub fn get_window(window_function: c_int, window_len: usize) -> Result<Vec<f64>>
 }
 
 /// Perform direct FFT.
-pub fn perform_fft(data: &mut [f64], window_function: c_int) -> Result<Vec<Complex64>> {
+pub fn perform_fft(data: &mut [f64], window_function: WindowFunctions) -> Result<Vec<Complex64>> {
     let mut output_re = Vec::<f64>::with_capacity(data.len() / 2 + 1);
     let mut output_im = Vec::<f64>::with_capacity(data.len() / 2 + 1);
     let res = unsafe {
         data_handler::perform_fft(
             data.as_mut_ptr() as *mut c_double,
             data.len() as c_int,
-            window_function,
+            window_function as c_int,
             output_re.as_mut_ptr() as *mut c_double,
             output_im.as_mut_ptr() as *mut c_double,
         )
@@ -412,12 +418,12 @@ pub fn perform_ifft(data: &[Complex64], original_data_len: usize) -> Result<Vec<
 }
 
 /// Detrend data.
-pub fn detrend(data: &mut [f64], detrend_operation: c_int) -> Result<()> {
+pub fn detrend(data: &mut [f64], detrend_operation: DetrendOperations) -> Result<()> {
     let res = unsafe {
         data_handler::detrend(
             data.as_mut_ptr() as *mut c_double,
             data.len() as c_int,
-            detrend_operation,
+            detrend_operation as c_int,
         )
     };
     Ok(check_brainflow_exit_code(res)?)
@@ -432,7 +438,11 @@ pub struct Psd {
 }
 
 /// Calculate PSD.
-pub fn get_psd(data: &mut [f64], sampling_rate: usize, window_function: c_int) -> Result<Psd> {
+pub fn get_psd(
+    data: &mut [f64],
+    sampling_rate: usize,
+    window_function: WindowFunctions,
+) -> Result<Psd> {
     let mut amplitude = Vec::<f64>::with_capacity(data.len() / 2 + 1);
     let mut frequency = Vec::<f64>::with_capacity(data.len() / 2 + 1);
     let res = unsafe {
@@ -440,7 +450,7 @@ pub fn get_psd(data: &mut [f64], sampling_rate: usize, window_function: c_int) -
             data.as_mut_ptr() as *mut c_double,
             data.len() as c_int,
             sampling_rate as c_int,
-            window_function,
+            window_function as c_int,
             amplitude.as_mut_ptr() as *mut c_double,
             frequency.as_mut_ptr() as *mut c_double,
         )
@@ -461,7 +471,7 @@ pub fn get_psd_welch(
     nfft: usize,
     overlap: usize,
     sampling_rate: usize,
-    window_function: c_int,
+    window_function: WindowFunctions,
 ) -> Result<Psd> {
     let mut amplitude = Vec::<f64>::with_capacity(nfft / 2 + 1);
     let mut frequency = Vec::<f64>::with_capacity(nfft / 2 + 1);
@@ -472,7 +482,7 @@ pub fn get_psd_welch(
             nfft as c_int,
             overlap as c_int,
             sampling_rate as c_int,
-            window_function,
+            window_function as c_int,
             amplitude.as_mut_ptr() as *mut c_double,
             frequency.as_mut_ptr() as *mut c_double,
         )
@@ -622,7 +632,7 @@ mod tests {
             value += step;
         }
 
-        let fft_data = perform_fft(&mut data, WindowFunctions::BlackmanHarris as i32).unwrap();
+        let fft_data = perform_fft(&mut data, WindowFunctions::BlackmanHarris).unwrap();
         let restored_fft = perform_ifft(&fft_data, data.len()).unwrap();
         println!("{:?}", restored_fft);
 

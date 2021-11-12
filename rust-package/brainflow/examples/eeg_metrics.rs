@@ -9,7 +9,7 @@ use brainflow::{
 fn main() {
     brainflow::board_shim::enable_dev_board_logger().unwrap();
     let params = BrainFlowInputParamsBuilder::default().build();
-    let board_id = BoardIds::SyntheticBoard as i32;
+    let board_id = BoardIds::SyntheticBoard;
     let board = board_shim::BoardShim::new(board_id, params).unwrap();
 
     board.prepare_session().unwrap();

@@ -15,39 +15,43 @@ use crate::ffi::board_controller;
 const MAX_CHANNELS: usize = 512;
 
 /// BoardShim is a primary interface to all boards
-#[allow(dead_code)]
 pub struct BoardShim {
-    board_id: c_int,
-    master_board_id: c_int,
-    input_params: BrainFlowInputParams,
+    board_id: BoardIds,
+    master_board_id: BoardIds,
     json_brainflow_input_params: CString,
 }
 
 impl BoardShim {
     /// Creates a new [BoardShim].
-    pub fn new(board_id: c_int, input_params: BrainFlowInputParams) -> Result<Self> {
-        let json_input_params = serde_json::to_string(&input_params)?;
-        let json_input_params = CString::new(json_input_params)?;
-        let master_board_id = if board_id == BoardIds::StreamingBoard as c_int
-            || board_id == BoardIds::PlaybackFileBoard as c_int
-        {
-            input_params.other_info().parse::<i32>().unwrap()
-        } else {
-            board_id
-        };
+    pub fn new(board_id: BoardIds, input_params: BrainFlowInputParams) -> Result<Self> {
+        let json_brainflow_input_params = serde_json::to_string(&input_params)?;
+        let json_brainflow_input_params = CString::new(json_brainflow_input_params)?;
+        let master_board_id =
+            if let BoardIds::StreamingBoard | BoardIds::PlaybackFileBoard = board_id {
+                num::FromPrimitive::from_i32(input_params.other_info().parse::<i32>()?).unwrap()
+            } else {
+                board_id
+            };
         Ok(Self {
             board_id,
             master_board_id,
-            input_params,
-            json_brainflow_input_params: json_input_params,
+            json_brainflow_input_params,
         })
     }
+
+    /// Returns the currently used BrainFlowInputParams
+    pub fn input_params(&self) -> Result<BrainFlowInputParams> {
+        Ok(serde_json::from_str(
+            self.json_brainflow_input_params.to_str().unwrap(),
+        )?)
+    }
+
     /// Prepare streaming sesssion and initialize resources.
     /// You need to call it before any other BoardShim object methods.
     pub fn prepare_session(&self) -> Result<()> {
         let res = unsafe {
             board_controller::prepare_session(
-                self.board_id,
+                self.board_id as c_int,
                 self.json_brainflow_input_params.as_ptr(),
             )
         };
@@ -60,7 +64,7 @@ impl BoardShim {
         let res = unsafe {
             board_controller::is_prepared(
                 &mut prepared,
-                self.board_id,
+                self.board_id as c_int,
                 self.json_brainflow_input_params.as_ptr(),
             )
         };
@@ -79,7 +83,7 @@ impl BoardShim {
             board_controller::start_stream(
                 buffer_size as c_int,
                 streamer_params.as_ptr(),
-                self.board_id,
+                self.board_id as c_int,
                 self.json_brainflow_input_params.as_ptr(),
             )
         };
@@ -89,7 +93,10 @@ impl BoardShim {
     /// Stop streaming data.
     pub fn stop_stream(&self) -> Result<()> {
         let res = unsafe {
-            board_controller::stop_stream(self.board_id, self.json_brainflow_input_params.as_ptr())
+            board_controller::stop_stream(
+                self.board_id as c_int,
+                self.json_brainflow_input_params.as_ptr(),
+            )
         };
         Ok(check_brainflow_exit_code(res)?)
     }
@@ -98,7 +105,7 @@ impl BoardShim {
     pub fn release_session(&self) -> Result<()> {
         let res = unsafe {
             board_controller::release_session(
-                self.board_id,
+                self.board_id as c_int,
                 self.json_brainflow_input_params.as_ptr(),
             )
         };
@@ -111,7 +118,7 @@ impl BoardShim {
         let res = unsafe {
             board_controller::get_board_data_count(
                 &mut data_count,
-                self.board_id,
+                self.board_id as c_int,
                 self.json_brainflow_input_params.as_ptr(),
             )
         };
@@ -134,7 +141,7 @@ impl BoardShim {
             board_controller::get_board_data(
                 num_samples as c_int,
                 data_buf.as_mut_ptr(),
-                self.board_id,
+                self.board_id as c_int,
                 self.json_brainflow_input_params.as_ptr(),
             )
         };
@@ -156,7 +163,7 @@ impl BoardShim {
                 num_samples as c_int,
                 data_buf.as_mut_ptr(),
                 &mut len,
-                self.board_id,
+                self.board_id as c_int,
                 self.json_brainflow_input_params.as_ptr(),
             )
         };
@@ -178,7 +185,7 @@ impl BoardShim {
                 config,
                 response,
                 &mut response_len,
-                self.board_id,
+                self.board_id as c_int,
                 self.json_brainflow_input_params.as_ptr(),
             );
             let _ = CString::from_raw(config);
@@ -198,7 +205,7 @@ impl BoardShim {
         let res = unsafe {
             board_controller::insert_marker(
                 value as c_double,
-                self.board_id,
+                self.board_id as c_int,
                 self.json_brainflow_input_params.as_ptr(),
             )
         };
@@ -206,31 +213,31 @@ impl BoardShim {
     }
 
     /// Get's the actual board id, can be different than provided.
-    pub fn get_board_id(&self) -> c_int {
+    pub fn get_board_id(&self) -> BoardIds {
         return self.master_board_id;
     }
 }
 
 /// Set BrainFlow log level, use it only if you want to write your own messages to BrainFlow logger,
 /// otherwise use [enable_board_logger], [enable_dev_board_logger] or [disable_board_logger].
-pub fn set_log_level(log_level: c_int) -> Result<()> {
-    let res = unsafe { board_controller::set_log_level_board_controller(log_level) };
+pub fn set_log_level(log_level: LogLevels) -> Result<()> {
+    let res = unsafe { board_controller::set_log_level_board_controller(log_level as c_int) };
     Ok(check_brainflow_exit_code(res)?)
 }
 
 /// Enable BrainFlow board logger with level INFO, uses stderr for log messages by default.
 pub fn enable_board_logger() -> Result<()> {
-    set_log_level(LogLevels::LevelInfo as c_int)
+    set_log_level(LogLevels::LevelInfo)
 }
 
 /// Disable BrainFlow board logger.
 pub fn disable_board_logger() -> Result<()> {
-    set_log_level(LogLevels::LevelOff as c_int)
+    set_log_level(LogLevels::LevelOff)
 }
 
 /// Enable BrainFlow board logger with level TRACE, uses stderr for log messages by default.
 pub fn enable_dev_board_logger() -> Result<()> {
-    set_log_level(LogLevels::LevelTrace as c_int)
+    set_log_level(LogLevels::LevelTrace)
 }
 
 /// Redirect board logger from stderr to file, can be called any time.
@@ -245,9 +252,9 @@ macro_rules! gen_fn {
     ($fn_name:ident, $return_type:ident, $initial_value:literal, $doc:literal) => {
         paste! {
             #[doc = $doc]
-            pub fn [<get_$fn_name>]( board_id: c_int) -> Result<$return_type> {
+            pub fn [<get_$fn_name>]( board_id: BoardIds) -> Result<$return_type> {
                 let mut value = $initial_value;
-                let res = unsafe { board_controller::[<get_$fn_name>](board_id, &mut value) };
+                let res = unsafe { board_controller::[<get_$fn_name>](board_id as c_int, &mut value) };
                 check_brainflow_exit_code(res)?;
                 Ok(value as $return_type)
             }
@@ -300,12 +307,12 @@ pub fn log_message<S: AsRef<str>>(log_level: LogLevels, message: S) -> Result<()
 }
 
 /// Get board description as json.
-pub fn get_board_descr(board_id: c_int) -> Result<String> {
+pub fn get_board_descr(board_id: BoardIds) -> Result<String> {
     let mut response_len = 0;
     let response = CString::new(Vec::with_capacity(16000))?;
     let response = response.into_raw();
     let (res, response) = unsafe {
-        let res = board_controller::get_board_descr(board_id, response, &mut response_len);
+        let res = board_controller::get_board_descr(board_id as c_int, response, &mut response_len);
         let response = CString::from_raw(response);
         (res, response)
     };
@@ -318,12 +325,12 @@ pub fn get_board_descr(board_id: c_int) -> Result<String> {
 }
 
 /// Get names of EEG channels in 10-20 system if their location is fixed.
-pub fn get_eeg_names(board_id: c_int) -> Result<Vec<String>> {
+pub fn get_eeg_names(board_id: BoardIds) -> Result<Vec<String>> {
     let mut response_len = 0;
     let response = CString::new(Vec::with_capacity(16000))?;
     let response = response.into_raw();
     let (res, response) = unsafe {
-        let res = board_controller::get_eeg_names(board_id, response, &mut response_len);
+        let res = board_controller::get_eeg_names(board_id as c_int, response, &mut response_len);
         let response = CString::from_raw(response);
         (res, response)
     };
@@ -337,12 +344,12 @@ pub fn get_eeg_names(board_id: c_int) -> Result<Vec<String>> {
 }
 
 /// Get device name.
-pub fn get_device_name(board_id: c_int) -> Result<String> {
+pub fn get_device_name(board_id: BoardIds) -> Result<String> {
     let mut response_len = 0;
     let response = CString::new(Vec::with_capacity(4096))?;
     let response = response.into_raw();
     let (res, response) = unsafe {
-        let res = board_controller::get_device_name(board_id, response, &mut response_len);
+        let res = board_controller::get_device_name(board_id as c_int, response, &mut response_len);
         let response = CString::from_raw(response);
         (res, response)
     };
@@ -358,12 +365,12 @@ macro_rules! gen_vec_fn {
     ($fn_name:ident, $doc:literal) => {
         paste! {
             #[doc = $doc]
-            pub fn [<get_$fn_name>](board_id: c_int) -> Result<Vec<usize>> {
-                let mut channels: Vec<i32> = Vec::with_capacity(MAX_CHANNELS);
+            pub fn [<get_$fn_name>](board_id: BoardIds) -> Result<Vec<usize>> {
+                let mut channels: Vec<c_int> = Vec::with_capacity(MAX_CHANNELS);
                 let mut len = 0;
                 let res = unsafe {
                     board_controller::[<get_$fn_name>](
-                        board_id,
+                        board_id as c_int,
                         channels.as_mut_ptr(),
                         &mut len,
                     )

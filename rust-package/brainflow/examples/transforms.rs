@@ -9,12 +9,11 @@ use ndarray::s;
 fn main() {
     brainflow::board_shim::enable_dev_board_logger().unwrap();
 
-    let board_id = BoardIds::SyntheticBoard as i32;
+    let board_id = BoardIds::SyntheticBoard;
     let eeg_channels = board_shim::get_eeg_channels(board_id).unwrap();
     println!("{:?}", eeg_channels);
 
     let params = BrainFlowInputParamsBuilder::default().build();
-    let board_id = BoardIds::SyntheticBoard as i32;
     let board = board_shim::BoardShim::new(board_id, params).unwrap();
 
     board.prepare_session().unwrap();
@@ -30,7 +29,7 @@ fn main() {
         data.slice_mut(s![eeg_channels[0], ..])
             .as_slice_mut()
             .unwrap(),
-        WindowFunctions::BlackmanHarris as i32,
+        WindowFunctions::BlackmanHarris,
     )
     .unwrap();
     let restored_fft = data_filter::perform_ifft(&fft_data, data_len).unwrap();
