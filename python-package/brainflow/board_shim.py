@@ -59,6 +59,7 @@ class BoardIds(enum.IntEnum):
     ENOPHONE_BOARD = 37  #:
     MUSE_2_BOARD = 38  #:
     MUSE_S_BOARD = 39  #:
+    BRAINALIVE_BOARD = 40  #:
 
 
 class LogLevels(enum.IntEnum):
