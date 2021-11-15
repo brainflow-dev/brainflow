@@ -13,6 +13,7 @@
 #include <string>
 #include <utility>
 
+#include "BrainAlive.h"
 #include "ant_neuro.h"
 #include "board.h"
 #include "board_controller.h"
@@ -45,7 +46,6 @@
 #include "streaming_board.h"
 #include "synthetic_board.h"
 #include "unicorn_board.h"
-#include "BrainAlive.h"
 
 #include "json.hpp"
 

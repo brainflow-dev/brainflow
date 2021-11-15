@@ -8,7 +8,6 @@
 
 class BrainAlive : public BLELibBoard
 {
-
 public:
     BrainAlive (struct BrainFlowInputParams params);
     ~BrainAlive ();
