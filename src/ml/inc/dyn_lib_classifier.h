@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "base_classifier.h"
 #include "runtime_dll_loader.h"
 
@@ -23,5 +25,10 @@ public:
     virtual int release ();
 
 protected:
+    virtual std::string get_dyn_lib_path ()
+    {
+        return params.file;
+    }
+
     DLLLoader *dll_loader;
 };

@@ -12,6 +12,7 @@
 #include "concentration_svm_classifier.h"
 #include "dyn_lib_classifier.h"
 #include "ml_module.h"
+#include "onnx_classifier.h"
 #include "relaxation_knn_classifier.h"
 #include "relaxation_lda_classifier.h"
 #include "relaxation_regression_classifier.h"
@@ -89,6 +90,11 @@ int prepare (const char *json_params)
         (key.classifier == (int)BrainFlowClassifiers::DYN_LIB_CLASSIFIER))
     {
         model = std::shared_ptr<BaseClassifier> (new DynLibClassifier (key));
+    }
+    else if ((key.metric == (int)BrainFlowMetrics::USER_DEFINED) &&
+        (key.classifier == (int)BrainFlowClassifiers::ONNX_CLASSIFIER))
+    {
+        model = std::shared_ptr<BaseClassifier> (new ONNXClassifier (key));
     }
     else
     {

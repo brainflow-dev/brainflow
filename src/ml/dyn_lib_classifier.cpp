@@ -13,7 +13,7 @@ int DynLibClassifier::prepare ()
         safe_logger (spdlog::level::err, "dyn lib path is not provided.");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
-    dll_loader = new DLLLoader (params.file.c_str ());
+    dll_loader = new DLLLoader (get_dyn_lib_path ().c_str ());
     if (!dll_loader->load_library ())
     {
         safe_logger (spdlog::level::err, "Failed to load library");

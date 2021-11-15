@@ -46,6 +46,7 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/third_party/
     ${CMAKE_HOME_DIRECTORY}/src/utils/inc
     ${CMAKE_HOME_DIRECTORY}/src/ml/inc
+    ${CMAKE_HOME_DIRECTORY}/src/ml/onnx/inc
     ${CMAKE_HOME_DIRECTORY}/third_party/libsvm
     ${CMAKE_HOME_DIRECTORY}/third_party/json
     ${CMAKE_HOME_DIRECTORY}/third_party/kdtree
@@ -57,6 +58,10 @@ set_target_properties (${ML_MODULE_NAME}
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
 )
+
+if (BUILD_ONNX)
+    include (${CMAKE_CURRENT_LIST_DIR}/onnx/build.cmake)
+endif (BUILD_ONNX)
 
 if (USE_OPENMP)
     find_package (OpenMP)

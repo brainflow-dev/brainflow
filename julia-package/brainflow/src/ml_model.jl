@@ -19,17 +19,20 @@ struct Knn <: BrainFlowClassifier end
 struct Svm <: BrainFlowClassifier end
 struct Lda <: BrainFlowClassifier end
 struct DynLibClassifier <: BrainFlowClassifier end
+struct ONNXClassifier <: BrainFlowClassifier end
 Base.Integer(::Regression) = 0
 Base.Integer(::Knn) = 1
 Base.Integer(::Svm) = 2
 Base.Integer(::Lda) = 3
 Base.Integer(::DynLibClassifier) = 4
+Base.Integer(::ONNXClassifier) = 5
 Base.convert(::Type{BrainFlowClassifier}, s::AbstractString) = BrainFlowClassifier(Val(Symbol(lowercase(s))))
 BrainFlowClassifier(::Val{:regression}) = Regression()
 BrainFlowClassifier(::Val{:knn}) = Knn()
 BrainFlowClassifier(::Val{:svm}) = Svm()
 BrainFlowClassifier(::Val{:lda}) = Lda()
 BrainFlowClassifier(::Val{:dynlibclassifier}) = DynLibClassifier()
+BrainFlowClassifier(::Val{:onnxclassifier}) = ONNXClassifier()
 
 @Base.kwdef mutable struct BrainFlowModelParams
     metric::BrainFlowMetric = Relaxation()

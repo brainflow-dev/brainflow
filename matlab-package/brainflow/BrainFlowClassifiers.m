@@ -6,5 +6,6 @@ classdef BrainFlowClassifiers < int32
         SVM(2)
         LDA(3)
         DYN_LIB_CLASSIFIER(4)
+        ONNX_CLASSIFIER(5)
     end
 end

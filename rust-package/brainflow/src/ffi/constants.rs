@@ -133,6 +133,7 @@ pub enum BrainFlowClassifiers {
     Svm = 2,
     Lda = 3,
     DynLibClassifier = 4,
+    OnnxClassifier = 5,
 }
 #[repr(i32)]
 #[doc = " LogLevels enum to store all possible log levels"]

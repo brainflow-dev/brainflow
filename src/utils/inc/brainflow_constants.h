@@ -128,7 +128,8 @@ enum class BrainFlowClassifiers : int
     KNN = 1,
     SVM = 2,
     LDA = 3,
-    DYN_LIB_CLASSIFIER = 4
+    DYN_LIB_CLASSIFIER = 4,
+    ONNX_CLASSIFIER = 5
 };
 
 /// LogLevels enum to store all possible log levels

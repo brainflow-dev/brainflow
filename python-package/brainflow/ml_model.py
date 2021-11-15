@@ -30,6 +30,7 @@ class BrainFlowClassifiers(enum.IntEnum):
     SVM = 2  #:
     LDA = 3  #:
     DYN_LIB_CLASSIFIER = 4  #:
+    ONNX_CLASSIFIER = 5  #:
 
 
 class BrainFlowModelParams(object):
