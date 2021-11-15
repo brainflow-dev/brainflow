@@ -13,11 +13,11 @@
 #include <string>
 #include <utility>
 
-#include "BrainAlive.h"
 #include "ant_neuro.h"
 #include "board.h"
 #include "board_controller.h"
 #include "board_info_getter.h"
+#include "brainalive.h"
 #include "brainbit.h"
 #include "brainbit_bled.h"
 #include "brainflow_constants.h"

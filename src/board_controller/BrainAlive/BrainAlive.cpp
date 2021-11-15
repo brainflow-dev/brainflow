@@ -1,6 +1,6 @@
 #include <string>
 
-#include "BrainAlive.h"
+#include "brainalive.h"
 #include "custom_cast.h"
 #include "get_dll_dir.h"
 #include "timestamp.h"
