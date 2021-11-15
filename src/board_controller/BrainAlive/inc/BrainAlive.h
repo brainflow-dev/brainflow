@@ -2,11 +2,11 @@
 #include <mutex>
 #include <thread>
 
-#include "board.h"
 #include "ble_lib_board.h"
+#include "board.h"
 #include "board_controller.h"
 
- class BrainAlive : public BLELibBoard
+class BrainAlive : public BLELibBoard
 {
 
 public:
@@ -21,8 +21,8 @@ public:
     int config_board (std::string config);
 
     void adapter_1_on_scan_found (simpleble_adapter_t adapter, simpleble_peripheral_t peripheral);
-    void read_data (simpleble_uuid_t service, simpleble_uuid_t characteristic,
-        uint8_t *data, size_t size, int channel_num);
+    void read_data (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
+        size_t size, int channel_num);
 
 protected:
     volatile simpleble_adapter_t brainalive_adapter;
@@ -31,7 +31,6 @@ protected:
     bool is_streaming;
     std::mutex m;
     std::condition_variable cv;
-    std::vector<std::pair<simpleble_uuid_t, simpleble_uuid_t>> notified_characteristics;
-    std::pair<simpleble_uuid_t, simpleble_uuid_t> control_characteristics;
-
- };
+    std::pair<simpleble_uuid_t, simpleble_uuid_t> notified_characteristics;
+    std::pair<simpleble_uuid_t, simpleble_uuid_t> write_characteristics;
+};

@@ -784,7 +784,7 @@ Enophone
    :header: "Board", "Board Id", "BrainFlowInputParams.serial_port", "BrainFlowInputParams.mac_address", "BrainFlowInputParams.ip_address", "BrainFlowInputParams.ip_port", "BrainFlowInputParams.ip_protocol", "BrainFlowInputParams.other_info", "BrainFlowInputParams.timeout", "BrainFlowInputParams.serial_number", "BrainFlowInputParams.file"
 
    "Enophone", "BoardIds.ENOPHONE_BOARD (37)", "-", "MAC adress", "-", "-", "-", "-", "-", "-", "-"
-   
+
 Enophone Headphones
 ~~~~~~~~~~~~~~~~~~~~~
 
@@ -823,11 +823,7 @@ BrainAlive
    
 BrainAlive Device
 ~~~~~~~~~~~~~~~~~~
-   
-  
-   .. image:: https://live.staticflickr.com/65535/51675653947_c4817fc83f_m.jpg
-    :width: 350px
-    :height: 350px
+
 
 `BrainAlive Website <https://braina.live//>`_
 
@@ -851,4 +847,3 @@ Supported platforms:
 - MacOS 10.15+
 - Linux, compilation from source code probably will be needed
 - Devices like Raspberry Pi
-

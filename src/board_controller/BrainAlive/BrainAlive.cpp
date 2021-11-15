@@ -4,18 +4,34 @@
 #include "custom_cast.h"
 #include "get_dll_dir.h"
 #include "timestamp.h"
-#include "BrainAlive_constants.h"
+
+// common constants
+#define BRAINALIVE_PACKET_SIZE 46
+
+// info about services and chars
+#define START_BYTE 0x0A
+#define STOP_BYTE 0x0D
+
+#define BRAINALIVE_WRITE_CHAR "0000fe41-8e22-4541-9d4c-21edae82ed19"
+#define BRAINALIVE_NOTIFY_CHAR "0000fe42-8e22-4541-9d4c-21edae82ed19"
+
+// info for equations
+#define BRAINALIVE_EEG_SCALE_FACTOR 0.0476837158203125
+#define BRAINALIVE_EEG_GAIN_VALUE 12
+
 
 void adapter_1_on_scan_found (
     simpleble_adapter_t adapter, simpleble_peripheral_t peripheral, void *board)
 {
     ((BrainAlive *)(board))->adapter_1_on_scan_found (adapter, peripheral);
 }
+
 void read_notifications (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
     size_t size, void *board)
 {
     ((BrainAlive *)(board))->read_data (service, characteristic, data, size, 0);
 }
+
 BrainAlive::BrainAlive (struct BrainFlowInputParams params)
     : BLELibBoard ((int)BoardIds::BRAINALIVE_BOARD, params)
 {
@@ -30,7 +46,6 @@ BrainAlive::~BrainAlive ()
     skip_logs = true;
     release_session ();
 }
-
 
 int BrainAlive::prepare_session ()
 {
@@ -125,7 +140,7 @@ int BrainAlive::prepare_session ()
                 if (strcmp (service.characteristics[j].value,
                         BRAINALIVE_WRITE_CHAR) == 0) // Write Characteristics
                 {
-                    control_characteristics = std::pair<simpleble_uuid_t, simpleble_uuid_t> (
+                    write_characteristics = std::pair<simpleble_uuid_t, simpleble_uuid_t> (
                         service.uuid, service.characteristics[j]);
                     control_characteristics_found = true;
                     safe_logger (spdlog::level::info, "found control characteristic");
@@ -138,9 +153,8 @@ int BrainAlive::prepare_session ()
                             (void *)this) == SIMPLEBLE_SUCCESS)
                     {
 
-                        notified_characteristics.push_back (
-                            std::pair<simpleble_uuid_t, simpleble_uuid_t> (
-                                service.uuid, service.characteristics[j]));
+                        notified_characteristics = std::pair<simpleble_uuid_t, simpleble_uuid_t> (
+                            service.uuid, service.characteristics[j]);
                     }
                     else
                     {
@@ -152,15 +166,18 @@ int BrainAlive::prepare_session ()
             }
         }
     }
-    if ((res == (int)BrainFlowExitCodes::STATUS_OK) && (control_characteristics_found))
-        initialized = true;
 
+    if ((res == (int)BrainFlowExitCodes::STATUS_OK) && (control_characteristics_found))
+    {
+        initialized = true;
+    }
     else
     {
         release_session ();
     }
     return res;
 }
+
 int BrainAlive::start_stream (int buffer_size, const char *streamer_params)
 {
     if (!initialized)
@@ -177,6 +194,7 @@ int BrainAlive::start_stream (int buffer_size, const char *streamer_params)
 
     return res;
 }
+
 int BrainAlive::stop_stream ()
 {
     if (brainalive_peripheral == NULL)
@@ -187,18 +205,16 @@ int BrainAlive::stop_stream ()
     if (is_streaming)
     {
         res = config_board ("0a4000000d");
-        for (auto notified : notified_characteristics)
+
+        if (simpleble_peripheral_unsubscribe (brainalive_peripheral, notified_characteristics.first,
+                notified_characteristics.second) != SIMPLEBLE_SUCCESS)
         {
-            if (simpleble_peripheral_unsubscribe (
-                    brainalive_peripheral, notified.first, notified.second) != SIMPLEBLE_SUCCESS)
-            {
-                safe_logger (spdlog::level::err, "failed to unsubscribe for {} {}",
-                    notified.first.value, notified.second.value);
-                res = (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
-            }
-            else
-                safe_logger (spdlog::level::debug, "Stop command Send 0x4000000d");
+            safe_logger (spdlog::level::err, "failed to unsubscribe for {} {}",
+                notified_characteristics.first.value, notified_characteristics.second.value);
+            res = (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
         }
+        else
+            safe_logger (spdlog::level::debug, "Stop command Send 0x4000000d");
     }
     else
     {
@@ -207,6 +223,7 @@ int BrainAlive::stop_stream ()
     is_streaming = false;
     return res;
 }
+
 int BrainAlive::release_session ()
 {
     if (initialized)
@@ -252,18 +269,19 @@ int BrainAlive::config_board (std::string config)
     uint8_t command[5];
     size_t len = config.size ();
     command[0] = 0x0a;
-    command[1] = config[2]<<4;
+    command[1] = config[2] << 4;
     command[2] = 0x00;
     command[3] = 0x00;
     command[4] = 0x0d;
-    if (simpleble_peripheral_write_request (brainalive_peripheral, control_characteristics.first,
-            control_characteristics.second, command, sizeof (command)) != SIMPLEBLE_SUCCESS)
+    if (simpleble_peripheral_write_request (brainalive_peripheral, write_characteristics.first,
+            write_characteristics.second, command, sizeof (command)) != SIMPLEBLE_SUCCESS)
     {
         safe_logger (spdlog::level::err, "failed to send command {} to device", config.c_str ());
         return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
     }
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
+
 void BrainAlive::adapter_1_on_scan_found (
     simpleble_adapter_t adapter, simpleble_peripheral_t peripheral)
 {
@@ -327,13 +345,14 @@ void BrainAlive::read_data (simpleble_uuid_t service, simpleble_uuid_t character
     {
         int32_t ppg_data[3] = {0};
         int32_t axl_data[3] = {0};
-        double  eeg_data[8] = {0};
+        double eeg_data[8] = {0};
         for (int i = 4, j = 0; i < 28; i += 3, j++)
-            eeg_data[j] =(((data[i] << 16 | data[i + 1] << 8 | data[i + 2]) << 8) >> 8) * BRAINALIVE_EEG_SCALE_FACTOR;
+            eeg_data[j] = (((data[i] << 16 | data[i + 1] << 8 | data[i + 2]) << 8) >> 8) *
+                BRAINALIVE_EEG_SCALE_FACTOR / BRAINALIVE_EEG_GAIN_VALUE;
         for (int i = 28, j = 0; i < 37; i += 3, j++)
             ppg_data[j] = ((data[i] << 16 | data[i + 1] << 8 | data[i + 2]) & 0x7FFFF);
         for (int i = 37, j = 0; i < 43; i += 2, j++)
-           axl_data[j] = ((data[i] << 8 | data[i + 1]) << 16) >> 16;
+            axl_data[j] = ((data[i] << 8 | data[i + 1]) << 16) >> 16;
         push_package (&eeg_data[0]);
     }
 }
