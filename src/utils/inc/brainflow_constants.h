@@ -73,9 +73,10 @@ enum class BoardIds : int
     ENOPHONE_BOARD = 37,
     MUSE_2_BOARD = 38,
     MUSE_S_BOARD = 39,
+    BRAINALIVE_BOARD = 40,
     // use it to iterate
     FIRST = PLAYBACK_FILE_BOARD,
-    LAST = MUSE_S_BOARD
+    LAST = BRAINALIVE_BOARD
 };
 
 enum class IpProtocolType : int

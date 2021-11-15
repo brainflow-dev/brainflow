@@ -13,6 +13,7 @@
 #include <string>
 #include <utility>
 
+#include "BrainAlive.h"
 #include "ant_neuro.h"
 #include "board.h"
 #include "board_controller.h"
@@ -225,6 +226,9 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
             break;
         case BoardIds::MUSE_S_BOARD:
             board = std::shared_ptr<Board> (new Muse (params));
+            break;
+        case BoardIds::BRAINALIVE_BOARD:
+            board = std::shared_ptr<Board> (new BrainAlive (params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

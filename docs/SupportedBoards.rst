@@ -812,3 +812,38 @@ Steps to find MAC address:
 - On MacOS: run :code:`system_profiler SPBluetoothDataType`
 
 **On Linux in order to compile and use it you may need to install :code:`libbluetooth-dev` for Debian like systems and :code:`bluez-libs-devel` for Fedora like.**
+
+BrainAlive
+-----------
+
+.. csv-table:: Required inputs
+   :header: "Board", "Board Id", "BrainFlowInputParams.serial_port", "BrainFlowInputParams.mac_address", "BrainFlowInputParams.ip_address", "BrainFlowInputParams.ip_port", "BrainFlowInputParams.ip_protocol", "BrainFlowInputParams.other_info", "BrainFlowInputParams.timeout", "BrainFlowInputParams.serial_number", "BrainFlowInputParams.file"
+
+      "BrainAlive", "BoardIds.BrainAlive_BOARD (40)", "-", "Optional: MAC adress", "-", "-", "-", "-", "-", "Optional: device name", "-"
+   
+BrainAlive Device
+~~~~~~~~~~~~~~~~~~
+
+
+`BrainAlive Website <https://braina.live//>`_
+
+.. compound::
+
+    On Linux systems you may need to install `libdbus` and we recommend to compile BrainFlow from the source code: ::
+
+        sudo apt-get install libdbus-1-dev # for ubuntu
+        sudo yum install dbus-devel # for centos
+        python3 tools/build.py --ble # to compile
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 40
+- optional: MAC address
+- optional: serial number(device name)
+
+Supported platforms:
+
+- Windows 10.0.19041.0+
+- MacOS 10.15+
+- Linux, compilation from source code probably will be needed
+- Devices like Raspberry Pi
