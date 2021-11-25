@@ -26,6 +26,7 @@ SET (ML_MODULE_SRC
     ${CMAKE_CURRENT_LIST_DIR}/ml_module.cpp
     ${CMAKE_CURRENT_LIST_DIR}/concentration_regression_classifier.cpp
     ${CMAKE_CURRENT_LIST_DIR}/dyn_lib_classifier.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/onnx_classifier.cpp
     ${CMAKE_CURRENT_LIST_DIR}/base_classifier.cpp
     ${CMAKE_CURRENT_LIST_DIR}/concentration_knn_classifier.cpp
     ${CMAKE_CURRENT_LIST_DIR}/concentration_svm_classifier.cpp
@@ -46,7 +47,6 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/third_party/
     ${CMAKE_HOME_DIRECTORY}/src/utils/inc
     ${CMAKE_HOME_DIRECTORY}/src/ml/inc
-    ${CMAKE_HOME_DIRECTORY}/src/ml/onnx/inc
     ${CMAKE_HOME_DIRECTORY}/third_party/libsvm
     ${CMAKE_HOME_DIRECTORY}/third_party/json
     ${CMAKE_HOME_DIRECTORY}/third_party/kdtree

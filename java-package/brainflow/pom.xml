@@ -83,6 +83,16 @@
           <include>simpleble-c.dll</include>
           <include>libsimpleble-c.so</include>
           <include>libsimpleble-c.dylib</include>
+          <include>libonnxruntime.dylib</include>
+          <include>libonnxruntime.so</include>
+          <include>onnxruntime_arm.dll</include>
+          <include>onnxruntime_arm64.dll</include>
+          <include>onnxruntime_x64.dll</include>
+          <include>onnxruntime_x86.dll</include>
+          <include>brainflow_onnx32.dll</include>
+          <include>libbrainflow_onnx.so</include>
+          <include>libbrainflow_onnx.dylib</include>
+          <include>brainflow_onnx.dll</include>
         </includes>
       </resource>
     </resources>

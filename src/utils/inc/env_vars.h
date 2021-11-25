@@ -31,3 +31,12 @@ inline void append_to_search_path (std::string value)
     setenv (name.c_str (), new_val.c_str (), true);
 #endif
 }
+
+inline std::string get_search_path ()
+{
+#ifdef _WIN32
+    return getenv ("PATH");
+#else
+    return getenv ("LD_LIBRARY_PATH");
+#endif
+}
