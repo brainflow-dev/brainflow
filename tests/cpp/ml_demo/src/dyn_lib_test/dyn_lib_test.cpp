@@ -5,7 +5,7 @@
 #include "dyn_lib_test.h"
 
 
-int prepare ()
+int prepare (void *)
 {
     return (int)BrainFlowExitCodes::STATUS_OK;
 }

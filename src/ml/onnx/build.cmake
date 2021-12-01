@@ -58,8 +58,9 @@ add_library (
 target_include_directories (
     ${ONNX_LIB_NAME} PRIVATE
     ${CMAKE_HOME_DIRECTORY}/src/ml/onnx/inc
+    ${CMAKE_HOME_DIRECTORY}/src/ml/inc
     ${CMAKE_HOME_DIRECTORY}/src/utils/inc
-    ${CMAKE_HOME_DIRECTORY}/src/third_party/onnxruntime/build/native/include
+    ${CMAKE_HOME_DIRECTORY}/third_party/onnxruntime/build/native/include
 )
 
 set_target_properties (${ONNX_LIB_NAME}

@@ -21,7 +21,7 @@ int DynLibClassifier::prepare ()
         dll_loader = NULL;
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    int (*func) () = (int (*) ())dll_loader->get_address ("prepare");
+    int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("prepare");
     if (func == NULL)
     {
         safe_logger (spdlog::level::err, "failed to get function address for prepare");
@@ -29,7 +29,7 @@ int DynLibClassifier::prepare ()
         dll_loader = NULL;
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    return func ();
+    return func ((void *)&params);
 }
 
 int DynLibClassifier::predict (double *data, int data_len, double *output)
