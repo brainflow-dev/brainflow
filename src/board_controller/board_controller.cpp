@@ -222,10 +222,10 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
             board = std::shared_ptr<Board> (new Enophone (params));
             break;
         case BoardIds::MUSE_2_BOARD:
-            board = std::shared_ptr<Board> (new Muse (params));
+            board = std::shared_ptr<Board> (new Muse ((int)BoardIds::MUSE_2_BOARD, params));
             break;
         case BoardIds::MUSE_S_BOARD:
-            board = std::shared_ptr<Board> (new Muse (params));
+            board = std::shared_ptr<Board> (new Muse ((int)BoardIds::MUSE_S_BOARD, params));
             break;
         case BoardIds::BRAINALIVE_BOARD:
             board = std::shared_ptr<Board> (new BrainAlive (params));

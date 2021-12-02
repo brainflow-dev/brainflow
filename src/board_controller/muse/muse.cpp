@@ -47,7 +47,26 @@ void peripheral_on_gyro (simpleble_uuid_t service, simpleble_uuid_t characterist
     ((Muse *)(board))->peripheral_on_gyro (service, characteristic, data, size);
 }
 
-Muse::Muse (struct BrainFlowInputParams params) : BLELibBoard ((int)BoardIds::MUSE_S_BOARD, params)
+void peripheral_on_ppg0 (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
+    size_t size, void *board)
+{
+    ((Muse *)(board))->peripheral_on_ppg (service, characteristic, data, size, 0);
+}
+
+void peripheral_on_ppg1 (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
+    size_t size, void *board)
+{
+    ((Muse *)(board))->peripheral_on_ppg (service, characteristic, data, size, 1);
+}
+
+void peripheral_on_ppg2 (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
+    size_t size, void *board)
+{
+    ((Muse *)(board))->peripheral_on_ppg (service, characteristic, data, size, 2);
+}
+
+
+Muse::Muse (int board_id, struct BrainFlowInputParams params) : BLELibBoard (board_id, params)
 {
     initialized = false;
     muse_adapter = NULL;
@@ -259,6 +278,57 @@ int Muse::prepare_session ()
                         res = (int)BrainFlowExitCodes::GENERAL_ERROR;
                     }
                 }
+                if (strcmp (service.characteristics[j].value, MUSE_GATT_ATTR_PPG0) == 0)
+                {
+                    if (simpleble_peripheral_notify (muse_peripheral, service.uuid,
+                            service.characteristics[j], ::peripheral_on_ppg0,
+                            (void *)this) == SIMPLEBLE_SUCCESS)
+                    {
+                        notified_characteristics.push_back (
+                            std::pair<simpleble_uuid_t, simpleble_uuid_t> (
+                                service.uuid, service.characteristics[j]));
+                    }
+                    else
+                    {
+                        safe_logger (spdlog::level::err, "Failed to notify for {} {}",
+                            service.uuid.value, service.characteristics[j].value);
+                        res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+                    }
+                }
+                if (strcmp (service.characteristics[j].value, MUSE_GATT_ATTR_PPG1) == 0)
+                {
+                    if (simpleble_peripheral_notify (muse_peripheral, service.uuid,
+                            service.characteristics[j], ::peripheral_on_ppg1,
+                            (void *)this) == SIMPLEBLE_SUCCESS)
+                    {
+                        notified_characteristics.push_back (
+                            std::pair<simpleble_uuid_t, simpleble_uuid_t> (
+                                service.uuid, service.characteristics[j]));
+                    }
+                    else
+                    {
+                        safe_logger (spdlog::level::err, "Failed to notify for {} {}",
+                            service.uuid.value, service.characteristics[j].value);
+                        res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+                    }
+                }
+                if (strcmp (service.characteristics[j].value, MUSE_GATT_ATTR_PPG2) == 0)
+                {
+                    if (simpleble_peripheral_notify (muse_peripheral, service.uuid,
+                            service.characteristics[j], ::peripheral_on_ppg2,
+                            (void *)this) == SIMPLEBLE_SUCCESS)
+                    {
+                        notified_characteristics.push_back (
+                            std::pair<simpleble_uuid_t, simpleble_uuid_t> (
+                                service.uuid, service.characteristics[j]));
+                    }
+                    else
+                    {
+                        safe_logger (spdlog::level::err, "Failed to notify for {} {}",
+                            service.uuid.value, service.characteristics[j].value);
+                        res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+                    }
+                }
             }
         }
     }
@@ -293,7 +363,7 @@ int Muse::start_stream (int buffer_size, const char *streamer_params)
     }
 
     int res = prepare_for_acquisition (buffer_size, streamer_params);
-    res = config_board ("p21");
+    res = config_board ("p61");
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
         res = config_board ("d");
@@ -450,7 +520,7 @@ void Muse::adapter_on_scan_found (simpleble_adapter_t adapter, simpleble_periphe
 }
 
 void Muse::peripheral_on_eeg (simpleble_uuid_t service, simpleble_uuid_t characteristic,
-    uint8_t *data, size_t size, int channel_num)
+    uint8_t *data, size_t size, size_t channel_num)
 {
     if (size != 20)
     {
@@ -560,5 +630,24 @@ void Muse::peripheral_on_gyro (
             current_buf[i * 4 + j][board_descr["gyro_channels"][2].get<int> ()] =
                 gyro_valz * MUSE_GYRO_SCALE_FACTOR;
         }
+    }
+}
+
+void Muse::peripheral_on_ppg (simpleble_uuid_t service, simpleble_uuid_t characteristic,
+    uint8_t *data, size_t size, size_t ppg_num)
+{
+    if (size != 20)
+    {
+        safe_logger (spdlog::level::warn, "unknown size for ppg callback: {}", size);
+        return;
+    }
+
+    std::vector<int> ppg_channels = board_descr["ppg_channels"];
+    // format is: 2 bytes for package num, 6 int24 values for actual data
+    for (int i = 0; i < 6; i++)
+    {
+        double ppg_val = (double)cast_24bit_to_int32 ((unsigned char *)&data[2 + i * 3]);
+        current_buf[i * 2][ppg_channels[ppg_num]] = ppg_val;
+        current_buf[i * 2 + 1][ppg_channels[ppg_num]] = ppg_val;
     }
 }

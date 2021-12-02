@@ -24,7 +24,7 @@ protected:
     double last_timestamp;
 
 public:
-    Muse (struct BrainFlowInputParams params);
+    Muse (int board_id, struct BrainFlowInputParams params);
     ~Muse ();
 
     int prepare_session ();
@@ -36,7 +36,9 @@ public:
 
     void adapter_on_scan_found (simpleble_adapter_t adapter, simpleble_peripheral_t peripheral);
     void peripheral_on_eeg (simpleble_uuid_t service, simpleble_uuid_t characteristic,
-        uint8_t *data, size_t size, int channel_num);
+        uint8_t *data, size_t size, size_t channel_num);
+    void peripheral_on_ppg (simpleble_uuid_t service, simpleble_uuid_t characteristic,
+        uint8_t *data, size_t size, size_t ppg_num);
     void peripheral_on_accel (
         simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data, size_t size);
     void peripheral_on_gyro (
