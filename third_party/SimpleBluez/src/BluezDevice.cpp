@@ -14,7 +14,7 @@ BluezDevice::BluezDevice(SimpleDBus::Connection* conn, std::string path, SimpleD
         }
     };
 
-    auto managed_interface = managed_interfaces.get_dict();
+    auto managed_interface = managed_interfaces.get_dict_string();
     for (auto& [iface, options] : managed_interface) {
         add_interface(iface, options);
     }

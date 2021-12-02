@@ -2,7 +2,8 @@
 
 #include <algorithm>
 
-BluezService::BluezService() : conn(DBUS_BUS_SYSTEM), object_manager(&conn, "org.bluez", "/"), Introspectable{&conn, "org.bluez", "/"} {
+BluezService::BluezService()
+    : conn(DBUS_BUS_SYSTEM), object_manager(&conn, "org.bluez", "/"), Introspectable{&conn, "org.bluez", "/"} {
     object_manager.InterfacesAdded = [&](std::string path, SimpleDBus::Holder options) { add_path(path, options); };
     object_manager.InterfacesRemoved = [&](std::string path, SimpleDBus::Holder options) {
         remove_path(path, options);

@@ -76,7 +76,7 @@ void GattCharacteristic1::write_request(const uint8_t* data, uint16_t length) {
         value.array_append(SimpleDBus::Holder::create_byte(data[i]));
     }
     SimpleDBus::Holder options = SimpleDBus::Holder::create_dict();
-    options.dict_append("type", SimpleDBus::Holder::create_string("request"));
+    options.dict_append(SimpleDBus::Holder::Type::STRING, "type", SimpleDBus::Holder::create_string("request"));
     WriteValue(value, options);
 }
 
@@ -86,7 +86,7 @@ void GattCharacteristic1::write_command(const uint8_t* data, uint16_t length) {
         value.array_append(SimpleDBus::Holder::create_byte(data[i]));
     }
     SimpleDBus::Holder options = SimpleDBus::Holder::create_dict();
-    options.dict_append("type", SimpleDBus::Holder::create_string("command"));
+    options.dict_append(SimpleDBus::Holder::Type::STRING, "type", SimpleDBus::Holder::create_string("command"));
     WriteValue(value, options);
 }
 
