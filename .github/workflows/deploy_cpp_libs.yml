@@ -79,9 +79,11 @@ jobs:
       run: |
         mkdir $GITHUB_WORKSPACE/third_party/SimpleBLE/build
         cd $GITHUB_WORKSPACE/third_party/SimpleBLE/build
-        cmake -G Ninja -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
+        cmake -G Ninja -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/artifacts/macos_$BUILD -DCMAKE_BUILD_TYPE=$BUILD ..
         ninja
         ninja install
+      env:
+        BUILD: ${{ matrix.build_type }}
     - name: Compile BrainFlow for MacOS
       if: (matrix.os == 'macos-11.0')
       run: |
