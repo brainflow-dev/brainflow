@@ -28,6 +28,10 @@ jobs:
         cmake -G "Visual Studio 16 2019" -A %ARCH% -DMSVC_RUNTIME=%RUNTIME% -DCMAKE_SYSTEM_VERSION=10.0.19041.0 -DCMAKE_INSTALL_PREFIX=%GITHUB_WORKSPACE%\artifacts\%ARCH%_%BUILD%_%RUNTIME%\ ..
         cmake --build . --target install --config %BUILD% -j 2 --parallel 2
       shell: cmd
+      env:
+        RUNTIME: ${{ matrix.msvc_runtime }}
+        BUILD: ${{ matrix.build_type }}
+        ARCH: ${{ matrix.arch }}
     - name: Compile ${{ matrix.build_type }} ${{ matrix.arch }} with MSVC runtime ${{ matrix.msvc_runtime }}
       run: |
         mkdir %GITHUB_WORKSPACE%\%BUILD%_%RUNTIME%_%ARCH%
