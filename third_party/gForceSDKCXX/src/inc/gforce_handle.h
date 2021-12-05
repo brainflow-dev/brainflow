@@ -43,7 +43,7 @@ public:
         {
             iSamplingRate = 500;
             iTransactionSize = 128;
-            iNumPackages = iTransactionSize / GforceHandle::iADCResolution;
+            iNumPackages = 8;
             iChannelMap = 0x00FF;
         }
         if (iBoardType == (int)BoardIds::GFORCE_DUAL_BOARD)
@@ -271,20 +271,23 @@ private:
 
         ds->setEMGRawDataConfig (iSamplingRate, (DeviceSetting::EMGRowDataChannels) (iChannelMap),
             iTransactionSize, GforceHandle::iADCResolution,
-            [ds, flags, this] (ResponseResult result) {
+            [ds, flags, this] (ResponseResult result)
+            {
                 std::string res =
                     (result == ResponseResult::RREST_SUCCESS) ? ("sucess") : ("failed");
                 bIsEMGConfigured = (result == ResponseResult::RREST_SUCCESS) ? (true) : (false);
                 this->logger->info ("setEMGRawDataConfig result: {}", res);
                 if (bIsEMGConfigured)
                 {
-                    ds->setDataNotifSwitch (flags, [this] (ResponseResult result) {
-                        std::string res =
-                            (result == ResponseResult::RREST_SUCCESS) ? ("sucess") : ("failed");
-                        bIsFeatureMapConfigured =
-                            (result == ResponseResult::RREST_SUCCESS) ? (true) : (false);
-                        this->logger->info ("setDataNotifSwitch result: {}", res);
-                    });
+                    ds->setDataNotifSwitch (flags,
+                        [this] (ResponseResult result)
+                        {
+                            std::string res =
+                                (result == ResponseResult::RREST_SUCCESS) ? ("sucess") : ("failed");
+                            bIsFeatureMapConfigured =
+                                (result == ResponseResult::RREST_SUCCESS) ? (true) : (false);
+                            this->logger->info ("setDataNotifSwitch result: {}", res);
+                        });
                 }
             });
     }
