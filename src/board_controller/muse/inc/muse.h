@@ -22,6 +22,11 @@ protected:
     std::vector<std::vector<double>> current_buf;
     std::vector<bool> new_eeg_data;
     double last_timestamp;
+    int current_accel_pos;
+    int current_gyro_pos;
+    int current_ppg_pos;
+
+    std::mutex callback_lock;
 
 public:
     Muse (int board_id, struct BrainFlowInputParams params);

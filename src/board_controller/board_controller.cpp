@@ -39,8 +39,7 @@
 #include "gforce_pro.h"
 #include "ironbci.h"
 #include "muse.h"
-#include "muse_2_bled.h"
-#include "muse_s_bled.h"
+#include "muse_bled.h"
 #include "notion_osc.h"
 #include "playback_file_board.h"
 #include "streaming_board.h"
@@ -161,10 +160,10 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
             board = std::shared_ptr<Board> (new GaleaSerial (params));
             break;
         case BoardIds::MUSE_S_BLED_BOARD:
-            board = std::shared_ptr<Board> (new MuseSBLED (params));
+            board = std::shared_ptr<Board> (new MuseBLED (board_id, params));
             break;
         case BoardIds::MUSE_2_BLED_BOARD:
-            board = std::shared_ptr<Board> (new Muse2BLED (params));
+            board = std::shared_ptr<Board> (new MuseBLED (board_id, params));
             break;
         case BoardIds::ANT_NEURO_EE_410_BOARD:
             board = std::shared_ptr<Board> (
@@ -222,10 +221,10 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
             board = std::shared_ptr<Board> (new Enophone (params));
             break;
         case BoardIds::MUSE_2_BOARD:
-            board = std::shared_ptr<Board> (new Muse ((int)BoardIds::MUSE_2_BOARD, params));
+            board = std::shared_ptr<Board> (new Muse (board_id, params));
             break;
         case BoardIds::MUSE_S_BOARD:
-            board = std::shared_ptr<Board> (new Muse ((int)BoardIds::MUSE_S_BOARD, params));
+            board = std::shared_ptr<Board> (new Muse (board_id, params));
             break;
         case BoardIds::BRAINALIVE_BOARD:
             board = std::shared_ptr<Board> (new BrainAlive (params));

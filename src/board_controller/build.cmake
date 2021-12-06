@@ -70,8 +70,7 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ironbci/ironbci.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/freeeeg32/freeeeg32.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/brainbit_bled.cpp
-    ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse_s_bled.cpp
-    ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse_2_bled.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse_bled.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ant_neuro/ant_neuro.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/enophone/enophone.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ble_lib_board.cpp

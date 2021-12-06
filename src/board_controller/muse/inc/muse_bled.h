@@ -3,7 +3,7 @@
 #include "dyn_lib_board.h"
 
 
-class Muse2BLED : public DynLibBoard
+class MuseBLED : public DynLibBoard
 {
 
 private:
@@ -11,8 +11,8 @@ private:
     bool is_valid;
 
 public:
-    Muse2BLED (struct BrainFlowInputParams params);
-    ~Muse2BLED ();
+    MuseBLED (int board_id, struct BrainFlowInputParams params);
+    ~MuseBLED ();
 
     int prepare_session ();
 

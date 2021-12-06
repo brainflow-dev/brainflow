@@ -72,6 +72,9 @@ Muse::Muse (int board_id, struct BrainFlowInputParams params) : BLELibBoard (boa
     muse_adapter = NULL;
     muse_peripheral = NULL;
     is_streaming = false;
+    current_accel_pos = 0;
+    current_gyro_pos = 0;
+    current_ppg_pos = 0;
 }
 
 Muse::~Muse ()
@@ -333,11 +336,19 @@ int Muse::prepare_session ()
         }
     }
 
+    if ((control_characteristics_found) && (res == (int)BrainFlowExitCodes::STATUS_OK))
+    {
+        res = config_board ("p21");
+    }
+
     if ((res == (int)BrainFlowExitCodes::STATUS_OK) && (control_characteristics_found))
     {
         int buffer_size = board_descr["num_rows"].get<int> ();
         current_buf.resize (12); // 12 eeg packages in single ble transaction
         new_eeg_data.resize (4); // 4 eeg channels total
+        current_gyro_pos = 0;
+        current_accel_pos = 0;
+        current_ppg_pos = 0;
         for (int i = 0; i < 12; i++)
         {
             current_buf[i].resize (buffer_size);
@@ -363,7 +374,6 @@ int Muse::start_stream (int buffer_size, const char *streamer_params)
     }
 
     int res = prepare_for_acquisition (buffer_size, streamer_params);
-    res = config_board ("p61");
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
         res = config_board ("d");
@@ -438,6 +448,9 @@ int Muse::release_session ()
     }
     current_buf.clear ();
     new_eeg_data.clear ();
+    current_gyro_pos = 0;
+    current_accel_pos = 0;
+    current_ppg_pos = 0;
 
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
@@ -522,6 +535,7 @@ void Muse::adapter_on_scan_found (simpleble_adapter_t adapter, simpleble_periphe
 void Muse::peripheral_on_eeg (simpleble_uuid_t service, simpleble_uuid_t characteristic,
     uint8_t *data, size_t size, size_t channel_num)
 {
+    std::lock_guard<std::mutex> lock (callback_lock);
     if (size != 20)
     {
         safe_logger (spdlog::level::warn, "unknown size for eeg callback: {}", size);
@@ -585,6 +599,7 @@ void Muse::peripheral_on_eeg (simpleble_uuid_t service, simpleble_uuid_t charact
 void Muse::peripheral_on_accel (
     simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data, size_t size)
 {
+    std::lock_guard<std::mutex> lock (callback_lock);
     if (size != 20)
     {
         safe_logger (spdlog::level::warn, "unknown size for accel callback: {}", size);
@@ -592,24 +607,24 @@ void Muse::peripheral_on_accel (
     }
     for (int i = 0; i < 3; i++)
     {
-        double accel_valx = (double)cast_16bit_to_int32 ((unsigned char *)&data[2 + i * 6]);
-        double accel_valy = (double)cast_16bit_to_int32 ((unsigned char *)&data[4 + i * 6]);
-        double accel_valz = (double)cast_16bit_to_int32 ((unsigned char *)&data[6 + i * 6]);
+        double accel_valx = (double)cast_16bit_to_int32 ((unsigned char *)&data[2 + i * 6]) / 16384;
+        double accel_valy = (double)cast_16bit_to_int32 ((unsigned char *)&data[4 + i * 6]) / 16384;
+        double accel_valz = (double)cast_16bit_to_int32 ((unsigned char *)&data[6 + i * 6]) / 16384;
         for (int j = 0; j < 4; j++)
         {
-            current_buf[i * 4 + j][board_descr["accel_channels"][0].get<int> ()] =
-                accel_valx / 16384;
-            current_buf[i * 4 + j][board_descr["accel_channels"][1].get<int> ()] =
-                accel_valy / 16384;
-            current_buf[i * 4 + j][board_descr["accel_channels"][2].get<int> ()] =
-                accel_valz / 16384;
+            int pos = (current_accel_pos + i * 4 + j) % 12;
+            current_buf[pos][board_descr["accel_channels"][0].get<int> ()] = accel_valx;
+            current_buf[pos][board_descr["accel_channels"][1].get<int> ()] = accel_valy;
+            current_buf[pos][board_descr["accel_channels"][2].get<int> ()] = accel_valz;
         }
     }
+    current_accel_pos += 4;
 }
 
 void Muse::peripheral_on_gyro (
     simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data, size_t size)
 {
+    std::lock_guard<std::mutex> lock (callback_lock);
     if (size != 20)
     {
         safe_logger (spdlog::level::warn, "unknown size for gyro callback: {}", size);
@@ -618,24 +633,28 @@ void Muse::peripheral_on_gyro (
 
     for (int i = 0; i < 3; i++)
     {
-        double gyro_valx = (double)cast_16bit_to_int32 ((unsigned char *)&data[2 + i * 6]);
-        double gyro_valy = (double)cast_16bit_to_int32 ((unsigned char *)&data[4 + i * 6]);
-        double gyro_valz = (double)cast_16bit_to_int32 ((unsigned char *)&data[6 + i * 6]);
+        double gyro_valx = (double)cast_16bit_to_int32 ((unsigned char *)&data[2 + i * 6]) *
+            MUSE_GYRO_SCALE_FACTOR;
+        double gyro_valy = (double)cast_16bit_to_int32 ((unsigned char *)&data[4 + i * 6]) *
+            MUSE_GYRO_SCALE_FACTOR;
+        double gyro_valz = (double)cast_16bit_to_int32 ((unsigned char *)&data[6 + i * 6]) *
+            MUSE_GYRO_SCALE_FACTOR;
+
         for (int j = 0; j < 4; j++)
         {
-            current_buf[i * 4 + j][board_descr["gyro_channels"][0].get<int> ()] =
-                gyro_valx * MUSE_GYRO_SCALE_FACTOR;
-            current_buf[i * 4 + j][board_descr["gyro_channels"][1].get<int> ()] =
-                gyro_valy * MUSE_GYRO_SCALE_FACTOR;
-            current_buf[i * 4 + j][board_descr["gyro_channels"][2].get<int> ()] =
-                gyro_valz * MUSE_GYRO_SCALE_FACTOR;
+            int pos = (current_gyro_pos + i * 4 + j) % 12;
+            current_buf[pos][board_descr["gyro_channels"][0].get<int> ()] = gyro_valx;
+            current_buf[pos][board_descr["gyro_channels"][1].get<int> ()] = gyro_valy;
+            current_buf[pos][board_descr["gyro_channels"][2].get<int> ()] = gyro_valz;
         }
     }
+    current_gyro_pos += 4;
 }
 
 void Muse::peripheral_on_ppg (simpleble_uuid_t service, simpleble_uuid_t characteristic,
     uint8_t *data, size_t size, size_t ppg_num)
 {
+    std::lock_guard<std::mutex> lock (callback_lock);
     if (size != 20)
     {
         safe_logger (spdlog::level::warn, "unknown size for ppg callback: {}", size);
@@ -647,7 +666,11 @@ void Muse::peripheral_on_ppg (simpleble_uuid_t service, simpleble_uuid_t charact
     for (int i = 0; i < 6; i++)
     {
         double ppg_val = (double)cast_24bit_to_int32 ((unsigned char *)&data[2 + i * 3]);
-        current_buf[i * 2][ppg_channels[ppg_num]] = ppg_val;
-        current_buf[i * 2 + 1][ppg_channels[ppg_num]] = ppg_val;
+        for (int j = 0; j < 2; j++)
+        {
+            int pos = (current_ppg_pos + i * 2 + j) % 12;
+            current_buf[pos][ppg_channels[ppg_num]] = ppg_val;
+        }
     }
+    current_ppg_pos += 2;
 }
