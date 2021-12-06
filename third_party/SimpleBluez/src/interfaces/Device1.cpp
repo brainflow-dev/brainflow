@@ -27,14 +27,14 @@ void Device1::add_option(std::string option_name, SimpleDBus::Holder value) {
     } else if (option_name == "RSSI") {
         _rssi = value.get_int16();
     } else if (option_name == "ManufacturerData") {
-        std::map<uint64_t, SimpleDBus::Holder> manuf_data = value.get_dict_numeric();
+        std::map<uint16_t, SimpleDBus::Holder> manuf_data = value.get_dict_uint16();
         // Loop through all received keys and store them.
         for (auto& [key, value_array] : manuf_data) {
             std::vector<uint8_t> raw_manuf_data;
             for (auto& elem : value_array.get_array()) {
                 raw_manuf_data.push_back(elem.get_byte());
             }
-            _manufacturer_data[(uint16_t)key] = raw_manuf_data;
+            _manufacturer_data[key] = raw_manuf_data;
         }
     } else if (option_name == "Connected") {
         bool connected = value.get_boolean();

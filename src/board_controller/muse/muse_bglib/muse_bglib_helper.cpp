@@ -32,6 +32,9 @@ int MuseBGLibHelper::initialize (struct BrainFlowInputParams params)
         last_timestamp = -1.0;
         current_buf.resize (12); // 12 eeg packages in single ble transaction
         new_eeg_data.resize (4); // 4 eeg channels total
+        current_accel_pos = 0;
+        current_gyro_pos = 0;
+        current_ppg_pos = 0;
         for (int i = 0; i < 12; i++)
         {
             current_buf[i].resize (buffer_size);
@@ -49,20 +52,24 @@ int MuseBGLibHelper::open_device ()
         return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
     }
     int res = reset_ble_dev ();
-    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        return res;
+        exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
+        state = (int)DeviceState::OPEN_CALLED;
+        ble_cmd_gap_discover (gap_discover_observation);
+        res = wait_for_callback ();
     }
-    exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
-    state = (int)DeviceState::OPEN_CALLED;
-    ble_cmd_gap_discover (gap_discover_observation);
-    res = wait_for_callback ();
-    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        return res;
+        ble_cmd_gap_end_procedure ();
+        res = connect_ble_dev ();
     }
-    ble_cmd_gap_end_procedure ();
-    return connect_ble_dev ();
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        res = config_device ("p21");
+    }
+
+    return res;
 }
 
 int MuseBGLibHelper::stop_stream ()
@@ -114,12 +121,7 @@ int MuseBGLibHelper::start_stream ()
             return res;
         }
     }
-    int res = config_device (get_preset ().c_str ());
-    if (res != (int)BrainFlowExitCodes::STATUS_OK)
-    {
-        return res;
-    }
-    res = config_device ("d");
+    int res = config_device ("d");
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
         should_stop_stream = false;
@@ -181,6 +183,9 @@ int MuseBGLibHelper::release ()
         current_buf[i].clear ();
     }
     current_buf.clear ();
+    current_accel_pos = 0;
+    current_ppg_pos = 0;
+    current_gyro_pos = 0;
     last_timestamp = -1.0;
 
     return (int)BrainFlowExitCodes::STATUS_OK;
@@ -326,9 +331,21 @@ void MuseBGLibHelper::ble_evt_attclient_find_information_found (
             {
                 characteristics[msg->chrhandle] = uuid;
             }
+            if (strcmp (str, MUSE_GATT_ATTR_PPG0) == 0)
+            {
+                characteristics[msg->chrhandle] = uuid;
+            }
+            if (strcmp (str, MUSE_GATT_ATTR_PPG1) == 0)
+            {
+                characteristics[msg->chrhandle] = uuid;
+            }
+            if (strcmp (str, MUSE_GATT_ATTR_PPG2) == 0)
+            {
+                characteristics[msg->chrhandle] = uuid;
+            }
         }
-        if ((characteristics.size () == 6) && (state == (int)DeviceState::OPEN_CALLED) &&
-            (ccids.size () == 10))
+        if ((characteristics.size () == 9) && (state == (int)DeviceState::OPEN_CALLED) &&
+            (ccids.size () >= 13))
         {
             exit_code = (int)BrainFlowExitCodes::STATUS_OK;
         }
@@ -357,42 +374,73 @@ void MuseBGLibHelper::ble_evt_attclient_attribute_value (
         for (int i = 0; i < 3; i++)
         {
             double accel_valx =
-                (double)cast_16bit_to_int32 ((unsigned char *)&msg->value.data[2 + i * 6]);
+                (double)cast_16bit_to_int32 ((unsigned char *)&msg->value.data[2 + i * 6]) / 16384;
             double accel_valy =
-                (double)cast_16bit_to_int32 ((unsigned char *)&msg->value.data[4 + i * 6]);
+                (double)cast_16bit_to_int32 ((unsigned char *)&msg->value.data[4 + i * 6]) / 16384;
             double accel_valz =
-                (double)cast_16bit_to_int32 ((unsigned char *)&msg->value.data[6 + i * 6]);
+                (double)cast_16bit_to_int32 ((unsigned char *)&msg->value.data[6 + i * 6]) / 16384;
             for (int j = 0; j < 4; j++)
             {
-                current_buf[i * 4 + j][board_descr["accel_channels"][0].get<int> ()] =
-                    accel_valx / 16384;
-                current_buf[i * 4 + j][board_descr["accel_channels"][1].get<int> ()] =
-                    accel_valy / 16384;
-                current_buf[i * 4 + j][board_descr["accel_channels"][2].get<int> ()] =
-                    accel_valz / 16384;
+                int pos = (current_accel_pos + i * 4 + j) % 12;
+                current_buf[pos][board_descr["accel_channels"][0].get<int> ()] = accel_valx;
+                current_buf[pos][board_descr["accel_channels"][1].get<int> ()] = accel_valy;
+                current_buf[pos][board_descr["accel_channels"][2].get<int> ()] = accel_valz;
             }
         }
+        current_accel_pos += 4;
     }
     else if (uuid == MUSE_GATT_ATTR_GYRO)
     {
         for (int i = 0; i < 3; i++)
         {
             double gyro_valx =
-                (double)cast_16bit_to_int32 ((unsigned char *)&msg->value.data[2 + i * 6]);
+                (double)cast_16bit_to_int32 ((unsigned char *)&msg->value.data[2 + i * 6]) *
+                MUSE_GYRO_SCALE_FACTOR;
             double gyro_valy =
-                (double)cast_16bit_to_int32 ((unsigned char *)&msg->value.data[4 + i * 6]);
+                (double)cast_16bit_to_int32 ((unsigned char *)&msg->value.data[4 + i * 6]) *
+                MUSE_GYRO_SCALE_FACTOR;
             double gyro_valz =
-                (double)cast_16bit_to_int32 ((unsigned char *)&msg->value.data[6 + i * 6]);
+                (double)cast_16bit_to_int32 ((unsigned char *)&msg->value.data[6 + i * 6]) *
+                MUSE_GYRO_SCALE_FACTOR;
             for (int j = 0; j < 4; j++)
             {
-                current_buf[i * 4 + j][board_descr["gyro_channels"][0].get<int> ()] =
-                    gyro_valx * MUSE_GYRO_SCALE_FACTOR;
-                current_buf[i * 4 + j][board_descr["gyro_channels"][1].get<int> ()] =
-                    gyro_valy * MUSE_GYRO_SCALE_FACTOR;
-                current_buf[i * 4 + j][board_descr["gyro_channels"][2].get<int> ()] =
-                    gyro_valz * MUSE_GYRO_SCALE_FACTOR;
+                int pos = (current_gyro_pos + i * 4 + j) % 12;
+                current_buf[pos][board_descr["gyro_channels"][0].get<int> ()] = gyro_valx;
+                current_buf[pos][board_descr["gyro_channels"][1].get<int> ()] = gyro_valy;
+                current_buf[pos][board_descr["gyro_channels"][2].get<int> ()] = gyro_valz;
             }
         }
+        current_gyro_pos += 4;
+    }
+    else if ((uuid == MUSE_GATT_ATTR_PPG0) || (uuid == MUSE_GATT_ATTR_PPG1) ||
+        (uuid == MUSE_GATT_ATTR_PPG2))
+    {
+        int ppg_chann_num = 0;
+        if (uuid == MUSE_GATT_ATTR_PPG0)
+        {
+            ppg_chann_num = 0;
+        }
+        if (uuid == MUSE_GATT_ATTR_PPG0)
+        {
+            ppg_chann_num = 1;
+        }
+        if (uuid == MUSE_GATT_ATTR_PPG0)
+        {
+            ppg_chann_num = 2;
+        }
+
+        std::vector<int> ppg_channels = board_descr["ppg_channels"];
+        for (int i = 0; i < 6; i++)
+        {
+            double ppg_val =
+                (double)cast_24bit_to_int32 ((unsigned char *)&msg->value.data[2 + i * 3]);
+            for (int j = 0; j < 2; j++)
+            {
+                int pos = (current_ppg_pos + i * 2 + j) % 12;
+                current_buf[pos][ppg_channels[ppg_chann_num]] = ppg_val;
+            }
+        }
+        current_ppg_pos += 2;
     }
     else
     {

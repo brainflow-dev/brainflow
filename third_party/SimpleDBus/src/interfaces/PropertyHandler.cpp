@@ -11,7 +11,7 @@ void PropertyHandler::set_options(SimpleDBus::Holder changed_properties) {
 }
 
 void PropertyHandler::set_options(SimpleDBus::Holder changed_properties, SimpleDBus::Holder invalidated_properties) {
-    auto changed_options = changed_properties.get_dict();
+    auto changed_options = changed_properties.get_dict_string();
     for (auto& [name, value] : changed_options) {
         this->add_option(name, value);
     }

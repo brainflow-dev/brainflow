@@ -4,10 +4,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 project(SIMPLEDBUS)
 
-# Load dependencies
-find_package(PkgConfig REQUIRED)
-pkg_search_module(DBUS REQUIRED dbus-1)
-
 # Detect if the project is being build within a project or standalone.
 if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     set(STANDALONE true)
@@ -19,6 +15,16 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 else()
     set(STANDALONE false)
 endif()
+
+# Load dependencies
+include(FetchContent)
+find_package(PkgConfig REQUIRED)
+
+# Load libdbus-1
+pkg_search_module(DBUS REQUIRED dbus-1)
+
+message("-- [INFO] Using local LibFmt")
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../fmt ${CMAKE_CURRENT_BINARY_DIR}/libfmt)
 
 # Load default parameters passed in through the command line.
 if(NOT SIMPLEDBUS_LOG_LEVEL)
@@ -55,6 +61,9 @@ target_compile_options(simpledbus PRIVATE -Wfatal-errors -Wpedantic -O3)
 
 target_link_libraries(simpledbus-static PUBLIC ${DBUS_LIBRARIES})
 target_link_libraries(simpledbus PUBLIC ${DBUS_LIBRARIES})
+
+target_link_libraries(simpledbus-static PRIVATE fmt::fmt-header-only)
+target_link_libraries(simpledbus PRIVATE fmt::fmt-header-only)
 
 # Export the variables needed by the parent project
 if(NOT ${STANDALONE})

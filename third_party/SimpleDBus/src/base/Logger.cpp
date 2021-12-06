@@ -6,7 +6,7 @@
 
 using namespace SimpleDBus;
 
-static const char* log_level_strings[] = {"NONE",  "FATAL",   "ERROR",   "WARN",    "INFO",
+static const char* log_level_strings[] = {"NONE",  "FATAL",     "ERROR",     "WARN",      "INFO",
                                           "DEBUG", "VERBOSE_0", "VERBOSE_1", "VERBOSE_2", "VERBOSE_3"};
 
 #ifndef SIMPLEDBUS_LOG_LEVEL

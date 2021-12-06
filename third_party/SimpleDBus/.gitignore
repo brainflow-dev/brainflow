@@ -1,5 +1,6 @@
 bin
 build
+build_test
 .build
 .vscode
 __pycache__

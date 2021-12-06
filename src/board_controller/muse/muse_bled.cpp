@@ -2,20 +2,20 @@
 #include <utility>
 
 #include "get_dll_dir.h"
-#include "muse_s_bled.h"
+#include "muse_bled.h"
 
 #include "brainflow_constants.h"
 
 
-int MuseSBLED::num_objects = 0;
+int MuseBLED::num_objects = 0;
 
 
-MuseSBLED::MuseSBLED (struct BrainFlowInputParams params)
-    : DynLibBoard ((int)BoardIds::MUSE_S_BLED_BOARD, params)
+MuseBLED::MuseBLED (int board_id, struct BrainFlowInputParams params)
+    : DynLibBoard (board_id, params)
 {
-    MuseSBLED::num_objects++;
+    MuseBLED::num_objects++;
 
-    if (MuseSBLED::num_objects > 1)
+    if (MuseBLED::num_objects > 1)
     {
         is_valid = false;
     }
@@ -25,14 +25,14 @@ MuseSBLED::MuseSBLED (struct BrainFlowInputParams params)
     }
 }
 
-MuseSBLED::~MuseSBLED ()
+MuseBLED::~MuseBLED ()
 {
     skip_logs = true;
-    MuseSBLED::num_objects--;
+    MuseBLED::num_objects--;
     release_session ();
 }
 
-std::string MuseSBLED::get_lib_name ()
+std::string MuseBLED::get_lib_name ()
 {
     std::string muselib_path = "";
     std::string muselib_name = "";
@@ -67,11 +67,11 @@ std::string MuseSBLED::get_lib_name ()
     return muselib_path;
 }
 
-int MuseSBLED::prepare_session ()
+int MuseBLED::prepare_session ()
 {
     if (!is_valid)
     {
-        safe_logger (spdlog::level::info, "only one MuseSBLED per process is allowed");
+        safe_logger (spdlog::level::info, "only one MuseBLED per process is allowed");
         return (int)BrainFlowExitCodes::ANOTHER_BOARD_IS_CREATED_ERROR;
     }
     if (params.serial_port.empty ())

@@ -5,10 +5,8 @@
 #include "brainflow_input_params.h"
 
 #include "json.hpp"
-#include "muse_2_bglib_helper.h"
 #include "muse_bglib_helper.h"
 #include "muse_functions.h"
-#include "muse_s_bglib_helper.h"
 #include "uart.h"
 
 using json = nlohmann::json;
@@ -35,17 +33,7 @@ int initialize (void *param)
     }
     std::tuple<int, struct BrainFlowInputParams, json> *info =
         (std::tuple<int, struct BrainFlowInputParams, json> *)param;
-    switch (static_cast<BoardIds> (std::get<0> (*info)))
-    {
-        case BoardIds::MUSE_S_BLED_BOARD:
-            helper = new MuseSBGLibHelper (std::get<2> (*info));
-            break;
-        case BoardIds::MUSE_2_BLED_BOARD:
-            helper = new Muse2BGLibHelper (std::get<2> (*info));
-            break;
-        default:
-            return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
-    }
+    helper = new MuseBGLibHelper (std::get<2> (*info));
     int res = helper->initialize (std::get<1> (*info));
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {

@@ -16,7 +16,7 @@ BluezAdapter::BluezAdapter(SimpleDBus::Connection* conn, std::string path, Simpl
         }
     };
 
-    auto managed_interface = managed_interfaces.get_dict();
+    auto managed_interface = managed_interfaces.get_dict_string();
     for (auto& [iface, options] : managed_interface) {
         add_interface(iface, options);
     }
@@ -116,7 +116,7 @@ void BluezAdapter::discovery_filter_transport_set(std::string value) {
     // TODO: Validate input
 
     SimpleDBus::Holder argument = SimpleDBus::Holder::create_dict();
-    argument.dict_append("Transport", SimpleDBus::Holder::create_string(value.c_str()));
+    argument.dict_append(SimpleDBus::Holder::Type::STRING, "Transport", SimpleDBus::Holder::create_string(value.c_str()));
     SetDiscoveryFilter(argument);
 }
 

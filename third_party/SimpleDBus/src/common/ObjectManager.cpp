@@ -1,5 +1,5 @@
-#include <simpledbus/common/ObjectManager.h>
 #include <simpledbus/base/Logger.h>
+#include <simpledbus/common/ObjectManager.h>
 
 using namespace SimpleDBus;
 
@@ -13,7 +13,7 @@ Holder ObjectManager::GetManagedObjects(bool use_callbacks) {
     Message reply_msg = _conn->send_with_reply_and_block(query_msg);
     Holder managed_objects = reply_msg.extract();
     if (use_callbacks) {
-        auto managed_object = managed_objects.get_dict();
+        auto managed_object = managed_objects.get_dict_object_path();
         for (auto& [path, options] : managed_object) {
             if (InterfacesAdded) {
                 InterfacesAdded(path, options);
