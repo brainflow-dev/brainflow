@@ -143,13 +143,11 @@ int Muse::prepare_session ()
             res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
         }
     }
-    else
-    {
+
 // https://github.com/OpenBluetoothToolbox/SimpleBLE/issues/26#issuecomment-955606799
 #ifdef __linux__
-        usleep (1000000);
+    usleep (1000000);
 #endif
-    }
 
     bool control_characteristics_found = false;
 
