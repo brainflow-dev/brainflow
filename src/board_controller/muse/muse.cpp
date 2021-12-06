@@ -336,11 +336,6 @@ int Muse::prepare_session ()
         }
     }
 
-    if ((control_characteristics_found) && (res == (int)BrainFlowExitCodes::STATUS_OK))
-    {
-        res = config_board ("p21");
-    }
-
     if ((res == (int)BrainFlowExitCodes::STATUS_OK) && (control_characteristics_found))
     {
         int buffer_size = board_descr["num_rows"].get<int> ();
@@ -357,6 +352,11 @@ int Muse::prepare_session ()
         }
         last_timestamp = -1.0;
         initialized = true;
+    }
+
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        res = config_board ("p21");
     }
     else
     {

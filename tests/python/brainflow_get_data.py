@@ -41,7 +41,6 @@ def main():
 
     board = BoardShim(args.board_id, params)
     board.prepare_session()
-    board.config_board('p61')
 
     # board.start_stream () # use this for default options
     board.start_stream(45000, args.streamer_params)
