@@ -50,19 +50,25 @@ void peripheral_on_gyro (simpleble_uuid_t service, simpleble_uuid_t characterist
 void peripheral_on_ppg0 (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
     size_t size, void *board)
 {
-    ((Muse *)(board))->peripheral_on_ppg (service, characteristic, data, size, 0);
+    Muse *muse_board = (Muse *)board;
+    muse_board->peripheral_on_ppg (
+        service, characteristic, data, size, 0, &muse_board->current_ppg_pos0);
 }
 
 void peripheral_on_ppg1 (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
     size_t size, void *board)
 {
-    ((Muse *)(board))->peripheral_on_ppg (service, characteristic, data, size, 1);
+    Muse *muse_board = (Muse *)board;
+    muse_board->peripheral_on_ppg (
+        service, characteristic, data, size, 1, &muse_board->current_ppg_pos1);
 }
 
 void peripheral_on_ppg2 (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
     size_t size, void *board)
 {
-    ((Muse *)(board))->peripheral_on_ppg (service, characteristic, data, size, 2);
+    Muse *muse_board = (Muse *)board;
+    muse_board->peripheral_on_ppg (
+        service, characteristic, data, size, 2, &muse_board->current_ppg_pos2);
 }
 
 
@@ -74,7 +80,9 @@ Muse::Muse (int board_id, struct BrainFlowInputParams params) : BLELibBoard (boa
     is_streaming = false;
     current_accel_pos = 0;
     current_gyro_pos = 0;
-    current_ppg_pos = 0;
+    current_ppg_pos0 = 0;
+    current_ppg_pos1 = 0;
+    current_ppg_pos2 = 0;
 }
 
 Muse::~Muse ()
@@ -341,7 +349,9 @@ int Muse::prepare_session ()
         new_eeg_data.resize (4); // 4 eeg channels total
         current_gyro_pos = 0;
         current_accel_pos = 0;
-        current_ppg_pos = 0;
+        current_ppg_pos0 = 0;
+        current_ppg_pos1 = 0;
+        current_ppg_pos2 = 0;
         for (int i = 0; i < 12; i++)
         {
             current_buf[i].resize (buffer_size);
@@ -448,7 +458,9 @@ int Muse::release_session ()
     new_eeg_data.clear ();
     current_gyro_pos = 0;
     current_accel_pos = 0;
-    current_ppg_pos = 0;
+    current_ppg_pos0 = 0;
+    current_ppg_pos1 = 0;
+    current_ppg_pos2 = 0;
 
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
@@ -650,7 +662,7 @@ void Muse::peripheral_on_gyro (
 }
 
 void Muse::peripheral_on_ppg (simpleble_uuid_t service, simpleble_uuid_t characteristic,
-    uint8_t *data, size_t size, size_t ppg_num)
+    uint8_t *data, size_t size, size_t ppg_num, int *ppg_pos)
 {
     std::lock_guard<std::mutex> lock (callback_lock);
     if (size != 20)
@@ -666,9 +678,9 @@ void Muse::peripheral_on_ppg (simpleble_uuid_t service, simpleble_uuid_t charact
         double ppg_val = (double)cast_24bit_to_int32 ((unsigned char *)&data[2 + i * 3]);
         for (int j = 0; j < 2; j++)
         {
-            int pos = (current_ppg_pos + i * 2 + j) % 12;
+            int pos = (*ppg_pos + i * 2 + j) % 12;
             current_buf[pos][ppg_channels[ppg_num]] = ppg_val;
         }
     }
-    current_ppg_pos += 2;
+    *ppg_pos += 2;
 }
