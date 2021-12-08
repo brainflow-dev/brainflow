@@ -16,6 +16,7 @@ protected:
     bool initialized;
     bool is_streaming;
     std::mutex m;
+    std::mutex callback_lock;
     std::condition_variable cv;
     std::vector<std::pair<simpleble_uuid_t, simpleble_uuid_t>> notified_characteristics;
     std::pair<simpleble_uuid_t, simpleble_uuid_t> control_characteristics;
@@ -24,8 +25,9 @@ protected:
     double last_timestamp;
     int current_accel_pos;
     int current_gyro_pos;
-
-    std::mutex callback_lock;
+    int current_ppg_pos[3];
+    std::string fw_version;
+    std::string status_string;
 
 public:
     Muse (int board_id, struct BrainFlowInputParams params);
@@ -42,13 +44,11 @@ public:
     void peripheral_on_eeg (simpleble_uuid_t service, simpleble_uuid_t characteristic,
         uint8_t *data, size_t size, size_t channel_num);
     void peripheral_on_ppg (simpleble_uuid_t service, simpleble_uuid_t characteristic,
-        uint8_t *data, size_t size, size_t ppg_num, int *ppg_pos);
+        uint8_t *data, size_t size, size_t ppg_num);
     void peripheral_on_accel (
         simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data, size_t size);
     void peripheral_on_gyro (
         simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data, size_t size);
-
-    int current_ppg_pos0;
-    int current_ppg_pos1;
-    int current_ppg_pos2;
+    void peripheral_on_status (
+        simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data, size_t size);
 };

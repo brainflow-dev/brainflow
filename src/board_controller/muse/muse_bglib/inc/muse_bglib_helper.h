@@ -54,9 +54,7 @@ protected:
     json board_descr;
     int current_accel_pos;
     int current_gyro_pos;
-    int current_ppg_pos0;
-    int current_ppg_pos1;
-    int current_ppg_pos2;
+    int current_ppg_pos[3];
 
     std::string preset;
 
@@ -80,9 +78,7 @@ public:
         board_descr = descr;
         current_accel_pos = 0;
         current_gyro_pos = 0;
-        current_ppg_pos0 = 0;
-        current_ppg_pos1 = 0;
-        current_ppg_pos2 = 0;
+        memset (current_ppg_pos, 0, sizeof (current_ppg_pos));
     }
 
     virtual ~MuseBGLibHelper ()

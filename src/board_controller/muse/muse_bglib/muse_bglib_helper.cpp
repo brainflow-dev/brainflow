@@ -34,9 +34,7 @@ int MuseBGLibHelper::initialize (struct BrainFlowInputParams params)
         new_eeg_data.resize (4); // 4 eeg channels total
         current_accel_pos = 0;
         current_gyro_pos = 0;
-        current_ppg_pos0 = 0;
-        current_ppg_pos1 = 0;
-        current_ppg_pos2 = 0;
+        memset (current_ppg_pos, 0, sizeof (current_ppg_pos));
         for (int i = 0; i < 12; i++)
         {
             current_buf[i].resize (buffer_size);
@@ -186,9 +184,7 @@ int MuseBGLibHelper::release ()
     }
     current_buf.clear ();
     current_accel_pos = 0;
-    current_ppg_pos0 = 0;
-    current_ppg_pos1 = 0;
-    current_ppg_pos2 = 0;
+    memset (current_ppg_pos, 0, sizeof (current_ppg_pos));
     current_gyro_pos = 0;
     last_timestamp = -1.0;
 
@@ -419,24 +415,19 @@ void MuseBGLibHelper::ble_evt_attclient_attribute_value (
     else if ((uuid == MUSE_GATT_ATTR_PPG0) || (uuid == MUSE_GATT_ATTR_PPG1) ||
         (uuid == MUSE_GATT_ATTR_PPG2))
     {
-        int current_ppg_pos = 0;
         int ppg_chann_num = 0;
         if (uuid == MUSE_GATT_ATTR_PPG0)
         {
             ppg_chann_num = 0;
-            current_ppg_pos = current_ppg_pos0;
         }
         if (uuid == MUSE_GATT_ATTR_PPG1)
         {
             ppg_chann_num = 1;
-            current_ppg_pos = current_ppg_pos1;
         }
         if (uuid == MUSE_GATT_ATTR_PPG2)
         {
             ppg_chann_num = 2;
-            current_ppg_pos = current_ppg_pos2;
         }
-
 
         std::vector<int> ppg_channels = board_descr["ppg_channels"];
         for (int i = 0; i < 6; i++)
@@ -445,22 +436,11 @@ void MuseBGLibHelper::ble_evt_attclient_attribute_value (
                 (double)cast_24bit_to_int32 ((unsigned char *)&msg->value.data[2 + i * 3]);
             for (int j = 0; j < 2; j++)
             {
-                int pos = (current_ppg_pos + i * 2 + j) % 12;
+                int pos = (current_ppg_pos[ppg_chann_num] + i * 2 + j) % 12;
                 current_buf[pos][ppg_channels[ppg_chann_num]] = ppg_val;
             }
         }
-        if (uuid == MUSE_GATT_ATTR_PPG0)
-        {
-            current_ppg_pos0 += 2;
-        }
-        if (uuid == MUSE_GATT_ATTR_PPG1)
-        {
-            current_ppg_pos1 += 2;
-        }
-        if (uuid == MUSE_GATT_ATTR_PPG2)
-        {
-            current_ppg_pos2 += 2;
-        }
+        current_ppg_pos[ppg_chann_num] += 2;
     }
     else
     {
