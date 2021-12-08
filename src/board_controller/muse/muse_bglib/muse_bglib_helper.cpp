@@ -415,19 +415,24 @@ void MuseBGLibHelper::ble_evt_attclient_attribute_value (
     else if ((uuid == MUSE_GATT_ATTR_PPG0) || (uuid == MUSE_GATT_ATTR_PPG1) ||
         (uuid == MUSE_GATT_ATTR_PPG2))
     {
+        int current_ppg_pos = 0;
         int ppg_chann_num = 0;
         if (uuid == MUSE_GATT_ATTR_PPG0)
         {
             ppg_chann_num = 0;
+            current_ppg_pos = current_ppg_pos0;
         }
         if (uuid == MUSE_GATT_ATTR_PPG1)
         {
             ppg_chann_num = 1;
+            current_ppg_pos = current_ppg_pos1;
         }
         if (uuid == MUSE_GATT_ATTR_PPG2)
         {
             ppg_chann_num = 2;
+            current_ppg_pos = current_ppg_pos2;
         }
+
 
         std::vector<int> ppg_channels = board_descr["ppg_channels"];
         for (int i = 0; i < 6; i++)

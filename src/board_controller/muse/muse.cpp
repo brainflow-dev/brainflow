@@ -51,19 +51,25 @@ void peripheral_on_gyro (simpleble_uuid_t service, simpleble_uuid_t characterist
 void peripheral_on_ppg0 (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
     size_t size, void *board)
 {
-    ((Muse *)(board))->peripheral_on_ppg (service, characteristic, data, size, 0);
+    Muse *muse_board = (Muse *)board;
+    muse_board->peripheral_on_ppg (
+        service, characteristic, data, size, 0, &muse_board->current_ppg_pos0);
 }
 
 void peripheral_on_ppg1 (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
     size_t size, void *board)
 {
-    ((Muse *)(board))->peripheral_on_ppg (service, characteristic, data, size, 1);
+    Muse *muse_board = (Muse *)board;
+    muse_board->peripheral_on_ppg (
+        service, characteristic, data, size, 1, &muse_board->current_ppg_pos1);
 }
 
 void peripheral_on_ppg2 (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
     size_t size, void *board)
 {
-    ((Muse *)(board))->peripheral_on_ppg (service, characteristic, data, size, 2);
+    Muse *muse_board = (Muse *)board;
+    muse_board->peripheral_on_ppg (
+        service, characteristic, data, size, 2, &muse_board->current_ppg_pos2);
 }
 
 void peripheral_on_status (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
@@ -677,7 +683,7 @@ void Muse::peripheral_on_gyro (
 }
 
 void Muse::peripheral_on_ppg (simpleble_uuid_t service, simpleble_uuid_t characteristic,
-    uint8_t *data, size_t size, size_t ppg_num)
+    uint8_t *data, size_t size, size_t ppg_num, int *ppg_pos)
 {
     std::lock_guard<std::mutex> lock (callback_lock);
     if (size != 20)
