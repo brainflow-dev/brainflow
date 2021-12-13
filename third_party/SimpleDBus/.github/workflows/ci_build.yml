@@ -1,0 +1,39 @@
+name: CI Build
+
+on: [push, pull_request]
+
+jobs:
+  build-linux:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        os: [ubuntu-20.04]
+
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@v2
+      - name: Install Dependencies
+        run: |
+          sudo -H apt-get update -y
+          sudo -H apt-get install -y libdbus-1-dev
+        env:
+          DEBIAN_FRONTEND: noninteractive
+      - name: Setup Cmake
+        uses: jwlawson/actions-setup-cmake@v1.4
+        with:
+          cmake-version: "3.16.x"
+      - name: Compile Lib for Ubuntu
+        run: |
+          mkdir $GITHUB_WORKSPACE/build
+          cd $GITHUB_WORKSPACE/build
+          cmake -DCMAKE_BUILD_TYPE=Release ..
+          make -j2
+      - name: Compile Examples for Ubuntu
+        run: |
+          mkdir $GITHUB_WORKSPACE/build_examples
+          cd $GITHUB_WORKSPACE/build_examples
+          cmake -DCMAKE_BUILD_TYPE=Release ../examples
+          make -j2

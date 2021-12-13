@@ -55,9 +55,9 @@ Alternatively, instead of specifying the repository and tag, the user can
 specify the path to a local version of the dependencies. This is done by
 specifying the additional command line arguments to the `cmake` command:
 
-  - `SIMPLEDBUS_LOCAL_PATH`
-    Call CMake with `-DSIMPLEDBUS_LOCAL_PATH=<path>` to override the
-    default location of the SimpleDBus repository.
+- `SIMPLEDBUS_LOCAL_PATH`
+  Call CMake with `-DSIMPLEDBUS_LOCAL_PATH=<path>` to override the
+  default location of the SimpleDBus repository.
 
 ## More information
 - You can find the official documentation for BlueZ in [this link](https://git.kernel.org/pub/scm/bluetooth/bluez.git/plain/doc/gatt-api.txt).

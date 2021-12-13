@@ -1,5 +1,5 @@
-#include <simpledbus/common/Properties.h>
 #include <simpledbus/base/Logger.h>
+#include <simpledbus/common/Properties.h>
 
 #include <iostream>
 

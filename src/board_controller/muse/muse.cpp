@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <regex>
 
 #include "custom_cast.h"
 #include "muse.h"
@@ -47,12 +48,42 @@ void peripheral_on_gyro (simpleble_uuid_t service, simpleble_uuid_t characterist
     ((Muse *)(board))->peripheral_on_gyro (service, characteristic, data, size);
 }
 
-Muse::Muse (struct BrainFlowInputParams params) : BLELibBoard ((int)BoardIds::MUSE_S_BOARD, params)
+void peripheral_on_ppg0 (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
+    size_t size, void *board)
+{
+    ((Muse *)(board))->peripheral_on_ppg (service, characteristic, data, size, 0);
+}
+
+void peripheral_on_ppg1 (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
+    size_t size, void *board)
+{
+    ((Muse *)(board))->peripheral_on_ppg (service, characteristic, data, size, 1);
+}
+
+void peripheral_on_ppg2 (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
+    size_t size, void *board)
+{
+    ((Muse *)(board))->peripheral_on_ppg (service, characteristic, data, size, 2);
+}
+
+void peripheral_on_status (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
+    size_t size, void *board)
+{
+    ((Muse *)(board))->peripheral_on_status (service, characteristic, data, size);
+}
+
+
+Muse::Muse (int board_id, struct BrainFlowInputParams params) : BLELibBoard (board_id, params)
 {
     initialized = false;
     muse_adapter = NULL;
     muse_peripheral = NULL;
     is_streaming = false;
+    current_accel_pos = 0;
+    current_gyro_pos = 0;
+    memset (current_ppg_pos, 0, sizeof (current_ppg_pos));
+    fw_version = "";
+    status_string = "";
 }
 
 Muse::~Muse ()
@@ -121,13 +152,11 @@ int Muse::prepare_session ()
             res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
         }
     }
-    else
-    {
+
 // https://github.com/OpenBluetoothToolbox/SimpleBLE/issues/26#issuecomment-955606799
 #ifdef __linux__
-        usleep (1000000);
+    usleep (1000000);
 #endif
-    }
 
     bool control_characteristics_found = false;
 
@@ -156,6 +185,20 @@ int Muse::prepare_session ()
                         service.uuid, service.characteristics[j]);
                     control_characteristics_found = true;
                     safe_logger (spdlog::level::info, "found control characteristic");
+                    if (simpleble_peripheral_notify (muse_peripheral, service.uuid,
+                            service.characteristics[j], ::peripheral_on_status,
+                            (void *)this) == SIMPLEBLE_SUCCESS)
+                    {
+                        notified_characteristics.push_back (
+                            std::pair<simpleble_uuid_t, simpleble_uuid_t> (
+                                service.uuid, service.characteristics[j]));
+                    }
+                    else
+                    {
+                        safe_logger (spdlog::level::err, "Failed to notify for {} {}",
+                            service.uuid.value, service.characteristics[j].value);
+                        res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+                    }
                 }
                 if (strcmp (service.characteristics[j].value, MUSE_GATT_ATTR_TP9) == 0)
                 {
@@ -259,6 +302,57 @@ int Muse::prepare_session ()
                         res = (int)BrainFlowExitCodes::GENERAL_ERROR;
                     }
                 }
+                if (strcmp (service.characteristics[j].value, MUSE_GATT_ATTR_PPG0) == 0)
+                {
+                    if (simpleble_peripheral_notify (muse_peripheral, service.uuid,
+                            service.characteristics[j], ::peripheral_on_ppg0,
+                            (void *)this) == SIMPLEBLE_SUCCESS)
+                    {
+                        notified_characteristics.push_back (
+                            std::pair<simpleble_uuid_t, simpleble_uuid_t> (
+                                service.uuid, service.characteristics[j]));
+                    }
+                    else
+                    {
+                        safe_logger (spdlog::level::err, "Failed to notify for {} {}",
+                            service.uuid.value, service.characteristics[j].value);
+                        res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+                    }
+                }
+                if (strcmp (service.characteristics[j].value, MUSE_GATT_ATTR_PPG1) == 0)
+                {
+                    if (simpleble_peripheral_notify (muse_peripheral, service.uuid,
+                            service.characteristics[j], ::peripheral_on_ppg1,
+                            (void *)this) == SIMPLEBLE_SUCCESS)
+                    {
+                        notified_characteristics.push_back (
+                            std::pair<simpleble_uuid_t, simpleble_uuid_t> (
+                                service.uuid, service.characteristics[j]));
+                    }
+                    else
+                    {
+                        safe_logger (spdlog::level::err, "Failed to notify for {} {}",
+                            service.uuid.value, service.characteristics[j].value);
+                        res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+                    }
+                }
+                if (strcmp (service.characteristics[j].value, MUSE_GATT_ATTR_PPG2) == 0)
+                {
+                    if (simpleble_peripheral_notify (muse_peripheral, service.uuid,
+                            service.characteristics[j], ::peripheral_on_ppg2,
+                            (void *)this) == SIMPLEBLE_SUCCESS)
+                    {
+                        notified_characteristics.push_back (
+                            std::pair<simpleble_uuid_t, simpleble_uuid_t> (
+                                service.uuid, service.characteristics[j]));
+                    }
+                    else
+                    {
+                        safe_logger (spdlog::level::err, "Failed to notify for {} {}",
+                            service.uuid.value, service.characteristics[j].value);
+                        res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+                    }
+                }
             }
         }
     }
@@ -268,6 +362,9 @@ int Muse::prepare_session ()
         int buffer_size = board_descr["num_rows"].get<int> ();
         current_buf.resize (12); // 12 eeg packages in single ble transaction
         new_eeg_data.resize (4); // 4 eeg channels total
+        current_gyro_pos = 0;
+        current_accel_pos = 0;
+        memset (current_ppg_pos, 0, sizeof (current_ppg_pos));
         for (int i = 0; i < 12; i++)
         {
             current_buf[i].resize (buffer_size);
@@ -276,6 +373,15 @@ int Muse::prepare_session ()
         }
         last_timestamp = -1.0;
         initialized = true;
+    }
+
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        res = config_board ("v1");
+    }
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        res = config_board ("p21");
     }
     else
     {
@@ -293,7 +399,6 @@ int Muse::start_stream (int buffer_size, const char *streamer_params)
     }
 
     int res = prepare_for_acquisition (buffer_size, streamer_params);
-    res = config_board ("p21");
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
         res = config_board ("d");
@@ -368,6 +473,9 @@ int Muse::release_session ()
     }
     current_buf.clear ();
     new_eeg_data.clear ();
+    current_gyro_pos = 0;
+    current_accel_pos = 0;
+    memset (current_ppg_pos, 0, sizeof (current_ppg_pos));
 
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
@@ -450,8 +558,9 @@ void Muse::adapter_on_scan_found (simpleble_adapter_t adapter, simpleble_periphe
 }
 
 void Muse::peripheral_on_eeg (simpleble_uuid_t service, simpleble_uuid_t characteristic,
-    uint8_t *data, size_t size, int channel_num)
+    uint8_t *data, size_t size, size_t channel_num)
 {
+    std::lock_guard<std::mutex> lock (callback_lock);
     if (size != 20)
     {
         safe_logger (spdlog::level::warn, "unknown size for eeg callback: {}", size);
@@ -515,6 +624,7 @@ void Muse::peripheral_on_eeg (simpleble_uuid_t service, simpleble_uuid_t charact
 void Muse::peripheral_on_accel (
     simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data, size_t size)
 {
+    std::lock_guard<std::mutex> lock (callback_lock);
     if (size != 20)
     {
         safe_logger (spdlog::level::warn, "unknown size for accel callback: {}", size);
@@ -522,24 +632,24 @@ void Muse::peripheral_on_accel (
     }
     for (int i = 0; i < 3; i++)
     {
-        double accel_valx = (double)cast_16bit_to_int32 ((unsigned char *)&data[2 + i * 6]);
-        double accel_valy = (double)cast_16bit_to_int32 ((unsigned char *)&data[4 + i * 6]);
-        double accel_valz = (double)cast_16bit_to_int32 ((unsigned char *)&data[6 + i * 6]);
+        double accel_valx = (double)cast_16bit_to_int32 ((unsigned char *)&data[2 + i * 6]) / 16384;
+        double accel_valy = (double)cast_16bit_to_int32 ((unsigned char *)&data[4 + i * 6]) / 16384;
+        double accel_valz = (double)cast_16bit_to_int32 ((unsigned char *)&data[6 + i * 6]) / 16384;
         for (int j = 0; j < 4; j++)
         {
-            current_buf[i * 4 + j][board_descr["accel_channels"][0].get<int> ()] =
-                accel_valx / 16384;
-            current_buf[i * 4 + j][board_descr["accel_channels"][1].get<int> ()] =
-                accel_valy / 16384;
-            current_buf[i * 4 + j][board_descr["accel_channels"][2].get<int> ()] =
-                accel_valz / 16384;
+            int pos = (current_accel_pos + i * 4 + j) % 12;
+            current_buf[pos][board_descr["accel_channels"][0].get<int> ()] = accel_valx;
+            current_buf[pos][board_descr["accel_channels"][1].get<int> ()] = accel_valy;
+            current_buf[pos][board_descr["accel_channels"][2].get<int> ()] = accel_valz;
         }
     }
+    current_accel_pos += 4;
 }
 
 void Muse::peripheral_on_gyro (
     simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data, size_t size)
 {
+    std::lock_guard<std::mutex> lock (callback_lock);
     if (size != 20)
     {
         safe_logger (spdlog::level::warn, "unknown size for gyro callback: {}", size);
@@ -548,17 +658,74 @@ void Muse::peripheral_on_gyro (
 
     for (int i = 0; i < 3; i++)
     {
-        double gyro_valx = (double)cast_16bit_to_int32 ((unsigned char *)&data[2 + i * 6]);
-        double gyro_valy = (double)cast_16bit_to_int32 ((unsigned char *)&data[4 + i * 6]);
-        double gyro_valz = (double)cast_16bit_to_int32 ((unsigned char *)&data[6 + i * 6]);
+        double gyro_valx = (double)cast_16bit_to_int32 ((unsigned char *)&data[2 + i * 6]) *
+            MUSE_GYRO_SCALE_FACTOR;
+        double gyro_valy = (double)cast_16bit_to_int32 ((unsigned char *)&data[4 + i * 6]) *
+            MUSE_GYRO_SCALE_FACTOR;
+        double gyro_valz = (double)cast_16bit_to_int32 ((unsigned char *)&data[6 + i * 6]) *
+            MUSE_GYRO_SCALE_FACTOR;
+
         for (int j = 0; j < 4; j++)
         {
-            current_buf[i * 4 + j][board_descr["gyro_channels"][0].get<int> ()] =
-                gyro_valx * MUSE_GYRO_SCALE_FACTOR;
-            current_buf[i * 4 + j][board_descr["gyro_channels"][1].get<int> ()] =
-                gyro_valy * MUSE_GYRO_SCALE_FACTOR;
-            current_buf[i * 4 + j][board_descr["gyro_channels"][2].get<int> ()] =
-                gyro_valz * MUSE_GYRO_SCALE_FACTOR;
+            int pos = (current_gyro_pos + i * 4 + j) % 12;
+            current_buf[pos][board_descr["gyro_channels"][0].get<int> ()] = gyro_valx;
+            current_buf[pos][board_descr["gyro_channels"][1].get<int> ()] = gyro_valy;
+            current_buf[pos][board_descr["gyro_channels"][2].get<int> ()] = gyro_valz;
+        }
+    }
+    current_gyro_pos += 4;
+}
+
+void Muse::peripheral_on_ppg (simpleble_uuid_t service, simpleble_uuid_t characteristic,
+    uint8_t *data, size_t size, size_t ppg_num)
+{
+    std::lock_guard<std::mutex> lock (callback_lock);
+    if (size != 20)
+    {
+        safe_logger (spdlog::level::warn, "unknown size for ppg callback: {}", size);
+        return;
+    }
+
+    std::vector<int> ppg_channels = board_descr["ppg_channels"];
+    // format is: 2 bytes for package num, 6 int24 values for actual data
+    for (int i = 0; i < 6; i++)
+    {
+        double ppg_val = (double)cast_24bit_to_int32 ((unsigned char *)&data[2 + i * 3]);
+        for (int j = 0; j < 2; j++)
+        {
+            int pos = (current_ppg_pos[ppg_num] + i * 2 + j) % 12;
+            current_buf[pos][ppg_channels[ppg_num]] = ppg_val;
+        }
+    }
+    current_ppg_pos[ppg_num] += 2;
+}
+
+void Muse::peripheral_on_status (
+    simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data, size_t size)
+{
+    std::lock_guard<std::mutex> lock (callback_lock);
+    if (size != 20)
+    {
+        safe_logger (spdlog::level::warn, "unknown size for status callback: {}", size);
+        return;
+    }
+
+    int len = (int)data[0]; // first byte is a len of non garbage data
+    std::string incom_string (((char *)data) + 1, len);
+    status_string += incom_string;
+    safe_logger (spdlog::level::trace, "status string is {}", status_string);
+    std::regex rgx ("fw\":\"([0-9]+\\.[0-9]+\\.[0-9]+)");
+    std::smatch matches;
+    if (std::regex_search (status_string, matches, rgx) == true)
+    {
+        if (matches.size () == 2)
+        {
+            fw_version = matches.str (1);
+            safe_logger (spdlog::level::trace, "Determined fw version: {}", fw_version.c_str ());
+        }
+        else
+        {
+            safe_logger (spdlog::level::warn, "invalid number of groups found");
         }
     }
 }

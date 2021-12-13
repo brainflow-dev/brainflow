@@ -15,4 +15,5 @@ add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/.. ${CMAKE_BINARY_DIR}/simplebluez)
 include_directories(${SIMPLEBLUEZ_INCLUDES})
 
 add_subdirectory(ble_nus)
+add_subdirectory(list_adapters)
 add_subdirectory(manuf_data)
