@@ -824,6 +824,9 @@ BrainAlive
 BrainAlive Device
 ~~~~~~~~~~~~~~~~~~
 
+.. image:: https://live.staticflickr.com/65535/51752250946_7915ca2e2b.jpg
+    :width: 500px
+    :height: 333px
 
 `BrainAlive Website <https://braina.live//>`_
 
