@@ -114,6 +114,10 @@ class MLModuleDLL(object):
             ctypes.c_char_p
         ]
 
+        self.release_all = self.lib.release_all
+        self.release_all.restype = ctypes.c_int
+        self.release_all.argtypes = []
+
         self.predict = self.lib.predict
         self.predict.restype = ctypes.c_int
         self.predict.argtypes = [
@@ -179,6 +183,14 @@ class MLModel(object):
         res = MLModuleDLL.get_instance().set_log_file_ml_module(file)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to redirect logs to a file', res)
+
+    @classmethod
+    def release_all(cls) -> None:
+        """release all classifiers"""
+
+        res = MLModuleDLL.get_instance().release_all()
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to release classifiers', res)
 
     def prepare(self) -> None:
         """prepare classifier"""

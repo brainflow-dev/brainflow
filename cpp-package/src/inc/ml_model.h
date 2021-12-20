@@ -33,6 +33,8 @@ public:
     static void enable_dev_ml_logger ();
     /// set log level
     static void set_log_level (int log_level);
+    /// release all currently prepared classifiers
+    static void release_all ();
 
     /// initialize classifier, should be called first
     void prepare ();

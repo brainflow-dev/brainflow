@@ -79,3 +79,9 @@ pub fn set_log_file<S: AsRef<str>>(log_file: S) -> Result<()> {
     let res = unsafe { ml_model::set_log_file_ml_module(log_file.as_ptr()) };
     Ok(check_brainflow_exit_code(res)?)
 }
+
+/// Release all classifiers
+pub fn release_all() -> Result<()> {
+    let res = unsafe { ml_model::release_all() };
+    Ok(check_brainflow_exit_code(res)?)
+}

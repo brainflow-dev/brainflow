@@ -34,6 +34,14 @@ classdef BoardShim
                 error('Non zero ec: %d, for task: %s', ec, task_name)
             end
         end
+        
+        function release_all_sessions()
+            % release all sessions
+            task_name = 'release_all_sessions';
+            lib_name = BoardShim.load_lib();
+            exit_code = calllib(lib_name, task_name);
+            BoardShim.check_ec(exit_code, task_name);
+        end
 
         function set_log_level(log_level)
             % set log level for BoardShim

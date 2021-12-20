@@ -171,6 +171,8 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE
         sudo -H python3 $GITHUB_WORKSPACE/tests/python/serialization.py
+    - name: Python Release All
+      run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/release_all.py
     - name: Filters Python
       run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/signal_filtering.py
     - name: Transforms Python

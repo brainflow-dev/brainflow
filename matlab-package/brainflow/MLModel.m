@@ -33,6 +33,14 @@ classdef MLModel
             end
         end
         
+        function release_all()
+            % release all sessions
+            task_name = 'release_all';
+            lib_name = MLModel.load_lib();
+            exit_code = calllib(lib_name, task_name);
+            BoardShim.check_ec(exit_code, task_name);
+        end
+        
         function set_log_level(log_level)
             % set log level for MLModel
             task_name = 'set_log_level_ml_module';

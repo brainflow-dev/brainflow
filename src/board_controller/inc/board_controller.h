@@ -28,6 +28,7 @@ extern "C"
         int *prepared, int board_id, const char *json_brainflow_input_params);
     SHARED_EXPORT int CALLING_CONVENTION insert_marker (
         double marker_value, int board_id, const char *json_brainflow_input_params);
+    SHARED_EXPORT int CALLING_CONVENTION release_all_sessions ();
 
     // logging methods
     SHARED_EXPORT int CALLING_CONVENTION set_log_level_board_controller (int log_level);

@@ -432,6 +432,20 @@ int config_board (char *config, char *response, int *response_len, int board_id,
     return res;
 }
 
+int release_all_sessions ()
+{
+    std::lock_guard<std::mutex> lock (mutex);
+
+    for (auto it = boards.begin (), next_it = it; it != boards.end (); it = next_it)
+    {
+        ++next_it;
+        it->second->release_session ();
+        boards.erase (it);
+    }
+
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
 /////////////////////////////////////////////////
 //////////////////// helpers ////////////////////
 /////////////////////////////////////////////////

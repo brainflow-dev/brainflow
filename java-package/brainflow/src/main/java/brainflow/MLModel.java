@@ -24,6 +24,8 @@ public class MLModel
         int release (String params);
 
         int predict (double[] data, int data_len, double[] output, String params);
+
+        int release_all ();
     }
 
     private static DllInterface instance;
@@ -119,6 +121,18 @@ public class MLModel
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in set_log_file", ec);
+        }
+    }
+
+    /**
+     * release all classifiers
+     */
+    public static void release_all () throws BrainFlowError
+    {
+        int ec = instance.release_all ();
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in release classifiers", ec);
         }
     }
 
