@@ -111,6 +111,10 @@ end
     return sub_string
 end
 
+@brainflow_rethrow function release_all_sessions()
+    ccall((:release_all_sessions, BOARD_CONTROLLER_INTERFACE), Cint, ())
+end
+
 single_channel_function_names = (
     :get_timestamp_channel,
     :get_package_num_channel,
@@ -215,7 +219,6 @@ end
 @brainflow_rethrow function stop_stream(board_shim::BoardShim)
     ccall((:stop_stream, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}), board_shim.board_id, board_shim.input_json)
 end
-
 
 @brainflow_rethrow function release_session(board_shim::BoardShim)
     ccall((:release_session, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}), board_shim.board_id, board_shim.input_json)

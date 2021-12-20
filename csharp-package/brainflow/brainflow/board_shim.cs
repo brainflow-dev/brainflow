@@ -42,6 +42,18 @@ namespace brainflow
         }
 
         /// <summary>
+        /// release all sessions
+        /// </summary>
+        public static void release_all_sessions ()
+        {
+            int res = BoardControllerLibrary.release_all_sessions ();
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException(res);
+            }
+        }
+
+        /// <summary>
         /// get sampling rate for this board id
         /// </summary>
         /// <param name="board_id"></param>

@@ -88,6 +88,8 @@ public class BoardShim
 
         int get_temperature_channels (int board_id, int[] temperature_channels, int[] len);
 
+        int release_all_sessions ();
+
         int is_prepared (int[] prepared, int board_id, String params);
 
         int get_eeg_names (int board_id, byte[] names, int[] len);
@@ -106,23 +108,37 @@ public class BoardShim
         boolean is_os_android = "The Android Project".equals (System.getProperty ("java.specification.vendor"));
 
         String lib_name = "libBoardController.so";
-        String ganglion_name = "libGanglionLib.so";
         if (SystemUtils.IS_OS_WINDOWS)
         {
             lib_name = "BoardController.dll";
-            ganglion_name = "GanglionLib.dll";
             unpack_from_jar ("neurosdk-x64.dll");
             unpack_from_jar ("Unicorn.dll");
             unpack_from_jar ("gForceSDKWrapper.dll");
             unpack_from_jar ("gforce64.dll");
+            unpack_from_jar ("simpleble-c.dll");
+            unpack_from_jar ("MuseLib.dll");
+            unpack_from_jar ("BrainBitLib.dll");
+            unpack_from_jar ("GanglionLib.dll");
+            unpack_from_jar ("BrainFlowBluetooth.dll");
+            unpack_from_jar ("eego-SDK.dll");
         } else if (SystemUtils.IS_OS_MAC)
         {
             lib_name = "libBoardController.dylib";
-            ganglion_name = "libGanglionLib.dylib";
+            unpack_from_jar ("libGanglionLib.dylib");
             unpack_from_jar ("libneurosdk-shared.dylib");
+            unpack_from_jar ("libsimpleble-c.dylib");
+            unpack_from_jar ("libMuseLib.dylib");
+            unpack_from_jar ("libBrainBitLib.dylib");
+            unpack_from_jar ("libBrainFlowBluetooth.dylib");
         } else if ((SystemUtils.IS_OS_LINUX) && (!is_os_android))
         {
             unpack_from_jar ("libunicorn.so");
+            unpack_from_jar ("libGanglionLib.so");
+            unpack_from_jar ("libsimpleble-c.so");
+            unpack_from_jar ("libMuseLib.so");
+            unpack_from_jar ("libBrainFlowBluetooth.so");
+            unpack_from_jar ("libBrainBitLib.so");
+            unpack_from_jar ("libeego-SDK.so");
         }
 
         if (is_os_android)
@@ -134,7 +150,6 @@ public class BoardShim
         {
             // need to extract libraries from jar
             unpack_from_jar (lib_name);
-            unpack_from_jar (ganglion_name);
         }
 
         instance = Native.loadLibrary (lib_name, DllInterface.class,
@@ -192,6 +207,18 @@ public class BoardShim
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in set_log_file", ec);
+        }
+    }
+
+    /**
+     * release all prepared sessions
+     */
+    public static void release_all_sessions () throws BrainFlowError
+    {
+        int ec = instance.release_all_sessions ();
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in release sessions", ec);
         }
     }
 

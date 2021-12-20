@@ -22,6 +22,18 @@ namespace brainflow
         }
 
         /// <summary>
+        /// release all classifiers
+        /// </summary>
+        public static void release_all ()
+        {
+            int res = MLModuleLibrary.release_all ();
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException(res);
+            }
+        }
+
+        /// <summary>
         /// set log level, logger is disabled by default
         /// </summary>
         /// <param name="log_level"></param>

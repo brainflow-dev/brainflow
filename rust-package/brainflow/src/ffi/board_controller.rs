@@ -225,6 +225,9 @@ extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
+    pub fn release_all_sessions() -> ::std::os::raw::c_int;
+}
+extern "C" {
     pub fn set_log_level_board_controller(
         log_level: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;

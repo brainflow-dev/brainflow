@@ -68,3 +68,7 @@ end
     value = val[1]
     return value
 end
+
+@brainflow_rethrow function release_all()
+    ccall((:release_all, ML_MODULE_INTERFACE), Cint, ())
+end

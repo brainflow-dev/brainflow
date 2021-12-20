@@ -223,6 +223,10 @@ class BoardControllerDLL(object):
             ctypes.c_char_p
         ]
 
+        self.release_all_sessions = self.lib.release_all_sessions
+        self.release_all_sessions.restype = ctypes.c_int
+        self.release_all_sessions.argtypes = []
+
         self.insert_marker = self.lib.insert_marker
         self.insert_marker.restype = ctypes.c_int
         self.insert_marker.argtypes = [
@@ -890,6 +894,14 @@ class BoardShim(object):
             raise BrainFlowError('unable to request info about this board', res)
         result = resistance_channels.tolist()[0:num_channels[0]]
         return result
+
+    @classmethod
+    def release_all_sessions(cls) -> None:
+        """release all prepared sessions"""
+
+        res = BoardControllerDLL.get_instance().release_all_sessions()
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to release sessions', res)
 
     def prepare_session(self) -> None:
         """prepare streaming sesssion, init resources, you need to call it before any other BoardShim object methods"""

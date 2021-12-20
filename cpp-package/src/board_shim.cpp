@@ -85,6 +85,15 @@ void BoardShim::log_message (int log_level, const char *format, ...)
 /////// data acquisition methods /////////
 //////////////////////////////////////////
 
+void BoardShim::release_all_sessions ()
+{
+    int res = ::release_all_sessions ();
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to release sessions", res);
+    }
+}
+
 BoardShim::BoardShim (int board_id, struct BrainFlowInputParams params)
 {
     serialized_params = params_to_string (params);

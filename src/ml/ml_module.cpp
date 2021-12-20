@@ -184,3 +184,17 @@ int set_log_file_ml_module (const char *log_file)
     std::lock_guard<std::mutex> lock (models_mutex);
     return BaseClassifier::set_log_file (log_file);
 }
+
+int release_all ()
+{
+    std::lock_guard<std::mutex> lock (models_mutex);
+
+    for (auto it = ml_models.begin (), next_it = it; it != ml_models.end (); it = next_it)
+    {
+        ++next_it;
+        it->second->release ();
+        ml_models.erase (it);
+    }
+
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}

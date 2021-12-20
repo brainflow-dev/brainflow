@@ -248,6 +248,14 @@ pub fn set_log_file<S: AsRef<str>>(log_file: S) -> Result<()> {
     Ok(check_brainflow_exit_code(res)?)
 }
 
+/// Release all sessions
+pub fn release_all_sessions() -> Result<()> {
+    let res = unsafe {
+        board_controller::release_all_sessions()
+    };
+    Ok(check_brainflow_exit_code(res)?)
+}
+
 macro_rules! gen_fn {
     ($fn_name:ident, $return_type:ident, $initial_value:literal, $doc:literal) => {
         paste! {

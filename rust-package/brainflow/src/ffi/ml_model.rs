@@ -18,6 +18,9 @@ extern "C" {
     pub fn release(json_params: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
 }
 extern "C" {
+    pub fn release_all() -> ::std::os::raw::c_int;
+}
+extern "C" {
     pub fn set_log_level_ml_module(log_level: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {

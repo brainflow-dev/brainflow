@@ -10,6 +10,7 @@ extern "C"
     SHARED_EXPORT int CALLING_CONVENTION predict (
         double *data, int data_len, double *output, const char *json_params);
     SHARED_EXPORT int CALLING_CONVENTION release (const char *json_params);
+    SHARED_EXPORT int CALLING_CONVENTION release_all ();
 
     // logging methods
     SHARED_EXPORT int CALLING_CONVENTION set_log_level_ml_module (int log_level);

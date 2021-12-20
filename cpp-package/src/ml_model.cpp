@@ -6,6 +6,15 @@
 using json = nlohmann::json;
 
 
+void MLModel::release_all ()
+{
+    int res = ::release_all ();
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to release classifiers", res);
+    }
+}
+
 std::string params_to_string (struct BrainFlowModelParams params)
 {
     json j;
