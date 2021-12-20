@@ -4047,9 +4047,9 @@ void idwt2 (wt2_object wt, double *wavecoeff, double *oup)
 
 
         X_lp = (double *)malloc (sizeof (double) * (N + 2 * lf - 1));
-        cL = (double *)calloc (dim1 * dim2, sizeof (double));
-        cH = (double *)calloc (dim1 * dim2, sizeof (double));
-        out = (double *)calloc (dim1 * dim2, sizeof (double));
+        cL = (double *)calloc ((size_t)dim1 * (size_t)dim2, sizeof (double));
+        cH = (double *)calloc ((size_t)dim1 * (size_t)dim2, sizeof (double));
+        out = (double *)calloc ((size_t)dim1 * (size_t)dim2, sizeof (double));
         aLL = wt->coeffaccess[0];
         orig = wavecoeff + aLL;
         for (iter = 0; iter < J; ++iter)
@@ -4142,9 +4142,9 @@ void idwt2 (wt2_object wt, double *wavecoeff, double *oup)
 
 
         X_lp = (double *)malloc (sizeof (double) * (N + 2 * lf - 1));
-        cL = (double *)calloc (dim1 * dim2, sizeof (double));
-        cH = (double *)calloc (dim1 * dim2, sizeof (double));
-        out = (double *)calloc (dim1 * dim2, sizeof (double));
+        cL = (double *)calloc ((size_t)dim1 * (size_t)dim2, sizeof (double));
+        cH = (double *)calloc ((size_t)dim1 * (size_t)dim2, sizeof (double));
+        out = (double *)calloc ((size_t)dim1 * (size_t)dim2, sizeof (double));
         aLL = wt->coeffaccess[0];
         orig = wavecoeff + aLL;
         for (iter = 0; iter < J; ++iter)
@@ -4321,12 +4321,12 @@ void iswt2 (wt2_object wt, double *wavecoeffs, double *oup)
     rows = wt->rows;
     cols = wt->cols;
     lf = wt->wave->lpd_len;
-    A = (double *)calloc ((rows + lf) * (cols + lf), sizeof (double));
-    H = (double *)calloc ((rows + lf) * (cols + lf), sizeof (double));
-    V = (double *)calloc ((rows + lf) * (cols + lf), sizeof (double));
-    D = (double *)calloc ((rows + lf) * (cols + lf), sizeof (double));
-    oup1 = (double *)calloc ((rows + lf) * (cols + lf), sizeof (double));
-    oup2 = (double *)calloc ((rows + lf) * (cols + lf), sizeof (double));
+    A = (double *)calloc ((size_t)(rows + lf) * (size_t)(cols + lf), sizeof (double));
+    H = (double *)calloc ((size_t)(rows + lf) * (size_t)(cols + lf), sizeof (double));
+    V = (double *)calloc ((size_t)(rows + lf) * (size_t)(cols + lf), sizeof (double));
+    D = (double *)calloc ((size_t)(rows + lf) * (size_t)(cols + lf), sizeof (double));
+    oup1 = (double *)calloc ((size_t)(rows + lf) * (size_t)(cols + lf), sizeof (double));
+    oup2 = (double *)calloc ((size_t)(rows + lf) * (size_t)(cols + lf), sizeof (double));
 
     aLL = wt->coeffaccess[0];
 
@@ -4537,8 +4537,8 @@ void imodwt2 (wt2_object wt, double *wavecoeff, double *oup)
     }
 
 
-    cL = (double *)calloc (rows * cols, sizeof (double));
-    cH = (double *)calloc (rows * cols, sizeof (double));
+    cL = (double *)calloc ((size_t)rows * (size_t)cols, sizeof (double));
+    cH = (double *)calloc ((size_t)rows * (size_t)cols, sizeof (double));
     aLL = wt->coeffaccess[0];
     orig = wavecoeff + aLL;
     for (iter = 0; iter < J; ++iter)
