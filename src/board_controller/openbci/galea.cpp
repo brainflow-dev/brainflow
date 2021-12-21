@@ -1,4 +1,6 @@
 #include <numeric>
+#include <regex>
+#include <sstream>
 #include <stdint.h>
 #include <string.h>
 
@@ -44,8 +46,11 @@ int Galea::prepare_session ()
     }
     if (params.ip_address.empty ())
     {
-        safe_logger (spdlog::level::err, "ip address is not specified.");
-        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+        params.ip_address = find_device ();
+        if (params.ip_address.empty ())
+        {
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+        }
     }
     socket = new SocketClientUDP (params.ip_address.c_str (), 2390);
     int res = socket->connect ();
@@ -475,4 +480,69 @@ int Galea::calc_time (std::string &resp)
     safe_logger (spdlog::level::info, "calc_time output: {}", resp);
 
     return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+std::string Galea::find_device ()
+{
+    safe_logger (spdlog::level::trace, "trying to autodiscover device via SSDP");
+    std::string ip_address = "";
+    SocketClientUDP udp_client ("239.255.255.250", 1900); // ssdp ip and port
+    int res = udp_client.connect ();
+    if (res == (int)SocketClientUDPReturnCodes::STATUS_OK)
+    {
+        std::string msearch =
+            ("M-SEARCH * HTTP/1.1\r\nHost: 239.255.255.250:1900\r\nMAN: ssdp:discover\r\n"
+             "ST: urn:schemas-upnp-org:device:Basic:1\r\n"
+             "MX: 3\r\n"
+             "\r\n"
+             "\r\n");
+
+        safe_logger (spdlog::level::trace, "Use search request {}", msearch.c_str ());
+
+        res = (int)udp_client.send (msearch.c_str (), (int)msearch.size ());
+        if (res == msearch.size ())
+        {
+            unsigned char b[250];
+            res = udp_client.recv (b, 250);
+            if (res == 250)
+            {
+                std::string response ((const char *)b);
+                safe_logger (spdlog::level::trace, "Recived package {}", b);
+                std::regex rgx ("LOCATION: http://([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)");
+                std::smatch matches;
+                if (std::regex_search (response, matches, rgx) == true)
+                {
+                    if (matches.size () == 2)
+                    {
+                        ip_address = matches.str (1);
+                    }
+                    else
+                    {
+                        safe_logger (spdlog::level::err, "invalid number of groups found");
+                    }
+                }
+                else
+                {
+                    safe_logger (spdlog::level::err, "failed to find ip address in response");
+                }
+            }
+            else
+            {
+                safe_logger (spdlog::level::err, "Recv res {}", res);
+            }
+        }
+        else
+        {
+            safe_logger (spdlog::level::err, "Sent res {}", res);
+        }
+    }
+    else
+    {
+        safe_logger (spdlog::level::err, "Failed to connect socket {}", res);
+    }
+
+    udp_client.close ();
+
+    safe_logger (spdlog::level::info, "use ip address {}", ip_address.c_str ());
+    return ip_address;
 }

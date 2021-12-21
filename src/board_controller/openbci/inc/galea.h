@@ -24,15 +24,16 @@ private:
     const double emg_scale = ADS1299_Vref / double ((pow (2, 23) - 1)) / 4.0 * 1000000.;
 
     volatile bool keep_alive;
+    volatile int state;
+    volatile double half_rtt;
     bool initialized;
     bool is_streaming;
     std::thread streaming_thread;
     SocketClientUDP *socket;
-
     std::mutex m;
     std::condition_variable cv;
-    volatile int state;
-    volatile double half_rtt;
+
+    std::string find_device ();
     void read_thread ();
     int calc_time (std::string &resp);
 
