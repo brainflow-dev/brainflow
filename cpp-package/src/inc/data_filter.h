@@ -149,4 +149,6 @@ public:
         const BrainFlowArray<double, 2> &data, std::string file_name, std::string file_mode);
     /// read data from file, data will be transposed to original format
     static BrainFlowArray<double, 2> read_file (std::string file_name);
+    /// calc stddev
+    static double calc_stddev (double *data, int start_pos, int end_pos);
 };

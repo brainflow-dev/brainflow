@@ -417,3 +417,14 @@ void DataFilter::set_log_file (std::string log_file)
         throw BrainFlowException ("failed to set log file", res);
     }
 }
+
+double DataFilter::calc_stddev (double *data, int start_pos, int end_pos)
+{
+    double output = 0;
+    int res = ::calc_stddev (data, start_pos, end_pos, &output);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to calc stddev", res);
+    }
+    return output;
+}

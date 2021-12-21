@@ -222,20 +222,15 @@ classdef DataFilter
             window_data = temp_output.Value;
         end
 
-        function fft_data = perform_fft(data, window)
-            % perform fft
-            task_name = 'perform_fft';
-            n = size(data, 2);
-            if(bitand(n, n - 1) ~= 0)
-                error('For FFT shape must be power of 2!');
-            end
+        function stddev = calc_stddev(data)
+            % calc stddev
+            task_name = 'calc_stddev';
             temp_input = libpointer('doublePtr', data);
+            output = libpointer('doublePtr', 0);
             lib_name = DataFilter.load_lib();
-            temp_re = libpointer('doublePtr', zeros(1, int32(n / 2 + 1)));
-            temp_im = libpointer('doublePtr', zeros(1, int32(n / 2 + 1)));
-            exit_code = calllib(lib_name, task_name, temp_input, n, window, temp_re, temp_im);
+            exit_code = calllib(lib_name, task_name, temp_input, 0, size(data, 2), output);
             DataFilter.check_ec(exit_code, task_name);
-            fft_data = complex(temp_re.Value, temp_im.Value);
+            stddev = output.Value;
         end
 
         function data = perform_ifft(fft_data)

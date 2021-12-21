@@ -48,6 +48,8 @@ extern "C"
         int window_function, double *output_ampl, double *output_freq);
     SHARED_EXPORT int CALLING_CONVENTION detrend (
         double *data, int data_len, int detrend_operation);
+    SHARED_EXPORT int CALLING_CONVENTION calc_stddev (
+        double *data, int start_pos, int end_pos, double *output);
     SHARED_EXPORT int CALLING_CONVENTION get_psd_welch (double *data, int data_len, int nfft,
         int overlap, int sampling_rate, int window_function, double *output_ampl,
         double *output_freq);

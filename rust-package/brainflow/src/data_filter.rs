@@ -179,6 +179,25 @@ pub fn perform_rolling_filter(
     Ok(())
 }
 
+/// Calc stddev.
+pub fn calc_stddev(
+    data: &mut [f64],
+    start_pos: usize,
+    end_pos: usize
+) -> Result<f64> {
+    let mut output = 0.0 as f64;
+    let res = unsafe {
+        data_handler::calc_stddev(
+            data.as_mut_ptr() as *mut c_double,
+            start_pos as c_int,
+            end_pos as c_int,
+            &mut output,
+        )
+    };
+    check_brainflow_exit_code(res)?;
+    Ok(output as f64)
+}
+
 /// Perform data downsampling, it doesnt apply lowpass filter for you, it just aggregates several data points.
 pub fn perform_downsampling(
     data: &mut [f64],

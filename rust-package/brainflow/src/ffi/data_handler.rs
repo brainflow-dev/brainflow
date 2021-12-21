@@ -161,6 +161,14 @@ extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
+    pub fn calc_stddev(
+        data: *mut f64,
+        start_pos: ::std::os::raw::c_int,
+        end_pos: ::std::os::raw::c_int,
+        output: *mut f64,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
     pub fn get_psd_welch(
         data: *mut f64,
         data_len: ::std::os::raw::c_int,
