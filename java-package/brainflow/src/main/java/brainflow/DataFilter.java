@@ -67,6 +67,8 @@ public class DataFilter
 
         int set_log_file_data_handler (String log_file);
 
+        int calc_stddev (double[] data, int start_pos, int end_pos, double[] output);
+
         int get_num_elements_in_file (String file_name, int[] num_elements);
 
         int get_nearest_power_of_two (int value, int[] output);
@@ -159,6 +161,20 @@ public class DataFilter
         {
             throw new BrainFlowError ("Error in set_log_file", ec);
         }
+    }
+
+    /**
+     * calc stddev
+     */
+    public static double calc_stddev (double[] data, int start_pos, int end_pos) throws BrainFlowError
+    {
+        double[] output = new double[1];
+        int ec = instance.calc_stddev (data, start_pos, end_pos, output);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in set_log_file", ec);
+        }
+        return output[0];
     }
 
     /**

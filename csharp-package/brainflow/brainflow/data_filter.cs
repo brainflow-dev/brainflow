@@ -236,6 +236,24 @@ namespace brainflow
         }
 
         /// <summary>
+        /// calc stddev
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="start_pos"></param>
+        /// /// <param name="end_pos"></param>
+        /// <returns>stddev</returns>
+        public static double calc_stddev (double[] data, int start_pos, int end_pos)
+        {
+            double[] output = new double[1]; 
+            int res = DataHandlerLibrary.calc_stddev (data, start_pos, end_pos, output);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException(res);
+            }
+            return output[0];
+        }
+
+        /// <summary>
         /// perform wavelet transform
         /// </summary>
         /// <param name="data">data for wavelet transform</param>

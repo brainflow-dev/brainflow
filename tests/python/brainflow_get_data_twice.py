@@ -17,6 +17,7 @@ def main():
     time.sleep(10)
     board.stop_stream()
     data = board.get_board_data()
+    print(DataFilter.calc_stddev(data[2]))
     data = board.get_board_data()
     print(data)
     data = board.get_current_board_data(10)
