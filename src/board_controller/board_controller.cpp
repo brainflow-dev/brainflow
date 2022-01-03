@@ -229,6 +229,12 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
         case BoardIds::BRAINALIVE_BOARD:
             board = std::shared_ptr<Board> (new BrainAlive (params));
             break;
+        case BoardIds::MUSE_2016_BOARD:
+            board = std::shared_ptr<Board> (new Muse (board_id, params));
+            break;
+        case BoardIds::MUSE_2016_BLED_BOARD:
+            board = std::shared_ptr<Board> (new MuseBLED (board_id, params));
+            break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
     }
