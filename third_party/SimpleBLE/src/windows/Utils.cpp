@@ -11,12 +11,12 @@ namespace SimpleBLE {
 void initialize_winrt() {
     // Attempt to initialize the WinRT backend if not already set.
     int32_t cotype, qualifier;
-    WINRT_CoGetApartmentType(&cotype, &qualifier);
+    WINRT_IMPL_CoGetApartmentType(&cotype, &qualifier);
 
     if (cotype == -1 /* APTTYPE_CURRENT */) {
         // TODO: Investigate if multi or single threaded initialization is needed.
         winrt::apartment_type const type = winrt::apartment_type::multi_threaded;
-        winrt::hresult const result = WINRT_RoInitialize(static_cast<uint32_t>(type));
+        winrt::hresult const result = WINRT_IMPL_CoInitializeEx(nullptr, static_cast<uint32_t>(type));
     }
 }
 

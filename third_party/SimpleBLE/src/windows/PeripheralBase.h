@@ -21,7 +21,7 @@ namespace SimpleBLE {
 class PeripheralBase {
   public:
     PeripheralBase(advertising_data_t advertising_data);
-    ~PeripheralBase();
+    virtual ~PeripheralBase();
 
     std::string identifier();
     BluetoothAddress address();
@@ -56,6 +56,7 @@ class PeripheralBase {
     std::string identifier_;
     BluetoothAddress address_;
     bool connectable_;
+    winrt::event_token connection_status_changed_token_;
 
     std::condition_variable disconnection_cv_;
     std::mutex disconnection_mutex_;

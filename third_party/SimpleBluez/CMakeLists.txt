@@ -22,7 +22,9 @@ message("-- [INFO] Using local SimpleDBus")
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../SimpleDBus ${CMAKE_CURRENT_BINARY_DIR}/simpledbus)
 
 include_directories(${SIMPLEDBUS_INCLUDES})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/legacy)
 
 message("-- [INFO] Building SimpleBluez")
 file(GLOB_RECURSE SRC_simplebluez_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
@@ -35,6 +37,8 @@ target_compile_options(simplebluez PRIVATE -std=c++17 -fPIC -Wfatal-errors -Wped
 
 target_link_libraries(simplebluez-static PUBLIC simpledbus-static)
 target_link_libraries(simplebluez PUBLIC simpledbus-static)
+target_link_libraries(simplebluez-static PRIVATE fmt::fmt-header-only)
+target_link_libraries(simplebluez PRIVATE fmt::fmt-header-only)
 
 # Export the variables needed by the parent project
 if(NOT ${STANDALONE})

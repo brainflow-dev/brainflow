@@ -11,7 +11,7 @@ Bluez* Bluez::get() {
 }
 
 Bluez::Bluez() {
-    bluez_service.init();
+    bluez.init();
     async_thread_active = true;
     async_thread = new std::thread(&Bluez::async_thread_function, this);
 }
@@ -27,7 +27,7 @@ Bluez::~Bluez() {
 
 void Bluez::async_thread_function() {
     while (async_thread_active) {
-        bluez_service.run_async();
+        bluez.run_async();
         std::this_thread::sleep_for(std::chrono::microseconds(100));
     }
 }

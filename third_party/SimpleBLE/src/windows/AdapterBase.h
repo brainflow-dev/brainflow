@@ -25,7 +25,7 @@ namespace SimpleBLE {
 class AdapterBase {
   public:
     AdapterBase(std::string device_id);
-    ~AdapterBase();
+    virtual ~AdapterBase();
 
     std::string identifier();
     BluetoothAddress address();
@@ -46,7 +46,10 @@ class AdapterBase {
   private:
     BluetoothAdapter adapter_;
     std::string identifier_;
+
     struct Advertisement::BluetoothLEAdvertisementWatcher scanner_;
+    winrt::event_token scanner_received_token_;
+    winrt::event_token scanner_stopped_token_;
 
     std::atomic_bool scan_is_active_{false};
     std::condition_variable scan_stop_cv_;

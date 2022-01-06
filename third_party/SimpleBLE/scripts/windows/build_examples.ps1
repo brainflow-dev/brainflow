@@ -9,16 +9,7 @@
 [string]$PROJECT_ROOT = Resolve-Path $($PSScriptRoot + "\..\..")
 [string]$BUILD_PATH = $PROJECT_ROOT + "\build"
 [string]$SOURCE_ROOT = $PROJECT_ROOT + "\examples"
-
-[string]$VSWHERE_PATH = Resolve-Path $($PROJECT_ROOT + "\scripts\windows\tools\vswhere.exe")
-# -products flag allows the system to also search for users who installed Visual Studio Build Tools 2019 (https://github.com/3F/hMSBuild/issues/12)
-[string]$MSBUILD_PATH = & $VSWHERE_PATH -latest -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe -products * | select-object -first 1
 [string]$TARGET = "Release"
-
-if ($null -eq $MSBUILD_PATH) {
-    Write-Error "MSBuild path not found."
-    exit -1
-}
 
 # Validate the received architecture
 switch -regex ($arch) {
@@ -38,10 +29,8 @@ if ($clean) {
 New-Item -ItemType Directory -Force -Path "$BUILD_PATH" | Out-Null
 
 # Run CMake to create our build files.
-cmake -S "$SOURCE_ROOT" -B "$BUILD_PATH" -A $WINDOWS_ARCH
-
-# Run the compiler
-& $MSBUILD_PATH "$BUILD_PATH\SimpleBLE_Examples.sln" -nologo -m:8 /bl:output.binlog /verbosity:minimal /p:Configuration=$TARGET
+cmake -S "$SOURCE_ROOT" -B "$BUILD_PATH" -A $WINDOWS_ARCH -DCMAKE_SYSTEM_VERSION="10.0.19041.0"
+cmake --build "$BUILD_PATH" --config $TARGET
 
 #Copy all generated files to the bin folder for consistency and remove the output folder.
 Copy-item -Force -Recurse "$BUILD_PATH\bin\$TARGET\*" -Destination "$BUILD_PATH\bin\"

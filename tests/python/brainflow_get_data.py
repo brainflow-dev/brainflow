@@ -40,6 +40,7 @@ def main():
     params.file = args.file
 
     board = BoardShim(args.board_id, params)
+    input()
     board.prepare_session()
 
     # board.start_stream () # use this for default options

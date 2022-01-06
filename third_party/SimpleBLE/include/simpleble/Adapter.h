@@ -16,7 +16,7 @@ class AdapterBase;
 class Adapter {
   public:
     Adapter();
-    ~Adapter();
+    virtual ~Adapter();
 
     std::string identifier();
     BluetoothAddress address();

@@ -16,8 +16,12 @@ find_package(GTest REQUIRED)
 set(
   SRC_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/test_callback.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/test_holder.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/test_message.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/test_proxy_interfaces.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/test_proxy_children.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/test_path.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/helpers/PythonRunner.cpp
 )
 

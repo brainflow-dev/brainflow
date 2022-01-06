@@ -4,9 +4,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <simpleble_c/shared_export.h>
 #include <simpleble_c/types.h>
-
-#include "shared_export.h"
 
 #ifdef __cplusplus
 extern "C" {

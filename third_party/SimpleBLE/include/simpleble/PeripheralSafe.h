@@ -11,7 +11,7 @@ namespace Safe {
 class Peripheral : public SimpleBLE::Peripheral {
   public:
     Peripheral(SimpleBLE::Peripheral& peripheral);
-    ~Peripheral();
+    virtual ~Peripheral();
 
     std::optional<std::string> identifier() noexcept;
     std::optional<BluetoothAddress> address() noexcept;

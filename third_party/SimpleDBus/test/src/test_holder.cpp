@@ -180,3 +180,5 @@ TEST(Holder, DictionaryHeterogeneous) {
 
     // TODO: Expand this test to check with all remaining types.
 }
+
+// TODO: Add tests for equality comparison of Holders.

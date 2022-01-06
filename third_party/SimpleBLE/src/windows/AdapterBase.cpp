@@ -26,28 +26,42 @@ AdapterBase::AdapterBase(std::string device_id)
 
     // Configure the scanner object
     scanner_ = Advertisement::BluetoothLEAdvertisementWatcher();
-    scanner_.Stopped([=](const auto& w, const Advertisement::BluetoothLEAdvertisementWatcherStoppedEventArgs args) {
-        this->_scan_stopped_callback();
-    });
-    scanner_.Received([&](const auto& w, const Advertisement::BluetoothLEAdvertisementReceivedEventArgs args) {
-        advertising_data_t data;
-        data.mac_address = _mac_address_to_str(args.BluetoothAddress());
-        data.identifier = winrt::to_string(args.Advertisement().LocalName());
-        data.connectable = args.IsConnectable();
 
-        // Parse manufacturer data
-        auto manufacturer_data = args.Advertisement().ManufacturerData();
-        for (auto& item : manufacturer_data) {
-            uint16_t company_id = item.CompanyId();
-            ByteArray manufacturer_data_buffer = ibuffer_to_bytearray(item.Data());
-            data.manufacturer_data[company_id] = manufacturer_data_buffer;
-        }
+    scanner_stopped_token_ = scanner_.Stopped(
+        [this](const auto& w, const Advertisement::BluetoothLEAdvertisementWatcherStoppedEventArgs args) {
+            this->_scan_stopped_callback();
+        });
 
-        this->_scan_received_callback(data);
-    });
+    scanner_received_token_ = scanner_.Received(
+        [this](const auto& w, const Advertisement::BluetoothLEAdvertisementReceivedEventArgs args) {
+            advertising_data_t data;
+            data.mac_address = _mac_address_to_str(args.BluetoothAddress());
+            data.identifier = winrt::to_string(args.Advertisement().LocalName());
+            data.connectable = args.IsConnectable();
+
+            // Parse manufacturer data
+            auto manufacturer_data = args.Advertisement().ManufacturerData();
+            for (auto& item : manufacturer_data) {
+                uint16_t company_id = item.CompanyId();
+                ByteArray manufacturer_data_buffer = ibuffer_to_bytearray(item.Data());
+                data.manufacturer_data[company_id] = manufacturer_data_buffer;
+            }
+
+            this->_scan_received_callback(data);
+        });
 }
 
-AdapterBase::~AdapterBase() {}
+AdapterBase::~AdapterBase() {
+    // TODO: What happens if the adapter is still scanning?
+
+    if (scanner_received_token_) {
+        scanner_.Received(scanner_received_token_);
+    }
+
+    if (scanner_stopped_token_) {
+        scanner_.Stopped(scanner_stopped_token_);
+    }
+}
 
 std::vector<std::shared_ptr<AdapterBase>> AdapterBase::get_adapters() {
     initialize_winrt();

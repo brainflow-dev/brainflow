@@ -2,7 +2,6 @@
 #include <simpledbus/base/Exceptions.h>
 #include <simpledbus/base/Logger.h>
 #include <chrono>
-#include <iostream>
 #include <thread>
 
 using namespace SimpleDBus;

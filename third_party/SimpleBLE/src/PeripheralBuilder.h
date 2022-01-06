@@ -16,6 +16,7 @@ namespace SimpleBLE {
 class PeripheralBuilder : public Peripheral {
   public:
     PeripheralBuilder(std::shared_ptr<PeripheralBase> internal);
+    virtual ~PeripheralBuilder() = default;
 };
 
 }  // namespace SimpleBLE

@@ -22,5 +22,5 @@ fi
 # Compile!
 mkdir -p $BUILD_PATH
 cd $BUILD_PATH
-cmake -H$SOURCE_ROOT
+cmake -H$SOURCE_ROOT -DCMAKE_BUILD_TYPE=Debug
 make -j
