@@ -42,5 +42,12 @@ target_link_libraries(simplebluez PRIVATE fmt::fmt-header-only)
 
 # Export the variables needed by the parent project
 if(NOT ${STANDALONE})
-    set(SIMPLEBLUEZ_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/src ${SIMPLEDBUS_INCLUDES} PARENT_SCOPE)
+    set(
+        SIMPLEBLUEZ_INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/legacy
+        ${SIMPLEDBUS_INCLUDES}
+        PARENT_SCOPE
+    )
 endif()

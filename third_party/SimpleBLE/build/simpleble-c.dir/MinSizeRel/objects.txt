@@ -1,3 +1,0 @@
-D:/workspace/brainflow/third_party/SimpleBLE/build/simpleble-c.dir/MinSizeRel/simpleble.obj
-D:/workspace/brainflow/third_party/SimpleBLE/build/simpleble-c.dir/MinSizeRel/adapter.obj
-D:/workspace/brainflow/third_party/SimpleBLE/build/simpleble-c.dir/MinSizeRel/peripheral.obj
