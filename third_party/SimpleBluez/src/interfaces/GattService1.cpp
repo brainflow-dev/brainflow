@@ -1,19 +1,19 @@
-#include "GattService1.h"
+#include "simplebluez/interfaces/GattService1.h"
 
-#include <iostream>
+using namespace SimpleBluez;
 
-GattService1::GattService1(SimpleDBus::Connection* conn, std::string path) : _conn(conn), _path(path), Properties{conn, "org.bluez", path}, PropertyHandler(path) {
-    // std::cout << "Creating org.bluez.GattService1: " << path << std::endl;
+GattService1::GattService1(std::shared_ptr<SimpleDBus::Connection> conn, std::string path)
+    : SimpleDBus::Interface(conn, "org.bluez", path, "org.bluez.GattService1") {}
+
+std::string GattService1::UUID() {
+    // As the UUID property doesn't change, we can cache it
+    std::scoped_lock lock(_property_update_mutex);
+    return _uuid;
 }
 
-GattService1::~GattService1() {}
-
-void GattService1::add_option(std::string option_name, SimpleDBus::Holder value) {
+void GattService1::property_changed(std::string option_name) {
     if (option_name == "UUID") {
-        _uuid = value.get_string();
+        std::scoped_lock lock(_property_update_mutex);
+        _uuid = _properties["UUID"].get_string();
     }
 }
-
-void GattService1::remove_option(std::string option_name) {}
-
-std::string GattService1::get_uuid() { return _uuid; }

@@ -6,6 +6,9 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+# Nice hack to automatically ignore the build directory
+file(WRITE ${CMAKE_BINARY_DIR}/.gitignore "*")
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -14,6 +17,9 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/.. ${CMAKE_BINARY_DIR}/simplebluez)
 include_directories(${SIMPLEBLUEZ_INCLUDES})
 
-add_subdirectory(ble_nus)
 add_subdirectory(list_adapters)
-add_subdirectory(manuf_data)
+add_subdirectory(scan)
+add_subdirectory(connect)
+add_subdirectory(read)
+
+add_subdirectory(ble_nus)

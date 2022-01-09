@@ -1,8 +1,8 @@
 #pragma once
 
+#include <simplebluez/Bluez.h>
 #include <atomic>
 #include <thread>
-#include "BluezService.h"
 
 namespace SimpleBLE {
 
@@ -10,7 +10,7 @@ class Bluez {
   public:
     static Bluez* get();
 
-    BluezService bluez_service;
+    SimpleBluez::Bluez bluez;
 
   private:
     Bluez();

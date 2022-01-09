@@ -1,0 +1,42 @@
+name: CI Test
+
+on: [push, pull_request]
+
+jobs:
+
+  test-linux:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        os: [ubuntu-20.04]
+
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@v2
+      - name: Install Dependencies
+        env:
+            DEBIAN_FRONTEND: noninteractive  
+        run: |
+          sudo -H apt-get update -y
+          sudo -H apt-get install -y dbus libdbus-1-dev python3-dev libgtest-dev libgmock-dev
+          sudo -H pip3 install -r $GITHUB_WORKSPACE/test/requirements.txt
+      - name: Start DBus
+        run: |
+          echo "DBUS_SESSION_BUS_ADDRESS=$(dbus-daemon --config-file=/usr/share/dbus-1/session.conf --print-address --fork | cut -d, -f1)" >> $GITHUB_ENV
+      - name: Setup Cmake
+        uses: jwlawson/actions-setup-cmake@v1.4
+        with:
+          cmake-version: "3.16.x"
+      - name: Compile tests
+        run: |
+          mkdir $GITHUB_WORKSPACE/build
+          cd $GITHUB_WORKSPACE/build
+          cmake -DCMAKE_BUILD_TYPE=Release ../test
+          make -j4
+      - name: Run tests
+        run: |
+          cd $GITHUB_WORKSPACE/build
+          ./simplebluez_test

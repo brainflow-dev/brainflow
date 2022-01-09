@@ -12,8 +12,9 @@
 using namespace winrt::Windows;
 using namespace winrt::Windows::Storage::Streams;
 
-namespace SimpleBLE {
+constexpr uint32_t TEN_SECONDS_IN_MSECS = 10000;
 
+namespace SimpleBLE {
 void initialize_winrt();
 
 std::string _mac_address_to_str(uint64_t mac_address);
@@ -28,7 +29,7 @@ IBuffer bytearray_to_ibuffer(const ByteArray& array);
 template <typename async_t>
 static auto async_get(async_t const& async) {
     if (async.Status() == Foundation::AsyncStatus::Started) {
-        wait_for_completed(async, 0xFFFFFFFF);  // INFINITE
+        wait_for_completed(async, TEN_SECONDS_IN_MSECS);
     }
     return async.GetResults();
 }

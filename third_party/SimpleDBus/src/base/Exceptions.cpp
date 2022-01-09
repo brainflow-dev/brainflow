@@ -1,5 +1,7 @@
 #include <simpledbus/base/Exceptions.h>
 
+#include <fmt/core.h>
+
 namespace SimpleDBus {
 
 namespace Exception {
@@ -19,6 +21,18 @@ SendFailed::SendFailed(const std::string& err_name, const std::string& err_messa
 }
 
 const char* SendFailed::what() const noexcept { return _message.c_str(); }
+
+InterfaceNotFoundException::InterfaceNotFoundException(const std::string& path, const std::string& interface) {
+    _message = fmt::format("Path {} does not contain interface {}", path, interface);
+}
+
+const char* InterfaceNotFoundException::what() const noexcept { return _message.c_str(); }
+
+PathNotFoundException::PathNotFoundException(const std::string& path, const std::string& subpath) {
+    _message = fmt::format("Path {} does not contain sub-path {}", path, subpath);
+}
+
+const char* PathNotFoundException::what() const noexcept { return _message.c_str(); }
 
 }  // namespace Exception
 

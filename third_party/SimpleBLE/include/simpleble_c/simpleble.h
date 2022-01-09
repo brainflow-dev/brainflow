@@ -2,8 +2,7 @@
 
 #include <simpleble_c/adapter.h>
 #include <simpleble_c/peripheral.h>
-
-#include "shared_export.h"
+#include <simpleble_c/shared_export.h>
 
 #ifdef __cplusplus
 extern "C" {

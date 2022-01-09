@@ -18,13 +18,17 @@ using namespace std::chrono_literals;
 PeripheralBase::PeripheralBase(advertising_data_t advertising_data) {
     identifier_ = advertising_data.identifier;
     address_ = advertising_data.mac_address;
-    device_ = async_get(
-        BluetoothLEDevice::FromBluetoothAddressAsync(_str_to_mac_address(advertising_data.mac_address)));
     manufacturer_data_ = advertising_data.manufacturer_data;
     connectable_ = advertising_data.connectable;
+    device_ = async_get(
+        BluetoothLEDevice::FromBluetoothAddressAsync(_str_to_mac_address(advertising_data.mac_address)));
 }
 
-PeripheralBase::~PeripheralBase() {}
+PeripheralBase::~PeripheralBase() {
+    if (connection_status_changed_token_) {
+        device_.ConnectionStatusChanged(connection_status_changed_token_);
+    }
+}
 
 std::string PeripheralBase::identifier() { return identifier_; }
 
@@ -39,16 +43,17 @@ void PeripheralBase::connect() {
     }
 
     if (is_connected()) {
-        device_.ConnectionStatusChanged([=](const BluetoothLEDevice device, const auto args) {
-            if (device.ConnectionStatus() == BluetoothConnectionStatus::Disconnected) {
-                this->disconnection_cv_.notify_all();
-                if (callback_on_disconnected_) {
-                    callback_on_disconnected_();
+        connection_status_changed_token_ = device_.ConnectionStatusChanged(
+            [this](const BluetoothLEDevice device, const auto args) {
+                if (device.ConnectionStatus() == BluetoothConnectionStatus::Disconnected) {
+                    this->disconnection_cv_.notify_all();
+                    if (this->callback_on_disconnected_) {
+                        this->callback_on_disconnected_();
+                    }
                 }
-            }
-        });
-        if (callback_on_connected_) {
-            callback_on_connected_();
+            });
+        if (this->callback_on_connected_) {
+            this->callback_on_connected_();
         }
     }
 }

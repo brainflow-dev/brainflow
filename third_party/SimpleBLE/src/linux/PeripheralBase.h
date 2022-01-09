@@ -5,7 +5,8 @@
 #include <simpleble/Exceptions.h>
 #include <simpleble/Types.h>
 
-#include <BluezDevice.h>
+#include <simplebluez/Characteristic.h>
+#include <simplebluez/Device.h>
 
 #include <condition_variable>
 
@@ -13,8 +14,8 @@ namespace SimpleBLE {
 
 class PeripheralBase {
   public:
-    PeripheralBase(std::shared_ptr<BluezDevice> device);
-    ~PeripheralBase();
+    PeripheralBase(std::shared_ptr<SimpleBluez::Device> device);
+    virtual ~PeripheralBase();
 
     std::string identifier();
     BluetoothAddress address();
@@ -38,10 +39,7 @@ class PeripheralBase {
     void set_callback_on_disconnected(std::function<void()> on_disconnected);
 
   private:
-    std::weak_ptr<BluezDevice> device_;
-
-    std::string identifier_;
-    BluetoothAddress address_;
+    std::shared_ptr<SimpleBluez::Device> device_;
 
     std::condition_variable connection_cv_;
     std::mutex connection_mutex_;
@@ -55,10 +53,8 @@ class PeripheralBase {
     bool _attempt_connect();
     bool _attempt_disconnect();
 
-    std::shared_ptr<BluezDevice> _get_device();
-
-    std::shared_ptr<BluezGattCharacteristic> _get_characteristic(BluetoothUUID service_uuid,
-                                                                 BluetoothUUID characteristic_uuid);
+    std::shared_ptr<SimpleBluez::Characteristic> _get_characteristic(BluetoothUUID service_uuid,
+                                                                     BluetoothUUID characteristic_uuid);
 };
 
 }  // namespace SimpleBLE
