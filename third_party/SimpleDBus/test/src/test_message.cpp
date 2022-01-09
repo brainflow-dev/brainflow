@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
-#include <simpledbus/SimpleDBus.h>
+#include <simpledbus/base/Connection.h>
+#include <simpledbus/base/Message.h>
 
 using namespace SimpleDBus;
 

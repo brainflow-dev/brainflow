@@ -16,7 +16,7 @@ class PeripheralBase;
 class Peripheral {
   public:
     Peripheral();
-    ~Peripheral();
+    virtual ~Peripheral();
 
     std::string identifier();
     BluetoothAddress address();

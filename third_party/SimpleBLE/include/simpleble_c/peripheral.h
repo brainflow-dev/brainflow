@@ -4,9 +4,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <simpleble_c/shared_export.h>
 #include <simpleble_c/types.h>
-
-#include "shared_export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -141,7 +140,8 @@ SHARED_EXPORT simpleble_err_t CALLING_CONVENTION simpleble_peripheral_read(simpl
 SHARED_EXPORT simpleble_err_t CALLING_CONVENTION simpleble_peripheral_write_request(simpleble_peripheral_t handle,
                                                                                     simpleble_uuid_t service,
                                                                                     simpleble_uuid_t characteristic,
-                                                                                    uint8_t* data, size_t data_length);
+                                                                                    const uint8_t* data,
+                                                                                    size_t data_length);
 
 /**
  * @brief
@@ -156,7 +156,8 @@ SHARED_EXPORT simpleble_err_t CALLING_CONVENTION simpleble_peripheral_write_requ
 SHARED_EXPORT simpleble_err_t CALLING_CONVENTION simpleble_peripheral_write_command(simpleble_peripheral_t handle,
                                                                                     simpleble_uuid_t service,
                                                                                     simpleble_uuid_t characteristic,
-                                                                                    uint8_t* data, size_t data_length);
+                                                                                    const uint8_t* data,
+                                                                                    size_t data_length);
 
 /**
  * @brief
@@ -169,8 +170,8 @@ SHARED_EXPORT simpleble_err_t CALLING_CONVENTION simpleble_peripheral_write_comm
  */
 SHARED_EXPORT simpleble_err_t CALLING_CONVENTION
 simpleble_peripheral_notify(simpleble_peripheral_t handle, simpleble_uuid_t service, simpleble_uuid_t characteristic,
-                            void (*callback)(simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t* data,
-                                             size_t data_length, void* userdata),
+                            void (*callback)(simpleble_uuid_t service, simpleble_uuid_t characteristic,
+                                             const uint8_t* data, size_t data_length, void* userdata),
                             void* userdata);
 
 /**
@@ -184,8 +185,8 @@ simpleble_peripheral_notify(simpleble_peripheral_t handle, simpleble_uuid_t serv
  */
 SHARED_EXPORT simpleble_err_t CALLING_CONVENTION
 simpleble_peripheral_indicate(simpleble_peripheral_t handle, simpleble_uuid_t service, simpleble_uuid_t characteristic,
-                              void (*callback)(simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t* data,
-                                               size_t data_length, void* userdata),
+                              void (*callback)(simpleble_uuid_t service, simpleble_uuid_t characteristic,
+                                               const uint8_t* data, size_t data_length, void* userdata),
                               void* userdata);
 
 /**

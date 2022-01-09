@@ -1,6 +1,5 @@
 #pragma once
 
-#include <fmt/core.h>
 #include <stdexcept>
 #include <string>
 
@@ -28,6 +27,24 @@ class DBusException : public BaseException {
 class SendFailed : public BaseException {
   public:
     SendFailed(const std::string& err_name, const std::string& err_message, const std::string& msg_str);
+    const char* what() const noexcept override;
+
+  private:
+    std::string _message;
+};
+
+class InterfaceNotFoundException : public BaseException {
+  public:
+    InterfaceNotFoundException(const std::string& path, const std::string& interface);
+    const char* what() const noexcept override;
+
+  private:
+    std::string _message;
+};
+
+class PathNotFoundException : public BaseException {
+  public:
+    PathNotFoundException(const std::string& path, const std::string& subpath);
     const char* what() const noexcept override;
 
   private:

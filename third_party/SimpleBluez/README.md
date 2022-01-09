@@ -36,6 +36,20 @@ cmake ../examples
 make -j
 ```
 
+### Build tests
+To build and run unit and integration tests, the following packages are required:
+`sudo apt install libgtest-dev libgmock-dev python3-dev`
+
+#### Address Sanitizer
+In order to run tests with Address Sanitizer, CMake needs to be called with
+the following option: `-DSIMPLEBLUEZ_SANITIZE=Address`. It is also important to
+set the environment variable `PYTHONMALLOC=malloc` to prevent Python's memory
+allocator from triggering false positives.
+
+#### Thread Sanitizer
+In order to run tests with Thread Sanitizer, CMake needs to be called with
+the following option: `-DSIMPLEBLUEZ_SANITIZE=Thread`.
+
 ## Security
 
 One key security feature of the library is it allows the user to specify
@@ -50,6 +64,12 @@ the `cmake` command:
 - `SIMPLEDBUS_GIT_TAG`
   Call CMake with `-DSIMPLEDBUS_GIT_TAG=<tag>` to override the default
   tag of the SimpleDBus repository.
+- `LIBFMT_GIT_REPOSITORY`
+  Call CMake with `-DLIBFMT_GIT_REPOSITORY=<path>` to override the
+  default location of the LibFmt repository.
+- `LIBFMT_GIT_TAG`
+  Call CMake with `-DLIBFMT_GIT_TAG=<tag>` to override the default
+  tag of the LibFmt repository.
 
 Alternatively, instead of specifying the repository and tag, the user can
 specify the path to a local version of the dependencies. This is done by
@@ -58,17 +78,15 @@ specifying the additional command line arguments to the `cmake` command:
 - `SIMPLEDBUS_LOCAL_PATH`
   Call CMake with `-DSIMPLEDBUS_LOCAL_PATH=<path>` to override the
   default location of the SimpleDBus repository.
+- `LIBFMT_LOCAL_PATH`
+  Call CMake with `-DLIBFMT_LOCAL_PATH=<path>` to override the
+  default location of the LibFmt repository.
 
 ## More information
-- You can find the official documentation for BlueZ in [this link](https://git.kernel.org/pub/scm/bluetooth/bluez.git/plain/doc/gatt-api.txt).
-
-## Known issues
-- The handling of all externally exposed components with `std::shared_ptr` is not particularly safe in case the underlying object gets deleted by BlueZ, as the end user still has the capability to send requests to that deleted object. This will be addressed in a future release, but it's important for users of SimpleDBus to keep in mind.
+- You can find the official documentation for Bluez in [this link](https://git.kernel.org/pub/scm/bluetooth/bluez.git/plain/doc/gatt-api.txt).
 
 ## Contributing
 If you want to help, here is what's needed:
-- The remaining functionality of the existing components.
-- Errors are currently not being caught and surfaced up.
 - More documentation.
 - More examples.
 - Logging

@@ -1,6 +1,5 @@
 #include <simpledbus/base/Message.h>
 
-#include <iostream>
 #include <sstream>
 
 using namespace SimpleDBus;
@@ -24,7 +23,7 @@ using namespace SimpleDBus;
         dbus_message_iter_close_container(&sub_iter, &entry_iter);                            \
     }
 
-int Message::creation_counter = 0;
+std::atomic_int32_t Message::creation_counter = 0;
 
 Message::Message() : Message(nullptr) {}
 
@@ -53,6 +52,7 @@ Message::Message(Message&& other) : Message() {
     this->_extracted = other._extracted;
     this->_msg = other._msg;
     this->_iter = other._iter;
+    this->_arguments = other._arguments;
 
     // Invalidate the old message.
     other._invalidate();
@@ -68,6 +68,7 @@ Message::Message(const Message& other) : Message() {
         this->_unique_id = creation_counter++;
         this->_is_extracted = other._is_extracted;
         this->_extracted = other._extracted;
+        this->_arguments = other._arguments;
         this->_msg = dbus_message_copy(other._msg);
     }
 }
@@ -85,6 +86,7 @@ Message& Message::operator=(Message&& other) {
         this->_extracted = other._extracted;
         this->_msg = other._msg;
         this->_iter = other._iter;
+        this->_arguments = other._arguments;
 
         // Invalidate the old message.
         other._invalidate();
@@ -105,6 +107,7 @@ Message& Message::operator=(const Message& other) {
             this->_unique_id = creation_counter++;
             this->_is_extracted = other._is_extracted;
             this->_extracted = other._extracted;
+            this->_arguments = other._arguments;
             this->_msg = dbus_message_copy(other._msg);
         }
     }
@@ -125,6 +128,7 @@ void Message::_invalidate() {
     // For older versions of DBus, DBUS_MESSAGE_ITER_INIT_CLOSED is not defined.
     this->_iter = DBusMessageIter();
 #endif
+    this->_arguments.clear();
 }
 
 void Message::_safe_delete() {
@@ -144,7 +148,7 @@ void Message::_append_argument(DBusMessageIter* iter, Holder& argument, std::str
             break;
         }
         case DBUS_TYPE_BOOLEAN: {
-            bool value = argument.get_boolean();
+            uint32_t value = static_cast<uint32_t>(argument.get_boolean());
             dbus_message_iter_append_basic(iter, DBUS_TYPE_BOOLEAN, &value);
             break;
         }
@@ -285,6 +289,7 @@ void Message::_append_argument(DBusMessageIter* iter, Holder& argument, std::str
 void Message::append_argument(Holder argument, std::string signature) {
     dbus_message_iter_init_append(_msg, &_iter);
     _append_argument(&_iter, argument, signature);
+    _arguments.push_back(argument);
 }
 
 int32_t Message::get_unique_id() { return _unique_id; }
@@ -305,16 +310,16 @@ std::string Message::get_signature() {
     }
 }
 
-MessageType Message::get_type() {
+Message::Type Message::get_type() const {
     if (is_valid()) {
-        return (MessageType)dbus_message_get_type(_msg);
+        return (Message::Type)dbus_message_get_type(_msg);
     } else {
-        return MessageType::INVALID;
+        return Message::Type::INVALID;
     }
 }
 
 std::string Message::get_path() {
-    if (is_valid() && get_type() == MessageType::SIGNAL) {
+    if (is_valid() && get_type() == Message::Type::SIGNAL) {
         return dbus_message_get_path(_msg);
     } else {
         return "";
@@ -366,8 +371,15 @@ std::string Message::to_string() const {
     oss << "[" << _unique_id << "] " << type_to_name(dbus_message_get_type(_msg));
     oss << "[" << sender << "->" << destination << "] ";
     oss << dbus_message_get_path(_msg) << " " << dbus_message_get_interface(_msg) << " "
-        << dbus_message_get_member(_msg) << " ";
+        << dbus_message_get_member(_msg);
 
+    if (get_type() == Message::Type::METHOD_CALL) {
+        oss << std::endl;
+        oss << "Arguments: " << std::endl;
+        for (auto arg : _arguments) {
+            oss << arg.represent();
+        }
+    }
     return oss.str();
 }
 

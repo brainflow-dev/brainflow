@@ -1,6 +1,5 @@
 #include <simpledbus/base/Holder.h>
 #include <iomanip>
-#include <iostream>
 #include <sstream>
 
 #include "dbus/dbus-protocol.h"
@@ -11,7 +10,55 @@ Holder::Holder() {}
 
 Holder::~Holder() {}
 
-Holder::Type Holder::type() { return _type; }
+bool Holder::operator!=(const Holder& other) const { return !(*this == other); }
+
+bool Holder::operator==(const Holder& other) const {
+    if (type() != other.type()) {
+        return false;
+    }
+
+    switch (type()) {
+        case NONE:
+            return true;
+        case BYTE:
+            return get_byte() == other.get_byte();
+        case BOOLEAN:
+            return get_boolean() == other.get_boolean();
+        case INT16:
+            return get_int16() == other.get_int16();
+        case UINT16:
+            return get_uint16() == other.get_uint16();
+        case INT32:
+            return get_int32() == other.get_int32();
+        case UINT32:
+            return get_uint32() == other.get_uint32();
+        case INT64:
+            return get_int64() == other.get_int64();
+        case UINT64:
+            return get_uint64() == other.get_uint64();
+        case DOUBLE:
+            return get_double() == other.get_double();
+        case STRING:
+            return get_string() == other.get_string();
+        case OBJ_PATH:
+            return get_object_path() == other.get_object_path();
+        case SIGNATURE:
+            return get_signature() == other.get_signature();
+        case ARRAY:
+            return get_array() == other.get_array();
+        case DICT:
+            return (get_dict_uint8() == other.get_dict_uint8()) && (get_dict_uint16() == other.get_dict_uint16()) &&
+                   (get_dict_int16() == other.get_dict_int16()) && (get_dict_uint32() == other.get_dict_uint32()) &&
+                   (get_dict_int32() == other.get_dict_int32()) && (get_dict_uint64() == other.get_dict_uint64()) &&
+                   (get_dict_int64() == other.get_dict_int64()) && (get_dict_string() == other.get_dict_string()) &&
+                   (get_dict_object_path() == other.get_dict_object_path()) &&
+                   (get_dict_signature() == other.get_dict_signature());
+        default:
+            return false;
+    }
+}
+
+Holder::Type Holder::type() const { return _type; }
 
 std::string Holder::_represent_simple() {
     std::ostringstream output;
@@ -363,22 +410,22 @@ Holder Holder::create_double(double value) {
     h.holder_double = value;
     return h;
 }
-Holder Holder::create_string(const char* str) {
+Holder Holder::create_string(const std::string& str) {
     Holder h;
     h._type = STRING;
-    h.holder_string = std::string(str);
+    h.holder_string = str;
     return h;
 }
-Holder Holder::create_object_path(const char* str) {
+Holder Holder::create_object_path(const std::string& str) {
     Holder h;
     h._type = OBJ_PATH;
-    h.holder_string = std::string(str);
+    h.holder_string = str;
     return h;
 }
-Holder Holder::create_signature(const char* str) {
+Holder Holder::create_signature(const std::string& str) {
     Holder h;
     h._type = SIGNATURE;
-    h.holder_string = std::string(str);
+    h.holder_string = str;
     return h;
 }
 Holder Holder::create_array() {
@@ -394,7 +441,7 @@ Holder Holder::create_dict() {
     return h;
 }
 
-std::any Holder::get_contents() {
+std::any Holder::get_contents() const {
     // Only return the contents for simple types
     switch (_type) {
         case BOOLEAN:
@@ -426,51 +473,51 @@ std::any Holder::get_contents() {
     }
 }
 
-bool Holder::get_boolean() { return holder_boolean; }
+bool Holder::get_boolean() const { return holder_boolean; }
 
-uint8_t Holder::get_byte() { return (uint8_t)(holder_integer & 0x00000000000000FFL); }
+uint8_t Holder::get_byte() const { return (uint8_t)(holder_integer & 0x00000000000000FFL); }
 
-int16_t Holder::get_int16() { return (int16_t)(holder_integer & 0x000000000000FFFFL); }
+int16_t Holder::get_int16() const { return (int16_t)(holder_integer & 0x000000000000FFFFL); }
 
-uint16_t Holder::get_uint16() { return (uint16_t)(holder_integer & 0x000000000000FFFFL); }
+uint16_t Holder::get_uint16() const { return (uint16_t)(holder_integer & 0x000000000000FFFFL); }
 
-int32_t Holder::get_int32() { return (int32_t)(holder_integer & 0x00000000FFFFFFFFL); }
+int32_t Holder::get_int32() const { return (int32_t)(holder_integer & 0x00000000FFFFFFFFL); }
 
-uint32_t Holder::get_uint32() { return (uint32_t)(holder_integer & 0x00000000FFFFFFFFL); }
+uint32_t Holder::get_uint32() const { return (uint32_t)(holder_integer & 0x00000000FFFFFFFFL); }
 
-int64_t Holder::get_int64() { return (int64_t)holder_integer; }
+int64_t Holder::get_int64() const { return (int64_t)holder_integer; }
 
-uint64_t Holder::get_uint64() { return holder_integer; }
+uint64_t Holder::get_uint64() const { return holder_integer; }
 
-double Holder::get_double() { return holder_double; }
+double Holder::get_double() const { return holder_double; }
 
-std::string Holder::get_string() { return holder_string; }
+std::string Holder::get_string() const { return holder_string; }
 
-std::string Holder::get_object_path() { return holder_string; }
+std::string Holder::get_object_path() const { return holder_string; }
 
-std::string Holder::get_signature() { return holder_string; }
+std::string Holder::get_signature() const { return holder_string; }
 
-std::vector<Holder> Holder::get_array() { return holder_array; }
+std::vector<Holder> Holder::get_array() const { return holder_array; }
 
-std::map<uint8_t, Holder> Holder::get_dict_uint8() { return _get_dict<uint8_t>(BYTE); }
+std::map<uint8_t, Holder> Holder::get_dict_uint8() const { return _get_dict<uint8_t>(BYTE); }
 
-std::map<uint16_t, Holder> Holder::get_dict_uint16() { return _get_dict<uint16_t>(UINT16); }
+std::map<uint16_t, Holder> Holder::get_dict_uint16() const { return _get_dict<uint16_t>(UINT16); }
 
-std::map<uint32_t, Holder> Holder::get_dict_uint32() { return _get_dict<uint32_t>(UINT32); }
+std::map<uint32_t, Holder> Holder::get_dict_uint32() const { return _get_dict<uint32_t>(UINT32); }
 
-std::map<uint64_t, Holder> Holder::get_dict_uint64() { return _get_dict<uint64_t>(UINT64); }
+std::map<uint64_t, Holder> Holder::get_dict_uint64() const { return _get_dict<uint64_t>(UINT64); }
 
-std::map<int16_t, Holder> Holder::get_dict_int16() { return _get_dict<int16_t>(INT16); }
+std::map<int16_t, Holder> Holder::get_dict_int16() const { return _get_dict<int16_t>(INT16); }
 
-std::map<int32_t, Holder> Holder::get_dict_int32() { return _get_dict<int32_t>(INT32); }
+std::map<int32_t, Holder> Holder::get_dict_int32() const { return _get_dict<int32_t>(INT32); }
 
-std::map<int64_t, Holder> Holder::get_dict_int64() { return _get_dict<int64_t>(INT64); }
+std::map<int64_t, Holder> Holder::get_dict_int64() const { return _get_dict<int64_t>(INT64); }
 
-std::map<std::string, Holder> Holder::get_dict_string() { return _get_dict<std::string>(STRING); }
+std::map<std::string, Holder> Holder::get_dict_string() const { return _get_dict<std::string>(STRING); }
 
-std::map<std::string, Holder> Holder::get_dict_object_path() { return _get_dict<std::string>(OBJ_PATH); }
+std::map<std::string, Holder> Holder::get_dict_object_path() const { return _get_dict<std::string>(OBJ_PATH); }
 
-std::map<std::string, Holder> Holder::get_dict_signature() { return _get_dict<std::string>(SIGNATURE); }
+std::map<std::string, Holder> Holder::get_dict_signature() const { return _get_dict<std::string>(SIGNATURE); }
 
 void Holder::array_append(Holder holder) { holder_array.push_back(holder); }
 
@@ -485,7 +532,7 @@ void Holder::dict_append(Type key_type, std::any key, Holder value) {
 }
 
 template <typename T>
-std::map<T, Holder> Holder::_get_dict(Type key_type) {
+std::map<T, Holder> Holder::_get_dict(Type key_type) const {
     std::map<T, Holder> output;
     for (auto& [key_type_internal, key, value] : holder_dict) {
         if (key_type_internal == key_type) {

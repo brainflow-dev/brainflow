@@ -16,6 +16,7 @@ namespace SimpleBLE {
 class AdapterBuilder : public Adapter {
   public:
     AdapterBuilder(std::shared_ptr<AdapterBase> internal);
+    virtual ~AdapterBuilder() = default;
 };
 
 }  // namespace SimpleBLE

@@ -116,6 +116,8 @@ int Muse::prepare_session ()
         return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
     }
 
+    safe_logger (spdlog::level::info, "found {} BLE adapter(s)", adapter_count);
+
     muse_adapter = simpleble_adapter_get_handle (0);
     if (muse_adapter == NULL)
     {
