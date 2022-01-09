@@ -282,6 +282,19 @@ void MuseBGLibHelper::ble_evt_attclient_procedure_completed (
 void MuseBGLibHelper::ble_evt_attclient_find_information_found (
     const struct ble_msg_attclient_find_information_found_evt_t *msg)
 {
+    int chars_to_find = 9;
+    int ccids_to_find = 13;
+    try
+    {
+        std::vector<int> ppg_channels = board_descr["ppg_channels"];
+    }
+    catch (...)
+    {
+        // no ppg for old muse
+        chars_to_find = 6;
+        ccids_to_find = 10;
+    }
+
     if (state == (int)DeviceState::OPEN_CALLED)
     {
         if (msg->uuid.len == 2)
@@ -344,8 +357,8 @@ void MuseBGLibHelper::ble_evt_attclient_find_information_found (
                 characteristics[msg->chrhandle] = uuid;
             }
         }
-        if ((characteristics.size () == 9) && (state == (int)DeviceState::OPEN_CALLED) &&
-            (ccids.size () >= 13))
+        if ((characteristics.size () == chars_to_find) &&
+            (state == (int)DeviceState::OPEN_CALLED) && (ccids.size () >= ccids_to_find))
         {
             exit_code = (int)BrainFlowExitCodes::STATUS_OK;
         }
@@ -429,18 +442,25 @@ void MuseBGLibHelper::ble_evt_attclient_attribute_value (
             ppg_chann_num = 2;
         }
 
-        std::vector<int> ppg_channels = board_descr["ppg_channels"];
-        for (int i = 0; i < 6; i++)
+        try
         {
-            double ppg_val =
-                (double)cast_24bit_to_int32 ((unsigned char *)&msg->value.data[2 + i * 3]);
-            for (int j = 0; j < 2; j++)
+            std::vector<int> ppg_channels = board_descr["ppg_channels"];
+            for (int i = 0; i < 6; i++)
             {
-                int pos = (current_ppg_pos[ppg_chann_num] + i * 2 + j) % 12;
-                current_buf[pos][ppg_channels[ppg_chann_num]] = ppg_val;
+                double ppg_val =
+                    (double)cast_24bit_to_int32 ((unsigned char *)&msg->value.data[2 + i * 3]);
+                for (int j = 0; j < 2; j++)
+                {
+                    int pos = (current_ppg_pos[ppg_chann_num] + i * 2 + j) % 12;
+                    current_buf[pos][ppg_channels[ppg_chann_num]] = ppg_val;
+                }
             }
+            current_ppg_pos[ppg_chann_num] += 2;
         }
-        current_ppg_pos[ppg_chann_num] += 2;
+        catch (...)
+        {
+            // do nothing
+        }
     }
     else
     {
