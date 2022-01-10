@@ -282,8 +282,8 @@ void MuseBGLibHelper::ble_evt_attclient_procedure_completed (
 void MuseBGLibHelper::ble_evt_attclient_find_information_found (
     const struct ble_msg_attclient_find_information_found_evt_t *msg)
 {
-    int chars_to_find = 9;
-    int ccids_to_find = 13;
+    size_t chars_to_find = 9;
+    size_t ccids_to_find = 13;
     try
     {
         std::vector<int> ppg_channels = board_descr["ppg_channels"];
