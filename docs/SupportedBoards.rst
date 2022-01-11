@@ -552,8 +552,10 @@ Muse
 
    "MuseSBLED", "BoardIds.MUSE_S_BLED_BOARD (21)", "dongle serial port", "-", "-", "-", "-", "-", "-", "Optional: device name", "-"
    "Muse2BLED", "BoardIds.MUSE_2_BLED_BOARD (22)", "dongle serial port", "-", "-", "-", "-", "-", "-", "Optional: device name", "-"
+   "Muse2016BLED", "BoardIds.MUSE_2016_BLED_BOARD (42)", "dongle serial port", "-", "-", "-", "-", "-", "-", "Optional: device name", "-"
    "Muse2", "BoardIds.MUSE_2_BOARD (38)", "-", "Optional: MAC adress", "-", "-", "-", "-", "-", "Optional: device name", "-"
    "MuseS", "BoardIds.MUSE_S_BOARD (39)", "-", "Optional: MAC adress", "-", "-", "-", "-", "-", "Optional: device name", "-"
+   "Muse2016", "BoardIds.MUSE_2016_BOARD (41)", "-", "Optional: MAC adress", "-", "-", "-", "-", "-", "Optional: device name", "-"
 
 Muse S BLED
 ~~~~~~~~~~~~~~
