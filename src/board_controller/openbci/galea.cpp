@@ -1,14 +1,15 @@
-#include <numeric>
-#include <regex>
-#include <sstream>
+#include "galea.h"
+
 #include <stdint.h>
 #include <string.h>
 
-#include "custom_cast.h"
-#include "galea.h"
-#include "timestamp.h"
+#include <numeric>
+#include <regex>
+#include <sstream>
 
+#include "custom_cast.h"
 #include "json.hpp"
+#include "timestamp.h"
 
 using json = nlohmann::json;
 
@@ -19,7 +20,6 @@ using json = nlohmann::json;
 constexpr int Galea::package_size;
 constexpr int Galea::num_packages;
 constexpr int Galea::transaction_size;
-
 
 Galea::Galea (struct BrainFlowInputParams params) : Board ((int)BoardIds::GALEA_BOARD, params)
 {
@@ -465,6 +465,8 @@ int Galea::calc_time (std::string &resp)
             spdlog::level::warn, "failed to recv resp from time calc command, resp size {}", res);
         return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
     }
+
+
     double duration = done - start;
     double timestamp_device = 0;
     memcpy (&timestamp_device, b, 8);
@@ -484,18 +486,25 @@ int Galea::calc_time (std::string &resp)
 
 std::string Galea::find_device ()
 {
+#ifdef _WIN32
+    std::string ssdp_ip_address = "192.168.137.255";
+#else
+    std::string ssdp_ip_address = "239.255.255.250";
+#endif
+
     safe_logger (spdlog::level::trace, "trying to autodiscover device via SSDP");
     std::string ip_address = "";
-    SocketClientUDP udp_client ("239.255.255.250", 1900); // ssdp ip and port
+    SocketClientUDP udp_client (ssdp_ip_address.c_str (),
+        1900); // ssdp ip and port
     int res = udp_client.connect ();
     if (res == (int)SocketClientUDPReturnCodes::STATUS_OK)
     {
-        std::string msearch =
-            ("M-SEARCH * HTTP/1.1\r\nHost: 239.255.255.250:1900\r\nMAN: ssdp:discover\r\n"
-             "ST: urn:schemas-upnp-org:device:Basic:1\r\n"
-             "MX: 3\r\n"
-             "\r\n"
-             "\r\n");
+        std::string msearch = ("M-SEARCH * HTTP/1.1\r\nHost: " + ssdp_ip_address +
+            ":1900\r\nMAN: ssdp:discover\r\n"
+            "ST: urn:schemas-upnp-org:device:Basic:1\r\n"
+            "MX: 3\r\n"
+            "\r\n"
+            "\r\n");
 
         safe_logger (spdlog::level::trace, "Use search request {}", msearch.c_str ());
 
@@ -504,7 +513,7 @@ std::string Galea::find_device ()
         {
             unsigned char b[250];
             res = udp_client.recv (b, 250);
-            if (res == 250)
+            if (res > 1)
             {
                 std::string response ((const char *)b);
                 safe_logger (spdlog::level::trace, "Recived package {}", b);
