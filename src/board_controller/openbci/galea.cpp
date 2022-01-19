@@ -465,6 +465,8 @@ int Galea::calc_time (std::string &resp)
             spdlog::level::warn, "failed to recv resp from time calc command, resp size {}", res);
         return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
     }
+
+
     double duration = done - start;
     double timestamp_device = 0;
     memcpy (&timestamp_device, b, 8);
