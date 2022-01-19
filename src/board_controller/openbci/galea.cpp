@@ -486,12 +486,12 @@ std::string Galea::find_device ()
 {
     safe_logger (spdlog::level::trace, "trying to autodiscover device via SSDP");
     std::string ip_address = "";
-    SocketClientUDP udp_client ("239.255.255.250", 1900); // ssdp ip and port
+    SocketClientUDP udp_client ("192.168.137.255", 1900); // ssdp ip and port
     int res = udp_client.connect ();
     if (res == (int)SocketClientUDPReturnCodes::STATUS_OK)
     {
         std::string msearch =
-            ("M-SEARCH * HTTP/1.1\r\nHost: 239.255.255.250:1900\r\nMAN: ssdp:discover\r\n"
+            ("M-SEARCH * HTTP/1.1\r\nHost: 192.168.137.255:1900\r\nMAN: ssdp:discover\r\n"
              "ST: urn:schemas-upnp-org:device:Basic:1\r\n"
              "MX: 3\r\n"
              "\r\n"
@@ -504,7 +504,7 @@ std::string Galea::find_device ()
         {
             unsigned char b[250];
             res = udp_client.recv (b, 250);
-            if (res == 250)
+            if (res > 1)
             {
                 std::string response ((const char *)b);
                 safe_logger (spdlog::level::trace, "Recived package {}", b);
