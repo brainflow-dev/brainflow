@@ -42,7 +42,7 @@ int GanglionWifi::config_board (std::string conf, std::string &response)
     return send_config (config);
 }
 
-int GanglionWifi::start_stream (int buffer_size, char *streamer_params)
+int GanglionWifi::start_stream (int buffer_size, const char *streamer_params)
 {
     if (keep_alive)
     {

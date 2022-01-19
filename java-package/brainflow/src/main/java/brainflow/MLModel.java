@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.apache.commons.lang3.SystemUtils;
 
@@ -16,15 +15,17 @@ public class MLModel
     private interface DllInterface extends Library
     {
 
-        int set_log_level (int log_level);
+        int set_log_level_ml_module (int log_level);
 
-        int set_log_file (String log_file);
+        int set_log_file_ml_module (String log_file);
 
         int prepare (String params);
 
         int release (String params);
 
         int predict (double[] data, int data_len, double[] output, String params);
+
+        int release_all ();
     }
 
     private static DllInterface instance;
@@ -57,7 +58,7 @@ public class MLModel
             unpack_from_jar ("brainflow_svm.model");
         }
 
-        instance = (DllInterface) Native.loadLibrary (lib_name, DllInterface.class);
+        instance = Native.loadLibrary (lib_name, DllInterface.class);
     }
 
     private static Path unpack_from_jar (String lib_name)
@@ -116,10 +117,22 @@ public class MLModel
      */
     public static void set_log_file (String log_file) throws BrainFlowError
     {
-        int ec = instance.set_log_file (log_file);
+        int ec = instance.set_log_file_ml_module (log_file);
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in set_log_file", ec);
+        }
+    }
+
+    /**
+     * release all classifiers
+     */
+    public static void release_all () throws BrainFlowError
+    {
+        int ec = instance.release_all ();
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in release classifiers", ec);
         }
     }
 
@@ -128,7 +141,7 @@ public class MLModel
      */
     private static void set_log_level (int log_level) throws BrainFlowError
     {
-        int ec = instance.set_log_level (log_level);
+        int ec = instance.set_log_level_ml_module (log_level);
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in set_log_level", ec);

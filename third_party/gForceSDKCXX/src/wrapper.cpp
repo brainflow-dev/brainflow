@@ -1,20 +1,25 @@
 #include <atomic>
 #include <deque>
 #include <thread>
+#include <utility>
 #include <windows.h>
 
 #include "gforce.h"
 
 #include "gforce_handle.h"
 #include "gforce_wrapper_functions.h"
-#include "gforce_wrapper_types.h"
 
+#include "brainflow_array.h"
+#include "brainflow_input_params.h"
 #include "spinlock.h"
 
+#include "json.hpp"
+
+using json = nlohmann::json;
 using namespace gf;
 using namespace std;
 
-volatile int iExitCode = (int)GforceWrapperExitCodes::SYNC_ERROR;
+volatile int iExitCode = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
 volatile bool bShouldStopStream = true;
 volatile bool bShouldStopThread = true;
 volatile bool bInitialized = false;
@@ -23,7 +28,7 @@ gfsPtr<Hub> pHub = NULL;
 gfsPtr<GforceHandle> gforceHandle = NULL;
 gfsPtr<HubListener> listener = NULL;
 SpinLock spinLock;
-std::deque<struct GforceData> data_queue;
+std::deque<BrainFlowArray<double, 1>> dataQueue;
 
 void threadFunc ()
 {
@@ -34,29 +39,31 @@ void threadFunc ()
     }
 }
 
-int gforceInitialize (void *param)
+int initialize (void *param)
 {
     if (bInitialized)
     {
-        return (int)GforceWrapperExitCodes::ALREADY_INITIALIZED;
+        return (int)BrainFlowExitCodes::PORT_ALREADY_OPEN_ERROR;
     }
-    iExitCode = (int)GforceWrapperExitCodes::SYNC_ERROR;
+    iExitCode = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
     pHub = HubManager::getHubInstance (_T("GForceBrainFlowWrapper"));
     pHub->setWorkMode (WorkMode::Polling); // means that need to run loop manually
     // create the listener implementation and register to hub
-    gforceHandle = make_shared<GforceHandle> (pHub);
+    std::tuple<int, struct BrainFlowInputParams, json> *info =
+        (std::tuple<int, struct BrainFlowInputParams, json> *)param;
+    gforceHandle = make_shared<GforceHandle> (pHub, std::get<0> (*info));
     listener = static_pointer_cast<HubListener> (gforceHandle);
     GF_RET_CODE retCode = pHub->registerListener (listener);
     if (retCode != GF_RET_CODE::GF_SUCCESS)
     {
-        return (int)GforceWrapperExitCodes::HUB_INIT_FAILED;
+        return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
     }
     pHub->init ();
     // start scan and waiting for discovery
     retCode = pHub->startScan ();
     if (retCode != GF_RET_CODE::GF_SUCCESS)
     {
-        return (int)GforceWrapperExitCodes::SCAN_INIT_FAILED;
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     }
     // run pooling thread
     bShouldStopThread = false;
@@ -65,13 +72,13 @@ int gforceInitialize (void *param)
     int numAttempts = 500;
     int curAttemp = 0;
     int sleepTime = 10;
-    while ((curAttemp < numAttempts) && (iExitCode == (int)GforceWrapperExitCodes::SYNC_ERROR))
+    while ((curAttemp < numAttempts) && (iExitCode == (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR))
     {
         curAttemp++;
         Sleep (sleepTime);
     }
 
-    if (iExitCode == (int)GforceWrapperExitCodes::STATUS_OK)
+    if (iExitCode == (int)BrainFlowExitCodes::STATUS_OK)
     {
         bInitialized = true;
     }
@@ -85,35 +92,35 @@ int gforceInitialize (void *param)
     return iExitCode;
 }
 
-int gforceStartStreaming (void *param)
+int start_stream (void *param)
 {
     if (!bInitialized)
     {
-        return (int)GforceWrapperExitCodes::NOT_INITIALIZED;
+        return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
     }
     gforceHandle->logger->info ("starting acqusition.");
     bShouldStopStream = false;
 
-    return (int)GforceWrapperExitCodes::STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int gforceStopStreaming (void *param)
+int stop_stream (void *param)
 {
     if (!bInitialized)
     {
-        return (int)GforceWrapperExitCodes::NOT_INITIALIZED;
+        return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
     }
     gforceHandle->logger->info ("stop acqusition.");
     bShouldStopStream = true;
 
-    return (int)GforceWrapperExitCodes::STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int gforceRelease (void *param)
+int release (void *param)
 {
     if (!bInitialized)
     {
-        return (int)GforceWrapperExitCodes::NOT_INITIALIZED;
+        return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
     }
     bShouldStopStream = true;
     bShouldStopThread = true;
@@ -122,44 +129,59 @@ int gforceRelease (void *param)
     pHub->deinit ();
     bInitialized = false;
     spinLock.lock ();
-    data_queue.clear ();
+    dataQueue.clear ();
     spinLock.unlock ();
 
-    return (int)GforceWrapperExitCodes::STATUS_OK;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int gforceGetData (void *param)
+int get_data (void *param)
 {
     if (!bInitialized)
     {
-        return (int)GforceWrapperExitCodes::NOT_INITIALIZED;
+        return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
     }
 
-    int res = (int)GforceWrapperExitCodes::STATUS_OK;
+    int res = (int)BrainFlowExitCodes::STATUS_OK;
     spinLock.lock ();
 
-    if (data_queue.empty ())
+    if (dataQueue.empty ())
     {
-        res = (int)GforceWrapperExitCodes::NO_DATA_ERROR;
+        res = (int)BrainFlowExitCodes::EMPTY_BUFFER_ERROR;
     }
     else
     {
         try
         {
-            struct GforceData *board_data = (struct GforceData *)param;
-            struct GforceData data = data_queue.at (
-                0); // at ensures out of range exception, front has undefined behavior
-            for (int i = 0; i < GforceData::SIZE; i++)
+            double *board_data = (double *)param;
+            BrainFlowArray<double, 1> data = dataQueue.at (0);
+            for (int i = 0; i < data.get_size (0); i++)
             {
-                board_data->data[i] = data.data[i];
+                board_data[i] = data[i];
             }
-            data_queue.pop_front ();
+            dataQueue.pop_front ();
         }
         catch (...)
         {
-            res = (int)GforceWrapperExitCodes::NO_DATA_ERROR;
+            res = (int)BrainFlowExitCodes::EMPTY_BUFFER_ERROR;
         }
     }
     spinLock.unlock ();
     return res;
+}
+
+// stubs for dyn_lib_board class
+int open_device (void *param)
+{
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int close_device (void *param)
+{
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int config_device (void *param)
+{
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }

@@ -18,7 +18,7 @@ namespace brainflow
         /// <param name="log_level"></param>
         private static void set_log_level (int log_level)
         {
-            int res = DataHandlerLibrary.set_log_level (log_level);
+            int res = DataHandlerLibrary.set_log_level_data_handler (log_level);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException (res);
@@ -30,7 +30,7 @@ namespace brainflow
         /// </summary>
         public static void enable_data_logger ()
         {
-            DataHandlerLibrary.set_log_level ((int)LogLevels.LEVEL_INFO);
+            set_log_level ((int)LogLevels.LEVEL_INFO);
         }
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace brainflow
         /// </summary>
         public static void disable_data_logger ()
         {
-            DataHandlerLibrary.set_log_level ((int)LogLevels.LEVEL_OFF);
+            set_log_level ((int)LogLevels.LEVEL_OFF);
         }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace brainflow
         /// </summary>
         public static void enable_dev_data_logger ()
         {
-            DataHandlerLibrary.set_log_level ((int)LogLevels.LEVEL_TRACE);
+            set_log_level ((int)LogLevels.LEVEL_TRACE);
         }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace brainflow
         /// <param name="log_file"></param>
         public static void set_log_file (string log_file)
         {
-            int res = DataHandlerLibrary.set_log_file (log_file);
+            int res = DataHandlerLibrary.set_log_file_data_handler (log_file);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException (res);
@@ -81,6 +81,25 @@ namespace brainflow
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException (res);
+            }
+            return filtered_data;
+        }
+
+        /// <summary>
+        /// remove env noise using notch filter
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="sampling_rate"></param>
+        /// <param name="noise_type"></param>
+        /// <returns>filtered data</returns>
+        public static double[] remove_environmental_noise(double[] data, int sampling_rate, int noise_type)
+        {
+            double[] filtered_data = new double[data.Length];
+            Array.Copy(data, filtered_data, data.Length);
+            int res = DataHandlerLibrary.remove_environmental_noise(filtered_data, data.Length, sampling_rate, noise_type);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException(res);
             }
             return filtered_data;
         }
@@ -214,6 +233,24 @@ namespace brainflow
                 throw new BrainFlowException (res);
             }
             return downsampled_data;
+        }
+
+        /// <summary>
+        /// calc stddev
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="start_pos"></param>
+        /// /// <param name="end_pos"></param>
+        /// <returns>stddev</returns>
+        public static double calc_stddev (double[] data, int start_pos, int end_pos)
+        {
+            double[] output = new double[1]; 
+            int res = DataHandlerLibrary.calc_stddev (data, start_pos, end_pos, output);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException(res);
+            }
+            return output[0];
         }
 
         /// <summary>
@@ -411,14 +448,13 @@ namespace brainflow
         }
 
         /// <summary>
-        /// write data to csv file, data will be transposed
+        /// write data to tsv file, data will be transposed
         /// </summary>
         /// <param name="data"></param>
         /// <param name="file_name"></param>
         /// <param name="file_mode"></param>
         public static void write_file (double[,] data, string file_name, string file_mode)
         {
-            int num_rows = data.Rows();
             int res = DataHandlerLibrary.write_file (data.Flatten(), data.Rows (), data.Columns (), file_name, file_mode);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
@@ -476,7 +512,7 @@ namespace brainflow
         }
 
         /// <summary>
-        /// calculate avg and stddev bandpowers across channels
+        /// calculate avg and stddev bandpowers across channels, bands are 1-4,4-8,8-13,13-30,30-50
         /// </summary>
         /// <param name="data">2d array with values</param>
         /// <param name="channels">rows of data array which should be used for calculation</param>

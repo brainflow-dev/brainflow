@@ -7,7 +7,8 @@ public enum BrainFlowMetrics
 {
 
     RELAXATION (0),
-    CONCENTRATION (1);
+    CONCENTRATION (1),
+    USER_DEFINED (2);
 
     private final int protocol;
     private static final Map<Integer, BrainFlowMetrics> metr_map = new HashMap<Integer, BrainFlowMetrics> ();

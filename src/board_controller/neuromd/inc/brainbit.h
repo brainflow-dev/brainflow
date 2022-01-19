@@ -36,6 +36,7 @@ private:
     SignalDoubleChannel *signal_t3;
     SignalDoubleChannel *signal_o1;
     SignalDoubleChannel *signal_o2;
+    volatile size_t counter;
 
 #endif
 
@@ -44,7 +45,7 @@ public:
     ~BrainBit ();
 
     int prepare_session ();
-    int start_stream (int buffer_size, char *streamer_params);
+    int start_stream (int buffer_size, const char *streamer_params);
     int stop_stream ();
     int release_session ();
     int config_board (std::string config, std::string &response);

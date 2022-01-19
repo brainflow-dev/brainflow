@@ -64,10 +64,15 @@ int main (int argc, char *argv[])
                         data.get_size (1), BoardShim::get_sampling_rate (board_id), 15.0, 10.0, 3,
                         (int)FilterTypes::BESSEL, 0);
                     break;
-                default:
+                case 3:
                     DataFilter::perform_bandstop (data.get_address (eeg_channels[i]),
                         data.get_size (1), BoardShim::get_sampling_rate (board_id), 50.0, 4.0, 4,
                         (int)FilterTypes::BUTTERWORTH, 0);
+                    break;
+                default:
+                    DataFilter::remove_environmental_noise (data.get_address (eeg_channels[i]),
+                        data.get_size (1), BoardShim::get_sampling_rate (board_id),
+                        (int)NoiseTypes::FIFTY);
                     break;
             }
         }

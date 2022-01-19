@@ -336,8 +336,8 @@ void idwt2_shift (int shift, int rows, int cols, double *lpr, double *hpr, int l
     dim2 = 2 * cols;
 
     X_lp = (double *)malloc (sizeof (double) * (N + 2 * lf - 1));
-    cL = (double *)calloc (dim1 * dim2, sizeof (double));
-    cH = (double *)calloc (dim1 * dim2, sizeof (double));
+    cL = (double *)calloc ((size_t)dim1 * (size_t)dim2, sizeof (double));
+    cH = (double *)calloc ((size_t)dim1 * (size_t)dim2, sizeof (double));
 
     ir = rows;
     ic = cols;

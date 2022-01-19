@@ -18,12 +18,36 @@ export BrainFlowInputParams
     CALLIBRI_EEG_BOARD = 9
     CALLIBRI_EMG_BOARD = 10
     CALLIBRI_ECG_BOARD = 11
-    FASCIA_BOARD = 12
     NOTION_1_BOARD = 13
     NOTION_2_BOARD = 14
     IRONBCI_BOARD = 15
     GFORCE_PRO_BOARD = 16
     FREEEEG32_BOARD = 17
+    BRAINBIT_BLED_BOARD = 18
+    GFORCE_DUAL_BOARD = 19
+    GALEA_SERIAL_BOARD = 20
+    MUSE_S_BLED_BOARD = 21
+    MUSE_2_BLED_BOARD = 22
+    CROWN_BOARD = 23
+    ANT_NEURO_EE_410_BOARD = 24
+    ANT_NEURO_EE_411_BOARD = 25
+    ANT_NEURO_EE_430_BOARD = 26
+    ANT_NEURO_EE_211_BOARD = 27
+    ANT_NEURO_EE_212_BOARD = 28
+    ANT_NEURO_EE_213_BOARD = 29
+    ANT_NEURO_EE_214_BOARD = 30
+    ANT_NEURO_EE_215_BOARD = 31
+    ANT_NEURO_EE_221_BOARD = 32
+    ANT_NEURO_EE_222_BOARD = 33
+    ANT_NEURO_EE_223_BOARD = 34
+    ANT_NEURO_EE_224_BOARD = 35
+    ANT_NEURO_EE_225_BOARD = 36
+    ENOPHONE_BOARD = 37
+    MUSE_2_BOARD = 38
+    MUSE_S_BOARD = 39
+    BRAINALIVE_BOARD = 40
+    MUSE_2016_BOARD = 41
+    MUSE_2016_BLED_BOARD = 42
 
 end
 
@@ -73,12 +97,25 @@ end
     return value
 end
 
+@brainflow_rethrow function get_board_descr(board_id::BoardIdType)
+    names_string = Vector{Cuchar}(undef, 16000)
+    len = Vector{Cint}(undef, 1)
+    ccall((:get_board_descr, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}, Ptr{Cint}), Int32(board_id), names_string, len)
+    sub_string = String(names_string)[1:len[1]]
+    value = JSON.parse(sub_string)
+    return value
+end
+
 @brainflow_rethrow function get_device_name(board_id::BoardIdType)
     names_string = Vector{Cuchar}(undef, 4096)
     len = Vector{Cint}(undef, 1)
     ccall((:get_device_name, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}, Ptr{Cint}), Int32(board_id), names_string, len)
     sub_string = String(names_string)[1:len[1]]
     return sub_string
+end
+
+@brainflow_rethrow function release_all_sessions()
+    ccall((:release_all_sessions, BOARD_CONTROLLER_INTERFACE), Cint, ())
 end
 
 single_channel_function_names = (
@@ -186,7 +223,6 @@ end
     ccall((:stop_stream, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}), board_shim.board_id, board_shim.input_json)
 end
 
-
 @brainflow_rethrow function release_session(board_shim::BoardShim)
     ccall((:release_session, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}), board_shim.board_id, board_shim.input_json)
 end
@@ -198,6 +234,21 @@ end
             config, resp_string, len, board_shim.board_id, board_shim.input_json)
     sub_string = String(resp_string)[1:len[1]]
     return sub_string
+end
+
+@brainflow_rethrow function get_board_data(num_samples::Integer, board_shim::BoardShim)
+    data_size = get_board_data_count(board_shim)
+    if num_samples < 0
+        throw(BrainFlowError("Invalid num_samples", Integer(INVALID_ARGUMENTS_ERROR)))
+    else
+        data_size = (data_size >= num_samples) ? num_samples : data_size
+    end
+    num_rows = get_num_rows(board_shim.master_board_id)
+    val = Vector{Float64}(undef, num_rows * data_size)
+    ccall((:get_board_data, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Float64}, Cint, Ptr{UInt8}), 
+            data_size, val, board_shim.board_id, board_shim.input_json)
+    value = transpose(reshape(val, (data_size, num_rows)))
+    return value
 end
 
 @brainflow_rethrow function get_board_data(board_shim::BoardShim)

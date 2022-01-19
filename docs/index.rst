@@ -22,17 +22,3 @@ It provides a **uniform data acquisition API for all supported boards**, it mean
     AskHelp
     Partners
     License
-
-
-Partners and Sponsors
-=======================
-
-.. image:: https://live.staticflickr.com/65535/49739828092_fa2f4d78c1_h.jpg
-    :width: 400px
-    :height: 89px
-    :target: https://openbci.com
-
-Search
-========
-
-* :ref:`search`

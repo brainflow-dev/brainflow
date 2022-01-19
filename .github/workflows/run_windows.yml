@@ -23,23 +23,42 @@ jobs:
         echo %GITHUB_WORKSPACE%\installed64\lib>>%GITHUB_PATH%
         echo %GITHUB_WORKSPACE%\installed32\lib>>%GITHUB_PATH%
       shell: cmd
-    - name: Set up JDK 11
+    - name: Install JDK 11
       uses: actions/setup-java@v1
       with:
         java-version: 11.0.3
+    - uses: hecrj/setup-rust-action@v1
+      with:
+        rust-version: stable
+        components: cargo,rustc,rust-std
     # compile and prepare everything
     - name: Compile x32
       run: |
         mkdir %GITHUB_WORKSPACE%\build32
         cd %GITHUB_WORKSPACE%\build32
-        cmake -DWARNINGS_AS_ERRORS=ON -G "Visual Studio 16 2019" -A Win32 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed32\ ..
+        cmake -DBUILD_OYMOTION_SDK=ON -DBUILD_BLUETOOTH=ON -DWARNINGS_AS_ERRORS=ON -G "Visual Studio 16 2019" -A Win32 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed32\ ..
         cmake --build . --target install --config Release -j 2 --parallel 2
       shell: cmd
     - name: Compile x64
       run: |
         mkdir %GITHUB_WORKSPACE%\build64
         cd %GITHUB_WORKSPACE%\build64
-        cmake -DWARNINGS_AS_ERRORS=ON -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed64\ ..
+        cmake -DBUILD_OYMOTION_SDK=ON -DBUILD_BLUETOOTH=ON -DWARNINGS_AS_ERRORS=ON -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed64\ ..
+        cmake --build . --target install --config Release -j 2 --parallel 2
+      shell: cmd
+    # need to build SimpleBLE outside from BrainFlow because they have different Windows System Versions
+    - name: Compile SimpleBLE x32
+      run: |
+        mkdir %GITHUB_WORKSPACE%\third_party\SimpleBLE\build32
+        cd %GITHUB_WORKSPACE%\third_party\SimpleBLE\build32
+        cmake -G "Visual Studio 16 2019" -A Win32 -DCMAKE_SYSTEM_VERSION=10.0.19041.0 -DCMAKE_INSTALL_PREFIX=%GITHUB_WORKSPACE%\installed32\ ..
+        cmake --build . --target install --config Release -j 2 --parallel 2
+      shell: cmd
+    - name: Compile SimpleBLE x64
+      run: |
+        mkdir %GITHUB_WORKSPACE%\third_party\SimpleBLE\build64
+        cd %GITHUB_WORKSPACE%\third_party\SimpleBLE\build64
+        cmake -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=10.0.19041.0 -DCMAKE_INSTALL_PREFIX=%GITHUB_WORKSPACE%\installed64\ ..
         cmake --build . --target install --config Release -j 2 --parallel 2
       shell: cmd
     - name: C# build
@@ -58,6 +77,11 @@ jobs:
       run: |
         pip install %GITHUB_WORKSPACE%\python-package\
         pip install -r %GITHUB_WORKSPACE%\tests\python\requirements.txt
+      shell: cmd
+    - name: Install Rust package
+      run: |
+        cd %GITHUB_WORKSPACE%\rust-package\brainflow
+        cargo build
       shell: cmd
     - name: Build Cpp Get Data Test x64
       run: |
@@ -123,6 +147,16 @@ jobs:
     - name: Synthetic Windows Python Test
       run: python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id -1
       shell: cmd
+    - name: Synthetic Windows Rust Test
+      run: |
+        cd %GITHUB_WORKSPACE%\rust-package\brainflow
+        cargo run --example=get_data
+      shell: cmd
+    - name: Synthetic Windows Rust Test Markers
+      run: |
+        cd %GITHUB_WORKSPACE%\rust-package\brainflow
+        cargo run --example=markers
+      shell: cmd
     - name: Synthetic Windows Python Test with Streamer
       run: python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id -1 --streamer-params file://file_streamer.csv:w
       shell: cmd
@@ -155,16 +189,35 @@ jobs:
     - name: Galea Windows C# Test
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\galea_udp.py %GITHUB_WORKSPACE%\csharp-package\brainflow\tests\brainflow_get_data\bin\Release\test.exe --board-id 3 --ip-address 127.0.0.1
       shell: cmd
-    #- name: Fascia Python Test
-    #  run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\fascia_emulator_ci.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id 12 --ip-port 7789
-    #  shell: cmd
-    - name: IronBCI Python Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\ironbci_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id 15 --serial-port
-      shell: cmd
     - name: FreeEEG32 Python Test
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\freeeeg32_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id 17 --serial-port
       shell: cmd
     # Signal Processing Testing
+    - name: Serialization Rust Test
+      run: |
+        cd %GITHUB_WORKSPACE%\rust-package\brainflow
+        cargo run --example=read_write_file
+      shell: cmd
+    - name: Denoising Rust Test
+      run: |
+        cd %GITHUB_WORKSPACE%\rust-package\brainflow
+        cargo run --example=denoising
+      shell: cmd
+    - name: Downsampling Rust Test
+      run: |
+        cd %GITHUB_WORKSPACE%\rust-package\brainflow
+        cargo run --example=downsampling
+      shell: cmd
+    - name: Filtering Rust Test
+      run: |
+        cd %GITHUB_WORKSPACE%\rust-package\brainflow
+        cargo run --example=signal_filtering
+      shell: cmd
+    - name: Transforms Rust Test
+      run: |
+        cd %GITHUB_WORKSPACE%\rust-package\brainflow
+        cargo run --example=transforms
+      shell: cmd
     - name: Denoising Python Test
       run: python %GITHUB_WORKSPACE%\tests\python\denoising.py
       shell: cmd
@@ -225,6 +278,11 @@ jobs:
       shell: cmd
     - name: EEG Metrics CI C# Test
       run: .\csharp-package\brainflow\tests\eeg_metrics\bin\Release\test.exe
+      shell: cmd
+    - name: EEG Metrics CI Rust Test
+      run: |
+        cd %GITHUB_WORKSPACE%\rust-package\brainflow
+        cargo run --example=eeg_metrics
       shell: cmd
     # Start Deploy Stage
     - name: Install Python AWS Tools

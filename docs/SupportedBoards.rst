@@ -3,7 +3,8 @@
 Supported Boards
 =================
 
-To create an instance of BoardShim class for your board check required inputs in the table below:
+BrainFlow Dummy Boards
+------------------------
 
 .. csv-table:: Required inputs
    :header: "Board", "Board Id", "BrainFlowInputParams.serial_port", "BrainFlowInputParams.mac_address", "BrainFlowInputParams.ip_address", "BrainFlowInputParams.ip_port", "BrainFlowInputParams.ip_protocol", "BrainFlowInputParams.other_info", "BrainFlowInputParams.timeout", "BrainFlowInputParams.serial_number", "BrainFlowInputParams.file"
@@ -11,25 +12,9 @@ To create an instance of BoardShim class for your board check required inputs in
    "Playback Board", "BoardIds.PLAYBACK_FILE_BOARD (-3)", "-", "-", "-", "-", "-", "Board Id of master board", "-", "-", "path to file for playback"
    "Streaming Board", "BoardIds.STREAMING_BOARD (-2)", "-", "-", "multicast IP address", "port", "-", "Board Id of master board", "-", "-", "-"
    "Synthetic Board", "BoardIds.SYNTHETIC_BOARD (-1)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
-   "Cyton", "BoardIds.CYTON_BOARD (0)", "dongle serial port(COM3, /dev/ttyUSB0, /dev/cu.usbserial-xxxxxx...)", "-", "-", "-", "-", "-", "-", "-", "-"
-   "Ganglion", "BoardIds.GANGLION_BOARD (1)", "dongle serial port(COM3, /dev/ttyUSB0...)", "Optional: Ganglion's MAC address", "-", "-", "-", "-", "Timeout for device discovery(default 15sec)", "-", "-"
-   "Cyton Daisy", "BoardIds.CYTON_DAISY_BOARD (2)", "dongle serial port(COM3, /dev/ttyUSB0, /dev/cu.usbserial-xxxxxx...)", "-", "-", "-", "-", "-", "-", "-", "-"
-   "Ganglion WIFI", "BoardIds.GANGLION_WIFI_BOARD (4)", "-", "-", "WIFI Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "Timeout for HTTP response(default 10sec)", "-", "-"
-   "Cyton WIFI", "BoardIds.CYTON_WIFI_BOARD (5)", "-", "-", "WIFI Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "Timeout for HTTP response(default 10sec)", "-", "-"
-   "Cyton Daisy WIFI", "BoardIds.CYTON_DAISY_WIFI_BOARD (6)", "-", "-", "WIFI Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "Timeout for HTTP response(default 10sec)", "-", "-"
-   "BrainBit", "BoardIds.BRAINBIT_BOARD (7)", "-", "-", "-", "-", "-", "-", "Timeout for device discovery(default 15sec)", "Optional: Serial Number of BrainBit device", "-"
-   "Unicorn", "BoardIds.UNICORN_BOARD (8)", "-", "-", "-", "-", "-", "-", "-", "Optional: Serial Number of Unicorn device", "-"
-   "CallibriEEG", "BoardIds.CALLIBRI_EEG_BOARD (9)", "-", "-", "-", "-", "-", "Optional: ExternalSwitchInputMioUSB (default is ExternalSwitchInputMioElectrodes)", "Timeout for device discovery(default 15sec)", "-", "-"
-   "CallibriEMG", "BoardIds.CALLIBRI_EMG_BOARD (10)", "-", "-", "-", "-", "-", "Optional: ExternalSwitchInputMioUSB (default is ExternalSwitchInputMioElectrodes)", "Timeout for device discovery(default 15sec)", "-", "-"
-   "CallibriECG", "BoardIds.CALLIBRI_ECG_BOARD (11)", "-", "-", "-", "-", "-", "Optional: ExternalSwitchInputMioUSB (default is ExternalSwitchInputMioElectrodes)", "Timeout for device discovery(default 15sec)", "-", "-"
-   "Notion 1", "BoardIds.NOTION_1_BOARD (13)", "-", "-", "-", "-", "-", "-", "-", "Optional: serial number", "-"
-   "Notion 2", "BoardIds.NOTION_2_BOARD (14)", "-", "-", "-", "-", "-", "-", "-", "Optional: serial number", "-"
-   "GforcePro", "BoardIds.GFORCE_PRO_BOARD (16)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
-   "FreeEEG32", "BoardIds.FREEEEG32_BOARD (17)", "dongle serial port", "-", "-", "-", "-", "-", "-", "-", "-"
-
 
 Playback File Board
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 This board playbacks file recorded using another BrainFlow board.
 
@@ -68,15 +53,8 @@ In methods like:
 
 You need to use master board id instead Playback Board Id, because exact data format for playback board is controlled by master board as well as sampling rate.
 
-Board Specs:
-
-- num eeg(emg,...) channels: like in master board
-- num acceleration channels: like in master board
-- sampling rate: like in master board
-- communication: UDP multicast socket to read data from master board
-
 Streaming Board
-------------------
+~~~~~~~~~~~~~~~~~
 
 BrainFlow's boards can stream data to different destinations like file, socket and so on. This board acts like a consumer for data streamed from the main process.
 
@@ -111,15 +89,8 @@ In methods like:
 
 You need to use master board id instead Streaming Board Id, because exact data format for streaming board is controlled by master board as well as sampling rate.
 
-Board Specs:
-
-- num eeg(emg,...) channels: like in master board
-- num acceleration channels: like in master board
-- sampling rate: like in master board
-- communication: UDP multicast socket to read data from master board
-
 Synthetic Board
-----------------
+~~~~~~~~~~~~~~~~
 
 This board generates synthetic data and you dont need real hardware to use it.
 
@@ -137,15 +108,18 @@ Supported platforms:
 - MacOS
 - Android
 
-Board Specs:
-
-- num eeg(emg,...) channels: 8
-- num acceleration channels: 3
-- sampling rate: 256
-- communication: None
-
 OpenBCI
 --------
+
+.. csv-table:: Required inputs
+   :header: "Board", "Board Id", "BrainFlowInputParams.serial_port", "BrainFlowInputParams.mac_address", "BrainFlowInputParams.ip_address", "BrainFlowInputParams.ip_port", "BrainFlowInputParams.ip_protocol", "BrainFlowInputParams.other_info", "BrainFlowInputParams.timeout", "BrainFlowInputParams.serial_number", "BrainFlowInputParams.file"
+
+   "Cyton", "BoardIds.CYTON_BOARD (0)", "dongle serial port(COM3, /dev/ttyUSB0, /dev/cu.usbserial-xxxxxx...)", "-", "-", "-", "-", "-", "-", "-", "-"
+   "Ganglion", "BoardIds.GANGLION_BOARD (1)", "dongle serial port(COM3, /dev/ttyUSB0...)", "Optional: Ganglion's MAC address", "-", "-", "-", "-", "Timeout for device discovery(default 15sec)", "-", "-"
+   "Cyton Daisy", "BoardIds.CYTON_DAISY_BOARD (2)", "dongle serial port(COM3, /dev/ttyUSB0, /dev/cu.usbserial-xxxxxx...)", "-", "-", "-", "-", "-", "-", "-", "-"
+   "Ganglion WIFI", "BoardIds.GANGLION_WIFI_BOARD (4)", "-", "-", "WIFI Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "Timeout for HTTP response(default 10sec)", "-", "-"
+   "Cyton WIFI", "BoardIds.CYTON_WIFI_BOARD (5)", "-", "-", "WIFI Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "Timeout for HTTP response(default 10sec)", "-", "-"
+   "Cyton Daisy WIFI", "BoardIds.CYTON_DAISY_WIFI_BOARD (6)", "-", "-", "WIFI Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "Timeout for HTTP response(default 10sec)", "-", "-"
 
 Cyton
 ~~~~~~~
@@ -154,7 +128,7 @@ Cyton
     :width: 200px
     :height: 200px
 
-`Cyton Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/CytonGS>`_
+`Cyton Getting Started Guide from OpenBCI <https://docs.openbci.com/GettingStarted/Boards/CytonGS/>`_
 
 To choose this board in BoardShim constructor please specify:
 
@@ -171,14 +145,6 @@ Supported platforms:
 
 **Also, on Unix-like systems you may need to configure permissions for serial port or run with sudo.**
 
-Board Spec:
-
-- num eeg(emg,...) channels: 8
-- num acceleration channels: 3
-- sampling rate: 250
-- communication: serial port
-- signal gain: 24
-
 Ganglion
 ~~~~~~~~~
 
@@ -186,7 +152,7 @@ Ganglion
     :width: 400px
     :height: 230px
 
-`Ganglion Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/GanglionGS>`_
+`Ganglion Getting Started Guide from OpenBCI <https://docs.openbci.com/GettingStarted/Boards/GanglionGS/>`_
 
 **To use Ganglion board you need a** `dongle <https://shop.openbci.com/collections/frontpage/products/ganglion-dongle>`_
 
@@ -212,13 +178,6 @@ Supported platforms:
 
 **On MacOS there are two serial ports for each device: /dev/tty..... and /dev/cu..... You HAVE to specify /dev/cu.....**
 
-Board Spec:
-
-- num eeg(emg,...) channels: 4
-- num acceleration channels: 3
-- sampling rate: 200
-- communication: Bluetooth Low Energy behind serial port from the dongle
-
 Cyton Daisy
 ~~~~~~~~~~~~
 
@@ -226,7 +185,7 @@ Cyton Daisy
     :width: 400px
     :height: 394px
 
-`CytonDaisy Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/DaisyGS>`_
+`CytonDaisy Getting Started Guide from OpenBCI <https://docs.openbci.com/GettingStarted/Boards/DaisyGS/>`_
 
 To choose this board in BoardShim constructor please specify:
 
@@ -243,15 +202,6 @@ Supported platforms:
 
 **Also, on Unix-like systems you may need to configure permissions for serial port or run with sudo.**
 
-Board Spec:
-
-- num eeg(emg,...) channels: 16
-- num acceleration channels: 3
-- sampling rate: 125
-- communication: serial port
-- signal gain: 24
-
-
 Ganglion with WIFI Shield
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -259,9 +209,9 @@ Ganglion with WIFI Shield
     :width: 300px
     :height: 300px
 
-`WIFI Shield Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_
+`WIFI Shield Getting Started Guide from OpenBCI <https://docs.openbci.com/GettingStarted/Boards/WiFiGS/>`_
 
-`WIFI Shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_
+`WIFI Shield Programming Guide from OpenBCI <https://docs.openbci.com/ThirdParty/WiFiShield/WiFiProgam/>`_
 
 To choose this board in BoardShim constructor please specify:
 
@@ -277,13 +227,6 @@ Supported platforms:
 - MacOS
 - Android
 
-Board Spec:
-
-- num eeg(emg,...) channels: 4
-- num acceleration channels: 3
-- sampling rate: 1600
-- communication: TCP socket to read data and HTTP to send commands
-
 Cyton with WIFI Shield
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -291,9 +234,9 @@ Cyton with WIFI Shield
     :width: 400px
     :height: 325px
 
-`WIFI shield Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_
+`WIFI shield Getting Started Guide from OpenBCI <https://docs.openbci.com/GettingStarted/Boards/WiFiGS/>`_
 
-`WIFI shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_
+`WIFI shield Programming Guide from OpenBCI <https://docs.openbci.com/ThirdParty/WiFiShield/WiFiProgam/>`_
 
 To choose this board in BoardShim constructor please specify:
 
@@ -309,14 +252,6 @@ Supported platforms:
 - MacOS
 - Android
 
-Board Spec:
-
-- num eeg(emg,...) channels: 8
-- num acceleration channels: 3
-- sampling rate: 1000
-- communication: TCP socket to read data and HTTP to send commands
-- signal gain: 24
-
 CytonDaisy with WIFI Shield
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -324,9 +259,9 @@ CytonDaisy with WIFI Shield
     :width: 400px
     :height: 400px
 
-`WIFI Shield Getting Started Guide from OpenBCI <https://docs.openbci.com/docs/01GettingStarted/01-Boards/WiFiGS>`_
+`WIFI Shield Getting Started Guide from OpenBCI <https://docs.openbci.com/GettingStarted/Boards/WiFiGS/>`_
 
-`WIFI Shield Programming Guide from OpenBCI <https://docs.openbci.com/docs/05ThirdParty/03-WiFiShield/WiFiProgam>`_
+`WIFI Shield Programming Guide from OpenBCI <https://docs.openbci.com/ThirdParty/WiFiShield/WiFiProgam/>`_
 
 To choose this board in BoardShim constructor please specify:
 
@@ -342,16 +277,17 @@ Supported platforms:
 - MacOS
 - Android
 
-Board Spec:
-
-- num eeg(emg,...) channels: 16
-- num acceleration channels: 3
-- sampling rate: 1000
-- communication: TCP socket to read data and HTTP to send commands
-- signal gain: 24
-
 NeuroMD
 ----------
+
+.. csv-table:: Required inputs
+   :header: "Board", "Board Id", "BrainFlowInputParams.serial_port", "BrainFlowInputParams.mac_address", "BrainFlowInputParams.ip_address", "BrainFlowInputParams.ip_port", "BrainFlowInputParams.ip_protocol", "BrainFlowInputParams.other_info", "BrainFlowInputParams.timeout", "BrainFlowInputParams.serial_number", "BrainFlowInputParams.file"
+
+   "BrainBit", "BoardIds.BRAINBIT_BOARD (7)", "-", "-", "-", "-", "-", "-", "Timeout for device discovery(default 15sec)", "Optional: Serial Number of BrainBit device", "-"
+   "CallibriEEG", "BoardIds.CALLIBRI_EEG_BOARD (9)", "-", "-", "-", "-", "-", "Optional: ExternalSwitchInputMioUSB (default is ExternalSwitchInputMioElectrodes)", "Timeout for device discovery(default 15sec)", "-", "-"
+   "CallibriEMG", "BoardIds.CALLIBRI_EMG_BOARD (10)", "-", "-", "-", "-", "-", "Optional: ExternalSwitchInputMioUSB (default is ExternalSwitchInputMioElectrodes)", "Timeout for device discovery(default 15sec)", "-", "-"
+   "CallibriECG", "BoardIds.CALLIBRI_ECG_BOARD (11)", "-", "-", "-", "-", "-", "Optional: ExternalSwitchInputMioUSB (default is ExternalSwitchInputMioElectrodes)", "Timeout for device discovery(default 15sec)", "-", "-"
+   "BrainBitBLED", "BoardIds.BRAINBIT_BLED_BOARD (18)", "dongle serial port", "Optional: MAC address", "-", "-", "-", "-", "-", "-", "-"
 
 BrainBit
 ~~~~~~~~~~
@@ -373,13 +309,23 @@ Supported platforms:
 - Windows >= 10
 - MacOS
 
-Board Spec:
+BrainBitBLED
+~~~~~~~~~~~~~~
 
-- num eeg channels: 4
-- num acceleration channels: None
-- sampling rate: 250
-- communication: Bluetooth Low Energy
+This board allows you to use `BLED112 dongle <https://www.silabs.com/wireless/bluetooth/bluegiga-low-energy-legacy-modules/device.bled112>`_ instead native API to work with BLE. Unlike original BrainBit libraries it works on Linux and devices like Raspberry Pi.
 
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 18
+- serial port field of BrainFlowInputParams structure
+- optional: MAC address for your BrainBit device
+
+Supported platforms:
+
+- Windows
+- MacOS
+- Linux
+- Devices like Raspberry Pi
 
 Callibri(Yellow)
 ~~~~~~~~~~~~~~~~~
@@ -409,15 +355,13 @@ Supported platforms:
 - Windows >= 10
 - MacOS
 
-Board Spec:
-
-- num exg channels: 1
-- num acceleration channels: None
-- communication: Bluetooth Low Energy
-
-
 G.TEC
 ------
+
+.. csv-table:: Required inputs
+   :header: "Board", "Board Id", "BrainFlowInputParams.serial_port", "BrainFlowInputParams.mac_address", "BrainFlowInputParams.ip_address", "BrainFlowInputParams.ip_port", "BrainFlowInputParams.ip_protocol", "BrainFlowInputParams.other_info", "BrainFlowInputParams.timeout", "BrainFlowInputParams.serial_number", "BrainFlowInputParams.file"
+
+   "Unicorn", "BoardIds.UNICORN_BOARD (8)", "-", "-", "-", "-", "-", "-", "-", "Optional: Serial Number of Unicorn device", "-"
 
 Unicorn
 ~~~~~~~~~~~
@@ -444,20 +388,24 @@ Steps to Setup:
 - Connect the dongle
 - Make sure that you paired Unicorn device with PC using provided dongle instead built-in Bluetooth
 
-Board Spec:
-
-- num eeg channels: 8
-- num acceleration channels: 3
-- sampling rate: 250
-- communication: Bluetooth Low Energy
-
 Neurosity
 ----------
+
+.. csv-table:: Required inputs
+   :header: "Board", "Board Id", "BrainFlowInputParams.serial_port", "BrainFlowInputParams.mac_address", "BrainFlowInputParams.ip_address", "BrainFlowInputParams.ip_port", "BrainFlowInputParams.ip_protocol", "BrainFlowInputParams.other_info", "BrainFlowInputParams.timeout", "BrainFlowInputParams.serial_number", "BrainFlowInputParams.file"
+
+   "Notion 1", "BoardIds.NOTION_1_BOARD (13)", "-", "-", "-", "-", "-", "-", "-", "Optional: serial number", "-"
+   "Notion 2", "BoardIds.NOTION_2_BOARD (14)", "-", "-", "-", "-", "-", "-", "-", "Optional: serial number", "-"
+   "Crown", "BoardIds.CROWN_BOARD (23)", "-", "-", "-", "-", "-", "-", "-", "Optional: serial number", "-"
 
 Notion 1
 ~~~~~~~~~
 
-`Notion website <https://neurosity.co/>`_
+.. image:: https://live.staticflickr.com/65535/51302873810_715f51b408.jpg
+    :width: 500px
+    :height: 353px
+
+`Neurosity website <https://neurosity.co/>`_
 
 `Link to Neurosity Tutorial <https://dev.to/neurosity/using-brainflow-with-the-neurosity-headset-2kof>`_
 
@@ -474,22 +422,21 @@ Supported platforms:
 
 *Note: On Windows you may need to disable firewall to allow broadcast messages.*
 
-Board Spec:
-
-- num eeg channels: 8
-- sampling rate: 250
-- communication: UDP BroadCast
-
 Notion 2
 ~~~~~~~~~
 
-`Notion website <https://neurosity.co/>`_
+.. image:: https://live.staticflickr.com/65535/51302045358_b375380804.jpg
+    :width: 500px
+    :height: 353px
+
+
+`Neurosity website <https://neurosity.co/>`_
 
 `Link to Neurosity Tutorial <https://dev.to/neurosity/using-brainflow-with-the-neurosity-headset-2kof>`_
 
 To choose this board in BoardShim constructor please specify:
 
-- board_id: 14
+- board_id: 23
 - optional: Serial Number field of BrainFlowInputParams structure, important if you have multiple devices in the same place
 
 Supported platforms:
@@ -500,14 +447,38 @@ Supported platforms:
 
 *Note: On Windows you may need to disable firewall to allow broadcast messages.*
 
-Board Spec:
+Crown
+~~~~~~~~~
 
-- num eeg channels: 8
-- sampling rate: 250
-- communication: UDP BroadCast
+.. image:: https://live.staticflickr.com/65535/51301110182_9d05de3948.jpg
+    :width: 500px
+    :height: 353px
+
+`Neurosity website <https://neurosity.co/>`_
+
+`Link to Neurosity Tutorial <https://dev.to/neurosity/using-brainflow-with-the-neurosity-headset-2kof>`_
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 23
+- optional: Serial Number field of BrainFlowInputParams structure, important if you have multiple devices in the same place
+
+Supported platforms:
+
+- Windows
+- Linux
+- MacOS
+
+*Note: On Windows you may need to disable firewall to allow broadcast messages.*
 
 OYMotion
 ---------
+
+.. csv-table:: Required inputs
+   :header: "Board", "Board Id", "BrainFlowInputParams.serial_port", "BrainFlowInputParams.mac_address", "BrainFlowInputParams.ip_address", "BrainFlowInputParams.ip_port", "BrainFlowInputParams.ip_protocol", "BrainFlowInputParams.other_info", "BrainFlowInputParams.timeout", "BrainFlowInputParams.serial_number", "BrainFlowInputParams.file"
+
+   "GforcePro", "BoardIds.GFORCE_PRO_BOARD (16)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "GforceDual", "BoardIds.GFORCE_DUAL_BOARD (19)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
 
 gForcePro ArmBand
 ~~~~~~~~~~~~~~~~~~
@@ -516,7 +487,7 @@ gForcePro ArmBand
     :width: 484px
     :height: 430px
 
-`OYMNotion website <http://www.oymotion.com/en/product32/149>`_
+`OYMotion website <http://www.oymotion.com/en/product32/149>`_
 
 To choose this board in BoardShim constructor please specify:
 
@@ -526,16 +497,30 @@ Supported platforms:
 
 - Windows
 
-*Note: Unlike other boards it returns ADC value instead uV.*
+*Note: Unlike other boards it returns ADC values instead uV.*
 
-Board Spec:
+gForceDual ArmBand
+~~~~~~~~~~~~~~~~~~~
 
-- num emg channels: 8
-- sampling rate: 500
-- communication: FTDI
+`OYMotion website <http://www.oymotion.com/en>`_
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 19
+
+Supported platforms:
+
+- Windows
+
+*Note: Unlike other boards it returns ADC values instead uV.*
 
 FreeEEG32
 ----------
+
+.. csv-table:: Required inputs
+   :header: "Board", "Board Id", "BrainFlowInputParams.serial_port", "BrainFlowInputParams.mac_address", "BrainFlowInputParams.ip_address", "BrainFlowInputParams.ip_port", "BrainFlowInputParams.ip_protocol", "BrainFlowInputParams.other_info", "BrainFlowInputParams.timeout", "BrainFlowInputParams.serial_number", "BrainFlowInputParams.file"
+
+   "FreeEEG32", "BoardIds.FREEEEG32_BOARD (17)", "dongle serial port", "-", "-", "-", "-", "-", "-", "-", "-"
 
 FreeEEG32
 ~~~~~~~~~~
@@ -559,8 +544,311 @@ Supported platforms:
 - Linux
 - MacOS
 
-Board Spec:
+Muse
+------
 
-- num eeg channels: 32
-- sampling rate: 512
-- communication: Serial Port
+.. csv-table:: Required inputs
+   :header: "Board", "Board Id", "BrainFlowInputParams.serial_port", "BrainFlowInputParams.mac_address", "BrainFlowInputParams.ip_address", "BrainFlowInputParams.ip_port", "BrainFlowInputParams.ip_protocol", "BrainFlowInputParams.other_info", "BrainFlowInputParams.timeout", "BrainFlowInputParams.serial_number", "BrainFlowInputParams.file"
+
+   "MuseSBLED", "BoardIds.MUSE_S_BLED_BOARD (21)", "dongle serial port", "-", "-", "-", "-", "-", "-", "Optional: device name", "-"
+   "Muse2BLED", "BoardIds.MUSE_2_BLED_BOARD (22)", "dongle serial port", "-", "-", "-", "-", "-", "-", "Optional: device name", "-"
+   "Muse2016BLED", "BoardIds.MUSE_2016_BLED_BOARD (42)", "dongle serial port", "-", "-", "-", "-", "-", "-", "Optional: device name", "-"
+   "Muse2", "BoardIds.MUSE_2_BOARD (38)", "-", "Optional: MAC adress", "-", "-", "-", "-", "-", "Optional: device name", "-"
+   "MuseS", "BoardIds.MUSE_S_BOARD (39)", "-", "Optional: MAC adress", "-", "-", "-", "-", "-", "Optional: device name", "-"
+   "Muse2016", "BoardIds.MUSE_2016_BOARD (41)", "-", "Optional: MAC adress", "-", "-", "-", "-", "-", "Optional: device name", "-"
+
+Muse S BLED
+~~~~~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/51249005962_026502fee0.jpg
+    :width: 350px
+    :height: 350px
+
+`Muse Website <https://choosemuse.com/>`_
+
+To use this board you need to get `BLED112 dongle <https://www.silabs.com/wireless/bluetooth/bluegiga-low-energy-legacy-modules/device.bled112>`_.
+
+**Also, on Unix-like systems you may need to configure permissions for serial port or run with sudo.**
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 21
+- serial port field of BrainFlowInputParams structure
+- optional: serial number(device name)
+
+Supported platforms:
+
+- Windows
+- MacOS
+- Linux
+- Devices like Raspberry Pi
+
+Muse 2 BLED
+~~~~~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/51250482419_32ce8454dd.jpg
+    :width: 350px
+    :height: 350px
+
+`Muse Website <https://choosemuse.com/>`_
+
+To use this board you need to get `BLED112 dongle <https://www.silabs.com/wireless/bluetooth/bluegiga-low-energy-legacy-modules/device.bled112>`_.
+
+**Also, on Unix-like systems you may need to configure permissions for serial port or run with sudo.**
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 22
+- serial port field of BrainFlowInputParams structure
+- optional: serial number(device name)
+
+Supported platforms:
+
+- Windows
+- MacOS
+- Linux
+- Devices like Raspberry Pi
+
+Muse 2
+~~~~~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/51250482419_32ce8454dd.jpg
+    :width: 350px
+    :height: 350px
+
+`Muse Website <https://choosemuse.com/>`_
+
+.. compound::
+
+    On Linux systems you may need to install `libdbus` and we recommend to compile BrainFlow from the source code: ::
+
+        sudo apt-get install libdbus-1-dev # for ubuntu
+        sudo yum install dbus-devel # for centos
+        python3 tools/build.py --ble # to compile
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 38
+- optional: MAC address
+- optional: serial number(device name)
+
+Supported platforms:
+
+- Windows 10.0.19041.0+
+- MacOS 10.15+
+- Linux, compilation from source code probably will be needed
+- Devices like Raspberry Pi
+
+Muse S
+~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/51249005962_026502fee0.jpg
+    :width: 350px
+    :height: 350px
+
+`Muse Website <https://choosemuse.com/>`_
+
+.. compound::
+
+    On Linux systems you may need to install `libdbus` and we recommend to compile BrainFlow from the source code: ::
+
+        sudo apt-get install libdbus-1-dev # for ubuntu
+        sudo yum install dbus-devel # for centos
+        python3 tools/build.py --ble # to compile
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 39
+- optional: MAC address
+- optional: serial number(device name)
+
+Supported platforms:
+
+- Windows 10.0.19041.0+
+- MacOS 10.15+
+- Linux, compilation from source code probably will be needed
+- Devices like Raspberry Pi
+
+Muse 2
+~~~~~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/51250482419_32ce8454dd.jpg
+    :width: 350px
+    :height: 350px
+
+`Muse Website <https://choosemuse.com/>`_
+
+.. compound::
+
+    On Linux systems you may need to install libdbus and we recommend to compile BrainFlow from the source code ::
+
+        sudo apt-get install libdbus-1-dev # for ubuntu
+        sudo yum install dbus-devel # for centos
+        python3 tools/build.py --ble # to compile
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 38
+- optional: MAC address
+- optional: serial number(device name)
+
+Supported platforms:
+
+- Windows 10.0.19041.0+
+- MacOS 10.15+
+- Linux, compilation from source code can be needed
+- Devices like Raspberry Pi
+
+Muse S
+~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/51249005962_026502fee0.jpg
+    :width: 350px
+    :height: 350px
+
+`Muse Website <https://choosemuse.com/>`_
+
+.. compound::
+
+    On Linux systems you may need to install libdbus and we recommend to compile BrainFlow from the source code ::
+
+        sudo apt-get install libdbus-1-dev # for ubuntu
+        sudo yum install dbus-devel # for centos
+        python3 tools/build.py --ble # to compile
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 39
+- optional: MAC address
+- optional: serial number(device name)
+
+Supported platforms:
+
+- Windows 10.0.19041.0+
+- MacOS 10.15+
+- Linux, compilation from source code can be needed
+- Devices like Raspberry Pi
+
+Ant Neuro
+----------
+
+.. csv-table:: Required inputs
+   :header: "Board", "Board Id", "BrainFlowInputParams.serial_port", "BrainFlowInputParams.mac_address", "BrainFlowInputParams.ip_address", "BrainFlowInputParams.ip_port", "BrainFlowInputParams.ip_protocol", "BrainFlowInputParams.other_info", "BrainFlowInputParams.timeout", "BrainFlowInputParams.serial_number", "BrainFlowInputParams.file"
+
+   "AntNeuroBoardEE410", "BoardIds.ANT_NEURO_EE_410_BOARD (24)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE411", "BoardIds.ANT_NEURO_EE_411_BOARD (25)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE430", "BoardIds.ANT_NEURO_EE_430_BOARD (26)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE211", "BoardIds.ANT_NEURO_EE_211_BOARD (27)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE212", "BoardIds.ANT_NEURO_EE_212_BOARD (28)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE213", "BoardIds.ANT_NEURO_EE_213_BOARD (29)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE214", "BoardIds.ANT_NEURO_EE_214_BOARD (30)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE215", "BoardIds.ANT_NEURO_EE_215_BOARD (31)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE221", "BoardIds.ANT_NEURO_EE_221_BOARD (32)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE222", "BoardIds.ANT_NEURO_EE_222_BOARD (33)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE223", "BoardIds.ANT_NEURO_EE_223_BOARD (34)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE224", "BoardIds.ANT_NEURO_EE_224_BOARD (35)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE225", "BoardIds.ANT_NEURO_EE_225_BOARD (36)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+
+.. image:: https://live.staticflickr.com/65535/51331462280_580d890535.jpg
+    :width: 500px
+    :height: 490px
+
+`Ant Website <https://www.ant-neuro.com/products>`_
+
+Ant Neuro has many devices and all of them are supported by BrainFlow:
+
+- ANT_NEURO_EE_410_BOARD (board id 24)
+- ANT_NEURO_EE_411_BOARD (board id 25)
+- ANT_NEURO_EE_430_BOARD (board id 26)
+- ANT_NEURO_EE_211_BOARD (board id 27)
+- ANT_NEURO_EE_212_BOARD (board id 28)
+- ANT_NEURO_EE_213_BOARD (board id 29)
+- ANT_NEURO_EE_214_BOARD (board id 30)
+- ANT_NEURO_EE_215_BOARD (board id 31)
+- ANT_NEURO_EE_221_BOARD (board id 32)
+- ANT_NEURO_EE_222_BOARD (board id 33)
+- ANT_NEURO_EE_223_BOARD (board id 34)
+- ANT_NEURO_EE_224_BOARD (board id 35)
+- ANT_NEURO_EE_225_BOARD (board id 36)
+
+Supported platforms:
+
+- Windows
+- Linux
+
+For more information about Ant Neuro boards please refer to their User Manual.
+
+
+Enophone
+---------
+
+.. csv-table:: Required inputs
+   :header: "Board", "Board Id", "BrainFlowInputParams.serial_port", "BrainFlowInputParams.mac_address", "BrainFlowInputParams.ip_address", "BrainFlowInputParams.ip_port", "BrainFlowInputParams.ip_protocol", "BrainFlowInputParams.other_info", "BrainFlowInputParams.timeout", "BrainFlowInputParams.serial_number", "BrainFlowInputParams.file"
+
+   "Enophone", "BoardIds.ENOPHONE_BOARD (37)", "-", "MAC adress", "-", "-", "-", "-", "-", "-", "-"
+
+Enophone Headphones
+~~~~~~~~~~~~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/51374388843_f60c07991e.jpg
+    :width: 401px
+    :height: 500px
+
+`Enophone website <https://enophone.com/enophones/>`_
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 37
+- mac address field of BrainFlowInputParams structure
+
+Supported platforms:
+
+- Windows
+- Linux
+- MacOS
+
+Steps to find MAC address:
+
+- On Windows: open device manager, navigate to enophone device, click properties and select Bluetooth Address
+- On Linux: install bluez-utils and run :code:`bluetoothctl paired-devices`
+- On MacOS: run :code:`system_profiler SPBluetoothDataType`
+
+**On Linux in order to compile and use it you may need to install :code:`libbluetooth-dev` for Debian like systems and :code:`bluez-libs-devel` for Fedora like.**
+
+BrainAlive
+-----------
+
+.. csv-table:: Required inputs
+   :header: "Board", "Board Id", "BrainFlowInputParams.serial_port", "BrainFlowInputParams.mac_address", "BrainFlowInputParams.ip_address", "BrainFlowInputParams.ip_port", "BrainFlowInputParams.ip_protocol", "BrainFlowInputParams.other_info", "BrainFlowInputParams.timeout", "BrainFlowInputParams.serial_number", "BrainFlowInputParams.file"
+
+      "BrainAlive", "BoardIds.BrainAlive_BOARD (40)", "-", "Optional: MAC adress", "-", "-", "-", "-", "-", "Optional: device name", "-"
+   
+BrainAlive Device
+~~~~~~~~~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/51752250946_7915ca2e2b.jpg
+    :width: 500px
+    :height: 333px
+
+`BrainAlive Website <https://braina.live//>`_
+
+.. compound::
+
+    On Linux systems you may need to install `libdbus` and we recommend to compile BrainFlow from the source code: ::
+
+        sudo apt-get install libdbus-1-dev # for ubuntu
+        sudo yum install dbus-devel # for centos
+        python3 tools/build.py --ble # to compile
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 40
+- optional: MAC address
+- optional: serial number(device name)
+
+Supported platforms:
+
+- Windows 10.0.19041.0+
+- MacOS 10.15+
+- Linux, compilation from source code probably will be needed
+- Devices like Raspberry Pi

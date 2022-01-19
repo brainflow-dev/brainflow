@@ -45,7 +45,7 @@ int Board::set_log_level (int level)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int Board::set_log_file (char *log_file)
+int Board::set_log_file (const char *log_file)
 {
 #ifdef __ANDROID__
     Board::board_logger->error ("For Android set_log_file is unavailable");
@@ -70,7 +70,7 @@ int Board::set_log_file (char *log_file)
 #endif
 }
 
-int Board::prepare_for_acquisition (int buffer_size, char *streamer_params)
+int Board::prepare_for_acquisition (int buffer_size, const char *streamer_params)
 {
     if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
     {
@@ -89,24 +89,15 @@ int Board::prepare_for_acquisition (int buffer_size, char *streamer_params)
         db = NULL;
     }
 
-    try
+    std::vector<std::string> required_fields {"num_rows", "timestamp_channel", "name"};
+    for (std::string field : required_fields)
     {
-        board_descr = brainflow_boards_json["boards"][int_to_string (board_id)];
-        std::vector<std::string> required_fields {"num_rows", "timestamp_channel", "name"};
-        for (std::string field : required_fields)
+        if (board_descr.find (field) == board_descr.end ())
         {
-            if (board_descr.find (field) == board_descr.end ())
-            {
-                safe_logger (spdlog::level::err,
-                    "Field {} is not found in brainflow_boards.h for id {}", field, board_id);
-                return (int)BrainFlowExitCodes::GENERAL_ERROR;
-            }
+            safe_logger (spdlog::level::err,
+                "Field {} is not found in brainflow_boards.h for id {}", field, board_id);
+            return (int)BrainFlowExitCodes::GENERAL_ERROR;
         }
-    }
-    catch (json::exception &e)
-    {
-        safe_logger (spdlog::level::err, e.what ());
-        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
 
     int res = prepare_streamer (streamer_params);
@@ -188,7 +179,7 @@ void Board::free_packages ()
     }
 }
 
-int Board::prepare_streamer (char *streamer_params)
+int Board::prepare_streamer (const char *streamer_params)
 {
     int num_rows = (int)board_descr["num_rows"];
     // to dont write smth like if (streamer) every time for all boards create dummy streamer which
@@ -243,6 +234,8 @@ int Board::prepare_streamer (char *streamer_params)
                 safe_logger (spdlog::level::err, e.what ());
                 return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
             }
+            safe_logger (spdlog::level::trace, "MultiCast Streamer, ip addr: {}, port: {}",
+                streamer_dest.c_str (), streamer_mods.c_str ());
             streamer = new MultiCastStreamer (streamer_dest.c_str (), port, num_rows);
         }
 

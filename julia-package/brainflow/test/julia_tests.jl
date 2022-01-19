@@ -22,7 +22,7 @@ end
     # use a board that is not connected
     params = BrainFlow.BrainFlowInputParams()
     board_shim = BrainFlow.BoardShim(BrainFlow.CYTON_BOARD, params)
-    @test_throws BrainFlow.BrainFlowError("Error in prepare_session 13", 13) BrainFlow.prepare_session(board_shim)
+    @test_throws BrainFlow.BrainFlowError("Error in prepare_session INVALID_ARGUMENTS_ERROR", 13) BrainFlow.prepare_session(board_shim)
 end
 
 @testset "generated functions" begin

@@ -10,11 +10,15 @@
 
 // linux, also need to check that system headers installed
 #elif defined(__linux__) && !defined(__ANDROID__)
+#if defined __has_include
 #if __has_include(<sys/ioctl.h>) && __has_include(</usr/include/asm/ioctls.h>) && __has_include(</usr/include/asm/termbits.h>)
 #include <sys/ioctl.h>
 
 #include </usr/include/asm/ioctls.h>
 #include </usr/include/asm/termbits.h>
+#else
+#define NO_IOCTL_HEADERS
+#endif
 #else
 #define NO_IOCTL_HEADERS
 #endif

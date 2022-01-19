@@ -5,12 +5,10 @@ import pkg_resources
 import enum
 import os
 import platform
-import sys
 import struct
 import json
-from typing import List, Set, Dict, Tuple
 
-from nptyping import NDArray, Float64
+from nptyping import NDArray
 
 from brainflow.board_shim import BrainFlowError, LogLevels
 from brainflow.exit_codes import BrainflowExitCodes
@@ -21,6 +19,7 @@ class BrainFlowMetrics(enum.IntEnum):
 
     RELAXATION = 0  #:
     CONCENTRATION = 1  #:
+    USER_DEFINED = 2  #:
 
 
 class BrainFlowClassifiers(enum.IntEnum):
@@ -30,6 +29,7 @@ class BrainFlowClassifiers(enum.IntEnum):
     KNN = 1  #:
     SVM = 2  #:
     LDA = 3  #:
+    DYN_LIB_CLASSIFIER = 4  #:
 
 
 class BrainFlowModelParams(object):
@@ -90,15 +90,15 @@ class MLModuleDLL(object):
             raise FileNotFoundError(
                 'Dynamic library %s is missed, did you forget to compile brainflow before installation of python package?' % full_path)
 
-        self.set_log_level = self.lib.set_log_level
-        self.set_log_level.restype = ctypes.c_int
-        self.set_log_level.argtypes = [
+        self.set_log_level_ml_module = self.lib.set_log_level_ml_module
+        self.set_log_level_ml_module.restype = ctypes.c_int
+        self.set_log_level_ml_module.argtypes = [
             ctypes.c_int
         ]
 
-        self.set_log_file = self.lib.set_log_file
-        self.set_log_file.restype = ctypes.c_int
-        self.set_log_file.argtypes = [
+        self.set_log_file_ml_module = self.lib.set_log_file_ml_module
+        self.set_log_file_ml_module.restype = ctypes.c_int
+        self.set_log_file_ml_module.argtypes = [
             ctypes.c_char_p
         ]
 
@@ -113,6 +113,10 @@ class MLModuleDLL(object):
         self.release.argtypes = [
             ctypes.c_char_p
         ]
+
+        self.release_all = self.lib.release_all
+        self.release_all.restype = ctypes.c_int
+        self.release_all.argtypes = []
 
         self.predict = self.lib.predict
         self.predict.restype = ctypes.c_int
@@ -135,7 +139,7 @@ class MLModel(object):
         self.model_params = model_params
         try:
             self.serialized_params = model_params.to_json().encode()
-        except:
+        except BaseException:
             self.serialized_params = model_params.to_json()
 
     @classmethod
@@ -146,7 +150,7 @@ class MLModel(object):
         :param log_level: log level, to specify it you should use values from LogLevels enum
         :type log_level: int
         """
-        res = MLModuleDLL.get_instance().set_log_level(log_level)
+        res = MLModuleDLL.get_instance().set_log_level_ml_module(log_level)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to enable logger', res)
 
@@ -174,11 +178,19 @@ class MLModel(object):
         """
         try:
             file = log_file.encode()
-        except:
+        except BaseException:
             file = log_file
-        res = MLModuleDLL.get_instance().set_log_file(file)
+        res = MLModuleDLL.get_instance().set_log_file_ml_module(file)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to redirect logs to a file', res)
+
+    @classmethod
+    def release_all(cls) -> None:
+        """release all classifiers"""
+
+        res = MLModuleDLL.get_instance().release_all()
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to release classifiers', res)
 
     def prepare(self) -> None:
         """prepare classifier"""

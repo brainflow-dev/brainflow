@@ -1,0 +1,3 @@
+spotipy
+pandas
+brainflow

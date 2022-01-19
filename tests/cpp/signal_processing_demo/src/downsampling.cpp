@@ -38,7 +38,7 @@ int main (int argc, char *argv[])
 #endif
 
         board->stop_stream ();
-        BrainFlowArray<double, 2> data = board->get_current_board_data (32);
+        BrainFlowArray<double, 2> data = board->get_board_data (32);
         board->release_session ();
 
         double *downsampled_data = NULL;

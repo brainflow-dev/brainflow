@@ -10,7 +10,7 @@ jobs:
       fail-fast: false
       max-parallel: 4
       matrix:
-        os: [ubuntu-18.04]
+        os: [ubuntu-latest]
 
     steps:
     # compile and prepare env
@@ -20,12 +20,19 @@ jobs:
       uses: jwlawson/actions-setup-cmake@v1.4
       with:
         cmake-version: '3.16.x'
+    - name: Install Dependencies
+      if: (matrix.os == 'ubuntu-latest')
+      run: |
+        sudo -H apt-get update -y
+        sudo -H apt-get install -y libbluetooth-dev
+      env:
+        DEBIAN_FRONTEND: noninteractive
     - name: Compile BrainFlow
       run: |
         mkdir $GITHUB_WORKSPACE/build
         cd $GITHUB_WORKSPACE/build
-        cmake -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Debug ..
-        make -j
+        cmake -DBUILD_BLUETOOTH=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Debug ..
+        make
         make install
     - name: Build Get Data Test
       run: |
@@ -33,21 +40,21 @@ jobs:
         mkdir build
         cd build
         cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Debug ..
-        make -j
+        make
     - name: Build Signal Processing Test
       run: |
         cd $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo
         mkdir build
         cd build
         cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Debug ..
-        make -j
+        make
     - name: Build ML Demo Test
       run: |
         cd $GITHUB_WORKSPACE/tests/cpp/ml_demo
         mkdir build
         cd build
         cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Debug ..
-        make -j
+        make
     - name: Install Valgrind
       run: |
         sudo -H apt-get update -y
@@ -60,7 +67,7 @@ jobs:
         python-version: '3.7.7'
         architecture: 'x64'
     - name: Install Python Dependencies
-      if: (matrix.os == 'ubuntu-18.04')
+      if: (matrix.os == 'ubuntu-latest')
       run: |
         sudo -H apt-get update -y
         sudo -H apt-get install -y python3-setuptools python3-pygments
@@ -86,16 +93,16 @@ jobs:
       run: valgrind --error-exitcode=1 --track-origins=yes --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id -1
       env:
         LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: Twice
+      run: valgrind --error-exitcode=1 --track-origins=yes --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/get_data_twice
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: Galea Cpp
       run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/galea_udp.py valgrind --error-exitcode=1 --track-origins=yes --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 3 --ip-address 127.0.0.1
       env:
         LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: Streaming Cpp
       run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/streaming_board_emulator.py valgrind --error-exitcode=1 --track-origins=yes --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
-    - name: IronBCI Cpp
-      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/ironbci_linux.py valgrind --error-exitcode=1 --track-origins=yes --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 15 --serial-port
-      env:
-        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: Cyton Cpp Markers
       run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py valgrind --error-exitcode=1 --track-origins=yes --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/markers --board-id 0 --serial-port
     - name: Synthetic Cpp
@@ -108,10 +115,6 @@ jobs:
         LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: Streaming Cpp Markers
       run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/streaming_board_emulator.py valgrind --error-exitcode=1 --track-origins=yes --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/markers --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
-    - name: IronBCI Cpp Markers
-      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/ironbci_linux.py valgrind --error-exitcode=1 --track-origins=yes --leak-check=full $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/markers --board-id 15 --serial-port
-      env:
-        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: Denoising Cpp
       run: valgrind --error-exitcode=1 --track-origins=yes --leak-check=full $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/denoising
       env:

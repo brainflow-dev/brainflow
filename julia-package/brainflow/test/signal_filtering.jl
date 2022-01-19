@@ -44,3 +44,10 @@ println(data_fourth_channel)
 BrainFlow.perform_bandstop(data_fourth_channel, sampling_rate, 50.0, 2.0, 3, BrainFlow.BESSEL, 0.0)
 println("After BandStop Filter")
 println(data_fourth_channel)
+
+data_fifth_channel = data[eeg_channels[5], :]
+println("Original Data Fifth Channel")
+println(data_fifth_channel)
+BrainFlow.remove_environmental_noise(data_fifth_channel, sampling_rate, BrainFlow.FIFTY)
+println("After BandStop Filter")
+println(data_fifth_channel)

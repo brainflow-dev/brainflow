@@ -62,7 +62,7 @@ int FreeEEG32::prepare_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int FreeEEG32::start_stream (int buffer_size, char *streamer_params)
+int FreeEEG32::start_stream (int buffer_size, const char *streamer_params)
 {
     if (is_streaming)
     {
@@ -168,7 +168,7 @@ void FreeEEG32::read_thread ()
             package[board_descr["package_num_channel"].get<int> ()] = (double)b[0];
             for (unsigned int i = 0; i < eeg_channels.size (); i++)
             {
-                package[eeg_channels[i]] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
+                package[eeg_channels[i]] = (double)eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
             }
             package[board_descr["timestamp_channel"].get<int> ()] = get_timestamp ();
             push_package (package);
@@ -202,30 +202,26 @@ int FreeEEG32::open_port ()
 
 int FreeEEG32::set_port_settings ()
 {
-#ifdef _WIN32
-    // windows driver fails to set settings and in fact ignores them, no idea what drivers on others
-    // OSes do
-    int timeout_only = true;
-#else
-    int timeout_only = false;
-#endif
-    int res = serial->set_serial_port_settings (1000, timeout_only);
+    int res = serial->set_serial_port_settings (1000, false);
     if (res < 0)
     {
         safe_logger (spdlog::level::err, "Unable to set port settings, res is {}", res);
-        return (int)BrainFlowExitCodes::SET_PORT_ERROR;
-    }
 #ifndef _WIN32
-    // looks like stm driver on windows ignores all settings, no need to change them
+        return (int)BrainFlowExitCodes::SET_PORT_ERROR;
+#endif
+    }
     res = serial->set_custom_baudrate (921600);
     if (res < 0)
     {
         safe_logger (spdlog::level::err, "Unable to set custom baud rate, res is {}", res);
+#ifndef _WIN32
+        // Setting the baudrate may return an error on Windows for some serial drivers.
+        // We do not throw an exception, because it will still work with USB.
+        // Optical connection will fail, though.
         return (int)BrainFlowExitCodes::SET_PORT_ERROR;
-    }
 #endif
+    }
     safe_logger (spdlog::level::trace, "set port settings");
-
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 

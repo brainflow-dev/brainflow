@@ -4,7 +4,7 @@
 #include <vector>
 
 
-inline bool validate_wavelet (char *wavelet)
+inline bool validate_wavelet (const char *wavelet)
 {
     // https://github.com/rafat/wavelib/wiki/wave-object
     std::vector<std::string> supported_wavelets;

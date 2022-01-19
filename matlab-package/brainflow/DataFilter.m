@@ -31,7 +31,7 @@ classdef DataFilter
 
         function set_log_level(log_level)
             % set log level for DataFilter
-            task_name = 'set_log_level';
+            task_name = 'set_log_level_data_handler';
             lib_name = DataFilter.load_lib();
             exit_code = calllib(lib_name, task_name, log_level);
             DataFilter.check_ec(exit_code, task_name);
@@ -39,7 +39,7 @@ classdef DataFilter
 
         function set_log_file(log_file)
             % set log file for DataFilter
-            task_name = 'set_log_file';
+            task_name = 'set_log_file_data_handler';
             lib_name = DataFilter.load_lib();
             exit_code = calllib(lib_name, task_name, log_file);
             DataFilter.check_ec(exit_code, task_name);
@@ -100,6 +100,16 @@ classdef DataFilter
             temp = libpointer('doublePtr', data);
             lib_name = DataFilter.load_lib();
             exit_code = calllib(lib_name, task_name, temp, size(data, 2), sampling_rate, center_freq, band_width, order, int32(filter_type), ripple);
+            DataFilter.check_ec(exit_code, task_name);
+            filtered_data = temp.Value;
+        end
+        
+        function filtered_data = remove_environmental_noise(data, sampling_rate, noise_type)
+            % perform noth filtering
+            task_name = 'remove_environmental_noise';
+            temp = libpointer('doublePtr', data);
+            lib_name = DataFilter.load_lib();
+            exit_code = calllib(lib_name, task_name, temp, size(data, 2), sampling_rate, int32(noise_type));
             DataFilter.check_ec(exit_code, task_name);
             filtered_data = temp.Value;
         end
@@ -212,20 +222,15 @@ classdef DataFilter
             window_data = temp_output.Value;
         end
 
-        function fft_data = perform_fft(data, window)
-            % perform fft
-            task_name = 'perform_fft';
-            n = size(data, 2);
-            if(bitand(n, n - 1) ~= 0)
-                error('For FFT shape must be power of 2!');
-            end
+        function stddev = calc_stddev(data)
+            % calc stddev
+            task_name = 'calc_stddev';
             temp_input = libpointer('doublePtr', data);
+            output = libpointer('doublePtr', 0);
             lib_name = DataFilter.load_lib();
-            temp_re = libpointer('doublePtr', zeros(1, int32(n / 2 + 1)));
-            temp_im = libpointer('doublePtr', zeros(1, int32(n / 2 + 1)));
-            exit_code = calllib(lib_name, task_name, temp_input, n, window, temp_re, temp_im);
+            exit_code = calllib(lib_name, task_name, temp_input, 0, size(data, 2), output);
             DataFilter.check_ec(exit_code, task_name);
-            fft_data = complex(temp_re.Value, temp_im.Value);
+            stddev = output.Value;
         end
 
         function data = perform_ifft(fft_data)
@@ -244,7 +249,7 @@ classdef DataFilter
         end
         
         function [avg_bands, stddev_bands] = get_avg_band_powers(data, channels, sampling_rate, apply_filters)
-            % calculate average band powers
+            % calculate average band powers, bands are 1-4,4-8,8-13,13-30,30-50
             task_name = 'get_avg_band_powers';
             data_1d = data(channels, :);
             data_1d = transpose(data_1d);

@@ -3,7 +3,6 @@ package brainflow;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Arrays;
 
 import org.apache.commons.lang3.SystemUtils;
@@ -41,6 +40,8 @@ public class DataFilter
 
         int perform_downsampling (double[] data, int data_len, int period, int operation, double[] filtered_data);
 
+        int remove_environmental_noise (double[] data, int data_len, int sampling_rate, int noise_type);
+
         int perform_wavelet_transform (double[] data, int data_len, String wavelet, int decomposition_level,
                 double[] output_data, int[] decomposition_lengths);
 
@@ -62,9 +63,11 @@ public class DataFilter
 
         int read_file (double[] data, int[] num_rows, int[] num_cols, String file_name, int max_elements);
 
-        int set_log_level (int log_level);
+        int set_log_level_data_handler (int log_level);
 
-        int set_log_file (String log_file);
+        int set_log_file_data_handler (String log_file);
+
+        int calc_stddev (double[] data, int start_pos, int end_pos, double[] output);
 
         int get_num_elements_in_file (String file_name, int[] num_elements);
 
@@ -106,7 +109,7 @@ public class DataFilter
             // need to extract libraries from jar
             unpack_from_jar (lib_name);
         }
-        instance = (DllInterface) Native.loadLibrary (lib_name, DllInterface.class);
+        instance = Native.loadLibrary (lib_name, DllInterface.class);
     }
 
     private static void unpack_from_jar (String lib_name)
@@ -153,7 +156,7 @@ public class DataFilter
      */
     public static void set_log_file (String log_file) throws BrainFlowError
     {
-        int ec = instance.set_log_file (log_file);
+        int ec = instance.set_log_file_data_handler (log_file);
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in set_log_file", ec);
@@ -161,11 +164,25 @@ public class DataFilter
     }
 
     /**
+     * calc stddev
+     */
+    public static double calc_stddev (double[] data, int start_pos, int end_pos) throws BrainFlowError
+    {
+        double[] output = new double[1];
+        int ec = instance.calc_stddev (data, start_pos, end_pos, output);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in set_log_file", ec);
+        }
+        return output[0];
+    }
+
+    /**
      * set log level
      */
     private static void set_log_level (int log_level) throws BrainFlowError
     {
-        int ec = instance.set_log_level (log_level);
+        int ec = instance.set_log_level_data_handler (log_level);
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in set_log_level", ec);
@@ -264,13 +281,26 @@ public class DataFilter
         {
             throw new BrainFlowError ("Invalid data size", ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
         }
-        double[] downsampled_data = new double[(int) (data.length / period)];
+        double[] downsampled_data = new double[data.length / period];
         int ec = instance.perform_downsampling (data, data.length, period, operation, downsampled_data);
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to perform downsampling", ec);
         }
         return downsampled_data;
+    }
+
+    /**
+     * removes noise using notch filter
+     */
+    public static void remove_environmental_noise (double[] data, int sampling_rate, int noise_type)
+            throws BrainFlowError
+    {
+        int ec = instance.remove_environmental_noise (data, data.length, sampling_rate, noise_type);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Failed to remove noise", ec);
+        }
     }
 
     /**
@@ -461,7 +491,8 @@ public class DataFilter
     }
 
     /**
-     * calc average and stddev of band powers across all channels
+     * calc average and stddev of band powers across all channels, bands are
+     * 1-4,4-8,8-13,13-30,30-50
      * 
      * @param data          data to process
      * @param channels      rows of data arrays which should be used in calculation
@@ -598,7 +629,7 @@ public class DataFilter
     }
 
     /**
-     * write data to csv file, in file data will be transposed
+     * write data to tsv file, in file data will be transposed
      */
     public static void write_file (double[][] data, String file_name, String file_mode) throws BrainFlowError
     {

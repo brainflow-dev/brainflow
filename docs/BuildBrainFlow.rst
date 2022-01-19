@@ -3,6 +3,19 @@
 Installation Instructions
 ==========================
 
+Precompiled libraries in package managers(Nuget, PYPI, etc)
+-------------------------------------------------------------
+
+Core part of BrainFlow is written in C/C++ and distributed as dynamic libraries, for some programming languages we publish packages with precompiled libraries to package managers like Nuget or PYPI.
+
+C/C++ code should be compiled for each CPU architecture and for each OS and we cannot cover all possible cases, as of right now we support:
+
+- x64 libraries for Windows starting from 8.1, for some devices newer version of Windows can be required
+- x64 libraries for Linux, they are compiled inside manylinux docker container
+- x64/ARM libraries for MacOS, they are universal binaries
+
+If your CPU and OS is not listed above(e.g. Raspberry Pi or Windows with ARM)  you still can use BrainFlow, but you need to compile it by yourself first.
+
 Python
 -------
 
@@ -17,7 +30,7 @@ Python
     If you want to install it from source files or build unreleased version from Github, you should compile core module first and run ::
 
         cd python-package
-        python -m pip install -e .
+        python -m pip install -U .
 
 C#
 ----
@@ -27,18 +40,16 @@ C#
 You are able to install the latest release from `Nuget <https://www.nuget.org/packages/brainflow/>`_ or build it yourself:
 
 - Compile BrainFlow's core module
-- open Visual Studio Solution
-- install required nuget packages
-- build it using Visual Studio
-- **make sure that unmanaged(C++) libraries exist in search path** - set PATH env variable or copy them to correct folder
+- Open Visual Studio Solution
+- Build it using Visual Studio
+- **Make sure that unmanaged(C++) libraries exist in search path** - set PATH env variable or copy them to correct folder
 
 **Unix(Mono)**
 
 - Compile BrainFlow's core module
-- install nuget and Mono on your system
-- install required nuget packages
-- build it using Mono
-- **make sure that unmanaged(C++) libraries exist in search path** - set LD_LIBRARY_PATH env variable or copy them to correct folder
+- Install Mono on your system
+- Build it using Mono
+- **Make sure that unmanaged(C++) libraries exist in search path** - set LD_LIBRARY_PATH env variable or copy them to correct folder
 
 .. compound::
 
@@ -51,8 +62,6 @@ You are able to install the latest release from `Nuget <https://www.nuget.org/pa
         sudo dnf install mono-devel
         sudo dnf install mono-complete
         sudo dnf install monodevelop
-        # install nuget packages
-        nuget restore csharp-package/brainflow/brainflow.sln
         # build solution
         xbuild csharp-package/brainflow/brainflow.sln
         # run tests
@@ -89,7 +98,7 @@ Steps to setup Matlab binding for BrainFlow:
 - Open Matlab IDE and open brainflow/matlab-package/brainflow folder there
 - Add folders lib and inc to Matlab path
 - If you want to run Matlab scripts from folders different than brainflow/matlab-package/brainflow you need to add it to your Matlab path too
-
+- If you see errors you may need to configure Matlab to use C++ compiler instead C, install Visual Studio 2017 or newer(for Windows) and run this command in Matlab terminal :code:`mex -setup cpp`, you need to select Visual Studio Compiler from the list. More info can be found `here <https://www.mathworks.com/help/matlab/matlab_external/choose-c-or-c-compilers.html>`_.
 
 Julia
 --------
@@ -107,12 +116,23 @@ When using BrainFlow for the first time in Julia, the BrainFlow artifact contain
 
 If you compile BrainFlow from source local libraries will take precedence over the artifact.
 
+Rust
+-------
+
+.. compound::
+
+    You can build Rust binding locally using commands below, but you need to compile C/C++ code first ::
+
+        cd rust-package
+        cd brainflow
+        cargo build --features generate_binding
+
 Docker Image
 --------------
 
 There are docker images with precompiled BrainFlow. You can get them from `DockerHub <https://hub.docker.com/r/brainflow/brainflow>`_.
 
-All bindings except Matlab are preinstalled there and libraries compiled with OpenMP support.
+All bindings except Matlab are preinstalled there.
 
 Also, there are other packages for BCI research and development:
 
@@ -124,18 +144,18 @@ Also, there are other packages for BCI research and development:
 - pandas
 - etc
 
-If your devices uses TCP\IP to send data, you need to run docker container with :code:`--network host`. For serial port connection you need to pass serial port to docker using :code:`--device %your port here%`
+If your devices uses TCP/IP to send data, you need to run docker container with :code:`--network host`. For serial port connection you need to pass serial port to docker using :code:`--device %your port here%`
 
 .. compound::
 
     Example:  ::
 
         # pull container from DockerHub
-        docker pull brainflow/brainflow:3.7.2
+        docker pull brainflow/brainflow:latest
         # run docker container with serial port /dev/ttyUSB0
-        docker run -it --device /dev/ttyUSB0 brainflow/brainflow:3.7.2 /bin/bash
+        docker run -it --device /dev/ttyUSB0 brainflow/brainflow:latest /bin/bash
         # run docker container for boards which use networking
-        docker run -it --network host brainflow/brainflow:3.7.2 /bin/bash
+        docker run -it --network host brainflow/brainflow:latest /bin/bash
 
 Compilation of Core Module and C++ Binding
 -------------------------------------------
@@ -143,84 +163,57 @@ Compilation of Core Module and C++ Binding
 Windows
 ~~~~~~~~
 
-- Install CMake>=3.13 you can install it from PYPI via pip
-- Install Visual Studio 2017, you can use another version but you will need to change CMake generator in batch files or run CMake commands manually. Also in CI we test only VS2017
+- Install CMake>=3.16 you can install it from PYPI via pip or from `CMake website <https://cmake.org/>`_
+- Install Visual Studio 2019(preferred) or Visual Studio 2017. Other versions may work but not tested
 - In VS installer make sure you selected "Visual C++ ATL support"
-- Build it as a CMake project manually or use cmd files from tools directory
+- Build it as a standard CMake project, you don't need to set any options
 
 .. compound::
 
-    Compilation using cmd files: ::
+    If you are not familiar with CMake you can use `build.py <https://github.com/brainflow-dev/brainflow/blob/master/tools/build.py>`_ : ::
 
+        # install python3 and run
         python -m pip install cmake
-        # need to run these files from project dir
-        .\tools\build_win32.cmd
-        .\tools\build_win64.cmd
+        cd tools
+        python build.py
+        # to get info about args and configure your build you can run
+        python build.py --help
+
 
 Linux
 ~~~~~~
 
-- Install CMake>=3.13 you can install it from PYPI via pip
+- Install CMake>=3.16 you can install it from PYPI via pip, via package managers for your OS(apt, dnf, etc) or from `CMake website <https://cmake.org/>`_
 - If you are going to distribute compiled Linux libraries you HAVE to build it inside manylinux Docker container
-- Build it as a CMake project manually or use bash file from tools directory
-- You can use any compiler but for Linux we test only GCC, also we test only 64bit libraries for Linux
+- Build it as a standard CMake project, you don't need to set any options
+- You can use any compiler but for Linux we test only GCC
 
 .. compound::
 
-    Compilation using bash file: ::
+    If you are not familiar with CMake you can use `build.py <https://github.com/brainflow-dev/brainflow/blob/master/tools/build.py>`_ : ::
 
-        python -m pip install cmake
-        # you may need to change line endings using dos2unix or text editor for file below
-        # need to run this file from project dir
-        bash ./tools/build_linux.sh
+        python3 -m pip install cmake
+        cd tools
+        python3 build.py
+        # to get info about args and configure your build you can run
+        python3 build.py --help
 
 MacOS
 ~~~~~~~
 
-- Install CMake>=3.13 you can install it from PYPI via pip
-- Build it as a CMake project manually or use bash file from tools directory
+- Install CMake>=3.16 you can install it from PYPI via pip, using :code:`brew` or from `CMake website <https://cmake.org/>`_
+- Build it as a standard CMake project, you don't need to set any options
 - You can use any compiler but for MacOS we test only Clang
 
 .. compound::
 
-    Compilation using bash file: ::
+    If you are not familiar with CMake you can use `build.py <https://github.com/brainflow-dev/brainflow/blob/master/tools/build.py>`_ : ::
 
-        python -m pip install cmake
-        # you may need to change line endings using dos2unix or text editor for file below
-        # need to run this file from project dir
-        bash ./tools/build_mac.sh
-
-
-
-Compilation with OpenMP
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Some data processing and machine learning algorithms work much faster if you run them in multiple threads. To parallel computations we use OpenMP library.
-
-**Precompiled libraries which you download from PYPI/Nuget/Maven/etc built without OpenMP support and work in single thread.**
-
-If you want to increase performance of signal processing algorithms you can compile BrainFlow from the source and turn on *USE_OPENMP* option.
-
-To build BrainFlow with OpenMP support first of all you need to install OpenMP.
-
-- On Windows all you need is Visual C++ Redist package which is installed automatically with Visual Studio
-- On Linux you may need to install libgomp if it's not currently installed
-- On MacOS you need to run :code:`brew install libomp`
-
-After that you need to compile BrainFlow with OpenMP support, steps are exactly the same as above, but you need to run bash or cmd scripts whith _omp postfix.
-
-.. compound::
-
-    Example: ::
-
-        # for Linux
-        bash ./tools/build_linux_omp.sh
-        # for MacOS
-        bash ./tools/build_mac_omp.sh
-        # for Windows
-        .\tools\build_win64_omp.cmd
-
-If you use CMake directly to build BrainFlow you need to add :code:`-DUSE_OPENMP=ON` to CMake config command line.
+        python3 -m pip install cmake
+        cd tools
+        python3 build.py
+        # to get info about args and configure your build you can run
+        python3 build.py --help
 
 
 Android
@@ -281,5 +274,5 @@ Compilation instructions:
         # for x86
         cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=E:\android-ndk-r21d-windows-x86_64\android-ndk-r21d\build\cmake\android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=android-19 -DANDROID_ABI=x86 ..
 
-        # to build(should be run for each ABI from previous step)
+        # to build(should be run for each ABI from previous step**
         cmake --build . --target install --config Release -j 2 --parallel 2

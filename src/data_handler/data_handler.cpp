@@ -42,7 +42,7 @@ std::shared_ptr<spdlog::logger> data_logger = spdlog::stderr_logger_mt (LOGGER_N
 #endif
 
 
-int set_log_file (char *log_file)
+int set_log_file_data_handler (const char *log_file)
 {
 #ifdef __ANDROID__
     data_logger->error ("For Android set_log_file is unavailable");
@@ -67,7 +67,7 @@ int set_log_file (char *log_file)
 #endif
 }
 
-int set_log_level (int level)
+int set_log_level_data_handler (int level)
 {
     int log_level = level;
     if (level > 6)
@@ -268,6 +268,33 @@ int perform_bandstop (double *data, int data_len, int sampling_rate, double cent
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
+int remove_environmental_noise (double *data, int data_len, int sampling_rate, int noise_type)
+{
+    if ((data_len < 1) || (sampling_rate < 1) || (!data))
+    {
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    int res = (int)BrainFlowExitCodes::STATUS_OK;
+
+    switch (static_cast<NoiseTypes> (noise_type))
+    {
+        case NoiseTypes::FIFTY:
+            res = perform_bandstop (
+                data, data_len, sampling_rate, 50.0, 4.0, 4, (int)FilterTypes::BUTTERWORTH, 0.0);
+            break;
+        case NoiseTypes::SIXTY:
+            res = perform_bandstop (
+                data, data_len, sampling_rate, 60.0, 4.0, 4, (int)FilterTypes::BUTTERWORTH, 0.0);
+            break;
+        default:
+            data_logger->error ("Invalid noise type");
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    return res;
+}
+
 int perform_rolling_filter (double *data, int data_len, int period, int agg_operation)
 {
     if ((data == NULL) || (period <= 0))
@@ -335,8 +362,8 @@ int perform_downsampling (
 }
 
 // https://github.com/rafat/wavelib/wiki/DWT-Example-Code
-int perform_wavelet_transform (double *data, int data_len, char *wavelet, int decomposition_level,
-    double *output_data, int *decomposition_lengths)
+int perform_wavelet_transform (double *data, int data_len, const char *wavelet,
+    int decomposition_level, double *output_data, int *decomposition_lengths)
 {
     if ((data == NULL) || (data_len <= 0) || (wavelet == NULL) || (output_data == NULL) ||
         (!validate_wavelet (wavelet)) || (decomposition_lengths == NULL) ||
@@ -389,8 +416,8 @@ int perform_wavelet_transform (double *data, int data_len, char *wavelet, int de
 
 // inside wavelib inverse transform uses internal state from direct transform, dirty hack to restore
 // it here
-int perform_inverse_wavelet_transform (double *wavelet_coeffs, int original_data_len, char *wavelet,
-    int decomposition_level, int *decomposition_lengths, double *output_data)
+int perform_inverse_wavelet_transform (double *wavelet_coeffs, int original_data_len,
+    const char *wavelet, int decomposition_level, int *decomposition_lengths, double *output_data)
 {
     if ((wavelet_coeffs == NULL) || (decomposition_level <= 0) || (original_data_len <= 0) ||
         (wavelet == NULL) || (output_data == NULL) || (!validate_wavelet (wavelet)) ||
@@ -443,7 +470,8 @@ int perform_inverse_wavelet_transform (double *wavelet_coeffs, int original_data
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int perform_wavelet_denoising (double *data, int data_len, char *wavelet, int decomposition_level)
+int perform_wavelet_denoising (
+    double *data, int data_len, const char *wavelet, int decomposition_level)
 {
     if ((data == NULL) || (data_len <= 0) || (decomposition_level <= 0) ||
         (!validate_wavelet (wavelet)))
@@ -489,7 +517,7 @@ int perform_wavelet_denoising (double *data, int data_len, char *wavelet, int de
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int get_csp (double *data, double *labels, int n_epochs, int n_channels, int n_times,
+int get_csp (const double *data, const double *labels, int n_epochs, int n_channels, int n_times,
     double *output_w, double *output_d)
 {
     if ((!data) || (!labels) || n_epochs <= 0 || n_channels <= 0 || n_times <= 0)
@@ -821,7 +849,8 @@ int get_nearest_power_of_two (int value, int *output)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int write_file (double *data, int num_rows, int num_cols, char *file_name, char *file_mode)
+int write_file (
+    const double *data, int num_rows, int num_cols, const char *file_name, const char *file_mode)
 {
     if ((strcmp (file_mode, "w") != 0) && (strcmp (file_mode, "w+") != 0) &&
         (strcmp (file_mode, "a") != 0) && (strcmp (file_mode, "a+") != 0))
@@ -844,7 +873,7 @@ int write_file (double *data, int num_rows, int num_cols, char *file_name, char 
     {
         for (int j = 0; j < num_rows - 1; j++)
         {
-            fprintf (fp, "%lf,", data[j * num_cols + i]);
+            fprintf (fp, "%lf\t", data[j * num_cols + i]);
         }
         fprintf (fp, "%lf\n", data[(num_rows - 1) * num_cols + i]);
     }
@@ -852,7 +881,7 @@ int write_file (double *data, int num_rows, int num_cols, char *file_name, char 
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int read_file (double *data, int *num_rows, int *num_cols, char *file_name, int num_elements)
+int read_file (double *data, int *num_rows, int *num_cols, const char *file_name, int num_elements)
 {
     if (num_elements <= 0)
     {
@@ -868,7 +897,7 @@ int read_file (double *data, int *num_rows, int *num_cols, char *file_name, int 
     }
 
     char buf[4096];
-    // rows and cols in csv file, in data array its transposed!
+    // rows and cols in tsv file, in data array its transposed!
     int total_rows = 0;
     int total_cols = 0;
 
@@ -887,13 +916,21 @@ int read_file (double *data, int *num_rows, int *num_cols, char *file_name, int 
     int cur_pos = 0;
     while (fgets (buf, sizeof (buf), fp) != NULL)
     {
-        std::string csv_string (buf);
-        std::stringstream ss (csv_string);
+        std::string tsv_string (buf);
+        std::stringstream ss (tsv_string);
         std::vector<std::string> splitted;
         std::string tmp;
-        while (getline (ss, tmp, ','))
+        char sep = '\t';
+        if (tsv_string.find ('\t') == std::string::npos)
         {
-            splitted.push_back (tmp);
+            sep = ',';
+        }
+        while (std::getline (ss, tmp, sep))
+        {
+            if (tmp != "\n")
+            {
+                splitted.push_back (tmp);
+            }
         }
         total_cols = (int)splitted.size ();
         for (int i = 0; i < total_cols; i++)
@@ -917,7 +954,29 @@ int read_file (double *data, int *num_rows, int *num_cols, char *file_name, int 
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int get_num_elements_in_file (char *file_name, int *num_elements)
+int calc_stddev (double *data, int start_pos, int end_pos, double *output)
+{
+    if ((data == NULL) || (output == NULL) || (end_pos - start_pos < 2))
+    {
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+    double mean = 0;
+    for (int i = start_pos; i < end_pos; i++)
+    {
+        mean += data[i];
+    }
+    mean /= (end_pos - start_pos);
+    double stddev = 0;
+    for (int i = start_pos; i < end_pos; i++)
+    {
+        stddev += (data[i] - mean) * (data[i] - mean);
+    }
+    stddev /= (end_pos - start_pos);
+    *output = sqrt (stddev);
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int get_num_elements_in_file (const char *file_name, int *num_elements)
 {
     FILE *fp;
     fp = fopen (file_name, "r");
@@ -950,13 +1009,21 @@ int get_num_elements_in_file (char *file_name, int *num_elements)
     fseek (fp, 0, SEEK_SET);
     while (fgets (buf, sizeof (buf), fp) != NULL)
     {
-        std::string csv_string (buf);
-        std::stringstream ss (csv_string);
+        std::string tsv_string (buf);
+        std::stringstream ss (tsv_string);
         std::vector<std::string> splitted;
         std::string tmp;
-        while (getline (ss, tmp, ','))
+        char sep = '\t';
+        if (tsv_string.find ('\t') == std::string::npos)
         {
-            splitted.push_back (tmp);
+            sep = ',';
+        }
+        while (std::getline (ss, tmp, sep))
+        {
+            if (tmp != "\n")
+            {
+                splitted.push_back (tmp);
+            }
         }
         *num_elements = (int)splitted.size () * total_rows;
         fclose (fp);

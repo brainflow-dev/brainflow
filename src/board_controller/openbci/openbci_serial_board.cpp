@@ -27,7 +27,7 @@ int OpenBCISerialBoard::open_port ()
         return (int)BrainFlowExitCodes::PORT_ALREADY_OPEN_ERROR;
     }
 
-    safe_logger (spdlog::level::info, "openning port {}", serial->get_port_name ());
+    safe_logger (spdlog::level::info, "opening port {}", serial->get_port_name ());
     int res = serial->open_serial_port ();
     if (res < 0)
     {
@@ -228,7 +228,7 @@ int OpenBCISerialBoard::prepare_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int OpenBCISerialBoard::start_stream (int buffer_size, char *streamer_params)
+int OpenBCISerialBoard::start_stream (int buffer_size, const char *streamer_params)
 {
     if (is_streaming)
     {

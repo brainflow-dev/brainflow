@@ -12,7 +12,7 @@ protected:
 public:
     static std::shared_ptr<spdlog::logger> ml_logger;
     static int set_log_level (int log_level);
-    static int set_log_file (char *log_file);
+    static int set_log_file (const char *log_file);
 
     BaseClassifier (struct BrainFlowModelParams model_params) : params (model_params)
     {

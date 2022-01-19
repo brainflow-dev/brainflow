@@ -10,6 +10,7 @@
 #include "concentration_lda_classifier.h"
 #include "concentration_regression_classifier.h"
 #include "concentration_svm_classifier.h"
+#include "dyn_lib_classifier.h"
 #include "ml_module.h"
 #include "relaxation_knn_classifier.h"
 #include "relaxation_lda_classifier.h"
@@ -26,7 +27,7 @@ std::map<struct BrainFlowModelParams, std::shared_ptr<BaseClassifier>> ml_models
 std::mutex models_mutex;
 
 
-int prepare (char *json_params)
+int prepare (const char *json_params)
 {
     std::lock_guard<std::mutex> lock (models_mutex);
 
@@ -84,6 +85,11 @@ int prepare (char *json_params)
     {
         model = std::shared_ptr<BaseClassifier> (new RelaxationKNNClassifier (key));
     }
+    else if ((key.metric == (int)BrainFlowMetrics::USER_DEFINED) &&
+        (key.classifier == (int)BrainFlowClassifiers::DYN_LIB_CLASSIFIER))
+    {
+        model = std::shared_ptr<BaseClassifier> (new DynLibClassifier (key));
+    }
     else
     {
         return (int)BrainFlowExitCodes::UNSUPPORTED_CLASSIFIER_AND_METRIC_COMBINATION_ERROR;
@@ -102,7 +108,7 @@ int prepare (char *json_params)
     return res;
 }
 
-int predict (double *data, int data_len, double *output, char *json_params)
+int predict (double *data, int data_len, double *output, const char *json_params)
 {
     std::lock_guard<std::mutex> lock (models_mutex);
     struct BrainFlowModelParams key (
@@ -122,7 +128,7 @@ int predict (double *data, int data_len, double *output, char *json_params)
     return model->second->predict (data, data_len, output);
 }
 
-int release (char *json_params)
+int release (const char *json_params)
 {
     std::lock_guard<std::mutex> lock (models_mutex);
 
@@ -167,14 +173,28 @@ int string_to_brainflow_model_params (const char *json_params, struct BrainFlowM
     }
 }
 
-int set_log_level (int log_level)
+int set_log_level_ml_module (int log_level)
 {
     std::lock_guard<std::mutex> lock (models_mutex);
     return BaseClassifier::set_log_level (log_level);
 }
 
-int set_log_file (char *log_file)
+int set_log_file_ml_module (const char *log_file)
 {
     std::lock_guard<std::mutex> lock (models_mutex);
     return BaseClassifier::set_log_file (log_file);
+}
+
+int release_all ()
+{
+    std::lock_guard<std::mutex> lock (models_mutex);
+
+    for (auto it = ml_models.begin (), next_it = it; it != ml_models.end (); it = next_it)
+    {
+        ++next_it;
+        it->second->release ();
+        ml_models.erase (it);
+    }
+
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }

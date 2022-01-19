@@ -134,7 +134,7 @@ int Ganglion::prepare_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int Ganglion::start_stream (int buffer_size, char *streamer_params)
+int Ganglion::start_stream (int buffer_size, const char *streamer_params)
 {
     if (is_streaming)
     {

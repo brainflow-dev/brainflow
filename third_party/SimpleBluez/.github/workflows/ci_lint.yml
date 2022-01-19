@@ -1,0 +1,40 @@
+name: CI Lint
+
+on: [push, pull_request]
+
+jobs:
+  clang-format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run clang-format
+        uses: DoozyX/clang-format-lint-action@v0.11
+        with:
+          source: "src"
+          extensions: "h,cpp,c"
+          clangFormatVersion: 11
+          inplace: False
+
+  cppcheck:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install CppCheck
+        run: |
+          sudo -H apt-get update -y
+          sudo -H apt-get install -y cppcheck
+        env:
+          DEBIAN_FRONTEND: noninteractive
+      - name: Run Cppcheck
+        run: cppcheck --std=c++17 --error-exitcode=1 --xml --xml-version=2 --force src 2>cppcheck_res.xml
+      - name: Generate Report
+        if: ${{ failure() }}
+        run: cppcheck-htmlreport --title=SimpleDBus --file=cppcheck_res.xml --report-dir=report
+      - name: Upload Report
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v1
+        with:
+          name: report
+          path: report

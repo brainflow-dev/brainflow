@@ -5,11 +5,10 @@ import pkg_resources
 import enum
 import os
 import platform
-import sys
 import struct
-from typing import List, Set, Dict, Tuple
+from typing import List, Tuple
 
-from nptyping import NDArray, Float64, Complex128, Int64
+from nptyping import NDArray, Float64, Complex128
 
 from brainflow.board_shim import BrainFlowError, LogLevels
 from brainflow.exit_codes import BrainflowExitCodes
@@ -47,6 +46,13 @@ class DetrendOperations(enum.IntEnum):
     NONE = 0  #:
     CONSTANT = 1  #:
     LINEAR = 2  #:
+
+
+class NoiseTypes(enum.IntEnum):
+    """Enum to store noise types"""
+
+    FIFTY = 0
+    SIXTY = 1
 
 
 class DataHandlerDLL(object):
@@ -130,6 +136,15 @@ class DataHandlerDLL(object):
             ctypes.c_double
         ]
 
+        self.remove_environmental_noise = self.lib.remove_environmental_noise
+        self.remove_environmental_noise.restype = ctypes.c_int
+        self.remove_environmental_noise.argtypes = [
+            ndpointer(ctypes.c_double),
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int
+        ]
+
         self.write_file = self.lib.write_file
         self.write_file.restype = ctypes.c_int
         self.write_file.argtypes = [
@@ -150,15 +165,24 @@ class DataHandlerDLL(object):
             ctypes.c_int
         ]
 
-        self.set_log_level = self.lib.set_log_level
-        self.set_log_level.restype = ctypes.c_int
-        self.set_log_level.argtypes = [
+        self.calc_stddev = self.lib.calc_stddev
+        self.calc_stddev.restype = ctypes.c_int
+        self.calc_stddev.argtypes = [
+            ndpointer(ctypes.c_double),
+            ctypes.c_int,
+            ctypes.c_int,
+            ndpointer(ctypes.c_double)
+        ]
+
+        self.set_log_level_data_handler = self.lib.set_log_level_data_handler
+        self.set_log_level_data_handler.restype = ctypes.c_int
+        self.set_log_level_data_handler.argtypes = [
             ctypes.c_int
         ]
 
-        self.set_log_file = self.lib.set_log_file
-        self.set_log_file.restype = ctypes.c_int
-        self.set_log_file.argtypes = [
+        self.set_log_file_data_handler = self.lib.set_log_file_data_handler
+        self.set_log_file_data_handler.restype = ctypes.c_int
+        self.set_log_file_data_handler.argtypes = [
             ctypes.c_char_p
         ]
 
@@ -332,7 +356,7 @@ class DataFilter(object):
         :param log_level: log level, to specify it you should use values from LogLevels enum
         :type log_level: int
         """
-        res = DataHandlerDLL.get_instance().set_log_level(log_level)
+        res = DataHandlerDLL.get_instance().set_log_level_data_handler(log_level)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to enable logger', res)
 
@@ -360,9 +384,9 @@ class DataFilter(object):
         """
         try:
             file = log_file.encode()
-        except:
+        except BaseException:
             file = log_file
-        res = DataHandlerDLL.get_instance().set_log_file(file)
+        res = DataHandlerDLL.get_instance().set_log_file_data_handler(file)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to redirect logs to a file', res)
 
@@ -483,6 +507,26 @@ class DataFilter(object):
             raise BrainFlowError('unable to apply band stop filter', res)
 
     @classmethod
+    def remove_environmental_noise(cls, data: NDArray[Float64], sampling_rate: int, noise_type: float) -> None:
+        """remove env noise using notch filter
+
+        :param data: data to filter, filter works in-place
+        :type data: NDArray[Float64]
+        :param sampling_rate: board's sampling rate
+        :type sampling_rate: int
+        :param noise_type: noise type
+        :type noise_type: int
+        """
+        check_memory_layout_row_major(data, 1)
+        if not isinstance(sampling_rate, int):
+            raise BrainFlowError('wrong type for sampling rate', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        if not isinstance(noise_type, int):
+            raise BrainFlowError('wrong type for noise type', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        res = DataHandlerDLL.get_instance().remove_environmental_noise(data, data.shape[0], sampling_rate, noise_type)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to apply notch filter', res)
+
+    @classmethod
     def perform_rolling_filter(cls, data: NDArray[Float64], period: int, operation: int) -> None:
         """smooth data using moving average or median
 
@@ -501,6 +545,22 @@ class DataFilter(object):
         res = DataHandlerDLL.get_instance().perform_rolling_filter(data, data.shape[0], period, operation)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to smooth data', res)
+
+    @classmethod
+    def calc_stddev(cls, data: NDArray[Float64]):
+        """calc stddev
+
+        :param data: input array
+        :type data: NDArray[Float64]
+        :return: stddev
+        :rtype: float
+        """
+        check_memory_layout_row_major(data, 1)
+        output = numpy.zeros(1).astype(numpy.float64)
+        res = DataHandlerDLL.get_instance().calc_stddev(data, 0, data.shape[0], output)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to calc stddev', res)
+        return output[0]
 
     @classmethod
     def perform_downsampling(cls, data: NDArray[Float64], period: int, operation: int) -> NDArray[Float64]:
@@ -547,7 +607,7 @@ class DataFilter(object):
         check_memory_layout_row_major(data, 1)
         try:
             wavelet_func = wavelet.encode()
-        except:
+        except BaseException:
             wavelet_func = wavelet
 
         wavelet_coeffs = numpy.zeros(data.shape[0] + 2 * (40 + 1)).astype(numpy.float64)
@@ -577,7 +637,7 @@ class DataFilter(object):
         """
         try:
             wavelet_func = wavelet.encode()
-        except:
+        except BaseException:
             wavelet_func = wavelet
 
         original_data = numpy.zeros(original_data_len).astype(numpy.float64)
@@ -604,7 +664,7 @@ class DataFilter(object):
         check_memory_layout_row_major(data, 1)
         try:
             wavelet_func = wavelet.encode()
-        except:
+        except BaseException:
             wavelet_func = wavelet
 
         res = DataHandlerDLL.get_instance().perform_wavelet_denoising(data, data.shape[0], wavelet_func,
@@ -776,7 +836,7 @@ class DataFilter(object):
         """calculate band power
 
         :param psd: psd from get_psd
-        :type psd: typle
+        :type psd: tuple
         :param freq_start: start freq
         :type freq_start: int
         :param freq_end: end freq
@@ -794,7 +854,7 @@ class DataFilter(object):
 
     @classmethod
     def get_avg_band_powers(cls, data: NDArray, channels: List, sampling_rate: int, apply_filter: bool) -> Tuple:
-        """calculate avg and stddev of BandPowers across all channels
+        """calculate avg and stddev of BandPowers across all channels, bands are 1-4,4-8,8-13,13-30,30-50
 
         :param data: 2d array for calculation
         :type data: NDArray
@@ -875,11 +935,11 @@ class DataFilter(object):
         check_memory_layout_row_major(data, 2)
         try:
             file = file_name.encode()
-        except:
+        except BaseException:
             file = file_name
         try:
             mode = file_mode.encode()
-        except:
+        except BaseException:
             mode = file_mode
         data_flatten = data.flatten()
         res = DataHandlerDLL.get_instance().write_file(data_flatten, data.shape[0], data.shape[1], file, mode)
@@ -897,7 +957,7 @@ class DataFilter(object):
         """
         try:
             file = file_name.encode()
-        except:
+        except BaseException:
             file = file_name
 
         num_elements = numpy.zeros(1).astype(numpy.int32)

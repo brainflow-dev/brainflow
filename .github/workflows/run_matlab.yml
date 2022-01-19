@@ -1,0 +1,29 @@
+name: Run Matlab Tests
+
+on: [push, pull_request]
+
+
+jobs:
+  RunMatlabLinux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - name: Setup Cmake
+        uses: jwlawson/actions-setup-cmake@v1.4
+        with:
+          cmake-version: '3.16.x'
+      - name: Compile BrainFlow
+        run: |
+          mkdir $GITHUB_WORKSPACE/build
+          cd $GITHUB_WORKSPACE/build
+          cmake -DWARNINGS_AS_ERRORS=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
+          make
+          make install
+      - name: Set up Matlab
+        uses: matlab-actions/setup-matlab@v1
+      - name: Run Signal Processing Test
+        uses: matlab-actions/run-command@v1
+        with:
+          command: addpath('matlab-package/brainflow'),addpath('matlab-package/brainflow/examples'),addpath('matlab-package/brainflow/inc'),addpath('matlab-package/brainflow/lib'),SignalFiltering

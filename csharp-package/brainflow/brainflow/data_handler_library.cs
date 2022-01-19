@@ -31,12 +31,18 @@ namespace brainflow
         LINEAR = 2
     };
 
+    public enum NoiseTypes
+    {
+        FIFTY = 0,
+        SIXTY = 1
+    };
+
     class DataHandlerLibrary64
     {
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int set_log_file (string log_file);
+        public static extern int set_log_file_data_handler (string log_file);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int set_log_level (int log_level);
+        public static extern int set_log_level_data_handler (int log_level);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_lowpass (double[] data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -80,16 +86,20 @@ namespace brainflow
         public static extern int get_psd_welch (double[] data, int data_len, int nfft, int overlap, int sampling_rate, int window, double[] ampls, double[] freqs);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int detrend (double[] data, int len, int operation);
+        [DllImport("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int remove_environmental_noise(double[] data, int len, int sampling_rate, int noise_type);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_avg_band_powers (double[] data, int rows, int cols, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int calc_stddev (double[] data, int start_pos, int end_pos, double[] output);
     }
 
     class DataHandlerLibrary32
     {
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int set_log_file (string log_file);
+        public static extern int set_log_file_data_handler(string log_file);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int set_log_level (int log_level);
+        public static extern int set_log_level_data_handler (int log_level);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_lowpass (double[] data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -135,14 +145,18 @@ namespace brainflow
         public static extern int detrend (double[] data, int len, int operation);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_avg_band_powers (double[] data, int rows, int cols, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int remove_environmental_noise (double[] data, int len, int sampling_rate, int noise_type);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int calc_stddev (double[] data, int start_pos, int end_pos, double[] output);
     }
 
     class DataHandlerLibraryLinux
     {
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int set_log_file (string log_file);
+        public static extern int set_log_file_data_handler(string log_file);
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int set_log_level (int log_level);
+        public static extern int set_log_level_data_handler (int log_level);
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_lowpass (double[] data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -188,14 +202,18 @@ namespace brainflow
         public static extern int detrend (double[] data, int len, int operation);
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_avg_band_powers (double[] data, int rows, int cols, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs);
+        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int remove_environmental_noise (double[] data, int len, int sampling_rate, int noise_type);
+        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int calc_stddev (double[] data, int start_pos, int end_pos, double[] output);
     }
 
     class DataHandlerLibraryMac
     {
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int set_log_file (string log_file);
+        public static extern int set_log_file_data_handler(string log_file);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int set_log_level (int log_level);
+        public static extern int set_log_level_data_handler(int log_level);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_lowpass (double[] data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -241,39 +259,60 @@ namespace brainflow
         public static extern int detrend (double[] data, int len, int operation);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_avg_band_powers (double[] data, int rows, int cols, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs);
+        [DllImport("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int remove_environmental_noise (double[] data, int len, int sampling_rate, int noise_type);
+        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int calc_stddev (double[] data, int start_pos, int end_pos, double[] output);
     }
 
     class DataHandlerLibrary
     {
-        public static int set_log_level (int log_level)
+        public static int set_log_level_data_handler (int log_level)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return DataHandlerLibrary64.set_log_level (log_level);
+                    return DataHandlerLibrary64.set_log_level_data_handler(log_level);
                 case LibraryEnvironment.x86:
-                    return DataHandlerLibrary32.set_log_level (log_level);
+                    return DataHandlerLibrary32.set_log_level_data_handler(log_level);
                 case LibraryEnvironment.Linux:
-                    return DataHandlerLibraryLinux.set_log_level (log_level);
+                    return DataHandlerLibraryLinux.set_log_level_data_handler(log_level);
                 case LibraryEnvironment.MacOS:
-                    return DataHandlerLibraryMac.set_log_level (log_level);
+                    return DataHandlerLibraryMac.set_log_level_data_handler(log_level);
             }
 
             return (int)CustomExitCodes.GENERAL_ERROR;
         }
 
-        public static int set_log_file (string log_file)
+        public static int set_log_file_data_handler (string log_file)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return DataHandlerLibrary64.set_log_file (log_file);
+                    return DataHandlerLibrary64.set_log_file_data_handler(log_file);
                 case LibraryEnvironment.x86:
-                    return DataHandlerLibrary32.set_log_file (log_file);
+                    return DataHandlerLibrary32.set_log_file_data_handler(log_file);
                 case LibraryEnvironment.Linux:
-                    return DataHandlerLibraryLinux.set_log_file (log_file);
+                    return DataHandlerLibraryLinux.set_log_file_data_handler(log_file);
                 case LibraryEnvironment.MacOS:
-                    return DataHandlerLibraryMac.set_log_file (log_file);
+                    return DataHandlerLibraryMac.set_log_file_data_handler(log_file);
+            }
+
+            return (int)CustomExitCodes.GENERAL_ERROR;
+        }
+
+        public static int remove_environmental_noise(double[] data, int len, int sampling_rate, int noise_type)
+        {
+            switch (PlatformHelper.get_library_environment())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.remove_environmental_noise(data, len, sampling_rate, noise_type);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.remove_environmental_noise(data, len, sampling_rate, noise_type);
+                case LibraryEnvironment.Linux:
+                    return DataHandlerLibraryLinux.remove_environmental_noise(data, len, sampling_rate, noise_type);
+                case LibraryEnvironment.MacOS:
+                    return DataHandlerLibraryMac.remove_environmental_noise(data, len, sampling_rate, noise_type);
             }
 
             return (int)CustomExitCodes.GENERAL_ERROR;
@@ -651,6 +690,23 @@ namespace brainflow
                     return DataHandlerLibraryLinux.get_psd_welch (data, data_len, nfft, overlap, sampling_rate, window, output_ampls, output_freqs);
                 case LibraryEnvironment.MacOS:
                     return DataHandlerLibraryMac.get_psd_welch (data, data_len, nfft, overlap, sampling_rate, window, output_ampls, output_freqs);
+            }
+
+            return (int)CustomExitCodes.GENERAL_ERROR;
+        }
+
+        public static int calc_stddev (double[] data, int start_pos, int end_pos, double[] output)
+        {
+            switch (PlatformHelper.get_library_environment())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.calc_stddev (data, start_pos, end_pos, output);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.calc_stddev (data, start_pos, end_pos, output);
+                case LibraryEnvironment.Linux:
+                    return DataHandlerLibraryLinux.calc_stddev (data, start_pos, end_pos, output);
+                case LibraryEnvironment.MacOS:
+                    return DataHandlerLibraryMac.calc_stddev (data, start_pos, end_pos, output);
             }
 
             return (int)CustomExitCodes.GENERAL_ERROR;

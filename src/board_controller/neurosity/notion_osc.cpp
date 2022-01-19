@@ -58,7 +58,7 @@ int NotionOSC::config_board (std::string config, std::string &response)
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
-int NotionOSC::start_stream (int buffer_size, char *streamer_params)
+int NotionOSC::start_stream (int buffer_size, const char *streamer_params)
 {
     if (!initialized)
     {
@@ -88,7 +88,7 @@ int NotionOSC::start_stream (int buffer_size, char *streamer_params)
     }
     else
     {
-        Board::board_logger->error ("no data received in 5sec, stopping thread");
+        safe_logger (spdlog::level::err, "no data received in 5sec, stopping thread");
         this->stop_stream ();
         return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     }

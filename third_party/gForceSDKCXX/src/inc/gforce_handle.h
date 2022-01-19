@@ -4,13 +4,15 @@
 
 #include "gforce.h"
 
-#include "gforce_wrapper_types.h"
-
 #include "spdlog/sinks/null_sink.h"
 #include "spdlog/spdlog.h"
 
+#include "brainflow_array.h"
+#include "brainflow_constants.h"
 #include "spinlock.h"
 #include "timestamp.h"
+
+//#define ENABLE_LOGGER
 
 using namespace gf;
 using namespace std;
@@ -18,14 +20,13 @@ using namespace std;
 extern volatile int iExitCode;
 extern SpinLock spinLock;
 extern volatile bool bShouldStopStream;
-extern std::deque<struct GforceData> data_queue;
+extern std::deque<BrainFlowArray<double, 1>> dataQueue;
 
-//#define ENABLE_LOGGER
 
 class GforceHandle : public HubListener
 {
 public:
-    GforceHandle (gfsPtr<Hub> &pHub) : mHub (pHub)
+    GforceHandle (gfsPtr<Hub> &pHub, int iBoardType) : mHub (pHub)
     {
 #ifdef ENABLE_LOGGER
         logger = spdlog::stderr_logger_mt ("GForceHandleLogger");
@@ -37,6 +38,21 @@ public:
         bIsEMGConfigured = false;
         bIsFeatureMapConfigured = false;
         iCounter = 0;
+        this->iBoardType = iBoardType;
+        if (iBoardType == (int)BoardIds::GFORCE_PRO_BOARD)
+        {
+            iSamplingRate = 500;
+            iTransactionSize = 128;
+            iNumPackages = 8;
+            iChannelMap = 0x00FF;
+        }
+        if (iBoardType == (int)BoardIds::GFORCE_DUAL_BOARD)
+        {
+            iSamplingRate = 500;
+            iTransactionSize = 32;
+            iNumPackages = iTransactionSize / GforceHandle::iADCResolution;
+            iChannelMap = 0x0001 | 0x0002;
+        }
     }
 
     /// This callback is called when the Hub finishes scanning devices.
@@ -45,7 +61,7 @@ public:
         if (nullptr == mDevice)
         {
             logger->error ("device not found");
-            iExitCode = (int)GforceWrapperExitCodes::NO_DEVICE_FOUND;
+            iExitCode = (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
         }
         else
         {
@@ -56,18 +72,18 @@ public:
                 if (GF_RET_CODE::GF_SUCCESS == mDevice->connect ())
                 {
                     logger->info ("device connected");
-                    iExitCode = (int)GforceWrapperExitCodes::STATUS_OK;
+                    iExitCode = (int)BrainFlowExitCodes::STATUS_OK;
                 }
                 else
                 {
                     logger->error ("connect error");
-                    iExitCode = (int)GforceWrapperExitCodes::CONNECT_ERROR;
+                    iExitCode = (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
                 }
             }
             else
             {
                 logger->error ("device found but in connecting state");
-                iExitCode = (int)GforceWrapperExitCodes::FOUND_BUT_IN_CONNECTING_STATE;
+                iExitCode = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
             }
         }
     }
@@ -170,23 +186,49 @@ public:
         }
 
         auto ptr = data->data ();
-        double emgData[GforceData::SIZE] = {0.0};
-        if (dataType == DeviceDataType::DDT_EMGRAW)
+        if (iBoardType == (int)BoardIds::GFORCE_PRO_BOARD)
         {
-            emgData[0] = iCounter++;
-            for (int packageNum = 0; packageNum < GforceHandle::iNumPackages; packageNum++)
+            constexpr int size = 11;
+            double emgData[size] = {0.0};
+            if (dataType == DeviceDataType::DDT_EMGRAW)
+            {
+                for (int packageNum = 0; packageNum < iNumPackages; packageNum++)
+                {
+                    emgData[0] = iCounter++;
+                    for (int i = 0; i < 8; i++)
+                    {
+                        emgData[i + 1] = (double)*(reinterpret_cast<const uint16_t *> (ptr));
+                        ptr += 2;
+                    }
+                    emgData[9] = timestamp;
+                    BrainFlowArray<double, 1> gforceData (emgData, size);
+                    spinLock.lock ();
+                    dataQueue.push_back (std::move (gforceData));
+                    spinLock.unlock ();
+                }
+            }
+        }
+        if (iBoardType == (int)BoardIds::GFORCE_DUAL_BOARD)
+        {
+            constexpr int size = 5;
+            double emgData[size] = {0.0};
+            if (dataType == DeviceDataType::DDT_EMGRAW)
             {
                 emgData[0] = iCounter++;
-                for (int i = 0; i < 8; i++)
+                for (int packageNum = 0; packageNum < iNumPackages; packageNum++)
                 {
-                    emgData[i + 1] = (double)*(reinterpret_cast<const uint16_t *> (ptr));
-                    ptr += 2;
+                    emgData[0] = iCounter++;
+                    for (int i = 0; i < 2; i++)
+                    {
+                        emgData[i + 1] = (double)*(reinterpret_cast<const uint16_t *> (ptr));
+                        ptr += 2;
+                    }
+                    emgData[3] = timestamp;
+                    BrainFlowArray<double, 1> gforceData (emgData, size);
+                    spinLock.lock ();
+                    dataQueue.push_back (std::move (gforceData));
+                    spinLock.unlock ();
                 }
-                emgData[9] = timestamp;
-                struct GforceData gforceData (emgData);
-                spinLock.lock ();
-                data_queue.push_back (gforceData);
-                spinLock.unlock ();
             }
         }
     }
@@ -194,11 +236,13 @@ public:
     std::shared_ptr<spdlog::logger> logger;
     bool bIsFeatureMapConfigured;
     bool bIsEMGConfigured;
+    int iBoardType;
+    int iSamplingRate;
+    int iTransactionSize;
+    int iNumPackages;
+    int iChannelMap;
 
     static const int iADCResolution = 12;
-    static const int iTransactionSize = 128;
-    static const int iNumPackages = 8;
-    static const int iSamplingRate = 500;
 
 private:
     gfsPtr<Hub> mHub;
@@ -221,27 +265,30 @@ private:
                 | DeviceSetting::DNF_EMG_RAW
                 //| DeviceSetting::DNF_HID_MOUSE
                 //| DeviceSetting::DNF_HID_JOYSTICK
-                //| DeviceSetting::DNF_DEVICE_STATUS
-            );
+                | DeviceSetting::DNF_DEVICE_STATUS);
 
-        ds->setDataNotifSwitch (
-            (DeviceSetting::DataNotifFlags) (flags & featureMap), [this] (ResponseResult result) {
-                std::string res =
-                    (result == ResponseResult::RREST_SUCCESS) ? ("sucess") : ("failed");
-                bIsFeatureMapConfigured =
-                    (result == ResponseResult::RREST_SUCCESS) ? (true) : (false);
-                this->logger->info ("setDataNotifSwitch result: {}", res);
-            });
+        flags = (DeviceSetting::DataNotifFlags) (flags & featureMap);
 
-        ds->setEMGRawDataConfig (GforceHandle::iSamplingRate, // sample rate
-            (DeviceSetting::EMGRowDataChannels) (0x00FF),     // channel 0~7
-            GforceHandle::iTransactionSize,                   // data length
-            GforceHandle::iADCResolution,                     // adc resolution
-            [this] (ResponseResult result) {
+        ds->setEMGRawDataConfig (iSamplingRate, (DeviceSetting::EMGRowDataChannels) (iChannelMap),
+            iTransactionSize, GforceHandle::iADCResolution,
+            [ds, flags, this] (ResponseResult result)
+            {
                 std::string res =
                     (result == ResponseResult::RREST_SUCCESS) ? ("sucess") : ("failed");
                 bIsEMGConfigured = (result == ResponseResult::RREST_SUCCESS) ? (true) : (false);
                 this->logger->info ("setEMGRawDataConfig result: {}", res);
+                if (bIsEMGConfigured)
+                {
+                    ds->setDataNotifSwitch (flags,
+                        [this] (ResponseResult result)
+                        {
+                            std::string res =
+                                (result == ResponseResult::RREST_SUCCESS) ? ("sucess") : ("failed");
+                            bIsFeatureMapConfigured =
+                                (result == ResponseResult::RREST_SUCCESS) ? (true) : (false);
+                            this->logger->info ("setDataNotifSwitch result: {}", res);
+                        });
+                }
             });
     }
 };

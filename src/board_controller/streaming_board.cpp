@@ -1,6 +1,7 @@
 #include <string.h>
 
 #include "board_info_getter.h"
+#include "multicast_streamer.h"
 #include "streaming_board.h"
 
 #ifndef _WIN32
@@ -43,6 +44,13 @@ int StreamingBoard::prepare_session ()
     try
     {
         board_id = std::stoi (params.other_info);
+        board_descr = brainflow_boards_json["boards"][std::to_string (board_id)];
+    }
+    catch (json::exception &e)
+    {
+        safe_logger (spdlog::level::err, "invalid json");
+        safe_logger (spdlog::level::err, e.what ());
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
     catch (const std::exception &e)
     {
@@ -74,7 +82,7 @@ int StreamingBoard::config_board (std::string config, std::string &response)
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
-int StreamingBoard::start_stream (int buffer_size, char *streamer_params)
+int StreamingBoard::start_stream (int buffer_size, const char *streamer_params)
 {
     if (is_streaming)
     {
@@ -131,23 +139,28 @@ void StreamingBoard::read_thread ()
 {
     // format for incomming package is determined by original board
     int num_rows = board_descr["num_rows"];
-    int bytes_per_recv = sizeof (double) * num_rows;
-    double *package = new double[num_rows];
+    int num_packages = MultiCastStreamer::get_packages_in_chunk ();
+    int transaction_len = num_rows * num_packages;
+    int bytes_per_recv = sizeof (double) * transaction_len;
+    double *transaction = new double[transaction_len];
     for (int i = 0; i < num_rows; i++)
     {
-        package[i] = 0.0;
+        transaction[i] = 0.0;
     }
 
     while (keep_alive)
     {
-        int res = client->recv (package, bytes_per_recv);
+        int res = client->recv (transaction, bytes_per_recv);
         if (res != bytes_per_recv)
         {
             safe_logger (
                 spdlog::level::trace, "unable to read {} bytes, read {}", bytes_per_recv, res);
             continue;
         }
-        push_package (package);
+        for (int i = 0; i < num_packages; i++)
+        {
+            push_package (transaction + i * num_rows);
+        }
     }
-    delete[] package;
+    delete[] transaction;
 }

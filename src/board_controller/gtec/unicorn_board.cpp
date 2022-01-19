@@ -29,6 +29,8 @@ UnicornBoard::UnicornBoard (struct BrainFlowInputParams params)
     std::string unicornlib_path = "";
 #ifdef _WIN32
     std::string lib_name = "Unicorn.dll";
+#elif defined(__arm__)
+    std::string lib_name = "libunicorn_raspberry.so";
 #else
     std::string lib_name = "libunicorn.so";
 #endif
@@ -89,7 +91,7 @@ int UnicornBoard::prepare_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int UnicornBoard::start_stream (int buffer_size, char *streamer_params)
+int UnicornBoard::start_stream (int buffer_size, const char *streamer_params)
 {
     if (is_streaming)
     {
@@ -361,31 +363,31 @@ UnicornBoard::~UnicornBoard ()
 
 int UnicornBoard::prepare_session ()
 {
-    safe_logger (spdlog::level::err, "UnicornBoard supports only Linux.");
+    safe_logger (spdlog::level::err, "UnicornBoard doesnt support MacOS.");
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
 int UnicornBoard::config_board (std::string config, std::string &response)
 {
-    safe_logger (spdlog::level::err, "UnicornBoard supports only Linux.");
+    safe_logger (spdlog::level::err, "UnicornBoard doesnt support MacOS.");
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
 int UnicornBoard::release_session ()
 {
-    safe_logger (spdlog::level::err, "UnicornBoard supports only Linux.");
+    safe_logger (spdlog::level::err, "UnicornBoard doesnt support MacOS.");
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
 int UnicornBoard::stop_stream ()
 {
-    safe_logger (spdlog::level::err, "UnicornBoard supports only Linux.");
+    safe_logger (spdlog::level::err, "UnicornBoard doesnt support MacOS.");
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
-int UnicornBoard::start_stream (int buffer_size, char *streamer_params)
+int UnicornBoard::start_stream (int buffer_size, const char *streamer_params)
 {
-    safe_logger (spdlog::level::err, "UnicornBoard supports only Linux.");
+    safe_logger (spdlog::level::err, "UnicornBoard doesnt support MacOS.");
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 #endif

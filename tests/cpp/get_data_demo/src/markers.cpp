@@ -38,9 +38,9 @@ int main (int argc, char *argv[])
         {
             board->insert_marker (i);
 #ifdef _WIN32
-            Sleep (1000);
+            Sleep (2000);
 #else
-            sleep (1);
+            sleep (2);
 #endif
         }
 

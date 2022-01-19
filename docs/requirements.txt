@@ -1,6 +1,5 @@
 sphinx==3.1.2
 breathe==4.19.2
-sphinx_rtd_theme
 brainflow
 pandas
 mne
@@ -9,5 +8,7 @@ ipykernel
 nbsphinx
 pandoc
 sphinxcontrib-ghcontributors
-Pygments==2.6.1
+Pygments==2.7.4
 sphinxcontrib-matlabdomain==0.11.4
+docutils<0.17
+sphinx_rtd_theme==0.4.3

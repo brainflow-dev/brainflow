@@ -13,10 +13,13 @@
 #include <string>
 #include <utility>
 
+#include "ant_neuro.h"
 #include "board.h"
 #include "board_controller.h"
 #include "board_info_getter.h"
+#include "brainalive.h"
 #include "brainbit.h"
+#include "brainbit_bled.h"
 #include "brainflow_constants.h"
 #include "brainflow_input_params.h"
 #include "callibri_ecg.h"
@@ -26,13 +29,17 @@
 #include "cyton_daisy.h"
 #include "cyton_daisy_wifi.h"
 #include "cyton_wifi.h"
-#include "fascia.h"
+#include "enophone.h"
 #include "freeeeg32.h"
 #include "galea.h"
+#include "galea_serial.h"
 #include "ganglion.h"
 #include "ganglion_wifi.h"
+#include "gforce_dual.h"
 #include "gforce_pro.h"
 #include "ironbci.h"
+#include "muse.h"
+#include "muse_bled.h"
 #include "notion_osc.h"
 #include "playback_file_board.h"
 #include "streaming_board.h"
@@ -49,13 +56,13 @@ std::mutex mutex;
 
 std::pair<int, struct BrainFlowInputParams> get_key (
     int board_id, struct BrainFlowInputParams params);
-static int check_board_session (int board_id, char *json_brainflow_input_params,
+static int check_board_session (int board_id, const char *json_brainflow_input_params,
     std::pair<int, struct BrainFlowInputParams> &key, bool log_error = true);
 static int string_to_brainflow_input_params (
     const char *json_brainflow_input_params, struct BrainFlowInputParams *params);
 
 
-int prepare_session (int board_id, char *json_brainflow_input_params)
+int prepare_session (int board_id, const char *json_brainflow_input_params)
 {
     std::lock_guard<std::mutex> lock (mutex);
 
@@ -123,14 +130,15 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
         case BoardIds::CALLIBRI_ECG_BOARD:
             board = std::shared_ptr<Board> (new CallibriECG (params));
             break;
-        case BoardIds::FASCIA_BOARD:
-            board = std::shared_ptr<Board> (new Fascia (params));
-            break;
-        // notion 1 and notion 2 have the same class, the only difference is get_eeg_names
+        // notion 1, notion 2 and crown have the same class
+        // the only difference are get_eeg_names and sampling_rate
         case BoardIds::NOTION_1_BOARD:
             board = std::shared_ptr<Board> (new NotionOSC (params));
             break;
         case BoardIds::NOTION_2_BOARD:
+            board = std::shared_ptr<Board> (new NotionOSC (params));
+            break;
+        case BoardIds::CROWN_BOARD:
             board = std::shared_ptr<Board> (new NotionOSC (params));
             break;
         case BoardIds::IRONBCI_BOARD:
@@ -141,6 +149,91 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
             break;
         case BoardIds::FREEEEG32_BOARD:
             board = std::shared_ptr<Board> (new FreeEEG32 (params));
+            break;
+        case BoardIds::BRAINBIT_BLED_BOARD:
+            board = std::shared_ptr<Board> (new BrainBitBLED (params));
+            break;
+        case BoardIds::GFORCE_DUAL_BOARD:
+            board = std::shared_ptr<Board> (new GforceDual (params));
+            break;
+        case BoardIds::GALEA_SERIAL_BOARD:
+            board = std::shared_ptr<Board> (new GaleaSerial (params));
+            break;
+        case BoardIds::MUSE_S_BLED_BOARD:
+            board = std::shared_ptr<Board> (new MuseBLED (board_id, params));
+            break;
+        case BoardIds::MUSE_2_BLED_BOARD:
+            board = std::shared_ptr<Board> (new MuseBLED (board_id, params));
+            break;
+        case BoardIds::ANT_NEURO_EE_410_BOARD:
+            board = std::shared_ptr<Board> (
+                new AntNeuroBoard ((int)BoardIds::ANT_NEURO_EE_410_BOARD, params));
+            break;
+        case BoardIds::ANT_NEURO_EE_411_BOARD:
+            board = std::shared_ptr<Board> (
+                new AntNeuroBoard ((int)BoardIds::ANT_NEURO_EE_411_BOARD, params));
+            break;
+        case BoardIds::ANT_NEURO_EE_430_BOARD:
+            board = std::shared_ptr<Board> (
+                new AntNeuroBoard ((int)BoardIds::ANT_NEURO_EE_430_BOARD, params));
+            break;
+        case BoardIds::ANT_NEURO_EE_211_BOARD:
+            board = std::shared_ptr<Board> (
+                new AntNeuroBoard ((int)BoardIds::ANT_NEURO_EE_211_BOARD, params));
+            break;
+        case BoardIds::ANT_NEURO_EE_212_BOARD:
+            board = std::shared_ptr<Board> (
+                new AntNeuroBoard ((int)BoardIds::ANT_NEURO_EE_212_BOARD, params));
+            break;
+        case BoardIds::ANT_NEURO_EE_213_BOARD:
+            board = std::shared_ptr<Board> (
+                new AntNeuroBoard ((int)BoardIds::ANT_NEURO_EE_213_BOARD, params));
+            break;
+        case BoardIds::ANT_NEURO_EE_214_BOARD:
+            board = std::shared_ptr<Board> (
+                new AntNeuroBoard ((int)BoardIds::ANT_NEURO_EE_214_BOARD, params));
+            break;
+        case BoardIds::ANT_NEURO_EE_215_BOARD:
+            board = std::shared_ptr<Board> (
+                new AntNeuroBoard ((int)BoardIds::ANT_NEURO_EE_215_BOARD, params));
+            break;
+        case BoardIds::ANT_NEURO_EE_221_BOARD:
+            board = std::shared_ptr<Board> (
+                new AntNeuroBoard ((int)BoardIds::ANT_NEURO_EE_221_BOARD, params));
+            break;
+        case BoardIds::ANT_NEURO_EE_222_BOARD:
+            board = std::shared_ptr<Board> (
+                new AntNeuroBoard ((int)BoardIds::ANT_NEURO_EE_222_BOARD, params));
+            break;
+        case BoardIds::ANT_NEURO_EE_223_BOARD:
+            board = std::shared_ptr<Board> (
+                new AntNeuroBoard ((int)BoardIds::ANT_NEURO_EE_223_BOARD, params));
+            break;
+        case BoardIds::ANT_NEURO_EE_224_BOARD:
+            board = std::shared_ptr<Board> (
+                new AntNeuroBoard ((int)BoardIds::ANT_NEURO_EE_224_BOARD, params));
+            break;
+        case BoardIds::ANT_NEURO_EE_225_BOARD:
+            board = std::shared_ptr<Board> (
+                new AntNeuroBoard ((int)BoardIds::ANT_NEURO_EE_225_BOARD, params));
+            break;
+        case BoardIds::ENOPHONE_BOARD:
+            board = std::shared_ptr<Board> (new Enophone (params));
+            break;
+        case BoardIds::MUSE_2_BOARD:
+            board = std::shared_ptr<Board> (new Muse (board_id, params));
+            break;
+        case BoardIds::MUSE_S_BOARD:
+            board = std::shared_ptr<Board> (new Muse (board_id, params));
+            break;
+        case BoardIds::BRAINALIVE_BOARD:
+            board = std::shared_ptr<Board> (new BrainAlive (params));
+            break;
+        case BoardIds::MUSE_2016_BOARD:
+            board = std::shared_ptr<Board> (new Muse (board_id, params));
+            break;
+        case BoardIds::MUSE_2016_BLED_BOARD:
+            board = std::shared_ptr<Board> (new MuseBLED (board_id, params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
@@ -158,7 +251,7 @@ int prepare_session (int board_id, char *json_brainflow_input_params)
     return res;
 }
 
-int is_prepared (int *prepared, int board_id, char *json_brainflow_input_params)
+int is_prepared (int *prepared, int board_id, const char *json_brainflow_input_params)
 {
     std::lock_guard<std::mutex> lock (mutex);
 
@@ -176,8 +269,8 @@ int is_prepared (int *prepared, int board_id, char *json_brainflow_input_params)
     return res;
 }
 
-int start_stream (
-    int buffer_size, char *streamer_params, int board_id, char *json_brainflow_input_params)
+int start_stream (int buffer_size, const char *streamer_params, int board_id,
+    const char *json_brainflow_input_params)
 {
     std::lock_guard<std::mutex> lock (mutex);
 
@@ -191,7 +284,7 @@ int start_stream (
     return board_it->second->start_stream (buffer_size, streamer_params);
 }
 
-int stop_stream (int board_id, char *json_brainflow_input_params)
+int stop_stream (int board_id, const char *json_brainflow_input_params)
 {
     std::lock_guard<std::mutex> lock (mutex);
 
@@ -205,7 +298,7 @@ int stop_stream (int board_id, char *json_brainflow_input_params)
     return board_it->second->stop_stream ();
 }
 
-int insert_marker (double value, int board_id, char *json_brainflow_input_params)
+int insert_marker (double value, int board_id, const char *json_brainflow_input_params)
 {
     std::lock_guard<std::mutex> lock (mutex);
 
@@ -219,7 +312,7 @@ int insert_marker (double value, int board_id, char *json_brainflow_input_params
     return board_it->second->insert_marker (value);
 }
 
-int release_session (int board_id, char *json_brainflow_input_params)
+int release_session (int board_id, const char *json_brainflow_input_params)
 {
     std::lock_guard<std::mutex> lock (mutex);
 
@@ -236,7 +329,7 @@ int release_session (int board_id, char *json_brainflow_input_params)
 }
 
 int get_current_board_data (int num_samples, double *data_buf, int *returned_samples, int board_id,
-    char *json_brainflow_input_params)
+    const char *json_brainflow_input_params)
 {
     std::lock_guard<std::mutex> lock (mutex);
 
@@ -250,7 +343,7 @@ int get_current_board_data (int num_samples, double *data_buf, int *returned_sam
     return board_it->second->get_current_board_data (num_samples, data_buf, returned_samples);
 }
 
-int get_board_data_count (int *result, int board_id, char *json_brainflow_input_params)
+int get_board_data_count (int *result, int board_id, const char *json_brainflow_input_params)
 {
     std::lock_guard<std::mutex> lock (mutex);
 
@@ -265,7 +358,7 @@ int get_board_data_count (int *result, int board_id, char *json_brainflow_input_
 }
 
 int get_board_data (
-    int data_count, double *data_buf, int board_id, char *json_brainflow_input_params)
+    int data_count, double *data_buf, int board_id, const char *json_brainflow_input_params)
 {
     std::lock_guard<std::mutex> lock (mutex);
 
@@ -279,13 +372,13 @@ int get_board_data (
     return board_it->second->get_board_data (data_count, data_buf);
 }
 
-int set_log_level (int log_level)
+int set_log_level_board_controller (int log_level)
 {
     std::lock_guard<std::mutex> lock (mutex);
     return Board::set_log_level (log_level);
 }
 
-int log_message (int log_level, char *log_message)
+int log_message_board_controller (int log_level, char *log_message)
 {
     // its a method for loggging from high level api dont add it to Board class since it should not
     // be used internally
@@ -306,7 +399,7 @@ int log_message (int log_level, char *log_message)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int set_log_file (char *log_file)
+int set_log_file_board_controller (const char *log_file)
 {
     std::lock_guard<std::mutex> lock (mutex);
     return Board::set_log_file (log_file);
@@ -319,7 +412,7 @@ int java_set_jnienv (JNIEnv *java_jnienv)
 }
 
 int config_board (char *config, char *response, int *response_len, int board_id,
-    char *json_brainflow_input_params)
+    const char *json_brainflow_input_params)
 {
     std::lock_guard<std::mutex> lock (mutex);
     if ((config == NULL) || (response == NULL) || (response_len == NULL))
@@ -345,6 +438,20 @@ int config_board (char *config, char *response, int *response_len, int board_id,
     return res;
 }
 
+int release_all_sessions ()
+{
+    std::lock_guard<std::mutex> lock (mutex);
+
+    for (auto it = boards.begin (), next_it = it; it != boards.end (); it = next_it)
+    {
+        ++next_it;
+        it->second->release_session ();
+        boards.erase (it);
+    }
+
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
 /////////////////////////////////////////////////
 //////////////////// helpers ////////////////////
 /////////////////////////////////////////////////
@@ -356,7 +463,7 @@ std::pair<int, struct BrainFlowInputParams> get_key (
     return key;
 }
 
-int check_board_session (int board_id, char *json_brainflow_input_params,
+int check_board_session (int board_id, const char *json_brainflow_input_params,
     std::pair<int, struct BrainFlowInputParams> &key, bool log_error)
 {
     struct BrainFlowInputParams params;

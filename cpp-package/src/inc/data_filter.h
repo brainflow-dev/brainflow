@@ -37,6 +37,9 @@ public:
     /// perform bandstop filter in-place
     static void perform_bandstop (double *data, int data_len, int sampling_rate, double center_freq,
         double band_width, int order, int filter_type, double ripple);
+    /// apply notch filter to remove env noise
+    static void remove_environmental_noise (
+        double *data, int data_len, int sampling_rate, int noise_type);
     /// perform moving average or moving median filter in-place
     static void perform_rolling_filter (double *data, int data_len, int period, int agg_operation);
     /// perform data downsampling, it just aggregates several data points
@@ -146,4 +149,6 @@ public:
         const BrainFlowArray<double, 2> &data, std::string file_name, std::string file_mode);
     /// read data from file, data will be transposed to original format
     static BrainFlowArray<double, 2> read_file (std::string file_name);
+    /// calc stddev
+    static double calc_stddev (double *data, int start_pos, int end_pos);
 };

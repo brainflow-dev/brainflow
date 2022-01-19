@@ -1,0 +1,36 @@
+[package]
+name = "brainflow"
+version = "0.0.1"
+authors = ["Andrey Parfenov <a1994ndrey@gmail.com>", "Daniel Hahne <brainflow@niel.re>"]
+edition = "2018"
+description = "BrainFlow is a library intended to obtain, parse and analyze EEG, EMG, ECG, and other kinds of data from biosensors."
+repository = "https://github.com/brainflow-dev/brainflow"
+license = "MIT"
+readme = "README.md"
+documentation = "https://brainflow.readthedocs.io"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[features]
+generate_binding = ["bindgen"]
+
+[dependencies]
+getset = "0.1.1"
+ndarray = "0.15.3"
+num = "0.4.0"
+num-complex = "0.4.0"
+num-derive = "0.3.3"
+num-traits = "0.2.14"
+paste = "1.0.5"
+serde = { version = "1.0.130", features = ["derive"] }
+serde_json = "1.0.68"
+thiserror = "1.0.29"
+
+[dev-dependencies]
+approx = "0.5.0"
+
+[build-dependencies]
+bindgen = { version = "0.59.1", optional = true }
+convert_case = "0.4.0"
+fs_extra = "1.2.0"
+regex = "1.5.4"

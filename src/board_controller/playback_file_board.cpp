@@ -54,6 +54,13 @@ int PlaybackFileBoard::prepare_session ()
     try
     {
         board_id = std::stoi (params.other_info);
+        board_descr = brainflow_boards_json["boards"][std::to_string (board_id)];
+    }
+    catch (json::exception &e)
+    {
+        safe_logger (spdlog::level::err, "invalid json");
+        safe_logger (spdlog::level::err, e.what ());
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
     catch (const std::exception &e)
     {
@@ -62,6 +69,7 @@ int PlaybackFileBoard::prepare_session ()
         safe_logger (spdlog::level::err, e.what ());
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
+
     // check that file exist in prepare_session
     FILE *fp;
     fp = fopen (params.file.c_str (), "r");
@@ -76,7 +84,7 @@ int PlaybackFileBoard::prepare_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int PlaybackFileBoard::start_stream (int buffer_size, char *streamer_params)
+int PlaybackFileBoard::start_stream (int buffer_size, const char *streamer_params)
 {
     safe_logger (spdlog::level::trace, "start stream");
     if (is_streaming)
@@ -157,9 +165,11 @@ void PlaybackFileBoard::read_thread ()
     double last_timestamp = -1.0;
     bool new_timestamps = use_new_timestamps; // to prevent changing during streaming
     int timestamp_channel = board_descr["timestamp_channel"];
+    double accumulated_time_delta = 0.0;
 
     while (keep_alive)
     {
+        auto start = std::chrono::high_resolution_clock::now ();
         char *res = fgets (buf, sizeof (buf), fp);
         if ((loopback) && (res == NULL))
         {
@@ -178,13 +188,21 @@ void PlaybackFileBoard::read_thread ()
             continue;
         }
         // res not NULL
-        std::string csv_string (buf);
-        std::stringstream ss (csv_string);
+        std::string tsv_string (buf);
+        std::stringstream ss (tsv_string);
         std::vector<std::string> splitted;
         std::string tmp;
-        while (getline (ss, tmp, ','))
+        char sep = '\t';
+        if (tsv_string.find ('\t') == std::string::npos)
         {
-            splitted.push_back (tmp);
+            sep = ',';
+        }
+        while (std::getline (ss, tmp, sep))
+        {
+            if (tmp != "\n")
+            {
+                splitted.push_back (tmp);
+            }
         }
         if (splitted.size () != num_rows)
         {
@@ -206,14 +224,27 @@ void PlaybackFileBoard::read_thread ()
             }
             this->cv.notify_one ();
         }
+        auto stop = std::chrono::high_resolution_clock::now ();
+        auto duration =
+            std::chrono::duration_cast<std::chrono::microseconds> (stop - start).count ();
+
         if (last_timestamp > 0)
         {
             double time_wait = package[timestamp_channel] - last_timestamp; // in seconds
+            accumulated_time_delta += duration;
+            if (accumulated_time_delta > 1000.0)
+            {
+                time_wait = time_wait - (int)(accumulated_time_delta / 1000.0);
+                accumulated_time_delta -= 1000.0;
+            }
+            if (time_wait > 0.001)
+            {
 #ifdef _WIN32
-            Sleep ((int)(time_wait * 1000 + 0.5));
+                Sleep ((int)(time_wait * 1000));
 #else
-            usleep ((int)(time_wait * 1000000 + 0.5));
+                usleep ((int)(time_wait * 1000000));
 #endif
+            }
         }
         last_timestamp = package[timestamp_channel];
 

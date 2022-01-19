@@ -12,6 +12,9 @@
 #include "brainflow_exception.h"
 #include "brainflow_input_params.h"
 
+#include "json.hpp"
+
+using json = nlohmann::json;
 
 /// BoardShim class to communicate with a board
 class BoardShim
@@ -34,6 +37,12 @@ public:
     /// write user defined string to BrainFlow logger
     static void log_message (int log_level, const char *format, ...);
 
+    /**
+     * get board description as json
+     * @param board_id board id of your device
+     * @throw BrainFlowException If board id is not valid exit code is UNSUPPORTED_BOARD_ERROR
+     */
+    static json get_board_descr (int board_id);
     /**
      * get sampling rate for this board
      * @param board_id board id of your device
@@ -160,6 +169,8 @@ public:
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static std::vector<int> get_resistance_channels (int board_id);
+    /// release all currently prepared session
+    static void release_all_sessions ();
 
     int board_id;
 
@@ -192,6 +203,8 @@ public:
     int get_board_data_count ();
     /// get all collected data and flush it from internal buffer
     BrainFlowArray<double, 2> get_board_data ();
+    /// get required amount of datapoints or less and flush it from internal buffer
+    BrainFlowArray<double, 2> get_board_data (int num_datapoints);
     /// send string to a board, use it carefully and only if you understand what you are doing
     std::string config_board (char *config);
     /// insert marker in data stream

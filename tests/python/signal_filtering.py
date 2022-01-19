@@ -10,7 +10,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels, BoardIds
-from brainflow.data_filter import DataFilter, FilterTypes, AggOperations
+from brainflow.data_filter import DataFilter, FilterTypes, AggOperations, NoiseTypes
 
 
 def main():
@@ -52,8 +52,8 @@ def main():
                                         FilterTypes.BUTTERWORTH.value, 0)
         elif count == 4:
             DataFilter.perform_rolling_filter(data[channel], 3, AggOperations.MEAN.value)
-        elif count == 5:
-            DataFilter.perform_rolling_filter(data[channel], 3, AggOperations.MEDIAN.value)
+        else:
+            DataFilter.remove_environmental_noise(data[channel], BoardShim.get_sampling_rate(board_id), NoiseTypes.FIFTY.value)
 
     df = pd.DataFrame(np.transpose(data))
     plt.figure()

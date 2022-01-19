@@ -1,6 +1,4 @@
 import os
-import platform
-import sys
 from setuptools import setup, find_packages
 
 this_directory = os.path.abspath(os.path.dirname(__file__))
@@ -39,6 +37,7 @@ setup(
             os.path.join('lib', 'gforce32.dll'),
             os.path.join('lib', 'libneurosdk-shared.dylib'),
             os.path.join('lib', 'libunicorn.so'),
+            os.path.join('lib', 'libunicorn_raspberry.so'),
             os.path.join('lib', 'Unicorn.dll'),
             os.path.join('lib', 'GanglionLib.dll'),
             os.path.join('lib', 'GanglionLib32.dll'),
@@ -47,7 +46,27 @@ setup(
             os.path.join('lib', 'MLModule.dll'),
             os.path.join('lib', 'brainflow_svm.model'),
             os.path.join('lib', 'libMLModule.so'),
-            os.path.join('lib', 'libMLModule.dylib')
+            os.path.join('lib', 'libMLModule.dylib'),
+            os.path.join('lib', 'BrainBitLib.dll'),
+            os.path.join('lib', 'BrainBitLib32.dll'),
+            os.path.join('lib', 'libBrainBitLib.so'),
+            os.path.join('lib', 'libBrainBitLib.dylib'),
+            os.path.join('lib', 'MuseLib.dll'),
+            os.path.join('lib', 'MuseLib32.dll'),
+            os.path.join('lib', 'libMuseLib.so'),
+            os.path.join('lib', 'libMuseLib.dylib'),
+            os.path.join('lib', 'eego-SDK32.dll'),
+            os.path.join('lib', 'eego-SDK.dll'),
+            os.path.join('lib', 'libeego-SDK.so'),
+            os.path.join('lib', 'libeego-SDK32.so'),
+            os.path.join('lib', 'BrainFlowBluetooth.dll'),
+            os.path.join('lib', 'BrainFlowBluetooth32.dll'),
+            os.path.join('lib', 'libBrainFlowBluetooth.so'),
+            os.path.join('lib', 'libBrainFlowBluetooth.dylib'),
+            os.path.join('lib', 'simpleble-c.dll'),
+            os.path.join('lib', 'simpleble-c32.dll'),
+            os.path.join('lib', 'libsimpleble-c.so'),
+            os.path.join('lib', 'libsimpleble-c.dylib')
         ]
     },
     zip_safe=True,

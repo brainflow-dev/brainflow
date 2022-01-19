@@ -3,5 +3,6 @@ classdef BrainFlowMetrics < int32
     enumeration
         RELAXATION(0)
         CONCENTRATION(1)
+        USER_DEFINED(2)
     end
 end

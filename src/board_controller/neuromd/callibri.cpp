@@ -25,6 +25,7 @@ Callibri::Callibri (int board_id, struct BrainFlowInputParams params)
     keep_alive = false;
     initialized = false;
     signal_channel = NULL;
+    counter = 0;
 }
 
 Callibri::~Callibri ()
@@ -94,6 +95,7 @@ int Callibri::prepare_session ()
     free_ChannelInfoArray (device_channels);
 
     initialized = true;
+    counter = 0;
 
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
@@ -140,7 +142,7 @@ int Callibri::config_board (std::string config, std::string &response)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int Callibri::start_stream (int buffer_size, char *streamer_params)
+int Callibri::start_stream (int buffer_size, const char *streamer_params)
 {
     if (is_streaming)
     {
@@ -211,7 +213,6 @@ void Callibri::read_thread ()
         package[i] = 0.0;
     }
 
-    long long counter = 0;
     while (keep_alive)
     {
         size_t length = 0;
@@ -219,7 +220,7 @@ void Callibri::read_thread ()
         do
         {
             AnyChannel_get_total_length ((AnyChannel *)signal_channel, &length);
-        } while ((keep_alive) && (length < ((size_t)counter + 1)));
+        } while ((keep_alive) && (length < (counter + 1)));
 
         // check that inner loop ended not because of stop_stream invocation
         if (!keep_alive)
@@ -294,7 +295,7 @@ int Callibri::stop_stream ()
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
-int Callibri::start_stream (int buffer_size, char *streamer_params)
+int Callibri::start_stream (int buffer_size, const char *streamer_params)
 {
     safe_logger (spdlog::level::err, "Callibri doesnt support Linux.");
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

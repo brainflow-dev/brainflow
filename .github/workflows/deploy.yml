@@ -139,6 +139,24 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         VERSION: ${{ github.event.inputs.version }}
+    - name: Prepare Rust Package
+      run: |
+        cd $env:GITHUB_WORKSPACE\rust-package\brainflow
+        Copy-Item "$env:GITHUB_WORKSPACE\linux\*" -Destination "$env:GITHUB_WORKSPACE\rust-package\brainflow\lib" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\macos\*" -Destination "$env:GITHUB_WORKSPACE\rust-package\brainflow\lib" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\win64\*" -Destination "$env:GITHUB_WORKSPACE\rust-package\brainflow\lib" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\win32\*" -Destination "$env:GITHUB_WORKSPACE\rust-package\brainflow\lib" -Recurse -Force -Filter *.*
+        ls $env:GITHUB_WORKSPACE\rust-package\brainflow\lib
+        (gc .\Cargo.toml).replace('0.0.1', $env:VERSION) | Out-File -encoding ASCII Cargo.toml
+        type Cargo.toml
+        cargo login $env:CARGO_TOKEN
+    #    cargo publish --dry-run --allow-dirty
+    #    aws s3 cp $env:GITHUB_WORKSPACE\rust-package\brainflow s3://brainflow/$env:GITHUB_SHA/rust --recursive
+      env:
+        CARGO_TOKEN: ${{ secrets.CARGO_TOKEN }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        VERSION: ${{ github.event.inputs.version }}
     - name: Prepare Nuget Package
       run: |
         Copy-Item "$env:GITHUB_WORKSPACE\linux\*" -Destination "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" -Recurse -Force -Filter *.*
@@ -180,7 +198,10 @@ jobs:
         mvn -s $env:GITHUB_WORKSPACE\java-package\brainflow\settings.xml deploy -Dregistry=https://maven.pkg.github.com/brainflow-dev -Dtoken=$env:PUBLISH_TOKEN
         cd $env:GITHUB_WORKSPACE\python-package
         twine upload --skip-existing dist/*.whl --user Andrey1994 --password $env:PYPI_PASSWORD
+        cd $env:GITHUB_WORKSPACE\rust-package\brainflow
+    #    cargo publish --allow-dirty
       env:
+        CARGO_TOKEN: ${{ secrets.CARGO_TOKEN }}
         PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         PUBLISH_USER: ${{ secrets.PUBLISH_USER }}
         PUBLISH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
