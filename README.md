@@ -65,7 +65,7 @@ We support bindings for:
 * [C++](./cpp-package/)
 * [C#](./csharp-package/brainflow/)
 * [Matlab](./matlab-package/brainflow)
-* [Julia](.julia-package/brainflow)
+* [Julia](./julia-package/brainflow)
 
 ## Partners and Sponsors
 
