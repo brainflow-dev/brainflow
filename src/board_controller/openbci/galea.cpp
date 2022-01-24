@@ -1,5 +1,6 @@
 #include "galea.h"
 
+#include <chrono>
 #include <stdint.h>
 #include <string.h>
 
@@ -493,9 +494,11 @@ std::string Galea::find_device ()
 #endif
 
     safe_logger (spdlog::level::trace, "trying to autodiscover device via SSDP");
+    safe_logger (spdlog::level::trace, "timeout for search is {}", params.timeout);
     std::string ip_address = "";
     SocketClientUDP udp_client (ssdp_ip_address.c_str (),
         1900); // ssdp ip and port
+
     int res = udp_client.connect ();
     if (res == (int)SocketClientUDPReturnCodes::STATUS_OK)
     {
@@ -512,32 +515,49 @@ std::string Galea::find_device ()
         if (res == msearch.size ())
         {
             unsigned char b[250];
-            res = udp_client.recv (b, 250);
-            if (res > 1)
+            auto start_time = std::chrono::high_resolution_clock::now ();
+            int run_time = 0;
+            while (run_time < params.timeout)
             {
-                std::string response ((const char *)b);
-                safe_logger (spdlog::level::trace, "Recived package {}", b);
-                std::regex rgx ("LOCATION: http://([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)");
-                std::smatch matches;
-                if (std::regex_search (response, matches, rgx) == true)
+                res = udp_client.recv (b, 250);
+                if (res > 1)
                 {
-                    if (matches.size () == 2)
+                    std::string response ((const char *)b);
+                    safe_logger (spdlog::level::trace, "Recived package {}", b);
+                    if (response.find (params.serial_number) != std::string::npos)
                     {
-                        ip_address = matches.str (1);
+                        safe_logger (spdlog::level::trace, "found device with corrrect id");
+                        std::regex rgx ("LOCATION: http://([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)");
+                        std::smatch matches;
+                        if (std::regex_search (response, matches, rgx) == true)
+                        {
+                            if (matches.size () == 2)
+                            {
+                                ip_address = matches.str (1);
+                                safe_logger (
+                                    spdlog::level::info, "use ip address {}", ip_address.c_str ());
+                                break;
+                            }
+                            else
+                            {
+                                safe_logger (spdlog::level::err, "invalid number of groups found");
+                            }
+                        }
+                        else
+                        {
+                            safe_logger (
+                                spdlog::level::err, "failed to find ip address in response");
+                        }
                     }
                     else
                     {
-                        safe_logger (spdlog::level::err, "invalid number of groups found");
+                        safe_logger (spdlog::level::trace, "found device with incorrect id");
                     }
                 }
-                else
-                {
-                    safe_logger (spdlog::level::err, "failed to find ip address in response");
-                }
-            }
-            else
-            {
-                safe_logger (spdlog::level::err, "Recv res {}", res);
+                auto end_time = std::chrono::high_resolution_clock::now ();
+                run_time =
+                    (int)std::chrono::duration_cast<std::chrono::seconds> (end_time - start_time)
+                        .count ();
             }
         }
         else
@@ -551,7 +571,5 @@ std::string Galea::find_device ()
     }
 
     udp_client.close ();
-
-    safe_logger (spdlog::level::info, "use ip address {}", ip_address.c_str ());
     return ip_address;
 }
