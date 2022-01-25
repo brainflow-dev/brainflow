@@ -21,7 +21,7 @@ using json = nlohmann::json;
 constexpr int Galea::package_size;
 constexpr int Galea::num_packages;
 constexpr int Galea::transaction_size;
-int socket_timeout = 2;
+int Galea::socket_timeout = 2;
 
 Galea::Galea (struct BrainFlowInputParams params) : Board ((int)BoardIds::GALEA_BOARD, params)
 {
