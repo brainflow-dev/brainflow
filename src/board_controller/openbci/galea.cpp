@@ -21,6 +21,7 @@ using json = nlohmann::json;
 constexpr int Galea::package_size;
 constexpr int Galea::num_packages;
 constexpr int Galea::transaction_size;
+int socket_timeout = 2;
 
 Galea::Galea (struct BrainFlowInputParams params) : Board ((int)BoardIds::GALEA_BOARD, params)
 {
@@ -62,12 +63,9 @@ int Galea::prepare_session ()
         socket = NULL;
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    if ((params.timeout > 600) || (params.timeout < 1))
-    {
-        params.timeout = 2;
-    }
-    safe_logger (spdlog::level::trace, "timeout for socket is {}", params.timeout);
-    socket->set_timeout (params.timeout);
+
+    safe_logger (spdlog::level::trace, "timeout for socket is {}", socket_timeout);
+    socket->set_timeout (socket_timeout);
     // force default settings for device
     std::string tmp;
     std::string default_settings = "o"; // use demo mode with agnd
@@ -523,10 +521,12 @@ std::string Galea::find_device ()
                 if (res > 1)
                 {
                     std::string response ((const char *)b);
-                    safe_logger (spdlog::level::trace, "Recived package {}", b);
-                    if (response.find (params.serial_number) != std::string::npos)
+                    safe_logger (spdlog::level::info, "Received package {}", b);
+                    std::regex rgx ("USN: uuid:" + params.serial_number + "::upnp:rootdevice");
+
+                    if (std::regex_search (response, rgx) == true)
                     {
-                        safe_logger (spdlog::level::trace, "found device with corrrect id");
+                        safe_logger (spdlog::level::trace, "found target id");
                         std::regex rgx ("LOCATION: http://([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)");
                         std::smatch matches;
                         if (std::regex_search (response, matches, rgx) == true)
@@ -548,10 +548,6 @@ std::string Galea::find_device ()
                             safe_logger (
                                 spdlog::level::err, "failed to find ip address in response");
                         }
-                    }
-                    else
-                    {
-                        safe_logger (spdlog::level::trace, "found device with incorrect id");
                     }
                 }
                 auto end_time = std::chrono::high_resolution_clock::now ();
