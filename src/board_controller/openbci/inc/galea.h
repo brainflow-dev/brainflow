@@ -17,7 +17,6 @@ class Galea : public Board
 {
 
 private:
-    static int socket_timeout;
     // different default gains
     const double eeg_scale_main_board = ADS1299_Vref / double ((pow (2, 23) - 1)) / 2.0 * 1000000.;
     const double eeg_scale_sister_board =
@@ -52,4 +51,5 @@ public:
     static constexpr int package_size = 72;
     static constexpr int num_packages = 19;
     static constexpr int transaction_size = package_size * num_packages;
+    static constexpr int socket_timeout = 2;
 };

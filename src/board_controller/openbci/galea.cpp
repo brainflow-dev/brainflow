@@ -21,7 +21,7 @@ using json = nlohmann::json;
 constexpr int Galea::package_size;
 constexpr int Galea::num_packages;
 constexpr int Galea::transaction_size;
-int Galea::socket_timeout = 2;
+constexpr int Galea::socket_timeout;
 
 Galea::Galea (struct BrainFlowInputParams params) : Board ((int)BoardIds::GALEA_BOARD, params)
 {
@@ -526,47 +526,22 @@ std::string Galea::find_device ()
                 if (res > 1)
                 {
                     std::string response ((const char *)b);
-                    safe_logger (spdlog::level::info, "Received package {}", b);
-                    std::regex rgx ("LOCATION: http://([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)");
+                    safe_logger (spdlog::level::trace, "Search response: {}", b);
+                    std::regex rgx_ip ("LOCATION: http://([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)");
                     std::smatch matches;
-                    if (std::regex_search (response, matches, rgx) == true)
+                    if (std::regex_search (response, matches, rgx_ip) == true)
                     {
                         if (matches.size () == 2)
                         {
-                            ip_address = matches.str (1);
-                            if (params.serial_number.empty ())
+                            std::regex rgx_sn (
+                                "USN: uuid:" + params.serial_number + "::upnp:rootdevice");
+                            if ((params.serial_number.empty ()) ||
+                                (std::regex_search (response, rgx_sn)))
                             {
-                                safe_logger (spdlog::level::trace, "found device");
-                                safe_logger (
-                                    spdlog::level::info, "use ip address {}", ip_address.c_str ());
+                                ip_address = matches.str (1);
                                 break;
                             }
-                            else
-                            {
-                                std::regex rgx (
-                                    "USN: uuid:" + params.serial_number + "::upnp:rootdevice");
-
-                                if (std::regex_search (response, rgx) == true)
-                                {
-                                    safe_logger (spdlog::level::trace, "found target id");
-                                    safe_logger (spdlog::level::info, "use ip address {}",
-                                        ip_address.c_str ());
-                                    break;
-                                }
-                                else
-                                {
-                                    ip_address = "";
-                                }
-                            }
                         }
-                        else
-                        {
-                            safe_logger (spdlog::level::err, "invalid number of groups found");
-                        }
-                    }
-                    else
-                    {
-                        safe_logger (spdlog::level::err, "failed to find ip address in response");
                     }
                 }
                 auto end_time = std::chrono::high_resolution_clock::now ();
@@ -583,6 +558,15 @@ std::string Galea::find_device ()
     else
     {
         safe_logger (spdlog::level::err, "Failed to connect socket {}", res);
+    }
+
+    if (ip_address.empty ())
+    {
+        safe_logger (spdlog::level::err, "failed to find ip address");
+    }
+    else
+    {
+        safe_logger (spdlog::level::info, "use ip address {}", ip_address.c_str ());
     }
 
     udp_client.close ();
