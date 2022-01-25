@@ -48,7 +48,7 @@ int Galea::prepare_session ()
     }
     if ((params.timeout > 600) || (params.timeout < 1))
     {
-        params.timeout = 2;
+        params.timeout = 5;
     }
 
     if (params.ip_address.empty ())
@@ -527,61 +527,46 @@ std::string Galea::find_device ()
                 {
                     std::string response ((const char *)b);
                     safe_logger (spdlog::level::info, "Received package {}", b);
-                    if (params.serial_number.empty ())
+                    std::regex rgx ("LOCATION: http://([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)");
+                    std::smatch matches;
+                    if (std::regex_search (response, matches, rgx) == true)
                     {
-                        safe_logger (spdlog::level::trace, "found device");
-                        std::regex rgx ("LOCATION: http://([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)");
-                        std::smatch matches;
-                        if (std::regex_search (response, matches, rgx) == true)
+                        if (matches.size () == 2)
                         {
-                            if (matches.size () == 2)
+                            ip_address = matches.str (1);
+                            if (params.serial_number.empty ())
                             {
-                                ip_address = matches.str (1);
+                                safe_logger (spdlog::level::trace, "found device");
                                 safe_logger (
                                     spdlog::level::info, "use ip address {}", ip_address.c_str ());
                                 break;
                             }
                             else
                             {
-                                safe_logger (spdlog::level::err, "invalid number of groups found");
-                            }
-                        }
-                        else
-                        {
-                            safe_logger (
-                                spdlog::level::err, "failed to find ip address in response");
-                        }
-                    }
-                    else
-                    {
-                        std::regex rgx ("USN: uuid:" + params.serial_number + "::upnp:rootdevice");
+                                std::regex rgx (
+                                    "USN: uuid:" + params.serial_number + "::upnp:rootdevice");
 
-                        if (std::regex_search (response, rgx) == true)
-                        {
-                            safe_logger (spdlog::level::trace, "found target id");
-                            std::regex rgx ("LOCATION: http://([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)");
-                            std::smatch matches;
-                            if (std::regex_search (response, matches, rgx) == true)
-                            {
-                                if (matches.size () == 2)
+                                if (std::regex_search (response, rgx) == true)
                                 {
-                                    ip_address = matches.str (1);
+                                    safe_logger (spdlog::level::trace, "found target id");
                                     safe_logger (spdlog::level::info, "use ip address {}",
                                         ip_address.c_str ());
                                     break;
                                 }
                                 else
                                 {
-                                    safe_logger (
-                                        spdlog::level::err, "invalid number of groups found");
+                                    ip_address = "";
                                 }
                             }
-                            else
-                            {
-                                safe_logger (
-                                    spdlog::level::err, "failed to find ip address in response");
-                            }
                         }
+                        else
+                        {
+                            safe_logger (spdlog::level::err, "invalid number of groups found");
+                        }
+                    }
+                    else
+                    {
+                        safe_logger (spdlog::level::err, "failed to find ip address in response");
                     }
                 }
                 auto end_time = std::chrono::high_resolution_clock::now ();
