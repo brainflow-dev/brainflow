@@ -14,7 +14,7 @@ C/C++ code should be compiled for each CPU architecture and for each OS and we c
 - x64 libraries for Linux, they are compiled inside manylinux docker container
 - x64/ARM libraries for MacOS, they are universal binaries
 
-If your CPU and OS is not listed above(e.g. Raspberry Pi or Windows with ARM)  you still can use BrainFlow, but you need to compile it by yourself first.
+If your CPU and OS is not listed above(e.g. Raspberry Pi or Windows with ARM)  you still can use BrainFlow, but you need to `compile <https://brainflow.readthedocs.io/en/master/BuildBrainFlow.html#compilation-of-core-module-and-c-binding/>`_ it by yourself first.
 
 Python
 -------
