@@ -71,6 +71,16 @@ classdef MLModel
             % disable logger
             MLModel.set_log_level(int32(6))
         end
+        
+        function version = get_version()
+            % get version
+            task_name = 'get_version_ml_module';
+            lib_name = MLModel.load_lib();
+            % no way to understand how it works in matlab, used this link
+            % https://nl.mathworks.com/matlabcentral/answers/131446-what-data-type-do-i-need-to-calllib-with-pointer-argument-char%
+            [exit_code, version] = calllib(lib_name, task_name, blanks(32), 32, 32);
+            MLModel.check_ec(exit_code, task_name);
+        end
    
     end
 

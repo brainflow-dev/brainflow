@@ -45,6 +45,8 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/third_party/fft/src
 )
 
+target_compile_definitions(${DATA_HANDLER_NAME} PRIVATE BRAINFLOW_VERSION=${BRAINFLOW_VERSION})
+
 set_target_properties (${DATA_HANDLER_NAME}
     PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled

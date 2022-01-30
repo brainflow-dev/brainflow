@@ -6,6 +6,7 @@
 #include "base_classifier.h"
 #include "brainflow_constants.h"
 #include "brainflow_model_params.h"
+#include "brainflow_version.h"
 #include "concentration_knn_classifier.h"
 #include "concentration_lda_classifier.h"
 #include "concentration_regression_classifier.h"
@@ -196,5 +197,12 @@ int release_all ()
         ml_models.erase (it);
     }
 
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int get_version_ml_module (char *version, int *num_chars, int max_chars)
+{
+    strncpy (version, BRAINFLOW_VERSION_STRING, max_chars);
+    *num_chars = (int)strlen (version);
     return (int)BrainFlowExitCodes::STATUS_OK;
 }

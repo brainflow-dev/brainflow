@@ -39,6 +39,8 @@ extern "C"
     // platform types and methods
     typedef const struct JNINativeInterface *JNIEnv; // A handle to use Java's JNI
     SHARED_EXPORT int CALLING_CONVENTION java_set_jnienv (JNIEnv *java_jnienv);
+    SHARED_EXPORT int CALLING_CONVENTION get_version_board_controller (
+        char *version, int *num_chars, int max_chars);
 
 #ifdef __cplusplus
 }

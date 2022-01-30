@@ -326,6 +326,14 @@ class BoardControllerDLL(object):
             ndpointer(ctypes.c_int32)
         ]
 
+        self.get_version_board_controller = self.lib.get_version_board_controller
+        self.get_version_board_controller.restype = ctypes.c_int
+        self.get_version_board_controller.argtypes = [
+            ndpointer(ctypes.c_ubyte),
+            ndpointer(ctypes.c_int32),
+            ctypes.c_int
+        ]
+
         self.get_board_descr = self.lib.get_board_descr
         self.get_board_descr.restype = ctypes.c_int
         self.get_board_descr.argtypes = [
@@ -643,6 +651,21 @@ class BoardShim(object):
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         return string.tobytes().decode('utf-8')[0:string_len[0]].split(',')
+
+    @classmethod
+    def get_version(cls) -> str:
+        """get version of brainflow libraries
+
+        :return: version
+        :rtype: str
+        :raises BrainFlowError
+        """
+        string = numpy.zeros(32).astype(numpy.ubyte)
+        string_len = numpy.zeros(1).astype(numpy.int32)
+        res = BoardControllerDLL.get_instance().get_version_board_controller(string, string_len, 32)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to request info', res)
+        return string.tobytes().decode('utf-8')[0:string_len[0]]
 
     @classmethod
     def get_board_descr(cls, board_id: int):

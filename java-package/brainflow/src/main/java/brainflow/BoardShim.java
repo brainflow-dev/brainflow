@@ -97,6 +97,8 @@ public class BoardShim
         int get_board_descr (int board_id, byte[] names, int[] len);
 
         int get_device_name (int board_id, byte[] name, int[] len);
+
+        int get_version_board_controller (byte[] version, int[] len, int max_len);
     }
 
     private static DllInterface instance;
@@ -382,6 +384,22 @@ public class BoardShim
         }
         String name = new String (str, 0, len[0]);
         return name;
+    }
+
+    /**
+     * Get version
+     */
+    public static String get_version () throws BrainFlowError
+    {
+        int[] len = new int[1];
+        byte[] str = new byte[32];
+        int ec = instance.get_version_board_controller (str, len, 32);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in get_version", ec);
+        }
+        String version = new String (str, 0, len[0]);
+        return version;
     }
 
     /**

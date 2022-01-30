@@ -1,5 +1,6 @@
 using BrainFlow
 
+println(BrainFlow.get_version())
 # specify logging library to use
 BrainFlow.enable_dev_logger(BrainFlow.BOARD_CONTROLLER)
 

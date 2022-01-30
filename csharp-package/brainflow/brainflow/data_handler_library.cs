@@ -92,6 +92,8 @@ namespace brainflow
         public static extern int get_avg_band_powers (double[] data, int rows, int cols, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int calc_stddev (double[] data, int start_pos, int end_pos, double[] output);
+        [DllImport("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_version_data_handler (byte[] version, int[] len, int max_len);
     }
 
     class DataHandlerLibrary32
@@ -149,6 +151,8 @@ namespace brainflow
         public static extern int remove_environmental_noise (double[] data, int len, int sampling_rate, int noise_type);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int calc_stddev (double[] data, int start_pos, int end_pos, double[] output);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_version_data_handler (byte[] version, int[] len, int max_len);
     }
 
     class DataHandlerLibraryLinux
@@ -206,6 +210,8 @@ namespace brainflow
         public static extern int remove_environmental_noise (double[] data, int len, int sampling_rate, int noise_type);
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int calc_stddev (double[] data, int start_pos, int end_pos, double[] output);
+        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_version_data_handler (byte[] version, int[] len, int max_len);
     }
 
     class DataHandlerLibraryMac
@@ -263,6 +269,8 @@ namespace brainflow
         public static extern int remove_environmental_noise (double[] data, int len, int sampling_rate, int noise_type);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int calc_stddev (double[] data, int start_pos, int end_pos, double[] output);
+        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_version_data_handler (byte[] version, int[] len, int max_len);
     }
 
     class DataHandlerLibrary
@@ -707,6 +715,23 @@ namespace brainflow
                     return DataHandlerLibraryLinux.calc_stddev (data, start_pos, end_pos, output);
                 case LibraryEnvironment.MacOS:
                     return DataHandlerLibraryMac.calc_stddev (data, start_pos, end_pos, output);
+            }
+
+            return (int)CustomExitCodes.GENERAL_ERROR;
+        }
+
+        public static int get_version_data_handler (byte[] version, int[] len, int max_len)
+        {
+            switch (PlatformHelper.get_library_environment())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.get_version_data_handler (version, len, max_len);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.get_version_data_handler (version, len, max_len);
+                case LibraryEnvironment.Linux:
+                    return DataHandlerLibraryLinux.get_version_data_handler (version, len, max_len);
+                case LibraryEnvironment.MacOS:
+                    return DataHandlerLibraryMac.get_version_data_handler (version, len, max_len);
             }
 
             return (int)CustomExitCodes.GENERAL_ERROR;

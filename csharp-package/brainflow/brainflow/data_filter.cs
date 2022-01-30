@@ -617,5 +617,23 @@ namespace brainflow
             }
             return band_power[0];
         }
+
+        /// <summary>
+        /// get version
+        /// </summary>
+        /// <returns>version</returns>
+        /// <exception cref="BrainFlowException"></exception>
+        public static string get_version ()
+        {
+            int[] len = new int[1];
+            byte[] str = new byte[32];
+            int res = DataHandlerLibrary.get_version_data_handler (str, len, 32);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException (res);
+            }
+            string version = System.Text.Encoding.UTF8.GetString (str, 0, len[0]);
+            return version;
+        }
     }
 }

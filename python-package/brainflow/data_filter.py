@@ -344,6 +344,14 @@ class DataHandlerDLL(object):
             ndpointer(ctypes.c_double)
         ]
 
+        self.get_version_data_handler = self.lib.get_version_data_handler
+        self.get_version_data_handler.restype = ctypes.c_int
+        self.get_version_data_handler.argtypes = [
+            ndpointer(ctypes.c_ubyte),
+            ndpointer(ctypes.c_int32),
+            ctypes.c_int
+        ]
+
 
 class DataFilter(object):
     """DataFilter class contains methods for signal processig"""
@@ -978,3 +986,18 @@ class DataFilter(object):
 
         data_arr = data_arr[0:num_rows[0] * num_cols[0]].reshape(num_rows[0], num_cols[0])
         return data_arr
+
+    @classmethod
+    def get_version(cls) -> str:
+        """get version of brainflow libraries
+
+        :return: version
+        :rtype: str
+        :raises BrainFlowError
+        """
+        string = numpy.zeros(32).astype(numpy.ubyte)
+        string_len = numpy.zeros(1).astype(numpy.int32)
+        res = DataHandlerDLL.get_instance().get_version_data_handler(string, string_len, 32)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to request info', res)
+        return string.tobytes().decode('utf-8')[0:string_len[0]]

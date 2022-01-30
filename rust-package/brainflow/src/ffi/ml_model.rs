@@ -27,3 +27,10 @@ extern "C" {
     pub fn set_log_file_ml_module(log_file: *const ::std::os::raw::c_char)
         -> ::std::os::raw::c_int;
 }
+extern "C" {
+    pub fn get_version_ml_module(
+        version: *mut ::std::os::raw::c_char,
+        num_chars: *mut ::std::os::raw::c_int,
+        max_chars: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int;
+}

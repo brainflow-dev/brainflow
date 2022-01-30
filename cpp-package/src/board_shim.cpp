@@ -517,3 +517,17 @@ std::vector<int> BoardShim::get_resistance_channels (int board_id)
     }
     return std::vector<int> (channels, channels + len);
 }
+
+std::string BoardShim::get_version ()
+{
+    char version[32];
+    int string_len = 0;
+    int res = ::get_version_board_controller (version, &string_len, 32);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to get board info", res);
+    }
+    std::string verion_str (version, string_len);
+
+    return verion_str;
+}

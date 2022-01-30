@@ -428,3 +428,17 @@ double DataFilter::calc_stddev (double *data, int start_pos, int end_pos)
     }
     return output;
 }
+
+std::string DataFilter::get_version ()
+{
+    char version[32];
+    int string_len = 0;
+    int res = ::get_version_data_handler (version, &string_len, 32);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to get board info", res);
+    }
+    std::string verion_str (version, string_len);
+
+    return verion_str;
+}

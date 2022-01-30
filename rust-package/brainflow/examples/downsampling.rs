@@ -2,11 +2,15 @@ use std::{thread, time::Duration};
 
 use brainflow::{
     board_shim, brainflow_input_params::BrainFlowInputParamsBuilder, data_filter, AggOperations,
-    BoardIds,
+    BoardIds, ml_model,
 };
 use ndarray::s;
 
 fn main() {
+    println!("{:?}", &board_shim::get_version().unwrap());
+    println!("{:?}", &data_filter::get_version().unwrap());
+    println!("{:?}", &ml_model::get_version().unwrap());
+
     brainflow::board_shim::enable_dev_board_logger().unwrap();
     let board_id = BoardIds::SyntheticBoard;
     let eeg_channels = board_shim::get_eeg_channels(board_id).unwrap();

@@ -28,6 +28,16 @@ classdef DataFilter
                 error('Non zero ec: %d, for task: %s', ec, task_name)
             end
         end
+        
+        function version = get_version()
+            % get version
+            task_name = 'get_version_data_handler';
+            lib_name = DataFilter.load_lib();
+            % no way to understand how it works in matlab, used this link
+            % https://nl.mathworks.com/matlabcentral/answers/131446-what-data-type-do-i-need-to-calllib-with-pointer-argument-char%
+            [exit_code, version] = calllib(lib_name, task_name, blanks(32), 32, 32);
+            DataFilter.check_ec(exit_code, task_name);
+        end
 
         function set_log_level(log_level)
             % set log level for DataFilter

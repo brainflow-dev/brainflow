@@ -127,6 +127,14 @@ class MLModuleDLL(object):
             ctypes.c_char_p
         ]
 
+        self.get_version_ml_module = self.lib.get_version_ml_module
+        self.get_version_ml_module.restype = ctypes.c_int
+        self.get_version_ml_module.argtypes = [
+            ndpointer(ctypes.c_ubyte),
+            ndpointer(ctypes.c_int32),
+            ctypes.c_int
+        ]
+
 
 class MLModel(object):
     """MLModel class used to calc derivative metrics from raw data
@@ -191,6 +199,21 @@ class MLModel(object):
         res = MLModuleDLL.get_instance().release_all()
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to release classifiers', res)
+
+    @classmethod
+    def get_version(cls) -> str:
+        """get version of brainflow libraries
+
+        :return: version
+        :rtype: str
+        :raises BrainFlowError
+        """
+        string = numpy.zeros(32).astype(numpy.ubyte)
+        string_len = numpy.zeros(1).astype(numpy.int32)
+        res = MLModuleDLL.get_instance().get_version_ml_module(string, string_len, 32)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to request info', res)
+        return string.tobytes().decode('utf-8')[0:string_len[0]]
 
     def prepare(self) -> None:
         """prepare classifier"""

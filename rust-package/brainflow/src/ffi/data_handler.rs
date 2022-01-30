@@ -233,3 +233,10 @@ extern "C" {
         num_elements: *mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
 }
+extern "C" {
+    pub fn get_version_data_handler(
+        version: *mut ::std::os::raw::c_char,
+        num_chars: *mut ::std::os::raw::c_int,
+        max_chars: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int;
+}

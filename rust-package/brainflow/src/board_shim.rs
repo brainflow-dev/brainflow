@@ -351,6 +351,22 @@ pub fn get_eeg_names(board_id: BoardIds) -> Result<Vec<String>> {
         .collect::<Vec<String>>())
 }
 
+/// Get BoardShim version.
+pub fn get_version() -> Result<String> {
+    let mut response_len = 0;
+    let response = CString::new(Vec::with_capacity(32))?;
+    let response = response.into_raw();
+    let (res, response) = unsafe {
+        let res = board_controller::get_version_board_controller(response, &mut response_len, 32);
+        let response = CString::from_raw(response);
+        (res, response)
+    };
+    check_brainflow_exit_code(res)?;
+    let version = response.to_str()?.split_at(response_len as usize).0;
+
+    Ok(version.to_string())
+}
+
 /// Get device name.
 pub fn get_device_name(board_id: BoardIds) -> Result<String> {
     let mut response_len = 0;
