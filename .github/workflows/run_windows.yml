@@ -19,7 +19,7 @@ jobs:
       uses: microsoft/setup-msbuild@v1.0.2
     - name: Set Version
       id: version
-      run: if ($Env:GITHUB_REF_TYPE -eq tag) { echo "::set-output name=version::$Env:GITHUB_REF_NAME" } else { echo "::set-output name=version::$Env:GITHUB_SHA" }
+      run: if ("tag" -eq $Env:GITHUB_REF_TYPE) { echo "::set-output name=version::$Env:GITHUB_REF_NAME" } else { echo "::set-output name=version::$Env:GITHUB_SHA" }
     - name: Check Version
       run: echo ${{ steps.version.outputs.version }}
     - name: Set Path
