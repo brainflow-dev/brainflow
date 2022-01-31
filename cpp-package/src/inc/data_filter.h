@@ -151,4 +151,7 @@ public:
     static BrainFlowArray<double, 2> read_file (std::string file_name);
     /// calc stddev
     static double calc_stddev (double *data, int start_pos, int end_pos);
+
+    /// get brainflow version
+    static std::string get_version ();
 };

@@ -35,6 +35,8 @@ public:
     static void set_log_level (int log_level);
     /// release all currently prepared classifiers
     static void release_all ();
+    /// get brainflow version
+    static std::string get_version ();
 
     /// initialize classifier, should be called first
     void prepare ();

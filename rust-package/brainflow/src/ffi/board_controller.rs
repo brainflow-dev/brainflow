@@ -252,3 +252,10 @@ pub type JNIEnv = *const JNINativeInterface;
 extern "C" {
     pub fn java_set_jnienv(java_jnienv: *mut JNIEnv) -> ::std::os::raw::c_int;
 }
+extern "C" {
+    pub fn get_version_board_controller(
+        version: *mut ::std::os::raw::c_char,
+        num_chars: *mut ::std::os::raw::c_int,
+        max_chars: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int;
+}

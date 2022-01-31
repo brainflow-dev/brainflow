@@ -170,6 +170,8 @@ namespace brainflow
         public static extern int get_board_descr (int board_id, byte[] board_descr, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int release_all_sessions ();
+        [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_version_board_controller (byte[] version, int[] len, int max_len);
     }
 
     public static class BoardControllerLibrary32
@@ -246,6 +248,8 @@ namespace brainflow
         public static extern int get_board_descr (int board_id, byte[] board_descr, int[] len);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int release_all_sessions ();
+        [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_version_board_controller (byte[] version, int[] len, int max_len);
     }
 
     public static class BoardControllerLibraryLinux
@@ -322,6 +326,8 @@ namespace brainflow
         public static extern int get_board_descr (int board_id, byte[] board_descr, int[] len);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int release_all_sessions ();
+        [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_version_board_controller (byte[] version, int[] len, int max_len);
     }
 
     public static class BoardControllerLibraryMac
@@ -398,6 +404,8 @@ namespace brainflow
         public static extern int get_board_descr (int board_id, byte[] board_descr, int[] len);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int release_all_sessions ();
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_version_board_controller (byte[] version, int[] len, int max_len);
     }
 
     public static class BoardControllerLibrary
@@ -772,6 +780,23 @@ namespace brainflow
                     return BoardControllerLibraryLinux.get_device_name (board_id, name, len);
                 case LibraryEnvironment.MacOS:
                     return BoardControllerLibraryMac.get_device_name (board_id, name, len);
+            }
+
+            return (int)CustomExitCodes.GENERAL_ERROR;
+        }
+
+        public static int get_version_board_controller (byte[] version, int[] len, int max_len)
+        {
+            switch (PlatformHelper.get_library_environment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_version_board_controller (version, len, max_len);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_version_board_controller (version, len, max_len);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.get_version_board_controller (version, len, max_len);
+                case LibraryEnvironment.MacOS:
+                    return BoardControllerLibraryMac.get_version_board_controller (version, len, max_len);
             }
 
             return (int)CustomExitCodes.GENERAL_ERROR;

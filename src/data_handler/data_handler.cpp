@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <math.h>
 #include <sstream>
 #include <stdexcept>
@@ -9,6 +10,7 @@
 #include <vector>
 
 #include "brainflow_constants.h"
+#include "brainflow_version.h"
 #include "data_handler.h"
 #include "downsample_operators.h"
 #include "rolling_filter.h"
@@ -1289,5 +1291,12 @@ int get_avg_band_powers (double *raw_data, int rows, int cols, int sampling_rate
     }
     delete[] bands;
 
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int get_version_data_handler (char *version, int *num_chars, int max_chars)
+{
+    strncpy (version, BRAINFLOW_VERSION_STRING, max_chars);
+    *num_chars = std::min<int> (max_chars, (int)strlen (BRAINFLOW_VERSION_STRING));
     return (int)BrainFlowExitCodes::STATUS_OK;
 }

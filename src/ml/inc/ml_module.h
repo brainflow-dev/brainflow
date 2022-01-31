@@ -15,6 +15,9 @@ extern "C"
     // logging methods
     SHARED_EXPORT int CALLING_CONVENTION set_log_level_ml_module (int log_level);
     SHARED_EXPORT int CALLING_CONVENTION set_log_file_ml_module (const char *log_file);
+
+    SHARED_EXPORT int CALLING_CONVENTION get_version_ml_module (
+        char *version, int *num_chars, int max_chars);
 #ifdef __cplusplus
 }
 #endif
