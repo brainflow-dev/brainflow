@@ -163,6 +163,7 @@ def prepare_args():
         parser.add_argument('--use-periphery', action='store_true')
 
     parser.add_argument('--build-dir', type=str, help='build folder', required=False, default=os.path.join(cur_folder, '..', 'build'))
+    parser.add_argument('--brainflow-version', type=str, help='BrainFlow Version', required=False, default='0.0.1')
     parser.add_argument('--cmake-install-prefix', type=str, help='installation folder, full path', required=False, default=os.path.join(cur_folder, '..', 'installed'))
     parser.add_argument('--use-openmp', action='store_true')
     parser.add_argument('--warnings-as-errors', action='store_true')
@@ -194,6 +195,8 @@ def config(args):
     cmd_config.append('-DCMAKE_INSTALL_PREFIX=%s' % args.cmake_install_prefix)
     if hasattr(args, 'cmake_system_version') and args.cmake_system_version:
         cmd_config.append('-DCMAKE_SYSTEM_VERSION=%s' % args.cmake_system_version)
+    if hasattr(args, 'brainflow_version') and args.brainflow_version:
+        cmd_config.append('-DBRAINFLOW_VERSION=%s' % args.brainflow_version)
     if hasattr(args, 'use_libftdi') and args.use_libftdi:
         cmd_config.append('-DUSE_LIBFTDI=ON')
     if hasattr(args, 'use_periphery') and args.use_periphery:

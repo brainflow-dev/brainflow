@@ -131,7 +131,7 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/brainalive/inc
 )
 
-target_compile_definitions(${BOARD_CONTROLLER_NAME} PRIVATE -DNOMINMAX)
+target_compile_definitions(${BOARD_CONTROLLER_NAME} PRIVATE NOMINMAX BRAINFLOW_VERSION=${BRAINFLOW_VERSION})
 
 set_target_properties (${BOARD_CONTROLLER_NAME}
     PROPERTIES

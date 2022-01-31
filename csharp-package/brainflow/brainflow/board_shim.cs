@@ -217,6 +217,24 @@ namespace brainflow
         }
 
         /// <summary>
+        /// get version
+        /// </summary>
+        /// <returns>version</returns>
+        /// <exception cref="BrainFlowException"></exception>
+        public static string get_version ()
+        {
+            int[] len = new int[1];
+            byte[] str = new byte[64];
+            int res = BoardControllerLibrary.get_version_board_controller (str, len, 64);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException (res);
+            }
+            string version = System.Text.Encoding.UTF8.GetString (str, 0, len[0]);
+            return version;
+        }
+
+        /// <summary>
         /// get row indices of EEG channels for this board, for some board we can not split EMG\EEG\.. data and return the same array for all of them
         /// </summary>
         /// <param name="board_id"></param>

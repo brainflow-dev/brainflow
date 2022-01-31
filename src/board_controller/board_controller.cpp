@@ -6,6 +6,7 @@
 #include <windows.h>
 #endif
 
+#include <algorithm>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -22,6 +23,7 @@
 #include "brainbit_bled.h"
 #include "brainflow_constants.h"
 #include "brainflow_input_params.h"
+#include "brainflow_version.h"
 #include "callibri_ecg.h"
 #include "callibri_eeg.h"
 #include "callibri_emg.h"
@@ -449,6 +451,13 @@ int release_all_sessions ()
         boards.erase (it);
     }
 
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int get_version_board_controller (char *version, int *num_chars, int max_chars)
+{
+    strncpy (version, BRAINFLOW_VERSION_STRING, max_chars);
+    *num_chars = std::min<int> (max_chars, (int)strlen (BRAINFLOW_VERSION_STRING));
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 

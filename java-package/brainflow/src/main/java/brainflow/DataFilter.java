@@ -83,6 +83,8 @@ public class DataFilter
 
         int get_band_power (double[] ampls, double[] freqs, int len, double start_freq, double stop_freq,
                 double[] output);
+
+        int get_version_data_handler (byte[] version, int[] len, int max_len);
     }
 
     private static DllInterface instance;
@@ -133,6 +135,22 @@ public class DataFilter
     public static void enable_data_logger () throws BrainFlowError
     {
         set_log_level (2);
+    }
+
+    /**
+     * Get version
+     */
+    public static String get_version () throws BrainFlowError
+    {
+        int[] len = new int[1];
+        byte[] str = new byte[64];
+        int ec = instance.get_version_data_handler (str, len, 64);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in get_version", ec);
+        }
+        String version = new String (str, 0, len[0]);
+        return version;
     }
 
     /**

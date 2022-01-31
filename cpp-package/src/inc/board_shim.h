@@ -171,6 +171,8 @@ public:
     static std::vector<int> get_resistance_channels (int board_id);
     /// release all currently prepared session
     static void release_all_sessions ();
+    /// get brainflow version
+    static std::string get_version ();
 
     int board_id;
 

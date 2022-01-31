@@ -121,5 +121,23 @@ namespace brainflow
             return val[0];
         }
 
+        /// <summary>
+        /// get version
+        /// </summary>
+        /// <returns>version</returns>
+        /// <exception cref="BrainFlowException"></exception>
+        public static string get_version ()
+        {
+            int[] len = new int[1];
+            byte[] str = new byte[64];
+            int res = MLModuleLibrary.get_version_ml_module (str, len, 64);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException (res);
+            }
+            string version = System.Text.Encoding.UTF8.GetString (str, 0, len[0]);
+            return version;
+        }
+
     }
 }

@@ -114,6 +114,14 @@ end
     return sub_string
 end
 
+@brainflow_rethrow function get_version()
+    version_string = Vector{Cuchar}(undef, 64)
+    len = Vector{Cint}(undef, 1)
+    ccall((:get_version_board_controller, BOARD_CONTROLLER_INTERFACE), Cint, (Ptr{UInt8}, Ptr{Cint}, Cint), version_string, len, 64)
+    sub_string = String(version_string)[1:len[1]]
+    return sub_string
+end
+
 @brainflow_rethrow function release_all_sessions()
     ccall((:release_all_sessions, BOARD_CONTROLLER_INTERFACE), Cint, ())
 end

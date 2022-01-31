@@ -1,3 +1,7 @@
+BoardShim.get_version()
+DataFilter.get_version()
+MLModel.get_version()
+
 BoardShim.set_log_file('brainflow.log');
 BoardShim.enable_dev_board_logger();
 

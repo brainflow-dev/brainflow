@@ -1,19 +1,22 @@
 package brainflow.examples;
 
-import java.io.InputStream;
 import java.util.Arrays;
 
-import org.apache.commons.lang3.SystemUtils;
-import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
+import brainflow.BoardShim;
 import brainflow.DataFilter;
+import brainflow.MLModel;
 
 public class CSP
 {
 
     public static void main (String[] args) throws Exception
     {
+        System.out.println (BoardShim.get_version ());
+        System.out.println (DataFilter.get_version ());
+        System.out.println (MLModel.get_version ());
+
         int n_channels = 2;
         double[] labels =
         { 0, 1 };
