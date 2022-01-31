@@ -609,6 +609,32 @@ Supported platforms:
 - Linux
 - Devices like Raspberry Pi
 
+Muse 2016 BLED
+~~~~~~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/51854219574_24c42b30d9_w.jpg
+    :width: 350px
+    :height: 350px
+
+`Muse Website <https://choosemuse.com/>`_
+
+To use this board you need to get `BLED112 dongle <https://www.silabs.com/wireless/bluetooth/bluegiga-low-energy-legacy-modules/device.bled112>`_.
+
+**Also, on Unix-like systems you may need to configure permissions for serial port or run with sudo.**
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 42
+- serial port field of BrainFlowInputParams structure
+- optional: serial number(device name)
+
+Supported platforms:
+
+- Windows
+- MacOS
+- Linux
+- Devices like Raspberry Pi
+
 Muse 2
 ~~~~~~~~~~~~~~
 
@@ -635,7 +661,7 @@ To choose this board in BoardShim constructor please specify:
 Supported platforms:
 
 - Windows 10.0.19041.0+
-- MacOS 10.15+
+- MacOS 10.15+, 12.0 to 12.2 have known issues while scanning, you need to update to 12.3+
 - Linux, compilation from source code probably will be needed
 - Devices like Raspberry Pi
 
@@ -665,14 +691,14 @@ To choose this board in BoardShim constructor please specify:
 Supported platforms:
 
 - Windows 10.0.19041.0+
-- MacOS 10.15+
+- MacOS 10.15+, 12.0 to 12.2 have known issues while scanning, you need to update to 12.3+
 - Linux, compilation from source code probably will be needed
 - Devices like Raspberry Pi
 
-Muse 2
-~~~~~~~~~~~~~~
+Muse 2016
+~~~~~~~~~~~
 
-.. image:: https://live.staticflickr.com/65535/51250482419_32ce8454dd.jpg
+.. image:: https://live.staticflickr.com/65535/51854219574_24c42b30d9_w.jpg
     :width: 350px
     :height: 350px
 
@@ -680,7 +706,7 @@ Muse 2
 
 .. compound::
 
-    On Linux systems you may need to install libdbus and we recommend to compile BrainFlow from the source code ::
+    On Linux systems you may need to install `libdbus` and we recommend to compile BrainFlow from the source code: ::
 
         sudo apt-get install libdbus-1-dev # for ubuntu
         sudo yum install dbus-devel # for centos
@@ -688,45 +714,15 @@ Muse 2
 
 To choose this board in BoardShim constructor please specify:
 
-- board_id: 38
+- board_id: 41
 - optional: MAC address
 - optional: serial number(device name)
 
 Supported platforms:
 
 - Windows 10.0.19041.0+
-- MacOS 10.15+
-- Linux, compilation from source code can be needed
-- Devices like Raspberry Pi
-
-Muse S
-~~~~~~~~~
-
-.. image:: https://live.staticflickr.com/65535/51249005962_026502fee0.jpg
-    :width: 350px
-    :height: 350px
-
-`Muse Website <https://choosemuse.com/>`_
-
-.. compound::
-
-    On Linux systems you may need to install libdbus and we recommend to compile BrainFlow from the source code ::
-
-        sudo apt-get install libdbus-1-dev # for ubuntu
-        sudo yum install dbus-devel # for centos
-        python3 tools/build.py --ble # to compile
-
-To choose this board in BoardShim constructor please specify:
-
-- board_id: 39
-- optional: MAC address
-- optional: serial number(device name)
-
-Supported platforms:
-
-- Windows 10.0.19041.0+
-- MacOS 10.15+
-- Linux, compilation from source code can be needed
+- MacOS 10.15+, 12.0 to 12.2 have known issues while scanning, you need to update to 12.3+
+- Linux, compilation from source code probably will be needed
 - Devices like Raspberry Pi
 
 Ant Neuro
