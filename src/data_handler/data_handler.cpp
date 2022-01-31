@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <math.h>
 #include <sstream>
 #include <stdexcept>
@@ -1296,6 +1297,6 @@ int get_avg_band_powers (double *raw_data, int rows, int cols, int sampling_rate
 int get_version_data_handler (char *version, int *num_chars, int max_chars)
 {
     strncpy (version, BRAINFLOW_VERSION_STRING, max_chars);
-    *num_chars = (int)strlen (version);
+    *num_chars = std::max<int> (max_chars, (int)strlen (BRAINFLOW_VERSION_STRING));
     return (int)BrainFlowExitCodes::STATUS_OK;
 }

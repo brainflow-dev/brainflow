@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -203,6 +204,6 @@ int release_all ()
 int get_version_ml_module (char *version, int *num_chars, int max_chars)
 {
     strncpy (version, BRAINFLOW_VERSION_STRING, max_chars);
-    *num_chars = (int)strlen (version);
+    *num_chars = std::max<int> (max_chars, (int)strlen (BRAINFLOW_VERSION_STRING));
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
