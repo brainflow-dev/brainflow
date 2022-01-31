@@ -634,10 +634,10 @@ where
 /// Get DataFilter version.
 pub fn get_version() -> Result<String> {
     let mut response_len = 0;
-    let response = CString::new(Vec::with_capacity(32))?;
+    let response = CString::new(Vec::with_capacity(64))?;
     let response = response.into_raw();
     let (res, response) = unsafe {
-        let res = data_handler::get_version_data_handler(response, &mut response_len, 32);
+        let res = data_handler::get_version_data_handler(response, &mut response_len, 64);
         let response = CString::from_raw(response);
         (res, response)
     };

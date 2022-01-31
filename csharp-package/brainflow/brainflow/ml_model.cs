@@ -129,8 +129,8 @@ namespace brainflow
         public static string get_version ()
         {
             int[] len = new int[1];
-            byte[] str = new byte[32];
-            int res = MLModuleLibrary.get_version_ml_module (str, len, 32);
+            byte[] str = new byte[64];
+            int res = MLModuleLibrary.get_version_ml_module (str, len, 64);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException (res);

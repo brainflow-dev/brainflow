@@ -16,6 +16,11 @@ jobs:
     # compile and prepare env
     - name: Clone Repository
       uses: actions/checkout@v2
+    - name: Set Version
+      id: version
+      run: if [ $GITHUB_REF_TYPE == "tag" ]; then echo "::set-output name=version::$GITHUB_REF_NAME"; else echo "::set-output name=version::$GITHUB_SHA"; fi
+    - name: Check Version
+      run: echo ${{ steps.version.outputs.version }}
     - name: Install Python 3.7
       uses: actions/setup-python@v2
       with:

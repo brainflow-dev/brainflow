@@ -132,8 +132,8 @@ public class MLModel
     public static String get_version () throws BrainFlowError
     {
         int[] len = new int[1];
-        byte[] str = new byte[32];
-        int ec = instance.get_version_ml_module (str, len, 32);
+        byte[] str = new byte[64];
+        int ec = instance.get_version_ml_module (str, len, 64);
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in get_version", ec);

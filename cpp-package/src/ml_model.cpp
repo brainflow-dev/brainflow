@@ -99,9 +99,9 @@ void MLModel::enable_dev_ml_logger ()
 
 std::string MLModel::get_version ()
 {
-    char version[32];
+    char version[64];
     int string_len = 0;
-    int res = ::get_version_ml_module (version, &string_len, 32);
+    int res = ::get_version_ml_module (version, &string_len, 64);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to get board info", res);

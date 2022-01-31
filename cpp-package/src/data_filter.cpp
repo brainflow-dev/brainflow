@@ -431,9 +431,9 @@ double DataFilter::calc_stddev (double *data, int start_pos, int end_pos)
 
 std::string DataFilter::get_version ()
 {
-    char version[32];
+    char version[64];
     int string_len = 0;
-    int res = ::get_version_data_handler (version, &string_len, 32);
+    int res = ::get_version_data_handler (version, &string_len, 64);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to get board info", res);

@@ -115,9 +115,9 @@ end
 end
 
 @brainflow_rethrow function get_version()
-    version_string = Vector{Cuchar}(undef, 32)
+    version_string = Vector{Cuchar}(undef, 64)
     len = Vector{Cint}(undef, 1)
-    ccall((:get_version_board_controller, BOARD_CONTROLLER_INTERFACE), Cint, (Ptr{UInt8}, Ptr{Cint}, Cint), version_string, len, 32)
+    ccall((:get_version_board_controller, BOARD_CONTROLLER_INTERFACE), Cint, (Ptr{UInt8}, Ptr{Cint}, Cint), version_string, len, 64)
     sub_string = String(version_string)[1:len[1]]
     return sub_string
 end

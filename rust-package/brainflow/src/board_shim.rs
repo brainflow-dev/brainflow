@@ -354,10 +354,10 @@ pub fn get_eeg_names(board_id: BoardIds) -> Result<Vec<String>> {
 /// Get BoardShim version.
 pub fn get_version() -> Result<String> {
     let mut response_len = 0;
-    let response = CString::new(Vec::with_capacity(32))?;
+    let response = CString::new(Vec::with_capacity(64))?;
     let response = response.into_raw();
     let (res, response) = unsafe {
-        let res = board_controller::get_version_board_controller(response, &mut response_len, 32);
+        let res = board_controller::get_version_board_controller(response, &mut response_len, 64);
         let response = CString::from_raw(response);
         (res, response)
     };

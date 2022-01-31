@@ -208,9 +208,9 @@ class MLModel(object):
         :rtype: str
         :raises BrainFlowError
         """
-        string = numpy.zeros(32).astype(numpy.ubyte)
+        string = numpy.zeros(64).astype(numpy.ubyte)
         string_len = numpy.zeros(1).astype(numpy.int32)
-        res = MLModuleDLL.get_instance().get_version_ml_module(string, string_len, 32)
+        res = MLModuleDLL.get_instance().get_version_ml_module(string, string_len, 64)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info', res)
         return string.tobytes().decode('utf-8')[0:string_len[0]]

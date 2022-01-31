@@ -78,7 +78,7 @@ classdef MLModel
             lib_name = MLModel.load_lib();
             % no way to understand how it works in matlab, used this link
             % https://nl.mathworks.com/matlabcentral/answers/131446-what-data-type-do-i-need-to-calllib-with-pointer-argument-char%
-            [exit_code, version] = calllib(lib_name, task_name, blanks(32), 32, 32);
+            [exit_code, version] = calllib(lib_name, task_name, blanks(64), 64, 64);
             MLModel.check_ec(exit_code, task_name);
         end
    
