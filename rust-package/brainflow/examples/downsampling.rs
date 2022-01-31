@@ -2,7 +2,7 @@ use std::{thread, time::Duration};
 
 use brainflow::{
     board_shim, brainflow_input_params::BrainFlowInputParamsBuilder, data_filter, AggOperations,
-    BoardIds, ml_model,
+    BoardIds,
 };
 use ndarray::s;
 

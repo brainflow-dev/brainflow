@@ -199,7 +199,6 @@ jobs:
         cd $env:GITHUB_WORKSPACE\python-package
         twine upload --skip-existing dist/*.whl --user Andrey1994 --password $env:PYPI_PASSWORD
         cd $env:GITHUB_WORKSPACE\rust-package\brainflow
-    #    cargo publish --allow-dirty
       env:
         CARGO_TOKEN: ${{ secrets.CARGO_TOKEN }}
         PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
