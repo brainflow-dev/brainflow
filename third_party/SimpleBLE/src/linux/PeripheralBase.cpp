@@ -91,7 +91,7 @@ std::map<uint16_t, ByteArray> PeripheralBase::manufacturer_data() {
 
 ByteArray PeripheralBase::read(BluetoothUUID service, BluetoothUUID characteristic) {
     // TODO: Check if the characteristic is readable.
-    return _get_characteristic(service, characteristic)->value();
+    return _get_characteristic(service, characteristic)->read();
 }
 
 void PeripheralBase::write_request(BluetoothUUID service, BluetoothUUID characteristic, ByteArray data) {
