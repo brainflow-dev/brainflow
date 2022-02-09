@@ -27,7 +27,7 @@ Python
 
 .. compound::
 
-    If you want to install it from source files or build unreleased version from Github, you should compile core module first and run ::
+    If you want to install it from source files or build unreleased version from Github, you should first compile the core module (:ref:`compilation-label`). Then run ::
 
         cd python-package
         python -m pip install -U .
@@ -80,7 +80,7 @@ You are able to download jar files directly from `release page <https://github.c
 
 .. compound::
 
-    If you want to install it from source files or build unreleased version from github you should compile core module first and run ::
+    If you want to install it from source files or build unreleased version from github you should compile core module first (:ref:`compilation-label`) and run ::
 
         cd java-package
         cd brainflow
@@ -94,7 +94,7 @@ Matlab
 
 Steps to setup Matlab binding for BrainFlow:
 
-- Compile Core Module, using instructions below. If you don't want to compile C++ code you can download Matlab package with precompiled libs from `Release page <https://github.com/brainflow-dev/brainflow/releases>`_
+- Compile Core Module, using the instructions in :ref:`compilation-label`. If you don't want to compile C++ code you can download Matlab package with precompiled libs from `Release page <https://github.com/brainflow-dev/brainflow/releases>`_
 - Open Matlab IDE and open brainflow/matlab-package/brainflow folder there
 - Add folders lib and inc to Matlab path
 - If you want to run Matlab scripts from folders different than brainflow/matlab-package/brainflow you need to add it to your Matlab path too
