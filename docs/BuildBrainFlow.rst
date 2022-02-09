@@ -14,7 +14,7 @@ C/C++ code should be compiled for each CPU architecture and for each OS and we c
 - x64 libraries for Linux, they are compiled inside manylinux docker container
 - x64/ARM libraries for MacOS, they are universal binaries
 
-If your CPU and OS is not listed above(e.g. Raspberry Pi or Windows with ARM)  you still can use BrainFlow, but you need to compile it by yourself first.
+If your CPU and OS is not listed above(e.g. Raspberry Pi or Windows with ARM)  you still can use BrainFlow, but you need to compile it by youself first. See :ref:`compilation-label` for details.
 
 Python
 -------
@@ -156,6 +156,8 @@ If your devices uses TCP/IP to send data, you need to run docker container with 
         docker run -it --device /dev/ttyUSB0 brainflow/brainflow:latest /bin/bash
         # run docker container for boards which use networking
         docker run -it --network host brainflow/brainflow:latest /bin/bash
+
+.. _compilation-label:
 
 Compilation of Core Module and C++ Binding
 -------------------------------------------
