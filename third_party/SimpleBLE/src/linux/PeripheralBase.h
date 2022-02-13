@@ -8,6 +8,7 @@
 #include <simplebluez/Characteristic.h>
 #include <simplebluez/Device.h>
 
+#include <atomic>
 #include <condition_variable>
 
 namespace SimpleBLE {
@@ -39,6 +40,8 @@ class PeripheralBase {
     void set_callback_on_disconnected(std::function<void()> on_disconnected);
 
   private:
+    std::atomic_bool battery_emulation_required_{false};
+
     std::shared_ptr<SimpleBluez::Device> device_;
 
     std::condition_variable connection_cv_;

@@ -17,6 +17,8 @@ std::shared_ptr<SimpleDBus::Proxy> Device::path_create(const std::string& path) 
 std::shared_ptr<SimpleDBus::Interface> Device::interfaces_create(const std::string& interface_name) {
     if (interface_name == "org.bluez.Device1") {
         return std::static_pointer_cast<SimpleDBus::Interface>(std::make_shared<Device1>(_conn, _path));
+    } else if (interface_name == "org.bluez.Battery1") {
+        return std::static_pointer_cast<SimpleDBus::Interface>(std::make_shared<Battery1>(_conn, _path));
     }
 
     auto interface = std::make_shared<SimpleDBus::Interface>(_conn, _bus_name, _path, interface_name);
@@ -25,6 +27,10 @@ std::shared_ptr<SimpleDBus::Interface> Device::interfaces_create(const std::stri
 
 std::shared_ptr<Device1> Device::device1() {
     return std::dynamic_pointer_cast<Device1>(interface_get("org.bluez.Device1"));
+}
+
+std::shared_ptr<Battery1> Device::battery1() {
+    return std::dynamic_pointer_cast<Battery1>(interface_get("org.bluez.Battery1"));
 }
 
 std::vector<std::shared_ptr<Service>> Device::services() { return children_casted<Service>(); }
@@ -70,3 +76,16 @@ void Device::clear_on_disconnected() { device1()->OnDisconnected.unload(); }
 void Device::set_on_services_resolved(std::function<void()> callback) { device1()->OnServicesResolved.load(callback); }
 
 void Device::clear_on_services_resolved() { device1()->OnServicesResolved.unload(); }
+
+bool Device::has_battery_interface() { return interface_exists("org.bluez.Battery1"); }
+
+uint8_t Device::battery_percentage() { return battery1()->Percentage(); }
+
+void Device::set_on_battery_percentage_changed(std::function<void(uint8_t new_value)> callback) {
+    battery1()->OnPercentageChanged.load([this, callback]() { callback(battery1()->Percentage()); });
+    // As the `property_changed` callback only occurs when the property is changed, we need to manually
+    // call the callback once to make sure the callback is called with the current value.
+    battery1()->OnPercentageChanged();
+}
+
+void Device::clear_on_battery_percentage_changed() { battery1()->OnPercentageChanged.unload(); }
