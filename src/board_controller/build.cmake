@@ -67,7 +67,8 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neurosity/notion_osc.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/oymotion/gforce_pro.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/oymotion/gforce_dual.cpp
-    ${CMAKE_HOME_DIRECTORY}/src/board_controller/ironbci/ironbci.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/hackerbci/ironbci.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/hackerbci/pieeg.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/freeeeg32/freeeeg32.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/brainbit_bled.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse_bled.cpp
@@ -122,7 +123,7 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/inc/types
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neurosity/inc
     ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/src/inc
-    ${CMAKE_HOME_DIRECTORY}/src/board_controller/ironbci/inc
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/hackerbci/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/freeeeg32/inc
     ${CMAKE_HOME_DIRECTORY}/third_party/ant_neuro
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ant_neuro/inc

@@ -2,13 +2,13 @@
 #include <vector>
 
 #include "custom_cast.h"
-#include "ironbci.h"
 #include "math.h"
+#include "pieeg.h"
 #include "timestamp.h"
 
 
 #ifdef USE_PERIPHERY
-IronBCI::IronBCI (struct BrainFlowInputParams params) : Board ((int)BoardIds::IRONBCI_BOARD, params)
+PiEEG::PiEEG (struct BrainFlowInputParams params) : Board ((int)BoardIds::PIEEG_BOARD, params)
 {
     spi = NULL;
     gpio_in = NULL;
@@ -16,13 +16,13 @@ IronBCI::IronBCI (struct BrainFlowInputParams params) : Board ((int)BoardIds::IR
     initialized = false;
 }
 
-IronBCI::~IronBCI ()
+PiEEG::~PiEEG ()
 {
     skip_logs = true;
     release_session ();
 }
 
-int IronBCI::prepare_session ()
+int PiEEG::prepare_session ()
 {
     if (initialized)
     {
@@ -68,7 +68,7 @@ int IronBCI::prepare_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int IronBCI::start_stream (int buffer_size, const char *streamer_params)
+int PiEEG::start_stream (int buffer_size, const char *streamer_params)
 {
     if (keep_alive)
     {
@@ -149,7 +149,7 @@ int IronBCI::start_stream (int buffer_size, const char *streamer_params)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int IronBCI::stop_stream ()
+int PiEEG::stop_stream ()
 {
     if (keep_alive)
     {
@@ -166,7 +166,7 @@ int IronBCI::stop_stream ()
     }
 }
 
-int IronBCI::release_session ()
+int PiEEG::release_session ()
 {
     if (initialized)
     {
@@ -193,7 +193,7 @@ int IronBCI::release_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int IronBCI::config_board (std::string config, std::string &response)
+int PiEEG::config_board (std::string config, std::string &response)
 {
     if (!initialized)
     {
@@ -202,7 +202,7 @@ int IronBCI::config_board (std::string config, std::string &response)
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
-void IronBCI::read_thread ()
+void PiEEG::read_thread ()
 {
     uint8_t buf[27] = {0};
     uint8_t zero27[27] = {0};
@@ -275,7 +275,7 @@ void IronBCI::read_thread ()
     delete[] package;
 }
 
-int IronBCI::write_reg (uint8_t reg_address, uint8_t val)
+int PiEEG::write_reg (uint8_t reg_address, uint8_t val)
 {
     uint8_t zero3[3] = {0, 0, 0};
     uint8_t reg_address_shift = 0x40 | reg_address;
@@ -290,7 +290,7 @@ int IronBCI::write_reg (uint8_t reg_address, uint8_t val)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int IronBCI::send_command (uint8_t command)
+int PiEEG::send_command (uint8_t command)
 {
     uint8_t zero = 0;
     int spi_res = spi_transfer (spi, &command, &zero, 1);
@@ -305,35 +305,35 @@ int IronBCI::send_command (uint8_t command)
 
 #else
 
-IronBCI::IronBCI (struct BrainFlowInputParams params) : Board ((int)BoardIds::IRONBCI_BOARD, params)
+PiEEG::PiEEG (struct BrainFlowInputParams params) : Board ((int)BoardIds::PIEEG_BOARD, params)
 {
 }
 
-IronBCI::~IronBCI ()
+PiEEG::~PiEEG ()
 {
 }
 
-int IronBCI::prepare_session ()
-{
-    return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
-}
-
-int IronBCI::config_board (std::string config, std::string &response)
+int PiEEG::prepare_session ()
 {
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
-int IronBCI::release_session ()
+int PiEEG::config_board (std::string config, std::string &response)
 {
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
-int IronBCI::stop_stream ()
+int PiEEG::release_session ()
 {
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
-int IronBCI::start_stream (int buffer_size, const char *streamer_params)
+int PiEEG::stop_stream ()
+{
+    return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
+}
+
+int PiEEG::start_stream (int buffer_size, const char *streamer_params)
 {
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
