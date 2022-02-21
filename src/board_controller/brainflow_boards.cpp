@@ -531,8 +531,8 @@ json brainflow_boards_json = {
             {"eeg_names", "F7,FT7,T7,CP5,CZ,C6,FC6,F4"},
             {"accel_channels", {9, 10, 11}},
             {"ppg_channels", {12, 13, 14}}
-	 }},
-         {"41",
+	    }},
+        {"41",
             {{"name", "Muse2016"},
             {"sampling_rate", 256},
             {"timestamp_channel", 11},
@@ -543,8 +543,8 @@ json brainflow_boards_json = {
             {"eeg_names", "TP9,Fp1,Fp2,TP10"},
             {"accel_channels", {5, 6, 7}},
             {"gyro_channels", {8, 9, 10}}
-         }},
-   	 {"42",
+        }},
+   	    {"42",
             {{"name", "Muse2016BLED"},
             {"sampling_rate", 256},
             {"timestamp_channel", 11},
@@ -555,7 +555,18 @@ json brainflow_boards_json = {
             {"eeg_names", "TP9,Fp1,Fp2,TP10"},
             {"accel_channels", {5, 6, 7}},
             {"gyro_channels", {8, 9, 10}}
-          }}
+        }},
+        {"43",
+            {{"name", "PiEEG"},
+            {"sampling_rate", 250},
+            {"timestamp_channel", 9},
+            {"marker_channel", 10},
+            {"package_num_channel", 0},
+            {"num_rows", 11},
+            {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
+            {"emg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
+            {"ecg_channels", {1, 2, 3, 4, 5, 6, 7, 8}}
+        }}
     }
 }};
 // clang-format on

@@ -6,28 +6,21 @@
 #include "board.h"
 #include "board_controller.h"
 #include "math.h"
-
-#ifdef USE_PERIPHERY
-#include "gpio.h"
-#include "spi.h"
-#endif
+#include "serial.h"
 
 
 class IronBCI : public Board
 {
 
 protected:
-#ifdef USE_PERIPHERY
     volatile bool keep_alive;
     bool initialized;
     std::thread streaming_thread;
-    spi_t *spi;
-    gpio_t *gpio_in;
+
+    Serial *serial;
 
     void read_thread ();
-    int write_reg (uint8_t reg_address, uint8_t val);
-    int send_command (uint8_t command);
-#endif
+    int send_to_board (const char *msg);
 
 public:
     IronBCI (struct BrainFlowInputParams params);
@@ -38,4 +31,10 @@ public:
     int stop_stream ();
     int release_session ();
     int config_board (std::string config, std::string &response);
+
+    static constexpr int ads_gain = 8;
+    static constexpr int start_byte = 0xA0; // package start byte
+    static constexpr int stop_byte = 0xC0;  // package stop byte
+    static const std::string start_command; // command which starts streaming
+    static const std::string stop_command;  // command which stops streaming
 };

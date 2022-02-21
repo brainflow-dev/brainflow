@@ -43,6 +43,7 @@
 #include "muse.h"
 #include "muse_bled.h"
 #include "notion_osc.h"
+#include "pieeg.h"
 #include "playback_file_board.h"
 #include "streaming_board.h"
 #include "synthetic_board.h"
@@ -236,6 +237,9 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
             break;
         case BoardIds::MUSE_2016_BLED_BOARD:
             board = std::shared_ptr<Board> (new MuseBLED (board_id, params));
+            break;
+        case BoardIds::PIEEG_BOARD:
+            board = std::shared_ptr<Board> (new PiEEG (params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

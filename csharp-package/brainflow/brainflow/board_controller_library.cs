@@ -88,7 +88,8 @@ namespace brainflow
         MUSE_S_BOARD = 39,
         BRAINALIVE_BOARD = 40,
         MUSE_2016_BOARD = 41,
-        MUSE_2016_BLED_BOARD = 42
+        MUSE_2016_BLED_BOARD = 42,
+        PIEEG_BOARD = 43
     };
 
 
