@@ -95,7 +95,7 @@ void MultiCastStreamer::thread_worker ()
             Sleep (1);
 #else
             usleep (100);
-#endif;
+#endif
         }
     }
     delete[] transaction;
