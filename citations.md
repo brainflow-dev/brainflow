@@ -14,6 +14,7 @@ subtitle: Publications which use BrainFlow
 CLASSIFICATION WITH LARYNGEAL IMAGERY](https://arxiv.org/pdf/2107.00045.pdf)
 * [M.G. Mussi, Development of a simultaneous Hybrid Brain-Computer Interface using SSVEP and P300](https://www.resna.org/sites/default/files/conference/2021/NewEmergingTechnology/75_Mussi/75_Mussi.pdf)
 * [Rakhmatulin, I., Parfenov, A., Traylor, Z. et al. Low-cost brain computer interface for everyday use. Exp Brain Res (2021). https://doi.org/10.1007/s00221-021-06231-4](https://link.springer.com/article/10.1007/s00221-021-06231-4)
+* [I. Rakhmatuiln, M. Zhanikeev and A. Parfenov, "Raspberry PI Shield - for measure EEG (PIEEG)," 2021 5th International Conference on Electrical, Electronics, Communication, Computer Technologies and Optimization Techniques (ICEECCOT), 2021, pp. 410-413, doi: 10.1109/ICEECCOT52851.2021.9707969.](https://ieeexplore.ieee.org/document/9707969)
 
 ## Posts
 
