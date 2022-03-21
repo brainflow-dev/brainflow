@@ -15,6 +15,8 @@ CLASSIFICATION WITH LARYNGEAL IMAGERY](https://arxiv.org/pdf/2107.00045.pdf)
 * [M.G. Mussi, Development of a simultaneous Hybrid Brain-Computer Interface using SSVEP and P300](https://www.resna.org/sites/default/files/conference/2021/NewEmergingTechnology/75_Mussi/75_Mussi.pdf)
 * [Rakhmatulin, I., Parfenov, A., Traylor, Z. et al. Low-cost brain computer interface for everyday use. Exp Brain Res (2021). https://doi.org/10.1007/s00221-021-06231-4](https://link.springer.com/article/10.1007/s00221-021-06231-4)
 * [I. Rakhmatuiln, M. Zhanikeev and A. Parfenov, "Raspberry PI Shield - for measure EEG (PIEEG)," 2021 5th International Conference on Electrical, Electronics, Communication, Computer Technologies and Optimization Techniques (ICEECCOT), 2021, pp. 410-413, doi: 10.1109/ICEECCOT52851.2021.9707969.](https://ieeexplore.ieee.org/document/9707969)
+* [Rácz, M.; Noboa, E.; Détár, B.; Nemes, Á.; Galambos, P.; Szűcs, L.; Márton, G.; Eigner, G.; Haidegger, T. PlatypOUs—A Mobile Robot Platform and Demonstration Tool Supporting STEM Education. Sensors 2022, 22, 2284. https://doi.org/10.3390/s22062284](https://www.mdpi.com/1424-8220/22/6/2284)
+* [C. Piozin et al., "Motion prediction for the sensorimotor control of hand prostheses with a brain-machine interface using EEG," 2022 10th International Winter Conference on Brain-Computer Interface (BCI), 2022, pp. 1-8, doi: 10.1109/BCI53720.2022.9734823.](https://ieeexplore.ieee.org/abstract/document/9734823)
 
 ## Posts
 
