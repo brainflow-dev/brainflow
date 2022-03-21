@@ -1,8 +1,8 @@
 ### JNA native libraries for different Android ABIs
 
-Version: 4.5.1
+Version: 5.10.0
 
-Downloaded from [JNA Github](https://github.com/java-native-access/jna/tree/4.5.1/lib/native).
+Downloaded from [JNA Github](https://github.com/java-native-access/jna/tree/5.10.0/lib/native).
 
 | JNA ABI             | Android ABI   |
 | ------------------- | ------------- |
