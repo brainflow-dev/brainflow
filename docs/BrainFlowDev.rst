@@ -48,11 +48,13 @@ Just try to briefly explain a goal of this PR.
 Instructions to add new boards to BrainFlow
 ---------------------------------------------
 
+- fork and clone the repo, create a branch other than master
 - add new board id to `BoardIds enum in C code <https://github.com/brainflow-dev/brainflow/blob/master/src/utils/inc/brainflow_constants.h>`_ and to the same enum in all bindings
 - add new object creation to `board controller C interface <https://github.com/brainflow-dev/brainflow/blob/master/src/board_controller/board_controller.cpp>`_
-- inherit your board from `Board class <https://github.com/brainflow-dev/brainflow/blob/master/src/board_controller/inc/board.h>`_ and implement all pure virtual methods, store data in DataBuffer object, use `synthetic board <https://github.com/brainflow-dev/brainflow/blob/master/src/board_controller/inc/synthetic_board.h>`_ as a reference, try to reuse code from `utils <https://github.com/brainflow-dev/brainflow/tree/master/src/utils>`_ folder
+- inherit your board from `Board class <https://github.com/brainflow-dev/brainflow/blob/master/src/board_controller/inc/board.h>`_ and implement all pure virtual methods, store data in DataBuffer object, use `synthetic board <https://github.com/brainflow-dev/brainflow/blob/master/src/board_controller/inc/synthetic_board.h>`_ as a reference, try to reuse code from `utils <https://github.com/brainflow-dev/brainflow/tree/master/src/utils>`_ folder and helpers like *DynLibBoard, BLELibBoard, etc*
 - add information about your board to `brainflow_boards.cpp <https://github.com/brainflow-dev/brainflow/blob/master/src/board_controller/brainflow_boards.cpp>`_
 - add new files to BOARD_CONTROLLER_SRC variable in `build.cmake <https://github.com/brainflow-dev/brainflow/blob/master/src/board_controller/build.cmake>`_, you may also need to add new directory to *target_include_directories*.
+- create a PR
 
 **You've just written Python, Java, C#, R, C++ ... SDKs for your board! Also, now you can use your new board with applications and frameworks built on top of BrainFlow API.**
 
