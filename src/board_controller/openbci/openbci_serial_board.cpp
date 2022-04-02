@@ -2,7 +2,9 @@
 
 #include "openbci_serial_board.h"
 #include "serial.h"
-
+#ifdef _WIN32
+#include "windows_registry.h"
+#endif
 
 OpenBCISerialBoard::OpenBCISerialBoard (struct BrainFlowInputParams params, int board_id)
     : Board (board_id, params)
@@ -182,6 +184,15 @@ int OpenBCISerialBoard::prepare_session ()
         safe_logger (spdlog::level::err, "serial port is empty");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
+#ifdef _WIN32
+    LONG res = set_ftdi_latency_in_registry (1);
+    if (res != ERROR_SUCCESS)
+    {
+        safe_logger (spdlog::level::warn,
+            "failed to adjust latency param in ftdi driver automatically, reboot or dongle "
+            "reconnection may be needed.");
+    }
+#endif
     serial = Serial::create (params.serial_port.c_str (), this);
     int port_open = open_port ();
     if (port_open != (int)BrainFlowExitCodes::STATUS_OK)
