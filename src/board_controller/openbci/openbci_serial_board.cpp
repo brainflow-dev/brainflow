@@ -188,7 +188,7 @@ int OpenBCISerialBoard::prepare_session ()
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 #ifdef _WIN32
-    LONG res = set_ftdi_latency_in_registry (1);
+    LONG res = set_ftdi_latency_in_registry (1, params.serial_port);
     if (res != ERROR_SUCCESS)
     {
         safe_logger (spdlog::level::warn,

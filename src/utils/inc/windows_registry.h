@@ -83,7 +83,7 @@ inline LONG get_str_reg_key (HKEY key, const std::wstring &path, const std::wstr
     return res;
 }
 
-inline LONG restart_usb_devices ()
+inline LONG restart_usb_device (std::string port_name)
 {
     LONG res = ERROR_SUCCESS;
     SP_DEVINFO_DATA device_info_data = {sizeof (device_info_data)};
@@ -102,7 +102,7 @@ inline LONG restart_usb_devices ()
                     &data_t, (PBYTE)friendly_name, buffer_size, &req_bufsize))
             {
                 std::string name (friendly_name);
-                if (name.find ("COM", 0) != std::string::npos)
+                if (name.find (port_name) != std::string::npos)
                 {
                     // try to restart
                     if (!SetupDiRestartDevices (dev_info, &device_info_data))
@@ -121,7 +121,7 @@ inline LONG restart_usb_devices ()
     return res;
 }
 
-inline LONG set_ftdi_latency_in_registry (int latency_ms)
+inline LONG set_ftdi_latency_in_registry (int latency_ms, std::string port_name)
 {
     HKEY ftdi_parent_key;
     DWORD child_counter = 0;
@@ -157,7 +157,7 @@ inline LONG set_ftdi_latency_in_registry (int latency_ms)
     }
     if (need_restart)
     {
-        res = restart_usb_devices ();
+        res = restart_usb_device (port_name);
     }
     else
     {
