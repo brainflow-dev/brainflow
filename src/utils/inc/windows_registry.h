@@ -94,8 +94,8 @@ inline LONG restart_usb_devices ()
         for (int i = 0; SetupDiEnumDeviceInfo (dev_info, i, &device_info_data); i++)
         {
             DWORD data_t;
-            char friendly_name[2046] = {0};
-            DWORD buffer_size = 2046;
+            char friendly_name[4096] = {0};
+            DWORD buffer_size = 4096;
             DWORD req_bufsize = 0;
             // get device description information
             if (SetupDiGetDeviceRegistryPropertyA (dev_info, &device_info_data, SPDRP_FRIENDLYNAME,
@@ -109,7 +109,7 @@ inline LONG restart_usb_devices ()
                     {
                         res = GetLastError ();
                     }
-                    Sleep (5000); // no idea about better option to wait after reboot
+                    Sleep (7000); // no idea about better option to wait after reboot
                 }
             }
         }
@@ -120,7 +120,6 @@ inline LONG restart_usb_devices ()
     }
     return res;
 }
-
 
 inline LONG set_ftdi_latency_in_registry (int latency_ms)
 {
@@ -164,5 +163,6 @@ inline LONG set_ftdi_latency_in_registry (int latency_ms)
     {
         res = ERROR_SUCCESS;
     }
+    RegCloseKey (ftdi_parent_key);
     return res;
 }

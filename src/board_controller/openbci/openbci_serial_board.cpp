@@ -138,12 +138,14 @@ int OpenBCISerialBoard::status_check ()
     int count = 0;
     int max_empty_seq = 5;
     int num_empty_attempts = 0;
+    std::string resp = "";
 
     for (int i = 0; i < 500; i++)
     {
         int res = serial->read_from_serial_port (buf, 1);
         if (res > 0)
         {
+            resp += buf[0];
             num_empty_attempts = 0;
             // board is ready if there are '$$$'
             if (buf[0] == '$')
@@ -164,7 +166,8 @@ int OpenBCISerialBoard::status_check ()
             num_empty_attempts++;
             if (num_empty_attempts > max_empty_seq)
             {
-                safe_logger (spdlog::level::err, "board doesnt send welcome characters!");
+                safe_logger (spdlog::level::err, "board doesnt send welcome characters! Msg: {}",
+                    resp.c_str ());
                 return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
             }
         }
