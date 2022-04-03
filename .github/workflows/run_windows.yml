@@ -94,29 +94,29 @@ jobs:
       shell: cmd
     - name: Build Cpp Get Data Test x64
       run: |
-        mkdir %GITHUB_WORKSPACE%\tests\cpp\get_data_demo\build
-        cd %GITHUB_WORKSPACE%\tests\cpp\get_data_demo\build
+        mkdir %GITHUB_WORKSPACE%\tests\cpp\demos\get_data_demo\build
+        cd %GITHUB_WORKSPACE%\tests\cpp\demos\get_data_demo\build
         cmake -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%GITHUB_WORKSPACE%\installed64\ ..
         cmake --build . --config Release -j 2 --parallel 2
       shell: cmd
     - name: Build Cpp Signal Processing Test x64
       run: |
-        mkdir %GITHUB_WORKSPACE%\tests\cpp\signal_processing_demo\build
-        cd %GITHUB_WORKSPACE%\tests\cpp\signal_processing_demo\build
+        mkdir %GITHUB_WORKSPACE%\tests\cpp\demos\signal_processing_demo\build
+        cd %GITHUB_WORKSPACE%\tests\cpp\demos\signal_processing_demo\build
         cmake -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%GITHUB_WORKSPACE%\installed64\ ..
         cmake --build . --config Release -j 2 --parallel 2
       shell: cmd
     - name: Build Cpp ML Test x64
       run: |
-        mkdir %GITHUB_WORKSPACE%\tests\cpp\ml_demo\build
-        cd %GITHUB_WORKSPACE%\tests\cpp\ml_demo\build
+        mkdir %GITHUB_WORKSPACE%\tests\cpp\demos\ml_demo\build
+        cd %GITHUB_WORKSPACE%\tests\cpp\demos\ml_demo\build
         cmake -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%GITHUB_WORKSPACE%\installed64\ ..
         cmake --build . --config Release -j 2 --parallel 2
       shell: cmd
     - name: Build Cpp ML Test x32
       run: |
-        mkdir %GITHUB_WORKSPACE%\tests\cpp\ml_demo\build32
-        cd %GITHUB_WORKSPACE%\tests\cpp\ml_demo\build32
+        mkdir %GITHUB_WORKSPACE%\tests\cpp\demos\ml_demo\build32
+        cd %GITHUB_WORKSPACE%\tests\cpp\demos\ml_demo\build32
         cmake -G "Visual Studio 16 2019" -A Win32 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%GITHUB_WORKSPACE%\installed32\ ..
         cmake --build . --config Release -j 2 --parallel 2
       shell: cmd
@@ -152,7 +152,7 @@ jobs:
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_multiboard_get_data.py --board-id 0 --serial-port
       shell: cmd
     - name: Cyton Windows Cpp Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 0 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\tests\cpp\demos\get_data_demo\build\Release\brainflow_get_data.exe --board-id 0 --serial-port
       shell: cmd
     - name: Cyton Windows C# Test
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\csharp-package\brainflow\tests\brainflow_get_data\bin\Release\test.exe --board-id 0 --serial-port
@@ -174,7 +174,7 @@ jobs:
       run: python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id -1 --streamer-params file://file_streamer.csv:w
       shell: cmd
     - name: Synthetic Windows Cpp Test
-      run: .\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id -1
+      run: .\tests\cpp\demos\get_data_demo\build\Release\brainflow_get_data.exe --board-id -1
       shell: cmd
     - name: Synthetic Windows C# Test
       run: |
@@ -191,13 +191,13 @@ jobs:
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_multiboard_get_data.py --board-id 2 --serial-port
       shell: cmd
     - name: Cyton Daisy Windows Cpp Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 2 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\tests\cpp\demos\get_data_demo\build\Release\brainflow_get_data.exe --board-id 2 --serial-port
       shell: cmd
     - name: Cyton Daisy Windows C# Test
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\csharp-package\brainflow\tests\brainflow_get_data\bin\Release\test.exe --board-id 2 --serial-port
       shell: cmd
     - name: Galea Windows Cpp Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\galea_udp.py %GITHUB_WORKSPACE%\tests\cpp\get_data_demo\build\Release\brainflow_get_data.exe --board-id 3 --ip-address 127.0.0.1
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\galea_udp.py %GITHUB_WORKSPACE%\tests\cpp\demos\get_data_demo\build\Release\brainflow_get_data.exe --board-id 3 --ip-address 127.0.0.1
       shell: cmd
     - name: Galea Windows C# Test
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\galea_udp.py %GITHUB_WORKSPACE%\csharp-package\brainflow\tests\brainflow_get_data\bin\Release\test.exe --board-id 3 --ip-address 127.0.0.1
@@ -256,25 +256,25 @@ jobs:
       run: python %GITHUB_WORKSPACE%\tests\python\brainflow_to_mne.py
       shell: cmd
     - name: Denoising Cpp Test
-      run: .\tests\cpp\signal_processing_demo\build\Release\denoising.exe
+      run: .\tests\cpp\demos\signal_processing_demo\build\Release\denoising.exe
       shell: cmd
     - name: Downsampling Cpp Test
-      run: .\tests\cpp\signal_processing_demo\build\Release\downsampling.exe
+      run: .\tests\cpp\demos\signal_processing_demo\build\Release\downsampling.exe
       shell: cmd
     - name: CSP Cpp Test
-      run: .\tests\cpp\signal_processing_demo\build\Release\csp.exe
+      run: .\tests\cpp\demos\signal_processing_demo\build\Release\csp.exe
       shell: cmd
     - name: Windowing Cpp Test
-      run: .\tests\cpp\signal_processing_demo\build\Release\windowing.exe
+      run: .\tests\cpp\demos\signal_processing_demo\build\Release\windowing.exe
       shell: cmd
     - name: Transforms Cpp Test
-      run: .\tests\cpp\signal_processing_demo\build\Release\transforms.exe
+      run: .\tests\cpp\demos\signal_processing_demo\build\Release\transforms.exe
       shell: cmd
     - name: Filtering Cpp Test
-      run: .\tests\cpp\signal_processing_demo\build\Release\signal_filtering.exe
+      run: .\tests\cpp\demos\signal_processing_demo\build\Release\signal_filtering.exe
       shell: cmd
     - name: Serialization Cpp Test
-      run: .\tests\cpp\signal_processing_demo\build\Release\serialization.exe
+      run: .\tests\cpp\demos\signal_processing_demo\build\Release\serialization.exe
       shell: cmd
     # Tests for MLModule
     - name: EEG Metrics Python Test
@@ -284,10 +284,10 @@ jobs:
       run: python %GITHUB_WORKSPACE%\tests\python\eeg_metrics_ci.py --board-id -1 --metric 0 --classifier 2
       shell: cmd
     - name: EEG Metrics CI Cpp Test
-      run: .\tests\cpp\ml_demo\build\Release\eeg_metrics_ci.exe --board-id -1 --metric 1 --classifier 2
+      run: .\tests\cpp\demos\ml_demo\build\Release\eeg_metrics_ci.exe --board-id -1 --metric 1 --classifier 2
       shell: cmd
     - name: EEG Metrics CI Cpp x32 Test
-      run: .\tests\cpp\ml_demo\build32\Release\eeg_metrics_ci.exe --board-id -1 --metric 1 --classifier 2
+      run: .\tests\cpp\demos\ml_demo\build32\Release\eeg_metrics_ci.exe --board-id -1 --metric 1 --classifier 2
       shell: cmd
     - name: EEG Metrics CI C# Test
       run: .\csharp-package\brainflow\tests\eeg_metrics\bin\Release\test.exe
