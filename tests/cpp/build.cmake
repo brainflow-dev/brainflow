@@ -29,12 +29,22 @@ if (BUILD_TESTS)
     enable_testing()
 
     SET (TESTS_SRC
-        ${CMAKE_HOME_DIRECTORY}/tests/cpp/hello_test.cc
+        ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/bluetooth_functions.cpp
+        ${CMAKE_HOME_DIRECTORY}/tests/cpp/src/utils/bluetooth/socket_bluetooth_test.cpp
+        ${CMAKE_HOME_DIRECTORY}/tests/cpp/src/utils/bluetooth/bluetooth_functions_unittest.cpp
     )
     
     add_executable(
         ${TESTS_EXE_NAME}
         ${TESTS_SRC}
+    )
+
+    target_include_directories (
+        ${TESTS_EXE_NAME} PRIVATE
+        ${CMAKE_HOME_DIRECTORY}/src/utils/inc
+        ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/inc
+        ${CMAKE_HOME_DIRECTORY}/tests/cpp/src/utils/bluetooth/inc
+        ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/macos_third_party
     )
     
     target_link_libraries(
