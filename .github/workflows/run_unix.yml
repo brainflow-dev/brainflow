@@ -64,7 +64,7 @@ jobs:
       run: |
         mkdir $GITHUB_WORKSPACE/build
         cd $GITHUB_WORKSPACE/build
-        cmake -G Ninja -DBRAINFLOW_VERSION=$BRAINFLOW_VERSION -DBUILD_BLUETOOTH=ON -DWARNINGS_AS_ERRORS=ON -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
+        cmake -G Ninja -DBRAINFLOW_VERSION=$BRAINFLOW_VERSION -DBUILD_BLUETOOTH=ON -DBUILD_TESTS=ON -DWARNINGS_AS_ERRORS=ON -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
         ninja
         ninja install
       env:
@@ -74,7 +74,7 @@ jobs:
       run: |
         mkdir $GITHUB_WORKSPACE/build
         cd $GITHUB_WORKSPACE/build
-        cmake -DBRAINFLOW_VERSION=$BRAINFLOW_VERSION -DBUILD_BLUETOOTH=ON -DWARNINGS_AS_ERRORS=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
+        cmake -DBRAINFLOW_VERSION=$BRAINFLOW_VERSION -DBUILD_BLUETOOTH=ON -DBUILD_TESTS=ON -DWARNINGS_AS_ERRORS=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
         make
         make install
       env:
@@ -126,6 +126,8 @@ jobs:
       run: sudo -H python3 -m pip install -r $GITHUB_WORKSPACE/tests/python/requirements.txt
 
     # start testing
+    - name: Run unit tests
+      run: $GITHUB_WORKSPACE/build/tests/brainflow_tests
     - name: Run All Julia Tests
       run: |
         export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/installed/lib:$LD_LIBRARY_PATH
