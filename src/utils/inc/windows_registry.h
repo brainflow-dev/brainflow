@@ -86,6 +86,7 @@ inline LONG get_str_reg_key (HKEY key, const std::wstring &path, const std::wstr
 inline LONG restart_usb_device (std::string port_name)
 {
     LONG res = ERROR_SUCCESS;
+    bool need_wait = false;
     SP_DEVINFO_DATA device_info_data = {sizeof (device_info_data)};
     HDEVINFO dev_info = SetupDiGetClassDevs (&GUID_FTDI_PORTS, 0, 0, DIGCF_PRESENT);
     if (dev_info != INVALID_HANDLE_VALUE)
@@ -105,11 +106,14 @@ inline LONG restart_usb_device (std::string port_name)
                 if (name.find (port_name) != std::string::npos)
                 {
                     // try to restart
-                    if (!SetupDiRestartDevices (dev_info, &device_info_data))
+                    if (SetupDiRestartDevices (dev_info, &device_info_data))
+                    {
+                        need_wait = true;
+                    }
+                    else
                     {
                         res = GetLastError ();
                     }
-                    Sleep (7000); // no idea about better option to wait after reboot
                 }
             }
         }
@@ -117,6 +121,10 @@ inline LONG restart_usb_device (std::string port_name)
     else
     {
         res = GetLastError ();
+    }
+    if (need_wait)
+    {
+        Sleep (7000); // no idea about better option to wait after reboot
     }
     return res;
 }
