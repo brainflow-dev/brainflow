@@ -170,9 +170,9 @@ table td { border: 1px solid whitesmoke; }
 
 .card { color: #424242; padding: 10px; background-color: white; transition: box-shadow 0.3s linear; height: 100%; }
 
-.card:hover { box-shadow: inset 0 -2px 0 0 #E7C60B; filter: none; }
+.card:hover { box-shadow: inset 0 -2px 0 0 khaki; filter: none; }
 
-.card:hover a h3, .card:hover h4 { color: orangered; }
+.card:hover a h3, .card:hover h4 { color: indianred; }
 
 .card p { font-size: 90%; }
 
@@ -188,7 +188,7 @@ table td { border: 1px solid whitesmoke; }
 
 .key-features-section { background-color: white; color: #424242; }
 
-.key-features-section h3 { color: orangered; }
+.key-features-section h3 { color: indianred; }
 
 .key-features-section .btn { background-color: whitesmoke; }
 
@@ -216,7 +216,7 @@ table td { border: 1px solid whitesmoke; }
 
 .medium-widget-article__item:hover { box-shadow: inset 0 -2px 0 0 #048ccc; filter: none; border-bottom: 1px white solid; }
 
-.medium-widget-article__item:hover a.medium-widget-article__title { color: orangered; }
+.medium-widget-article__item:hover a.medium-widget-article__title { color: indianred; }
 
 .medium-widget-article__title { font-weight: 300; }
 

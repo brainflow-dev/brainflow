@@ -69,7 +69,7 @@ subtitle: How Biosensors Work
                                 <div>
                                     <div class="card-header-title">
                                         <h3>GitHub</h3>
-                                        <img src="https://live.staticflickr.com/65535/49928716881_b95cb78f94_c.jpg">
+                                        <img src="/assets/img/github_transp.png">
                                     </div>
                                     <p class="card-summary">Report bugs, request features, discuss issues, and more.</p>
                                 </div>
@@ -81,7 +81,7 @@ subtitle: How Biosensors Work
                                 <div>
                                     <div class="card-header-title">
                                         <h3>Slack</h3>
-                                        <img src="https://live.staticflickr.com/65535/49928235853_e69c6461d7_c.jpg">
+                                        <img src="/assets/img/slack_transp.png">
                                     </div>
                                     <p class="card-summary">Browse and join discussions on BCI devices, biosensors and BrainFlow.</p>
                                 </div>
@@ -93,9 +93,9 @@ subtitle: How Biosensors Work
                                 <div>
                                     <div class="card-header-title">
                                         <h3>Support us</h3>
-                                        <img src="https://live.staticflickr.com/65535/50905711412_d911c5a852_c.jpg">
+                                        <img src="/assets/img/support_transp.png">
                                     </div>
-                                    <p class="card-summary">Help us to develop BrainFlow.</p>
+                                    <p class="card-summary">Help us to develop BrainFlow and integrate new devices.</p>
                                 </div>
                             </a>
                         </div>
@@ -110,8 +110,10 @@ subtitle: How Biosensors Work
                     {% for post in site.posts limit:3 %}
                     <div class="col-4"><div class="card">
                         <a href="{{ post.url | relative_url }}">
-                            <div class="card-text">
+                            <div class="card-header-title">    
                                 <h3>{{ post.title }}</h3>
+                            </div>
+                            <div class="card-text">
                                 <p>{{ post.excerpt | strip_html | xml_escape | truncatewords: site.excerpt_length }}
         {% assign excerpt_word_count = post.excerpt | number_of_words %}
         {% if post.content != post.excerpt or excerpt_word_count > site.excerpt_length %}
