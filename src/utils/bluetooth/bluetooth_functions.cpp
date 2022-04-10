@@ -16,7 +16,7 @@ int bluetooth_open_device (int port, char *mac_addr)
 {
     if (mac_addr == nullptr || port < 0)
     {
-        return (int)SocketBluetoothReturnCodes::GENERAL_ERROR;
+        return (int)SocketBluetoothReturnCodes::PARAMETER_ERROR;
     }
 
     std::lock_guard<std::mutex> lock (mutex);
@@ -43,7 +43,7 @@ int bluetooth_get_data (char *data, int size, char *mac_addr)
 {
     if (data == nullptr || mac_addr == nullptr || size < 0)
     {
-        return 0;
+        return (int)SocketBluetoothReturnCodes::PARAMETER_ERROR;
     }
 
     std::lock_guard<std::mutex> lock (mutex);
@@ -52,7 +52,7 @@ int bluetooth_get_data (char *data, int size, char *mac_addr)
     auto device_it = devices.find (key);
     if (device_it == devices.end ())
     {
-        return 0;
+        return (int)SocketBluetoothReturnCodes::DEVICE_IS_NOT_CREATED_ERROR;
     }
     return device_it->second->recv (data, size);
 }
@@ -61,7 +61,7 @@ int bluetooth_write_data (char *data, int size, char *mac_addr)
 {
     if (data == nullptr || mac_addr == nullptr || size < 0)
     {
-        return 0;
+        return (int)SocketBluetoothReturnCodes::PARAMETER_ERROR;
     }
 
     std::lock_guard<std::mutex> lock (mutex);
@@ -70,13 +70,18 @@ int bluetooth_write_data (char *data, int size, char *mac_addr)
     auto device_it = devices.find (key);
     if (device_it == devices.end ())
     {
-        return 0;
+        return (int)SocketBluetoothReturnCodes::DEVICE_IS_NOT_CREATED_ERROR;
     }
     return device_it->second->send (data, size);
 }
 
 int bluetooth_close_device (char *mac_addr)
 {
+    if (mac_addr == nullptr)
+    {
+        return (int)SocketBluetoothReturnCodes::PARAMETER_ERROR;
+    }
+
     std::lock_guard<std::mutex> lock (mutex);
 
     std::string key = mac_addr;
@@ -92,6 +97,11 @@ int bluetooth_close_device (char *mac_addr)
 
 int bluetooth_discover_device (char *device_selector, char *mac_addr, int *len)
 {
+    if (device_selector == nullptr || mac_addr == nullptr || len == nullptr)
+    {
+        return (int)SocketBluetoothReturnCodes::PARAMETER_ERROR;
+    }
+
     std::lock_guard<std::mutex> lock (mutex);
     std::pair<std::string, int> discovered = SocketBluetooth::discover (device_selector);
     if (!discovered.first.empty ())

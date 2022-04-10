@@ -65,7 +65,7 @@ int SocketBluetooth::bytes_available ()
 int SocketBluetooth::close ()
 {
     return port == BRAINFLOW_TEST_BLUETOOTH_CANNOT_CLOSE_PORT ?
-        (int)SocketBluetoothReturnCodes::GENERAL_ERROR :
+        (int)SocketBluetoothReturnCodes::DISCONNECT_ERROR :
         (int)SocketBluetoothReturnCodes::STATUS_OK;
 }
 
@@ -75,7 +75,7 @@ std::pair<std::string, int> SocketBluetooth::discover (char *device_selector)
         strcmp (device_selector, BRAINFLOW_TEST_BLUETOOTH_DISCOVERABLE_SELECTOR) != 0)
     {
         return std::make_pair<std::string, int> (
-            "", (int)SocketBluetoothReturnCodes::DEVICE_IS_NOT_CREATED_ERROR);
+            "", (int)SocketBluetoothReturnCodes::DEVICE_IS_NOT_DISCOVERABLE);
     }
 
     return std::make_pair<std::string, int> (
