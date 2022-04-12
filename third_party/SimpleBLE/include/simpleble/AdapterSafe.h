@@ -10,7 +10,7 @@ namespace Safe {
 class Adapter : public SimpleBLE::Adapter {
   public:
     Adapter(SimpleBLE::Adapter& adapter);
-    ~Adapter();
+    virtual ~Adapter();
 
     std::optional<std::string> identifier() noexcept;
     std::optional<BluetoothAddress> address() noexcept;

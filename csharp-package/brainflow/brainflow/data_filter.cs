@@ -236,6 +236,24 @@ namespace brainflow
         }
 
         /// <summary>
+        /// calc stddev
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="start_pos"></param>
+        /// /// <param name="end_pos"></param>
+        /// <returns>stddev</returns>
+        public static double calc_stddev (double[] data, int start_pos, int end_pos)
+        {
+            double[] output = new double[1]; 
+            int res = DataHandlerLibrary.calc_stddev (data, start_pos, end_pos, output);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException(res);
+            }
+            return output[0];
+        }
+
+        /// <summary>
         /// perform wavelet transform
         /// </summary>
         /// <param name="data">data for wavelet transform</param>
@@ -598,6 +616,24 @@ namespace brainflow
                 throw new BrainFlowException (res);
             }
             return band_power[0];
+        }
+
+        /// <summary>
+        /// get version
+        /// </summary>
+        /// <returns>version</returns>
+        /// <exception cref="BrainFlowException"></exception>
+        public static string get_version ()
+        {
+            int[] len = new int[1];
+            byte[] str = new byte[64];
+            int res = DataHandlerLibrary.get_version_data_handler (str, len, 64);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException (res);
+            }
+            string version = System.Text.Encoding.UTF8.GetString (str, 0, len[0]);
+            return version;
         }
     }
 }

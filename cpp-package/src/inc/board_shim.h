@@ -169,6 +169,10 @@ public:
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static std::vector<int> get_resistance_channels (int board_id);
+    /// release all currently prepared session
+    static void release_all_sessions ();
+    /// get brainflow version
+    static std::string get_version ();
 
     int board_id;
 

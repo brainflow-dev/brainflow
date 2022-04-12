@@ -37,6 +37,10 @@ namespace brainflow
         public static extern int release(string input_json);
         [DllImport ("MLModule.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int predict(double[] data, int data_len, double[] output, string input_json);
+        [DllImport ("MLModule.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int release_all ();
+        [DllImport ("MLModule.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_version_ml_module (byte[] version, int[] len, int max_len);
     }
 
     public static class MLModuleLibrary32
@@ -51,6 +55,10 @@ namespace brainflow
         public static extern int release(string input_json);
         [DllImport ("MLModule32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int predict(double[] data, int data_len, double[] output, string input_json);
+        [DllImport ("MLModule32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int release_all ();
+        [DllImport ("MLModule32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_version_ml_module (byte[] version, int[] len, int max_len);
     }
 
     public static class MLModuleLibraryLinux
@@ -65,6 +73,10 @@ namespace brainflow
         public static extern int release (string input_json);
         [DllImport ("libMLModule.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int predict (double[] data, int data_len, double[] output, string input_json);
+        [DllImport ("libMLModule.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int release_all ();
+        [DllImport ("libMLModule.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_version_ml_module (byte[] version, int[] len, int max_len);
     }
 
     public static class MLModuleLibraryMac
@@ -79,6 +91,10 @@ namespace brainflow
         public static extern int release (string input_json);
         [DllImport ("libMLModule.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int predict (double[] data, int data_len, double[] output, string input_json);
+        [DllImport ("libMLModule.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int release_all ();
+        [DllImport ("libMLModule.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_version_ml_module (byte[] version, int[] len, int max_len);
     }
 
 
@@ -165,6 +181,40 @@ namespace brainflow
                     return MLModuleLibraryLinux.predict (data, data_len, output, input_json);
                 case LibraryEnvironment.MacOS:
                     return MLModuleLibraryMac.predict (data, data_len, output, input_json);
+            }
+
+            return (int)CustomExitCodes.GENERAL_ERROR;
+        }
+
+        public static int release_all ()
+        {
+            switch (PlatformHelper.get_library_environment())
+            {
+                case LibraryEnvironment.x64:
+                    return MLModuleLibrary64.release_all ();
+                case LibraryEnvironment.x86:
+                    return MLModuleLibrary32.release_all ();
+                case LibraryEnvironment.Linux:
+                    return MLModuleLibraryLinux.release_all ();
+                case LibraryEnvironment.MacOS:
+                    return MLModuleLibraryMac.release_all ();
+            }
+
+            return (int)CustomExitCodes.GENERAL_ERROR;
+        }
+
+        public static int get_version_ml_module (byte[] version, int[] len, int max_len)
+        {
+            switch (PlatformHelper.get_library_environment())
+            {
+                case LibraryEnvironment.x64:
+                    return MLModuleLibrary64.get_version_ml_module (version, len, max_len);
+                case LibraryEnvironment.x86:
+                    return MLModuleLibrary32.get_version_ml_module (version, len, max_len);
+                case LibraryEnvironment.Linux:
+                    return MLModuleLibraryLinux.get_version_ml_module (version, len, max_len);
+                case LibraryEnvironment.MacOS:
+                    return MLModuleLibraryMac.get_version_ml_module (version, len, max_len);
             }
 
             return (int)CustomExitCodes.GENERAL_ERROR;

@@ -179,6 +179,25 @@ pub fn perform_rolling_filter(
     Ok(())
 }
 
+/// Calc stddev.
+pub fn calc_stddev(
+    data: &mut [f64],
+    start_pos: usize,
+    end_pos: usize
+) -> Result<f64> {
+    let mut output = 0.0 as f64;
+    let res = unsafe {
+        data_handler::calc_stddev(
+            data.as_mut_ptr() as *mut c_double,
+            start_pos as c_int,
+            end_pos as c_int,
+            &mut output,
+        )
+    };
+    check_brainflow_exit_code(res)?;
+    Ok(output as f64)
+}
+
 /// Perform data downsampling, it doesnt apply lowpass filter for you, it just aggregates several data points.
 pub fn perform_downsampling(
     data: &mut [f64],
@@ -610,6 +629,22 @@ where
         )
     };
     Ok(check_brainflow_exit_code(res)?)
+}
+
+/// Get DataFilter version.
+pub fn get_version() -> Result<String> {
+    let mut response_len = 0;
+    let response = CString::new(Vec::with_capacity(64))?;
+    let response = response.into_raw();
+    let (res, response) = unsafe {
+        let res = data_handler::get_version_data_handler(response, &mut response_len, 64);
+        let response = CString::from_raw(response);
+        (res, response)
+    };
+    check_brainflow_exit_code(res)?;
+    let version = response.to_str()?.split_at(response_len as usize).0;
+
+    Ok(version.to_string())
 }
 
 #[cfg(test)]

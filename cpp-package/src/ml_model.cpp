@@ -6,6 +6,15 @@
 using json = nlohmann::json;
 
 
+void MLModel::release_all ()
+{
+    int res = ::release_all ();
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to release classifiers", res);
+    }
+}
+
 std::string params_to_string (struct BrainFlowModelParams params)
 {
     json j;
@@ -86,4 +95,18 @@ void MLModel::disable_ml_logger ()
 void MLModel::enable_dev_ml_logger ()
 {
     MLModel::set_log_level ((int)LogLevels::LEVEL_TRACE);
+}
+
+std::string MLModel::get_version ()
+{
+    char version[64];
+    int string_len = 0;
+    int res = ::get_version_ml_module (version, &string_len, 64);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to get board info", res);
+    }
+    std::string verion_str (version, string_len);
+
+    return verion_str;
 }

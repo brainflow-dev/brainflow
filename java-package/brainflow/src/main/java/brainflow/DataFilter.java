@@ -67,6 +67,8 @@ public class DataFilter
 
         int set_log_file_data_handler (String log_file);
 
+        int calc_stddev (double[] data, int start_pos, int end_pos, double[] output);
+
         int get_num_elements_in_file (String file_name, int[] num_elements);
 
         int get_nearest_power_of_two (int value, int[] output);
@@ -81,6 +83,8 @@ public class DataFilter
 
         int get_band_power (double[] ampls, double[] freqs, int len, double start_freq, double stop_freq,
                 double[] output);
+
+        int get_version_data_handler (byte[] version, int[] len, int max_len);
     }
 
     private static DllInterface instance;
@@ -134,6 +138,22 @@ public class DataFilter
     }
 
     /**
+     * Get version
+     */
+    public static String get_version () throws BrainFlowError
+    {
+        int[] len = new int[1];
+        byte[] str = new byte[64];
+        int ec = instance.get_version_data_handler (str, len, 64);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in get_version", ec);
+        }
+        String version = new String (str, 0, len[0]);
+        return version;
+    }
+
+    /**
      * enable Data logger with level TRACE
      */
     public static void enable_dev_data_logger () throws BrainFlowError
@@ -159,6 +179,20 @@ public class DataFilter
         {
             throw new BrainFlowError ("Error in set_log_file", ec);
         }
+    }
+
+    /**
+     * calc stddev
+     */
+    public static double calc_stddev (double[] data, int start_pos, int end_pos) throws BrainFlowError
+    {
+        double[] output = new double[1];
+        int ec = instance.calc_stddev (data, start_pos, end_pos, output);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in set_log_file", ec);
+        }
+        return output[0];
     }
 
     /**

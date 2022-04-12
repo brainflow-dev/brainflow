@@ -32,6 +32,9 @@ class Generator:
     def get_arch(self):
         raise NotImplementedError
 
+    def get_sdk_version(self):
+        raise NotImplementedError
+
     def __lt__(self, other):
         return self.priority < other.priority
 
@@ -44,10 +47,25 @@ class Generator:
     def __ge__(self, other):
         return self.priority >= other.priority
 
+
+class VS2022(Generator):
+
+    def __init__(self):
+        super(VS2022, self).__init__(10)
+
+    def get_generator(self):
+        return 'Visual Studio 17 2022'
+
+    def get_arch(self):
+        return 'x64'
+
+    def get_sdk_version(self):
+        return '8.1'
+
 class VS2019(Generator):
 
     def __init__(self):
-        super(VS2019, self).__init__(10)
+        super(VS2019, self).__init__(15)
 
     def get_generator(self):
         return 'Visual Studio 16 2019'
@@ -55,6 +73,8 @@ class VS2019(Generator):
     def get_arch(self):
         return 'x64'
 
+    def get_sdk_version(self):
+        return '8.1'
 
 class VS2017(Generator):
 
@@ -67,6 +87,8 @@ class VS2017(Generator):
     def get_arch(self):
         return None
 
+    def get_sdk_version(self):
+        return '8.1'
 
 def get_win_generators():
     result = list()
@@ -74,6 +96,8 @@ def get_win_generators():
         output = subprocess.check_output(['C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe', '-property', 'displayName'])
         output = output.decode('utf-8', 'ignore')
         print(output)
+        if '2022' in output:
+            result.append(VS2022())
         if '2019' in output:
             result.append(VS2019())
         if '2017' in output:
@@ -105,6 +129,7 @@ def prepare_args():
         if not generators:
             parser.add_argument('--generator', type=str, help='generator for CMake', required=True)
             parser.add_argument('--arch', type=str, help='arch for CMake', required=False)
+            parser.add_argument('--cmake-system-version', type=str, help='system version for win', required=False)
         else:
             generator = generators[0]
             parser.add_argument('--generator', type=str, help='generator for CMake', required=False, default=generator.get_generator())
@@ -112,7 +137,10 @@ def prepare_args():
                 parser.add_argument('--arch', type=str, choices=['x64', 'Win32', 'ARM', 'ARM64'], help='arch for CMake', required=False, default=generator.get_arch())
             else:
                 parser.add_argument('--arch', type=str, choices=['x64', 'Win32', 'ARM', 'ARM64'], help='arch for CMake', required=False)
-        parser.add_argument('--cmake-system-version', type=str, help='system version for win', required=False, default='8.1')
+            if generator.get_sdk_version() is not None:
+                parser.add_argument('--cmake-system-version', type=str, help='system version for win', required=False, default=generator.get_sdk_version())
+            else:
+                parser.add_argument('--cmake-system-version', type=str, help='system version for win', required=False)
     elif platform.system() == 'Darwin':
         macos_ver = platform.mac_ver()[0]
         versions = [int(x) for x in macos_ver.split('.')]
@@ -135,6 +163,7 @@ def prepare_args():
         parser.add_argument('--use-periphery', action='store_true')
 
     parser.add_argument('--build-dir', type=str, help='build folder', required=False, default=os.path.join(cur_folder, '..', 'build'))
+    parser.add_argument('--brainflow-version', type=str, help='BrainFlow Version', required=False, default='0.0.1')
     parser.add_argument('--cmake-install-prefix', type=str, help='installation folder, full path', required=False, default=os.path.join(cur_folder, '..', 'installed'))
     parser.add_argument('--use-openmp', action='store_true')
     parser.add_argument('--onnx', action='store_true')
@@ -167,6 +196,8 @@ def config(args):
     cmd_config.append('-DCMAKE_INSTALL_PREFIX=%s' % args.cmake_install_prefix)
     if hasattr(args, 'cmake_system_version') and args.cmake_system_version:
         cmd_config.append('-DCMAKE_SYSTEM_VERSION=%s' % args.cmake_system_version)
+    if hasattr(args, 'brainflow_version') and args.brainflow_version:
+        cmd_config.append('-DBRAINFLOW_VERSION=%s' % args.brainflow_version)
     if hasattr(args, 'use_libftdi') and args.use_libftdi:
         cmd_config.append('-DUSE_LIBFTDI=ON')
     if hasattr(args, 'use_periphery') and args.use_periphery:

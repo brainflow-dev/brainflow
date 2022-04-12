@@ -161,6 +161,14 @@ extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
+    pub fn calc_stddev(
+        data: *mut f64,
+        start_pos: ::std::os::raw::c_int,
+        end_pos: ::std::os::raw::c_int,
+        output: *mut f64,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
     pub fn get_psd_welch(
         data: *mut f64,
         data_len: ::std::os::raw::c_int,
@@ -223,5 +231,12 @@ extern "C" {
     pub fn get_num_elements_in_file(
         file_name: *const ::std::os::raw::c_char,
         num_elements: *mut ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn get_version_data_handler(
+        version: *mut ::std::os::raw::c_char,
+        num_chars: *mut ::std::os::raw::c_int,
+        max_chars: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
 }

@@ -43,5 +43,9 @@ classdef BoardIDs < int32
         ENOPHONE_BOARD(37)
         MUSE_2_BOARD(38)
         MUSE_S_BOARD(39)
+        BRAINALIVE_BOARD (40)
+        MUSE_2016_BOARD (41)
+        MUSE_2016_BLED_BOARD (42)
+        PIEEG_BOARD (43)
     end
 end

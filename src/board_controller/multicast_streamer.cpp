@@ -89,6 +89,14 @@ void MultiCastStreamer::thread_worker ()
             db->get_data (num_packages, transaction);
             server->send (transaction, sizeof (double) * transaction_len);
         }
+        else
+        {
+#ifdef _WIN32
+            Sleep (1);
+#else
+            usleep (100);
+#endif
+        }
     }
     delete[] transaction;
 }

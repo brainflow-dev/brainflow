@@ -165,6 +165,15 @@ class DataHandlerDLL(object):
             ctypes.c_int
         ]
 
+        self.calc_stddev = self.lib.calc_stddev
+        self.calc_stddev.restype = ctypes.c_int
+        self.calc_stddev.argtypes = [
+            ndpointer(ctypes.c_double),
+            ctypes.c_int,
+            ctypes.c_int,
+            ndpointer(ctypes.c_double)
+        ]
+
         self.set_log_level_data_handler = self.lib.set_log_level_data_handler
         self.set_log_level_data_handler.restype = ctypes.c_int
         self.set_log_level_data_handler.argtypes = [
@@ -333,6 +342,14 @@ class DataHandlerDLL(object):
             ctypes.c_double,
             ctypes.c_double,
             ndpointer(ctypes.c_double)
+        ]
+
+        self.get_version_data_handler = self.lib.get_version_data_handler
+        self.get_version_data_handler.restype = ctypes.c_int
+        self.get_version_data_handler.argtypes = [
+            ndpointer(ctypes.c_ubyte),
+            ndpointer(ctypes.c_int32),
+            ctypes.c_int
         ]
 
 
@@ -536,6 +553,22 @@ class DataFilter(object):
         res = DataHandlerDLL.get_instance().perform_rolling_filter(data, data.shape[0], period, operation)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to smooth data', res)
+
+    @classmethod
+    def calc_stddev(cls, data: NDArray[Float64]):
+        """calc stddev
+
+        :param data: input array
+        :type data: NDArray[Float64]
+        :return: stddev
+        :rtype: float
+        """
+        check_memory_layout_row_major(data, 1)
+        output = numpy.zeros(1).astype(numpy.float64)
+        res = DataHandlerDLL.get_instance().calc_stddev(data, 0, data.shape[0], output)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to calc stddev', res)
+        return output[0]
 
     @classmethod
     def perform_downsampling(cls, data: NDArray[Float64], period: int, operation: int) -> NDArray[Float64]:
@@ -953,3 +986,18 @@ class DataFilter(object):
 
         data_arr = data_arr[0:num_rows[0] * num_cols[0]].reshape(num_rows[0], num_cols[0])
         return data_arr
+
+    @classmethod
+    def get_version(cls) -> str:
+        """get version of brainflow libraries
+
+        :return: version
+        :rtype: str
+        :raises BrainFlowError
+        """
+        string = numpy.zeros(64).astype(numpy.ubyte)
+        string_len = numpy.zeros(1).astype(numpy.int32)
+        res = DataHandlerDLL.get_instance().get_version_data_handler(string, string_len, 64)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to request info', res)
+        return string.tobytes().decode('utf-8')[0:string_len[0]]

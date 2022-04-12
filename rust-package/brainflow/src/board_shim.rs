@@ -248,6 +248,14 @@ pub fn set_log_file<S: AsRef<str>>(log_file: S) -> Result<()> {
     Ok(check_brainflow_exit_code(res)?)
 }
 
+/// Release all sessions
+pub fn release_all_sessions() -> Result<()> {
+    let res = unsafe {
+        board_controller::release_all_sessions()
+    };
+    Ok(check_brainflow_exit_code(res)?)
+}
+
 macro_rules! gen_fn {
     ($fn_name:ident, $return_type:ident, $initial_value:literal, $doc:literal) => {
         paste! {
@@ -341,6 +349,22 @@ pub fn get_eeg_names(board_id: BoardIds) -> Result<Vec<String>> {
         .split(',')
         .map(|s| s.to_string())
         .collect::<Vec<String>>())
+}
+
+/// Get BoardShim version.
+pub fn get_version() -> Result<String> {
+    let mut response_len = 0;
+    let response = CString::new(Vec::with_capacity(64))?;
+    let response = response.into_raw();
+    let (res, response) = unsafe {
+        let res = board_controller::get_version_board_controller(response, &mut response_len, 64);
+        let response = CString::from_raw(response);
+        (res, response)
+    };
+    check_brainflow_exit_code(res)?;
+    let version = response.to_str()?.split_at(response_len as usize).0;
+
+    Ok(version.to_string())
 }
 
 /// Get device name.

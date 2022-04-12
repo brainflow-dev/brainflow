@@ -52,6 +52,8 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/third_party/kdtree
 )
 
+target_compile_definitions(${ML_MODULE_NAME} PRIVATE BRAINFLOW_VERSION=${BRAINFLOW_VERSION})
+
 set_target_properties (${ML_MODULE_NAME}
     PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled

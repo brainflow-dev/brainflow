@@ -127,3 +127,15 @@ jobs:
         cd $GITHUB_WORKSPACE/build_examples
         cmake -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ../examples
         make -j2
+    - name:  Compile ASAN for Ubuntu
+      run: |
+        mkdir $GITHUB_WORKSPACE/build_asan
+        cd $GITHUB_WORKSPACE/build_asan
+        cmake -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release -DSIMPLEBLE_SANITIZE=Address ..
+        make -j2
+    - name:  Compile TSAN for Ubuntu
+      run: |
+        mkdir $GITHUB_WORKSPACE/build_tsan
+        cd $GITHUB_WORKSPACE/build_tsan
+        cmake -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release -DSIMPLEBLE_SANITIZE=Thread ..
+        make -j2

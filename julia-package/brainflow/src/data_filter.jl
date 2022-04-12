@@ -127,12 +127,18 @@ end
     return
 end
 
-
 @brainflow_rethrow function get_nearest_power_of_two(value::Integer)
     power_of_two = Vector{Cint}(undef, 1)
     ccall((:get_nearest_power_of_two, DATA_HANDLER_INTERFACE), Cint, (Cint, Ptr{Cint}),
                 Int32(value), power_of_two)
     return power_of_two[1]
+end
+
+@brainflow_rethrow function calc_stddev(data)
+    output = Vector{Float64}(undef, 1)
+    ccall((:calc_stddev, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Ptr{Float64}),
+                data, 0, length(data), output)
+    return output[1]
 end
 
 @brainflow_rethrow function get_num_elements_in_file(file_name::String)

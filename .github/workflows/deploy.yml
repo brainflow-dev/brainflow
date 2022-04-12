@@ -48,7 +48,7 @@ jobs:
       run: |
         mkdir %GITHUB_WORKSPACE%\build64
         cd %GITHUB_WORKSPACE%\build64
-        cmake -DWARNINGS_AS_ERRORS=ON -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed64\ ..
+        cmake -DBRAINFLOW_VERSION=%GITHUB_SHA% -DWARNINGS_AS_ERRORS=ON -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed64\ ..
         cmake --build . --target install --config Release -j 2 --parallel 2
       shell: cmd
     # Download all artifacts from AWS
@@ -199,7 +199,6 @@ jobs:
         cd $env:GITHUB_WORKSPACE\python-package
         twine upload --skip-existing dist/*.whl --user Andrey1994 --password $env:PYPI_PASSWORD
         cd $env:GITHUB_WORKSPACE\rust-package\brainflow
-    #    cargo publish --allow-dirty
       env:
         CARGO_TOKEN: ${{ secrets.CARGO_TOKEN }}
         PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}

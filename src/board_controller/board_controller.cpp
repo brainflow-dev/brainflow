@@ -6,6 +6,7 @@
 #include <windows.h>
 #endif
 
+#include <algorithm>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -22,6 +23,7 @@
 #include "brainbit_bled.h"
 #include "brainflow_constants.h"
 #include "brainflow_input_params.h"
+#include "brainflow_version.h"
 #include "callibri_ecg.h"
 #include "callibri_eeg.h"
 #include "callibri_emg.h"
@@ -41,6 +43,7 @@
 #include "muse.h"
 #include "muse_bled.h"
 #include "notion_osc.h"
+#include "pieeg.h"
 #include "playback_file_board.h"
 #include "streaming_board.h"
 #include "synthetic_board.h"
@@ -228,6 +231,15 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
             break;
         case BoardIds::BRAINALIVE_BOARD:
             board = std::shared_ptr<Board> (new BrainAlive (params));
+            break;
+        case BoardIds::MUSE_2016_BOARD:
+            board = std::shared_ptr<Board> (new Muse (board_id, params));
+            break;
+        case BoardIds::MUSE_2016_BLED_BOARD:
+            board = std::shared_ptr<Board> (new MuseBLED (board_id, params));
+            break;
+        case BoardIds::PIEEG_BOARD:
+            board = std::shared_ptr<Board> (new PiEEG (params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
@@ -430,6 +442,27 @@ int config_board (char *config, char *response, int *response_len, int board_id,
         strcpy (response, resp.c_str ());
     }
     return res;
+}
+
+int release_all_sessions ()
+{
+    std::lock_guard<std::mutex> lock (mutex);
+
+    for (auto it = boards.begin (), next_it = it; it != boards.end (); it = next_it)
+    {
+        ++next_it;
+        it->second->release_session ();
+        boards.erase (it);
+    }
+
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int get_version_board_controller (char *version, int *num_chars, int max_chars)
+{
+    strncpy (version, BRAINFLOW_VERSION_STRING, max_chars);
+    *num_chars = std::min<int> (max_chars, (int)strlen (BRAINFLOW_VERSION_STRING));
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 /////////////////////////////////////////////////

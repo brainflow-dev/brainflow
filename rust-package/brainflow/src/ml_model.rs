@@ -79,3 +79,25 @@ pub fn set_log_file<S: AsRef<str>>(log_file: S) -> Result<()> {
     let res = unsafe { ml_model::set_log_file_ml_module(log_file.as_ptr()) };
     Ok(check_brainflow_exit_code(res)?)
 }
+
+/// Release all classifiers
+pub fn release_all() -> Result<()> {
+    let res = unsafe { ml_model::release_all() };
+    Ok(check_brainflow_exit_code(res)?)
+}
+
+/// Get DataFilter version.
+pub fn get_version() -> Result<String> {
+    let mut response_len = 0;
+    let response = CString::new(Vec::with_capacity(64))?;
+    let response = response.into_raw();
+    let (res, response) = unsafe {
+        let res = ml_model::get_version_ml_module(response, &mut response_len, 64);
+        let response = CString::from_raw(response);
+        (res, response)
+    };
+    check_brainflow_exit_code(res)?;
+    let version = response.to_str()?.split_at(response_len as usize).0;
+
+    Ok(version.to_string())
+}

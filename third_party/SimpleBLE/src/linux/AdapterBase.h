@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <functional>
 #include <memory>
 #include <set>
@@ -10,14 +11,14 @@
 #include <simpleble/Peripheral.h>
 #include <simpleble/Types.h>
 
-#include <BluezAdapter.h>
+#include <simplebluez/Adapter.h>
 
 namespace SimpleBLE {
 
 class AdapterBase {
   public:
-    AdapterBase(std::shared_ptr<BluezAdapter> adapter);
-    ~AdapterBase();
+    AdapterBase(std::shared_ptr<SimpleBluez::Adapter> adapter);
+    virtual ~AdapterBase();
 
     std::string identifier();
     BluetoothAddress address();
@@ -36,8 +37,9 @@ class AdapterBase {
     static std::vector<std::shared_ptr<AdapterBase>> get_adapters();
 
   private:
-    std::weak_ptr<BluezAdapter> adapter_;
+    std::shared_ptr<SimpleBluez::Adapter> adapter_;
 
+    std::atomic_bool is_scanning_;
     std::map<BluetoothAddress, Peripheral> seen_devices_;
 
     std::function<void()> callback_on_scan_start_;

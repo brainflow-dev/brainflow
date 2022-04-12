@@ -417,3 +417,28 @@ void DataFilter::set_log_file (std::string log_file)
         throw BrainFlowException ("failed to set log file", res);
     }
 }
+
+double DataFilter::calc_stddev (double *data, int start_pos, int end_pos)
+{
+    double output = 0;
+    int res = ::calc_stddev (data, start_pos, end_pos, &output);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to calc stddev", res);
+    }
+    return output;
+}
+
+std::string DataFilter::get_version ()
+{
+    char version[64];
+    int string_len = 0;
+    int res = ::get_version_data_handler (version, &string_len, 64);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to get board info", res);
+    }
+    std::string verion_str (version, string_len);
+
+    return verion_str;
+}

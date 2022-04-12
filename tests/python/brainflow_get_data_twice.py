@@ -5,9 +5,13 @@ import numpy as np
 import brainflow
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 from brainflow.data_filter import DataFilter, FilterTypes, AggOperations
+from brainflow.ml_model import MLModel
 
 
 def main():
+    print('BoardShim version: ' + BoardShim.get_version())
+    print('DataFilter version: ' + DataFilter.get_version())
+    print('MLModel version: ' + MLModel.get_version())
     BoardShim.enable_dev_board_logger()
 
     board = BoardShim(BoardIds.SYNTHETIC_BOARD.value, BrainFlowInputParams())
@@ -17,6 +21,7 @@ def main():
     time.sleep(10)
     board.stop_stream()
     data = board.get_board_data()
+    print(DataFilter.calc_stddev(data[2]))
     data = board.get_board_data()
     print(data)
     data = board.get_current_board_data(10)

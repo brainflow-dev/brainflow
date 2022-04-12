@@ -89,6 +89,7 @@ def main():
         board_shim = BoardShim(BoardIds.ENOPHONE_BOARD, params)
         board_shim.prepare_session()
         board_shim.start_stream(450000, '')
+        Graph(board_shim)
     except BaseException:
         logging.warning('Exception', exc_info=True)
     finally:

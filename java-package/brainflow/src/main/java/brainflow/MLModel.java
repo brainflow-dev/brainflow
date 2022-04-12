@@ -24,6 +24,10 @@ public class MLModel
         int release (String params);
 
         int predict (double[] data, int data_len, double[] output, String params);
+
+        int release_all ();
+
+        int get_version_ml_module (byte[] version, int[] len, int max_len);
     }
 
     private static DllInterface instance;
@@ -119,6 +123,34 @@ public class MLModel
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in set_log_file", ec);
+        }
+    }
+
+    /**
+     * Get version
+     */
+    public static String get_version () throws BrainFlowError
+    {
+        int[] len = new int[1];
+        byte[] str = new byte[64];
+        int ec = instance.get_version_ml_module (str, len, 64);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in get_version", ec);
+        }
+        String version = new String (str, 0, len[0]);
+        return version;
+    }
+
+    /**
+     * release all classifiers
+     */
+    public static void release_all () throws BrainFlowError
+    {
+        int ec = instance.release_all ();
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in release classifiers", ec);
         }
     }
 

@@ -34,6 +34,14 @@ classdef BoardShim
                 error('Non zero ec: %d, for task: %s', ec, task_name)
             end
         end
+        
+        function release_all_sessions()
+            % release all sessions
+            task_name = 'release_all_sessions';
+            lib_name = BoardShim.load_lib();
+            exit_code = calllib(lib_name, task_name);
+            BoardShim.check_ec(exit_code, task_name);
+        end
 
         function set_log_level(log_level)
             % set log level for BoardShim
@@ -155,6 +163,16 @@ classdef BoardShim
             [exit_code, eeg_names] = calllib(lib_name, task_name, board_id, blanks(4096), 4096);
             BoardShim.check_ec(exit_code, task_name);
             eeg_names = split(eeg_names, ',');
+        end
+        
+        function version = get_version()
+            % get version
+            task_name = 'get_version_board_controller';
+            lib_name = BoardShim.load_lib();
+            % no way to understand how it works in matlab, used this link
+            % https://nl.mathworks.com/matlabcentral/answers/131446-what-data-type-do-i-need-to-calllib-with-pointer-argument-char%
+            [exit_code, version] = calllib(lib_name, task_name, blanks(64), 64, 64);
+            BoardShim.check_ec(exit_code, task_name);
         end
         
         function device_name = get_device_name(board_id)

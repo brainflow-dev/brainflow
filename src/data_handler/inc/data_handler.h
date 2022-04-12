@@ -48,6 +48,8 @@ extern "C"
         int window_function, double *output_ampl, double *output_freq);
     SHARED_EXPORT int CALLING_CONVENTION detrend (
         double *data, int data_len, int detrend_operation);
+    SHARED_EXPORT int CALLING_CONVENTION calc_stddev (
+        double *data, int start_pos, int end_pos, double *output);
     SHARED_EXPORT int CALLING_CONVENTION get_psd_welch (double *data, int data_len, int nfft,
         int overlap, int sampling_rate, int window_function, double *output_ampl,
         double *output_freq);
@@ -67,6 +69,9 @@ extern "C"
     SHARED_EXPORT int CALLING_CONVENTION get_num_elements_in_file (
         const char *file_name, int *num_elements); // its an internal method for bindings its not
                                                    // available via high level api
+
+    SHARED_EXPORT int CALLING_CONVENTION get_version_data_handler (
+        char *version, int *num_chars, int max_chars);
 #ifdef __cplusplus
 }
 #endif

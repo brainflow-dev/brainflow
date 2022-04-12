@@ -1,7 +1,6 @@
 #include <simpleble/Peripheral.h>
 
 #include <simpleble/Exceptions.h>
-#include <iostream>
 #include "PeripheralBase.h"
 
 using namespace SimpleBLE;

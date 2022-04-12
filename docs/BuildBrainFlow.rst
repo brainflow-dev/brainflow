@@ -14,7 +14,7 @@ C/C++ code should be compiled for each CPU architecture and for each OS and we c
 - x64 libraries for Linux, they are compiled inside manylinux docker container
 - x64/ARM libraries for MacOS, they are universal binaries
 
-If your CPU and OS is not listed above(e.g. Raspberry Pi or Windows with ARM)  you still can use BrainFlow, but you need to compile it by yourself first.
+If your CPU and OS is not listed above(e.g. Raspberry Pi or Windows with ARM)  you still can use BrainFlow, but you need to compile it by youself first. See :ref:`compilation-label` for details.
 
 Python
 -------
@@ -27,7 +27,7 @@ Python
 
 .. compound::
 
-    If you want to install it from source files or build unreleased version from Github, you should compile core module first and run ::
+    If you want to install it from source files or build unreleased version from Github, you should first compile the core module (:ref:`compilation-label`). Then run ::
 
         cd python-package
         python -m pip install -U .
@@ -80,7 +80,7 @@ You are able to download jar files directly from `release page <https://github.c
 
 .. compound::
 
-    If you want to install it from source files or build unreleased version from github you should compile core module first and run ::
+    If you want to install it from source files or build unreleased version from github you should compile core module first (:ref:`compilation-label`) and run ::
 
         cd java-package
         cd brainflow
@@ -94,11 +94,11 @@ Matlab
 
 Steps to setup Matlab binding for BrainFlow:
 
-- Compile Core Module, using instructions below. If you don't want to compile C++ code you can download Matlab package with precompiled libs from `Release page <https://github.com/brainflow-dev/brainflow/releases>`_
+- Compile Core Module, using the instructions in :ref:`compilation-label`. If you don't want to compile C++ code you can download Matlab package with precompiled libs from `Release page <https://github.com/brainflow-dev/brainflow/releases>`_
 - Open Matlab IDE and open brainflow/matlab-package/brainflow folder there
 - Add folders lib and inc to Matlab path
 - If you want to run Matlab scripts from folders different than brainflow/matlab-package/brainflow you need to add it to your Matlab path too
-- If you see errors you may need to configure Matlab to use C++ compiler instead C, run this command in Matlab terminal :code:`mex -setup cpp` followed by :code:`MinGW64 Compiler (C++)` or any other C++ compiler. More info can be found `here <https://www.mathworks.com/help/matlab/matlab_external/choose-c-or-c-compilers.html>`_.
+- If you see errors you may need to configure Matlab to use C++ compiler instead C, install Visual Studio 2017 or newer(for Windows) and run this command in Matlab terminal :code:`mex -setup cpp`, you need to select Visual Studio Compiler from the list. More info can be found `here <https://www.mathworks.com/help/matlab/matlab_external/choose-c-or-c-compilers.html>`_.
 
 Julia
 --------
@@ -156,6 +156,8 @@ If your devices uses TCP/IP to send data, you need to run docker container with 
         docker run -it --device /dev/ttyUSB0 brainflow/brainflow:latest /bin/bash
         # run docker container for boards which use networking
         docker run -it --network host brainflow/brainflow:latest /bin/bash
+
+.. _compilation-label:
 
 Compilation of Core Module and C++ Binding
 -------------------------------------------

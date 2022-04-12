@@ -8,12 +8,19 @@
 
 using namespace SimpleBLE;
 
-AdapterBase::AdapterBase() { opaque_internal_ = [[AdapterBaseMacOS alloc] init:this]; }
+AdapterBase::AdapterBase() { 
+    // Cast the Objective-C++ object using __bridge_retained, which will signal ARC to increase
+    // the reference count. This means that AdapterBase will be responsible for releasing the
+    // Objective-C++ object in the destructor.
+    opaque_internal_ = (__bridge_retained void*)[[AdapterBaseMacOS alloc] init:this];
+ }
 
 AdapterBase::~AdapterBase() {
-    // Explicitly release the opaque pointer, as automatic
-    // reference counting does not work appropriately.
-    [(id)opaque_internal_ release];
+    // Cast the opaque pointer back to the Objective-C++ object and release it.
+    // This will signal ARC to decrease the reference count.
+    // NOTE: This is equivalent to calling [opaque_internal_ release] in Objective-C++.
+    AdapterBaseMacOS* internal = (__bridge_transfer AdapterBaseMacOS*)opaque_internal_;
+    internal = nil;
 }
 
 std::vector<std::shared_ptr<AdapterBase> > AdapterBase::get_adapters() {
@@ -32,7 +39,7 @@ std::string AdapterBase::identifier() { return "Default Adapter"; }
 BluetoothAddress AdapterBase::address() { return "00:00:00:00:00:00"; }
 
 void AdapterBase::scan_start() {
-    AdapterBaseMacOS* internal = (AdapterBaseMacOS*)opaque_internal_;
+    AdapterBaseMacOS* internal = (__bridge AdapterBaseMacOS*)opaque_internal_;
     [internal scanStart];
 
     if (callback_on_scan_start_) {
@@ -41,7 +48,7 @@ void AdapterBase::scan_start() {
 }
 
 void AdapterBase::scan_stop() {
-    AdapterBaseMacOS* internal = (AdapterBaseMacOS*)opaque_internal_;
+    AdapterBaseMacOS* internal = (__bridge AdapterBaseMacOS*)opaque_internal_;
     [internal scanStop];
     if (callback_on_scan_stop_) {
         callback_on_scan_stop_();
@@ -55,7 +62,7 @@ void AdapterBase::scan_for(int timeout_ms) {
 }
 
 bool AdapterBase::scan_is_active() {
-    AdapterBaseMacOS* internal = (AdapterBaseMacOS*)opaque_internal_;
+    AdapterBaseMacOS* internal = (__bridge AdapterBaseMacOS*)opaque_internal_;
     return [internal scanIsActive];
 }
 

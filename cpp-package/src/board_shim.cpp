@@ -85,6 +85,15 @@ void BoardShim::log_message (int log_level, const char *format, ...)
 /////// data acquisition methods /////////
 //////////////////////////////////////////
 
+void BoardShim::release_all_sessions ()
+{
+    int res = ::release_all_sessions ();
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to release sessions", res);
+    }
+}
+
 BoardShim::BoardShim (int board_id, struct BrainFlowInputParams params)
 {
     serialized_params = params_to_string (params);
@@ -507,4 +516,18 @@ std::vector<int> BoardShim::get_resistance_channels (int board_id)
         throw BrainFlowException ("failed to get board info", res);
     }
     return std::vector<int> (channels, channels + len);
+}
+
+std::string BoardShim::get_version ()
+{
+    char version[64];
+    int string_len = 0;
+    int res = ::get_version_board_controller (version, &string_len, 64);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to get board info", res);
+    }
+    std::string verion_str (version, string_len);
+
+    return verion_str;
 }

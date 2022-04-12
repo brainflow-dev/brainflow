@@ -9,6 +9,8 @@
 #endif
 
 #include "board_shim.h"
+#include "data_filter.h"
+#include "ml_model.h"
 
 using namespace std;
 
@@ -18,6 +20,9 @@ bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, in
 int main (int argc, char *argv[])
 {
     BoardShim::enable_dev_board_logger ();
+    std::cout << "BoardShim Version: " << BoardShim::get_version () << std::endl;
+    std::cout << "DataFilter Version: " << DataFilter::get_version () << std::endl;
+    std::cout << "MLModel Version: " << MLModel::get_version () << std::endl;
 
     struct BrainFlowInputParams params;
     int board_id = (int)BoardIds::SYNTHETIC_BOARD;
@@ -38,7 +43,6 @@ int main (int argc, char *argv[])
 
         board->stop_stream ();
         BrainFlowArray<double, 2> data = board->get_board_data ();
-        data = board->get_board_data ();
         std::cout << data << std::endl;
         data = board->get_current_board_data (10);
         std::cout << data << std::endl;

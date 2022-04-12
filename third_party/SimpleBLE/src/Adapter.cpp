@@ -3,8 +3,6 @@
 #include "AdapterBase.h"
 #include "AdapterBuilder.h"
 
-#include <iostream>
-
 using namespace SimpleBLE;
 
 std::vector<Adapter> Adapter::get_adapters() {
