@@ -81,7 +81,7 @@ int BTLibBoard::prepare_session ()
             safe_logger (spdlog::level::err, "autodiscovery for this OS is not supported");
             return_res = (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
         }
-        else if (res == (int)SocketBluetoothReturnCodes::DEVICE_IS_NOT_CREATED_ERROR)
+        else if (res == (int)SocketBluetoothReturnCodes::DEVICE_IS_NOT_DISCOVERABLE)
         {
             safe_logger (spdlog::level::err, "check that device paired and connected");
             return_res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;

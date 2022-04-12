@@ -21,6 +21,7 @@ option (WARNINGS_AS_ERRORS "WARNINGS_AS_ERRORS" OFF)
 option (BUILD_OYMOTION_SDK "BUILD_OYMOTION_SDK" OFF)
 option (BUILD_BLUETOOTH "BUILD_BLUETOOTH" OFF)
 option (BUILD_BLE "BUILD_BLE" OFF)
+option (BUILD_TESTS "BUILD_TESTS" OFF)
 option (USE_PERIPHERY "USE_PERIPHERY" OFF)
 
 include (${CMAKE_HOME_DIRECTORY}/cmake/macros.cmake)
@@ -38,6 +39,7 @@ include (${CMAKE_HOME_DIRECTORY}/src/board_controller/build.cmake)
 include (${CMAKE_HOME_DIRECTORY}/src/data_handler/build.cmake)
 include (${CMAKE_HOME_DIRECTORY}/src/ml/build.cmake)
 include (${CMAKE_HOME_DIRECTORY}/cpp-package/build.cmake)
+include (${CMAKE_HOME_DIRECTORY}/tests/cpp/build.cmake)
 
 include (CMakePackageConfigHelpers)
 

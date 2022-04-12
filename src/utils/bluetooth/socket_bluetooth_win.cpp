@@ -35,14 +35,14 @@ int SocketBluetooth::connect ()
     int res = WSAStartup (MAKEWORD (2, 2), &wsadata);
     if (res != 0)
     {
-        return (int)SocketBluetoothReturnCodes::WSA_STARTUP_ERROR;
+        return (int)SocketBluetoothReturnCodes::CONNECT_ERROR;
     }
 
     int status = SOCKET_ERROR;
     socket_bt = socket (AF_BTH, SOCK_STREAM, BTHPROTO_RFCOMM);
     if (socket_bt == INVALID_SOCKET)
     {
-        return (int)SocketBluetoothReturnCodes::CREATE_SOCKET_ERROR;
+        return (int)SocketBluetoothReturnCodes::CONNECT_ERROR;
     }
     SOCKADDR_BTH addr = {0};
     int addr_size = sizeof (SOCKADDR_BTH);
@@ -52,7 +52,7 @@ int SocketBluetooth::connect ()
     if (status == SOCKET_ERROR)
     {
         close ();
-        return (int)SocketBluetoothReturnCodes::WSA_ADDR_ERROR;
+        return (int)SocketBluetoothReturnCodes::CONNECT_ERROR;
     }
     addr.port = this->port;
 
@@ -68,7 +68,7 @@ int SocketBluetooth::connect ()
     if (status == SOCKET_ERROR)
     {
         close ();
-        return (int)SocketBluetoothReturnCodes::IOCTL_ERROR;
+        return (int)SocketBluetoothReturnCodes::CONNECT_ERROR;
     }
     return (int)SocketBluetoothReturnCodes::STATUS_OK;
 }
@@ -129,10 +129,12 @@ int SocketBluetooth::bytes_available ()
 
 int SocketBluetooth::close ()
 {
-    closesocket (socket_bt);
+    int closesocket_result = closesocket (socket_bt);
     socket_bt = INVALID_SOCKET;
-    WSACleanup ();
-    return (int)SocketBluetoothReturnCodes::STATUS_OK;
+    int wsa_result = WSACleanup ();
+    return (int)((closesocket_result == 0 && wsa_result == 0) ?
+            SocketBluetoothReturnCodes::STATUS_OK :
+            SocketBluetoothReturnCodes::DISCONNECT_ERROR);
 }
 
 std::pair<std::string, int> SocketBluetooth::discover (char *selector)
@@ -184,5 +186,5 @@ std::pair<std::string, int> SocketBluetooth::discover (char *selector)
 
     } while (BluetoothFindNextDevice (founded_device, &device_info));
     return std::make_pair<std::string, int> (
-        "", (int)SocketBluetoothReturnCodes::DEVICE_IS_NOT_CREATED_ERROR);
+        "", (int)SocketBluetoothReturnCodes::DEVICE_IS_NOT_DISCOVERABLE);
 }
