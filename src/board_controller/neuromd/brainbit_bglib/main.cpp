@@ -155,17 +155,17 @@ namespace BrainBitBLEDLib
             return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
         }
         volatile bool stop_config_thread = false;
-        std::thread config_thread = std::thread (
-            [&] ()
+        // clang-format off
+        std::thread config_thread = std::thread ([&] () {
+            uint8 signal_command[] = {0x01};
+            while (!stop_config_thread)
             {
-                uint8 signal_command[] = {0x01};
-                while (!stop_config_thread)
-                {
-                    ble_cmd_attclient_attribute_write (
-                        connection, brainbit_handle_send, 1, signal_command);
-                    ble_cmd_attclient_execute_write (connection, 1);
-                }
-            });
+                ble_cmd_attclient_attribute_write (
+                    connection, brainbit_handle_send, 1, signal_command);
+                ble_cmd_attclient_execute_write (connection, 1);
+            }
+        });
+        // clang-format on
         int res = wait_for_callback (timeout);
         stop_config_thread = true;
         config_thread.join ();

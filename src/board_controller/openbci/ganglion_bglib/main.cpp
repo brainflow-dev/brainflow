@@ -148,15 +148,15 @@ namespace GanglionLib
             return (int)CustomExitCodes::SEND_CHARACTERISTIC_NOT_FOUND_ERROR;
         }
         volatile bool stop_config_thread = false;
-        std::thread config_thread = std::thread (
-            [&] ()
+        // clang-format off
+        std::thread config_thread = std::thread ([&] () {
+            while (!stop_config_thread)
             {
-                while (!stop_config_thread)
-                {
-                    ble_cmd_attclient_attribute_write (
-                        connection, ganglion_handle_send, 1, (uint8 *)param);
-                }
-            });
+                ble_cmd_attclient_attribute_write (
+                    connection, ganglion_handle_send, 1, (uint8 *)param);
+            }
+        });
+        // clang-format on
         int res = wait_for_callback (timeout);
         stop_config_thread = true;
         config_thread.join ();
