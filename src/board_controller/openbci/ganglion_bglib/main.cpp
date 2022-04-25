@@ -148,13 +148,15 @@ namespace GanglionLib
             return (int)CustomExitCodes::SEND_CHARACTERISTIC_NOT_FOUND_ERROR;
         }
         volatile bool stop_config_thread = false;
-        std::thread config_thread = std::thread ([&] () {
-            while (!stop_config_thread)
+        std::thread config_thread = std::thread (
+            [&] ()
             {
-                ble_cmd_attclient_attribute_write (
-                    connection, ganglion_handle_send, 1, (uint8 *)param);
-            }
-        });
+                while (!stop_config_thread)
+                {
+                    ble_cmd_attclient_attribute_write (
+                        connection, ganglion_handle_send, 1, (uint8 *)param);
+                }
+            });
         int res = wait_for_callback (timeout);
         stop_config_thread = true;
         config_thread.join ();
@@ -214,12 +216,15 @@ namespace GanglionLib
         {
             return (int)CustomExitCodes::GANGLION_IS_NOT_OPEN_ERROR;
         }
-        state = State::CLOSE_CALLED;
-
         if (!should_stop_stream)
         {
             stop_stream ((void *)"s");
         }
+
+        state = State::CLOSE_CALLED;
+        exit_code = (int)GanglionLib::SYNC_ERROR;
+        ble_cmd_connection_disconnect (connection);
+        int res = wait_for_callback (timeout);
 
         connection = -1;
         ganglion_handle_start = 0;
@@ -229,7 +234,7 @@ namespace GanglionLib
 
         uart_close ();
 
-        return (int)CustomExitCodes::STATUS_OK;
+        return res;
     }
 
     int get_data (void *param)

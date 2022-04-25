@@ -155,15 +155,17 @@ namespace BrainBitBLEDLib
             return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
         }
         volatile bool stop_config_thread = false;
-        std::thread config_thread = std::thread ([&] () {
-            uint8 signal_command[] = {0x01};
-            while (!stop_config_thread)
+        std::thread config_thread = std::thread (
+            [&] ()
             {
-                ble_cmd_attclient_attribute_write (
-                    connection, brainbit_handle_send, 1, signal_command);
-                ble_cmd_attclient_execute_write (connection, 1);
-            }
-        });
+                uint8 signal_command[] = {0x01};
+                while (!stop_config_thread)
+                {
+                    ble_cmd_attclient_attribute_write (
+                        connection, brainbit_handle_send, 1, signal_command);
+                    ble_cmd_attclient_execute_write (connection, 1);
+                }
+            });
         int res = wait_for_callback (timeout);
         stop_config_thread = true;
         config_thread.join ();
@@ -233,12 +235,15 @@ namespace BrainBitBLEDLib
         {
             return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
         }
-        state = State::CLOSE_CALLED;
-
         if (!should_stop_stream)
         {
             stop_stream (NULL);
         }
+
+        state = State::CLOSE_CALLED;
+        exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
+        ble_cmd_connection_disconnect (connection);
+        int res = wait_for_callback (timeout);
 
         connection = -1;
         brainbit_handle_start = 0;
@@ -248,7 +253,7 @@ namespace BrainBitBLEDLib
 
         uart_close ();
 
-        return (int)BrainFlowExitCodes::STATUS_OK;
+        return res;
     }
 
     int get_data (void *param)

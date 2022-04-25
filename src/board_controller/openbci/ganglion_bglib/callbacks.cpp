@@ -94,10 +94,17 @@ void ble_evt_connection_status (const struct ble_msg_connection_status_evt_t *ms
 
 void ble_evt_connection_disconnected (const struct ble_msg_connection_disconnected_evt_t *msg)
 {
-    // atempt to reconnect
-    // changing values here leads to package loss, dont touch it
-    ble_cmd_gap_connect_direct (
-        &GanglionLib::connect_addr, gap_address_type_random, 10, 76, 100, 0);
+    if (GanglionLib::state != GanglionLib::State::CLOSE_CALLED)
+    {
+        // atempt to reconnect
+        // changing values here leads to package loss, dont touch it
+        ble_cmd_gap_connect_direct (
+            &GanglionLib::connect_addr, gap_address_type_random, 10, 76, 100, 0);
+    }
+    else
+    {
+        GanglionLib::exit_code = (int)GanglionLib::STATUS_OK;
+    }
 }
 
 // ble_evt_attclient_group_found and ble_evt_attclient_procedure_completed are called after the same

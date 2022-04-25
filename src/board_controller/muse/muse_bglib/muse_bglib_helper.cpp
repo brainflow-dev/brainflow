@@ -137,10 +137,13 @@ int MuseBGLibHelper::close_device ()
     {
         return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
     }
-    state = (int)DeviceState::CLOSE_CALLED;
     stop_stream ();
+    state = (int)DeviceState::CLOSE_CALLED;
+    exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
+    ble_cmd_connection_disconnect (connection);
+    int res = wait_for_callback ();
     uart_close ();
-    return (int)BrainFlowExitCodes::STATUS_OK;
+    return res;
 }
 
 int MuseBGLibHelper::get_data (void *param)
@@ -235,9 +238,16 @@ void MuseBGLibHelper::ble_evt_connection_status (const struct ble_msg_connection
 void MuseBGLibHelper::ble_evt_connection_disconnected (
     const struct ble_msg_connection_disconnected_evt_t *msg)
 {
-    // atempt to reconnect
-    // changing values here leads to package loss, dont touch it
-    ble_cmd_gap_connect_direct (&connect_addr, gap_address_type_random, 10, 76, 100, 0);
+    if (state != (int)DeviceState::CLOSE_CALLED)
+    {
+        // atempt to reconnect
+        // changing values here leads to package loss, dont touch it
+        ble_cmd_gap_connect_direct (&connect_addr, gap_address_type_random, 10, 76, 100, 0);
+    }
+    else
+    {
+        exit_code = (int)BrainFlowExitCodes::STATUS_OK;
+    }
 }
 
 // ble_evt_attclient_group_found and ble_evt_attclient_procedure_completed are called after the same
