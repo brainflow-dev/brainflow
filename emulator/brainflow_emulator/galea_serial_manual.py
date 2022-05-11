@@ -1,5 +1,4 @@
 import os
-import sys
 import logging
 import subprocess
 import pkg_resources
@@ -9,8 +8,6 @@ import random
 import struct
 
 from serial import Serial
-
-from brainflow_emulator.emulate_common import TestFailureError, log_multilines
 
 
 def write(port, data):

@@ -52,6 +52,11 @@ protected:
     std::vector<bool> new_eeg_data;
     double last_timestamp;
     json board_descr;
+    int current_accel_pos;
+    int current_gyro_pos;
+    int current_ppg_pos[3];
+
+    std::string preset;
 
     void thread_worker ();
 
@@ -71,6 +76,9 @@ public:
         db = NULL;
         last_timestamp = -1.0;
         board_descr = descr;
+        current_accel_pos = 0;
+        current_gyro_pos = 0;
+        memset (current_ppg_pos, 0, sizeof (current_ppg_pos));
     }
 
     virtual ~MuseBGLibHelper ()
@@ -90,8 +98,6 @@ public:
     virtual int get_data (void *param);
     virtual int release ();
     virtual int config_device (const char *config);
-
-    virtual std::string get_preset () = 0;
 
     // callbacks from bglib which we need
     virtual void ble_evt_connection_status (const struct ble_msg_connection_status_evt_t *msg);

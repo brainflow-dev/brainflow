@@ -56,8 +56,7 @@ int OpenBCIWifiShieldBoard::prepare_session ()
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     char local_ip[80];
-    int res = SocketClientUDP::get_local_ip_addr (
-        const_cast<char *> (params.ip_address.c_str ()), 80, local_ip);
+    int res = SocketClientUDP::get_local_ip_addr (params.ip_address.c_str (), 80, local_ip);
     if (res != 0)
     {
         safe_logger (spdlog::level::err, "failed to get local ip addr: {}", res);
@@ -219,7 +218,7 @@ int OpenBCIWifiShieldBoard::config_board (std::string config, std::string &respo
     return send_config (config.c_str ());
 }
 
-int OpenBCIWifiShieldBoard::start_stream (int buffer_size, char *streamer_params)
+int OpenBCIWifiShieldBoard::start_stream (int buffer_size, const char *streamer_params)
 {
     if (keep_alive)
     {

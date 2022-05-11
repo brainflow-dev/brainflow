@@ -9,6 +9,7 @@ if (CMAKE_SIZEOF_VOID_P EQUAL 8)
         SET (DATA_HANDLER_COMPILED_NAME "libDataHandler.so")
     else ()
         SET (DATA_HANDLER_COMPILED_NAME "DataHandler.dll")
+        SET (DATA_HANDLER_COMPILED_NAME_DOT_LIB "DataHandler.lib")
     endif (APPLE)
 else (CMAKE_SIZEOF_VOID_P EQUAL 8)
     if (APPLE)
@@ -20,6 +21,7 @@ else (CMAKE_SIZEOF_VOID_P EQUAL 8)
     else ()
         SET (DATA_HANDLER_NAME "DataHandler32")
         SET (DATA_HANDLER_COMPILED_NAME "DataHandler32.dll")
+        SET (DATA_HANDLER_COMPILED_NAME_DOT_LIB "DataHandler32.lib")
     endif (APPLE)
 endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
 
@@ -42,6 +44,8 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/third_party/wavelib/header
     ${CMAKE_HOME_DIRECTORY}/third_party/fft/src
 )
+
+target_compile_definitions(${DATA_HANDLER_NAME} PRIVATE BRAINFLOW_VERSION=${BRAINFLOW_VERSION})
 
 set_target_properties (${DATA_HANDLER_NAME}
     PROPERTIES
@@ -78,7 +82,9 @@ if (MSVC)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/data_handler/inc/data_handler.h" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/inc/data_handler.h"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/utils/inc/shared_export_matlab.h" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/inc/shared_export.h"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/swift-package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/rust-package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${DATA_HANDLER_COMPILED_NAME_DOT_LIB}" "${CMAKE_HOME_DIRECTORY}/rust-package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME_DOT_LIB}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/data_handler/inc/data_handler.h" "${CMAKE_HOME_DIRECTORY}/rust-package/brainflow/inc/data_handler.h"
     )
 endif (MSVC)
 if (UNIX AND NOT ANDROID)
@@ -90,7 +96,8 @@ if (UNIX AND NOT ANDROID)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/data_handler/inc/data_handler.h" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/inc/data_handler.h"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/utils/inc/shared_export_matlab.h" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/inc/shared_export.h"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/swift-package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${DATA_HANDLER_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/rust-package/brainflow/lib/${DATA_HANDLER_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/data_handler/inc/data_handler.h" "${CMAKE_HOME_DIRECTORY}/rust-package/brainflow/inc/data_handler.h"
     )
 endif (UNIX AND NOT ANDROID)
 if (ANDROID)

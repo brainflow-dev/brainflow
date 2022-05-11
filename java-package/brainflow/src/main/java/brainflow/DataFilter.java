@@ -3,7 +3,6 @@ package brainflow;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Arrays;
 
 import org.apache.commons.lang3.SystemUtils;
@@ -64,9 +63,11 @@ public class DataFilter
 
         int read_file (double[] data, int[] num_rows, int[] num_cols, String file_name, int max_elements);
 
-        int set_log_level (int log_level);
+        int set_log_level_data_handler (int log_level);
 
-        int set_log_file (String log_file);
+        int set_log_file_data_handler (String log_file);
+
+        int calc_stddev (double[] data, int start_pos, int end_pos, double[] output);
 
         int get_num_elements_in_file (String file_name, int[] num_elements);
 
@@ -82,6 +83,8 @@ public class DataFilter
 
         int get_band_power (double[] ampls, double[] freqs, int len, double start_freq, double stop_freq,
                 double[] output);
+
+        int get_version_data_handler (byte[] version, int[] len, int max_len);
     }
 
     private static DllInterface instance;
@@ -108,7 +111,7 @@ public class DataFilter
             // need to extract libraries from jar
             unpack_from_jar (lib_name);
         }
-        instance = (DllInterface) Native.loadLibrary (lib_name, DllInterface.class);
+        instance = Native.loadLibrary (lib_name, DllInterface.class);
     }
 
     private static void unpack_from_jar (String lib_name)
@@ -135,6 +138,22 @@ public class DataFilter
     }
 
     /**
+     * Get version
+     */
+    public static String get_version () throws BrainFlowError
+    {
+        int[] len = new int[1];
+        byte[] str = new byte[64];
+        int ec = instance.get_version_data_handler (str, len, 64);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in get_version", ec);
+        }
+        String version = new String (str, 0, len[0]);
+        return version;
+    }
+
+    /**
      * enable Data logger with level TRACE
      */
     public static void enable_dev_data_logger () throws BrainFlowError
@@ -155,7 +174,7 @@ public class DataFilter
      */
     public static void set_log_file (String log_file) throws BrainFlowError
     {
-        int ec = instance.set_log_file (log_file);
+        int ec = instance.set_log_file_data_handler (log_file);
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in set_log_file", ec);
@@ -163,11 +182,25 @@ public class DataFilter
     }
 
     /**
+     * calc stddev
+     */
+    public static double calc_stddev (double[] data, int start_pos, int end_pos) throws BrainFlowError
+    {
+        double[] output = new double[1];
+        int ec = instance.calc_stddev (data, start_pos, end_pos, output);
+        if (ec != ExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in set_log_file", ec);
+        }
+        return output[0];
+    }
+
+    /**
      * set log level
      */
     private static void set_log_level (int log_level) throws BrainFlowError
     {
-        int ec = instance.set_log_level (log_level);
+        int ec = instance.set_log_level_data_handler (log_level);
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in set_log_level", ec);
@@ -266,7 +299,7 @@ public class DataFilter
         {
             throw new BrainFlowError ("Invalid data size", ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
         }
-        double[] downsampled_data = new double[(int) (data.length / period)];
+        double[] downsampled_data = new double[data.length / period];
         int ec = instance.perform_downsampling (data, data.length, period, operation, downsampled_data);
         if (ec != ExitCode.STATUS_OK.get_code ())
         {

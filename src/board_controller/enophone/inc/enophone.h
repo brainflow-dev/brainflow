@@ -4,40 +4,29 @@
 #include <mutex>
 #include <thread>
 
-#include "board.h"
-#include "board_controller.h"
-#include "runtime_dll_loader.h"
+#include "bt_lib_board.h"
 
 
-class Enophone : public Board
+class Enophone : public BTLibBoard
 {
 
-private:
+protected:
     volatile bool keep_alive;
-    bool initialized;
     bool is_streaming;
     std::thread streaming_thread;
-    DLLLoader *dll_loader;
     std::mutex m;
     std::condition_variable cv;
     volatile int state;
 
-    int (*func_get_data) (char *, int, char *);
-
     void read_thread ();
-    int call_start ();
-    int call_stop ();
+    std::string get_name_selector ();
 
 public:
     Enophone (struct BrainFlowInputParams params);
     ~Enophone ();
 
-    int prepare_session ();
-    int start_stream (int buffer_size, char *streamer_params);
+    int start_stream (int buffer_size, const char *streamer_params);
     int stop_stream ();
     int release_session ();
     int config_board (std::string config, std::string &response);
-
-protected:
-    int find_enophone_addr ();
 };

@@ -359,7 +359,8 @@ java-package/brainflow/src/main/resources/
 matlab-package/brainflow/inc/
 matlab-package/brainflow/lib/
 python-package/brainflow/lib/
-swift-package/brainflow/lib/
+rust-package/brainflow/lib/
+rust-package/brainflow/inc/
 
 # CMake & GNU Make
 CMakeCache.txt
@@ -370,6 +371,5 @@ Makefile
 *.so
 *.a
 *.cmd
-*.dylib
 CMakeSettings.json
 ._.gitignore

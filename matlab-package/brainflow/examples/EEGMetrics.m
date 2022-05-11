@@ -9,7 +9,7 @@ board_shim.start_stream(45000, '');
 pause(5);
 board_shim.stop_stream();
 nfft = DataFilter.get_nearest_power_of_two(sampling_rate);
-data = board_shim.get_board_data();
+data = board_shim.get_board_data(board_shim.get_board_data_count());
 board_shim.release_session();
 
 eeg_channels = BoardShim.get_eeg_channels(int32(BoardIDs.SYNTHETIC_BOARD));

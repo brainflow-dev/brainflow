@@ -59,7 +59,6 @@ namespace brainflow
         CALLIBRI_EEG_BOARD = 9,
         CALLIBRI_EMG_BOARD = 10,
         CALLIBRI_ECG_BOARD = 11,
-        FASCIA_BOARD = 12,
         NOTION_1_BOARD = 13,
         NOTION_2_BOARD = 14,
         IRONBCI_BOARD = 15,
@@ -84,7 +83,13 @@ namespace brainflow
         ANT_NEURO_EE_223_BOARD = 34,
         ANT_NEURO_EE_224_BOARD = 35,
         ANT_NEURO_EE_225_BOARD = 36,
-        ENOPHONE_BOARD = 37
+        ENOPHONE_BOARD = 37,
+        MUSE_2_BOARD = 38,
+        MUSE_S_BOARD = 39,
+        BRAINALIVE_BOARD = 40,
+        MUSE_2016_BOARD = 41,
+        MUSE_2016_BLED_BOARD = 42,
+        PIEEG_BOARD = 43
     };
 
 
@@ -109,13 +114,13 @@ namespace brainflow
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_board_data (int data_count, double[] data_buf, int board_id, string input_json);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int set_log_level (int log_level);
+        public static extern int set_log_level_board_controller (int log_level);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int log_message (int log_level, string message);
+        public static extern int log_message_board_controller (int log_level, string message);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int config_board (string config, byte[] response, int[] len, int board_id, string input_json);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int set_log_file (string log_file);
+        public static extern int set_log_file_board_controller (string log_file);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_sampling_rate (int board_id, int[] sampling_rate);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -164,6 +169,10 @@ namespace brainflow
         public static extern int insert_marker (double value, int board_id, string input_json);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_board_descr (int board_id, byte[] board_descr, int[] len);
+        [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int release_all_sessions ();
+        [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_version_board_controller (byte[] version, int[] len, int max_len);
     }
 
     public static class BoardControllerLibrary32
@@ -183,13 +192,13 @@ namespace brainflow
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_board_data (int data_count, double[] data_buf, int board_id, string input_json);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int set_log_level (int log_level);
+        public static extern int set_log_level_board_controller (int log_level);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int log_message (int log_level, string message);
+        public static extern int log_message_board_controller (int log_level, string message);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int config_board (string config, byte[] response, int[] len, int board_id, string input_json);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int set_log_file (string log_file);
+        public static extern int set_log_file_board_controller (string log_file);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_sampling_rate (int board_id, int[] sampling_rate);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -238,6 +247,10 @@ namespace brainflow
         public static extern int insert_marker (double value, int board_id, string input_json);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_board_descr (int board_id, byte[] board_descr, int[] len);
+        [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int release_all_sessions ();
+        [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_version_board_controller (byte[] version, int[] len, int max_len);
     }
 
     public static class BoardControllerLibraryLinux
@@ -257,13 +270,13 @@ namespace brainflow
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_board_data (int data_count, double[] data_buf, int board_id, string input_json);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int set_log_level (int log_level);
+        public static extern int set_log_level_board_controller (int log_level);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int log_message (int log_level, string message);
+        public static extern int log_message_board_controller (int log_level, string message);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int config_board (string config, byte[] response, int[] len, int board_id, string input_json);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int set_log_file (string log_file);
+        public static extern int set_log_file_board_controller (string log_file);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_sampling_rate (int board_id, int[] sampling_rate);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -312,6 +325,10 @@ namespace brainflow
         public static extern int insert_marker (double value, int board_id, string input_json);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_board_descr (int board_id, byte[] board_descr, int[] len);
+        [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int release_all_sessions ();
+        [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_version_board_controller (byte[] version, int[] len, int max_len);
     }
 
     public static class BoardControllerLibraryMac
@@ -333,13 +350,13 @@ namespace brainflow
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_board_data (int data_count, double[] data_buf, int board_id, string input_json);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int set_log_level (int log_level);
+        public static extern int set_log_level_board_controller (int log_level);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int log_message (int log_level, string message);
+        public static extern int log_message_board_controller (int log_level, string message);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int config_board (string config, byte[] response, int[] len, int board_id, string input_json);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int set_log_file (string log_file);
+        public static extern int set_log_file_board_controller (string log_file);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_sampling_rate (int board_id, int[] sampling_rate);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -386,6 +403,10 @@ namespace brainflow
         public static extern int get_device_name (int board_id, byte[] name, int[] len);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_board_descr (int board_id, byte[] board_descr, int[] len);
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int release_all_sessions ();
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_version_board_controller (byte[] version, int[] len, int max_len);
     }
 
     public static class BoardControllerLibrary
@@ -526,35 +547,35 @@ namespace brainflow
             return (int)CustomExitCodes.GENERAL_ERROR;
         }
 
-        public static int set_log_level (int log_level)
+        public static int set_log_level_board_controller (int log_level)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.set_log_level (log_level);
+                    return BoardControllerLibrary64.set_log_level_board_controller(log_level);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.set_log_level (log_level);
+                    return BoardControllerLibrary32.set_log_level_board_controller(log_level);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.set_log_level (log_level);
+                    return BoardControllerLibraryLinux.set_log_level_board_controller(log_level);
                 case LibraryEnvironment.MacOS:
-                    return BoardControllerLibraryMac.set_log_level (log_level);
+                    return BoardControllerLibraryMac.set_log_level_board_controller(log_level);
             }
 
             return (int)CustomExitCodes.GENERAL_ERROR;
         }
 
-        public static int log_message (int log_level, string message)
+        public static int log_message_board_controller (int log_level, string message)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.log_message (log_level, message);
+                    return BoardControllerLibrary64.log_message_board_controller(log_level, message);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.log_message (log_level, message);
+                    return BoardControllerLibrary32.log_message_board_controller(log_level, message);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.log_message (log_level, message);
+                    return BoardControllerLibraryLinux.log_message_board_controller(log_level, message);
                 case LibraryEnvironment.MacOS:
-                    return BoardControllerLibraryMac.log_message (log_level, message);
+                    return BoardControllerLibraryMac.log_message_board_controller(log_level, message);
             }
 
             return (int)CustomExitCodes.GENERAL_ERROR;
@@ -595,18 +616,18 @@ namespace brainflow
             return (int)CustomExitCodes.GENERAL_ERROR;
         }
 
-        public static int set_log_file (string log_file)
+        public static int set_log_file_board_controller(string log_file)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.set_log_file (log_file);
+                    return BoardControllerLibrary64.set_log_file_board_controller(log_file);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.set_log_file (log_file);
+                    return BoardControllerLibrary32.set_log_file_board_controller(log_file);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.set_log_file (log_file);
+                    return BoardControllerLibraryLinux.set_log_file_board_controller(log_file);
                 case LibraryEnvironment.MacOS:
-                    return BoardControllerLibraryMac.set_log_file (log_file);
+                    return BoardControllerLibraryMac.set_log_file_board_controller(log_file);
             }
 
             return (int)CustomExitCodes.GENERAL_ERROR;
@@ -760,6 +781,23 @@ namespace brainflow
                     return BoardControllerLibraryLinux.get_device_name (board_id, name, len);
                 case LibraryEnvironment.MacOS:
                     return BoardControllerLibraryMac.get_device_name (board_id, name, len);
+            }
+
+            return (int)CustomExitCodes.GENERAL_ERROR;
+        }
+
+        public static int get_version_board_controller (byte[] version, int[] len, int max_len)
+        {
+            switch (PlatformHelper.get_library_environment())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_version_board_controller (version, len, max_len);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_version_board_controller (version, len, max_len);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.get_version_board_controller (version, len, max_len);
+                case LibraryEnvironment.MacOS:
+                    return BoardControllerLibraryMac.get_version_board_controller (version, len, max_len);
             }
 
             return (int)CustomExitCodes.GENERAL_ERROR;
@@ -981,6 +1019,23 @@ namespace brainflow
                     return BoardControllerLibraryLinux.get_resistance_channels (board_id, channels, len);
                 case LibraryEnvironment.MacOS:
                     return BoardControllerLibraryMac.get_resistance_channels (board_id, channels, len);
+            }
+
+            return (int)CustomExitCodes.GENERAL_ERROR;
+        }
+
+        public static int release_all_sessions ()
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.release_all_sessions ();
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.release_all_sessions ();
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.release_all_sessions ();
+                case LibraryEnvironment.MacOS:
+                    return BoardControllerLibraryMac.release_all_sessions ();
             }
 
             return (int)CustomExitCodes.GENERAL_ERROR;

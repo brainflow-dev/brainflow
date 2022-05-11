@@ -80,6 +80,9 @@
           <include>BrainFlowBluetooth.dll</include>
           <include>libBrainFlowBluetooth.so</include>
           <include>libBrainFlowBluetooth.dylib</include>
+          <include>simpleble-c.dll</include>
+          <include>libsimpleble-c.so</include>
+          <include>libsimpleble-c.dylib</include>
         </includes>
       </resource>
     </resources>
@@ -137,9 +140,9 @@
   </build>
   <dependencies>
     <dependency>
-       <groupId>net.java.dev.jna</groupId>
-       <artifactId>jna-platform</artifactId>
-       <version>4.5.1</version>
+      <groupId>net.java.dev.jna</groupId>
+      <artifactId>jna-platform</artifactId>
+      <version>5.10.0</version>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>

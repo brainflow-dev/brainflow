@@ -5,10 +5,9 @@ import pkg_resources
 import enum
 import os
 import platform
-import sys
 import struct
 import json
-from typing import List, Set, Dict, Tuple
+from typing import List
 
 from nptyping import NDArray, Float64
 
@@ -33,8 +32,6 @@ class BoardIds(enum.IntEnum):
     CALLIBRI_EEG_BOARD = 9  #:
     CALLIBRI_EMG_BOARD = 10  #:
     CALLIBRI_ECG_BOARD = 11  #:
-    FASCIA_BOARD = 12  #:
-    NOTION_OSC_BOARD = 13  #:
     NOTION_1_BOARD = 13  #:
     NOTION_2_BOARD = 14  #:
     IRONBCI_BOARD = 15  #:
@@ -46,20 +43,26 @@ class BoardIds(enum.IntEnum):
     MUSE_S_BLED_BOARD = 21  #:
     MUSE_2_BLED_BOARD = 22  #:
     CROWN_BOARD = 23  #:
-    ANT_NEURO_EE_410_BOARD = 24 #:
-    ANT_NEURO_EE_411_BOARD = 25 #:
-    ANT_NEURO_EE_430_BOARD = 26 #:
-    ANT_NEURO_EE_211_BOARD = 27 #:
-    ANT_NEURO_EE_212_BOARD = 28 #:
-    ANT_NEURO_EE_213_BOARD = 29 #:
-    ANT_NEURO_EE_214_BOARD = 30 #:
-    ANT_NEURO_EE_215_BOARD = 31 #:
-    ANT_NEURO_EE_221_BOARD = 32 #:
-    ANT_NEURO_EE_222_BOARD = 33 #:
-    ANT_NEURO_EE_223_BOARD = 34 #:
-    ANT_NEURO_EE_224_BOARD = 35 #:
-    ANT_NEURO_EE_225_BOARD = 36 #:
-    ENOPHONE_BOARD = 37 #:
+    ANT_NEURO_EE_410_BOARD = 24  #:
+    ANT_NEURO_EE_411_BOARD = 25  #:
+    ANT_NEURO_EE_430_BOARD = 26  #:
+    ANT_NEURO_EE_211_BOARD = 27  #:
+    ANT_NEURO_EE_212_BOARD = 28  #:
+    ANT_NEURO_EE_213_BOARD = 29  #:
+    ANT_NEURO_EE_214_BOARD = 30  #:
+    ANT_NEURO_EE_215_BOARD = 31  #:
+    ANT_NEURO_EE_221_BOARD = 32  #:
+    ANT_NEURO_EE_222_BOARD = 33  #:
+    ANT_NEURO_EE_223_BOARD = 34  #:
+    ANT_NEURO_EE_224_BOARD = 35  #:
+    ANT_NEURO_EE_225_BOARD = 36  #:
+    ENOPHONE_BOARD = 37  #:
+    MUSE_2_BOARD = 38  #:
+    MUSE_S_BOARD = 39  #:
+    BRAINALIVE_BOARD = 40  #:
+    MUSE_2016_BOARD = 41  #:
+    MUSE_2016_BLED_BOARD = 42  #:
+    PIEEG_BOARD = 43  #:
 
 
 class LogLevels(enum.IntEnum):
@@ -225,6 +228,10 @@ class BoardControllerDLL(object):
             ctypes.c_char_p
         ]
 
+        self.release_all_sessions = self.lib.release_all_sessions
+        self.release_all_sessions.restype = ctypes.c_int
+        self.release_all_sessions.argtypes = []
+
         self.insert_marker = self.lib.insert_marker
         self.insert_marker.restype = ctypes.c_int
         self.insert_marker.argtypes = [
@@ -241,21 +248,21 @@ class BoardControllerDLL(object):
             ctypes.c_char_p
         ]
 
-        self.set_log_level = self.lib.set_log_level
-        self.set_log_level.restype = ctypes.c_int
-        self.set_log_level.argtypes = [
+        self.set_log_level_board_controller = self.lib.set_log_level_board_controller
+        self.set_log_level_board_controller.restype = ctypes.c_int
+        self.set_log_level_board_controller.argtypes = [
             ctypes.c_int
         ]
 
-        self.set_log_file = self.lib.set_log_file
-        self.set_log_file.restype = ctypes.c_int
-        self.set_log_file.argtypes = [
+        self.set_log_file_board_controller = self.lib.set_log_file_board_controller
+        self.set_log_file_board_controller.restype = ctypes.c_int
+        self.set_log_file_board_controller.argtypes = [
             ctypes.c_char_p
         ]
 
-        self.log_message = self.lib.log_message
-        self.log_message.restype = ctypes.c_int
-        self.log_message.argtypes = [
+        self.log_message_board_controller = self.lib.log_message_board_controller
+        self.log_message_board_controller.restype = ctypes.c_int
+        self.log_message_board_controller.argtypes = [
             ctypes.c_int,
             ctypes.c_char_p
         ]
@@ -318,6 +325,14 @@ class BoardControllerDLL(object):
             ctypes.c_int,
             ndpointer(ctypes.c_ubyte),
             ndpointer(ctypes.c_int32)
+        ]
+
+        self.get_version_board_controller = self.lib.get_version_board_controller
+        self.get_version_board_controller.restype = ctypes.c_int
+        self.get_version_board_controller.argtypes = [
+            ndpointer(ctypes.c_ubyte),
+            ndpointer(ctypes.c_int32),
+            ctypes.c_int
         ]
 
         self.get_board_descr = self.lib.get_board_descr
@@ -453,7 +468,7 @@ class BoardShim(object):
     def __init__(self, board_id: int, input_params: BrainFlowInputParams) -> None:
         try:
             self.input_json = input_params.to_json().encode()
-        except:
+        except BaseException:
             self.input_json = input_params.to_json()
         self.board_id = board_id
         # we need it for streaming board
@@ -474,7 +489,7 @@ class BoardShim(object):
         :param log_level: log level, to specify it you should use values from LogLevels enum
         :type log_level: int
         """
-        res = BoardControllerDLL.get_instance().set_log_level(log_level)
+        res = BoardControllerDLL.get_instance().set_log_level_board_controller(log_level)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to enable logger', res)
 
@@ -504,9 +519,9 @@ class BoardShim(object):
         """
         try:
             msg = message.encode()
-        except:
+        except BaseException:
             msg = message
-        res = BoardControllerDLL.get_instance().log_message(log_level, msg)
+        res = BoardControllerDLL.get_instance().log_message_board_controller(log_level, msg)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to write log message', res)
 
@@ -519,9 +534,9 @@ class BoardShim(object):
         """
         try:
             file = log_file.encode()
-        except:
+        except BaseException:
             file = log_file
-        res = BoardControllerDLL.get_instance().set_log_file(file)
+        res = BoardControllerDLL.get_instance().set_log_file_board_controller(file)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to redirect logs to a file', res)
 
@@ -637,6 +652,21 @@ class BoardShim(object):
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         return string.tobytes().decode('utf-8')[0:string_len[0]].split(',')
+
+    @classmethod
+    def get_version(cls) -> str:
+        """get version of brainflow libraries
+
+        :return: version
+        :rtype: str
+        :raises BrainFlowError
+        """
+        string = numpy.zeros(64).astype(numpy.ubyte)
+        string_len = numpy.zeros(1).astype(numpy.int32)
+        res = BoardControllerDLL.get_instance().get_version_board_controller(string, string_len, 64)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to request info', res)
+        return string.tobytes().decode('utf-8')[0:string_len[0]]
 
     @classmethod
     def get_board_descr(cls, board_id: int):
@@ -919,6 +949,14 @@ class BoardShim(object):
         result = resistance_channels.tolist()[0:num_channels[0]]
         return result
 
+    @classmethod
+    def release_all_sessions(cls) -> None:
+        """release all prepared sessions"""
+
+        res = BoardControllerDLL.get_instance().release_all_sessions()
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to release sessions', res)
+
     def prepare_session(self) -> None:
         """prepare streaming sesssion, init resources, you need to call it before any other BoardShim object methods"""
 
@@ -940,7 +978,7 @@ class BoardShim(object):
         else:
             try:
                 streamer = streamer_params.encode()
-            except:
+            except BaseException:
                 streamer = streamer_params
 
         res = BoardControllerDLL.get_instance().start_stream(num_samples, streamer, self.board_id, self.input_json)
@@ -1032,13 +1070,20 @@ class BoardShim(object):
             raise BrainFlowError('unable to check session status', res)
         return bool(prepared[0])
 
-    def get_board_data(self) -> NDArray[Float64]:
-        """Get all board data and remove them from ringbuffer
+    def get_board_data(self, num_samples=None) -> NDArray[Float64]:
+        """Get board data and remove data from ringbuffer
 
-        :return: all data from a board
+        :param num_samples: number of packages to get
+        :type num_samples: int
+        :return: all data from a board if num_samples is None, num_samples packages or less if not None
         :rtype: NDArray[Float64]
         """
         data_size = self.get_board_data_count()
+        if num_samples is not None:
+            if num_samples < 1:
+                raise BrainFlowError('invalid num_samples', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+            else:
+                data_size = min(data_size, num_samples)
         package_length = BoardShim.get_num_rows(self._master_board_id)
         data_arr = numpy.zeros(data_size * package_length).astype(numpy.float64)
 
@@ -1058,7 +1103,7 @@ class BoardShim(object):
         """
         try:
             config_string = config.encode()
-        except:
+        except BaseException:
             config_string = config
         string = numpy.zeros(4096).astype(numpy.ubyte)
         string_len = numpy.zeros(1).astype(numpy.int32)

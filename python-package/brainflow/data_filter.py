@@ -5,11 +5,10 @@ import pkg_resources
 import enum
 import os
 import platform
-import sys
 import struct
-from typing import List, Set, Dict, Tuple
+from typing import List, Tuple
 
-from nptyping import NDArray, Float64, Complex128, Int64
+from nptyping import NDArray, Float64, Complex128
 
 from brainflow.board_shim import BrainFlowError, LogLevels
 from brainflow.exit_codes import BrainflowExitCodes
@@ -166,15 +165,24 @@ class DataHandlerDLL(object):
             ctypes.c_int
         ]
 
-        self.set_log_level = self.lib.set_log_level
-        self.set_log_level.restype = ctypes.c_int
-        self.set_log_level.argtypes = [
+        self.calc_stddev = self.lib.calc_stddev
+        self.calc_stddev.restype = ctypes.c_int
+        self.calc_stddev.argtypes = [
+            ndpointer(ctypes.c_double),
+            ctypes.c_int,
+            ctypes.c_int,
+            ndpointer(ctypes.c_double)
+        ]
+
+        self.set_log_level_data_handler = self.lib.set_log_level_data_handler
+        self.set_log_level_data_handler.restype = ctypes.c_int
+        self.set_log_level_data_handler.argtypes = [
             ctypes.c_int
         ]
 
-        self.set_log_file = self.lib.set_log_file
-        self.set_log_file.restype = ctypes.c_int
-        self.set_log_file.argtypes = [
+        self.set_log_file_data_handler = self.lib.set_log_file_data_handler
+        self.set_log_file_data_handler.restype = ctypes.c_int
+        self.set_log_file_data_handler.argtypes = [
             ctypes.c_char_p
         ]
 
@@ -336,6 +344,14 @@ class DataHandlerDLL(object):
             ndpointer(ctypes.c_double)
         ]
 
+        self.get_version_data_handler = self.lib.get_version_data_handler
+        self.get_version_data_handler.restype = ctypes.c_int
+        self.get_version_data_handler.argtypes = [
+            ndpointer(ctypes.c_ubyte),
+            ndpointer(ctypes.c_int32),
+            ctypes.c_int
+        ]
+
 
 class DataFilter(object):
     """DataFilter class contains methods for signal processig"""
@@ -348,7 +364,7 @@ class DataFilter(object):
         :param log_level: log level, to specify it you should use values from LogLevels enum
         :type log_level: int
         """
-        res = DataHandlerDLL.get_instance().set_log_level(log_level)
+        res = DataHandlerDLL.get_instance().set_log_level_data_handler(log_level)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to enable logger', res)
 
@@ -376,9 +392,9 @@ class DataFilter(object):
         """
         try:
             file = log_file.encode()
-        except:
+        except BaseException:
             file = log_file
-        res = DataHandlerDLL.get_instance().set_log_file(file)
+        res = DataHandlerDLL.get_instance().set_log_file_data_handler(file)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to redirect logs to a file', res)
 
@@ -539,6 +555,22 @@ class DataFilter(object):
             raise BrainFlowError('unable to smooth data', res)
 
     @classmethod
+    def calc_stddev(cls, data: NDArray[Float64]):
+        """calc stddev
+
+        :param data: input array
+        :type data: NDArray[Float64]
+        :return: stddev
+        :rtype: float
+        """
+        check_memory_layout_row_major(data, 1)
+        output = numpy.zeros(1).astype(numpy.float64)
+        res = DataHandlerDLL.get_instance().calc_stddev(data, 0, data.shape[0], output)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to calc stddev', res)
+        return output[0]
+
+    @classmethod
     def perform_downsampling(cls, data: NDArray[Float64], period: int, operation: int) -> NDArray[Float64]:
         """perform data downsampling, it doesnt apply lowpass filter for you, it just aggregates several data points
 
@@ -583,7 +615,7 @@ class DataFilter(object):
         check_memory_layout_row_major(data, 1)
         try:
             wavelet_func = wavelet.encode()
-        except:
+        except BaseException:
             wavelet_func = wavelet
 
         wavelet_coeffs = numpy.zeros(data.shape[0] + 2 * (40 + 1)).astype(numpy.float64)
@@ -613,7 +645,7 @@ class DataFilter(object):
         """
         try:
             wavelet_func = wavelet.encode()
-        except:
+        except BaseException:
             wavelet_func = wavelet
 
         original_data = numpy.zeros(original_data_len).astype(numpy.float64)
@@ -640,7 +672,7 @@ class DataFilter(object):
         check_memory_layout_row_major(data, 1)
         try:
             wavelet_func = wavelet.encode()
-        except:
+        except BaseException:
             wavelet_func = wavelet
 
         res = DataHandlerDLL.get_instance().perform_wavelet_denoising(data, data.shape[0], wavelet_func,
@@ -911,11 +943,11 @@ class DataFilter(object):
         check_memory_layout_row_major(data, 2)
         try:
             file = file_name.encode()
-        except:
+        except BaseException:
             file = file_name
         try:
             mode = file_mode.encode()
-        except:
+        except BaseException:
             mode = file_mode
         data_flatten = data.flatten()
         res = DataHandlerDLL.get_instance().write_file(data_flatten, data.shape[0], data.shape[1], file, mode)
@@ -933,7 +965,7 @@ class DataFilter(object):
         """
         try:
             file = file_name.encode()
-        except:
+        except BaseException:
             file = file_name
 
         num_elements = numpy.zeros(1).astype(numpy.int32)
@@ -954,3 +986,18 @@ class DataFilter(object):
 
         data_arr = data_arr[0:num_rows[0] * num_cols[0]].reshape(num_rows[0], num_cols[0])
         return data_arr
+
+    @classmethod
+    def get_version(cls) -> str:
+        """get version of brainflow libraries
+
+        :return: version
+        :rtype: str
+        :raises BrainFlowError
+        """
+        string = numpy.zeros(64).astype(numpy.ubyte)
+        string_len = numpy.zeros(1).astype(numpy.int32)
+        res = DataHandlerDLL.get_instance().get_version_data_handler(string, string_len, 64)
+        if res != BrainflowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to request info', res)
+        return string.tobytes().decode('utf-8')[0:string_len[0]]

@@ -117,7 +117,7 @@ int GforcePro::stop_stream ()
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
-int GforcePro::start_stream (int buffer_size, char *streamer_params)
+int GforcePro::start_stream (int buffer_size, const char *streamer_params)
 {
     safe_logger (spdlog::level::err, "GforcePro doesnt support Unix.");
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

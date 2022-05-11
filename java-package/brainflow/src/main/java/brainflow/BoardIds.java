@@ -23,7 +23,6 @@ public enum BoardIds
     CALLIBRI_EEG_BOARD (9),
     CALLIBRI_EMG_BOARD (10),
     CALLIBRI_ECG_BOARD (11),
-    FASCIA_BOARD (12),
     NOTION_1_BOARD (13),
     NOTION_2_BOARD (14),
     IRONBCI_BOARD (15),
@@ -48,7 +47,13 @@ public enum BoardIds
     ANT_NEURO_EE_223_BOARD (34),
     ANT_NEURO_EE_224_BOARD (35),
     ANT_NEURO_EE_225_BOARD (36),
-    ENOPHONE_BOARD (37);
+    ENOPHONE_BOARD (37),
+    MUSE_2_BOARD (38),
+    MUSE_S_BOARD (39),
+    BRAINALIVE_BOARD (40),
+    MUSE_2016_BOARD (41),
+    MUSE_2016_BLED_BOARD (42),
+    PIEEG_BOARD (43);
 
     private final int board_id;
     private static final Map<Integer, BoardIds> bi_map = new HashMap<Integer, BoardIds> ();

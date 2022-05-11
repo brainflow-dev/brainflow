@@ -42,6 +42,18 @@ namespace brainflow
         }
 
         /// <summary>
+        /// release all sessions
+        /// </summary>
+        public static void release_all_sessions ()
+        {
+            int res = BoardControllerLibrary.release_all_sessions ();
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException(res);
+            }
+        }
+
+        /// <summary>
         /// get sampling rate for this board id
         /// </summary>
         /// <param name="board_id"></param>
@@ -202,6 +214,24 @@ namespace brainflow
             }
             string name = System.Text.Encoding.UTF8.GetString (str, 0, len[0]);
             return name;
+        }
+
+        /// <summary>
+        /// get version
+        /// </summary>
+        /// <returns>version</returns>
+        /// <exception cref="BrainFlowException"></exception>
+        public static string get_version ()
+        {
+            int[] len = new int[1];
+            byte[] str = new byte[64];
+            int res = BoardControllerLibrary.get_version_board_controller (str, len, 64);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException (res);
+            }
+            string version = System.Text.Encoding.UTF8.GetString (str, 0, len[0]);
+            return version;
         }
 
         /// <summary>
@@ -509,7 +539,7 @@ namespace brainflow
         /// <param name="log_level"></param>
         public static void set_log_level (int log_level)
         {
-            int res = BoardControllerLibrary.set_log_level (log_level);
+            int res = BoardControllerLibrary.set_log_level_board_controller (log_level);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException (res);
@@ -521,7 +551,7 @@ namespace brainflow
         /// </summary>
         public static void enable_board_logger ()
         {
-            BoardControllerLibrary.set_log_level ((int)LogLevels.LEVEL_INFO);
+            set_log_level ((int)LogLevels.LEVEL_INFO);
         }
 
         /// <summary>
@@ -529,7 +559,7 @@ namespace brainflow
         /// </summary>
         public static void disable_board_logger ()
         {
-            BoardControllerLibrary.set_log_level ((int)LogLevels.LEVEL_OFF);
+            set_log_level ((int)LogLevels.LEVEL_OFF);
         }
 
         /// <summary>
@@ -537,7 +567,7 @@ namespace brainflow
         /// </summary>
         public static void enable_dev_board_logger ()
         {
-            BoardControllerLibrary.set_log_level ((int)LogLevels.LEVEL_TRACE);
+            set_log_level ((int)LogLevels.LEVEL_TRACE);
         }
 
         /// <summary>
@@ -546,7 +576,7 @@ namespace brainflow
         /// <param name="log_file"></param>
         public static void set_log_file (string log_file)
         {
-            int res = BoardControllerLibrary.set_log_file (log_file);
+            int res = BoardControllerLibrary.set_log_file_board_controller (log_file);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException (res);
@@ -560,7 +590,7 @@ namespace brainflow
         /// <param name="message"></param>
         public static void log_message (int log_level, string message)
         {
-            int res = BoardControllerLibrary.log_message (log_level, message);
+            int res = BoardControllerLibrary.log_message_board_controller (log_level, message);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException (res);
@@ -715,11 +745,26 @@ namespace brainflow
         /// <returns>all collected data</returns>
         public double[,] get_board_data ()
         {
-		    int size = get_board_data_count ();
+            return get_board_data (get_board_data_count ());
+        }
+
+        /// <summary>
+        /// get collected data and remove it from ringbuffer
+        /// </summary>
+        /// <returns>all collected data</returns>
+        public double[,] get_board_data (int num_datapoints)
+        {
+            int size = get_board_data_count ();
+            if (num_datapoints < 0)
+            {
+                throw new BrainFlowException ((int)CustomExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            size = Math.Min (size, num_datapoints);
             int num_rows = BoardShim.get_num_rows (master_board_id);
             double[] data_arr = new double[size * num_rows];
             int ec = BoardControllerLibrary.get_board_data (size, data_arr, board_id, input_json);
-		    if (ec != (int) CustomExitCodes.STATUS_OK) {
+            if (ec != (int)CustomExitCodes.STATUS_OK)
+            {
                 throw new BrainFlowException (ec);
             }
             double[,] result = new double[num_rows, size];

@@ -22,12 +22,24 @@ namespace brainflow
         }
 
         /// <summary>
+        /// release all classifiers
+        /// </summary>
+        public static void release_all ()
+        {
+            int res = MLModuleLibrary.release_all ();
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException(res);
+            }
+        }
+
+        /// <summary>
         /// set log level, logger is disabled by default
         /// </summary>
         /// <param name="log_level"></param>
         private static void set_log_level (int log_level)
         {
-            int res = MLModuleLibrary.set_log_level (log_level);
+            int res = MLModuleLibrary.set_log_level_ml_module (log_level);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException (res);
@@ -39,7 +51,7 @@ namespace brainflow
         /// </summary>
         public static void enable_ml_logger ()
         {
-            MLModuleLibrary.set_log_level ((int)LogLevels.LEVEL_INFO);
+            set_log_level ((int)LogLevels.LEVEL_INFO);
         }
 
         /// <summary>
@@ -47,7 +59,7 @@ namespace brainflow
         /// </summary>
         public static void disable_ml_logger ()
         {
-            MLModuleLibrary.set_log_level ((int)LogLevels.LEVEL_OFF);
+            set_log_level ((int)LogLevels.LEVEL_OFF);
         }
 
         /// <summary>
@@ -55,7 +67,7 @@ namespace brainflow
         /// </summary>
         public static void enable_dev_ml_logger ()
         {
-            MLModuleLibrary.set_log_level ((int)LogLevels.LEVEL_TRACE);
+            set_log_level ((int)LogLevels.LEVEL_TRACE);
         }
 
         /// <summary>
@@ -64,7 +76,7 @@ namespace brainflow
         /// <param name="log_file"></param>
         public static void set_log_file (string log_file)
         {
-            int res = MLModuleLibrary.set_log_file (log_file);
+            int res = MLModuleLibrary.set_log_file_ml_module (log_file);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException (res);
@@ -107,6 +119,24 @@ namespace brainflow
                 throw new BrainFlowException (res);
             }
             return val[0];
+        }
+
+        /// <summary>
+        /// get version
+        /// </summary>
+        /// <returns>version</returns>
+        /// <exception cref="BrainFlowException"></exception>
+        public static string get_version ()
+        {
+            int[] len = new int[1];
+            byte[] str = new byte[64];
+            int res = MLModuleLibrary.get_version_ml_module (str, len, 64);
+            if (res != (int)CustomExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowException (res);
+            }
+            string version = System.Text.Encoding.UTF8.GetString (str, 0, len[0]);
+            return version;
         }
 
     }

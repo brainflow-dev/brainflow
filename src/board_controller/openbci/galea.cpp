@@ -1,12 +1,16 @@
-#include <numeric>
+#include "galea.h"
+
+#include <chrono>
 #include <stdint.h>
 #include <string.h>
 
-#include "custom_cast.h"
-#include "galea.h"
-#include "timestamp.h"
+#include <numeric>
+#include <regex>
+#include <sstream>
 
+#include "custom_cast.h"
 #include "json.hpp"
+#include "timestamp.h"
 
 using json = nlohmann::json;
 
@@ -17,7 +21,7 @@ using json = nlohmann::json;
 constexpr int Galea::package_size;
 constexpr int Galea::num_packages;
 constexpr int Galea::transaction_size;
-
+constexpr int Galea::socket_timeout;
 
 Galea::Galea (struct BrainFlowInputParams params) : Board ((int)BoardIds::GALEA_BOARD, params)
 {
@@ -42,10 +46,18 @@ int Galea::prepare_session ()
         safe_logger (spdlog::level::info, "Session is already prepared");
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
+    if ((params.timeout > 600) || (params.timeout < 1))
+    {
+        params.timeout = 5;
+    }
+
     if (params.ip_address.empty ())
     {
-        safe_logger (spdlog::level::err, "ip address is not specified.");
-        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+        params.ip_address = find_device ();
+        if (params.ip_address.empty ())
+        {
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+        }
     }
     socket = new SocketClientUDP (params.ip_address.c_str (), 2390);
     int res = socket->connect ();
@@ -56,12 +68,9 @@ int Galea::prepare_session ()
         socket = NULL;
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    if ((params.timeout > 600) || (params.timeout < 1))
-    {
-        params.timeout = 2;
-    }
-    safe_logger (spdlog::level::trace, "timeout for socket is {}", params.timeout);
-    socket->set_timeout (params.timeout);
+
+    safe_logger (spdlog::level::trace, "timeout for socket is {}", socket_timeout);
+    socket->set_timeout (socket_timeout);
     // force default settings for device
     std::string tmp;
     std::string default_settings = "o"; // use demo mode with agnd
@@ -172,7 +181,7 @@ int Galea::config_board (std::string conf, std::string &response)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int Galea::start_stream (int buffer_size, char *streamer_params)
+int Galea::start_stream (int buffer_size, const char *streamer_params)
 {
     if (!initialized)
     {
@@ -460,6 +469,8 @@ int Galea::calc_time (std::string &resp)
             spdlog::level::warn, "failed to recv resp from time calc command, resp size {}", res);
         return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
     }
+
+
     double duration = done - start;
     double timestamp_device = 0;
     memcpy (&timestamp_device, b, 8);
@@ -475,4 +486,89 @@ int Galea::calc_time (std::string &resp)
     safe_logger (spdlog::level::info, "calc_time output: {}", resp);
 
     return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+std::string Galea::find_device ()
+{
+#ifdef _WIN32
+    std::string ssdp_ip_address = "192.168.137.255";
+#else
+    std::string ssdp_ip_address = "239.255.255.250";
+#endif
+
+    safe_logger (spdlog::level::trace, "trying to autodiscover device via SSDP");
+    safe_logger (spdlog::level::trace, "timeout for search is {}", params.timeout);
+    std::string ip_address = "";
+    SocketClientUDP udp_client (ssdp_ip_address.c_str (),
+        1900); // ssdp ip and port
+
+    int res = udp_client.connect ();
+    if (res == (int)SocketClientUDPReturnCodes::STATUS_OK)
+    {
+        std::string msearch = ("M-SEARCH * HTTP/1.1\r\nHost: " + ssdp_ip_address +
+            ":1900\r\nMAN: ssdp:discover\r\n"
+            "ST: urn:schemas-upnp-org:device:Basic:1\r\n"
+            "MX: 3\r\n"
+            "\r\n"
+            "\r\n");
+
+        safe_logger (spdlog::level::trace, "Use search request {}", msearch.c_str ());
+
+        res = (int)udp_client.send (msearch.c_str (), (int)msearch.size ());
+        if (res == msearch.size ())
+        {
+            unsigned char b[250];
+            auto start_time = std::chrono::high_resolution_clock::now ();
+            int run_time = 0;
+            while (run_time < params.timeout)
+            {
+                res = udp_client.recv (b, 250);
+                if (res > 1)
+                {
+                    std::string response ((const char *)b);
+                    safe_logger (spdlog::level::trace, "Search response: {}", b);
+                    std::regex rgx_ip ("LOCATION: http://([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)");
+                    std::smatch matches;
+                    if (std::regex_search (response, matches, rgx_ip) == true)
+                    {
+                        if (matches.size () == 2)
+                        {
+                            std::regex rgx_sn (
+                                "USN: uuid:" + params.serial_number + "::upnp:rootdevice");
+                            if ((params.serial_number.empty ()) ||
+                                (std::regex_search (response, rgx_sn)))
+                            {
+                                ip_address = matches.str (1);
+                                break;
+                            }
+                        }
+                    }
+                }
+                auto end_time = std::chrono::high_resolution_clock::now ();
+                run_time =
+                    (int)std::chrono::duration_cast<std::chrono::seconds> (end_time - start_time)
+                        .count ();
+            }
+        }
+        else
+        {
+            safe_logger (spdlog::level::err, "Sent res {}", res);
+        }
+    }
+    else
+    {
+        safe_logger (spdlog::level::err, "Failed to connect socket {}", res);
+    }
+
+    if (ip_address.empty ())
+    {
+        safe_logger (spdlog::level::err, "failed to find ip address");
+    }
+    else
+    {
+        safe_logger (spdlog::level::info, "use ip address {}", ip_address.c_str ());
+    }
+
+    udp_client.close ();
+    return ip_address;
 }

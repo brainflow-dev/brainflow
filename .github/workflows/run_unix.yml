@@ -16,6 +16,11 @@ jobs:
     # compile and prepare env
     - name: Clone Repository
       uses: actions/checkout@v2
+    - name: Set Version
+      id: version
+      run: if [ $GITHUB_REF_TYPE == "tag" ]; then echo "::set-output name=version::$GITHUB_REF_NAME"; else echo "::set-output name=version::$GITHUB_SHA"; fi
+    - name: Check Version
+      run: echo ${{ steps.version.outputs.version }}
     - name: Install Python 3.7
       uses: actions/setup-python@v2
       with:
@@ -45,28 +50,43 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11.0.3
+    # build simpleble outside from brainflow because of different deployment targets
+    - name: Compile SimpleBLE MacOS
+      if: (matrix.os == 'macos-11.0')
+      run: |
+        mkdir $GITHUB_WORKSPACE/third_party/SimpleBLE/build
+        cd $GITHUB_WORKSPACE/third_party/SimpleBLE/build
+        cmake -G Ninja -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
+        ninja
+        ninja install
     - name: Compile BrainFlow MacOS
       if: (matrix.os == 'macos-11.0')
       run: |
         mkdir $GITHUB_WORKSPACE/build
         cd $GITHUB_WORKSPACE/build
-        cmake -G Ninja -DBUILD_BLUETOOTH=ON -DWARNINGS_AS_ERRORS=ON -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
+        cmake -G Ninja -DBRAINFLOW_VERSION=$BRAINFLOW_VERSION -DBUILD_BLUETOOTH=ON -DBUILD_TESTS=ON -DWARNINGS_AS_ERRORS=ON -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
         ninja
         ninja install
+      env:
+        BRAINFLOW_VERSION: ${{ steps.version.outputs.version }}
     - name: Compile BrainFlow Ubuntu
       if: (matrix.os == 'ubuntu-latest')
       run: |
         mkdir $GITHUB_WORKSPACE/build
         cd $GITHUB_WORKSPACE/build
-        cmake -DBUILD_BLUETOOTH=ON -DWARNINGS_AS_ERRORS=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
+        cmake -DBRAINFLOW_VERSION=$BRAINFLOW_VERSION -DBUILD_BLUETOOTH=ON -DBUILD_TESTS=ON -DWARNINGS_AS_ERRORS=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
         make
         make install
+      env:
+        BRAINFLOW_VERSION: ${{ steps.version.outputs.version }}
     - name: Compile BrainFlow in ManyLinux
       # bindings in production have to use libraries compiled inside this image!
       if: (matrix.os == 'ubuntu-latest')
       run: |
         docker pull dockcross/manylinux2014-x64:20210708-94745ff
-        docker run -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE dockcross/manylinux2014-x64:20210708-94745ff /bin/bash -c "yum install -y bluez-libs-devel && /opt/python/cp36-cp36m/bin/pip3.6 install cmake==3.13.3 && cd $GITHUB_WORKSPACE && mkdir build_docker && cd build_docker && cmake -DBUILD_BLUETOOTH=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed_docker -DCMAKE_BUILD_TYPE=Release .. && make && make install"
+        docker run -e BRAINFLOW_VERSION=$BRAINFLOW_VERSION -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE dockcross/manylinux2014-x64:20210708-94745ff /bin/bash -c "yum install -y bluez-libs-devel dbus-devel && /opt/python/cp36-cp36m/bin/pip3.6 install cmake==3.13.3 && cd $GITHUB_WORKSPACE && mkdir build_docker && cd build_docker && cmake -DBRAINFLOW_VERSION=$BRAINFLOW_VERSION -DBUILD_BLE=ON -DBUILD_BLUETOOTH=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed_docker -DCMAKE_BUILD_TYPE=Release .. && make && make install"
+      env:
+        BRAINFLOW_VERSION: ${{ steps.version.outputs.version }}
     - name: Setup Python Package
       run: |
         cd $GITHUB_WORKSPACE/python-package
@@ -79,21 +99,21 @@ jobs:
         cp -av $GITHUB_WORKSPACE/java-package/brainflow/target/classes/brainflow/. $GITHUB_WORKSPACE/java-package/brainflow/target/classes/
     - name: Build Get Data Test
       run: |
-        cd $GITHUB_WORKSPACE/tests/cpp/get_data_demo
+        cd $GITHUB_WORKSPACE/tests/cpp/demos/get_data_demo
         mkdir build
         cd build
         cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed ..
         make
     - name: Build Signal Processing Test
       run: |
-        cd $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo
+        cd $GITHUB_WORKSPACE/tests/cpp/demos/signal_processing_demo
         mkdir build
         cd build
         cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed ..
         make
     - name: Build ML Demo Test
       run: |
-        cd $GITHUB_WORKSPACE/tests/cpp/ml_demo
+        cd $GITHUB_WORKSPACE/tests/cpp/demos/ml_demo
         mkdir build
         cd build
         cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed ..
@@ -106,6 +126,8 @@ jobs:
       run: sudo -H python3 -m pip install -r $GITHUB_WORKSPACE/tests/python/requirements.txt
 
     # start testing
+    - name: Run unit tests
+      run: $GITHUB_WORKSPACE/build/tests/brainflow_tests
     - name: Run All Julia Tests
       run: |
         export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/installed/lib:$LD_LIBRARY_PATH
@@ -119,13 +141,13 @@ jobs:
     - name: Multiboard Python
       run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_multiboard_get_data.py --board-id 0 --serial-port
     - name: Cyton Cpp
-      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 0 --serial-port
+      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py $GITHUB_WORKSPACE/tests/cpp/demos/get_data_demo/build/brainflow_get_data --board-id 0 --serial-port
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Synthetic Python
       run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --board-id -1 --streamer-params file://$GITHUB_WORKSPACE/test.csv:w
     - name: Synthetic Cpp
-      run: $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id -1
+      run: $GITHUB_WORKSPACE/tests/cpp/demos/get_data_demo/build/brainflow_get_data --board-id -1
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Synthetic Java
@@ -145,35 +167,25 @@ jobs:
     - name: Cyton Daisy Python Markers
       run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/markers.py --board-id 2 --serial-port 
     - name: Galea Cpp
-      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/galea_udp.py $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 3 --ip-address 127.0.0.1
+      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/galea_udp.py $GITHUB_WORKSPACE/tests/cpp/demos/get_data_demo/build/brainflow_get_data --board-id 3 --ip-address 127.0.0.1
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Galea Cpp Markers
-      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/galea_udp.py $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/markers --board-id 3 --ip-address 127.0.0.1
+      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/galea_udp.py $GITHUB_WORKSPACE/tests/cpp/demos/get_data_demo/build/markers --board-id 3 --ip-address 127.0.0.1
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Streaming Python
       run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/streaming_board_emulator.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
-    #- name: Fascia Python
-    #  run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/fascia_emulator_ci.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --board-id 12 --ip-port 7789
-    - name: IronBCI Cpp
-      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/ironbci_linux.py $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/brainflow_get_data --board-id 15 --serial-port
-      env:
-        LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Streaming Python Markers
       run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/streaming_board_emulator.py python3 $GITHUB_WORKSPACE/tests/python/markers.py --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
-    #- name: Fascia Python Markers
-    #  run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/fascia_emulator_ci.py python3 $GITHUB_WORKSPACE/tests/python/markers.py --board-id 12 --ip-port 7789
-    - name: IronBCI Cpp Markers
-      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/ironbci_linux.py $GITHUB_WORKSPACE/tests/cpp/get_data_demo/build/markers --board-id 15 --serial-port
-      env:
-        LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Denoising Python
       run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/denoising.py
     - name: Serialization Python
       run: |
         cd $GITHUB_WORKSPACE
         sudo -H python3 $GITHUB_WORKSPACE/tests/python/serialization.py
+    - name: Python Release All
+      run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/release_all.py
     - name: Filters Python
       run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/signal_filtering.py
     - name: Transforms Python
@@ -191,37 +203,37 @@ jobs:
     - name: BandPowerAll Python
       run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/band_power_all.py
     - name: Denoising Cpp
-      run: $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/denoising
+      run: $GITHUB_WORKSPACE/tests/cpp/demos/signal_processing_demo/build/denoising
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Downsampling Cpp
-      run: $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/downsampling
+      run: $GITHUB_WORKSPACE/tests/cpp/demos/signal_processing_demo/build/downsampling
       env:
           LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: CSP Cpp
-      run: $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/csp
+      run: $GITHUB_WORKSPACE/tests/cpp/demos/signal_processing_demo/build/csp
       env:
           LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Windowing Cpp
-      run: $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/windowing
+      run: $GITHUB_WORKSPACE/tests/cpp/demos/signal_processing_demo/build/windowing
       env:
           LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Filters Cpp
-      run: $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/signal_filtering
+      run: $GITHUB_WORKSPACE/tests/cpp/demos/signal_processing_demo/build/signal_filtering
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Serialization Cpp
       run: |
         cd $GITHUB_WORKSPACE
-        sudo -H $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/serialization
+        sudo -H $GITHUB_WORKSPACE/tests/cpp/demos/signal_processing_demo/build/serialization
       env:
           LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Transforms Cpp
-      run: $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/transforms
+      run: $GITHUB_WORKSPACE/tests/cpp/demos/signal_processing_demo/build/transforms
       env:
           LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: BandPower Cpp
-      run: $GITHUB_WORKSPACE/tests/cpp/signal_processing_demo/build/band_power
+      run: $GITHUB_WORKSPACE/tests/cpp/demos/signal_processing_demo/build/band_power
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Denoising Java
@@ -265,7 +277,7 @@ jobs:
     - name: EEG Metrics Custom Python
       run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/eeg_metrics_ci.py --board-id -1 --classifier 2 --metric 1
     - name: EEG Metrics Cpp
-      run: $GITHUB_WORKSPACE/tests/cpp/ml_demo/build/eeg_metrics --board-id -1
+      run: $GITHUB_WORKSPACE/tests/cpp/demos/ml_demo/build/eeg_metrics --board-id -1
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: EEG Metrics Java
@@ -276,7 +288,7 @@ jobs:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     # deploy started
     - name: Install AWS CLI
-      run: sudo -H python3 -m pip install awscli
+      run: sudo -H python3 -m pip install awscli==1.21.10
     - name: Push Libraries Linux Docker
       if: ${{ github.event_name == 'push' && matrix.os == 'ubuntu-latest' && github.repository == 'brainflow-dev/brainflow' }}
       run: |

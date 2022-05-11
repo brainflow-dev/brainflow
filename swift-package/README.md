@@ -55,6 +55,7 @@ We support bindings for:
 * [C#](./csharp-package/brainflow/)
 * [Matlab](./matlab-package/brainflow)
 * [Julia](.julia-package/brainflow)
+* [Swift](.swift-package/BrainFlow)
 
 ## Partners and Sponsors
 

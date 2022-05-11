@@ -28,10 +28,20 @@ classdef DataFilter
                 error('Non zero ec: %d, for task: %s', ec, task_name)
             end
         end
+        
+        function version = get_version()
+            % get version
+            task_name = 'get_version_data_handler';
+            lib_name = DataFilter.load_lib();
+            % no way to understand how it works in matlab, used this link
+            % https://nl.mathworks.com/matlabcentral/answers/131446-what-data-type-do-i-need-to-calllib-with-pointer-argument-char%
+            [exit_code, version] = calllib(lib_name, task_name, blanks(64), 64, 64);
+            DataFilter.check_ec(exit_code, task_name);
+        end
 
         function set_log_level(log_level)
             % set log level for DataFilter
-            task_name = 'set_log_level';
+            task_name = 'set_log_level_data_handler';
             lib_name = DataFilter.load_lib();
             exit_code = calllib(lib_name, task_name, log_level);
             DataFilter.check_ec(exit_code, task_name);
@@ -39,7 +49,7 @@ classdef DataFilter
 
         function set_log_file(log_file)
             % set log file for DataFilter
-            task_name = 'set_log_file';
+            task_name = 'set_log_file_data_handler';
             lib_name = DataFilter.load_lib();
             exit_code = calllib(lib_name, task_name, log_file);
             DataFilter.check_ec(exit_code, task_name);
@@ -220,6 +230,17 @@ classdef DataFilter
             exit_code = calllib(lib_name, task_name, window_function, window_len, temp_output);
             DataFilter.check_ec(exit_code, task_name);
             window_data = temp_output.Value;
+        end
+
+        function stddev = calc_stddev(data)
+            % calc stddev
+            task_name = 'calc_stddev';
+            temp_input = libpointer('doublePtr', data);
+            output = libpointer('doublePtr', 0);
+            lib_name = DataFilter.load_lib();
+            exit_code = calllib(lib_name, task_name, temp_input, 0, size(data, 2), output);
+            DataFilter.check_ec(exit_code, task_name);
+            stddev = output.Value;
         end
 
         function fft_data = perform_fft(data, window)

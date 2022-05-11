@@ -105,7 +105,7 @@ int AntNeuroBoard::prepare_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int AntNeuroBoard::start_stream (int buffer_size, char *streamer_params)
+int AntNeuroBoard::start_stream (int buffer_size, const char *streamer_params)
 {
     if (stream != NULL)
     {
@@ -337,7 +337,7 @@ int AntNeuroBoard::stop_stream ()
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
-int AntNeuroBoard::start_stream (int buffer_size, char *streamer_params)
+int AntNeuroBoard::start_stream (int buffer_size, const char *streamer_params)
 {
     safe_logger (spdlog::level::err, "AntNeuroBoard doesnt support MacOS.");
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

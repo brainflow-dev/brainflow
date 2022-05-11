@@ -169,6 +169,10 @@ public:
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static std::vector<int> get_resistance_channels (int board_id);
+    /// release all currently prepared session
+    static void release_all_sessions ();
+    /// get brainflow version
+    static std::string get_version ();
 
     int board_id;
 
@@ -201,6 +205,8 @@ public:
     int get_board_data_count ();
     /// get all collected data and flush it from internal buffer
     BrainFlowArray<double, 2> get_board_data ();
+    /// get required amount of datapoints or less and flush it from internal buffer
+    BrainFlowArray<double, 2> get_board_data (int num_datapoints);
     /// send string to a board, use it carefully and only if you understand what you are doing
     std::string config_board (char *config);
     /// insert marker in data stream

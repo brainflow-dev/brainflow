@@ -62,7 +62,7 @@ int FreeEEG32::prepare_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int FreeEEG32::start_stream (int buffer_size, char *streamer_params)
+int FreeEEG32::start_stream (int buffer_size, const char *streamer_params)
 {
     if (is_streaming)
     {
@@ -168,7 +168,7 @@ void FreeEEG32::read_thread ()
             package[board_descr["package_num_channel"].get<int> ()] = (double)b[0];
             for (unsigned int i = 0; i < eeg_channels.size (); i++)
             {
-                package[eeg_channels[i]] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
+                package[eeg_channels[i]] = (double)eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
             }
             package[board_descr["timestamp_channel"].get<int> ()] = get_timestamp ();
             push_package (package);

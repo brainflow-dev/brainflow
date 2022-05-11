@@ -33,9 +33,17 @@ classdef MLModel
             end
         end
         
+        function release_all()
+            % release all sessions
+            task_name = 'release_all';
+            lib_name = MLModel.load_lib();
+            exit_code = calllib(lib_name, task_name);
+            BoardShim.check_ec(exit_code, task_name);
+        end
+        
         function set_log_level(log_level)
             % set log level for MLModel
-            task_name = 'set_log_level';
+            task_name = 'set_log_level_ml_module';
             lib_name = MLModel.load_lib();
             exit_code = calllib(lib_name, task_name, log_level);
             MLModel.check_ec(exit_code, task_name);
@@ -43,7 +51,7 @@ classdef MLModel
 
         function set_log_file(log_file)
             % set log file for MLModel
-            task_name = 'set_log_file';
+            task_name = 'set_log_file_ml_module';
             lib_name = MLModel.load_lib();
             exit_code = calllib(lib_name, task_name, log_file);
             MLModel.check_ec(exit_code, task_name);
@@ -62,6 +70,16 @@ classdef MLModel
         function disable_ml_logger()
             % disable logger
             MLModel.set_log_level(int32(6))
+        end
+        
+        function version = get_version()
+            % get version
+            task_name = 'get_version_ml_module';
+            lib_name = MLModel.load_lib();
+            % no way to understand how it works in matlab, used this link
+            % https://nl.mathworks.com/matlabcentral/answers/131446-what-data-type-do-i-need-to-calllib-with-pointer-argument-char%
+            [exit_code, version] = calllib(lib_name, task_name, blanks(64), 64, 64);
+            MLModel.check_ec(exit_code, task_name);
         end
    
     end

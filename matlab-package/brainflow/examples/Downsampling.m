@@ -1,3 +1,7 @@
+BoardShim.get_version()
+DataFilter.get_version()
+MLModel.get_version()
+
 BoardShim.set_log_file('brainflow.log');
 BoardShim.enable_dev_board_logger();
 
@@ -7,7 +11,7 @@ board_shim.prepare_session();
 board_shim.start_stream(45000, '');
 pause(5);
 board_shim.stop_stream();
-data = board_shim.get_current_board_data(64);
+data = board_shim.get_board_data(64);
 board_shim.release_session();
 
 eeg_channels = BoardShim.get_eeg_channels(int32(BoardIDs.SYNTHETIC_BOARD));

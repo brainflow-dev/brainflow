@@ -51,6 +51,7 @@ BrainBit::BrainBit (struct BrainFlowInputParams params)
     signal_t3 = NULL;
     signal_o1 = NULL;
     signal_o2 = NULL;
+    counter = 0;
 }
 
 BrainBit::~BrainBit ()
@@ -213,6 +214,7 @@ int BrainBit::prepare_session ()
     free_ChannelInfoArray (device_channels);
 
     initialized = true;
+    counter = 0;
 
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
@@ -274,7 +276,7 @@ int BrainBit::config_board (std::string config, std::string &response)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int BrainBit::start_stream (int buffer_size, char *streamer_params)
+int BrainBit::start_stream (int buffer_size, const char *streamer_params)
 {
     if (is_streaming)
     {
@@ -335,7 +337,6 @@ int BrainBit::release_session ()
     return NeuromdBoard::release_session ();
 }
 
-
 void BrainBit::read_thread ()
 {
     /*
@@ -351,9 +352,7 @@ void BrainBit::read_thread ()
     {
         package[i] = 0.0;
     }
-    // I dont see method to flush data from buffer, so need to keep offset and track package num to
-    // get only new data
-    size_t counter = 0;
+
     while (keep_alive)
     {
         size_t length_t3 = 0;
@@ -543,7 +542,7 @@ int BrainBit::stop_stream ()
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
-int BrainBit::start_stream (int buffer_size, char *streamer_params)
+int BrainBit::start_stream (int buffer_size, const char *streamer_params)
 {
     safe_logger (spdlog::level::err, "BrainBit doesnt support Linux.");
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
