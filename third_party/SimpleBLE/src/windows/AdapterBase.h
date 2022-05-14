@@ -1,12 +1,5 @@
 #pragma once
 
-#include <atomic>
-#include <condition_variable>
-#include <functional>
-#include <memory>
-#include <string>
-#include <vector>
-
 #include <simpleble/Exceptions.h>
 #include <simpleble/Peripheral.h>
 #include <simpleble/Types.h>
@@ -14,8 +7,17 @@
 #include "AdapterBaseTypes.h"
 #include "PeripheralBase.h"
 
+#include <kvn_safe_callback.hpp>
+
 #include "winrt/Windows.Devices.Bluetooth.Advertisement.h"
 #include "winrt/Windows.Devices.Bluetooth.h"
+
+#include <atomic>
+#include <condition_variable>
+#include <functional>
+#include <memory>
+#include <string>
+#include <vector>
 
 using namespace winrt::Windows;
 using namespace winrt::Windows::Devices::Bluetooth;
@@ -59,10 +61,10 @@ class AdapterBase {
     void _scan_stopped_callback();
     void _scan_received_callback(advertising_data_t data);
 
-    std::function<void()> callback_on_scan_start_;
-    std::function<void()> callback_on_scan_stop_;
-    std::function<void(Peripheral)> callback_on_scan_updated_;
-    std::function<void(Peripheral)> callback_on_scan_found_;
+    kvn::safe_callback<void()> callback_on_scan_start_;
+    kvn::safe_callback<void()> callback_on_scan_stop_;
+    kvn::safe_callback<void(Peripheral)> callback_on_scan_updated_;
+    kvn::safe_callback<void(Peripheral)> callback_on_scan_found_;
 };
 
 }  // namespace SimpleBLE

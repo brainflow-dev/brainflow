@@ -1,10 +1,10 @@
 #pragma once
 
 #include <functional>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
-#include <map>
 
 #include <simpleble/Exceptions.h>
 #include <simpleble/Types.h>
@@ -25,6 +25,7 @@ class Peripheral {
     void disconnect();
     bool is_connected();
     bool is_connectable();
+    void unpair();
 
     std::vector<BluetoothService> services();
     std::map<uint16_t, ByteArray> manufacturer_data();

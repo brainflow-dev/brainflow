@@ -12,7 +12,9 @@ const SimpleBLE::BluetoothUUID BATTERY_CHARACTERISTIC_UUID = "00002a19-0000-1000
 using namespace SimpleBLE;
 using namespace std::chrono_literals;
 
-PeripheralBase::PeripheralBase(std::shared_ptr<SimpleBluez::Device> device) : device_(device) {}
+PeripheralBase::PeripheralBase(std::shared_ptr<SimpleBluez::Device> device,
+                               std::shared_ptr<SimpleBluez::Adapter> adapter)
+    : device_(device), adapter_(adapter) {}
 
 PeripheralBase::~PeripheralBase() {
     // TODO: A more extensive cleanup process is probably needed.
@@ -69,6 +71,12 @@ bool PeripheralBase::is_connected() {
 }
 
 bool PeripheralBase::is_connectable() { return device_->name() != ""; }
+
+void PeripheralBase::unpair() {
+    if (device_->paired()) {
+        adapter_->device_remove(device_->path());
+    }
+}
 
 std::vector<BluetoothService> PeripheralBase::services() {
     bool is_battery_service_available = false;
@@ -182,11 +190,19 @@ void PeripheralBase::unsubscribe(BluetoothUUID service, BluetoothUUID characteri
 }
 
 void PeripheralBase::set_callback_on_connected(std::function<void()> on_connected) {
-    callback_on_connected_ = on_connected;
+    if (on_connected) {
+        callback_on_connected_.load(on_connected);
+    } else {
+        callback_on_connected_.unload();
+    }
 }
 
 void PeripheralBase::set_callback_on_disconnected(std::function<void()> on_disconnected) {
-    callback_on_disconnected_ = on_disconnected;
+    if (on_disconnected) {
+        callback_on_disconnected_.load(on_disconnected);
+    } else {
+        callback_on_disconnected_.unload();
+    }
 }
 
 // Private methods

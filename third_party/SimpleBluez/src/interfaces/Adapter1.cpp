@@ -49,6 +49,12 @@ void Adapter1::SetDiscoveryFilter(DiscoveryFilter filter) {
     _conn->send_with_reply_and_block(msg);
 }
 
+void Adapter1::RemoveDevice(std::string device_path) {
+    auto msg = create_method_call("RemoveDevice");
+    msg.append_argument(SimpleDBus::Holder::create_object_path(device_path), "o");
+    _conn->send_with_reply_and_block(msg);
+}
+
 bool Adapter1::Discovering(bool refresh) {
     if (refresh) {
         property_refresh("Discovering");

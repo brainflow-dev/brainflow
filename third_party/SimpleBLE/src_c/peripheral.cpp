@@ -82,6 +82,15 @@ simpleble_err_t simpleble_peripheral_is_connectable(simpleble_peripheral_t handl
     return is_connectable.has_value() ? SIMPLEBLE_SUCCESS : SIMPLEBLE_FAILURE;
 }
 
+simpleble_err_t simpleble_peripheral_unpair(simpleble_peripheral_t handle) {
+    if (handle == nullptr) {
+        return SIMPLEBLE_FAILURE;
+    }
+
+    SimpleBLE::Safe::Peripheral* peripheral = (SimpleBLE::Safe::Peripheral*)handle;
+    return peripheral->unpair() ? SIMPLEBLE_SUCCESS : SIMPLEBLE_FAILURE;
+}
+
 size_t simpleble_peripheral_services_count(simpleble_peripheral_t handle) {
     if (handle == nullptr) {
         return 0;

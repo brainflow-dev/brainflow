@@ -58,6 +58,15 @@ std::optional<bool> SimpleBLE::Safe::Peripheral::is_connectable() noexcept {
     }
 }
 
+bool SimpleBLE::Safe::Peripheral::unpair() noexcept {
+    try {
+        SimpleBLE::Peripheral::unpair();
+        return true;
+    } catch (const SimpleBLE::Exception::BaseException&) {
+        return false;
+    }
+}
+
 std::optional<std::map<uint16_t, SimpleBLE::ByteArray>> SimpleBLE::Safe::Peripheral::manufacturer_data() noexcept {
     try {
         return SimpleBLE::Peripheral::manufacturer_data();

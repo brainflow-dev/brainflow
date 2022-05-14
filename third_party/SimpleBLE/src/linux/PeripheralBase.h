@@ -1,21 +1,23 @@
 #pragma once
 
-#include <memory>
-
 #include <simpleble/Exceptions.h>
 #include <simpleble/Types.h>
 
+#include <simplebluez/Adapter.h>
 #include <simplebluez/Characteristic.h>
 #include <simplebluez/Device.h>
 
+#include <kvn_safe_callback.hpp>
+
 #include <atomic>
 #include <condition_variable>
+#include <memory>
 
 namespace SimpleBLE {
 
 class PeripheralBase {
   public:
-    PeripheralBase(std::shared_ptr<SimpleBluez::Device> device);
+    PeripheralBase(std::shared_ptr<SimpleBluez::Device> device, std::shared_ptr<SimpleBluez::Adapter> adapter);
     virtual ~PeripheralBase();
 
     std::string identifier();
@@ -25,6 +27,7 @@ class PeripheralBase {
     void disconnect();
     bool is_connected();
     bool is_connectable();
+    void unpair();
 
     std::vector<BluetoothService> services();
     std::map<uint16_t, ByteArray> manufacturer_data();
@@ -42,6 +45,7 @@ class PeripheralBase {
   private:
     std::atomic_bool battery_emulation_required_{false};
 
+    std::shared_ptr<SimpleBluez::Adapter> adapter_;
     std::shared_ptr<SimpleBluez::Device> device_;
 
     std::condition_variable connection_cv_;
@@ -50,8 +54,8 @@ class PeripheralBase {
     std::condition_variable disconnection_cv_;
     std::mutex disconnection_mutex_;
 
-    std::function<void()> callback_on_connected_;
-    std::function<void()> callback_on_disconnected_;
+    kvn::safe_callback<void()> callback_on_connected_;
+    kvn::safe_callback<void()> callback_on_disconnected_;
 
     bool _attempt_connect();
     bool _attempt_disconnect();

@@ -319,7 +319,7 @@ Message::Type Message::get_type() const {
 }
 
 std::string Message::get_path() {
-    if (is_valid() && get_type() == Message::Type::SIGNAL) {
+    if (is_valid() && (get_type() == Message::Type::SIGNAL || get_type() == Message::Type::METHOD_CALL)) {
         return dbus_message_get_path(_msg);
     } else {
         return "";
@@ -329,6 +329,14 @@ std::string Message::get_path() {
 std::string Message::get_interface() {
     if (is_valid()) {
         return dbus_message_get_interface(_msg);
+    } else {
+        return "";
+    }
+}
+
+std::string Message::get_member() {
+    if (is_valid() && get_type() == Message::Type::METHOD_CALL) {
+        return dbus_message_get_member(_msg);
     } else {
         return "";
     }
@@ -581,4 +589,10 @@ Holder Message::_extract_generic(DBusMessageIter* iter) {
 
 Message Message::create_method_call(std::string bus_name, std::string path, std::string interface, std::string method) {
     return Message(dbus_message_new_method_call(bus_name.c_str(), path.c_str(), interface.c_str(), method.c_str()));
+}
+
+Message Message::create_method_return(const Message& msg) { return Message(dbus_message_new_method_return(msg._msg)); }
+
+Message Message::create_error(const Message& msg, std::string error_name, std::string error_message) {
+    return Message(dbus_message_new_error(msg._msg, error_name.c_str(), error_message.c_str()));
 }

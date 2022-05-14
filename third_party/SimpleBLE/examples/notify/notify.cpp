@@ -10,7 +10,7 @@ std::vector<SimpleBLE::Peripheral> peripherals;
 
 void print_byte_array(SimpleBLE::ByteArray& bytes) {
     for (auto byte : bytes) {
-        std::cout << std::hex << std::setfill('0') << (uint32_t)((uint8_t)byte) << " ";
+        std::cout << std::hex << std::setfill('0') << std::setw(2) << (uint32_t)((uint8_t)byte) << " ";
     }
     std::cout << std::endl;
 }

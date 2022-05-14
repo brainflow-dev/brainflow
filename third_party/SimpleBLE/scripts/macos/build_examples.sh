@@ -35,5 +35,5 @@ fi
 # Compile!
 mkdir -p $BUILD_PATH
 cd $BUILD_PATH
-cmake -H$SOURCE_ROOT
-make -j1
+cmake -H$SOURCE_ROOT -G Xcode -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15
+cmake --build "$BUILD_PATH"

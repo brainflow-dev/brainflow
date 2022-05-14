@@ -4,3 +4,6 @@ build_test
 .build
 .vscode
 __pycache__
+
+# Sphinx documentation
+docs/_build/

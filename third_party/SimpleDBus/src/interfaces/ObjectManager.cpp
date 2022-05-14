@@ -22,7 +22,7 @@ Holder ObjectManager::GetManagedObjects(bool use_callbacks) {
     return managed_objects;
 }
 
-void ObjectManager::message_handle(Message msg) {
+void ObjectManager::message_handle(Message& msg) {
     if (msg.is_signal(_interface_name, "InterfacesAdded")) {
         std::string path = msg.extract().get_string();
         msg.extract_next();

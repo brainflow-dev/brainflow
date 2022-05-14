@@ -14,6 +14,7 @@ class Adapter1 : public SimpleDBus::Interface {
     virtual ~Adapter1() = default;
 
     // ----- METHODS -----
+    void RemoveDevice(std::string device_path);
     void StartDiscovery();
     void StopDiscovery();
     void SetDiscoveryFilter(DiscoveryFilter filter);

@@ -75,6 +75,14 @@ SHARED_EXPORT simpleble_err_t CALLING_CONVENTION simpleble_peripheral_is_connect
  * @brief
  *
  * @param handle
+ * @return simpleble_err_t
+ */
+SHARED_EXPORT simpleble_err_t CALLING_CONVENTION simpleble_peripheral_unpair(simpleble_peripheral_t handle);
+
+/**
+ * @brief
+ *
+ * @param handle
  * @return size_t
  */
 SHARED_EXPORT size_t CALLING_CONVENTION simpleble_peripheral_services_count(simpleble_peripheral_t handle);

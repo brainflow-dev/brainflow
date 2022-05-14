@@ -113,7 +113,7 @@ int main(int argc, char* argv[]) {
                 break;
             }
 
-            printf("[%ld] %s %s\n", characteristic_count, service.uuid.value, service.characteristics[j].value);
+            printf("[%zu] %s %s\n", characteristic_count, service.uuid.value, service.characteristics[j].value);
             characteristic_list[characteristic_count].service = service.uuid;
             characteristic_list[characteristic_count].characteristic = service.characteristics[j];
             characteristic_count++;

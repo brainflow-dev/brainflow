@@ -47,6 +47,10 @@ std::shared_ptr<Device> Adapter::device_get(const std::string& path) {
     return std::dynamic_pointer_cast<Device>(path_get(path));
 }
 
+void Adapter::device_remove(const std::string& path) { adapter1()->RemoveDevice(path); }
+
+void Adapter::device_remove(const std::shared_ptr<Device>& device) { adapter1()->RemoveDevice(device->path()); }
+
 void Adapter::set_on_device_updated(std::function<void(std::shared_ptr<Device> device)> callback) {
     auto on_device_updated = [this, callback](std::string child_path) {
         auto device = device_get(child_path);

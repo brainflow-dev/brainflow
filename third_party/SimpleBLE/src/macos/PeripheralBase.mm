@@ -62,6 +62,10 @@ bool PeripheralBase::is_connected() {
 
 bool PeripheralBase::is_connectable() { return is_connectable_; }
 
+void PeripheralBase::unpair() {
+    throw Exception::OperationNotSupported();
+}
+
 std::vector<BluetoothService> PeripheralBase::services() {
     PeripheralBaseMacOS* internal = (__bridge PeripheralBaseMacOS*)opaque_internal_;
     return [internal getServices];
@@ -122,9 +126,21 @@ void PeripheralBase::unsubscribe(BluetoothUUID service, BluetoothUUID characteri
     [internal unsubscribe:service_uuid characteristic_uuid:characteristic_uuid];
 }
 
-void PeripheralBase::set_callback_on_connected(std::function<void()> on_connected) { callback_on_connected_ = on_connected; }
+void PeripheralBase::set_callback_on_connected(std::function<void()> on_connected) {
+    if (on_connected) {
+        callback_on_connected_.load(on_connected);
+    } else {
+        callback_on_connected_.unload();
+    }
+}
 
-void PeripheralBase::set_callback_on_disconnected(std::function<void()> on_disconnected) { callback_on_disconnected_ = on_disconnected; }
+void PeripheralBase::set_callback_on_disconnected(std::function<void()> on_disconnected) {
+    if (on_disconnected) {
+        callback_on_disconnected_.load(on_disconnected);
+    } else {
+        callback_on_disconnected_.unload();
+    }
+}
 
 void PeripheralBase::delegate_did_connect() {
     PeripheralBaseMacOS* internal = (__bridge PeripheralBaseMacOS*)opaque_internal_;

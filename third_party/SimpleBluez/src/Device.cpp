@@ -53,6 +53,10 @@ std::shared_ptr<Characteristic> Device::get_characteristic(const std::string& se
     return service->get_characteristic(characteristic_uuid);
 }
 
+void Device::pair() { device1()->Pair(); }
+
+void Device::cancel_pairing() { device1()->CancelPairing(); }
+
 void Device::connect() { device1()->Connect(); }
 
 void Device::disconnect() { device1()->Disconnect(); }
@@ -64,6 +68,8 @@ std::string Device::name() { return device1()->Name(); }
 std::string Device::alias() { return device1()->Alias(); }
 
 std::map<uint16_t, std::vector<uint8_t>> Device::manufacturer_data() { return device1()->ManufacturerData(); }
+
+bool Device::paired() { return device1()->Paired(); }
 
 bool Device::connected() { return device1()->Connected(); }
 

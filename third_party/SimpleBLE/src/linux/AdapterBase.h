@@ -1,17 +1,19 @@
 #pragma once
 
+#include <simpleble/Exceptions.h>
+#include <simpleble/Peripheral.h>
+#include <simpleble/Types.h>
+
+#include <kvn_safe_callback.hpp>
+
+#include <simplebluez/Adapter.h>
+
 #include <atomic>
 #include <functional>
 #include <memory>
 #include <set>
 #include <string>
 #include <vector>
-
-#include <simpleble/Exceptions.h>
-#include <simpleble/Peripheral.h>
-#include <simpleble/Types.h>
-
-#include <simplebluez/Adapter.h>
 
 namespace SimpleBLE {
 
@@ -42,10 +44,10 @@ class AdapterBase {
     std::atomic_bool is_scanning_;
     std::map<BluetoothAddress, Peripheral> seen_devices_;
 
-    std::function<void()> callback_on_scan_start_;
-    std::function<void()> callback_on_scan_stop_;
-    std::function<void(Peripheral)> callback_on_scan_updated_;
-    std::function<void(Peripheral)> callback_on_scan_found_;
+    kvn::safe_callback<void()> callback_on_scan_start_;
+    kvn::safe_callback<void()> callback_on_scan_stop_;
+    kvn::safe_callback<void(Peripheral)> callback_on_scan_updated_;
+    kvn::safe_callback<void(Peripheral)> callback_on_scan_found_;
 };
 
 }  // namespace SimpleBLE

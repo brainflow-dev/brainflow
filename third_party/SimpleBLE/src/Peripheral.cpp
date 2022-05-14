@@ -15,13 +15,15 @@ std::string Peripheral::identifier() { return internal_->identifier(); }
 
 BluetoothAddress Peripheral::address() { return internal_->address(); }
 
-void Peripheral::connect() { return internal_->connect(); }
+void Peripheral::connect() { internal_->connect(); }
 
-void Peripheral::disconnect() { return internal_->disconnect(); }
+void Peripheral::disconnect() { internal_->disconnect(); }
 
 bool Peripheral::is_connected() { return internal_->is_connected(); }
 
 bool Peripheral::is_connectable() { return internal_->is_connectable(); }
+
+void Peripheral::unpair() { internal_->unpair(); }
 
 std::vector<BluetoothService> Peripheral::services() {
     if (!is_connected()) {

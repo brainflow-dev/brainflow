@@ -20,6 +20,7 @@ class Peripheral : public SimpleBLE::Peripheral {
     bool disconnect() noexcept;
     std::optional<bool> is_connected() noexcept;
     std::optional<bool> is_connectable() noexcept;
+    bool unpair() noexcept;
 
     std::optional<std::vector<BluetoothService>> services() noexcept;
     std::optional<std::map<uint16_t, ByteArray>> manufacturer_data() noexcept;
