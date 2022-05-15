@@ -501,7 +501,7 @@ int Muse::config_board (std::string config)
         command[i + 1] = uint8_t (config[i]);
     }
     command[len + 1] = 10;
-    if (simpleble_peripheral_write_request (muse_peripheral, control_characteristics.first,
+    if (simpleble_peripheral_write_command (muse_peripheral, control_characteristics.first,
             control_characteristics.second, command, len + 2) != SIMPLEBLE_SUCCESS)
     {
         safe_logger (spdlog::level::err, "failed to send command {} to device", config.c_str ());

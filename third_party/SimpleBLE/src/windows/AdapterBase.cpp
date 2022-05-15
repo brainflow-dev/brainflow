@@ -83,6 +83,8 @@ std::string AdapterBase::identifier() { return identifier_; }
 BluetoothAddress AdapterBase::address() { return _mac_address_to_str(adapter_.BluetoothAddress()); }
 
 void AdapterBase::scan_start() {
+    this->peripherals_.clear();
+
     scanner_.ScanningMode(Advertisement::BluetoothLEScanningMode::Active);
     scan_is_active_ = true;
     scanner_.Start();

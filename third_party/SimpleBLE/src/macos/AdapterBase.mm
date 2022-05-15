@@ -8,12 +8,12 @@
 
 using namespace SimpleBLE;
 
-AdapterBase::AdapterBase() { 
+AdapterBase::AdapterBase() {
     // Cast the Objective-C++ object using __bridge_retained, which will signal ARC to increase
     // the reference count. This means that AdapterBase will be responsible for releasing the
     // Objective-C++ object in the destructor.
     opaque_internal_ = (__bridge_retained void*)[[AdapterBaseMacOS alloc] init:this];
- }
+}
 
 AdapterBase::~AdapterBase() {
     // Cast the opaque pointer back to the Objective-C++ object and release it.
@@ -39,6 +39,7 @@ std::string AdapterBase::identifier() { return "Default Adapter"; }
 BluetoothAddress AdapterBase::address() { return "00:00:00:00:00:00"; }
 
 void AdapterBase::scan_start() {
+    this->peripherals_.clear();
     AdapterBaseMacOS* internal = (__bridge AdapterBaseMacOS*)opaque_internal_;
     [internal scanStart];
 

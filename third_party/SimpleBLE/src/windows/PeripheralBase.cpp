@@ -18,6 +18,7 @@ using namespace std::chrono_literals;
 PeripheralBase::PeripheralBase(advertising_data_t advertising_data) {
     identifier_ = advertising_data.identifier;
     address_ = advertising_data.mac_address;
+    rssi_ = advertising_data.rssi;
     manufacturer_data_ = advertising_data.manufacturer_data;
     connectable_ = advertising_data.connectable;
     device_ = async_get(
@@ -33,6 +34,13 @@ PeripheralBase::~PeripheralBase() {
 std::string PeripheralBase::identifier() { return identifier_; }
 
 BluetoothAddress PeripheralBase::address() { return address_; }
+
+int16_t PeripheralBase::rssi() { return rssi_; }
+
+void PeripheralBase::update_advertising_data(advertising_data_t advertising_data) {
+    rssi_ = advertising_data.rssi;
+    manufacturer_data_ = advertising_data.manufacturer_data;
+}
 
 void PeripheralBase::connect() {
     // Attempt to connect to the device.
@@ -79,6 +87,8 @@ bool PeripheralBase::is_connected() {
 
 bool PeripheralBase::is_connectable() { return connectable_; }
 
+bool PeripheralBase::is_paired() { throw Exception::OperationNotSupported(); }
+
 void PeripheralBase::unpair() { throw Exception::OperationNotSupported(); }
 
 std::vector<BluetoothService> PeripheralBase::services() {
@@ -96,7 +106,7 @@ std::vector<BluetoothService> PeripheralBase::services() {
 
 std::map<uint16_t, ByteArray> PeripheralBase::manufacturer_data() { return manufacturer_data_; }
 
-ByteArray PeripheralBase::read(BluetoothUUID service, BluetoothUUID characteristic) {
+ByteArray PeripheralBase::read(BluetoothUUID const& service, BluetoothUUID const& characteristic) {
     GattCharacteristic gatt_characteristic = _fetch_characteristic(service, characteristic);
 
     // Validate that the operation can be performed.
@@ -113,26 +123,8 @@ ByteArray PeripheralBase::read(BluetoothUUID service, BluetoothUUID characterist
     return ibuffer_to_bytearray(result.Value());
 }
 
-void PeripheralBase::write_request(BluetoothUUID service, BluetoothUUID characteristic, ByteArray data) {
-    GattCharacteristic gatt_characteristic = _fetch_characteristic(service, characteristic);
-
-    // Validate that the operation can be performed.
-    uint32_t gatt_characteristic_prop = (uint32_t)gatt_characteristic.CharacteristicProperties();
-    if ((gatt_characteristic_prop & (uint32_t)GattCharacteristicProperties::WriteWithoutResponse) == 0) {
-        throw SimpleBLE::Exception::OperationNotSupported();
-    }
-
-    // Convert the request data to a buffer.
-    winrt::Windows::Storage::Streams::IBuffer buffer = bytearray_to_ibuffer(data);
-
-    // Write the value.
-    auto result = async_get(gatt_characteristic.WriteValueAsync(buffer, GattWriteOption::WriteWithoutResponse));
-    if (result != GenericAttributeProfile::GattCommunicationStatus::Success) {
-        throw SimpleBLE::Exception::OperationFailed();
-    }
-}
-
-void PeripheralBase::write_command(BluetoothUUID service, BluetoothUUID characteristic, ByteArray data) {
+void PeripheralBase::write_request(BluetoothUUID const& service, BluetoothUUID const& characteristic,
+                                   ByteArray const& data) {
     GattCharacteristic gatt_characteristic = _fetch_characteristic(service, characteristic);
 
     // Validate that the operation can be performed.
@@ -151,7 +143,27 @@ void PeripheralBase::write_command(BluetoothUUID service, BluetoothUUID characte
     }
 }
 
-void PeripheralBase::notify(BluetoothUUID service, BluetoothUUID characteristic,
+void PeripheralBase::write_command(BluetoothUUID const& service, BluetoothUUID const& characteristic,
+                                   ByteArray const& data) {
+    GattCharacteristic gatt_characteristic = _fetch_characteristic(service, characteristic);
+
+    // Validate that the operation can be performed.
+    uint32_t gatt_characteristic_prop = (uint32_t)gatt_characteristic.CharacteristicProperties();
+    if ((gatt_characteristic_prop & (uint32_t)GattCharacteristicProperties::WriteWithoutResponse) == 0) {
+        throw SimpleBLE::Exception::OperationNotSupported();
+    }
+
+    // Convert the request data to a buffer.
+    winrt::Windows::Storage::Streams::IBuffer buffer = bytearray_to_ibuffer(data);
+
+    // Write the value.
+    auto result = async_get(gatt_characteristic.WriteValueAsync(buffer, GattWriteOption::WriteWithoutResponse));
+    if (result != GenericAttributeProfile::GattCommunicationStatus::Success) {
+        throw SimpleBLE::Exception::OperationFailed();
+    }
+}
+
+void PeripheralBase::notify(BluetoothUUID const& service, BluetoothUUID const& characteristic,
                             std::function<void(ByteArray payload)> callback) {
     GattCharacteristic gatt_characteristic = _fetch_characteristic(service, characteristic);
 
@@ -177,7 +189,7 @@ void PeripheralBase::notify(BluetoothUUID service, BluetoothUUID characteristic,
     }
 }
 
-void PeripheralBase::indicate(BluetoothUUID service, BluetoothUUID characteristic,
+void PeripheralBase::indicate(BluetoothUUID const& service, BluetoothUUID const& characteristic,
                               std::function<void(ByteArray payload)> callback) {
     GattCharacteristic gatt_characteristic = _fetch_characteristic(service, characteristic);
 
@@ -203,7 +215,7 @@ void PeripheralBase::indicate(BluetoothUUID service, BluetoothUUID characteristi
     }
 }
 
-void PeripheralBase::unsubscribe(BluetoothUUID service, BluetoothUUID characteristic) {
+void PeripheralBase::unsubscribe(BluetoothUUID const& service, BluetoothUUID const& characteristic) {
     GattCharacteristic gatt_characteristic = _fetch_characteristic(service, characteristic);
 
     // Start the indication.
@@ -217,7 +229,7 @@ void PeripheralBase::unsubscribe(BluetoothUUID service, BluetoothUUID characteri
 
 void PeripheralBase::set_callback_on_connected(std::function<void()> on_connected) {
     if (on_connected) {
-        callback_on_connected_.load(on_connected);
+        callback_on_connected_.load(std::move(on_connected));
     } else {
         callback_on_connected_.unload();
     }
@@ -225,7 +237,7 @@ void PeripheralBase::set_callback_on_connected(std::function<void()> on_connecte
 
 void PeripheralBase::set_callback_on_disconnected(std::function<void()> on_disconnected) {
     if (on_disconnected) {
-        callback_on_disconnected_.load(on_disconnected);
+        callback_on_disconnected_.load(std::move(on_disconnected));
     } else {
         callback_on_disconnected_.unload();
     }

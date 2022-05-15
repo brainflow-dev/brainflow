@@ -207,6 +207,10 @@ elseif (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
     endforeach()
 
 elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
+    set_property (TARGET simpleble-static APPEND_STRING PROPERTY COMPILE_FLAGS "-fobjc-arc")
+    set_property (TARGET simpleble APPEND_STRING PROPERTY COMPILE_FLAGS "-fobjc-arc")
+    set_property (TARGET simpleble-c-static APPEND_STRING PROPERTY COMPILE_FLAGS "-fobjc-arc")
+    set_property (TARGET ${SIMPLEBLE-C} APPEND_STRING PROPERTY COMPILE_FLAGS "-fobjc-arc")
 endif()
 
 # Export the variables needed by the parent project
