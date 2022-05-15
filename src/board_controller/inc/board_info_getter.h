@@ -1,6 +1,6 @@
 #pragma once
 
-#include "shared_export.h" 
+#include "shared_export.h"
 
 #ifdef __cplusplus
 extern "C"
