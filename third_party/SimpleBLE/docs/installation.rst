@@ -20,9 +20,7 @@ Windows Requirements
 ~~~~~~~~~~~~~~~~~~~~
 
 -  `Visual Studio 2019`_
-
-   -  Make sure you install the C++ toolchain with Windows SDK Build
-      19041 at least.
+-  Windows SDK 10.0.19041.0 or 10.0.22000.0
 
 **NOTE**: It might be easier to use the bundled helper scripts to build
 for Windows.
@@ -30,9 +28,10 @@ for Windows.
 Linux Requirements
 ~~~~~~~~~~~~~~~~~~
 
-The Linux implementation of SimpleBLE is built upon `SimpleDBus`_, which
-in turn requires `libdbus`_. - ``libdbus-1-dev`` - On Ubuntu:
-``sudo apt-get install libdbus-1-dev``
+The Linux implementation of SimpleBLE is built upon `SimpleDBus`_, which 
+in turn requires `libdbus`_.
+
+- ``libdbus-1-dev`` - On Ubuntu: ``sudo apt-get install libdbus-1-dev``
 
 **NOTE**: See the `Security`_ section for more information on how to
 override the default paths for external dependencies.
@@ -49,24 +48,24 @@ Building the library from source is possible by cloning the repository
 and linking to it on your ``CMakeLists.txt`` file.
 
 Tests
-~~~~~
+-----
 
 Testing is currently not available for the library as a whole, yet there
 are some build settings that can be used to find issues with the
 library.
 
 (Linux, MacOS) Address Sanitizer
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In order to run tests with Address Sanitizer, CMake needs to be called
 with the following option: ``-DSIMPLEBLE_SANITIZE=Address``.
 
-When using this feature on MacOS, it’s important to use the ``leaks``
+When using this feature on MacOS, it's important to use the ``leaks``
 application to monitor for memory leaks, as AddressSanitizer does not
 support that feature.
 
 (Linux, MacOS) Thread Sanitizer
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In order to run tests with Thread Sanitizer, CMake needs to be called
 with the following option: ``-DSIMPLEBLE_SANITIZE=Thread``.

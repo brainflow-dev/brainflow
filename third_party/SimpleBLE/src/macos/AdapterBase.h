@@ -39,6 +39,8 @@ class AdapterBase {
     void set_callback_on_scan_updated(std::function<void(Peripheral)> on_scan_updated);
     void set_callback_on_scan_found(std::function<void(Peripheral)> on_scan_found);
 
+    std::vector<Peripheral> get_paired_peripherals();
+
     static std::vector<std::shared_ptr<AdapterBase> > get_adapters();
 
     void delegate_did_discover_peripheral(void* opaque_peripheral, void* opaque_adapter,

@@ -2,8 +2,6 @@
 
 SimpleBLE::Safe::Adapter::Adapter(SimpleBLE::Adapter& adapter) : SimpleBLE::Adapter(adapter) {}
 
-SimpleBLE::Safe::Adapter::~Adapter() {}
-
 std::optional<std::string> SimpleBLE::Safe::Adapter::identifier() noexcept {
     try {
         return SimpleBLE::Adapter::identifier();
@@ -58,6 +56,20 @@ std::optional<bool> SimpleBLE::Safe::Adapter::scan_is_active() noexcept {
 std::optional<std::vector<SimpleBLE::Safe::Peripheral>> SimpleBLE::Safe::Adapter::scan_get_results() noexcept {
     try {
         auto peripherals = SimpleBLE::Adapter::scan_get_results();
+        std::vector<SimpleBLE::Safe::Peripheral> safe_peripherals;
+        for (auto& peripheral : peripherals) {
+            safe_peripherals.push_back(SimpleBLE::Safe::Peripheral(peripheral));
+        }
+        return safe_peripherals;
+    } catch (const SimpleBLE::Exception::BaseException&) {
+        return std::nullopt;
+    }
+    return std::nullopt;
+}
+
+std::optional<std::vector<SimpleBLE::Safe::Peripheral>> SimpleBLE::Safe::Adapter::get_paired_peripherals() noexcept {
+    try {
+        auto peripherals = SimpleBLE::Adapter::get_paired_peripherals();
         std::vector<SimpleBLE::Safe::Peripheral> safe_peripherals;
         for (auto& peripheral : peripherals) {
             safe_peripherals.push_back(SimpleBLE::Safe::Peripheral(peripheral));

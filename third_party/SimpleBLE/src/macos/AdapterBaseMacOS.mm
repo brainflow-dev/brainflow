@@ -109,7 +109,7 @@
     advertisingData.connectable = isConnectable != nil && isConnectable.boolValue == YES;
 
     // Extract RSSI
-    advertisingData.rssi = [RSSI intValue];
+    advertisingData.rssi = [RSSI shortValue];
 
     // Extract Manufacturer Data
     NSData* rawManufacturerData = advertisementData[CBAdvertisementDataManufacturerDataKey];

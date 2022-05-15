@@ -8,12 +8,12 @@
 
 using namespace SimpleBLE;
 
-AdapterBase::AdapterBase() {
+AdapterBase::AdapterBase() { 
     // Cast the Objective-C++ object using __bridge_retained, which will signal ARC to increase
     // the reference count. This means that AdapterBase will be responsible for releasing the
     // Objective-C++ object in the destructor.
     opaque_internal_ = (__bridge_retained void*)[[AdapterBaseMacOS alloc] init:this];
-}
+ }
 
 AdapterBase::~AdapterBase() {
     // Cast the opaque pointer back to the Objective-C++ object and release it.
@@ -40,6 +40,7 @@ BluetoothAddress AdapterBase::address() { return "00:00:00:00:00:00"; }
 
 void AdapterBase::scan_start() {
     this->peripherals_.clear();
+
     AdapterBaseMacOS* internal = (__bridge AdapterBaseMacOS*)opaque_internal_;
     [internal scanStart];
 
@@ -105,6 +106,8 @@ void AdapterBase::set_callback_on_scan_found(std::function<void(Peripheral)> on_
     }
 }
 
+std::vector<Peripheral> AdapterBase::get_paired_peripherals() { return {}; }
+
 // Delegate methods passed for AdapterBaseMacOS
 
 void AdapterBase::delegate_did_discover_peripheral(void* opaque_peripheral, void* opaque_adapter, advertising_data_t advertising_data) {
@@ -124,6 +127,7 @@ void AdapterBase::delegate_did_discover_peripheral(void* opaque_peripheral, void
     } else {
         // Load the existing PeripheralBase object
         std::shared_ptr<PeripheralBase> base_peripheral = this->peripherals_.at(opaque_peripheral);
+        base_peripheral->update_advertising_data(advertising_data);
 
         // Convert the base object into an external-facing Peripheral object
         PeripheralBuilder peripheral_builder(base_peripheral);

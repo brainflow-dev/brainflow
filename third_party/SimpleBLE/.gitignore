@@ -1,3 +1,4 @@
 .vscode
 *.binlog
 .DS_Store
+docs/_build
