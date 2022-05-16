@@ -101,7 +101,7 @@ int Muse::prepare_session ()
     }
     if (params.timeout < 1)
     {
-        params.timeout = 5;
+        params.timeout = 6;
     }
     safe_logger (spdlog::level::info, "Use timeout for discovery: {}", params.timeout);
     if (!init_dll_loader ())

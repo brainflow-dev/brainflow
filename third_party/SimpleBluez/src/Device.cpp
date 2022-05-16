@@ -67,6 +67,8 @@ std::string Device::name() { return device1()->Name(); }
 
 std::string Device::alias() { return device1()->Alias(); }
 
+int16_t Device::rssi() { return device1()->RSSI(); }
+
 std::map<uint16_t, std::vector<uint8_t>> Device::manufacturer_data() { return device1()->ManufacturerData(); }
 
 bool Device::paired() { return device1()->Paired(); }

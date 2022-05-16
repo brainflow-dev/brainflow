@@ -51,6 +51,20 @@ void Adapter::device_remove(const std::string& path) { adapter1()->RemoveDevice(
 
 void Adapter::device_remove(const std::shared_ptr<Device>& device) { adapter1()->RemoveDevice(device->path()); }
 
+std::vector<std::shared_ptr<Device>> Adapter::device_paired_get() {
+    // Traverse all child paths and return only those that are paired.
+    std::vector<std::shared_ptr<Device>> paired_devices;
+
+    for (auto& [path, child] : _children) {
+        std::shared_ptr<Device> device = std::dynamic_pointer_cast<Device>(child);
+        if (device->paired()) {
+            paired_devices.push_back(device);
+        }
+    }
+
+    return paired_devices;
+}
+
 void Adapter::set_on_device_updated(std::function<void(std::shared_ptr<Device> device)> callback) {
     auto on_device_updated = [this, callback](std::string child_path) {
         auto device = device_get(child_path);

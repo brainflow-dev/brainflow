@@ -51,6 +51,7 @@ int main(int argc, char* argv[]) {
     adapter->set_on_device_updated([](std::shared_ptr<SimpleBluez::Device> device) {
         std::cout << "Update received for " << device->address() << std::endl;
         std::cout << "\tName " << device->name() << std::endl;
+        std::cout << "\tRSSI " << std::dec << device->rssi() << std::endl;
         auto manufacturer_data = device->manufacturer_data();
         for (auto& [manufacturer_id, value_array] : manufacturer_data) {
             std::cout << "\tManuf ID 0x" << std::setfill('0') << std::setw(4) << std::hex << (int)manufacturer_id;
