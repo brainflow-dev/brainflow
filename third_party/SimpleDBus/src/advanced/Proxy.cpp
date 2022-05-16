@@ -220,6 +220,18 @@ bool Proxy::path_prune() {
     return false;
 }
 
+void Proxy::path_append_child(const std::string& path, std::shared_ptr<Proxy> child) {
+    // If the provided path is not a child of the current path, return silently.
+    if (!Path::is_child(_path, path)) {
+        // TODO: Should an exception be thrown here?
+        return;
+    }
+
+    // As children will be extensively accessed, we need to lock the child access mutex.
+    std::scoped_lock lock(_child_access_mutex);
+    _children.emplace(std::make_pair(path, child));
+}
+
 // ----- MESSAGE HANDLING -----
 void Proxy::message_forward(Message& msg) {
     // If the message is for the current proxy, then forward it to the message handler.

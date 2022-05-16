@@ -14,27 +14,38 @@ std::string byte_array_to_string(SimpleBLE::ByteArray& bytes) {
     return oss.str();
 }
 
-int main(int argc, char* argv[]) {
+int main() {
     auto adapter_list = SimpleBLE::Adapter::get_adapters();
 
     if (adapter_list.size() == 0) {
         std::cout << "No adapter was found." << std::endl;
+        return 1;
     }
 
-    // Pick the first detected adapter as the default.
-    // TODO: Allow the user to pick the adapter.
-    SimpleBLE::Adapter adapter = adapter_list[0];
+    std::cout << "Available adapters: \n";
+    int i = 0;
+    for (auto& adapter : adapter_list) {
+        std::cout << "[" << i++ << "] " << adapter.identifier() << " [" << adapter.address() << "]" << std::endl;
+    }
+
+    int adapter_selection = -1;
+    while(adapter_selection < 0 || adapter_selection > adapter_list.size() - 1) {
+        std::cout << "Please select an adapter: ";
+        std::cin >> adapter_selection;
+    }
+
+    SimpleBLE::Adapter& adapter = adapter_list[adapter_selection];
 
     adapter.set_callback_on_scan_start([]() { std::cout << "Scan started." << std::endl; });
 
     adapter.set_callback_on_scan_stop([]() { std::cout << "Scan stopped." << std::endl; });
 
     adapter.set_callback_on_scan_found([](SimpleBLE::Peripheral peripheral) {
-        std::cout << "Found device: " << peripheral.identifier() << " [" << peripheral.address() << "]" << std::endl;
+        std::cout << "Found device: " << peripheral.identifier() << " [" << peripheral.address() << "] " << peripheral.rssi() << " dBm" << std::endl;
     });
 
     adapter.set_callback_on_scan_updated([](SimpleBLE::Peripheral peripheral) {
-        std::cout << "Updated device: " << peripheral.identifier() << " [" << peripheral.address() << "]" << std::endl;
+        std::cout << "Updated device: " << peripheral.identifier() << " [" << peripheral.address() << "] " << peripheral.rssi() << " dBm" << std::endl;
     });
 
     // Scan for 5 seconds.
@@ -49,7 +60,7 @@ int main(int argc, char* argv[]) {
 
     std::vector<SimpleBLE::Peripheral> peripherals = adapter.scan_get_results();
     std::cout << "The following devices were found:" << std::endl;
-    for (int i = 0; i < peripherals.size(); i++) {
+    for (size_t i = 0; i < peripherals.size(); i++) {
         std::string connectable_string = peripherals[i].is_connectable() ? "Connectable" : "Non-Connectable";
         std::string peripheral_string = peripherals[i].identifier() + " [" + peripherals[i].address() + "]";
 

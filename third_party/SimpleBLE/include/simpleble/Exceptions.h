@@ -13,6 +13,11 @@ class BaseException : public std::runtime_error {
     BaseException(const std::string& __arg) : std::runtime_error(__arg) {}
 };
 
+class NotInitialized : public BaseException {
+  public:
+    NotInitialized();
+};
+
 class InvalidReference : public BaseException {
   public:
     InvalidReference();

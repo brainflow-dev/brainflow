@@ -106,8 +106,32 @@ simpleble_peripheral_t simpleble_adapter_scan_get_results_handle(simpleble_adapt
     }
 
     SimpleBLE::Safe::Adapter* adapter = (SimpleBLE::Safe::Adapter*)handle;
-    std::vector<SimpleBLE::Safe::Peripheral> results = adapter->scan_get_results().value_or(
-        std::vector<SimpleBLE::Safe::Peripheral>());
+    auto results = adapter->scan_get_results().value_or(std::vector<SimpleBLE::Safe::Peripheral>());
+
+    if (index >= results.size()) {
+        return nullptr;
+    }
+
+    SimpleBLE::Safe::Peripheral* peripheral_handle = new SimpleBLE::Safe::Peripheral(results[index]);
+    return peripheral_handle;
+}
+
+size_t simpleble_adapter_get_paired_peripherals_count(simpleble_adapter_t handle) {
+    if (handle == nullptr) {
+        return 0;
+    }
+
+    SimpleBLE::Safe::Adapter* adapter = (SimpleBLE::Safe::Adapter*)handle;
+    return adapter->get_paired_peripherals().value_or(std::vector<SimpleBLE::Safe::Peripheral>()).size();
+}
+
+simpleble_peripheral_t simpleble_adapter_get_paired_peripherals_handle(simpleble_adapter_t handle, size_t index) {
+    if (handle == nullptr) {
+        return nullptr;
+    }
+
+    SimpleBLE::Safe::Adapter* adapter = (SimpleBLE::Safe::Adapter*)handle;
+    auto results = adapter->get_paired_peripherals().value_or(std::vector<SimpleBLE::Safe::Peripheral>());
 
     if (index >= results.size()) {
         return nullptr;

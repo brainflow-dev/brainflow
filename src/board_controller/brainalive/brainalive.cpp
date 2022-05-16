@@ -273,7 +273,7 @@ int BrainAlive::config_board (std::string config)
     command[2] = 0x00;
     command[3] = 0x00;
     command[4] = 0x0d;
-    if (simpleble_peripheral_write_request (brainalive_peripheral, write_characteristics.first,
+    if (simpleble_peripheral_write_command (brainalive_peripheral, write_characteristics.first,
             write_characteristics.second, command, sizeof (command)) != SIMPLEBLE_SUCCESS)
     {
         safe_logger (spdlog::level::err, "failed to send command {} to device", config.c_str ());

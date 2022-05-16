@@ -1,6 +1,6 @@
 #pragma once
 
-#include <simpledbus/advanced/Callback.h>
+#include <external/kvn_safe_callback.hpp>
 #include <simpledbus/advanced/Interface.h>
 
 #include <memory>
@@ -42,13 +42,14 @@ class Proxy {
     void path_add(const std::string& path, Holder managed_interfaces);
     bool path_remove(const std::string& path, Holder removed_interfaces);
     bool path_prune();
+    void path_append_child(const std::string& path, std::shared_ptr<Proxy> child);
 
     // ----- MESSAGE HANDLING -----
     void message_forward(Message& msg);
 
     // ----- CALLBACKS -----
-    Callback<std::function<void(std::string)>, std::string> on_child_created;
-    Callback<std::function<void(std::string)>, std::string> on_child_signal_received;
+    kvn::safe_callback<void(std::string)> on_child_created;
+    kvn::safe_callback<void(std::string)> on_child_signal_received;
 
     // ----- TEMPLATE METHODS -----
     template <typename T>
