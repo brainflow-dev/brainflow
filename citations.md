@@ -27,6 +27,7 @@ CLASSIFICATION WITH LARYNGEAL IMAGERY](https://arxiv.org/pdf/2107.00045.pdf)
 * [Matthijs Cox, How to code a biosignal control system from scratch in 40 hours](https://levelup.gitconnected.com/how-to-code-a-biosignal-control-system-from-scratch-in-40-hours-54290c1eb0c7)
 * [Pareeknikhil, Creating an ECG Data Stream with OpenBCI device](https://towardsdatascience.com/creating-an-ecg-data-stream-with-openbci-device-52d89206f272)
 * [Cangar, SkyrimVR BCI mod](https://www.nexusmods.com/skyrimspecialedition/mods/58489)
+* [Ahnaaf Khan, Creating a Neurofeedback Program With Python](https://ahnaafk.medium.com/creating-a-neurofeedback-program-with-python-c6153022a4e7)
 
 ## Conferences and Hackathons
 
