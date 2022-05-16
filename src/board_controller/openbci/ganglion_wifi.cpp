@@ -74,7 +74,8 @@ int GanglionWifi::start_stream (int buffer_size, const char *streamer_params)
     // start plain streaming
     else
     {
-        std::string url = "http://" + params.ip_address + "/stream/start";
+        std::string url =
+            "http://" + params.ip_address + "/stream/start"; // lgtm [cpp/non-https-url]
         http_t *request = http_get (url.c_str (), NULL);
         if (!request)
         {
@@ -108,7 +109,8 @@ int GanglionWifi::stop_stream ()
         {
             send_config ("Z");
         }
-        std::string url = "http://" + params.ip_address + "/stream/stop";
+        std::string url =
+            "http://" + params.ip_address + "/stream/stop"; // lgtm [cpp/non-https-url]
         http_t *request = http_get (url.c_str (), NULL);
         if (!request)
         {
