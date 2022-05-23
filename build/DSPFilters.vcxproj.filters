@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\DSPFilters\source\Bessel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\DSPFilters\source\Biquad.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\DSPFilters\source\Butterworth.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\DSPFilters\source\Cascade.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\DSPFilters\source\ChebyshevI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\DSPFilters\source\ChebyshevII.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\DSPFilters\source\Custom.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\DSPFilters\source\Design.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\DSPFilters\source\Documentation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\DSPFilters\source\Elliptic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\DSPFilters\source\Filter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\DSPFilters\source\Legendre.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\DSPFilters\source\Param.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\DSPFilters\source\PoleFilter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\DSPFilters\source\RBJ.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\DSPFilters\source\RootFinder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\DSPFilters\source\State.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\Git_Codes\BrainAlive_BrainFlow\brainflow\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{635FFA17-A940-3934-85BD-E9086AE8CFF2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

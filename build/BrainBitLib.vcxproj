@@ -1,0 +1,419 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|x64">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{395BAC8F-1C49-3D01-832D-21D50BADCACC}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>x64</Platform>
+    <ProjectName>BrainBitLib</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Git_Codes\BrainAlive_BrainFlow\brainflow\compiled\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">BrainBitLib.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">BrainBitLib</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">D:\Git_Codes\BrainAlive_BrainFlow\brainflow\compiled\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">BrainBitLib.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">BrainBitLib</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">D:\Git_Codes\BrainAlive_BrainFlow\brainflow\compiled\MinSizeRel\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">BrainBitLib.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">BrainBitLib</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">D:\Git_Codes\BrainAlive_BrainFlow\brainflow\compiled\RelWithDebInfo\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">BrainBitLib.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">BrainBitLib</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\utils\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\neuromd\brainbit_bglib\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SuppressStartupBanner></SuppressStartupBanner>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR="Debug";BrainBitLib_EXPORTS</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR=\"Debug\";BrainBitLib_EXPORTS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\utils\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\neuromd\brainbit_bglib\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\utils\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\neuromd\brainbit_bglib\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PostBuildEvent>
+      <Message></Message>
+      <Command>setlocal
+C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\bin\cmake.exe -E copy_if_different D:/Git_Codes/BrainAlive_BrainFlow/brainflow/compiled/Debug/BrainBitLib.dll D:/Git_Codes/BrainAlive_BrainFlow/brainflow/python-package/brainflow/lib/BrainBitLib.dll
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\bin\cmake.exe -E copy_if_different D:/Git_Codes/BrainAlive_BrainFlow/brainflow/compiled/Debug/BrainBitLib.dll D:/Git_Codes/BrainAlive_BrainFlow/brainflow/java-package/brainflow/src/main/resources/BrainBitLib.dll
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\bin\cmake.exe -E copy_if_different D:/Git_Codes/BrainAlive_BrainFlow/brainflow/compiled/Debug/BrainBitLib.dll D:/Git_Codes/BrainAlive_BrainFlow/brainflow/csharp-package/brainflow/brainflow/lib/BrainBitLib.dll
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\bin\cmake.exe -E copy_if_different D:/Git_Codes/BrainAlive_BrainFlow/brainflow/compiled/Debug/BrainBitLib.dll D:/Git_Codes/BrainAlive_BrainFlow/brainflow/matlab-package/brainflow/lib/BrainBitLib.dll
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\bin\cmake.exe -E copy_if_different D:/Git_Codes/BrainAlive_BrainFlow/brainflow/compiled/Debug/BrainBitLib.dll D:/Git_Codes/BrainAlive_BrainFlow/brainflow/julia-package/brainflow/lib/BrainBitLib.dll
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>D:/Git_Codes/BrainAlive_BrainFlow/brainflow/compiled/Debug/BrainBitLib.lib</ImportLibrary>
+      <ProgramDataBaseFile>D:/Git_Codes/BrainAlive_BrainFlow/brainflow/compiled/Debug/BrainBitLib.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\utils\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\neuromd\brainbit_bglib\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SuppressStartupBanner></SuppressStartupBanner>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR="Release";BrainBitLib_EXPORTS</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR=\"Release\";BrainBitLib_EXPORTS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\utils\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\neuromd\brainbit_bglib\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\utils\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\neuromd\brainbit_bglib\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PostBuildEvent>
+      <Message></Message>
+      <Command>setlocal
+C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\bin\cmake.exe -E copy_if_different D:/Git_Codes/BrainAlive_BrainFlow/brainflow/compiled/Release/BrainBitLib.dll D:/Git_Codes/BrainAlive_BrainFlow/brainflow/python-package/brainflow/lib/BrainBitLib.dll
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\bin\cmake.exe -E copy_if_different D:/Git_Codes/BrainAlive_BrainFlow/brainflow/compiled/Release/BrainBitLib.dll D:/Git_Codes/BrainAlive_BrainFlow/brainflow/java-package/brainflow/src/main/resources/BrainBitLib.dll
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\bin\cmake.exe -E copy_if_different D:/Git_Codes/BrainAlive_BrainFlow/brainflow/compiled/Release/BrainBitLib.dll D:/Git_Codes/BrainAlive_BrainFlow/brainflow/csharp-package/brainflow/brainflow/lib/BrainBitLib.dll
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\bin\cmake.exe -E copy_if_different D:/Git_Codes/BrainAlive_BrainFlow/brainflow/compiled/Release/BrainBitLib.dll D:/Git_Codes/BrainAlive_BrainFlow/brainflow/matlab-package/brainflow/lib/BrainBitLib.dll
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\bin\cmake.exe -E copy_if_different D:/Git_Codes/BrainAlive_BrainFlow/brainflow/compiled/Release/BrainBitLib.dll D:/Git_Codes/BrainAlive_BrainFlow/brainflow/julia-package/brainflow/lib/BrainBitLib.dll
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>D:/Git_Codes/BrainAlive_BrainFlow/brainflow/compiled/Release/BrainBitLib.lib</ImportLibrary>
+      <ProgramDataBaseFile>D:/Git_Codes/BrainAlive_BrainFlow/brainflow/compiled/Release/BrainBitLib.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\utils\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\neuromd\brainbit_bglib\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SuppressStartupBanner></SuppressStartupBanner>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR="MinSizeRel";BrainBitLib_EXPORTS</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR=\"MinSizeRel\";BrainBitLib_EXPORTS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\utils\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\neuromd\brainbit_bglib\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\utils\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\neuromd\brainbit_bglib\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PostBuildEvent>
+      <Message></Message>
+      <Command>setlocal
+C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\bin\cmake.exe -E copy_if_different D:/Git_Codes/BrainAlive_BrainFlow/brainflow/compiled/MinSizeRel/BrainBitLib.dll D:/Git_Codes/BrainAlive_BrainFlow/brainflow/python-package/brainflow/lib/BrainBitLib.dll
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\bin\cmake.exe -E copy_if_different D:/Git_Codes/BrainAlive_BrainFlow/brainflow/compiled/MinSizeRel/BrainBitLib.dll D:/Git_Codes/BrainAlive_BrainFlow/brainflow/java-package/brainflow/src/main/resources/BrainBitLib.dll
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\bin\cmake.exe -E copy_if_different D:/Git_Codes/BrainAlive_BrainFlow/brainflow/compiled/MinSizeRel/BrainBitLib.dll D:/Git_Codes/BrainAlive_BrainFlow/brainflow/csharp-package/brainflow/brainflow/lib/BrainBitLib.dll
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\bin\cmake.exe -E copy_if_different D:/Git_Codes/BrainAlive_BrainFlow/brainflow/compiled/MinSizeRel/BrainBitLib.dll D:/Git_Codes/BrainAlive_BrainFlow/brainflow/matlab-package/brainflow/lib/BrainBitLib.dll
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\bin\cmake.exe -E copy_if_different D:/Git_Codes/BrainAlive_BrainFlow/brainflow/compiled/MinSizeRel/BrainBitLib.dll D:/Git_Codes/BrainAlive_BrainFlow/brainflow/julia-package/brainflow/lib/BrainBitLib.dll
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>D:/Git_Codes/BrainAlive_BrainFlow/brainflow/compiled/MinSizeRel/BrainBitLib.lib</ImportLibrary>
+      <ProgramDataBaseFile>D:/Git_Codes/BrainAlive_BrainFlow/brainflow/compiled/MinSizeRel/BrainBitLib.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\utils\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\neuromd\brainbit_bglib\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SuppressStartupBanner></SuppressStartupBanner>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR="RelWithDebInfo";BrainBitLib_EXPORTS</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR=\"RelWithDebInfo\";BrainBitLib_EXPORTS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\utils\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\neuromd\brainbit_bglib\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\utils\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\neuromd\brainbit_bglib\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\inc;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PostBuildEvent>
+      <Message></Message>
+      <Command>setlocal
+C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\bin\cmake.exe -E copy_if_different D:/Git_Codes/BrainAlive_BrainFlow/brainflow/compiled/RelWithDebInfo/BrainBitLib.dll D:/Git_Codes/BrainAlive_BrainFlow/brainflow/python-package/brainflow/lib/BrainBitLib.dll
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\bin\cmake.exe -E copy_if_different D:/Git_Codes/BrainAlive_BrainFlow/brainflow/compiled/RelWithDebInfo/BrainBitLib.dll D:/Git_Codes/BrainAlive_BrainFlow/brainflow/java-package/brainflow/src/main/resources/BrainBitLib.dll
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\bin\cmake.exe -E copy_if_different D:/Git_Codes/BrainAlive_BrainFlow/brainflow/compiled/RelWithDebInfo/BrainBitLib.dll D:/Git_Codes/BrainAlive_BrainFlow/brainflow/csharp-package/brainflow/brainflow/lib/BrainBitLib.dll
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\bin\cmake.exe -E copy_if_different D:/Git_Codes/BrainAlive_BrainFlow/brainflow/compiled/RelWithDebInfo/BrainBitLib.dll D:/Git_Codes/BrainAlive_BrainFlow/brainflow/matlab-package/brainflow/lib/BrainBitLib.dll
+if %errorlevel% neq 0 goto :cmEnd
+C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\bin\cmake.exe -E copy_if_different D:/Git_Codes/BrainAlive_BrainFlow/brainflow/compiled/RelWithDebInfo/BrainBitLib.dll D:/Git_Codes/BrainAlive_BrainFlow/brainflow/julia-package/brainflow/lib/BrainBitLib.dll
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>D:/Git_Codes/BrainAlive_BrainFlow/brainflow/compiled/RelWithDebInfo/BrainBitLib.lib</ImportLibrary>
+      <ProgramDataBaseFile>D:/Git_Codes/BrainAlive_BrainFlow/brainflow/compiled/RelWithDebInfo/BrainBitLib.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\Git_Codes\BrainAlive_BrainFlow\brainflow\CMakeLists.txt">
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule D:/Git_Codes/BrainAlive_BrainFlow/brainflow/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\bin\cmake.exe -SD:/Git_Codes/BrainAlive_BrainFlow/brainflow -BD:/Git_Codes/BrainAlive_BrainFlow/brainflow/build --check-stamp-file D:/Git_Codes/BrainAlive_BrainFlow/brainflow/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\BasicConfigVersion-AnyNewerVersion.cmake.in;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeCInformation.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeCXXInformation.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeCommonLanguageInclude.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeGenericSystem.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeInitializeConfigs.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeLanguageInformation.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakePackageConfigHelpers.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeRCInformation.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeSystemSpecificInformation.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeSystemSpecificInitialize.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\Compiler\MSVC-C.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\Compiler\MSVC-CXX.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\Platform\Windows-MSVC-C.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\Platform\Windows-MSVC.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\Platform\Windows.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\Platform\WindowsPaths.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\WriteBasicConfigVersionFile.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\build\CMakeFiles\3.22.4\CMakeCCompiler.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\build\CMakeFiles\3.22.4\CMakeCXXCompiler.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\build\CMakeFiles\3.22.4\CMakeRCCompiler.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\build\CMakeFiles\3.22.4\CMakeSystem.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\cmake\Config.cmake.in;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\cmake\macros.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\cpp-package\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\ant_neuro\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\gtec\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\muse\muse_bglib\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\neuromd\brainbit_bglib\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\neuromd\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\openbci\ganglion_bglib\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\data_handler\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\ml\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\utils\bluetooth\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\tests\cpp\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\DSPFilters\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\wavelib\build.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Git_Codes\BrainAlive_BrainFlow\brainflow\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule D:/Git_Codes/BrainAlive_BrainFlow/brainflow/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\bin\cmake.exe -SD:/Git_Codes/BrainAlive_BrainFlow/brainflow -BD:/Git_Codes/BrainAlive_BrainFlow/brainflow/build --check-stamp-file D:/Git_Codes/BrainAlive_BrainFlow/brainflow/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\BasicConfigVersion-AnyNewerVersion.cmake.in;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeCInformation.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeCXXInformation.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeCommonLanguageInclude.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeGenericSystem.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeInitializeConfigs.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeLanguageInformation.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakePackageConfigHelpers.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeRCInformation.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeSystemSpecificInformation.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeSystemSpecificInitialize.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\Compiler\MSVC-C.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\Compiler\MSVC-CXX.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\Platform\Windows-MSVC-C.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\Platform\Windows-MSVC.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\Platform\Windows.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\Platform\WindowsPaths.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\WriteBasicConfigVersionFile.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\build\CMakeFiles\3.22.4\CMakeCCompiler.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\build\CMakeFiles\3.22.4\CMakeCXXCompiler.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\build\CMakeFiles\3.22.4\CMakeRCCompiler.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\build\CMakeFiles\3.22.4\CMakeSystem.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\cmake\Config.cmake.in;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\cmake\macros.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\cpp-package\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\ant_neuro\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\gtec\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\muse\muse_bglib\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\neuromd\brainbit_bglib\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\neuromd\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\openbci\ganglion_bglib\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\data_handler\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\ml\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\utils\bluetooth\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\tests\cpp\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\DSPFilters\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\wavelib\build.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">D:\Git_Codes\BrainAlive_BrainFlow\brainflow\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule D:/Git_Codes/BrainAlive_BrainFlow/brainflow/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\bin\cmake.exe -SD:/Git_Codes/BrainAlive_BrainFlow/brainflow -BD:/Git_Codes/BrainAlive_BrainFlow/brainflow/build --check-stamp-file D:/Git_Codes/BrainAlive_BrainFlow/brainflow/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\BasicConfigVersion-AnyNewerVersion.cmake.in;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeCInformation.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeCXXInformation.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeCommonLanguageInclude.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeGenericSystem.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeInitializeConfigs.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeLanguageInformation.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakePackageConfigHelpers.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeRCInformation.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeSystemSpecificInformation.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeSystemSpecificInitialize.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\Compiler\MSVC-C.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\Compiler\MSVC-CXX.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\Platform\Windows-MSVC-C.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\Platform\Windows-MSVC.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\Platform\Windows.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\Platform\WindowsPaths.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\WriteBasicConfigVersionFile.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\build\CMakeFiles\3.22.4\CMakeCCompiler.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\build\CMakeFiles\3.22.4\CMakeCXXCompiler.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\build\CMakeFiles\3.22.4\CMakeRCCompiler.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\build\CMakeFiles\3.22.4\CMakeSystem.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\cmake\Config.cmake.in;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\cmake\macros.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\cpp-package\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\ant_neuro\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\gtec\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\muse\muse_bglib\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\neuromd\brainbit_bglib\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\neuromd\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\openbci\ganglion_bglib\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\data_handler\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\ml\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\utils\bluetooth\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\tests\cpp\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\DSPFilters\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\wavelib\build.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">D:\Git_Codes\BrainAlive_BrainFlow\brainflow\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule D:/Git_Codes/BrainAlive_BrainFlow/brainflow/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\bin\cmake.exe -SD:/Git_Codes/BrainAlive_BrainFlow/brainflow -BD:/Git_Codes/BrainAlive_BrainFlow/brainflow/build --check-stamp-file D:/Git_Codes/BrainAlive_BrainFlow/brainflow/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\BasicConfigVersion-AnyNewerVersion.cmake.in;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeCInformation.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeCXXInformation.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeCommonLanguageInclude.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeGenericSystem.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeInitializeConfigs.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeLanguageInformation.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakePackageConfigHelpers.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeRCInformation.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeSystemSpecificInformation.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\CMakeSystemSpecificInitialize.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\Compiler\MSVC-C.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\Compiler\MSVC-CXX.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\Platform\Windows-MSVC-C.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\Platform\Windows-MSVC.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\Platform\Windows.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\Platform\WindowsPaths.cmake;C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\share\cmake-3.22\Modules\WriteBasicConfigVersionFile.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\build\CMakeFiles\3.22.4\CMakeCCompiler.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\build\CMakeFiles\3.22.4\CMakeCXXCompiler.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\build\CMakeFiles\3.22.4\CMakeRCCompiler.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\build\CMakeFiles\3.22.4\CMakeSystem.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\cmake\Config.cmake.in;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\cmake\macros.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\cpp-package\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\ant_neuro\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\gtec\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\muse\muse_bglib\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\neuromd\brainbit_bglib\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\neuromd\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\openbci\ganglion_bglib\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\data_handler\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\ml\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\utils\bluetooth\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\tests\cpp\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\DSPFilters\build.cmake;D:\Git_Codes\BrainAlive_BrainFlow\brainflow\third_party\wavelib\build.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">D:\Git_Codes\BrainAlive_BrainFlow\brainflow\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\neuromd\brainbit_bglib\callbacks.cpp" />
+    <ClCompile Include="D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\neuromd\brainbit_bglib\cmd_def.cpp" />
+    <ClCompile Include="D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\neuromd\brainbit_bglib\helpers.cpp" />
+    <ClCompile Include="D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\neuromd\brainbit_bglib\main.cpp" />
+    <ClCompile Include="D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\neuromd\brainbit_bglib\stubs.cpp" />
+    <ClCompile Include="D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\board_controller\neuromd\brainbit_bglib\uart.cpp" />
+    <ClCompile Include="D:\Git_Codes\BrainAlive_BrainFlow\brainflow\src\utils\timestamp.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="D:\Git_Codes\BrainAlive_BrainFlow\brainflow\build\ZERO_CHECK.vcxproj">
+      <Project>{030C0178-B568-31FD-9F95-9DDC34D22AAE}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

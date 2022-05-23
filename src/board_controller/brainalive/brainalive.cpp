@@ -343,16 +343,18 @@ void BrainAlive::read_data (simpleble_uuid_t service, simpleble_uuid_t character
 
     if ((data[0] == START_BYTE) && (data[45] == STOP_BYTE))
     {
-        int32_t ppg_data[3] = {0};
-        int32_t axl_data[3] = {0};
-        double eeg_data[8] = {0};
+        double BA_Data_Buff[15] = {0};
+
         for (int i = 4, j = 0; i < 28; i += 3, j++)
-            eeg_data[j] = (((data[i] << 16 | data[i + 1] << 8 | data[i + 2]) << 8) >> 8) *
+            BA_Data_Buff[j] = (((data[i] << 16 | data[i + 1] << 8 | data[i + 2]) << 8) >> 8) *
                 BRAINALIVE_EEG_SCALE_FACTOR / BRAINALIVE_EEG_GAIN_VALUE;
         for (int i = 28, j = 0; i < 37; i += 3, j++)
-            ppg_data[j] = ((data[i] << 16 | data[i + 1] << 8 | data[i + 2]) & 0x7FFFF);
+            BA_Data_Buff[j] = ((data[i] << 16 | data[i + 1] << 8 | data[i + 2]) & 0x7FFFF);
         for (int i = 37, j = 0; i < 43; i += 2, j++)
-            axl_data[j] = ((data[i] << 8 | data[i + 1]) << 16) >> 16;
-        push_package (&eeg_data[0]);
+            BA_Data_Buff[j] = ((data[i] << 8 | data[i + 1]) << 16) >> 16;
+
+            BA_Data_Buff[14] = data[43];
+
+        push_package (&BA_Data_Buff[0]);
     }
 }
