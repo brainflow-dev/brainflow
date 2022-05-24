@@ -159,3 +159,13 @@ Example:
 
 .. literalinclude:: ../rust-package/brainflow/examples/get_data.rs
    :language: rust
+
+Swift API Reference
+---------------------
+
+The Swift bindings call the C++ API via Objective-C. The public headers are resolved by Xcode via a bridging header (see build instructions for details.)                        
+Example:
+
+.. literalinclude:: ../swift-package/examples/Headset.swift
+   :language: swift
+

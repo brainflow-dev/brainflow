@@ -127,6 +127,47 @@ Rust
         cd brainflow
         cargo build --features generate_binding
 
+Swift
+-------
+
+The following instructions are tested on a MacBook Pro M1 using Xcode 13.4 and macOS Monterey 12.3.1. 
+
+The Xcode build scheme is for destination "My Mac (Rosetta)". The dylibs are universal (built for macos-arm64_x86_64.) The target build architecture is set to $(ARCHS_STANDARD).
+
+High level steps:
+- Build the universal dylibs
+- Copy the entire BrainFlow package from swift-package into the top level folder of your Xcode project.
+- Copy the BrainFlowBindings subfolder from the package into your target app group.
+- Set the briding header
+- Compile the package
+- Set the package dependency
+- Build
+
+Assumptions:
+- the BrainFlow repo is cloned to /Users/myusername/brainflow
+- your Xcode project is located at /Users/myusername/myproject
+- within your Xcode project is a group named myapp
+
+Detailed steps:
+- in a shell such as iTerm2:
+
+  cd /Users/myusername/brainflow/swift-package
+  ./build_package_macOS.sh
+
+- Copy the BrainFlow folder and its entire contents from /Users/myusername/brainflow/swift-package to /Users/myusername/myproject.
+- In Xcode select the top-level project and then click File->Add Packages...Add Local...
+- Select /Users/myusername/myproject/BrainFlow. Click Open.
+- Drag-and-drop the BrainFlowBindings subfolder from myproject/Packages/BrainFLow/Sources into myproject/myapp. 
+- A dialog will pop up. In the dialog check the "Copy items if needed" box, select "Create groups", and check the box(es) next to your target(s).
+- In the build settings of your build target, search for "bridging". Set the Objective-C Bridging Header to "BrainFlow/BrainFlow.h".
+- In the scheme selector at the top of the window, select the BrainFlow scheme for "My Mac (Rosetta)".
+- Press Command-B (build) to build the package.
+- In the General settings of your build target, scroll down to Frameworks, Libraries and Embedded Content.
+- Click the plus button and select the BrainFlow package under the Workspace group.
+- In the scheme selector at the top of the window, select the myapp scheme for "My Mac (Rosetta)".
+- Press Command-B (build) to build the target.
+ 
+
 Docker Image
 --------------
 
