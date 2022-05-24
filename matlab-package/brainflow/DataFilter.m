@@ -193,16 +193,16 @@ classdef DataFilter
         function [filters, eigenvalues] = get_csp(data, labels)
             % get common spatial patterns
             task_name = 'get_csp';
-            n_epochs = size(data, 3);
-            n_channels = size(data, 1);
-            n_times = size(data, 2);
+            n_epochs = size(data, 1);
+            n_channels = size(data, 2);
+            n_times = size(data, 3);
             lib_name = DataFilter.load_lib();
             data1d = zeros(1, n_epochs * n_channels * n_times);
             for e=1:n_epochs
                 for c=1:n_channels
                     for t=1:n_times
                         idx = (e-1) * n_channels * n_times + (c-1) * n_times + t;
-                        data1d(idx) = data(c,t,e); 
+                        data1d(idx) = data(e,c,t);
                     end
                 end
             end
