@@ -176,15 +176,15 @@ end
 end
 
 @brainflow_rethrow function get_csp(data, labels)
-    n_epochs = size(data, 3)
-    n_channels = size(data, 1)
-    n_times = size(data, 2)
+    n_epochs = size(data, 1)
+    n_channels = size(data, 2)
+    n_times = size(data, 3)
 
     temp_data1d = Vector{Float64}(undef, Integer(n_epochs * n_channels * n_times))
     for e=1:n_epochs
         for c=1:n_channels
             for t=1:n_times
-                temp_data1d[(e-1) * n_channels * n_times + (c-1) * n_times + t] = data[c, t, e]
+                temp_data1d[(e-1) * n_channels * n_times + (c-1) * n_times + t] = data[e, c, t]
             end
         end
     end
