@@ -30,8 +30,8 @@ extern "C" {
         data: *mut f64,
         data_len: ::std::os::raw::c_int,
         sampling_rate: ::std::os::raw::c_int,
-        center_freq: f64,
-        band_width: f64,
+        start_freq: f64,
+        stop_freq: f64,
         order: ::std::os::raw::c_int,
         filter_type: ::std::os::raw::c_int,
         ripple: f64,
@@ -42,8 +42,8 @@ extern "C" {
         data: *mut f64,
         data_len: ::std::os::raw::c_int,
         sampling_rate: ::std::os::raw::c_int,
-        center_freq: f64,
-        band_width: f64,
+        start_freq: f64,
+        stop_width: f64,
         order: ::std::os::raw::c_int,
         filter_type: ::std::os::raw::c_int,
         ripple: f64,
@@ -191,10 +191,13 @@ extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-    pub fn get_avg_band_powers(
+    pub fn get_custom_band_powers(
         raw_data: *mut f64,
         rows: ::std::os::raw::c_int,
         cols: ::std::os::raw::c_int,
+        start_freqs: *mut f64,
+        stop_freqs: *mut f64,
+        num_bands: ::std::os::raw::c_int,
         sampling_rate: ::std::os::raw::c_int,
         apply_filters: ::std::os::raw::c_int,
         avg_band_powers: *mut f64,

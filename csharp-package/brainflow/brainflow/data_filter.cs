@@ -137,11 +137,11 @@ namespace brainflow
         /// <param name="filter_type"></param>
         /// <param name="ripple"></param>
         /// <returns>filtered data</returns>
-        public static double[] perform_bandpass (double[] data, int sampling_rate, double center_freq, double band_width, int order, int filter_type, double ripple)
+        public static double[] perform_bandpass (double[] data, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple)
         {
             double[] filtered_data = new double[data.Length];
             Array.Copy (data, filtered_data, data.Length);
-            int res = DataHandlerLibrary.perform_bandpass (filtered_data, data.Length, sampling_rate, center_freq, band_width, order, filter_type, ripple);
+            int res = DataHandlerLibrary.perform_bandpass (filtered_data, data.Length, sampling_rate, start_freq, stop_freq, order, filter_type, ripple);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException (res);
@@ -160,11 +160,11 @@ namespace brainflow
         /// <param name="filter_type"></param>
         /// <param name="ripple"></param>
         /// <returns>filtered data</returns>
-        public static double[] perform_bandstop (double[] data, int sampling_rate, double center_freq, double band_width, int order, int filter_type, double ripple)
+        public static double[] perform_bandstop (double[] data, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple)
         {
             double[] filtered_data = new double[data.Length];
             Array.Copy (data, filtered_data, data.Length);
-            int res = DataHandlerLibrary.perform_bandstop (filtered_data, data.Length, sampling_rate, center_freq, band_width, order, filter_type, ripple);
+            int res = DataHandlerLibrary.perform_bandstop (filtered_data, data.Length, sampling_rate, start_freq, stop_freq, order, filter_type, ripple);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException (res);
@@ -512,30 +512,58 @@ namespace brainflow
         }
 
         /// <summary>
-        /// calculate avg and stddev bandpowers across channels, bands are 1-4,4-8,8-13,13-30,30-50
+        /// calculate avg and stddev bandpowers across channels
         /// </summary>
         /// <param name="data">2d array with values</param>
+        /// <param name="bands">bands to calculate</param>
         /// <param name="channels">rows of data array which should be used for calculation</param>
         /// <param name="sampling_rate">sampling rate</param>
         /// <param name="apply_filters">apply bandpass and bandstop filters before calculation</param>
         /// <returns>Tuple of avgs and stddev arrays</returns>
-        public static Tuple<double[], double[]> get_avg_band_powers (double[,] data, int[] channels, int sampling_rate, bool apply_filters)
+        public static Tuple<double[], double[]> get_custom_band_powers (double[,] data, Tuple<double, double>[] bands, int[] channels,  int sampling_rate, bool apply_filters)
         {
             double[] data_1d = new double[data.GetRow (0).Length * channels.Length];
             for (int i = 0; i < channels.Length; i++)
             {
                 Array.Copy(data.GetRow(channels[i]), 0, data_1d, i * data.GetRow (channels[i]).Length, data.GetRow(channels[i]).Length);
             }
-            double[] avgs = new double[5];
-            double[] stddevs = new double[5];
+            double[] avgs = new double[bands.Length];
+            double[] stddevs = new double[bands.Length];
+            double[] start_freqs = new double[bands.Length];
+            double[] stop_freqs = new double[bands.Length];
+            for (int i = 0; i < bands.Length; i++)
+            {
+                start_freqs[i] = bands[i].Item1;
+                stop_freqs[i] = bands[i].Item2;
+            }
 
-            int res = DataHandlerLibrary.get_avg_band_powers (data_1d, channels.Length, data.GetRow (0).Length, sampling_rate, (apply_filters) ? 1 : 0, avgs, stddevs);
+            int res = DataHandlerLibrary.get_custom_band_powers (data_1d, channels.Length, data.GetRow (0).Length, start_freqs, stop_freqs, bands.Length, sampling_rate, (apply_filters) ? 1 : 0, avgs, stddevs);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException(res);
             }
             Tuple<double[], double[]> return_data = new Tuple<double[], double[]>(avgs, stddevs);
             return return_data;
+        }
+
+        /// <summary>
+        /// calculate avg and stddev bandpowers across channels
+        /// </summary>
+        /// <param name="data">2d array with values</param>
+        /// <param name="channels">rows of data array which should be used for calculation</param>
+        /// <param name="sampling_rate">sampling rate</param>
+        /// <param name="apply_filters">apply bandpass and bandstop filters before calculation</param>
+        /// <returns>Tuple of avgs and stddev arrays</returns>
+        public static Tuple<double[], double[]> get_avg_band_powers(double[,] data, int[] channels, int sampling_rate, bool apply_filters)
+        {
+            Tuple<double, double>[] bands = new Tuple<double, double>[5];
+            bands[0] = new Tuple<double, double>(2.0, 4.0);
+            bands[1] = new Tuple<double, double>(4.0, 8.0);
+            bands[2] = new Tuple<double, double>(8.0, 13.0);
+            bands[3] = new Tuple<double, double>(13.0, 30.0);
+            bands[4] = new Tuple<double, double>(30.0, 50.0);
+
+            return get_custom_band_powers(data, bands, channels, sampling_rate, apply_filters);
         }
 
         /// <summary>

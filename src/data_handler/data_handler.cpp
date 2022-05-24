@@ -96,15 +96,18 @@ int set_log_level_data_handler (int level)
 int perform_lowpass (double *data, int data_len, int sampling_rate, double cutoff, int order,
     int filter_type, double ripple)
 {
+    if ((order < 1) || (order > MAX_FILTER_ORDER) || (!data) || (cutoff < 0))
+    {
+        data_logger->error (
+            "Order must be from 1-8 and data cannot be empty. Order:{} , Data:{} , Cutoff:{}",
+            order, (data != NULL), cutoff);
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
     double *filter_data[1];
     filter_data[0] = data;
     Dsp::Filter *f = NULL;
-    if ((order < 1) || (order > MAX_FILTER_ORDER) || (!data))
-    {
-        data_logger->error ("Order must be from 1-8 and data cannot be empty. Order:{} , Data:{}",
-            order, (data != NULL));
-        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
-    }
+
     switch (static_cast<FilterTypes> (filter_type))
     {
         case FilterTypes::BUTTERWORTH:
@@ -139,16 +142,18 @@ int perform_lowpass (double *data, int data_len, int sampling_rate, double cutof
 int perform_highpass (double *data, int data_len, int sampling_rate, double cutoff, int order,
     int filter_type, double ripple)
 {
+    if ((order < 1) || (order > MAX_FILTER_ORDER) || (!data) || (cutoff < 0))
+    {
+        data_logger->error (
+            "Order must be from 1-8 and data cannot be empty. Order:{} , Data:{} , Cutoff:{}",
+            order, (data != NULL), cutoff);
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
     Dsp::Filter *f = NULL;
     double *filter_data[1];
     filter_data[0] = data;
 
-    if ((order < 1) || (order > MAX_FILTER_ORDER) || (!data))
-    {
-        data_logger->error ("Order must be from 1-8 and data cannot be empty. Order:{} , Data:{}",
-            order, (data != NULL));
-        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
-    }
     switch (static_cast<FilterTypes> (filter_type))
     {
         case FilterTypes::BUTTERWORTH:
@@ -179,19 +184,24 @@ int perform_highpass (double *data, int data_len, int sampling_rate, double cuto
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int perform_bandpass (double *data, int data_len, int sampling_rate, double center_freq,
-    double band_width, int order, int filter_type, double ripple)
+int perform_bandpass (double *data, int data_len, int sampling_rate, double start_freq,
+    double stop_freq, int order, int filter_type, double ripple)
 {
+    if ((order < 1) || (order > MAX_FILTER_ORDER) || (!data) || (stop_freq <= start_freq) ||
+        (start_freq < 0))
+    {
+        data_logger->error ("Order must be from 1-8 and data cannot be empty. Order:{} , Data:{} , "
+                            "Start Freq:{} , Stop Freq:{}",
+            order, (data != NULL), start_freq, stop_freq);
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    double center_freq = (start_freq + stop_freq) / 2.0;
+    double band_width = stop_freq - start_freq;
     Dsp::Filter *f = NULL;
     double *filter_data[1];
     filter_data[0] = data;
 
-    if ((order < 1) || (order > MAX_FILTER_ORDER) || (!data))
-    {
-        data_logger->error ("Order must be from 1-8 and data cannot be empty. Order:{} , Data:{}",
-            order, (data != NULL));
-        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
-    }
     switch (static_cast<FilterTypes> (filter_type))
     {
         case FilterTypes::BUTTERWORTH:
@@ -218,26 +228,30 @@ int perform_bandpass (double *data, int data_len, int sampling_rate, double cent
         params[4] = ripple; // ripple
     }
     f->setParams (params);
-
     f->process (data_len, filter_data);
     delete f;
 
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int perform_bandstop (double *data, int data_len, int sampling_rate, double center_freq,
-    double band_width, int order, int filter_type, double ripple)
+int perform_bandstop (double *data, int data_len, int sampling_rate, double start_freq,
+    double stop_freq, int order, int filter_type, double ripple)
 {
+    if ((order < 1) || (order > MAX_FILTER_ORDER) || (!data) || (stop_freq <= start_freq) ||
+        (start_freq < 0))
+    {
+        data_logger->error ("Order must be from 1-8 and data cannot be empty. Order:{} , Data:{} , "
+                            "Start Freq:{} , Stop Freq:{}",
+            order, (data != NULL), start_freq, stop_freq);
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    double center_freq = (start_freq + stop_freq) / 2.0;
+    double band_width = stop_freq - start_freq;
     Dsp::Filter *f = NULL;
     double *filter_data[1];
     filter_data[0] = data;
 
-    if ((order < 1) || (order > MAX_FILTER_ORDER) || (!data))
-    {
-        data_logger->error ("Order must be from 1-8 and data cannot be empty. Order:{} , Data:{}",
-            order, (data != NULL));
-        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
-    }
     switch (static_cast<FilterTypes> (filter_type))
     {
         case FilterTypes::BUTTERWORTH:
@@ -283,11 +297,20 @@ int remove_environmental_noise (double *data, int data_len, int sampling_rate, i
     {
         case NoiseTypes::FIFTY:
             res = perform_bandstop (
-                data, data_len, sampling_rate, 50.0, 4.0, 4, (int)FilterTypes::BUTTERWORTH, 0.0);
+                data, data_len, sampling_rate, 48.0, 62.0, 4, (int)FilterTypes::BUTTERWORTH, 0.0);
             break;
         case NoiseTypes::SIXTY:
             res = perform_bandstop (
-                data, data_len, sampling_rate, 60.0, 4.0, 4, (int)FilterTypes::BUTTERWORTH, 0.0);
+                data, data_len, sampling_rate, 58.0, 62.0, 4, (int)FilterTypes::BUTTERWORTH, 0.0);
+            break;
+        case NoiseTypes::FIFTY_AND_SIXTY:
+            res = perform_bandstop (
+                data, data_len, sampling_rate, 48.0, 52.0, 4, (int)FilterTypes::BUTTERWORTH, 0.0);
+            if (res == (int)BrainFlowExitCodes::STATUS_OK)
+            {
+                res = perform_bandstop (data, data_len, sampling_rate, 58.0, 62.0, 4,
+                    (int)FilterTypes::BUTTERWORTH, 0.0);
+            }
             break;
         default:
             data_logger->error ("Invalid noise type");
@@ -1138,11 +1161,13 @@ int get_psd_welch (double *data, int data_len, int nfft, int overlap, int sampli
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int get_avg_band_powers (double *raw_data, int rows, int cols, int sampling_rate, int apply_filters,
+int get_custom_band_powers (double *raw_data, int rows, int cols, double *start_freqs,
+    double *stop_freqs, int num_bands, int sampling_rate, int apply_filters,
     double *avg_band_powers, double *stddev_band_powers)
 {
     if ((sampling_rate < 1) || (raw_data == NULL) || (rows < 1) || (cols < 1) ||
-        (avg_band_powers == NULL) || (stddev_band_powers == NULL))
+        (avg_band_powers == NULL) || (stddev_band_powers == NULL) || (start_freqs == NULL) ||
+        (stop_freqs == NULL) || (num_bands < 1))
     {
         data_logger->error ("Please review your arguments.");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
@@ -1169,8 +1194,8 @@ int get_avg_band_powers (double *raw_data, int rows, int cols, int sampling_rate
         delete[] exit_codes;
         return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
-    double **bands = new double *[5];
-    for (int i = 0; i < 5; i++)
+    double **bands = new double *[num_bands];
+    for (int i = 0; i < num_bands; i++)
     {
         bands[i] = new double[rows];
         // to make valgrind happy
@@ -1190,20 +1215,20 @@ int get_avg_band_powers (double *raw_data, int rows, int cols, int sampling_rate
 
         if (apply_filters)
         {
-            exit_codes[i] = detrend (thread_data, cols, (int)DetrendOperations::LINEAR);
+            exit_codes[i] = detrend (thread_data, cols, (int)DetrendOperations::CONSTANT);
             if (exit_codes[i] == (int)BrainFlowExitCodes::STATUS_OK)
             {
-                exit_codes[i] = perform_bandstop (thread_data, cols, sampling_rate, 50.0, 4.0, 4,
+                exit_codes[i] = perform_bandstop (thread_data, cols, sampling_rate, 48.0, 52.0, 4,
                     (int)FilterTypes::BUTTERWORTH, 0.0);
             }
             if (exit_codes[i] == (int)BrainFlowExitCodes::STATUS_OK)
             {
-                exit_codes[i] = perform_bandstop (thread_data, cols, sampling_rate, 60.0, 4.0, 4,
+                exit_codes[i] = perform_bandstop (thread_data, cols, sampling_rate, 58.0, 62.0, 4,
                     (int)FilterTypes::BUTTERWORTH, 0.0);
             }
             if (exit_codes[i] == (int)BrainFlowExitCodes::STATUS_OK)
             {
-                exit_codes[i] = perform_bandpass (thread_data, cols, sampling_rate, 24.0, 47.0, 4,
+                exit_codes[i] = perform_bandpass (thread_data, cols, sampling_rate, 2.0, 45.0, 4,
                     (int)FilterTypes::BUTTERWORTH, 0.0);
             }
         }
@@ -1211,25 +1236,13 @@ int get_avg_band_powers (double *raw_data, int rows, int cols, int sampling_rate
         // use 80% overlap, as long as it works fast overlap param can be big
         exit_codes[i] = get_psd_welch (thread_data, cols, nfft, 4 * nfft / 5, sampling_rate,
             (int)WindowFunctions::HANNING, ampls, freqs);
-        if (exit_codes[i] == (int)BrainFlowExitCodes::STATUS_OK)
+        for (int band_num = 0; band_num < num_bands; band_num++)
         {
-            exit_codes[i] = get_band_power (ampls, freqs, nfft / 2 + 1, 1.5, 4.0, &bands[0][i]);
-        }
-        if (exit_codes[i] == (int)BrainFlowExitCodes::STATUS_OK)
-        {
-            exit_codes[i] = get_band_power (ampls, freqs, nfft / 2 + 1, 4.0, 8.0, &bands[1][i]);
-        }
-        if (exit_codes[i] == (int)BrainFlowExitCodes::STATUS_OK)
-        {
-            exit_codes[i] = get_band_power (ampls, freqs, nfft / 2 + 1, 7.5, 13.0, &bands[2][i]);
-        }
-        if (exit_codes[i] == (int)BrainFlowExitCodes::STATUS_OK)
-        {
-            exit_codes[i] = get_band_power (ampls, freqs, nfft / 2 + 1, 13.0, 30.0, &bands[3][i]);
-        }
-        if (exit_codes[i] == (int)BrainFlowExitCodes::STATUS_OK)
-        {
-            exit_codes[i] = get_band_power (ampls, freqs, nfft / 2 + 1, 30.0, 45.0, &bands[4][i]);
+            if (exit_codes[i] == (int)BrainFlowExitCodes::STATUS_OK)
+            {
+                exit_codes[i] = get_band_power (ampls, freqs, nfft / 2 + 1, start_freqs[band_num],
+                    stop_freqs[band_num], &bands[band_num][i]);
+            }
         }
 
         delete[] ampls;
@@ -1243,7 +1256,7 @@ int get_avg_band_powers (double *raw_data, int rows, int cols, int sampling_rate
         {
             int ec = exit_codes[i];
             delete[] exit_codes;
-            for (int j = 0; j < 5; j++)
+            for (int j = 0; j < num_bands; j++)
             {
                 delete[] bands[j];
             }
@@ -1253,9 +1266,11 @@ int get_avg_band_powers (double *raw_data, int rows, int cols, int sampling_rate
     }
 
     // find average and stddev
-    double avg_bands[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
-    double std_bands[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
-    for (int i = 0; i < 5; i++)
+    double *avg_bands = new double[num_bands];
+    double *std_bands = new double[num_bands];
+    memset (avg_bands, 0, sizeof (double) * num_bands);
+    memset (std_bands, 0, sizeof (double) * num_bands);
+    for (int i = 0; i < num_bands; i++)
     {
         for (int j = 0; j < rows; j++)
         {
@@ -1271,11 +1286,11 @@ int get_avg_band_powers (double *raw_data, int rows, int cols, int sampling_rate
     }
     // use relative band powers
     double sum = 0.0;
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < num_bands; i++)
     {
         sum += avg_bands[i];
     }
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < num_bands; i++)
     {
         avg_band_powers[i] = avg_bands[i] / sum;
         // use relative stddev to 'normalize'(doesnt ensure range between 0 and 1) it and keep
@@ -1285,11 +1300,13 @@ int get_avg_band_powers (double *raw_data, int rows, int cols, int sampling_rate
     }
 
     delete[] exit_codes;
-    for (int j = 0; j < 5; j++)
+    for (int j = 0; j < num_bands; j++)
     {
         delete[] bands[j];
     }
     delete[] bands;
+    delete[] avg_bands;
+    delete[] std_bands;
 
     return (int)BrainFlowExitCodes::STATUS_OK;
 }

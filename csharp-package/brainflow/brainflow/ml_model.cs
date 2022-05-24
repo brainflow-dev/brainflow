@@ -10,6 +10,7 @@ namespace brainflow
     public class MLModel
     {
         private string input_json;
+        BrainFlowModelParams input_params;
 
 
         /// <summary>
@@ -19,6 +20,7 @@ namespace brainflow
         public MLModel (BrainFlowModelParams input_params)
         {
             this.input_json = input_params.to_json ();
+            this.input_params = input_params;
         }
 
         /// <summary>
@@ -110,15 +112,21 @@ namespace brainflow
         /// <summary>
         /// Get score of classifier
         /// </summary>
-        public double predict (double[] data)
+        public double[] predict (double[] data)
         {
-            double[] val = new double[1];
-            int res = MLModuleLibrary.predict (data, data.Length, val, input_json);
+            double[] val = new double[input_params.max_array_size];
+            int[] val_len = new int[1];
+            int res = MLModuleLibrary.predict (data, data.Length, val, val_len, input_json);
             if (res != (int)CustomExitCodes.STATUS_OK)
             {
                 throw new BrainFlowException (res);
             }
-            return val[0];
+            double[] result = new double[val_len[0]];
+            for (int i = 0; i < val_len[0]; i++)
+            {
+                result[i] = val[i];
+            }
+            return result;
         }
 
         /// <summary>

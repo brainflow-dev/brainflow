@@ -33,6 +33,11 @@ namespace brainflow
         /// </summary>
         [DataMember]
         public string other_info;
+        /// <summary>
+        /// max array size
+        /// </summary>
+        [DataMember]
+        public int max_array_size;
 
         public BrainFlowModelParams (int metric, int classifier)
         {
@@ -40,6 +45,7 @@ namespace brainflow
             this.classifier = classifier;
             file = "";
             other_info = "";
+            max_array_size = 8192;
         }
 
         public string to_json ()

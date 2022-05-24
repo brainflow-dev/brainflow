@@ -5,6 +5,7 @@ classdef BrainFlowModelParams
         classifier
         file
         other_info
+        max_array_size
     end
     methods
         function obj = BrainFlowModelParams(metric, classifier)
@@ -12,6 +13,7 @@ classdef BrainFlowModelParams
             obj.classifier = classifier;
             obj.file = '';
             obj.other_info = '';
+            max_array_size = 8192;
         end
         function json_string = to_json(obj)
             json_string = jsonencode(obj);

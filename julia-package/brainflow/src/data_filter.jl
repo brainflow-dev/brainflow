@@ -51,10 +51,13 @@ abstract type NoiseType <: Integer end
 Base.Int32(d::NoiseType) = Int32(Integer(d))
 struct Fifty <: NoiseType end
 struct Sixty <: NoiseType end
-Base.Integer(::Fifty) = 1
-Base.Integer(::Sixty) = 2
+struct FiftyAndSixty <: NoiseType end
+Base.Integer(::Fifty) = 0
+Base.Integer(::Sixty) = 1
+Base.Integer(::FiftyAndSixty) = 2
 const FIFTY = Fifty()
 const SIXTY = Sixty()
+const FIFTY_AND_SIXTY = FiftyAndSixty()
 
 @brainflow_rethrow function perform_lowpass(data, sampling_rate::Integer, cutoff::Float64, order::Integer,
     filter_type::Integer, ripple::Float64)
@@ -71,17 +74,17 @@ end
     return
 end
 
-@brainflow_rethrow function perform_bandpass(data, sampling_rate::Integer, center_freq::Float64,
-    band_width::Float64, order::Integer, filter_type::Integer, ripple::Float64)
+@brainflow_rethrow function perform_bandpass(data, sampling_rate::Integer, start_freq::Float64,
+    stop_freq::Float64, order::Integer, filter_type::Integer, ripple::Float64)
     ccall((:perform_bandpass, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Float64, Float64, Cint, Cint, Float64),
-            data, length(data), Int32(sampling_rate), Float64(center_freq), Float64(band_width), Int32(order), Int32(filter_type), Float64(ripple))
+            data, length(data), Int32(sampling_rate), Float64(start_freq), Float64(stop_freq), Int32(order), Int32(filter_type), Float64(ripple))
     return
 end
 
-@brainflow_rethrow function perform_bandstop(data, sampling_rate::Integer, center_freq::Float64,
-    band_width::Float64, order::Integer, filter_type::Integer, ripple::Float64)
+@brainflow_rethrow function perform_bandstop(data, sampling_rate::Integer, start_freq::Float64,
+    stop_freq::Float64, order::Integer, filter_type::Integer, ripple::Float64)
     ccall((:perform_bandstop, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Float64, Float64, Cint, Cint, Float64),
-            data, length(data), Int32(sampling_rate), Float64(center_freq), Float64(band_width), Int32(order), Int32(filter_type), Float64(ripple))
+            data, length(data), Int32(sampling_rate), Float64(start_freq), Float64(stop_freq), Int32(order), Int32(filter_type), Float64(ripple))
     return
 end
 
@@ -248,17 +251,25 @@ end
     return res
 end
 
-@brainflow_rethrow function get_avg_band_powers(data, channels, sampling_rate::Integer, apply_filter::Bool)
+function get_avg_band_powers(data, channels, sampling_rate::Integer, apply_filter::Bool)
+    bands = [(2.0, 4.0), (4.0, 8.0), (8.0, 13.0), (13.0, 30.0), (30.0, 45.0)]
+    return get_custom_band_powers(data, bands, channels, sampling_rate, apply_filter)
+end
+
+@brainflow_rethrow function get_custom_band_powers(data, bands, channels, sampling_rate::Integer, apply_filter::Bool)
 
     shape = size(data)
     data_1d = reshape(transpose(data[channels,:]), (1, size(channels)[1] * shape[2]))
     data_1d = copy(data_1d)
 
-    temp_avgs = Vector{Float64}(undef, 5)
-    temp_stddevs = Vector{Float64}(undef, 5)
+    start_freqs = [first(p) for p in bands]
+    stop_freqs = [last(p) for p in bands]
 
-    ccall((:get_avg_band_powers, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
-            data_1d, size(channels)[1], shape[2], Int32(sampling_rate), Int32(apply_filter), temp_avgs, temp_stddevs)
+    temp_avgs = Vector{Float64}(undef, length(start_freqs))
+    temp_stddevs = Vector{Float64}(undef, length(start_freqs))
+
+    ccall((:get_custom_band_powers, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Ptr{Float64}, Ptr{Float64}, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
+            data_1d, size(channels)[1], shape[2], start_freqs, stop_freqs, length(start_freqs), Int32(sampling_rate), Int32(apply_filter), temp_avgs, temp_stddevs)
     return temp_avgs, temp_stddevs
 end
 

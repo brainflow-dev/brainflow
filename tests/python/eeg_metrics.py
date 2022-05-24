@@ -60,14 +60,14 @@ def main():
     print(feature_vector)
 
     # calc concentration
-    concentration_params = BrainFlowModelParams(BrainFlowMetrics.CONCENTRATION.value, BrainFlowClassifiers.KNN.value)
+    concentration_params = BrainFlowModelParams(BrainFlowMetrics.CONCENTRATION.value, BrainFlowClassifiers.DEFAULT_CLASSIFIER.value)
     concentration = MLModel(concentration_params)
     concentration.prepare()
     print('Concentration: %f' % concentration.predict(feature_vector))
     concentration.release()
 
     # calc relaxation
-    relaxation_params = BrainFlowModelParams(BrainFlowMetrics.RELAXATION.value, BrainFlowClassifiers.REGRESSION.value)
+    relaxation_params = BrainFlowModelParams(BrainFlowMetrics.RELAXATION.value, BrainFlowClassifiers.DEFAULT_CLASSIFIER.value)
     relaxation = MLModel(relaxation_params)
     relaxation.prepare()
     print('Relaxation: %f' % relaxation.predict(feature_vector))

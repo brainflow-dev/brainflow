@@ -11,6 +11,7 @@ public class BrainFlowModelParams
     public int classifier;
     public String file;
     public String other_info;
+    public int max_array_size;
 
     public BrainFlowModelParams (int metric, int classifier)
     {
@@ -18,6 +19,7 @@ public class BrainFlowModelParams
         this.classifier = classifier;
         this.file = "";
         this.other_info = "";
+        this.max_array_size = 8192;
     }
 
     public int get_metric ()
@@ -58,6 +60,16 @@ public class BrainFlowModelParams
     public void set_other_info (String other_info)
     {
         this.other_info = other_info;
+    }
+
+    public int get_max_array_size ()
+    {
+        return max_array_size;
+    }
+
+    public void set_max_array_size (int max_array_size)
+    {
+        this.max_array_size = max_array_size;
     }
 
     public String to_json ()

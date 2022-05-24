@@ -95,8 +95,8 @@ pub fn perform_highpass(
 pub fn perform_bandpass(
     data: &mut [f64],
     sampling_rate: usize,
-    center_freq: f64,
-    band_width: f64,
+    start_freq: f64,
+    stop_freq: f64,
     order: usize,
     filter_type: FilterTypes,
     ripple: f64,
@@ -106,8 +106,8 @@ pub fn perform_bandpass(
             data.as_mut_ptr() as *mut c_double,
             data.len() as c_int,
             sampling_rate as c_int,
-            center_freq as c_double,
-            band_width as c_double,
+            start_freq as c_double,
+            stop_freq as c_double,
             order as c_int,
             filter_type as c_int,
             ripple as c_double,
@@ -121,8 +121,8 @@ pub fn perform_bandpass(
 pub fn perform_bandstop(
     data: &mut [f64],
     sampling_rate: usize,
-    center_freq: f64,
-    band_width: f64,
+    start_freq: f64,
+    stop_freq: f64,
     order: usize,
     filter_type: FilterTypes,
     ripple: f64,
@@ -132,8 +132,8 @@ pub fn perform_bandstop(
             data.as_mut_ptr() as *mut c_double,
             data.len() as c_int,
             sampling_rate as c_int,
-            center_freq as c_double,
-            band_width as c_double,
+            start_freq as c_double,
+            stop_freq as c_double,
             order as c_int,
             filter_type as c_int,
             ripple as c_double,
@@ -516,9 +516,18 @@ pub fn get_psd_welch(
     })
 }
 
+/// Data struct for exg bands
+#[derive(Getters, Clone)]
+#[getset(get = "pub")]
+pub struct Band {
+    freq_start: f64,
+    freq_stop: f64,
+}
+
 /// Calculate avg and stddev of BandPowers across all channels, bands are 1-4,4-8,8-13,13-30,30-50.
-pub fn get_avg_band_powers(
+pub fn get_custom_band_powers(
     data: Array2<f64>,
+    bands: Vec<Band>,
     eeg_channels: Vec<usize>,
     sampling_rate: usize,
     apply_filters: bool,
@@ -534,14 +543,19 @@ pub fn get_avg_band_powers(
         .copied()
         .collect::<Vec<f64>>();
 
-    let mut avg_band_powers = Vec::with_capacity(5);
-    let mut stddev_band_powers = Vec::with_capacity(5);
+    let (mut x, mut y): (Vec<_>, Vec<_>) = bands.into_iter().map(|Band{freq_start, freq_stop}| (freq_start, freq_stop)).unzip();
+
+    let mut avg_band_powers = Vec::with_capacity(x.len());
+    let mut stddev_band_powers = Vec::with_capacity(y.len());
 
     let res = unsafe {
-        data_handler::get_avg_band_powers(
+        data_handler::get_custom_band_powers(
             raw_data.as_mut_ptr() as *mut c_double,
             rows as c_int,
             cols as c_int,
+            x.as_mut_ptr() as *mut c_double,
+            y.as_mut_ptr() as *mut c_double,
+            x.len() as c_int,
             sampling_rate as c_int,
             apply_filters as c_int,
             avg_band_powers.as_mut_ptr() as *mut c_double,
@@ -550,21 +564,37 @@ pub fn get_avg_band_powers(
     };
     check_brainflow_exit_code(res)?;
 
-    unsafe { avg_band_powers.set_len(5) };
-    unsafe { stddev_band_powers.set_len(5) };
+    unsafe { avg_band_powers.set_len(x.len()) };
+    unsafe { stddev_band_powers.set_len(x.len()) };
     Ok((avg_band_powers, stddev_band_powers))
 }
 
+pub fn get_avg_band_powers(
+    data: Array2<f64>,
+    eeg_channels: Vec<usize>,
+    sampling_rate: usize,
+    apply_filters: bool,
+) -> Result<(Vec<f64>, Vec<f64>)> {
+    let vector = vec![
+       Band { freq_start: 2.0, freq_stop: 4.0 },
+       Band { freq_start: 4.0, freq_stop: 8.0 },
+       Band { freq_start: 8.0, freq_stop: 13.0 },
+       Band { freq_start: 13.0, freq_stop: 30.0 },
+       Band { freq_start: 30.0, freq_stop: 45.0 },
+    ];
+    get_custom_band_powers(data, vector, eeg_channels, sampling_rate, apply_filters)
+}
+
 /// Calculate band power.
-pub fn get_band_power(psd: &mut Psd, freq_start: f64, freq_end: f64) -> Result<f64> {
+pub fn get_band_power(psd: &mut Psd, band: Band) -> Result<f64> {
     let mut band_power = 0.0;
     let res = unsafe {
         data_handler::get_band_power(
             psd.amplitude.as_mut_ptr() as *mut c_double,
             psd.frequency.as_mut_ptr() as *mut c_double,
             psd.amplitude.len() as c_int,
-            freq_start,
-            freq_end,
+            band.freq_start,
+            band.freq_stop,
             &mut band_power,
         )
     };

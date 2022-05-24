@@ -11,6 +11,7 @@ pub struct BrainFlowModelParams {
     classifier: BrainFlowClassifiers,
     file: String,
     other_info: String,
+    max_array_size: usize,
 }
 
 impl Serialize for BrainFlowModelParams {
@@ -23,6 +24,7 @@ impl Serialize for BrainFlowModelParams {
         state.serialize_field("classifier", &(self.classifier as usize))?;
         state.serialize_field("file", &self.file.to_string())?;
         state.serialize_field("other_info", &self.other_info.to_string())?;
+        state.serialize_field("max_array_size", &self.max_array_size)?;
         state.end()
     }
 }
@@ -30,10 +32,11 @@ impl Serialize for BrainFlowModelParams {
 impl Default for BrainFlowModelParams {
     fn default() -> Self {
         Self {
-            metric: BrainFlowMetrics::Concentration,
-            classifier: BrainFlowClassifiers::Knn,
+            metric: BrainFlowMetrics::Mindfulness,
+            classifier: BrainFlowClassifiers::DefaultClassifier,
             file: Default::default(),
             other_info: Default::default(),
+            max_array_size: 8192,
         }
     }
 }
@@ -71,6 +74,12 @@ impl BrainFlowModelParamsBuilder {
     /// Other info.
     pub fn other_info<S: AsRef<str>>(mut self, other_info: S) -> Self {
         self.params.other_info = other_info.as_ref().to_string();
+        self
+    }
+
+    /// Max array size.
+    pub fn max_array_size(mut self, max_array_size: usize) -> Self {
+        self.params.max_array_size = max_array_size;
         self
     }
 

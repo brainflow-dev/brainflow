@@ -10,19 +10,16 @@ namespace brainflow
 {
     public enum BrainFlowMetrics
     {
-        RELAXATION = 0,
-        CONCENTRATION = 1,
+        MINDFULNESS = 0,
+        RESTFULNESS = 1,
         USER_DEFINED = 2
     };
 
     public enum BrainFlowClassifiers
     {
         REGRESSION = 0,
-        KNN = 1,
-        SVM = 2,
-        LDA = 3,
-        DYN_LIB_CLASSIFIER = 4,
-        ONNX_CLASSIFIER = 5
+        DYN_LIB_CLASSIFIER = 1,
+        ONNX_CLASSIFIER = 2
     };
 
     public static class MLModuleLibrary64
@@ -32,11 +29,11 @@ namespace brainflow
         [DllImport ("MLModule.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_level_ml_module (int log_level);
         [DllImport ("MLModule.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int prepare(string input_json);
+        public static extern int prepare (string input_json);
         [DllImport ("MLModule.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int release(string input_json);
+        public static extern int release (string input_json);
         [DllImport ("MLModule.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int predict(double[] data, int data_len, double[] output, string input_json);
+        public static extern int predict (double[] data, int data_len, double[] output, int[] output_len, string input_json);
         [DllImport ("MLModule.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int release_all ();
         [DllImport ("MLModule.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -50,11 +47,11 @@ namespace brainflow
         [DllImport ("MLModule32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_level_ml_module (int log_level);
         [DllImport ("MLModule32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int prepare(string input_json);
+        public static extern int prepare (string input_json);
         [DllImport ("MLModule32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int release(string input_json);
+        public static extern int release (string input_json);
         [DllImport ("MLModule32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int predict(double[] data, int data_len, double[] output, string input_json);
+        public static extern int predict (double[] data, int data_len, double[] output, int[] output_len, string input_json);
         [DllImport ("MLModule32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int release_all ();
         [DllImport ("MLModule32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -72,7 +69,7 @@ namespace brainflow
         [DllImport ("libMLModule.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int release (string input_json);
         [DllImport ("libMLModule.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int predict (double[] data, int data_len, double[] output, string input_json);
+        public static extern int predict (double[] data, int data_len, double[] output, int[] output_len, string input_json);
         [DllImport ("libMLModule.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int release_all ();
         [DllImport ("libMLModule.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -90,7 +87,7 @@ namespace brainflow
         [DllImport ("libMLModule.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int release (string input_json);
         [DllImport ("libMLModule.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int predict (double[] data, int data_len, double[] output, string input_json);
+        public static extern int predict (double[] data, int data_len, double[] output, int[] output_len, string input_json);
         [DllImport ("libMLModule.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int release_all ();
         [DllImport ("libMLModule.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -169,18 +166,18 @@ namespace brainflow
             return (int)CustomExitCodes.GENERAL_ERROR;
         }
 
-        public static int predict (double[] data, int data_len, double[] output, string input_json)
+        public static int predict (double[] data, int data_len, double[] output, int[] output_len, string input_json)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return MLModuleLibrary64.predict (data, data_len, output, input_json);
+                    return MLModuleLibrary64.predict (data, data_len, output, output_len, input_json);
                 case LibraryEnvironment.x86:
-                    return MLModuleLibrary32.predict (data, data_len, output, input_json);
+                    return MLModuleLibrary32.predict (data, data_len, output, output_len, input_json);
                 case LibraryEnvironment.Linux:
-                    return MLModuleLibraryLinux.predict (data, data_len, output, input_json);
+                    return MLModuleLibraryLinux.predict (data, data_len, output, output_len, input_json);
                 case LibraryEnvironment.MacOS:
-                    return MLModuleLibraryMac.predict (data, data_len, output, input_json);
+                    return MLModuleLibraryMac.predict (data, data_len, output, output_len, input_json);
             }
 
             return (int)CustomExitCodes.GENERAL_ERROR;

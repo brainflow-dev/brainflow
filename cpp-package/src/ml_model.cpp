@@ -22,6 +22,7 @@ std::string params_to_string (struct BrainFlowModelParams params)
     j["classifier"] = params.classifier;
     j["file"] = params.file;
     j["other_info"] = params.other_info;
+    j["max_array_size"] = params.max_array_size;
     std::string post_str = j.dump ();
     return post_str;
 }
@@ -40,15 +41,19 @@ void MLModel::prepare ()
     }
 }
 
-double MLModel::predict (double *data, int data_len)
+std::vector<double> MLModel::predict (double *data, int data_len)
 {
-    double output = 0.0;
-    int res = ::predict (data, data_len, &output, serialized_params.c_str ());
+    double *output = new double[params.max_array_size];
+    int size = 0;
+    int res = ::predict (data, data_len, output, &size, serialized_params.c_str ());
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
+        delete[] output;
         throw BrainFlowException ("failed to predict", res);
     }
-    return output;
+    std::vector<double> result (output, output + size);
+    delete[] output;
+    return result;
 }
 
 void MLModel::release ()

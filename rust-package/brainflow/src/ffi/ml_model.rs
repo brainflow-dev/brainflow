@@ -11,6 +11,7 @@ extern "C" {
         data: *mut f64,
         data_len: ::std::os::raw::c_int,
         output: *mut f64,
+        output_len: *mut ::std::os::raw::c_int,
         json_params: *const ::std::os::raw::c_char,
     ) -> ::std::os::raw::c_int;
 }

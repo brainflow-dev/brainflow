@@ -11,7 +11,7 @@ public enum NoiseTypes
 
     FIFTY (0),
     SIXTY (1),
-    EACH (2);
+    FIFTY_AND_SIXTY (2);
 
     private final int noise_type;
     private static final Map<Integer, NoiseTypes> nt_map = new HashMap<Integer, NoiseTypes> ();

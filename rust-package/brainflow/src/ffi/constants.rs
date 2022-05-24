@@ -124,19 +124,16 @@ pub enum DetrendOperations {
 #[repr(i32)]
 #[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum BrainFlowMetrics {
-    Relaxation = 0,
-    Concentration = 1,
+    Mindfulness = 0,
+    Restfulness = 1,
     UserDefined = 2,
 }
 #[repr(i32)]
 #[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum BrainFlowClassifiers {
-    Regression = 0,
-    Knn = 1,
-    Svm = 2,
-    Lda = 3,
-    DynLibClassifier = 4,
-    OnnxClassifier = 5,
+    DefaultClassifier = 0,
+    DynLibClassifier = 1,
+    OnnxClassifier = 2,
 }
 #[repr(i32)]
 #[doc = " LogLevels enum to store all possible log levels"]
@@ -161,4 +158,5 @@ pub enum LogLevels {
 pub enum NoiseTypes {
     Fifty = 0,
     Sixty = 1,
+    FiftyAndSixty = 2,
 }

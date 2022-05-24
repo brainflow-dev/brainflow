@@ -24,17 +24,9 @@ endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
 
 SET (ML_MODULE_SRC
     ${CMAKE_CURRENT_LIST_DIR}/ml_module.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/concentration_regression_classifier.cpp
     ${CMAKE_CURRENT_LIST_DIR}/dyn_lib_classifier.cpp
     ${CMAKE_CURRENT_LIST_DIR}/onnx_classifier.cpp
     ${CMAKE_CURRENT_LIST_DIR}/base_classifier.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/concentration_knn_classifier.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/concentration_svm_classifier.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/concentration_lda_classifier.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/generated/focus_dataset.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/generated/lda_model.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/generated/regression_model.cpp
-    ${CMAKE_HOME_DIRECTORY}/third_party/libsvm/svm.cpp
 )
 
 add_library (
@@ -47,9 +39,7 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/third_party/
     ${CMAKE_HOME_DIRECTORY}/src/utils/inc
     ${CMAKE_HOME_DIRECTORY}/src/ml/inc
-    ${CMAKE_HOME_DIRECTORY}/third_party/libsvm
     ${CMAKE_HOME_DIRECTORY}/third_party/json
-    ${CMAKE_HOME_DIRECTORY}/third_party/kdtree
 )
 
 target_compile_definitions(${ML_MODULE_NAME} PRIVATE BRAINFLOW_VERSION=${BRAINFLOW_VERSION})
@@ -86,18 +76,13 @@ if (MSVC)
     add_custom_command (TARGET ${ML_MODULE_NAME} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${ML_MODULE_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${ML_MODULE_COMPILED_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${ML_MODULE_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/julia-package/brainflow/lib/${ML_MODULE_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/ml/train/brainflow_svm.model" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/brainflow_svm.model"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${ML_MODULE_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${ML_MODULE_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/ml/train/brainflow_svm.model" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/brainflow_svm.model"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${ML_MODULE_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/${ML_MODULE_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/ml/train/brainflow_svm.model" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/brainflow_svm.model"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${ML_MODULE_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${ML_MODULE_COMPILED_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/ml/inc/ml_module.h" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/inc/ml_module.h"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/utils/inc/shared_export_matlab.h" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/inc/shared_export.h"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/ml/train/brainflow_svm.model" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/brainflow_svm.model"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${ML_MODULE_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/rust-package/brainflow/lib/${ML_MODULE_COMPILED_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${ML_MODULE_COMPILED_NAME_DOT_LIB}" "${CMAKE_HOME_DIRECTORY}/rust-package/brainflow/lib/${ML_MODULE_COMPILED_NAME_DOT_LIB}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/ml/train/brainflow_svm.model" "${CMAKE_HOME_DIRECTORY}/rust-package/brainflow/lib/brainflow_svm.model"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/ml/inc/ml_module.h" "${CMAKE_HOME_DIRECTORY}/rust-package/brainflow/inc/ml_module.h"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/utils/inc/shared_export_matlab.h" "${CMAKE_HOME_DIRECTORY}/rust-package/brainflow/inc/shared_export.h"
     )
@@ -106,18 +91,13 @@ if (UNIX AND NOT ANDROID)
     add_custom_command (TARGET ${ML_MODULE_NAME} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${ML_MODULE_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${ML_MODULE_COMPILED_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${ML_MODULE_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/julia-package/brainflow/lib/${ML_MODULE_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/ml/train/brainflow_svm.model" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/brainflow_svm.model"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${ML_MODULE_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${ML_MODULE_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/ml/train/brainflow_svm.model" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/brainflow_svm.model"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${ML_MODULE_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/${ML_MODULE_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/ml/train/brainflow_svm.model" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/brainflow_svm.model"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/ml/inc/ml_module.h" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/inc/ml_module.h"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/utils/inc/shared_export_matlab.h" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/inc/shared_export.h"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${ML_MODULE_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${ML_MODULE_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/ml/train/brainflow_svm.model" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/brainflow_svm.model"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${ML_MODULE_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/rust-package/brainflow/lib/${ML_MODULE_COMPILED_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/ml/inc/ml_module.h" "${CMAKE_HOME_DIRECTORY}/rust-package/brainflow/inc/ml_module.h"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/ml/train/brainflow_svm.model" "${CMAKE_HOME_DIRECTORY}/rust-package/brainflow/lib/brainflow_svm.model"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/src/utils/inc/shared_export_matlab.h" "${CMAKE_HOME_DIRECTORY}/rust-package/brainflow/inc/shared_export.h"
     )
 endif (UNIX AND NOT ANDROID)
@@ -132,12 +112,6 @@ install (
     ${CMAKE_HOME_DIRECTORY}/src/ml/inc/ml_module.h
     ${CMAKE_HOME_DIRECTORY}/src/ml/inc/brainflow_model_params.h
     DESTINATION inc
-)
-
-install (
-    FILES
-    ${CMAKE_HOME_DIRECTORY}/src/ml/train/brainflow_svm.model
-    DESTINATION lib
 )
 
 install (

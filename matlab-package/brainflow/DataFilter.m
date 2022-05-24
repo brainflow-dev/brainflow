@@ -90,26 +90,22 @@ classdef DataFilter
             filtered_data = temp.Value;
         end
         
-        function filtered_data = perform_bandpass(data, sampling_rate, center_freq, band_width, order, filter_type, ripple)
+        function filtered_data = perform_bandpass(data, sampling_rate, start_freq, stop_freq, order, filter_type, ripple)
             % perform bandpass filtering
-            %
-            % You need to provide center freqs and bandwidth
             task_name = 'perform_bandpass';
             temp = libpointer('doublePtr', data);
             lib_name = DataFilter.load_lib();
-            exit_code = calllib(lib_name, task_name, temp, size(data, 2), sampling_rate, center_freq, band_width, order, int32(filter_type), ripple);
+            exit_code = calllib(lib_name, task_name, temp, size(data, 2), sampling_rate, start_freq, stop_freq, order, int32(filter_type), ripple);
             DataFilter.check_ec(exit_code, task_name);
             filtered_data = temp.Value;
         end
         
-        function filtered_data = perform_bandstop(data, sampling_rate, center_freq, band_width, order, filter_type, ripple)
+        function filtered_data = perform_bandstop(data, sampling_rate, start_freq, stop_freq, order, filter_type, ripple)
             % perform bandpass filtering
-            %
-            % You need to provide center freqs and bandwidth
             task_name = 'perform_bandstop';
             temp = libpointer('doublePtr', data);
             lib_name = DataFilter.load_lib();
-            exit_code = calllib(lib_name, task_name, temp, size(data, 2), sampling_rate, center_freq, band_width, order, int32(filter_type), ripple);
+            exit_code = calllib(lib_name, task_name, temp, size(data, 2), sampling_rate, start_freq, stop_freq, order, int32(filter_type), ripple);
             DataFilter.check_ec(exit_code, task_name);
             filtered_data = temp.Value;
         end
@@ -259,16 +255,24 @@ classdef DataFilter
         end
         
         function [avg_bands, stddev_bands] = get_avg_band_powers(data, channels, sampling_rate, apply_filters)
-            % calculate average band powers, bands are 1-4,4-8,8-13,13-30,30-50
-            task_name = 'get_avg_band_powers';
+            start_freqs = [2.0, 4.0, 8.0, 13.0, 30.0];
+            stop_freqs = [4.0, 8.0, 13.0, 30.0, 45.0];
+            [avg_bands, stddev_bands] = DataFilter.get_custom_band_powers(data, start_freqs, stop_freqs, channels, sampling_rate, apply_filters);
+        end
+            
+        function [avg_bands, stddev_bands] = get_custom_band_powers(data, start_freqs, stop_freqs, channels, sampling_rate, apply_filters)
+            % calculate average band powers
+            task_name = 'get_custom_band_powers';
             data_1d = data(channels, :);
             data_1d = transpose(data_1d);
             data_1d = data_1d(:);
             temp_input = libpointer('doublePtr', data_1d);
             lib_name = DataFilter.load_lib();
-            temp_avgs = libpointer('doublePtr', zeros(1, 5));
-            temp_stddevs = libpointer('doublePtr', zeros(1, 5));
-            exit_code = calllib(lib_name, task_name, temp_input, size(channels, 2), size(data,2), sampling_rate, int32(apply_filters), temp_avgs, temp_stddevs);
+            temp_avgs = libpointer('doublePtr', zeros(1, size(start_freqs, 2)));
+            temp_stddevs = libpointer('doublePtr', zeros(1, size(start_freqs, 2)));
+            temp_start = libpointer('doublePtr', start_freqs); 
+            temp_stop = libpointer('doublePtr', stop_freqs);
+            exit_code = calllib(lib_name, task_name, temp_input, size(channels, 2), size(data,2), temp_start, temp_stop, size(start_freqs, 2), sampling_rate, int32(apply_filters), temp_avgs, temp_stddevs);
             DataFilter.check_ec(exit_code, task_name);
             avg_bands = temp_avgs.Value;
             stddev_bands = temp_stddevs.Value;

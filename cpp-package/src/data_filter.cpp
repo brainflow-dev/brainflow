@@ -26,22 +26,22 @@ void DataFilter::perform_highpass (double *data, int data_len, int sampling_rate
     }
 }
 
-void DataFilter::perform_bandpass (double *data, int data_len, int sampling_rate,
-    double center_freq, double band_width, int order, int filter_type, double ripple)
+void DataFilter::perform_bandpass (double *data, int data_len, int sampling_rate, double start_freq,
+    double stop_freq, int order, int filter_type, double ripple)
 {
     int res = ::perform_bandpass (
-        data, data_len, sampling_rate, center_freq, band_width, order, filter_type, ripple);
+        data, data_len, sampling_rate, start_freq, stop_freq, order, filter_type, ripple);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to filter signal", res);
     }
 }
 
-void DataFilter::perform_bandstop (double *data, int data_len, int sampling_rate,
-    double center_freq, double band_width, int order, int filter_type, double ripple)
+void DataFilter::perform_bandstop (double *data, int data_len, int sampling_rate, double start_freq,
+    double stop_freq, int order, int filter_type, double ripple)
 {
     int res = ::perform_bandstop (
-        data, data_len, sampling_rate, center_freq, band_width, order, filter_type, ripple);
+        data, data_len, sampling_rate, start_freq, stop_freq, order, filter_type, ripple);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to filter signal", res);
@@ -258,20 +258,35 @@ std::pair<double *, double *> DataFilter::get_avg_band_powers (
     const BrainFlowArray<double, 2> &data, std::vector<int> channels, int sampling_rate,
     bool apply_filters)
 {
-    if ((data.empty ()) || (channels.empty ()))
+    std::vector<std::pair<double, double>> bands;
+    bands.push_back (std::make_pair (2.0, 4.0));
+    bands.push_back (std::make_pair (4.0, 8.0));
+    bands.push_back (std::make_pair (8.0, 13.0));
+    bands.push_back (std::make_pair (13.0, 30.0));
+    bands.push_back (std::make_pair (30.0, 45.0));
+    return get_custom_band_powers (data, bands, channels, sampling_rate, apply_filters);
+}
+
+std::pair<double *, double *> DataFilter::get_custom_band_powers (
+    const BrainFlowArray<double, 2> &data, std::vector<std::pair<double, double>> bands,
+    std::vector<int> channels, int sampling_rate, bool apply_filters)
+{
+    if ((data.empty ()) || (channels.empty ()) || (bands.empty ()))
     {
         throw BrainFlowException (
             "Invalid params", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
     }
-    // todo refactor here and in low level api, no need to copy data
     int cols = data.get_size (1);
     int channels_len = (int)channels.size ();
     double *data_1d = new double[cols * channels_len];
-    double *avg_bands = new double[5];
-    double *stddev_bands = new double[5];
-    // init by zeros to make valgrind happy
-    for (int i = 0; i < 5; i++)
+    double *avg_bands = new double[bands.size ()];
+    double *stddev_bands = new double[bands.size ()];
+    double *start_freqs = new double[bands.size ()];
+    double *stop_freqs = new double[bands.size ()];
+    for (int i = 0; i < bands.size (); i++)
     {
+        start_freqs[i] = std::get<0> (bands[i]);
+        stop_freqs[i] = std::get<1> (bands[i]);
         avg_bands[i] = 0.0;
         stddev_bands[i] = 0.0;
     }
@@ -282,8 +297,10 @@ std::pair<double *, double *> DataFilter::get_avg_band_powers (
             data_1d[j + cols * i] = data.at (channels[i], j);
         }
     }
-    int res = ::get_avg_band_powers (
-        data_1d, channels_len, cols, sampling_rate, (int)apply_filters, avg_bands, stddev_bands);
+    int res = ::get_custom_band_powers (data_1d, channels_len, cols, start_freqs, stop_freqs,
+        (int)bands.size (), sampling_rate, (int)apply_filters, avg_bands, stddev_bands);
+    delete[] start_freqs;
+    delete[] stop_freqs;
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         delete[] avg_bands;

@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <string>
+#include <vector>
 
 // include it here to allow user include only this single file
 #include "brainflow_constants.h"
@@ -41,7 +42,7 @@ public:
     /// initialize classifier, should be called first
     void prepare ();
     /// calculate metric from data
-    double predict (double *data, int data_len);
+    std::vector<double> predict (double *data, int data_len);
     /// release classifier
     void release ();
 };

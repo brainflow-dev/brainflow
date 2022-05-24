@@ -6,8 +6,8 @@ import java.util.Map;
 public enum BrainFlowMetrics
 {
 
-    RELAXATION (0),
-    CONCENTRATION (1),
+    MINDFULNESS (0),
+    RESTFULNESS (1),
     USER_DEFINED (2);
 
     private final int protocol;

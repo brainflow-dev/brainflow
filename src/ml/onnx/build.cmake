@@ -26,18 +26,18 @@ if (APPLE)
 elseif (MSVC)
     if (${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
         if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-            SET (ONNXRUNTIME_PATH ${CMAKE_HOME_DIRECTORY}/third_party/onnxruntime/runtimes/win-arm64/native/onnxruntime_arm64.dll)
+            SET (ONNXRUNTIME_PATH ${CMAKE_HOME_DIRECTORY}/third_party/onnxruntime/runtimes/win-arm64/native/onnxruntime.dll)
             find_library (ONNXRUNTIME NAMES onnxruntime PATHS ${CMAKE_HOME_DIRECTORY}/third_party/onnxruntime/runtimes/win-arm64/native)
         else (CMAKE_SIZEOF_VOID_P EQUAL 8)
-            SET (ONNXRUNTIME_PATH ${CMAKE_HOME_DIRECTORY}/third_party/onnxruntime/runtimes/win-arm6/native/onnxruntime_arm.dll)
+            SET (ONNXRUNTIME_PATH ${CMAKE_HOME_DIRECTORY}/third_party/onnxruntime/runtimes/win-arm6/native/onnxruntime.dll)
             find_library (ONNXRUNTIME NAMES onnxruntime PATHS ${CMAKE_HOME_DIRECTORY}/third_party/onnxruntime/runtimes/win-arm/native)
         endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
     else (${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
         if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-            SET (ONNXRUNTIME_PATH ${CMAKE_HOME_DIRECTORY}/third_party/onnxruntime/runtimes/win-x64/native/onnxruntime_x64.dll)
+            SET (ONNXRUNTIME_PATH ${CMAKE_HOME_DIRECTORY}/third_party/onnxruntime/runtimes/win-x64/native/onnxruntime.dll)
             find_library (ONNXRUNTIME NAMES onnxruntime PATHS ${CMAKE_HOME_DIRECTORY}/third_party/onnxruntime/runtimes/win-x64/native)
         else (CMAKE_SIZEOF_VOID_P EQUAL 8)
-            SET (ONNXRUNTIME_PATH ${CMAKE_HOME_DIRECTORY}/third_party/onnxruntime/runtimes/win-x86/native/onnxruntime_x86.dll)
+            SET (ONNXRUNTIME_PATH ${CMAKE_HOME_DIRECTORY}/third_party/onnxruntime/runtimes/win-x86/native/onnxruntime.dll)
             find_library (ONNXRUNTIME NAMES onnxruntime PATHS ${CMAKE_HOME_DIRECTORY}/third_party/onnxruntime/runtimes/win-x86/native)
         endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
     endif (${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
@@ -47,7 +47,9 @@ elseif (UNIX AND NOT ANDROID)
 endif (APPLE)
 
 SET (ONNX_LIB_SRC
+    ${CMAKE_HOME_DIRECTORY}/src/ml/base_classifier.cpp
     ${CMAKE_HOME_DIRECTORY}/src/ml/onnx/brainflow_onnx_lib.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/ml/onnx/brainflow_onnx_worker.cpp
 )
 
 add_library (
@@ -61,6 +63,7 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/src/ml/inc
     ${CMAKE_HOME_DIRECTORY}/src/utils/inc
     ${CMAKE_HOME_DIRECTORY}/third_party/onnxruntime/build/native/include
+    ${CMAKE_HOME_DIRECTORY}/third_party/
 )
 
 set_target_properties (${ONNX_LIB_NAME}
@@ -111,4 +114,10 @@ install (
     LIBRARY DESTINATION lib
     INCLUDES DESTINATION inc
     ARCHIVE DESTINATION lib
+)
+
+install (
+    FILES
+    ${ONNXRUNTIME_PATH}
+    DESTINATION lib
 )

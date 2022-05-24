@@ -8,7 +8,7 @@ int DynLibClassifier::prepare ()
     {
         return (int)BrainFlowExitCodes::ANOTHER_CLASSIFIER_IS_PREPARED_ERROR;
     }
-    if (params.file.empty ())
+    if (get_dyn_lib_path ().empty ())
     {
         safe_logger (spdlog::level::err, "dyn lib path is not provided.");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
@@ -21,7 +21,8 @@ int DynLibClassifier::prepare ()
         dll_loader = NULL;
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    int (*func) (void *) = (int (*) (void *))dll_loader->get_address ("prepare");
+    int (*func) (void *, struct BrainFlowModelParams *) =
+        (int (*) (void *, struct BrainFlowModelParams *))dll_loader->get_address ("prepare");
     if (func == NULL)
     {
         safe_logger (spdlog::level::err, "failed to get function address for prepare");
@@ -29,23 +30,23 @@ int DynLibClassifier::prepare ()
         dll_loader = NULL;
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    return func ((void *)&params);
+    return func ((void *)this, &params);
 }
 
-int DynLibClassifier::predict (double *data, int data_len, double *output)
+int DynLibClassifier::predict (double *data, int data_len, double *output, int *output_len)
 {
     if (dll_loader == NULL)
     {
         return (int)BrainFlowExitCodes::CLASSIFIER_IS_NOT_PREPARED_ERROR;
     }
-    int (*func) (double *, int, double *) =
-        (int (*) (double *, int, double *))dll_loader->get_address ("predict");
+    int (*func) (double *, int, double *, struct BrainFlowModelParams *) = (int (*) (
+        double *, int, double *, struct BrainFlowModelParams *))dll_loader->get_address ("predict");
     if (func == NULL)
     {
         safe_logger (spdlog::level::err, "failed to get function address for predict");
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    return func (data, data_len, output);
+    return func (data, data_len, output, &params);
 }
 
 int DynLibClassifier::release ()
@@ -54,11 +55,12 @@ int DynLibClassifier::release ()
     {
         return (int)BrainFlowExitCodes::CLASSIFIER_IS_NOT_PREPARED_ERROR;
     }
-    int (*func) () = (int (*) ())dll_loader->get_address ("release");
+    int (*func) (struct BrainFlowModelParams *) =
+        (int (*) (struct BrainFlowModelParams *))dll_loader->get_address ("release");
     if (func == NULL)
     {
         safe_logger (spdlog::level::err, "failed to get function address for release");
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    return func ();
+    return func (&params);
 }

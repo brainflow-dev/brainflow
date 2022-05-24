@@ -23,13 +23,13 @@ bands = BrainFlow.get_avg_band_powers(data, eeg_channels, sampling_rate, true)
 feature_vector = vcat(bands[1], bands[2])
 
 # calc concentration
-model_params = BrainFlowModelParams(metric = "concentration", classifier = "KNN")
+model_params = BrainFlowModelParams(metric = RELAXATION, classifier = DEFAULT_CLASSIFIER)
 BrainFlow.prepare(model_params)
 print(BrainFlow.predict(feature_vector, model_params))
 BrainFlow.release(model_params)
 
 # calc relaxation
-model_params = BrainFlowModelParams(metric = "relaxation", classifier = "regression")
+model_params = BrainFlowModelParams(metric = CONCENTRATION, classifier = DEFAULT_CLASSIFIER)
 BrainFlow.prepare(model_params)
 print(BrainFlow.predict(feature_vector, model_params))
 BrainFlow.release(model_params)

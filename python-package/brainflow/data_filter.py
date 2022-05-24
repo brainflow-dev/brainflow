@@ -53,6 +53,7 @@ class NoiseTypes(enum.IntEnum):
 
     FIFTY = 0
     SIXTY = 1
+    FIFTY_AND_SIXTY = 2
 
 
 class DataHandlerDLL(object):
@@ -289,11 +290,29 @@ class DataHandlerDLL(object):
             ctypes.c_int
         ]
 
-        self.get_avg_band_powers = self.lib.get_avg_band_powers
-        self.get_avg_band_powers.restype = ctypes.c_int
-        self.get_avg_band_powers.argtypes = [
+        self.get_custom_band_powers = self.lib.get_custom_band_powers
+        self.get_custom_band_powers.restype = ctypes.c_int
+        self.get_custom_band_powers.argtypes = [
             ndpointer(ctypes.c_double),
             ctypes.c_int,
+            ctypes.c_int,
+            ndpointer(ctypes.c_double),
+            ndpointer(ctypes.c_double),
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ndpointer(ctypes.c_float),
+            ndpointer(ctypes.c_float),
+        ]
+
+        self.get_custom_band_powers = self.lib.get_custom_band_powers
+        self.get_custom_band_powers.restype = ctypes.c_int
+        self.get_custom_band_powers.argtypes = [
+            ndpointer(ctypes.c_double),
+            ctypes.c_int,
+            ctypes.c_int,
+            ndpointer(ctypes.c_double),
+            ndpointer(ctypes.c_double),
             ctypes.c_int,
             ctypes.c_int,
             ctypes.c_int,
@@ -455,18 +474,18 @@ class DataFilter(object):
             raise BrainFlowError('unable to apply high pass filter', res)
 
     @classmethod
-    def perform_bandpass(cls, data: NDArray[Float64], sampling_rate: int, center_freq: float,
-                         band_width: float, order: int, filter_type: int, ripple: float) -> None:
+    def perform_bandpass(cls, data: NDArray[Float64], sampling_rate: int, start_freq: float,
+                         stop_freq: float, order: int, filter_type: int, ripple: float) -> None:
         """apply band pass filter to provided data
 
         :param data: data to filter, filter works in-place
         :type data: NDArray[Float64]
         :param sampling_rate: board's sampling rate
         :type sampling_rate: int
-        :param center_freq: center frequency
-        :type center_freq: float
-        :param band_width: band width
-        :type band_width: float
+        :param start_freq: start frequency
+        :type start_freq: float
+        :param stop_freq: stop frequency
+        :type stop_freq: float
         :param order: filter order
         :type order: int
         :param filter_type: filter type from special enum
@@ -485,18 +504,18 @@ class DataFilter(object):
             raise BrainFlowError('unable to apply band pass filter', res)
 
     @classmethod
-    def perform_bandstop(cls, data: NDArray[Float64], sampling_rate: int, center_freq: float,
-                         band_width: float, order: int, filter_type: int, ripple: float) -> None:
+    def perform_bandstop(cls, data: NDArray[Float64], sampling_rate: int, start_freq: float,
+                         stop_freq: float, order: int, filter_type: int, ripple: float) -> None:
         """apply band stop filter to provided data
 
         :param data: data to filter, filter works in-place
         :type data: NDArray[Float64]
         :param sampling_rate: board's sampling rate
         :type sampling_rate: int
-        :param center_freq: center frequency
-        :type center_freq: float
-        :param band_width: band width
-        :type band_width: float
+        :param start_freq: start frequency
+        :type start_freq: float
+        :param stop_freq: stop frequency
+        :type stop_freq: float
         :param order: filter order
         :type order: int
         :param filter_type: filter type from special enum
@@ -876,15 +895,44 @@ class DataFilter(object):
         :rtype: tuple
         """
 
+        bands = [(2.0, 4.0), (4.0, 8.0), (8.0, 13.0), (13.0, 30.0), (30.0, 45.0)]
+        return cls.get_custom_band_powers (data, bands, channels, sampling_rate, apply_filter)
+
+    @classmethod
+    def get_custom_band_powers(cls, data: NDArray, bands: List, channels: List, sampling_rate: int, apply_filter: bool) -> Tuple:
+        """calculate avg and stddev of BandPowers across selected channels
+
+        :param data: 2d array for calculation
+        :type data: NDArray
+        :param bands: List of typles with bands to use. E.g [(1.5, 4.0), (4.0, 8.0), (8.0, 13.0), (13.0, 30.0), (30.0, 45.0)]
+        :type bands: List
+        :param channels: channels - rows of data array which should be used for calculation
+        :type channels: List
+        :param sampling_rate: sampling rate
+        :type sampling_rate: int
+        :param apply_filter: apply bandpass and bandstop filtrers or not
+        :type apply_filter: bool
+        :return: avg and stddev arrays for bandpowers
+        :rtype: tuple
+        """
+
         check_memory_layout_row_major(data, 2)
-        avg_bands = numpy.zeros(5).astype(numpy.float64)
-        stddev_bands = numpy.zeros(5).astype(numpy.float64)
+        if (len(channels) == 0) or (len(bands) == 0):
+            raise BrainFlowError('wrong input for channels or bands', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        num_bands = len(bands)
+        avg_bands = numpy.zeros(num_bands).astype(numpy.float64)
+        stddev_bands = numpy.zeros(num_bands).astype(numpy.float64)
         data_1d = numpy.zeros(len(channels) * data.shape[1])
+        start_freqs = numpy.zeros(num_bands)
+        stop_freqs = numpy.zeros(num_bands)
+        for i in range(num_bands):
+            start_freqs[i] = bands[i][0]
+            stop_freqs[i] = bands[i][1]
         for i, channel in enumerate(channels):
             for j in range(data.shape[1]):
                 data_1d[j + data.shape[1] * i] = data[channel][j]
-        res = DataHandlerDLL.get_instance().get_avg_band_powers(data_1d, len(channels), data.shape[1], sampling_rate,
-                                                                int(apply_filter), avg_bands, stddev_bands)
+        res = DataHandlerDLL.get_instance().get_custom_band_powers(data_1d, len(channels), data.shape[1], start_freqs, stop_freqs, num_bands,
+                                                                sampling_rate, int(apply_filter), avg_bands, stddev_bands)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to get_avg_band_powers', res)
 

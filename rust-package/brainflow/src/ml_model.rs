@@ -10,6 +10,7 @@ use crate::{
 use crate::ffi::ml_model;
 
 pub struct MlModel {
+    model_params: BrainFlowModelParams,
     json_model_params: CString,
 }
 
@@ -18,7 +19,7 @@ impl MlModel {
     pub fn new(model_params: BrainFlowModelParams) -> Result<Self> {
         let json_model_params = serde_json::to_string(&model_params)?;
         let json_model_params = CString::new(json_model_params)?;
-        Ok(Self { json_model_params })
+        Ok(Self { model_params, json_model_params })
     }
 
     /// Prepare classifier.
@@ -28,18 +29,22 @@ impl MlModel {
     }
 
     /// Calculate metric from data.
-    pub fn predict(&self, data: &mut [f64]) -> Result<f64> {
-        let mut output = 0.0;
+    pub fn predict(&self, data: &mut [f64]) -> Result<Vec<f64>> {
+        let mut output: Vec<f64> = Vec::with_capacity(*self.model_params.max_array_size());
+        let mut output_len = 0;
         let res = unsafe {
             ml_model::predict(
                 data.as_mut_ptr() as *mut c_double,
                 data.len() as c_int,
-                &mut output,
+                output.as_mut_ptr(),
+                &mut output_len,
                 self.json_model_params.as_ptr(),
             )
         };
         check_brainflow_exit_code(res)?;
-        Ok(output)
+        unsafe { output.set_len(output_len as usize) };
+        let output_casted = output.into_iter().map(|c| c as f64).collect::<Vec<f64>>();
+        Ok(output_casted)
     }
 
     /// Release classifier.

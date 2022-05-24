@@ -34,7 +34,8 @@ namespace brainflow
     public enum NoiseTypes
     {
         FIFTY = 0,
-        SIXTY = 1
+        SIXTY = 1,
+        FIFTY_AND_SIXTY = 2
     };
 
     class DataHandlerLibrary64
@@ -48,9 +49,9 @@ namespace brainflow
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_highpass (double[] data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int perform_bandpass (double[] data, int len, int sampling_rate, double center_freq, double band_width, int order, int filter_type, double ripple);
+        public static extern int perform_bandpass (double[] data, int len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int perform_bandstop (double[] data, int len, int sampling_rate, double center_freq, double band_width, int order, int filter_type, double ripple);
+        public static extern int perform_bandstop (double[] data, int len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_rolling_filter (double[] data, int len, int period, int operation);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -89,7 +90,7 @@ namespace brainflow
         [DllImport("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int remove_environmental_noise(double[] data, int len, int sampling_rate, int noise_type);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_avg_band_powers (double[] data, int rows, int cols, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs);
+        public static extern int get_custom_band_powers (double[] data, int rows, int cols, double[] start_freqs, double[] stop_freqs, int num_bands, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int calc_stddev (double[] data, int start_pos, int end_pos, double[] output);
         [DllImport("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -107,9 +108,9 @@ namespace brainflow
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_highpass (double[] data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int perform_bandpass (double[] data, int len, int sampling_rate, double center_freq, double band_width, int order, int filter_type, double ripple);
+        public static extern int perform_bandpass (double[] data, int len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int perform_bandstop (double[] data, int len, int sampling_rate, double center_freq, double band_width, int order, int filter_type, double ripple);
+        public static extern int perform_bandstop (double[] data, int len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_rolling_filter (double[] data, int len, int period, int operation);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -146,7 +147,7 @@ namespace brainflow
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int detrend (double[] data, int len, int operation);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_avg_band_powers (double[] data, int rows, int cols, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs);
+        public static extern int get_custom_band_powers (double[] data, int rows, int cols, double[] start_freqs, double[] stop_freqs, int num_bands, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int remove_environmental_noise (double[] data, int len, int sampling_rate, int noise_type);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -166,9 +167,9 @@ namespace brainflow
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_highpass (double[] data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int perform_bandpass (double[] data, int len, int sampling_rate, double center_freq, double band_width, int order, int filter_type, double ripple);
+        public static extern int perform_bandpass (double[] data, int len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple);
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int perform_bandstop (double[] data, int len, int sampling_rate, double center_freq, double band_width, int order, int filter_type, double ripple);
+        public static extern int perform_bandstop (double[] data, int len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple);
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_rolling_filter (double[] data, int len, int period, int operation);
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -205,7 +206,7 @@ namespace brainflow
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int detrend (double[] data, int len, int operation);
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_avg_band_powers (double[] data, int rows, int cols, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs);
+        public static extern int get_custom_band_powers (double[] data, int rows, int cols, double[] start_freqs, double[] stop_freqs, int num_bands, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs);
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int remove_environmental_noise (double[] data, int len, int sampling_rate, int noise_type);
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -225,9 +226,9 @@ namespace brainflow
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_highpass (double[] data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int perform_bandpass (double[] data, int len, int sampling_rate, double center_freq, double band_width, int order, int filter_type, double ripple);
+        public static extern int perform_bandpass (double[] data, int len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int perform_bandstop (double[] data, int len, int sampling_rate, double center_freq, double band_width, int order, int filter_type, double ripple);
+        public static extern int perform_bandstop (double[] data, int len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_rolling_filter (double[] data, int len, int period, int operation);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -264,7 +265,7 @@ namespace brainflow
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int detrend (double[] data, int len, int operation);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_avg_band_powers (double[] data, int rows, int cols, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs);
+        public static extern int get_custom_band_powers (double[] data, int rows, int cols, double[] start_freqs, double[] stop_freqs, int num_bands, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs);
         [DllImport("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int remove_environmental_noise (double[] data, int len, int sampling_rate, int noise_type);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -361,35 +362,35 @@ namespace brainflow
             return (int)CustomExitCodes.GENERAL_ERROR;
         }
 
-        public static int perform_bandpass (double[] data, int len, int sampling_rate, double center_freq, double band_width, int order, int filter_type, double ripple)
+        public static int perform_bandpass (double[] data, int len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return DataHandlerLibrary64.perform_bandpass (data, len, sampling_rate, center_freq, band_width, order, filter_type, ripple);
+                    return DataHandlerLibrary64.perform_bandpass (data, len, sampling_rate, start_freq, stop_freq, order, filter_type, ripple);
                 case LibraryEnvironment.x86:
-                    return DataHandlerLibrary32.perform_bandpass (data, len, sampling_rate, center_freq, band_width, order, filter_type, ripple);
+                    return DataHandlerLibrary32.perform_bandpass (data, len, sampling_rate, start_freq, stop_freq, order, filter_type, ripple);
                 case LibraryEnvironment.Linux:
-                    return DataHandlerLibraryLinux.perform_bandpass (data, len, sampling_rate, center_freq, band_width, order, filter_type, ripple);
+                    return DataHandlerLibraryLinux.perform_bandpass (data, len, sampling_rate, start_freq, stop_freq, order, filter_type, ripple);
                 case LibraryEnvironment.MacOS:
-                    return DataHandlerLibraryMac.perform_bandpass (data, len, sampling_rate, center_freq, band_width, order, filter_type, ripple);
+                    return DataHandlerLibraryMac.perform_bandpass (data, len, sampling_rate, start_freq, stop_freq, order, filter_type, ripple);
             }
 
             return (int)CustomExitCodes.GENERAL_ERROR;
         }
 
-        public static int perform_bandstop (double[] data, int len, int sampling_rate, double center_freq, double band_width, int order, int filter_type, double ripple)
+        public static int perform_bandstop (double[] data, int len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return DataHandlerLibrary64.perform_bandstop (data, len, sampling_rate, center_freq, band_width, order, filter_type, ripple);
+                    return DataHandlerLibrary64.perform_bandstop (data, len, sampling_rate, start_freq, stop_freq, order, filter_type, ripple);
                 case LibraryEnvironment.x86:
-                    return DataHandlerLibrary32.perform_bandstop (data, len, sampling_rate, center_freq, band_width, order, filter_type, ripple);
+                    return DataHandlerLibrary32.perform_bandstop (data, len, sampling_rate, start_freq, stop_freq, order, filter_type, ripple);
                 case LibraryEnvironment.Linux:
-                    return DataHandlerLibraryLinux.perform_bandstop (data, len, sampling_rate, center_freq, band_width, order, filter_type, ripple);
+                    return DataHandlerLibraryLinux.perform_bandstop (data, len, sampling_rate, start_freq, stop_freq, order, filter_type, ripple);
                 case LibraryEnvironment.MacOS:
-                    return DataHandlerLibraryMac.perform_bandstop (data, len, sampling_rate, center_freq, band_width, order, filter_type, ripple);
+                    return DataHandlerLibraryMac.perform_bandstop (data, len, sampling_rate, start_freq, stop_freq, order, filter_type, ripple);
             }
 
             return (int)CustomExitCodes.GENERAL_ERROR;
@@ -618,18 +619,18 @@ namespace brainflow
             return (int)CustomExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_avg_band_powers (double[] data, int rows, int cols, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs)
+        public static int get_custom_band_powers (double[] data, int rows, int cols, double[] start_freqs, double[] stop_freqs, int num_bands, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return DataHandlerLibrary64.get_avg_band_powers (data, rows, cols, sampling_rate, apply_filters, avgs, stddevs);
+                    return DataHandlerLibrary64.get_custom_band_powers (data, rows, cols, start_freqs, stop_freqs, num_bands, sampling_rate, apply_filters, avgs, stddevs);
                 case LibraryEnvironment.x86:
-                    return DataHandlerLibrary32.get_avg_band_powers (data, rows, cols, sampling_rate, apply_filters, avgs, stddevs);
+                    return DataHandlerLibrary32.get_custom_band_powers (data, rows, cols, start_freqs, stop_freqs, num_bands, sampling_rate, apply_filters, avgs, stddevs);
                 case LibraryEnvironment.Linux:
-                    return DataHandlerLibraryLinux.get_avg_band_powers (data, rows, cols, sampling_rate, apply_filters, avgs, stddevs);
+                    return DataHandlerLibraryLinux.get_custom_band_powers (data, rows, cols, start_freqs, stop_freqs, num_bands, sampling_rate, apply_filters, avgs, stddevs);
                 case LibraryEnvironment.MacOS:
-                    return DataHandlerLibraryMac.get_avg_band_powers (data, rows, cols, sampling_rate, apply_filters, avgs, stddevs);
+                    return DataHandlerLibraryMac.get_custom_band_powers (data, rows, cols, start_freqs, stop_freqs, num_bands, sampling_rate, apply_filters, avgs, stddevs);
             }
 
             return (int)CustomExitCodes.GENERAL_ERROR;

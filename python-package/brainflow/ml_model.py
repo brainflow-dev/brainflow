@@ -17,20 +17,16 @@ from brainflow.exit_codes import BrainflowExitCodes
 class BrainFlowMetrics(enum.IntEnum):
     """Enum to store all supported metrics"""
 
-    RELAXATION = 0  #:
-    CONCENTRATION = 1  #:
-    USER_DEFINED = 2  #:
+    ATTENTION = 0  #:
+    USER_DEFINED = 1  #:
 
 
 class BrainFlowClassifiers(enum.IntEnum):
     """Enum to store all supported classifiers"""
 
-    REGRESSION = 0  #:
-    KNN = 1  #:
-    SVM = 2  #:
-    LDA = 3  #:
-    DYN_LIB_CLASSIFIER = 4  #:
-    ONNX_CLASSIFIER = 5  #:
+    DEFAULT_CLASSIFIER = 0  #:
+    DYN_LIB_CLASSIFIER = 1  #:
+    ONNX_CLASSIFIER = 2  #:
 
 
 class BrainFlowModelParams(object):
@@ -51,6 +47,7 @@ class BrainFlowModelParams(object):
         self.classifier = classifier
         self.file = ''
         self.other_info = ''
+        self.max_array_size = 8192
 
     def to_json(self) -> None:
         return json.dumps(self, default=lambda o: o.__dict__,
@@ -125,6 +122,7 @@ class MLModuleDLL(object):
             ndpointer(ctypes.c_double),
             ctypes.c_int,
             ndpointer(ctypes.c_double),
+            ctypes.c_int,
             ctypes.c_char_p
         ]
 
@@ -238,8 +236,9 @@ class MLModel(object):
         :return: metric value
         :rtype: float
         """
-        output = numpy.zeros(1).astype(numpy.float64)
-        res = MLModuleDLL.get_instance().predict(data, data.shape[0], output, self.serialized_params)
+        output = numpy.zeros(model_params.max_array_size).astype(numpy.float64)
+        output_len = numpy.zeros(1).astype(numpy.int32)
+        res = MLModuleDLL.get_instance().predict(data, data.shape[0], output, output_len, self.serialized_params)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to calc metric', res)
-        return output[0]
+        return output[0:output_len[0]]

@@ -333,6 +333,9 @@ ASALocalRun/
 .exe
 .raw
 .txt
+*.csv
+*.pickle
+*.onnx
 
 #Environment file
 .env
@@ -361,6 +364,8 @@ matlab-package/brainflow/lib/
 python-package/brainflow/lib/
 rust-package/brainflow/lib/
 rust-package/brainflow/inc/
+src/ml/train/data/
+src/ml/train/data/*.onnx
 
 # CMake & GNU Make
 CMakeCache.txt

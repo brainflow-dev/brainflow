@@ -32,11 +32,11 @@ public:
     static void perform_highpass (double *data, int data_len, int sampling_rate, double cutoff,
         int order, int filter_type, double ripple);
     /// perform bandpass filter in-place
-    static void perform_bandpass (double *data, int data_len, int sampling_rate, double center_freq,
-        double band_width, int order, int filter_type, double ripple);
+    static void perform_bandpass (double *data, int data_len, int sampling_rate, double start_freq,
+        double stop_freq, int order, int filter_type, double ripple);
     /// perform bandstop filter in-place
-    static void perform_bandstop (double *data, int data_len, int sampling_rate, double center_freq,
-        double band_width, int order, int filter_type, double ripple);
+    static void perform_bandstop (double *data, int data_len, int sampling_rate, double start_freq,
+        double stop_freq, int order, int filter_type, double ripple);
     /// apply notch filter to remove env noise
     static void remove_environmental_noise (
         double *data, int data_len, int sampling_rate, int noise_type);
@@ -142,6 +142,19 @@ public:
      * @return pair of double arrays of size 5, first of them - avg band powers, second stddev
      */
     static std::pair<double *, double *> get_avg_band_powers (const BrainFlowArray<double, 2> &data,
+        std::vector<int> channels, int sampling_rate, bool apply_filters);
+    /**
+     * calculate avg and stddev of BandPowers across all channels
+     * @param data input 2d array
+     * @param bands input bands
+     * @param cols number of cols in 2d array - number of datapoints
+     * @param channels vector of rows - eeg channels which should be used
+     * @param sampling_rate sampling rate
+     * @param apply_filters set to true to apply filters before band power calculations
+     * @return pair of float arrays with the same size as bands argument
+     */
+    static std::pair<double *, double *> get_custom_band_powers (
+        const BrainFlowArray<double, 2> &data, std::vector<std::pair<double, double>> bands,
         std::vector<int> channels, int sampling_rate, bool apply_filters);
 
     /// write file, in file data will be transposed

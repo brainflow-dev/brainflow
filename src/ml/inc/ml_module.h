@@ -8,7 +8,7 @@ extern "C"
 #endif
     SHARED_EXPORT int CALLING_CONVENTION prepare (const char *json_params);
     SHARED_EXPORT int CALLING_CONVENTION predict (
-        double *data, int data_len, double *output, const char *json_params);
+        double *data, int data_len, double *output, int *output_len, const char *json_params);
     SHARED_EXPORT int CALLING_CONVENTION release (const char *json_params);
     SHARED_EXPORT int CALLING_CONVENTION release_all ();
 

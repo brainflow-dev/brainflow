@@ -11,6 +11,7 @@ struct BrainFlowModelParams
     int classifier;
     std::string file;
     std::string other_info;
+    int max_array_size;
 
     BrainFlowModelParams (int metric, int classifier)
     {
@@ -18,6 +19,7 @@ struct BrainFlowModelParams
         this->classifier = classifier;
         file = "";
         other_info = "";
+        max_array_size = 8192;
     }
 
     // default copy constructor and assignment operator are ok, need less operator to use in map

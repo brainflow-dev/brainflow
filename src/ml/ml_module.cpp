@@ -8,17 +8,9 @@
 #include "brainflow_constants.h"
 #include "brainflow_model_params.h"
 #include "brainflow_version.h"
-#include "concentration_knn_classifier.h"
-#include "concentration_lda_classifier.h"
-#include "concentration_regression_classifier.h"
-#include "concentration_svm_classifier.h"
 #include "dyn_lib_classifier.h"
 #include "ml_module.h"
 #include "onnx_classifier.h"
-#include "relaxation_knn_classifier.h"
-#include "relaxation_lda_classifier.h"
-#include "relaxation_regression_classifier.h"
-#include "relaxation_svm_classifier.h"
 
 #include "json.hpp"
 
@@ -37,7 +29,7 @@ int prepare (const char *json_params)
     std::shared_ptr<BaseClassifier> model = NULL;
     BaseClassifier::ml_logger->trace ("(Prepararing)Incoming json: {}", json_params);
     struct BrainFlowModelParams key (
-        (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::REGRESSION);
+        (int)BrainFlowMetrics::MINDFULNESS, (int)BrainFlowClassifiers::DEFAULT_CLASSIFIER);
     int res = string_to_brainflow_model_params (json_params, &key);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
@@ -48,53 +40,23 @@ int prepare (const char *json_params)
         return (int)BrainFlowExitCodes::ANOTHER_CLASSIFIER_IS_PREPARED_ERROR;
     }
 
-    if ((key.metric == (int)BrainFlowMetrics::RELAXATION) &&
-        (key.classifier == (int)BrainFlowClassifiers::REGRESSION))
-    {
-        model = std::shared_ptr<BaseClassifier> (new RelaxationRegressionClassifier (key));
-    }
-    else if ((key.metric == (int)BrainFlowMetrics::CONCENTRATION) &&
-        (key.classifier == (int)BrainFlowClassifiers::REGRESSION))
-    {
-        model = std::shared_ptr<BaseClassifier> (new ConcentrationRegressionClassifier (key));
-    }
-    else if ((key.metric == (int)BrainFlowMetrics::RELAXATION) &&
-        (key.classifier == (int)BrainFlowClassifiers::SVM))
-    {
-        model = std::shared_ptr<BaseClassifier> (new RelaxationSVMClassifier (key));
-    }
-    else if ((key.metric == (int)BrainFlowMetrics::CONCENTRATION) &&
-        (key.classifier == (int)BrainFlowClassifiers::SVM))
-    {
-        model = std::shared_ptr<BaseClassifier> (new ConcentrationSVMClassifier (key));
-    }
-    else if ((key.metric == (int)BrainFlowMetrics::RELAXATION) &&
-        (key.classifier == (int)BrainFlowClassifiers::LDA))
-    {
-        model = std::shared_ptr<BaseClassifier> (new RelaxationLDAClassifier (key));
-    }
-    else if ((key.metric == (int)BrainFlowMetrics::CONCENTRATION) &&
-        (key.classifier == (int)BrainFlowClassifiers::LDA))
-    {
-        model = std::shared_ptr<BaseClassifier> (new ConcentrationLDAClassifier (key));
-    }
-    else if ((key.metric == (int)BrainFlowMetrics::CONCENTRATION) &&
-        (key.classifier == (int)BrainFlowClassifiers::KNN))
-    {
-        model = std::shared_ptr<BaseClassifier> (new ConcentrationKNNClassifier (key));
-    }
-    else if ((key.metric == (int)BrainFlowMetrics::RELAXATION) &&
-        (key.classifier == (int)BrainFlowClassifiers::KNN))
-    {
-        model = std::shared_ptr<BaseClassifier> (new RelaxationKNNClassifier (key));
-    }
-    else if ((key.metric == (int)BrainFlowMetrics::USER_DEFINED) &&
+    if ((key.metric == (int)BrainFlowMetrics::USER_DEFINED) &&
         (key.classifier == (int)BrainFlowClassifiers::DYN_LIB_CLASSIFIER))
     {
         model = std::shared_ptr<BaseClassifier> (new DynLibClassifier (key));
     }
     else if ((key.metric == (int)BrainFlowMetrics::USER_DEFINED) &&
         (key.classifier == (int)BrainFlowClassifiers::ONNX_CLASSIFIER))
+    {
+        model = std::shared_ptr<BaseClassifier> (new ONNXClassifier (key));
+    }
+    else if ((key.metric == (int)BrainFlowMetrics::MINDFULNESS) &&
+        (key.classifier == (int)BrainFlowClassifiers::DEFAULT_CLASSIFIER))
+    {
+        model = std::shared_ptr<BaseClassifier> (new ONNXClassifier (key));
+    }
+    else if ((key.metric == (int)BrainFlowMetrics::RESTFULNESS) &&
+        (key.classifier == (int)BrainFlowClassifiers::DEFAULT_CLASSIFIER))
     {
         model = std::shared_ptr<BaseClassifier> (new ONNXClassifier (key));
     }
@@ -116,11 +78,11 @@ int prepare (const char *json_params)
     return res;
 }
 
-int predict (double *data, int data_len, double *output, const char *json_params)
+int predict (double *data, int data_len, double *output, int *output_len, const char *json_params)
 {
     std::lock_guard<std::mutex> lock (models_mutex);
     struct BrainFlowModelParams key (
-        (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::REGRESSION);
+        (int)BrainFlowMetrics::MINDFULNESS, (int)BrainFlowClassifiers::DEFAULT_CLASSIFIER);
     BaseClassifier::ml_logger->trace ("(Predict)Incoming json: {}", json_params);
     int res = string_to_brainflow_model_params (json_params, &key);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
@@ -133,7 +95,7 @@ int predict (double *data, int data_len, double *output, const char *json_params
         BaseClassifier::ml_logger->error ("Must prepare model before using it for prediction.");
         return (int)BrainFlowExitCodes::CLASSIFIER_IS_NOT_PREPARED_ERROR;
     }
-    return model->second->predict (data, data_len, output);
+    return model->second->predict (data, data_len, output, output_len);
 }
 
 int release (const char *json_params)
@@ -141,7 +103,7 @@ int release (const char *json_params)
     std::lock_guard<std::mutex> lock (models_mutex);
 
     struct BrainFlowModelParams key (
-        (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::REGRESSION);
+        (int)BrainFlowMetrics::MINDFULNESS, (int)BrainFlowClassifiers::DEFAULT_CLASSIFIER);
     BaseClassifier::ml_logger->trace ("(Release)Incoming json: {}", json_params);
     int res = string_to_brainflow_model_params (json_params, &key);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
@@ -170,6 +132,7 @@ int string_to_brainflow_model_params (const char *json_params, struct BrainFlowM
         params->classifier = config["classifier"];
         params->file = config["file"];
         params->other_info = config["other_info"];
+        params->max_array_size = config["max_array_size"];
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
     catch (json::exception &e)

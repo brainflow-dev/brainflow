@@ -21,7 +21,7 @@ public:
     }
 
     virtual int prepare ();
-    virtual int predict (double *data, int data_len, double *output);
+    virtual int predict (double *data, int data_len, double *output, int *output_len);
     virtual int release ();
 
 protected:

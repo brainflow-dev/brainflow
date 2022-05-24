@@ -2,43 +2,33 @@ import JSON
 export BrainFlowModelParams
 
 abstract type BrainFlowMetric end
-struct Relaxation <: BrainFlowMetric end
-struct Concentration <: BrainFlowMetric end
+struct Mindfulness <: BrainFlowMetric end
+struct Restfulness <: BrainFlowMetric end
 struct UserDefined <: BrainFlowMetric end
-Base.Integer(::Relaxation) = 0
-Base.Integer(::Concentration) = 1
+Base.Integer(::Mindfulness) = 0
+Base.Integer(::Restfulness) = 1
 Base.Integer(::UserDefined) = 2
-Base.convert(::Type{BrainFlowMetric}, s::AbstractString) = BrainFlowMetric(Val(Symbol(lowercase(s))))
-BrainFlowMetric(::Val{:relaxation}) = Relaxation()
-BrainFlowMetric(::Val{:concentration}) = Concentration()
-BrainFlowMetric(::Val{:userdefined}) = UserDefined()
+const MINDFULNESS = Mindfulness()
+const RESTFULNESS = Restfulness()
+const USER_DEFINED = UserDefined()
 
 abstract type BrainFlowClassifier end
-struct Regression <: BrainFlowClassifier end
-struct Knn <: BrainFlowClassifier end
-struct Svm <: BrainFlowClassifier end
-struct Lda <: BrainFlowClassifier end
+struct DefaultClassifier <: BrainFlowClassifier end
 struct DynLibClassifier <: BrainFlowClassifier end
 struct ONNXClassifier <: BrainFlowClassifier end
-Base.Integer(::Regression) = 0
-Base.Integer(::Knn) = 1
-Base.Integer(::Svm) = 2
-Base.Integer(::Lda) = 3
-Base.Integer(::DynLibClassifier) = 4
-Base.Integer(::ONNXClassifier) = 5
-Base.convert(::Type{BrainFlowClassifier}, s::AbstractString) = BrainFlowClassifier(Val(Symbol(lowercase(s))))
-BrainFlowClassifier(::Val{:regression}) = Regression()
-BrainFlowClassifier(::Val{:knn}) = Knn()
-BrainFlowClassifier(::Val{:svm}) = Svm()
-BrainFlowClassifier(::Val{:lda}) = Lda()
-BrainFlowClassifier(::Val{:dynlibclassifier}) = DynLibClassifier()
-BrainFlowClassifier(::Val{:onnxclassifier}) = ONNXClassifier()
+Base.Integer(::DefaultClassifier) = 0
+Base.Integer(::DynLibClassifier) = 1
+Base.Integer(::ONNXClassifier) = 2
+const DEFAULT_CLASSIFIER = DefaultClassifier()
+const DYN_LIB_CLASSIFIER = DynLibClassifier()
+const ONNX_CLASSIFIER = ONNXClassifier()
 
 @Base.kwdef mutable struct BrainFlowModelParams
-    metric::BrainFlowMetric = Relaxation()
-    classifier::BrainFlowClassifier = Regression()
+    metric::BrainFlowMetric = MINDFULNESS
+    classifier::BrainFlowClassifier = DEFAULT_CLASSIFIER
     file::String = ""
     other_info::String = ""
+    max_array_size::Int32 = 8192
 end
 
 function JSON.json(params::BrainFlowModelParams)
@@ -46,7 +36,8 @@ function JSON.json(params::BrainFlowModelParams)
         "metric" => Integer(params.metric), 
         "classifier" => Integer(params.classifier), 
         "file" => params.file, 
-        "other_info" => params.other_info, 
+        "other_info" => params.other_info,
+        "max_array_size" => params.max_array_size, 
         )
     return JSON.json(d)
 end
@@ -65,10 +56,11 @@ end
 
 @brainflow_rethrow function predict(data, params::BrainFlowModelParams)
     input_json = JSON.json(params)
-    val = Vector{Float64}(undef, 1)
-    ccall((:predict, ML_MODULE_INTERFACE), Cint, (Ptr{Float64}, Cint, Ptr{Float64}, Ptr{UInt8}),
-        data, length(data), val, input_json)
-    value = val[1]
+    val = Vector{Float64}(undef, params.max_array_size)
+    val_len = Vector{Float64}(undef, 1)
+    ccall((:predict, ML_MODULE_INTERFACE), Cint, (Ptr{Float64}, Cint, Ptr{Float64}, Ptr{Cint}, Ptr{UInt8}),
+        data, length(data), val, val_len, input_json)
+    value = val[1:len[1]]
     return value
 end
 

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 
 import org.apache.commons.lang3.SystemUtils;
 
@@ -23,7 +24,7 @@ public class MLModel
 
         int release (String params);
 
-        int predict (double[] data, int data_len, double[] output, String params);
+        int predict (double[] data, int data_len, double[] output, int[] output_len, String params);
 
         int release_all ();
 
@@ -82,12 +83,15 @@ public class MLModel
 
     private String input_params;
 
+    private BrainFlowModelParams params;
+
     /**
      * Create MLModel object
      */
     public MLModel (BrainFlowModelParams params)
     {
         input_params = params.to_json ();
+        this.params = params;
     }
 
     /**
@@ -199,14 +203,15 @@ public class MLModel
      * 
      * @throws BrainFlowError
      */
-    public double predict (double[] data) throws BrainFlowError
+    public double[] predict (double[] data) throws BrainFlowError
     {
-        double[] val = new double[1];
-        int ec = instance.predict (data, data.length, val, input_params);
+        double[] val = new double[params.max_array_size];
+        int[] val_len = new int[1];
+        int ec = instance.predict (data, data.length, val, val_len, input_params);
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in predict", ec);
         }
-        return val[0];
+        return Arrays.copyOfRange (val, 0, val_len[0]);
     }
 }
