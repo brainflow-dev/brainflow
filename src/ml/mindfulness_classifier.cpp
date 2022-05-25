@@ -4,7 +4,7 @@
 
 #include "brainflow_constants.h"
 #include "mindfulness_classifier.h"
-#include "regression_model.h"
+#include "mindfulness_model.h"
 
 
 int MindfulnessClassifier::prepare ()
@@ -21,11 +21,11 @@ int MindfulnessClassifier::predict (double *data, int data_len, double *output, 
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     double value = 0.0;
-    for (int i = 0; i < std::min (data_len, 10); i++)
+    for (int i = 0; i < std::min (data_len, 5); i++)
     {
-        value += regression_coefficients[i] * data[i];
+        value += mindfulness_coefficients[i] * data[i];
     }
-    double mindfulness = 1.0 / (1.0 + exp (-1.0 * (regression_intercept + value)));
+    double mindfulness = 1.0 / (1.0 + exp (-1.0 * (mindfulness_intercept + value)));
     *output = mindfulness;
     *output_len = 1;
     return (int)BrainFlowExitCodes::STATUS_OK;

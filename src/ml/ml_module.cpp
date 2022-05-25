@@ -9,8 +9,10 @@
 #include "brainflow_model_params.h"
 #include "brainflow_version.h"
 #include "dyn_lib_classifier.h"
+#include "mindfulness_classifier.h"
 #include "ml_module.h"
 #include "onnx_classifier.h"
+#include "restfulness_classifier.h"
 
 #include "json.hpp"
 
@@ -53,12 +55,12 @@ int prepare (const char *json_params)
     else if ((key.metric == (int)BrainFlowMetrics::MINDFULNESS) &&
         (key.classifier == (int)BrainFlowClassifiers::DEFAULT_CLASSIFIER))
     {
-        model = std::shared_ptr<BaseClassifier> (new OnnxClassifier (key));
+        model = std::shared_ptr<BaseClassifier> (new MindfulnessClassifier (key));
     }
     else if ((key.metric == (int)BrainFlowMetrics::RESTFULNESS) &&
         (key.classifier == (int)BrainFlowClassifiers::DEFAULT_CLASSIFIER))
     {
-        model = std::shared_ptr<BaseClassifier> (new OnnxClassifier (key));
+        model = std::shared_ptr<BaseClassifier> (new RestfulnessClassifier (key));
     }
     else
     {

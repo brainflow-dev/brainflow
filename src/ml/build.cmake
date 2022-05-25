@@ -27,6 +27,8 @@ SET (ML_MODULE_SRC
     ${CMAKE_CURRENT_LIST_DIR}/dyn_lib_classifier.cpp
     ${CMAKE_CURRENT_LIST_DIR}/onnx/onnx_classifier.cpp
     ${CMAKE_CURRENT_LIST_DIR}/base_classifier.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/mindfulness_classifier.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/generated/mindfulness_model.cpp
 )
 
 add_library (

@@ -27,7 +27,7 @@ def write_model(intercept, coefs, model_type):
 const double %s_coefficients[%d] = {%s};
 double %s_intercept = %lf;
 // clang-format on
-''' % (f'{model_type}_model.h', model_type, len(coefs), coefficients_string, model_type, intercept)
+''' % (f'{model_type}_model.h', model_type, len(coefs[0]), coefficients_string, model_type, intercept)
     file_name = f'{model_type}_model.cpp'
     file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'generated', file_name)
     with open(file_path, 'w') as f:
