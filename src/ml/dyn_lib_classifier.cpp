@@ -55,12 +55,23 @@ int DynLibClassifier::release ()
     {
         return (int)BrainFlowExitCodes::CLASSIFIER_IS_NOT_PREPARED_ERROR;
     }
+
+    int res = (int)BrainFlowExitCodes::STATUS_OK;
     int (*func) (struct BrainFlowModelParams *) =
         (int (*) (struct BrainFlowModelParams *))dll_loader->get_address ("release");
     if (func == NULL)
     {
         safe_logger (spdlog::level::err, "failed to get function address for release");
-        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+        res = (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    return func (&params);
+    else
+    {
+        res = func (&params);
+    }
+
+    dll_loader->free_library ();
+    delete dll_loader;
+    dll_loader = NULL;
+
+    return res;
 }

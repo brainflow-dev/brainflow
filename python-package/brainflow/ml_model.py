@@ -122,7 +122,7 @@ class MLModuleDLL(object):
             ndpointer(ctypes.c_double),
             ctypes.c_int,
             ndpointer(ctypes.c_double),
-            ctypes.c_int,
+            ndpointer(ctypes.c_int32),
             ctypes.c_char_p
         ]
 
@@ -236,7 +236,7 @@ class MLModel(object):
         :return: metric value
         :rtype: float
         """
-        output = numpy.zeros(model_params.max_array_size).astype(numpy.float64)
+        output = numpy.zeros(self.model_params.max_array_size).astype(numpy.float64)
         output_len = numpy.zeros(1).astype(numpy.int32)
         res = MLModuleDLL.get_instance().predict(data, data.shape[0], output, output_len, self.serialized_params)
         if res != BrainflowExitCodes.STATUS_OK.value:

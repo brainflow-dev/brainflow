@@ -12,7 +12,7 @@ from brainflow.exit_codes import *
 def main():
     BoardShim.enable_board_logger()
     DataFilter.enable_data_logger()
-    MLModel.enable_ml_logger()
+    MLModel.enable_dev_ml_logger()
 
     parser = argparse.ArgumentParser()
     # use docs to check which parameters are required for specific board, e.g. for Cyton - set serial port
@@ -66,7 +66,6 @@ def main():
     model_params.file = args.model_file
     model = MLModel(model_params)
     model.prepare()
-    print('Model Score: %f' % model.predict(feature_vector))
     model.release()
 
 

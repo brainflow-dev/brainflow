@@ -67,16 +67,14 @@ setup(
             os.path.join('lib', 'simpleble-c32.dll'),
             os.path.join('lib', 'libsimpleble-c.so'),
             os.path.join('lib', 'libsimpleble-c.dylib'),
-            os.path.join('lib', 'libonnxruntime.dylib'),
-            os.path.join('lib', 'libonnxruntime.so'),
+            os.path.join('lib', 'libonnxruntime_arm64.dylib'),
+            os.path.join('lib', 'libonnxruntime_arm64.so'),
+            os.path.join('lib', 'libonnxruntime_x64.dylib'),
+            os.path.join('lib', 'libonnxruntime_x64.so'),
             os.path.join('lib', 'onnxruntime_arm.dll'),
             os.path.join('lib', 'onnxruntime_arm64.dll'),
             os.path.join('lib', 'onnxruntime_x64.dll'),
-            os.path.join('lib', 'onnxruntime_x86.dll'),
-            os.path.join('lib', 'brainflow_onnx32.dll'),
-            os.path.join('lib', 'libbrainflow_onnx.so'),
-            os.path.join('lib', 'libbrainflow_onnx.dylib'),
-            os.path.join('lib', 'brainflow_onnx.dll')
+            os.path.join('lib', 'onnxruntime_x86.dll')
         ]
     },
     zip_safe=True,

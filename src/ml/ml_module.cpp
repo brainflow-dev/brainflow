@@ -48,17 +48,17 @@ int prepare (const char *json_params)
     else if ((key.metric == (int)BrainFlowMetrics::USER_DEFINED) &&
         (key.classifier == (int)BrainFlowClassifiers::ONNX_CLASSIFIER))
     {
-        model = std::shared_ptr<BaseClassifier> (new ONNXClassifier (key));
+        model = std::shared_ptr<BaseClassifier> (new OnnxClassifier (key));
     }
     else if ((key.metric == (int)BrainFlowMetrics::MINDFULNESS) &&
         (key.classifier == (int)BrainFlowClassifiers::DEFAULT_CLASSIFIER))
     {
-        model = std::shared_ptr<BaseClassifier> (new ONNXClassifier (key));
+        model = std::shared_ptr<BaseClassifier> (new OnnxClassifier (key));
     }
     else if ((key.metric == (int)BrainFlowMetrics::RESTFULNESS) &&
         (key.classifier == (int)BrainFlowClassifiers::DEFAULT_CLASSIFIER))
     {
-        model = std::shared_ptr<BaseClassifier> (new ONNXClassifier (key));
+        model = std::shared_ptr<BaseClassifier> (new OnnxClassifier (key));
     }
     else
     {
