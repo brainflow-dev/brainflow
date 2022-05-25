@@ -197,29 +197,28 @@ classdef DataFilter
             n_channels = size(data, 2);
             n_times = size(data, 3);
             lib_name = DataFilter.load_lib();
-            data1d = zeros(1, n_epochs * n_channels * n_times)
+            data1d = zeros(1, n_epochs * n_channels * n_times);
             for e=1:n_epochs
                 for c=1:n_channels
                     for t=1:n_times
                         idx = (e-1) * n_channels * n_times + (c-1) * n_times + t;
-                        data1d(idx) = data(c,t,e); 
+                        data1d(idx) = data(e,c,t);
                     end
                 end
             end
-            temp_data1d = libpointer('doublePtr', data1d);
-            temp_labels = libpointer('doublePtr', labels);
-            temp_output_filters = libpointer('doublePtr', zeros(1, n_channels * n_channels));
-            temp_output_ev = libpointer('doublePtr', zeros(1, int32(n_channels)));
-            exit_code = calllib(lib_name, task_name, temp_data1d, temp_labels, n_epochs, n_channels, n_times, temp_output_filters, temp_output_ev);
+            data1d_ptr = libpointer('doublePtr', data1d);
+            labels_ptr = libpointer('doublePtr', labels);
+            output_filters_ptr = libpointer('doublePtr', zeros(1, n_channels * n_channels));
+            output_eigenvalues_ptr = libpointer('doublePtr', zeros(1, int32(n_channels)));
+            exit_code = calllib(lib_name, task_name, data1d_ptr, labels_ptr, n_epochs, n_channels, n_times, output_filters_ptr, output_eigenvalues_ptr);
             DataFilter.check_ec(exit_code, task_name);
-            output_filters = repmat(0, [n_channels n_times n_epochs]);
+            filters = zeros(n_channels, n_channels);
             for i=1:n_channels
                 for j=1:n_channels
-                    output_filters(i, j) = temp_output_filters((i-1) * n_channels + j);
+                    filters(i, j) = output_filters_ptr.Value((i-1) * n_channels + j);
                 end 
             end
-            filters = output_filters.Value;
-            eigenvalues = temp_output_ev.Value;
+            eigenvalues = output_eigenvalues_ptr.Value;
         end
 
         function window_data = get_window(window_function, window_len)
