@@ -2,19 +2,13 @@
 //  BrainFlowCItests.swift
 //  functions for Continuous Integration (CI) testing of the Swift Bindings for BrainFlow
 
-//  Created by Scott Miller on 9/23/21.
+//  Created by Scott Miller for Aeris Rising, LLC on 9/23/21.
 
 
 import Foundation
-
-
 import XCTest
 
 class BrainFlowCItests: XCTestCase {
-    let cytonBoardID = BoardIds.CYTON_BOARD
-    let synthBoardID = BoardIds.SYNTHETIC_BOARD
-    let boardParams = BrainFlowInputParams(serial_port: "/dev/cu.usbserial-DM0258EJ")
-
     func testGetDataFromBoard() throws {
         try BoardShim.enableDevBoardLogger()
         let params = BrainFlowInputParams()
