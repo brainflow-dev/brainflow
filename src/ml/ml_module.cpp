@@ -133,6 +133,7 @@ int string_to_brainflow_model_params (const char *json_params, struct BrainFlowM
         params->metric = config["metric"];
         params->classifier = config["classifier"];
         params->file = config["file"];
+        params->output_name = config["output_name"];
         params->other_info = config["other_info"];
         params->max_array_size = config["max_array_size"];
         return (int)BrainFlowExitCodes::STATUS_OK;

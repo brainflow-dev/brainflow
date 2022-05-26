@@ -3,7 +3,6 @@ package brainflow.examples;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-import brainflow.BoardIds;
 import brainflow.BoardShim;
 import brainflow.BrainFlowClassifiers;
 import brainflow.BrainFlowInputParams;
@@ -38,7 +37,7 @@ public class EEGMetrics
 
         Pair<double[], double[]> bands = DataFilter.get_avg_band_powers (data, eeg_channels, sampling_rate, true);
         double[] feature_vector = ArrayUtils.addAll (bands.getLeft (), bands.getRight ());
-        BrainFlowModelParams model_params = new BrainFlowModelParams (BrainFlowMetrics.CONCENTRATION.get_code (),
+        BrainFlowModelParams model_params = new BrainFlowModelParams (BrainFlowMetrics.MINDFULNESS.get_code (),
                 BrainFlowClassifiers.REGRESSION.get_code ());
         MLModel concentration = new MLModel (model_params);
         concentration.prepare ();

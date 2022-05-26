@@ -28,6 +28,7 @@ const ONNX_CLASSIFIER = ONNXClassifier()
     classifier::BrainFlowClassifier = DEFAULT_CLASSIFIER
     file::String = ""
     other_info::String = ""
+    output_name::String = ""
     max_array_size::Int32 = 8192
 end
 
@@ -37,6 +38,7 @@ function JSON.json(params::BrainFlowModelParams)
         "classifier" => Integer(params.classifier), 
         "file" => params.file, 
         "other_info" => params.other_info,
+        "output_name" => params.output_name,
         "max_array_size" => params.max_array_size, 
         )
     return JSON.json(d)

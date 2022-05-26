@@ -39,7 +39,11 @@ class BrainFlowModelParams(object):
     :param file: file to load model
     :type file: str
     :param other_info: additional information
-    :type other_info: int
+    :type other_info: str
+    :param output_name: output node name
+    :type output_name: str
+    :param max_array_size: max array size to preallocate
+    :type max_array_size: int
     """
 
     def __init__(self, metric, classifier) -> None:
@@ -47,6 +51,7 @@ class BrainFlowModelParams(object):
         self.classifier = classifier
         self.file = ''
         self.other_info = ''
+        self.output_name = ''
         self.max_array_size = 8192
 
     def to_json(self) -> None:

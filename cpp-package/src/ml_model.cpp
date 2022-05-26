@@ -22,6 +22,7 @@ std::string params_to_string (struct BrainFlowModelParams params)
     j["classifier"] = params.classifier;
     j["file"] = params.file;
     j["other_info"] = params.other_info;
+    j["output_name"] = params.output_name;
     j["max_array_size"] = params.max_array_size;
     std::string post_str = j.dump ();
     return post_str;

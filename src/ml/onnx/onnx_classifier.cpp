@@ -371,9 +371,11 @@ int OnnxClassifier::get_output_info ()
 {
     int res = (int)BrainFlowExitCodes::STATUS_OK;
     size_t num_output_nodes = 0;
+    size_t node_number = 0;
     OrtTypeInfo *typeinfo = NULL;
     size_t num_dims = 0;
     char *output_name = NULL;
+    bool node_found = false;
     const OrtTensorTypeAndShapeInfo *tensor_info;
 
     // output count
@@ -387,17 +389,51 @@ int OnnxClassifier::get_output_info ()
     }
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        if (num_output_nodes != 1)
+        for (node_number = 0; node_number < num_output_nodes; node_number++)
         {
-            safe_logger (spdlog::level::err, "Only one output node is supported");
-            res = (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+            // output name
+            if (res == (int)BrainFlowExitCodes::STATUS_OK)
+            {
+                onnx_status =
+                    ort->SessionGetOutputName (session, node_number, allocator, &output_name);
+                if (onnx_status != NULL)
+                {
+                    const char *msg = ort->GetErrorMessage (onnx_status);
+                    safe_logger (spdlog::level::err, "SessionGetOutputName failed: {}", msg);
+                    ort->ReleaseStatus (onnx_status);
+                    res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+                }
+                else
+                {
+                    safe_logger (spdlog::level::info, "found output node: {}", output_name);
+                    if ((num_output_nodes == 1) ||
+                        (strcmp (params.output_name.c_str (), output_name) == 0))
+                    {
+                        output_node_names.resize (1);
+                        output_node_names[0] = output_name;
+                        node_found = true;
+                        break;
+                    }
+                    else
+                    {
+                        ort->AllocatorFree (allocator, output_name);
+                    }
+                }
+            }
         }
+    }
+    if (!node_found)
+    {
+        safe_logger (spdlog::level::err,
+            "Model has multiple output nodes, you need to provide correct node name via "
+            "BrainFlowModelParams.output_name");
+        res = (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
     // output node types
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        onnx_status = ort->SessionGetOutputTypeInfo (session, 0, &typeinfo);
+        onnx_status = ort->SessionGetOutputTypeInfo (session, node_number, &typeinfo);
         if (onnx_status != NULL)
         {
             const char *msg = ort->GetErrorMessage (onnx_status);
@@ -467,24 +503,6 @@ int OnnxClassifier::get_output_info ()
             {
                 safe_logger (spdlog::level::info, "Output Dim {} size {}", j, output_node_dims[j]);
             }
-        }
-    }
-
-    // output name
-    if (res == (int)BrainFlowExitCodes::STATUS_OK)
-    {
-        onnx_status = ort->SessionGetOutputName (session, 0, allocator, &output_name);
-        if (onnx_status != NULL)
-        {
-            const char *msg = ort->GetErrorMessage (onnx_status);
-            safe_logger (spdlog::level::err, "SessionGetOutputName failed: {}", msg);
-            ort->ReleaseStatus (onnx_status);
-            res = (int)BrainFlowExitCodes::GENERAL_ERROR;
-        }
-        else
-        {
-            output_node_names.resize (1);
-            output_node_names[0] = output_name;
         }
     }
 

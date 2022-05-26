@@ -34,6 +34,11 @@ namespace brainflow
         [DataMember]
         public string other_info;
         /// <summary>
+        /// output name
+        /// </summary>
+        [DataMember]
+        public string output_name;
+        /// <summary>
         /// max array size
         /// </summary>
         [DataMember]
@@ -45,6 +50,7 @@ namespace brainflow
             this.classifier = classifier;
             file = "";
             other_info = "";
+            output_name = "";
             max_array_size = 8192;
         }
 
