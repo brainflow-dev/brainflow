@@ -15,6 +15,81 @@ void log_onnx_msg (void *param, OrtLoggingLevel severity, const char *category, 
     }
 }
 
+int OnnxClassifier::prepare ()
+{
+    int res = (int)BrainFlowExitCodes::STATUS_OK;
+    if (params.file.empty ())
+    {
+        safe_logger (spdlog::level::err, "file with onnx model is not provided");
+        res = (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        res = load_api ();
+    }
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        res = get_input_info ();
+    }
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        res = get_output_info ();
+    }
+
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        release ();
+    }
+    return res;
+}
+
+
+int OnnxClassifier::predict (double *data, int data_len, double *output, int *output_len)
+{
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int OnnxClassifier::release ()
+{
+    if ((allocator != NULL) && (ort != NULL))
+    {
+        for (const char *node_name : input_node_names)
+        {
+            ort->AllocatorFree (
+                allocator, const_cast<void *> (reinterpret_cast<const void *> (node_name)));
+        }
+        for (const char *node_name : output_node_names)
+        {
+            ort->AllocatorFree (
+                allocator, const_cast<void *> (reinterpret_cast<const void *> (node_name)));
+        }
+    }
+    if ((session_options != NULL) && (ort != NULL))
+    {
+        ort->ReleaseSessionOptions (session_options);
+        session_options = NULL;
+    }
+    if ((session != NULL) && (ort != NULL))
+    {
+        ort->ReleaseSession (session);
+        session = NULL;
+    }
+    if ((env != NULL) && (ort != NULL))
+    {
+        ort->ReleaseEnv (env);
+        env = NULL;
+    }
+    ort = NULL;
+    if (dll_loader != NULL)
+    {
+        dll_loader->free_library ();
+        delete dll_loader;
+        dll_loader = NULL;
+    }
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
 std::string OnnxClassifier::get_onnxlib_path ()
 {
     char onnxlib_dir[1024];
@@ -110,10 +185,6 @@ int OnnxClassifier::load_api ()
             ort->ReleaseStatus (onnx_status);
             res = (int)BrainFlowExitCodes::GENERAL_ERROR;
         }
-        else
-        {
-            safe_logger (spdlog::level::trace, "CreateEnv success");
-        }
     }
 
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
@@ -125,10 +196,6 @@ int OnnxClassifier::load_api ()
             safe_logger (spdlog::level::err, "CreateSessionOptions failed: {}", msg);
             ort->ReleaseStatus (onnx_status);
             res = (int)BrainFlowExitCodes::GENERAL_ERROR;
-        }
-        else
-        {
-            safe_logger (spdlog::level::trace, "CreateSessionOptions success");
         }
     }
 
@@ -149,9 +216,16 @@ int OnnxClassifier::load_api ()
             ort->ReleaseStatus (onnx_status);
             res = (int)BrainFlowExitCodes::GENERAL_ERROR;
         }
-        else
+    }
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        OrtStatus *onnx_status = ort->GetAllocatorWithDefaultOptions (&allocator);
+        if (onnx_status != NULL)
         {
-            safe_logger (spdlog::level::trace, "CreateSession success");
+            const char *msg = ort->GetErrorMessage (onnx_status);
+            safe_logger (spdlog::level::err, "GetAllocatorWithDefaultOptions failed: {}", msg);
+            ort->ReleaseStatus (onnx_status);
+            res = (int)BrainFlowExitCodes::GENERAL_ERROR;
         }
     }
 
@@ -164,56 +238,260 @@ int OnnxClassifier::load_api ()
     return res;
 }
 
-int OnnxClassifier::prepare ()
+int OnnxClassifier::get_input_info ()
 {
     int res = (int)BrainFlowExitCodes::STATUS_OK;
-    if (params.file.empty ())
-    {
-        safe_logger (spdlog::level::err, "file with onnx model is not provided");
-        res = (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
-    }
+    size_t num_input_nodes = 0;
+    OrtTypeInfo *typeinfo = NULL;
+    size_t num_dims = 0;
+    char *input_name = NULL;
+    const OrtTensorTypeAndShapeInfo *tensor_info;
 
+    // input count
+    OrtStatus *onnx_status = ort->SessionGetInputCount (session, &num_input_nodes);
+    if (onnx_status != NULL)
+    {
+        const char *msg = ort->GetErrorMessage (onnx_status);
+        safe_logger (spdlog::level::err, "SessionGetInputCount failed: {}", msg);
+        ort->ReleaseStatus (onnx_status);
+        res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        res = load_api ();
+        if (num_input_nodes != 1)
+        {
+            safe_logger (spdlog::level::err, "Only one input node is supported");
+            res = (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+        }
     }
 
-    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    // input node types
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        release ();
+        onnx_status = ort->SessionGetInputTypeInfo (session, 0, &typeinfo);
+        if (onnx_status != NULL)
+        {
+            const char *msg = ort->GetErrorMessage (onnx_status);
+            safe_logger (spdlog::level::err, "SessionGetInputTypeInfo failed: {}", msg);
+            ort->ReleaseStatus (onnx_status);
+            res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+        }
     }
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        onnx_status = ort->CastTypeInfoToTensorInfo (typeinfo, &tensor_info);
+        if (onnx_status != NULL)
+        {
+            const char *msg = ort->GetErrorMessage (onnx_status);
+            safe_logger (spdlog::level::err, "CastTypeInfoToTensorInfo failed: {}", msg);
+            ort->ReleaseStatus (onnx_status);
+            res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+        }
+    }
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        onnx_status = ort->GetTensorElementType (tensor_info, &input_type);
+        if (onnx_status != NULL)
+        {
+            const char *msg = ort->GetErrorMessage (onnx_status);
+            safe_logger (spdlog::level::err, "GetTensorElementType failed: {}", msg);
+            ort->ReleaseStatus (onnx_status);
+            res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+        }
+        else
+        {
+            safe_logger (spdlog::level::info, "input type is: {}", (int)input_type);
+        }
+    }
+
+    // check input dims
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        onnx_status = ort->GetDimensionsCount (tensor_info, &num_dims);
+        if (onnx_status != NULL)
+        {
+            const char *msg = ort->GetErrorMessage (onnx_status);
+            safe_logger (spdlog::level::err, "GetDimensionsCount failed: {}", msg);
+            ort->ReleaseStatus (onnx_status);
+            res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+        }
+        else
+        {
+            safe_logger (spdlog::level::info, "num dims is: {}", num_dims);
+        }
+    }
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        input_node_dims.resize (num_dims);
+        onnx_status =
+            ort->GetDimensions (tensor_info, (int64_t *)input_node_dims.data (), num_dims);
+        if (onnx_status != NULL)
+        {
+            const char *msg = ort->GetErrorMessage (onnx_status);
+            safe_logger (spdlog::level::err, "GetDimensions failed: {}", msg);
+            ort->ReleaseStatus (onnx_status);
+            res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+        }
+        else
+        {
+            for (size_t j = 0; j < num_dims; j++)
+            {
+                safe_logger (spdlog::level::info, "Input Dim {} size {}", j, input_node_dims[j]);
+            }
+        }
+    }
+
+    // input name
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        onnx_status = ort->SessionGetInputName (session, 0, allocator, &input_name);
+        if (onnx_status != NULL)
+        {
+            const char *msg = ort->GetErrorMessage (onnx_status);
+            safe_logger (spdlog::level::err, "SessionGetInputName failed: {}", msg);
+            ort->ReleaseStatus (onnx_status);
+            res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+        }
+        else
+        {
+            input_node_names.resize (1);
+            input_node_names[0] = input_name;
+        }
+    }
+
+    if (typeinfo != NULL)
+    {
+        ort->ReleaseTypeInfo (typeinfo);
+    }
+
     return res;
 }
 
-
-int OnnxClassifier::predict (double *data, int data_len, double *output, int *output_len)
+int OnnxClassifier::get_output_info ()
 {
-    return (int)BrainFlowExitCodes::STATUS_OK;
-}
+    int res = (int)BrainFlowExitCodes::STATUS_OK;
+    size_t num_output_nodes = 0;
+    OrtTypeInfo *typeinfo = NULL;
+    size_t num_dims = 0;
+    char *output_name = NULL;
+    const OrtTensorTypeAndShapeInfo *tensor_info;
 
-int OnnxClassifier::release ()
-{
-    if ((session_options != NULL) && (ort != NULL))
+    // output count
+    OrtStatus *onnx_status = ort->SessionGetOutputCount (session, &num_output_nodes);
+    if (onnx_status != NULL)
     {
-        ort->ReleaseSessionOptions (session_options);
-        session_options = NULL;
+        const char *msg = ort->GetErrorMessage (onnx_status);
+        safe_logger (spdlog::level::err, "SessionGetOutputCount failed: {}", msg);
+        ort->ReleaseStatus (onnx_status);
+        res = (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    if ((session != NULL) && (ort != NULL))
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        ort->ReleaseSession (session);
-        session = NULL;
+        if (num_output_nodes != 1)
+        {
+            safe_logger (spdlog::level::err, "Only one output node is supported");
+            res = (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+        }
     }
-    if ((env != NULL) && (ort != NULL))
+
+    // output node types
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        ort->ReleaseEnv (env);
-        env = NULL;
+        onnx_status = ort->SessionGetOutputTypeInfo (session, 0, &typeinfo);
+        if (onnx_status != NULL)
+        {
+            const char *msg = ort->GetErrorMessage (onnx_status);
+            safe_logger (spdlog::level::err, "SessionGetOutputTypeInfo failed: {}", msg);
+            ort->ReleaseStatus (onnx_status);
+            res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+        }
     }
-    ort = NULL;
-    if (dll_loader != NULL)
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        dll_loader->free_library ();
-        delete dll_loader;
-        dll_loader = NULL;
+        onnx_status = ort->CastTypeInfoToTensorInfo (typeinfo, &tensor_info);
+        if (onnx_status != NULL)
+        {
+            const char *msg = ort->GetErrorMessage (onnx_status);
+            safe_logger (spdlog::level::err, "CastTypeInfoToTensorInfo failed: {}", msg);
+            ort->ReleaseStatus (onnx_status);
+            res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+        }
     }
-    return (int)BrainFlowExitCodes::STATUS_OK;
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        onnx_status = ort->GetTensorElementType (tensor_info, &output_type);
+        if (onnx_status != NULL)
+        {
+            const char *msg = ort->GetErrorMessage (onnx_status);
+            safe_logger (spdlog::level::err, "GetTensorElementType failed: {}", msg);
+            ort->ReleaseStatus (onnx_status);
+            res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+        }
+        else
+        {
+            safe_logger (spdlog::level::info, "output type is: {}", (int)input_type);
+        }
+    }
+
+    // check output dims
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        onnx_status = ort->GetDimensionsCount (tensor_info, &num_dims);
+        if (onnx_status != NULL)
+        {
+            const char *msg = ort->GetErrorMessage (onnx_status);
+            safe_logger (spdlog::level::err, "GetDimensionsCount failed: {}", msg);
+            ort->ReleaseStatus (onnx_status);
+            res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+        }
+        else
+        {
+            safe_logger (spdlog::level::info, "num dims is: {}", num_dims);
+        }
+    }
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        output_node_dims.resize (num_dims);
+        onnx_status =
+            ort->GetDimensions (tensor_info, (int64_t *)output_node_dims.data (), num_dims);
+        if (onnx_status != NULL)
+        {
+            const char *msg = ort->GetErrorMessage (onnx_status);
+            safe_logger (spdlog::level::err, "GetDimensions failed: {}", msg);
+            ort->ReleaseStatus (onnx_status);
+            res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+        }
+        else
+        {
+            for (size_t j = 0; j < num_dims; j++)
+            {
+                safe_logger (spdlog::level::info, "Output Dim {} size {}", j, output_node_dims[j]);
+            }
+        }
+    }
+
+    // output name
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        onnx_status = ort->SessionGetOutputName (session, 0, allocator, &output_name);
+        if (onnx_status != NULL)
+        {
+            const char *msg = ort->GetErrorMessage (onnx_status);
+            safe_logger (spdlog::level::err, "SessionGetOutputName failed: {}", msg);
+            ort->ReleaseStatus (onnx_status);
+            res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+        }
+        else
+        {
+            output_node_names.resize (1);
+            output_node_names[0] = output_name;
+        }
+    }
+
+    if (typeinfo != NULL)
+    {
+        ort->ReleaseTypeInfo (typeinfo);
+    }
+
+    return res;
 }

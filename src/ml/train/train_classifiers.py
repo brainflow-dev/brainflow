@@ -126,7 +126,7 @@ def train_regression_mindfulness(data):
     logging.info(model.intercept_)
     logging.info(model.coef_)
     
-    initial_type = [('double_input', FloatTensorType([1, 5]))]
+    initial_type = [('mindfulness_input', FloatTensorType([1, 5]))]
     onx = convert_sklearn(model, initial_types=initial_type, target_opset=7)
     with open('logreg_mindfulness.onnx', 'wb') as f:
         f.write(onx.SerializeToString())
@@ -139,7 +139,7 @@ def train_svm_mindfulness(data):
     logging.info('f1 macro %s' % str(scores))
     model.fit(data[0], data[1])
 
-    initial_type = [('double_input', FloatTensorType([1, 5]))]
+    initial_type = [('mindfulness_input', FloatTensorType([1, 5]))]
     onx = convert_sklearn(model, initial_types=initial_type, target_opset=7)
     with open('svm_mindfulness.onnx', 'wb') as f:
         f.write(onx.SerializeToString())

@@ -1,6 +1,8 @@
 #pragma once
 
+#include <stdint.h>
 #include <string>
+#include <vector>
 
 #include "base_classifier.h"
 #include "dyn_lib_classifier.h"
@@ -14,11 +16,23 @@ private:
     OrtEnv *env;
     OrtSessionOptions *session_options;
     OrtSession *session;
+    OrtAllocator *allocator;
+
+    ONNXTensorElementDataType input_type;
+    std::vector<int64_t> input_node_dims;
+    std::vector<const char *> input_node_names;
+
+    ONNXTensorElementDataType output_type;
+    std::vector<int64_t> output_node_dims;
+    std::vector<const char *> output_node_names;
 
     DLLLoader *dll_loader;
 
     int load_api ();
+    int get_input_info ();
+    int get_output_info ();
     std::string get_onnxlib_path ();
+
 
 public:
     OnnxClassifier (struct BrainFlowModelParams params) : BaseClassifier (params)
@@ -27,6 +41,7 @@ public:
         env = NULL;
         session_options = NULL;
         session = NULL;
+        allocator = NULL;
         dll_loader = NULL;
     }
 
