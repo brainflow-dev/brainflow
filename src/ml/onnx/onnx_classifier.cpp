@@ -2,7 +2,6 @@
 #include "brainflow_constants.h"
 #include "get_dll_dir.h"
 
-#include <iostream>
 
 void log_onnx_msg (void *param, OrtLoggingLevel severity, const char *category, const char *logid,
     const char *code_location, const char *message)
@@ -166,7 +165,7 @@ int OnnxClassifier::load_api ()
 
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        ort = OrtGetApiBase ()->GetApi (7);
+        ort = OrtGetApiBase ()->GetApi (ORT_API_VERSION);
         if (ort == NULL)
         {
             safe_logger (spdlog::level::err, "Ort GetApi failed");
