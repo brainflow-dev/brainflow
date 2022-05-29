@@ -1,6 +1,6 @@
 #pragma once
 
-#include <simpledbus/advanced/Callback.h>
+#include <external/kvn_safe_callback.hpp>
 #include <simpledbus/advanced/Interface.h>
 
 #include <string>
@@ -15,6 +15,8 @@ class Device1 : public SimpleDBus::Interface {
     // ----- METHODS -----
     void Connect();
     void Disconnect();
+    void Pair();
+    void CancelPairing();
 
     // ----- PROPERTIES -----
     int16_t RSSI();
@@ -23,12 +25,13 @@ class Device1 : public SimpleDBus::Interface {
     std::string Alias();
     std::string Name();
     std::map<uint16_t, std::vector<uint8_t>> ManufacturerData(bool refresh = true);
+    bool Paired();
     bool Connected(bool refresh = true);
     bool ServicesResolved(bool refresh = true);
 
     // ----- CALLBACKS -----
-    SimpleDBus::Callback<std::function<void()>> OnServicesResolved;
-    SimpleDBus::Callback<std::function<void()>> OnDisconnected;
+    kvn::safe_callback<void()> OnServicesResolved;
+    kvn::safe_callback<void()> OnDisconnected;
 
   protected:
     void property_changed(std::string option_name) override;

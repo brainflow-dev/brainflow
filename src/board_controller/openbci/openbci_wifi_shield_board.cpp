@@ -87,7 +87,7 @@ int OpenBCIWifiShieldBoard::prepare_session ()
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
 
-    std::string url = "http://" + params.ip_address + "/board";
+    std::string url = "http://" + params.ip_address + "/board"; // lgtm [cpp/non-https-url]
     http_t *request = http_get (url.c_str (), NULL);
     if (!request)
     {
@@ -107,7 +107,7 @@ int OpenBCIWifiShieldBoard::prepare_session ()
     http_release (request);
 
     // send info about tcp socket we created
-    url = "http://" + params.ip_address + "/tcp";
+    url = "http://" + params.ip_address + "/tcp"; // lgtm [cpp/non-https-url]
     json post_data;
     post_data["ip"] = std::string (local_ip);
     post_data["port"] = params.ip_port;
@@ -183,7 +183,7 @@ int OpenBCIWifiShieldBoard::send_config (const char *config)
         return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     }
 
-    std::string url = "http://" + params.ip_address + "/command";
+    std::string url = "http://" + params.ip_address + "/command"; // lgtm [cpp/non-https-url]
     json post_data;
     post_data["command"] = std::string (config);
     std::string post_str = post_data.dump ();
@@ -231,7 +231,7 @@ int OpenBCIWifiShieldBoard::start_stream (int buffer_size, const char *streamer_
         return res;
     }
 
-    std::string url = "http://" + params.ip_address + "/stream/start";
+    std::string url = "http://" + params.ip_address + "/stream/start"; // lgtm [cpp/non-https-url]
     http_t *request = http_get (url.c_str (), NULL);
     if (!request)
     {
@@ -257,7 +257,8 @@ int OpenBCIWifiShieldBoard::stop_stream ()
     {
         keep_alive = false;
         streaming_thread.join ();
-        std::string url = "http://" + params.ip_address + "/stream/stop";
+        std::string url =
+            "http://" + params.ip_address + "/stream/stop"; // lgtm [cpp/non-https-url]
         http_t *request = http_get (url.c_str (), NULL);
         if (!request)
         {

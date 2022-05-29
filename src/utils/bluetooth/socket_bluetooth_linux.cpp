@@ -101,9 +101,10 @@ int SocketBluetooth::bytes_available ()
 
 int SocketBluetooth::close ()
 {
-    ::close (socket_bt);
+    int result = ::close (socket_bt);
     socket_bt = -1;
-    return (int)SocketBluetoothReturnCodes::STATUS_OK;
+    return result == 0 ? (int)SocketBluetoothReturnCodes::STATUS_OK :
+                         (int)SocketBluetoothReturnCodes::DISCONNECT_ERROR;
 }
 
 std::pair<std::string, int> SocketBluetooth::discover (char *selector)

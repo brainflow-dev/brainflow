@@ -1,17 +1,19 @@
 #pragma once
 
-#include <condition_variable>
-#include <functional>
-#include <map>
-#include <memory>
-
 #include <simpleble/Exceptions.h>
 #include <simpleble/Types.h>
 
 #include "AdapterBaseTypes.h"
 
+#include <kvn_safe_callback.hpp>
+
 #include "winrt/Windows.Devices.Bluetooth.GenericAttributeProfile.h"
 #include "winrt/Windows.Devices.Bluetooth.h"
+
+#include <condition_variable>
+#include <functional>
+#include <map>
+#include <memory>
 
 using namespace winrt::Windows::Devices::Bluetooth;
 using namespace winrt::Windows::Devices::Bluetooth::GenericAttributeProfile;
@@ -25,24 +27,31 @@ class PeripheralBase {
 
     std::string identifier();
     BluetoothAddress address();
+    int16_t rssi();
 
     void connect();
     void disconnect();
     bool is_connected();
     bool is_connectable();
+    bool is_paired();
+    void unpair();
 
     std::vector<BluetoothService> services();
     std::map<uint16_t, ByteArray> manufacturer_data();
 
-    ByteArray read(BluetoothUUID service, BluetoothUUID characteristic);
-    void write_request(BluetoothUUID service, BluetoothUUID characteristic, ByteArray data);
-    void write_command(BluetoothUUID service, BluetoothUUID characteristic, ByteArray data);
-    void notify(BluetoothUUID service, BluetoothUUID characteristic, std::function<void(ByteArray payload)> callback);
-    void indicate(BluetoothUUID service, BluetoothUUID characteristic, std::function<void(ByteArray payload)> callback);
-    void unsubscribe(BluetoothUUID service, BluetoothUUID characteristic);
+    ByteArray read(BluetoothUUID const& service, BluetoothUUID const& characteristic);
+    void write_request(BluetoothUUID const& service, BluetoothUUID const& characteristic, ByteArray const& data);
+    void write_command(BluetoothUUID const& service, BluetoothUUID const& characteristic, ByteArray const& data);
+    void notify(BluetoothUUID const& service, BluetoothUUID const& characteristic,
+                std::function<void(ByteArray payload)> callback);
+    void indicate(BluetoothUUID const& service, BluetoothUUID const& characteristic,
+                  std::function<void(ByteArray payload)> callback);
+    void unsubscribe(BluetoothUUID const& service, BluetoothUUID const& characteristic);
 
     void set_callback_on_connected(std::function<void()> on_connected);
     void set_callback_on_disconnected(std::function<void()> on_disconnected);
+
+    void update_advertising_data(advertising_data_t advertising_data);
 
   private:
     BluetoothLEDevice device_ = nullptr;
@@ -55,6 +64,7 @@ class PeripheralBase {
     // https://docs.microsoft.com/en-us/uwp/api/windows.devices.bluetooth.bluetoothledevice.frombluetoothaddressasync
     std::string identifier_;
     BluetoothAddress address_;
+    int16_t rssi_;
     bool connectable_;
     winrt::event_token connection_status_changed_token_;
 
@@ -62,8 +72,8 @@ class PeripheralBase {
     std::mutex disconnection_mutex_;
     std::map<BluetoothUUID, std::map<BluetoothUUID, GattCharacteristic>> characteristics_map_;
 
-    std::function<void()> callback_on_connected_;
-    std::function<void()> callback_on_disconnected_;
+    kvn::safe_callback<void()> callback_on_connected_;
+    kvn::safe_callback<void()> callback_on_disconnected_;
 
     std::map<uint16_t, SimpleBLE::ByteArray> manufacturer_data_;
 

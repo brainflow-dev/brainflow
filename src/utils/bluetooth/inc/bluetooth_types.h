@@ -3,15 +3,15 @@
 
 enum class SocketBluetoothReturnCodes : int
 {
+    // OS_SPECIFIC_ERROR is not used directly, but may be returned by OS specific socket libraries
+
     STATUS_OK = 0,
-    WSA_STARTUP_ERROR = 1,
-    CREATE_SOCKET_ERROR = 2,
-    CONNECT_ERROR = 3,
-    WSA_ADDR_ERROR = 4,
-    IOCTL_ERROR = 5,
-    ANOTHER_DEVICE_IS_CREATED_ERROR = 6,
-    DEVICE_IS_NOT_CREATED_ERROR = 7,
-    UNIMPLEMENTED_ERROR = 8,
-    GENERAL_ERROR = 9,
-    WSA_LOOKUP_BEGIN_ERROR = 10
+    OS_SPECIFIC_ERROR = -1,
+    CONNECT_ERROR = -2,
+    DISCONNECT_ERROR = -3,
+    ANOTHER_DEVICE_IS_CREATED_ERROR = -4,
+    DEVICE_IS_NOT_CREATED_ERROR = -5,
+    DEVICE_IS_NOT_DISCOVERABLE = -6,
+    PARAMETER_ERROR = -7,
+    UNIMPLEMENTED_ERROR = -8
 };

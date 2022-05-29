@@ -38,7 +38,7 @@ static simpleble_peripheral_t peripheral_list[PERIPHERAL_LIST_SIZE] = {0};
 static size_t peripheral_list_len = 0;
 static simpleble_adapter_t adapter = NULL;
 
-int main(int argc, char* argv[]) {
+int main() {
     simpleble_err_t err_code = SIMPLEBLE_SUCCESS;
     atexit(clean_on_exit);
 
@@ -113,7 +113,7 @@ int main(int argc, char* argv[]) {
                 break;
             }
 
-            printf("[%ld] %s %s\n", characteristic_count, service.uuid.value, service.characteristics[j].value);
+            printf("[%zu] %s %s\n", characteristic_count, service.uuid.value, service.characteristics[j].value);
             characteristic_list[characteristic_count].service = service.uuid;
             characteristic_list[characteristic_count].characteristic = service.characteristics[j];
             characteristic_count++;

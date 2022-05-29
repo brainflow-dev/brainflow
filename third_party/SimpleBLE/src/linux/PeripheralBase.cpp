@@ -12,28 +12,23 @@ const SimpleBLE::BluetoothUUID BATTERY_CHARACTERISTIC_UUID = "00002a19-0000-1000
 using namespace SimpleBLE;
 using namespace std::chrono_literals;
 
-PeripheralBase::PeripheralBase(std::shared_ptr<SimpleBluez::Device> device) : device_(device) {}
+PeripheralBase::PeripheralBase(std::shared_ptr<SimpleBluez::Device> device,
+                               std::shared_ptr<SimpleBluez::Adapter> adapter)
+    : device_(std::move(device)), adapter_(std::move(adapter)) {}
 
 PeripheralBase::~PeripheralBase() {
-    // TODO: A more extensive cleanup process is probably needed.
     device_->clear_on_disconnected();
     device_->clear_on_services_resolved();
+    _cleanup_characteristics();
 }
 
 std::string PeripheralBase::identifier() { return device_->name(); }
 
 BluetoothAddress PeripheralBase::address() { return device_->address(); }
 
+int16_t PeripheralBase::rssi() { return device_->rssi(); }
+
 void PeripheralBase::connect() {
-    // Set the OnDisconnected callback
-    device_->set_on_disconnected([this]() {
-        this->disconnection_cv_.notify_all();
-
-        if (this->callback_on_disconnected_) {
-            this->callback_on_disconnected_();
-        }
-    });
-
     // Set the OnServicesResolved callback
     device_->set_on_services_resolved([this]() { this->connection_cv_.notify_all(); });
 
@@ -44,8 +39,23 @@ void PeripheralBase::connect() {
         }
     }
 
+    // Set the on_disconnected callback once the connection attempts are finished, thus
+    // preventing disconnection events that should not be seen by the user.
+    device_->set_on_disconnected([this]() {
+        this->_cleanup_characteristics();
+        this->disconnection_cv_.notify_all();
+
+        if (this->callback_on_disconnected_) {
+            this->callback_on_disconnected_();
+        }
+    });
+
     if (!is_connected()) {
         throw Exception::OperationFailed();
+    }
+
+    if (this->callback_on_connected_) {
+        this->callback_on_connected_();
     }
 }
 
@@ -69,6 +79,14 @@ bool PeripheralBase::is_connected() {
 }
 
 bool PeripheralBase::is_connectable() { return device_->name() != ""; }
+
+bool PeripheralBase::is_paired() { return device_->paired(); }
+
+void PeripheralBase::unpair() {
+    if (device_->paired()) {
+        adapter_->device_remove(device_->path());
+    }
+}
 
 std::vector<BluetoothService> PeripheralBase::services() {
     bool is_battery_service_available = false;
@@ -110,7 +128,7 @@ std::map<uint16_t, ByteArray> PeripheralBase::manufacturer_data() {
     return manufacturer_data;
 }
 
-ByteArray PeripheralBase::read(BluetoothUUID service, BluetoothUUID characteristic) {
+ByteArray PeripheralBase::read(BluetoothUUID const& service, BluetoothUUID const& characteristic) {
     // Check if the user is attempting to read the battery service/characteristic and if so,
     //  emulate the battery service through the Battery1 interface if it's not available.
     if (service == BATTERY_SERVICE_UUID && characteristic == BATTERY_CHARACTERISTIC_UUID &&
@@ -124,17 +142,23 @@ ByteArray PeripheralBase::read(BluetoothUUID service, BluetoothUUID characterist
     return _get_characteristic(service, characteristic)->read();
 }
 
-void PeripheralBase::write_request(BluetoothUUID service, BluetoothUUID characteristic, ByteArray data) {
+void PeripheralBase::write_request(BluetoothUUID const& service, BluetoothUUID const& characteristic,
+                                   ByteArray const& data) {
     // TODO: Check if the characteristic is writable.
+    // TODO: SimpleBluez::Characteristic::write_request() should also take ByteArray by const reference (but that's
+    // another library)
     _get_characteristic(service, characteristic)->write_request(data);
 }
 
-void PeripheralBase::write_command(BluetoothUUID service, BluetoothUUID characteristic, ByteArray data) {
+void PeripheralBase::write_command(BluetoothUUID const& service, BluetoothUUID const& characteristic,
+                                   ByteArray const& data) {
     // TODO: Check if the characteristic is writable.
+    // TODO: SimpleBluez::Characteristic::write_command() should also take ByteArray by const reference (but that's
+    // another library)
     _get_characteristic(service, characteristic)->write_command(data);
 }
 
-void PeripheralBase::notify(BluetoothUUID service, BluetoothUUID characteristic,
+void PeripheralBase::notify(BluetoothUUID const& service, BluetoothUUID const& characteristic,
                             std::function<void(ByteArray payload)> callback) {
     // Check if the user is attempting to notify the battery service/characteristic and if so,
     //  emulate the battery service through the Battery1 interface if it's not available.
@@ -154,12 +178,12 @@ void PeripheralBase::notify(BluetoothUUID service, BluetoothUUID characteristic,
     characteristic_object->start_notify();
 }
 
-void PeripheralBase::indicate(BluetoothUUID service, BluetoothUUID characteristic,
+void PeripheralBase::indicate(BluetoothUUID const& service, BluetoothUUID const& characteristic,
                               std::function<void(ByteArray payload)> callback) {
     notify(service, characteristic, callback);
 }
 
-void PeripheralBase::unsubscribe(BluetoothUUID service, BluetoothUUID characteristic) {
+void PeripheralBase::unsubscribe(BluetoothUUID const& service, BluetoothUUID const& characteristic) {
     // Check if the user is attempting to read the battery service/characteristic and if so,
     //  emulate the battery service through the Battery1 interface if it's not available.
     if (service == BATTERY_SERVICE_UUID && characteristic == BATTERY_CHARACTERISTIC_UUID &&
@@ -182,19 +206,45 @@ void PeripheralBase::unsubscribe(BluetoothUUID service, BluetoothUUID characteri
 }
 
 void PeripheralBase::set_callback_on_connected(std::function<void()> on_connected) {
-    callback_on_connected_ = on_connected;
+    if (on_connected) {
+        callback_on_connected_.load(std::move(on_connected));
+    } else {
+        callback_on_connected_.unload();
+    }
 }
 
 void PeripheralBase::set_callback_on_disconnected(std::function<void()> on_disconnected) {
-    callback_on_disconnected_ = on_disconnected;
+    if (on_disconnected) {
+        callback_on_disconnected_.load(std::move(on_disconnected));
+    } else {
+        callback_on_disconnected_.unload();
+    }
 }
 
 // Private methods
 
+void PeripheralBase::_cleanup_characteristics() {
+    // Get rid of all the callbacks to ensure that no invalid objects are being called.
+
+    if (device_->has_battery_interface()) {
+        device_->clear_on_battery_percentage_changed();
+    }
+
+    for (auto bluez_service : device_->services()) {
+        for (auto bluez_characteristic : bluez_service->characteristics()) {
+            bluez_characteristic->clear_on_value_changed();
+
+            if (bluez_characteristic->notifying()) {
+                bluez_characteristic->stop_notify();
+            }
+        }
+    }
+}
+
 bool PeripheralBase::_attempt_connect() {
     try {
         device_->connect();
-    } catch (SimpleDBus::Exception::SendFailed& e) {
+    } catch (SimpleDBus::Exception::SendFailed const& e) {
         return false;
     }
 
@@ -205,6 +255,8 @@ bool PeripheralBase::_attempt_connect() {
 }
 
 bool PeripheralBase::_attempt_disconnect() {
+    _cleanup_characteristics();
+
     device_->disconnect();
 
     // Wait for the disconnection to be confirmed.
@@ -213,8 +265,8 @@ bool PeripheralBase::_attempt_disconnect() {
     return disconnection_cv_.wait_for(lock, 1s, [this]() { return !is_connected(); });
 }
 
-std::shared_ptr<SimpleBluez::Characteristic> PeripheralBase::_get_characteristic(BluetoothUUID service_uuid,
-                                                                                 BluetoothUUID characteristic_uuid) {
+std::shared_ptr<SimpleBluez::Characteristic> PeripheralBase::_get_characteristic(
+    BluetoothUUID const& service_uuid, BluetoothUUID const& characteristic_uuid) {
     try {
         return device_->get_characteristic(service_uuid, characteristic_uuid);
     } catch (SimpleBluez::Exception::ServiceNotFoundException& e) {

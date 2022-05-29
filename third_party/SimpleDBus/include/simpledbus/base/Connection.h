@@ -24,6 +24,9 @@ class Connection {
     void send(Message& msg);
     Message send_with_reply_and_block(Message& msg);
 
+    // ----- PROPERTIES -----
+    std::string unique_name();
+
   private:
     bool _initialized = false;
 

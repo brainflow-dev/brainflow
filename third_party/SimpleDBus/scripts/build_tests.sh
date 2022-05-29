@@ -21,5 +21,5 @@ fi
 # Compile!
 mkdir -p $BUILD_PATH
 cd $BUILD_PATH
-cmake -H$PROJECT_ROOT/test -DCMAKE_BUILD_TYPE=Debug
+cmake -H$PROJECT_ROOT/test -DCMAKE_BUILD_TYPE=Debug # -DSIMPLEDBUS_COVERAGE=On
 make -j7

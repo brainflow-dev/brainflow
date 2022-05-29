@@ -38,6 +38,7 @@ AdapterBase::AdapterBase(std::string device_id)
             data.mac_address = _mac_address_to_str(args.BluetoothAddress());
             data.identifier = winrt::to_string(args.Advertisement().LocalName());
             data.connectable = args.IsConnectable();
+            data.rssi = args.RawSignalStrengthInDBm();
 
             // Parse manufacturer data
             auto manufacturer_data = args.Advertisement().ManufacturerData();
@@ -83,6 +84,8 @@ std::string AdapterBase::identifier() { return identifier_; }
 BluetoothAddress AdapterBase::address() { return _mac_address_to_str(adapter_.BluetoothAddress()); }
 
 void AdapterBase::scan_start() {
+    this->peripherals_.clear();
+
     scanner_.ScanningMode(Advertisement::BluetoothLEScanningMode::Active);
     scan_is_active_ = true;
     scanner_.Start();
@@ -122,17 +125,35 @@ std::vector<Peripheral> AdapterBase::scan_get_results() {
     return peripherals;
 }
 
+std::vector<Peripheral> AdapterBase::get_paired_peripherals() { return {}; }
+
 void AdapterBase::set_callback_on_scan_start(std::function<void()> on_scan_start) {
-    callback_on_scan_start_ = on_scan_start;
+    if (on_scan_start) {
+        callback_on_scan_start_.load(on_scan_start);
+    } else {
+        callback_on_scan_start_.unload();
+    }
 }
 void AdapterBase::set_callback_on_scan_stop(std::function<void()> on_scan_stop) {
-    callback_on_scan_stop_ = on_scan_stop;
+    if (on_scan_stop) {
+        callback_on_scan_stop_.load(on_scan_stop);
+    } else {
+        callback_on_scan_stop_.unload();
+    }
 }
 void AdapterBase::set_callback_on_scan_updated(std::function<void(Peripheral)> on_scan_updated) {
-    callback_on_scan_updated_ = on_scan_updated;
+    if (on_scan_updated) {
+        callback_on_scan_updated_.load(on_scan_updated);
+    } else {
+        callback_on_scan_updated_.unload();
+    }
 }
 void AdapterBase::set_callback_on_scan_found(std::function<void(Peripheral)> on_scan_found) {
-    callback_on_scan_found_ = on_scan_found;
+    if (on_scan_found) {
+        callback_on_scan_found_.load(on_scan_found);
+    } else {
+        callback_on_scan_found_.unload();
+    }
 }
 
 // Private functions
@@ -161,6 +182,9 @@ void AdapterBase::_scan_received_callback(advertising_data_t data) {
     } else {
         // Load the existing PeripheralBase object
         std::shared_ptr<PeripheralBase> base_peripheral = this->peripherals_.at(data.mac_address);
+
+        // Update the PeripheralBase object
+        base_peripheral->update_advertising_data(data);
 
         // Convert the base object into an external-facing Peripheral object
         PeripheralBuilder peripheral_builder(base_peripheral);

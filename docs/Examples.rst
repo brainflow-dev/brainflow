@@ -206,7 +206,7 @@ C++
 
    To compile examples below for Linux or MacOS run: ::
 
-      cd tests/cpp/get_data_demo
+      cd tests/cpp/demos/get_data_demo
       mkdir build
       cd build
       cmake -DCMAKE_PREFIX_PATH=TYPE_FULL_PATH_TO_BRAINFLOW_INSTALLED_FOLDER ..
@@ -224,61 +224,61 @@ For Windows it's almost the same.
 CMake File Example
 ~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../tests/cpp/get_data_demo/CMakeLists.txt
+.. literalinclude:: ../tests/cpp/demos/get_data_demo/CMakeLists.txt
    :language: none
 
 C++ Read Data from a Board
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../tests/cpp/get_data_demo/src/brainflow_get_data.cpp
+.. literalinclude:: ../tests/cpp/demos/get_data_demo/src/brainflow_get_data.cpp
    :language: cpp
 
 C++ Markers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../tests/cpp/get_data_demo/src/markers.cpp
+.. literalinclude:: ../tests/cpp/demos/get_data_demo/src/markers.cpp
    :language: cpp
 
 C++ Read Write File
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../tests/cpp/signal_processing_demo/src/serialization.cpp
+.. literalinclude:: ../tests/cpp/demos/signal_processing_demo/src/serialization.cpp
    :language: cpp
 
 C++ Downsample Data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../tests/cpp/signal_processing_demo/src/downsampling.cpp
+.. literalinclude:: ../tests/cpp/demos/signal_processing_demo/src/downsampling.cpp
    :language: cpp
 
 C++ Transforms
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../tests/cpp/signal_processing_demo/src/transforms.cpp
+.. literalinclude:: ../tests/cpp/demos/signal_processing_demo/src/transforms.cpp
    :language: cpp
 
 C++ Signal Filtering
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../tests/cpp/signal_processing_demo/src/signal_filtering.cpp
+.. literalinclude:: ../tests/cpp/demos/signal_processing_demo/src/signal_filtering.cpp
    :language: cpp
 
 C++ Denoising
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../tests/cpp/signal_processing_demo/src/denoising.cpp
+.. literalinclude:: ../tests/cpp/demos/signal_processing_demo/src/denoising.cpp
    :language: cpp
 
 C++ Band Power
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../tests/cpp/signal_processing_demo/src/band_power.cpp
+.. literalinclude:: ../tests/cpp/demos/signal_processing_demo/src/band_power.cpp
    :language: cpp
 
 C++ EEG Metrics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../tests/cpp/ml_demo/src/eeg_metrics.cpp
+.. literalinclude:: ../tests/cpp/demos/ml_demo/src/eeg_metrics.cpp
    :language: cpp
 
 R

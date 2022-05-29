@@ -31,7 +31,7 @@ void AdapterBase::scan_start() {
             return;
         }
 
-        PeripheralBuilder peripheral_builder(std::make_shared<PeripheralBase>(device));
+        PeripheralBuilder peripheral_builder(std::make_shared<PeripheralBase>(device, this->adapter_));
 
         if (this->seen_devices_.count(peripheral_builder.address()) == 0) {
             this->seen_devices_.insert(std::make_pair<>(peripheral_builder.address(), peripheral_builder));
@@ -81,15 +81,43 @@ std::vector<Peripheral> AdapterBase::scan_get_results() {
     return peripherals;
 }
 
+std::vector<Peripheral> AdapterBase::get_paired_peripherals() {
+    std::vector<Peripheral> peripherals;
+
+    auto paired_list = adapter_->device_paired_get();
+    for (auto& device : paired_list) {
+        PeripheralBuilder peripheral_builder(std::make_shared<PeripheralBase>(device, this->adapter_));
+        peripherals.push_back(peripheral_builder);
+    }
+
+    return peripherals;
+}
+
 void AdapterBase::set_callback_on_scan_start(std::function<void()> on_scan_start) {
-    callback_on_scan_start_ = on_scan_start;
+    if (on_scan_start) {
+        callback_on_scan_start_.load(std::move(on_scan_start));
+    } else {
+        callback_on_scan_start_.unload();
+    }
 }
 void AdapterBase::set_callback_on_scan_stop(std::function<void()> on_scan_stop) {
-    callback_on_scan_stop_ = on_scan_stop;
+    if (on_scan_stop) {
+        callback_on_scan_stop_.load(std::move(on_scan_stop));
+    } else {
+        callback_on_scan_stop_.unload();
+    }
 }
 void AdapterBase::set_callback_on_scan_updated(std::function<void(Peripheral)> on_scan_updated) {
-    callback_on_scan_updated_ = on_scan_updated;
+    if (on_scan_updated) {
+        callback_on_scan_updated_.load(std::move(on_scan_updated));
+    } else {
+        callback_on_scan_updated_.unload();
+    }
 }
 void AdapterBase::set_callback_on_scan_found(std::function<void(Peripheral)> on_scan_found) {
-    callback_on_scan_found_ = on_scan_found;
+    if (on_scan_found) {
+        callback_on_scan_found_.load(std::move(on_scan_found));
+    } else {
+        callback_on_scan_found_.unload();
+    }
 }
