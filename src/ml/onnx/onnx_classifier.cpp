@@ -182,7 +182,7 @@ int OnnxClassifier::predict (double *data, int data_len, double *output, int *ou
         {
             output_size *= output_dim;
         }
-        if (output_size > params.max_array_size)
+        if (output_size > (uint64_t)params.max_array_size)
         {
             safe_logger (spdlog::level::warn, "output is bigger than allocated array");
             output_size = params.max_array_size;
@@ -483,8 +483,8 @@ int OnnxClassifier::load_api ()
 
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        OrtStatus *onnx_status = ort->CreateEnvWithCustomLogger (
-            log_onnx_msg, (void *)this, ORT_LOGGING_LEVEL_VERBOSE, "brainflow_onnx_lib", &env);
+        OrtStatus *onnx_status = ort->CreateEnvWithCustomLogger ((OrtLoggingFunction)log_onnx_msg,
+            (void *)this, ORT_LOGGING_LEVEL_VERBOSE, "brainflow_onnx_lib", &env);
         if (onnx_status != NULL)
         {
             const char *msg = ort->GetErrorMessage (onnx_status);
