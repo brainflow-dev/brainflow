@@ -28,7 +28,7 @@ const ONNX_CLASSIFIER = ONNXClassifier()
     classifier::BrainFlowClassifier = DEFAULT_CLASSIFIER
     file::String = ""
     other_info::String = ""
-    output_name::String = ""
+    output_name::String = "probabilities"
     max_array_size::Int32 = 8192
 end
 

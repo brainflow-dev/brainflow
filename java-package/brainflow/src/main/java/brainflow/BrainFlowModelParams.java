@@ -20,7 +20,7 @@ public class BrainFlowModelParams
         this.classifier = classifier;
         this.file = "";
         this.other_info = "";
-        this.output_name = "";
+        this.output_name = "probabilities";
         this.max_array_size = 8192;
     }
 

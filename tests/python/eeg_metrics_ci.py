@@ -58,14 +58,15 @@ def main():
     board.release_session()
 
     eeg_channels = BoardShim.get_eeg_channels(int(master_board_id))
-    bands = DataFilter.get_avg_band_powers(data, eeg_channels, sampling_rate, True)
-    feature_vector = np.concatenate((bands[0], bands[1]))
+    bands = DataFilter.get_avg_band_powers(data, eeg_channels[0:4], sampling_rate, True)
+    feature_vector = bands[0]
     print(feature_vector)
 
     model_params = BrainFlowModelParams(args.metric, args.classifier)
     model_params.file = args.model_file
     model = MLModel(model_params)
     model.prepare()
+    print('score is: %s' % str(model.predict(feature_vector)))
     model.release()
 
 

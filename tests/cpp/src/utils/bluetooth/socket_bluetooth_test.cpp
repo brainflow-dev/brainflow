@@ -1,6 +1,6 @@
-#include "socket_bluetooth.h"
-#include "bluetooth_types.h"
 #include "bluetooth_test_definitions.h"
+#include "bluetooth_types.h"
+#include "socket_bluetooth.h"
 
 SocketBluetooth::SocketBluetooth (std::string mac_addr, int port)
 {
@@ -33,7 +33,7 @@ int SocketBluetooth::send (const char *data, int size)
 
 int SocketBluetooth::recv (char *data, int size)
 {
-    if (data == nullptr)
+    if (data == NULL)
     {
         return 0;
     }
@@ -71,8 +71,8 @@ int SocketBluetooth::close ()
 
 std::pair<std::string, int> SocketBluetooth::discover (char *device_selector)
 {
-    if (device_selector == nullptr ||
-        strcmp (device_selector, BRAINFLOW_TEST_BLUETOOTH_DISCOVERABLE_SELECTOR) != 0)
+    if ((device_selector == NULL) ||
+        (strcmp (device_selector, BRAINFLOW_TEST_BLUETOOTH_DISCOVERABLE_SELECTOR) != 0))
     {
         return std::make_pair<std::string, int> (
             "", (int)SocketBluetoothReturnCodes::DEVICE_IS_NOT_DISCOVERABLE);

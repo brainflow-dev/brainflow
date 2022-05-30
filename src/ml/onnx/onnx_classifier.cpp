@@ -22,6 +22,11 @@ int OnnxClassifier::prepare ()
         safe_logger (spdlog::level::err, "file with onnx model is not provided");
         res = (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
+    if (params.max_array_size < 1)
+    {
+        safe_logger (spdlog::level::err, "max array size param is invalid");
+        res = (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
 
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
@@ -46,6 +51,309 @@ int OnnxClassifier::prepare ()
 
 int OnnxClassifier::predict (double *data, int data_len, double *output, int *output_len)
 {
+    int res = (int)BrainFlowExitCodes::STATUS_OK;
+    if (ort == NULL)
+    {
+        return (int)BrainFlowExitCodes::CLASSIFIER_IS_NOT_PREPARED_ERROR;
+    }
+    if ((data == NULL) || (data_len < 1) || (output == NULL) || (output_len == NULL))
+    {
+        safe_logger (spdlog::level::err, "invalid input arguments");
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    // todo add support for ints and float16
+    float *float_data = NULL;
+    if (input_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT)
+    {
+        float_data = new float[data_len];
+        for (int i = 0; i < data_len; i++)
+        {
+            float_data[i] = (float)data[i];
+        }
+    }
+    else if (input_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE)
+    {
+        // no need to convert
+    }
+    else
+    {
+        safe_logger (
+            spdlog::level::err, "only float and double input types are currently supported");
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    // create input tensor object from data values
+    OrtMemoryInfo *memory_info = NULL;
+    OrtValue *input_tensor = NULL;
+    OrtValue *output_tensor = NULL;
+    OrtStatus *onnx_status =
+        ort->CreateCpuMemoryInfo (OrtArenaAllocator, OrtMemTypeDefault, &memory_info);
+    if (onnx_status != NULL)
+    {
+        const char *msg = ort->GetErrorMessage (onnx_status);
+        safe_logger (spdlog::level::err, "CreateCpuMemoryInfo failed: {}", msg);
+        ort->ReleaseStatus (onnx_status);
+        res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        if (input_type == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT)
+        {
+            onnx_status = ort->CreateTensorWithDataAsOrtValue (memory_info, float_data,
+                data_len * sizeof (float), input_node_dims.data (), input_node_dims.size (),
+                ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT, &input_tensor);
+        }
+        else
+        {
+            onnx_status = ort->CreateTensorWithDataAsOrtValue (memory_info, data,
+                data_len * sizeof (double), input_node_dims.data (), input_node_dims.size (),
+                ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE, &input_tensor);
+        }
+        if (onnx_status != NULL)
+        {
+            const char *msg = ort->GetErrorMessage (onnx_status);
+            safe_logger (spdlog::level::err, "CreateTensorWithDataAsOrtValue failed: {}", msg);
+            ort->ReleaseStatus (onnx_status);
+            res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+        }
+    }
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        int is_tensor = 0;
+        onnx_status = ort->IsTensor (input_tensor, &is_tensor);
+        if (onnx_status != NULL)
+        {
+            const char *msg = ort->GetErrorMessage (onnx_status);
+            safe_logger (spdlog::level::err, "IsTensor failed: {}", msg);
+            ort->ReleaseStatus (onnx_status);
+            res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+        }
+        else
+        {
+            if (!is_tensor)
+            {
+                safe_logger (spdlog::level::err, "Input isnt a tensor");
+                res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+            }
+        }
+    }
+
+    // score model & input tensor, get back output tensor
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        onnx_status = ort->Run (session, NULL, input_node_names.data (),
+            (const OrtValue *const *)&input_tensor, 1, output_node_names.data (), 1,
+            &output_tensor);
+        if (onnx_status != NULL)
+        {
+            const char *msg = ort->GetErrorMessage (onnx_status);
+            safe_logger (spdlog::level::err, "Run failed: {}", msg);
+            ort->ReleaseStatus (onnx_status);
+            res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+        }
+    }
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        int is_tensor = 0;
+        onnx_status = ort->IsTensor (output_tensor, &is_tensor);
+        if (onnx_status != NULL)
+        {
+            const char *msg = ort->GetErrorMessage (onnx_status);
+            safe_logger (spdlog::level::err, "IsTensor failed: {}", msg);
+            ort->ReleaseStatus (onnx_status);
+            res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+        }
+        else
+        {
+            if (!is_tensor)
+            {
+                safe_logger (spdlog::level::err, "Output isnt a tensor");
+                res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+            }
+        }
+    }
+
+    // Get pointer to output tensor float values
+    size_t output_size = 1;
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        for (int64_t output_dim : output_node_dims)
+        {
+            output_size *= output_dim;
+        }
+        if (output_size > params.max_array_size)
+        {
+            safe_logger (spdlog::level::warn, "output is bigger than allocated array");
+            output_size = params.max_array_size;
+        }
+
+        void *output_tensor_data = NULL;
+        onnx_status = ort->GetTensorMutableData (output_tensor, &output_tensor_data);
+        if (onnx_status != NULL)
+        {
+            const char *msg = ort->GetErrorMessage (onnx_status);
+            safe_logger (spdlog::level::err, "IsTensor failed: {}", msg);
+            ort->ReleaseStatus (onnx_status);
+            res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+        }
+        else
+        {
+            *output_len = (int)output_size;
+            switch (output_type)
+            {
+                case ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED:
+                {
+                    safe_logger (spdlog::level::trace, "undefined output type");
+                    res = (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+                    break;
+                }
+                case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:
+                {
+                    float *output_data = (float *)output_tensor_data;
+                    for (uint64_t i = 0; i < output_size; i++)
+                    {
+                        output[i] = (double)output_data[i];
+                    }
+                    break;
+                }
+                case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8:
+                {
+                    uint8_t *output_data = (uint8_t *)output_tensor_data;
+                    for (uint64_t i = 0; i < output_size; i++)
+                    {
+                        output[i] = (double)output_data[i];
+                    }
+                    break;
+                }
+                case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8:
+                {
+                    int8_t *output_data = (int8_t *)output_tensor_data;
+                    for (uint64_t i = 0; i < output_size; i++)
+                    {
+                        output[i] = (double)output_data[i];
+                    }
+                    break;
+                }
+                case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16:
+                {
+                    uint16_t *output_data = (uint16_t *)output_tensor_data;
+                    for (uint64_t i = 0; i < output_size; i++)
+                    {
+                        output[i] = (double)output_data[i];
+                    }
+                    break;
+                }
+                case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16:
+                {
+                    int16_t *output_data = (int16_t *)output_tensor_data;
+                    for (uint64_t i = 0; i < output_size; i++)
+                    {
+                        output[i] = (double)output_data[i];
+                    }
+                    break;
+                }
+                case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32:
+                {
+                    int32_t *output_data = (int32_t *)output_tensor_data;
+                    for (uint64_t i = 0; i < output_size; i++)
+                    {
+                        output[i] = (double)output_data[i];
+                    }
+                    break;
+                }
+                case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64:
+                {
+                    int64_t *output_data = (int64_t *)output_tensor_data;
+                    for (uint64_t i = 0; i < output_size; i++)
+                    {
+                        output[i] = (double)output_data[i];
+                    }
+                    break;
+                }
+                case ONNX_TENSOR_ELEMENT_DATA_TYPE_STRING:
+                {
+                    safe_logger (spdlog::level::err, "string output type is not supported");
+                    res = (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+                    break;
+                }
+                case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16:
+                {
+                    safe_logger (spdlog::level::err, "float16 output type is not supported");
+                    res = (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+                    break;
+                }
+                case ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE:
+                {
+                    double *output_data = (double *)output_tensor_data;
+                    for (uint64_t i = 0; i < output_size; i++)
+                    {
+                        output[i] = output_data[i];
+                    }
+                    break;
+                }
+                case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32:
+                {
+                    uint32_t *output_data = (uint32_t *)output_tensor_data;
+                    for (uint64_t i = 0; i < output_size; i++)
+                    {
+                        output[i] = (double)output_data[i];
+                    }
+                    break;
+                }
+                case ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT64:
+                {
+                    uint64_t *output_data = (uint64_t *)output_tensor_data;
+                    for (uint64_t i = 0; i < output_size; i++)
+                    {
+                        output[i] = (double)output_data[i];
+                    }
+                    break;
+                }
+                case ONNX_TENSOR_ELEMENT_DATA_TYPE_COMPLEX64:
+                {
+                    safe_logger (spdlog::level::err, "complex64 output type is not supported");
+                    res = (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+                    break;
+                }
+                case ONNX_TENSOR_ELEMENT_DATA_TYPE_COMPLEX128:
+                {
+                    safe_logger (spdlog::level::err, "complex128 output type is not supported");
+                    res = (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+                    break;
+                }
+                case ONNX_TENSOR_ELEMENT_DATA_TYPE_BFLOAT16:
+                {
+                    safe_logger (spdlog::level::err, "bfloat16 output type is not supported");
+                    res = (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+                    break;
+                }
+                default:
+                {
+                    safe_logger (spdlog::level::err, "unknown output type");
+                    res = (int)BrainFlowExitCodes::STATUS_OK;
+                }
+            }
+        }
+    }
+
+    if (output_tensor != NULL)
+    {
+        ort->ReleaseValue (output_tensor);
+    }
+    if (input_tensor != NULL)
+    {
+        ort->ReleaseValue (input_tensor);
+    }
+    if (memory_info != NULL)
+    {
+        ort->ReleaseMemoryInfo (memory_info);
+    }
+    if (float_data != NULL)
+    {
+        delete[] float_data;
+    }
+
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
@@ -425,7 +733,7 @@ int OnnxClassifier::get_output_info ()
     {
         safe_logger (spdlog::level::err,
             "Model has multiple output nodes, you need to provide correct node name via "
-            "BrainFlowModelParams.output_name");
+            "BrainFlowModelParams.output_name, default is 'probabilities'");
         res = (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 

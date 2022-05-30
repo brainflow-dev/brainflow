@@ -20,7 +20,7 @@ struct BrainFlowModelParams
         this->classifier = classifier;
         file = "";
         other_info = "";
-        output_name = "";
+        output_name = "probabilities";
         max_array_size = 8192;
     }
 

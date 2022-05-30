@@ -51,7 +51,7 @@ class BrainFlowModelParams(object):
         self.classifier = classifier
         self.file = ''
         self.other_info = ''
-        self.output_name = ''
+        self.output_name = 'probabilities'
         self.max_array_size = 8192
 
     def to_json(self) -> None:
