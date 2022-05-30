@@ -283,7 +283,7 @@ std::pair<double *, double *> DataFilter::get_custom_band_powers (
     double *stddev_bands = new double[bands.size ()];
     double *start_freqs = new double[bands.size ()];
     double *stop_freqs = new double[bands.size ()];
-    for (int i = 0; i < bands.size (); i++)
+    for (int i = 0; i < (int)bands.size (); i++)
     {
         start_freqs[i] = std::get<0> (bands[i]);
         stop_freqs[i] = std::get<1> (bands[i]);

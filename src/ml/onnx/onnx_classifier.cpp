@@ -363,12 +363,12 @@ int OnnxClassifier::release ()
     {
         for (const char *node_name : input_node_names)
         {
-            ort->AllocatorFree (
+            OrtStatus *status = ort->AllocatorFree (
                 allocator, const_cast<void *> (reinterpret_cast<const void *> (node_name)));
         }
         for (const char *node_name : output_node_names)
         {
-            ort->AllocatorFree (
+            OrtStatus *status = ort->AllocatorFree (
                 allocator, const_cast<void *> (reinterpret_cast<const void *> (node_name)));
         }
     }
@@ -723,7 +723,7 @@ int OnnxClassifier::get_output_info ()
                     }
                     else
                     {
-                        ort->AllocatorFree (allocator, output_name);
+                        onnx_status = ort->AllocatorFree (allocator, output_name);
                     }
                 }
             }
