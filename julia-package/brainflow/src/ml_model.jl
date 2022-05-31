@@ -1,35 +1,38 @@
 import JSON
 export BrainFlowModelParams
 
-abstract type BrainFlowMetric end
-struct Mindfulness <: BrainFlowMetric end
-struct Restfulness <: BrainFlowMetric end
-struct UserDefined <: BrainFlowMetric end
-Base.Integer(::Mindfulness) = 0
-Base.Integer(::Restfulness) = 1
-Base.Integer(::UserDefined) = 2
-const MINDFULNESS = Mindfulness()
-const RESTFULNESS = Restfulness()
-const USER_DEFINED = UserDefined()
+@enum BrainFlowMetric begin
 
-abstract type BrainFlowClassifier end
-struct DefaultClassifier <: BrainFlowClassifier end
-struct DynLibClassifier <: BrainFlowClassifier end
-struct ONNXClassifier <: BrainFlowClassifier end
-Base.Integer(::DefaultClassifier) = 0
-Base.Integer(::DynLibClassifier) = 1
-Base.Integer(::ONNXClassifier) = 2
-const DEFAULT_CLASSIFIER = DefaultClassifier()
-const DYN_LIB_CLASSIFIER = DynLibClassifier()
-const ONNX_CLASSIFIER = ONNXClassifier()
+    MINDFULNESS = 0
+    RESTFULNESS = 1
+    USER_DEFINED = 2
 
-@Base.kwdef mutable struct BrainFlowModelParams
-    metric::BrainFlowMetric = MINDFULNESS
-    classifier::BrainFlowClassifier = DEFAULT_CLASSIFIER
-    file::String = ""
-    other_info::String = ""
-    output_name::String = "probabilities"
-    max_array_size::Int32 = 8192
+end
+
+MetricType = Union{BrainFlowMetric, Integer}
+
+@enum BrainFlowClassifier begin
+
+    DEFAULT_CLASSIFIER = 0
+    DYN_LIB_CLASSIFIER = 1
+    ONNX_CLASSIFIER = 2
+
+end
+
+ClassifierType = Union{BrainFlowClassifier, Integer}
+
+mutable struct BrainFlowModelParams
+    metric::MetricType
+    classifier::ClassifierType
+    file::String
+    other_info::String
+    output_name::String
+    max_array_size::Int32
+
+    function BrainFlowModelParams(metric_::MetricType, classifier_::ClassifierType)
+        new(metric_, classifier_, "", "", "probabilities", 8192)
+    end
+
 end
 
 function JSON.json(params::BrainFlowModelParams)
@@ -62,7 +65,7 @@ end
     val_len = Vector{Float64}(undef, 1)
     ccall((:predict, ML_MODULE_INTERFACE), Cint, (Ptr{Float64}, Cint, Ptr{Float64}, Ptr{Cint}, Ptr{UInt8}),
         data, length(data), val, val_len, input_json)
-    value = val[1:len[1]]
+    value = val[1:val_len[1]]
     return value
 end
 

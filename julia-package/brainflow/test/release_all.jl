@@ -22,6 +22,6 @@ println(BrainFlow.calc_stddev(data[2, :]))
 BrainFlow.release_all_sessions()
 
 # calc concentration
-model_params = BrainFlowModelParams(metric = "concentration", classifier = "KNN")
+model_params = BrainFlowModelParams(BrainFlow.RESTFULNESS, BrainFlow.DEFAULT_CLASSIFIER)
 BrainFlow.prepare(model_params)
 BrainFlow.release_all()

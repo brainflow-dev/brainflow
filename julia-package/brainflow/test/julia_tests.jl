@@ -48,17 +48,8 @@ end
 end
 
 @testset "model params" begin
-    params = BrainFlowModelParams(metric = "concentration")
-    @test params.metric == BrainFlow.Concentration()
-
-    params = BrainFlowModelParams(metric = "Relaxation", classifier = "KNN")
-    @test params.metric == BrainFlow.Relaxation()
-    @test params.classifier == BrainFlow.Knn()
-
-    json = JSON.json(BrainFlowModelParams())
-    d = JSON.parse(json)
-    @test d["classifier"] == 0
-    @test d["metric"] == 0
-    @test d["file"] == ""
-    @test d["other_info"] == ""
+    params = BrainFlowModelParams(BrainFlow.RESTFULNESS, BrainFlow.DEFAULT_CLASSIFIER)
+    @test params.metric == BrainFlow.RESTFULNESS
+    @test params.classifier == BrainFlow.DEFAULT_CLASSIFIER
+    @test params.output_name == "probabilities"
 end

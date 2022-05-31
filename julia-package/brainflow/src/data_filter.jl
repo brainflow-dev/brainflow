@@ -1,73 +1,62 @@
+@enum AggOperation begin
 
-abstract type AggOperation <: Integer end
-Base.Int32(d::AggOperation) = Int32(Integer(d))
-struct Mean <: AggOperation end
-struct Median <: AggOperation end
-struct Each <: AggOperation end
-Base.Integer(::Mean) = 0
-Base.Integer(::Median) = 1
-Base.Integer(::Each) = 2
-const MEAN = Mean()
-const MEDIAN = Median()
-const EACH = Each()
+    MEAN = 0
+    MEDIAN = 1
+    EACH = 2
 
-abstract type FilterType <: Integer end
-Base.Int32(d::FilterType) = Int32(Integer(d))
-struct Butterworth <: FilterType end
-struct Chebyshev <: FilterType end
-struct Bessel <: FilterType end
-Base.Integer(::Butterworth) = 0
-Base.Integer(::Chebyshev) = 1
-Base.Integer(::Bessel) = 2
-const BUTTERWORTH = Butterworth()
-const CHEBYSHEV_TYPE_1 = Chebyshev()
-const BESSEL = Bessel()
+end
 
-abstract type WindowFunction <: Integer end
-Base.Int32(d::WindowFunction) = Int32(Integer(d))
-struct NoWindow <: WindowFunction end
-struct Hanning <: WindowFunction end
-struct Hamming <: WindowFunction end
-struct BlackmanHarris <: WindowFunction end
-Base.Integer(::NoWindow) = 0
-Base.Integer(::Hanning) = 1
-Base.Integer(::Hamming) = 2
-Base.Integer(::BlackmanHarris) = 3
-const NO_WINDOW = NoWindow()
-const HANNING = Hanning()
-const HAMMING = Hamming()
-const BLACKMAN_HARRIS = BlackmanHarris()
+AggType = Union{AggOperation, Integer}
 
-abstract type DetrendOperation <: Integer end
-Base.Int32(d::DetrendOperation) = Int32(Integer(d))
-struct Constant <: DetrendOperation end
-struct Linear <: DetrendOperation end
-Base.Integer(::Constant) = 1
-Base.Integer(::Linear) = 2
-const CONSTANT = Constant()
-const LINEAR = Linear()
+@enum FilterType begin
 
-abstract type NoiseType <: Integer end
-Base.Int32(d::NoiseType) = Int32(Integer(d))
-struct Fifty <: NoiseType end
-struct Sixty <: NoiseType end
-struct FiftyAndSixty <: NoiseType end
-Base.Integer(::Fifty) = 0
-Base.Integer(::Sixty) = 1
-Base.Integer(::FiftyAndSixty) = 2
-const FIFTY = Fifty()
-const SIXTY = Sixty()
-const FIFTY_AND_SIXTY = FiftyAndSixty()
+    BUTTERWORTH = 0
+    CHEBYSHEV_TYPE_1 = 1
+    BESSEL = 2
+
+end
+
+FiltType = Union{FilterType, Integer}
+
+@enum WindowFunction begin
+
+    NO_WINDOW = 0
+    HANNING = 1
+    HAMMING = 2
+    BLACKMAN_HARRIS = 3
+
+end
+
+WinType = Union{WindowFunction, Integer}
+
+@enum DetrendOperation begin
+
+    CONSTANT = 1
+    LINEAR = 2
+
+end
+
+DetType = Union{DetrendOperation, Integer}
+
+@enum NoiseType begin
+
+    FIFTY = 0
+    SIXTY = 1
+    FIFTY_AND_SIXTY = 2
+
+end
+
+EnvNoiseType = Union{NoiseType, Integer}
 
 @brainflow_rethrow function perform_lowpass(data, sampling_rate::Integer, cutoff::Float64, order::Integer,
-    filter_type::Integer, ripple::Float64)
+    filter_type::FiltType, ripple::Float64)
     ccall((:perform_lowpass, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Float64, Cint, Cint, Float64),
             data, length(data), Int32(sampling_rate), Float64(cutoff), Int32(order), Int32(filter_type), Float64(ripple))
     return
 end
 
 @brainflow_rethrow function perform_highpass(data, sampling_rate::Integer, cutoff::Float64, order::Integer,
-    filter_type::Integer, ripple::Float64
+    filter_type::FiltType, ripple::Float64
 )
     ccall((:perform_highpass, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Float64, Cint, Cint, Float64),
             data, length(data), Int32(sampling_rate), Float64(cutoff), Int32(order), Int32(filter_type), Float64(ripple))
@@ -75,32 +64,32 @@ end
 end
 
 @brainflow_rethrow function perform_bandpass(data, sampling_rate::Integer, start_freq::Float64,
-    stop_freq::Float64, order::Integer, filter_type::Integer, ripple::Float64)
+    stop_freq::Float64, order::Integer, filter_type::FiltType, ripple::Float64)
     ccall((:perform_bandpass, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Float64, Float64, Cint, Cint, Float64),
             data, length(data), Int32(sampling_rate), Float64(start_freq), Float64(stop_freq), Int32(order), Int32(filter_type), Float64(ripple))
     return
 end
 
 @brainflow_rethrow function perform_bandstop(data, sampling_rate::Integer, start_freq::Float64,
-    stop_freq::Float64, order::Integer, filter_type::Integer, ripple::Float64)
+    stop_freq::Float64, order::Integer, filter_type::FiltType, ripple::Float64)
     ccall((:perform_bandstop, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Float64, Float64, Cint, Cint, Float64),
             data, length(data), Int32(sampling_rate), Float64(start_freq), Float64(stop_freq), Int32(order), Int32(filter_type), Float64(ripple))
     return
 end
 
-@brainflow_rethrow function remove_environmental_noise(data, sampling_rate::Integer, noise_type::Integer)
+@brainflow_rethrow function remove_environmental_noise(data, sampling_rate::Integer, noise_type::EnvNoiseType)
     ccall((:remove_environmental_noise, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Cint),
             data, length(data), Int32(sampling_rate), Int32(noise_type))
     return
 end
 
-@brainflow_rethrow function perform_rolling_filter(data, period::Integer, operation::Integer)
+@brainflow_rethrow function perform_rolling_filter(data, period::Integer, operation::AggType)
     ccall((:perform_rolling_filter, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Cint),
             data, length(data), Int32(period), Int32(operation))
     return
 end
 
-@brainflow_rethrow function detrend(data, operation)
+@brainflow_rethrow function detrend(data, operation::DetType)
     ccall((:detrend, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint),
             data, length(data), Int32(operation))
     return
@@ -112,7 +101,7 @@ end
     return
 end
 
-@brainflow_rethrow function perform_downsampling(data, period::Integer, operation::Integer)
+@brainflow_rethrow function perform_downsampling(data, period::Integer, operation::AggOperation)
     len = Integer(floor(length(data) / period))
     downsampled_data = Vector{Float64}(undef, len)
     ccall((:perform_downsampling, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Cint, Ptr{Float64}),
@@ -206,14 +195,14 @@ end
     return output_filters, output_eigenvalues
 end
 
-@brainflow_rethrow function get_window(window_function::Integer, window_len::Integer)
+@brainflow_rethrow function get_window(window_function::WinType, window_len::Integer)
     window_data = Vector{Float64}(undef, Integer(window_len))
     ccall((:get_window, DATA_HANDLER_INTERFACE), Cint, (Cint, Cint, Ptr{Float64}),
     Int32(window_function), Int32(window_len), window_data)
     return window_data
 end
 
-@brainflow_rethrow function perform_fft(data, window::Integer)
+@brainflow_rethrow function perform_fft(data, window::WinType)
 
     function is_power_of_two(value)
         (value != 0) && (value & (value - 1) == 0)
@@ -273,7 +262,7 @@ end
     return temp_avgs, temp_stddevs
 end
 
-@brainflow_rethrow function get_psd(data, sampling_rate::Integer, window::Integer)
+@brainflow_rethrow function get_psd(data, sampling_rate::Integer, window::WinType)
 
     function is_power_of_two(value)
         (value != 0) && (value & (value - 1) == 0)
@@ -291,7 +280,7 @@ end
     return temp_ampls, temp_freqs
 end
 
-@brainflow_rethrow function get_psd_welch(data, nfft::Integer, overlap::Integer, sampling_rate::Integer, window::Integer)
+@brainflow_rethrow function get_psd_welch(data, nfft::Integer, overlap::Integer, sampling_rate::Integer, window::WinType)
 
     function is_power_of_two(value)
         (value != 0) && (value & (value - 1) == 0)

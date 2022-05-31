@@ -1,13 +1,10 @@
 import glob
 import argparse
 import os
-import time
 import pickle
-import copy
 import logging
 
 import numpy as np
-from sklearn import metrics
 from sklearn.linear_model import LogisticRegression
 from sklearn import svm
 from sklearn.model_selection import cross_val_score

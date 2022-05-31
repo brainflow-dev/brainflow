@@ -22,7 +22,7 @@ eeg_channels = BrainFlow.get_eeg_channels(BrainFlow.SYNTHETIC_BOARD)
 bands = BrainFlow.get_avg_band_powers(data, eeg_channels, sampling_rate, true)
 feature_vector = bands[1]
 
-model_params = BrainFlowModelParams(metric = BrainFlow.RESTFULNESS, classifier = BrainFlow.DEFAULT_CLASSIFIER)
+model_params = BrainFlowModelParams(BrainFlow.RESTFULNESS, BrainFlow.DEFAULT_CLASSIFIER)
 BrainFlow.prepare(model_params)
 print(BrainFlow.predict(bands[1], model_params))
 BrainFlow.release(model_params)
