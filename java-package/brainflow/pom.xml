@@ -64,7 +64,6 @@
           <include>MLModule.dll</include>
           <include>libMLModule.so</include>
           <include>libMLModule.dylib</include>
-          <include>brainflow_svm.model</include>
           <include>gForceSDKWrapper.dll</include>
           <include>gforce64.dll</include>
           <include>BrainBitLib.dll</include>

@@ -281,7 +281,7 @@ jobs:
       run: python %GITHUB_WORKSPACE%\tests\python\eeg_metrics.py --board-id -1
       shell: cmd
     - name: EEG Metrics CI Python Test
-      run: python %GITHUB_WORKSPACE%\tests\python\eeg_metrics_ci.py --board-id -1 --metric 0 --classifier 2
+      run: python %GITHUB_WORKSPACE%\tests\python\eeg_metrics_ci.py --board-id -1 --metric 2 --classifier 2 --model-file %GITHUB_WORKSPACE%\src\ml\train\logres_mindfulness.onnx
       shell: cmd
     - name: EEG Metrics CI Cpp Test
       run: .\tests\cpp\demos\ml_demo\build\Release\eeg_metrics_ci.exe --board-id -1 --metric 1 --classifier 2
@@ -289,8 +289,11 @@ jobs:
     - name: EEG Metrics CI Cpp x32 Test
       run: .\tests\cpp\demos\ml_demo\build32\Release\eeg_metrics_ci.exe --board-id -1 --metric 1 --classifier 2
       shell: cmd
-    - name: EEG Metrics CI C# Test
+    - name: EEG Metrics C# Test
       run: .\csharp-package\brainflow\tests\eeg_metrics\bin\Release\test.exe
+      shell: cmd
+    - name: EEG Metrics CI C# Test
+      run: .\csharp-package\brainflow\tests\eeg_metrics_ci\bin\Release\test.exe --board-id -1 --metric 2 --classifier 2 --model-file %GITHUB_WORKSPACE%\src\ml\train\logres_mindfulness.onnx
       shell: cmd
     - name: EEG Metrics CI Rust Test
       run: |

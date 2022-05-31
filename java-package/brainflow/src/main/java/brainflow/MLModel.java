@@ -11,6 +11,7 @@ import org.apache.commons.lang3.SystemUtils;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 
+@SuppressWarnings ("deprecation")
 public class MLModel
 {
     private interface DllInterface extends Library
@@ -43,10 +44,19 @@ public class MLModel
         if (SystemUtils.IS_OS_WINDOWS)
         {
             lib_name = "MLModule.dll";
-
+            unpack_from_jar ("onnxruntime_arm.dll");
+            unpack_from_jar ("onnxruntime_arm64.dll");
+            unpack_from_jar ("onnxruntime_x64.dll");
+            unpack_from_jar ("onnxruntime_x86.dll");
         } else if (SystemUtils.IS_OS_MAC)
         {
             lib_name = "libMLModule.dylib";
+            unpack_from_jar ("onnxruntime_x86.dll");
+            unpack_from_jar ("onnxruntime_x86.dll");
+        } else if ((SystemUtils.IS_OS_LINUX) && (!is_os_android))
+        {
+            unpack_from_jar ("libonnxruntime_x64.so");
+            unpack_from_jar ("libonnxruntime_arm64.so");
         }
 
         if (is_os_android)
@@ -58,7 +68,6 @@ public class MLModel
         {
             // need to extract libraries from jar
             unpack_from_jar (lib_name);
-            unpack_from_jar ("brainflow_svm.model");
         }
 
         instance = Native.loadLibrary (lib_name, DllInterface.class);

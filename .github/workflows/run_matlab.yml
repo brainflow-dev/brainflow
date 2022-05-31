@@ -31,3 +31,7 @@ jobs:
         uses: matlab-actions/run-command@v1
         with:
           command: addpath('matlab-package/brainflow'),addpath('matlab-package/brainflow/examples'),addpath('matlab-package/brainflow/inc'),addpath('matlab-package/brainflow/lib'),Transforms
+      - name: Run EEG Mertrics Test
+        uses: matlab-actions/run-command@v1
+        with:
+          command: addpath('matlab-package/brainflow'),addpath('matlab-package/brainflow/examples'),addpath('matlab-package/brainflow/inc'),addpath('matlab-package/brainflow/lib'),EEGMetrics
