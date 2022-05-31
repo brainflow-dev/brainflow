@@ -23,7 +23,8 @@ int main (int argc, char *argv[])
     BoardShim::enable_dev_board_logger ();
 
     struct BrainFlowInputParams params;
-    struct BrainFlowModelParams model_params (0, 0);
+    struct BrainFlowModelParams model_params (
+        (int)BrainFlowMetrics::RESTFULNESS, (int)BrainFlowClassifiers::DEFAULT_CLASSIFIER);
     int board_id = 0;
     if (!parse_args (argc, argv, &params, &board_id, &model_params))
     {
@@ -54,33 +55,14 @@ int main (int argc, char *argv[])
         std::pair<double *, double *> bands =
             DataFilter::get_avg_band_powers (data, eeg_channels, sampling_rate, true);
 
-        double feature_vector[10];
-        for (int i = 0; i < 5; i++)
+        MLModel model (model_params);
+        model.prepare ();
+        std::cout << "Score :";
+        for (double score : model.predict (bands.first, 5))
         {
-            feature_vector[i] = bands.first[i];
-            feature_vector[i + 5] = bands.second[i];
+            std::cout << score << std::endl;
         }
-        for (int i = 0; i < 10; i++)
-        {
-            std::cout << feature_vector[i] << " ";
-        }
-        std::cout << std::endl;
-
-        struct BrainFlowModelParams conc_model_params (
-            (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::REGRESSION);
-        MLModel concentration_model (conc_model_params);
-        concentration_model.prepare ();
-        std::cout << "Concentration Regression :"
-                  << concentration_model.predict (feature_vector, 10) << std::endl;
         concentration_model.release ();
-
-        struct BrainFlowModelParams relax_model_params (
-            (int)BrainFlowMetrics::RELAXATION, (int)BrainFlowClassifiers::KNN);
-        MLModel relaxation_model (relax_model_params);
-        relaxation_model.prepare ();
-        std::cout << "Relaxation KNN :" << relaxation_model.predict (feature_vector, 10)
-                  << std::endl;
-        relaxation_model.release ();
 
         delete[] bands.first;
         delete[] bands.second;
@@ -129,6 +111,46 @@ bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, in
                 i++;
                 classifier_found = true;
                 model_params->classifier = std::stoi (std::string (argv[i]));
+            }
+            else
+            {
+                std::cerr << "missed argument" << std::endl;
+                return false;
+            }
+        }
+        if (std::string (argv[i]) == std::string ("--metric"))
+        {
+            if (i + 1 < argc)
+            {
+                i++;
+                metric_found = true;
+                model_params->metric = std::stoi (std::string (argv[i]));
+            }
+            else
+            {
+                std::cerr << "missed argument" << std::endl;
+                return false;
+            }
+        }
+        if (std::string (argv[i]) == std::string ("--model-file"))
+        {
+            if (i + 1 < argc)
+            {
+                i++;
+                model_params->file = std::string (argv[i]);
+            }
+            else
+            {
+                std::cerr << "missed argument" << std::endl;
+                return false;
+            }
+        }
+        if (std::string (argv[i]) == std::string ("--output-name"))
+        {
+            if (i + 1 < argc)
+            {
+                i++;
+                model_params->output_name = std::string (argv[i]);
             }
             else
             {

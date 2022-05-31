@@ -33,22 +33,22 @@ namespace test
                 switch (i)
                 {
                     case 0:
-                        filtered = DataFilter.perform_lowpass (unprocessed_data.GetRow(eeg_channels[i]), BoardShim.get_sampling_rate (board_id), 20.0, 4, (int)FilterTypes.BESSEL, 0.0);
+                        filtered = DataFilter.perform_lowpass (unprocessed_data.GetRow(eeg_channels[i]), BoardShim.get_sampling_rate (board_id), 50.0, 4, (int)FilterTypes.BESSEL, 0.0);
                         Console.WriteLine ("Filtered channel " + eeg_channels[i]);
                         Console.WriteLine ("[{0}]", string.Join (", ", filtered));
                         break;
                     case 1:
-                        filtered = DataFilter.perform_highpass (unprocessed_data.GetRow (eeg_channels[i]), BoardShim.get_sampling_rate (board_id), 2.0, 4, (int)FilterTypes.BUTTERWORTH, 0.0);
+                        filtered = DataFilter.perform_highpass (unprocessed_data.GetRow (eeg_channels[i]), BoardShim.get_sampling_rate (board_id), 3.0, 4, (int)FilterTypes.BUTTERWORTH, 0.0);
                         Console.WriteLine ("Filtered channel " + eeg_channels[i]);
                         Console.WriteLine ("[{0}]", string.Join (", ", filtered));
                         break;
                     case 2:
-                        filtered = DataFilter.perform_bandpass (unprocessed_data.GetRow (eeg_channels[i]), BoardShim.get_sampling_rate (board_id), 15.0, 5.0, 2, (int)FilterTypes.BUTTERWORTH, 0.0);
+                        filtered = DataFilter.perform_bandpass (unprocessed_data.GetRow (eeg_channels[i]), BoardShim.get_sampling_rate (board_id), 3.0, 50.0, 2, (int)FilterTypes.BUTTERWORTH, 0.0);
                         Console.WriteLine ("Filtered channel " + eeg_channels[i]);
                         Console.WriteLine ("[{0}]", string.Join (", ", filtered));
                         break;
                     case 3:
-                        filtered = DataFilter.perform_bandstop (unprocessed_data.GetRow (eeg_channels[i]), BoardShim.get_sampling_rate (board_id), 50.0, 1.0, 6, (int)FilterTypes.CHEBYSHEV_TYPE_1, 1.0);
+                        filtered = DataFilter.perform_bandstop (unprocessed_data.GetRow (eeg_channels[i]), BoardShim.get_sampling_rate (board_id), 48.0, 52.0, 6, (int)FilterTypes.CHEBYSHEV_TYPE_1, 1.0);
                         Console.WriteLine ("Filtered channel " + eeg_channels[i]);
                         Console.WriteLine ("[{0}]", string.Join (", ", filtered));
                         break;

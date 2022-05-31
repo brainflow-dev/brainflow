@@ -28,12 +28,12 @@ namespace test
             board_shim.release_session ();
 
             Tuple<double[], double[]> bands = DataFilter.get_avg_band_powers (data, eeg_channels, sampling_rate, true);
-            double[] feature_vector = bands.Item1.Concatenate (bands.Item2);
-            MLModel concentration = new MLModel (model_params);
-            concentration.prepare ();
+            double[] feature_vector = bands.Item1;
+            MLModel model = new MLModel (model_params);
+            model.prepare ();
             Console.WriteLine (Enum.GetName (typeof (BrainFlowMetrics), model_params.metric) + " " + Enum.GetName (typeof (BrainFlowClassifiers), model_params.classifier) +
-                " : "  + concentration.predict (feature_vector));
-            concentration.release ();
+                " : "  + model.predict (feature_vector));
+            model.release ();
         }
 
         static int parse_args (string[] args, BrainFlowInputParams input_params,  BrainFlowModelParams model_params)
@@ -89,6 +89,14 @@ namespace test
                 if (args[i].Equals ("--classifier"))
                 {
                     model_params.classifier = Convert.ToInt32 (args[i + 1]);
+                }
+                if (args[i].Equals("--model-file"))
+                {
+                    model_params.file = args[i + 1];
+                }
+                if (args[i].Equals("--output-name"))
+                {
+                    model_params.output_name = args[i + 1];
                 }
             }
             return board_id;

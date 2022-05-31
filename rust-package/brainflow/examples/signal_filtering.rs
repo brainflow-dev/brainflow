@@ -30,7 +30,7 @@ fn main() {
             .as_slice_mut()
             .unwrap(),
         sampling_rate,
-        13.0,
+        50.0,
         3,
         FilterTypes::Bessel,
         0.0,

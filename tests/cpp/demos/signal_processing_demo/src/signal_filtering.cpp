@@ -51,22 +51,22 @@ int main (int argc, char *argv[])
                 // signal filtering methods work in-place
                 case 0:
                     DataFilter::perform_lowpass (data.get_address (eeg_channels[i]),
-                        data.get_size (1), BoardShim::get_sampling_rate (board_id), 30.0, 3,
+                        data.get_size (1), BoardShim::get_sampling_rate (board_id), 50.0, 3,
                         (int)FilterTypes::BUTTERWORTH, 0);
                     break;
                 case 1:
                     DataFilter::perform_highpass (data.get_address (eeg_channels[i]),
-                        data.get_size (1), BoardShim::get_sampling_rate (board_id), 5.0, 5,
+                        data.get_size (1), BoardShim::get_sampling_rate (board_id), 3.0, 5,
                         (int)FilterTypes::CHEBYSHEV_TYPE_1, 1);
                     break;
                 case 2:
                     DataFilter::perform_bandpass (data.get_address (eeg_channels[i]),
-                        data.get_size (1), BoardShim::get_sampling_rate (board_id), 15.0, 10.0, 3,
+                        data.get_size (1), BoardShim::get_sampling_rate (board_id), 3.0, 45.0, 3,
                         (int)FilterTypes::BESSEL, 0);
                     break;
                 case 3:
                     DataFilter::perform_bandstop (data.get_address (eeg_channels[i]),
-                        data.get_size (1), BoardShim::get_sampling_rate (board_id), 50.0, 4.0, 4,
+                        data.get_size (1), BoardShim::get_sampling_rate (board_id), 48.0, 62.0, 4,
                         (int)FilterTypes::BUTTERWORTH, 0);
                     break;
                 default:

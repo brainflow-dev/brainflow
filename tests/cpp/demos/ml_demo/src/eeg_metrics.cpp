@@ -52,33 +52,19 @@ int main (int argc, char *argv[])
         std::pair<double *, double *> bands =
             DataFilter::get_avg_band_powers (data, eeg_channels, sampling_rate, true);
 
-        double feature_vector[10];
-        for (int i = 0; i < 5; i++)
-        {
-            feature_vector[i] = bands.first[i];
-            feature_vector[i + 5] = bands.second[i];
-        }
-        for (int i = 0; i < 10; i++)
-        {
-            std::cout << feature_vector[i] << " ";
-        }
-        std::cout << std::endl;
-
-        struct BrainFlowModelParams conc_model_params (
-            (int)BrainFlowMetrics::CONCENTRATION, (int)BrainFlowClassifiers::REGRESSION);
-        MLModel concentration_model (conc_model_params);
-        concentration_model.prepare ();
-        std::cout << "Concentration Regression :"
-                  << concentration_model.predict (feature_vector, 10) << std::endl;
+        struct BrainFlowModelParams mindfulness_params (
+            (int)BrainFlowMetrics::MINDFULNESS, (int)BrainFlowClassifiers::DEFAULT_CLASSIFIER);
+        MLModel mindfulness_model (mindfulness_params);
+        mindfulness_model.prepare ();
+        std::cout << "Mindfulness :" << mindfulness_model.predict (bands.first, 5)[0] << std::endl;
         concentration_model.release ();
 
-        struct BrainFlowModelParams relax_model_params (
-            (int)BrainFlowMetrics::RELAXATION, (int)BrainFlowClassifiers::KNN);
-        MLModel relaxation_model (relax_model_params);
-        relaxation_model.prepare ();
-        std::cout << "Relaxation KNN :" << relaxation_model.predict (feature_vector, 10)
-                  << std::endl;
-        relaxation_model.release ();
+        struct BrainFlowModelParams restfulness_params (
+            (int)BrainFlowMetrics::RESTFULNESS, (int)BrainFlowClassifiers::DEFAULT_CLASSIFIER);
+        MLModel restfulness_model (restfulness_params);
+        restfulness_model.prepare ();
+        std::cout << "Restfulness :" << restfulness_model.predict (bands.first, 5)[0] << std::endl;
+        restfulness_model.release ();
 
         delete[] bands.first;
         delete[] bands.second;

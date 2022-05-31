@@ -20,16 +20,9 @@ BrainFlow.release_session(board_shim)
 eeg_channels = BrainFlow.get_eeg_channels(BrainFlow.SYNTHETIC_BOARD)
 
 bands = BrainFlow.get_avg_band_powers(data, eeg_channels, sampling_rate, true)
-feature_vector = vcat(bands[1], bands[2])
+feature_vector = bands[1]
 
-# calc concentration
-model_params = BrainFlowModelParams(metric = RELAXATION, classifier = DEFAULT_CLASSIFIER)
+model_params = BrainFlowModelParams(metric = BrainFlow.RESTFULNESS, classifier = BrainFlow.DEFAULT_CLASSIFIER)
 BrainFlow.prepare(model_params)
-print(BrainFlow.predict(feature_vector, model_params))
-BrainFlow.release(model_params)
-
-# calc relaxation
-model_params = BrainFlowModelParams(metric = CONCENTRATION, classifier = DEFAULT_CLASSIFIER)
-BrainFlow.prepare(model_params)
-print(BrainFlow.predict(feature_vector, model_params))
+print(BrainFlow.predict(bands[1], model_params))
 BrainFlow.release(model_params)

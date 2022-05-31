@@ -21,32 +21,20 @@ fn main() {
 
     let eeg_channels = board_shim::get_eeg_channels(board_id).unwrap();
     let sampling_rate = board_shim::get_sampling_rate(board_id).unwrap();
-    let mut bands =
+    let bands =
         data_filter::get_avg_band_powers(data, eeg_channels, sampling_rate, true).unwrap();
     let mut feature_vector = bands.0;
-    feature_vector.append(&mut bands.1);
     println!("feature_vector: {:?}", feature_vector);
 
-    // calc concentration
-    let concentration_params = BrainFlowModelParamsBuilder::new()
-        .metric(BrainFlowMetrics::Concentration)
-        .classifier(BrainFlowClassifiers::Knn)
+    let model_params = BrainFlowModelParamsBuilder::new()
+        .metric(BrainFlowMetrics::Mindfulness)
+        .classifier(BrainFlowClassifiers::DefaultClassifier)
         .build();
-    let concentration = ml_model::MlModel::new(concentration_params).unwrap();
-    concentration.prepare().unwrap();
+    let mindfulness = ml_model::MlModel::new(model_params).unwrap();
+    mindfulness.prepare().unwrap();
     println!(
-        "Concentration: {:?}",
-        concentration.predict(&mut feature_vector)
+        "Mindfulness: {:?}",
+        mindfulness.predict(&mut feature_vector)
     );
-    concentration.release().unwrap();
-
-    // calc relaxation
-    let relaxation_params = BrainFlowModelParamsBuilder::new()
-        .metric(BrainFlowMetrics::Relaxation)
-        .classifier(BrainFlowClassifiers::Regression)
-        .build();
-    let relaxation = ml_model::MlModel::new(relaxation_params).unwrap();
-    relaxation.prepare().unwrap();
-    println!("Relaxation: {:?}", relaxation.predict(&mut feature_vector));
-    relaxation.release().unwrap();
+    mindfulness.release().unwrap();
 }

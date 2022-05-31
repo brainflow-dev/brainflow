@@ -27,12 +27,12 @@ namespace test
             board_shim.release_session ();
 
             Tuple<double[], double[]> bands = DataFilter.get_avg_band_powers (data, eeg_channels, sampling_rate, true);
-            double[] feature_vector = bands.Item1.Concatenate (bands.Item2);
-            BrainFlowModelParams model_params = new BrainFlowModelParams ((int)BrainFlowMetrics.CONCENTRATION, (int)BrainFlowClassifiers.REGRESSION);
-            MLModel concentration = new MLModel (model_params);
-            concentration.prepare ();
-            Console.WriteLine ("Concentration: " + concentration.predict (feature_vector));
-            concentration.release ();
+            double[] feature_vector = bands.Item1;
+            BrainFlowModelParams model_params = new BrainFlowModelParams ((int)BrainFlowMetrics.MINDFULNESS, (int)BrainFlowClassifiers.DEFAULT_CLASSIFIER);
+            MLModel model = new MLModel (model_params);
+            model.prepare ();
+            Console.WriteLine ("Score: " + model.predict (feature_vector)[0]);
+            model.release ();
         }
 
         static int parse_args (string[] args, BrainFlowInputParams input_params)

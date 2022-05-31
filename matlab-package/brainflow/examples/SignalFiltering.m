@@ -15,4 +15,4 @@ eeg_channels = BoardShim.get_eeg_channels(int32(BoardIDs.SYNTHETIC_BOARD));
 first_eeg_channel = eeg_channels(1);
 original_data = data(first_eeg_channel, :);
 sampling_rate = BoardShim.get_sampling_rate(int32(BoardIDs.SYNTHETIC_BOARD));
-filtered_data = DataFilter.perform_lowpass(original_data, sampling_rate, 10.0, 3, int32(FilterTypes.BUTTERWORTH), 0.0);
+filtered_data = DataFilter.perform_lowpass(original_data, sampling_rate, 50.0, 3, int32(FilterTypes.BUTTERWORTH), 0.0);

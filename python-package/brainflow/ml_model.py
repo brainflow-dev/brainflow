@@ -17,8 +17,9 @@ from brainflow.exit_codes import BrainflowExitCodes
 class BrainFlowMetrics(enum.IntEnum):
     """Enum to store all supported metrics"""
 
-    ATTENTION = 0  #:
-    USER_DEFINED = 1  #:
+    MINDFULNESS = 0  #:
+    RESTFULNESS = 1  #:
+    USER_DEFINED = 2  #:
 
 
 class BrainFlowClassifiers(enum.IntEnum):

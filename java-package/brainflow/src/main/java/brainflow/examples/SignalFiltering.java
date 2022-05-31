@@ -42,20 +42,20 @@ public class SignalFiltering
             switch (i)
             {
                 case 0:
-                    DataFilter.perform_lowpass (data[eeg_channels[i]], BoardShim.get_sampling_rate (board_id), 20.0, 4,
+                    DataFilter.perform_lowpass (data[eeg_channels[i]], BoardShim.get_sampling_rate (board_id), 50.0, 4,
                             FilterTypes.BESSEL.get_code (), 0.0);
                     break;
                 case 1:
-                    DataFilter.perform_highpass (data[eeg_channels[i]], BoardShim.get_sampling_rate (board_id), 5.0, 4,
+                    DataFilter.perform_highpass (data[eeg_channels[i]], BoardShim.get_sampling_rate (board_id), 3.0, 4,
                             FilterTypes.BUTTERWORTH.get_code (), 0.0);
                     break;
                 case 2:
-                    DataFilter.perform_bandpass (data[eeg_channels[i]], BoardShim.get_sampling_rate (board_id), 15.0,
-                            5.0, 4, FilterTypes.CHEBYSHEV_TYPE_1.get_code (), 1.0);
+                    DataFilter.perform_bandpass (data[eeg_channels[i]], BoardShim.get_sampling_rate (board_id), 3.0,
+                            50.0, 4, FilterTypes.CHEBYSHEV_TYPE_1.get_code (), 1.0);
                     break;
                 case 3:
-                    DataFilter.perform_bandstop (data[eeg_channels[i]], BoardShim.get_sampling_rate (board_id), 50.0,
-                            1.0, 4, FilterTypes.CHEBYSHEV_TYPE_1.get_code (), 1.0);
+                    DataFilter.perform_bandstop (data[eeg_channels[i]], BoardShim.get_sampling_rate (board_id), 48.0,
+                            52.0, 4, FilterTypes.CHEBYSHEV_TYPE_1.get_code (), 1.0);
                     break;
                 default:
                     DataFilter.remove_environmental_noise (data[eeg_channels[i]],

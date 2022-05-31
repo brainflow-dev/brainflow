@@ -1,9 +1,7 @@
 package brainflow.examples;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-import brainflow.BoardIds;
 import brainflow.BoardShim;
 import brainflow.BrainFlowClassifiers;
 import brainflow.BrainFlowInputParams;
@@ -38,13 +36,13 @@ public class EEGMetricsCi
         board_shim.release_session ();
 
         Pair<double[], double[]> bands = DataFilter.get_avg_band_powers (data, eeg_channels, sampling_rate, true);
-        double[] feature_vector = ArrayUtils.addAll (bands.getLeft (), bands.getRight ());
-        MLModel concentration = new MLModel (model_params);
-        concentration.prepare ();
+        double[] feature_vector = bands.getLeft ();
+        MLModel model = new MLModel (model_params);
+        model.prepare ();
         System.out.println (BrainFlowMetrics.string_from_code (model_params.metric) + " "
                 + BrainFlowClassifiers.string_from_code (model_params.classifier) + " : "
-                + concentration.predict (feature_vector));
-        concentration.release ();
+                + model.predict (feature_vector));
+        model.release ();
     }
 
     private static int parse_args (String[] args, BrainFlowInputParams params, BrainFlowModelParams model_params)
@@ -95,6 +93,14 @@ public class EEGMetricsCi
             if (args[i].equals ("--classifier"))
             {
                 model_params.classifier = Integer.parseInt (args[i + 1]);
+            }
+            if (args[i].equals ("--output-name"))
+            {
+                model_params.output_name = args[i + 1];
+            }
+            if (args[i].equals ("--model-file"))
+            {
+                model_params.file = args[i + 1];
             }
         }
         return board_id;

@@ -33,6 +33,7 @@ def main():
     parser.add_argument('--classifier', type=int, help='classifier to use', required=True)
     parser.add_argument('--metric', type=int, help='metric to use', required=True)
     parser.add_argument('--model-file', type=str, help='path to onnx file', required=True)
+    parser.add_argument('--output-name', type=str, help='output node name', required=False, default='probabilities')
     args = parser.parse_args()
 
     params = BrainFlowInputParams()
@@ -64,6 +65,7 @@ def main():
 
     model_params = BrainFlowModelParams(args.metric, args.classifier)
     model_params.file = args.model_file
+    model_params.output_name = args.output_name
     model = MLModel(model_params)
     model.prepare()
     print('score is: %s' % str(model.predict(feature_vector)))

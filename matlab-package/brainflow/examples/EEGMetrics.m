@@ -1,4 +1,5 @@
 BoardShim.set_log_file('brainflow.log');
+MLModel.set_log_file('brainflow_ml.log');
 BoardShim.enable_dev_board_logger();
 
 params = BrainFlowInputParams();
@@ -14,10 +15,10 @@ board_shim.release_session();
 
 eeg_channels = BoardShim.get_eeg_channels(int32(BoardIDs.SYNTHETIC_BOARD));
 [avgs, stddevs] = DataFilter.get_avg_band_powers(data, eeg_channels, sampling_rate, true);
-feature_vector = double([avgs, stddevs]);
+feature_vector = avgs;
 
-concentration_params = BrainFlowModelParams(int32(BrainFlowMetrics.CONCENTRATION), int32(BrainFlowClassifiers.REGRESSION));
-concentration = MLModel(concentration_params);
-concentration.prepare();
-score = concentration.predict(feature_vector);
-concentration.release();
+model_params = BrainFlowModelParams(int32(BrainFlowMetrics.RESTFULNESS), int32(BrainFlowClassifiers.DEFAULT_CLASSIFIER));
+model = MLModel(model_params);
+model.prepare();
+score = model.predict(feature_vector);
+model.release();

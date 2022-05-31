@@ -13,7 +13,7 @@ type_map <- NULL
 .onLoad <- function(libname, pkgname)
 {
     brainflow_python <<- import('brainflow', delay_load = TRUE)
-    np <<- import('numpy', delay_load = TRUE)
+    np <<- import('numpy', delay_load = TRUE, convert = FALSE)
     pandas <<- import('pandas', delay_load = TRUE)
     sys <<- import('sys', delay_load = TRUE)
     type_map <<- function(type)

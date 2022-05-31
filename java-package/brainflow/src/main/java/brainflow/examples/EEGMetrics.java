@@ -1,6 +1,5 @@
 package brainflow.examples;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import brainflow.BoardShim;
@@ -36,13 +35,13 @@ public class EEGMetrics
         board_shim.release_session ();
 
         Pair<double[], double[]> bands = DataFilter.get_avg_band_powers (data, eeg_channels, sampling_rate, true);
-        double[] feature_vector = ArrayUtils.addAll (bands.getLeft (), bands.getRight ());
+        double[] feature_vector = bands.getLeft ();
         BrainFlowModelParams model_params = new BrainFlowModelParams (BrainFlowMetrics.MINDFULNESS.get_code (),
-                BrainFlowClassifiers.REGRESSION.get_code ());
-        MLModel concentration = new MLModel (model_params);
-        concentration.prepare ();
-        System.out.print ("Concentration: " + concentration.predict (feature_vector));
-        concentration.release ();
+                BrainFlowClassifiers.DEFAULT_CLASSIFIER.get_code ());
+        MLModel model = new MLModel (model_params);
+        model.prepare ();
+        System.out.print ("Score: " + model.predict (feature_vector)[0]);
+        model.release ();
     }
 
     private static int parse_args (String[] args, BrainFlowInputParams params)

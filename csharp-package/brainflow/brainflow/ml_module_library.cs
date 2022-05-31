@@ -17,7 +17,7 @@ namespace brainflow
 
     public enum BrainFlowClassifiers
     {
-        REGRESSION = 0,
+        DEFAULT_CLASSIFIER = 0,
         DYN_LIB_CLASSIFIER = 1,
         ONNX_CLASSIFIER = 2
     };

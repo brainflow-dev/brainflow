@@ -10,6 +10,7 @@ board_shim$start_stream()
 Sys.sleep(time = 10)
 board_shim$stop_stream()
 data <- board_shim$get_board_data()
+data <- np$ascontiguousarray(data)
 board_shim$release_session()
 
 eeg_channels <- brainflow_python$BoardShim$get_eeg_channels(board_id)

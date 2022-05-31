@@ -15,7 +15,7 @@ classdef BrainFlowModelParams
             obj.file = '';
             obj.other_info = '';
             obj.output_name = 'probabilities';
-            max_array_size = 8192;
+            obj.max_array_size = 8192;
         end
         function json_string = to_json(obj)
             json_string = jsonencode(obj);

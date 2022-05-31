@@ -56,22 +56,20 @@ def main():
 
     eeg_channels = BoardShim.get_eeg_channels(int(master_board_id))
     bands = DataFilter.get_avg_band_powers(data, eeg_channels, sampling_rate, True)
-    feature_vector = np.concatenate((bands[0], bands[1]))
+    feature_vector = bands[0]
     print(feature_vector)
 
-    # calc concentration
-    concentration_params = BrainFlowModelParams(BrainFlowMetrics.CONCENTRATION.value, BrainFlowClassifiers.DEFAULT_CLASSIFIER.value)
-    concentration = MLModel(concentration_params)
-    concentration.prepare()
-    print('Concentration: %f' % concentration.predict(feature_vector))
-    concentration.release()
+    mindfulness_params = BrainFlowModelParams(BrainFlowMetrics.MINDFULNESS.value, BrainFlowClassifiers.DEFAULT_CLASSIFIER.value)
+    mindfulness = MLModel(mindfulness_params)
+    mindfulness.prepare()
+    print('Mindfulness: %s' % str(mindfulness.predict(feature_vector)))
+    mindfulness.release()
 
-    # calc relaxation
-    relaxation_params = BrainFlowModelParams(BrainFlowMetrics.RELAXATION.value, BrainFlowClassifiers.DEFAULT_CLASSIFIER.value)
-    relaxation = MLModel(relaxation_params)
-    relaxation.prepare()
-    print('Relaxation: %f' % relaxation.predict(feature_vector))
-    relaxation.release()
+    restfulness_params = BrainFlowModelParams(BrainFlowMetrics.RESTFULNESS.value, BrainFlowClassifiers.DEFAULT_CLASSIFIER.value)
+    restfulness = MLModel(restfulness_params)
+    restfulness.prepare()
+    print('Restfulness: %s' % str(restfulness.predict(feature_vector)))
+    restfulness.release()
 
 
 if __name__ == "__main__":
