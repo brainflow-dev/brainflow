@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stddef.h>
+#include <stdint.h>
 
 #define SIMPLEBLE_UUID_STR_LEN 37  // 36 characters + null terminator
 #define SIMPLEBLE_CHARACTERISTIC_MAX_COUNT 16

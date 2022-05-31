@@ -53,6 +53,7 @@ set(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/PeripheralBuilder.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AdapterSafe.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/PeripheralSafe.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Utils.cpp
 )
 
 set(
@@ -60,6 +61,7 @@ set(
     ${CMAKE_CURRENT_SOURCE_DIR}/src_c/simpleble.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src_c/adapter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src_c/peripheral.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src_c/utils.cpp
 )
 
 # Detect the operating system and load the necessary dependencies
