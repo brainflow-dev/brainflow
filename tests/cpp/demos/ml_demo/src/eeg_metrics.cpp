@@ -57,7 +57,7 @@ int main (int argc, char *argv[])
         MLModel mindfulness_model (mindfulness_params);
         mindfulness_model.prepare ();
         std::cout << "Mindfulness :" << mindfulness_model.predict (bands.first, 5)[0] << std::endl;
-        concentration_model.release ();
+        mindfulness_model.release ();
 
         struct BrainFlowModelParams restfulness_params (
             (int)BrainFlowMetrics::RESTFULNESS, (int)BrainFlowClassifiers::DEFAULT_CLASSIFIER);

@@ -62,7 +62,7 @@ int main (int argc, char *argv[])
         {
             std::cout << score << std::endl;
         }
-        concentration_model.release ();
+        model.release ();
 
         delete[] bands.first;
         delete[] bands.second;
