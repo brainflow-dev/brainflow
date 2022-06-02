@@ -325,7 +325,7 @@ public class DataFilter
      */
     public static void perform_rolling_filter (double[] data, int period, AggOperations operation) throws BrainFlowError
     {
-        perform_rolling_filter (data, period, operation);
+        perform_rolling_filter (data, period, operation.get_code ());
     }
 
     /**
@@ -400,7 +400,7 @@ public class DataFilter
     public static void remove_environmental_noise (double[] data, int sampling_rate, NoiseTypes noise_type)
             throws BrainFlowError
     {
-        remove_environmental_noise (data, sampling_rate, noise_type);
+        remove_environmental_noise (data, sampling_rate, noise_type.get_code ());
     }
 
     /**
