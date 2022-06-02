@@ -8,14 +8,19 @@
 #define CALLING_CONVENTION
 #endif
 
+#include "brainflow_model_params.h"
+
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-    SHARED_EXPORT int CALLING_CONVENTION prepare (void *);
-    SHARED_EXPORT int CALLING_CONVENTION predict (double *, int, double *);
-    SHARED_EXPORT int CALLING_CONVENTION release ();
+    SHARED_EXPORT int CALLING_CONVENTION prepare (
+        void *custom, struct BrainFlowModelParams *params);
+    SHARED_EXPORT int CALLING_CONVENTION predict (double *data, int data_len, double *output,
+        int *output_len, struct BrainFlowModelParams *params);
+    SHARED_EXPORT int CALLING_CONVENTION release (struct BrainFlowModelParams *params);
 
 #ifdef __cplusplus
 }

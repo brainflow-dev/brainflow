@@ -84,7 +84,7 @@ enum class BoardIds : int
 
 enum class IpProtocolType : int
 {
-    NONE = 0,
+    NO_IP_PROTOCOL = 0,
     UDP = 1,
     TCP = 2
 };
@@ -113,7 +113,7 @@ enum class WindowFunctions : int
 
 enum class DetrendOperations : int
 {
-    NONE = 0,
+    NO_DETREND = 0,
     CONSTANT = 1,
     LINEAR = 2
 };

@@ -17,7 +17,7 @@ classdef BrainFlowInputParams
             obj.mac_address = '';
             obj.ip_address = '';
             obj.ip_port = 0;
-            obj.ip_protocol = int32(IpProtocolType.NONE);
+            obj.ip_protocol = int32(IpProtocolType.NO_IP_PROTOCOL);
             obj.other_info = '';
             obj.timeout = 0;
             obj.serial_number = '';

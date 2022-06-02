@@ -39,14 +39,15 @@ int DynLibClassifier::predict (double *data, int data_len, double *output, int *
     {
         return (int)BrainFlowExitCodes::CLASSIFIER_IS_NOT_PREPARED_ERROR;
     }
-    int (*func) (double *, int, double *, struct BrainFlowModelParams *) = (int (*) (
-        double *, int, double *, struct BrainFlowModelParams *))dll_loader->get_address ("predict");
+    int (*func) (double *, int, double *, int *, struct BrainFlowModelParams *) =
+        (int (*) (double *, int, double *, int *,
+            struct BrainFlowModelParams *))dll_loader->get_address ("predict");
     if (func == NULL)
     {
         safe_logger (spdlog::level::err, "failed to get function address for predict");
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    return func (data, data_len, output, &params);
+    return func (data, data_len, output, output_len, &params);
 }
 
 int DynLibClassifier::release ()

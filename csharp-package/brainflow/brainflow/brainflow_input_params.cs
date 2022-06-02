@@ -9,7 +9,7 @@ namespace brainflow
 {
     public enum IpProtocolType
     {
-        NONE = 0,
+        NO_IP_PROTOCOL = 0,
         UDP = 1,
         TCP = 2
     };
@@ -72,7 +72,7 @@ namespace brainflow
             mac_address = "";
             ip_address = "";
             ip_port = 0;
-            ip_protocol = (int)IpProtocolType.NONE;
+            ip_protocol = (int)IpProtocolType.NO_IP_PROTOCOL;
             other_info = "";
             timeout = 0;
             serial_number = "";

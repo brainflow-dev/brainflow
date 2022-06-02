@@ -43,7 +43,7 @@ class WindowFunctions(enum.IntEnum):
 class DetrendOperations(enum.IntEnum):
     """Enum to store all supported detrend options"""
 
-    NONE = 0  #:
+    NO_DETREND = 0  #:
     CONSTANT = 1  #:
     LINEAR = 2  #:
 

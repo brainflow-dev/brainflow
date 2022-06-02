@@ -80,7 +80,7 @@ class LogLevels(enum.IntEnum):
 class IpProtocolType(enum.IntEnum):
     """Enum to store Ip Protocol types"""
 
-    NONE = 0  #:
+    NO_IP_PROTOCOL = 0  #:
     UDP = 1  #:
     TCP = 2  #:
 
@@ -111,7 +111,7 @@ class BrainFlowInputParams(object):
         self.mac_address = ''
         self.ip_address = ''
         self.ip_port = 0
-        self.ip_protocol = IpProtocolType.NONE.value
+        self.ip_protocol = IpProtocolType.NO_IP_PROTOCOL.value
         self.other_info = ''
         self.timeout = 0
         self.serial_number = ''

@@ -88,7 +88,7 @@ pub enum BoardIds {
 #[repr(i32)]
 #[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum IpProtocolType {
-    None = 0,
+    NoIpProtocol = 0,
     Udp = 1,
     Tcp = 2,
 }
@@ -117,7 +117,7 @@ pub enum WindowFunctions {
 #[repr(i32)]
 #[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum DetrendOperations {
-    None = 0,
+    NoDetrend = 0,
     Constant = 1,
     Linear = 2,
 }

@@ -1068,7 +1068,7 @@ int detrend (double *data, int data_len, int detrend_operation)
             "Incorrect Data arguments. Data must not be empty and data_len must be >=1");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
-    if (detrend_operation == (int)DetrendOperations::NONE)
+    if (detrend_operation == (int)DetrendOperations::NO_DETREND)
     {
         return (int)BrainFlowExitCodes::STATUS_OK;
     }

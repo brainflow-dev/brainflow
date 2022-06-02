@@ -31,6 +31,7 @@ WinType = Union{WindowFunction, Integer}
 
 @enum DetrendOperation begin
 
+    NO_DETREND = 0
     CONSTANT = 1
     LINEAR = 2
 

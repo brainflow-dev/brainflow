@@ -6,7 +6,7 @@ import java.util.Map;
 public enum IpProtocolType
 {
 
-    NONE (0),
+    NO_IP_PROTOCOL (0),
     UDP (1),
     TCP (2);
 

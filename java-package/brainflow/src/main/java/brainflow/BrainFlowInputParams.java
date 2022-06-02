@@ -23,7 +23,7 @@ public class BrainFlowInputParams
         mac_address = "";
         serial_port = "";
         ip_port = 0;
-        ip_protocol = IpProtocolType.NONE.get_code ();
+        ip_protocol = IpProtocolType.NO_IP_PROTOCOL.get_code ();
         other_info = "";
         timeout = 0;
         serial_number = "";

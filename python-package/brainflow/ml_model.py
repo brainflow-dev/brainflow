@@ -8,6 +8,7 @@ import platform
 import struct
 import json
 
+from typing import List
 from nptyping import NDArray
 
 from brainflow.board_shim import BrainFlowError, LogLevels
@@ -234,13 +235,13 @@ class MLModel(object):
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to release classifier', res)
 
-    def predict(self, data: NDArray) -> float:
+    def predict(self, data: NDArray) -> List:
         """calculate metric from data
 
         :param data: input array
         :type data: NDArray
         :return: metric value
-        :rtype: float
+        :rtype: List
         """
         output = numpy.zeros(self.model_params.max_array_size).astype(numpy.float64)
         output_len = numpy.zeros(1).astype(numpy.int32)

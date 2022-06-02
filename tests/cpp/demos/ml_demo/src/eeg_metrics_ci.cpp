@@ -21,6 +21,7 @@ bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, in
 int main (int argc, char *argv[])
 {
     BoardShim::enable_dev_board_logger ();
+    MLModel::enable_dev_ml_logger ();
 
     struct BrainFlowInputParams params;
     struct BrainFlowModelParams model_params (

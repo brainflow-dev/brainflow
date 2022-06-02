@@ -280,6 +280,11 @@ jobs:
       run: $GITHUB_WORKSPACE/tests/cpp/demos/ml_demo/build/eeg_metrics --board-id -1
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
+    - name: EEG Metrics Cpp Dyn Lib
+      if: (matrix.os == 'ubuntu-latest')
+      run: $GITHUB_WORKSPACE/tests/cpp/demos/ml_demo/build/eeg_metrics_ci --board-id -1 --metric 2 --classifier 1 --model-file $GITHUB_WORKSPACE/tests/cpp/demos/ml_demo/build/libdyn_lib_test.so
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: EEG Metrics Java
       run: |
         cd $GITHUB_WORKSPACE/java-package/brainflow

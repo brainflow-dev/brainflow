@@ -56,7 +56,7 @@ BoardIdType = Union{BoardIds, Integer}
 
 @enum IpProtocolType begin
 
-    NONE = 0
+    NO_IP_PROTOCOL = 0
     UDP = 1
     TCP = 2
 
@@ -67,7 +67,7 @@ end
     mac_address::String = ""
     ip_address::String = ""
     ip_port::Int32 = 0
-    ip_protocol::Int32 = Integer(NONE)
+    ip_protocol::Int32 = Integer(NO_IP_PROTOCOL)
     other_info::String = ""
     timeout::Int32 = 0
     serial_number::String = ""
