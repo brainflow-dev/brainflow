@@ -498,8 +498,8 @@ class DataFilter(object):
             raise BrainFlowError('wrong type for sampling rate', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not isinstance(filter_type, int):
             raise BrainFlowError('wrong type for filter type', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
-        res = DataHandlerDLL.get_instance().perform_bandpass(data, data.shape[0], sampling_rate, center_freq,
-                                                             band_width, order, filter_type, ripple)
+        res = DataHandlerDLL.get_instance().perform_bandpass(data, data.shape[0], sampling_rate, start_freq,
+                                                             stop_freq, order, filter_type, ripple)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to apply band pass filter', res)
 
@@ -528,8 +528,8 @@ class DataFilter(object):
             raise BrainFlowError('wrong type for sampling rate', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not isinstance(filter_type, int):
             raise BrainFlowError('wrong type for filter type', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
-        res = DataHandlerDLL.get_instance().perform_bandstop(data, data.shape[0], sampling_rate, center_freq,
-                                                             band_width, order, filter_type, ripple)
+        res = DataHandlerDLL.get_instance().perform_bandstop(data, data.shape[0], sampling_rate, start_freq,
+                                                             stop_freq, order, filter_type, ripple)
         if res != BrainflowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to apply band stop filter', res)
 

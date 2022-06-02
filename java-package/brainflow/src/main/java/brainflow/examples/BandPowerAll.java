@@ -1,17 +1,12 @@
 package brainflow.examples;
 
-import java.util.Arrays;
-
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.math3.complex.Complex;
 
 import brainflow.BoardIds;
 import brainflow.BoardShim;
 import brainflow.BrainFlowInputParams;
 import brainflow.DataFilter;
-import brainflow.DetrendOperations;
 import brainflow.LogLevels;
-import brainflow.WindowFunctions;
 
 public class BandPowerAll
 {
@@ -20,14 +15,14 @@ public class BandPowerAll
     {
         BoardShim.enable_board_logger ();
         BrainFlowInputParams params = new BrainFlowInputParams ();
-        int board_id = BoardIds.SYNTHETIC_BOARD.get_code ();
+        BoardIds board_id = BoardIds.SYNTHETIC_BOARD;
         BoardShim board_shim = new BoardShim (board_id, params);
         int sampling_rate = BoardShim.get_sampling_rate (board_id);
         int[] eeg_channels = BoardShim.get_eeg_channels (board_id);
 
         board_shim.prepare_session ();
         board_shim.start_stream (3600);
-        BoardShim.log_message (LogLevels.LEVEL_INFO.get_code (), "Start sleeping in the main thread");
+        BoardShim.log_message (LogLevels.LEVEL_INFO, "Start sleeping in the main thread");
         Thread.sleep (10000);
         board_shim.stop_stream ();
         double[][] data = board_shim.get_board_data ();

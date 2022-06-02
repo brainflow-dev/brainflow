@@ -238,6 +238,14 @@ public class BoardShim
     }
 
     /**
+     * set log level
+     */
+    public static void set_log_level (LogLevels log_level) throws BrainFlowError
+    {
+        set_log_level (log_level.get_code ());
+    }
+
+    /**
      * send user defined strings to BrainFlow logger
      */
     public static void log_message (int log_level, String message) throws BrainFlowError
@@ -247,6 +255,14 @@ public class BoardShim
         {
             throw new BrainFlowError ("Error in log_message", ec);
         }
+    }
+
+    /**
+     * send user defined strings to BrainFlow logger
+     */
+    public static void log_message (LogLevels log_level, String message) throws BrainFlowError
+    {
+        log_message (log_level.get_code (), message);
     }
 
     /**
@@ -261,6 +277,14 @@ public class BoardShim
             throw new BrainFlowError ("Error in board info getter", ec);
         }
         return res[0];
+    }
+
+    /**
+     * get sampling rate for this board
+     */
+    public static int get_sampling_rate (BoardIds board_id) throws BrainFlowError
+    {
+        return get_sampling_rate (board_id.get_code ());
     }
 
     /**
@@ -279,6 +303,15 @@ public class BoardShim
     }
 
     /**
+     * get row index in returned by get_board_data() 2d array which contains
+     * timestamps
+     */
+    public static int get_timestamp_channel (BoardIds board_id) throws BrainFlowError
+    {
+        return get_timestamp_channel (board_id.get_code ());
+    }
+
+    /**
      * get row index in returned by get_board_data() 2d array which contains markers
      */
     public static int get_marker_channel (int board_id) throws BrainFlowError
@@ -293,6 +326,14 @@ public class BoardShim
     }
 
     /**
+     * get row index in returned by get_board_data() 2d array which contains markers
+     */
+    public static int get_marker_channel (BoardIds board_id) throws BrainFlowError
+    {
+        return get_marker_channel (board_id.get_code ());
+    }
+
+    /**
      * get number of rows in returned by get_board_data() 2d array
      */
     public static int get_num_rows (int board_id) throws BrainFlowError
@@ -304,6 +345,14 @@ public class BoardShim
             throw new BrainFlowError ("Error in board info getter", ec);
         }
         return res[0];
+    }
+
+    /**
+     * get number of rows in returned by get_board_data() 2d array
+     */
+    public static int get_num_rows (BoardIds board_id) throws BrainFlowError
+    {
+        return get_num_rows (board_id.get_code ());
     }
 
     /**
@@ -322,6 +371,15 @@ public class BoardShim
     }
 
     /**
+     * get row index in returned by get_board_data() 2d array which contains package
+     * nums
+     */
+    public static int get_package_num_channel (BoardIds board_id) throws BrainFlowError
+    {
+        return get_package_num_channel (board_id.get_code ());
+    }
+
+    /**
      * get row index in returned by get_board_data() 2d array which contains battery
      * level
      */
@@ -334,6 +392,15 @@ public class BoardShim
             throw new BrainFlowError ("Error in board info getter", ec);
         }
         return res[0];
+    }
+
+    /**
+     * get row index in returned by get_board_data() 2d array which contains battery
+     * level
+     */
+    public static int get_battery_channel (BoardIds board_id) throws BrainFlowError
+    {
+        return get_battery_channel (board_id.get_code ());
     }
 
     /**
@@ -351,6 +418,15 @@ public class BoardShim
         }
         String eeg_names_string = new String (str, 0, len[0]);
         return eeg_names_string.split (",");
+    }
+
+    /**
+     * Get names of EEG electrodes in 10-20 system. Only if electrodes have freezed
+     * locations
+     */
+    public static String[] get_eeg_names (BoardIds board_id) throws BrainFlowError
+    {
+        return get_eeg_names (board_id.get_code ());
     }
 
     /**
@@ -372,6 +448,14 @@ public class BoardShim
     }
 
     /**
+     * Get board description
+     */
+    public static <T> T get_board_descr (Class<T> type, BoardIds board_id) throws BrainFlowError
+    {
+        return get_board_descr (type, board_id.get_code ());
+    }
+
+    /**
      * Get device name
      */
     public static String get_device_name (int board_id) throws BrainFlowError
@@ -385,6 +469,14 @@ public class BoardShim
         }
         String name = new String (str, 0, len[0]);
         return name;
+    }
+
+    /**
+     * Get device name
+     */
+    public static String get_device_name (BoardIds board_id) throws BrainFlowError
+    {
+        return get_device_name (board_id.get_code ());
     }
 
     /**
@@ -421,6 +513,15 @@ public class BoardShim
     }
 
     /**
+     * get row indices in returned by get_board_data() 2d array which contain EEG
+     * data, for some boards we can not split EEG\EMG\... and return the same array
+     */
+    public static int[] get_eeg_channels (BoardIds board_id) throws BrainFlowError
+    {
+        return get_eeg_channels (board_id.get_code ());
+    }
+
+    /**
      * get row indices in returned by get_board_data() 2d array which contain EMG
      * data, for some boards we can not split EEG\EMG\... and return the same array
      */
@@ -438,6 +539,15 @@ public class BoardShim
     }
 
     /**
+     * get row indices in returned by get_board_data() 2d array which contain EMG
+     * data, for some boards we can not split EEG\EMG\... and return the same array
+     */
+    public static int[] get_emg_channels (BoardIds board_id) throws BrainFlowError
+    {
+        return get_emg_channels (board_id.get_code ());
+    }
+
+    /**
      * get row indices in returned by get_board_data() 2d array which contain ECG
      * data, for some boards we can not split EEG\EMG\... and return the same array
      */
@@ -452,6 +562,15 @@ public class BoardShim
         }
 
         return Arrays.copyOfRange (channels, 0, len[0]);
+    }
+
+    /**
+     * get row indices in returned by get_board_data() 2d array which contain ECG
+     * data, for some boards we can not split EEG\EMG\... and return the same array
+     */
+    public static int[] get_ecg_channels (BoardIds board_id) throws BrainFlowError
+    {
+        return get_ecg_channels (board_id.get_code ());
     }
 
     /**
@@ -473,6 +592,15 @@ public class BoardShim
 
     /**
      * get row indices in returned by get_board_data() 2d array which contain
+     * temperature data
+     */
+    public static int[] get_temperature_channels (BoardIds board_id) throws BrainFlowError
+    {
+        return get_temperature_channels (board_id.get_code ());
+    }
+
+    /**
+     * get row indices in returned by get_board_data() 2d array which contain
      * resistance data
      */
     public static int[] get_resistance_channels (int board_id) throws BrainFlowError
@@ -486,6 +614,15 @@ public class BoardShim
         }
 
         return Arrays.copyOfRange (channels, 0, len[0]);
+    }
+
+    /**
+     * get row indices in returned by get_board_data() 2d array which contain
+     * resistance data
+     */
+    public static int[] get_resistance_channels (BoardIds board_id) throws BrainFlowError
+    {
+        return get_resistance_channels (board_id.get_code ());
     }
 
     /**
@@ -506,6 +643,15 @@ public class BoardShim
     }
 
     /**
+     * get row indices in returned by get_board_data() 2d array which contain EOG
+     * data, for some boards we can not split EEG\EMG\... and return the same array
+     */
+    public static int[] get_eog_channels (BoardIds board_id) throws BrainFlowError
+    {
+        return get_eog_channels (board_id.get_code ());
+    }
+
+    /**
      * get row indices in returned by get_board_data() 2d array which contain EXG
      * data
      */
@@ -520,6 +666,15 @@ public class BoardShim
         }
 
         return Arrays.copyOfRange (channels, 0, len[0]);
+    }
+
+    /**
+     * get row indices in returned by get_board_data() 2d array which contain EXG
+     * data
+     */
+    public static int[] get_exg_channels (BoardIds board_id) throws BrainFlowError
+    {
+        return get_exg_channels (board_id.get_code ());
     }
 
     /**
@@ -540,6 +695,15 @@ public class BoardShim
     }
 
     /**
+     * get row indices in returned by get_board_data() 2d array which contain EDA
+     * data, for some boards we can not split EEG\EMG\... and return the same array
+     */
+    public static int[] get_eda_channels (BoardIds board_id) throws BrainFlowError
+    {
+        return get_eda_channels (board_id.get_code ());
+    }
+
+    /**
      * get row indices in returned by get_board_data() 2d array which contain PPG
      * data, for some boards we can not split EEG\EMG\... and return the same array
      */
@@ -554,6 +718,15 @@ public class BoardShim
         }
 
         return Arrays.copyOfRange (channels, 0, len[0]);
+    }
+
+    /**
+     * get row indices in returned by get_board_data() 2d array which contain PPG
+     * data, for some boards we can not split EEG\EMG\... and return the same array
+     */
+    public static int[] get_ppg_channels (BoardIds board_id) throws BrainFlowError
+    {
+        return get_ppg_channels (board_id.get_code ());
     }
 
     /**
@@ -574,6 +747,15 @@ public class BoardShim
     }
 
     /**
+     * get row indices in returned by get_board_data() 2d array which contain accel
+     * data
+     */
+    public static int[] get_accel_channels (BoardIds board_id) throws BrainFlowError
+    {
+        return get_accel_channels (board_id.get_code ());
+    }
+
+    /**
      * get row indices in returned by get_board_data() 2d array which contain analog
      * data
      */
@@ -588,6 +770,15 @@ public class BoardShim
         }
 
         return Arrays.copyOfRange (channels, 0, len[0]);
+    }
+
+    /**
+     * get row indices in returned by get_board_data() 2d array which contain analog
+     * data
+     */
+    public static int[] get_analog_channels (BoardIds board_id) throws BrainFlowError
+    {
+        return get_analog_channels (board_id.get_code ());
     }
 
     /**
@@ -608,6 +799,15 @@ public class BoardShim
     }
 
     /**
+     * get row indices in returned by get_board_data() 2d array which contain gyro
+     * data
+     */
+    public static int[] get_gyro_channels (BoardIds board_id) throws BrainFlowError
+    {
+        return get_gyro_channels (board_id.get_code ());
+    }
+
+    /**
      * get row indices in returned by get_board_data() 2d array which contain other
      * data
      */
@@ -622,6 +822,15 @@ public class BoardShim
         }
 
         return Arrays.copyOfRange (channels, 0, len[0]);
+    }
+
+    /**
+     * get row indices in returned by get_board_data() 2d array which contain other
+     * data
+     */
+    public static int[] get_other_channels (BoardIds board_id) throws BrainFlowError
+    {
+        return get_other_channels (board_id.get_code ());
     }
 
     /**
@@ -641,6 +850,31 @@ public class BoardShim
         this.master_board_id = board_id;
         if (
             (board_id == BoardIds.STREAMING_BOARD.get_code ()) || (board_id == BoardIds.PLAYBACK_FILE_BOARD.get_code ())
+        )
+        {
+            try
+            {
+                this.master_board_id = Integer.parseInt (params.other_info);
+            } catch (NumberFormatException e)
+            {
+                throw new BrainFlowError ("need to set params.other_info to master board id",
+                        ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+            }
+        }
+        this.input_json = params.to_json ();
+    }
+
+    /**
+     * Create BoardShim object
+     */
+    public BoardShim (BoardIds board_id, BrainFlowInputParams params)
+            throws BrainFlowError, IOException, ReflectiveOperationException
+    {
+        this.board_id = board_id.get_code ();
+        this.master_board_id = board_id.get_code ();
+        if (
+            (board_id.get_code () == BoardIds.STREAMING_BOARD.get_code ())
+                    || (board_id.get_code () == BoardIds.PLAYBACK_FILE_BOARD.get_code ())
         )
         {
             try

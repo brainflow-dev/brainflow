@@ -17,12 +17,12 @@ public class Downsampling
         // use synthetic board for demo
         BoardShim.enable_board_logger ();
         BrainFlowInputParams params = new BrainFlowInputParams ();
-        int board_id = BoardIds.SYNTHETIC_BOARD.get_code ();
+        BoardIds board_id = BoardIds.SYNTHETIC_BOARD;
 
         BoardShim board_shim = new BoardShim (board_id, params);
         board_shim.prepare_session ();
         board_shim.start_stream (3600);
-        BoardShim.log_message (LogLevels.LEVEL_INFO.get_code (), "Start sleeping in the main thread");
+        BoardShim.log_message (LogLevels.LEVEL_INFO, "Start sleeping in the main thread");
         Thread.sleep (5000);
         board_shim.stop_stream ();
         System.out.println (board_shim.get_board_data_count ());
@@ -35,8 +35,7 @@ public class Downsampling
             System.out.println ("Original data:");
             System.out.println (Arrays.toString (data[i]));
             // keep each second element, you can use MEAN and MEDIAN as well
-            double[] downsampled_data = DataFilter.perform_downsampling (data[eeg_channels[i]], 2,
-                    AggOperations.EACH.get_code ());
+            double[] downsampled_data = DataFilter.perform_downsampling (data[eeg_channels[i]], 2, AggOperations.EACH);
             System.out.println ("Downsampled data:");
             System.out.println (Arrays.toString (downsampled_data));
         }

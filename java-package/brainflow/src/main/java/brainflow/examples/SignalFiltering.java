@@ -18,12 +18,12 @@ public class SignalFiltering
         // use synthetic board for demo
         BoardShim.enable_board_logger ();
         BrainFlowInputParams params = new BrainFlowInputParams ();
-        int board_id = BoardIds.SYNTHETIC_BOARD.get_code ();
+        BoardIds board_id = BoardIds.SYNTHETIC_BOARD;
         BoardShim board_shim = new BoardShim (board_id, params);
 
         board_shim.prepare_session ();
         board_shim.start_stream (3600);
-        BoardShim.log_message (LogLevels.LEVEL_INFO.get_code (), "Start sleeping in the main thread");
+        BoardShim.log_message (LogLevels.LEVEL_INFO, "Start sleeping in the main thread");
         Thread.sleep (5000);
         board_shim.stop_stream ();
         System.out.println (board_shim.get_board_data_count ());
@@ -43,23 +43,23 @@ public class SignalFiltering
             {
                 case 0:
                     DataFilter.perform_lowpass (data[eeg_channels[i]], BoardShim.get_sampling_rate (board_id), 50.0, 4,
-                            FilterTypes.BESSEL.get_code (), 0.0);
+                            FilterTypes.BESSEL, 0.0);
                     break;
                 case 1:
                     DataFilter.perform_highpass (data[eeg_channels[i]], BoardShim.get_sampling_rate (board_id), 3.0, 4,
-                            FilterTypes.BUTTERWORTH.get_code (), 0.0);
+                            FilterTypes.BUTTERWORTH, 0.0);
                     break;
                 case 2:
                     DataFilter.perform_bandpass (data[eeg_channels[i]], BoardShim.get_sampling_rate (board_id), 3.0,
-                            50.0, 4, FilterTypes.CHEBYSHEV_TYPE_1.get_code (), 1.0);
+                            50.0, 4, FilterTypes.CHEBYSHEV_TYPE_1, 1.0);
                     break;
                 case 3:
                     DataFilter.perform_bandstop (data[eeg_channels[i]], BoardShim.get_sampling_rate (board_id), 48.0,
-                            52.0, 4, FilterTypes.CHEBYSHEV_TYPE_1.get_code (), 1.0);
+                            52.0, 4, FilterTypes.CHEBYSHEV_TYPE_1, 1.0);
                     break;
                 default:
                     DataFilter.remove_environmental_noise (data[eeg_channels[i]],
-                            BoardShim.get_sampling_rate (board_id), NoiseTypes.FIFTY.get_code ());;
+                            BoardShim.get_sampling_rate (board_id), NoiseTypes.FIFTY);;
                     break;
             }
         }

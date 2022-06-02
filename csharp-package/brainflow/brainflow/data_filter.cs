@@ -131,8 +131,8 @@ namespace brainflow
         /// </summary>
         /// <param name="data"></param>
         /// <param name="sampling_rate"></param>
-        /// <param name="center_freq"></param>
-        /// <param name="band_width"></param>
+        /// <param name="start_freq"></param>
+        /// <param name="stop_freq"></param>
         /// <param name="order"></param>
         /// <param name="filter_type"></param>
         /// <param name="ripple"></param>
@@ -154,8 +154,8 @@ namespace brainflow
         /// </summary>
         /// <param name="data"></param>
         /// <param name="sampling_rate"></param>
-        /// <param name="center_freq"></param>
-        /// <param name="band_width"></param>
+        /// <param name="start_freq"></param>
+        /// <param name="stop_freq"></param>
         /// <param name="order"></param>
         /// <param name="filter_type"></param>
         /// <param name="ripple"></param>

@@ -27,7 +27,7 @@ public class EEGMetricsCi
 
         board_shim.prepare_session ();
         board_shim.start_stream (3600);
-        BoardShim.log_message (LogLevels.LEVEL_INFO.get_code (), "Start sleeping in the main thread");
+        BoardShim.log_message (LogLevels.LEVEL_INFO, "Start sleeping in the main thread");
         // recommended window size for eeg metric calculation is at least 4 seconds,
         // bigger is better
         Thread.sleep (5000);

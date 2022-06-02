@@ -201,13 +201,21 @@ public class DataFilter
     /**
      * set log level
      */
-    private static void set_log_level (int log_level) throws BrainFlowError
+    public static void set_log_level (int log_level) throws BrainFlowError
     {
         int ec = instance.set_log_level_data_handler (log_level);
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in set_log_level", ec);
         }
+    }
+
+    /**
+     * set log level
+     */
+    public static void set_log_level (LogLevels log_level) throws BrainFlowError
+    {
+        set_log_level (log_level.get_code ());
     }
 
     /**
@@ -224,6 +232,15 @@ public class DataFilter
     }
 
     /**
+     * perform lowpass filter in-place
+     */
+    public static void perform_lowpass (double[] data, int sampling_rate, double cutoff, int order,
+            FilterTypes filter_type, double ripple) throws BrainFlowError
+    {
+        perform_lowpass (data, sampling_rate, cutoff, order, filter_type.get_code (), ripple);
+    }
+
+    /**
      * perform highpass filter in-place
      */
     public static void perform_highpass (double[] data, int sampling_rate, double cutoff, int order, int filter_type,
@@ -234,6 +251,15 @@ public class DataFilter
         {
             throw new BrainFlowError ("Failed to apply filter", ec);
         }
+    }
+
+    /**
+     * perform highpass filter in-place
+     */
+    public static void perform_highpass (double[] data, int sampling_rate, double cutoff, int order,
+            FilterTypes filter_type, double ripple) throws BrainFlowError
+    {
+        perform_highpass (data, sampling_rate, cutoff, order, filter_type.get_code (), ripple);
     }
 
     /**
@@ -251,6 +277,15 @@ public class DataFilter
     }
 
     /**
+     * perform bandpass filter in-place
+     */
+    public static void perform_bandpass (double[] data, int sampling_rate, double start_freq, double stop_freq,
+            int order, FilterTypes filter_type, double ripple) throws BrainFlowError
+    {
+        perform_bandpass (data, sampling_rate, start_freq, stop_freq, order, filter_type.get_code (), ripple);
+    }
+
+    /**
      * perform bandstop filter in-place
      */
     public static void perform_bandstop (double[] data, int sampling_rate, double start_freq, double stop_freq,
@@ -262,6 +297,15 @@ public class DataFilter
         {
             throw new BrainFlowError ("Failed to apply filter", ec);
         }
+    }
+
+    /**
+     * perform bandstop filter in-place
+     */
+    public static void perform_bandstop (double[] data, int sampling_rate, double start_freq, double stop_freq,
+            int order, FilterTypes filter_type, double ripple) throws BrainFlowError
+    {
+        perform_bandstop (data, sampling_rate, start_freq, stop_freq, order, filter_type.get_code (), ripple);
     }
 
     /**
@@ -277,6 +321,14 @@ public class DataFilter
     }
 
     /**
+     * perform moving average or moving median filter in-place
+     */
+    public static void perform_rolling_filter (double[] data, int period, AggOperations operation) throws BrainFlowError
+    {
+        perform_rolling_filter (data, period, operation);
+    }
+
+    /**
      * subtract trend from data in-place
      */
     public static void detrend (double[] data, int operation) throws BrainFlowError
@@ -286,6 +338,14 @@ public class DataFilter
         {
             throw new BrainFlowError ("Failed to detrend", ec);
         }
+    }
+
+    /**
+     * subtract trend from data in-place
+     */
+    public static void detrend (double[] data, DetrendOperations operation) throws BrainFlowError
+    {
+        detrend (data, operation.get_code ());
     }
 
     /**
@@ -312,6 +372,16 @@ public class DataFilter
     }
 
     /**
+     * perform data downsampling, it doesnt apply lowpass filter for you, it just
+     * aggregates several data points
+     */
+    public static double[] perform_downsampling (double[] data, int period, AggOperations operation)
+            throws BrainFlowError
+    {
+        return perform_downsampling (data, period, operation.get_code ());
+    }
+
+    /**
      * removes noise using notch filter
      */
     public static void remove_environmental_noise (double[] data, int sampling_rate, int noise_type)
@@ -322,6 +392,15 @@ public class DataFilter
         {
             throw new BrainFlowError ("Failed to remove noise", ec);
         }
+    }
+
+    /**
+     * removes noise using notch filter
+     */
+    public static void remove_environmental_noise (double[] data, int sampling_rate, NoiseTypes noise_type)
+            throws BrainFlowError
+    {
+        remove_environmental_noise (data, sampling_rate, noise_type);
     }
 
     /**
@@ -459,6 +538,18 @@ public class DataFilter
     }
 
     /**
+     * perform data windowing
+     * 
+     * @param window     window function
+     * @param window_len lenght of the window function
+     * @return array of the size specified in window_len
+     */
+    public static double[] get_window (WindowFunctions window, int window_len) throws BrainFlowError
+    {
+        return get_window (window.get_code (), window_len);
+    }
+
+    /**
      * perform direct fft
      * 
      * @param data      data for fft transform
@@ -490,6 +581,21 @@ public class DataFilter
             throw new BrainFlowError ("Failed to perform fft", ec);
         }
         return TransformUtils.createComplexArray (complex_array);
+    }
+
+    /**
+     * perform direct fft
+     * 
+     * @param data      data for fft transform
+     * @param start_pos starting position to calc fft
+     * @param end_pos   end position to calc fft, total_len must be a power of two
+     * @param window    window function
+     * @return array of complex values with size N / 2 + 1
+     */
+    public static Complex[] perform_fft (double[] data, int start_pos, int end_pos, WindowFunctions window)
+            throws BrainFlowError
+    {
+        return perform_fft (data, start_pos, end_pos, window.get_code ());
     }
 
     /**
@@ -616,6 +722,23 @@ public class DataFilter
     }
 
     /**
+     * get PSD
+     * 
+     * @param data          data to process
+     * @param start_pos     starting position to calc PSD
+     * @param end_pos       end position to calc PSD, total_len must be a power of
+     *                      two
+     * @param sampling_rate sampling rate
+     * @param window        window function
+     * @return pair of ampl and freq arrays with len N / 2 + 1
+     */
+    public static Pair<double[], double[]> get_psd (double[] data, int start_pos, int end_pos, int sampling_rate,
+            WindowFunctions window) throws BrainFlowError
+    {
+        return get_psd (data, start_pos, end_pos, sampling_rate, window.get_code ());
+    }
+
+    /**
      * get PSD using Welch Method
      * 
      * @param data          data to process
@@ -641,6 +764,22 @@ public class DataFilter
         }
         Pair<double[], double[]> res = new MutablePair<double[], double[]> (ampls, freqs);
         return res;
+    }
+
+    /**
+     * get PSD using Welch Method
+     * 
+     * @param data          data to process
+     * @param nfft          size of FFT, must be power of two
+     * @param overlap       overlap between FFT Windows, must be between 0 and nfft
+     * @param sampling_rate sampling rate
+     * @param window        window function
+     * @return pair of ampl and freq arrays
+     */
+    public static Pair<double[], double[]> get_psd_welch (double[] data, int nfft, int overlap, int sampling_rate,
+            WindowFunctions window) throws BrainFlowError
+    {
+        return get_psd_welch (data, nfft, overlap, sampling_rate, window.get_code ());
     }
 
     /**

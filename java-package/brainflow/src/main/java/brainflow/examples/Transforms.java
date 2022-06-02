@@ -20,12 +20,12 @@ public class Transforms
         // use synthetic board for demo
         BoardShim.enable_board_logger ();
         BrainFlowInputParams params = new BrainFlowInputParams ();
-        int board_id = BoardIds.SYNTHETIC_BOARD.get_code ();
+        BoardIds board_id = BoardIds.SYNTHETIC_BOARD;
         BoardShim board_shim = new BoardShim (board_id, params);
 
         board_shim.prepare_session ();
         board_shim.start_stream (3600);
-        BoardShim.log_message (LogLevels.LEVEL_INFO.get_code (), "Start sleeping in the main thread");
+        BoardShim.log_message (LogLevels.LEVEL_INFO, "Start sleeping in the main thread");
         Thread.sleep (10000);
         board_shim.stop_stream ();
         System.out.println (board_shim.get_board_data_count ());
@@ -63,8 +63,7 @@ public class Transforms
 
             // demo for fft works only for power of 2
             // len of fft_data is N / 2 + 1
-            Complex[] fft_data = DataFilter.perform_fft (data[eeg_channels[i]], 0, 64,
-                    WindowFunctions.NO_WINDOW.get_code ());
+            Complex[] fft_data = DataFilter.perform_fft (data[eeg_channels[i]], 0, 64, WindowFunctions.NO_WINDOW);
             double[] restored_fft_data = DataFilter.perform_ifft (fft_data);
             System.out.println ("Restored data after fft:");
             System.out.println (Arrays.toString (restored_fft_data));

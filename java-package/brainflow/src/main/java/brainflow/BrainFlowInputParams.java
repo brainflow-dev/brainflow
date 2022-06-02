@@ -85,6 +85,11 @@ public class BrainFlowInputParams
         this.ip_protocol = ip_protocol;
     }
 
+    public void set_ip_protocol (IpProtocolType ip_protocol)
+    {
+        this.ip_protocol = ip_protocol.get_code ();
+    }
+
     public String get_other_info ()
     {
         return other_info;

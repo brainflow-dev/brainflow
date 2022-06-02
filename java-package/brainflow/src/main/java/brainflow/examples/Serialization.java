@@ -16,12 +16,12 @@ public class Serialization
         // use Synthetic board for demo
         BoardShim.enable_board_logger ();
         BrainFlowInputParams params = new BrainFlowInputParams ();
-        int board_id = BoardIds.SYNTHETIC_BOARD.get_code ();
+        BoardIds board_id = BoardIds.SYNTHETIC_BOARD;
         BoardShim board_shim = new BoardShim (board_id, params);
 
         board_shim.prepare_session ();
         board_shim.start_stream (3600);
-        BoardShim.log_message (LogLevels.LEVEL_INFO.get_code (), "Start sleeping in the main thread");
+        BoardShim.log_message (LogLevels.LEVEL_INFO, "Start sleeping in the main thread");
         Thread.sleep (5000);
         board_shim.stop_stream ();
         System.out.println (board_shim.get_board_data_count ());

@@ -24,6 +24,16 @@ public class BrainFlowModelParams
         this.max_array_size = 8192;
     }
 
+    public BrainFlowModelParams (BrainFlowMetrics metric, BrainFlowClassifiers classifier)
+    {
+        this.metric = metric.get_code ();
+        this.classifier = classifier.get_code ();
+        this.file = "";
+        this.other_info = "";
+        this.output_name = "probabilities";
+        this.max_array_size = 8192;
+    }
+
     public int get_metric ()
     {
         return metric;
@@ -34,9 +44,19 @@ public class BrainFlowModelParams
         this.metric = metric;
     }
 
+    public void set_metric (BrainFlowMetrics metric)
+    {
+        this.metric = metric.get_code ();
+    }
+
     public int get_classifier ()
     {
         return classifier;
+    }
+
+    public void set_classifier (BrainFlowClassifiers classifier)
+    {
+        this.classifier = classifier.get_code ();
     }
 
     public void set_classifier (int classifier)

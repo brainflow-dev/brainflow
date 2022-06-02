@@ -170,13 +170,21 @@ public class MLModel
     /**
      * set log level
      */
-    private static void set_log_level (int log_level) throws BrainFlowError
+    public static void set_log_level (int log_level) throws BrainFlowError
     {
         int ec = instance.set_log_level_ml_module (log_level);
         if (ec != ExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in set_log_level", ec);
         }
+    }
+
+    /**
+     * set log level
+     */
+    public static void set_log_level (LogLevels log_level) throws BrainFlowError
+    {
+        set_log_level (log_level.get_code ());
     }
 
     /**

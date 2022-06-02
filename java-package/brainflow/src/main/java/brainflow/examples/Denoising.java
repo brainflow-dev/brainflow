@@ -1,13 +1,13 @@
 package brainflow.examples;
 
+import java.util.Arrays;
+
 import brainflow.AggOperations;
 import brainflow.BoardIds;
 import brainflow.BoardShim;
 import brainflow.BrainFlowInputParams;
 import brainflow.DataFilter;
 import brainflow.LogLevels;
-
-import java.util.Arrays;
 
 public class Denoising
 {
@@ -17,12 +17,12 @@ public class Denoising
         // use synthetic board for demo
         BoardShim.enable_board_logger ();
         BrainFlowInputParams params = new BrainFlowInputParams ();
-        int board_id = BoardIds.SYNTHETIC_BOARD.get_code ();
+        BoardIds board_id = BoardIds.SYNTHETIC_BOARD;
         BoardShim board_shim = new BoardShim (board_id, params);
 
         board_shim.prepare_session ();
         board_shim.start_stream (3600);
-        BoardShim.log_message (LogLevels.LEVEL_INFO.get_code (), "Start sleeping in the main thread");
+        BoardShim.log_message (LogLevels.LEVEL_INFO, "Start sleeping in the main thread");
         Thread.sleep (5000);
         board_shim.stop_stream ();
         System.out.println (board_shim.get_board_data_count ());
@@ -42,10 +42,10 @@ public class Denoising
             {
                 // first of all you can try simple moving average or moving median
                 case 0:
-                    DataFilter.perform_rolling_filter (data[eeg_channels[i]], 3, AggOperations.MEAN.get_code ());
+                    DataFilter.perform_rolling_filter (data[eeg_channels[i]], 3, AggOperations.MEAN);
                     break;
                 case 1:
-                    DataFilter.perform_rolling_filter (data[eeg_channels[i]], 3, AggOperations.MEDIAN.get_code ());
+                    DataFilter.perform_rolling_filter (data[eeg_channels[i]], 3, AggOperations.MEDIAN);
                     break;
                 // if methods above dont work good for you you should try wavelet based
                 // denoising
