@@ -26,7 +26,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v1
+      uses: github/codeql-action/init@v2
       with:
         languages: ${{ matrix.language }}
     - name: Install Python 3.7
@@ -66,4 +66,4 @@ jobs:
         cp -av $GITHUB_WORKSPACE/java-package/brainflow/target/classes/brainflow/. $GITHUB_WORKSPACE/java-package/brainflow/target/classes/ 
         cp -av $GITHUB_WORKSPACE/java-package/brainflow/target/classes/brainflow/. $GITHUB_WORKSPACE/java-package/brainflow/target/classes/
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v1
+      uses: github/codeql-action/analyze@v2
