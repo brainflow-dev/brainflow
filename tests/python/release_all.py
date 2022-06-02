@@ -23,10 +23,10 @@ def main():
     
     BoardShim.release_all_sessions()
 
-    ml_params1 = BrainFlowModelParams(BrainFlowMetrics.CONCENTRATION.value, BrainFlowClassifiers.KNN.value)
+    ml_params1 = BrainFlowModelParams(BrainFlowMetrics.RESTFULNESS.value, BrainFlowClassifiers.DEFAULT_CLASSIFIER.value)
     model1 = MLModel(ml_params1)
     model1.prepare()
-    ml_params2 = BrainFlowModelParams(BrainFlowMetrics.RELAXATION.value, BrainFlowClassifiers.KNN.value)
+    ml_params2 = BrainFlowModelParams(BrainFlowMetrics.MINDFULNESS.value, BrainFlowClassifiers.DEFAULT_CLASSIFIER.value)
     model2 = MLModel(ml_params2)
     model2.prepare()
 

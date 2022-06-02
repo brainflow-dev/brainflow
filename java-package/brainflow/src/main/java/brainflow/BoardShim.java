@@ -18,6 +18,7 @@ import com.sun.jna.Native;
 /**
  * BoardShim class to communicate with a board
  */
+@SuppressWarnings ("deprecation")
 public class BoardShim
 {
 
