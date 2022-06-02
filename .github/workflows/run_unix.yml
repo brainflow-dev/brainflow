@@ -22,7 +22,7 @@ jobs:
     - name: Check Version
       run: echo ${{ steps.version.outputs.version }}
     - name: Install Python 3.7
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v3
       with:
         python-version: '3.7.7'
         architecture: 'x64'
