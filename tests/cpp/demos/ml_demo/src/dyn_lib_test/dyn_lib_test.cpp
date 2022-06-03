@@ -1,6 +1,5 @@
 #include <algorithm>
 #include <cmath>
-#include <iostream>
 
 #include "brainflow_constants.h"
 #include "dyn_lib_test.h"
@@ -16,7 +15,6 @@ int predict (double *data, int data_len, double *output, int *output_len,
 {
     if ((data_len < 5) || (data == NULL) || (output == NULL))
     {
-        std::cout << "invalid input" << std::endl;
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
@@ -29,9 +27,8 @@ int predict (double *data, int data_len, double *output, int *output_len,
         value += regression_coefficients[i] * data[i];
     }
     double concentration = 1.0 / (1.0 + exp (-1.0 * (regression_intercept + value)));
-    *output = concentration;
+    output[0] = concentration;
     *output_len = 1;
-    std::cout << "result is: " << concentration << std::endl;
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
