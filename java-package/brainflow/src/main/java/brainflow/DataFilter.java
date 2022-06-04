@@ -148,7 +148,7 @@ public class DataFilter
         int[] len = new int[1];
         byte[] str = new byte[64];
         int ec = instance.get_version_data_handler (str, len, 64);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in get_version", ec);
         }
@@ -178,7 +178,7 @@ public class DataFilter
     public static void set_log_file (String log_file) throws BrainFlowError
     {
         int ec = instance.set_log_file_data_handler (log_file);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in set_log_file", ec);
         }
@@ -191,7 +191,7 @@ public class DataFilter
     {
         double[] output = new double[1];
         int ec = instance.calc_stddev (data, start_pos, end_pos, output);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in set_log_file", ec);
         }
@@ -204,7 +204,7 @@ public class DataFilter
     public static void set_log_level (int log_level) throws BrainFlowError
     {
         int ec = instance.set_log_level_data_handler (log_level);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in set_log_level", ec);
         }
@@ -225,7 +225,7 @@ public class DataFilter
             double ripple) throws BrainFlowError
     {
         int ec = instance.perform_lowpass (data, data.length, sampling_rate, cutoff, order, filter_type, ripple);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to apply filter", ec);
         }
@@ -247,7 +247,7 @@ public class DataFilter
             double ripple) throws BrainFlowError
     {
         int ec = instance.perform_highpass (data, data.length, sampling_rate, cutoff, order, filter_type, ripple);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to apply filter", ec);
         }
@@ -270,7 +270,7 @@ public class DataFilter
     {
         int ec = instance.perform_bandpass (data, data.length, sampling_rate, start_freq, stop_freq, order, filter_type,
                 ripple);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to apply filter", ec);
         }
@@ -293,7 +293,7 @@ public class DataFilter
     {
         int ec = instance.perform_bandstop (data, data.length, sampling_rate, start_freq, stop_freq, order, filter_type,
                 ripple);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to apply filter", ec);
         }
@@ -314,7 +314,7 @@ public class DataFilter
     public static void perform_rolling_filter (double[] data, int period, int operation) throws BrainFlowError
     {
         int ec = instance.perform_rolling_filter (data, data.length, period, operation);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to apply filter", ec);
         }
@@ -334,7 +334,7 @@ public class DataFilter
     public static void detrend (double[] data, int operation) throws BrainFlowError
     {
         int ec = instance.detrend (data, data.length, operation);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to detrend", ec);
         }
@@ -356,15 +356,15 @@ public class DataFilter
     {
         if (period <= 0)
         {
-            throw new BrainFlowError ("Invalid period", ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+            throw new BrainFlowError ("Invalid period", BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
         }
         if (data.length / period <= 0)
         {
-            throw new BrainFlowError ("Invalid data size", ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+            throw new BrainFlowError ("Invalid data size", BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
         }
         double[] downsampled_data = new double[data.length / period];
         int ec = instance.perform_downsampling (data, data.length, period, operation, downsampled_data);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to perform downsampling", ec);
         }
@@ -388,7 +388,7 @@ public class DataFilter
             throws BrainFlowError
     {
         int ec = instance.remove_environmental_noise (data, data.length, sampling_rate, noise_type);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to remove noise", ec);
         }
@@ -416,7 +416,7 @@ public class DataFilter
             throws BrainFlowError
     {
         int ec = instance.perform_wavelet_denoising (data, data.length, wavelet, decomposition_level);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to perform denoising", ec);
         }
@@ -434,13 +434,13 @@ public class DataFilter
     {
         if (decomposition_level <= 0)
         {
-            throw new BrainFlowError ("Invalid decomposition level", ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+            throw new BrainFlowError ("Invalid decomposition level", BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
         }
         int[] lengths = new int[decomposition_level + 1];
         double[] output_array = new double[data.length + 2 * decomposition_level * (40 + 1)];
         int ec = instance.perform_wavelet_transform (data, data.length, wavelet, decomposition_level, output_array,
                 lengths);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to perform wavelet transform", ec);
         }
@@ -462,12 +462,12 @@ public class DataFilter
     {
         if (decomposition_level <= 0)
         {
-            throw new BrainFlowError ("Invalid decomposition level", ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+            throw new BrainFlowError ("Invalid decomposition level", BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
         }
         double[] output_array = new double[original_data_len];
         int ec = instance.perform_inverse_wavelet_transform (wavelet_output.getLeft (), original_data_len, wavelet,
                 decomposition_level, wavelet_output.getRight (), output_array);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to perform inverse wavelet transform", ec);
         }
@@ -501,7 +501,7 @@ public class DataFilter
 
         int ec = instance.get_csp (temp_data1d, labels, n_epochs, n_channels, n_times, temp_filters,
                 output_eigenvalues);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to get the CSP filters", ec);
         }
@@ -530,7 +530,7 @@ public class DataFilter
     {
         double[] window_data = new double[window_len];
         int ec = instance.get_window (window, window_len, window_data);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to perform windowing", ec);
         }
@@ -544,7 +544,7 @@ public class DataFilter
      * @param window_len lenght of the window function
      * @return array of the size specified in window_len
      */
-    public static double[] get_window (WindowFunctions window, int window_len) throws BrainFlowError
+    public static double[] get_window (WindowOperations window, int window_len) throws BrainFlowError
     {
         return get_window (window.get_code (), window_len);
     }
@@ -562,7 +562,7 @@ public class DataFilter
     {
         if ((start_pos < 0) || (end_pos > data.length) || (start_pos >= end_pos))
         {
-            throw new BrainFlowError ("invalid position arguments", ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+            throw new BrainFlowError ("invalid position arguments", BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
         }
         // I didnt find a way to pass an offset using pointers, copy array
         double[] data_to_process = Arrays.copyOfRange (data, start_pos, end_pos);
@@ -570,13 +570,13 @@ public class DataFilter
         if ((len & (len - 1)) != 0)
         {
             throw new BrainFlowError ("end_pos - start_pos must be a power of 2",
-                    ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+                    BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
         }
         double[][] complex_array = new double[2][];
         complex_array[0] = new double[len / 2 + 1];
         complex_array[1] = new double[len / 2 + 1];
         int ec = instance.perform_fft (data_to_process, len, window, complex_array[0], complex_array[1]);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to perform fft", ec);
         }
@@ -592,7 +592,7 @@ public class DataFilter
      * @param window    window function
      * @return array of complex values with size N / 2 + 1
      */
-    public static Complex[] perform_fft (double[] data, int start_pos, int end_pos, WindowFunctions window)
+    public static Complex[] perform_fft (double[] data, int start_pos, int end_pos, WindowOperations window)
             throws BrainFlowError
     {
         return perform_fft (data, start_pos, end_pos, window.get_code ());
@@ -610,7 +610,7 @@ public class DataFilter
         int len = (data.length - 1) * 2;
         double[] output = new double[len];
         int ec = instance.perform_ifft (complex_array[0], complex_array[1], len, output);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to perform ifft", ec);
         }
@@ -654,7 +654,7 @@ public class DataFilter
         if ((data == null) || (channels == null) || (bands == null))
         {
             throw new BrainFlowError ("data or channels or bands are null",
-                    ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+                    BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
         }
         double[] data_1d = new double[channels.length * data[channels[0]].length];
         for (int i = 0; i < channels.length; i++)
@@ -676,7 +676,7 @@ public class DataFilter
         int filters = (apply_filters) ? 1 : 0;
         int ec = instance.get_custom_band_powers (data_1d, channels.length, data[channels[0]].length, start_freqs,
                 stop_freqs, bands.size (), sampling_rate, filters, avgs, stddevs);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to get_avg_band_powers", ec);
         }
@@ -700,7 +700,7 @@ public class DataFilter
     {
         if ((start_pos < 0) || (end_pos > data.length) || (start_pos >= end_pos))
         {
-            throw new BrainFlowError ("invalid position arguments", ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+            throw new BrainFlowError ("invalid position arguments", BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
         }
         // I didnt find a way to pass an offset using pointers, copy array
         double[] data_to_process = Arrays.copyOfRange (data, start_pos, end_pos);
@@ -708,12 +708,12 @@ public class DataFilter
         if ((len & (len - 1)) != 0)
         {
             throw new BrainFlowError ("end_pos - start_pos must be a power of 2",
-                    ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+                    BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
         }
         double[] ampls = new double[len / 2 + 1];
         double[] freqs = new double[len / 2 + 1];
         int ec = instance.get_psd (data_to_process, len, sampling_rate, window, ampls, freqs);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to get psd", ec);
         }
@@ -733,7 +733,7 @@ public class DataFilter
      * @return pair of ampl and freq arrays with len N / 2 + 1
      */
     public static Pair<double[], double[]> get_psd (double[] data, int start_pos, int end_pos, int sampling_rate,
-            WindowFunctions window) throws BrainFlowError
+            WindowOperations window) throws BrainFlowError
     {
         return get_psd (data, start_pos, end_pos, sampling_rate, window.get_code ());
     }
@@ -753,12 +753,12 @@ public class DataFilter
     {
         if ((nfft & (nfft - 1)) != 0)
         {
-            throw new BrainFlowError ("nfft must be a power of 2", ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+            throw new BrainFlowError ("nfft must be a power of 2", BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
         }
         double[] ampls = new double[nfft / 2 + 1];
         double[] freqs = new double[nfft / 2 + 1];
         int ec = instance.get_psd_welch (data, data.length, nfft, overlap, sampling_rate, window, ampls, freqs);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to get_psd_welch", ec);
         }
@@ -777,7 +777,7 @@ public class DataFilter
      * @return pair of ampl and freq arrays
      */
     public static Pair<double[], double[]> get_psd_welch (double[] data, int nfft, int overlap, int sampling_rate,
-            WindowFunctions window) throws BrainFlowError
+            WindowOperations window) throws BrainFlowError
     {
         return get_psd_welch (data, nfft, overlap, sampling_rate, window.get_code ());
     }
@@ -796,7 +796,7 @@ public class DataFilter
         double[] res = new double[1];
         int ec = instance.get_band_power (psd.getLeft (), psd.getRight (), psd.getLeft ().length, freq_start, freq_end,
                 res);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to get band power", ec);
         }
@@ -810,7 +810,7 @@ public class DataFilter
     {
         int[] power_of_two = new int[1];
         int ec = instance.get_nearest_power_of_two (value, power_of_two);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to calc nearest power of two", ec);
         }
@@ -824,11 +824,11 @@ public class DataFilter
     {
         if (data.length == 0)
         {
-            throw new BrainFlowError ("empty data array", ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+            throw new BrainFlowError ("empty data array", BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
         }
         double[] linear_data = reshape_data_to_1d (data.length, data[0].length, data);
         int ec = instance.write_file (linear_data, data.length, data[0].length, file_name, file_mode);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to write data to file", ec);
         }
@@ -841,7 +841,7 @@ public class DataFilter
     {
         int[] num_elements = new int[1];
         int ec = instance.get_num_elements_in_file (file_name, num_elements);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to determine number of elements in a file", ec);
         }
@@ -849,7 +849,7 @@ public class DataFilter
         int[] num_rows = new int[1];
         int[] num_cols = new int[1];
         ec = instance.read_file (data_arr, num_rows, num_cols, file_name, num_elements[0]);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to read data to file", ec);
         }

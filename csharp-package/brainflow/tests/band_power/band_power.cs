@@ -29,7 +29,7 @@ namespace test
             int channel = eeg_channels[1];
             board_shim.release_session ();
             double[] detrend = DataFilter.detrend(data.GetRow(channel), (int)DetrendOperations.LINEAR);
-            Tuple<double[], double[]> psd = DataFilter.get_psd_welch (detrend, nfft, nfft / 2, sampling_rate, (int)WindowFunctions.HANNING);
+            Tuple<double[], double[]> psd = DataFilter.get_psd_welch (detrend, nfft, nfft / 2, sampling_rate, (int)WindowOperations.HANNING);
             double band_power_alpha = DataFilter.get_band_power (psd, 7.0, 13.0);
             double band_power_beta = DataFilter.get_band_power (psd, 14.0, 30.0);
             Console.WriteLine ("Alpha/Beta Ratio:" + (band_power_alpha/ band_power_beta));

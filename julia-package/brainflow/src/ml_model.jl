@@ -1,7 +1,7 @@
 import JSON
 export BrainFlowModelParams
 
-@enum BrainFlowMetric begin
+@enum BrainFlowMetrics begin
 
     MINDFULNESS = 0
     RESTFULNESS = 1
@@ -9,9 +9,9 @@ export BrainFlowModelParams
 
 end
 
-MetricType = Union{BrainFlowMetric, Integer}
+MetricType = Union{BrainFlowMetrics, Integer}
 
-@enum BrainFlowClassifier begin
+@enum BrainFlowClassifiers begin
 
     DEFAULT_CLASSIFIER = 0
     DYN_LIB_CLASSIFIER = 1
@@ -19,7 +19,7 @@ MetricType = Union{BrainFlowMetric, Integer}
 
 end
 
-ClassifierType = Union{BrainFlowClassifier, Integer}
+ClassifierType = Union{BrainFlowClassifiers, Integer}
 
 mutable struct BrainFlowModelParams
     metric::MetricType

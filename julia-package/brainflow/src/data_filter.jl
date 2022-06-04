@@ -1,4 +1,4 @@
-@enum AggOperation begin
+@enum AggOperations begin
 
     MEAN = 0
     MEDIAN = 1
@@ -6,9 +6,9 @@
 
 end
 
-AggType = Union{AggOperation, Integer}
+AggType = Union{AggOperations, Integer}
 
-@enum FilterType begin
+@enum FilterTypes begin
 
     BUTTERWORTH = 0
     CHEBYSHEV_TYPE_1 = 1
@@ -16,9 +16,9 @@ AggType = Union{AggOperation, Integer}
 
 end
 
-FiltType = Union{FilterType, Integer}
+FiltType = Union{FilterTypes, Integer}
 
-@enum WindowFunction begin
+@enum WindowOperations begin
 
     NO_WINDOW = 0
     HANNING = 1
@@ -27,9 +27,9 @@ FiltType = Union{FilterType, Integer}
 
 end
 
-WinType = Union{WindowFunction, Integer}
+WinType = Union{WindowOperations, Integer}
 
-@enum DetrendOperation begin
+@enum DetrendOperations begin
 
     NO_DETREND = 0
     CONSTANT = 1
@@ -37,9 +37,9 @@ WinType = Union{WindowFunction, Integer}
 
 end
 
-DetType = Union{DetrendOperation, Integer}
+DetType = Union{DetrendOperations, Integer}
 
-@enum NoiseType begin
+@enum NoiseTypes begin
 
     FIFTY = 0
     SIXTY = 1
@@ -47,7 +47,7 @@ DetType = Union{DetrendOperation, Integer}
 
 end
 
-EnvNoiseType = Union{NoiseType, Integer}
+EnvNoiseType = Union{NoiseTypes, Integer}
 
 @brainflow_rethrow function perform_lowpass(data, sampling_rate::Integer, cutoff::Float64, order::Integer,
     filter_type::FiltType, ripple::Float64)
@@ -102,7 +102,7 @@ end
     return
 end
 
-@brainflow_rethrow function perform_downsampling(data, period::Integer, operation::AggOperation)
+@brainflow_rethrow function perform_downsampling(data, period::Integer, operation::AggType)
     len = Integer(floor(length(data) / period))
     downsampled_data = Vector{Float64}(undef, len)
     ccall((:perform_downsampling, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Cint, Ptr{Float64}),

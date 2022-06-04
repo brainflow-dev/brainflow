@@ -1,4 +1,4 @@
-classdef BoardIDs < int32
+classdef BoardIds < int32
     % Store all supported board ids
     enumeration
         PLAYBACK_FILE_BOARD(-3)

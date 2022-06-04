@@ -24,7 +24,7 @@ classdef DataFilter
         end
 
         function check_ec(ec, task_name)
-            if(ec ~= int32(ExitCodes.STATUS_OK))
+            if(ec ~= int32(BrainFlowExitCodes.STATUS_OK))
                 error('Non zero ec: %d, for task: %s', ec, task_name)
             end
         end

@@ -12,7 +12,7 @@ from typing import List
 from nptyping import NDArray
 
 from brainflow.board_shim import BrainFlowError, LogLevels
-from brainflow.exit_codes import BrainflowExitCodes
+from brainflow.exit_codes import BrainFlowExitCodes
 
 
 class BrainFlowMetrics(enum.IntEnum):
@@ -165,7 +165,7 @@ class MLModel(object):
         :type log_level: int
         """
         res = MLModuleDLL.get_instance().set_log_level_ml_module(log_level)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to enable logger', res)
 
     @classmethod
@@ -195,7 +195,7 @@ class MLModel(object):
         except BaseException:
             file = log_file
         res = MLModuleDLL.get_instance().set_log_file_ml_module(file)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to redirect logs to a file', res)
 
     @classmethod
@@ -203,7 +203,7 @@ class MLModel(object):
         """release all classifiers"""
 
         res = MLModuleDLL.get_instance().release_all()
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to release classifiers', res)
 
     @classmethod
@@ -217,7 +217,7 @@ class MLModel(object):
         string = numpy.zeros(64).astype(numpy.ubyte)
         string_len = numpy.zeros(1).astype(numpy.int32)
         res = MLModuleDLL.get_instance().get_version_ml_module(string, string_len, 64)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info', res)
         return string.tobytes().decode('utf-8')[0:string_len[0]]
 
@@ -225,14 +225,14 @@ class MLModel(object):
         """prepare classifier"""
 
         res = MLModuleDLL.get_instance().prepare(self.serialized_params)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to prepare classifier', res)
 
     def release(self) -> None:
         """release classifier"""
 
         res = MLModuleDLL.get_instance().release(self.serialized_params)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to release classifier', res)
 
     def predict(self, data: NDArray) -> List:
@@ -246,6 +246,6 @@ class MLModel(object):
         output = numpy.zeros(self.model_params.max_array_size).astype(numpy.float64)
         output_len = numpy.zeros(1).astype(numpy.int32)
         res = MLModuleDLL.get_instance().predict(data, data.shape[0], output, output_len, self.serialized_params)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to calc metric', res)
         return output[0:output_len[0]]

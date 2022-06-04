@@ -3,7 +3,7 @@ package brainflow;
 import java.util.HashMap;
 import java.util.Map;
 
-public enum ExitCode
+public enum BrainFlowExitCode
 {
 
     STATUS_OK (0),
@@ -32,7 +32,7 @@ public enum ExitCode
     UNSUPPORTED_CLASSIFIER_AND_METRIC_COMBINATION_ERROR (23);
 
     private final int exit_code;
-    private static final Map<Integer, ExitCode> ec_map = new HashMap<Integer, ExitCode> ();
+    private static final Map<Integer, BrainFlowExitCode> ec_map = new HashMap<Integer, BrainFlowExitCode> ();
 
     public int get_code ()
     {
@@ -44,20 +44,20 @@ public enum ExitCode
         return from_code (code).name ();
     }
 
-    public static ExitCode from_code (final int code)
+    public static BrainFlowExitCode from_code (final int code)
     {
-        final ExitCode element = ec_map.get (code);
+        final BrainFlowExitCode element = ec_map.get (code);
         return element;
     }
 
-    ExitCode (final int code)
+    BrainFlowExitCode (final int code)
     {
         exit_code = code;
     }
 
     static
     {
-        for (final ExitCode ec : ExitCode.values ())
+        for (final BrainFlowExitCode ec : BrainFlowExitCode.values ())
         {
             ec_map.put (ec.get_code (), ec);
         }

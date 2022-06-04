@@ -7,13 +7,6 @@ using System.Text;
 
 namespace brainflow
 {
-    public enum IpProtocolType
-    {
-        NO_IP_PROTOCOL = 0,
-        UDP = 1,
-        TCP = 2
-    };
-
     /// <summary>
     ///  Check SuportedBoards to get information about fields which are required for specific board
     /// </summary>
@@ -41,7 +34,7 @@ namespace brainflow
         [DataMember]
         public int ip_port;
         /// <summary>
-        /// IP protocol, use IpProtocolType
+        /// IP protocol, use IpProtocolTypes
         /// </summary>
         [DataMember]
         public int ip_protocol;
@@ -72,7 +65,7 @@ namespace brainflow
             mac_address = "";
             ip_address = "";
             ip_port = 0;
-            ip_protocol = (int)IpProtocolType.NO_IP_PROTOCOL;
+            ip_protocol = (int)IpProtocolTypes.NO_IP_PROTOCOL;
             other_info = "";
             timeout = 0;
             serial_number = "";

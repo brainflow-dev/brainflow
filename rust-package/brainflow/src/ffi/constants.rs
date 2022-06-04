@@ -87,7 +87,7 @@ pub enum BoardIds {
 }
 #[repr(i32)]
 #[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub enum IpProtocolType {
+pub enum IpProtocolTypes {
     NoIpProtocol = 0,
     Udp = 1,
     Tcp = 2,
@@ -108,7 +108,7 @@ pub enum AggOperations {
 }
 #[repr(i32)]
 #[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub enum WindowFunctions {
+pub enum WindowOperations {
     NoWindow = 0,
     Hanning = 1,
     Hamming = 2,

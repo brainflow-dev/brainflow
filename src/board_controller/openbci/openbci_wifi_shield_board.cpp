@@ -45,7 +45,7 @@ int OpenBCIWifiShieldBoard::prepare_session ()
     safe_logger (spdlog::level::info, "use {} as http timeout", http_timeout);
     // user doent need to provide this param because we have only tcp impl,
     // but if its specified and its UDP return an error
-    if (params.ip_protocol == (int)IpProtocolType::UDP)
+    if (params.ip_protocol == (int)IpProtocolTypes::UDP)
     {
         safe_logger (spdlog::level::err, "ip protocol should be tcp");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;

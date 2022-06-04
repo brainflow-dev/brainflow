@@ -639,18 +639,18 @@ int get_window (int window_function, int window_len, double *output_window)
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     // from https://www.edn.com/windowing-functions-improve-fft-results-part-i/
-    switch (static_cast<WindowFunctions> (window_function))
+    switch (static_cast<WindowOperations> (window_function))
     {
-        case WindowFunctions::NO_WINDOW:
+        case WindowOperations::NO_WINDOW:
             no_window_function (window_len, output_window);
             break;
-        case WindowFunctions::HAMMING:
+        case WindowOperations::HAMMING:
             hamming_function (window_len, output_window);
             break;
-        case WindowFunctions::HANNING:
+        case WindowOperations::HANNING:
             hanning_function (window_len, output_window);
             break;
-        case WindowFunctions::BLACKMAN_HARRIS:
+        case WindowOperations::BLACKMAN_HARRIS:
             blackman_harris_function (window_len, output_window);
             break;
         default:
@@ -1235,7 +1235,7 @@ int get_custom_band_powers (double *raw_data, int rows, int cols, double *start_
 
         // use 80% overlap, as long as it works fast overlap param can be big
         exit_codes[i] = get_psd_welch (thread_data, cols, nfft, 4 * nfft / 5, sampling_rate,
-            (int)WindowFunctions::HANNING, ampls, freqs);
+            (int)WindowOperations::HANNING, ampls, freqs);
         for (int band_num = 0; band_num < num_bands; band_num++)
         {
             if (exit_codes[i] == (int)BrainFlowExitCodes::STATUS_OK)

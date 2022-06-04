@@ -207,7 +207,7 @@ public class BoardShim
     public static void set_log_file (String log_file) throws BrainFlowError
     {
         int ec = instance.set_log_file_board_controller (log_file);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in set_log_file", ec);
         }
@@ -219,7 +219,7 @@ public class BoardShim
     public static void release_all_sessions () throws BrainFlowError
     {
         int ec = instance.release_all_sessions ();
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in release sessions", ec);
         }
@@ -231,7 +231,7 @@ public class BoardShim
     public static void set_log_level (int log_level) throws BrainFlowError
     {
         int ec = instance.set_log_level_board_controller (log_level);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in set_log_level", ec);
         }
@@ -251,7 +251,7 @@ public class BoardShim
     public static void log_message (int log_level, String message) throws BrainFlowError
     {
         int ec = instance.log_message_board_controller (log_level, message);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in log_message", ec);
         }
@@ -272,7 +272,7 @@ public class BoardShim
     {
         int[] res = new int[1];
         int ec = instance.get_sampling_rate (board_id, res);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in board info getter", ec);
         }
@@ -295,7 +295,7 @@ public class BoardShim
     {
         int[] res = new int[1];
         int ec = instance.get_timestamp_channel (board_id, res);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in board info getter", ec);
         }
@@ -318,7 +318,7 @@ public class BoardShim
     {
         int[] res = new int[1];
         int ec = instance.get_marker_channel (board_id, res);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in board info getter", ec);
         }
@@ -340,7 +340,7 @@ public class BoardShim
     {
         int[] res = new int[1];
         int ec = instance.get_num_rows (board_id, res);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in board info getter", ec);
         }
@@ -363,7 +363,7 @@ public class BoardShim
     {
         int[] res = new int[1];
         int ec = instance.get_package_num_channel (board_id, res);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in board info getter", ec);
         }
@@ -387,7 +387,7 @@ public class BoardShim
     {
         int[] res = new int[1];
         int ec = instance.get_battery_channel (board_id, res);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in board info getter", ec);
         }
@@ -412,7 +412,7 @@ public class BoardShim
         int[] len = new int[1];
         byte[] str = new byte[4096];
         int ec = instance.get_eeg_names (board_id, str, len);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in board info getter", ec);
         }
@@ -437,7 +437,7 @@ public class BoardShim
         int[] len = new int[1];
         byte[] str = new byte[16000];
         int ec = instance.get_board_descr (board_id, str, len);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in board info getter", ec);
         }
@@ -463,7 +463,7 @@ public class BoardShim
         int[] len = new int[1];
         byte[] str = new byte[4096];
         int ec = instance.get_device_name (board_id, str, len);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in board info getter", ec);
         }
@@ -487,7 +487,7 @@ public class BoardShim
         int[] len = new int[1];
         byte[] str = new byte[64];
         int ec = instance.get_version_board_controller (str, len, 64);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in get_version", ec);
         }
@@ -504,7 +504,7 @@ public class BoardShim
         int[] len = new int[1];
         int[] channels = new int[512];
         int ec = instance.get_eeg_channels (board_id, channels, len);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in board info getter", ec);
         }
@@ -530,7 +530,7 @@ public class BoardShim
         int[] len = new int[1];
         int[] channels = new int[512];
         int ec = instance.get_emg_channels (board_id, channels, len);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in board info getter", ec);
         }
@@ -556,7 +556,7 @@ public class BoardShim
         int[] len = new int[1];
         int[] channels = new int[512];
         int ec = instance.get_ecg_channels (board_id, channels, len);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in board info getter", ec);
         }
@@ -582,7 +582,7 @@ public class BoardShim
         int[] len = new int[1];
         int[] channels = new int[512];
         int ec = instance.get_temperature_channels (board_id, channels, len);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in board info getter", ec);
         }
@@ -608,7 +608,7 @@ public class BoardShim
         int[] len = new int[1];
         int[] channels = new int[512];
         int ec = instance.get_resistance_channels (board_id, channels, len);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in board info getter", ec);
         }
@@ -634,7 +634,7 @@ public class BoardShim
         int[] len = new int[1];
         int[] channels = new int[512];
         int ec = instance.get_eog_channels (board_id, channels, len);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in board info getter", ec);
         }
@@ -660,7 +660,7 @@ public class BoardShim
         int[] len = new int[1];
         int[] channels = new int[512];
         int ec = instance.get_exg_channels (board_id, channels, len);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in board info getter", ec);
         }
@@ -686,7 +686,7 @@ public class BoardShim
         int[] len = new int[1];
         int[] channels = new int[512];
         int ec = instance.get_eda_channels (board_id, channels, len);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in board info getter", ec);
         }
@@ -712,7 +712,7 @@ public class BoardShim
         int[] len = new int[1];
         int[] channels = new int[512];
         int ec = instance.get_ppg_channels (board_id, channels, len);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in board info getter", ec);
         }
@@ -738,7 +738,7 @@ public class BoardShim
         int[] len = new int[1];
         int[] channels = new int[512];
         int ec = instance.get_accel_channels (board_id, channels, len);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in board info getter", ec);
         }
@@ -764,7 +764,7 @@ public class BoardShim
         int[] len = new int[1];
         int[] channels = new int[512];
         int ec = instance.get_analog_channels (board_id, channels, len);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in board info getter", ec);
         }
@@ -790,7 +790,7 @@ public class BoardShim
         int[] len = new int[1];
         int[] channels = new int[512];
         int ec = instance.get_gyro_channels (board_id, channels, len);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in board info getter", ec);
         }
@@ -816,7 +816,7 @@ public class BoardShim
         int[] len = new int[1];
         int[] channels = new int[512];
         int ec = instance.get_other_channels (board_id, channels, len);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in board info getter", ec);
         }
@@ -858,7 +858,7 @@ public class BoardShim
             } catch (NumberFormatException e)
             {
                 throw new BrainFlowError ("need to set params.other_info to master board id",
-                        ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+                        BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
             }
         }
         this.input_json = params.to_json ();
@@ -883,7 +883,7 @@ public class BoardShim
             } catch (NumberFormatException e)
             {
                 throw new BrainFlowError ("need to set params.other_info to master board id",
-                        ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+                        BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
             }
         }
         this.input_json = params.to_json ();
@@ -895,7 +895,7 @@ public class BoardShim
     public void prepare_session () throws BrainFlowError
     {
         int ec = instance.prepare_session (board_id, input_json);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in prepare_session", ec);
         }
@@ -918,7 +918,7 @@ public class BoardShim
         int[] len = new int[1];
         byte[] str = new byte[4096];
         int ec = instance.config_board (config, str, len, board_id, input_json);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in config_board", ec);
         }
@@ -941,7 +941,7 @@ public class BoardShim
     public void start_stream (int buffer_size, String streamer_params) throws BrainFlowError
     {
         int ec = instance.start_stream (buffer_size, streamer_params, board_id, input_json);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in start_stream", ec);
         }
@@ -969,7 +969,7 @@ public class BoardShim
     public void stop_stream () throws BrainFlowError
     {
         int ec = instance.stop_stream (board_id, input_json);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in stop_stream", ec);
         }
@@ -981,7 +981,7 @@ public class BoardShim
     public void release_session () throws BrainFlowError
     {
         int ec = instance.release_session (board_id, input_json);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in release_session", ec);
         }
@@ -994,7 +994,7 @@ public class BoardShim
     {
         int[] res = new int[1];
         int ec = instance.get_board_data_count (res, board_id, input_json);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in get_board_data_count", ec);
         }
@@ -1007,7 +1007,7 @@ public class BoardShim
     public void insert_marker (double value) throws BrainFlowError
     {
         int ec = instance.insert_marker (value, board_id, input_json);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in insert_marker", ec);
         }
@@ -1020,7 +1020,7 @@ public class BoardShim
     {
         int[] res = new int[1];
         int ec = instance.is_prepared (res, board_id, input_json);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in is_prepared", ec);
         }
@@ -1037,7 +1037,7 @@ public class BoardShim
         double[] data_arr = new double[num_samples * num_rows];
         int[] current_size = new int[1];
         int ec = instance.get_current_board_data (num_samples, data_arr, current_size, board_id, input_json);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in get_current_board_data", ec);
         }
@@ -1058,7 +1058,7 @@ public class BoardShim
         int num_rows = BoardShim.get_num_rows (master_board_id);
         double[] data_arr = new double[size * num_rows];
         int ec = instance.get_board_data (size, data_arr, board_id, input_json);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in get_board_data", ec);
         }
@@ -1075,14 +1075,14 @@ public class BoardShim
         if (num_datapoints < 0)
         {
             throw new BrainFlowError ("data size should be greater than 0",
-                    ExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+                    BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
         }
         int size = get_board_data_count ();
         size = (size >= num_datapoints) ? num_datapoints : size;
         int num_rows = BoardShim.get_num_rows (master_board_id);
         double[] data_arr = new double[size * num_rows];
         int ec = instance.get_board_data (size, data_arr, board_id, input_json);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in get_board_data", ec);
         }

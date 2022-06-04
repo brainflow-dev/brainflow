@@ -23,7 +23,7 @@ public class BrainFlowInputParams
         mac_address = "";
         serial_port = "";
         ip_port = 0;
-        ip_protocol = IpProtocolType.NO_IP_PROTOCOL.get_code ();
+        ip_protocol = IpProtocolTypes.NO_IP_PROTOCOL.get_code ();
         other_info = "";
         timeout = 0;
         serial_number = "";
@@ -85,7 +85,7 @@ public class BrainFlowInputParams
         this.ip_protocol = ip_protocol;
     }
 
-    public void set_ip_protocol (IpProtocolType ip_protocol)
+    public void set_ip_protocol (IpProtocolTypes ip_protocol)
     {
         this.ip_protocol = ip_protocol.get_code ();
     }

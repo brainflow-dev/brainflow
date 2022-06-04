@@ -11,7 +11,8 @@ from typing import List
 
 from nptyping import NDArray, Float64
 
-from brainflow.exit_codes import BrainflowExitCodes
+from brainflow.exit_codes import BrainFlowExitCodes, BrainFlowError
+from brainflow.utils import LogLevels
 
 
 class BoardIds(enum.IntEnum):
@@ -65,19 +66,7 @@ class BoardIds(enum.IntEnum):
     PIEEG_BOARD = 43  #:
 
 
-class LogLevels(enum.IntEnum):
-    """Enum to store all log levels supported by BrainFlow"""
-
-    LEVEL_TRACE = 0  #:
-    LEVEL_DEBUG = 1  #:
-    LEVEL_INFO = 2  #:
-    LEVEL_WARN = 3  #:
-    LEVEL_ERROR = 4  #:
-    LEVEL_CRITICAL = 5  #:
-    LEVEL_OFF = 6  #:
-
-
-class IpProtocolType(enum.IntEnum):
+class IpProtocolTypes(enum.IntEnum):
     """Enum to store Ip Protocol types"""
 
     NO_IP_PROTOCOL = 0  #:
@@ -96,7 +85,7 @@ class BrainFlowInputParams(object):
     :type ip_address: str
     :param ip_port: ip port for socket connection, for some boards where we know it in front you dont need this parameter
     :type ip_port: int
-    :param ip_protocol: ip protocol type from IpProtocolType enum
+    :param ip_protocol: ip protocol type from IpProtocolTypes enum
     :type ip_protocol: int
     :param other_info: other info
     :type other_info: str
@@ -111,7 +100,7 @@ class BrainFlowInputParams(object):
         self.mac_address = ''
         self.ip_address = ''
         self.ip_port = 0
-        self.ip_protocol = IpProtocolType.NO_IP_PROTOCOL.value
+        self.ip_protocol = IpProtocolTypes.NO_IP_PROTOCOL.value
         self.other_info = ''
         self.timeout = 0
         self.serial_number = ''
@@ -120,21 +109,6 @@ class BrainFlowInputParams(object):
     def to_json(self) -> None:
         return json.dumps(self, default=lambda o: o.__dict__,
                           sort_keys=True, indent=4)
-
-
-class BrainFlowError(Exception):
-    """This exception is raised if non-zero exit code is returned from C code
-
-    :param message: exception message
-    :type message: str
-    :param exit_code: exit code flow low level API
-    :type exit_code: int
-    """
-
-    def __init__(self, message: str, exit_code: int) -> None:
-        detailed_message = '%s:%d %s' % (BrainflowExitCodes(exit_code).name, exit_code, message)
-        super(BrainFlowError, self).__init__(detailed_message)
-        self.exit_code = exit_code
 
 
 class BoardControllerDLL(object):
@@ -477,7 +451,7 @@ class BoardShim(object):
                 self._master_board_id = int(input_params.other_info)
             except:
                 raise BrainFlowError('set master board id using params.other_info',
-                                     BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+                                     BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         else:
             self._master_board_id = self.board_id
 
@@ -490,7 +464,7 @@ class BoardShim(object):
         :type log_level: int
         """
         res = BoardControllerDLL.get_instance().set_log_level_board_controller(log_level)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to enable logger', res)
 
     @classmethod
@@ -522,7 +496,7 @@ class BoardShim(object):
         except BaseException:
             msg = message
         res = BoardControllerDLL.get_instance().log_message_board_controller(log_level, msg)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to write log message', res)
 
     @classmethod
@@ -537,7 +511,7 @@ class BoardShim(object):
         except BaseException:
             file = log_file
         res = BoardControllerDLL.get_instance().set_log_file_board_controller(file)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to redirect logs to a file', res)
 
     @classmethod
@@ -552,7 +526,7 @@ class BoardShim(object):
         """
         sampling_rate = numpy.zeros(1).astype(numpy.int32)
         res = BoardControllerDLL.get_instance().get_sampling_rate(board_id, sampling_rate)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         return int(sampling_rate[0])
 
@@ -568,7 +542,7 @@ class BoardShim(object):
         """
         package_num_channel = numpy.zeros(1).astype(numpy.int32)
         res = BoardControllerDLL.get_instance().get_package_num_channel(board_id, package_num_channel)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         return int(package_num_channel[0])
 
@@ -584,7 +558,7 @@ class BoardShim(object):
         """
         battery_channel = numpy.zeros(1).astype(numpy.int32)
         res = BoardControllerDLL.get_instance().get_battery_channel(board_id, battery_channel)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         return int(battery_channel[0])
 
@@ -600,7 +574,7 @@ class BoardShim(object):
         """
         num_rows = numpy.zeros(1).astype(numpy.int32)
         res = BoardControllerDLL.get_instance().get_num_rows(board_id, num_rows)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         return int(num_rows[0])
 
@@ -616,7 +590,7 @@ class BoardShim(object):
         """
         timestamp_channel = numpy.zeros(1).astype(numpy.int32)
         res = BoardControllerDLL.get_instance().get_timestamp_channel(board_id, timestamp_channel)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         return int(timestamp_channel[0])
 
@@ -632,7 +606,7 @@ class BoardShim(object):
         """
         marker_channel = numpy.zeros(1).astype(numpy.int32)
         res = BoardControllerDLL.get_instance().get_marker_channel(board_id, marker_channel)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         return int(marker_channel[0])
 
@@ -649,7 +623,7 @@ class BoardShim(object):
         string = numpy.zeros(4096).astype(numpy.ubyte)
         string_len = numpy.zeros(1).astype(numpy.int32)
         res = BoardControllerDLL.get_instance().get_eeg_names(board_id, string, string_len)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         return string.tobytes().decode('utf-8')[0:string_len[0]].split(',')
 
@@ -664,7 +638,7 @@ class BoardShim(object):
         string = numpy.zeros(64).astype(numpy.ubyte)
         string_len = numpy.zeros(1).astype(numpy.int32)
         res = BoardControllerDLL.get_instance().get_version_board_controller(string, string_len, 64)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info', res)
         return string.tobytes().decode('utf-8')[0:string_len[0]]
 
@@ -681,7 +655,7 @@ class BoardShim(object):
         string = numpy.zeros(16000).astype(numpy.ubyte)
         string_len = numpy.zeros(1).astype(numpy.int32)
         res = BoardControllerDLL.get_instance().get_board_descr(board_id, string, string_len)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         return json.loads(string.tobytes().decode('utf-8')[0:string_len[0]])
 
@@ -698,7 +672,7 @@ class BoardShim(object):
         string = numpy.zeros(4096).astype(numpy.ubyte)
         string_len = numpy.zeros(1).astype(numpy.int32)
         res = BoardControllerDLL.get_instance().get_device_name(board_id, string, string_len)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         return string.tobytes().decode('utf-8')[0:string_len[0]]
 
@@ -716,7 +690,7 @@ class BoardShim(object):
         eeg_channels = numpy.zeros(512).astype(numpy.int32)
 
         res = BoardControllerDLL.get_instance().get_eeg_channels(board_id, eeg_channels, num_channels)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         result = eeg_channels.tolist()[0:num_channels[0]]
         return result
@@ -735,7 +709,7 @@ class BoardShim(object):
         exg_channels = numpy.zeros(512).astype(numpy.int32)
 
         res = BoardControllerDLL.get_instance().get_exg_channels(board_id, exg_channels, num_channels)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         result = exg_channels.tolist()[0:num_channels[0]]
         return result
@@ -754,7 +728,7 @@ class BoardShim(object):
         emg_channels = numpy.zeros(512).astype(numpy.int32)
 
         res = BoardControllerDLL.get_instance().get_emg_channels(board_id, emg_channels, num_channels)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         result = emg_channels.tolist()[0:num_channels[0]]
         return result
@@ -773,7 +747,7 @@ class BoardShim(object):
         ecg_channels = numpy.zeros(512).astype(numpy.int32)
 
         res = BoardControllerDLL.get_instance().get_ecg_channels(board_id, ecg_channels, num_channels)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         result = ecg_channels.tolist()[0:num_channels[0]]
         return result
@@ -792,7 +766,7 @@ class BoardShim(object):
         eog_channels = numpy.zeros(512).astype(numpy.int32)
 
         res = BoardControllerDLL.get_instance().get_eog_channels(board_id, eog_channels, num_channels)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         result = eog_channels.tolist()[0:num_channels[0]]
         return result
@@ -811,7 +785,7 @@ class BoardShim(object):
         eda_channels = numpy.zeros(512).astype(numpy.int32)
 
         res = BoardControllerDLL.get_instance().get_eda_channels(board_id, eda_channels, num_channels)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         result = eda_channels.tolist()[0:num_channels[0]]
         return result
@@ -830,7 +804,7 @@ class BoardShim(object):
         ppg_channels = numpy.zeros(512).astype(numpy.int32)
 
         res = BoardControllerDLL.get_instance().get_ppg_channels(board_id, ppg_channels, num_channels)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         result = ppg_channels.tolist()[0:num_channels[0]]
         return result
@@ -849,7 +823,7 @@ class BoardShim(object):
         accel_channels = numpy.zeros(512).astype(numpy.int32)
 
         res = BoardControllerDLL.get_instance().get_accel_channels(board_id, accel_channels, num_channels)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         result = accel_channels.tolist()[0:num_channels[0]]
         return result
@@ -868,7 +842,7 @@ class BoardShim(object):
         analog_channels = numpy.zeros(512).astype(numpy.int32)
 
         res = BoardControllerDLL.get_instance().get_analog_channels(board_id, analog_channels, num_channels)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         result = analog_channels.tolist()[0:num_channels[0]]
         return result
@@ -887,7 +861,7 @@ class BoardShim(object):
         gyro_channels = numpy.zeros(512).astype(numpy.int32)
 
         res = BoardControllerDLL.get_instance().get_gyro_channels(board_id, gyro_channels, num_channels)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         result = gyro_channels.tolist()[0:num_channels[0]]
         return result
@@ -906,7 +880,7 @@ class BoardShim(object):
         other_channels = numpy.zeros(512).astype(numpy.int32)
 
         res = BoardControllerDLL.get_instance().get_other_channels(board_id, other_channels, num_channels)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         result = other_channels.tolist()[0:num_channels[0]]
         return result
@@ -925,7 +899,7 @@ class BoardShim(object):
         temperature_channels = numpy.zeros(512).astype(numpy.int32)
 
         res = BoardControllerDLL.get_instance().get_temperature_channels(board_id, temperature_channels, num_channels)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         result = temperature_channels.tolist()[0:num_channels[0]]
         return result
@@ -944,7 +918,7 @@ class BoardShim(object):
         resistance_channels = numpy.zeros(512).astype(numpy.int32)
 
         res = BoardControllerDLL.get_instance().get_resistance_channels(board_id, resistance_channels, num_channels)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         result = resistance_channels.tolist()[0:num_channels[0]]
         return result
@@ -954,14 +928,14 @@ class BoardShim(object):
         """release all prepared sessions"""
 
         res = BoardControllerDLL.get_instance().release_all_sessions()
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to release sessions', res)
 
     def prepare_session(self) -> None:
         """prepare streaming sesssion, init resources, you need to call it before any other BoardShim object methods"""
 
         res = BoardControllerDLL.get_instance().prepare_session(self.board_id, self.input_json)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to prepare streaming session', res)
 
     def start_stream(self, num_samples: int = 1800 * 250, streamer_params: str = None) -> None:
@@ -982,21 +956,21 @@ class BoardShim(object):
                 streamer = streamer_params
 
         res = BoardControllerDLL.get_instance().start_stream(num_samples, streamer, self.board_id, self.input_json)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to start streaming session', res)
 
     def stop_stream(self) -> None:
         """Stop streaming data"""
 
         res = BoardControllerDLL.get_instance().stop_stream(self.board_id, self.input_json)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to stop streaming session', res)
 
     def release_session(self) -> None:
         """release all resources"""
 
         res = BoardControllerDLL.get_instance().release_session(self.board_id, self.input_json)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to release streaming session', res)
 
     def get_current_board_data(self, num_samples: int) -> NDArray[Float64]:
@@ -1013,7 +987,7 @@ class BoardShim(object):
 
         res = BoardControllerDLL.get_instance().get_current_board_data(num_samples, data_arr, current_size,
                                                                        self.board_id, self.input_json)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to get current data', res)
 
         if len(current_size) == 0:
@@ -1031,7 +1005,7 @@ class BoardShim(object):
         data_size = numpy.zeros(1).astype(numpy.int32)
 
         res = BoardControllerDLL.get_instance().get_board_data_count(data_size, self.board_id, self.input_json)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to obtain buffer size', res)
         return data_size[0]
 
@@ -1054,7 +1028,7 @@ class BoardShim(object):
         """
 
         res = BoardControllerDLL.get_instance().insert_marker(value, self.board_id, self.input_json)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to insert marker', res)
 
     def is_prepared(self) -> bool:
@@ -1066,7 +1040,7 @@ class BoardShim(object):
         prepared = numpy.zeros(1).astype(numpy.int32)
 
         res = BoardControllerDLL.get_instance().is_prepared(prepared, self.board_id, self.input_json)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to check session status', res)
         return bool(prepared[0])
 
@@ -1081,14 +1055,14 @@ class BoardShim(object):
         data_size = self.get_board_data_count()
         if num_samples is not None:
             if num_samples < 1:
-                raise BrainFlowError('invalid num_samples', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+                raise BrainFlowError('invalid num_samples', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
             else:
                 data_size = min(data_size, num_samples)
         package_length = BoardShim.get_num_rows(self._master_board_id)
         data_arr = numpy.zeros(data_size * package_length).astype(numpy.float64)
 
         res = BoardControllerDLL.get_instance().get_board_data(data_size, data_arr, self.board_id, self.input_json)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to get board data', res)
 
         return data_arr.reshape(package_length, data_size)
@@ -1110,6 +1084,6 @@ class BoardShim(object):
 
         res = BoardControllerDLL.get_instance().config_board(config_string, string, string_len, self.board_id,
                                                              self.input_json)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to config board', res)
         return string.tobytes().decode('utf-8')[0:string_len[0]]

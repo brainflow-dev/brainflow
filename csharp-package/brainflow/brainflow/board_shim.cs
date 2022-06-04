@@ -35,7 +35,7 @@ namespace brainflow
                 }
                 catch (FormatException)
                 {
-                    throw new BrainFlowException ((int)CustomExitCodes.INVALID_ARGUMENTS_ERROR);
+                    throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
                 }
             }
             this.input_json = input_params.to_json ();
@@ -47,9 +47,9 @@ namespace brainflow
         public static void release_all_sessions ()
         {
             int res = BoardControllerLibrary.release_all_sessions ();
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException(res);
+                throw new BrainFlowError(res);
             }
         }
 
@@ -63,9 +63,9 @@ namespace brainflow
         {
             int[] val = new int[1];
             int res = BoardControllerLibrary.get_sampling_rate (board_id, val);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             return val[0];
         }
@@ -80,9 +80,9 @@ namespace brainflow
         {
             int[] val = new int[1];
             int res = BoardControllerLibrary.get_package_num_channel (board_id, val);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             return val[0];
         }
@@ -97,9 +97,9 @@ namespace brainflow
         {
             int[] val = new int[1];
             int res = BoardControllerLibrary.get_timestamp_channel (board_id, val);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             return val[0];
         }
@@ -114,9 +114,9 @@ namespace brainflow
         {
             int[] val = new int[1];
             int res = BoardControllerLibrary.get_marker_channel (board_id, val);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             return val[0];
         }
@@ -131,9 +131,9 @@ namespace brainflow
         {
             int[] val = new int[1];
             int res = BoardControllerLibrary.get_battery_channel (board_id, val);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             return val[0];
         }
@@ -148,9 +148,9 @@ namespace brainflow
         {
             int[] val = new int[1];
             int res = BoardControllerLibrary.get_num_rows (board_id, val);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             return val[0];
         }
@@ -166,9 +166,9 @@ namespace brainflow
             int[] len = new int[1];
             byte[] str = new byte[4096];
             int res = BoardControllerLibrary.get_eeg_names (board_id, str, len);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException(res);
+                throw new BrainFlowError(res);
             }
             string eeg_str = System.Text.Encoding.UTF8.GetString (str, 0, len[0]);
             return eeg_str.Split (new Char[] {','});
@@ -185,9 +185,9 @@ namespace brainflow
             int[] len = new int[1];
             byte[] str = new byte[16000];
             int res = BoardControllerLibrary.get_board_descr (board_id, str, len);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException(res);
+                throw new BrainFlowError(res);
             }
             string descr_str = System.Text.Encoding.UTF8.GetString (str, 0, len[0]);
             var ms = new MemoryStream(Encoding.UTF8.GetBytes(descr_str));
@@ -208,9 +208,9 @@ namespace brainflow
             int[] len = new int[1];
             byte[] str = new byte[4096];
             int res = BoardControllerLibrary.get_device_name (board_id, str, len);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             string name = System.Text.Encoding.UTF8.GetString (str, 0, len[0]);
             return name;
@@ -226,9 +226,9 @@ namespace brainflow
             int[] len = new int[1];
             byte[] str = new byte[64];
             int res = BoardControllerLibrary.get_version_board_controller (str, len, 64);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             string version = System.Text.Encoding.UTF8.GetString (str, 0, len[0]);
             return version;
@@ -245,9 +245,9 @@ namespace brainflow
             int[] len = new int[1];
             int[] channels = new int[512];
             int res = BoardControllerLibrary.get_eeg_channels (board_id, channels, len);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             int[] result = new int[len[0]];
             for (int i = 0; i < len[0]; i++)
@@ -268,9 +268,9 @@ namespace brainflow
             int[] len = new int[1];
             int[] channels = new int[512];
             int res = BoardControllerLibrary.get_emg_channels (board_id, channels, len);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             int[] result = new int[len[0]];
             for (int i = 0; i < len[0]; i++)
@@ -291,9 +291,9 @@ namespace brainflow
             int[] len = new int[1];
             int[] channels = new int[512];
             int res = BoardControllerLibrary.get_ecg_channels (board_id, channels, len);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             int[] result = new int[len[0]];
             for (int i = 0; i < len[0]; i++)
@@ -314,9 +314,9 @@ namespace brainflow
             int[] len = new int[1];
             int[] channels = new int[512];
             int res = BoardControllerLibrary.get_eog_channels (board_id, channels, len);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             int[] result = new int[len[0]];
             for (int i = 0; i < len[0]; i++)
@@ -337,9 +337,9 @@ namespace brainflow
             int[] len = new int[1];
             int[] channels = new int[512];
             int res = BoardControllerLibrary.get_exg_channels (board_id, channels, len);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             int[] result = new int[len[0]];
             for (int i = 0; i < len[0]; i++)
@@ -360,9 +360,9 @@ namespace brainflow
             int[] len = new int[1];
             int[] channels = new int[512];
             int res = BoardControllerLibrary.get_eda_channels (board_id, channels, len);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             int[] result = new int[len[0]];
             for (int i = 0; i < len[0]; i++)
@@ -383,9 +383,9 @@ namespace brainflow
             int[] len = new int[1];
             int[] channels = new int[512];
             int res = BoardControllerLibrary.get_ppg_channels (board_id, channels, len);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             int[] result = new int[len[0]];
             for (int i = 0; i < len[0]; i++)
@@ -406,9 +406,9 @@ namespace brainflow
             int[] len = new int[1];
             int[] channels = new int[512];
             int res = BoardControllerLibrary.get_accel_channels (board_id, channels, len);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             int[] result = new int[len[0]];
             for (int i = 0; i < len[0]; i++)
@@ -429,9 +429,9 @@ namespace brainflow
             int[] len = new int[1];
             int[] channels = new int[512];
             int res = BoardControllerLibrary.get_analog_channels (board_id, channels, len);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             int[] result = new int[len[0]];
             for (int i = 0; i < len[0]; i++)
@@ -452,9 +452,9 @@ namespace brainflow
             int[] len = new int[1];
             int[] channels = new int[512];
             int res = BoardControllerLibrary.get_gyro_channels (board_id, channels, len);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             int[] result = new int[len[0]];
             for (int i = 0; i < len[0]; i++)
@@ -475,9 +475,9 @@ namespace brainflow
             int[] len = new int[1];
             int[] channels = new int[512];
             int res = BoardControllerLibrary.get_other_channels (board_id, channels, len);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             int[] result = new int[len[0]];
             for (int i = 0; i < len[0]; i++)
@@ -498,9 +498,9 @@ namespace brainflow
             int[] len = new int[1];
             int[] channels = new int[512];
             int res = BoardControllerLibrary.get_temperature_channels (board_id, channels, len);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             int[] result = new int[len[0]];
             for (int i = 0; i < len[0]; i++)
@@ -521,9 +521,9 @@ namespace brainflow
             int[] len = new int[1];
             int[] channels = new int[512];
             int res = BoardControllerLibrary.get_resistance_channels (board_id, channels, len);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException(res);
+                throw new BrainFlowError(res);
             }
             int[] result = new int[len[0]];
             for (int i = 0; i < len[0]; i++)
@@ -540,9 +540,9 @@ namespace brainflow
         public static void set_log_level (int log_level)
         {
             int res = BoardControllerLibrary.set_log_level_board_controller (log_level);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
         }
 
@@ -577,9 +577,9 @@ namespace brainflow
         public static void set_log_file (string log_file)
         {
             int res = BoardControllerLibrary.set_log_file_board_controller (log_file);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
         }
 
@@ -591,9 +591,9 @@ namespace brainflow
         public static void log_message (int log_level, string message)
         {
             int res = BoardControllerLibrary.log_message_board_controller (log_level, message);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
         }
 
@@ -603,9 +603,9 @@ namespace brainflow
         public void prepare_session ()
         {
             int res = BoardControllerLibrary.prepare_session (board_id, input_json);
-            if (res != (int) CustomExitCodes.STATUS_OK)
+            if (res != (int) BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
         }
 
@@ -618,9 +618,9 @@ namespace brainflow
             int[] len = new int[1];
             byte[] str = new byte[4096];
             int res = BoardControllerLibrary.config_board (config, str, len, board_id, input_json);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             string response = System.Text.Encoding.UTF8.GetString (str, 0, len[0]);
             return response;
@@ -632,9 +632,9 @@ namespace brainflow
         public void insert_marker (double value)
         {
             int res = BoardControllerLibrary.insert_marker (value, board_id, input_json);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
         }
 
@@ -646,9 +646,9 @@ namespace brainflow
         public void start_stream (int buffer_size = 3600 * 250, string streamer_params = "")
         {
             int res = BoardControllerLibrary.start_stream (buffer_size, streamer_params, board_id, input_json);
-            if (res != (int) CustomExitCodes.STATUS_OK)
+            if (res != (int) BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
         }
 
@@ -658,9 +658,9 @@ namespace brainflow
         public void stop_stream ()
         {
             int res = BoardControllerLibrary.stop_stream (board_id, input_json);
-            if (res != (int) CustomExitCodes.STATUS_OK)
+            if (res != (int) BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
         }
 
@@ -670,9 +670,9 @@ namespace brainflow
         public void release_session ()
         {
             int res = BoardControllerLibrary.release_session (board_id, input_json);
-            if (res != (int) CustomExitCodes.STATUS_OK)
+            if (res != (int) BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
         }
 
@@ -684,9 +684,9 @@ namespace brainflow
         {
             int[] res = new int[1];
             int ec = BoardControllerLibrary.is_prepared(res, board_id, input_json);
-            if (ec != (int)CustomExitCodes.STATUS_OK)
+            if (ec != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException(ec);
+                throw new BrainFlowError(ec);
             }
             return res[0] != 0;
         }
@@ -707,9 +707,9 @@ namespace brainflow
         {
             int[] res = new int[1];
             int ec = BoardControllerLibrary.get_board_data_count (res, board_id, input_json);
-            if (ec != (int) CustomExitCodes.STATUS_OK)
+            if (ec != (int) BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (ec);
+                throw new BrainFlowError (ec);
             }
             return res[0];
         }
@@ -725,8 +725,8 @@ namespace brainflow
             double[] data_arr = new double[num_samples * num_rows];
             int[] current_size = new int[1];
             int ec = BoardControllerLibrary.get_current_board_data (num_samples, data_arr, current_size, board_id, input_json);
-		    if (ec != (int) CustomExitCodes.STATUS_OK) {
-			    throw new BrainFlowException (ec);
+		    if (ec != (int) BrainFlowExitCodes.STATUS_OK) {
+			    throw new BrainFlowError (ec);
             }
             double[,] result = new double[num_rows, current_size[0]];
             for (int i = 0; i < num_rows; i++)
@@ -757,15 +757,15 @@ namespace brainflow
             int size = get_board_data_count ();
             if (num_datapoints < 0)
             {
-                throw new BrainFlowException ((int)CustomExitCodes.INVALID_ARGUMENTS_ERROR);
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             }
             size = Math.Min (size, num_datapoints);
             int num_rows = BoardShim.get_num_rows (master_board_id);
             double[] data_arr = new double[size * num_rows];
             int ec = BoardControllerLibrary.get_board_data (size, data_arr, board_id, input_json);
-            if (ec != (int)CustomExitCodes.STATUS_OK)
+            if (ec != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (ec);
+                throw new BrainFlowError (ec);
             }
             double[,] result = new double[num_rows, size];
             for (int i = 0; i < num_rows; i++)

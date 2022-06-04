@@ -11,7 +11,7 @@ import brainflow.BrainFlowInputParams;
 import brainflow.DataFilter;
 import brainflow.DetrendOperations;
 import brainflow.LogLevels;
-import brainflow.WindowFunctions;
+import brainflow.WindowOperations;
 
 public class BandPower
 {
@@ -41,7 +41,7 @@ public class BandPower
         // optional: detrend before psd
         DataFilter.detrend (data[eeg_channel], DetrendOperations.LINEAR);
         Pair<double[], double[]> psd = DataFilter.get_psd_welch (data[eeg_channel], nfft, nfft / 2, sampling_rate,
-                WindowFunctions.HANNING);
+                WindowOperations.HANNING);
         double band_power_alpha = DataFilter.get_band_power (psd, 7.0, 13.0);
         double band_power_beta = DataFilter.get_band_power (psd, 14.0, 30.0);
         System.out.println ("Alpha/Beta Ratio: " + (band_power_alpha / band_power_beta));

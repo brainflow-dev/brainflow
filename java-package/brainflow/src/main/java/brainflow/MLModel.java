@@ -133,7 +133,7 @@ public class MLModel
     public static void set_log_file (String log_file) throws BrainFlowError
     {
         int ec = instance.set_log_file_ml_module (log_file);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in set_log_file", ec);
         }
@@ -147,7 +147,7 @@ public class MLModel
         int[] len = new int[1];
         byte[] str = new byte[64];
         int ec = instance.get_version_ml_module (str, len, 64);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in get_version", ec);
         }
@@ -161,7 +161,7 @@ public class MLModel
     public static void release_all () throws BrainFlowError
     {
         int ec = instance.release_all ();
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in release classifiers", ec);
         }
@@ -173,7 +173,7 @@ public class MLModel
     public static void set_log_level (int log_level) throws BrainFlowError
     {
         int ec = instance.set_log_level_ml_module (log_level);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in set_log_level", ec);
         }
@@ -195,7 +195,7 @@ public class MLModel
     public void prepare () throws BrainFlowError
     {
         int ec = instance.prepare (input_params);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in prepare", ec);
         }
@@ -209,7 +209,7 @@ public class MLModel
     public void release () throws BrainFlowError
     {
         int ec = instance.release (input_params);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in release", ec);
         }
@@ -225,7 +225,7 @@ public class MLModel
         double[] val = new double[params.max_array_size];
         int[] val_len = new int[1];
         int ec = instance.predict (data, data.length, val, val_len, input_params);
-        if (ec != ExitCode.STATUS_OK.get_code ())
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in predict", ec);
         }

@@ -111,7 +111,7 @@ namespace brainflow
                     return MLModuleLibraryMac.set_log_level_ml_module (log_level);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int set_log_file_ml_module (string log_file)
@@ -128,7 +128,7 @@ namespace brainflow
                     return MLModuleLibraryMac.set_log_file_ml_module (log_file);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int prepare (string input_json)
@@ -146,7 +146,7 @@ namespace brainflow
 
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int release (string input_json)
@@ -163,7 +163,7 @@ namespace brainflow
                     return MLModuleLibraryMac.release (input_json);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int predict (double[] data, int data_len, double[] output, int[] output_len, string input_json)
@@ -180,7 +180,7 @@ namespace brainflow
                     return MLModuleLibraryMac.predict (data, data_len, output, output_len, input_json);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int release_all ()
@@ -197,7 +197,7 @@ namespace brainflow
                     return MLModuleLibraryMac.release_all ();
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_version_ml_module (byte[] version, int[] len, int max_len)
@@ -214,7 +214,7 @@ namespace brainflow
                     return MLModuleLibraryMac.get_version_ml_module (version, len, max_len);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
     }
 }

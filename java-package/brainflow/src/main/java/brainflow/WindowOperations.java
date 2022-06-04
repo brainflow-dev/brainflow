@@ -3,7 +3,7 @@ package brainflow;
 import java.util.HashMap;
 import java.util.Map;
 
-public enum WindowFunctions
+public enum WindowOperations
 {
 
     NO_WINDOW (0),
@@ -12,7 +12,7 @@ public enum WindowFunctions
     BLACKMAN_HARRIS (3);
 
     private final int window;
-    private static final Map<Integer, WindowFunctions> window_map = new HashMap<Integer, WindowFunctions> ();
+    private static final Map<Integer, WindowOperations> window_map = new HashMap<Integer, WindowOperations> ();
 
     public int get_code ()
     {
@@ -24,20 +24,20 @@ public enum WindowFunctions
         return from_code (code).name ();
     }
 
-    public static WindowFunctions from_code (final int code)
+    public static WindowOperations from_code (final int code)
     {
-        final WindowFunctions element = window_map.get (code);
+        final WindowOperations element = window_map.get (code);
         return element;
     }
 
-    WindowFunctions (final int code)
+    WindowOperations (final int code)
     {
         window = code;
     }
 
     static
     {
-        for (final WindowFunctions win : WindowFunctions.values ())
+        for (final WindowOperations win : WindowOperations.values ())
         {
             window_map.put (win.get_code (), win);
         }

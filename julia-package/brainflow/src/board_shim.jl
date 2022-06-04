@@ -54,7 +54,7 @@ end
 
 BoardIdType = Union{BoardIds, Integer}
 
-@enum IpProtocolType begin
+@enum IpProtocolTypes begin
 
     NO_IP_PROTOCOL = 0
     UDP = 1

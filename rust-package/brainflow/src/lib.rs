@@ -39,13 +39,13 @@ pub use ffi::constants::DetrendOperations;
 /// Enum to store all supported Filter Types.
 pub use ffi::constants::FilterTypes;
 /// Enum to store all supported Ip Protocol Types.
-pub use ffi::constants::IpProtocolType;
+pub use ffi::constants::IpProtocolTypes;
 /// Enum to store all supported Log Levels.
 pub use ffi::constants::LogLevels;
 /// Enum to store all supported Noise Types.
 pub use ffi::constants::NoiseTypes;
 /// Enum to store all supported Window Functions.
-pub use ffi::constants::WindowFunctions;
+pub use ffi::constants::WindowOperations;
 
 type BrainFlowExitCode = i32;
 

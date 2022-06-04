@@ -9,7 +9,7 @@ use crate::error::{BrainFlowError, Error};
 use crate::ffi::data_handler;
 use crate::{
     check_brainflow_exit_code, AggOperations, DetrendOperations, FilterTypes, LogLevels,
-    NoiseTypes, Result, WindowFunctions,
+    NoiseTypes, Result, WindowOperations,
 };
 
 /// Set BrainFlow data logger log level.
@@ -377,7 +377,7 @@ pub fn get_csp<Labels>(
 }
 
 /// Perform data windowing.
-pub fn get_window(window_function: WindowFunctions, window_len: usize) -> Result<Vec<f64>> {
+pub fn get_window(window_function: WindowOperations, window_len: usize) -> Result<Vec<f64>> {
     let mut output = Vec::<f64>::with_capacity(window_len);
     let res = unsafe {
         data_handler::get_window(
@@ -393,7 +393,7 @@ pub fn get_window(window_function: WindowFunctions, window_len: usize) -> Result
 }
 
 /// Perform direct FFT.
-pub fn perform_fft(data: &mut [f64], window_function: WindowFunctions) -> Result<Vec<Complex64>> {
+pub fn perform_fft(data: &mut [f64], window_function: WindowOperations) -> Result<Vec<Complex64>> {
     let mut output_re = Vec::<f64>::with_capacity(data.len() / 2 + 1);
     let mut output_im = Vec::<f64>::with_capacity(data.len() / 2 + 1);
     let res = unsafe {
@@ -460,7 +460,7 @@ pub struct Psd {
 pub fn get_psd(
     data: &mut [f64],
     sampling_rate: usize,
-    window_function: WindowFunctions,
+    window_function: WindowOperations,
 ) -> Result<Psd> {
     let mut amplitude = Vec::<f64>::with_capacity(data.len() / 2 + 1);
     let mut frequency = Vec::<f64>::with_capacity(data.len() / 2 + 1);
@@ -490,7 +490,7 @@ pub fn get_psd_welch(
     nfft: usize,
     overlap: usize,
     sampling_rate: usize,
-    window_function: WindowFunctions,
+    window_function: WindowOperations,
 ) -> Result<Psd> {
     let mut amplitude = Vec::<f64>::with_capacity(nfft / 2 + 1);
     let mut frequency = Vec::<f64>::with_capacity(nfft / 2 + 1);
@@ -683,7 +683,7 @@ mod tests {
 
     use ndarray::array;
 
-    use crate::ffi::constants::WindowFunctions;
+    use crate::ffi::constants::WindowOperations;
 
     use super::*;
 
@@ -697,7 +697,7 @@ mod tests {
             value += step;
         }
 
-        let fft_data = perform_fft(&mut data, WindowFunctions::BlackmanHarris).unwrap();
+        let fft_data = perform_fft(&mut data, WindowOperations::BlackmanHarris).unwrap();
         let restored_fft = perform_ifft(&fft_data, data.len()).unwrap();
         println!("{:?}", restored_fft);
 

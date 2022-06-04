@@ -1,7 +1,22 @@
 import enum
 
 
-class BrainflowExitCodes(enum.IntEnum):
+class BrainFlowError(Exception):
+    """This exception is raised if non-zero exit code is returned from C code
+
+    :param message: exception message
+    :type message: str
+    :param exit_code: exit code flow low level API
+    :type exit_code: int
+    """
+
+    def __init__(self, message: str, exit_code: int) -> None:
+        detailed_message = '%s:%d %s' % (BrainflowExitCodes(exit_code).name, exit_code, message)
+        super(BrainFlowError, self).__init__(detailed_message)
+        self.exit_code = exit_code
+
+
+class BrainFlowExitCodes(enum.IntEnum):
     """Enum to store all possible exit codes"""
 
     STATUS_OK = 0

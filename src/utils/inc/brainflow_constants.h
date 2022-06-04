@@ -82,7 +82,7 @@ enum class BoardIds : int
     LAST = PIEEG_BOARD
 };
 
-enum class IpProtocolType : int
+enum class IpProtocolTypes : int
 {
     NO_IP_PROTOCOL = 0,
     UDP = 1,
@@ -103,7 +103,7 @@ enum class AggOperations : int
     EACH = 2
 };
 
-enum class WindowFunctions : int
+enum class WindowOperations : int
 {
     NO_WINDOW = 0,
     HANNING = 1,

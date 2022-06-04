@@ -10,9 +10,8 @@ from typing import List, Tuple
 
 from nptyping import NDArray, Float64, Complex128
 
-from brainflow.board_shim import BrainFlowError, LogLevels
-from brainflow.exit_codes import BrainflowExitCodes
-from brainflow.utils import check_memory_layout_row_major
+from brainflow.exit_codes import BrainFlowExitCodes, BrainFlowError
+from brainflow.utils import check_memory_layout_row_major, LogLevels
 
 
 class FilterTypes(enum.IntEnum):
@@ -31,7 +30,7 @@ class AggOperations(enum.IntEnum):
     EACH = 2  #:
 
 
-class WindowFunctions(enum.IntEnum):
+class WindowOperations(enum.IntEnum):
     """Enum to store all supported window functions"""
 
     NO_WINDOW = 0  #:
@@ -384,7 +383,7 @@ class DataFilter(object):
         :type log_level: int
         """
         res = DataHandlerDLL.get_instance().set_log_level_data_handler(log_level)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to enable logger', res)
 
     @classmethod
@@ -414,7 +413,7 @@ class DataFilter(object):
         except BaseException:
             file = log_file
         res = DataHandlerDLL.get_instance().set_log_file_data_handler(file)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to redirect logs to a file', res)
 
     @classmethod
@@ -437,12 +436,12 @@ class DataFilter(object):
         """
         check_memory_layout_row_major(data, 1)
         if not isinstance(sampling_rate, int):
-            raise BrainFlowError('wrong type for sampling rate', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+            raise BrainFlowError('wrong type for sampling rate', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not isinstance(filter_type, int):
-            raise BrainFlowError('wrong type for filter type', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+            raise BrainFlowError('wrong type for filter type', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         res = DataHandlerDLL.get_instance().perform_lowpass(data, data.shape[0], sampling_rate, cutoff, order,
                                                             filter_type, ripple)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to perform low pass filter', res)
 
     @classmethod
@@ -465,12 +464,12 @@ class DataFilter(object):
         """
         check_memory_layout_row_major(data, 1)
         if not isinstance(sampling_rate, int):
-            raise BrainFlowError('wrong type for sampling rate', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+            raise BrainFlowError('wrong type for sampling rate', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not isinstance(filter_type, int):
-            raise BrainFlowError('wrong type for filter type', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+            raise BrainFlowError('wrong type for filter type', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         res = DataHandlerDLL.get_instance().perform_highpass(data, data.shape[0], sampling_rate, cutoff, order,
                                                              filter_type, ripple)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to apply high pass filter', res)
 
     @classmethod
@@ -495,12 +494,12 @@ class DataFilter(object):
         """
         check_memory_layout_row_major(data, 1)
         if not isinstance(sampling_rate, int):
-            raise BrainFlowError('wrong type for sampling rate', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+            raise BrainFlowError('wrong type for sampling rate', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not isinstance(filter_type, int):
-            raise BrainFlowError('wrong type for filter type', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+            raise BrainFlowError('wrong type for filter type', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         res = DataHandlerDLL.get_instance().perform_bandpass(data, data.shape[0], sampling_rate, start_freq,
                                                              stop_freq, order, filter_type, ripple)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to apply band pass filter', res)
 
     @classmethod
@@ -525,12 +524,12 @@ class DataFilter(object):
         """
         check_memory_layout_row_major(data, 1)
         if not isinstance(sampling_rate, int):
-            raise BrainFlowError('wrong type for sampling rate', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+            raise BrainFlowError('wrong type for sampling rate', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not isinstance(filter_type, int):
-            raise BrainFlowError('wrong type for filter type', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+            raise BrainFlowError('wrong type for filter type', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         res = DataHandlerDLL.get_instance().perform_bandstop(data, data.shape[0], sampling_rate, start_freq,
                                                              stop_freq, order, filter_type, ripple)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to apply band stop filter', res)
 
     @classmethod
@@ -546,11 +545,11 @@ class DataFilter(object):
         """
         check_memory_layout_row_major(data, 1)
         if not isinstance(sampling_rate, int):
-            raise BrainFlowError('wrong type for sampling rate', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+            raise BrainFlowError('wrong type for sampling rate', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not isinstance(noise_type, int):
-            raise BrainFlowError('wrong type for noise type', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+            raise BrainFlowError('wrong type for noise type', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         res = DataHandlerDLL.get_instance().remove_environmental_noise(data, data.shape[0], sampling_rate, noise_type)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to apply notch filter', res)
 
     @classmethod
@@ -566,11 +565,11 @@ class DataFilter(object):
         """
         check_memory_layout_row_major(data, 1)
         if not isinstance(period, int):
-            raise BrainFlowError('wrong type for period', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+            raise BrainFlowError('wrong type for period', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not isinstance(operation, int):
-            raise BrainFlowError('wrong type for operation', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+            raise BrainFlowError('wrong type for operation', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         res = DataHandlerDLL.get_instance().perform_rolling_filter(data, data.shape[0], period, operation)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to smooth data', res)
 
     @classmethod
@@ -585,7 +584,7 @@ class DataFilter(object):
         check_memory_layout_row_major(data, 1)
         output = numpy.zeros(1).astype(numpy.float64)
         res = DataHandlerDLL.get_instance().calc_stddev(data, 0, data.shape[0], output)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to calc stddev', res)
         return output[0]
 
@@ -604,16 +603,16 @@ class DataFilter(object):
         """
         check_memory_layout_row_major(data, 1)
         if not isinstance(period, int):
-            raise BrainFlowError('wrong type for period', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+            raise BrainFlowError('wrong type for period', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not isinstance(operation, int):
-            raise BrainFlowError('wrong type for operation', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+            raise BrainFlowError('wrong type for operation', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if period <= 0:
-            raise BrainFlowError('Invalid value for period', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+            raise BrainFlowError('Invalid value for period', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
 
         downsampled_data = numpy.zeros(int(data.shape[0] / period)).astype(numpy.float64)
         res = DataHandlerDLL.get_instance().perform_downsampling(data, data.shape[0], period, operation,
                                                                  downsampled_data)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to perform downsampling', res)
 
         return downsampled_data
@@ -641,7 +640,7 @@ class DataFilter(object):
         lengths = numpy.zeros(decomposition_level + 1).astype(numpy.int32)
         res = DataHandlerDLL.get_instance().perform_wavelet_transform(data, data.shape[0], wavelet_func,
                                                                       decomposition_level, wavelet_coeffs, lengths)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to perform wavelet transform', res)
 
         return wavelet_coeffs[0: sum(lengths)], lengths
@@ -672,7 +671,7 @@ class DataFilter(object):
                                                                               wavelet_func,
                                                                               decomposition_level, wavelet_output[1],
                                                                               original_data)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to perform inverse wavelet transform', res)
 
         return original_data
@@ -696,7 +695,7 @@ class DataFilter(object):
 
         res = DataHandlerDLL.get_instance().perform_wavelet_denoising(data, data.shape[0], wavelet_func,
                                                                       decomposition_level)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to denoise data', res)
 
     @classmethod
@@ -711,9 +710,9 @@ class DataFilter(object):
         :rtype: Tuple
         """
         if not (len(labels.shape) == 1):
-            raise BrainFlowError('Invalid shape of array <labels>', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+            raise BrainFlowError('Invalid shape of array <labels>', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not (len(labels) == data.shape[0]):
-            raise BrainFlowError('Invalid number of elements in array <labels>', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+            raise BrainFlowError('Invalid number of elements in array <labels>', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         
         n_epochs, n_channels, n_times = data.shape
 
@@ -723,7 +722,7 @@ class DataFilter(object):
         output_eigenvalues = numpy.zeros(int(n_channels)).astype(numpy.float64)
 
         res = DataHandlerDLL.get_instance().get_csp(temp_data1d, labels, n_epochs, n_channels, n_times, output_filters, output_eigenvalues)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to calc csp', res)
 
         output_filters = numpy.reshape(output_filters, (n_channels, n_channels))
@@ -742,7 +741,7 @@ class DataFilter(object):
         """
         window_data = numpy.zeros(int(window_len)).astype(numpy.float64)
         res = DataHandlerDLL.get_instance().get_window(window_function, window_len, window_data)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to perform windowing', res)
 
         return window_data
@@ -765,12 +764,12 @@ class DataFilter(object):
 
         if (not is_power_of_two(data.shape[0])):
             raise BrainFlowError('data len is not power of 2: %d' % data.shape[0],
-                                 BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+                                 BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
 
         temp_re = numpy.zeros(int(data.shape[0] / 2 + 1)).astype(numpy.float64)
         temp_im = numpy.zeros(int(data.shape[0] / 2 + 1)).astype(numpy.float64)
         res = DataHandlerDLL.get_instance().perform_fft(data, data.shape[0], window, temp_re, temp_im)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to perform fft', res)
 
         output = numpy.zeros(int(data.shape[0] / 2 + 1)).astype(numpy.complex128)
@@ -799,12 +798,12 @@ class DataFilter(object):
 
         if (not is_power_of_two(data.shape[0])):
             raise BrainFlowError('data len is not power of 2: %d' % data.shape[0],
-                                 BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+                                 BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
 
         ampls = numpy.zeros(int(data.shape[0] / 2 + 1)).astype(numpy.float64)
         freqs = numpy.zeros(int(data.shape[0] / 2 + 1)).astype(numpy.float64)
         res = DataHandlerDLL.get_instance().get_psd(data, data.shape[0], sampling_rate, window, ampls, freqs)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to calc psd', res)
 
         return ampls, freqs
@@ -832,13 +831,13 @@ class DataFilter(object):
             return (n != 0) and (n & (n - 1) == 0)
 
         if (not is_power_of_two(nfft)):
-            raise BrainFlowError('nfft is not power of 2: %d' % nfft, BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+            raise BrainFlowError('nfft is not power of 2: %d' % nfft, BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
 
         ampls = numpy.zeros(int(nfft / 2 + 1)).astype(numpy.float64)
         freqs = numpy.zeros(int(nfft / 2 + 1)).astype(numpy.float64)
         res = DataHandlerDLL.get_instance().get_psd_welch(data, data.shape[0], nfft, overlap, sampling_rate, window,
                                                           ampls, freqs)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to calc psd welch', res)
 
         return ampls, freqs
@@ -855,7 +854,7 @@ class DataFilter(object):
 
         check_memory_layout_row_major(data, 1)
         res = DataHandlerDLL.get_instance().detrend(data, data.shape[0], detrend_operation)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to detrend data', res)
 
     @classmethod
@@ -874,7 +873,7 @@ class DataFilter(object):
         band_power = numpy.zeros(1).astype(numpy.float64)
         res = DataHandlerDLL.get_instance().get_band_power(psd[0], psd[1], psd[0].shape[0], freq_start, freq_end,
                                                            band_power)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to calc band power', res)
 
         return band_power[0]
@@ -918,7 +917,7 @@ class DataFilter(object):
 
         check_memory_layout_row_major(data, 2)
         if (len(channels) == 0) or (len(bands) == 0):
-            raise BrainFlowError('wrong input for channels or bands', BrainflowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+            raise BrainFlowError('wrong input for channels or bands', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         num_bands = len(bands)
         avg_bands = numpy.zeros(num_bands).astype(numpy.float64)
         stddev_bands = numpy.zeros(num_bands).astype(numpy.float64)
@@ -933,7 +932,7 @@ class DataFilter(object):
                 data_1d[j + data.shape[1] * i] = data[channel][j]
         res = DataHandlerDLL.get_instance().get_custom_band_powers(data_1d, len(channels), data.shape[1], start_freqs, stop_freqs, num_bands,
                                                                 sampling_rate, int(apply_filter), avg_bands, stddev_bands)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to get_avg_band_powers', res)
 
         return avg_bands, stddev_bands
@@ -955,7 +954,7 @@ class DataFilter(object):
         output = numpy.zeros(2 * (data.shape[0] - 1)).astype(numpy.float64)
 
         res = DataHandlerDLL.get_instance().perform_ifft(temp_re, temp_im, output.shape[0], output)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to perform ifft', res)
 
         return output
@@ -971,7 +970,7 @@ class DataFilter(object):
         """
         output = numpy.zeros(1).astype(numpy.int32)
         res = DataHandlerDLL.get_instance().get_nearest_power_of_two(value, output)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to calc nearest power of two', res)
 
         return output[0]
@@ -999,7 +998,7 @@ class DataFilter(object):
             mode = file_mode
         data_flatten = data.flatten()
         res = DataHandlerDLL.get_instance().write_file(data_flatten, data.shape[0], data.shape[1], file, mode)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to write file', res)
 
     @classmethod
@@ -1018,7 +1017,7 @@ class DataFilter(object):
 
         num_elements = numpy.zeros(1).astype(numpy.int32)
         res = DataHandlerDLL.get_instance().get_num_elements_in_file(file, num_elements)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to determine number of elements in file', res)
 
         data_arr = numpy.zeros(num_elements[0]).astype(numpy.float64)
@@ -1026,7 +1025,7 @@ class DataFilter(object):
         num_cols = numpy.zeros(1).astype(numpy.int32)
 
         res = DataHandlerDLL.get_instance().read_file(data_arr, num_rows, num_cols, file, num_elements[0])
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to read file', res)
 
         if len(num_rows) == 0 or len(num_cols) == 0:
@@ -1046,6 +1045,6 @@ class DataFilter(object):
         string = numpy.zeros(64).astype(numpy.ubyte)
         string_len = numpy.zeros(1).astype(numpy.int32)
         res = DataHandlerDLL.get_instance().get_version_data_handler(string, string_len, 64)
-        if res != BrainflowExitCodes.STATUS_OK.value:
+        if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info', res)
         return string.tobytes().decode('utf-8')[0:string_len[0]]

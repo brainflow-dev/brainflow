@@ -47,7 +47,7 @@ namespace test
 
                 // demo for fft
                 // end_pos - start_pos must be a power of 2
-                Complex[] fft_data = DataFilter.perform_fft (unprocessed_data.GetRow (eeg_channels[i]), 0, 64, (int)WindowFunctions.HAMMING);
+                Complex[] fft_data = DataFilter.perform_fft (unprocessed_data.GetRow (eeg_channels[i]), 0, 64, (int)WindowOperations.HAMMING);
                 // len of fft_data is N / 2 + 1
                 double[] restored_fft_data = DataFilter.perform_ifft (fft_data);
                 Console.WriteLine ("Restored fft data:");

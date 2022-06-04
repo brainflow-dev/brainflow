@@ -16,7 +16,7 @@ namespace brainflow
         EACH = 2
     };
 
-    public enum WindowFunctions
+    public enum WindowOperations
     {
         NO_WINDOW = 0,
         HANNING = 1,
@@ -290,7 +290,7 @@ namespace brainflow
                     return DataHandlerLibraryMac.set_log_level_data_handler(log_level);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int set_log_file_data_handler (string log_file)
@@ -307,7 +307,7 @@ namespace brainflow
                     return DataHandlerLibraryMac.set_log_file_data_handler(log_file);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int remove_environmental_noise(double[] data, int len, int sampling_rate, int noise_type)
@@ -324,7 +324,7 @@ namespace brainflow
                     return DataHandlerLibraryMac.remove_environmental_noise(data, len, sampling_rate, noise_type);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int perform_lowpass (double[] data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple)
@@ -341,7 +341,7 @@ namespace brainflow
                     return DataHandlerLibraryMac.perform_lowpass (data, len, sampling_rate, cutoff, order, filter_type, ripple);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int perform_highpass (double[] data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple)
@@ -359,7 +359,7 @@ namespace brainflow
 
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int perform_bandpass (double[] data, int len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple)
@@ -376,7 +376,7 @@ namespace brainflow
                     return DataHandlerLibraryMac.perform_bandpass (data, len, sampling_rate, start_freq, stop_freq, order, filter_type, ripple);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int perform_bandstop (double[] data, int len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple)
@@ -393,7 +393,7 @@ namespace brainflow
                     return DataHandlerLibraryMac.perform_bandstop (data, len, sampling_rate, start_freq, stop_freq, order, filter_type, ripple);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int perform_rolling_filter (double[] data, int len, int period, int operation)
@@ -410,7 +410,7 @@ namespace brainflow
                     return DataHandlerLibraryMac.perform_rolling_filter (data, len, period, operation);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int detrend (double[] data, int len, int operation)
@@ -427,7 +427,7 @@ namespace brainflow
                     return DataHandlerLibraryMac.detrend (data, len, operation);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int perform_downsampling (double[] data, int len, int period, int operation, double[] filtered_data)
@@ -444,7 +444,7 @@ namespace brainflow
                     return DataHandlerLibraryMac.perform_downsampling (data, len, period, operation, filtered_data);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int read_file (double[] data, int[] num_rows, int[] num_cols, string file_name, int max_elements)
@@ -461,7 +461,7 @@ namespace brainflow
                     return DataHandlerLibraryMac.read_file (data, num_rows, num_cols, file_name, max_elements);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int write_file (double[] data, int num_rows, int num_cols, string file_name, string file_mode)
@@ -479,7 +479,7 @@ namespace brainflow
 
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_num_elements_in_file (string file_name, int[] num_elements)
@@ -496,7 +496,7 @@ namespace brainflow
                     return DataHandlerLibraryMac.get_num_elements_in_file (file_name, num_elements);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_nearest_power_of_two (int value, int[] output)
@@ -513,7 +513,7 @@ namespace brainflow
                     return DataHandlerLibraryMac.get_nearest_power_of_two (value, output);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int perform_wavelet_transform (double[] data, int data_len, string wavelet, int decomposition_level, double[] output_data, int[] decomposition_lengths)
@@ -530,7 +530,7 @@ namespace brainflow
                     return DataHandlerLibraryMac.perform_wavelet_transform (data, data_len, wavelet, decomposition_level, output_data, decomposition_lengths);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int perform_inverse_wavelet_transform (double[] wavelet_coeffs, int original_data_len, string wavelet, int decomposition_level,
@@ -548,7 +548,7 @@ namespace brainflow
                     return DataHandlerLibraryMac.perform_inverse_wavelet_transform (wavelet_coeffs, original_data_len, wavelet, decomposition_level, decomposition_lengths, output_data);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int perform_wavelet_denoising (double[] data, int data_len, string wavelet, int decomposition_level)
@@ -565,7 +565,7 @@ namespace brainflow
                     return DataHandlerLibraryMac.perform_wavelet_denoising (data, data_len, wavelet, decomposition_level);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_csp (double[] data, double[] labels, int n_epochs, int n_channels, int n_times, double[] output_filters, double[] output_eigenvalues)
@@ -582,7 +582,7 @@ namespace brainflow
                     return DataHandlerLibraryMac.get_csp (data, labels, n_epochs, n_channels, n_times, output_filters, output_eigenvalues);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_window (int window_function, int window_len, double[] window_data)
@@ -599,7 +599,7 @@ namespace brainflow
                     return DataHandlerLibraryMac.get_window (window_function, window_len, window_data);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int perform_fft (double[] data, int data_len, int window, double[] output_re, double[] output_im)
@@ -616,7 +616,7 @@ namespace brainflow
                     return DataHandlerLibraryMac.perform_fft (data, data_len, window, output_re, output_im);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_custom_band_powers (double[] data, int rows, int cols, double[] start_freqs, double[] stop_freqs, int num_bands, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs)
@@ -633,7 +633,7 @@ namespace brainflow
                     return DataHandlerLibraryMac.get_custom_band_powers (data, rows, cols, start_freqs, stop_freqs, num_bands, sampling_rate, apply_filters, avgs, stddevs);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_psd (double[] data, int data_len, int sampling_rate, int window, double[] output_ampls, double[] output_freqs)
@@ -650,7 +650,7 @@ namespace brainflow
                     return DataHandlerLibraryMac.get_psd (data, data_len, sampling_rate, window, output_ampls, output_freqs);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_band_power (double[] ampls, double[] freqs, int data_len, double start_freq, double stop_freq, double[] res)
@@ -667,7 +667,7 @@ namespace brainflow
                     return DataHandlerLibraryMac.get_band_power (ampls, freqs, data_len, start_freq, stop_freq, res);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int perform_ifft (double[] re, double[] im, int len, double[] data)
@@ -684,7 +684,7 @@ namespace brainflow
                     return DataHandlerLibraryMac.perform_ifft (re, im, len, data);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_psd_welch (double[] data, int data_len, int nfft, int overlap, int sampling_rate, int window, double[] output_ampls, double[] output_freqs)
@@ -701,7 +701,7 @@ namespace brainflow
                     return DataHandlerLibraryMac.get_psd_welch (data, data_len, nfft, overlap, sampling_rate, window, output_ampls, output_freqs);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int calc_stddev (double[] data, int start_pos, int end_pos, double[] output)
@@ -718,7 +718,7 @@ namespace brainflow
                     return DataHandlerLibraryMac.calc_stddev (data, start_pos, end_pos, output);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_version_data_handler (byte[] version, int[] len, int max_len)
@@ -735,7 +735,7 @@ namespace brainflow
                     return DataHandlerLibraryMac.get_version_data_handler (version, len, max_len);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
     }
 }

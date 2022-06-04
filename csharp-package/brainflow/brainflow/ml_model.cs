@@ -29,9 +29,9 @@ namespace brainflow
         public static void release_all ()
         {
             int res = MLModuleLibrary.release_all ();
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException(res);
+                throw new BrainFlowError(res);
             }
         }
 
@@ -42,9 +42,9 @@ namespace brainflow
         private static void set_log_level (int log_level)
         {
             int res = MLModuleLibrary.set_log_level_ml_module (log_level);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
         }
 
@@ -79,9 +79,9 @@ namespace brainflow
         public static void set_log_file (string log_file)
         {
             int res = MLModuleLibrary.set_log_file_ml_module (log_file);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
         }
 
@@ -91,9 +91,9 @@ namespace brainflow
         public void prepare ()
         {
             int res = MLModuleLibrary.prepare (input_json);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
         }
 
@@ -103,9 +103,9 @@ namespace brainflow
         public void release ()
         {
             int res = MLModuleLibrary.release (input_json);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
         }
 
@@ -117,9 +117,9 @@ namespace brainflow
             double[] val = new double[input_params.max_array_size];
             int[] val_len = new int[1];
             int res = MLModuleLibrary.predict (data, data.Length, val, val_len, input_json);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             double[] result = new double[val_len[0]];
             for (int i = 0; i < val_len[0]; i++)
@@ -139,9 +139,9 @@ namespace brainflow
             int[] len = new int[1];
             byte[] str = new byte[64];
             int res = MLModuleLibrary.get_version_ml_module (str, len, 64);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             string version = System.Text.Encoding.UTF8.GetString (str, 0, len[0]);
             return version;

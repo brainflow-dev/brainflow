@@ -14,7 +14,14 @@ namespace brainflow
         LEVEL_OFF = 6
     };
 
-    public enum CustomExitCodes
+    public enum IpProtocolTypes
+    {
+        NO_IP_PROTOCOL = 0,
+        UDP = 1,
+        TCP = 2
+    };
+
+    public enum BrainFlowExitCodes
     {
         STATUS_OK = 0,
         PORT_ALREADY_OPEN_ERROR = 1,
@@ -425,7 +432,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.prepare_session (board_id, input_json);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int start_stream (int buffer_size, string streamer_params, int board_id, string input_json)
@@ -442,7 +449,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.start_stream (buffer_size, streamer_params, board_id, input_json);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int stop_stream (int board_id, string input_json)
@@ -459,7 +466,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.stop_stream (board_id, input_json);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int release_session (int board_id, string input_json)
@@ -476,7 +483,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.release_session (board_id, input_json);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_current_board_data (int num_samples, double[] data_buf, int[] returned_samples, int board_id, string input_json)
@@ -493,7 +500,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.get_current_board_data (num_samples, data_buf, returned_samples, board_id, input_json);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_board_data_count (int[] result, int board_id, string input_json)
@@ -510,7 +517,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.get_board_data_count (result, board_id, input_json);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int is_prepared(int[] result, int board_id, string input_json)
@@ -527,7 +534,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.is_prepared (result, board_id, input_json);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_board_data (int data_count, double[] data_buf, int board_id, string input_json)
@@ -544,7 +551,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.get_board_data (data_count, data_buf, board_id, input_json);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int set_log_level_board_controller (int log_level)
@@ -561,7 +568,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.set_log_level_board_controller(log_level);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int log_message_board_controller (int log_level, string message)
@@ -578,7 +585,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.log_message_board_controller(log_level, message);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int insert_marker (double value, int board_id, string input_json)
@@ -595,7 +602,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.insert_marker (value, board_id, input_json);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
 
@@ -613,7 +620,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.config_board (config, str, len, board_id, input_json);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int set_log_file_board_controller(string log_file)
@@ -630,7 +637,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.set_log_file_board_controller(log_file);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_sampling_rate (int board_id, int[] sampling_rate)
@@ -647,7 +654,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.get_sampling_rate (board_id, sampling_rate);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_package_num_channel (int board_id, int[] package_num)
@@ -664,7 +671,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.get_package_num_channel (board_id, package_num);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_battery_channel (int board_id, int[] battery)
@@ -681,7 +688,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.get_battery_channel (board_id, battery);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_num_rows (int board_id, int[] num_rows)
@@ -698,7 +705,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.get_num_rows (board_id, num_rows);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_timestamp_channel (int board_id, int[] timestamp_channel)
@@ -715,7 +722,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.get_timestamp_channel (board_id, timestamp_channel);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_marker_channel (int board_id, int[] marker_channel)
@@ -732,7 +739,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.get_marker_channel (board_id, marker_channel);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_eeg_names(int board_id, byte[] names, int[] len)
@@ -749,7 +756,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.get_eeg_names (board_id, names, len);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_board_descr (int board_id, byte[] descr, int[] len)
@@ -766,7 +773,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.get_board_descr (board_id, descr, len);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_device_name (int board_id, byte[] name, int[] len)
@@ -783,7 +790,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.get_device_name (board_id, name, len);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_version_board_controller (byte[] version, int[] len, int max_len)
@@ -800,7 +807,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.get_version_board_controller (version, len, max_len);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_eeg_channels (int board_id, int[] channels, int[] len)
@@ -817,7 +824,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.get_eeg_channels (board_id, channels, len);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_exg_channels (int board_id, int[] channels, int[] len)
@@ -834,7 +841,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.get_exg_channels (board_id, channels, len);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_emg_channels (int board_id, int[] channels, int[] len)
@@ -851,7 +858,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.get_emg_channels (board_id, channels, len);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_ecg_channels (int board_id, int[] channels, int[] len)
@@ -868,7 +875,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.get_ecg_channels (board_id, channels, len);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_eog_channels (int board_id, int[] channels, int[] len)
@@ -885,7 +892,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.get_eog_channels (board_id, channels, len);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_eda_channels (int board_id, int[] channels, int[] len)
@@ -902,7 +909,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.get_eda_channels (board_id, channels, len);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_ppg_channels (int board_id, int[] channels, int[] len)
@@ -919,7 +926,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.get_ppg_channels (board_id, channels, len);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_accel_channels (int board_id, int[] channels, int[] len)
@@ -936,7 +943,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.get_accel_channels (board_id, channels, len);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_analog_channels (int board_id, int[] channels, int[] len)
@@ -953,7 +960,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.get_analog_channels (board_id, channels, len);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_gyro_channels (int board_id, int[] channels, int[] len)
@@ -970,7 +977,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.get_gyro_channels (board_id, channels, len);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_other_channels (int board_id, int[] channels, int[] len)
@@ -987,7 +994,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.get_other_channels (board_id, channels, len);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_temperature_channels (int board_id, int[] channels, int[] len)
@@ -1004,7 +1011,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.get_temperature_channels (board_id, channels, len);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int get_resistance_channels(int board_id, int[] channels, int[] len)
@@ -1021,7 +1028,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.get_resistance_channels (board_id, channels, len);
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
         public static int release_all_sessions ()
@@ -1038,7 +1045,7 @@ namespace brainflow
                     return BoardControllerLibraryMac.release_all_sessions ();
             }
 
-            return (int)CustomExitCodes.GENERAL_ERROR;
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
     }
 }

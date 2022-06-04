@@ -5,7 +5,7 @@ struct BrainFlowError <: Exception
     ec::Int32
 end
 
-@enum BrainflowExitCodes begin
+@enum BrainFlowExitCodes begin
 
     STATUS_OK = 0
     PORT_ALREADY_OPEN_ERROR = 1
@@ -61,7 +61,7 @@ macro brainflow_rethrow(defun)
     # use the function name in the error message
     wrapup_ccall = quote 
         if ec != Integer(STATUS_OK)
-            msg = string("Error in ", $(name), " ", BrainFlow.BrainflowExitCodes(Integer(ec)))
+            msg = string("Error in ", $(name), " ", BrainFlow.BrainFlowExitCodes(Integer(ec)))
             throw(BrainFlowError(msg, Integer(ec)))
         end
     end

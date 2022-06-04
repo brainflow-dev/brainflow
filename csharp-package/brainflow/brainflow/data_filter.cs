@@ -19,9 +19,9 @@ namespace brainflow
         private static void set_log_level (int log_level)
         {
             int res = DataHandlerLibrary.set_log_level_data_handler (log_level);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
         }
 
@@ -56,9 +56,9 @@ namespace brainflow
         public static void set_log_file (string log_file)
         {
             int res = DataHandlerLibrary.set_log_file_data_handler (log_file);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
         }
         // accord GetRow returns a copy instead pointer, so we can not easily update data in place like in other bindings
@@ -78,9 +78,9 @@ namespace brainflow
             double[] filtered_data = new double[data.Length];
             Array.Copy (data, filtered_data, data.Length);
             int res = DataHandlerLibrary.perform_lowpass (filtered_data, data.Length, sampling_rate, cutoff, order, filter_type, ripple);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             return filtered_data;
         }
@@ -97,9 +97,9 @@ namespace brainflow
             double[] filtered_data = new double[data.Length];
             Array.Copy(data, filtered_data, data.Length);
             int res = DataHandlerLibrary.remove_environmental_noise(filtered_data, data.Length, sampling_rate, noise_type);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException(res);
+                throw new BrainFlowError(res);
             }
             return filtered_data;
         }
@@ -119,9 +119,9 @@ namespace brainflow
             double[] filtered_data = new double[data.Length];
             Array.Copy (data, filtered_data, data.Length);
             int res = DataHandlerLibrary.perform_highpass (filtered_data, data.Length, sampling_rate, cutoff, order, filter_type, ripple);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             return filtered_data;
         }
@@ -142,9 +142,9 @@ namespace brainflow
             double[] filtered_data = new double[data.Length];
             Array.Copy (data, filtered_data, data.Length);
             int res = DataHandlerLibrary.perform_bandpass (filtered_data, data.Length, sampling_rate, start_freq, stop_freq, order, filter_type, ripple);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             return filtered_data;
         }
@@ -165,9 +165,9 @@ namespace brainflow
             double[] filtered_data = new double[data.Length];
             Array.Copy (data, filtered_data, data.Length);
             int res = DataHandlerLibrary.perform_bandstop (filtered_data, data.Length, sampling_rate, start_freq, stop_freq, order, filter_type, ripple);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             return filtered_data;
         }
@@ -184,9 +184,9 @@ namespace brainflow
             double[] filtered_data = new double[data.Length];
             Array.Copy (data, filtered_data, data.Length);
             int res = DataHandlerLibrary.perform_rolling_filter (filtered_data, filtered_data.Length, period, operation);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             return filtered_data;
         }
@@ -202,9 +202,9 @@ namespace brainflow
             double[] new_data = new double[data.Length];
             Array.Copy (data, new_data, data.Length);
             int res = DataHandlerLibrary.detrend (new_data, new_data.Length, operation);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException(res);
+                throw new BrainFlowError(res);
             }
             return new_data;
         }
@@ -220,17 +220,17 @@ namespace brainflow
         {
             if (period == 0)
             {
-                throw new BrainFlowException ((int)CustomExitCodes.INVALID_ARGUMENTS_ERROR);
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             }
             if (data.Length / period <= 0)
             {
-                throw new BrainFlowException ((int)CustomExitCodes.INVALID_ARGUMENTS_ERROR);
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             }
             double[] downsampled_data = new double[data.Length / period];
             int res = DataHandlerLibrary.perform_downsampling (data, data.Length, period, operation, downsampled_data);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             return downsampled_data;
         }
@@ -246,9 +246,9 @@ namespace brainflow
         {
             double[] output = new double[1]; 
             int res = DataHandlerLibrary.calc_stddev (data, start_pos, end_pos, output);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException(res);
+                throw new BrainFlowError(res);
             }
             return output[0];
         }
@@ -265,9 +265,9 @@ namespace brainflow
             double[] wavelet_coeffs = new double[data.Length + 2 * (40 + 1)];
             int[] lengths = new int[decomposition_level + 1];
             int res = DataHandlerLibrary.perform_wavelet_transform (data, data.Length, wavelet, decomposition_level, wavelet_coeffs, lengths);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             int total_length = 0;
             foreach (int val in lengths)
@@ -296,9 +296,9 @@ namespace brainflow
             double[] original_data = new double[original_data_len];
             int res = DataHandlerLibrary.perform_inverse_wavelet_transform (wavelet_data.Item1, original_data_len, wavelet, decomposition_level,
                                                                             wavelet_data.Item2, original_data);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             return original_data;
         }
@@ -315,9 +315,9 @@ namespace brainflow
             double[] filtered_data = new double[data.Length];
             Array.Copy (data, filtered_data, data.Length);
             int res = DataHandlerLibrary.perform_wavelet_denoising (filtered_data, filtered_data.Length, wavelet, decomposition_level);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             return filtered_data;
         }
@@ -351,9 +351,9 @@ namespace brainflow
             double[] output_eigenvalues = new double[n_channels];
 
             int res = DataHandlerLibrary.get_csp (temp_data1d, labels, n_epochs, n_channels, n_times, temp_filters, output_eigenvalues);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
 
             double[,] output_filters = new double[n_channels, n_channels];
@@ -379,9 +379,9 @@ namespace brainflow
         {
             double[] window_data = new double[window_len];
             int res = DataHandlerLibrary.get_window (window_function, window_len, window_data);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             return window_data;
         }
@@ -398,12 +398,12 @@ namespace brainflow
         {
             if ((start_pos < 0) || (end_pos > data.Length) || (start_pos >= end_pos))
             {
-                throw new BrainFlowException ((int)CustomExitCodes.INVALID_ARGUMENTS_ERROR);
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             }
             int len = end_pos - start_pos;
             if ((len & (len - 1)) != 0)
             {
-                throw new BrainFlowException ((int)CustomExitCodes.INVALID_ARGUMENTS_ERROR);
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             }
             double[] data_to_process = new double[len];
             Array.Copy (data, start_pos, data_to_process, 0, len);
@@ -412,9 +412,9 @@ namespace brainflow
             Complex[] output = new Complex[len / 2 + 1];
 
             int res = DataHandlerLibrary.perform_fft (data_to_process, len, window, temp_re, temp_im);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             for (int i = 0; i < len / 2 + 1; i++)
             {
@@ -440,9 +440,9 @@ namespace brainflow
                 temp_im[i] = data[i].Imaginary;
             }
             int res = DataHandlerLibrary.perform_ifft (temp_re, temp_im, len, output);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             return output;
         }
@@ -456,9 +456,9 @@ namespace brainflow
         public static void write_file (double[,] data, string file_name, string file_mode)
         {
             int res = DataHandlerLibrary.write_file (data.Flatten(), data.Rows (), data.Columns (), file_name, file_mode);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
         }
 
@@ -471,17 +471,17 @@ namespace brainflow
         {
             int[] num_elements = new int[1];
             int res = DataHandlerLibrary.get_num_elements_in_file (file_name, num_elements);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             double[] data_arr = new double[num_elements[0]];
             int[] num_rows = new int[1];
             int[] num_cols = new int[1];
             res = DataHandlerLibrary.read_file (data_arr, num_rows, num_cols, file_name, num_elements[0]);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
 
             double[,] result = new double[num_rows[0], num_cols[0]];
@@ -504,9 +504,9 @@ namespace brainflow
         {
             int[] output = new int[1];
             int res = DataHandlerLibrary.get_nearest_power_of_two (value, output);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             return output[0];
         }
@@ -538,9 +538,9 @@ namespace brainflow
             }
 
             int res = DataHandlerLibrary.get_custom_band_powers (data_1d, channels.Length, data.GetRow (0).Length, start_freqs, stop_freqs, bands.Length, sampling_rate, (apply_filters) ? 1 : 0, avgs, stddevs);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException(res);
+                throw new BrainFlowError(res);
             }
             Tuple<double[], double[]> return_data = new Tuple<double[], double[]>(avgs, stddevs);
             return return_data;
@@ -579,12 +579,12 @@ namespace brainflow
         {
             if ((start_pos < 0) || (end_pos > data.Length) || (start_pos >= end_pos))
             {
-                throw new BrainFlowException ((int)CustomExitCodes.INVALID_ARGUMENTS_ERROR);
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             }
             int len = end_pos - start_pos;
             if ((len & (len - 1)) != 0)
             {
-                throw new BrainFlowException ((int)CustomExitCodes.INVALID_ARGUMENTS_ERROR);
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             }
             double[] data_to_process = new double[len];
             Array.Copy(data, start_pos, data_to_process, 0, len);
@@ -592,9 +592,9 @@ namespace brainflow
             double[] temp_freqs = new double[len / 2 + 1];
 
             int res = DataHandlerLibrary.get_psd (data_to_process, len, sampling_rate, window, temp_ampls, temp_freqs);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             Tuple<double[], double[]> return_data = new Tuple<double[], double[]>(temp_ampls, temp_freqs);
             return return_data;
@@ -613,15 +613,15 @@ namespace brainflow
         {
             if ((nfft & (nfft - 1)) != 0)
             {
-                throw new BrainFlowException((int)CustomExitCodes.INVALID_ARGUMENTS_ERROR);
+                throw new BrainFlowError((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             }
             double[] temp_ampls = new double[nfft / 2 + 1];
             double[] temp_freqs = new double[nfft / 2 + 1];
 
             int res = DataHandlerLibrary.get_psd_welch (data, data.Length, nfft, overlap, sampling_rate, window, temp_ampls, temp_freqs);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             Tuple<double[], double[]> return_data = new Tuple<double[], double[]>(temp_ampls, temp_freqs);
             return return_data;
@@ -639,9 +639,9 @@ namespace brainflow
             double[] band_power = new double[1];
 
             int res = DataHandlerLibrary.get_band_power (psd.Item1, psd.Item2, psd.Item1.Length, start_freq, stop_freq, band_power);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             return band_power[0];
         }
@@ -656,9 +656,9 @@ namespace brainflow
             int[] len = new int[1];
             byte[] str = new byte[64];
             int res = DataHandlerLibrary.get_version_data_handler (str, len, 64);
-            if (res != (int)CustomExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowException (res);
+                throw new BrainFlowError (res);
             }
             string version = System.Text.Encoding.UTF8.GetString (str, 0, len[0]);
             return version;
