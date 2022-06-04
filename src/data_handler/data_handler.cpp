@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <math.h>
+#include <mutex>
 #include <sstream>
 #include <stdexcept>
 #include <stdint.h>
@@ -43,9 +44,33 @@ std::shared_ptr<spdlog::logger> data_logger =
 std::shared_ptr<spdlog::logger> data_logger = spdlog::stderr_logger_mt (LOGGER_NAME);
 #endif
 
+// its only for logging methods, other methods can be executed simultaneously
+std::mutex data_mutex;
+
+
+int log_message_data_handler (int log_level, char *log_message)
+{
+    // its a method for loggging from high level
+    std::lock_guard<std::mutex> lock (data_mutex);
+    if (log_level < 0)
+    {
+        data_logger->warn ("log level should be >= 0");
+        log_level = 0;
+    }
+    else if (log_level > 6)
+    {
+        data_logger->warn ("log level should be <= 6");
+        log_level = 6;
+    }
+
+    data_logger->log (spdlog::level::level_enum (log_level), "{}", log_message);
+
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
 
 int set_log_file_data_handler (const char *log_file)
 {
+    std::lock_guard<std::mutex> lock (data_mutex);
 #ifdef __ANDROID__
     data_logger->error ("For Android set_log_file is unavailable");
     return (int)BrainFlowExitCodes::GENERAL_ERROR;
@@ -71,6 +96,7 @@ int set_log_file_data_handler (const char *log_file)
 
 int set_log_level_data_handler (int level)
 {
+    std::lock_guard<std::mutex> lock (data_mutex);
     int log_level = level;
     if (level > 6)
     {

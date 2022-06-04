@@ -4,7 +4,7 @@ import brainflow
 import numpy as np
 
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels, BoardIds
-from brainflow.data_filter import DataFilter, FilterTypes, AggOperations, WindowFunctions, DetrendOperations
+from brainflow.data_filter import DataFilter, FilterTypes, AggOperations, WindowOperations, DetrendOperations
 
 
 def main():
@@ -31,7 +31,7 @@ def main():
     # optional detrend
     DataFilter.detrend(data[eeg_channel], DetrendOperations.LINEAR.value)
     psd = DataFilter.get_psd_welch(data[eeg_channel], nfft, nfft // 2, sampling_rate,
-                                   WindowFunctions.BLACKMAN_HARRIS.value)
+                                   WindowOperations.BLACKMAN_HARRIS.value)
 
     band_power_alpha = DataFilter.get_band_power(psd, 7.0, 13.0)
     band_power_beta = DataFilter.get_band_power(psd, 14.0, 30.0)

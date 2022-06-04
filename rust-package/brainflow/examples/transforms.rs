@@ -2,7 +2,7 @@ use std::{thread, time::Duration};
 
 use brainflow::{
     board_shim, brainflow_input_params::BrainFlowInputParamsBuilder, data_filter, BoardIds,
-    WindowFunctions,
+    WindowOperations,
 };
 use ndarray::s;
 
@@ -29,7 +29,7 @@ fn main() {
         data.slice_mut(s![eeg_channels[0], ..])
             .as_slice_mut()
             .unwrap(),
-        WindowFunctions::BlackmanHarris,
+        WindowOperations::BlackmanHarris,
     )
     .unwrap();
     let restored_fft = data_filter::perform_ifft(&fft_data, data_len).unwrap();

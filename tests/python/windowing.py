@@ -3,7 +3,7 @@ import numpy as np
 
 import brainflow
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels, BoardIds
-from brainflow.data_filter import DataFilter, FilterTypes, WindowFunctions
+from brainflow.data_filter import DataFilter, FilterTypes, WindowOperations
 
 
 def main():
@@ -12,18 +12,18 @@ def main():
 
     for window_function in range(4):
 
-        if window_function == WindowFunctions.NO_WINDOW.value:
+        if window_function == WindowOperations.NO_WINDOW.value:
             print('Window data for NO_WINDOW function:')
-            window_data = DataFilter.get_window(WindowFunctions.NO_WINDOW.value, window_len)
-        elif window_function == WindowFunctions.HANNING.value:
+            window_data = DataFilter.get_window(WindowOperations.NO_WINDOW.value, window_len)
+        elif window_function == WindowOperations.HANNING.value:
             print('Window data for HANNING function:')
-            window_data = DataFilter.get_window(WindowFunctions.HANNING.value, window_len)
-        elif window_function == WindowFunctions.HAMMING.value:
+            window_data = DataFilter.get_window(WindowOperations.HANNING.value, window_len)
+        elif window_function == WindowOperations.HAMMING.value:
             print('Window data for HAMMING function:')
-            window_data = DataFilter.get_window(WindowFunctions.HAMMING.value, window_len)
+            window_data = DataFilter.get_window(WindowOperations.HAMMING.value, window_len)
         else:
             print('Window data for BLACKMAN_HARRIS function:')
-            window_data = DataFilter.get_window(WindowFunctions.BLACKMAN_HARRIS.value, window_len)
+            window_data = DataFilter.get_window(WindowOperations.BLACKMAN_HARRIS.value, window_len)
 
         print(window_data)
 

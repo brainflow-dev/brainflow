@@ -2,7 +2,7 @@ use std::{thread, time::Duration};
 
 use brainflow::{
     board_shim, brainflow_input_params::BrainFlowInputParamsBuilder, data_filter, BoardIds,
-    DetrendOperations, WindowFunctions,
+    DetrendOperations, WindowOperations,
 };
 use ndarray::s;
 
@@ -37,7 +37,7 @@ fn main() {
         nfft,
         nfft / 2,
         sampling_rate,
-        WindowFunctions::BlackmanHarris,
+        WindowOperations::BlackmanHarris,
     )
     .unwrap();
     let band_power_alpha = data_filter::get_band_power(&mut psd, 7.0, 13.0).unwrap();

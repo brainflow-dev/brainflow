@@ -4,7 +4,7 @@ import brainflow
 import numpy as np
 
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels, BoardIds
-from brainflow.data_filter import DataFilter, FilterTypes, AggOperations, WindowFunctions
+from brainflow.data_filter import DataFilter, FilterTypes, AggOperations, WindowOperations
 
 
 def main():
@@ -42,7 +42,7 @@ def main():
         print(restored_data)
 
         # demo for fft, len of data must be a power of 2
-        fft_data = DataFilter.perform_fft(data[channel], WindowFunctions.NO_WINDOW.value)
+        fft_data = DataFilter.perform_fft(data[channel], WindowOperations.NO_WINDOW.value)
         # len of fft_data is N / 2 + 1
         restored_fft_data = DataFilter.perform_ifft(fft_data)
         print('Restored data after fft for channel %d:' % channel)

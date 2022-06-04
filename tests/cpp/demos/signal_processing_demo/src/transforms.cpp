@@ -86,7 +86,7 @@ int main (int argc, char *argv[])
             // demo for fft
             // data count must be power of 2 for fft!
             std::complex<double> *fft_data = DataFilter::perform_fft (
-                data.get_address (eeg_channels[i]), data_count, (int)WindowFunctions::NO_WINDOW);
+                data.get_address (eeg_channels[i]), data_count, (int)WindowOperations::NO_WINDOW);
             // len of fft_data array is N / 2 + 1
             std::cout << "FFT coeffs:" << std::endl;
             for (int i = 0; i < data_count / 2 + 1; i++)

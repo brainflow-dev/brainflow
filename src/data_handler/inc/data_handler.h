@@ -20,13 +20,10 @@ extern "C"
         double ripple);
     SHARED_EXPORT int CALLING_CONVENTION remove_environmental_noise (
         double *data, int data_len, int sampling_rate, int noise_type);
-
     SHARED_EXPORT int CALLING_CONVENTION perform_rolling_filter (
         double *data, int data_len, int period, int agg_operation);
-
     SHARED_EXPORT int CALLING_CONVENTION perform_downsampling (
         double *data, int data_len, int period, int agg_operation, double *output_data);
-
     SHARED_EXPORT int CALLING_CONVENTION perform_wavelet_transform (double *data, int data_len,
         const char *wavelet, int decomposition_level, double *output_data,
         int *decomposition_lengths);
@@ -58,9 +55,12 @@ extern "C"
     SHARED_EXPORT int CALLING_CONVENTION get_custom_band_powers (double *raw_data, int rows,
         int cols, double *start_freqs, double *stop_freqs, int num_bands, int sampling_rate,
         int apply_filters, double *avg_band_powers, double *stddev_band_powers);
+
     // logging methods
     SHARED_EXPORT int CALLING_CONVENTION set_log_level_data_handler (int log_level);
     SHARED_EXPORT int CALLING_CONVENTION set_log_file_data_handler (const char *log_file);
+    SHARED_EXPORT int CALLING_CONVENTION log_message_data_handler (int log_level, char *message);
+
     // file operations
     SHARED_EXPORT int CALLING_CONVENTION write_file (const double *data, int num_rows, int num_cols,
         const char *file_name, const char *file_mode);
@@ -70,6 +70,7 @@ extern "C"
         const char *file_name, int *num_elements); // its an internal method for bindings its not
                                                    // available via high level api
 
+    // platform types and methods
     SHARED_EXPORT int CALLING_CONVENTION get_version_data_handler (
         char *version, int *num_chars, int max_chars);
 #ifdef __cplusplus

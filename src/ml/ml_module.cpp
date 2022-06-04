@@ -147,6 +147,27 @@ int string_to_brainflow_model_params (const char *json_params, struct BrainFlowM
     }
 }
 
+int log_message_board_controller (int log_level, char *log_message)
+{
+    // its a method for loggging from high level api dont add it to Classifier class since it should
+    // not be used internally
+    std::lock_guard<std::mutex> lock (models_mutex);
+    if (log_level < 0)
+    {
+        BaseClassifier::ml_logger->warn ("log level should be >= 0");
+        log_level = 0;
+    }
+    else if (log_level > 6)
+    {
+        BaseClassifier::ml_logger->warn ("log level should be <= 6");
+        log_level = 6;
+    }
+
+    BaseClassifier::ml_logger->log (spdlog::level::level_enum (log_level), "{}", log_message);
+
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
 int set_log_level_ml_module (int log_level)
 {
     std::lock_guard<std::mutex> lock (models_mutex);
