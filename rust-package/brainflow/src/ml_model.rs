@@ -7,7 +7,7 @@ use crate::{
     brainflow_model_params::BrainFlowModelParams, check_brainflow_exit_code, LogLevels, Result,
 };
 
-use crate::ffi::ml_model;
+use crate::ffi::ml_module;
 
 pub struct MlModel {
     model_params: BrainFlowModelParams,
@@ -24,7 +24,7 @@ impl MlModel {
 
     /// Prepare classifier.
     pub fn prepare(&self) -> Result<()> {
-        let res = unsafe { ml_model::prepare(self.json_model_params.as_ptr()) };
+        let res = unsafe { ml_module::prepare(self.json_model_params.as_ptr()) };
         Ok(check_brainflow_exit_code(res)?)
     }
 
@@ -33,7 +33,7 @@ impl MlModel {
         let mut output: Vec<f64> = Vec::with_capacity(*self.model_params.max_array_size());
         let mut output_len = 0;
         let res = unsafe {
-            ml_model::predict(
+            ml_module::predict(
                 data.as_mut_ptr() as *mut c_double,
                 data.len() as c_int,
                 output.as_mut_ptr(),
@@ -49,7 +49,7 @@ impl MlModel {
 
     /// Release classifier.
     pub fn release(&self) -> Result<()> {
-        let res = unsafe { ml_model::release(self.json_model_params.as_ptr()) };
+        let res = unsafe { ml_module::release(self.json_model_params.as_ptr()) };
         Ok(check_brainflow_exit_code(res)?)
     }
 }
@@ -58,7 +58,7 @@ impl MlModel {
 /// Use it only if you want to write your own messages to BrainFlow logger.
 /// Otherwise use [enable_ml_logger], [enable_dev_ml_logger], or [disable_ml_logger].
 pub fn set_log_level(log_level: LogLevels) -> Result<()> {
-    let res = unsafe { ml_model::set_log_level_ml_module(log_level as c_int) };
+    let res = unsafe { ml_module::set_log_level_ml_module(log_level as c_int) };
     Ok(check_brainflow_exit_code(res)?)
 }
 
@@ -81,13 +81,25 @@ pub fn enable_dev_ml_logger() -> Result<()> {
 pub fn set_log_file<S: AsRef<str>>(log_file: S) -> Result<()> {
     let log_file = log_file.as_ref();
     let log_file = CString::new(log_file)?;
-    let res = unsafe { ml_model::set_log_file_ml_module(log_file.as_ptr()) };
+    let res = unsafe { ml_module::set_log_file_ml_module(log_file.as_ptr()) };
+    Ok(check_brainflow_exit_code(res)?)
+}
+
+/// Write your own log message to BrainFlow board logger, use it if you wanna have single logger for your own code and BrainFlow's code.
+pub fn log_message<S: AsRef<str>>(log_level: LogLevels, message: S) -> Result<()> {
+    let message = message.as_ref();
+    let message = CString::new(message)?.into_raw();
+    let res = unsafe {
+        let res = ml_module::log_message_ml_module(log_level as c_int, message);
+        let _ = CString::from_raw(message);
+        res
+    };
     Ok(check_brainflow_exit_code(res)?)
 }
 
 /// Release all classifiers
 pub fn release_all() -> Result<()> {
-    let res = unsafe { ml_model::release_all() };
+    let res = unsafe { ml_module::release_all() };
     Ok(check_brainflow_exit_code(res)?)
 }
 
@@ -97,7 +109,7 @@ pub fn get_version() -> Result<String> {
     let response = CString::new(Vec::with_capacity(64))?;
     let response = response.into_raw();
     let (res, response) = unsafe {
-        let res = ml_model::get_version_ml_module(response, &mut response_len, 64);
+        let res = ml_module::get_version_ml_module(response, &mut response_len, 64);
         let response = CString::from_raw(response);
         (res, response)
     };

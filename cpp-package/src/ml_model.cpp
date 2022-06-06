@@ -1,6 +1,9 @@
-#include "ml_model.h"
+#include <cstdarg>
+#include <stdlib.h>
+
 #include "brainflow_constants.h"
 #include "json.hpp"
+#include "ml_model.h"
 #include "ml_module.h"
 
 using json = nlohmann::json;
@@ -85,6 +88,21 @@ void MLModel::set_log_level (int log_level)
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to set log level", res);
+    }
+}
+
+void MLModel::log_message (int log_level, const char *format, ...)
+{
+    char buffer[1024];
+    va_list ap;
+    va_start (ap, format);
+    vsnprintf (buffer, 1024, format, ap);
+    va_end (ap);
+
+    int res = log_message_ml_module (log_level, buffer);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to write log message", res);
     }
 }
 

@@ -147,7 +147,7 @@ int string_to_brainflow_model_params (const char *json_params, struct BrainFlowM
     }
 }
 
-int log_message_board_controller (int log_level, char *log_message)
+int log_message_ml_module (int log_level, char *log_message)
 {
     // its a method for loggging from high level api dont add it to Classifier class since it should
     // not be used internally

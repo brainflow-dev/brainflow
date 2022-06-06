@@ -38,6 +38,14 @@ classdef DataFilter
             [exit_code, version] = calllib(lib_name, task_name, blanks(64), 64, 64);
             DataFilter.check_ec(exit_code, task_name);
         end
+        
+        function log_message(log_level, message)
+            % write message to Data Filter logger
+            task_name = 'log_message_data_handler';
+            lib_name = DataFilter.load_lib();
+            exit_code = calllib(lib_name, task_name, log_level, message);
+            DataFilter.check_ec(exit_code, task_name);
+        end
 
         function set_log_level(log_level)
             % set log level for DataFilter

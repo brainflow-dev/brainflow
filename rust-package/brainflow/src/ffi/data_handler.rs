@@ -213,6 +213,12 @@ extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
+    pub fn log_message_data_handler(
+        log_level: ::std::os::raw::c_int,
+        message: *mut ::std::os::raw::c_char,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
     pub fn write_file(
         data: *const f64,
         num_rows: ::std::os::raw::c_int,

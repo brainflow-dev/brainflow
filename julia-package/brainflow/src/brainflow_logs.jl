@@ -27,9 +27,9 @@ enable_logger(log_lib::BrainFlowLib) = set_log_level(Integer(LEVEL_INFO), log_li
 enable_dev_logger(log_lib::BrainFlowLib) = set_log_level(Integer(LEVEL_TRACE), log_lib)
 disable_logger(log_lib::BrainFlowLib) = set_log_level(Integer(LEVEL_OFF), log_lib)
 
-# available only for BoardController, no need to provide log_lib
-@brainflow_rethrow function log_message(log_level::Integer, message::String)
-    ccall((:log_message_board_controller, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}), Int32(log_level), message)
+@brainflow_rethrow function log_message(log_level::Integer, message::String, log_lib::BrainFlowLib)
+    lib_cglobal = log_file_cglobal(log_lib)
+    ccall(lib_cglobal, Cint, (Cint, Ptr{UInt8}), Int32(log_level), message)
 end
 
 @brainflow_rethrow function set_log_file(log_file, log_lib::BrainFlowLib)

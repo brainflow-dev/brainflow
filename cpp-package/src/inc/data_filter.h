@@ -24,6 +24,8 @@ public:
     static void set_log_level (int log_level);
     /// set log file
     static void set_log_file (std::string log_file);
+    /// write user defined string to BrainFlow logger
+    static void log_message (int log_level, const char *format, ...);
 
     /// perform low pass filter in-place
     static void perform_lowpass (double *data, int data_len, int sampling_rate, double cutoff,

@@ -62,7 +62,7 @@ fn generate_data_handler_binding() {
 }
 
 #[cfg(feature = "generate_binding")]
-fn generate_ml_model_binding() {
+fn generate_ml_module_binding() {
     const ALLOW_UNCONVENTIONALS: &'static str = "#![allow(non_camel_case_types)]\n";
 
     let header_path = PathBuf::from("inc");
@@ -77,11 +77,11 @@ fn generate_ml_model_binding() {
         .generate()
         .expect("Unable to generate bindings");
 
-    let binding_target_path = PathBuf::new().join("src").join("ffi").join("ml_model.rs");
+    let binding_target_path = PathBuf::new().join("src").join("ffi").join("ml_module.rs");
 
     bindings
         .write_to_file(binding_target_path.clone())
-        .expect("Could not write binding to `src/ffi/ml_model.rs`");
+        .expect("Could not write binding to `src/ffi/ml_module.rs`");
 }
 
 #[cfg(feature = "generate_binding")]
@@ -123,7 +123,7 @@ fn generate_constants_binding() {
 fn generate_binding() {
     generate_board_controller_binding();
     generate_data_handler_binding();
-    generate_ml_model_binding();
+    generate_ml_module_binding();
     generate_constants_binding();
 }
 

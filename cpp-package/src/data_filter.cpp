@@ -1,3 +1,5 @@
+#include <cstdarg>
+#include <stdlib.h>
 #include <string.h>
 
 #include "brainflow_constants.h"
@@ -432,6 +434,21 @@ void DataFilter::set_log_file (std::string log_file)
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to set log file", res);
+    }
+}
+
+void DataFilter::log_message (int log_level, const char *format, ...)
+{
+    char buffer[1024];
+    va_list ap;
+    va_start (ap, format);
+    vsnprintf (buffer, 1024, format, ap);
+    va_end (ap);
+
+    int res = log_message_data_handler (log_level, buffer);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to write log message", res);
     }
 }
 

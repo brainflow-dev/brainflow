@@ -27,6 +27,8 @@ namespace brainflow
         [DllImport ("MLModule.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_file_ml_module (string log_file);
         [DllImport ("MLModule.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int log_message_ml_module (int log_level, string message);
+        [DllImport ("MLModule.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_level_ml_module (int log_level);
         [DllImport ("MLModule.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int prepare (string input_json);
@@ -44,6 +46,8 @@ namespace brainflow
     {
         [DllImport ("MLModule32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_file_ml_module (string log_file);
+        [DllImport ("MLModule32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int log_message_ml_module (int log_level, string message);
         [DllImport ("MLModule32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_level_ml_module (int log_level);
         [DllImport ("MLModule32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -63,6 +67,8 @@ namespace brainflow
         [DllImport ("libMLModule.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_file_ml_module (string log_file);
         [DllImport ("libMLModule.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int log_message_ml_module (int log_level, string message);
+        [DllImport ("libMLModule.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_level_ml_module (int log_level);
         [DllImport ("libMLModule.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int prepare (string input_json);
@@ -80,6 +86,8 @@ namespace brainflow
     {
         [DllImport ("libMLModule.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_file_ml_module (string log_file);
+        [DllImport ("libMLModule.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int log_message_ml_module (int log_level, string message);
         [DllImport ("libMLModule.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_level_ml_module (int log_level);
         [DllImport ("libMLModule.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -212,6 +220,23 @@ namespace brainflow
                     return MLModuleLibraryLinux.get_version_ml_module (version, len, max_len);
                 case LibraryEnvironment.MacOS:
                     return MLModuleLibraryMac.get_version_ml_module (version, len, max_len);
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static int log_message_ml_module (int log_level, string message)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return MLModuleLibrary64.log_message_ml_module (log_level, message);
+                case LibraryEnvironment.x86:
+                    return MLModuleLibrary32.log_message_ml_module (log_level, message);
+                case LibraryEnvironment.Linux:
+                    return MLModuleLibraryLinux.log_message_ml_module (log_level, message);
+                case LibraryEnvironment.MacOS:
+                    return MLModuleLibraryMac.log_message_ml_module (log_level, message);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;

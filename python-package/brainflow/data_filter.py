@@ -136,6 +136,13 @@ class DataHandlerDLL(object):
             ctypes.c_double
         ]
 
+        self.log_message_data_handler = self.lib.log_message_data_handler
+        self.log_message_data_handler.restype = ctypes.c_int
+        self.log_message_data_handler.argtypes = [
+            ctypes.c_int,
+            ctypes.c_char_p
+        ]
+
         self.remove_environmental_noise = self.lib.remove_environmental_noise
         self.remove_environmental_noise.restype = ctypes.c_int
         self.remove_environmental_noise.argtypes = [
@@ -375,7 +382,7 @@ class DataFilter(object):
     """DataFilter class contains methods for signal processig"""
 
     @classmethod
-    def _set_log_level(cls, log_level: int) -> None:
+    def set_log_level(cls, log_level: int) -> None:
         """set BrainFlow log level, use it only if you want to write your own messages to BrainFlow logger,
         otherwise use enable_data_logger, enable_dev_data_logger or disable_data_logger
 
@@ -389,17 +396,17 @@ class DataFilter(object):
     @classmethod
     def enable_data_logger(cls) -> None:
         """enable Data Logger with level INFO, uses stderr for log messages by default"""
-        cls._set_log_level(LogLevels.LEVEL_INFO.value)
+        cls.set_log_level(LogLevels.LEVEL_INFO.value)
 
     @classmethod
     def disable_data_logger(cls) -> None:
         """disable Data Logger"""
-        cls._set_log_level(LogLevels.LEVEL_OFF.value)
+        cls.set_log_level(LogLevels.LEVEL_OFF.value)
 
     @classmethod
     def enable_dev_data_logger(cls) -> None:
         """enable Data Logger with level TRACE, uses stderr for log messages by default"""
-        cls._set_log_level(LogLevels.LEVEL_TRACE.value)
+        cls.set_log_level(LogLevels.LEVEL_TRACE.value)
 
     @classmethod
     def set_log_file(cls, log_file: str) -> None:
@@ -1048,3 +1055,20 @@ class DataFilter(object):
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info', res)
         return string.tobytes().decode('utf-8')[0:string_len[0]]
+
+    @classmethod
+    def log_message(cls, log_level: int, message: str) -> None:
+        """write your own log message to BrainFlow logger, use it if you wanna have single logger for your own code and BrainFlow's code
+
+        :param log_level: log level
+        :type log_file: int
+        :param message: message
+        :type message: str
+        """
+        try:
+            msg = message.encode()
+        except BaseException:
+            msg = message
+        res = DataHandlerDLL.get_instance().log_message_data_handler(log_level, msg)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to write log message', res)

@@ -35,6 +35,18 @@ pub fn enable_dev_data_logger() -> Result<()> {
     set_log_level(LogLevels::LevelTrace)
 }
 
+/// Write your own log message to BrainFlow board logger, use it if you wanna have single logger for your own code and BrainFlow's code.
+pub fn log_message<S: AsRef<str>>(log_level: LogLevels, message: S) -> Result<()> {
+    let message = message.as_ref();
+    let message = CString::new(message)?.into_raw();
+    let res = unsafe {
+        let res = data_handler::log_message_data_handler(log_level as c_int, message);
+        let _ = CString::from_raw(message);
+        res
+    };
+    Ok(check_brainflow_exit_code(res)?)
+}
+
 /// Redirect data logger from stderr to file, can be called any time.
 pub fn set_log_file<S: AsRef<str>>(log_file: S) -> Result<()> {
     let log_file = log_file.as_ref();

@@ -43,6 +43,8 @@ namespace brainflow
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_file_data_handler (string log_file);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int log_message_data_handler (int log_level, string message);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_level_data_handler (int log_level);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_lowpass (double[] data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
@@ -101,6 +103,8 @@ namespace brainflow
     {
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_file_data_handler(string log_file);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int log_message_data_handler (int log_level, string message);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_level_data_handler (int log_level);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -161,6 +165,8 @@ namespace brainflow
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_file_data_handler(string log_file);
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int log_message_data_handler (int log_level, string message);
+        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_level_data_handler (int log_level);
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_lowpass (double[] data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
@@ -219,6 +225,8 @@ namespace brainflow
     {
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_file_data_handler(string log_file);
+        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int log_message_data_handler (int log_level, string message);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_level_data_handler(int log_level);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -733,6 +741,23 @@ namespace brainflow
                     return DataHandlerLibraryLinux.get_version_data_handler (version, len, max_len);
                 case LibraryEnvironment.MacOS:
                     return DataHandlerLibraryMac.get_version_data_handler (version, len, max_len);
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static int log_message_data_handler (int log_level, string message)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.log_message_data_handler (log_level, message);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.log_message_data_handler (log_level, message);
+                case LibraryEnvironment.Linux:
+                    return DataHandlerLibraryLinux.log_message_data_handler (log_level, message);
+                case LibraryEnvironment.MacOS:
+                    return DataHandlerLibraryMac.log_message_data_handler (log_level, message);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;

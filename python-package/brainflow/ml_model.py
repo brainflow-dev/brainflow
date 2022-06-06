@@ -107,6 +107,13 @@ class MLModuleDLL(object):
             ctypes.c_char_p
         ]
 
+        self.log_message_ml_module = self.lib.log_message_ml_module
+        self.log_message_ml_module.restype = ctypes.c_int
+        self.log_message_ml_module.argtypes = [
+            ctypes.c_int,
+            ctypes.c_char_p
+        ]
+
         self.prepare = self.lib.prepare
         self.prepare.restype = ctypes.c_int
         self.prepare.argtypes = [
@@ -157,7 +164,7 @@ class MLModel(object):
             self.serialized_params = model_params.to_json()
 
     @classmethod
-    def _set_log_level(cls, log_level: int) -> None:
+    def set_log_level(cls, log_level: int) -> None:
         """set BrainFlow log level, use it only if you want to write your own messages to BrainFlow logger,
         otherwise use enable_ml_logger, enable_dev_ml_logger or disable_ml_logger
 
@@ -171,17 +178,17 @@ class MLModel(object):
     @classmethod
     def enable_ml_logger(cls) -> None:
         """enable ML Logger with level INFO, uses stderr for log messages by default"""
-        cls._set_log_level(LogLevels.LEVEL_INFO.value)
+        cls.set_log_level(LogLevels.LEVEL_INFO.value)
 
     @classmethod
     def disable_ml_logger(cls) -> None:
         """disable BrainFlow Logger"""
-        cls._set_log_level(LogLevels.LEVEL_OFF.value)
+        cls.set_log_level(LogLevels.LEVEL_OFF.value)
 
     @classmethod
     def enable_dev_ml_logger(cls) -> None:
         """enable ML Logger with level TRACE, uses stderr for log messages by default"""
-        cls._set_log_level(LogLevels.LEVEL_TRACE.value)
+        cls.set_log_level(LogLevels.LEVEL_TRACE.value)
 
     @classmethod
     def set_log_file(cls, log_file: str) -> None:
@@ -197,6 +204,24 @@ class MLModel(object):
         res = MLModuleDLL.get_instance().set_log_file_ml_module(file)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to redirect logs to a file', res)
+
+    @classmethod
+    def log_message(cls, log_level: int, message: str) -> None:
+        """write your own log message to BrainFlow logger, use it if you wanna have single logger for your own code and BrainFlow's code
+
+        :param log_level: log level
+        :type log_file: int
+        :param message: message
+        :type message: str
+        """
+        try:
+            msg = message.encode()
+        except BaseException:
+            msg = message
+        res = MLModuleDLL.get_instance().log_message_ml_module(log_level, msg)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to write log message', res)
+
 
     @classmethod
     def release_all(cls) -> None:

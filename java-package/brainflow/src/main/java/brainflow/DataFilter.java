@@ -88,6 +88,8 @@ public class DataFilter
                 double[] output);
 
         int get_version_data_handler (byte[] version, int[] len, int max_len);
+
+        int log_message_data_handler (int log_level, String message);
     }
 
     private static DllInterface instance;
@@ -196,6 +198,18 @@ public class DataFilter
             throw new BrainFlowError ("Error in set_log_file", ec);
         }
         return output[0];
+    }
+
+    /**
+     * send user defined strings to BrainFlow logger
+     */
+    public static void log_message (int log_level, String message) throws BrainFlowError
+    {
+        int ec = instance.log_message_data_handler (log_level, message);
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in log_message", ec);
+        }
     }
 
     /**
@@ -434,7 +448,8 @@ public class DataFilter
     {
         if (decomposition_level <= 0)
         {
-            throw new BrainFlowError ("Invalid decomposition level", BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+            throw new BrainFlowError ("Invalid decomposition level",
+                    BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
         }
         int[] lengths = new int[decomposition_level + 1];
         double[] output_array = new double[data.length + 2 * decomposition_level * (40 + 1)];
@@ -462,7 +477,8 @@ public class DataFilter
     {
         if (decomposition_level <= 0)
         {
-            throw new BrainFlowError ("Invalid decomposition level", BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+            throw new BrainFlowError ("Invalid decomposition level",
+                    BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
         }
         double[] output_array = new double[original_data_len];
         int ec = instance.perform_inverse_wavelet_transform (wavelet_output.getLeft (), original_data_len, wavelet,
@@ -562,7 +578,8 @@ public class DataFilter
     {
         if ((start_pos < 0) || (end_pos > data.length) || (start_pos >= end_pos))
         {
-            throw new BrainFlowError ("invalid position arguments", BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+            throw new BrainFlowError ("invalid position arguments",
+                    BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
         }
         // I didnt find a way to pass an offset using pointers, copy array
         double[] data_to_process = Arrays.copyOfRange (data, start_pos, end_pos);
@@ -700,7 +717,8 @@ public class DataFilter
     {
         if ((start_pos < 0) || (end_pos > data.length) || (start_pos >= end_pos))
         {
-            throw new BrainFlowError ("invalid position arguments", BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+            throw new BrainFlowError ("invalid position arguments",
+                    BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
         }
         // I didnt find a way to pass an offset using pointers, copy array
         double[] data_to_process = Arrays.copyOfRange (data, start_pos, end_pos);
@@ -753,7 +771,8 @@ public class DataFilter
     {
         if ((nfft & (nfft - 1)) != 0)
         {
-            throw new BrainFlowError ("nfft must be a power of 2", BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+            throw new BrainFlowError ("nfft must be a power of 2",
+                    BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
         }
         double[] ampls = new double[nfft / 2 + 1];
         double[] freqs = new double[nfft / 2 + 1];

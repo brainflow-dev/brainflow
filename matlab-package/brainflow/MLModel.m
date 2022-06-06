@@ -39,7 +39,15 @@ classdef MLModel
             task_name = 'release_all';
             lib_name = MLModel.load_lib();
             exit_code = calllib(lib_name, task_name);
-            BoardShim.check_ec(exit_code, task_name);
+            MLModel.check_ec(exit_code, task_name);
+        end
+
+        function log_message(log_level, message)
+            % write message to ML logger
+            task_name = 'log_message_ml_module';
+            lib_name = MLModel.load_lib();
+            exit_code = calllib(lib_name, task_name, log_level, message);
+            MLModel.check_ec(exit_code, task_name);
         end
         
         function set_log_level(log_level)

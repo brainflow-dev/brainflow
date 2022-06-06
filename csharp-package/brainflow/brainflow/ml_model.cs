@@ -39,9 +39,23 @@ namespace brainflow
         /// set log level, logger is disabled by default
         /// </summary>
         /// <param name="log_level"></param>
-        private static void set_log_level (int log_level)
+        public static void set_log_level (int log_level)
         {
             int res = MLModuleLibrary.set_log_level_ml_module (log_level);
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+        }
+
+        /// <summary>
+        /// send your own log message to BrainFlow's logger
+        /// </summary>
+        /// <param name="log_level"></param>
+        /// <param name="message"></param>
+        public static void log_message (int log_level, string message)
+        {
+            int res = MLModuleLibrary.log_message_ml_module (log_level, message);
             if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
                 throw new BrainFlowError (res);

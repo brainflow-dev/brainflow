@@ -21,6 +21,8 @@ public class MLModel
 
         int set_log_file_ml_module (String log_file);
 
+        int log_message_ml_module (int log_level, String message);
+
         int prepare (String params);
 
         int release (String params);
@@ -164,6 +166,18 @@ public class MLModel
         if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in release classifiers", ec);
+        }
+    }
+
+    /**
+     * send user defined strings to BrainFlow logger
+     */
+    public static void log_message (int log_level, String message) throws BrainFlowError
+    {
+        int ec = instance.log_message_ml_module (log_level, message);
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in log_message", ec);
         }
     }
 

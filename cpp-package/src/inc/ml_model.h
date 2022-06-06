@@ -34,6 +34,8 @@ public:
     static void enable_dev_ml_logger ();
     /// set log level
     static void set_log_level (int log_level);
+    /// write user defined string to BrainFlow logger
+    static void log_message (int log_level, const char *format, ...);
     /// release all currently prepared classifiers
     static void release_all ();
     /// get brainflow version
