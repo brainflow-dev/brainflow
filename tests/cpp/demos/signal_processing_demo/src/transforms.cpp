@@ -95,7 +95,9 @@ int main (int argc, char *argv[])
                 std::cout << fft_data[i] << " ";
             }
             std::cout << std::endl;
-            double *restored_from_fft_data = DataFilter::perform_ifft (fft_data, fft_len);
+            int restored_len = 0;
+            double *restored_from_fft_data =
+                DataFilter::perform_ifft (fft_data, fft_len, &restored_len);
             std::cout << "Restored after inverse fft transform data:" << std::endl;
             print_one_row (restored_from_fft_data, data_count);
 
