@@ -55,7 +55,8 @@ std::vector<double> MLModel::predict (double *data, int data_len)
         delete[] output;
         throw BrainFlowException ("failed to predict", res);
     }
-    std::vector<double> result (output, output + size);
+    std::vector<double> result (size);
+    std::copy (output, output + size, result.begin ());
     delete[] output;
     return result;
 }

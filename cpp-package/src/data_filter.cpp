@@ -176,7 +176,7 @@ double *DataFilter::get_window (int window_function, int window_len)
     return window_data;
 }
 
-std::complex<double> *DataFilter::perform_fft (double *data, int data_len, int window)
+std::complex<double> *DataFilter::perform_fft (double *data, int data_len, int window, int *fft_len)
 {
     if ((data_len & (data_len - 1)) || (data_len <= 0))
     {
@@ -204,6 +204,7 @@ std::complex<double> *DataFilter::perform_fft (double *data, int data_len, int w
         delete[] temp_im;
         throw BrainFlowException ("failed to perform fft", res);
     }
+    *fft_len = data_len / 2 + 1;
     return output;
 }
 
@@ -217,7 +218,7 @@ void DataFilter::detrend (double *data, int data_len, int detrend_operation)
 }
 
 std::pair<double *, double *> DataFilter::get_psd (
-    double *data, int data_len, int sampling_rate, int window)
+    double *data, int data_len, int sampling_rate, int window, int *psd_len)
 {
     if ((data_len & (data_len - 1)) || (data_len <= 0))
     {
@@ -233,11 +234,12 @@ std::pair<double *, double *> DataFilter::get_psd (
         delete[] freq;
         throw BrainFlowException ("failed to get psd", res);
     }
+    *psd_len = data_len / 2 + 1;
     return std::make_pair (ampl, freq);
 }
 
 std::pair<double *, double *> DataFilter::get_psd_welch (
-    double *data, int data_len, int nfft, int overlap, int sampling_rate, int window)
+    double *data, int data_len, int nfft, int overlap, int sampling_rate, int window, int *psd_len)
 {
     if ((nfft & (nfft - 1)) || (nfft <= 0))
     {
@@ -253,6 +255,7 @@ std::pair<double *, double *> DataFilter::get_psd_welch (
         delete[] freq;
         throw BrainFlowException ("failed to get_psd_welch", res);
     }
+    *psd_len = data_len / 2 + 1;
     return std::make_pair (ampl, freq);
 }
 
@@ -326,23 +329,25 @@ double DataFilter::get_band_power (
     return band_power;
 }
 
-double *DataFilter::perform_ifft (std::complex<double> *data, int data_len)
+double *DataFilter::perform_ifft (std::complex<double> *fft_data, int fft_len, int *data_len)
 {
     if ((data_len & (data_len - 1)) || (data_len <= 0))
     {
         throw BrainFlowException (
             "data len is not power of 2", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
     }
-    double *output = new double[data_len];
-    double *temp_re = new double[data_len / 2 + 1];
-    double *temp_im = new double[data_len / 2 + 1];
-    for (int i = 0; i < data_len / 2 + 1; i++)
+    int original_size = (fft_len - 1) * 2;
+    *data_len = original_size;
+    double *output = new double[original_size];
+    double *temp_re = new double[fft_len];
+    double *temp_im = new double[fft_len];
+    for (int i = 0; i < fft_len; i++)
     {
-        temp_re[i] = data[i].real ();
-        temp_im[i] = data[i].imag ();
+        temp_re[i] = fft_data[i].real ();
+        temp_im[i] = fft_data[i].imag ();
     }
 
-    int res = ::perform_ifft (temp_re, temp_im, data_len, output);
+    int res = ::perform_ifft (temp_re, temp_im, original_size, output);
     delete[] temp_re;
     delete[] temp_im;
     if (res != (int)BrainFlowExitCodes::STATUS_OK)

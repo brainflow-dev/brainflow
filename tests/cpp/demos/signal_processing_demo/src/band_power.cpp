@@ -51,11 +51,13 @@ int main (int argc, char *argv[])
         DataFilter::detrend (
             data.get_address (channel), data.get_size (1), (int)DetrendOperations::LINEAR);
         std::cout << "Data after detrend:" << std::endl << data << std::endl;
-        std::pair<double *, double *> psd = DataFilter::get_psd_welch (data.get_address (channel),
-            data.get_size (1), fft_len, fft_len / 2, sampling_rate, (int)WindowOperations::HANNING);
+        int psd_len = 0;
+        std::pair<double *, double *> psd =
+            DataFilter::get_psd_welch (data.get_address (channel), data.get_size (1), fft_len,
+                fft_len / 2, sampling_rate, (int)WindowOperations::HANNING, &psd_len);
         // calc band power
-        double band_power_alpha = DataFilter::get_band_power (psd, fft_len / 2 + 1, 7.0, 13.0);
-        double band_power_beta = DataFilter::get_band_power (psd, fft_len / 2 + 1, 14.0, 30.0);
+        double band_power_alpha = DataFilter::get_band_power (psd, psd_len, 7.0, 13.0);
+        double band_power_beta = DataFilter::get_band_power (psd, psd_len, 14.0, 30.0);
         std::cout << "alpha/beta:" << band_power_alpha / band_power_beta << std::endl;
         delete[] psd.first;
         delete[] psd.second;

@@ -85,16 +85,17 @@ int main (int argc, char *argv[])
 
             // demo for fft
             // data count must be power of 2 for fft!
-            std::complex<double> *fft_data = DataFilter::perform_fft (
-                data.get_address (eeg_channels[i]), data_count, (int)WindowOperations::NO_WINDOW);
-            // len of fft_data array is N / 2 + 1
+            int fft_len = 0;
+            std::complex<double> *fft_data =
+                DataFilter::perform_fft (data.get_address (eeg_channels[i]), data_count,
+                    (int)WindowOperations::NO_WINDOW, &fft_len);
             std::cout << "FFT coeffs:" << std::endl;
-            for (int i = 0; i < data_count / 2 + 1; i++)
+            for (int i = 0; i < fft_len; i++)
             {
                 std::cout << fft_data[i] << " ";
             }
             std::cout << std::endl;
-            double *restored_from_fft_data = DataFilter::perform_ifft (fft_data, data_count);
+            double *restored_from_fft_data = DataFilter::perform_ifft (fft_data, fft_len);
             std::cout << "Restored after inverse fft transform data:" << std::endl;
             print_one_row (restored_from_fft_data, data_count);
 

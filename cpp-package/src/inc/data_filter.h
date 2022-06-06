@@ -89,16 +89,18 @@ public:
      * @param data input array
      * @param data_len must be power of 2
      * @param window window function
+     * @param fft_len output fft len(data_len / 2 + 1)
      * @return complex array with size data_len / 2 + 1, it holds only positive im values
      */
-    static std::complex<double> *perform_fft (double *data, int data_len, int window);
+    static std::complex<double> *perform_fft (double *data, int data_len, int window, int *fft_len);
     /**
      * perform inverse fft
-     * @param data complex array from perform_fft
-     * @param data_len len of original array, must be power of 2
+     * @param fft_data complex array from perform_fft
+     * @param fft_len len of original array, must be power of 2
+     * @param data_len output array len
      * @return restored data
      */
-    static double *perform_ifft (std::complex<double> *data, int data_len);
+    static double *perform_ifft (std::complex<double> *fft_data, int fft_len, int *data_len);
     /**
      * calculate nearest power of 2
      * @param value input value
@@ -111,19 +113,21 @@ public:
      * @param data_len must be power of 2
      * @param sampling_rate sampling rate
      * @param window window function
+     * @param psd_len output len (data_len / 2 + 1)
      * @return pair of amplitude and freq arrays of size data_len / 2 + 1
      */
     static std::pair<double *, double *> get_psd (
-        double *data, int data_len, int sampling_rate, int window);
+        double *data, int data_len, int sampling_rate, int window, int *psd_len);
     /**
      * subtract trend from data
      * @param data input array
      * @param data_len
+     * @param psd_len output len (data_len / 2 + 1)
      * @param detrend_operation use DetrendOperations enum
      */
     static void detrend (double *data, int data_len, int detrend_operation);
-    static std::pair<double *, double *> get_psd_welch (
-        double *data, int data_len, int nfft, int overlap, int sampling_rate, int window);
+    static std::pair<double *, double *> get_psd_welch (double *data, int data_len, int nfft,
+        int overlap, int sampling_rate, int window, int *psd_len);
     /**
      * calculate band power
      * @param psd psd calculated using get_psd
