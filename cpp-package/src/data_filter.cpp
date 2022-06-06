@@ -331,10 +331,9 @@ double DataFilter::get_band_power (
 
 double *DataFilter::perform_ifft (std::complex<double> *fft_data, int fft_len, int *data_len)
 {
-    if ((data_len & (data_len - 1)) || (data_len <= 0))
+    if ((fft_len <= 0) || (fft_data == NULL) || (data_len == NULL))
     {
-        throw BrainFlowException (
-            "data len is not power of 2", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+        throw BrainFlowException ("invalid args", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
     }
     int original_size = (fft_len - 1) * 2;
     *data_len = original_size;
