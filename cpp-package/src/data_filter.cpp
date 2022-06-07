@@ -89,7 +89,7 @@ double *DataFilter::perform_downsampling (
 }
 
 std::pair<double *, int *> DataFilter::perform_wavelet_transform (
-    double *data, int data_len, std::string wavelet, int decomposition_level)
+    double *data, int data_len, int wavelet, int decomposition_level, int extension_type)
 {
     if (data_len <= 0)
     {
@@ -100,8 +100,8 @@ std::pair<double *, int *> DataFilter::perform_wavelet_transform (
     double *wavelet_output = new double[data_len +
         2 * decomposition_level * (40 + 1)]; // I get this formula from wavelib sources
     int *decomposition_lengths = new int[decomposition_level + 1];
-    int res = ::perform_wavelet_transform (data, data_len, wavelet.c_str (), decomposition_level,
-        wavelet_output, decomposition_lengths);
+    int res = ::perform_wavelet_transform (data, data_len, wavelet, decomposition_level,
+        extension_type, wavelet_output, decomposition_lengths);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         delete[] wavelet_output;
@@ -112,7 +112,7 @@ std::pair<double *, int *> DataFilter::perform_wavelet_transform (
 }
 
 double *DataFilter::perform_inverse_wavelet_transform (std::pair<double *, int *> wavelet_output,
-    int original_data_len, std::string wavelet, int decomposition_level)
+    int original_data_len, int wavelet, int decomposition_level, int extension_type)
 {
     if (original_data_len <= 0)
     {
@@ -121,8 +121,8 @@ double *DataFilter::perform_inverse_wavelet_transform (std::pair<double *, int *
     }
 
     double *original_data = new double[original_data_len];
-    int res = ::perform_inverse_wavelet_transform (wavelet_output.first, original_data_len,
-        wavelet.c_str (), decomposition_level, wavelet_output.second, original_data);
+    int res = ::perform_inverse_wavelet_transform (wavelet_output.first, original_data_len, wavelet,
+        decomposition_level, extension_type, wavelet_output.second, original_data);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         delete[] original_data;
@@ -131,10 +131,12 @@ double *DataFilter::perform_inverse_wavelet_transform (std::pair<double *, int *
     return original_data;
 }
 
-void DataFilter::perform_wavelet_denoising (
-    double *data, int data_len, std::string wavelet, int decomposition_level)
+void DataFilter::perform_wavelet_denoising (double *data, int data_len, int wavelet,
+    int decomposition_level, int wavelet_denoising, int threshold, int extenstion_type,
+    int noise_level)
 {
-    int res = ::perform_wavelet_denoising (data, data_len, wavelet.c_str (), decomposition_level);
+    int res = ::perform_wavelet_denoising (data, data_len, wavelet, decomposition_level,
+        wavelet_denoising, threshold, extenstion_type, noise_level);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to perform wavelet denoising", res);

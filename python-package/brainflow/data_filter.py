@@ -50,9 +50,87 @@ class DetrendOperations(enum.IntEnum):
 class NoiseTypes(enum.IntEnum):
     """Enum to store noise types"""
 
-    FIFTY = 0
-    SIXTY = 1
-    FIFTY_AND_SIXTY = 2
+    FIFTY = 0  #:
+    SIXTY = 1  #:
+    FIFTY_AND_SIXTY = 2  #:
+
+
+class WaveletDenoisingTypes(enum.IntEnum):
+    """Enum to store all supported wavelet denoising methods"""
+
+    VISUSHRINK = 0  #:
+    SURESHRINK = 1  #:
+
+
+class ThresholdTypes(enum.IntEnum):
+    """Enum to store all supported thresholding types"""
+
+    SOFT = 0  #:
+    HARD = 1  #:
+
+
+class WaveletExtensionTypes(enum.IntEnum):
+    """Enum to store all supported wavelet extension types"""
+
+    SYMMETRIC = 0  #:
+    PERIODIC = 1  #:
+
+
+class NoiseEstimationLevelTypes(enum.IntEnum):
+    """Enum to store all supported values for noise estemation levels in wavelet denoising"""
+
+    FIRST_LEVEL = 0  #:
+    ALL_LEVELS = 1  #:
+
+
+class WaveletTypes(enum.IntEnum):
+    """Enum to store all supported wavelets"""
+
+    HAAR = 0  #:
+    DB1 = 1  #:
+    DB2 = 2  #:
+    DB3 = 3  #:
+    DB4 = 4  #:
+    DB5 = 5  #:
+    DB6 = 6  #:
+    DB7 = 7  #:
+    DB8 = 8  #:
+    DB9 = 9  #:
+    DB10 = 10  #:
+    DB11 = 11  #:
+    DB12 = 12  #:
+    DB13 = 13  #:
+    DB14 = 14  #:
+    DB15 = 15  #:
+    BIOR1_1 = 16  #:
+    BIOR1_3 = 17  #:
+    BIOR1_5 = 18  #:
+    BIOR2_2 = 19  #:
+    BIOR2_4 = 20  #:
+    BIOR2_6 = 21  #:
+    BIOR2_8 = 22  #:
+    BIOR3_1 = 23  #:
+    BIOR3_3 = 24  #:
+    BIOR3_5 = 25  #:
+    BIOR3_7 = 26  #:
+    BIOR3_9 = 27  #:
+    BIOR4_4 = 28  #:
+    BIOR5_5 = 29  #:
+    BIOR6_8 = 30  #:
+    COIF1 = 31  #:
+    COIF2 = 32  #:
+    COIF3 = 33  #:
+    COIF4 = 34  #:
+    COIF5 = 35  #:
+    SYM2 = 36  #:
+    SYM3 = 37  #:
+    SYM4 = 38  #:
+    SYM5 = 39  #:
+    SYM6 = 40  #:
+    SYM7 = 41  #:
+    SYM8 = 42  #:
+    SYM9 = 43  #:
+    SYM10 = 44  #:
 
 
 class DataHandlerDLL(object):
@@ -224,7 +302,8 @@ class DataHandlerDLL(object):
         self.perform_wavelet_transform.argtypes = [
             ndpointer(ctypes.c_double),
             ctypes.c_int,
-            ctypes.c_char_p,
+            ctypes.c_int,
+            ctypes.c_int,
             ctypes.c_int,
             ndpointer(ctypes.c_double),
             ndpointer(ctypes.c_int32)
@@ -235,7 +314,8 @@ class DataHandlerDLL(object):
         self.perform_inverse_wavelet_transform.argtypes = [
             ndpointer(ctypes.c_double),
             ctypes.c_int,
-            ctypes.c_char_p,
+            ctypes.c_int,
+            ctypes.c_int,
             ctypes.c_int,
             ndpointer(ctypes.c_int32),
             ndpointer(ctypes.c_double)
@@ -292,7 +372,11 @@ class DataHandlerDLL(object):
         self.perform_wavelet_denoising.argtypes = [
             ndpointer(ctypes.c_double),
             ctypes.c_int,
-            ctypes.c_char_p,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
             ctypes.c_int
         ]
 
@@ -625,83 +709,89 @@ class DataFilter(object):
         return downsampled_data
 
     @classmethod
-    def perform_wavelet_transform(cls, data: NDArray[Float64], wavelet: str, decomposition_level: int) -> Tuple:
+    def perform_wavelet_transform(cls, data: NDArray[Float64], wavelet: int, decomposition_level: int,
+                                  extension_type=WaveletExtensionTypes.SYMMETRIC) -> Tuple:
         """perform wavelet transform
 
         :param data: initial data
         :type data: NDArray[Float64]
-        :param wavelet: supported vals: db1..db15,haar,sym2..sym10,coif1..coif5,bior1.1,bior1.3,bior1.5,bior2.2,bior2.4,bior2.6,bior2.8,bior3.1,bior3.3,bior3.5 ,bior3.7,bior3.9,bior4.4,bior5.5,bior6.8
-        :type wavelet: str
+        :param wavelet: use WaveletTypes enum
+        :type wavelet: int
         :param decomposition_level: level of decomposition
         :type decomposition_level: int
+        :param extension_type: extension type, use WaveletExtensionTypes
+        :type externsion_type: int
         :return: tuple of wavelet coeffs in format [A(J) D(J) D(J-1) ..... D(1)] where J is decomposition level, A - app coeffs, D - detailed coeffs, and array with lengths for each block
         :rtype: tuple
         """
         check_memory_layout_row_major(data, 1)
-        try:
-            wavelet_func = wavelet.encode()
-        except BaseException:
-            wavelet_func = wavelet
 
         wavelet_coeffs = numpy.zeros(data.shape[0] + 2 * (40 + 1)).astype(numpy.float64)
         lengths = numpy.zeros(decomposition_level + 1).astype(numpy.int32)
-        res = DataHandlerDLL.get_instance().perform_wavelet_transform(data, data.shape[0], wavelet_func,
-                                                                      decomposition_level, wavelet_coeffs, lengths)
+        res = DataHandlerDLL.get_instance().perform_wavelet_transform(data, data.shape[0], wavelet,
+                                                                      decomposition_level, extension_type,
+                                                                      wavelet_coeffs, lengths)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to perform wavelet transform', res)
 
         return wavelet_coeffs[0: sum(lengths)], lengths
 
     @classmethod
-    def perform_inverse_wavelet_transform(cls, wavelet_output: Tuple, original_data_len: int, wavelet: str,
-                                          decomposition_level: int) -> NDArray[Float64]:
+    def perform_inverse_wavelet_transform(cls, wavelet_output: Tuple, original_data_len: int, wavelet: int,
+                                          decomposition_level: int, extension_type=WaveletExtensionTypes.SYMMETRIC) -> NDArray[Float64]:
         """perform wavelet transform
 
         :param wavelet_output: tuple of wavelet_coeffs and array with lengths
         :type wavelet_coeffs: tuple
         :param original_data_len: len of signal before wavelet transform
         :type original_data_len: int
-        :param wavelet: supported vals: db1..db15,haar,sym2..sym10,coif1..coif5,bior1.1,bior1.3,bior1.5,bior2.2,bior2.4,bior2.6,bior2.8,bior3.1,bior3.3,bior3.5 ,bior3.7,bior3.9,bior4.4,bior5.5,bior6.8
-        :type wavelet: str
+        :param wavelet: use WaveletTypes enum
+        :type wavelet: int
         :param decomposition_level: level of decomposition
         :type decomposition_level: int
+        :param extension_type: extension type, use WaveletExtensionTypes
+        :type externsion_type: int
         :return: restored data
         :rtype: NDArray[Float64]
         """
-        try:
-            wavelet_func = wavelet.encode()
-        except BaseException:
-            wavelet_func = wavelet
-
         original_data = numpy.zeros(original_data_len).astype(numpy.float64)
         res = DataHandlerDLL.get_instance().perform_inverse_wavelet_transform(wavelet_output[0], original_data_len,
-                                                                              wavelet_func,
-                                                                              decomposition_level, wavelet_output[1],
-                                                                              original_data)
+                                                                              wavelet,
+                                                                              decomposition_level, extension_type,
+                                                                              wavelet_output[1], original_data)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to perform inverse wavelet transform', res)
 
         return original_data
 
     @classmethod
-    def perform_wavelet_denoising(cls, data: NDArray[Float64], wavelet: str, decomposition_level: int) -> None:
+    def perform_wavelet_denoising(cls, data: NDArray[Float64], wavelet: int, decomposition_level: int,
+                                  wavelet_denoising=WaveletDenoisingTypes.SURESHRINK,
+                                  threshold=ThresholdTypes.HARD,
+                                  extension_type=WaveletExtensionTypes.SYMMETRIC,
+                                  noise_level=NoiseEstimationLevelTypes.FIRST_LEVEL) -> None:
         """perform wavelet denoising
 
         :param data: data to denoise
         :type data: NDArray[Float64]
-        :param wavelet: supported vals: db1..db15,haar,sym2..sym10,coif1..coif5,bior1.1,bior1.3,bior1.5,bior2.2,bior2.4,bior2.6,bior2.8,bior3.1,bior3.3,bior3.5 ,bior3.7,bior3.9,bior4.4,bior5.5,bior6.8
-        :type wavelet: str
+        :param wavelet: use WaveletTypes enum
+        :type wavelet: int
         :param decomposition_level: decomposition level
         :type decomposition_level: int
+        :param wavelet_denoising: use WaveletDenoisingTypes enum
+        :type wavelet_denoising: int
+        :param threshold: use ThresholdTypes enum
+        :type threshold: int
+        :param extension_type: use WaveletExtensionTypes enum
+        :type extension_type: int
+        :param noise_level: use NoiseEstimationLevelTypes enum
+        :type noise_level: int
         """
         check_memory_layout_row_major(data, 1)
-        try:
-            wavelet_func = wavelet.encode()
-        except BaseException:
-            wavelet_func = wavelet
 
-        res = DataHandlerDLL.get_instance().perform_wavelet_denoising(data, data.shape[0], wavelet_func,
-                                                                      decomposition_level)
+        res = DataHandlerDLL.get_instance().perform_wavelet_denoising(data, data.shape[0], wavelet,
+                                                                      decomposition_level, wavelet_denoising, threshold,
+                                                                      extension_type, noise_level)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to denoise data', res)
 

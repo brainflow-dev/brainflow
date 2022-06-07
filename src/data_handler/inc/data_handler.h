@@ -25,13 +25,14 @@ extern "C"
     SHARED_EXPORT int CALLING_CONVENTION perform_downsampling (
         double *data, int data_len, int period, int agg_operation, double *output_data);
     SHARED_EXPORT int CALLING_CONVENTION perform_wavelet_transform (double *data, int data_len,
-        const char *wavelet, int decomposition_level, double *output_data,
+        int wavelet, int decomposition_level, int extension, double *output_data,
         int *decomposition_lengths);
     SHARED_EXPORT int CALLING_CONVENTION perform_inverse_wavelet_transform (double *wavelet_coeffs,
-        int original_data_len, const char *wavelet, int decomposition_level,
+        int original_data_len, int wavelet, int decomposition_level, int extension,
         int *decomposition_lengths, double *output_data);
-    SHARED_EXPORT int CALLING_CONVENTION perform_wavelet_denoising (
-        double *data, int data_len, const char *wavelet, int decomposition_level);
+    SHARED_EXPORT int CALLING_CONVENTION perform_wavelet_denoising (double *data, int data_len,
+        int wavelet, int decomposition_level, int wavelet_denoising, int threshold,
+        int extenstion_type, int noise_level);
     SHARED_EXPORT int CALLING_CONVENTION get_csp (const double *data, const double *labels,
         int n_epochs, int n_channels, int n_times, double *output_w, double *output_d);
     SHARED_EXPORT int CALLING_CONVENTION get_window (

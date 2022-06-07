@@ -10,7 +10,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels, BoardIds
-from brainflow.data_filter import DataFilter, FilterTypes, AggOperations
+from brainflow.data_filter import DataFilter, AggOperations, WaveletTypes, NoiseEstimationLevelTypes, WaveletExtensionTypes, ThresholdTypes, WaveletDenoisingTypes
 
 
 def main():
@@ -23,8 +23,8 @@ def main():
     board.prepare_session()
     board.start_stream()
     BoardShim.log_message(LogLevels.LEVEL_INFO.value, 'start sleeping in the main thread')
-    time.sleep(20)
-    data = board.get_board_data()
+    time.sleep(10)
+    data = board.get_current_board_data(500)
     board.stop_stream()
     board.release_session()
 
@@ -43,21 +43,15 @@ def main():
         elif count == 1:
             DataFilter.perform_rolling_filter(data[channel], 3, AggOperations.MEDIAN.value)
         # if methods above dont work for your signal you can try wavelet based denoising
-        # feel free to try different functions and decomposition levels
-        elif count == 2:
-            DataFilter.perform_wavelet_denoising(data[channel], 'db6', 3)
-        elif count == 3:
-            DataFilter.perform_wavelet_denoising(data[channel], 'bior3.9', 3)
-        elif count == 4:
-            DataFilter.perform_wavelet_denoising(data[channel], 'sym7', 3)
-        elif count == 5:
-            # with synthetic board this one looks like the best option, but it depends on many circumstances
-            DataFilter.perform_wavelet_denoising(data[channel], 'coif3', 3)
+        # feel free to try different parameters
+        else:
+            DataFilter.perform_wavelet_denoising(data[channel], WaveletTypes.BIOR3_9, 3, WaveletDenoisingTypes.SURESHRINK, ThresholdTypes.HARD,
+                                                 WaveletExtensionTypes.SYMMETRIC, NoiseEstimationLevelTypes.FIRST_LEVEL)
 
     df = pd.DataFrame(np.transpose(data))
     plt.figure()
     df[eeg_channels].plot(subplots=True)
-    plt.savefig('after_processing.png')
+    plt.savefig('after_processing2.png')
 
 
 if __name__ == "__main__":

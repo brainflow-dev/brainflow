@@ -11,7 +11,7 @@ class BrainFlowError(Exception):
     """
 
     def __init__(self, message: str, exit_code: int) -> None:
-        detailed_message = '%s:%d %s' % (BrainflowExitCodes(exit_code).name, exit_code, message)
+        detailed_message = '%s:%d %s' % (BrainFlowExitCodes(exit_code).name, exit_code, message)
         super(BrainFlowError, self).__init__(detailed_message)
         self.exit_code = exit_code
 

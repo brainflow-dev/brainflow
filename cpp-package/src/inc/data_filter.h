@@ -52,23 +52,38 @@ public:
      * perform wavelet transform
      * @param data input array, any size
      * @param data_len length of input array
-     * @param wavelet supported vals:
-     *              db1..db15,haar,sym2..sym10,coif1..coif5,bior1.1,bior1.3,bior1.5,bior2.2,bior2.4,bior2.6,bior2.8,bior3.1,bior3.3,bior3.5
-     *              ,bior3.7,bior3.9,bior4.4,bior5.5,bior6.8
+     * @param wavelet use WaveletTypes enum
      * @param decomposition_level level of decomposition in wavelet transform
+     * @param extension use WaveletExtensionTypes enum
      * @return std::pair of wavelet coeffs array in format [A(J) D(J) D(J-1) ..... D(1)] where J is
      *              decomposition level A - app coeffs, D - detailed coeffs, and array of lengths for each block
      *              in wavelet coeffs array, length of this array is decomposition_level + 1
      */
     static std::pair<double *, int *> perform_wavelet_transform (
-        double *data, int data_len, std::string wavelet, int decomposition_level);
+        double *data, int data_len, int wavelet, int decomposition_level, int extension_type = (int)WaveletExtensionTypes::SYMMETRIC);
     // clang-format on
     /// performs inverse wavelet transform
     static double *perform_inverse_wavelet_transform (std::pair<double *, int *> wavelet_output,
-        int original_data_len, std::string wavelet, int decomposition_level);
-    /// perform wavelet denoising
-    static void perform_wavelet_denoising (
-        double *data, int data_len, std::string wavelet, int decomposition_level);
+        int original_data_len, int wavelet, int decomposition_level,
+        int extension_type = (int)WaveletExtensionTypes::SYMMETRIC);
+    // clanf-format off
+    /**
+     * perform wavelet denoising
+     * @param data input array, any size
+     * @param data_len length of input array
+     * @param wavelet use WaveletTypes enum
+     * @param decomposition_level level of decomposition in wavelet transform
+     * @param wavelet_denoising use WaveletDenoisingTypes enum
+     * @param threshold use ThresholdTypes enum
+     * @param extension use WaveletExtensionTypes enum
+     * @param noise_level use NoiseEstimationLevelTypes enum
+     */
+    // clang-format on
+    static void perform_wavelet_denoising (double *data, int data_len, int wavelet,
+        int decomposition_level, int wavelet_denoising = (int)WaveletDenoisingTypes::SURESHRINK,
+        int threshold = (int)ThresholdTypes::HARD,
+        int extenstion_type = (int)WaveletExtensionTypes::SYMMETRIC,
+        int noise_level = (int)NoiseEstimationLevelTypes::FIRST_LEVEL);
     // clang-format off
     /**
     * calculate filters and the corresponding eigenvalues using the Common Spatial Patterns

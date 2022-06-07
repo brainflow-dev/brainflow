@@ -413,16 +413,15 @@ int perform_downsampling (
 }
 
 // https://github.com/rafat/wavelib/wiki/DWT-Example-Code
-int perform_wavelet_transform (double *data, int data_len, const char *wavelet,
-    int decomposition_level, double *output_data, int *decomposition_lengths)
+int perform_wavelet_transform (double *data, int data_len, int wavelet, int decomposition_level,
+    int extension, double *output_data, int *decomposition_lengths)
 {
-    if ((data == NULL) || (data_len <= 0) || (wavelet == NULL) || (output_data == NULL) ||
-        (!validate_wavelet (wavelet)) || (decomposition_lengths == NULL) ||
-        (decomposition_level <= 0))
+    std::string wavelet_str = get_wavelet_name (wavelet);
+    std::string extenstion_str = get_extension_type (extension);
+    if ((data == NULL) || (data_len <= 0) || (wavelet_str.empty ()) || (output_data == NULL) ||
+        (extenstion_str.empty ()) || (decomposition_lengths == NULL) || (decomposition_level <= 0))
     {
-        data_logger->error (
-            "Please review arguments. Data/Output must  not be empty,and must provide a valid "
-            "wavelet with decomposition arguments. Decomposition level must be > 0.");
+        data_logger->error ("Please review arguments.");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
@@ -431,9 +430,9 @@ int perform_wavelet_transform (double *data, int data_len, const char *wavelet,
 
     try
     {
-        obj = wave_init (wavelet);
+        obj = wave_init (wavelet_str.c_str ());
         wt = wt_init (obj, "dwt", data_len, decomposition_level);
-        setDWTExtension (wt, "sym");
+        setDWTExtension (wt, extenstion_str.c_str ());
         setWTConv (wt, "direct");
         dwt (wt, data);
         for (int i = 0; i < wt->outlength; i++)
@@ -467,16 +466,16 @@ int perform_wavelet_transform (double *data, int data_len, const char *wavelet,
 
 // inside wavelib inverse transform uses internal state from direct transform, dirty hack to restore
 // it here
-int perform_inverse_wavelet_transform (double *wavelet_coeffs, int original_data_len,
-    const char *wavelet, int decomposition_level, int *decomposition_lengths, double *output_data)
+int perform_inverse_wavelet_transform (double *wavelet_coeffs, int original_data_len, int wavelet,
+    int decomposition_level, int extension, int *decomposition_lengths, double *output_data)
 {
+    std::string wavelet_str = get_wavelet_name (wavelet);
+    std::string extenstion_str = get_extension_type (extension);
     if ((wavelet_coeffs == NULL) || (decomposition_level <= 0) || (original_data_len <= 0) ||
-        (wavelet == NULL) || (output_data == NULL) || (!validate_wavelet (wavelet)) ||
+        (output_data == NULL) || (wavelet_str.empty ()) || (extenstion_str.empty ()) ||
         (decomposition_lengths == NULL))
     {
-        data_logger->error (
-            "Please review arguments. Data/Output must  not be empty,and must provide a valid "
-            "wavelet with decomposition arguments. Decomposition level must be > 0.");
+        data_logger->error ("Please review arguments.");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
@@ -485,9 +484,9 @@ int perform_inverse_wavelet_transform (double *wavelet_coeffs, int original_data
 
     try
     {
-        obj = wave_init (wavelet);
+        obj = wave_init (wavelet_str.c_str ());
         wt = wt_init (obj, "dwt", original_data_len, decomposition_level);
-        setDWTExtension (wt, "sym");
+        setDWTExtension (wt, extenstion_str.c_str ());
         setWTConv (wt, "direct");
         int total_len = 0;
         for (int i = 0; i < decomposition_level + 1; i++)
@@ -521,14 +520,19 @@ int perform_inverse_wavelet_transform (double *wavelet_coeffs, int original_data
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int perform_wavelet_denoising (
-    double *data, int data_len, const char *wavelet, int decomposition_level)
+int perform_wavelet_denoising (double *data, int data_len, int wavelet, int decomposition_level,
+    int wavelet_denoising, int threshold, int extenstion_type, int noise_level)
 {
-    if ((data == NULL) || (data_len <= 0) || (decomposition_level <= 0) ||
-        (!validate_wavelet (wavelet)))
+    std::string wavelet_str = get_wavelet_name (wavelet);
+    std::string denoising_str = get_wavelet_denoising_type (wavelet_denoising);
+    std::string threshold_str = get_threshold_type (threshold);
+    std::string extenstion_str = get_extension_type (extenstion_type);
+    std::string noise_str = get_noise_estimation_type (noise_level);
+    if ((data == NULL) || (data_len <= 0) || (decomposition_level <= 0) || (wavelet_str.empty ()) ||
+        (denoising_str.empty ()) || (threshold_str.empty ()) || (extenstion_str.empty ()) ||
+        (noise_str.empty ()))
     {
-        data_logger->error ("Please review arguments. Data must  not be empty,and must provide a "
-                            "valid wavelet with decomposition arguments.");
+        data_logger->error ("Please review arguments.");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
@@ -536,11 +540,11 @@ int perform_wavelet_denoising (
     double *temp = new double[data_len];
     try
     {
-        obj = denoise_init (data_len, decomposition_level, wavelet);
-        setDenoiseMethod (obj, "visushrink");
+        obj = denoise_init (data_len, decomposition_level, wavelet_str.c_str ());
+        setDenoiseMethod (obj, denoising_str.c_str ());
         setDenoiseWTMethod (obj, "dwt");
-        setDenoiseWTExtension (obj, "sym");
-        setDenoiseParameters (obj, "soft", "all");
+        setDenoiseWTExtension (obj, extenstion_str.c_str ());
+        setDenoiseParameters (obj, threshold_str.c_str (), noise_str.c_str ());
         denoise (obj, data, temp);
         for (int i = 0; i < data_len; i++)
         {

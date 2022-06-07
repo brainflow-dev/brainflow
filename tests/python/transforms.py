@@ -4,7 +4,7 @@ import brainflow
 import numpy as np
 
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels, BoardIds
-from brainflow.data_filter import DataFilter, FilterTypes, AggOperations, WindowOperations
+from brainflow.data_filter import DataFilter, FilterTypes, AggOperations, WindowOperations, WaveletTypes
 
 
 def main():
@@ -31,13 +31,13 @@ def main():
         # demo for wavelet transforms
         # wavelet_coeffs format is[A(J) D(J) D(J-1) ..... D(1)] where J is decomposition level, A - app coeffs, D - detailed coeffs
         # lengths array stores lengths for each block
-        wavelet_coeffs, lengths = DataFilter.perform_wavelet_transform(data[channel], 'db5', 3)
+        wavelet_coeffs, lengths = DataFilter.perform_wavelet_transform(data[channel], WaveletTypes.DB5, 3)
         app_coefs = wavelet_coeffs[0: lengths[0]]
         detailed_coeffs_first_block = wavelet_coeffs[lengths[0]: lengths[1]]
         # you can do smth with wavelet coeffs here, for example denoising works via thresholds 
         # for wavelets coefficients
         restored_data = DataFilter.perform_inverse_wavelet_transform((wavelet_coeffs, lengths), data[channel].shape[0],
-                                                                     'db5', 3)
+                                                                     WaveletTypes.DB5, 3)
         print('Restored data after wavelet transform for channel %d:' % channel)
         print(restored_data)
 
