@@ -55,24 +55,15 @@ int main (int argc, char *argv[])
                     DataFilter::perform_rolling_filter (data.get_address (eeg_channels[i]),
                         data.get_size (1), 3, (int)AggOperations::MEAN);
                     break;
-                case 2:
-                    DataFilter::perform_rolling_filter (data.get_address (eeg_channels[i]),
-                        data.get_size (1), 5, (int)AggOperations::MEDIAN);
-                    break;
-                case 3:
-                    DataFilter::perform_rolling_filter (data.get_address (eeg_channels[i]),
-                        data.get_size (1), 5, (int)AggOperations::MEAN);
-                    break;
+                default:
                     // if moving average and moving median dont work well for your signal you can
                     // try wavelet based denoising, feel free to try different wavelet functions and
                     // decomposition levels
-                case 4:
-                    DataFilter::perform_wavelet_denoising (
-                        data.get_address (eeg_channels[i]), data.get_size (1), "db4", 3);
-                    break;
-                case 5:
-                    DataFilter::perform_wavelet_denoising (
-                        data.get_address (eeg_channels[i]), data.get_size (1), "coif3", 3);
+                    DataFilter::perform_wavelet_denoising (data.get_address (eeg_channels[i]),
+                        data.get_size (1), (int)WaveletTypes::BIOR3_9, 3,
+                        (int)WaveletDenoisingTypes::SURESHRINK, (int)ThresholdTypes::HARD,
+                        (int)WaveletExtensionTypes::SYMMETRIC,
+                        (int)NoiseEstimationLevelTypes::FIRST_LEVEL);
                     break;
             }
         }

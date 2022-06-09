@@ -9,8 +9,9 @@ use crate::error::{BrainFlowError, Error};
 use crate::ffi::data_handler;
 use crate::{
     check_brainflow_exit_code, AggOperations, DetrendOperations, FilterTypes, LogLevels,
-    NoiseTypes, Result, WindowOperations,
+    NoiseTypes, Result, WindowOperations, WaveletTypes, WaveletExtensionTypes, WaveletDenoisingTypes, ThresholdTypes, NoiseEstimationLevelTypes,
 };
+
 
 /// Set BrainFlow data logger log level.
 /// Use it only if you want to write your own messages to BrainFlow logger.
@@ -242,14 +243,16 @@ pub struct WaveletTransform {
     coefficients: Vec<f64>,
     decomposition_level: usize,
     decomposition_lengths: Vec<usize>,
-    wavelet: String,
+    wavelet: WaveletTypes,
+    extension: WaveletExtensionTypes,
     original_data_len: usize,
 }
 impl WaveletTransform {
     pub fn new(
         capacity: usize,
         decomposition_level: usize,
-        wavelet: String,
+        wavelet: WaveletTypes,
+        extension: WaveletExtensionTypes,
         original_data_len: usize,
     ) -> Self {
         Self {
@@ -257,6 +260,7 @@ impl WaveletTransform {
             decomposition_level,
             decomposition_lengths: Vec::with_capacity(decomposition_level + 1),
             wavelet,
+            extension,
             original_data_len,
         }
     }
@@ -267,33 +271,37 @@ impl WaveletTransform {
         coefficients: Vec<f64>,
         decomposition_level: usize,
         decomposition_lengths: Vec<usize>,
-        wavelet: String,
+        wavelet: WaveletTypes,
+        extension: WaveletExtensionTypes,
         original_data_len: usize,
+        
     ) -> Self {
         Self {
             coefficients,
             decomposition_level,
             decomposition_lengths,
             wavelet,
+            extension,
             original_data_len,
         }
     }
 }
 
 /// Perform wavelet transform.
-pub fn perform_wavelet_transform<S: AsRef<str>>(
+pub fn perform_wavelet_transform(
     data: &mut [f64],
-    wavelet: S,
+    wavelet: WaveletTypes,
     decomposition_level: usize,
+    extension: WaveletExtensionTypes,
 ) -> Result<WaveletTransform> {
     let capacity = data.len() + 2 * decomposition_level * (40 + 1);
     let mut wavelet_transform = WaveletTransform::new(
         capacity,
         decomposition_level,
-        wavelet.as_ref().to_string(),
+        wavelet,
+        extension,
         data.len(),
     );
-    let wavelet = CString::new(wavelet.as_ref())?;
     let res = unsafe {
         let output = wavelet_transform.coefficients.as_mut_ptr() as *mut c_double;
         let decomposition_lengths =
@@ -301,8 +309,9 @@ pub fn perform_wavelet_transform<S: AsRef<str>>(
         data_handler::perform_wavelet_transform(
             data.as_mut_ptr() as *mut c_double,
             data.len() as c_int,
-            wavelet.as_ptr(),
+            wavelet as c_int,
             decomposition_level as c_int,
+            extension as c_int,
             output,
             decomposition_lengths,
         )
@@ -315,13 +324,13 @@ pub fn perform_wavelet_transform<S: AsRef<str>>(
 pub fn perform_inverse_wavelet_transform(wavelet_transform: WaveletTransform) -> Result<Vec<f64>> {
     let mut wavelet_transform = wavelet_transform;
     let mut output = Vec::<f64>::with_capacity(wavelet_transform.original_data_len);
-    let wavelet = CString::new(wavelet_transform.wavelet)?;
     let res = unsafe {
         data_handler::perform_inverse_wavelet_transform(
             wavelet_transform.coefficients.as_mut_ptr() as *mut c_double,
             wavelet_transform.original_data_len as c_int,
-            wavelet.as_ptr(),
+            wavelet_transform.wavelet as c_int,
             wavelet_transform.decomposition_level as c_int,
+            wavelet_transform.extension as c_int,
             wavelet_transform.decomposition_lengths.as_ptr() as *mut c_int,
             output.as_mut_ptr() as *mut c_double,
         )
@@ -332,18 +341,25 @@ pub fn perform_inverse_wavelet_transform(wavelet_transform: WaveletTransform) ->
 }
 
 /// Perform wavelet denoising.
-pub fn perform_wavelet_denoising<S: AsRef<str>>(
+pub fn perform_wavelet_denoising(
     data: &mut [f64],
-    wavelet: S,
+    wavelet: WaveletTypes,
     decomposition_level: usize,
+    wavelet_denoising: WaveletDenoisingTypes,
+    wavelet_threshold: ThresholdTypes,
+    extension: WaveletExtensionTypes,
+    noise_level: NoiseEstimationLevelTypes,
 ) -> Result<()> {
-    let wavelet = CString::new(wavelet.as_ref())?;
     let res = unsafe {
         data_handler::perform_wavelet_denoising(
             data.as_mut_ptr() as *mut c_double,
             data.len() as c_int,
-            wavelet.as_ptr(),
+            wavelet as c_int,
             decomposition_level as c_int,
+            wavelet_denoising as c_int,
+            wavelet_threshold as c_int,
+            extension as c_int,
+            noise_level as c_int,
         )
     };
     check_brainflow_exit_code(res)?;

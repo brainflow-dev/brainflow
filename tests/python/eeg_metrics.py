@@ -1,12 +1,9 @@
 import argparse
 import time
-import brainflow
-import numpy as np
 
-from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels, BoardIds, BrainFlowError
-from brainflow.data_filter import DataFilter, FilterTypes, AggOperations, WindowOperations, DetrendOperations
+from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels
+from brainflow.data_filter import DataFilter
 from brainflow.ml_model import MLModel, BrainFlowMetrics, BrainFlowClassifiers, BrainFlowModelParams
-from brainflow.exit_codes import *
 
 
 def main():
@@ -59,13 +56,15 @@ def main():
     feature_vector = bands[0]
     print(feature_vector)
 
-    mindfulness_params = BrainFlowModelParams(BrainFlowMetrics.MINDFULNESS.value, BrainFlowClassifiers.DEFAULT_CLASSIFIER.value)
+    mindfulness_params = BrainFlowModelParams(BrainFlowMetrics.MINDFULNESS.value,
+                                              BrainFlowClassifiers.DEFAULT_CLASSIFIER.value)
     mindfulness = MLModel(mindfulness_params)
     mindfulness.prepare()
     print('Mindfulness: %s' % str(mindfulness.predict(feature_vector)))
     mindfulness.release()
 
-    restfulness_params = BrainFlowModelParams(BrainFlowMetrics.RESTFULNESS.value, BrainFlowClassifiers.DEFAULT_CLASSIFIER.value)
+    restfulness_params = BrainFlowModelParams(BrainFlowMetrics.RESTFULNESS.value,
+                                              BrainFlowClassifiers.DEFAULT_CLASSIFIER.value)
     restfulness = MLModel(restfulness_params)
     restfulness.prepare()
     print('Restfulness: %s' % str(restfulness.predict(feature_vector)))

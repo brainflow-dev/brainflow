@@ -31,7 +31,7 @@ namespace brainflow
         INCOMMING_MSG_ERROR = 5,
         INITIAL_MSG_ERROR = 6,
         BOARD_NOT_READY_ERROR = 7,
-        STREAM_ALREADY_RUN_ERROR= 8,
+        STREAM_ALREADY_RUN_ERROR = 8,
         INVALID_BUFFER_SIZE_ERROR = 9,
         STREAM_THREAD_ERROR = 10,
         STREAM_THREAD_IS_NOT_RUNNING = 11,
@@ -117,7 +117,7 @@ namespace brainflow
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_current_board_data (int num_samples, double[] data_buf, int[] returned_samples, int board_id, string input_json);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_board_data_count(int[] result, int board_id, string input_json);
+        public static extern int get_board_data_count (int[] result, int board_id, string input_json);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_board_data (int data_count, double[] data_buf, int board_id, string input_json);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -163,11 +163,11 @@ namespace brainflow
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_temperature_channels (int board_id, int[] channels, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int is_prepared(int[] prepared, int board_id, string input_json);
+        public static extern int is_prepared (int[] prepared, int board_id, string input_json);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_eeg_names(int board_id, byte[] eeg_names, int[] len);
+        public static extern int get_eeg_names (int board_id, byte[] eeg_names, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_resistance_channels(int board_id, int[] channels, int[] len);
+        public static extern int get_resistance_channels (int board_id, int[] channels, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_exg_channels (int board_id, int[] channels, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -241,7 +241,7 @@ namespace brainflow
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_temperature_channels (int board_id, int[] channels, int[] len);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int is_prepared(int[] prepared, int board_id, string input_json);
+        public static extern int is_prepared (int[] prepared, int board_id, string input_json);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_eeg_names (int board_id, byte[] eeg_names, int[] len);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -520,7 +520,7 @@ namespace brainflow
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int is_prepared(int[] result, int board_id, string input_json)
+        public static int is_prepared (int[] result, int board_id, string input_json)
         {
             switch (PlatformHelper.get_library_environment ())
             {
@@ -559,13 +559,13 @@ namespace brainflow
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.set_log_level_board_controller(log_level);
+                    return BoardControllerLibrary64.set_log_level_board_controller (log_level);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.set_log_level_board_controller(log_level);
+                    return BoardControllerLibrary32.set_log_level_board_controller (log_level);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.set_log_level_board_controller(log_level);
+                    return BoardControllerLibraryLinux.set_log_level_board_controller (log_level);
                 case LibraryEnvironment.MacOS:
-                    return BoardControllerLibraryMac.set_log_level_board_controller(log_level);
+                    return BoardControllerLibraryMac.set_log_level_board_controller (log_level);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
@@ -576,13 +576,13 @@ namespace brainflow
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.log_message_board_controller(log_level, message);
+                    return BoardControllerLibrary64.log_message_board_controller (log_level, message);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.log_message_board_controller(log_level, message);
+                    return BoardControllerLibrary32.log_message_board_controller (log_level, message);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.log_message_board_controller(log_level, message);
+                    return BoardControllerLibraryLinux.log_message_board_controller (log_level, message);
                 case LibraryEnvironment.MacOS:
-                    return BoardControllerLibraryMac.log_message_board_controller(log_level, message);
+                    return BoardControllerLibraryMac.log_message_board_controller (log_level, message);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
@@ -623,18 +623,18 @@ namespace brainflow
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int set_log_file_board_controller(string log_file)
+        public static int set_log_file_board_controller (string log_file)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.set_log_file_board_controller(log_file);
+                    return BoardControllerLibrary64.set_log_file_board_controller (log_file);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.set_log_file_board_controller(log_file);
+                    return BoardControllerLibrary32.set_log_file_board_controller (log_file);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.set_log_file_board_controller(log_file);
+                    return BoardControllerLibraryLinux.set_log_file_board_controller (log_file);
                 case LibraryEnvironment.MacOS:
-                    return BoardControllerLibraryMac.set_log_file_board_controller(log_file);
+                    return BoardControllerLibraryMac.set_log_file_board_controller (log_file);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
@@ -710,14 +710,14 @@ namespace brainflow
 
         public static int get_timestamp_channel (int board_id, int[] timestamp_channel)
         {
-            switch (PlatformHelper.get_library_environment())
+            switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.get_timestamp_channel(board_id, timestamp_channel);
+                    return BoardControllerLibrary64.get_timestamp_channel (board_id, timestamp_channel);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.get_timestamp_channel(board_id, timestamp_channel);
+                    return BoardControllerLibrary32.get_timestamp_channel (board_id, timestamp_channel);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.get_timestamp_channel(board_id, timestamp_channel);
+                    return BoardControllerLibraryLinux.get_timestamp_channel (board_id, timestamp_channel);
                 case LibraryEnvironment.MacOS:
                     return BoardControllerLibraryMac.get_timestamp_channel (board_id, timestamp_channel);
             }
@@ -742,7 +742,7 @@ namespace brainflow
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_eeg_names(int board_id, byte[] names, int[] len)
+        public static int get_eeg_names (int board_id, byte[] names, int[] len)
         {
             switch (PlatformHelper.get_library_environment ())
             {
@@ -761,7 +761,7 @@ namespace brainflow
 
         public static int get_board_descr (int board_id, byte[] descr, int[] len)
         {
-            switch (PlatformHelper.get_library_environment())
+            switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
                     return BoardControllerLibrary64.get_board_descr (board_id, descr, len);
@@ -795,7 +795,7 @@ namespace brainflow
 
         public static int get_version_board_controller (byte[] version, int[] len, int max_len)
         {
-            switch (PlatformHelper.get_library_environment())
+            switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
                     return BoardControllerLibrary64.get_version_board_controller (version, len, max_len);
@@ -1014,7 +1014,7 @@ namespace brainflow
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_resistance_channels(int board_id, int[] channels, int[] len)
+        public static int get_resistance_channels (int board_id, int[] channels, int[] len)
         {
             switch (PlatformHelper.get_library_environment ())
             {

@@ -1,16 +1,13 @@
 import time
-import numpy as np
+
 import matplotlib
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import pandas as pd
 
-import brainflow
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 
 import mne
-from mne.channels import read_layout
 
 
 def main():

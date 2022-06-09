@@ -31,7 +31,7 @@ namespace brainflow
             int res = MLModuleLibrary.release_all ();
             if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowError(res);
+                throw new BrainFlowError (res);
             }
         }
 

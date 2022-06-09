@@ -1,12 +1,9 @@
 import argparse
 import time
-import brainflow
-import numpy as np
 
-from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels, BoardIds, BrainFlowError
-from brainflow.data_filter import DataFilter, FilterTypes, AggOperations, WindowOperations, DetrendOperations
-from brainflow.ml_model import MLModel, BrainFlowMetrics, BrainFlowClassifiers, BrainFlowModelParams
-from brainflow.exit_codes import *
+from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels
+from brainflow.data_filter import DataFilter
+from brainflow.ml_model import MLModel, BrainFlowModelParams
 
 
 def main():

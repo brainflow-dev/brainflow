@@ -46,6 +46,7 @@ void visushrink (double *signal, int N, int J, const char *wname, const char *me
 
     if (J > MaxIter)
     {
+        wave_free (wave);
         throw std::runtime_error ("to small buffer size for this wavelet");
     }
 
@@ -61,6 +62,8 @@ void visushrink (double *signal, int N, int J, const char *wname, const char *me
     }
     else
     {
+        wave_free (wave);
+        wt_free (wt);
         throw std::runtime_error ("unsupported wavelet method");
     }
 
@@ -109,6 +112,8 @@ void visushrink (double *signal, int N, int J, const char *wname, const char *me
     {
         free (dout);
         free (lnoise);
+        wave_free (wave);
+        wt_free (wt);
         throw std::runtime_error ("acceptable noise extimation values are first and all");
     }
 
@@ -182,6 +187,7 @@ void sureshrink (double *signal, int N, int J, const char *wname, const char *me
     // Depends on J
     if (J > MaxIter)
     {
+        wave_free (wave);
         throw std::runtime_error ("not enough data points for this wavelet");
     }
 
@@ -198,6 +204,8 @@ void sureshrink (double *signal, int N, int J, const char *wname, const char *me
     }
     else
     {
+        wave_free (wave);
+        wt_free (wt);
         throw std::runtime_error ("unsupported wavelet type");
     }
 
@@ -249,6 +257,8 @@ void sureshrink (double *signal, int N, int J, const char *wname, const char *me
         free (risk);
         free (dsum);
         free (lnoise);
+        wave_free (wave);
+        wt_free (wt);
         throw std::runtime_error ("wrong noise estimation level value");
     }
 
@@ -371,6 +381,7 @@ void modwtshrink (double *signal, int N, int J, const char *wname, const char *c
 
     if (J > MaxIter)
     {
+        wave_free (wave);
         throw std::runtime_error ("not enough data points for this wavelet");
     }
 
@@ -397,6 +408,8 @@ void modwtshrink (double *signal, int N, int J, const char *wname, const char *c
     }
     else
     {
+        wave_free (wave);
+        wt_free (wt);
         throw std::runtime_error ("wrong signal extension");
     }
 

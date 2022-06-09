@@ -46,7 +46,7 @@ namespace test
                     // if for your signal these methods dont work good you can try wavelet based denoising
                     default:
                         // feel free to try different functions and different decomposition levels
-                        filtered = DataFilter.perform_wavelet_denoising (unprocessed_data.GetRow (eeg_channels[i]), "db4", 3);
+                        filtered = DataFilter.perform_wavelet_denoising (unprocessed_data.GetRow (eeg_channels[i]), (int)WaveletTypes.BIOR3_9, 3);
                         Console.WriteLine ("Filtered channel " + eeg_channels[i]);
                         Console.WriteLine ("[{0}]", string.Join (", ", filtered));
                         break;

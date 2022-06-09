@@ -45,13 +45,14 @@ public class DataFilter
 
         int remove_environmental_noise (double[] data, int data_len, int sampling_rate, int noise_type);
 
-        int perform_wavelet_transform (double[] data, int data_len, String wavelet, int decomposition_level,
+        int perform_wavelet_transform (double[] data, int data_len, int wavelet, int decomposition_level, int extention,
                 double[] output_data, int[] decomposition_lengths);
 
-        int perform_inverse_wavelet_transform (double[] wavelet_coeffs, int original_data_len, String wavelet,
-                int decomposition_level, int[] decomposition_lengths, double[] output_data);
+        int perform_inverse_wavelet_transform (double[] wavelet_coeffs, int original_data_len, int wavelet,
+                int decomposition_level, int extension, int[] decomposition_lengths, double[] output_data);
 
-        int perform_wavelet_denoising (double[] data, int data_len, String wavelet, int decomposition_level);
+        int perform_wavelet_denoising (double[] data, int data_len, int wavelet, int decomposition_level,
+                int wavelet_denoising, int threshold, int extenstion_type, int noise_level);
 
         int get_csp (double[] data, double[] labels, int n_epochs, int n_channels, int n_times, double[] output_filters,
                 double[] output_eigenvalues);
@@ -419,17 +420,12 @@ public class DataFilter
 
     /**
      * perform wavelet based denoising in-place
-     * 
-     * @param wavelet             supported vals:
-     *                            db1..db15,haar,sym2..sym10,coif1..coif5,bior1.1,bior1.3,bior1.5,bior2.2,bior2.4,bior2.6,bior2.8,bior3.1,bior3.3,bior3.5
-     *                            ,bior3.7,bior3.9,bior4.4,bior5.5,bior6.8
-     * 
-     * @param decomposition_level level of decomposition of wavelet transform
      */
-    public static void perform_wavelet_denoising (double[] data, String wavelet, int decomposition_level)
-            throws BrainFlowError
+    public static void perform_wavelet_denoising (double[] data, int wavelet, int decomposition_level,
+            int wavelet_denoising, int threshold, int extenstion_type, int noise_level) throws BrainFlowError
     {
-        int ec = instance.perform_wavelet_denoising (data, data.length, wavelet, decomposition_level);
+        int ec = instance.perform_wavelet_denoising (data, data.length, wavelet, decomposition_level, wavelet_denoising,
+                threshold, extenstion_type, noise_level);
         if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to perform denoising", ec);
@@ -437,14 +433,21 @@ public class DataFilter
     }
 
     /**
-     * perform wavelet transform
-     * 
-     * @param wavelet supported vals:
-     *                db1..db15,haar,sym2..sym10,coif1..coif5,bior1.1,bior1.3,bior1.5,bior2.2,bior2.4,bior2.6,bior2.8,bior3.1,bior3.3,bior3.5
-     *                ,bior3.7,bior3.9,bior4.4,bior5.5,bior6.8
+     * perform wavelet based denoising in-place
      */
-    public static Pair<double[], int[]> perform_wavelet_transform (double[] data, String wavelet,
-            int decomposition_level) throws BrainFlowError
+    public static void perform_wavelet_denoising (double[] data, WaveletTypes wavelet, int decomposition_level,
+            WaveletDenoisingTypes wavelet_denoising, ThresholdTypes threshold, WaveletExtensionTypes extenstion_type,
+            NoiseEstimationLevelTypes noise_level) throws BrainFlowError
+    {
+        perform_wavelet_denoising (data, wavelet.get_code (), decomposition_level, wavelet_denoising.get_code (),
+                threshold.get_code (), extenstion_type.get_code (), noise_level.get_code ());
+    }
+
+    /**
+     * perform wavelet transform
+     */
+    public static Pair<double[], int[]> perform_wavelet_transform (double[] data, int wavelet, int decomposition_level,
+            int extension) throws BrainFlowError
     {
         if (decomposition_level <= 0)
         {
@@ -453,8 +456,8 @@ public class DataFilter
         }
         int[] lengths = new int[decomposition_level + 1];
         double[] output_array = new double[data.length + 2 * decomposition_level * (40 + 1)];
-        int ec = instance.perform_wavelet_transform (data, data.length, wavelet, decomposition_level, output_array,
-                lengths);
+        int ec = instance.perform_wavelet_transform (data, data.length, wavelet, decomposition_level, extension,
+                output_array, lengths);
         if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to perform wavelet transform", ec);
@@ -470,10 +473,20 @@ public class DataFilter
     }
 
     /**
+     * perform wavelet transform
+     */
+    public static Pair<double[], int[]> perform_wavelet_transform (double[] data, WaveletTypes wavelet,
+            int decomposition_level, WaveletExtensionTypes extension) throws BrainFlowError
+    {
+        return perform_wavelet_transform (data, wavelet.get_code (), decomposition_level, extension.get_code ());
+
+    }
+
+    /**
      * perform inverse wavelet transform
      */
     public static double[] perform_inverse_wavelet_transform (Pair<double[], int[]> wavelet_output,
-            int original_data_len, String wavelet, int decomposition_level) throws BrainFlowError
+            int original_data_len, int wavelet, int decomposition_level, int extension) throws BrainFlowError
     {
         if (decomposition_level <= 0)
         {
@@ -482,12 +495,23 @@ public class DataFilter
         }
         double[] output_array = new double[original_data_len];
         int ec = instance.perform_inverse_wavelet_transform (wavelet_output.getLeft (), original_data_len, wavelet,
-                decomposition_level, wavelet_output.getRight (), output_array);
+                decomposition_level, extension, wavelet_output.getRight (), output_array);
         if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Failed to perform inverse wavelet transform", ec);
         }
         return output_array;
+    }
+
+    /**
+     * perform inverse wavelet transform
+     */
+    public static double[] perform_inverse_wavelet_transform (Pair<double[], int[]> wavelet_output,
+            int original_data_len, WaveletTypes wavelet, int decomposition_level, WaveletExtensionTypes extension)
+            throws BrainFlowError
+    {
+        return perform_inverse_wavelet_transform (wavelet_output, original_data_len, wavelet.get_code (),
+                decomposition_level, extension.get_code ());
     }
 
     /**

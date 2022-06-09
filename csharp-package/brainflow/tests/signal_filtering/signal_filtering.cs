@@ -33,7 +33,7 @@ namespace test
                 switch (i)
                 {
                     case 0:
-                        filtered = DataFilter.perform_lowpass (unprocessed_data.GetRow(eeg_channels[i]), BoardShim.get_sampling_rate (board_id), 50.0, 4, (int)FilterTypes.BESSEL, 0.0);
+                        filtered = DataFilter.perform_lowpass (unprocessed_data.GetRow (eeg_channels[i]), BoardShim.get_sampling_rate (board_id), 50.0, 4, (int)FilterTypes.BESSEL, 0.0);
                         Console.WriteLine ("Filtered channel " + eeg_channels[i]);
                         Console.WriteLine ("[{0}]", string.Join (", ", filtered));
                         break;
@@ -53,9 +53,9 @@ namespace test
                         Console.WriteLine ("[{0}]", string.Join (", ", filtered));
                         break;
                     default:
-                        filtered = DataFilter.remove_environmental_noise(unprocessed_data.GetRow(eeg_channels[i]), BoardShim.get_sampling_rate(board_id), (int)NoiseTypes.FIFTY);
-                        Console.WriteLine("Filtered channel " + eeg_channels[i]);
-                        Console.WriteLine("[{0}]", string.Join(", ", filtered));
+                        filtered = DataFilter.remove_environmental_noise (unprocessed_data.GetRow (eeg_channels[i]), BoardShim.get_sampling_rate (board_id), (int)NoiseTypes.FIFTY);
+                        Console.WriteLine ("Filtered channel " + eeg_channels[i]);
+                        Console.WriteLine ("[{0}]", string.Join (", ", filtered));
                         break;
                 }
             }

@@ -444,21 +444,25 @@ int perform_wavelet_transform (double *data, int data_len, int wavelet, int deco
             decomposition_lengths[i] = wt->length[i];
         }
         wave_free (obj);
+        obj = NULL;
         wt_free (wt);
+        wt = NULL;
     }
-    catch (...)
+    catch (const std::exception &e)
     {
         if (obj)
         {
             wave_free (obj);
+            obj = NULL;
         }
         if (wt)
         {
             wt_free (wt);
+            wt = NULL;
         }
         // more likely exception here occured because input buffer is to small to perform wavelet
         // transform
-        data_logger->error ("Input buffer size issue(likely too small.");
+        data_logger->error ("Exception in wavelib: {}", e.what ());
         return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
     return (int)BrainFlowExitCodes::STATUS_OK;
@@ -479,8 +483,8 @@ int perform_inverse_wavelet_transform (double *wavelet_coeffs, int original_data
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
-    wave_object obj;
-    wt_object wt;
+    wave_object obj = NULL;
+    wt_object wt = NULL;
 
     try
     {
@@ -500,19 +504,23 @@ int perform_inverse_wavelet_transform (double *wavelet_coeffs, int original_data
         }
         idwt (wt, output_data);
         wave_free (obj);
+        obj = NULL;
         wt_free (wt);
+        wt = NULL;
     }
-    catch (...)
+    catch (const std::exception &e)
     {
         if (obj)
         {
             wave_free (obj);
+            obj = NULL;
         }
         if (wt)
         {
             wt_free (wt);
+            wt = NULL;
         }
-        data_logger->error ("Input buffer size issue(likely too small.");
+        data_logger->error ("Exception in wavelib: {}", e.what ());
         // more likely exception here occured because input buffer is to small to perform wavelet
         // transform
         return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
@@ -536,7 +544,7 @@ int perform_wavelet_denoising (double *data, int data_len, int wavelet, int deco
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
-    denoise_object obj;
+    denoise_object obj = NULL;
     double *temp = new double[data_len];
     try
     {
@@ -553,20 +561,23 @@ int perform_wavelet_denoising (double *data, int data_len, int wavelet, int deco
         delete[] temp;
         temp = NULL;
         denoise_free (obj);
+        obj = NULL;
     }
-    catch (...)
+    catch (const std::exception &e)
     {
         if (temp)
         {
             delete[] temp;
+            temp = NULL;
         }
         if (obj)
         {
             denoise_free (obj);
+            obj = NULL;
         }
         // more likely exception here occured because input buffer is to small to perform wavelet
         // transform
-        data_logger->error ("Input buffer size issue(likely too small.");
+        data_logger->error ("Exception in wavelib: {}", e.what ());
         return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
     }
     return (int)BrainFlowExitCodes::STATUS_OK;

@@ -61,11 +61,11 @@ namespace test
                 {
                     board_id = Convert.ToInt32 (args[i + 1]);
                 }
-                if (args[i].Equals("--timeout"))
+                if (args[i].Equals ("--timeout"))
                 {
-                    input_params.timeout = Convert.ToInt32(args[i + 1]);
+                    input_params.timeout = Convert.ToInt32 (args[i + 1]);
                 }
-                if (args[i].Equals("--serial-number"))
+                if (args[i].Equals ("--serial-number"))
                 {
                     input_params.serial_number = args[i + 1];
                 }

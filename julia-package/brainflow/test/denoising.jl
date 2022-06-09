@@ -10,7 +10,7 @@ BrainFlow.prepare_session(board_shim)
 BrainFlow.start_stream(board_shim)
 sleep(5)
 BrainFlow.stop_stream(board_shim)
-data = BrainFlow.get_current_board_data(32, board_shim)
+data = BrainFlow.get_current_board_data(256, board_shim)
 BrainFlow.release_session(board_shim)
 
 eeg_channels = BrainFlow.get_eeg_channels(BrainFlow.SYNTHETIC_BOARD)
@@ -26,6 +26,7 @@ println(data_first_channel)
 data_second_channel = data[eeg_channels[2], :]
 println("Original Data Second Channel")
 println(data_second_channel)
-BrainFlow.perform_wavelet_denoising(data_second_channel, "db4", 2)
+BrainFlow.perform_wavelet_denoising(data_second_channel, BrainFlow.BIOR3_9, 3, BrainFlow.SURESHRINK,
+									BrainFlow.HARD, BrainFlow.SYMMETRIC, BrainFlow.FIRST_LEVEL)
 println("After Wavelet Denoising")
 println(data_second_channel)

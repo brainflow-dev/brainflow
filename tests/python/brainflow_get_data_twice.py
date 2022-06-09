@@ -1,10 +1,7 @@
-import argparse
 import time
-import numpy as np
 
-import brainflow
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
-from brainflow.data_filter import DataFilter, FilterTypes, AggOperations
+from brainflow.data_filter import DataFilter
 from brainflow.ml_model import MLModel
 
 
@@ -17,10 +14,10 @@ def main():
     params = BrainFlowInputParams()
     params.serial_port = 'COM4'
     board = BoardShim(BoardIds.GANGLION_BOARD.value, params)
-    
+
     for i in range(2):
         board.prepare_session()
-        board.start_stream ()
+        board.start_stream()
         time.sleep(10)
         board.stop_stream()
         data = board.get_board_data()

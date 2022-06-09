@@ -1,17 +1,16 @@
 import ctypes
-import numpy
-from numpy.ctypeslib import ndpointer
-import pkg_resources
 import enum
 import os
 import platform
 import struct
 from typing import List, Tuple
 
-from nptyping import NDArray, Float64, Complex128
-
+import numpy
+import pkg_resources
 from brainflow.exit_codes import BrainFlowExitCodes, BrainFlowError
 from brainflow.utils import check_memory_layout_row_major, LogLevels
+from nptyping import NDArray, Float64, Complex128
+from numpy.ctypeslib import ndpointer
 
 
 class FilterTypes(enum.IntEnum):
@@ -738,7 +737,8 @@ class DataFilter(object):
 
     @classmethod
     def perform_inverse_wavelet_transform(cls, wavelet_output: Tuple, original_data_len: int, wavelet: int,
-                                          decomposition_level: int, extension_type=WaveletExtensionTypes.SYMMETRIC) -> NDArray[Float64]:
+                                          decomposition_level: int, extension_type=WaveletExtensionTypes.SYMMETRIC) -> \
+            NDArray[Float64]:
         """perform wavelet transform
 
         :param wavelet_output: tuple of wavelet_coeffs and array with lengths
@@ -809,16 +809,18 @@ class DataFilter(object):
         if not (len(labels.shape) == 1):
             raise BrainFlowError('Invalid shape of array <labels>', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         if not (len(labels) == data.shape[0]):
-            raise BrainFlowError('Invalid number of elements in array <labels>', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
-        
+            raise BrainFlowError('Invalid number of elements in array <labels>',
+                                 BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+
         n_epochs, n_channels, n_times = data.shape
 
-        temp_data1d = numpy.reshape(data,(n_epochs*n_channels*n_times,))
+        temp_data1d = numpy.reshape(data, (n_epochs * n_channels * n_times,))
 
         output_filters = numpy.zeros(int(n_channels * n_channels)).astype(numpy.float64)
         output_eigenvalues = numpy.zeros(int(n_channels)).astype(numpy.float64)
 
-        res = DataHandlerDLL.get_instance().get_csp(temp_data1d, labels, n_epochs, n_channels, n_times, output_filters, output_eigenvalues)
+        res = DataHandlerDLL.get_instance().get_csp(temp_data1d, labels, n_epochs, n_channels, n_times, output_filters,
+                                                    output_eigenvalues)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to calc csp', res)
 
@@ -856,6 +858,7 @@ class DataFilter(object):
         """
 
         check_memory_layout_row_major(data, 1)
+
         def is_power_of_two(n):
             return (n != 0) and (n & (n - 1) == 0)
 
@@ -890,6 +893,7 @@ class DataFilter(object):
         """
 
         check_memory_layout_row_major(data, 1)
+
         def is_power_of_two(n):
             return (n != 0) and (n & (n - 1) == 0)
 
@@ -924,6 +928,7 @@ class DataFilter(object):
         """
 
         check_memory_layout_row_major(data, 1)
+
         def is_power_of_two(n):
             return (n != 0) and (n & (n - 1) == 0)
 
@@ -992,10 +997,11 @@ class DataFilter(object):
         """
 
         bands = [(2.0, 4.0), (4.0, 8.0), (8.0, 13.0), (13.0, 30.0), (30.0, 45.0)]
-        return cls.get_custom_band_powers (data, bands, channels, sampling_rate, apply_filter)
+        return cls.get_custom_band_powers(data, bands, channels, sampling_rate, apply_filter)
 
     @classmethod
-    def get_custom_band_powers(cls, data: NDArray, bands: List, channels: List, sampling_rate: int, apply_filter: bool) -> Tuple:
+    def get_custom_band_powers(cls, data: NDArray, bands: List, channels: List, sampling_rate: int,
+                               apply_filter: bool) -> Tuple:
         """calculate avg and stddev of BandPowers across selected channels
 
         :param data: 2d array for calculation
@@ -1027,8 +1033,10 @@ class DataFilter(object):
         for i, channel in enumerate(channels):
             for j in range(data.shape[1]):
                 data_1d[j + data.shape[1] * i] = data[channel][j]
-        res = DataHandlerDLL.get_instance().get_custom_band_powers(data_1d, len(channels), data.shape[1], start_freqs, stop_freqs, num_bands,
-                                                                sampling_rate, int(apply_filter), avg_bands, stddev_bands)
+        res = DataHandlerDLL.get_instance().get_custom_band_powers(data_1d, len(channels), data.shape[1], start_freqs,
+                                                                   stop_freqs, num_bands,
+                                                                   sampling_rate, int(apply_filter), avg_bands,
+                                                                   stddev_bands)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to get_avg_band_powers', res)
 

@@ -27,7 +27,7 @@ namespace test
             for (int i = 0; i < eeg_channels.Length; i++)
             {
                 Console.WriteLine ("Before processing:");
-                Console.WriteLine ("[{0}]", string.Join (", ", unprocessed_data.GetRow(eeg_channels[i])));
+                Console.WriteLine ("[{0}]", string.Join (", ", unprocessed_data.GetRow (eeg_channels[i])));
                 // you can use MEAN, MEDIAN or EACH for downsampling
                 double[] filtered = DataFilter.perform_downsampling (unprocessed_data.GetRow (eeg_channels[i]), 3, (int)AggOperations.MEDIAN);
                 Console.WriteLine ("Before processing:");

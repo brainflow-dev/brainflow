@@ -1,8 +1,3 @@
-import argparse
-import time
-import brainflow
-import numpy as np
-
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 from brainflow.ml_model import MLModel, BrainFlowMetrics, BrainFlowClassifiers, BrainFlowModelParams
 
@@ -20,7 +15,7 @@ def main():
     board1.prepare_session()
     board2 = BoardShim(board_id, params2)
     board2.prepare_session()
-    
+
     BoardShim.release_all_sessions()
 
     ml_params1 = BrainFlowModelParams(BrainFlowMetrics.RESTFULNESS.value, BrainFlowClassifiers.DEFAULT_CLASSIFIER.value)

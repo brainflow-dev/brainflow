@@ -2,10 +2,9 @@ import argparse
 import logging
 
 import pyqtgraph as pg
-from pyqtgraph.Qt import QtGui, QtCore
-
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 from brainflow.data_filter import DataFilter, FilterTypes, WindowFunctions, DetrendOperations
+from pyqtgraph.Qt import QtGui, QtCore
 
 
 class Graph:
@@ -22,7 +21,7 @@ class Graph:
         self.num_points = self.window_size * self.sampling_rate
 
         self.app = QtGui.QApplication([])
-        self.win = pg.GraphicsWindow(title='BrainFlow Plot',size=(800, 600))
+        self.win = pg.GraphicsWindow(title='BrainFlow Plot', size=(800, 600))
 
         self._init_pens()
         self._init_timeseries()
@@ -48,7 +47,7 @@ class Graph:
         self.plots = list()
         self.curves = list()
         for i in range(len(self.exg_channels)):
-            p = self.win.addPlot(row=i,col=0)
+            p = self.win.addPlot(row=i, col=0)
             p.showAxis('left', False)
             p.setMenuEnabled('left', False)
             p.showAxis('bottom', False)
@@ -57,11 +56,11 @@ class Graph:
                 p.setTitle('TimeSeries Plot')
             self.plots.append(p)
             curve = p.plot(pen=self.pens[i % len(self.pens)])
-            #curve.setDownsampling(auto=True, method='mean', ds=3)
+            # curve.setDownsampling(auto=True, method='mean', ds=3)
             self.curves.append(curve)
 
     def _init_psd(self):
-        self.psd_plot = self.win.addPlot(row=0,col=1, rowspan=len(self.exg_channels)//2)
+        self.psd_plot = self.win.addPlot(row=0, col=1, rowspan=len(self.exg_channels) // 2)
         self.psd_plot.showAxis('left', False)
         self.psd_plot.setMenuEnabled('left', False)
         self.psd_plot.setTitle('PSD Plot')
@@ -74,7 +73,7 @@ class Graph:
             self.psd_curves.append(psd_curve)
 
     def _init_band_plot(self):
-        self.band_plot = self.win.addPlot(row=len(self.exg_channels)//2, col=1, rowspan=len(self.exg_channels)//2)
+        self.band_plot = self.win.addPlot(row=len(self.exg_channels) // 2, col=1, rowspan=len(self.exg_channels) // 2)
         self.band_plot.showAxis('left', False)
         self.band_plot.setMenuEnabled('left', False)
         self.band_plot.showAxis('bottom', False)
@@ -100,8 +99,9 @@ class Graph:
             self.curves[count].setData(data[channel].tolist())
             if data.shape[1] > self.psd_size:
                 # plot psd
-                psd_data = DataFilter.get_psd_welch(data[channel], self.psd_size, self.psd_size // 2, self.sampling_rate,
-                                   WindowFunctions.BLACKMAN_HARRIS.value)
+                psd_data = DataFilter.get_psd_welch(data[channel], self.psd_size, self.psd_size // 2,
+                                                    self.sampling_rate,
+                                                    WindowFunctions.BLACKMAN_HARRIS.value)
                 lim = min(70, len(psd_data[0]))
                 self.psd_curves[count].setData(psd_data[1][0:lim].tolist(), psd_data[0][0:lim].tolist())
                 # plot bands

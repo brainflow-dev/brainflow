@@ -49,7 +49,7 @@ namespace brainflow
             int res = BoardControllerLibrary.release_all_sessions ();
             if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowError(res);
+                throw new BrainFlowError (res);
             }
         }
 
@@ -168,10 +168,10 @@ namespace brainflow
             int res = BoardControllerLibrary.get_eeg_names (board_id, str, len);
             if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowError(res);
+                throw new BrainFlowError (res);
             }
             string eeg_str = System.Text.Encoding.UTF8.GetString (str, 0, len[0]);
-            return eeg_str.Split (new Char[] {','});
+            return eeg_str.Split (new Char[] { ',' });
         }
 
         /// <summary>
@@ -187,13 +187,13 @@ namespace brainflow
             int res = BoardControllerLibrary.get_board_descr (board_id, str, len);
             if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowError(res);
+                throw new BrainFlowError (res);
             }
             string descr_str = System.Text.Encoding.UTF8.GetString (str, 0, len[0]);
-            var ms = new MemoryStream(Encoding.UTF8.GetBytes(descr_str));
-            var serializer = new DataContractJsonSerializer(typeof(T));
-            var obj = serializer.ReadObject(ms) as T;
-            ms.Close();
+            var ms = new MemoryStream (Encoding.UTF8.GetBytes (descr_str));
+            var serializer = new DataContractJsonSerializer (typeof (T));
+            var obj = serializer.ReadObject (ms) as T;
+            ms.Close ();
             return obj;
         }
 
@@ -523,7 +523,7 @@ namespace brainflow
             int res = BoardControllerLibrary.get_resistance_channels (board_id, channels, len);
             if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowError(res);
+                throw new BrainFlowError (res);
             }
             int[] result = new int[len[0]];
             for (int i = 0; i < len[0]; i++)
@@ -603,7 +603,7 @@ namespace brainflow
         public void prepare_session ()
         {
             int res = BoardControllerLibrary.prepare_session (board_id, input_json);
-            if (res != (int) BrainFlowExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
                 throw new BrainFlowError (res);
             }
@@ -646,7 +646,7 @@ namespace brainflow
         public void start_stream (int buffer_size = 3600 * 250, string streamer_params = "")
         {
             int res = BoardControllerLibrary.start_stream (buffer_size, streamer_params, board_id, input_json);
-            if (res != (int) BrainFlowExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
                 throw new BrainFlowError (res);
             }
@@ -658,7 +658,7 @@ namespace brainflow
         public void stop_stream ()
         {
             int res = BoardControllerLibrary.stop_stream (board_id, input_json);
-            if (res != (int) BrainFlowExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
                 throw new BrainFlowError (res);
             }
@@ -670,7 +670,7 @@ namespace brainflow
         public void release_session ()
         {
             int res = BoardControllerLibrary.release_session (board_id, input_json);
-            if (res != (int) BrainFlowExitCodes.STATUS_OK)
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
                 throw new BrainFlowError (res);
             }
@@ -683,10 +683,10 @@ namespace brainflow
         public bool is_prepared ()
         {
             int[] res = new int[1];
-            int ec = BoardControllerLibrary.is_prepared(res, board_id, input_json);
+            int ec = BoardControllerLibrary.is_prepared (res, board_id, input_json);
             if (ec != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowError(ec);
+                throw new BrainFlowError (ec);
             }
             return res[0] != 0;
         }
@@ -707,7 +707,7 @@ namespace brainflow
         {
             int[] res = new int[1];
             int ec = BoardControllerLibrary.get_board_data_count (res, board_id, input_json);
-            if (ec != (int) BrainFlowExitCodes.STATUS_OK)
+            if (ec != (int)BrainFlowExitCodes.STATUS_OK)
             {
                 throw new BrainFlowError (ec);
             }
@@ -721,12 +721,13 @@ namespace brainflow
         /// <returns>latest collected data, can be less than "num_samples"</returns>
         public double[,] get_current_board_data (int num_samples)
         {
-            int num_rows = BoardShim.get_num_rows (master_board_id); 
+            int num_rows = BoardShim.get_num_rows (master_board_id);
             double[] data_arr = new double[num_samples * num_rows];
             int[] current_size = new int[1];
             int ec = BoardControllerLibrary.get_current_board_data (num_samples, data_arr, current_size, board_id, input_json);
-		    if (ec != (int) BrainFlowExitCodes.STATUS_OK) {
-			    throw new BrainFlowError (ec);
+            if (ec != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (ec);
             }
             double[,] result = new double[num_rows, current_size[0]];
             for (int i = 0; i < num_rows; i++)
@@ -737,7 +738,7 @@ namespace brainflow
                 }
             }
             return result;
-	    }
+        }
 
         /// <summary>
         /// get all collected data and remove it from ringbuffer

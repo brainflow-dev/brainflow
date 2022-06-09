@@ -2,7 +2,7 @@ use std::{thread, time::Duration};
 
 use brainflow::{
     board_shim, brainflow_input_params::BrainFlowInputParamsBuilder, data_filter, AggOperations,
-    BoardIds,
+    BoardIds, WaveletTypes, WaveletExtensionTypes, WaveletDenoisingTypes, ThresholdTypes, NoiseEstimationLevelTypes,
 };
 use ndarray::s;
 
@@ -37,8 +37,12 @@ fn main() {
         data.slice_mut(s![eeg_channels[1], ..])
             .as_slice_mut()
             .unwrap(),
-        "db3",
+        WaveletTypes::Db3,
         3,
+        WaveletDenoisingTypes::Sureshrink,
+        ThresholdTypes::Hard,
+        WaveletExtensionTypes::Symmetric,
+        NoiseEstimationLevelTypes::FirstLevel,
     )
     .unwrap();
     println!("{:?}", data.slice(s![eeg_channels[1], ..]));

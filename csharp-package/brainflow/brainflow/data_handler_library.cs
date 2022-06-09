@@ -38,6 +38,80 @@ namespace brainflow
         FIFTY_AND_SIXTY = 2
     };
 
+
+    public enum WaveletDenoisingTypes
+    {
+        VISUSHRINK = 0,
+        SURESHRINK = 1
+    };
+
+    public enum ThresholdTypes
+    {
+        SOFT = 0,
+        HARD = 1
+    };
+
+    public enum WaveletExtensionTypes
+    {
+        SYMMETRIC = 0,
+        PERIODIC = 1
+    };
+
+    public enum NoiseEstimationLevelTypes
+    {
+        FIRST_LEVEL = 0,
+        ALL_LEVELS = 1
+    };
+
+    public enum WaveletTypes
+    {
+        HAAR = 0,
+        DB1 = 1,
+        DB2 = 2,
+        DB3 = 3,
+        DB4 = 4,
+        DB5 = 5,
+        DB6 = 6,
+        DB7 = 7,
+        DB8 = 8,
+        DB9 = 9,
+        DB10 = 10,
+        DB11 = 11,
+        DB12 = 12,
+        DB13 = 13,
+        DB14 = 14,
+        DB15 = 15,
+        BIOR1_1 = 16,
+        BIOR1_3 = 17,
+        BIOR1_5 = 18,
+        BIOR2_2 = 19,
+        BIOR2_4 = 20,
+        BIOR2_6 = 21,
+        BIOR2_8 = 22,
+        BIOR3_1 = 23,
+        BIOR3_3 = 24,
+        BIOR3_5 = 25,
+        BIOR3_7 = 26,
+        BIOR3_9 = 27,
+        BIOR4_4 = 28,
+        BIOR5_5 = 29,
+        BIOR6_8 = 30,
+        COIF1 = 31,
+        COIF2 = 32,
+        COIF3 = 33,
+        COIF4 = 34,
+        COIF5 = 35,
+        SYM2 = 36,
+        SYM3 = 37,
+        SYM4 = 38,
+        SYM5 = 39,
+        SYM6 = 40,
+        SYM7 = 41,
+        SYM8 = 42,
+        SYM9 = 43,
+        SYM10 = 44
+    };
+
     class DataHandlerLibrary64
     {
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -65,12 +139,13 @@ namespace brainflow
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_num_elements_in_file (string file_name, int[] num_elements);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int perform_wavelet_transform (double[] data, int data_len, string wavelet, int decomposition_level, double[] output_data, int[] decomposition_lengths);
+        public static extern int perform_wavelet_transform (double[] data, int data_len, int wavelet, int decomposition_level, int extension, double[] output_data, int[] decomposition_lengths);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int perform_inverse_wavelet_transform (double[] wavelet_coeffs, int original_data_len, string wavelet, int decomposition_level,
+        public static extern int perform_inverse_wavelet_transform (double[] wavelet_coeffs, int original_data_len, int wavelet, int decomposition_level, int extension,
                                                                     int[] decomposition_lengths, double[] output_data);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int perform_wavelet_denoising (double[] data, int data_len, string wavelet, int decomposition_level);
+        public static extern int perform_wavelet_denoising (double[] data, int data_len, int wavelet, int decomposition_level,
+                                                            int wavelet_denoising, int threshold, int extenstion_type, int noise_level);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_csp (double[] data, double[] labels, int n_epochs, int n_channels, int n_times, double[] output_filters, double[] output_eigenvalues);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -79,7 +154,7 @@ namespace brainflow
         public static extern int perform_fft (double[] data, int data_len, int window, double[] re, double[] im);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_ifft (double[] re, double[] im, int data_len, double[] data);
-        [DllImport("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_nearest_power_of_two (int value, int[] output);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_psd (double[] data, int data_len, int sampling_rate, int window, double[] ampls, double[] freqs);
@@ -89,20 +164,20 @@ namespace brainflow
         public static extern int get_psd_welch (double[] data, int data_len, int nfft, int overlap, int sampling_rate, int window, double[] ampls, double[] freqs);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int detrend (double[] data, int len, int operation);
-        [DllImport("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int remove_environmental_noise(double[] data, int len, int sampling_rate, int noise_type);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int remove_environmental_noise (double[] data, int len, int sampling_rate, int noise_type);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_custom_band_powers (double[] data, int rows, int cols, double[] start_freqs, double[] stop_freqs, int num_bands, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int calc_stddev (double[] data, int start_pos, int end_pos, double[] output);
-        [DllImport("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_version_data_handler (byte[] version, int[] len, int max_len);
     }
 
     class DataHandlerLibrary32
     {
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int set_log_file_data_handler(string log_file);
+        public static extern int set_log_file_data_handler (string log_file);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int log_message_data_handler (int log_level, string message);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -126,12 +201,13 @@ namespace brainflow
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_num_elements_in_file (string file_name, int[] num_elements);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int perform_wavelet_transform (double[] data, int data_len, string wavelet, int decomposition_level, double[] output_data, int[] decomposition_lengths);
+        public static extern int perform_wavelet_transform (double[] data, int data_len, int wavelet, int decomposition_level, int extension, double[] output_data, int[] decomposition_lengths);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int perform_inverse_wavelet_transform (double[] wavelet_coeffs, int original_data_len, string wavelet, int decomposition_level,
+        public static extern int perform_inverse_wavelet_transform (double[] wavelet_coeffs, int original_data_len, int wavelet, int decomposition_level, int extension,
                                                                     int[] decomposition_lengths, double[] output_data);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int perform_wavelet_denoising (double[] data, int data_len, string wavelet, int decomposition_level);
+        public static extern int perform_wavelet_denoising (double[] data, int data_len, int wavelet, int decomposition_level,
+                                                            int wavelet_denoising, int threshold, int extenstion_type, int noise_level);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_csp (double[] data, double[] labels, int n_epochs, int n_channels, int n_times, double[] output_filters, double[] output_eigenvalues);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -163,7 +239,7 @@ namespace brainflow
     class DataHandlerLibraryLinux
     {
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int set_log_file_data_handler(string log_file);
+        public static extern int set_log_file_data_handler (string log_file);
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int log_message_data_handler (int log_level, string message);
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -187,12 +263,13 @@ namespace brainflow
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_num_elements_in_file (string file_name, int[] num_elements);
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int perform_wavelet_transform (double[] data, int data_len, string wavelet, int decomposition_level, double[] output_data, int[] decomposition_lengths);
+        public static extern int perform_wavelet_transform (double[] data, int data_len, int wavelet, int decomposition_level, int extension, double[] output_data, int[] decomposition_lengths);
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int perform_inverse_wavelet_transform (double[] wavelet_coeffs, int original_data_len, string wavelet, int decomposition_level,
+        public static extern int perform_inverse_wavelet_transform (double[] wavelet_coeffs, int original_data_len, int wavelet, int decomposition_level, int extension,
                                                                     int[] decomposition_lengths, double[] output_data);
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int perform_wavelet_denoising (double[] data, int data_len, string wavelet, int decomposition_level);
+        public static extern int perform_wavelet_denoising (double[] data, int data_len, int wavelet, int decomposition_level,
+                                                            int wavelet_denoising, int threshold, int extenstion_type, int noise_level);
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_csp (double[] data, double[] labels, int n_epochs, int n_channels, int n_times, double[] output_filters, double[] output_eigenvalues);
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -224,11 +301,11 @@ namespace brainflow
     class DataHandlerLibraryMac
     {
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int set_log_file_data_handler(string log_file);
+        public static extern int set_log_file_data_handler (string log_file);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int log_message_data_handler (int log_level, string message);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int set_log_level_data_handler(int log_level);
+        public static extern int set_log_level_data_handler (int log_level);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_lowpass (double[] data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -248,12 +325,13 @@ namespace brainflow
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_num_elements_in_file (string file_name, int[] num_elements);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int perform_wavelet_transform (double[] data, int data_len, string wavelet, int decomposition_level, double[] output_data, int[] decomposition_lengths);
+        public static extern int perform_wavelet_transform (double[] data, int data_len, int wavelet, int decomposition_level, int extension, double[] output_data, int[] decomposition_lengths);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int perform_inverse_wavelet_transform (double[] wavelet_coeffs, int original_data_len, string wavelet, int decomposition_level,
+        public static extern int perform_inverse_wavelet_transform (double[] wavelet_coeffs, int original_data_len, int wavelet, int decomposition_level, int extension,
                                                                     int[] decomposition_lengths, double[] output_data);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int perform_wavelet_denoising (double[] data, int data_len, string wavelet, int decomposition_level);
+        public static extern int perform_wavelet_denoising (double[] data, int data_len, int wavelet, int decomposition_level,
+                                                            int wavelet_denoising, int threshold, int extenstion_type, int noise_level);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_csp (double[] data, double[] labels, int n_epochs, int n_channels, int n_times, double[] output_filters, double[] output_eigenvalues);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -274,7 +352,7 @@ namespace brainflow
         public static extern int detrend (double[] data, int len, int operation);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_custom_band_powers (double[] data, int rows, int cols, double[] start_freqs, double[] stop_freqs, int num_bands, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs);
-        [DllImport("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int remove_environmental_noise (double[] data, int len, int sampling_rate, int noise_type);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int calc_stddev (double[] data, int start_pos, int end_pos, double[] output);
@@ -289,13 +367,13 @@ namespace brainflow
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return DataHandlerLibrary64.set_log_level_data_handler(log_level);
+                    return DataHandlerLibrary64.set_log_level_data_handler (log_level);
                 case LibraryEnvironment.x86:
-                    return DataHandlerLibrary32.set_log_level_data_handler(log_level);
+                    return DataHandlerLibrary32.set_log_level_data_handler (log_level);
                 case LibraryEnvironment.Linux:
-                    return DataHandlerLibraryLinux.set_log_level_data_handler(log_level);
+                    return DataHandlerLibraryLinux.set_log_level_data_handler (log_level);
                 case LibraryEnvironment.MacOS:
-                    return DataHandlerLibraryMac.set_log_level_data_handler(log_level);
+                    return DataHandlerLibraryMac.set_log_level_data_handler (log_level);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
@@ -306,30 +384,30 @@ namespace brainflow
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return DataHandlerLibrary64.set_log_file_data_handler(log_file);
+                    return DataHandlerLibrary64.set_log_file_data_handler (log_file);
                 case LibraryEnvironment.x86:
-                    return DataHandlerLibrary32.set_log_file_data_handler(log_file);
+                    return DataHandlerLibrary32.set_log_file_data_handler (log_file);
                 case LibraryEnvironment.Linux:
-                    return DataHandlerLibraryLinux.set_log_file_data_handler(log_file);
+                    return DataHandlerLibraryLinux.set_log_file_data_handler (log_file);
                 case LibraryEnvironment.MacOS:
-                    return DataHandlerLibraryMac.set_log_file_data_handler(log_file);
+                    return DataHandlerLibraryMac.set_log_file_data_handler (log_file);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int remove_environmental_noise(double[] data, int len, int sampling_rate, int noise_type)
+        public static int remove_environmental_noise (double[] data, int len, int sampling_rate, int noise_type)
         {
-            switch (PlatformHelper.get_library_environment())
+            switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return DataHandlerLibrary64.remove_environmental_noise(data, len, sampling_rate, noise_type);
+                    return DataHandlerLibrary64.remove_environmental_noise (data, len, sampling_rate, noise_type);
                 case LibraryEnvironment.x86:
-                    return DataHandlerLibrary32.remove_environmental_noise(data, len, sampling_rate, noise_type);
+                    return DataHandlerLibrary32.remove_environmental_noise (data, len, sampling_rate, noise_type);
                 case LibraryEnvironment.Linux:
-                    return DataHandlerLibraryLinux.remove_environmental_noise(data, len, sampling_rate, noise_type);
+                    return DataHandlerLibraryLinux.remove_environmental_noise (data, len, sampling_rate, noise_type);
                 case LibraryEnvironment.MacOS:
-                    return DataHandlerLibraryMac.remove_environmental_noise(data, len, sampling_rate, noise_type);
+                    return DataHandlerLibraryMac.remove_environmental_noise (data, len, sampling_rate, noise_type);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
@@ -524,53 +602,54 @@ namespace brainflow
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int perform_wavelet_transform (double[] data, int data_len, string wavelet, int decomposition_level, double[] output_data, int[] decomposition_lengths)
+        public static int perform_wavelet_transform (double[] data, int data_len, int wavelet, int decomposition_level, int extension, double[] output_data, int[] decomposition_lengths)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return DataHandlerLibrary64.perform_wavelet_transform (data, data_len, wavelet, decomposition_level, output_data, decomposition_lengths);
+                    return DataHandlerLibrary64.perform_wavelet_transform (data, data_len, wavelet, decomposition_level, extension, output_data, decomposition_lengths);
                 case LibraryEnvironment.x86:
-                    return DataHandlerLibrary32.perform_wavelet_transform (data, data_len, wavelet, decomposition_level, output_data, decomposition_lengths);
+                    return DataHandlerLibrary32.perform_wavelet_transform (data, data_len, wavelet, decomposition_level, extension, output_data, decomposition_lengths);
                 case LibraryEnvironment.Linux:
-                    return DataHandlerLibraryLinux.perform_wavelet_transform (data, data_len, wavelet, decomposition_level, output_data, decomposition_lengths);
+                    return DataHandlerLibraryLinux.perform_wavelet_transform (data, data_len, wavelet, decomposition_level, extension, output_data, decomposition_lengths);
                 case LibraryEnvironment.MacOS:
-                    return DataHandlerLibraryMac.perform_wavelet_transform (data, data_len, wavelet, decomposition_level, output_data, decomposition_lengths);
+                    return DataHandlerLibraryMac.perform_wavelet_transform (data, data_len, wavelet, decomposition_level, extension, output_data, decomposition_lengths);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int perform_inverse_wavelet_transform (double[] wavelet_coeffs, int original_data_len, string wavelet, int decomposition_level,
+        public static int perform_inverse_wavelet_transform (double[] wavelet_coeffs, int original_data_len, int wavelet, int decomposition_level, int extension
                                                                     int[] decomposition_lengths, double[] output_data)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return DataHandlerLibrary64.perform_inverse_wavelet_transform (wavelet_coeffs, original_data_len, wavelet, decomposition_level, decomposition_lengths, output_data);
+                    return DataHandlerLibrary64.perform_inverse_wavelet_transform (wavelet_coeffs, original_data_len, wavelet, decomposition_level, extension, decomposition_lengths, output_data);
                 case LibraryEnvironment.x86:
-                    return DataHandlerLibrary32.perform_inverse_wavelet_transform (wavelet_coeffs, original_data_len, wavelet, decomposition_level, decomposition_lengths, output_data);
+                    return DataHandlerLibrary32.perform_inverse_wavelet_transform (wavelet_coeffs, original_data_len, wavelet, decomposition_level, extension, decomposition_lengths, output_data);
                 case LibraryEnvironment.Linux:
-                    return DataHandlerLibraryLinux.perform_inverse_wavelet_transform (wavelet_coeffs, original_data_len, wavelet, decomposition_level, decomposition_lengths, output_data);
+                    return DataHandlerLibraryLinux.perform_inverse_wavelet_transform (wavelet_coeffs, original_data_len, wavelet, decomposition_level, extension, decomposition_lengths, output_data);
                 case LibraryEnvironment.MacOS:
-                    return DataHandlerLibraryMac.perform_inverse_wavelet_transform (wavelet_coeffs, original_data_len, wavelet, decomposition_level, decomposition_lengths, output_data);
+                    return DataHandlerLibraryMac.perform_inverse_wavelet_transform (wavelet_coeffs, original_data_len, wavelet, decomposition_level, extension, decomposition_lengths, output_data);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int perform_wavelet_denoising (double[] data, int data_len, string wavelet, int decomposition_level)
+        public static int perform_wavelet_denoising (double[] data, int data_len, int wavelet, int decomposition_level,
+                                                    int wavelet_denoising, int threshold, int extenstion_type, int noise_level)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return DataHandlerLibrary64.perform_wavelet_denoising (data, data_len, wavelet, decomposition_level);
+                    return DataHandlerLibrary64.perform_wavelet_denoising (data, data_len, wavelet, decomposition_level, wavelet_denoising, threshold, extenstion_type, noise_level);
                 case LibraryEnvironment.x86:
-                    return DataHandlerLibrary32.perform_wavelet_denoising (data, data_len, wavelet, decomposition_level);
+                    return DataHandlerLibrary32.perform_wavelet_denoising (data, data_len, wavelet, decomposition_level, wavelet_denoising, threshold, extenstion_type, noise_level);
                 case LibraryEnvironment.Linux:
-                    return DataHandlerLibraryLinux.perform_wavelet_denoising (data, data_len, wavelet, decomposition_level);
+                    return DataHandlerLibraryLinux.perform_wavelet_denoising (data, data_len, wavelet, decomposition_level, wavelet_denoising, threshold, extenstion_type, noise_level);
                 case LibraryEnvironment.MacOS:
-                    return DataHandlerLibraryMac.perform_wavelet_denoising (data, data_len, wavelet, decomposition_level);
+                    return DataHandlerLibraryMac.perform_wavelet_denoising (data, data_len, wavelet, decomposition_level, wavelet_denoising, threshold, extenstion_type, noise_level);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
@@ -714,7 +793,7 @@ namespace brainflow
 
         public static int calc_stddev (double[] data, int start_pos, int end_pos, double[] output)
         {
-            switch (PlatformHelper.get_library_environment())
+            switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
                     return DataHandlerLibrary64.calc_stddev (data, start_pos, end_pos, output);
@@ -731,7 +810,7 @@ namespace brainflow
 
         public static int get_version_data_handler (byte[] version, int[] len, int max_len)
         {
-            switch (PlatformHelper.get_library_environment())
+            switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
                     return DataHandlerLibrary64.get_version_data_handler (version, len, max_len);

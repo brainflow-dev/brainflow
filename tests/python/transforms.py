@@ -1,10 +1,7 @@
-import argparse
 import time
-import brainflow
-import numpy as np
 
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels, BoardIds
-from brainflow.data_filter import DataFilter, FilterTypes, AggOperations, WindowOperations, WaveletTypes
+from brainflow.data_filter import DataFilter, WindowOperations, WaveletTypes
 
 
 def main():

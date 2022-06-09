@@ -159,37 +159,37 @@ classdef DataFilter
             downsampled_data = temp_output.Value;
         end
         
-        function [wavelet_data, wavelet_sizes] = perform_wavelet_transform(data, wavelet, decomposition_level)
+        function [wavelet_data, wavelet_sizes] = perform_wavelet_transform(data, wavelet, decomposition_level, extension)
             % perform wavelet transform
             task_name = 'perform_wavelet_transform';
             temp_input = libpointer('doublePtr', data);
             lib_name = DataFilter.load_lib();
             temp_output = libpointer('doublePtr', zeros(1, int32(size(data, 2) + 2 *(40 + 1))));
             lenghts = libpointer('int32Ptr', zeros(1, decomposition_level + 1));
-            exit_code = calllib(lib_name, task_name, temp_input, size(data, 2), wavelet, decomposition_level, temp_output, lenghts);
+            exit_code = calllib(lib_name, task_name, temp_input, size(data, 2), wavelet, decomposition_level, extension, temp_output, lenghts);
             DataFilter.check_ec(exit_code, task_name);
             wavelet_data = temp_output.Value(1,1: sum(lenghts.Value));
             wavelet_sizes = lenghts.Value;
         end
         
-        function original_data = perform_inverse_wavelet_transform(wavelet_data, wavelet_sizes, original_data_len, wavelet, decomposition_level)
+        function original_data = perform_inverse_wavelet_transform(wavelet_data, wavelet_sizes, original_data_len, wavelet, decomposition_level, extension)
             % perform inverse wavelet transform
             task_name = 'perform_inverse_wavelet_transform';
             lib_name = DataFilter.load_lib();
             wavelet_data_ptr = libpointer('doublePtr', wavelet_data);
             wavelet_sizes_ptr = libpointer('int32Ptr', wavelet_sizes);
             output_ptr = libpointer('doublePtr', zeros(1, original_data_len));
-            exit_code = calllib(lib_name, task_name, wavelet_data_ptr, original_data_len, wavelet, decomposition_level, wavelet_sizes_ptr, output_ptr);
+            exit_code = calllib(lib_name, task_name, wavelet_data_ptr, original_data_len, wavelet, decomposition_level, extension, wavelet_sizes_ptr, output_ptr);
             DataFilter.check_ec(exit_code, task_name);
             original_data = output_ptr.Value;
         end
         
-        function denoised_data = perform_wavelet_denoising(data, wavelet, decomposition_level)
+        function denoised_data = perform_wavelet_denoising(data, wavelet, decomposition_level, denoising, threshold, extention, noise_level)
             % perform wavelet denoising
             task_name = 'perform_wavelet_denoising';
             temp = libpointer('doublePtr', data);
             lib_name = DataFilter.load_lib();
-            exit_code = calllib(lib_name, task_name, temp, size(data, 2), wavelet, decomposition_level);
+            exit_code = calllib(lib_name, task_name, temp, size(data, 2), wavelet, decomposition_level, denoising, threshold, extention, noise_level);
             DataFilter.check_ec(exit_code, task_name);
             denoised_data = temp.Value;
         end

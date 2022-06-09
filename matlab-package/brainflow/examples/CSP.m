@@ -23,13 +23,3 @@ eigenvalues_true = [0.45671339 0.75297906];
 
 % Calc filters and eigenvalues and compare them
 [filters, eigenvalues] = DataFilter.get_csp(data, labels);
-
-disp("calculated filters = ");
-disp(filters);
-disp("true filters = ");
-disp(filters_true);
-
-disp("calculated eigenvalues = ");
-disp(eigenvalues);
-disp("true eigenvalues = ");
-disp(eigenvalues_true);

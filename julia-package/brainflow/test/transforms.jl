@@ -19,8 +19,9 @@ eeg_channels = BrainFlow.get_eeg_channels(BrainFlow.SYNTHETIC_BOARD)
 data_first_channel = data[eeg_channels[1], :]
 
 # returns tuple of wavelet coeffs and lengths
-wavelet_data = BrainFlow.perform_wavelet_transform(data_first_channel, "db4", 2)
-restored_wavelet_data = BrainFlow.perform_inverse_wavelet_transform(wavelet_data, length(data_first_channel), "db4", 2)
+wavelet_data = BrainFlow.perform_wavelet_transform(data_first_channel, BrainFlow.DB3, 2, BrainFlow.SYMMETRIC)
+restored_wavelet_data = BrainFlow.perform_inverse_wavelet_transform(wavelet_data, length(data_first_channel),
+																	BrainFlow.DB3, 2, BrainFlow.SYMMETRIC)
 
 fft_data = BrainFlow.perform_fft(data_first_channel, BrainFlow.NO_WINDOW)
 restored_fft_data = BrainFlow.perform_ifft(fft_data)

@@ -10,6 +10,8 @@ import brainflow.BoardShim;
 import brainflow.BrainFlowInputParams;
 import brainflow.DataFilter;
 import brainflow.LogLevels;
+import brainflow.WaveletExtensionTypes;
+import brainflow.WaveletTypes;
 import brainflow.WindowOperations;
 
 public class Transforms
@@ -47,7 +49,8 @@ public class Transforms
             // decomposition level, A - app coeffs, D - detailed coeffs, and array which
             // stores
             // length for each block, len of this array is decomposition_length + 1
-            Pair<double[], int[]> wavelet_data = DataFilter.perform_wavelet_transform (data[eeg_channels[i]], "db4", 3);
+            Pair<double[], int[]> wavelet_data = DataFilter.perform_wavelet_transform (data[eeg_channels[i]],
+                    WaveletTypes.DB4, 3, WaveletExtensionTypes.SYMMETRIC);
             // print approximation coeffs
             for (int j = 0; j < wavelet_data.getRight ()[0]; j++)
             {
@@ -57,7 +60,7 @@ public class Transforms
             // you can do smth with these coeffs here, for example denoising works via
             // thresholds for wavelet coeffs
             double[] restored_data = DataFilter.perform_inverse_wavelet_transform (wavelet_data,
-                    data[eeg_channels[i]].length, "db4", 3);
+                    data[eeg_channels[i]].length, WaveletTypes.DB4, 3, WaveletExtensionTypes.SYMMETRIC);
             System.out.println ("Restored data after wavelet:");
             System.out.println (Arrays.toString (restored_data));
 

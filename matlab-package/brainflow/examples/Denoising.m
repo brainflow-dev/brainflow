@@ -14,4 +14,4 @@ eeg_channels = BoardShim.get_eeg_channels(int32(BoardIds.SYNTHETIC_BOARD));
 % apply wavelet denoising to the first eeg channel %
 first_eeg_channel = eeg_channels(1);
 noisy_data = data(first_eeg_channel, :);
-denoised_data = DataFilter.perform_wavelet_denoising(noisy_data, 'db4', 2);
+denoised_data = DataFilter.perform_wavelet_denoising(noisy_data, int32(WaveletTypes.DB3), 3, int32(WaveletDenoisingTypes.SURESHRINK), int32(ThresholdTypes.HARD), int32(WaveletExtensionTypes.SYMMETRIC), int32(NoiseEstimationLevelTypes.FIRST_LEVEL));

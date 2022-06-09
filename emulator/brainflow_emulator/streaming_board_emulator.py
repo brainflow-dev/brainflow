@@ -1,9 +1,8 @@
 import logging
-import sys
 import subprocess
+import sys
 
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
-
 from brainflow_emulator.emulate_common import TestFailureError, log_multilines
 
 

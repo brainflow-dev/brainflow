@@ -1,4 +1,5 @@
 ﻿using brainflow.math;
+
 using System;
 using System.Numerics;
 
@@ -11,7 +12,7 @@ namespace brainflow
     public class DataFilter
     {
 
-        
+
         /// <summary>
         /// set log level, logger is disabled by default
         /// </summary>
@@ -106,14 +107,14 @@ namespace brainflow
         /// <param name="sampling_rate"></param>
         /// <param name="noise_type"></param>
         /// <returns>filtered data</returns>
-        public static double[] remove_environmental_noise(double[] data, int sampling_rate, int noise_type)
+        public static double[] remove_environmental_noise (double[] data, int sampling_rate, int noise_type)
         {
             double[] filtered_data = new double[data.Length];
-            Array.Copy(data, filtered_data, data.Length);
-            int res = DataHandlerLibrary.remove_environmental_noise(filtered_data, data.Length, sampling_rate, noise_type);
+            Array.Copy (data, filtered_data, data.Length);
+            int res = DataHandlerLibrary.remove_environmental_noise (filtered_data, data.Length, sampling_rate, noise_type);
             if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowError(res);
+                throw new BrainFlowError (res);
             }
             return filtered_data;
         }
@@ -218,7 +219,7 @@ namespace brainflow
             int res = DataHandlerLibrary.detrend (new_data, new_data.Length, operation);
             if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowError(res);
+                throw new BrainFlowError (res);
             }
             return new_data;
         }
@@ -258,11 +259,11 @@ namespace brainflow
         /// <returns>stddev</returns>
         public static double calc_stddev (double[] data, int start_pos, int end_pos)
         {
-            double[] output = new double[1]; 
+            double[] output = new double[1];
             int res = DataHandlerLibrary.calc_stddev (data, start_pos, end_pos, output);
             if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowError(res);
+                throw new BrainFlowError (res);
             }
             return output[0];
         }
@@ -271,14 +272,15 @@ namespace brainflow
         /// perform wavelet transform
         /// </summary>
         /// <param name="data">data for wavelet transform</param>
-        /// <param name="wavelet">db1..db15,haar,sym2..sym10,coif1..coif5,bior1.1,bior1.3,bior1.5,bior2.2,bior2.4,bior2.6,bior2.8,bior3.1,bior3.3,bior3.5 ,bior3.7,bior3.9,bior4.4,bior5.5,bior6.8</param>
+        /// <param name="wavelet">use WaveletTypes enum</param>
+        /// <param name="extension">use WaveletExtensionTypes enum</param>
         /// <param name="decomposition_level">decomposition level</param>
         /// <returns>tuple of wavelet coeffs in format [A(J) D(J) D(J-1) ..... D(1)] where J is decomposition level, A - app coeffs, D - detailed coeffs, and array with lengths for each block</returns>
-        public static Tuple<double[], int[]> perform_wavelet_transform (double[] data, string wavelet, int decomposition_level)
+        public static Tuple<double[], int[]> perform_wavelet_transform (double[] data, int wavelet, int decomposition_level, int extension)
         {
             double[] wavelet_coeffs = new double[data.Length + 2 * (40 + 1)];
             int[] lengths = new int[decomposition_level + 1];
-            int res = DataHandlerLibrary.perform_wavelet_transform (data, data.Length, wavelet, decomposition_level, wavelet_coeffs, lengths);
+            int res = DataHandlerLibrary.perform_wavelet_transform (data, data.Length, wavelet, decomposition_level, extension, wavelet_coeffs, lengths);
             if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
                 throw new BrainFlowError (res);
@@ -302,13 +304,14 @@ namespace brainflow
         /// </summary>
         /// <param name="wavelet_data">tuple returned by perform_wavelet_transform</param>
         /// <param name="original_data_len">size of original data before direct wavelet transform</param>
-        /// <param name="wavelet">db1..db15,haar,sym2..sym10,coif1..coif5,bior1.1,bior1.3,bior1.5,bior2.2,bior2.4,bior2.6,bior2.8,bior3.1,bior3.3,bior3.5 ,bior3.7,bior3.9,bior4.4,bior5.5,bior6.8</param>
+        /// <param name="wavelet">use WaveletTypes enum</param>
         /// <param name="decomposition_level">level of decomposition</param>
+        /// <param name="extension">use WaveletExtensionTypes enum</param>
         /// <returns>restored data</returns>
-        public static double[] perform_inverse_wavelet_transform (Tuple<double[], int[]> wavelet_data, int original_data_len, string wavelet, int decomposition_level)
+        public static double[] perform_inverse_wavelet_transform (Tuple<double[], int[]> wavelet_data, int original_data_len, int wavelet, int decomposition_level, int extension)
         {
             double[] original_data = new double[original_data_len];
-            int res = DataHandlerLibrary.perform_inverse_wavelet_transform (wavelet_data.Item1, original_data_len, wavelet, decomposition_level,
+            int res = DataHandlerLibrary.perform_inverse_wavelet_transform (wavelet_data.Item1, original_data_len, wavelet, decomposition_level, extension,
                                                                             wavelet_data.Item2, original_data);
             if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
@@ -321,14 +324,21 @@ namespace brainflow
         /// perform wavelet based denoising
         /// </summary>
         /// <param name="data">data for denoising</param>
-        /// <param name="wavelet">db1..db15,haar,sym2..sym10,coif1..coif5,bior1.1,bior1.3,bior1.5,bior2.2,bior2.4,bior2.6,bior2.8,bior3.1,bior3.3,bior3.5 ,bior3.7,bior3.9,bior4.4,bior5.5,bior6.8</param>
+        /// <param name="wavelet">use WaveletTypes enum</param>
         /// <param name="decomposition_level">level of decomposition in wavelet transform</param>
+        /// <param name="extenstion_type">use WaveletExtensionTypes enum</param>
+        /// <param name="noise_level">use NoiseEstimationLevelTypes enum</param>
+        /// <param name="threshold">use ThresholdTypes enum</param>
+        /// <param name="wavelet_denoising">use WaveletDenoisingTypes enum</param>
         /// <returns>denoised data</returns>
-        public static double[] perform_wavelet_denoising (double[] data, string wavelet, int decomposition_level)
+        public static double[] perform_wavelet_denoising (double[] data, int wavelet, int decomposition_level,
+                                                            int wavelet_denoising = (int)WaveletDenoisingTypes.SURESHRINK, int threshold = (int)ThresholdTypes.HARD,
+                                                            int extenstion_type = (int)WaveletExtensionTypes.SYMMETRIC, int noise_level = (int)NoiseEstimationLevelTypes.FIRST_LEVEL)
         {
             double[] filtered_data = new double[data.Length];
             Array.Copy (data, filtered_data, data.Length);
-            int res = DataHandlerLibrary.perform_wavelet_denoising (filtered_data, filtered_data.Length, wavelet, decomposition_level);
+            int res = DataHandlerLibrary.perform_wavelet_denoising (filtered_data, filtered_data.Length, wavelet, decomposition_level,
+                                                                    wavelet_denoising, threshold, extenstion_type, noise_level);
             if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
                 throw new BrainFlowError (res);
@@ -349,9 +359,9 @@ namespace brainflow
             int n_times = data.GetLength (2);
 
             double[] temp_data1d = new double[n_epochs * n_channels * n_times];
-            for (int e = 0; e < n_epochs; e++) 
+            for (int e = 0; e < n_epochs; e++)
             {
-                for (int c = 0; c < n_channels; c++) 
+                for (int c = 0; c < n_channels; c++)
                 {
                     for (int t = 0; t < n_times; t++)
                     {
@@ -378,8 +388,8 @@ namespace brainflow
                     output_filters[i, j] = temp_filters[i * n_channels + j];
                 }
             }
-            
-            Tuple<double[,], double[]> return_data = new Tuple<double[,], double[]>(output_filters, output_eigenvalues);
+
+            Tuple<double[,], double[]> return_data = new Tuple<double[,], double[]> (output_filters, output_eigenvalues);
             return return_data;
         }
 
@@ -469,7 +479,7 @@ namespace brainflow
         /// <param name="file_mode"></param>
         public static void write_file (double[,] data, string file_name, string file_mode)
         {
-            int res = DataHandlerLibrary.write_file (data.Flatten(), data.Rows (), data.Columns (), file_name, file_mode);
+            int res = DataHandlerLibrary.write_file (data.Flatten (), data.Rows (), data.Columns (), file_name, file_mode);
             if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
                 throw new BrainFlowError (res);
@@ -534,12 +544,12 @@ namespace brainflow
         /// <param name="sampling_rate">sampling rate</param>
         /// <param name="apply_filters">apply bandpass and bandstop filters before calculation</param>
         /// <returns>Tuple of avgs and stddev arrays</returns>
-        public static Tuple<double[], double[]> get_custom_band_powers (double[,] data, Tuple<double, double>[] bands, int[] channels,  int sampling_rate, bool apply_filters)
+        public static Tuple<double[], double[]> get_custom_band_powers (double[,] data, Tuple<double, double>[] bands, int[] channels, int sampling_rate, bool apply_filters)
         {
             double[] data_1d = new double[data.GetRow (0).Length * channels.Length];
             for (int i = 0; i < channels.Length; i++)
             {
-                Array.Copy(data.GetRow(channels[i]), 0, data_1d, i * data.GetRow (channels[i]).Length, data.GetRow(channels[i]).Length);
+                Array.Copy (data.GetRow (channels[i]), 0, data_1d, i * data.GetRow (channels[i]).Length, data.GetRow (channels[i]).Length);
             }
             double[] avgs = new double[bands.Length];
             double[] stddevs = new double[bands.Length];
@@ -554,9 +564,9 @@ namespace brainflow
             int res = DataHandlerLibrary.get_custom_band_powers (data_1d, channels.Length, data.GetRow (0).Length, start_freqs, stop_freqs, bands.Length, sampling_rate, (apply_filters) ? 1 : 0, avgs, stddevs);
             if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
-                throw new BrainFlowError(res);
+                throw new BrainFlowError (res);
             }
-            Tuple<double[], double[]> return_data = new Tuple<double[], double[]>(avgs, stddevs);
+            Tuple<double[], double[]> return_data = new Tuple<double[], double[]> (avgs, stddevs);
             return return_data;
         }
 
@@ -568,16 +578,16 @@ namespace brainflow
         /// <param name="sampling_rate">sampling rate</param>
         /// <param name="apply_filters">apply bandpass and bandstop filters before calculation</param>
         /// <returns>Tuple of avgs and stddev arrays</returns>
-        public static Tuple<double[], double[]> get_avg_band_powers(double[,] data, int[] channels, int sampling_rate, bool apply_filters)
+        public static Tuple<double[], double[]> get_avg_band_powers (double[,] data, int[] channels, int sampling_rate, bool apply_filters)
         {
             Tuple<double, double>[] bands = new Tuple<double, double>[5];
-            bands[0] = new Tuple<double, double>(2.0, 4.0);
-            bands[1] = new Tuple<double, double>(4.0, 8.0);
-            bands[2] = new Tuple<double, double>(8.0, 13.0);
-            bands[3] = new Tuple<double, double>(13.0, 30.0);
-            bands[4] = new Tuple<double, double>(30.0, 50.0);
+            bands[0] = new Tuple<double, double> (2.0, 4.0);
+            bands[1] = new Tuple<double, double> (4.0, 8.0);
+            bands[2] = new Tuple<double, double> (8.0, 13.0);
+            bands[3] = new Tuple<double, double> (13.0, 30.0);
+            bands[4] = new Tuple<double, double> (30.0, 50.0);
 
-            return get_custom_band_powers(data, bands, channels, sampling_rate, apply_filters);
+            return get_custom_band_powers (data, bands, channels, sampling_rate, apply_filters);
         }
 
         /// <summary>
@@ -601,7 +611,7 @@ namespace brainflow
                 throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             }
             double[] data_to_process = new double[len];
-            Array.Copy(data, start_pos, data_to_process, 0, len);
+            Array.Copy (data, start_pos, data_to_process, 0, len);
             double[] temp_ampls = new double[len / 2 + 1];
             double[] temp_freqs = new double[len / 2 + 1];
 
@@ -610,7 +620,7 @@ namespace brainflow
             {
                 throw new BrainFlowError (res);
             }
-            Tuple<double[], double[]> return_data = new Tuple<double[], double[]>(temp_ampls, temp_freqs);
+            Tuple<double[], double[]> return_data = new Tuple<double[], double[]> (temp_ampls, temp_freqs);
             return return_data;
         }
 
@@ -627,7 +637,7 @@ namespace brainflow
         {
             if ((nfft & (nfft - 1)) != 0)
             {
-                throw new BrainFlowError((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             }
             double[] temp_ampls = new double[nfft / 2 + 1];
             double[] temp_freqs = new double[nfft / 2 + 1];
@@ -637,7 +647,7 @@ namespace brainflow
             {
                 throw new BrainFlowError (res);
             }
-            Tuple<double[], double[]> return_data = new Tuple<double[], double[]>(temp_ampls, temp_freqs);
+            Tuple<double[], double[]> return_data = new Tuple<double[], double[]> (temp_ampls, temp_freqs);
             return return_data;
         }
 

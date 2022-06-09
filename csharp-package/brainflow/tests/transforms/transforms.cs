@@ -33,7 +33,7 @@ namespace test
                 // tuple of coeffs array in format[A(J) D(J) D(J-1) ..... D(1)] where J is a
                 // decomposition level, A - app coeffs, D - detailed coeffs, and array which stores
                 // length for each block, len of this array is decomposition_length + 1
-                Tuple<double[], int[]> wavelet_data = DataFilter.perform_wavelet_transform(unprocessed_data.GetRow (eeg_channels[i]), "db4", 3);
+                Tuple<double[], int[]> wavelet_data = DataFilter.perform_wavelet_transform (unprocessed_data.GetRow (eeg_channels[i]), (int)WaveletTypes.DB4, 1, (int)WaveletExtensionTypes.SYMMETRIC);
                 // print app coeffs
                 for (int j = 0; j < wavelet_data.Item2[0]; j++)
                 {
@@ -41,7 +41,7 @@ namespace test
                 }
                 Console.WriteLine ();
                 // you can do smth with wavelet coeffs here, for example denoising works via thresholds for wavelets coeffs
-                double[] restored_data = DataFilter.perform_inverse_wavelet_transform (wavelet_data, unprocessed_data.GetRow (eeg_channels[i]).Length, "db4", 3);
+                double[] restored_data = DataFilter.perform_inverse_wavelet_transform (wavelet_data, unprocessed_data.GetRow (eeg_channels[i]).Length, (int)WaveletTypes.DB4, 1, (int)WaveletExtensionTypes.SYMMETRIC);
                 Console.WriteLine ("Restored wavelet data:");
                 Console.WriteLine ("[{0}]", string.Join (", ", restored_data));
 

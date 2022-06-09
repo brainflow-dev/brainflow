@@ -1,19 +1,19 @@
-import os
-import time
 import argparse
+import os
 import threading
+import time
 
 import pandas as pd
-from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels, BoardIds
-from brainflow.data_filter import DataFilter
 import spotipy
 import spotipy.util as util
+from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels, BoardIds
+from brainflow.data_filter import DataFilter
 
 
 class DataThread(threading.Thread):
 
     def __init__(self, board, spotify):
-        threading.Thread.__init__ (self)
+        threading.Thread.__init__(self)
         self.keep_alive = True
         self.board = board
         self.spotify = spotify
@@ -27,7 +27,7 @@ class DataThread(threading.Thread):
         needed_duration = 10  # in seconds
         time_sleep = 1
         counter_for_duration = 0
-        counter_max = int(needed_duration/time_sleep)
+        counter_max = int(needed_duration / time_sleep)
         current_time = str(time.time())
         folder_name = str(self.board.get_board_id())
         if not os.path.exists(folder_name):
@@ -55,7 +55,8 @@ class DataThread(threading.Thread):
                     elif not track.get('is_playing', True):
                         is_end = True
                 except AttributeError as e:
-                    BoardShim.log_message(LogLevels.LEVEL_WARN.value, 'Exception occured, more likely because of ads(its ok): %s' % str(e))
+                    BoardShim.log_message(LogLevels.LEVEL_WARN.value,
+                                          'Exception occured, more likely because of ads(its ok): %s' % str(e))
             else:
                 is_end = True
 
@@ -64,13 +65,15 @@ class DataThread(threading.Thread):
                 current_song_id = None
                 data = self.board.get_board_data()
                 # store data when a song ends
-                if is_playing and counter_for_duration >= counter_max and prev_song_id is not None and data.shape[1] > 1:
+                if is_playing and counter_for_duration >= counter_max and prev_song_id is not None and data.shape[
+                    1] > 1:
                     DataFilter.write_file(data, brainflow_output_file, 'a')
                     features = self.spotify.audio_features(prev_song_id)
                     BoardShim.log_message(LogLevels.LEVEL_DEBUG.value, 'adding info about song: %s' % prev_song_id)
                     features_df = pd.DataFrame.from_dict(features)
                     music_feature = features_df[['danceability', 'energy', 'loudness', 'speechiness',
-                        'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo', 'id']]
+                                                 'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo',
+                                                 'id']]
                     music_features_replicated = pd.concat([music_feature] * (data.shape[1] - 1), ignore_index=True)
                     music_features_replicated.to_csv(song_features_output_file, sep='\t', mode='a')
                 is_playing = False
@@ -81,7 +84,7 @@ class DataThread(threading.Thread):
 def get_input():
     parser = argparse.ArgumentParser()
     parser.add_argument('--runtime', type=int, help='max time to sleep in the main thread in seconds',
-        default=1800, required=False)
+                        default=1800, required=False)
     # brainflow args
     parser.add_argument('--timeout', type=int, help='timeout for device discovery or connection', required=False,
                         default=0)
@@ -123,6 +126,7 @@ def get_input():
 
     return args.board_id, params, token, args.runtime
 
+
 def main():
     BoardShim.enable_dev_board_logger()
     board_id, params, token, runtime = get_input()
@@ -144,4 +148,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main ()
+    main()

@@ -13,8 +13,8 @@ namespace test
             // use synthetic board for demo
             BoardShim.enable_dev_board_logger ();
             BrainFlowInputParams input_params = new BrainFlowInputParams ();
-            BrainFlowModelParams model_params = new BrainFlowModelParams (0,0);
-            int board_id = parse_args (args, input_params,model_params);
+            BrainFlowModelParams model_params = new BrainFlowModelParams (0, 0);
+            int board_id = parse_args (args, input_params, model_params);
             BoardShim board_shim = new BoardShim (board_id, input_params);
             int sampling_rate = BoardShim.get_sampling_rate (board_shim.get_board_id ());
             int nfft = DataFilter.get_nearest_power_of_two (sampling_rate);
@@ -32,11 +32,11 @@ namespace test
             MLModel model = new MLModel (model_params);
             model.prepare ();
             Console.WriteLine (Enum.GetName (typeof (BrainFlowMetrics), model_params.metric) + " " + Enum.GetName (typeof (BrainFlowClassifiers), model_params.classifier) +
-                " : "  + model.predict (feature_vector));
+                " : " + model.predict (feature_vector));
             model.release ();
         }
 
-        static int parse_args (string[] args, BrainFlowInputParams input_params,  BrainFlowModelParams model_params)
+        static int parse_args (string[] args, BrainFlowInputParams input_params, BrainFlowModelParams model_params)
         {
             int board_id = (int)BoardIds.SYNTHETIC_BOARD; //assume synthetic board by default
             // use docs to get params for your specific board, e.g. set serial_port for Cyton
@@ -90,11 +90,11 @@ namespace test
                 {
                     model_params.classifier = Convert.ToInt32 (args[i + 1]);
                 }
-                if (args[i].Equals("--model-file"))
+                if (args[i].Equals ("--model-file"))
                 {
                     model_params.file = args[i + 1];
                 }
-                if (args[i].Equals("--output-name"))
+                if (args[i].Equals ("--output-name"))
                 {
                     model_params.output_name = args[i + 1];
                 }

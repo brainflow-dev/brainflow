@@ -2,10 +2,9 @@ import argparse
 import logging
 
 import pyqtgraph as pg
-from pyqtgraph.Qt import QtGui, QtCore
-
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 from brainflow.data_filter import DataFilter, FilterTypes, DetrendOperations
+from pyqtgraph.Qt import QtGui, QtCore
 
 
 class Graph:
@@ -19,7 +18,7 @@ class Graph:
         self.num_points = self.window_size * self.sampling_rate
 
         self.app = QtGui.QApplication([])
-        self.win = pg.GraphicsWindow(title='BrainFlow Plot',size=(800, 600))
+        self.win = pg.GraphicsWindow(title='BrainFlow Plot', size=(800, 600))
 
         self._init_timeseries()
 
@@ -28,12 +27,11 @@ class Graph:
         timer.start(self.update_speed_ms)
         QtGui.QApplication.instance().exec_()
 
-
     def _init_timeseries(self):
         self.plots = list()
         self.curves = list()
         for i in range(len(self.exg_channels)):
-            p = self.win.addPlot(row=i,col=0)
+            p = self.win.addPlot(row=i, col=0)
             p.showAxis('left', False)
             p.setMenuEnabled('left', False)
             p.showAxis('bottom', False)

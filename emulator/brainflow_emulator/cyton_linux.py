@@ -1,8 +1,8 @@
-import os
-import sys
-import pty
 import logging
+import os
+import pty
 import subprocess
+import sys
 
 from brainflow_emulator.emulate_common import TestFailureError, Listener, log_multilines
 

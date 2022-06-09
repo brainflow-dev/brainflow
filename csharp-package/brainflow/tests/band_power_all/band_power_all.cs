@@ -14,8 +14,8 @@ namespace test
             BrainFlowInputParams input_params = new BrainFlowInputParams ();
             int board_id = (int)BoardIds.SYNTHETIC_BOARD;
             int sampling_rate = BoardShim.get_sampling_rate (board_id);
-            int nfft = DataFilter.get_nearest_power_of_two(sampling_rate);
-            int[] eeg_channels = BoardShim.get_eeg_channels(board_id);
+            int nfft = DataFilter.get_nearest_power_of_two (sampling_rate);
+            int[] eeg_channels = BoardShim.get_eeg_channels (board_id);
 
             BoardShim board_shim = new BoardShim (board_id, input_params);
             board_shim.prepare_session ();

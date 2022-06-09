@@ -49,6 +49,95 @@ end
 
 EnvNoiseType = Union{NoiseTypes, Integer}
 
+@enum WaveletDenoisingTypes begin
+
+    VISUSHRINK = 0
+    SURESHRINK = 1
+
+end
+
+WaveletDenoisingType = Union{WaveletDenoisingTypes, Integer}
+
+@enum ThresholdTypes begin
+
+    SOFT = 0
+    HARD = 1
+
+end
+
+ThresholdType = Union{ThresholdTypes, Integer}
+
+@enum WaveletExtensionTypes begin
+
+    SYMMETRIC = 0
+    PERIODIC = 1
+
+end
+
+WaveletExtensionType = Union{WaveletExtensionTypes, Integer}
+
+@enum NoiseEstimationLevelTypes begin
+
+    FIRST_LEVEL = 0
+    ALL_LEVELS = 1
+
+end
+
+NoiseEstimationLevelType = Union{NoiseEstimationLevelTypes, Integer}
+
+@enum WaveletTypes begin
+
+    HAAR = 0
+    DB1 = 1
+    DB2 = 2
+    DB3 = 3
+    DB4 = 4
+    DB5 = 5
+    DB6 = 6
+    DB7 = 7
+    DB8 = 8
+    DB9 = 9
+    DB10 = 10
+    DB11 = 11
+    DB12 = 12
+    DB13 = 13
+    DB14 = 14
+    DB15 = 15
+    BIOR1_1 = 16
+    BIOR1_3 = 17
+    BIOR1_5 = 18
+    BIOR2_2 = 19
+    BIOR2_4 = 20
+    BIOR2_6 = 21
+    BIOR2_8 = 22
+    BIOR3_1 = 23
+    BIOR3_3 = 24
+    BIOR3_5 = 25
+    BIOR3_7 = 26
+    BIOR3_9 = 27
+    BIOR4_4 = 28
+    BIOR5_5 = 29
+    BIOR6_8 = 30
+    COIF1 = 31
+    COIF2 = 32
+    COIF3 = 33
+    COIF4 = 34
+    COIF5 = 35
+    SYM2 = 36
+    SYM3 = 37
+    SYM4 = 38
+    SYM5 = 39
+    SYM6 = 40
+    SYM7 = 41
+    SYM8 = 42
+    SYM9 = 43
+    SYM10 = 44
+
+end
+
+WaveletType = Union{WaveletTypes, Integer}
+
+
 @brainflow_rethrow function perform_lowpass(data, sampling_rate::Integer, cutoff::Float64, order::Integer,
     filter_type::FiltType, ripple::Float64)
     ccall((:perform_lowpass, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Float64, Cint, Cint, Float64),
@@ -96,9 +185,14 @@ end
     return
 end
 
-@brainflow_rethrow function perform_wavelet_denoising(data, wavelet::String, decomposition_level::Integer)
-    ccall((:perform_wavelet_denoising, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Ptr{UInt8}, Cint),
-            data, length(data), wavelet, Int32(decomposition_level))
+@brainflow_rethrow function perform_wavelet_denoising(data, wavelet::WaveletType, decomposition_level::Integer,
+                                                      wavelet_denoising::WaveletDenoisingType,
+                                                      threshold::ThresholdType,
+                                                      extension::WaveletExtensionType,
+                                                      noise_level::NoiseEstimationLevelType)
+    ccall((:perform_wavelet_denoising, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Cint, Cint, Cint, Cint, Cint),
+            data, length(data), Int32(wavelet), Int32(decomposition_level), Int32(wavelet_denoising),
+            Int32(threshold), Int32(extension), Int32(noise_level))
     return
 end
 
@@ -152,19 +246,19 @@ end
     return value
 end
 
-@brainflow_rethrow function perform_wavelet_transform(data, wavelet::String, decomposition_level::Integer)
+@brainflow_rethrow function perform_wavelet_transform(data, wavelet::WaveletType, decomposition_level::Integer, extension::WaveletExtensionType)
     wavelet_coeffs = Vector{Float64}(undef, length(data) + 2 * (40 + 1))
     lengths = Vector{Cint}(undef, decomposition_level + 1)
-    ccall((:perform_wavelet_transform, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Ptr{UInt8}, Cint, Ptr{Float64}, Ptr{Cint}),
-            data, length(data), wavelet, Int32(decomposition_level), wavelet_coeffs, lengths)
+    ccall((:perform_wavelet_transform, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Cint, Cint, Ptr{Float64}, Ptr{Cint}),
+            data, length(data), Int32(wavelet), Int32(decomposition_level), Int32(extension), wavelet_coeffs, lengths)
     return wavelet_coeffs[1:sum(lengths)], lengths
 end
 
 
-@brainflow_rethrow function perform_inverse_wavelet_transform(wavelet_output, original_data_len::Integer, wavelet::String, decomposition_level::Integer)
+@brainflow_rethrow function perform_inverse_wavelet_transform(wavelet_output, original_data_len::Integer, wavelet::WaveletType, decomposition_level::Integer, extension::WaveletExtensionType)
     original_data = Vector{Float64}(undef, original_data_len)
-    ccall((:perform_inverse_wavelet_transform, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Ptr{UInt8}, Cint, Ptr{Float64}, Ptr{Float64}),
-            wavelet_output[1], Int32(original_data_len), wavelet, Int32(decomposition_level), wavelet_output[2], original_data)
+    ccall((:perform_inverse_wavelet_transform, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}),
+            wavelet_output[1], Int32(original_data_len), Int32(wavelet), Int32(decomposition_level), Int32(extension), wavelet_output[2], original_data)
     return original_data
 end
 

@@ -8,6 +8,11 @@ import brainflow.BoardShim;
 import brainflow.BrainFlowInputParams;
 import brainflow.DataFilter;
 import brainflow.LogLevels;
+import brainflow.NoiseEstimationLevelTypes;
+import brainflow.ThresholdTypes;
+import brainflow.WaveletDenoisingTypes;
+import brainflow.WaveletExtensionTypes;
+import brainflow.WaveletTypes;
 
 public class Denoising
 {
@@ -51,7 +56,9 @@ public class Denoising
                 // denoising
                 default:
                     // try different functions and different decomposition levels here
-                    DataFilter.perform_wavelet_denoising (data[eeg_channels[i]], "db4", 3);
+                    DataFilter.perform_wavelet_denoising (data[eeg_channels[i]], WaveletTypes.BIOR3_9, 3,
+                            WaveletDenoisingTypes.SURESHRINK, ThresholdTypes.HARD, WaveletExtensionTypes.SYMMETRIC,
+                            NoiseEstimationLevelTypes.FIRST_LEVEL);
                     break;
             }
         }

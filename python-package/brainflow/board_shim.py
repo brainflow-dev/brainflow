@@ -1,18 +1,17 @@
 import ctypes
-import numpy
-from numpy.ctypeslib import ndpointer
-import pkg_resources
 import enum
+import json
 import os
 import platform
 import struct
-import json
 from typing import List
 
-from nptyping import NDArray, Float64
-
+import numpy
+import pkg_resources
 from brainflow.exit_codes import BrainFlowExitCodes, BrainFlowError
 from brainflow.utils import LogLevels
+from nptyping import NDArray, Float64
+from numpy.ctypeslib import ndpointer
 
 
 class BoardIds(enum.IntEnum):

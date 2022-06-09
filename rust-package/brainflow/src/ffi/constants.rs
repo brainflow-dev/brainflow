@@ -160,3 +160,82 @@ pub enum NoiseTypes {
     Sixty = 1,
     FiftyAndSixty = 2,
 }
+#[repr(i32)]
+#[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum WaveletDenoisingTypes {
+    Visushrink = 0,
+    Sureshrink = 1,
+}
+#[repr(i32)]
+#[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum ThresholdTypes {
+    Soft = 0,
+    Hard = 1,
+}
+#[repr(i32)]
+#[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum WaveletExtensionTypes {
+    Symmetric = 0,
+    Periodic = 1,
+}
+#[repr(i32)]
+#[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum NoiseEstimationLevelTypes {
+    FirstLevel = 0,
+    AllLevels = 1,
+}
+impl WaveletTypes {
+    pub const FIRSTWavelet: WaveletTypes = WaveletTypes::Haar;
+}
+impl WaveletTypes {
+    pub const LASTWavelet: WaveletTypes = WaveletTypes::Sym10;
+}
+#[repr(i32)]
+#[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum WaveletTypes {
+    Haar = 0,
+    Db1 = 1,
+    Db2 = 2,
+    Db3 = 3,
+    Db4 = 4,
+    Db5 = 5,
+    Db6 = 6,
+    Db7 = 7,
+    Db8 = 8,
+    Db9 = 9,
+    Db10 = 10,
+    Db11 = 11,
+    Db12 = 12,
+    Db13 = 13,
+    Db14 = 14,
+    Db15 = 15,
+    Bior11 = 16,
+    Bior13 = 17,
+    Bior15 = 18,
+    Bior22 = 19,
+    Bior24 = 20,
+    Bior26 = 21,
+    Bior28 = 22,
+    Bior31 = 23,
+    Bior33 = 24,
+    Bior35 = 25,
+    Bior37 = 26,
+    Bior39 = 27,
+    Bior44 = 28,
+    Bior55 = 29,
+    Bior68 = 30,
+    Coif1 = 31,
+    Coif2 = 32,
+    Coif3 = 33,
+    Coif4 = 34,
+    Coif5 = 35,
+    Sym2 = 36,
+    Sym3 = 37,
+    Sym4 = 38,
+    Sym5 = 39,
+    Sym6 = 40,
+    Sym7 = 41,
+    Sym8 = 42,
+    Sym9 = 43,
+    Sym10 = 44,
+}

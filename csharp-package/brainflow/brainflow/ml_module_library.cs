@@ -193,7 +193,7 @@ namespace brainflow
 
         public static int release_all ()
         {
-            switch (PlatformHelper.get_library_environment())
+            switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
                     return MLModuleLibrary64.release_all ();
@@ -210,7 +210,7 @@ namespace brainflow
 
         public static int get_version_ml_module (byte[] version, int[] len, int max_len)
         {
-            switch (PlatformHelper.get_library_environment())
+            switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
                     return MLModuleLibrary64.get_version_ml_module (version, len, max_len);

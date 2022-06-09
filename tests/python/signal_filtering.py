@@ -1,10 +1,8 @@
-import argparse
 import time
-import brainflow
-import numpy as np
 
-import pandas as pd
 import matplotlib
+import numpy as np
+import pandas as pd
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -53,7 +51,8 @@ def main():
         elif count == 4:
             DataFilter.perform_rolling_filter(data[channel], 3, AggOperations.MEAN.value)
         else:
-            DataFilter.remove_environmental_noise(data[channel], BoardShim.get_sampling_rate(board_id), NoiseTypes.FIFTY.value)
+            DataFilter.remove_environmental_noise(data[channel], BoardShim.get_sampling_rate(board_id),
+                                                  NoiseTypes.FIFTY.value)
 
     df = pd.DataFrame(np.transpose(data))
     plt.figure()

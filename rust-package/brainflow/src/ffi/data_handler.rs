@@ -78,8 +78,9 @@ extern "C" {
     pub fn perform_wavelet_transform(
         data: *mut f64,
         data_len: ::std::os::raw::c_int,
-        wavelet: *const ::std::os::raw::c_char,
+        wavelet: ::std::os::raw::c_int,
         decomposition_level: ::std::os::raw::c_int,
+        extension: ::std::os::raw::c_int,
         output_data: *mut f64,
         decomposition_lengths: *mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
@@ -88,8 +89,9 @@ extern "C" {
     pub fn perform_inverse_wavelet_transform(
         wavelet_coeffs: *mut f64,
         original_data_len: ::std::os::raw::c_int,
-        wavelet: *const ::std::os::raw::c_char,
+        wavelet: ::std::os::raw::c_int,
         decomposition_level: ::std::os::raw::c_int,
+        extension: ::std::os::raw::c_int,
         decomposition_lengths: *mut ::std::os::raw::c_int,
         output_data: *mut f64,
     ) -> ::std::os::raw::c_int;
@@ -98,8 +100,12 @@ extern "C" {
     pub fn perform_wavelet_denoising(
         data: *mut f64,
         data_len: ::std::os::raw::c_int,
-        wavelet: *const ::std::os::raw::c_char,
+        wavelet: ::std::os::raw::c_int,
         decomposition_level: ::std::os::raw::c_int,
+        wavelet_denoising: ::std::os::raw::c_int,
+        threshold: ::std::os::raw::c_int,
+        extenstion_type: ::std::os::raw::c_int,
+        noise_level: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {

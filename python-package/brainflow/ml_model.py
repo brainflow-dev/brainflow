@@ -1,18 +1,17 @@
 import ctypes
-import numpy
-from numpy.ctypeslib import ndpointer
-import pkg_resources
 import enum
+import json
 import os
 import platform
 import struct
-import json
-
 from typing import List
-from nptyping import NDArray
 
+import numpy
+import pkg_resources
 from brainflow.board_shim import BrainFlowError, LogLevels
 from brainflow.exit_codes import BrainFlowExitCodes
+from nptyping import NDArray
+from numpy.ctypeslib import ndpointer
 
 
 class BrainFlowMetrics(enum.IntEnum):
@@ -221,7 +220,6 @@ class MLModel(object):
         res = MLModuleDLL.get_instance().log_message_ml_module(log_level, msg)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to write log message', res)
-
 
     @classmethod
     def release_all(cls) -> None:

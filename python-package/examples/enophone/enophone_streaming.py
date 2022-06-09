@@ -2,10 +2,10 @@ import argparse
 import logging
 
 import pyqtgraph as pg
+from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 from pyqtgraph.Qt import QtGui, QtCore
 
 import enotools
-from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 
 
 class Graph:
@@ -17,10 +17,10 @@ class Graph:
         self.update_speed_ms = 50
         self.window_size = 10
         self.num_points = self.window_size * self.sampling_rate
-        self.plot_names = ['Quality A2','Quality A1','Quality C4','Quality C3']
+        self.plot_names = ['Quality A2', 'Quality A1', 'Quality C4', 'Quality C3']
         self.mains = None
         self.app = QtGui.QApplication([])
-        self.win = pg.GraphicsWindow(title='Enophone Live Streaming',size=(800, 600))
+        self.win = pg.GraphicsWindow(title='Enophone Live Streaming', size=(800, 600))
         self._init_timeseries()
 
         timer = QtCore.QTimer()
@@ -28,14 +28,13 @@ class Graph:
         timer.start(self.update_speed_ms)
         QtGui.QApplication.instance().exec_()
 
-
     def _init_timeseries(self):
         self.plots = list()
         self.curves = list()
         self.legends = list()
 
         for i in range(len(self.exg_channels)):
-            p = self.win.addPlot(row=i,col=0)
+            p = self.win.addPlot(row=i, col=0)
             legend = p.addLegend(brush='k')
             p.showAxis('left', False)
             p.setMenuEnabled('left', False)
@@ -53,12 +52,12 @@ class Graph:
 
         data = self.board_shim.get_current_board_data(self.num_points)
 
-        if data.shape[1] > 3*self.sampling_rate:
+        if data.shape[1] > 3 * self.sampling_rate:
             if self.mains is None:
                 self.mains = enotools.detect_mains(data)
             quality = enotools.quality(data)
             data = enotools.referencing(data, mode='mastoid')
-            data = enotools.signal_filtering(data,filter_cut=250,bandpass_range=[3,40],bandstop_range=self.mains)
+            data = enotools.signal_filtering(data, filter_cut=250, bandpass_range=[3, 40], bandstop_range=self.mains)
 
             for count, channel in enumerate(self.exg_channels):
                 name = self.plot_names[count] + ': ' + str(quality[count])

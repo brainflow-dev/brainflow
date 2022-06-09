@@ -44,8 +44,18 @@ pub use ffi::constants::IpProtocolTypes;
 pub use ffi::constants::LogLevels;
 /// Enum to store all supported Noise Types.
 pub use ffi::constants::NoiseTypes;
-/// Enum to store all supported Window Functions.
+/// Enum to store all supported Window Operations.
 pub use ffi::constants::WindowOperations;
+/// Enum to store all supported Wavelet Denoising Types.
+pub use ffi::constants::WaveletDenoisingTypes;
+/// Enum to store all supported Wavelet Threshold Types.
+pub use ffi::constants::ThresholdTypes;
+/// Enum to store all supported Wavelet Extension Types.
+pub use ffi::constants::WaveletExtensionTypes;
+/// Enum to store all supported Noise Estimation Levels.
+pub use ffi::constants::NoiseEstimationLevelTypes;
+/// Enum to store all supported Wavelet Types.
+pub use ffi::constants::WaveletTypes;
 
 type BrainFlowExitCode = i32;
 

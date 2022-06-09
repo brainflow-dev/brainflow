@@ -54,7 +54,7 @@ int main (int argc, char *argv[])
             // decomposition level, A - app coeffs, D - detailed coeffs, and array which stores
             // length for each block, len of this array is decomposition_length + 1
             std::pair<double *, int *> wavelet_output = DataFilter::perform_wavelet_transform (
-                data.get_address (eeg_channels[i]), data_count, "db4", 4);
+                data.get_address (eeg_channels[i]), data_count, (int)WaveletTypes::DB3, 3);
             // you can do smth with wavelet coeffs here, for example denoising works via thresholds
             // for wavelet coefficients
             std::cout << "approximation coefficients:" << std::endl;
@@ -72,7 +72,7 @@ int main (int argc, char *argv[])
             std::cout << std::endl;
 
             double *restored_data = DataFilter::perform_inverse_wavelet_transform (
-                wavelet_output, data_count, "db4", 4);
+                wavelet_output, data_count, (int)WaveletTypes::DB3, 3);
 
             std::cout << "Original data:" << std::endl;
             print_one_row (data.get_address (eeg_channels[i]), data_count);

@@ -1,16 +1,15 @@
-import argparse
 import time
-import brainflow
-import numpy as np
 
-import pandas as pd
 import matplotlib
+import numpy as np
+import pandas as pd
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels, BoardIds
-from brainflow.data_filter import DataFilter, AggOperations, WaveletTypes, NoiseEstimationLevelTypes, WaveletExtensionTypes, ThresholdTypes, WaveletDenoisingTypes
+from brainflow.data_filter import DataFilter, AggOperations, WaveletTypes, NoiseEstimationLevelTypes, \
+    WaveletExtensionTypes, ThresholdTypes, WaveletDenoisingTypes
 
 
 def main():
@@ -45,7 +44,8 @@ def main():
         # if methods above dont work for your signal you can try wavelet based denoising
         # feel free to try different parameters
         else:
-            DataFilter.perform_wavelet_denoising(data[channel], WaveletTypes.BIOR3_9, 3, WaveletDenoisingTypes.SURESHRINK, ThresholdTypes.HARD,
+            DataFilter.perform_wavelet_denoising(data[channel], WaveletTypes.BIOR3_9, 3,
+                                                 WaveletDenoisingTypes.SURESHRINK, ThresholdTypes.HARD,
                                                  WaveletExtensionTypes.SYMMETRIC, NoiseEstimationLevelTypes.FIRST_LEVEL)
 
     df = pd.DataFrame(np.transpose(data))
