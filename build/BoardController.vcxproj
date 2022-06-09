@@ -96,7 +96,8 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <SuppressStartupBanner></SuppressStartupBanner>
+      <SuppressStartupBanner>
+      </SuppressStartupBanner>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NOMINMAX;BRAINFLOW_VERSION=0.0.1;_CRT_SECURE_NO_WARNINGS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR="Debug";BoardController_EXPORTS</PreprocessorDefinitions>
@@ -115,7 +116,8 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <PostBuildEvent>
-      <Message></Message>
+      <Message>
+      </Message>
       <Command>setlocal
 C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\bin\cmake.exe -E copy_if_different D:/Git_Codes/BrainAlive_BrainFlow/brainflow/compiled/Debug/BoardController.dll D:/Git_Codes/BrainAlive_BrainFlow/brainflow/python-package/brainflow/lib/BoardController.dll
 if %errorlevel% neq 0 goto :cmEnd
@@ -174,7 +176,8 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <SuppressStartupBanner></SuppressStartupBanner>
+      <SuppressStartupBanner>
+      </SuppressStartupBanner>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;NOMINMAX;BRAINFLOW_VERSION=0.0.1;_CRT_SECURE_NO_WARNINGS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR="Release";BoardController_EXPORTS</PreprocessorDefinitions>
@@ -195,7 +198,8 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <PostBuildEvent>
-      <Message></Message>
+      <Message>
+      </Message>
       <Command>setlocal
 C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\bin\cmake.exe -E copy_if_different D:/Git_Codes/BrainAlive_BrainFlow/brainflow/compiled/Release/BoardController.dll D:/Git_Codes/BrainAlive_BrainFlow/brainflow/python-package/brainflow/lib/BoardController.dll
 if %errorlevel% neq 0 goto :cmEnd
@@ -254,7 +258,8 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <SuppressStartupBanner></SuppressStartupBanner>
+      <SuppressStartupBanner>
+      </SuppressStartupBanner>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;NOMINMAX;BRAINFLOW_VERSION=0.0.1;_CRT_SECURE_NO_WARNINGS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR="MinSizeRel";BoardController_EXPORTS</PreprocessorDefinitions>
@@ -275,7 +280,8 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <PostBuildEvent>
-      <Message></Message>
+      <Message>
+      </Message>
       <Command>setlocal
 C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\bin\cmake.exe -E copy_if_different D:/Git_Codes/BrainAlive_BrainFlow/brainflow/compiled/MinSizeRel/BoardController.dll D:/Git_Codes/BrainAlive_BrainFlow/brainflow/python-package/brainflow/lib/BoardController.dll
 if %errorlevel% neq 0 goto :cmEnd
@@ -335,7 +341,8 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <SuppressStartupBanner></SuppressStartupBanner>
+      <SuppressStartupBanner>
+      </SuppressStartupBanner>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;NOMINMAX;BRAINFLOW_VERSION=0.0.1;_CRT_SECURE_NO_WARNINGS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR="RelWithDebInfo";BoardController_EXPORTS</PreprocessorDefinitions>
@@ -354,7 +361,8 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <PostBuildEvent>
-      <Message></Message>
+      <Message>
+      </Message>
       <Command>setlocal
 C:\Users\sarth\AppData\Local\Programs\Python\Python310\Lib\site-packages\cmake\data\bin\cmake.exe -E copy_if_different D:/Git_Codes/BrainAlive_BrainFlow/brainflow/compiled/RelWithDebInfo/BoardController.dll D:/Git_Codes/BrainAlive_BrainFlow/brainflow/python-package/brainflow/lib/BoardController.dll
 if %errorlevel% neq 0 goto :cmEnd
