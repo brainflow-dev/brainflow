@@ -123,7 +123,7 @@ jobs:
         cd $GITHUB_WORKSPACE/emulator
         sudo -H python3 -m pip install -U .
     - name: Install Python test Dependencies
-      run: sudo -H python3 -m pip install -r $GITHUB_WORKSPACE/tests/python/requirements.txt
+      run: sudo -H python3 -m pip install -r $GITHUB_WORKSPACE/python-package/examples/tests/requirements.txt
 
     # start testing
     - name: Run unit tests
@@ -133,19 +133,19 @@ jobs:
         export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/installed/lib:$LD_LIBRARY_PATH
         julia --project=$GITHUB_WORKSPACE/julia-package/brainflow -e "import Pkg; Pkg.test()"
     - name: Cyton Python
-      run: sudo -H python3 ./emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --board-id 0 --serial-port 
+      run: sudo -H python3 ./emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/python-package/examples/tests/brainflow_get_data.py --board-id 0 --serial-port 
     - name: Cyton Python Commands
-      run: sudo -H python3 ./emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/cyton_commands.py --serial-port 
+      run: sudo -H python3 ./emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/python-package/examples/tests/cyton_commands.py --serial-port 
     - name: Cyton Python Markers
-      run: sudo -H python3 ./emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/markers.py --board-id 0 --serial-port 
+      run: sudo -H python3 ./emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/python-package/examples/tests/markers.py --board-id 0 --serial-port 
     - name: Multiboard Python
-      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_multiboard_get_data.py --board-id 0 --serial-port
+      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/python-package/examples/tests/brainflow_multiboard_get_data.py --board-id 0 --serial-port
     - name: Cyton Cpp
       run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py $GITHUB_WORKSPACE/cpp-package/examples/get_data/build/brainflow_get_data --board-id 0 --serial-port
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Synthetic Python
-      run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --board-id -1 --streamer-params file://$GITHUB_WORKSPACE/test.csv:w
+      run: sudo -H python3 $GITHUB_WORKSPACE/python-package/examples/tests/brainflow_get_data.py --board-id -1 --streamer-params file://$GITHUB_WORKSPACE/test.csv:w
     - name: Synthetic Cpp
       run: $GITHUB_WORKSPACE/cpp-package/examples/get_data/build/brainflow_get_data --board-id -1
       env:
@@ -163,9 +163,9 @@ jobs:
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Cyton Daisy Python
-      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --board-id 2 --serial-port 
+      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/python-package/examples/tests/brainflow_get_data.py --board-id 2 --serial-port 
     - name: Cyton Daisy Python Markers
-      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/markers.py --board-id 2 --serial-port 
+      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/python-package/examples/tests/markers.py --board-id 2 --serial-port 
     - name: Galea Cpp
       run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/galea_udp.py $GITHUB_WORKSPACE/cpp-package/examples/get_data/build/brainflow_get_data --board-id 3 --ip-address 127.0.0.1
       env:
@@ -175,33 +175,33 @@ jobs:
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Streaming Python
-      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/streaming_board_emulator.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
+      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/streaming_board_emulator.py python3 $GITHUB_WORKSPACE/python-package/examples/tests/brainflow_get_data.py --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
     - name: Streaming Python Markers
-      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/streaming_board_emulator.py python3 $GITHUB_WORKSPACE/tests/python/markers.py --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
+      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/streaming_board_emulator.py python3 $GITHUB_WORKSPACE/python-package/examples/tests/markers.py --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
     - name: Denoising Python
-      run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/denoising.py
+      run: sudo -H python3 $GITHUB_WORKSPACE/python-package/examples/tests/denoising.py
     - name: Serialization Python
       run: |
         cd $GITHUB_WORKSPACE
-        sudo -H python3 $GITHUB_WORKSPACE/tests/python/serialization.py
+        sudo -H python3 $GITHUB_WORKSPACE/python-package/examples/tests/serialization.py
     - name: Python Release All
-      run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/release_all.py
+      run: sudo -H python3 $GITHUB_WORKSPACE/python-package/examples/tests/release_all.py
     - name: Filters Python
-      run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/signal_filtering.py
+      run: sudo -H python3 $GITHUB_WORKSPACE/python-package/examples/tests/signal_filtering.py
     - name: Transforms Python
-      run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/transforms.py
+      run: sudo -H python3 $GITHUB_WORKSPACE/python-package/examples/tests/transforms.py
     - name: Downsampling Python
-      run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/downsampling.py
+      run: sudo -H python3 $GITHUB_WORKSPACE/python-package/examples/tests/downsampling.py
     - name: CSP Python
-      run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/csp.py
+      run: sudo -H python3 $GITHUB_WORKSPACE/python-package/examples/tests/csp.py
     - name: Windowing Python
-      run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/windowing.py
+      run: sudo -H python3 $GITHUB_WORKSPACE/python-package/examples/tests/windowing.py
     - name: MNE Python
-      run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/brainflow_to_mne.py
+      run: sudo -H python3 $GITHUB_WORKSPACE/python-package/examples/tests/brainflow_to_mne.py
     - name: BandPower Python
-      run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/band_power.py
+      run: sudo -H python3 $GITHUB_WORKSPACE/python-package/examples/tests/band_power.py
     - name: BandPowerAll Python
-      run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/band_power_all.py
+      run: sudo -H python3 $GITHUB_WORKSPACE/python-package/examples/tests/band_power_all.py
     - name: Denoising Cpp
       run: $GITHUB_WORKSPACE/cpp-package/examples/signal_processing/build/denoising
       env:
@@ -273,9 +273,9 @@ jobs:
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: EEG Metrics Python
-      run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/eeg_metrics.py --board-id -1
+      run: sudo -H python3 $GITHUB_WORKSPACE/python-package/examples/tests/eeg_metrics.py --board-id -1
     - name: EEG Metrics Custom Python
-      run: sudo -H python3 $GITHUB_WORKSPACE/tests/python/eeg_metrics_ci.py --board-id -1 --classifier 2 --metric 2 --model-file $GITHUB_WORKSPACE/src/ml/train/logreg_mindfulness.onnx
+      run: sudo -H python3 $GITHUB_WORKSPACE/python-package/examples/tests/eeg_metrics_ci.py --board-id -1 --classifier 2 --metric 2 --model-file $GITHUB_WORKSPACE/src/ml/train/logreg_mindfulness.onnx
     - name: EEG Metrics Cpp
       run: $GITHUB_WORKSPACE/cpp-package/examples/ml/build/eeg_metrics --board-id -1
       env:
