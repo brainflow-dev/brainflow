@@ -22,19 +22,19 @@ jobs:
         docker run -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE alpine /bin/sh -c "apk add make gcc g++ cmake py3-pip && cd $GITHUB_WORKSPACE && mkdir build_docker && cd build_docker && cmake -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release .. && make && make install"
     - name: Build Get Data Test
       run: |
-        docker run -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE alpine /bin/sh -c "apk add make gcc g++ cmake py3-pip && cd $GITHUB_WORKSPACE/tests/cpp/demos/get_data_demo && mkdir build && cd build && cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed .. && make -j"
+        docker run -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE alpine /bin/sh -c "apk add make gcc g++ cmake py3-pip && cd $GITHUB_WORKSPACE/cpp-package/examples/get_data && mkdir build && cd build && cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed .. && make -j"
     - name: Run WIFI Shield Test
       run: |
-        docker run -e LD_LIBRARY_PATH=$LD_LIBRARY_PATH -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE alpine /bin/sh -c "apk add make gcc g++ cmake py3-pip && cd $GITHUB_WORKSPACE/emulator && python3 -m pip install . && python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/wifi_shield_emulator.py $GITHUB_WORKSPACE/tests/cpp/demos/get_data_demo/build/brainflow_get_data --board-id 4 --ip-address 127.0.0.1 --ip-port 17982"
+        docker run -e LD_LIBRARY_PATH=$LD_LIBRARY_PATH -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE alpine /bin/sh -c "apk add make gcc g++ cmake py3-pip && cd $GITHUB_WORKSPACE/emulator && python3 -m pip install . && python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/wifi_shield_emulator.py $GITHUB_WORKSPACE/cpp-package/examples/get_data/build/brainflow_get_data --board-id 4 --ip-address 127.0.0.1 --ip-port 17982"
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Run WIFI Shield Test
       run: |
-        docker run -e LD_LIBRARY_PATH=$LD_LIBRARY_PATH -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE alpine /bin/sh -c "apk add make gcc g++ cmake py3-pip && cd $GITHUB_WORKSPACE/emulator && python3 -m pip install . && python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/wifi_shield_emulator.py $GITHUB_WORKSPACE/tests/cpp/demos/get_data_demo/build/brainflow_get_data --board-id 5 --ip-address 127.0.0.1 --ip-port 17983"
+        docker run -e LD_LIBRARY_PATH=$LD_LIBRARY_PATH -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE alpine /bin/sh -c "apk add make gcc g++ cmake py3-pip && cd $GITHUB_WORKSPACE/emulator && python3 -m pip install . && python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/wifi_shield_emulator.py $GITHUB_WORKSPACE/cpp-package/examples/get_data/build/brainflow_get_data --board-id 5 --ip-address 127.0.0.1 --ip-port 17983"
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Run WIFI Shield Test Markers
       run: |
-        docker run -e LD_LIBRARY_PATH=$LD_LIBRARY_PATH -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE alpine /bin/sh -c "apk add make gcc g++ cmake py3-pip && cd $GITHUB_WORKSPACE/emulator && python3 -m pip install . && python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/wifi_shield_emulator.py $GITHUB_WORKSPACE/tests/cpp/demos/get_data_demo/build/markers --board-id 6 --ip-address 127.0.0.1 --ip-port 17984"
+        docker run -e LD_LIBRARY_PATH=$LD_LIBRARY_PATH -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE alpine /bin/sh -c "apk add make gcc g++ cmake py3-pip && cd $GITHUB_WORKSPACE/emulator && python3 -m pip install . && python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/wifi_shield_emulator.py $GITHUB_WORKSPACE/cpp-package/examples/get_data/build/markers --board-id 6 --ip-address 127.0.0.1 --ip-port 17984"
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib

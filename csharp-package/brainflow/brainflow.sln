@@ -5,29 +5,29 @@ VisualStudioVersion = 16.0.31515.178
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "brainflow", "brainflow\brainflow.csproj", "{19D4357F-B416-40D3-99CD-2FCAF56529F6}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{FF155433-168F-4A55-BA98-DFD197A98185}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{FF155433-168F-4A55-BA98-DFD197A98185}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "band_power", "tests\band_power\band_power.csproj", "{5171230B-C470-4542-8BA1-DEDDE754E2D9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "band_power", "examples\band_power\band_power.csproj", "{5171230B-C470-4542-8BA1-DEDDE754E2D9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "band_power_all", "tests\band_power_all\band_power_all.csproj", "{49BE97BC-D00C-4DAF-86F6-39B18B3B954C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "band_power_all", "examples\band_power_all\band_power_all.csproj", "{49BE97BC-D00C-4DAF-86F6-39B18B3B954C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "brainflow_get_data", "tests\brainflow_get_data\brainflow_get_data.csproj", "{330E2FB8-FF1F-4B60-877A-0BF98AA12848}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "brainflow_get_data", "examples\brainflow_get_data\brainflow_get_data.csproj", "{330E2FB8-FF1F-4B60-877A-0BF98AA12848}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "denoising", "tests\denoising\denoising.csproj", "{971AB6C4-4C98-40AE-82B4-256173BC1B1E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "denoising", "examples\denoising\denoising.csproj", "{971AB6C4-4C98-40AE-82B4-256173BC1B1E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "downsampling", "tests\downsampling\downsampling.csproj", "{2DB573F8-53DE-46B4-8035-421CDA96F9AC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "downsampling", "examples\downsampling\downsampling.csproj", "{2DB573F8-53DE-46B4-8035-421CDA96F9AC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eeg_metrics", "tests\eeg_metrics\eeg_metrics.csproj", "{5BC6B59F-E41D-4B6F-9718-81553405F846}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eeg_metrics", "examples\eeg_metrics\eeg_metrics.csproj", "{5BC6B59F-E41D-4B6F-9718-81553405F846}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eeg_metrics_ci", "tests\eeg_metrics_ci\eeg_metrics_ci.csproj", "{AE26BA17-F5FD-49EA-98F3-FAF23DB8EE3A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eeg_metrics_ci", "examples\eeg_metrics_ci\eeg_metrics_ci.csproj", "{AE26BA17-F5FD-49EA-98F3-FAF23DB8EE3A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "markers", "tests\markers\markers.csproj", "{51A28D43-97FD-4F78-BFF3-988ABC6B6407}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "markers", "examples\markers\markers.csproj", "{51A28D43-97FD-4F78-BFF3-988ABC6B6407}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "serialization", "tests\serialization\serialization.csproj", "{CEEE900B-DB7A-4FDE-A9E3-D792FA267AF1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "serialization", "examples\serialization\serialization.csproj", "{CEEE900B-DB7A-4FDE-A9E3-D792FA267AF1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "signal_filtering", "tests\signal_filtering\signal_filtering.csproj", "{0EEFF5CE-0159-4EF4-A4F7-83820836A4CE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "signal_filtering", "examples\signal_filtering\signal_filtering.csproj", "{0EEFF5CE-0159-4EF4-A4F7-83820836A4CE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "transforms", "tests\transforms\transforms.csproj", "{3D7AE55C-F349-4C86-92CB-065C55CD37D9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "transforms", "examples\transforms\transforms.csproj", "{3D7AE55C-F349-4C86-92CB-065C55CD37D9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{440DC7F7-6B87-48E2-AB07-B6777C38BC34}"
 	ProjectSection(SolutionItems) = preProject

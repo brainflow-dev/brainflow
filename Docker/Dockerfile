@@ -17,7 +17,7 @@ echo debconf apt-fast/dlflag boolean true | debconf-set-selections && \
 echo debconf apt-fast/aptmanager string apt-get | debconf-set-selections && \
 apt-fast -yqq upgrade
 # Installing Dependencies
-RUN apt-fast -yqq install python3 python3-pip python3-venv openjdk-13-jdk git curl wget build-essential cmake python3-jira r-base nuget nuget mono-devel mono-complete monodevelop libxml2-dev libbluetooth-dev libdbus-1-dev
+RUN apt-fast -yqq install python3 python3-pip python3-venv openjdk-13-jdk git curl wget build-essential cmake python3-jira r-base rustc cargo nuget nuget mono-devel mono-complete monodevelop libxml2-dev libbluetooth-dev libdbus-1-dev
 RUN mkdir -p /root/local/bin
 
 WORKDIR /root/local/bin
@@ -68,5 +68,9 @@ WORKDIR /root/brainflow/r-package/brainflow
 RUN R --vanilla -e 'install.packages("knitr", repos="http://cran.us.r-project.org")'
 RUN R --vanilla -e 'install.packages("reticulate", repos="http://cran.us.r-project.org")'
 RUN R CMD build .
+
+# Rust Binding
+WORKDIR /root/brainflow/rust-package/brainflow
+RUN cargo build
 
 WORKDIR /root/brainflow
