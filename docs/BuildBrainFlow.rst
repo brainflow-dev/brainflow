@@ -66,7 +66,7 @@ You are able to install the latest release from `Nuget <https://www.nuget.org/pa
         xbuild csharp-package/brainflow/brainflow.sln
         # run tests
         export LD_LIBRARY_PATH=/home/andreyparfenov/brainflow/installed_linux/lib/
-        mono csharp-package/brainflow/denoising/bin/Debug/test.exe
+        mono csharp-package/brainflow/examples/denoising/bin/Debug/denoising.exe
 
 R
 -----
