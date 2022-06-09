@@ -77,6 +77,12 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/emulator
         sudo -H python3 -m pip install -U .
+    - name: Install Python test Dependencies
+      run: sudo -H python3 -m pip install -r $GITHUB_WORKSPACE/python/examples/tests/requirements.txt
+    - name: Setup Python Package
+      run: |
+        cd $GITHUB_WORKSPACE/python-package
+        sudo -H python3 -m pip install -U .
 
     # start testing
     - name: Cyton Cpp
