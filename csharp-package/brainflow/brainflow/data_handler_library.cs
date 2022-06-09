@@ -619,7 +619,7 @@ namespace brainflow
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int perform_inverse_wavelet_transform (double[] wavelet_coeffs, int original_data_len, int wavelet, int decomposition_level, int extension
+        public static int perform_inverse_wavelet_transform (double[] wavelet_coeffs, int original_data_len, int wavelet, int decomposition_level, int extension,
                                                                     int[] decomposition_lengths, double[] output_data)
         {
             switch (PlatformHelper.get_library_environment ())
