@@ -27,12 +27,12 @@ elseif (UNIX AND NOT ANDROID)
 endif (APPLE)
 
 if (NOT ANDROID)
-    file (COPY ${ONNXRUNTIME_PATH} DESTINATION ${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/)
-    file (COPY ${ONNXRUNTIME_PATH} DESTINATION ${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/)
-    file (COPY ${ONNXRUNTIME_PATH} DESTINATION ${CMAKE_HOME_DIRECTORY}/julia-package/brainflow/lib/)
-    file (COPY ${ONNXRUNTIME_PATH} DESTINATION ${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/)
-    file (COPY ${ONNXRUNTIME_PATH} DESTINATION ${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/)
-    file (COPY ${ONNXRUNTIME_PATH} DESTINATION ${CMAKE_HOME_DIRECTORY}/rust-package/brainflow/lib/)
+    file (COPY ${ONNXRUNTIME_PATH} DESTINATION ${CMAKE_HOME_DIRECTORY}/csharp_package/brainflow/brainflow/lib/)
+    file (COPY ${ONNXRUNTIME_PATH} DESTINATION ${CMAKE_HOME_DIRECTORY}/python_package/brainflow/lib/)
+    file (COPY ${ONNXRUNTIME_PATH} DESTINATION ${CMAKE_HOME_DIRECTORY}/julia_package/brainflow/lib/)
+    file (COPY ${ONNXRUNTIME_PATH} DESTINATION ${CMAKE_HOME_DIRECTORY}/java_package/brainflow/src/main/resources/)
+    file (COPY ${ONNXRUNTIME_PATH} DESTINATION ${CMAKE_HOME_DIRECTORY}/matlab_package/brainflow/lib/)
+    file (COPY ${ONNXRUNTIME_PATH} DESTINATION ${CMAKE_HOME_DIRECTORY}/rust_package/brainflow/lib/)
 endif (NOT ANDROID)
 
 install (

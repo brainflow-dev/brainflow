@@ -351,19 +351,19 @@ docs/_build/*
 docs/Doxyfile*
 
 # Build files
-java-package/brainflow/target
-java-package/brainflow/.classpath
-java-package/brainflow/.project
-csharp-package/brainflow/brainflow/lib*
-java-package/brainflow/.settings/org.eclipse.jdt.apt.core.prefs
-java-package/brainflow/.settings/org.eclipse.jdt.core.prefs
-java-package/brainflow/.settings/org.eclipse.m2e.core.prefs
-java-package/brainflow/src/main/resources/
-matlab-package/brainflow/inc/
-matlab-package/brainflow/lib/
-python-package/brainflow/lib/
-rust-package/brainflow/lib/
-rust-package/brainflow/inc/
+java_package/brainflow/target
+java_package/brainflow/.classpath
+java_package/brainflow/.project
+csharp_package/brainflow/brainflow/lib*
+java_package/brainflow/.settings/org.eclipse.jdt.apt.core.prefs
+java_package/brainflow/.settings/org.eclipse.jdt.core.prefs
+java_package/brainflow/.settings/org.eclipse.m2e.core.prefs
+java_package/brainflow/src/main/resources/
+matlab_package/brainflow/inc/
+matlab_package/brainflow/lib/
+python_package/brainflow/lib/
+rust_package/brainflow/lib/
+rust_package/brainflow/inc/
 src/ml/train/data/
 src/ml/train/data/*.onnx
 

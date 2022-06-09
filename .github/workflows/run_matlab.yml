@@ -26,16 +26,16 @@ jobs:
       - name: Run Signal Processing Test
         uses: matlab-actions/run-command@v1
         with:
-          command: addpath('matlab-package/brainflow'),addpath('matlab-package/brainflow/examples'),addpath('matlab-package/brainflow/inc'),addpath('matlab-package/brainflow/lib'),SignalFiltering
+          command: addpath('matlab_package/brainflow'),addpath('matlab_package/brainflow/examples'),addpath('matlab_package/brainflow/inc'),addpath('matlab_package/brainflow/lib'),SignalFiltering
       - name: Run Transforms Test
         uses: matlab-actions/run-command@v1
         with:
-          command: addpath('matlab-package/brainflow'),addpath('matlab-package/brainflow/examples'),addpath('matlab-package/brainflow/inc'),addpath('matlab-package/brainflow/lib'),Transforms
+          command: addpath('matlab_package/brainflow'),addpath('matlab_package/brainflow/examples'),addpath('matlab_package/brainflow/inc'),addpath('matlab_package/brainflow/lib'),Transforms
       - name: Run EEG Mertrics Test
         uses: matlab-actions/run-command@v1
         with:
-          command: addpath('matlab-package/brainflow'),addpath('matlab-package/brainflow/examples'),addpath('matlab-package/brainflow/inc'),addpath('matlab-package/brainflow/lib'),EEGMetrics
+          command: addpath('matlab_package/brainflow'),addpath('matlab_package/brainflow/examples'),addpath('matlab_package/brainflow/inc'),addpath('matlab_package/brainflow/lib'),EEGMetrics
       - name: Run CSP Test
         uses: matlab-actions/run-command@v1
         with:
-          command: addpath('matlab-package/brainflow'),addpath('matlab-package/brainflow/examples'),addpath('matlab-package/brainflow/inc'),addpath('matlab-package/brainflow/lib'),CSP
+          command: addpath('matlab_package/brainflow'),addpath('matlab_package/brainflow/examples'),addpath('matlab_package/brainflow/inc'),addpath('matlab_package/brainflow/lib'),CSP

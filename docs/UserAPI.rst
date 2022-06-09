@@ -119,7 +119,7 @@ Check R samples to see how to use it.
 
 Full code for R binding:
 
-.. literalinclude:: ../r-package/brainflow/R/package.R
+.. literalinclude:: ../r_package/brainflow/R/package.R
    :language: r
 
 Matlab API Reference
@@ -147,7 +147,7 @@ Since Julia is not Object-Oriented language, there is no DataFilter class. Board
 
 Example:
 
-.. literalinclude:: ../julia-package/brainflow/test/serialization.jl
+.. literalinclude:: ../julia_package/brainflow/test/serialization.jl
    :language: julia
 
 Rust API Reference
@@ -157,5 +157,5 @@ Rust binding calls C/C++ code as any other binding. Use Rust examples and API re
 
 Example:
 
-.. literalinclude:: ../rust-package/brainflow/examples/get_data.rs
+.. literalinclude:: ../rust_package/brainflow/examples/get_data.rs
    :language: rust

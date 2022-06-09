@@ -46,31 +46,31 @@ ENV LD_LIBRARY_PATH=/root/brainflow/installed_linux/lib/
 # Python Binding
 WORKDIR /root/brainflow
 RUN python3 -m pip install --user virtualenv
-WORKDIR /root/brainflow/python-package
+WORKDIR /root/brainflow/python_package
 RUN python3 -m pip install -U .
 
 WORKDIR /root/brainflow/
 # C# Binding
-RUN nuget restore csharp-package/brainflow/brainflow.sln
-RUN xbuild csharp-package/brainflow/brainflow.sln
+RUN nuget restore csharp_package/brainflow/brainflow.sln
+RUN xbuild csharp_package/brainflow/brainflow.sln
 
 # Java Binding
-WORKDIR /root/brainflow/java-package/brainflow
+WORKDIR /root/brainflow/java_package/brainflow
 RUN /root/local/bin/maven/apache-maven-3.6.3/bin/mvn package
 
 # Julia Bindings
-WORKDIR /root/brainflow/julia-package/brainflow
+WORKDIR /root/brainflow/julia_package/brainflow
 RUN /root/local/bin/julia/julia-1.5.3/bin/julia -e "import Pkg; Pkg.instantiate()"
 RUN /root/local/bin/julia/julia-1.5.3/bin/julia -e "import Pkg; Pkg.activate()"
 
 # R Binding
-WORKDIR /root/brainflow/r-package/brainflow
+WORKDIR /root/brainflow/r_package/brainflow
 RUN R --vanilla -e 'install.packages("knitr", repos="http://cran.us.r-project.org")'
 RUN R --vanilla -e 'install.packages("reticulate", repos="http://cran.us.r-project.org")'
 RUN R CMD build .
 
 # Rust Binding
-WORKDIR /root/brainflow/rust-package/brainflow
+WORKDIR /root/brainflow/rust_package/brainflow
 RUN cargo build
 
 WORKDIR /root/brainflow

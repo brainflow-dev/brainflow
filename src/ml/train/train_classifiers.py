@@ -5,8 +5,12 @@ import pickle
 import logging
 
 import numpy as np
-from sklearn.linear_model import LogisticRegression
 from sklearn import svm
+from sklearn.linear_model import LogisticRegression
+from sklearn.gaussian_process import GaussianProcessClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import cross_val_score
 
 from brainflow.board_shim import BoardShim
@@ -110,15 +114,11 @@ def print_dataset_info(data):
     logging.info(np.mean(second_class_np, axis=0))
 
 def train_regression_mindfulness(data):
-    model = LogisticRegression(solver='liblinear', max_iter=4000, class_weight='balanced',
-                                penalty='l2', random_state=1)
+    model = LogisticRegression(solver='liblinear', max_iter=4000,
+                                penalty='l2', random_state=2, fit_intercept=True, intercept_scaling=0.2)
     logging.info('#### Logistic Regression ####')
     scores = cross_val_score(model, data[0], data[1], cv=5, scoring='f1_macro', n_jobs=8)
     logging.info('f1 macro %s' % str(scores))
-    scores = cross_val_score(model, data[0], data[1], cv=5, scoring='precision_macro', n_jobs=8)
-    logging.info('precision macro %s' % str(scores))
-    scores = cross_val_score(model, data[0], data[1], cv=5, scoring='recall_macro', n_jobs=8)
-    logging.info('recall macro %s' % str(scores))
     model.fit(data[0], data[1])
     logging.info(model.intercept_)
     logging.info(model.coef_)
@@ -141,8 +141,45 @@ def train_svm_mindfulness(data):
     with open('svm_mindfulness.onnx', 'wb') as f:
         f.write(onx.SerializeToString())
 
+def train_random_forest_mindfulness(data):
+    model = RandomForestClassifier(class_weight='balanced', random_state=1, n_jobs=8, n_estimators=200)
+    logging.info('#### Random Forest ####')
+    scores = cross_val_score(model, data[0], data[1], cv=5, scoring='f1_macro', n_jobs=8)
+    logging.info('f1 macro %s' % str(scores))
+    model.fit(data[0], data[1])
+
+    initial_type = [('mindfulness_input', FloatTensorType([1, 5]))]
+    onx = convert_sklearn(model, initial_types=initial_type, target_opset=7)
+    with open('forest_mindfulness.onnx', 'wb') as f:
+        f.write(onx.SerializeToString())
+
+def train_knn_mindfulness(data):
+    model = KNeighborsClassifier(n_neighbors=10, n_jobs=8)
+    logging.info('#### KNN ####')
+    scores = cross_val_score(model, data[0], data[1], cv=5, scoring='f1_macro', n_jobs=8)
+    logging.info('f1 macro %s' % str(scores))
+    model.fit(data[0], data[1])
+
+    initial_type = [('mindfulness_input', FloatTensorType([1, 5]))]
+    onx = convert_sklearn(model, initial_types=initial_type, target_opset=11)
+    with open('knn_mindfulness.onnx', 'wb') as f:
+        f.write(onx.SerializeToString())
+
+def train_mlp_mindfulness(data):
+    model = MLPClassifier(hidden_layer_sizes=(100, 20),learning_rate='adaptive', max_iter=1000,
+                          random_state=1, verbose=True, activation='logistic', solver='adam')
+    logging.info('#### MLP ####')
+    scores = cross_val_score(model, data[0], data[1], cv=5, scoring='f1_macro', n_jobs=8)
+    logging.info('f1 macro %s' % str(scores))
+    model.fit(data[0], data[1])
+
+    initial_type = [('mindfulness_input', FloatTensorType([1, 5]))]
+    onx = convert_sklearn(model, initial_types=initial_type, target_opset=7)
+    with open('mlp_mindfulness.onnx', 'wb') as f:
+        f.write(onx.SerializeToString())
+
 def main():
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     parser = argparse.ArgumentParser()
     parser.add_argument('--reuse-dataset', action='store_true')
     args = parser.parse_args()
@@ -158,6 +195,9 @@ def main():
     print_dataset_info(data)
     train_regression_mindfulness(data)
     train_svm_mindfulness(data)
+    train_knn_mindfulness(data)
+    train_random_forest_mindfulness(data)
+    train_mlp_mindfulness(data)
 
 
 if __name__ == '__main__':

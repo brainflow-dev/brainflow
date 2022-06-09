@@ -17,8 +17,8 @@ import sys
 import subprocess
 
 sys.path.insert(0, os.path.abspath('.'))
-sys.path.insert(0, os.path.abspath(os.path.join('..', 'python-package')))
-sys.path.insert(0, os.path.abspath(os.path.join('..', 'python-package', 'brainflow')))
+sys.path.insert(0, os.path.abspath(os.path.join('..', 'python_package')))
+sys.path.insert(0, os.path.abspath(os.path.join('..', 'python_package', 'brainflow')))
 
 # -- Project information -----------------------------------------------------
 
@@ -50,7 +50,7 @@ extensions = [
     'sphinxcontrib.matlab'
 ]
 
-matlab_src_dir = os.path.abspath(os.path.join('..', 'matlab-package'))
+matlab_src_dir = os.path.abspath(os.path.join('..', 'matlab_package'))
 
 # Breathe and Doxygen setup
 
@@ -74,19 +74,19 @@ breathe_projects = {}
 
 if read_the_docs_build:
     # cpp binding
-    input_dir = '../cpp-package/src'
+    input_dir = '../cpp_package/src'
     output_dir = 'build-cpp'
     configure_doxyfile(input_dir, output_dir, 'BrainFlowCpp')
     subprocess.call('doxygen', shell=True)
     breathe_projects['BrainFlowCpp'] = output_dir + '/xml'
     # java binding
-    input_dir = '../java-package'
+    input_dir = '../java_package'
     output_dir = 'build-java'
     configure_doxyfile(input_dir, output_dir, 'BrainFlowJava')
     subprocess.call('doxygen', shell=True)
     breathe_projects['BrainFlowJava'] = output_dir + '/xml'
     # c# binding
-    input_dir = '../csharp-package'
+    input_dir = '../csharp_package'
     output_dir = 'build-csharp'
     configure_doxyfile(input_dir, output_dir, 'BrainFlowCsharp')
     subprocess.call('doxygen', shell=True)

@@ -32,11 +32,11 @@ jobs:
         VERSION: ${{ github.event.inputs.version }}
     # run tests, single test per language is ok here
     - name: EEG Metrics Python Test
-      run: python %GITHUB_WORKSPACE%\python-package\examples\tests\eeg_metrics.py --board-id -1
+      run: python %GITHUB_WORKSPACE%\python_package\examples\tests\eeg_metrics.py --board-id -1
       shell: cmd
     - name: Run Julia Tests
       run: |
-        cd %GITHUB_WORKSPACE%\julia-package\brainflow
+        cd %GITHUB_WORKSPACE%\julia_package\brainflow
         julia --project=. -e "import Pkg; Pkg.test()"
       shell: cmd
 
@@ -70,8 +70,8 @@ jobs:
         VERSION: ${{ github.event.inputs.version }}
     # run tests, single test per language is ok here
     - name: EEG Metrics Python
-      run: sudo -H python3 $GITHUB_WORKSPACE/python-package/examples/tests/eeg_metrics.py --board-id -1
+      run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/eeg_metrics.py --board-id -1
     - name: Run All Julia Tests
       run: |
         export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/installed/lib:$LD_LIBRARY_PATH
-        julia --project=$GITHUB_WORKSPACE/julia-package/brainflow -e "import Pkg; Pkg.test()"
+        julia --project=$GITHUB_WORKSPACE/julia_package/brainflow -e "import Pkg; Pkg.test()"
