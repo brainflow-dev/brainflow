@@ -51,7 +51,7 @@ def main():
     df = pd.DataFrame(np.transpose(data))
     plt.figure()
     df[eeg_channels].plot(subplots=True)
-    plt.savefig('after_processing2.png')
+    plt.savefig('after_processing.png')
 
 
 if __name__ == "__main__":
