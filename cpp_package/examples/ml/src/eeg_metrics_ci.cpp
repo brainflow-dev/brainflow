@@ -34,10 +34,12 @@ int main (int argc, char *argv[])
     int res = 0;
 
     BoardShim *board = new BoardShim (board_id, params);
+    int master_board_id = 0;
 
     try
     {
         board->prepare_session ();
+        master_board_id = board->get_board_id ();
         board->start_stream ();
 
 #ifdef _WIN32
@@ -51,8 +53,8 @@ int main (int argc, char *argv[])
         board->release_session ();
         std::cout << data << std::endl;
         // calc band powers
-        int sampling_rate = BoardShim::get_sampling_rate ((int)BoardIds::SYNTHETIC_BOARD);
-        std::vector<int> eeg_channels = BoardShim::get_eeg_channels (board_id);
+        int sampling_rate = BoardShim::get_sampling_rate (master_board_id);
+        std::vector<int> eeg_channels = BoardShim::get_eeg_channels (master_board_id);
         std::pair<double *, double *> bands =
             DataFilter::get_avg_band_powers (data, eeg_channels, sampling_rate, true);
 

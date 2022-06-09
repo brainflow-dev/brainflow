@@ -30,7 +30,7 @@ mutable struct BrainFlowModelParams
     max_array_size::Int32
 
     function BrainFlowModelParams(metric_::MetricType, classifier_::ClassifierType)
-        new(metric_, classifier_, "", "", "probabilities", 8192)
+        new(metric_, classifier_, "", "", "", 8192)
     end
 
 end

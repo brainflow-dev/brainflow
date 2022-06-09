@@ -38,7 +38,7 @@ impl Default for BrainFlowModelParams {
             classifier: BrainFlowClassifiers::DefaultClassifier,
             file: Default::default(),
             other_info: Default::default(),
-            output_name: "probabilities".to_string(),
+            output_name: "".to_string(),
             max_array_size: 8192,
         }
     }

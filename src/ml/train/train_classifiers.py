@@ -5,7 +5,7 @@ import pickle
 import logging
 
 import numpy as np
-from sklearn import svm
+from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.gaussian_process import GaussianProcessClassifier
 from sklearn.ensemble import RandomForestClassifier
@@ -124,20 +124,17 @@ def train_regression_mindfulness(data):
     logging.info(model.coef_)
     
     initial_type = [('mindfulness_input', FloatTensorType([1, 5]))]
-    onx = convert_sklearn(model, initial_types=initial_type, target_opset=7, options={type(model): {'zipmap': False}})
-    with open('logreg_mindfulness.onnx', 'wb') as f:
+    onx = convert_sklearn(model, initial_types=initial_type, target_opset=11, options={type(model): {'zipmap': False}})
+    with open('logres_mindfulness.onnx', 'wb') as f:
         f.write(onx.SerializeToString())
     write_model(model.intercept_, model.coef_, 'mindfulness')
 
 def train_svm_mindfulness(data):
-    model = svm.LinearSVC(dual=False, verbose=1, max_iter=4000, random_state=1, class_weight='balanced')
+    model = SVC(kernel='linear', verbose=True, random_state=1, class_weight='balanced', probability=True)
     logging.info('#### SVM ####')
-    scores = cross_val_score(model, data[0], data[1], cv=5, scoring='f1_macro', n_jobs=8)
-    logging.info('f1 macro %s' % str(scores))
     model.fit(data[0], data[1])
-
     initial_type = [('mindfulness_input', FloatTensorType([1, 5]))]
-    onx = convert_sklearn(model, initial_types=initial_type, target_opset=7)
+    onx = convert_sklearn(model, initial_types=initial_type, target_opset=11, options={type(model): {'zipmap': False}})
     with open('svm_mindfulness.onnx', 'wb') as f:
         f.write(onx.SerializeToString())
 
@@ -149,7 +146,7 @@ def train_random_forest_mindfulness(data):
     model.fit(data[0], data[1])
 
     initial_type = [('mindfulness_input', FloatTensorType([1, 5]))]
-    onx = convert_sklearn(model, initial_types=initial_type, target_opset=7)
+    onx = convert_sklearn(model, initial_types=initial_type, target_opset=11, options={type(model): {'zipmap': False}})
     with open('forest_mindfulness.onnx', 'wb') as f:
         f.write(onx.SerializeToString())
 
@@ -161,7 +158,7 @@ def train_knn_mindfulness(data):
     model.fit(data[0], data[1])
 
     initial_type = [('mindfulness_input', FloatTensorType([1, 5]))]
-    onx = convert_sklearn(model, initial_types=initial_type, target_opset=11)
+    onx = convert_sklearn(model, initial_types=initial_type, target_opset=11, options={type(model): {'zipmap': False}})
     with open('knn_mindfulness.onnx', 'wb') as f:
         f.write(onx.SerializeToString())
 
@@ -174,7 +171,7 @@ def train_mlp_mindfulness(data):
     model.fit(data[0], data[1])
 
     initial_type = [('mindfulness_input', FloatTensorType([1, 5]))]
-    onx = convert_sklearn(model, initial_types=initial_type, target_opset=7)
+    onx = convert_sklearn(model, initial_types=initial_type, target_opset=11, options={type(model): {'zipmap': False}})
     with open('mlp_mindfulness.onnx', 'wb') as f:
         f.write(onx.SerializeToString())
 

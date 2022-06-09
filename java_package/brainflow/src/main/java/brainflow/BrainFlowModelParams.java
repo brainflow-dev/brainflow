@@ -20,7 +20,7 @@ public class BrainFlowModelParams
         this.classifier = classifier;
         this.file = "";
         this.other_info = "";
-        this.output_name = "probabilities";
+        this.output_name = "";
         this.max_array_size = 8192;
     }
 
@@ -30,7 +30,7 @@ public class BrainFlowModelParams
         this.classifier = classifier.get_code ();
         this.file = "";
         this.other_info = "";
-        this.output_name = "probabilities";
+        this.output_name = "";
         this.max_array_size = 8192;
     }
 

@@ -30,7 +30,7 @@ def main():
     parser.add_argument('--classifier', type=int, help='classifier to use', required=True)
     parser.add_argument('--metric', type=int, help='metric to use', required=True)
     parser.add_argument('--model-file', type=str, help='path to onnx file', required=True)
-    parser.add_argument('--output-name', type=str, help='output node name', required=False, default='probabilities')
+    parser.add_argument('--output-name', type=str, help='output node name', required=False, default='')
     args = parser.parse_args()
 
     params = BrainFlowInputParams()
