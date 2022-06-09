@@ -51,5 +51,4 @@ end
     params = BrainFlowModelParams(BrainFlow.RESTFULNESS, BrainFlow.DEFAULT_CLASSIFIER)
     @test params.metric == BrainFlow.RESTFULNESS
     @test params.classifier == BrainFlow.DEFAULT_CLASSIFIER
-    @test params.output_name == "probabilities"
 end
