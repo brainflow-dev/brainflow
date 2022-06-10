@@ -7,10 +7,15 @@
 
 // common constants
 #define BRAINALIVE_MAX_PACKET 7
-#define BRAINALIVE_PACKET_SIZE 32
+#define BA_BLE_OVERHEADS 5
+#define BA_EEG_DATA_SIZE 27
+#define BA_fNIRS_DATA_SIZE 18
+#define BA_AXL_DATA_SIZE 6
+#define BRAINALIVE_PACKET_SIZE BA_EEG_DATA_SIZE + BA_BLE_OVERHEADS
 #define BRAINALIVE_FNIRS_AXL_PACKET_SIZE 24
-#define BRAINALIVE_MAX_PACKET_SIZE BRAINALIVE_PACKET_SIZE * BRAINALIVE_MAX_PACKET
-#define BRAINALIVE_MAX_PACKET_SIZE_INCLUDE_FNIRS BRAINALIVE_MAX_PACKET_SIZE + BRAINALIVE_FNIRS_AXL_PACKET_SIZE
+#define BRAINALIVE_MAX_PACKET_SIZE BRAINALIVE_PACKET_SIZE *BRAINALIVE_MAX_PACKET
+#define BRAINALIVE_MAX_PACKET_SIZE_INCLUDE_FNIRS                                                   \
+    BRAINALIVE_MAX_PACKET_SIZE + BRAINALIVE_FNIRS_AXL_PACKET_SIZE
 
 // info about services and chars
 #define START_BYTE 0x0A
@@ -355,8 +360,11 @@ void BrainAlive::read_data (simpleble_uuid_t service, simpleble_uuid_t character
         {
             int j = 0;
             double BA_Data_Buff[19] = {0};
-            for (int i = 4; i < 28; i += 3)
-                BA_Data_Buff[j++] = (((BA_Temp_Buff[k][i] << 16 | BA_Temp_Buff[k][i + 1] << 8 | BA_Temp_Buff[k][i + 2]) << 8) >> 8) *
+            for (int i = 5; i < 29; i += 3)
+                BA_Data_Buff[j++] = (((BA_Temp_Buff[k][i] << 16 | BA_Temp_Buff[k][i + 1] << 8 |
+                                          BA_Temp_Buff[k][i + 2])
+                                         << 8) >>
+                                        8) *
                     BRAINALIVE_EEG_SCALE_FACTOR / BRAINALIVE_EEG_GAIN_VALUE;
 
             BA_Data_Buff[17] = BA_Temp_Buff[k][29];
@@ -364,13 +372,13 @@ void BrainAlive::read_data (simpleble_uuid_t service, simpleble_uuid_t character
             push_package (&BA_Data_Buff[0]);
         }
     }
-    if (size == BRAINALIVE_MAX_PACKET_SIZE_INCLUDE_FNIRS)
+    else if (size == BRAINALIVE_MAX_PACKET_SIZE_INCLUDE_FNIRS)
     {
-        uint8_t BA_Temp_Buff[BRAINALIVE_MAX_PACKET-1][BRAINALIVE_PACKET_SIZE] = {0};
+        uint8_t BA_Temp_Buff[BRAINALIVE_MAX_PACKET - 1][BRAINALIVE_PACKET_SIZE] = {0};
         uint8_t BA_Temp_Buff_fnirs[BRAINALIVE_PACKET_SIZE + BRAINALIVE_FNIRS_AXL_PACKET_SIZE] = {0};
         double BA_Data_Buff[19] = {0};
 
-        for (int i = 0; i < BRAINALIVE_MAX_PACKET-1; i++)
+        for (int i = 0; i < BRAINALIVE_MAX_PACKET - 1; i++)
         {
             for (int j = i; j < BRAINALIVE_PACKET_SIZE; j++)
             {
@@ -381,133 +389,179 @@ void BrainAlive::read_data (simpleble_uuid_t service, simpleble_uuid_t character
         {
             BA_Temp_Buff_fnirs[j] = data[j + (6 * BRAINALIVE_PACKET_SIZE)];
         }
-        for (int k = 0; k < BRAINALIVE_MAX_PACKET-1; k++)
+
+        for (int k = 0; k < BRAINALIVE_MAX_PACKET - 1; k++)
         {
-             int j = 0;
-         
-            for (int i = 4; i < 28; i += 3)
-                BA_Data_Buff[j++] = (((BA_Temp_Buff[k][i] << 16 | BA_Temp_Buff[k][i + 1] << 8 | BA_Temp_Buff[k][i + 2]) << 8) >> 8) *
+            int j = 0;
+
+            for (int i = 5; i < 29; i += 3)
+                BA_Data_Buff[j++] = (((BA_Temp_Buff[k][i] << 16 | BA_Temp_Buff[k][i + 1] << 8 |
+                                          BA_Temp_Buff[k][i + 2])
+                                         << 8) >>
+                                        8) *
                     BRAINALIVE_EEG_SCALE_FACTOR / BRAINALIVE_EEG_GAIN_VALUE;
             BA_Data_Buff[17] = BA_Temp_Buff[k][29];
             push_package (&BA_Data_Buff[0]);
         }
-            int j = 0;
-
-            for (int i = 4; i < 28; i += 3)
-                BA_Data_Buff[j++] = (((BA_Temp_Buff_fnirs[i] << 16 | BA_Temp_Buff_fnirs[i + 1] << 8 | BA_Temp_Buff_fnirs[i + 2]) << 8) >> 8) *
-                    BRAINALIVE_EEG_SCALE_FACTOR / BRAINALIVE_EEG_GAIN_VALUE;
-            for (int i = 28; i < 46; i += 3)
-                BA_Data_Buff[j++] = (BA_Temp_Buff_fnirs[i] << 16 | BA_Temp_Buff_fnirs[i + 1] << 8 | BA_Temp_Buff_fnirs[i + 2]);
-            for (int i = 46; i < 52; i += 2)
-                BA_Data_Buff[j++] = ((BA_Temp_Buff_fnirs[i] << 8 | BA_Temp_Buff_fnirs[i + 1]) << 16) >> 16;
-
-            BA_Data_Buff[17] = BA_Temp_Buff_fnirs[53];
-
-            push_package (&BA_Data_Buff[0]);
-    }
-    if (size == BRAINALIVE_PACKET_SIZE)
-    {
         int j = 0;
-        double BA_Data_Buff[19] = {0};
-        for (int i = 4; i < 28; i += 3)
-            BA_Data_Buff[j++] = (((data[i] << 16 | data[i + 1] << 8 | data[i + 2]) << 8) >> 8) *
+
+        for (int i = 5; i < 29; i += 3)
+            BA_Data_Buff[j++] = (((BA_Temp_Buff_fnirs[i] << 16 | BA_Temp_Buff_fnirs[i + 1] << 8 |
+                                      BA_Temp_Buff_fnirs[i + 2])
+                                     << 8) >>
+                                    8) *
                 BRAINALIVE_EEG_SCALE_FACTOR / BRAINALIVE_EEG_GAIN_VALUE;
+        for (int i = 29; i < 47; i += 3)
+            BA_Data_Buff[j++] = (BA_Temp_Buff_fnirs[i] << 16 | BA_Temp_Buff_fnirs[i + 1] << 8 |
+                BA_Temp_Buff_fnirs[i + 2]);
+        for (int i = 47; i < 53; i += 2)
+            BA_Data_Buff[j++] =
+                ((BA_Temp_Buff_fnirs[i] << 8 | BA_Temp_Buff_fnirs[i + 1]) << 16) >> 16;
 
-        BA_Data_Buff[17] = data[29];
+        BA_Data_Buff[17] = BA_Temp_Buff_fnirs[53];
 
         push_package (&BA_Data_Buff[0]);
     }
-   /* if ((size != BRAINALIVE_MAX_PACKET_SIZE) &&
-        (size != BRAINALIVE_MAX_PACKET_SIZE_INCLUDE_FNIRS) && (size != BRAINALIVE_PACKET_SIZE) &&
-        (size != BRAINALIVE_MAX_PACKET_SIZE_INCLUDE_FNIRS)) 
+
+
+    else if (size == (BRAINALIVE_MAX_PACKET_SIZE + BA_fNIRS_DATA_SIZE))
     {
-        safe_logger (spdlog::level::warn, "unknown size of BrainAlive Data {}", size);
-        return;
-    }
-    if (size == BRAINALIVE_PACKET_SIZE)
-    {
-        int j = 0;
+        uint8_t BA_Temp_Buff[BRAINALIVE_MAX_PACKET - 1][BRAINALIVE_PACKET_SIZE] = {0};
+        uint8_t BA_Temp_Buff_fnirs[BRAINALIVE_PACKET_SIZE + BA_fNIRS_DATA_SIZE] = {0};
         double BA_Data_Buff[19] = {0};
-            for (int i = 4; i < 28; i += 3)
-            BA_Data_Buff[j++] = (((data[i] << 16 | data[i + 1] << 8 | data[i + 2]) << 8) >> 8) *
-                    BRAINALIVE_EEG_SCALE_FACTOR / BRAINALIVE_EEG_GAIN_VALUE;
 
-        BA_Data_Buff[17] = data[29];
-            
-        push_package (&BA_Data_Buff[0]);
-    }
-    else if (size == BRAINALIVE_MAX_PACKET_SIZE_INCLUDE_FNIRS)
-    {
-        int j = 0;
-        double BA_Data_Buff[19] = {0};
-        for (int i = 4; i < 28; i += 3)
-            BA_Data_Buff[j++] = (((data[i] << 16 | data[i + 1] << 8 | data[i + 2]) << 8) >> 8) *
-                    BRAINALIVE_EEG_SCALE_FACTOR / BRAINALIVE_EEG_GAIN_VALUE;
-        for (int i = 28; i < 46; i += 3)
-            BA_Data_Buff[j++] = (data[i] << 16 | data[i + 1] << 8 | data[i + 2]);
-        for (int i = 46; i < 52; i += 2)
-            BA_Data_Buff[j++] = ((data[i] << 8 | data[i + 1]) << 16) >> 16;
-
-        BA_Data_Buff[17] = data[53];
-
-        push_package (&BA_Data_Buff[0]);
-    }
-    else if (size == BRAINALIVE_MAX_PACKET_SIZE)
-    {
-        uint8_t BA_Temp_Buff[BRAINALIVE_MAX_PACKET][BRAINALIVE_PACKET_SIZE] = {0};
-       
-
-        for (int i = 0; i < BRAINALIVE_MAX_PACKET; i++)
+        for (int i = 0; i < BRAINALIVE_MAX_PACKET - 1; i++)
         {
             for (int j = i; j < BRAINALIVE_PACKET_SIZE; j++)
             {
                 BA_Temp_Buff[i][j] = data[j + (i * BRAINALIVE_PACKET_SIZE)];
             }
         }
-         for (int k = 0; k < BRAINALIVE_MAX_PACKET; k++)
+        for (int j = 0; j < (BRAINALIVE_PACKET_SIZE + BA_fNIRS_DATA_SIZE); j++)
+        {
+            BA_Temp_Buff_fnirs[j] = data[j + (6 * BRAINALIVE_PACKET_SIZE)];
+        }
+
+        for (int k = 0; k < BRAINALIVE_MAX_PACKET - 1; k++)
         {
             int j = 0;
-            double BA_Data_Buff[19] = {0};
-            for (int i = 4; i < 28; i += 3)
-                BA_Data_Buff[j++] = (((BA_Temp_Buff[k][i] << 16 | BA_Temp_Buff[k][i + 1] << 8 | BA_Temp_Buff[k][i + 2]) << 8) >> 8) *
-                    BRAINALIVE_EEG_SCALE_FACTOR / BRAINALIVE_EEG_GAIN_VALUE;
 
+            for (int i = 5; i < 29; i += 3)
+                BA_Data_Buff[j++] = (((BA_Temp_Buff[k][i] << 16 | BA_Temp_Buff[k][i + 1] << 8 |
+                                          BA_Temp_Buff[k][i + 2])
+                                         << 8) >>
+                                        8) *
+                    BRAINALIVE_EEG_SCALE_FACTOR / BRAINALIVE_EEG_GAIN_VALUE;
             BA_Data_Buff[17] = BA_Temp_Buff[k][29];
-            
             push_package (&BA_Data_Buff[0]);
         }
-    }
-    else if (size == BRAINALIVE_MAX_PACKET_SIZE_INCLUDE_FNIRS)
-    {
-        uint8_t BA_Temp_Buff[BRAINALIVE_MAX_PACKET][BRAINALIVE_MAX_PACKET_SIZE_INCLUDE_FNIRS] = {0};
+        int j = 0;
 
-        for (int i = 0; i < BRAINALIVE_MAX_PACKET; i++)
+        for (int i = 5; i < 29; i += 3)
+            BA_Data_Buff[j++] = (((BA_Temp_Buff_fnirs[i] << 16 | BA_Temp_Buff_fnirs[i + 1] << 8 |
+                                      BA_Temp_Buff_fnirs[i + 2])
+                                     << 8) >>
+                                    8) *
+                BRAINALIVE_EEG_SCALE_FACTOR / BRAINALIVE_EEG_GAIN_VALUE;
+        for (int i = 29; i < 47; i += 3)
+            BA_Data_Buff[j++] = (BA_Temp_Buff_fnirs[i] << 16 | BA_Temp_Buff_fnirs[i + 1] << 8 |
+                BA_Temp_Buff_fnirs[i + 2]);
+
+        BA_Data_Buff[17] = BA_Temp_Buff_fnirs[47];
+
+        push_package (&BA_Data_Buff[0]);
+    }
+
+    else if (size == (BRAINALIVE_MAX_PACKET_SIZE + BA_AXL_DATA_SIZE))
+    {
+        uint8_t BA_Temp_Buff[BRAINALIVE_MAX_PACKET - 1][BRAINALIVE_PACKET_SIZE] = {0};
+        uint8_t BA_Temp_Buff_axl[BRAINALIVE_PACKET_SIZE + BA_AXL_DATA_SIZE] = {0};
+        double BA_Data_Buff[19] = {0};
+
+        for (int i = 0; i < BRAINALIVE_MAX_PACKET - 1; i++)
         {
-            for (int j = i; j < BRAINALIVE_MAX_PACKET_SIZE_INCLUDE_FNIRS; j++)
+            for (int j = i; j < BRAINALIVE_PACKET_SIZE; j++)
             {
-                BA_Temp_Buff[i][j] = data[j + (i * BRAINALIVE_MAX_PACKET_SIZE_INCLUDE_FNIRS)];
+                BA_Temp_Buff[i][j] = data[j + (i * BRAINALIVE_PACKET_SIZE)];
             }
         }
-
-        for (int k = 0; k < BRAINALIVE_MAX_PACKET; k++)
+        for (int j = 0; j < (BRAINALIVE_PACKET_SIZE + BA_AXL_DATA_SIZE); j++)
         {
-            int j = 0;
-            double BA_Data_Buff[19] = {0};
-
-            for (int i = 4; i < 28; i += 3)
-                BA_Data_Buff[j++] = (((BA_Temp_Buff[k][i] << 16 | BA_Temp_Buff[k][i + 1] << 8 | BA_Temp_Buff[k][i + 2]) << 8) >> 8) *
-                    BRAINALIVE_EEG_SCALE_FACTOR / BRAINALIVE_EEG_GAIN_VALUE;
-            for (int i = 28; i < 46; i += 3)
-                BA_Data_Buff[j++] = (BA_Temp_Buff[k][i] << 16 | BA_Temp_Buff[k][i + 1] << 8 | BA_Temp_Buff[k][i + 2]);
-            for (int i = 46; i < 52; i += 2)
-                BA_Data_Buff[j++] = ((BA_Temp_Buff[k][i] << 8 | BA_Temp_Buff[k][i + 1]) << 16) >> 16;
-
-            BA_Data_Buff[17] = BA_Temp_Buff[k][53];
-
-            push_package (&BA_Data_Buff[0]);
+            BA_Temp_Buff_axl[j] = data[j + (6 * BRAINALIVE_PACKET_SIZE)];
         }
 
-    }*/
+        for (int k = 0; k < BRAINALIVE_MAX_PACKET - 1; k++)
+        {
+            int j = 0;
 
-   
+            for (int i = 5; i < 29; i += 3)
+                BA_Data_Buff[j++] = (((BA_Temp_Buff[k][i] << 16 | BA_Temp_Buff[k][i + 1] << 8 |
+                                          BA_Temp_Buff[k][i + 2])
+                                         << 8) >>
+                                        8) *
+                    BRAINALIVE_EEG_SCALE_FACTOR / BRAINALIVE_EEG_GAIN_VALUE;
+            BA_Data_Buff[17] = BA_Temp_Buff[k][29];
+            push_package (&BA_Data_Buff[0]);
+        }
+        int j = 0;
+
+        for (int i = 5; i < 29; i += 3)
+            BA_Data_Buff[j++] = (((BA_Temp_Buff_axl[i] << 16 | BA_Temp_Buff_axl[i + 1] << 8 |
+                                      BA_Temp_Buff_axl[i + 2])
+                                     << 8) >>
+                                    8) *
+                BRAINALIVE_EEG_SCALE_FACTOR / BRAINALIVE_EEG_GAIN_VALUE;
+        for (int i = 29; i < 47; i += 3)
+            BA_Data_Buff[j++] = 0; // adding zero padding
+        for (int i = 29; i < 35; i += 2)
+            BA_Data_Buff[j++] = ((BA_Temp_Buff_axl[i] << 8 | BA_Temp_Buff_axl[i + 1]) << 16) >> 16;
+        BA_Data_Buff[17] = BA_Temp_Buff_axl[35];
+
+        push_package (&BA_Data_Buff[0]);
+    }
+
+    else if (size == (BA_fNIRS_DATA_SIZE + BA_AXL_DATA_SIZE + BA_BLE_OVERHEADS))
+    {
+        int j = 0;
+        double BA_Data_Buff[19] = {0};
+        for (int i = 5; i < 29; i += 3)
+            BA_Data_Buff[j++] = 0; // adding zero padding
+        for (int i = 2; i < 20; i += 3)
+            BA_Data_Buff[j++] = (data[i] << 16 | data[i + 1] << 8 | data[i + 2]);
+        for (int i = 20; i < 26; i += 2)
+            BA_Data_Buff[j++] = ((data[i] << 8 | data[i + 1]) << 16) >> 16;
+        BA_Data_Buff[17] = data[26];
+
+        push_package (&BA_Data_Buff[0]);
+    }
+
+    else if (size == (BA_fNIRS_DATA_SIZE + BA_BLE_OVERHEADS))
+    {
+        int j = 0;
+        double BA_Data_Buff[19] = {0};
+        for (int i = 5; i < 29; i += 3)
+            BA_Data_Buff[j++] = 0; // adding zero padding
+        for (int i = 2; i < 20; i += 3)
+            BA_Data_Buff[j++] = (data[i] << 16 | data[i + 1] << 8 | data[i + 2]);
+        for (int i = 20; i < 26; i += 2)
+            BA_Data_Buff[j++] = 0;
+        BA_Data_Buff[17] = data[20];
+
+        push_package (&BA_Data_Buff[0]);
+    }
+
+    else if (size == (BA_AXL_DATA_SIZE + BA_BLE_OVERHEADS))
+    {
+        int j = 0;
+        double BA_Data_Buff[19] = {0};
+        for (int i = 5; i < 29; i += 3)
+            BA_Data_Buff[j++] = 0; // adding zero padding
+        for (int i = 2; i < 20; i += 3)
+            BA_Data_Buff[j++] = 0; // adding zero padding
+        for (int i = 2; i < 8; i += 2)
+            BA_Data_Buff[j++] = ((data[i] << 8 | data[i + 1]) << 16) >> 16;
+        BA_Data_Buff[17] = data[8];
+
+        push_package (&BA_Data_Buff[0]);
+    }
 }
