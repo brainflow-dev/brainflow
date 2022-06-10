@@ -125,7 +125,7 @@ def train_regression_mindfulness(data):
     
     initial_type = [('mindfulness_input', FloatTensorType([1, 5]))]
     onx = convert_sklearn(model, initial_types=initial_type, target_opset=11, options={type(model): {'zipmap': False}})
-    with open('logres_mindfulness.onnx', 'wb') as f:
+    with open('logreg_mindfulness.onnx', 'wb') as f:
         f.write(onx.SerializeToString())
     write_model(model.intercept_, model.coef_, 'mindfulness')
 
