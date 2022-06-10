@@ -1,4 +1,0 @@
-D:/Git_Codes/BrainAlive_BrainFlow/brainflow/build/third_party/SimpleBLE/simpleble-c.dir/MinSizeRel/simpleble.obj
-D:/Git_Codes/BrainAlive_BrainFlow/brainflow/build/third_party/SimpleBLE/simpleble-c.dir/MinSizeRel/adapter.obj
-D:/Git_Codes/BrainAlive_BrainFlow/brainflow/build/third_party/SimpleBLE/simpleble-c.dir/MinSizeRel/peripheral.obj
-D:/Git_Codes/BrainAlive_BrainFlow/brainflow/build/third_party/SimpleBLE/simpleble-c.dir/MinSizeRel/utils.obj
