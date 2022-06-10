@@ -104,18 +104,18 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     - name: Prepare Java Package
       run: |
-        cd $env:GITHUB_WORKSPACE\java-package\brainflow
-        Copy-Item "$env:GITHUB_WORKSPACE\linux\*" -Destination "$env:GITHUB_WORKSPACE\java-package\brainflow\src\main\resources" -Recurse -Force -Filter *.*
-        Copy-Item "$env:GITHUB_WORKSPACE\macos\*" -Destination "$env:GITHUB_WORKSPACE\java-package\brainflow\src\main\resources" -Recurse -Force -Filter *.*
-        Copy-Item "$env:GITHUB_WORKSPACE\win64\*" -Destination "$env:GITHUB_WORKSPACE\java-package\brainflow\src\main\resources" -Recurse -Force -Filter *.*
-        Copy-Item "$env:GITHUB_WORKSPACE\win32\*" -Destination "$env:GITHUB_WORKSPACE\java-package\brainflow\src\main\resources" -Recurse -Force -Filter *.*
-        ls $env:GITHUB_WORKSPACE\java-package\brainflow\src\main\resources
+        cd $env:GITHUB_WORKSPACE\java_package\brainflow
+        Copy-Item "$env:GITHUB_WORKSPACE\linux\*" -Destination "$env:GITHUB_WORKSPACE\java_package\brainflow\src\main\resources" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\macos\*" -Destination "$env:GITHUB_WORKSPACE\java_package\brainflow\src\main\resources" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\win64\*" -Destination "$env:GITHUB_WORKSPACE\java_package\brainflow\src\main\resources" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\win32\*" -Destination "$env:GITHUB_WORKSPACE\java_package\brainflow\src\main\resources" -Recurse -Force -Filter *.*
+        ls $env:GITHUB_WORKSPACE\java_package\brainflow\src\main\resources
         (gc .\pom.xml).replace('0.0.1-SNAPSHOT', $env:VERSION) | Out-File -encoding ASCII pom.xml
         type pom.xml
         (gc .\settings.xml).replace('USER',$env:PUBLISH_USER) | Out-File -encoding ASCII settings.xml
         (gc .\settings.xml).replace('TOKEN',$env:PUBLISH_TOKEN) | Out-File -encoding ASCII settings.xml
         mvn package
-        aws s3 cp $env:GITHUB_WORKSPACE\java-package\brainflow\target\ s3://brainflow/$env:GITHUB_SHA/jars --recursive
+        aws s3 cp $env:GITHUB_WORKSPACE\java_package\brainflow\target\ s3://brainflow/$env:GITHUB_SHA/jars --recursive
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -124,16 +124,16 @@ jobs:
         VERSION: ${{ github.event.inputs.version }}
     - name: Prepare Python Package
       run: |
-        cd $env:GITHUB_WORKSPACE\python-package\
-        Copy-Item "$env:GITHUB_WORKSPACE\linux\*" -Destination "$env:GITHUB_WORKSPACE\python-package\brainflow\lib" -Recurse -Force -Filter *.*
-        Copy-Item "$env:GITHUB_WORKSPACE\macos\*" -Destination "$env:GITHUB_WORKSPACE\python-package\brainflow\lib" -Recurse -Force -Filter *.*
-        Copy-Item "$env:GITHUB_WORKSPACE\win64\*" -Destination "$env:GITHUB_WORKSPACE\python-package\brainflow\lib" -Recurse -Force -Filter *.*
-        Copy-Item "$env:GITHUB_WORKSPACE\win32\*" -Destination "$env:GITHUB_WORKSPACE\python-package\brainflow\lib" -Recurse -Force -Filter *.*
-        ls $env:GITHUB_WORKSPACE\python-package\brainflow\lib
+        cd $env:GITHUB_WORKSPACE\python_package\
+        Copy-Item "$env:GITHUB_WORKSPACE\linux\*" -Destination "$env:GITHUB_WORKSPACE\python_package\brainflow\lib" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\macos\*" -Destination "$env:GITHUB_WORKSPACE\python_package\brainflow\lib" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\win64\*" -Destination "$env:GITHUB_WORKSPACE\python_package\brainflow\lib" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\win32\*" -Destination "$env:GITHUB_WORKSPACE\python_package\brainflow\lib" -Recurse -Force -Filter *.*
+        ls $env:GITHUB_WORKSPACE\python_package\brainflow\lib
         (gc .\setup.py).replace('0.0.1', $env:VERSION) | Out-File -encoding ASCII setup.py
         type setup.py
         python setup.py sdist bdist_wheel
-        aws s3 cp $env:GITHUB_WORKSPACE\python-package\ s3://brainflow/$env:GITHUB_SHA/whl --recursive
+        aws s3 cp $env:GITHUB_WORKSPACE\python_package\ s3://brainflow/$env:GITHUB_SHA/whl --recursive
       env:
         PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -141,17 +141,17 @@ jobs:
         VERSION: ${{ github.event.inputs.version }}
     - name: Prepare Rust Package
       run: |
-        cd $env:GITHUB_WORKSPACE\rust-package\brainflow
-        Copy-Item "$env:GITHUB_WORKSPACE\linux\*" -Destination "$env:GITHUB_WORKSPACE\rust-package\brainflow\lib" -Recurse -Force -Filter *.*
-        Copy-Item "$env:GITHUB_WORKSPACE\macos\*" -Destination "$env:GITHUB_WORKSPACE\rust-package\brainflow\lib" -Recurse -Force -Filter *.*
-        Copy-Item "$env:GITHUB_WORKSPACE\win64\*" -Destination "$env:GITHUB_WORKSPACE\rust-package\brainflow\lib" -Recurse -Force -Filter *.*
-        Copy-Item "$env:GITHUB_WORKSPACE\win32\*" -Destination "$env:GITHUB_WORKSPACE\rust-package\brainflow\lib" -Recurse -Force -Filter *.*
-        ls $env:GITHUB_WORKSPACE\rust-package\brainflow\lib
+        cd $env:GITHUB_WORKSPACE\rust_package\brainflow
+        Copy-Item "$env:GITHUB_WORKSPACE\linux\*" -Destination "$env:GITHUB_WORKSPACE\rust_package\brainflow\lib" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\macos\*" -Destination "$env:GITHUB_WORKSPACE\rust_package\brainflow\lib" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\win64\*" -Destination "$env:GITHUB_WORKSPACE\rust_package\brainflow\lib" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\win32\*" -Destination "$env:GITHUB_WORKSPACE\rust_package\brainflow\lib" -Recurse -Force -Filter *.*
+        ls $env:GITHUB_WORKSPACE\rust_package\brainflow\lib
         (gc .\Cargo.toml).replace('0.0.1', $env:VERSION) | Out-File -encoding ASCII Cargo.toml
         type Cargo.toml
         cargo login $env:CARGO_TOKEN
     #    cargo publish --dry-run --allow-dirty
-    #    aws s3 cp $env:GITHUB_WORKSPACE\rust-package\brainflow s3://brainflow/$env:GITHUB_SHA/rust --recursive
+    #    aws s3 cp $env:GITHUB_WORKSPACE\rust_package\brainflow s3://brainflow/$env:GITHUB_SHA/rust --recursive
       env:
         CARGO_TOKEN: ${{ secrets.CARGO_TOKEN }}
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -159,32 +159,32 @@ jobs:
         VERSION: ${{ github.event.inputs.version }}
     - name: Prepare Nuget Package
       run: |
-        Copy-Item "$env:GITHUB_WORKSPACE\linux\*" -Destination "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" -Recurse -Force -Filter *.*
-        Copy-Item "$env:GITHUB_WORKSPACE\macos\*" -Destination "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" -Recurse -Force -Filter *.*
-        Copy-Item "$env:GITHUB_WORKSPACE\win64\*" -Destination "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" -Recurse -Force -Filter *.*
-        Copy-Item "$env:GITHUB_WORKSPACE\win32\*" -Destination "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" -Recurse -Force -Filter *.*
-        Get-ChildItem -Path "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" *.a | foreach { Remove-Item -Path $_.FullName }
-        Get-ChildItem -Path "$env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib" *.lib | foreach { Remove-Item -Path $_.FullName }
-        ls $env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow\lib
-        cd $env:GITHUB_WORKSPACE\csharp-package\brainflow
+        Copy-Item "$env:GITHUB_WORKSPACE\linux\*" -Destination "$env:GITHUB_WORKSPACE\csharp_package\brainflow\brainflow\lib" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\macos\*" -Destination "$env:GITHUB_WORKSPACE\csharp_package\brainflow\brainflow\lib" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\win64\*" -Destination "$env:GITHUB_WORKSPACE\csharp_package\brainflow\brainflow\lib" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\win32\*" -Destination "$env:GITHUB_WORKSPACE\csharp_package\brainflow\brainflow\lib" -Recurse -Force -Filter *.*
+        Get-ChildItem -Path "$env:GITHUB_WORKSPACE\csharp_package\brainflow\brainflow\lib" *.a | foreach { Remove-Item -Path $_.FullName }
+        Get-ChildItem -Path "$env:GITHUB_WORKSPACE\csharp_package\brainflow\brainflow\lib" *.lib | foreach { Remove-Item -Path $_.FullName }
+        ls $env:GITHUB_WORKSPACE\csharp_package\brainflow\brainflow\lib
+        cd $env:GITHUB_WORKSPACE\csharp_package\brainflow
         msbuild brainflow.sln /p:Configuration=Release /p:Platform="Any CPU"
-        cd $env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow
+        cd $env:GITHUB_WORKSPACE\csharp_package\brainflow\brainflow
         (gc .\brainflow.nuspec).replace('0.0.1', $env:VERSION) | Out-File -encoding ASCII brainflow.nuspec
         type brainflow.nuspec
         nuget pack brainflow.csproj -properties Configuration=Release -IncludeReferencedProjects
-        aws s3 cp $env:GITHUB_WORKSPACE\csharp-package\brainflow\brainflow s3://brainflow/$env:GITHUB_SHA/nuget --recursive
+        aws s3 cp $env:GITHUB_WORKSPACE\csharp_package\brainflow\brainflow s3://brainflow/$env:GITHUB_SHA/nuget --recursive
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         VERSION: ${{ github.event.inputs.version }}
     - name: Prepare Matlab Package
       run: |
-        Copy-Item "$env:GITHUB_WORKSPACE\linux\*" -Destination "$env:GITHUB_WORKSPACE\matlab-package\brainflow\lib" -Recurse -Force -Filter *.*
-        Copy-Item "$env:GITHUB_WORKSPACE\macos\*" -Destination "$env:GITHUB_WORKSPACE\matlab-package\brainflow\lib" -Recurse -Force -Filter *.*
-        Copy-Item "$env:GITHUB_WORKSPACE\win64\*" -Destination "$env:GITHUB_WORKSPACE\matlab-package\brainflow\lib" -Recurse -Force -Filter *.*
-        Copy-Item "$env:GITHUB_WORKSPACE\win32\*" -Destination "$env:GITHUB_WORKSPACE\matlab-package\brainflow\lib" -Recurse -Force -Filter *.*
-        ls $env:GITHUB_WORKSPACE\matlab-package\brainflow\lib
-        Compress-7Zip -Path $env:GITHUB_WORKSPACE\matlab-package -ArchiveFileName $env:GITHUB_WORKSPACE\matlab_package.tar -Format Tar
+        Copy-Item "$env:GITHUB_WORKSPACE\linux\*" -Destination "$env:GITHUB_WORKSPACE\matlab_package\brainflow\lib" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\macos\*" -Destination "$env:GITHUB_WORKSPACE\matlab_package\brainflow\lib" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\win64\*" -Destination "$env:GITHUB_WORKSPACE\matlab_package\brainflow\lib" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\win32\*" -Destination "$env:GITHUB_WORKSPACE\matlab_package\brainflow\lib" -Recurse -Force -Filter *.*
+        ls $env:GITHUB_WORKSPACE\matlab_package\brainflow\lib
+        Compress-7Zip -Path $env:GITHUB_WORKSPACE\matlab_package -ArchiveFileName $env:GITHUB_WORKSPACE\matlab_package.tar -Format Tar
         aws s3 cp $env:GITHUB_WORKSPACE\matlab_package.tar s3://brainflow/$env:GITHUB_SHA/matlab_package.tar
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -194,11 +194,11 @@ jobs:
     - name: Publish Packages
       if: github.event.inputs.publish == 'true'
       run: |
-        cd $env:GITHUB_WORKSPACE\java-package\brainflow
-        mvn -s $env:GITHUB_WORKSPACE\java-package\brainflow\settings.xml deploy -Dregistry=https://maven.pkg.github.com/brainflow-dev -Dtoken=$env:PUBLISH_TOKEN
-        cd $env:GITHUB_WORKSPACE\python-package
+        cd $env:GITHUB_WORKSPACE\java_package\brainflow
+        mvn -s $env:GITHUB_WORKSPACE\java_package\brainflow\settings.xml deploy -Dregistry=https://maven.pkg.github.com/brainflow-dev -Dtoken=$env:PUBLISH_TOKEN
+        cd $env:GITHUB_WORKSPACE\python_package
         twine upload --skip-existing dist/*.whl --user Andrey1994 --password $env:PYPI_PASSWORD
-        cd $env:GITHUB_WORKSPACE\rust-package\brainflow
+        cd $env:GITHUB_WORKSPACE\rust_package\brainflow
       env:
         CARGO_TOKEN: ${{ secrets.CARGO_TOKEN }}
         PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
@@ -207,19 +207,19 @@ jobs:
     # create java package for java 8, will be removed
     - name: Java 8 package
       run: |
-        cd $env:GITHUB_WORKSPACE\java-package\brainflow
+        cd $env:GITHUB_WORKSPACE\java_package\brainflow
         (gc .\pom.xml).replace('<source>11</source>', '<source>1.8</source>') | Out-File -encoding ASCII pom.xml
         (gc .\pom.xml).replace('<target>11</target>', '<target>1.8</target>') | Out-File -encoding ASCII pom.xml
         type pom.xml
         mvn clean
-        Remove-Item "$env:GITHUB_WORKSPACE\java-package\brainflow\src\main\java\module-info.java"
-        Copy-Item "$env:GITHUB_WORKSPACE\linux\*" -Destination "$env:GITHUB_WORKSPACE\java-package\brainflow\src\main\resources" -Recurse -Force -Filter *.*
-        Copy-Item "$env:GITHUB_WORKSPACE\macos\*" -Destination "$env:GITHUB_WORKSPACE\java-package\brainflow\src\main\resources" -Recurse -Force -Filter *.*
-        Copy-Item "$env:GITHUB_WORKSPACE\win64\*" -Destination "$env:GITHUB_WORKSPACE\java-package\brainflow\src\main\resources" -Recurse -Force -Filter *.*
-        Copy-Item "$env:GITHUB_WORKSPACE\win32\*" -Destination "$env:GITHUB_WORKSPACE\java-package\brainflow\src\main\resources" -Recurse -Force -Filter *.*
-        ls $env:GITHUB_WORKSPACE\java-package\brainflow\src\main\resources
+        Remove-Item "$env:GITHUB_WORKSPACE\java_package\brainflow\src\main\java\module-info.java"
+        Copy-Item "$env:GITHUB_WORKSPACE\linux\*" -Destination "$env:GITHUB_WORKSPACE\java_package\brainflow\src\main\resources" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\macos\*" -Destination "$env:GITHUB_WORKSPACE\java_package\brainflow\src\main\resources" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\win64\*" -Destination "$env:GITHUB_WORKSPACE\java_package\brainflow\src\main\resources" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\win32\*" -Destination "$env:GITHUB_WORKSPACE\java_package\brainflow\src\main\resources" -Recurse -Force -Filter *.*
+        ls $env:GITHUB_WORKSPACE\java_package\brainflow\src\main\resources
         mvn package
-        aws s3 cp $env:GITHUB_WORKSPACE\java-package\brainflow\target\ s3://brainflow/$env:GITHUB_SHA/jars_java8 --recursive
+        aws s3 cp $env:GITHUB_WORKSPACE\java_package\brainflow\target\ s3://brainflow/$env:GITHUB_SHA/jars_java8 --recursive
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

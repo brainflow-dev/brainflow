@@ -48,20 +48,20 @@ set_target_properties (${BRAINBIT_BLED_LIB}
 
 if (MSVC)
     add_custom_command (TARGET ${BRAINBIT_BLED_LIB} POST_BUILD
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BRAINBIT_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${BRAINBIT_BLED_LIB_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BRAINBIT_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${BRAINBIT_BLED_LIB_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BRAINBIT_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/${BRAINBIT_BLED_LIB_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BRAINBIT_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${BRAINBIT_BLED_LIB_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BRAINBIT_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/julia-package/brainflow/lib/${BRAINBIT_BLED_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BRAINBIT_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/python_package/brainflow/lib/${BRAINBIT_BLED_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BRAINBIT_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/java_package/brainflow/src/main/resources/${BRAINBIT_BLED_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BRAINBIT_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp_package/brainflow/brainflow/lib/${BRAINBIT_BLED_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BRAINBIT_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab_package/brainflow/lib/${BRAINBIT_BLED_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BRAINBIT_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/julia_package/brainflow/lib/${BRAINBIT_BLED_LIB_NAME}"
     )
 endif (MSVC)
 if (UNIX AND NOT ANDROID)
     add_custom_command (TARGET ${BRAINBIT_BLED_LIB} POST_BUILD
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${BRAINBIT_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${BRAINBIT_BLED_LIB_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${BRAINBIT_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/julia-package/brainflow/lib/${BRAINBIT_BLED_LIB_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${BRAINBIT_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${BRAINBIT_BLED_LIB_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${BRAINBIT_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/${BRAINBIT_BLED_LIB_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${BRAINBIT_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${BRAINBIT_BLED_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${BRAINBIT_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/python_package/brainflow/lib/${BRAINBIT_BLED_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${BRAINBIT_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/julia_package/brainflow/lib/${BRAINBIT_BLED_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${BRAINBIT_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/java_package/brainflow/src/main/resources/${BRAINBIT_BLED_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${BRAINBIT_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp_package/brainflow/brainflow/${BRAINBIT_BLED_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${BRAINBIT_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab_package/brainflow/lib/${BRAINBIT_BLED_LIB_NAME}"
     )
 endif (UNIX AND NOT ANDROID)
 

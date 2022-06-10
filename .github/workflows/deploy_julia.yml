@@ -40,13 +40,13 @@ jobs:
         echo ${{ github.event.inputs.publish }}
     - name: Change Julia Files
       run: |
-        cd $env:GITHUB_WORKSPACE\julia-package\brainflow\src
+        cd $env:GITHUB_WORKSPACE\julia_package\brainflow\src
         (gc .\brainflow_url.jl) -replace '[0-9]+.[0-9]+.[0-9]+', $env:VERSION | Out-File -encoding ASCII brainflow_url.jl
-        cd $env:GITHUB_WORKSPACE\julia-package\brainflow
+        cd $env:GITHUB_WORKSPACE\julia_package\brainflow
         (gc .\Artifacts.toml) -replace '[0-9]+.[0-9]+.[0-9]+', $env:VERSION | Out-File -encoding ASCII Artifacts.toml
         (gc .\Project.toml) -replace 'version = "[0-9]+.[0-9]+.[0-9]+"', "version = `"$env:VERSION`"" | Out-File -encoding ASCII Project.toml
         julia generate_brainflow_artifact.jl
-        git diff $env:GITHUB_WORKSPACE\julia-package > $env:GITHUB_WORKSPACE\julia.patch
+        git diff $env:GITHUB_WORKSPACE\julia_package > $env:GITHUB_WORKSPACE\julia.patch
       env:
         VERSION: ${{ github.event.inputs.version }}
     - name: Upload Julia Diff
@@ -58,7 +58,7 @@ jobs:
       if: github.event.inputs.publish == 'true'
       uses: EndBug/add-and-commit@v6
       with:
-        add: '-u julia-package'
+        add: '-u julia_package'
         author_name: Andrey1994
         author_email: a1994ndrey@gmail.com
         message: 'Bump Julia Version'

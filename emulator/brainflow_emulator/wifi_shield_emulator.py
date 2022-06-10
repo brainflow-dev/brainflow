@@ -1,12 +1,12 @@
-import threading
-import time
 import json
+import logging
 import socket
 import subprocess
 import sys
-import logging
-from random import randint
+import threading
+import time
 from http.server import HTTPServer, BaseHTTPRequestHandler
+from random import randint
 
 from brainflow_emulator.emulate_common import log_multilines, TestFailureError
 

@@ -17,7 +17,7 @@ echo debconf apt-fast/dlflag boolean true | debconf-set-selections && \
 echo debconf apt-fast/aptmanager string apt-get | debconf-set-selections && \
 apt-fast -yqq upgrade
 # Installing Dependencies
-RUN apt-fast -yqq install python3 python3-pip python3-venv openjdk-13-jdk git curl wget build-essential cmake python3-jira r-base nuget nuget mono-devel mono-complete monodevelop libxml2-dev libbluetooth-dev libdbus-1-dev
+RUN apt-fast -yqq install python3 python3-pip python3-venv openjdk-13-jdk git curl wget build-essential cmake python3-jira r-base rustc cargo nuget nuget mono-devel mono-complete monodevelop libxml2-dev libbluetooth-dev libdbus-1-dev
 RUN mkdir -p /root/local/bin
 
 WORKDIR /root/local/bin
@@ -46,27 +46,31 @@ ENV LD_LIBRARY_PATH=/root/brainflow/installed_linux/lib/
 # Python Binding
 WORKDIR /root/brainflow
 RUN python3 -m pip install --user virtualenv
-WORKDIR /root/brainflow/python-package
+WORKDIR /root/brainflow/python_package
 RUN python3 -m pip install -U .
 
 WORKDIR /root/brainflow/
 # C# Binding
-RUN nuget restore csharp-package/brainflow/brainflow.sln
-RUN xbuild csharp-package/brainflow/brainflow.sln
+RUN nuget restore csharp_package/brainflow/brainflow.sln
+RUN xbuild csharp_package/brainflow/brainflow.sln
 
 # Java Binding
-WORKDIR /root/brainflow/java-package/brainflow
+WORKDIR /root/brainflow/java_package/brainflow
 RUN /root/local/bin/maven/apache-maven-3.6.3/bin/mvn package
 
 # Julia Bindings
-WORKDIR /root/brainflow/julia-package/brainflow
+WORKDIR /root/brainflow/julia_package/brainflow
 RUN /root/local/bin/julia/julia-1.5.3/bin/julia -e "import Pkg; Pkg.instantiate()"
 RUN /root/local/bin/julia/julia-1.5.3/bin/julia -e "import Pkg; Pkg.activate()"
 
 # R Binding
-WORKDIR /root/brainflow/r-package/brainflow
+WORKDIR /root/brainflow/r_package/brainflow
 RUN R --vanilla -e 'install.packages("knitr", repos="http://cran.us.r-project.org")'
 RUN R --vanilla -e 'install.packages("reticulate", repos="http://cran.us.r-project.org")'
 RUN R CMD build .
+
+# Rust Binding
+WORKDIR /root/brainflow/rust_package/brainflow
+RUN cargo build
 
 WORKDIR /root/brainflow

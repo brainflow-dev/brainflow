@@ -1,5 +1,5 @@
 scikit-learn
 brainflow
-glob3
 metric-learn
 libsvm
+skl2onnx 

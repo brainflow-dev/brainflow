@@ -18,7 +18,7 @@ jobs:
         run: |
           mkdir $GITHUB_WORKSPACE/build
           cd $GITHUB_WORKSPACE/build
-          cmake -DWARNINGS_AS_ERRORS=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
+          cmake -DWARNINGS_AS_ERRORS=ON -DBUILD_ONNX=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
           make
           make install
       - name: Set up Matlab
@@ -26,12 +26,16 @@ jobs:
       - name: Run Signal Processing Test
         uses: matlab-actions/run-command@v1
         with:
-          command: addpath('matlab-package/brainflow'),addpath('matlab-package/brainflow/examples'),addpath('matlab-package/brainflow/inc'),addpath('matlab-package/brainflow/lib'),SignalFiltering
+          command: addpath('matlab_package/brainflow'),addpath('matlab_package/brainflow/examples'),addpath('matlab_package/brainflow/inc'),addpath('matlab_package/brainflow/lib'),SignalFiltering
       - name: Run Transforms Test
         uses: matlab-actions/run-command@v1
         with:
-          command: addpath('matlab-package/brainflow'),addpath('matlab-package/brainflow/examples'),addpath('matlab-package/brainflow/inc'),addpath('matlab-package/brainflow/lib'),Transforms
+          command: addpath('matlab_package/brainflow'),addpath('matlab_package/brainflow/examples'),addpath('matlab_package/brainflow/inc'),addpath('matlab_package/brainflow/lib'),Transforms
+      - name: Run EEG Mertrics Test
+        uses: matlab-actions/run-command@v1
+        with:
+          command: addpath('matlab_package/brainflow'),addpath('matlab_package/brainflow/examples'),addpath('matlab_package/brainflow/inc'),addpath('matlab_package/brainflow/lib'),EEGMetrics
       - name: Run CSP Test
         uses: matlab-actions/run-command@v1
         with:
-          command: addpath('matlab-package/brainflow'),addpath('matlab-package/brainflow/examples'),addpath('matlab-package/brainflow/inc'),addpath('matlab-package/brainflow/lib'),CSP
+          command: addpath('matlab_package/brainflow'),addpath('matlab_package/brainflow/examples'),addpath('matlab_package/brainflow/inc'),addpath('matlab_package/brainflow/lib'),CSP

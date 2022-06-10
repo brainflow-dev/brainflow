@@ -17,7 +17,7 @@ jobs:
     - name: Clone Repository
       uses: actions/checkout@v2
     - name: Install Python 3.7
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v3
       with:
         python-version: '3.7.7'
         architecture: 'x64'
@@ -48,15 +48,15 @@ jobs:
         make install
     - name: Setup Python Package
       run: |
-        cd $GITHUB_WORKSPACE/python-package
+        cd $GITHUB_WORKSPACE/python_package
         sudo -H python3 -m pip install -U .
     - name: Install Emulator
       run: |
         cd $GITHUB_WORKSPACE/emulator
         sudo -H python3 -m pip install -U .
     - name: Install Python test Dependencies
-      run: sudo -H python3 -m pip install -r $GITHUB_WORKSPACE/tests/python/requirements.txt
+      run: sudo -H python3 -m pip install -r $GITHUB_WORKSPACE/python_package/examples/tests/requirements.txt
 
     # start testing
     - name: Cyton Python
-      run: sudo -H python3 ./emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/tests/python/brainflow_get_data.py --board-id 0 --serial-port 
+      run: sudo -H python3 ./emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/python_package/examples/tests/brainflow_get_data.py --board-id 0 --serial-port 

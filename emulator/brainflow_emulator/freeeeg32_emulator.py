@@ -1,7 +1,6 @@
-import threading
 import logging
+import threading
 import time
-from random import randint
 
 
 class Listener(threading.Thread):

@@ -14,7 +14,7 @@ std::mutex mutex;
 
 int bluetooth_open_device (int port, char *mac_addr)
 {
-    if (mac_addr == nullptr || port < 0)
+    if ((mac_addr == NULL) || (port < 0))
     {
         return (int)SocketBluetoothReturnCodes::PARAMETER_ERROR;
     }
@@ -41,7 +41,7 @@ int bluetooth_open_device (int port, char *mac_addr)
 
 int bluetooth_get_data (char *data, int size, char *mac_addr)
 {
-    if (data == nullptr || mac_addr == nullptr || size < 0)
+    if ((data == NULL) || (mac_addr == NULL) || (size < 0))
     {
         return (int)SocketBluetoothReturnCodes::PARAMETER_ERROR;
     }
@@ -59,7 +59,7 @@ int bluetooth_get_data (char *data, int size, char *mac_addr)
 
 int bluetooth_write_data (char *data, int size, char *mac_addr)
 {
-    if (data == nullptr || mac_addr == nullptr || size < 0)
+    if ((data == NULL) || (mac_addr == NULL) || (size < 0))
     {
         return (int)SocketBluetoothReturnCodes::PARAMETER_ERROR;
     }
@@ -77,7 +77,7 @@ int bluetooth_write_data (char *data, int size, char *mac_addr)
 
 int bluetooth_close_device (char *mac_addr)
 {
-    if (mac_addr == nullptr)
+    if (mac_addr == NULL)
     {
         return (int)SocketBluetoothReturnCodes::PARAMETER_ERROR;
     }

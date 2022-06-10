@@ -1,16 +1,15 @@
-import os
-import sys
-import subprocess
 import logging
-import pkg_resources
-import time
-import threading
+import os
 import random
 import struct
+import subprocess
+import sys
+import threading
+import time
 
-from serial import Serial
-
+import pkg_resources
 from brainflow_emulator.emulate_common import TestFailureError, log_multilines
+from serial import Serial
 
 
 def write(port, data):
