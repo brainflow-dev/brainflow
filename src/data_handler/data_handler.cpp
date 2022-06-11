@@ -323,7 +323,7 @@ int remove_environmental_noise (double *data, int data_len, int sampling_rate, i
     {
         case NoiseTypes::FIFTY:
             res = perform_bandstop (
-                data, data_len, sampling_rate, 48.0, 62.0, 4, (int)FilterTypes::BUTTERWORTH, 0.0);
+                data, data_len, sampling_rate, 48.0, 52.0, 4, (int)FilterTypes::BUTTERWORTH, 0.0);
             break;
         case NoiseTypes::SIXTY:
             res = perform_bandstop (
