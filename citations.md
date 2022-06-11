@@ -21,12 +21,14 @@ CLASSIFICATION WITH LARYNGEAL IMAGERY](https://arxiv.org/pdf/2107.00045.pdf)
 * [G. Bernal, N. Hidalgo, C. Russomanno and P. Maes, "Galea: A physiological sensing system for behavioral research in Virtual Environments," 2022 IEEE Conference on Virtual Reality and 3D User Interfaces (VR), 2022, pp. 66-76, doi: 10.1109/VR51125.2022.00024.](https://ieeexplore.ieee.org/abstract/document/9756768)
 * [Ihshan Gumilar, Amit Barde, Prasanth Sasikumar, Mark Billinghurst, Ashkan F. Hayati, Gun Lee, Yuda Munarko, Sanjit Singh, and Abdul Momin. 2022. Inter-brain Synchrony and Eye Gaze Direction During Collaboration in VR. In CHI Conference on Human Factors in Computing Systems Extended Abstracts (CHI EA '22). Association for Computing Machinery, New York, NY, USA, Article 345, 1–7. https://doi.org/10.1145/3491101.3519746](https://dl.acm.org/doi/abs/10.1145/3491101.3519746)
 * [Rod Dickinson, Nathan Semertzidis, and Florian Floyd Mueller. 2022. Machine In The Middle: Exploring Dark Patterns of Emotional Human-Computer Integration Through Media Art. In CHI Conference on Human Factors in Computing Systems Extended Abstracts (CHI EA '22). Association for Computing Machinery, New York, NY, USA, Article 43, 1–7. https://doi.org/10.1145/3491101.3503555](https://dl.acm.org/doi/abs/10.1145/3491101.3503555)
+* [Brandon Hernandez, Oscar Morales-Ponce. 2022. A Human-Computer Interface for Hands-Free Musical Accompaniment](https://scholarworks.calstate.edu/downloads/2n49t693d)
 
 ## Posts
 
 * [Matthijs Cox, How to code a biosignal control system from scratch in 40 hours](https://levelup.gitconnected.com/how-to-code-a-biosignal-control-system-from-scratch-in-40-hours-54290c1eb0c7)
 * [Cangar, SkyrimVR BCI mod](https://www.nexusmods.com/skyrimspecialedition/mods/58489)
 * [Ahnaaf Khan, Creating a Neurofeedback Program With Python](https://ahnaafk.medium.com/creating-a-neurofeedback-program-with-python-c6153022a4e7)
+* [Thanasis Koutras, Using BrainFlow with OpenBCI EEG recorder on a Raspberry Pi](https://medium.com/@basoph2002/using-brainflow-with-openbci-eeg-recorder-on-a-raspberry-pi-e578dca675ce)
 
 ## Conferences and Hackathons
 
