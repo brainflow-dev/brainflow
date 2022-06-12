@@ -263,16 +263,12 @@ Finally, let's add a title to our plot and some filters.
 
 ```python
 import argparse
-import time
 import logging
-import random
 
 import pyqtgraph as pg
+from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
+from brainflow.data_filter import DataFilter, FilterTypes, DetrendOperations
 from pyqtgraph.Qt import QtGui, QtCore
-
-import brainflow
-from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds, BrainFlowError
-from brainflow.data_filter import DataFilter, FilterTypes, AggOperations, WindowFunctions, DetrendOperations
 
 
 class Graph:
@@ -286,7 +282,7 @@ class Graph:
         self.num_points = self.window_size * self.sampling_rate
 
         self.app = QtGui.QApplication([])
-        self.win = pg.GraphicsWindow(title='BrainFlow Plot',size=(800, 600))
+        self.win = pg.GraphicsWindow(title='BrainFlow Plot', size=(800, 600))
 
         self._init_timeseries()
 
@@ -295,12 +291,11 @@ class Graph:
         timer.start(self.update_speed_ms)
         QtGui.QApplication.instance().exec_()
 
-
     def _init_timeseries(self):
         self.plots = list()
         self.curves = list()
         for i in range(len(self.exg_channels)):
-            p = self.win.addPlot(row=i,col=0)
+            p = self.win.addPlot(row=i, col=0)
             p.showAxis('left', False)
             p.setMenuEnabled('left', False)
             p.showAxis('bottom', False)
@@ -313,15 +308,14 @@ class Graph:
 
     def update(self):
         data = self.board_shim.get_current_board_data(self.num_points)
-        avg_bands = [0, 0, 0, 0, 0]
         for count, channel in enumerate(self.exg_channels):
             # plot timeseries
-            DataFilter.detrend(data[channel], DetrendOperations.LINEAR.value)
-            DataFilter.perform_bandpass(data[channel], self.sampling_rate, 51.0, 100.0, 2,
+            DataFilter.detrend(data[channel], DetrendOperations.CONSTANT.value)
+            DataFilter.perform_bandpass(data[channel], self.sampling_rate, 3.0, 45.0, 2,
                                         FilterTypes.BUTTERWORTH.value, 0)
-            DataFilter.perform_bandstop(data[channel], self.sampling_rate, 50.0, 4.0, 2,
+            DataFilter.perform_bandstop(data[channel], self.sampling_rate, 48.0, 52.0, 2,
                                         FilterTypes.BUTTERWORTH.value, 0)
-            DataFilter.perform_bandstop(data[channel], self.sampling_rate, 60.0, 4.0, 2,
+            DataFilter.perform_bandstop(data[channel], self.sampling_rate, 58.0, 62.0, 2,
                                         FilterTypes.BUTTERWORTH.value, 0)
             self.curves[count].setData(data[channel].tolist())
 
@@ -365,8 +359,8 @@ def main():
         board_shim = BoardShim(args.board_id, params)
         board_shim.prepare_session()
         board_shim.start_stream(450000, args.streamer_params)
-        g = Graph(board_shim)
-    except BaseException as e:
+        Graph(board_shim)
+    except BaseException:
         logging.warning('Exception', exc_info=True)
     finally:
         logging.info('End')
