@@ -20,6 +20,9 @@ bool DataBuffer::is_ready ()
 
 void DataBuffer::add_data (double *value)
 {
+    if (buffer_size < 2)
+        return;
+
     lock.lock ();
     memcpy (this->data + first_free * num_samples, value, sizeof (double) * num_samples);
     first_free = next (first_free);
