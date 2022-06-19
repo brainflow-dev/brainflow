@@ -52,22 +52,20 @@ set_target_properties (${MUSE_BLED_LIB}
 
 if (MSVC)
     add_custom_command (TARGET ${MUSE_BLED_LIB} POST_BUILD
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${MUSE_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${MUSE_BLED_LIB_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${MUSE_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${MUSE_BLED_LIB_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${MUSE_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/lib/${MUSE_BLED_LIB_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${MUSE_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${MUSE_BLED_LIB_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${MUSE_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/julia-package/brainflow/lib/${MUSE_BLED_LIB_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${MUSE_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/swift-package/brainflow/lib/${MUSE_BLED_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${MUSE_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/python_package/brainflow/lib/${MUSE_BLED_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${MUSE_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/java_package/brainflow/src/main/resources/${MUSE_BLED_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${MUSE_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp_package/brainflow/brainflow/lib/${MUSE_BLED_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${MUSE_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab_package/brainflow/lib/${MUSE_BLED_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${MUSE_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/julia_package/brainflow/lib/${MUSE_BLED_LIB_NAME}"
     )
 endif (MSVC)
 if (UNIX AND NOT ANDROID)
     add_custom_command (TARGET ${MUSE_BLED_LIB} POST_BUILD
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${MUSE_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/python-package/brainflow/lib/${MUSE_BLED_LIB_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${MUSE_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/julia-package/brainflow/lib/${MUSE_BLED_LIB_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${MUSE_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/java-package/brainflow/src/main/resources/${MUSE_BLED_LIB_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${MUSE_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp-package/brainflow/brainflow/${MUSE_BLED_LIB_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${MUSE_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab-package/brainflow/lib/${MUSE_BLED_LIB_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${MUSE_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/swift-package/brainflow/lib/${MUSE_BLED_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${MUSE_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/python_package/brainflow/lib/${MUSE_BLED_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${MUSE_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/julia_package/brainflow/lib/${MUSE_BLED_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${MUSE_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/java_package/brainflow/src/main/resources/${MUSE_BLED_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${MUSE_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp_package/brainflow/brainflow/${MUSE_BLED_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${MUSE_BLED_LIB_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab_package/brainflow/lib/${MUSE_BLED_LIB_NAME}"
     )
 endif (UNIX AND NOT ANDROID)
 
