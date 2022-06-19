@@ -1,6 +1,6 @@
 
 export BRAINFLOW_VERSION=4.9.0
-export GITHUB_WORKSPACE=/Users/scottmiller/git/brainflow-dev
+export GITHUB_WORKSPACE=/Users/scottmiller/git/brainflow
 
 mkdir -p $GITHUB_WORKSPACE/installed/macOS
 cd $GITHUB_WORKSPACE/tools

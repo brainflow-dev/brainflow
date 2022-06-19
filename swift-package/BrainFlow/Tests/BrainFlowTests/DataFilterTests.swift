@@ -4,6 +4,7 @@
 //  https://github.com/brainflow-dev/brainflow/tree/master/tests/python
 
 import XCTest
+import BrainFlow
 
 class DataFilterTests: XCTestCase {
     func testBandPowerAll() {

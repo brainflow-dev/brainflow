@@ -6,7 +6,7 @@
 //
 
 import Foundation
-//import BrainFlow
+import BrainFlow
 
 struct BoardShim {
     let boardId: BoardIds

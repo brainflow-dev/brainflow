@@ -1,0 +1,540 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 55;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		5F20CCB7285DDE5500F2CEB5 /* Numerics in Frameworks */ = {isa = PBXBuildFile; productRef = 5F20CCB6285DDE5500F2CEB5 /* Numerics */; };
+		5F20CCB9285DDE8200F2CEB5 /* Numerics in Frameworks */ = {isa = PBXBuildFile; productRef = 5F20CCB8285DDE8200F2CEB5 /* Numerics */; };
+		5F20CCBB285DDE8E00F2CEB5 /* BrainFlow in Frameworks */ = {isa = PBXBuildFile; productRef = 5F20CCBA285DDE8E00F2CEB5 /* BrainFlow */; };
+		5FDD63F928560953001AA429 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD63F828560953001AA429 /* main.swift */; };
+		5FDD640328560B36001AA429 /* BrainFlow in Frameworks */ = {isa = PBXBuildFile; productRef = 5FDD640228560B36001AA429 /* BrainFlow */; };
+		5FDD641628560C67001AA429 /* DataFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD640E28560C67001AA429 /* DataFilter.swift */; };
+		5FDD641728560C67001AA429 /* BrainFlowConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD640F28560C67001AA429 /* BrainFlowConstants.swift */; };
+		5FDD641828560C67001AA429 /* BrainFlowExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641028560C67001AA429 /* BrainFlowExtensions.swift */; };
+		5FDD641928560C67001AA429 /* BrainFlowException.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641128560C67001AA429 /* BrainFlowException.swift */; };
+		5FDD641A28560C67001AA429 /* BrainFlowInputParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641228560C67001AA429 /* BrainFlowInputParams.swift */; };
+		5FDD641B28560C67001AA429 /* BoardShim.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641328560C67001AA429 /* BoardShim.swift */; };
+		5FDD641C28560C67001AA429 /* MLModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641428560C67001AA429 /* MLModule.swift */; };
+		5FDD641D28560C67001AA429 /* BoardDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641528560C67001AA429 /* BoardDescription.swift */; };
+		5FDD643E285617B2001AA429 /* BoardShimTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD643A285617B2001AA429 /* BoardShimTests.swift */; };
+		5FDD643F285617B2001AA429 /* BrainFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD643B285617B2001AA429 /* BrainFlowTests.swift */; };
+		5FDD6440285617B2001AA429 /* BrainFlowCItests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD643C285617B2001AA429 /* BrainFlowCItests.swift */; };
+		5FDD6441285617B2001AA429 /* DataFilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD643D285617B2001AA429 /* DataFilterTests.swift */; };
+		5FDD644228561815001AA429 /* BrainFlowExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641028560C67001AA429 /* BrainFlowExtensions.swift */; };
+		5FDD644328561815001AA429 /* DataFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD640E28560C67001AA429 /* DataFilter.swift */; };
+		5FDD644428561815001AA429 /* MLModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641428560C67001AA429 /* MLModule.swift */; };
+		5FDD644528561815001AA429 /* BrainFlowConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD640F28560C67001AA429 /* BrainFlowConstants.swift */; };
+		5FDD644628561815001AA429 /* BrainFlowInputParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641228560C67001AA429 /* BrainFlowInputParams.swift */; };
+		5FDD644728561815001AA429 /* BrainFlowException.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641128560C67001AA429 /* BrainFlowException.swift */; };
+		5FDD644828561815001AA429 /* BoardDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641528560C67001AA429 /* BoardDescription.swift */; };
+		5FDD644928561815001AA429 /* BoardShim.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641328560C67001AA429 /* BoardShim.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		5FDD63F328560953001AA429 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		5FDD63F528560953001AA429 /* BrainFlowCI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = BrainFlowCI; sourceTree = BUILT_PRODUCTS_DIR; };
+		5FDD63F828560953001AA429 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		5FDD640028560986001AA429 /* BrainFlow */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = BrainFlow; path = ../BrainFlow; sourceTree = "<group>"; };
+		5FDD640E28560C67001AA429 /* DataFilter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataFilter.swift; sourceTree = "<group>"; };
+		5FDD640F28560C67001AA429 /* BrainFlowConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrainFlowConstants.swift; sourceTree = "<group>"; };
+		5FDD641028560C67001AA429 /* BrainFlowExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrainFlowExtensions.swift; sourceTree = "<group>"; };
+		5FDD641128560C67001AA429 /* BrainFlowException.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrainFlowException.swift; sourceTree = "<group>"; };
+		5FDD641228560C67001AA429 /* BrainFlowInputParams.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrainFlowInputParams.swift; sourceTree = "<group>"; };
+		5FDD641328560C67001AA429 /* BoardShim.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BoardShim.swift; sourceTree = "<group>"; };
+		5FDD641428560C67001AA429 /* MLModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MLModule.swift; sourceTree = "<group>"; };
+		5FDD641528560C67001AA429 /* BoardDescription.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BoardDescription.swift; sourceTree = "<group>"; };
+		5FDD643028560DBF001AA429 /* BrainFlowCITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BrainFlowCITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		5FDD643A285617B2001AA429 /* BoardShimTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BoardShimTests.swift; sourceTree = "<group>"; };
+		5FDD643B285617B2001AA429 /* BrainFlowTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrainFlowTests.swift; sourceTree = "<group>"; };
+		5FDD643C285617B2001AA429 /* BrainFlowCItests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrainFlowCItests.swift; sourceTree = "<group>"; };
+		5FDD643D285617B2001AA429 /* DataFilterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataFilterTests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		5FDD63F228560953001AA429 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5F20CCB7285DDE5500F2CEB5 /* Numerics in Frameworks */,
+				5FDD640328560B36001AA429 /* BrainFlow in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5FDD642D28560DBF001AA429 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5F20CCB9285DDE8200F2CEB5 /* Numerics in Frameworks */,
+				5F20CCBB285DDE8E00F2CEB5 /* BrainFlow in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		5FDD63EC28560953001AA429 = {
+			isa = PBXGroup;
+			children = (
+				5FDD63FF28560986001AA429 /* Packages */,
+				5FDD63F728560953001AA429 /* BrainFlowCI */,
+				5FDD643128560DBF001AA429 /* BrainFlowCITests */,
+				5FDD63F628560953001AA429 /* Products */,
+				5FDD640128560B36001AA429 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		5FDD63F628560953001AA429 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				5FDD63F528560953001AA429 /* BrainFlowCI */,
+				5FDD643028560DBF001AA429 /* BrainFlowCITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		5FDD63F728560953001AA429 /* BrainFlowCI */ = {
+			isa = PBXGroup;
+			children = (
+				5FDD6439285617B2001AA429 /* BrainFlowTests */,
+				5FDD640D28560C67001AA429 /* BrainFlowBindings */,
+				5FDD63F828560953001AA429 /* main.swift */,
+			);
+			path = BrainFlowCI;
+			sourceTree = "<group>";
+		};
+		5FDD63FF28560986001AA429 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				5FDD640028560986001AA429 /* BrainFlow */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+		5FDD640128560B36001AA429 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		5FDD640D28560C67001AA429 /* BrainFlowBindings */ = {
+			isa = PBXGroup;
+			children = (
+				5FDD640E28560C67001AA429 /* DataFilter.swift */,
+				5FDD640F28560C67001AA429 /* BrainFlowConstants.swift */,
+				5FDD641028560C67001AA429 /* BrainFlowExtensions.swift */,
+				5FDD641128560C67001AA429 /* BrainFlowException.swift */,
+				5FDD641228560C67001AA429 /* BrainFlowInputParams.swift */,
+				5FDD641328560C67001AA429 /* BoardShim.swift */,
+				5FDD641428560C67001AA429 /* MLModule.swift */,
+				5FDD641528560C67001AA429 /* BoardDescription.swift */,
+			);
+			name = BrainFlowBindings;
+			path = ../../BrainFlow/Sources/BrainFlowBindings;
+			sourceTree = "<group>";
+		};
+		5FDD643128560DBF001AA429 /* BrainFlowCITests */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = BrainFlowCITests;
+			sourceTree = "<group>";
+		};
+		5FDD6439285617B2001AA429 /* BrainFlowTests */ = {
+			isa = PBXGroup;
+			children = (
+				5FDD643A285617B2001AA429 /* BoardShimTests.swift */,
+				5FDD643B285617B2001AA429 /* BrainFlowTests.swift */,
+				5FDD643C285617B2001AA429 /* BrainFlowCItests.swift */,
+				5FDD643D285617B2001AA429 /* DataFilterTests.swift */,
+			);
+			name = BrainFlowTests;
+			path = ../../BrainFlow/Tests/BrainFlowTests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		5FDD63F428560953001AA429 /* BrainFlowCI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5FDD63FC28560953001AA429 /* Build configuration list for PBXNativeTarget "BrainFlowCI" */;
+			buildPhases = (
+				5FDD63F128560953001AA429 /* Sources */,
+				5FDD63F228560953001AA429 /* Frameworks */,
+				5FDD63F328560953001AA429 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BrainFlowCI;
+			packageProductDependencies = (
+				5FDD640228560B36001AA429 /* BrainFlow */,
+				5F20CCB6285DDE5500F2CEB5 /* Numerics */,
+			);
+			productName = BrainFlowCI;
+			productReference = 5FDD63F528560953001AA429 /* BrainFlowCI */;
+			productType = "com.apple.product-type.tool";
+		};
+		5FDD642F28560DBF001AA429 /* BrainFlowCITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5FDD643428560DBF001AA429 /* Build configuration list for PBXNativeTarget "BrainFlowCITests" */;
+			buildPhases = (
+				5FDD642C28560DBF001AA429 /* Sources */,
+				5FDD642D28560DBF001AA429 /* Frameworks */,
+				5FDD642E28560DBF001AA429 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BrainFlowCITests;
+			packageProductDependencies = (
+				5F20CCB8285DDE8200F2CEB5 /* Numerics */,
+				5F20CCBA285DDE8E00F2CEB5 /* BrainFlow */,
+			);
+			productName = BrainFlowCITests;
+			productReference = 5FDD643028560DBF001AA429 /* BrainFlowCITests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		5FDD63ED28560953001AA429 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1340;
+				LastUpgradeCheck = 1340;
+				TargetAttributes = {
+					5FDD63F428560953001AA429 = {
+						CreatedOnToolsVersion = 13.4.1;
+					};
+					5FDD642F28560DBF001AA429 = {
+						CreatedOnToolsVersion = 13.4.1;
+					};
+				};
+			};
+			buildConfigurationList = 5FDD63F028560953001AA429 /* Build configuration list for PBXProject "BrainFlowCI" */;
+			compatibilityVersion = "Xcode 13.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 5FDD63EC28560953001AA429;
+			packageReferences = (
+				5FDD644A285618BF001AA429 /* XCRemoteSwiftPackageReference "swift-numerics" */,
+			);
+			productRefGroup = 5FDD63F628560953001AA429 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				5FDD63F428560953001AA429 /* BrainFlowCI */,
+				5FDD642F28560DBF001AA429 /* BrainFlowCITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		5FDD642E28560DBF001AA429 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		5FDD63F128560953001AA429 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5FDD641C28560C67001AA429 /* MLModule.swift in Sources */,
+				5FDD641828560C67001AA429 /* BrainFlowExtensions.swift in Sources */,
+				5FDD641A28560C67001AA429 /* BrainFlowInputParams.swift in Sources */,
+				5FDD63F928560953001AA429 /* main.swift in Sources */,
+				5FDD641928560C67001AA429 /* BrainFlowException.swift in Sources */,
+				5FDD641D28560C67001AA429 /* BoardDescription.swift in Sources */,
+				5FDD641728560C67001AA429 /* BrainFlowConstants.swift in Sources */,
+				5FDD641B28560C67001AA429 /* BoardShim.swift in Sources */,
+				5FDD641628560C67001AA429 /* DataFilter.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5FDD642C28560DBF001AA429 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5FDD644728561815001AA429 /* BrainFlowException.swift in Sources */,
+				5FDD644428561815001AA429 /* MLModule.swift in Sources */,
+				5FDD644628561815001AA429 /* BrainFlowInputParams.swift in Sources */,
+				5FDD6440285617B2001AA429 /* BrainFlowCItests.swift in Sources */,
+				5FDD644328561815001AA429 /* DataFilter.swift in Sources */,
+				5FDD644828561815001AA429 /* BoardDescription.swift in Sources */,
+				5FDD6441285617B2001AA429 /* DataFilterTests.swift in Sources */,
+				5FDD644528561815001AA429 /* BrainFlowConstants.swift in Sources */,
+				5FDD643E285617B2001AA429 /* BoardShimTests.swift in Sources */,
+				5FDD644228561815001AA429 /* BrainFlowExtensions.swift in Sources */,
+				5FDD643F285617B2001AA429 /* BrainFlowTests.swift in Sources */,
+				5FDD644928561815001AA429 /* BoardShim.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		5FDD63FA28560953001AA429 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		5FDD63FB28560953001AA429 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		5FDD63FD28560953001AA429 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = Y8JL76N88P;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_TESTING_SEARCH_PATHS = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = ../BrainFlow/BrainFlow.h;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		5FDD63FE28560953001AA429 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = Y8JL76N88P;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_TESTING_SEARCH_PATHS = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = ../BrainFlow/BrainFlow.h;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		5FDD643528560DBF001AA429 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Y8JL76N88P;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Aeris-Rising.BrainFlowCITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = ../BrainFlow/BrainFlow.h;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		5FDD643628560DBF001AA429 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Y8JL76N88P;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Aeris-Rising.BrainFlowCITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = ../BrainFlow/BrainFlow.h;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		5FDD63F028560953001AA429 /* Build configuration list for PBXProject "BrainFlowCI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5FDD63FA28560953001AA429 /* Debug */,
+				5FDD63FB28560953001AA429 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5FDD63FC28560953001AA429 /* Build configuration list for PBXNativeTarget "BrainFlowCI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5FDD63FD28560953001AA429 /* Debug */,
+				5FDD63FE28560953001AA429 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5FDD643428560DBF001AA429 /* Build configuration list for PBXNativeTarget "BrainFlowCITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5FDD643528560DBF001AA429 /* Debug */,
+				5FDD643628560DBF001AA429 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		5FDD644A285618BF001AA429 /* XCRemoteSwiftPackageReference "swift-numerics" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-numerics.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		5F20CCB6285DDE5500F2CEB5 /* Numerics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5FDD644A285618BF001AA429 /* XCRemoteSwiftPackageReference "swift-numerics" */;
+			productName = Numerics;
+		};
+		5F20CCB8285DDE8200F2CEB5 /* Numerics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5FDD644A285618BF001AA429 /* XCRemoteSwiftPackageReference "swift-numerics" */;
+			productName = Numerics;
+		};
+		5F20CCBA285DDE8E00F2CEB5 /* BrainFlow */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BrainFlow;
+		};
+		5FDD640228560B36001AA429 /* BrainFlow */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BrainFlow;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 5FDD63ED28560953001AA429 /* Project object */;
+}
