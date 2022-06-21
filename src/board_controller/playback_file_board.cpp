@@ -155,7 +155,7 @@ void PlaybackFileBoard::read_thread ()
         safe_logger (spdlog::level::err, "failed to open file in thread");
         return;
     }
-    int num_rows = board_descr["num_rows"];
+    int num_rows = board_descr["num_rows"]["default"];
     double *package = new double[num_rows];
     for (int i = 0; i < num_rows; i++)
     {
@@ -164,7 +164,7 @@ void PlaybackFileBoard::read_thread ()
     char buf[4096];
     double last_timestamp = -1.0;
     bool new_timestamps = use_new_timestamps; // to prevent changing during streaming
-    int timestamp_channel = board_descr["timestamp_channel"];
+    int timestamp_channel = board_descr["timestamp_channel"]["default"];
     double accumulated_time_delta = 0.0;
 
     while (keep_alive)

@@ -115,11 +115,11 @@ namespace brainflow
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int release_session (int board_id, string input_json);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_current_board_data (int num_samples, double[] data_buf, int[] returned_samples, int board_id, string input_json);
+        public static extern int get_current_board_data (int num_samples, string preset, double[] data_buf, int[] returned_samples, int board_id, string input_json);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_board_data_count (int[] result, int board_id, string input_json);
+        public static extern int get_board_data_count (string preset, int[] result, int board_id, string input_json);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_board_data (int data_count, double[] data_buf, int board_id, string input_json);
+        public static extern int get_board_data (int data_count, string preset, double[] data_buf, int board_id, string input_json);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_level_board_controller (int log_level);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -129,57 +129,59 @@ namespace brainflow
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_file_board_controller (string log_file);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_sampling_rate (int board_id, int[] sampling_rate);
+        public static extern int get_sampling_rate (int board_id, string preset, int[] sampling_rate);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_timestamp_channel (int board_id, int[] timestamp_channel);
+        public static extern int get_timestamp_channel (int board_id, string preset, int[] timestamp_channel);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_marker_channel (int board_id, int[] marker_channel);
+        public static extern int get_marker_channel (int board_id, string preset, int[] marker_channel);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_package_num_channel (int board_id, int[] package_num_channel);
+        public static extern int get_package_num_channel (int board_id, string preset, int[] package_num_channel);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_battery_channel (int board_id, int[] battery_channel);
+        public static extern int get_battery_channel (int board_id, string preset, int[] battery_channel);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_num_rows (int board_id, int[] num_rows);
+        public static extern int get_num_rows (int board_id, string preset, int[] num_rows);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_eeg_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_eeg_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_emg_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_emg_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_ecg_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_ecg_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_eog_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_eog_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_eda_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_eda_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_ppg_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_ppg_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_accel_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_accel_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_analog_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_analog_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_gyro_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_gyro_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_other_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_other_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_temperature_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_temperature_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int is_prepared (int[] prepared, int board_id, string input_json);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_eeg_names (int board_id, byte[] eeg_names, int[] len);
+        public static extern int get_eeg_names (int board_id, string preset, byte[] eeg_names, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_resistance_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_resistance_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_exg_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_exg_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_device_name (int board_id, byte[] name, int[] len);
+        public static extern int get_device_name (int board_id, string preset, byte[] name, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int insert_marker (double value, int board_id, string input_json);
+        public static extern int insert_marker (double value, string preset, int board_id, string input_json);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_board_descr (int board_id, byte[] board_descr, int[] len);
+        public static extern int get_board_descr (int board_id, string preset, byte[] board_descr, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int release_all_sessions ();
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_version_board_controller (byte[] version, int[] len, int max_len);
+        [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_board_presets (int board_id, int max_len, byte[] names, int[] len);
     }
 
     public static class BoardControllerLibrary32
@@ -193,11 +195,11 @@ namespace brainflow
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int release_session (int board_id, string input_json);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_current_board_data (int num_samples, double[] data_buf, int[] returned_samples, int board_id, string input_json);
+        public static extern int get_current_board_data (int num_samples, string preset, double[] data_buf, int[] returned_samples, int board_id, string input_json);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_board_data_count (int[] result, int board_id, string input_json);
+        public static extern int get_board_data_count (string preset, int[] result, int board_id, string input_json);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_board_data (int data_count, double[] data_buf, int board_id, string input_json);
+        public static extern int get_board_data (int data_count, string preset, double[] data_buf, int board_id, string input_json);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_level_board_controller (int log_level);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -207,57 +209,59 @@ namespace brainflow
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_file_board_controller (string log_file);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_sampling_rate (int board_id, int[] sampling_rate);
+        public static extern int get_sampling_rate (int board_id, string preset, int[] sampling_rate);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_timestamp_channel (int board_id, int[] timestamp_channel);
+        public static extern int get_timestamp_channel (int board_id, string preset, int[] timestamp_channel);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_marker_channel (int board_id, int[] marker_channel);
+        public static extern int get_marker_channel (int board_id, string preset, int[] marker_channel);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_package_num_channel (int board_id, int[] package_num_channel);
+        public static extern int get_package_num_channel (int board_id, string preset, int[] package_num_channel);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_battery_channel (int board_id, int[] battery_channel);
+        public static extern int get_battery_channel (int board_id, string preset, int[] battery_channel);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_num_rows (int board_id, int[] num_rows);
+        public static extern int get_num_rows (int board_id, string preset, int[] num_rows);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_eeg_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_eeg_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_emg_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_emg_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_ecg_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_ecg_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_eog_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_eog_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_eda_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_eda_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_ppg_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_ppg_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_accel_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_accel_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_analog_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_analog_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_gyro_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_gyro_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_other_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_other_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_temperature_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_temperature_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int is_prepared (int[] prepared, int board_id, string input_json);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_eeg_names (int board_id, byte[] eeg_names, int[] len);
+        public static extern int get_eeg_names (int board_id, string preset, byte[] eeg_names, int[] len);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_resistance_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_resistance_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_exg_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_exg_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_device_name (int board_id, byte[] name, int[] len);
+        public static extern int get_device_name (int board_id, string preset, byte[] name, int[] len);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int insert_marker (double value, int board_id, string input_json);
+        public static extern int insert_marker (double value, string preset, int board_id, string input_json);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_board_descr (int board_id, byte[] board_descr, int[] len);
+        public static extern int get_board_descr (int board_id, string preset, byte[] board_descr, int[] len);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int release_all_sessions ();
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_version_board_controller (byte[] version, int[] len, int max_len);
+        [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_board_presets (int board_id, int max_len, byte[] names, int[] len);
     }
 
     public static class BoardControllerLibraryLinux
@@ -271,11 +275,11 @@ namespace brainflow
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int release_session (int board_id, string input_json);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_current_board_data (int num_samples, double[] data_buf, int[] returned_samples, int board_id, string input_json);
+        public static extern int get_current_board_data (int num_samples, string preset, double[] data_buf, int[] returned_samples, int board_id, string input_json);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_board_data_count (int[] result, int board_id, string input_json);
+        public static extern int get_board_data_count (string preset, int[] result, int board_id, string input_json);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_board_data (int data_count, double[] data_buf, int board_id, string input_json);
+        public static extern int get_board_data (int data_count, string preset, double[] data_buf, int board_id, string input_json);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_level_board_controller (int log_level);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -285,57 +289,59 @@ namespace brainflow
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_file_board_controller (string log_file);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_sampling_rate (int board_id, int[] sampling_rate);
+        public static extern int get_sampling_rate (int board_id, string preset, int[] sampling_rate);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_timestamp_channel (int board_id, int[] timestamp_channel);
+        public static extern int get_timestamp_channel (int board_id, string preset, int[] timestamp_channel);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_marker_channel (int board_id, int[] marker_channel);
+        public static extern int get_marker_channel (int board_id, string preset, int[] marker_channel);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_package_num_channel (int board_id, int[] package_num_channel);
+        public static extern int get_package_num_channel (int board_id, string preset, int[] package_num_channel);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_battery_channel (int board_id, int[] battery_channel);
+        public static extern int get_battery_channel (int board_id, string preset, int[] battery_channel);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_num_rows (int board_id, int[] num_rows);
+        public static extern int get_num_rows (int board_id, string preset, int[] num_rows);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_eeg_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_eeg_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_emg_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_emg_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_ecg_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_ecg_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_eog_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_eog_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_eda_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_eda_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_ppg_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_ppg_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_accel_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_accel_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_analog_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_analog_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_gyro_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_gyro_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_other_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_other_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_temperature_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_temperature_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int is_prepared (int[] prepared, int board_id, string input_json);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_eeg_names (int board_id, byte[] eeg_names, int[] len);
+        public static extern int get_eeg_names (int board_id, string preset, byte[] eeg_names, int[] len);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_resistance_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_resistance_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_exg_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_exg_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_device_name (int board_id, byte[] name, int[] len);
+        public static extern int get_device_name (int board_id, string preset, byte[] name, int[] len);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int insert_marker (double value, int board_id, string input_json);
+        public static extern int insert_marker (double value, string preset, int board_id, string input_json);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_board_descr (int board_id, byte[] board_descr, int[] len);
+        public static extern int get_board_descr (int board_id, string preset, byte[] board_descr, int[] len);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int release_all_sessions ();
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_version_board_controller (byte[] version, int[] len, int max_len);
+        [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_board_presets (int board_id, int max_len, byte[] names, int[] len);
     }
 
     public static class BoardControllerLibraryMac
@@ -345,17 +351,17 @@ namespace brainflow
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int start_stream (int buffer_size, string streamer_params, int board_id, string input_json);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int insert_marker (double value, int board_id, string input_json);
+        public static extern int insert_marker (double value, string preset, int board_id, string input_json);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int stop_stream (int board_id, string input_json);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int release_session (int board_id, string input_json);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_current_board_data (int num_samples, double[] data_buf, int[] returned_samples, int board_id, string input_json);
+        public static extern int get_current_board_data (int num_samples, string preset, double[] data_buf, int[] returned_samples, int board_id, string input_json);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_board_data_count (int[] result, int board_id, string input_json);
+        public static extern int get_board_data_count (string preset, int[] result, int board_id, string input_json);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_board_data (int data_count, double[] data_buf, int board_id, string input_json);
+        public static extern int get_board_data (int data_count, string preset, double[] data_buf, int board_id, string input_json);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_level_board_controller (int log_level);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -365,55 +371,57 @@ namespace brainflow
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_file_board_controller (string log_file);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_sampling_rate (int board_id, int[] sampling_rate);
+        public static extern int get_sampling_rate (int board_id, string preset, int[] sampling_rate);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_timestamp_channel (int board_id, int[] timestamp_channel);
+        public static extern int get_timestamp_channel (int board_id, string preset, int[] timestamp_channel);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_marker_channel (int board_id, int[] marker_channel);
+        public static extern int get_marker_channel (int board_id, string preset, int[] marker_channel);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_package_num_channel (int board_id, int[] package_num_channel);
+        public static extern int get_package_num_channel (int board_id, string preset, int[] package_num_channel);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_battery_channel (int board_id, int[] battery_channel);
+        public static extern int get_battery_channel (int board_id, string preset, int[] battery_channel);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_num_rows (int board_id, int[] num_rows);
+        public static extern int get_num_rows (int board_id, string preset, int[] num_rows);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_eeg_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_eeg_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_emg_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_emg_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_ecg_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_ecg_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_eog_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_eog_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_eda_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_eda_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_ppg_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_ppg_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_accel_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_accel_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_analog_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_analog_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_gyro_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_gyro_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_other_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_other_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_temperature_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_temperature_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int is_prepared (int[] prepared, int board_id, string input_json);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_eeg_names (int board_id, byte[] eeg_names, int[] len);
+        public static extern int get_eeg_names (int board_id, string preset, byte[] eeg_names, int[] len);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_resistance_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_resistance_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_exg_channels (int board_id, int[] channels, int[] len);
+        public static extern int get_exg_channels (int board_id, string preset, int[] channels, int[] len);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_device_name (int board_id, byte[] name, int[] len);
+        public static extern int get_device_name (int board_id, string preset, byte[] name, int[] len);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_board_descr (int board_id, byte[] board_descr, int[] len);
+        public static extern int get_board_descr (int board_id, string preset, byte[] board_descr, int[] len);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int release_all_sessions ();
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_version_board_controller (byte[] version, int[] len, int max_len);
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_board_presets (int board_id, int max_len, byte[] names, int[] len);
     }
 
     public static class BoardControllerLibrary
@@ -486,35 +494,35 @@ namespace brainflow
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_current_board_data (int num_samples, double[] data_buf, int[] returned_samples, int board_id, string input_json)
+        public static int get_current_board_data (int num_samples, string preset, double[] data_buf, int[] returned_samples, int board_id, string input_json)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.get_current_board_data (num_samples, data_buf, returned_samples, board_id, input_json);
+                    return BoardControllerLibrary64.get_current_board_data (num_samples, preset, data_buf, returned_samples, board_id, input_json);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.get_current_board_data (num_samples, data_buf, returned_samples, board_id, input_json);
+                    return BoardControllerLibrary32.get_current_board_data (num_samples, preset, data_buf, returned_samples, board_id, input_json);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.get_current_board_data (num_samples, data_buf, returned_samples, board_id, input_json);
+                    return BoardControllerLibraryLinux.get_current_board_data (num_samples, preset, data_buf, returned_samples, board_id, input_json);
                 case LibraryEnvironment.MacOS:
-                    return BoardControllerLibraryMac.get_current_board_data (num_samples, data_buf, returned_samples, board_id, input_json);
+                    return BoardControllerLibraryMac.get_current_board_data (num_samples, preset, data_buf, returned_samples, board_id, input_json);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_board_data_count (int[] result, int board_id, string input_json)
+        public static int get_board_data_count (string preset, int[] result, int board_id, string input_json)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.get_board_data_count (result, board_id, input_json);
+                    return BoardControllerLibrary64.get_board_data_count (preset, result, board_id, input_json);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.get_board_data_count (result, board_id, input_json);
+                    return BoardControllerLibrary32.get_board_data_count (preset, result, board_id, input_json);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.get_board_data_count (result, board_id, input_json);
+                    return BoardControllerLibraryLinux.get_board_data_count (preset, result, board_id, input_json);
                 case LibraryEnvironment.MacOS:
-                    return BoardControllerLibraryMac.get_board_data_count (result, board_id, input_json);
+                    return BoardControllerLibraryMac.get_board_data_count (preset, result, board_id, input_json);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
@@ -537,18 +545,18 @@ namespace brainflow
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_board_data (int data_count, double[] data_buf, int board_id, string input_json)
+        public static int get_board_data (int data_count, string preset, double[] data_buf, int board_id, string input_json)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.get_board_data (data_count, data_buf, board_id, input_json);
+                    return BoardControllerLibrary64.get_board_data (data_count, preset, data_buf, board_id, input_json);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.get_board_data (data_count, data_buf, board_id, input_json);
+                    return BoardControllerLibrary32.get_board_data (data_count, preset, data_buf, board_id, input_json);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.get_board_data (data_count, data_buf, board_id, input_json);
+                    return BoardControllerLibraryLinux.get_board_data (data_count, preset, data_buf, board_id, input_json);
                 case LibraryEnvironment.MacOS:
-                    return BoardControllerLibraryMac.get_board_data (data_count, data_buf, board_id, input_json);
+                    return BoardControllerLibraryMac.get_board_data (data_count, preset, data_buf, board_id, input_json);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
@@ -588,18 +596,18 @@ namespace brainflow
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int insert_marker (double value, int board_id, string input_json)
+        public static int insert_marker (double value, string preset, int board_id, string input_json)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.insert_marker (value, board_id, input_json);
+                    return BoardControllerLibrary64.insert_marker (value, preset, board_id, input_json);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.insert_marker (value, board_id, input_json);
+                    return BoardControllerLibrary32.insert_marker (value, preset, board_id, input_json);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.insert_marker (value, board_id, input_json);
+                    return BoardControllerLibraryLinux.insert_marker (value, preset, board_id, input_json);
                 case LibraryEnvironment.MacOS:
-                    return BoardControllerLibraryMac.insert_marker (value, board_id, input_json);
+                    return BoardControllerLibraryMac.insert_marker (value, preset, board_id, input_json);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
@@ -640,154 +648,171 @@ namespace brainflow
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_sampling_rate (int board_id, int[] sampling_rate)
+        public static int get_sampling_rate (int board_id, string preset, int[] sampling_rate)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.get_sampling_rate (board_id, sampling_rate);
+                    return BoardControllerLibrary64.get_sampling_rate (board_id, preset, sampling_rate);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.get_sampling_rate (board_id, sampling_rate);
+                    return BoardControllerLibrary32.get_sampling_rate (board_id, preset, sampling_rate);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.get_sampling_rate (board_id, sampling_rate);
+                    return BoardControllerLibraryLinux.get_sampling_rate (board_id, preset, sampling_rate);
                 case LibraryEnvironment.MacOS:
-                    return BoardControllerLibraryMac.get_sampling_rate (board_id, sampling_rate);
+                    return BoardControllerLibraryMac.get_sampling_rate (board_id, preset, sampling_rate);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_package_num_channel (int board_id, int[] package_num)
+        public static int get_package_num_channel (int board_id, string preset, int[] package_num)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.get_package_num_channel (board_id, package_num);
+                    return BoardControllerLibrary64.get_package_num_channel (board_id, preset, package_num);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.get_package_num_channel (board_id, package_num);
+                    return BoardControllerLibrary32.get_package_num_channel (board_id, preset, package_num);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.get_package_num_channel (board_id, package_num);
+                    return BoardControllerLibraryLinux.get_package_num_channel (board_id, preset, package_num);
                 case LibraryEnvironment.MacOS:
-                    return BoardControllerLibraryMac.get_package_num_channel (board_id, package_num);
+                    return BoardControllerLibraryMac.get_package_num_channel (board_id, preset, package_num);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_battery_channel (int board_id, int[] battery)
+        public static int get_battery_channel (int board_id, string preset, int[] battery)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.get_battery_channel (board_id, battery);
+                    return BoardControllerLibrary64.get_battery_channel (board_id, preset, battery);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.get_battery_channel (board_id, battery);
+                    return BoardControllerLibrary32.get_battery_channel (board_id, preset, battery);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.get_battery_channel (board_id, battery);
+                    return BoardControllerLibraryLinux.get_battery_channel (board_id, preset, battery);
                 case LibraryEnvironment.MacOS:
-                    return BoardControllerLibraryMac.get_battery_channel (board_id, battery);
+                    return BoardControllerLibraryMac.get_battery_channel (board_id, preset, battery);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_num_rows (int board_id, int[] num_rows)
+        public static int get_num_rows (int board_id, string preset, int[] num_rows)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.get_num_rows (board_id, num_rows);
+                    return BoardControllerLibrary64.get_num_rows (board_id, preset, num_rows);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.get_num_rows (board_id, num_rows);
+                    return BoardControllerLibrary32.get_num_rows (board_id, preset, num_rows);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.get_num_rows (board_id, num_rows);
+                    return BoardControllerLibraryLinux.get_num_rows (board_id, preset, num_rows);
                 case LibraryEnvironment.MacOS:
-                    return BoardControllerLibraryMac.get_num_rows (board_id, num_rows);
+                    return BoardControllerLibraryMac.get_num_rows (board_id, preset, num_rows);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_timestamp_channel (int board_id, int[] timestamp_channel)
+        public static int get_timestamp_channel (int board_id, string preset, int[] timestamp_channel)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.get_timestamp_channel (board_id, timestamp_channel);
+                    return BoardControllerLibrary64.get_timestamp_channel (board_id, preset, timestamp_channel);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.get_timestamp_channel (board_id, timestamp_channel);
+                    return BoardControllerLibrary32.get_timestamp_channel (board_id, preset, timestamp_channel);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.get_timestamp_channel (board_id, timestamp_channel);
+                    return BoardControllerLibraryLinux.get_timestamp_channel (board_id, preset, timestamp_channel);
                 case LibraryEnvironment.MacOS:
-                    return BoardControllerLibraryMac.get_timestamp_channel (board_id, timestamp_channel);
+                    return BoardControllerLibraryMac.get_timestamp_channel (board_id, preset, timestamp_channel);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_marker_channel (int board_id, int[] marker_channel)
+        public static int get_marker_channel (int board_id, string preset, int[] marker_channel)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.get_marker_channel (board_id, marker_channel);
+                    return BoardControllerLibrary64.get_marker_channel (board_id, preset, marker_channel);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.get_marker_channel (board_id, marker_channel);
+                    return BoardControllerLibrary32.get_marker_channel (board_id, preset, marker_channel);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.get_marker_channel (board_id, marker_channel);
+                    return BoardControllerLibraryLinux.get_marker_channel (board_id, preset, marker_channel);
                 case LibraryEnvironment.MacOS:
-                    return BoardControllerLibraryMac.get_marker_channel (board_id, marker_channel);
+                    return BoardControllerLibraryMac.get_marker_channel (board_id, preset, marker_channel);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_eeg_names (int board_id, byte[] names, int[] len)
+        public static int get_eeg_names (int board_id, string preset, byte[] names, int[] len)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.get_eeg_names (board_id, names, len);
+                    return BoardControllerLibrary64.get_eeg_names (board_id, preset, names, len);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.get_eeg_names (board_id, names, len);
+                    return BoardControllerLibrary32.get_eeg_names (board_id, preset, names, len);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.get_eeg_names (board_id, names, len);
+                    return BoardControllerLibraryLinux.get_eeg_names (board_id, preset, names, len);
                 case LibraryEnvironment.MacOS:
-                    return BoardControllerLibraryMac.get_eeg_names (board_id, names, len);
+                    return BoardControllerLibraryMac.get_eeg_names (board_id, preset, names, len);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_board_descr (int board_id, byte[] descr, int[] len)
+        public static int get_board_presets (int board_id, int max_len, byte[] names, int[] len)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.get_board_descr (board_id, descr, len);
+                    return BoardControllerLibrary64.get_board_presets (board_id, max_len, names, len);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.get_board_descr (board_id, descr, len);
+                    return BoardControllerLibrary32.get_board_presets (board_id, max_len, names, len);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.get_board_descr (board_id, descr, len);
+                    return BoardControllerLibraryLinux.get_board_presets (board_id, max_len, names, len);
                 case LibraryEnvironment.MacOS:
-                    return BoardControllerLibraryMac.get_board_descr (board_id, descr, len);
+                    return BoardControllerLibraryMac.get_board_presets (board_id, max_len, names, len);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_device_name (int board_id, byte[] name, int[] len)
+        public static int get_board_descr (int board_id, string preset, byte[] descr, int[] len)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.get_device_name (board_id, name, len);
+                    return BoardControllerLibrary64.get_board_descr (board_id, preset, descr, len);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.get_device_name (board_id, name, len);
+                    return BoardControllerLibrary32.get_board_descr (board_id, preset, descr, len);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.get_device_name (board_id, name, len);
+                    return BoardControllerLibraryLinux.get_board_descr (board_id, preset, descr, len);
                 case LibraryEnvironment.MacOS:
-                    return BoardControllerLibraryMac.get_device_name (board_id, name, len);
+                    return BoardControllerLibraryMac.get_board_descr (board_id, preset, descr, len);
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static int get_device_name (int board_id, string preset, byte[] name, int[] len)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_device_name (board_id, preset, name, len);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_device_name (board_id, preset, name, len);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.get_device_name (board_id, preset, name, len);
+                case LibraryEnvironment.MacOS:
+                    return BoardControllerLibraryMac.get_device_name (board_id, preset, name, len);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
@@ -810,222 +835,222 @@ namespace brainflow
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_eeg_channels (int board_id, int[] channels, int[] len)
+        public static int get_eeg_channels (int board_id, string preset, int[] channels, int[] len)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.get_eeg_channels (board_id, channels, len);
+                    return BoardControllerLibrary64.get_eeg_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.get_eeg_channels (board_id, channels, len);
+                    return BoardControllerLibrary32.get_eeg_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.get_eeg_channels (board_id, channels, len);
+                    return BoardControllerLibraryLinux.get_eeg_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.MacOS:
-                    return BoardControllerLibraryMac.get_eeg_channels (board_id, channels, len);
+                    return BoardControllerLibraryMac.get_eeg_channels (board_id, preset, channels, len);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_exg_channels (int board_id, int[] channels, int[] len)
+        public static int get_exg_channels (int board_id, string preset, int[] channels, int[] len)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.get_exg_channels (board_id, channels, len);
+                    return BoardControllerLibrary64.get_exg_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.get_exg_channels (board_id, channels, len);
+                    return BoardControllerLibrary32.get_exg_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.get_exg_channels (board_id, channels, len);
+                    return BoardControllerLibraryLinux.get_exg_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.MacOS:
-                    return BoardControllerLibraryMac.get_exg_channels (board_id, channels, len);
+                    return BoardControllerLibraryMac.get_exg_channels (board_id, preset, channels, len);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_emg_channels (int board_id, int[] channels, int[] len)
+        public static int get_emg_channels (int board_id, string preset, int[] channels, int[] len)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.get_emg_channels (board_id, channels, len);
+                    return BoardControllerLibrary64.get_emg_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.get_emg_channels (board_id, channels, len);
+                    return BoardControllerLibrary32.get_emg_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.get_emg_channels (board_id, channels, len);
+                    return BoardControllerLibraryLinux.get_emg_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.MacOS:
-                    return BoardControllerLibraryMac.get_emg_channels (board_id, channels, len);
+                    return BoardControllerLibraryMac.get_emg_channels (board_id, preset, channels, len);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_ecg_channels (int board_id, int[] channels, int[] len)
+        public static int get_ecg_channels (int board_id, string preset, int[] channels, int[] len)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.get_ecg_channels (board_id, channels, len);
+                    return BoardControllerLibrary64.get_ecg_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.get_ecg_channels (board_id, channels, len);
+                    return BoardControllerLibrary32.get_ecg_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.get_ecg_channels (board_id, channels, len);
+                    return BoardControllerLibraryLinux.get_ecg_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.MacOS:
-                    return BoardControllerLibraryMac.get_ecg_channels (board_id, channels, len);
+                    return BoardControllerLibraryMac.get_ecg_channels (board_id, preset, channels, len);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_eog_channels (int board_id, int[] channels, int[] len)
+        public static int get_eog_channels (int board_id, string preset, int[] channels, int[] len)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.get_eog_channels (board_id, channels, len);
+                    return BoardControllerLibrary64.get_eog_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.get_eog_channels (board_id, channels, len);
+                    return BoardControllerLibrary32.get_eog_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.get_eog_channels (board_id, channels, len);
+                    return BoardControllerLibraryLinux.get_eog_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.MacOS:
-                    return BoardControllerLibraryMac.get_eog_channels (board_id, channels, len);
+                    return BoardControllerLibraryMac.get_eog_channels (board_id, preset, channels, len);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_eda_channels (int board_id, int[] channels, int[] len)
+        public static int get_eda_channels (int board_id, string preset, int[] channels, int[] len)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.get_eda_channels (board_id, channels, len);
+                    return BoardControllerLibrary64.get_eda_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.get_eda_channels (board_id, channels, len);
+                    return BoardControllerLibrary32.get_eda_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.get_eda_channels (board_id, channels, len);
+                    return BoardControllerLibraryLinux.get_eda_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.MacOS:
-                    return BoardControllerLibraryMac.get_eda_channels (board_id, channels, len);
+                    return BoardControllerLibraryMac.get_eda_channels (board_id, preset, channels, len);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_ppg_channels (int board_id, int[] channels, int[] len)
+        public static int get_ppg_channels (int board_id, string preset , int[] channels, int[] len)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.get_ppg_channels (board_id, channels, len);
+                    return BoardControllerLibrary64.get_ppg_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.get_ppg_channels (board_id, channels, len);
+                    return BoardControllerLibrary32.get_ppg_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.get_ppg_channels (board_id, channels, len);
+                    return BoardControllerLibraryLinux.get_ppg_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.MacOS:
-                    return BoardControllerLibraryMac.get_ppg_channels (board_id, channels, len);
+                    return BoardControllerLibraryMac.get_ppg_channels (board_id, preset, channels, len);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_accel_channels (int board_id, int[] channels, int[] len)
+        public static int get_accel_channels (int board_id, string preset, int[] channels, int[] len)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.get_accel_channels (board_id, channels, len);
+                    return BoardControllerLibrary64.get_accel_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.get_accel_channels (board_id, channels, len);
+                    return BoardControllerLibrary32.get_accel_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.get_accel_channels (board_id, channels, len);
+                    return BoardControllerLibraryLinux.get_accel_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.MacOS:
-                    return BoardControllerLibraryMac.get_accel_channels (board_id, channels, len);
+                    return BoardControllerLibraryMac.get_accel_channels (board_id, preset, channels, len);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_analog_channels (int board_id, int[] channels, int[] len)
+        public static int get_analog_channels (int board_id, string preset, int[] channels, int[] len)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.get_analog_channels (board_id, channels, len);
+                    return BoardControllerLibrary64.get_analog_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.get_analog_channels (board_id, channels, len);
+                    return BoardControllerLibrary32.get_analog_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.get_analog_channels (board_id, channels, len);
+                    return BoardControllerLibraryLinux.get_analog_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.MacOS:
-                    return BoardControllerLibraryMac.get_analog_channels (board_id, channels, len);
+                    return BoardControllerLibraryMac.get_analog_channels (board_id, preset, channels, len);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_gyro_channels (int board_id, int[] channels, int[] len)
+        public static int get_gyro_channels (int board_id, string preset, int[] channels, int[] len)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.get_gyro_channels (board_id, channels, len);
+                    return BoardControllerLibrary64.get_gyro_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.get_gyro_channels (board_id, channels, len);
+                    return BoardControllerLibrary32.get_gyro_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.get_gyro_channels (board_id, channels, len);
+                    return BoardControllerLibraryLinux.get_gyro_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.MacOS:
-                    return BoardControllerLibraryMac.get_gyro_channels (board_id, channels, len);
+                    return BoardControllerLibraryMac.get_gyro_channels (board_id, preset, channels, len);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_other_channels (int board_id, int[] channels, int[] len)
+        public static int get_other_channels (int board_id, string preset, int[] channels, int[] len)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.get_other_channels (board_id, channels, len);
+                    return BoardControllerLibrary64.get_other_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.get_other_channels (board_id, channels, len);
+                    return BoardControllerLibrary32.get_other_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.get_other_channels (board_id, channels, len);
+                    return BoardControllerLibraryLinux.get_other_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.MacOS:
-                    return BoardControllerLibraryMac.get_other_channels (board_id, channels, len);
+                    return BoardControllerLibraryMac.get_other_channels (board_id, preset, channels, len);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_temperature_channels (int board_id, int[] channels, int[] len)
+        public static int get_temperature_channels (int board_id, string preset, int[] channels, int[] len)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.get_temperature_channels (board_id, channels, len);
+                    return BoardControllerLibrary64.get_temperature_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.get_temperature_channels (board_id, channels, len);
+                    return BoardControllerLibrary32.get_temperature_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.get_temperature_channels (board_id, channels, len);
+                    return BoardControllerLibraryLinux.get_temperature_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.MacOS:
-                    return BoardControllerLibraryMac.get_temperature_channels (board_id, channels, len);
+                    return BoardControllerLibraryMac.get_temperature_channels (board_id, preset, channels, len);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_resistance_channels (int board_id, int[] channels, int[] len)
+        public static int get_resistance_channels (int board_id, string preset, int[] channels, int[] len)
         {
             switch (PlatformHelper.get_library_environment ())
             {
                 case LibraryEnvironment.x64:
-                    return BoardControllerLibrary64.get_resistance_channels (board_id, channels, len);
+                    return BoardControllerLibrary64.get_resistance_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.x86:
-                    return BoardControllerLibrary32.get_resistance_channels (board_id, channels, len);
+                    return BoardControllerLibrary32.get_resistance_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.Linux:
-                    return BoardControllerLibraryLinux.get_resistance_channels (board_id, channels, len);
+                    return BoardControllerLibraryLinux.get_resistance_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.MacOS:
-                    return BoardControllerLibraryMac.get_resistance_channels (board_id, channels, len);
+                    return BoardControllerLibraryMac.get_resistance_channels (board_id, preset, channels, len);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;

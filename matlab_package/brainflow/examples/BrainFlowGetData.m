@@ -7,6 +7,6 @@ board_shim.prepare_session();
 board_shim.start_stream(45000, '');
 pause(5);
 board_shim.stop_stream();
-data = board_shim.get_current_board_data(10);
+data = board_shim.get_current_board_data(10, 'default');
 disp(data);
 board_shim.release_session();

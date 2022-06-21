@@ -10,7 +10,7 @@ fn main() {
     brainflow::board_shim::enable_dev_board_logger().unwrap();
 
     let board_id = BoardIds::SyntheticBoard;
-    let eeg_channels = board_shim::get_eeg_channels(board_id).unwrap();
+    let eeg_channels = board_shim::get_eeg_channels(board_id, "default").unwrap();
     println!("{:?}", eeg_channels);
 
     let params = BrainFlowInputParamsBuilder::default().build();
@@ -20,7 +20,7 @@ fn main() {
     board.start_stream(45000, "").unwrap();
     thread::sleep(Duration::from_secs(5));
     board.stop_stream().unwrap();
-    let mut data = board.get_board_data(Some(64)).unwrap();
+    let mut data = board.get_board_data(Some(64), "default").unwrap();
     board.release_session().unwrap();
 
     let data_len = data.slice(s![0, ..]).len();

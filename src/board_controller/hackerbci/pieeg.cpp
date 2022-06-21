@@ -206,14 +206,14 @@ void PiEEG::read_thread ()
 {
     uint8_t buf[27] = {0};
     uint8_t zero27[27] = {0};
-    int num_rows = board_descr["num_rows"];
+    int num_rows = board_descr["default"]["num_rows"];
     double *package = new double[num_rows];
     for (int i = 0; i < num_rows; i++)
     {
         package[i] = 0.0;
     }
 
-    std::vector<int> eeg_channels = board_descr["eeg_channels"];
+    std::vector<int> eeg_channels = board_descr["default"]["eeg_channels"];
 
     double eeg_scale = 4.5 / float ((pow (2, 23) - 1)) / 8 * 1000000.;
     double timestamp = 0;
@@ -267,8 +267,8 @@ void PiEEG::read_thread ()
 
                 package[eeg_channels[i]] = 0.27 * voltage;
             }
-            package[board_descr["timestamp_channel"].get<int> ()] = timestamp;
-            package[board_descr["package_num_channel"].get<int> ()] = counter++;
+            package[board_descr["default"]["timestamp_channel"].get<int> ()] = timestamp;
+            package[board_descr["default"]["package_num_channel"].get<int> ()] = counter++;
             push_package (package);
         }
     }

@@ -278,7 +278,7 @@ void GaleaSerial::read_thread ()
     {
         b[i] = 0;
     }
-    int num_rows = board_descr["num_rows"];
+    int num_rows = board_descr["default"]["num_rows"];
     double *package = new double[num_rows];
     for (int i = 0; i < num_rows; i++)
     {
@@ -351,7 +351,8 @@ void GaleaSerial::read_thread ()
         {
             int offset = cur_package * package_size;
             // package num
-            package[board_descr["package_num_channel"].get<int> ()] = (double)b[0 + offset];
+            package[board_descr["default"]["package_num_channel"].get<int> ()] =
+                (double)b[0 + offset];
             // eeg and emg
             for (int i = 4, tmp_counter = 0; i < 20; i++, tmp_counter++)
             {
@@ -375,23 +376,24 @@ void GaleaSerial::read_thread ()
             memcpy (&ppg_red, b + 56 + offset, 4);
             memcpy (&ppg_ir, b + 60 + offset, 4);
             // ppg
-            package[board_descr["ppg_channels"][0].get<int> ()] = (double)ppg_red;
-            package[board_descr["ppg_channels"][1].get<int> ()] = (double)ppg_ir;
+            package[board_descr["default"]["ppg_channels"][0].get<int> ()] = (double)ppg_red;
+            package[board_descr["default"]["ppg_channels"][1].get<int> ()] = (double)ppg_ir;
             // eda
-            package[board_descr["eda_channels"][0].get<int> ()] = (double)eda;
+            package[board_descr["default"]["eda_channels"][0].get<int> ()] = (double)eda;
             // temperature
-            package[board_descr["temperature_channels"][0].get<int> ()] = temperature / 100.0;
+            package[board_descr["default"]["temperature_channels"][0].get<int> ()] =
+                temperature / 100.0;
             // battery
-            package[board_descr["battery_channel"].get<int> ()] = (double)b[53 + offset];
+            package[board_descr["default"]["battery_channel"].get<int> ()] = (double)b[53 + offset];
 
             double timestamp_device = 0.0;
             memcpy (&timestamp_device, b + 64 + offset, 8);
             timestamp_device /= 1000; // from ms to seconds
 
-            package[board_descr["timestamp_channel"].get<int> ()] =
+            package[board_descr["default"]["timestamp_channel"].get<int> ()] =
                 timestamp_device + time_delta - half_rtt;
-            package[board_descr["other_channels"][0].get<int> ()] = pc_timestamp;
-            package[board_descr["other_channels"][1].get<int> ()] = timestamp_device;
+            package[board_descr["default"]["other_channels"][0].get<int> ()] = pc_timestamp;
+            package[board_descr["default"]["other_channels"][1].get<int> ()] = timestamp_device;
 
             push_package (package);
         }

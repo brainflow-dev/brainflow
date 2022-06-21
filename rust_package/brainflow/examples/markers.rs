@@ -13,10 +13,10 @@ fn main() {
     board.prepare_session().unwrap();
     board.start_stream(45000, "file://data.csv:w").unwrap();
     thread::sleep(Duration::from_secs(5));
-    board.insert_marker(1.0).unwrap();
+    board.insert_marker(1.0, "default").unwrap();
     thread::sleep(Duration::from_secs(5));
     board.stop_stream().unwrap();
-    let data = board.get_board_data(Some(10)).unwrap();
+    let data = board.get_board_data(Some(10), "default").unwrap();
     board.release_session().unwrap();
 
     println!("{:?}", data);

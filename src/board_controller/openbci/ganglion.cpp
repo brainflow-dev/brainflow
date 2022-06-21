@@ -243,7 +243,7 @@ void Ganglion::read_thread ()
         return;
     }
 
-    int num_rows = board_descr["num_rows"];
+    int num_rows = board_descr["default"]["num_rows"];
     double *package = new double[num_rows];
 
     while (keep_alive)
@@ -292,15 +292,19 @@ void Ganglion::read_thread ()
                 last_data[7] = (float)cast_24bit_to_int32 (data.data + 10);
 
                 // scale new packet and insert into result
-                package[board_descr["package_num_channel"].get<int> ()] = 0.;
-                package[board_descr["eeg_channels"][0].get<int> ()] = eeg_scale * last_data[4];
-                package[board_descr["eeg_channels"][1].get<int> ()] = eeg_scale * last_data[5];
-                package[board_descr["eeg_channels"][2].get<int> ()] = eeg_scale * last_data[6];
-                package[board_descr["eeg_channels"][3].get<int> ()] = eeg_scale * last_data[7];
-                package[board_descr["accel_channels"][0].get<int> ()] = accel_x;
-                package[board_descr["accel_channels"][1].get<int> ()] = accel_y;
-                package[board_descr["accel_channels"][2].get<int> ()] = accel_z;
-                package[board_descr["timestamp_channel"].get<int> ()] = data.timestamp;
+                package[board_descr["default"]["package_num_channel"].get<int> ()] = 0.;
+                package[board_descr["default"]["eeg_channels"][0].get<int> ()] =
+                    eeg_scale * last_data[4];
+                package[board_descr["default"]["eeg_channels"][1].get<int> ()] =
+                    eeg_scale * last_data[5];
+                package[board_descr["default"]["eeg_channels"][2].get<int> ()] =
+                    eeg_scale * last_data[6];
+                package[board_descr["default"]["eeg_channels"][3].get<int> ()] =
+                    eeg_scale * last_data[7];
+                package[board_descr["default"]["accel_channels"][0].get<int> ()] = accel_x;
+                package[board_descr["default"]["accel_channels"][1].get<int> ()] = accel_y;
+                package[board_descr["default"]["accel_channels"][2].get<int> ()] = accel_z;
+                package[board_descr["default"]["timestamp_channel"].get<int> ()] = data.timestamp;
                 push_package (package);
                 continue;
             }
@@ -375,13 +379,17 @@ void Ganglion::read_thread ()
                     default:
                         break;
                 }
-                package[board_descr["package_num_channel"].get<int> ()] = data.data[0];
-                package[board_descr["resistance_channels"][0].get<int> ()] = resist_first;
-                package[board_descr["resistance_channels"][1].get<int> ()] = resist_second;
-                package[board_descr["resistance_channels"][2].get<int> ()] = resist_third;
-                package[board_descr["resistance_channels"][3].get<int> ()] = resist_fourth;
-                package[board_descr["resistance_channels"][4].get<int> ()] = resist_ref;
-                package[board_descr["timestamp_channel"].get<int> ()] = data.timestamp;
+                package[board_descr["default"]["package_num_channel"].get<int> ()] = data.data[0];
+                package[board_descr["default"]["resistance_channels"][0].get<int> ()] =
+                    resist_first;
+                package[board_descr["default"]["resistance_channels"][1].get<int> ()] =
+                    resist_second;
+                package[board_descr["default"]["resistance_channels"][2].get<int> ()] =
+                    resist_third;
+                package[board_descr["default"]["resistance_channels"][3].get<int> ()] =
+                    resist_fourth;
+                package[board_descr["default"]["resistance_channels"][4].get<int> ()] = resist_ref;
+                package[board_descr["default"]["timestamp_channel"].get<int> ()] = data.timestamp;
                 push_package (package);
                 continue;
             }
@@ -419,22 +427,30 @@ void Ganglion::read_thread ()
             }
 
             // add first encoded package
-            package[board_descr["package_num_channel"].get<int> ()] = data.data[0];
-            package[board_descr["eeg_channels"][0].get<int> ()] = eeg_scale * last_data[0];
-            package[board_descr["eeg_channels"][1].get<int> ()] = eeg_scale * last_data[1];
-            package[board_descr["eeg_channels"][2].get<int> ()] = eeg_scale * last_data[2];
-            package[board_descr["eeg_channels"][3].get<int> ()] = eeg_scale * last_data[3];
-            package[board_descr["accel_channels"][0].get<int> ()] = accel_x;
-            package[board_descr["accel_channels"][1].get<int> ()] = accel_y;
-            package[board_descr["accel_channels"][2].get<int> ()] = accel_z;
-            package[board_descr["timestamp_channel"].get<int> ()] = data.timestamp;
+            package[board_descr["default"]["package_num_channel"].get<int> ()] = data.data[0];
+            package[board_descr["default"]["eeg_channels"][0].get<int> ()] =
+                eeg_scale * last_data[0];
+            package[board_descr["default"]["eeg_channels"][1].get<int> ()] =
+                eeg_scale * last_data[1];
+            package[board_descr["default"]["eeg_channels"][2].get<int> ()] =
+                eeg_scale * last_data[2];
+            package[board_descr["default"]["eeg_channels"][3].get<int> ()] =
+                eeg_scale * last_data[3];
+            package[board_descr["default"]["accel_channels"][0].get<int> ()] = accel_x;
+            package[board_descr["default"]["accel_channels"][1].get<int> ()] = accel_y;
+            package[board_descr["default"]["accel_channels"][2].get<int> ()] = accel_z;
+            package[board_descr["default"]["timestamp_channel"].get<int> ()] = data.timestamp;
             push_package (package);
             // add second package
-            package[board_descr["eeg_channels"][0].get<int> ()] = eeg_scale * last_data[4];
-            package[board_descr["eeg_channels"][1].get<int> ()] = eeg_scale * last_data[5];
-            package[board_descr["eeg_channels"][2].get<int> ()] = eeg_scale * last_data[6];
-            package[board_descr["eeg_channels"][3].get<int> ()] = eeg_scale * last_data[7];
-            package[board_descr["timestamp_channel"].get<int> ()] = data.timestamp;
+            package[board_descr["default"]["eeg_channels"][0].get<int> ()] =
+                eeg_scale * last_data[4];
+            package[board_descr["default"]["eeg_channels"][1].get<int> ()] =
+                eeg_scale * last_data[5];
+            package[board_descr["default"]["eeg_channels"][2].get<int> ()] =
+                eeg_scale * last_data[6];
+            package[board_descr["default"]["eeg_channels"][3].get<int> ()] =
+                eeg_scale * last_data[7];
+            package[board_descr["default"]["timestamp_channel"].get<int> ()] = data.timestamp;
             push_package (package);
         }
         else

@@ -16,11 +16,11 @@ fn main() {
     board.start_stream(45000, "").unwrap();
     thread::sleep(Duration::from_secs(5));
     board.stop_stream().unwrap();
-    let data = board.get_board_data(None).unwrap();
+    let data = board.get_board_data(None, "default").unwrap();
     board.release_session().unwrap();
 
-    let eeg_channels = board_shim::get_eeg_channels(board_id).unwrap();
-    let sampling_rate = board_shim::get_sampling_rate(board_id).unwrap();
+    let eeg_channels = board_shim::get_eeg_channels(board_id, "default").unwrap();
+    let sampling_rate = board_shim::get_sampling_rate(board_id, "default").unwrap();
     let bands =
         data_filter::get_avg_band_powers(data, eeg_channels, sampling_rate, true).unwrap();
     let mut feature_vector = bands.0;

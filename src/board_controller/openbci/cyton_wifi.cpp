@@ -45,13 +45,13 @@ void CytonWifi::read_thread ()
     int res;
     unsigned char b[OpenBCIWifiShieldBoard::package_size];
     double accel[3] = {0.};
-    int num_rows = board_descr["num_rows"];
+    int num_rows = board_descr["default"]["num_rows"];
     double *package = new double[num_rows];
     for (int i = 0; i < num_rows; i++)
     {
         package[i] = 0.0;
     }
-    std::vector<int> eeg_channels = board_descr["eeg_channels"];
+    std::vector<int> eeg_channels = board_descr["default"]["eeg_channels"];
 
     while (keep_alive)
     {
@@ -85,20 +85,21 @@ void CytonWifi::read_thread ()
         }
 
         // package num
-        package[board_descr["package_num_channel"].get<int> ()] = (double)bytes[0];
+        package[board_descr["default"]["package_num_channel"].get<int> ()] = (double)bytes[0];
         // eeg
         for (unsigned int i = 0; i < eeg_channels.size (); i++)
         {
             package[eeg_channels[i]] = eeg_scale * cast_24bit_to_int32 (bytes + 1 + 3 * i);
         }
-        package[board_descr["other_channels"][0].get<int> ()] = (double)bytes[31]; // end byte
+        package[board_descr["default"]["other_channels"][0].get<int> ()] =
+            (double)bytes[31]; // end byte
         // place unprocessed bytes for all modes to other_channels
-        package[board_descr["other_channels"][1].get<int> ()] = (double)bytes[25];
-        package[board_descr["other_channels"][2].get<int> ()] = (double)bytes[26];
-        package[board_descr["other_channels"][3].get<int> ()] = (double)bytes[27];
-        package[board_descr["other_channels"][4].get<int> ()] = (double)bytes[28];
-        package[board_descr["other_channels"][5].get<int> ()] = (double)bytes[29];
-        package[board_descr["other_channels"][6].get<int> ()] = (double)bytes[30];
+        package[board_descr["default"]["other_channels"][1].get<int> ()] = (double)bytes[25];
+        package[board_descr["default"]["other_channels"][2].get<int> ()] = (double)bytes[26];
+        package[board_descr["default"]["other_channels"][3].get<int> ()] = (double)bytes[27];
+        package[board_descr["default"]["other_channels"][4].get<int> ()] = (double)bytes[28];
+        package[board_descr["default"]["other_channels"][5].get<int> ()] = (double)bytes[29];
+        package[board_descr["default"]["other_channels"][6].get<int> ()] = (double)bytes[30];
         // place processed bytes for accel
         if (bytes[31] == END_BYTE_STANDARD)
         {
@@ -114,22 +115,22 @@ void CytonWifi::read_thread ()
                 accel[2] = accel_scale * accel_temp[2];
             }
 
-            package[board_descr["accel_channels"][0].get<int> ()] = accel[0];
-            package[board_descr["accel_channels"][1].get<int> ()] = accel[1];
-            package[board_descr["accel_channels"][2].get<int> ()] = accel[2];
+            package[board_descr["default"]["accel_channels"][0].get<int> ()] = accel[0];
+            package[board_descr["default"]["accel_channels"][1].get<int> ()] = accel[1];
+            package[board_descr["default"]["accel_channels"][2].get<int> ()] = accel[2];
         }
         // place processed bytes for analog
         if (bytes[31] == END_BYTE_ANALOG)
         {
-            package[board_descr["analog_channels"][0].get<int> ()] =
+            package[board_descr["default"]["analog_channels"][0].get<int> ()] =
                 cast_16bit_to_int32 (bytes + 25);
-            package[board_descr["analog_channels"][1].get<int> ()] =
+            package[board_descr["default"]["analog_channels"][1].get<int> ()] =
                 cast_16bit_to_int32 (bytes + 27);
-            package[board_descr["analog_channels"][2].get<int> ()] =
+            package[board_descr["default"]["analog_channels"][2].get<int> ()] =
                 cast_16bit_to_int32 (bytes + 29);
         }
 
-        package[board_descr["timestamp_channel"].get<int> ()] = get_timestamp ();
+        package[board_descr["default"]["timestamp_channel"].get<int> ()] = get_timestamp ();
         push_package (package);
     }
     delete[] package;

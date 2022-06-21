@@ -304,7 +304,8 @@ int stop_stream (int board_id, const char *json_brainflow_input_params)
     return board_it->second->stop_stream ();
 }
 
-int insert_marker (double value, int board_id, const char *json_brainflow_input_params)
+int insert_marker (
+    double value, const char *preset, int board_id, const char *json_brainflow_input_params)
 {
     std::lock_guard<std::mutex> lock (mutex);
 
@@ -315,7 +316,7 @@ int insert_marker (double value, int board_id, const char *json_brainflow_input_
         return res;
     }
     auto board_it = boards.find (key);
-    return board_it->second->insert_marker (value);
+    return board_it->second->insert_marker (value, preset);
 }
 
 int release_session (int board_id, const char *json_brainflow_input_params)
@@ -334,7 +335,38 @@ int release_session (int board_id, const char *json_brainflow_input_params)
     return res;
 }
 
-int get_current_board_data (int num_samples, double *data_buf, int *returned_samples, int board_id,
+int get_current_board_data (int num_samples, const char *preset, double *data_buf,
+    int *returned_samples, int board_id, const char *json_brainflow_input_params)
+{
+    std::lock_guard<std::mutex> lock (mutex);
+
+    std::pair<int, struct BrainFlowInputParams> key;
+    int res = check_board_session (board_id, json_brainflow_input_params, key, false);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        return res;
+    }
+    auto board_it = boards.find (key);
+    return board_it->second->get_current_board_data (
+        num_samples, preset, data_buf, returned_samples);
+}
+
+int get_board_data_count (
+    const char *preset, int *result, int board_id, const char *json_brainflow_input_params)
+{
+    std::lock_guard<std::mutex> lock (mutex);
+
+    std::pair<int, struct BrainFlowInputParams> key;
+    int res = check_board_session (board_id, json_brainflow_input_params, key, false);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        return res;
+    }
+    auto board_it = boards.find (key);
+    return board_it->second->get_board_data_count (preset, result);
+}
+
+int get_board_data (int data_count, const char *preset, double *data_buf, int board_id,
     const char *json_brainflow_input_params)
 {
     std::lock_guard<std::mutex> lock (mutex);
@@ -346,36 +378,7 @@ int get_current_board_data (int num_samples, double *data_buf, int *returned_sam
         return res;
     }
     auto board_it = boards.find (key);
-    return board_it->second->get_current_board_data (num_samples, data_buf, returned_samples);
-}
-
-int get_board_data_count (int *result, int board_id, const char *json_brainflow_input_params)
-{
-    std::lock_guard<std::mutex> lock (mutex);
-
-    std::pair<int, struct BrainFlowInputParams> key;
-    int res = check_board_session (board_id, json_brainflow_input_params, key, false);
-    if (res != (int)BrainFlowExitCodes::STATUS_OK)
-    {
-        return res;
-    }
-    auto board_it = boards.find (key);
-    return board_it->second->get_board_data_count (result);
-}
-
-int get_board_data (
-    int data_count, double *data_buf, int board_id, const char *json_brainflow_input_params)
-{
-    std::lock_guard<std::mutex> lock (mutex);
-
-    std::pair<int, struct BrainFlowInputParams> key;
-    int res = check_board_session (board_id, json_brainflow_input_params, key, false);
-    if (res != (int)BrainFlowExitCodes::STATUS_OK)
-    {
-        return res;
-    }
-    auto board_it = boards.find (key);
-    return board_it->second->get_board_data (data_count, data_buf);
+    return board_it->second->get_board_data (data_count, preset, data_buf);
 }
 
 int set_log_level_board_controller (int log_level)

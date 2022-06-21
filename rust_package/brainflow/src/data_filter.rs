@@ -548,8 +548,8 @@ pub fn get_psd_welch(
 #[derive(Getters, Clone)]
 #[getset(get = "pub")]
 pub struct Band {
-    freq_start: f64,
-    freq_stop: f64,
+    pub freq_start: f64,
+    pub freq_stop: f64,
 }
 
 /// Calculate avg and stddev of BandPowers across all channels, bands are 1-4,4-8,8-13,13-30,30-50.

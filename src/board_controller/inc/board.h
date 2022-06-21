@@ -3,6 +3,7 @@
 #include <cmath>
 #include <deque>
 #include <limits>
+#include <map>
 #include <string>
 
 #include "board_controller.h"
@@ -36,7 +37,6 @@ public:
     Board (int board_id, struct BrainFlowInputParams params)
     {
         skip_logs = false;
-        db = NULL;
         streamer = NULL;
         this->board_id = board_id;
         this->params = params;
@@ -55,10 +55,11 @@ public:
     virtual int release_session () = 0;
     virtual int config_board (std::string config, std::string &response) = 0;
 
-    int get_current_board_data (int num_samples, double *data_buf, int *returned_samples);
-    int get_board_data_count (int *result);
-    int get_board_data (int data_count, double *data_buf);
-    int insert_marker (double value);
+    int get_current_board_data (
+        int num_samples, const char *preset, double *data_buf, int *returned_samples);
+    int get_board_data_count (const char *preset, int *result);
+    int get_board_data (int data_count, const char *preset, double *data_buf);
+    int insert_marker (double value, const char *preset);
 
     // Board::board_logger should not be called from destructors, to ensure that there are safe log
     // methods Board::board_logger still available but should be used only outside destructors
@@ -89,21 +90,22 @@ public:
     }
 
 protected:
-    DataBuffer *db;
+    std::map<std::string, DataBuffer *> dbs;
     bool skip_logs;
     int board_id;
     struct BrainFlowInputParams params;
     Streamer *streamer;
     json board_descr;
     SpinLock lock;
-    std::deque<double> marker_queue;
+    std::map<std::string, std::deque<double>> marker_queues;
 
     int prepare_for_acquisition (int buffer_size, const char *streamer_params);
     void free_packages ();
-    void push_package (double *package);
+    void push_package (double *package, const char *preset = NULL);
 
 private:
     int prepare_streamer (const char *streamer_params);
     // reshapes data from DataBuffer format where all channels are mixed to linear buffer
-    void reshape_data (int data_count, const double *buf, double *output_buf);
+    void reshape_data (int data_count, const char *preset, const double *buf, double *output_buf);
+    std::string get_presets ();
 };

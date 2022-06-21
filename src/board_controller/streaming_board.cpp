@@ -138,7 +138,7 @@ int StreamingBoard::release_session ()
 void StreamingBoard::read_thread ()
 {
     // format for incomming package is determined by original board
-    int num_rows = board_descr["num_rows"];
+    int num_rows = board_descr["num_rows"]["default"];
     int num_packages = MultiCastStreamer::get_packages_in_chunk ();
     int transaction_len = num_rows * num_packages;
     int bytes_per_recv = sizeof (double) * transaction_len;

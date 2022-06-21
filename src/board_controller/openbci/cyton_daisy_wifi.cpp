@@ -42,7 +42,7 @@ void CytonDaisyWifi::read_thread ()
     */
     int res;
     unsigned char b[OpenBCIWifiShieldBoard::package_size];
-    int num_rows = board_descr["num_rows"];
+    int num_rows = board_descr["default"]["num_rows"];
     double *package = new double[num_rows];
     for (int i = 0; i < num_rows; i++)
     {
@@ -199,7 +199,7 @@ void CytonDaisyWifi::read_thread ()
         // commit package
         if (!first_sample)
         {
-            package[board_descr["timestamp_channel"].get<int> ()] = get_timestamp ();
+            package[board_descr["default"]["timestamp_channel"].get<int> ()] = get_timestamp ();
             push_package (package);
         }
 
