@@ -14,5 +14,5 @@ jobs:
         source: 'src'
         exclude: './third_party'
         extensions: 'h,cpp,c'
-        clangFormatVersion: 11
+        clangFormatVersion: 12
         inplace: False
