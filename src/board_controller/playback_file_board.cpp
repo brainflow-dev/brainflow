@@ -155,7 +155,7 @@ void PlaybackFileBoard::read_thread ()
         safe_logger (spdlog::level::err, "failed to open file in thread");
         return;
     }
-    int num_rows = board_descr["num_rows"]["default"];
+    int num_rows = board_descr["default"]["num_rows"];
     double *package = new double[num_rows];
     for (int i = 0; i < num_rows; i++)
     {
