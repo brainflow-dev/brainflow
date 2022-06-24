@@ -3,9 +3,11 @@
 using namespace SimpleBLE;
 using namespace SimpleBLE::Exception;
 
-InvalidReference::InvalidReference() : BaseException("Underlying reference to object is invalid") {}
+NotInitialized::NotInitialized() : BaseException("Object has not been initialized.") {}
 
-ServiceNotFound::ServiceNotFound(BluetoothUUID uuid) : BaseException("Service with UUID " + uuid + " not found") {}
+InvalidReference::InvalidReference() : BaseException("Underlying reference to object is invalid.") {}
+
+ServiceNotFound::ServiceNotFound(BluetoothUUID uuid) : BaseException("Service with UUID " + uuid + " not found.") {}
 
 CharacteristicNotFound::CharacteristicNotFound(BluetoothUUID uuid)
     : BaseException("Characteristic with UUID " + uuid + " not found") {}

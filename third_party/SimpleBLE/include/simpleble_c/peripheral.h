@@ -39,6 +39,14 @@ SHARED_EXPORT char* CALLING_CONVENTION simpleble_peripheral_address(simpleble_pe
  * @brief
  *
  * @param handle
+ * @return int16_t
+ */
+SHARED_EXPORT int16_t CALLING_CONVENTION simpleble_peripheral_rssi(simpleble_peripheral_t handle);
+
+/**
+ * @brief
+ *
+ * @param handle
  * @return simpleble_err_t
  */
 SHARED_EXPORT simpleble_err_t CALLING_CONVENTION simpleble_peripheral_connect(simpleble_peripheral_t handle);
@@ -70,6 +78,24 @@ SHARED_EXPORT simpleble_err_t CALLING_CONVENTION simpleble_peripheral_is_connect
  */
 SHARED_EXPORT simpleble_err_t CALLING_CONVENTION simpleble_peripheral_is_connectable(simpleble_peripheral_t handle,
                                                                                      bool* connectable);
+
+/**
+ * @brief
+ *
+ * @param handle
+ * @param paired
+ * @return simpleble_err_t
+ */
+SHARED_EXPORT simpleble_err_t CALLING_CONVENTION simpleble_peripheral_is_paired(simpleble_peripheral_t handle,
+                                                                                bool* paired);
+
+/**
+ * @brief
+ *
+ * @param handle
+ * @return simpleble_err_t
+ */
+SHARED_EXPORT simpleble_err_t CALLING_CONVENTION simpleble_peripheral_unpair(simpleble_peripheral_t handle);
 
 /**
  * @brief

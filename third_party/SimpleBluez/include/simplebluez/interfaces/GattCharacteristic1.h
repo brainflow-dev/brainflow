@@ -1,6 +1,6 @@
 #pragma once
 
-#include <simpledbus/advanced/Callback.h>
+#include <external/kvn_safe_callback.hpp>
 #include <simpledbus/advanced/Interface.h>
 
 #include <simplebluez/Types.h>
@@ -28,7 +28,7 @@ class GattCharacteristic1 : public SimpleDBus::Interface {
     bool Notifying(bool refresh = true);
 
     // ----- CALLBACKS -----
-    SimpleDBus::Callback<std::function<void()>> OnValueChanged;
+    kvn::safe_callback<void()> OnValueChanged;
 
   protected:
     void property_changed(std::string option_name) override;

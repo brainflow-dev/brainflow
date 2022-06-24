@@ -15,7 +15,7 @@ static simpleble_peripheral_t peripheral_list[PERIPHERAL_LIST_SIZE] = {0};
 static size_t peripheral_list_len = 0;
 static simpleble_adapter_t adapter = NULL;
 
-int main(int argc, char* argv[]) {
+int main() {
     simpleble_err_t err_code = SIMPLEBLE_SUCCESS;
     atexit(clean_on_exit);
 

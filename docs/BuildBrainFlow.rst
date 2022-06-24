@@ -29,7 +29,7 @@ Python
 
     If you want to install it from source files or build unreleased version from Github, you should first compile the core module (:ref:`compilation-label`). Then run ::
 
-        cd python-package
+        cd python_package
         python -m pip install -U .
 
 C#
@@ -63,10 +63,10 @@ You are able to install the latest release from `Nuget <https://www.nuget.org/pa
         sudo dnf install mono-complete
         sudo dnf install monodevelop
         # build solution
-        xbuild csharp-package/brainflow/brainflow.sln
+        xbuild csharp_package/brainflow/brainflow.sln
         # run tests
         export LD_LIBRARY_PATH=/home/andreyparfenov/brainflow/installed_linux/lib/
-        mono csharp-package/brainflow/denoising/bin/Debug/test.exe
+        mono csharp_package/brainflow/examples/denoising/bin/Debug/denoising.exe
 
 R
 -----
@@ -82,12 +82,12 @@ You are able to download jar files directly from `release page <https://github.c
 
     If you want to install it from source files or build unreleased version from github you should compile core module first (:ref:`compilation-label`) and run ::
 
-        cd java-package
+        cd java_package
         cd brainflow
         mvn package
 
 Also, you can use `GitHub Package <https://github.com/brainflow-dev/brainflow/packages/450100>`_ and download BrainFlow using Maven or Gradle.
-To use Github packages you need to `change Maven settings <https://help.github.com/en/packages/using-github-packages-with-your-projects-ecosystem/configuring-apache-maven-for-use-with-github-packages>`_. `Example file <https://github.com/brainflow-dev/brainflow/blob/master/java-package/brainflow/settings.xml>`_  here you need to change OWNER and TOKEN by Github username and token with an access to Github Packages.
+To use Github packages you need to `change Maven settings <https://help.github.com/en/packages/using-github-packages-with-your-projects-ecosystem/configuring-apache-maven-for-use-with-github-packages>`_. `Example file <https://github.com/brainflow-dev/brainflow/blob/master/java_package/brainflow/settings.xml>`_  here you need to change OWNER and TOKEN by Github username and token with an access to Github Packages.
 
 Matlab
 --------
@@ -95,9 +95,9 @@ Matlab
 Steps to setup Matlab binding for BrainFlow:
 
 - Compile Core Module, using the instructions in :ref:`compilation-label`. If you don't want to compile C++ code you can download Matlab package with precompiled libs from `Release page <https://github.com/brainflow-dev/brainflow/releases>`_
-- Open Matlab IDE and open brainflow/matlab-package/brainflow folder there
+- Open Matlab IDE and open brainflow/matlab_package/brainflow folder there
 - Add folders lib and inc to Matlab path
-- If you want to run Matlab scripts from folders different than brainflow/matlab-package/brainflow you need to add it to your Matlab path too
+- If you want to run Matlab scripts from folders different than brainflow/matlab_package/brainflow you need to add it to your Matlab path too
 - If you see errors you may need to configure Matlab to use C++ compiler instead C, install Visual Studio 2017 or newer(for Windows) and run this command in Matlab terminal :code:`mex -setup cpp`, you need to select Visual Studio Compiler from the list. More info can be found `here <https://www.mathworks.com/help/matlab/matlab_external/choose-c-or-c-compilers.html>`_.
 
 Julia
@@ -123,7 +123,7 @@ Rust
 
     You can build Rust binding locally using commands below, but you need to compile C/C++ code first ::
 
-        cd rust-package
+        cd rust_package
         cd brainflow
         cargo build --features generate_binding
 

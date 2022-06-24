@@ -24,15 +24,19 @@ class Device : public SimpleDBus::Proxy {
     std::string address();
     std::string name();
     std::string alias();
+    int16_t rssi();
 
     std::map<uint16_t, std::vector<uint8_t>> manufacturer_data();
 
+    bool paired();
     bool connected();
     bool services_resolved();
 
     // ----- METHODS -----
     void connect();
     void disconnect();
+    void pair();
+    void cancel_pairing();
 
     // ----- CALLBACKS -----
     void set_on_services_resolved(std::function<void()> callback);

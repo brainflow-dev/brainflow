@@ -30,17 +30,20 @@ jobs:
         uses: jwlawson/actions-setup-cmake@v1.4
         with:
           cmake-version: "3.16.x"
-      - name: Compile Unit Tests
+      - name: Compile Unit Tests with Coverage
         run: |
           mkdir -p $GITHUB_WORKSPACE/build
           cd $GITHUB_WORKSPACE/build
           rm -rf ./*
-          cmake -DCMAKE_BUILD_TYPE=Release ../test
+          cmake -DCMAKE_BUILD_TYPE=Release -DSIMPLEDBUS_COVERAGE=On ../test
           make -j4
-      - name: Run Unit Tests
-        run: |
-          cd $GITHUB_WORKSPACE/build
-          ./simpledbus_test
+      - name: Run Unit Tests with Coverage
+        working-directory: build
+        run: make simpledbus_test_coverage -j4
+      - name: Code Coverage Push
+        uses: codecov/codecov-action@v1
+        with:
+          files: ${{github.workspace}}/build/cov.xml
       - name: Compile Unit Tests with Address Sanitizer
         run: |
           mkdir -p $GITHUB_WORKSPACE/build

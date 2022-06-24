@@ -8,4 +8,5 @@ src/board_controller/muse/muse_bglib/cmd_def.cpp
 src/board_controller/muse/muse_bglib/inc/cmd_def.h
 # third party
 third_party/*
+third_party/onnxruntime/build/native/include/*
 src/utils/bluetooth/macos_third_party/*

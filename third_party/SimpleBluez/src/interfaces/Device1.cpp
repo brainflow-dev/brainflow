@@ -20,6 +20,16 @@ void Device1::Disconnect() {
     _conn->send_with_reply_and_block(msg);
 }
 
+void Device1::Pair() {
+    auto msg = create_method_call("Pair");
+    _conn->send_with_reply_and_block(msg);
+}
+
+void Device1::CancelPairing() {
+    auto msg = create_method_call("CancelPairing");
+    _conn->send_with_reply_and_block(msg);
+}
+
 int16_t Device1::RSSI() {
     std::scoped_lock lock(_property_update_mutex);
     return _properties["RSSI"].get_int16();
@@ -53,6 +63,11 @@ std::map<uint16_t, std::vector<uint8_t>> Device1::ManufacturerData(bool refresh)
     // Use the locally cached version to avoid parsing the map multiple times.
     std::scoped_lock lock(_property_update_mutex);
     return _manufacturer_data;
+}
+
+bool Device1::Paired() {
+    std::scoped_lock lock(_property_update_mutex);
+    return _properties["Paired"].get_boolean();
 }
 
 bool Device1::Connected(bool refresh) {

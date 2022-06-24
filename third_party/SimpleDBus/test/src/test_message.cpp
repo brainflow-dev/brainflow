@@ -3,6 +3,8 @@
 #include <simpledbus/base/Connection.h>
 #include <simpledbus/base/Message.h>
 
+#include <chrono>
+
 using namespace SimpleDBus;
 
 class MessageTest : public ::testing::Test {
@@ -247,4 +249,75 @@ TEST_F(MessageTest, SendReceiveDictString) {
 
     EXPECT_EQ(dict["key2"].type(), Holder::Type::STRING);
     EXPECT_EQ(dict["key2"].get_string(), "Hello");
+}
+
+TEST_F(MessageTest, ReceiveMethodCallSuccess) {
+    Message msg = Message::create_method_call("simpledbus.tester.python", "/", "simpledbus.tester.message",
+                                              "TriggerMethodCall");
+
+    msg.append_argument(Holder::create_string(conn->unique_name()), DBUS_TYPE_STRING_AS_STRING);
+    msg.append_argument(Holder::create_string("/my/custom/path"), DBUS_TYPE_STRING_AS_STRING);
+    msg.append_argument(Holder::create_string("my.interface"), DBUS_TYPE_STRING_AS_STRING);
+    msg.append_argument(Holder::create_string("MyMethod"), DBUS_TYPE_STRING_AS_STRING);
+    msg.append_argument(Holder::create_string("Hello World"), DBUS_TYPE_STRING_AS_STRING);
+    conn->send_with_reply_and_block(msg);
+
+    // Wait for the method call to be received
+    bool method_called = false;
+    std::chrono::time_point<std::chrono::system_clock> end = std::chrono::system_clock::now() + std::chrono::seconds(1);
+    while (std::chrono::system_clock::now() < end) {
+        conn->read_write();
+        auto method_call = conn->pop_message();
+        if (method_call.is_valid()) {
+            EXPECT_EQ(method_call.get_path(), "/my/custom/path");
+            EXPECT_EQ(method_call.get_interface(), "my.interface");
+            EXPECT_EQ(method_call.get_member(), "MyMethod");
+
+            Holder arguments = method_call.extract();
+            EXPECT_EQ(arguments.type(), Holder::Type::STRING);
+            EXPECT_EQ(arguments.get_string(), "Hello World");
+
+            Message reply = Message::create_method_return(method_call);
+            reply.append_argument(Holder::create_string("Nice to meet you"), DBUS_TYPE_STRING_AS_STRING);
+            conn->send(reply);
+            method_called = true;
+            break;
+        }
+    }
+    EXPECT_TRUE(method_called);
+}
+
+TEST_F(MessageTest, ReceiveMethodCallFailure) {
+    Message msg = Message::create_method_call("simpledbus.tester.python", "/", "simpledbus.tester.message",
+                                              "TriggerMethodCall");
+
+    msg.append_argument(Holder::create_string(conn->unique_name()), DBUS_TYPE_STRING_AS_STRING);
+    msg.append_argument(Holder::create_string("/my/custom/path"), DBUS_TYPE_STRING_AS_STRING);
+    msg.append_argument(Holder::create_string("my.interface"), DBUS_TYPE_STRING_AS_STRING);
+    msg.append_argument(Holder::create_string("MyMethod"), DBUS_TYPE_STRING_AS_STRING);
+    msg.append_argument(Holder::create_string("Hello World"), DBUS_TYPE_STRING_AS_STRING);
+    conn->send_with_reply_and_block(msg);
+
+    // Wait for the method call to be received
+    bool method_called = false;
+    std::chrono::time_point<std::chrono::system_clock> end = std::chrono::system_clock::now() + std::chrono::seconds(1);
+    while (std::chrono::system_clock::now() < end) {
+        conn->read_write();
+        auto method_call = conn->pop_message();
+        if (method_call.is_valid()) {
+            EXPECT_EQ(method_call.get_path(), "/my/custom/path");
+            EXPECT_EQ(method_call.get_interface(), "my.interface");
+            EXPECT_EQ(method_call.get_member(), "MyMethod");
+
+            Holder arguments = method_call.extract();
+            EXPECT_EQ(arguments.type(), Holder::Type::STRING);
+            EXPECT_EQ(arguments.get_string(), "Hello World");
+
+            Message reply = Message::create_error(method_call, "simpledbus.error.unknown", "Unknown error");
+            conn->send(reply);
+            method_called = true;
+            break;
+        }
+    }
+    EXPECT_TRUE(method_called);
 }

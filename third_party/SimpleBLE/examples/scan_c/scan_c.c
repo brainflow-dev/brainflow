@@ -15,7 +15,7 @@ static void adapter_on_scan_stop(simpleble_adapter_t adapter, void* userdata);
 static void adapter_on_scan_found(simpleble_adapter_t adapter, simpleble_peripheral_t peripheral, void* userdata);
 static void adapter_on_scan_updated(simpleble_adapter_t adapter, simpleble_peripheral_t peripheral, void* userdata);
 
-int main(int argc, char* argv[]) {
+int main() {
     // NOTE: It's necessary to call this function before any other to allow the
     // underlying driver to run its initialization routine.
     size_t adapter_count = simpleble_adapter_get_count();

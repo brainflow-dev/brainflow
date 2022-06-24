@@ -6,6 +6,7 @@
 
 #include <cstring>
 #include <map>
+#include <climits>
 
 void simpleble_peripheral_release_handle(simpleble_peripheral_t handle) {
     if (handle == nullptr) {
@@ -38,6 +39,15 @@ char* simpleble_peripheral_address(simpleble_peripheral_t handle) {
     char* c_address = (char*)malloc(address.size() + 1);
     strcpy(c_address, address.c_str());
     return c_address;
+}
+
+int16_t simpleble_peripheral_rssi(simpleble_peripheral_t handle) {
+    if (handle == nullptr) {
+        return INT16_MIN;
+    }
+
+    SimpleBLE::Safe::Peripheral* peripheral = (SimpleBLE::Safe::Peripheral*)handle;
+    return peripheral->rssi().value_or(INT16_MIN);
 }
 
 simpleble_err_t simpleble_peripheral_connect(simpleble_peripheral_t handle) {
@@ -80,6 +90,27 @@ simpleble_err_t simpleble_peripheral_is_connectable(simpleble_peripheral_t handl
     std::optional<bool> is_connectable = peripheral->is_connectable();
     *connectable = is_connectable.value_or(false);
     return is_connectable.has_value() ? SIMPLEBLE_SUCCESS : SIMPLEBLE_FAILURE;
+}
+
+simpleble_err_t simpleble_peripheral_is_paired(simpleble_peripheral_t handle, bool* paired) {
+    if (handle == nullptr || paired == nullptr) {
+        return SIMPLEBLE_FAILURE;
+    }
+
+    SimpleBLE::Safe::Peripheral* peripheral = (SimpleBLE::Safe::Peripheral*)handle;
+
+    std::optional<bool> is_paired = peripheral->is_paired();
+    *paired = is_paired.value_or(false);
+    return is_paired.has_value() ? SIMPLEBLE_SUCCESS : SIMPLEBLE_FAILURE;
+}
+
+simpleble_err_t simpleble_peripheral_unpair(simpleble_peripheral_t handle) {
+    if (handle == nullptr) {
+        return SIMPLEBLE_FAILURE;
+    }
+
+    SimpleBLE::Safe::Peripheral* peripheral = (SimpleBLE::Safe::Peripheral*)handle;
+    return peripheral->unpair() ? SIMPLEBLE_SUCCESS : SIMPLEBLE_FAILURE;
 }
 
 size_t simpleble_peripheral_services_count(simpleble_peripheral_t handle) {

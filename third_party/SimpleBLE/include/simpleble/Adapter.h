@@ -15,8 +15,10 @@ class AdapterBase;
 
 class Adapter {
   public:
-    Adapter();
-    virtual ~Adapter();
+    Adapter() = default;
+    virtual ~Adapter() = default;
+
+    bool initialized() const;
 
     std::string identifier();
     BluetoothAddress address();
@@ -31,6 +33,8 @@ class Adapter {
     void set_callback_on_scan_stop(std::function<void()> on_scan_stop);
     void set_callback_on_scan_updated(std::function<void(Peripheral)> on_scan_updated);
     void set_callback_on_scan_found(std::function<void(Peripheral)> on_scan_found);
+
+    std::vector<Peripheral> get_paired_peripherals();
 
     static std::vector<Adapter> get_adapters();
 

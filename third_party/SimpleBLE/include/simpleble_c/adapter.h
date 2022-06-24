@@ -103,7 +103,7 @@ SHARED_EXPORT size_t CALLING_CONVENTION simpleble_adapter_scan_get_results_count
 /**
  * @brief
  *
- * @note The user is responsible for freeing the returned adapter object
+ * @note The user is responsible for freeing the returned peripheral object
  *       by calling `simpleble_peripheral_release_handle`.
  *
  * @param handle
@@ -112,6 +112,27 @@ SHARED_EXPORT size_t CALLING_CONVENTION simpleble_adapter_scan_get_results_count
  */
 SHARED_EXPORT simpleble_peripheral_t CALLING_CONVENTION
 simpleble_adapter_scan_get_results_handle(simpleble_adapter_t handle, size_t index);
+
+/**
+ * @brief
+ *
+ * @param handle
+ * @return size_t
+ */
+SHARED_EXPORT size_t CALLING_CONVENTION simpleble_adapter_get_paired_peripherals_count(simpleble_adapter_t handle);
+
+/**
+ * @brief
+ *
+ * @note The user is responsible for freeing the returned peripheral object
+ *       by calling `simpleble_peripheral_release_handle`.
+ *
+ * @param handle
+ * @param index
+ * @return simpleble_peripheral_t
+ */
+SHARED_EXPORT simpleble_peripheral_t CALLING_CONVENTION
+simpleble_adapter_get_paired_peripherals_handle(simpleble_adapter_t handle, size_t index);
 
 /**
  * @brief

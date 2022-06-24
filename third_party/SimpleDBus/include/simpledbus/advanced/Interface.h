@@ -37,7 +37,7 @@ class Interface {
     void signal_property_changed(Holder changed_properties, Holder invalidated_properties);
 
     // ----- MESSAGES -----
-    virtual void message_handle(Message msg);
+    virtual void message_handle(Message &msg);
 
   protected:
     std::atomic_bool _loaded{true};

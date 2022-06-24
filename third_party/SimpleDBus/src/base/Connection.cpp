@@ -135,3 +135,11 @@ Message Connection::send_with_reply_and_block(Message& msg) {
 
     return Message(msg_tmp);
 }
+
+std::string Connection::unique_name() {
+    if (!_initialized) {
+        throw Exception::NotInitialized();
+    }
+
+    return std::string(dbus_bus_get_unique_name(_conn));
+}

@@ -18,7 +18,7 @@ class ObjectManager : public Interface {
 
     bool process_received_signal(Message& message);
 
-    void message_handle(Message msg) override;
+    void message_handle(Message& msg) override;
 };
 
 }  // namespace SimpleDBus

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <simpledbus/advanced/Callback.h>
+#include <external/kvn_safe_callback.hpp>
 #include <simpledbus/advanced/Interface.h>
 
 #include <string>
@@ -18,7 +18,7 @@ class Battery1 : public SimpleDBus::Interface {
     uint8_t Percentage();
 
     // ----- CALLBACKS -----
-    SimpleDBus::Callback<std::function<void()>> OnPercentageChanged;
+    kvn::safe_callback<void()> OnPercentageChanged;
 
   protected:
     void property_changed(std::string option_name) override;

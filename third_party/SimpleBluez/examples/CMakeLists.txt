@@ -18,8 +18,10 @@ add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/.. ${CMAKE_BINARY_DIR}/simplebluez)
 include_directories(${SIMPLEBLUEZ_INCLUDES})
 
 add_subdirectory(list_adapters)
+add_subdirectory(list_paired)
 add_subdirectory(scan)
 add_subdirectory(connect)
+add_subdirectory(pair)
 add_subdirectory(read)
-
+add_subdirectory(notify)
 add_subdirectory(ble_nus)

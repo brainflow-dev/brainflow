@@ -95,7 +95,7 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        if (!peripheral->connected() && !peripheral->services_resolved()) {
+        if (!peripheral->connected() || !peripheral->services_resolved()) {
             std::cout << "Failed to connect to " << peripheral->name() << " [" << peripheral->address() << "]"
                       << std::endl;
             return 1;
