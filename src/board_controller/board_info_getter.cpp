@@ -64,11 +64,7 @@ int get_board_presets (int board_id, int *presets, int *len)
 
 int get_board_descr (int board_id, int preset, char *board_descr, int *len)
 {
-    std::string preset_str = "default";
-    if (preset != NULL)
-    {
-        preset_str = preset;
-    }
+    std::string preset_str = get_preset_str (preset);
     try
     {
         std::string res =

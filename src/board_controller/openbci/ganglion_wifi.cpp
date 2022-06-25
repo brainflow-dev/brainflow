@@ -235,7 +235,7 @@ void GanglionWifi::read_thread_impedance ()
     int res;
     unsigned char b[OpenBCIWifiShieldBoard::package_size];
     int num_channels = 0;
-    get_num_rows (board_id, NULL, &num_channels);
+    get_num_rows (board_id, (int)BrainFlowPresets::DEFAULT_PRESET, &num_channels);
     double *package = new double[num_channels];
     for (int i = 0; i < num_channels; i++)
     {
