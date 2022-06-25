@@ -232,8 +232,7 @@ public:
     /// get all collected data and flush it from internal buffer
     BrainFlowArray<double, 2> get_board_data (int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
     /// get required amount of datapoints or less and flush it from internal buffer
-    BrainFlowArray<double, 2> get_board_data (
-        int num_datapoints, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
+    BrainFlowArray<double, 2> get_board_data (int num_datapoints, int preset);
     /// send string to a board, use it carefully and only if you understand what you are doing
     std::string config_board (char *config);
     /// insert marker in data stream
