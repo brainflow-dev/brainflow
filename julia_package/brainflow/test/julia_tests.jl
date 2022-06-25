@@ -47,6 +47,11 @@ end
     @test Int32(BrainFlow.BLACKMAN_HARRIS) == 3
 end
 
+@testset "presets" begin
+    presets = BrainFlow.get_board_presets(BrainFlow.CYTON_BOARD)
+    @test presets[1] == Int32(BrainFlow.DEFAULT_PRESET)
+end
+
 @testset "model params" begin
     params = BrainFlowModelParams(BrainFlow.RESTFULNESS, BrainFlow.DEFAULT_CLASSIFIER)
     @test params.metric == BrainFlow.RESTFULNESS

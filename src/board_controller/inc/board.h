@@ -56,10 +56,10 @@ public:
     virtual int config_board (std::string config, std::string &response) = 0;
 
     int get_current_board_data (
-        int num_samples, const char *preset, double *data_buf, int *returned_samples);
-    int get_board_data_count (const char *preset, int *result);
-    int get_board_data (int data_count, const char *preset, double *data_buf);
-    int insert_marker (double value, const char *preset);
+        int num_samples, int preset, double *data_buf, int *returned_samples);
+    int get_board_data_count (int preset, int *result);
+    int get_board_data (int data_count, int preset, double *data_buf);
+    int insert_marker (double value, int preset);
 
     // Board::board_logger should not be called from destructors, to ensure that there are safe log
     // methods Board::board_logger still available but should be used only outside destructors
@@ -90,22 +90,23 @@ public:
     }
 
 protected:
-    std::map<std::string, DataBuffer *> dbs;
+    std::map<int, DataBuffer *> dbs;
     bool skip_logs;
     int board_id;
     struct BrainFlowInputParams params;
     Streamer *streamer;
     json board_descr;
     SpinLock lock;
-    std::map<std::string, std::deque<double>> marker_queues;
+    std::map<int, std::deque<double>> marker_queues;
 
     int prepare_for_acquisition (int buffer_size, const char *streamer_params);
     void free_packages ();
-    void push_package (double *package, const char *preset = NULL);
+    void push_package (double *package, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
 
 private:
     int prepare_streamer (const char *streamer_params);
     // reshapes data from DataBuffer format where all channels are mixed to linear buffer
-    void reshape_data (int data_count, const char *preset, const double *buf, double *output_buf);
-    std::string get_presets ();
+    void reshape_data (int data_count, int preset, const double *buf, double *output_buf);
+    std::string preset_to_string (int preset);
+    int preset_to_int (std::string preset);
 };

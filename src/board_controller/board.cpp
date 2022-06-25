@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <string>
 #include <vector>
 
@@ -98,12 +99,19 @@ int Board::prepare_for_acquisition (int buffer_size, const char *streamer_params
 
     std::vector<std::string> required_fields {
         "num_rows", "timestamp_channel", "name", "marker_channel"};
+    std::vector<std::string> supported_presets {"ancillary", "auxiliary", "default"};
     for (std::string field : required_fields)
     {
         for (auto &el : board_descr.items ())
         {
             json board_preset = el.value ();
             std::string key = el.key ();
+            if (std::find (supported_presets.begin (), supported_presets.end (), key) ==
+                supported_presets.end ())
+            {
+                safe_logger (spdlog::level::err, "Preset {} is not supported", key);
+                return (int)BrainFlowExitCodes::GENERAL_ERROR;
+            }
 
             if (board_preset.find (field) == board_preset.end ())
             {
@@ -133,8 +141,9 @@ int Board::prepare_for_acquisition (int buffer_size, const char *streamer_params
         }
         else
         {
-            dbs[el.key ()] = db;
-            marker_queues[el.key ()] = std::deque<double> ();
+            int preset_int = preset_to_int (el.key ());
+            dbs[preset_int] = db;
+            marker_queues[preset_int] = std::deque<double> ();
         }
     }
 
@@ -146,15 +155,10 @@ int Board::prepare_for_acquisition (int buffer_size, const char *streamer_params
     return res;
 }
 
-void Board::push_package (double *package, const char *preset)
+void Board::push_package (double *package, int preset)
 {
-    std::string preset_str = "default";
-    if (preset != NULL)
-    {
-        preset_str = preset;
-    }
-    if ((board_descr.find (preset_str) == board_descr.end ()) ||
-        (dbs.find (preset_str) == dbs.end ()))
+    std::string preset_str = preset_to_string (preset);
+    if ((board_descr.find (preset_str) == board_descr.end ()) || (dbs.find (preset) == dbs.end ()))
     {
         safe_logger (spdlog::level::err, "invalid json or push_package args, no such key");
         return;
@@ -165,15 +169,15 @@ void Board::push_package (double *package, const char *preset)
     try
     {
         int marker_channel = board_preset["marker_channel"];
-        if (marker_queues[preset_str].empty ())
+        if (marker_queues[preset].empty ())
         {
             package[marker_channel] = 0.0;
         }
         else
         {
-            double marker = marker_queues[preset_str].at (0);
+            double marker = marker_queues[preset].at (0);
             package[marker_channel] = marker;
-            marker_queues[preset_str].pop_front ();
+            marker_queues[preset].pop_front ();
         }
     }
     catch (...)
@@ -182,36 +186,34 @@ void Board::push_package (double *package, const char *preset)
     }
     lock.unlock ();
 
-    if (dbs[preset_str] != NULL)
+    if (dbs[preset] != NULL)
     {
-        dbs[preset_str]->add_data (package);
+        dbs[preset]->add_data (package);
     }
-    if ((streamer != NULL) && (preset_str == "default")) // stream only default preset for now, todo
+    if ((streamer != NULL) &&
+        (preset ==
+            (int)BrainFlowPresets::DEFAULT_PRESET)) // stream only default preset for now, todo
     {
         streamer->stream_data (package);
     }
 }
 
-int Board::insert_marker (double value, const char *preset)
+int Board::insert_marker (double value, int preset)
 {
     if (std::fabs (value) < std::numeric_limits<double>::epsilon ())
     {
         safe_logger (spdlog::level::err, "0 is a default value for marker, you can not use it.");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
-    std::string preset_str = "default";
-    if (preset != NULL)
-    {
-        preset_str = preset;
-    }
+    std::string preset_str = preset_to_string (preset);
     if ((board_descr.find (preset_str) == board_descr.end ()) ||
-        (marker_queues.find (preset_str) == marker_queues.end ()))
+        (marker_queues.find (preset) == marker_queues.end ()))
     {
         safe_logger (spdlog::level::err, "invalid preset");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     lock.lock ();
-    marker_queues[preset_str].push_back (value);
+    marker_queues[preset].push_back (value);
     lock.unlock ();
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
@@ -319,21 +321,16 @@ int Board::prepare_streamer (const char *streamer_params)
 }
 
 int Board::get_current_board_data (
-    int num_samples, const char *preset, double *data_buf, int *returned_samples)
+    int num_samples, int preset, double *data_buf, int *returned_samples)
 {
-    std::string preset_str = "default";
-    if (preset != NULL)
-    {
-        preset_str = preset;
-    }
-    if (dbs.find (preset_str) == dbs.end ())
+    std::string preset_str = preset_to_string (preset);
+    if (dbs.find (preset) == dbs.end ())
     {
         safe_logger (spdlog::level::err,
-            "stream is not startted or no preset: {} found for this board, available presets: {} ",
-            preset_str.c_str (), get_presets ().c_str ());
+            "stream is not started or no preset: {} found for this board", preset_str.c_str ());
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
-    if (!dbs[preset_str])
+    if (!dbs[preset])
     {
         return (int)BrainFlowExitCodes::EMPTY_BUFFER_ERROR;
     }
@@ -345,28 +342,22 @@ int Board::get_current_board_data (
     int num_rows = (int)board_descr[preset_str]["num_rows"];
 
     double *buf = new double[num_samples * num_rows];
-    int num_data_points = (int)dbs[preset_str]->get_current_data (num_samples, buf);
+    int num_data_points = (int)dbs[preset]->get_current_data (num_samples, buf);
     reshape_data (num_data_points, preset, buf, data_buf);
     delete[] buf;
     *returned_samples = num_data_points;
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int Board::get_board_data_count (const char *preset, int *result)
+int Board::get_board_data_count (int preset, int *result)
 {
-    std::string preset_str = "default";
-    if (preset != NULL)
-    {
-        preset_str = preset;
-    }
-    if (dbs.find (preset_str) == dbs.end ())
+    if (dbs.find (preset) == dbs.end ())
     {
         safe_logger (spdlog::level::err,
-            "stream is not startted or no preset: {} found for this board, available presets: {} ",
-            preset_str.c_str (), get_presets ().c_str ());
+            "stream is not startted or no preset: {} found for this board", preset);
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
-    if (!dbs[preset_str])
+    if (!dbs[preset])
     {
         return (int)BrainFlowExitCodes::EMPTY_BUFFER_ERROR;
     }
@@ -375,25 +366,20 @@ int Board::get_board_data_count (const char *preset, int *result)
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
-    *result = (int)dbs[preset_str]->get_data_count ();
+    *result = (int)dbs[preset]->get_data_count ();
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int Board::get_board_data (int data_count, const char *preset, double *data_buf)
+int Board::get_board_data (int data_count, int preset, double *data_buf)
 {
-    std::string preset_str = "default";
-    if (preset != NULL)
-    {
-        preset_str = preset;
-    }
-    if (dbs.find (preset_str) == dbs.end ())
+    std::string preset_str = preset_to_string (preset);
+    if (dbs.find (preset) == dbs.end ())
     {
         safe_logger (spdlog::level::err,
-            "stream is not startted or no preset: {} found for this board, available presets: {} ",
-            preset_str.c_str (), get_presets ().c_str ());
+            "stream is not startted or no preset: {} found for this board", preset);
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
-    if (!dbs[preset_str])
+    if (!dbs[preset])
     {
         return (int)BrainFlowExitCodes::EMPTY_BUFFER_ERROR;
     }
@@ -403,19 +389,15 @@ int Board::get_board_data (int data_count, const char *preset, double *data_buf)
     }
     int num_rows = (int)board_descr[preset_str]["num_rows"];
     double *buf = new double[data_count * num_rows];
-    int num_data_points = (int)dbs[preset_str]->get_data (data_count, buf);
+    int num_data_points = (int)dbs[preset]->get_data (data_count, buf);
     reshape_data (num_data_points, preset, buf, data_buf);
     delete[] buf;
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-void Board::reshape_data (int data_count, const char *preset, const double *buf, double *output_buf)
+void Board::reshape_data (int data_count, int preset, const double *buf, double *output_buf)
 {
-    std::string preset_str = "default";
-    if (preset != NULL)
-    {
-        preset_str = preset;
-    }
+    std::string preset_str = preset_to_string (preset);
     int num_rows = (int)board_descr[preset_str]["num_rows"];
 
     for (int i = 0; i < data_count; i++)
@@ -427,15 +409,38 @@ void Board::reshape_data (int data_count, const char *preset, const double *buf,
     }
 }
 
-std::string Board::get_presets ()
+std::string Board::preset_to_string (int preset)
 {
-    char presets[4096];
-    int len = 0;
-    std::string available_presets = "";
-    int res = get_board_presets (board_id, 4096, presets, &len);
-    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    if (preset == (int)BrainFlowPresets::DEFAULT_PRESET)
     {
-        available_presets = std::string (presets, len);
+        return "default";
     }
-    return available_presets;
+    else if (preset == (int)BrainFlowPresets::AUXILIARY_PRESET)
+    {
+        return "auxiliary";
+    }
+    else if (preset == (int)BrainFlowPresets::ANCILLARY_PRESET)
+    {
+        return "ancillary";
+    }
+
+    return "";
+}
+
+int Board::preset_to_int (std::string preset)
+{
+    if (preset == "default")
+    {
+        return (int)BrainFlowPresets::DEFAULT_PRESET;
+    }
+    else if (preset == "auxiliary")
+    {
+        return (int)BrainFlowPresets::AUXILIARY_PRESET;
+    }
+    else if (preset == "ancillary")
+    {
+        return (int)BrainFlowPresets::ANCILLARY_PRESET;
+    }
+
+    return (int)BrainFlowPresets::DEFAULT_PRESET;
 }

@@ -3,7 +3,7 @@ use std::{thread, time::Duration};
 use brainflow::{
     board_shim, brainflow_input_params::BrainFlowInputParamsBuilder,
     brainflow_model_params::BrainFlowModelParamsBuilder, data_filter, ml_model, BoardIds,
-    BrainFlowClassifiers, BrainFlowMetrics,
+    BrainFlowClassifiers, BrainFlowMetrics, BrainFlowPresets,
 };
 
 fn main() {
@@ -16,11 +16,11 @@ fn main() {
     board.start_stream(45000, "").unwrap();
     thread::sleep(Duration::from_secs(5));
     board.stop_stream().unwrap();
-    let data = board.get_board_data(None, "default").unwrap();
+    let data = board.get_board_data(None, BrainFlowPresets::DefaultPreset).unwrap();
     board.release_session().unwrap();
 
-    let eeg_channels = board_shim::get_eeg_channels(board_id, "default").unwrap();
-    let sampling_rate = board_shim::get_sampling_rate(board_id, "default").unwrap();
+    let eeg_channels = board_shim::get_eeg_channels(board_id, BrainFlowPresets::DefaultPreset).unwrap();
+    let sampling_rate = board_shim::get_sampling_rate(board_id, BrainFlowPresets::DefaultPreset).unwrap();
     let bands =
         data_filter::get_avg_band_powers(data, eeg_channels, sampling_rate, true).unwrap();
     let mut feature_vector = bands.0;

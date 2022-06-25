@@ -7,7 +7,7 @@ use std::{
 
 use crate::{
     brainflow_input_params::BrainFlowInputParams, check_brainflow_exit_code, BoardIds, LogLevels,
-    Result,
+    Result, BrainFlowPresets,
 };
 
 use crate::ffi::board_controller;
@@ -113,12 +113,11 @@ impl BoardShim {
     }
 
     /// Get num of elements in ringbuffer.
-    pub fn get_board_data_count<S: AsRef<str>>(&self, preset: S) -> Result<usize> {
+    pub fn get_board_data_count(&self, preset: BrainFlowPresets) -> Result<usize> {
         let mut data_count = 0;
-        let preset = CString::new(preset.as_ref())?;
         let res = unsafe {
             board_controller::get_board_data_count(
-                preset.as_ptr(),
+                preset as c_int,
                 &mut data_count,
                 self.board_id as c_int,
                 self.json_brainflow_input_params.as_ptr(),
@@ -129,9 +128,8 @@ impl BoardShim {
     }
 
     /// Get board data and remove data from ringbuffer
-    pub fn get_board_data<S: AsRef<str> + Copy>(&self, n_data_points: Option<usize>, preset: S) -> Result<Array2<f64>> {
+    pub fn get_board_data(&self, n_data_points: Option<usize>, preset: BrainFlowPresets) -> Result<Array2<f64>> {
         let num_rows = get_num_rows(self.board_id, preset)?;
-        let preset_cstr = CString::new(preset.as_ref())?;
         let num_samples = if let Some(n) = n_data_points {
             self.get_board_data_count(preset)?.min(n)
         } else {
@@ -143,7 +141,7 @@ impl BoardShim {
         let res = unsafe {
             board_controller::get_board_data(
                 num_samples as c_int,
-                preset_cstr.as_ptr(),
+                preset as c_int,
                 data_buf.as_mut_ptr(),
                 self.board_id as c_int,
                 self.json_brainflow_input_params.as_ptr(),
@@ -157,16 +155,15 @@ impl BoardShim {
     }
 
     /// Get specified amount of data or less if there is not enough data, doesnt remove data from ringbuffer.
-    pub fn get_current_board_data<S: AsRef<str> + Copy>(&self, num_samples: usize, preset: S) -> Result<Array2<f64>> {
+    pub fn get_current_board_data(&self, num_samples: usize, preset: BrainFlowPresets) -> Result<Array2<f64>> {
         let num_rows = get_num_rows(self.board_id, preset)?;
-        let preset_cstr = CString::new(preset.as_ref())?;
         let capacity = num_samples * num_rows;
         let mut len = 0;
         let mut data_buf = Vec::with_capacity(capacity);
         let res = unsafe {
             board_controller::get_current_board_data(
                 num_samples as c_int,
-                preset_cstr.as_ptr(),
+                preset as c_int,
                 data_buf.as_mut_ptr(),
                 &mut len,
                 self.board_id as c_int,
@@ -207,12 +204,11 @@ impl BoardShim {
     }
 
     /// Insert Marker to Data Stream.
-    pub fn insert_marker<S: AsRef<str>>(&self, value: f64, preset: S) -> Result<()> {
-        let preset_cstr = CString::new(preset.as_ref())?;
+    pub fn insert_marker(&self, value: f64, preset: BrainFlowPresets) -> Result<()> {
         let res = unsafe {
             board_controller::insert_marker(
                 value as c_double,
-                preset_cstr.as_ptr(),
+                preset as c_int,
                 self.board_id as c_int,
                 self.json_brainflow_input_params.as_ptr(),
             )
@@ -268,10 +264,9 @@ macro_rules! gen_fn {
     ($fn_name:ident, $return_type:ident, $initial_value:literal, $doc:literal) => {
         paste! {
             #[doc = $doc]
-            pub fn [<get_$fn_name>]<S: AsRef<str>>(board_id: BoardIds, preset: S) -> Result<$return_type> {
+            pub fn [<get_$fn_name>](board_id: BoardIds, preset: BrainFlowPresets) -> Result<$return_type> {
                 let mut value = $initial_value;
-                let preset_cstr = CString::new(preset.as_ref())?;
-                let res = unsafe { board_controller::[<get_$fn_name>](board_id as c_int, preset_cstr.as_ptr(), &mut value) };
+                let res = unsafe { board_controller::[<get_$fn_name>](board_id as c_int, preset as c_int, &mut value) };
                 check_brainflow_exit_code(res)?;
                 Ok(value as $return_type)
             }
@@ -324,13 +319,12 @@ pub fn log_message<S: AsRef<str>>(log_level: LogLevels, message: S) -> Result<()
 }
 
 /// Get board description as json.
-pub fn get_board_descr<S: AsRef<str>>(board_id: BoardIds, preset: S) -> Result<String> {
+pub fn get_board_descr(board_id: BoardIds, preset: BrainFlowPresets) -> Result<String> {
     let mut response_len = 0;
     let response = CString::new(Vec::with_capacity(16000))?;
-    let preset_cstr = CString::new(preset.as_ref())?;
     let response = response.into_raw();
     let (res, response) = unsafe {
-        let res = board_controller::get_board_descr(board_id as c_int, preset_cstr.as_ptr(), response, &mut response_len);
+        let res = board_controller::get_board_descr(board_id as c_int, preset as c_int, response, &mut response_len);
         let response = CString::from_raw(response);
         (res, response)
     };
@@ -343,13 +337,12 @@ pub fn get_board_descr<S: AsRef<str>>(board_id: BoardIds, preset: S) -> Result<S
 }
 
 /// Get names of EEG channels in 10-20 system if their location is fixed.
-pub fn get_eeg_names<S: AsRef<str>>(board_id: BoardIds, preset: S) -> Result<Vec<String>> {
+pub fn get_eeg_names(board_id: BoardIds, preset: BrainFlowPresets) -> Result<Vec<String>> {
     let mut response_len = 0;
-    let preset_cstr = CString::new(preset.as_ref())?;
     let response = CString::new(Vec::with_capacity(16000))?;
     let response = response.into_raw();
     let (res, response) = unsafe {
-        let res = board_controller::get_eeg_names(board_id as c_int, preset_cstr.as_ptr(), response, &mut response_len);
+        let res = board_controller::get_eeg_names(board_id as c_int, preset as c_int, response, &mut response_len);
         let response = CString::from_raw(response);
         (res, response)
     };
@@ -363,22 +356,20 @@ pub fn get_eeg_names<S: AsRef<str>>(board_id: BoardIds, preset: S) -> Result<Vec
 }
 
 /// Get presets for this board.
-pub fn get_board_presets(board_id: BoardIds) -> Result<Vec<String>> {
-    let mut response_len = 0;
-    let response = CString::new(Vec::with_capacity(4096))?;
-    let response = response.into_raw();
-    let (res, response) = unsafe {
-        let res = board_controller::get_board_presets(board_id as c_int, 4096, response, &mut response_len);
-        let response = CString::from_raw(response);
-        (res, response)
+pub fn get_board_presets(board_id: BoardIds) -> Result<Vec<usize>> {
+    let mut presets: Vec<c_int> = Vec::with_capacity(MAX_CHANNELS);
+    let mut len = 0;
+    let res = unsafe {
+        board_controller::get_board_presets(
+            board_id as c_int,
+            presets.as_mut_ptr(),
+            &mut len,
+        )
     };
     check_brainflow_exit_code(res)?;
-    let presets = response.to_str()?.split_at(response_len as usize).0;
-
-    Ok(presets
-        .split(',')
-        .map(|s| s.to_string())
-        .collect::<Vec<String>>())
+    unsafe { presets.set_len(len as usize) };
+    let presets_casted = presets.into_iter().map(|c| c as usize).collect::<Vec<usize>>();
+    Ok(presets_casted)
 }
 
 /// Get BoardShim version.
@@ -398,13 +389,12 @@ pub fn get_version() -> Result<String> {
 }
 
 /// Get device name.
-pub fn get_device_name<S: AsRef<str>>(board_id: BoardIds, preset: S) -> Result<String> {
+pub fn get_device_name(board_id: BoardIds, preset: BrainFlowPresets) -> Result<String> {
     let mut response_len = 0;
-    let preset_cstr = CString::new(preset.as_ref())?;
     let response = CString::new(Vec::with_capacity(4096))?;
     let response = response.into_raw();
     let (res, response) = unsafe {
-        let res = board_controller::get_device_name(board_id as c_int, preset_cstr.as_ptr(), response, &mut response_len);
+        let res = board_controller::get_device_name(board_id as c_int, preset as c_int, response, &mut response_len);
         let response = CString::from_raw(response);
         (res, response)
     };
@@ -420,14 +410,13 @@ macro_rules! gen_vec_fn {
     ($fn_name:ident, $doc:literal) => {
         paste! {
             #[doc = $doc]
-            pub fn [<get_$fn_name>]<S: AsRef<str>>(board_id: BoardIds, preset: S) -> Result<Vec<usize>> {
+            pub fn [<get_$fn_name>](board_id: BoardIds, preset: BrainFlowPresets) -> Result<Vec<usize>> {
                 let mut channels: Vec<c_int> = Vec::with_capacity(MAX_CHANNELS);
-                let preset_cstr = CString::new(preset.as_ref())?;
                 let mut len = 0;
                 let res = unsafe {
                     board_controller::[<get_$fn_name>](
                         board_id as c_int,
-                        preset_cstr.as_ptr(),
+                        preset as c_int,
                         channels.as_mut_ptr(),
                         &mut len,
                     )

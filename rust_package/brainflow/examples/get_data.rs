@@ -1,6 +1,6 @@
 use std::{thread, time::Duration};
 
-use brainflow::{board_shim, brainflow_input_params::BrainFlowInputParamsBuilder, BoardIds};
+use brainflow::{board_shim, brainflow_input_params::BrainFlowInputParamsBuilder, BoardIds, BrainFlowPresets,};
 
 fn main() {
     brainflow::board_shim::enable_dev_board_logger().unwrap();
@@ -11,7 +11,7 @@ fn main() {
     board.start_stream(45000, "").unwrap();
     thread::sleep(Duration::from_secs(5));
     board.stop_stream().unwrap();
-    let data = board.get_board_data(Some(10), "default").unwrap();
+    let data = board.get_board_data(Some(10), BrainFlowPresets::DefaultPreset).unwrap();
     board.release_session().unwrap();
 
     println!("{}", data.len());

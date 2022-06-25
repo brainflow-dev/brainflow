@@ -16,18 +16,18 @@ extern "C"
         int board_id, const char *json_brainflow_input_params);
     SHARED_EXPORT int CALLING_CONVENTION release_session (
         int board_id, const char *json_brainflow_input_params);
-    SHARED_EXPORT int get_current_board_data (int num_samples, const char *preset, double *data_buf,
+    SHARED_EXPORT int get_current_board_data (int num_samples, int preset, double *data_buf,
         int *returned_samples, int board_id, const char *json_brainflow_input_params);
     SHARED_EXPORT int CALLING_CONVENTION get_board_data_count (
-        const char *preset, int *result, int board_id, const char *json_brainflow_input_params);
-    SHARED_EXPORT int CALLING_CONVENTION get_board_data (int data_count, const char *preset,
+        int preset, int *result, int board_id, const char *json_brainflow_input_params);
+    SHARED_EXPORT int CALLING_CONVENTION get_board_data (int data_count, int preset,
         double *data_buf, int board_id, const char *json_brainflow_input_params);
     SHARED_EXPORT int CALLING_CONVENTION config_board (char *config, char *response,
         int *response_len, int board_id, const char *json_brainflow_input_params);
     SHARED_EXPORT int CALLING_CONVENTION is_prepared (
         int *prepared, int board_id, const char *json_brainflow_input_params);
-    SHARED_EXPORT int CALLING_CONVENTION insert_marker (double marker_value, const char *preset,
-        int board_id, const char *json_brainflow_input_params);
+    SHARED_EXPORT int CALLING_CONVENTION insert_marker (
+        double marker_value, int preset, int board_id, const char *json_brainflow_input_params);
     SHARED_EXPORT int CALLING_CONVENTION release_all_sessions ();
 
     // logging methods

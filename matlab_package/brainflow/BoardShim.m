@@ -149,7 +149,7 @@ classdef BoardShim
             lib_name = BoardShim.load_lib();
             % no way to understand how it works in matlab, used this link
             % https://nl.mathworks.com/matlabcentral/answers/131446-what-data-type-do-i-need-to-calllib-with-pointer-argument-char%
-            [exit_code, tmp, board_descr] = calllib(lib_name, task_name, board_id, preset, blanks(16000), 16000);
+            [exit_code, board_descr] = calllib(lib_name, task_name, board_id, preset, blanks(16000), 16000);
             BoardShim.check_ec(exit_code, task_name);
             board_descr = jsondecode(board_descr);
         end
@@ -168,12 +168,13 @@ classdef BoardShim
         function presets = get_board_presets(board_id)
             % get supported presets
             task_name = 'get_board_presets';
+            num_presets = libpointer('int32Ptr', 0);
             lib_name = BoardShim.load_lib();
-            % no way to understand how it works in matlab, used this link
-            % https://nl.mathworks.com/matlabcentral/answers/131446-what-data-type-do-i-need-to-calllib-with-pointer-argument-char%
-            [exit_code, presets] = calllib(lib_name, task_name, board_id, 4096, blanks(4096), 4096);
+            data = libpointer('int32Ptr', zeros(1, 512));
+            exit_code = calllib(lib_name, task_name, board_id, data, num_presets);
             BoardShim.check_ec(exit_code, task_name);
-            presets = split(presets, ',');
+            presets = data.Value(1,1:num_presets.Value);
+            
         end
         
         function version = get_version()

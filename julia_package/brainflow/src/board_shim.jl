@@ -62,6 +62,16 @@ BoardIdType = Union{BoardIds, Integer}
 
 end
 
+@enum BrainFlowPresets begin
+
+    DEFAULT_PRESET = 0
+    AUXILIARY_PRESET = 1
+    ANCILLARY_PRESET = 2
+
+end
+
+PresetType = Union{BrainFlowPresets, Integer}
+
 @Base.kwdef mutable struct BrainFlowInputParams
     serial_port::String = ""
     mac_address::String = ""
@@ -74,52 +84,51 @@ end
     file::String = ""
 end
 
-@brainflow_rethrow function get_sampling_rate(board_id::BoardIdType, preset::String="default")
+@brainflow_rethrow function get_sampling_rate(board_id::BoardIdType, preset::PresetType=Integer(DEFAULT_PRESET))
     val = Vector{Cint}(undef, 1)
-    ccall((:get_sampling_rate, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}, Ptr{Cint}), Int32(board_id), preset, val)
+    ccall((:get_sampling_rate, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Cint, Ptr{Cint}), Int32(board_id), Int32(preset), val)
     value = val[1]
     return value
 end
 
-@brainflow_rethrow function get_num_rows(board_id::BoardIdType, preset::String="default")
+@brainflow_rethrow function get_num_rows(board_id::BoardIdType, preset::PresetType=Integer(DEFAULT_PRESET))
     val = Vector{Cint}(undef, 1)
-    ccall((:get_num_rows, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}, Ptr{Cint}), Int32(board_id), preset, val)
+    ccall((:get_num_rows, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Cint, Ptr{Cint}), Int32(board_id), Int32(preset), val)
     # here dont need to add 1, last element included
     value = val[1]
     return value
 end
 
 @brainflow_rethrow function get_board_presets(board_id::BoardIdType)
+    presets = Vector{Cint}(undef, 512)
+    len = Vector{Cint}(undef, 1)
+    ccall((:get_board_presets, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), presets, len)
+    value = presets[1:len[1]]
+    return value
+end
+
+@brainflow_rethrow function get_eeg_names(board_id::BoardIdType, preset::PresetType=Integer(DEFAULT_PRESET))
     names_string = Vector{Cuchar}(undef, 4096)
     len = Vector{Cint}(undef, 1)
-    ccall((:get_eeg_names, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Cint, Ptr{UInt8}, Ptr{Cint}), Int32(board_id), 4096, names_string, len)
+    ccall((:get_eeg_names, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Cint, Ptr{UInt8}, Ptr{Cint}), Int32(board_id), Int32(preset), names_string, len)
     sub_string = String(names_string)[1:len[1]]
     value = split(sub_string, ',')
     return value
 end
 
-@brainflow_rethrow function get_eeg_names(board_id::BoardIdType, preset::String="default")
-    names_string = Vector{Cuchar}(undef, 4096)
-    len = Vector{Cint}(undef, 1)
-    ccall((:get_eeg_names, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}, Ptr{UInt8}, Ptr{Cint}), Int32(board_id), preset, names_string, len)
-    sub_string = String(names_string)[1:len[1]]
-    value = split(sub_string, ',')
-    return value
-end
-
-@brainflow_rethrow function get_board_descr(board_id::BoardIdType, preset::String="default")
+@brainflow_rethrow function get_board_descr(board_id::BoardIdType, preset::PresetType=Integer(DEFAULT_PRESET))
     names_string = Vector{Cuchar}(undef, 16000)
     len = Vector{Cint}(undef, 1)
-    ccall((:get_board_descr, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}, Ptr{UInt8}, Ptr{Cint}), Int32(board_id), preset, names_string, len)
+    ccall((:get_board_descr, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Cint, Ptr{UInt8}, Ptr{Cint}), Int32(board_id), Int32(preset), names_string, len)
     sub_string = String(names_string)[1:len[1]]
     value = JSON.parse(sub_string)
     return value
 end
 
-@brainflow_rethrow function get_device_name(board_id::BoardIdType, preset::String="default")
+@brainflow_rethrow function get_device_name(board_id::BoardIdType, preset::PresetType=Integer(DEFAULT_PRESET))
     names_string = Vector{Cuchar}(undef, 4096)
     len = Vector{Cint}(undef, 1)
-    ccall((:get_device_name, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}, Ptr{UInt8}, Ptr{Cint}), Int32(board_id), preset, names_string, len)
+    ccall((:get_device_name, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Cint, Ptr{UInt8}, Ptr{Cint}), Int32(board_id), Int32(preset), names_string, len)
     sub_string = String(names_string)[1:len[1]]
     return sub_string
 end
@@ -146,9 +155,9 @@ single_channel_function_names = (
 # generating the channels functions
 for func_name = single_channel_function_names
     cglobal_expr = Meta.parse("cglobal((:$func_name, BOARD_CONTROLLER_INTERFACE))")
-    @eval @brainflow_rethrow function $func_name(board_id::BoardIdType, preset::String="default")
+    @eval @brainflow_rethrow function $func_name(board_id::BoardIdType, preset::PresetType=Integer(DEFAULT_PRESET))
         channel = Vector{Cint}(undef, 1)
-        ccall($cglobal_expr, Cint, (Cint, Ptr{UInt8}, Ptr{Cint}), Int32(board_id), preset, channel)
+        ccall($cglobal_expr, Cint, (Cint, Cint, Ptr{Cint}), Int32(board_id), Int32(preset), channel)
         # julia counts from 1
         @inbounds value = channel[1] + 1
         return value
@@ -174,10 +183,10 @@ channel_function_names = (
 # generating the channels functions
 for func_name = channel_function_names
     cglobal_expr = Meta.parse("cglobal((:$func_name, BOARD_CONTROLLER_INTERFACE))")
-    @eval @brainflow_rethrow function $func_name(board_id::BoardIdType, preset::String="default")
+    @eval @brainflow_rethrow function $func_name(board_id::BoardIdType, preset::PresetType=Integer(DEFAULT_PRESET))
         channels = Vector{Cint}(undef, 512)
         len = Vector{Cint}(undef, 1)
-        ccall($cglobal_expr, Cint, (Cint, Ptr{UInt8}, Ptr{Cint}, Ptr{Cint}), Int32(board_id), preset, channels, len)
+        ccall($cglobal_expr, Cint, (Cint, Cint, Ptr{Cint}, Ptr{Cint}), Int32(board_id), Int32(preset), channels, len)
         # julia counts from 1
         @inbounds value = channels[1:len[1]] .+ 1
         return value
@@ -226,15 +235,15 @@ end
     return value
 end
 
-@brainflow_rethrow function get_board_data_count(board_shim::BoardShim, preset::String="default")
+@brainflow_rethrow function get_board_data_count(board_shim::BoardShim, preset::PresetType=Integer(DEFAULT_PRESET))
     val = Vector{Cint}(undef, 1)
-    ccall((:get_board_data_count, BOARD_CONTROLLER_INTERFACE), Cint, (Ptr{UInt8}, Ptr{Cint}, Cint, Ptr{UInt8}), preset, val, board_shim.board_id, board_shim.input_json)
+    ccall((:get_board_data_count, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{Cint}, Cint, Ptr{UInt8}), Int32(preset), val, board_shim.board_id, board_shim.input_json)
     value = val[1]
     return value
 end
 
-@brainflow_rethrow function insert_marker(value::Float64, board_shim::BoardShim, preset::String="default")
-    ccall((:insert_marker, BOARD_CONTROLLER_INTERFACE), Cint, (Float64, Ptr{UInt8}, Cint, Ptr{UInt8}), value, preset, board_shim.board_id, board_shim.input_json)
+@brainflow_rethrow function insert_marker(value::Float64, board_shim::BoardShim, preset::PresetType=Integer(DEFAULT_PRESET))
+    ccall((:insert_marker, BOARD_CONTROLLER_INTERFACE), Cint, (Float64, Cint, Cint, Ptr{UInt8}), value, Int32(preset), board_shim.board_id, board_shim.input_json)
 end
 
 @brainflow_rethrow function stop_stream(board_shim::BoardShim)
@@ -254,7 +263,7 @@ end
     return sub_string
 end
 
-@brainflow_rethrow function get_board_data(num_samples::Integer, board_shim::BoardShim, preset::String="default")
+@brainflow_rethrow function get_board_data(num_samples::Integer, board_shim::BoardShim, preset::PresetType=Integer(DEFAULT_PRESET))
     data_size = get_board_data_count(board_shim, preset)
     if num_samples < 0
         throw(BrainFlowError("Invalid num_samples", Integer(INVALID_ARGUMENTS_ERROR)))
@@ -263,28 +272,28 @@ end
     end
     num_rows = get_num_rows(board_shim.master_board_id, preset)
     val = Vector{Float64}(undef, num_rows * data_size)
-    ccall((:get_board_data, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}, Ptr{Float64}, Cint, Ptr{UInt8}), 
-            data_size, preset, val, board_shim.board_id, board_shim.input_json)
+    ccall((:get_board_data, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Cint, Ptr{Float64}, Cint, Ptr{UInt8}), 
+            data_size, Int32(preset), val, board_shim.board_id, board_shim.input_json)
     value = transpose(reshape(val, (data_size, num_rows)))
     return value
 end
 
-@brainflow_rethrow function get_board_data(board_shim::BoardShim, preset::String="default")
+@brainflow_rethrow function get_board_data(board_shim::BoardShim, preset::PresetType=Integer(DEFAULT_PRESET))
     data_size = get_board_data_count(board_shim)
     num_rows = get_num_rows(board_shim.master_board_id, preset)
     val = Vector{Float64}(undef, num_rows * data_size)
-    ccall((:get_board_data, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}, Ptr{Float64}, Cint, Ptr{UInt8}), 
-            data_size, preset, val, board_shim.board_id, board_shim.input_json)
+    ccall((:get_board_data, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Cint, Ptr{Float64}, Cint, Ptr{UInt8}), 
+            data_size, Int32(preset), val, board_shim.board_id, board_shim.input_json)
     value = transpose(reshape(val, (data_size, num_rows)))
     return value
 end
 
-@brainflow_rethrow function get_current_board_data(num_samples::Integer, board_shim::BoardShim, preset::String="default")
+@brainflow_rethrow function get_current_board_data(num_samples::Integer, board_shim::BoardShim, preset::PresetType=Integer(DEFAULT_PRESET))
     data_size = Vector{Cint}(undef, 1)
     num_rows = get_num_rows(board_shim.master_board_id, preset)
     val = Vector{Float64}(undef, num_rows * num_samples)
-    ccall((:get_current_board_data, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}, Ptr{Float64}, Ptr{Cint}, Cint, Ptr{UInt8}), 
-            num_samples, preset, val, data_size, board_shim.board_id, board_shim.input_json)
+    ccall((:get_current_board_data, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Cint, Ptr{Float64}, Ptr{Cint}, Cint, Ptr{UInt8}), 
+            num_samples, Int32(preset), val, data_size, board_shim.board_id, board_shim.input_json)
     value = transpose(reshape(val[1:data_size[1] * num_rows], (data_size[1], num_rows)))
     return value
 end

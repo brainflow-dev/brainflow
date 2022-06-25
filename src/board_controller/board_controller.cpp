@@ -304,8 +304,7 @@ int stop_stream (int board_id, const char *json_brainflow_input_params)
     return board_it->second->stop_stream ();
 }
 
-int insert_marker (
-    double value, const char *preset, int board_id, const char *json_brainflow_input_params)
+int insert_marker (double value, int preset, int board_id, const char *json_brainflow_input_params)
 {
     std::lock_guard<std::mutex> lock (mutex);
 
@@ -335,8 +334,8 @@ int release_session (int board_id, const char *json_brainflow_input_params)
     return res;
 }
 
-int get_current_board_data (int num_samples, const char *preset, double *data_buf,
-    int *returned_samples, int board_id, const char *json_brainflow_input_params)
+int get_current_board_data (int num_samples, int preset, double *data_buf, int *returned_samples,
+    int board_id, const char *json_brainflow_input_params)
 {
     std::lock_guard<std::mutex> lock (mutex);
 
@@ -352,7 +351,7 @@ int get_current_board_data (int num_samples, const char *preset, double *data_bu
 }
 
 int get_board_data_count (
-    const char *preset, int *result, int board_id, const char *json_brainflow_input_params)
+    int preset, int *result, int board_id, const char *json_brainflow_input_params)
 {
     std::lock_guard<std::mutex> lock (mutex);
 
@@ -366,7 +365,7 @@ int get_board_data_count (
     return board_it->second->get_board_data_count (preset, result);
 }
 
-int get_board_data (int data_count, const char *preset, double *data_buf, int board_id,
+int get_board_data (int data_count, int preset, double *data_buf, int board_id,
     const char *json_brainflow_input_params)
 {
     std::lock_guard<std::mutex> lock (mutex);

@@ -132,16 +132,22 @@ enum class BrainFlowClassifiers : int
     ONNX_CLASSIFIER = 2
 };
 
-/// LogLevels enum to store all possible log levels
+enum class BrainFlowPresets : int
+{
+    DEFAULT_PRESET = 0,
+    AUXILIARY_PRESET = 1,
+    ANCILLARY_PRESET = 2
+};
+
 enum class LogLevels : int
 {
-    LEVEL_TRACE = 0,    /// TRACE
-    LEVEL_DEBUG = 1,    /// DEBUG
-    LEVEL_INFO = 2,     /// INFO
-    LEVEL_WARN = 3,     /// WARN
-    LEVEL_ERROR = 4,    /// ERROR
-    LEVEL_CRITICAL = 5, /// CRITICAL
-    LEVEL_OFF = 6       // OFF
+    LEVEL_TRACE = 0,
+    LEVEL_DEBUG = 1,
+    LEVEL_INFO = 2,
+    LEVEL_WARN = 3,
+    LEVEL_ERROR = 4,
+    LEVEL_CRITICAL = 5,
+    LEVEL_OFF = 6
 };
 
 enum class NoiseTypes : int

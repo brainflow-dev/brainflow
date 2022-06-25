@@ -136,21 +136,21 @@ pub enum BrainFlowClassifiers {
     OnnxClassifier = 2,
 }
 #[repr(i32)]
-#[doc = " LogLevels enum to store all possible log levels"]
+#[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum BrainFlowPresets {
+    DefaultPreset = 0,
+    AuxiliaryPreset = 1,
+    AncillaryPreset = 2,
+}
+#[repr(i32)]
 #[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum LogLevels {
     LevelTrace = 0,
-    #[doc = " Trace"]
     LevelDebug = 1,
-    #[doc = " Debug"]
     LevelInfo = 2,
-    #[doc = " Info"]
     LevelWarn = 3,
-    #[doc = " Warn"]
     LevelError = 4,
-    #[doc = " Error"]
     LevelCritical = 5,
-    #[doc = " Critical"]
     LevelOff = 6,
 }
 #[repr(i32)]

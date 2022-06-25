@@ -2,7 +2,7 @@ use std::{thread, time::Duration};
 
 use brainflow::{
     board_shim, brainflow_input_params::BrainFlowInputParamsBuilder, data_filter, BoardIds,
-    WindowOperations, WaveletTypes, WaveletExtensionTypes,
+    WindowOperations, WaveletTypes, WaveletExtensionTypes, BrainFlowPresets,
 };
 use ndarray::s;
 
@@ -10,7 +10,7 @@ fn main() {
     brainflow::board_shim::enable_dev_board_logger().unwrap();
 
     let board_id = BoardIds::SyntheticBoard;
-    let eeg_channels = board_shim::get_eeg_channels(board_id, "default").unwrap();
+    let eeg_channels = board_shim::get_eeg_channels(board_id, BrainFlowPresets::DefaultPreset).unwrap();
     println!("{:?}", eeg_channels);
 
     let params = BrainFlowInputParamsBuilder::default().build();
@@ -20,7 +20,7 @@ fn main() {
     board.start_stream(45000, "").unwrap();
     thread::sleep(Duration::from_secs(5));
     board.stop_stream().unwrap();
-    let mut data = board.get_board_data(Some(64), "default").unwrap();
+    let mut data = board.get_board_data(Some(64), BrainFlowPresets::DefaultPreset).unwrap();
     board.release_session().unwrap();
 
     let data_len = data.slice(s![0, ..]).len();
