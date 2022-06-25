@@ -1537,7 +1537,8 @@ public class BoardShim
      */
     public double[][] get_board_data () throws BrainFlowError
     {
-        return get_board_data (BrainFlowPresets.DEFAULT_PRESET.get_code ());
+        BrainFlowPresets preset = BrainFlowPresets.DEFAULT_PRESET;
+        return get_board_data (get_board_data_count (preset), preset);
     }
 
     public double[][] get_board_data (int num_datapoints) throws BrainFlowError
