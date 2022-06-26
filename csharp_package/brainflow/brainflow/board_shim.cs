@@ -801,7 +801,7 @@ namespace brainflow
         /// </summary>
         /// <param name="preset">preset for device</param>
         /// <returns>all collected data</returns>
-        public double[,] get_board_data (int num_datapoints, int preset = (int)BrainFlowPresets.DEFAULT_PRESET)
+        public double[,] get_board_data (int num_datapoints, int preset)
         {
             int size = get_board_data_count (preset);
             if (num_datapoints < 0)
