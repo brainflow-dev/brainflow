@@ -790,10 +790,21 @@ namespace brainflow
         /// <summary>
         /// get all collected data and remove it from ringbuffer
         /// </summary>
-        /// <returns>all collected data</returns>
-        public double[,] get_board_data (int preset = (int)BrainFlowPresets.DEFAULT_PRESET)
+        /// <returns>collected data</returns>
+        public double[,] get_board_data ()
         {
-            return get_board_data (get_board_data_count (preset));
+            int preset = (int)BrainFlowPresets.DEFAULT_PRESET;
+            int size = get_board_data_count (preset);
+            return get_board_data (size, preset);
+        }
+
+        /// <summary>
+        /// get collected data and remove it from ringbuffer
+        /// </summary>
+        /// <returns>collected data</returns>
+        public double[,] get_board_data (int num_datapoints)
+        {
+            return get_board_data (num_datapoints, (int)BrainFlowPresets.DEFAULT_PRESET);
         }
 
         /// <summary>
