@@ -21,11 +21,13 @@ static std::string get_preset_str (int preset);
 int get_board_presets (int board_id, int *presets, int *len)
 {
     int counter = 0;
-    std::string res = brainflow_boards_json["boards"][std::to_string (board_id)].dump (4);
+    std::string res =
+        boards_struct.brainflow_boards_json["boards"][std::to_string (board_id)].dump (4);
     Board::board_logger->trace ("json obj {}", res.c_str ());
     try
     {
-        for (auto &el : brainflow_boards_json["boards"][std::to_string (board_id)].items ())
+        for (auto &el :
+            boards_struct.brainflow_boards_json["boards"][std::to_string (board_id)].items ())
         {
             if (el.key () == "default")
             {
@@ -70,7 +72,8 @@ int get_board_descr (int board_id, int preset, char *board_descr, int *len)
     try
     {
         std::string res =
-            brainflow_boards_json["boards"][std::to_string (board_id)][preset_str].dump ();
+            boards_struct.brainflow_boards_json["boards"][std::to_string (board_id)][preset_str]
+                .dump ();
         if ((res.empty ()) || (res == "null"))
         {
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
@@ -233,7 +236,8 @@ static int get_single_value (
     try
     {
         int val =
-            (int)brainflow_boards_json["boards"][std::to_string (board_id)][preset_str][param_name];
+            (int)boards_struct
+                .brainflow_boards_json["boards"][std::to_string (board_id)][preset_str][param_name];
         *value = val;
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
@@ -261,7 +265,8 @@ static int get_array_value (
     try
     {
         std::vector<int> values =
-            brainflow_boards_json["boards"][std::to_string (board_id)][preset_str][param_name];
+            boards_struct
+                .brainflow_boards_json["boards"][std::to_string (board_id)][preset_str][param_name];
         if (!values.empty ())
         {
             memcpy (output_array, &values[0], sizeof (int) * values.size ());
@@ -293,7 +298,8 @@ static int get_string_value (
     try
     {
         std::string val =
-            brainflow_boards_json["boards"][std::to_string (board_id)][preset_str][param_name];
+            boards_struct
+                .brainflow_boards_json["boards"][std::to_string (board_id)][preset_str][param_name];
         strcpy (string, val.c_str ());
         *len = (int)strlen (val.c_str ());
         return (int)BrainFlowExitCodes::STATUS_OK;

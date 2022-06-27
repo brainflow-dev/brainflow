@@ -19,6 +19,7 @@ int main (int argc, char *argv[])
 {
     BoardShim::enable_dev_board_logger ();
 
+    BoardShim::get_board_presets (-1);
     struct BrainFlowInputParams params;
     int board_id = 0;
     if (!parse_args (argc, argv, &params, &board_id))

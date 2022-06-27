@@ -42,7 +42,7 @@ public:
         this->params = params;
         try
         {
-            board_descr = brainflow_boards_json["boards"][std::to_string (board_id)];
+            board_descr = boards_struct.brainflow_boards_json["boards"][std::to_string (board_id)];
         }
         catch (json::exception &e)
         {

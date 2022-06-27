@@ -54,7 +54,7 @@ int PlaybackFileBoard::prepare_session ()
     try
     {
         board_id = std::stoi (params.other_info);
-        board_descr = brainflow_boards_json["boards"][std::to_string (board_id)];
+        board_descr = boards_struct.brainflow_boards_json["boards"][std::to_string (board_id)];
     }
     catch (json::exception &e)
     {
