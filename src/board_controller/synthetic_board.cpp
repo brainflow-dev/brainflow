@@ -116,6 +116,12 @@ void SyntheticBoard::read_thread ()
     {
         package[i] = 0.0;
     }
+    int num_aux_rows = board_descr["auxiliary"]["num_rows"];
+    double *aux_package = new double[num_aux_rows];
+    for (int i = 0; i < num_aux_rows; i++)
+    {
+        aux_package[i] = 0.0;
+    }
 
     double timestamp = 0;
     while (keep_alive)
@@ -175,6 +181,16 @@ void SyntheticBoard::read_thread ()
 
             push_package (package); // use this method to submit data to buffers
 
+            // push aux package
+            for (int channel : board_descr["auxiliary"]["other_channels"])
+            {
+                aux_package[channel] = (double)channel;
+            }
+            aux_package[board_descr["auxiliary"]["timestamp_channel"].get<int> ()] =
+                timestamp + num_in_batch / (double)sampling_rate;
+            package[board_descr["auxiliary"]["package_num_channel"].get<int> ()] = (double)counter;
+            push_package (aux_package, (int)BrainFlowPresets::AUXILIARY_PRESET);
+
             counter++;
         }
         auto stop = std::chrono::high_resolution_clock::now ();
@@ -191,6 +207,7 @@ void SyntheticBoard::read_thread ()
     }
     delete[] sin_phase_rad;
     delete[] package;
+    delete[] aux_package;
 }
 
 int SyntheticBoard::config_board (std::string config, std::string &response)

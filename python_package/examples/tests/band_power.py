@@ -34,10 +34,6 @@ def main():
     band_power_beta = DataFilter.get_band_power(psd, 14.0, 30.0)
     print("alpha/beta:%f", band_power_alpha / band_power_beta)
 
-    # fail test if ratio is not smth we expect
-    if (band_power_alpha / band_power_beta < 100):
-        raise ValueError('Wrong Ratio')
-
 
 if __name__ == "__main__":
     main()
