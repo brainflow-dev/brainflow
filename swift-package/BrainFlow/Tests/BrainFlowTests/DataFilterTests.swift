@@ -25,7 +25,7 @@ class DataFilterTests: XCTestCase {
 
             let EEGchannels = try BoardShim.getEEGchannels(boardId)
             let bands = try DataFilter.getAvgBandPowers(data: data, channels: EEGchannels,
-                                                        samplingRate: samplingRate, applyFilters: true)
+                                                        samplingRate: samplingRate, applyFilter: true)
             
             let avgSum = bands.0.reduce(0, +)
             let stdSum = bands.1.reduce(0, +)

@@ -85,24 +85,24 @@ struct DataFilter {
     /**
      * perform bandpass filter in-place
      */
-    static func performBandpass (data: inout [Double], samplingRate: Int32, centerFreq: Double, bandWidth: Double,
+    static func performBandpass (data: inout [Double], samplingRate: Int32, startFreq: Double, stopFreq: Double,
                           order: Int32, filterType: FilterTypes, ripple: Double) throws {
         let dataLen = Int32(data.count)
         let filterVal = filterType.rawValue
-        let errorCode = perform_bandpass (&data, dataLen, samplingRate, centerFreq, bandWidth, order,
-                                       filterVal, ripple)
+        let errorCode = perform_bandpass(&data, dataLen, samplingRate, startFreq,
+                                         stopFreq, order, filterVal, ripple)
         try checkErrorCode("Failed to apply filter", errorCode)
     }
 
     /**
      * perform bandstop filter in-place
      */
-    static func performBandstop (data: inout [Double], samplingRate: Int32, centerFreq: Double, bandWidth: Double,
+    static func performBandstop (data: inout [Double], samplingRate: Int32, startFreq: Double, stopFreq: Double,
                           order: Int32, filterType: FilterTypes, ripple: Double) throws {
         let dataLen = Int32(data.count)
         let filterVal = filterType.rawValue
-        let errorCode = perform_bandstop (&data, dataLen, samplingRate, centerFreq, bandWidth, order,
-                                       filterVal, ripple)
+        let errorCode = perform_bandstop(&data, dataLen, samplingRate, startFreq,
+                                         stopFreq, order, filterVal, ripple)
         try checkErrorCode("Failed to apply filter", errorCode)
     }
     
@@ -157,20 +157,40 @@ struct DataFilter {
         try checkErrorCode("Failed to remove noise", errorCode)
     }
 
-    /**
-     * perform wavelet based denoising in-place
-     *
-     * @param wavelet             supported vals:
-     *    db1..db15,haar,sym2..sym10,coif1..coif5,bior1.1,bior1.3,bior1.5,bior2.2,bior2.4,bior2.6,bior2.8,bior3.1,bior3.3,bior3.5,
-     *    bior3.7,bior3.9,bior4.4,bior5.5,bior6.8
-     *
-     * @param decomposition_level level of decomposition of wavelet transform
-     */
-    static func performWaveletDenoising (data: inout [Double], wavelet: String, decompositionLevel: Int32) throws {
+    /**perform wavelet denoising
+
+    :param data: data to denoise
+    :type data: NDArray[Float64]
+    :param wavelet: use WaveletTypes enum
+    :type wavelet: int
+    :param decomposition_level: decomposition level
+    :type decomposition_level: int
+    :param wavelet_denoising: use WaveletDenoisingTypes enum
+    :type wavelet_denoising: int
+    :param threshold: use ThresholdTypes enum
+    :type threshold: int
+    :param extension_type: use WaveletExtensionTypes enum
+    :type extension_type: int
+    :param noise_level: use NoiseEstimationLevelTypes enum
+    :type noise_level: int
+    **/
+    static func performWaveletDenoising (data: inout [Double], wavelet: WaveletTypes, decompositionLevel: Int32,
+                                         waveletDenoising: WaveletDenoisingTypes = .SURESHRINK,
+                                         threshold: ThresholdTypes = .HARD,
+                                         extensionType: WaveletExtensionTypes = .SYMMETRIC, 
+                                         noiseLevel: NoiseEstimationLevelTypes = .FIRST_LEVEL) throws {
         let dataLen = Int32(data.count)
-        var cWavelet = wavelet.cString(using: String.Encoding.utf8)!
-        let errorCode = perform_wavelet_denoising (&data, dataLen, &cWavelet, decompositionLevel)
+        let wvVal = wavelet.rawValue
+        let wvDenVal = waveletDenoising.rawValue
+        let thrVal = threshold.rawValue
+        let extVal = extensionType.rawValue
+        let noiseVal = noiseLevel.rawValue
+        
+        let errorCode = perform_wavelet_denoising (&data, dataLen, wvVal,
+                                                   decompositionLevel, wvDenVal, thrVal, extVal, noiseVal)
         try checkErrorCode("Failed to perform denoising", errorCode)
+                                             
+        return
     }
     
     /**
@@ -180,19 +200,22 @@ struct DataFilter {
      *                db1..db15,haar,sym2..sym10,coif1..coif5,bior1.1,bior1.3,bior1.5,bior2.2,bior2.4,bior2.6,bior2.8,bior3.1,bior3.3,bior3.5
      *                ,bior3.7,bior3.9,bior4.4,bior5.5,bior6.8
      */
-    static func performWaveletTransform(data: [Double], wavelet: String, decompositionLevel: Int32) throws -> ([Double], [Int32]) {
+    static func performWaveletTransform(data: [Double], wavelet: WaveletTypes,
+                                        decompositionLevel: Int32,
+                                        extensionType: WaveletExtensionTypes = .SYMMETRIC) throws -> ([Double], [Int32]) {
         guard (decompositionLevel > 0) else {
             throw BrainFlowException ("Invalid decomposition level", .INVALID_ARGUMENTS_ERROR)
         }
         
         let dataLen = Int32(data.count)
-        var cWavelet = wavelet.cString(using: String.Encoding.utf8)!
+        let waveletVal = wavelet.rawValue
+        let extVal = extensionType.rawValue
         var lengths = [Int32](repeating: 0, count: Int(decompositionLevel) + 1)
         let outputLen = dataLen + 2 * decompositionLevel * (40 + 1)
         var outputArray = [Double](repeating: 0.0, count: Int(outputLen))
         
         var cData = data
-        let errorCode = perform_wavelet_transform (&cData, dataLen, &cWavelet, decompositionLevel,
+        let errorCode = perform_wavelet_transform (&cData, dataLen, waveletVal, decompositionLevel, extVal,
                                                    &outputArray, &lengths)
         try checkErrorCode("Failed to perform wavelet transform", errorCode)
 
@@ -206,18 +229,19 @@ struct DataFilter {
       * perform inverse wavelet transform
       */
     static func performInverseWaveletTransform (waveletTuple: ([Double], [Int32]), originalDataLen: Int32,
-                                                wavelet: String, decompositionLevel: Int32) throws -> [Double] {
+                                                wavelet: WaveletTypes, decompositionLevel: Int32,
+                                                extensionType: WaveletExtensionTypes = .SYMMETRIC) throws -> [Double] {
         guard (decompositionLevel > 0) else {
             throw BrainFlowException ("Invalid decomposition level", .INVALID_ARGUMENTS_ERROR)
         }
         
+        let waveletVal = wavelet.rawValue
+        let extVal = extensionType.rawValue
         var outputArray = [Double](repeating: 0.0, count: Int(originalDataLen))
         var waveletCoeffs = waveletTuple.0
         var decompositionLengths = waveletTuple.1
-        var cWavelet = wavelet.cString(using: String.Encoding.utf8)!
-
-        let errorCode = perform_inverse_wavelet_transform (&waveletCoeffs, originalDataLen, &cWavelet,
-                                                           decompositionLevel, &decompositionLengths,
+        let errorCode = perform_inverse_wavelet_transform (&waveletCoeffs, originalDataLen, waveletVal,
+                                                           decompositionLevel, extVal, &decompositionLengths,
                                                            &outputArray)
         try checkErrorCode("Failed to perform inverse wavelet transform", errorCode)
 
@@ -340,6 +364,56 @@ struct DataFilter {
     }
     
     /**
+        calculate avg and stddev of BandPowers across selected channels
+
+        :param data: 2d array for calculation
+        :type data: NDArray
+        :param bands: List of typles with bands to use. E.g [(1.5, 4.0), (4.0, 8.0), (8.0, 13.0), (13.0, 30.0), (30.0, 45.0)]
+        :type bands: List
+        :param channels: channels - rows of data array which should be used for calculation
+        :type channels: List
+        :param sampling_rate: sampling rate
+        :type sampling_rate: int
+        :param apply_filter: apply bandpass and bandstop filtrers or not
+        :type apply_filter: bool
+        :return: avg and stddev arrays for bandpowers
+        :rtype: tuple
+    **/
+    static func getCustomBandPowers(data: [[Double]]?, bands: [(Double,Double)]?, channels: [Int32]?, samplingRate: Int32,
+                                    applyFilter: Bool) throws -> ([Double],[Double]) {
+        guard ((data != nil) && (channels != nil) && (bands != nil)) else {
+            throw BrainFlowException ("data or channels or bands are null", .INVALID_ARGUMENTS_ERROR) }
+        guard ((channels!.count > 0) && (bands!.count > 0)) else {
+            throw BrainFlowException("wrong input for channels or bands", .INVALID_ARGUMENTS_ERROR) }
+
+        // convert channels from [Int32]? to [Int] for syntactic sugar:
+        let iChannels = channels!.map{Int($0)}
+
+        let filtersOn = Int32(applyFilter ? 1 : 0)
+        let numRows = iChannels.count
+        let numCols = data![iChannels[0]].count
+        let numBands = bands!.count
+        var avgBands = [Double](repeating: 0.0, count: numBands)
+        var stddevBands = [Double](repeating: 0.0, count: numBands)
+        var data1d = [Double](repeating: 0.0, count: iChannels.count * numCols)
+        var startFreqs = [Double](repeating: 0.0, count: numBands)
+        var stopFreqs = [Double](repeating: 0.0, count: numBands)
+        for i in 0..<numBands {
+            startFreqs[i] = bands![i].0
+            stopFreqs[i] = bands![i].1 }
+        for i in 0..<channels!.count {
+            let channel = Int(channels![i])
+            for j in 0..<numCols {
+                data1d[j + numCols * i] = data![channel][j]
+                let errorCode = get_custom_band_powers(&data1d, Int32(numRows), Int32(numCols), &startFreqs, &stopFreqs,    Int32(numBands), samplingRate, filtersOn, &avgBands, &stddevBands)
+                try checkErrorCode("Failed to get_custom_band_powers", errorCode)
+            }
+        }
+
+        return (avgBands, stddevBands)
+    }
+
+    /**
          * calc average and stddev of band powers across all channels, bands are
          * 1-4,4-8,8-13,13-30,30-50
          *
@@ -350,33 +424,14 @@ struct DataFilter {
          * @return pair of avgs and stddevs for bandpowers
          */
     static func getAvgBandPowers (data: [[Double]]?, channels: [Int32]?, samplingRate: Int32,
-                                  applyFilters: Bool) throws -> ([Double], [Double]) {
+                                  applyFilter: Bool) throws -> ([Double], [Double]) {
         guard ((data != nil) && (channels != nil)) else {
             throw BrainFlowException ("data or channels null", .INVALID_ARGUMENTS_ERROR)
         }
 
-        // convert channels from [Int32]? to [Int] for syntactic sugar:
-        let iChannels = channels!.map{Int($0)}
-        
-        var data1d = [Double](repeating: 0.0, count: iChannels.count * data![iChannels[0]].count)
-        for i in 0..<iChannels.count {
-            let ch = iChannels[i]
-            for j in 0..<data![ch].count {
-                data1d[j + i * data![iChannels[i]].count] = data![iChannels[i]][j]
-            }
-        }
-
-        var avgs = [Double](repeating: 0.0, count: 5)
-        var stddevs = [Double](repeating: 0.0, count: 5)
-        let filtersOn = Int32(applyFilters ? 1 : 0)
-        let numRows = Int32(iChannels.count)
-        let numCols = Int32(data![iChannels[0]].count)
-
-        let errorCode = get_avg_band_powers (&data1d, numRows, numCols, samplingRate,
-                                             filtersOn, &avgs, &stddevs)
-        try checkErrorCode("Failed to get_avg_band_powers", errorCode)
-
-        return (avgs, stddevs)
+        let bands = [(2.0, 4.0), (4.0, 8.0), (8.0, 13.0), (13.0, 30.0), (30.0, 45.0)]
+        return try getCustomBandPowers(data: data, bands: bands, channels: channels,
+                                       samplingRate: samplingRate, applyFilter: applyFilter)
     }
     
     /**

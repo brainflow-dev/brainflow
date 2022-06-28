@@ -152,7 +152,7 @@ class BrainFlowCItests: XCTestCase {
             // demo for wavelet transforms
             //wavelet_coeffs format is[A(J) D(J) D(J-1) ..... D(1)] where J is decomposition level, A - app coeffs, D - detailed coeffs
             // lengths array stores lengths for each block
-            let (waveletCoeffs, lengths) = try DataFilter.performWaveletTransform(data: data[channel], wavelet: "db5", decompositionLevel: 3)
+            let (waveletCoeffs, lengths) = try DataFilter.performWaveletTransform(data: data[channel], wavelet: .DB5, decompositionLevel: 3)
             //let appCoefs = Array(waveletCoeffs[0..<Int(lengths[0])])
             //let detailedCoeffsFirstBlock = Array(waveletCoeffs[Int(lengths[0])..<Int(lengths[1])])
             // you can do smth with wavelet coeffs here, for example denoising works via thresholds
@@ -160,7 +160,7 @@ class BrainFlowCItests: XCTestCase {
             let restoredData = try DataFilter.performInverseWaveletTransform(
                                                 waveletTuple: (waveletCoeffs, lengths),
                                                 originalDataLen: Int32(data[channel].count),
-                                                wavelet: "db5", decompositionLevel: 3)
+                                                wavelet: .DB5, decompositionLevel: 3)
             print("Restored data after wavelet transform for channel \(channel):")
             print(restoredData)
 
@@ -205,11 +205,11 @@ class BrainFlowCItests: XCTestCase {
             switch count {
             case 0:
                 try DataFilter.performBandpass(data: &data[channel],  samplingRate: samplingRate,
-                                               centerFreq: 15.0, bandWidth: 6.0, order: 4,
+                                               startFreq: 12.0, stopFreq: 18.0, order: 4,
                                                filterType: .BESSEL, ripple: 0)
             case 1:
                 try DataFilter.performBandstop(data: &data[channel],  samplingRate: samplingRate,
-                                               centerFreq: 30.0, bandWidth: 1.0, order: 3,
+                                               startFreq: 29.0, stopFreq: 31.0 , order: 3,
                                                filterType: .BUTTERWORTH, ripple: 0)
             case 2:
                 try DataFilter.performLowpass(data: &data[channel],  samplingRate: samplingRate,
@@ -230,11 +230,6 @@ class BrainFlowCItests: XCTestCase {
             let afterSum = Double(data[channel].compactMap{$0}.reduce(0, +))
             XCTAssert(beforeSum != afterSum)
         }
-        
-        //df = pd.DataFrame(np.transpose(data))
-        //plt.figure()
-        //df[eeg_channels].plot(subplots=True)
-        //plt.savefig('after_processing.png')
     }
     
     func testDenoising() throws {
@@ -249,13 +244,7 @@ class BrainFlowCItests: XCTestCase {
         try board.stopStream()
         try board.releaseSession()
 
-        // demo how to convert it to pandas DF and plot data
         let EEGchannels = try BoardShim.getEEGchannels(board.boardId)
-        
-        //df = pd.DataFrame(np.transpose(data))
-        //plt.figure()
-        //df[eeg_channels].plot(subplots=True)
-        //plt.savefig('before_processing.png')
 
         // demo for denoising, apply different methods to different channels for demo
         for count in EEGchannels.indices {
@@ -276,23 +265,22 @@ class BrainFlowCItests: XCTestCase {
             // if methods above dont work for your signal you can try wavelet based denoising
             // feel free to try different functions and decomposition levels
             case 2:
-                try DataFilter.performWaveletDenoising(data: &data[channel], wavelet: "db6",
-                                                       decompositionLevel: 3)
+                try DataFilter.performWaveletDenoising (data: &data[channel], wavelet: .DB6, decompositionLevel: 3)
                 let afterSum = Double(data[channel].compactMap{$0}.reduce(0, +))
                 XCTAssert((beforeSum != afterSum))
             case 3:
-                try DataFilter.performWaveletDenoising(data: &data[channel], wavelet: "bior3.9",
+                try DataFilter.performWaveletDenoising(data: &data[channel], wavelet: .BIOR3_9,
                                                        decompositionLevel: 3)
                 let afterSum = Double(data[channel].compactMap{$0}.reduce(0, +))
                 XCTAssert((beforeSum != afterSum))
             case 4:
-                try DataFilter.performWaveletDenoising(data: &data[channel], wavelet: "sym7",
+                try DataFilter.performWaveletDenoising(data: &data[channel], wavelet: .SYM7,
                                                        decompositionLevel: 3)
                 let afterSum = Double(data[channel].compactMap{$0}.reduce(0, +))
                 XCTAssert((beforeSum != afterSum))
             case 5:
                 // with synthetic board this one looks like the best option, but it depends on many circumstances
-                try DataFilter.performWaveletDenoising(data: &data[channel], wavelet: "coif3",
+                try DataFilter.performWaveletDenoising(data: &data[channel], wavelet: .COIF3,
                                                        decompositionLevel: 3)
                 let afterSum = Double(data[channel].compactMap{$0}.reduce(0, +))
                 XCTAssert((beforeSum != afterSum))
@@ -303,11 +291,6 @@ class BrainFlowCItests: XCTestCase {
             let afterShape = (data.count, data[0].count)
             XCTAssert(beforeShape == afterShape)
         }
-        
-        //df = pd.DataFrame(np.transpose(data))
-        //plt.figure()
-        //df[eeg_channels].plot(subplots=True)
-        //plt.savefig('after_processing.png')
     }
     
     func testBandPower() throws {
@@ -364,26 +347,37 @@ class BrainFlowCItests: XCTestCase {
         try board.releaseSession()
 
         let EEGchannels = try BoardShim.getEEGchannels(masterBoardId)
+
+        // avg band power
         let bands = try DataFilter.getAvgBandPowers(data: data, channels: EEGchannels,
-                                                    samplingRate: samplingRate, applyFilters: true)
-        let featureVector = bands.0 + bands.1
-        print(featureVector)
+                                                    samplingRate: samplingRate, applyFilter: true)
+        let avgFeatureVector = bands.0 + bands.1
+        print("testEEGmetrics->avg featureVector: \(avgFeatureVector)")
+        XCTAssert(avgFeatureVector.count == 10)
+        XCTAssert((avgFeatureVector.min()! >= 0.0) && (avgFeatureVector.max()! <= 2.0))
+
+        // custom band power
+        let avgBands = [(2.0, 4.0), (4.0, 8.0), (8.0, 13.0), (13.0, 30.0), (30.0, 45.0)]
+        let newBands = try DataFilter.getCustomBandPowers(data: data, bands: avgBands, channels: EEGchannels, samplingRate: samplingRate, applyFilter: true)
+        let featureVector = newBands.0 + newBands.1
+        print("testEEGmetrics->custom featureVector: \(featureVector)")
+        XCTAssert(featureVector.count == 10)
+        XCTAssert((featureVector.min()! >= 0.0) && (featureVector.max()! <= 2.0))
 
         // calc concentration
-        let concentrationParams = BrainFlowModelParams(metric: .CONCENTRATION, classifier: .KNN)
+        let concentrationParams = BrainFlowModelParams(metric: .MINDFULNESS, classifier: .DEFAULT_CLASSIFIER)
         let concentration = MLModule(modelParams: concentrationParams)
         try concentration.prepareClassifier()
         let concClass = try concentration.predictClass(data: featureVector)
-        print("Concentration: \(concClass)")
+        print("testEEGmetrics->concClass: \(concClass)")
         try concentration.releaseClassifier()
+        XCTAssert(concClass.count == 1)
+        XCTAssert((concClass.min()! >= 0.0) && (concClass.max()! <= 1.0))
 
-        // calc relaxation
-        let relaxationParams = BrainFlowModelParams(metric: .RELAXATION, classifier: .REGRESSION)
+        // restfulness + onnx is not supported:
+        let relaxationParams = BrainFlowModelParams(metric: .RESTFULNESS, classifier: .ONNX_CLASSIFIER)
         let relaxation = MLModule(modelParams: relaxationParams)
-        try relaxation.prepareClassifier()
-        let relaxClass = try relaxation.predictClass(data: featureVector)
-        print("Relaxation: \(relaxClass)")
-        try relaxation.releaseClassifier()
+        XCTAssertThrowsError(try relaxation.prepareClassifier())
     }
         
 }

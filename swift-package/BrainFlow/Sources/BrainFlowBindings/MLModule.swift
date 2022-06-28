@@ -6,17 +6,22 @@
 //
 
 import Foundation
-//import BrainFlow
 
 struct BrainFlowModelParams: Encodable {
     let metric: BrainFlowMetrics
     let classifier: BrainFlowClassifiers
-    var file = ""
-    var other_info = ""
+    let file: String
+    let other_info: String
+    let output_name: String
+    let max_array_size = 8192
 
-    init (metric: BrainFlowMetrics, classifier: BrainFlowClassifiers) {
+    init (metric: BrainFlowMetrics, classifier: BrainFlowClassifiers,
+          file: String = "", otherInfo: String = "", outputName: String = "") {
         self.metric = metric
         self.classifier = classifier
+        self.file = file
+        self.other_info = otherInfo
+        self.output_name = outputName
     }
 }
 
@@ -60,14 +65,9 @@ struct MLModule {
         try checkErrorCode("Cannot set log file to: \(logFile)", errorCode)
     }
         
-//    SHARED_EXPORT int CALLING_CONVENTION prepare (char *json_params);
-//    SHARED_EXPORT int CALLING_CONVENTION predict (
-//        double *data, int data_len, double *output, char *json_params);
-//    SHARED_EXPORT int CALLING_CONVENTION release (char *json_params);
-    
-    
     func prepareClassifier() throws {
         ///prepare classifier
+        print("modelParams: \(modelParams)")
         let json = try self.modelParams.encodeJSON()
         var params = json.cString(using: .utf8)!
         let errorCode = prepare(&params)
@@ -81,7 +81,7 @@ struct MLModule {
         try checkErrorCode("Cannot release classifier", errorCode)
     }
 
-    func predictClass(data: [Double]) throws -> Double {
+    func predictClass(data: [Double]) throws -> [Double] {
         //calculate metric from data
         //:param data: input array
         //:type data: NDArray
@@ -89,11 +89,13 @@ struct MLModule {
         //:rtype: float
         
         let len = Int32(data.count)
-        var output = [Double](repeating: 1.0, count: 1)
         var vData = data
+        var output = [Double](repeating: 0.0, count: modelParams.max_array_size)
+        var outputLen = [Int32](repeating: 0, count: 1)
         var params = try self.modelParams.encodeJSON().cString(using: .utf8)!
-        let errorCode = predict(&vData, len, &output, &params)
-        try checkErrorCode("Cannot predict from classifier", errorCode)
-        return output[0]
+        let errorCode = predict(&vData, len, &output, &outputLen, &params)
+        try checkErrorCode("unable to calc metric", errorCode)
+        
+        return Array(output[0..<Int(outputLen[0])])
     }
 }

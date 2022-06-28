@@ -5,6 +5,8 @@
 //  Created by Scott Miller for Aeris Rising, LLC on 8/23/21.
 //
 
+import Darwin
+
 enum BrainFlowExitCodes : Int32, Error {
     case UNKNOWN_CODE = -1
     case STATUS_OK = 0
@@ -113,29 +115,98 @@ enum DetrendOperations : Int32 {
 }
 
 enum BrainFlowMetrics : Int32, Encodable {
-    case RELAXATION = 0
-    case CONCENTRATION = 1
+    case MINDFULNESS = 0  
+    case RESTFULNESS = 1
+    case USER_DEFINED = 2
 }
 
 enum BrainFlowClassifiers : Int32, Encodable {
-    case REGRESSION = 0
-    case KNN = 1
-    case SVM = 2
-    case LDA = 3
+    case DEFAULT_CLASSIFIER = 0
+    case DYN_LIB_CLASSIFIER = 1
+    case ONNX_CLASSIFIER = 2
 }
 
-/// LogLevels enum to store all possible log levels
 enum LogLevels : Int32 {
-    case LEVEL_TRACE = 0    /// TRACE
-    case LEVEL_DEBUG = 1    /// DEBUG
-    case LEVEL_INFO = 2     /// INFO
-    case LEVEL_WARN = 3     /// WARN
-    case LEVEL_ERROR = 4    /// ERROR
-    case LEVEL_CRITICAL = 5 /// CRITICAL
-    case LEVEL_OFF = 6       // OFF
+    case LEVEL_TRACE = 0 
+    case LEVEL_DEBUG = 1
+    case LEVEL_INFO = 2
+    case LEVEL_WARN = 3
+    case LEVEL_ERROR = 4
+    case LEVEL_CRITICAL = 5
+    case LEVEL_OFF = 6
 }
 
 enum NoiseTypes : Int32 {
     case FIFTY = 0
     case SIXTY = 1
+    case FIFTY_AND_SIXTY = 2
 }
+    
+enum WaveletDenoisingTypes : Int32 {
+    case VISUSHRINK = 0
+    case SURESHRINK = 1
+}
+
+enum ThresholdTypes : Int32 {
+    case SOFT = 0
+    case HARD = 1
+}
+
+enum WaveletExtensionTypes : Int32 {
+    case SYMMETRIC = 0
+    case PERIODIC = 1
+}
+
+enum NoiseEstimationLevelTypes: Int32 {
+    case FIRST_LEVEL = 0
+    case ALL_LEVELS = 1
+}
+
+enum WaveletTypes: Int32 {
+    case HAAR = 0
+    case DB1 = 1
+    case DB2 = 2
+    case DB3 = 3
+    case DB4 = 4
+    case DB5 = 5
+    case DB6 = 6
+    case DB7 = 7
+    case DB8 = 8
+    case DB9 = 9
+    case DB10 = 10
+    case DB11 = 11
+    case DB12 = 12
+    case DB13 = 13
+    case DB14 = 14
+    case DB15 = 15
+    case BIOR1_1 = 16
+    case BIOR1_3 = 17
+    case BIOR1_5 = 18
+    case BIOR2_2 = 19
+    case BIOR2_4 = 20
+    case BIOR2_6 = 21
+    case BIOR2_8 = 22
+    case BIOR3_1 = 23
+    case BIOR3_3 = 24
+    case BIOR3_5 = 25
+    case BIOR3_7 = 26
+    case BIOR3_9 = 27
+    case BIOR4_4 = 28
+    case BIOR5_5 = 29
+    case BIOR6_8 = 30
+    case COIF1 = 31
+    case COIF2 = 32
+    case COIF3 = 33
+    case COIF4 = 34
+    case COIF5 = 35
+    case SYM2 = 36
+    case SYM3 = 37
+    case SYM4 = 38
+    case SYM5 = 39
+    case SYM6 = 40
+    case SYM7 = 41
+    case SYM8 = 42
+    case SYM9 = 43
+    case SYM10 = 44
+}
+
