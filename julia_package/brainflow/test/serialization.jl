@@ -8,6 +8,7 @@ params = BrainFlowInputParams()
 board_shim = BrainFlow.BoardShim(BrainFlow.SYNTHETIC_BOARD, params)
 
 BrainFlow.prepare_session(board_shim)
+BrainFlow.add_streamer("file://data_default.csv:w", board_shim)
 BrainFlow.start_stream(board_shim)
 sleep(5)
 BrainFlow.stop_stream(board_shim)

@@ -17,7 +17,8 @@ namespace examples
 
             BoardShim board_shim = new BoardShim (board_id, input_params);
             board_shim.prepare_session ();
-            board_shim.start_stream (450000, "file://file_stream.csv:w");
+            board_shim.start_stream ();
+            board_shim.add_streamer ("file://data.csv:w");
             for (int i = 1; i < 5; i++)
             {
                 System.Threading.Thread.Sleep (1000);

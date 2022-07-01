@@ -17,6 +17,7 @@ from numpy.ctypeslib import ndpointer
 class BoardIds(enum.IntEnum):
     """Enum to store all supported Board Ids"""
 
+    NO_BOARD = -100
     PLAYBACK_FILE_BOARD = -3  #:
     STREAMING_BOARD = -2  #:
     SYNTHETIC_BOARD = -1  #:
@@ -112,6 +113,8 @@ class BrainFlowInputParams(object):
         self.timeout = 0
         self.serial_number = ''
         self.file = ''
+        self.master_board = BoardIds.NO_BOARD.value
+        self.preset = BrainFlowPresets.DEFAULT_PRESET
 
     def to_json(self) -> None:
         return json.dumps(self, default=lambda o: o.__dict__,
@@ -172,6 +175,15 @@ class BoardControllerDLL(object):
         self.start_stream.argtypes = [
             ctypes.c_int,
             ctypes.c_char_p,
+            ctypes.c_int,
+            ctypes.c_char_p
+        ]
+
+        self.add_streamer = self.lib.add_streamer
+        self.add_streamer.restype = ctypes.c_int
+        self.add_streamer.argtypes = [
+            ctypes.c_char_p,
+            ctypes.c_int,
             ctypes.c_int,
             ctypes.c_char_p
         ]
@@ -488,10 +500,10 @@ class BoardShim(object):
         self.board_id = board_id
         # we need it for streaming board
         if board_id == BoardIds.STREAMING_BOARD.value or board_id == BoardIds.PLAYBACK_FILE_BOARD.value:
-            try:
-                self._master_board_id = int(input_params.other_info)
+            if params.master_board != BoardIds.NO_BOARD:
+                self._master_board_id = params.master_board
             except:
-                raise BrainFlowError('set master board id using params.other_info',
+                raise BrainFlowError('you need set master board id in BrainFlowInputParams',
                                      BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         else:
             self._master_board_id = self.board_id
@@ -1064,6 +1076,27 @@ class BoardShim(object):
         res = BoardControllerDLL.get_instance().prepare_session(self.board_id, self.input_json)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to prepare streaming session', res)
+
+    def add_streamer(self, streamer_params: str, preset: int = BrainFlowPresets.DEFAULT_PRESET) -> None:
+        """Add streamer
+
+        :param preset: preset
+        :type preset: int
+        :param streamer_params parameter to stream data from brainflow, supported vals: "file://%file_name%:w", "file://%file_name%:a", "streaming_board://%multicast_group_ip%:%port%". Range for multicast addresses is from "224.0.0.0" to "239.255.255.255"
+        :type streamer_params: str
+        """
+
+        if streamer_params is None:
+            streamer = None
+        else:
+            try:
+                streamer = streamer_params.encode()
+            except BaseException:
+                streamer = streamer_params
+
+        res = BoardControllerDLL.get_instance().add_streamer(streamer, preset, self.board_id, self.input_json)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to add streamer', res)
 
     def start_stream(self, num_samples: int = 1800 * 250, streamer_params: str = None) -> None:
         """Start streaming data, this methods stores data in ringbuffer

@@ -419,7 +419,7 @@ int java_set_jnienv (JNIEnv *java_jnienv)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int config_board (char *config, char *response, int *response_len, int board_id,
+int config_board (const char *config, char *response, int *response_len, int board_id,
     const char *json_brainflow_input_params)
 {
     std::lock_guard<std::mutex> lock (mutex);
@@ -444,6 +444,25 @@ int config_board (char *config, char *response, int *response_len, int board_id,
         strcpy (response, resp.c_str ());
     }
     return res;
+}
+
+int add_streamer (
+    const char *streamer, int preset, int board_id, const char *json_brainflow_input_params)
+{
+    std::lock_guard<std::mutex> lock (mutex);
+    if (streamer == NULL)
+    {
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    std::pair<int, struct BrainFlowInputParams> key;
+    int res = check_board_session (board_id, json_brainflow_input_params, key, false);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        return res;
+    }
+    auto board_it = boards.find (key);
+    return board_it->second->add_streamer (streamer, preset);
 }
 
 int release_all_sessions ()
@@ -518,6 +537,8 @@ int string_to_brainflow_input_params (
         params->timeout = config["timeout"];
         params->serial_number = config["serial_number"];
         params->file = config["file"];
+        params->master_board = config["master_board"];
+        params->preset = config["preset"];
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
     catch (json::exception &e)

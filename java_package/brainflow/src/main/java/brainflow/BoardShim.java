@@ -28,6 +28,8 @@ public class BoardShim
 
         int config_board (String config, byte[] names, int[] len, int board_id, String params);
 
+        int add_streamer (String streamer, int preset, int board_id, String params);
+
         int start_stream (int buffer_size, String streamer_params, int board_id, String params);
 
         int stop_stream (int board_id, String params);
@@ -1263,13 +1265,13 @@ public class BoardShim
             (board_id == BoardIds.STREAMING_BOARD.get_code ()) || (board_id == BoardIds.PLAYBACK_FILE_BOARD.get_code ())
         )
         {
-            try
+            if (params.get_master_board () == BoardIds.NO_BOARD.get_code ())
             {
-                this.master_board_id = Integer.parseInt (params.other_info);
-            } catch (NumberFormatException e)
-            {
-                throw new BrainFlowError ("need to set params.other_info to master board id",
+                throw new BrainFlowError ("need to set master board attribute in BrainFlowInputParams",
                         BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+            } else
+            {
+                this.master_board_id = params.get_master_board ();
             }
         }
         this.input_json = params.to_json ();
@@ -1288,13 +1290,13 @@ public class BoardShim
                     || (board_id.get_code () == BoardIds.PLAYBACK_FILE_BOARD.get_code ())
         )
         {
-            try
+            if (params.get_master_board () == BoardIds.NO_BOARD.get_code ())
             {
-                this.master_board_id = Integer.parseInt (params.other_info);
-            } catch (NumberFormatException e)
-            {
-                throw new BrainFlowError ("need to set params.other_info to master board id",
+                throw new BrainFlowError ("need to set master board attribute in BrainFlowInputParams",
                         BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+            } else
+            {
+                this.master_board_id = params.get_master_board ();
             }
         }
         this.input_json = params.to_json ();
@@ -1318,6 +1320,28 @@ public class BoardShim
     public int get_board_id ()
     {
         return master_board_id;
+    }
+
+    /**
+     * add streamer
+     */
+    public void add_streamer (String streamer, int preset) throws BrainFlowError
+    {
+        int ec = instance.add_streamer (streamer, preset, board_id, input_json);
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in add_streamer", ec);
+        }
+    }
+
+    public void add_streamer (String streamer, BrainFlowPresets preset) throws BrainFlowError
+    {
+        add_streamer (streamer, preset.get_code ());
+    }
+
+    public void add_streamer (String streamer) throws BrainFlowError
+    {
+        add_streamer (streamer, BrainFlowPresets.DEFAULT_PRESET);
     }
 
     /**

@@ -28,7 +28,7 @@ impl BoardShim {
         let json_brainflow_input_params = CString::new(json_brainflow_input_params)?;
         let master_board_id =
             if let BoardIds::StreamingBoard | BoardIds::PlaybackFileBoard = board_id {
-                num::FromPrimitive::from_i32(input_params.other_info().parse::<i32>()?).unwrap()
+                num::FromPrimitive::from_usize(*input_params.master_board()).unwrap()
             } else {
                 board_id
             };
@@ -83,6 +83,24 @@ impl BoardShim {
             board_controller::start_stream(
                 buffer_size as c_int,
                 streamer_params.as_ptr(),
+                self.board_id as c_int,
+                self.json_brainflow_input_params.as_ptr(),
+            )
+        };
+        Ok(check_brainflow_exit_code(res)?)
+    }
+
+    /// Start streaming data, this methods stores data in ringbuffer.
+    pub fn add_streamer<S: AsRef<str>>(
+        &self,
+        streamer_params: S,
+        preset: BrainFlowPresets,
+    ) -> Result<()> {
+        let streamer_params = CString::new(streamer_params.as_ref())?;
+        let res = unsafe {
+            board_controller::add_streamer(
+                streamer_params.as_ptr(),
+                preset as c_int,
                 self.board_id as c_int,
                 self.json_brainflow_input_params.as_ptr(),
             )

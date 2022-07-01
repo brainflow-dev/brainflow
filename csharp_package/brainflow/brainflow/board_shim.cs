@@ -672,6 +672,19 @@ namespace brainflow
         }
 
         /// <summary>
+        /// add streamer
+        /// </summary>
+        /// <param name="streamer_params">supoprted formats file://filename:w file://filename:a streaming_board://ip:port</param>
+        public void add_streamer (string streamer_params, int preset = (int)BrainFlowPresets.DEFAULT_PRESET)
+        {
+            int res = BoardControllerLibrary.add_streamer (streamer_params, preset, board_id, input_json);
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+        }
+
+        /// <summary>
         /// insert marker to data array
         /// </summary>
         public void insert_marker (double value, int preset = (int)BrainFlowPresets.DEFAULT_PRESET)

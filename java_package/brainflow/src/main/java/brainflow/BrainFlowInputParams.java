@@ -16,6 +16,8 @@ public class BrainFlowInputParams
     public int timeout;
     public String serial_number;
     public String file;
+    public int master_board;
+    public int preset;
 
     public BrainFlowInputParams ()
     {
@@ -28,6 +30,8 @@ public class BrainFlowInputParams
         timeout = 0;
         serial_number = "";
         file = "";
+        preset = BrainFlowPresets.DEFAULT_PRESET.get_code ();
+        master_board = BoardIds.NO_BOARD.get_code ();
     }
 
     public String to_json ()
@@ -129,4 +133,35 @@ public class BrainFlowInputParams
     {
         this.file = file;
     }
+
+    public void set_preset (BrainFlowPresets preset)
+    {
+        this.preset = preset.get_code ();
+    }
+
+    public void set_preset (int preset)
+    {
+        this.preset = preset;
+    }
+
+    public int get_preset ()
+    {
+        return preset;
+    }
+
+    public void set_master_board (BoardIds board)
+    {
+        this.master_board = board.get_code ();
+    }
+
+    public void set_master_board (int board)
+    {
+        this.master_board = board;
+    }
+
+    public int get_master_board ()
+    {
+        return master_board;
+    }
+
 }

@@ -210,12 +210,17 @@ public:
     /**
      * start streaming thread and store data in ringbuffer
      * @param buffer_size size of internal ring buffer
+     */
+    void start_stream (int buffer_size = 450000, std::string streamer_params = "");
+    /**
+     * add streamer
      * @param streamer_params use it to pass data packages further or store them directly during
      streaming, supported values: "file://%file_name%:w", "file://%file_name%:a",
      "streaming_board://%multicast_group_ip%:%port%"". Range for multicast addresses is from
      "224.0.0.0" to "239.255.255.255"
      */
-    void start_stream (int buffer_size = 450000, std::string streamer_params = "");
+    void add_streamer (
+        std::string streamer_params, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
     /// check if session is ready or not
     bool is_prepared ();
     /// stop streaming thread, doesnt release other resources
@@ -234,7 +239,7 @@ public:
     /// get required amount of datapoints or less and flush it from internal buffer
     BrainFlowArray<double, 2> get_board_data (int num_datapoints, int preset);
     /// send string to a board, use it carefully and only if you understand what you are doing
-    std::string config_board (char *config);
+    std::string config_board (std::string config);
     /// insert marker in data stream
     void insert_marker (double value, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
 };

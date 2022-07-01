@@ -37,6 +37,7 @@ impl BoardIds {
 #[repr(i32)]
 #[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum BoardIds {
+    NoBoard = -100,
     PlaybackFileBoard = -3,
     StreamingBoard = -2,
     SyntheticBoard = -1,
@@ -52,7 +53,6 @@ pub enum BoardIds {
     CallibriEegBoard = 9,
     CallibriEmgBoard = 10,
     CallibriEcgBoard = 11,
-    FasciaBoard = 12,
     Notion1Board = 13,
     Notion2Board = 14,
     IronbciBoard = 15,

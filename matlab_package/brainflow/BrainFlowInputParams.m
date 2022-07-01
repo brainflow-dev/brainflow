@@ -10,6 +10,8 @@ classdef BrainFlowInputParams
         timeout
         serial_number
         file
+        master_board
+        preset
     end
     methods
         function obj = BrainFlowInputParams()
@@ -22,6 +24,8 @@ classdef BrainFlowInputParams
             obj.timeout = 0;
             obj.serial_number = '';
             obj.file = '';
+            obj.master_board = int32(BoardIds.NO_BOARD);
+            obj.preset = int32(BrainFlowPresets.DEFAULT_PRESET);
         end
         function json_string = to_json(obj)
             json_string = jsonencode(obj);

@@ -58,6 +58,7 @@ namespace brainflow
 
     public enum BoardIds
     {
+        NO_BOARD = -100,
         PLAYBACK_FILE_BOARD = -3,
         STREAMING_BOARD = -2,
         SYNTHETIC_BOARD = -1,
@@ -189,6 +190,8 @@ namespace brainflow
         public static extern int get_version_board_controller (byte[] version, int[] len, int max_len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_board_presets (int board_id, int[] names, int[] len);
+        [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int add_streamer (string streamer, int preset, int board_id, string input_json);
     }
 
     public static class BoardControllerLibrary32
@@ -269,6 +272,8 @@ namespace brainflow
         public static extern int get_version_board_controller (byte[] version, int[] len, int max_len);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_board_presets (int board_id, int[] names, int[] len);
+        [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int add_streamer (string streamer, int preset, int board_id, string input_json);
     }
 
     public static class BoardControllerLibraryLinux
@@ -349,6 +354,8 @@ namespace brainflow
         public static extern int get_version_board_controller (byte[] version, int[] len, int max_len);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_board_presets (int board_id, int[] names, int[] len);
+        [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int add_streamer (string streamer, int preset, int board_id, string input_json);
     }
 
     public static class BoardControllerLibraryMac
@@ -429,6 +436,8 @@ namespace brainflow
         public static extern int get_version_board_controller (byte[] version, int[] len, int max_len);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_board_presets (int board_id, int[] names, int[] len);
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int add_streamer (string streamer, int preset, int board_id, string input_json);
     }
 
     public static class BoardControllerLibrary
@@ -633,6 +642,23 @@ namespace brainflow
                     return BoardControllerLibraryLinux.config_board (config, str, len, board_id, input_json);
                 case LibraryEnvironment.MacOS:
                     return BoardControllerLibraryMac.config_board (config, str, len, board_id, input_json);
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static int add_streamer (string streamer, int preset, int board_id, string input_json)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.add_streamer (streamer, preset, board_id, input_json);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.add_streamer (streamer, preset, board_id, input_json);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.add_streamer (streamer, preset, board_id, input_json);
+                case LibraryEnvironment.MacOS:
+                    return BoardControllerLibraryMac.add_streamer (streamer, preset, board_id, input_json);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
@@ -944,7 +970,7 @@ namespace brainflow
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_ppg_channels (int board_id, int preset , int[] channels, int[] len)
+        public static int get_ppg_channels (int board_id, int preset, int[] channels, int[] len)
         {
             switch (PlatformHelper.get_library_environment ())
             {

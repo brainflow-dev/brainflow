@@ -3,6 +3,7 @@ export BrainFlowInputParams
 
 @enum BoardIds begin
 
+    NO_BOARD = -100
     PLAYBACK_FILE_BOARD = -3
     STREAMING_BOARD = -2
     SYNTHETIC_BOARD = -1
@@ -82,6 +83,8 @@ PresetType = Union{BrainFlowPresets, Integer}
     timeout::Int32 = 0
     serial_number::String = ""
     file::String = ""
+    master_board = Integer(NO_BOARD)
+    preset = Integer(DEFAULT_PRESET)
 end
 
 @brainflow_rethrow function get_sampling_rate(board_id::BoardIdType, preset::PresetType=Integer(DEFAULT_PRESET))
@@ -202,11 +205,7 @@ struct BoardShim
     function BoardShim(id::Integer, params::BrainFlowInputParams)
         master_id = id
         if id == Integer(STREAMING_BOARD) || id == Integer(PLAYBACK_FILE_BOARD)
-            try
-                master_id = parse(Int, params.other_info)
-            catch
-                throw(BrainFlowError("you need to provide master board id to other_info field of BrainFlowInputParams", Integer(INVALID_ARGUMENTS_ERROR)))
-            end
+            master_id = params.master_board
         end
         new(master_id, id, JSON.json(params))
     end
@@ -252,6 +251,11 @@ end
 
 @brainflow_rethrow function release_session(board_shim::BoardShim)
     ccall((:release_session, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Ptr{UInt8}), board_shim.board_id, board_shim.input_json)
+end
+
+@brainflow_rethrow function add_streamer(streamer_params::String, board_shim::BoardShim, preset::PresetType=Integer(DEFAULT_PRESET))
+    ccall((:add_streamer, BOARD_CONTROLLER_INTERFACE), Cint, (Ptr{UInt8}, Cint, Cint, Ptr{UInt8}),
+            streamer_params, Int32(preset), board_shim.board_id, board_shim.input_json)
 end
 
 @brainflow_rethrow function config_board(config::String, board_shim::BoardShim)

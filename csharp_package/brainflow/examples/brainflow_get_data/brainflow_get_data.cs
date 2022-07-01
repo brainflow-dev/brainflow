@@ -17,8 +17,7 @@ namespace examples
 
             BoardShim board_shim = new BoardShim (board_id, input_params);
             board_shim.prepare_session ();
-            // board_shim.start_stream (); // use this for default options
-            board_shim.start_stream (450000, "file://file_stream.csv:w");
+            board_shim.start_stream ();
             System.Threading.Thread.Sleep (5000);
             board_shim.stop_stream ();
             double[,] unprocessed_data = board_shim.get_current_board_data (20);

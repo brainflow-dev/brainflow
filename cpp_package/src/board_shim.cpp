@@ -25,6 +25,8 @@ std::string params_to_string (struct BrainFlowInputParams params)
     j["timeout"] = params.timeout;
     j["serial_number"] = params.serial_number;
     j["file"] = params.file;
+    j["master_board"] = params.master_board;
+    j["preset"] = params.preset;
     std::string post_str = j.dump ();
     return post_str;
 }
@@ -121,6 +123,16 @@ bool BoardShim::is_prepared ()
     return (bool)prepared;
 }
 
+void BoardShim::add_streamer (std::string streamer_params, int preset)
+{
+    int res =
+        ::add_streamer (streamer_params.c_str (), preset, board_id, serialized_params.c_str ());
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to add streamer", res);
+    }
+}
+
 void BoardShim::start_stream (int buffer_size, std::string streamer_params)
 {
     int res = ::start_stream (
@@ -203,12 +215,12 @@ BrainFlowArray<double, 2> BoardShim::get_current_board_data (int num_samples, in
     return matrix;
 }
 
-std::string BoardShim::config_board (char *config)
+std::string BoardShim::config_board (std::string config)
 {
     int response_len = 0;
     char response[8192];
-    int res =
-        ::config_board (config, response, &response_len, board_id, serialized_params.c_str ());
+    int res = ::config_board (
+        config.c_str (), response, &response_len, board_id, serialized_params.c_str ());
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to config board", res);

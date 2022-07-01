@@ -339,11 +339,10 @@ classdef BoardShim
             obj.board_id = int32(board_id);
             obj.master_board_id = obj.board_id;
             if((board_id == int32(BoardIds.STREAMING_BOARD)) ||(board_id == int32(BoardIds.PLAYBACK_FILE_BOARD)))
-                double_val = str2double(input_params.other_info);
-                if(isnan(double_val))
-                    error("Write master board ID to other_info field");
+                if (input_params.master_board == int32(BoardIds.NO_BOARD))
+                    error('You need to provide master board id for streaming or playback boards');
                 end
-                obj.master_board_id = int32(double_val);
+                obj.master_board_id = input_params.master_board;
             end
         end
 
@@ -362,6 +361,16 @@ classdef BoardShim
             % no way to understand how it works in matlab used this link
             % https://nl.mathworks.com/matlabcentral/answers/131446-what-data-type-do-i-need-to-calllib-with-pointer-argument-char%
             [exit_code, tmp, response] = calllib(lib_name, task_name, config, blanks(4096), 4096, obj.board_id, obj.input_params_json);
+            BoardShim.check_ec(exit_code, task_name);
+        end
+        
+        function add_streamer(obj, streamer, preset)
+            % add streamer
+            task_name = 'add_streamer';
+            lib_name = BoardShim.load_lib();
+            % no way to understand how it works in matlab used this link
+            % https://nl.mathworks.com/matlabcentral/answers/131446-what-data-type-do-i-need-to-calllib-with-pointer-argument-char%
+            [exit_code, tmp] = calllib(lib_name, task_name, streamer, preset, obj.board_id, obj.input_params_json);
             BoardShim.check_ec(exit_code, task_name);
         end
 

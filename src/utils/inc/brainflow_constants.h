@@ -30,6 +30,7 @@ enum class BrainFlowExitCodes : int
 
 enum class BoardIds : int
 {
+    NO_BOARD = -100, // only for internal usage
     PLAYBACK_FILE_BOARD = -3,
     STREAMING_BOARD = -2,
     SYNTHETIC_BOARD = -1,

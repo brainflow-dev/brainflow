@@ -46,19 +46,19 @@ int PlaybackFileBoard::prepare_session ()
         safe_logger (spdlog::level::info, "Session is already prepared");
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
-    if ((params.file.empty ()) || (params.other_info.empty ()))
+    if ((params.file.empty ()) || (params.master_board == (int)BoardIds::NO_BOARD))
     {
-        safe_logger (spdlog::level::err, "playback file or master board id not provided");
+        safe_logger (spdlog::level::err, "playback file or master board id or preset not provided");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     try
     {
-        board_id = std::stoi (params.other_info);
+        board_id = params.master_board;
         board_descr = boards_struct.brainflow_boards_json["boards"][std::to_string (board_id)];
     }
     catch (json::exception &e)
     {
-        safe_logger (spdlog::level::err, "invalid json");
+        safe_logger (spdlog::level::err, "invalid json for master board");
         safe_logger (spdlog::level::err, e.what ());
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }

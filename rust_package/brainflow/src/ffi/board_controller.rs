@@ -235,7 +235,7 @@ extern "C" {
 }
 extern "C" {
     pub fn config_board(
-        config: *mut ::std::os::raw::c_char,
+        config: *const ::std::os::raw::c_char,
         response: *mut ::std::os::raw::c_char,
         response_len: *mut ::std::os::raw::c_int,
         board_id: ::std::os::raw::c_int,
@@ -252,6 +252,14 @@ extern "C" {
 extern "C" {
     pub fn insert_marker(
         marker_value: f64,
+        preset: ::std::os::raw::c_int,
+        board_id: ::std::os::raw::c_int,
+        json_brainflow_input_params: *const ::std::os::raw::c_char,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn add_streamer(
+        streamer: *const ::std::os::raw::c_char,
         preset: ::std::os::raw::c_int,
         board_id: ::std::os::raw::c_int,
         json_brainflow_input_params: *const ::std::os::raw::c_char,

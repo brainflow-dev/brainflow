@@ -17,6 +17,7 @@ fn main() {
 
     board.prepare_session().unwrap();
     board.start_stream(45000, "").unwrap();
+    board.add_streamer("file://data.csv:w", BrainFlowPresets::DefaultPreset).unwrap();
     thread::sleep(Duration::from_secs(5));
     board.stop_stream().unwrap();
     let mut data = board.get_board_data(Some(128), BrainFlowPresets::DefaultPreset).unwrap();
