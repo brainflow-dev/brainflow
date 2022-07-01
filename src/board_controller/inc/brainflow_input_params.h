@@ -32,7 +32,7 @@ struct BrainFlowInputParams
         serial_number = "";
         file = "";
         preset = (int)BrainFlowPresets::DEFAULT_PRESET;
-        int master_board = (int)BoardIds::NO_BOARD;
+        master_board = (int)BoardIds::NO_BOARD;
     }
 
     // default copy constructor and assignment operator are ok, need less operator to use in map

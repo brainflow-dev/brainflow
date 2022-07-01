@@ -177,9 +177,9 @@ jobs:
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Streaming Python
-      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/streaming_board_emulator.py python3 $GITHUB_WORKSPACE/python_package/examples/tests/brainflow_get_data.py --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
+      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/streaming_board_emulator.py python3 $GITHUB_WORKSPACE/python_package/examples/tests/brainflow_get_data.py --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --master-board -1
     - name: Streaming Python Markers
-      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/streaming_board_emulator.py python3 $GITHUB_WORKSPACE/python_package/examples/tests/markers.py --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
+      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/streaming_board_emulator.py python3 $GITHUB_WORKSPACE/python_package/examples/tests/markers.py --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --master-board -1
     - name: Denoising Python
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/denoising.py
     - name: Serialization Python

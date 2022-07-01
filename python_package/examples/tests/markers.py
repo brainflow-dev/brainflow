@@ -23,6 +23,10 @@ def main():
     parser.add_argument('--board-id', type=int, help='board id, check docs to get a list of supported boards',
                         required=True)
     parser.add_argument('--file', type=str, help='file', required=False, default='')
+    parser.add_argument('--master-board', type=int, help='master board id for streaming and playback boards',
+                        required=False, default=BoardIds.NO_BOARD)
+    parser.add_argument('--preset', type=int, help='preset for streaming and playback boards',
+                        required=False, default=BrainFlowPresets.DEFAULT_PRESET)
     args = parser.parse_args()
 
     params = BrainFlowInputParams()
@@ -35,6 +39,8 @@ def main():
     params.ip_protocol = args.ip_protocol
     params.timeout = args.timeout
     params.file = args.file
+    params.master_board = args.master_board
+    params.preset = args.preset
 
     board = BoardShim(args.board_id, params)
     board.prepare_session()
