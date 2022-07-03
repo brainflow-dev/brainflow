@@ -500,8 +500,8 @@ class BoardShim(object):
         self.board_id = board_id
         # we need it for streaming board
         if board_id == BoardIds.STREAMING_BOARD.value or board_id == BoardIds.PLAYBACK_FILE_BOARD.value:
-            if params.master_board != BoardIds.NO_BOARD:
-                self._master_board_id = params.master_board
+            if input_params.master_board != BoardIds.NO_BOARD:
+                self._master_board_id = input_params.master_board
             else:
                 raise BrainFlowError('you need set master board id in BrainFlowInputParams',
                                      BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)

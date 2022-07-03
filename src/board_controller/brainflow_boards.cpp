@@ -155,18 +155,28 @@ BrainFlowBoards::BrainFlowBoards()
         {"name", "Galea"},
         {"sampling_rate", 250},
         {"package_num_channel", 0},
-        {"timestamp_channel", 24},
-        {"marker_channel", 25},
-        {"num_rows", 26},
-        {"battery_channel", 23},
+        {"timestamp_channel", 19},
+        {"marker_channel", 20},
+        {"num_rows", 21},
         {"eeg_channels", {7, 8, 9, 10, 11, 12, 13, 14, 15, 16}},
         {"eeg_names", "FP1,FP2,Fz,Cz,Pz,Oz,P3,P4,O1,O2"},
         {"emg_channels", {1, 2, 3, 4}},
         {"eog_channels", {5, 6}},
-        {"eda_channels", {19}},
-        {"ppg_channels", {17, 18}},
-        {"other_channels", {21, 22}},
-        {"temperature_channels", {20}}
+        {"other_channels", {17, 18}},
+    };
+    brainflow_boards_json["boards"]["3"]["auxiliary"] =
+    {
+        {"name", "GaleaAuxiliary"},
+        {"sampling_rate", 50},
+        {"package_num_channel", 0},
+        {"timestamp_channel", 8},
+        {"marker_channel", 9},
+        {"num_rows", 10},
+        {"battery_channel", 5},
+        {"eda_channels", {1}},
+        {"ppg_channels", {2, 3}},
+        {"other_channels", {6, 7}},
+        {"temperature_channels", {4}}
     };
     brainflow_boards_json["boards"]["4"]["default"] =
     {
@@ -360,18 +370,28 @@ BrainFlowBoards::BrainFlowBoards()
         {"name", "GaleaSerial"},
         {"sampling_rate", 250},
         {"package_num_channel", 0},
-        {"timestamp_channel", 24},
-        {"marker_channel", 25},
-        {"num_rows", 26},
-        {"battery_channel", 23},
+        {"timestamp_channel", 19},
+        {"marker_channel", 20},
+        {"num_rows", 21},
         {"eeg_channels", {7, 8, 9, 10, 11, 12, 13, 14, 15, 16}},
         {"eeg_names", "FP1,FP2,Fz,Cz,Pz,Oz,P3,P4,O1,O2"},
         {"emg_channels", {1, 2, 3, 4}},
         {"eog_channels", {5, 6}},
-        {"eda_channels", {19}},
-        {"ppg_channels", {17, 18}},
-        {"other_channels", {21, 22}},
-        {"temperature_channels", {20}}
+        {"other_channels", {17, 18}},
+    };
+    brainflow_boards_json["boards"]["20"]["auxiliary"] =
+    {
+        {"name", "GaleaSerialAuxiliary"},
+        {"sampling_rate", 50},
+        {"package_num_channel", 0},
+        {"timestamp_channel", 8},
+        {"marker_channel", 9},
+        {"num_rows", 10},
+        {"battery_channel", 5},
+        {"eda_channels", {1}},
+        {"ppg_channels", {2, 3}},
+        {"other_channels", {6, 7}},
+        {"temperature_channels", {4}}
     };
     brainflow_boards_json["boards"]["21"]["default"] =
     {

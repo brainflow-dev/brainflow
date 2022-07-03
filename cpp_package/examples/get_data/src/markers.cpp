@@ -200,6 +200,32 @@ bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, in
                 return false;
             }
         }
+        if (std::string (argv[i]) == std::string ("--master-board"))
+        {
+            if (i + 1 < argc)
+            {
+                i++;
+                params->master_board = std::stoi (std::string (argv[i]));
+            }
+            else
+            {
+                std::cerr << "missed argument" << std::endl;
+                return false;
+            }
+        }
+        if (std::string (argv[i]) == std::string ("--preset"))
+        {
+            if (i + 1 < argc)
+            {
+                i++;
+                params->preset = std::stoi (std::string (argv[i]));
+            }
+            else
+            {
+                std::cerr << "missed argument" << std::endl;
+                return false;
+            }
+        }
     }
     if (!board_id_found)
     {

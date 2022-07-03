@@ -133,24 +133,49 @@ class GaleaWriter(threading.Thread):
         self.port = port
         self.write = write
         self.delay = delay
-        self.package_size = 72 * 19
-        self.package_num = 0
         self.need_data = True
+        
+        self.exg_package_num = 0
+        self.aux_package_num = 0
+        self.exg_package_size = 58
+        self.aux_package_size = 26
+        self.num_exg_packages_in_transaction = 20
+        self.num_aux_packages_in_transaction = 4
 
     def run(self):
+        start_time = time.time()
         while self.need_data:
-            if self.package_num % 256 == 0:
-                self.package_num = 0
-
             package = list()
-            package.append(0xA0)
-            for i in range(self.package_size):
-                package.append(random.randint(0, 255))
-            package.append(0xC0)
-            logging.debug('package is %s' % ' '.join([str(x) for x in package]))
+            # exg
+            for _ in range(self.num_exg_packages_in_transaction):
+                package.append(0xA0)
+                package.append(self.exg_package_num)
+                self.exg_package_num = self.exg_package_num + 1
+                if self.exg_package_num % 256 == 0:
+                    self.exg_package_num = 0
+                for i in range(1, self.exg_package_size - 10):
+                    package.append(random.randint(0, 255))
+                cur_time = time.time()
+                timestamp = bytearray(struct.pack('d', (cur_time - start_time) * 1000))
+                package.extend(timestamp)
+                package.append(0xC0)
             self.write(self.port, bytes(package))
-
-            self.package_num = self.package_num + 1
+            time.sleep(self.delay)
+            # aux
+            package = list()
+            for _ in range(self.num_aux_packages_in_transaction):
+                package.append(0xA1)
+                package.append(self.aux_package_num)
+                self.aux_package_num = self.aux_package_num + 1
+                if self.aux_package_num % 256 == 0:
+                    self.aux_package_num = 0
+                for i in range(1, self.aux_package_size - 10):
+                    package.append(random.randint(0, 255))
+                cur_time = time.time()
+                timestamp = bytearray(struct.pack('d', (cur_time - start_time) * 1000))
+                package.extend(timestamp)
+                package.append(0xC0)
+            self.write(self.port, bytes(package))
             time.sleep(self.delay)
 
 
