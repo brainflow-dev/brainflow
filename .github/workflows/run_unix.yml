@@ -145,7 +145,7 @@ jobs:
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Synthetic Python
-      run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/brainflow_get_data.py --board-id -1 --streamer-params file://$GITHUB_WORKSPACE/test.csv:w
+      run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/brainflow_get_data.py --board-id -1
     - name: Synthetic Python Multiple Buffers
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/multiple_buffers.py 
     - name: Synthetic Cpp
