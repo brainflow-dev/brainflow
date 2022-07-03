@@ -21,9 +21,6 @@ static std::string get_preset_str (int preset);
 int get_board_presets (int board_id, int *presets, int *len)
 {
     int counter = 0;
-    std::string res =
-        boards_struct.brainflow_boards_json["boards"][std::to_string (board_id)].dump (4);
-    Board::board_logger->trace ("json obj {}", res.c_str ());
     try
     {
         for (auto &el :

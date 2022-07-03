@@ -244,14 +244,14 @@ int BoardShim::get_board_id ()
     if ((board_id == (int)BoardIds::STREAMING_BOARD) ||
         (board_id == (int)BoardIds::PLAYBACK_FILE_BOARD))
     {
-        try
+        if (params.master_board == (int)BoardIds::NO_BOARD)
         {
-            master_board_id = std::stoi (params.other_info);
-        }
-        catch (...)
-        {
-            throw BrainFlowException ("specify master board id using params.other_info",
+            throw BrainFlowException ("specify master board id using params.master_board",
                 (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+        }
+        else
+        {
+            master_board_id = params.master_board;
         }
     }
     return master_board_id;
