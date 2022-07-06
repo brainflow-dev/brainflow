@@ -127,12 +127,12 @@ public class BoardShim
         } else if (SystemUtils.IS_OS_MAC)
         {
             lib_name = "libBoardController.dylib";
-            unpack_from_jar ("libGanglionLib.dylib");
-            unpack_from_jar ("libneurosdk-shared.dylib");
-            unpack_from_jar ("libsimpleble-c.dylib");
-            unpack_from_jar ("libMuseLib.dylib");
-            unpack_from_jar ("libBrainBitLib.dylib");
-            unpack_from_jar ("libBrainFlowBluetooth.dylib");
+            copy_to_temp_dir("libGanglionLib.dylib");
+            copy_to_temp_dir("libneurosdk-shared.dylib");
+            copy_to_temp_dir("libsimpleble-c.dylib");
+            copy_to_temp_dir("libMuseLib.dylib");
+            copy_to_temp_dir("libBrainBitLib.dylib");
+            copy_to_temp_dir("libBrainFlowBluetooth.dylib");
         } else if ((SystemUtils.IS_OS_LINUX) && (!is_os_android))
         {
             unpack_from_jar ("libunicorn.so");
@@ -152,12 +152,25 @@ public class BoardShim
         } else
         {
             // need to extract libraries from jar
-            unpack_from_jar (lib_name);
+            /*unpack_from_jar (lib_name);*/
         }
 
         instance = Native.loadLibrary (lib_name, DllInterface.class,
                 Collections.singletonMap (Library.OPTION_ALLOW_OBJECTS, Boolean.TRUE));
         instance.java_set_jnienv (JNIEnv.CURRENT);
+    }
+
+    private static void copy_to_temp_dir(String lib_name) {
+        // https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/MacOSXDirectories/MacOSXDirectories.html
+        File jnatmp = new File(System.getProperty("user.home"), "Library/Caches/JNA/temp/" + lib_name);
+        try {
+            if (jnatmp.exists())
+                jnatmp.delete();
+            InputStream link = (BoardShim.class.getResourceAsStream(lib_name));
+            Files.copy(link, jnatmp.getAbsoluteFile().toPath());
+        } catch (Exception io) {
+            System.err.println("file: " + lib_name + " is not found in jar file");
+        }
     }
 
     private static Path unpack_from_jar (String lib_name)
