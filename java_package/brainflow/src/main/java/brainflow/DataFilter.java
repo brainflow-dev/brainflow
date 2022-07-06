@@ -115,24 +115,9 @@ public class DataFilter
         } else
         {
             // need to extract libraries from jar
-            unpack_from_jar (lib_name);
+            NativeLoader.unpack_from_jar (lib_name);
         }
         instance = Native.loadLibrary (lib_name, DllInterface.class);
-    }
-
-    private static void unpack_from_jar (String lib_name)
-    {
-        try
-        {
-            File file = new File (lib_name);
-            if (file.exists ())
-                file.delete ();
-            InputStream link = (BoardShim.class.getResourceAsStream (lib_name));
-            Files.copy (link, file.getAbsoluteFile ().toPath ());
-        } catch (Exception io)
-        {
-            System.err.println ("native library: " + lib_name + " is not found in jar file");
-        }
     }
 
     /**
