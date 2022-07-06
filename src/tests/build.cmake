@@ -31,8 +31,8 @@ if (BUILD_TESTS)
     SET (TESTS_SRC
         ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/bluetooth_functions.cpp
         ${CMAKE_HOME_DIRECTORY}/src/utils/data_buffer.cpp
-        ${CMAKE_HOME_DIRECTORY}/tests/cpp/src/utils/bluetooth/socket_bluetooth_test.cpp
-        ${CMAKE_HOME_DIRECTORY}/tests/cpp/src/utils/bluetooth/bluetooth_functions_unittest.cpp
+        ${CMAKE_HOME_DIRECTORY}/src/tests/utils/bluetooth/socket_bluetooth_test.cpp
+        ${CMAKE_HOME_DIRECTORY}/src/tests/utils/bluetooth/bluetooth_functions_unittest.cpp
         ${CMAKE_HOME_DIRECTORY}/src/tests/utils/data_buffer_unittest.cpp
     )
     
@@ -45,7 +45,7 @@ if (BUILD_TESTS)
         ${TESTS_EXE_NAME} PRIVATE
         ${CMAKE_HOME_DIRECTORY}/src/utils/inc
         ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/inc
-        ${CMAKE_HOME_DIRECTORY}/tests/cpp/src/utils/bluetooth/inc
+        ${CMAKE_HOME_DIRECTORY}/src/tests/utils/bluetooth/inc
         ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/macos_third_party
     )
     
