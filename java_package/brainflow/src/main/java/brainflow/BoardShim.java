@@ -127,12 +127,12 @@ public class BoardShim
         } else if (SystemUtils.IS_OS_MAC)
         {
             lib_name = "libBoardController.dylib";
-            NativeLoader.copy_to_temp_dir("libGanglionLib.dylib");
-            NativeLoader.copy_to_temp_dir("libneurosdk-shared.dylib");
-            NativeLoader.copy_to_temp_dir("libsimpleble-c.dylib");
-            NativeLoader.copy_to_temp_dir("libMuseLib.dylib");
-            NativeLoader.copy_to_temp_dir("libBrainBitLib.dylib");
-            NativeLoader.copy_to_temp_dir("libBrainFlowBluetooth.dylib");
+            NativeLoader.copy_to_temp_dir ("libGanglionLib.dylib");
+            NativeLoader.copy_to_temp_dir ("libneurosdk-shared.dylib");
+            NativeLoader.copy_to_temp_dir ("libsimpleble-c.dylib");
+            NativeLoader.copy_to_temp_dir ("libMuseLib.dylib");
+            NativeLoader.copy_to_temp_dir ("libBrainBitLib.dylib");
+            NativeLoader.copy_to_temp_dir ("libBrainFlowBluetooth.dylib");
         } else if ((SystemUtils.IS_OS_LINUX) && (!is_os_android))
         {
             NativeLoader.unpack_from_jar ("libunicorn.so");
@@ -152,15 +152,13 @@ public class BoardShim
         } else
         {
             // need to extract libraries from jar
-            /*unpack_from_jar (lib_name);*/
+            /* unpack_from_jar (lib_name); */
         }
 
         instance = Native.loadLibrary (lib_name, DllInterface.class,
                 Collections.singletonMap (Library.OPTION_ALLOW_OBJECTS, Boolean.TRUE));
         instance.java_set_jnienv (JNIEnv.CURRENT);
     }
-
-
 
     /**
      * enable BrainFlow logger with level INFO
