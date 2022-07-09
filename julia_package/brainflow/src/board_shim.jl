@@ -283,7 +283,7 @@ end
 end
 
 @brainflow_rethrow function get_board_data(board_shim::BoardShim, preset::PresetType=Integer(DEFAULT_PRESET))
-    data_size = get_board_data_count(board_shim)
+    data_size = get_board_data_count(board_shim, preset)
     num_rows = get_num_rows(board_shim.master_board_id, preset)
     val = Vector{Float64}(undef, num_rows * data_size)
     ccall((:get_board_data, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Cint, Ptr{Float64}, Cint, Ptr{UInt8}), 

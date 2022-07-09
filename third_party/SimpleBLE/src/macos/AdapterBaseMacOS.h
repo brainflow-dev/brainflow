@@ -10,6 +10,8 @@
 
 - (instancetype)init:(SimpleBLE::AdapterBase*)adapter;
 
+- (void*)underlying;
+
 - (void)scanStart;
 
 - (void)scanStop;

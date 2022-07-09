@@ -20,12 +20,11 @@ protected:
     std::condition_variable cv;
     std::vector<std::pair<simpleble_uuid_t, simpleble_uuid_t>> notified_characteristics;
     std::pair<simpleble_uuid_t, simpleble_uuid_t> control_characteristics;
-    std::vector<std::vector<double>> current_buf;
+    std::vector<std::vector<double>> current_default_buf;
+    std::vector<std::vector<double>> current_aux_buf;
+    std::vector<std::vector<double>> current_anc_buf;
     std::vector<bool> new_eeg_data;
-    double last_timestamp;
-    int current_accel_pos;
-    int current_gyro_pos;
-    int current_ppg_pos[3];
+    std::vector<bool> new_ppg_data;
     std::string fw_version;
     std::string status_string;
 

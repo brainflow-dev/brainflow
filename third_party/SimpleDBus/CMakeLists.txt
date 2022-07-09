@@ -23,9 +23,6 @@ find_package(PkgConfig REQUIRED)
 # Load libdbus-1
 pkg_search_module(DBUS REQUIRED dbus-1)
 
-message("-- [INFO] Using local LibFmt")
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../fmt ${CMAKE_CURRENT_BINARY_DIR}/libfmt)
-
 # Load default parameters passed in through the command line.
 if(NOT SIMPLEDBUS_LOG_LEVEL)
     set(SIMPLEDBUS_LOG_LEVEL "FATAL")

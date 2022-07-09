@@ -397,29 +397,65 @@ BrainFlowBoards::BrainFlowBoards()
     {
         {"name", "MuseSBLED"},
         {"sampling_rate", 256},
-        {"timestamp_channel", 14},
-        {"marker_channel", 15},
+        {"timestamp_channel", 5},
+        {"marker_channel", 6},
         {"package_num_channel", 0},
-        {"num_rows", 16},
+        {"num_rows", 7},
         {"eeg_channels", {1, 2, 3, 4}},
-        {"eeg_names", "TP9,Fp1,Fp2,TP10"},
-        {"accel_channels", {5, 6, 7}},
-        {"gyro_channels", {8, 9, 10}},
-        {"ppg_channels", {11, 12, 13}}
+        {"eeg_names", "TP9,Fp1,Fp2,TP10"}
+    };
+    brainflow_boards_json["boards"]["21"]["auxiliary"] =
+    {
+        {"name", "MuseSBLEDAux"},
+        {"sampling_rate", 52},
+        {"timestamp_channel", 7},
+        {"marker_channel", 8},
+        {"package_num_channel", 0},
+        {"num_rows", 9},
+        {"accel_channels", {1, 2, 3}},
+        {"gyro_channels", {4, 5, 6}}
+    };
+    brainflow_boards_json["boards"]["21"]["ancillary"] =
+    {
+        {"name", "MuseSBLEDAnc"},
+        {"sampling_rate", 64},
+        {"timestamp_channel", 4},
+        {"marker_channel", 5},
+        {"package_num_channel", 0},
+        {"num_rows", 6},
+        {"ppg_channels", {1, 2, 3}}
     };
     brainflow_boards_json["boards"]["22"]["default"] =
     {
         {"name", "Muse2BLED"},
         {"sampling_rate", 256},
-        {"timestamp_channel", 14},
-        {"marker_channel", 15},
+        {"timestamp_channel", 5},
+        {"marker_channel", 6},
         {"package_num_channel", 0},
-        {"num_rows", 16},
+        {"num_rows", 7},
         {"eeg_channels", {1, 2, 3, 4}},
-        {"eeg_names", "TP9,Fp1,Fp2,TP10"},
-        {"accel_channels", {5, 6, 7}},
-        {"gyro_channels", {8, 9, 10}},
-        {"ppg_channels", {11, 12, 13}}
+        {"eeg_names", "TP9,Fp1,Fp2,TP10"}
+    };
+    brainflow_boards_json["boards"]["22"]["auxiliary"] =
+    {
+        {"name", "Muse2BLEDAux"},
+        {"sampling_rate", 52},
+        {"timestamp_channel", 7},
+        {"marker_channel", 8},
+        {"package_num_channel", 0},
+        {"num_rows", 9},
+        {"accel_channels", {1, 2, 3}},
+        {"gyro_channels", {4, 5, 6}}
+    };
+    brainflow_boards_json["boards"]["22"]["ancillary"] =
+    {
+        {"name", "Muse2BLEDAnc"},
+        {"sampling_rate", 64},
+        {"timestamp_channel", 4},
+        {"marker_channel", 5},
+        {"package_num_channel", 0},
+        {"num_rows", 6},
+        {"ppg_channels", {1, 2, 3}}
     };
     brainflow_boards_json["boards"]["23"]["default"] =
     {
@@ -599,29 +635,65 @@ BrainFlowBoards::BrainFlowBoards()
     {
         {"name", "Muse2"},
         {"sampling_rate", 256},
-        {"timestamp_channel", 14},
-        {"marker_channel", 15},
+        {"timestamp_channel", 5},
+        {"marker_channel", 6},
         {"package_num_channel", 0},
-        {"num_rows", 16},
+        {"num_rows", 7},
         {"eeg_channels", {1, 2, 3, 4}},
-        {"eeg_names", "TP9,Fp1,Fp2,TP10"},
-        {"accel_channels", {5, 6, 7}},
-        {"gyro_channels", {8, 9, 10}},
-        {"ppg_channels", {11, 12, 13}}
+        {"eeg_names", "TP9,Fp1,Fp2,TP10"}
+    };
+    brainflow_boards_json["boards"]["38"]["auxiliary"] =
+    {
+        {"name", "Muse2Aux"},
+        {"sampling_rate", 52},
+        {"timestamp_channel", 7},
+        {"marker_channel", 8},
+        {"package_num_channel", 0},
+        {"num_rows", 9},
+        {"accel_channels", {1, 2, 3}},
+        {"gyro_channels", {4, 5, 6}}
+    };
+    brainflow_boards_json["boards"]["38"]["ancillary"] =
+    {
+        {"name", "Muse2Anc"},
+        {"sampling_rate", 64},
+        {"timestamp_channel", 4},
+        {"marker_channel", 5},
+        {"package_num_channel", 0},
+        {"num_rows", 6},
+        {"ppg_channels", {1, 2, 3}}
     };
     brainflow_boards_json["boards"]["39"]["default"] =
     {
         {"name", "MuseS"},
         {"sampling_rate", 256},
-        {"timestamp_channel", 14},
-        {"marker_channel", 15},
+        {"timestamp_channel", 5},
+        {"marker_channel", 6},
         {"package_num_channel", 0},
-        {"num_rows", 16},
+        {"num_rows", 7},
         {"eeg_channels", {1, 2, 3, 4}},
-        {"eeg_names", "TP9,Fp1,Fp2,TP10"},
-        {"accel_channels", {5, 6, 7}},
-        {"gyro_channels", {8, 9, 10}},
-        {"ppg_channels", {11, 12, 13}}
+        {"eeg_names", "TP9,Fp1,Fp2,TP10"}
+    };
+    brainflow_boards_json["boards"]["39"]["auxiliary"] =
+    {
+        {"name", "MuseSAux"},
+        {"sampling_rate", 52},
+        {"timestamp_channel", 7},
+        {"marker_channel", 8},
+        {"package_num_channel", 0},
+        {"num_rows", 9},
+        {"accel_channels", {1, 2, 3}},
+        {"gyro_channels", {4, 5, 6}}
+    };
+    brainflow_boards_json["boards"]["39"]["ancillary"] =
+    {
+        {"name", "MuseSAnc"},
+        {"sampling_rate", 64},
+        {"timestamp_channel", 4},
+        {"marker_channel", 5},
+        {"package_num_channel", 0},
+        {"num_rows", 6},
+        {"ppg_channels", {1, 2, 3}}
     };
     brainflow_boards_json["boards"]["40"]["default"] =
     {
@@ -640,27 +712,45 @@ BrainFlowBoards::BrainFlowBoards()
     {
         {"name", "Muse2016"},
         {"sampling_rate", 256},
-        {"timestamp_channel", 11},
-        {"marker_channel", 12},
+        {"timestamp_channel", 5},
+        {"marker_channel", 6},
         {"package_num_channel", 0},
-        {"num_rows", 13},
+        {"num_rows", 7},
         {"eeg_channels", {1, 2, 3, 4}},
-        {"eeg_names", "TP9,Fp1,Fp2,TP10"},
-        {"accel_channels", {5, 6, 7}},
-        {"gyro_channels", {8, 9, 10}}
+        {"eeg_names", "TP9,Fp1,Fp2,TP10"}
+    };
+    brainflow_boards_json["boards"]["41"]["auxiliary"] =
+    {
+        {"name", "Muse2016Aux"},
+        {"sampling_rate", 52},
+        {"timestamp_channel", 7},
+        {"marker_channel", 8},
+        {"package_num_channel", 0},
+        {"num_rows", 9},
+        {"accel_channels", {1, 2, 3}},
+        {"gyro_channels", {4, 5, 6}}
     };
     brainflow_boards_json["boards"]["42"]["default"] =
     {
         {"name", "Muse2016BLED"},
         {"sampling_rate", 256},
-        {"timestamp_channel", 11},
-        {"marker_channel", 12},
+        {"timestamp_channel", 5},
+        {"marker_channel", 6},
         {"package_num_channel", 0},
-        {"num_rows", 13},
+        {"num_rows", 7},
         {"eeg_channels", {1, 2, 3, 4}},
         {"eeg_names", "TP9,Fp1,Fp2,TP10"},
-        {"accel_channels", {5, 6, 7}},
-        {"gyro_channels", {8, 9, 10}}
+    };
+    brainflow_boards_json["boards"]["42"]["auxiliary"] =
+    {
+        {"name", "Muse2016BLEDAux"},
+        {"sampling_rate", 52},
+        {"timestamp_channel", 7},
+        {"marker_channel", 8},
+        {"package_num_channel", 0},
+        {"num_rows", 9},
+        {"accel_channels", {1, 2, 3}},
+        {"gyro_channels", {4, 5, 6}}
     };
     brainflow_boards_json["boards"]["43"]["default"] =
     {

@@ -42,6 +42,7 @@ def main():
     params.preset = args.preset
 
     board = BoardShim(args.board_id, params)
+    input()
     board.prepare_session()
     board.start_stream ()
     time.sleep(10)

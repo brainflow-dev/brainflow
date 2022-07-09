@@ -1,6 +1,8 @@
 #import "PeripheralBaseMacOS.h"
 #import "Utils.h"
 
+#import <simpleble/Exceptions.h>
+
 typedef struct {
     BOOL readPending;
     BOOL writePending;
@@ -38,6 +40,10 @@ typedef struct {
     return self;
 }
 
+- (void*)underlying {
+    return (__bridge void*)self.peripheral;
+}
+
 - (NSString*)identifier {
     if (self.peripheral.name != nil) {
         return [self.peripheral.name copy];
@@ -64,10 +70,7 @@ typedef struct {
         }
 
         if (self.peripheral.state != CBPeripheralStateConnected) {
-            // If the connection failed, raise an exception.
-            // TODO: Raise an exception.
-            NSLog(@"Connection failed.");
-            return;
+            throw SimpleBLE::Exception::OperationFailed();
         }
 
         [self.peripheral discoverServices:nil];
@@ -81,9 +84,8 @@ typedef struct {
 
         if (self.peripheral.services == nil) {
             // If services could not be discovered, raise an exception.
-            // TODO: Raise an exception.
             NSLog(@"Services could not be discovered.");
-            return;
+            throw SimpleBLE::Exception::OperationFailed();
         }
 
         // For each service found, discover characteristics.
@@ -99,8 +101,8 @@ typedef struct {
 
             if (service.characteristics == nil) {
                 // If characteristics could not be discovered, raise an exception.
-                // TODO: Raise an exception.
                 NSLog(@"Characteristics could not be discovered for service %@", service.UUID);
+                throw SimpleBLE::Exception::OperationFailed();
             }
 
             // For each characteristic, create the associated extra properties.
@@ -128,9 +130,8 @@ typedef struct {
 
         if (self.peripheral.state != CBPeripheralStateDisconnected) {
             // If the disconnection failed, raise an exception.
-            // TODO: Raise an exception.
             NSLog(@"Disconnection failed.");
-            return;
+            throw SimpleBLE::Exception::OperationFailed();
         }
     }
 }
@@ -166,12 +167,6 @@ typedef struct {
     std::pair<CBService*, CBCharacteristic*> serviceAndCharacteristic = [self findServiceAndCharacteristic:service_uuid
                                                                                        characteristic_uuid:characteristic_uuid];
 
-    if (serviceAndCharacteristic.first == nil || serviceAndCharacteristic.second == nil) {
-        // TODO: Raise an exception.
-        NSLog(@"Could not find service and characteristic.");
-        return SimpleBLE::ByteArray();
-    }
-
     CBCharacteristic* characteristic = serviceAndCharacteristic.second;
 
     @synchronized(self) {
@@ -190,9 +185,8 @@ typedef struct {
     }
 
     if (readPending) {
-        // TODO: Raise an exception.
         NSLog(@"Characteristic %@ could not be read", characteristic.UUID);
-        return SimpleBLE::ByteArray();
+        throw SimpleBLE::Exception::OperationFailed();
     }
 
     return SimpleBLE::ByteArray((const char*)characteristic.value.bytes, characteristic.value.length);
@@ -202,19 +196,12 @@ typedef struct {
     std::pair<CBService*, CBCharacteristic*> serviceAndCharacteristic = [self findServiceAndCharacteristic:service_uuid
                                                                                        characteristic_uuid:characteristic_uuid];
 
-    if (serviceAndCharacteristic.first == nil || serviceAndCharacteristic.second == nil) {
-        // TODO: Raise an exception.
-        NSLog(@"Could not find service and characteristic.");
-        return;
-    }
-
     CBCharacteristic* characteristic = serviceAndCharacteristic.second;
 
     // Check that the characteristic supports this feature.
     if ((characteristic.properties & CBCharacteristicPropertyWrite) == 0) {
-        // TODO: Raise an exception.
         NSLog(@"Characteristic does not support write with response.");
-        return;
+        throw SimpleBLE::Exception::OperationNotSupported();
     }
 
     @synchronized(self) {
@@ -233,8 +220,8 @@ typedef struct {
     }
 
     if (writePending) {
-        // TODO: Raise an exception.
         NSLog(@"Characteristic %@ could not be written", characteristic.UUID);
+        throw SimpleBLE::Exception::OperationFailed();
     }
 }
 
@@ -242,19 +229,12 @@ typedef struct {
     std::pair<CBService*, CBCharacteristic*> serviceAndCharacteristic = [self findServiceAndCharacteristic:service_uuid
                                                                                        characteristic_uuid:characteristic_uuid];
 
-    if (serviceAndCharacteristic.first == nil || serviceAndCharacteristic.second == nil) {
-        // TODO: Raise an exception.
-        NSLog(@"Could not find service and characteristic.");
-        return;
-    }
-
     CBCharacteristic* characteristic = serviceAndCharacteristic.second;
 
     // Check that the characteristic supports this feature.
     if ((characteristic.properties & CBCharacteristicPropertyWriteWithoutResponse) == 0) {
-        // TODO: Raise an exception.
         NSLog(@"Characteristic does not support write without response.");
-        return;
+        throw SimpleBLE::Exception::OperationNotSupported();
     }
 
     // NOTE: This write is unacknowledged.
@@ -268,11 +248,6 @@ typedef struct {
                callback:(std::function<void(SimpleBLE::ByteArray)>)callback {
     std::pair<CBService*, CBCharacteristic*> serviceAndCharacteristic = [self findServiceAndCharacteristic:service_uuid
                                                                                        characteristic_uuid:characteristic_uuid];
-
-    if (serviceAndCharacteristic.first == nil || serviceAndCharacteristic.second == nil) {
-        // TODO: Raise an exception.
-        NSLog(@"Could not find service and characteristic.");
-    }
 
     CBCharacteristic* characteristic = serviceAndCharacteristic.second;
 
@@ -288,8 +263,8 @@ typedef struct {
     }
 
     if (!characteristic.isNotifying) {
-        // TODO: Raise an exception.
         NSLog(@"Could not enable notifications for characteristic %@", characteristic.UUID);
+        throw SimpleBLE::Exception::OperationFailed();
     }
 }
 
@@ -303,11 +278,6 @@ typedef struct {
     std::pair<CBService*, CBCharacteristic*> serviceAndCharacteristic = [self findServiceAndCharacteristic:service_uuid
                                                                                        characteristic_uuid:characteristic_uuid];
 
-    if (serviceAndCharacteristic.first == nil || serviceAndCharacteristic.second == nil) {
-        // TODO: Raise an exception.
-        NSLog(@"Could not find service and characteristic.");
-    }
-
     @synchronized(self) {
         CBCharacteristic* characteristic = serviceAndCharacteristic.second;
         [self.peripheral setNotifyValue:NO forCharacteristic:characteristic];
@@ -319,8 +289,8 @@ typedef struct {
         }
 
         if (characteristic.isNotifying) {
-            // TODO: Raise an exception.
             NSLog(@"Could not disable notifications for characteristic %@", characteristic.UUID);
+            throw SimpleBLE::Exception::OperationFailed();
         } else {
             // Only delete the callback if the characteristic is no longer notifying, to
             // prevent triggering a segfault.
@@ -340,16 +310,14 @@ typedef struct {
         }
     }
 
-    // TODO Raise an exception.
-    return nil;
+    throw SimpleBLE::Exception::ServiceNotFound([uuid UTF8String]);
 }
 
 - (CBCharacteristic*)findCharacteristic:(NSString*)uuid service:(CBService*)service {
     CBUUID* characteristic_uuid = [CBUUID UUIDWithString:uuid];
 
     if (service == nil) {
-        // TODO Raise an exception.
-        return nil;
+        throw SimpleBLE::Exception::BaseException("Invalid service parameter.");
     }
 
     for (CBCharacteristic* characteristic in service.characteristics) {
@@ -358,8 +326,7 @@ typedef struct {
         }
     }
 
-    // TODO Raise an exception.
-    return nil;
+    throw SimpleBLE::Exception::CharacteristicNotFound([uuid UTF8String]);
 }
 
 - (std::pair<CBService*, CBCharacteristic*>)findServiceAndCharacteristic:(NSString*)service_uuid
@@ -401,7 +368,7 @@ typedef struct {
 - (void)peripheral:(CBPeripheral*)peripheral didUpdateValueForCharacteristic:(CBCharacteristic*)characteristic error:(NSError*)error {
     // NSLog(@"Updated value for characteristic: %@", characteristic.UUID);
     if (error != nil) {
-        NSLog(@"Error: %@\n", error);
+        NSLog(@"Characteristic value update error: %@\n", error);
         return;
     }
 
@@ -434,9 +401,8 @@ typedef struct {
 - (void)peripheral:(CBPeripheral*)peripheral
     didUpdateNotificationStateForCharacteristic:(CBCharacteristic*)characteristic
                                           error:(NSError*)error {
-    NSLog(@"Updated notification state for characteristic: %@", characteristic.UUID);
     if (error != nil) {
-        NSLog(@"Error: %@\n", error);
+        NSLog(@"Notification state update error: %@\n", error);
     }
 }
 

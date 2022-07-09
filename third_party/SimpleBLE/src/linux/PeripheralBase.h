@@ -20,6 +20,8 @@ class PeripheralBase {
     PeripheralBase(std::shared_ptr<SimpleBluez::Device> device, std::shared_ptr<SimpleBluez::Adapter> adapter);
     virtual ~PeripheralBase();
 
+    void* underlying() const;
+
     std::string identifier();
     BluetoothAddress address();
     int16_t rssi();

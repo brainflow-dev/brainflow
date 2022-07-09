@@ -7,10 +7,10 @@ BrainFlow Dummy Boards
 ------------------------
 
 .. csv-table:: Required inputs
-   :header: "Board", "Board Id", "BrainFlowInputParams.serial_port", "BrainFlowInputParams.mac_address", "BrainFlowInputParams.ip_address", "BrainFlowInputParams.ip_port", "BrainFlowInputParams.ip_protocol", "BrainFlowInputParams.other_info", "BrainFlowInputParams.timeout", "BrainFlowInputParams.serial_number", "BrainFlowInputParams.file"
+   :header: "Board", "Board Id", "serial_port", "mac_address", "ip_address", "ip_port", "ip_protocol", "other_info", "timeout", "serial_number", "file", "preset", "master_board"
 
-   "Playback Board", "BoardIds.PLAYBACK_FILE_BOARD (-3)", "-", "-", "-", "-", "-", "Board Id of master board", "-", "-", "path to file for playback"
-   "Streaming Board", "BoardIds.STREAMING_BOARD (-2)", "-", "-", "multicast IP address", "port", "-", "Board Id of master board", "-", "-", "-"
+   "Playback Board", "BoardIds.PLAYBACK_FILE_BOARD (-3)", "-", "-", "-", "-", "-", "", "-", "-", "path to file for playback", "optional: preset of recorded file", "board id of master device used to record file"
+   "Streaming Board", "BoardIds.STREAMING_BOARD (-2)", "-", "-", "multicast IP address", "port", "-", "Board Id of master board", "-", "-", "-", "optional: preset in streamer", "board id of master device"
    "Synthetic Board", "BoardIds.SYNTHETIC_BOARD (-1)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
 
 Playback File Board
@@ -23,7 +23,8 @@ This board playbacks file recorded using another BrainFlow board.
 To choose this board in BoardShim constructor please specify:
 
 - board_id: -3
-- other_info field of BrainFlowInputParams structure should contain board_id of device used to create playback file
+- master_board field of BrainFlowInputParams structure should contain board_id of device used to create playback file
+- preset of master board which was used to record a file. Default is *BrainFlowPresets.DEFAULT_PRESET*
 - file field of BrainFlowInputParams structure
 
 Supported platforms:
@@ -70,7 +71,8 @@ BrainFlow's boards can stream data to different destinations like file, socket a
 - board_id: -2
 - ip_address field of BrainFlowInputParams structure, for example above it's 225.1.1.1
 - ip_port field of BrainFlowInputParams structure, for example above it's 6677
-- other_info field of BrainFlowInputParams structure, write there board_id for a board which acts like data provider(master board)
+- master_board field of BrainFlowInputParams structure should contain board_id of device streaming the data
+- preset of master board. Default is *BrainFlowPresets.DEFAULT_PRESET*
 
 Supported platforms:
 
@@ -112,14 +114,14 @@ OpenBCI
 --------
 
 .. csv-table:: Required inputs
-   :header: "Board", "Board Id", "BrainFlowInputParams.serial_port", "BrainFlowInputParams.mac_address", "BrainFlowInputParams.ip_address", "BrainFlowInputParams.ip_port", "BrainFlowInputParams.ip_protocol", "BrainFlowInputParams.other_info", "BrainFlowInputParams.timeout", "BrainFlowInputParams.serial_number", "BrainFlowInputParams.file"
+   :header: "Board", "Board Id", "serial_port", "mac_address", "ip_address", "ip_port", "ip_protocol", "other_info", "timeout", "serial_number", "file", "preset", "master_board"
 
-   "Cyton", "BoardIds.CYTON_BOARD (0)", "dongle serial port(COM3, /dev/ttyUSB0, /dev/cu.usbserial-xxxxxx...)", "-", "-", "-", "-", "-", "-", "-", "-"
-   "Ganglion", "BoardIds.GANGLION_BOARD (1)", "dongle serial port(COM3, /dev/ttyUSB0...)", "Optional: Ganglion's MAC address", "-", "-", "-", "-", "Timeout for device discovery(default 15sec)", "-", "-"
-   "Cyton Daisy", "BoardIds.CYTON_DAISY_BOARD (2)", "dongle serial port(COM3, /dev/ttyUSB0, /dev/cu.usbserial-xxxxxx...)", "-", "-", "-", "-", "-", "-", "-", "-"
-   "Ganglion WIFI", "BoardIds.GANGLION_WIFI_BOARD (4)", "-", "-", "WIFI Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "Timeout for HTTP response(default 10sec)", "-", "-"
-   "Cyton WIFI", "BoardIds.CYTON_WIFI_BOARD (5)", "-", "-", "WIFI Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "Timeout for HTTP response(default 10sec)", "-", "-"
-   "Cyton Daisy WIFI", "BoardIds.CYTON_DAISY_WIFI_BOARD (6)", "-", "-", "WIFI Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "Timeout for HTTP response(default 10sec)", "-", "-"
+   "Cyton", "BoardIds.CYTON_BOARD (0)", "dongle serial port(COM3, /dev/ttyUSB0, /dev/cu.usbserial-xxxxxx...)", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "Ganglion", "BoardIds.GANGLION_BOARD (1)", "dongle serial port(COM3, /dev/ttyUSB0...)", "Optional: Ganglion's MAC address", "-", "-", "-", "-", "Timeout for device discovery(default 15sec)", "-", "-", "-", "-"
+   "Cyton Daisy", "BoardIds.CYTON_DAISY_BOARD (2)", "dongle serial port(COM3, /dev/ttyUSB0, /dev/cu.usbserial-xxxxxx...)", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "Ganglion WIFI", "BoardIds.GANGLION_WIFI_BOARD (4)", "-", "-", "WIFI Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "Timeout for HTTP response(default 10sec)", "-", "-", "-", "-"
+   "Cyton WIFI", "BoardIds.CYTON_WIFI_BOARD (5)", "-", "-", "WIFI Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "Timeout for HTTP response(default 10sec)", "-", "-", "-", "-"
+   "Cyton Daisy WIFI", "BoardIds.CYTON_DAISY_WIFI_BOARD (6)", "-", "-", "WIFI Shield IP(default 192.168.4.1)", "any local port which is free", "-", "-", "Timeout for HTTP response(default 10sec)", "-", "-", "-", "-"
 
 Cyton
 ~~~~~~~
@@ -281,13 +283,13 @@ NeuroMD
 ----------
 
 .. csv-table:: Required inputs
-   :header: "Board", "Board Id", "BrainFlowInputParams.serial_port", "BrainFlowInputParams.mac_address", "BrainFlowInputParams.ip_address", "BrainFlowInputParams.ip_port", "BrainFlowInputParams.ip_protocol", "BrainFlowInputParams.other_info", "BrainFlowInputParams.timeout", "BrainFlowInputParams.serial_number", "BrainFlowInputParams.file"
+   :header: "Board", "Board Id", "serial_port", "mac_address", "ip_address", "ip_port", "ip_protocol", "other_info", "timeout", "serial_number", "file", "preset", "master_board"
 
-   "BrainBit", "BoardIds.BRAINBIT_BOARD (7)", "-", "-", "-", "-", "-", "-", "Timeout for device discovery(default 15sec)", "Optional: Serial Number of BrainBit device", "-"
-   "CallibriEEG", "BoardIds.CALLIBRI_EEG_BOARD (9)", "-", "-", "-", "-", "-", "Optional: ExternalSwitchInputMioUSB (default is ExternalSwitchInputMioElectrodes)", "Timeout for device discovery(default 15sec)", "-", "-"
-   "CallibriEMG", "BoardIds.CALLIBRI_EMG_BOARD (10)", "-", "-", "-", "-", "-", "Optional: ExternalSwitchInputMioUSB (default is ExternalSwitchInputMioElectrodes)", "Timeout for device discovery(default 15sec)", "-", "-"
-   "CallibriECG", "BoardIds.CALLIBRI_ECG_BOARD (11)", "-", "-", "-", "-", "-", "Optional: ExternalSwitchInputMioUSB (default is ExternalSwitchInputMioElectrodes)", "Timeout for device discovery(default 15sec)", "-", "-"
-   "BrainBitBLED", "BoardIds.BRAINBIT_BLED_BOARD (18)", "dongle serial port", "Optional: MAC address", "-", "-", "-", "-", "-", "-", "-"
+   "BrainBit", "BoardIds.BRAINBIT_BOARD (7)", "-", "-", "-", "-", "-", "-", "Timeout for device discovery(default 15sec)", "Optional: Serial Number of BrainBit device", "-", "-", "-"
+   "CallibriEEG", "BoardIds.CALLIBRI_EEG_BOARD (9)", "-", "-", "-", "-", "-", "Optional: ExternalSwitchInputMioUSB (default is ExternalSwitchInputMioElectrodes)", "Timeout for device discovery(default 15sec)", "-", "-", "-", "-"
+   "CallibriEMG", "BoardIds.CALLIBRI_EMG_BOARD (10)", "-", "-", "-", "-", "-", "Optional: ExternalSwitchInputMioUSB (default is ExternalSwitchInputMioElectrodes)", "Timeout for device discovery(default 15sec)", "-", "-", "-", "-"
+   "CallibriECG", "BoardIds.CALLIBRI_ECG_BOARD (11)", "-", "-", "-", "-", "-", "Optional: ExternalSwitchInputMioUSB (default is ExternalSwitchInputMioElectrodes)", "Timeout for device discovery(default 15sec)", "-", "-", "-", "-"
+   "BrainBitBLED", "BoardIds.BRAINBIT_BLED_BOARD (18)", "dongle serial port", "Optional: MAC address", "-", "-", "-", "-", "-", "-", "-", "-", "-"
 
 BrainBit
 ~~~~~~~~~~
@@ -308,6 +310,13 @@ Supported platforms:
 
 - Windows >= 10
 - MacOS
+
+Available commands for :code:`config_board`:
+
+- CommandStartSignal
+- CommandStopSignal
+- CommandStartResist
+- CommandStopResist
 
 BrainBitBLED
 ~~~~~~~~~~~~~~
@@ -359,9 +368,9 @@ G.TEC
 ------
 
 .. csv-table:: Required inputs
-   :header: "Board", "Board Id", "BrainFlowInputParams.serial_port", "BrainFlowInputParams.mac_address", "BrainFlowInputParams.ip_address", "BrainFlowInputParams.ip_port", "BrainFlowInputParams.ip_protocol", "BrainFlowInputParams.other_info", "BrainFlowInputParams.timeout", "BrainFlowInputParams.serial_number", "BrainFlowInputParams.file"
+   :header: "Board", "Board Id", "serial_port", "mac_address", "ip_address", "ip_port", "ip_protocol", "other_info", "timeout", "serial_number", "file", "preset", "master_board"
 
-   "Unicorn", "BoardIds.UNICORN_BOARD (8)", "-", "-", "-", "-", "-", "-", "-", "Optional: Serial Number of Unicorn device", "-"
+   "Unicorn", "BoardIds.UNICORN_BOARD (8)", "-", "-", "-", "-", "-", "-", "-", "Optional: Serial Number of Unicorn device", "-", "-", "-"
 
 Unicorn
 ~~~~~~~~~~~
@@ -392,11 +401,11 @@ Neurosity
 ----------
 
 .. csv-table:: Required inputs
-   :header: "Board", "Board Id", "BrainFlowInputParams.serial_port", "BrainFlowInputParams.mac_address", "BrainFlowInputParams.ip_address", "BrainFlowInputParams.ip_port", "BrainFlowInputParams.ip_protocol", "BrainFlowInputParams.other_info", "BrainFlowInputParams.timeout", "BrainFlowInputParams.serial_number", "BrainFlowInputParams.file"
+   :header: "Board", "Board Id", "serial_port", "mac_address", "ip_address", "ip_port", "ip_protocol", "other_info", "timeout", "serial_number", "file", "preset", "master_board"
 
-   "Notion 1", "BoardIds.NOTION_1_BOARD (13)", "-", "-", "-", "-", "-", "-", "-", "Optional: serial number", "-"
-   "Notion 2", "BoardIds.NOTION_2_BOARD (14)", "-", "-", "-", "-", "-", "-", "-", "Optional: serial number", "-"
-   "Crown", "BoardIds.CROWN_BOARD (23)", "-", "-", "-", "-", "-", "-", "-", "Optional: serial number", "-"
+   "Notion 1", "BoardIds.NOTION_1_BOARD (13)", "-", "-", "-", "-", "-", "-", "-", "Optional: serial number", "-", "-", "-"
+   "Notion 2", "BoardIds.NOTION_2_BOARD (14)", "-", "-", "-", "-", "-", "-", "-", "Optional: serial number", "-", "-", "-"
+   "Crown", "BoardIds.CROWN_BOARD (23)", "-", "-", "-", "-", "-", "-", "-", "Optional: serial number", "-", "-", "-"
 
 Notion 1
 ~~~~~~~~~
@@ -475,10 +484,10 @@ OYMotion
 ---------
 
 .. csv-table:: Required inputs
-   :header: "Board", "Board Id", "BrainFlowInputParams.serial_port", "BrainFlowInputParams.mac_address", "BrainFlowInputParams.ip_address", "BrainFlowInputParams.ip_port", "BrainFlowInputParams.ip_protocol", "BrainFlowInputParams.other_info", "BrainFlowInputParams.timeout", "BrainFlowInputParams.serial_number", "BrainFlowInputParams.file"
+   :header: "Board", "Board Id", "serial_port", "mac_address", "ip_address", "ip_port", "ip_protocol", "other_info", "timeout", "serial_number", "file", "preset", "master_board"
 
-   "GforcePro", "BoardIds.GFORCE_PRO_BOARD (16)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
-   "GforceDual", "BoardIds.GFORCE_DUAL_BOARD (19)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "GforcePro", "BoardIds.GFORCE_PRO_BOARD (16)", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "GforceDual", "BoardIds.GFORCE_DUAL_BOARD (19)", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-"
 
 gForcePro ArmBand
 ~~~~~~~~~~~~~~~~~~
@@ -518,9 +527,9 @@ FreeEEG32
 ----------
 
 .. csv-table:: Required inputs
-   :header: "Board", "Board Id", "BrainFlowInputParams.serial_port", "BrainFlowInputParams.mac_address", "BrainFlowInputParams.ip_address", "BrainFlowInputParams.ip_port", "BrainFlowInputParams.ip_protocol", "BrainFlowInputParams.other_info", "BrainFlowInputParams.timeout", "BrainFlowInputParams.serial_number", "BrainFlowInputParams.file"
+   :header: "Board", "Board Id", "serial_port", "mac_address", "ip_address", "ip_port", "ip_protocol", "other_info", "timeout", "serial_number", "file", "preset", "master_board"
 
-   "FreeEEG32", "BoardIds.FREEEEG32_BOARD (17)", "dongle serial port", "-", "-", "-", "-", "-", "-", "-", "-"
+   "FreeEEG32", "BoardIds.FREEEEG32_BOARD (17)", "dongle serial port", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-"
 
 FreeEEG32
 ~~~~~~~~~~
@@ -548,14 +557,14 @@ Muse
 ------
 
 .. csv-table:: Required inputs
-   :header: "Board", "Board Id", "BrainFlowInputParams.serial_port", "BrainFlowInputParams.mac_address", "BrainFlowInputParams.ip_address", "BrainFlowInputParams.ip_port", "BrainFlowInputParams.ip_protocol", "BrainFlowInputParams.other_info", "BrainFlowInputParams.timeout", "BrainFlowInputParams.serial_number", "BrainFlowInputParams.file"
+   :header: "Board", "Board Id", "serial_port", "mac_address", "ip_address", "ip_port", "ip_protocol", "other_info", "timeout", "serial_number", "file", "preset", "master_board"
 
-   "MuseSBLED", "BoardIds.MUSE_S_BLED_BOARD (21)", "dongle serial port", "-", "-", "-", "-", "-", "-", "Optional: device name", "-"
-   "Muse2BLED", "BoardIds.MUSE_2_BLED_BOARD (22)", "dongle serial port", "-", "-", "-", "-", "-", "-", "Optional: device name", "-"
-   "Muse2016BLED", "BoardIds.MUSE_2016_BLED_BOARD (42)", "dongle serial port", "-", "-", "-", "-", "-", "-", "Optional: device name", "-"
-   "Muse2", "BoardIds.MUSE_2_BOARD (38)", "-", "Optional: MAC adress", "-", "-", "-", "-", "-", "Optional: device name", "-"
-   "MuseS", "BoardIds.MUSE_S_BOARD (39)", "-", "Optional: MAC adress", "-", "-", "-", "-", "-", "Optional: device name", "-"
-   "Muse2016", "BoardIds.MUSE_2016_BOARD (41)", "-", "Optional: MAC adress", "-", "-", "-", "-", "-", "Optional: device name", "-"
+   "MuseSBLED", "BoardIds.MUSE_S_BLED_BOARD (21)", "dongle serial port", "-", "-", "-", "-", "-", "-", "Optional: device name", "-", "-", "-"
+   "Muse2BLED", "BoardIds.MUSE_2_BLED_BOARD (22)", "dongle serial port", "-", "-", "-", "-", "-", "-", "Optional: device name", "-", "-", "-"
+   "Muse2016BLED", "BoardIds.MUSE_2016_BLED_BOARD (42)", "dongle serial port", "-", "-", "-", "-", "-", "-", "Optional: device name", "-", "-", "-"
+   "Muse2", "BoardIds.MUSE_2_BOARD (38)", "-", "Optional: MAC adress", "-", "-", "-", "-", "-", "Optional: device name", "-", "-", "-"
+   "MuseS", "BoardIds.MUSE_S_BOARD (39)", "-", "Optional: MAC adress", "-", "-", "-", "-", "-", "Optional: device name", "-", "-", "-"
+   "Muse2016", "BoardIds.MUSE_2016_BOARD (41)", "-", "Optional: MAC adress", "-", "-", "-", "-", "-", "Optional: device name", "-", "-", "-"
 
 Muse S BLED
 ~~~~~~~~~~~~~~
@@ -583,6 +592,8 @@ Supported platforms:
 - Linux
 - Devices like Raspberry Pi
 
+By default it uses preset `p21` which doesn't stream PPG data, here is an `example <https://github.com/brainflow-dev/brainflow/blob/master/python_package/examples/tests/muse_ppg.py>`_ how to enable other types of data.
+
 Muse 2 BLED
 ~~~~~~~~~~~~~~
 
@@ -609,6 +620,9 @@ Supported platforms:
 - Linux
 - Devices like Raspberry Pi
 
+By default it uses preset `p21` which doesn't stream PPG data, here is an `example <https://github.com/brainflow-dev/brainflow/blob/master/python_package/examples/tests/muse_ppg.py>`_ how to enable other types of data.
+
+
 Muse 2016 BLED
 ~~~~~~~~~~~~~~~
 
@@ -634,6 +648,9 @@ Supported platforms:
 - MacOS
 - Linux
 - Devices like Raspberry Pi
+
+By default it uses preset `p21` which doesn't stream PPG data, here is an `example <https://github.com/brainflow-dev/brainflow/blob/master/python_package/examples/tests/muse_ppg.py>`_ how to enable other types of data.
+
 
 Muse 2
 ~~~~~~~~~~~~~~
@@ -665,6 +682,9 @@ Supported platforms:
 - Linux, compilation from source code probably will be needed
 - Devices like Raspberry Pi
 
+By default it uses preset `p21` which doesn't stream PPG data, here is an `example <https://github.com/brainflow-dev/brainflow/blob/master/python_package/examples/tests/muse_ppg.py>`_ how to enable other types of data.
+
+
 Muse S
 ~~~~~~~~~
 
@@ -694,6 +714,9 @@ Supported platforms:
 - MacOS 10.15+, 12.0 to 12.2 have known issues while scanning, you need to update to 12.3+
 - Linux, compilation from source code probably will be needed
 - Devices like Raspberry Pi
+
+By default it uses preset `p21` which doesn't stream PPG data, here is an `example <https://github.com/brainflow-dev/brainflow/blob/master/python_package/examples/tests/muse_ppg.py>`_ how to enable other types of data.
+
 
 Muse 2016
 ~~~~~~~~~~~
@@ -729,21 +752,21 @@ Ant Neuro
 ----------
 
 .. csv-table:: Required inputs
-   :header: "Board", "Board Id", "BrainFlowInputParams.serial_port", "BrainFlowInputParams.mac_address", "BrainFlowInputParams.ip_address", "BrainFlowInputParams.ip_port", "BrainFlowInputParams.ip_protocol", "BrainFlowInputParams.other_info", "BrainFlowInputParams.timeout", "BrainFlowInputParams.serial_number", "BrainFlowInputParams.file"
+   :header: "Board", "Board Id", "serial_port", "mac_address", "ip_address", "ip_port", "ip_protocol", "other_info", "timeout", "serial_number", "file", "preset", "master_board"
 
-   "AntNeuroBoardEE410", "BoardIds.ANT_NEURO_EE_410_BOARD (24)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
-   "AntNeuroBoardEE411", "BoardIds.ANT_NEURO_EE_411_BOARD (25)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
-   "AntNeuroBoardEE430", "BoardIds.ANT_NEURO_EE_430_BOARD (26)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
-   "AntNeuroBoardEE211", "BoardIds.ANT_NEURO_EE_211_BOARD (27)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
-   "AntNeuroBoardEE212", "BoardIds.ANT_NEURO_EE_212_BOARD (28)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
-   "AntNeuroBoardEE213", "BoardIds.ANT_NEURO_EE_213_BOARD (29)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
-   "AntNeuroBoardEE214", "BoardIds.ANT_NEURO_EE_214_BOARD (30)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
-   "AntNeuroBoardEE215", "BoardIds.ANT_NEURO_EE_215_BOARD (31)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
-   "AntNeuroBoardEE221", "BoardIds.ANT_NEURO_EE_221_BOARD (32)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
-   "AntNeuroBoardEE222", "BoardIds.ANT_NEURO_EE_222_BOARD (33)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
-   "AntNeuroBoardEE223", "BoardIds.ANT_NEURO_EE_223_BOARD (34)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
-   "AntNeuroBoardEE224", "BoardIds.ANT_NEURO_EE_224_BOARD (35)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
-   "AntNeuroBoardEE225", "BoardIds.ANT_NEURO_EE_225_BOARD (36)", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE410", "BoardIds.ANT_NEURO_EE_410_BOARD (24)", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE411", "BoardIds.ANT_NEURO_EE_411_BOARD (25)", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE430", "BoardIds.ANT_NEURO_EE_430_BOARD (26)", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE211", "BoardIds.ANT_NEURO_EE_211_BOARD (27)", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE212", "BoardIds.ANT_NEURO_EE_212_BOARD (28)", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE213", "BoardIds.ANT_NEURO_EE_213_BOARD (29)", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE214", "BoardIds.ANT_NEURO_EE_214_BOARD (30)", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE215", "BoardIds.ANT_NEURO_EE_215_BOARD (31)", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE221", "BoardIds.ANT_NEURO_EE_221_BOARD (32)", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE222", "BoardIds.ANT_NEURO_EE_222_BOARD (33)", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE223", "BoardIds.ANT_NEURO_EE_223_BOARD (34)", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE224", "BoardIds.ANT_NEURO_EE_224_BOARD (35)", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "AntNeuroBoardEE225", "BoardIds.ANT_NEURO_EE_225_BOARD (36)", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-"
 
 .. image:: https://live.staticflickr.com/65535/51331462280_580d890535.jpg
     :width: 500px
@@ -779,9 +802,9 @@ Enophone
 ---------
 
 .. csv-table:: Required inputs
-   :header: "Board", "Board Id", "BrainFlowInputParams.serial_port", "BrainFlowInputParams.mac_address", "BrainFlowInputParams.ip_address", "BrainFlowInputParams.ip_port", "BrainFlowInputParams.ip_protocol", "BrainFlowInputParams.other_info", "BrainFlowInputParams.timeout", "BrainFlowInputParams.serial_number", "BrainFlowInputParams.file"
+   :header: "Board", "Board Id", "serial_port", "mac_address", "ip_address", "ip_port", "ip_protocol", "other_info", "timeout", "serial_number", "file", "preset", "master_board"
 
-   "Enophone", "BoardIds.ENOPHONE_BOARD (37)", "-", "MAC adress", "-", "-", "-", "-", "-", "-", "-"
+   "Enophone", "BoardIds.ENOPHONE_BOARD (37)", "-", "MAC adress", "-", "-", "-", "-", "-", "-", "-", "-", "-"
 
 Enophone Headphones
 ~~~~~~~~~~~~~~~~~~~~~
@@ -815,9 +838,9 @@ BrainAlive
 -----------
 
 .. csv-table:: Required inputs
-   :header: "Board", "Board Id", "BrainFlowInputParams.serial_port", "BrainFlowInputParams.mac_address", "BrainFlowInputParams.ip_address", "BrainFlowInputParams.ip_port", "BrainFlowInputParams.ip_protocol", "BrainFlowInputParams.other_info", "BrainFlowInputParams.timeout", "BrainFlowInputParams.serial_number", "BrainFlowInputParams.file"
+   :header: "Board", "Board Id", "serial_port", "mac_address", "ip_address", "ip_port", "ip_protocol", "other_info", "timeout", "serial_number", "file", "preset", "master_board"
 
-      "BrainAlive", "BoardIds.BrainAlive_BOARD (40)", "-", "Optional: MAC adress", "-", "-", "-", "-", "-", "Optional: device name", "-"
+      "BrainAlive", "BoardIds.BrainAlive_BOARD (40)", "-", "Optional: MAC adress", "-", "-", "-", "-", "-", "Optional: device name", "-", "-", "-"
    
 BrainAlive Device
 ~~~~~~~~~~~~~~~~~~

@@ -3,6 +3,7 @@
 #include <simpleble/Exceptions.h>
 #include <simplebluez/Exceptions.h>
 #include <algorithm>
+#include "CommonUtils.h"
 
 #include "Bluez.h"
 
@@ -21,6 +22,8 @@ PeripheralBase::~PeripheralBase() {
     device_->clear_on_services_resolved();
     _cleanup_characteristics();
 }
+
+void* PeripheralBase::underlying() const { return device_.get(); }
 
 std::string PeripheralBase::identifier() { return device_->name(); }
 
@@ -45,18 +48,14 @@ void PeripheralBase::connect() {
         this->_cleanup_characteristics();
         this->disconnection_cv_.notify_all();
 
-        if (this->callback_on_disconnected_) {
-            this->callback_on_disconnected_();
-        }
+        SAFE_CALLBACK_CALL(this->callback_on_disconnected_);
     });
 
     if (!is_connected()) {
         throw Exception::OperationFailed();
     }
 
-    if (this->callback_on_connected_) {
-        this->callback_on_connected_();
-    }
+    SAFE_CALLBACK_CALL(this->callback_on_connected_);
 }
 
 void PeripheralBase::disconnect() {

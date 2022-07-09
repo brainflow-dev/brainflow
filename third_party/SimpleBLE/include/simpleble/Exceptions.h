@@ -18,6 +18,11 @@ class NotInitialized : public BaseException {
     NotInitialized();
 };
 
+class NotConnected : public BaseException {
+  public:
+    NotConnected();
+};
+
 class InvalidReference : public BaseException {
   public:
     InvalidReference();
@@ -42,6 +47,17 @@ class OperationFailed : public BaseException {
   public:
     OperationFailed();
 };
+
+class WinRTException : public BaseException {
+  public:
+    WinRTException(int32_t err_code, const std::string &err_msg);
+};
+
+class CoreBluetoothException : public BaseException {
+  public:
+    CoreBluetoothException(const std::string &err_msg);
+};
+
 
 }  // namespace Exception
 

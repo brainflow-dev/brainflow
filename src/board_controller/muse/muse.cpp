@@ -79,9 +79,6 @@ Muse::Muse (int board_id, struct BrainFlowInputParams params) : BLELibBoard (boa
     muse_adapter = NULL;
     muse_peripheral = NULL;
     is_streaming = false;
-    current_accel_pos = 0;
-    current_gyro_pos = 0;
-    memset (current_ppg_pos, 0, sizeof (current_ppg_pos));
     fw_version = "";
     status_string = "";
 }
@@ -156,8 +153,10 @@ int Muse::prepare_session ()
     }
 
 // https://github.com/OpenBluetoothToolbox/SimpleBLE/issues/26#issuecomment-955606799
-#ifdef __linux__
-    usleep (1000000);
+#ifdef _WIN32
+    Sleep (1000);
+#else
+    sleep (1);
 #endif
 
     bool control_characteristics_found = false;
@@ -361,19 +360,37 @@ int Muse::prepare_session ()
 
     if ((res == (int)BrainFlowExitCodes::STATUS_OK) && (control_characteristics_found))
     {
-        int buffer_size = board_descr["default"]["num_rows"].get<int> ();
-        current_buf.resize (12); // 12 eeg packages in single ble transaction
-        new_eeg_data.resize (4); // 4 eeg channels total
-        current_gyro_pos = 0;
-        current_accel_pos = 0;
-        memset (current_ppg_pos, 0, sizeof (current_ppg_pos));
+        int eeg_buffer_size = board_descr["default"]["num_rows"].get<int> ();
+        int aux_buffer_size = board_descr["auxiliary"]["num_rows"].get<int> ();
+        current_default_buf.resize (12); // 12 eeg packages in single ble transaction
+        new_eeg_data.resize (4);         // 4 eeg channels total
+        current_aux_buf.resize (3);      // 3 samples in each message for gyro and accel
         for (int i = 0; i < 12; i++)
         {
-            current_buf[i].resize (buffer_size);
-            std::fill (current_buf[i].begin (), current_buf[i].end (), 0.0);
-            std::fill (new_eeg_data.begin (), new_eeg_data.end (), false);
+            current_default_buf[i].resize (eeg_buffer_size);
+            std::fill (current_default_buf[i].begin (), current_default_buf[i].end (), 0.0);
         }
-        last_timestamp = -1.0;
+        std::fill (new_eeg_data.begin (), new_eeg_data.end (), false);
+        for (int i = 0; i < 3; i++)
+        {
+            current_aux_buf[i].resize (aux_buffer_size);
+            std::fill (current_aux_buf[i].begin (), current_aux_buf[i].end (), 0.0);
+        }
+        // muse 2016 has no ppg
+        if ((board_id != (int)BoardIds::MUSE_2016_BOARD) &&
+            (board_id != (int)BoardIds::MUSE_2016_BLED_BOARD))
+        {
+            int anc_buffer_size = board_descr["ancillary"]["num_rows"].get<int> ();
+            current_anc_buf.resize (6); // 6 ppg packages in single transaction
+            for (int i = 0; i < 6; i++)
+            {
+                current_anc_buf[i].resize (anc_buffer_size);
+                std::fill (current_anc_buf[i].begin (), current_anc_buf[i].end (), 0.0);
+            }
+            new_ppg_data.resize (3); // 3 ppg chars
+            std::fill (new_ppg_data.begin (), new_ppg_data.end (), false);
+        }
+
         initialized = true;
     }
 
@@ -469,15 +486,23 @@ int Muse::release_session ()
         muse_adapter = NULL;
     }
 
-    for (size_t i = 0; i < current_buf.size (); i++)
+    for (size_t i = 0; i < current_default_buf.size (); i++)
     {
-        current_buf[i].clear ();
+        current_default_buf[i].clear ();
     }
-    current_buf.clear ();
+    current_default_buf.clear ();
     new_eeg_data.clear ();
-    current_gyro_pos = 0;
-    current_accel_pos = 0;
-    memset (current_ppg_pos, 0, sizeof (current_ppg_pos));
+    for (size_t i = 0; i < current_aux_buf.size (); i++)
+    {
+        current_aux_buf[i].clear ();
+    }
+    current_aux_buf.clear ();
+    for (size_t i = 0; i < current_anc_buf.size (); i++)
+    {
+        current_anc_buf[i].clear ();
+    }
+    current_anc_buf.clear ();
+    new_ppg_data.clear ();
 
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
@@ -562,7 +587,7 @@ void Muse::adapter_on_scan_found (simpleble_adapter_t adapter, simpleble_periphe
 void Muse::peripheral_on_eeg (simpleble_uuid_t service, simpleble_uuid_t characteristic,
     uint8_t *data, size_t size, size_t channel_num)
 {
-    std::lock_guard<std::mutex> lock (callback_lock);
+    std::lock_guard<std::mutex> callback_guard (callback_lock);
     if (size != 20)
     {
         safe_logger (spdlog::level::warn, "unknown size for eeg callback: {}", size);
@@ -578,12 +603,12 @@ void Muse::peripheral_on_eeg (simpleble_uuid_t service, simpleble_uuid_t charact
         double val2 = (data[i + 1] & 0xF) << 8 | data[i + 2];
         val1 = (val1 - 0x800) * 125.0 / 256.0;
         val2 = (val2 - 0x800) * 125.0 / 256.0;
-        current_buf[counter][eeg_channels[channel_num]] = val1;
-        current_buf[counter + 1][eeg_channels[channel_num]] = val2;
-        current_buf[counter][board_descr["default"]["package_num_channel"].get<int> ()] =
+        current_default_buf[counter][eeg_channels[channel_num]] = val1;
+        current_default_buf[counter + 1][eeg_channels[channel_num]] = val2;
+        current_default_buf[counter][board_descr["default"]["package_num_channel"].get<int> ()] =
             package_num;
-        current_buf[counter + 1][board_descr["default"]["package_num_channel"].get<int> ()] =
-            package_num;
+        current_default_buf[counter +
+            1][board_descr["default"]["package_num_channel"].get<int> ()] = package_num;
     }
 
     int num_trues = 0;
@@ -594,32 +619,14 @@ void Muse::peripheral_on_eeg (simpleble_uuid_t service, simpleble_uuid_t charact
             num_trues++;
         }
     }
-    if (num_trues == 1)
-    {
-        double timestamp = get_timestamp ();
-        if (last_timestamp < 0)
-        {
-            last_timestamp = timestamp;
-            return;
-        }
-        double step = (timestamp - last_timestamp) / current_buf.size ();
-        last_timestamp = timestamp;
-        for (size_t i = 0; i < current_buf.size (); i++)
-        {
-            current_buf[current_buf.size () - 1 -
-                i][board_descr["default"]["timestamp_channel"].get<int> ()] = timestamp - i * step;
-        }
-    }
 
     if (num_trues == new_eeg_data.size ())
     {
-        for (size_t i = 0; i < current_buf.size (); i++)
+        for (size_t i = 0; i < current_default_buf.size (); i++)
         {
-            if (current_buf[i][board_descr["default"]["timestamp_channel"].get<int> ()] >
-                1.0) // skip first package to set timestamp
-            {
-                push_package (&current_buf[i][0]);
-            }
+            current_default_buf[i][board_descr["default"]["timestamp_channel"].get<int> ()] =
+                get_timestamp (); // keep timestamps as is and dont do any math with them
+            push_package (&current_default_buf[i][0]);
         }
         std::fill (new_eeg_data.begin (), new_eeg_data.end (), false);
     }
@@ -628,86 +635,105 @@ void Muse::peripheral_on_eeg (simpleble_uuid_t service, simpleble_uuid_t charact
 void Muse::peripheral_on_accel (
     simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data, size_t size)
 {
-    std::lock_guard<std::mutex> lock (callback_lock);
+    std::lock_guard<std::mutex> callback_guard (callback_lock);
     if (size != 20)
     {
         safe_logger (spdlog::level::warn, "unknown size for accel callback: {}", size);
         return;
     }
+
     for (int i = 0; i < 3; i++)
     {
         double accel_valx = (double)cast_16bit_to_int32 ((unsigned char *)&data[2 + i * 6]) / 16384;
         double accel_valy = (double)cast_16bit_to_int32 ((unsigned char *)&data[4 + i * 6]) / 16384;
         double accel_valz = (double)cast_16bit_to_int32 ((unsigned char *)&data[6 + i * 6]) / 16384;
-        for (int j = 0; j < 4; j++)
-        {
-            int pos = (current_accel_pos + i * 4 + j) % 12;
-            current_buf[pos][board_descr["default"]["accel_channels"][0].get<int> ()] = accel_valx;
-            current_buf[pos][board_descr["default"]["accel_channels"][1].get<int> ()] = accel_valy;
-            current_buf[pos][board_descr["default"]["accel_channels"][2].get<int> ()] = accel_valz;
-        }
+        current_aux_buf[i][board_descr["auxiliary"]["accel_channels"][0].get<int> ()] = accel_valx;
+        current_aux_buf[i][board_descr["auxiliary"]["accel_channels"][1].get<int> ()] = accel_valy;
+        current_aux_buf[i][board_descr["auxiliary"]["accel_channels"][2].get<int> ()] = accel_valz;
     }
-    current_accel_pos += 4;
 }
 
 void Muse::peripheral_on_gyro (
     simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data, size_t size)
 {
-    std::lock_guard<std::mutex> lock (callback_lock);
+    std::lock_guard<std::mutex> callback_guard (callback_lock);
     if (size != 20)
     {
         safe_logger (spdlog::level::warn, "unknown size for gyro callback: {}", size);
         return;
     }
 
+    unsigned int package_num = data[0] * 256 + data[1];
     for (int i = 0; i < 3; i++)
     {
+        // current_aux_buf[i][board_descr["auxiliary"]["package_num_channel"].get<int> ()] =
+        //    (double)package_num;
         double gyro_valx = (double)cast_16bit_to_int32 ((unsigned char *)&data[2 + i * 6]) *
             MUSE_GYRO_SCALE_FACTOR;
         double gyro_valy = (double)cast_16bit_to_int32 ((unsigned char *)&data[4 + i * 6]) *
             MUSE_GYRO_SCALE_FACTOR;
         double gyro_valz = (double)cast_16bit_to_int32 ((unsigned char *)&data[6 + i * 6]) *
             MUSE_GYRO_SCALE_FACTOR;
-
-        for (int j = 0; j < 4; j++)
-        {
-            int pos = (current_gyro_pos + i * 4 + j) % 12;
-            current_buf[pos][board_descr["default"]["gyro_channels"][0].get<int> ()] = gyro_valx;
-            current_buf[pos][board_descr["default"]["gyro_channels"][1].get<int> ()] = gyro_valy;
-            current_buf[pos][board_descr["default"]["gyro_channels"][2].get<int> ()] = gyro_valz;
-        }
+        current_aux_buf[i][board_descr["auxiliary"]["gyro_channels"][0].get<int> ()] = gyro_valx;
+        current_aux_buf[i][board_descr["auxiliary"]["gyro_channels"][1].get<int> ()] = gyro_valy;
+        current_aux_buf[i][board_descr["auxiliary"]["gyro_channels"][2].get<int> ()] = gyro_valz;
+        current_aux_buf[i][board_descr["auxiliary"]["package_num_channel"].get<int> ()] =
+            package_num;
     }
-    current_gyro_pos += 4;
+
+    // push aux packages from gyro callback
+    for (size_t i = 0; i < current_aux_buf.size (); i++)
+    {
+        current_aux_buf[i][board_descr["auxiliary"]["timestamp_channel"].get<int> ()] =
+            get_timestamp (); // keep timestamps as is and dont do any math with them
+        push_package (&current_aux_buf[i][0], (int)BrainFlowPresets::AUXILIARY_PRESET);
+    }
 }
 
 void Muse::peripheral_on_ppg (simpleble_uuid_t service, simpleble_uuid_t characteristic,
     uint8_t *data, size_t size, size_t ppg_num)
 {
-    std::lock_guard<std::mutex> lock (callback_lock);
+    std::lock_guard<std::mutex> callback_guard (callback_lock);
     if (size != 20)
     {
         safe_logger (spdlog::level::warn, "unknown size for ppg callback: {}", size);
         return;
     }
-
-    std::vector<int> ppg_channels = board_descr["default"]["ppg_channels"];
+    unsigned int package_num = data[0] * 256 + data[1];
+    new_ppg_data[ppg_num] = true;
+    std::vector<int> ppg_channels = board_descr["ancillary"]["ppg_channels"];
     // format is: 2 bytes for package num, 6 int24 values for actual data
     for (int i = 0; i < 6; i++)
     {
         double ppg_val = (double)cast_24bit_to_int32 ((unsigned char *)&data[2 + i * 3]);
-        for (int j = 0; j < 2; j++)
+        current_anc_buf[i][ppg_channels[ppg_num]] = ppg_val;
+    }
+    int num_trues = 0;
+    for (size_t i = 0; i < new_ppg_data.size (); i++)
+    {
+        if (new_ppg_data[i])
         {
-            int pos = (current_ppg_pos[ppg_num] + i * 2 + j) % 12;
-            current_buf[pos][ppg_channels[ppg_num]] = ppg_val;
+            num_trues++;
         }
     }
-    current_ppg_pos[ppg_num] += 2;
+
+    if (num_trues == new_ppg_data.size () - 1) // actually it streams only 2 of 3 ppg data types and
+                                               // I am not sure that these 2 are freezed
+    {
+        for (size_t i = 0; i < current_anc_buf.size (); i++)
+        {
+            current_anc_buf[i][board_descr["ancillary"]["timestamp_channel"].get<int> ()] =
+                get_timestamp (); // keep timestamps as is and dont do any math with them
+            push_package (&current_anc_buf[i][0], (int)BrainFlowPresets::ANCILLARY_PRESET);
+        }
+        std::fill (new_ppg_data.begin (), new_ppg_data.end (), false);
+    }
 }
 
 void Muse::peripheral_on_status (
     simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data, size_t size)
 {
-    std::lock_guard<std::mutex> lock (callback_lock);
+    std::lock_guard<std::mutex> callback_guard (callback_lock);
     if (size != 20)
     {
         safe_logger (spdlog::level::warn, "unknown size for status callback: {}", size);
