@@ -377,8 +377,7 @@ int Muse::prepare_session ()
             std::fill (current_aux_buf[i].begin (), current_aux_buf[i].end (), 0.0);
         }
         // muse 2016 has no ppg
-        if ((board_id != (int)BoardIds::MUSE_2016_BOARD) &&
-            (board_id != (int)BoardIds::MUSE_2016_BLED_BOARD))
+        if (board_id != (int)BoardIds::MUSE_2016_BOARD)
         {
             int anc_buffer_size = board_descr["ancillary"]["num_rows"].get<int> ();
             current_anc_buf.resize (6); // 6 ppg packages in single transaction

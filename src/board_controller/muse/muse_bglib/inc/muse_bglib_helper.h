@@ -34,6 +34,7 @@ class MuseBGLibHelper
 {
 
 protected:
+    int board_id;
     volatile bool should_stop_stream;
     std::thread read_characteristic_thread;
 
@@ -47,14 +48,15 @@ protected:
     std::set<uint16> ccids;
     uint16 control_char_handle;
     std::map<uint16, std::string> characteristics;
-    DataBuffer *db;
-    std::vector<std::vector<double>> current_buf;
-    std::vector<bool> new_eeg_data;
-    double last_timestamp;
+    DataBuffer *db_default;
+    DataBuffer *db_aux;
+    DataBuffer *db_anc;
     json board_descr;
-    int current_accel_pos;
-    int current_gyro_pos;
-    int current_ppg_pos[3];
+    std::vector<std::vector<double>> current_default_buf;
+    std::vector<std::vector<double>> current_aux_buf;
+    std::vector<std::vector<double>> current_anc_buf;
+    std::vector<bool> new_eeg_data;
+    std::vector<bool> new_ppg_data;
 
     std::string preset;
 
@@ -63,8 +65,9 @@ protected:
 public:
     volatile int exit_code;
 
-    MuseBGLibHelper (json descr)
+    MuseBGLibHelper (int board_id, json descr)
     {
+        this->board_id = board_id;
         exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
         connection = -1;
         muse_handle_start = 0;
@@ -73,12 +76,10 @@ public:
         should_stop_stream = true;
         initialized = false;
         control_char_handle = 0;
-        db = NULL;
-        last_timestamp = -1.0;
+        db_default = NULL;
+        db_anc = NULL;
+        db_aux = NULL;
         board_descr = descr;
-        current_accel_pos = 0;
-        current_gyro_pos = 0;
-        memset (current_ppg_pos, 0, sizeof (current_ppg_pos));
     }
 
     virtual ~MuseBGLibHelper ()
@@ -95,7 +96,9 @@ public:
     virtual int stop_stream ();
     virtual int start_stream ();
     virtual int close_device ();
-    virtual int get_data (void *param);
+    virtual int get_data_default (void *param);
+    virtual int get_data_aux (void *param);
+    virtual int get_data_anc (void *param);
     virtual int release ();
     virtual int config_device (const char *config);
 

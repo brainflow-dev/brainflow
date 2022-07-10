@@ -33,7 +33,7 @@ int initialize (void *param)
     }
     std::tuple<int, struct BrainFlowInputParams, json> *info =
         (std::tuple<int, struct BrainFlowInputParams, json> *)param;
-    helper = new MuseBGLibHelper (std::get<2> (*info));
+    helper = new MuseBGLibHelper (std::get<0> (*info), std::get<2> (*info));
     int res = helper->initialize (std::get<1> (*info));
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
@@ -83,13 +83,31 @@ int close_device (void *param)
     return helper->close_device ();
 }
 
-int get_data (void *param)
+int get_data_default (void *param)
 {
     if (helper == NULL)
     {
         return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
     }
-    return helper->get_data (param);
+    return helper->get_data_default (param);
+}
+
+int get_data_aux (void *param)
+{
+    if (helper == NULL)
+    {
+        return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
+    }
+    return helper->get_data_aux (param);
+}
+
+int get_data_anc (void *param)
+{
+    if (helper == NULL)
+    {
+        return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
+    }
+    return helper->get_data_anc (param);
 }
 
 int release (void *param)
