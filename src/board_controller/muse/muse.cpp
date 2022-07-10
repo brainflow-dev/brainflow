@@ -66,12 +66,6 @@ void peripheral_on_ppg2 (simpleble_uuid_t service, simpleble_uuid_t characterist
     ((Muse *)(board))->peripheral_on_ppg (service, characteristic, data, size, 2);
 }
 
-void peripheral_on_status (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
-    size_t size, void *board)
-{
-    ((Muse *)(board))->peripheral_on_status (service, characteristic, data, size);
-}
-
 
 Muse::Muse (int board_id, struct BrainFlowInputParams params) : BLELibBoard (board_id, params)
 {
@@ -79,8 +73,6 @@ Muse::Muse (int board_id, struct BrainFlowInputParams params) : BLELibBoard (boa
     muse_adapter = NULL;
     muse_peripheral = NULL;
     is_streaming = false;
-    fw_version = "";
-    status_string = "";
 }
 
 Muse::~Muse ()
@@ -186,20 +178,6 @@ int Muse::prepare_session ()
                         service.uuid, service.characteristics[j]);
                     control_characteristics_found = true;
                     safe_logger (spdlog::level::info, "found control characteristic");
-                    if (simpleble_peripheral_notify (muse_peripheral, service.uuid,
-                            service.characteristics[j], ::peripheral_on_status,
-                            (void *)this) == SIMPLEBLE_SUCCESS)
-                    {
-                        notified_characteristics.push_back (
-                            std::pair<simpleble_uuid_t, simpleble_uuid_t> (
-                                service.uuid, service.characteristics[j]));
-                    }
-                    else
-                    {
-                        safe_logger (spdlog::level::err, "Failed to notify for {} {}",
-                            service.uuid.value, service.characteristics[j].value);
-                        res = (int)BrainFlowExitCodes::GENERAL_ERROR;
-                    }
                 }
                 if (strcmp (service.characteristics[j].value, MUSE_GATT_ATTR_TP9) == 0)
                 {
@@ -439,6 +417,13 @@ int Muse::stop_stream ()
     if (is_streaming)
     {
         res = config_board ("h");
+        // need to wait for notifications to stop triggered before unsubscribing, otherwise macos
+        // fails inside simpleble with timeout
+#ifdef _WIN32
+        Sleep (1000);
+#else
+        sleep (1);
+#endif
         for (auto notified : notified_characteristics)
         {
             if (simpleble_peripheral_unsubscribe (
@@ -726,35 +711,5 @@ void Muse::peripheral_on_ppg (simpleble_uuid_t service, simpleble_uuid_t charact
             push_package (&current_anc_buf[i][0], (int)BrainFlowPresets::ANCILLARY_PRESET);
         }
         std::fill (new_ppg_data.begin (), new_ppg_data.end (), false);
-    }
-}
-
-void Muse::peripheral_on_status (
-    simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data, size_t size)
-{
-    std::lock_guard<std::mutex> callback_guard (callback_lock);
-    if (size != 20)
-    {
-        safe_logger (spdlog::level::warn, "unknown size for status callback: {}", size);
-        return;
-    }
-
-    int len = (int)data[0]; // first byte is a len of non garbage data
-    std::string incom_string (((char *)data) + 1, len);
-    status_string += incom_string;
-    safe_logger (spdlog::level::trace, "status string is {}", status_string);
-    std::regex rgx ("fw\":\"([0-9]+\\.[0-9]+\\.[0-9]+)");
-    std::smatch matches;
-    if (std::regex_search (status_string, matches, rgx) == true)
-    {
-        if (matches.size () == 2)
-        {
-            fw_version = matches.str (1);
-            safe_logger (spdlog::level::trace, "Determined fw version: {}", fw_version.c_str ());
-        }
-        else
-        {
-            safe_logger (spdlog::level::warn, "invalid number of groups found");
-        }
     }
 }

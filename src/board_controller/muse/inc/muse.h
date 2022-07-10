@@ -25,8 +25,6 @@ protected:
     std::vector<std::vector<double>> current_anc_buf;
     std::vector<bool> new_eeg_data;
     std::vector<bool> new_ppg_data;
-    std::string fw_version;
-    std::string status_string;
 
 public:
     Muse (int board_id, struct BrainFlowInputParams params);
