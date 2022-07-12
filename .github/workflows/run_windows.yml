@@ -41,7 +41,7 @@ jobs:
       run: |
         mkdir %GITHUB_WORKSPACE%\build32
         cd %GITHUB_WORKSPACE%\build32
-        cmake -DBRAINFLOW_VERSION=%BRAINFLOW_VERSION% -DBUILD_OYMOTION_SDK=ON -DBUILD_BLUETOOTH=ON -DBUILD_TESTS=ON -DWARNINGS_AS_ERRORS=ON -G "Visual Studio 16 2019" -A Win32 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed32\ ..
+        cmake -DBRAINFLOW_VERSION=%BRAINFLOW_VERSION% -DBUILD_OYMOTION_SDK=ON -DBUILD_ONNX=ON -DBUILD_BLUETOOTH=ON -DBUILD_TESTS=ON -DWARNINGS_AS_ERRORS=ON -G "Visual Studio 16 2019" -A Win32 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed32\ ..
         cmake --build . --target install --config Release -j 2 --parallel 2
       env:
         BRAINFLOW_VERSION: ${{ steps.version.outputs.version }}
@@ -50,7 +50,7 @@ jobs:
       run: |
         mkdir %GITHUB_WORKSPACE%\build64
         cd %GITHUB_WORKSPACE%\build64
-        cmake -DBRAINFLOW_VERSION=%BRAINFLOW_VERSION% -DBUILD_OYMOTION_SDK=ON -DBUILD_BLUETOOTH=ON -DBUILD_TESTS=ON -DWARNINGS_AS_ERRORS=ON -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed64\ ..
+        cmake -DBRAINFLOW_VERSION=%BRAINFLOW_VERSION% -DBUILD_OYMOTION_SDK=ON -DBUILD_ONNX=ON -DBUILD_BLUETOOTH=ON -DBUILD_TESTS=ON -DWARNINGS_AS_ERRORS=ON -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed64\ ..
         cmake --build . --target install --config Release -j 2 --parallel 2
       env:
         BRAINFLOW_VERSION: ${{ steps.version.outputs.version }}
@@ -72,7 +72,7 @@ jobs:
       shell: cmd
     - name: C# build
       run: |
-        cd %GITHUB_WORKSPACE%\csharp-package\brainflow
+        cd %GITHUB_WORKSPACE%\csharp_package\brainflow
         msbuild brainflow.sln /p:Configuration=Release /p:Platform="Any CPU"
       shell: cmd
     - name: Install Emulator
@@ -84,45 +84,45 @@ jobs:
       shell: cmd
     - name: Install Python package
       run: |
-        pip install %GITHUB_WORKSPACE%\python-package\
-        pip install -r %GITHUB_WORKSPACE%\tests\python\requirements.txt
+        pip install %GITHUB_WORKSPACE%\python_package\
+        pip install -r %GITHUB_WORKSPACE%\python_package\examples\tests\requirements.txt
       shell: cmd
     - name: Install Rust package
       run: |
-        cd %GITHUB_WORKSPACE%\rust-package\brainflow
+        cd %GITHUB_WORKSPACE%\rust_package\brainflow
         cargo build
       shell: cmd
     - name: Build Cpp Get Data Test x64
       run: |
-        mkdir %GITHUB_WORKSPACE%\tests\cpp\demos\get_data_demo\build
-        cd %GITHUB_WORKSPACE%\tests\cpp\demos\get_data_demo\build
+        mkdir %GITHUB_WORKSPACE%\cpp_package\examples\get_data\build
+        cd %GITHUB_WORKSPACE%\cpp_package\examples\get_data\build
         cmake -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%GITHUB_WORKSPACE%\installed64\ ..
         cmake --build . --config Release -j 2 --parallel 2
       shell: cmd
     - name: Build Cpp Signal Processing Test x64
       run: |
-        mkdir %GITHUB_WORKSPACE%\tests\cpp\demos\signal_processing_demo\build
-        cd %GITHUB_WORKSPACE%\tests\cpp\demos\signal_processing_demo\build
+        mkdir %GITHUB_WORKSPACE%\cpp_package\examples\signal_processing\build
+        cd %GITHUB_WORKSPACE%\cpp_package\examples\signal_processing\build
         cmake -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%GITHUB_WORKSPACE%\installed64\ ..
         cmake --build . --config Release -j 2 --parallel 2
       shell: cmd
     - name: Build Cpp ML Test x64
       run: |
-        mkdir %GITHUB_WORKSPACE%\tests\cpp\demos\ml_demo\build
-        cd %GITHUB_WORKSPACE%\tests\cpp\demos\ml_demo\build
+        mkdir %GITHUB_WORKSPACE%\cpp_package\examples\ml\build
+        cd %GITHUB_WORKSPACE%\cpp_package\examples\ml\build
         cmake -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%GITHUB_WORKSPACE%\installed64\ ..
         cmake --build . --config Release -j 2 --parallel 2
       shell: cmd
     - name: Build Cpp ML Test x32
       run: |
-        mkdir %GITHUB_WORKSPACE%\tests\cpp\demos\ml_demo\build32
-        cd %GITHUB_WORKSPACE%\tests\cpp\demos\ml_demo\build32
+        mkdir %GITHUB_WORKSPACE%\cpp_package\examples\ml\build32
+        cd %GITHUB_WORKSPACE%\cpp_package\examples\ml\build32
         cmake -G "Visual Studio 16 2019" -A Win32 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%GITHUB_WORKSPACE%\installed32\ ..
         cmake --build . --config Release -j 2 --parallel 2
       shell: cmd
     - name: Build Java Package
       run: |
-        cd %GITHUB_WORKSPACE%\java-package\brainflow
+        cd %GITHUB_WORKSPACE%\java_package\brainflow
         mvn package
       shell: cmd
     - name: Install Julia
@@ -136,165 +136,168 @@ jobs:
     # BoardController testing
     - name: Run Julia Tests
       run: |
-        cd %GITHUB_WORKSPACE%\julia-package\brainflow
+        cd %GITHUB_WORKSPACE%\julia_package\brainflow
         julia --project=. -e "import Pkg; Pkg.test()"
       shell: cmd
     - name: Cyton Windows Python Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id 0 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\python_package\examples\tests\brainflow_get_data.py --board-id 0 --serial-port
       shell: cmd
     - name: Cyton Windows Python Test Commands
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\tests\python\cyton_commands.py --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\python_package\examples\tests\cyton_commands.py --serial-port
       shell: cmd
     - name: Cyton Windows Python Test with Streamer
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id 0 --streamer-params file://file_streamer.csv:w --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\python_package\examples\tests\brainflow_get_data.py --board-id 0 --streamer-params file://file_streamer.csv:w --serial-port
       shell: cmd
     - name: Cyton Multiboard Windows Python Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_multiboard_get_data.py --board-id 0 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\python_package\examples\tests\brainflow_multiboard_get_data.py --board-id 0 --serial-port
       shell: cmd
     - name: Cyton Windows Cpp Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\tests\cpp\demos\get_data_demo\build\Release\brainflow_get_data.exe --board-id 0 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\cpp_package\examples\get_data\build\Release\brainflow_get_data.exe --board-id 0 --serial-port
       shell: cmd
     - name: Cyton Windows C# Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\csharp-package\brainflow\tests\brainflow_get_data\bin\Release\test.exe --board-id 0 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\csharp_package\brainflow\examples\brainflow_get_data\bin\Release\brainflow_get_data.exe --board-id 0 --serial-port
       shell: cmd
     - name: Synthetic Windows Python Test
-      run: python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id -1
+      run: python %GITHUB_WORKSPACE%\python_package\examples\tests\brainflow_get_data.py --board-id -1
       shell: cmd
     - name: Synthetic Windows Rust Test
       run: |
-        cd %GITHUB_WORKSPACE%\rust-package\brainflow
+        cd %GITHUB_WORKSPACE%\rust_package\brainflow
         cargo run --example=get_data
       shell: cmd
     - name: Synthetic Windows Rust Test Markers
       run: |
-        cd %GITHUB_WORKSPACE%\rust-package\brainflow
+        cd %GITHUB_WORKSPACE%\rust_package\brainflow
         cargo run --example=markers
       shell: cmd
     - name: Synthetic Windows Python Test with Streamer
-      run: python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id -1 --streamer-params file://file_streamer.csv:w
+      run: python %GITHUB_WORKSPACE%\python_package\examples\tests\brainflow_get_data.py --board-id -1 --streamer-params file://file_streamer.csv:w
       shell: cmd
     - name: Synthetic Windows Cpp Test
-      run: .\tests\cpp\demos\get_data_demo\build\Release\brainflow_get_data.exe --board-id -1
+      run: .\cpp_package\examples\get_data\build\Release\brainflow_get_data.exe --board-id -1
       shell: cmd
     - name: Synthetic Windows C# Test
       run: |
-        cd %GITHUB_WORKSPACE%\csharp-package\brainflow\tests\brainflow_get_data\bin\Release
-        test.exe --board-id -1
+        cd %GITHUB_WORKSPACE%\csharp_package\brainflow\examples\brainflow_get_data\bin\Release
+        brainflow_get_data.exe --board-id -1
       shell: cmd
     - name: Cyton Daisy Windows Python Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id 2 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\python_package\examples\tests\brainflow_get_data.py --board-id 2 --serial-port
       shell: cmd
     - name: Cyton Daisy Windows Python Test with Streamer
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id 2 --streamer-params file://file_streamer.csv:w --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\python_package\examples\tests\brainflow_get_data.py --board-id 2 --streamer-params file://file_streamer.csv:w --serial-port
       shell: cmd
     - name: Cyton Daisy Multiboard Windows Python Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_multiboard_get_data.py --board-id 2 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\python_package\examples\tests\brainflow_multiboard_get_data.py --board-id 2 --serial-port
       shell: cmd
     - name: Cyton Daisy Windows Cpp Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\tests\cpp\demos\get_data_demo\build\Release\brainflow_get_data.exe --board-id 2 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\cpp_package\examples\get_data\build\Release\brainflow_get_data.exe --board-id 2 --serial-port
       shell: cmd
     - name: Cyton Daisy Windows C# Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\csharp-package\brainflow\tests\brainflow_get_data\bin\Release\test.exe --board-id 2 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\csharp_package\brainflow\examples\brainflow_get_data\bin\Release\brainflow_get_data.exe --board-id 2 --serial-port
       shell: cmd
     - name: Galea Windows Cpp Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\galea_udp.py %GITHUB_WORKSPACE%\tests\cpp\demos\get_data_demo\build\Release\brainflow_get_data.exe --board-id 3 --ip-address 127.0.0.1
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\galea_udp.py %GITHUB_WORKSPACE%\cpp_package\examples\get_data\build\Release\brainflow_get_data.exe --board-id 3 --ip-address 127.0.0.1
       shell: cmd
     - name: Galea Windows C# Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\galea_udp.py %GITHUB_WORKSPACE%\csharp-package\brainflow\tests\brainflow_get_data\bin\Release\test.exe --board-id 3 --ip-address 127.0.0.1
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\galea_udp.py %GITHUB_WORKSPACE%\csharp_package\brainflow\examples\brainflow_get_data\bin\Release\brainflow_get_data.exe --board-id 3 --ip-address 127.0.0.1
       shell: cmd
     - name: FreeEEG32 Python Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\freeeeg32_windows.py python %GITHUB_WORKSPACE%\tests\python\brainflow_get_data.py --board-id 17 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\freeeeg32_windows.py python %GITHUB_WORKSPACE%\python_package\examples\tests\brainflow_get_data.py --board-id 17 --serial-port
       shell: cmd
     # Signal Processing Testing
     - name: Serialization Rust Test
       run: |
-        cd %GITHUB_WORKSPACE%\rust-package\brainflow
+        cd %GITHUB_WORKSPACE%\rust_package\brainflow
         cargo run --example=read_write_file
       shell: cmd
     - name: Denoising Rust Test
       run: |
-        cd %GITHUB_WORKSPACE%\rust-package\brainflow
+        cd %GITHUB_WORKSPACE%\rust_package\brainflow
         cargo run --example=denoising
       shell: cmd
     - name: Downsampling Rust Test
       run: |
-        cd %GITHUB_WORKSPACE%\rust-package\brainflow
+        cd %GITHUB_WORKSPACE%\rust_package\brainflow
         cargo run --example=downsampling
       shell: cmd
     - name: Filtering Rust Test
       run: |
-        cd %GITHUB_WORKSPACE%\rust-package\brainflow
+        cd %GITHUB_WORKSPACE%\rust_package\brainflow
         cargo run --example=signal_filtering
       shell: cmd
     - name: Transforms Rust Test
       run: |
-        cd %GITHUB_WORKSPACE%\rust-package\brainflow
+        cd %GITHUB_WORKSPACE%\rust_package\brainflow
         cargo run --example=transforms
       shell: cmd
     - name: Denoising Python Test
-      run: python %GITHUB_WORKSPACE%\tests\python\denoising.py
+      run: python %GITHUB_WORKSPACE%\python_package\examples\tests\denoising.py
       shell: cmd
     - name: Serialization Python Test
-      run: python %GITHUB_WORKSPACE%\tests\python\serialization.py
+      run: python %GITHUB_WORKSPACE%\python_package\examples\tests\serialization.py
       shell: cmd
     - name: Filtering Python Test
-      run: python %GITHUB_WORKSPACE%\tests\python\signal_filtering.py
+      run: python %GITHUB_WORKSPACE%\python_package\examples\tests\signal_filtering.py
       shell: cmd
     - name: Transforms Python Test
-      run: python %GITHUB_WORKSPACE%\tests\python\transforms.py
+      run: python %GITHUB_WORKSPACE%\python_package\examples\tests\transforms.py
       shell: cmd
     - name: Downsampling Python Test
-      run: python %GITHUB_WORKSPACE%\tests\python\downsampling.py
+      run: python %GITHUB_WORKSPACE%\python_package\examples\tests\downsampling.py
       shell: cmd
     - name: CSP Python Test
-      run: python %GITHUB_WORKSPACE%\tests\python\csp.py
+      run: python %GITHUB_WORKSPACE%\python_package\examples\tests\csp.py
       shell: cmd
     - name: Windowing Python Test
-      run: python %GITHUB_WORKSPACE%\tests\python\windowing.py
+      run: python %GITHUB_WORKSPACE%\python_package\examples\tests\windowing.py
       shell: cmd
     - name: BrainFlow to MNE Python Test
-      run: python %GITHUB_WORKSPACE%\tests\python\brainflow_to_mne.py
+      run: python %GITHUB_WORKSPACE%\python_package\examples\tests\brainflow_to_mne.py
       shell: cmd
     - name: Denoising Cpp Test
-      run: .\tests\cpp\demos\signal_processing_demo\build\Release\denoising.exe
+      run: .\cpp_package\examples\signal_processing\build\Release\denoising.exe
       shell: cmd
     - name: Downsampling Cpp Test
-      run: .\tests\cpp\demos\signal_processing_demo\build\Release\downsampling.exe
+      run: .\cpp_package\examples\signal_processing\build\Release\downsampling.exe
       shell: cmd
     - name: CSP Cpp Test
-      run: .\tests\cpp\demos\signal_processing_demo\build\Release\csp.exe
+      run: .\cpp_package\examples\signal_processing\build\Release\csp.exe
       shell: cmd
     - name: Windowing Cpp Test
-      run: .\tests\cpp\demos\signal_processing_demo\build\Release\windowing.exe
+      run: .\cpp_package\examples\signal_processing\build\Release\windowing.exe
       shell: cmd
     - name: Transforms Cpp Test
-      run: .\tests\cpp\demos\signal_processing_demo\build\Release\transforms.exe
+      run: .\cpp_package\examples\signal_processing\build\Release\transforms.exe
       shell: cmd
     - name: Filtering Cpp Test
-      run: .\tests\cpp\demos\signal_processing_demo\build\Release\signal_filtering.exe
+      run: .\cpp_package\examples\signal_processing\build\Release\signal_filtering.exe
       shell: cmd
     - name: Serialization Cpp Test
-      run: .\tests\cpp\demos\signal_processing_demo\build\Release\serialization.exe
+      run: .\cpp_package\examples\signal_processing\build\Release\serialization.exe
       shell: cmd
     # Tests for MLModule
     - name: EEG Metrics Python Test
-      run: python %GITHUB_WORKSPACE%\tests\python\eeg_metrics.py --board-id -1
+      run: python %GITHUB_WORKSPACE%\python_package\examples\tests\eeg_metrics.py --board-id -1
       shell: cmd
     - name: EEG Metrics CI Python Test
-      run: python %GITHUB_WORKSPACE%\tests\python\eeg_metrics_ci.py --board-id -1 --metric 0 --classifier 2
+      run: python %GITHUB_WORKSPACE%\python_package\examples\tests\eeg_metrics_ci.py --board-id -1 --metric 2 --classifier 2 --model-file %GITHUB_WORKSPACE%\src\ml\train\logreg_mindfulness.onnx
       shell: cmd
     - name: EEG Metrics CI Cpp Test
-      run: .\tests\cpp\demos\ml_demo\build\Release\eeg_metrics_ci.exe --board-id -1 --metric 1 --classifier 2
+      run: .\cpp_package\examples\ml\build\Release\eeg_metrics_ci.exe --board-id -1 --metric 2 --classifier 2 --model-file %GITHUB_WORKSPACE%\src\ml\train\logreg_mindfulness.onnx
       shell: cmd
     - name: EEG Metrics CI Cpp x32 Test
-      run: .\tests\cpp\demos\ml_demo\build32\Release\eeg_metrics_ci.exe --board-id -1 --metric 1 --classifier 2
+      run: .\cpp_package\examples\ml\build32\Release\eeg_metrics_ci.exe --board-id -1 --metric 2 --classifier 2 --model-file %GITHUB_WORKSPACE%\src\ml\train\logreg_mindfulness.onnx
+      shell: cmd
+    - name: EEG Metrics C# Test
+      run: .\csharp_package\brainflow\examples\eeg_metrics\bin\Release\eeg_metrics.exe
       shell: cmd
     - name: EEG Metrics CI C# Test
-      run: .\csharp-package\brainflow\tests\eeg_metrics\bin\Release\test.exe
+      run: .\csharp_package\brainflow\examples\eeg_metrics_ci\bin\Release\eeg_metrics_ci.exe --board-id -1 --metric 2 --classifier 2 --model-file %GITHUB_WORKSPACE%\src\ml\train\logreg_mindfulness.onnx
       shell: cmd
     - name: EEG Metrics CI Rust Test
       run: |
-        cd %GITHUB_WORKSPACE%\rust-package\brainflow
+        cd %GITHUB_WORKSPACE%\rust_package\brainflow
         cargo run --example=eeg_metrics
       shell: cmd
     # Start Deploy Stage

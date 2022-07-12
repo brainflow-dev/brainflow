@@ -5,11 +5,10 @@
 
 class BaseClassifier
 {
-protected:
+public:
     struct BrainFlowModelParams params;
     bool skip_logs;
 
-public:
     static std::shared_ptr<spdlog::logger> ml_logger;
     static int set_log_level (int log_level);
     static int set_log_file (const char *log_file);
@@ -47,6 +46,6 @@ public:
     }
 
     virtual int prepare () = 0;
-    virtual int predict (double *data, int data_len, double *output) = 0;
+    virtual int predict (double *data, int data_len, double *output, int *output_len) = 0;
     virtual int release () = 0;
 };

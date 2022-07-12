@@ -1,12 +1,12 @@
-import os
 import logging
-import subprocess
-import pkg_resources
-import time
-import threading
+import os
 import random
 import struct
+import subprocess
+import threading
+import time
 
+import pkg_resources
 from serial import Serial
 
 

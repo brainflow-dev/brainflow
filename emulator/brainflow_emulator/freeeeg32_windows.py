@@ -1,14 +1,13 @@
-import os
-import sys
-import subprocess
 import logging
-import pkg_resources
+import os
+import subprocess
+import sys
 import time
 
-from serial import Serial
-
-from brainflow_emulator.freeeeg32_emulator import Listener
+import pkg_resources
 from brainflow_emulator.emulate_common import TestFailureError, log_multilines
+from brainflow_emulator.freeeeg32_emulator import Listener
+from serial import Serial
 
 
 def write(port, data):

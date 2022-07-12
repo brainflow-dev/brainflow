@@ -140,7 +140,7 @@ void SyntheticBoard::read_thread ()
                 {
                     sin_phase_rad[i] -= 2.0f * M_PI;
                 }
-                package[exg_channels[i]] =
+                package[exg_channels[i]] = amplitude +
                     (amplitude + dist (mt)) * sqrt (2.0) * sin (sin_phase_rad[i] + shift);
             }
             for (int channel : board_descr["accel_channels"])

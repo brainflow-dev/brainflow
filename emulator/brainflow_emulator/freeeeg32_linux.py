@@ -1,11 +1,11 @@
-import os
-import sys
-import pty
 import logging
+import os
+import pty
 import subprocess
+import sys
 
-from brainflow_emulator.freeeeg32_emulator import Listener
 from brainflow_emulator.emulate_common import TestFailureError, log_multilines
+from brainflow_emulator.freeeeg32_emulator import Listener
 
 
 def write(port, data):

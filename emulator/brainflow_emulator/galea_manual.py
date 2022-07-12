@@ -1,9 +1,9 @@
-import socket
 import enum
 import logging
 import random
-import time
+import socket
 import struct
+import time
 
 
 class State(enum.Enum):
@@ -34,8 +34,8 @@ class GaleaEmulator(object):
         self.transaction_size = 19
         self.package_size = 72
 
-    def run (self):
-        start_time = time.time ()
+    def run(self):
+        start_time = time.time()
         while True:
             try:
                 msg, self.addr = self.server_socket.recvfrom(128)
@@ -46,9 +46,9 @@ class GaleaEmulator(object):
                 elif msg in Message.ack_values.value or msg.decode('utf-8').startswith('x'):
                     self.server_socket.sendto(Message.ack_from_device.value, self.addr)
                 elif msg == Message.time_calc_command.value:
-                    cur_time = time.time ()
-                    resp = bytearray (struct.pack ('d', (cur_time - start_time) * 1000))
-                    self.server_socket.sendto (resp, self.addr)
+                    cur_time = time.time()
+                    resp = bytearray(struct.pack('d', (cur_time - start_time) * 1000))
+                    self.server_socket.sendto(resp, self.addr)
                 else:
                     if msg:
                         # we dont handle board config characters because they dont change package format
@@ -57,20 +57,20 @@ class GaleaEmulator(object):
                 logging.debug('timeout for recv')
 
             if self.state == State.stream.value:
-                transaction = list ()
-                for _ in range (self.transaction_size):
-                    single_package = list ()
-                    for i in range (self.package_size):
-                        single_package.append (random.randint (0, 255))
+                transaction = list()
+                for _ in range(self.transaction_size):
+                    single_package = list()
+                    for i in range(self.package_size):
+                        single_package.append(random.randint(0, 255))
                     single_package[0] = self.package_num
 
-                    cur_time = time.time ()
-                    timestamp = bytearray (struct.pack ('d', (cur_time - start_time) * 1000))
-                    eda = bytearray (struct.pack ('f', random.random ()))
-                    ppg_red = bytearray (struct.pack ('i', int (random.random () * 5000)))
-                    ppg_ir = bytearray (struct.pack ('i', int (random.random () * 5000)))
+                    cur_time = time.time()
+                    timestamp = bytearray(struct.pack('d', (cur_time - start_time) * 1000))
+                    eda = bytearray(struct.pack('f', random.random()))
+                    ppg_red = bytearray(struct.pack('i', int(random.random() * 5000)))
+                    ppg_ir = bytearray(struct.pack('i', int(random.random() * 5000)))
 
-                    for i in range (64, 72):
+                    for i in range(64, 72):
                         single_package[i] = timestamp[i - 64]
                     for i in range(1, 5):
                         single_package[i] = eda[i - 1]
@@ -90,7 +90,7 @@ class GaleaEmulator(object):
                         package.extend(bytes(transaction[i]))
                     self.server_socket.sendto(bytes(package), self.addr)
                 except socket.timeout:
-                    logging.info ('timeout for send')
+                    logging.info('timeout for send')
 
 
 def main():

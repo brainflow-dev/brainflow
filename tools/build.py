@@ -194,6 +194,7 @@ def prepare_args():
     parser.add_argument('--cmake-install-prefix', type=str, help='installation folder, full path',
                         required=False, default=os.path.join(cur_folder, '..', 'installed'))
     parser.add_argument('--use-openmp', action='store_true')
+    parser.add_argument('--onnx', action='store_true')
     parser.add_argument('--warnings-as-errors', action='store_true')
     parser.add_argument('--debug', action='store_true')
     parser.add_argument('--clear-build-dir', action='store_true')
@@ -263,6 +264,8 @@ def config(args):
         cmd_config.append('-DBUILD_BLUETOOTH=ON')
     if hasattr(args, 'ble') and args.ble:
         cmd_config.append('-DBUILD_BLE=ON')
+    if hasattr(args, 'onnx') and args.onnx:
+        cmd_config.append('-DBUILD_ONNX=ON')
     if hasattr(args, 'tests') and args.tests:
         cmd_config.append('-DBUILD_TESTS=ON')
     cmd_config.append(brainflow_root_folder)

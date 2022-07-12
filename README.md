@@ -59,13 +59,13 @@ The BrainFlow project strives to abide by generally accepted best practices in o
 ## Brainflow Bindings
 
 We support bindings for:
-* [Python](./python-package)
-* [Java](./java-package/brainflow/)
-* [R](./r-package/)
-* [C++](./cpp-package/)
-* [C#](./csharp-package/brainflow/)
-* [Matlab](./matlab-package/brainflow)
-* [Julia](./julia-package/brainflow)
+* [Python](./python_package)
+* [Java](./java_package/brainflow/)
+* [R](./r_package/)
+* [C++](./cpp_package/)
+* [C#](./csharp_package/brainflow/)
+* [Matlab](./matlab_package/brainflow)
+* [Julia](./julia_package/brainflow)
 
 ## Partners and Sponsors
 

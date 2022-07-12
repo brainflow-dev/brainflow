@@ -1,0 +1,170 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.brainflow</groupId>
+  <artifactId>brainflow</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>brainflow</name>
+  <description>java binding for brainflow library</description>
+  <url>https://brainflow.org/</url>
+
+  <licenses>
+    <license>
+      <name>MIT</name>
+      <url>https://github.com/brainflow-dev/brainflow/blob/master/LICENSE</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <scm>
+    <connection>scm:git:git@github.com:brainflow-dev/brainflow.git</connection>
+    <url>scm:git:git@github.com:brainflow-dev/brainflow.git</url>
+    <developerConnection>scm:git:git@github.com:brainflow-dev/brainflow.git</developerConnection>
+  </scm>
+
+  <developers>
+    <developer>
+      <name>Andrey Parfenov</name>
+      <email>a1994ndrey@gmail.com</email>
+       <organization>brainflow-dev</organization>
+       <organizationUrl>https://github.com/brainflow-dev</organizationUrl>
+    </developer>
+  </developers>
+
+  <distributionManagement>
+    <repository>
+      <id>github</id>
+      <name>GitHub brainflow-dev Apache Maven Packages</name>
+      <url>https://maven.pkg.github.com/brainflow-dev/brainflow</url>
+    </repository>
+  </distributionManagement>
+
+  <build>
+    <finalName>brainflow</finalName>
+
+    <resources>
+      <resource>
+        <targetPath>${project.build.outputDirectory}/${project.build.finalName}</targetPath>
+        <filtering>false</filtering>
+        <directory>${basedir}/src/main/resources</directory>
+        <includes>
+          <include>BoardController.dll</include>
+          <include>libBoardController.so</include>
+          <include>libBoardController.dylib</include>
+          <include>DataHandler.dll</include>
+          <include>libDataHandler.so</include>
+          <include>libDataHandler.dylib</include>
+          <include>neurosdk-x64.dll</include>
+          <include>libneurosdk-shared.dylib</include>
+          <include>libunicorn.so</include>
+          <include>libunicorn_raspberry.so</include>
+          <include>Unicorn.dll</include>
+          <include>GanglionLib.dll</include>
+          <include>libGanglionLib.so</include>
+          <include>libGanglionLib.dylib</include>
+          <include>MLModule.dll</include>
+          <include>libMLModule.so</include>
+          <include>libMLModule.dylib</include>
+          <include>gForceSDKWrapper.dll</include>
+          <include>gforce64.dll</include>
+          <include>BrainBitLib.dll</include>
+          <include>libBrainBitLib.so</include>
+          <include>libBrainBitLib.dylib</include>
+          <include>MuseLib.dll</include>
+          <include>libMuseLib.so</include>
+          <include>libMuseLib.dylib</include>
+          <include>eego-SDK32.dll</include>
+          <include>eego-SDK.dll</include>
+          <include>libeego-SDK.so</include>
+          <include>libeego-SDK32.so</include>
+          <include>BrainFlowBluetooth.dll</include>
+          <include>libBrainFlowBluetooth.so</include>
+          <include>libBrainFlowBluetooth.dylib</include>
+          <include>simpleble-c.dll</include>
+          <include>libsimpleble-c.so</include>
+          <include>libsimpleble-c.dylib</include>
+          <include>libonnxruntime_arm64.dylib</include>
+          <include>libonnxruntime_arm64.so</include>
+          <include>libonnxruntime_x64.dylib</include>
+          <include>libonnxruntime_x64.so</include>
+          <include>onnxruntime_arm.dll</include>
+          <include>onnxruntime_arm64.dll</include>
+          <include>onnxruntime_x64.dll</include>
+          <include>onnxruntime_x86.dll</include>
+        </includes>
+      </resource>
+    </resources>
+
+    <plugins>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.0</version>
+        <configuration>
+          <source>11</source>
+          <target>11</target>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+            <execution>
+                <id>copy-dependencies</id>
+                <phase>prepare-package</phase>
+                <goals>
+                  <goal>copy-dependencies</goal>
+                </goals>
+                <configuration>
+                    <outputDirectory>
+                      ${project.build.directory}/libs
+                    </outputDirectory>
+                </configuration>
+            </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+            <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>single</goal>
+                </goals>
+                <configuration>
+                  <descriptorRefs>
+                    <descriptorRef>jar-with-dependencies</descriptorRef>
+                  </descriptorRefs>
+                </configuration>
+            </execution>
+        </executions>
+      </plugin>  
+  </plugins>
+
+  </build>
+  <dependencies>
+    <dependency>
+      <groupId>net.java.dev.jna</groupId>
+      <artifactId>jna-platform</artifactId>
+      <version>5.10.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.1</version>
+    </dependency>
+     <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-math3</artifactId>
+        <version>3.1</version>
+    </dependency>
+    <dependency>
+        <groupId>com.google.code.gson</groupId>
+        <artifactId>gson</artifactId>
+        <version>2.3.1</version>
+    </dependency>
+  </dependencies>
+</project>
