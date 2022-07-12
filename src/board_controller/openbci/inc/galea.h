@@ -53,7 +53,7 @@ public:
     int config_board (std::string config, std::string &response);
 
     static constexpr int max_bytes_in_transaction = 8192;
-    static constexpr int exg_package_size = 58;
+    static constexpr int exg_package_size = 59;
     static constexpr int num_exg_packages = 20;
     static constexpr int exg_transaction_size = exg_package_size * num_exg_packages;
     static constexpr int aux_package_size = 26;

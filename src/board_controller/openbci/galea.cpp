@@ -402,12 +402,12 @@ void Galea::add_exg_package (
     // 20 times:
     // b[0] start byte
     // b[1] package num
-    // b[2-48] exg
-    // b[49-56] timestamp
-    // b[57] end byte
+    // b[2-49] exg
+    // b[50-57] timestamp
+    // b[58] end byte
     constexpr int offset_last_package = Galea::exg_package_size * (Galea::num_exg_packages - 1);
     double timestamp_last_package = 0.0;
-    memcpy (&timestamp_last_package, b + 49 + offset_last_package, 8);
+    memcpy (&timestamp_last_package, b + 50 + offset_last_package, 8);
     timestamp_last_package /= 1000; // from ms to seconds
     double time_delta = pc_timestamp - timestamp_last_package;
     time_buffer->add_data (&time_delta);
@@ -439,7 +439,7 @@ void Galea::add_exg_package (
         }
 
         double timestamp_device = 0.0;
-        memcpy (&timestamp_device, b + 49 + offset, 8);
+        memcpy (&timestamp_device, b + 50 + offset, 8);
         timestamp_device /= 1000; // from ms to seconds
         package[board_descr["default"]["timestamp_channel"].get<int> ()] =
             timestamp_device + time_delta - half_rtt;
@@ -456,8 +456,8 @@ void Galea::add_aux_package (
     // 4 times:
     // b[0] start byte
     // b[1] package num
-    // b[2-3] temperature
-    // b[4-7] eda
+    // b[2-5] eda
+    // b[6-7] temperature
     // b[8-15] ppg
     // b[16] battery
     // b[17-24] timestamp
@@ -487,8 +487,8 @@ void Galea::add_aux_package (
         int32_t ppg_ir = 0;
         int32_t ppg_red = 0;
         float eda = 0;
-        memcpy (&temperature, b + 2 + offset, 2);
-        memcpy (&eda, b + 4 + offset, 4);
+        memcpy (&temperature, b + 6 + offset, 2);
+        memcpy (&eda, b + 2 + offset, 4);
         memcpy (&ppg_red, b + 8 + offset, 4);
         memcpy (&ppg_ir, b + 12 + offset, 4);
         package[board_descr["auxiliary"]["ppg_channels"][0].get<int> ()] = (double)ppg_red;

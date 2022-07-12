@@ -15,7 +15,7 @@ using json = nlohmann::json;
 #endif
 
 #define START_BYTE_EXG 0xA0
-#define EXG_PACKAGE_SIZE 58
+#define EXG_PACKAGE_SIZE 59
 #define AUX_PACKAGE_SIZE 26
 #define START_BYTE_AUX 0XA1
 #define END_BYTE 0xC0
@@ -348,9 +348,9 @@ void GaleaSerial::add_exg_package (double *package, unsigned char *b, double pc_
 {
     // b[0] start byte
     // b[1] package num
-    // b[2-48] exg
-    // b[49-56] timestamp
-    // b[57] end byte
+    // b[2-49] exg
+    // b[50-57] timestamp
+    // b[58] end byte
     package[board_descr["default"]["package_num_channel"].get<int> ()] = (double)b[1];
     for (int i = 0; i < 16; i++)
     {
@@ -363,7 +363,7 @@ void GaleaSerial::add_exg_package (double *package, unsigned char *b, double pc_
     }
 
     double timestamp_device = 0.0;
-    memcpy (&timestamp_device, b + 49, 8);
+    memcpy (&timestamp_device, b + 50, 8);
     timestamp_device /= 1000; // from ms to seconds
     package[board_descr["default"]["timestamp_channel"].get<int> ()] = pc_timestamp;
     package[board_descr["default"]["other_channels"][0].get<int> ()] = pc_timestamp;
@@ -376,8 +376,8 @@ void GaleaSerial::add_aux_package (double *package, unsigned char *b, double pc_
 {
     // b[0] start byte
     // b[1] package num
-    // b[2-3] temperature
-    // b[4-7] eda
+    // b[2-5] eda
+    // b[6-7] temperature
     // b[8-15] ppg
     // b[16] battery
     // b[17-24] timestamp
@@ -387,8 +387,8 @@ void GaleaSerial::add_aux_package (double *package, unsigned char *b, double pc_
     int32_t ppg_ir = 0;
     int32_t ppg_red = 0;
     float eda = 0;
-    memcpy (&temperature, b + 2, 2);
-    memcpy (&eda, b + 4, 4);
+    memcpy (&temperature, b + 6, 2);
+    memcpy (&eda, b + 2, 4);
     memcpy (&ppg_red, b + 8, 4);
     memcpy (&ppg_ir, b + 12, 4);
     package[board_descr["auxiliary"]["ppg_channels"][0].get<int> ()] = (double)ppg_red;

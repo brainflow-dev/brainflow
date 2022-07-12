@@ -32,7 +32,7 @@ class GaleaEmulator(object):
         self.addr = None
         self.exg_package_num = 0
         self.aux_package_num = 0
-        self.exg_package_size = 58
+        self.exg_package_size = 59
         self.aux_package_size = 26
         self.num_exg_packages_in_transaction = 20
         self.num_aux_packages_in_transaction = 4

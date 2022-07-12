@@ -20,7 +20,7 @@ def main():
     board.start_stream()
     board.add_streamer('file://streamer_aux.csv:w', BrainFlowPresets.AUXILIARY_PRESET)
     time.sleep(10)
-   
+
     data_default = board.get_board_data(preset=BrainFlowPresets.DEFAULT_PRESET)
     data_aux = board.get_board_data(preset=BrainFlowPresets.AUXILIARY_PRESET)
     board.stop_stream()
