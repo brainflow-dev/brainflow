@@ -522,7 +522,7 @@ json brainflow_boards_json = {
         }},
         {"40",
             {{"name", "BrainAlive"},
-            {"sampling_rate", 500},
+            {"sampling_rate", 250},
             {"timestamp_channel", 17},
             {"marker_channel", 18},
             {"package_num_channel", 19},
