@@ -8,9 +8,8 @@ DataBuffer::DataBuffer (int num_samples, size_t buffer_size)
     this->num_samples = num_samples;
     first_free = first_used = count = 0;
 
-    if (buffer_size < 2)
+    if (buffer_size == 0)
     {
-        // Buffer too small to be used
         data = NULL;
     }
     else
@@ -42,14 +41,21 @@ void DataBuffer::add_data (double *value)
         return;
 
     lock.lock ();
-    memcpy (this->data + first_free * num_samples, value, sizeof (double) * num_samples);
-    first_free = next (first_free);
-    count++;
-    if (first_free == first_used)
+
+    if (count == 0)
+    {
+        first_used = first_free = 0;
+    }
+    else if (first_free == first_used)
     {
         first_used = next (first_used);
         count--;
     }
+
+    memcpy (this->data + first_free * num_samples, value, sizeof (double) * num_samples);
+    first_free = next (first_free);
+    count++;
+
     lock.unlock ();
 }
 

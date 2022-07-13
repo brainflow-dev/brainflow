@@ -10,7 +10,7 @@
 using namespace testing;
 
 
-TEST (DataBufferTest, AddData_AddLessDataThanBufferCapacity_StoreData)
+TEST (DataBufferTest, AddData_AddLessDataThanBufferCapacity_StoreAllData)
 {
     DataBuffer buffer (4, 2);
     double values[4] = {1.0, 2.0, 3.0, 4.0};
@@ -26,22 +26,23 @@ TEST (DataBufferTest, AddData_AddLessDataThanBufferCapacity_StoreData)
     }
 }
 
-TEST (DataBufferTest, AddData_AddEqualDataToBufferCapacity_OverwriteOldestData)
+TEST (DataBufferTest, AddData_AddEqualDataToBufferCapacity_StoreAllData)
 {
     DataBuffer buffer (4, 2);
     double first_values[4] = {1.0, 2.0, 3.0, 4.0};
     double second_values[4] = {5.0, 6.0, 7.0, 8.0};
-    double retrieved[4];
+    double retrieved[8];
 
     buffer.add_data (first_values);
     buffer.add_data (second_values);
 
-    buffer.get_current_data (1, retrieved);
+    EXPECT_EQ (buffer.get_data_count (), 2);
 
-    EXPECT_EQ (buffer.get_data_count (), 1);
+    buffer.get_current_data (2, retrieved);
     for (int i = 0; i < 4; i++)
     {
-        EXPECT_EQ (retrieved[i], second_values[i]);
+        EXPECT_EQ (retrieved[i], first_values[i]);
+        EXPECT_EQ (retrieved[i + 4], second_values[i]);
     }
 }
 
@@ -59,7 +60,7 @@ TEST (DataBufferTest, AddData_AddMoreDataThanBufferCapacity_OverwriteOldestData)
 
     buffer.get_current_data (1, retrieved);
 
-    EXPECT_EQ (buffer.get_data_count (), 1);
+    EXPECT_EQ (buffer.get_data_count (), 2);
     for (int i = 0; i < 4; i++)
     {
         EXPECT_EQ (retrieved[i], third_values[i]);
@@ -87,22 +88,22 @@ TEST (DataBufferTest, AddData_InvokeSimultaneouslyOnMultipleThreads_AddDataWitho
 {
     DataBuffer buffer (4, 1024);
     double values[4] = {1.0, 2.0, 3.0, 4.0};
-    std::thread threads[1023];
+    std::thread threads[1024];
 
-    for (int i = 0; i < 1023; i++)
+    for (int i = 0; i < 1024; i++)
     {
         threads[i] = std::thread ([&] () { buffer.add_data (values); });
     }
 
-    for (int i = 0; i < 1023; i++)
+    for (int i = 0; i < 1024; i++)
     {
         threads[i].join ();
     }
 
-    double retrieved[4092];
-    buffer.get_current_data (1023, retrieved);
+    double retrieved[4096];
+    buffer.get_current_data (1024, retrieved);
 
-    for (int i = 0; i < 1023; i++)
+    for (int i = 0; i < 1024; i++)
     {
         for (int j = 0; j < 4; j++)
         {
@@ -167,7 +168,7 @@ TEST (DataBufferTest, GetData_MaxCountGreaterThanAvailableCount_ReturnAvailableB
 
 TEST (DataBufferTest, GetData_CalledMultipleTimes_ReturnEachValueSetOnceStartingWithOldest)
 {
-    DataBuffer buffer (4, 3);
+    DataBuffer buffer (4, 2);
     double first_values[4] = {1.0, 2.0, 3.0, 4.0};
     double second_values[4] = {5.0, 6.0, 7.0, 8.0};
 
@@ -190,7 +191,7 @@ TEST (DataBufferTest, GetData_CalledMultipleTimes_ReturnEachValueSetOnceStarting
 
 TEST (DataBufferTest, GetData_AllValueSetsAlreadyReturned_DataCountIsZero)
 {
-    DataBuffer buffer (4, 2);
+    DataBuffer buffer (4, 1);
     double values[4] = {1.0, 2.0, 3.0, 4.0};
 
     buffer.add_data (values);
@@ -206,27 +207,27 @@ TEST (DataBufferTest, GetData_InvokedInMultipleThreads_DataReturnedWithoutMixing
     DataBuffer buffer (4, 1024);
     double values[4] = {1.0, 2.0, 3.0, 4.0};
 
-    for (int i = 0; i < 1023; i++)
+    for (int i = 0; i < 1024; i++)
     {
         buffer.add_data (values);
     }
 
-    std::thread threads[1023];
-    double retrieved[1023][4];
+    std::thread threads[1024];
+    double retrieved[1024][4];
 
-    for (int i = 0; i < 1023; i++)
+    for (int i = 0; i < 1024; i++)
     {
         threads[i] =
             std::thread ([&] (double *retrieval_buffer) { buffer.get_data (1, retrieval_buffer); },
                 retrieved[i]);
     }
 
-    for (int i = 0; i < 1023; i++)
+    for (int i = 0; i < 1024; i++)
     {
         threads[i].join ();
     }
 
-    for (int i = 0; i < 1023; i++)
+    for (int i = 0; i < 1024; i++)
     {
         for (int j = 0; j < 4; j++)
         {
@@ -240,7 +241,7 @@ TEST (DataBufferTest, GetData_InvokedInMoreThreadsThanAvailableData_SummedReturn
     DataBuffer buffer (4, 1024);
     double values[4] = {1.0, 2.0, 3.0, 4.0};
 
-    for (int i = 0; i < 1023; i++)
+    for (int i = 0; i < 1024; i++)
     {
         buffer.add_data (values);
     }
@@ -271,7 +272,7 @@ TEST (DataBufferTest, GetData_InvokedInMoreThreadsThanAvailableData_SummedReturn
         total += counts[i].get ();
     }
 
-    ASSERT_EQ (total, 1023);
+    ASSERT_EQ (total, 1024);
 }
 
 TEST (DataBufferTest, GetCurrentData_MaxCountLessThanAvailableCount_ReturnMaxCountBytes)
@@ -330,7 +331,7 @@ TEST (DataBufferTest, GetCurrentData_MaxCountGreaterThanAvailableCount_ReturnAva
 
 TEST (DataBufferTest, GetCurrentData_CalledMultipleTimes_ReturnMostRecentValueSetEachTime)
 {
-    DataBuffer buffer (4, 3);
+    DataBuffer buffer (4, 2);
     double first_values[4] = {1.0, 2.0, 3.0, 4.0};
     double second_values[4] = {5.0, 6.0, 7.0, 8.0};
 
@@ -353,7 +354,7 @@ TEST (DataBufferTest, GetCurrentData_CalledMultipleTimes_ReturnMostRecentValueSe
 
 TEST (DataBufferTest, GetCurrentData_Any_DataCountStaysConstant)
 {
-    DataBuffer buffer (4, 2);
+    DataBuffer buffer (4, 1);
     double values[4] = {1.0, 2.0, 3.0, 4.0};
 
     buffer.add_data (values);
@@ -373,16 +374,16 @@ TEST (DataBufferTest, GetCurrentData_InvokedInMultipleThreads_DataReturnedWithou
     DataBuffer buffer (4, 1024);
     double values[4] = {1.0, 2.0, 3.0, 4.0};
 
-    for (int i = 0; i < 1023; i++)
+    for (int i = 0; i < 1024; i++)
     {
         buffer.add_data (values);
     }
 
-    std::thread threads[1022];
-    std::list<std::array<double, 4096>> retrieved (1022);
+    std::thread threads[1023];
+    std::list<std::array<double, 4096>> retrieved (1023);
 
     auto it = retrieved.begin ();
-    for (int i = 0; i < 1022; i++)
+    for (int i = 0; i < 1023; i++)
     {
         threads[i] =
             std::thread ([&] (double *retrieval_buffer,
@@ -391,13 +392,13 @@ TEST (DataBufferTest, GetCurrentData_InvokedInMultipleThreads_DataReturnedWithou
         it++;
     }
 
-    for (int i = 0; i < 1022; i++)
+    for (int i = 0; i < 1023; i++)
     {
         threads[i].join ();
     }
 
     it = retrieved.begin ();
-    for (int i = 0; i < 1022; i++)
+    for (int i = 0; i < 1023; i++)
     {
         for (int j = 0; j < i + 1; j++)
         {
@@ -422,11 +423,8 @@ TEST (DataBufferTest, IsReady_BufferCannotFitInMemory_ReturnFalse)
     EXPECT_EQ (buffer.is_ready (), false);
 }
 
-TEST (DataBufferTest, IsReady_BufferSizeIsLessThanTwo_ReturnFalse)
+TEST (DataBufferTest, IsReady_BufferSizeIsZero_ReturnFalse)
 {
     DataBuffer buffer_zero (4, 0);
-    DataBuffer buffer_one (4, 1);
-
     EXPECT_EQ (buffer_zero.is_ready (), false);
-    EXPECT_EQ (buffer_one.is_ready (), false);
 }
