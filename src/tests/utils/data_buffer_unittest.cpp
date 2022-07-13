@@ -10,33 +10,7 @@
 using namespace testing;
 
 
-TEST (DataBufferTest, AddData_BufferSizeIsLessThanTwo_DoNothing)
-{
-    DataBuffer buffer_zero (4, 0);
-    DataBuffer buffer_one (4, 1);
-    double values[4] = {1.0, 2.0, 3.0, 4.0};
-    double retrieved[4];
-
-    buffer_zero.add_data (values);
-    buffer_one.add_data (values);
-
-    EXPECT_EQ (buffer_zero.get_data_count (), 0);
-    EXPECT_EQ (buffer_one.get_data_count (), 0);
-
-    buffer_zero.get_current_data (1, retrieved);
-    for (int i = 0; i < 4; i++)
-    {
-        EXPECT_NE (retrieved[i], values[i]);
-    }
-
-    buffer_one.get_current_data (1, retrieved);
-    for (int i = 0; i < 4; i++)
-    {
-        EXPECT_NE (retrieved[i], values[i]);
-    }
-}
-
-TEST (DataBufferTest, AddData_AddLessDataThanBufferCapactity_StoreData)
+TEST (DataBufferTest, AddData_AddLessDataThanBufferCapacity_StoreData)
 {
     DataBuffer buffer (4, 2);
     double values[4] = {1.0, 2.0, 3.0, 4.0};
@@ -89,6 +63,23 @@ TEST (DataBufferTest, AddData_AddMoreDataThanBufferCapacity_OverwriteOldestData)
     for (int i = 0; i < 4; i++)
     {
         EXPECT_EQ (retrieved[i], third_values[i]);
+    }
+}
+
+TEST (DataBufferTest, AddData_BufferIsNotReady_DoNothing)
+{
+    DataBuffer buffer_zero (4, 0);
+    double values[4] = {1.0, 2.0, 3.0, 4.0};
+    double retrieved[4];
+
+    buffer_zero.add_data (values);
+
+    EXPECT_EQ (buffer_zero.get_data_count (), 0);
+
+    buffer_zero.get_current_data (1, retrieved);
+    for (int i = 0; i < 4; i++)
+    {
+        EXPECT_NE (retrieved[i], values[i]);
     }
 }
 
@@ -419,12 +410,23 @@ TEST (DataBufferTest, GetCurrentData_InvokedInMultipleThreads_DataReturnedWithou
     }
 }
 
-// TODO: How can this ever not be ready? (ctor would fail)
-TEST (DataBufferTest, IsReady_Any_ReturnTrue)
+TEST (DataBufferTest, IsReady_BufferCanFitInMemory_ReturnTrue)
 {
     DataBuffer buffer (4, 16);
-    double values[4] = {1.0, 2.0, 3.0, 4.0};
-    buffer.add_data (values);
-
     EXPECT_EQ (buffer.is_ready (), true);
+}
+
+TEST (DataBufferTest, IsReady_BufferCannotFitInMemory_ReturnFalse)
+{
+    DataBuffer buffer (INT_MAX, SIZE_MAX);
+    EXPECT_EQ (buffer.is_ready (), false);
+}
+
+TEST (DataBufferTest, IsReady_BufferSizeIsLessThanTwo_ReturnFalse)
+{
+    DataBuffer buffer_zero (4, 0);
+    DataBuffer buffer_one (4, 1);
+
+    EXPECT_EQ (buffer_zero.is_ready (), false);
+    EXPECT_EQ (buffer_one.is_ready (), false);
 }
