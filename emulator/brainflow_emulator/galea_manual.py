@@ -69,7 +69,7 @@ class GaleaEmulator(object):
                     if self.exg_package_num % 256 == 0:
                         self.exg_package_num = 0
                     for i in range(1, self.exg_package_size - 10):
-                        package.append(random.randint(0, 255))
+                        package.append(random.randint(0, 30))
                     cur_time = time.time()
                     timestamp = bytearray(struct.pack('d', (cur_time - start_time) * 1000))
                     package.extend(timestamp)
@@ -87,7 +87,7 @@ class GaleaEmulator(object):
                     if self.aux_package_num % 256 == 0:
                         self.aux_package_num = 0
                     for i in range(1, self.aux_package_size - 10):
-                        package.append(random.randint(0, 255))
+                        package.append(random.randint(0, 5))
                     cur_time = time.time()
                     timestamp = bytearray(struct.pack('d', (cur_time - start_time) * 1000))
                     package.extend(timestamp)
