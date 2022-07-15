@@ -116,6 +116,10 @@ int MuseBGLibHelper::stop_stream ()
             const char *stop_cmd = "h";
             res = config_device (stop_cmd);
         }
+        last_fifth_chan_timestamp = -1.0;
+        last_aux_timestamp = -1.0;
+        last_eeg_timestamp = -1.0;
+        last_ppg_timestamp = -1.0;
         return res;
     }
     else
@@ -457,6 +461,7 @@ void MuseBGLibHelper::ble_evt_attclient_attribute_value (
         return;
     }
     unsigned char *data = (unsigned char *)msg->value.data;
+    double current_timestamp = get_timestamp ();
 
     if (uuid == MUSE_GATT_ATTR_ACCELEROMETER)
     {
@@ -493,13 +498,19 @@ void MuseBGLibHelper::ble_evt_attclient_attribute_value (
             current_aux_buf[i][board_descr["auxiliary"]["package_num_channel"].get<int> ()] =
                 package_num;
         }
-        // push aux packages from gyro callback
-        for (size_t i = 0; i < current_aux_buf.size (); i++)
+        // skip first package for timestamp correction
+        if (last_aux_timestamp > 0)
         {
-            current_aux_buf[i][board_descr["auxiliary"]["timestamp_channel"].get<int> ()] =
-                get_timestamp (); // keep timestamps as is and dont do any math with them
-            db_aux->add_data (&current_aux_buf[i][0]);
+            double step = (current_timestamp - last_aux_timestamp) / current_aux_buf.size ();
+            // push aux packages from gyro callback
+            for (size_t i = 0; i < current_aux_buf.size (); i++)
+            {
+                current_aux_buf[i][board_descr["auxiliary"]["timestamp_channel"].get<int> ()] =
+                    last_aux_timestamp + step * (i + 1);
+                db_aux->add_data (&current_aux_buf[i][0]);
+            }
         }
+        last_aux_timestamp = current_timestamp;
     }
     else if (((uuid == MUSE_GATT_ATTR_PPG0) || (uuid == MUSE_GATT_ATTR_PPG1) ||
                  (uuid == MUSE_GATT_ATTR_PPG2)) &&
@@ -542,12 +553,17 @@ void MuseBGLibHelper::ble_evt_attclient_attribute_value (
         if (num_trues == new_ppg_data.size () - 1) // actually it streams only 2 of 3 ppg data types
                                                    // and I am not sure that these 2 are freezed
         {
-            for (size_t i = 0; i < current_anc_buf.size (); i++)
+            if (last_ppg_timestamp > 0)
             {
-                current_anc_buf[i][board_descr["ancillary"]["timestamp_channel"].get<int> ()] =
-                    get_timestamp (); // keep timestamps as is and dont do any math with them
-                db_anc->add_data (&current_anc_buf[i][0]);
+                double step = (current_timestamp - last_ppg_timestamp) / current_anc_buf.size ();
+                for (size_t i = 0; i < current_anc_buf.size (); i++)
+                {
+                    current_anc_buf[i][board_descr["ancillary"]["timestamp_channel"].get<int> ()] =
+                        last_ppg_timestamp + step * (i + 1);
+                    db_anc->add_data (&current_anc_buf[i][0]);
+                }
             }
+            last_ppg_timestamp = current_timestamp;
             std::fill (new_ppg_data.begin (), new_ppg_data.end (), false);
         }
     }
@@ -578,7 +594,7 @@ void MuseBGLibHelper::ble_evt_attclient_attribute_value (
         {
             pos = board_descr["default"]["other_channels"][0].get<int> ();
             new_eeg_data[4] = true;
-            last_aux_timestamp = get_timestamp ();
+            last_fifth_chan_timestamp = get_timestamp ();
         }
 
         if (pos < 0)
@@ -611,17 +627,23 @@ void MuseBGLibHelper::ble_evt_attclient_attribute_value (
             }
         }
 
-        double current_timestamp = get_timestamp ();
         if ((num_trues == new_eeg_data.size ()) ||
             ((num_trues == new_eeg_data.size () - 1) &&
-                (current_timestamp - last_aux_timestamp > 1)))
+                (current_timestamp - last_fifth_chan_timestamp > 1)))
         {
-            for (size_t i = 0; i < current_default_buf.size (); i++)
+            if (last_eeg_timestamp > 0)
             {
-                current_default_buf[i][board_descr["default"]["timestamp_channel"].get<int> ()] =
-                    get_timestamp (); // keep timestamps as is and dont do any math with them
-                db_default->add_data (&current_default_buf[i][0]);
+                double step =
+                    (current_timestamp - last_eeg_timestamp) / current_default_buf.size ();
+                for (size_t i = 0; i < current_default_buf.size (); i++)
+                {
+                    current_default_buf[i]
+                                       [board_descr["default"]["timestamp_channel"].get<int> ()] =
+                                           last_eeg_timestamp + step * (i + 1);
+                    db_default->add_data (&current_default_buf[i][0]);
+                }
             }
+            last_eeg_timestamp = current_timestamp;
             std::fill (new_eeg_data.begin (), new_eeg_data.end (), false);
         }
     }

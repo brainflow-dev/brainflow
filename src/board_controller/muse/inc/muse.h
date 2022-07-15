@@ -25,7 +25,10 @@ protected:
     std::vector<std::vector<double>> current_anc_buf;
     std::vector<bool> new_eeg_data;
     std::vector<bool> new_ppg_data;
-    double last_aux_timestamp;
+    double last_fifth_chan_timestamp; // used to determine 4 or 5 channels used
+    double last_ppg_timestamp;        // used for timestamp correction
+    double last_eeg_timestamp;        // used for timestamp correction
+    double last_aux_timestamp;        // used for timestamp correction
 
 public:
     Muse (int board_id, struct BrainFlowInputParams params);

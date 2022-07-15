@@ -57,9 +57,10 @@ protected:
     std::vector<std::vector<double>> current_anc_buf;
     std::vector<bool> new_eeg_data;
     std::vector<bool> new_ppg_data;
-    double last_aux_timestamp;
-
-    std::string preset;
+    double last_fifth_chan_timestamp; // used to determine 4 or 5 channels used
+    double last_ppg_timestamp;        // used for timestamp correction
+    double last_eeg_timestamp;        // used for timestamp correction
+    double last_aux_timestamp;        // used for timestamp correction
 
     void thread_worker ();
 
@@ -81,7 +82,10 @@ public:
         db_anc = NULL;
         db_aux = NULL;
         board_descr = descr;
-        last_aux_timestamp = 0.0;
+        last_fifth_chan_timestamp = -1.0;
+        last_aux_timestamp = -1.0;
+        last_eeg_timestamp = -1.0;
+        last_ppg_timestamp = -1.0;
     }
 
     virtual ~MuseBGLibHelper ()

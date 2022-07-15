@@ -592,7 +592,12 @@ Supported platforms:
 - Linux
 - Devices like Raspberry Pi
 
-By default it uses preset `p21` which doesn't stream PPG data, here is an `example <https://github.com/brainflow-dev/brainflow/blob/master/python_package/examples/tests/muse_ppg.py>`_ how to enable other types of data.
+Available :ref:`presets-label`:
+
+- *BrainFlowPresets.DEFAULT_PRESET* contains EEG data, to enable 5th EEG channel use :code:`board.config_board("p50")`
+- *BrainFlowPresets.AUXILIARY_PRESET* contains Gyro and Accel data, enabled by default
+- *BrainFlowPresets.ANCILLARY_PRESET* contains PPG data, to enable it use :code:`board.config_board("p61")`
+
 
 Muse 2 BLED
 ~~~~~~~~~~~~~~
@@ -620,7 +625,11 @@ Supported platforms:
 - Linux
 - Devices like Raspberry Pi
 
-By default it uses preset `p21` which doesn't stream PPG data, here is an `example <https://github.com/brainflow-dev/brainflow/blob/master/python_package/examples/tests/muse_ppg.py>`_ how to enable other types of data.
+Available :ref:`presets-label`:
+
+- *BrainFlowPresets.DEFAULT_PRESET* contains EEG data, to enable 5th EEG channel use :code:`board.config_board("p50")`
+- *BrainFlowPresets.AUXILIARY_PRESET* contains Gyro and Accel data, enabled by default
+- *BrainFlowPresets.ANCILLARY_PRESET* contains PPG data, to enable it use :code:`board.config_board("p61")`
 
 
 Muse 2016 BLED
@@ -649,7 +658,10 @@ Supported platforms:
 - Linux
 - Devices like Raspberry Pi
 
-By default it uses preset `p21` which doesn't stream PPG data, here is an `example <https://github.com/brainflow-dev/brainflow/blob/master/python_package/examples/tests/muse_ppg.py>`_ how to enable other types of data.
+Available :ref:`presets-label`:
+
+- *BrainFlowPresets.DEFAULT_PRESET* contains EEG data
+- *BrainFlowPresets.AUXILIARY_PRESET* contains Gyro and Accel data, enabled by default
 
 
 Muse 2
@@ -682,7 +694,11 @@ Supported platforms:
 - Linux, compilation from source code probably will be needed
 - Devices like Raspberry Pi
 
-By default it uses preset `p21` which doesn't stream PPG data, here is an `example <https://github.com/brainflow-dev/brainflow/blob/master/python_package/examples/tests/muse_ppg.py>`_ how to enable other types of data.
+Available :ref:`presets-label`:
+
+- *BrainFlowPresets.DEFAULT_PRESET* contains EEG data, to enable 5th EEG channel use :code:`board.config_board("p50")`
+- *BrainFlowPresets.AUXILIARY_PRESET* contains Gyro and Accel data, enabled by default
+- *BrainFlowPresets.ANCILLARY_PRESET* contains PPG data, to enable it use :code:`board.config_board("p61")`
 
 
 Muse S
@@ -715,7 +731,11 @@ Supported platforms:
 - Linux, compilation from source code probably will be needed
 - Devices like Raspberry Pi
 
-By default it uses preset `p21` which doesn't stream PPG data, here is an `example <https://github.com/brainflow-dev/brainflow/blob/master/python_package/examples/tests/muse_ppg.py>`_ how to enable other types of data.
+Available :ref:`presets-label`:
+
+- *BrainFlowPresets.DEFAULT_PRESET* contains EEG data, to enable 5th EEG channel use :code:`board.config_board("p50")`
+- *BrainFlowPresets.AUXILIARY_PRESET* contains Gyro and Accel data, enabled by default
+- *BrainFlowPresets.ANCILLARY_PRESET* contains PPG data, to enable it use :code:`board.config_board("p61")`
 
 
 Muse 2016
@@ -747,6 +767,11 @@ Supported platforms:
 - MacOS 10.15+, 12.0 to 12.2 have known issues while scanning, you need to update to 12.3+
 - Linux, compilation from source code probably will be needed
 - Devices like Raspberry Pi
+
+Available :ref:`presets-label`:
+
+- *BrainFlowPresets.DEFAULT_PRESET* contains EEG data
+- *BrainFlowPresets.AUXILIARY_PRESET* contains Gyro and Accel data, enabled by default
 
 Ant Neuro
 ----------

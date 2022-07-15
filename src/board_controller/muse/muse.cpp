@@ -81,7 +81,10 @@ Muse::Muse (int board_id, struct BrainFlowInputParams params) : BLELibBoard (boa
     muse_adapter = NULL;
     muse_peripheral = NULL;
     is_streaming = false;
-    last_aux_timestamp = 0;
+    last_fifth_chan_timestamp = -1.0;
+    last_ppg_timestamp = -1.0;
+    last_eeg_timestamp = -1.0;
+    last_aux_timestamp = -1.0;
 }
 
 Muse::~Muse ()
@@ -466,6 +469,10 @@ int Muse::stop_stream ()
         res = (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
     is_streaming = false;
+    last_fifth_chan_timestamp = -1.0;
+    last_ppg_timestamp = -1.0;
+    last_eeg_timestamp = -1.0;
+    last_aux_timestamp = -1.0;
     return res;
 }
 
@@ -608,7 +615,7 @@ void Muse::peripheral_on_eeg (simpleble_uuid_t service, simpleble_uuid_t charact
      * timestamps to determine if its on or not */
     if (channel_num == 4)
     {
-        last_aux_timestamp = get_timestamp ();
+        last_fifth_chan_timestamp = get_timestamp ();
     }
     new_eeg_data[channel_num] = true;
 
@@ -658,14 +665,21 @@ void Muse::peripheral_on_eeg (simpleble_uuid_t service, simpleble_uuid_t charact
     double current_timestamp = get_timestamp ();
 
     if ((num_trues == new_eeg_data.size ()) ||
-        ((num_trues == new_eeg_data.size () - 1) && (current_timestamp - last_aux_timestamp > 1)))
+        ((num_trues == new_eeg_data.size () - 1) &&
+            (current_timestamp - last_fifth_chan_timestamp > 1)))
     {
-        for (size_t i = 0; i < current_default_buf.size (); i++)
+        // skip one package to setup timestamp correction
+        if (last_eeg_timestamp > 0)
         {
-            current_default_buf[i][board_descr["default"]["timestamp_channel"].get<int> ()] =
-                get_timestamp (); // keep timestamps as is and dont do any math with them
-            push_package (&current_default_buf[i][0]);
+            double step = (current_timestamp - last_eeg_timestamp) / current_default_buf.size ();
+            for (size_t i = 0; i < current_default_buf.size (); i++)
+            {
+                current_default_buf[i][board_descr["default"]["timestamp_channel"].get<int> ()] =
+                    last_eeg_timestamp + step * (i + 1);
+                push_package (&current_default_buf[i][0]);
+            }
         }
+        last_eeg_timestamp = current_timestamp;
         std::fill (new_eeg_data.begin (), new_eeg_data.end (), false);
     }
 }
@@ -702,6 +716,8 @@ void Muse::peripheral_on_gyro (
     }
 
     unsigned int package_num = data[0] * 256 + data[1];
+    double current_timestamp = get_timestamp ();
+
     for (int i = 0; i < 3; i++)
     {
         double gyro_valx = (double)cast_16bit_to_int32 ((unsigned char *)&data[2 + i * 6]) *
@@ -717,13 +733,18 @@ void Muse::peripheral_on_gyro (
             (double)package_num;
     }
 
-    // push aux packages from gyro callback
-    for (size_t i = 0; i < current_aux_buf.size (); i++)
+    if (last_aux_timestamp > 0)
     {
-        current_aux_buf[i][board_descr["auxiliary"]["timestamp_channel"].get<int> ()] =
-            get_timestamp (); // keep timestamps as is and dont do any math with them
-        push_package (&current_aux_buf[i][0], (int)BrainFlowPresets::AUXILIARY_PRESET);
+        double step = (current_timestamp - last_aux_timestamp) / current_aux_buf.size ();
+        // push aux packages from gyro callback
+        for (size_t i = 0; i < current_aux_buf.size (); i++)
+        {
+            current_aux_buf[i][board_descr["auxiliary"]["timestamp_channel"].get<int> ()] =
+                last_aux_timestamp + step * (i + 1);
+            push_package (&current_aux_buf[i][0], (int)BrainFlowPresets::AUXILIARY_PRESET);
+        }
     }
+    last_aux_timestamp = current_timestamp;
 }
 
 void Muse::peripheral_on_ppg (simpleble_uuid_t service, simpleble_uuid_t characteristic,
@@ -753,15 +774,23 @@ void Muse::peripheral_on_ppg (simpleble_uuid_t service, simpleble_uuid_t charact
         }
     }
 
+    double current_timestamp = get_timestamp ();
+
     if (num_trues == new_ppg_data.size () - 1) // actually it streams only 2 of 3 ppg data types and
                                                // I am not sure that these 2 are freezed
     {
-        for (size_t i = 0; i < current_anc_buf.size (); i++)
+        // skip one package to setup timestamp correction
+        if (last_ppg_timestamp > 0)
         {
-            current_anc_buf[i][board_descr["ancillary"]["timestamp_channel"].get<int> ()] =
-                get_timestamp (); // keep timestamps as is and dont do any math with them
-            push_package (&current_anc_buf[i][0], (int)BrainFlowPresets::ANCILLARY_PRESET);
+            double step = (current_timestamp - last_ppg_timestamp) / current_anc_buf.size ();
+            for (size_t i = 0; i < current_anc_buf.size (); i++)
+            {
+                current_anc_buf[i][board_descr["ancillary"]["timestamp_channel"].get<int> ()] =
+                    last_ppg_timestamp + step * (i + 1);
+                push_package (&current_anc_buf[i][0], (int)BrainFlowPresets::ANCILLARY_PRESET);
+            }
         }
+        last_ppg_timestamp = current_timestamp;
         std::fill (new_ppg_data.begin (), new_ppg_data.end (), false);
     }
 }

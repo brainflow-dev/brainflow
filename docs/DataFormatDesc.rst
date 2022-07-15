@@ -18,6 +18,63 @@ You can compare BrainFlow's timestamp with time returned by code like this:
    import time
    print (time.time ())
 
+
+.. _presets-label:
+
+BrainFlow Presets
+-------------------
+
+Each board can accumulate data inside one of three predefined buffers. In BrainFlow they are called presets, possible values are:
+
+- *BrainFlowPresets.DEFAULT_PRESET*
+- *BrainFlowPresets.AUXILIARY_PRESET*
+- *BrainFlowPresets.ANCILLARY_PRESET*
+
+Each of them has it's own sampling rate, timestamp and package id. Other data types depend on exact device.
+
+For almost all devices only *BrainFlowPresets.DEFAULT_PRESET* is available. But for some devices, especially if they stream different types of data with different sampling rates(e.g. Muse) we store these data types in different presets. All methods like:
+
+.. code-block:: python
+
+   insert_marker
+   get_board_data
+   get_current_board_data
+   add_streamer
+   get_sampling_rate
+   get_timestamp_channel
+   get_eeg_channels
+   # etc
+
+Have an optional preset parameter with default value *BrainFlowPresets.DEFAULT_PRESET* if programming language supports default values for function arguments. Here is a code sample that you can use as a referece:
+
+.. code-block:: julia
+
+   using BrainFlow
+
+   BrainFlow.enable_dev_logger(BrainFlow.BOARD_CONTROLLER)
+
+   params = BrainFlowInputParams()
+   board_shim = BrainFlow.BoardShim(BrainFlow.MUSE_S_BOARD, params)
+
+   BrainFlow.prepare_session(board_shim)
+   BrainFlow.config_board("p50", board_shim) # to enable ppg use p61, p50 enables aux(5th eeg) channel and smth else
+   BrainFlow.add_streamer("file://default_from_streamer.csv:w", board_shim, BrainFlow.DEFAULT_PRESET)
+   BrainFlow.add_streamer("file://aux_from_streamer.csv:w", board_shim, BrainFlow.AUXILIARY_PRESET)
+   BrainFlow.add_streamer("file://anc_from_streamer.csv:w", board_shim, BrainFlow.ANCILLARY_PRESET)
+   BrainFlow.start_stream(board_shim)
+   sleep(10)
+   BrainFlow.stop_stream(board_shim)
+   data_default = BrainFlow.get_board_data(board_shim, BrainFlow.DEFAULT_PRESET) # contains eeg data
+   data_aux = BrainFlow.get_board_data(board_shim, BrainFlow.AUXILIARY_PRESET) # contains accel and gyro data
+   data_anc = BrainFlow.get_board_data(board_shim, BrainFlow.ANCILLARY_PRESET) # contains ppg data
+   BrainFlow.release_session(board_shim)
+
+   BrainFlow.write_file(data_default, "default.csv", "w")
+   BrainFlow.write_file(data_aux, "aux.csv", "w")
+   BrainFlow.write_file(data_anc, "anc.csv", "w")
+
+You can get all presets availabe for your device using :code:`BoardShim.get_board_presets(board_id)` method.
+
 Generic Format Description
 ----------------------------
 
