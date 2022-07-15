@@ -6,7 +6,7 @@ params = BrainFlowInputParams()
 board_shim = BrainFlow.BoardShim(BrainFlow.MUSE_S_BOARD, params)
 
 BrainFlow.prepare_session(board_shim)
-BrainFlow.config_board("p61", board_shim) # to enable ppg, not supported by Muse 2016
+BrainFlow.config_board("p50", board_shim) # to enable ppg use p61, p50 enables aux(5th eeg) channel and smth else
 BrainFlow.add_streamer("file://default_from_streamer.csv:w", board_shim, BrainFlow.DEFAULT_PRESET)
 BrainFlow.add_streamer("file://aux_from_streamer.csv:w", board_shim, BrainFlow.AUXILIARY_PRESET)
 BrainFlow.add_streamer("file://anc_from_streamer.csv:w", board_shim, BrainFlow.ANCILLARY_PRESET) # this preset contains ppg data and not available for Muse 2016
@@ -21,5 +21,3 @@ BrainFlow.release_session(board_shim)
 BrainFlow.write_file(data_default, "default.csv", "w")
 BrainFlow.write_file(data_aux, "aux.csv", "w")
 BrainFlow.write_file(data_anc, "anc.csv", "w")
-
-

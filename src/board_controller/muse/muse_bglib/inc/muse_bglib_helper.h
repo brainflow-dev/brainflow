@@ -57,6 +57,7 @@ protected:
     std::vector<std::vector<double>> current_anc_buf;
     std::vector<bool> new_eeg_data;
     std::vector<bool> new_ppg_data;
+    double last_aux_timestamp;
 
     std::string preset;
 
@@ -80,6 +81,7 @@ public:
         db_anc = NULL;
         db_aux = NULL;
         board_descr = descr;
+        last_aux_timestamp = 0.0;
     }
 
     virtual ~MuseBGLibHelper ()

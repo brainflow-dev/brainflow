@@ -54,7 +54,7 @@ int MuseBGLibHelper::initialize (struct BrainFlowInputParams params)
             db_anc = new DataBuffer (buffer_size_anc, 1000);
         }
         current_default_buf.resize (12); // 12 eeg packages in single ble transaction
-        new_eeg_data.resize (4);         // 4 eeg channels total
+        new_eeg_data.resize (5);         // 5 eeg channels total
         current_aux_buf.resize (3);      // 3 samples in each message for gyro and accel
         for (int i = 0; i < 12; i++)
         {
@@ -357,8 +357,8 @@ void MuseBGLibHelper::ble_evt_attclient_procedure_completed (
 void MuseBGLibHelper::ble_evt_attclient_find_information_found (
     const struct ble_msg_attclient_find_information_found_evt_t *msg)
 {
-    size_t chars_to_find = 9;
-    size_t ccids_to_find = 13;
+    size_t chars_to_find = 10;
+    size_t ccids_to_find = 14;
     if (board_id == (int)BoardIds::MUSE_2016_BLED_BOARD)
     {
         // no ppg for old muse
@@ -424,6 +424,10 @@ void MuseBGLibHelper::ble_evt_attclient_find_information_found (
                 characteristics[msg->chrhandle] = uuid;
             }
             if (strcmp (str, MUSE_GATT_ATTR_PPG2) == 0)
+            {
+                characteristics[msg->chrhandle] = uuid;
+            }
+            if (strcmp (str, MUSE_GATT_ATTR_RIGHTAUX) == 0)
             {
                 characteristics[msg->chrhandle] = uuid;
             }
@@ -570,6 +574,12 @@ void MuseBGLibHelper::ble_evt_attclient_attribute_value (
             pos = board_descr["default"]["eeg_channels"][3].get<int> ();
             new_eeg_data[3] = true;
         }
+        if (uuid == MUSE_GATT_ATTR_RIGHTAUX)
+        {
+            pos = board_descr["default"]["other_channels"][0].get<int> ();
+            new_eeg_data[4] = true;
+            last_aux_timestamp = get_timestamp ();
+        }
 
         if (pos < 0)
         {
@@ -601,7 +611,10 @@ void MuseBGLibHelper::ble_evt_attclient_attribute_value (
             }
         }
 
-        if (num_trues == new_eeg_data.size ())
+        double current_timestamp = get_timestamp ();
+        if ((num_trues == new_eeg_data.size ()) ||
+            ((num_trues == new_eeg_data.size () - 1) &&
+                (current_timestamp - last_aux_timestamp > 1)))
         {
             for (size_t i = 0; i < current_default_buf.size (); i++)
             {

@@ -6,6 +6,8 @@
 #include "muse_constants.h"
 #include "timestamp.h"
 
+#include <iostream>
+
 void adapter_on_scan_found (
     simpleble_adapter_t adapter, simpleble_peripheral_t peripheral, void *board)
 {
@@ -66,6 +68,12 @@ void peripheral_on_ppg2 (simpleble_uuid_t service, simpleble_uuid_t characterist
     ((Muse *)(board))->peripheral_on_ppg (service, characteristic, data, size, 2);
 }
 
+void peripheral_on_right_aux (simpleble_uuid_t service, simpleble_uuid_t characteristic,
+    uint8_t *data, size_t size, void *board)
+{
+    ((Muse *)(board))->peripheral_on_eeg (service, characteristic, data, size, 4);
+}
+
 
 Muse::Muse (int board_id, struct BrainFlowInputParams params) : BLELibBoard (board_id, params)
 {
@@ -73,6 +81,7 @@ Muse::Muse (int board_id, struct BrainFlowInputParams params) : BLELibBoard (boa
     muse_adapter = NULL;
     muse_peripheral = NULL;
     is_streaming = false;
+    last_aux_timestamp = 0;
 }
 
 Muse::~Muse ()
@@ -247,6 +256,23 @@ int Muse::prepare_session ()
                         res = (int)BrainFlowExitCodes::GENERAL_ERROR;
                     }
                 }
+                if (strcmp (service.characteristics[j].value, MUSE_GATT_ATTR_RIGHTAUX) == 0)
+                {
+                    if (simpleble_peripheral_notify (muse_peripheral, service.uuid,
+                            service.characteristics[j], ::peripheral_on_right_aux,
+                            (void *)this) == SIMPLEBLE_SUCCESS)
+                    {
+                        notified_characteristics.push_back (
+                            std::pair<simpleble_uuid_t, simpleble_uuid_t> (
+                                service.uuid, service.characteristics[j]));
+                    }
+                    else
+                    {
+                        safe_logger (spdlog::level::err, "Failed to notify for {} {}",
+                            service.uuid.value, service.characteristics[j].value);
+                        res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+                    }
+                }
                 if (strcmp (service.characteristics[j].value, MUSE_GATT_ATTR_GYRO) == 0)
                 {
                     if (simpleble_peripheral_notify (muse_peripheral, service.uuid,
@@ -341,7 +367,7 @@ int Muse::prepare_session ()
         int eeg_buffer_size = board_descr["default"]["num_rows"].get<int> ();
         int aux_buffer_size = board_descr["auxiliary"]["num_rows"].get<int> ();
         current_default_buf.resize (12); // 12 eeg packages in single ble transaction
-        new_eeg_data.resize (4);         // 4 eeg channels total
+        new_eeg_data.resize (5);         // 5 eeg channels total
         current_aux_buf.resize (3);      // 3 samples in each message for gyro and accel
         for (int i = 0; i < 12; i++)
         {
@@ -577,6 +603,13 @@ void Muse::peripheral_on_eeg (simpleble_uuid_t service, simpleble_uuid_t charact
         safe_logger (spdlog::level::warn, "unknown size for eeg callback: {}", size);
         return;
     }
+
+    /* 5th(aux) channel is off by default, need to enable p50 preset. Need to handle both cases, use
+     * timestamps to determine if its on or not */
+    if (channel_num == 4)
+    {
+        last_aux_timestamp = get_timestamp ();
+    }
     new_eeg_data[channel_num] = true;
 
     std::vector<int> eeg_channels = board_descr["default"]["eeg_channels"];
@@ -587,8 +620,26 @@ void Muse::peripheral_on_eeg (simpleble_uuid_t service, simpleble_uuid_t charact
         double val2 = (data[i + 1] & 0xF) << 8 | data[i + 2];
         val1 = (val1 - 0x800) * 125.0 / 256.0;
         val2 = (val2 - 0x800) * 125.0 / 256.0;
-        current_default_buf[counter][eeg_channels[channel_num]] = val1;
-        current_default_buf[counter + 1][eeg_channels[channel_num]] = val2;
+        // place optional aux channel to other channels
+        if (channel_num == 4)
+        {
+            try
+            {
+                std::vector<int> other_channels = board_descr["default"]["other_channels"];
+                current_default_buf[counter][other_channels[0]] = val1;
+                current_default_buf[counter + 1][other_channels[0]] = val2;
+            }
+            catch (...)
+            {
+                safe_logger (spdlog::level::trace,
+                    "no other_channels for this board"); // should not get here
+            }
+        }
+        else
+        {
+            current_default_buf[counter][eeg_channels[channel_num]] = val1;
+            current_default_buf[counter + 1][eeg_channels[channel_num]] = val2;
+        }
         current_default_buf[counter][board_descr["default"]["package_num_channel"].get<int> ()] =
             package_num;
         current_default_buf[counter +
@@ -604,7 +655,10 @@ void Muse::peripheral_on_eeg (simpleble_uuid_t service, simpleble_uuid_t charact
         }
     }
 
-    if (num_trues == new_eeg_data.size ())
+    double current_timestamp = get_timestamp ();
+
+    if ((num_trues == new_eeg_data.size ()) ||
+        ((num_trues == new_eeg_data.size () - 1) && (current_timestamp - last_aux_timestamp > 1)))
     {
         for (size_t i = 0; i < current_default_buf.size (); i++)
         {
@@ -650,8 +704,6 @@ void Muse::peripheral_on_gyro (
     unsigned int package_num = data[0] * 256 + data[1];
     for (int i = 0; i < 3; i++)
     {
-        // current_aux_buf[i][board_descr["auxiliary"]["package_num_channel"].get<int> ()] =
-        //    (double)package_num;
         double gyro_valx = (double)cast_16bit_to_int32 ((unsigned char *)&data[2 + i * 6]) *
             MUSE_GYRO_SCALE_FACTOR;
         double gyro_valy = (double)cast_16bit_to_int32 ((unsigned char *)&data[4 + i * 6]) *
@@ -662,7 +714,7 @@ void Muse::peripheral_on_gyro (
         current_aux_buf[i][board_descr["auxiliary"]["gyro_channels"][1].get<int> ()] = gyro_valy;
         current_aux_buf[i][board_descr["auxiliary"]["gyro_channels"][2].get<int> ()] = gyro_valz;
         current_aux_buf[i][board_descr["auxiliary"]["package_num_channel"].get<int> ()] =
-            package_num;
+            (double)package_num;
     }
 
     // push aux packages from gyro callback

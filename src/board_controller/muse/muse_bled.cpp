@@ -137,17 +137,21 @@ void MuseBLED::read_thread ()
         data_aux[i] = 0.0;
     }
 
-    int num_rows_anc = board_descr["ancillary"]["num_rows"];
-    double *data_anc = new double[num_rows_anc];
-    if (data_anc == NULL)
+    double *data_anc = NULL;
+    if (board_id != (int)BoardIds::MUSE_2016_BLED_BOARD)
     {
-        safe_logger (spdlog::level::err, "failed to allocate data");
-        state = (int)BrainFlowExitCodes::GENERAL_ERROR;
-        return;
-    }
-    for (int i = 0; i < num_rows_anc; i++)
-    {
-        data_anc[i] = 0.0;
+        int num_rows_anc = board_descr["ancillary"]["num_rows"];
+        data_anc = new double[num_rows_anc];
+        if (data_anc == NULL)
+        {
+            safe_logger (spdlog::level::err, "failed to allocate data");
+            state = (int)BrainFlowExitCodes::GENERAL_ERROR;
+            return;
+        }
+        for (int i = 0; i < num_rows_anc; i++)
+        {
+            data_anc[i] = 0.0;
+        }
     }
 
     while (keep_alive)
@@ -157,10 +161,13 @@ void MuseBLED::read_thread ()
         {
             push_package (data_aux, (int)BrainFlowPresets::AUXILIARY_PRESET);
         }
-        res = func_anc ((void *)data_anc);
-        if (res == (int)BrainFlowExitCodes::STATUS_OK)
+        if (data_anc != NULL)
         {
-            push_package (data_anc, (int)BrainFlowPresets::ANCILLARY_PRESET);
+            res = func_anc ((void *)data_anc);
+            if (res == (int)BrainFlowExitCodes::STATUS_OK)
+            {
+                push_package (data_anc, (int)BrainFlowPresets::ANCILLARY_PRESET);
+            }
         }
         res = func_default ((void *)data_default);
         if (res == (int)BrainFlowExitCodes::STATUS_OK)
@@ -199,6 +206,9 @@ void MuseBLED::read_thread ()
         }
     }
     delete[] data_default;
-    delete[] data_anc;
     delete[] data_aux;
+    if (data_anc != NULL)
+    {
+        delete[] data_anc;
+    }
 }
