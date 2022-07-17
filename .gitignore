@@ -378,3 +378,5 @@ Makefile
 *.cmd
 CMakeSettings.json
 ._.gitignore
+
+build/
