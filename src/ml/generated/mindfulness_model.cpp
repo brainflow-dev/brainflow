@@ -1,6 +1,6 @@
 
 #include "mindfulness_model.h"
 // clang-format off
-const double mindfulness_coefficients[5] = {2.547321983725754,2.386545523209609,-32.72685929775639,0.16870615353691254,43.855917144456456};
-double mindfulness_intercept = 0.649265;
+const double mindfulness_coefficients[5] = {2.6338144674136394,4.006742906593334,-34.51389221061297,1.1950604401540308,35.78022137767881};
+double mindfulness_intercept = 0.364078;
 // clang-format on
