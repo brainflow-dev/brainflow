@@ -7,6 +7,9 @@ project(SimpleBLE VERSION 0.1 LANGUAGES CXX)
 include (${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/macros.cmake)
 configure_msvc_runtime ()
 
+message("-- [INFO] Using local LibFmt")
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../fmt ${CMAKE_CURRENT_BINARY_DIR}/libfmt)
+
 if(APPLE)
     SET(SIMPLEBLE-C simpleble-c)
     SET(FILE_NAME "libsimpleble-c.dylib")
@@ -54,6 +57,7 @@ set(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AdapterSafe.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/PeripheralSafe.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Utils.cpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/Logging.cpp
 )
 
 set(
@@ -62,6 +66,7 @@ set(
     ${CMAKE_CURRENT_SOURCE_DIR}/src_c/adapter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src_c/peripheral.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src_c/utils.cpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src_c/logging.cpp
 )
 
 # Detect the operating system and load the necessary dependencies
@@ -165,14 +170,13 @@ set_property(TARGET ${SIMPLEBLE-C} PROPERTY WINDOWS_EXPORT_ALL_SYMBOLS ON)
 target_include_directories(simpleble-static PRIVATE ${SIMPLE_BLE_ALL_INCLUDE_DIRS})
 target_include_directories(simpleble PRIVATE ${SIMPLE_BLE_ALL_INCLUDE_DIRS})
 
-target_link_libraries(simpleble-static PUBLIC ${EXTERNAL_LIBRARIES})
-target_link_libraries(simpleble PUBLIC ${EXTERNAL_LIBRARIES})
-
 target_include_directories(simpleble-static PRIVATE ${SIMPLE_BLE_ALL_INCLUDE_DIRS})
 target_include_directories(simpleble PRIVATE ${SIMPLE_BLE_ALL_INCLUDE_DIRS})
 target_include_directories(simpleble-c-static PRIVATE ${SIMPLE_BLE_ALL_INCLUDE_DIRS})
 target_include_directories(${SIMPLEBLE-C} PRIVATE ${SIMPLE_BLE_ALL_INCLUDE_DIRS})
 
+target_link_libraries(simpleble-static PRIVATE fmt::fmt-header-only)
+target_link_libraries(simpleble PRIVATE fmt::fmt-header-only)
 target_link_libraries(simpleble-static PUBLIC ${EXTERNAL_LIBRARIES})
 target_link_libraries(simpleble PUBLIC ${EXTERNAL_LIBRARIES})
 target_link_libraries(simpleble-c-static PUBLIC simpleble-static)

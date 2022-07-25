@@ -25,6 +25,8 @@ class AdapterBase {
     AdapterBase();
     virtual ~AdapterBase();
 
+    void* underlying() const;
+
     std::string identifier();
     BluetoothAddress address();
 
@@ -68,6 +70,7 @@ class AdapterBase {
      * be careful with them.
      */
     std::map<void*, std::shared_ptr<PeripheralBase> > peripherals_;
+    std::map<void*, std::shared_ptr<PeripheralBase> > seen_peripherals_;
 };
 
 }  // namespace SimpleBLE

@@ -183,14 +183,14 @@ void IronBCI::read_thread ()
     int res;
     unsigned char b[26];
     float eeg_scale = 4.5 / float ((pow (2, 23) - 1)) / IronBCI::ads_gain * 1000000.;
-    int num_rows = board_descr["num_rows"];
+    int num_rows = board_descr["default"]["num_rows"];
     double *package = new double[num_rows];
     for (int i = 0; i < num_rows; i++)
     {
         package[i] = 0.0;
     }
 
-    std::vector<int> eeg_channels = board_descr["eeg_channels"];
+    std::vector<int> eeg_channels = board_descr["default"]["eeg_channels"];
 
     while (keep_alive)
     {
@@ -227,14 +227,14 @@ void IronBCI::read_thread ()
         }
 
         // package num
-        package[board_descr["package_num_channel"].get<int> ()] = (double)b[0];
+        package[board_descr["default"]["package_num_channel"].get<int> ()] = (double)b[0];
         // eeg
         for (unsigned int i = 0; i < eeg_channels.size (); i++)
         {
             package[eeg_channels[i]] = (double)eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
         }
 
-        package[board_descr["timestamp_channel"].get<int> ()] = get_timestamp ();
+        package[board_descr["default"]["timestamp_channel"].get<int> ()] = get_timestamp ();
         push_package (package);
     }
     delete[] package;

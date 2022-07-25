@@ -4,4 +4,10 @@
 
 using json = nlohmann::json;
 
-extern json brainflow_boards_json;
+struct BrainFlowBoards
+{
+    json brainflow_boards_json;
+    BrainFlowBoards ();
+};
+
+extern BrainFlowBoards boards_struct;

@@ -30,6 +30,7 @@ enum class BrainFlowExitCodes : int
 
 enum class BoardIds : int
 {
+    NO_BOARD = -100, // only for internal usage
     PLAYBACK_FILE_BOARD = -3,
     STREAMING_BOARD = -2,
     SYNTHETIC_BOARD = -1,
@@ -45,7 +46,6 @@ enum class BoardIds : int
     CALLIBRI_EEG_BOARD = 9,
     CALLIBRI_EMG_BOARD = 10,
     CALLIBRI_ECG_BOARD = 11,
-    FASCIA_BOARD = 12,
     NOTION_1_BOARD = 13,
     NOTION_2_BOARD = 14,
     IRONBCI_BOARD = 15,
@@ -132,16 +132,22 @@ enum class BrainFlowClassifiers : int
     ONNX_CLASSIFIER = 2
 };
 
-/// LogLevels enum to store all possible log levels
+enum class BrainFlowPresets : int
+{
+    DEFAULT_PRESET = 0,
+    AUXILIARY_PRESET = 1,
+    ANCILLARY_PRESET = 2
+};
+
 enum class LogLevels : int
 {
-    LEVEL_TRACE = 0,    /// TRACE
-    LEVEL_DEBUG = 1,    /// DEBUG
-    LEVEL_INFO = 2,     /// INFO
-    LEVEL_WARN = 3,     /// WARN
-    LEVEL_ERROR = 4,    /// ERROR
-    LEVEL_CRITICAL = 5, /// CRITICAL
-    LEVEL_OFF = 6       // OFF
+    LEVEL_TRACE = 0,
+    LEVEL_DEBUG = 1,
+    LEVEL_INFO = 2,
+    LEVEL_WARN = 3,
+    LEVEL_ERROR = 4,
+    LEVEL_CRITICAL = 5,
+    LEVEL_OFF = 6
 };
 
 enum class NoiseTypes : int

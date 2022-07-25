@@ -254,10 +254,8 @@ TEST (DataBufferTest, GetData_InvokedInMoreThreadsThanAvailableData_SummedReturn
     for (int i = 0; i < 2048; i++)
     {
         counts[i] = promises[i].get_future ();
-        threads[i] = std::thread (
-            [&] (double *retrieval_buffer, std::promise<size_t> count) {
-                count.set_value (buffer.get_data (1, retrieval_buffer));
-            },
+        threads[i] = std::thread ([&] (double *retrieval_buffer, std::promise<size_t> count)
+            { count.set_value (buffer.get_data (1, retrieval_buffer)); },
             retrieved[i], std::move (promises[i]));
     }
 
@@ -385,10 +383,9 @@ TEST (DataBufferTest, GetCurrentData_InvokedInMultipleThreads_DataReturnedWithou
     auto it = retrieved.begin ();
     for (int i = 0; i < 1023; i++)
     {
-        threads[i] =
-            std::thread ([&] (double *retrieval_buffer,
-                             int count) { buffer.get_current_data (count, retrieval_buffer); },
-                &((*it)[0]), i + 1);
+        threads[i] = std::thread ([&] (double *retrieval_buffer, int count)
+            { buffer.get_current_data (count, retrieval_buffer); },
+            &((*it)[0]), i + 1);
         it++;
     }
 

@@ -1,7 +1,7 @@
 import argparse
 import time
 
-from brainflow.board_shim import BoardShim, BrainFlowInputParams
+from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds, BrainFlowPresets
 
 
 def main():
@@ -18,11 +18,14 @@ def main():
     parser.add_argument('--serial-port', type=str, help='serial port', required=False, default='')
     parser.add_argument('--mac-address', type=str, help='mac address', required=False, default='')
     parser.add_argument('--other-info', type=str, help='other info', required=False, default='')
-    parser.add_argument('--streamer-params', type=str, help='streamer params', required=False, default='')
     parser.add_argument('--serial-number', type=str, help='serial number', required=False, default='')
     parser.add_argument('--board-id', type=int, help='board id, check docs to get a list of supported boards',
                         required=True)
     parser.add_argument('--file', type=str, help='file', required=False, default='')
+    parser.add_argument('--master-board', type=int, help='master board id for streaming and playback boards',
+                        required=False, default=BoardIds.NO_BOARD)
+    parser.add_argument('--preset', type=int, help='preset for streaming and playback boards',
+                        required=False, default=BrainFlowPresets.DEFAULT_PRESET)
     args = parser.parse_args()
 
     params = BrainFlowInputParams()
@@ -35,11 +38,13 @@ def main():
     params.ip_protocol = args.ip_protocol
     params.timeout = args.timeout
     params.file = args.file
+    params.master_board = args.master_board
+    params.preset = args.preset
 
     board = BoardShim(args.board_id, params)
     board.prepare_session()
 
-    board.start_stream(45000, args.streamer_params)
+    board.start_stream()
     for i in range(10):
         time.sleep(1)
         board.insert_marker(i + 1)

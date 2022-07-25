@@ -52,7 +52,7 @@ class Generator:
 class VS2022(Generator):
 
     def __init__(self):
-        super(VS2022, self).__init__(10)
+        super(VS2022, self).__init__(20)
 
     def get_generator(self):
         return 'Visual Studio 17 2022'

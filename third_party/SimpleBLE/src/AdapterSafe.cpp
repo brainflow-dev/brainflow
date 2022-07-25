@@ -5,7 +5,7 @@ SimpleBLE::Safe::Adapter::Adapter(SimpleBLE::Adapter& adapter) : SimpleBLE::Adap
 std::optional<std::string> SimpleBLE::Safe::Adapter::identifier() noexcept {
     try {
         return SimpleBLE::Adapter::identifier();
-    } catch (const SimpleBLE::Exception::BaseException&) {
+    } catch (...) {
         return std::nullopt;
     }
 }
@@ -13,7 +13,7 @@ std::optional<std::string> SimpleBLE::Safe::Adapter::identifier() noexcept {
 std::optional<SimpleBLE::BluetoothAddress> SimpleBLE::Safe::Adapter::address() noexcept {
     try {
         return SimpleBLE::Adapter::address();
-    } catch (const SimpleBLE::Exception::BaseException&) {
+    } catch (...) {
         return std::nullopt;
     }
 }
@@ -22,7 +22,7 @@ bool SimpleBLE::Safe::Adapter::scan_start() noexcept {
     try {
         SimpleBLE::Adapter::scan_start();
         return true;
-    } catch (const SimpleBLE::Exception::BaseException&) {
+    } catch (...) {
         return false;
     }
 }
@@ -31,7 +31,7 @@ bool SimpleBLE::Safe::Adapter::scan_stop() noexcept {
     try {
         SimpleBLE::Adapter::scan_stop();
         return true;
-    } catch (const SimpleBLE::Exception::BaseException&) {
+    } catch (...) {
         return false;
     }
 }
@@ -40,7 +40,7 @@ bool SimpleBLE::Safe::Adapter::scan_for(int timeout_ms) noexcept {
     try {
         SimpleBLE::Adapter::scan_for(timeout_ms);
         return true;
-    } catch (const SimpleBLE::Exception::BaseException&) {
+    } catch (...) {
         return false;
     }
 }
@@ -48,7 +48,7 @@ bool SimpleBLE::Safe::Adapter::scan_for(int timeout_ms) noexcept {
 std::optional<bool> SimpleBLE::Safe::Adapter::scan_is_active() noexcept {
     try {
         return SimpleBLE::Adapter::scan_is_active();
-    } catch (const SimpleBLE::Exception::BaseException&) {
+    } catch (...) {
         return std::nullopt;
     }
 }
@@ -61,7 +61,7 @@ std::optional<std::vector<SimpleBLE::Safe::Peripheral>> SimpleBLE::Safe::Adapter
             safe_peripherals.push_back(SimpleBLE::Safe::Peripheral(peripheral));
         }
         return safe_peripherals;
-    } catch (const SimpleBLE::Exception::BaseException&) {
+    } catch (...) {
         return std::nullopt;
     }
     return std::nullopt;
@@ -75,7 +75,7 @@ std::optional<std::vector<SimpleBLE::Safe::Peripheral>> SimpleBLE::Safe::Adapter
             safe_peripherals.push_back(SimpleBLE::Safe::Peripheral(peripheral));
         }
         return safe_peripherals;
-    } catch (const SimpleBLE::Exception::BaseException&) {
+    } catch (...) {
         return std::nullopt;
     }
     return std::nullopt;
@@ -85,7 +85,7 @@ bool SimpleBLE::Safe::Adapter::set_callback_on_scan_start(std::function<void()> 
     try {
         SimpleBLE::Adapter::set_callback_on_scan_start(on_scan_start);
         return true;
-    } catch (const SimpleBLE::Exception::BaseException&) {
+    } catch (...) {
         return false;
     }
 }
@@ -94,7 +94,7 @@ bool SimpleBLE::Safe::Adapter::set_callback_on_scan_stop(std::function<void()> o
     try {
         SimpleBLE::Adapter::set_callback_on_scan_stop(on_scan_stop);
         return true;
-    } catch (const SimpleBLE::Exception::BaseException&) {
+    } catch (...) {
         return false;
     }
 }
@@ -105,7 +105,7 @@ bool SimpleBLE::Safe::Adapter::set_callback_on_scan_updated(
         SimpleBLE::Adapter::set_callback_on_scan_updated(
             [=](SimpleBLE::Peripheral p) { on_scan_updated(SimpleBLE::Safe::Peripheral(p)); });
         return true;
-    } catch (const SimpleBLE::Exception::BaseException&) {
+    } catch (...) {
         return false;
     }
 }
@@ -116,7 +116,7 @@ bool SimpleBLE::Safe::Adapter::set_callback_on_scan_found(
         SimpleBLE::Adapter::set_callback_on_scan_found(
             [=](SimpleBLE::Peripheral p) { on_scan_found(SimpleBLE::Safe::Peripheral(p)); });
         return true;
-    } catch (const SimpleBLE::Exception::BaseException&) {
+    } catch (...) {
         return false;
     }
 }
@@ -129,7 +129,7 @@ std::optional<std::vector<SimpleBLE::Safe::Adapter>> SimpleBLE::Safe::Adapter::g
             safe_adapters.push_back(SimpleBLE::Safe::Adapter(adapter));
         }
         return safe_adapters;
-    } catch (const SimpleBLE::Exception::BaseException&) {
+    } catch (...) {
         return std::nullopt;
     }
 }

@@ -153,14 +153,14 @@ int UnicornBoard::release_session ()
 
 void UnicornBoard::read_thread ()
 {
-    int num_rows = board_descr["num_rows"];
+    int num_rows = board_descr["default"]["num_rows"];
     double *package = new double[num_rows];
     for (int i = 0; i < num_rows; i++)
     {
         package[i] = 0.0;
     }
     float temp_buffer[UnicornBoard::package_size];
-    std::vector<int> eeg_channels = board_descr["eeg_channels"];
+    std::vector<int> eeg_channels = board_descr["default"]["eeg_channels"];
 
     while (keep_alive)
     {
@@ -170,7 +170,7 @@ void UnicornBoard::read_thread ()
             device_handle, 1, temp_buffer, UnicornBoard::package_size * sizeof (float));
         if (res == UNICORN_ERROR_SUCCESS)
         {
-            package[board_descr["timestamp_channel"].get<int> ()] = get_timestamp ();
+            package[board_descr["default"]["timestamp_channel"].get<int> ()] = get_timestamp ();
             // eeg data
             package[eeg_channels[0]] = (double)temp_buffer[UNICORN_EEG_CONFIG_INDEX];
             package[eeg_channels[1]] = (double)temp_buffer[UNICORN_EEG_CONFIG_INDEX + 1];
@@ -181,27 +181,27 @@ void UnicornBoard::read_thread ()
             package[eeg_channels[6]] = (double)temp_buffer[UNICORN_EEG_CONFIG_INDEX + 6];
             package[eeg_channels[7]] = (double)temp_buffer[UNICORN_EEG_CONFIG_INDEX + 7];
             // accel data
-            package[board_descr["accel_channels"][0].get<int> ()] =
+            package[board_descr["default"]["accel_channels"][0].get<int> ()] =
                 (double)temp_buffer[UNICORN_ACCELEROMETER_CONFIG_INDEX];
-            package[board_descr["accel_channels"][1].get<int> ()] =
+            package[board_descr["default"]["accel_channels"][1].get<int> ()] =
                 (double)temp_buffer[UNICORN_ACCELEROMETER_CONFIG_INDEX + 1];
-            package[board_descr["accel_channels"][2].get<int> ()] =
+            package[board_descr["default"]["accel_channels"][2].get<int> ()] =
                 (double)temp_buffer[UNICORN_ACCELEROMETER_CONFIG_INDEX + 2];
             // gyro data
-            package[board_descr["gyro_channels"][0].get<int> ()] =
+            package[board_descr["default"]["gyro_channels"][0].get<int> ()] =
                 (double)temp_buffer[UNICORN_GYROSCOPE_CONFIG_INDEX];
-            package[board_descr["gyro_channels"][1].get<int> ()] =
+            package[board_descr["default"]["gyro_channels"][1].get<int> ()] =
                 (double)temp_buffer[UNICORN_GYROSCOPE_CONFIG_INDEX + 1];
-            package[board_descr["gyro_channels"][2].get<int> ()] =
+            package[board_descr["default"]["gyro_channels"][2].get<int> ()] =
                 (double)temp_buffer[UNICORN_GYROSCOPE_CONFIG_INDEX + 2];
             // battery data
-            package[board_descr["battery_channel"].get<int> ()] =
+            package[board_descr["default"]["battery_channel"].get<int> ()] =
                 (double)temp_buffer[UNICORN_BATTERY_CONFIG_INDEX];
             // counter / package num
-            package[board_descr["package_num_channel"].get<int> ()] =
+            package[board_descr["default"]["package_num_channel"].get<int> ()] =
                 (double)temp_buffer[UNICORN_COUNTER_CONFIG_INDEX];
             // validation config index? place it to other channels
-            package[board_descr["other_channels"][0].get<int> ()] =
+            package[board_descr["default"]["other_channels"][0].get<int> ()] =
                 (double)temp_buffer[UNICORN_VALIDATION_CONFIG_INDEX];
             push_package (package);
         }

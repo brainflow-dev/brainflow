@@ -8,6 +8,7 @@ import java.util.Map;
  */
 public enum BoardIds
 {
+    NO_BOARD (-100),
     PLAYBACK_FILE_BOARD (-3),
     STREAMING_BOARD (-2),
     SYNTHETIC_BOARD (-1),
@@ -36,7 +37,7 @@ public enum BoardIds
     CROWN_BOARD (23),
     ANT_NEURO_EE_410_BOARD (24),
     ANT_NEURO_EE_411_BOARD (25),
-    ANT_NEURO_EE_430_BOARD (26), 
+    ANT_NEURO_EE_430_BOARD (26),
     ANT_NEURO_EE_211_BOARD (27),
     ANT_NEURO_EE_212_BOARD (28),
     ANT_NEURO_EE_213_BOARD (29),

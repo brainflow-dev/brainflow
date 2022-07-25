@@ -206,7 +206,7 @@ int Callibri::release_session ()
 
 void Callibri::read_thread ()
 {
-    int num_rows = board_descr["num_rows"];
+    int num_rows = board_descr["default"]["num_rows"];
     double *package = new double[num_rows];
     for (int i = 0; i < num_rows; i++)
     {
@@ -240,9 +240,9 @@ void Callibri::read_thread ()
         }
         counter++;
 
-        package[board_descr["package_num_channel"].get<int> ()] = (double)counter;
+        package[board_descr["default"]["package_num_channel"].get<int> ()] = (double)counter;
         package[1] = data * 1e6; // hardcode channel num here because there are 3 different types
-        package[board_descr["timestamp_channel"].get<int> ()] = timestamp;
+        package[board_descr["default"]["timestamp_channel"].get<int> ()] = timestamp;
         push_package (package);
     }
 }

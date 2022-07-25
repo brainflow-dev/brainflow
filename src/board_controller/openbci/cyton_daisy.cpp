@@ -32,8 +32,8 @@ void CytonDaisy::read_thread ()
     unsigned char b[32];
     bool first_sample = true;
     double accel[3] = {0.};
-    double *package = new double[board_descr["num_rows"].get<int> ()];
-    for (int i = 0; i < board_descr["num_rows"].get<int> (); i++)
+    double *package = new double[board_descr["default"]["num_rows"].get<int> ()];
+    for (int i = 0; i < board_descr["default"]["num_rows"].get<int> (); i++)
     {
         package[i] = 0.0;
     }
@@ -80,7 +80,7 @@ void CytonDaisy::read_thread ()
         // place unprocessed bytes to other_channels for all modes
         if (first_sample)
         {
-            package[board_descr["package_num_channel"].get<int> ()] = (double)b[0];
+            package[board_descr["default"]["package_num_channel"].get<int> ()] = (double)b[0];
             // eeg
             for (int i = 0; i < 8; i++)
             {
@@ -183,7 +183,7 @@ void CytonDaisy::read_thread ()
         // commit package
         if (!first_sample)
         {
-            package[board_descr["timestamp_channel"].get<int> ()] = get_timestamp ();
+            package[board_descr["default"]["timestamp_channel"].get<int> ()] = get_timestamp ();
             push_package (package);
         }
     }

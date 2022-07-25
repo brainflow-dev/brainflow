@@ -91,7 +91,7 @@ int Enophone::release_session ()
 
 void Enophone::read_thread ()
 {
-    int num_rows = board_descr["num_rows"];
+    int num_rows = board_descr["default"]["num_rows"];
     double *package = new double[num_rows];
     for (int i = 0; i < num_rows; i++)
     {
@@ -147,7 +147,7 @@ void Enophone::read_thread ()
                 res = bluetooth_get_data (temp_buffer + 2, buf_size - 2);
                 if (res == buf_size - 2)
                 {
-                    std::vector<int> eeg_channels = board_descr["eeg_channels"];
+                    std::vector<int> eeg_channels = board_descr["default"]["eeg_channels"];
                     for (int i = 0; i < 5; i++)
                     {
                         int32_t val = 0;
@@ -155,7 +155,8 @@ void Enophone::read_thread ()
                         val = swap_endians (val);
                         if (i == 0)
                         {
-                            package[board_descr["package_num_channel"].get<int> ()] = val % 65536;
+                            package[board_descr["default"]["package_num_channel"].get<int> ()] =
+                                val % 65536;
                         }
                         else
                         {
@@ -165,7 +166,7 @@ void Enophone::read_thread ()
                             package[eeg_channels[i - 1]] = value;
                         }
                     }
-                    package[board_descr["timestamp_channel"].get<int> ()] = timestamp;
+                    package[board_descr["default"]["timestamp_channel"].get<int> ()] = timestamp;
                     push_package (package);
                     break;
                 }

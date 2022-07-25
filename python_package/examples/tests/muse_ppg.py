@@ -11,7 +11,7 @@ def main():
     board = BoardShim(BoardIds.MUSE_S_BOARD, params)
     board.prepare_session()
     board.config_board('p61')
-    board.start_stream(45000, 'file://data.csv:w')
+    board.start_stream()
     time.sleep(10)
     data = board.get_board_data()
     board.stop_stream()

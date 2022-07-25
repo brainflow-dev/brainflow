@@ -1,10 +1,12 @@
+use crate::BrainFlowPresets;
+use crate::BoardIds;
 use getset::Getters;
 use serde::{Deserialize, Serialize};
 
 use crate::IpProtocolTypes;
 
 /// Input parameters for [crate::board_shim::BoardShim].
-#[derive(Debug, Default, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Getters)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Getters)]
 #[getset(get = "pub", set = "pub")]
 pub struct BrainFlowInputParams {
     serial_port: String,
@@ -16,6 +18,26 @@ pub struct BrainFlowInputParams {
     timeout: usize,
     serial_number: String,
     file: String,
+    master_board: usize,
+    preset: usize,
+}
+
+impl Default for BrainFlowInputParams {
+    fn default() -> Self {
+        Self {
+            serial_port: "".to_string(),
+            mac_address: "".to_string(),
+            ip_address: "".to_string(),
+            ip_port: 0,
+            ip_protocol: 0,
+            other_info: "".to_string(),
+            timeout: 0,
+            serial_number: "".to_string(),
+            file: "".to_string(),
+            master_board: BoardIds::NoBoard as usize,
+            preset: BrainFlowPresets::DefaultPreset as usize,
+        }
+    }
 }
 
 /// Builder for [BrainFlowInputParams].
@@ -29,7 +51,6 @@ impl BrainFlowInputParamsBuilder {
     pub fn new() -> Self {
         Default::default()
     }
-
     /// Serial port name is used for boards which reads data from serial port.
     pub fn serial_port<S: AsRef<str>>(mut self, port: S) -> Self {
         self.params.serial_port = port.as_ref().to_string();
@@ -57,6 +78,18 @@ impl BrainFlowInputParamsBuilder {
     /// IP protocol type from IpProtocolType enum.
     pub fn ip_protocol(mut self, protocol: IpProtocolTypes) -> Self {
         self.params.ip_protocol = protocol as usize;
+        self
+    }
+
+    /// Master Board from BoardIds enum.
+    pub fn master_board(mut self, master_board: BoardIds) -> Self {
+        self.params.master_board = master_board as usize;
+        self
+    }
+
+    /// Preset type from BrainFlowPresets enum.
+    pub fn preset(mut self, preset: BrainFlowPresets) -> Self {
+        self.params.preset = preset as usize;
         self
     }
 

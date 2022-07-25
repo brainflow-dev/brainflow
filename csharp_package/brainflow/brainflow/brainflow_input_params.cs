@@ -58,6 +58,16 @@ namespace brainflow
         /// </summary>
         [DataMember]
         public string file;
+        /// <summary>
+        /// Master board, use BoardIds enums
+        /// </summary>
+        [DataMember]
+        public int master_board;
+        /// <summary>
+        /// Preset, use BrainFlowPresets
+        /// </summary>
+        [DataMember]
+        public int preset;
 
         public BrainFlowInputParams ()
         {
@@ -70,6 +80,8 @@ namespace brainflow
             timeout = 0;
             serial_number = "";
             file = "";
+            preset = (int)BrainFlowPresets.DEFAULT_PRESET;
+            master_board = (int)BoardIds.NO_BOARD;
         }
 
         public string to_json ()

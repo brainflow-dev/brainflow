@@ -74,6 +74,14 @@ public class BrainFlowGetData
             {
                 params.file = args[i + 1];
             }
+            if (args[i].equals ("--preset"))
+            {
+                params.preset = Integer.parseInt (args[i + 1]);
+            }
+            if (args[i].equals ("--master-board"))
+            {
+                params.master_board = Integer.parseInt (args[i + 1]);
+            }
         }
         return board_id;
     }

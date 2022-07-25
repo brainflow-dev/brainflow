@@ -30,9 +30,12 @@ class GaleaEmulator(object):
         self.server_socket.bind((self.local_ip, self.local_port))
         self.state = State.wait.value
         self.addr = None
-        self.package_num = 0
-        self.transaction_size = 19
-        self.package_size = 72
+        self.exg_package_num = 0
+        self.aux_package_num = 0
+        self.exg_package_size = 59
+        self.aux_package_size = 26
+        self.num_exg_packages_in_transaction = 20
+        self.num_aux_packages_in_transaction = 4
 
     def run(self):
         start_time = time.time()
@@ -57,37 +60,39 @@ class GaleaEmulator(object):
                 logging.debug('timeout for recv')
 
             if self.state == State.stream.value:
-                transaction = list()
-                for _ in range(self.transaction_size):
-                    single_package = list()
-                    for i in range(self.package_size):
-                        single_package.append(random.randint(0, 255))
-                    single_package[0] = self.package_num
-
+                package = list()
+                # exg
+                for _ in range(self.num_exg_packages_in_transaction):
+                    package.append(0xA0)
+                    package.append(self.exg_package_num)
+                    self.exg_package_num = self.exg_package_num + 1
+                    if self.exg_package_num % 256 == 0:
+                        self.exg_package_num = 0
+                    for i in range(1, self.exg_package_size - 10):
+                        package.append(random.randint(0, 30))
                     cur_time = time.time()
                     timestamp = bytearray(struct.pack('d', (cur_time - start_time) * 1000))
-                    eda = bytearray(struct.pack('f', random.random()))
-                    ppg_red = bytearray(struct.pack('i', int(random.random() * 5000)))
-                    ppg_ir = bytearray(struct.pack('i', int(random.random() * 5000)))
-
-                    for i in range(64, 72):
-                        single_package[i] = timestamp[i - 64]
-                    for i in range(1, 5):
-                        single_package[i] = eda[i - 1]
-                    for i in range(60, 64):
-                        single_package[i] = ppg_ir[i - 60]
-                    for i in range(56, 60):
-                        single_package[i] = ppg_red[i - 56]
-                    single_package[53] = random.randint(0, 100)
-
-                    self.package_num = self.package_num + 1
-                    if self.package_num % 256 == 0:
-                        self.package_num = 0
-                    transaction.append(single_package)
+                    package.extend(timestamp)
+                    package.append(0xC0)
                 try:
-                    package = list()
-                    for i in range(self.transaction_size):
-                        package.extend(bytes(transaction[i]))
+                    self.server_socket.sendto(bytes(package), self.addr)
+                except socket.timeout:
+                    logging.info('timeout for send')
+                # aux
+                package = list()
+                for _ in range(self.num_aux_packages_in_transaction):
+                    package.append(0xA1)
+                    package.append(self.aux_package_num)
+                    self.aux_package_num = self.aux_package_num + 1
+                    if self.aux_package_num % 256 == 0:
+                        self.aux_package_num = 0
+                    for i in range(1, self.aux_package_size - 10):
+                        package.append(random.randint(0, 5))
+                    cur_time = time.time()
+                    timestamp = bytearray(struct.pack('d', (cur_time - start_time) * 1000))
+                    package.extend(timestamp)
+                    package.append(0xC0)
+                try:
                     self.server_socket.sendto(bytes(package), self.addr)
                 except socket.timeout:
                     logging.info('timeout for send')

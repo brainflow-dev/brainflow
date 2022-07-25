@@ -1,5 +1,8 @@
 #import "AdapterBaseMacOS.h"
 
+#import <fmt/core.h>
+#import <simpleble/Exceptions.h>
+
 @interface AdapterBaseMacOS () {
 }
 
@@ -26,11 +29,14 @@
 
         // Validate authorization state of the central manager.
         if (CBCentralManager.authorization != CBManagerAuthorizationAllowedAlways) {
-            // TODO: Convert to error.
-            NSLog(@"Application does not have Bluetooth authorization.\n");
+            throw SimpleBLE::Exception::CoreBluetoothException("Application does not have Bluetooth authorization");
         }
     }
     return self;
+}
+
+- (void*)underlying {
+    return (__bridge void*)self.centralManager;
 }
 
 - (void)validateCentralManagerState {
@@ -41,11 +47,7 @@
     }
 
     if (self.centralManager.state != CBManagerStatePoweredOn) {
-        NSException* myException = [NSException exceptionWithName:@"CBManagerNotPoweredException"
-                                                           reason:@"CBManager is not powered on."
-                                                         userInfo:nil];
-        // TODO: Append current state to exception.
-        @throw myException;
+        throw SimpleBLE::Exception::CoreBluetoothException(fmt::format("Bluetooth is not enabled [{}]", self.centralManager.state));
     }
 }
 
@@ -53,8 +55,7 @@
     [self validateCentralManagerState];
     [self.centralManager scanForPeripheralsWithServices:nil options:@{CBCentralManagerScanOptionAllowDuplicatesKey : @YES}];
     if (!self.centralManager.isScanning) {
-        NSLog(@"Did not start scanning!\n");
-        // TODO: Should an exception be thrown here?
+        throw SimpleBLE::Exception::CoreBluetoothException("Adapter scanning failed to start");
     }
 }
 
@@ -121,7 +122,6 @@
         advertisingData.manufacturer_data[manufacturerID] = manufacturerData;
     }
 
-    // TODO: Should we use @synchronized (self)??
     _adapter->delegate_did_discover_peripheral((__bridge void*)peripheral, (__bridge void*)self.centralManager, advertisingData);
 }
 

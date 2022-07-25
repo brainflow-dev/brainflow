@@ -38,7 +38,9 @@ bool DataBuffer::is_ready ()
 void DataBuffer::add_data (double *value)
 {
     if (!is_ready ())
+    {
         return;
+    }
 
     lock.lock ();
 
@@ -81,7 +83,9 @@ size_t DataBuffer::get_data (size_t max_count, double *data_buf)
     lock.lock ();
     size_t result_count = max_count;
     if (result_count > count)
+    {
         result_count = count;
+    }
     if (result_count)
     {
         get_chunk (first_used, result_count, data_buf);

@@ -32,10 +32,10 @@ private:
     std::mutex m;
     std::condition_variable cv;
     volatile int state;
-    volatile double half_rtt;
     void read_thread ();
     int calc_time (std::string &resp);
-
+    void add_exg_package (double *package, unsigned char *bytes, double pc_timestamp);
+    void add_aux_package (double *package, unsigned char *bytes, double pc_timestamp);
 
 public:
     GaleaSerial (struct BrainFlowInputParams params);

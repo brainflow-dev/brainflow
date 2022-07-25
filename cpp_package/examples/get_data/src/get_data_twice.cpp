@@ -14,8 +14,6 @@
 
 using namespace std;
 
-bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, int *board_id);
-
 
 int main (int argc, char *argv[])
 {
@@ -33,7 +31,9 @@ int main (int argc, char *argv[])
     try
     {
         board->prepare_session ();
+        board->add_streamer ("file://streamer_default.csv:w");
         board->start_stream ();
+        board->add_streamer ("file://streamer_aux.csv:w", (int)BrainFlowPresets::AUXILIARY_PRESET);
 
 #ifdef _WIN32
         Sleep (5000);
