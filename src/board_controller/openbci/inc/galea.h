@@ -36,10 +36,10 @@ private:
     std::string find_device ();
     void read_thread ();
     int calc_time (std::string &resp);
-    void add_exg_package (
-        double *package, unsigned char *bytes, double pc_timestamp, DataBuffer *times);
-    void add_aux_package (
-        double *package, unsigned char *bytes, double pc_timestamp, DataBuffer *times);
+    void add_exg_package (double *package, unsigned char *bytes, int num_bytes, double pc_timestamp,
+        DataBuffer *times);
+    void add_aux_package (double *package, unsigned char *bytes, int num_bytes, double pc_timestamp,
+        DataBuffer *times);
 
 
 public:
@@ -52,12 +52,11 @@ public:
     int release_session ();
     int config_board (std::string config, std::string &response);
 
-    static constexpr int max_bytes_in_transaction = 8192;
+    static constexpr int max_bytes_in_transaction = 4096;
     static constexpr int exg_package_size = 59;
-    static constexpr int num_exg_packages = 20;
-    static constexpr int exg_transaction_size = exg_package_size * num_exg_packages;
     static constexpr int aux_package_size = 26;
-    static constexpr int num_aux_packages = 4;
-    static constexpr int aux_transaction_size = aux_package_size * num_aux_packages;
     static constexpr int socket_timeout = 2;
+    static constexpr int start_eeg_byte = 0xA0;
+    static constexpr int start_aux_byte = 0xA1;
+    static constexpr int stop_byte = 0xC0;
 };

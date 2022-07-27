@@ -20,12 +20,11 @@ using json = nlohmann::json;
 
 constexpr int Galea::max_bytes_in_transaction;
 constexpr int Galea::exg_package_size;
-constexpr int Galea::num_exg_packages;
-constexpr int Galea::exg_transaction_size;
 constexpr int Galea::aux_package_size;
-constexpr int Galea::num_aux_packages;
-constexpr int Galea::aux_transaction_size;
 constexpr int Galea::socket_timeout;
+constexpr int Galea::start_eeg_byte;
+constexpr int Galea::start_aux_byte;
+constexpr int Galea::stop_byte;
 
 Galea::Galea (struct BrainFlowInputParams params) : Board ((int)BoardIds::GALEA_BOARD, params)
 {
@@ -139,10 +138,11 @@ int Galea::config_board (std::string conf, std::string &response)
     if (!is_streaming)
     {
         char b[Galea::max_bytes_in_transaction];
-        res = Galea::exg_transaction_size;
+        res = Galea::exg_package_size;
         int max_attempt = 25; // to dont get to infinite loop
         int current_attempt = 0;
-        while ((res == Galea::exg_transaction_size) || (res == Galea::aux_transaction_size))
+        while (((res % Galea::exg_package_size == 0) || (res % Galea::aux_package_size == 0)) &&
+            (res > 0))
         {
             res = socket->recv (b, Galea::max_bytes_in_transaction);
             if (res == -1)
@@ -355,7 +355,8 @@ void Galea::read_thread ()
         double pc_timestamp = get_timestamp ();
         // inform the main thread that everything is ok and first package was received
         if ((this->state != (int)BrainFlowExitCodes::STATUS_OK) &&
-            ((res == Galea::exg_transaction_size) || (res == Galea::aux_transaction_size)))
+            (((res % Galea::exg_package_size == 0) || (res % Galea::aux_package_size == 0)) &&
+                (res > 0)))
         {
             safe_logger (spdlog::level::info,
                 "received first package with {} bytes streaming is started", res);
@@ -366,13 +367,14 @@ void Galea::read_thread ()
             this->cv.notify_one ();
             safe_logger (spdlog::level::debug, "start streaming");
         }
-        if (res == Galea::exg_transaction_size)
+        if ((res > 0) && (res % Galea::exg_package_size == 0) && (b[0] == Galea::start_eeg_byte))
         {
-            add_exg_package (exg_package, b, pc_timestamp, &time_buffer);
+            add_exg_package (exg_package, b, res, pc_timestamp, &time_buffer);
         }
-        else if (res == Galea::aux_transaction_size)
+        else if ((res > 0) && (res % Galea::aux_package_size == 0) &&
+            (b[0] == Galea::start_aux_byte))
         {
-            add_aux_package (aux_package, b, pc_timestamp, &time_buffer);
+            add_aux_package (aux_package, b, res, pc_timestamp, &time_buffer);
         }
         else
         {
@@ -397,7 +399,7 @@ void Galea::read_thread ()
 }
 
 void Galea::add_exg_package (
-    double *package, unsigned char *b, double pc_timestamp, DataBuffer *time_buffer)
+    double *package, unsigned char *b, int num_bytes, double pc_timestamp, DataBuffer *time_buffer)
 {
     // 20 times:
     // b[0] start byte
@@ -405,7 +407,16 @@ void Galea::add_exg_package (
     // b[2-49] exg
     // b[50-57] timestamp
     // b[58] end byte
-    constexpr int offset_last_package = Galea::exg_package_size * (Galea::num_exg_packages - 1);
+    int num_exg_packages = num_bytes / Galea::exg_package_size;
+    if ((num_bytes < 1) || (num_bytes % Galea::exg_package_size != 0) ||
+        (b[0] != Galea::start_eeg_byte) || (b[num_bytes - 1] != Galea::stop_byte) ||
+        (num_exg_packages < 2))
+    {
+        safe_logger (spdlog::level::trace, "push exg package is called with invalid input data");
+        return;
+    }
+
+    int offset_last_package = Galea::exg_package_size * (num_exg_packages - 1);
     double timestamp_last_package = 0.0;
     memcpy (&timestamp_last_package, b + 50 + offset_last_package, 8);
     timestamp_last_package /= 1000; // from ms to seconds
@@ -420,7 +431,7 @@ void Galea::add_exg_package (
     }
     time_delta /= num_time_deltas;
 
-    for (int cur_package = 0; cur_package < Galea::num_exg_packages; cur_package++)
+    for (int cur_package = 0; cur_package < num_exg_packages; cur_package++)
     {
         int offset = cur_package * Galea::exg_package_size;
         // package num
@@ -451,7 +462,7 @@ void Galea::add_exg_package (
 }
 
 void Galea::add_aux_package (
-    double *package, unsigned char *b, double pc_timestamp, DataBuffer *time_buffer)
+    double *package, unsigned char *b, int num_bytes, double pc_timestamp, DataBuffer *time_buffer)
 {
     // 4 times:
     // b[0] start byte
@@ -462,7 +473,16 @@ void Galea::add_aux_package (
     // b[16] battery
     // b[17-24] timestamp
     // b[25] end byte
-    constexpr int offset_last_package = Galea::aux_package_size * (Galea::num_aux_packages - 1);
+    int num_aux_packages = num_bytes / Galea::aux_package_size;
+    if ((num_bytes < 1) || (num_bytes % Galea::aux_package_size != 0) ||
+        (b[0] != Galea::start_aux_byte) || (b[num_bytes - 1] != Galea::stop_byte) ||
+        (num_aux_packages < 2))
+    {
+        safe_logger (spdlog::level::trace, "push aux package is called with invalid input data");
+        return;
+    }
+
+    int offset_last_package = Galea::aux_package_size * (num_aux_packages - 1);
     double timestamp_last_package = 0.0;
     memcpy (&timestamp_last_package, b + 17 + offset_last_package, 8);
     timestamp_last_package /= 1000; // from ms to seconds
@@ -477,7 +497,7 @@ void Galea::add_aux_package (
     }
     time_delta /= num_time_deltas;
 
-    for (int cur_package = 0; cur_package < Galea::num_aux_packages; cur_package++)
+    for (int cur_package = 0; cur_package < num_aux_packages; cur_package++)
     {
         int offset = cur_package * Galea::aux_package_size;
         // package num
