@@ -998,10 +998,25 @@ int read_file (double *data, int *num_rows, int *num_cols, const char *file_name
                 splitted.push_back (tmp);
             }
         }
+        if ((total_cols != 0) && (total_cols != (int)splitted.size ()))
+        {
+            data_logger->error ("some rows have more cols than others, invalid input file");
+            fclose (fp);
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+        }
         total_cols = (int)splitted.size ();
         for (int i = 0; i < total_cols; i++)
         {
-            data[i * total_rows + current_row] = std::stod (splitted[i]);
+            try
+            {
+                data[i * total_rows + current_row] = std::stod (splitted[i]);
+            }
+            catch (const std::invalid_argument &)
+            {
+                fclose (fp);
+                data_logger->error ("found not a number in data file");
+                return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+            }
             cur_pos++;
             if (cur_pos == (num_elements - 1))
             {
