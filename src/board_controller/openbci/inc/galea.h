@@ -26,6 +26,7 @@ private:
     volatile bool keep_alive;
     volatile int state;
     volatile double half_rtt;
+    volatile bool dump_bytes;
     bool initialized;
     bool is_streaming;
     std::thread streaming_thread;
@@ -36,10 +37,6 @@ private:
     std::string find_device ();
     void read_thread ();
     int calc_time (std::string &resp);
-    void add_exg_package (double *package, unsigned char *bytes, int num_bytes, double pc_timestamp,
-        DataBuffer *times);
-    void add_aux_package (double *package, unsigned char *bytes, int num_bytes, double pc_timestamp,
-        DataBuffer *times);
 
 
 public:
@@ -52,11 +49,8 @@ public:
     int release_session ();
     int config_board (std::string config, std::string &response);
 
-    static constexpr int max_bytes_in_transaction = 4096;
-    static constexpr int exg_package_size = 59;
-    static constexpr int aux_package_size = 26;
+    static constexpr int package_size = 72;
+    static constexpr int num_packages = 19;
+    static constexpr int transaction_size = package_size * num_packages;
     static constexpr int socket_timeout = 2;
-    static constexpr int start_eeg_byte = 0xA0;
-    static constexpr int start_aux_byte = 0xA1;
-    static constexpr int stop_byte = 0xC0;
 };

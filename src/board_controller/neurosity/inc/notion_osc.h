@@ -30,7 +30,7 @@ private:
     void handle_packet (double *package, const OSCPP::Server::Packet &packet);
 
 public:
-    NotionOSC (struct BrainFlowInputParams params);
+    NotionOSC (int board_id, struct BrainFlowInputParams params);
     ~NotionOSC ();
 
     int prepare_session ();

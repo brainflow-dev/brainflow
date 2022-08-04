@@ -24,6 +24,7 @@ private:
     const double emg_scale = ADS1299_Vref / double ((pow (2, 23) - 1)) / 4.0 * 1000000.;
 
     volatile bool keep_alive;
+    volatile bool dump_bytes;
     bool initialized;
     bool is_streaming;
     std::thread streaming_thread;
@@ -32,10 +33,10 @@ private:
     std::mutex m;
     std::condition_variable cv;
     volatile int state;
+    volatile double half_rtt;
     void read_thread ();
     int calc_time (std::string &resp);
-    void add_exg_package (double *package, unsigned char *bytes, double pc_timestamp);
-    void add_aux_package (double *package, unsigned char *bytes, double pc_timestamp);
+
 
 public:
     GaleaSerial (struct BrainFlowInputParams params);
