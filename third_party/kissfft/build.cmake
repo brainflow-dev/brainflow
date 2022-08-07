@@ -76,7 +76,7 @@ endif()
 # Declare kissfft library ( libkissfft.a / libkissfft-${KISSFFT_DATATYPE}.so.${MAKEFILE_EXTRACTED_VERSION} )
 #
 
-add_library(kissfft
+add_library(kissfft STATIC
   ${CMAKE_HOME_DIRECTORY}/third_party/kissfft/kiss_fft.c
   ${CMAKE_HOME_DIRECTORY}/third_party/kissfft/kfc.c
   ${CMAKE_HOME_DIRECTORY}/third_party/kissfft/kiss_fftnd.c
