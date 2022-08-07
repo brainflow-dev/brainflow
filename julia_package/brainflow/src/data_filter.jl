@@ -299,12 +299,8 @@ end
 
 @brainflow_rethrow function perform_fft(data, window::WinType)
 
-    function is_power_of_two(value)
-        (value != 0) && (value & (value - 1) == 0)
-    end
-
-    if !is_power_of_two(length(data))
-        throw(BrainFlowError(string("Data Len must be power of two ", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))
+    if (length(data) % 2 == 1)
+        throw(BrainFlowError(string("Data Len must be even ", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))
     end
 
     temp_re = Vector{Float64}(undef, Integer(length(data) / 2) + 1)
@@ -359,12 +355,8 @@ end
 
 @brainflow_rethrow function get_psd(data, sampling_rate::Integer, window::WinType)
 
-    function is_power_of_two(value)
-        (value != 0) && (value & (value - 1) == 0)
-    end
-
-    if !is_power_of_two(length(data))
-        throw(BrainFlowError(string("Data Len must be power of two ", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))
+    if (length(data) % 2 == 1)
+        throw(BrainFlowError(string("Data Len must be even ", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))
     end
 
     temp_ampls = Vector{Float64}(undef, Integer(length(data) / 2) + 1)
@@ -377,12 +369,8 @@ end
 
 @brainflow_rethrow function get_psd_welch(data, nfft::Integer, overlap::Integer, sampling_rate::Integer, window::WinType)
 
-    function is_power_of_two(value)
-        (value != 0) && (value & (value - 1) == 0)
-    end
-
-    if !is_power_of_two(nfft)
-        throw(BrainFlowError(string("nfft must be power of two ", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))
+    if (length(data) % 2 == 1)
+        throw(BrainFlowError(string("Data Len must be even ", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))
     end
 
     temp_ampls = Vector{Float64}(undef, Integer(nfft / 2) + 1)

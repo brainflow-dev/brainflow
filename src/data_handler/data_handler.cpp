@@ -25,7 +25,8 @@
 #include "wauxlib.h"
 #include "wavelib.h"
 
-#include "FFTReal.h"
+#include "kiss_fftr.h"
+
 #include "spdlog/sinks/null_sink.h"
 #include "spdlog/spdlog.h"
 
@@ -701,38 +702,13 @@ int get_window (int window_function, int window_len, double *output_window)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-/*
-   FFTReal output | Positive FFT equiv.   | Negative FFT equiv.
-   ---------------+-----------------------+-----------------------
-   f [0]          | Real (bin 0)          | Real (bin 0)
-   f [...]        | Real (bin ...)        | Real (bin ...)
-   f [length/2]   | Real (bin length/2)   | Real (bin length/2)
-   f [length/2+1] | Imag (bin 1)          | -Imag (bin 1)
-   f [...]        | Imag (bin ...)        | -Imag (bin ...)
-   f [length-1]   | Imag (bin length/2-1) | -Imag (bin length/2-1)
-
-And FFT bins are distributed in f [] as above:
-
-               |                | Positive FFT    | Negative FFT
-   Bin         | Real part      | imaginary part  | imaginary part
-   ------------+----------------+-----------------+---------------
-   0           | f [0]          | 0               | 0
-   1           | f [1]          | f [length/2+1]  | -f [length/2+1]
-   ...         | f [...],       | f [...]         | -f [...]
-   length/2-1  | f [length/2-1] | f [length-1]    | -f [length-1]
-   length/2    | f [length/2]   | 0               | 0
-   length/2+1  | f [length/2-1] | -f [length-1]   | f [length-1]
-   ...         | f [...]        | -f [...]        | f [...]
-   length-1    | f [1]          | -f [length/2+1] | f [length/2+1]
-*/
 int perform_fft (
     double *data, int data_len, int window_function, double *output_re, double *output_im)
 {
-    // must be power of 2
-    if ((!data) || (!output_re) || (!output_im) || (data_len <= 0) || (data_len & (data_len - 1)))
+    if ((!data) || (!output_re) || (!output_im) || (data_len <= 0) || (data_len % 2 == 1))
     {
-        data_logger->error ("Please check to make sure all arguments aren't empty and data_len is "
-                            "a postive power of 2.");
+        data_logger->error (
+            "Please check to make sure all arguments aren't empty and data_len is even.");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
@@ -742,36 +718,36 @@ int perform_fft (
     {
         windowed_data[i] *= data[i];
     }
-    double *temp = new double[data_len];
+    kiss_fft_cpx *sout = new kiss_fft_cpx[data_len];
+    kiss_fftr_cfg cfg = NULL;
     try
     {
-        ffft::FFTReal<double> fft_object (data_len);
-        fft_object.do_fft (temp, windowed_data);
+        cfg = kiss_fftr_alloc (data_len, 0, 0, 0);
+        kiss_fftr (cfg, windowed_data, sout);
         for (int i = 0; i < data_len / 2 + 1; i++)
         {
-            output_re[i] = temp[i];
+            output_re[i] = sout[i].r;
+            output_im[i] = sout[i].i;
         }
-        output_im[0] = 0.0;
-        for (int count = 1, j = data_len / 2 + 1; j < data_len; j++, count++)
-        {
-            // add minus to make output exactly as in scipy
-            output_im[count] = -temp[j];
-        }
-        output_im[data_len / 2] = 0.0;
-        delete[] temp;
+        delete[] sout;
         delete[] windowed_data;
         windowed_data = NULL;
-        temp = NULL;
+        sout = NULL;
+        kiss_fftr_free (cfg);
     }
     catch (...)
     {
-        if (temp)
+        if (sout)
         {
-            delete[] temp;
+            delete[] sout;
         }
         if (windowed_data)
         {
             delete[] windowed_data;
+        }
+        if (cfg)
+        {
+            kiss_fftr_free (cfg);
         }
         data_logger->error ("Error with doing FFT processing.");
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
@@ -782,37 +758,47 @@ int perform_fft (
 // data_len here is an original size, not len of input_re input_im
 int perform_ifft (double *input_re, double *input_im, int data_len, double *restored_data)
 {
-    // must be power of 2
-    if ((!restored_data) || (!input_re) || (!input_im) || (data_len <= 0) ||
-        (data_len & (data_len - 1)))
+    if ((!restored_data) || (!input_re) || (!input_im) || (data_len <= 0) || (data_len % 2 == 1))
     {
-        data_logger->error ("Please check to make sure all arguments aren't empty and data_len is "
-                            "a postive power of 2.");
+        data_logger->error (
+            "Please check to make sure all arguments aren't empty and data_len is even.");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     double *temp = new double[data_len];
+    kiss_fft_cpx *cin = new kiss_fft_cpx[data_len];
+    for (int i = 0; i < data_len / 2 + 1; i++)
+    {
+        cin[i].r = input_re[i];
+        cin[i].i = input_im[i];
+    }
+    kiss_fftr_cfg cfg = NULL;
     try
     {
-        ffft::FFTReal<double> fft_object (data_len);
-        for (int i = 0; i < data_len / 2 + 1; i++)
+        cfg = kiss_fftr_alloc (data_len, 1, 0, 0);
+        kiss_fftri (cfg, cin, temp);
+        for (int i = 0; i < data_len; i++)
         {
-            temp[i] = input_re[i];
+            restored_data[i] = temp[i] / data_len;
         }
-        for (int count = 1, j = data_len / 2 + 1; j < data_len; j++, count++)
-        {
-            // add minus to make output exactly as in scipy
-            temp[j] = -input_im[count];
-        }
-        fft_object.do_ifft (temp, restored_data);
-        fft_object.rescale (restored_data);
+        delete[] cin;
+        cin = NULL;
         delete[] temp;
         temp = NULL;
+        kiss_fftr_free (cfg);
     }
     catch (...)
     {
         if (temp)
         {
             delete[] temp;
+        }
+        if (cin)
+        {
+            delete[] cin;
+        }
+        if (cfg)
+        {
+            kiss_fftr_free (cfg);
         }
         data_logger->error ("Error with doing inverse FFT.");
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
@@ -823,11 +809,11 @@ int perform_ifft (double *input_re, double *input_im, int data_len, double *rest
 int get_psd (double *data, int data_len, int sampling_rate, int window_function,
     double *output_ampl, double *output_freq)
 {
-    if ((data == NULL) || (sampling_rate < 1) || (data_len < 1) || (data_len & (data_len - 1)) ||
+    if ((data == NULL) || (sampling_rate < 1) || (data_len < 1) || (data_len % 2 == 1) ||
         (output_ampl == NULL) || (output_freq == NULL))
     {
         data_logger->error ("Please check to make sure all arguments aren't empty, sampling rate "
-                            "is >=1 and data_len is a postive power of 2.");
+                            "is >=1 and data_len is even.");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     double *re = new double[data_len / 2 + 1];

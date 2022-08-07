@@ -250,9 +250,6 @@ classdef DataFilter
             % perform fft
             task_name = 'perform_fft';
             n = size(data, 2);
-            if(bitand(n, n - 1) ~= 0)
-                error('For FFT shape must be power of 2!');
-            end
             temp_input = libpointer('doublePtr', data);
             lib_name = DataFilter.load_lib();
             temp_re = libpointer('doublePtr', zeros(1, int32(n / 2 + 1)));
@@ -305,9 +302,6 @@ classdef DataFilter
             % calculate PSD
             task_name = 'get_psd';
             n = size(data, 2);
-            if(bitand(n, n - 1) ~= 0)
-                error('For FFT shape must be power of 2!');
-            end
             temp_input = libpointer('doublePtr', data);
             lib_name = DataFilter.load_lib();
             temp_ampls = libpointer('doublePtr', zeros(1, int32(n / 2 + 1)));
@@ -321,9 +315,6 @@ classdef DataFilter
         function [ampls, freqs] = get_psd_welch(data, nfft, overlap, sampling_rate, window)
             % calculate PSD using welch method
             task_name = 'get_psd_welch';
-            if(bitand(nfft, nfft - 1) ~= 0)
-                error('nfft must be power of 2!');
-            end
             temp_input = libpointer('doublePtr', data);
             lib_name = DataFilter.load_lib();
             temp_ampls = libpointer('doublePtr', zeros(1, int32(nfft / 2 + 1)));
