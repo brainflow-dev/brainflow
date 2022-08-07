@@ -163,7 +163,11 @@ void transform_signal(void)
         if (++avgctr == navg) {
             avgctr=0;
             ++nrows;
-            CHECKNULL( vals = (float*)realloc(vals,sizeof(float)*nrows*nfreqs) );
+            if (vals != NULL) {
+                free(vals);
+                vals = NULL;
+            }
+            CHECKNULL( vals = (float*)malloc(sizeof(float)*nrows*nfreqs) );
             float eps = 1;
             for (i=0;i<nfreqs;++i)
                 vals[(nrows - 1) * nfreqs + i] = 10 * log10 ( mag2buf[i] / navg + eps );
