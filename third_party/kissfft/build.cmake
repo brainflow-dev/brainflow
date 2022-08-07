@@ -73,13 +73,6 @@ if(CMAKE_SYSTEM_NAME MATCHES "^(Linux|kFreeBSD|GNU)$" AND NOT CMAKE_CROSSCOMPILI
 endif()
 
 #
-# Declare PKGINCLUDEDIR for kissfft include path
-#
-
-set(PKGINCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}/kissfft")
-message(STATUS "PKGINCLUDEDIR is ${PKGINCLUDEDIR}")
-
-#
 # Declare kissfft library ( libkissfft.a / libkissfft-${KISSFFT_DATATYPE}.so.${MAKEFILE_EXTRACTED_VERSION} )
 #
 
@@ -91,8 +84,7 @@ add_library(kissfft
   ${CMAKE_HOME_DIRECTORY}/third_party/kissfft/kiss_fftr.c)
 
 target_include_directories(kissfft PUBLIC
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
-    $<INSTALL_INTERFACE:${PKGINCLUDEDIR}>)
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>)
 
 if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
     target_compile_options(kissfft PRIVATE
@@ -254,20 +246,3 @@ function(add_kissfft_executable NAME)
             OUTPUT_NAME "${NAME}-${KISSFFT_DATATYPE}-openmp")
     endif()
 endfunction()
-
-#
-# Perform installation of kissfft library and development files
-#
-
-install(TARGETS kissfft EXPORT kissfft
-    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
-
-install(FILES 
-    ${CMAKE_HOME_DIRECTORY}/third_party/kissfft/kiss_fft.h
-    ${CMAKE_HOME_DIRECTORY}/third_party/kissfft/kissfft.hh
-    ${CMAKE_HOME_DIRECTORY}/third_party/kissfft/kiss_fftnd.h
-    ${CMAKE_HOME_DIRECTORY}/third_party/kissfft/kiss_fftndr.h
-    ${CMAKE_HOME_DIRECTORY}/third_party/kissfft/kiss_fftr.h
-    DESTINATION "${PKGINCLUDEDIR}")
