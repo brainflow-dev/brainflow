@@ -65,16 +65,6 @@ else()
 endif()
 
 #
-# Detect C compiler and pass appropriate flags
-#
-
-if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
-    add_compile_options(-ffast-math -fomit-frame-pointer
-        -W -Wall -Wcast-align -Wcast-qual -Wshadow -Wwrite-strings
-        "$<$<COMPILE_LANGUAGE:C>:-Wstrict-prototypes;-Wmissing-prototypes;-Wnested-externs;-Wbad-function-cast>")
-endif()
-
-#
 # Add GNUInstallDirs for GNU infrastructure before target)include_directories
 #
 
@@ -103,6 +93,12 @@ add_library(kissfft
 target_include_directories(kissfft PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
     $<INSTALL_INTERFACE:${PKGINCLUDEDIR}>)
+
+if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
+    target_compile_options(kissfft PRIVATE
+        "$<$<COMPILE_LANGUAGE:CXX>:-ffast-math -fomit-frame-pointer -W -Wall -Wcast-align -Wcast-qual -Wwrite-strings>"
+        "$<$<COMPILE_LANGUAGE:C>:-Wstrict-prototypes;-Wmissing-prototypes;-Wnested-externs;-Wbad-function-cast>")
+endif()
 
 #
 # Set compile definitions based on datatype and additional support flags
