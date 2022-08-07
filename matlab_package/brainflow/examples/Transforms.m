@@ -9,7 +9,7 @@ board_shim.prepare_session();
 board_shim.start_stream(45000, '');
 pause(5);
 board_shim.stop_stream();
-data = board_shim.get_current_board_data(DataFilter.get_nearest_power_of_two(sampling_rate), preset);
+data = board_shim.get_current_board_data(256, preset);
 board_shim.release_session();
 
 eeg_channels = BoardShim.get_eeg_channels(int32(BoardIds.SYNTHETIC_BOARD), preset);

@@ -102,7 +102,7 @@ public:
     /**
      * perform direct fft
      * @param data input array
-     * @param data_len must be power of 2
+     * @param data_len must be even
      * @param window window function
      * @param fft_len output fft len(data_len / 2 + 1)
      * @return complex array with size data_len / 2 + 1, it holds only positive im values
@@ -111,7 +111,7 @@ public:
     /**
      * perform inverse fft
      * @param fft_data complex array from perform_fft
-     * @param fft_len len of original array, must be power of 2
+     * @param fft_len len of original array, must be even
      * @param data_len output array len
      * @return restored data
      */
@@ -125,7 +125,7 @@ public:
     /**
      * calculate PSD
      * @param data input array
-     * @param data_len must be power of 2
+     * @param data_len must be even
      * @param sampling_rate sampling rate
      * @param window window function
      * @param psd_len output len (data_len / 2 + 1)

@@ -1,5 +1,6 @@
 include (${CMAKE_HOME_DIRECTORY}/third_party/DSPFilters/build.cmake)
 include (${CMAKE_HOME_DIRECTORY}/third_party/wavelib/build.cmake)
+include (${CMAKE_HOME_DIRECTORY}/third_party/kissfft/build.cmake)
 
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)
     SET (DATA_HANDLER_NAME "DataHandler")
@@ -42,7 +43,7 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/src/data_handler/inc
     ${CMAKE_HOME_DIRECTORY}/third_party/DSPFilters/include
     ${CMAKE_HOME_DIRECTORY}/third_party/wavelib/header
-    ${CMAKE_HOME_DIRECTORY}/third_party/fft/src
+    ${CMAKE_HOME_DIRECTORY}/third_party/kissfft
 )
 
 target_compile_definitions(${DATA_HANDLER_NAME} PRIVATE BRAINFLOW_VERSION=${BRAINFLOW_VERSION})
@@ -64,9 +65,9 @@ if (USE_OPENMP)
 endif (USE_OPENMP)
 
 if (UNIX AND NOT ANDROID)
-    target_link_libraries (${DATA_HANDLER_NAME} PRIVATE ${DSPFILTERS} ${WAVELIB} pthread dl)
+    target_link_libraries (${DATA_HANDLER_NAME} PRIVATE ${DSPFILTERS} ${WAVELIB} kissfft pthread dl)
 else (UNIX AND NOT ANDROID)
-    target_link_libraries (${DATA_HANDLER_NAME} PRIVATE ${DSPFILTERS} ${WAVELIB})
+    target_link_libraries (${DATA_HANDLER_NAME} PRIVATE ${DSPFILTERS} ${WAVELIB} kissfft)
 endif (UNIX AND NOT ANDROID)
 if (ANDROID)
     find_library (log-lib log)
@@ -113,7 +114,7 @@ install (
 )
 
 install (
-    TARGETS ${DSPFILTERS} ${WAVELIB} ${DATA_HANDLER_NAME}
+    TARGETS ${DSPFILTERS} ${WAVELIB} kissfft ${DATA_HANDLER_NAME}
     EXPORT ${TARGETS_EXPORT_NAME}
     RUNTIME DESTINATION lib
     LIBRARY DESTINATION lib
