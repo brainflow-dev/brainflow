@@ -23,7 +23,6 @@ navbar-links:
   Get Started: "get_started"
   Github: "https://github.com/brainflow-dev/brainflow/"
   Docs: "https://brainflow.readthedocs.io/en/stable/"
-  Features: "features"
   Services:
     - Paid Software Dev: "paid_software_development"
     - BrainFlow Shop: "https://brainflow.myspreadshop.net/all"
@@ -33,8 +32,9 @@ navbar-links:
     - Gallery: "gallery"
     - Citations: "citations"
   Blog: "blog"
-  About:
+  About BrainFlow:
     - Contact Us: "contact"
+    - Features: "features"
     - For Developers: "https://brainflow.readthedocs.io/en/stable/BrainFlowDev.html"
     - Project Roadmap: "roadmap"
     - Code of Conduct: "conduct"
