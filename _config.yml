@@ -24,11 +24,16 @@ navbar-links:
   Github: "https://github.com/brainflow-dev/brainflow/"
   Docs: "https://brainflow.readthedocs.io/en/stable/"
   Features: "features"
+  Services:
+    - Paid Software Dev: "paid_software_development"
+    - BrainFlow Shop: "https://brainflow.myspreadshop.net/all"
+    - Classifiers: "https://opencollective.com/brainflow/contribute/classifiers-43612"
+    - Datasets: "https://opencollective.com/brainflow/contribute/datasets-43614" 
   Gallery:
     - Gallery: "gallery"
     - Citations: "citations"
   Blog: "blog"
-  About BrainFlow:
+  About:
     - Contact Us: "contact"
     - For Developers: "https://brainflow.readthedocs.io/en/stable/BrainFlowDev.html"
     - Project Roadmap: "roadmap"
