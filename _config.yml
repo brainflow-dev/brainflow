@@ -32,7 +32,7 @@ navbar-links:
     - Gallery: "gallery"
     - Citations: "citations"
   Blog: "blog"
-  About BrainFlow:
+  About:
     - Contact Us: "contact"
     - Features: "features"
     - For Developers: "https://brainflow.readthedocs.io/en/stable/BrainFlowDev.html"
