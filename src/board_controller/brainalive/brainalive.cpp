@@ -19,6 +19,7 @@
 
 #define BRAINALIVE_WRITE_CHAR "0000fe41-8e22-4541-9d4c-21edae82ed19"
 #define BRAINALIVE_NOTIFY_CHAR "0000fe42-8e22-4541-9d4c-21edae82ed19"
+#define BRAINALIVE_BAT_CHAR "00002a19-0000-1000-8000-00805f9b34fb"
 
 // info for equations
 #define BRAINALIVE_EEG_SCALE_FACTOR 0.0476837158203125
@@ -35,6 +36,11 @@ void read_notifications (simpleble_uuid_t service, simpleble_uuid_t characterist
     size_t size, void *board)
 {
     ((BrainAlive *)(board))->read_data (service, characteristic, data, size, 0);
+}
+void read_bat_notifications (simpleble_uuid_t service, simpleble_uuid_t characteristic,
+    uint8_t *data, size_t size, void *board)
+{
+    ((BrainAlive *)(board))->read_bat_data (service, characteristic, data, size, 0);
 }
 
 BrainAlive::BrainAlive (struct BrainFlowInputParams params)
@@ -157,9 +163,28 @@ int BrainAlive::prepare_session ()
                             service.characteristics[j], ::read_notifications,
                             (void *)this) == SIMPLEBLE_SUCCESS)
                     {
-
-                        notified_characteristics = std::pair<simpleble_uuid_t, simpleble_uuid_t> (
-                            service.uuid, service.characteristics[j]);
+                        notified_characteristics.push_back (
+                            std::pair<simpleble_uuid_t, simpleble_uuid_t> (
+                                service.uuid, service.characteristics[j]));
+                    }
+                    else
+                    {
+                        safe_logger (spdlog::level::err, "Failed to notify for {} {}",
+                            service.uuid.value, service.characteristics[j].value);
+                        res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+                    }
+                }
+                if (strcmp (service.characteristics[j].value,
+                        BRAINALIVE_BAT_CHAR) == 0) // Battery Notification Characteristics
+                {
+                    if (simpleble_peripheral_notify (brainalive_peripheral, service.uuid,
+                            service.characteristics[j], ::read_bat_notifications,
+                            (void *)this) == SIMPLEBLE_SUCCESS)
+                    {
+                        safe_logger (spdlog::level::debug, " notify sucess for battery {} {}");
+                        notified_characteristics.push_back (
+                            std::pair<simpleble_uuid_t, simpleble_uuid_t> (
+                                service.uuid, service.characteristics[j]));
                     }
                     else
                     {
@@ -210,16 +235,16 @@ int BrainAlive::stop_stream ()
     if (is_streaming)
     {
         res = config_board ("0a4000000d");
-
-        if (simpleble_peripheral_unsubscribe (brainalive_peripheral, notified_characteristics.first,
-                notified_characteristics.second) != SIMPLEBLE_SUCCESS)
+        for (auto notified : notified_characteristics)
         {
-            safe_logger (spdlog::level::err, "failed to unsubscribe for {} {}",
-                notified_characteristics.first.value, notified_characteristics.second.value);
-            res = (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
+            if (simpleble_peripheral_unsubscribe (
+                    brainalive_peripheral, notified.first, notified.second) != SIMPLEBLE_SUCCESS)
+            {
+                safe_logger (spdlog::level::err, "failed to unsubscribe for {} {}",
+                    notified.first.value, notified.second.value);
+                res = (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
+            }
         }
-        else
-            safe_logger (spdlog::level::debug, "Stop command Send 0x4000000d");
     }
     else
     {
@@ -355,7 +380,7 @@ void BrainAlive::read_data (simpleble_uuid_t service, simpleble_uuid_t character
         for (int k = 0; k < BRAINALIVE_MAX_PACKET; k++)
         {
             int j = 0;
-            double BA_Data_Buff[19] = {0};
+            double BA_Data_Buff[21] = {0};
             for (int i = 4; i < 28; i += 3)
                 BA_Data_Buff[j++] = (((BA_Temp_Buff[k][i] << 16 | BA_Temp_Buff[k][i + 1] << 8 |
                                           BA_Temp_Buff[k][i + 2])
@@ -364,6 +389,8 @@ void BrainAlive::read_data (simpleble_uuid_t service, simpleble_uuid_t character
                     BRAINALIVE_EEG_SCALE_FACTOR / BRAINALIVE_EEG_GAIN_VALUE;
 
             BA_Data_Buff[17] = BA_Temp_Buff[k][29];
+            BA_Data_Buff[18] = Battery_Percentage;
+            BA_Data_Buff[19] = get_timestamp ();
 
             push_package (&BA_Data_Buff[0]);
         }
@@ -372,7 +399,7 @@ void BrainAlive::read_data (simpleble_uuid_t service, simpleble_uuid_t character
     {
         uint8_t BA_Temp_Buff[BRAINALIVE_MAX_PACKET - 1][BRAINALIVE_PACKET_SIZE] = {0};
         uint8_t BA_Temp_Buff_fnirs[BRAINALIVE_PACKET_SIZE + BRAINALIVE_FNIRS_AXL_PACKET_SIZE] = {0};
-        double BA_Data_Buff[19] = {0};
+        double BA_Data_Buff[21] = {0};
 
         for (int i = 0; i < BRAINALIVE_MAX_PACKET - 1; i++)
         {
@@ -396,6 +423,9 @@ void BrainAlive::read_data (simpleble_uuid_t service, simpleble_uuid_t character
                                         8) *
                     BRAINALIVE_EEG_SCALE_FACTOR / BRAINALIVE_EEG_GAIN_VALUE;
             BA_Data_Buff[17] = BA_Temp_Buff[k][29];
+            BA_Data_Buff[18] = Battery_Percentage;
+            BA_Data_Buff[19] = get_timestamp ();
+
             push_package (&BA_Data_Buff[0]);
         }
         int j = 0;
@@ -414,19 +444,29 @@ void BrainAlive::read_data (simpleble_uuid_t service, simpleble_uuid_t character
                 ((BA_Temp_Buff_fnirs[i] << 8 | BA_Temp_Buff_fnirs[i + 1]) << 16) >> 16;
 
         BA_Data_Buff[17] = BA_Temp_Buff_fnirs[53];
+        BA_Data_Buff[18] = Battery_Percentage;
+        BA_Data_Buff[19] = get_timestamp ();
 
         push_package (&BA_Data_Buff[0]);
     }
     if (size == BRAINALIVE_PACKET_SIZE)
     {
         int j = 0;
-        double BA_Data_Buff[19] = {0};
+        double BA_Data_Buff[21] = {0};
         for (int i = 4; i < 28; i += 3)
             BA_Data_Buff[j++] = (((data[i] << 16 | data[i + 1] << 8 | data[i + 2]) << 8) >> 8) *
                 BRAINALIVE_EEG_SCALE_FACTOR / BRAINALIVE_EEG_GAIN_VALUE;
 
         BA_Data_Buff[17] = data[29];
+        BA_Data_Buff[18] = Battery_Percentage;
+        BA_Data_Buff[19] = get_timestamp ();
 
         push_package (&BA_Data_Buff[0]);
     }
+}
+
+void BrainAlive::read_bat_data (simpleble_uuid_t service, simpleble_uuid_t characteristic,
+    uint8_t *data, size_t size, int channel_num)
+{
+    Battery_Percentage = data[0];
 }

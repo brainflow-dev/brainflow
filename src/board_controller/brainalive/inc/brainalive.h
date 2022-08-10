@@ -22,14 +22,18 @@ public:
     void adapter_1_on_scan_found (simpleble_adapter_t adapter, simpleble_peripheral_t peripheral);
     void read_data (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
         size_t size, int channel_num);
+    void read_bat_data (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
+        size_t size, int channel_num);
+    uint8_t Battery_Percentage = 0;
 
 protected:
     volatile simpleble_adapter_t brainalive_adapter;
     volatile simpleble_peripheral_t brainalive_peripheral;
     bool initialized;
     bool is_streaming;
+
     std::mutex m;
     std::condition_variable cv;
-    std::pair<simpleble_uuid_t, simpleble_uuid_t> notified_characteristics;
+    std::vector<std::pair<simpleble_uuid_t, simpleble_uuid_t>> notified_characteristics;
     std::pair<simpleble_uuid_t, simpleble_uuid_t> write_characteristics;
 };

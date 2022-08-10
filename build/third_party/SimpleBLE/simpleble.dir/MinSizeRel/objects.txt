@@ -1,0 +1,11 @@
+D:/Git_Codes/BrainAlive_BrainFlow/brainflow/build/third_party/SimpleBLE/simpleble.dir/MinSizeRel/Adapter.obj
+D:/Git_Codes/BrainAlive_BrainFlow/brainflow/build/third_party/SimpleBLE/simpleble.dir/MinSizeRel/Peripheral.obj
+D:/Git_Codes/BrainAlive_BrainFlow/brainflow/build/third_party/SimpleBLE/simpleble.dir/MinSizeRel/Exceptions.obj
+D:/Git_Codes/BrainAlive_BrainFlow/brainflow/build/third_party/SimpleBLE/simpleble.dir/MinSizeRel/AdapterBuilder.obj
+D:/Git_Codes/BrainAlive_BrainFlow/brainflow/build/third_party/SimpleBLE/simpleble.dir/MinSizeRel/PeripheralBuilder.obj
+D:/Git_Codes/BrainAlive_BrainFlow/brainflow/build/third_party/SimpleBLE/simpleble.dir/MinSizeRel/AdapterSafe.obj
+D:/Git_Codes/BrainAlive_BrainFlow/brainflow/build/third_party/SimpleBLE/simpleble.dir/MinSizeRel/PeripheralSafe.obj
+D:/Git_Codes/BrainAlive_BrainFlow/brainflow/build/third_party/SimpleBLE/simpleble.dir/MinSizeRel/src/Utils.cpp.obj
+D:/Git_Codes/BrainAlive_BrainFlow/brainflow/build/third_party/SimpleBLE/simpleble.dir/MinSizeRel/AdapterBase.obj
+D:/Git_Codes/BrainAlive_BrainFlow/brainflow/build/third_party/SimpleBLE/simpleble.dir/MinSizeRel/PeripheralBase.obj
+D:/Git_Codes/BrainAlive_BrainFlow/brainflow/build/third_party/SimpleBLE/simpleble.dir/MinSizeRel/src/windows/Utils.cpp.obj

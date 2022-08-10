@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="D:\Git_Codes\BrainAlive_BrainFlow\brainflow\build\CMakeFiles\d13809585a561d4943d3e5e7eda4b389\INSTALL_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{6EC5D9AF-2BCE-3F9E-A690-50B0A44179A7}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
