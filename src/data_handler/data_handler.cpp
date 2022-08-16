@@ -1371,7 +1371,7 @@ int get_railed_percentage (double *raw_data, int data_len, int gain, double *out
         {
             cur_max = abs (raw_data[i]);
         }
-        if ((abs (raw_data[i - 1] - raw_data[i]) > 0.00001) && (abs (raw_data[i] > 0.00001)))
+        if (((abs (raw_data[i - 1]) - raw_data[i]) > 0.00001) && (abs (raw_data[i]) > 0.00001))
         {
             is_straight_line = false;
         }
