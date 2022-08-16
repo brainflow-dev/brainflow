@@ -245,6 +245,17 @@ classdef DataFilter
             DataFilter.check_ec(exit_code, task_name);
             stddev = output.Value;
         end
+        
+        function railed = get_railed_percentage(data, gain)
+            % calc railed percentage
+            task_name = 'get_railed_percentage';
+            temp_input = libpointer('doublePtr', data);
+            output = libpointer('doublePtr', 0);
+            lib_name = DataFilter.load_lib();
+            exit_code = calllib(lib_name, task_name, temp_input, size(data, 2), gain, output);
+            DataFilter.check_ec(exit_code, task_name);
+            railed = output.Value;
+        end
 
         function fft_data = perform_fft(data, window)
             % perform fft

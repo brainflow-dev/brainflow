@@ -211,6 +211,25 @@ pub fn calc_stddev(
     Ok(output as f64)
 }
 
+/// Get Railed Percentage.
+pub fn get_railed_percentage(
+    data: &mut [f64],
+    data_size: usize,
+    gain: usize
+) -> Result<f64> {
+    let mut output = 0.0 as f64;
+    let res = unsafe {
+        data_handler::get_railed_percentage(
+            data.as_mut_ptr() as *mut c_double,
+            data_size as c_int,
+            gain as c_int,
+            &mut output,
+        )
+    };
+    check_brainflow_exit_code(res)?;
+    Ok(output as f64)
+}
+
 /// Perform data downsampling, it doesnt apply lowpass filter for you, it just aggregates several data points.
 pub fn perform_downsampling(
     data: &mut [f64],

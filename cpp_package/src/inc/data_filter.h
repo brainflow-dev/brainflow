@@ -185,6 +185,8 @@ public:
     static BrainFlowArray<double, 2> read_file (std::string file_name);
     /// calc stddev
     static double calc_stddev (double *data, int start_pos, int end_pos);
+    /// calc railed percentage
+    static double get_railed_percentage (double *data, int data_len, int gain);
 
     /// get brainflow version
     static std::string get_version ();

@@ -1353,6 +1353,42 @@ int get_custom_band_powers (double *raw_data, int rows, int cols, double *start_
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
+int get_railed_percentage (double *raw_data, int data_len, int gain, double *output)
+{
+    if ((raw_data == NULL) || (data_len < 1) || (gain < 1) || (output == NULL))
+    {
+        data_logger->error ("Please review your arguments.");
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    int scaler = (4.5 / (pow (2, 23) - 1) / gain * 1000000.);
+    double max_val = scaler * pow (2, 23);
+    int cur_max = abs (raw_data[0]);
+    bool is_straight_line = true;
+    for (int i = 1; i < data_len; i++)
+    {
+        if (abs (raw_data[i]) > cur_max)
+        {
+            cur_max = abs (raw_data[i]);
+        }
+        if ((abs (raw_data[i - 1] - raw_data[i]) > 0.00001) && (abs (raw_data[i] > 0.00001)))
+        {
+            is_straight_line = false;
+        }
+    }
+
+    if (is_straight_line)
+    {
+        *output = 100.0;
+    }
+    else
+    {
+        *output = (cur_max / max_val) * 100;
+    }
+
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
 int get_version_data_handler (char *version, int *num_chars, int max_chars)
 {
     strncpy (version, BRAINFLOW_VERSION_STRING, max_chars);

@@ -73,6 +73,8 @@ public class DataFilter
 
         int calc_stddev (double[] data, int start_pos, int end_pos, double[] output);
 
+        int get_railed_percentage (double[] data, int len, int gain, double[] output);
+
         int get_num_elements_in_file (String file_name, int[] num_elements);
 
         int get_nearest_power_of_two (int value, int[] output);
@@ -194,6 +196,20 @@ public class DataFilter
     {
         double[] output = new double[1];
         int ec = instance.calc_stddev (data, start_pos, end_pos, output);
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in set_log_file", ec);
+        }
+        return output[0];
+    }
+
+    /**
+     * get railed percentage
+     */
+    public static double get_railed_percentage (double[] data, int len, int gain) throws BrainFlowError
+    {
+        double[] output = new double[1];
+        int ec = instance.get_railed_percentage (data, len, gain, output);
         if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in set_log_file", ec);

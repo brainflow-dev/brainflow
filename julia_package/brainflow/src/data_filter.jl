@@ -228,6 +228,13 @@ end
     return output[1]
 end
 
+@brainflow_rethrow function get_railed_percentage(data, gain::Integer)
+    output = Vector{Float64}(undef, 1)
+    ccall((:get_railed_percentage, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Ptr{Float64}),
+                data, length(data), gain, output)
+    return output[1]
+end
+
 @brainflow_rethrow function get_num_elements_in_file(file_name::String)
     num_elements = Vector{Cint}(undef, 1)
     ccall((:get_num_elements_in_file, DATA_HANDLER_INTERFACE), Cint, (Ptr{UInt8}, Ptr{Cint}),
