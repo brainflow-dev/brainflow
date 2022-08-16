@@ -172,6 +172,8 @@ namespace brainflow
         public static extern int calc_stddev (double[] data, int start_pos, int end_pos, double[] output);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_version_data_handler (byte[] version, int[] len, int max_len);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_oxygen_level (double[] ppg_ir, double[] ppg_red, int data_size, int sampling_rate, double coef1, double coef2, double coef3, double[] output);
     }
 
     class DataHandlerLibrary32
@@ -234,6 +236,8 @@ namespace brainflow
         public static extern int calc_stddev (double[] data, int start_pos, int end_pos, double[] output);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_version_data_handler (byte[] version, int[] len, int max_len);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_oxygen_level (double[] ppg_ir, double[] ppg_red, int data_size, int sampling_rate, double coef1, double coef2, double coef3, double[] output);
     }
 
     class DataHandlerLibraryLinux
@@ -296,6 +300,8 @@ namespace brainflow
         public static extern int calc_stddev (double[] data, int start_pos, int end_pos, double[] output);
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_version_data_handler (byte[] version, int[] len, int max_len);
+        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_oxygen_level (double[] ppg_ir, double[] ppg_red, int data_size, int sampling_rate, double coef1, double coef2, double coef3, double[] output);
     }
 
     class DataHandlerLibraryMac
@@ -358,6 +364,8 @@ namespace brainflow
         public static extern int calc_stddev (double[] data, int start_pos, int end_pos, double[] output);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_version_data_handler (byte[] version, int[] len, int max_len);
+        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_oxygen_level (double[] ppg_ir, double[] ppg_red, int data_size, int sampling_rate, double coef1, double coef2, double coef3, double[] output);
     }
 
     class DataHandlerLibrary
@@ -803,6 +811,23 @@ namespace brainflow
                     return DataHandlerLibraryLinux.calc_stddev (data, start_pos, end_pos, output);
                 case LibraryEnvironment.MacOS:
                     return DataHandlerLibraryMac.calc_stddev (data, start_pos, end_pos, output);
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static int get_oxygen_level (double[] ppg_ir, double[] ppg_red, int data_size, int sampling_rate, double coef1, double coef2, double coef3, double[] output)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.get_oxygen_level (ppg_ir, ppg_red, data_size, sampling_rate, coef1, coef2, coef3, output);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.get_oxygen_level (ppg_ir, ppg_red, data_size, sampling_rate, coef1, coef2, coef3, output);
+                case LibraryEnvironment.Linux:
+                    return DataHandlerLibraryLinux.get_oxygen_level (ppg_ir, ppg_red, data_size, sampling_rate, coef1, coef2, coef3, output);
+                case LibraryEnvironment.MacOS:
+                    return DataHandlerLibraryMac.get_oxygen_level (ppg_ir, ppg_red, data_size, sampling_rate, coef1, coef2, coef3, output);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;

@@ -88,6 +88,9 @@ public class DataFilter
         int get_band_power (double[] ampls, double[] freqs, int len, double start_freq, double stop_freq,
                 double[] output);
 
+        int get_oxygen_level (double[] ppg_ir, double[] ppg_red, int len, int sampling_rate, double coef1, double coef2,
+                double coef3, double[] output);
+
         int get_version_data_handler (byte[] version, int[] len, int max_len);
 
         int log_message_data_handler (int log_level, String message);
@@ -196,9 +199,37 @@ public class DataFilter
         int ec = instance.calc_stddev (data, start_pos, end_pos, output);
         if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
-            throw new BrainFlowError ("Error in set_log_file", ec);
+            throw new BrainFlowError ("Error in calc_stddev", ec);
         }
         return output[0];
+    }
+
+    /**
+     * get oxygen level
+     */
+    public static double get_oxygen_level (double[] ppg_ir, double[] ppg_red, int sampling_rate, double coef1,
+            double coef2, double coef3) throws BrainFlowError
+    {
+        if (ppg_ir.length != ppg_red.length)
+        {
+            throw new BrainFlowError ("Error in get_oxygen_level",
+                    BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
+        double[] output = new double[1];
+        int ec = instance.get_oxygen_level (ppg_ir, ppg_red, ppg_ir.length, sampling_rate, coef1, coef2, coef3, output);
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in get_oxygen_level", ec);
+        }
+        return output[0];
+    }
+
+    /**
+     * get oxygen level
+     */
+    public static double get_oxygen_level (double[] ppg_ir, double[] ppg_red, int sampling_rate) throws BrainFlowError
+    {
+        return get_oxygen_level (ppg_ir, ppg_red, sampling_rate, 0.0, -37.663, 114.91);
     }
 
     /**

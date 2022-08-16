@@ -12,6 +12,7 @@
 
 #include "brainflow_constants.h"
 #include "brainflow_version.h"
+#include "common_data_handler_helpers.h"
 #include "data_handler.h"
 #include "downsample_operators.h"
 #include "rolling_filter.h"
@@ -1365,6 +1366,70 @@ int get_custom_band_powers (double *raw_data, int rows, int cols, double *start_
     delete[] std_bands;
 
     return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int get_oxygen_level (double *ppg_ir, double *ppg_red, int data_size, int sampling_rate,
+    double callib_coef1, double callib_coef2, double callib_coef3, double *oxygen_level)
+{
+    if ((ppg_red == NULL) || (ppg_ir == NULL) || (data_size < 10) || (sampling_rate < 1) ||
+        (oxygen_level == NULL))
+    {
+        data_logger->error (
+            "invalid inputs for get_oxygen_level, ir {}, red {}, size {}, sampling {}, output {}",
+            (ppg_ir != NULL), (ppg_red != NULL), data_size, sampling_rate, (oxygen_level != NULL));
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    int res = (int)BrainFlowExitCodes::STATUS_OK;
+
+    double *red_raw = new double[data_size];
+    double *ir_raw = new double[data_size];
+    int filter_shift = 5; // to get rif of filtereing artifact, dont use first elements
+    int new_size = data_size - filter_shift;
+    double *new_red_raw = red_raw + filter_shift;
+    double *new_ir_raw = ir_raw + filter_shift;
+    memcpy (red_raw, ppg_red, data_size * sizeof (double));
+    memcpy (ir_raw, ppg_ir, data_size * sizeof (double));
+
+    // need prefiltered mean of red and ir for dc
+    double mean_red = mean (new_red_raw, new_size);
+    double mean_ir = mean (new_ir_raw, new_size);
+
+    // filtering(full size)
+    res = detrend (red_raw, data_size, (int)DetrendOperations::CONSTANT);
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        res = detrend (ir_raw, data_size, (int)DetrendOperations::CONSTANT);
+    }
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        res = perform_bandpass (
+            red_raw, data_size, sampling_rate, 0.7, 1.5, 4, (int)FilterTypes::BUTTERWORTH, 0.0);
+    }
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        res = perform_bandpass (
+            ir_raw, data_size, sampling_rate, 0.7, 1.5, 4, (int)FilterTypes::BUTTERWORTH, 0.0);
+    }
+
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        // calculate AC & DC components using mean & rms:
+        double redac = rms (new_red_raw, new_size);
+        double irac = rms (new_ir_raw, new_size);
+        double reddc = mean_red;
+        double irdc = mean_ir;
+
+        // https://www.maximintegrated.com/en/design/technical-documents/app-notes/6/6845.html
+        double r = (redac / reddc) / (irac / irdc);
+        double spo2 = callib_coef1 * r * r + callib_coef2 * r + callib_coef3;
+        *oxygen_level = spo2;
+    }
+
+    delete[] red_raw;
+    delete[] ir_raw;
+
+    return res;
 }
 
 int get_version_data_handler (char *version, int *num_chars, int max_chars)

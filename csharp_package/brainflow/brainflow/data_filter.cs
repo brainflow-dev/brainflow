@@ -269,6 +269,28 @@ namespace brainflow
         }
 
         /// <summary>
+        /// calc oxygen level from ppg values
+        /// </summary>
+        /// <param name="coef1">appxorimation coef for power of 2</param>
+        /// <param name="coef2">approximation coef</param>
+        /// /// <param name="coef3">intercept for approximation</param>
+        /// <returns>stddev</returns>
+        public static double get_oxygen_level (double[] ppg_ir, double[] ppg_red, int sampling_rate, double coef1 = 0.0, double coef2 = -37.663, double coef3 = 114.91)
+        {
+            if (ppg_ir.Length != ppg_red.Length)
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            double[] output = new double[1];
+            int res = DataHandlerLibrary.get_oxygen_level (ppg_ir, ppg_red, ppg_ir.Length, sampling_rate, coef1, coef2, coef3, output);
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+            return output[0];
+        }
+
+        /// <summary>
         /// perform wavelet transform
         /// </summary>
         /// <param name="data">data for wavelet transform</param>

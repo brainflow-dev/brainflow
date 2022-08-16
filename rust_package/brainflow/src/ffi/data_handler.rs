@@ -211,6 +211,18 @@ extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
+    pub fn get_oxygen_level(
+        ppg_ir: *mut f64,
+        ppg_red: *mut f64,
+        data_size: ::std::os::raw::c_int,
+        sampling_rate: ::std::os::raw::c_int,
+        callib_coef1: f64,
+        callib_coef2: f64,
+        callib_coef3: f64,
+        oxygen_level: *mut f64,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
     pub fn set_log_level_data_handler(log_level: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
