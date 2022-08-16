@@ -93,7 +93,7 @@ Example for Linux, for other OSes it's similar::
     # Change build type to Debug
     python3 tools/build.py --debug --clear-build-dir --num-jobs 8
     # Create a test to reproduce your issue in C++, here we will use get_data_demo
-    cd tests/cpp/get_data_demo
+    cd cpp_package/examples/get_data
     mkdir build
     cd build
     cmake -DCMAKE_PREFIX_PATH=TYPE_FULL_PATH_TO_BRAINFLOW_INSTALLED_FOLDER -DCMAKE_BUILD_TYPE=Debug ..

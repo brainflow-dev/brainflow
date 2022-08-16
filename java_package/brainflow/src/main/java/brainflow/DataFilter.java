@@ -625,7 +625,7 @@ public class DataFilter
      * 
      * @param data      data for fft transform
      * @param start_pos starting position to calc fft
-     * @param end_pos   end position to calc fft, total_len must be a power of two
+     * @param end_pos   end position to calc fft, total_len must be even
      * @param window    window function
      * @return array of complex values with size N / 2 + 1
      */
@@ -639,9 +639,9 @@ public class DataFilter
         // I didnt find a way to pass an offset using pointers, copy array
         double[] data_to_process = Arrays.copyOfRange (data, start_pos, end_pos);
         int len = data_to_process.length;
-        if ((len & (len - 1)) != 0)
+        if (len % 2 == 1)
         {
-            throw new BrainFlowError ("end_pos - start_pos must be a power of 2",
+            throw new BrainFlowError ("end_pos - start_pos must be even",
                     BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
         }
         double[][] complex_array = new double[2][];
@@ -660,7 +660,7 @@ public class DataFilter
      * 
      * @param data      data for fft transform
      * @param start_pos starting position to calc fft
-     * @param end_pos   end position to calc fft, total_len must be a power of two
+     * @param end_pos   end position to calc fft, total_len must be even
      * @param window    window function
      * @return array of complex values with size N / 2 + 1
      */
@@ -761,8 +761,7 @@ public class DataFilter
      * 
      * @param data          data to process
      * @param start_pos     starting position to calc PSD
-     * @param end_pos       end position to calc PSD, total_len must be a power of
-     *                      two
+     * @param end_pos       end position to calc PSD, total_len must be even
      * @param sampling_rate sampling rate
      * @param window        window function
      * @return pair of ampl and freq arrays with len N / 2 + 1
@@ -778,9 +777,9 @@ public class DataFilter
         // I didnt find a way to pass an offset using pointers, copy array
         double[] data_to_process = Arrays.copyOfRange (data, start_pos, end_pos);
         int len = data_to_process.length;
-        if ((len & (len - 1)) != 0)
+        if (len % 2 == 1)
         {
-            throw new BrainFlowError ("end_pos - start_pos must be a power of 2",
+            throw new BrainFlowError ("end_pos - start_pos must be even",
                     BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
         }
         double[] ampls = new double[len / 2 + 1];
@@ -799,8 +798,7 @@ public class DataFilter
      * 
      * @param data          data to process
      * @param start_pos     starting position to calc PSD
-     * @param end_pos       end position to calc PSD, total_len must be a power of
-     *                      two
+     * @param end_pos       end position to calc PSD, total_len must be even
      * @param sampling_rate sampling rate
      * @param window        window function
      * @return pair of ampl and freq arrays with len N / 2 + 1
@@ -815,7 +813,7 @@ public class DataFilter
      * get PSD using Welch Method
      * 
      * @param data          data to process
-     * @param nfft          size of FFT, must be power of two
+     * @param nfft          size of FFT, must be even
      * @param overlap       overlap between FFT Windows, must be between 0 and nfft
      * @param sampling_rate sampling rate
      * @param window        window function
@@ -824,10 +822,9 @@ public class DataFilter
     public static Pair<double[], double[]> get_psd_welch (double[] data, int nfft, int overlap, int sampling_rate,
             int window) throws BrainFlowError
     {
-        if ((nfft & (nfft - 1)) != 0)
+        if (nfft % 2 == 1)
         {
-            throw new BrainFlowError ("nfft must be a power of 2",
-                    BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+            throw new BrainFlowError ("nfft must be even", BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
         }
         double[] ampls = new double[nfft / 2 + 1];
         double[] freqs = new double[nfft / 2 + 1];
@@ -844,7 +841,7 @@ public class DataFilter
      * get PSD using Welch Method
      * 
      * @param data          data to process
-     * @param nfft          size of FFT, must be power of two
+     * @param nfft          size of FFT, must be even
      * @param overlap       overlap between FFT Windows, must be between 0 and nfft
      * @param sampling_rate sampling rate
      * @param window        window function

@@ -437,7 +437,7 @@ namespace brainflow
         /// </summary>
         /// <param name="data">data for fft</param>
         /// <param name="start_pos">start pos</param>
-        /// <param name="end_pos">end pos, end_pos - start_pos must be a power of 2</param>
+        /// <param name="end_pos">end pos, end_pos - start_pos must be even</param>
         /// <param name="window">window function</param>
         /// <returns>complex array of size N / 2 + 1 of fft data</returns>
         public static Complex[] perform_fft (double[] data, int start_pos, int end_pos, int window)
@@ -447,7 +447,7 @@ namespace brainflow
                 throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             }
             int len = end_pos - start_pos;
-            if ((len & (len - 1)) != 0)
+            if (len % 2 == 1)
             {
                 throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             }
@@ -617,7 +617,7 @@ namespace brainflow
         /// </summary>
         /// <param name="data">data for PSD</param>
         /// <param name="start_pos">start pos</param>
-        /// <param name="end_pos">end pos, end_pos - start_pos must be a power of 2</param>
+        /// <param name="end_pos">end pos, end_pos - start_pos must be even</param>
         /// <param name="sampling_rate">sampling rate</param>
         /// <param name="window">window function</param>
         /// <returns>Tuple of ampls and freqs arrays of size N / 2 + 1</returns>
@@ -628,7 +628,7 @@ namespace brainflow
                 throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             }
             int len = end_pos - start_pos;
-            if ((len & (len - 1)) != 0)
+            if (len % 2 == 1)
             {
                 throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             }

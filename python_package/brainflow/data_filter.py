@@ -884,7 +884,7 @@ class DataFilter(object):
     def perform_fft(cls, data: NDArray[Float64], window: int) -> NDArray[Complex128]:
         """perform direct fft
 
-        :param data: data for fft, len of data must be a power of 2
+        :param data: data for fft, len of data must be even
         :type data: NDArray[Float64]
         :param window: window function
         :type window: int
@@ -893,13 +893,6 @@ class DataFilter(object):
         """
 
         check_memory_layout_row_major(data, 1)
-
-        def is_power_of_two(n):
-            return (n != 0) and (n & (n - 1) == 0)
-
-        if (not is_power_of_two(data.shape[0])):
-            raise BrainFlowError('data len is not power of 2: %d' % data.shape[0],
-                                 BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
 
         temp_re = numpy.zeros(int(data.shape[0] / 2 + 1)).astype(numpy.float64)
         temp_im = numpy.zeros(int(data.shape[0] / 2 + 1)).astype(numpy.float64)
@@ -917,7 +910,7 @@ class DataFilter(object):
     def get_psd(cls, data: NDArray[Float64], sampling_rate: int, window: int) -> Tuple:
         """calculate PSD
 
-        :param data: data to calc psd, len of data must be a power of 2
+        :param data: data to calc psd, len of data must be even
         :type data: NDArray[Float64]
         :param sampling_rate: sampling rate
         :type sampling_rate: int
@@ -928,13 +921,6 @@ class DataFilter(object):
         """
 
         check_memory_layout_row_major(data, 1)
-
-        def is_power_of_two(n):
-            return (n != 0) and (n & (n - 1) == 0)
-
-        if (not is_power_of_two(data.shape[0])):
-            raise BrainFlowError('data len is not power of 2: %d' % data.shape[0],
-                                 BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
 
         ampls = numpy.zeros(int(data.shape[0] / 2 + 1)).astype(numpy.float64)
         freqs = numpy.zeros(int(data.shape[0] / 2 + 1)).astype(numpy.float64)
@@ -950,7 +936,7 @@ class DataFilter(object):
 
         :param data: data to calc psd
         :type data: NDArray[Float64]
-        :param nfft: FFT Window size, must be power of 2
+        :param nfft: FFT Window size, must be even
         :type nfft: int
         :param overlap: overlap of FFT Windows, must be between 0 and nfft
         :type overlap: int
@@ -963,12 +949,6 @@ class DataFilter(object):
         """
 
         check_memory_layout_row_major(data, 1)
-
-        def is_power_of_two(n):
-            return (n != 0) and (n & (n - 1) == 0)
-
-        if (not is_power_of_two(nfft)):
-            raise BrainFlowError('nfft is not power of 2: %d' % nfft, BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
 
         ampls = numpy.zeros(int(nfft / 2 + 1)).astype(numpy.float64)
         freqs = numpy.zeros(int(nfft / 2 + 1)).astype(numpy.float64)
