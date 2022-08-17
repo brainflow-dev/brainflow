@@ -186,7 +186,7 @@ public:
      * @return oxygen level
      */
     static double get_oxygen_level (double *ppg_ir, double *ppg_red, int data_len,
-        int sampling_rate, double coef1 = 0.0, double coef2 = 3.57, double coef3 = 86.07);
+        int sampling_rate, double coef1 = 0.0, double coef2 = 3.579, double coef3 = 86.07);
 
     /// write file, in file data will be transposed
     static void write_file (
