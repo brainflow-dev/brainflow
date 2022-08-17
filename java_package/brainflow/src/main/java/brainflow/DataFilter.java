@@ -229,7 +229,7 @@ public class DataFilter
      */
     public static double get_oxygen_level (double[] ppg_ir, double[] ppg_red, int sampling_rate) throws BrainFlowError
     {
-        return get_oxygen_level (ppg_ir, ppg_red, sampling_rate, 0.0, -37.663, 114.91);
+        return get_oxygen_level (ppg_ir, ppg_red, sampling_rate, 0.0, 3.579, 86.07);
     }
 
     /**
