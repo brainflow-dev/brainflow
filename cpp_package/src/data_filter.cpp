@@ -257,7 +257,7 @@ std::pair<double *, double *> DataFilter::get_psd_welch (
         delete[] freq;
         throw BrainFlowException ("failed to get_psd_welch", res);
     }
-    *psd_len = data_len / 2 + 1;
+    *psd_len = nfft / 2 + 1;
     return std::make_pair (ampl, freq);
 }
 
