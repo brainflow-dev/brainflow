@@ -13,7 +13,7 @@ def main():
     board.prepare_session()
     board.config_board('p50')
     board.start_stream()
-    time.sleep(5)
+    time.sleep(10)
     data = board.get_board_data(preset=BrainFlowPresets.ANCILLARY_PRESET)
     board.stop_stream()
     board.release_session()
@@ -22,8 +22,8 @@ def main():
 
     ppg_channels = BoardShim.get_ppg_channels(BoardIds.MUSE_2_BOARD,  BrainFlowPresets.ANCILLARY_PRESET)
     sampling_rate = BoardShim.get_sampling_rate(BoardIds.MUSE_2_BOARD, BrainFlowPresets.ANCILLARY_PRESET)
-    ppg_ir = data[ppg_channels[0]]
-    ppg_red = data[ppg_channels[1]] 
+    ppg_ir = data[ppg_channels[1]]
+    ppg_red = data[ppg_channels[0]] 
     oxygen_level = DataFilter.get_oxygen_level(ppg_ir, ppg_red, sampling_rate)
     print(oxygen_level)
 

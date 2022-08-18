@@ -1357,11 +1357,11 @@ int get_custom_band_powers (double *raw_data, int rows, int cols, double *start_
 int get_oxygen_level (double *ppg_ir, double *ppg_red, int data_size, int sampling_rate,
     double callib_coef1, double callib_coef2, double callib_coef3, double *oxygen_level)
 {
-    if ((ppg_red == NULL) || (ppg_ir == NULL) || (data_size < 20) || (sampling_rate < 1) ||
+    if ((ppg_red == NULL) || (ppg_ir == NULL) || (data_size < 40) || (sampling_rate < 1) ||
         (oxygen_level == NULL))
     {
         data_logger->error ("invalid inputs for get_oxygen_level, ir {}, red {}, size {}, sampling "
-                            "{}, output {}, min size is 20",
+                            "{}, output {}, min size is 40",
             (ppg_ir != NULL), (ppg_red != NULL), data_size, sampling_rate, (oxygen_level != NULL));
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
@@ -1370,7 +1370,7 @@ int get_oxygen_level (double *ppg_ir, double *ppg_red, int data_size, int sampli
 
     double *red_raw = new double[data_size];
     double *ir_raw = new double[data_size];
-    int filter_shift = 15; // to get rif of filtereing artifact, dont use first elements
+    int filter_shift = 25; // to get rif of filtereing artifact, dont use first elements
     int new_size = data_size - filter_shift;
     double *new_red_raw = red_raw + filter_shift;
     double *new_ir_raw = ir_raw + filter_shift;
@@ -1408,8 +1408,16 @@ int get_oxygen_level (double *ppg_ir, double *ppg_red, int data_size, int sampli
 
         // https://www.maximintegrated.com/en/design/technical-documents/app-notes/6/6845.html
         double r = (redac / reddc) / (irac / irdc);
-        data_logger->trace ("r is {}", r);
+        data_logger->trace ("r is: {}", r);
         double spo2 = callib_coef1 * r * r + callib_coef2 * r + callib_coef3;
+        if (spo2 > 100.0)
+        {
+            spo2 = 100.0;
+        }
+        if (spo2 < 0)
+        {
+            spo2 = 0.0
+        }
         *oxygen_level = spo2;
     }
 

@@ -21,4 +21,4 @@ ir_channel = ppg_channels(1);
 red_channel = ppg_channels(2);
 ir_data = data(ir_channel, :);
 red_data = data(red_channel, :);
-spo2 = DataFilter.get_oxygen_level(ir_data, red_data, sampling_rate, 0.0, 3.579, 86.07);
+spo2 = DataFilter.get_oxygen_level(ir_data, red_data, sampling_rate, 0.0, -37.663, 114.91);

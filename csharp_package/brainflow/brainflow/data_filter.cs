@@ -275,7 +275,7 @@ namespace brainflow
         /// <param name="coef2">approximation coef</param>
         /// /// <param name="coef3">intercept for approximation</param>
         /// <returns>stddev</returns>
-        public static double get_oxygen_level (double[] ppg_ir, double[] ppg_red, int sampling_rate, double coef1 = 0.0, double coef2 = 3.579, double coef3 = 86.07)
+        public static double get_oxygen_level (double[] ppg_ir, double[] ppg_red, int sampling_rate, double coef1 = 0.0, double coef2 = -37.663, double coef3 = 114.91)
         {
             if (ppg_ir.Length != ppg_red.Length)
             {
