@@ -162,9 +162,18 @@ void SyntheticBoard::read_thread ()
             {
                 package[channel] = dist_around_one (mt);
             }
-            for (int channel : board_descr["default"]["ppg_channels"])
+            for (int chan_num = 0; chan_num < (int)board_descr["default"]["ppg_channels"].size ();
+                 chan_num++)
             {
-                package[channel] = 5000.0 * dist_around_one (mt);
+                int channel = board_descr["default"]["ppg_channels"][chan_num];
+                if (chan_num == 0)
+                {
+                    package[channel] = 500.0 * dist_around_one (mt);
+                }
+                else
+                {
+                    package[channel] = 253500.0 * dist_around_one (mt);
+                }
             }
             for (int channel : board_descr["default"]["temperature_channels"])
             {

@@ -58,6 +58,9 @@ extern "C"
         int apply_filters, double *avg_band_powers, double *stddev_band_powers);
     SHARED_EXPORT int CALLING_CONVENTION get_railed_percentage (
         double *raw_data, int data_len, int gain, double *output);
+    SHARED_EXPORT int CALLING_CONVENTION get_oxygen_level (double *ppg_ir, double *ppg_red,
+        int data_size, int sampling_rate, double callib_coef1, double callib_coef2,
+        double callib_coef3, double *oxygen_level);
 
     // logging methods
     SHARED_EXPORT int CALLING_CONVENTION set_log_level_data_handler (int log_level);

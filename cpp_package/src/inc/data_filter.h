@@ -177,6 +177,16 @@ public:
     static std::pair<double *, double *> get_custom_band_powers (
         const BrainFlowArray<double, 2> &data, std::vector<std::pair<double, double>> bands,
         std::vector<int> channels, int sampling_rate, bool apply_filters);
+    /**
+     * calculate oxygen level
+     * @param ppg_ir input 1d array
+     * @param ppg_red input 1d array
+     * @param data_len size of array
+     * @param sampling_rate sampling rate
+     * @return oxygen level
+     */
+    static double get_oxygen_level (double *ppg_ir, double *ppg_red, int data_len,
+        int sampling_rate, double coef1 = 0.0, double coef2 = -37.663, double coef3 = 114.91);
 
     /// write file, in file data will be transposed
     static void write_file (

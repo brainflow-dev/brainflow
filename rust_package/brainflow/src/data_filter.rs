@@ -230,6 +230,32 @@ pub fn get_railed_percentage(
     Ok(output as f64)
 }
 
+/// Calculate oxygen level.
+pub fn get_oxygen_level(
+    ppg_ir: &mut [f64],
+    ppg_red: &mut [f64],
+    sampling_rate: usize,
+    coef1: f64,
+    coef2: f64,
+    coef3: f64,
+) -> Result<f64> {
+    let mut output = 0.0 as f64;
+    let res = unsafe {
+        data_handler::get_oxygen_level(
+            ppg_ir.as_mut_ptr() as *mut c_double,
+            ppg_red.as_mut_ptr() as *mut c_double,
+            ppg_red.len() as c_int,
+            sampling_rate as c_int,
+            coef1 as c_double,
+            coef2 as c_double,
+            coef3 as c_double,
+            &mut output,
+        )
+    };
+    check_brainflow_exit_code(res)?;
+    Ok(output as f64)
+}
+
 /// Perform data downsampling, it doesnt apply lowpass filter for you, it just aggregates several data points.
 pub fn perform_downsampling(
     data: &mut [f64],

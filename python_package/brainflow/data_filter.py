@@ -213,6 +213,19 @@ class DataHandlerDLL(object):
             ctypes.c_double
         ]
 
+        self.get_oxygen_level = self.lib.get_oxygen_level
+        self.get_oxygen_level.restype = ctypes.c_int
+        self.get_oxygen_level.argtypes = [
+            ndpointer(ctypes.c_double),
+            ndpointer(ctypes.c_double),
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_double,
+            ctypes.c_double,
+            ctypes.c_double,
+            ndpointer(ctypes.c_double)
+        ]
+
         self.log_message_data_handler = self.lib.log_message_data_handler
         self.log_message_data_handler.restype = ctypes.c_int
         self.log_message_data_handler.argtypes = [
@@ -703,6 +716,30 @@ class DataFilter(object):
         res = DataHandlerDLL.get_instance().get_railed_percentage(data, data.shape[0], gain, output)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to get railed percentage', res)
+        return output[0]
+
+    def get_oxygen_level(cls, ppg_ir: NDArray[Float64], ppg_red: NDArray[Float64], sampling_rate: int,
+                         coef1=0.0, coef2=-37.663, coef3=114.91):
+        """get oxygen level from ppg
+
+        :param ppg_ir: input array
+        :type ppg_ir: NDArray[Float64]
+        :param ppg_red: input array
+        :type ppg_red: NDArray[Float64]
+        :param sampling_rate: sampling rate
+        :type sampling_rate: int
+        :return: oxygen level
+        :rtype: float
+        """
+        check_memory_layout_row_major(ppg_ir, 1)
+        check_memory_layout_row_major(ppg_red, 1)
+        if ppg_ir.shape[0] != ppg_red.shape[0]:
+            raise BrainFlowError('invalid shapes', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR)
+        output = numpy.zeros(1).astype(numpy.float64)
+        res = DataHandlerDLL.get_instance().get_oxygen_level(ppg_ir, ppg_red, ppg_red.shape[0], sampling_rate,
+                                                             coef1, coef2, coef3, output)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to calc stddev', res)
         return output[0]
 
     @classmethod
