@@ -1361,7 +1361,7 @@ int get_railed_percentage (double *raw_data, int data_len, int gain, double *out
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
-    int scaler = (4.5 / (pow (2, 23) - 1) / gain * 1000000.);
+    double scaler = (4.5 / (pow (2, 23) - 1) / gain * 1000000.);
     double max_val = scaler * pow (2, 23);
     int cur_max = abs (raw_data[0]);
     bool is_straight_line = true;
