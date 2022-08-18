@@ -269,6 +269,23 @@ namespace brainflow
         }
 
         /// <summary>
+        /// get railed percentage
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="gain"></param>
+        /// <returns>railed</returns>
+        public static double get_railed_percentage (double[] data, int gain)
+        {
+            double[] output = new double[1];
+            int res = DataHandlerLibrary.get_railed_percentage (data, data.Length, gain, output);
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+            return output[0];
+        }
+
+        /// <summary>
         /// calc oxygen level from ppg values
         /// </summary>
         /// <param name="coef1">appxorimation coef for power of 2</param>

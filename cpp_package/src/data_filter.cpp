@@ -482,6 +482,17 @@ double DataFilter::calc_stddev (double *data, int start_pos, int end_pos)
     return output;
 }
 
+double DataFilter::get_railed_percentage (double *data, int data_len, int gain)
+{
+    double output = 0;
+    int res = ::get_railed_percentage (data, data_len, gain, &output);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to get railed percentege", res);
+    }
+    return output;
+}
+
 std::string DataFilter::get_version ()
 {
     char version[64];

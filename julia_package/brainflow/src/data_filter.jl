@@ -228,6 +228,13 @@ end
     return output[1]
 end
 
+@brainflow_rethrow function get_railed_percentage(data, gain::Integer)
+    output = Vector{Float64}(undef, 1)
+    ccall((:get_railed_percentage, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Ptr{Float64}),
+                data, length(data), gain, output)
+    return output[1]
+end
+
 @brainflow_rethrow function get_oxygen_level(ppg_ir, ppg_red, sampling_rate, coef1=0.0, coef2=-37.663, coef3=114.91)
     if length(ppg_ir) != length(ppg_red)
       throw(BrainFlowError(string("invalid size", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))

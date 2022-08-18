@@ -246,6 +246,17 @@ classdef DataFilter
             stddev = output.Value;
         end
         
+        function railed = get_railed_percentage(data, gain)
+            % calc railed percentage
+            task_name = 'get_railed_percentage';
+            temp_input = libpointer('doublePtr', data);
+            output = libpointer('doublePtr', 0);
+            lib_name = DataFilter.load_lib();
+            exit_code = calllib(lib_name, task_name, temp_input, size(data, 2), gain, output);
+            DataFilter.check_ec(exit_code, task_name);
+            railed = output.Value;
+        end
+
         function spo2 = get_oxygen_level(ppg_ir, ppg_red, sampling_rate, coef1, coef2, coef3)
             % calc oxygen level
             task_name = 'get_oxygen_level';

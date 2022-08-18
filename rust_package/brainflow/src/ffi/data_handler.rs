@@ -211,6 +211,14 @@ extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
+    pub fn get_railed_percentage(
+        raw_data: *mut f64,
+        data_len: ::std::os::raw::c_int,
+        gain: ::std::os::raw::c_int,
+        output: *mut f64,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
     pub fn get_oxygen_level(
         ppg_ir: *mut f64,
         ppg_red: *mut f64,

@@ -271,6 +271,15 @@ class DataHandlerDLL(object):
             ndpointer(ctypes.c_double)
         ]
 
+        self.get_railed_percentage = self.lib.get_railed_percentage
+        self.get_railed_percentage.restype = ctypes.c_int
+        self.get_railed_percentage.argtypes = [
+            ndpointer(ctypes.c_double),
+            ctypes.c_int,
+            ctypes.c_int,
+            ndpointer(ctypes.c_double)
+        ]
+
         self.set_log_level_data_handler = self.lib.set_log_level_data_handler
         self.set_log_level_data_handler.restype = ctypes.c_int
         self.set_log_level_data_handler.argtypes = [
@@ -692,6 +701,23 @@ class DataFilter(object):
         return output[0]
 
     @classmethod
+    def get_railed_percentage(cls, data: NDArray[Float64], gain: int):
+        """get railed percentage
+
+        :param data: input array
+        :type data: NDArray[Float64]
+        :param gain: gain
+        :type gain: int
+        :return: railed percentage
+        :rtype: float
+        """
+        check_memory_layout_row_major(data, 1)
+        output = numpy.zeros(1).astype(numpy.float64)
+        res = DataHandlerDLL.get_instance().get_railed_percentage(data, data.shape[0], gain, output)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to get railed percentage', res)
+        return output[0]
+
     def get_oxygen_level(cls, ppg_ir: NDArray[Float64], ppg_red: NDArray[Float64], sampling_rate: int,
                          coef1=0.0, coef2=-37.663, coef3=114.91):
         """get oxygen level from ppg
