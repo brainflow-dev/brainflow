@@ -245,6 +245,18 @@ classdef DataFilter
             DataFilter.check_ec(exit_code, task_name);
             stddev = output.Value;
         end
+        
+        function spo2 = get_oxygen_level(ppg_ir, ppg_red, sampling_rate, coef1, coef2, coef3)
+            % calc oxygen level
+            task_name = 'get_oxygen_level';
+            temp_input_ir = libpointer('doublePtr', ppg_ir);
+            temp_input_red = libpointer('doublePtr', ppg_red);
+            output = libpointer('doublePtr', 0);
+            lib_name = DataFilter.load_lib();
+            exit_code = calllib(lib_name, task_name, temp_input_ir, temp_input_red, size(ppg_ir, 2), sampling_rate, coef1, coef2, coef3, output);
+            DataFilter.check_ec(exit_code, task_name);
+            spo2 = output.Value;
+        end
 
         function fft_data = perform_fft(data, window)
             % perform fft
