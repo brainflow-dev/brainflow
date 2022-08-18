@@ -1416,7 +1416,7 @@ int get_oxygen_level (double *ppg_ir, double *ppg_red, int data_size, int sampli
         }
         if (spo2 < 0)
         {
-            spo2 = 0.0
+            spo2 = 0.0;
         }
         *oxygen_level = spo2;
     }
