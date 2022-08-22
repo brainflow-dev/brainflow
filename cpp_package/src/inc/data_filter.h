@@ -84,6 +84,12 @@ public:
         int threshold = (int)ThresholdTypes::HARD,
         int extenstion_type = (int)WaveletExtensionTypes::SYMMETRIC,
         int noise_level = (int)NoiseEstimationLevelTypes::FIRST_LEVEL);
+    /// restore data from selected detailed coeffs
+    static void restore_data_from_wavelet_detailed_coeffs (double *data, int data_len, int wavelet,
+        int decomposition_level, int level_to_restore, double *output);
+    /// z score peak detection, more info https://stackoverflow.com/a/22640362
+    static void detect_peaks_z_score (
+        double *data, int data_len, int lag, double threshold, double influence, double *output);
     // clang-format off
     /**
     * calculate filters and the corresponding eigenvalues using the Common Spatial Patterns

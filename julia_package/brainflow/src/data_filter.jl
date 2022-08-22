@@ -185,6 +185,24 @@ end
     return
 end
 
+@brainflow_rethrow function restore_data_from_wavelet_detailed_coeffs(data, wavelet::WaveletType,
+                                                                      decomposition_level::Integer,
+                                                                      level_to_restore::Integer)
+    restored_data = Vector{Float64}(undef, length(data))
+    ccall((:restore_data_from_wavelet_detailed_coeffs, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Cint, Cint, Ptr{Float64}),
+            data, length(data), Int32(wavelet), Int32(decomposition_level), Int32(level_to_restore), restored_data)
+    return restored_data
+end
+
+@brainflow_rethrow function detect_peaks_z_score(data, lag::Integer,
+                                                 threshold::Float64,
+                                                 influence::Float64)
+    peaks = Vector{Float64}(undef, length(data))
+    ccall((:detect_peaks_z_score, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Float64, Float64, Ptr{Float64}),
+            data, length(data), Int32(lag), threshold, influence, peaks)
+    return peaks
+end
+
 @brainflow_rethrow function perform_wavelet_denoising(data, wavelet::WaveletType, decomposition_level::Integer,
                                                       wavelet_denoising::WaveletDenoisingType,
                                                       threshold::ThresholdType,

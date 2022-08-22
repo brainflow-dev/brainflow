@@ -159,6 +159,28 @@ classdef DataFilter
             downsampled_data = temp_output.Value;
         end
         
+        function restored_data = restore_data_from_wavelet_detailed_coeffs(data, wavelet, decomposition_level, level_to_restore)
+            % restore data from a single wavelet level
+            task_name = 'restore_data_from_wavelet_detailed_coeffs';
+            temp_input = libpointer('doublePtr', data);
+            lib_name = DataFilter.load_lib();
+            temp_output = libpointer('doublePtr', zeros(1, int32(size(data,2))));
+            exit_code = calllib(lib_name, task_name, temp_input, size(data, 2), int32(wavelet), decomposition_level, level_to_restore, temp_output);
+            DataFilter.check_ec(exit_code, task_name);
+            restored_data = temp_output.Value;
+        end
+        
+        function peaks = detect_peaks_z_score(data, lag, threshold, influence)
+            % peaks detection using z score algorithm
+            task_name = 'detect_peaks_z_score';
+            temp_input = libpointer('doublePtr', data);
+            lib_name = DataFilter.load_lib();
+            temp_output = libpointer('doublePtr', zeros(1, int32(size(data,2))));
+            exit_code = calllib(lib_name, task_name, temp_input, size(data, 2), int32(lag), threshold, influence, temp_output);
+            DataFilter.check_ec(exit_code, task_name);
+            peaks = temp_output.Value;
+        end
+        
         function [wavelet_data, wavelet_sizes] = perform_wavelet_transform(data, wavelet, decomposition_level, extension)
             % perform wavelet transform
             task_name = 'perform_wavelet_transform';

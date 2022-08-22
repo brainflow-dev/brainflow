@@ -139,6 +139,7 @@ void SyntheticBoard::read_thread ()
                 double amplitude = 10.0 * (i + 1);
                 double noise = 0.1 * (i + 1);
                 double freq = 5.0 * (i + 1);
+                int peak_frequency = (int)(sampling_rate / (i + 1));
                 double shift = 0.05 * i;
                 double range = (amplitude * noise) / 2.0;
                 std::uniform_real_distribution<double> dist (0 - range, range);
@@ -146,6 +147,12 @@ void SyntheticBoard::read_thread ()
                 if (sin_phase_rad[i] > 2.0f * M_PI)
                 {
                     sin_phase_rad[i] -= 2.0f * M_PI;
+                }
+                if ((i > 5) &&
+                    ((counter % peak_frequency == 0) || ((counter - 1) % peak_frequency == 0) ||
+                        (((counter + 1) % peak_frequency == 0))))
+                {
+                    amplitude *= dist_around_one (mt) * 2;
                 }
                 package[exg_channels[i]] = amplitude +
                     (amplitude + dist (mt)) * sqrt (2.0) * sin (sin_phase_rad[i] + shift);

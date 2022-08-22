@@ -31,6 +31,8 @@
 #include "spdlog/sinks/null_sink.h"
 #include "spdlog/spdlog.h"
 
+#include <iostream>
+
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -419,9 +421,9 @@ int perform_wavelet_transform (double *data, int data_len, int wavelet, int deco
     int extension, double *output_data, int *decomposition_lengths)
 {
     std::string wavelet_str = get_wavelet_name (wavelet);
-    std::string extenstion_str = get_extension_type (extension);
+    std::string extension_str = get_extension_type (extension);
     if ((data == NULL) || (data_len <= 0) || (wavelet_str.empty ()) || (output_data == NULL) ||
-        (extenstion_str.empty ()) || (decomposition_lengths == NULL) || (decomposition_level <= 0))
+        (extension_str.empty ()) || (decomposition_lengths == NULL) || (decomposition_level <= 0))
     {
         data_logger->error ("Please review arguments.");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
@@ -434,7 +436,7 @@ int perform_wavelet_transform (double *data, int data_len, int wavelet, int deco
     {
         obj = wave_init (wavelet_str.c_str ());
         wt = wt_init (obj, "dwt", data_len, decomposition_level);
-        setDWTExtension (wt, extenstion_str.c_str ());
+        setDWTExtension (wt, extension_str.c_str ());
         setWTConv (wt, "direct");
         dwt (wt, data);
         for (int i = 0; i < wt->outlength; i++)
@@ -476,9 +478,9 @@ int perform_inverse_wavelet_transform (double *wavelet_coeffs, int original_data
     int decomposition_level, int extension, int *decomposition_lengths, double *output_data)
 {
     std::string wavelet_str = get_wavelet_name (wavelet);
-    std::string extenstion_str = get_extension_type (extension);
+    std::string extension_str = get_extension_type (extension);
     if ((wavelet_coeffs == NULL) || (decomposition_level <= 0) || (original_data_len <= 0) ||
-        (output_data == NULL) || (wavelet_str.empty ()) || (extenstion_str.empty ()) ||
+        (output_data == NULL) || (wavelet_str.empty ()) || (extension_str.empty ()) ||
         (decomposition_lengths == NULL))
     {
         data_logger->error ("Please review arguments.");
@@ -492,7 +494,7 @@ int perform_inverse_wavelet_transform (double *wavelet_coeffs, int original_data
     {
         obj = wave_init (wavelet_str.c_str ());
         wt = wt_init (obj, "dwt", original_data_len, decomposition_level);
-        setDWTExtension (wt, extenstion_str.c_str ());
+        setDWTExtension (wt, extension_str.c_str ());
         setWTConv (wt, "direct");
         int total_len = 0;
         for (int i = 0; i < decomposition_level + 1; i++)
@@ -536,10 +538,10 @@ int perform_wavelet_denoising (double *data, int data_len, int wavelet, int deco
     std::string wavelet_str = get_wavelet_name (wavelet);
     std::string denoising_str = get_wavelet_denoising_type (wavelet_denoising);
     std::string threshold_str = get_threshold_type (threshold);
-    std::string extenstion_str = get_extension_type (extenstion_type);
+    std::string extension_str = get_extension_type (extenstion_type);
     std::string noise_str = get_noise_estimation_type (noise_level);
     if ((data == NULL) || (data_len <= 0) || (decomposition_level <= 0) || (wavelet_str.empty ()) ||
-        (denoising_str.empty ()) || (threshold_str.empty ()) || (extenstion_str.empty ()) ||
+        (denoising_str.empty ()) || (threshold_str.empty ()) || (extension_str.empty ()) ||
         (noise_str.empty ()))
     {
         data_logger->error ("Please review arguments.");
@@ -553,7 +555,7 @@ int perform_wavelet_denoising (double *data, int data_len, int wavelet, int deco
         obj = denoise_init (data_len, decomposition_level, wavelet_str.c_str ());
         setDenoiseMethod (obj, denoising_str.c_str ());
         setDenoiseWTMethod (obj, "dwt");
-        setDenoiseWTExtension (obj, extenstion_str.c_str ());
+        setDenoiseWTExtension (obj, extension_str.c_str ());
         setDenoiseParameters (obj, threshold_str.c_str (), noise_str.c_str ());
         denoise (obj, data, temp);
         for (int i = 0; i < data_len; i++)
@@ -1459,6 +1461,103 @@ int get_oxygen_level (double *ppg_ir, double *ppg_red, int data_size, int sampli
 
     delete[] red_raw;
     delete[] ir_raw;
+
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int restore_data_from_wavelet_detailed_coeffs (double *data, int data_len, int wavelet,
+    int decomposition_level, int level_to_restore, double *output)
+{
+    int extension = (int)WaveletExtensionTypes::SYMMETRIC;
+    if ((data == NULL) || (data_len <= 20) || (output == NULL) || (decomposition_level <= 0) ||
+        (level_to_restore <= 0) || (level_to_restore > decomposition_level))
+    {
+        data_logger->error ("Invalid input for restore_data_from_wavelet_detailed_coeffs.");
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    int max_wavelet_output_len = data_len + 2 * decomposition_level * (40 + 1);
+    double *wavelet_output = new double[max_wavelet_output_len];
+    int *decomposition_lengths = new int[decomposition_level + 1];
+
+    int res = perform_wavelet_transform (data, data_len, wavelet, decomposition_level, extension,
+        wavelet_output, decomposition_lengths);
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        // zero approx coefs
+        for (int j = 0; j < decomposition_lengths[0]; j++)
+        {
+            wavelet_output[j] = 0.0;
+        }
+        int cur_sum = decomposition_lengths[0];
+        // zero detailed coefs not from level_to_restore
+        for (int i = 1; i < decomposition_level + 1; i++)
+        {
+            int cur_level = decomposition_level + 1 - i;
+            if (cur_level != level_to_restore)
+            {
+                for (int j = cur_sum; j < cur_sum + decomposition_lengths[i]; j++)
+                {
+                    wavelet_output[j] = 0.0;
+                }
+            }
+            cur_sum += decomposition_lengths[i];
+        }
+        res = perform_inverse_wavelet_transform (wavelet_output, data_len, wavelet,
+            decomposition_level, extension, decomposition_lengths, output);
+    }
+
+    delete[] wavelet_output;
+    delete[] decomposition_lengths;
+
+    return res;
+}
+
+// https://stackoverflow.com/a/22640362
+int detect_peaks_z_score (
+    double *data, int data_len, int lag, double threshold, double influence, double *output)
+{
+    if ((data == NULL) || (data_len < lag) || (lag < 2) || (lag > data_len) || (threshold < 0) ||
+        (influence < 0) || (output == NULL))
+    {
+        data_logger->error ("invalid inputs for detect_peaks_z_score");
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+    memset (output, 0, sizeof (double) * data_len);
+    double *filtered_data = new double[data_len];
+    double *avg_filter = new double[data_len];
+    double *std_filter = new double[data_len];
+    memcpy (filtered_data, data, sizeof (double) * data_len);
+
+    avg_filter[lag - 1] = mean (data, lag);
+    std_filter[lag - 1] = stddev (data, lag);
+
+    for (int i = lag; i < data_len; i++)
+    {
+        if (abs (data[i] - avg_filter[i - 1]) > threshold * std_filter[i - 1])
+        {
+            if (data[i] > avg_filter[i - 1])
+            {
+                output[i] = 1;
+            }
+            else
+            {
+                output[i] = -1;
+            }
+            filtered_data[i] = influence * data[i] + (1 - influence) * filtered_data[i - 1];
+        }
+        else
+        {
+            output[i] = 0;
+        }
+        avg_filter[i] = mean (filtered_data + i - lag, lag);
+        std_filter[i] = stddev (filtered_data + i - lag, lag);
+    }
+
+    delete[] filtered_data;
+    delete[] avg_filter;
+    delete[] std_filter;
+
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 

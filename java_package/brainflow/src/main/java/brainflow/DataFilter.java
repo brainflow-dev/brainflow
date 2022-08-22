@@ -43,6 +43,12 @@ public class DataFilter
 
         int perform_downsampling (double[] data, int data_len, int period, int operation, double[] filtered_data);
 
+        int restore_data_from_wavelet_detailed_coeffs (double[] data, int data_len, int wavelet,
+                int decomposition_level, int level_to_restore, double[] output);
+
+        int detect_peaks_z_score (double[] data, int data_len, int lag, double threshold, double influence,
+                double[] output);
+
         int remove_environmental_noise (double[] data, int data_len, int sampling_rate, int noise_type);
 
         int perform_wavelet_transform (double[] data, int data_len, int wavelet, int decomposition_level, int extention,
@@ -431,6 +437,47 @@ public class DataFilter
             throw new BrainFlowError ("Failed to perform downsampling", ec);
         }
         return downsampled_data;
+    }
+
+    /**
+     * restore data from a single wavelet coeff
+     */
+    public static double[] restore_data_from_wavelet_detailed_coeffs (double[] data, int wavelet,
+            int decomposition_level, int level_to_restore) throws BrainFlowError
+    {
+        double[] restored_data = new double[data.length];
+        int ec = instance.restore_data_from_wavelet_detailed_coeffs (data, data.length, wavelet, decomposition_level,
+                level_to_restore, restored_data);
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Failed to perform restore_data_from_wavelet_detailed_coeffs", ec);
+        }
+        return restored_data;
+    }
+
+    /**
+     * restore data from a single wavelet coeff
+     */
+    public static double[] restore_data_from_wavelet_detailed_coeffs (double[] data, WaveletTypes wavelet,
+            int decomposition_level, int level_to_restore) throws BrainFlowError
+    {
+        return restore_data_from_wavelet_detailed_coeffs (data, wavelet.get_code (), decomposition_level,
+                level_to_restore);
+    }
+
+    /**
+     * peak detection using z score algorithm
+     */
+    public static double[] detect_peaks_z_score (double[] data, int lag, double threshold, double influence)
+            throws BrainFlowError
+    {
+        double[] peaks = new double[data.length];
+        int ec = instance.detect_peaks_z_score (data, data.length, lag, threshold, influence, peaks);
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Failed to perform detect_peaks_z_score", ec);
+        }
+        return peaks;
     }
 
     /**
