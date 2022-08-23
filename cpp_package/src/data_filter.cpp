@@ -73,6 +73,27 @@ void DataFilter::remove_environmental_noise (
     }
 }
 
+void DataFilter::restore_data_from_wavelet_detailed_coeffs (double *data, int data_len, int wavelet,
+    int decomposition_level, int level_to_restore, double *output)
+{
+    int res = ::restore_data_from_wavelet_detailed_coeffs (
+        data, data_len, wavelet, decomposition_level, level_to_restore, output);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to restore", res);
+    }
+}
+
+void DataFilter::detect_peaks_z_score (
+    double *data, int data_len, int lag, double threshold, double influence, double *output)
+{
+    int res = ::detect_peaks_z_score (data, data_len, lag, threshold, influence, output);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to detect", res);
+    }
+}
+
 void DataFilter::perform_rolling_filter (double *data, int data_len, int period, int agg_operation)
 {
     int res = ::perform_rolling_filter (data, data_len, period, agg_operation);

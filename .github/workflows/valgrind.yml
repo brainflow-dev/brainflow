@@ -123,6 +123,10 @@ jobs:
       run: valgrind --error-exitcode=1 --track-origins=yes --leak-check=full $GITHUB_WORKSPACE/cpp_package/examples/signal_processing/build/downsampling
       env:
           LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: Peaks Cpp
+      run: valgrind --error-exitcode=1 --track-origins=yes --leak-check=full $GITHUB_WORKSPACE/cpp_package/examples/signal_processing/build/peaks_detection
+      env:
+          LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: CSP Cpp
       run: valgrind --error-exitcode=1 --track-origins=yes --leak-check=full $GITHUB_WORKSPACE/cpp_package/examples/signal_processing/build/csp
       env:

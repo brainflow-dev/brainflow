@@ -330,6 +330,28 @@ class DataHandlerDLL(object):
             ndpointer(ctypes.c_int32)
         ]
 
+        self.detect_peaks_z_score = self.lib.detect_peaks_z_score
+        self.detect_peaks_z_score.restype = ctypes.c_int
+        self.detect_peaks_z_score.argtypes = [
+            ndpointer(ctypes.c_double),
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_double,
+            ctypes.c_double,
+            ndpointer(ctypes.c_double)
+        ]
+
+        self.restore_data_from_wavelet_detailed_coeffs = self.lib.restore_data_from_wavelet_detailed_coeffs
+        self.restore_data_from_wavelet_detailed_coeffs.restype = ctypes.c_int
+        self.restore_data_from_wavelet_detailed_coeffs.argtypes = [
+            ndpointer(ctypes.c_double),
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ndpointer(ctypes.c_double)
+        ]
+
         self.perform_inverse_wavelet_transform = self.lib.perform_inverse_wavelet_transform
         self.perform_inverse_wavelet_transform.restype = ctypes.c_int
         self.perform_inverse_wavelet_transform.argtypes = [
@@ -798,6 +820,56 @@ class DataFilter(object):
             raise BrainFlowError('unable to perform wavelet transform', res)
 
         return wavelet_coeffs[0: sum(lengths)], lengths
+
+    @classmethod
+    def restore_data_from_wavelet_detailed_coeffs(cls, data: NDArray[Float64], wavelet, decomposition_level, level_to_restore):
+        """restore data from a single wavelet coeff
+
+        :param data: initial data
+        :type data: NDArray[Float64]
+        :param wavelet: use WaveletTypes enum
+        :type wavelet: int
+        :param decomposition_level: level of decomposition
+        :type decomposition_level: int
+        :param level_to_restore: level of coeffs
+        :type level_to_restore: int
+        :return: 
+        :rtype: NDArray[Float64]
+        """
+        check_memory_layout_row_major(data, 1)
+
+        output = numpy.zeros(data.shape[0])
+        res = DataHandlerDLL.get_instance().restore_data_from_wavelet_detailed_coeffs(data, data.shape[0], wavelet,
+                                                                 decomposition_level, level_to_restore, output)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to perfom restore_data_from_wavelet_detailed_coeffs', res)
+
+        return output
+
+    @classmethod
+    def detect_peaks_z_score(cls, data: NDArray[Float64], lag=5, threshold=3.5, influence=0.1):
+        """z score algorithm for peak detection
+
+        :param data: initial data
+        :type data: NDArray[Float64]
+        :param lag: window size for averaging
+        :type lag: int
+        :param threshold: in stddev units
+        :type threshold: float
+        :param influence: contribution of peaks to mean value, between 0 and 1
+        :type influence: float
+        :return: 
+        :rtype: NDArray[Float64]
+        """
+        check_memory_layout_row_major(data, 1)
+
+        output = numpy.zeros(data.shape[0])
+        res = DataHandlerDLL.get_instance().detect_peaks_z_score(data, data.shape[0], lag,
+                                                                 threshold, influence, output)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to perfom detect_peaks_z_score', res)
+
+        return output
 
     @classmethod
     def perform_inverse_wavelet_transform(cls, wavelet_output: Tuple, original_data_len: int, wavelet: int,

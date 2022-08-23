@@ -176,6 +176,10 @@ namespace brainflow
         public static extern int get_version_data_handler (byte[] version, int[] len, int max_len);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_oxygen_level (double[] ppg_ir, double[] ppg_red, int data_size, int sampling_rate, double coef1, double coef2, double coef3, double[] output);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int restore_data_from_wavelet_detailed_coeffs (double[] data, int data_len, int wavelet, int decomposition_level, int level_to_restore, double[] output);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int detect_peaks_z_score (double[] data, int data_len, int lag, double threshold, double influence, double[] output);
     }
 
     class DataHandlerLibrary32
@@ -242,6 +246,10 @@ namespace brainflow
         public static extern int get_railed_percentage (double[] data, int len, int gain, double[] output);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_oxygen_level (double[] ppg_ir, double[] ppg_red, int data_size, int sampling_rate, double coef1, double coef2, double coef3, double[] output);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int restore_data_from_wavelet_detailed_coeffs (double[] data, int data_len, int wavelet, int decomposition_level, int level_to_restore, double[] output);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int detect_peaks_z_score (double[] data, int data_len, int lag, double threshold, double influence, double[] output);
     }
 
     class DataHandlerLibraryLinux
@@ -308,6 +316,10 @@ namespace brainflow
         public static extern int get_railed_percentage (double[] data, int len, int gain, double[] output);
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_oxygen_level (double[] ppg_ir, double[] ppg_red, int data_size, int sampling_rate, double coef1, double coef2, double coef3, double[] output);
+        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int restore_data_from_wavelet_detailed_coeffs (double[] data, int data_len, int wavelet, int decomposition_level, int level_to_restore, double[] output);
+        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int detect_peaks_z_score (double[] data, int data_len, int lag, double threshold, double influence, double[] output);
     }
 
     class DataHandlerLibraryMac
@@ -374,6 +386,10 @@ namespace brainflow
         public static extern int get_railed_percentage (double[] data, int len, int gain, double[] output);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_oxygen_level (double[] ppg_ir, double[] ppg_red, int data_size, int sampling_rate, double coef1, double coef2, double coef3, double[] output);
+        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int restore_data_from_wavelet_detailed_coeffs (double[] data, int data_len, int wavelet, int decomposition_level, int level_to_restore, double[] output);
+        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int detect_peaks_z_score (double[] data, int data_len, int lag, double threshold, double influence, double[] output);
     }
 
     class DataHandlerLibrary
@@ -510,6 +526,40 @@ namespace brainflow
                     return DataHandlerLibraryLinux.perform_rolling_filter (data, len, period, operation);
                 case LibraryEnvironment.MacOS:
                     return DataHandlerLibraryMac.perform_rolling_filter (data, len, period, operation);
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static int restore_data_from_wavelet_detailed_coeffs (double[] data, int len, int wavelet, int decomposition_level, int level_to_restore, double[] output)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.restore_data_from_wavelet_detailed_coeffs (data, len, wavelet, decomposition_level, level_to_restore, output);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.restore_data_from_wavelet_detailed_coeffs (data, len, wavelet, decomposition_level, level_to_restore, output);
+                case LibraryEnvironment.Linux:
+                    return DataHandlerLibraryLinux.restore_data_from_wavelet_detailed_coeffs (data, len, wavelet, decomposition_level, level_to_restore, output);
+                case LibraryEnvironment.MacOS:
+                    return DataHandlerLibraryMac.restore_data_from_wavelet_detailed_coeffs (data, len, wavelet, decomposition_level, level_to_restore, output);
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static int detect_peaks_z_score (double[] data, int len, int lag, double threshold, double influence, double[] output)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.detect_peaks_z_score (data, len, lag, threshold, influence, output);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.detect_peaks_z_score (data, len, lag, threshold, influence, output);
+                case LibraryEnvironment.Linux:
+                    return DataHandlerLibraryLinux.detect_peaks_z_score (data, len, lag, threshold, influence, output);
+                case LibraryEnvironment.MacOS:
+                    return DataHandlerLibraryMac.detect_peaks_z_score (data, len, lag, threshold, influence, output);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;

@@ -365,6 +365,55 @@ pub fn perform_wavelet_transform(
     Ok(wavelet_transform)
 }
 
+
+/// Restore data from a single detailed coef.
+pub fn restore_data_from_wavelet_detailed_coeffs(
+    data: &mut [f64],
+    wavelet: WaveletTypes,
+    decomposition_level: usize,
+    level_to_restore: usize,
+) -> Result<Vec<f64>> {
+    let output_len = data.len();
+    let mut output = Vec::<f64>::with_capacity(output_len);
+    let res = unsafe {
+        data_handler::restore_data_from_wavelet_detailed_coeffs(
+            data.as_mut_ptr() as *mut c_double,
+            data.len() as c_int,
+            wavelet as c_int,
+            decomposition_level as c_int,
+            level_to_restore as c_int,
+            output.as_mut_ptr() as *mut c_double,
+        )
+    };
+    check_brainflow_exit_code(res)?;
+    unsafe { output.set_len(output_len) }
+    Ok(output)
+}
+
+/// Detect Peaks using z score method.
+pub fn detect_peaks_z_score(
+    data: &mut [f64],
+    lag: usize,
+    threshold: f64,
+    influence: f64,
+) -> Result<Vec<f64>> {
+    let output_len = data.len();
+    let mut output = Vec::<f64>::with_capacity(output_len);
+    let res = unsafe {
+        data_handler::detect_peaks_z_score(
+            data.as_mut_ptr() as *mut c_double,
+            data.len() as c_int,
+            lag as c_int,
+            threshold as c_double,
+            influence as c_double,
+            output.as_mut_ptr() as *mut c_double,
+        )
+    };
+    check_brainflow_exit_code(res)?;
+    unsafe { output.set_len(output_len) }
+    Ok(output)
+}
+
 /// Perform inverse wavelet transform.
 pub fn perform_inverse_wavelet_transform(wavelet_transform: WaveletTransform) -> Result<Vec<f64>> {
     let mut wavelet_transform = wavelet_transform;

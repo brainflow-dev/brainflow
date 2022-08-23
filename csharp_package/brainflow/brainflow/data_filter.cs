@@ -251,6 +251,20 @@ namespace brainflow
         }
 
         /// <summary>
+        /// detect peaks using z score algorithm
+        /// </summary>
+        public static double[] detect_peaks_z_score (double[] data, int lag, double threshold, double influence)
+        {
+            double[] peaks = new double[data.Length];
+            int res = DataHandlerLibrary.detect_peaks_z_score (data, data.Length, lag, threshold, influence, peaks);
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+            return peaks;
+        }
+
+        /// <summary>
         /// calc stddev
         /// </summary>
         /// <param name="data"></param>
