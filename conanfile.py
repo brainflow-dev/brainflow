@@ -6,11 +6,11 @@ class BrainflowConan(ConanFile):
     version = "5.2.0"
 
     # Optional metadata
-    license = "<Put the package license here>"
-    author = "<Put your name here> <And your email here>"
+    license = "MIT"
+    author = "Andrey1994 a1994ndrey@gmail.com"
     url = "<Package recipe repository url here, for issues about the package>"
-    description = "<Description of Brainflow here>"
-    topics = ("<Put some tag here>", "<here>", "<and here>")
+    description = "BrainFlow is a library intended to obtain, parse and analyze EEG, EMG, ECG and other kinds of data from biosensors"
+    topics = ("eeg", "bci", "neurotech")
 
     # Binary configuration
     settings = "os", "compiler", "build_type", "arch"

@@ -36,3 +36,5 @@ jobs:
       run: |
         conan create . demo/testing
       shell: cmd
+      env:
+        CONAN_CMAKE_SYSTEM_VERSION: 10.0.19041.0 
