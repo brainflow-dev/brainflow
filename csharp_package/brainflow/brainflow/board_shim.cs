@@ -15,6 +15,7 @@ namespace brainflow
         /// BrainFlow's board id
         /// </summary>
         public int board_id;
+        public BrainFlowInputParams input_params;
         private string input_json;
         private int master_board_id; // for streaming board
 
@@ -26,6 +27,7 @@ namespace brainflow
         public BoardShim (int board_id, BrainFlowInputParams input_params)
         {
             this.board_id = board_id;
+            this.input_params = input_params;
             this.master_board_id = board_id;
             if ((board_id == (int)BoardIds.STREAMING_BOARD) || (board_id == (int)BoardIds.PLAYBACK_FILE_BOARD))
             {
@@ -757,6 +759,16 @@ namespace brainflow
         {
             return master_board_id;
         }
+
+        ///<summary>
+        /// Get input params
+        ///</summary>
+        /// <returns> input params </returns>
+        public BrainFlowInputParams get_input_params ()
+        {
+            return input_params;
+        }
+
         /// <summary>
         /// get number of packages in ringbuffer
         /// </summary>
