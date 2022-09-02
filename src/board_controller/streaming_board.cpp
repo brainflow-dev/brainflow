@@ -139,7 +139,15 @@ int StreamingBoard::release_session ()
 void StreamingBoard::read_thread ()
 {
     // format for incomming package is determined by original board
-    int num_rows = board_descr["default"]["num_rows"];
+    std::string preset_str = preset_to_string (params.preset);
+    if (board_descr.find (preset_str) == board_descr.end ())
+    {
+        safe_logger (spdlog::level::err, "invalid json or push_package args, no such key");
+        return;
+    }
+
+    json board_preset = board_descr[preset_str];
+    int num_rows = board_preset["num_rows"];
     int num_packages = MultiCastStreamer::get_packages_in_chunk ();
     int transaction_len = num_rows * num_packages;
     int bytes_per_recv = sizeof (double) * transaction_len;
@@ -160,7 +168,7 @@ void StreamingBoard::read_thread ()
         }
         for (int i = 0; i < num_packages; i++)
         {
-            push_package (transaction + i * num_rows);
+            push_package (transaction + i * num_rows, params.preset);
         }
     }
     delete[] transaction;

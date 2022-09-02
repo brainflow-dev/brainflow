@@ -91,6 +91,8 @@ In methods like:
 
 You need to use master board id instead Streaming Board Id, because exact data format for streaming board is controlled by master board as well as sampling rate.
 
+If you have problems on Windows try to disable virtual box network adapter and firewall. More info can be found `here <https://serverfault.com/a/750820>`_.
+
 Synthetic Board
 ~~~~~~~~~~~~~~~~
 
