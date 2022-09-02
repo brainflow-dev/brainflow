@@ -148,6 +148,13 @@ int PlaybackFileBoard::release_session ()
 
 void PlaybackFileBoard::read_thread ()
 {
+    std::string preset_str = preset_to_string (params.preset);
+    if (board_descr.find (preset_str) == board_descr.end ())
+    {
+        safe_logger (spdlog::level::err, "invalid json or push_package args, no such key");
+        return;
+    }
+
     FILE *fp;
     fp = fopen (params.file.c_str (), "r");
     if (fp == NULL)
@@ -155,7 +162,9 @@ void PlaybackFileBoard::read_thread ()
         safe_logger (spdlog::level::err, "failed to open file in thread");
         return;
     }
-    int num_rows = board_descr["default"]["num_rows"];
+
+    json board_preset = board_descr[preset_str];
+    int num_rows = board_preset["num_rows"];
     double *package = new double[num_rows];
     for (int i = 0; i < num_rows; i++)
     {
@@ -164,7 +173,7 @@ void PlaybackFileBoard::read_thread ()
     char buf[4096];
     double last_timestamp = -1.0;
     bool new_timestamps = use_new_timestamps; // to prevent changing during streaming
-    int timestamp_channel = board_descr["timestamp_channel"]["default"];
+    int timestamp_channel = board_preset["timestamp_channel"];
     double accumulated_time_delta = 0.0;
 
     while (keep_alive)
@@ -252,7 +261,7 @@ void PlaybackFileBoard::read_thread ()
         {
             package[timestamp_channel] = get_timestamp ();
         }
-        push_package (package);
+        push_package (package, params.preset);
     }
     fclose (fp);
     delete[] package;

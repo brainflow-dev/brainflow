@@ -117,12 +117,8 @@ int Board::prepare_for_acquisition (int buffer_size, const char *streamer_params
         }
     }
 
-    // todo remove
     if ((streamer_params != NULL) && (streamer_params[0] != '\0'))
     {
-        safe_logger (spdlog::level::warn,
-            "streamer argument is deprecated in start_stream method, you should call add_streamer "
-            "method before start_stream");
         res = add_streamer (streamer_params, (int)BrainFlowPresets::DEFAULT_PRESET);
     }
 
