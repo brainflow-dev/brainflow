@@ -22,6 +22,8 @@ CLASSIFICATION WITH LARYNGEAL IMAGERY](https://arxiv.org/pdf/2107.00045.pdf)
 * [Ihshan Gumilar, Amit Barde, Prasanth Sasikumar, Mark Billinghurst, Ashkan F. Hayati, Gun Lee, Yuda Munarko, Sanjit Singh, and Abdul Momin. 2022. Inter-brain Synchrony and Eye Gaze Direction During Collaboration in VR. In CHI Conference on Human Factors in Computing Systems Extended Abstracts (CHI EA '22). Association for Computing Machinery, New York, NY, USA, Article 345, 1–7. https://doi.org/10.1145/3491101.3519746](https://dl.acm.org/doi/abs/10.1145/3491101.3519746)
 * [Rod Dickinson, Nathan Semertzidis, and Florian Floyd Mueller. 2022. Machine In The Middle: Exploring Dark Patterns of Emotional Human-Computer Integration Through Media Art. In CHI Conference on Human Factors in Computing Systems Extended Abstracts (CHI EA '22). Association for Computing Machinery, New York, NY, USA, Article 43, 1–7. https://doi.org/10.1145/3491101.3503555](https://dl.acm.org/doi/abs/10.1145/3491101.3503555)
 * [Brandon Hernandez, Oscar Morales-Ponce. 2022. A Human-Computer Interface for Hands-Free Musical Accompaniment](https://scholarworks.calstate.edu/downloads/2n49t693d)
+* [Gashi, S., Min, C., Montanari, A. et al. A multidevice and multimodal dataset for human energy expenditure estimation using wearable devices. Sci Data 9, 537 (2022). https://doi.org/10.1038/s41597-022-01643-5](https://www.nature.com/articles/s41597-022-01643-5)
+* [S. D. Perur, H. H. Kenchannavar and M. A. Sheikh, "Analysis Of EEG Signals Using Open BCI To Predict The Stress Level," 2022 IEEE India Council International Subsections Conference (INDISCON), 2022, pp. 1-6, doi: 10.1109/INDISCON54605.2022.9862906.](https://ieeexplore.ieee.org/abstract/document/9862906)
 
 ## Posts
 
