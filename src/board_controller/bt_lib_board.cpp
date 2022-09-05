@@ -68,9 +68,8 @@ int BTLibBoard::prepare_session ()
     if (params.ip_port <= 0)
     {
         params.ip_port = 1;
-        safe_logger (spdlog::level::warn, "Port for Bluetooth is not provided, default is: {}",
-            params.ip_port);
     }
+    safe_logger (spdlog::level::info, "Use bluetooth port: {}", params.ip_port);
     if ((params.mac_address.empty ()) && (return_res == (int)BrainFlowExitCodes::STATUS_OK))
     {
         safe_logger (

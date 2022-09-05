@@ -20,6 +20,15 @@ Enophone::~Enophone ()
     release_session ();
 }
 
+int Enophone::prepare_session ()
+{
+    if (params.ip_port <= 0)
+    {
+        params.ip_port = 1; // default for enophone
+    }
+    return BTLibBoard::prepare_session ();
+}
+
 int Enophone::start_stream (int buffer_size, const char *streamer_params)
 {
     if (!initialized)

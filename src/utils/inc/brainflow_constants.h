@@ -77,9 +77,11 @@ enum class BoardIds : int
     MUSE_2016_BOARD = 41,
     MUSE_2016_BLED_BOARD = 42,
     PIEEG_BOARD = 43,
+    EXPLORE_4_CHAN_BOARD = 44,
+    EXPLORE_8_CHAN_BOARD = 45,
     // use it to iterate
     FIRST = PLAYBACK_FILE_BOARD,
-    LAST = PIEEG_BOARD
+    LAST = EXPLORE_8_CHAN_BOARD
 };
 
 enum class IpProtocolTypes : int
