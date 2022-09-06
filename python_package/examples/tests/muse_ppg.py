@@ -13,7 +13,7 @@ def main():
     board.prepare_session()
     board.config_board('p50')
     board.start_stream()
-    time.sleep(10)
+    time.sleep(200)
     data = board.get_board_data(preset=BrainFlowPresets.ANCILLARY_PRESET)
     board.stop_stream()
     board.release_session()
@@ -26,6 +26,9 @@ def main():
     ppg_red = data[ppg_channels[0]] 
     oxygen_level = DataFilter.get_oxygen_level(ppg_ir, ppg_red, sampling_rate)
     print(oxygen_level)
+    # 8192 and longer recorindg is recommended, in this test use 2048
+    heart_rate = DataFilter.get_heart_rate(ppg_ir, ppg_red, sampling_rate, 2048) 
+    print(heart_rate)
 
 
 if __name__ == "__main__":

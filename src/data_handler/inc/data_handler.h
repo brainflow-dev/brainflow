@@ -61,6 +61,8 @@ extern "C"
     SHARED_EXPORT int CALLING_CONVENTION get_oxygen_level (double *ppg_ir, double *ppg_red,
         int data_size, int sampling_rate, double callib_coef1, double callib_coef2,
         double callib_coef3, double *oxygen_level);
+    SHARED_EXPORT int CALLING_CONVENTION get_heart_rate (double *ppg_ir, double *ppg_red,
+        int data_size, int sampling_rate, int fft_size, double *rate);
     SHARED_EXPORT int CALLING_CONVENTION restore_data_from_wavelet_detailed_coeffs (double *data,
         int data_len, int wavelet, int decomposition_level, int level_to_restore, double *output);
     SHARED_EXPORT int CALLING_CONVENTION detect_peaks_z_score (

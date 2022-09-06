@@ -20,6 +20,18 @@ double DataFilter::get_oxygen_level (double *ppg_ir, double *ppg_red, int data_l
     return value;
 }
 
+double DataFilter::get_heart_rate (
+    double *ppg_ir, double *ppg_red, int data_len, int sampling_rate, int fft_size)
+{
+    double value = 0.0;
+    int res = ::get_heart_rate (ppg_ir, ppg_red, data_len, sampling_rate, fft_size, &value);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to calc heart rate", res);
+    }
+    return value;
+}
+
 void DataFilter::perform_lowpass (double *data, int data_len, int sampling_rate, double cutoff,
     int order, int filter_type, double ripple)
 {
