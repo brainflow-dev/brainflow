@@ -1006,7 +1006,6 @@ int read_file (double *data, int *num_rows, int *num_cols, const char *file_name
                 data_logger->error ("found not a number in data file");
                 return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
             }
-            cur_pos++;
             if (cur_pos == (num_elements - 1))
             {
                 *num_cols = current_row + 1;
@@ -1014,6 +1013,7 @@ int read_file (double *data, int *num_rows, int *num_cols, const char *file_name
                 fclose (fp);
                 return (int)BrainFlowExitCodes::STATUS_OK;
             }
+            cur_pos++;
         }
         current_row++;
     }
