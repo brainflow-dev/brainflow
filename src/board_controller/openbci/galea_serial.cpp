@@ -146,6 +146,18 @@ int GaleaSerial::config_board (std::string conf, std::string &response)
         safe_logger (spdlog::level::err, "Failed to config a board");
         return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
     }
+    if (gain_tracker.apply_config (conf) == (int)OpenBCICommandTypes::INVALID_COMMAND)
+    {
+        safe_logger (
+            spdlog::level::warn, "potentially invalid command sent to device: {}", conf.c_str ());
+        // dont throw exception
+    }
+    if (is_streaming)
+    {
+        safe_logger (spdlog::level::warn,
+            "reconfiguring device during the streaming may lead to inconsistent data, it's "
+            "recommended to call stop_stream before config_board");
+    }
 
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
@@ -378,15 +390,10 @@ void GaleaSerial::read_thread ()
                 (double)b[0 + offset];
             for (int i = 4, tmp_counter = 0; i < 20; i++, tmp_counter++)
             {
-                if (tmp_counter < 6)
-                    exg_package[i - 3] =
-                        emg_scale * (double)cast_24bit_to_int32 (b + offset + 5 + 3 * (i - 4));
-                else if ((tmp_counter == 6) || (tmp_counter == 7))
-                    exg_package[i - 3] = eeg_scale_sister_board *
-                        (double)cast_24bit_to_int32 (b + offset + 5 + 3 * (i - 4));
-                else
-                    exg_package[i - 3] = eeg_scale_main_board *
-                        (double)cast_24bit_to_int32 (b + offset + 5 + 3 * (i - 4));
+                double exg_scale = (double)(4.5 / float ((pow (2, 23) - 1)) /
+                    gain_tracker.get_gain_for_channel (tmp_counter) * 1000000.);
+                exg_package[i - 3] =
+                    exg_scale * (double)cast_24bit_to_int32 (b + offset + 5 + 3 * (i - 4));
             }
             double timestamp_device = 0.0;
             memcpy (&timestamp_device, b + 64 + offset, 8);

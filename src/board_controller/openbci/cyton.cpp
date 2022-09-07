@@ -11,6 +11,21 @@
 #define END_BYTE_MAX 0xC6
 
 
+int Cyton::config_board (std::string conf, std::string &response)
+{
+    int res = OpenBCISerialBoard::config_board (conf, response);
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        if (gain_tracker.apply_config (conf) == (int)OpenBCICommandTypes::INVALID_COMMAND)
+        {
+            safe_logger (spdlog::level::warn, "potentially invalid command sent to device: {}",
+                conf.c_str ());
+            // dont throw exception
+        }
+    }
+    return res;
+}
+
 void Cyton::read_thread ()
 {
     /*
@@ -37,6 +52,7 @@ void Cyton::read_thread ()
         package[i] = 0.0;
     }
     std::vector<int> eeg_channels = board_descr["default"]["eeg_channels"];
+    double accel_scale = (double)(0.002 / (pow (2, 4)));
 
     while (keep_alive)
     {
@@ -76,6 +92,8 @@ void Cyton::read_thread ()
         // eeg
         for (unsigned int i = 0; i < eeg_channels.size (); i++)
         {
+            double eeg_scale = (double)(4.5 / float ((pow (2, 23) - 1)) /
+                gain_tracker.get_gain_for_channel (i) * 1000000.);
             package[eeg_channels[i]] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
         }
         // end byte
