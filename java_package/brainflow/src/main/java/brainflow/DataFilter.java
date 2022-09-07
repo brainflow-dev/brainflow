@@ -99,6 +99,9 @@ public class DataFilter
         int get_oxygen_level (double[] ppg_ir, double[] ppg_red, int len, int sampling_rate, double coef1, double coef2,
                 double coef3, double[] output);
 
+        int get_heart_rate (double[] ppg_ir, double[] ppg_red, int len, int sampling_rate, int fft_size,
+                double[] output);
+
         int get_version_data_handler (byte[] version, int[] len, int max_len);
 
         int log_message_data_handler (int log_level, String message);
@@ -238,6 +241,25 @@ public class DataFilter
     public static double get_oxygen_level (double[] ppg_ir, double[] ppg_red, int sampling_rate) throws BrainFlowError
     {
         return get_oxygen_level (ppg_ir, ppg_red, sampling_rate, 0.0, -37.663, 114.91);
+    }
+
+    /**
+     * get heart rate
+     */
+    public static double get_heart_rate (double[] ppg_ir, double[] ppg_red, int sampling_rate, int fft_size)
+            throws BrainFlowError
+    {
+        if (ppg_ir.length != ppg_red.length)
+        {
+            throw new BrainFlowError ("Error in get_heart_rate", BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
+        double[] output = new double[1];
+        int ec = instance.get_heart_rate (ppg_ir, ppg_red, ppg_ir.length, sampling_rate, fft_size, output);
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in get_heart_rate", ec);
+        }
+        return output[0];
     }
 
     /**

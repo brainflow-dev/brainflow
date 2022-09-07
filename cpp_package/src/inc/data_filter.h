@@ -193,7 +193,17 @@ public:
      */
     static double get_oxygen_level (double *ppg_ir, double *ppg_red, int data_len,
         int sampling_rate, double coef1 = 0.0, double coef2 = -37.663, double coef3 = 114.91);
-
+    /**
+     * calculate heart rate
+     * @param ppg_ir input 1d array
+     * @param ppg_red input 1d array
+     * @param data_len size of array
+     * @param sampling_rate sampling rate
+     * @param fft_size recommended 8192
+     * @return heart rate
+     */
+    static double get_heart_rate (
+        double *ppg_ir, double *ppg_red, int data_len, int sampling_rate, int fft_size);
     /// write file, in file data will be transposed
     static void write_file (
         const BrainFlowArray<double, 2> &data, std::string file_name, std::string file_mode);

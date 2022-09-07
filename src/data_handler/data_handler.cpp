@@ -1561,6 +1561,65 @@ int detect_peaks_z_score (
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
+int get_heart_rate (
+    double *ppg_ir, double *ppg_red, int data_size, int sampling_rate, int fft_size, double *rate)
+{
+    if ((ppg_red == NULL) || (ppg_ir == NULL) || (data_size < fft_size) || (sampling_rate < 1) ||
+        (rate == NULL) || (fft_size < 1024) || (fft_size % 2 != 0))
+    {
+        data_logger->error (
+            "invalid inputs for get_heart_rate, fft_len should be even and at least 1024");
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    int psd_size = fft_size / 2 + 1;
+    double *output_ampl_ir = new double[psd_size];
+    double *output_ampl_red = new double[psd_size];
+    double *output_freq = new double[psd_size];
+
+    int res = get_psd_welch (ppg_ir, data_size, fft_size, fft_size / 2, sampling_rate,
+        (int)WindowOperations::HANNING, output_ampl_ir, output_freq);
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        res = get_psd_welch (ppg_red, data_size, fft_size, fft_size / 2, sampling_rate,
+            (int)WindowOperations::HANNING, output_ampl_red, output_freq);
+    }
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        // calc HR using red/ir psd. HR range 35bpm-230bpm
+        // average ampls for red and ir, store in red
+        for (int i = 0; i < psd_size; i++)
+        {
+            output_ampl_red[i] = (output_ampl_red[i] + output_ampl_ir[i]) / 2;
+        }
+        double min_hr = 35.0 / 60.0;
+        double max_hr = 230.0 / 60.0;
+        // find max amplitude
+        double max_ampl = 0.0;
+        int max_ampl_index = 0;
+        for (int i = 0; i < psd_size; i++)
+        {
+            if (output_freq[i] > min_hr && output_freq[i] < max_hr && output_ampl_red[i] > max_ampl)
+            {
+                max_ampl = output_ampl_red[i];
+                max_ampl_index = i;
+            }
+            else if (output_freq[i] > max_hr)
+            {
+                break;
+            }
+        }
+        double heart_rate = output_freq[max_ampl_index] * 60;
+        *rate = heart_rate;
+    }
+
+    delete[] output_ampl_ir;
+    delete[] output_ampl_red;
+    delete[] output_freq;
+
+    return res;
+}
+
 int get_version_data_handler (char *version, int *num_chars, int max_chars)
 {
     strncpy (version, BRAINFLOW_VERSION_STRING, max_chars);

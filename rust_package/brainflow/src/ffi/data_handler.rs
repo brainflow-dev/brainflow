@@ -231,6 +231,16 @@ extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
+    pub fn get_heart_rate(
+        ppg_ir: *mut f64,
+        ppg_red: *mut f64,
+        data_size: ::std::os::raw::c_int,
+        sampling_rate: ::std::os::raw::c_int,
+        fft_size: ::std::os::raw::c_int,
+        rate: *mut f64,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
     pub fn restore_data_from_wavelet_detailed_coeffs(
         data: *mut f64,
         data_len: ::std::os::raw::c_int,

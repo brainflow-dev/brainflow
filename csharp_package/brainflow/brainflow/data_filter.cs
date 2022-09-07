@@ -322,6 +322,26 @@ namespace brainflow
         }
 
         /// <summary>
+        /// calc heart rate
+        /// </summary>
+        /// <param name="fft_size">recommended 8192</param>
+        /// <returns>stddev</returns>
+        public static double get_heart_rate (double[] ppg_ir, double[] ppg_red, int sampling_rate, int fft_size)
+        {
+            if (ppg_ir.Length != ppg_red.Length)
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            double[] output = new double[1];
+            int res = DataHandlerLibrary.get_heart_rate (ppg_ir, ppg_red, ppg_ir.Length, sampling_rate, fft_size, output);
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+            return output[0];
+        }
+
+        /// <summary>
         /// perform wavelet transform
         /// </summary>
         /// <param name="data">data for wavelet transform</param>

@@ -291,6 +291,18 @@ classdef DataFilter
             spo2 = output.Value;
         end
 
+        function rate = get_heart_rate(ppg_ir, ppg_red, sampling_rate, fft_size)
+            % calc heart rate
+            task_name = 'get_heart_rate';
+            temp_input_ir = libpointer('doublePtr', ppg_ir);
+            temp_input_red = libpointer('doublePtr', ppg_red);
+            output = libpointer('doublePtr', 0);
+            lib_name = DataFilter.load_lib();
+            exit_code = calllib(lib_name, task_name, temp_input_ir, temp_input_red, size(ppg_ir, 2), sampling_rate, fft_size, output);
+            DataFilter.check_ec(exit_code, task_name);
+            rate = output.Value;
+        end
+        
         function fft_data = perform_fft(data, window)
             % perform fft
             task_name = 'perform_fft';

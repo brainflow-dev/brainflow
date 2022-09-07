@@ -180,6 +180,8 @@ namespace brainflow
         public static extern int restore_data_from_wavelet_detailed_coeffs (double[] data, int data_len, int wavelet, int decomposition_level, int level_to_restore, double[] output);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int detect_peaks_z_score (double[] data, int data_len, int lag, double threshold, double influence, double[] output);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_heart_rate (double[] ppg_ir, double[] ppg_red, int data_size, int sampling_rate, int fft_size, double[] output);
     }
 
     class DataHandlerLibrary32
@@ -250,6 +252,8 @@ namespace brainflow
         public static extern int restore_data_from_wavelet_detailed_coeffs (double[] data, int data_len, int wavelet, int decomposition_level, int level_to_restore, double[] output);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int detect_peaks_z_score (double[] data, int data_len, int lag, double threshold, double influence, double[] output);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_heart_rate (double[] ppg_ir, double[] ppg_red, int data_size, int sampling_rate, int fft_size, double[] output);
     }
 
     class DataHandlerLibraryLinux
@@ -320,6 +324,8 @@ namespace brainflow
         public static extern int restore_data_from_wavelet_detailed_coeffs (double[] data, int data_len, int wavelet, int decomposition_level, int level_to_restore, double[] output);
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int detect_peaks_z_score (double[] data, int data_len, int lag, double threshold, double influence, double[] output);
+        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_heart_rate (double[] ppg_ir, double[] ppg_red, int data_size, int sampling_rate, int fft_size, double[] output);
     }
 
     class DataHandlerLibraryMac
@@ -390,6 +396,8 @@ namespace brainflow
         public static extern int restore_data_from_wavelet_detailed_coeffs (double[] data, int data_len, int wavelet, int decomposition_level, int level_to_restore, double[] output);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int detect_peaks_z_score (double[] data, int data_len, int lag, double threshold, double influence, double[] output);
+        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_heart_rate (double[] ppg_ir, double[] ppg_red, int data_size, int sampling_rate, int fft_size, double[] output);
     }
 
     class DataHandlerLibrary
@@ -903,6 +911,23 @@ namespace brainflow
                     return DataHandlerLibraryLinux.get_oxygen_level (ppg_ir, ppg_red, data_size, sampling_rate, coef1, coef2, coef3, output);
                 case LibraryEnvironment.MacOS:
                     return DataHandlerLibraryMac.get_oxygen_level (ppg_ir, ppg_red, data_size, sampling_rate, coef1, coef2, coef3, output);
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static int get_heart_rate (double[] ppg_ir, double[] ppg_red, int data_size, int sampling_rate, int fft_size, double[] output)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.get_heart_rate (ppg_ir, ppg_red, data_size, sampling_rate, fft_size, output);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.get_heart_rate (ppg_ir, ppg_red, data_size, sampling_rate, fft_size, output);
+                case LibraryEnvironment.Linux:
+                    return DataHandlerLibraryLinux.get_heart_rate (ppg_ir, ppg_red, data_size, sampling_rate, fft_size, output);
+                case LibraryEnvironment.MacOS:
+                    return DataHandlerLibraryMac.get_heart_rate (ppg_ir, ppg_red, data_size, sampling_rate, fft_size, output);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;

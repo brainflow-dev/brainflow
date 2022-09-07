@@ -256,6 +256,28 @@ pub fn get_oxygen_level(
     Ok(output as f64)
 }
 
+/// Calculate heart rate.
+pub fn get_heart_rate(
+    ppg_ir: &mut [f64],
+    ppg_red: &mut [f64],
+    sampling_rate: usize,
+    fft_size: usize,
+) -> Result<f64> {
+    let mut output = 0.0 as f64;
+    let res = unsafe {
+        data_handler::get_heart_rate(
+            ppg_ir.as_mut_ptr() as *mut c_double,
+            ppg_red.as_mut_ptr() as *mut c_double,
+            ppg_red.len() as c_int,
+            sampling_rate as c_int,
+            fft_size as c_int,
+            &mut output,
+        )
+    };
+    check_brainflow_exit_code(res)?;
+    Ok(output as f64)
+}
+
 /// Perform data downsampling, it doesnt apply lowpass filter for you, it just aggregates several data points.
 pub fn perform_downsampling(
     data: &mut [f64],

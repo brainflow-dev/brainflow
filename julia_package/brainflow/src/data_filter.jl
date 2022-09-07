@@ -253,14 +253,25 @@ end
     return output[1]
 end
 
-@brainflow_rethrow function get_oxygen_level(ppg_ir, ppg_red, sampling_rate, coef1=0.0, coef2=-37.663, coef3=114.91)
+@brainflow_rethrow function get_oxygen_level(ppg_ir, ppg_red, sampling_rate::Integer, coef1=0.0, coef2=-37.663, coef3=114.91)
     if length(ppg_ir) != length(ppg_red)
       throw(BrainFlowError(string("invalid size", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))
     end
 
     output = Vector{Float64}(undef, 1)
     ccall((:get_oxygen_level, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Ptr{Float64}, Cint, Cint, Float64, Float64, Float64, Ptr{Float64}),
-                ppg_ir, ppg_red, length(ppg_ir), sampling_rate, coef1, coef2, coef3, output)
+                ppg_ir, ppg_red, length(ppg_ir), Int32(sampling_rate), coef1, coef2, coef3, output)
+    return output[1]
+end
+
+@brainflow_rethrow function get_heart_rate(ppg_ir, ppg_red, sampling_rate::Integer, fft_size::Integer)
+    if length(ppg_ir) != length(ppg_red)
+      throw(BrainFlowError(string("invalid size", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))
+    end
+
+    output = Vector{Float64}(undef, 1)
+    ccall((:get_heart_rate, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Ptr{Float64}, Cint, Cint, Cint, Ptr{Float64}),
+                ppg_ir, ppg_red, length(ppg_ir), Int32(sampling_rate), Int32(fft_size), output)
     return output[1]
 end
 
