@@ -122,6 +122,20 @@ public:
     CytonGainTracker () : OpenBCIGainTracker ({24, 24, 24, 24, 24, 24, 24, 24})
     {
     }
+
+    virtual int apply_config (std::string config)
+    {
+        if (config.size () == 1)
+        {
+            // restore default settings
+            if (config.at (0) == 'd')
+            {
+                std::fill (current_gains.begin (), current_gains.end (), 24);
+            }
+        }
+
+        return OpenBCIGainTracker::apply_config (config);
+    }
 };
 
 class CytonDaisyGainTracker : public OpenBCIGainTracker
@@ -130,6 +144,20 @@ public:
     CytonDaisyGainTracker ()
         : OpenBCIGainTracker ({24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24})
     {
+    }
+
+    virtual int apply_config (std::string config)
+    {
+        if (config.size () == 1)
+        {
+            // restore default settings
+            if (config.at (0) == 'd')
+            {
+                std::fill (current_gains.begin (), current_gains.end (), 24);
+            }
+        }
+
+        return OpenBCIGainTracker::apply_config (config);
     }
 };
 
@@ -140,16 +168,8 @@ public:
     {
     }
 
-    ~GaleaGainTracker ()
-    {
-    }
-
     virtual int apply_config (std::string config)
     {
-        if (current_gains.size () != 16)
-        {
-            return (int)OpenBCICommandTypes::INVALID_COMMAND; // impossible to get here
-        }
         if (config.size () == 1)
         {
             if ((config.at (0) == 'f') || (config.at (0) == 'g'))
