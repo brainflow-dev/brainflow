@@ -568,6 +568,7 @@ Muse
    "MuseS", "BoardIds.MUSE_S_BOARD (39)", "-", "Optional: MAC adress", "-", "-", "-", "-", "-", "Optional: device name", "-", "-", "-"
    "Muse2016", "BoardIds.MUSE_2016_BOARD (41)", "-", "Optional: MAC adress", "-", "-", "-", "-", "-", "Optional: device name", "-", "-", "-"
 
+
 Muse S BLED
 ~~~~~~~~~~~~~~
 
@@ -631,7 +632,7 @@ Available :ref:`presets-label`:
 
 - *BrainFlowPresets.DEFAULT_PRESET* contains EEG data, to enable 5th EEG channel use :code:`board.config_board("p50")`
 - *BrainFlowPresets.AUXILIARY_PRESET* contains Gyro and Accel data, enabled by default
-- *BrainFlowPresets.ANCILLARY_PRESET* contains PPG data, to enable it use :code:`board.config_board("p61")`
+- *BrainFlowPresets.ANCILLARY_PRESET* contains PPG data, to enable it use :code:`board.config_board("p50")`. It also enables 5th channel for EEG
 
 
 Muse 2016 BLED
@@ -664,44 +665,6 @@ Available :ref:`presets-label`:
 
 - *BrainFlowPresets.DEFAULT_PRESET* contains EEG data
 - *BrainFlowPresets.AUXILIARY_PRESET* contains Gyro and Accel data, enabled by default
-
-
-Muse 2
-~~~~~~~~~~~~~~
-
-.. image:: https://live.staticflickr.com/65535/51250482419_32ce8454dd.jpg
-    :width: 350px
-    :height: 350px
-
-`Muse Website <https://choosemuse.com/>`_
-
-.. compound::
-
-    On Linux systems you may need to install `libdbus` and we recommend to compile BrainFlow from the source code: ::
-
-        sudo apt-get install libdbus-1-dev # for ubuntu
-        sudo yum install dbus-devel # for centos
-        python3 tools/build.py --ble # to compile
-
-To choose this board in BoardShim constructor please specify:
-
-- board_id: 38
-- optional: MAC address
-- optional: serial number(device name)
-
-Supported platforms:
-
-- Windows 10.0.19041.0+
-- MacOS 10.15+, 12.0 to 12.2 have known issues while scanning, you need to update to 12.3+
-- Linux, compilation from source code probably will be needed
-- Devices like Raspberry Pi
-
-Available :ref:`presets-label`:
-
-- *BrainFlowPresets.DEFAULT_PRESET* contains EEG data, to enable 5th EEG channel use :code:`board.config_board("p50")`
-- *BrainFlowPresets.AUXILIARY_PRESET* contains Gyro and Accel data, enabled by default
-- *BrainFlowPresets.ANCILLARY_PRESET* contains PPG data, to enable it use :code:`board.config_board("p61")`
-
 
 Muse S
 ~~~~~~~~~
@@ -738,6 +701,43 @@ Available :ref:`presets-label`:
 - *BrainFlowPresets.DEFAULT_PRESET* contains EEG data, to enable 5th EEG channel use :code:`board.config_board("p50")`
 - *BrainFlowPresets.AUXILIARY_PRESET* contains Gyro and Accel data, enabled by default
 - *BrainFlowPresets.ANCILLARY_PRESET* contains PPG data, to enable it use :code:`board.config_board("p61")`
+
+
+Muse 2
+~~~~~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/51250482419_32ce8454dd.jpg
+    :width: 350px
+    :height: 350px
+
+`Muse Website <https://choosemuse.com/>`_
+
+.. compound::
+
+    On Linux systems you may need to install `libdbus` and we recommend to compile BrainFlow from the source code: ::
+
+        sudo apt-get install libdbus-1-dev # for ubuntu
+        sudo yum install dbus-devel # for centos
+        python3 tools/build.py --ble # to compile
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 38
+- optional: MAC address
+- optional: serial number(device name)
+
+Supported platforms:
+
+- Windows 10.0.19041.0+
+- MacOS 10.15+, 12.0 to 12.2 have known issues while scanning, you need to update to 12.3+
+- Linux, compilation from source code probably will be needed
+- Devices like Raspberry Pi
+
+Available :ref:`presets-label`:
+
+- *BrainFlowPresets.DEFAULT_PRESET* contains EEG data, to enable 5th EEG channel use :code:`board.config_board("p50")`
+- *BrainFlowPresets.AUXILIARY_PRESET* contains Gyro and Accel data, enabled by default
+- *BrainFlowPresets.ANCILLARY_PRESET* contains PPG data, to enable it use :code:`board.config_board("p50")`. It also enables 5th channel for EEG
 
 
 Muse 2016
