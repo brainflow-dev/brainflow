@@ -3,7 +3,7 @@ import logging
 
 import pyqtgraph as pg
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds, BrainFlowPresets
-from brainflow.data_filter import DataFilter, FilterTypes, WindowFunctions, DetrendOperations
+from brainflow.data_filter import DataFilter, FilterTypes, WindowOperations, DetrendOperations
 from pyqtgraph.Qt import QtGui, QtCore
 
 
@@ -101,7 +101,7 @@ class Graph:
                 # plot psd
                 psd_data = DataFilter.get_psd_welch(data[channel], self.psd_size, self.psd_size // 2,
                                                     self.sampling_rate,
-                                                    WindowFunctions.BLACKMAN_HARRIS.value)
+                                                    WindowOperations.BLACKMAN_HARRIS.value)
                 lim = min(70, len(psd_data[0]))
                 self.psd_curves[count].setData(psd_data[1][0:lim].tolist(), psd_data[0][0:lim].tolist())
                 # plot bands
