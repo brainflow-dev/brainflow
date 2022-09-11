@@ -32,6 +32,7 @@ Supported platforms:
 - Windows >= 8.1
 - Linux
 - MacOS
+- Devices like Raspberry Pi
 
 By default it generates new timestamps and stops at the end of the file. You can override it using commands:
 
@@ -79,6 +80,8 @@ Supported platforms:
 - Windows >= 8.1
 - Linux
 - MacOS
+- Devices like Raspberry Pi
+- Android
 
 In methods like:
 
@@ -110,6 +113,7 @@ Supported platforms:
 - Windows >= 8.1
 - Linux
 - MacOS
+- Devices like Raspberry Pi
 - Android
 
 OpenBCI
@@ -144,6 +148,7 @@ Supported platforms:
 - Windows >= 8.1
 - Linux
 - MacOS
+- Devices like Raspberry Pi
 
 **On MacOS there are two serial ports for each device: /dev/tty..... and /dev/cu..... You HAVE to specify /dev/cu.....**
 
@@ -179,6 +184,7 @@ Supported platforms:
 - Windows >= 8.1
 - Linux
 - MacOS
+- Devices like Raspberry Pi
 
 **On MacOS there are two serial ports for each device: /dev/tty..... and /dev/cu..... You HAVE to specify /dev/cu.....**
 
@@ -201,6 +207,7 @@ Supported platforms:
 - Windows >= 8.1
 - Linux
 - MacOS
+- Devices like Raspberry Pi
 
 **On MacOS there are two serial ports for each device: /dev/tty..... and /dev/cu..... You HAVE to specify /dev/cu.....**
 
@@ -254,6 +261,7 @@ Supported platforms:
 - Windows >= 8.1
 - Linux
 - MacOS
+- Devices like Raspberry Pi
 - Android
 
 CytonDaisy with WIFI Shield
@@ -279,6 +287,7 @@ Supported platforms:
 - Windows >= 8.1
 - Linux
 - MacOS
+- Devices like Raspberry Pi
 - Android
 
 NeuroMD
@@ -430,6 +439,7 @@ Supported platforms:
 - Windows
 - Linux
 - MacOS
+- Devices like Raspberry Pi
 
 *Note: On Windows you may need to disable firewall to allow broadcast messages.*
 
@@ -455,6 +465,7 @@ Supported platforms:
 - Windows
 - Linux
 - MacOS
+- Devices like Raspberry Pi
 
 *Note: On Windows you may need to disable firewall to allow broadcast messages.*
 
@@ -479,6 +490,7 @@ Supported platforms:
 - Windows
 - Linux
 - MacOS
+- Devices like Raspberry Pi
 
 *Note: On Windows you may need to disable firewall to allow broadcast messages.*
 
@@ -554,6 +566,7 @@ Supported platforms:
 - Windows
 - Linux
 - MacOS
+- Devices like Raspberry Pi
 
 Muse
 ------
@@ -822,6 +835,10 @@ Supported platforms:
 - Windows
 - Linux
 
+Available commands:
+
+- Set sampling rate: :code:`board.config_board("sampling_rate:500")`, for available values check docs from Ant Neuro.
+
 For more information about Ant Neuro boards please refer to their User Manual.
 
 
@@ -852,6 +869,7 @@ Supported platforms:
 - Windows
 - Linux
 - MacOS
+- Devices like Raspberry Pi
 
 Steps to find MAC address:
 
@@ -898,3 +916,95 @@ Supported platforms:
 - MacOS 10.15+
 - Linux, compilation from source code probably will be needed
 - Devices like Raspberry Pi
+
+
+Mentalab
+---------
+
+.. csv-table:: Required inputs
+   :header: "Board", "Board Id", "serial_port", "mac_address", "ip_address", "ip_port", "ip_protocol", "other_info", "timeout", "serial_number", "file", "preset", "master_board"
+
+   "Explore4Channels", "BoardIds.EXPLORE_4_CHAN_BOARD (44)", "-", "Optional: MAC adress", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+   "Explore8Channels", "BoardIds.EXPLORE_8_CHAN_BOARD (45)", "-", "Optional: MAC adress", "-", "-", "-", "-", "-", "-", "-", "-", "-"
+
+Explore 4 Channels Board
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/52349031632_51bc8ea56c.jpg" 
+    :width: 500px
+    :height: 334px
+
+`Mentalab website <https://mentalab.com/>`_
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 44
+- Optional: mac address field of BrainFlowInputParams structure
+
+Supported platforms:
+
+- Windows
+- Linux
+- MacOS
+- Devices like Raspberry Pi
+
+**On Linux in order to compile and use it you may need to install :code:`libbluetooth-dev` for Debian like systems and :code:`bluez-libs-devel` for Fedora like.**
+
+Available :ref:`presets-label`:
+
+- *BrainFlowPresets.DEFAULT_PRESET* contains EEG data
+- *BrainFlowPresets.AUXILIARY_PRESET* contains Gyro and Accel data
+- *BrainFlowPresets.ANCILLARY_PRESET* contains battery and temperature data
+
+Steps to find MAC address:
+
+- On Windows: open device manager, navigate to explore device, click properties and select Bluetooth Address
+- On Linux: install bluez-utils and run :code:`bluetoothctl paired-devices`
+- On MacOS: run :code:`system_profiler SPBluetoothDataType`
+
+Steps to connect:
+
+- Enable device and Pair it with your laptop using bluetooth settings
+- Ensure that blue LED is blinking before calling :code:`board.prepare-session()`
+- If you see green LED probably you need to reboot a devce
+
+Explore 8 Channels Board
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/52349031632_51bc8ea56c.jpg" 
+    :width: 500px
+    :height: 334px
+
+`Mentalab website <https://mentalab.com/>`_
+
+To choose this board in BoardShim constructor please specify:
+
+- board_id: 44
+- Optional: mac address field of BrainFlowInputParams structure
+
+Supported platforms:
+
+- Windows
+- Linux
+- MacOS
+- Devices like Raspberry Pi
+
+**On Linux in order to compile and use it you may need to install :code:`libbluetooth-dev` for Debian like systems and :code:`bluez-libs-devel` for Fedora like.**
+
+Available :ref:`presets-label`:
+
+- *BrainFlowPresets.DEFAULT_PRESET* contains EEG data
+- *BrainFlowPresets.AUXILIARY_PRESET* contains Gyro and Accel data
+- *BrainFlowPresets.ANCILLARY_PRESET* contains battery and temperature data
+
+Steps to find MAC address:
+
+- On Windows: open device manager, navigate to explore device, click properties and select Bluetooth Address
+- On Linux: install bluez-utils and run :code:`bluetoothctl paired-devices`
+- On MacOS: run :code:`system_profiler SPBluetoothDataType`
+
+Steps to connect:
+
+- Enable device and Pair it with your laptop using bluetooth settings
+- Ensure that blue LED is blinking before calling :code:`board.prepare-session()`
+- If you see green LED probably you need to reboot a devce
