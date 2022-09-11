@@ -965,7 +965,7 @@ Steps to find MAC address:
 Steps to connect:
 
 - Enable device and Pair it with your laptop using bluetooth settings
-- Ensure that blue LED is blinking before calling :code:`board.prepare-session()`
+- Ensure that blue LED is blinking before calling :code:`board.prepare_session()`
 - If you see green LED probably you need to reboot a devce
 
 Explore 8 Channels Board
@@ -1006,5 +1006,5 @@ Steps to find MAC address:
 Steps to connect:
 
 - Enable device and Pair it with your laptop using bluetooth settings
-- Ensure that blue LED is blinking before calling :code:`board.prepare-session()`
+- Ensure that blue LED is blinking before calling :code:`board.prepare_session()`
 - If you see green LED probably you need to reboot a devce

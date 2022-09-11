@@ -10,6 +10,7 @@
 Explore::Explore (int board_id, struct BrainFlowInputParams params) : BTLibBoard (board_id, params)
 {
     keep_alive = false;
+    last_eeg_timestamp = -1;
     state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
 }
 
@@ -79,6 +80,7 @@ int Explore::stop_stream ()
         keep_alive = false;
         streaming_thread.join ();
         state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
+        last_eeg_timestamp = -1.0;
         return bluetooth_close_device ();
     }
     else
@@ -240,8 +242,7 @@ void Explore::parse_orientation_data (
             }
         }
     }
-    package[board_descr["auxiliary"]["timestamp_channel"].get<int> ()] =
-        get_timestamp (); // todo improve
+    package[board_descr["auxiliary"]["timestamp_channel"].get<int> ()] = get_timestamp ();
     package[board_descr["auxiliary"]["package_num_channel"].get<int> ()] = header->counter;
     push_package (package, (int)BrainFlowPresets::AUXILIARY_PRESET);
 }
@@ -257,6 +258,7 @@ void Explore::parse_eeg_data (const ExploreHeader *header, double *package, unsi
             payload[payload_size - 3], payload[payload_size - 2], payload[payload_size - 1]);
         return;
     }
+    double current_timestamp = get_timestamp ();
     payload_size = payload_size - 4;
     std::vector<int> eeg_channels = board_descr["default"]["eeg_channels"];
     if ((payload_size % n_packages != 0) || (payload_size % 3 != 0)) // 3 is int24 format
@@ -285,20 +287,25 @@ void Explore::parse_eeg_data (const ExploreHeader *header, double *package, unsi
     int num_total_channels = (int)eeg_channels.size () + 1;
     int other_channel = board_descr["default"]["other_channels"][0];
     // submit packages
-    for (int i = 0; i < n_packages; i++)
+    if (last_eeg_timestamp > 0.0)
     {
-        for (int j = 0; j < num_total_channels; j++)
+        double step = (current_timestamp - last_eeg_timestamp) / n_packages;
+        for (int i = 0; i < n_packages; i++)
         {
-            if (j == 0)
-                package[other_channel] = data[i * num_total_channels + j];
-            else
-                package[eeg_channels[j - 1]] = data[i * num_total_channels + j];
+            for (int j = 0; j < num_total_channels; j++)
+            {
+                if (j == 0)
+                    package[other_channel] = data[i * num_total_channels + j];
+                else
+                    package[eeg_channels[j - 1]] = data[i * num_total_channels + j];
+            }
+            package[board_descr["default"]["timestamp_channel"].get<int> ()] = last_eeg_timestamp +
+                step * (i + 1); // todo improve timestamps, use data from device
+            package[board_descr["default"]["package_num_channel"].get<int> ()] = header->counter;
+            push_package (package, (int)BrainFlowPresets::DEFAULT_PRESET);
         }
-        package[board_descr["default"]["timestamp_channel"].get<int> ()] =
-            get_timestamp (); // todo improve
-        package[board_descr["default"]["package_num_channel"].get<int> ()] = header->counter;
-        push_package (package, (int)BrainFlowPresets::DEFAULT_PRESET);
     }
+    last_eeg_timestamp = current_timestamp;
 }
 
 void Explore::parse_env_data (const ExploreHeader *header, double *package, unsigned char *payload)
@@ -327,8 +334,7 @@ void Explore::parse_env_data (const ExploreHeader *header, double *package, unsi
     package[battery_channel] = get_battery_percentage (battery);
     package[other_channel] =
         (1000.0 / 4095.0) * cast_16bit_to_int32 ((unsigned char *)(payload + 1));
-    package[board_descr["ancillary"]["timestamp_channel"].get<int> ()] =
-        get_timestamp (); // todo improve
+    package[board_descr["ancillary"]["timestamp_channel"].get<int> ()] = get_timestamp ();
     package[board_descr["ancillary"]["package_num_channel"].get<int> ()] = header->counter;
     push_package (package, (int)BrainFlowPresets::ANCILLARY_PRESET);
 }

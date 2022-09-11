@@ -35,6 +35,7 @@ protected:
     std::thread streaming_thread;
     std::mutex m;
     std::condition_variable cv;
+    double last_eeg_timestamp;
 
     void read_thread ();
     std::string get_name_selector ();
