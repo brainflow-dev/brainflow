@@ -189,7 +189,10 @@ void Board::push_package (double *package, int preset)
     }
     if (streamers.find (preset) != streamers.end ())
     {
-        streamers[preset]->stream_data (package);
+        for (auto& streamer : streamers[preset])
+        {
+            streamer->stream_data (package);
+        }
     }
     lock.unlock ();
 }
@@ -233,7 +236,10 @@ void Board::free_packages ()
     for (auto it = streamers.begin (), next_it = it; it != streamers.end (); it = next_it)
     {
         ++next_it;
-        delete it->second;
+        for (auto& streamer : it->second)
+        {
+            delete streamer;
+        }
         streamers.erase (it);
     }
 }
@@ -251,11 +257,7 @@ int Board::add_streamer (const char *streamer_params, int preset)
         safe_logger (spdlog::level::err, "invalid preset");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
-    if (streamers.find (preset) != streamers.end ())
-    {
-        safe_logger (spdlog::level::err, "only one streamer per preset is currently supported");
-        return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
-    }
+  
     int num_rows = (int)board_descr[preset_str]["num_rows"];
 
     Streamer *streamer = NULL;
@@ -317,7 +319,7 @@ int Board::add_streamer (const char *streamer_params, int preset)
     else
     {
         lock.lock ();
-        streamers[preset] = streamer;
+        streamers[preset].emplace_back(streamer);
         lock.unlock ();
     }
 
