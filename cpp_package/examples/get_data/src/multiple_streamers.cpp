@@ -13,7 +13,6 @@
 #include "ml_model.h"
 
 
-
 int main (int argc, char *argv[])
 {
     BoardShim::enable_dev_board_logger ();
@@ -25,47 +24,17 @@ int main (int argc, char *argv[])
     int board_id = (int)BoardIds::SYNTHETIC_BOARD;
     int res = 0;
 
-    BoardShim *board_1 = new BoardShim (board_id, params);
+    BoardShim *board = new BoardShim (board_id, params);
 
 
     try
     {
-        board_1->prepare_session ();
-        board_1->add_streamer ("file://streamer_default.csv:w");
-        board_1->add_streamer ("file://streamer_aux.csv:w");
-        board_1->start_stream ();
-
-#ifdef _WIN32
-        Sleep (5000);
-#else
-        sleep (5);
-#endif
-        
-        board_1->stop_stream ();
-        board_1->release_session ();
-    }
-    catch (const BrainFlowException &err)
-    {
-        BoardShim::log_message ((int)LogLevels::LEVEL_ERROR, err.what ());
-        res = err.exit_code;
-        if (board_1->is_prepared ())
-        {
-            board_1->release_session ();
-        }
-    }
-
-    delete board_1;
-
-
-    // adding the second streamer after starting stream.
-
-    BoardShim *board_2 = new BoardShim (board_id, params);
-    try
-    {
-        board_2->prepare_session ();
-        board_2->add_streamer ("file://streamer_default.csv:w");
-        board_2->start_stream ();
-        board_2->add_streamer ("file://streamer_aux.csv:w");
+        board->prepare_session ();
+        board->add_streamer ("file://streamer_default.csv:w");
+        board->add_streamer ("file://streamer_default.csv:w");
+        board->add_streamer ("file://streamer_aux.csv:w", (int)BrainFlowPresets::AUXILIARY_PRESET);
+        board->add_streamer ("file://streamer_aux.csv:w", (int)BrainFlowPresets::AUXILIARY_PRESET);
+        board->start_stream ();
 
 #ifdef _WIN32
         Sleep (5000);
@@ -73,20 +42,20 @@ int main (int argc, char *argv[])
         sleep (5);
 #endif
 
-        board_2->stop_stream ();
-        board_2->release_session ();
+        board->stop_stream ();
+        board->release_session ();
     }
     catch (const BrainFlowException &err)
     {
         BoardShim::log_message ((int)LogLevels::LEVEL_ERROR, err.what ());
         res = err.exit_code;
-        if (board_2->is_prepared ())
+        if (board->is_prepared ())
         {
-            board_2->release_session ();
+            board->release_session ();
         }
     }
 
-    delete board_2;
+    delete board;
 
     return res;
 }

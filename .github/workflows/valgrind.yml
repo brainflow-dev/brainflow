@@ -151,3 +151,7 @@ jobs:
       run: valgrind --error-exitcode=1 --track-origins=yes --leak-check=full $GITHUB_WORKSPACE/cpp_package/examples/signal_processing/build/band_power
       env:
         LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: Multiple Streamers
+      run: valgrind --error-exitcode=1 --track-origins=yes --leak-check=full $GITHUB_WORKSPACE/cpp_package/examples/get_data/build/multiple_streamers
+      env:
+        LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
