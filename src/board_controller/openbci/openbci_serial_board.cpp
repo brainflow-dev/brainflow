@@ -129,6 +129,9 @@ int OpenBCISerialBoard::set_port_settings ()
         return (int)BrainFlowExitCodes::SET_PORT_ERROR;
     }
     safe_logger (spdlog::level::trace, "set port settings");
+#ifdef __APPLE__
+    set_custom_baudrate (115200);
+#endif
     return send_to_board ("v");
 }
 

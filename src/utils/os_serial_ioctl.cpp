@@ -28,6 +28,16 @@
 #include <termios.h>
 #include <unistd.h>
 
+#if defined __has_include
+#if __has_include(<sys/ioctl.h>)
+#include <sys/ioctl.h>
+#else
+#define NO_IOCTL_HEADERS
+#endif
+#else
+#define NO_IOCTL_HEADERS
+#endif
+
 #endif
 
 
@@ -79,6 +89,7 @@ int OSSerial::set_custom_baudrate (int baudrate)
         return SerialExitCodes::SET_PORT_STATE_ERROR;
     }
 }
+
 #endif
 
 #elif defined(__APPLE__)
@@ -94,6 +105,10 @@ int OSSerial::set_custom_baudrate (int baudrate)
     if (tcsetattr (this->port_descriptor, TCSANOW, &port_settings) != 0)
         return SerialExitCodes::SET_PORT_STATE_ERROR;
     tcflush (this->port_descriptor, TCIOFLUSH);
+#ifndef NO_IOCTL_HEADERS
+    unsigned long mics = 1UL;
+    ioctl (this->port_descriptor, IOSSDATALAT, &mics);
+#endif
     return SerialExitCodes::OK;
 }
 
