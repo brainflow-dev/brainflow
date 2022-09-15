@@ -92,10 +92,14 @@ public:
             if (config.at (i) == 'x')
             {
                 if ((config.size () > i + single_command_size) &&
-                    (config.at (i + single_command_size) == 'X'))
+                    (config.at (i + single_command_size - 1) == 'X'))
                 {
                     res = apply_single_command (config.substr (i, single_command_size));
                     i += single_command_size;
+                }
+                else
+                {
+                    i++;
                 }
             }
             else
