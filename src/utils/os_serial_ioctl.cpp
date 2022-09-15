@@ -29,8 +29,10 @@
 #include <unistd.h>
 
 #if defined __has_include
-#if __has_include(<sys/ioctl.h>)
+#if __has_include(<sys/ioctl.h>) && __has_include(<IOKit/serial/ioss.h>)
 #include <sys/ioctl.h>
+
+#include <IOKit/serial/ioss.h>
 #else
 #define NO_IOCTL_HEADERS
 #endif
