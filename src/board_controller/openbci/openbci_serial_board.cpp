@@ -130,7 +130,7 @@ int OpenBCISerialBoard::set_port_settings ()
     }
     safe_logger (spdlog::level::trace, "set port settings");
 #ifdef __APPLE__
-    set_custom_baudrate (115200);
+    serial->set_custom_baudrate (115200);
 #endif
     return send_to_board ("v");
 }
