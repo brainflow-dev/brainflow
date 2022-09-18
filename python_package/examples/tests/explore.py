@@ -6,12 +6,15 @@ from brainflow.data_filter import DataFilter
 
 
 def main():
-    BoardShim.enable_board_logger()
+    BoardShim.enable_dev_board_logger()
 
     params = BrainFlowInputParams() 
     board = BoardShim(BoardIds.EXPLORE_4_CHAN_BOARD, params)
     board.prepare_session()
     board.start_stream()
+    # important: for explore device config board has to be after start stream
+    # board.config_board('sampling_rate:500')
+    # board.config_board('test_signal:1') # 1 is a bitmask represented as int not channel num
     time.sleep(10)    
     data_eeg = board.get_board_data(preset=BrainFlowPresets.DEFAULT_PRESET)
     data_orn = board.get_board_data(preset=BrainFlowPresets.AUXILIARY_PRESET)

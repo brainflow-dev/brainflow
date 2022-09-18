@@ -793,7 +793,7 @@ BrainFlowBoards::BrainFlowBoards()
         {"num_rows", 12},
         {"accel_channels", {1, 2, 3}},
         {"gyro_channels", {4, 5, 6}},
-        {"other_channels", {7, 8, 9}} // todo add get_magnetometer_channels
+        {"other_channels", {7, 8, 9}}
     };
     brainflow_boards_json["boards"]["44"]["ancillary"] =
     {
@@ -830,7 +830,7 @@ BrainFlowBoards::BrainFlowBoards()
         {"num_rows", 12},
         {"accel_channels", {1, 2, 3}},
         {"gyro_channels", {4, 5, 6}},
-        {"other_channels", {7, 8, 9}} // todo add get_magnetometer_channels
+        {"other_channels", {7, 8, 9}}
     };
     brainflow_boards_json["boards"]["45"]["ancillary"] =
     {

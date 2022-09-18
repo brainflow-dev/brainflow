@@ -33,7 +33,7 @@ int Enophone::start_stream (int buffer_size, const char *streamer_params)
 {
     if (!initialized)
     {
-        safe_logger (spdlog::level::err, "You need to call prepare_session before config_board");
+        safe_logger (spdlog::level::err, "You need to call prepare_session before start_stream");
         return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
     }
     if (keep_alive)

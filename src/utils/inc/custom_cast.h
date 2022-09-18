@@ -19,6 +19,15 @@ inline int32_t cast_24bit_to_int32 (unsigned char *byte_array)
     return (prefix << 24) | (byte_array[0] << 16) | (byte_array[1] << 8) | byte_array[2];
 }
 
+inline int32_t cast_24bit_to_int32_swap_order (unsigned char *byte_array)
+{
+    unsigned char swapped[3];
+    swapped[0] = byte_array[2];
+    swapped[1] = byte_array[1];
+    swapped[2] = byte_array[0];
+    return cast_24bit_to_int32 (swapped);
+}
+
 inline int32_t cast_16bit_to_int32 (unsigned char *byte_array)
 {
     int prefix = 0;
@@ -27,6 +36,14 @@ inline int32_t cast_16bit_to_int32 (unsigned char *byte_array)
         prefix = 65535;
     }
     return (prefix << 16) | (byte_array[0] << 8) | byte_array[1];
+}
+
+inline int32_t cast_16bit_to_int32_swap_order (unsigned char *byte_array)
+{
+    unsigned char swapped[2];
+    swapped[0] = byte_array[1];
+    swapped[1] = byte_array[0];
+    return cast_16bit_to_int32 (swapped);
 }
 
 inline void uchar_to_bits (unsigned char c, unsigned char *bits)
