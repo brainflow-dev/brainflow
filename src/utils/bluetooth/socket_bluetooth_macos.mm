@@ -104,11 +104,6 @@ int SocketBluetooth::send (const char *buffer, int length)
     return res;
 }
 
-int SocketBluetooth::bytes_available ()
-{
-	return 0;
-}
-
 std::pair<std::string, int> SocketBluetooth::discover (char *selector)
 {
     // somehow it leads to connection reset and audio stops, todo - fix, dont use autodiscovery on macos

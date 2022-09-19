@@ -265,7 +265,7 @@ void Explore::read_thread ()
         }
         res = 0;
         // safe_logger (spdlog::level::trace, "header pid counter size timestamp: {} {} {} {}",
-        // header.pid, header.counter, header.payload_size, header.timestamp);
+        //     header.pid, header.counter, header.payload_size, header.timestamp);
 
         header.payload_size -= 4; // its because of timestamp which moved to header from the package
         if (header.payload_size < 1)
@@ -310,6 +310,7 @@ void Explore::read_thread ()
                 parse_env_data (&header, package_anc, payload_buffer);
                 break;
             default:
+                safe_logger (spdlog::level::trace, "received header: {}", header.pid);
                 break;
         }
     }
