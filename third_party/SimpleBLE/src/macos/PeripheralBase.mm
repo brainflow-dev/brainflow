@@ -1,6 +1,8 @@
 #import "PeripheralBase.h"
 #import "PeripheralBaseMacOS.h"
 
+#import "CommonUtils.h"
+
 #include <iostream>
 
 using namespace SimpleBLE;
@@ -27,6 +29,12 @@ PeripheralBase::~PeripheralBase() {
     internal = nil;
 }
 
+void* PeripheralBase::underlying() const {
+    PeripheralBaseMacOS* internal = (__bridge PeripheralBaseMacOS*)opaque_internal_;
+
+    return [internal underlying];
+}
+
 std::string PeripheralBase::identifier() {
     PeripheralBaseMacOS* internal = (__bridge PeripheralBaseMacOS*)opaque_internal_;
     return std::string([[internal identifier] UTF8String]);
@@ -37,9 +45,7 @@ BluetoothAddress PeripheralBase::address() {
     return std::string([[internal address] UTF8String]);
 }
 
-int16_t PeripheralBase::rssi() {
-    return rssi_;
-}
+int16_t PeripheralBase::rssi() { return rssi_; }
 
 void PeripheralBase::update_advertising_data(advertising_data_t advertising_data) {
     is_connectable_ = advertising_data.connectable;
@@ -50,9 +56,8 @@ void PeripheralBase::update_advertising_data(advertising_data_t advertising_data
 void PeripheralBase::connect() {
     PeripheralBaseMacOS* internal = (__bridge PeripheralBaseMacOS*)opaque_internal_;
     [internal connect];
-    if (callback_on_connected_) {
-        callback_on_connected_();
-    }
+
+    SAFE_CALLBACK_CALL(this->callback_on_connected_);
 }
 
 void PeripheralBase::disconnect() {
@@ -60,9 +65,9 @@ void PeripheralBase::disconnect() {
 
     manual_disconnect_triggered_ = true;
     [internal disconnect];
-    if (callback_on_disconnected_) {
-        callback_on_disconnected_();
-    }
+
+    SAFE_CALLBACK_CALL(this->callback_on_disconnected_);
+
     manual_disconnect_triggered_ = false;
 }
 
@@ -113,7 +118,8 @@ void PeripheralBase::write_command(BluetoothUUID const& service, BluetoothUUID c
     [internal writeCommand:service_uuid characteristic_uuid:characteristic_uuid payload:payload];
 }
 
-void PeripheralBase::notify(BluetoothUUID const& service, BluetoothUUID const& characteristic, std::function<void(ByteArray payload)> callback) {
+void PeripheralBase::notify(BluetoothUUID const& service, BluetoothUUID const& characteristic,
+                            std::function<void(ByteArray payload)> callback) {
     PeripheralBaseMacOS* internal = (__bridge PeripheralBaseMacOS*)opaque_internal_;
 
     NSString* service_uuid = [NSString stringWithCString:service.c_str() encoding:NSString.defaultCStringEncoding];
@@ -121,7 +127,8 @@ void PeripheralBase::notify(BluetoothUUID const& service, BluetoothUUID const& c
     [internal notify:service_uuid characteristic_uuid:characteristic_uuid callback:callback];
 }
 
-void PeripheralBase::indicate(BluetoothUUID const& service, BluetoothUUID const& characteristic, std::function<void(ByteArray payload)> callback) {
+void PeripheralBase::indicate(BluetoothUUID const& service, BluetoothUUID const& characteristic,
+                              std::function<void(ByteArray payload)> callback) {
     PeripheralBaseMacOS* internal = (__bridge PeripheralBaseMacOS*)opaque_internal_;
 
     NSString* service_uuid = [NSString stringWithCString:service.c_str() encoding:NSString.defaultCStringEncoding];

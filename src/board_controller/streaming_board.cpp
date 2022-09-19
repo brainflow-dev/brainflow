@@ -34,21 +34,22 @@ int StreamingBoard::prepare_session ()
         safe_logger (spdlog::level::info, "Session is already prepared");
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
-    if ((params.ip_address.empty ()) || (params.other_info.empty ()) || (params.ip_port == 0))
+    if ((params.ip_address.empty ()) || (params.master_board == (int)BoardIds::NO_BOARD) ||
+        (params.ip_port == 0))
     {
         safe_logger (spdlog::level::err,
-            "write multicast group ip to ip_address field, ip port to ip_port field and original "
-            "board id to other info");
+            "write preset, multicast group ip to ip_address field, ip port to ip_port field and "
+            "original board id to master_board");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     try
     {
-        board_id = std::stoi (params.other_info);
-        board_descr = brainflow_boards_json["boards"][std::to_string (board_id)];
+        board_id = params.master_board;
+        board_descr = boards_struct.brainflow_boards_json["boards"][std::to_string (board_id)];
     }
     catch (json::exception &e)
     {
-        safe_logger (spdlog::level::err, "invalid json");
+        safe_logger (spdlog::level::err, "invalid json for master board");
         safe_logger (spdlog::level::err, e.what ());
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
@@ -138,7 +139,15 @@ int StreamingBoard::release_session ()
 void StreamingBoard::read_thread ()
 {
     // format for incomming package is determined by original board
-    int num_rows = board_descr["num_rows"];
+    std::string preset_str = preset_to_string (params.preset);
+    if (board_descr.find (preset_str) == board_descr.end ())
+    {
+        safe_logger (spdlog::level::err, "invalid json or push_package args, no such key");
+        return;
+    }
+
+    json board_preset = board_descr[preset_str];
+    int num_rows = board_preset["num_rows"];
     int num_packages = MultiCastStreamer::get_packages_in_chunk ();
     int transaction_len = num_rows * num_packages;
     int bytes_per_recv = sizeof (double) * transaction_len;
@@ -159,7 +168,7 @@ void StreamingBoard::read_thread ()
         }
         for (int i = 0; i < num_packages; i++)
         {
-            push_package (transaction + i * num_rows);
+            push_package (transaction + i * num_rows, params.preset);
         }
     }
     delete[] transaction;

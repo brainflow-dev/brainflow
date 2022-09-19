@@ -10,8 +10,7 @@
 #include <iostream>
 
 
-NotionOSC::NotionOSC (struct BrainFlowInputParams params)
-    : Board ((int)BoardIds::NOTION_1_BOARD, params)
+NotionOSC::NotionOSC (int board_id, struct BrainFlowInputParams params) : Board (board_id, params)
 {
     socket = NULL;
     keep_alive = false;
@@ -134,7 +133,7 @@ void NotionOSC::read_thread ()
     int res;
     constexpr int max_package_size = 8192;
     unsigned char b[max_package_size];
-    int num_rows = board_descr["num_rows"];
+    int num_rows = board_descr["default"]["num_rows"];
     double *package = new double[num_rows];
     for (int i = 0; i < num_rows; i++)
     {
@@ -216,7 +215,7 @@ void NotionOSC::handle_packet (double *package, const OSCPP::Server::Packet &pac
                 int counter = 0;
                 while (!eeg_data.atEnd ())
                 {
-                    package[board_descr["eeg_channels"][counter].get<int> ()] =
+                    package[board_descr["default"]["eeg_channels"][counter].get<int> ()] =
                         (double)eeg_data.float32 ();
                     counter++;
                 }
@@ -226,14 +225,17 @@ void NotionOSC::handle_packet (double *package, const OSCPP::Server::Packet &pac
                         "wrong format for eeg data, must be 8 values, found {}", counter);
                 }
                 std::string timestamp_str = args.string ();
-                package[board_descr["timestamp_channel"].get<int> ()] = std::stod (timestamp_str);
-                package[board_descr["package_num_channel"].get<int> ()] = (double)args.int32 ();
+                package[board_descr["default"]["timestamp_channel"].get<int> ()] =
+                    std::stod (timestamp_str);
+                package[board_descr["default"]["package_num_channel"].get<int> ()] =
+                    (double)args.int32 ();
                 std::string marker = std::string (args.string ());
                 if (!marker.empty ())
                 {
                     try
                     {
-                        package[board_descr["other_channels"][0].get<int> ()] = std::stod (marker);
+                        package[board_descr["default"]["other_channels"][0].get<int> ()] =
+                            std::stod (marker);
                     }
                     catch (...)
                     {

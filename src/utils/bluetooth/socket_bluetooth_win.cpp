@@ -93,38 +93,32 @@ int SocketBluetooth::recv (char *data, int size)
     {
         return -1;
     }
-    // waiting for exact amount of bytes
-    int e = bytes_available ();
-    if (e < size)
-    {
-        return 0;
-    }
     fd_set set;
     FD_ZERO (&set);
     FD_SET (socket_bt, &set);
-
-    int res = -1;
 
     timeval timeout {0, 0};
     if (select (1, &set, nullptr, nullptr, &timeout) >= 0)
     {
         if (FD_ISSET (socket_bt, &set))
         {
-            res = ::recv (socket_bt, data, size, 0);
+            int res = ::recv (socket_bt, data, size, 0);
+            for (int i = 0; i < res; i++)
+            {
+                temp_buffer.push (data[i]);
+            }
         }
     }
-    return res;
-}
-
-int SocketBluetooth::bytes_available ()
-{
-    if (socket_bt == INVALID_SOCKET)
+    if ((int)temp_buffer.size () < size)
     {
-        return -1;
+        return 0;
     }
-    u_long count;
-    ioctlsocket (socket_bt, FIONREAD, &count);
-    return count;
+    for (int i = 0; i < size; i++)
+    {
+        data[i] = temp_buffer.front ();
+        temp_buffer.pop ();
+    }
+    return size;
 }
 
 int SocketBluetooth::close ()

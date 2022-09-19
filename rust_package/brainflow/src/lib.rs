@@ -56,6 +56,8 @@ pub use ffi::constants::WaveletExtensionTypes;
 pub use ffi::constants::NoiseEstimationLevelTypes;
 /// Enum to store all supported Wavelet Types.
 pub use ffi::constants::WaveletTypes;
+/// Enum to store all supported Presets.
+pub use ffi::constants::BrainFlowPresets;
 
 type BrainFlowExitCode = i32;
 

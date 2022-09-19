@@ -56,7 +56,7 @@ You are able to install the latest release from `Nuget <https://www.nuget.org/pa
     Example for Fedora: ::
 
         # compile c++ code
-        tools/build_linux.sh
+        python tools/build.py
         # install dependencies, we skip dnf configuration steps 
         sudo dnf install nuget
         sudo dnf install mono-devel
@@ -65,7 +65,7 @@ You are able to install the latest release from `Nuget <https://www.nuget.org/pa
         # build solution
         xbuild csharp_package/brainflow/brainflow.sln
         # run tests
-        export LD_LIBRARY_PATH=/home/andreyparfenov/brainflow/installed_linux/lib/
+        export LD_LIBRARY_PATH=/home/andreyparfenov/brainflow/installed/lib/
         mono csharp_package/brainflow/examples/denoising/bin/Debug/denoising.exe
 
 R

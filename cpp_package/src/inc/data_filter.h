@@ -84,6 +84,12 @@ public:
         int threshold = (int)ThresholdTypes::HARD,
         int extenstion_type = (int)WaveletExtensionTypes::SYMMETRIC,
         int noise_level = (int)NoiseEstimationLevelTypes::FIRST_LEVEL);
+    /// restore data from selected detailed coeffs
+    static void restore_data_from_wavelet_detailed_coeffs (double *data, int data_len, int wavelet,
+        int decomposition_level, int level_to_restore, double *output);
+    /// z score peak detection, more info https://stackoverflow.com/a/22640362
+    static void detect_peaks_z_score (
+        double *data, int data_len, int lag, double threshold, double influence, double *output);
     // clang-format off
     /**
     * calculate filters and the corresponding eigenvalues using the Common Spatial Patterns
@@ -102,7 +108,7 @@ public:
     /**
      * perform direct fft
      * @param data input array
-     * @param data_len must be power of 2
+     * @param data_len must be even
      * @param window window function
      * @param fft_len output fft len(data_len / 2 + 1)
      * @return complex array with size data_len / 2 + 1, it holds only positive im values
@@ -111,7 +117,7 @@ public:
     /**
      * perform inverse fft
      * @param fft_data complex array from perform_fft
-     * @param fft_len len of original array, must be power of 2
+     * @param fft_len len of original array, must be even
      * @param data_len output array len
      * @return restored data
      */
@@ -125,7 +131,7 @@ public:
     /**
      * calculate PSD
      * @param data input array
-     * @param data_len must be power of 2
+     * @param data_len must be even
      * @param sampling_rate sampling rate
      * @param window window function
      * @param psd_len output len (data_len / 2 + 1)
@@ -177,7 +183,27 @@ public:
     static std::pair<double *, double *> get_custom_band_powers (
         const BrainFlowArray<double, 2> &data, std::vector<std::pair<double, double>> bands,
         std::vector<int> channels, int sampling_rate, bool apply_filters);
-
+    /**
+     * calculate oxygen level
+     * @param ppg_ir input 1d array
+     * @param ppg_red input 1d array
+     * @param data_len size of array
+     * @param sampling_rate sampling rate
+     * @return oxygen level
+     */
+    static double get_oxygen_level (double *ppg_ir, double *ppg_red, int data_len,
+        int sampling_rate, double coef1 = 0.0, double coef2 = -37.663, double coef3 = 114.91);
+    /**
+     * calculate heart rate
+     * @param ppg_ir input 1d array
+     * @param ppg_red input 1d array
+     * @param data_len size of array
+     * @param sampling_rate sampling rate
+     * @param fft_size recommended 8192
+     * @return heart rate
+     */
+    static double get_heart_rate (
+        double *ppg_ir, double *ppg_red, int data_len, int sampling_rate, int fft_size);
     /// write file, in file data will be transposed
     static void write_file (
         const BrainFlowArray<double, 2> &data, std::string file_name, std::string file_mode);
@@ -185,6 +211,8 @@ public:
     static BrainFlowArray<double, 2> read_file (std::string file_name);
     /// calc stddev
     static double calc_stddev (double *data, int start_pos, int end_pos);
+    /// calc railed percentage
+    static double get_railed_percentage (double *data, int data_len, int gain);
 
     /// get brainflow version
     static std::string get_version ();

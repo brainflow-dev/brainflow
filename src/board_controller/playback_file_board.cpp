@@ -46,19 +46,19 @@ int PlaybackFileBoard::prepare_session ()
         safe_logger (spdlog::level::info, "Session is already prepared");
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
-    if ((params.file.empty ()) || (params.other_info.empty ()))
+    if ((params.file.empty ()) || (params.master_board == (int)BoardIds::NO_BOARD))
     {
-        safe_logger (spdlog::level::err, "playback file or master board id not provided");
+        safe_logger (spdlog::level::err, "playback file or master board id or preset not provided");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     try
     {
-        board_id = std::stoi (params.other_info);
-        board_descr = brainflow_boards_json["boards"][std::to_string (board_id)];
+        board_id = params.master_board;
+        board_descr = boards_struct.brainflow_boards_json["boards"][std::to_string (board_id)];
     }
     catch (json::exception &e)
     {
-        safe_logger (spdlog::level::err, "invalid json");
+        safe_logger (spdlog::level::err, "invalid json for master board");
         safe_logger (spdlog::level::err, e.what ());
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
@@ -148,6 +148,13 @@ int PlaybackFileBoard::release_session ()
 
 void PlaybackFileBoard::read_thread ()
 {
+    std::string preset_str = preset_to_string (params.preset);
+    if (board_descr.find (preset_str) == board_descr.end ())
+    {
+        safe_logger (spdlog::level::err, "invalid json or push_package args, no such key");
+        return;
+    }
+
     FILE *fp;
     fp = fopen (params.file.c_str (), "r");
     if (fp == NULL)
@@ -155,7 +162,9 @@ void PlaybackFileBoard::read_thread ()
         safe_logger (spdlog::level::err, "failed to open file in thread");
         return;
     }
-    int num_rows = board_descr["num_rows"];
+
+    json board_preset = board_descr[preset_str];
+    int num_rows = board_preset["num_rows"];
     double *package = new double[num_rows];
     for (int i = 0; i < num_rows; i++)
     {
@@ -164,7 +173,7 @@ void PlaybackFileBoard::read_thread ()
     char buf[4096];
     double last_timestamp = -1.0;
     bool new_timestamps = use_new_timestamps; // to prevent changing during streaming
-    int timestamp_channel = board_descr["timestamp_channel"];
+    int timestamp_channel = board_preset["timestamp_channel"];
     double accumulated_time_delta = 0.0;
 
     while (keep_alive)
@@ -252,7 +261,7 @@ void PlaybackFileBoard::read_thread ()
         {
             package[timestamp_channel] = get_timestamp ();
         }
-        push_package (package);
+        push_package (package, params.preset);
     }
     fclose (fp);
     delete[] package;

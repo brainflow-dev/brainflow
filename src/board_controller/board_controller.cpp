@@ -32,6 +32,7 @@
 #include "cyton_daisy_wifi.h"
 #include "cyton_wifi.h"
 #include "enophone.h"
+#include "explore.h"
 #include "freeeeg32.h"
 #include "galea.h"
 #include "galea_serial.h"
@@ -136,13 +137,13 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
         // notion 1, notion 2 and crown have the same class
         // the only difference are get_eeg_names and sampling_rate
         case BoardIds::NOTION_1_BOARD:
-            board = std::shared_ptr<Board> (new NotionOSC (params));
+            board = std::shared_ptr<Board> (new NotionOSC (board_id, params));
             break;
         case BoardIds::NOTION_2_BOARD:
-            board = std::shared_ptr<Board> (new NotionOSC (params));
+            board = std::shared_ptr<Board> (new NotionOSC (board_id, params));
             break;
         case BoardIds::CROWN_BOARD:
-            board = std::shared_ptr<Board> (new NotionOSC (params));
+            board = std::shared_ptr<Board> (new NotionOSC (board_id, params));
             break;
         case BoardIds::IRONBCI_BOARD:
             board = std::shared_ptr<Board> (new IronBCI (params));
@@ -241,6 +242,12 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
         case BoardIds::PIEEG_BOARD:
             board = std::shared_ptr<Board> (new PiEEG (params));
             break;
+        case BoardIds::EXPLORE_4_CHAN_BOARD:
+            board = std::shared_ptr<Board> (new Explore (board_id, params));
+            break;
+        case BoardIds::EXPLORE_8_CHAN_BOARD:
+            board = std::shared_ptr<Board> (new Explore (board_id, params));
+            break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
     }
@@ -304,7 +311,7 @@ int stop_stream (int board_id, const char *json_brainflow_input_params)
     return board_it->second->stop_stream ();
 }
 
-int insert_marker (double value, int board_id, const char *json_brainflow_input_params)
+int insert_marker (double value, int preset, int board_id, const char *json_brainflow_input_params)
 {
     std::lock_guard<std::mutex> lock (mutex);
 
@@ -315,7 +322,7 @@ int insert_marker (double value, int board_id, const char *json_brainflow_input_
         return res;
     }
     auto board_it = boards.find (key);
-    return board_it->second->insert_marker (value);
+    return board_it->second->insert_marker (value, preset);
 }
 
 int release_session (int board_id, const char *json_brainflow_input_params)
@@ -334,7 +341,38 @@ int release_session (int board_id, const char *json_brainflow_input_params)
     return res;
 }
 
-int get_current_board_data (int num_samples, double *data_buf, int *returned_samples, int board_id,
+int get_current_board_data (int num_samples, int preset, double *data_buf, int *returned_samples,
+    int board_id, const char *json_brainflow_input_params)
+{
+    std::lock_guard<std::mutex> lock (mutex);
+
+    std::pair<int, struct BrainFlowInputParams> key;
+    int res = check_board_session (board_id, json_brainflow_input_params, key, false);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        return res;
+    }
+    auto board_it = boards.find (key);
+    return board_it->second->get_current_board_data (
+        num_samples, preset, data_buf, returned_samples);
+}
+
+int get_board_data_count (
+    int preset, int *result, int board_id, const char *json_brainflow_input_params)
+{
+    std::lock_guard<std::mutex> lock (mutex);
+
+    std::pair<int, struct BrainFlowInputParams> key;
+    int res = check_board_session (board_id, json_brainflow_input_params, key, false);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        return res;
+    }
+    auto board_it = boards.find (key);
+    return board_it->second->get_board_data_count (preset, result);
+}
+
+int get_board_data (int data_count, int preset, double *data_buf, int board_id,
     const char *json_brainflow_input_params)
 {
     std::lock_guard<std::mutex> lock (mutex);
@@ -346,36 +384,7 @@ int get_current_board_data (int num_samples, double *data_buf, int *returned_sam
         return res;
     }
     auto board_it = boards.find (key);
-    return board_it->second->get_current_board_data (num_samples, data_buf, returned_samples);
-}
-
-int get_board_data_count (int *result, int board_id, const char *json_brainflow_input_params)
-{
-    std::lock_guard<std::mutex> lock (mutex);
-
-    std::pair<int, struct BrainFlowInputParams> key;
-    int res = check_board_session (board_id, json_brainflow_input_params, key, false);
-    if (res != (int)BrainFlowExitCodes::STATUS_OK)
-    {
-        return res;
-    }
-    auto board_it = boards.find (key);
-    return board_it->second->get_board_data_count (result);
-}
-
-int get_board_data (
-    int data_count, double *data_buf, int board_id, const char *json_brainflow_input_params)
-{
-    std::lock_guard<std::mutex> lock (mutex);
-
-    std::pair<int, struct BrainFlowInputParams> key;
-    int res = check_board_session (board_id, json_brainflow_input_params, key, false);
-    if (res != (int)BrainFlowExitCodes::STATUS_OK)
-    {
-        return res;
-    }
-    auto board_it = boards.find (key);
-    return board_it->second->get_board_data (data_count, data_buf);
+    return board_it->second->get_board_data (data_count, preset, data_buf);
 }
 
 int set_log_level_board_controller (int log_level)
@@ -417,7 +426,7 @@ int java_set_jnienv (JNIEnv *java_jnienv)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int config_board (char *config, char *response, int *response_len, int board_id,
+int config_board (const char *config, char *response, int *response_len, int board_id,
     const char *json_brainflow_input_params)
 {
     std::lock_guard<std::mutex> lock (mutex);
@@ -442,6 +451,25 @@ int config_board (char *config, char *response, int *response_len, int board_id,
         strcpy (response, resp.c_str ());
     }
     return res;
+}
+
+int add_streamer (
+    const char *streamer, int preset, int board_id, const char *json_brainflow_input_params)
+{
+    std::lock_guard<std::mutex> lock (mutex);
+    if (streamer == NULL)
+    {
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    std::pair<int, struct BrainFlowInputParams> key;
+    int res = check_board_session (board_id, json_brainflow_input_params, key, false);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        return res;
+    }
+    auto board_it = boards.find (key);
+    return board_it->second->add_streamer (streamer, preset);
 }
 
 int release_all_sessions ()
@@ -516,6 +544,8 @@ int string_to_brainflow_input_params (
         params->timeout = config["timeout"];
         params->serial_number = config["serial_number"];
         params->file = config["file"];
+        params->master_board = config["master_board"];
+        params->preset = config["preset"];
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
     catch (json::exception &e)

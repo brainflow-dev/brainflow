@@ -16,6 +16,8 @@ class PeripheralBase {
     PeripheralBase(void* opaque_peripheral, void* opaque_adapter, advertising_data_t advertising_data);
     ~PeripheralBase();
 
+    void* underlying() const;
+
     std::string identifier();
     BluetoothAddress address();
     int16_t rssi();

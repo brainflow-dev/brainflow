@@ -19,6 +19,7 @@ int main (int argc, char *argv[])
 {
     BoardShim::enable_dev_board_logger ();
 
+    BoardShim::get_board_presets (-1);
     struct BrainFlowInputParams params;
     int board_id = 0;
     if (!parse_args (argc, argv, &params, &board_id))
@@ -189,6 +190,32 @@ bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, in
             {
                 i++;
                 params->file = std::string (argv[i]);
+            }
+            else
+            {
+                std::cerr << "missed argument" << std::endl;
+                return false;
+            }
+        }
+        if (std::string (argv[i]) == std::string ("--master-board"))
+        {
+            if (i + 1 < argc)
+            {
+                i++;
+                params->master_board = std::stoi (std::string (argv[i]));
+            }
+            else
+            {
+                std::cerr << "missed argument" << std::endl;
+                return false;
+            }
+        }
+        if (std::string (argv[i]) == std::string ("--preset"))
+        {
+            if (i + 1 < argc)
+            {
+                i++;
+                params->preset = std::stoi (std::string (argv[i]));
             }
             else
             {

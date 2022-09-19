@@ -145,9 +145,6 @@ jobs:
     - name: Cyton Windows Python Test Commands
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\python_package\examples\tests\cyton_commands.py --serial-port
       shell: cmd
-    - name: Cyton Windows Python Test with Streamer
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\python_package\examples\tests\brainflow_get_data.py --board-id 0 --streamer-params file://file_streamer.csv:w --serial-port
-      shell: cmd
     - name: Cyton Multiboard Windows Python Test
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\python_package\examples\tests\brainflow_multiboard_get_data.py --board-id 0 --serial-port
       shell: cmd
@@ -170,9 +167,6 @@ jobs:
         cd %GITHUB_WORKSPACE%\rust_package\brainflow
         cargo run --example=markers
       shell: cmd
-    - name: Synthetic Windows Python Test with Streamer
-      run: python %GITHUB_WORKSPACE%\python_package\examples\tests\brainflow_get_data.py --board-id -1 --streamer-params file://file_streamer.csv:w
-      shell: cmd
     - name: Synthetic Windows Cpp Test
       run: .\cpp_package\examples\get_data\build\Release\brainflow_get_data.exe --board-id -1
       shell: cmd
@@ -183,9 +177,6 @@ jobs:
       shell: cmd
     - name: Cyton Daisy Windows Python Test
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\python_package\examples\tests\brainflow_get_data.py --board-id 2 --serial-port
-      shell: cmd
-    - name: Cyton Daisy Windows Python Test with Streamer
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\python_package\examples\tests\brainflow_get_data.py --board-id 2 --streamer-params file://file_streamer.csv:w --serial-port
       shell: cmd
     - name: Cyton Daisy Multiboard Windows Python Test
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py python %GITHUB_WORKSPACE%\python_package\examples\tests\brainflow_multiboard_get_data.py --board-id 2 --serial-port

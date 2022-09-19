@@ -2,15 +2,15 @@ use std::{thread, time::Duration};
 
 use brainflow::{
     board_shim, brainflow_input_params::BrainFlowInputParamsBuilder, data_filter, BoardIds,
-    FilterTypes,
+    FilterTypes, BrainFlowPresets,
 };
 use ndarray::s;
 
 fn main() {
     brainflow::board_shim::enable_dev_board_logger().unwrap();
     let board_id = BoardIds::SyntheticBoard;
-    let sampling_rate = board_shim::get_sampling_rate(board_id).unwrap();
-    let eeg_channels = board_shim::get_eeg_channels(board_id).unwrap();
+    let sampling_rate = board_shim::get_sampling_rate(board_id, BrainFlowPresets::DefaultPreset).unwrap();
+    let eeg_channels = board_shim::get_eeg_channels(board_id, BrainFlowPresets::DefaultPreset).unwrap();
 
     let params = BrainFlowInputParamsBuilder::default().build();
     let board = board_shim::BoardShim::new(board_id, params).unwrap();
@@ -19,7 +19,7 @@ fn main() {
     board.start_stream(45000, "").unwrap();
     thread::sleep(Duration::from_secs(5));
     board.stop_stream().unwrap();
-    let mut data = board.get_board_data(Some(10)).unwrap();
+    let mut data = board.get_board_data(Some(10), BrainFlowPresets::DefaultPreset).unwrap();
     board.release_session().unwrap();
 
     dbg!(&data);

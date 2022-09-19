@@ -251,6 +251,20 @@ namespace brainflow
         }
 
         /// <summary>
+        /// detect peaks using z score algorithm
+        /// </summary>
+        public static double[] detect_peaks_z_score (double[] data, int lag, double threshold, double influence)
+        {
+            double[] peaks = new double[data.Length];
+            int res = DataHandlerLibrary.detect_peaks_z_score (data, data.Length, lag, threshold, influence, peaks);
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+            return peaks;
+        }
+
+        /// <summary>
         /// calc stddev
         /// </summary>
         /// <param name="data"></param>
@@ -261,6 +275,65 @@ namespace brainflow
         {
             double[] output = new double[1];
             int res = DataHandlerLibrary.calc_stddev (data, start_pos, end_pos, output);
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+            return output[0];
+        }
+
+        /// <summary>
+        /// get railed percentage
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="gain"></param>
+        /// <returns>railed</returns>
+        public static double get_railed_percentage (double[] data, int gain)
+        {
+            double[] output = new double[1];
+            int res = DataHandlerLibrary.get_railed_percentage (data, data.Length, gain, output);
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+            return output[0];
+        }
+
+        /// <summary>
+        /// calc oxygen level from ppg values
+        /// </summary>
+        /// <param name="coef1">appxorimation coef for power of 2</param>
+        /// <param name="coef2">approximation coef</param>
+        /// /// <param name="coef3">intercept for approximation</param>
+        /// <returns>stddev</returns>
+        public static double get_oxygen_level (double[] ppg_ir, double[] ppg_red, int sampling_rate, double coef1 = 0.0, double coef2 = -37.663, double coef3 = 114.91)
+        {
+            if (ppg_ir.Length != ppg_red.Length)
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            double[] output = new double[1];
+            int res = DataHandlerLibrary.get_oxygen_level (ppg_ir, ppg_red, ppg_ir.Length, sampling_rate, coef1, coef2, coef3, output);
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+            return output[0];
+        }
+
+        /// <summary>
+        /// calc heart rate
+        /// </summary>
+        /// <param name="fft_size">recommended 8192</param>
+        /// <returns>stddev</returns>
+        public static double get_heart_rate (double[] ppg_ir, double[] ppg_red, int sampling_rate, int fft_size)
+        {
+            if (ppg_ir.Length != ppg_red.Length)
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            double[] output = new double[1];
+            int res = DataHandlerLibrary.get_heart_rate (ppg_ir, ppg_red, ppg_ir.Length, sampling_rate, fft_size, output);
             if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
                 throw new BrainFlowError (res);
@@ -415,7 +488,7 @@ namespace brainflow
         /// </summary>
         /// <param name="data">data for fft</param>
         /// <param name="start_pos">start pos</param>
-        /// <param name="end_pos">end pos, end_pos - start_pos must be a power of 2</param>
+        /// <param name="end_pos">end pos, end_pos - start_pos must be even</param>
         /// <param name="window">window function</param>
         /// <returns>complex array of size N / 2 + 1 of fft data</returns>
         public static Complex[] perform_fft (double[] data, int start_pos, int end_pos, int window)
@@ -425,7 +498,7 @@ namespace brainflow
                 throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             }
             int len = end_pos - start_pos;
-            if ((len & (len - 1)) != 0)
+            if (len % 2 == 1)
             {
                 throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             }
@@ -595,7 +668,7 @@ namespace brainflow
         /// </summary>
         /// <param name="data">data for PSD</param>
         /// <param name="start_pos">start pos</param>
-        /// <param name="end_pos">end pos, end_pos - start_pos must be a power of 2</param>
+        /// <param name="end_pos">end pos, end_pos - start_pos must be even</param>
         /// <param name="sampling_rate">sampling rate</param>
         /// <param name="window">window function</param>
         /// <returns>Tuple of ampls and freqs arrays of size N / 2 + 1</returns>
@@ -606,7 +679,7 @@ namespace brainflow
                 throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             }
             int len = end_pos - start_pos;
-            if ((len & (len - 1)) != 0)
+            if (len % 2 == 1)
             {
                 throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             }

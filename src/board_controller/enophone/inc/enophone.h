@@ -25,6 +25,7 @@ public:
     Enophone (struct BrainFlowInputParams params);
     ~Enophone ();
 
+    int prepare_session ();
     int start_stream (int buffer_size, const char *streamer_params);
     int stop_stream ();
     int release_session ();

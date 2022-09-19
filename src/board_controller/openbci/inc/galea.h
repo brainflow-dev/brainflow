@@ -26,6 +26,7 @@ private:
     volatile bool keep_alive;
     volatile int state;
     volatile double half_rtt;
+    volatile bool dump_bytes;
     bool initialized;
     bool is_streaming;
     std::thread streaming_thread;

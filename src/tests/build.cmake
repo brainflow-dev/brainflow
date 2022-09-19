@@ -29,8 +29,10 @@ enable_testing()
 
 SET (TESTS_SRC
     ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/bluetooth_functions.cpp
-    ${CMAKE_HOME_DIRECTORY}/src/tests/bluetooth/socket_bluetooth_test.cpp
-    ${CMAKE_HOME_DIRECTORY}/src/tests/bluetooth/bluetooth_functions_unittest.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/utils/data_buffer.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/tests/utils/bluetooth/socket_bluetooth_test.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/tests/utils/bluetooth/bluetooth_functions_unittest.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/tests/utils/data_buffer_unittest.cpp
 )
 
 add_executable(
@@ -42,7 +44,7 @@ target_include_directories (
     ${TESTS_EXE_NAME} PRIVATE
     ${CMAKE_HOME_DIRECTORY}/src/utils/inc
     ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/inc
-    ${CMAKE_HOME_DIRECTORY}/src/tests/bluetooth/inc
+    ${CMAKE_HOME_DIRECTORY}/src/tests/utils/bluetooth/inc
     ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/macos_third_party
 )
 

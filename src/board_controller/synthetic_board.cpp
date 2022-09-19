@@ -95,13 +95,14 @@ int SyntheticBoard::release_session ()
 void SyntheticBoard::read_thread ()
 {
     unsigned char counter = 0;
-    std::vector<int> exg_channels = board_descr["eeg_channels"]; // same channels for eeg\emg\ecg
+    std::vector<int> exg_channels =
+        board_descr["default"]["eeg_channels"]; // same channels for eeg\emg\ecg
     double *sin_phase_rad = new double[exg_channels.size ()];
-    for (unsigned int i = 0; i < board_descr["eeg_channels"].size (); i++)
+    for (unsigned int i = 0; i < board_descr["default"]["eeg_channels"].size (); i++)
     {
         sin_phase_rad[i] = 0.0;
     }
-    int sampling_rate = board_descr["sampling_rate"];
+    int sampling_rate = board_descr["default"]["sampling_rate"];
     int batch_size = 15;
     int sleep_time = (int)((1000.0 / sampling_rate) * batch_size);
     std::uniform_real_distribution<double> dist_around_one (0.90, 1.10);
@@ -109,11 +110,17 @@ void SyntheticBoard::read_thread ()
     std::mt19937 mt (static_cast<uint32_t> (seed));
     double accumulated_time_delta = 0.0;
 
-    int num_rows = board_descr["num_rows"];
+    int num_rows = board_descr["default"]["num_rows"];
     double *package = new double[num_rows];
     for (int i = 0; i < num_rows; i++)
     {
         package[i] = 0.0;
+    }
+    int num_aux_rows = board_descr["auxiliary"]["num_rows"];
+    double *aux_package = new double[num_aux_rows];
+    for (int i = 0; i < num_aux_rows; i++)
+    {
+        aux_package[i] = 0.0;
     }
 
     double timestamp = 0;
@@ -126,12 +133,13 @@ void SyntheticBoard::read_thread ()
             {
                 timestamp = get_timestamp ();
             }
-            package[board_descr["package_num_channel"].get<int> ()] = (double)counter;
+            package[board_descr["default"]["package_num_channel"].get<int> ()] = (double)counter;
             for (unsigned int i = 0; i < exg_channels.size (); i++)
             {
                 double amplitude = 10.0 * (i + 1);
                 double noise = 0.1 * (i + 1);
                 double freq = 5.0 * (i + 1);
+                int peak_frequency = (int)(sampling_rate / (i + 1));
                 double shift = 0.05 * i;
                 double range = (amplitude * noise) / 2.0;
                 std::uniform_real_distribution<double> dist (0 - range, range);
@@ -140,39 +148,64 @@ void SyntheticBoard::read_thread ()
                 {
                     sin_phase_rad[i] -= 2.0f * M_PI;
                 }
+                if ((i > 5) &&
+                    ((counter % peak_frequency == 0) || ((counter - 1) % peak_frequency == 0) ||
+                        (((counter + 1) % peak_frequency == 0))))
+                {
+                    amplitude *= dist_around_one (mt) * 2;
+                }
                 package[exg_channels[i]] = amplitude +
                     (amplitude + dist (mt)) * sqrt (2.0) * sin (sin_phase_rad[i] + shift);
             }
-            for (int channel : board_descr["accel_channels"])
+            for (int channel : board_descr["default"]["accel_channels"])
             {
                 package[channel] = dist_around_one (mt) - 0.1;
             }
-            for (int channel : board_descr["gyro_channels"])
+            for (int channel : board_descr["default"]["gyro_channels"])
             {
                 package[channel] = dist_around_one (mt) - 0.1;
             }
-            for (int channel : board_descr["eda_channels"])
+            for (int channel : board_descr["default"]["eda_channels"])
             {
                 package[channel] = dist_around_one (mt);
             }
-            for (int channel : board_descr["ppg_channels"])
+            for (int chan_num = 0; chan_num < (int)board_descr["default"]["ppg_channels"].size ();
+                 chan_num++)
             {
-                package[channel] = 5000.0 * dist_around_one (mt);
+                int channel = board_descr["default"]["ppg_channels"][chan_num];
+                if (chan_num == 0)
+                {
+                    package[channel] = 500.0 * dist_around_one (mt);
+                }
+                else
+                {
+                    package[channel] = 253500.0 * dist_around_one (mt);
+                }
             }
-            for (int channel : board_descr["temperature_channels"])
+            for (int channel : board_descr["default"]["temperature_channels"])
             {
                 package[channel] = dist_around_one (mt) / 10.0 + 36.5;
             }
-            for (int channel : board_descr["resistance_channels"])
+            for (int channel : board_descr["default"]["resistance_channels"])
             {
                 package[channel] = 1000.0 * dist_around_one (mt);
             }
-            package[board_descr["battery_channel"].get<int> ()] =
+            package[board_descr["default"]["battery_channel"].get<int> ()] =
                 (dist_around_one (mt) - 0.1) * 100;
-            package[board_descr["timestamp_channel"].get<int> ()] =
+            package[board_descr["default"]["timestamp_channel"].get<int> ()] =
                 timestamp + num_in_batch / (double)sampling_rate;
 
             push_package (package); // use this method to submit data to buffers
+
+            // push aux package
+            for (int channel : board_descr["auxiliary"]["other_channels"])
+            {
+                aux_package[channel] = (double)channel;
+            }
+            aux_package[board_descr["auxiliary"]["timestamp_channel"].get<int> ()] =
+                timestamp + num_in_batch / (double)sampling_rate;
+            package[board_descr["auxiliary"]["package_num_channel"].get<int> ()] = (double)counter;
+            push_package (aux_package, (int)BrainFlowPresets::AUXILIARY_PRESET);
 
             counter++;
         }
@@ -190,6 +223,7 @@ void SyntheticBoard::read_thread ()
     }
     delete[] sin_phase_rad;
     delete[] package;
+    delete[] aux_package;
 }
 
 int SyntheticBoard::config_board (std::string config, std::string &response)

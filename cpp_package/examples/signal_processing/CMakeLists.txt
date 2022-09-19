@@ -246,3 +246,26 @@ target_link_libraries (
     ${DataHandlerPath}
     ${BoardControllerPath}
 )
+
+
+##########################################
+## Demo for band powers across channels ##
+##########################################
+add_executable (
+    peaks_detection
+    src/peaks_detection.cpp
+)
+
+target_include_directories (
+    peaks_detection PUBLIC
+    ${brainflow_INCLUDE_DIRS}
+)
+
+target_link_libraries (
+    peaks_detection PUBLIC
+    # for some systems(ubuntu for example) order matters
+    ${BrainflowPath}
+    ${MLModulePath}
+    ${DataHandlerPath}
+    ${BoardControllerPath}
+)

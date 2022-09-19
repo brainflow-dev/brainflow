@@ -20,7 +20,7 @@ namespace examples
             board_shim.start_stream (3600);
             System.Threading.Thread.Sleep (5000);
             board_shim.stop_stream ();
-            double[,] unprocessed_data = board_shim.get_board_data (20);
+            double[,] unprocessed_data = board_shim.get_board_data ();
             int[] eeg_channels = BoardShim.get_eeg_channels (board_id);
             board_shim.release_session ();
 

@@ -7,6 +7,31 @@
 #include "data_handler.h"
 
 
+double DataFilter::get_oxygen_level (double *ppg_ir, double *ppg_red, int data_len,
+    int sampling_rate, double coef1, double coef2, double coef3)
+{
+    double value = 0.0;
+    int res =
+        ::get_oxygen_level (ppg_ir, ppg_red, data_len, sampling_rate, coef1, coef2, coef3, &value);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to calc spo2 value", res);
+    }
+    return value;
+}
+
+double DataFilter::get_heart_rate (
+    double *ppg_ir, double *ppg_red, int data_len, int sampling_rate, int fft_size)
+{
+    double value = 0.0;
+    int res = ::get_heart_rate (ppg_ir, ppg_red, data_len, sampling_rate, fft_size, &value);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to calc heart rate", res);
+    }
+    return value;
+}
+
 void DataFilter::perform_lowpass (double *data, int data_len, int sampling_rate, double cutoff,
     int order, int filter_type, double ripple)
 {
@@ -57,6 +82,27 @@ void DataFilter::remove_environmental_noise (
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to remove environmental noise", res);
+    }
+}
+
+void DataFilter::restore_data_from_wavelet_detailed_coeffs (double *data, int data_len, int wavelet,
+    int decomposition_level, int level_to_restore, double *output)
+{
+    int res = ::restore_data_from_wavelet_detailed_coeffs (
+        data, data_len, wavelet, decomposition_level, level_to_restore, output);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to restore", res);
+    }
+}
+
+void DataFilter::detect_peaks_z_score (
+    double *data, int data_len, int lag, double threshold, double influence, double *output)
+{
+    int res = ::detect_peaks_z_score (data, data_len, lag, threshold, influence, output);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to detect", res);
     }
 }
 
@@ -180,10 +226,10 @@ double *DataFilter::get_window (int window_function, int window_len)
 
 std::complex<double> *DataFilter::perform_fft (double *data, int data_len, int window, int *fft_len)
 {
-    if ((data_len & (data_len - 1)) || (data_len <= 0))
+    if ((data_len % 2 == 1) || (data_len <= 0))
     {
         throw BrainFlowException (
-            "data len is not power of 2", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+            "data len must be even", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
     }
     std::complex<double> *output = new std::complex<double>[data_len / 2 + 1];
     double *temp_re = new double[data_len / 2 + 1];
@@ -222,10 +268,10 @@ void DataFilter::detrend (double *data, int data_len, int detrend_operation)
 std::pair<double *, double *> DataFilter::get_psd (
     double *data, int data_len, int sampling_rate, int window, int *psd_len)
 {
-    if ((data_len & (data_len - 1)) || (data_len <= 0))
+    if ((data_len % 2 == 1) || (data_len <= 0))
     {
         throw BrainFlowException (
-            "data len is not power of 2", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+            "data len must be even", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
     }
     double *ampl = new double[data_len / 2 + 1];
     double *freq = new double[data_len / 2 + 1];
@@ -243,10 +289,10 @@ std::pair<double *, double *> DataFilter::get_psd (
 std::pair<double *, double *> DataFilter::get_psd_welch (
     double *data, int data_len, int nfft, int overlap, int sampling_rate, int window, int *psd_len)
 {
-    if ((nfft & (nfft - 1)) || (nfft <= 0))
+    if ((nfft % 2 == 1) || (data_len <= 0))
     {
         throw BrainFlowException (
-            "nfft is not power of 2", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+            "nfft must be even", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
     }
     double *ampl = new double[nfft / 2 + 1];
     double *freq = new double[nfft / 2 + 1];
@@ -257,7 +303,7 @@ std::pair<double *, double *> DataFilter::get_psd_welch (
         delete[] freq;
         throw BrainFlowException ("failed to get_psd_welch", res);
     }
-    *psd_len = data_len / 2 + 1;
+    *psd_len = nfft / 2 + 1;
     return std::make_pair (ampl, freq);
 }
 
@@ -465,6 +511,17 @@ double DataFilter::calc_stddev (double *data, int start_pos, int end_pos)
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to calc stddev", res);
+    }
+    return output;
+}
+
+double DataFilter::get_railed_percentage (double *data, int data_len, int gain)
+{
+    double output = 0;
+    int res = ::get_railed_percentage (data, data_len, gain, &output);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to get railed percentege", res);
     }
     return output;
 }

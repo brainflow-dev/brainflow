@@ -16,7 +16,6 @@ namespace examples
             int board_id = parse_args (args, input_params);
             BoardShim board_shim = new BoardShim (board_id, input_params);
             int sampling_rate = BoardShim.get_sampling_rate (board_shim.get_board_id ());
-            int nfft = DataFilter.get_nearest_power_of_two (sampling_rate);
             int[] eeg_channels = BoardShim.get_eeg_channels (board_shim.get_board_id ());
 
             board_shim.prepare_session ();

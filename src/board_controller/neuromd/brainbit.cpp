@@ -346,7 +346,7 @@ void BrainBit::read_thread ()
      * package[5-8] - resistance t3, t4, o1, o2. Place it to other_channels
      * package[9] - battery
      */
-    int num_rows = board_descr["num_rows"];
+    int num_rows = board_descr["default"]["num_rows"];
     double *package = new double[num_rows];
     for (int i = 0; i < num_rows; i++)
     {
@@ -411,17 +411,17 @@ void BrainBit::read_thread ()
         }
         counter++;
 
-        package[board_descr["package_num_channel"].get<int> ()] = (double)counter;
-        package[board_descr["eeg_channels"][0].get<int> ()] = t3_data * 1e6;
-        package[board_descr["eeg_channels"][1].get<int> ()] = t4_data * 1e6;
-        package[board_descr["eeg_channels"][2].get<int> ()] = o1_data * 1e6;
-        package[board_descr["eeg_channels"][3].get<int> ()] = o2_data * 1e6;
-        package[board_descr["resistance_channels"][0].get<int> ()] = last_resistance_t3;
-        package[board_descr["resistance_channels"][1].get<int> ()] = last_resistance_t4;
-        package[board_descr["resistance_channels"][2].get<int> ()] = last_resistance_o1;
-        package[board_descr["resistance_channels"][3].get<int> ()] = last_resistance_o2;
-        package[board_descr["battery_channel"].get<int> ()] = last_battery;
-        package[board_descr["timestamp_channel"].get<int> ()] = timestamp;
+        package[board_descr["default"]["package_num_channel"].get<int> ()] = (double)counter;
+        package[board_descr["default"]["eeg_channels"][0].get<int> ()] = t3_data * 1e6;
+        package[board_descr["default"]["eeg_channels"][1].get<int> ()] = t4_data * 1e6;
+        package[board_descr["default"]["eeg_channels"][2].get<int> ()] = o1_data * 1e6;
+        package[board_descr["default"]["eeg_channels"][3].get<int> ()] = o2_data * 1e6;
+        package[board_descr["default"]["resistance_channels"][0].get<int> ()] = last_resistance_t3;
+        package[board_descr["default"]["resistance_channels"][1].get<int> ()] = last_resistance_t4;
+        package[board_descr["default"]["resistance_channels"][2].get<int> ()] = last_resistance_o1;
+        package[board_descr["default"]["resistance_channels"][3].get<int> ()] = last_resistance_o2;
+        package[board_descr["default"]["battery_channel"].get<int> ()] = last_battery;
+        package[board_descr["default"]["timestamp_channel"].get<int> ()] = timestamp;
         push_package (package);
     }
 }

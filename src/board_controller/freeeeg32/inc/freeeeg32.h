@@ -34,5 +34,5 @@ public:
     static constexpr int start_byte = 0xA0;
     static constexpr int end_byte = 0xC0;
     static constexpr double ads_gain = 8.0;
-    static constexpr double ads_vref = 4.5;
+    static constexpr double ads_vref = 2.5;
 };

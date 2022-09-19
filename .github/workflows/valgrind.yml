@@ -102,7 +102,7 @@ jobs:
       env:
         LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: Streaming Cpp
-      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/streaming_board_emulator.py valgrind --error-exitcode=1 --track-origins=yes --leak-check=full $GITHUB_WORKSPACE/cpp_package/examples/get_data/build/brainflow_get_data --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
+      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/streaming_board_emulator.py valgrind --error-exitcode=1 --track-origins=yes --leak-check=full $GITHUB_WORKSPACE/cpp_package/examples/get_data/build/brainflow_get_data --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --master-board -1
     - name: Cyton Cpp Markers
       run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py valgrind --error-exitcode=1 --track-origins=yes --leak-check=full $GITHUB_WORKSPACE/cpp_package/examples/get_data/build/markers --board-id 0 --serial-port
     - name: Synthetic Cpp
@@ -114,13 +114,17 @@ jobs:
       env:
         LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: Streaming Cpp Markers
-      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/streaming_board_emulator.py valgrind --error-exitcode=1 --track-origins=yes --leak-check=full $GITHUB_WORKSPACE/cpp_package/examples/get_data/build/markers --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --other-info -1
+      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/streaming_board_emulator.py valgrind --error-exitcode=1 --track-origins=yes --leak-check=full $GITHUB_WORKSPACE/cpp_package/examples/get_data/build/markers --board-id -2 --ip-address 225.1.1.1 --ip-port 6677 --master-board -1
     - name: Denoising Cpp
       run: valgrind --error-exitcode=1 --track-origins=yes --leak-check=full $GITHUB_WORKSPACE/cpp_package/examples/signal_processing/build/denoising
       env:
         LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: Downsampling Cpp
       run: valgrind --error-exitcode=1 --track-origins=yes --leak-check=full $GITHUB_WORKSPACE/cpp_package/examples/signal_processing/build/downsampling
+      env:
+          LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
+    - name: Peaks Cpp
+      run: valgrind --error-exitcode=1 --track-origins=yes --leak-check=full $GITHUB_WORKSPACE/cpp_package/examples/signal_processing/build/peaks_detection
       env:
           LD_LIBRARY_PATH: $GITHUB_WORKSPACE/installed/lib
     - name: CSP Cpp

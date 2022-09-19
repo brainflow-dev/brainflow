@@ -15,9 +15,9 @@
 
 #ifdef __APPLE__
 #include "pipe.h"
-#include <queue>
 #endif
 
+#include <queue>
 #include <stdlib.h>
 #include <string.h>
 #include <string>
@@ -37,7 +37,10 @@ public:
     int connect ();
     int send (const char *data, int size);
     int recv (char *data, int size);
-    int bytes_available ();
+    int bytes_available ()
+    {
+        return (int)temp_buffer.size ();
+    }
     int close ();
 
     static std::pair<std::string, int> discover (char *device_selector);
@@ -45,12 +48,13 @@ public:
 private:
     std::string mac_addr;
     int port;
+    std::queue<char> temp_buffer;
 #ifdef _WIN32
     SOCKET socket_bt;
 #elif defined(__linux__)
     int socket_bt;
+    int rep[2];
 #elif defined(__APPLE__)
     pipe_consumer_t *consumer;
-    std::queue<char> temp_buffer;
 #endif
 };

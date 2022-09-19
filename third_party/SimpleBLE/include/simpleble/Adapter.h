@@ -19,6 +19,7 @@ class Adapter {
     virtual ~Adapter() = default;
 
     bool initialized() const;
+    void* underlying() const;
 
     std::string identifier();
     BluetoothAddress address();

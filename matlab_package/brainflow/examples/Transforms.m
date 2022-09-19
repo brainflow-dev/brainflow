@@ -3,15 +3,16 @@ BoardShim.enable_dev_board_logger();
 
 params = BrainFlowInputParams();
 board_shim = BoardShim(int32(BoardIds.SYNTHETIC_BOARD), params);
-sampling_rate = BoardShim.get_sampling_rate(int32(BoardIds.SYNTHETIC_BOARD));
+preset = int32(BrainFlowPresets.DEFAULT_PRESET);
+sampling_rate = BoardShim.get_sampling_rate(int32(BoardIds.SYNTHETIC_BOARD), preset);
 board_shim.prepare_session();
 board_shim.start_stream(45000, '');
 pause(5);
 board_shim.stop_stream();
-data = board_shim.get_current_board_data(DataFilter.get_nearest_power_of_two(sampling_rate));
+data = board_shim.get_current_board_data(256, preset);
 board_shim.release_session();
 
-eeg_channels = BoardShim.get_eeg_channels(int32(BoardIds.SYNTHETIC_BOARD));
+eeg_channels = BoardShim.get_eeg_channels(int32(BoardIds.SYNTHETIC_BOARD), preset);
 % wavelet for first eeg channel %
 first_eeg_channel = eeg_channels(1);
 original_data = data(first_eeg_channel, :);

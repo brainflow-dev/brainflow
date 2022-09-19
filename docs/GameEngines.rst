@@ -73,7 +73,7 @@ Add a game object to the Scene and attach script below.
                 sampling_rate = BoardShim.get_sampling_rate(board_id);
                 Debug.Log("Brainflow streaming was started");
             }
-            catch (BrainFlowException e)
+            catch (BrainFlowError e)
             {
                 Debug.Log(e);
             }
@@ -101,7 +101,7 @@ Add a game object to the Scene and attach script below.
                 {
                     board_shim.release_session();
                 }
-                catch (BrainFlowException e)
+                catch (BrainFlowError e)
                 {
                     Debug.Log(e);
                 }

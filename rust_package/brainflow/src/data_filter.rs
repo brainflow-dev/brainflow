@@ -211,6 +211,73 @@ pub fn calc_stddev(
     Ok(output as f64)
 }
 
+/// Get Railed Percentage.
+pub fn get_railed_percentage(
+    data: &mut [f64],
+    data_size: usize,
+    gain: usize
+) -> Result<f64> {
+    let mut output = 0.0 as f64;
+    let res = unsafe {
+        data_handler::get_railed_percentage(
+            data.as_mut_ptr() as *mut c_double,
+            data_size as c_int,
+            gain as c_int,
+            &mut output,
+        )
+    };
+    check_brainflow_exit_code(res)?;
+    Ok(output as f64)
+}
+
+/// Calculate oxygen level.
+pub fn get_oxygen_level(
+    ppg_ir: &mut [f64],
+    ppg_red: &mut [f64],
+    sampling_rate: usize,
+    coef1: f64,
+    coef2: f64,
+    coef3: f64,
+) -> Result<f64> {
+    let mut output = 0.0 as f64;
+    let res = unsafe {
+        data_handler::get_oxygen_level(
+            ppg_ir.as_mut_ptr() as *mut c_double,
+            ppg_red.as_mut_ptr() as *mut c_double,
+            ppg_red.len() as c_int,
+            sampling_rate as c_int,
+            coef1 as c_double,
+            coef2 as c_double,
+            coef3 as c_double,
+            &mut output,
+        )
+    };
+    check_brainflow_exit_code(res)?;
+    Ok(output as f64)
+}
+
+/// Calculate heart rate.
+pub fn get_heart_rate(
+    ppg_ir: &mut [f64],
+    ppg_red: &mut [f64],
+    sampling_rate: usize,
+    fft_size: usize,
+) -> Result<f64> {
+    let mut output = 0.0 as f64;
+    let res = unsafe {
+        data_handler::get_heart_rate(
+            ppg_ir.as_mut_ptr() as *mut c_double,
+            ppg_red.as_mut_ptr() as *mut c_double,
+            ppg_red.len() as c_int,
+            sampling_rate as c_int,
+            fft_size as c_int,
+            &mut output,
+        )
+    };
+    check_brainflow_exit_code(res)?;
+    Ok(output as f64)
+}
+
 /// Perform data downsampling, it doesnt apply lowpass filter for you, it just aggregates several data points.
 pub fn perform_downsampling(
     data: &mut [f64],
@@ -318,6 +385,55 @@ pub fn perform_wavelet_transform(
     };
     check_brainflow_exit_code(res)?;
     Ok(wavelet_transform)
+}
+
+
+/// Restore data from a single detailed coef.
+pub fn restore_data_from_wavelet_detailed_coeffs(
+    data: &mut [f64],
+    wavelet: WaveletTypes,
+    decomposition_level: usize,
+    level_to_restore: usize,
+) -> Result<Vec<f64>> {
+    let output_len = data.len();
+    let mut output = Vec::<f64>::with_capacity(output_len);
+    let res = unsafe {
+        data_handler::restore_data_from_wavelet_detailed_coeffs(
+            data.as_mut_ptr() as *mut c_double,
+            data.len() as c_int,
+            wavelet as c_int,
+            decomposition_level as c_int,
+            level_to_restore as c_int,
+            output.as_mut_ptr() as *mut c_double,
+        )
+    };
+    check_brainflow_exit_code(res)?;
+    unsafe { output.set_len(output_len) }
+    Ok(output)
+}
+
+/// Detect Peaks using z score method.
+pub fn detect_peaks_z_score(
+    data: &mut [f64],
+    lag: usize,
+    threshold: f64,
+    influence: f64,
+) -> Result<Vec<f64>> {
+    let output_len = data.len();
+    let mut output = Vec::<f64>::with_capacity(output_len);
+    let res = unsafe {
+        data_handler::detect_peaks_z_score(
+            data.as_mut_ptr() as *mut c_double,
+            data.len() as c_int,
+            lag as c_int,
+            threshold as c_double,
+            influence as c_double,
+            output.as_mut_ptr() as *mut c_double,
+        )
+    };
+    check_brainflow_exit_code(res)?;
+    unsafe { output.set_len(output_len) }
+    Ok(output)
 }
 
 /// Perform inverse wavelet transform.
@@ -548,8 +664,8 @@ pub fn get_psd_welch(
 #[derive(Getters, Clone)]
 #[getset(get = "pub")]
 pub struct Band {
-    freq_start: f64,
-    freq_stop: f64,
+    pub freq_start: f64,
+    pub freq_stop: f64,
 }
 
 /// Calculate avg and stddev of BandPowers across all channels, bands are 1-4,4-8,8-13,13-30,30-50.

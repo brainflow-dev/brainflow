@@ -1,7 +1,7 @@
 use std::{env, fs, thread, time::Duration};
 
 use brainflow::{
-    board_shim, brainflow_input_params::BrainFlowInputParamsBuilder, data_filter, BoardIds,
+    board_shim, brainflow_input_params::BrainFlowInputParamsBuilder, data_filter, BoardIds, BrainFlowPresets,
 };
 
 fn main() {
@@ -13,7 +13,7 @@ fn main() {
     board.start_stream(45000, "").unwrap();
     thread::sleep(Duration::from_secs(5));
     board.stop_stream().unwrap();
-    let data = board.get_board_data(Some(10)).unwrap();
+    let data = board.get_board_data(Some(10), BrainFlowPresets::DefaultPreset).unwrap();
     board.release_session().unwrap();
 
     let mut tmp_dir = env::temp_dir();

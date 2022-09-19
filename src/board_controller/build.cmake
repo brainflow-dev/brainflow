@@ -65,6 +65,7 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/callibri_ecg.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/callibri_emg.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neurosity/notion_osc.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/mentalab/explore.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/oymotion/gforce_pro.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/oymotion/gforce_dual.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/hackerbci/ironbci.cpp
@@ -130,6 +131,7 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/enophone/inc
     ${CMAKE_HOME_DIRECTORY}/third_party/SimpleBLE/include
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/brainalive/inc
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/mentalab/inc
 )
 
 target_compile_definitions(${BOARD_CONTROLLER_NAME} PRIVATE NOMINMAX BRAINFLOW_VERSION=${BRAINFLOW_VERSION})

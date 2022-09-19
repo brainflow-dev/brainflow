@@ -25,6 +25,8 @@ class PeripheralBase {
     PeripheralBase(advertising_data_t advertising_data);
     virtual ~PeripheralBase();
 
+    void* underlying() const;
+
     std::string identifier();
     BluetoothAddress address();
     int16_t rssi();
@@ -54,7 +56,7 @@ class PeripheralBase {
     void update_advertising_data(advertising_data_t advertising_data);
 
   private:
-    BluetoothLEDevice device_ = nullptr;
+    BluetoothLEDevice device_{nullptr};
 
     // NOTE: Calling device_.Name() or device_.BluetoothAddress() might
     // cause a crash on some devices.

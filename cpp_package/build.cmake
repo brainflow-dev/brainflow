@@ -10,11 +10,14 @@ else (CMAKE_SIZEOF_VOID_P EQUAL 8)
     endif (APPLE)
 endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
 
-add_library (
-    ${BRAINFLOW_CPP_BINDING_NAME} STATIC
+SET (CPP_BINDING_SRC
     ${CMAKE_HOME_DIRECTORY}/cpp_package/src/board_shim.cpp
     ${CMAKE_HOME_DIRECTORY}/cpp_package/src/ml_model.cpp
     ${CMAKE_HOME_DIRECTORY}/cpp_package/src/data_filter.cpp
+)
+
+add_library (
+    ${BRAINFLOW_CPP_BINDING_NAME} STATIC ${CPP_BINDING_SRC}
 )
 
 target_include_directories (

@@ -131,7 +131,7 @@ void FreeEEG32::read_thread ()
     constexpr int min_package_size = 1 + 32 * 3;
     float eeg_scale =
         FreeEEG32::ads_vref / float ((pow (2, 23) - 1)) / FreeEEG32::ads_gain * 1000000.;
-    int num_rows = board_descr["num_rows"];
+    int num_rows = board_descr["default"]["num_rows"];
     double *package = new double[num_rows];
     for (int i = 0; i < num_rows; i++)
     {
@@ -139,7 +139,7 @@ void FreeEEG32::read_thread ()
     }
     bool first_package_received = false;
 
-    std::vector<int> eeg_channels = board_descr["eeg_channels"];
+    std::vector<int> eeg_channels = board_descr["default"]["eeg_channels"];
 
     while (keep_alive)
     {
@@ -165,12 +165,12 @@ void FreeEEG32::read_thread ()
                 first_package_received = true;
                 continue;
             }
-            package[board_descr["package_num_channel"].get<int> ()] = (double)b[0];
+            package[board_descr["default"]["package_num_channel"].get<int> ()] = (double)b[0];
             for (unsigned int i = 0; i < eeg_channels.size (); i++)
             {
                 package[eeg_channels[i]] = (double)eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
             }
-            package[board_descr["timestamp_channel"].get<int> ()] = get_timestamp ();
+            package[board_descr["default"]["timestamp_channel"].get<int> ()] = get_timestamp ();
             push_package (package);
         }
         else

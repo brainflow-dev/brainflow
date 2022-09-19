@@ -20,6 +20,7 @@ class Peripheral {
     virtual ~Peripheral() = default;
 
     bool initialized() const;
+    void* underlying() const;
 
     std::string identifier();
     BluetoothAddress address();

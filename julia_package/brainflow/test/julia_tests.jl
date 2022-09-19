@@ -9,13 +9,9 @@ using JSON
     @test board_shim.master_board_id == Integer(BrainFlow.CYTON_BOARD)
 
     # for some special boards you need to provide the master_id in the other_info as string...
-    params = BrainFlow.BrainFlowInputParams(other_info = "1")
+    params = BrainFlow.BrainFlowInputParams(master_board = Integer(BrainFlow.SYNTHETIC_BOARD))
     board_shim = BrainFlow.BoardShim(BrainFlow.STREAMING_BOARD, params)
-    @test board_shim.master_board_id == 1
-
-    # test the error if the other_info cannot be parsed as Int32
-    params = BrainFlow.BrainFlowInputParams(other_info = "")
-    @test_throws BrainFlow.BrainFlowError BrainFlow.BoardShim(BrainFlow.STREAMING_BOARD, params)
+    @test board_shim.master_board_id == -1
 end
 
 @testset "prepare_session error" begin
@@ -45,6 +41,11 @@ end
     @test Int32(BrainFlow.HANNING) == 1
     @test Int32(BrainFlow.HAMMING) == 2
     @test Int32(BrainFlow.BLACKMAN_HARRIS) == 3
+end
+
+@testset "presets" begin
+    presets = BrainFlow.get_board_presets(BrainFlow.CYTON_BOARD)
+    @test presets[1] == Int32(BrainFlow.DEFAULT_PRESET)
 end
 
 @testset "model params" begin

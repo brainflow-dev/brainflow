@@ -22,6 +22,8 @@ class AdapterBase {
     AdapterBase(std::shared_ptr<SimpleBluez::Adapter> adapter);
     virtual ~AdapterBase();
 
+    void* underlying() const;
+
     std::string identifier();
     BluetoothAddress address();
 
@@ -44,7 +46,9 @@ class AdapterBase {
     std::shared_ptr<SimpleBluez::Adapter> adapter_;
 
     std::atomic_bool is_scanning_;
-    std::map<BluetoothAddress, Peripheral> seen_devices_;
+
+    std::map<BluetoothAddress, std::shared_ptr<PeripheralBase>> peripherals_;
+    std::map<BluetoothAddress, std::shared_ptr<PeripheralBase>> seen_peripherals_;
 
     kvn::safe_callback<void()> callback_on_scan_start_;
     kvn::safe_callback<void()> callback_on_scan_stop_;

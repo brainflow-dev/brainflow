@@ -12,8 +12,7 @@ def main():
     BoardShim.enable_dev_board_logger()
 
     params = BrainFlowInputParams()
-    params.serial_port = 'COM4'
-    board = BoardShim(BoardIds.GANGLION_BOARD.value, params)
+    board = BoardShim(BoardIds.SYNTHETIC_BOARD.value, params)
 
     for i in range(2):
         board.prepare_session()

@@ -158,7 +158,7 @@ void DynLibBoard::read_thread ()
         return;
     }
 
-    int num_rows = board_descr["num_rows"];
+    int num_rows = board_descr["default"]["num_rows"];
     double *data = new double[num_rows];
     if (data == NULL)
     {

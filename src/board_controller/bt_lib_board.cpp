@@ -68,9 +68,8 @@ int BTLibBoard::prepare_session ()
     if (params.ip_port <= 0)
     {
         params.ip_port = 1;
-        safe_logger (spdlog::level::warn, "Port for Bluetooth is not provided, default is: {}",
-            params.ip_port);
     }
+    safe_logger (spdlog::level::info, "Use bluetooth port: {}", params.ip_port);
     if ((params.mac_address.empty ()) && (return_res == (int)BrainFlowExitCodes::STATUS_OK))
     {
         safe_logger (
@@ -125,7 +124,13 @@ int BTLibBoard::release_session ()
 
 int BTLibBoard::config_board (std::string config, std::string &response)
 {
-    return bluetooth_write_data (config.c_str (), (int)strlen (config.c_str ()));
+    int res = bluetooth_write_data (config.c_str (), (int)strlen (config.c_str ()));
+    if (res != (int)strlen (config.c_str ()))
+    {
+        safe_logger (spdlog::level::err, "failed to config device, res: {}", res);
+        return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
+    }
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int BTLibBoard::bluetooth_open_device ()
@@ -179,12 +184,7 @@ int BTLibBoard::bluetooth_write_data (const char *command, int len)
 
     int res = func_config (
         const_cast<char *> (command), len, const_cast<char *> (params.mac_address.c_str ()));
-    if (res != (int)SocketBluetoothReturnCodes::STATUS_OK)
-    {
-        safe_logger (spdlog::level::err, "failed to config board: {}", res);
-        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
-    }
-    return (int)BrainFlowExitCodes::STATUS_OK;
+    return res;
 }
 
 int BTLibBoard::bluetooth_get_data (char *data, int len)
@@ -193,7 +193,7 @@ int BTLibBoard::bluetooth_get_data (char *data, int len)
         (int (*) (char *, int, char *))dll_loader->get_address ("bluetooth_get_data");
     if (func_get == NULL)
     {
-        safe_logger (spdlog::level::err, "failed to get function address for bluetooth_write_data");
+        safe_logger (spdlog::level::err, "failed to get function address for bluetooth_get_data");
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
 

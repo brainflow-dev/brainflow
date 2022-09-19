@@ -24,6 +24,7 @@ private:
     const double emg_scale = ADS1299_Vref / double ((pow (2, 23) - 1)) / 4.0 * 1000000.;
 
     volatile bool keep_alive;
+    volatile bool dump_bytes;
     bool initialized;
     bool is_streaming;
     std::thread streaming_thread;
