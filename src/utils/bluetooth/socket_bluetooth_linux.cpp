@@ -23,10 +23,18 @@ SocketBluetooth::SocketBluetooth (std::string mac_addr, int port)
     this->mac_addr = mac_addr;
     this->port = port;
     socket_bt = -1;
+    rep[0] = -1;
+    rep[1] = -1;
 }
 
 int SocketBluetooth::connect ()
 {
+    if (pipe (rep) == -1)
+    {
+        return (int)SocketBluetoothReturnCodes::OS_SPECIFIC_ERROR;
+    }
+    int flags = fcntl (rep[0], F_GETFL, 0);
+    fcntl (rep[0], F_SETFL, flags | O_NONBLOCK);
     struct sockaddr_rc addr;
     memset (&addr, 0, sizeof (addr));
 
@@ -63,40 +71,34 @@ int SocketBluetooth::recv (char *data, int size)
     {
         return -1;
     }
-    // waiting for exact amount of bytes
-    int e = bytes_available ();
-    if (e < size)
-    {
-        return 0;
-    }
 
     fd_set set;
     FD_ZERO (&set);
     FD_SET (socket_bt, &set);
+    FD_SET (rep[0], &set);
+    int nfds = (socket_bt > rep[0]) ? socket_bt : rep[0];
 
-    int res = -1;
-    struct timeval timeout;
-    timeout.tv_sec = 0;
-    timeout.tv_usec = 0;
-    if (select (socket_bt + 1, &set, NULL, NULL, &timeout) >= 0)
+    if (pselect (nfds + 1, &set, NULL, NULL, NULL, NULL) >= 0)
     {
         if (FD_ISSET (socket_bt, &set))
         {
-            res = ::recv (socket_bt, data, size, 0);
+            int res = ::recv (socket_bt, data, size, 0);
+            for (int i = 0; i < res; i++)
+            {
+                temp_buffer.push (data[i]);
+            }
         }
     }
-    return res;
-}
-
-int SocketBluetooth::bytes_available ()
-{
-    if (socket_bt < 0)
+    if ((int)temp_buffer.size () < size)
     {
-        return -1;
+        return 0;
     }
-    int count;
-    ioctl (socket_bt, FIONREAD, &count);
-    return count;
+    for (int i = 0; i < size; i++)
+    {
+        data[i] = temp_buffer.front ();
+        temp_buffer.pop ();
+    }
+    return size;
 }
 
 int SocketBluetooth::close ()

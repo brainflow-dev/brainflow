@@ -38,28 +38,27 @@ int SocketBluetooth::recv (char *data, int size)
         return 0;
     }
 
-    int n_bytes = bytes_available ();
-
-    // Fill the data buffer
-    for (auto i = 0; i < n_bytes; i++)
-    {
-        data[i] = BRAINFLOW_TEST_BLUETOOTH_DATA_CHAR;
-    }
-
-    return n_bytes;
-}
-
-int SocketBluetooth::bytes_available ()
-{
+    int n_bytes = 0;
     switch (port)
     {
         case BRAINFLOW_TEST_BLUETOOTH_ALL_BYTES_AVAILABLE_PORT:
-            return BRAINFLOW_TEST_BLUETOOTH_EXPECTED_BYTES;
+            n_bytes = BRAINFLOW_TEST_BLUETOOTH_EXPECTED_BYTES;
         case BRAINFLOW_TEST_BLUETOOTH_SOME_BYTES_AVAILABLE_PORT:
-            return BRAINFLOW_TEST_BLUETOOTH_EXPECTED_BYTES / 2;
+            n_bytes = BRAINFLOW_TEST_BLUETOOTH_EXPECTED_BYTES / 2;
         default:
-            return 0;
+            n_bytes = 0;
     }
+
+    if (n_bytes >= size)
+    {
+        for (auto i = 0; i < size; i++)
+        {
+            data[i] = BRAINFLOW_TEST_BLUETOOTH_DATA_CHAR;
+        }
+        return size;
+    }
+
+    return 0;
 }
 
 int SocketBluetooth::close ()

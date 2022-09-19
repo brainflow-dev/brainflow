@@ -88,20 +88,6 @@ TEST (BluetoothTest, CloseDevice_AddressNull_ParameterErrorReturned)
     EXPECT_EQ (result, (int)SocketBluetoothReturnCodes::PARAMETER_ERROR);
 }
 
-TEST (BluetoothTest, GetData_AllRequestedBytesAvailable_NumberOfRequestedBytesReturned)
-{
-    char mac[] = BRAINFLOW_TEST_BLUETOOTH_VALID_MAC;
-    bluetooth_open_device (BRAINFLOW_TEST_BLUETOOTH_ALL_BYTES_AVAILABLE_PORT, mac);
-
-    char buffer[BRAINFLOW_TEST_BLUETOOTH_EXPECTED_BYTES] {0};
-    int n_bytes = bluetooth_get_data (buffer, BRAINFLOW_TEST_BLUETOOTH_EXPECTED_BYTES, mac);
-
-    EXPECT_EQ (n_bytes, BRAINFLOW_TEST_BLUETOOTH_EXPECTED_BYTES);
-    EXPECT_THAT (buffer, Each (BRAINFLOW_TEST_BLUETOOTH_DATA_CHAR));
-
-    bluetooth_close_device (mac);
-}
-
 TEST (BluetoothTest, GetData_SomeRequestedBytesAvailable_NumberBytesReadReturned)
 {
     char mac[] = BRAINFLOW_TEST_BLUETOOTH_VALID_MAC;
@@ -110,11 +96,7 @@ TEST (BluetoothTest, GetData_SomeRequestedBytesAvailable_NumberBytesReadReturned
     char buffer[BRAINFLOW_TEST_BLUETOOTH_EXPECTED_BYTES] {0};
     int n_bytes = bluetooth_get_data (buffer, BRAINFLOW_TEST_BLUETOOTH_EXPECTED_BYTES, mac);
 
-    EXPECT_GT (n_bytes, 0);
-    EXPECT_LT (n_bytes, BRAINFLOW_TEST_BLUETOOTH_EXPECTED_BYTES);
-
-    EXPECT_THAT (buffer, Contains (BRAINFLOW_TEST_BLUETOOTH_DATA_CHAR).Times (n_bytes));
-
+    EXPECT_EQ (n_bytes, 0);
     bluetooth_close_device (mac);
 }
 
