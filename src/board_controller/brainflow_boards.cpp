@@ -79,8 +79,15 @@ BrainFlowBoards::BrainFlowBoards()
         {"package_num_channel", 0},
         {"timestamp_channel", 5},
         {"marker_channel", 6},
-        {"num_rows", 7},
-        {"other_channels", {1, 2, 3, 4}}
+        {"num_rows", 20},
+        {"other_channels", {1, 2, 3, 4}},
+        {"battery_channel", 7},
+        {"accel_channels", {8, 9, 10}},
+        {"gyro_channels", {11, 12, 13}},
+        {"eda_channels", {14}},
+        {"ppg_channels", {15, 16}},
+        {"temperature_channels", {17}},
+        {"resistance_channels", {18, 19}}
     };
     brainflow_boards_json["boards"]["-1"]["default"] =
     {
