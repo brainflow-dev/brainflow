@@ -154,6 +154,11 @@ class DataHandlerDLL(object):
         full_path = pkg_resources.resource_filename(__name__, dll_path)
         if os.path.isfile(full_path):
             dir_path = os.path.abspath(os.path.dirname(full_path))
+            # for python 3.8 PATH env var doesnt work anymore
+            try:
+                os.add_dll_directory(dir_path)
+            except:
+                pass
             if platform.system() == 'Windows':
                 os.environ['PATH'] = dir_path + os.pathsep + os.environ.get('PATH', '')
             else:
