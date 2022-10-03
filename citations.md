@@ -32,8 +32,8 @@ CLASSIFICATION WITH LARYNGEAL IMAGERY](https://arxiv.org/pdf/2107.00045.pdf)
 * [Cangar, SkyrimVR BCI mod](https://www.nexusmods.com/skyrimspecialedition/mods/58489)
 * [Ahnaaf Khan, Creating a Neurofeedback Program With Python](https://ahnaafk.medium.com/creating-a-neurofeedback-program-with-python-c6153022a4e7)
 * [Thanasis Koutras, Using BrainFlow with OpenBCI EEG recorder on a Raspberry Pi](https://medium.com/@basoph2002/using-brainflow-with-openbci-eeg-recorder-on-a-raspberry-pi-e578dca675ce)
-* [First Uruguayan hackhaton of robotic vehicle controlled by BCI](https://openbci.com/community/first-uruguayan-hackathon-of-robotic-vehicle-controlled-by-brain-computer-interfaces/)
 
 ## Conferences and Hackathons
 
 * [Matthijs Cox, PyData Eindhoven 2021, Biosensor Machine Learning with Julia](https://www.youtube.com/watch?v=kLj0JQKhNMM)
+* [First Uruguayan hackhaton of robotic vehicle controlled by BCI](https://openbci.com/community/first-uruguayan-hackathon-of-robotic-vehicle-controlled-by-brain-computer-interfaces/)
