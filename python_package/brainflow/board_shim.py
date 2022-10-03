@@ -144,10 +144,15 @@ class BoardControllerDLL(object):
             dll_path = 'lib/libBoardController.so'
         full_path = pkg_resources.resource_filename(__name__, dll_path)
         if os.path.isfile(full_path):
+            dir_path = os.path.abspath(os.path.dirname(full_path))
             # for python we load dll by direct path but this dll may depend on other dlls and they will not be found!
             # to solve it we can load all of them before loading the main one or change PATH\LD_LIBRARY_PATH env var.
             # env variable looks better, since it can be done only once for all dependencies
-            dir_path = os.path.abspath(os.path.dirname(full_path))
+            # for python 3.8 PATH env var doesnt work anymore
+            try:
+                os.add_dll_directory(dir_path)
+            except:
+                pass
             if platform.system() == 'Windows':
                 os.environ['PATH'] = dir_path + os.pathsep + os.environ.get('PATH', '')
             else:
