@@ -91,7 +91,7 @@ public:
 
 protected:
     std::map<int, DataBuffer *> dbs;
-    std::map<int, std::vector<Streamer *>> streamers; // todo convert to map<int, vector>
+    std::map<int, std::vector<Streamer *>> streamers;
     bool skip_logs;
     int board_id;
     struct BrainFlowInputParams params;
