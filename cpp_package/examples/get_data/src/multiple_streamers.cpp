@@ -9,16 +9,11 @@
 #endif
 
 #include "board_shim.h"
-#include "data_filter.h"
-#include "ml_model.h"
 
 
 int main (int argc, char *argv[])
 {
     BoardShim::enable_dev_board_logger ();
-    std::cout << "BoardShim Version: " << BoardShim::get_version () << std::endl;
-    std::cout << "DataFilter Version: " << DataFilter::get_version () << std::endl;
-    std::cout << "MLModel Version: " << MLModel::get_version () << std::endl;
 
     struct BrainFlowInputParams params;
     int board_id = (int)BoardIds::SYNTHETIC_BOARD;
@@ -26,14 +21,15 @@ int main (int argc, char *argv[])
 
     BoardShim *board = new BoardShim (board_id, params);
 
-
     try
     {
         board->prepare_session ();
-        board->add_streamer ("file://streamer_default.csv:w");
-        board->add_streamer ("file://streamer_default.csv:w");
-        board->add_streamer ("file://streamer_aux.csv:w", (int)BrainFlowPresets::AUXILIARY_PRESET);
-        board->add_streamer ("file://streamer_aux.csv:w", (int)BrainFlowPresets::AUXILIARY_PRESET);
+        board->add_streamer ("file://streamer_default_1.csv:w");
+        board->add_streamer ("file://streamer_default_2.csv:w");
+        board->add_streamer (
+            "file://streamer_aux_1.csv:w", (int)BrainFlowPresets::AUXILIARY_PRESET);
+        board->add_streamer (
+            "file://streamer_aux_2.csv:w", (int)BrainFlowPresets::AUXILIARY_PRESET);
         board->start_stream ();
 
 #ifdef _WIN32
