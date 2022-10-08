@@ -205,6 +205,42 @@ void SyntheticBoard::read_thread ()
             aux_package[board_descr["auxiliary"]["timestamp_channel"].get<int> ()] =
                 timestamp + num_in_batch / (double)sampling_rate;
             package[board_descr["auxiliary"]["package_num_channel"].get<int> ()] = (double)counter;
+            package[board_descr["auxiliary"]["battery_channel"].get<int> ()] =
+                (dist_around_one (mt) - 0.1) * 100;
+            for (int channel : board_descr["auxiliary"]["accel_channels"])
+            {
+                package[channel] = dist_around_one (mt) - 0.1;
+            }
+            for (int channel : board_descr["auxiliary"]["gyro_channels"])
+            {
+                package[channel] = dist_around_one (mt) - 0.1;
+            }
+            for (int channel : board_descr["auxiliary"]["eda_channels"])
+            {
+                package[channel] = dist_around_one (mt);
+            }
+            for (int chan_num = 0; chan_num < (int)board_descr["auxiliary"]["ppg_channels"].size ();
+                 chan_num++)
+            {
+                int channel = board_descr["auxiliary"]["ppg_channels"][chan_num];
+                if (chan_num == 0)
+                {
+                    package[channel] = 500.0 * dist_around_one (mt);
+                }
+                else
+                {
+                    package[channel] = 253500.0 * dist_around_one (mt);
+                }
+            }
+            for (int channel : board_descr["auxiliary"]["temperature_channels"])
+            {
+                package[channel] = dist_around_one (mt) / 10.0 + 36.5;
+            }
+            for (int channel : board_descr["auxiliary"]["resistance_channels"])
+            {
+                package[channel] = 1000.0 * dist_around_one (mt);
+            }
+
             push_package (aux_package, (int)BrainFlowPresets::AUXILIARY_PRESET);
 
             counter++;

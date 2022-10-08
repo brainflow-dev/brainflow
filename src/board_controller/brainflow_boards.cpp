@@ -77,10 +77,17 @@ BrainFlowBoards::BrainFlowBoards()
         {"name", "SyntheticAux"},
         {"sampling_rate", 250},
         {"package_num_channel", 0},
-        {"timestamp_channel", 5},
-        {"marker_channel", 6},
-        {"num_rows", 7},
-        {"other_channels", {1, 2, 3, 4}}
+        {"timestamp_channel", 18},
+        {"marker_channel", 19},
+        {"num_rows", 20},
+        {"other_channels", {14, 15, 16, 17}},
+        {"battery_channel", 1},
+        {"accel_channels", {2, 3, 4}},
+        {"gyro_channels", {5, 6, 7}},
+        {"eda_channels", {8}},
+        {"ppg_channels", {9, 10}},
+        {"temperature_channels", {11}},
+        {"resistance_channels", {12, 13}}
     };
     brainflow_boards_json["boards"]["-1"]["default"] =
     {
