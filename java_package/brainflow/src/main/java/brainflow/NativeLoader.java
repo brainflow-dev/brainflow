@@ -21,7 +21,7 @@ class NativeLoader
             return file.getAbsoluteFile ().toPath ();
         } catch (Exception io)
         {
-            System.err.println ("file: " + lib_name + " is not found in jar file");
+            System.err.println ("could not unpack file: " + lib_name + " is not found in jar file");
             return null;
         }
     }
@@ -38,7 +38,7 @@ class NativeLoader
             Files.copy (link, jnatmp.getAbsoluteFile ().toPath ());
         } catch (Exception io)
         {
-            System.err.println ("file: " + lib_name + " is not found in jar file");
+            System.err.println ("could not copy file: " + lib_name + " is not found in jar file");
         }
     }
 }
