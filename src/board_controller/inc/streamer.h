@@ -8,6 +8,7 @@ public:
     {
         this->len = len;
     }
+
     virtual ~Streamer ()
     {
     }
