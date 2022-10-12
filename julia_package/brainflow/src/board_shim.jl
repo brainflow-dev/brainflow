@@ -260,6 +260,11 @@ end
             streamer_params, Int32(preset), board_shim.board_id, board_shim.input_json)
 end
 
+@brainflow_rethrow function delete_streamer(streamer_params::String, board_shim::BoardShim, preset::PresetType=Integer(DEFAULT_PRESET))
+    ccall((:delete_streamer, BOARD_CONTROLLER_INTERFACE), Cint, (Ptr{UInt8}, Cint, Cint, Ptr{UInt8}),
+            streamer_params, Int32(preset), board_shim.board_id, board_shim.input_json)
+end
+
 @brainflow_rethrow function config_board(config::String, board_shim::BoardShim)
     resp_string = Vector{Cuchar}(undef, 4096)
     len = Vector{Cint}(undef, 1)

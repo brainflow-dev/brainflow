@@ -37,6 +37,14 @@ int main (int argc, char *argv[])
 #else
         sleep (5);
 #endif
+        board->delete_streamer (
+            "file://streamer_aux_2.csv:w", (int)BrainFlowPresets::AUXILIARY_PRESET);
+
+#ifdef _WIN32
+        Sleep (5000);
+#else
+        sleep (5);
+#endif
 
         board->stop_stream ();
         board->release_session ();

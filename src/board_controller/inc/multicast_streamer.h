@@ -11,15 +11,17 @@ class MultiCastStreamer : public Streamer
 {
 
 public:
+    static int get_packages_in_chunk ()
+    {
+        // todo add env variable to set size
+        return 3;
+    }
+
     MultiCastStreamer (const char *ip, int port, int data_len);
     ~MultiCastStreamer ();
 
     int init_streamer ();
     void stream_data (double *data);
-    static int get_packages_in_chunk ()
-    {
-        return 3;
-    }
 
 private:
     char ip[128];

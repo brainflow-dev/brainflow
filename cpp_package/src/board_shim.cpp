@@ -133,6 +133,16 @@ void BoardShim::add_streamer (std::string streamer_params, int preset)
     }
 }
 
+void BoardShim::delete_streamer (std::string streamer_params, int preset)
+{
+    int res =
+        ::delete_streamer (streamer_params.c_str (), preset, board_id, serialized_params.c_str ());
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to delete streamer", res);
+    }
+}
+
 void BoardShim::start_stream (int buffer_size, std::string streamer_params)
 {
     int res = ::start_stream (

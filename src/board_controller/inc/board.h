@@ -60,6 +60,7 @@ public:
     int get_board_data (int data_count, int preset, double *data_buf);
     int insert_marker (double value, int preset);
     int add_streamer (const char *streamer_params, int preset);
+    int delete_streamer (const char *streamer_params, int preset);
 
     // Board::board_logger should not be called from destructors, to ensure that there are safe log
     // methods Board::board_logger still available but should be used only outside destructors
@@ -104,6 +105,8 @@ protected:
     void push_package (double *package, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
     std::string preset_to_string (int preset);
     int preset_to_int (std::string preset);
+    int parse_streamer_params (const char *streamer_params, std::string &streamer_type,
+        std::string &streamer_dest, std::string &streamer_mods);
 
 private:
     // reshapes data from DataBuffer format where all channels are mixed to linear buffer
