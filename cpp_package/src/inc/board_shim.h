@@ -221,6 +221,15 @@ public:
      */
     void add_streamer (
         std::string streamer_params, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
+    /**
+     * delete streamer
+     * @param streamer_params use it to pass data packages further or store them directly during
+     streaming, supported values: "file://%file_name%:w", "file://%file_name%:a",
+     "streaming_board://%multicast_group_ip%:%port%"". Range for multicast addresses is from
+     "224.0.0.0" to "239.255.255.255"
+     */
+    void delete_streamer (
+        std::string streamer_params, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
     /// check if session is ready or not
     bool is_prepared ();
     /// stop streaming thread, doesnt release other resources

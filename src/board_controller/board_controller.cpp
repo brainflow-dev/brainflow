@@ -472,6 +472,25 @@ int add_streamer (
     return board_it->second->add_streamer (streamer, preset);
 }
 
+int delete_streamer (
+    const char *streamer, int preset, int board_id, const char *json_brainflow_input_params)
+{
+    std::lock_guard<std::mutex> lock (mutex);
+    if (streamer == NULL)
+    {
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    std::pair<int, struct BrainFlowInputParams> key;
+    int res = check_board_session (board_id, json_brainflow_input_params, key, false);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        return res;
+    }
+    auto board_it = boards.find (key);
+    return board_it->second->delete_streamer (streamer, preset);
+}
+
 int release_all_sessions ()
 {
     std::lock_guard<std::mutex> lock (mutex);

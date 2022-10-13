@@ -90,7 +90,7 @@ impl BoardShim {
         Ok(check_brainflow_exit_code(res)?)
     }
 
-    /// Start streaming data, this methods stores data in ringbuffer.
+    /// Add streamer from BrainFlow to file or streaming board.
     pub fn add_streamer<S: AsRef<str>>(
         &self,
         streamer_params: S,
@@ -99,6 +99,24 @@ impl BoardShim {
         let streamer_params = CString::new(streamer_params.as_ref())?;
         let res = unsafe {
             board_controller::add_streamer(
+                streamer_params.as_ptr(),
+                preset as c_int,
+                self.board_id as c_int,
+                self.json_brainflow_input_params.as_ptr(),
+            )
+        };
+        Ok(check_brainflow_exit_code(res)?)
+    }
+
+    /// Delete streamer registered streamer.
+    pub fn delete_streamer<S: AsRef<str>>(
+        &self,
+        streamer_params: S,
+        preset: BrainFlowPresets,
+    ) -> Result<()> {
+        let streamer_params = CString::new(streamer_params.as_ref())?;
+        let res = unsafe {
+            board_controller::delete_streamer(
                 streamer_params.as_ptr(),
                 preset as c_int,
                 self.board_id as c_int,

@@ -30,6 +30,8 @@ public class BoardShim
 
         int add_streamer (String streamer, int preset, int board_id, String params);
 
+        int delete_streamer (String streamer, int preset, int board_id, String params);
+
         int start_stream (int buffer_size, String streamer_params, int board_id, String params);
 
         int stop_stream (int board_id, String params);
@@ -1334,6 +1336,18 @@ public class BoardShim
         }
     }
 
+    /**
+     * delete streamer
+     */
+    public void delete_streamer (String streamer, int preset) throws BrainFlowError
+    {
+        int ec = instance.delete_streamer (streamer, preset, board_id, input_json);
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in delete_streamer", ec);
+        }
+    }
+
     public void add_streamer (String streamer, BrainFlowPresets preset) throws BrainFlowError
     {
         add_streamer (streamer, preset.get_code ());
@@ -1342,6 +1356,16 @@ public class BoardShim
     public void add_streamer (String streamer) throws BrainFlowError
     {
         add_streamer (streamer, BrainFlowPresets.DEFAULT_PRESET);
+    }
+
+    public void delete_streamer (String streamer, BrainFlowPresets preset) throws BrainFlowError
+    {
+        delete_streamer (streamer, preset.get_code ());
+    }
+
+    public void delete_streamer (String streamer) throws BrainFlowError
+    {
+        delete_streamer (streamer, BrainFlowPresets.DEFAULT_PRESET);
     }
 
     /**

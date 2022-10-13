@@ -195,6 +195,15 @@ class BoardControllerDLL(object):
             ctypes.c_char_p
         ]
 
+        self.delete_streamer = self.lib.delete_streamer
+        self.delete_streamer.restype = ctypes.c_int
+        self.delete_streamer.argtypes = [
+            ctypes.c_char_p,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_char_p
+        ]
+
         self.stop_stream = self.lib.stop_stream
         self.stop_stream.restype = ctypes.c_int
         self.stop_stream.argtypes = [
@@ -1104,6 +1113,27 @@ class BoardShim(object):
         res = BoardControllerDLL.get_instance().add_streamer(streamer, preset, self.board_id, self.input_json)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to add streamer', res)
+
+    def delete_streamer(self, streamer_params: str, preset: int = BrainFlowPresets.DEFAULT_PRESET) -> None:
+        """Delete streamer
+
+        :param preset: preset
+        :type preset: int
+        :param streamer_params parameter to stream data from brainflow, supported vals: "file://%file_name%:w", "file://%file_name%:a", "streaming_board://%multicast_group_ip%:%port%". Range for multicast addresses is from "224.0.0.0" to "239.255.255.255"
+        :type streamer_params: str
+        """
+
+        if streamer_params is None:
+            streamer = None
+        else:
+            try:
+                streamer = streamer_params.encode()
+            except BaseException:
+                streamer = streamer_params
+
+        res = BoardControllerDLL.get_instance().delete_streamer(streamer, preset, self.board_id, self.input_json)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to delete streamer', res)
 
     def start_stream(self, num_samples: int = 1800 * 250, streamer_params: str = None) -> None:
         """Start streaming data, this methods stores data in ringbuffer

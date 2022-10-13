@@ -246,39 +246,23 @@ void Board::free_packages ()
 
 int Board::add_streamer (const char *streamer_params, int preset)
 {
-    if ((streamer_params == NULL) || (streamer_params[0] == '\0'))
-    {
-        safe_logger (spdlog::level::err, "invalid streamer params");
-        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
-    }
+
     std::string preset_str = preset_to_string (preset);
     if (board_descr.find (preset_str) == board_descr.end ())
     {
         safe_logger (spdlog::level::err, "invalid preset");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
-
     int num_rows = (int)board_descr[preset_str]["num_rows"];
-
+    std::string streamer_type = "";
+    std::string streamer_dest = "";
+    std::string streamer_mods = "";
+    int res = parse_streamer_params (streamer_params, streamer_type, streamer_dest, streamer_mods);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        return res;
+    }
     Streamer *streamer = NULL;
-
-    // parse string, sscanf doesnt work
-    std::string streamer_params_str = streamer_params;
-    size_t idx1 = streamer_params_str.find ("://");
-    if (idx1 == std::string::npos)
-    {
-        safe_logger (spdlog::level::err, "format is streamer_type://streamer_dest:streamer_args");
-        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
-    }
-    std::string streamer_type = streamer_params_str.substr (0, idx1);
-    size_t idx2 = streamer_params_str.find_last_of (":", std::string::npos);
-    if ((idx2 == std::string::npos) || (idx1 == idx2))
-    {
-        safe_logger (spdlog::level::err, "format is streamer_type://streamer_dest:streamer_args");
-        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
-    }
-    std::string streamer_dest = streamer_params_str.substr (idx1 + 3, idx2 - idx1 - 3);
-    std::string streamer_mods = streamer_params_str.substr (idx2 + 1);
 
     if (streamer_type == "file")
     {
@@ -309,7 +293,7 @@ int Board::add_streamer (const char *streamer_params, int preset)
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
-    int res = streamer->init_streamer ();
+    res = streamer->init_streamer ();
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         safe_logger (spdlog::level::err, "failed to init streamer");
@@ -324,6 +308,80 @@ int Board::add_streamer (const char *streamer_params, int preset)
     }
 
     return res;
+}
+
+int Board::delete_streamer (const char *streamer_params, int preset)
+{
+    if (streamers.find (preset) == streamers.end ())
+    {
+        safe_logger (spdlog::level::err, "no such streaming preset");
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+    std::string streamer_type = "";
+    std::string streamer_dest = "";
+    std::string streamer_mods = "";
+    int res = parse_streamer_params (streamer_params, streamer_type, streamer_dest, streamer_mods);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        return res;
+    }
+
+    std::vector<Streamer *>::iterator it = streamers[preset].begin ();
+    res = (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    while (it != streamers[preset].end ())
+    {
+        if ((*it)->check_equals (streamer_type, streamer_dest, streamer_mods))
+        {
+            lock.lock ();
+            delete *it;
+            it = streamers[preset].erase (it);
+            lock.unlock ();
+            res = (int)BrainFlowExitCodes::STATUS_OK;
+            safe_logger (spdlog::level::info, "streamer {} removed", streamer_params);
+            break;
+        }
+        else
+        {
+            it++;
+        }
+    }
+
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        safe_logger (spdlog::level::err, "no such streamer found");
+    }
+    return res;
+}
+
+int Board::parse_streamer_params (const char *streamer_params, std::string &streamer_type,
+    std::string &streamer_dest, std::string &streamer_mods)
+{
+    if ((streamer_params == NULL) || (streamer_params[0] == '\0'))
+    {
+        safe_logger (spdlog::level::err, "invalid streamer params");
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    // parse string, sscanf doesnt work
+    std::string streamer_params_str = streamer_params;
+    size_t idx1 = streamer_params_str.find ("://");
+    if (idx1 == std::string::npos)
+    {
+        safe_logger (spdlog::level::err, "format is streamer_type://streamer_dest:streamer_args");
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+    size_t idx2 = streamer_params_str.find_last_of (":", std::string::npos);
+    if ((idx2 == std::string::npos) || (idx1 == idx2))
+    {
+        safe_logger (spdlog::level::err, "format is streamer_type://streamer_dest:streamer_args");
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    streamer_type = streamer_params_str.substr (0, idx1);
+    streamer_dest = streamer_params_str.substr (idx1 + 3, idx2 - idx1 - 3);
+    streamer_mods = streamer_params_str.substr (idx2 + 1);
+
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int Board::get_current_board_data (

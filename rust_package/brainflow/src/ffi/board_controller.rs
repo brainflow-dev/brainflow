@@ -266,6 +266,14 @@ extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
+    pub fn delete_streamer(
+        streamer: *const ::std::os::raw::c_char,
+        preset: ::std::os::raw::c_int,
+        board_id: ::std::os::raw::c_int,
+        json_brainflow_input_params: *const ::std::os::raw::c_char,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
     pub fn release_all_sessions() -> ::std::os::raw::c_int;
 }
 extern "C" {

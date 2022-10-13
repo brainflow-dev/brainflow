@@ -373,6 +373,16 @@ classdef BoardShim
             [exit_code, tmp] = calllib(lib_name, task_name, streamer, preset, obj.board_id, obj.input_params_json);
             BoardShim.check_ec(exit_code, task_name);
         end
+        
+        function delete_streamer(obj, streamer, preset)
+            % delete streamer
+            task_name = 'delete_streamer';
+            lib_name = BoardShim.load_lib();
+            % no way to understand how it works in matlab used this link
+            % https://nl.mathworks.com/matlabcentral/answers/131446-what-data-type-do-i-need-to-calllib-with-pointer-argument-char%
+            [exit_code, tmp] = calllib(lib_name, task_name, streamer, preset, obj.board_id, obj.input_params_json);
+            BoardShim.check_ec(exit_code, task_name);
+        end
 
         function start_stream(obj, buffer_size, streamer_params)
             % start data acqusition
