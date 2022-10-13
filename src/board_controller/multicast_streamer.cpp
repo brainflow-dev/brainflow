@@ -13,10 +13,10 @@ int MultiCastStreamer::get_packages_in_chunk ()
     int size = 3;
     if (const char *env_p = std::getenv ("BRAINFLOW_MULTICAST_SIZE"))
     {
-        std::string size = env_p;
+        std::string str_env = env_p;
         try
         {
-            int parsed_size = std::stoi (parsed_size);
+            int parsed_size = std::stoi (str_env);
             if ((parsed_size > 0) && (parsed_size < 15))
             {
                 size = parsed_size;
