@@ -27,39 +27,55 @@ def main():
     gain_chars = ["6", "5", "4", "3", "2", "1", "0"]
     input_type_char = "5"
     gain_test_all_channels = []
+    board.release_all_sessions()
 
     try:
         for channel_index, channel in enumerate(channel_chars):
 
-            if channel_index > 1:
+            if channel_index > 4:
                 break
-            gain_test_per_channel = []
 
-            for gain_index, gain in enumerate(gain_chars):
-                board.prepare_session()
-                config_string = f"x{channel}0{gain}{input_type_char}110X"
+
+            board.prepare_session()
+            config_string = f"x{channel}0{gain_chars[6]}{input_type_char}110X"
+            resp = board.config_board(config_string)
+            print(resp)
+            # check that there is a response if streaming is off
+            if not resp:
+                raise ValueError('resp is None')
+            board.start_stream()
+            time.sleep(data_streaming_seconds)
+            data_old = board.get_board_data()
+            board.stop_stream()
+            board.release_session()
+
+            time.sleep(2)
+
+            board.prepare_session()
+            config_string = f"x{channel}0{gain_chars[0]}{input_type_char}110X"
+            try:
                 resp = board.config_board(config_string)
                 print(resp)
-                # check that there is a response if streaming is off
-                if not resp:
-                    raise ValueError('resp is None')
-                board.start_stream()
-                time.sleep(data_streaming_seconds)
-                data = board.get_board_data()
-                board.stop_stream()
-                eeg_channel = eeg_channels[channel_index]
-                DataFilter.detrend(data[eeg_channel], DetrendOperations.LINEAR.value)
-                psd = DataFilter.get_psd_welch(data[eeg_channel], nfft, nfft // 2, sampling_rate,
-                                            WindowOperations.BLACKMAN_HARRIS.value)
-                band_power_injected_current = DataFilter.get_band_power(psd, 30.0, 33.0)
-                gain_test_per_channel.append(band_power_injected_current)
-                board.release_session()
+            except UnicodeDecodeError as err:
+                print(err)
+            # check that there is a response if streaming is off
+            if not resp:
+                raise ValueError('resp is None')
+            board.start_stream()
+            time.sleep(data_streaming_seconds)
+            data_new = board.get_board_data()
+            board.stop_stream()
+            board.release_session()
 
-            gain_test_all_channels.append(gain_test_per_channel)
+            std_dev_old = DataFilter.calc_stddev(data_old[eeg_channels[channel_index]])
+            std_dev_new = DataFilter.calc_stddev(data_new[eeg_channels[channel_index]])
+            difference_between_stddevs = std_dev_old - std_dev_new
+
+            gain_test_all_channels.append(difference_between_stddevs)
             
     finally:
-        for channel in gain_test_all_channels:
-            print(*channel)
+        for index, std_dev_difference in enumerate(gain_test_all_channels):
+            print(f"Std Dev Difference in Channel {index} == {std_dev_difference}")
         if board.is_prepared():
             board.release_session()
             
