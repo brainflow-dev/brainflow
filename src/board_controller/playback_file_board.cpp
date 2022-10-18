@@ -27,7 +27,6 @@ PlaybackFileBoard::PlaybackFileBoard (struct BrainFlowInputParams params)
 {
     keep_alive = false;
     loopback = false;
-    is_streaming = false;
     initialized = false;
     use_new_timestamps = true;
     this->state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
@@ -46,9 +45,9 @@ int PlaybackFileBoard::prepare_session ()
         safe_logger (spdlog::level::info, "Session is already prepared");
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
-    if ((params.file.empty ()) || (params.master_board == (int)BoardIds::NO_BOARD))
+    if (params.master_board == (int)BoardIds::NO_BOARD)
     {
-        safe_logger (spdlog::level::err, "playback file or master board id or preset not provided");
+        safe_logger (spdlog::level::err, "master board id is not provided");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     try
@@ -70,16 +69,6 @@ int PlaybackFileBoard::prepare_session ()
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
-    // check that file exist in prepare_session
-    FILE *fp;
-    fp = fopen (params.file.c_str (), "r");
-    if (fp == NULL)
-    {
-        safe_logger (spdlog::level::err, "invalid file path");
-        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
-    }
-    fclose (fp);
-
     initialized = true;
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
@@ -87,7 +76,7 @@ int PlaybackFileBoard::prepare_session ()
 int PlaybackFileBoard::start_stream (int buffer_size, const char *streamer_params)
 {
     safe_logger (spdlog::level::trace, "start stream");
-    if (is_streaming)
+    if (keep_alive)
     {
         safe_logger (spdlog::level::err, "Streaming thread already running");
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
@@ -100,20 +89,32 @@ int PlaybackFileBoard::start_stream (int buffer_size, const char *streamer_param
     }
 
     keep_alive = true;
-    streaming_thread = std::thread ([this] { this->read_thread (); });
+    if (!params.file.empty ())
+    {
+        streaming_threads.push_back (std::thread (
+            [this] { this->read_thread ((int)BrainFlowPresets::DEFAULT_PRESET, params.file); }));
+    }
+    if (!params.file_aux.empty ())
+    {
+        streaming_threads.push_back (std::thread ([this]
+            { this->read_thread ((int)BrainFlowPresets::AUXILIARY_PRESET, params.file_aux); }));
+    }
+    if (!params.file_anc.empty ())
+    {
+        streaming_threads.push_back (std::thread ([this]
+            { this->read_thread ((int)BrainFlowPresets::ANCILLARY_PRESET, params.file_anc); }));
+    }
     // wait for data to ensure that everything is okay
     std::unique_lock<std::mutex> lk (this->m);
     auto sec = std::chrono::seconds (1);
     if (cv.wait_for (lk, 2 * sec,
             [this] { return this->state != (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR; }))
     {
-        this->is_streaming = true;
         return this->state;
     }
     else
     {
         safe_logger (spdlog::level::err, "no data received in 2sec, stopping thread");
-        this->is_streaming = true;
         this->stop_stream ();
         return (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
     }
@@ -121,11 +122,14 @@ int PlaybackFileBoard::start_stream (int buffer_size, const char *streamer_param
 
 int PlaybackFileBoard::stop_stream ()
 {
-    if (is_streaming)
+    if (keep_alive)
     {
         keep_alive = false;
-        is_streaming = false;
-        streaming_thread.join ();
+        for (std::thread &streaming_thread : streaming_threads)
+        {
+            streaming_thread.join ();
+        }
+        streaming_threads.clear ();
         this->state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
@@ -146,17 +150,17 @@ int PlaybackFileBoard::release_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-void PlaybackFileBoard::read_thread ()
+void PlaybackFileBoard::read_thread (int preset, std::string file)
 {
-    std::string preset_str = preset_to_string (params.preset);
+    std::string preset_str = preset_to_string (preset);
     if (board_descr.find (preset_str) == board_descr.end ())
     {
-        safe_logger (spdlog::level::err, "invalid json or push_package args, no such key");
+        safe_logger (spdlog::level::err, "no preset {} for board {}", preset, board_id);
         return;
     }
 
     FILE *fp;
-    fp = fopen (params.file.c_str (), "r");
+    fp = fopen (file.c_str (), "r");
     if (fp == NULL)
     {
         safe_logger (spdlog::level::err, "failed to open file in thread");
@@ -261,7 +265,7 @@ void PlaybackFileBoard::read_thread ()
         {
             package[timestamp_channel] = get_timestamp ();
         }
-        push_package (package, params.preset);
+        push_package (package, preset);
     }
     fclose (fp);
     delete[] package;

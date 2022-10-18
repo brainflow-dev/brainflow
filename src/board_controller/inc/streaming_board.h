@@ -1,6 +1,8 @@
 #pragma once
 
+#include <string>
 #include <thread>
+#include <vector>
 
 #include "board.h"
 #include "board_controller.h"
@@ -13,12 +15,12 @@ class StreamingBoard : public Board
 private:
     volatile bool keep_alive;
     bool initialized;
-    bool is_streaming;
-    std::thread streaming_thread;
+    std::vector<std::thread> streaming_threads;
+    std::vector<MultiCastClient> clients;
+    std::vector<int> presets;
 
-    MultiCastClient *client;
-
-    void read_thread ();
+    void read_thread (int num);
+    void log_socket_error (int error_code);
 
 public:
     StreamingBoard (struct BrainFlowInputParams params);

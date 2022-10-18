@@ -557,14 +557,19 @@ int string_to_brainflow_input_params (
         params->serial_port = config["serial_port"];
         params->ip_protocol = config["ip_protocol"];
         params->ip_port = config["ip_port"];
+        params->ip_port_aux = config["ip_port_aux"];
+        params->ip_port_anc = config["ip_port_anc"];
         params->other_info = config["other_info"];
         params->mac_address = config["mac_address"];
         params->ip_address = config["ip_address"];
+        params->ip_address_aux = config["ip_address_aux"];
+        params->ip_address_anc = config["ip_address_anc"];
         params->timeout = config["timeout"];
         params->serial_number = config["serial_number"];
         params->file = config["file"];
+        params->file_aux = config["file_aux"];
+        params->file_anc = config["file_anc"];
         params->master_board = config["master_board"];
-        params->preset = config["preset"];
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
     catch (json::exception &e)

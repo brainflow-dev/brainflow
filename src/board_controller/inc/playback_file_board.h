@@ -15,14 +15,13 @@ private:
     volatile bool keep_alive;
     volatile bool loopback;
     volatile bool use_new_timestamps;
-    std::thread streaming_thread;
-    bool is_streaming;
+    std::vector<std::thread> streaming_threads;
     bool initialized;
     std::mutex m;
     std::condition_variable cv;
     volatile int state;
 
-    void read_thread ();
+    void read_thread (int preset, std::string filename);
 
 public:
     PlaybackFileBoard (struct BrainFlowInputParams params);

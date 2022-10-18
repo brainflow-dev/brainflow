@@ -42,6 +42,14 @@ public class BrainFlowGetData
             {
                 params.ip_address = args[i + 1];
             }
+            if (args[i].equals ("--ip-address-aux"))
+            {
+                params.ip_address_aux = args[i + 1];
+            }
+            if (args[i].equals ("--ip-address-anc"))
+            {
+                params.ip_address_anc = args[i + 1];
+            }
             if (args[i].equals ("--serial-port"))
             {
                 params.serial_port = args[i + 1];
@@ -49,6 +57,14 @@ public class BrainFlowGetData
             if (args[i].equals ("--ip-port"))
             {
                 params.ip_port = Integer.parseInt (args[i + 1]);
+            }
+            if (args[i].equals ("--ip-port-aux"))
+            {
+                params.ip_port_aux = Integer.parseInt (args[i + 1]);
+            }
+            if (args[i].equals ("--ip-port-anc"))
+            {
+                params.ip_port_anc = Integer.parseInt (args[i + 1]);
             }
             if (args[i].equals ("--ip-protocol"))
             {
@@ -74,9 +90,13 @@ public class BrainFlowGetData
             {
                 params.file = args[i + 1];
             }
-            if (args[i].equals ("--preset"))
+            if (args[i].equals ("--file-aux"))
             {
-                params.preset = Integer.parseInt (args[i + 1]);
+                params.file_aux = args[i + 1];
+            }
+            if (args[i].equals ("--file-anc"))
+            {
+                params.file_anc = args[i + 1];
             }
             if (args[i].equals ("--master-board"))
             {

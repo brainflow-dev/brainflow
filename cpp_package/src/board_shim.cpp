@@ -19,14 +19,19 @@ std::string params_to_string (struct BrainFlowInputParams params)
     j["serial_port"] = params.serial_port;
     j["ip_protocol"] = params.ip_protocol;
     j["ip_port"] = params.ip_port;
+    j["ip_port_aux"] = params.ip_port_aux;
+    j["ip_port_anc"] = params.ip_port_anc;
     j["ip_address"] = params.ip_address;
+    j["ip_address_aux"] = params.ip_address_aux;
+    j["ip_address_anc"] = params.ip_address_anc;
     j["mac_address"] = params.mac_address;
     j["other_info"] = params.other_info;
     j["timeout"] = params.timeout;
     j["serial_number"] = params.serial_number;
     j["file"] = params.file;
+    j["file_aux"] = params.file_aux;
+    j["file_anc"] = params.file_anc;
     j["master_board"] = params.master_board;
-    j["preset"] = params.preset;
     std::string post_str = j.dump ();
     return post_str;
 }

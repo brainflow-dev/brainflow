@@ -12,14 +12,19 @@ pub struct BrainFlowInputParams {
     serial_port: String,
     mac_address: String,
     ip_address: String,
+    ip_address_aux: String,
+    ip_address_anc: String,
     ip_port: usize,
+    ip_port_aux: usize,
+    ip_port_anc: usize,
     ip_protocol: usize,
     other_info: String,
     timeout: usize,
     serial_number: String,
     file: String,
+    file_aux: String,
+    file_anc: String,
     master_board: usize,
-    preset: usize,
 }
 
 impl Default for BrainFlowInputParams {
@@ -28,14 +33,19 @@ impl Default for BrainFlowInputParams {
             serial_port: "".to_string(),
             mac_address: "".to_string(),
             ip_address: "".to_string(),
+            ip_address_aux: "".to_string(),
+            ip_address_anc: "".to_string(),
             ip_port: 0,
+            ip_port_anc: 0,
+            ip_port_aux: 0,
             ip_protocol: 0,
             other_info: "".to_string(),
             timeout: 0,
             serial_number: "".to_string(),
             file: "".to_string(),
+            file_aux: "".to_string(),
+            file_anc: "".to_string(),
             master_board: BoardIds::NoBoard as usize,
-            preset: BrainFlowPresets::DefaultPreset as usize,
         }
     }
 }

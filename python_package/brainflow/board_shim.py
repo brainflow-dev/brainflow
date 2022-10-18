@@ -93,8 +93,16 @@ class BrainFlowInputParams(object):
     :type mac_address: str
     :param ip_address: ip address is used for boards which reads data from socket connection
     :type ip_address: str
+    :param ip_address_aux: ip address is used for boards which reads data from socket connection
+    :type ip_address_aux: str
+    :param ip_address_anc: ip address is used for boards which reads data from socket connection
+    :type ip_address_anc: str
     :param ip_port: ip port for socket connection, for some boards where we know it in front you dont need this parameter
     :type ip_port: int
+    :param ip_port_aux: ip port for socket connection, for some boards where we know it in front you dont need this parameter
+    :type ip_port_aux: int
+    :param ip_port_anc: ip port for socket connection, for some boards where we know it in front you dont need this parameter
+    :type ip_port_anc: int
     :param ip_protocol: ip protocol type from IpProtocolTypes enum
     :type ip_protocol: int
     :param other_info: other info
@@ -103,20 +111,29 @@ class BrainFlowInputParams(object):
     :type serial_number: str
     :param file: file
     :type file: str
+    :param file_aux: file
+    :type file_aux: str
+    :param file_anc: file
+    :type file_anc: str
     """
 
     def __init__(self) -> None:
         self.serial_port = ''
         self.mac_address = ''
         self.ip_address = ''
+        self.ip_address_aux = ''
+        self.ip_address_anc = ''
         self.ip_port = 0
+        self.ip_port_aux = 0
+        self.ip_port_anc = 0
         self.ip_protocol = IpProtocolTypes.NO_IP_PROTOCOL.value
         self.other_info = ''
         self.timeout = 0
         self.serial_number = ''
         self.file = ''
+        self.file_aux = ''
+        self.file_anc = ''
         self.master_board = BoardIds.NO_BOARD.value
-        self.preset = BrainFlowPresets.DEFAULT_PRESET
 
     def to_json(self) -> None:
         return json.dumps(self, default=lambda o: o.__dict__,

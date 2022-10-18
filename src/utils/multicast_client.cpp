@@ -96,7 +96,10 @@ int MultiCastClient::recv (void *data, int size)
 
 void MultiCastClient::close ()
 {
-    closesocket (client_socket);
+    if (client_socket != INVALID_SOCKET)
+    {
+        closesocket (client_socket);
+    }
     client_socket = INVALID_SOCKET;
     WSACleanup ();
 }
@@ -186,7 +189,10 @@ int MultiCastClient::recv (void *data, int size)
 
 void MultiCastClient::close ()
 {
-    ::close (client_socket);
+    if (client_socket != -1)
+    {
+        ::close (client_socket);
+    }
     client_socket = -1;
 }
 
