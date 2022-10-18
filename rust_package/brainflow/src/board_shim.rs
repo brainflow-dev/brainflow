@@ -2,8 +2,10 @@ use ndarray::Array2;
 use paste::paste;
 use std::{
     ffi::CString,
+    ffi::CStr,
     os::raw::{c_double, c_int},
 };
+use std::os::raw::c_char;
 
 use crate::{
     brainflow_input_params::BrainFlowInputParams, check_brainflow_exit_code, BoardIds, LogLevels,
@@ -216,20 +218,21 @@ impl BoardShim {
     pub fn config_board<S: AsRef<str>>(&self, config: S) -> Result<String> {
         let config = CString::new(config.as_ref())?;
         let mut response_len = 0;
-        let response = CString::new(Vec::with_capacity(8192))?;
-        let response = response.into_raw();
+        let mut c_string: [c_char; 8192] = [0; 8192];
+
         let config = config.into_raw();
         let (res, response) = unsafe {
             let res = board_controller::config_board(
                 config,
-                response,
+                c_string.as_mut_ptr(),
                 &mut response_len,
                 self.board_id as c_int,
                 self.json_brainflow_input_params.as_ptr(),
             );
             let _ = CString::from_raw(config);
-            let response = CString::from_raw(response);
-            (res, response)
+            let resp = CStr::from_ptr(c_string.as_ptr());
+
+            (res, resp)
         };
         check_brainflow_exit_code(res)?;
         Ok(response
