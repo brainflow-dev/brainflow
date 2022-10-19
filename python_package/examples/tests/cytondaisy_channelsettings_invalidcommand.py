@@ -34,9 +34,13 @@ def main():
 
             board.prepare_session()
             # Send string to config a channel greater than 8
-            print("Sending Two Valid Command...")
+            print("Sending Three Valid Command...")
             config_channel_one = f"x{channel_chars[0]}0{gain_chars[6]}{input_type_char}110X"
             resp = board.config_board(config_channel_one)
+            print(resp)
+            resp = board.config_board("123x3020000X")
+            print(resp)
+            resp = board.config_board("x3020000X123")
             print(resp)
             resp = board.config_board("x3020000X")
             print(resp)
