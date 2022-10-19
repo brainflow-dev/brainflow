@@ -1,5 +1,6 @@
 import argparse
 import time
+import numpy as np
 
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 from brainflow.data_filter import DataFilter, WindowOperations, DetrendOperations
@@ -27,12 +28,14 @@ def main():
     gain_chars = ["6", "5", "4", "3", "2", "1", "0"]
     input_type_char = "5"
     gain_test_all_channels = []
+    gain_test_all_channels_mean_old = []
+    gain_test_all_channels_mean_new = []
     board.release_all_sessions()
 
     try:
         for channel_index, channel in enumerate(channel_chars):
 
-            if channel_index > 4:
+            if channel_index > 3:
                 break
 
 
@@ -72,10 +75,14 @@ def main():
             difference_between_stddevs = std_dev_old - std_dev_new
 
             gain_test_all_channels.append(difference_between_stddevs)
+            gain_test_all_channels_mean_old.append(np.mean(data_old[eeg_channels[channel_index]]))
+            gain_test_all_channels_mean_new.append(np.mean(data_new[eeg_channels[channel_index]]))
             
     finally:
         for index, std_dev_difference in enumerate(gain_test_all_channels):
             print(f"Std Dev Difference in Channel {index} == {std_dev_difference}")
+        print("Old Means (x24) == " + str(gain_test_all_channels_mean_old))
+        print("New Means (x1) == " + str(gain_test_all_channels_mean_new))
         if board.is_prepared():
             board.release_session()
             
