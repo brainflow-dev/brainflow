@@ -37,7 +37,7 @@ def main():
             resp = board.config_board("c")
             print(resp)
             # Send string to config a channel greater than 8
-            config_string = f"x{channel_chars[8]}0{gain_chars[6]}{input_type_char}110X"
+            config_string = f"x{channel_chars[15]}0{gain_chars[6]}{input_type_char}110X"
             resp = board.config_board(config_string)
             print(resp)
             # check that there is a response if streaming is off
