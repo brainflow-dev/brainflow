@@ -34,12 +34,38 @@ def main():
 
             board.prepare_session()
             # Send string to config a channel greater than 8
+            print("Sending Two Valid Command...")
             config_channel_one = f"x{channel_chars[0]}0{gain_chars[6]}{input_type_char}110X"
-            config_channel_nine = f"x{channel_chars[8]}0{gain_chars[6]}{input_type_char}110X"
-            config_string = config_channel_one + config_channel_nine
-            resp = board.config_board(config_string)
+            resp = board.config_board(config_channel_one)
             print(resp)
-            resp = board.config_board("x1020000Xx2020000Xx3020000X")
+            resp = board.config_board("x3020000X")
+            print(resp)
+            print("Sending Invalid Command...")
+            config_channel_nine = f"x{channel_chars[8]}0{gain_chars[6]}{input_type_char}110Z"
+            resp = board.config_board(config_channel_nine)
+            print(resp)
+            print("Sending More Invalid Commands...")
+            resp = board.config_board("x1020000")
+            print(resp)
+            resp = board.config_board("p1020000X")
+            print(resp)
+            resp = board.config_board("hi")
+            print(resp)
+            resp = board.config_board("x1001X")
+            print(resp)
+            resp = board.config_board("xP020000X")
+            print(resp)
+            resp = board.config_board("x1920000X")
+            print(resp)
+            resp = board.config_board("x1090000X")
+            print(resp)
+            resp = board.config_board("x1029000X")
+            print(resp)
+            resp = board.config_board("x1020900X")
+            print(resp)
+            resp = board.config_board("x1020090X")
+            print(resp)
+            resp = board.config_board("x1020009X")
             print(resp)
             # check that there is a response if streaming is off
             if not resp:
