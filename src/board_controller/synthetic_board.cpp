@@ -238,7 +238,7 @@ void SyntheticBoard::read_thread ()
 #ifdef _WIN32
             Sleep ((int)(sleep_time - accumulated_time_delta));
 #else
-            usleep ((int)(1000 * (sleep_time - duration)));
+            usleep ((int)(1000 * (sleep_time - accumulated_time_delta)));
 #endif
         }
 
