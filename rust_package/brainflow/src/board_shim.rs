@@ -218,27 +218,25 @@ impl BoardShim {
     pub fn config_board<S: AsRef<str>>(&self, config: S) -> Result<String> {
         let config = CString::new(config.as_ref())?;
         let mut response_len = 0;
-        let mut c_string: [c_char; 8192] = [0; 8192];
+        let mut result_char_buffer: [c_char; 8192] = [0; 8192];
 
         let config = config.into_raw();
         let (res, response) = unsafe {
             let res = board_controller::config_board(
                 config,
-                c_string.as_mut_ptr(),
+                result_char_buffer.as_mut_ptr(),
                 &mut response_len,
                 self.board_id as c_int,
                 self.json_brainflow_input_params.as_ptr(),
             );
             let _ = CString::from_raw(config);
-            let resp = CStr::from_ptr(c_string.as_ptr());
+            let resp = CStr::from_ptr(result_char_buffer.as_ptr());
 
             (res, resp)
         };
         check_brainflow_exit_code(res)?;
         Ok(response
             .to_str()?
-            .split_at(response_len as usize)
-            .0
             .to_string())
     }
 
@@ -359,34 +357,30 @@ pub fn log_message<S: AsRef<str>>(log_level: LogLevels, message: S) -> Result<()
 
 /// Get board description as json.
 pub fn get_board_descr(board_id: BoardIds, preset: BrainFlowPresets) -> Result<String> {
+    const MAX_CHARS: usize = 16000;
     let mut response_len = 0;
-    let response = CString::new(Vec::with_capacity(16000))?;
-    let response = response.into_raw();
+    let mut result_char_buffer: [c_char; MAX_CHARS] = [0; MAX_CHARS];
     let (res, response) = unsafe {
-        let res = board_controller::get_board_descr(board_id as c_int, preset as c_int, response, &mut response_len);
-        let response = CString::from_raw(response);
+        let res = board_controller::get_board_descr(board_id as c_int, preset as c_int, result_char_buffer.as_mut_ptr(), &mut response_len);
+        let response = CStr::from_ptr(result_char_buffer.as_ptr());
         (res, response)
     };
     check_brainflow_exit_code(res)?;
-    Ok(response
-        .to_str()?
-        .split_at(response_len as usize)
-        .0
-        .to_string())
+    Ok(response.to_str()?.to_string())
 }
 
 /// Get names of EEG channels in 10-20 system if their location is fixed.
 pub fn get_eeg_names(board_id: BoardIds, preset: BrainFlowPresets) -> Result<Vec<String>> {
+    const MAX_CHARS: usize = 16000;
     let mut response_len = 0;
-    let response = CString::new(Vec::with_capacity(16000))?;
-    let response = response.into_raw();
+    let mut result_char_buffer: [c_char; MAX_CHARS] = [0; MAX_CHARS];
     let (res, response) = unsafe {
-        let res = board_controller::get_eeg_names(board_id as c_int, preset as c_int, response, &mut response_len);
-        let response = CString::from_raw(response);
+        let res = board_controller::get_eeg_names(board_id as c_int, preset as c_int, result_char_buffer.as_mut_ptr(), &mut response_len);
+        let response = CStr::from_ptr(result_char_buffer.as_ptr());
         (res, response)
     };
     check_brainflow_exit_code(res)?;
-    let names = response.to_str()?.split_at(response_len as usize).0;
+    let names = response.to_str()?;
 
     Ok(names
         .split(',')
@@ -413,36 +407,34 @@ pub fn get_board_presets(board_id: BoardIds) -> Result<Vec<usize>> {
 
 /// Get BoardShim version.
 pub fn get_version() -> Result<String> {
+    const MAX_CHARS: usize = 64;
     let mut response_len = 0;
-    let response = CString::new(Vec::with_capacity(64))?;
-    let response = response.into_raw();
+    let mut result_char_buffer: [c_char; MAX_CHARS] = [0; MAX_CHARS];
+
     let (res, response) = unsafe {
-        let res = board_controller::get_version_board_controller(response, &mut response_len, 64);
-        let response = CString::from_raw(response);
+        let res = board_controller::get_version_board_controller(result_char_buffer.as_mut_ptr(), &mut response_len, MAX_CHARS as i32);
+        let response = CStr::from_ptr(result_char_buffer.as_ptr());
         (res, response)
     };
     check_brainflow_exit_code(res)?;
-    let version = response.to_str()?.split_at(response_len as usize).0;
+    let version = response.to_str()?;
 
     Ok(version.to_string())
 }
 
 /// Get device name.
 pub fn get_device_name(board_id: BoardIds, preset: BrainFlowPresets) -> Result<String> {
+    const MAX_CHARS: usize = 4096;
     let mut response_len = 0;
-    let response = CString::new(Vec::with_capacity(4096))?;
-    let response = response.into_raw();
+    let mut result_char_buffer: [c_char; MAX_CHARS] = [0; MAX_CHARS];
+
     let (res, response) = unsafe {
-        let res = board_controller::get_device_name(board_id as c_int, preset as c_int, response, &mut response_len);
-        let response = CString::from_raw(response);
+        let res = board_controller::get_device_name(board_id as c_int, preset as c_int, result_char_buffer.as_mut_ptr(), &mut response_len);
+        let response = CStr::from_ptr(result_char_buffer.as_ptr());
         (res, response)
     };
     check_brainflow_exit_code(res)?;
-    Ok(response
-        .to_str()?
-        .split_at(response_len as usize)
-        .0
-        .to_string())
+    Ok(response.to_str()?.to_string())
 }
 
 macro_rules! gen_vec_fn {
@@ -521,3 +513,70 @@ gen_vec_fn!(
     resistance_channels,
     "Get list of resistance channels in resulting data table for a board."
 );
+
+#[cfg(test)]
+mod tests {
+    #[cfg(test)]
+    mod functions {
+        use crate::board_shim::{get_version, get_device_name, get_eeg_names, get_board_descr};
+        use crate::{BoardIds, BrainFlowPresets};
+
+        #[test]
+        fn test_it_gets_the_version() {
+            assert_eq!("0.0.1", get_version().unwrap());
+        }
+
+        #[test]
+        fn test_get_device_name() {
+            assert_eq!("Synthetic", get_device_name(BoardIds::SyntheticBoard, BrainFlowPresets::DefaultPreset).unwrap());
+        }
+
+        #[test]
+        fn test_get_eeg_names() {
+            assert_eq!(vec!["Fz", "C3", "Cz", "C4", "Pz", "PO7", "Oz", "PO8", "F5", "F7", "F3", "F1", "F2", "F4", "F6", "F8"],
+                       get_eeg_names(BoardIds::SyntheticBoard, BrainFlowPresets::DefaultPreset).unwrap());
+
+        }
+
+        #[test]
+        fn test_get_board_descr() {
+            let expected = "{\"accel_channels\":[17,18,19],\"battery_channel\":29,\
+            \"ecg_channels\":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],\"eda_channels\":[23],\
+            \"eeg_channels\":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],\"eeg_names\":\
+            \"Fz,C3,Cz,C4,Pz,PO7,Oz,PO8,F5,F7,F3,F1,F2,F4,F6,F8\",\"emg_channels\
+            \":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],\"eog_channels\
+            \":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],\"gyro_channels\
+            \":[20,21,22],\"marker_channel\":31,\"name\":\"Synthetic\",\"num_rows\":32,\
+            \"package_num_channel\":0,\"ppg_channels\":[24,25],\"resistance_channels\
+            \":[27,28],\"sampling_rate\":250,\"temperature_channels\":[26],\
+            \"timestamp_channel\":30}";
+
+            assert_eq!(expected,
+                       get_board_descr(BoardIds::SyntheticBoard, BrainFlowPresets::DefaultPreset).unwrap());
+
+        }
+    }
+
+
+    #[cfg(test)]
+    mod board_shim {
+        use crate::board_shim::BoardShim;
+        use crate::BoardIds;
+        use crate::brainflow_input_params::BrainFlowInputParams;
+
+        fn board_shim() -> BoardShim {
+            BoardShim::new(BoardIds::SyntheticBoard,
+                           BrainFlowInputParams::default()).unwrap()
+        }
+
+        #[test]
+        fn test_config_board() {
+            let board = board_shim();
+            board.prepare_session();
+            // synthetic board doesnt send any message back as it ignores config calls
+            assert_eq!("", board.config_board("x123456X").unwrap());
+
+        }
+    }
+
+}
