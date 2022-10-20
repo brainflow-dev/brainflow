@@ -2,7 +2,7 @@ import argparse
 import logging
 
 import pyqtgraph as pg
-from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds, BrainFlowPresets
+from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 from brainflow.data_filter import DataFilter, FilterTypes, WindowOperations, DetrendOperations
 from pyqtgraph.Qt import QtGui, QtCore
 

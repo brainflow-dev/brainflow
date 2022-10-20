@@ -60,7 +60,7 @@ int StreamingBoard::prepare_session ()
     // default preset
     if ((!params.ip_address.empty ()) && (params.ip_port != 0))
     {
-        MultiCastClient client (params.ip_address.c_str (), params.ip_port);
+        MultiCastClient *client = new MultiCastClient (params.ip_address.c_str (), params.ip_port);
         clients.push_back (client);
         presets.push_back ((int)BrainFlowPresets::DEFAULT_PRESET);
     }
@@ -71,7 +71,8 @@ int StreamingBoard::prepare_session ()
     // aux preset
     if ((!params.ip_address_aux.empty ()) && (params.ip_port_aux != 0))
     {
-        MultiCastClient client (params.ip_address_aux.c_str (), params.ip_port_aux);
+        MultiCastClient *client =
+            new MultiCastClient (params.ip_address_aux.c_str (), params.ip_port_aux);
         clients.push_back (client);
         presets.push_back ((int)BrainFlowPresets::AUXILIARY_PRESET);
     }
@@ -82,7 +83,8 @@ int StreamingBoard::prepare_session ()
     // anc preset
     if ((!params.ip_address_anc.empty ()) && (params.ip_port_anc != 0))
     {
-        MultiCastClient client (params.ip_address_anc.c_str (), params.ip_port_anc);
+        MultiCastClient *client =
+            new MultiCastClient (params.ip_address_anc.c_str (), params.ip_port_anc);
         clients.push_back (client);
         presets.push_back ((int)BrainFlowPresets::ANCILLARY_PRESET);
     }
@@ -93,7 +95,7 @@ int StreamingBoard::prepare_session ()
 
     if (clients.empty ())
     {
-        safe_logger (spdlog::level::err, "No ip address and ports specified");
+        safe_logger (spdlog::level::err, "No ip addresses and ports specified");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
@@ -101,7 +103,7 @@ int StreamingBoard::prepare_session ()
     initialized = true;
     for (auto client : clients)
     {
-        int socket_res = client.init ();
+        int socket_res = client->init ();
         if (socket_res != (int)MultiCastReturnCodes::STATUS_OK)
         {
             log_socket_error (res);
@@ -113,6 +115,10 @@ int StreamingBoard::prepare_session ()
 
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
+        for (auto client : clients)
+        {
+            delete client;
+        }
         clients.clear ();
         presets.clear ();
     }
@@ -175,6 +181,10 @@ int StreamingBoard::release_session ()
         }
         free_packages ();
         initialized = false;
+        for (auto client : clients)
+        {
+            delete client;
+        }
         clients.clear ();
         presets.clear ();
     }
@@ -203,11 +213,12 @@ void StreamingBoard::read_thread (int num)
 
     while (keep_alive)
     {
-        int res = clients[num].recv (transaction, bytes_per_recv);
+        int res = clients[num]->recv (transaction, bytes_per_recv);
         if (res != bytes_per_recv)
         {
             safe_logger (
                 spdlog::level::trace, "unable to read {} bytes, read {}", bytes_per_recv, res);
+            log_socket_error (-1);
             continue;
         }
         for (int i = 0; i < num_packages; i++)
@@ -225,5 +236,5 @@ void StreamingBoard::log_socket_error (int error_code)
 #else
     safe_logger (spdlog::level::err, "errno {} message {}", errno, strerror (errno));
 #endif
-    safe_logger (spdlog::level::err, "failed to init socket: {}", error_code);
+    safe_logger (spdlog::level::err, "socket operation error code: {}", error_code);
 }

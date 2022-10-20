@@ -16,7 +16,7 @@ private:
     volatile bool keep_alive;
     bool initialized;
     std::vector<std::thread> streaming_threads;
-    std::vector<MultiCastClient> clients;
+    std::vector<MultiCastClient *> clients;
     std::vector<int> presets;
 
     void read_thread (int num);
