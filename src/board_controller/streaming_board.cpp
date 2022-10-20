@@ -2,7 +2,7 @@
 #include <string.h>
 
 #include "board_info_getter.h"
-#include "multicast_streamer.h"
+#include "brainflow_env_vars.h"
 #include "streaming_board.h"
 
 #ifndef _WIN32
@@ -202,7 +202,7 @@ void StreamingBoard::read_thread (int num)
 
     json board_preset = board_descr[preset_str];
     int num_rows = board_preset["num_rows"];
-    int num_packages = MultiCastStreamer::get_packages_in_chunk ();
+    int num_packages = get_brainflow_batch_size ();
     int transaction_len = num_rows * num_packages;
     int bytes_per_recv = sizeof (double) * transaction_len;
     double *transaction = new double[transaction_len];

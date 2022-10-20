@@ -237,28 +237,23 @@ void PlaybackFileBoard::read_thread (int preset, std::string file)
             }
             this->cv.notify_one ();
         }
-        auto stop = std::chrono::high_resolution_clock::now ();
-        auto duration =
-            std::chrono::duration_cast<std::chrono::microseconds> (stop - start).count ();
-
         if (last_timestamp > 0)
         {
-            double time_wait = package[timestamp_channel] - last_timestamp; // in seconds
-            accumulated_time_delta += duration;
-            if (accumulated_time_delta > 1000.0)
-            {
-                time_wait = time_wait - (int)(accumulated_time_delta / 1000.0);
-                accumulated_time_delta -= 1000.0;
-            }
-            if (time_wait > 0.001)
+            double time_wait = (package[timestamp_channel] - last_timestamp) * 1000; // in ms
+            if (time_wait - accumulated_time_delta > 1)
             {
 #ifdef _WIN32
-                Sleep ((int)(time_wait * 1000));
+                Sleep ((int)(time_wait - accumulated_time_delta));
 #else
-                usleep ((int)(time_wait * 1000000));
+                usleep ((int)(1000 * (time_wait - accumulated_time_delta)));
 #endif
             }
+            auto stop = std::chrono::high_resolution_clock::now ();
+            auto duration =
+                std::chrono::duration_cast<std::chrono::microseconds> (stop - start).count ();
+            accumulated_time_delta += (duration / 1000.0 - time_wait);
         }
+
         last_timestamp = package[timestamp_channel];
 
         if (new_timestamps)

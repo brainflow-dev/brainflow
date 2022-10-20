@@ -9,7 +9,7 @@ def main():
 
     # use synthetic board for demo
     params = BrainFlowInputParams()
-    #params.file = 'streamer_default.csv'
+    params.file = 'streamer_default.csv'
     params.file_aux = 'streamer_aux.csv'
     params.master_board = BoardIds.SYNTHETIC_BOARD
     board_id = BoardIds.PLAYBACK_FILE_BOARD

@@ -4,30 +4,10 @@
 
 #include "board.h"
 #include "brainflow_constants.h"
+#include "brainflow_env_vars.h"
 #include "file_streamer.h"
 #include "multicast_streamer.h"
 
-
-int MultiCastStreamer::get_packages_in_chunk ()
-{
-    int size = 3;
-    if (const char *env_p = std::getenv ("BRAINFLOW_MULTICAST_SIZE"))
-    {
-        std::string str_env = env_p;
-        try
-        {
-            int parsed_size = std::stoi (str_env);
-            if ((parsed_size > 0) && (parsed_size < 15))
-            {
-                size = parsed_size;
-            }
-        }
-        catch (...)
-        {
-        }
-    }
-    return size;
-}
 
 MultiCastStreamer::MultiCastStreamer (const char *ip, int port, int data_len)
     : Streamer (data_len, "streaming_board", ip, std::to_string (port))
@@ -99,7 +79,7 @@ void MultiCastStreamer::stream_data (double *data)
 
 void MultiCastStreamer::thread_worker ()
 {
-    int num_packages = MultiCastStreamer::get_packages_in_chunk ();
+    int num_packages = get_brainflow_batch_size ();
     int transaction_len = num_packages * len;
     double *transaction = new double[transaction_len];
     for (int i = 0; i < transaction_len; i++)

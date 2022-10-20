@@ -11,8 +11,6 @@ class MultiCastStreamer : public Streamer
 {
 
 public:
-    static int get_packages_in_chunk ();
-
     MultiCastStreamer (const char *ip, int port, int data_len);
     ~MultiCastStreamer ();
 
