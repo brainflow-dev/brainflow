@@ -824,16 +824,15 @@ pub fn get_version() -> Result<String> {
 #[cfg(test)]
 mod tests {
     use std::{env, f64::consts::PI, fs};
-
     use ndarray::array;
-
     use crate::ffi::constants::WindowOperations;
-
+    use crate::test_helpers::assertions::assert_regex_matches;
+    use crate::test_helpers::consts::VERSION_PATTERN;
     use super::*;
 
     #[test]
-    fn test_get_version() {
-        assert_eq!("0.0.1", get_version().unwrap());
+    fn test_it_gets_the_version() {
+        assert_regex_matches(VERSION_PATTERN, get_version().unwrap().as_str());
     }
 
     #[test]

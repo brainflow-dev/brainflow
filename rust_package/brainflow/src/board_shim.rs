@@ -518,19 +518,14 @@ gen_vec_fn!(
 mod tests {
     #[cfg(test)]
     mod functions {
-        use regex::Regex;
-
+        use crate::test_helpers::assertions::assert_regex_matches;
+        use crate::test_helpers::consts::VERSION_PATTERN;
         use crate::board_shim::{get_version, get_device_name, get_eeg_names, get_board_descr};
         use crate::{BoardIds, BrainFlowPresets};
 
-        fn assert_regex_matches(regex: &str, value: &str) {
-            let compiled_regex = Regex::new(regex).unwrap();
-            assert!(compiled_regex.is_match(value), "Expected to match {}, got {}", regex, value);
-        }
-
         #[test]
         fn test_it_gets_the_version() {
-            assert_regex_matches(r"^\d+\.\d+\.\d+$", get_version().unwrap().as_str());
+            assert_regex_matches(VERSION_PATTERN, get_version().unwrap().as_str());
         }
 
         #[test]

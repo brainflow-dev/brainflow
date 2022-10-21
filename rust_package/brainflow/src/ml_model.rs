@@ -120,9 +120,11 @@ pub fn get_version() -> Result<String> {
 #[cfg(test)]
 mod tests {
     use crate::ml_model::get_version;
+    use crate::test_helpers::assertions::assert_regex_matches;
+    use crate::test_helpers::consts::VERSION_PATTERN;
 
     #[test]
-    fn test_get_version() {
-        assert_eq!("0.0.1", get_version().unwrap());
+    fn test_it_gets_the_version() {
+        assert_regex_matches(VERSION_PATTERN, get_version().unwrap().as_str());
     }
 }
