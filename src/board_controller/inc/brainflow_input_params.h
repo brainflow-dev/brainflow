@@ -52,8 +52,8 @@ struct BrainFlowInputParams
                    ip_port, ip_port_aux, ip_port_anc, ip_protocol, other_info, timeout,
                    serial_number, file, file_aux, file_anc, master_board) <
             std::tie (other.serial_port, other.mac_address, other.ip_address, other.ip_address_aux,
-                other.ip_address_anc, other.ip_port, other.ip_port_aux, ip_protocol,
-                other.ip_port_anc, other.other_info, other.timeout, other.serial_number, other.file,
+                other.ip_address_anc, other.ip_port, other.ip_port_aux, other.ip_port_anc,
+                other.ip_protocol, other.other_info, other.timeout, other.serial_number, other.file,
                 other.file_aux, other.file_anc, other.master_board);
     }
 
