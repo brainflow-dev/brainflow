@@ -9,11 +9,11 @@ def main():
 
     # use synthetic board for demo
     params = BrainFlowInputParams()
-    board_id = BoardIds.SYNTHETIC_BOARD.value
+    params.file = 'streamer_default.csv'
+    params.file_aux = 'streamer_aux.csv'
+    params.master_board = BoardIds.SYNTHETIC_BOARD
+    board_id = BoardIds.PLAYBACK_FILE_BOARD
 
-    presets = BoardShim.get_board_presets(board_id)
-    print (presets)
-    
     board = BoardShim(board_id, params)
     board.prepare_session()
     board.start_stream()
@@ -24,6 +24,9 @@ def main():
     board.release_session()
     DataFilter.write_file(data_default, 'default.csv', 'w')
     DataFilter.write_file(data_aux, 'aux.csv', 'w')
+    print(data_default)
+    print(data_aux)
+
 
 
 if __name__ == "__main__":

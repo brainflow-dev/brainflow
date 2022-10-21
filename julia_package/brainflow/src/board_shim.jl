@@ -79,14 +79,19 @@ PresetType = Union{BrainFlowPresets, Integer}
     serial_port::String = ""
     mac_address::String = ""
     ip_address::String = ""
+    ip_address_aux::String = ""
+    ip_address_anc::String = ""
     ip_port::Int32 = 0
+    ip_port_aux::Int32 = 0
+    ip_port_anc::Int32 = 0
     ip_protocol::Int32 = Integer(NO_IP_PROTOCOL)
     other_info::String = ""
     timeout::Int32 = 0
     serial_number::String = ""
     file::String = ""
+    file_aux::String = ""
+    file_anc::String = ""
     master_board = Integer(NO_BOARD)
-    preset = Integer(DEFAULT_PRESET)
 end
 
 @brainflow_rethrow function get_sampling_rate(board_id::BoardIdType, preset::PresetType=Integer(DEFAULT_PRESET))

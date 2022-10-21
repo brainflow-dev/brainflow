@@ -148,6 +148,10 @@ jobs:
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/brainflow_get_data.py --board-id -1
     - name: Synthetic Python Multiple Buffers
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/multiple_buffers.py 
+    - name: Synthetic Python Multiple Streamers
+      run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/multiple_streamers.py
+    - name: Playback Python
+      run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/playback_test.py  
     - name: Synthetic Cpp
       run: $GITHUB_WORKSPACE/cpp_package/examples/get_data/build/brainflow_get_data --board-id -1
       env:
