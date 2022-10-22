@@ -353,9 +353,10 @@ int PlaybackFileBoard::config_board (std::string config, std::string &response)
                 return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
             }
         }
-        catch (const std::exception)
+        catch (const std::exception &e)
         {
-            safe_logger (spdlog::level::err, "need to write a number after {}", SET_INDEX_PREFIX);
+            safe_logger (spdlog::level::err, "need to write a number after {}, exception is: {}",
+                SET_INDEX_PREFIX, e.what ());
             return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
         }
     }
