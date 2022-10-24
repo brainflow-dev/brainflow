@@ -101,7 +101,7 @@ void CytonDaisy::read_thread ()
             for (int i = 0; i < 8; i++)
             {
                 double eeg_scale = (double)(4.5 / float ((pow (2, 23) - 1)) /
-                    gain_tracker.get_gain_for_channel (i) * 1000000.);
+                    gain_tracker.get_gain_for_channel (i + 8) * 1000000.);
                 package[i + 9] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
             }
             // other_channels
@@ -118,7 +118,7 @@ void CytonDaisy::read_thread ()
             for (int i = 0; i < 8; i++)
             {
                 double eeg_scale = (double)(4.5 / float ((pow (2, 23) - 1)) /
-                    gain_tracker.get_gain_for_channel (i + 8) * 1000000.);
+                    gain_tracker.get_gain_for_channel (i) * 1000000.);
                 package[i + 1] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
             }
             // need to average other_channels
