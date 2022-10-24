@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <string>
 #include <vector>
-#include <iostream>
 
 
 enum class OpenBCICommandTypes : int
@@ -29,7 +28,6 @@ protected:
         if ((command.size () < single_command_size) || (command.at (0) != 'x') ||
             (command.at (single_command_size - 1) != 'X'))
         {
-            std::cout<<"FAILED START STOP VALIDATION"<<std::endl;
             return (int)OpenBCICommandTypes::NOT_CHANNEL_COMMAND;
         }
         // bias srb1 srb2 validation
@@ -66,9 +64,7 @@ protected:
         {
             return (int)OpenBCICommandTypes::INVALID_COMMAND;
         }
-        std::cout<<index<<std::endl;
         current_gains[index] = available_gain_values[command.at (3) - '0'];
-        std::cout<<available_gain_values[command.at (3) - '0']<<std::endl;
         return (int)OpenBCICommandTypes::VALID_COMMAND;
     }
 
@@ -98,14 +94,12 @@ public:
                 if ((config.size () >= i + single_command_size) &&
                     (config.at (i + single_command_size - 1) == 'X'))
                 {
-                    std::cout<<"TEST APPLY CONFIG " + config<<std::endl;
                     res = apply_single_command (config.substr (i, single_command_size));
                     i += single_command_size;
                 }
                 else
                 {
                     i++;
-                    std::cout<<"ELSE... TEST APPLY CONFIG " + config<<std::endl;
                 }
             }
             else
