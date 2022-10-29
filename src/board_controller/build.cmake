@@ -43,6 +43,7 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/cyton_wifi.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/cyton_daisy_wifi.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_native.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/cyton.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/cyton_daisy.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/board_controller.cpp

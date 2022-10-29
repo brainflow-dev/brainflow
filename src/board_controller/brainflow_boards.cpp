@@ -65,7 +65,8 @@ BrainFlowBoards::BrainFlowBoards()
             {"42", json::object()},
             {"43", json::object()},
             {"44", json::object()},
-            {"45", json::object()}
+            {"45", json::object()},
+            {"46", json::object()}
         }
     }};
 
@@ -854,6 +855,21 @@ BrainFlowBoards::BrainFlowBoards()
         {"temperature_channels", {1}},
         {"battery_channel", 2},
         {"other_channels", {3}}
+    };
+    brainflow_boards_json["boards"]["46"]["default"] =
+    {
+        {"name", "Ganglion"},
+        {"sampling_rate", 200},
+        {"package_num_channel", 0},
+        {"timestamp_channel", 13},
+        {"marker_channel", 14},
+        {"num_rows", 15},
+        {"eeg_channels", {1, 2, 3, 4}},
+        {"emg_channels", {1, 2, 3, 4}},
+        {"ecg_channels", {1, 2, 3, 4}},
+        {"eog_channels", {1, 2, 3, 4}},
+        {"accel_channels", {5, 6, 7}},
+        {"resistance_channels", {8, 9, 10, 11, 12}}
     };
 }
 
