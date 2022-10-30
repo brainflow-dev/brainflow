@@ -65,9 +65,9 @@ jobs:
     - name: Clone Repository
       uses: actions/checkout@v2
     - name: Setup Cmake
-      uses: jwlawson/actions-setup-cmake@v1.4
+      uses: jwlawson/actions-setup-cmake@v1.13
       with:
-        cmake-version: '3.16.x'
+        cmake-version: '3.21.x'
     - name: Install Ninja
       if: (matrix.os == 'macos-11.0')
       uses: seanmiddleditch/gha-setup-ninja@master
