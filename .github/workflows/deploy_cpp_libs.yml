@@ -46,7 +46,7 @@ jobs:
 
     # Start Deploy Stage
     - name: Upload ${{ matrix.build_type }} ${{ matrix.arch }} with MSVC runtime ${{ matrix.msvc_runtime }}
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       with:
         name: compiled_libs
         path: artifacts
@@ -82,7 +82,7 @@ jobs:
         cmake -G Ninja -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/artifacts/macos_$BUILD -DCMAKE_BUILD_TYPE=$BUILD ..
         ninja
         ninja install
-        ls $GITHUB_WORKSPACE/artifacts/macos_$BUILD
+        ls -l $GITHUB_WORKSPACE/artifacts/macos_$BUILD/
       env:
         BUILD: ${{ matrix.build_type }}
     - name: Compile BrainFlow for MacOS
@@ -93,7 +93,7 @@ jobs:
         cmake -G Ninja -DBUILD_BLUETOOTH=ON -DWARNINGS_AS_ERRORS=ON -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/artifacts/macos_$BUILD -DCMAKE_BUILD_TYPE=$BUILD ..
         ninja
         ninja install
-        ls $GITHUB_WORKSPACE/artifacts/macos_$BUILD
+        ls -l $GITHUB_WORKSPACE/artifacts/macos_$BUILD/
       env:
         BUILD: ${{ matrix.build_type }}
     - name: Compile BrainFlow in ManyLinux
@@ -101,10 +101,11 @@ jobs:
       run: |
         docker pull dockcross/manylinux2014-x64:20210708-94745ff
         docker run -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -e BUILD=$BUILD -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE dockcross/manylinux2014-x64:20210708-94745ff /bin/bash -c "yum install -y bluez-libs-devel dbus-devel && /opt/python/cp36-cp36m/bin/pip3.6 install cmake==3.21.4 && cd $GITHUB_WORKSPACE && mkdir build_docker && cd build_docker && /opt/_internal/cpython-3.6.14/bin/cmake -DBUILD_BLE=ON -DBUILD_BLUETOOTH=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/artifacts/linux_${BUILD} -DCMAKE_BUILD_TYPE=$BUILD .. && make && make install"
+      
       env:
         BUILD: ${{ matrix.build_type }}
     - name: Upload Artifacts
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       with:
         name: compiled_libs
         path: artifacts

@@ -73,8 +73,6 @@ set(SIMPLEBLE_C_SRC
 # Define targets
 add_library(simpleble ${SIMPLEBLE_SRC})
 add_library(${SIMPLEBLE-C} SHARED  ${SIMPLEBLE_C_SRC})
-add_library(simpleble::simpleble ALIAS simpleble)
-add_library(simpleble::simpleble-c ALIAS ${SIMPLEBLE-C})
 
 set_target_properties(simpleble PROPERTIES
     CXX_VISIBILITY_PRESET hidden
@@ -96,8 +94,6 @@ set_target_properties(${SIMPLEBLE-C} PROPERTIES
     CXX_EXTENSIONS NO
     POSITION_INDEPENDENT_CODE ON
     DEFINE_SYMBOL simpleble_EXPORTS # Use the same symbol as simpleble
-    VERSION "${PROJECT_VERSION}"
-    SOVERSION "${PROJECT_VERSION_MAJOR}"
     ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled)
@@ -128,7 +124,7 @@ target_include_directories(${SIMPLEBLE-C} SYSTEM PUBLIC
 # Configure linked libraries
 target_link_libraries(simpleble PRIVATE $<BUILD_INTERFACE:fmt::fmt-header-only>)
 target_link_libraries(${SIMPLEBLE-C} PRIVATE $<BUILD_INTERFACE:fmt::fmt-header-only>)
-target_link_libraries(${SIMPLEBLE-C} PRIVATE simpleble::simpleble)
+target_link_libraries(${SIMPLEBLE-C} PRIVATE simpleble)
 
 append_sanitize_options("${SIMPLEBLE_SANITIZE}")
 
@@ -284,7 +280,7 @@ if(SIMPLEBLE_TEST)
         POSITION_INDEPENDENT_CODE ON
         WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
-    target_link_libraries(simpleble_test PRIVATE simpleble::simpleble GTest::gtest)
+    target_link_libraries(simpleble_test PRIVATE simpleble GTest::gtest)
 endif()
 
 if (MSVC)
