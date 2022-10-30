@@ -54,8 +54,8 @@ jobs:
     - name: Compile SimpleBLE MacOS
       if: (matrix.os == 'macos-11.0')
       run: |
-        mkdir $GITHUB_WORKSPACE/third_party/SimpleBLE/build
-        cd $GITHUB_WORKSPACE/third_party/SimpleBLE/build
+        mkdir $GITHUB_WORKSPACE/third_party/SimpleBLE/simpleble/build
+        cd $GITHUB_WORKSPACE/third_party/SimpleBLE/simpleble/build
         cmake -G Ninja -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
         ninja
         ninja install

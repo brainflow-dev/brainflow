@@ -96,7 +96,7 @@ if (BUILD_BLUETOOTH)
 endif (BUILD_BLUETOOTH)
 
 if (BUILD_BLE)
-    add_subdirectory (${CMAKE_HOME_DIRECTORY}/third_party/SimpleBLE)
+    add_subdirectory (${CMAKE_HOME_DIRECTORY}/third_party/SimpleBLE/simpleble)
 endif (BUILD_BLE)
 
 add_library (
@@ -130,7 +130,7 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/third_party/ant_neuro
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ant_neuro/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/enophone/inc
-    ${CMAKE_HOME_DIRECTORY}/third_party/SimpleBLE/include
+    ${CMAKE_HOME_DIRECTORY}/third_party/SimpleBLE/simpleble/include
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/brainalive/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/mentalab/inc
 )

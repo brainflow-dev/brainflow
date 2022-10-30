@@ -84,7 +84,7 @@ int GanglionNative::prepare_session ()
     }
     else
     {
-        safe_logger (spdlog::level::err, "Failed to find GanglionNative Device");
+        safe_logger (spdlog::level::err, "Failed to find Ganglion Device");
         res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     }
     simpleble_adapter_scan_stop (ganglion_adapter);
@@ -127,31 +127,31 @@ int GanglionNative::prepare_session ()
             for (size_t j = 0; j < service.characteristic_count; j++)
             {
                 safe_logger (spdlog::level::trace, "found characteristic {}",
-                    service.characteristics[j].value);
+                    service.characteristics[j].uuid.value);
 
-                if (strcmp (service.characteristics[j].value,
+                if (strcmp (service.characteristics[j].uuid.value,
                         GANGLION_WRITE_CHAR) == 0) // Write Characteristics
                 {
                     write_characteristics = std::pair<simpleble_uuid_t, simpleble_uuid_t> (
-                        service.uuid, service.characteristics[j]);
+                        service.uuid, service.characteristics[j].uuid);
                     num_chars_found++;
                 }
-                if (strcmp (service.characteristics[j].value,
+                if (strcmp (service.characteristics[j].uuid.value,
                         GANGLION_NOTIFY_CHAR) == 0) // Notification Characteristics
                 {
                     if (simpleble_peripheral_notify (ganglion_peripheral, service.uuid,
-                            service.characteristics[j], ::ganglion_read_notifications,
+                            service.characteristics[j].uuid, ::ganglion_read_notifications,
                             (void *)this) == SIMPLEBLE_SUCCESS)
                     {
 
                         notified_characteristics = std::pair<simpleble_uuid_t, simpleble_uuid_t> (
-                            service.uuid, service.characteristics[j]);
+                            service.uuid, service.characteristics[j].uuid);
                         num_chars_found++;
                     }
                     else
                     {
                         safe_logger (spdlog::level::err, "Failed to notify for {} {}",
-                            service.uuid.value, service.characteristics[j].value);
+                            service.uuid.value, service.characteristics[j].uuid.value);
                         res = (int)BrainFlowExitCodes::GENERAL_ERROR;
                     }
                 }

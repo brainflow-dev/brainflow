@@ -1,0 +1,35 @@
+name: CI Docs
+
+on: [push, pull_request]
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install OS Dependencies
+        run: |
+          sudo -H apt-get update -y
+          sudo -H apt-get install -y doxygen libdbus-1-dev
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r docs/requirements.txt
+
+      - name: Build Docs
+        working-directory: docs
+        run: make html
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          path: docs/_build/*
+          name: docs

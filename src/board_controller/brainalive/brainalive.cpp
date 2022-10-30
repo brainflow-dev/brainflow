@@ -135,31 +135,31 @@ int BrainAlive::prepare_session ()
             for (size_t j = 0; j < service.characteristic_count; j++)
             {
                 safe_logger (spdlog::level::trace, "found characteristic {}",
-                    service.characteristics[j].value);
+                    service.characteristics[j].uuid.value);
 
-                if (strcmp (service.characteristics[j].value,
+                if (strcmp (service.characteristics[j].uuid.value,
                         BRAINALIVE_WRITE_CHAR) == 0) // Write Characteristics
                 {
                     write_characteristics = std::pair<simpleble_uuid_t, simpleble_uuid_t> (
-                        service.uuid, service.characteristics[j]);
+                        service.uuid, service.characteristics[j].uuid);
                     control_characteristics_found = true;
                     safe_logger (spdlog::level::info, "found control characteristic");
                 }
-                if (strcmp (service.characteristics[j].value,
+                if (strcmp (service.characteristics[j].uuid.value,
                         BRAINALIVE_NOTIFY_CHAR) == 0) // Notification Characteristics
                 {
                     if (simpleble_peripheral_notify (brainalive_peripheral, service.uuid,
-                            service.characteristics[j], ::brainalive_read_notifications,
+                            service.characteristics[j].uuid, ::brainalive_read_notifications,
                             (void *)this) == SIMPLEBLE_SUCCESS)
                     {
 
                         notified_characteristics = std::pair<simpleble_uuid_t, simpleble_uuid_t> (
-                            service.uuid, service.characteristics[j]);
+                            service.uuid, service.characteristics[j].uuid);
                     }
                     else
                     {
                         safe_logger (spdlog::level::err, "Failed to notify for {} {}",
-                            service.uuid.value, service.characteristics[j].value);
+                            service.uuid.value, service.characteristics[j].uuid.value);
                         res = (int)BrainFlowExitCodes::GENERAL_ERROR;
                     }
                 }
