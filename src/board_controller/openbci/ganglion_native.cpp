@@ -143,7 +143,6 @@ int GanglionNative::prepare_session ()
                             service.characteristics[j].uuid, ::ganglion_read_notifications,
                             (void *)this) == SIMPLEBLE_SUCCESS)
                     {
-
                         notified_characteristics = std::pair<simpleble_uuid_t, simpleble_uuid_t> (
                             service.uuid, service.characteristics[j].uuid);
                         num_chars_found++;
@@ -186,11 +185,10 @@ int GanglionNative::start_stream (int buffer_size, const char *streamer_params)
     int res = prepare_for_acquisition (buffer_size, streamer_params);
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        res = config_board (start_command);
+        res = send_command (start_command);
     }
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        safe_logger (spdlog::level::debug, "Start command Send 0x8000000d");
         is_streaming = true;
     }
 
@@ -206,23 +204,11 @@ int GanglionNative::stop_stream ()
     int res = (int)BrainFlowExitCodes::STATUS_OK;
     if (is_streaming)
     {
-        res = config_board (stop_command);
-
-        if (simpleble_peripheral_unsubscribe (ganglion_peripheral, notified_characteristics.first,
-                notified_characteristics.second) != SIMPLEBLE_SUCCESS)
-        {
-            safe_logger (spdlog::level::err, "failed to unsubscribe for {} {}",
-                notified_characteristics.first.value, notified_characteristics.second.value);
-            res = (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
-        }
-        else
-        {
-            safe_logger (spdlog::level::debug, "Stop command sent");
-        }
+        res = send_command (stop_command);
     }
     else
     {
-        res = (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
+        res = (int)BrainFlowExitCodes::STREAM_THREAD_IS_NOT_RUNNING;
     }
     is_streaming = false;
     return res;
@@ -233,6 +219,19 @@ int GanglionNative::release_session ()
     if (initialized)
     {
         stop_stream ();
+        // need to wait for notifications to stop triggered before unsubscribing, otherwise macos
+        // fails inside simpleble with timeout
+#ifdef _WIN32
+        Sleep (2000);
+#else
+        sleep (2);
+#endif
+        if (simpleble_peripheral_unsubscribe (ganglion_peripheral, notified_characteristics.first,
+                notified_characteristics.second) != SIMPLEBLE_SUCCESS)
+        {
+            safe_logger (spdlog::level::err, "failed to unsubscribe for {} {}",
+                notified_characteristics.first.value, notified_characteristics.second.value);
+        }
         free_packages ();
         initialized = false;
     }
@@ -265,6 +264,64 @@ int GanglionNative::config_board (std::string config, std::string &response)
 }
 
 int GanglionNative::config_board (std::string config)
+{
+    if (!initialized)
+    {
+        return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
+    }
+    if (config.empty ())
+    {
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    int res = (int)BrainFlowExitCodes::STATUS_OK;
+    if ((config[0] == 'z') || (config[0] == 'Z'))
+    {
+        bool was_streaming = is_streaming;
+        if (was_streaming)
+        {
+            safe_logger (spdlog::level::trace,
+                "disabling streaming to turn on or off impedance, stop command is: {}",
+                stop_command.c_str ());
+            res = send_command (stop_command);
+            if (res == (int)BrainFlowExitCodes::STATUS_OK)
+            {
+                is_streaming = false;
+            }
+        }
+        if (config[0] == 'z')
+        {
+            start_command = "z";
+            stop_command = "Z";
+        }
+        else if (config[0] == 'Z')
+        {
+            start_command = "b";
+            stop_command = "s";
+        }
+        if (was_streaming)
+        {
+            if (res == (int)BrainFlowExitCodes::STATUS_OK)
+            {
+                safe_logger (spdlog::level::trace,
+                    "enabling streaming to turn on or off impedance, start command is: {}",
+                    start_command.c_str ());
+                res = send_command (start_command);
+            }
+            if (res == (int)BrainFlowExitCodes::STATUS_OK)
+            {
+                is_streaming = true;
+            }
+        }
+    }
+    else
+    {
+        res = send_command (config);
+    }
+    return res;
+}
+
+int GanglionNative::send_command (std::string config)
 {
     if (!initialized)
     {
@@ -340,7 +397,7 @@ void GanglionNative::adapter_1_on_scan_found (
 void GanglionNative::read_data (
     simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data, size_t size)
 {
-    if (size != 20)
+    if (size < 2)
     {
         safe_logger (spdlog::level::warn, "unexpected number of bytes received: {}", size);
         return;
@@ -362,7 +419,7 @@ void GanglionNative::read_data (
     }
 
     // no compression, used to init variable
-    if (data[0] == 0)
+    if ((data[0] == 0) && (size == 20))
     {
         // shift the last data packet to make room for a newer one
         temp_data.last_data[0] = temp_data.last_data[4];
@@ -395,7 +452,7 @@ void GanglionNative::read_data (
         return;
     }
     // 18 bit compression, sends delta from previous value instead of real value!
-    else if ((data[0] >= 1) && (data[0] <= 100))
+    else if ((data[0] >= 1) && (data[0] <= 100) && (size == 20))
     {
         int last_digit = data[0] % 10;
         switch (last_digit)
@@ -416,7 +473,7 @@ void GanglionNative::read_data (
         }
         bits_per_num = 18;
     }
-    else if ((data[0] >= 101) && (data[0] <= 200))
+    else if ((data[0] >= 101) && (data[0] <= 200) && (size == 20))
     {
         bits_per_num = 19;
     }

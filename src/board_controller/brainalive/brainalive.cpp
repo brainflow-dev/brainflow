@@ -208,18 +208,6 @@ int BrainAlive::stop_stream ()
     if (is_streaming)
     {
         res = config_board ("0a4000000d");
-
-        if (simpleble_peripheral_unsubscribe (brainalive_peripheral, notified_characteristics.first,
-                notified_characteristics.second) != SIMPLEBLE_SUCCESS)
-        {
-            safe_logger (spdlog::level::err, "failed to unsubscribe for {} {}",
-                notified_characteristics.first.value, notified_characteristics.second.value);
-            res = (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
-        }
-        else
-        {
-            safe_logger (spdlog::level::debug, "Stop command sent");
-        }
     }
     else
     {
@@ -234,6 +222,19 @@ int BrainAlive::release_session ()
     if (initialized)
     {
         stop_stream ();
+        // need to wait for notifications to stop triggered before unsubscribing, otherwise macos
+        // fails inside simpleble with timeout
+#ifdef _WIN32
+        Sleep (2000);
+#else
+        sleep (2);
+#endif
+        if (simpleble_peripheral_unsubscribe (brainalive_peripheral, notified_characteristics.first,
+                notified_characteristics.second) != SIMPLEBLE_SUCCESS)
+        {
+            safe_logger (spdlog::level::err, "failed to unsubscribe for {} {}",
+                notified_characteristics.first.value, notified_characteristics.second.value);
+        }
         free_packages ();
         initialized = false;
     }

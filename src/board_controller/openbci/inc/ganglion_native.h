@@ -90,6 +90,7 @@ public:
     int release_session ();
     int config_board (std::string config, std::string &response);
     int config_board (std::string config);
+    int send_command (std::string config);
 
     void adapter_1_on_scan_found (simpleble_adapter_t adapter, simpleble_peripheral_t peripheral);
     void read_data (

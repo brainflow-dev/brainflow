@@ -448,23 +448,6 @@ int Muse::stop_stream ()
     if (is_streaming)
     {
         res = config_board ("h");
-        // need to wait for notifications to stop triggered before unsubscribing, otherwise macos
-        // fails inside simpleble with timeout
-#ifdef _WIN32
-        Sleep (1000);
-#else
-        sleep (1);
-#endif
-        for (auto notified : notified_characteristics)
-        {
-            if (simpleble_peripheral_unsubscribe (
-                    muse_peripheral, notified.first, notified.second) != SIMPLEBLE_SUCCESS)
-            {
-                safe_logger (spdlog::level::err, "failed to unsubscribe for {} {}",
-                    notified.first.value, notified.second.value);
-                res = (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
-            }
-        }
     }
     else
     {
@@ -483,6 +466,22 @@ int Muse::release_session ()
     if (initialized)
     {
         stop_stream ();
+        // need to wait for notifications to stop triggered before unsubscribing, otherwise macos
+        // fails inside simpleble with timeout
+#ifdef _WIN32
+        Sleep (2000);
+#else
+        sleep (2);
+#endif
+        for (auto notified : notified_characteristics)
+        {
+            if (simpleble_peripheral_unsubscribe (
+                    muse_peripheral, notified.first, notified.second) != SIMPLEBLE_SUCCESS)
+            {
+                safe_logger (spdlog::level::err, "failed to unsubscribe for {} {}",
+                    notified.first.value, notified.second.value);
+            }
+        }
         free_packages ();
         initialized = false;
     }
