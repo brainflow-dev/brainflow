@@ -25,6 +25,7 @@ int main (int argc, char *argv[])
     int board_id = (int)BoardIds::SYNTHETIC_BOARD;
     // use synthetic board for demo
     BoardShim *board = new BoardShim (board_id, params);
+    double *peaks = NULL;
 
     try
     {
@@ -32,16 +33,16 @@ int main (int argc, char *argv[])
         board->start_stream ();
 
 #ifdef _WIN32
-        Sleep (5000);
+        Sleep (15000);
 #else
-        sleep (5);
+        sleep (15);
 #endif
 
         board->stop_stream ();
         BrainFlowArray<double, 2> data = board->get_board_data ();
         board->release_session ();
 
-        double *peaks = new double[data.get_size (1)];
+        peaks = new double[data.get_size (1)];
         std::vector<int> eeg_channels = BoardShim::get_eeg_channels (board_id);
 
         for (int i = 0; i < eeg_channels.size (); i++)
@@ -51,7 +52,6 @@ int main (int argc, char *argv[])
                 peaks);
             DataFilter::detect_peaks_z_score (peaks, data.get_size (1), 20, 3.5, 0.0, peaks);
         }
-        delete[] peaks;
     }
     catch (const BrainFlowException &err)
     {
@@ -63,6 +63,8 @@ int main (int argc, char *argv[])
         }
     }
 
+    if (peaks != NULL)
+        delete[] peaks;
     delete board;
 
     return res;
