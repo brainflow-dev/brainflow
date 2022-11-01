@@ -9,15 +9,14 @@ def main():
     params = BrainFlowInputParams()
     board = BoardShim(BoardIds.GANGLION_NATIVE_BOARD.value, params)
     board.prepare_session()
-    for i in range(2):
-        # expected result: 5 seconds of resistance data(unknown sampling rate) after that 5 seconds of exg data
-        board.config_board('z')
-        board.start_stream(45000, f'file://raw_data_{i}.csv:w')
-        time.sleep(5)
-        board.config_board('Z')
-        time.sleep(5)
-        data = board.get_board_data()
-        board.stop_stream()
+    # expected result: 5 seconds of resistance data(unknown sampling rate) after that 5 seconds of exg data
+    board.config_board('z')
+    board.start_stream(45000, f'file://raw_data.csv:w')
+    time.sleep(5)
+    board.config_board('Z')
+    time.sleep(5)
+    data = board.get_board_data()
+    board.stop_stream()
     board.release_session()
 
     print(data)
