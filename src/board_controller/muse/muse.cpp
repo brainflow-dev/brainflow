@@ -465,21 +465,25 @@ int Muse::release_session ()
 {
     if (initialized)
     {
-        stop_stream ();
-        // need to wait for notifications to stop triggered before unsubscribing, otherwise macos
-        // fails inside simpleble with timeout
-#ifdef _WIN32
-        Sleep (2000);
-#else
-        sleep (2);
-#endif
-        for (auto notified : notified_characteristics)
+        // repeat it multiple times, failure here may lead to a crash
+        for (int i = 0; i < 2; i++)
         {
-            if (simpleble_peripheral_unsubscribe (
-                    muse_peripheral, notified.first, notified.second) != SIMPLEBLE_SUCCESS)
+            stop_stream ();
+            // need to wait for notifications to stop triggered before unsubscribing, otherwise
+            // macos fails inside simpleble with timeout
+#ifdef _WIN32
+            Sleep (2000);
+#else
+            sleep (2);
+#endif
+            for (auto notified : notified_characteristics)
             {
-                safe_logger (spdlog::level::err, "failed to unsubscribe for {} {}",
-                    notified.first.value, notified.second.value);
+                if (simpleble_peripheral_unsubscribe (
+                        muse_peripheral, notified.first, notified.second) != SIMPLEBLE_SUCCESS)
+                {
+                    safe_logger (spdlog::level::err, "failed to unsubscribe for {} {}",
+                        notified.first.value, notified.second.value);
+                }
             }
         }
         free_packages ();

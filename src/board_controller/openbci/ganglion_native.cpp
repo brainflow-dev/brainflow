@@ -218,19 +218,28 @@ int GanglionNative::release_session ()
 {
     if (initialized)
     {
-        stop_stream ();
-        // need to wait for notifications to stop triggered before unsubscribing, otherwise macos
-        // fails inside simpleble with timeout
-#ifdef _WIN32
-        Sleep (2000);
-#else
-        sleep (2);
-#endif
-        if (simpleble_peripheral_unsubscribe (ganglion_peripheral, notified_characteristics.first,
-                notified_characteristics.second) != SIMPLEBLE_SUCCESS)
+        // repeat it multiple times, failure here may lead to a crash
+        for (int i = 0; i < 2; i++)
         {
-            safe_logger (spdlog::level::err, "failed to unsubscribe for {} {}",
-                notified_characteristics.first.value, notified_characteristics.second.value);
+            stop_stream ();
+            // need to wait for notifications to stop triggered before unsubscribing, otherwise
+            // macos fails inside simpleble with timeout
+#ifdef _WIN32
+            Sleep (2000);
+#else
+            sleep (2);
+#endif
+            if (simpleble_peripheral_unsubscribe (ganglion_peripheral,
+                    notified_characteristics.first,
+                    notified_characteristics.second) != SIMPLEBLE_SUCCESS)
+            {
+                safe_logger (spdlog::level::err, "failed to unsubscribe for {} {}",
+                    notified_characteristics.first.value, notified_characteristics.second.value);
+            }
+            else
+            {
+                break;
+            }
         }
         free_packages ();
         initialized = false;
