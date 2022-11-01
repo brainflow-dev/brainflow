@@ -3,7 +3,7 @@ layout: post
 title: OpenBCI Galea with BrainFlow
 subtitle: OpenBCI Galea device developed in collaboration with Valve corporation will use BrainFlow SDK
 image: /img/galea.jpg
-tags: [new_device]
+tags: [release]
 author: andrey_parfenov
 ---
 

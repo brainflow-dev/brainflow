@@ -2,7 +2,7 @@
 layout: post
 title: Real Time Plotting with BrainFlow
 image: /img/real_time.png
-tags: [example, apps, tutorial]
+tags: [apps, tutorial]
 author: andrey_parfenov
 ---
 

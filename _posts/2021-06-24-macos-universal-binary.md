@@ -3,7 +3,7 @@ layout: post
 title: BrainFlow 4.3.1
 subtitle: Add support for Apple M1
 image: /img/m1.jpg
-tags: [release, macos]
+tags: [release]
 author: andrey_parfenov
 ---
 
