@@ -25,6 +25,7 @@ CLASSIFICATION WITH LARYNGEAL IMAGERY](https://arxiv.org/pdf/2107.00045.pdf)
 * [Gashi, S., Min, C., Montanari, A. et al. A multidevice and multimodal dataset for human energy expenditure estimation using wearable devices. Sci Data 9, 537 (2022). https://doi.org/10.1038/s41597-022-01643-5](https://www.nature.com/articles/s41597-022-01643-5)
 * [S. D. Perur, H. H. Kenchannavar and M. A. Sheikh, "Analysis Of EEG Signals Using Open BCI To Predict The Stress Level," 2022 IEEE India Council International Subsections Conference (INDISCON), 2022, pp. 1-6, doi: 10.1109/INDISCON54605.2022.9862906.](https://ieeexplore.ieee.org/abstract/document/9862906)
 * [A. G. Kremenska, A. K. Lekova and G. P. Dimitrov, "EEG Brain-Computer Interfaces for Internet of Everything (IoE)," 2022 International Conference on Information Technologies (InfoTech), 2022, pp. 1-6, doi: 10.1109/InfoTech55606.2022.9897097.](https://ieeexplore.ieee.org/abstract/document/9897097)
+* [E. Ertekin, B. B. Günden, Y. Yilmaz, A. Sayar, T. Çakar and S. Ş. Arslan, "EMG-based BCI for PiCar Mobilization," 2022 7th International Conference on Computer Science and Engineering (UBMK), 2022, pp. 496-500, doi: 10.1109/UBMK55850.2022.9919502.](https://ieeexplore.ieee.org/abstract/document/9919502)
 
 ## Posts
 
