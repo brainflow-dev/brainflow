@@ -44,11 +44,12 @@ classdef BoardIds < int32
         ENOPHONE_BOARD(37)
         MUSE_2_BOARD(38)
         MUSE_S_BOARD(39)
-        BRAINALIVE_BOARD (40)
-        MUSE_2016_BOARD (41)
-        MUSE_2016_BLED_BOARD (42)
-        PIEEG_BOARD (43)
-        EXPLORE_4_CHAN_BOARD (44)
-        EXPLORE_8_CHAN_BOARD (45)
+        BRAINALIVE_BOARD(40)
+        MUSE_2016_BOARD(41)
+        MUSE_2016_BLED_BOARD(42)
+        PIEEG_BOARD(43)
+        EXPLORE_4_CHAN_BOARD(44)
+        EXPLORE_8_CHAN_BOARD(45)
+        GANGLION_NATIVE_BOARD(46)
     end
 end

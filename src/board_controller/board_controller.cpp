@@ -37,6 +37,7 @@
 #include "galea.h"
 #include "galea_serial.h"
 #include "ganglion.h"
+#include "ganglion_native.h"
 #include "ganglion_wifi.h"
 #include "gforce_dual.h"
 #include "gforce_pro.h"
@@ -247,6 +248,9 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
             break;
         case BoardIds::EXPLORE_8_CHAN_BOARD:
             board = std::shared_ptr<Board> (new Explore (board_id, params));
+            break;
+        case BoardIds::GANGLION_NATIVE_BOARD:
+            board = std::shared_ptr<Board> (new GanglionNative (params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

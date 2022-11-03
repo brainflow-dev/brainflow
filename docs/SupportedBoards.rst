@@ -223,6 +223,41 @@ Supported platforms:
 - MacOS
 - Devices like Raspberry Pi
 
+Ganglion Native
+~~~~~~~~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/48288408326_7f078cd2eb.jpg
+    :width: 400px
+    :height: 230px
+
+`Ganglion Getting Started Guide from OpenBCI <https://docs.openbci.com/GettingStarted/Boards/GanglionGS/>`_
+
+Unlike Ganglion board this BrainFlow board does not use BLED112 dongle, so you need to have BLE support on your device in order to use it.
+
+To create such board you need to specify the following board ID and fields of BrainFlowInputParams object:
+
+- :code:`BoardIds.GANGLION_NATIVE_BOARD`
+- *optoinal:* :code:`mac_address`, if not provided BrainFlow will try to autodiscover the device
+
+Initialization Example:
+
+.. code-block:: python
+
+    params = BrainFlowInputParams()
+    board = BoardShim(BoardIds.GANGLION_NATIVE_BOARD, params)
+
+To get Ganglion's MAC address you can use:
+
+- Windows: `Bluetooth LE Explorer App <https://www.microsoft.com/en-us/p/bluetooth-le-explorer/9n0ztkf1qd98?activetab=pivot:overviewtab>`_
+- Linux: hcitool command
+
+Supported platforms:
+
+- Windows >= 8.1
+- Linux
+- MacOS
+- Devices like Raspberry Pi
+
 Cyton Daisy
 ~~~~~~~~~~~~
 
