@@ -2,7 +2,6 @@
 layout: post
 title: Roadmap for Rust
 image: /img/rust.jpg
-tags: [roadmap]
 author: andrey_parfenov
 ---
 
