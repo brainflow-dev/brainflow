@@ -160,8 +160,6 @@ int GanglionNative::prepare_session ()
 
     if ((res == (int)BrainFlowExitCodes::STATUS_OK) && (num_chars_found == 2))
     {
-        safe_logger (
-            spdlog::level::warn, "res is: {}, num characteristics found: {}", res, num_chars_found);
         initialized = true;
     }
     else
