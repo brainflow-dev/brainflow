@@ -17,11 +17,12 @@ echo debconf apt-fast/dlflag boolean true | debconf-set-selections && \
 echo debconf apt-fast/aptmanager string apt-get | debconf-set-selections && \
 apt-fast -yqq upgrade
 # Installing Dependencies
-RUN apt-fast -yqq install python3 python3-pip python3-venv openjdk-13-jdk git curl wget build-essential cmake python3-jira r-base rustc cargo nuget nuget mono-devel mono-complete monodevelop libxml2-dev libbluetooth-dev libdbus-1-dev
+RUN apt-fast -yqq install python3 python3-pip python3-venv openjdk-13-jdk git curl wget build-essential python3-jira r-base rustc cargo nuget nuget mono-devel mono-complete monodevelop libxml2-dev libbluetooth-dev libdbus-1-dev
 RUN mkdir -p /root/local/bin
 WORKDIR /root/local/bin
 # install latest cmake
-RUN mkdir -p /opt/cmake && wget https://github.com/Kitware/CMake/releases/download/v3.24.3/cmake-3.24.3-linux-x86_64.sh && sh cmake-3.24.3-linux-x86_64.sh --prefix=/opt/cmake --skip-license && export PATH=/opt/cmake/bin:$PATH
+RUN mkdir -p /opt/cmake && wget https://github.com/Kitware/CMake/releases/download/v3.24.3/cmake-3.24.3-linux-x86_64.sh && sh cmake-3.24.3-linux-x86_64.sh --prefix=/opt/cmake --skip-license
+RUN export PATH=/opt/cmake/bin/:$PATH
 # Installing Maven and Julia
 RUN curl "https://miroir.univ-lorraine.fr/apache/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz" -o maven.tar.gz
 RUN mkdir -p maven
