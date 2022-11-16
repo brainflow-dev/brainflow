@@ -48,19 +48,19 @@ protected:
             return (int)OpenBCICommandTypes::INVALID_COMMAND;
         }
         // power check
-        if ((command.at (1) != '0') && (command.at (1) != '1'))
+        if ((command.at (2) != '0') && (command.at (2) != '1'))
         {
             return (int)OpenBCICommandTypes::INVALID_COMMAND;
         }
         // channel check
         auto channel_it =
-            std::find (channel_letters.begin (), channel_letters.end (), command.at (2));
+            std::find (channel_letters.begin (), channel_letters.end (), command.at (1));
         if (channel_it == channel_letters.end ())
         {
             return (int)OpenBCICommandTypes::INVALID_COMMAND;
         }
         size_t index = std::distance (channel_letters.begin (), channel_it);
-        if (index > current_gains.size ())
+        if (index >= current_gains.size ())
         {
             return (int)OpenBCICommandTypes::INVALID_COMMAND;
         }
@@ -91,7 +91,7 @@ public:
         {
             if (config.at (i) == 'x')
             {
-                if ((config.size () > i + single_command_size) &&
+                if ((config.size () >= i + single_command_size) &&
                     (config.at (i + single_command_size - 1) == 'X'))
                 {
                     res = apply_single_command (config.substr (i, single_command_size));
@@ -114,7 +114,7 @@ public:
     {
         if (channel > (int)current_gains.size ())
         {
-            return 0; // should never happen
+            return 1; // should never happen
         }
         return current_gains[channel];
     }
