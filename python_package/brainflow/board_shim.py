@@ -67,6 +67,7 @@ class BoardIds(enum.IntEnum):
     EXPLORE_4_CHAN_BOARD = 44  #:
     EXPLORE_8_CHAN_BOARD = 45  #:
     GANGLION_NATIVE_BOARD = 46  #:
+    EMOTIBIT_BOARD = 47  #:
 
 
 class IpProtocolTypes(enum.IntEnum):

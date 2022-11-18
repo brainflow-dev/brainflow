@@ -100,10 +100,11 @@ int SocketClientUDP::connect ()
     }
     socket_addr.sin_family = AF_INET;
     socket_addr.sin_port = htons (port);
-    if (inet_pton (AF_INET, ip_addr, &socket_addr.sin_addr) == 0)
-    {
-        return (int)SocketClientUDPReturnCodes::PTON_ERROR;
-    }
+    socket_addr.sin_addr.s_addr = htonl (INADDR_ANY);
+    // if (inet_pton (AF_INET, ip_addr, &socket_addr.sin_addr) == 0)
+    //{
+    //    return (int)SocketClientUDPReturnCodes::PTON_ERROR;
+    //}
     connect_socket = socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (connect_socket == INVALID_SOCKET)
     {
