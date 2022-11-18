@@ -137,6 +137,12 @@ int GaleaSerial::config_board (std::string conf, std::string &response)
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
 
+    if (gain_tracker.apply_config (conf) == (int)OpenBCICommandTypes::INVALID_COMMAND)
+    {
+        safe_logger (spdlog::level::warn, "invalid command: {}", conf.c_str ());
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
     std::string new_conf = conf + "\n";
     int len = (int)new_conf.size ();
     safe_logger (spdlog::level::debug, "Trying to config GaleaSerial with {}", new_conf.c_str ());
@@ -144,14 +150,10 @@ int GaleaSerial::config_board (std::string conf, std::string &response)
     if (len != res)
     {
         safe_logger (spdlog::level::err, "Failed to config a board");
+        gain_tracker.revert_config ();
         return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
     }
-    if (gain_tracker.apply_config (conf) == (int)OpenBCICommandTypes::INVALID_COMMAND)
-    {
-        safe_logger (
-            spdlog::level::warn, "potentially invalid command sent to device: {}", conf.c_str ());
-        // dont throw exception
-    }
+
     if (is_streaming)
     {
         safe_logger (spdlog::level::warn,

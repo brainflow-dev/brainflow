@@ -128,12 +128,19 @@ int Galea::config_board (std::string conf, std::string &response)
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
 
+    if (gain_tracker.apply_config (conf) == (int)OpenBCICommandTypes::INVALID_COMMAND)
+    {
+        safe_logger (spdlog::level::warn, "invalid command: {}", conf.c_str ());
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
     const char *config = conf.c_str ();
     safe_logger (spdlog::level::debug, "Trying to config Galea with {}", config);
     int len = (int)strlen (config);
     int res = socket->send (config, len);
     if (len != res)
     {
+        gain_tracker.revert_config ();
         if (res == -1)
         {
 #ifdef _WIN32
@@ -145,12 +152,7 @@ int Galea::config_board (std::string conf, std::string &response)
         safe_logger (spdlog::level::err, "Failed to config a board");
         return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
     }
-    if (gain_tracker.apply_config (conf) == (int)OpenBCICommandTypes::INVALID_COMMAND)
-    {
-        safe_logger (
-            spdlog::level::warn, "potentially invalid command sent to device: {}", conf.c_str ());
-        // dont throw exception
-    }
+
     if (!is_streaming)
     {
         constexpr int max_string_size = 8192;

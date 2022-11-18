@@ -25,15 +25,15 @@ int CytonDaisyWifi::prepare_session ()
 
 int CytonDaisyWifi::config_board (std::string conf, std::string &response)
 {
-    int res = OpenBCIWifiShieldBoard::config_board (conf, response);
-    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    if (gain_tracker.apply_config (conf) == (int)OpenBCICommandTypes::INVALID_COMMAND)
     {
-        if (gain_tracker.apply_config (conf) == (int)OpenBCICommandTypes::INVALID_COMMAND)
-        {
-            safe_logger (spdlog::level::warn, "potentially invalid command sent to device: {}",
-                conf.c_str ());
-            // dont throw exception
-        }
+        safe_logger (spdlog::level::warn, "invalid command: {}", conf.c_str ());
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+    int res = OpenBCIWifiShieldBoard::config_board (conf, response);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        gain_tracker.revert_config ();
     }
     return res;
 }

@@ -20,6 +20,7 @@ protected:
     size_t single_command_size = 9;
     std::vector<char> channel_letters;
     std::vector<int> current_gains;
+    std::vector<int> old_gains;
     std::vector<int> available_gain_values;
 
     int apply_single_command (std::string command)
@@ -64,12 +65,14 @@ protected:
         {
             return (int)OpenBCICommandTypes::INVALID_COMMAND;
         }
+        old_gains[index] = current_gains[index];
         current_gains[index] = available_gain_values[command.at (3) - '0'];
         return (int)OpenBCICommandTypes::VALID_COMMAND;
     }
 
 public:
-    OpenBCIGainTracker (std::vector<int> default_gains) : current_gains (default_gains)
+    OpenBCIGainTracker (std::vector<int> default_gains)
+        : current_gains (default_gains), old_gains (default_gains)
     {
         channel_letters = std::vector<char> {
             '1', '2', '3', '4', '5', '6', '7', '8', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I'};
@@ -118,6 +121,11 @@ public:
         }
         return current_gains[channel];
     }
+
+    virtual void revert_config ()
+    {
+        std::copy (old_gains.begin (), old_gains.end (), current_gains.begin ());
+    }
 };
 
 class CytonGainTracker : public OpenBCIGainTracker
@@ -134,6 +142,7 @@ public:
             // restore default settings
             if (config.at (0) == 'd')
             {
+                std::copy (current_gains.begin (), current_gains.end (), old_gains.begin ());
                 std::fill (current_gains.begin (), current_gains.end (), 24);
             }
         }
@@ -157,6 +166,7 @@ public:
             // restore default settings
             if (config.at (0) == 'd')
             {
+                std::copy (current_gains.begin (), current_gains.end (), old_gains.begin ());
                 std::fill (current_gains.begin (), current_gains.end (), 24);
             }
         }
@@ -178,18 +188,26 @@ public:
         {
             if ((config.at (0) == 'f') || (config.at (0) == 'g'))
             {
+                std::copy (current_gains.begin (), current_gains.end (), old_gains.begin ());
                 std::fill (current_gains.begin (), current_gains.end (), 1);
             }
             if ((config.at (0) == 'o') || (config.at (0) == 'd'))
             {
+                std::copy (current_gains.begin (), current_gains.end (), old_gains.begin ());
                 for (size_t i = 0; i < current_gains.size (); i++)
                 {
                     if (i < 6)
+                    {
                         current_gains[i] = 4;
+                    }
                     else if ((i == 6) || (i == 7))
+                    {
                         current_gains[i] = 12;
+                    }
                     else
+                    {
                         current_gains[i] = 2;
+                    }
                 }
             }
         }
