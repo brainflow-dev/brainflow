@@ -126,16 +126,6 @@ int GaleaSerial::config_board (std::string conf, std::string &response)
         int res = calc_time (response);
         return res;
     }
-    if (conf == "start_dump_bytes")
-    {
-        dump_bytes = true;
-        return (int)BrainFlowExitCodes::STATUS_OK;
-    }
-    if (conf == "stop_dump_bytes")
-    {
-        dump_bytes = false;
-        return (int)BrainFlowExitCodes::STATUS_OK;
-    }
 
     if (gain_tracker.apply_config (conf) == (int)OpenBCICommandTypes::INVALID_COMMAND)
     {
@@ -317,8 +307,6 @@ void GaleaSerial::read_thread ()
         aux_package[i] = 0.0;
     }
 
-    std::ofstream raw_bytes_file ("raw_bytes_file.dat", std::ios::out | std::ios::binary);
-
     while (keep_alive)
     {
         // read and check first byte
@@ -353,10 +341,6 @@ void GaleaSerial::read_thread ()
         }
         else
         {
-            if (dump_bytes)
-            {
-                raw_bytes_file.write ((char *)b, transaction_size);
-            }
             if (this->state != (int)BrainFlowExitCodes::STATUS_OK)
             {
                 safe_logger (spdlog::level::info, "received first package streaming is started");
@@ -443,7 +427,6 @@ void GaleaSerial::read_thread ()
             }
         }
     }
-    raw_bytes_file.close ();
     delete[] exg_package;
     delete[] aux_package;
 }

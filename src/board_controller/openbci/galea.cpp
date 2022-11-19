@@ -1,8 +1,6 @@
 #include "galea.h"
 
 #include <chrono>
-#include <fstream>
-#include <iostream>
 #include <stdint.h>
 #include <string.h>
 
@@ -33,7 +31,6 @@ Galea::Galea (struct BrainFlowInputParams params) : Board ((int)BoardIds::GALEA_
     initialized = false;
     state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
     half_rtt = 0.0;
-    dump_bytes = false;
 }
 
 Galea::~Galea ()
@@ -116,16 +113,6 @@ int Galea::config_board (std::string conf, std::string &response)
         }
         int res = calc_time (response);
         return res;
-    }
-    if (conf == "start_dump_bytes")
-    {
-        dump_bytes = true;
-        return (int)BrainFlowExitCodes::STATUS_OK;
-    }
-    if (conf == "stop_dump_bytes")
-    {
-        dump_bytes = false;
-        return (int)BrainFlowExitCodes::STATUS_OK;
     }
 
     if (gain_tracker.apply_config (conf) == (int)OpenBCICommandTypes::INVALID_COMMAND)
@@ -376,8 +363,6 @@ void Galea::read_thread ()
         aux_package[i] = 0.0;
     }
 
-    std::ofstream raw_bytes_file ("raw_bytes_file.dat", std::ios::out | std::ios::binary);
-
     while (keep_alive)
     {
         res = socket->recv (b, Galea::transaction_size);
@@ -419,10 +404,6 @@ void Galea::read_thread ()
         }
         else
         {
-            if (dump_bytes)
-            {
-                raw_bytes_file.write ((char *)b, res);
-            }
             // inform main thread that everything is ok and first package was received
             if (this->state != (int)BrainFlowExitCodes::STATUS_OK)
             {
@@ -497,7 +478,6 @@ void Galea::read_thread ()
             }
         }
     }
-    raw_bytes_file.close ();
     delete[] exg_package;
     delete[] aux_package;
 }

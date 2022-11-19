@@ -17,7 +17,6 @@ class GaleaSerial : public Board
 
 private:
     volatile bool keep_alive;
-    volatile bool dump_bytes;
     bool initialized;
     bool is_streaming;
     std::thread streaming_thread;
