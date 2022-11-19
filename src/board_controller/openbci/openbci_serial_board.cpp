@@ -61,9 +61,7 @@ int OpenBCISerialBoard::config_board (std::string config, std::string &response)
         // read response if streaming is not running
         res = send_to_board (config.c_str (), response);
     }
-    safe_logger (spdlog::level::warn,
-        "If you change gain you may need to rescale data, in data returned by BrainFlow we use "
-        "gain 24 to convert int24 to uV");
+
     return res;
 }
 
