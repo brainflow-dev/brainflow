@@ -871,6 +871,39 @@ BrainFlowBoards::BrainFlowBoards()
         {"accel_channels", {5, 6, 7}},
         {"resistance_channels", {8, 9, 10, 11, 12}}
     };
+    // todo add other data types and check/fix sampling rates for them
+    brainflow_boards_json["boards"]["47"]["default"] =
+    {
+        {"name", "Emotibit"},
+        {"sampling_rate", 25}, // random value for now
+        {"package_num_channel", 0},
+        {"timestamp_channel", 10},
+        {"marker_channel", 11},
+        {"num_rows", 12},
+        {"accel_channels", {1, 2, 3}},
+        {"gyro_channels", {4, 5, 6}},
+        {"other_channels", {7, 8, 9}} // todo add get_magnetometer_channels
+    };
+    brainflow_boards_json["boards"]["47"]["auxiliary"] =
+    {
+        {"name", "Emotibit"},
+        {"sampling_rate", 15}, // random value for now
+        {"package_num_channel", 0},
+        {"timestamp_channel", 4},
+        {"marker_channel", 5},
+        {"num_rows", 6},
+        {"ppg_channels", {1, 2, 3}}
+    };
+    brainflow_boards_json["boards"]["47"]["ancillary"] =
+    {
+        {"name", "Emotibit"},
+        {"sampling_rate", 25}, // random value for now
+        {"package_num_channel", 0},
+        {"timestamp_channel", 2},
+        {"marker_channel", 3},
+        {"num_rows", 4},
+        {"eda_channels", {1}}
+    };
 }
 
 BrainFlowBoards boards_struct;

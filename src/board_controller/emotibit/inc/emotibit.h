@@ -1,7 +1,5 @@
 #pragma once
 
-#include <condition_variable>
-#include <mutex>
 #include <stdint.h>
 #include <string>
 #include <thread>
@@ -19,7 +17,6 @@ class Emotibit : public Board
 
 private:
     volatile bool keep_alive;
-    volatile int state;
 
     std::string ip_address;
     bool initialized;
@@ -29,6 +26,8 @@ private:
     BroadCastServer *advertise_socket_server;
     std::mutex m;
     std::condition_variable cv;
+    int control_port;
+    int data_port;
 
     void read_thread ();
 
@@ -36,7 +35,8 @@ private:
         const std::string &data, uint16_t data_length, uint8_t protocol_version = 1,
         uint8_t data_reliability = 100);
     std::string create_package (const std::string &type_tag, uint16_t packet_number,
-        const std::vector<std::string> &data, uint8_t protocol_version, uint8_t data_reliability);
+        const std::vector<std::string> &data, uint8_t protocol_version = 1,
+        uint8_t data_reliability = 100);
     std::string create_header (const std::string &type_tag, uint32_t timestamp,
         uint16_t packet_number, uint16_t data_length, uint8_t protocol_version = 1,
         uint8_t data_reliability = 100);
@@ -47,6 +47,9 @@ private:
     int create_adv_connection ();
     int create_data_connection ();
     int create_control_connection ();
+    int send_connect_msg ();
+    int send_disconnect_msg ();
+    int wait_for_connection ();
 
 public:
     Emotibit (struct BrainFlowInputParams params);

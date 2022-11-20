@@ -11,6 +11,8 @@
 
 #include "emotibit_defines.h"
 
+#include <iostream>
+
 using json = nlohmann::json;
 
 
@@ -22,7 +24,8 @@ Emotibit::Emotibit (struct BrainFlowInputParams params)
     advertise_socket_server = NULL;
     keep_alive = false;
     initialized = false;
-    state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
+    control_port = -1;
+    data_port = -1;
 }
 
 Emotibit::~Emotibit ()
@@ -52,6 +55,14 @@ int Emotibit::prepare_session ()
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
         res = create_control_connection ();
+    }
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        res = send_connect_msg ();
+    }
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        res = wait_for_connection ();
     }
 
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
@@ -98,6 +109,8 @@ int Emotibit::start_stream (int buffer_size, const char *streamer_params)
         safe_logger (spdlog::level::err, "Streaming thread already running");
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
+    keep_alive = true;
+    streaming_thread = std::thread ([this] { this->read_thread (); });
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
@@ -107,7 +120,6 @@ int Emotibit::stop_stream ()
     {
         keep_alive = false;
         streaming_thread.join ();
-        this->state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
     return (int)BrainFlowExitCodes::STREAM_THREAD_IS_NOT_RUNNING;
@@ -122,6 +134,7 @@ int Emotibit::release_session ()
             stop_stream ();
         }
         free_packages ();
+        send_disconnect_msg ();
         if (data_socket)
         {
             data_socket->close ();
@@ -140,6 +153,8 @@ int Emotibit::release_session ()
             delete advertise_socket_server;
             advertise_socket_server = NULL;
         }
+        control_port = -1;
+        data_port = -1;
         initialized = false;
     }
     return (int)BrainFlowExitCodes::STATUS_OK;
@@ -147,17 +162,73 @@ int Emotibit::release_session ()
 
 void Emotibit::read_thread ()
 {
+    constexpr int max_size = 32768;
+    char message[max_size];
+
+    int num_default_rows = board_descr["default"]["num_rows"];
+    double *default_package = new double[num_default_rows];
+    for (int i = 0; i < num_default_rows; i++)
+    {
+        default_package[i] = 0.0;
+    }
+    int num_aux_rows = board_descr["auxiliary"]["num_rows"];
+    double *aux_package = new double[num_aux_rows];
+    for (int i = 0; i < num_aux_rows; i++)
+    {
+        aux_package[i] = 0.0;
+    }
+    int num_anc_rows = board_descr["ancillary"]["num_rows"];
+    double *anc_package = new double[num_anc_rows];
+    for (int i = 0; i < num_aux_rows; i++)
+    {
+        anc_package[i] = 0.0;
+    }
+
     while (keep_alive)
     {
+        int bytes_recv = data_socket->recv (message, max_size);
+        if (bytes_recv < 1)
+        {
+            safe_logger (spdlog::level::trace, "no data received");
+            continue;
+        }
+        // todo remove
+        for (int i = 0; i < bytes_recv; i++)
+            std::cout << message[i] << " ";
+        std::cout << std::endl;
+        //
+        std::vector<std::string> splitted_packages =
+            split_string (std::string (message, bytes_recv), PACKET_DELIMITER_CSV);
+        for (std::string recv_package : splitted_packages)
+        {
+            int package_num = 0;
+            int data_len = 0;
+            std::string type_tag = "";
+            if (get_header (recv_package, &package_num, &data_len, type_tag))
+            {
+                // todo remove
+                safe_logger (spdlog::level::info, "header: {}, data_len: {}, num: {}",
+                    type_tag.c_str (), data_len, package_num);
+                // todo fill packages and push them
+            }
+            else
+            {
+                safe_logger (
+                    spdlog::level::trace, "invalid header for package");
+            }
+        }
     }
+    delete[] default_package;
+    delete[] aux_package;
+    delete[] anc_package;
 }
 
-std::string Emotibit::create_package (const std::string &type_tag, uint16_t packet_number,
+std::string Emotibit::create_package (const std::string &type_tag, uint16_t package_number,
     const std::string &data, uint16_t data_length, uint8_t protocol_version,
     uint8_t data_reliability)
 {
-    std::string header =
-        create_header (type_tag, 0, packet_number, data_length, protocol_version, data_reliability);
+    std::string header = create_header (
+        type_tag, 0, package_number, data_length, protocol_version, data_reliability);
     if (data_length == 0)
     {
         return header + PACKET_DELIMITER_CSV;
@@ -168,11 +239,11 @@ std::string Emotibit::create_package (const std::string &type_tag, uint16_t pack
     }
 }
 
-std::string Emotibit::create_package (const std::string &type_tag, uint16_t packet_number,
+std::string Emotibit::create_package (const std::string &type_tag, uint16_t package_number,
     const std::vector<std::string> &data, uint8_t protocol_version, uint8_t data_reliability)
 {
     std::string package = create_header (
-        type_tag, 0, packet_number, (uint16_t)data.size (), protocol_version, data_reliability);
+        type_tag, 0, package_number, (uint16_t)data.size (), protocol_version, data_reliability);
     for (std::string s : data)
     {
         package += PAYLOAD_DELIMITER + s;
@@ -182,13 +253,13 @@ std::string Emotibit::create_package (const std::string &type_tag, uint16_t pack
 }
 
 std::string Emotibit::create_header (const std::string &type_tag, uint32_t timestamp,
-    uint16_t packet_number, uint16_t data_length, uint8_t protocol_version,
+    uint16_t package_number, uint16_t data_length, uint8_t protocol_version,
     uint8_t data_reliability)
 {
     std::string header = "";
     header += std::to_string (timestamp);
     header += PAYLOAD_DELIMITER;
-    header += std::to_string (packet_number);
+    header += std::to_string (package_number);
     header += PAYLOAD_DELIMITER;
     header += std::to_string (data_length);
     header += PAYLOAD_DELIMITER;
@@ -337,11 +408,8 @@ int Emotibit::create_adv_connection ()
                     }
                     else
                     {
-                        for (int j = 0; j < bytes_recv; j++)
-                        {
-                            safe_logger (
-                                spdlog::level::trace, "byte {} {}", j, (unsigned char)recv_data[j]);
-                        }
+                        safe_logger (spdlog::level::trace, "invalid header, package is: {}",
+                            recv_package.c_str ());
                     }
                 }
             }
@@ -364,24 +432,17 @@ int Emotibit::create_data_connection ()
     int res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     for (int i = 2; i < 40; i += 2)
     {
-        int data_port = WIFI_ADVERTISING_PORT + i;
+        data_port = WIFI_ADVERTISING_PORT + i;
         data_socket = new SocketClientUDP (ip_address.c_str (), data_port);
-        if (data_socket->connect () == ((int)SocketClientUDPReturnCodes::STATUS_OK))
+        if (data_socket->bind () == ((int)SocketClientUDPReturnCodes::STATUS_OK))
         {
-            if (data_socket->bind () == ((int)SocketClientUDPReturnCodes::STATUS_OK))
-            {
-                safe_logger (spdlog::level::info, "use port {} for data", data_port);
-                res = (int)BrainFlowExitCodes::STATUS_OK;
-                break;
-            }
-            else
-            {
-                safe_logger (spdlog::level::warn, "failed to bind to {}", data_port);
-            }
+            safe_logger (spdlog::level::info, "use port {} for data", data_port);
+            res = (int)BrainFlowExitCodes::STATUS_OK;
+            break;
         }
         else
         {
-            safe_logger (spdlog::level::warn, "failed to connect to {}", data_port);
+            safe_logger (spdlog::level::warn, "failed to bind to {}", data_port);
         }
         data_socket->close ();
         delete data_socket;
@@ -405,7 +466,7 @@ int Emotibit::create_control_connection ()
     int res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     for (int i = 1; i < 39; i += 2)
     {
-        int control_port = WIFI_ADVERTISING_PORT + i;
+        control_port = WIFI_ADVERTISING_PORT + i;
         control_socket = new SocketServerTCP (local_ip, control_port, true);
         if (control_socket->bind () == ((int)SocketServerTCPReturnCodes::STATUS_OK))
         {
@@ -420,6 +481,96 @@ int Emotibit::create_control_connection ()
         control_socket->close ();
         delete control_socket;
         control_socket = NULL;
+    }
+    return res;
+}
+
+int Emotibit::send_connect_msg ()
+{
+    // should never happen
+    if ((control_port < 0) || (data_port < 0))
+    {
+        safe_logger (spdlog::level::info, "ports for data or control are not set");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+
+    std::vector<std::string> payload;
+    payload.push_back (CONTROL_PORT);
+    payload.push_back (std::to_string (control_port));
+    payload.push_back (DATA_PORT);
+    payload.push_back (std::to_string (data_port));
+    std::string package = create_package (EMOTIBIT_CONNECT, 0, payload);
+    safe_logger (spdlog::level::info, "sending connect package: {}", package.c_str ());
+
+    int res = (int)BrainFlowExitCodes::STATUS_OK;
+    int bytes_send = advertise_socket_server->send (package.c_str (), (int)package.size ());
+    if (bytes_send != (int)package.size ())
+    {
+        safe_logger (spdlog::level::err, "failed to send connect package, res is {}", bytes_send);
+        res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    return res;
+}
+
+int Emotibit::send_disconnect_msg ()
+{
+    // should never happen
+    if ((control_port < 0) || (data_port < 0))
+    {
+        safe_logger (spdlog::level::info, "ports for data or control are not set");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+
+    std::string package = create_package (EMOTIBIT_DISCONNECT, 0, "", 0);
+
+    int res = (int)BrainFlowExitCodes::STATUS_OK;
+    int bytes_send = control_socket->send (package.c_str (), (int)package.size ());
+    if (bytes_send != (int)package.size ())
+    {
+        safe_logger (spdlog::level::err, "failed to send connect package, res is {}", bytes_send);
+        res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    else
+    {
+        safe_logger (spdlog::level::info, "connected");
+    }
+    return res;
+}
+
+int Emotibit::wait_for_connection ()
+{
+    int res = (int)BrainFlowExitCodes::STATUS_OK;
+    int accept_res = control_socket->accept ();
+    if (accept_res != (int)SocketServerTCPReturnCodes::STATUS_OK)
+    {
+        safe_logger (spdlog::level::err, "error in accept");
+        res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    else
+    {
+        int max_attempts = 15;
+        for (int i = 0; i < max_attempts; i++)
+        {
+            safe_logger (spdlog::level::trace, "waiting for accept {}/{}", i, max_attempts);
+            if (control_socket->client_connected)
+            {
+                safe_logger (spdlog::level::trace, "emotibit connected");
+                break;
+            }
+            else
+            {
+#ifdef _WIN32
+                Sleep (300);
+#else
+                usleep (300000);
+#endif
+            }
+        }
+        if (!control_socket->client_connected)
+        {
+            safe_logger (spdlog::level::trace, "failed to establish connection");
+            res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+        }
     }
     return res;
 }

@@ -100,11 +100,10 @@ int SocketClientUDP::connect ()
     }
     socket_addr.sin_family = AF_INET;
     socket_addr.sin_port = htons (port);
-    socket_addr.sin_addr.s_addr = htonl (INADDR_ANY);
-    // if (inet_pton (AF_INET, ip_addr, &socket_addr.sin_addr) == 0)
-    //{
-    //    return (int)SocketClientUDPReturnCodes::PTON_ERROR;
-    //}
+    if (inet_pton (AF_INET, ip_addr, &socket_addr.sin_addr) == 0)
+    {
+        return (int)SocketClientUDPReturnCodes::PTON_ERROR;
+    }
     connect_socket = socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (connect_socket == INVALID_SOCKET)
     {
@@ -142,10 +141,31 @@ int SocketClientUDP::bind ()
     // for socket clients which dont call sendto before recvfrom bind should be called on client
     // side
     // https://stackoverflow.com/questions/3057029/do-i-have-to-bind-a-udp-socket-in-my-client-program-to-receive-data-i-always-g
+    if (connect_socket != INVALID_SOCKET)
+    {
+        return (int)SocketClientUDPReturnCodes::SOCKET_ALREADY_CREATED_ERROR;
+    }
+
+    WSADATA wsadata;
+    int res = WSAStartup (MAKEWORD (2, 2), &wsadata);
+    if (res != 0)
+    {
+        return (int)SocketClientUDPReturnCodes::WSA_STARTUP_ERROR;
+    }
+    socket_addr.sin_family = AF_INET;
+    socket_addr.sin_port = htons (port);
+    socket_addr.sin_addr.s_addr = htonl (INADDR_ANY);
+    connect_socket = socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (connect_socket == INVALID_SOCKET)
     {
         return (int)SocketClientUDPReturnCodes::CREATE_SOCKET_ERROR;
     }
+
+    // ensure that library will not hang in blocking recv/send call
+    DWORD timeout = 5000;
+    setsockopt (connect_socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof (timeout));
+    setsockopt (connect_socket, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof (timeout));
+
     if (::bind (connect_socket, (const struct sockaddr *)&socket_addr, sizeof (socket_addr)) != 0)
     {
         return (int)SocketClientUDPReturnCodes::CONNECT_ERROR;
@@ -329,10 +349,28 @@ int SocketClientUDP::bind ()
     // for socket clients which dont call sendto before recvfrom bind should be called on client
     // side
     // https://stackoverflow.com/questions/3057029/do-i-have-to-bind-a-udp-socket-in-my-client-program-to-receive-data-i-always-g
+    if (connect_socket >= 0)
+    {
+        return (int)SocketClientUDPReturnCodes::SOCKET_ALREADY_CREATED_ERROR;
+    }
+
+    connect_socket = socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (connect_socket < 0)
     {
         return (int)SocketClientUDPReturnCodes::CREATE_SOCKET_ERROR;
     }
+
+    socket_addr.sin_family = AF_INET;
+    socket_addr.sin_port = htons (port);
+    socket_addr.sin_addr.s_addr = htonl (INADDR_ANY);
+
+    // ensure that library will not hang in blocking recv/send call
+    struct timeval tv;
+    tv.tv_sec = 5;
+    tv.tv_usec = 0;
+    setsockopt (connect_socket, SOL_SOCKET, SO_RCVTIMEO, (const char *)&tv, sizeof (tv));
+    setsockopt (connect_socket, SOL_SOCKET, SO_SNDTIMEO, (const char *)&tv, sizeof (tv));
+
     if (::bind (connect_socket, (const struct sockaddr *)&socket_addr, sizeof (socket_addr)) != 0)
     {
         return (int)SocketClientUDPReturnCodes::CONNECT_ERROR;
