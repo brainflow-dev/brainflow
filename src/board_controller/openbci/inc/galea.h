@@ -43,7 +43,7 @@ public:
     int config_board (std::string config, std::string &response);
 
     static constexpr int package_size = 72;
-    static constexpr int num_packages = 19;
-    static constexpr int transaction_size = package_size * num_packages;
+    static constexpr int max_num_packages = 25;
+    static constexpr int max_transaction_size = package_size * max_num_packages;
     static constexpr int socket_timeout = 2;
 };
