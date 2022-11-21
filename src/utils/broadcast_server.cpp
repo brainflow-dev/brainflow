@@ -77,6 +77,7 @@ int BroadCastServer::send (const char *data, int size)
 int BroadCastServer::recv (void *data, int size, char *sender_ip, int max_len)
 {
     char ip_address_sender[INET_ADDRSTRLEN];
+    memset (ip_address_sender, 0, sizeof (char) * INET_ADDRSTRLEN);
     struct sockaddr_in socket_addr_recv;
     memset (&socket_addr_recv, 0, sizeof (socket_addr_recv));
     int len = sizeof (socket_addr_recv);
@@ -167,6 +168,7 @@ int BroadCastServer::send (const char *data, int size)
 int BroadCastServer::recv (void *data, int size, char *sender_ip, int max_len)
 {
     char ip_address_sender[INET_ADDRSTRLEN];
+    memset (ip_address_sender, 0, sizeof (char) * INET_ADDRSTRLEN);
     struct sockaddr_in socket_addr_recv;
     memset (&socket_addr_recv, 0, sizeof (socket_addr_recv));
     socklen_t len = (socklen_t)sizeof (socket_addr_recv);

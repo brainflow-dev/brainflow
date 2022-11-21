@@ -11,8 +11,6 @@
 
 #include "emotibit_defines.h"
 
-#include <iostream>
-
 using json = nlohmann::json;
 
 
@@ -65,6 +63,8 @@ int Emotibit::prepare_session ()
         res = wait_for_connection ();
     }
 
+    // todo, send LOW_POWER mode command to dont stream data before start_stream method is called
+
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         if (advertise_socket_server != NULL)
@@ -94,6 +94,7 @@ int Emotibit::prepare_session ()
 int Emotibit::config_board (std::string conf, std::string &response)
 {
     safe_logger (spdlog::level::err, "config board is not supported for emotibit");
+    // todo implement
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
@@ -109,6 +110,7 @@ int Emotibit::start_stream (int buffer_size, const char *streamer_params)
         safe_logger (spdlog::level::err, "Streaming thread already running");
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
+    // todo send mode normal to enable streaming
     keep_alive = true;
     streaming_thread = std::thread ([this] { this->read_thread (); });
     return (int)BrainFlowExitCodes::STATUS_OK;
@@ -122,6 +124,7 @@ int Emotibit::stop_stream ()
         streaming_thread.join ();
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
+    // todo send mode low to disable streaming
     return (int)BrainFlowExitCodes::STREAM_THREAD_IS_NOT_RUNNING;
 }
 
@@ -179,7 +182,7 @@ void Emotibit::read_thread ()
     }
     int num_anc_rows = board_descr["ancillary"]["num_rows"];
     double *anc_package = new double[num_anc_rows];
-    for (int i = 0; i < num_aux_rows; i++)
+    for (int i = 0; i < num_anc_rows; i++)
     {
         anc_package[i] = 0.0;
     }
@@ -192,15 +195,12 @@ void Emotibit::read_thread ()
             safe_logger (spdlog::level::trace, "no data received");
             continue;
         }
-        // todo remove
-        for (int i = 0; i < bytes_recv; i++)
-            std::cout << message[i] << " ";
-        std::cout << std::endl;
-        //
+        std::string message_received = std::string (message, bytes_recv);
         std::vector<std::string> splitted_packages =
-            split_string (std::string (message, bytes_recv), PACKET_DELIMITER_CSV);
+            split_string (message_received, PACKET_DELIMITER_CSV);
         for (std::string recv_package : splitted_packages)
         {
+            safe_logger (spdlog::level::trace, "package is: {}", recv_package); // todo remove
             int package_num = 0;
             int data_len = 0;
             std::string type_tag = "";
@@ -213,8 +213,7 @@ void Emotibit::read_thread ()
             }
             else
             {
-                safe_logger (
-                    spdlog::level::trace, "invalid header for package");
+                safe_logger (spdlog::level::trace, "invalid header for package");
             }
         }
     }
@@ -240,7 +239,7 @@ std::string Emotibit::create_package (const std::string &type_tag, uint16_t pack
 }
 
 std::string Emotibit::create_package (const std::string &type_tag, uint16_t package_number,
-    const std::vector<std::string> &data, uint8_t protocol_version, uint8_t data_reliability)
+    std::vector<std::string> data, uint8_t protocol_version, uint8_t data_reliability)
 {
     std::string package = create_header (
         type_tag, 0, package_number, (uint16_t)data.size (), protocol_version, data_reliability);
@@ -274,14 +273,14 @@ std::string Emotibit::create_header (const std::string &type_tag, uint32_t times
 std::vector<std::string> Emotibit::split_string (const std::string &package, char delim)
 {
     std::vector<std::string> result;
-    std::stringstream ss (package);
-    std::string item;
-
-    while (getline (ss, item, delim))
+    size_t start;
+    size_t end = 0;
+    while ((start = package.find_first_not_of (delim, end)) != std::string::npos)
     {
-        result.push_back (item);
+        end = package.find (delim, start);
+        std::string cur_str = package.substr (start, end - start);
+        result.push_back (cur_str);
     }
-
     return result;
 }
 

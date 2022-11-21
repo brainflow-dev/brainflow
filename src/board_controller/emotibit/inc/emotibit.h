@@ -35,7 +35,7 @@ private:
         const std::string &data, uint16_t data_length, uint8_t protocol_version = 1,
         uint8_t data_reliability = 100);
     std::string create_package (const std::string &type_tag, uint16_t packet_number,
-        const std::vector<std::string> &data, uint8_t protocol_version = 1,
+        std::vector<std::string> data, uint8_t protocol_version = 1,
         uint8_t data_reliability = 100);
     std::string create_header (const std::string &type_tag, uint32_t timestamp,
         uint16_t packet_number, uint16_t data_length, uint8_t protocol_version = 1,
