@@ -26,6 +26,10 @@ protected:
     simpleble_err_t simpleble_adapter_scan_for (simpleble_adapter_t handle, int timeout_ms);
     simpleble_err_t simpleble_adapter_scan_start (simpleble_adapter_t handle);
     simpleble_err_t simpleble_adapter_scan_stop (simpleble_adapter_t handle);
+    simpleble_err_t simpleble_adapter_set_callback_on_scan_start (simpleble_adapter_t handle,
+        void (*) (simpleble_adapter_t, void *), void *);
+    simpleble_err_t simpleble_adapter_set_callback_on_scan_stop (simpleble_adapter_t handle,
+        void (*) (simpleble_adapter_t, void *), void *);
     simpleble_err_t simpleble_adapter_set_callback_on_scan_updated (simpleble_adapter_t handle,
         void (*) (simpleble_adapter_t, simpleble_peripheral_t, void *), void *);
     simpleble_err_t simpleble_adapter_set_callback_on_scan_found (simpleble_adapter_t handle,

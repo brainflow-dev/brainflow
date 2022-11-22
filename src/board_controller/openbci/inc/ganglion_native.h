@@ -92,6 +92,8 @@ public:
     int config_board (std::string config);
     int send_command (std::string config);
 
+    void adapter_1_on_scan_start (simpleble_adapter_t adapter);
+    void adapter_1_on_scan_stop (simpleble_adapter_t adapter);
     void adapter_1_on_scan_found (simpleble_adapter_t adapter, simpleble_peripheral_t peripheral);
     void read_data (
         simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data, size_t size);
