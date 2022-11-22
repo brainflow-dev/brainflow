@@ -379,6 +379,10 @@ void GanglionNative::adapter_1_on_scan_found (
             {
                 found = true;
             }
+            else if (strncmp (peripheral_identified, "Simblee", 7) == 0)
+            {
+                found = true;
+            }
         }
     }
 
