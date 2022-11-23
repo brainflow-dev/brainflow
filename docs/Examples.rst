@@ -82,6 +82,11 @@ Python EEG Metrics
 Python Real Time Plot
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
+Extra requirements for this code sample:
+
+.. literalinclude:: ../python_package/examples/plot_real_time/requirements.txt
+   :language: none
+
 .. literalinclude:: ../python_package/examples/plot_real_time/plot_real_time_min.py
    :language: py
 
