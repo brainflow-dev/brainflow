@@ -48,7 +48,7 @@ private:
     int create_data_connection ();
     int create_control_connection ();
     int send_connect_msg ();
-    int send_disconnect_msg ();
+    int send_control_msg (const char *msg);
     int wait_for_connection ();
 
 public:
