@@ -43,6 +43,7 @@ private:
     std::vector<std::string> split_string (const std::string &package, char delim);
     bool get_header (
         const std::string &package_string, int *package_num, int *data_len, std::string &type_tag);
+    std::vector<std::string> get_payload (const std::string &package_string, int data_len);
 
     int create_adv_connection ();
     int create_data_connection ();

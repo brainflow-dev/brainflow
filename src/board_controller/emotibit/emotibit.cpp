@@ -111,7 +111,12 @@ int Emotibit::start_stream (int buffer_size, const char *streamer_params)
         safe_logger (spdlog::level::err, "Streaming thread already running");
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
-    int res = send_control_msg (MODE_NORMAL_POWER);
+    int res = prepare_for_acquisition (buffer_size, streamer_params);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        return res;
+    }
+    res = send_control_msg (MODE_NORMAL_POWER);
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
         keep_alive = true;
@@ -175,23 +180,34 @@ void Emotibit::read_thread ()
     constexpr int max_size = 32768;
     char message[max_size];
 
+    // emotibit sends multiple data points per transaction and for example accelerometer x and y
+    // data are in different transactions, we have to align them and use max_datapoints_in_package
+    // arrays instead single one
+    constexpr int max_datapoints_in_package = 7; // experimental value, in practice I saw max 3
+    double *default_packages[max_datapoints_in_package];
+    double *aux_packages[max_datapoints_in_package];
+    double *anc_packages[max_datapoints_in_package];
     int num_default_rows = board_descr["default"]["num_rows"];
-    double *default_package = new double[num_default_rows];
-    for (int i = 0; i < num_default_rows; i++)
-    {
-        default_package[i] = 0.0;
-    }
     int num_aux_rows = board_descr["auxiliary"]["num_rows"];
-    double *aux_package = new double[num_aux_rows];
-    for (int i = 0; i < num_aux_rows; i++)
-    {
-        aux_package[i] = 0.0;
-    }
     int num_anc_rows = board_descr["ancillary"]["num_rows"];
-    double *anc_package = new double[num_anc_rows];
-    for (int i = 0; i < num_anc_rows; i++)
+
+    for (int cur_package = 0; cur_package < max_datapoints_in_package; cur_package++)
     {
-        anc_package[i] = 0.0;
+        default_packages[cur_package] = new double[num_default_rows];
+        for (int i = 0; i < num_default_rows; i++)
+        {
+            default_packages[cur_package][i] = 0.0;
+        }
+        aux_packages[cur_package] = new double[num_aux_rows];
+        for (int i = 0; i < num_aux_rows; i++)
+        {
+            aux_packages[cur_package][i] = 0.0;
+        }
+        anc_packages[cur_package] = new double[num_anc_rows];
+        for (int i = 0; i < num_anc_rows; i++)
+        {
+            anc_packages[cur_package][i] = 0.0;
+        }
     }
 
     while (keep_alive)
@@ -207,16 +223,151 @@ void Emotibit::read_thread ()
             split_string (message_received, PACKET_DELIMITER_CSV);
         for (std::string recv_package : splitted_packages)
         {
-            safe_logger (spdlog::level::trace, "package is: {}", recv_package); // todo remove
             int package_num = 0;
             int data_len = 0;
             std::string type_tag = "";
             if (get_header (recv_package, &package_num, &data_len, type_tag))
             {
-                // todo remove
-                safe_logger (spdlog::level::info, "header: {}, data_len: {}, num: {}",
-                    type_tag.c_str (), data_len, package_num);
-                // todo fill packages and push them
+                // default package
+                std::vector<std::string> payload = get_payload (recv_package, data_len);
+                int channel = -1;
+                if (type_tag == ACCELEROMETER_X)
+                {
+                    channel = board_descr["default"]["accel_channels"][0];
+                }
+                if (type_tag == ACCELEROMETER_Y)
+                {
+                    channel = board_descr["default"]["accel_channels"][1];
+                }
+                if (type_tag == ACCELEROMETER_Z)
+                {
+                    channel = board_descr["default"]["accel_channels"][2];
+                }
+                if (type_tag == GYROSCOPE_X)
+                {
+                    channel = board_descr["default"]["gyro_channels"][0];
+                }
+                if (type_tag == GYROSCOPE_Y)
+                {
+                    channel = board_descr["default"]["gyro_channels"][1];
+                }
+                if (type_tag == GYROSCOPE_Z)
+                {
+                    channel = board_descr["default"]["gyro_channels"][2];
+                }
+                if (channel > 0)
+                {
+                    for (int i = 0; i < (int)payload.size (); i++)
+                    {
+                        default_packages[i]
+                                        [board_descr["default"]["timestamp_channel"].get<int> ()] =
+                                            get_timestamp ();
+                        default_packages[i][board_descr["default"]["package_num_channel"]
+                                                .get<int> ()] = package_num;
+                        try
+                        {
+                            default_packages[i][channel] = std::stod (payload[i]);
+                        }
+                        catch (...)
+                        {
+                            safe_logger (spdlog::level::warn, "invalid data in payload: {}",
+                                payload[i].c_str ());
+                        }
+                    }
+                    channel = -1;
+                }
+                // push default preset when gyro z is received
+                if (type_tag == GYROSCOPE_Z)
+                {
+                    for (int i = 0; i < data_len; i++)
+                    {
+                        push_package (default_packages[i], (int)BrainFlowPresets::DEFAULT_PRESET);
+                    }
+                }
+                // auxuliary package
+                if (type_tag == PPG_INFRARED)
+                {
+                    channel = board_descr["auxiliary"]["ppg_channels"][0];
+                }
+                if (type_tag == PPG_RED)
+                {
+                    channel = board_descr["auxiliary"]["ppg_channels"][1];
+                }
+                if (type_tag == PPG_GREEN)
+                {
+                    channel = board_descr["auxiliary"]["ppg_channels"][2];
+                }
+                if (channel > 0)
+                {
+                    for (int i = 0; i < (int)payload.size (); i++)
+                    {
+                        aux_packages[i][board_descr["auxiliary"]["timestamp_channel"].get<int> ()] =
+                            get_timestamp ();
+                        aux_packages[i]
+                                    [board_descr["auxiliary"]["package_num_channel"].get<int> ()] =
+                                        package_num;
+                        try
+                        {
+                            aux_packages[i][channel] = std::stod (payload[i]);
+                        }
+                        catch (...)
+                        {
+                            safe_logger (spdlog::level::warn, "invalid data in payload: {}",
+                                payload[i].c_str ());
+                        }
+                    }
+                    channel = -1;
+                }
+                // push aux preset when ppg green is received
+                if (type_tag == PPG_GREEN)
+                {
+                    for (int i = 0; i < data_len; i++)
+                    {
+                        push_package (aux_packages[i], (int)BrainFlowPresets::AUXILIARY_PRESET);
+                    }
+                }
+                // ancillary package
+                if (type_tag == EDA)
+                {
+                    channel = board_descr["ancillary"]["eda_channels"][0];
+                }
+                if (type_tag == TEMPERATURE_1)
+                {
+                    channel = board_descr["ancillary"]["temperature_channels"][0];
+                }
+                if (type_tag == THERMOPILE)
+                {
+                    channel = board_descr["ancillary"]["other_channels"][0];
+                }
+                if (channel > 0)
+                {
+                    for (int i = 0; i < (int)payload.size (); i++)
+                    {
+                        anc_packages[i][board_descr["ancillary"]["timestamp_channel"].get<int> ()] =
+                            get_timestamp ();
+                        anc_packages[i]
+                                    [board_descr["ancillary"]["package_num_channel"].get<int> ()] =
+                                        package_num;
+                        try
+                        {
+                            anc_packages[i][channel] = std::stod (payload[i]);
+                        }
+                        catch (...)
+                        {
+                            safe_logger (spdlog::level::warn, "invalid data in payload: {}",
+                                payload[i].c_str ());
+                        }
+                    }
+                    channel = -1;
+                }
+                // push anc preset when eda is received
+                if (type_tag == EDA)
+                {
+                    for (int i = 0; i < data_len; i++)
+                    {
+                        push_package (anc_packages[i], (int)BrainFlowPresets::ANCILLARY_PRESET);
+                    }
+                }
             }
             else
             {
@@ -224,9 +375,12 @@ void Emotibit::read_thread ()
             }
         }
     }
-    delete[] default_package;
-    delete[] aux_package;
-    delete[] anc_package;
+    for (int cur_package = 0; cur_package < max_datapoints_in_package; cur_package++)
+    {
+        delete[] default_packages[cur_package];
+        delete[] aux_packages[cur_package];
+        delete[] anc_packages[cur_package];
+    }
 }
 
 std::string Emotibit::create_package (const std::string &type_tag, uint16_t package_number,
@@ -295,10 +449,6 @@ bool Emotibit::get_header (
     const std::string &package_string, int *package_num, int *data_len, std::string &type_tag)
 {
     std::vector<std::string> package = split_string (package_string, PAYLOAD_DELIMITER);
-    for (std::string s : package)
-    {
-        safe_logger (spdlog::level::trace, "{}", s.c_str ());
-    }
     if (package.size () >= HEADER_LENGTH)
     {
         try
@@ -346,6 +496,18 @@ bool Emotibit::get_header (
     {
         return true;
     }
+}
+
+std::vector<std::string> Emotibit::get_payload (const std::string &package_string, int data_len)
+{
+    std::vector<std::string> res;
+    std::vector<std::string> package = split_string (package_string, PAYLOAD_DELIMITER);
+    if (package.size () >= (size_t)HEADER_LENGTH + (size_t)data_len)
+    {
+        res.insert (res.begin (), package.begin () + HEADER_LENGTH,
+            package.begin () + (size_t)HEADER_LENGTH + (size_t)data_len);
+    }
+    return res;
 }
 
 int Emotibit::create_adv_connection ()

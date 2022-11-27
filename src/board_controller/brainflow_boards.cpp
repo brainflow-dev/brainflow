@@ -877,12 +877,11 @@ BrainFlowBoards::BrainFlowBoards()
         {"name", "Emotibit"},
         {"sampling_rate", 25}, // random value for now
         {"package_num_channel", 0},
-        {"timestamp_channel", 10},
-        {"marker_channel", 11},
-        {"num_rows", 12},
+        {"timestamp_channel", 7},
+        {"marker_channel", 8},
+        {"num_rows", 9},
         {"accel_channels", {1, 2, 3}},
-        {"gyro_channels", {4, 5, 6}},
-        {"other_channels", {7, 8, 9}} // todo add get_magnetometer_channels
+        {"gyro_channels", {4, 5, 6}}
     };
     brainflow_boards_json["boards"]["47"]["auxiliary"] =
     {
@@ -899,10 +898,12 @@ BrainFlowBoards::BrainFlowBoards()
         {"name", "Emotibit"},
         {"sampling_rate", 25}, // random value for now
         {"package_num_channel", 0},
-        {"timestamp_channel", 2},
-        {"marker_channel", 3},
-        {"num_rows", 4},
-        {"eda_channels", {1}}
+        {"timestamp_channel", 4},
+        {"marker_channel", 5},
+        {"num_rows", 6},
+        {"eda_channels", {1}},
+        {"temperature_channels", {2}},
+        {"other_channels", {3}}
     };
 }
 
