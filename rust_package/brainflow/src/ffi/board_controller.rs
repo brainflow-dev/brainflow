@@ -166,6 +166,14 @@ extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
+    pub fn get_magnetometer_channels(
+        board_id: ::std::os::raw::c_int,
+        preset: ::std::os::raw::c_int,
+        magnetometer_channels: *mut ::std::os::raw::c_int,
+        len: *mut ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
     pub fn get_device_name(
         board_id: ::std::os::raw::c_int,
         preset: ::std::os::raw::c_int,

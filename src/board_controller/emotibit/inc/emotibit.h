@@ -44,6 +44,7 @@ private:
     bool get_header (
         const std::string &package_string, int *package_num, int *data_len, std::string &type_tag);
     std::vector<std::string> get_payload (const std::string &package_string, int data_len);
+    int send_ack (const std::string &package);
 
     int create_adv_connection ();
     int create_data_connection ();

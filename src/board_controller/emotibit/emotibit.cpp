@@ -183,7 +183,8 @@ void Emotibit::read_thread ()
     // emotibit sends multiple data points per transaction and for example accelerometer x and y
     // data are in different transactions, we have to align them and use max_datapoints_in_package
     // arrays instead single one
-    constexpr int max_datapoints_in_package = 7; // experimental value, in practice I saw max 3
+    constexpr int max_datapoints_in_package =
+        1024; // experimental(random) value, in practice I saw max 9
     double *default_packages[max_datapoints_in_package];
     double *aux_packages[max_datapoints_in_package];
     double *anc_packages[max_datapoints_in_package];
@@ -228,6 +229,7 @@ void Emotibit::read_thread ()
             std::string type_tag = "";
             if (get_header (recv_package, &package_num, &data_len, type_tag))
             {
+                send_ack (recv_package);
                 // default package
                 std::vector<std::string> payload = get_payload (recv_package, data_len);
                 int channel = -1;
@@ -255,9 +257,22 @@ void Emotibit::read_thread ()
                 {
                     channel = board_descr["default"]["gyro_channels"][2];
                 }
+                if (type_tag == MAGNETOMETER_X)
+                {
+                    channel = board_descr["default"]["magnetometer_channels"][0];
+                }
+                if (type_tag == MAGNETOMETER_Y)
+                {
+                    channel = board_descr["default"]["magnetometer_channels"][1];
+                }
+                if (type_tag == MAGNETOMETER_Z)
+                {
+                    channel = board_descr["default"]["magnetometer_channels"][2];
+                }
                 if (channel > 0)
                 {
-                    for (int i = 0; i < (int)payload.size (); i++)
+                    for (int i = 0; i < std::min ((int)payload.size (), max_datapoints_in_package);
+                         i++)
                     {
                         default_packages[i]
                                         [board_descr["default"]["timestamp_channel"].get<int> ()] =
@@ -276,8 +291,8 @@ void Emotibit::read_thread ()
                     }
                     channel = -1;
                 }
-                // push default preset when gyro z is received
-                if (type_tag == GYROSCOPE_Z)
+                // push default preset when magnetometer z is received
+                if (type_tag == MAGNETOMETER_Z)
                 {
                     for (int i = 0; i < data_len; i++)
                     {
@@ -299,7 +314,8 @@ void Emotibit::read_thread ()
                 }
                 if (channel > 0)
                 {
-                    for (int i = 0; i < (int)payload.size (); i++)
+                    for (int i = 0; i < std::min ((int)payload.size (), max_datapoints_in_package);
+                         i++)
                     {
                         aux_packages[i][board_descr["auxiliary"]["timestamp_channel"].get<int> ()] =
                             get_timestamp ();
@@ -327,20 +343,56 @@ void Emotibit::read_thread ()
                     }
                 }
                 // ancillary package
+                if ((type_tag == TEMPERATURE_1) || (type_tag == THERMOPILE))
+                {
+                    int temperature_channel = 0;
+                    if (type_tag == TEMPERATURE_1)
+                    {
+                        temperature_channel = board_descr["ancillary"]["temperature_channels"][0];
+                    }
+                    if (type_tag == THERMOPILE)
+                    {
+                        temperature_channel = board_descr["ancillary"]["other_channels"][0];
+                    }
+                    // upsample temperature data 2x to match eda
+                    if (payload.size () < max_datapoints_in_package / 2)
+                    {
+                        for (int i = 0; i < (int)payload.size (); i++)
+                        {
+                            try
+                            {
+                                anc_packages[i * 2][temperature_channel] = std::stod (payload[i]);
+                                anc_packages[i + 1][temperature_channel] =
+                                    anc_packages[i][temperature_channel];
+                            }
+                            catch (...)
+                            {
+                                safe_logger (spdlog::level::warn, "invalid data in payload: {}",
+                                    payload[i].c_str ());
+                            }
+                        }
+                    }
+                    // should not happen, no place in buffer for upsampling, keep as is
+                    else
+                    {
+                        for (int i = 0;
+                             i < std::min ((int)payload.size (), max_datapoints_in_package); i++)
+                        {
+                            try
+                            {
+                                anc_packages[i][temperature_channel] = std::stod (payload[i]);
+                            }
+                            catch (...)
+                            {
+                                safe_logger (spdlog::level::warn, "invalid data in payload: {}",
+                                    payload[i].c_str ());
+                            }
+                        }
+                    }
+                }
                 if (type_tag == EDA)
                 {
-                    channel = board_descr["ancillary"]["eda_channels"][0];
-                }
-                if (type_tag == TEMPERATURE_1)
-                {
-                    channel = board_descr["ancillary"]["temperature_channels"][0];
-                }
-                if (type_tag == THERMOPILE)
-                {
-                    channel = board_descr["ancillary"]["other_channels"][0];
-                }
-                if (channel > 0)
-                {
+                    int eda_channel = board_descr["ancillary"]["eda_channels"][0];
                     for (int i = 0; i < (int)payload.size (); i++)
                     {
                         anc_packages[i][board_descr["ancillary"]["timestamp_channel"].get<int> ()] =
@@ -350,28 +402,21 @@ void Emotibit::read_thread ()
                                         package_num;
                         try
                         {
-                            anc_packages[i][channel] = std::stod (payload[i]);
+                            anc_packages[i][eda_channel] = std::stod (payload[i]);
                         }
                         catch (...)
                         {
                             safe_logger (spdlog::level::warn, "invalid data in payload: {}",
                                 payload[i].c_str ());
                         }
-                    }
-                    channel = -1;
-                }
-                // push anc preset when eda is received
-                if (type_tag == EDA)
-                {
-                    for (int i = 0; i < data_len; i++)
-                    {
                         push_package (anc_packages[i], (int)BrainFlowPresets::ANCILLARY_PRESET);
                     }
                 }
             }
             else
             {
-                safe_logger (spdlog::level::trace, "invalid header for package");
+                safe_logger (
+                    spdlog::level::trace, "invalid header for package: {}", recv_package.c_str ());
             }
         }
     }
@@ -485,11 +530,16 @@ bool Emotibit::get_header (
     }
     else
     {
+        safe_logger (
+            spdlog::level::warn, "package size: {} is smaller than expected", package.size ());
         return false;
     }
 
-    if (package.size () < (size_t)HEADER_LENGTH + *data_len)
+    // for SF I get invalid packages from device: 70987,9527,1,SF,1,100↓
+    if ((package.size () < (size_t)HEADER_LENGTH + *data_len) &&
+        (type_tag != SKIN_CONDUCTANCE_RESPONSE_FREQ))
     {
+        safe_logger (spdlog::level::warn, "small package: {}", package_string.c_str ());
         return false;
     }
     else
@@ -771,4 +821,40 @@ int Emotibit::wait_for_connection ()
         }
     }
     return res;
+}
+
+int Emotibit::send_ack (const std::string &package)
+{
+    // should never happen
+    if ((control_port < 0) || (data_port < 0))
+    {
+        safe_logger (spdlog::level::info, "ports for data or control are not set");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+
+    int package_num = 0;
+    int data_len = 0;
+    std::string type_tag = "";
+    if (get_header (package, &package_num, &data_len, type_tag))
+    {
+        std::vector<std::string> payload;
+        payload.push_back (std::to_string (package_num));
+        payload.push_back (type_tag);
+        std::string ack_package = create_package (ACK, 0, payload);
+
+        int res = (int)BrainFlowExitCodes::STATUS_OK;
+        int bytes_send = control_socket->send (ack_package.c_str (), (int)ack_package.size ());
+        if (bytes_send != (int)ack_package.size ())
+        {
+            safe_logger (spdlog::level::err, "failed to send ack: {}, res is {}",
+                ack_package.c_str (), bytes_send);
+            res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+        }
+        return res;
+    }
+    else
+    {
+        safe_logger (spdlog::level::info, "not valid package: {}", package.c_str ());
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
 }

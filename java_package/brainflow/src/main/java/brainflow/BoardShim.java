@@ -91,6 +91,8 @@ public class BoardShim
 
         int get_resistance_channels (int board_id, int preset, int[] channels, int[] len);
 
+        int get_magnetometer_channels (int board_id, int preset, int[] channels, int[] len);
+
         int get_temperature_channels (int board_id, int preset, int[] temperature_channels, int[] len);
 
         int release_all_sessions ();
@@ -850,6 +852,50 @@ public class BoardShim
     public static int[] get_temperature_channels (BoardIds board_id) throws BrainFlowError
     {
         return get_temperature_channels (board_id.get_code ());
+    }
+
+    /**
+     * get row indices in returned by get_board_data() 2d array which contain
+     * magnetometer data
+     */
+    public static int[] get_magnetometer_channels (int board_id, BrainFlowPresets preset) throws BrainFlowError
+    {
+        int[] len = new int[1];
+        int[] channels = new int[512];
+        int ec = instance.get_magnetometer_channels (board_id, preset.get_code (), channels, len);
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in board info getter", ec);
+        }
+
+        return Arrays.copyOfRange (channels, 0, len[0]);
+    }
+
+    /**
+     * get row indices in returned by get_board_data() 2d array which contain
+     * magnetometer data
+     */
+    public static int[] get_magnetometer_channels (int board_id) throws BrainFlowError
+    {
+        return get_magnetometer_channels (board_id, BrainFlowPresets.DEFAULT_PRESET);
+    }
+
+    /**
+     * get row indices in returned by get_board_data() 2d array which contain
+     * magnetometer data
+     */
+    public static int[] get_magnetometer_channels (BoardIds board_id, BrainFlowPresets preset) throws BrainFlowError
+    {
+        return get_magnetometer_channels (board_id.get_code (), preset);
+    }
+
+    /**
+     * get row indices in returned by get_board_data() 2d array which contain
+     * magnetometer data
+     */
+    public static int[] get_magnetometer_channels (BoardIds board_id) throws BrainFlowError
+    {
+        return get_magnetometer_channels (board_id.get_code ());
     }
 
     /**

@@ -805,7 +805,7 @@ BrainFlowBoards::BrainFlowBoards()
         {"num_rows", 12},
         {"accel_channels", {1, 2, 3}},
         {"gyro_channels", {4, 5, 6}},
-        {"other_channels", {7, 8, 9}}
+        {"magnetometer_channels", {7, 8, 9}}
     };
     brainflow_boards_json["boards"]["44"]["ancillary"] =
     {
@@ -842,7 +842,7 @@ BrainFlowBoards::BrainFlowBoards()
         {"num_rows", 12},
         {"accel_channels", {1, 2, 3}},
         {"gyro_channels", {4, 5, 6}},
-        {"other_channels", {7, 8, 9}}
+        {"magnetometer_channels", {7, 8, 9}}
     };
     brainflow_boards_json["boards"]["45"]["ancillary"] =
     {
@@ -877,16 +877,17 @@ BrainFlowBoards::BrainFlowBoards()
         {"name", "Emotibit"},
         {"sampling_rate", 25}, // random value for now
         {"package_num_channel", 0},
-        {"timestamp_channel", 7},
-        {"marker_channel", 8},
-        {"num_rows", 9},
+        {"timestamp_channel", 10},
+        {"marker_channel", 11},
+        {"num_rows", 12},
         {"accel_channels", {1, 2, 3}},
-        {"gyro_channels", {4, 5, 6}}
+        {"gyro_channels", {4, 5, 6}},
+        {"magnetometer_channels", {7, 8, 9}}
     };
     brainflow_boards_json["boards"]["47"]["auxiliary"] =
     {
         {"name", "Emotibit"},
-        {"sampling_rate", 15}, // random value for now
+        {"sampling_rate", 25},
         {"package_num_channel", 0},
         {"timestamp_channel", 4},
         {"marker_channel", 5},
@@ -896,7 +897,7 @@ BrainFlowBoards::BrainFlowBoards()
     brainflow_boards_json["boards"]["47"]["ancillary"] =
     {
         {"name", "Emotibit"},
-        {"sampling_rate", 25}, // random value for now
+        {"sampling_rate", 15},
         {"package_num_channel", 0},
         {"timestamp_channel", 4},
         {"marker_channel", 5},

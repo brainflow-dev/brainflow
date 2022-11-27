@@ -190,6 +190,7 @@ channel_function_names = (
     :get_other_channels,
     :get_temperature_channels,
     :get_resistance_channels,
+    :get_magnetometer_channels,
 )
 
 # generating the channels functions
