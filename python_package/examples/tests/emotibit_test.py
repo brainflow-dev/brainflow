@@ -7,7 +7,6 @@ from brainflow.data_filter import DataFilter
 def main():
     BoardShim.enable_dev_board_logger()
 
-    # use synthetic board for demo
     params = BrainFlowInputParams()
     board_id = BoardIds.EMOTIBIT_BOARD.value
 
