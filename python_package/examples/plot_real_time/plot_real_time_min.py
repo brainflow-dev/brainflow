@@ -2,7 +2,7 @@ import argparse
 import logging
 
 import pyqtgraph as pg
-from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds, BrainFlowPresets
+from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 from brainflow.data_filter import DataFilter, FilterTypes, DetrendOperations
 from pyqtgraph.Qt import QtGui, QtCore
 
@@ -11,7 +11,7 @@ class Graph:
     def __init__(self, board_shim):
         self.board_id = board_shim.get_board_id()
         self.board_shim = board_shim
-        self.exg_channels = BoardShim.get_ppg_channels(self.board_id, BrainFlowPresets.AUXILIARY_PRESET)
+        self.exg_channels = BoardShim.get_exg_channels(self.board_id)
         self.sampling_rate = BoardShim.get_sampling_rate(self.board_id)
         self.update_speed_ms = 50
         self.window_size = 4
@@ -43,16 +43,16 @@ class Graph:
             self.curves.append(curve)
 
     def update(self):
-        data = self.board_shim.get_current_board_data(self.num_points, BrainFlowPresets.AUXILIARY_PRESET)
+        data = self.board_shim.get_current_board_data(self.num_points)
         for count, channel in enumerate(self.exg_channels):
             # plot timeseries
-            #DataFilter.detrend(data[channel], DetrendOperations.CONSTANT.value)
-            #DataFilter.perform_bandpass(data[channel], self.sampling_rate, 3.0, 45.0, 2,
-            #                            FilterTypes.BUTTERWORTH.value, 0)
-            #DataFilter.perform_bandstop(data[channel], self.sampling_rate, 48.0, 52.0, 2,
-            #                            FilterTypes.BUTTERWORTH.value, 0)
-            #DataFilter.perform_bandstop(data[channel], self.sampling_rate, 58.0, 62.0, 2,
-            #                            FilterTypes.BUTTERWORTH.value, 0)
+            DataFilter.detrend(data[channel], DetrendOperations.CONSTANT.value)
+            DataFilter.perform_bandpass(data[channel], self.sampling_rate, 3.0, 45.0, 2,
+                                        FilterTypes.BUTTERWORTH.value, 0)
+            DataFilter.perform_bandstop(data[channel], self.sampling_rate, 48.0, 52.0, 2,
+                                        FilterTypes.BUTTERWORTH.value, 0)
+            DataFilter.perform_bandstop(data[channel], self.sampling_rate, 58.0, 62.0, 2,
+                                        FilterTypes.BUTTERWORTH.value, 0)
             self.curves[count].setData(data[channel].tolist())
 
         self.app.processEvents()

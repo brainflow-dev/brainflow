@@ -1203,3 +1203,40 @@ Steps to connect:
 - Enable device and Pair it with your laptop using bluetooth settings
 - Ensure that blue LED is blinking before calling :code:`board.prepare_session()`
 - If you see green LED probably you need to reboot a devce
+
+EmotiBit
+---------
+
+EmotiBit board
+~~~~~~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/52519313192_7869efa2f5.jpg
+    :width: 500px
+    :height: 281px
+
+`EmotiBit Website <https://www.emotibit.com/>`_
+
+To create such board you need to specify the following board ID and fields of BrainFlowInputParams object:
+
+- :code:`BoardIds.EMOTIBIT_BOARD`
+- *optional:* :code:`ip_address`, you can provide *broadcast* ip address of the network with EmotiBit device, e.g. 192.168.178.255. If not provided BrainFlow will try to autodiscover the network and it may take a little longer.
+
+Initialization Example:
+
+.. code-block:: python
+
+    params = BrainFlowInputParams()
+    board = BoardShim(BoardIds.EMOTIBIT_BOARD, params)
+
+Supported platforms:
+
+- Windows
+- MacOS
+- Linux
+- Devices like Raspberry Pi
+
+Available :ref:`presets-label`:
+
+- :code:`BrainFlowPresets.DEFAULT_PRESET`, it contains accelerometer, gyroscope and magnetometer data
+- :code:`BrainFlowPresets.AUXILIARY_PRESET`, it contains PPG data
+- :code:`BrainFlowPresets.ANCILLARY_PRESET`, it contains EDA and temperature data

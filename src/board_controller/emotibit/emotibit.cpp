@@ -89,6 +89,7 @@ int Emotibit::prepare_session ()
     else
     {
         initialized = true;
+        connection_thread = std::thread ([this] { this->ping_thread (); });
     }
 
     return res;
@@ -148,6 +149,8 @@ int Emotibit::release_session ()
         {
             stop_stream ();
         }
+        initialized = false;
+        connection_thread.join ();
         free_packages ();
         send_control_msg (EMOTIBIT_DISCONNECT);
         if (data_socket)
@@ -170,7 +173,6 @@ int Emotibit::release_session ()
         }
         control_port = -1;
         data_port = -1;
-        initialized = false;
     }
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
@@ -229,7 +231,6 @@ void Emotibit::read_thread ()
             std::string type_tag = "";
             if (get_header (recv_package, &package_num, &data_len, type_tag))
             {
-                send_ack (recv_package);
                 // default package
                 std::vector<std::string> payload = get_payload (recv_package, data_len);
                 int channel = -1;
@@ -535,9 +536,7 @@ bool Emotibit::get_header (
         return false;
     }
 
-    // for SF I get invalid packages from device: 70987,9527,1,SF,1,100↓
-    if ((package.size () < (size_t)HEADER_LENGTH + *data_len) &&
-        (type_tag != SKIN_CONDUCTANCE_RESPONSE_FREQ))
+    if (package.size () < (size_t)HEADER_LENGTH + *data_len)
     {
         safe_logger (spdlog::level::warn, "small package: {}", package_string.c_str ());
         return false;
@@ -823,38 +822,26 @@ int Emotibit::wait_for_connection ()
     return res;
 }
 
-int Emotibit::send_ack (const std::string &package)
+void Emotibit::ping_thread ()
 {
-    // should never happen
-    if ((control_port < 0) || (data_port < 0))
+    int sleep_time = 1;
+    int package_num = 1;
+    while (initialized)
     {
-        safe_logger (spdlog::level::info, "ports for data or control are not set");
-        return (int)BrainFlowExitCodes::GENERAL_ERROR;
-    }
-
-    int package_num = 0;
-    int data_len = 0;
-    std::string type_tag = "";
-    if (get_header (package, &package_num, &data_len, type_tag))
-    {
+#ifdef _WIN32
+        Sleep (sleep_time * 1000);
+#else
+        usleep (sleep_time * 1000000);
+#endif
         std::vector<std::string> payload;
-        payload.push_back (std::to_string (package_num));
-        payload.push_back (type_tag);
-        std::string ack_package = create_package (ACK, 0, payload);
-
-        int res = (int)BrainFlowExitCodes::STATUS_OK;
-        int bytes_send = control_socket->send (ack_package.c_str (), (int)ack_package.size ());
-        if (bytes_send != (int)ack_package.size ())
+        payload.push_back (DATA_PORT);
+        payload.push_back (std::to_string (data_port));
+        std::string package = create_package (PING, package_num++, payload);
+        // safe_logger (spdlog::level::trace, "sending package: {}", package.c_str ());
+        int bytes_send = advertise_socket_server->send (package.c_str (), (int)package.size ());
+        if (bytes_send != (int)package.size ())
         {
-            safe_logger (spdlog::level::err, "failed to send ack: {}, res is {}",
-                ack_package.c_str (), bytes_send);
-            res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+            safe_logger (spdlog::level::err, "failed to send adv package, res is {}", bytes_send);
         }
-        return res;
-    }
-    else
-    {
-        safe_logger (spdlog::level::info, "not valid package: {}", package.c_str ());
-        return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
 }
