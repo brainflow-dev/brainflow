@@ -36,6 +36,7 @@ public:
     int bind ();
     int accept ();
     int recv (void *data, int size);
+    int send (const void *data, int size);
     void close ();
     void accept_worker ();
 

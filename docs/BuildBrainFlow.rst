@@ -236,6 +236,11 @@ Now you can use BrainFlow SDK in your Android application!
 
 Note: Android Studio inline compiler may show red errors but it should be compiled fine with Gradle. To fix inline compiler you can use *File > Sync Project with Gradle Files* or click at *File > Invalidate Cache/Restart > Invalidate and Restart*
 
+Prebuild libraries for *jniLibs.zip* are complied using:
+
+- Android NDK 25.1.8937393
+- *-DANDROID_NATIVE_API_LEVEL=android-24*
+
 .. compound::
     
     For some API calls you need to provide additional permissions via manifest file of your application ::
@@ -268,13 +273,13 @@ Compilation instructions:
 
         # to prepare project(choose ABIs which you need)
         # for arm64-v8a
-        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=E:\android-ndk-r21d-windows-x86_64\android-ndk-r21d\build\cmake\android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=android-19 -DANDROID_ABI=arm64-v8a ..
+        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=D:\workspace\android-ndk-r25b\build\cmake\android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=android-24 -DANDROID_ABI=arm64-v8a ..
         # for armeabi-v7a
-        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=E:\android-ndk-r21d-windows-x86_64\android-ndk-r21d\build\cmake\android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=android-19 -DANDROID_ABI=armeabi-v7a ..
+        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=D:\workspace\android-ndk-r25b\build\cmake\android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=android-24 -DANDROID_ABI=armeabi-v7a ..
         # for x86_64
-        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=E:\android-ndk-r21d-windows-x86_64\android-ndk-r21d\build\cmake\android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=android-19 -DANDROID_ABI=x86_64 ..
+        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=D:\workspace\android-ndk-r25b\build\cmake\android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=android-24 -DANDROID_ABI=x86_64 ..
         # for x86
-        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=E:\android-ndk-r21d-windows-x86_64\android-ndk-r21d\build\cmake\android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=android-19 -DANDROID_ABI=x86 ..
+        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=D:\workspace\android-ndk-r25b\build\cmake\android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=android-24 -DANDROID_ABI=x86 ..
 
         # to build(should be run for each ABI from previous step**
         cmake --build . --target install --config Release -j 2 --parallel 2

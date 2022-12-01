@@ -36,6 +36,7 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/utils/multicast_client.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/multicast_server.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/broadcast_client.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/utils/broadcast_server.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/galea_serial.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/openbci_serial_board.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/openbci_wifi_shield_board.cpp
@@ -79,6 +80,7 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ble_lib_board.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/brainalive/brainalive.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/emotibit/emotibit.cpp
 )
 
 include (${CMAKE_HOME_DIRECTORY}/src/board_controller/ant_neuro/build.cmake)
@@ -133,6 +135,7 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/third_party/SimpleBLE/simpleble/include
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/brainalive/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/mentalab/inc
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/emotibit/inc
 )
 
 target_compile_definitions(${BOARD_CONTROLLER_NAME} PRIVATE NOMINMAX BRAINFLOW_VERSION=${BRAINFLOW_VERSION})

@@ -67,6 +67,7 @@ class BoardIds(enum.IntEnum):
     EXPLORE_4_CHAN_BOARD = 44  #:
     EXPLORE_8_CHAN_BOARD = 45  #:
     GANGLION_NATIVE_BOARD = 46  #:
+    EMOTIBIT_BOARD = 47  #:
 
 
 class IpProtocolTypes(enum.IntEnum):
@@ -510,6 +511,15 @@ class BoardControllerDLL(object):
         self.get_resistance_channels = self.lib.get_resistance_channels
         self.get_resistance_channels.restype = ctypes.c_int
         self.get_resistance_channels.argtypes = [
+            ctypes.c_int,
+            ctypes.c_int,
+            ndpointer(ctypes.c_int32),
+            ndpointer(ctypes.c_int32)
+        ]
+
+        self.get_magnetometer_channels = self.lib.get_magnetometer_channels
+        self.get_magnetometer_channels.restype = ctypes.c_int
+        self.get_magnetometer_channels.argtypes = [
             ctypes.c_int,
             ctypes.c_int,
             ndpointer(ctypes.c_int32),
@@ -1094,6 +1104,28 @@ class BoardShim(object):
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         result = resistance_channels.tolist()[0:num_channels[0]]
+        return result
+
+    @classmethod
+    def get_magnetometer_channels(cls, board_id: int, preset: int = BrainFlowPresets.DEFAULT_PRESET) -> List[int]:
+        """get list of magnetometer channels in resulting data table for a board
+
+        :param board_id: Board Id
+        :type board_id: int
+        :param preset: preset
+        :type preset: int
+        :return: list of magnetometer channels in returned numpy array
+        :rtype: List[int]
+        :raises BrainFlowError: If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+        """
+
+        num_channels = numpy.zeros(1).astype(numpy.int32)
+        magnetometer_channels = numpy.zeros(512).astype(numpy.int32)
+
+        res = BoardControllerDLL.get_instance().get_magnetometer_channels(board_id, preset, magnetometer_channels, num_channels)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to request info about this board', res)
+        result = magnetometer_channels.tolist()[0:num_channels[0]]
         return result
 
     @classmethod

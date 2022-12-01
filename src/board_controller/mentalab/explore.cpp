@@ -339,7 +339,7 @@ void Explore::parse_orientation_data (
 
     std::vector<int> accel_channels = board_descr["auxiliary"]["accel_channels"];
     std::vector<int> gyro_channels = board_descr["auxiliary"]["gyro_channels"];
-    std::vector<int> other_channels = board_descr["auxiliary"]["other_channels"];
+    std::vector<int> magnetometer_channels = board_descr["auxiliary"]["magnetometer_channels"];
 
     if (payload_size % 2 != 0) // 2 is int16
     {
@@ -365,7 +365,7 @@ void Explore::parse_orientation_data (
             {
                 data *= -1; // no idea why, copypaste, maybe bug in fw
             }
-            package[other_channels[i - 6]] = 1.52 * data;
+            package[magnetometer_channels[i - 6]] = 1.52 * data;
         }
     }
     package[board_descr["auxiliary"]["timestamp_channel"].get<int> ()] = get_timestamp ();

@@ -513,6 +513,10 @@ gen_vec_fn!(
     resistance_channels,
     "Get list of resistance channels in resulting data table for a board."
 );
+gen_vec_fn!(
+    magnetometer_channels,
+    "Get list of magnetometer channels in resulting data table for a board."
+);
 
 #[cfg(test)]
 mod tests {

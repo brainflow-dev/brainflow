@@ -31,6 +31,7 @@
 #include "cyton_daisy.h"
 #include "cyton_daisy_wifi.h"
 #include "cyton_wifi.h"
+#include "emotibit.h"
 #include "enophone.h"
 #include "explore.h"
 #include "freeeeg32.h"
@@ -251,6 +252,9 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
             break;
         case BoardIds::GANGLION_NATIVE_BOARD:
             board = std::shared_ptr<Board> (new GanglionNative (params));
+            break;
+        case BoardIds::EMOTIBIT_BOARD:
+            board = std::shared_ptr<Board> (new Emotibit (params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

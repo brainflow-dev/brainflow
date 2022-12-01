@@ -96,6 +96,20 @@ void SocketServerTCP::accept_worker ()
     }
 }
 
+int SocketServerTCP::send (const void *data, int size)
+{
+    if (connected_socket == INVALID_SOCKET)
+    {
+        return -1;
+    }
+    int res = ::send (connected_socket, (const char *)data, size, 0);
+    if (res == SOCKET_ERROR)
+    {
+        return -1;
+    }
+    return res;
+}
+
 int SocketServerTCP::recv (void *data, int size)
 {
     if (connected_socket == INVALID_SOCKET)
@@ -243,6 +257,16 @@ void SocketServerTCP::accept_worker ()
 
         client_connected = true;
     }
+}
+
+int SocketServerTCP::send (const void *data, int size)
+{
+    if (connected_socket <= 0)
+    {
+        return -1;
+    }
+    int res = ::send (connected_socket, (const char *)data, size, 0);
+    return res;
 }
 
 int SocketServerTCP::recv (void *data, int size)

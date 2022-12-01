@@ -32,7 +32,7 @@ impl BoardIds {
     pub const FIRST: BoardIds = BoardIds::PlaybackFileBoard;
 }
 impl BoardIds {
-    pub const LAST: BoardIds = BoardIds::GanglionNativeBoard;
+    pub const LAST: BoardIds = BoardIds::EmotibitBoard;
 }
 #[repr(i32)]
 #[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -87,6 +87,7 @@ pub enum BoardIds {
     Explore4ChanBoard = 44,
     Explore8ChanBoard = 45,
     GanglionNativeBoard = 46,
+    EmotibitBoard = 47,
 }
 #[repr(i32)]
 #[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]

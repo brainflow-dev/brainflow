@@ -187,6 +187,13 @@ public:
      */
     static std::vector<int> get_resistance_channels (
         int board_id, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
+    /**
+     * get row indices which hold magnetometer data
+     * @param board_id board id of your device
+     * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+     */
+    static std::vector<int> get_magnetometer_channels (
+        int board_id, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
     /// release all currently prepared session
     static void release_all_sessions ();
     /// get brainflow version

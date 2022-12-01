@@ -107,7 +107,8 @@ namespace brainflow
         PIEEG_BOARD = 43,
         EXPLORE_4_CHAN_BOARD = 44,
         EXPLORE_8_CHAN_BOARD = 45,
-        GANGLION_NATIVE_BOARD = 46
+        GANGLION_NATIVE_BOARD = 46,
+        EMOTIBIT_BOARD = 47
     };
 
 
@@ -179,6 +180,8 @@ namespace brainflow
         public static extern int get_eeg_names (int board_id, int preset, byte[] eeg_names, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_resistance_channels (int board_id, int preset, int[] channels, int[] len);
+        [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_magnetometer_channels (int board_id, int preset, int[] channels, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_exg_channels (int board_id, int preset, int[] channels, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -281,6 +284,8 @@ namespace brainflow
         public static extern int add_streamer (string streamer, int preset, int board_id, string input_json);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int delete_streamer (string streamer, int preset, int board_id, string input_json);
+        [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_magnetometer_channels (int board_id, int preset, int[] channels, int[] len);
     }
 
     public static class BoardControllerLibraryLinux
@@ -365,6 +370,8 @@ namespace brainflow
         public static extern int add_streamer (string streamer, int preset, int board_id, string input_json);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int delete_streamer (string streamer, int preset, int board_id, string input_json);
+        [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_magnetometer_channels (int board_id, int preset, int[] channels, int[] len);
     }
 
     public static class BoardControllerLibraryMac
@@ -449,6 +456,8 @@ namespace brainflow
         public static extern int add_streamer (string streamer, int preset, int board_id, string input_json);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int delete_streamer (string streamer, int preset, int board_id, string input_json);
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_magnetometer_channels (int board_id, int preset, int[] channels, int[] len);
     }
 
     public static class BoardControllerLibrary
@@ -1112,6 +1121,23 @@ namespace brainflow
                     return BoardControllerLibraryLinux.get_resistance_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.MacOS:
                     return BoardControllerLibraryMac.get_resistance_channels (board_id, preset, channels, len);
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static int get_magnetometer_channels (int board_id, int preset, int[] channels, int[] len)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_magnetometer_channels (board_id, preset, channels, len);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_magnetometer_channels (board_id, preset, channels, len);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.get_magnetometer_channels (board_id, preset, channels, len);
+                case LibraryEnvironment.MacOS:
+                    return BoardControllerLibraryMac.get_magnetometer_channels (board_id, preset, channels, len);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
