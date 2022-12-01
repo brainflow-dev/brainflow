@@ -10,14 +10,12 @@
 #define GANGLION_NOTIFY_CHAR "2d30c082-f39f-4ce6-923f-3484ea480596"
 
 
-static void ganglion_adapter_1_on_scan_start (
-    simpleble_adapter_t adapter, void *board)
+static void ganglion_adapter_1_on_scan_start (simpleble_adapter_t adapter, void *board)
 {
     ((GanglionNative *)(board))->adapter_1_on_scan_start (adapter);
 }
 
-static void ganglion_adapter_1_on_scan_stop (
-    simpleble_adapter_t adapter, void *board)
+static void ganglion_adapter_1_on_scan_stop (simpleble_adapter_t adapter, void *board)
 {
     ((GanglionNative *)(board))->adapter_1_on_scan_stop (adapter);
 }
@@ -82,14 +80,25 @@ int GanglionNative::prepare_session ()
         return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
     }
 
-    simpleble_adapter_set_callback_on_scan_start(
-        ganglion_adapter, ::ganglion_adapter_1_on_scan_start, NULL);
-    simpleble_adapter_set_callback_on_scan_stop(
-        ganglion_adapter, ::ganglion_adapter_1_on_scan_stop, NULL);
+    simpleble_adapter_set_callback_on_scan_start (
+        ganglion_adapter, ::ganglion_adapter_1_on_scan_start, (void *)this);
+    simpleble_adapter_set_callback_on_scan_stop (
+        ganglion_adapter, ::ganglion_adapter_1_on_scan_stop, (void *)this);
     simpleble_adapter_set_callback_on_scan_found (
         ganglion_adapter, ::ganglion_adapter_1_on_scan_found, (void *)this);
 
-    sleep(1000);
+#ifdef _WIN32
+    Sleep (1000);
+#else
+    usleep (1000000);
+#endif
+
+    if (!simpleble_adapter_is_bluetooth_enabled ())
+    {
+        safe_logger (spdlog::level::warn, "Probably bluetooth is disabled.");
+        // dont throw an exception because of this
+        // https://github.com/OpenBluetoothToolbox/SimpleBLE/issues/115
+    }
 
     simpleble_adapter_scan_start (ganglion_adapter);
     int res = (int)BrainFlowExitCodes::STATUS_OK;
@@ -369,16 +378,14 @@ int GanglionNative::send_command (std::string config)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-void GanglionNative::adapter_1_on_scan_start (
-    simpleble_adapter_t adapter)
+void GanglionNative::adapter_1_on_scan_start (simpleble_adapter_t adapter)
 {
-    safe_logger (spdlog::level::info, "Scan started using adapter {}", adapter);
+    safe_logger (spdlog::level::trace, "Scan started");
 }
 
-void GanglionNative::adapter_1_on_scan_stop (
-    simpleble_adapter_t adapter)
+void GanglionNative::adapter_1_on_scan_stop (simpleble_adapter_t adapter)
 {
-    safe_logger (spdlog::level::info, "Scan stopped using adapter {}", adapter);
+    safe_logger (spdlog::level::trace, "Scan stopped");
 }
 
 void GanglionNative::adapter_1_on_scan_found (
@@ -409,6 +416,7 @@ void GanglionNative::adapter_1_on_scan_found (
             {
                 found = true;
             }
+            // for some reason device may send Simblee instead Ganglion name
             else if (strncmp (peripheral_identified, "Simblee", 7) == 0)
             {
                 found = true;

@@ -81,6 +81,13 @@ int BrainAlive::prepare_session ()
     simpleble_adapter_set_callback_on_scan_found (
         brainalive_adapter, ::brainalive_adapter_1_on_scan_found, (void *)this);
 
+    if (!simpleble_adapter_is_bluetooth_enabled ())
+    {
+        safe_logger (spdlog::level::warn, "Probably bluetooth is disabled.");
+        // dont throw an exception because of this
+        // https://github.com/OpenBluetoothToolbox/SimpleBLE/issues/115
+    }
+
     simpleble_adapter_scan_start (brainalive_adapter);
     int res = (int)BrainFlowExitCodes::STATUS_OK;
     std::unique_lock<std::mutex> lk (m);
