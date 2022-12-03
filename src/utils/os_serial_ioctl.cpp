@@ -63,7 +63,20 @@ int OSSerial::set_custom_baudrate (int baudrate)
     return SerialExitCodes::OK;
 }
 
+int OSSerial::set_custom_latency (int latency)
+{
+    // there is a method to set latency in registry but it restarts the device, keep it separate and
+    // dont add here
+    return SerialExitCodes::SET_PORT_STATE_ERROR;
+}
+
 #elif defined(__linux__) && !defined(__ANDROID__)
+
+int OSSerial::set_custom_latency (int latency)
+{
+    return SerialExitCodes::SET_PORT_STATE_ERROR;
+}
+
 #ifdef NO_IOCTL_HEADERS
 int OSSerial::set_custom_baudrate (int baudrate)
 {
@@ -91,10 +104,18 @@ int OSSerial::set_custom_baudrate (int baudrate)
         return SerialExitCodes::SET_PORT_STATE_ERROR;
     }
 }
-
 #endif
-
 #elif defined(__APPLE__)
+int OSSerial::set_custom_latency (int latency)
+{
+#ifndef NO_IOCTL_HEADERS
+    unsigned long mics = latency;
+    ioctl (this->port_descriptor, IOSSDATALAT, &mics);
+    return SerialExitCodes::OK;
+#else
+    return SerialExitCodes::NO_SYSTEM_HEADERS_FOUND_ERROR;
+#endif
+}
 int OSSerial::set_custom_baudrate (int baudrate)
 {
     struct termios port_settings;
@@ -107,15 +128,15 @@ int OSSerial::set_custom_baudrate (int baudrate)
     if (tcsetattr (this->port_descriptor, TCSANOW, &port_settings) != 0)
         return SerialExitCodes::SET_PORT_STATE_ERROR;
     tcflush (this->port_descriptor, TCIOFLUSH);
-#ifndef NO_IOCTL_HEADERS
-    unsigned long mics = 1UL;
-    ioctl (this->port_descriptor, IOSSDATALAT, &mics);
-#endif
     return SerialExitCodes::OK;
 }
-
 #else
 int OSSerial::set_custom_baudrate (int baudrate)
+{
+    return SerialExitCodes::SET_PORT_STATE_ERROR;
+}
+
+int OSSerial::set_custom_latency (int latency)
 {
     return SerialExitCodes::SET_PORT_STATE_ERROR;
 }
