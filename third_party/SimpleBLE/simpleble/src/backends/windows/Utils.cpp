@@ -6,6 +6,8 @@
 
 #include <sdkddkver.h>
 
+#include "LoggingInternal.h"
+
 #if WDK_NTDDI_VERSION <= NTDDI_WIN10_VB
 // For Windows SDK version before 10.0.19041.0, remap functions to post-10.0.19041.0 versions
 #define WINRT_IMPL_CoGetApartmentType WINRT_CoGetApartmentType
@@ -14,23 +16,51 @@
 
 #define MAC_ADDRESS_STR_LENGTH (size_t)17  // Two chars per byte, 5 chars for colon
 
+// NOTE: These constants are defined in ObjIdl.h
+// More info: https://learn.microsoft.com/en-us/windows/win32/api/objidlbase/ne-objidlbase-apttype
+constexpr int32_t APTTYPE_CURRENT = -1;
+constexpr int32_t APTTYPE_STA = 0;
+constexpr int32_t APTTYPE_MTA = 1;
+constexpr int32_t APTTYPE_NA = 2;
+constexpr int32_t APTTYPE_MAINSTA = 3;
+
+// https://learn.microsoft.com/en-us/windows/win32/api/objidl/ne-objidl-apttypequalifier
+constexpr int32_t APTTYPEQUALIFIER_NONE = 0;
+constexpr int32_t APTTYPEQUALIFIER_IMPLICIT_MTA = 1;
+constexpr int32_t APTTYPEQUALIFIER_NA_ON_MTA = 2;
+constexpr int32_t APTTYPEQUALIFIER_NA_ON_STA = 3;
+constexpr int32_t APTTYPEQUALIFIER_NA_ON_IMPLICIT_MTA = 4;
+constexpr int32_t APTTYPEQUALIFIER_NA_ON_MAINSTA = 5;
+constexpr int32_t APTTYPEQUALIFIER_APPLICATION_STA = 6;
+constexpr int32_t APTTYPEQUALIFIER_RESERVED_1 = 7;
+
+constexpr int32_t COINIT_APARTMENTTHREADED = 0x2;
+constexpr int32_t COINIT_MULTITHREADED = 0;
+constexpr int32_t COINIT_DISABLE_OLE1DDE = 0x4;
+constexpr int32_t COINIT_SPEED_OVER_MEMORY = 0x8;
+
+// More info on COM appartments: https://learn.microsoft.com/en-us/windows/win32/com/processes--threads--and-apartments
+
 namespace SimpleBLE {
 
 void initialize_winrt() {
     static bool initialized = false;
 
-    if (initialized) {
-        return;
-    }
+    if (initialized) return;
+    initialized = true;
 
-    // Attempt to initialize the WinRT backend if not already set.
     int32_t cotype, qualifier;
-    WINRT_IMPL_CoGetApartmentType(&cotype, &qualifier);
+    int32_t result = WINRT_IMPL_CoGetApartmentType(&cotype, &qualifier);
 
-    if (cotype == -1 /* APTTYPE_CURRENT */) {
-        // TODO: Investigate if multi or single threaded initialization is needed.
-        winrt::apartment_type const type = winrt::apartment_type::multi_threaded;
-        winrt::hresult const result = WINRT_IMPL_CoInitializeEx(nullptr, static_cast<uint32_t>(type));
+    SIMPLEBLE_LOG_INFO(
+        fmt::format("CoGetApartmentType: cotype={}, qualifier={}, result={}", cotype, qualifier, result));
+
+    if (cotype == APTTYPE_CURRENT) {
+        // Attempt to initialize the WinRT backend if not already set.
+        winrt::hresult const result = WINRT_IMPL_CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+
+        // The apartment has not been initialized successfully.
+        SIMPLEBLE_LOG_INFO(fmt::format("CoInitializeEx: result={}", result));
     }
 }
 

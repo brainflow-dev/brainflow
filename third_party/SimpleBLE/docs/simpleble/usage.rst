@@ -9,10 +9,16 @@ to build and run SimpleBLE in your specific environment.
 Building and Installing the Library (Source)
 ============================================
 
-When building SimpleBLE from source on Linux, you will need to install the
-following dependencies: ::
+When building SimpleBLE from source, you will need some dependencies based on your
+current operating system.
+
+**Linux** ::
 
   sudo apt install libdbus-1-dev
+
+**Windows** ::
+
+   `Windows SDK <https://developer.microsoft.com/en-us/windows/downloads/windows-sdk/>`_ (Version 10.0.19041.0 or higher)
 
 The included CMake build script can be used to build SimpleBLE.
 CMake is freely available for download from https://www.cmake.org/download/. ::

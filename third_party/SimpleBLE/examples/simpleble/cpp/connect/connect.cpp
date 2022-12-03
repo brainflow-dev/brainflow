@@ -38,12 +38,19 @@ int main() {
     std::cout << "Connecting to " << peripheral.identifier() << " [" << peripheral.address() << "]" << std::endl;
     peripheral.connect();
 
-    std::cout << "Successfully connected, listing services." << std::endl;
+    std::cout << "Successfully connected." << std::endl;
+    std::cout << "MTU: " << peripheral.mtu() << std::endl;
     for (auto& service : peripheral.services()) {
         std::cout << "Service: " << service.uuid() << std::endl;
 
         for (auto& characteristic : service.characteristics()) {
             std::cout << "  Characteristic: " << characteristic.uuid() << std::endl;
+
+            std::cout << "    Capabilities: ";
+            for (auto& capability : characteristic.capabilities()) {
+                std::cout << capability << " ";
+            }
+            std::cout << std::endl;
 
             for (auto& descriptor : characteristic.descriptors()) {
                 std::cout << "    Descriptor: " << descriptor.uuid() << std::endl;

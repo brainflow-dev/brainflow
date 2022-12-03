@@ -23,6 +23,7 @@ class PeripheralBase {
     std::string identifier();
     BluetoothAddress address();
     int16_t rssi();
+    uint16_t mtu();
 
     void connect();
     void disconnect();
@@ -32,6 +33,7 @@ class PeripheralBase {
     void unpair();
 
     std::vector<Service> services();
+    std::vector<Service> advertised_services();
     std::map<uint16_t, ByteArray> manufacturer_data();
 
     // clang-format off

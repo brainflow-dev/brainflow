@@ -31,6 +31,12 @@ int16_t Peripheral::rssi() {
     return internal_->rssi();
 }
 
+uint16_t Peripheral::mtu() {
+    if (!initialized()) throw Exception::NotInitialized();
+
+    return internal_->mtu();
+}
+
 void Peripheral::connect() {
     if (!initialized()) throw Exception::NotInitialized();
 
@@ -69,7 +75,12 @@ void Peripheral::unpair() {
 
 std::vector<Service> Peripheral::services() {
     if (!initialized()) throw Exception::NotInitialized();
-    if (!is_connected()) throw Exception::NotConnected();
+
+    if (is_connected()) {
+        return internal_->services();
+    } else {
+        return internal_->advertised_services();
+    }
 
     return internal_->services();
 }

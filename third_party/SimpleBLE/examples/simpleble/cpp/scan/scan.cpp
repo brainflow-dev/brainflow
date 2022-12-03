@@ -39,6 +39,12 @@ int main() {
         std::string peripheral_string = peripherals[i].identifier() + " [" + peripherals[i].address() + "]";
 
         std::cout << "[" << i << "] " << peripheral_string << " " << connectable_string << std::endl;
+
+        std::vector<SimpleBLE::Service> services = peripherals[i].services();
+        for (auto& service : services) {
+            std::cout << "    Service: " << service.uuid() << std::endl;
+        }
+
         std::map<uint16_t, SimpleBLE::ByteArray> manufacturer_data = peripherals[i].manufacturer_data();
         for (auto& [manufacturer_id, data] : manufacturer_data) {
             std::cout << "    Manufacturer ID: " << manufacturer_id << std::endl;

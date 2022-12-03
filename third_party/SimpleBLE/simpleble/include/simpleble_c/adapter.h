@@ -1,13 +1,5 @@
 #pragma once
 
-#ifdef _WIN32
-#define SHARED_EXPORT __declspec(dllexport)
-#define CALLING_CONVENTION __cdecl
-#else
-#define SHARED_EXPORT __attribute__((visibility("default")))
-#define CALLING_CONVENTION
-#endif
-
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -15,6 +7,14 @@
 #include <simpleble/export.h>
 
 #include <simpleble_c/types.h>
+
+#ifdef _WIN32
+#define SHARED_EXPORT __declspec(dllexport)
+#define CALLING_CONVENTION __cdecl
+#else
+#define SHARED_EXPORT __attribute__((visibility("default")))
+#define CALLING_CONVENTION
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,7 +51,7 @@ SHARED_EXPORT simpleble_adapter_t CALLING_CONVENTION simpleble_adapter_get_handl
  *
  * @param handle
  */
-SHARED_EXPORT void CALLING_CONVENTION simpleble_adapter_release_handle(simpleble_adapter_t handle);
+SHARED_EXPORT void CALLING_CONVENTION CALLING_CONVENTION simpleble_adapter_release_handle(simpleble_adapter_t handle);
 
 /**
  * @brief Returns the identifier of a given adapter.

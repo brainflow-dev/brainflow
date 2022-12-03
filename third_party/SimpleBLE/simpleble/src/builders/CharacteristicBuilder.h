@@ -18,7 +18,8 @@ namespace SimpleBLE {
  */
 class CharacteristicBuilder : public Characteristic {
   public:
-    CharacteristicBuilder(const BluetoothUUID& uuid, std::vector<Descriptor> descriptors);
+    CharacteristicBuilder(const BluetoothUUID& uuid, std::vector<Descriptor> descriptors, bool can_read,
+                          bool can_write_request, bool can_write_command, bool can_notify, bool can_indicate);
     virtual ~CharacteristicBuilder() = default;
 };
 

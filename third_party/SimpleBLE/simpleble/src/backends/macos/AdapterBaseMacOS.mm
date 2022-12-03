@@ -1,8 +1,9 @@
 #import "AdapterBaseMacOS.h"
 
 #import <fmt/core.h>
-#import "LoggingInternal.h"
 #import <simpleble/Exceptions.h>
+#import "LoggingInternal.h"
+#import "Utils.h"
 
 @interface AdapterBaseMacOS () {
 }
@@ -16,7 +17,7 @@
 
 @implementation AdapterBaseMacOS
 
-- (bool) isBluetoothEnabled {
+- (bool)isBluetoothEnabled {
     return CBCentralManager.authorization == CBManagerAuthorizationAllowedAlways && _centralManager.state == CBManagerStatePoweredOn;
 }
 
@@ -108,6 +109,13 @@
         uint16_t manufacturerID = *((uint16_t*)manufacturerDataBytes);
         SimpleBLE::ByteArray manufacturerData = SimpleBLE::ByteArray(&manufacturerDataBytes[2], (size_t)(rawManufacturerData.length - 2));
         advertisingData.manufacturer_data[manufacturerID] = manufacturerData;
+    }
+
+    NSArray* services = advertisementData[CBAdvertisementDataServiceUUIDsKey];
+    if (services != nil) {
+        for (CBUUID* serviceUuid in services) {
+            advertisingData.service_uuids.push_back(uuidToSimpleBLE(serviceUuid));
+        }
     }
 
     _adapter->delegate_did_discover_peripheral((__bridge void*)peripheral, (__bridge void*)self.centralManager, advertisingData);
