@@ -85,6 +85,10 @@ class MLModuleDLL(object):
             # to solve it we can load all of them before loading the main one or change PATH\LD_LIBRARY_PATH env var.
             # env variable looks better, since it can be done only once for all dependencies
             dir_path = os.path.abspath(os.path.dirname(full_path))
+            try:
+                os.add_dll_directory(dir_path)
+            except:
+                pass
             if platform.system() == 'Windows':
                 os.environ['PATH'] = dir_path + os.pathsep + os.environ.get('PATH', '')
             else:

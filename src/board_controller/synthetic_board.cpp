@@ -103,8 +103,7 @@ void SyntheticBoard::read_thread ()
         sin_phase_rad[i] = 0.0;
     }
     int sampling_rate = board_descr["default"]["sampling_rate"];
-    int batch_size = 15;
-    int sleep_time = (int)((1000.0 / sampling_rate) * batch_size);
+    int sleep_time = (int)((1000.0 / sampling_rate));
     std::uniform_real_distribution<double> dist_around_one (0.90, 1.10);
     uint64_t seed = std::chrono::high_resolution_clock::now ().time_since_epoch ().count ();
     std::mt19937 mt (static_cast<uint32_t> (seed));
@@ -123,103 +122,131 @@ void SyntheticBoard::read_thread ()
         aux_package[i] = 0.0;
     }
 
-    double timestamp = 0;
     while (keep_alive)
     {
         auto start = std::chrono::high_resolution_clock::now ();
-        for (int num_in_batch = 0; num_in_batch < batch_size; num_in_batch++)
+        package[board_descr["default"]["package_num_channel"].get<int> ()] = (double)counter;
+        for (unsigned int i = 0; i < exg_channels.size (); i++)
         {
-            if (num_in_batch == 0)
+            double amplitude = 10.0 * (i + 1);
+            double noise = 0.1 * (i + 1);
+            double freq = 5.0 * (i + 1);
+            int peak_frequency = (int)(sampling_rate / (i + 1));
+            double shift = 0.05 * i;
+            double range = (amplitude * noise) / 2.0;
+            std::uniform_real_distribution<double> dist (0 - range, range);
+            sin_phase_rad[i] += 2.0f * M_PI * freq / (double)sampling_rate;
+            if (sin_phase_rad[i] > 2.0f * M_PI)
             {
-                timestamp = get_timestamp ();
+                sin_phase_rad[i] -= 2.0f * M_PI;
             }
-            package[board_descr["default"]["package_num_channel"].get<int> ()] = (double)counter;
-            for (unsigned int i = 0; i < exg_channels.size (); i++)
+            if ((i > 5) &&
+                ((counter % peak_frequency == 0) || ((counter - 1) % peak_frequency == 0) ||
+                    (((counter + 1) % peak_frequency == 0))))
             {
-                double amplitude = 10.0 * (i + 1);
-                double noise = 0.1 * (i + 1);
-                double freq = 5.0 * (i + 1);
-                int peak_frequency = (int)(sampling_rate / (i + 1));
-                double shift = 0.05 * i;
-                double range = (amplitude * noise) / 2.0;
-                std::uniform_real_distribution<double> dist (0 - range, range);
-                sin_phase_rad[i] += 2.0f * M_PI * freq / (double)sampling_rate;
-                if (sin_phase_rad[i] > 2.0f * M_PI)
-                {
-                    sin_phase_rad[i] -= 2.0f * M_PI;
-                }
-                if ((i > 5) &&
-                    ((counter % peak_frequency == 0) || ((counter - 1) % peak_frequency == 0) ||
-                        (((counter + 1) % peak_frequency == 0))))
-                {
-                    amplitude *= dist_around_one (mt) * 2;
-                }
-                package[exg_channels[i]] = amplitude +
-                    (amplitude + dist (mt)) * sqrt (2.0) * sin (sin_phase_rad[i] + shift);
+                amplitude *= dist_around_one (mt) * 2;
             }
-            for (int channel : board_descr["default"]["accel_channels"])
-            {
-                package[channel] = dist_around_one (mt) - 0.1;
-            }
-            for (int channel : board_descr["default"]["gyro_channels"])
-            {
-                package[channel] = dist_around_one (mt) - 0.1;
-            }
-            for (int channel : board_descr["default"]["eda_channels"])
-            {
-                package[channel] = dist_around_one (mt);
-            }
-            for (int chan_num = 0; chan_num < (int)board_descr["default"]["ppg_channels"].size ();
-                 chan_num++)
-            {
-                int channel = board_descr["default"]["ppg_channels"][chan_num];
-                if (chan_num == 0)
-                {
-                    package[channel] = 500.0 * dist_around_one (mt);
-                }
-                else
-                {
-                    package[channel] = 253500.0 * dist_around_one (mt);
-                }
-            }
-            for (int channel : board_descr["default"]["temperature_channels"])
-            {
-                package[channel] = dist_around_one (mt) / 10.0 + 36.5;
-            }
-            for (int channel : board_descr["default"]["resistance_channels"])
-            {
-                package[channel] = 1000.0 * dist_around_one (mt);
-            }
-            package[board_descr["default"]["battery_channel"].get<int> ()] =
-                (dist_around_one (mt) - 0.1) * 100;
-            package[board_descr["default"]["timestamp_channel"].get<int> ()] =
-                timestamp + num_in_batch / (double)sampling_rate;
-
-            push_package (package); // use this method to submit data to buffers
-
-            // push aux package
-            for (int channel : board_descr["auxiliary"]["other_channels"])
-            {
-                aux_package[channel] = (double)channel;
-            }
-            aux_package[board_descr["auxiliary"]["timestamp_channel"].get<int> ()] =
-                timestamp + num_in_batch / (double)sampling_rate;
-            package[board_descr["auxiliary"]["package_num_channel"].get<int> ()] = (double)counter;
-            push_package (aux_package, (int)BrainFlowPresets::AUXILIARY_PRESET);
-
-            counter++;
+            package[exg_channels[i]] =
+                amplitude + (amplitude + dist (mt)) * sqrt (2.0) * sin (sin_phase_rad[i] + shift);
         }
-        auto stop = std::chrono::high_resolution_clock::now ();
-        auto duration =
-            std::chrono::duration_cast<std::chrono::milliseconds> (stop - start).count ();
-        if (duration < sleep_time)
+        for (int channel : board_descr["default"]["accel_channels"])
+        {
+            package[channel] = dist_around_one (mt) - 0.1;
+        }
+        for (int channel : board_descr["default"]["gyro_channels"])
+        {
+            package[channel] = dist_around_one (mt) - 0.1;
+        }
+        for (int channel : board_descr["default"]["eda_channels"])
+        {
+            package[channel] = dist_around_one (mt);
+        }
+        for (int chan_num = 0; chan_num < (int)board_descr["default"]["ppg_channels"].size ();
+             chan_num++)
+        {
+            int channel = board_descr["default"]["ppg_channels"][chan_num];
+            if (chan_num == 0)
+            {
+                package[channel] = 500.0 * dist_around_one (mt);
+            }
+            else
+            {
+                package[channel] = 253500.0 * dist_around_one (mt);
+            }
+        }
+        for (int channel : board_descr["default"]["temperature_channels"])
+        {
+            package[channel] = dist_around_one (mt) / 10.0 + 36.5;
+        }
+        for (int channel : board_descr["default"]["resistance_channels"])
+        {
+            package[channel] = 1000.0 * dist_around_one (mt);
+        }
+        package[board_descr["default"]["battery_channel"].get<int> ()] =
+            (dist_around_one (mt) - 0.1) * 100;
+        package[board_descr["default"]["timestamp_channel"].get<int> ()] = get_timestamp ();
+
+        push_package (package); // use this method to submit data to buffers
+
+        // push aux package
+        for (int channel : board_descr["auxiliary"]["other_channels"])
+        {
+            aux_package[channel] = (double)channel;
+        }
+        aux_package[board_descr["auxiliary"]["timestamp_channel"].get<int> ()] = get_timestamp ();
+        aux_package[board_descr["auxiliary"]["package_num_channel"].get<int> ()] = (double)counter;
+        aux_package[board_descr["auxiliary"]["battery_channel"].get<int> ()] =
+            (dist_around_one (mt) - 0.1) * 100;
+        for (int channel : board_descr["auxiliary"]["accel_channels"])
+        {
+            aux_package[channel] = dist_around_one (mt) - 0.1;
+        }
+        for (int channel : board_descr["auxiliary"]["gyro_channels"])
+        {
+            aux_package[channel] = dist_around_one (mt) - 0.1;
+        }
+        for (int channel : board_descr["auxiliary"]["eda_channels"])
+        {
+            aux_package[channel] = dist_around_one (mt);
+        }
+        for (int chan_num = 0; chan_num < (int)board_descr["auxiliary"]["ppg_channels"].size ();
+             chan_num++)
+        {
+            int channel = board_descr["auxiliary"]["ppg_channels"][chan_num];
+            if (chan_num == 0)
+            {
+                aux_package[channel] = 500.0 * dist_around_one (mt);
+            }
+            else
+            {
+                aux_package[channel] = 253500.0 * dist_around_one (mt);
+            }
+        }
+        for (int channel : board_descr["auxiliary"]["temperature_channels"])
+        {
+            aux_package[channel] = dist_around_one (mt) / 10.0 + 36.5;
+        }
+        for (int channel : board_descr["auxiliary"]["resistance_channels"])
+        {
+            aux_package[channel] = 1000.0 * dist_around_one (mt);
+        }
+
+        push_package (aux_package, (int)BrainFlowPresets::AUXILIARY_PRESET);
+
+        if (sleep_time - accumulated_time_delta > 1)
         {
 #ifdef _WIN32
-            Sleep (sleep_time - duration);
+            Sleep ((int)(sleep_time - accumulated_time_delta));
 #else
-            usleep ((sleep_time - duration) * 1000);
+            usleep ((int)(1000 * (sleep_time - accumulated_time_delta)));
 #endif
         }
+
+        counter++;
+        auto stop = std::chrono::high_resolution_clock::now ();
+        auto duration =
+            std::chrono::duration_cast<std::chrono::microseconds> (stop - start).count ();
+        accumulated_time_delta += (duration / 1000.0 - sleep_time);
     }
     delete[] sin_phase_rad;
     delete[] package;

@@ -26,6 +26,21 @@ int CytonWifi::prepare_session ()
     return send_config ("d");
 }
 
+int CytonWifi::config_board (std::string conf, std::string &response)
+{
+    if (gain_tracker.apply_config (conf) == (int)OpenBCICommandTypes::INVALID_COMMAND)
+    {
+        safe_logger (spdlog::level::warn, "invalid command: {}", conf.c_str ());
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+    int res = OpenBCIWifiShieldBoard::config_board (conf, response);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        gain_tracker.revert_config ();
+    }
+    return res;
+}
+
 void CytonWifi::read_thread ()
 {
     /*
@@ -52,6 +67,7 @@ void CytonWifi::read_thread ()
         package[i] = 0.0;
     }
     std::vector<int> eeg_channels = board_descr["default"]["eeg_channels"];
+    double accel_scale = (double)(0.002 / (pow (2, 4)));
 
     while (keep_alive)
     {
@@ -89,6 +105,8 @@ void CytonWifi::read_thread ()
         // eeg
         for (unsigned int i = 0; i < eeg_channels.size (); i++)
         {
+            double eeg_scale = (double)(4.5 / float ((pow (2, 23) - 1)) /
+                gain_tracker.get_gain_for_channel (i) * 1000000.);
             package[eeg_channels[i]] = eeg_scale * cast_24bit_to_int32 (bytes + 1 + 3 * i);
         }
         package[board_descr["default"]["other_channels"][0].get<int> ()] =

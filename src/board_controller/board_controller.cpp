@@ -31,11 +31,14 @@
 #include "cyton_daisy.h"
 #include "cyton_daisy_wifi.h"
 #include "cyton_wifi.h"
+#include "emotibit.h"
 #include "enophone.h"
+#include "explore.h"
 #include "freeeeg32.h"
 #include "galea.h"
 #include "galea_serial.h"
 #include "ganglion.h"
+#include "ganglion_native.h"
 #include "ganglion_wifi.h"
 #include "gforce_dual.h"
 #include "gforce_pro.h"
@@ -240,6 +243,18 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
             break;
         case BoardIds::PIEEG_BOARD:
             board = std::shared_ptr<Board> (new PiEEG (params));
+            break;
+        case BoardIds::EXPLORE_4_CHAN_BOARD:
+            board = std::shared_ptr<Board> (new Explore (board_id, params));
+            break;
+        case BoardIds::EXPLORE_8_CHAN_BOARD:
+            board = std::shared_ptr<Board> (new Explore (board_id, params));
+            break;
+        case BoardIds::GANGLION_NATIVE_BOARD:
+            board = std::shared_ptr<Board> (new GanglionNative (params));
+            break;
+        case BoardIds::EMOTIBIT_BOARD:
+            board = std::shared_ptr<Board> (new Emotibit (params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
@@ -465,6 +480,25 @@ int add_streamer (
     return board_it->second->add_streamer (streamer, preset);
 }
 
+int delete_streamer (
+    const char *streamer, int preset, int board_id, const char *json_brainflow_input_params)
+{
+    std::lock_guard<std::mutex> lock (mutex);
+    if (streamer == NULL)
+    {
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    std::pair<int, struct BrainFlowInputParams> key;
+    int res = check_board_session (board_id, json_brainflow_input_params, key, false);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        return res;
+    }
+    auto board_it = boards.find (key);
+    return board_it->second->delete_streamer (streamer, preset);
+}
+
 int release_all_sessions ()
 {
     std::lock_guard<std::mutex> lock (mutex);
@@ -531,14 +565,19 @@ int string_to_brainflow_input_params (
         params->serial_port = config["serial_port"];
         params->ip_protocol = config["ip_protocol"];
         params->ip_port = config["ip_port"];
+        params->ip_port_aux = config["ip_port_aux"];
+        params->ip_port_anc = config["ip_port_anc"];
         params->other_info = config["other_info"];
         params->mac_address = config["mac_address"];
         params->ip_address = config["ip_address"];
+        params->ip_address_aux = config["ip_address_aux"];
+        params->ip_address_anc = config["ip_address_anc"];
         params->timeout = config["timeout"];
         params->serial_number = config["serial_number"];
         params->file = config["file"];
+        params->file_aux = config["file_aux"];
+        params->file_anc = config["file_anc"];
         params->master_board = config["master_board"];
-        params->preset = config["preset"];
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
     catch (json::exception &e)

@@ -7,7 +7,6 @@ import logging
 import numpy as np
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
-from sklearn.gaussian_process import GaussianProcessClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import StackingClassifier
 from sklearn.neighbors import KNeighborsClassifier

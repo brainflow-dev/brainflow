@@ -2,7 +2,7 @@ import argparse
 import logging
 
 import pyqtgraph as pg
-from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds, BrainFlowPresets
+from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 from brainflow.data_filter import DataFilter, FilterTypes, WindowOperations, DetrendOperations
 from pyqtgraph.Qt import QtGui, QtCore
 
@@ -139,8 +139,6 @@ def main():
     parser.add_argument('--file', type=str, help='file', required=False, default='')
     parser.add_argument('--master-board', type=int, help='master board id for streaming and playback boards',
                         required=False, default=BoardIds.NO_BOARD)
-    parser.add_argument('--preset', type=int, help='preset for streaming and playback boards',
-                        required=False, default=BrainFlowPresets.DEFAULT_PRESET)
     args = parser.parse_args()
 
     params = BrainFlowInputParams()
@@ -154,7 +152,6 @@ def main():
     params.timeout = args.timeout
     params.file = args.file
     params.master_board = args.master_board
-    params.preset = args.preset
 
     try:
         board_shim = BoardShim(args.board_id, params)

@@ -581,6 +581,30 @@ namespace brainflow
         }
 
         /// <summary>
+        /// get magnetometer channels for this board
+        /// </summary>
+        /// <param name="board_id"></param>
+        /// <param name="preset">preset for device</param>
+        /// <returns>array of row nums</returns>
+        /// <exception cref="BrainFlowException">If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR</exception>
+        public static int[] get_magnetometer_channels (int board_id, int preset = (int)BrainFlowPresets.DEFAULT_PRESET)
+        {
+            int[] len = new int[1];
+            int[] channels = new int[512];
+            int res = BoardControllerLibrary.get_magnetometer_channels (board_id, preset, channels, len);
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+            int[] result = new int[len[0]];
+            for (int i = 0; i < len[0]; i++)
+            {
+                result[i] = channels[i];
+            }
+            return result;
+        }
+
+        /// <summary>
         /// set log level, logger is disabled by default
         /// </summary>
         /// <param name="log_level"></param>
@@ -680,6 +704,19 @@ namespace brainflow
         public void add_streamer (string streamer_params, int preset = (int)BrainFlowPresets.DEFAULT_PRESET)
         {
             int res = BoardControllerLibrary.add_streamer (streamer_params, preset, board_id, input_json);
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+        }
+
+        /// <summary>
+        /// delete streamer
+        /// </summary>
+        /// <param name="streamer_params">supoprted formats file://filename:w file://filename:a streaming_board://ip:port</param>
+        public void delete_streamer (string streamer_params, int preset = (int)BrainFlowPresets.DEFAULT_PRESET)
+        {
+            int res = BoardControllerLibrary.delete_streamer (streamer_params, preset, board_id, input_json);
             if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
                 throw new BrainFlowError (res);

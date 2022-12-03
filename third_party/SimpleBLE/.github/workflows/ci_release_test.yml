@@ -1,0 +1,58 @@
+name: PyPI Test Release
+
+on: [push, pull_request]
+
+jobs:
+  build_wheels:
+    strategy:
+      matrix:
+        os: [ubuntu-20.04 , windows-2019, macos-11]
+    runs-on: ${{ matrix.os }}
+    name: Build wheels on ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up QEMU
+        if: runner.os == 'Linux'
+        uses: docker/setup-qemu-action@v1
+        with:
+          platforms: arm64
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r simplepyble/requirements.txt
+
+      - name: Build wheel
+        uses: pypa/cibuildwheel@v2.9.0
+        env:
+          CIBW_BUILD: cp39-* # Only build for Python 3.9
+          CIBW_BUILD_VERBOSITY: 3
+          CIBW_BEFORE_ALL_LINUX: "yum update -y && yum group install -y \"Development Tools\" && yum install -y dbus-devel"
+          CIBW_ARCHS_LINUX: x86_64
+          CIBW_ARCHS_MACOS: arm64
+          CIBW_ARCHS_WINDOWS: AMD64
+          CIBW_SKIP: "*musllinux_* pp*"
+        with:
+            package-dir: simplepyble
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v1
+        with:
+          name: simpleble-wheels
+          path: wheelhouse
+
+      - name: Check Packages
+        run: twine check wheelhouse/*.whl
+
+      - name: Publish packages
+        run: twine upload --repository testpypi --skip-existing wheelhouse/*.whl --verbose
+        env:
+          TWINE_USERNAME: ${{ secrets.TEST_PYPI_USER }}
+          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_PASSWORD }}

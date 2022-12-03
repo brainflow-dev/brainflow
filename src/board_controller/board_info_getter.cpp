@@ -191,6 +191,11 @@ int get_resistance_channels (int board_id, int preset, int *resistance_channels,
     return get_array_value (board_id, preset, "resistance_channels", resistance_channels, len);
 }
 
+int get_magnetometer_channels (int board_id, int preset, int *magnetometer_channels, int *len)
+{
+    return get_array_value (board_id, preset, "magnetometer_channels", magnetometer_channels, len);
+}
+
 int get_exg_channels (int board_id, int preset, int *exg_channels, int *len)
 {
     std::set<int> unique_channels;

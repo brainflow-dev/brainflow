@@ -3,7 +3,8 @@ use ndarray::{Array1, Array2, Array3, ArrayBase};
 use num::Complex;
 use num_complex::Complex64;
 use std::os::raw::c_int;
-use std::{ffi::CString, os::raw::c_double};
+use std::{ffi::CString, ffi::CStr, os::raw::c_double};
+use std::os::raw::c_char;
 
 use crate::error::{BrainFlowError, Error};
 use crate::ffi::data_handler;
@@ -807,29 +808,32 @@ where
 
 /// Get DataFilter version.
 pub fn get_version() -> Result<String> {
+    const MAX_CHARS: usize = 64;
     let mut response_len = 0;
-    let response = CString::new(Vec::with_capacity(64))?;
-    let response = response.into_raw();
+    let mut result_char_buffer: [c_char; MAX_CHARS] = [0; MAX_CHARS];
     let (res, response) = unsafe {
-        let res = data_handler::get_version_data_handler(response, &mut response_len, 64);
-        let response = CString::from_raw(response);
+        let res = data_handler::get_version_data_handler(result_char_buffer.as_mut_ptr(), &mut response_len, MAX_CHARS as i32);
+        let response = CStr::from_ptr(result_char_buffer.as_mut_ptr());
         (res, response)
     };
     check_brainflow_exit_code(res)?;
-    let version = response.to_str()?.split_at(response_len as usize).0;
 
-    Ok(version.to_string())
+    Ok(response.to_str()?.to_string())
 }
 
 #[cfg(test)]
 mod tests {
     use std::{env, f64::consts::PI, fs};
-
     use ndarray::array;
-
     use crate::ffi::constants::WindowOperations;
-
+    use crate::test_helpers::assertions::assert_regex_matches;
+    use crate::test_helpers::consts::VERSION_PATTERN;
     use super::*;
+
+    #[test]
+    fn test_it_gets_the_version() {
+        assert_regex_matches(VERSION_PATTERN, get_version().unwrap().as_str());
+    }
 
     #[test]
     fn wavelet_inverse_transform_equals_input_data() {
@@ -846,7 +850,7 @@ mod tests {
         println!("{:?}", restored_fft);
 
         println!("{:?}", data);
-        let wavelet_data = perform_wavelet_transform(&mut data, "db3", 3).unwrap();
+        let wavelet_data = perform_wavelet_transform(&mut data, WaveletTypes::Db3, 3, WaveletExtensionTypes::Periodic).unwrap();
         let restored_wavelet = perform_inverse_wavelet_transform(wavelet_data).unwrap();
         println!("{:?}", restored_wavelet);
         for (d, r) in data.iter().zip(restored_wavelet) {

@@ -30,6 +30,8 @@ public class BoardShim
 
         int add_streamer (String streamer, int preset, int board_id, String params);
 
+        int delete_streamer (String streamer, int preset, int board_id, String params);
+
         int start_stream (int buffer_size, String streamer_params, int board_id, String params);
 
         int stop_stream (int board_id, String params);
@@ -88,6 +90,8 @@ public class BoardShim
         int get_other_channels (int board_id, int preset, int[] other_channels, int[] len);
 
         int get_resistance_channels (int board_id, int preset, int[] channels, int[] len);
+
+        int get_magnetometer_channels (int board_id, int preset, int[] channels, int[] len);
 
         int get_temperature_channels (int board_id, int preset, int[] temperature_channels, int[] len);
 
@@ -852,6 +856,50 @@ public class BoardShim
 
     /**
      * get row indices in returned by get_board_data() 2d array which contain
+     * magnetometer data
+     */
+    public static int[] get_magnetometer_channels (int board_id, BrainFlowPresets preset) throws BrainFlowError
+    {
+        int[] len = new int[1];
+        int[] channels = new int[512];
+        int ec = instance.get_magnetometer_channels (board_id, preset.get_code (), channels, len);
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in board info getter", ec);
+        }
+
+        return Arrays.copyOfRange (channels, 0, len[0]);
+    }
+
+    /**
+     * get row indices in returned by get_board_data() 2d array which contain
+     * magnetometer data
+     */
+    public static int[] get_magnetometer_channels (int board_id) throws BrainFlowError
+    {
+        return get_magnetometer_channels (board_id, BrainFlowPresets.DEFAULT_PRESET);
+    }
+
+    /**
+     * get row indices in returned by get_board_data() 2d array which contain
+     * magnetometer data
+     */
+    public static int[] get_magnetometer_channels (BoardIds board_id, BrainFlowPresets preset) throws BrainFlowError
+    {
+        return get_magnetometer_channels (board_id.get_code (), preset);
+    }
+
+    /**
+     * get row indices in returned by get_board_data() 2d array which contain
+     * magnetometer data
+     */
+    public static int[] get_magnetometer_channels (BoardIds board_id) throws BrainFlowError
+    {
+        return get_magnetometer_channels (board_id.get_code ());
+    }
+
+    /**
+     * get row indices in returned by get_board_data() 2d array which contain
      * resistance data
      */
     public static int[] get_resistance_channels (int board_id, BrainFlowPresets preset) throws BrainFlowError
@@ -1334,6 +1382,18 @@ public class BoardShim
         }
     }
 
+    /**
+     * delete streamer
+     */
+    public void delete_streamer (String streamer, int preset) throws BrainFlowError
+    {
+        int ec = instance.delete_streamer (streamer, preset, board_id, input_json);
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in delete_streamer", ec);
+        }
+    }
+
     public void add_streamer (String streamer, BrainFlowPresets preset) throws BrainFlowError
     {
         add_streamer (streamer, preset.get_code ());
@@ -1342,6 +1402,16 @@ public class BoardShim
     public void add_streamer (String streamer) throws BrainFlowError
     {
         add_streamer (streamer, BrainFlowPresets.DEFAULT_PRESET);
+    }
+
+    public void delete_streamer (String streamer, BrainFlowPresets preset) throws BrainFlowError
+    {
+        delete_streamer (streamer, preset.get_code ());
+    }
+
+    public void delete_streamer (String streamer) throws BrainFlowError
+    {
+        delete_streamer (streamer, BrainFlowPresets.DEFAULT_PRESET);
     }
 
     /**

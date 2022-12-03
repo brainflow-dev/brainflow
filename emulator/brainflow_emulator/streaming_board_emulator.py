@@ -2,7 +2,7 @@ import logging
 import subprocess
 import sys
 
-from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
+from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds, BrainFlowPresets
 from brainflow_emulator.emulate_common import TestFailureError, log_multilines
 
 
@@ -25,7 +25,9 @@ def main():
     params = BrainFlowInputParams()
     board = BoardShim(BoardIds.SYNTHETIC_BOARD.value, params)
     board.prepare_session()
-    board.start_stream(450000, 'streaming_board://225.1.1.1:6677')
+    board.add_streamer('streaming_board://225.1.1.1:6677', BrainFlowPresets.DEFAULT_PRESET)
+    board.add_streamer('streaming_board://225.1.1.1:6678', BrainFlowPresets.DEFAULT_PRESET)
+    board.start_stream()
 
     run_test(sys.argv[1:])
 
