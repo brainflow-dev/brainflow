@@ -54,6 +54,7 @@ class SIMPLEBLE_EXPORT OperationNotSupported : public BaseException {
 class SIMPLEBLE_EXPORT OperationFailed : public BaseException {
   public:
     OperationFailed();
+    OperationFailed(const std::string& err_msg);
 };
 
 class SIMPLEBLE_EXPORT WinRTException : public BaseException {

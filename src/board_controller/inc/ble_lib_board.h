@@ -21,11 +21,16 @@ protected:
     void simpleble_free (void *handle);
     // adapter
     size_t simpleble_adapter_get_count (void);
+    bool simpleble_adapter_is_bluetooth_enabled (void);
     simpleble_adapter_t simpleble_adapter_get_handle (size_t index);
     void simpleble_adapter_release_handle (simpleble_adapter_t handle);
     simpleble_err_t simpleble_adapter_scan_for (simpleble_adapter_t handle, int timeout_ms);
     simpleble_err_t simpleble_adapter_scan_start (simpleble_adapter_t handle);
     simpleble_err_t simpleble_adapter_scan_stop (simpleble_adapter_t handle);
+    simpleble_err_t simpleble_adapter_set_callback_on_scan_start (
+        simpleble_adapter_t handle, void (*) (simpleble_adapter_t, void *), void *);
+    simpleble_err_t simpleble_adapter_set_callback_on_scan_stop (
+        simpleble_adapter_t handle, void (*) (simpleble_adapter_t, void *), void *);
     simpleble_err_t simpleble_adapter_set_callback_on_scan_updated (simpleble_adapter_t handle,
         void (*) (simpleble_adapter_t, simpleble_peripheral_t, void *), void *);
     simpleble_err_t simpleble_adapter_set_callback_on_scan_found (simpleble_adapter_t handle,

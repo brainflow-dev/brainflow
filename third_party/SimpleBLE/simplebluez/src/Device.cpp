@@ -71,6 +71,8 @@ int16_t Device::rssi() { return device1()->RSSI(); }
 
 std::map<uint16_t, std::vector<uint8_t>> Device::manufacturer_data() { return device1()->ManufacturerData(); }
 
+std::vector<std::string> Device::service_data() { return device1()->ServiceData(); }
+
 bool Device::paired() { return device1()->Paired(); }
 
 bool Device::connected() { return device1()->Connected(); }

@@ -27,6 +27,8 @@ PeripheralBase::PeripheralBase(advertising_data_t advertising_data) {
     rssi_ = advertising_data.rssi;
     manufacturer_data_ = advertising_data.manufacturer_data;
     connectable_ = advertising_data.connectable;
+    advertised_services_ = advertising_data.service_uuids;
+
     device_ = async_get(
         BluetoothLEDevice::FromBluetoothAddressAsync(_str_to_mac_address(advertising_data.mac_address)));
 }
@@ -45,9 +47,28 @@ BluetoothAddress PeripheralBase::address() { return address_; }
 
 int16_t PeripheralBase::rssi() { return rssi_; }
 
+uint16_t PeripheralBase::mtu() {
+    if (!is_connected()) return 0;
+
+    // The value provided by the MaxPduSize includes an extra 3 bytes from the GATT header
+    // which needs to be removed.
+    return mtu_ - 3;
+}
+
 void PeripheralBase::update_advertising_data(advertising_data_t advertising_data) {
+    if (advertising_data.identifier != "") {
+        identifier_ = advertising_data.identifier;
+    }
     rssi_ = advertising_data.rssi;
     manufacturer_data_ = advertising_data.manufacturer_data;
+
+    // Append services that haven't been seen before
+    for (auto& service : advertising_data.service_uuids) {
+        if (std::find(advertised_services_.begin(), advertised_services_.end(), service) ==
+            advertised_services_.end()) {
+            advertised_services_.push_back(service);
+        }
+    }
 }
 
 void PeripheralBase::connect() {
@@ -108,9 +129,28 @@ std::vector<Service> PeripheralBase::services() {
             for (auto& [descriptor_uuid, descriptor] : characteristic.descriptors) {
                 descriptor_list.push_back(DescriptorBuilder(descriptor_uuid));
             }
-            characteristic_list.push_back(CharacteristicBuilder(characteristic_uuid, descriptor_list));
+
+            uint32_t properties = (uint32_t)characteristic.obj.CharacteristicProperties();
+            bool can_read = (properties & (uint32_t)GattCharacteristicProperties::Read) != 0;
+            bool can_write_request = (properties & (uint32_t)GattCharacteristicProperties::Write) != 0;
+            bool can_write_command = (properties & (uint32_t)GattCharacteristicProperties::WriteWithoutResponse) != 0;
+            bool can_notify = (properties & (uint32_t)GattCharacteristicProperties::Notify) != 0;
+            bool can_indicate = (properties & (uint32_t)GattCharacteristicProperties::Indicate) != 0;
+
+            characteristic_list.push_back(CharacteristicBuilder(characteristic_uuid, descriptor_list, can_read,
+                                                                can_write_request, can_write_command, can_notify,
+                                                                can_indicate));
         }
         service_list.push_back(ServiceBuilder(service_uuid, characteristic_list));
+    }
+
+    return service_list;
+}
+
+std::vector<Service> PeripheralBase::advertised_services() {
+    std::vector<Service> service_list;
+    for (auto& service_uuid : advertised_services_) {
+        service_list.push_back(ServiceBuilder(service_uuid));
     }
 
     return service_list;
@@ -298,6 +338,9 @@ bool PeripheralBase::_attempt_connect() {
         // For each service...
         gatt_service_t gatt_service;
         gatt_service.obj = service;
+
+        // Save the MTU size
+        mtu_ = service.Session().MaxPduSize();
 
         // Fetch the service UUID
         std::string service_uuid = guid_to_uuid(service.Uuid());

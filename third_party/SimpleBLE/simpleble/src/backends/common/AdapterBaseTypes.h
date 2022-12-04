@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <map>
 #include <string>
+#include <vector>
 
 namespace SimpleBLE {
 
@@ -13,9 +14,8 @@ struct advertising_data_t {
     bool connectable;
     int16_t rssi;
 
-    // TODO: Considering that per advertising report only one manufacturer
-    // identifier is supported, maybe it is not necessary to use a map.
-    std::map<uint16_t, SimpleBLE::ByteArray> manufacturer_data;
+    std::vector<BluetoothUUID> service_uuids;
+    std::map<uint16_t, ByteArray> manufacturer_data;
 };
 
 }  // namespace SimpleBLE

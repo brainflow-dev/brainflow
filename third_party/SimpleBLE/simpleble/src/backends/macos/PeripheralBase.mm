@@ -1,5 +1,6 @@
 #import "PeripheralBase.h"
 #import "PeripheralBaseMacOS.h"
+#import "ServiceBuilder.h"
 
 #import "CommonUtils.h"
 
@@ -47,10 +48,23 @@ BluetoothAddress PeripheralBase::address() {
 
 int16_t PeripheralBase::rssi() { return rssi_; }
 
+uint16_t PeripheralBase::mtu() {
+    PeripheralBaseMacOS* internal = (__bridge PeripheralBaseMacOS*)opaque_internal_;
+    return [internal mtu];
+}
+
 void PeripheralBase::update_advertising_data(advertising_data_t advertising_data) {
     is_connectable_ = advertising_data.connectable;
     manufacturer_data_ = advertising_data.manufacturer_data;
     rssi_ = advertising_data.rssi;
+
+    // Append services that haven't been seen before
+    for (auto& service : advertising_data.service_uuids) {
+        if (std::find(advertised_services_.begin(), advertised_services_.end(), service) ==
+            advertised_services_.end()) {
+            advertised_services_.push_back(service);
+        }
+    }
 }
 
 void PeripheralBase::connect() {
@@ -85,6 +99,15 @@ void PeripheralBase::unpair() { throw Exception::OperationNotSupported(); }
 std::vector<Service> PeripheralBase::services() {
     PeripheralBaseMacOS* internal = (__bridge PeripheralBaseMacOS*)opaque_internal_;
     return [internal getServices];
+}
+
+std::vector<Service> PeripheralBase::advertised_services() {
+    std::vector<Service> service_list;
+    for (auto& service_uuid : advertised_services_) {
+        service_list.push_back(ServiceBuilder(service_uuid));
+    }
+
+    return service_list;
 }
 
 std::map<uint16_t, ByteArray> PeripheralBase::manufacturer_data() { return manufacturer_data_; }

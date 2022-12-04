@@ -19,6 +19,13 @@ class SIMPLEBLE_EXPORT Characteristic {
 
     BluetoothUUID uuid();
     std::vector<Descriptor> descriptors();
+    std::vector<std::string> capabilities();
+
+    bool can_read();
+    bool can_write_request();
+    bool can_write_command();
+    bool can_notify();
+    bool can_indicate();
 
   protected:
     std::shared_ptr<CharacteristicBase> internal_;

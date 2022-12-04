@@ -27,6 +27,14 @@ BluetoothAddress PeripheralBase::address() { return "11:22:33:44:55:66"; }
 
 int16_t PeripheralBase::rssi() { return -60; }
 
+uint16_t PeripheralBase::mtu() {
+    if (is_connected()) {
+        return 247;
+    } else {
+        return 0;
+    }
+}
+
 void PeripheralBase::connect() {
     connected_ = true;
     paired_ = true;
@@ -51,9 +59,12 @@ std::vector<Service> PeripheralBase::services() {
     std::vector<Service> service_list;
 
     service_list.push_back(
-        ServiceBuilder(BATTERY_SERVICE_UUID, {CharacteristicBuilder(BATTERY_CHARACTERISTIC_UUID, {})}));
+        ServiceBuilder(BATTERY_SERVICE_UUID,
+                       {CharacteristicBuilder(BATTERY_CHARACTERISTIC_UUID, {}, true, false, false, true, false)}));
     return service_list;
 }
+
+std::vector<Service> PeripheralBase::advertised_services() { return {}; }
 
 std::map<uint16_t, ByteArray> PeripheralBase::manufacturer_data() { return {}; }
 

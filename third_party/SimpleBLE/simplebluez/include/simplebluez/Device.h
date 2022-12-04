@@ -27,6 +27,7 @@ class Device : public SimpleDBus::Proxy {
     int16_t rssi();
 
     std::map<uint16_t, std::vector<uint8_t>> manufacturer_data();
+    std::vector<std::string> service_data();
 
     bool paired();
     bool connected();

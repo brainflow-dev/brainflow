@@ -1,10 +1,14 @@
+#include <chrono>
 #include <iomanip>
 #include <iostream>
+#include <thread>
 #include <vector>
 
 #include "../common/utils.hpp"
 
 #include "simpleble/SimpleBLE.h"
+
+using namespace std::chrono_literals;
 
 int main() {
     auto adapter_optional = Utils::getAdapter();
@@ -68,6 +72,8 @@ int main() {
         std::cout << "Received: ";
         Utils::print_byte_array(bytes);
     });
+
+    std::this_thread::sleep_for(5s);
 
     peripheral.unsubscribe(uuids[selection.value()].first, uuids[selection.value()].second);
 

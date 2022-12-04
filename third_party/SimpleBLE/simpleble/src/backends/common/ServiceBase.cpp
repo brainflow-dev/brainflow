@@ -5,6 +5,8 @@
 
 using namespace SimpleBLE;
 
+ServiceBase::ServiceBase(const BluetoothUUID& uuid) : uuid_(uuid) {}
+
 ServiceBase::ServiceBase(const BluetoothUUID& uuid, std::vector<Characteristic>& characteristics)
     : uuid_(uuid), characteristics_(characteristics) {}
 

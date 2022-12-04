@@ -16,6 +16,7 @@ namespace SimpleBLE {
  */
 class ServiceBuilder : public Service {
   public:
+    ServiceBuilder(const BluetoothUUID& uuid);
     ServiceBuilder(const BluetoothUUID& uuid, std::vector<Characteristic> characteristics);
     virtual ~ServiceBuilder() = default;
 };

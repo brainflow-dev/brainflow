@@ -3,6 +3,7 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #import <Foundation/Foundation.h>
 
+#include <cstdint>
 #include <functional>
 #include <vector>
 #include "PeripheralBase.h"
@@ -15,6 +16,7 @@
 
 - (NSString*)identifier;
 - (NSString*)address;
+- (uint16_t)mtu;
 
 - (void)connect;
 - (void)disconnect;

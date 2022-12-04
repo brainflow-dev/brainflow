@@ -3,6 +3,7 @@
 #include "AdapterBase.h"
 
 #include "CommonUtils.h"
+#include "LoggingInternal.h"
 #include "PeripheralBuilder.h"
 #include "Utils.h"
 
@@ -47,6 +48,13 @@ AdapterBase::AdapterBase(std::string device_id)
                 uint16_t company_id = item.CompanyId();
                 ByteArray manufacturer_data_buffer = ibuffer_to_bytearray(item.Data());
                 data.manufacturer_data[company_id] = manufacturer_data_buffer;
+            }
+
+            // Parse service uuids
+            auto service_data = args.Advertisement().ServiceUuids();
+            for (auto& service_guid : service_data) {
+                std::string service_uuid = guid_to_uuid(service_guid);
+                data.service_uuids.push_back(service_uuid);
             }
 
             this->_scan_received_callback(data);

@@ -45,6 +45,7 @@ class PeripheralBase {
     std::string identifier();
     BluetoothAddress address();
     int16_t rssi();
+    uint16_t mtu();
 
     void connect();
     void disconnect();
@@ -54,6 +55,7 @@ class PeripheralBase {
     void unpair();
 
     std::vector<Service> services();
+    std::vector<Service> advertised_services();
     std::map<uint16_t, ByteArray> manufacturer_data();
 
     // clang-format off
@@ -85,6 +87,7 @@ class PeripheralBase {
     std::string identifier_;
     BluetoothAddress address_;
     int16_t rssi_;
+    uint16_t mtu_;
     bool connectable_;
     winrt::event_token connection_status_changed_token_;
 
@@ -97,6 +100,7 @@ class PeripheralBase {
     kvn::safe_callback<void()> callback_on_disconnected_;
 
     std::map<uint16_t, SimpleBLE::ByteArray> manufacturer_data_;
+    std::vector<BluetoothUUID> advertised_services_;
 
     bool _attempt_connect();
     GattCharacteristic _fetch_characteristic(const BluetoothUUID& service_uuid,

@@ -48,6 +48,15 @@ int16_t simpleble_peripheral_rssi(simpleble_peripheral_t handle) {
     return peripheral->rssi().value_or(INT16_MIN);
 }
 
+uint16_t simpleble_peripheral_mtu(simpleble_peripheral_t handle) {
+    if (handle == nullptr) {
+        return 0;
+    }
+
+    SimpleBLE::Safe::Peripheral* peripheral = (SimpleBLE::Safe::Peripheral*)handle;
+    return peripheral->mtu().value_or(0);
+}
+
 simpleble_err_t simpleble_peripheral_connect(simpleble_peripheral_t handle) {
     if (handle == nullptr) {
         return SIMPLEBLE_FAILURE;
@@ -154,6 +163,12 @@ simpleble_err_t simpleble_peripheral_services_get(simpleble_peripheral_t handle,
 
     for (size_t i = 0; i < services->characteristic_count; i++) {
         SimpleBLE::Characteristic characteristic = service.characteristics()[i];
+
+        services->characteristics[i].can_read = characteristic.can_read();
+        services->characteristics[i].can_write_request = characteristic.can_write_request();
+        services->characteristics[i].can_write_command = characteristic.can_write_command();
+        services->characteristics[i].can_notify = characteristic.can_notify();
+        services->characteristics[i].can_indicate = characteristic.can_indicate();
 
         memcpy(services->characteristics[i].uuid.value, characteristic.uuid().c_str(), SIMPLEBLE_UUID_STR_LEN);
         services->characteristics[i].descriptor_count = characteristic.descriptors().size();
