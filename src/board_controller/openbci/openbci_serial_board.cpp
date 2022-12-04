@@ -127,6 +127,10 @@ int OpenBCISerialBoard::set_port_settings ()
         return (int)BrainFlowExitCodes::SET_PORT_ERROR;
     }
     safe_logger (spdlog::level::trace, "set port settings");
+#ifdef __APPLE__
+    int set_latency_res = serial->set_custom_latency (1);
+    safe_logger (spdlog::level::info, "set_latency_res is: {}", set_latency_res);
+#endif
     return send_to_board ("v");
 }
 
