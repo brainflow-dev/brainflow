@@ -1,0 +1,87 @@
+name: CI Build Examples
+
+on: [push, pull_request]
+
+jobs:
+
+  # ------------------------------------------------------------
+  build-windows:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        os: [windows-2019]
+        # For windows-2022, the generator is for "Visual Studio 17 2022"
+
+    steps:
+    - name: Clone Repository
+      uses: actions/checkout@v3
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
+    - name: Compile Examples for Windows
+      run: |
+        cmake -B %GITHUB_WORKSPACE%\build_simpleble_examples -G "Visual Studio 16 2019" -DCMAKE_SYSTEM_VERSION=10.0.22000.0 -S %GITHUB_WORKSPACE%/examples/simpleble
+        cmake --build %GITHUB_WORKSPACE%\build_simpleble_examples --config Release --parallel 4
+      shell: cmd
+
+  # ------------------------------------------------------------
+
+  build-macos:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        os: [macos-11.0]
+
+    steps:
+    - name: Clone Repository
+      uses: actions/checkout@v3
+    - name: Setup Cmake
+      uses: jwlawson/actions-setup-cmake@v1.12
+      with:
+        cmake-version: '3.21.x'
+    - name: Compile Examples for MacOS
+      run: |
+        cmake -B $GITHUB_WORKSPACE/build_simpleble_examples -DCMAKE_BUILD_TYPE=Release -S $GITHUB_WORKSPACE/examples/simpleble
+        cmake --build $GITHUB_WORKSPACE/build_simpleble_examples --config Release --parallel 4
+
+  # ------------------------------------------------------------
+
+  build-linux:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        os: [ubuntu-20.04]
+
+    steps:
+    - name: Clone Repository
+      uses: actions/checkout@v3
+    - name: Install Dependencies
+      run: |
+        sudo -H apt-get update -y
+        sudo -H apt-get install -y libdbus-1-dev
+      env:
+        DEBIAN_FRONTEND: noninteractive
+    - name: Setup Cmake
+      uses: jwlawson/actions-setup-cmake@v1.12
+      with:
+        cmake-version: '3.21.x'
+    - name:  Compile SimpleBLE Examples for Ubuntu
+      run: |
+        cmake -B $GITHUB_WORKSPACE/build_simpleble_examples -DCMAKE_BUILD_TYPE=Release -S $GITHUB_WORKSPACE/examples/simpleble
+        cmake --build $GITHUB_WORKSPACE/build_simpleble_examples --config Release --parallel 4
+    - name:  Compile SimpleBluez Examples for Ubuntu
+      run: |
+        cmake -B $GITHUB_WORKSPACE/build_simplebluez_examples -DCMAKE_BUILD_TYPE=Release -S $GITHUB_WORKSPACE/examples/simplebluez
+        cmake --build $GITHUB_WORKSPACE/build_simplebluez_examples --config Release --parallel 4
+    - name:  Compile SimpleDBus Examples for Ubuntu
+      run: |
+        cmake -B $GITHUB_WORKSPACE/build_simpledbus_examples -DCMAKE_BUILD_TYPE=Release -S $GITHUB_WORKSPACE/examples/simpledbus
+        cmake --build $GITHUB_WORKSPACE/build_simpledbus_examples --config Release --parallel 4

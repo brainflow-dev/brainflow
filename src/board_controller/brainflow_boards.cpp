@@ -65,30 +65,18 @@ BrainFlowBoards::BrainFlowBoards()
             {"42", json::object()},
             {"43", json::object()},
             {"44", json::object()},
-            {"45", json::object()}
+            {"45", json::object()},
+            {"46", json::object()}
         }
     }};
 
     // available presets are: default, auxiliary, ancillary, default is required, other presets are optional
     brainflow_boards_json["boards"]["-3"]["default"] = {{"name", "PlayBack"}};
+    brainflow_boards_json["boards"]["-3"]["auxiliary"] = {{"name", "PlayBack"}};
+    brainflow_boards_json["boards"]["-3"]["ancillary"] = {{"name", "PlayBack"}};
     brainflow_boards_json["boards"]["-2"]["default"] = {{"name", "Streaming"}};
-    brainflow_boards_json["boards"]["-1"]["auxiliary"] =
-    {
-        {"name", "SyntheticAux"},
-        {"sampling_rate", 250},
-        {"package_num_channel", 0},
-        {"timestamp_channel", 18},
-        {"marker_channel", 19},
-        {"num_rows", 20},
-        {"other_channels", {14, 15, 16, 17}},
-        {"battery_channel", 1},
-        {"accel_channels", {2, 3, 4}},
-        {"gyro_channels", {5, 6, 7}},
-        {"eda_channels", {8}},
-        {"ppg_channels", {9, 10}},
-        {"temperature_channels", {11}},
-        {"resistance_channels", {12, 13}}
-    };
+    brainflow_boards_json["boards"]["-2"]["auxiliary"] = {{"name", "Streaming"}};
+    brainflow_boards_json["boards"]["-2"]["ancillary"] = {{"name", "Streaming"}};
     brainflow_boards_json["boards"]["-1"]["default"] =
     {
         {"name", "Synthetic"},
@@ -109,6 +97,23 @@ BrainFlowBoards::BrainFlowBoards()
         {"ppg_channels", {24, 25}},
         {"temperature_channels", {26}},
         {"resistance_channels", {27, 28}}
+    };
+    brainflow_boards_json["boards"]["-1"]["auxiliary"] =
+    {
+        {"name", "SyntheticAux"},
+        {"sampling_rate", 250},
+        {"package_num_channel", 0},
+        {"timestamp_channel", 18},
+        {"marker_channel", 19},
+        {"num_rows", 20},
+        {"other_channels", {14, 15, 16, 17}},
+        {"battery_channel", 1},
+        {"accel_channels", {2, 3, 4}},
+        {"gyro_channels", {5, 6, 7}},
+        {"eda_channels", {8}},
+        {"ppg_channels", {9, 10}},
+        {"temperature_channels", {11}},
+        {"resistance_channels", {12, 13}}
     };
     brainflow_boards_json["boards"]["0"]["default"] =
     {
@@ -800,7 +805,7 @@ BrainFlowBoards::BrainFlowBoards()
         {"num_rows", 12},
         {"accel_channels", {1, 2, 3}},
         {"gyro_channels", {4, 5, 6}},
-        {"other_channels", {7, 8, 9}}
+        {"magnetometer_channels", {7, 8, 9}}
     };
     brainflow_boards_json["boards"]["44"]["ancillary"] =
     {
@@ -837,7 +842,7 @@ BrainFlowBoards::BrainFlowBoards()
         {"num_rows", 12},
         {"accel_channels", {1, 2, 3}},
         {"gyro_channels", {4, 5, 6}},
-        {"other_channels", {7, 8, 9}}
+        {"magnetometer_channels", {7, 8, 9}}
     };
     brainflow_boards_json["boards"]["45"]["ancillary"] =
     {
@@ -849,6 +854,56 @@ BrainFlowBoards::BrainFlowBoards()
         {"num_rows", 6},
         {"temperature_channels", {1}},
         {"battery_channel", 2},
+        {"other_channels", {3}}
+    };
+    brainflow_boards_json["boards"]["46"]["default"] =
+    {
+        {"name", "Ganglion"},
+        {"sampling_rate", 200},
+        {"package_num_channel", 0},
+        {"timestamp_channel", 13},
+        {"marker_channel", 14},
+        {"num_rows", 15},
+        {"eeg_channels", {1, 2, 3, 4}},
+        {"emg_channels", {1, 2, 3, 4}},
+        {"ecg_channels", {1, 2, 3, 4}},
+        {"eog_channels", {1, 2, 3, 4}},
+        {"accel_channels", {5, 6, 7}},
+        {"resistance_channels", {8, 9, 10, 11, 12}}
+    };
+    // todo add other data types and check/fix sampling rates for them
+    brainflow_boards_json["boards"]["47"]["default"] =
+    {
+        {"name", "Emotibit"},
+        {"sampling_rate", 25}, // random value for now
+        {"package_num_channel", 0},
+        {"timestamp_channel", 10},
+        {"marker_channel", 11},
+        {"num_rows", 12},
+        {"accel_channels", {1, 2, 3}},
+        {"gyro_channels", {4, 5, 6}},
+        {"magnetometer_channels", {7, 8, 9}}
+    };
+    brainflow_boards_json["boards"]["47"]["auxiliary"] =
+    {
+        {"name", "Emotibit"},
+        {"sampling_rate", 25},
+        {"package_num_channel", 0},
+        {"timestamp_channel", 4},
+        {"marker_channel", 5},
+        {"num_rows", 6},
+        {"ppg_channels", {1, 2, 3}}
+    };
+    brainflow_boards_json["boards"]["47"]["ancillary"] =
+    {
+        {"name", "Emotibit"},
+        {"sampling_rate", 15},
+        {"package_num_channel", 0},
+        {"timestamp_channel", 4},
+        {"marker_channel", 5},
+        {"num_rows", 6},
+        {"eda_channels", {1}},
+        {"temperature_channels", {2}},
         {"other_channels", {3}}
     };
 }

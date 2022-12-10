@@ -187,6 +187,13 @@ public:
      */
     static std::vector<int> get_resistance_channels (
         int board_id, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
+    /**
+     * get row indices which hold magnetometer data
+     * @param board_id board id of your device
+     * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+     */
+    static std::vector<int> get_magnetometer_channels (
+        int board_id, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
     /// release all currently prepared session
     static void release_all_sessions ();
     /// get brainflow version
@@ -220,6 +227,15 @@ public:
      "224.0.0.0" to "239.255.255.255"
      */
     void add_streamer (
+        std::string streamer_params, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
+    /**
+     * delete streamer
+     * @param streamer_params use it to pass data packages further or store them directly during
+     streaming, supported values: "file://%file_name%:w", "file://%file_name%:a",
+     "streaming_board://%multicast_group_ip%:%port%"". Range for multicast addresses is from
+     "224.0.0.0" to "239.255.255.255"
+     */
+    void delete_streamer (
         std::string streamer_params, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
     /// check if session is ready or not
     bool is_prepared ();

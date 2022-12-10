@@ -16,16 +16,12 @@ def main():
     
     board = BoardShim(board_id, params)
     board.prepare_session()
-    board.add_streamer('file://streamer_default.csv:w')
     board.start_stream()
-    board.add_streamer('file://streamer_aux.csv:w', BrainFlowPresets.AUXILIARY_PRESET)
     time.sleep(10)
-
     data_default = board.get_board_data(preset=BrainFlowPresets.DEFAULT_PRESET)
     data_aux = board.get_board_data(preset=BrainFlowPresets.AUXILIARY_PRESET)
     board.stop_stream()
     board.release_session()
-
     DataFilter.write_file(data_default, 'default.csv', 'w')
     DataFilter.write_file(data_aux, 'aux.csv', 'w')
 

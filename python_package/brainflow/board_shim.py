@@ -66,6 +66,8 @@ class BoardIds(enum.IntEnum):
     PIEEG_BOARD = 43  #:
     EXPLORE_4_CHAN_BOARD = 44  #:
     EXPLORE_8_CHAN_BOARD = 45  #:
+    GANGLION_NATIVE_BOARD = 46  #:
+    EMOTIBIT_BOARD = 47  #:
 
 
 class IpProtocolTypes(enum.IntEnum):
@@ -93,8 +95,16 @@ class BrainFlowInputParams(object):
     :type mac_address: str
     :param ip_address: ip address is used for boards which reads data from socket connection
     :type ip_address: str
+    :param ip_address_aux: ip address is used for boards which reads data from socket connection
+    :type ip_address_aux: str
+    :param ip_address_anc: ip address is used for boards which reads data from socket connection
+    :type ip_address_anc: str
     :param ip_port: ip port for socket connection, for some boards where we know it in front you dont need this parameter
     :type ip_port: int
+    :param ip_port_aux: ip port for socket connection, for some boards where we know it in front you dont need this parameter
+    :type ip_port_aux: int
+    :param ip_port_anc: ip port for socket connection, for some boards where we know it in front you dont need this parameter
+    :type ip_port_anc: int
     :param ip_protocol: ip protocol type from IpProtocolTypes enum
     :type ip_protocol: int
     :param other_info: other info
@@ -103,20 +113,29 @@ class BrainFlowInputParams(object):
     :type serial_number: str
     :param file: file
     :type file: str
+    :param file_aux: file
+    :type file_aux: str
+    :param file_anc: file
+    :type file_anc: str
     """
 
     def __init__(self) -> None:
         self.serial_port = ''
         self.mac_address = ''
         self.ip_address = ''
+        self.ip_address_aux = ''
+        self.ip_address_anc = ''
         self.ip_port = 0
+        self.ip_port_aux = 0
+        self.ip_port_anc = 0
         self.ip_protocol = IpProtocolTypes.NO_IP_PROTOCOL.value
         self.other_info = ''
         self.timeout = 0
         self.serial_number = ''
         self.file = ''
+        self.file_aux = ''
+        self.file_anc = ''
         self.master_board = BoardIds.NO_BOARD.value
-        self.preset = BrainFlowPresets.DEFAULT_PRESET
 
     def to_json(self) -> None:
         return json.dumps(self, default=lambda o: o.__dict__,
@@ -189,6 +208,15 @@ class BoardControllerDLL(object):
         self.add_streamer = self.lib.add_streamer
         self.add_streamer.restype = ctypes.c_int
         self.add_streamer.argtypes = [
+            ctypes.c_char_p,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_char_p
+        ]
+
+        self.delete_streamer = self.lib.delete_streamer
+        self.delete_streamer.restype = ctypes.c_int
+        self.delete_streamer.argtypes = [
             ctypes.c_char_p,
             ctypes.c_int,
             ctypes.c_int,
@@ -483,6 +511,15 @@ class BoardControllerDLL(object):
         self.get_resistance_channels = self.lib.get_resistance_channels
         self.get_resistance_channels.restype = ctypes.c_int
         self.get_resistance_channels.argtypes = [
+            ctypes.c_int,
+            ctypes.c_int,
+            ndpointer(ctypes.c_int32),
+            ndpointer(ctypes.c_int32)
+        ]
+
+        self.get_magnetometer_channels = self.lib.get_magnetometer_channels
+        self.get_magnetometer_channels.restype = ctypes.c_int
+        self.get_magnetometer_channels.argtypes = [
             ctypes.c_int,
             ctypes.c_int,
             ndpointer(ctypes.c_int32),
@@ -1070,6 +1107,28 @@ class BoardShim(object):
         return result
 
     @classmethod
+    def get_magnetometer_channels(cls, board_id: int, preset: int = BrainFlowPresets.DEFAULT_PRESET) -> List[int]:
+        """get list of magnetometer channels in resulting data table for a board
+
+        :param board_id: Board Id
+        :type board_id: int
+        :param preset: preset
+        :type preset: int
+        :return: list of magnetometer channels in returned numpy array
+        :rtype: List[int]
+        :raises BrainFlowError: If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+        """
+
+        num_channels = numpy.zeros(1).astype(numpy.int32)
+        magnetometer_channels = numpy.zeros(512).astype(numpy.int32)
+
+        res = BoardControllerDLL.get_instance().get_magnetometer_channels(board_id, preset, magnetometer_channels, num_channels)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to request info about this board', res)
+        result = magnetometer_channels.tolist()[0:num_channels[0]]
+        return result
+
+    @classmethod
     def release_all_sessions(cls) -> None:
         """release all prepared sessions"""
 
@@ -1104,6 +1163,27 @@ class BoardShim(object):
         res = BoardControllerDLL.get_instance().add_streamer(streamer, preset, self.board_id, self.input_json)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to add streamer', res)
+
+    def delete_streamer(self, streamer_params: str, preset: int = BrainFlowPresets.DEFAULT_PRESET) -> None:
+        """Delete streamer
+
+        :param preset: preset
+        :type preset: int
+        :param streamer_params parameter to stream data from brainflow, supported vals: "file://%file_name%:w", "file://%file_name%:a", "streaming_board://%multicast_group_ip%:%port%". Range for multicast addresses is from "224.0.0.0" to "239.255.255.255"
+        :type streamer_params: str
+        """
+
+        if streamer_params is None:
+            streamer = None
+        else:
+            try:
+                streamer = streamer_params.encode()
+            except BaseException:
+                streamer = streamer_params
+
+        res = BoardControllerDLL.get_instance().delete_streamer(streamer, preset, self.board_id, self.input_json)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to delete streamer', res)
 
     def start_stream(self, num_samples: int = 1800 * 250, streamer_params: str = None) -> None:
         """Start streaming data, this methods stores data in ringbuffer

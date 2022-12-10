@@ -52,6 +52,8 @@ export BrainFlowInputParams
     PIEEG_BOARD = 43
     EXPLORE_4_CHAN_BOARD = 44
     EXPLORE_8_CHAN_BOARD = 45
+    GANGLION_NATIVE_BOARD = 46
+    EMOTIBIT_BOARD = 47
 
 end
 
@@ -79,14 +81,19 @@ PresetType = Union{BrainFlowPresets, Integer}
     serial_port::String = ""
     mac_address::String = ""
     ip_address::String = ""
+    ip_address_aux::String = ""
+    ip_address_anc::String = ""
     ip_port::Int32 = 0
+    ip_port_aux::Int32 = 0
+    ip_port_anc::Int32 = 0
     ip_protocol::Int32 = Integer(NO_IP_PROTOCOL)
     other_info::String = ""
     timeout::Int32 = 0
     serial_number::String = ""
     file::String = ""
+    file_aux::String = ""
+    file_anc::String = ""
     master_board = Integer(NO_BOARD)
-    preset = Integer(DEFAULT_PRESET)
 end
 
 @brainflow_rethrow function get_sampling_rate(board_id::BoardIdType, preset::PresetType=Integer(DEFAULT_PRESET))
@@ -183,6 +190,7 @@ channel_function_names = (
     :get_other_channels,
     :get_temperature_channels,
     :get_resistance_channels,
+    :get_magnetometer_channels,
 )
 
 # generating the channels functions
@@ -257,6 +265,11 @@ end
 
 @brainflow_rethrow function add_streamer(streamer_params::String, board_shim::BoardShim, preset::PresetType=Integer(DEFAULT_PRESET))
     ccall((:add_streamer, BOARD_CONTROLLER_INTERFACE), Cint, (Ptr{UInt8}, Cint, Cint, Ptr{UInt8}),
+            streamer_params, Int32(preset), board_shim.board_id, board_shim.input_json)
+end
+
+@brainflow_rethrow function delete_streamer(streamer_params::String, board_shim::BoardShim, preset::PresetType=Integer(DEFAULT_PRESET))
+    ccall((:delete_streamer, BOARD_CONTROLLER_INTERFACE), Cint, (Ptr{UInt8}, Cint, Cint, Ptr{UInt8}),
             streamer_params, Int32(preset), board_shim.board_id, board_shim.input_json)
 end
 

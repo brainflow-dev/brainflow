@@ -43,9 +43,9 @@ jobs:
       with:
         version: 1.3.1
     - name: Setup Cmake
-      uses: jwlawson/actions-setup-cmake@v1.4
+      uses: jwlawson/actions-setup-cmake@v1.13
       with:
-        cmake-version: '3.16.x'
+        cmake-version: '3.21.x'
     - name: Set up JDK 11
       uses: actions/setup-java@v1
       with:
@@ -54,8 +54,8 @@ jobs:
     - name: Compile SimpleBLE MacOS
       if: (matrix.os == 'macos-11.0')
       run: |
-        mkdir $GITHUB_WORKSPACE/third_party/SimpleBLE/build
-        cd $GITHUB_WORKSPACE/third_party/SimpleBLE/build
+        mkdir $GITHUB_WORKSPACE/third_party/SimpleBLE/simpleble/build
+        cd $GITHUB_WORKSPACE/third_party/SimpleBLE/simpleble/build
         cmake -G Ninja -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
         ninja
         ninja install
@@ -84,7 +84,7 @@ jobs:
       if: (matrix.os == 'ubuntu-latest')
       run: |
         docker pull dockcross/manylinux2014-x64:20210708-94745ff
-        docker run -e BRAINFLOW_VERSION=$BRAINFLOW_VERSION -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE dockcross/manylinux2014-x64:20210708-94745ff /bin/bash -c "yum install -y bluez-libs-devel dbus-devel && /opt/python/cp36-cp36m/bin/pip3.6 install cmake==3.13.3 && cd $GITHUB_WORKSPACE && mkdir build_docker && cd build_docker && cmake -DBRAINFLOW_VERSION=$BRAINFLOW_VERSION -DBUILD_ONNX=ON -DBUILD_BLE=ON -DBUILD_BLUETOOTH=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed_docker -DCMAKE_BUILD_TYPE=Release .. && make && make install"
+        docker run -e BRAINFLOW_VERSION=$BRAINFLOW_VERSION -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE dockcross/manylinux2014-x64:20210708-94745ff /bin/bash -c "yum install -y bluez-libs-devel dbus-devel && /opt/python/cp36-cp36m/bin/pip3.6 install cmake==3.21.4 && cd $GITHUB_WORKSPACE && mkdir build_docker && cd build_docker && /opt/_internal/cpython-3.6.14/bin/cmake -DBRAINFLOW_VERSION=$BRAINFLOW_VERSION -DBUILD_ONNX=ON -DBUILD_BLE=ON -DBUILD_BLUETOOTH=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed_docker -DCMAKE_BUILD_TYPE=Release .. && make && make install"
       env:
         BRAINFLOW_VERSION: ${{ steps.version.outputs.version }}
     - name: Setup Python Package
@@ -148,6 +148,10 @@ jobs:
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/brainflow_get_data.py --board-id -1
     - name: Synthetic Python Multiple Buffers
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/multiple_buffers.py 
+    - name: Synthetic Python Multiple Streamers
+      run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/multiple_streamers.py
+    - name: Playback Python
+      run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/playback_test.py  
     - name: Synthetic Cpp
       run: $GITHUB_WORKSPACE/cpp_package/examples/get_data/build/brainflow_get_data --board-id -1
       env:

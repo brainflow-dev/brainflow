@@ -36,6 +36,7 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/utils/multicast_client.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/multicast_server.cpp
     ${CMAKE_HOME_DIRECTORY}/src/utils/broadcast_client.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/utils/broadcast_server.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/galea_serial.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/openbci_serial_board.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/openbci_wifi_shield_board.cpp
@@ -43,6 +44,7 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/cyton_wifi.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/cyton_daisy_wifi.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/ganglion_native.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/cyton.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/openbci/cyton_daisy.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/board_controller.cpp
@@ -78,6 +80,7 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ble_lib_board.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/brainalive/brainalive.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/emotibit/emotibit.cpp
 )
 
 include (${CMAKE_HOME_DIRECTORY}/src/board_controller/ant_neuro/build.cmake)
@@ -95,7 +98,7 @@ if (BUILD_BLUETOOTH)
 endif (BUILD_BLUETOOTH)
 
 if (BUILD_BLE)
-    add_subdirectory (${CMAKE_HOME_DIRECTORY}/third_party/SimpleBLE)
+    add_subdirectory (${CMAKE_HOME_DIRECTORY}/third_party/SimpleBLE/simpleble)
 endif (BUILD_BLE)
 
 add_library (
@@ -129,9 +132,10 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/third_party/ant_neuro
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ant_neuro/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/enophone/inc
-    ${CMAKE_HOME_DIRECTORY}/third_party/SimpleBLE/include
+    ${CMAKE_HOME_DIRECTORY}/third_party/SimpleBLE/simpleble/include
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/brainalive/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/mentalab/inc
+    ${CMAKE_HOME_DIRECTORY}/src/board_controller/emotibit/inc
 )
 
 target_compile_definitions(${BOARD_CONTROLLER_NAME} PRIVATE NOMINMAX BRAINFLOW_VERSION=${BRAINFLOW_VERSION})

@@ -30,6 +30,8 @@ extern "C"
         double marker_value, int preset, int board_id, const char *json_brainflow_input_params);
     SHARED_EXPORT int CALLING_CONVENTION add_streamer (
         const char *streamer, int preset, int board_id, const char *json_brainflow_input_params);
+    SHARED_EXPORT int CALLING_CONVENTION delete_streamer (
+        const char *streamer, int preset, int board_id, const char *json_brainflow_input_params);
     SHARED_EXPORT int CALLING_CONVENTION release_all_sessions ();
 
     // logging methods

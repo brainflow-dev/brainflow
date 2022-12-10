@@ -126,15 +126,11 @@ int GaleaSerial::config_board (std::string conf, std::string &response)
         int res = calc_time (response);
         return res;
     }
-    if (conf == "start_dump_bytes")
+
+    if (gain_tracker.apply_config (conf) == (int)OpenBCICommandTypes::INVALID_COMMAND)
     {
-        dump_bytes = true;
-        return (int)BrainFlowExitCodes::STATUS_OK;
-    }
-    if (conf == "stop_dump_bytes")
-    {
-        dump_bytes = false;
-        return (int)BrainFlowExitCodes::STATUS_OK;
+        safe_logger (spdlog::level::warn, "invalid command: {}", conf.c_str ());
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
     std::string new_conf = conf + "\n";
@@ -144,7 +140,15 @@ int GaleaSerial::config_board (std::string conf, std::string &response)
     if (len != res)
     {
         safe_logger (spdlog::level::err, "Failed to config a board");
+        gain_tracker.revert_config ();
         return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
+    }
+
+    if (is_streaming)
+    {
+        safe_logger (spdlog::level::warn,
+            "reconfiguring device during the streaming may lead to inconsistent data, it's "
+            "recommended to call stop_stream before config_board");
     }
 
     return (int)BrainFlowExitCodes::STATUS_OK;
@@ -303,8 +307,6 @@ void GaleaSerial::read_thread ()
         aux_package[i] = 0.0;
     }
 
-    std::ofstream raw_bytes_file ("raw_bytes_file.dat", std::ios::out | std::ios::binary);
-
     while (keep_alive)
     {
         // read and check first byte
@@ -339,10 +341,6 @@ void GaleaSerial::read_thread ()
         }
         else
         {
-            if (dump_bytes)
-            {
-                raw_bytes_file.write ((char *)b, transaction_size);
-            }
             if (this->state != (int)BrainFlowExitCodes::STATUS_OK)
             {
                 safe_logger (spdlog::level::info, "received first package streaming is started");
@@ -378,15 +376,10 @@ void GaleaSerial::read_thread ()
                 (double)b[0 + offset];
             for (int i = 4, tmp_counter = 0; i < 20; i++, tmp_counter++)
             {
-                if (tmp_counter < 6)
-                    exg_package[i - 3] =
-                        emg_scale * (double)cast_24bit_to_int32 (b + offset + 5 + 3 * (i - 4));
-                else if ((tmp_counter == 6) || (tmp_counter == 7))
-                    exg_package[i - 3] = eeg_scale_sister_board *
-                        (double)cast_24bit_to_int32 (b + offset + 5 + 3 * (i - 4));
-                else
-                    exg_package[i - 3] = eeg_scale_main_board *
-                        (double)cast_24bit_to_int32 (b + offset + 5 + 3 * (i - 4));
+                double exg_scale = (double)(4.5 / float ((pow (2, 23) - 1)) /
+                    gain_tracker.get_gain_for_channel (tmp_counter) * 1000000.);
+                exg_package[i - 3] =
+                    exg_scale * (double)cast_24bit_to_int32 (b + offset + 5 + 3 * (i - 4));
             }
             double timestamp_device = 0.0;
             memcpy (&timestamp_device, b + 64 + offset, 8);
@@ -434,7 +427,6 @@ void GaleaSerial::read_thread ()
             }
         }
     }
-    raw_bytes_file.close ();
     delete[] exg_package;
     delete[] aux_package;
 }

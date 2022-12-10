@@ -104,6 +104,26 @@ size_t BLELibBoard::simpleble_adapter_get_count (void)
     return func ();
 }
 
+bool BLELibBoard::simpleble_adapter_is_bluetooth_enabled (void)
+{
+    std::lock_guard<std::mutex> lock (BLELibBoard::mutex);
+    if (BLELibBoard::dll_loader == NULL)
+    {
+        safe_logger (spdlog::level::err, "BLELibBoard::dll_loader is not initialized");
+        return false;
+    }
+    bool (*func) (void) = (bool (*) (void))BLELibBoard::dll_loader->get_address (
+        "simpleble_adapter_is_bluetooth_enabled");
+    if (func == NULL)
+    {
+        safe_logger (spdlog::level::err,
+            "failed to get function address for simpleble_adapter_is_bluetooth_enabled");
+        return false;
+    }
+
+    return func ();
+}
+
 simpleble_adapter_t BLELibBoard::simpleble_adapter_get_handle (size_t index)
 {
     std::lock_guard<std::mutex> lock (BLELibBoard::mutex);
@@ -226,6 +246,50 @@ simpleble_err_t BLELibBoard::simpleble_adapter_set_callback_on_scan_updated (
     {
         safe_logger (spdlog::level::err,
             "failed to get function address for simpleble_adapter_set_callback_on_scan_updated");
+        return SIMPLEBLE_FAILURE;
+    }
+
+    return func (handle, callback, userdata);
+}
+
+simpleble_err_t BLELibBoard::simpleble_adapter_set_callback_on_scan_start (
+    simpleble_adapter_t handle, void (*callback) (simpleble_adapter_t, void *), void *userdata)
+{
+    std::lock_guard<std::mutex> lock (BLELibBoard::mutex);
+    if (BLELibBoard::dll_loader == NULL)
+    {
+        safe_logger (spdlog::level::err, "BLELibBoard::dll_loader is not initialized");
+        return SIMPLEBLE_FAILURE;
+    }
+    simpleble_err_t (*func) (simpleble_adapter_t, void (*) (simpleble_adapter_t, void *), void *) =
+        (simpleble_err_t (*) (simpleble_adapter_t, void (*) (simpleble_adapter_t, void *), void *))
+            BLELibBoard::dll_loader->get_address ("simpleble_adapter_set_callback_on_scan_start");
+    if (func == NULL)
+    {
+        safe_logger (spdlog::level::err,
+            "failed to get function address for simpleble_adapter_set_callback_on_scan_start");
+        return SIMPLEBLE_FAILURE;
+    }
+
+    return func (handle, callback, userdata);
+}
+
+simpleble_err_t BLELibBoard::simpleble_adapter_set_callback_on_scan_stop (
+    simpleble_adapter_t handle, void (*callback) (simpleble_adapter_t, void *), void *userdata)
+{
+    std::lock_guard<std::mutex> lock (BLELibBoard::mutex);
+    if (BLELibBoard::dll_loader == NULL)
+    {
+        safe_logger (spdlog::level::err, "BLELibBoard::dll_loader is not initialized");
+        return SIMPLEBLE_FAILURE;
+    }
+    simpleble_err_t (*func) (simpleble_adapter_t, void (*) (simpleble_adapter_t, void *), void *) =
+        (simpleble_err_t (*) (simpleble_adapter_t, void (*) (simpleble_adapter_t, void *), void *))
+            BLELibBoard::dll_loader->get_address ("simpleble_adapter_set_callback_on_scan_stop");
+    if (func == NULL)
+    {
+        safe_logger (spdlog::level::err,
+            "failed to get function address for simpleble_adapter_set_callback_on_scan_stop");
         return SIMPLEBLE_FAILURE;
     }
 

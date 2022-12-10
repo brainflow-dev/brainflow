@@ -56,7 +56,9 @@ public enum BoardIds
     MUSE_2016_BLED_BOARD (42),
     PIEEG_BOARD (43),
     EXPLORE_4_CHAN_BOARD (44),
-    EXPLORE_8_CHAN_BOARD (45);
+    EXPLORE_8_CHAN_BOARD (45),
+    GANGLION_NATIVE_BOARD (46),
+    EMOTIBIT_BOARD (47);
 
     private final int board_id;
     private static final Map<Integer, BoardIds> bi_map = new HashMap<Integer, BoardIds> ();

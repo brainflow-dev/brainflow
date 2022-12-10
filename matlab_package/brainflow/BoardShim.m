@@ -329,6 +329,17 @@ classdef BoardShim
             resistance_channels = data.Value(1,1:num_channels.Value) + 1;
         end
         
+        function magnetometer_channels = get_magnetometer_channels(board_id, preset)
+            % get magnetometer channels for provided board id
+            task_name = 'get_magnetometer_channels';
+            lib_name = BoardShim.load_lib();
+            num_channels = libpointer('int32Ptr', 0);
+            data = libpointer('int32Ptr', zeros(1, 512));
+            exit_code = calllib(lib_name, task_name, board_id, preset, data, num_channels);
+            BoardShim.check_ec(exit_code, task_name);
+            magnetometer_channels = data.Value(1,1:num_channels.Value) + 1;
+        end
+        
     end
 
     methods
@@ -367,6 +378,16 @@ classdef BoardShim
         function add_streamer(obj, streamer, preset)
             % add streamer
             task_name = 'add_streamer';
+            lib_name = BoardShim.load_lib();
+            % no way to understand how it works in matlab used this link
+            % https://nl.mathworks.com/matlabcentral/answers/131446-what-data-type-do-i-need-to-calllib-with-pointer-argument-char%
+            [exit_code, tmp] = calllib(lib_name, task_name, streamer, preset, obj.board_id, obj.input_params_json);
+            BoardShim.check_ec(exit_code, task_name);
+        end
+        
+        function delete_streamer(obj, streamer, preset)
+            % delete streamer
+            task_name = 'delete_streamer';
             lib_name = BoardShim.load_lib();
             % no way to understand how it works in matlab used this link
             % https://nl.mathworks.com/matlabcentral/answers/131446-what-data-type-do-i-need-to-calllib-with-pointer-argument-char%
