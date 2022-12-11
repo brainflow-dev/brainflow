@@ -10,7 +10,7 @@ jobs:
       fail-fast: false
       max-parallel: 4
       matrix:
-        os: [windows-2019]
+        os: [windows-2022]
 
     steps:
     - name: Clone Repository
@@ -41,7 +41,7 @@ jobs:
       run: |
         mkdir %GITHUB_WORKSPACE%\build32
         cd %GITHUB_WORKSPACE%\build32
-        cmake -DBRAINFLOW_VERSION=%BRAINFLOW_VERSION% -DBUILD_OYMOTION_SDK=ON -DBUILD_ONNX=ON -DBUILD_BLUETOOTH=ON -DBUILD_TESTS=ON -DWARNINGS_AS_ERRORS=ON -G "Visual Studio 16 2019" -A Win32 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed32\ ..
+        cmake -DBRAINFLOW_VERSION=%BRAINFLOW_VERSION% -DBUILD_OYMOTION_SDK=ON -DBUILD_ONNX=ON -DBUILD_BLE=ON -DBUILD_BLUETOOTH=ON -DBUILD_TESTS=ON -DWARNINGS_AS_ERRORS=ON -G "Visual Studio 17 2022" -A Win32 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed32\ ..
         cmake --build . --target install --config Release -j 2 --parallel 2
       env:
         BRAINFLOW_VERSION: ${{ steps.version.outputs.version }}
@@ -50,25 +50,10 @@ jobs:
       run: |
         mkdir %GITHUB_WORKSPACE%\build64
         cd %GITHUB_WORKSPACE%\build64
-        cmake -DBRAINFLOW_VERSION=%BRAINFLOW_VERSION% -DBUILD_OYMOTION_SDK=ON -DBUILD_ONNX=ON -DBUILD_BLUETOOTH=ON -DBUILD_TESTS=ON -DWARNINGS_AS_ERRORS=ON -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed64\ ..
+        cmake -DBRAINFLOW_VERSION=%BRAINFLOW_VERSION% -DBUILD_OYMOTION_SDK=ON -DBUILD_ONNX=ON -DBUILD_BLE=ON -DBUILD_BLUETOOTH=ON -DBUILD_TESTS=ON -DWARNINGS_AS_ERRORS=ON -G "Visual Studio 17 2022" -A x64 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed64\ ..
         cmake --build . --target install --config Release -j 2 --parallel 2
       env:
         BRAINFLOW_VERSION: ${{ steps.version.outputs.version }}
-      shell: cmd
-    # need to build SimpleBLE outside from BrainFlow because they have different Windows System Versions
-    - name: Compile SimpleBLE x32
-      run: |
-        mkdir %GITHUB_WORKSPACE%\third_party\SimpleBLE\simpleble\build32
-        cd %GITHUB_WORKSPACE%\third_party\SimpleBLE\simpleble\build32
-        cmake -G "Visual Studio 16 2019" -A Win32 -DCMAKE_SYSTEM_VERSION=10.0.19041.0 -DCMAKE_INSTALL_PREFIX=%GITHUB_WORKSPACE%\installed32\ ..
-        cmake --build . --target install --config Release -j 2 --parallel 2
-      shell: cmd
-    - name: Compile SimpleBLE x64
-      run: |
-        mkdir %GITHUB_WORKSPACE%\third_party\SimpleBLE\simpleble\build64
-        cd %GITHUB_WORKSPACE%\third_party\SimpleBLE\simpleble\build64
-        cmake -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=10.0.19041.0 -DCMAKE_INSTALL_PREFIX=%GITHUB_WORKSPACE%\installed64\ ..
-        cmake --build . --target install --config Release -j 2 --parallel 2
       shell: cmd
     - name: C# build
       run: |
