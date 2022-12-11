@@ -17,6 +17,11 @@ jobs:
       uses: actions/checkout@v2
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
+    - name: Setup dotnet
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: |
+          4.5.x
     - name: Set Version
       id: version
       run: if ("tag" -eq $Env:GITHUB_REF_TYPE) { echo "::set-output name=version::$Env:GITHUB_REF_NAME" } else { echo "::set-output name=version::$Env:GITHUB_SHA" }
