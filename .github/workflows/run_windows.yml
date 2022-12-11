@@ -138,7 +138,7 @@ jobs:
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\cpp_package\examples\get_data\build\Release\brainflow_get_data.exe --board-id 0 --serial-port
       shell: cmd
     - name: Cyton Windows C# Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\csharp_package\brainflow\examples\brainflow_get_data\bin\Release\brainflow_get_data.exe --board-id 0 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\csharp_package\brainflow\examples\brainflow_get_data\bin\Release\netcoreapp3.1\brainflow_get_data.exe --board-id 0 --serial-port
       shell: cmd
     - name: Synthetic Windows Python Test
       run: python %GITHUB_WORKSPACE%\python_package\examples\tests\brainflow_get_data.py --board-id -1
@@ -158,7 +158,7 @@ jobs:
       shell: cmd
     - name: Synthetic Windows C# Test
       run: |
-        cd %GITHUB_WORKSPACE%\csharp_package\brainflow\examples\brainflow_get_data\bin\Release
+        cd %GITHUB_WORKSPACE%\csharp_package\brainflow\examples\brainflow_get_data\bin\Release\netcoreapp3.1\
         brainflow_get_data.exe --board-id -1
       shell: cmd
     - name: Cyton Daisy Windows Python Test
@@ -171,13 +171,14 @@ jobs:
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\cpp_package\examples\get_data\build\Release\brainflow_get_data.exe --board-id 2 --serial-port
       shell: cmd
     - name: Cyton Daisy Windows C# Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\csharp_package\brainflow\examples\brainflow_get_data\bin\Release\brainflow_get_data.exe --board-id 2 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\csharp_package\brainflow\examples\brainflow_get_data\bin\Release\netcoreapp3.1\brainflow_get_data.exe --board-id 2 --serial-port
       shell: cmd
     - name: Galea Windows Cpp Test
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\galea_udp.py %GITHUB_WORKSPACE%\cpp_package\examples\get_data\build\Release\brainflow_get_data.exe --board-id 3 --ip-address 127.0.0.1
       shell: cmd
     - name: Galea Windows C# Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\galea_udp.py %GITHUB_WORKSPACE%\csharp_package\brainflow\examples\brainflow_get_data\bin\Release\brainflow_get_data.exe --board-id 3 --ip-address 127.0.0.1
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\galea_udp.py %GITHUB_WORKSPACE%\csharp_package\brainflow\examples\brainflow_get_data\bin\Release\netcoreapp3.1\
+      brainflow_get_data.exe --board-id 3 --ip-address 127.0.0.1
       shell: cmd
     - name: FreeEEG32 Python Test
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\freeeeg32_windows.py python %GITHUB_WORKSPACE%\python_package\examples\tests\brainflow_get_data.py --board-id 17 --serial-port
@@ -267,10 +268,10 @@ jobs:
       run: .\cpp_package\examples\ml\build32\Release\eeg_metrics_ci.exe --board-id -1 --metric 2 --classifier 2 --model-file %GITHUB_WORKSPACE%\src\ml\train\logreg_mindfulness.onnx
       shell: cmd
     - name: EEG Metrics C# Test
-      run: .\csharp_package\brainflow\examples\eeg_metrics\bin\Release\eeg_metrics.exe
+      run: .\csharp_package\brainflow\examples\eeg_metrics\bin\Release\netcoreapp3.1\eeg_metrics.exe
       shell: cmd
     - name: EEG Metrics CI C# Test
-      run: .\csharp_package\brainflow\examples\eeg_metrics_ci\bin\Release\eeg_metrics_ci.exe --board-id -1 --metric 2 --classifier 2 --model-file %GITHUB_WORKSPACE%\src\ml\train\logreg_mindfulness.onnx
+      run: .\csharp_package\brainflow\examples\eeg_metrics_ci\bin\Release\netcoreapp3.1\eeg_metrics_ci.exe --board-id -1 --metric 2 --classifier 2 --model-file %GITHUB_WORKSPACE%\src\ml\train\logreg_mindfulness.onnx
       shell: cmd
     - name: EEG Metrics CI Rust Test
       run: |
