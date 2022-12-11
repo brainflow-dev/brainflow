@@ -58,6 +58,7 @@ jobs:
     - name: C# build
       run: |
         cd %GITHUB_WORKSPACE%\csharp_package\brainflow
+        dotnet restore brainflow.sln
         msbuild brainflow.sln /p:Configuration=Release /p:Platform="Any CPU"
       shell: cmd
     - name: Install Emulator
