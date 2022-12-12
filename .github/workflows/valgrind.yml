@@ -10,7 +10,7 @@ jobs:
       fail-fast: false
       max-parallel: 4
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-20.04]
 
     steps:
     # compile and prepare env
@@ -21,7 +21,6 @@ jobs:
       with:
         cmake-version: '3.16.x'
     - name: Install Dependencies
-      if: (matrix.os == 'ubuntu-latest')
       run: |
         sudo -H apt-get update -y
         sudo -H apt-get install -y libbluetooth-dev
@@ -67,7 +66,6 @@ jobs:
         python-version: '3.7.7'
         architecture: 'x64'
     - name: Install Python Dependencies
-      if: (matrix.os == 'ubuntu-latest')
       run: |
         sudo -H apt-get update -y
         sudo -H apt-get install -y python3-setuptools python3-pygments

@@ -238,6 +238,7 @@ To create such board you need to specify the following board ID and fields of Br
 
 - :code:`BoardIds.GANGLION_NATIVE_BOARD`
 - *optoinal:* :code:`mac_address`, if not provided BrainFlow will try to autodiscover the device
+- *optoinal:* :code:`serial_number`, if not provided BrainFlow will try to autodiscover the device
 
 Initialization Example:
 
@@ -246,16 +247,16 @@ Initialization Example:
     params = BrainFlowInputParams()
     board = BoardShim(BoardIds.GANGLION_NATIVE_BOARD, params)
 
-To get Ganglion's MAC address you can use:
+To get Ganglion's MAC address or device name you can use:
 
 - Windows: `Bluetooth LE Explorer App <https://www.microsoft.com/en-us/p/bluetooth-le-explorer/9n0ztkf1qd98?activetab=pivot:overviewtab>`_
 - Linux: hcitool command
 
 Supported platforms:
 
-- Windows >= 8.1
-- Linux
-- MacOS
+- Windows 10.0.19041.0+
+- MacOS 10.15+, 12.0 to 12.2 have known issues while scanning, you need to update to 12.3+. On MacOS 12+ you may need to configure Bluetooth permissions for your appication
+- Linux, compilation from source code probably will be needed
 - Devices like Raspberry Pi
 
 Cyton Daisy
@@ -876,7 +877,7 @@ Initialization Example:
 Supported platforms:
 
 - Windows 10.0.19041.0+
-- MacOS 10.15+, 12.0 to 12.2 have known issues while scanning, you need to update to 12.3+
+- MacOS 10.15+, 12.0 to 12.2 have known issues while scanning, you need to update to 12.3+. On MacOS 12+ you may need to configure Bluetooth permissions for your appication
 - Linux, compilation from source code probably will be needed
 - Devices like Raspberry Pi
 
@@ -920,7 +921,7 @@ Initialization Example:
 Supported platforms:
 
 - Windows 10.0.19041.0+
-- MacOS 10.15+, 12.0 to 12.2 have known issues while scanning, you need to update to 12.3+
+- MacOS 10.15+, 12.0 to 12.2 have known issues while scanning, you need to update to 12.3+. On MacOS 12+ you may need to configure Bluetooth permissions for your appication
 - Linux, compilation from source code probably will be needed
 - Devices like Raspberry Pi
 
@@ -964,7 +965,7 @@ Initialization Example:
 Supported platforms:
 
 - Windows 10.0.19041.0+
-- MacOS 10.15+, 12.0 to 12.2 have known issues while scanning, you need to update to 12.3+
+- MacOS 10.15+, 12.0 to 12.2 have known issues while scanning, you need to update to 12.3+. On MacOS 12+ you may need to configure Bluetooth permissions for your appication
 - Linux, compilation from source code probably will be needed
 - Devices like Raspberry Pi
 

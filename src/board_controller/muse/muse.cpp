@@ -152,14 +152,20 @@ int Muse::prepare_session ()
     simpleble_adapter_scan_stop (muse_adapter);
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        if (simpleble_peripheral_connect (muse_peripheral) == SIMPLEBLE_SUCCESS)
+        // for safety
+        for (int i = 0; i < 3; i++)
         {
-            safe_logger (spdlog::level::info, "Connected to Muse Device");
-        }
-        else
-        {
-            safe_logger (spdlog::level::err, "Failed to connect to Muse Device");
-            res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+            if (simpleble_peripheral_connect (muse_peripheral) == SIMPLEBLE_SUCCESS)
+            {
+                safe_logger (spdlog::level::info, "Connected to Muse Device");
+                res = (int)BrainFlowExitCodes::STATUS_OK;
+                break;
+            }
+            else
+            {
+                safe_logger (spdlog::level::err, "Failed to connect to Muse Device");
+                res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+            }
         }
     }
 
