@@ -177,8 +177,7 @@ jobs:
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\galea_udp.py %GITHUB_WORKSPACE%\cpp_package\examples\get_data\build\Release\brainflow_get_data.exe --board-id 3 --ip-address 127.0.0.1
       shell: cmd
     - name: Galea Windows C# Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\galea_udp.py %GITHUB_WORKSPACE%\csharp_package\brainflow\examples\brainflow_get_data\bin\Release\netcoreapp3.1\
-      brainflow_get_data.exe --board-id 3 --ip-address 127.0.0.1
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\galea_udp.py %GITHUB_WORKSPACE%\csharp_package\brainflow\examples\brainflow_get_data\bin\Release\netcoreapp3.1\brainflow_get_data.exe --board-id 3 --ip-address 127.0.0.1
       shell: cmd
     - name: FreeEEG32 Python Test
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\freeeeg32_windows.py python %GITHUB_WORKSPACE%\python_package\examples\tests\brainflow_get_data.py --board-id 17 --serial-port
