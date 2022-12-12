@@ -47,8 +47,8 @@ You are able to install the latest release from `Nuget <https://www.nuget.org/pa
 **Unix(Mono)**
 
 - Compile BrainFlow's core module
-- Install Mono on your system
-- Build it using Mono
+- Install Mono and other dependcies on your system
+- Build it using dotnet command
 - **Make sure that unmanaged(C++) libraries exist in search path** - set LD_LIBRARY_PATH env variable or copy them to correct folder
 
 .. compound::
@@ -57,13 +57,17 @@ You are able to install the latest release from `Nuget <https://www.nuget.org/pa
 
         # compile c++ code
         python tools/build.py
-        # install dependencies, we skip dnf configuration steps 
+        # install dependencies
         sudo dnf install nuget
         sudo dnf install mono-devel
         sudo dnf install mono-complete
         sudo dnf install monodevelop
+        sudo dnf install dotnet-sdk-6.0
+        sudo dnf install dotnet-runtime-6.0
+        sudo dnf install dotnet-sdk-3.1
+        sudo dnf install dotnet-runtime-3.1
         # build solution
-        xbuild csharp_package/brainflow/brainflow.sln
+        dotnet build csharp_package/brainflow/brainflow.sln
         # run tests
         export LD_LIBRARY_PATH=/home/andreyparfenov/brainflow/installed/lib/
         mono csharp_package/brainflow/examples/denoising/bin/Debug/denoising.exe
@@ -71,7 +75,8 @@ You are able to install the latest release from `Nuget <https://www.nuget.org/pa
 R
 -----
 
-R binding is based on `reticulate <https://rstudio.github.io/reticulate/>`_ package and calls Python code, so you need to install Python binding first, make sure that reticulate uses correct virtual environment, after that you will be able to build R package from command line or using R Studio, install it and run samples.
+R binding is based on `reticulate <https://rstudio.github.io/reticulate/>`_ package and calls Python 
+, so you need to install Python binding first, make sure that reticulate uses correct virtual environment, after that you will be able to build R package from command line or using R Studio, install it and run samples.
 
 Java
 -----
