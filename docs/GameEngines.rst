@@ -6,39 +6,25 @@ Unity
 
 Integration with Unity can be done only using C# binding. We tested it only on Windows, but it may work on Linux and MacOS too. Android and IOS are not supported.
 
-You can build C# binding from source or download compiled package directly from `Nuget <https://www.nuget.org/packages/brainflow/>`_.
+Setup
+~~~~~~
 
-Here we will use Nuget to download and install BrainFlow.
+You can build C# binding from source or download precompiled package directly from `Nuget <https://www.nuget.org/packages/brainflow/>`_.
 
-.. compound::
+Here we will provide steps to configure it using precompiled package from Nuget.
 
-    Download `nuget.exe <https://www.nuget.org/downloads>`_ and run ::
-
-        nuget.exe install brainflow -OutputDirectory <OUTPUTDIR>
-
-.. image:: https://live.staticflickr.com/65535/51025831037_c88425a0bd_b.jpg
-    :width: 1024px
-    :height: 576px
-
-Open OUTPUTDIR, in our example it is *D:\\BrainFlowNuget*. At the moment of writing this tutorial latest BrainFlow version is 4.0.1, it is ok if you download newer version from Nuget, it does not affect the process of integration with Unity.
-
-For BrainFlow there are *Managed(C#)* and *Unmanaged(C++)* libraries.
-C++ libraries are located inside folder *D:\\BrainFlowNuget\\brainflow.4.0.1\\lib*, C# libraries are located inside folder *D:\\BrainFlowNuget\\brainflow.4.0.1\\lib\\net45*.
-
-.. image:: https://live.staticflickr.com/65535/51025831062_a90515e1e5_b.jpg
-    :width: 1024px
-    :height: 576px
-
-
-Open your Unity project and copy **Managed(C#)** libraries to the Assets folder, after that copy **Unmanaged(C++)** libraries to the root folder of your project.
-
-.. image:: https://live.staticflickr.com/65535/51025001523_63cb77ed83_b.jpg
-    :width: 1024px
-    :height: 576px
+- Download the latest NuGet Unity package from `NuGetForUnity <https://github.com/GlitchEnzo/NuGetForUnity/releases>`_
+- Open your Unity project
+- Click on NuGetForUnity.x.x.x.unitypackage and add it into your project
+- In the Unity editor, go to NuGet/Manage NuGet Packages
+- Search for brainflow and click Install
 
 Now, you are able to use BrainFlow API in your Unity project.
 
-For demo we will create a simple script to read data.
+Examples
+~~~~~~~~~
+
+For this demo we will create a simple script to read data from the board.
 
 Add a game object to the Scene and attach script below.
 
@@ -113,6 +99,16 @@ Add a game object to the Scene and attach script below.
 
 After building your game for production don't forget to copy *Unmanaged(C++)* libraries to a folder where executable is located.
 
+Fixing errors
+~~~~~~~~~~~~~~~
+
+If you get the error: "Failed to load 'Assets/Packages/brainflow.x.x.x/lib/BoardController32.dll', expected x64 architecture, but was x86 architecture."
+Or similar error for other native libraries from BrainFlow you should open this library in Unity editor and fix checkboxes for CPU.
+
+- Find Assets/Packages/brainflow.x.x.x/lib/BoardController32.dll inside Unity Editor and click on properties in context menu
+- In the properties window, on the left tab, under CPU, select "x86"
+- In the properties window, on the right tab, select ONLY the "x86" checkbox
+- Restart Unity Editor
 
 Unreal Engine
 --------------
