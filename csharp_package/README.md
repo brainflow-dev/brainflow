@@ -56,17 +56,6 @@ The BrainFlow project strives to abide by generally accepted best practices in o
 |           CppCheck          	|    [![CppCheck](https://github.com/brainflow-dev/brainflow/actions/workflows/cppcheck.yml/badge.svg?branch=master)](https://github.com/brainflow-dev/brainflow/actions/workflows/cppcheck.yml)   	|
 |         Clang-Format        	|   [![Clang Format](https://github.com/brainflow-dev/brainflow/actions/workflows/clang_format.yml/badge.svg?branch=master)](https://github.com/brainflow-dev/brainflow/actions/workflows/clang_format.yml)   	|  
 
-## Brainflow Bindings
-
-We support bindings for:
-* [Python](./python_package)
-* [Java](./java_package/brainflow/)
-* [R](./r_package/)
-* [C++](./cpp_package/)
-* [C#](./csharp_package/brainflow/)
-* [Matlab](./matlab_package/brainflow)
-* [Julia](./julia_package/brainflow)
-
 ## Partners and Sponsors
 
 [![OpenBCI](https://live.staticflickr.com/65535/51618456586_7b533781e2.jpg)](https://openbci.com/)
