@@ -20,17 +20,17 @@ class safe_callback;
 template <class _Res, class... _ArgTypes>
 class safe_callback<_Res(_ArgTypes...)> {
   public:
-    virtual ~safe_callback() {
-        if (!_is_loaded) {
-            return;
-        }
-        unload();
-    };
+    safe_callback() = default;
+
+    // Remove copy constructor and copy assignment
+    safe_callback(const safe_callback&) = delete;
+    safe_callback& operator=(const safe_callback&) = delete;
+
+    virtual ~safe_callback() { unload(); };
 
     void load(std::function<_Res(_ArgTypes...)> callback) {
-        if (callback == nullptr) {
-            return;
-        }
+        if (callback == nullptr) return;
+
         std::scoped_lock lock(_mutex);
         _callback = std::move(callback);
         _is_loaded = true;
@@ -47,9 +47,9 @@ class safe_callback<_Res(_ArgTypes...)> {
     explicit operator bool() const { return is_loaded(); }
 
     _Res operator()(_ArgTypes... arguments) {
+        std::scoped_lock lock(_mutex);
         if (_is_loaded) {
-            std::scoped_lock lock(_mutex);
-            return _callback(static_cast<_ArgTypes&&>(arguments)...);
+            return _callback(std::forward<_ArgTypes&&>(arguments)...);
         } else {
             return _Res();
         }
