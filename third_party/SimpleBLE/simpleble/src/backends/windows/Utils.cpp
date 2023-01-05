@@ -5,41 +5,15 @@
 #include <sstream>
 
 #include <sdkddkver.h>
+#include "../winrt/roapi.h"
 
 #include "LoggingInternal.h"
 
-#if WDK_NTDDI_VERSION <= NTDDI_WIN10_VB
-// For Windows SDK version before 10.0.19041.0, remap functions to post-10.0.19041.0 versions
-#define WINRT_IMPL_CoGetApartmentType WINRT_CoGetApartmentType
-#define WINRT_IMPL_CoInitializeEx(ptr, type) WINRT_RoInitialize(type)
+#if WDK_NTDDI_VERSION < NTDDI_WIN10_VB
+#error "Windows SDK version before 10.0.19041.0 is not supported"
 #endif
 
 #define MAC_ADDRESS_STR_LENGTH (size_t)17  // Two chars per byte, 5 chars for colon
-
-// NOTE: These constants are defined in ObjIdl.h
-// More info: https://learn.microsoft.com/en-us/windows/win32/api/objidlbase/ne-objidlbase-apttype
-constexpr int32_t APTTYPE_CURRENT = -1;
-constexpr int32_t APTTYPE_STA = 0;
-constexpr int32_t APTTYPE_MTA = 1;
-constexpr int32_t APTTYPE_NA = 2;
-constexpr int32_t APTTYPE_MAINSTA = 3;
-
-// https://learn.microsoft.com/en-us/windows/win32/api/objidl/ne-objidl-apttypequalifier
-constexpr int32_t APTTYPEQUALIFIER_NONE = 0;
-constexpr int32_t APTTYPEQUALIFIER_IMPLICIT_MTA = 1;
-constexpr int32_t APTTYPEQUALIFIER_NA_ON_MTA = 2;
-constexpr int32_t APTTYPEQUALIFIER_NA_ON_STA = 3;
-constexpr int32_t APTTYPEQUALIFIER_NA_ON_IMPLICIT_MTA = 4;
-constexpr int32_t APTTYPEQUALIFIER_NA_ON_MAINSTA = 5;
-constexpr int32_t APTTYPEQUALIFIER_APPLICATION_STA = 6;
-constexpr int32_t APTTYPEQUALIFIER_RESERVED_1 = 7;
-
-constexpr int32_t COINIT_APARTMENTTHREADED = 0x2;
-constexpr int32_t COINIT_MULTITHREADED = 0;
-constexpr int32_t COINIT_DISABLE_OLE1DDE = 0x4;
-constexpr int32_t COINIT_SPEED_OVER_MEMORY = 0x8;
-
-// More info on COM appartments: https://learn.microsoft.com/en-us/windows/win32/com/processes--threads--and-apartments
 
 namespace SimpleBLE {
 
@@ -49,56 +23,8 @@ void initialize_winrt() {
     if (initialized) return;
     initialized = true;
 
-    int32_t cotype, qualifier;
-    int32_t get_apartment_result = WINRT_IMPL_CoGetApartmentType(&cotype, &qualifier);
-
-    SIMPLEBLE_LOG_INFO(
-        fmt::format("CoGetApartmentType: cotype={}, qualifier={}, result={}", cotype, qualifier, get_apartment_result));
-
-    winrt::hresult result;
-
-    if (cotype == APTTYPE_STA) {
-        // Current thread is already associated with an STA.
-        // No need to initialize the apartment.
-        return;
-    } else if (cotype == APTTYPE_MTA) {
-        // Current thread is already associated with an MTA.
-        // No need to initialize the apartment.
-        return;
-    } else if (cotype == APTTYPE_CURRENT) {
-        // Current thread is not associated with an apartment,
-        // or the apartment type is determined by the current threading model.
-        // Initialize the apartment based on the threading model.
-        if (qualifier == APTTYPEQUALIFIER_IMPLICIT_MTA) {
-            // Initialize the apartment as an MTA
-            result = WINRT_IMPL_CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-        } else if (qualifier == APTTYPEQUALIFIER_NA_ON_MTA) {
-            // Initialize the apartment as an MTA
-            result = WINRT_IMPL_CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-        } else if (qualifier == APTTYPEQUALIFIER_NA_ON_IMPLICIT_MTA) {
-            // Initialize the apartment as an MTA
-            result = WINRT_IMPL_CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-        } else if (qualifier == APTTYPEQUALIFIER_NA_ON_STA) {
-            // Initialize the apartment as an STA
-            result = WINRT_IMPL_CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
-        } else if (qualifier == APTTYPEQUALIFIER_NA_ON_MAINSTA) {
-            // Initialize the apartment as an STA
-            result = WINRT_IMPL_CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
-        } else if (qualifier == APTTYPEQUALIFIER_APPLICATION_STA) {
-            // Initialize the apartment as an STA
-            result = WINRT_IMPL_CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
-        } else {
-            // qualifier is an unknown value.
-            // Initialize the apartment with the default concurrency model.
-            result = WINRT_IMPL_CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
-        }
-    } else {
-        // cotype is an unknown value.
-        // Initialize the apartment with the default concurrency model.
-        result = WINRT_IMPL_CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
-    }
-
-    SIMPLEBLE_LOG_INFO(fmt::format("CoInitializeEx: result={}", result));
+    winrt::hresult result = RoInitialize(RO_INIT_MULTITHREADED);
+    SIMPLEBLE_LOG_INFO(fmt::format("RoInitialize: result={}", result));
 }
 
 std::string _mac_address_to_str(uint64_t mac_address) {

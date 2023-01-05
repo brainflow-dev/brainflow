@@ -12,16 +12,13 @@ namespace SimpleBLE {
 namespace Logging {
 
 enum Level : int {
-    NONE = 0,
-    FATAL,
-    ERROR,
-    WARN,
-    INFO,
-#pragma push_macro("DEBUG")
-#undef DEBUG
-    DEBUG,
-#pragma pop_macro("DEBUG")
-    VERBOSE,
+    None = 0,
+    Fatal,
+    Error,
+    Warn,
+    Info,
+    Debug,
+    Verbose,
 };
 
 // clang-format off
@@ -54,7 +51,7 @@ class SIMPLEBLE_EXPORT Logger {
     Logger(Logger& other) = delete;          // Remove copy constructor
     void operator=(const Logger&) = delete;  // Remove copy assignment
 
-    Level level_{Level::INFO};
+    Level level_{Level::Info};
     Callback callback_{nullptr};
     std::recursive_mutex mutex_;
 };

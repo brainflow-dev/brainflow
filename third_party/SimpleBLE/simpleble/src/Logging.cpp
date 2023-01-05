@@ -17,25 +17,25 @@ Logger::Logger() {
                     const std::string& function, const std::string& message) {
         std::string level_string;
         switch (level) {
-            case Level::VERBOSE:
+            case Level::Verbose:
                 level_string = "VERBOSE";
                 break;
-            case Level::DEBUG:
+            case Level::Debug:
                 level_string = "DEBUG";
                 break;
-            case Level::INFO:
+            case Level::Info:
                 level_string = "INFO";
                 break;
-            case Level::WARN:
+            case Level::Warn:
                 level_string = "WARNING";
                 break;
-            case Level::ERROR:
+            case Level::Error:
                 level_string = "ERROR";
                 break;
-            case Level::FATAL:
+            case Level::Fatal:
                 level_string = "FATAL";
                 break;
-            case Level::NONE:
+            case Level::None:
                 return;
         }
 
