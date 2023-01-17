@@ -31,7 +31,7 @@
 #include "spdlog/sinks/null_sink.h"
 #include "spdlog/spdlog.h"
 
-#include <iostream>
+#include "fastica.h"
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -1618,6 +1618,42 @@ int get_heart_rate (
     delete[] output_freq;
 
     return res;
+}
+
+int perform_ica (double *data, int rows, int cols, int num_components, double *w_mat, double *k_mat,
+    double *a_mat, double *s_mat)
+{
+    if ((data == NULL) || (rows < 2) || (cols < 2) || (num_components < 2) || (w_mat == NULL) ||
+        (k_mat == NULL) || (a_mat == NULL) || (s_mat == NULL))
+    {
+        data_logger->error ("invalid inputs for perform_ica.");
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    Eigen::MatrixXd input_matrix =
+        Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>> (
+            data, rows, cols);
+
+    FastICA ica (num_components);
+    int res = ica.compute (input_matrix);
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        res = ica.get_matrixes (w_mat, k_mat, a_mat, s_mat);
+    }
+    return res;
+}
+
+int remove_component (double *w_matrix, int w_rows, int w_cols, double *s_matrix, int s_rows,
+    int s_cols, double *data, int *rows, int *cols)
+{
+    if ((w_matrix == NULL) || (w_rows < 2) || (w_cols < 2) || (s_matrix == NULL) || (s_rows < 2) ||
+        (s_cols < 2) || (data == NULL) || (rows == NULL) || (cols == NULL))
+    {
+        data_logger->error ("invalid inputs for remove_component.");
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+    // todo
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int get_version_data_handler (char *version, int *num_chars, int max_chars)

@@ -37,6 +37,12 @@ if (WARNINGS_AS_ERRORS)
     endif ()
 endif (WARNINGS_AS_ERRORS)
 
+if (MSVC)
+  add_compile_options(/bigobj)
+else ()
+  add_compile_options(-Wa,-mbig-obj)
+endif ()
+
 include (${CMAKE_HOME_DIRECTORY}/src/board_controller/build.cmake)
 include (${CMAKE_HOME_DIRECTORY}/src/data_handler/build.cmake)
 include (${CMAKE_HOME_DIRECTORY}/src/ml/build.cmake)
