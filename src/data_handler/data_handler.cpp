@@ -1643,19 +1643,6 @@ int perform_ica (double *data, int rows, int cols, int num_components, double *w
     return res;
 }
 
-int remove_component (double *w_matrix, int w_rows, int w_cols, double *s_matrix, int s_rows,
-    int s_cols, double *data, int *rows, int *cols)
-{
-    if ((w_matrix == NULL) || (w_rows < 2) || (w_cols < 2) || (s_matrix == NULL) || (s_rows < 2) ||
-        (s_cols < 2) || (data == NULL) || (rows == NULL) || (cols == NULL))
-    {
-        data_logger->error ("invalid inputs for remove_component.");
-        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
-    }
-    // todo
-    return (int)BrainFlowExitCodes::STATUS_OK;
-}
-
 int get_version_data_handler (char *version, int *num_chars, int max_chars)
 {
     strncpy (version, BRAINFLOW_VERSION_STRING, max_chars);
