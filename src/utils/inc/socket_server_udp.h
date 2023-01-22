@@ -15,7 +15,8 @@ enum class SocketServerUDPReturnCodes
     STATUS_OK = 0,
     WSA_STARTUP_ERROR = 1,
     CREATE_SOCKET_ERROR = 2,
-    BIND_ERROR = 3
+    BIND_ERROR = 3,
+    SOCKET_ALREADY_CREATED_ERROR = 4
 };
 
 class SocketServerUDP
@@ -38,6 +39,7 @@ private:
 
 #ifdef _WIN32
     SOCKET server_socket;
+    bool wsa_initialized;
 #else
     int server_socket;
 #endif

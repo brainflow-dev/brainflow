@@ -17,16 +17,22 @@ MultiCastServer::MultiCastServer (const char *local_ip, int local_port)
     this->local_port = local_port;
     server_socket = INVALID_SOCKET;
     memset (&server_addr, 0, sizeof (server_addr));
+    wsa_initialized = false;
 }
 
 int MultiCastServer::init ()
 {
+    if (wsa_initialized)
+    {
+        return (int)MultiCastReturnCodes::SOCKET_ALREADY_CREATED_ERROR;
+    }
     WSADATA wsadata;
     int res = WSAStartup (MAKEWORD (2, 2), &wsadata);
     if (res != 0)
     {
         return (int)MultiCastReturnCodes::WSA_STARTUP_ERROR;
     }
+    wsa_initialized = true;
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons (local_port);
     if (inet_pton (AF_INET, local_ip, &server_addr.sin_addr) == 0)
@@ -69,7 +75,11 @@ void MultiCastServer::close ()
         closesocket (server_socket);
         server_socket = INVALID_SOCKET;
     }
-    WSACleanup ();
+    if (wsa_initialized)
+    {
+        WSACleanup ();
+        wsa_initialized = false;
+    }
 }
 
 ///////////////////////////////

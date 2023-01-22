@@ -20,10 +20,15 @@ int SocketClientUDP::get_local_ip_addr (const char *connect_ip, int port, char *
     char buffer[80];
     SOCKET sock = INVALID_SOCKET;
     struct sockaddr_in name;
+    bool wsa_initialized = false;
     int res = WSAStartup (MAKEWORD (2, 2), &wsadata);
     if (res != 0)
     {
         return_value = (int)SocketClientUDPReturnCodes::WSA_STARTUP_ERROR;
+    }
+    else
+    {
+        wsa_initialized = true;
     }
 
     if (return_value == (int)SocketClientUDPReturnCodes::STATUS_OK)
@@ -78,7 +83,10 @@ int SocketClientUDP::get_local_ip_addr (const char *connect_ip, int port, char *
     }
 
     closesocket (sock);
-    WSACleanup ();
+    if (wsa_initialized)
+    {
+        WSACleanup ();
+    }
     return return_value;
 }
 
@@ -88,16 +96,22 @@ SocketClientUDP::SocketClientUDP (const char *ip_addr, int port)
     this->port = port;
     connect_socket = INVALID_SOCKET;
     memset (&socket_addr, 0, sizeof (socket_addr));
+    wsa_initialized = false;
 }
 
 int SocketClientUDP::connect ()
 {
+    if (wsa_initialized)
+    {
+        return (int)SocketClientUDPReturnCodes::SOCKET_ALREADY_CREATED_ERROR;
+    }
     WSADATA wsadata;
     int res = WSAStartup (MAKEWORD (2, 2), &wsadata);
     if (res != 0)
     {
         return (int)SocketClientUDPReturnCodes::WSA_STARTUP_ERROR;
     }
+    wsa_initialized = true;
     socket_addr.sin_family = AF_INET;
     socket_addr.sin_port = htons (port);
     if (inet_pton (AF_INET, ip_addr, &socket_addr.sin_addr) == 0)
@@ -217,7 +231,11 @@ void SocketClientUDP::close ()
 {
     closesocket (connect_socket);
     connect_socket = INVALID_SOCKET;
-    WSACleanup ();
+    if (wsa_initialized)
+    {
+        WSACleanup ();
+        wsa_initialized = false;
+    }
 }
 
 ///////////////////////////////

@@ -23,6 +23,7 @@ BroadCastServer::BroadCastServer (int port)
     connect_socket = INVALID_SOCKET;
     memset (&socket_addr, 0, sizeof (socket_addr));
     strcpy (address, "255.255.255.255");
+    wsa_initialized = false;
 }
 
 BroadCastServer::BroadCastServer (const char *address, int port)
@@ -31,16 +32,22 @@ BroadCastServer::BroadCastServer (const char *address, int port)
     connect_socket = INVALID_SOCKET;
     memset (&socket_addr, 0, sizeof (socket_addr));
     strcpy (this->address, address);
+    wsa_initialized = false;
 }
 
 int BroadCastServer::init ()
 {
     WSADATA wsadata;
+    if (wsa_initialized)
+    {
+        return (int)BroadCastServerReturnCodes::SOCKET_ALREADY_CREATED_ERROR;
+    }
     int res = WSAStartup (MAKEWORD (2, 2), &wsadata);
     if (res != 0)
     {
         return (int)BroadCastServerReturnCodes::WSA_STARTUP_ERROR;
     }
+    wsa_initialized = true;
     socket_addr.sin_family = AF_INET;
     socket_addr.sin_port = htons (port);
     if (inet_pton (AF_INET, address, &socket_addr.sin_addr) == 0)
@@ -99,7 +106,11 @@ void BroadCastServer::close ()
 {
     closesocket (connect_socket);
     connect_socket = INVALID_SOCKET;
-    WSACleanup ();
+    if (wsa_initialized)
+    {
+        WSACleanup ();
+        wsa_initialized = false;
+    }
 }
 
 ///////////////////////////////
