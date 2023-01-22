@@ -59,6 +59,7 @@ private:
 #ifdef _WIN32
     SOCKET connect_socket;
     struct sockaddr_in socket_addr;
+    bool wsa_initialized;
 #else
     int connect_socket;
     struct sockaddr_in socket_addr;

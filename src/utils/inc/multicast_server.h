@@ -25,6 +25,7 @@ private:
 
 #ifdef _WIN32
     volatile SOCKET server_socket;
+    bool wsa_initialized;
 #else
     volatile int server_socket;
 #endif
