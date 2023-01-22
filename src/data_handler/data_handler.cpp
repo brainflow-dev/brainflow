@@ -126,7 +126,7 @@ int set_log_level_data_handler (int level)
 int perform_lowpass (double *data, int data_len, int sampling_rate, double cutoff, int order,
     int filter_type, double ripple)
 {
-    if ((order < 1) || (order > MAX_FILTER_ORDER) || (!data) || (cutoff < 0))
+    if ((order < 1) || (order > MAX_FILTER_ORDER) || (!data) || (cutoff < 0) || (sampling_rate < 1))
     {
         data_logger->error (
             "Order must be from 1-8 and data cannot be empty. Order:{} , Data:{} , Cutoff:{}",
@@ -172,7 +172,7 @@ int perform_lowpass (double *data, int data_len, int sampling_rate, double cutof
 int perform_highpass (double *data, int data_len, int sampling_rate, double cutoff, int order,
     int filter_type, double ripple)
 {
-    if ((order < 1) || (order > MAX_FILTER_ORDER) || (!data) || (cutoff < 0))
+    if ((order < 1) || (order > MAX_FILTER_ORDER) || (!data) || (cutoff < 0) || (sampling_rate < 1))
     {
         data_logger->error (
             "Order must be from 1-8 and data cannot be empty. Order:{} , Data:{} , Cutoff:{}",
@@ -218,7 +218,7 @@ int perform_bandpass (double *data, int data_len, int sampling_rate, double star
     double stop_freq, int order, int filter_type, double ripple)
 {
     if ((order < 1) || (order > MAX_FILTER_ORDER) || (!data) || (stop_freq <= start_freq) ||
-        (start_freq < 0))
+        (start_freq < 0) || (sampling_rate < 1))
     {
         data_logger->error ("Order must be from 1-8 and data cannot be empty. Order:{} , Data:{} , "
                             "Start Freq:{} , Stop Freq:{}",
@@ -268,7 +268,7 @@ int perform_bandstop (double *data, int data_len, int sampling_rate, double star
     double stop_freq, int order, int filter_type, double ripple)
 {
     if ((order < 1) || (order > MAX_FILTER_ORDER) || (!data) || (stop_freq <= start_freq) ||
-        (start_freq < 0))
+        (start_freq < 0) || (sampling_rate < 1))
     {
         data_logger->error ("Order must be from 1-8 and data cannot be empty. Order:{} , Data:{} , "
                             "Start Freq:{} , Stop Freq:{}",
