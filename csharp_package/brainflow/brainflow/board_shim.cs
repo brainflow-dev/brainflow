@@ -17,7 +17,7 @@ namespace brainflow
         public int board_id;
         public BrainFlowInputParams input_params;
         private string input_json;
-        private int master_board_id; // for streaming board
+        private int master_board; // for streaming board
 
         /// <summary>
         /// Create an instance of BoardShim class
@@ -28,19 +28,24 @@ namespace brainflow
         {
             this.board_id = board_id;
             this.input_params = input_params;
-            this.master_board_id = board_id;
+
             if ((board_id == (int)BoardIds.STREAMING_BOARD) || (board_id == (int)BoardIds.PLAYBACK_FILE_BOARD))
             {
-                try
+                if (input_params.master_board != (int)BoardIds.NO_BOARD)
                 {
-                    master_board_id = System.Convert.ToInt32 (input_params.other_info);
+                    master_board = input_params.master_board;
                 }
-                catch (FormatException)
+                else
                 {
                     throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
                 }
             }
-            this.input_json = input_params.to_json ();
+            else
+            {
+                master_board = board_id;
+            }
+
+            input_json = input_params.to_json ();
         }
 
         /// <summary>
@@ -794,7 +799,7 @@ namespace brainflow
         /// <returns> Master board id </returns>
         public int get_board_id ()
         {
-            return master_board_id;
+            return master_board;
         }
 
         ///<summary>
@@ -830,7 +835,7 @@ namespace brainflow
         /// <returns>latest collected data, can be less than "num_samples"</returns>
         public double[,] get_current_board_data (int num_samples, int preset = (int)BrainFlowPresets.DEFAULT_PRESET)
         {
-            int num_rows = BoardShim.get_num_rows (master_board_id, preset);
+            int num_rows = BoardShim.get_num_rows (master_board, preset);
             double[] data_arr = new double[num_samples * num_rows];
             int[] current_size = new int[1];
             int ec = BoardControllerLibrary.get_current_board_data (num_samples, preset, data_arr, current_size, board_id, input_json);
@@ -882,7 +887,7 @@ namespace brainflow
                 throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             }
             size = Math.Min (size, num_datapoints);
-            int num_rows = BoardShim.get_num_rows (master_board_id, preset);
+            int num_rows = BoardShim.get_num_rows (master_board, preset);
             double[] data_arr = new double[size * num_rows];
             int ec = BoardControllerLibrary.get_board_data (size, preset, data_arr, board_id, input_json);
             if (ec != (int)BrainFlowExitCodes.STATUS_OK)
