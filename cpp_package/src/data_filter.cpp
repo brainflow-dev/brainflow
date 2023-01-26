@@ -552,9 +552,9 @@ DataFilter::perform_ica (
         throw BrainFlowException ("failed to perform_ica", res);
     }
     BrainFlowArray<double, 2> w_mat (w, num_components, num_components);
-    BrainFlowArray<double, 2> k_mat (w, channels_len, num_components);
-    BrainFlowArray<double, 2> a_mat (w, num_components, channels_len);
-    BrainFlowArray<double, 2> s_mat (w, cols, num_components);
+    BrainFlowArray<double, 2> k_mat (k, channels_len, num_components);
+    BrainFlowArray<double, 2> a_mat (a, num_components, channels_len);
+    BrainFlowArray<double, 2> s_mat (s, cols, num_components);
     delete[] data_1d;
     delete[] w;
     delete[] k;
