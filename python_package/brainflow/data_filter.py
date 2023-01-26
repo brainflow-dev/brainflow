@@ -1230,6 +1230,8 @@ class DataFilter(object):
         check_memory_layout_row_major(data, 2)
         if len(data.shape) != 2:
             raise BrainFlowError('wrong number of dimensions', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        if num_components < 1:
+            raise BrainFlowError('wrong number of components', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
 
         if not channels:
             channels_to_use = range(data.shape[0])

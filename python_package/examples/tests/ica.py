@@ -26,6 +26,7 @@ def main():
     data = data[channel_to_use, :]
     # provide 5 chunks of data for components selection
     data = data.reshape(5, 100)
+    data = np.ascontiguousarray(data)
     w, k, a, s = DataFilter.perform_ica(data, 2)
     fig, axs = plt.subplots(2, 1)
     axs[0].plot(s[:, 0])

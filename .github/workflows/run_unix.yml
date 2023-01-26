@@ -198,6 +198,8 @@ jobs:
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/transforms.py
     - name: Downsampling Python
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/downsampling.py
+    - name: ICA Python
+      run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/ica.py
     - name: CSP Python
       run: sudo -H python3 $GITHUB_WORKSPACE/python_package/examples/tests/csp.py
     - name: Windowing Python

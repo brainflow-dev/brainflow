@@ -515,6 +515,65 @@ double DataFilter::calc_stddev (double *data, int start_pos, int end_pos)
     return output;
 }
 
+std::tuple<BrainFlowArray<double, 2>, BrainFlowArray<double, 2>, BrainFlowArray<double, 2>,
+    BrainFlowArray<double, 2>>
+DataFilter::perform_ica (
+    const BrainFlowArray<double, 2> &data, int num_components, std::vector<int> channels)
+{
+    if ((data.empty ()) || (channels.empty ()) || (num_components < 1))
+    {
+        throw BrainFlowException (
+            "Invalid params", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+    }
+
+    int cols = data.get_size (1);
+    int channels_len = (int)channels.size ();
+    double *data_1d = new double[cols * channels_len];
+    double *w = new double[num_components * num_components];
+    double *k = new double[channels_len * num_components];
+    double *a = new double[num_components * channels_len];
+    double *s = new double[cols * num_components];
+
+    for (int i = 0; i < channels_len; i++)
+    {
+        for (int j = 0; j < cols; j++)
+        {
+            data_1d[j + cols * i] = data.at (channels[i], j);
+        }
+    }
+    int res = ::perform_ica (data_1d, channels_len, cols, num_components, w, k, a, s);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        delete[] data_1d;
+        delete[] w;
+        delete[] k;
+        delete[] a;
+        delete[] s;
+        throw BrainFlowException ("failed to perform_ica", res);
+    }
+    BrainFlowArray<double, 2> w_mat (w, num_components, num_components);
+    BrainFlowArray<double, 2> k_mat (w, channels_len, num_components);
+    BrainFlowArray<double, 2> a_mat (w, num_components, channels_len);
+    BrainFlowArray<double, 2> s_mat (w, cols, num_components);
+    delete[] data_1d;
+    delete[] w;
+    delete[] k;
+    delete[] a;
+    delete[] s;
+    return std::make_tuple (w_mat, k_mat, a_mat, s_mat);
+}
+
+std::tuple<BrainFlowArray<double, 2>, BrainFlowArray<double, 2>, BrainFlowArray<double, 2>,
+    BrainFlowArray<double, 2>>
+DataFilter::perform_ica (const BrainFlowArray<double, 2> &data, int num_components)
+{
+    std::vector<int> channels;
+    int rows = data.get_size (0);
+    for (int i = 0; i < rows; i++)
+        channels.push_back (i);
+    return perform_ica (data, num_components, channels);
+}
+
 double DataFilter::get_railed_percentage (double *data, int data_len, int gain)
 {
     double output = 0;

@@ -269,3 +269,25 @@ target_link_libraries (
     ${DataHandlerPath}
     ${BoardControllerPath}
 )
+
+##################
+## Demo for ICA ##
+##################
+add_executable (
+    ica
+    src/ica.cpp
+)
+
+target_include_directories (
+    ica PUBLIC
+    ${brainflow_INCLUDE_DIRS}
+)
+
+target_link_libraries (
+    ica PUBLIC
+    # for some systems(ubuntu for example) order matters
+    ${BrainflowPath}
+    ${MLModulePath}
+    ${DataHandlerPath}
+    ${BoardControllerPath}
+)
