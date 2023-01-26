@@ -1215,47 +1215,46 @@ class DataFilter(object):
         return avg_bands, stddev_bands
 
     @classmethod
-    def perform_ica(cls, data: NDArray, channels: List, num_components: int) -> Tuple:
+    def perform_ica(cls, data: NDArray, num_components: int, channels=None) -> Tuple:
         """perform ICA
 
         :param data: 2d array for calculation
         :type data: NDArray
-        :param channels: channels - rows of data array which should be used for calculation
-        :type channels: List
         :param num_components: number of components
         :type num_components: int
+        :param channels: channels - rows of data array which should be used for calculation, if None use all
+        :type channels: List
         :return: w, k, a, s matrixes as a tuple
         :rtype: tuple
         """
         check_memory_layout_row_major(data, 2)
-
-        if len(channels) == 0:
-            raise BrainFlowError('wrong input for channels', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
-
         if len(data.shape) != 2:
             raise BrainFlowError('wrong number of dimensions', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
 
-        # TODO: enforce signal axis to be 1
-
-        data_1d = numpy.zeros(len(channels) * data.shape[1]).astype(numpy.float64)
+        if not channels:
+            channels_to_use = range(data.shape[0])
+        else:
+            channels_to_use = channels
+    
+        data_1d = numpy.zeros(len(channels_to_use) * data.shape[1]).astype(numpy.float64)
 
         w = numpy.zeros(num_components * num_components).astype(numpy.float64)
-        k = numpy.zeros(len(channels) * num_components).astype(numpy.float64)
-        a = numpy.zeros(num_components * len(channels)).astype(numpy.float64)
+        k = numpy.zeros(len(channels_to_use) * num_components).astype(numpy.float64)
+        a = numpy.zeros(num_components * len(channels_to_use)).astype(numpy.float64)
         s = numpy.zeros(data.shape[1] * num_components).astype(numpy.float64)
 
-        for i, channel in enumerate(channels):
+        for i, channel in enumerate(channels_to_use):
             for j in range(data.shape[1]):
                 data_1d[j + data.shape[1] * i] = data[channel][j]
 
-        res = DataHandlerDLL.get_instance().perform_ica(data_1d, len(channels), data.shape[1],
+        res = DataHandlerDLL.get_instance().perform_ica(data_1d, len(channels_to_use), data.shape[1],
                                                         num_components, w, k, a, s)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to calculate ICA', res)
 
         w = w.reshape(num_components, num_components)
-        k = k.reshape(len(channels), num_components)
-        a = a.reshape(num_components, len(channels))
+        k = k.reshape(len(channels_to_use), num_components)
+        a = a.reshape(num_components, len(channels_to_use))
         s = s.reshape(data.shape[1], num_components)
 
         return w, k, a, s
