@@ -1227,30 +1227,37 @@ class DataFilter(object):
         :return: w, k, a, s matrixes as a tuple
         :rtype: tuple
         """
-
         check_memory_layout_row_major(data, 2)
+
         if len(channels) == 0:
             raise BrainFlowError('wrong input for channels', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+
+        if len(data.shape) != 2:
+            raise BrainFlowError('wrong number of dimensions', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+
+        # TODO: enforce signal axis to be 1
 
         data_1d = numpy.zeros(len(channels) * data.shape[1]).astype(numpy.float64)
 
         w = numpy.zeros(num_components * num_components).astype(numpy.float64)
-        s = numpy.zeros(len(channels) * data.shape[1]).astype(numpy.float64)
-        k = numpy.zeros(data.shape[1] * num_components).astype(numpy.float64)
-        a = numpy.zeros(num_components * num_components).astype(numpy.float64)
+        k = numpy.zeros(len(channels) * num_components).astype(numpy.float64)
+        a = numpy.zeros(num_components * len(channels)).astype(numpy.float64)
+        s = numpy.zeros(data.shape[1] * num_components).astype(numpy.float64)
 
         for i, channel in enumerate(channels):
             for j in range(data.shape[1]):
                 data_1d[j + data.shape[1] * i] = data[channel][j]
+
         res = DataHandlerDLL.get_instance().perform_ica(data_1d, len(channels), data.shape[1],
                                                         num_components, w, k, a, s)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to calculate ICA', res)
 
         w = w.reshape(num_components, num_components)
-        k = k.reshape(data.shape[1], num_components)
-        a = a.reshape(num_components, num_components)
-        s = s.reshape(len(channels), data.shape[1])
+        k = k.reshape(len(channels), num_components)
+        a = a.reshape(num_components, len(channels))
+        s = s.reshape(data.shape[1], num_components)
+
         return w, k, a, s
 
     @classmethod

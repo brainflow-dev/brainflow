@@ -17,16 +17,15 @@ int FastICA::compute (Eigen::MatrixXd &X)
     }
 
     W.resize (num_components, num_components);
-    A.resize (num_components, num_components);
-    K.resize (cols, num_components);
-    S.resize (rows, cols);
+    A.resize (num_components, rows);
+    K.resize (rows, num_components);
+    S.resize (cols, num_components);
 
     scale (X, true, row_norm);
-    X.transposeInPlace ();
 
     // Whitening
     // X %*% t(X)/rows
-    Eigen::MatrixXd V = X * (X.array () / rows).matrix ().transpose ();
+    Eigen::MatrixXd V = X * (X.array () / cols).matrix ().transpose ();
     // s <- La.svd(V)
     Eigen::BDCSVD<Eigen::MatrixXd> s (V, Eigen::ComputeThinU | Eigen::ComputeThinV);
     // D <- diag(c(1/sqrt(s$d)))
@@ -34,7 +33,7 @@ int FastICA::compute (Eigen::MatrixXd &X)
     // K <- D %*% t(s$u)
     Eigen::MatrixXd K_temp = D * s.matrixU ().transpose ();
     // K <- matrix( K[1:rows.comp, ], rows.comp, cols)
-    Eigen::MatrixXd K_temp2 = K_temp.block (0, 0, num_components, cols);
+    Eigen::MatrixXd K_temp2 = K_temp.block (0, 0, num_components, rows);
     // X1 <- K %*% X
     Eigen::MatrixXd X1 = K_temp2 * X;
     Eigen::MatrixXd a = fast_ica_parallel_compute (X1);
@@ -103,10 +102,11 @@ void FastICA::scale (Eigen::Ref<Eigen::MatrixXd> M, bool center, bool normalize,
     bool ignore_invariants, std::vector<int> *zeros)
 {
     int rows = (int)M.rows ();
-    Eigen::Array<double, 1, Eigen::Dynamic> means = M.colwise ().mean ();
+    Eigen::Array<double, 1, Eigen::Dynamic> means = M.rowwise ().mean ();
 
     if (normalize)
     {
+        // TODO: This block has not been tested yet
         Eigen::Array<double, 1, Eigen::Dynamic> sds =
             ((M.array ().rowwise () - means).square ().colwise ().sum () / (rows - 1)).sqrt ();
 
@@ -130,7 +130,7 @@ void FastICA::scale (Eigen::Ref<Eigen::MatrixXd> M, bool center, bool normalize,
     }
     else
     {
-        M.array ().rowwise () -= means;
+        M.array ().transpose ().rowwise () -= means;
     }
 }
 
