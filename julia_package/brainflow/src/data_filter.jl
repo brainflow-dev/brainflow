@@ -400,6 +400,30 @@ end
     return temp_avgs, temp_stddevs
 end
 
+@brainflow_rethrow function perform_ica_select_channels(data, num_components::Integer, channels)
+    shape = size(data)
+    data_1d = reshape(transpose(data[channels,:]), (1, size(channels)[1] * shape[2]))
+    data_1d = copy(data_1d)
+
+    temp_w = Vector{Float64}(undef, num_components * num_components)
+    temp_k = Vector{Float64}(undef, length(channels) * num_components)
+    temp_a = Vector{Float64}(undef, num_components * length(channels))
+    temp_s = Vector{Float64}(undef, num_components * shape[2])
+
+    ccall((:perform_ica, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64}),
+            data_1d, size(channels)[1], shape[2], num_components, temp_w, temp_k, temp_a, temp_s)
+    w = transpose(reshape(temp_w, (num_components, num_components)))
+    k = transpose(reshape(temp_k, (length(channels), num_components)))
+    a = transpose(reshape(temp_a, (num_components, length(channels))))
+    s = transpose(reshape(temp_s, (shape[2], num_components)))
+    return w, k, a, s
+end
+
+function perform_ica(data, num_components::Integer)
+    channels = Array((1:size(data)[1]))
+    return perform_ica_select_channels(data, num_components, channels)
+end
+
 @brainflow_rethrow function get_psd(data, sampling_rate::Integer, window::WinType)
 
     if (length(data) % 2 == 1)

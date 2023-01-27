@@ -1255,9 +1255,9 @@ class DataFilter(object):
             raise BrainFlowError('unable to calculate ICA', res)
 
         w = w.reshape(num_components, num_components)
-        k = k.reshape(len(channels_to_use), num_components)
-        a = a.reshape(num_components, len(channels_to_use))
-        s = s.reshape(data.shape[1], num_components)
+        k = k.reshape(num_components, len(channels_to_use))
+        a = a.reshape(len(channels_to_use), num_components)
+        s = s.reshape(num_components, data.shape[1])
 
         return w, k, a, s
 

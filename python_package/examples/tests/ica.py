@@ -29,9 +29,9 @@ def main():
     data = np.ascontiguousarray(data)
     w, k, a, s = DataFilter.perform_ica(data, 2)
     fig, axs = plt.subplots(2, 1)
-    axs[0].plot(s[:, 0])
+    axs[0].plot(s[0, :])
     axs[0].set_title('Unmixed signal 1')
-    axs[1].plot(s[:, 1])
+    axs[1].plot(s[1, :])
     axs[1].set_title('Unmixed signal 2')
     plt.savefig('unmixed_signal.png')
 

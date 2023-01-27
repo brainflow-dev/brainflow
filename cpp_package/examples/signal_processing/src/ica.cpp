@@ -46,6 +46,7 @@ int main (int argc, char *argv[])
         std::tuple<BrainFlowArray<double, 2>, BrainFlowArray<double, 2>, BrainFlowArray<double, 2>,
             BrainFlowArray<double, 2>>
             returned_matrixes = DataFilter::perform_ica (data_reshaped, 2);
+        std::cout << std::get<3> (returned_matrixes) << std::endl;
     }
     catch (const BrainFlowException &err)
     {

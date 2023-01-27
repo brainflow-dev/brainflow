@@ -17,9 +17,9 @@ int FastICA::compute (Eigen::MatrixXd &X)
     }
 
     W.resize (num_components, num_components);
-    A.resize (num_components, rows);
-    K.resize (rows, num_components);
-    S.resize (cols, num_components);
+    A.resize (rows, num_components);
+    K.resize (num_components, rows);
+    S.resize (num_components, cols);
 
     scale (X, true, row_norm);
 
@@ -43,10 +43,9 @@ int FastICA::compute (Eigen::MatrixXd &X)
     S = w * X;
     // A <- t(w) %*% solve(w %*% t(w))
     A = w.transpose () * (w * w.transpose ()).inverse ();
-    K = K_temp2.transpose ();
-    W = a.transpose ();
     A.transposeInPlace ();
-    S.transposeInPlace ();
+    K = K_temp2;
+    W = a;
 
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
