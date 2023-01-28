@@ -219,7 +219,7 @@ C# EEG Metrics
 C# ICA
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../csharp_package/brainflow/examples/eeg_metrics/ica.cs
+.. literalinclude:: ../csharp_package/brainflow/examples/ica/ica.cs
    :language: c#
 
 C++
@@ -307,7 +307,7 @@ C++ EEG Metrics
 C++ ICA
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../cpp_package/examples/ml/src/ica.cpp
+.. literalinclude:: ../cpp_package/examples/signal_processing/src/ica.cpp
    :language: cpp
 
 

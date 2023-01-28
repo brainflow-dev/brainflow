@@ -250,6 +250,12 @@ jobs:
         mvn exec:java -Dexec.mainClass="brainflow.examples.Denoising"
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
+    - name: ICA Java
+      run: |
+        cd $GITHUB_WORKSPACE/java_package/brainflow
+        mvn exec:java -Dexec.mainClass="brainflow.examples.ICA"
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Downsampling Java
       run: |
         cd $GITHUB_WORKSPACE/java_package/brainflow
