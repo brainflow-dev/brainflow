@@ -648,7 +648,7 @@ namespace brainflow
             {
                 throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             }
-            int[] channels = new int[data.Length];
+            int[] channels = new int[data.GetLength(0)];
             for (int i = 0; i < channels.Length; i++)
                 channels[i] = i;
             return perform_ica (data, num_components, channels);
@@ -667,13 +667,13 @@ namespace brainflow
             {
                 throw new BrainFlowError((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             }
-            double[] data_1d = new double[data.GetRow (0).Length * channels.Length];
+            int cols = data.GetLength (1);
+            double[] data_1d = new double[cols * channels.Length];
             for (int i = 0; i < channels.Length; i++)
             {
                 Array.Copy (data.GetRow (channels[i]), 0, data_1d, i * data.GetRow (channels[i]).Length, data.GetRow (channels[i]).Length);
             }
             int channels_len = channels.Length;
-            int cols = data.GetRow (0).Length;
             double[] w = new double[num_components * num_components];
             double[] k = new double[channels_len * num_components];
             double[] a = new double[channels_len * num_components];
