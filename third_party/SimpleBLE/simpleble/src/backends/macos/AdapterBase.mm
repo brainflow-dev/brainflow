@@ -52,9 +52,15 @@ void* AdapterBase::underlying() const {
     return [internal underlying];
 }
 
-std::string AdapterBase::identifier() { return "Default Adapter"; }
+std::string AdapterBase::identifier() {
+    return fmt::format("Default Adapter [{}]", this->address());
+}
 
-BluetoothAddress AdapterBase::address() { return "00:00:00:00:00:00"; }
+BluetoothAddress AdapterBase::address() {
+    AdapterBaseMacOS* internal = (__bridge AdapterBaseMacOS*)opaque_internal_;
+
+    return [[internal address] UTF8String];
+}
 
 void AdapterBase::scan_start() {
     this->seen_peripherals_.clear();

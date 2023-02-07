@@ -20,6 +20,7 @@
 #include <vector>
 
 using namespace winrt::Windows;
+using namespace winrt::Windows::Devices;
 using namespace winrt::Windows::Devices::Bluetooth;
 using namespace winrt::Windows::Devices::Radios;
 
@@ -62,6 +63,7 @@ class AdapterBase {
     std::atomic_bool scan_is_active_{false};
     std::condition_variable scan_stop_cv_;
     std::mutex scan_stop_mutex_;
+    std::mutex scan_update_mutex_;
     std::map<BluetoothAddress, std::shared_ptr<PeripheralBase>> peripherals_;
     std::map<BluetoothAddress, std::shared_ptr<PeripheralBase>> seen_peripherals_;
 

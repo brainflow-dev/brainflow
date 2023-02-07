@@ -25,6 +25,7 @@
     self = [super init];
     if (self) {
         _adapter = adapter;
+        _uuid = [[NSUUID UUID] UUIDString];
 
         // Use a high-priority queue to ensure that events are processed immediately.
         dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, -1);
@@ -54,6 +55,10 @@
 
 - (bool)scanIsActive {
     return [self.centralManager isScanning];
+}
+
+- (NSString*)address {
+    return self.uuid;
 }
 
 #pragma mark - CBCentralManagerDelegate
@@ -100,6 +105,14 @@
 
     // Extract RSSI
     advertisingData.rssi = [RSSI shortValue];
+
+    // Extract Tx Power
+    NSNumber* txPower = [advertisementData objectForKey:CBAdvertisementDataTxPowerLevelKey];
+    if (txPower == nil) {
+        advertisingData.tx_power = INT16_MIN;
+    } else {
+        advertisingData.tx_power = [txPower shortValue];
+    }
 
     // Extract Manufacturer Data
     NSData* rawManufacturerData = advertisementData[CBAdvertisementDataManufacturerDataKey];

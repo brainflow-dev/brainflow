@@ -129,6 +129,10 @@ target_link_libraries(simpleble PRIVATE $<BUILD_INTERFACE:fmt::fmt-header-only>)
 target_link_libraries(${SIMPLEBLE-C} PRIVATE $<BUILD_INTERFACE:fmt::fmt-header-only>)
 target_link_libraries(${SIMPLEBLE-C} PRIVATE simpleble)
 
+if(NOT SIMPLEBLE_LOG_LEVEL)
+set(SIMPLEBLE_LOG_LEVEL "INFO")
+endif()
+
 append_sanitize_options("${SIMPLEBLE_SANITIZE}")
 
 # Detect the operating system and load the necessary dependencies

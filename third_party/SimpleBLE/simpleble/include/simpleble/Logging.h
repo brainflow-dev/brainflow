@@ -35,6 +35,10 @@ class SIMPLEBLE_EXPORT Logger {
     void set_callback(Callback callback);
     bool has_callback();
 
+    void log_default_stdout();
+    void log_default_file();
+    void log_default_file(const std::string path);
+
     // clang-format off
     void log(
         Level level,
@@ -50,6 +54,8 @@ class SIMPLEBLE_EXPORT Logger {
     ~Logger();
     Logger(Logger& other) = delete;          // Remove copy constructor
     void operator=(const Logger&) = delete;  // Remove copy assignment
+
+    static std::string level_to_str(Level level);
 
     Level level_{Level::Info};
     Callback callback_{nullptr};

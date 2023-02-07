@@ -11,6 +11,9 @@
 
 #if WDK_NTDDI_VERSION < NTDDI_WIN10_VB
 #error "Windows SDK version before 10.0.19041.0 is not supported"
+#elif WDK_NTDDI_VERSION == NTDDI_WIN10_VB
+// For Windows SDK version before 10.0.19041.0, remap functions to post-10.0.19041.0 versions
+#define WINRT_IMPL_CoGetApartmentType WINRT_CoGetApartmentType
 #endif
 
 #define MAC_ADDRESS_STR_LENGTH (size_t)17  // Two chars per byte, 5 chars for colon
@@ -23,8 +26,19 @@ void initialize_winrt() {
     if (initialized) return;
     initialized = true;
 
+    int32_t cotype, qualifier, get_apartment_result;
+
+    get_apartment_result = WINRT_IMPL_CoGetApartmentType(&cotype, &qualifier);
+    SIMPLEBLE_LOG_INFO(fmt::format("CoGetApartmentType: cotype={}, qualifier={}, result={:X}", cotype, qualifier,
+                                   (uint32_t)get_apartment_result));
+
+    if (cotype == APTTYPE_STA || cotype == APTTYPE_MAINSTA) {
+        SIMPLEBLE_LOG_WARN("Single-threaded apartment detected, uninitializing.");
+        RoUninitialize();
+    }
+
     winrt::hresult result = RoInitialize(RO_INIT_MULTITHREADED);
-    SIMPLEBLE_LOG_INFO(fmt::format("RoInitialize: result={}", result));
+    SIMPLEBLE_LOG_INFO(fmt::format("RoInitialize: result={:X}", (uint32_t)result));
 }
 
 std::string _mac_address_to_str(uint64_t mac_address) {
