@@ -35,6 +35,8 @@ int16_t Device1::RSSI() {
     return _properties["RSSI"].get_int16();
 }
 
+int16_t Device1::TxPower() { return _tx_power; }
+
 uint16_t Device1::Appearance() {
     std::scoped_lock lock(_property_update_mutex);
     return _properties["Appearance"].get_uint16();
@@ -43,6 +45,11 @@ uint16_t Device1::Appearance() {
 std::string Device1::Address() {
     std::scoped_lock lock(_property_update_mutex);
     return _properties["Address"].get_string();
+}
+
+std::string Device1::AddressType() {
+    std::scoped_lock lock(_property_update_mutex);
+    return _properties["AddressType"].get_string();
 }
 
 std::string Device1::Alias() {
@@ -135,5 +142,7 @@ void Device1::property_changed(std::string option_name) {
         for (auto& [key, value_array] : service_data) {
             _service_data.push_back(key);
         }
+    } else if (option_name == "TxPower") {
+        _tx_power = _properties["TxPower"].get_int16();
     }
 }

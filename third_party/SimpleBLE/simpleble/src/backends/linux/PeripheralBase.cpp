@@ -23,6 +23,10 @@ PeripheralBase::PeripheralBase(std::shared_ptr<SimpleBluez::Device> device,
     : device_(std::move(device)), adapter_(std::move(adapter)) {}
 
 PeripheralBase::~PeripheralBase() {
+    // Clear the callbacks to prevent any further events from being sent to the user.
+    this->callback_on_connected_.unload();
+    this->callback_on_disconnected_.unload();
+
     device_->clear_on_disconnected();
     device_->clear_on_services_resolved();
     _cleanup_characteristics();
@@ -34,7 +38,21 @@ std::string PeripheralBase::identifier() { return device_->name(); }
 
 BluetoothAddress PeripheralBase::address() { return device_->address(); }
 
+BluetoothAddressType PeripheralBase::address_type() {
+    std::string address_type = device_->address_type();
+
+    if (address_type == "public") {
+        return BluetoothAddressType::PUBLIC;
+    } else if (address_type == "public") {
+        return BluetoothAddressType::RANDOM;
+    } else {
+        return BluetoothAddressType::UNSPECIFIED;
+    }
+}
+
 int16_t PeripheralBase::rssi() { return device_->rssi(); }
+
+int16_t PeripheralBase::tx_power() { return device_->tx_power(); }
 
 uint16_t PeripheralBase::mtu() {
     if (!is_connected()) return 0;

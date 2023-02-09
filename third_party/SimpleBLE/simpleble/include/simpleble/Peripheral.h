@@ -27,7 +27,16 @@ class SIMPLEBLE_EXPORT Peripheral {
 
     std::string identifier();
     BluetoothAddress address();
+    BluetoothAddressType address_type();
     int16_t rssi();
+
+    /**
+     * @brief Provides the advertised transmit power in dBm.
+     *
+     * @note If the field has not been advertised by the peripheral,
+     *       the returned value will be -32768.
+     */
+    int16_t tx_power();
     uint16_t mtu();
 
     void connect();

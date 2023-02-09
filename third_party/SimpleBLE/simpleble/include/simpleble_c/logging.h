@@ -3,6 +3,7 @@
 #include <stdint.h>
 
 #include <simpleble/export.h>
+#include <simpleble_c/types.h>
 
 #ifdef _WIN32
 #define SHARED_EXPORT __declspec(dllexport)

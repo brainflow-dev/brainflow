@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -20,5 +21,7 @@ enum class OperatingSystem {
     MACOS,
     LINUX,
 };
+
+enum BluetoothAddressType : int32_t { PUBLIC = 0, RANDOM = 1, UNSPECIFIED = 2 };
 
 }  // namespace SimpleBLE

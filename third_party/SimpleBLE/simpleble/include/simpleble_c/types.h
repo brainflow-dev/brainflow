@@ -57,3 +57,9 @@ typedef enum {
     SIMPLEBLE_OS_MACOS = 1,
     SIMPLEBLE_OS_LINUX = 2,
 } simpleble_os_t;
+
+typedef enum {
+    SIMPLEBLE_ADDRESS_TYPE_PUBLIC = 0,
+    SIMPLEBLE_ADDRESS_TYPE_RANDOM = 1,
+    SIMPLEBLE_ADDRESS_TYPE_UNSPECIFIED = 2,
+} simpleble_address_type_t;

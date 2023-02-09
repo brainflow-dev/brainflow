@@ -19,16 +19,28 @@ std::string Peripheral::identifier() {
     return internal_->identifier();
 }
 
-BluetoothAddress Peripheral::address() {
+SimpleBLE::BluetoothAddress Peripheral::address() {
     if (!initialized()) throw Exception::NotInitialized();
 
     return internal_->address();
+}
+
+SimpleBLE::BluetoothAddressType Peripheral::address_type() {
+    if (!initialized()) throw Exception::NotInitialized();
+
+    return internal_->address_type();
 }
 
 int16_t Peripheral::rssi() {
     if (!initialized()) throw Exception::NotInitialized();
 
     return internal_->rssi();
+}
+
+int16_t Peripheral::tx_power() {
+    if (!initialized()) throw Exception::NotInitialized();
+
+    return internal_->tx_power();
 }
 
 uint16_t Peripheral::mtu() {

@@ -25,7 +25,11 @@ std::string PeripheralBase::identifier() { return "Plain Peripheral"; }
 
 BluetoothAddress PeripheralBase::address() { return "11:22:33:44:55:66"; }
 
+BluetoothAddressType PeripheralBase::address_type() { return BluetoothAddressType::PUBLIC; };
+
 int16_t PeripheralBase::rssi() { return -60; }
+
+int16_t PeripheralBase::tx_power() { return 5; }
 
 uint16_t PeripheralBase::mtu() {
     if (is_connected()) {

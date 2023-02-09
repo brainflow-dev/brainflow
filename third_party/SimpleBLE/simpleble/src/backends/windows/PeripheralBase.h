@@ -27,6 +27,8 @@ struct gatt_descriptor_t {
 
 struct gatt_characteristic_t {
     GattCharacteristic obj = nullptr;
+    winrt::event_token value_changed_token;
+    std::function<void(const GattCharacteristic& sender, const GattValueChangedEventArgs& args)> value_changed_callback;
     std::map<BluetoothUUID, gatt_descriptor_t> descriptors;
 };
 
@@ -44,7 +46,9 @@ class PeripheralBase {
 
     std::string identifier();
     BluetoothAddress address();
+    SimpleBLE::BluetoothAddressType address_type();
     int16_t rssi();
+    int16_t tx_power();
     uint16_t mtu();
 
     void connect();
@@ -84,9 +88,12 @@ class PeripheralBase {
     // initiate a connection, which can then cause further cascading failures.
     // See:
     // https://docs.microsoft.com/en-us/uwp/api/windows.devices.bluetooth.bluetoothledevice.frombluetoothaddressasync
+
     std::string identifier_;
     BluetoothAddress address_;
-    int16_t rssi_;
+    SimpleBLE::BluetoothAddressType address_type_;
+    int16_t rssi_ = INT16_MIN;
+    int16_t tx_power_ = INT16_MIN;
     uint16_t mtu_;
     bool connectable_;
     winrt::event_token connection_status_changed_token_;
@@ -103,12 +110,17 @@ class PeripheralBase {
     std::vector<BluetoothUUID> advertised_services_;
 
     bool _attempt_connect();
-    GattCharacteristic _fetch_characteristic(const BluetoothUUID& service_uuid,
-                                             const BluetoothUUID& characteristic_uuid);
+
+    gatt_characteristic_t& _fetch_characteristic(const BluetoothUUID& service_uuid,
+                                                 const BluetoothUUID& characteristic_uuid);
 
     GattDescriptor PeripheralBase::_fetch_descriptor(const BluetoothUUID& service_uuid,
                                                      const BluetoothUUID& characteristic_uuid,
                                                      const BluetoothUUID& descriptor_uuid);
+
+    void _subscribe(BluetoothUUID const& service, BluetoothUUID const& characteristic,
+                    std::function<void(ByteArray payload)> callback, GattCharacteristicProperties property,
+                    GattClientCharacteristicConfigurationDescriptorValue descriptor_value);
 };
 
 }  // namespace SimpleBLE

@@ -5,7 +5,6 @@
 #include <stdint.h>
 
 #include <simpleble/export.h>
-
 #include <simpleble_c/types.h>
 
 #ifdef _WIN32
@@ -48,9 +47,26 @@ SHARED_EXPORT char* CALLING_CONVENTION simpleble_peripheral_address(simpleble_pe
  * @brief
  *
  * @param handle
+ * @return simpleble_address_type_t
+ */
+SHARED_EXPORT simpleble_address_type_t CALLING_CONVENTION
+simpleble_peripheral_address_type(simpleble_peripheral_t handle);
+
+/**
+ * @brief
+ *
+ * @param handle
  * @return int16_t
  */
 SHARED_EXPORT int16_t CALLING_CONVENTION simpleble_peripheral_rssi(simpleble_peripheral_t handle);
+
+/**
+ * @brief
+ *
+ * @param handle
+ * @return int16_t
+ */
+SHARED_EXPORT int16_t CALLING_CONVENTION simpleble_peripheral_tx_power(simpleble_peripheral_t handle);
 
 /**
  * @brief

@@ -18,7 +18,9 @@ class SIMPLEBLE_EXPORT Peripheral : public SimpleBLE::Peripheral {
 
     std::optional<std::string> identifier() noexcept;
     std::optional<BluetoothAddress> address() noexcept;
+    std::optional<BluetoothAddressType> address_type() noexcept;
     std::optional<int16_t> rssi() noexcept;
+    std::optional<int16_t> tx_power() noexcept;
     std::optional<uint16_t> mtu() noexcept;
 
     bool connect() noexcept;
