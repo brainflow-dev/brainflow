@@ -581,14 +581,7 @@ namespace brainflow
                 throw new BrainFlowError (res);
             }
 
-            double[,] result = new double[num_rows[0], num_cols[0]];
-            for (int i = 0; i < num_rows[0]; i++)
-            {
-                for (int j = 0; j < num_cols[0]; j++)
-                {
-                    result[i, j] = data_arr[i * num_cols[0] + j];
-                }
-            }
+            double[,] result = data_arr.Reshape(num_rows[0], num_cols[0]);
             return result;
         }
 
@@ -640,6 +633,62 @@ namespace brainflow
                 throw new BrainFlowError (res);
             }
             Tuple<double[], double[]> return_data = new Tuple<double[], double[]> (avgs, stddevs);
+            return return_data;
+        }
+
+        /// <summary>
+        /// Calculate ICA
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="num_components"></param>
+        /// <returns></returns>
+        public static Tuple<double[,], double[,], double[,], double[,]> perform_ica (double[,] data, int num_components)
+        {
+            if (data == null)
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            int[] channels = new int[data.GetLength(0)];
+            for (int i = 0; i < channels.Length; i++)
+                channels[i] = i;
+            return perform_ica (data, num_components, channels);
+        }
+
+        /// <summary>
+        /// Calculate ICA
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="num_components"></param>
+        /// <param name="channels"></param>
+        /// <returns></returns>
+        public static Tuple<double[,], double[,], double[,], double[,]> perform_ica (double[,] data, int num_components, int[] channels)
+        {
+            if ((num_components < 1) || (data == null) || (channels == null))
+            {
+                throw new BrainFlowError((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            int cols = data.GetLength (1);
+            double[] data_1d = new double[cols * channels.Length];
+            for (int i = 0; i < channels.Length; i++)
+            {
+                Array.Copy (data.GetRow (channels[i]), 0, data_1d, i * data.GetRow (channels[i]).Length, data.GetRow (channels[i]).Length);
+            }
+            int channels_len = channels.Length;
+            double[] w = new double[num_components * num_components];
+            double[] k = new double[channels_len * num_components];
+            double[] a = new double[channels_len * num_components];
+            double[] s = new double[cols * num_components];
+
+            int res = DataHandlerLibrary.perform_ica (data_1d, channels_len, cols, num_components, w, k, a, s);
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+            double[,] w_mat = w.Reshape (num_components, num_components);
+            double[,] k_mat = k.Reshape (num_components, channels_len);
+            double[,] a_mat = a.Reshape (channels_len, num_components);
+            double[,] s_mat = s.Reshape (num_components, cols);
+            Tuple<double[,], double[,], double[,], double[,]> return_data = new Tuple<double[,], double[,], double[,], double[,]> (w_mat, k_mat, a_mat, s_mat);
             return return_data;
         }
 

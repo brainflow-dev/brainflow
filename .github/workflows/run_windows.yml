@@ -253,6 +253,9 @@ jobs:
     - name: Serialization Cpp Test
       run: .\cpp_package\examples\signal_processing\build\Release\serialization.exe
       shell: cmd
+    - name: ICA C# Test
+      run: .\csharp_package\brainflow\examples\ica\bin\Release\netcoreapp3.1\ica.exe
+      shell: cmd
     # Tests for MLModule
     - name: EEG Metrics Python Test
       run: python %GITHUB_WORKSPACE%\python_package\examples\tests\eeg_metrics.py --board-id -1

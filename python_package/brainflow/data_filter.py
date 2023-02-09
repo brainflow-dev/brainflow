@@ -454,6 +454,19 @@ class DataHandlerDLL(object):
             ndpointer(ctypes.c_float),
         ]
 
+        self.perform_ica = self.lib.perform_ica
+        self.perform_ica.restype = ctypes.c_int
+        self.perform_ica.argtypes = [
+            ndpointer(ctypes.c_double),
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ndpointer(ctypes.c_double),
+            ndpointer(ctypes.c_double),
+            ndpointer(ctypes.c_double),
+            ndpointer(ctypes.c_double)
+        ]
+
         self.get_custom_band_powers = self.lib.get_custom_band_powers
         self.get_custom_band_powers.restype = ctypes.c_int
         self.get_custom_band_powers.argtypes = [
@@ -1200,6 +1213,53 @@ class DataFilter(object):
             raise BrainFlowError('unable to get_avg_band_powers', res)
 
         return avg_bands, stddev_bands
+
+    @classmethod
+    def perform_ica(cls, data: NDArray, num_components: int, channels=None) -> Tuple:
+        """perform ICA
+
+        :param data: 2d array for calculation
+        :type data: NDArray
+        :param num_components: number of components
+        :type num_components: int
+        :param channels: channels - rows of data array which should be used for calculation, if None use all
+        :type channels: List
+        :return: w, k, a, s matrixes as a tuple
+        :rtype: tuple
+        """
+        check_memory_layout_row_major(data, 2)
+        if len(data.shape) != 2:
+            raise BrainFlowError('wrong number of dimensions', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        if num_components < 1:
+            raise BrainFlowError('wrong number of components', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+
+        if not channels:
+            channels_to_use = range(data.shape[0])
+        else:
+            channels_to_use = channels
+    
+        data_1d = numpy.zeros(len(channels_to_use) * data.shape[1]).astype(numpy.float64)
+
+        w = numpy.zeros(num_components * num_components).astype(numpy.float64)
+        k = numpy.zeros(len(channels_to_use) * num_components).astype(numpy.float64)
+        a = numpy.zeros(num_components * len(channels_to_use)).astype(numpy.float64)
+        s = numpy.zeros(data.shape[1] * num_components).astype(numpy.float64)
+
+        for i, channel in enumerate(channels_to_use):
+            for j in range(data.shape[1]):
+                data_1d[j + data.shape[1] * i] = data[channel][j]
+
+        res = DataHandlerDLL.get_instance().perform_ica(data_1d, len(channels_to_use), data.shape[1],
+                                                        num_components, w, k, a, s)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to calculate ICA', res)
+
+        w = w.reshape(num_components, num_components)
+        k = k.reshape(num_components, len(channels_to_use))
+        a = a.reshape(len(channels_to_use), num_components)
+        s = s.reshape(num_components, data.shape[1])
+
+        return w, k, a, s
 
     @classmethod
     def perform_ifft(cls, data: NDArray[Complex128]) -> NDArray[Float64]:

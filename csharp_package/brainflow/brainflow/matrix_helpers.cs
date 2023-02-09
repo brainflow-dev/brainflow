@@ -327,6 +327,23 @@ namespace brainflow.math
         }
 
         /// <summary>
+        /// Reshape array to matrix.
+        /// </summary>
+        /// 
+        public static T[,] Reshape<T> (this T[] vector, int num_rows, int num_cols)
+        {
+            T[,] result = new T[num_rows, num_cols];
+            for (int i = 0; i < num_rows; i++)
+            {
+                for (int j = 0; j < num_cols; j++)
+                {
+                    result[i, j] = vector[i * num_cols + j];
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Combines a vector and a element horizontally.
         /// </summary>
         /// 

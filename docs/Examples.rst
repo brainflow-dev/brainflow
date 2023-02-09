@@ -79,6 +79,12 @@ Python EEG Metrics
 .. literalinclude:: ../python_package/examples/tests/eeg_metrics.py
    :language: py
 
+Python ICA
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../python_package/examples/tests/ica.py
+   :language: py
+
 Python Real Time Plot
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -147,6 +153,12 @@ Java EEG Metrics
 .. literalinclude:: ../java_package/brainflow/src/main/java/brainflow/examples/EEGMetrics.java
    :language: java
 
+Java ICA
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../java_package/brainflow/src/main/java/brainflow/examples/ICA.java
+   :language: java
+
 C#
 -----
 
@@ -202,6 +214,12 @@ C# EEG Metrics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. literalinclude:: ../csharp_package/brainflow/examples/eeg_metrics/eeg_metrics.cs
+   :language: c#
+
+C# ICA
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../csharp_package/brainflow/examples/ica/ica.cs
    :language: c#
 
 C++
@@ -286,6 +304,13 @@ C++ EEG Metrics
 .. literalinclude:: ../cpp_package/examples/ml/src/eeg_metrics.cpp
    :language: cpp
 
+C++ ICA
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../cpp_package/examples/signal_processing/src/ica.cpp
+   :language: cpp
+
+
 R
 ----
 
@@ -335,6 +360,12 @@ R EEG Metrics
 ~~~~~~~~~~~~~~
 
 .. literalinclude:: ../r_package/examples/eeg_metrics.R
+   :language: r
+
+R ICA
+~~~~~~~~~~~~~~
+
+.. literalinclude:: ../r_package/examples/ICA.R
    :language: r
 
 Matlab
@@ -388,6 +419,12 @@ Matlab EEG Metrics
 .. literalinclude:: ../matlab_package/brainflow/examples/EEGMetrics.m
    :language: matlab
 
+Matlab ICA
+~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../matlab_package/brainflow/examples/ICA.m
+   :language: matlab
+
 Julia
 --------
 
@@ -439,6 +476,12 @@ Julia EEG Metrics
 .. literalinclude:: ../julia_package/brainflow/test/eeg_metrics.jl
    :language: julia
 
+Julia ICA
+~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../julia_package/brainflow/test/ica.jl
+   :language: julia
+
 Rust
 --------
 
@@ -488,6 +531,12 @@ Rust EEG Metrics
 ~~~~~~~~~~~~~~~~~
 
 .. literalinclude:: ../rust_package/brainflow/examples/eeg_metrics.rs
+   :language: rust
+
+Rust ICA
+~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../rust_package/brainflow/examples/ica.rs
    :language: rust
 
 Notebooks

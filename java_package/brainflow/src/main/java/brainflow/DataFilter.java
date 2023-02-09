@@ -102,6 +102,9 @@ public class DataFilter
         int get_heart_rate (double[] ppg_ir, double[] ppg_red, int len, int sampling_rate, int fft_size,
                 double[] output);
 
+        int perform_ica (double[] data, int rows, int cols, int num_components, double[] w, double[] k, double[] a,
+                double[] s);
+
         int get_version_data_handler (byte[] version, int[] len, int max_len);
 
         int log_message_data_handler (int log_level, String message);
@@ -842,6 +845,76 @@ public class DataFilter
     }
 
     /**
+     * Calculates ICA
+     * 
+     * @param data
+     * @param num_components
+     * @return
+     * @throws BrainFlowError
+     */
+    public static List<double[][]> perform_ica (double[][] data, int num_components) throws BrainFlowError
+    {
+        if (data == null)
+        {
+            throw new BrainFlowError ("invalid args for perform_ica",
+                    BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
+        int[] channels = new int[data.length];
+        for (int i = 0; i < channels.length; i++)
+            channels[i] = i;
+        return perform_ica (data, num_components, channels);
+    }
+
+    /**
+     * calculates ICA
+     * 
+     * @param data
+     * @param num_components
+     * @param channels
+     * @return
+     * @throws BrainFlowError
+     */
+    public static List<double[][]> perform_ica (double[][] data, int num_components, int[] channels)
+            throws BrainFlowError
+    {
+        if ((data == null) || (channels == null) || (num_components < 1))
+        {
+            throw new BrainFlowError ("invalid args for perform_ica",
+                    BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
+        double[] data_1d = new double[channels.length * data[channels[0]].length];
+        for (int i = 0; i < channels.length; i++)
+        {
+            for (int j = 0; j < data[channels[i]].length; j++)
+            {
+                data_1d[j + i * data[channels[i]].length] = data[channels[i]][j];
+            }
+        }
+        int cols = data[0].length;
+        int channels_len = channels.length;
+        double[] w = new double[num_components * num_components];
+        double[] k = new double[channels_len * num_components];
+        double[] a = new double[num_components * channels_len];
+        double[] s = new double[cols * num_components];
+
+        int ec = instance.perform_ica (data_1d, channels.length, data[channels[0]].length, num_components, w, k, a, s);
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Failed to perform_ica", ec);
+        }
+        List<double[][]> res = new ArrayList<double[][]> ();
+        double[][] w_mat = reshape_data_to_2d (num_components, num_components, w);
+        double[][] k_mat = reshape_data_to_2d (num_components, channels_len, k);
+        double[][] a_mat = reshape_data_to_2d (channels_len, num_components, a);
+        double[][] s_mat = reshape_data_to_2d (num_components, cols, s);
+        res.add (w_mat);
+        res.add (k_mat);
+        res.add (a_mat);
+        res.add (s_mat);
+        return res;
+    }
+
+    /**
      * get PSD
      * 
      * @param data          data to process
@@ -1012,7 +1085,7 @@ public class DataFilter
         return reshape_data_to_2d (num_rows[0], num_cols[0], data_arr);
     }
 
-    private static double[] reshape_data_to_1d (int num_rows, int num_cols, double[][] buf)
+    public static double[] reshape_data_to_1d (int num_rows, int num_cols, double[][] buf)
     {
         double[] output_buf = new double[num_rows * num_cols];
         for (int i = 0; i < num_cols; i++)
@@ -1025,7 +1098,7 @@ public class DataFilter
         return output_buf;
     }
 
-    private static double[][] reshape_data_to_2d (int num_rows, int num_cols, double[] linear_buffer)
+    public static double[][] reshape_data_to_2d (int num_rows, int num_cols, double[] linear_buffer)
     {
         double[][] result = new double[num_rows][];
         for (int i = 0; i < num_rows; i++)

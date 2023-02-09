@@ -28,6 +28,7 @@ endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
 
 SET (DATA_HANDLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/data_handler/data_handler.cpp
+    ${CMAKE_HOME_DIRECTORY}/src/data_handler/fastica.cpp
 )
 
 add_library (

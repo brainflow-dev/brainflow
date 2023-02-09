@@ -261,6 +261,18 @@ extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
+    pub fn perform_ica(
+        data: *mut f64,
+        rows: ::std::os::raw::c_int,
+        cols: ::std::os::raw::c_int,
+        num_components: ::std::os::raw::c_int,
+        w_mat: *mut f64,
+        k_mat: *mut f64,
+        a_mat: *mut f64,
+        s_mat: *mut f64,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
     pub fn set_log_level_data_handler(log_level: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {

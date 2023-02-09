@@ -34,6 +34,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "signal_filtering", "example
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "transforms", "examples\transforms\transforms.csproj", "{452B56E9-0103-4412-AEE9-6C1377D0F5BD}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ica", "examples\ica\ica.csproj", "{7980F4A1-3479-4E7D-A8B8-F449C3DECCCF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -88,6 +90,10 @@ Global
 		{452B56E9-0103-4412-AEE9-6C1377D0F5BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{452B56E9-0103-4412-AEE9-6C1377D0F5BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{452B56E9-0103-4412-AEE9-6C1377D0F5BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7980F4A1-3479-4E7D-A8B8-F449C3DECCCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7980F4A1-3479-4E7D-A8B8-F449C3DECCCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7980F4A1-3479-4E7D-A8B8-F449C3DECCCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7980F4A1-3479-4E7D-A8B8-F449C3DECCCF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -104,6 +110,7 @@ Global
 		{0AC60FC0-F528-463C-BB9B-5839224039D4} = {FF155433-168F-4A55-BA98-DFD197A98185}
 		{FEFC5F67-E548-4D78-862B-87F9B3D0494A} = {FF155433-168F-4A55-BA98-DFD197A98185}
 		{452B56E9-0103-4412-AEE9-6C1377D0F5BD} = {FF155433-168F-4A55-BA98-DFD197A98185}
+		{7980F4A1-3479-4E7D-A8B8-F449C3DECCCF} = {FF155433-168F-4A55-BA98-DFD197A98185}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C8CE9ED2-4273-45D4-AD7D-4B9227349E89}
