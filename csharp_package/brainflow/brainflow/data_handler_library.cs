@@ -182,6 +182,8 @@ namespace brainflow
         public static extern int detect_peaks_z_score (double[] data, int data_len, int lag, double threshold, double influence, double[] output);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_heart_rate (double[] ppg_ir, double[] ppg_red, int data_size, int sampling_rate, int fft_size, double[] output);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int perform_ica (double[] data, int rows, int cols, int num_components, double[] w, double[] k, double[] a, double[] s);
     }
 
     class DataHandlerLibrary32
@@ -254,6 +256,8 @@ namespace brainflow
         public static extern int detect_peaks_z_score (double[] data, int data_len, int lag, double threshold, double influence, double[] output);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_heart_rate (double[] ppg_ir, double[] ppg_red, int data_size, int sampling_rate, int fft_size, double[] output);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int perform_ica (double[] data, int rows, int cols, int num_components, double[] w, double[] k, double[] a, double[] s);
     }
 
     class DataHandlerLibraryLinux
@@ -326,6 +330,9 @@ namespace brainflow
         public static extern int detect_peaks_z_score (double[] data, int data_len, int lag, double threshold, double influence, double[] output);
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_heart_rate (double[] ppg_ir, double[] ppg_red, int data_size, int sampling_rate, int fft_size, double[] output);
+        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int perform_ica (double[] data, int rows, int cols, int num_components, double[] w, double[] k, double[] a, double[] s);
+
     }
 
     class DataHandlerLibraryMac
@@ -398,6 +405,8 @@ namespace brainflow
         public static extern int detect_peaks_z_score (double[] data, int data_len, int lag, double threshold, double influence, double[] output);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_heart_rate (double[] ppg_ir, double[] ppg_red, int data_size, int sampling_rate, int fft_size, double[] output);
+        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int perform_ica (double[] data, int rows, int cols, int num_components, double[] w, double[] k, double[] a, double[] s);
     }
 
     class DataHandlerLibrary
@@ -448,6 +457,23 @@ namespace brainflow
                     return DataHandlerLibraryLinux.remove_environmental_noise (data, len, sampling_rate, noise_type);
                 case LibraryEnvironment.MacOS:
                     return DataHandlerLibraryMac.remove_environmental_noise (data, len, sampling_rate, noise_type);
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static int perform_ica (double[] data, int rows, int cols, int num_components, double[] w, double[] k, double[] a, double[] s)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.perform_ica (data, rows, cols, num_components, w, k, a, s);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.perform_ica (data, rows, cols, num_components, w, k, a, s);
+                case LibraryEnvironment.Linux:
+                    return DataHandlerLibraryLinux.perform_ica (data, rows, cols, num_components, w, k, a, s);
+                case LibraryEnvironment.MacOS:
+                    return DataHandlerLibraryMac.perform_ica (data, rows, cols, num_components, w, k, a, s);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;

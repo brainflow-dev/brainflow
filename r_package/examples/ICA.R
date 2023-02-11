@@ -1,0 +1,15 @@
+library(brainflow)
+
+params <- brainflow_python$BrainFlowInputParams()
+board_shim <- brainflow_python$BoardShim(brainflow_python$BoardIds$SYNTHETIC_BOARD$value, params)
+board_shim$prepare_session()
+board_shim$start_stream()
+Sys.sleep(time = 10)
+board_shim$stop_stream()
+data <- board_shim$get_board_data(as.integer(500))
+board_shim$release_session()
+eeg_channels <- brainflow_python$BoardShim$get_eeg_channels(as.integer(-1))
+my_channel = eeg_channels[2]
+numpy_data <- np$array(data[my_channel,])
+numpy_data <- numpy_data$reshape(as.integer(5),as.integer(100))
+ica <- brainflow_python$DataFilter$perform_ica(numpy_data, as.integer(2))

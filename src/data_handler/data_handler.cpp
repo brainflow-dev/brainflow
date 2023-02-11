@@ -31,7 +31,7 @@
 #include "spdlog/sinks/null_sink.h"
 #include "spdlog/spdlog.h"
 
-#include <iostream>
+#include "fastica.h"
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -1617,6 +1617,29 @@ int get_heart_rate (
     delete[] output_ampl_red;
     delete[] output_freq;
 
+    return res;
+}
+
+int perform_ica (double *data, int rows, int cols, int num_components, double *w_mat, double *k_mat,
+    double *a_mat, double *s_mat)
+{
+    if ((data == NULL) || (rows < 2) || (cols < 2) || (num_components < 2) || (w_mat == NULL) ||
+        (k_mat == NULL) || (a_mat == NULL) || (s_mat == NULL))
+    {
+        data_logger->error ("invalid inputs for perform_ica.");
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    Eigen::MatrixXd input_matrix =
+        Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>> (
+            data, rows, cols);
+
+    FastICA ica (num_components);
+    int res = ica.compute (input_matrix);
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        res = ica.get_matrixes (w_mat, k_mat, a_mat, s_mat);
+    }
     return res;
 }
 

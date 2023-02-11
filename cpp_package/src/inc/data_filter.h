@@ -1,6 +1,7 @@
 #pragma once
 
 #include <complex>
+#include <tuple>
 #include <utility>
 #include <vector>
 // include it here to allow user include only this single file
@@ -213,6 +214,27 @@ public:
     static double calc_stddev (double *data, int start_pos, int end_pos);
     /// calc railed percentage
     static double get_railed_percentage (double *data, int data_len, int gain);
+    /**
+     * calculate ICA
+     * @param data input 2d array, rows are samples
+     * @param num_components number of components to find
+     * @param channels rows to use
+     * @return unmixed signal
+     */
+    static std::tuple<BrainFlowArray<double, 2>, BrainFlowArray<double, 2>,
+        BrainFlowArray<double, 2>, BrainFlowArray<double, 2>>
+    perform_ica (
+        const BrainFlowArray<double, 2> &data, int num_components, std::vector<int> channels);
+    /**
+     * calculate ICA
+     * @param data input 2d array, rows are samples
+     * @param num_components number of components to find
+     * @return unmixed signal
+     */
+    static std::tuple<BrainFlowArray<double, 2>, BrainFlowArray<double, 2>,
+        BrainFlowArray<double, 2>, BrainFlowArray<double, 2>>
+    perform_ica (const BrainFlowArray<double, 2> &data, int num_components);
+
 
     /// get brainflow version
     static std::string get_version ();

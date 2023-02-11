@@ -669,6 +669,59 @@ pub struct Band {
     pub freq_stop: f64,
 }
 
+/// Calculate ICA
+pub fn perform_ica_select_channels(
+    data: Array2<f64>,
+    num_components: usize,
+    channels: Vec<usize>
+) -> Result<(Vec<f64>, Vec<f64>, Vec<f64>, Vec<f64>)> {
+    let shape = data.shape();
+    let (rows, cols) = (channels.len(), shape[1]);
+    let mut raw_data = data
+        .outer_iter()
+        .enumerate()
+        .filter(|(i, _)| channels.contains(i))
+        .map(|(_, x)| x)
+        .flatten()
+        .copied()
+        .collect::<Vec<f64>>();
+
+    let mut temp_w = Vec::with_capacity(num_components * num_components);
+    let mut temp_k = Vec::with_capacity(rows * num_components);
+    let mut temp_a = Vec::with_capacity(num_components * rows);
+    let mut temp_s = Vec::with_capacity(cols * num_components);
+
+    let res = unsafe {
+        data_handler::perform_ica(
+            raw_data.as_mut_ptr() as *mut c_double,
+            rows as c_int,
+            cols as c_int,
+            num_components as c_int,
+            temp_w.as_mut_ptr() as *mut c_double,
+            temp_k.as_mut_ptr() as *mut c_double,
+            temp_a.as_mut_ptr() as *mut c_double,
+            temp_s.as_mut_ptr() as *mut c_double,
+        )
+    };
+    check_brainflow_exit_code(res)?;
+    //let w = Array2::from_shape_vec((num_components, num_components), temp_w);
+    //let k = Array2::from_shape_vec((num_components, rows), temp_k);
+    //let a = Array2::from_shape_vec((rows, num_components), temp_a);
+    //let s = Array2::from_shape_vec((num_components, cols), temp_s);
+    //Ok((w,k,a,s))
+    Ok((temp_w, temp_k, temp_a, temp_s))
+}
+
+/// Calculate ICA
+pub fn perform_ica(
+    data: Array2<f64>,
+    num_components: usize
+) -> Result<(Vec<f64>, Vec<f64>, Vec<f64>, Vec<f64>)> {
+    let shape = data.shape();
+    let channels = (0..shape[0]).collect();
+    perform_ica_select_channels(data, num_components, channels)
+}
+
 /// Calculate avg and stddev of BandPowers across all channels, bands are 1-4,4-8,8-13,13-30,30-50.
 pub fn get_custom_band_powers(
     data: Array2<f64>,

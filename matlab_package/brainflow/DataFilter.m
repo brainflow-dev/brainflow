@@ -355,6 +355,32 @@ classdef DataFilter
             stddev_bands = temp_stddevs.Value;
         end
         
+        function [w_mat, k_mat, a_mat, s_mat] = perform_ica_select_channels(data, num_components, channels)
+            % calculate ica
+            task_name = 'perform_ica';
+            data_1d = data(channels, :);
+            data_1d = transpose(data_1d);
+            data_1d = data_1d(:);
+            temp_input = libpointer('doublePtr', data_1d);
+            lib_name = DataFilter.load_lib();
+            temp_w = libpointer('doublePtr', zeros(1, num_components * num_components));
+            temp_k = libpointer('doublePtr', zeros(1, size(channels, 2) * num_components));
+            temp_a = libpointer('doublePtr', zeros(1, num_components * size(channels, 2)));
+            temp_s = libpointer('doublePtr', zeros(1, size(data, 2) * num_components));
+            exit_code = calllib(lib_name, task_name, temp_input, size(channels, 2), size(data, 2), num_components, temp_w, temp_k, temp_a, temp_s);
+            DataFilter.check_ec(exit_code, task_name);
+            w_mat = transpose(reshape(temp_w.Value, [num_components, num_components]));
+            k_mat = transpose(reshape(temp_k.Value, [size(channels,2), num_components]));
+            a_mat = transpose(reshape(temp_a.Value, [num_components, size(channels, 2)]));
+            s_mat = transpose(reshape(temp_s.Value, [size(data, 2), num_components]));
+        end
+        
+        function [w_mat, k_mat, a_mat, s_mat] = perform_ica(data, num_components)
+            % calculate ica
+            channels = uint32(1):uint32(size(data,1));
+            [w_mat, k_mat, a_mat, s_mat] = DataFilter.perform_ica_select_channels(data, num_components, channels);
+        end
+        
         function [ampls, freqs] = get_psd(data, sampling_rate, window)
             % calculate PSD
             task_name = 'get_psd';

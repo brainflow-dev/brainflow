@@ -67,6 +67,8 @@ extern "C"
         int data_len, int wavelet, int decomposition_level, int level_to_restore, double *output);
     SHARED_EXPORT int CALLING_CONVENTION detect_peaks_z_score (
         double *data, int data_len, int lag, double threshold, double influence, double *output);
+    SHARED_EXPORT int CALLING_CONVENTION perform_ica (double *data, int rows, int cols,
+        int num_components, double *w_mat, double *k_mat, double *a_mat, double *s_mat);
 
     // logging methods
     SHARED_EXPORT int CALLING_CONVENTION set_log_level_data_handler (int log_level);
