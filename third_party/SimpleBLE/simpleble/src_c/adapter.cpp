@@ -4,7 +4,9 @@
 
 #include <cstring>
 
-bool simpleble_adapter_is_bluetooth_enabled(void) { return SimpleBLE::Safe::Adapter::bluetooth_enabled(); }
+bool simpleble_adapter_is_bluetooth_enabled(void) {
+    return SimpleBLE::Safe::Adapter::bluetooth_enabled().value_or(false);
+}
 
 size_t simpleble_adapter_get_count(void) {
     return SimpleBLE::Safe::Adapter::get_adapters().value_or(std::vector<SimpleBLE::Safe::Adapter>()).size();

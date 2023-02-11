@@ -30,6 +30,7 @@ class SIMPLEBLE_EXPORT Adapter : public SimpleBLE::Adapter {
 
     std::optional<std::vector<SimpleBLE::Safe::Peripheral>> get_paired_peripherals() noexcept;
 
+    static std::optional<bool> bluetooth_enabled() noexcept;
     static std::optional<std::vector<SimpleBLE::Safe::Adapter>> get_adapters() noexcept;
 };
 

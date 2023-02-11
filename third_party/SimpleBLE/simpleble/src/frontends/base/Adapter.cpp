@@ -18,17 +18,7 @@ std::vector<Adapter> Adapter::get_adapters() {
     return available_adapters;
 }
 
-bool Adapter::bluetooth_enabled() noexcept {
-    try {
-        return AdapterBase::bluetooth_enabled();
-    } catch (const std::exception& e) {
-        SIMPLEBLE_LOG_ERROR(fmt::format("Failed to check if bluetooth is enabled: {}", e.what()));
-        return false;
-    } catch (...) {
-        SIMPLEBLE_LOG_ERROR("Failed to check if bluetooth is enabled: Unknown error");
-        return false;
-    }
-}
+bool Adapter::bluetooth_enabled() { return AdapterBase::bluetooth_enabled(); }
 
 bool Adapter::initialized() const { return internal_ != nullptr; }
 
