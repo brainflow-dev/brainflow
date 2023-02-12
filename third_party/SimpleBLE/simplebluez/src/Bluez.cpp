@@ -16,7 +16,11 @@ Bluez::Bluez() : Proxy(std::make_shared<SimpleDBus::Connection>(DBUS_BUS_SYSTEM)
     };
 }
 
-Bluez::~Bluez() { _conn->remove_match("type='signal',sender='org.bluez'"); }
+Bluez::~Bluez() {
+    if (_conn->is_initialized()) {
+        _conn->remove_match("type='signal',sender='org.bluez'");
+    }
+}
 
 void Bluez::init() {
     _conn->init();

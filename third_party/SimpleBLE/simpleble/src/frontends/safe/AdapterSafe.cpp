@@ -121,6 +121,14 @@ bool SimpleBLE::Safe::Adapter::set_callback_on_scan_found(
     }
 }
 
+std::optional<bool> SimpleBLE::Safe::Adapter::bluetooth_enabled() noexcept {
+    try {
+        return SimpleBLE::Adapter::bluetooth_enabled();
+    } catch (...) {
+        return std::nullopt;
+    }
+}
+
 std::optional<std::vector<SimpleBLE::Safe::Adapter>> SimpleBLE::Safe::Adapter::get_adapters() noexcept {
     try {
         auto adapters = SimpleBLE::Adapter::get_adapters();

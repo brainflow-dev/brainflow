@@ -15,6 +15,7 @@ class Connection {
 
     void init();
     void uninit();
+    bool is_initialized();
 
     void add_match(std::string rule);
     void remove_match(std::string rule);

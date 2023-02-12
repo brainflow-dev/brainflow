@@ -1,5 +1,0 @@
-queries:
-- exclude: py/catch-base-exception
-- exclude: py/polluting-import
-- exclude: cpp/empty-block
-- exclude: cpp/large-parameter
