@@ -8,7 +8,7 @@ class BrainflowConan(ConanFile):
     # Optional metadata
     license = "MIT"
     author = "Andrey1994 a1994ndrey@gmail.com"
-    url = "<Package recipe repository url here, for issues about the package>"
+    url = "https://github.com/brainflow-dev/brainflow"
     description = "BrainFlow is a library intended to obtain, parse and analyze EEG, EMG, ECG and other kinds of data from biosensors"
     topics = ("eeg", "bci", "neurotech")
 
