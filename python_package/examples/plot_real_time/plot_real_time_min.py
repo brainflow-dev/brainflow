@@ -94,8 +94,8 @@ def main():
     params.file = args.file
     params.master_board = args.master_board
 
+    board_shim = BoardShim(args.board_id, params)
     try:
-        board_shim = BoardShim(args.board_id, params)
         board_shim.prepare_session()
         board_shim.start_stream(450000, args.streamer_params)
         Graph(board_shim)

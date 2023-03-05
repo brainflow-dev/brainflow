@@ -835,21 +835,46 @@ namespace brainflow
         /// <returns>latest collected data, can be less than "num_samples"</returns>
         public double[,] get_current_board_data (int num_samples, int preset = (int)BrainFlowPresets.DEFAULT_PRESET)
         {
+            int size = get_board_data_count (preset);
+            if (num_samples < 0)
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            size = Math.Min (size, num_samples);
             int num_rows = BoardShim.get_num_rows (master_board, preset);
-            double[] data_arr = new double[num_samples * num_rows];
+            double[,] result = new double[num_rows, size];
             int[] current_size = new int[1];
-            int ec = BoardControllerLibrary.get_current_board_data (num_samples, preset, data_arr, current_size, board_id, input_json);
+            int ec = BoardControllerLibrary.get_current_board_data (num_samples, preset, result, current_size, board_id, input_json);
             if (ec != (int)BrainFlowExitCodes.STATUS_OK)
             {
                 throw new BrainFlowError (ec);
             }
-            double[,] result = new double[num_rows, current_size[0]];
-            for (int i = 0; i < num_rows; i++)
+            return result;
+        }
+
+        /// <summary>
+        /// get latest collected data, doesnt remove it from ringbuffer
+        /// </summary>
+        /// <param name="preset">preset for device</param>
+        /// <param name="result">array to store results, if provided BrainFlow does not allocate new memory</param>
+        /// <returns>latest collected data, can be less than "num_samples"</returns>
+        public double[,] get_current_board_data (double[,] result, int preset = (int)BrainFlowPresets.DEFAULT_PRESET)
+        {
+            int size = get_board_data_count (preset);
+            if (size < result.GetLength(1))
             {
-                for (int j = 0; j < current_size[0]; j++)
-                {
-                    result[i, j] = data_arr[i * current_size[0] + j];
-                }
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            int num_rows = BoardShim.get_num_rows (master_board, preset);
+            if (result.GetLength(0) != num_rows)
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            int[] current_size = new int[1];
+            int ec = BoardControllerLibrary.get_current_board_data (result.GetLength (1), preset, result, current_size, board_id, input_json);
+            if (ec != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (ec);
             }
             return result;
         }
@@ -877,6 +902,7 @@ namespace brainflow
         /// <summary>
         /// get collected data and remove it from ringbuffer
         /// </summary>
+        /// <param name="num_datapoints">number of datapoints to get</param>
         /// <param name="preset">preset for device</param>
         /// <returns>all collected data</returns>
         public double[,] get_board_data (int num_datapoints, int preset)
@@ -888,21 +914,39 @@ namespace brainflow
             }
             size = Math.Min (size, num_datapoints);
             int num_rows = BoardShim.get_num_rows (master_board, preset);
-            double[] data_arr = new double[size * num_rows];
+            double[,] data_arr = new double[num_rows, size];
             int ec = BoardControllerLibrary.get_board_data (size, preset, data_arr, board_id, input_json);
             if (ec != (int)BrainFlowExitCodes.STATUS_OK)
             {
                 throw new BrainFlowError (ec);
             }
-            double[,] result = new double[num_rows, size];
-            for (int i = 0; i < num_rows; i++)
+            return data_arr;
+        }
+
+        /// <summary>
+        /// get collected data and remove it from ringbuffer
+        /// </summary>
+        /// <param name="data_arr">array to store results, if provided BrainFlow will not allocate memory</param>
+        /// <param name="preset">preset for device</param>
+        /// <returns>all collected data</returns>
+        public double[,] get_board_data (double[,] data_arr, int preset)
+        {
+            int size = get_board_data_count (preset);
+            if (size < data_arr.GetLength(1))
             {
-                for (int j = 0; j < size; j++)
-                {
-                    result[i, j] = data_arr[i * size + j];
-                }
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             }
-            return result;
+            int num_rows = BoardShim.get_num_rows (master_board, preset);
+            if (num_rows != data_arr.GetLength(0))
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            int ec = BoardControllerLibrary.get_board_data (data_arr.GetLength (1), preset, data_arr, board_id, input_json);
+            if (ec != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (ec);
+            }
+            return data_arr;
         }
     }
 }
