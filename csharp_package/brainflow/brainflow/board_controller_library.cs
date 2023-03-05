@@ -127,11 +127,11 @@ namespace brainflow
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int release_session (int board_id, string input_json);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_current_board_data (int num_samples, int preset, double[] data_buf, int[] returned_samples, int board_id, string input_json);
+        public static extern int get_current_board_data (int num_samples, int preset, [In, Out][MarshalAs (UnmanagedType.LPArray, ArraySubType = UnmanagedType.R8)] double[,] data_buf, int[] returned_samples, int board_id, string input_json);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_board_data_count (int preset, int[] result, int board_id, string input_json);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_board_data (int data_count, int preset, double[] data_buf, int board_id, string input_json);
+        public static extern int get_board_data (int data_count, int preset, [In, Out][MarshalAs (UnmanagedType.LPArray, ArraySubType = UnmanagedType.R8)] double[,] data_buf, int board_id, string input_json);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_level_board_controller (int log_level);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -213,11 +213,11 @@ namespace brainflow
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int release_session (int board_id, string input_json);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_current_board_data (int num_samples, int preset, double[] data_buf, int[] returned_samples, int board_id, string input_json);
+        public static extern int get_current_board_data (int num_samples, int preset, [In, Out][MarshalAs (UnmanagedType.LPArray, ArraySubType = UnmanagedType.R8)] double[,] data_buf, int[] returned_samples, int board_id, string input_json);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_board_data_count (int preset, int[] result, int board_id, string input_json);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_board_data (int data_count, int preset, double[] data_buf, int board_id, string input_json);
+        public static extern int get_board_data (int data_count, int preset, [In, Out][MarshalAs (UnmanagedType.LPArray, ArraySubType = UnmanagedType.R8)] double[,] data_buf, int board_id, string input_json);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_level_board_controller (int log_level);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -299,11 +299,11 @@ namespace brainflow
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int release_session (int board_id, string input_json);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_current_board_data (int num_samples, int preset, double[] data_buf, int[] returned_samples, int board_id, string input_json);
+        public static extern int get_current_board_data (int num_samples, int preset, [In, Out][MarshalAs (UnmanagedType.LPArray, ArraySubType = UnmanagedType.R8)] double[,] data_buf, int[] returned_samples, int board_id, string input_json);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_board_data_count (int preset, int[] result, int board_id, string input_json);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_board_data (int data_count, int preset, double[] data_buf, int board_id, string input_json);
+        public static extern int get_board_data (int data_count, int preset, [In, Out][MarshalAs (UnmanagedType.LPArray, ArraySubType = UnmanagedType.R8)] double[,] data_buf, int board_id, string input_json);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_level_board_controller (int log_level);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -387,11 +387,11 @@ namespace brainflow
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int release_session (int board_id, string input_json);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_current_board_data (int num_samples, int preset, double[] data_buf, int[] returned_samples, int board_id, string input_json);
+        public static extern int get_current_board_data (int num_samples, int preset, [In, Out][MarshalAs (UnmanagedType.LPArray, ArraySubType = UnmanagedType.R8)] double[,] data_buf, int[] returned_samples, int board_id, string input_json);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_board_data_count (int preset, int[] result, int board_id, string input_json);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int get_board_data (int data_count, int preset, double[] data_buf, int board_id, string input_json);
+        public static extern int get_board_data (int data_count, int preset, [In, Out][MarshalAs (UnmanagedType.LPArray, ArraySubType = UnmanagedType.R8)] double[,] data_buf, int board_id, string input_json);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_level_board_controller (int log_level);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -530,7 +530,7 @@ namespace brainflow
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_current_board_data (int num_samples, int preset, double[] data_buf, int[] returned_samples, int board_id, string input_json)
+        public static int get_current_board_data (int num_samples, int preset, [In, Out][MarshalAs (UnmanagedType.LPArray, ArraySubType = UnmanagedType.R8)] double[,] data_buf, int[] returned_samples, int board_id, string input_json)
         {
             switch (PlatformHelper.get_library_environment ())
             {
@@ -581,7 +581,7 @@ namespace brainflow
             return (int)BrainFlowExitCodes.GENERAL_ERROR;
         }
 
-        public static int get_board_data (int data_count, int preset, double[] data_buf, int board_id, string input_json)
+        public static int get_board_data (int data_count, int preset, [In, Out][MarshalAs (UnmanagedType.LPArray, ArraySubType = UnmanagedType.R8)] double[,] data_buf, int board_id, string input_json)
         {
             switch (PlatformHelper.get_library_environment ())
             {

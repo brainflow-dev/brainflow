@@ -88,7 +88,7 @@ namespace brainflow
         /// <param name="filter_type"></param>
         /// <param name="ripple"></param>
         /// <returns>filtered data</returns>
-        public static double[] perform_lowpass (double[] data, int sampling_rate, double cutoff, int order, int filter_type, double ripple)
+        public static double[] perform_lowpass (double[,] data, int sampling_rate, double cutoff, int order, int filter_type, double ripple)
         {
             double[] filtered_data = new double[data.Length];
             Array.Copy (data, filtered_data, data.Length);
