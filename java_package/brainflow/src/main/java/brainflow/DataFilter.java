@@ -3,6 +3,7 @@ package brainflow;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,6 +21,7 @@ import com.sun.jna.Native;
 /**
  * DataFilter class to perform signal processing
  */
+@SuppressWarnings ("deprecation")
 public class DataFilter
 {
 
@@ -132,12 +134,12 @@ public class DataFilter
         } else
         {
             // need to extract libraries from jar
-            unpack_from_jar (lib_name);
+            lib_name = unpack_from_jar (lib_name).toString ();
         }
         instance = Native.loadLibrary (lib_name, DllInterface.class);
     }
 
-    private static void unpack_from_jar (String lib_name)
+    private static Path unpack_from_jar (String lib_name)
     {
         try
         {
@@ -146,9 +148,11 @@ public class DataFilter
                 file.delete ();
             InputStream link = (BoardShim.class.getResourceAsStream (lib_name));
             Files.copy (link, file.getAbsoluteFile ().toPath ());
+            return file.getAbsoluteFile ().toPath ();
         } catch (Exception io)
         {
-            System.err.println ("native library: " + lib_name + " is not found in jar file");
+            System.err.println ("file: " + lib_name + " is not found in jar file");
+            return null;
         }
     }
 

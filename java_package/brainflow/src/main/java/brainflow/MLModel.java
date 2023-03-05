@@ -69,7 +69,7 @@ public class MLModel
         } else
         {
             // need to extract libraries from jar
-            unpack_from_jar (lib_name);
+            lib_name = unpack_from_jar (lib_name).toString ();
         }
 
         instance = Native.loadLibrary (lib_name, DllInterface.class);
