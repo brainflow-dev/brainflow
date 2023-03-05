@@ -134,7 +134,11 @@ public class DataFilter
         } else
         {
             // need to extract libraries from jar
-            lib_name = unpack_from_jar (lib_name).toString ();
+            Path lib_path = unpack_from_jar (lib_name);
+            if (lib_path != null)
+            {
+                lib_name = lib_path.toString ();
+            }
         }
         instance = Native.loadLibrary (lib_name, DllInterface.class);
     }
