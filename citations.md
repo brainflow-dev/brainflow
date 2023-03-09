@@ -26,6 +26,7 @@ CLASSIFICATION WITH LARYNGEAL IMAGERY](https://arxiv.org/pdf/2107.00045.pdf)
 * [S. D. Perur, H. H. Kenchannavar and M. A. Sheikh, "Analysis Of EEG Signals Using Open BCI To Predict The Stress Level," 2022 IEEE India Council International Subsections Conference (INDISCON), 2022, pp. 1-6, doi: 10.1109/INDISCON54605.2022.9862906.](https://ieeexplore.ieee.org/abstract/document/9862906)
 * [A. G. Kremenska, A. K. Lekova and G. P. Dimitrov, "EEG Brain-Computer Interfaces for Internet of Everything (IoE)," 2022 International Conference on Information Technologies (InfoTech), 2022, pp. 1-6, doi: 10.1109/InfoTech55606.2022.9897097.](https://ieeexplore.ieee.org/abstract/document/9897097)
 * [E. Ertekin, B. B. Günden, Y. Yilmaz, A. Sayar, T. Çakar and S. Ş. Arslan, "EMG-based BCI for PiCar Mobilization," 2022 7th International Conference on Computer Science and Engineering (UBMK), 2022, pp. 496-500, doi: 10.1109/UBMK55850.2022.9919502.](https://ieeexplore.ieee.org/abstract/document/9919502)
+* [Ertekin, E., Gunden, B. B., Yilmaz, Y., Sayar, A., Cakar, T., & Arslan, S. S. (2022). EMG-based BCI for PiCar Mobilization. 2022 7th International Conference on Computer Science and Engineering (UBMK). https://doi.org/10.1109/ubmk55850.2022.9919502](https://openaccess.mef.edu.tr/xmlui/handle/20.500.11779/1908)
 
 ## Posts
 
