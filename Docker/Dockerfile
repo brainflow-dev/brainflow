@@ -2,7 +2,9 @@ FROM ubuntu:20.04
 
 # Prerequisites
 ENV DEBIAN_FRONTEND=noninteractive
-
+RUN apt-get -qq update && apt-get install -y wget
+RUN wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb 
+RUN dpkg -i packages-microsoft-prod.deb
 RUN apt-get -qq update && \
 apt-get install -yqq dirmngr gnupg apt-transport-https ca-certificates software-properties-common && \
 apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9 && \
@@ -11,7 +13,7 @@ echo "deb https://cloud.r-project.org/bin/linux/ubuntu focal-cran40/" | tee /etc
 echo "deb https://download.mono-project.com/repo/ubuntu vs-bionic main" | tee /etc/apt/sources.list.d/mono-official-vs.list && \
 apt-get -qq update
 # Installing Dependencies
-RUN apt-get install -yqq python3 python3-pip python3-venv openjdk-13-jdk git curl wget build-essential python3-jira r-base rustc cargo nuget nuget mono-devel mono-complete monodevelop libxml2-dev libbluetooth-dev libdbus-1-dev
+RUN apt-get install -yqq python3 python3-pip python3-venv openjdk-13-jdk git curl wget build-essential python3-jira r-base rustc cargo nuget nuget mono-devel mono-complete monodevelop libxml2-dev libbluetooth-dev libdbus-1-dev dotnet-sdk-6.0 dotnet-runtime-6.0 dotnet-runtime-3.1 aspnetcore-runtime-6.0
 RUN mkdir -p /root/local/bin
 WORKDIR /root/local/bin
 # install latest cmake
@@ -35,7 +37,7 @@ ARG checkout_id
 # Compile
 RUN git clone "https://github.com/brainflow-dev/brainflow.git"
 WORKDIR /root/brainflow
-RUN if [ -z "${checkout_id}" ]; then git checkout "${checkout_id}"; fi
+RUN if [ ! -z "${checkout_id}" ]; then git checkout "${checkout_id}"; fi
 RUN python3 ./tools/build.py --use-openmp --bluetooth --ble
 ENV LD_LIBRARY_PATH=/root/brainflow/installed_linux/lib/
 
@@ -48,7 +50,7 @@ RUN python3 -m pip install -U .
 WORKDIR /root/brainflow/
 # C# Binding
 RUN nuget restore csharp_package/brainflow/brainflow.sln
-RUN xbuild csharp_package/brainflow/brainflow.sln
+RUN dotnet build csharp_package/brainflow/brainflow.sln
 
 # Java Binding
 WORKDIR /root/brainflow/java_package/brainflow
