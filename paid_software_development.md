@@ -15,4 +15,4 @@ We help companies adopt biosensors and automate their operations using data insi
 
 Although, it is nice if you use BrainFlow API, but our expertise does not stop at BrainFlow, computation neuroscience, and neurotech, we also have years of experience in deep learning, device emulation, DevOps and infrastructure automation.
 
-Together we can go past the cutting edge and into what comes next. [Contact us](https://brainflow.org/contact/) for consultation.
+[Contact us](https://brainflow.org/contact/) to get more information.
