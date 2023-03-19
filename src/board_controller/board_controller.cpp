@@ -42,11 +42,9 @@
 #include "ganglion_wifi.h"
 #include "gforce_dual.h"
 #include "gforce_pro.h"
-#include "ironbci.h"
 #include "muse.h"
 #include "muse_bled.h"
 #include "notion_osc.h"
-#include "pieeg.h"
 #include "playback_file_board.h"
 #include "streaming_board.h"
 #include "synthetic_board.h"
@@ -147,9 +145,6 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
         case BoardIds::CROWN_BOARD:
             board = std::shared_ptr<Board> (new NotionOSC (board_id, params));
             break;
-        case BoardIds::IRONBCI_BOARD:
-            board = std::shared_ptr<Board> (new IronBCI (params));
-            break;
         case BoardIds::GFORCE_PRO_BOARD:
             board = std::shared_ptr<Board> (new GforcePro (params));
             break;
@@ -240,9 +235,6 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
             break;
         case BoardIds::MUSE_2016_BLED_BOARD:
             board = std::shared_ptr<Board> (new MuseBLED (board_id, params));
-            break;
-        case BoardIds::PIEEG_BOARD:
-            board = std::shared_ptr<Board> (new PiEEG (params));
             break;
         case BoardIds::EXPLORE_4_CHAN_BOARD:
             board = std::shared_ptr<Board> (new Explore (board_id, params));

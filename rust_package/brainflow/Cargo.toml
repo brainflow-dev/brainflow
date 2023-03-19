@@ -1,3 +1,5 @@
+cargo-features = ["edition2021"]
+
 [package]
 name = "brainflow"
 version = "0.0.1"

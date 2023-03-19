@@ -35,7 +35,6 @@ BrainFlowBoards::BrainFlowBoards()
             {"11", json::object()},
             {"13", json::object()},
             {"14", json::object()},
-            {"15", json::object()},
             {"16", json::object()},
             {"17", json::object()},
             {"18", json::object()},
@@ -63,7 +62,6 @@ BrainFlowBoards::BrainFlowBoards()
             {"40", json::object()},
             {"41", json::object()},
             {"42", json::object()},
-            {"43", json::object()},
             {"44", json::object()},
             {"45", json::object()},
             {"46", json::object()}
@@ -322,18 +320,6 @@ BrainFlowBoards::BrainFlowBoards()
         {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
         {"eeg_names", "CP5,F5,C3,CP3,CP6,F6,C4,CP4"},
         {"other_channels", {9}}
-    };
-    brainflow_boards_json["boards"]["15"]["default"] =
-    {
-        {"name", "IronBCI"},
-        {"sampling_rate", 250},
-        {"timestamp_channel", 9},
-        {"marker_channel", 10},
-        {"package_num_channel", 0},
-        {"num_rows", 11},
-        {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
-        {"emg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
-        {"ecg_channels", {1, 2, 3, 4, 5, 6, 7, 8}}
     };
     brainflow_boards_json["boards"]["16"]["default"] =
     {
@@ -769,18 +755,6 @@ BrainFlowBoards::BrainFlowBoards()
         {"num_rows", 9},
         {"accel_channels", {1, 2, 3}},
         {"gyro_channels", {4, 5, 6}}
-    };
-    brainflow_boards_json["boards"]["43"]["default"] =
-    {
-        {"name", "PiEEG"},
-        {"sampling_rate", 250},
-        {"timestamp_channel", 9},
-        {"marker_channel", 10},
-        {"package_num_channel", 0},
-        {"num_rows", 11},
-        {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
-        {"emg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
-        {"ecg_channels", {1, 2, 3, 4, 5, 6, 7, 8}}
     };
     brainflow_boards_json["boards"]["44"]["default"] =
     {
