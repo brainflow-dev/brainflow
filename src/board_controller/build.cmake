@@ -77,7 +77,6 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/enophone/enophone.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ble_lib_board.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse.cpp
-    ${CMAKE_HOME_DIRECTORY}/src/board_controller/brainalive/brainalive.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/emotibit/emotibit.cpp
 )
 
@@ -130,7 +129,6 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ant_neuro/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/enophone/inc
     ${CMAKE_HOME_DIRECTORY}/third_party/SimpleBLE/simpleble/include
-    ${CMAKE_HOME_DIRECTORY}/src/board_controller/brainalive/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/mentalab/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/emotibit/inc
 )

@@ -59,7 +59,6 @@ class BoardIds(enum.IntEnum):
     ENOPHONE_BOARD = 37  #:
     MUSE_2_BOARD = 38  #:
     MUSE_S_BOARD = 39  #:
-    BRAINALIVE_BOARD = 40  #:
     MUSE_2016_BOARD = 41  #:
     MUSE_2016_BLED_BOARD = 42  #:
     EXPLORE_4_CHAN_BOARD = 44  #:
