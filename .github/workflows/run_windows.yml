@@ -34,7 +34,7 @@ jobs:
         java-version: 11.0.3
     - uses: hecrj/setup-rust-action@v1
       with:
-        rust-version: stable
+        rust-version: nightly
         components: cargo,rustc,rust-std
     # compile and prepare everything
     - name: Compile x32
@@ -76,7 +76,8 @@ jobs:
     - name: Install Rust package
       run: |
         cd %GITHUB_WORKSPACE%\rust_package\brainflow
-        cargo build
+        rustup toolchain install nightly
+        cargo +nightly build
       shell: cmd
     - name: Build Cpp Get Data Test x64
       run: |

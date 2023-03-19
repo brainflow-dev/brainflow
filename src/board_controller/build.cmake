@@ -70,8 +70,6 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/mentalab/explore.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/oymotion/gforce_pro.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/oymotion/gforce_dual.cpp
-    ${CMAKE_HOME_DIRECTORY}/src/board_controller/hackerbci/ironbci.cpp
-    ${CMAKE_HOME_DIRECTORY}/src/board_controller/hackerbci/pieeg.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/freeeeg32/freeeeg32.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neuromd/brainbit_bled.cpp
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/muse/muse_bled.cpp
@@ -127,7 +125,6 @@ target_include_directories (
     ${CMAKE_HOME_DIRECTORY}/third_party/neurosdk/inc/types
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/neurosity/inc
     ${CMAKE_HOME_DIRECTORY}/third_party/gForceSDKCXX/src/inc
-    ${CMAKE_HOME_DIRECTORY}/src/board_controller/hackerbci/inc
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/freeeeg32/inc
     ${CMAKE_HOME_DIRECTORY}/third_party/ant_neuro
     ${CMAKE_HOME_DIRECTORY}/src/board_controller/ant_neuro/inc
@@ -163,13 +160,6 @@ if (USE_LIBFTDI)
         message (FATAL_ERROR "USE_LIBFTDI SET but LibFTDI not found.")
     endif (LibFTDI1_FOUND)
 endif (USE_LIBFTDI)
-
-if (USE_PERIPHERY)
-    include (${CMAKE_HOME_DIRECTORY}/third_party/c-periphery/build.cmake)
-    target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE ${PERIPHERY})
-    target_include_directories (${BOARD_CONTROLLER_NAME} PRIVATE ${CMAKE_HOME_DIRECTORY}/third_party/c-periphery/src)
-    target_compile_definitions (${BOARD_CONTROLLER_NAME} PRIVATE USE_PERIPHERY)
-endif (USE_PERIPHERY)
 
 if (MSVC)
     add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
