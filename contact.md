@@ -6,7 +6,7 @@ subtitle: Let's get in touch
 
 ## Email
 
-For collaboration requests and information about our consulting and software development services use [contact@brainflow.org](contact@brainflow.org)
+For collaboration requests and information about our consulting and software development services use [contact@brainflow.org](mailto:andrey@brainflow.org)
 
 ## Slack
 
