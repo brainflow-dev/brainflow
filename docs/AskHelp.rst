@@ -4,6 +4,7 @@ Ask Help
 Contact Info, Feature Requests, Issues
 -------------------------------------------
 
+- For collaboration requests use `contact@brainflow.org <contact@brainflow.org>`_
 - Join our `slack workspace <https://openbraintalk.slack.com/>`_ using `self\-invite page <https://c6ber255cc.execute-api.eu-west-1.amazonaws.com/Express/>`_. Use **\#askhelp** channel for your questions.
 - To report bugs or request features create an issue in our `GitHub Page <https://github.com/brainflow-dev/brainflow>`_
 - We do not provide support for hardware and firmware, for such questions and issues you should contact device manufacturer.

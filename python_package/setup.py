@@ -14,7 +14,7 @@ setup(
     long_description_content_type='text/markdown',
     url='https://github.com/brainflow-dev/brainflow',
     author='Andrey Parfenov',
-    author_email='a1994ndrey@gmail.com',
+    author_email='andrey@brainflow.org',
     packages=find_packages(),
     install_requires=[
         'numpy',
