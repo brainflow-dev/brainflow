@@ -72,7 +72,11 @@ std::map<uint16_t, std::vector<uint8_t>> Device1::ManufacturerData(bool refresh)
     return _manufacturer_data;
 }
 
-std::vector<std::string> Device1::ServiceData() {
+std::map<std::string, std::vector<uint8_t>> Device1::ServiceData(bool refresh) {
+    if (refresh) {
+        property_refresh("ServiceData");
+    }
+
     // Use the locally cached version to avoid parsing the map multiple times.
     std::scoped_lock lock(_property_update_mutex);
     return _service_data;
@@ -132,15 +136,13 @@ void Device1::property_changed(std::string option_name) {
 
         _service_data.clear();
         std::map<std::string, SimpleDBus::Holder> service_data = _properties["ServiceData"].get_dict_string();
-
-        // NOTE: We're deviating from the official Bluez behavior here.
-        //       The original contents of ServiceData include both a string and a byte representation
-        //       of the service UUID. As we don't care about the byte representation, only the map
-        //       keys are returned.
-
         // Loop through all received keys and store them.
         for (auto& [key, value_array] : service_data) {
-            _service_data.push_back(key);
+            std::vector<uint8_t> raw_service_data;
+            for (auto& elem : value_array.get_array()) {
+                raw_service_data.push_back(elem.get_byte());
+            }
+            _service_data[key] = raw_service_data;
         }
     } else if (option_name == "TxPower") {
         _tx_power = _properties["TxPower"].get_int16();

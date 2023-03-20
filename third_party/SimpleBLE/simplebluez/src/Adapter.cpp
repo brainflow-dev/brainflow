@@ -58,6 +58,8 @@ std::vector<std::shared_ptr<Device>> Adapter::device_paired_get() {
     std::vector<std::shared_ptr<Device>> paired_devices;
 
     for (auto& [path, child] : _children) {
+        if (!child->valid()) continue;
+
         std::shared_ptr<Device> device = std::dynamic_pointer_cast<Device>(child);
         if (device->paired()) {
             paired_devices.push_back(device);

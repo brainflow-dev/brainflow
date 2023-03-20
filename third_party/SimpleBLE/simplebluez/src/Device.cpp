@@ -75,7 +75,7 @@ int16_t Device::tx_power() { return device1()->TxPower(); }
 
 std::map<uint16_t, std::vector<uint8_t>> Device::manufacturer_data() { return device1()->ManufacturerData(); }
 
-std::vector<std::string> Device::service_data() { return device1()->ServiceData(); }
+std::map<std::string, std::vector<uint8_t>> Device::service_data() { return device1()->ServiceData(); }
 
 bool Device::paired() { return device1()->Paired(); }
 

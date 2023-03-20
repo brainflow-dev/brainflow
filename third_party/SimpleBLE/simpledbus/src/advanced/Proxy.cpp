@@ -7,7 +7,7 @@
 using namespace SimpleDBus;
 
 Proxy::Proxy(std::shared_ptr<Connection> conn, const std::string& bus_name, const std::string& path)
-    : _conn(conn), _bus_name(bus_name), _path(path) {}
+    : _conn(conn), _bus_name(bus_name), _path(path), _valid(true) {}
 
 Proxy::~Proxy() {
     on_child_created.unload();
@@ -21,6 +21,8 @@ std::shared_ptr<Interface> Proxy::interfaces_create(const std::string& name) {
 std::shared_ptr<Proxy> Proxy::path_create(const std::string& path) {
     return std::make_shared<Proxy>(_conn, _bus_name, path);
 }
+
+bool Proxy::valid() const { return _valid; }
 
 std::string Proxy::path() const { return _path; }
 
@@ -168,6 +170,7 @@ bool Proxy::path_remove(const std::string& path, SimpleDBus::Holder options) {
     // `options` contains an array of strings of the interfaces that need to be removed.
 
     if (path == _path) {
+        _valid = false;
         interfaces_unload(options);
         return path_prune();
     }

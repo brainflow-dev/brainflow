@@ -6,7 +6,13 @@
 
 using namespace SimpleBluez;
 
-Bluez::Bluez() : Proxy(std::make_shared<SimpleDBus::Connection>(DBUS_BUS_SYSTEM), "org.bluez", "/") {
+#ifdef SIMPLEBLUEZ_USE_SESSION_DBUS
+#define DBUS_BUS DBUS_BUS_SESSION
+#else
+#define DBUS_BUS DBUS_BUS_SYSTEM
+#endif
+
+Bluez::Bluez() : Proxy(std::make_shared<SimpleDBus::Connection>(DBUS_BUS), "org.bluez", "/") {
     _interfaces["org.freedesktop.DBus.ObjectManager"] = std::static_pointer_cast<SimpleDBus::Interface>(
         std::make_shared<SimpleDBus::ObjectManager>(_conn, "org.bluez", "/"));
 
