@@ -19,6 +19,7 @@ class SIMPLEBLE_EXPORT Service {
     virtual ~Service() = default;
 
     BluetoothUUID uuid();
+    ByteArray data();
     std::vector<Characteristic> characteristics();
 
   protected:

@@ -42,19 +42,28 @@ BluetoothAddress Adapter::address() {
 
 void Adapter::scan_start() {
     if (!initialized()) throw Exception::NotInitialized();
-
+    if (!bluetooth_enabled()) {
+        SIMPLEBLE_LOG_WARN(fmt::format("Bluetooth is not enabled."));
+        return;
+    }
     internal_->scan_start();
 }
 
 void Adapter::scan_stop() {
     if (!initialized()) throw Exception::NotInitialized();
-
+    if (!bluetooth_enabled()) {
+        SIMPLEBLE_LOG_WARN(fmt::format("Bluetooth is not enabled."));
+        return;
+    }
     internal_->scan_stop();
 }
 
 void Adapter::scan_for(int timeout_ms) {
     if (!initialized()) throw Exception::NotInitialized();
-
+    if (!bluetooth_enabled()) {
+        SIMPLEBLE_LOG_WARN(fmt::format("Bluetooth is not enabled."));
+        return;
+    }
     internal_->scan_for(timeout_ms);
 }
 

@@ -70,8 +70,8 @@ class PeripheralBase {
 
     bool manual_disconnect_triggered_;
 
-    std::vector<BluetoothUUID> advertised_services_;
     std::map<uint16_t, ByteArray> manufacturer_data_;
+    std::map<BluetoothUUID, ByteArray> service_data_;
 
     kvn::safe_callback<void()> callback_on_connected_;
     kvn::safe_callback<void()> callback_on_disconnected_;

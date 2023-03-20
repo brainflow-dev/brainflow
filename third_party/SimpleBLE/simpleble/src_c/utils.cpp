@@ -2,7 +2,7 @@
 
 #include <simpleble_c/types.h>
 
-simpleble_os_t get_operating_system() {
+simpleble_os_t simpleble_get_operating_system() {
 #ifdef _WIN32
     return SIMPLEBLE_OS_WINDOWS;
 #elif __APPLE__
@@ -11,3 +11,5 @@ simpleble_os_t get_operating_system() {
     return SIMPLEBLE_OS_LINUX;
 #endif
 }
+
+const char* simpleble_get_version() { return "0.6.1"; }

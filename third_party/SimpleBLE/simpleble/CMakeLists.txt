@@ -71,6 +71,7 @@ set(SIMPLEBLE_C_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src_c/simpleble.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src_c/adapter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src_c/peripheral.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src_c/utils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src_c/logging.cpp)
 
 # Define targets

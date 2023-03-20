@@ -28,8 +28,8 @@ PeripheralBase::PeripheralBase(advertising_data_t advertising_data) {
     rssi_ = advertising_data.rssi;
     tx_power_ = advertising_data.tx_power;
     manufacturer_data_ = advertising_data.manufacturer_data;
+    service_data_ = advertising_data.service_data;
     connectable_ = advertising_data.connectable;
-    advertised_services_ = advertising_data.service_uuids;
 }
 
 PeripheralBase::~PeripheralBase() {
@@ -67,13 +67,8 @@ void PeripheralBase::update_advertising_data(advertising_data_t advertising_data
     address_type_ = advertising_data.address_type;
     manufacturer_data_ = advertising_data.manufacturer_data;
 
-    // Append services that haven't been seen before
-    for (auto& service : advertising_data.service_uuids) {
-        if (std::find(advertised_services_.begin(), advertised_services_.end(), service) ==
-            advertised_services_.end()) {
-            advertised_services_.push_back(service);
-        }
-    }
+    advertising_data.service_data.merge(service_data_);
+    service_data_ = advertising_data.service_data;
 }
 
 void PeripheralBase::connect() {
@@ -97,6 +92,8 @@ void PeripheralBase::connect() {
             });
 
         SAFE_CALLBACK_CALL(this->callback_on_connected_);
+    } else {
+        throw SimpleBLE::Exception::OperationFailed("Failed to connect to device.");
     }
 }
 
@@ -158,8 +155,8 @@ std::vector<Service> PeripheralBase::services() {
 
 std::vector<Service> PeripheralBase::advertised_services() {
     std::vector<Service> service_list;
-    for (auto& service_uuid : advertised_services_) {
-        service_list.push_back(ServiceBuilder(service_uuid));
+    for (auto& [service_uuid, data] : service_data_) {
+        service_list.push_back(ServiceBuilder(service_uuid, data));
     }
 
     return service_list;

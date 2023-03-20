@@ -14,6 +14,7 @@ class Proxy {
     Proxy(std::shared_ptr<Connection> conn, const std::string& bus_name, const std::string& path);
     virtual ~Proxy();
 
+    bool valid() const;
     std::string path() const;
 
     bool path_exists(const std::string& path);
@@ -63,6 +64,7 @@ class Proxy {
     }
 
   protected:
+    bool _valid;
     std::string _path;
     std::string _bus_name;
 

@@ -107,7 +107,7 @@ class PeripheralBase {
     kvn::safe_callback<void()> callback_on_disconnected_;
 
     std::map<uint16_t, SimpleBLE::ByteArray> manufacturer_data_;
-    std::vector<BluetoothUUID> advertised_services_;
+    std::map<BluetoothUUID, SimpleBLE::ByteArray> service_data_;
 
     bool _attempt_connect();
 

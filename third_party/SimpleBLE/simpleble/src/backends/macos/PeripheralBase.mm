@@ -16,9 +16,11 @@ PeripheralBase::PeripheralBase(void* opaque_peripheral, void* opaque_adapter, ad
     // the reference count. This means that AdapterBase will be responsible for releasing the
     // Objective-C++ object in the destructor.
     opaque_internal_ = (__bridge_retained void*)[[PeripheralBaseMacOS alloc] init:peripheral centralManager:central_manager];
+
     is_connectable_ = advertising_data.connectable;
     manual_disconnect_triggered_ = false;
     manufacturer_data_ = advertising_data.manufacturer_data;
+    service_data_ = advertising_data.service_data;
     rssi_ = advertising_data.rssi;
     tx_power_ = advertising_data.tx_power;
 }
@@ -66,13 +68,8 @@ void PeripheralBase::update_advertising_data(advertising_data_t advertising_data
     rssi_ = advertising_data.rssi;
     tx_power_ = advertising_data.tx_power;
 
-    // Append services that haven't been seen before
-    for (auto& service : advertising_data.service_uuids) {
-        if (std::find(advertised_services_.begin(), advertised_services_.end(), service) ==
-            advertised_services_.end()) {
-            advertised_services_.push_back(service);
-        }
-    }
+    advertising_data.service_data.merge(service_data_);
+    service_data_ = advertising_data.service_data;
 }
 
 void PeripheralBase::connect() {
@@ -111,8 +108,8 @@ std::vector<Service> PeripheralBase::services() {
 
 std::vector<Service> PeripheralBase::advertised_services() {
     std::vector<Service> service_list;
-    for (auto& service_uuid : advertised_services_) {
-        service_list.push_back(ServiceBuilder(service_uuid));
+    for (auto& [service_uuid, data] : service_data_) {
+        service_list.push_back(ServiceBuilder(service_uuid, data));
     }
 
     return service_list;

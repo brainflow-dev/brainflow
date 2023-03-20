@@ -163,8 +163,13 @@ int Muse::prepare_session ()
             }
             else
             {
-                safe_logger (spdlog::level::err, "Failed to connect to Muse Device");
+                safe_logger (spdlog::level::warn, "Failed to connect to Muse Device: {}/3", i);
                 res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+#ifdef _WIN32
+                Sleep (1000);
+#else
+                sleep (1);
+#endif
             }
         }
     }
