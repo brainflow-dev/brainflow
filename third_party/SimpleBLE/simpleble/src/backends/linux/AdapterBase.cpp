@@ -42,11 +42,6 @@ BluetoothAddress AdapterBase::address() { return adapter_->address(); }
 void AdapterBase::scan_start() {
     seen_peripherals_.clear();
 
-    if (!bluetooth_enabled()) {
-        SIMPLEBLE_LOG_WARN(fmt::format("Bluetooth is not enabled."));
-        return;
-    }
-
     adapter_->set_on_device_updated([this](std::shared_ptr<SimpleBluez::Device> device) {
         if (!this->is_scanning_) {
             return;
@@ -81,11 +76,6 @@ void AdapterBase::scan_start() {
 }
 
 void AdapterBase::scan_stop() {
-    if (!bluetooth_enabled()) {
-        SIMPLEBLE_LOG_WARN(fmt::format("Bluetooth is not enabled."));
-        return;
-    }
-
     adapter_->discovery_stop();
     is_scanning_ = false;
     SAFE_CALLBACK_CALL(this->callback_on_scan_stop_);
@@ -96,11 +86,6 @@ void AdapterBase::scan_stop() {
 }
 
 void AdapterBase::scan_for(int timeout_ms) {
-    if (!bluetooth_enabled()) {
-        SIMPLEBLE_LOG_WARN(fmt::format("Bluetooth is not enabled."));
-        return;
-    }
-
     scan_start();
     std::this_thread::sleep_for(std::chrono::milliseconds(timeout_ms));
     scan_stop();

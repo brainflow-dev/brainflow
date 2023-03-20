@@ -175,8 +175,11 @@ simpleble_err_t simpleble_peripheral_services_get(simpleble_peripheral_t handle,
     SimpleBLE::Service service = peripheral_services.value()[index];
 
     memcpy(services->uuid.value, service.uuid().c_str(), SIMPLEBLE_UUID_STR_LEN);
-    services->characteristic_count = service.characteristics().size();
 
+    services->data_length = service.data().size();
+    memcpy(services->data, service.data().data(), service.data().size());
+
+    services->characteristic_count = service.characteristics().size();
     if (services->characteristic_count > SIMPLEBLE_CHARACTERISTIC_MAX_COUNT) {
         services->characteristic_count = SIMPLEBLE_CHARACTERISTIC_MAX_COUNT;
     }

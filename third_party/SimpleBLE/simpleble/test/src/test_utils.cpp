@@ -18,3 +18,7 @@ TEST(Utils, GetOS) {
             break;
     }
 }
+
+TEST(Utils, GetSimpleBLEVersion) {
+    std::cout << "SimpleBLE version: " << SimpleBLE::get_simpleble_version() << std::endl;
+}

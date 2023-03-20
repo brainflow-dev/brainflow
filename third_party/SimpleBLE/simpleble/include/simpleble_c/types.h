@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 
 #define SIMPLEBLE_UUID_STR_LEN 37  // 36 characters + null terminator
 #define SIMPLEBLE_CHARACTERISTIC_MAX_COUNT 16
@@ -34,6 +35,13 @@ typedef struct {
 
 typedef struct {
     simpleble_uuid_t uuid;
+    size_t data_length;
+    uint8_t data[27];
+    // Note: The maximum length of a BLE advertisement is 31 bytes.
+    // The first byte will be the length of the field,
+    // the second byte will be the type of the field,
+    // the next two bytes will be the service UUID,
+    // and the remaining 27 bytes are the manufacturer data.
     size_t characteristic_count;
     simpleble_characteristic_t characteristics[SIMPLEBLE_CHARACTERISTIC_MAX_COUNT];
 } simpleble_service_t;
