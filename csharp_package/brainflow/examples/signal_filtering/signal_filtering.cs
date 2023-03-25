@@ -24,40 +24,11 @@ namespace examples
             int[] eeg_channels = BoardShim.get_eeg_channels (board_id);
             board_shim.release_session ();
 
-            // for demo apply different filters to different channels
-            double[] filtered;
             for (int i = 0; i < eeg_channels.Length; i++)
             {
-                Console.WriteLine ("Before processing:");
-                Console.WriteLine ("[{0}]", string.Join (", ", unprocessed_data.GetRow (eeg_channels[i])));
-                switch (i)
-                {
-                    case 0:
-                        filtered = DataFilter.perform_lowpass (unprocessed_data.GetRow (eeg_channels[i]), BoardShim.get_sampling_rate (board_id), 50.0, 4, (int)FilterTypes.BESSEL, 0.0);
-                        Console.WriteLine ("Filtered channel " + eeg_channels[i]);
-                        Console.WriteLine ("[{0}]", string.Join (", ", filtered));
-                        break;
-                    case 1:
-                        filtered = DataFilter.perform_highpass (unprocessed_data.GetRow (eeg_channels[i]), BoardShim.get_sampling_rate (board_id), 3.0, 4, (int)FilterTypes.BUTTERWORTH, 0.0);
-                        Console.WriteLine ("Filtered channel " + eeg_channels[i]);
-                        Console.WriteLine ("[{0}]", string.Join (", ", filtered));
-                        break;
-                    case 2:
-                        filtered = DataFilter.perform_bandpass (unprocessed_data.GetRow (eeg_channels[i]), BoardShim.get_sampling_rate (board_id), 3.0, 50.0, 2, (int)FilterTypes.BUTTERWORTH, 0.0);
-                        Console.WriteLine ("Filtered channel " + eeg_channels[i]);
-                        Console.WriteLine ("[{0}]", string.Join (", ", filtered));
-                        break;
-                    case 3:
-                        filtered = DataFilter.perform_bandstop (unprocessed_data.GetRow (eeg_channels[i]), BoardShim.get_sampling_rate (board_id), 48.0, 52.0, 6, (int)FilterTypes.CHEBYSHEV_TYPE_1, 1.0);
-                        Console.WriteLine ("Filtered channel " + eeg_channels[i]);
-                        Console.WriteLine ("[{0}]", string.Join (", ", filtered));
-                        break;
-                    default:
-                        filtered = DataFilter.remove_environmental_noise (unprocessed_data.GetRow (eeg_channels[i]), BoardShim.get_sampling_rate (board_id), (int)NoiseTypes.FIFTY);
-                        Console.WriteLine ("Filtered channel " + eeg_channels[i]);
-                        Console.WriteLine ("[{0}]", string.Join (", ", filtered));
-                        break;
-                }
+                DataFilter.detrend (unprocessed_data, eeg_channels[i], (int)DetrendOperations.CONSTANT);
+                DataFilter.perform_bandstop (unprocessed_data, eeg_channels[i], BoardShim.get_sampling_rate (board_id), 48.0, 52.0, 4, (int)FilterTypes.BUTTERWORTH, 0.0);
+                DataFilter.perform_bandpass (unprocessed_data, eeg_channels[i], BoardShim.get_sampling_rate (board_id), 4.0, 30.0, 4, (int)FilterTypes.BUTTERWORTH, 0.0);
             }
         }
     }
