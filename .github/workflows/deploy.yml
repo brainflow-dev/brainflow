@@ -178,6 +178,7 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         VERSION: ${{ github.event.inputs.version }}
+        NUGET_ENABLE_LEGACY_CSPROJ_PACK: true
     - name: Prepare Matlab Package
       run: |
         Copy-Item "$env:GITHUB_WORKSPACE\linux\*" -Destination "$env:GITHUB_WORKSPACE\matlab_package\brainflow\lib" -Recurse -Force -Filter *.*
