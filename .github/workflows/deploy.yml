@@ -170,9 +170,9 @@ jobs:
         dotnet restore brainflow.sln
         msbuild brainflow.sln /p:Configuration=Release /p:Platform="Any CPU"
         cd $env:GITHUB_WORKSPACE\csharp_package\brainflow\brainflow
-        (gc .\brainflow.nuspec).replace('0.0.1', $env:VERSION) | Out-File -encoding ASCII brainflow.nuspec
-        type brainflow.nuspec
-        nuget pack brainflow.csproj -properties Configuration=Release -IncludeReferencedProjects
+        (gc .\brainflow.csproj).replace('0.0.1', $env:VERSION) | Out-File -encoding ASCII brainflow.csproj
+        type brainflow.csproj
+        dotnet pack brainflow.csproj -c Release
         aws s3 cp $env:GITHUB_WORKSPACE\csharp_package\brainflow\brainflow s3://brainflow/$env:GITHUB_SHA/nuget --recursive
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
