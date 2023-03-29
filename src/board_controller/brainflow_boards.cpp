@@ -63,7 +63,9 @@ BrainFlowBoards::BrainFlowBoards()
             {"42", json::object()},
             {"44", json::object()},
             {"45", json::object()},
-            {"46", json::object()}
+            {"46", json::object()},
+            {"48", json::object()},
+            {"49", json::object()}
         }
     }};
 
@@ -206,7 +208,7 @@ BrainFlowBoards::BrainFlowBoards()
         {"other_channels", {8, 9, 10, 11, 12, 13, 14}},
         {"resistance_channels", {18, 19, 20, 21, 22}}
     };
-    brainflow_boards_json["boards"]["5"]["default"] = 
+    brainflow_boards_json["boards"]["5"]["default"] =
     {
         {"name", "CytonWifi"},
         {"sampling_rate", 1000},
@@ -222,7 +224,7 @@ BrainFlowBoards::BrainFlowBoards()
         {"analog_channels", {19, 20, 21}},
         {"other_channels", {12, 13, 14, 15, 16, 17, 18}}
     };
-    brainflow_boards_json["boards"]["6"]["default"] = 
+    brainflow_boards_json["boards"]["6"]["default"] =
     {
         {"name", "CytonDaisyWifi"},
         {"sampling_rate", 1000},
@@ -238,7 +240,7 @@ BrainFlowBoards::BrainFlowBoards()
         {"analog_channels", {27, 28, 29}},
         {"other_channels", {20, 21, 22, 23, 24, 25, 26}}
     };
-    brainflow_boards_json["boards"]["7"]["default"] = 
+    brainflow_boards_json["boards"]["7"]["default"] =
     {
         {"name", "BrainBit"},
         {"sampling_rate", 250},
@@ -865,6 +867,40 @@ BrainFlowBoards::BrainFlowBoards()
         {"eda_channels", {1}},
         {"temperature_channels", {2}},
         {"other_channels", {3}}
+    };
+    brainflow_boards_json["boards"]["48"]["default"] =
+    {
+        {"name", "AAVAA 3C8"},
+        {"sampling_rate", 50},
+        {"package_num_channel", 0},
+        {"timestamp_channel", 14},
+        {"marker_channel", 15},
+        {"num_rows", 16},
+        {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
+        {"eeg_names", "L1,L2,L3,L4,R1,R2,R3,R4"},
+        {"emg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
+        {"ecg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
+        {"eog_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
+        {"accel_channels", {9, 10, 11}},
+        {"battery_channel", {12}},
+        {"other_channels", {13}} // IMU status
+    };
+    brainflow_boards_json["boards"]["49"]["default"] =
+    {
+        {"name", "AAVAA 3C2"},
+        {"sampling_rate", 50},
+        {"package_num_channel", 0},
+        {"timestamp_channel", 16},
+        {"marker_channel", 17},
+        {"num_rows", 18},
+        {"eeg_channels", {1, 2}},
+        {"eeg_names", "L1,R1"},
+        {"emg_channels", {1, 2}},
+        {"ecg_channels", {1, 2}},
+        {"eog_channels", {1, 2}},
+        {"accel_channels", {3, 4, 5}},
+        {"analog_channels", {13, 14, 15}},
+        {"other_channels", {6, 7, 8, 9, 10, 11, 12}}
     };
 }
 
