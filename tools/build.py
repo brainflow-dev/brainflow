@@ -243,9 +243,9 @@ def config(args):
         cmd_config.append('-DUSE_OPENMP=ON')
     if hasattr(args, 'oymotion') and args.oymotion:
         cmd_config.append('-DBUILD_OYMOTION_SDK=ON')
-    if hasattr(args, 'cmake_osx_architecture') and args.cmake_osx_architecture:
+    if hasattr(args, 'cmake_osx_architectures') and args.cmake_osx_architectures:
         cmd_config.append('-DCMAKE_OSX_ARCHITECTURES=%s' %
-                          args.cmake_osx_architecture)
+                          args.cmake_osx_architectures)
     if hasattr(args, 'cmake_osx_deployment_target') and args.cmake_osx_deployment_target:
         cmd_config.append('-DCMAKE_OSX_DEPLOYMENT_TARGET=%s' %
                           args.cmake_osx_deployment_target)
