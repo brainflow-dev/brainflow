@@ -27,6 +27,7 @@ CLASSIFICATION WITH LARYNGEAL IMAGERY](https://arxiv.org/pdf/2107.00045.pdf)
 * [A. G. Kremenska, A. K. Lekova and G. P. Dimitrov, "EEG Brain-Computer Interfaces for Internet of Everything (IoE)," 2022 International Conference on Information Technologies (InfoTech), 2022, pp. 1-6, doi: 10.1109/InfoTech55606.2022.9897097.](https://ieeexplore.ieee.org/abstract/document/9897097)
 * [E. Ertekin, B. B. Günden, Y. Yilmaz, A. Sayar, T. Çakar and S. Ş. Arslan, "EMG-based BCI for PiCar Mobilization," 2022 7th International Conference on Computer Science and Engineering (UBMK), 2022, pp. 496-500, doi: 10.1109/UBMK55850.2022.9919502.](https://ieeexplore.ieee.org/abstract/document/9919502)
 * [Ertekin, E., Gunden, B. B., Yilmaz, Y., Sayar, A., Cakar, T., & Arslan, S. S. (2022). EMG-based BCI for PiCar Mobilization. 2022 7th International Conference on Computer Science and Engineering (UBMK). https://doi.org/10.1109/ubmk55850.2022.9919502](https://openaccess.mef.edu.tr/xmlui/handle/20.500.11779/1908)
+* [Nathan Arthur Semertzidis, Annaelle Li Pin Hiung, Michaela Jayne Vranic-Peters, and Florian ‘Floyd’ Mueller. 2023. Dozer: Towards understanding the design of closed-loop wearables for sleep. In Proceedings of the 2023 CHI Conference on Human Factors in Computing Systems (CHI '23). Association for Computing Machinery, New York, NY, USA, Article 195, 1–14. https://doi.org/10.1145/3544548.3581044](https://dl.acm.org/doi/abs/10.1145/3544548.3581044)
 
 ## Posts
 
