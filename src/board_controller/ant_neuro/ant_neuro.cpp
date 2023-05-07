@@ -62,11 +62,21 @@ AntNeuroBoard::AntNeuroBoard (int board_id, struct BrainFlowInputParams params)
     stream = NULL;
     try
     {
-        sampling_rate = board_descr["sampling_rate"];
+        sampling_rate = board_descr["default"]["sampling_rate"];
     }
     catch (...)
     {
-        sampling_rate = 2000;
+        sampling_rate = 512;
+    }
+
+     // Initialize "reference_voltage" with a default value or from the board descriptor if available
+    try
+    {
+        reference_range = board_descr["default"]["reference_range"];
+    }
+    catch (...)
+    {
+        reference_range = 1.0; // Set a default value for reference_range
     }
 }
 
@@ -126,7 +136,7 @@ int AntNeuroBoard::start_stream (int buffer_size, const char *streamer_params)
     try
     {
         stream = amp->OpenEegStream (
-            sampling_rate); // todo do we need other args? If yes pass them via config_board
+            sampling_rate, reference_range); // todo do we need other args? If yes pass them via config_board
     }
     catch (...)
     {
@@ -184,7 +194,7 @@ void AntNeuroBoard::read_thread ()
         return;
     }
 
-    int num_rows = board_descr["num_rows"];
+    int num_rows = board_descr["default"]["num_rows"];
     double *package = new double[num_rows];
     for (int i = 0; i < num_rows; i++)
     {
@@ -194,7 +204,7 @@ void AntNeuroBoard::read_thread ()
     std::vector<int> eeg_channels;
     try
     {
-        emg_channels = board_descr["emg_channels"].get<std::vector<int>> ();
+        emg_channels = board_descr["default"]["emg_channels"].get<std::vector<int>> ();
     }
     catch (...)
     {
@@ -202,7 +212,7 @@ void AntNeuroBoard::read_thread ()
     }
     try
     {
-        eeg_channels = board_descr["eeg_channels"].get<std::vector<int>> ();
+        eeg_channels = board_descr["default"]["eeg_channels"].get<std::vector<int>> ();
     }
     catch (...)
     {
@@ -234,16 +244,16 @@ void AntNeuroBoard::read_thread ()
                     }
                     if (ant_channels[j].getType () == channel::sample_counter)
                     {
-                        package[board_descr["package_num_channel"].get<int> ()] =
+                        package[board_descr["default"]["package_num_channel"].get<int> ()] =
                             buf.getSample (j, i);
                     }
                     if (ant_channels[j].getType () == channel::trigger)
                     {
-                        package[board_descr["other_channels"][0].get<int> ()] =
+                        package[board_descr["default"]["other_channels"][0].get<int> ()] =
                             buf.getSample (j, i);
                     }
                 }
-                package[board_descr["timestamp_channel"].get<int> ()] = get_timestamp ();
+                package[board_descr["default"]["timestamp_channel"].get<int> ()] = get_timestamp ();
                 push_package (package);
             }
             std::this_thread::sleep_for (std::chrono::milliseconds (1));
@@ -266,6 +276,8 @@ int AntNeuroBoard::config_board (std::string config, std::string &response)
     }
 
     std::string prefix = "sampling_rate:";
+    std::string rv_prefix = "reference_range:";
+
     if (config.find (prefix) != std::string::npos)
     {
         int new_sampling_rate = 0;
@@ -297,7 +309,26 @@ int AntNeuroBoard::config_board (std::string config, std::string &response)
             return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
         }
     }
+    else if (config.find (rv_prefix) != std::string::npos)
+    {
+        double new_reference_range = 0.0;
+        std::string value = config.substr (rv_prefix.size ());
+        try
+        {
+            new_reference_range = std::stod (value);
+        }
+        catch (...)
+        {
+            safe_logger (spdlog::level::err, "format is '{}value'", rv_prefix.c_str ());
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+        }
 
+        // Set the reference_voltage value, assuming you have a class member called reference_voltage
+        reference_range = new_reference_range;
+        // ... Use the reference_voltage value in the relevant method or pass it to the amplifier ...
+
+        return (int)BrainFlowExitCodes::STATUS_OK;
+    }
     safe_logger (spdlog::level::err, "format is '{}value'", prefix.c_str ());
     return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
 }

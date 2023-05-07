@@ -26,6 +26,7 @@ private:
     eemagine::sdk::amplifier *amp;
     eemagine::sdk::stream *stream;
     int sampling_rate;
+    double reference_range;
 
     void read_thread ();
 #endif
