@@ -28,11 +28,11 @@ FetchContent_MakeAvailable(googletest)
 enable_testing()
 
 SET (TESTS_SRC
-    ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/bluetooth_functions.cpp
-    ${CMAKE_HOME_DIRECTORY}/src/utils/data_buffer.cpp
-    ${CMAKE_HOME_DIRECTORY}/src/tests/utils/bluetooth/socket_bluetooth_test.cpp
-    ${CMAKE_HOME_DIRECTORY}/src/tests/utils/bluetooth/bluetooth_functions_unittest.cpp
-    ${CMAKE_HOME_DIRECTORY}/src/tests/utils/data_buffer_unittest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/bluetooth/bluetooth_functions.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/data_buffer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/utils/bluetooth/socket_bluetooth_test.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/utils/bluetooth/bluetooth_functions_unittest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/utils/data_buffer_unittest.cpp
 )
 
 add_executable(
@@ -42,10 +42,10 @@ add_executable(
 
 target_include_directories (
     ${TESTS_EXE_NAME} PRIVATE
-    ${CMAKE_HOME_DIRECTORY}/src/utils/inc
-    ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/inc
-    ${CMAKE_HOME_DIRECTORY}/src/tests/utils/bluetooth/inc
-    ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/macos_third_party
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/bluetooth/inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/utils/bluetooth/inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/bluetooth/macos_third_party
 )
 
 target_link_libraries(
@@ -55,9 +55,9 @@ target_link_libraries(
 
 set_target_properties (${TESTS_EXE_NAME}
     PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/build/tests
-    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/build/tests
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/build/tests
+    ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build/tests
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build/tests
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build/tests
 )
 
 include(GoogleTest)
