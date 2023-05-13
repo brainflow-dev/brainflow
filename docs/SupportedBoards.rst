@@ -1059,6 +1059,47 @@ Steps to find MAC address:
 
 **On Linux in order to compile and use it you may need to install :code:`libbluetooth-dev` for Debian like systems from :code:`apt-get` and :code:`bluez-libs-devel` for Fedora like systems from :code:`dnf`.**
 
+BrainAlive
+-----------
+
+BrainAlive Device
+~~~~~~~~~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/51752250946_7915ca2e2b.jpg
+    :width: 500px
+    :height: 333px
+
+`BrainAlive Website <https://braina.live//>`_
+
+.. compound::
+
+    On Linux systems you may need to install `libdbus` and we recommend to compile BrainFlow from the source code: ::
+
+        sudo apt-get install libdbus-1-dev # for ubuntu
+        sudo yum install dbus-devel # for centos
+        python3 tools/build.py --ble # to compile
+
+To create such board you need to specify the following board ID and fields of BrainFlowInputParams object:
+
+- :code:`BoardIds.BRAINALIVE_BOARD`
+- *optional:* :code:`mac_address`, mac address of the device to connect
+- *optional:* :code:`serial_number`, device name
+
+Initialization Example:
+
+.. code-block:: python
+
+    params = BrainFlowInputParams()
+    board = BoardShim(BoardIds.BRAINALIVE_BOARD, params)
+
+Supported platforms:
+
+- Windows 10.0.19041.0+
+- MacOS 10.15+
+- Linux, compilation from source code probably will be needed
+- Devices like Raspberry Pi
+
+
 Mentalab
 ---------
 
