@@ -77,11 +77,11 @@ endif()
 #
 
 add_library(kissfft STATIC
-  ${CMAKE_HOME_DIRECTORY}/third_party/kissfft/kiss_fft.c
-  ${CMAKE_HOME_DIRECTORY}/third_party/kissfft/kfc.c
-  ${CMAKE_HOME_DIRECTORY}/third_party/kissfft/kiss_fftnd.c
-  ${CMAKE_HOME_DIRECTORY}/third_party/kissfft/kiss_fftndr.c
-  ${CMAKE_HOME_DIRECTORY}/third_party/kissfft/kiss_fftr.c)
+  ${CMAKE_CURRENT_SOURCE_DIR}/third_party/kissfft/kiss_fft.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/third_party/kissfft/kfc.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/third_party/kissfft/kiss_fftnd.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/third_party/kissfft/kiss_fftndr.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/third_party/kissfft/kiss_fftr.c)
 
 target_include_directories(kissfft PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>)
