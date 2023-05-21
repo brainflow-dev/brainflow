@@ -31,8 +31,8 @@ class GaleaEmulator(object):
         self.state = State.wait.value
         self.addr = None
         self.package_num = 0
-        self.transaction_size = 19
-        self.package_size = 72
+        self.transaction_size = 12
+        self.package_size = 114
 
     def run(self):
         start_time = time.time()
@@ -70,15 +70,15 @@ class GaleaEmulator(object):
                     ppg_red = bytearray(struct.pack('i', int(random.random() * 5000)))
                     ppg_ir = bytearray(struct.pack('i', int(random.random() * 5000)))
 
-                    for i in range(64, 72):
-                        single_package[i] = timestamp[i - 64]
+                    for i in range(88, 96):
+                        single_package[i] = timestamp[i - 88]
                     for i in range(1, 5):
                         single_package[i] = eda[i - 1]
-                    for i in range(60, 64):
-                        single_package[i] = ppg_ir[i - 60]
-                    for i in range(56, 60):
-                        single_package[i] = ppg_red[i - 56]
-                    single_package[53] = random.randint(0, 100)
+                    for i in range(84, 88):
+                        single_package[i] = ppg_ir[i - 84]
+                    for i in range(80, 84):
+                        single_package[i] = ppg_red[i - 80]
+                    single_package[77] = random.randint(0, 100)
 
                     self.package_num = self.package_num + 1
                     if self.package_num % 256 == 0:

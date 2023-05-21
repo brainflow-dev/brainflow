@@ -133,7 +133,7 @@ class GaleaWriter(threading.Thread):
         self.port = port
         self.write = write
         self.delay = delay
-        self.package_size = 72 * 19
+        self.package_size = 114 * 12
         self.package_num = 0
         self.need_data = True
 

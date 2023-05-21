@@ -178,7 +178,9 @@ public:
 class GaleaGainTracker : public OpenBCIGainTracker
 {
 public:
-    GaleaGainTracker () : OpenBCIGainTracker ({4, 4, 4, 4, 4, 4, 12, 12, 2, 2, 2, 2, 2, 2, 2, 2})
+    GaleaGainTracker ()
+        : OpenBCIGainTracker ({4, 4, 4, 4, 4, 4, 12, 12, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+              2, 2}) // to be confirmed
     {
     }
 
