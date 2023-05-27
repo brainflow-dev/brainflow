@@ -57,7 +57,7 @@ class GaleaEmulator(threading.Thread):
         self.state = State.wait.value
         self.addr = None
         self.package_num = 0
-        self.package_size = 72
+        self.package_size = 114
         self.keep_alive = True
 
     def run(self):
@@ -86,16 +86,18 @@ class GaleaEmulator(threading.Thread):
 
             if self.state == State.stream.value:
                 package = list()
-                for _ in range(19):
+                for _ in range(12):
                     package.append(self.package_num)
                     self.package_num = self.package_num + 1
                     if self.package_num % 256 == 0:
                         self.package_num = 0
-                    for i in range(1, self.package_size - 8):
+                    for i in range(1, 88):
                         package.append(random.randint(0, 255))
                     cur_time = time.time()
                     timestamp = bytearray(struct.pack('d', (cur_time - start_time) * 1000))
                     package.extend(timestamp)
+                    for i in range(96, self.package_size):
+                        package.append(random.randint(0, 255))
                 try:
                     self.server_socket.sendto(bytes(package), self.addr)
                 except socket.timeout:

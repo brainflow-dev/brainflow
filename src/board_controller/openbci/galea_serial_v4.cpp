@@ -5,7 +5,7 @@
 #include <string.h>
 
 #include "custom_cast.h"
-#include "galea_serial.h"
+#include "galea_serial_v4.h"
 #include "timestamp.h"
 
 #include "json.hpp"
@@ -20,8 +20,8 @@ using json = nlohmann::json;
 #define END_BYTE 0xC0
 
 
-GaleaSerial::GaleaSerial (struct BrainFlowInputParams params)
-    : Board ((int)BoardIds::GALEA_SERIAL_BOARD, params)
+GaleaSerialV4::GaleaSerialV4 (struct BrainFlowInputParams params)
+    : Board ((int)BoardIds::GALEA_SERIAL_BOARD_V4, params)
 {
     serial = NULL;
     is_streaming = false;
@@ -31,13 +31,13 @@ GaleaSerial::GaleaSerial (struct BrainFlowInputParams params)
     half_rtt = 0.0;
 }
 
-GaleaSerial::~GaleaSerial ()
+GaleaSerialV4::~GaleaSerialV4 ()
 {
     skip_logs = true;
     release_session ();
 }
 
-int GaleaSerial::prepare_session ()
+int GaleaSerialV4::prepare_session ()
 {
     // check params
     if (initialized)
@@ -108,7 +108,7 @@ int GaleaSerial::prepare_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int GaleaSerial::config_board (std::string conf, std::string &response)
+int GaleaSerialV4::config_board (std::string conf, std::string &response)
 {
     if (serial == NULL)
     {
@@ -135,7 +135,7 @@ int GaleaSerial::config_board (std::string conf, std::string &response)
 
     std::string new_conf = conf + "\n";
     int len = (int)new_conf.size ();
-    safe_logger (spdlog::level::debug, "Trying to config GaleaSerial with {}", new_conf.c_str ());
+    safe_logger (spdlog::level::debug, "Trying to config GaleaSerialV4 with {}", new_conf.c_str ());
     int res = serial->send_to_serial_port (new_conf.c_str (), len);
     if (len != res)
     {
@@ -154,7 +154,7 @@ int GaleaSerial::config_board (std::string conf, std::string &response)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int GaleaSerial::start_stream (int buffer_size, const char *streamer_params)
+int GaleaSerialV4::start_stream (int buffer_size, const char *streamer_params)
 {
     if (!initialized)
     {
@@ -212,7 +212,7 @@ int GaleaSerial::start_stream (int buffer_size, const char *streamer_params)
     }
 }
 
-int GaleaSerial::stop_stream ()
+int GaleaSerialV4::stop_stream ()
 {
     if (is_streaming)
     {
@@ -261,7 +261,7 @@ int GaleaSerial::stop_stream ()
     }
 }
 
-int GaleaSerial::release_session ()
+int GaleaSerialV4::release_session ()
 {
     if (initialized)
     {
@@ -280,10 +280,10 @@ int GaleaSerial::release_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-void GaleaSerial::read_thread ()
+void GaleaSerialV4::read_thread ()
 {
     int res = 0;
-    constexpr int package_size = 72;
+    constexpr int package_size = 114;
     constexpr int max_num_packages = 25;
     constexpr int max_transaction_size = package_size * max_num_packages + 2;
     unsigned char b[max_transaction_size];
@@ -375,7 +375,7 @@ void GaleaSerial::read_thread ()
         unsigned char *package_bytes = b + 1;
         int offset_last_package = package_size * (num_packages - 1);
         double timestamp_last_package = 0.0;
-        memcpy (&timestamp_last_package, package_bytes + 64 + offset_last_package, 8);
+        memcpy (&timestamp_last_package, package_bytes + 88 + offset_last_package, 8);
         timestamp_last_package /= 1000; // from ms to seconds
         double time_delta = pc_timestamp - timestamp_last_package;
         time_buffer.add_data (&time_delta);
@@ -393,7 +393,7 @@ void GaleaSerial::read_thread ()
             // exg(default preset)
             exg_package[board_descr["default"]["package_num_channel"].get<int> ()] =
                 (double)package_bytes[0 + offset];
-            for (int i = 4, tmp_counter = 0; i < 20; i++, tmp_counter++)
+            for (int i = 4, tmp_counter = 0; i < 28; i++, tmp_counter++)
             {
                 double exg_scale = (double)(4.5 / float ((pow (2, 23) - 1)) /
                     gain_tracker.get_gain_for_channel (tmp_counter) * 1000000.);
@@ -401,7 +401,7 @@ void GaleaSerial::read_thread ()
                     (double)cast_24bit_to_int32 (package_bytes + offset + 5 + 3 * (i - 4));
             }
             double timestamp_device = 0.0;
-            memcpy (&timestamp_device, package_bytes + 64 + offset, 8);
+            memcpy (&timestamp_device, package_bytes + 88 + offset, 8);
             timestamp_device /= 1000; // from ms to seconds
             exg_package[board_descr["default"]["timestamp_channel"].get<int> ()] =
                 timestamp_device + time_delta - half_rtt;
@@ -413,16 +413,19 @@ void GaleaSerial::read_thread ()
             // aux, 5 times slower
             if (((int)package_bytes[0 + offset]) % 5 == 0)
             {
+                double accel_scale = (double)(0.002 / (pow (2, 4)));
+                double gyro_scale = (double)(0.002 / (pow (2, 4)));         // to be confirmed
+                double magnetometer_scale = (double)(0.002 / (pow (2, 4))); // to be confirmed
                 aux_package[board_descr["auxiliary"]["package_num_channel"].get<int> ()] =
                     (double)package_bytes[0 + offset];
                 uint16_t temperature = 0;
                 int32_t ppg_ir = 0;
                 int32_t ppg_red = 0;
                 float eda;
-                memcpy (&temperature, package_bytes + 54 + offset, 2);
+                memcpy (&temperature, package_bytes + 78 + offset, 2);
                 memcpy (&eda, package_bytes + 1 + offset, 4);
-                memcpy (&ppg_red, package_bytes + 56 + offset, 4);
-                memcpy (&ppg_ir, package_bytes + 60 + offset, 4);
+                memcpy (&ppg_red, package_bytes + 80 + offset, 4);
+                memcpy (&ppg_ir, package_bytes + 84 + offset, 4);
                 // ppg
                 aux_package[board_descr["auxiliary"]["ppg_channels"][0].get<int> ()] =
                     (double)ppg_red;
@@ -435,13 +438,34 @@ void GaleaSerial::read_thread ()
                     temperature / 100.0;
                 // battery
                 aux_package[board_descr["auxiliary"]["battery_channel"].get<int> ()] =
-                    (double)package_bytes[53 + offset];
+                    (double)package_bytes[77 + offset];
                 aux_package[board_descr["auxiliary"]["timestamp_channel"].get<int> ()] =
                     timestamp_device + time_delta - half_rtt;
                 aux_package[board_descr["auxiliary"]["other_channels"][0].get<int> ()] =
                     pc_timestamp;
                 aux_package[board_descr["auxiliary"]["other_channels"][1].get<int> ()] =
                     timestamp_device;
+                // accel
+                aux_package[board_descr["auxiliary"]["accel_channels"][0].get<int> ()] =
+                    accel_scale * cast_16bit_to_int32 (b + 96);
+                aux_package[board_descr["auxiliary"]["accel_channels"][1].get<int> ()] =
+                    accel_scale * cast_16bit_to_int32 (b + 98);
+                aux_package[board_descr["auxiliary"]["accel_channels"][2].get<int> ()] =
+                    accel_scale * cast_16bit_to_int32 (b + 100);
+                // gyro
+                aux_package[board_descr["auxiliary"]["gyro_channels"][0].get<int> ()] =
+                    gyro_scale * cast_16bit_to_int32 (b + 102);
+                aux_package[board_descr["auxiliary"]["gyro_channels"][1].get<int> ()] =
+                    gyro_scale * cast_16bit_to_int32 (b + 104);
+                aux_package[board_descr["auxiliary"]["gyro_channels"][2].get<int> ()] =
+                    gyro_scale * cast_16bit_to_int32 (b + 106);
+                // magnetometer
+                aux_package[board_descr["auxiliary"]["magnetometer_channels"][0].get<int> ()] =
+                    magnetometer_scale * cast_16bit_to_int32 (b + 108);
+                aux_package[board_descr["auxiliary"]["magnetometer_channels"][1].get<int> ()] =
+                    magnetometer_scale * cast_16bit_to_int32 (b + 110);
+                aux_package[board_descr["auxiliary"]["magnetometer_channels"][2].get<int> ()] =
+                    magnetometer_scale * cast_16bit_to_int32 (b + 112);
                 push_package (aux_package, (int)BrainFlowPresets::AUXILIARY_PRESET);
             }
         }
@@ -450,7 +474,7 @@ void GaleaSerial::read_thread ()
     delete[] aux_package;
 }
 
-int GaleaSerial::calc_time (std::string &resp)
+int GaleaSerialV4::calc_time (std::string &resp)
 {
     constexpr int bytes_to_calc_rtt = 8;
     unsigned char b[bytes_to_calc_rtt];

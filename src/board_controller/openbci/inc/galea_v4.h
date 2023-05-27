@@ -12,7 +12,7 @@
 #include "socket_client_udp.h"
 
 
-class Galea : public Board
+class GaleaV4 : public Board
 {
 
 private:
@@ -25,7 +25,7 @@ private:
     SocketClientUDP *socket;
     std::mutex m;
     std::condition_variable cv;
-    GaleaGainTracker gain_tracker;
+    GaleaV4GainTracker gain_tracker;
 
     std::string find_device ();
     void read_thread ();
@@ -33,8 +33,8 @@ private:
 
 
 public:
-    Galea (struct BrainFlowInputParams params);
-    ~Galea ();
+    GaleaV4 (struct BrainFlowInputParams params);
+    ~GaleaV4 ();
 
     int prepare_session ();
     int start_stream (int buffer_size, const char *streamer_params);
@@ -42,7 +42,7 @@ public:
     int release_session ();
     int config_board (std::string config, std::string &response);
 
-    static constexpr int package_size = 72;
+    static constexpr int package_size = 114;
     static constexpr int max_num_packages = 25;
     static constexpr int max_transaction_size = package_size * max_num_packages;
     static constexpr int socket_timeout = 2;

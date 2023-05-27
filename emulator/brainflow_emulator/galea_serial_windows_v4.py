@@ -3,10 +3,12 @@ import os
 import random
 import struct
 import subprocess
+import sys
 import threading
 import time
 
 import pkg_resources
+from brainflow_emulator.emulate_common import TestFailureError, log_multilines
 from serial import Serial
 
 
@@ -66,12 +68,24 @@ def get_ports_windows():
     return m_name, s_name
 
 
-def test_serial(m_name, s_name):
+def test_serial(cmd_list, m_name, s_name):
     master = Serial('\\\\.\\%s' % m_name, timeout=0)
     listen_thread = Listener(master, write, read)
+    listen_thread.daemon = True
     listen_thread.start()
-    listen_thread.join()
+
+    cmd_to_run = cmd_list + [s_name]
+    logging.info('Running %s' % ' '.join([str(x) for x in cmd_to_run]))
+    process = subprocess.Popen(cmd_to_run, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = process.communicate()
+
+    log_multilines(logging.info, stdout)
+    log_multilines(logging.info, stderr)
+
     master.close()
+    if process.returncode != 0:
+        raise TestFailureError('Test failed with exit code %s' % str(process.returncode), process.returncode)
+
     return stdout, stderr
 
 
@@ -119,7 +133,7 @@ class GaleaWriter(threading.Thread):
         self.port = port
         self.write = write
         self.delay = delay
-        self.package_size = 72 * 19
+        self.package_size = 114 * 12
         self.package_num = 0
         self.need_data = True
 
@@ -140,11 +154,14 @@ class GaleaWriter(threading.Thread):
             time.sleep(self.delay)
 
 
-def main():
+def main(cmd_list):
+    if not cmd_list:
+        raise Exception('No command to execute')
+
     m_name, s_name = get_ports_windows()
-    test_serial(m_name, s_name)
+    test_serial(cmd_list, m_name, s_name)
 
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
-    main()
+    main(sys.argv[1:])
