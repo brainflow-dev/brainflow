@@ -1041,6 +1041,27 @@ public class DataFilter
     }
 
     /**
+     * (re)reference channels
+     * 
+     * To eliminate ground-related noise, an online reference is chosen out of the recorded EEG channels. 
+     * This reference is used as “baseline” for all remaining EEG channels. 
+     * This means the signal at the other EEG channels is expressed as the difference from this reference.
+     * 
+     * Thie method averages data from reference_channels and then subtract the averaged data from channels_to_reference
+     * 
+     * @param data  data to process
+     * @param channels_to_reference channels to use as reference
+     * @param reference_channels    channels to reference
+     * @return void
+     */
+    public static void reference (double[][] data, ArrayList<Integer> channels_to_reference, ArrayList<Integer> reference_channels)
+            throws BrainFlowError
+    {
+        // ToDo: first of all you need to average data from reference_channels and after that subtract the averaged data from channels_to_reference
+        throw new BrainFlowError ("Not implemented yet", BrainFlowExitCode.NOT_IMPLEMENTED_ERROR.get_code ());
+    }
+
+    /**
      * calculate nearest power of two
      */
     public static int get_nearest_power_of_two (int value) throws BrainFlowError
