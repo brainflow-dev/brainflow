@@ -1050,15 +1050,29 @@ public class DataFilter
      * Thie method averages data from reference_channels and then subtract the averaged data from channels_to_reference
      * 
      * @param data  data to process
-     * @param channels_to_reference channels to use as reference
-     * @param reference_channels    channels to reference
+     * @param channels_to_reference channels to be referenced or expressed as difference from reference_channels averaged data
+     * @param reference_channels    channels to use as reference or baseline
      * @return void
      */
     public static void reference (double[][] data, ArrayList<Integer> channels_to_reference, ArrayList<Integer> reference_channels)
             throws BrainFlowError
     {
-        // ToDo: first of all you need to average data from reference_channels and after that subtract the averaged data from channels_to_reference
-        throw new BrainFlowError ("Not implemented yet", BrainFlowExitCode.NOT_IMPLEMENTED_ERROR.get_code ());
+        // Calculate the average data points of reference_channels
+        double[] avg_reference = new double[data[0].length];
+        for (int channel : reference_channels) {
+            for (int i = 0; i < data[channel].length; i++) {
+                avg_reference[i] += data[channel][i];
+            }
+        }
+        for (int i = 0; i < avg_reference.length; i++) {
+            avg_reference[i] /= reference_channels.size();
+        }    
+        // Subtract the average of reference_channels from each channel in channels_to_reference
+        for (int channel : channels_to_reference) {
+            for (int i = 0; i < data[channel].length; i++) {
+                data[channel][i] -= avg_reference[i];
+            }
+        }
     }
 
     /**
