@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <sstream>
 #include <string.h>
 #include <string>
 
@@ -113,12 +114,19 @@ void PlotJugglerUDPStreamer::thread_worker ()
                         {
                             try
                             {
-                                std::vector<std::string> eeg_names = preset_descr["eeg_names"];
-                                channel_name = eeg_names[i];
+                                std::string eeg_names = preset_descr["eeg_names"];
+                                std::vector<std::string> names_vec;
+                                std::stringstream ss (eeg_names);
+                                while (ss.good ())
+                                {
+                                    std::string substr;
+                                    std::getline (ss, substr, ',');
+                                    names_vec.push_back (substr);
+                                }
+                                channel_name = names_vec[i];
                             }
                             catch (...)
                             {
-                                // pass
                             }
                         }
                         if ((values[i] >= 0) && (values[i] <= len))
