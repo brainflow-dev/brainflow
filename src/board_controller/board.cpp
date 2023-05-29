@@ -7,6 +7,7 @@
 #include "custom_cast.h"
 #include "file_streamer.h"
 #include "multicast_streamer.h"
+#include "plotjuggler_udp_streamer.h"
 
 #include "spdlog/sinks/null_sink.h"
 
@@ -246,7 +247,6 @@ void Board::free_packages ()
 
 int Board::add_streamer (const char *streamer_params, int preset)
 {
-
     std::string preset_str = preset_to_string (preset);
     if (board_descr.find (preset_str) == board_descr.end ())
     {
@@ -285,6 +285,23 @@ int Board::add_streamer (const char *streamer_params, int preset)
         safe_logger (spdlog::level::trace, "MultiCast Streamer, ip addr: {}, port: {}",
             streamer_dest.c_str (), streamer_mods.c_str ());
         streamer = new MultiCastStreamer (streamer_dest.c_str (), port, num_rows);
+    }
+    if (streamer_type == "plotjuggler_udp")
+    {
+        int port = 0;
+        try
+        {
+            port = std::stoi (streamer_mods);
+        }
+        catch (const std::exception &e)
+        {
+            safe_logger (spdlog::level::err, e.what ());
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+        }
+        safe_logger (spdlog::level::trace, "PlotJuggler UDP Streamer, ip addr: {}, port: {}",
+            streamer_dest.c_str (), streamer_mods.c_str ());
+        streamer =
+            new PlotJugglerUDPStreamer (streamer_dest.c_str (), port, board_descr[preset_str]);
     }
 
     if (streamer == NULL)

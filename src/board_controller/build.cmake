@@ -59,6 +59,7 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/galea.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/file_streamer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/multicast_streamer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/plotjuggler_udp_streamer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/gtec/unicorn_board.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/neuromd/neuromd_board.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/neuromd/brainbit.cpp
