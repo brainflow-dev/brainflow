@@ -5,9 +5,9 @@
 class Streamer
 {
 public:
-    Streamer (int len, std::string type, std::string dest, std::string mods)
+    Streamer (int data_len, std::string type, std::string dest, std::string mods)
     {
-        this->len = len;
+        len = data_len;
         streamer_type = type;
         streamer_dest = dest;
         streamer_mods = mods;
