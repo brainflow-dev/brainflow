@@ -66,18 +66,9 @@ AntNeuroBoard::AntNeuroBoard (int board_id, struct BrainFlowInputParams params)
     }
     catch (...)
     {
-        sampling_rate = 512;
+        sampling_rate = 2000;
     }
-
-     // Initialize "reference_voltage" with a default value or from the board descriptor if available
-    try
-    {
-        reference_range = board_descr["default"]["reference_range"];
-    }
-    catch (...)
-    {
-        reference_range = 1.0; // Set a default value for reference_range
-    }
+    reference_range = 1.0;
 }
 
 AntNeuroBoard::~AntNeuroBoard ()
@@ -135,8 +126,8 @@ int AntNeuroBoard::start_stream (int buffer_size, const char *streamer_params)
 
     try
     {
-        stream = amp->OpenEegStream (
-            sampling_rate, reference_range); // todo do we need other args? If yes pass them via config_board
+        stream = amp->OpenEegStream (sampling_rate,
+            reference_range); // todo do we need other args? If yes pass them via config_board
     }
     catch (...)
     {
@@ -322,10 +313,23 @@ int AntNeuroBoard::config_board (std::string config, std::string &response)
             safe_logger (spdlog::level::err, "format is '{}value'", rv_prefix.c_str ());
             return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
         }
-
-        // Set the reference_voltage value, assuming you have a class member called reference_voltage
-        reference_range = new_reference_range;
-        // ... Use the reference_voltage value in the relevant method or pass it to the amplifier ...
+        // check that provided value is correct
+        std::vector<double> allowed_values = amp->getReferenceRangesAvailable ();
+        if (std::find (allowed_values.begin (), allowed_values.end (), new_reference_range) !=
+            allowed_values.end ())
+        {
+            reference_range = new_reference_range;
+            return (int)BrainFlowExitCodes::STATUS_OK;
+        }
+        else
+        {
+            safe_logger (spdlog::level::err, "not supported value provided");
+            for (int i = 0; i < (int)allowed_values.size (); i++)
+            {
+                safe_logger (spdlog::level::debug, "supported value: {}", allowed_values[i]);
+            }
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+        }
 
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
