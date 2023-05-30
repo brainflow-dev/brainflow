@@ -52,6 +52,8 @@ export BrainFlowInputParams
     EXPLORE_8_CHAN_BOARD = 45
     GANGLION_NATIVE_BOARD = 46
     EMOTIBIT_BOARD = 47
+    GALEA_BOARD_V4 = 48
+    GALEA_SERIAL_BOARD_V4 = 49
 
 end
 

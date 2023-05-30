@@ -37,6 +37,8 @@
 #include "freeeeg32.h"
 #include "galea.h"
 #include "galea_serial.h"
+#include "galea_serial_v4.h"
+#include "galea_v4.h"
 #include "ganglion.h"
 #include "ganglion_native.h"
 #include "ganglion_wifi.h"
@@ -247,6 +249,12 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
             break;
         case BoardIds::EMOTIBIT_BOARD:
             board = std::shared_ptr<Board> (new Emotibit (params));
+            break;
+        case BoardIds::GALEA_BOARD_V4:
+            board = std::shared_ptr<Board> (new GaleaV4 (params));
+            break;
+        case BoardIds::GALEA_SERIAL_BOARD_V4:
+            board = std::shared_ptr<Board> (new GaleaSerialV4 (params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

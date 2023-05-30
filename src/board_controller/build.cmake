@@ -37,6 +37,9 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/multicast_server.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/broadcast_client.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/broadcast_server.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/galea_v4.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/galea_serial_v4.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/galea.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/galea_serial.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/openbci_serial_board.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/openbci_wifi_shield_board.cpp
@@ -56,7 +59,6 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/dyn_lib_board.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/bt_lib_board.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/playback_file_board.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/galea.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/file_streamer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/multicast_streamer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/plotjuggler_udp_streamer.cpp
