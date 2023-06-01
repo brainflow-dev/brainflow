@@ -256,6 +256,7 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
         case BoardIds::GALEA_SERIAL_BOARD_V4:
             board = std::shared_ptr<Board> (new GaleaSerialV4 (params));
             break;
+
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
     }
