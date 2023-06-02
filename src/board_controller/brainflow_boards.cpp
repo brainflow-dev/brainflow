@@ -67,7 +67,8 @@ BrainFlowBoards::BrainFlowBoards()
             {"46", json::object()},
             {"47", json::object()},
             {"48", json::object()},
-            {"49", json::object()}
+            {"49", json::object()},
+            {"51", json::object()}
         }
     }};
 
@@ -944,6 +945,18 @@ BrainFlowBoards::BrainFlowBoards()
         {"magnetometer_channels", {12, 13, 14}},
         {"other_channels", {15, 16}},
         {"temperature_channels", {4}}
+    };
+    brainflow_boards_json["boards"]["51"]["default"] =
+    {
+        {"name", "AntNeuroEE511"},
+        {"sampling_rate", 4096},
+        {"timestamp_channel", 30},
+        {"marker_channel", 31},
+        {"package_num_channel", 0},
+        {"num_rows", 32},
+        {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24}},
+        {"emg_channels", {25, 26, 27, 28}},
+        {"other_channels", {29}}
     };
 }
 

@@ -27,6 +27,7 @@ private:
     eemagine::sdk::stream *stream;
     int sampling_rate;
     double reference_range;
+    double bipolar_range;
 
     void read_thread ();
 #endif
