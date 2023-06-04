@@ -5,13 +5,12 @@
 
 #include "board.h"
 
-#if defined __linux__ || defined _WIN32
-// required to dont link ant neuro sdk
 #define EEGO_SDK_BIND_DYNAMIC
 
-#include <eemagine/sdk/amplifier.h>
-#include <eemagine/sdk/stream.h>
-#endif
+#include "eemagine/sdk/amplifier.h"
+#include "eemagine/sdk/factory.h"
+#include "eemagine/sdk/stream.h"
+#include "eemagine/sdk/wrapper.h"
 
 
 class AntNeuroBoard : public Board
@@ -23,10 +22,12 @@ private:
     bool initialized;
     std::thread streaming_thread;
     std::string ant_neuro_lib_path;
+    eemagine::sdk::factory *fact;
     eemagine::sdk::amplifier *amp;
     eemagine::sdk::stream *stream;
     int sampling_rate;
     double reference_range;
+    double bipolar_range;
 
     void read_thread ();
 #endif

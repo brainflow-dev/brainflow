@@ -2,7 +2,7 @@
  * License: eego amplifier Interface SDK, rev. 1.3
  *
  *
- * Copyright 2018, eemagine Medical Imaging Solutions GmbH
+ * Copyright 2015, eemagine Medical Imaging Solutions GmbH
  *
  *
  * 1. Redistributions of source code must retain the copyright notice this list of conditions and
@@ -43,52 +43,19 @@
  * own certification for a combined system of amplifier and software.
  */
 
-#ifndef __eemagine_sdk_stream_h__
-#define __eemagine_sdk_stream_h__
+#ifndef __eemagine_sdk_android_h__
+#define __eemagine_sdk_android_h__
 
-// system
-#include <string>
-#include <vector>
-// eemagine
-#include <eemagine/sdk/buffer.h>
-#include <eemagine/sdk/channel.h>
-#include <eemagine/sdk/exceptions.h>
+#include <eemagine/sdk/visibility.h>
 
-namespace eemagine
+#ifdef __cplusplus
+extern "C"
 {
-    namespace sdk
-    {
-        /// The class that does the actual streaming
-        class stream
-        {
-        public:
-            /**
-             * \brief Destructor
-             * Destructor. It's virtual because the class has pure virtual functions
-             */
-            virtual ~stream ()
-            {
-            }
-
-            /**
-             * \brief get the list of channels for this stream
-             * get a list of all channels available for this stream
-             * @return list of channel types
-             */
-            virtual std::vector<channel> getChannelList () const = 0;
-            /**
-             * \brief get data
-             * get data. This returns an array(vector) of samples. Is always a multiple of number of
-             * channels. In fact, the size of the returned data is channelcount * samplecount. Thus,
-             * the number of samples in the returned data can be deduced; vector.size() / number of
-             * channels the values are layed out like this: sample 0: chan 0, chan 1, chan 2, ... ,
-             * chan n sample 1: chan 0, chan 1, chan 2, ... , chan n sample 2: chan 0, chan 1, chan
-             * 2, ... , chan n
-             * @return samples array
-             */
-            virtual buffer getData () = 0;
-        };
-    }
+#endif
+    EEGO_SDK_API void eego_sdk_android_attach_fd (int);
+    EEGO_SDK_API void eego_sdk_android_detach_fd (int);
+#ifdef __cplusplus
 }
+#endif
 
 #endif

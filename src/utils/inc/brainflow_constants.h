@@ -82,9 +82,10 @@ enum class BoardIds : int
     GALEA_BOARD_V4 = 48,
     GALEA_SERIAL_BOARD_V4 = 49,
     NTL_WIFI_BOARD = 50,
+    ANT_NEURO_EE_511_BOARD = 51,
     // use it to iterate
     FIRST = PLAYBACK_FILE_BOARD,
-    LAST = NTL_WIFI_BOARD
+    LAST = ANT_NEURO_EE_511_BOARD
 };
 
 enum class IpProtocolTypes : int

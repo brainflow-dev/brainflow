@@ -256,7 +256,13 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
         case BoardIds::GALEA_SERIAL_BOARD_V4:
             board = std::shared_ptr<Board> (new GaleaSerialV4 (params));
             break;
-
+        case BoardIds::ANT_NEURO_EE_511_BOARD:
+            board = std::shared_ptr<Board> (
+                new AntNeuroBoard ((int)BoardIds::ANT_NEURO_EE_511_BOARD, params));
+            break;
+        case BoardIds::NTL_WIFI_BOARD:
+            board = std::shared_ptr<Board> (new NtlWifi (params));
+            break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
     }

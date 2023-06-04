@@ -68,7 +68,8 @@ BrainFlowBoards::BrainFlowBoards()
             {"47", json::object()},
             {"48", json::object()},
             {"49", json::object()},
-            {"50", json::object()}
+            {"50", json::object()},
+            {"51", json::object()}
         }
     }};
 
@@ -947,24 +948,35 @@ BrainFlowBoards::BrainFlowBoards()
         {"temperature_channels", {4}}
     };
     brainflow_boards_json["boards"]["50"]["default"] =
-        {
-            {"name", "NtlWifi"},
-            {"sampling_rate", 250},
-            {"package_num_channel", 0},
-            {"timestamp_channel", 22},
-            {"marker_channel", 23},
-            {"num_rows", 24},
-            {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
-            {"eeg_names", "Fp1,Fp2,C3,C4,P7,P8,O1,O2"},
-            {"emg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
-            {"ecg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
-            {"eog_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
-            {"accel_channels", {9, 10, 11}},
-            {"analog_channels", {19, 20, 21}},
-            {"other_channels", {12, 13, 14, 15, 16, 17, 18}},
-            {"check_battery_capable_channel",27},
-            {"battery_channel",28},
-        };
+    {
+        {"name", "NtlWifi"},
+        {"sampling_rate", 250},
+        {"package_num_channel", 0},
+        {"timestamp_channel", 23},
+        {"marker_channel", 24},
+        {"num_rows", 25},
+        {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
+        {"eeg_names", "Fp1,Fp2,C3,C4,P7,P8,O1,O2"},
+        {"emg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
+        {"ecg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
+        {"eog_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
+        {"accel_channels", {9, 10, 11}},
+        {"analog_channels", {19, 20, 21}},
+        {"other_channels", {12, 13, 14, 15, 16, 17, 18}},
+        {"battery_channel", 22}
+    };
+    brainflow_boards_json["boards"]["51"]["default"] =
+    {
+        {"name", "AntNeuroEE511"},
+        {"sampling_rate", 4096},
+        {"timestamp_channel", 30},
+        {"marker_channel", 31},
+        {"package_num_channel", 0},
+        {"num_rows", 32},
+        {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24}},
+        {"emg_channels", {25, 26, 27, 28}},
+        {"other_channels", {29}}
+    };
 }
 
 BrainFlowBoards boards_struct;
