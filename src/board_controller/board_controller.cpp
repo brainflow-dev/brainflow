@@ -47,6 +47,7 @@
 #include "muse.h"
 #include "muse_bled.h"
 #include "notion_osc.h"
+#include "ntl_wifi.h"
 #include "playback_file_board.h"
 #include "streaming_board.h"
 #include "synthetic_board.h"
@@ -259,6 +260,9 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
         case BoardIds::ANT_NEURO_EE_511_BOARD:
             board = std::shared_ptr<Board> (
                 new AntNeuroBoard ((int)BoardIds::ANT_NEURO_EE_511_BOARD, params));
+            break;
+        case BoardIds::NTL_WIFI_BOARD:
+            board = std::shared_ptr<Board> (new NtlWifi (params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

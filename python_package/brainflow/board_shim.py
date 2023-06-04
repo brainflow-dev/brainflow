@@ -68,6 +68,7 @@ class BoardIds(enum.IntEnum):
     EMOTIBIT_BOARD = 47  #:
     GALEA_BOARD_V4 = 48  #:
     GALEA_SERIAL_BOARD_V4 = 49  #:
+    NTL_WIFI_BOARD = 50  #:
     ANT_NEURO_EE_511_BOARD = 51  #:
 
 

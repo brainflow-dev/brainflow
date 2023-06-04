@@ -88,6 +88,7 @@ pub enum BoardIds {
     EmotibitBoard = 47,
     GaleaBoardV4 = 48,
     GaleaSerialBoardV4 = 49,
+    NtlWifiBoard = 50,
 }
 #[repr(i32)]
 #[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]
