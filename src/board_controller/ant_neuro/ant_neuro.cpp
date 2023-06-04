@@ -58,6 +58,7 @@ AntNeuroBoard::AntNeuroBoard (int board_id, struct BrainFlowInputParams params)
 
     keep_alive = false;
     initialized = false;
+    fact = NULL;
     amp = NULL;
     stream = NULL;
     try
@@ -66,10 +67,10 @@ AntNeuroBoard::AntNeuroBoard (int board_id, struct BrainFlowInputParams params)
     }
     catch (...)
     {
-        sampling_rate = 2000;
+        sampling_rate = -1.0;
     }
-    reference_range = 1.0;
-    bipolar_range = 4.0;
+    reference_range = -1.0;
+    bipolar_range = -1.0;
 }
 
 AntNeuroBoard::~AntNeuroBoard ()
@@ -88,11 +89,17 @@ int AntNeuroBoard::prepare_session ()
 
     try
     {
-        factory fact (ant_neuro_lib_path);
+        fact = new factory (ant_neuro_lib_path);
         safe_logger (spdlog::level::info, "eego sdk version is: {}.{}.{}.{}",
-            fact.getVersion ().major, fact.getVersion ().minor, fact.getVersion ().micro,
-            fact.getVersion ().build);
-        amp = fact.getAmplifier ();
+            fact->getVersion ().major, fact->getVersion ().minor, fact->getVersion ().micro,
+            fact->getVersion ().build);
+        amp = fact->getAmplifier ();
+        reference_range = amp->getReferenceRangesAvailable ()[0];
+        bipolar_range = amp->getBipolarRangesAvailable ()[0];
+        if (sampling_rate < 0)
+        {
+            sampling_rate = amp->getSamplingRatesAvailable ()[0];
+        }
     }
     catch (const exceptions::notFound &e)
     {
@@ -185,6 +192,11 @@ int AntNeuroBoard::release_session ()
     {
         delete amp;
         amp = NULL;
+    }
+    if (fact != NULL)
+    {
+        delete fact;
+        fact = NULL;
     }
     return (int)BrainFlowExitCodes::STATUS_OK;
 }

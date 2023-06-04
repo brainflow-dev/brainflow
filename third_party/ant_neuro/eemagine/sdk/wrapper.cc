@@ -534,12 +534,12 @@ public:
     void StartTriggerOut (const std::vector<int> &channel_list) override
     {
         _return_value_guard (_sdk.trigger_out_start (
-            _amplifier_info.id, channel_list.data (), channel_list.size ()));
+            _amplifier_info.id, channel_list.data (), (int)channel_list.size ()));
     }
     void StopTriggerOut (const std::vector<int> &channel_list) override
     {
-        _return_value_guard (
-            _sdk.trigger_out_stop (_amplifier_info.id, channel_list.data (), channel_list.size ()));
+        _return_value_guard (_sdk.trigger_out_stop (
+            _amplifier_info.id, channel_list.data (), (int)channel_list.size ()));
     }
 
 protected:
