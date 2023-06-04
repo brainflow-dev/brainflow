@@ -95,12 +95,10 @@ void NtlWifi::read_thread ()
         // place unprocessed bytes for all modes to other_channels
         package[board_descr["other_channels"][1].get<int> ()] = (double)bytes[25];
         package[board_descr["other_channels"][2].get<int> ()] = (double)bytes[26];
-        // package[board_descr["other_channels"][3].get<int> ()] = (double)bytes[27];
-        // package[board_descr["other_channels"][4].get<int> ()] = (double)bytes[28];
+        package[board_descr["other_channels"][3].get<int> ()] = (double)bytes[27];
+        package[board_descr["other_channels"][4].get<int> ()] = (double)bytes[28];
         package[board_descr["other_channels"][5].get<int> ()] = (double)bytes[29];
         package[board_descr["other_channels"][6].get<int> ()] = (double)bytes[30];
-        package[board_descr["battery_channel"].get<int> ()] =(double)bytes[28];
-        package[board_descr["check_battery_capable_channel"].get<int> ()] =(double)bytes[27];
         // place processed bytes for accel
         if (bytes[31] == END_BYTE_STANDARD)
         {
@@ -115,7 +113,7 @@ void NtlWifi::read_thread ()
                 accel[1] = accel_scale * accel_temp[1];
                 accel[2] = accel_scale * accel_temp[2];
             }
-
+            package[board_descr["battery_channel"].get<int> ()] = (double)bytes[28];
             package[board_descr["accel_channels"][0].get<int> ()] = accel[0];
             package[board_descr["accel_channels"][1].get<int> ()] = accel[1];
             package[board_descr["accel_channels"][2].get<int> ()] = accel[2];

@@ -47,6 +47,7 @@
 #include "muse.h"
 #include "muse_bled.h"
 #include "notion_osc.h"
+#include "ntl_wifi.h"
 #include "playback_file_board.h"
 #include "streaming_board.h"
 #include "synthetic_board.h"

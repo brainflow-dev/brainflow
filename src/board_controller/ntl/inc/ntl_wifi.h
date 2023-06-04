@@ -17,7 +17,7 @@ protected:
 
 public:
     // package num, 8 eeg channels, 3 accel channels
-    NtlWifiBoard (struct BrainFlowInputParams params)
+    NtlWifi (struct BrainFlowInputParams params)
         : OpenBCIWifiShieldBoard (params, (int)BoardIds::NTL_WIFI_BOARD)
     {
     }
