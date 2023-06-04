@@ -58,6 +58,7 @@ AntNeuroBoard::AntNeuroBoard (int board_id, struct BrainFlowInputParams params)
 
     keep_alive = false;
     initialized = false;
+    fact = NULL;
     amp = NULL;
     stream = NULL;
     try
@@ -66,9 +67,10 @@ AntNeuroBoard::AntNeuroBoard (int board_id, struct BrainFlowInputParams params)
     }
     catch (...)
     {
-        sampling_rate = 2000;
+        sampling_rate = -1.0;
     }
-    reference_range = 1.0;
+    reference_range = -1.0;
+    bipolar_range = -1.0;
 }
 
 AntNeuroBoard::~AntNeuroBoard ()
@@ -87,12 +89,27 @@ int AntNeuroBoard::prepare_session ()
 
     try
     {
-        factory fact (ant_neuro_lib_path);
-        amp = fact.getAmplifier ();
+        fact = new factory (ant_neuro_lib_path);
+        safe_logger (spdlog::level::info, "eego sdk version is: {}.{}.{}.{}",
+            fact->getVersion ().major, fact->getVersion ().minor, fact->getVersion ().micro,
+            fact->getVersion ().build);
+        amp = fact->getAmplifier ();
+        reference_range = amp->getReferenceRangesAvailable ()[0];
+        bipolar_range = amp->getBipolarRangesAvailable ()[0];
+        if (sampling_rate < 0)
+        {
+            sampling_rate = amp->getSamplingRatesAvailable ()[0];
+        }
     }
     catch (const exceptions::notFound &e)
     {
         safe_logger (spdlog::level::err, "No devices found, {}", e.what ());
+        return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+    }
+    catch (const std::runtime_error &e)
+    {
+        safe_logger (spdlog::level::err, "Exception, {}. Lib path {}", e.what (),
+            ant_neuro_lib_path.c_str ());
         return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     }
     catch (...)
@@ -126,12 +143,14 @@ int AntNeuroBoard::start_stream (int buffer_size, const char *streamer_params)
 
     try
     {
-        stream = amp->OpenEegStream (sampling_rate,
-            reference_range); // todo do we need other args? If yes pass them via config_board
+        safe_logger (spdlog::level::info,
+            "sampling rate: {}, reference range: {}, bipolar range: {}", sampling_rate,
+            reference_range, bipolar_range);
+        stream = amp->OpenEegStream (sampling_rate, reference_range, bipolar_range);
     }
-    catch (...)
+    catch (const std::runtime_error &e)
     {
-        safe_logger (spdlog::level::err, "Failed to start acquisition.");
+        safe_logger (spdlog::level::err, "Failed to start acquisition: {}", e.what ());
         return (int)BrainFlowExitCodes::STREAM_THREAD_ERROR;
     }
     if (stream == NULL)
@@ -173,6 +192,11 @@ int AntNeuroBoard::release_session ()
     {
         delete amp;
         amp = NULL;
+    }
+    if (fact != NULL)
+    {
+        delete fact;
+        fact = NULL;
     }
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
@@ -268,6 +292,7 @@ int AntNeuroBoard::config_board (std::string config, std::string &response)
 
     std::string prefix = "sampling_rate:";
     std::string rv_prefix = "reference_range:";
+    std::string bv_prefix = "bipolar_range:";
 
     if (config.find (prefix) != std::string::npos)
     {
@@ -319,6 +344,39 @@ int AntNeuroBoard::config_board (std::string config, std::string &response)
             allowed_values.end ())
         {
             reference_range = new_reference_range;
+            return (int)BrainFlowExitCodes::STATUS_OK;
+        }
+        else
+        {
+            safe_logger (spdlog::level::err, "not supported value provided");
+            for (int i = 0; i < (int)allowed_values.size (); i++)
+            {
+                safe_logger (spdlog::level::debug, "supported value: {}", allowed_values[i]);
+            }
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+        }
+
+        return (int)BrainFlowExitCodes::STATUS_OK;
+    }
+    else if (config.find (bv_prefix) != std::string::npos)
+    {
+        double new_bipolar_range = 0.0;
+        std::string value = config.substr (bv_prefix.size ());
+        try
+        {
+            new_bipolar_range = std::stod (value);
+        }
+        catch (...)
+        {
+            safe_logger (spdlog::level::err, "format is '{}value'", bv_prefix.c_str ());
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+        }
+        // check that provided value is correct
+        std::vector<double> allowed_values = amp->getBipolarRangesAvailable ();
+        if (std::find (allowed_values.begin (), allowed_values.end (), new_bipolar_range) !=
+            allowed_values.end ())
+        {
+            bipolar_range = new_bipolar_range;
             return (int)BrainFlowExitCodes::STATUS_OK;
         }
         else

@@ -58,7 +58,8 @@ public enum BoardIds
     GANGLION_NATIVE_BOARD (46),
     EMOTIBIT_BOARD (47),
     GALEA_BOARD_V4 (48),
-    GALEA_SERIAL_BOARD_V4 (49);
+    GALEA_SERIAL_BOARD_V4 (49),
+    ANT_NEURO_EE_511_BOARD (51);
 
     private final int board_id;
     private static final Map<Integer, BoardIds> bi_map = new HashMap<Integer, BoardIds> ();
