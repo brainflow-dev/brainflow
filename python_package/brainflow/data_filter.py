@@ -771,7 +771,7 @@ class DataFilter(object):
 
     @classmethod
     def get_oxygen_level(cls, ppg_ir: NDArray[Float64], ppg_red: NDArray[Float64], sampling_rate: int,
-                         coef1=0.0, coef2=-37.663, coef3=114.91):
+                         coef1=1.5958422, coef2=-34.6596622, coef3=112.6898759):
         """get oxygen level from ppg
 
         :param ppg_ir: input array
