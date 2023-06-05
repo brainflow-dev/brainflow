@@ -998,6 +998,7 @@ Ant Neuro has many devices and all of them are supported by BrainFlow:
 - :code:`ANT_NEURO_EE_223_BOARD`
 - :code:`ANT_NEURO_EE_224_BOARD`
 - :code:`ANT_NEURO_EE_225_BOARD`
+- :code:`ANT_NEURO_EE_511_BOARD`
 
 Initialization Example:
 
