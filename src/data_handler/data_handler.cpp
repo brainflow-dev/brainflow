@@ -167,7 +167,8 @@ int perform_lowpass (double *data, int data_len, int sampling_rate, double cutof
     params[0] = sampling_rate; // sample rate
     params[1] = order;         // order
     params[2] = cutoff;        // cutoff
-    if (filter_type == (int)FilterTypes::CHEBYSHEV_TYPE_1)
+    if ((filter_type == (int)FilterTypes::CHEBYSHEV_TYPE_1) ||
+        (filter_type == (int)FilterTypes::CHEBYSHEV_TYPE_1_ZERO_PHASE))
     {
         params[3] = ripple; // ripple
     }
@@ -229,7 +230,8 @@ int perform_highpass (double *data, int data_len, int sampling_rate, double cuto
     params[0] = sampling_rate; // sample rate
     params[1] = order;         // order
     params[2] = cutoff;        // cutoff
-    if (filter_type == (int)FilterTypes::CHEBYSHEV_TYPE_1)
+    if ((filter_type == (int)FilterTypes::CHEBYSHEV_TYPE_1) ||
+        (filter_type == (int)FilterTypes::CHEBYSHEV_TYPE_1_ZERO_PHASE))
     {
         params[3] = ripple; // ripple
     }
@@ -296,9 +298,10 @@ int perform_bandpass (double *data, int data_len, int sampling_rate, double star
     params[1] = order;         // order
     params[2] = center_freq;   // center freq
     params[3] = band_width;
-    if (filter_type == (int)FilterTypes::CHEBYSHEV_TYPE_1)
+    if ((filter_type == (int)FilterTypes::CHEBYSHEV_TYPE_1) ||
+        (filter_type == (int)FilterTypes::CHEBYSHEV_TYPE_1_ZERO_PHASE))
     {
-        params[4] = ripple; // ripple
+        params[3] = ripple; // ripple
     }
     f->setParams (params);
     f->process (data_len, filter_data);
@@ -363,9 +366,10 @@ int perform_bandstop (double *data, int data_len, int sampling_rate, double star
     params[1] = order;         // order
     params[2] = center_freq;   // center freq
     params[3] = band_width;
-    if (filter_type == (int)FilterTypes::CHEBYSHEV_TYPE_1)
+    if ((filter_type == (int)FilterTypes::CHEBYSHEV_TYPE_1) ||
+        (filter_type == (int)FilterTypes::CHEBYSHEV_TYPE_1_ZERO_PHASE))
     {
-        params[4] = ripple; // ripple
+        params[3] = ripple; // ripple
     }
     f->setParams (params);
     f->process (data_len, filter_data);
