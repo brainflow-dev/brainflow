@@ -20,7 +20,7 @@ WORKDIR /root/local/bin
 RUN mkdir -p /opt/cmake && wget https://github.com/Kitware/CMake/releases/download/v3.24.3/cmake-3.24.3-linux-x86_64.sh && sh cmake-3.24.3-linux-x86_64.sh --prefix=/opt/cmake --skip-license
 ENV PATH=/opt/cmake/bin/:$PATH
 # Installing Maven and Julia
-RUN curl "https://miroir.univ-lorraine.fr/apache/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz" -o maven.tar.gz
+RUN curl "https://miroir.univ-lorraine.fr/apache/maven/maven-3/3.9.2/binaries/apache-maven-3.9.2-bin.tar.gz" -o maven.tar.gz
 RUN mkdir -p maven
 RUN tar xzf maven.tar.gz -C ./maven
 RUN export PATH=$PATH:/root/local/bin/maven/apache-maven-3.6.3/bin
