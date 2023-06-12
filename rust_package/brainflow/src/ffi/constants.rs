@@ -32,7 +32,7 @@ impl BoardIds {
     pub const FIRST: BoardIds = BoardIds::PlaybackFileBoard;
 }
 impl BoardIds {
-    pub const LAST: BoardIds = BoardIds::GaleaSerialBoardV4;
+    pub const LAST: BoardIds = BoardIds::AntNeuroEe511Board;
 }
 #[repr(i32)]
 #[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -89,6 +89,7 @@ pub enum BoardIds {
     GaleaBoardV4 = 48,
     GaleaSerialBoardV4 = 49,
     NtlWifiBoard = 50,
+    AntNeuroEe511Board = 51,
 }
 #[repr(i32)]
 #[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -103,6 +104,9 @@ pub enum FilterTypes {
     Butterworth = 0,
     ChebyshevType1 = 1,
     Bessel = 2,
+    ButterworthZeroPhase = 3,
+    ChebyshevType1ZeroPhase = 4,
+    BesselZeroPhase = 5,
 }
 #[repr(i32)]
 #[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]
