@@ -143,10 +143,19 @@ int perform_lowpass (double *data, int data_len, int sampling_rate, double cutof
         case FilterTypes::BUTTERWORTH:
             f = new Dsp::FilterDesign<Dsp::Butterworth::Design::LowPass<MAX_FILTER_ORDER>, 1> ();
             break;
+        case FilterTypes::BUTTERWORTH_ZERO_PHASE:
+            f = new Dsp::FilterDesign<Dsp::Butterworth::Design::LowPass<MAX_FILTER_ORDER>, 1> ();
+            break;
         case FilterTypes::CHEBYSHEV_TYPE_1:
             f = new Dsp::FilterDesign<Dsp::ChebyshevI::Design::LowPass<MAX_FILTER_ORDER>, 1> ();
             break;
+        case FilterTypes::CHEBYSHEV_TYPE_1_ZERO_PHASE:
+            f = new Dsp::FilterDesign<Dsp::ChebyshevI::Design::LowPass<MAX_FILTER_ORDER>, 1> ();
+            break;
         case FilterTypes::BESSEL:
+            f = new Dsp::FilterDesign<Dsp::Bessel::Design::LowPass<MAX_FILTER_ORDER>, 1> ();
+            break;
+        case FilterTypes::BESSEL_ZERO_PHASE:
             f = new Dsp::FilterDesign<Dsp::Bessel::Design::LowPass<MAX_FILTER_ORDER>, 1> ();
             break;
         default:
@@ -164,6 +173,14 @@ int perform_lowpass (double *data, int data_len, int sampling_rate, double cutof
     }
     f->setParams (params);
     f->process (data_len, filter_data);
+    if ((filter_type == (int)FilterTypes::BUTTERWORTH_ZERO_PHASE) ||
+        (filter_type == (int)FilterTypes::CHEBYSHEV_TYPE_1_ZERO_PHASE) ||
+        (filter_type == (int)FilterTypes::BESSEL_ZERO_PHASE))
+    {
+        revert_array (data, data_len);
+        f->process (data_len, filter_data);
+        revert_array (data, data_len);
+    }
     delete f;
 
     return (int)BrainFlowExitCodes::STATUS_OK;
@@ -189,10 +206,19 @@ int perform_highpass (double *data, int data_len, int sampling_rate, double cuto
         case FilterTypes::BUTTERWORTH:
             f = new Dsp::FilterDesign<Dsp::Butterworth::Design::HighPass<MAX_FILTER_ORDER>, 1> ();
             break;
+        case FilterTypes::BUTTERWORTH_ZERO_PHASE:
+            f = new Dsp::FilterDesign<Dsp::Butterworth::Design::HighPass<MAX_FILTER_ORDER>, 1> ();
+            break;
         case FilterTypes::CHEBYSHEV_TYPE_1:
             f = new Dsp::FilterDesign<Dsp::ChebyshevI::Design::HighPass<MAX_FILTER_ORDER>, 1> ();
             break;
+        case FilterTypes::CHEBYSHEV_TYPE_1_ZERO_PHASE:
+            f = new Dsp::FilterDesign<Dsp::ChebyshevI::Design::HighPass<MAX_FILTER_ORDER>, 1> ();
+            break;
         case FilterTypes::BESSEL:
+            f = new Dsp::FilterDesign<Dsp::Bessel::Design::HighPass<MAX_FILTER_ORDER>, 1> ();
+            break;
+        case FilterTypes::BESSEL_ZERO_PHASE:
             f = new Dsp::FilterDesign<Dsp::Bessel::Design::HighPass<MAX_FILTER_ORDER>, 1> ();
             break;
         default:
@@ -209,6 +235,14 @@ int perform_highpass (double *data, int data_len, int sampling_rate, double cuto
     }
     f->setParams (params);
     f->process (data_len, filter_data);
+    if ((filter_type == (int)FilterTypes::BUTTERWORTH_ZERO_PHASE) ||
+        (filter_type == (int)FilterTypes::CHEBYSHEV_TYPE_1_ZERO_PHASE) ||
+        (filter_type == (int)FilterTypes::BESSEL_ZERO_PHASE))
+    {
+        revert_array (data, data_len);
+        f->process (data_len, filter_data);
+        revert_array (data, data_len);
+    }
     delete f;
 
     return (int)BrainFlowExitCodes::STATUS_OK;
@@ -237,10 +271,19 @@ int perform_bandpass (double *data, int data_len, int sampling_rate, double star
         case FilterTypes::BUTTERWORTH:
             f = new Dsp::FilterDesign<Dsp::Butterworth::Design::BandPass<MAX_FILTER_ORDER>, 1> ();
             break;
+        case FilterTypes::BUTTERWORTH_ZERO_PHASE:
+            f = new Dsp::FilterDesign<Dsp::Butterworth::Design::BandPass<MAX_FILTER_ORDER>, 1> ();
+            break;
         case FilterTypes::CHEBYSHEV_TYPE_1:
             f = new Dsp::FilterDesign<Dsp::ChebyshevI::Design::BandPass<MAX_FILTER_ORDER>, 1> ();
             break;
+        case FilterTypes::CHEBYSHEV_TYPE_1_ZERO_PHASE:
+            f = new Dsp::FilterDesign<Dsp::ChebyshevI::Design::BandPass<MAX_FILTER_ORDER>, 1> ();
+            break;
         case FilterTypes::BESSEL:
+            f = new Dsp::FilterDesign<Dsp::Bessel::Design::BandPass<MAX_FILTER_ORDER>, 1> ();
+            break;
+        case FilterTypes::BESSEL_ZERO_PHASE:
             f = new Dsp::FilterDesign<Dsp::Bessel::Design::BandPass<MAX_FILTER_ORDER>, 1> ();
             break;
         default:
@@ -259,6 +302,14 @@ int perform_bandpass (double *data, int data_len, int sampling_rate, double star
     }
     f->setParams (params);
     f->process (data_len, filter_data);
+    if ((filter_type == (int)FilterTypes::BUTTERWORTH_ZERO_PHASE) ||
+        (filter_type == (int)FilterTypes::CHEBYSHEV_TYPE_1_ZERO_PHASE) ||
+        (filter_type == (int)FilterTypes::BESSEL_ZERO_PHASE))
+    {
+        revert_array (data, data_len);
+        f->process (data_len, filter_data);
+        revert_array (data, data_len);
+    }
     delete f;
 
     return (int)BrainFlowExitCodes::STATUS_OK;
@@ -287,10 +338,19 @@ int perform_bandstop (double *data, int data_len, int sampling_rate, double star
         case FilterTypes::BUTTERWORTH:
             f = new Dsp::FilterDesign<Dsp::Butterworth::Design::BandStop<MAX_FILTER_ORDER>, 1> ();
             break;
+        case FilterTypes::BUTTERWORTH_ZERO_PHASE:
+            f = new Dsp::FilterDesign<Dsp::Butterworth::Design::BandStop<MAX_FILTER_ORDER>, 1> ();
+            break;
         case FilterTypes::CHEBYSHEV_TYPE_1:
             f = new Dsp::FilterDesign<Dsp::ChebyshevI::Design::BandStop<MAX_FILTER_ORDER>, 1> ();
             break;
+        case FilterTypes::CHEBYSHEV_TYPE_1_ZERO_PHASE:
+            f = new Dsp::FilterDesign<Dsp::ChebyshevI::Design::BandStop<MAX_FILTER_ORDER>, 1> ();
+            break;
         case FilterTypes::BESSEL:
+            f = new Dsp::FilterDesign<Dsp::Bessel::Design::BandStop<MAX_FILTER_ORDER>, 1> ();
+            break;
+        case FilterTypes::BESSEL_ZERO_PHASE:
             f = new Dsp::FilterDesign<Dsp::Bessel::Design::BandStop<MAX_FILTER_ORDER>, 1> ();
             break;
         default:
@@ -309,6 +369,14 @@ int perform_bandstop (double *data, int data_len, int sampling_rate, double star
     }
     f->setParams (params);
     f->process (data_len, filter_data);
+    if ((filter_type == (int)FilterTypes::BUTTERWORTH_ZERO_PHASE) ||
+        (filter_type == (int)FilterTypes::CHEBYSHEV_TYPE_1_ZERO_PHASE) ||
+        (filter_type == (int)FilterTypes::BESSEL_ZERO_PHASE))
+    {
+        revert_array (data, data_len);
+        f->process (data_len, filter_data);
+        revert_array (data, data_len);
+    }
     delete f;
 
     return (int)BrainFlowExitCodes::STATUS_OK;
@@ -326,16 +394,16 @@ int remove_environmental_noise (double *data, int data_len, int sampling_rate, i
     switch (static_cast<NoiseTypes> (noise_type))
     {
         case NoiseTypes::FIFTY:
-            res = perform_bandstop (
-                data, data_len, sampling_rate, 48.0, 52.0, 4, (int)FilterTypes::BUTTERWORTH, 0.0);
+            res = perform_bandstop (data, data_len, sampling_rate, 48.0, 52.0, 4,
+                (int)FilterTypes::BUTTERWORTH_ZERO_PHASE, 0.0);
             break;
         case NoiseTypes::SIXTY:
-            res = perform_bandstop (
-                data, data_len, sampling_rate, 58.0, 62.0, 4, (int)FilterTypes::BUTTERWORTH, 0.0);
+            res = perform_bandstop (data, data_len, sampling_rate, 58.0, 62.0, 4,
+                (int)FilterTypes::BUTTERWORTH_ZERO_PHASE, 0.0);
             break;
         case NoiseTypes::FIFTY_AND_SIXTY:
-            res = perform_bandstop (
-                data, data_len, sampling_rate, 48.0, 52.0, 4, (int)FilterTypes::BUTTERWORTH, 0.0);
+            res = perform_bandstop (data, data_len, sampling_rate, 48.0, 52.0, 4,
+                (int)FilterTypes::BUTTERWORTH_ZERO_PHASE, 0.0);
             if (res == (int)BrainFlowExitCodes::STATUS_OK)
             {
                 res = perform_bandstop (data, data_len, sampling_rate, 58.0, 62.0, 4,
@@ -1264,17 +1332,17 @@ int get_custom_band_powers (double *raw_data, int rows, int cols, double *start_
             if (exit_codes[i] == (int)BrainFlowExitCodes::STATUS_OK)
             {
                 exit_codes[i] = perform_bandstop (thread_data, cols, sampling_rate, 48.0, 52.0, 4,
-                    (int)FilterTypes::BUTTERWORTH, 0.0);
+                    (int)FilterTypes::BUTTERWORTH_ZERO_PHASE, 0.0);
             }
             if (exit_codes[i] == (int)BrainFlowExitCodes::STATUS_OK)
             {
                 exit_codes[i] = perform_bandstop (thread_data, cols, sampling_rate, 58.0, 62.0, 4,
-                    (int)FilterTypes::BUTTERWORTH, 0.0);
+                    (int)FilterTypes::BUTTERWORTH_ZERO_PHASE, 0.0);
             }
             if (exit_codes[i] == (int)BrainFlowExitCodes::STATUS_OK)
             {
                 exit_codes[i] = perform_bandpass (thread_data, cols, sampling_rate, 2.0, 45.0, 4,
-                    (int)FilterTypes::BUTTERWORTH, 0.0);
+                    (int)FilterTypes::BUTTERWORTH_ZERO_PHASE, 0.0);
             }
         }
 

@@ -35,3 +35,13 @@ inline double stddev (double data[], int len)
 
     return sqrt (deviation / len);
 }
+
+inline void revert_array (double data[], int len)
+{
+    for (int i = 0; i < len / 2; i++)
+    {
+        double temp = data[i];
+        data[i] = data[len - i - 1];
+        data[len - i - 1] = temp;
+    }
+}

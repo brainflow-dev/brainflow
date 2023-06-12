@@ -19,6 +19,9 @@ class FilterTypes(enum.IntEnum):
     BUTTERWORTH = 0  #:
     CHEBYSHEV_TYPE_1 = 1  #:
     BESSEL = 2  #:
+    BUTTERWORTH_ZERO_PHASE = 3  #:
+    CHEBYSHEV_TYPE_1_ZERO_PHASE = 4  #:
+    BESSEL_ZERO_PHASE = 5  #:
 
 
 class AggOperations(enum.IntEnum):
