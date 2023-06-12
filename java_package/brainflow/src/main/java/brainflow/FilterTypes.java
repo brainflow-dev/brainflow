@@ -11,7 +11,10 @@ public enum FilterTypes
 
     BUTTERWORTH (0),
     CHEBYSHEV_TYPE_1 (1),
-    BESSEL (2);
+    BESSEL (2),
+    BUTTERWORTH_ZERO_PHASE (3),
+    CHEBYSHEV_TYPE_1_ZERO_PHASE (4),
+    BESSEL_ZERO_PHASE (5);
 
     private final int filter_type;
     private static final Map<Integer, FilterTypes> ft_map = new HashMap<Integer, FilterTypes> ();

@@ -216,11 +216,11 @@ def main():
         data = prepare_data('relaxed', 'focused')
     print_dataset_info(data)
     train_regression_mindfulness(data)
-    #train_svm_mindfulness(data)
-    #train_knn_mindfulness(data)
-    #train_random_forest_mindfulness(data)
-    #train_mlp_mindfulness(data)
-    #train_stacking_classifier(data)
+    train_svm_mindfulness(data)
+    train_knn_mindfulness(data)
+    train_random_forest_mindfulness(data)
+    train_mlp_mindfulness(data)
+    train_stacking_classifier(data)
 
 
 if __name__ == '__main__':
