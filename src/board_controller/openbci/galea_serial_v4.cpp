@@ -447,25 +447,25 @@ void GaleaSerialV4::read_thread ()
                     timestamp_device;
                 // accel
                 aux_package[board_descr["auxiliary"]["accel_channels"][0].get<int> ()] =
-                    accel_scale * cast_16bit_to_int32 (b + 96);
+                    accel_scale * cast_16bit_to_int32 (b + 96 + offset);
                 aux_package[board_descr["auxiliary"]["accel_channels"][1].get<int> ()] =
-                    accel_scale * cast_16bit_to_int32 (b + 98);
+                    accel_scale * cast_16bit_to_int32 (b + 98 + offset);
                 aux_package[board_descr["auxiliary"]["accel_channels"][2].get<int> ()] =
-                    accel_scale * cast_16bit_to_int32 (b + 100);
+                    accel_scale * cast_16bit_to_int32 (b + 100 + offset);
                 // gyro
                 aux_package[board_descr["auxiliary"]["gyro_channels"][0].get<int> ()] =
-                    gyro_scale * cast_16bit_to_int32 (b + 102);
+                    gyro_scale * cast_16bit_to_int32 (b + 102 + offset);
                 aux_package[board_descr["auxiliary"]["gyro_channels"][1].get<int> ()] =
-                    gyro_scale * cast_16bit_to_int32 (b + 104);
+                    gyro_scale * cast_16bit_to_int32 (b + 104 + offset);
                 aux_package[board_descr["auxiliary"]["gyro_channels"][2].get<int> ()] =
-                    gyro_scale * cast_16bit_to_int32 (b + 106);
+                    gyro_scale * cast_16bit_to_int32 (b + 106 + offset);
                 // magnetometer
                 aux_package[board_descr["auxiliary"]["magnetometer_channels"][0].get<int> ()] =
-                    magnetometer_scale * cast_16bit_to_int32 (b + 108);
+                    magnetometer_scale * cast_16bit_to_int32 (b + 108 + offset);
                 aux_package[board_descr["auxiliary"]["magnetometer_channels"][1].get<int> ()] =
-                    magnetometer_scale * cast_16bit_to_int32 (b + 110);
+                    magnetometer_scale * cast_16bit_to_int32 (b + 110 + offset);
                 aux_package[board_descr["auxiliary"]["magnetometer_channels"][2].get<int> ()] =
-                    magnetometer_scale * cast_16bit_to_int32 (b + 112);
+                    magnetometer_scale * cast_16bit_to_int32 (b + 112 + offset);
                 push_package (aux_package, (int)BrainFlowPresets::AUXILIARY_PRESET);
             }
         }

@@ -419,7 +419,7 @@ void GaleaV4::read_thread ()
 
             for (int cur_package = 0; cur_package < num_packages; cur_package++)
             {
-                int offset = cur_package * package_size;
+                int offset = cur_package * GaleaV4::package_size;
                 // exg (default preset)
                 exg_package[board_descr["default"]["package_num_channel"].get<int> ()] =
                     (double)b[0 + offset];
