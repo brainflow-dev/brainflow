@@ -117,14 +117,25 @@ int GanglionNative::prepare_session ()
     simpleble_adapter_scan_stop (ganglion_adapter);
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        if (simpleble_peripheral_connect (ganglion_peripheral) == SIMPLEBLE_SUCCESS)
+        // for safety
+        for (int i = 0; i < 3; i++)
         {
-            safe_logger (spdlog::level::info, "Connected to GanglionNative Device");
-        }
-        else
-        {
-            safe_logger (spdlog::level::err, "Failed to connect to GanglionNative Device");
-            res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+            if (simpleble_peripheral_connect (ganglion_peripheral) == SIMPLEBLE_SUCCESS)
+            {
+                safe_logger (spdlog::level::info, "Connected to Ganglion Device");
+                res = (int)BrainFlowExitCodes::STATUS_OK;
+                break;
+            }
+            else
+            {
+                safe_logger (spdlog::level::warn, "Failed to connect to Ganglion Device: {}/3", i);
+                res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+#ifdef _WIN32
+                Sleep (1000);
+#else
+                sleep (1);
+#endif
+            }
         }
     }
     else
