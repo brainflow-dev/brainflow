@@ -8,7 +8,7 @@ ipykernel
 nbsphinx
 pandoc
 sphinxcontrib-ghcontributors
-Pygments==2.7.4
+Pygments==2.15.0
 sphinxcontrib-matlabdomain==0.11.4
 docutils<0.17
 sphinx_rtd_theme==0.4.3
