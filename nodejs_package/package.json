@@ -9,7 +9,8 @@
     "test": "jest",
     "test:watch": "jest --watchAll",
     "build": "tsc",
-    "watch": "tsc -w"
+    "watch": "tsc -w",
+    "example": "ts-node brainflow/example.ts"
   },
   "repository": {
     "type": "git",
@@ -27,6 +28,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/jest": "29.5.3",
+    "@types/lodash": "4.14.195",
     "@types/node": "20.4.2",
     "@typescript-eslint/eslint-plugin": "^5.50.0",
     "@typescript-eslint/parser": "6.1.0",
@@ -45,5 +47,8 @@
   "files": [
     "dist/**/*"
   ],
-  "dependencies": {}
+  "dependencies": {
+    "koffi": "2.5.7",
+    "lodash": "4.17.21"
+  }
 }

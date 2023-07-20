@@ -1,1 +1,2 @@
-export const hello = (name: string) => `Hello ${name}`;
+export * from './board-shim';
+export * from './brainflow.types';
