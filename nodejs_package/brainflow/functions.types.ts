@@ -62,3 +62,12 @@ export type BoardControllerJSFunctions = {
     len: number[],
   ) => BrainFlowExitCodes;
 };
+
+export enum DataHandlerCLikeFunctions {
+  // '_Inout_' pointer -> dual input/output parameter.
+  get_railed_percentage = 'int get_railed_percentage (double *raw_data, int data_len, int gain, _Inout_ double *output)',
+}
+
+export type DataHandlerJSFunctions = {
+  getRailedPercentage: (rawData: number[], dataLen: number, gain: number, output: number[]) => BrainFlowExitCodes;
+};

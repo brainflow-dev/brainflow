@@ -83,14 +83,13 @@ class BoardControllerDLL {
       case 'linux':
         return `${this.libPath}/libBoardController.so`;
       default:
-        throw new Error(`OS ${platform} is not correctly handed by Cortex Desktop App, please contact support.`);
+        throw new Error(`OS ${platform} is not supported.`);
     }
   }
 
   private getLib() {
     try {
       const lib = koffi.load(this.dllPath);
-      console.log(`Did load BoardController DLL - path://${this.dllPath}`);
       return lib;
     } catch (err) {
       console.error(err);
