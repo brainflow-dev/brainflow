@@ -2,7 +2,7 @@ import _ from 'lodash';
 import * as os from 'os';
 import koffi from 'koffi';
 import { BoardIds, IInputParams, IpProtocolTypes, BrainFlowPresets, BrainFlowExitCodes } from './brainflow.types';
-import { BoardControllerCLikeFunctions as C, BoardControllerJSFunctions as JS } from './functions.types';
+import { BoardControllerCLikeFunctions as CLike, BoardControllerFunctions } from './functions.types';
 
 class BrainFlowInputParams {
   private inputParams: IInputParams = {
@@ -37,39 +37,28 @@ class BrainFlowInputParams {
   }
 }
 
-class BoardControllerDLL {
+class BoardControllerDLL extends BoardControllerFunctions {
   private libPath: string;
   private dllPath: string;
   private lib: koffi.IKoffiLib;
 
-  public prepareSession: JS['prepareSession'];
-  public startStream: JS['startStream'];
-  public getBoardDataCount: JS['getBoardDataCount'];
-  public getBoardData: JS['getBoardData'];
-  public getCurrentBoardData: JS['getCurrentBoardData'];
-  public getNumRows: JS['getNumRows'];
-  public releaseAllSessions: JS['releaseAllSessions'];
-  public releaseSession: JS['releaseSession'];
-  public stopStream: JS['stopStream'];
-  public getSamplingRate: JS['getSamplingRate'];
-  public getEegChannels: JS['getEegChannels'];
-
   constructor() {
+    super();
     this.libPath = `${__dirname}/lib`;
     this.dllPath = this.getDLLPath();
     this.lib = this.getLib();
 
-    this.prepareSession = this.lib.func(C.prepare_session);
-    this.startStream = this.lib.func(C.start_stream);
-    this.getBoardDataCount = this.lib.func(C.get_board_data_count);
-    this.getBoardData = this.lib.func(C.get_board_data);
-    this.getCurrentBoardData = this.lib.func(C.get_current_board_data);
-    this.getNumRows = this.lib.func(C.get_num_rows);
-    this.releaseAllSessions = this.lib.func(C.release_all_sessions);
-    this.releaseSession = this.lib.func(C.release_session);
-    this.stopStream = this.lib.func(C.stop_stream);
-    this.getSamplingRate = this.lib.func(C.get_sampling_rate);
-    this.getEegChannels = this.lib.func(C.get_eeg_channels);
+    this.prepareSession = this.lib.func(CLike.prepare_session);
+    this.startStream = this.lib.func(CLike.start_stream);
+    this.getBoardDataCount = this.lib.func(CLike.get_board_data_count);
+    this.getBoardData = this.lib.func(CLike.get_board_data);
+    this.getCurrentBoardData = this.lib.func(CLike.get_current_board_data);
+    this.getNumRows = this.lib.func(CLike.get_num_rows);
+    this.releaseAllSessions = this.lib.func(CLike.release_all_sessions);
+    this.releaseSession = this.lib.func(CLike.release_session);
+    this.stopStream = this.lib.func(CLike.stop_stream);
+    this.getSamplingRate = this.lib.func(CLike.get_sampling_rate);
+    this.getEegChannels = this.lib.func(CLike.get_eeg_channels);
   }
 
   private getDLLPath() {

@@ -1,21 +1,20 @@
 import os from 'os';
 import koffi from 'koffi';
-import { DataHandlerCLikeFunctions as C, DataHandlerJSFunctions as JS } from './functions.types';
+import { DataHandlerCLikeFunctions as CLike, DataHandlerFunctions } from './functions.types';
 import { BrainFlowExitCodes } from './brainflow.types';
 
-class DataHandlerDLL {
+class DataHandlerDLL extends DataHandlerFunctions {
   private libPath: string;
   private dllPath: string;
   private lib: koffi.IKoffiLib;
 
-  public getRailedPercentage: JS['getRailedPercentage'];
-
   constructor() {
+    super();
     this.libPath = `${__dirname}/lib`;
     this.dllPath = this.getDLLPath();
     this.lib = this.getLib();
 
-    this.getRailedPercentage = this.lib.func(C.get_railed_percentage);
+    this.getRailedPercentage = this.lib.func(CLike.get_railed_percentage);
   }
 
   private getDLLPath() {

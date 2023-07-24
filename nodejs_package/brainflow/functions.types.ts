@@ -21,28 +21,28 @@ export enum BoardControllerCLikeFunctions {
   get_eeg_channels = 'int get_eeg_channels (int board_id, int preset, _Inout_ int *eeg_channels, _Inout_ int *len)',
 }
 
-export type BoardControllerJSFunctions = {
-  prepareSession: (boardId: BoardIds, inputJson: string) => BrainFlowExitCodes;
-  startStream: (
+export class BoardControllerFunctions {
+  prepareSession!: (boardId: BoardIds, inputJson: string) => BrainFlowExitCodes;
+  startStream!: (
     numSamples: number,
     streamerParams: string | null,
     boardId: BoardIds,
     inputJson: string,
   ) => BrainFlowExitCodes;
-  getBoardDataCount: (
+  getBoardDataCount!: (
     preset: BrainFlowPresets,
     dataSize: number[],
     boardId: BoardIds,
     inputJson: string,
   ) => BrainFlowExitCodes;
-  getBoardData: (
+  getBoardData!: (
     dataSize: number,
     preset: BrainFlowPresets,
     dataArr: number[],
     boardId: BoardIds,
     inputJson: string,
   ) => BrainFlowExitCodes;
-  getCurrentBoardData: (
+  getCurrentBoardData!: (
     numSamples: number,
     preset: BrainFlowPresets,
     dataBuf: number[],
@@ -50,24 +50,24 @@ export type BoardControllerJSFunctions = {
     boardId: BoardIds,
     inputJson: string,
   ) => BrainFlowExitCodes;
-  getNumRows: (boardId: BoardIds, preset: BrainFlowPresets, numRows: number[]) => BrainFlowExitCodes;
-  releaseAllSessions: () => BrainFlowExitCodes;
-  releaseSession: (boardId: BoardIds, inputJson: string) => BrainFlowExitCodes;
-  stopStream: (boardId: BoardIds, inputJson: string) => BrainFlowExitCodes;
-  getSamplingRate: (boardId: BoardIds, preset: BrainFlowPresets, samplingRate: number[]) => BrainFlowExitCodes;
-  getEegChannels: (
+  getNumRows!: (boardId: BoardIds, preset: BrainFlowPresets, numRows: number[]) => BrainFlowExitCodes;
+  releaseAllSessions!: () => BrainFlowExitCodes;
+  releaseSession!: (boardId: BoardIds, inputJson: string) => BrainFlowExitCodes;
+  stopStream!: (boardId: BoardIds, inputJson: string) => BrainFlowExitCodes;
+  getSamplingRate!: (boardId: BoardIds, preset: BrainFlowPresets, samplingRate: number[]) => BrainFlowExitCodes;
+  getEegChannels!: (
     boardId: BoardIds,
     preset: BrainFlowPresets,
     eegChannels: number[],
     len: number[],
   ) => BrainFlowExitCodes;
-};
+}
 
 export enum DataHandlerCLikeFunctions {
   // '_Inout_' pointer -> dual input/output parameter.
   get_railed_percentage = 'int get_railed_percentage (double *raw_data, int data_len, int gain, _Inout_ double *output)',
 }
 
-export type DataHandlerJSFunctions = {
-  getRailedPercentage: (rawData: number[], dataLen: number, gain: number, output: number[]) => BrainFlowExitCodes;
-};
+export class DataHandlerFunctions {
+  getRailedPercentage!: (rawData: number[], dataLen: number, gain: number, output: number[]) => BrainFlowExitCodes;
+}
