@@ -1,7 +1,14 @@
 import _ from 'lodash';
 import * as os from 'os';
 import koffi from 'koffi';
-import { BoardIds, IInputParams, IpProtocolTypes, BrainFlowPresets, BrainFlowExitCodes } from './brainflow.types';
+import {
+  BoardIds,
+  IInputParams,
+  IpProtocolTypes,
+  BrainFlowPresets,
+  BrainFlowExitCodes,
+  LogLevels,
+} from './brainflow.types';
 import { BoardControllerCLikeFunctions as CLike, BoardControllerFunctions } from './functions.types';
 
 class BrainFlowInputParams {
@@ -61,6 +68,11 @@ class BoardControllerDLL extends BoardControllerFunctions {
     this.getSamplingRate = this.lib.func(CLike.get_sampling_rate);
     this.getEegChannels = this.lib.func(CLike.get_eeg_channels);
     this.addStreamer = this.lib.func(CLike.add_streamer);
+    this.deleteStreamer = this.lib.func(CLike.delete_streamer);
+    this.insertMarker = this.lib.func(CLike.insert_marker);
+    this.setLogLevelBoardController = this.lib.func(CLike.set_log_level_board_controller);
+    this.setLogFileBoardController = this.lib.func(CLike.set_log_file_board_controller);
+    this.logMessageBoardController = this.lib.func(CLike.log_message_board_controller);
   }
 
   private getDLLPath() {
@@ -119,6 +131,41 @@ export class BoardShim {
     const res = this.boardController.addStreamer(streamerParams, preset, this.boardId, this.inputJson);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new Error('Could not add streamer');
+    }
+  }
+
+  public deleteStreamer(streamerParams: string, preset = BrainFlowPresets.DEFAULT_PRESET): void {
+    const res = this.boardController.deleteStreamer(streamerParams, preset, this.boardId, this.inputJson);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new Error('Could not delete streamer');
+    }
+  }
+
+  public insertMarker(value: number, preset = BrainFlowPresets.DEFAULT_PRESET): void {
+    const res = this.boardController.insertMarker(value, preset, this.boardId, this.inputJson);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new Error('Could not insert marker');
+    }
+  }
+
+  public setLogLevel(logLevel: LogLevels): void {
+    const res = this.boardController.setLogLevelBoardController(logLevel);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new Error('Could not set log level properly');
+    }
+  }
+
+  public setLogFile(file: string): void {
+    const res = this.boardController.setLogFileBoardController(file);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new Error('Could not redirect to log file');
+    }
+  }
+
+  public logMessage(logLevel: LogLevels, message: string): void {
+    const res = this.boardController.logMessageBoardController(logLevel, message);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new Error('Could not writte message');
     }
   }
 

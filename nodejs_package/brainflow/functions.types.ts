@@ -1,4 +1,4 @@
-import { BoardIds, BrainFlowExitCodes, BrainFlowPresets } from './brainflow.types';
+import { BoardIds, BrainFlowExitCodes, BrainFlowPresets, LogLevels } from './brainflow.types';
 
 // --------------------------- //
 //  C++ Functions
@@ -6,14 +6,20 @@ import { BoardIds, BrainFlowExitCodes, BrainFlowPresets } from './brainflow.type
 
 // c-like prototype strings
 export enum BoardControllerCLikeFunctions {
+  // Simple methods:
   start_stream = 'int start_stream (int buffer_size, const char *streamer_params, int board_id, const char *json_brainflow_input_params)',
   stop_stream = 'int stop_stream (int board_id, const char *json_brainflow_input_params)',
   prepare_session = 'int prepare_session (int board_id, const char *json_brainflow_input_params)',
   release_all_sessions = 'int release_all_sessions ()',
   release_session = 'int release_session (int board_id, const char *json_brainflow_input_params)',
   add_streamer = 'int add_streamer (const char *streamer, int preset, int board_id, const char *json_brainflow_input_params)',
+  delete_streamer = 'int delete_streamer (const char *streamer, int preset, int board_id, const char *json_brainflow_input_params)',
+  insert_marker = 'int insert_marker (double value, int preset, int board_id, const char *json_brainflow_input_params)',
+  set_log_level_board_controller = 'int set_log_level_board_controller (int log_level)',
+  set_log_file_board_controller = 'int set_log_file_board_controller (const char *log_file)',
+  log_message_board_controller = 'int log_message_board_controller (int log_level, char *log_message)',
 
-  // '_Inout_' pointer -> dual input/output parameter.
+  // Methods with '_Inout_' pointer -> dual input/output parameter:
   is_prepared = 'int is_prepared (_Inout_ int *prepared, int board_id, const char *json_brainflow_input_params)',
   get_board_data_count = 'int get_board_data_count (int preset, _Inout_ int *result, int board_id, const char *json_brainflow_input_params)',
   get_board_data = 'int get_board_data (int data_count, int preset, _Inout_ double *data_buf, int board_id, const char *json_brainflow_input_params)',
@@ -30,6 +36,16 @@ export class BoardControllerFunctions {
     boardId: BoardIds,
     inputJson: string,
   ) => BrainFlowExitCodes;
+  deleteStreamer!: (
+    streamer: string,
+    preset: BrainFlowPresets,
+    boardId: BoardIds,
+    inputJson: string,
+  ) => BrainFlowExitCodes;
+  insertMarker!: (value: number, preset: BrainFlowPresets, boardId: BoardIds, inputJson: string) => BrainFlowExitCodes;
+  setLogLevelBoardController!: (logLevel: LogLevels) => BrainFlowExitCodes;
+  setLogFileBoardController!: (logFile: string) => BrainFlowExitCodes;
+  logMessageBoardController!: (logLevel: LogLevels, logMessage: string) => BrainFlowExitCodes;
   isPrepared!: (prepared: number[], boardId: BoardIds, inputJson: string) => BrainFlowExitCodes;
   prepareSession!: (boardId: BoardIds, inputJson: string) => BrainFlowExitCodes;
   startStream!: (
@@ -73,7 +89,7 @@ export class BoardControllerFunctions {
 }
 
 export enum DataHandlerCLikeFunctions {
-  // '_Inout_' pointer -> dual input/output parameter.
+  // Methods with '_Inout_' pointer -> dual input/output parameter:
   get_railed_percentage = 'int get_railed_percentage (double *raw_data, int data_len, int gain, _Inout_ double *output)',
 }
 
