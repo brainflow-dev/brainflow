@@ -48,6 +48,7 @@ class BoardControllerDLL extends BoardControllerFunctions {
     this.dllPath = this.getDLLPath();
     this.lib = this.getLib();
 
+    this.isPrepared = this.lib.func(CLike.is_prepared);
     this.prepareSession = this.lib.func(CLike.prepare_session);
     this.startStream = this.lib.func(CLike.start_stream);
     this.getBoardDataCount = this.lib.func(CLike.get_board_data_count);
@@ -59,6 +60,7 @@ class BoardControllerDLL extends BoardControllerFunctions {
     this.stopStream = this.lib.func(CLike.stop_stream);
     this.getSamplingRate = this.lib.func(CLike.get_sampling_rate);
     this.getEegChannels = this.lib.func(CLike.get_eeg_channels);
+    this.addStreamer = this.lib.func(CLike.add_streamer);
   }
 
   private getDLLPath() {
@@ -102,6 +104,22 @@ export class BoardShim {
       inputParams.masterBoard && inputParams.masterBoard !== BoardIds.NO_BOARD ? inputParams.masterBoard : boardId;
     this.inputJson = new BrainFlowInputParams(inputParams).toJson();
     this.boardController = new BoardControllerDLL();
+  }
+
+  public isPrepared(): boolean {
+    const prepared = [0];
+    const res = this.boardController.isPrepared(prepared, this.boardId, this.inputJson);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new Error('Could not check prepared state');
+    }
+    return !!prepared[0];
+  }
+
+  public addStreamer(streamerParams: string, preset = BrainFlowPresets.DEFAULT_PRESET): void {
+    const res = this.boardController.addStreamer(streamerParams, preset, this.boardId, this.inputJson);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new Error('Could not add streamer');
+    }
   }
 
   public prepareSession(): void {

@@ -11,8 +11,10 @@ export enum BoardControllerCLikeFunctions {
   prepare_session = 'int prepare_session (int board_id, const char *json_brainflow_input_params)',
   release_all_sessions = 'int release_all_sessions ()',
   release_session = 'int release_session (int board_id, const char *json_brainflow_input_params)',
+  add_streamer = 'int add_streamer (const char *streamer, int preset, int board_id, const char *json_brainflow_input_params)',
 
   // '_Inout_' pointer -> dual input/output parameter.
+  is_prepared = 'int is_prepared (_Inout_ int *prepared, int board_id, const char *json_brainflow_input_params)',
   get_board_data_count = 'int get_board_data_count (int preset, _Inout_ int *result, int board_id, const char *json_brainflow_input_params)',
   get_board_data = 'int get_board_data (int data_count, int preset, _Inout_ double *data_buf, int board_id, const char *json_brainflow_input_params)',
   get_num_rows = 'int get_num_rows (int board_id, int preset, _Inout_ int *num_rows)',
@@ -22,6 +24,13 @@ export enum BoardControllerCLikeFunctions {
 }
 
 export class BoardControllerFunctions {
+  addStreamer!: (
+    streamer: string,
+    preset: BrainFlowPresets,
+    boardId: BoardIds,
+    inputJson: string,
+  ) => BrainFlowExitCodes;
+  isPrepared!: (prepared: number[], boardId: BoardIds, inputJson: string) => BrainFlowExitCodes;
   prepareSession!: (boardId: BoardIds, inputJson: string) => BrainFlowExitCodes;
   startStream!: (
     numSamples: number,
