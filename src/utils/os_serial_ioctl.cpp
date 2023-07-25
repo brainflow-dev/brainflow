@@ -42,6 +42,22 @@
 
 #endif
 
+// to dont mess even more with if defined above handle one part separately
+#if defined(__linux__) && !defined(__ANDROID__) && defined(NO_IOCTL_HEADERS)
+#if defined __has_include
+#if __has_include(<sys/ioctl.h>) && __has_include(</usr/include/asm-generic/ioctls.h>) && __has_include(</usr/include/asm-generic/termbits.h>)
+#include <sys/ioctl.h>
+
+#include </usr/include/asm-generic/ioctls.h>
+#include </usr/include/asm-generic/termbits.h>
+#undef NO_IOCTL_HEADERS
+#else
+#define NO_IOCTL_HEADERS
+#endif
+#else
+#define NO_IOCTL_HEADERS
+#endif
+#endif
 
 #if defined(_WIN32)
 int OSSerial::set_custom_baudrate (int baudrate)
