@@ -148,6 +148,7 @@ public class DataFilter
         try
         {
             File file = new File (lib_name);
+            System.err.println ("Unpacking to: " + file.getAbsolutePath ().toString ());
             if (file.exists ())
                 file.delete ();
             InputStream link = (BoardShim.class.getResourceAsStream (lib_name));
