@@ -91,6 +91,7 @@ public class MLModel
             return file.getAbsoluteFile ().toPath ();
         } catch (Exception io)
         {
+            io.printStackTrace ();
             System.err.println ("file: " + lib_name + " is not found in jar file");
             return null;
         }
