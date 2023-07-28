@@ -178,9 +178,9 @@ int perform_lowpass (double *data, int data_len, int sampling_rate, double cutof
         (filter_type == (int)FilterTypes::CHEBYSHEV_TYPE_1_ZERO_PHASE) ||
         (filter_type == (int)FilterTypes::BESSEL_ZERO_PHASE))
     {
-        revert_array (data, data_len);
+        reverse_array (data, data_len);
         f->process (data_len, filter_data);
-        revert_array (data, data_len);
+        reverse_array (data, data_len);
     }
     delete f;
 
@@ -241,9 +241,9 @@ int perform_highpass (double *data, int data_len, int sampling_rate, double cuto
         (filter_type == (int)FilterTypes::CHEBYSHEV_TYPE_1_ZERO_PHASE) ||
         (filter_type == (int)FilterTypes::BESSEL_ZERO_PHASE))
     {
-        revert_array (data, data_len);
+        reverse_array (data, data_len);
         f->process (data_len, filter_data);
-        revert_array (data, data_len);
+        reverse_array (data, data_len);
     }
     delete f;
 
@@ -309,9 +309,9 @@ int perform_bandpass (double *data, int data_len, int sampling_rate, double star
         (filter_type == (int)FilterTypes::CHEBYSHEV_TYPE_1_ZERO_PHASE) ||
         (filter_type == (int)FilterTypes::BESSEL_ZERO_PHASE))
     {
-        revert_array (data, data_len);
+        reverse_array (data, data_len);
         f->process (data_len, filter_data);
-        revert_array (data, data_len);
+        reverse_array (data, data_len);
     }
     delete f;
 
@@ -377,9 +377,9 @@ int perform_bandstop (double *data, int data_len, int sampling_rate, double star
         (filter_type == (int)FilterTypes::CHEBYSHEV_TYPE_1_ZERO_PHASE) ||
         (filter_type == (int)FilterTypes::BESSEL_ZERO_PHASE))
     {
-        revert_array (data, data_len);
+        reverse_array (data, data_len);
         f->process (data_len, filter_data);
-        revert_array (data, data_len);
+        reverse_array (data, data_len);
     }
     delete f;
 
