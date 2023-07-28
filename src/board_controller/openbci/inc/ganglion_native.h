@@ -103,6 +103,7 @@ protected:
     volatile simpleble_peripheral_t ganglion_peripheral;
     bool initialized;
     bool is_streaming;
+    uint8_t firmware;
     std::mutex m;
     std::condition_variable cv;
     std::pair<simpleble_uuid_t, simpleble_uuid_t> notified_characteristics;

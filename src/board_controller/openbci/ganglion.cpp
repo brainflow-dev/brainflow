@@ -592,7 +592,21 @@ int Ganglion::call_open ()
         }
 
         safe_logger (spdlog::level::info, "search for {}", params.mac_address.c_str ());
-        res = func (const_cast<char *> (params.mac_address.c_str ()));
+
+        struct ConnectionParameters
+        {
+            char *mac_address;
+            uint8_t firmware;
+        };
+
+        ConnectionParameters connection_params;
+        connection_params.mac_address = const_cast<char *> (params.mac_address.c_str ());
+        connection_params.firmware = 2;
+
+        res = func ((void *)&connection_params);
+
+        safe_logger (
+            spdlog::level::info, "detected firmware version {}", connection_params.firmware);
     }
     else
     {
@@ -605,7 +619,11 @@ int Ganglion::call_open ()
 
         safe_logger (
             spdlog::level::info, "mac address is not specified, try to find ganglion without it");
-        res = func (NULL);
+
+        uint8_t firmware = 2;
+        res = func ((void *)&firmware);
+
+        safe_logger (spdlog::level::info, "detected firmware version {}", firmware);
     }
     if (res != GanglionLib::CustomExitCodes::STATUS_OK)
     {

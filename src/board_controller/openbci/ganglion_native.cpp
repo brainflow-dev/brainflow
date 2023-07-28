@@ -108,6 +108,7 @@ int GanglionNative::prepare_session ()
             lk, params.timeout * sec, [this] { return this->ganglion_peripheral != NULL; }))
     {
         safe_logger (spdlog::level::info, "Found GanglionNative device");
+        safe_logger (spdlog::level::info, "Detected firmware version {}", firmware);
     }
     else
     {
@@ -423,14 +424,21 @@ void GanglionNative::adapter_1_on_scan_found (
         }
         else
         {
-            if (strncmp (peripheral_identified, "Ganglion", 8) == 0)
+            if (strncmp (peripheral_identified, "Ganglion 1.3", 12) == 0)
             {
                 found = true;
+                firmware = 3;
+            }
+            else if (strncmp (peripheral_identified, "Ganglion", 8) == 0)
+            {
+                found = true;
+                firmware = 2;
             }
             // for some reason device may send Simblee instead Ganglion name
             else if (strncmp (peripheral_identified, "Simblee", 7) == 0)
             {
                 found = true;
+                firmware = 2;
             }
         }
     }
