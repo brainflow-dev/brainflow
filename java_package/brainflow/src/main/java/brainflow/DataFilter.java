@@ -1,8 +1,5 @@
 package brainflow;
 
-import java.io.File;
-import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -134,32 +131,13 @@ public class DataFilter
         } else
         {
             // need to extract libraries from jar
-            Path lib_path = unpack_from_jar (lib_name);
+            Path lib_path = JarHelper.unpack_from_jar (lib_name);
             if (lib_path != null)
             {
                 lib_name = lib_path.toString ();
             }
         }
         instance = Native.loadLibrary (lib_name, DllInterface.class);
-    }
-
-    private static Path unpack_from_jar (String lib_name)
-    {
-        try
-        {
-            File file = new File (lib_name);
-            System.err.println ("Unpacking to: " + file.getAbsolutePath ().toString ());
-            if (file.exists ())
-                file.delete ();
-            InputStream link = (BoardShim.class.getResourceAsStream (lib_name));
-            Files.copy (link, file.getAbsoluteFile ().toPath ());
-            return file.getAbsoluteFile ().toPath ();
-        } catch (Exception io)
-        {
-            io.printStackTrace ();
-            System.err.println ("file: " + lib_name + " is not found in jar file");
-            return null;
-        }
     }
 
     /**
