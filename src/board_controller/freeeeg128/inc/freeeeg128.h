@@ -7,7 +7,7 @@
 #include "serial.h"
 
 
-class FreeEEG32 : public Board
+class FreeEEG128 : public Board
 {
 
 protected:
@@ -22,8 +22,8 @@ protected:
     void read_thread ();
 
 public:
-    FreeEEG32 (struct BrainFlowInputParams params);
-    ~FreeEEG32 ();
+    FreeEEG128 (struct BrainFlowInputParams params);
+    ~FreeEEG128 ();
 
     int prepare_session ();
     int start_stream (int buffer_size, const char *streamer_params);
