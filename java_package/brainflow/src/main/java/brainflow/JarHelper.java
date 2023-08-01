@@ -12,7 +12,8 @@ public class JarHelper
 {
     public static Path unpack_from_jar (String lib_name)
     {
-        File file = new File (lib_name);
+        String user_dir = System.getProperty ("user.dir");
+        File file = new File (user_dir, lib_name);
         try
         {
             File temp_dir = get_temp_dir ();
