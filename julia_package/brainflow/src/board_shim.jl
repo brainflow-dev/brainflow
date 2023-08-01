@@ -217,7 +217,7 @@ struct BoardShim
     function BoardShim(id::Integer, params::BrainFlowInputParams)
         master_id = id
         if id == Integer(STREAMING_BOARD) || id == Integer(PLAYBACK_FILE_BOARD)
-            master_id = params.master_board
+            master_id = Integer(params.master_board)
         end
         new(master_id, id, JSON.json(params))
     end
