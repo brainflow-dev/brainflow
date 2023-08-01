@@ -268,11 +268,11 @@ void Ganglion::read_thread ()
             {
                 if (firmware == 3)
                 {
-                    decompress_3 (&data, last_data, acceleration);
+                    decompress_firmware_3 (&data, last_data, acceleration);
                 }
                 else if (firmware == 2)
                 {
-                    decompress_2 (&data, last_data, acceleration);
+                    decompress_firmware_2 (&data, last_data, acceleration);
                 }
             }
             else if ((data.data[0] > 200) && (data.data[0] < 206))
@@ -396,7 +396,7 @@ void Ganglion::read_thread ()
     delete[] package;
 }
 
-void Ganglion::decompress_3 (
+void Ganglion::decompress_firmware_3 (
 
     struct GanglionLib::GanglionData *data, float *last_data, double *acceleration)
 {
@@ -448,7 +448,7 @@ void Ganglion::decompress_3 (
     }
 }
 
-void Ganglion::decompress_2 (
+void Ganglion::decompress_firmware_2 (
     struct GanglionLib::GanglionData *data, float *last_data, double *acceleration)
 {
     int bits_per_num = 0;

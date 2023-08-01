@@ -114,4 +114,7 @@ protected:
 
     double const accel_scale = 0.016f;
     double const eeg_scale = (1.2f * 1000000) / (8388607.0f * 1.5f * 51.0f);
+
+    void decompress_firmware_3 (uint8_t *data);
+    void decompress_firmware_2 (uint8_t *data);
 };

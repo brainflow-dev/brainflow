@@ -63,8 +63,8 @@ public:
     int release_session ();
     int config_board (std::string config, std::string &response);
 
-    void decompress_3 (
+    void decompress_firmware_3 (
         struct GanglionLib::GanglionData *data, float *last_data, double *acceleration);
-    void decompress_2 (
+    void decompress_firmware_2 (
         struct GanglionLib::GanglionData *data, float *last_data, double *acceleration);
 };

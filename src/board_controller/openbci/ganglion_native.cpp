@@ -406,6 +406,7 @@ void GanglionNative::adapter_1_on_scan_found (
     char *peripheral_identified = simpleble_peripheral_identifier (peripheral);
     char *peripheral_address = simpleble_peripheral_address (peripheral);
     bool found = false;
+
     if (!params.mac_address.empty ())
     {
         if (strcmp (peripheral_address, params.mac_address.c_str ()) == 0)
@@ -424,21 +425,14 @@ void GanglionNative::adapter_1_on_scan_found (
         }
         else
         {
-            if (strncmp (peripheral_identified, "Ganglion 1.3", 12) == 0)
+            if (strncmp (peripheral_identified, "Ganglion", 8) == 0)
             {
                 found = true;
-                firmware = 3;
-            }
-            else if (strncmp (peripheral_identified, "Ganglion", 8) == 0)
-            {
-                found = true;
-                firmware = 2;
             }
             // for some reason device may send Simblee instead Ganglion name
             else if (strncmp (peripheral_identified, "Simblee", 7) == 0)
             {
                 found = true;
-                firmware = 2;
             }
         }
     }
@@ -450,10 +444,9 @@ void GanglionNative::adapter_1_on_scan_found (
 
     if (found)
     {
-        {
-            std::lock_guard<std::mutex> lk (m);
-            ganglion_peripheral = peripheral;
-        }
+        firmware = strncmp (peripheral_identified, "Ganglion 1.3", 12) == 0 ? 3 : 2;
+        std::lock_guard<std::mutex> lk (m);
+        ganglion_peripheral = peripheral;
         cv.notify_one ();
     }
     else
@@ -470,84 +463,29 @@ void GanglionNative::read_data (
         safe_logger (spdlog::level::warn, "unexpected number of bytes received: {}", size);
         return;
     }
+
     int num_rows = board_descr["default"]["num_rows"];
     double *package = new double[num_rows];
+
     for (int i = 0; i < num_rows; i++)
     {
         package[i] = 0.0;
     }
 
-    // delta holds 8 nums (4 by each package)
-    float delta[8] = {0.f};
-    int bits_per_num = 0;
-    unsigned char package_bits[160] = {0}; // 20 * 8
-    for (int i = 0; i < 20; i++)
+    if (data[0] <= 200)
     {
-        uchar_to_bits (data[i], package_bits + i * 8);
-    }
-
-    // no compression, used to init variable
-    if ((data[0] == 0) && (size == 20))
-    {
-        // shift the last data packet to make room for a newer one
-        temp_data.last_data[0] = temp_data.last_data[4];
-        temp_data.last_data[1] = temp_data.last_data[5];
-        temp_data.last_data[2] = temp_data.last_data[6];
-        temp_data.last_data[3] = temp_data.last_data[7];
-
-        // add new packet
-        temp_data.last_data[4] = (float)cast_24bit_to_int32 (data + 1);
-        temp_data.last_data[5] = (float)cast_24bit_to_int32 (data + 4);
-        temp_data.last_data[6] = (float)cast_24bit_to_int32 (data + 7);
-        temp_data.last_data[7] = (float)cast_24bit_to_int32 (data + 10);
-
-        // scale new packet and insert into result
-        package[board_descr["default"]["package_num_channel"].get<int> ()] = 0.;
-        package[board_descr["default"]["eeg_channels"][0].get<int> ()] =
-            eeg_scale * temp_data.last_data[4];
-        package[board_descr["default"]["eeg_channels"][1].get<int> ()] =
-            eeg_scale * temp_data.last_data[5];
-        package[board_descr["default"]["eeg_channels"][2].get<int> ()] =
-            eeg_scale * temp_data.last_data[6];
-        package[board_descr["default"]["eeg_channels"][3].get<int> ()] =
-            eeg_scale * temp_data.last_data[7];
-        package[board_descr["default"]["accel_channels"][0].get<int> ()] = temp_data.accel_x;
-        package[board_descr["default"]["accel_channels"][1].get<int> ()] = temp_data.accel_y;
-        package[board_descr["default"]["accel_channels"][2].get<int> ()] = temp_data.accel_z;
-        package[board_descr["default"]["timestamp_channel"].get<int> ()] = get_timestamp ();
-        push_package (package);
-        delete[] package;
-        return;
-    }
-    // 18 bit compression, sends delta from previous value instead of real value!
-    else if ((data[0] >= 1) && (data[0] <= 100) && (size == 20))
-    {
-        int last_digit = data[0] % 10;
-        switch (last_digit)
+        if (firmware == 3)
         {
-            // accel data is signed, so we must cast it to signed char
-            // due to a known bug in ganglion firmware, we must swap x and z, and invert z.
-            case 0:
-                temp_data.accel_z = -accel_scale * (char)data[19];
-                break;
-            case 1:
-                temp_data.accel_y = accel_scale * (char)data[19];
-                break;
-            case 2:
-                temp_data.accel_x = accel_scale * (char)data[19];
-                break;
-            default:
-                break;
+            decompress_firmware_3 (data);
         }
-        bits_per_num = 18;
-    }
-    else if ((data[0] >= 101) && (data[0] <= 200) && (size == 20))
-    {
-        bits_per_num = 19;
+        else if (firmware == 2)
+        {
+            decompress_firmware_2 (data);
+        }
     }
     else if ((data[0] > 200) && (data[0] < 206))
     {
-        // asci sting with value and 'Z' in the end
+        // ASCII string with value and 'Z' in the end
         int val = 0;
         int i = 0;
         for (i = 1; i < 6; i++)
@@ -557,16 +495,16 @@ void GanglionNative::read_data (
                 break;
             }
         }
-        std::string asci_value ((const char *)(data + 1), i - 1);
+        std::string ascii_value ((const char *)(data + 1), i - 1);
 
         try
         {
-            val = std::stoi (asci_value);
+            val = std::stoi (ascii_value);
         }
         catch (...)
         {
             safe_logger (
-                spdlog::level::err, "failed to parse impedance data: {}", asci_value.c_str ());
+                spdlog::level::err, "failed to parse impedance data: {}", ascii_value.c_str ());
             delete[] package;
             return;
         }
@@ -617,31 +555,6 @@ void GanglionNative::read_data (
         return;
     }
 
-    // handle compressed data for 18 or 19 bits
-    for (int i = 8, counter = 0; i < bits_per_num * 8; i += bits_per_num, counter++)
-    {
-        if (bits_per_num == 18)
-        {
-            delta[counter] = (float)cast_ganglion_bits_to_int32<18> (package_bits + i);
-        }
-        else
-        {
-            delta[counter] = (float)cast_ganglion_bits_to_int32<19> (package_bits + i);
-        }
-    }
-
-    // apply the first delta to the last data we got in the previous iteration
-    for (int i = 0; i < 4; i++)
-    {
-        temp_data.last_data[i] = temp_data.last_data[i + 4] - delta[i];
-    }
-
-    // apply the second delta to the previous packet which we just decompressed above
-    for (int i = 4; i < 8; i++)
-    {
-        temp_data.last_data[i] = temp_data.last_data[i - 4] - delta[i];
-    }
-
     // add first encoded package
     package[board_descr["default"]["package_num_channel"].get<int> ()] = data[0];
     package[board_descr["default"]["eeg_channels"][0].get<int> ()] =
@@ -669,4 +582,135 @@ void GanglionNative::read_data (
     package[board_descr["default"]["timestamp_channel"].get<int> ()] = get_timestamp ();
     push_package (package);
     delete[] package;
+}
+
+void GanglionNative::decompress_firmware_3 (uint8_t *data)
+{
+    int bits_per_num = 0;
+    unsigned char package_bits[160] = {0}; // 20 * 8
+    for (int i = 0; i < 20; i++)
+    {
+        uchar_to_bits (data[i], package_bits + i * 8);
+    }
+
+    // 18 bit compression, sends 17 MSBs + sign bit of 24-bit sample
+    if ((data[0] >= 0) && (data[0] < 100))
+    {
+        int last_digit = data[0] % 10;
+        switch (last_digit)
+        {
+            // accel data is signed, so we must cast it to signed char
+            // swap x and z, and invert z to convert to standard coordinate space.
+            case 0:
+                temp_data.accel_z = -accel_scale * (char)data[19];
+                break;
+            case 1:
+                temp_data.accel_y = accel_scale * (char)data[19];
+                break;
+            case 2:
+                temp_data.accel_x = accel_scale * (char)data[19];
+                break;
+            default:
+                break;
+        }
+        bits_per_num = 18;
+    }
+    else if ((data[0] >= 100) && (data[0] < 200))
+    {
+        bits_per_num = 19;
+    }
+
+    // handle compressed data for 18 or 19 bits
+    for (int i = 8, counter = 0; i < bits_per_num * 8; i += bits_per_num, counter++)
+    {
+        if (bits_per_num == 18)
+        {
+            temp_data.last_data[counter] =
+                (float)(cast_ganglion_bits_to_int32<18> (package_bits + i) << 6);
+        }
+        else
+        {
+            temp_data.last_data[counter] =
+                (float)(cast_ganglion_bits_to_int32<19> (package_bits + i) << 5);
+        }
+    }
+}
+
+void GanglionNative::decompress_firmware_2 (uint8_t *data)
+{
+    int bits_per_num = 0;
+    unsigned char package_bits[160] = {0}; // 20 * 8
+    for (int i = 0; i < 20; i++)
+    {
+        uchar_to_bits (data[i], package_bits + i * 8);
+    }
+
+    float delta[8] = {0.f}; // delta holds 8 nums (4 by each package)
+
+    // no compression, used to init variable
+    if (data[0] == 0)
+    {
+        // shift the last data packet to make room for a newer one
+        temp_data.last_data[0] = temp_data.last_data[4];
+        temp_data.last_data[1] = temp_data.last_data[5];
+        temp_data.last_data[2] = temp_data.last_data[6];
+        temp_data.last_data[3] = temp_data.last_data[7];
+
+        // add new packet
+        temp_data.last_data[4] = (float)cast_24bit_to_int32 (data + 1);
+        temp_data.last_data[5] = (float)cast_24bit_to_int32 (data + 4);
+        temp_data.last_data[6] = (float)cast_24bit_to_int32 (data + 7);
+        temp_data.last_data[7] = (float)cast_24bit_to_int32 (data + 10);
+    }
+    // 18 bit compression, sends delta from previous value instead of real value!
+    else if ((data[0] >= 1) && (data[0] <= 100))
+    {
+        int last_digit = data[0] % 10;
+        switch (last_digit)
+        {
+            // accel data is signed, so we must cast it to signed char
+            // swap x and z, and invert z to convert to standard coordinate space.
+            case 0:
+                temp_data.accel_z = -accel_scale * (char)data[19];
+                break;
+            case 1:
+                temp_data.accel_y = accel_scale * (char)data[19];
+                break;
+            case 2:
+                temp_data.accel_x = accel_scale * (char)data[19];
+                break;
+            default:
+                break;
+        }
+        bits_per_num = 18;
+    }
+    else if ((data[0] >= 101) && (data[0] <= 200))
+    {
+        bits_per_num = 19;
+    }
+
+    // handle compressed data for 18 or 19 bits
+    for (int i = 8, counter = 0; i < bits_per_num * 8; i += bits_per_num, counter++)
+    {
+        if (bits_per_num == 18)
+        {
+            delta[counter] = (float)cast_ganglion_bits_to_int32<18> (package_bits + i);
+        }
+        else
+        {
+            delta[counter] = (float)cast_ganglion_bits_to_int32<19> (package_bits + i);
+        }
+    }
+
+    // apply the first delta to the last data we got in the previous iteration
+    for (int i = 0; i < 4; i++)
+    {
+        temp_data.last_data[i] = temp_data.last_data[i + 4] - delta[i];
+    }
+
+    // apply the second delta to the previous packet which we just decompressed above
+    for (int i = 4; i < 8; i++)
+    {
+        temp_data.last_data[i] = temp_data.last_data[i - 4] - delta[i];
+    }
 }
