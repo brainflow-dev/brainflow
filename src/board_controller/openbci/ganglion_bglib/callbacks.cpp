@@ -77,6 +77,7 @@ void ble_evt_gap_scan_response (const struct ble_msg_gap_scan_response_evt_t *ms
             GanglionLib::firmware = 3;
         }
 
+        // Check if the found device is the one specified by the serial_number parameter
         if (memcmp (msg->sender.addr, (uint8 *)GanglionLib::connect_addr.addr, sizeof (bd_addr)) ==
             0)
         {

@@ -445,8 +445,10 @@ void GanglionNative::adapter_1_on_scan_found (
     if (found)
     {
         firmware = strncmp (peripheral_identified, "Ganglion 1.3", 12) == 0 ? 3 : 2;
-        std::lock_guard<std::mutex> lk (m);
-        ganglion_peripheral = peripheral;
+        {
+            std::lock_guard<std::mutex> lk (m);
+            ganglion_peripheral = peripheral;
+        }
         cv.notify_one ();
     }
     else

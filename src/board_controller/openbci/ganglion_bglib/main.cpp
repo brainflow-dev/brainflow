@@ -108,11 +108,6 @@ namespace GanglionLib
         exit_code = (int)CustomExitCodes::SYNC_ERROR;
         state = State::OPEN_CALLED;
 
-        struct ConnectionParameters
-        {
-            char *mac_address;
-            uint8_t firmware;
-        };
         ConnectionParameters *connection_parameters = (ConnectionParameters *)param;
 
         char *mac_addr = connection_parameters->mac_address;

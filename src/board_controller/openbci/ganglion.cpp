@@ -10,6 +10,7 @@
 
 #include "custom_cast.h"
 #include "ganglion.h"
+#include "ganglion_types.h"
 #include "get_dll_dir.h"
 
 
@@ -397,7 +398,6 @@ void Ganglion::read_thread ()
 }
 
 void Ganglion::decompress_firmware_3 (
-
     struct GanglionLib::GanglionData *data, float *last_data, double *acceleration)
 {
     int bits_per_num = 0;
@@ -642,13 +642,7 @@ int Ganglion::call_open ()
 
         safe_logger (spdlog::level::info, "search for {}", params.mac_address.c_str ());
 
-        struct ConnectionParameters
-        {
-            char *mac_address;
-            uint8_t firmware;
-        };
-
-        ConnectionParameters connection_params;
+        GanglionLib::ConnectionParameters connection_params;
         connection_params.mac_address = const_cast<char *> (params.mac_address.c_str ());
         connection_params.firmware = 2;
 
