@@ -15,7 +15,7 @@ constexpr double FreeEEG128::ads_vref;
 
 
 FreeEEG128::FreeEEG128 (struct BrainFlowInputParams params)
-    : Board ((int)BoardIds::FreeEEG128_BOARD, params)
+    : Board ((int)BoardIds::FREEEEG128_BOARD, params)
 {
     serial = NULL;
     is_streaming = false;
