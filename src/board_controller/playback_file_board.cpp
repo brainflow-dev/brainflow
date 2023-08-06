@@ -213,6 +213,7 @@ void PlaybackFileBoard::read_thread (int preset, std::string file)
     int timestamp_channel = board_preset["timestamp_channel"];
     double accumulated_time_delta = 0.0;
 
+    bool reached_end = false;
     while (keep_alive)
     {
         auto start = std::chrono::high_resolution_clock::now ();
@@ -245,6 +246,12 @@ void PlaybackFileBoard::read_thread (int preset, std::string file)
         }
         if ((!loopback) && (res == NULL))
         {
+            if (!reached_end){
+                reached_end = true;
+                // Log just once to inform the user that we have reached the endof the file, as we stop sending any samples.
+                // The user-programmer could be waiting as the stream needs to be stopped manually.
+                safe_logger (spdlog::level::trace, "End of file reached and not set to loop. Sleeping.");
+            }
 // busy wait instead exit
 #ifdef _WIN32
             Sleep (1);
