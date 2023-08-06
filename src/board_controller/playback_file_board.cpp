@@ -249,9 +249,11 @@ void PlaybackFileBoard::read_thread (int preset, std::string file)
             if (!reached_end)
             {
                 reached_end = true;
-                // Log just once to inform the user that we have reached the endof the file, as we stop sending any samples.
-                // The user-programmer could be waiting as the stream needs to be stopped manually.
-                safe_logger (spdlog::level::trace, "End of file reached and not set to loop. Sleeping.");
+                // Log just once to inform the user that we have reached the endof the file, as we
+                // stop sending any samples. The user-programmer could be waiting as the stream
+                // needs to be stopped manually.
+                safe_logger (
+                    spdlog::level::trace, "End of file reached and not set to loop. Sleeping.");
             }
 // busy wait instead exit
 #ifdef _WIN32
