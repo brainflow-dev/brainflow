@@ -34,7 +34,7 @@
 #include "emotibit.h"
 #include "enophone.h"
 #include "explore.h"
-#include "freeeeg32.h"
+#include "freeeeg.h"
 #include "galea.h"
 #include "galea_serial.h"
 #include "galea_serial_v4.h"
@@ -52,7 +52,6 @@
 #include "streaming_board.h"
 #include "synthetic_board.h"
 #include "unicorn_board.h"
-#include "freeeeg128.h"
 
 #include "json.hpp"
 
@@ -153,7 +152,10 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
             board = std::shared_ptr<Board> (new GforcePro (params));
             break;
         case BoardIds::FREEEEG32_BOARD:
-            board = std::shared_ptr<Board> (new FreeEEG32 (params));
+            board = std::shared_ptr<Board> (new FreeEEG ((int)BoardIds::FREEEEG32_BOARD, params));
+            break;
+        case BoardIds::FREEEEG128_BOARD:
+            board = std::shared_ptr<Board> (new FreeEEG ((int)BoardIds::FREEEEG128_BOARD, params));
             break;
         case BoardIds::BRAINBIT_BLED_BOARD:
             board = std::shared_ptr<Board> (new BrainBitBLED (params));
@@ -264,9 +266,6 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
             break;
         case BoardIds::NTL_WIFI_BOARD:
             board = std::shared_ptr<Board> (new NtlWifi (params));
-            break;
-        case BoardIds::FREEEEG128_BOARD:
-            board = std::shared_ptr<Board> (new FreeEEG128 (params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

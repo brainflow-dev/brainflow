@@ -685,8 +685,8 @@ Supported platforms:
 
 *Note: Unlike other boards it returns ADC values instead uV.*
 
-FreeEEG32
-----------
+FreeEEG
+--------
 
 FreeEEG32
 ~~~~~~~~~~
@@ -720,13 +720,7 @@ Supported platforms:
 - Devices like Raspberry Pi
 
 FreeEEG128
-----------
-
-FreeEEG128
 ~~~~~~~~~~
-
-
-
 
 To create such board you need to specify the following board ID and fields of BrainFlowInputParams object:
 
@@ -739,6 +733,7 @@ Initialization Example:
     params = BrainFlowInputParams()
     params.serial_port = "COM6"
     board = BoardShim(BoardIds.FREEEEG128_BOARD, params)
+
 **On Unix-like systems you may need to configure permissions for serial port or run with sudo.**
 
 Supported platforms:
