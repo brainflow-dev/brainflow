@@ -269,11 +269,11 @@ void Ganglion::read_thread ()
             {
                 if (firmware == 3)
                 {
-                    decompress_firmware_3 (&data, last_data, acceleration);
+                    decompress_firmware_3 (&data, last_data, acceleration, package);
                 }
                 else if (firmware == 2)
                 {
-                    decompress_firmware_2 (&data, last_data, acceleration);
+                    decompress_firmware_2 (&data, last_data, acceleration, package);
                 }
             }
             else if ((data.data[0] > 200) && (data.data[0] < 206))
@@ -343,33 +343,6 @@ void Ganglion::read_thread ()
                 }
                 continue;
             }
-
-            // add first encoded package
-            package[board_descr["default"]["package_num_channel"].get<int> ()] = data.data[0];
-            package[board_descr["default"]["eeg_channels"][0].get<int> ()] =
-                eeg_scale * last_data[0];
-            package[board_descr["default"]["eeg_channels"][1].get<int> ()] =
-                eeg_scale * last_data[1];
-            package[board_descr["default"]["eeg_channels"][2].get<int> ()] =
-                eeg_scale * last_data[2];
-            package[board_descr["default"]["eeg_channels"][3].get<int> ()] =
-                eeg_scale * last_data[3];
-            package[board_descr["default"]["accel_channels"][0].get<int> ()] = acceleration[0];
-            package[board_descr["default"]["accel_channels"][1].get<int> ()] = acceleration[1];
-            package[board_descr["default"]["accel_channels"][2].get<int> ()] = acceleration[2];
-            package[board_descr["default"]["timestamp_channel"].get<int> ()] = data.timestamp;
-            push_package (package);
-            // add second package
-            package[board_descr["default"]["eeg_channels"][0].get<int> ()] =
-                eeg_scale * last_data[4];
-            package[board_descr["default"]["eeg_channels"][1].get<int> ()] =
-                eeg_scale * last_data[5];
-            package[board_descr["default"]["eeg_channels"][2].get<int> ()] =
-                eeg_scale * last_data[6];
-            package[board_descr["default"]["eeg_channels"][3].get<int> ()] =
-                eeg_scale * last_data[7];
-            package[board_descr["default"]["timestamp_channel"].get<int> ()] = data.timestamp;
-            push_package (package);
         }
         else
         {
@@ -398,7 +371,7 @@ void Ganglion::read_thread ()
 }
 
 void Ganglion::decompress_firmware_3 (
-    struct GanglionLib::GanglionData *data, float *last_data, double *acceleration)
+    struct GanglionLib::GanglionData *data, float *last_data, double *acceleration, double *package)
 {
     int bits_per_num = 0;
     unsigned char package_bits[160] = {0}; // 20 * 8
@@ -408,7 +381,7 @@ void Ganglion::decompress_firmware_3 (
     }
 
     // 18 bit compression, sends 17 MSBs + sign bit of 24-bit sample
-    if ((data->data[0] >= 0) && (data->data[0] < 100))
+    if (data->data[0] >= 0 && data->data[0] < 100)
     {
         int last_digit = data->data[0] % 10;
         switch (last_digit)
@@ -429,7 +402,7 @@ void Ganglion::decompress_firmware_3 (
         }
         bits_per_num = 18;
     }
-    else if ((data->data[0] >= 100) && (data->data[0] < 200))
+    else if (data->data[0] >= 100 && data->data[0] < 200)
     {
         bits_per_num = 19;
     }
@@ -446,10 +419,29 @@ void Ganglion::decompress_firmware_3 (
             last_data[counter] = (float)(cast_ganglion_bits_to_int32<19> (package_bits + i) << 5);
         }
     }
+
+    // add first encoded package
+    package[board_descr["default"]["package_num_channel"].get<int> ()] = data->data[0];
+    package[board_descr["default"]["eeg_channels"][0].get<int> ()] = eeg_scale * last_data[0];
+    package[board_descr["default"]["eeg_channels"][1].get<int> ()] = eeg_scale * last_data[1];
+    package[board_descr["default"]["eeg_channels"][2].get<int> ()] = eeg_scale * last_data[2];
+    package[board_descr["default"]["eeg_channels"][3].get<int> ()] = eeg_scale * last_data[3];
+    package[board_descr["default"]["accel_channels"][0].get<int> ()] = acceleration[0];
+    package[board_descr["default"]["accel_channels"][1].get<int> ()] = acceleration[1];
+    package[board_descr["default"]["accel_channels"][2].get<int> ()] = acceleration[2];
+    package[board_descr["default"]["timestamp_channel"].get<int> ()] = data->timestamp;
+    push_package (package);
+    // add second package
+    package[board_descr["default"]["eeg_channels"][0].get<int> ()] = eeg_scale * last_data[4];
+    package[board_descr["default"]["eeg_channels"][1].get<int> ()] = eeg_scale * last_data[5];
+    package[board_descr["default"]["eeg_channels"][2].get<int> ()] = eeg_scale * last_data[6];
+    package[board_descr["default"]["eeg_channels"][3].get<int> ()] = eeg_scale * last_data[7];
+    package[board_descr["default"]["timestamp_channel"].get<int> ()] = data->timestamp;
+    push_package (package);
 }
 
 void Ganglion::decompress_firmware_2 (
-    struct GanglionLib::GanglionData *data, float *last_data, double *acceleration)
+    struct GanglionLib::GanglionData *data, float *last_data, double *acceleration, double *package)
 {
     int bits_per_num = 0;
     unsigned char package_bits[160] = {0}; // 20 * 8
@@ -474,9 +466,22 @@ void Ganglion::decompress_firmware_2 (
         last_data[5] = (float)cast_24bit_to_int32 (data->data + 4);
         last_data[6] = (float)cast_24bit_to_int32 (data->data + 7);
         last_data[7] = (float)cast_24bit_to_int32 (data->data + 10);
+
+        // scale new packet and insert into result
+        package[board_descr["default"]["package_num_channel"].get<int> ()] = 0.;
+        package[board_descr["default"]["eeg_channels"][0].get<int> ()] = eeg_scale * last_data[4];
+        package[board_descr["default"]["eeg_channels"][1].get<int> ()] = eeg_scale * last_data[5];
+        package[board_descr["default"]["eeg_channels"][2].get<int> ()] = eeg_scale * last_data[6];
+        package[board_descr["default"]["eeg_channels"][3].get<int> ()] = eeg_scale * last_data[7];
+        package[board_descr["default"]["accel_channels"][0].get<int> ()] = acceleration[0];
+        package[board_descr["default"]["accel_channels"][1].get<int> ()] = acceleration[1];
+        package[board_descr["default"]["accel_channels"][2].get<int> ()] = acceleration[2];
+        package[board_descr["default"]["timestamp_channel"].get<int> ()] = data->timestamp;
+        push_package (package);
+        return;
     }
     // 18 bit compression, sends delta from previous value instead of real value!
-    else if ((data->data[0] >= 1) && (data->data[0] <= 100))
+    else if (data->data[0] >= 1 && data->data[0] <= 100)
     {
         int last_digit = data->data[0] % 10;
         switch (last_digit)
@@ -497,7 +502,7 @@ void Ganglion::decompress_firmware_2 (
         }
         bits_per_num = 18;
     }
-    else if ((data->data[0] >= 101) && (data->data[0] <= 200))
+    else if (data->data[0] >= 101 && data->data[0] <= 200)
     {
         bits_per_num = 19;
     }
@@ -526,6 +531,25 @@ void Ganglion::decompress_firmware_2 (
     {
         last_data[i] = last_data[i - 4] - delta[i];
     }
+
+    // add first encoded package
+    package[board_descr["default"]["package_num_channel"].get<int> ()] = data->data[0];
+    package[board_descr["default"]["eeg_channels"][0].get<int> ()] = eeg_scale * last_data[0];
+    package[board_descr["default"]["eeg_channels"][1].get<int> ()] = eeg_scale * last_data[1];
+    package[board_descr["default"]["eeg_channels"][2].get<int> ()] = eeg_scale * last_data[2];
+    package[board_descr["default"]["eeg_channels"][3].get<int> ()] = eeg_scale * last_data[3];
+    package[board_descr["default"]["accel_channels"][0].get<int> ()] = acceleration[0];
+    package[board_descr["default"]["accel_channels"][1].get<int> ()] = acceleration[1];
+    package[board_descr["default"]["accel_channels"][2].get<int> ()] = acceleration[2];
+    package[board_descr["default"]["timestamp_channel"].get<int> ()] = data->timestamp;
+    push_package (package);
+    // add second package
+    package[board_descr["default"]["eeg_channels"][0].get<int> ()] = eeg_scale * last_data[4];
+    package[board_descr["default"]["eeg_channels"][1].get<int> ()] = eeg_scale * last_data[5];
+    package[board_descr["default"]["eeg_channels"][2].get<int> ()] = eeg_scale * last_data[6];
+    package[board_descr["default"]["eeg_channels"][3].get<int> ()] = eeg_scale * last_data[7];
+    package[board_descr["default"]["timestamp_channel"].get<int> ()] = data->timestamp;
+    push_package (package);
 }
 
 int Ganglion::config_board (std::string config, std::string &response)
