@@ -32,6 +32,10 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11.0.3
+    - name: Install Node
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
     - uses: hecrj/setup-rust-action@v1
       with:
         rust-version: nightly
@@ -106,6 +110,11 @@ jobs:
         cd %GITHUB_WORKSPACE%\cpp_package\examples\ml\build32
         cmake -G "Visual Studio 17 2022" -A Win32 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%GITHUB_WORKSPACE%\installed32\ ..
         cmake --build . --config Release -j 2 --parallel 2
+      shell: cmd
+    - name: Build Node Package
+      run: |
+        cd %GITHUB_WORKSPACE%\nodejs_package\brainflow
+        npm install --force
       shell: cmd
     - name: Build Java Package
       run: |

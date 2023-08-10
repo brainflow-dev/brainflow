@@ -33,6 +33,10 @@ jobs:
         sudo -H apt-get install -y python3-setuptools python3-pygments libbluetooth-dev
       env:
         DEBIAN_FRONTEND: noninteractive
+    - name: Install Node
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
     - name: Install Ninja
       if: (matrix.os == 'macos-11.0')
       uses: seanmiddleditch/gha-setup-ninja@master
@@ -91,6 +95,11 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/python_package
         sudo -H python3 -m pip install -U .
+    - name: Build Node Package
+      run: |
+        cd %GITHUB_WORKSPACE%\nodejs_package\brainflow
+        npm install --force
+      shell: cmd
     - name: Setup Java package
       run: |
         cd $GITHUB_WORKSPACE/java_package/brainflow

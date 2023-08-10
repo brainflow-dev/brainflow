@@ -1,6 +1,6 @@
-import { BoardShim } from './board-shim';
-import { BoardIds } from './brainflow.types';
-import { DataFilter } from './data-filter';
+import { BoardShim } from '../board_shim';
+import { BoardIds } from '../brainflow.types';
+import { DataFilter } from '../data_filter';
 
 function sleep(ms: number) {
   return new Promise((resolve) => {
