@@ -151,7 +151,25 @@ namespace brainflow
         }
 
         /// <summary>
-        /// get number of rows in returned by get_board_data() 2d array 
+        /// get row undex which holds rotation_calib level
+        /// </summary>
+        /// <param name="board_id"></param>
+        /// <param name="preset">preset for device</param>
+        /// <returns>row num in 2d array</returns>
+        /// <exception cref="BrainFlowException">If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR</exception>
+        public static int get_rotation_calib_channel (int board_id, int preset = (int)BrainFlowPresets.DEFAULT_PRESET)
+        {
+            int[] val = new int[1];
+            int res = BoardControllerLibrary.get_rotation_calib_channel (board_id, preset, val);
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+            return val[0];
+        }
+
+        /// <summary>
+        /// get number of rows in returned by get_board_data() 2d array
         /// </summary>
         /// <param name="board_id"></param>
         /// <param name="preset">preset for device</param>
@@ -466,7 +484,31 @@ namespace brainflow
         }
 
         /// <summary>
-        /// get row indices which hold analog data 
+        /// get row indices which hold rotation data
+        /// </summary>
+        /// <param name="board_id"></param>
+        /// <param name="preset">preset for device</param>
+        /// <returns>array of row nums</returns>
+        /// <exception cref="BrainFlowException">If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR</exception>
+        public static int[] get_rotation_channels (int board_id, int preset = (int)BrainFlowPresets.DEFAULT_PRESET)
+        {
+            int[] len = new int[1];
+            int[] channels = new int[512];
+            int res = BoardControllerLibrary.get_rotation_channels (board_id, preset, channels, len);
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+            int[] result = new int[len[0]];
+            for (int i = 0; i < len[0]; i++)
+            {
+                result[i] = channels[i];
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// get row indices which hold analog data
         /// </summary>
         /// <param name="board_id"></param>
         /// <param name="preset">preset for device</param>

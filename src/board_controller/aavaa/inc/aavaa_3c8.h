@@ -1,14 +1,13 @@
 #include <condition_variable>
-#include <mutex>
-#include <thread>
 #include <deque>
 #include <iostream>
+#include <mutex>
+#include <thread>
 #include <vector>
 
 #include "ble_lib_board.h"
 #include "board.h"
 #include "board_controller.h"
-#include "openbci_gain_tracker.h"
 
 
 class AAVAA3c8 : public BLELibBoard
@@ -33,10 +32,13 @@ public:
     std::string device_status;
 
 protected:
+    const double TIMESTAMP_SCALE = (double)(10. / 1000000.); // 10 us
+    const double IMU_SCALE = (double)(1. / 100.);
     const int Ring_Buffer_Max_Size = 244 * 5;
-    const int SIZE_OF_DATA_FRAME = 37;
-
-    CytonGainTracker gain_tracker;
+    const int SIZE_OF_DATA_FRAME = 47;
+    const double ADS1299_Vref = 4.5; // reference voltage for ADC in ADS1299
+    const double ADS1299_gain = 12.; // assumed gain setting for ADS1299
+    const double EEG_SCALE = ADS1299_Vref / float ((pow (2, 23) - 1)) / ADS1299_gain * 1000000.0;
 
     volatile simpleble_adapter_t aavaa_adapter;
     volatile simpleble_peripheral_t aavaa_peripheral;

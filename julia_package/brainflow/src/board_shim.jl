@@ -52,7 +52,6 @@ export BrainFlowInputParams
     GANGLION_NATIVE_BOARD = 46
     EMOTIBIT_BOARD = 47
     AAVAA_3C8_BOARD = 48
-    AAVAA_3C2_BOARD = 49
 
 end
 
@@ -184,6 +183,8 @@ channel_function_names = (
     :get_eda_channels,
     :get_ppg_channels,
     :get_accel_channels,
+    :get_rotation_channels,
+    :get_rotation_calib_channel,
     :get_analog_channels,
     :get_gyro_channels,
     :get_other_channels,

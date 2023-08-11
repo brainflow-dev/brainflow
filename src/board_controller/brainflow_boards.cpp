@@ -873,17 +873,18 @@ BrainFlowBoards::BrainFlowBoards()
         {"name", "AAVAA 3C8"},
         {"sampling_rate", 50},
         {"package_num_channel", 0},
-        {"timestamp_channel", 14},
-        {"marker_channel", 15},
-        {"num_rows", 16},
+        {"timestamp_channel", 15},
+        {"marker_channel", 16},
+        {"num_rows", 17},
         {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
         {"eeg_names", "L1,L2,L3,L4,R1,R2,R3,R4"},
         {"emg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
         {"ecg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
         {"eog_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
-        {"accel_channels", {9, 10, 11}},
-        {"battery_channel", {12}},
-        {"other_channels", {13}} // IMU status
+        {"rotation_channels", {9, 10, 11}},
+        {"battery_channel", 12},
+        {"rotation_calib_channel", 13}, // IMU status
+        {"other_channels", {14}}
     };
     brainflow_boards_json["boards"]["49"]["default"] =
     {

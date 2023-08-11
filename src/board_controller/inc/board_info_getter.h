@@ -19,6 +19,8 @@ extern "C"
         int board_id, int preset, int *marker_channel);
     SHARED_EXPORT int CALLING_CONVENTION get_battery_channel (
         int board_id, int preset, int *battery_channel);
+    SHARED_EXPORT int CALLING_CONVENTION get_rotation_calib_channel (
+        int board_id, int preset, int *rotation_calib_channel);
     SHARED_EXPORT int CALLING_CONVENTION get_num_rows (int board_id, int preset, int *num_rows);
     SHARED_EXPORT int CALLING_CONVENTION get_eeg_names (
         int board_id, int preset, char *eeg_names, int *len);
@@ -38,6 +40,8 @@ extern "C"
         int board_id, int preset, int *eda_channels, int *len);
     SHARED_EXPORT int CALLING_CONVENTION get_accel_channels (
         int board_id, int preset, int *accel_channels, int *len);
+    SHARED_EXPORT int CALLING_CONVENTION get_rotation_channels (
+        int board_id, int preset, int *rotation_channels, int *len);
     SHARED_EXPORT int CALLING_CONVENTION get_analog_channels (
         int board_id, int preset, int *analog_channels, int *len);
     SHARED_EXPORT int CALLING_CONVENTION get_gyro_channels (

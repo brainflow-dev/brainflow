@@ -50,6 +50,5 @@ classdef BoardIds < int32
         GANGLION_NATIVE_BOARD(46)
         EMOTIBIT_BOARD(47)
         AAVAA_3C8_BOARD(48)
-        AAVAA_3C2_BOARD(49)
     end
 end

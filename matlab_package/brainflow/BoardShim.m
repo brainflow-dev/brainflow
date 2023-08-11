@@ -7,7 +7,7 @@ classdef BoardShim
     end
 
     methods(Static)
-        
+
         function lib_name = load_lib()
             if ispc
                 if not(libisloaded('BoardController'))
@@ -28,13 +28,13 @@ classdef BoardShim
                 error('OS not supported!')
             end
         end
-        
+
         function check_ec(ec, task_name)
             if (ec ~= int32(BrainFlowExitCodes.STATUS_OK))
                 error('Non zero ec: %d, for task: %s', ec, task_name)
             end
         end
-        
+
         function release_all_sessions()
             % release all sessions
             task_name = 'release_all_sessions';
@@ -73,7 +73,7 @@ classdef BoardShim
             % disable logger
             BoardShim.set_log_level(int32(6))
         end
-        
+
         function log_message(log_level, message)
             % write message to BoardShim logger
             task_name = 'log_message_board_controller';
@@ -81,7 +81,7 @@ classdef BoardShim
             exit_code = calllib(lib_name, task_name, log_level, message);
             BoardShim.check_ec(exit_code, task_name);
         end
-        
+
         function sampling_rate = get_sampling_rate(board_id, preset)
             % get sampling rate for provided board id
             task_name = 'get_sampling_rate';
@@ -91,7 +91,7 @@ classdef BoardShim
             BoardShim.check_ec(exit_code, task_name);
             sampling_rate = res.value;
         end
-        
+
         function package_num_channel = get_package_num_channel(board_id, preset)
             % get package num channel for provided board id
             task_name = 'get_package_num_channel';
@@ -102,7 +102,7 @@ classdef BoardShim
             % Matlab counts array elements from 1 while BrainFlow Core counts from 0%
             package_num_channel = res.value + 1;
         end
-        
+
         function marker_channel = get_marker_channel(board_id, preset)
             % get marker channel for provided board id
             task_name = 'get_marker_channel';
@@ -122,7 +122,16 @@ classdef BoardShim
             BoardShim.check_ec(exit_code, task_name);
             battery_channel = res.value + 1;
         end
-        
+
+        function rotation_calib_channel = get_rotation_calib_channel(board_id, preset)
+            % get battery channel for provided board id
+            task_name = 'get_rotation_calib_channel';
+            res = libpointer('int32Ptr', 0);
+            exit_code = calllib(lib_name, task_name, board_id, preset, res);
+            BoardShim.check_ec(exit_code, task_name);
+            rotation_calib_channel = res.value + 1;
+        end
+
         function num_rows = get_num_rows(board_id, preset)
             % get num rows for provided board id
             task_name = 'get_num_rows';
@@ -132,7 +141,7 @@ classdef BoardShim
             BoardShim.check_ec(exit_code, task_name);
             num_rows = res.value;
         end
-        
+
         function timestamp_channel = get_timestamp_channel(board_id, preset)
             % get timestamp channel for provided board id
             task_name = 'get_timestamp_channel';
@@ -142,7 +151,7 @@ classdef BoardShim
             BoardShim.check_ec(exit_code, task_name);
             timestamp_channel = res.value + 1;
         end
-        
+
         function board_descr = get_board_descr(board_id, preset)
             % get board descr for provided board id
             task_name = 'get_board_descr';
@@ -153,7 +162,7 @@ classdef BoardShim
             BoardShim.check_ec(exit_code, task_name);
             board_descr = jsondecode(board_descr);
         end
-        
+
         function eeg_names = get_eeg_names(board_id, preset)
             % get eeg names for provided board id
             task_name = 'get_eeg_names';
@@ -164,7 +173,7 @@ classdef BoardShim
             BoardShim.check_ec(exit_code, task_name);
             eeg_names = split(eeg_names, ',');
         end
-        
+
         function presets = get_board_presets(board_id)
             % get supported presets
             task_name = 'get_board_presets';
@@ -174,9 +183,9 @@ classdef BoardShim
             exit_code = calllib(lib_name, task_name, board_id, data, num_presets);
             BoardShim.check_ec(exit_code, task_name);
             presets = data.Value(1,1:num_presets.Value);
-            
+
         end
-        
+
         function version = get_version()
             % get version
             task_name = 'get_version_board_controller';
@@ -186,7 +195,7 @@ classdef BoardShim
             [exit_code, version] = calllib(lib_name, task_name, blanks(64), 64, 64);
             BoardShim.check_ec(exit_code, task_name);
         end
-        
+
         function device_name = get_device_name(board_id, preset)
             % get device name for provided board id
             task_name = 'get_device_name';
@@ -196,7 +205,7 @@ classdef BoardShim
             [exit_code, device_name] = calllib(lib_name, task_name, board_id, preset, blanks(4096), 4096);
             BoardShim.check_ec(exit_code, task_name);
         end
-        
+
         function eeg_channels = get_eeg_channels(board_id, preset)
             % get eeg channels for provided board id
             task_name = 'get_eeg_channels';
@@ -207,7 +216,7 @@ classdef BoardShim
             BoardShim.check_ec(exit_code, task_name);
             eeg_channels = data.Value(1,1:num_channels.Value) + 1;
         end
-        
+
         function exg_channels = get_exg_channels(board_id, preset)
             % get exg channels for provided board id
             task_name = 'get_exg_channels';
@@ -218,7 +227,7 @@ classdef BoardShim
             BoardShim.check_ec(exit_code, task_name);
             exg_channels = data.Value(1,1:num_channels.Value) + 1;
         end
-        
+
         function emg_channels = get_emg_channels(board_id, preset)
             % get emg channels for provided board id
             task_name = 'get_emg_channels';
@@ -229,7 +238,7 @@ classdef BoardShim
             BoardShim.check_ec(exit_code, task_name);
             emg_channels = data.Value(1,1:num_channels.Value) + 1;
         end
-        
+
         function ecg_channels = get_ecg_channels(board_id, preset)
             % get ecg channels for provided board id
             task_name = 'get_ecg_channels';
@@ -240,7 +249,7 @@ classdef BoardShim
             BoardShim.check_ec(exit_code, task_name);
             ecg_channels = data.Value(1,1:num_channels.Value) + 1;
         end
-        
+
         function eog_channels = get_eog_channels(board_id, preset)
             % get eog channels for provided board id
             task_name = 'get_eog_channels';
@@ -251,7 +260,7 @@ classdef BoardShim
             BoardShim.check_ec(exit_code, task_name);
             eog_channels = data.Value(1,1:num_channels.Value) + 1;
         end
-        
+
         function ppg_channels = get_ppg_channels(board_id, preset)
             % get ppg channels for provided board id
             task_name = 'get_ppg_channels';
@@ -262,7 +271,7 @@ classdef BoardShim
             BoardShim.check_ec(exit_code, task_name);
             ppg_channels = data.Value(1,1:num_channels.Value) + 1;
         end
-        
+
         function eda_channels = get_eda_channels(board_id, preset)
             % get eda channels for provided board id
             task_name = 'get_eda_channels';
@@ -273,7 +282,7 @@ classdef BoardShim
             BoardShim.check_ec(exit_code, task_name);
             eda_channels = data.Value(1,1:num_channels.Value) + 1;
         end
-        
+
         function accel_channels = get_accel_channels(board_id, preset)
             % get accel channels for provided board id
             task_name = 'get_accel_channels';
@@ -284,7 +293,18 @@ classdef BoardShim
             BoardShim.check_ec(exit_code, task_name);
             accel_channels = data.Value(1,1:num_channels.Value) + 1;
         end
-        
+
+        function rotation_channels = get_rotation_channels(board_id, preset)
+            % get accel channels for provided board id
+            task_name = 'get_rotation_channels';
+            lib_name = BoardShim.load_lib();
+            num_channels = libpointer('int32Ptr', 0);
+            data = libpointer('int32Ptr', zeros(1, 512));
+            exit_code = calllib(lib_name, task_name, board_id, preset, data, num_channels);
+            BoardShim.check_ec(exit_code, task_name);
+            rotation_channels = data.Value(1,1:num_channels.Value) + 1;
+        end
+
         function analog_channels = get_analog_channels(board_id, preset)
             % get analog channels for provided board id
             task_name = 'get_analog_channels';
@@ -295,7 +315,7 @@ classdef BoardShim
             BoardShim.check_ec(exit_code, task_name);
             analog_channels = data.Value(1,1:num_channels.Value) + 1;
         end
-        
+
         function other_channels = get_other_channels(board_id, preset)
             % get other channels for provided board id
             task_name = 'get_other_channels';
@@ -306,7 +326,7 @@ classdef BoardShim
             BoardShim.check_ec(exit_code, task_name);
             other_channels = data.Value(1,1:num_channels.Value) + 1;
         end
-        
+
         function temperature_channels = get_temperature_channels(board_id, preset)
             % get temperature channels for provided board id
             task_name = 'get_temperature_channels';
@@ -317,7 +337,7 @@ classdef BoardShim
             BoardShim.check_ec(exit_code, task_name);
             temperature_channels = data.Value(1,1:num_channels.Value) + 1;
         end
-        
+
         function resistance_channels = get_resistance_channels(board_id, preset)
             % get resistance channels for provided board id
             task_name = 'get_resistance_channels';
@@ -328,7 +348,7 @@ classdef BoardShim
             BoardShim.check_ec(exit_code, task_name);
             resistance_channels = data.Value(1,1:num_channels.Value) + 1;
         end
-        
+
         function magnetometer_channels = get_magnetometer_channels(board_id, preset)
             % get magnetometer channels for provided board id
             task_name = 'get_magnetometer_channels';
@@ -339,7 +359,7 @@ classdef BoardShim
             BoardShim.check_ec(exit_code, task_name);
             magnetometer_channels = data.Value(1,1:num_channels.Value) + 1;
         end
-        
+
     end
 
     methods
@@ -374,7 +394,7 @@ classdef BoardShim
             [exit_code, tmp, response] = calllib(lib_name, task_name, config, blanks(4096), 4096, obj.board_id, obj.input_params_json);
             BoardShim.check_ec(exit_code, task_name);
         end
-        
+
         function add_streamer(obj, streamer, preset)
             % add streamer
             task_name = 'add_streamer';
@@ -384,7 +404,7 @@ classdef BoardShim
             [exit_code, tmp] = calllib(lib_name, task_name, streamer, preset, obj.board_id, obj.input_params_json);
             BoardShim.check_ec(exit_code, task_name);
         end
-        
+
         function delete_streamer(obj, streamer, preset)
             % delete streamer
             task_name = 'delete_streamer';
@@ -418,7 +438,7 @@ classdef BoardShim
             exit_code = calllib(lib_name, task_name, obj.board_id, obj.input_params_json);
             BoardShim.check_ec(exit_code, task_name);
         end
-        
+
         function insert_marker(obj, value, preset)
             % insert marker
             task_name = 'insert_marker';
@@ -467,7 +487,7 @@ classdef BoardShim
             BoardShim.check_ec(exit_code, task_name);
             data_buf = transpose(reshape(data.Value(1,1:data_count.Value * num_rows), [data_count.Value, num_rows]));
         end
-        
+
         function prepared = is_prepared(obj)
            % check if brainflow session prepared
            task_name = 'is_prepared';
@@ -477,7 +497,7 @@ classdef BoardShim
            BoardShim.check_ec(exit_code, task_name);
            prepared = boolean(res.value);
         end
-        
+
     end
-    
+
 end

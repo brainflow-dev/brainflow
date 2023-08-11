@@ -1,7 +1,7 @@
 #include <string>
 
-#include "custom_cast.h"
 #include "aavaa_3c8.h"
+#include "custom_cast.h"
 #include "get_dll_dir.h"
 #include "timestamp.h"
 
@@ -106,8 +106,7 @@ int AAVAA3c8::prepare_session ()
     int res = (int)BrainFlowExitCodes::STATUS_OK;
     std::unique_lock<std::mutex> lk (m);
     auto sec = std::chrono::seconds (1);
-    if (cv.wait_for (
-            lk, params.timeout * sec, [this] { return this->aavaa_peripheral != NULL; }))
+    if (cv.wait_for (lk, params.timeout * sec, [this] { return this->aavaa_peripheral != NULL; }))
     {
         safe_logger (spdlog::level::info, "Found AAVAA3c8 device");
     }
@@ -256,8 +255,7 @@ int AAVAA3c8::release_session ()
 #else
             sleep (2);
 #endif
-            if (simpleble_peripheral_unsubscribe (aavaa_peripheral,
-                    notified_characteristics.first,
+            if (simpleble_peripheral_unsubscribe (aavaa_peripheral, notified_characteristics.first,
                     notified_characteristics.second) != SIMPLEBLE_SUCCESS)
             {
                 safe_logger (spdlog::level::err, "failed to unsubscribe for {} {}",
@@ -312,6 +310,7 @@ int AAVAA3c8::config_board (std::string config, std::string &response)
     {
         safe_logger (spdlog::level::trace, "device status was requested {}", device_status);
         response = device_status;
+        device_status = "";
         return res;
     }
 
@@ -382,7 +381,8 @@ int AAVAA3c8::send_command (std::string config)
     }
     else
     {
-        safe_logger (spdlog::level::trace, "successfully sent command {} to device", config.c_str ());
+        safe_logger (
+            spdlog::level::trace, "successfully sent command {} to device", config.c_str ());
     }
     delete[] command;
     return (int)BrainFlowExitCodes::STATUS_OK;
@@ -453,47 +453,61 @@ void AAVAA3c8::read_data (
 {
     safe_logger (spdlog::level::trace, "received {} number of bytes", size);
 
+    if (!is_streaming)
+    {
+        if (data[1] == 64)
+        { // when the first byte is @
+            std::string temp (reinterpret_cast<const char *> (data), size);
+            device_status = temp.substr (1);
+            safe_logger (spdlog::level::trace, "received a status string {} ", device_status);
+        }
+        else
+        {
+            safe_logger (spdlog::level::trace, "received a string with start byte {} {} {} {} {}",
+                data[0], data[1], data[2], data[3], data[4]);
+        }
+        return;
+    }
+
     int num_rows = board_descr["default"]["num_rows"];
 
     std::vector<int> eeg_channels = board_descr["default"]["eeg_channels"];
-    double accel_scale = (double)(0.002 / (pow (2, 4)));
 
-    if (size == 244) {
+    if (size == 244)
+    {
         data += 3;
         size -= 3;
-        Incoming_BLE_Data_Buffer.insert(Incoming_BLE_Data_Buffer.end(), data, data + size);
-    } else if (size == 48) {
+        Incoming_BLE_Data_Buffer.insert (Incoming_BLE_Data_Buffer.end (), data, data + size);
+    }
+    else if (size > 1)
+    {
         ++data;
         --size;
-        Incoming_BLE_Data_Buffer.insert(Incoming_BLE_Data_Buffer.end(), data, data + size);
-    } else {
-        if (data[1] == 64) { // when the first byte is @
-            std::string temp(reinterpret_cast<const char*>(data), size);
-            device_status = temp.substr(1);
-            safe_logger (spdlog::level::trace, "received a status string {} ", device_status);
-        } else {
-            safe_logger (spdlog::level::trace, "received a string with start byte {} {} {} {} {}", data[0], data[1], data[2], data[3], data[4]);
-        }
+        Incoming_BLE_Data_Buffer.insert (Incoming_BLE_Data_Buffer.end (), data, data + size);
     }
 
-    while (Incoming_BLE_Data_Buffer.size() >= SIZE_OF_DATA_FRAME) {
-        if (Incoming_BLE_Data_Buffer[0] != START_BYTE) {
-            Incoming_BLE_Data_Buffer.pop_front(); // discard data, we have half a frame here
-            continue;
-        }
-
-        uint8_t* data_frame = new uint8_t[SIZE_OF_DATA_FRAME];
-        for (int i = 0; i < SIZE_OF_DATA_FRAME; ++i) {
-            data_frame[i] = Incoming_BLE_Data_Buffer.front();
-            Incoming_BLE_Data_Buffer.pop_front();
-        }
-
-        if (data_frame[SIZE_OF_DATA_FRAME-1] != END_BYTE)
+    while (Incoming_BLE_Data_Buffer.size () >= SIZE_OF_DATA_FRAME)
+    {
+        if (Incoming_BLE_Data_Buffer[0] != START_BYTE)
         {
+            Incoming_BLE_Data_Buffer.pop_front (); // discard data, we have half a frame here
             continue;
         }
 
-        double accel[3] = {0.};
+        uint8_t *data_frame = new uint8_t[SIZE_OF_DATA_FRAME];
+        for (int i = 0; i < SIZE_OF_DATA_FRAME; ++i)
+        {
+            data_frame[i] = Incoming_BLE_Data_Buffer.front ();
+            Incoming_BLE_Data_Buffer.pop_front ();
+        }
+
+        if (data_frame[SIZE_OF_DATA_FRAME - 1] != END_BYTE)
+        {
+            safe_logger (
+                spdlog::level::warn, "Wrong End Byte: {}", data_frame[SIZE_OF_DATA_FRAME - 1]);
+            continue;
+        }
+
         double *package = new double[num_rows];
         for (int i = 0; i < num_rows; i++)
         {
@@ -502,40 +516,43 @@ void AAVAA3c8::read_data (
 
         // package num
         package[board_descr["default"]["package_num_channel"].get<int> ()] = (double)data_frame[1];
+
         // eeg
         for (unsigned int i = 0; i < eeg_channels.size (); i++)
         {
-            double eeg_scale = (double)(4.5 / float ((pow (2, 23) - 1)) /
-                gain_tracker.get_gain_for_channel (i) * 1000000.);
-            package[eeg_channels[i]] = eeg_scale * cast_24bit_to_int32 (data_frame + 2 + 3 * i);
+            // all the eeg_channels are 4 bytes and we skip the START byte and package number byte
+            float f_value;
+            std::memcpy (&f_value, data_frame + 2 + 4 * i, sizeof (f_value));
+            double d_value = static_cast<double> (f_value);
+            package[eeg_channels[i]] = EEG_SCALE * d_value;
         }
-        // end byte
-        package[board_descr["default"]["other_channels"][0].get<int> ()] = (double)data_frame[32];
-        // place unprocessed bytes for all modes to other_channels
-        package[board_descr["default"]["other_channels"][1].get<int> ()] = (double)data_frame[26];
-        package[board_descr["default"]["other_channels"][2].get<int> ()] = (double)data_frame[27];
-        package[board_descr["default"]["other_channels"][3].get<int> ()] = (double)data_frame[28];
-        package[board_descr["default"]["other_channels"][4].get<int> ()] = (double)data_frame[29];
-        package[board_descr["default"]["other_channels"][5].get<int> ()] = (double)data_frame[30];
-        package[board_descr["default"]["other_channels"][6].get<int> ()] = (double)data_frame[31];
 
-        /*
-        int32_t accel_temp[3] = {0};
-        accel_temp[0] = cast_16bit_to_int32 (data_frame + 26);
-        accel_temp[1] = cast_16bit_to_int32 (data_frame + 28);
-        accel_temp[2] = cast_16bit_to_int32 (data_frame + 30);
+        package[board_descr["default"]["rotation_channels"][0].get<int> ()] =
+            IMU_SCALE * cast_16bit_to_int32 (data_frame + 34);
+        package[board_descr["default"]["rotation_channels"][1].get<int> ()] =
+            IMU_SCALE * cast_16bit_to_int32 (data_frame + 36);
+        package[board_descr["default"]["rotation_channels"][2].get<int> ()] =
+            IMU_SCALE * cast_16bit_to_int32 (data_frame + 38);
 
-        if (accel_temp[0] != 0)
+        // battery byte
+        package[board_descr["default"]["battery_channel"].get<int> ()] = (double)data_frame[40];
+
+        // imu status byte
+        package[board_descr["default"]["rotation_calib_channel"].get<int> ()] =
+            (double)data_frame[41];
+
+        // timestamp
+        try
         {
-            accel[0] = accel_scale * accel_temp[0];
-            accel[1] = accel_scale * accel_temp[1];
-            accel[2] = accel_scale * accel_temp[2];
+            package[board_descr["default"]["other_channels"][0].get<int> ()] =
+                *reinterpret_cast<uint32_t *> (data_frame + 42) *
+                TIMESTAMP_SCALE; // get_timestamp ();
         }
-
-        package[board_descr["default"]["accel_channels"][0].get<int> ()] = accel[0];
-        package[board_descr["default"]["accel_channels"][1].get<int> ()] = accel[1];
-        package[board_descr["default"]["accel_channels"][2].get<int> ()] = accel[2];
-        */
+        catch (const std::exception &e)
+        {
+            std::string error_message = std::string ("Exception occurred: ") + e.what ();
+            safe_logger (spdlog::level::warn, error_message);
+        }
 
         package[board_descr["default"]["timestamp_channel"].get<int> ()] = get_timestamp ();
 

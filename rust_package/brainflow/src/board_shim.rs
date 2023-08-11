@@ -337,6 +337,12 @@ gen_fn!(
     "Get battery channel for a board."
 );
 gen_fn!(
+    rotation_calib_channel,
+    usize,
+    0,
+    "Get rotation calib channel for a board."
+);
+gen_fn!(
     num_rows,
     usize,
     0,
@@ -492,6 +498,10 @@ gen_vec_fn!(
 gen_vec_fn!(
     accel_channels,
     "Get list of accel channels in resulting data table for a board."
+);
+gen_vec_fn!(
+    rotation_channels,
+    "Get list of rotation channels in resulting data table for a board."
 );
 gen_vec_fn!(
     gyro_channels,
