@@ -43,6 +43,7 @@
                 payload:(NSData*)payload;
 
 - (void)delegateDidConnect;
-- (void)delegateDidDisconnect;
+- (void)delegateDidFailToConnect:(NSError*)error;
+- (void)delegateDidDisconnect:(NSError*)error;
 
 @end
