@@ -25,7 +25,7 @@
     self = [super init];
     if (self) {
         _adapter = adapter;
-        _uuid = [[NSUUID UUID] UUIDString];
+        _uuid = @"39a76676-2788-46c9-afa0-f0c0c31e6fd9";
 
         // Use a high-priority queue to ensure that events are processed immediately.
         dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, -1);
@@ -150,16 +150,11 @@
 }
 
 - (void)centralManager:(CBCentralManager*)central didDisconnectPeripheral:(CBPeripheral*)peripheral error:(NSError*)error {
-    if (error != nil) {
-        NSLog(@"Peripheral %@ disconnected: %@\n", peripheral.name, error);
-    }
-    _adapter->delegate_did_disconnect_peripheral((__bridge void*)peripheral);
+    _adapter->delegate_did_disconnect_peripheral((__bridge void*)peripheral, (__bridge void*)error);
 }
 
 - (void)centralManager:(CBCentralManager*)central didFailToConnectPeripheral:(CBPeripheral*)peripheral error:(NSError*)error {
-    if (error != nil) {
-        NSLog(@"Failed to connect to peripheral %@: %@\n", peripheral.name, error);
-    }
+    _adapter->delegate_did_fail_to_connect_peripheral((__bridge void*)peripheral, (__bridge void*)error);
 }
 
 @end

@@ -91,7 +91,7 @@ bool AdapterBase::scan_is_active() {
 
 std::vector<Peripheral> AdapterBase::scan_get_results() {
     std::vector<Peripheral> peripherals;
-    for (auto& [opaque_peripheral, base_peripheral] : this->peripherals_) {
+    for (auto& [opaque_peripheral, base_peripheral] : this->seen_peripherals_) {
         PeripheralBuilder peripheral_builder(base_peripheral);
         peripherals.push_back(peripheral_builder);
     }
@@ -165,12 +165,22 @@ void AdapterBase::delegate_did_connect_peripheral(void* opaque_peripheral) {
     base_peripheral->delegate_did_connect();
 }
 
-void AdapterBase::delegate_did_disconnect_peripheral(void* opaque_peripheral) {
+void AdapterBase::delegate_did_fail_to_connect_peripheral(void* opaque_peripheral, void* opaque_error) {
     if (this->peripherals_.count(opaque_peripheral) == 0) {
         throw Exception::InvalidReference();
     }
 
     // Load the existing PeripheralBase object
     std::shared_ptr<PeripheralBase> base_peripheral = this->peripherals_.at(opaque_peripheral);
-    base_peripheral->delegate_did_disconnect();
+    base_peripheral->delegate_did_fail_to_connect(opaque_error);
+}
+
+void AdapterBase::delegate_did_disconnect_peripheral(void* opaque_peripheral, void* opaque_error) {
+    if (this->peripherals_.count(opaque_peripheral) == 0) {
+        throw Exception::InvalidReference();
+    }
+
+    // Load the existing PeripheralBase object
+    std::shared_ptr<PeripheralBase> base_peripheral = this->peripherals_.at(opaque_peripheral);
+    base_peripheral->delegate_did_disconnect(opaque_error);
 }
