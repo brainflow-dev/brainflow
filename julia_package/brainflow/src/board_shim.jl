@@ -56,6 +56,7 @@ export BrainFlowInputParams
     GALEA_SERIAL_BOARD_V4 = 49
     NTL_WIFI_BOARD = 50
     ANT_NEURO_EE_511_BOARD = 51
+    FREEEEG128_BOARD = 52
 
 end
 
