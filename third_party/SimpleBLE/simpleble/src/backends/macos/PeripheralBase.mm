@@ -215,9 +215,16 @@ void PeripheralBase::delegate_did_connect() {
     [internal delegateDidConnect];
 }
 
-void PeripheralBase::delegate_did_disconnect() {
+void PeripheralBase::delegate_did_fail_to_connect(void* opaque_error) {
     PeripheralBaseMacOS* internal = (__bridge PeripheralBaseMacOS*)opaque_internal_;
-    [internal delegateDidDisconnect];
+    NSError* error = (__bridge NSError*)opaque_error;
+    [internal delegateDidFailToConnect : error];
+}
+
+void PeripheralBase::delegate_did_disconnect(void* opaque_error) {
+    PeripheralBaseMacOS* internal = (__bridge PeripheralBaseMacOS*)opaque_internal_;
+    NSError* error = (__bridge NSError*)opaque_error;
+    [internal delegateDidDisconnect : error];
 
     // If the user manually disconnects the peripheral, don't call the callback at this point.
     if (callback_on_disconnected_ && !manual_disconnect_triggered_) {

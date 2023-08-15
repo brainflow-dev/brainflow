@@ -3,33 +3,40 @@
 #include <vector>
 
 #include "custom_cast.h"
-#include "freeeeg32.h"
+#include "freeeeg.h"
 #include "serial.h"
 #include "timestamp.h"
 
 
-constexpr int FreeEEG32::start_byte;
-constexpr int FreeEEG32::end_byte;
-constexpr double FreeEEG32::ads_gain;
-constexpr double FreeEEG32::ads_vref;
+constexpr int FreeEEG::start_byte;
+constexpr int FreeEEG::end_byte;
+constexpr double FreeEEG::ads_gain;
+constexpr double FreeEEG::ads_vref;
 
 
-FreeEEG32::FreeEEG32 (struct BrainFlowInputParams params)
-    : Board ((int)BoardIds::FREEEEG32_BOARD, params)
+FreeEEG::FreeEEG (int board_id, struct BrainFlowInputParams params) : Board (board_id, params)
 {
     serial = NULL;
     is_streaming = false;
     keep_alive = false;
     initialized = false;
+    if (board_id == (int)BoardIds::FREEEEG32_BOARD)
+    {
+        min_package_size = 1 + 32 * 3;
+    }
+    if (board_id == (int)BoardIds::FREEEEG128_BOARD)
+    {
+        min_package_size = 1 + 128 * 3;
+    }
 }
 
-FreeEEG32::~FreeEEG32 ()
+FreeEEG::~FreeEEG ()
 {
     skip_logs = true;
     release_session ();
 }
 
-int FreeEEG32::prepare_session ()
+int FreeEEG::prepare_session ()
 {
     if (initialized)
     {
@@ -62,7 +69,7 @@ int FreeEEG32::prepare_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int FreeEEG32::start_stream (int buffer_size, const char *streamer_params)
+int FreeEEG::start_stream (int buffer_size, const char *streamer_params)
 {
     if (is_streaming)
     {
@@ -83,7 +90,7 @@ int FreeEEG32::start_stream (int buffer_size, const char *streamer_params)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int FreeEEG32::stop_stream ()
+int FreeEEG::stop_stream ()
 {
     if (is_streaming)
     {
@@ -101,7 +108,7 @@ int FreeEEG32::stop_stream ()
     }
 }
 
-int FreeEEG32::release_session ()
+int FreeEEG::release_session ()
 {
     if (initialized)
     {
@@ -121,16 +128,12 @@ int FreeEEG32::release_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-void FreeEEG32::read_thread ()
+void FreeEEG::read_thread ()
 {
     int res;
-    constexpr int max_size = 200; // random value bigger than package size which is unknown
+    constexpr int max_size = 1000; // random value bigger than package size which is unknown
     unsigned char b[max_size] = {0};
-    // dont know exact package size and it can be changed with new firmware versions, its >=
-    // min_package_size and we can check start\stop bytes
-    constexpr int min_package_size = 1 + 32 * 3;
-    float eeg_scale =
-        FreeEEG32::ads_vref / float ((pow (2, 23) - 1)) / FreeEEG32::ads_gain * 1000000.;
+    float eeg_scale = FreeEEG::ads_vref / float ((pow (2, 23) - 1)) / FreeEEG::ads_gain * 1000000.;
     int num_rows = board_descr["default"]["num_rows"];
     double *package = new double[num_rows];
     for (int i = 0; i < num_rows; i++)
@@ -149,7 +152,7 @@ void FreeEEG32::read_thread ()
         {
             res = serial->read_from_serial_port (b + pos, 1);
             int prev_id = (pos <= 0) ? 0 : pos - 1;
-            if ((b[pos] == FreeEEG32::start_byte) && (b[prev_id] == FreeEEG32::end_byte) &&
+            if ((b[pos] == FreeEEG::start_byte) && (b[prev_id] == FreeEEG::end_byte) &&
                 (pos >= min_package_size))
             {
                 complete_package = true;
@@ -182,7 +185,7 @@ void FreeEEG32::read_thread ()
     delete[] package;
 }
 
-int FreeEEG32::open_port ()
+int FreeEEG::open_port ()
 {
     if (serial->is_port_open ())
     {
@@ -200,7 +203,7 @@ int FreeEEG32::open_port ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int FreeEEG32::set_port_settings ()
+int FreeEEG::set_port_settings ()
 {
     int res = serial->set_serial_port_settings (1000, false);
     if (res < 0)
@@ -225,8 +228,8 @@ int FreeEEG32::set_port_settings ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int FreeEEG32::config_board (std::string config, std::string &response)
+int FreeEEG::config_board (std::string config, std::string &response)
 {
-    safe_logger (spdlog::level::err, "FreeEEG32 doesn't support board configuration.");
+    safe_logger (spdlog::level::err, "FreeEEG doesn't support board configuration.");
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }

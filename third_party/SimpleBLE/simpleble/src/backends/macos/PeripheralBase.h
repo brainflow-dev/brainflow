@@ -53,7 +53,8 @@ class PeripheralBase {
     void set_callback_on_disconnected(std::function<void()> on_disconnected);
 
     void delegate_did_connect();
-    void delegate_did_disconnect();
+    void delegate_did_fail_to_connect(void* opaque_error);
+    void delegate_did_disconnect(void* opaque_error);
 
     void update_advertising_data(advertising_data_t advertising_data);
 

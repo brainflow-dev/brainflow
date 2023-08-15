@@ -1,9 +1,6 @@
 package brainflow;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
@@ -122,34 +119,34 @@ public class BoardShim
         if (SystemUtils.IS_OS_WINDOWS)
         {
             lib_name = "BoardController.dll";
-            unpack_from_jar ("neurosdk-x64.dll");
-            unpack_from_jar ("Unicorn.dll");
-            unpack_from_jar ("gForceSDKWrapper.dll");
-            unpack_from_jar ("gforce64.dll");
-            unpack_from_jar ("simpleble-c.dll");
-            unpack_from_jar ("MuseLib.dll");
-            unpack_from_jar ("BrainBitLib.dll");
-            unpack_from_jar ("GanglionLib.dll");
-            unpack_from_jar ("BrainFlowBluetooth.dll");
-            unpack_from_jar ("eego-SDK.dll");
+            JarHelper.unpack_from_jar ("neurosdk-x64.dll");
+            JarHelper.unpack_from_jar ("Unicorn.dll");
+            JarHelper.unpack_from_jar ("gForceSDKWrapper.dll");
+            JarHelper.unpack_from_jar ("gforce64.dll");
+            JarHelper.unpack_from_jar ("simpleble-c.dll");
+            JarHelper.unpack_from_jar ("MuseLib.dll");
+            JarHelper.unpack_from_jar ("BrainBitLib.dll");
+            JarHelper.unpack_from_jar ("GanglionLib.dll");
+            JarHelper.unpack_from_jar ("BrainFlowBluetooth.dll");
+            JarHelper.unpack_from_jar ("eego-SDK.dll");
         } else if (SystemUtils.IS_OS_MAC)
         {
             lib_name = "libBoardController.dylib";
-            unpack_from_jar ("libGanglionLib.dylib");
-            unpack_from_jar ("libneurosdk-shared.dylib");
-            unpack_from_jar ("libsimpleble-c.dylib");
-            unpack_from_jar ("libMuseLib.dylib");
-            unpack_from_jar ("libBrainBitLib.dylib");
-            unpack_from_jar ("libBrainFlowBluetooth.dylib");
+            JarHelper.unpack_from_jar ("libGanglionLib.dylib");
+            JarHelper.unpack_from_jar ("libneurosdk-shared.dylib");
+            JarHelper.unpack_from_jar ("libsimpleble-c.dylib");
+            JarHelper.unpack_from_jar ("libMuseLib.dylib");
+            JarHelper.unpack_from_jar ("libBrainBitLib.dylib");
+            JarHelper.unpack_from_jar ("libBrainFlowBluetooth.dylib");
         } else if ((SystemUtils.IS_OS_LINUX) && (!is_os_android))
         {
-            unpack_from_jar ("libunicorn.so");
-            unpack_from_jar ("libGanglionLib.so");
-            unpack_from_jar ("libsimpleble-c.so");
-            unpack_from_jar ("libMuseLib.so");
-            unpack_from_jar ("libBrainFlowBluetooth.so");
-            unpack_from_jar ("libBrainBitLib.so");
-            unpack_from_jar ("libeego-SDK.so");
+            JarHelper.unpack_from_jar ("libunicorn.so");
+            JarHelper.unpack_from_jar ("libGanglionLib.so");
+            JarHelper.unpack_from_jar ("libsimpleble-c.so");
+            JarHelper.unpack_from_jar ("libMuseLib.so");
+            JarHelper.unpack_from_jar ("libBrainFlowBluetooth.so");
+            JarHelper.unpack_from_jar ("libBrainBitLib.so");
+            JarHelper.unpack_from_jar ("libeego-SDK.so");
         }
 
         if (is_os_android)
@@ -160,7 +157,7 @@ public class BoardShim
         } else
         {
             // need to extract libraries from jar
-            Path lib_path = unpack_from_jar (lib_name);
+            Path lib_path = JarHelper.unpack_from_jar (lib_name);
             if (lib_path != null)
             {
                 lib_name = lib_path.toString ();
@@ -170,23 +167,6 @@ public class BoardShim
         instance = Native.loadLibrary (lib_name, DllInterface.class,
                 Collections.singletonMap (Library.OPTION_ALLOW_OBJECTS, Boolean.TRUE));
         instance.java_set_jnienv (JNIEnv.CURRENT);
-    }
-
-    private static Path unpack_from_jar (String lib_name)
-    {
-        try
-        {
-            File file = new File (lib_name);
-            if (file.exists ())
-                file.delete ();
-            InputStream link = (BoardShim.class.getResourceAsStream (lib_name));
-            Files.copy (link, file.getAbsoluteFile ().toPath ());
-            return file.getAbsoluteFile ().toPath ();
-        } catch (Exception io)
-        {
-            System.err.println ("file: " + lib_name + " is not found in jar file");
-            return null;
-        }
     }
 
     /**

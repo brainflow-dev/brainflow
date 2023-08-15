@@ -73,7 +73,7 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/mentalab/explore.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/oymotion/gforce_pro.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/oymotion/gforce_dual.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/freeeeg32/freeeeg32.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/freeeeg/freeeeg.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/neuromd/brainbit_bled.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/muse/muse_bled.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ant_neuro/ant_neuro.cpp
@@ -129,7 +129,7 @@ target_include_directories (
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/neurosdk/inc/types
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/neurosity/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/gForceSDKCXX/src/inc
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/freeeeg32/inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/freeeeg/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/ant_neuro
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ant_neuro/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/enophone/inc
