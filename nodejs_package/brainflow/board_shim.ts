@@ -3,7 +3,7 @@ import * as os from 'os';
 import koffi from 'koffi';
 import {
   BoardIds,
-  IInputParams,
+  IBrainFlowInputParams,
   IpProtocolTypes,
   BrainFlowPresets,
   BrainFlowExitCodes,
@@ -12,7 +12,7 @@ import {
 import { BoardControllerCLikeFunctions as CLike, BoardControllerFunctions } from './functions.types';
 
 class BrainFlowInputParams {
-  private inputParams: IInputParams = {
+  private inputParams: IBrainFlowInputParams = {
     serialPort: '',
     macAddress: '',
     ipAddress: '',
@@ -31,14 +31,14 @@ class BrainFlowInputParams {
     masterBoard: BoardIds.NO_BOARD,
   };
 
-  constructor(inputParams: Partial<IInputParams>) {
+  constructor(inputParams: Partial<IBrainFlowInputParams>) {
     this.inputParams = { ...this.inputParams, ...inputParams };
   }
 
   public toJson(): string {
     const params: Record<string, any> = {};
     Object.keys(this.inputParams).forEach((key) => {
-      params[_.snakeCase(key)] = this.inputParams[key as keyof IInputParams];
+      params[_.snakeCase(key)] = this.inputParams[key as keyof IBrainFlowInputParams];
     });
     return JSON.stringify(params);
   }
@@ -66,7 +66,24 @@ class BoardControllerDLL extends BoardControllerFunctions {
     this.releaseSession = this.lib.func(CLike.release_session);
     this.stopStream = this.lib.func(CLike.stop_stream);
     this.getSamplingRate = this.lib.func(CLike.get_sampling_rate);
+    this.getPackageNumChannel = this.lib.func(CLike.get_package_num_channel);
+    this.getTimestampChannel = this.lib.func(CLike.get_timestamp_channel);
+    this.getMarkerChannel = this.lib.func(CLike.get_marker_channel);
+    this.getBatteryChannel = this.lib.func(CLike.get_battery_channel);
     this.getEegChannels = this.lib.func(CLike.get_eeg_channels);
+    this.getExgChannels = this.lib.func(CLike.get_exg_channels);
+    this.getEmgChannels = this.lib.func(CLike.get_emg_channels);
+    this.getEogChannels = this.lib.func(CLike.get_eog_channels);
+    this.getEcgChannels = this.lib.func(CLike.get_ecg_channels);
+    this.getPpgChannels = this.lib.func(CLike.get_ppg_channels);
+    this.getEdaChannels = this.lib.func(CLike.get_eda_channels);
+    this.getAccelChannels = this.lib.func(CLike.get_accel_channels);
+    this.getAnalogChannels = this.lib.func(CLike.get_analog_channels);
+    this.getGyroChannels = this.lib.func(CLike.get_gyro_channels);
+    this.getOtherChannels = this.lib.func(CLike.get_other_channels);
+    this.getTemperatureChannels = this.lib.func(CLike.get_temperature_channels);
+    this.getResistanceChannels = this.lib.func(CLike.get_resistance_channels);
+    this.getMagnetometerChannels = this.lib.func(CLike.get_magnetometer_channels);
     this.addStreamer = this.lib.func(CLike.add_streamer);
     this.deleteStreamer = this.lib.func(CLike.delete_streamer);
     this.insertMarker = this.lib.func(CLike.insert_marker);
@@ -110,7 +127,7 @@ export class BoardShim {
 
   private boardController: BoardControllerDLL;
 
-  constructor(boardId: BoardIds, inputParams: Partial<IInputParams>) {
+  constructor(boardId: BoardIds, inputParams: Partial<IBrainFlowInputParams>) {
     this.boardId = boardId;
     this.masterBoardId =
       inputParams.masterBoard && inputParams.masterBoard !== BoardIds.NO_BOARD ? inputParams.masterBoard : boardId;
@@ -192,15 +209,6 @@ export class BoardShim {
     return dataSize[0];
   }
 
-  public getNumRows(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number {
-    const numRows = [0];
-    const res = this.boardController.getNumRows(boardId, preset, numRows);
-    if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not get num rows');
-    }
-    return numRows[0];
-  }
-
   public getBoardData(numSamples?: number, preset = BrainFlowPresets.DEFAULT_PRESET): number[][] {
     let dataSize = this.getBoardDataCount(preset);
     if (numSamples) {
@@ -258,6 +266,51 @@ export class BoardShim {
     }
   }
 
+  public getNumRows(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number {
+    const numRows = [0];
+    const res = this.boardController.getNumRows(boardId, preset, numRows);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new Error('Could not get num rows');
+    }
+    return numRows[0];
+  }
+
+  public getPackageNumChannel(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number {
+    const value = [0];
+    const res = this.boardController.getPackageNumChannel(boardId, preset, value);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new Error('Could not get such data from this device');
+    }
+    return value[0];
+  }
+
+  public getTimestampChannel(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number {
+    const value = [0];
+    const res = this.boardController.getTimestampChannel(boardId, preset, value);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new Error('Could not get such data from this device');
+    }
+    return value[0];
+  }
+
+  public getMarkerChannel(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number {
+    const value = [0];
+    const res = this.boardController.getMarkerChannel(boardId, preset, value);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new Error('Could not get such data from this device');
+    }
+    return value[0];
+  }
+
+  public getBatteryChannel(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number {
+    const value = [0];
+    const res = this.boardController.getBatteryChannel(boardId, preset, value);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new Error('Could not get such data from this device');
+    }
+    return value[0];
+  }
+
   public getSamplingRate(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number {
     const samplingRate = [0];
     const res = this.boardController.getSamplingRate(boardId, preset, samplingRate);
@@ -276,4 +329,135 @@ export class BoardShim {
     }
     return eegChannels.slice(0, numChannels[0]);
   }
+
+  public getExgChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
+    const numChannels = [0];
+    const сhannels = [...new Array(512).fill(0)];
+    const res = this.boardController.getExgChannels(boardId, preset, сhannels, numChannels);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new Error('Could not get board info');
+    }
+    return сhannels.slice(0, numChannels[0]);
+  }
+
+  public getEmgChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
+    const numChannels = [0];
+    const сhannels = [...new Array(512).fill(0)];
+    const res = this.boardController.getEmgChannels(boardId, preset, сhannels, numChannels);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new Error('Could not get board info');
+    }
+    return сhannels.slice(0, numChannels[0]);
+  }
+
+  public getEcgChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
+    const numChannels = [0];
+    const сhannels = [...new Array(512).fill(0)];
+    const res = this.boardController.getEcgChannels(boardId, preset, сhannels, numChannels);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new Error('Could not get board info');
+    }
+    return сhannels.slice(0, numChannels[0]);
+  }
+
+  public getEogChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
+    const numChannels = [0];
+    const сhannels = [...new Array(512).fill(0)];
+    const res = this.boardController.getEogChannels(boardId, preset, сhannels, numChannels);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new Error('Could not get board info');
+    }
+    return сhannels.slice(0, numChannels[0]);
+  }
+
+  public getPpgChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
+    const numChannels = [0];
+    const сhannels = [...new Array(512).fill(0)];
+    const res = this.boardController.getPpgChannels(boardId, preset, сhannels, numChannels);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new Error('Could not get board info');
+    }
+    return сhannels.slice(0, numChannels[0]);
+  }
+
+  public getEdaChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
+    const numChannels = [0];
+    const сhannels = [...new Array(512).fill(0)];
+    const res = this.boardController.getEdaChannels(boardId, preset, сhannels, numChannels);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new Error('Could not get board info');
+    }
+    return сhannels.slice(0, numChannels[0]);
+  }
+
+  public getAccelChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
+    const numChannels = [0];
+    const сhannels = [...new Array(512).fill(0)];
+    const res = this.boardController.getAccelChannels(boardId, preset, сhannels, numChannels);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new Error('Could not get board info');
+    }
+    return сhannels.slice(0, numChannels[0]);
+  }
+
+  public getAnalogChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
+    const numChannels = [0];
+    const сhannels = [...new Array(512).fill(0)];
+    const res = this.boardController.getAnalogChannels(boardId, preset, сhannels, numChannels);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new Error('Could not get board info');
+    }
+    return сhannels.slice(0, numChannels[0]);
+  }
+
+  public getGyroChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
+    const numChannels = [0];
+    const сhannels = [...new Array(512).fill(0)];
+    const res = this.boardController.getGyroChannels(boardId, preset, сhannels, numChannels);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new Error('Could not get board info');
+    }
+    return сhannels.slice(0, numChannels[0]);
+  }
+
+  public getOtherChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
+    const numChannels = [0];
+    const сhannels = [...new Array(512).fill(0)];
+    const res = this.boardController.getOtherChannels(boardId, preset, сhannels, numChannels);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new Error('Could not get board info');
+    }
+    return сhannels.slice(0, numChannels[0]);
+  }
+
+  public getTemperatureChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
+    const numChannels = [0];
+    const сhannels = [...new Array(512).fill(0)];
+    const res = this.boardController.getTemperatureChannels(boardId, preset, сhannels, numChannels);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new Error('Could not get board info');
+    }
+    return сhannels.slice(0, numChannels[0]);
+  }
+
+  public getResistanceChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
+    const numChannels = [0];
+    const сhannels = [...new Array(512).fill(0)];
+    const res = this.boardController.getResistanceChannels(boardId, preset, сhannels, numChannels);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new Error('Could not get board info');
+    }
+    return сhannels.slice(0, numChannels[0]);
+  }
+
+  public getMagnetometerChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
+    const numChannels = [0];
+    const сhannels = [...new Array(512).fill(0)];
+    const res = this.boardController.getMagnetometerChannels(boardId, preset, сhannels, numChannels);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new Error('Could not get board info');
+    }
+    return сhannels.slice(0, numChannels[0]);
+  }
+
 }

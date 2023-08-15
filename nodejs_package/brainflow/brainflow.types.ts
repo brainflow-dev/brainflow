@@ -221,7 +221,7 @@ export enum BrainFlowExitCodes {
 //  Interfaces
 // --------------------------- //
 
-export interface IInputParams {
+export interface IBrainFlowInputParams {
   serialPort: string;
   macAddress: string;
   ipAddress: string;
