@@ -8,6 +8,7 @@ import {
   BrainFlowPresets,
   BrainFlowExitCodes,
   LogLevels,
+  BrainFlowError,
 } from './brainflow.types';
 import { BoardControllerCLikeFunctions as CLike, BoardControllerFunctions } from './functions.types';
 
@@ -103,7 +104,7 @@ class BoardControllerDLL extends BoardControllerFunctions {
       case 'linux':
         return `${this.libPath}/libBoardController.so`;
       default:
-        throw new Error(`OS ${platform} is not supported.`);
+        throw new BrainFlowError(BrainFlowExitCodes.GENERAL_ERROR, `OS ${platform} is not supported.`);
     }
   }
 
@@ -113,7 +114,7 @@ class BoardControllerDLL extends BoardControllerFunctions {
       return lib;
     } catch (err) {
       console.error(err);
-      throw new Error(`${'Could not load BoardController DLL - path://'}${this.dllPath}`);
+      throw new BrainFlowError(BrainFlowExitCodes.GENERAL_ERROR, `${'Could not load BoardController DLL - path://'}${this.dllPath}`);
     }
   }
 }
@@ -139,7 +140,7 @@ export class BoardShim {
     const prepared = [0];
     const res = this.boardController.isPrepared(prepared, this.boardId, this.inputJson);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not check prepared state');
+      throw new BrainFlowError(res, 'Could not check prepared state');
     }
     return !!prepared[0];
   }
@@ -147,56 +148,56 @@ export class BoardShim {
   public addStreamer(streamerParams: string, preset = BrainFlowPresets.DEFAULT_PRESET): void {
     const res = this.boardController.addStreamer(streamerParams, preset, this.boardId, this.inputJson);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not add streamer');
+      throw new BrainFlowError(res, 'Could not add streamer');
     }
   }
 
   public deleteStreamer(streamerParams: string, preset = BrainFlowPresets.DEFAULT_PRESET): void {
     const res = this.boardController.deleteStreamer(streamerParams, preset, this.boardId, this.inputJson);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not delete streamer');
+      throw new BrainFlowError(res, 'Could not delete streamer');
     }
   }
 
   public insertMarker(value: number, preset = BrainFlowPresets.DEFAULT_PRESET): void {
     const res = this.boardController.insertMarker(value, preset, this.boardId, this.inputJson);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not insert marker');
+      throw new BrainFlowError(res, 'Could not insert marker');
     }
   }
 
   public setLogLevel(logLevel: LogLevels): void {
     const res = this.boardController.setLogLevelBoardController(logLevel);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not set log level properly');
+      throw new BrainFlowError(res, 'Could not set log level properly');
     }
   }
 
   public setLogFile(file: string): void {
     const res = this.boardController.setLogFileBoardController(file);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not redirect to log file');
+      throw new BrainFlowError(res, 'Could not redirect to log file');
     }
   }
 
   public logMessage(logLevel: LogLevels, message: string): void {
     const res = this.boardController.logMessageBoardController(logLevel, message);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not writte message');
+      throw new BrainFlowError(res, 'Could not writte message');
     }
   }
 
   public prepareSession(): void {
     const res = this.boardController.prepareSession(this.boardId, this.inputJson);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not prepare session');
+      throw new BrainFlowError(res, 'Could not prepare session');
     }
   }
 
   public startStream(numSamples = 1800 * 250, streamerParams = null): void {
     const res = this.boardController.startStream(numSamples, streamerParams, this.boardId, this.inputJson);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not start stream');
+      throw new BrainFlowError(res, 'Could not start stream');
     }
   }
 
@@ -204,7 +205,7 @@ export class BoardShim {
     const dataSize = [0];
     const res = this.boardController.getBoardDataCount(preset, dataSize, this.boardId, this.inputJson);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not get board data count');
+      throw new BrainFlowError(res, 'Could not get board data count');
     }
     return dataSize[0];
   }
@@ -219,7 +220,7 @@ export class BoardShim {
     const dataArr = [...new Array(packageLength * dataSize).fill(0)];
     const res = this.boardController.getBoardData(dataSize, preset, dataArr, this.boardId, this.inputJson);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not get board data');
+      throw new BrainFlowError(res, 'Could not get board data');
     }
     return _.chunk(dataArr, dataSize);
   }
@@ -237,7 +238,7 @@ export class BoardShim {
       this.inputJson,
     );
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not get current board data');
+      throw new BrainFlowError(res, 'Could not get current board data');
     }
     if (!currentSize.length) {
       return null;
@@ -248,21 +249,21 @@ export class BoardShim {
   public releaseAllSessions(): void {
     const res = this.boardController.releaseAllSessions();
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not release all sessions');
+      throw new BrainFlowError(res, 'Could not release all sessions');
     }
   }
 
   public releaseSession(): void {
     const res = this.boardController.releaseSession(this.boardId, this.inputJson);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not release session');
+      throw new BrainFlowError(res, 'Could not release session');
     }
   }
 
   public stopStream(): void {
     const res = this.boardController.stopStream(this.boardId, this.inputJson);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not stop stream');
+      throw new BrainFlowError(res, 'Could not stop stream');
     }
   }
 
@@ -270,7 +271,7 @@ export class BoardShim {
     const numRows = [0];
     const res = this.boardController.getNumRows(boardId, preset, numRows);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not get num rows');
+      throw new BrainFlowError(res, 'Could not get num rows');
     }
     return numRows[0];
   }
@@ -279,7 +280,7 @@ export class BoardShim {
     const value = [0];
     const res = this.boardController.getPackageNumChannel(boardId, preset, value);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not get such data from this device');
+      throw new BrainFlowError(res, 'Could not get such data from this device');
     }
     return value[0];
   }
@@ -288,7 +289,7 @@ export class BoardShim {
     const value = [0];
     const res = this.boardController.getTimestampChannel(boardId, preset, value);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not get such data from this device');
+      throw new BrainFlowError(res, 'Could not get such data from this device');
     }
     return value[0];
   }
@@ -297,7 +298,7 @@ export class BoardShim {
     const value = [0];
     const res = this.boardController.getMarkerChannel(boardId, preset, value);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not get such data from this device');
+      throw new BrainFlowError(res, 'Could not get such data from this device');
     }
     return value[0];
   }
@@ -306,7 +307,7 @@ export class BoardShim {
     const value = [0];
     const res = this.boardController.getBatteryChannel(boardId, preset, value);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not get such data from this device');
+      throw new BrainFlowError(res, 'Could not get such data from this device');
     }
     return value[0];
   }
@@ -315,7 +316,7 @@ export class BoardShim {
     const samplingRate = [0];
     const res = this.boardController.getSamplingRate(boardId, preset, samplingRate);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not get sampling rate');
+      throw new BrainFlowError(res, 'Could not get sampling rate');
     }
     return samplingRate[0];
   }
@@ -325,7 +326,7 @@ export class BoardShim {
     const eegChannels = [...new Array(512).fill(0)];
     const res = this.boardController.getEegChannels(boardId, preset, eegChannels, numChannels);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not get board info');
+      throw new BrainFlowError(res, 'Could not get board info');
     }
     return eegChannels.slice(0, numChannels[0]);
   }
@@ -335,7 +336,7 @@ export class BoardShim {
     const сhannels = [...new Array(512).fill(0)];
     const res = this.boardController.getExgChannels(boardId, preset, сhannels, numChannels);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not get board info');
+      throw new BrainFlowError(res, 'Could not get board info');
     }
     return сhannels.slice(0, numChannels[0]);
   }
@@ -345,7 +346,7 @@ export class BoardShim {
     const сhannels = [...new Array(512).fill(0)];
     const res = this.boardController.getEmgChannels(boardId, preset, сhannels, numChannels);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not get board info');
+      throw new BrainFlowError(res, 'Could not get board info');
     }
     return сhannels.slice(0, numChannels[0]);
   }
@@ -355,7 +356,7 @@ export class BoardShim {
     const сhannels = [...new Array(512).fill(0)];
     const res = this.boardController.getEcgChannels(boardId, preset, сhannels, numChannels);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not get board info');
+      throw new BrainFlowError(res, 'Could not get board info');
     }
     return сhannels.slice(0, numChannels[0]);
   }
@@ -365,7 +366,7 @@ export class BoardShim {
     const сhannels = [...new Array(512).fill(0)];
     const res = this.boardController.getEogChannels(boardId, preset, сhannels, numChannels);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not get board info');
+      throw new BrainFlowError(res, 'Could not get board info');
     }
     return сhannels.slice(0, numChannels[0]);
   }
@@ -375,7 +376,7 @@ export class BoardShim {
     const сhannels = [...new Array(512).fill(0)];
     const res = this.boardController.getPpgChannels(boardId, preset, сhannels, numChannels);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not get board info');
+      throw new BrainFlowError(res, 'Could not get board info');
     }
     return сhannels.slice(0, numChannels[0]);
   }
@@ -385,7 +386,7 @@ export class BoardShim {
     const сhannels = [...new Array(512).fill(0)];
     const res = this.boardController.getEdaChannels(boardId, preset, сhannels, numChannels);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not get board info');
+      throw new BrainFlowError(res, 'Could not get board info');
     }
     return сhannels.slice(0, numChannels[0]);
   }
@@ -395,7 +396,7 @@ export class BoardShim {
     const сhannels = [...new Array(512).fill(0)];
     const res = this.boardController.getAccelChannels(boardId, preset, сhannels, numChannels);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not get board info');
+      throw new BrainFlowError(res, 'Could not get board info');
     }
     return сhannels.slice(0, numChannels[0]);
   }
@@ -405,7 +406,7 @@ export class BoardShim {
     const сhannels = [...new Array(512).fill(0)];
     const res = this.boardController.getAnalogChannels(boardId, preset, сhannels, numChannels);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not get board info');
+      throw new BrainFlowError(res, 'Could not get board info');
     }
     return сhannels.slice(0, numChannels[0]);
   }
@@ -415,7 +416,7 @@ export class BoardShim {
     const сhannels = [...new Array(512).fill(0)];
     const res = this.boardController.getGyroChannels(boardId, preset, сhannels, numChannels);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not get board info');
+      throw new BrainFlowError(res, 'Could not get board info');
     }
     return сhannels.slice(0, numChannels[0]);
   }
@@ -425,7 +426,7 @@ export class BoardShim {
     const сhannels = [...new Array(512).fill(0)];
     const res = this.boardController.getOtherChannels(boardId, preset, сhannels, numChannels);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not get board info');
+      throw new BrainFlowError(res, 'Could not get board info');
     }
     return сhannels.slice(0, numChannels[0]);
   }
@@ -435,7 +436,7 @@ export class BoardShim {
     const сhannels = [...new Array(512).fill(0)];
     const res = this.boardController.getTemperatureChannels(boardId, preset, сhannels, numChannels);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not get board info');
+      throw new BrainFlowError(res, 'Could not get board info');
     }
     return сhannels.slice(0, numChannels[0]);
   }
@@ -445,7 +446,7 @@ export class BoardShim {
     const сhannels = [...new Array(512).fill(0)];
     const res = this.boardController.getResistanceChannels(boardId, preset, сhannels, numChannels);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not get board info');
+      throw new BrainFlowError(res, 'Could not get board info');
     }
     return сhannels.slice(0, numChannels[0]);
   }
@@ -455,7 +456,7 @@ export class BoardShim {
     const сhannels = [...new Array(512).fill(0)];
     const res = this.boardController.getMagnetometerChannels(boardId, preset, сhannels, numChannels);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not get board info');
+      throw new BrainFlowError(res, 'Could not get board info');
     }
     return сhannels.slice(0, numChannels[0]);
   }

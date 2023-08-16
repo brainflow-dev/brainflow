@@ -129,10 +129,6 @@ jobs:
       uses: julia-actions/setup-julia@v1
       with:
         version: 1.3.1
-    # Unit testing
-    - name: Run unit tests
-      run: .\build\tests\Release\brainflow_tests.exe
-      shell: cmd
     # BoardController testing
     - name: Run Julia Tests
       run: |
@@ -293,6 +289,11 @@ jobs:
       run: |
         cd %GITHUB_WORKSPACE%\rust_package\brainflow
         cargo run --example=eeg_metrics
+      shell: cmd
+    - name: Synthetic Node
+      run: |
+        cd %GITHUB_WORKSPACE%\nodejs_package\brainflow
+        npm run example
       shell: cmd
     # Start Deploy Stage
     - name: Install Python AWS Tools

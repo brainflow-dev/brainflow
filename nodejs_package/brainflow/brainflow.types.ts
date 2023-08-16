@@ -1,3 +1,15 @@
+export class BrainFlowError extends Error {
+  __proto__ = Error
+
+  public exitCode: number;
+
+  constructor(errorCode: number, msg: string) {
+      super("Error code is: " + errorCode + " " + msg);
+      this.exitCode = errorCode;
+      Object.setPrototypeOf(this, BrainFlowError.prototype);
+  }
+}
+
 // --------------------------- //
 // I. BoardShim enums
 // --------------------------- //

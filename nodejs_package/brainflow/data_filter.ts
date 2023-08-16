@@ -1,7 +1,7 @@
 import os from 'os';
 import koffi from 'koffi';
 import { DataHandlerCLikeFunctions as CLike, DataHandlerFunctions } from './functions.types';
-import { BrainFlowExitCodes } from './brainflow.types';
+import { BrainFlowExitCodes, BrainFlowError } from './brainflow.types';
 
 class DataHandlerDLL extends DataHandlerFunctions {
   private libPath: string;
@@ -28,7 +28,7 @@ class DataHandlerDLL extends DataHandlerFunctions {
       case 'linux':
         return `${this.libPath}/libDataHandler.so`;
       default:
-        throw new Error(`OS ${platform} is not supported.`);
+        throw new BrainFlowError(BrainFlowExitCodes.GENERAL_ERROR, `OS ${platform} is not supported.`);
     }
   }
 
@@ -38,7 +38,7 @@ class DataHandlerDLL extends DataHandlerFunctions {
       return lib;
     } catch (err) {
       console.error(err);
-      throw new Error(`${'Could not load DataHandlerDLL DLL - path://'}${this.dllPath}`);
+      throw new BrainFlowError(BrainFlowExitCodes.GENERAL_ERROR, `${'Could not load DataHandlerDLL DLL - path://'}${this.dllPath}`);
     }
   }
 }
@@ -48,7 +48,7 @@ export class DataFilter {
     const output = [0];
     const res = new DataHandlerDLL().getRailedPercentage(data, data.length, gain, output);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
-      throw new Error('Could not get railed percentage');
+      throw new BrainFlowError(res, 'Could not get railed percentage');
     }
     return output[0];
   }
