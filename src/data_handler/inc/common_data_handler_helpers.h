@@ -35,3 +35,17 @@ inline double stddev (double data[], int len)
 
     return sqrt (deviation / len);
 }
+
+
+// Reverses the drection of an array of doubles.
+// I.e. the first element (0) is replaced by the last (len - 1),
+// element 1 is replaced by element (len - 1 - 1), etc.
+inline void reverse_array (double data[], int len)
+{
+    for (int i = 0; i < len / 2; i++)
+    {
+        double temp = data[i];
+        data[i] = data[len - i - 1];
+        data[len - i - 1] = temp;
+    }
+}

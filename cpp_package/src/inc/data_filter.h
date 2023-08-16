@@ -193,7 +193,8 @@ public:
      * @return oxygen level
      */
     static double get_oxygen_level (double *ppg_ir, double *ppg_red, int data_len,
-        int sampling_rate, double coef1 = 0.0, double coef2 = -37.663, double coef3 = 114.91);
+        int sampling_rate, double coef1 = 1.5958422, double coef2 = -34.6596622,
+        double coef3 = 112.6898759);
     /**
      * calculate heart rate
      * @param ppg_ir input 1d array

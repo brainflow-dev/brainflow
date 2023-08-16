@@ -178,7 +178,51 @@ public:
 class GaleaGainTracker : public OpenBCIGainTracker
 {
 public:
-    GaleaGainTracker () : OpenBCIGainTracker ({4, 4, 4, 4, 4, 4, 12, 12, 2, 2, 2, 2, 2, 2, 2, 2})
+    GaleaGainTracker ()
+        : OpenBCIGainTracker ({4, 4, 4, 4, 4, 4, 12, 12, 2, 2, 2, 2, 2, 2, 2, 2}) // to be confirmed
+    {
+    }
+
+    virtual int apply_config (std::string config)
+    {
+        if (config.size () == 1)
+        {
+            if ((config.at (0) == 'f') || (config.at (0) == 'g'))
+            {
+                std::copy (current_gains.begin (), current_gains.end (), old_gains.begin ());
+                std::fill (current_gains.begin (), current_gains.end (), 1);
+            }
+            if ((config.at (0) == 'o') || (config.at (0) == 'd'))
+            {
+                std::copy (current_gains.begin (), current_gains.end (), old_gains.begin ());
+                for (size_t i = 0; i < current_gains.size (); i++)
+                {
+                    if (i < 6)
+                    {
+                        current_gains[i] = 4;
+                    }
+                    else if ((i == 6) || (i == 7))
+                    {
+                        current_gains[i] = 12;
+                    }
+                    else
+                    {
+                        current_gains[i] = 2;
+                    }
+                }
+            }
+        }
+
+        return OpenBCIGainTracker::apply_config (config);
+    }
+};
+
+class GaleaV4GainTracker : public OpenBCIGainTracker
+{
+public:
+    GaleaV4GainTracker ()
+        : OpenBCIGainTracker ({4, 4, 4, 4, 4, 4, 12, 12, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+              2, 2}) // to be confirmed
     {
     }
 

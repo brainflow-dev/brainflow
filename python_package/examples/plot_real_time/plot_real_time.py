@@ -91,11 +91,11 @@ class Graph:
             # plot timeseries
             DataFilter.detrend(data[channel], DetrendOperations.CONSTANT.value)
             DataFilter.perform_bandpass(data[channel], self.sampling_rate, 3.0, 45.0, 2,
-                                        FilterTypes.BUTTERWORTH.value, 0)
+                                        FilterTypes.BUTTERWORTH_ZERO_PHASE, 0)
             DataFilter.perform_bandstop(data[channel], self.sampling_rate, 48.0, 52.0, 2,
-                                        FilterTypes.BUTTERWORTH.value, 0)
+                                        FilterTypes.BUTTERWORTH_ZERO_PHASE, 0)
             DataFilter.perform_bandstop(data[channel], self.sampling_rate, 58.0, 62.0, 2,
-                                        FilterTypes.BUTTERWORTH.value, 0)
+                                        FilterTypes.BUTTERWORTH_ZERO_PHASE, 0)
             self.curves[count].setData(data[channel].tolist())
             if data.shape[1] > self.psd_size:
                 # plot psd

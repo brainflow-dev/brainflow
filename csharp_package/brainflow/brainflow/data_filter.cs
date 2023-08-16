@@ -233,7 +233,7 @@ namespace brainflow
         /// <returns>data after downsampling</returns>
         public static double[] perform_downsampling (double[] data, int period, int operation)
         {
-            if (period == 0)
+            if (period <= 0)
             {
                 throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             }
@@ -306,7 +306,7 @@ namespace brainflow
         /// <param name="coef2">approximation coef</param>
         /// /// <param name="coef3">intercept for approximation</param>
         /// <returns>stddev</returns>
-        public static double get_oxygen_level (double[] ppg_ir, double[] ppg_red, int sampling_rate, double coef1 = 0.0, double coef2 = -37.663, double coef3 = 114.91)
+        public static double get_oxygen_level (double[] ppg_ir, double[] ppg_red, int sampling_rate, double coef1 = 1.5958422, double coef2 = -34.6596622, double coef3 = 112.6898759)
         {
             if (ppg_ir.Length != ppg_red.Length)
             {
@@ -808,6 +808,490 @@ namespace brainflow
             }
             string version = System.Text.Encoding.UTF8.GetString (str, 0, len[0]);
             return version;
+        }
+
+
+        /// <summary>
+        /// perform lowpass filter for specified row number in-place
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="row_num"></param>
+        /// <param name="sampling_rate"></param>
+        /// <param name="cutoff"></param>
+        /// <param name="order"></param>
+        /// <param name="filter_type"></param>
+        /// <param name="ripple"></param>
+        public static unsafe void perform_lowpass (double[,] data, int row_num, int sampling_rate, double cutoff, int order, int filter_type, double ripple)
+        {
+            int res = (int)BrainFlowExitCodes.STATUS_OK;
+            if ((row_num < 0) || (row_num >= data.GetLength(0)))
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            fixed (double* row_data = &data[row_num, 0])
+            {
+                res = DataHandlerLibrary.perform_lowpass (row_data, data.GetLength (1), sampling_rate, cutoff, order, filter_type, ripple);
+            }
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+        }
+
+        /// <summary>
+        /// remove env noise using notch filter in-place
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="row_num"></param>
+        /// <param name="sampling_rate"></param>
+        /// <param name="noise_type"></param>
+        public static unsafe void remove_environmental_noise (double[,] data, int row_num, int sampling_rate, int noise_type)
+        {
+            int res = (int)BrainFlowExitCodes.STATUS_OK;
+            if ((row_num < 0) || (row_num >= data.GetLength (0)))
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            fixed (double* row_data = &data[row_num, 0])
+            {
+                res = DataHandlerLibrary.remove_environmental_noise (row_data, data.GetLength (1), sampling_rate, noise_type);
+            }
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+        }
+
+        /// <summary>
+        /// perform highpass filter in-place
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="sampling_rate"></param>
+        /// <param name="cutoff"></param>
+        /// <param name="order"></param>
+        /// <param name="filter_type"></param>
+        /// <param name="ripple"></param>
+        public static unsafe void perform_highpass (double[,] data, int row_num, int sampling_rate, double cutoff, int order, int filter_type, double ripple)
+        {
+            int res = (int)BrainFlowExitCodes.STATUS_OK;
+            if ((row_num < 0) || (row_num >= data.GetLength (0)))
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            fixed (double* row_data = &data[row_num, 0])
+            {
+                res = DataHandlerLibrary.perform_highpass (row_data, data.GetLength (1), sampling_rate, cutoff, order, filter_type, ripple);
+            }
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+        }
+
+        /// <summary>
+        /// perform bandpass filter in-place
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="row_num"></param>
+        /// <param name="sampling_rate"></param>
+        /// <param name="start_freq"></param>
+        /// <param name="stop_freq"></param>
+        /// <param name="order"></param>
+        /// <param name="filter_type"></param>
+        /// <param name="ripple"></param>
+        public static unsafe void perform_bandpass (double[,] data, int row_num, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple)
+        {
+            int res = (int)BrainFlowExitCodes.STATUS_OK;
+            if ((row_num < 0) || (row_num >= data.GetLength (0)))
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            fixed (double* row_data = &data[row_num, 0])
+            {
+                res = DataHandlerLibrary.perform_bandpass (row_data, data.GetLength (1), sampling_rate, start_freq, stop_freq, order, filter_type, ripple);
+            }
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+        }
+
+        /// <summary>
+        /// perform bandstop filter in-place
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="row_num"></param>
+        /// <param name="sampling_rate"></param>
+        /// <param name="start_freq"></param>
+        /// <param name="stop_freq"></param>
+        /// <param name="order"></param>
+        /// <param name="filter_type"></param>
+        /// <param name="ripple"></param>
+        /// <returns>filtered data</returns>
+        public static unsafe void perform_bandstop (double[,] data, int row_num, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple)
+        {
+            int res = (int)BrainFlowExitCodes.STATUS_OK;
+            if ((row_num < 0) || (row_num >= data.GetLength (0)))
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            fixed (double* row_data = &data[row_num, 0])
+            {
+                res = DataHandlerLibrary.perform_bandstop (row_data, data.GetLength (1), sampling_rate, start_freq, stop_freq, order, filter_type, ripple);
+            }
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+        }
+
+        /// <summary>
+        /// perform moving average or moving median filter, unlike other bindings instead in-place calculation it returns new array
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="row_num"></param>
+        /// <param name="period"></param>
+        /// <param name="operation"></param>
+        /// <returns>filered data</returns>
+        public static unsafe void perform_rolling_filter (double[,] data, int row_num, int period, int operation)
+        {
+            int res = (int)BrainFlowExitCodes.STATUS_OK;
+            if ((row_num < 0) || (row_num >= data.GetLength (0)))
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            fixed (double* row_data = &data[row_num, 0])
+            {
+                res = DataHandlerLibrary.perform_rolling_filter (row_data, data.GetLength (1), period, operation);
+            }
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+        }
+
+        /// <summary>
+        /// detrend, unlike other bindings instead in-place calculation it returns new array
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="row_num"></param>
+        /// <param name="operation"></param>
+        /// <returns>data with removed trend</returns>
+        public static unsafe void detrend (double[,] data, int row_num, int operation)
+        {
+            int res = (int)BrainFlowExitCodes.STATUS_OK;
+            if ((row_num < 0) || (row_num >= data.GetLength (0)))
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            fixed (double* row_data = &data[row_num, 0])
+            {
+                res = DataHandlerLibrary.detrend (row_data, data.GetLength(1), operation);
+            }
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+        }
+
+        /// <summary>
+        /// perform data downsampling, it just aggregates data without applying lowpass filter
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="row_num"></param>
+        /// <param name="period"></param>
+        /// <param name="operation"></param>
+        /// <returns>data after downsampling</returns>
+        public static unsafe double[] perform_downsampling (double[,] data, int row_num, int period, int operation)
+        {
+            if (period <= 0)
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            if (data.Length / period <= 0)
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            double[] downsampled_data = new double[data.Length / period];
+            int res = (int)BrainFlowExitCodes.STATUS_OK;
+            if ((row_num < 0) || (row_num >= data.GetLength (0)))
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            fixed (double* row_data = &data[row_num, 0])
+            {
+                res = DataHandlerLibrary.perform_downsampling (row_data, data.GetLength(1), period, operation, downsampled_data);
+            }
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+            return downsampled_data;
+        }
+
+        /// <summary>
+        /// detect peaks using z score algorithm
+        /// </summary>
+        public static unsafe double[] detect_peaks_z_score (double[,] data, int row_num, int lag, double threshold, double influence)
+        {
+            double[] peaks = new double[data.Length];
+            int res = (int)BrainFlowExitCodes.STATUS_OK;
+            if ((row_num < 0) || (row_num >= data.GetLength (0)))
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            fixed (double* row_data = &data[row_num, 0])
+            {
+                res = DataHandlerLibrary.detect_peaks_z_score (row_data, data.GetLength(1), lag, threshold, influence, peaks);
+            }
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+            return peaks;
+        }
+
+        /// <summary>
+        /// calc stddev
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="row_num"></param>
+        /// <param name="start_pos"></param>
+        /// /// <param name="end_pos"></param>
+        /// <returns>stddev</returns>
+        public static unsafe double calc_stddev (double[,] data, int row_num, int start_pos, int end_pos)
+        {
+            double[] output = new double[1];
+            int res = (int)BrainFlowExitCodes.STATUS_OK;
+            if ((row_num < 0) || (row_num >= data.GetLength (0)))
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            fixed (double* row_data = &data[row_num, 0])
+            {
+                res = DataHandlerLibrary.calc_stddev (row_data, start_pos, end_pos, output);
+            }
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+            return output[0];
+        }
+
+        /// <summary>
+        /// get railed percentage
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="row_num"></param>
+        /// <param name="gain"></param>
+        /// <returns>railed</returns>
+        public static unsafe double get_railed_percentage (double[,] data, int row_num, int gain)
+        {
+            double[] output = new double[1];
+            int res = (int)BrainFlowExitCodes.STATUS_OK;
+            if ((row_num < 0) || (row_num >= data.GetLength (0)))
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            fixed (double* row_data = &data[row_num, 0])
+            {
+                res = DataHandlerLibrary.get_railed_percentage (row_data, data.GetLength(1), gain, output);
+            }
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+            return output[0];
+        }
+
+        /// <summary>
+        /// perform wavelet transform
+        /// </summary>
+        /// <param name="data">data for wavelet transform</param>
+        /// <param name="row_num"></param>
+        /// <param name="wavelet">use WaveletTypes enum</param>
+        /// <param name="extension">use WaveletExtensionTypes enum</param>
+        /// <param name="decomposition_level">decomposition level</param>
+        /// <returns>tuple of wavelet coeffs in format [A(J) D(J) D(J-1) ..... D(1)] where J is decomposition level, A - app coeffs, D - detailed coeffs, and array with lengths for each block</returns>
+        public static unsafe Tuple<double[], int[]> perform_wavelet_transform (double[,] data, int row_num, int wavelet, int decomposition_level, int extension)
+        {
+            double[] wavelet_coeffs = new double[data.Length + 2 * (40 + 1)];
+            int[] lengths = new int[decomposition_level + 1];
+            int res = (int)BrainFlowExitCodes.STATUS_OK;
+            if ((row_num < 0) || (row_num >= data.GetLength (0)))
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            fixed (double* row_data = &data[row_num, 0])
+            {
+                res = DataHandlerLibrary.perform_wavelet_transform (row_data, data.GetLength(1), wavelet, decomposition_level, extension, wavelet_coeffs, lengths);
+            }
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+            int total_length = 0;
+            foreach (int val in lengths)
+            {
+                total_length += val;
+            }
+            double[] truncated = new double[total_length];
+            for (int i = 0; i < total_length; i++)
+            {
+                truncated[i] = wavelet_coeffs[i];
+            }
+            Tuple<double[], int[]> return_data = new Tuple<double[], int[]> (truncated, lengths);
+            return return_data;
+        }
+
+        /// <summary>
+        /// perform wavelet based denoising
+        /// </summary>
+        /// <param name="data">data for denoising</param>
+        /// <param name="row_num"></param>
+        /// <param name="wavelet">use WaveletTypes enum</param>
+        /// <param name="decomposition_level">level of decomposition in wavelet transform</param>
+        /// <param name="extenstion_type">use WaveletExtensionTypes enum</param>
+        /// <param name="noise_level">use NoiseEstimationLevelTypes enum</param>
+        /// <param name="threshold">use ThresholdTypes enum</param>
+        /// <param name="wavelet_denoising">use WaveletDenoisingTypes enum</param>
+        public static unsafe void perform_wavelet_denoising (double[,] data, int row_num, int wavelet, int decomposition_level,
+                                                            int wavelet_denoising = (int)WaveletDenoisingTypes.SURESHRINK, int threshold = (int)ThresholdTypes.HARD,
+                                                            int extenstion_type = (int)WaveletExtensionTypes.SYMMETRIC, int noise_level = (int)NoiseEstimationLevelTypes.FIRST_LEVEL)
+        {
+            int res = (int)BrainFlowExitCodes.STATUS_OK;
+            if ((row_num < 0) || (row_num >= data.GetLength (0)))
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            fixed (double* row_data = &data[row_num, 0])
+            {
+                res = DataHandlerLibrary.perform_wavelet_denoising (row_data, data.GetLength(1), wavelet, decomposition_level,
+                                                                    wavelet_denoising, threshold, extenstion_type, noise_level);
+            }
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            };
+        }
+
+        /// <summary>
+        /// perform direct fft
+        /// </summary>
+        /// <param name="data">data for fft</param>
+        /// <param name="row_num"></param>
+        /// <param name="start_pos">start pos</param>
+        /// <param name="end_pos">end pos, end_pos - start_pos must be even</param>
+        /// <param name="window">window function</param>
+        /// <returns>complex array of size N / 2 + 1 of fft data</returns>
+        public static unsafe Complex[] perform_fft (double[,] data, int row_num, int start_pos, int end_pos, int window)
+        {
+            if ((start_pos < 0) || (end_pos > data.Length) || (start_pos >= end_pos))
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            int len = end_pos - start_pos;
+            if (len % 2 == 1)
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            double[] temp_re = new double[len / 2 + 1];
+            double[] temp_im = new double[len / 2 + 1];
+            Complex[] output = new Complex[len / 2 + 1];
+
+            int res = (int)BrainFlowExitCodes.STATUS_OK;
+            if ((row_num < 0) || (row_num >= data.GetLength (0)))
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            fixed (double* row_data = &data[row_num, start_pos])
+            {
+                res = DataHandlerLibrary.perform_fft (row_data, len, window, temp_re, temp_im);
+            }
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+            for (int i = 0; i < len / 2 + 1; i++)
+            {
+                output[i] = new Complex (temp_re[i], temp_im[i]);
+            }
+            return output;
+        }
+
+        /// <summary>
+        /// calculate PSD
+        /// </summary>
+        /// <param name="data">data for PSD</param>
+        /// <param name="row_num"></param>
+        /// <param name="start_pos">start pos</param>
+        /// <param name="end_pos">end pos, end_pos - start_pos must be even</param>
+        /// <param name="sampling_rate">sampling rate</param>
+        /// <param name="window">window function</param>
+        /// <returns>Tuple of ampls and freqs arrays of size N / 2 + 1</returns>
+        public static unsafe Tuple<double[], double[]> get_psd (double[,] data, int row_num, int start_pos, int end_pos, int sampling_rate, int window)
+        {
+            if ((start_pos < 0) || (end_pos > data.Length) || (start_pos >= end_pos))
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            int len = end_pos - start_pos;
+            if (len % 2 == 1)
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            double[] temp_ampls = new double[len / 2 + 1];
+            double[] temp_freqs = new double[len / 2 + 1];
+            int res = (int)BrainFlowExitCodes.STATUS_OK;
+            if ((row_num < 0) || (row_num >= data.GetLength (0)))
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            fixed (double* row_data = &data[row_num, start_pos])
+            {
+                res = DataHandlerLibrary.get_psd (row_data, len, sampling_rate, window, temp_ampls, temp_freqs);
+            }
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+            Tuple<double[], double[]> return_data = new Tuple<double[], double[]> (temp_ampls, temp_freqs);
+            return return_data;
+        }
+
+        /// <summary>
+        /// calculate PSD using Welch method
+        /// </summary>
+        /// <param name="data">data for log PSD</param>
+        /// <param name="row_num"></param>
+        /// <param name="nfft">FFT Size</param>
+        /// <param name="overlap">FFT Window overlap, must be between 0 and nfft</param>
+        /// <param name="sampling_rate">sampling rate</param>
+        /// <param name="window">window function</param>
+        /// <returns>Tuple of ampls and freqs arrays</returns>
+        public static unsafe Tuple<double[], double[]> get_psd_welch (double[,] data, int row_num, int nfft, int overlap, int sampling_rate, int window)
+        {
+            if ((nfft & (nfft - 1)) != 0)
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            double[] temp_ampls = new double[nfft / 2 + 1];
+            double[] temp_freqs = new double[nfft / 2 + 1];
+            int res = (int)BrainFlowExitCodes.STATUS_OK;
+            if ((row_num < 0) || (row_num >= data.GetLength (0)))
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            fixed (double* row_data = &data[row_num, 0])
+            {
+                res = DataHandlerLibrary.get_psd_welch (row_data, data.GetLength(1), nfft, overlap, sampling_rate, window, temp_ampls, temp_freqs);
+            }
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+            Tuple<double[], double[]> return_data = new Tuple<double[], double[]> (temp_ampls, temp_freqs);
+            return return_data;
         }
     }
 }

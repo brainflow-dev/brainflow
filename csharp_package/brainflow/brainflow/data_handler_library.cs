@@ -6,7 +6,10 @@ namespace brainflow
     {
         BUTTERWORTH = 0,
         CHEBYSHEV_TYPE_1 = 1,
-        BESSEL = 2
+        BESSEL = 2,
+        BUTTERWORTH_ZERO_PHASE = 3,
+        CHEBYSHEV_TYPE_1_ZERO_PHASE = 4,
+        BESSEL_ZERO_PHASE = 5
     };
 
     public enum AggOperations
@@ -184,6 +187,42 @@ namespace brainflow
         public static extern int get_heart_rate (double[] ppg_ir, double[] ppg_red, int data_size, int sampling_rate, int fft_size, double[] output);
         [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_ica (double[] data, int rows, int cols, int num_components, double[] w, double[] k, double[] a, double[] s);
+        // unsafe methods working with pointers
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_lowpass (double* data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_highpass (double* data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_bandpass (double* data, int len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_bandstop (double* data, int len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_rolling_filter (double* data, int len, int period, int operation);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_downsampling (double* data, int len, int period, int operation, double[] downsampled_data);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_wavelet_transform (double* data, int data_len, int wavelet, int decomposition_level, int extension, double[] output_data, int[] decomposition_lengths);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_wavelet_denoising (double* data, int data_len, int wavelet, int decomposition_level,
+                                                            int wavelet_denoising, int threshold, int extenstion_type, int noise_level);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_fft (double* data, int data_len, int window, double[] re, double[] im);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int get_psd (double* data, int data_len, int sampling_rate, int window, double[] ampls, double[] freqs);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int get_psd_welch (double* data, int data_len, int nfft, int overlap, int sampling_rate, int window, double[] ampls, double[] freqs);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int detrend (double* data, int len, int operation);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int remove_environmental_noise (double* data, int len, int sampling_rate, int noise_type);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int get_custom_band_powers (double* data, int rows, int cols, double[] start_freqs, double[] stop_freqs, int num_bands, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int calc_stddev (double* data, int start_pos, int end_pos, double[] output);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int get_railed_percentage (double* data, int len, int gain, double[] output);
+        [DllImport ("DataHandler.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int detect_peaks_z_score (double* data, int data_len, int lag, double threshold, double influence, double[] output);
     }
 
     class DataHandlerLibrary32
@@ -258,6 +297,42 @@ namespace brainflow
         public static extern int get_heart_rate (double[] ppg_ir, double[] ppg_red, int data_size, int sampling_rate, int fft_size, double[] output);
         [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_ica (double[] data, int rows, int cols, int num_components, double[] w, double[] k, double[] a, double[] s);
+        // unsafe methods working with pointers
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_lowpass (double* data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_highpass (double* data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_bandpass (double* data, int len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_bandstop (double* data, int len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_rolling_filter (double* data, int len, int period, int operation);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_downsampling (double* data, int len, int period, int operation, double[] downsampled_data);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_wavelet_transform (double* data, int data_len, int wavelet, int decomposition_level, int extension, double[] output_data, int[] decomposition_lengths);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_wavelet_denoising (double* data, int data_len, int wavelet, int decomposition_level,
+                                                            int wavelet_denoising, int threshold, int extenstion_type, int noise_level);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_fft (double* data, int data_len, int window, double[] re, double[] im);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int get_psd (double* data, int data_len, int sampling_rate, int window, double[] ampls, double[] freqs);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int get_psd_welch (double* data, int data_len, int nfft, int overlap, int sampling_rate, int window, double[] ampls, double[] freqs);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int detrend (double* data, int len, int operation);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int remove_environmental_noise (double* data, int len, int sampling_rate, int noise_type);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int get_custom_band_powers (double* data, int rows, int cols, double[] start_freqs, double[] stop_freqs, int num_bands, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int calc_stddev (double* data, int start_pos, int end_pos, double[] output);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int get_railed_percentage (double* data, int len, int gain, double[] output);
+        [DllImport ("DataHandler32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int detect_peaks_z_score (double* data, int data_len, int lag, double threshold, double influence, double[] output);
     }
 
     class DataHandlerLibraryLinux
@@ -332,7 +407,42 @@ namespace brainflow
         public static extern int get_heart_rate (double[] ppg_ir, double[] ppg_red, int data_size, int sampling_rate, int fft_size, double[] output);
         [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_ica (double[] data, int rows, int cols, int num_components, double[] w, double[] k, double[] a, double[] s);
-
+        // unsafe methods working with pointers
+        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_lowpass (double* data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
+        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_highpass (double* data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
+        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_bandpass (double* data, int len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple);
+        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_bandstop (double* data, int len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple);
+        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_rolling_filter (double* data, int len, int period, int operation);
+        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_downsampling (double* data, int len, int period, int operation, double[] downsampled_data);
+        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_wavelet_transform (double* data, int data_len, int wavelet, int decomposition_level, int extension, double[] output_data, int[] decomposition_lengths);
+        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_wavelet_denoising (double* data, int data_len, int wavelet, int decomposition_level,
+                                                            int wavelet_denoising, int threshold, int extenstion_type, int noise_level);
+        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_fft (double* data, int data_len, int window, double[] re, double[] im);
+        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int get_psd (double* data, int data_len, int sampling_rate, int window, double[] ampls, double[] freqs);
+        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int get_psd_welch (double* data, int data_len, int nfft, int overlap, int sampling_rate, int window, double[] ampls, double[] freqs);
+        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int detrend (double* data, int len, int operation);
+        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int remove_environmental_noise (double* data, int len, int sampling_rate, int noise_type);
+        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int get_custom_band_powers (double* data, int rows, int cols, double[] start_freqs, double[] stop_freqs, int num_bands, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs);
+        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int calc_stddev (double* data, int start_pos, int end_pos, double[] output);
+        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int get_railed_percentage (double* data, int len, int gain, double[] output);
+        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int detect_peaks_z_score (double* data, int data_len, int lag, double threshold, double influence, double[] output);
     }
 
     class DataHandlerLibraryMac
@@ -407,6 +517,43 @@ namespace brainflow
         public static extern int get_heart_rate (double[] ppg_ir, double[] ppg_red, int data_size, int sampling_rate, int fft_size, double[] output);
         [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_ica (double[] data, int rows, int cols, int num_components, double[] w, double[] k, double[] a, double[] s);
+        // unsafe methods working with pointers
+        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_lowpass (double* data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
+        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_highpass (double* data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
+        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_bandpass (double* data, int len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple);
+        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_bandstop (double* data, int len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple);
+        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_rolling_filter (double* data, int len, int period, int operation);
+        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_downsampling (double* data, int len, int period, int operation, double[] downsampled_data);
+        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_wavelet_transform (double* data, int data_len, int wavelet, int decomposition_level, int extension, double[] output_data, int[] decomposition_lengths);
+        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_wavelet_denoising (double* data, int data_len, int wavelet, int decomposition_level,
+                                                            int wavelet_denoising, int threshold, int extenstion_type, int noise_level);
+        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int perform_fft (double* data, int data_len, int window, double[] re, double[] im);
+        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int get_psd (double* data, int data_len, int sampling_rate, int window, double[] ampls, double[] freqs);
+        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int get_psd_welch (double* data, int data_len, int nfft, int overlap, int sampling_rate, int window, double[] ampls, double[] freqs);
+        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int detrend (double* data, int len, int operation);
+        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int remove_environmental_noise (double* data, int len, int sampling_rate, int noise_type);
+        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int get_custom_band_powers (double* data, int rows, int cols, double[] start_freqs, double[] stop_freqs, int num_bands, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs);
+        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int calc_stddev (double* data, int start_pos, int end_pos, double[] output);
+        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int get_railed_percentage (double* data, int len, int gain, double[] output);
+        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int detect_peaks_z_score (double* data, int data_len, int lag, double threshold, double influence, double[] output);
+
     }
 
     class DataHandlerLibrary
@@ -988,6 +1135,280 @@ namespace brainflow
                     return DataHandlerLibraryLinux.log_message_data_handler (log_level, message);
                 case LibraryEnvironment.MacOS:
                     return DataHandlerLibraryMac.log_message_data_handler (log_level, message);
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static unsafe int remove_environmental_noise (double* data, int len, int sampling_rate, int noise_type)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.remove_environmental_noise (data, len, sampling_rate, noise_type);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.remove_environmental_noise (data, len, sampling_rate, noise_type);
+                case LibraryEnvironment.Linux:
+                    return DataHandlerLibraryLinux.remove_environmental_noise (data, len, sampling_rate, noise_type);
+                case LibraryEnvironment.MacOS:
+                    return DataHandlerLibraryMac.remove_environmental_noise (data, len, sampling_rate, noise_type);
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static unsafe int perform_lowpass (double* data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.perform_lowpass (data, len, sampling_rate, cutoff, order, filter_type, ripple);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.perform_lowpass (data, len, sampling_rate, cutoff, order, filter_type, ripple);
+                case LibraryEnvironment.Linux:
+                    return DataHandlerLibraryLinux.perform_lowpass (data, len, sampling_rate, cutoff, order, filter_type, ripple);
+                case LibraryEnvironment.MacOS:
+                    return DataHandlerLibraryMac.perform_lowpass (data, len, sampling_rate, cutoff, order, filter_type, ripple);
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static unsafe int perform_highpass (double* data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.perform_highpass (data, len, sampling_rate, cutoff, order, filter_type, ripple);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.perform_highpass (data, len, sampling_rate, cutoff, order, filter_type, ripple);
+                case LibraryEnvironment.Linux:
+                    return DataHandlerLibraryLinux.perform_highpass (data, len, sampling_rate, cutoff, order, filter_type, ripple);
+                case LibraryEnvironment.MacOS:
+                    return DataHandlerLibraryMac.perform_highpass (data, len, sampling_rate, cutoff, order, filter_type, ripple);
+
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static unsafe int perform_bandpass (double* data, int len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.perform_bandpass (data, len, sampling_rate, start_freq, stop_freq, order, filter_type, ripple);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.perform_bandpass (data, len, sampling_rate, start_freq, stop_freq, order, filter_type, ripple);
+                case LibraryEnvironment.Linux:
+                    return DataHandlerLibraryLinux.perform_bandpass (data, len, sampling_rate, start_freq, stop_freq, order, filter_type, ripple);
+                case LibraryEnvironment.MacOS:
+                    return DataHandlerLibraryMac.perform_bandpass (data, len, sampling_rate, start_freq, stop_freq, order, filter_type, ripple);
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static unsafe int perform_bandstop (double* data, int len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.perform_bandstop (data, len, sampling_rate, start_freq, stop_freq, order, filter_type, ripple);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.perform_bandstop (data, len, sampling_rate, start_freq, stop_freq, order, filter_type, ripple);
+                case LibraryEnvironment.Linux:
+                    return DataHandlerLibraryLinux.perform_bandstop (data, len, sampling_rate, start_freq, stop_freq, order, filter_type, ripple);
+                case LibraryEnvironment.MacOS:
+                    return DataHandlerLibraryMac.perform_bandstop (data, len, sampling_rate, start_freq, stop_freq, order, filter_type, ripple);
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static unsafe int perform_rolling_filter (double* data, int len, int period, int operation)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.perform_rolling_filter (data, len, period, operation);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.perform_rolling_filter (data, len, period, operation);
+                case LibraryEnvironment.Linux:
+                    return DataHandlerLibraryLinux.perform_rolling_filter (data, len, period, operation);
+                case LibraryEnvironment.MacOS:
+                    return DataHandlerLibraryMac.perform_rolling_filter (data, len, period, operation);
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static unsafe int detect_peaks_z_score (double* data, int len, int lag, double threshold, double influence, double[] output)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.detect_peaks_z_score (data, len, lag, threshold, influence, output);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.detect_peaks_z_score (data, len, lag, threshold, influence, output);
+                case LibraryEnvironment.Linux:
+                    return DataHandlerLibraryLinux.detect_peaks_z_score (data, len, lag, threshold, influence, output);
+                case LibraryEnvironment.MacOS:
+                    return DataHandlerLibraryMac.detect_peaks_z_score (data, len, lag, threshold, influence, output);
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static unsafe int detrend (double* data, int len, int operation)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.detrend (data, len, operation);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.detrend (data, len, operation);
+                case LibraryEnvironment.Linux:
+                    return DataHandlerLibraryLinux.detrend (data, len, operation);
+                case LibraryEnvironment.MacOS:
+                    return DataHandlerLibraryMac.detrend (data, len, operation);
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static unsafe int perform_downsampling (double* data, int len, int period, int operation, double[] filtered_data)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.perform_downsampling (data, len, period, operation, filtered_data);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.perform_downsampling (data, len, period, operation, filtered_data);
+                case LibraryEnvironment.Linux:
+                    return DataHandlerLibraryLinux.perform_downsampling (data, len, period, operation, filtered_data);
+                case LibraryEnvironment.MacOS:
+                    return DataHandlerLibraryMac.perform_downsampling (data, len, period, operation, filtered_data);
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static unsafe int perform_wavelet_transform (double* data, int data_len, int wavelet, int decomposition_level, int extension, double[] output_data, int[] decomposition_lengths)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.perform_wavelet_transform (data, data_len, wavelet, decomposition_level, extension, output_data, decomposition_lengths);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.perform_wavelet_transform (data, data_len, wavelet, decomposition_level, extension, output_data, decomposition_lengths);
+                case LibraryEnvironment.Linux:
+                    return DataHandlerLibraryLinux.perform_wavelet_transform (data, data_len, wavelet, decomposition_level, extension, output_data, decomposition_lengths);
+                case LibraryEnvironment.MacOS:
+                    return DataHandlerLibraryMac.perform_wavelet_transform (data, data_len, wavelet, decomposition_level, extension, output_data, decomposition_lengths);
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static unsafe int perform_wavelet_denoising (double* data, int data_len, int wavelet, int decomposition_level,
+                                                    int wavelet_denoising, int threshold, int extenstion_type, int noise_level)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.perform_wavelet_denoising (data, data_len, wavelet, decomposition_level, wavelet_denoising, threshold, extenstion_type, noise_level);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.perform_wavelet_denoising (data, data_len, wavelet, decomposition_level, wavelet_denoising, threshold, extenstion_type, noise_level);
+                case LibraryEnvironment.Linux:
+                    return DataHandlerLibraryLinux.perform_wavelet_denoising (data, data_len, wavelet, decomposition_level, wavelet_denoising, threshold, extenstion_type, noise_level);
+                case LibraryEnvironment.MacOS:
+                    return DataHandlerLibraryMac.perform_wavelet_denoising (data, data_len, wavelet, decomposition_level, wavelet_denoising, threshold, extenstion_type, noise_level);
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static unsafe int perform_fft (double* data, int data_len, int window, double[] output_re, double[] output_im)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.perform_fft (data, data_len, window, output_re, output_im);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.perform_fft (data, data_len, window, output_re, output_im);
+                case LibraryEnvironment.Linux:
+                    return DataHandlerLibraryLinux.perform_fft (data, data_len, window, output_re, output_im);
+                case LibraryEnvironment.MacOS:
+                    return DataHandlerLibraryMac.perform_fft (data, data_len, window, output_re, output_im);
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static unsafe int get_psd (double* data, int data_len, int sampling_rate, int window, double[] output_ampls, double[] output_freqs)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.get_psd (data, data_len, sampling_rate, window, output_ampls, output_freqs);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.get_psd (data, data_len, sampling_rate, window, output_ampls, output_freqs);
+                case LibraryEnvironment.Linux:
+                    return DataHandlerLibraryLinux.get_psd (data, data_len, sampling_rate, window, output_ampls, output_freqs);
+                case LibraryEnvironment.MacOS:
+                    return DataHandlerLibraryMac.get_psd (data, data_len, sampling_rate, window, output_ampls, output_freqs);
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static unsafe int get_psd_welch (double* data, int data_len, int nfft, int overlap, int sampling_rate, int window, double[] output_ampls, double[] output_freqs)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.get_psd_welch (data, data_len, nfft, overlap, sampling_rate, window, output_ampls, output_freqs);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.get_psd_welch (data, data_len, nfft, overlap, sampling_rate, window, output_ampls, output_freqs);
+                case LibraryEnvironment.Linux:
+                    return DataHandlerLibraryLinux.get_psd_welch (data, data_len, nfft, overlap, sampling_rate, window, output_ampls, output_freqs);
+                case LibraryEnvironment.MacOS:
+                    return DataHandlerLibraryMac.get_psd_welch (data, data_len, nfft, overlap, sampling_rate, window, output_ampls, output_freqs);
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static unsafe int calc_stddev (double* data, int start_pos, int end_pos, double[] output)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.calc_stddev (data, start_pos, end_pos, output);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.calc_stddev (data, start_pos, end_pos, output);
+                case LibraryEnvironment.Linux:
+                    return DataHandlerLibraryLinux.calc_stddev (data, start_pos, end_pos, output);
+                case LibraryEnvironment.MacOS:
+                    return DataHandlerLibraryMac.calc_stddev (data, start_pos, end_pos, output);
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static unsafe int get_railed_percentage (double* data, int len, int gain, double[] output)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return DataHandlerLibrary64.get_railed_percentage (data, len, gain, output);
+                case LibraryEnvironment.x86:
+                    return DataHandlerLibrary32.get_railed_percentage (data, len, gain, output);
+                case LibraryEnvironment.Linux:
+                    return DataHandlerLibraryLinux.get_railed_percentage (data, len, gain, output);
+                case LibraryEnvironment.MacOS:
+                    return DataHandlerLibraryMac.get_railed_percentage (data, len, gain, output);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;

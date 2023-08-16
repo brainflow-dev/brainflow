@@ -19,6 +19,7 @@
 #include "board.h"
 #include "board_controller.h"
 #include "board_info_getter.h"
+#include "brainalive.h"
 #include "brainbit.h"
 #include "brainbit_bled.h"
 #include "brainflow_constants.h"
@@ -37,6 +38,8 @@
 #include "freeeeg32.h"
 #include "galea.h"
 #include "galea_serial.h"
+#include "galea_serial_v4.h"
+#include "galea_v4.h"
 #include "ganglion.h"
 #include "ganglion_native.h"
 #include "ganglion_wifi.h"
@@ -45,6 +48,7 @@
 #include "muse.h"
 #include "muse_bled.h"
 #include "notion_osc.h"
+#include "ntl_wifi.h"
 #include "playback_file_board.h"
 #include "streaming_board.h"
 #include "synthetic_board.h"
@@ -227,6 +231,9 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
         case BoardIds::MUSE_S_BOARD:
             board = std::shared_ptr<Board> (new Muse (board_id, params));
             break;
+        case BoardIds::BRAINALIVE_BOARD:
+            board = std::shared_ptr<Board> (new BrainAlive (params));
+            break;
         case BoardIds::MUSE_2016_BOARD:
             board = std::shared_ptr<Board> (new Muse (board_id, params));
             break;
@@ -244,6 +251,19 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
             break;
         case BoardIds::EMOTIBIT_BOARD:
             board = std::shared_ptr<Board> (new Emotibit (params));
+            break;
+        case BoardIds::GALEA_BOARD_V4:
+            board = std::shared_ptr<Board> (new GaleaV4 (params));
+            break;
+        case BoardIds::GALEA_SERIAL_BOARD_V4:
+            board = std::shared_ptr<Board> (new GaleaSerialV4 (params));
+            break;
+        case BoardIds::ANT_NEURO_EE_511_BOARD:
+            board = std::shared_ptr<Board> (
+                new AntNeuroBoard ((int)BoardIds::ANT_NEURO_EE_511_BOARD, params));
+            break;
+        case BoardIds::NTL_WIFI_BOARD:
+            board = std::shared_ptr<Board> (new NtlWifi (params));
             break;
         case BoardIds::AAVAA_V3_BOARD:
             board = std::shared_ptr<Board> (new AAVAAv3 (params));

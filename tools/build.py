@@ -193,7 +193,6 @@ def prepare_args():
         parser.add_argument('--generator', type=str,
                             help='CMake generator', required=False)
         parser.add_argument('--use-libftdi', action='store_true')
-        parser.add_argument('--use-periphery', action='store_true')
 
     parser.add_argument('--build-dir', type=str, help='build folder',
                         required=False, default=os.path.join(cur_folder, '..', 'build'))
@@ -243,17 +242,15 @@ def config(args):
         cmd_config.append('-DBRAINFLOW_VERSION=%s' % args.brainflow_version)
     if hasattr(args, 'use_libftdi') and args.use_libftdi:
         cmd_config.append('-DUSE_LIBFTDI=ON')
-    if hasattr(args, 'use_periphery') and args.use_periphery:
-        cmd_config.append('-DUSE_PERIPHERY=ON')
     if args.warnings_as_errors:
         cmd_config.append('-DWARNINGS_AS_ERRORS=ON')
     if args.use_openmp:
         cmd_config.append('-DUSE_OPENMP=ON')
     if hasattr(args, 'oymotion') and args.oymotion:
         cmd_config.append('-DBUILD_OYMOTION_SDK=ON')
-    if hasattr(args, 'cmake_osx_architecture') and args.cmake_osx_architecture:
+    if hasattr(args, 'cmake_osx_architectures') and args.cmake_osx_architectures:
         cmd_config.append('-DCMAKE_OSX_ARCHITECTURES=%s' %
-                          args.cmake_osx_architecture)
+                          args.cmake_osx_architectures)
     if hasattr(args, 'cmake_osx_deployment_target') and args.cmake_osx_deployment_target:
         cmd_config.append('-DCMAKE_OSX_DEPLOYMENT_TARGET=%s' %
                           args.cmake_osx_deployment_target)

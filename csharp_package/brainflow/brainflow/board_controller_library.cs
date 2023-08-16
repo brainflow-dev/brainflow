@@ -100,13 +100,18 @@ namespace brainflow
         ENOPHONE_BOARD = 37,
         MUSE_2_BOARD = 38,
         MUSE_S_BOARD = 39,
+        BRAINALIVE_BOARD = 40,
         MUSE_2016_BOARD = 41,
         MUSE_2016_BLED_BOARD = 42,
         EXPLORE_4_CHAN_BOARD = 44,
         EXPLORE_8_CHAN_BOARD = 45,
         GANGLION_NATIVE_BOARD = 46,
         EMOTIBIT_BOARD = 47,
-        AAVAA_V3_BOARD = 48
+        GALEA_BOARD_V4 = 48,
+        GALEA_SERIAL_BOARD_V4 = 49,
+        NTL_WIFI_BOARD = 50,
+        ANT_NEURO_EE_511_BOARD = 51,
+        AAVAA_V3_BOARD = 52
     };
 
 

@@ -8,6 +8,7 @@
 #include "board.h"
 #include "board_controller.h"
 #include "data_buffer.h"
+#include "ganglion_types.h"
 #include "runtime_dll_loader.h"
 
 
@@ -32,6 +33,7 @@ private:
 
     bool use_mac_addr;
     int num_channels;
+    uint8_t firmware;
 
     // legacy from shared library, now we can do the same wo these helpers but lets keep it
     int call_init ();
@@ -60,4 +62,9 @@ public:
     int stop_stream ();
     int release_session ();
     int config_board (std::string config, std::string &response);
+
+    void decompress_firmware_3 (struct GanglionLib::GanglionData *data, float *last_data,
+        double *acceleration, double *package);
+    void decompress_firmware_2 (struct GanglionLib::GanglionData *data, float *last_data,
+        double *acceleration, double *package);
 };

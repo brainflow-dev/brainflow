@@ -20,10 +20,10 @@ WORKDIR /root/local/bin
 RUN mkdir -p /opt/cmake && wget https://github.com/Kitware/CMake/releases/download/v3.24.3/cmake-3.24.3-linux-x86_64.sh && sh cmake-3.24.3-linux-x86_64.sh --prefix=/opt/cmake --skip-license
 ENV PATH=/opt/cmake/bin/:$PATH
 # Installing Maven and Julia
-RUN curl "https://miroir.univ-lorraine.fr/apache/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz" -o maven.tar.gz
+RUN curl "https://miroir.univ-lorraine.fr/apache/maven/maven-3/3.9.3/binaries/apache-maven-3.9.3-bin.tar.gz" -o maven.tar.gz
 RUN mkdir -p maven
 RUN tar xzf maven.tar.gz -C ./maven
-RUN export PATH=$PATH:/root/local/bin/maven/apache-maven-3.6.3/bin
+RUN export PATH=$PATH:/root/local/bin/maven/apache-maven-3.9.3/bin
 RUN wget "https://julialang-s3.julialang.org/bin/linux/x64/1.5/julia-1.5.3-linux-x86_64.tar.gz"
 RUN mkdir -p julia
 RUN tar xf julia-1.5.3-linux-x86_64.tar.gz -C ./julia
@@ -54,7 +54,7 @@ RUN dotnet build csharp_package/brainflow/brainflow.sln
 
 # Java Binding
 WORKDIR /root/brainflow/java_package/brainflow
-RUN /root/local/bin/maven/apache-maven-3.6.3/bin/mvn package
+RUN /root/local/bin/maven/apache-maven-3.9.3/bin/mvn package
 
 # Julia Bindings
 WORKDIR /root/brainflow/julia_package/brainflow

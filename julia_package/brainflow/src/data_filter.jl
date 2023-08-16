@@ -13,6 +13,9 @@ AggType = Union{AggOperations, Integer}
     BUTTERWORTH = 0
     CHEBYSHEV_TYPE_1 = 1
     BESSEL = 2
+    BUTTERWORTH_ZERO_PHASE = 3
+    CHEBYSHEV_TYPE_1_ZERO_PHASE = 4
+    BESSEL_ZERO_PHASE = 5
 
 end
 
@@ -253,7 +256,7 @@ end
     return output[1]
 end
 
-@brainflow_rethrow function get_oxygen_level(ppg_ir, ppg_red, sampling_rate::Integer, coef1=0.0, coef2=-37.663, coef3=114.91)
+@brainflow_rethrow function get_oxygen_level(ppg_ir, ppg_red, sampling_rate::Integer, coef1=1.5958422, coef2=-34.6596622, coef3=112.6898759)
     if length(ppg_ir) != length(ppg_red)
       throw(BrainFlowError(string("invalid size", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))
     end

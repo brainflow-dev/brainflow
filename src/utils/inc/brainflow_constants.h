@@ -79,10 +79,14 @@ enum class BoardIds : int
     EXPLORE_8_CHAN_BOARD = 45,
     GANGLION_NATIVE_BOARD = 46,
     EMOTIBIT_BOARD = 47,
-    AAVAA_V3_BOARD = 48,
+    GALEA_BOARD_V4 = 48,
+    GALEA_SERIAL_BOARD_V4 = 49,
+    NTL_WIFI_BOARD = 50,
+    ANT_NEURO_EE_511_BOARD = 51,
+    AAVAA_V3_BOARD = 52,
     // use it to iterate
     FIRST = PLAYBACK_FILE_BOARD,
-    LAST = AAVAA_V3_BOARD
+    LAST = ANT_NEURO_EE_511_BOARD
 };
 
 enum class IpProtocolTypes : int
@@ -96,7 +100,10 @@ enum class FilterTypes : int
 {
     BUTTERWORTH = 0,
     CHEBYSHEV_TYPE_1 = 1,
-    BESSEL = 2
+    BESSEL = 2,
+    BUTTERWORTH_ZERO_PHASE = 3,
+    CHEBYSHEV_TYPE_1_ZERO_PHASE = 4,
+    BESSEL_ZERO_PHASE = 5
 };
 
 enum class AggOperations : int
