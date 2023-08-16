@@ -15,7 +15,7 @@
 #include <utility>
 
 #include "ant_neuro.h"
-#include "aavaa_3c8.h"
+#include "aavaa_v3.h"
 #include "board.h"
 #include "board_controller.h"
 #include "board_info_getter.h"
@@ -245,8 +245,8 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
         case BoardIds::EMOTIBIT_BOARD:
             board = std::shared_ptr<Board> (new Emotibit (params));
             break;
-        case BoardIds::AAVAA_3C8_BOARD:
-            board = std::shared_ptr<Board> (new AAVAA3c8 (params));
+        case BoardIds::AAVAA_V3_BOARD:
+            board = std::shared_ptr<Board> (new AAVAAv3 (params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

@@ -870,7 +870,7 @@ BrainFlowBoards::BrainFlowBoards()
     };
     brainflow_boards_json["boards"]["48"]["default"] =
     {
-        {"name", "AAVAA 3C8"},
+        {"name", "AAVAA V3"},
         {"sampling_rate", 50},
         {"package_num_channel", 0},
         {"timestamp_channel", 15},

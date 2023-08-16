@@ -1,6 +1,6 @@
 #include <string>
 
-#include "aavaa_3c8.h"
+#include "aavaa_v3.h"
 #include "custom_cast.h"
 #include "get_dll_dir.h"
 #include "timestamp.h"
@@ -14,28 +14,28 @@
 
 static void aavaa_adapter_1_on_scan_start (simpleble_adapter_t adapter, void *board)
 {
-    ((AAVAA3c8 *)(board))->adapter_1_on_scan_start (adapter);
+    ((AAVAAv3 *)(board))->adapter_1_on_scan_start (adapter);
 }
 
 static void aavaa_adapter_1_on_scan_stop (simpleble_adapter_t adapter, void *board)
 {
-    ((AAVAA3c8 *)(board))->adapter_1_on_scan_stop (adapter);
+    ((AAVAAv3 *)(board))->adapter_1_on_scan_stop (adapter);
 }
 
 static void aavaa_adapter_1_on_scan_found (
     simpleble_adapter_t adapter, simpleble_peripheral_t peripheral, void *board)
 {
-    ((AAVAA3c8 *)(board))->adapter_1_on_scan_found (adapter, peripheral);
+    ((AAVAAv3 *)(board))->adapter_1_on_scan_found (adapter, peripheral);
 }
 
 static void aavaa_read_notifications (simpleble_uuid_t service, simpleble_uuid_t characteristic,
     uint8_t *data, size_t size, void *board)
 {
-    ((AAVAA3c8 *)(board))->read_data (service, characteristic, data, size);
+    ((AAVAAv3 *)(board))->read_data (service, characteristic, data, size);
 }
 
-AAVAA3c8::AAVAA3c8 (struct BrainFlowInputParams params)
-    : BLELibBoard ((int)BoardIds::AAVAA_3C8_BOARD, params)
+AAVAAv3::AAVAAv3 (struct BrainFlowInputParams params)
+    : BLELibBoard ((int)BoardIds::AAVAA_V3_BOARD, params)
 {
     initialized = false;
     aavaa_adapter = NULL;
@@ -45,13 +45,13 @@ AAVAA3c8::AAVAA3c8 (struct BrainFlowInputParams params)
     stop_command = "\x01\x39";
 }
 
-AAVAA3c8::~AAVAA3c8 ()
+AAVAAv3::~AAVAAv3 ()
 {
     skip_logs = true;
     release_session ();
 }
 
-int AAVAA3c8::prepare_session ()
+int AAVAAv3::prepare_session ()
 {
     if (initialized)
     {
@@ -108,11 +108,11 @@ int AAVAA3c8::prepare_session ()
     auto sec = std::chrono::seconds (1);
     if (cv.wait_for (lk, params.timeout * sec, [this] { return this->aavaa_peripheral != NULL; }))
     {
-        safe_logger (spdlog::level::info, "Found AAVAA3c8 device");
+        safe_logger (spdlog::level::info, "Found AAVAAv3 device");
     }
     else
     {
-        safe_logger (spdlog::level::err, "Failed to find AAVAA3c8 Device");
+        safe_logger (spdlog::level::err, "Failed to find AAVAAv3 Device");
         res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     }
     simpleble_adapter_scan_stop (aavaa_adapter);
@@ -120,11 +120,11 @@ int AAVAA3c8::prepare_session ()
     {
         if (simpleble_peripheral_connect (aavaa_peripheral) == SIMPLEBLE_SUCCESS)
         {
-            safe_logger (spdlog::level::info, "Connected to AAVAA3c8 Device");
+            safe_logger (spdlog::level::info, "Connected to AAVAAv3 Device");
         }
         else
         {
-            safe_logger (spdlog::level::err, "Failed to connect to AAVAA3c8 Device");
+            safe_logger (spdlog::level::err, "Failed to connect to AAVAAv3 Device");
             res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
         }
     }
@@ -197,7 +197,7 @@ int AAVAA3c8::prepare_session ()
     return res;
 }
 
-int AAVAA3c8::start_stream (int buffer_size, const char *streamer_params)
+int AAVAAv3::start_stream (int buffer_size, const char *streamer_params)
 {
     if (!initialized)
     {
@@ -221,7 +221,7 @@ int AAVAA3c8::start_stream (int buffer_size, const char *streamer_params)
     return res;
 }
 
-int AAVAA3c8::stop_stream ()
+int AAVAAv3::stop_stream ()
 {
     if (aavaa_peripheral == NULL)
     {
@@ -240,7 +240,7 @@ int AAVAA3c8::stop_stream ()
     return res;
 }
 
-int AAVAA3c8::release_session ()
+int AAVAAv3::release_session ()
 {
     if (initialized)
     {
@@ -292,7 +292,7 @@ int AAVAA3c8::release_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int AAVAA3c8::config_board (std::string config, std::string &response)
+int AAVAAv3::config_board (std::string config, std::string &response)
 {
     safe_logger (spdlog::level::trace, "config requested: {}", config);
     if (!initialized)
@@ -360,7 +360,7 @@ int AAVAA3c8::config_board (std::string config, std::string &response)
     return res;
 }
 
-int AAVAA3c8::send_command (std::string config)
+int AAVAAv3::send_command (std::string config)
 {
     if (!initialized)
     {
@@ -388,17 +388,17 @@ int AAVAA3c8::send_command (std::string config)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-void AAVAA3c8::adapter_1_on_scan_start (simpleble_adapter_t adapter)
+void AAVAAv3::adapter_1_on_scan_start (simpleble_adapter_t adapter)
 {
     safe_logger (spdlog::level::trace, "Scan started");
 }
 
-void AAVAA3c8::adapter_1_on_scan_stop (simpleble_adapter_t adapter)
+void AAVAAv3::adapter_1_on_scan_stop (simpleble_adapter_t adapter)
 {
     safe_logger (spdlog::level::trace, "Scan stopped");
 }
 
-void AAVAA3c8::adapter_1_on_scan_found (
+void AAVAAv3::adapter_1_on_scan_found (
     simpleble_adapter_t adapter, simpleble_peripheral_t peripheral)
 {
     char *peripheral_identified = simpleble_peripheral_identifier (peripheral);
@@ -422,7 +422,7 @@ void AAVAA3c8::adapter_1_on_scan_found (
         }
         else
         {
-            if (strncmp (peripheral_identified, "AAVAA3c8", 8) == 0)
+            if (strncmp (peripheral_identified, "AAVAAv3", 8) == 0)
             {
                 found = true;
             }
@@ -448,7 +448,7 @@ void AAVAA3c8::adapter_1_on_scan_found (
     }
 }
 
-void AAVAA3c8::read_data (
+void AAVAAv3::read_data (
     simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data, size_t size)
 {
     safe_logger (spdlog::level::trace, "received {} number of bytes", size);

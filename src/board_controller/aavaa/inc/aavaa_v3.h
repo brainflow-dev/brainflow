@@ -10,11 +10,11 @@
 #include "board_controller.h"
 
 
-class AAVAA3c8 : public BLELibBoard
+class AAVAAv3 : public BLELibBoard
 {
 public:
-    AAVAA3c8 (struct BrainFlowInputParams params);
-    ~AAVAA3c8 ();
+    AAVAAv3 (struct BrainFlowInputParams params);
+    ~AAVAAv3 ();
 
     int prepare_session ();
     int start_stream (int buffer_size, const char *streamer_params);
