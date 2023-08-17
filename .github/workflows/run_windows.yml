@@ -40,6 +40,10 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: 18
+    - name: Install Typescript
+      run: |
+        npm install -g ts-node
+      shell: cmd
     - uses: hecrj/setup-rust-action@v1
       with:
         rust-version: nightly

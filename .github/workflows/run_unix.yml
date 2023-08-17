@@ -37,6 +37,9 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: 18
+    - name: Install Typescript
+      run: |
+        npm install -g ts-node
     - name: Install Ninja
       if: (matrix.os == 'macos-11.0')
       uses: seanmiddleditch/gha-setup-ninja@master
