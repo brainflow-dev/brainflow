@@ -49,7 +49,8 @@ class AdapterBase {
     void delegate_did_discover_peripheral(void* opaque_peripheral, void* opaque_adapter,
                                           advertising_data_t advertising_data);
     void delegate_did_connect_peripheral(void* opaque_peripheral);
-    void delegate_did_disconnect_peripheral(void* opaque_peripheral);
+    void delegate_did_fail_to_connect_peripheral(void* opaque_peripheral, void* opaque_error);
+    void delegate_did_disconnect_peripheral(void* opaque_peripheral, void* opaque_error);
 
   protected:
     /**

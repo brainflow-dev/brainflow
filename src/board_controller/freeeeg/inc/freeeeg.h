@@ -7,7 +7,7 @@
 #include "serial.h"
 
 
-class FreeEEG32 : public Board
+class FreeEEG : public Board
 {
 
 protected:
@@ -16,14 +16,17 @@ protected:
     bool is_streaming;
     std::thread streaming_thread;
     Serial *serial;
+    // dont know exact package size and it can be changed with new firmware versions, its >=
+    // min_package_size and we can check start\stop bytes, and it depends on exact board
+    int min_package_size;
 
     int open_port ();
     int set_port_settings ();
     void read_thread ();
 
 public:
-    FreeEEG32 (struct BrainFlowInputParams params);
-    ~FreeEEG32 ();
+    FreeEEG (int board_id, struct BrainFlowInputParams params);
+    ~FreeEEG ();
 
     int prepare_session ();
     int start_stream (int buffer_size, const char *streamer_params);

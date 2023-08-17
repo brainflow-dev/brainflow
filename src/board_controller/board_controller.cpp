@@ -35,7 +35,7 @@
 #include "emotibit.h"
 #include "enophone.h"
 #include "explore.h"
-#include "freeeeg32.h"
+#include "freeeeg.h"
 #include "galea.h"
 #include "galea_serial.h"
 #include "galea_serial_v4.h"
@@ -153,7 +153,10 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
             board = std::shared_ptr<Board> (new GforcePro (params));
             break;
         case BoardIds::FREEEEG32_BOARD:
-            board = std::shared_ptr<Board> (new FreeEEG32 (params));
+            board = std::shared_ptr<Board> (new FreeEEG ((int)BoardIds::FREEEEG32_BOARD, params));
+            break;
+        case BoardIds::FREEEEG128_BOARD:
+            board = std::shared_ptr<Board> (new FreeEEG ((int)BoardIds::FREEEEG128_BOARD, params));
             break;
         case BoardIds::BRAINBIT_BLED_BOARD:
             board = std::shared_ptr<Board> (new BrainBitBLED (params));
