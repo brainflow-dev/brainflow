@@ -4,6 +4,7 @@
 
 #include "streamer.h"
 
+#define BRAINFLOW_FILE_NAME_LIMIT 512
 
 class FileStreamer : public Streamer
 {
@@ -16,7 +17,7 @@ public:
     void stream_data (double *data);
 
 private:
-    char file[128];
-    char file_mode[128];
+    char file[BRAINFLOW_FILE_NAME_LIMIT];
+    char file_mode[BRAINFLOW_FILE_NAME_LIMIT];
     FILE *fp;
 };
