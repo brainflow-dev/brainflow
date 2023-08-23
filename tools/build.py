@@ -173,7 +173,7 @@ def prepare_args():
         versions = [int(x) for x in macos_ver.split('.')]
         if versions[0] >= 11:
             parser.add_argument('--cmake-osx-architectures', type=str,
-                                help='archs for osx', required=False, default='"arm64;x86_64"')
+                                help='archs for osx', required=False, default='arm64;x86_64')
         else:
             parser.add_argument('--cmake-osx-architectures',
                                 type=str, help='archs for osx', required=False)
