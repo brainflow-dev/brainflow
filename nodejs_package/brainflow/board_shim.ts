@@ -46,11 +46,13 @@ class BrainFlowInputParams {
 }
 
 class BoardControllerDLL extends BoardControllerFunctions {
+  private static instance: BoardControllerDLL;
+
   private libPath: string;
   private dllPath: string;
   private lib: koffi.IKoffiLib;
 
-  constructor() {
+  private constructor() {
     super();
     this.libPath = `${__dirname}/lib`;
     this.dllPath = this.getDLLPath();
@@ -59,6 +61,7 @@ class BoardControllerDLL extends BoardControllerFunctions {
     this.isPrepared = this.lib.func(CLike.is_prepared);
     this.prepareSession = this.lib.func(CLike.prepare_session);
     this.startStream = this.lib.func(CLike.start_stream);
+    this.configBoard = this.lib.func(CLike.config_board);
     this.getBoardDataCount = this.lib.func(CLike.get_board_data_count);
     this.getBoardData = this.lib.func(CLike.get_board_data);
     this.getCurrentBoardData = this.lib.func(CLike.get_current_board_data);
@@ -91,6 +94,11 @@ class BoardControllerDLL extends BoardControllerFunctions {
     this.setLogLevelBoardController = this.lib.func(CLike.set_log_level_board_controller);
     this.setLogFileBoardController = this.lib.func(CLike.set_log_file_board_controller);
     this.logMessageBoardController = this.lib.func(CLike.log_message_board_controller);
+    this.getVersionBoardController = this.lib.func(CLike.get_version_board_controller);
+    this.getDeviceName = this.lib.func(CLike.get_device_name);
+    this.getBoardPresets = this.lib.func(CLike.get_board_presets);
+    this.getEegNames = this.lib.func(CLike.get_eeg_names);
+    this.getBoardDescr = this.lib.func(CLike.get_board_descr);
   }
 
   private getDLLPath() {
@@ -117,6 +125,13 @@ class BoardControllerDLL extends BoardControllerFunctions {
       throw new BrainFlowError(BrainFlowExitCodes.GENERAL_ERROR, `${'Could not load BoardController DLL - path://'}${this.dllPath}`);
     }
   }
+
+  public static getInstance(): BoardControllerDLL {
+      if (!BoardControllerDLL.instance) {
+            BoardControllerDLL.instance = new BoardControllerDLL();
+      }
+      return BoardControllerDLL.instance;
+    }
 }
 
 export class BoardShim {
@@ -126,19 +141,16 @@ export class BoardShim {
 
   private inputJson: string;
 
-  private boardController: BoardControllerDLL;
-
   constructor(boardId: BoardIds, inputParams: Partial<IBrainFlowInputParams>) {
     this.boardId = boardId;
     this.masterBoardId =
       inputParams.masterBoard && inputParams.masterBoard !== BoardIds.NO_BOARD ? inputParams.masterBoard : boardId;
     this.inputJson = new BrainFlowInputParams(inputParams).toJson();
-    this.boardController = new BoardControllerDLL();
   }
 
   public isPrepared(): boolean {
     const prepared = [0];
-    const res = this.boardController.isPrepared(prepared, this.boardId, this.inputJson);
+    const res = BoardControllerDLL.getInstance().isPrepared(prepared, this.boardId, this.inputJson);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not check prepared state');
     }
@@ -146,64 +158,74 @@ export class BoardShim {
   }
 
   public addStreamer(streamerParams: string, preset = BrainFlowPresets.DEFAULT_PRESET): void {
-    const res = this.boardController.addStreamer(streamerParams, preset, this.boardId, this.inputJson);
+    const res = BoardControllerDLL.getInstance().addStreamer(streamerParams, preset, this.boardId, this.inputJson);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not add streamer');
     }
   }
 
   public deleteStreamer(streamerParams: string, preset = BrainFlowPresets.DEFAULT_PRESET): void {
-    const res = this.boardController.deleteStreamer(streamerParams, preset, this.boardId, this.inputJson);
+    const res = BoardControllerDLL.getInstance().deleteStreamer(streamerParams, preset, this.boardId, this.inputJson);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not delete streamer');
     }
   }
 
   public insertMarker(value: number, preset = BrainFlowPresets.DEFAULT_PRESET): void {
-    const res = this.boardController.insertMarker(value, preset, this.boardId, this.inputJson);
+    const res = BoardControllerDLL.getInstance().insertMarker(value, preset, this.boardId, this.inputJson);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not insert marker');
     }
   }
 
-  public setLogLevel(logLevel: LogLevels): void {
-    const res = this.boardController.setLogLevelBoardController(logLevel);
+  public static setLogLevel(logLevel: LogLevels): void {
+    const res = BoardControllerDLL.getInstance().setLogLevelBoardController(logLevel);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not set log level properly');
     }
   }
 
-  public setLogFile(file: string): void {
-    const res = this.boardController.setLogFileBoardController(file);
+  public static setLogFile(file: string): void {
+    const res = BoardControllerDLL.getInstance().setLogFileBoardController(file);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not redirect to log file');
     }
   }
 
-  public logMessage(logLevel: LogLevels, message: string): void {
-    const res = this.boardController.logMessageBoardController(logLevel, message);
+  public static logMessage(logLevel: LogLevels, message: string): void {
+    const res = BoardControllerDLL.getInstance().logMessageBoardController(logLevel, message);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not writte message');
     }
   }
 
   public prepareSession(): void {
-    const res = this.boardController.prepareSession(this.boardId, this.inputJson);
+    const res = BoardControllerDLL.getInstance().prepareSession(this.boardId, this.inputJson);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not prepare session');
     }
   }
 
   public startStream(numSamples = 1800 * 250, streamerParams = null): void {
-    const res = this.boardController.startStream(numSamples, streamerParams, this.boardId, this.inputJson);
+    const res = BoardControllerDLL.getInstance().startStream(numSamples, streamerParams, this.boardId, this.inputJson);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not start stream');
     }
   }
 
+  public configBoard(config: string): string {
+    const len = [0];
+    let out = ['\0'.repeat(4096)];
+    const res = BoardControllerDLL.getInstance().configBoard(config, out, len, this.boardId, this.inputJson);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new BrainFlowError(res, 'Could not config board');
+    }
+    return out[0].substring(0, len[0]);
+  }
+
   public getBoardDataCount(preset = BrainFlowPresets.DEFAULT_PRESET): number {
     const dataSize = [0];
-    const res = this.boardController.getBoardDataCount(preset, dataSize, this.boardId, this.inputJson);
+    const res = BoardControllerDLL.getInstance().getBoardDataCount(preset, dataSize, this.boardId, this.inputJson);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not get board data count');
     }
@@ -216,9 +238,9 @@ export class BoardShim {
       if (numSamples < 1) throw new Error('invalid num_samples');
       dataSize = Math.min(numSamples, dataSize);
     }
-    const packageLength = this.getNumRows(this.masterBoardId, preset);
+    const packageLength = BoardShim.getNumRows(this.masterBoardId, preset);
     const dataArr = [...new Array(packageLength * dataSize).fill(0)];
-    const res = this.boardController.getBoardData(dataSize, preset, dataArr, this.boardId, this.inputJson);
+    const res = BoardControllerDLL.getInstance().getBoardData(dataSize, preset, dataArr, this.boardId, this.inputJson);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not get board data');
     }
@@ -226,10 +248,10 @@ export class BoardShim {
   }
 
   public getCurrentBoardData(numSamples: number, preset = BrainFlowPresets.DEFAULT_PRESET): number[][] | null {
-    const packageLength = this.getNumRows(this.masterBoardId, preset);
+    const packageLength = BoardShim.getNumRows(this.masterBoardId, preset);
     const dataArr = [...new Array(packageLength * numSamples).fill(0)];
     const currentSize = [0];
-    const res = this.boardController.getCurrentBoardData(
+    const res = BoardControllerDLL.getInstance().getCurrentBoardData(
       numSamples,
       preset,
       dataArr,
@@ -246,219 +268,269 @@ export class BoardShim {
     return _.chunk(dataArr, currentSize[0]);
   }
 
-  public releaseAllSessions(): void {
-    const res = this.boardController.releaseAllSessions();
+  public static releaseAllSessions(): void {
+    const res = BoardControllerDLL.getInstance().releaseAllSessions();
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not release all sessions');
     }
   }
 
   public releaseSession(): void {
-    const res = this.boardController.releaseSession(this.boardId, this.inputJson);
+    const res = BoardControllerDLL.getInstance().releaseSession(this.boardId, this.inputJson);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not release session');
     }
   }
 
   public stopStream(): void {
-    const res = this.boardController.stopStream(this.boardId, this.inputJson);
+    const res = BoardControllerDLL.getInstance().stopStream(this.boardId, this.inputJson);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not stop stream');
     }
   }
 
-  public getNumRows(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number {
+  public static getNumRows(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number {
     const numRows = [0];
-    const res = this.boardController.getNumRows(boardId, preset, numRows);
+    const res = BoardControllerDLL.getInstance().getNumRows(boardId, preset, numRows);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not get num rows');
     }
     return numRows[0];
   }
 
-  public getPackageNumChannel(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number {
+  public static getPackageNumChannel(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number {
     const value = [0];
-    const res = this.boardController.getPackageNumChannel(boardId, preset, value);
+    const res = BoardControllerDLL.getInstance().getPackageNumChannel(boardId, preset, value);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not get such data from this device');
     }
     return value[0];
   }
 
-  public getTimestampChannel(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number {
+  public static getTimestampChannel(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number {
     const value = [0];
-    const res = this.boardController.getTimestampChannel(boardId, preset, value);
+    const res = BoardControllerDLL.getInstance().getTimestampChannel(boardId, preset, value);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not get such data from this device');
     }
     return value[0];
   }
 
-  public getMarkerChannel(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number {
+  public static getMarkerChannel(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number {
     const value = [0];
-    const res = this.boardController.getMarkerChannel(boardId, preset, value);
+    const res = BoardControllerDLL.getInstance().getMarkerChannel(boardId, preset, value);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not get such data from this device');
     }
     return value[0];
   }
 
-  public getBatteryChannel(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number {
+  public static getBatteryChannel(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number {
     const value = [0];
-    const res = this.boardController.getBatteryChannel(boardId, preset, value);
+    const res = BoardControllerDLL.getInstance().getBatteryChannel(boardId, preset, value);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not get such data from this device');
     }
     return value[0];
   }
 
-  public getSamplingRate(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number {
+  public static getSamplingRate(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number {
     const samplingRate = [0];
-    const res = this.boardController.getSamplingRate(boardId, preset, samplingRate);
+    const res = BoardControllerDLL.getInstance().getSamplingRate(boardId, preset, samplingRate);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not get sampling rate');
     }
     return samplingRate[0];
   }
 
-  public getEegChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
+  public static getEegChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
     const numChannels = [0];
     const eegChannels = [...new Array(512).fill(0)];
-    const res = this.boardController.getEegChannels(boardId, preset, eegChannels, numChannels);
+    const res = BoardControllerDLL.getInstance().getEegChannels(boardId, preset, eegChannels, numChannels);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not get board info');
     }
     return eegChannels.slice(0, numChannels[0]);
   }
 
-  public getExgChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
+  public static getExgChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
     const numChannels = [0];
     const сhannels = [...new Array(512).fill(0)];
-    const res = this.boardController.getExgChannels(boardId, preset, сhannels, numChannels);
+    const res = BoardControllerDLL.getInstance().getExgChannels(boardId, preset, сhannels, numChannels);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not get board info');
     }
     return сhannels.slice(0, numChannels[0]);
   }
 
-  public getEmgChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
+  public static getEmgChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
     const numChannels = [0];
     const сhannels = [...new Array(512).fill(0)];
-    const res = this.boardController.getEmgChannels(boardId, preset, сhannels, numChannels);
+    const res = BoardControllerDLL.getInstance().getEmgChannels(boardId, preset, сhannels, numChannels);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not get board info');
     }
     return сhannels.slice(0, numChannels[0]);
   }
 
-  public getEcgChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
+  public static getEcgChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
     const numChannels = [0];
     const сhannels = [...new Array(512).fill(0)];
-    const res = this.boardController.getEcgChannels(boardId, preset, сhannels, numChannels);
+    const res = BoardControllerDLL.getInstance().getEcgChannels(boardId, preset, сhannels, numChannels);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not get board info');
     }
     return сhannels.slice(0, numChannels[0]);
   }
 
-  public getEogChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
+  public static getEogChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
     const numChannels = [0];
     const сhannels = [...new Array(512).fill(0)];
-    const res = this.boardController.getEogChannels(boardId, preset, сhannels, numChannels);
+    const res = BoardControllerDLL.getInstance().getEogChannels(boardId, preset, сhannels, numChannels);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not get board info');
     }
     return сhannels.slice(0, numChannels[0]);
   }
 
-  public getPpgChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
+  public static getPpgChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
     const numChannels = [0];
     const сhannels = [...new Array(512).fill(0)];
-    const res = this.boardController.getPpgChannels(boardId, preset, сhannels, numChannels);
+    const res = BoardControllerDLL.getInstance().getPpgChannels(boardId, preset, сhannels, numChannels);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not get board info');
     }
     return сhannels.slice(0, numChannels[0]);
   }
 
-  public getEdaChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
+  public static getEdaChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
     const numChannels = [0];
     const сhannels = [...new Array(512).fill(0)];
-    const res = this.boardController.getEdaChannels(boardId, preset, сhannels, numChannels);
+    const res = BoardControllerDLL.getInstance().getEdaChannels(boardId, preset, сhannels, numChannels);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not get board info');
     }
     return сhannels.slice(0, numChannels[0]);
   }
 
-  public getAccelChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
+  public static getAccelChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
     const numChannels = [0];
     const сhannels = [...new Array(512).fill(0)];
-    const res = this.boardController.getAccelChannels(boardId, preset, сhannels, numChannels);
+    const res = BoardControllerDLL.getInstance().getAccelChannels(boardId, preset, сhannels, numChannels);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not get board info');
     }
     return сhannels.slice(0, numChannels[0]);
   }
 
-  public getAnalogChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
+  public static getAnalogChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
     const numChannels = [0];
     const сhannels = [...new Array(512).fill(0)];
-    const res = this.boardController.getAnalogChannels(boardId, preset, сhannels, numChannels);
+    const res = BoardControllerDLL.getInstance().getAnalogChannels(boardId, preset, сhannels, numChannels);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not get board info');
     }
     return сhannels.slice(0, numChannels[0]);
   }
 
-  public getGyroChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
+  public static getGyroChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
     const numChannels = [0];
     const сhannels = [...new Array(512).fill(0)];
-    const res = this.boardController.getGyroChannels(boardId, preset, сhannels, numChannels);
+    const res = BoardControllerDLL.getInstance().getGyroChannels(boardId, preset, сhannels, numChannels);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not get board info');
     }
     return сhannels.slice(0, numChannels[0]);
   }
 
-  public getOtherChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
+  public static getOtherChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
     const numChannels = [0];
     const сhannels = [...new Array(512).fill(0)];
-    const res = this.boardController.getOtherChannels(boardId, preset, сhannels, numChannels);
+    const res = BoardControllerDLL.getInstance().getOtherChannels(boardId, preset, сhannels, numChannels);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not get board info');
     }
     return сhannels.slice(0, numChannels[0]);
   }
 
-  public getTemperatureChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
+  public static getTemperatureChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
     const numChannels = [0];
     const сhannels = [...new Array(512).fill(0)];
-    const res = this.boardController.getTemperatureChannels(boardId, preset, сhannels, numChannels);
+    const res = BoardControllerDLL.getInstance().getTemperatureChannels(boardId, preset, сhannels, numChannels);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not get board info');
     }
     return сhannels.slice(0, numChannels[0]);
   }
 
-  public getResistanceChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
+  public static getResistanceChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
     const numChannels = [0];
     const сhannels = [...new Array(512).fill(0)];
-    const res = this.boardController.getResistanceChannels(boardId, preset, сhannels, numChannels);
+    const res = BoardControllerDLL.getInstance().getResistanceChannels(boardId, preset, сhannels, numChannels);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not get board info');
     }
     return сhannels.slice(0, numChannels[0]);
   }
 
-  public getMagnetometerChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
+  public static getMagnetometerChannels(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): number[] {
     const numChannels = [0];
     const сhannels = [...new Array(512).fill(0)];
-    const res = this.boardController.getMagnetometerChannels(boardId, preset, сhannels, numChannels);
+    const res = BoardControllerDLL.getInstance().getMagnetometerChannels(boardId, preset, сhannels, numChannels);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not get board info');
     }
     return сhannels.slice(0, numChannels[0]);
+  }
+
+  public static getBoardPresets(boardId: BoardIds): number[] {
+    const len = [0];
+    const presets = [...new Array(512).fill(0)];
+    const res = BoardControllerDLL.getInstance().getBoardPresets(boardId, presets, len);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new BrainFlowError(res, 'Could not get board info');
+    }
+    return presets.slice(0, len[0]);
+  }
+
+  public static getVersion(): string {
+    const len = [0];
+    let out = ['\0'.repeat(512)];
+    const res = BoardControllerDLL.getInstance().getVersionBoardController(out, len, 512);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new BrainFlowError(res, 'Could not get version info');
+    }
+    return out[0].substring(0, len[0]);
+  }
+
+  public static getDeviceName(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): string {
+    const len = [0];
+    let out = ['\0'.repeat(512)];
+    const res = BoardControllerDLL.getInstance().getDeviceName(boardId, preset, out, len);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new BrainFlowError(res, 'Could not get device info');
+    }
+    return out[0].substring(0, len[0]);
+  }
+
+  public static getEegNames(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): string[] {
+    const len = [0];
+    let out = ['\0'.repeat(4096)];
+    const res = BoardControllerDLL.getInstance().getEegNames(boardId, preset, out, len);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new BrainFlowError(res, 'Could not get device info');
+    }
+    return out[0].substring(0, len[0]).split(",");
+  }
+
+  public static getBoardDescr(boardId: BoardIds, preset = BrainFlowPresets.DEFAULT_PRESET): Object {
+    const len = [0];
+    let out = ['\0'.repeat(4096)];
+    const res = BoardControllerDLL.getInstance().getBoardDescr(boardId, preset, out, len);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new BrainFlowError(res, 'Could not get device info');
+    }
+    return JSON.parse(out[0].substring(0, len[0]));
   }
 
 }

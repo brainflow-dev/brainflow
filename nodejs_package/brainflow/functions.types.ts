@@ -13,6 +13,7 @@ export enum BoardControllerCLikeFunctions {
   release_all_sessions = 'int release_all_sessions ()',
   release_session = 'int release_session (int board_id, const char *json_brainflow_input_params)',
   add_streamer = 'int add_streamer (const char *streamer, int preset, int board_id, const char *json_brainflow_input_params)',
+  config_board = 'int config_board (const char *config, _Inout_ char *response, _Inout_ int *resp_len, int board_id, const char *json_brainflow_input_params)',
   delete_streamer = 'int delete_streamer (const char *streamer, int preset, int board_id, const char *json_brainflow_input_params)',
   insert_marker = 'int insert_marker (double value, int preset, int board_id, const char *json_brainflow_input_params)',
   set_log_level_board_controller = 'int set_log_level_board_controller (int log_level)',
@@ -44,6 +45,11 @@ export enum BoardControllerCLikeFunctions {
   get_temperature_channels = 'int get_temperature_channels (int board_id, int preset, _Inout_ int *channels, _Inout_ int *len)',
   get_resistance_channels = 'int get_resistance_channels (int board_id, int preset, _Inout_ int *channels, _Inout_ int *len)',
   get_magnetometer_channels = 'int get_magnetometer_channels (int board_id, int preset, _Inout_ int *channels, _Inout_ int *len)',
+  get_eeg_names = 'int get_eeg_names (int board_id, int preset, _Inout_ char *eeg_names, _Inout_ int *len)',
+  get_device_name = 'int get_device_name (int board_id, int preset, _Inout_ char *device_name, _Inout_ int *len)',
+  get_board_descr = 'int get_board_descr (int board_id, int preset, _Inout_ char *descr, _Inout_ int *len)',
+  get_version_board_controller = 'int get_version_board_controller (_Inout_ char *version, _Inout_ int *len, int max)',
+  get_board_presets = 'int get_board_presets (int board_id, _Inout_ int *presets, _Inout_ int *len)',
 }
 
 export class BoardControllerFunctions {
@@ -68,6 +74,13 @@ export class BoardControllerFunctions {
   startStream!: (
     numSamples: number,
     streamerParams: string | null,
+    boardId: BoardIds,
+    inputJson: string,
+  ) => BrainFlowExitCodes;
+  configBoard!: (
+    config: string,
+    response: string[],
+    responseLen: number[],
     boardId: BoardIds,
     inputJson: string,
   ) => BrainFlowExitCodes;
@@ -183,6 +196,34 @@ export class BoardControllerFunctions {
     boardId: BoardIds,
     preset: BrainFlowPresets,
     magnetometerChannels: number[],
+    len: number[],
+  ) => BrainFlowExitCodes;
+  getEegNames!: (
+    boardId: BoardIds,
+    preset: BrainFlowPresets,
+    names: string[],
+    len: number[],
+  ) => BrainFlowExitCodes;
+  getDeviceName!: (
+    boardId: BoardIds,
+    preset: BrainFlowPresets,
+    name: string[],
+    len: number[],
+  ) => BrainFlowExitCodes;
+  getBoardPresets!: (
+    boardId: BoardIds,
+    presets: number[],
+    len: number[],
+  ) => BrainFlowExitCodes;
+  getVersionBoardController!: (
+    version: string[],
+    len: number[],
+    maxLen: number,
+  ) => BrainFlowExitCodes;
+  getBoardDescr!: (
+    boardId: BoardIds,
+    preset: BrainFlowPresets,
+    descr: string[],
     len: number[],
   ) => BrainFlowExitCodes;
 }

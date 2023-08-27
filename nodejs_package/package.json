@@ -10,7 +10,7 @@
     "test:watch": "jest --watchAll",
     "build": "tsc",
     "watch": "tsc -w",
-    "example": "ts-node brainflow/tests/example.ts"
+    "brainflow_get_data": "ts-node brainflow/tests/brainflow_get_data.ts"
   },
   "repository": {
     "type": "git",

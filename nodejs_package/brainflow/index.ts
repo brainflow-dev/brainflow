@@ -1,2 +1,2 @@
-export * from './board-shim';
+export * from './board_shim';
 export * from './brainflow.types';

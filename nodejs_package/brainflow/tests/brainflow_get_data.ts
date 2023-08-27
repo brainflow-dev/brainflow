@@ -1,6 +1,5 @@
 import { BoardShim } from '../board_shim';
 import { BoardIds } from '../brainflow.types';
-import { DataFilter } from '../data_filter';
 
 function sleep(ms: number) {
   return new Promise((resolve) => {
@@ -9,23 +8,15 @@ function sleep(ms: number) {
 }
 
 async function runExample(): Promise<void> {
-  const board = new BoardShim(BoardIds.SYNTHETIC_BOARD, { serialPort: 'test' });
-  const eegChannels = board.getEegChannels(BoardIds.SYNTHETIC_BOARD);
-
+  const board = new BoardShim(BoardIds.SYNTHETIC_BOARD, {});
   board.prepareSession();
   board.startStream();
-
   await sleep(3000);
-
   board.stopStream();
-
   const data = board.getBoardData();
-  const railed = eegChannels.map((channel) => DataFilter.getRailedPercentage(data[channel], 24));
-
+  board.releaseSession()
   console.info('Data');
-  console.info(data[0]);
-  console.info('Railed');
-  console.info(railed);
+  console.info(data);
 }
 
 runExample();
