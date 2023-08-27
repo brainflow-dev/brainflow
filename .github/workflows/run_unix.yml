@@ -319,7 +319,7 @@ jobs:
     - name: Synthetic Node
       run: |
         cd $GITHUB_WORKSPACE/nodejs_package/brainflow
-        npm run example
+        npm run brainflow_get_data
     # deploy started
     - name: Install AWS CLI
       run: sudo -H python3 -m pip install awscli==1.21.10
