@@ -10,7 +10,8 @@
     "test:watch": "jest --watchAll",
     "build": "tsc",
     "watch": "tsc -w",
-    "brainflow_get_data": "ts-node brainflow/tests/brainflow_get_data.ts"
+    "brainflow_get_data": "ts-node brainflow/tests/brainflow_get_data.ts",
+    "signal_filtering": "ts-node brainflow/tests/signal_filtering.ts"
   },
   "repository": {
     "type": "git",

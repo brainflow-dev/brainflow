@@ -231,8 +231,18 @@ export class BoardControllerFunctions {
 export enum DataHandlerCLikeFunctions {
   // Methods with '_Inout_' pointer -> dual input/output parameter:
   get_railed_percentage = 'int get_railed_percentage (double *raw_data, int data_len, int gain, _Inout_ double *output)',
+  perform_lowpass = 'int perform_lowpass (_Inout_ double *data, int data_len, int sampling_rate, double cutoff, int order, int filter_type, double ripple)',
+  perform_highpass = 'int perform_highpass (_Inout_ double *data, int data_len, int sampling_rate, double cutoff, int order, int filter_type, double ripple)',
+  perform_bandpass = 'int perform_bandpass (_Inout_ double *data, int data_len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple)',
+  perform_bandstop = 'int perform_bandstop (_Inout_ double *data, int data_len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple)',
+  remove_environmental_noise = 'int remove_environmental_noise (_Inout_ double *data, int data_len, int sampling_rate, int noise_type)',
 }
 
 export class DataHandlerFunctions {
   getRailedPercentage!: (rawData: number[], dataLen: number, gain: number, output: number[]) => BrainFlowExitCodes;
+  performLowPass!: (rawData: number[], dataLen: number, samplingRate: number, cutoff: number, order: number, filterType: number, ripple: number) => BrainFlowExitCodes;
+  performHighPass!: (rawData: number[], dataLen: number, samplingRate: number, cutoff: number, order: number, filterType: number, ripple: number) => BrainFlowExitCodes;
+  performBandPass!: (rawData: number[], dataLen: number, samplingRate: number, startFreq: number, stopFreq: number, order: number, filterType: number, ripple: number) => BrainFlowExitCodes;
+  performBandStop!: (rawData: number[], dataLen: number, samplingRate: number, startFreq: number, stopFreq: number, order: number, filterType: number, ripple: number) => BrainFlowExitCodes;
+  removeEnvironmentalNoise!: (rawData: number[], dataLen: number, samplingRate: number, noiseType: number)  => BrainFlowExitCodes;
 }

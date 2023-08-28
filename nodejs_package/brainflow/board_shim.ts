@@ -127,11 +127,11 @@ class BoardControllerDLL extends BoardControllerFunctions {
   }
 
   public static getInstance(): BoardControllerDLL {
-      if (!BoardControllerDLL.instance) {
-            BoardControllerDLL.instance = new BoardControllerDLL();
-      }
-      return BoardControllerDLL.instance;
+    if (!BoardControllerDLL.instance) {
+          BoardControllerDLL.instance = new BoardControllerDLL();
     }
+    return BoardControllerDLL.instance;
+  }
 }
 
 export class BoardShim {
