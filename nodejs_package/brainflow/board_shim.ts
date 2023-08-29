@@ -247,7 +247,7 @@ export class BoardShim {
     return _.chunk(dataArr, dataSize);
   }
 
-  public getCurrentBoardData(numSamples: number, preset = BrainFlowPresets.DEFAULT_PRESET): number[][] | null {
+  public getCurrentBoardData(numSamples: number, preset = BrainFlowPresets.DEFAULT_PRESET): number[][] {
     const packageLength = BoardShim.getNumRows(this.masterBoardId, preset);
     const dataArr = [...new Array(packageLength * numSamples).fill(0)];
     const currentSize = [0];
@@ -261,9 +261,6 @@ export class BoardShim {
     );
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not get current board data');
-    }
-    if (!currentSize.length) {
-      return null;
     }
     return _.chunk(dataArr, currentSize[0]);
   }

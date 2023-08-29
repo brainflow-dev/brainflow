@@ -229,13 +229,15 @@ export class BoardControllerFunctions {
 }
 
 export enum DataHandlerCLikeFunctions {
-  // Methods with '_Inout_' pointer -> dual input/output parameter:
   get_railed_percentage = 'int get_railed_percentage (double *raw_data, int data_len, int gain, _Inout_ double *output)',
   perform_lowpass = 'int perform_lowpass (_Inout_ double *data, int data_len, int sampling_rate, double cutoff, int order, int filter_type, double ripple)',
   perform_highpass = 'int perform_highpass (_Inout_ double *data, int data_len, int sampling_rate, double cutoff, int order, int filter_type, double ripple)',
   perform_bandpass = 'int perform_bandpass (_Inout_ double *data, int data_len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple)',
   perform_bandstop = 'int perform_bandstop (_Inout_ double *data, int data_len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple)',
   remove_environmental_noise = 'int remove_environmental_noise (_Inout_ double *data, int data_len, int sampling_rate, int noise_type)',
+  write_file = 'int write_file (const double *data, int num_rows, int num_cols, const char *file_name, const char *file_mode)',
+  read_file = 'int read_file (_Inout_ double *data, _Inout_ int *num_rows, _Inout_ int *num_cols, const char *file_name, int num_elements)',
+  get_num_elements_in_file = 'int get_num_elements_in_file (const char *file_name, _Inout_ int *num_elements)',
 }
 
 export class DataHandlerFunctions {
@@ -245,4 +247,7 @@ export class DataHandlerFunctions {
   performBandPass!: (rawData: number[], dataLen: number, samplingRate: number, startFreq: number, stopFreq: number, order: number, filterType: number, ripple: number) => BrainFlowExitCodes;
   performBandStop!: (rawData: number[], dataLen: number, samplingRate: number, startFreq: number, stopFreq: number, order: number, filterType: number, ripple: number) => BrainFlowExitCodes;
   removeEnvironmentalNoise!: (rawData: number[], dataLen: number, samplingRate: number, noiseType: number)  => BrainFlowExitCodes;
+  writeFile!: (data: number[], rows: number, cols: number, file: string, mode: string) => BrainFlowExitCodes;
+  readFile!: (data: number[], rows: number[], cols: number[],  file: string, numElems: number) => BrainFlowExitCodes;
+  getNumElementsInFile!: (file: string, numElems: number[]) => BrainFlowExitCodes;
 }

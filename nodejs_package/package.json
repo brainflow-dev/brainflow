@@ -11,7 +11,8 @@
     "build": "tsc",
     "watch": "tsc -w",
     "brainflow_get_data": "ts-node brainflow/tests/brainflow_get_data.ts",
-    "signal_filtering": "ts-node brainflow/tests/signal_filtering.ts"
+    "signal_filtering": "ts-node brainflow/tests/signal_filtering.ts",
+    "transforms": "ts-node brainflow/tests/transforms.ts"
   },
   "repository": {
     "type": "git",

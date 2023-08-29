@@ -324,6 +324,10 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/nodejs_package/brainflow
         npm run signal_filtering
+    - name: Transforms Node
+      run: |
+        cd $GITHUB_WORKSPACE/nodejs_package/brainflow
+        npm run transforms
     # deploy started
     - name: Install AWS CLI
       run: sudo -H python3 -m pip install awscli==1.21.10

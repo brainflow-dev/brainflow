@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import os from 'os';
 import koffi from 'koffi';
 import { DataHandlerCLikeFunctions as CLike, DataHandlerFunctions } from './functions.types';
@@ -23,6 +24,9 @@ class DataHandlerDLL extends DataHandlerFunctions {
     this.performBandPass = this.lib.func(CLike.perform_bandpass);
     this.performBandStop = this.lib.func(CLike.perform_bandstop);
     this.removeEnvironmentalNoise = this.lib.func(CLike.remove_environmental_noise);
+    this.writeFile = this.lib.func(CLike.write_file);
+    this.readFile = this.lib.func(CLike.read_file);
+    this.getNumElementsInFile = this.lib.func(CLike.get_num_elements_in_file);
   }
 
   private getDLLPath() {
@@ -69,47 +73,66 @@ export class DataFilter {
     return output[0];
   }
 
-  public static performLowPass(data: number[], samplingRate: number, cutoff: number, order: number, filterType: FilterTypes, ripple: number): number {
-    const output = [0];
+  public static performLowPass(data: number[], samplingRate: number, cutoff: number, order: number, filterType: FilterTypes, ripple: number) {
     const res = DataHandlerDLL.getInstance().performLowPass(data, data.length, samplingRate, cutoff, order, filterType, ripple);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not apply filter');
     }
-    return output[0];
   }
 
-  public static performHighPass(data: number[], samplingRate: number, cutoff: number, order: number, filterType: FilterTypes, ripple: number): number {
-    const output = [0];
+  public static performHighPass(data: number[], samplingRate: number, cutoff: number, order: number, filterType: FilterTypes, ripple: number) {
     const res = DataHandlerDLL.getInstance().performHighPass(data, data.length, samplingRate, cutoff, order, filterType, ripple);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not apply filter');
     }
-    return output[0];
   }
 
-  public static performBandPass(data: number[], samplingRate: number, startFreq: number, stopFreq: number, order: number, filterType: FilterTypes, ripple: number): number {
-    const output = [0];
+  public static performBandPass(data: number[], samplingRate: number, startFreq: number, stopFreq: number, order: number, filterType: FilterTypes, ripple: number) {
     const res = DataHandlerDLL.getInstance().performBandPass(data, data.length, samplingRate, startFreq, stopFreq, order, filterType, ripple);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not apply filter');
     }
-    return output[0];
   }
 
-  public static performBandStop(data: number[], samplingRate: number, startFreq: number, stopFreq: number, order: number, filterType: FilterTypes, ripple: number): number {
-    const output = [0];
+  public static performBandStop(data: number[], samplingRate: number, startFreq: number, stopFreq: number, order: number, filterType: FilterTypes, ripple: number) {
     const res = DataHandlerDLL.getInstance().performBandStop(data, data.length, samplingRate, startFreq, stopFreq, order, filterType, ripple);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not apply filter');
     }
-    return output[0];
   }
 
-  public static removeEnvironmentalNoise(data: number[], samplingRate: number, noiseType: NoiseTypes): number {
-    const output = [0];
+  public static removeEnvironmentalNoise(data: number[], samplingRate: number, noiseType: NoiseTypes) {
     const res = DataHandlerDLL.getInstance().removeEnvironmentalNoise(data, data.length, samplingRate, noiseType);
     if (res !== BrainFlowExitCodes.STATUS_OK) {
       throw new BrainFlowError(res, 'Could not apply filter');
+    }
+  }
+
+  public static writeFile(data: number[][], file: string, mode: string) {
+    const flat = data.flat();
+    const res = DataHandlerDLL.getInstance().writeFile(flat, data.length, data[0].length, file, mode);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new BrainFlowError(res, 'Could not write file');
+    }
+  }
+
+  public static readFile(file: string): number[][] {
+    const numElems = DataFilter.getNumElementsInFile(file);
+    const dataArr = [...new Array(numElems).fill(0)];
+    const rows = [0];
+    const cols = [0];
+    const res = DataHandlerDLL.getInstance().readFile(dataArr, rows, cols, file, numElems);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new BrainFlowError(res, 'Could not read file');
+    }
+    return _.chunk(dataArr, cols[0]);
+  }
+
+  private static getNumElementsInFile(file: string): number {
+    const output = [0];
+    const res = DataHandlerDLL.getInstance().getNumElementsInFile(file, output);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new BrainFlowError(res, 'Could not get info about file');
     }
     return output[0];
   }
