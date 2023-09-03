@@ -238,6 +238,7 @@ export enum DataHandlerCLikeFunctions {
   write_file = 'int write_file (const double *data, int num_rows, int num_cols, const char *file_name, const char *file_mode)',
   read_file = 'int read_file (_Inout_ double *data, _Inout_ int *num_rows, _Inout_ int *num_cols, const char *file_name, int num_elements)',
   get_num_elements_in_file = 'int get_num_elements_in_file (const char *file_name, _Inout_ int *num_elements)',
+  perform_downsampling = 'int perform_downsampling (double *data, int data_len, int period, int agg_operation, _Inout_ double *output_data)',
 }
 
 export class DataHandlerFunctions {
@@ -250,4 +251,5 @@ export class DataHandlerFunctions {
   writeFile!: (data: number[], rows: number, cols: number, file: string, mode: string) => BrainFlowExitCodes;
   readFile!: (data: number[], rows: number[], cols: number[],  file: string, numElems: number) => BrainFlowExitCodes;
   getNumElementsInFile!: (file: string, numElems: number[]) => BrainFlowExitCodes;
+  performDownsampling!: (data: number[], dataLen: number, period: number, aggOperation: number, output: number[]) => BrainFlowExitCodes;
 }

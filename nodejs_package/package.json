@@ -12,7 +12,8 @@
     "watch": "tsc -w",
     "brainflow_get_data": "ts-node brainflow/tests/brainflow_get_data.ts",
     "signal_filtering": "ts-node brainflow/tests/signal_filtering.ts",
-    "transforms": "ts-node brainflow/tests/transforms.ts"
+    "serialization": "ts-node brainflow/tests/serialization.ts",
+    "downsampling": "ts-node brainflow/tests/downsampling.ts"
   },
   "repository": {
     "type": "git",

@@ -2,7 +2,7 @@ import _ from 'lodash';
 import os from 'os';
 import koffi from 'koffi';
 import { DataHandlerCLikeFunctions as CLike, DataHandlerFunctions } from './functions.types';
-import { BrainFlowExitCodes, BrainFlowError, NoiseTypes, FilterTypes } from './brainflow.types';
+import { BrainFlowExitCodes, BrainFlowError, NoiseTypes, FilterTypes, AggOperations } from './brainflow.types';
 
 class DataHandlerDLL extends DataHandlerFunctions {
 
@@ -27,6 +27,7 @@ class DataHandlerDLL extends DataHandlerFunctions {
     this.writeFile = this.lib.func(CLike.write_file);
     this.readFile = this.lib.func(CLike.read_file);
     this.getNumElementsInFile = this.lib.func(CLike.get_num_elements_in_file);
+    this.performDownsampling = this.lib.func(CLike.perform_downsampling);
   }
 
   private getDLLPath() {
@@ -135,6 +136,16 @@ export class DataFilter {
       throw new BrainFlowError(res, 'Could not get info about file');
     }
     return output[0];
+  }
+
+  public static performDownsampling(data: number[], period: number, aggOperation: AggOperations): number[] {
+    const len = Math.trunc(data.length / period)
+    const output = [...new Array(len).fill(0)];
+    const res = DataHandlerDLL.getInstance().performDownsampling(data, data.length, period, aggOperation, output);
+    if (res !== BrainFlowExitCodes.STATUS_OK) {
+      throw new BrainFlowError(res, 'Could not perform downsampling');
+    }
+    return output;
   }
 
 }
