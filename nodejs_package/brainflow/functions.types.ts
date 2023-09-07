@@ -1,7 +1,6 @@
 import {
     AggOperations,
     BoardIds,
-    BrainFlowError,
     BrainFlowExitCodes,
     BrainFlowPresets,
     FilterTypes,
@@ -11,7 +10,8 @@ import {
     ThresholdTypes,
     WaveletDenoisingTypes,
     WaveletExtensionTypes,
-    WaveletTypes
+    WaveletTypes,
+    WindowOperations
 } from './brainflow.types';
 
 export enum BoardControllerCLikeFunctions {
@@ -377,8 +377,8 @@ export class DataHandlerFunctions
         wavelet: WaveletTypes, decompositionLevel: number, extension: WaveletExtensionTypes,
         decompositionLengths: number[], outputData: number[]) => BrainFlowExitCodes;
     performWaveletDenoising!: (data: number[], dataLen: number, wavelet: WaveletTypes,
-        decompositionLevel: number, waveletDenoising: WaveletDenoisingTypes, threshold: number,
-        extenstionType: WaveletExtensionTypes,
+        decompositionLevel: number, waveletDenoising: WaveletDenoisingTypes,
+        threshold: ThresholdTypes, extenstionType: WaveletExtensionTypes,
         noiseLevel: NoiseEstimationLevelTypes) => BrainFlowExitCodes;
     getWindow!: (windowFunction: WindowOperations, windowLen: number,
         outputWindow: number[]) => BrainFlowExitCodes;
