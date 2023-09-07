@@ -19,6 +19,18 @@
         }                                         \
     } while (0)
 
+#define WAIT_UNTIL_FALSE_WITH_TIMEOUT(obj, var, timeout)                                      \
+    do {                                                                                      \
+        BOOL _tmpVar = YES;                                                                   \
+        NSDate* endDate = [NSDate dateWithTimeInterval:timeout sinceDate:NSDate.now];         \
+        while (_tmpVar && [NSDate.now compare:endDate] == NSOrderedAscending) {               \
+            [NSThread sleepForTimeInterval:0.01];                                             \
+            @synchronized(obj) {                                                              \
+                _tmpVar = (var);                                                              \
+            }                                                                                 \
+        }                                                                                     \
+    } while (0)
+
 // --------------------------------------------------
 
 @interface BleTask : NSObject
@@ -134,7 +146,7 @@
             [self.centralManager connectPeripheral:self.peripheral options:@{}];  // TODO: Do we need to pass any options?
         }
 
-        WAIT_UNTIL_FALSE(self, _task.pending);
+        WAIT_UNTIL_FALSE_WITH_TIMEOUT(self, _task.pending, 5.0);
 
         if (self.peripheral.state != CBPeripheralStateConnected || _task.error != nil) {
             [self throwBasedOnError:_task.error withFormat:@"Peripheral Connection"];
