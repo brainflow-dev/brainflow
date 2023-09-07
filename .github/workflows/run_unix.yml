@@ -332,6 +332,14 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/nodejs_package/brainflow
         npm run downsampling
+    - name: Denoising Node
+      run: |
+        cd $GITHUB_WORKSPACE/nodejs_package/brainflow
+        npm run denoising
+    - name: BandPowerAll Node
+      run: |
+        cd $GITHUB_WORKSPACE/nodejs_package/brainflow
+        npm run bandpower_all
     # deploy started
     - name: Install AWS CLI
       run: sudo -H python3 -m pip install awscli==1.21.10

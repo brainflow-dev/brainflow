@@ -13,7 +13,11 @@
     "brainflow_get_data": "ts-node brainflow/tests/brainflow_get_data.ts",
     "signal_filtering": "ts-node brainflow/tests/signal_filtering.ts",
     "serialization": "ts-node brainflow/tests/serialization.ts",
-    "downsampling": "ts-node brainflow/tests/downsampling.ts"
+    "downsampling": "ts-node brainflow/tests/downsampling.ts",
+    "transforms": "ts-node brainflow/tests/transforms.ts",
+    "denoising": "ts-node brainflow/tests/denoising.ts",
+    "bandpower": "ts-node brainflow/tests/bandpower.ts",
+    "bandpower_all": "ts-node brainflow/tests/bandpower_all.ts"
   },
   "repository": {
     "type": "git",
