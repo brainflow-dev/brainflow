@@ -12,23 +12,23 @@
 #define AAVAA3_NOTIFY_CHAR "6e400003-c352-11e5-953d-0002a5d5c51b"
 
 
-static void aavaa_adapter_1_on_scan_start (simpleble_adapter_t adapter, void *board)
+void aavaa_adapter_1_on_scan_start (simpleble_adapter_t adapter, void *board)
 {
     ((AAVAAv3 *)(board))->adapter_1_on_scan_start (adapter);
 }
 
-static void aavaa_adapter_1_on_scan_stop (simpleble_adapter_t adapter, void *board)
+void aavaa_adapter_1_on_scan_stop (simpleble_adapter_t adapter, void *board)
 {
     ((AAVAAv3 *)(board))->adapter_1_on_scan_stop (adapter);
 }
 
-static void aavaa_adapter_1_on_scan_found (
+void aavaa_adapter_1_on_scan_found (
     simpleble_adapter_t adapter, simpleble_peripheral_t peripheral, void *board)
 {
     ((AAVAAv3 *)(board))->adapter_1_on_scan_found (adapter, peripheral);
 }
 
-static void aavaa_read_notifications (simpleble_uuid_t service, simpleble_uuid_t characteristic,
+void aavaa_read_notifications (simpleble_uuid_t service, simpleble_uuid_t characteristic,
     uint8_t *data, size_t size, void *board)
 {
     ((AAVAAv3 *)(board))->read_data (service, characteristic, data, size);
@@ -92,7 +92,7 @@ int AAVAAv3::prepare_session ()
 #ifdef _WIN32
     Sleep (1000);
 #else
-    usleep (1000000);
+    sleep (1);
 #endif
 
     if (!simpleble_adapter_is_bluetooth_enabled ())
@@ -263,14 +263,17 @@ int AAVAAv3::release_session ()
             }
             else
             {
+                safe_logger (spdlog::level::trace, "unsubscribed successfully.");
                 break;
             }
         }
+        safe_logger (spdlog::level::trace, "freeing packages.");
         free_packages ();
         initialized = false;
     }
     if (aavaa_peripheral != NULL)
     {
+        safe_logger (spdlog::level::info, "peripheral is not NULL.");
         bool is_connected = false;
         if (simpleble_peripheral_is_connected (aavaa_peripheral, &is_connected) ==
             SIMPLEBLE_SUCCESS)
@@ -285,10 +288,11 @@ int AAVAAv3::release_session ()
     }
     if (aavaa_adapter != NULL)
     {
+        safe_logger (spdlog::level::info, "adapter is not NULL.");
         simpleble_adapter_release_handle (aavaa_adapter);
         aavaa_adapter = NULL;
     }
-
+    safe_logger (spdlog::level::trace, "released successfully.");
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 

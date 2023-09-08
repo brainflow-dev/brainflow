@@ -66,23 +66,23 @@
 - (void)centralManagerDidUpdateState:(CBCentralManager*)central {
     switch (central.state) {
         case CBManagerStateUnknown:
-            // NSLog(@"CBManagerStateUnknown!\n");
+            NSLog(@"CBManagerStateUnknown!\n");
             break;
         case CBManagerStateResetting:
-            // NSLog(@"CBManagerStateResetting!\n");
+            NSLog(@"CBManagerStateResetting!\n");
             break;
         case CBManagerStateUnsupported:
-            // NSLog(@"CBManagerStateUnsupported!\n");
+            NSLog(@"CBManagerStateUnsupported!\n");
             break;
         case CBManagerStateUnauthorized:
-            // NSLog(@"CBManagerStateUnauthorized!\n");
+            NSLog(@"CBManagerStateUnauthorized!\n");
             break;
         case CBManagerStatePoweredOff:
-            // NSLog(@"CBManagerStatePoweredOff!\n");
+            NSLog(@"CBManagerStatePoweredOff!\n");
             // NOTE: Notify the user that the Bluetooth adapter is turned off.
             break;
         case CBManagerStatePoweredOn:
-            // NSLog(@"CBManagerStatePoweredOn!\n");
+            NSLog(@"CBManagerStatePoweredOn!\n");
             // NOTE: This state is required to be able to operate CoreBluetooth.
             break;
     }
@@ -146,14 +146,17 @@
 }
 
 - (void)centralManager:(CBCentralManager*)central didConnectPeripheral:(CBPeripheral*)peripheral {
+    NSLog(@"Connected to peripheral: %@", peripheral);
     _adapter->delegate_did_connect_peripheral((__bridge void*)peripheral);
 }
 
 - (void)centralManager:(CBCentralManager*)central didDisconnectPeripheral:(CBPeripheral*)peripheral error:(NSError*)error {
+    NSLog(@"didDisconnectPeripheral");
     _adapter->delegate_did_disconnect_peripheral((__bridge void*)peripheral, (__bridge void*)error);
 }
 
 - (void)centralManager:(CBCentralManager*)central didFailToConnectPeripheral:(CBPeripheral*)peripheral error:(NSError*)error {
+    NSLog(@"didFailToConnectPeripheral");
     _adapter->delegate_did_fail_to_connect_peripheral((__bridge void*)peripheral, (__bridge void*)error);
 }
 
