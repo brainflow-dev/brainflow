@@ -546,3 +546,9 @@ Notebooks
    ./notebooks/brainflow_mne
    ./notebooks/denoising
    ./notebooks/band_power
+
+Swift
+------
+
+.. literalinclude:: ../swift-package/BrainFlow/Tests/BrainFlowTests/BrainFlowCITests.swift
+   :language: swift
