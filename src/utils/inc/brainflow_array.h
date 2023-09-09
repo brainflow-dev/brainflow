@@ -448,9 +448,9 @@ public:
     }
 
     /// fill already preallocated buffer
-    void fill (T *ptr, int size)
+    void fill (T *ptr, int num)
     {
-        memcpy (origin, ptr, sizeof (T) * size);
+        memcpy (origin, ptr, sizeof (T) * num);
     }
 };
 
