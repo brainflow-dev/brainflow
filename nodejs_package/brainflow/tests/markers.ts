@@ -11,7 +11,9 @@ async function runExample (): Promise<void>
     const board = new BoardShim (BoardIds.SYNTHETIC_BOARD, {});
     board.prepareSession();
     board.startStream();
-    await sleep (3000);
+    await sleep (1000);
+    board.insertMarker(1);
+    await sleep (1000);
     board.stopStream();
     const data = board.getBoardData();
     board.releaseSession();

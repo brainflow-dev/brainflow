@@ -10,6 +10,8 @@
     "test:watch": "jest --watchAll",
     "build": "tsc",
     "watch": "tsc -w",
+    "markers": "ts-node brainflow/tests/markers.ts",
+    "ica": "ts-node brainflow/tests/ica.ts",
     "brainflow_get_data": "ts-node brainflow/tests/brainflow_get_data.ts",
     "signal_filtering": "ts-node brainflow/tests/signal_filtering.ts",
     "serialization": "ts-node brainflow/tests/serialization.ts",

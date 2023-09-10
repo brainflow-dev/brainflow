@@ -1,5 +1,5 @@
 import {BoardShim} from '../board_shim';
-import {BoardIds, WindowOperations} from '../brainflow.types';
+import {BoardIds} from '../brainflow.types';
 import {DataFilter} from '../data_filter';
 
 function sleep (ms: number)
@@ -13,17 +13,17 @@ async function runExample (): Promise<void>
     const board = new BoardShim (boardId, {});
     board.prepareSession();
     board.startStream();
-    await sleep (5000);
+    await sleep (10000);
     board.stopStream();
-    const data = board.getCurrentBoardData(128);
+    const data = board.getCurrentBoardData(500);
     board.releaseSession()
     const eegChannels = BoardShim.getEegChannels(boardId);
-    const samplingRate = BoardShim.getSamplingRate(boardId);
-    const oldData = data[eegChannels[1]];
-    const psd = DataFilter.getPsdWelch(oldData, 64, 0.5, samplingRate, WindowOperations.HAMMING);
-    const alpha = DataFilter.getBandPower(psd, 7.0, 13.0);
-    const beta = DataFilter.getBandPower(psd, 14.0, 30.0);
-    console.info(alpha / beta);
+    const eegData = data[eegChannels[0]];
+    const eeg2D: number[][] = [];
+    while (eegData.length)
+        eeg2D.push(eegData.splice(0, 100));
+    const icaData = DataFilter.performIca(eeg2D, 2, [0, 1, 2, 3, 4]);
+    console.info(icaData[3]);
 }
 
 runExample ();

@@ -1,5 +1,5 @@
 import {BoardShim} from '../board_shim';
-import {AggOperations, BoardIds} from '../brainflow.types';
+import {BoardIds, WaveletExtensionTypes, WaveletTypes, WindowOperations} from '../brainflow.types';
 import {DataFilter} from '../data_filter';
 
 function sleep (ms: number)
@@ -15,13 +15,20 @@ async function runExample (): Promise<void>
     board.startStream();
     await sleep (3000);
     board.stopStream();
-    const data = board.getCurrentBoardData(10);
+    const data = board.getCurrentBoardData(64);
     board.releaseSession()
     const eegChannels = BoardShim.getEegChannels(boardId);
     const oldData = data[eegChannels[0]];
     console.info(oldData);
-    const newData = DataFilter.performDownsampling(oldData, 3, AggOperations.MEAN);
+    const fftData = DataFilter.performFft(oldData, WindowOperations.NO_WINDOW);
+    console.info(fftData);
+    const newData = DataFilter.performIfft(fftData);
     console.info(newData);
+    const waveletData = DataFilter.performWaveletTransform(
+        newData, WaveletTypes.DB2, 2, WaveletExtensionTypes.SYMMETRIC);
+    const restoredData = DataFilter.performInverseWaveletTransform(
+        waveletData, newData.length, WaveletTypes.DB2, 2, WaveletExtensionTypes.SYMMETRIC);
+    console.info(restoredData);
 }
 
 runExample ();

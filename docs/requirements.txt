@@ -12,3 +12,4 @@ Pygments==2.7.4
 sphinxcontrib-matlabdomain==0.11.4
 docutils<0.17
 sphinx_rtd_theme==0.4.3
+jinja2<3.1

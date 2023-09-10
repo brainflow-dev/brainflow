@@ -6,6 +6,7 @@ import {
     AggOperations,
     BrainFlowError,
     BrainFlowExitCodes,
+    DetrendOperations,
     FilterTypes,
     LogLevels,
     NoiseEstimationLevelTypes,
@@ -13,8 +14,10 @@ import {
     ThresholdTypes,
     WaveletDenoisingTypes,
     WaveletExtensionTypes,
-    WaveletTypes
+    WaveletTypes,
+    WindowOperations
 } from './brainflow.types';
+import {complex} from './complex';
 import {DataHandlerCLikeFunctions as CLike, DataHandlerFunctions} from './functions.types';
 
 class DataHandlerDLL extends DataHandlerFunctions
@@ -362,5 +365,245 @@ export class DataFilter
     {
         const bands = [[2.0, 4.0], [4.0, 8.0], [8.0, 13.0], [13.0, 30.0], [30.0, 45.0]];
         return DataFilter.getCustomBandPowers(data, bands, channels, samplingRate, applyFilters);
+    }
+
+    public static getNearestPowerOfTwo(value: number): number
+    {
+        const output = [0];
+        const res = DataHandlerDLL.getInstance().getNearestPowerOfTwo(value, output);
+        if (res !== BrainFlowExitCodes.STATUS_OK)
+        {
+            throw new BrainFlowError (res, 'Could not get nearest power');
+        }
+        return output[0];
+    }
+
+    public static getWindow(windowFunction: WindowOperations, len: number): number[]
+    {
+        const output = [...new Array (len).fill(0)];
+        const res = DataHandlerDLL.getInstance().getWindow(windowFunction, len, output);
+        if (res !== BrainFlowExitCodes.STATUS_OK)
+        {
+            throw new BrainFlowError (res, 'Could not get window');
+        }
+        return output;
+    }
+
+    public static performFft(data: number[], windowType: WindowOperations): complex[]
+    {
+        var i: number;
+        if (data.length % 2 != 0)
+        {
+            throw new BrainFlowError (
+                BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, "invalid input length");
+        }
+        const outputLen = Math.trunc(data.length / 2 + 1);
+        const outputRe = [...new Array (outputLen).fill(0)];
+        const outputIm = [...new Array (outputLen).fill(0)];
+        const res = DataHandlerDLL.getInstance().performFft(
+            data, data.length, windowType, outputRe, outputIm);
+        if (res !== BrainFlowExitCodes.STATUS_OK)
+        {
+            throw new BrainFlowError (res, 'Could not calc fft');
+        }
+        const output: complex[] = [];
+        for (i = 0; i < outputLen; i++)
+        {
+            output.push(new complex (outputRe[i], outputIm[i]));
+        }
+        return output;
+    }
+
+    public static performIfft(data: complex[]): number[]
+    {
+        var i: number;
+        const output = [...new Array (2 * (data.length - 1)).fill(0)];
+        const tempRe = [...new Array (data.length).fill(0)];
+        const tempIm = [...new Array (data.length).fill(0)];
+        for (i = 0; i < data.length; i++)
+        {
+            tempRe[i] = data[i].real;
+            tempIm[i] = data[i].img;
+        }
+        const res = DataHandlerDLL.getInstance().performIfft(tempRe, tempIm, output.length, output);
+        if (res !== BrainFlowExitCodes.STATUS_OK)
+        {
+            throw new BrainFlowError (res, 'Could not calc ifft');
+        }
+
+        return output;
+    }
+
+    public static getPsd(
+        data: number[], samplingRate: number, windowType: WindowOperations): [number[], number[]]
+    {
+        if (data.length % 2 != 0)
+        {
+            throw new BrainFlowError (
+                BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, "invalid input length");
+        }
+        const outputLen = Math.trunc(data.length / 2 + 1);
+        const ampls = [...new Array (outputLen).fill(0)];
+        const freqs = [...new Array (outputLen).fill(0)];
+        const res = DataHandlerDLL.getInstance().getPsd(
+            data, data.length, samplingRate, windowType, ampls, freqs);
+        if (res !== BrainFlowExitCodes.STATUS_OK)
+        {
+            throw new BrainFlowError (res, 'Could not calc psd');
+        }
+        return [ampls, freqs];
+    }
+
+    public static getPsdWelch(data: number[], nfft: number, overlap: number, samplingRate: number,
+        windowType: WindowOperations): [number[], number[]]
+    {
+        if (data.length % 2 != 0)
+        {
+            throw new BrainFlowError (
+                BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, "invalid input length");
+        }
+        const outputLen = Math.trunc(data.length / 2 + 1);
+        const ampls = [...new Array (outputLen).fill(0)];
+        const freqs = [...new Array (outputLen).fill(0)];
+        const res = DataHandlerDLL.getInstance().getPsdWelch(
+            data, data.length, nfft, overlap, samplingRate, windowType, ampls, freqs);
+        if (res !== BrainFlowExitCodes.STATUS_OK)
+        {
+            throw new BrainFlowError (res, 'Could not calc psd');
+        }
+        return [ampls, freqs];
+    }
+
+    public static getBandPower(
+        psd: [number[], number[]], startFreq: number, stopFreq: number): number
+    {
+        const output = [0];
+        const res = DataHandlerDLL.getInstance().getBandPower(
+            psd[0], psd[1], psd[0].length, startFreq, stopFreq, output);
+        if (res !== BrainFlowExitCodes.STATUS_OK)
+        {
+            throw new BrainFlowError (res, 'Could not calc band power');
+        }
+        return output[0];
+    }
+
+    public static performWaveletTransform(data: number[], wavelet: WaveletTypes,
+        decompositionLevel: number, extension: WaveletExtensionTypes): [number[], number[]]
+    {
+        const waveletCoeffs = [...new Array (data.length + 2 * (40 + 1)).fill(0)];
+        const lengths = [...new Array (decompositionLevel + 1).fill(0)];
+        const res = DataHandlerDLL.getInstance().performWaveletTransform(
+            data, data.length, wavelet, decompositionLevel, extension, waveletCoeffs, lengths);
+        if (res !== BrainFlowExitCodes.STATUS_OK)
+        {
+            throw new BrainFlowError (res, 'Could not calc wavelet transform');
+        }
+        const sum = lengths.reduce((a: number, b: number) => { return a + b; }, 0);
+        const coeffsNew = waveletCoeffs.slice(0, sum);
+        return [coeffsNew, lengths];
+    }
+
+    public static performInverseWaveletTransform(waveletData: [number[], number[]],
+        originalLen: number, wavelet: WaveletTypes, decompositionLevel: number,
+        extension: WaveletExtensionTypes): number[]
+    {
+        const output = [...new Array (originalLen).fill(0)];
+        const res = DataHandlerDLL.getInstance().performInverseWaveletTransform(waveletData[0],
+            originalLen, wavelet, decompositionLevel, extension, waveletData[1], output);
+        if (res !== BrainFlowExitCodes.STATUS_OK)
+        {
+            throw new BrainFlowError (res, 'Could not calc inverse wavelet transform');
+        }
+        return output;
+    }
+
+    public static restoreDataFromWaveletDetailedCoeffs(data: number[], wavelet: WaveletTypes,
+        decompositionLevel: number, levelToRestore: number): number[]
+    {
+        const output = [...new Array (data.length).fill(0)];
+        const res = DataHandlerDLL.getInstance().restoreDataFromWaveletDetailedCoeffs(
+            data, data.length, wavelet, decompositionLevel, levelToRestore, output);
+        if (res !== BrainFlowExitCodes.STATUS_OK)
+        {
+            throw new BrainFlowError (res, 'Could not restore data from wavelet');
+        }
+        return output;
+    }
+
+    public static detectPeaksZScore(
+        data: number[], lag = 5, threshold = 3.5, influence = 0.1): number[]
+    {
+        const output = [...new Array (data.length).fill(0)];
+        const res = DataHandlerDLL.getInstance().detectPeaksZScore(
+            data, data.length, lag, threshold, influence, output);
+        if (res !== BrainFlowExitCodes.STATUS_OK)
+        {
+            throw new BrainFlowError (res, 'Could not detect peaks');
+        }
+        return output;
+    }
+
+    public static performIca(data: number[][], numComponents: number,
+        channels: number[]): [number[][], number[][], number[][], number[][]]
+    {
+        if (data.length < 1)
+        {
+            throw new BrainFlowError (BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR, "empty data");
+        }
+        var i: number;
+        var j: number;
+        const data1D = [...new Array (data[0].length * channels.length).fill(0)];
+        const w = [...new Array (numComponents * numComponents).fill(0)];
+        const k = [...new Array (channels.length * numComponents).fill(0)];
+        const a = [...new Array (numComponents * channels.length).fill(0)];
+        const s = [...new Array (data[0].length * numComponents).fill(0)];
+
+        for (i = 0; i < channels.length; i++)
+        {
+            for (j = 0; j < data[0].length; j++)
+            {
+                data1D[j + data[0].length * i] = data[channels[i]][j];
+            }
+        }
+
+        const res = DataHandlerDLL.getInstance().performIca(
+            data1D, channels.length, data[0].length, numComponents, w, k, a, s);
+        if (res !== BrainFlowExitCodes.STATUS_OK)
+        {
+            throw new BrainFlowError (res, 'Could not perform ica');
+        }
+        const wOut: number[][] = [];
+        while (w.length)
+            wOut.push(w.splice(0, numComponents));
+        const kOut: number[][] = [];
+        while (k.length)
+            kOut.push(k.splice(0, channels.length));
+        const aOut: number[][] = [];
+        while (a.length)
+            aOut.push(a.splice(0, numComponents));
+        const sOut: number[][] = [];
+        while (s.length)
+            sOut.push(s.splice(0, data[0].length));
+        return [wOut, kOut, aOut, sOut];
+    }
+
+    public static detrend(data: number[], detrendOperation: DetrendOperations)
+    {
+        const res = DataHandlerDLL.getInstance().detrend(data, data.length, detrendOperation);
+        if (res !== BrainFlowExitCodes.STATUS_OK)
+        {
+            throw new BrainFlowError (res, 'Could not detrend');
+        }
+    }
+
+    public static calcStddev(data: number[], startPos: number, stopPos: number): number
+    {
+        const output = [0];
+        const res = DataHandlerDLL.getInstance().calcStddev(data, startPos, stopPos, output);
+        if (res !== BrainFlowExitCodes.STATUS_OK)
+        {
+            throw new BrainFlowError (res, 'Could not calc stddev');
+        }
+        return output[0];
     }
 }
