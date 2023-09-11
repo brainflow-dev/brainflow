@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: New Version
+        description: Git tag to checkout
         default: ""
-        required: true
+        required: false
       publish:
         description: Make Public(true or false)
         default: "false"
