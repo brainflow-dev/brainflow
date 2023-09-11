@@ -40,7 +40,7 @@
     "@types/lodash": "4.14.195",
     "@types/node": "20.4.2",
     "@typescript-eslint/eslint-plugin": "^5.50.0",
-    "@typescript-eslint/parser": "6.1.0",
+    "@typescript-eslint/parser": "^5.0.0",
     "eslint": "^8.0.1",
     "eslint-config-prettier": "8.8.0",
     "eslint-config-standard-with-typescript": "36.1.0",
@@ -54,7 +54,8 @@
     "typescript": "^5.1.6"
   },
   "files": [
-    "dist/**/*"
+    "dist/**/*",
+    "brainflow/lib/*"
   ],
   "dependencies": {
     "koffi": "2.5.7",

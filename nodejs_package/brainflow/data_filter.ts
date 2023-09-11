@@ -32,7 +32,7 @@ class DataHandlerDLL extends DataHandlerFunctions
     private constructor()
     {
         super ();
-        this.libPath = `${__dirname}/lib`;
+        this.libPath = `${__dirname}/../brainflow/lib`;
         this.dllPath = this.getDLLPath();
         this.lib = this.getLib();
 
