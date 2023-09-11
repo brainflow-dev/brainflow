@@ -1,0 +1,251 @@
+<deployment-project plugin="plugin.toolbox" plugin-version="1.0">
+  <configuration build-checksum="1399964942" file="D:\workspace\brainflow\matlab_package\brainflow\BrainFlow.prj" location="D:\workspace\brainflow\matlab_package\brainflow" name="BrainFlow" target="target.toolbox" target-name="Package Toolbox">
+    <param.appname>BrainFlow</param.appname>
+    <param.authnamewatermark>Andrey Parfenov</param.authnamewatermark>
+    <param.email>andrey@brainflow.org</param.email>
+    <param.company>BrainFlow</param.company>
+    <param.summary>BrainFlow is a library intended to obtain, parse and analyze EEG, EMG, ECG, and other kinds of data from biosensors.</param.summary>
+    <param.description>BrainFlow is a library intended to obtain, parse and analyze EEG, EMG, ECG, and other kinds of data from biosensors.</param.description>
+    <param.screenshot>D:\workspace\brainflow\docs\_static\brainflow_logo.png</param.screenshot>
+    <param.version>5.9.0</param.version>
+    <param.output>${PROJECT_ROOT}\BrainFlow.mltbx</param.output>
+    <param.products.name />
+    <param.products.id />
+    <param.products.version />
+    <param.platforms />
+    <param.guid>d956cedc-31c0-4ac2-8f12-dc5fe32043de</param.guid>
+    <param.exclude.filters />
+    <param.exclude.pcodedmfiles>true</param.exclude.pcodedmfiles>
+    <param.examples>&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;examples&gt;
+   &lt;exampleCategory name="examples"&gt;
+      &lt;example name="BandPowerAll" type="html"&gt;
+         &lt;file type="source"&gt;/examples/html/BandPowerAll.html&lt;/file&gt;
+         &lt;file type="main"&gt;/examples/BandPowerAll.m&lt;/file&gt;
+         &lt;file type="thumbnail"/&gt;
+      &lt;/example&gt;
+      &lt;example name="BrainFlowGetData" type="html"&gt;
+         &lt;file type="source"&gt;/examples/html/BrainFlowGetData.html&lt;/file&gt;
+         &lt;file type="main"&gt;/examples/BrainFlowGetData.m&lt;/file&gt;
+         &lt;file type="thumbnail"/&gt;
+      &lt;/example&gt;
+      &lt;example name="CSP" type="html"&gt;
+         &lt;file type="source"&gt;/examples/html/CSP.html&lt;/file&gt;
+         &lt;file type="main"&gt;/examples/CSP.m&lt;/file&gt;
+         &lt;file type="thumbnail"/&gt;
+      &lt;/example&gt;
+      &lt;example name="Denoising" type="html"&gt;
+         &lt;file type="source"&gt;/examples/html/Denoising.html&lt;/file&gt;
+         &lt;file type="main"&gt;/examples/Denoising.m&lt;/file&gt;
+         &lt;file type="thumbnail"/&gt;
+      &lt;/example&gt;
+      &lt;example name="Downsampling" type="html"&gt;
+         &lt;file type="source"&gt;/examples/html/Downsampling.html&lt;/file&gt;
+         &lt;file type="main"&gt;/examples/Downsampling.m&lt;/file&gt;
+         &lt;file type="thumbnail"/&gt;
+      &lt;/example&gt;
+      &lt;example name="EEGMetrics" type="html"&gt;
+         &lt;file type="source"&gt;/examples/html/EEGMetrics.html&lt;/file&gt;
+         &lt;file type="main"&gt;/examples/EEGMetrics.m&lt;/file&gt;
+         &lt;file type="thumbnail"/&gt;
+      &lt;/example&gt;
+      &lt;example name="ICA" type="html"&gt;
+         &lt;file type="source"&gt;/examples/html/ICA.html&lt;/file&gt;
+         &lt;file type="main"&gt;/examples/ICA.m&lt;/file&gt;
+         &lt;file type="thumbnail"/&gt;
+      &lt;/example&gt;
+      &lt;example name="Markers" type="html"&gt;
+         &lt;file type="source"&gt;/examples/html/Markers.html&lt;/file&gt;
+         &lt;file type="main"&gt;/examples/Markers.m&lt;/file&gt;
+         &lt;file type="thumbnail"/&gt;
+      &lt;/example&gt;
+      &lt;example name="PeaksDetection" type="html"&gt;
+         &lt;file type="source"&gt;/examples/html/PeaksDetection.html&lt;/file&gt;
+         &lt;file type="main"&gt;/examples/PeaksDetection.m&lt;/file&gt;
+         &lt;file type="thumbnail"/&gt;
+      &lt;/example&gt;
+      &lt;example name="Serialization" type="html"&gt;
+         &lt;file type="source"&gt;/examples/html/Serialization.html&lt;/file&gt;
+         &lt;file type="main"&gt;/examples/Serialization.m&lt;/file&gt;
+         &lt;file type="thumbnail"/&gt;
+      &lt;/example&gt;
+      &lt;example name="SignalFiltering" type="html"&gt;
+         &lt;file type="source"&gt;/examples/html/SignalFiltering.html&lt;/file&gt;
+         &lt;file type="main"&gt;/examples/SignalFiltering.m&lt;/file&gt;
+         &lt;file type="thumbnail"/&gt;
+      &lt;/example&gt;
+      &lt;example name="Spo2" type="html"&gt;
+         &lt;file type="source"&gt;/examples/html/Spo2.html&lt;/file&gt;
+         &lt;file type="main"&gt;/examples/Spo2.m&lt;/file&gt;
+         &lt;file type="thumbnail"&gt;/examples/html/Spo2.png&lt;/file&gt;
+         &lt;file type="image"&gt;/examples/html/Spo2_01.png&lt;/file&gt;
+      &lt;/example&gt;
+      &lt;example name="Transforms" type="html"&gt;
+         &lt;file type="source"&gt;/examples/html/Transforms.html&lt;/file&gt;
+         &lt;file type="main"&gt;/examples/Transforms.m&lt;/file&gt;
+         &lt;file type="thumbnail"/&gt;
+      &lt;/example&gt;
+   &lt;/exampleCategory&gt;
+&lt;/examples&gt;</param.examples>
+    <param.demosxml />
+    <param.apps />
+    <param.registered.apps />
+    <param.docs />
+    <param.getting.started.guide>${PROJECT_ROOT}\doc\GettingStarted.mlx</param.getting.started.guide>
+    <param.matlabpath.excludes>
+      <item>/lib/pkgconfig</item>
+      <item>/lib/cmake/brainflow</item>
+      <item>/lib/cmake/GTest</item>
+      <item>/lib/cmake</item>
+    </param.matlabpath.excludes>
+    <param.javaclasspath.excludes />
+    <param.exported.on.package>true</param.exported.on.package>
+    <param.required.addons />
+    <param.matlab.project.id />
+    <param.matlab.project.name />
+    <param.release.start>R2019b</param.release.start>
+    <param.release.end>latest</param.release.end>
+    <param.release.current.only>false</param.release.current.only>
+    <param.compatiblity.windows>true</param.compatiblity.windows>
+    <param.compatiblity.macos>true</param.compatiblity.macos>
+    <param.compatiblity.linux>true</param.compatiblity.linux>
+    <param.compatiblity.matlabonline>false</param.compatiblity.matlabonline>
+    <param.installation.map />
+    <param.additional.sw.names />
+    <param.additional.sw.licenses />
+    <param.additional.sw.win.url />
+    <param.additional.sw.mac.url />
+    <param.additional.sw.linux.url />
+    <unset>
+      <param.authnamewatermark />
+      <param.email />
+      <param.company />
+      <param.output />
+      <param.products.name />
+      <param.products.id />
+      <param.products.version />
+      <param.platforms />
+      <param.exclude.filters />
+      <param.exclude.pcodedmfiles />
+      <param.demosxml />
+      <param.apps />
+      <param.registered.apps />
+      <param.docs />
+      <param.javaclasspath.excludes />
+      <param.required.addons />
+      <param.matlab.project.id />
+      <param.matlab.project.name />
+      <param.release.current.only />
+      <param.compatiblity.windows />
+      <param.compatiblity.macos />
+      <param.compatiblity.linux />
+      <param.installation.map />
+      <param.additional.sw.names />
+      <param.additional.sw.licenses />
+      <param.additional.sw.win.url />
+      <param.additional.sw.mac.url />
+      <param.additional.sw.linux.url />
+    </unset>
+    <fileset.rootdir>
+      <file>${PROJECT_ROOT}</file>
+    </fileset.rootdir>
+    <fileset.rootfiles>
+      <file>${PROJECT_ROOT}\AggOperations.m</file>
+      <file>${PROJECT_ROOT}\BoardIds.m</file>
+      <file>${PROJECT_ROOT}\BoardShim.m</file>
+      <file>${PROJECT_ROOT}\BrainFlowClassifiers.m</file>
+      <file>${PROJECT_ROOT}\BrainFlowExitCodes.m</file>
+      <file>${PROJECT_ROOT}\BrainFlowInputParams.m</file>
+      <file>${PROJECT_ROOT}\BrainFlowMetrics.m</file>
+      <file>${PROJECT_ROOT}\BrainFlowModelParams.m</file>
+      <file>${PROJECT_ROOT}\BrainFlowPresets.m</file>
+      <file>${PROJECT_ROOT}\DataFilter.m</file>
+      <file>${PROJECT_ROOT}\demos.xml</file>
+      <file>${PROJECT_ROOT}\DetrendOperations.m</file>
+      <file>${PROJECT_ROOT}\doc</file>
+      <file>${PROJECT_ROOT}\examples</file>
+      <file>${PROJECT_ROOT}\FilterTypes.m</file>
+      <file>${PROJECT_ROOT}\inc</file>
+      <file>${PROJECT_ROOT}\IpProtocolTypes.m</file>
+      <file>${PROJECT_ROOT}\lib</file>
+      <file>${PROJECT_ROOT}\LogLevels.m</file>
+      <file>${PROJECT_ROOT}\MLModel.m</file>
+      <file>${PROJECT_ROOT}\NoiseEstimationLevelTypes.m</file>
+      <file>${PROJECT_ROOT}\NoiseTypes.m</file>
+      <file>${PROJECT_ROOT}\ThresholdTypes.m</file>
+      <file>${PROJECT_ROOT}\WaveletDenoisingTypes.m</file>
+      <file>${PROJECT_ROOT}\WaveletExtensionTypes.m</file>
+      <file>${PROJECT_ROOT}\WaveletTypes.m</file>
+      <file>${PROJECT_ROOT}\WindowOperations.m</file>
+    </fileset.rootfiles>
+    <fileset.depfun.included />
+    <fileset.depfun.excluded />
+    <fileset.package />
+    <build-deliverables>
+      <file location="${PROJECT_ROOT}" name="BrainFlow.mltbx" optional="false">D:\workspace\brainflow\matlab_package\brainflow\BrainFlow.mltbx</file>
+    </build-deliverables>
+    <workflow />
+    <matlab>
+      <root>D:\Matlab\R2019b</root>
+      <toolboxes>
+        <toolbox name="matlabcoder" />
+        <toolbox name="embeddedcoder" />
+        <toolbox name="gpucoder" />
+        <toolbox name="fixedpoint" />
+        <toolbox name="matlabhdlcoder" />
+        <toolbox name="neuralnetwork" />
+        <toolbox name="polyspacebugfinder" />
+      </toolboxes>
+      <toolbox>
+        <matlabcoder>
+          <enabled>true</enabled>
+        </matlabcoder>
+      </toolbox>
+      <toolbox>
+        <embeddedcoder>
+          <enabled>true</enabled>
+        </embeddedcoder>
+      </toolbox>
+      <toolbox>
+        <gpucoder>
+          <enabled>true</enabled>
+        </gpucoder>
+      </toolbox>
+      <toolbox>
+        <fixedpoint>
+          <enabled>true</enabled>
+        </fixedpoint>
+      </toolbox>
+      <toolbox>
+        <matlabhdlcoder>
+          <enabled>true</enabled>
+        </matlabhdlcoder>
+      </toolbox>
+      <toolbox>
+        <neuralnetwork>
+          <enabled>true</enabled>
+        </neuralnetwork>
+      </toolbox>
+      <toolbox>
+        <polyspacebugfinder>
+          <enabled>true</enabled>
+        </polyspacebugfinder>
+      </toolbox>
+    </matlab>
+    <platform>
+      <unix>false</unix>
+      <mac>false</mac>
+      <windows>true</windows>
+      <win2k>false</win2k>
+      <winxp>false</winxp>
+      <vista>false</vista>
+      <linux>false</linux>
+      <solaris>false</solaris>
+      <osver>10.0</osver>
+      <os32>false</os32>
+      <os64>true</os64>
+      <arch>win64</arch>
+      <matlab>true</matlab>
+    </platform>
+  </configuration>
+</deployment-project>
