@@ -13,7 +13,7 @@ import {
 } from './brainflow.types';
 import {BoardControllerCLikeFunctions as CLike, BoardControllerFunctions} from './functions.types';
 
-class BrainFlowInputParams
+export class BrainFlowInputParams
 {
     private inputParams: IBrainFlowInputParams = {
         serialPort: '',

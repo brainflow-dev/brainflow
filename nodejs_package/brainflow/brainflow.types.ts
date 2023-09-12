@@ -219,6 +219,18 @@ export enum BrainFlowExitCodes {
     UNSUPPORTED_CLASSIFIER_AND_METRIC_COMBINATION_ERROR = 23,
 }
 
+export enum BrainFlowMetrics {
+    MINDFULNESS = 0,
+    RESTFULNESS = 1,
+    USER_DEFINED = 2,
+}
+
+export enum BrainFlowClassifiers {
+    DEFAULT_CLASSIFIER = 0,
+    USER_DEFINED = 1,
+    ONNX_CLASSIFIER = 2,
+}
+
 export interface IBrainFlowInputParams {
     serialPort: string;
     macAddress: string;
@@ -236,4 +248,13 @@ export interface IBrainFlowInputParams {
     fileAux: string;
     fileAnc: string;
     masterBoard: BoardIds;
+}
+
+export interface IBrainFlowModelParams {
+    metric: BrainFlowMetrics;
+    classifier: BrainFlowClassifiers;
+    file: string;
+    otherInfo: string;
+    outputName: string;
+    maxArraySize: number;
 }

@@ -19,7 +19,8 @@
     "transforms": "ts-node brainflow/tests/transforms.ts",
     "denoising": "ts-node brainflow/tests/denoising.ts",
     "bandpower": "ts-node brainflow/tests/bandpower.ts",
-    "bandpower_all": "ts-node brainflow/tests/bandpower_all.ts"
+    "bandpower_all": "ts-node brainflow/tests/bandpower_all.ts",
+    "eeg_metrics": "ts-node brainflow/tests/eeg_metrics.ts"
   },
   "repository": {
     "type": "git",

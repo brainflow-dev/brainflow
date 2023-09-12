@@ -424,3 +424,35 @@ export class DataHandlerFunctions
         maxLen: number,
         ) => BrainFlowExitCodes;
 }
+
+export enum MLModuleCLikeFunctions {
+    // logging and version methods
+    set_log_level_ml_module = 'int set_log_level_ml_module (int log_level)',
+    set_log_file_ml_module = 'int set_log_file_ml_module (const char *log_file)',
+    log_message_ml_module = 'int log_message_ml_module (int log_level, char *log_message)',
+    get_version_ml_module =
+        'int get_version_ml_module (_Inout_ char *version, _Inout_ int *len, int max)',
+    prepare = 'int prepare (const char *json_params)',
+    predict =
+        'int predict (double *data, int data_len, _Inout_ double *output, _Inout_ int *output_len, const char *json_params)',
+    release = 'int release (const char *json_params)',
+    release_all = 'int release_all ()'
+}
+
+export class MLModuleFunctions
+{
+    // logging and version methods
+    setLogLevelMLModule!: (logLevel: LogLevels) => BrainFlowExitCodes;
+    setLogFileMLModule!: (logFile: string) => BrainFlowExitCodes;
+    logMessageMLModule!: (logLevel: LogLevels, logMessage: string) => BrainFlowExitCodes;
+    getVersionMLModule!: (
+        version: string[],
+        len: number[],
+        maxLen: number,
+        ) => BrainFlowExitCodes;
+    prepare!: (inputJson: string) => BrainFlowExitCodes;
+    predict!: (data: number[], dataLen: number, output: number[], outputLen: number[],
+        inputJson: string) => BrainFlowExitCodes;
+    releaseAll!: () => BrainFlowExitCodes;
+    release!: (inputJson: string) => BrainFlowExitCodes;
+}
