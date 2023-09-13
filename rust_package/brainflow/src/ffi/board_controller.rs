@@ -126,18 +126,11 @@ extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-    pub fn get_rotaiton_channels(
+    pub fn get_rotation_channels(
         board_id: ::std::os::raw::c_int,
         preset: ::std::os::raw::c_int,
         rotation_channels: *mut ::std::os::raw::c_int,
         len: *mut ::std::os::raw::c_int,
-    ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-    pub fn get_rotaiton_calib_channel(
-        board_id: ::std::os::raw::c_int,
-        preset: ::std::os::raw::c_int,
-        get_rotaiton_calib_channel: *mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
