@@ -83,6 +83,8 @@ export enum BoardControllerCLikeFunctions {
         'int get_resistance_channels (int board_id, int preset, _Inout_ int *channels, _Inout_ int *len)',
     get_magnetometer_channels =
         'int get_magnetometer_channels (int board_id, int preset, _Inout_ int *channels, _Inout_ int *len)',
+    get_rotation_channels =
+        'int get_rotation_channels (int board_id, int preset, _Inout_ int *channels, _Inout_ int *len)',
     get_eeg_names =
         'int get_eeg_names (int board_id, int preset, _Inout_ char *eeg_names, _Inout_ int *len)',
     get_device_name =
@@ -235,6 +237,12 @@ export class BoardControllerFunctions
         boardId: BoardIds,
         preset: BrainFlowPresets,
         otherChannels: number[],
+        len: number[],
+        ) => BrainFlowExitCodes;
+    getRotationChannels!: (
+        boardId: BoardIds,
+        preset: BrainFlowPresets,
+        channels: number[],
         len: number[],
         ) => BrainFlowExitCodes;
     getTemperatureChannels!: (
