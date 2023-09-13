@@ -38,6 +38,8 @@ extern "C"
         int board_id, int preset, int *eda_channels, int *len);
     SHARED_EXPORT int CALLING_CONVENTION get_accel_channels (
         int board_id, int preset, int *accel_channels, int *len);
+    SHARED_EXPORT int CALLING_CONVENTION get_rotation_channels (
+        int board_id, int preset, int *rotation_channels, int *len);
     SHARED_EXPORT int CALLING_CONVENTION get_analog_channels (
         int board_id, int preset, int *analog_channels, int *len);
     SHARED_EXPORT int CALLING_CONVENTION get_gyro_channels (

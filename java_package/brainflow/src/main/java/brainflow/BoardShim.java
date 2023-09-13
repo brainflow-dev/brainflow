@@ -80,6 +80,8 @@ public class BoardShim
 
         int get_accel_channels (int board_id, int preset, int[] accel_channels, int[] len);
 
+        int get_rotation_channels (int board_id, int preset, int[] rotation_channels, int[] len);
+
         int get_analog_channels (int board_id, int preset, int[] analog_channels, int[] len);
 
         int get_gyro_channels (int board_id, int preset, int[] gyro_channels, int[] len);
@@ -1418,9 +1420,9 @@ public class BoardShim
     /**
      * start streaming thread, store data in internal ringbuffer and stream them
      * from brainflow at the same time
-     * 
+     *
      * @param buffer_size     size of internal ringbuffer
-     * 
+     *
      * @param streamer_params supported vals: "file://%file_name%:w",
      *                        "file://%file_name%:a",
      *                        "streaming_board://%multicast_group_ip%:%port%". Range

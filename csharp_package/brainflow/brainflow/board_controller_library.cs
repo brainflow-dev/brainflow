@@ -111,7 +111,8 @@ namespace brainflow
         GALEA_SERIAL_BOARD_V4 = 49,
         NTL_WIFI_BOARD = 50,
         ANT_NEURO_EE_511_BOARD = 51,
-        FREEEEG128_BOARD = 52
+        FREEEEG128_BOARD = 52,
+        AAVAA_V3_BOARD = 53
     };
 
 
@@ -169,6 +170,8 @@ namespace brainflow
         public static extern int get_ppg_channels (int board_id, int preset, int[] channels, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_accel_channels (int board_id, int preset, int[] channels, int[] len);
+        [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_rotation_channels (int board_id, int preset, int[] channels, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_analog_channels (int board_id, int preset, int[] channels, int[] len);
         [DllImport ("BoardController.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -256,6 +259,8 @@ namespace brainflow
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_accel_channels (int board_id, int preset, int[] channels, int[] len);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_rotation_channels (int board_id, int preset, int[] channels, int[] len);
+        [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_analog_channels (int board_id, int preset, int[] channels, int[] len);
         [DllImport ("BoardController32.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_gyro_channels (int board_id, int preset, int[] channels, int[] len);
@@ -341,6 +346,8 @@ namespace brainflow
         public static extern int get_ppg_channels (int board_id, int preset, int[] channels, int[] len);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_accel_channels (int board_id, int preset, int[] channels, int[] len);
+        [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_rotation_channels (int board_id, int preset, int[] channels, int[] len);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_analog_channels (int board_id, int preset, int[] channels, int[] len);
         [DllImport ("libBoardController.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -429,6 +436,8 @@ namespace brainflow
         public static extern int get_ppg_channels (int board_id, int preset, int[] channels, int[] len);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_accel_channels (int board_id, int preset, int[] channels, int[] len);
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int get_rotation_channels (int board_id, int preset, int[] channels, int[] len);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_analog_channels (int board_id, int preset, int[] channels, int[] len);
         [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -1039,6 +1048,23 @@ namespace brainflow
                     return BoardControllerLibraryLinux.get_accel_channels (board_id, preset, channels, len);
                 case LibraryEnvironment.MacOS:
                     return BoardControllerLibraryMac.get_accel_channels (board_id, preset, channels, len);
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static int get_rotation_channels (int board_id, int preset, int[] channels, int[] len)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.get_rotation_channels (board_id, preset, channels, len);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.get_rotation_channels (board_id, preset, channels, len);
+                case LibraryEnvironment.Linux:
+                    return BoardControllerLibraryLinux.get_rotation_channels (board_id, preset, channels, len);
+                case LibraryEnvironment.MacOS:
+                    return BoardControllerLibraryMac.get_rotation_channels (board_id, preset, channels, len);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;

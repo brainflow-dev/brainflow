@@ -22,6 +22,8 @@ namespace brainflow
         [DataMember]
         public int[] accel_channels;
         [DataMember]
+        public int[] rotation_channels;
+        [DataMember]
         public int[] gyro_channels;
         [DataMember]
         public int[] temperature_channels;
@@ -32,7 +34,7 @@ namespace brainflow
         [DataMember]
         public int package_num_channel;
         [DataMember]
-        public int batter_channel;
+        public int battery_channel;
         [DataMember]
         public int timestamp_channel;
         [DataMember]
@@ -54,6 +56,7 @@ namespace brainflow
             ppg_channels = null;
             eda_channels = null;
             accel_channels = null;
+            rotation_channels = null;
             gyro_channels = null;
             temperature_channels = null;
             resistance_channels = null;

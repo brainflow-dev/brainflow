@@ -6,7 +6,7 @@ Data Format Description
 Units of Measure
 ------------------
 
-For EXG channels BrainFlow returns uV wherever possible. 
+For EXG channels BrainFlow returns uV wherever possible.
 
 For timestamps BrainFlow uses UNIX timestamp, this counter starts at the Unix Epoch on January 1st, 1970 at UTC.
 Precision is microsecond, but for some boards timestamps are generated on PC side as soon as packages were received.
@@ -115,7 +115,7 @@ There is a method :code:`get_board_descr(int board_id)`. You can use it to get a
 
 .. code-block:: python
 
-   from pprint import pprint 
+   from pprint import pprint
 
    import brainflow
    from brainflow.board_shim import BoardShim, BoardIds
