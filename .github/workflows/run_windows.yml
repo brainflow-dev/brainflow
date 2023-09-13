@@ -129,6 +129,8 @@ jobs:
       run: |
         cd %GITHUB_WORKSPACE%\nodejs_package\tests
         npm install
+        npm uninstall brainflow
+        npm install --save %GITHUB_WORKSPACE%\nodejs_package
       shell: cmd
     - name: Build Java Package
       run: |
