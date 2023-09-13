@@ -34,6 +34,14 @@ jobs:
         python -m pip install twine
         python -m pip install awscli
       shell: cmd
+    - name: Install Node
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+    - name: Install Typescript
+      run: |
+        npm install -g ts-node
+      shell: cmd
     - name: Set up JDK 11
       uses: actions/setup-java@v1
       with:
@@ -102,6 +110,24 @@ jobs:
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    - name: Prepare Node Package
+      run: |
+        cd $env:GITHUB_WORKSPACE\nodejs_package\
+        Copy-Item "$env:GITHUB_WORKSPACE\linux\*" -Destination "$env:GITHUB_WORKSPACE\nodejs_package\brainflow\lib" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\macos\*" -Destination "$env:GITHUB_WORKSPACE\nodejs_package\brainflow\lib" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\win64\*" -Destination "$env:GITHUB_WORKSPACE\nodejs_package\brainflow\lib" -Recurse -Force -Filter *.*
+        Copy-Item "$env:GITHUB_WORKSPACE\win32\*" -Destination "$env:GITHUB_WORKSPACE\nodejs_package\brainflow\lib" -Recurse -Force -Filter *.*
+        ls $env:GITHUB_WORKSPACE\nodejs_package\brainflow\lib
+        (gc .\package.json).replace('0.0.0-development', $env:VERSION) | Out-File -encoding ASCII package.json
+        type package.json
+        npm install
+        npm run build
+        npm pack
+        aws s3 cp $env:GITHUB_WORKSPACE\nodejs_package\ s3://brainflow/$env:GITHUB_SHA/npm --recursive
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        VERSION: ${{ github.event.inputs.version }}
     - name: Prepare Java Package
       run: |
         cd $env:GITHUB_WORKSPACE\java_package\brainflow
@@ -196,12 +222,16 @@ jobs:
     - name: Publish Packages
       if: github.event.inputs.publish == 'true'
       run: |
+        cd $env:GITHUB_WORKSPACE\nodejs_package
+        echo "//registry.npmjs.org/:_authToken=$env:NPM_TOKEN" > .npmrc
+        npm publish
         cd $env:GITHUB_WORKSPACE\java_package\brainflow
         mvn -s $env:GITHUB_WORKSPACE\java_package\brainflow\settings.xml deploy -Dregistry=https://maven.pkg.github.com/brainflow-dev -Dtoken=$env:PUBLISH_TOKEN
         cd $env:GITHUB_WORKSPACE\python_package
         twine upload --skip-existing dist/*.whl --user Andrey1994 --password $env:PYPI_PASSWORD
         cd $env:GITHUB_WORKSPACE\rust_package\brainflow
       env:
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         CARGO_TOKEN: ${{ secrets.CARGO_TOKEN }}
         PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         PUBLISH_USER: ${{ secrets.PUBLISH_USER }}

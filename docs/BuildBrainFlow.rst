@@ -121,6 +121,23 @@ When using BrainFlow for the first time in Julia, the BrainFlow artifact contain
 
 If you compile BrainFlow from source local libraries will take precedence over the artifact.
 
+Typescript
+-----------
+
+.. compound::
+
+    You can install BrainFlow using next command without compilation ::
+
+        npm install brainflow
+
+.. compound::
+
+    If you want to install it from source files or build unreleased version from Github, you should first compile the core module (:ref:`compilation-label`). Then run ::
+
+        cd nodejs_package
+        npm install --force
+
+
 Rust
 -------
 

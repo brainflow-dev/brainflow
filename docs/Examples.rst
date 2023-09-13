@@ -539,6 +539,69 @@ Rust ICA
 .. literalinclude:: ../rust_package/brainflow/examples/ica.rs
    :language: rust
 
+Typescript
+------------
+
+Typescript Get Data from a Board
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../nodejs_package/tests/brainflow_get_data.ts
+   :language: javascript
+
+Typescript Markers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../nodejs_package/tests/markers.ts
+   :language: javascript
+
+Typescript Read Write File
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../nodejs_package/tests/serialization.ts
+   :language: javascript
+
+Typescript Downsample Data
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../nodejs_package/tests/downsampling.ts
+   :language: javascript
+
+Typescript Transforms
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../nodejs_package/tests/transforms.ts
+   :language: javascript
+
+Typescript Signal Filtering
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../nodejs_package/tests/signal_filtering.ts
+   :language: javascript
+
+Typescript Denoising
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../nodejs_package/tests/denoising.ts
+   :language: javascript
+
+Typescript Band Power
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../nodejs_package/tests/bandpower.ts
+   :language: javascript
+
+Typescript EEG Metrics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../nodejs_package/tests/eeg_metrics.ts
+   :language: javascript
+
+Typescript ICA
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../nodejs_package/tests/ica.ts
+   :language: javascript
+
 Notebooks
 ------------
 .. toctree::
