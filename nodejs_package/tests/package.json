@@ -1,0 +1,29 @@
+{
+  "name": "tests",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "markers": "ts-node markers.ts",
+    "ica": "ts-node ica.ts",
+    "brainflow_get_data": "ts-node brainflow_get_data.ts",
+    "signal_filtering": "ts-node signal_filtering.ts",
+    "serialization": "ts-node serialization.ts",
+    "downsampling": "ts-node downsampling.ts",
+    "transforms": "ts-node transforms.ts",
+    "denoising": "ts-node denoising.ts",
+    "bandpower": "ts-node bandpower.ts",
+    "bandpower_all": "ts-node bandpower_all.ts",
+    "eeg_metrics": "ts-node eeg_metrics.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.6.0",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "brainflow": "file:.."
+  }
+}

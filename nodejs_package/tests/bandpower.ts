@@ -1,6 +1,4 @@
-import {BoardShim} from '../board_shim';
-import {BoardIds, WindowOperations} from '../brainflow.types';
-import {DataFilter} from '../data_filter';
+import {BoardIds, BoardShim, DataFilter, WindowOperations} from 'brainflow';
 
 function sleep (ms: number)
 {

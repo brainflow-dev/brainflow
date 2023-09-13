@@ -167,5 +167,5 @@ Typescript binding calls C/C++ code as any other binding. Use Typescript example
 
 Example:
 
-.. literalinclude:: ../nodejs_package/brainflow/tests/brainflow_get_data.ts
+.. literalinclude:: ../nodejs_package/tests/brainflow_get_data.ts
    :language: javascript

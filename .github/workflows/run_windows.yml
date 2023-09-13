@@ -122,7 +122,13 @@ jobs:
     - name: Build Node Package
       run: |
         cd %GITHUB_WORKSPACE%\nodejs_package\brainflow
-        npm install --force
+        npm install
+        npm run build
+      shell: cmd
+    - name: Build Install Node Tests
+      run: |
+        cd %GITHUB_WORKSPACE%\nodejs_package\tests
+        npm install
       shell: cmd
     - name: Build Java Package
       run: |
@@ -296,7 +302,7 @@ jobs:
       shell: cmd
     - name: Synthetic Node
       run: |
-        cd %GITHUB_WORKSPACE%\nodejs_package\brainflow
+        cd %GITHUB_WORKSPACE%\nodejs_package\tests
         npm run brainflow_get_data
       shell: cmd
     # Start Deploy Stage

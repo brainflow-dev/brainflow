@@ -1,7 +1,11 @@
-import {BoardShim} from '../board_shim';
-import {BoardIds, BrainFlowClassifiers, BrainFlowMetrics} from '../brainflow.types';
-import {DataFilter} from '../data_filter'
-import {MLModel} from '../ml_model';
+import {
+    BoardIds,
+    BoardShim,
+    BrainFlowClassifiers,
+    BrainFlowMetrics,
+    DataFilter,
+    MLModel
+} from 'brainflow';
 
 function sleep (ms: number)
 {

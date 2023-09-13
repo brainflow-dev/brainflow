@@ -1,5 +1,4 @@
-import {BoardShim} from '../board_shim';
-import {BoardIds} from '../brainflow.types';
+import {BoardIds, BoardShim} from 'brainflow';
 
 function sleep (ms: number)
 {

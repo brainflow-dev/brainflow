@@ -9,18 +9,7 @@
     "test": "jest",
     "test:watch": "jest --watchAll",
     "build": "tsc",
-    "watch": "tsc -w",
-    "markers": "ts-node brainflow/tests/markers.ts",
-    "ica": "ts-node brainflow/tests/ica.ts",
-    "brainflow_get_data": "ts-node brainflow/tests/brainflow_get_data.ts",
-    "signal_filtering": "ts-node brainflow/tests/signal_filtering.ts",
-    "serialization": "ts-node brainflow/tests/serialization.ts",
-    "downsampling": "ts-node brainflow/tests/downsampling.ts",
-    "transforms": "ts-node brainflow/tests/transforms.ts",
-    "denoising": "ts-node brainflow/tests/denoising.ts",
-    "bandpower": "ts-node brainflow/tests/bandpower.ts",
-    "bandpower_all": "ts-node brainflow/tests/bandpower_all.ts",
-    "eeg_metrics": "ts-node brainflow/tests/eeg_metrics.ts"
+    "watch": "tsc -w"
   },
   "repository": {
     "type": "git",

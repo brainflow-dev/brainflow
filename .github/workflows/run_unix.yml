@@ -101,7 +101,12 @@ jobs:
     - name: Build Node Package
       run: |
         cd $GITHUB_WORKSPACE/nodejs_package/brainflow
-        npm install --force
+        npm install
+        npm run build
+    - name: Install Node Tests
+      run: |
+        cd $GITHUB_WORKSPACE/nodejs_package/tests
+        npm install
     - name: Setup Java package
       run: |
         cd $GITHUB_WORKSPACE/java_package/brainflow
@@ -318,27 +323,31 @@ jobs:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Synthetic Node
       run: |
-        cd $GITHUB_WORKSPACE/nodejs_package/brainflow
+        cd $GITHUB_WORKSPACE/nodejs_package/tests
         npm run brainflow_get_data
     - name: Signal Filters Node
       run: |
-        cd $GITHUB_WORKSPACE/nodejs_package/brainflow
+        cd $GITHUB_WORKSPACE/nodejs_package/tests
         npm run signal_filtering
     - name: Serialization Node
       run: |
-        cd $GITHUB_WORKSPACE/nodejs_package/brainflow
+        cd $GITHUB_WORKSPACE/nodejs_package/tests
         npm run serialization
     - name: Downsampling Node
       run: |
-        cd $GITHUB_WORKSPACE/nodejs_package/brainflow
+        cd $GITHUB_WORKSPACE/nodejs_package/tests
         npm run downsampling
     - name: Denoising Node
       run: |
-        cd $GITHUB_WORKSPACE/nodejs_package/brainflow
+        cd $GITHUB_WORKSPACE/nodejs_package/tests
         npm run denoising
+    - name: EEG Metrics Node
+      run: |
+        cd $GITHUB_WORKSPACE/nodejs_package/tests
+        npm run eeg_metrics
     - name: BandPowerAll Node
       run: |
-        cd $GITHUB_WORKSPACE/nodejs_package/brainflow
+        cd $GITHUB_WORKSPACE/nodejs_package/tests
         npm run bandpower_all
     # deploy started
     - name: Install AWS CLI

@@ -1,6 +1,4 @@
-import {BoardShim} from '../board_shim';
-import {BoardIds} from '../brainflow.types';
-import {DataFilter} from '../data_filter';
+import {AggOperations, BoardIds, BoardShim, DataFilter} from 'brainflow';
 
 function sleep (ms: number)
 {
@@ -13,15 +11,15 @@ async function runExample (): Promise<void>
     const board = new BoardShim (boardId, {});
     board.prepareSession();
     board.startStream();
-    await sleep (4000);
+    await sleep (3000);
     board.stopStream();
-    const data = board.getBoardData();
+    const data = board.getCurrentBoardData(10);
     board.releaseSession()
     const eegChannels = BoardShim.getEegChannels(boardId);
-    const samplingRate = BoardShim.getSamplingRate(boardId);
-    const bandPowers =
-        DataFilter.getAvgBandPowers(data, [eegChannels[0], eegChannels[1]], samplingRate)
-    console.info(bandPowers);
+    const oldData = data[eegChannels[0]];
+    console.info(oldData);
+    const newData = DataFilter.performDownsampling(oldData, 3, AggOperations.MEAN);
+    console.info(newData);
 }
 
 runExample ();
