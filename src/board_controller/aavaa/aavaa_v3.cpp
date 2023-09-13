@@ -118,14 +118,30 @@ int AAVAAv3::prepare_session ()
     simpleble_adapter_scan_stop (aavaa_adapter);
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        if (simpleble_peripheral_connect (aavaa_peripheral) == SIMPLEBLE_SUCCESS)
+#ifdef _WIN32
+        Sleep (1000);
+#else
+        sleep (1);
+#endif
+        // for safety
+        for (int i = 0; i < 3; i++)
         {
-            safe_logger (spdlog::level::info, "Connected to AAVAAv3 Device");
-        }
-        else
-        {
-            safe_logger (spdlog::level::err, "Failed to connect to AAVAAv3 Device");
-            res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+            if (simpleble_peripheral_connect (aavaa_peripheral) == SIMPLEBLE_SUCCESS)
+            {
+                safe_logger (spdlog::level::info, "Connected to AAVAAv3 Device");
+                res = (int)BrainFlowExitCodes::STATUS_OK;
+                break;
+            }
+            else
+            {
+                safe_logger (spdlog::level::err, "Failed to connect to AAVAAv3 Device");
+                res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+#ifdef _WIN32
+                Sleep (1000);
+#else
+                sleep (1);
+#endif
+            }
         }
     }
     else
@@ -251,9 +267,9 @@ int AAVAAv3::release_session ()
             // need to wait for notifications to stop triggered before unsubscribing, otherwise
             // macos fails inside simpleble with timeout
 #ifdef _WIN32
-            Sleep (2000);
+            Sleep (1000);
 #else
-            sleep (2);
+            sleep (1);
 #endif
             if (simpleble_peripheral_unsubscribe (aavaa_peripheral, notified_characteristics.first,
                     notified_characteristics.second) != SIMPLEBLE_SUCCESS)
@@ -542,13 +558,13 @@ void AAVAAv3::read_data (
         package[board_descr["default"]["battery_channel"].get<int> ()] = (double)data_frame[40];
 
         // imu status byte
-        package[board_descr["default"]["rotation_calib_channel"].get<int> ()] =
+        package[board_descr["default"]["other_channels"][0].get<int> ()] =
             (double)data_frame[41];
 
         // timestamp
         try
         {
-            package[board_descr["default"]["other_channels"][0].get<int> ()] =
+            package[board_descr["default"]["other_channels"][1].get<int> ()] =
                 *reinterpret_cast<uint32_t *> (data_frame + 42) *
                 TIMESTAMP_SCALE; // get_timestamp ();
         }
