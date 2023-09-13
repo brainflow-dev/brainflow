@@ -337,12 +337,6 @@ gen_fn!(
     "Get battery channel for a board."
 );
 gen_fn!(
-    rotation_calib_channel,
-    usize,
-    0,
-    "Get rotation calib channel for a board."
-);
-gen_fn!(
     num_rows,
     usize,
     0,

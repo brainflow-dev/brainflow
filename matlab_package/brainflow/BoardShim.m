@@ -123,15 +123,6 @@ classdef BoardShim
             battery_channel = res.value + 1;
         end
 
-        function rotation_calib_channel = get_rotation_calib_channel(board_id, preset)
-            % get battery channel for provided board id
-            task_name = 'get_rotation_calib_channel';
-            res = libpointer('int32Ptr', 0);
-            exit_code = calllib(lib_name, task_name, board_id, preset, res);
-            BoardShim.check_ec(exit_code, task_name);
-            rotation_calib_channel = res.value + 1;
-        end
-
         function num_rows = get_num_rows(board_id, preset)
             % get num rows for provided board id
             task_name = 'get_num_rows';

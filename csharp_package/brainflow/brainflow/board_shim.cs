@@ -151,24 +151,6 @@ namespace brainflow
         }
 
         /// <summary>
-        /// get row undex which holds rotation_calib level
-        /// </summary>
-        /// <param name="board_id"></param>
-        /// <param name="preset">preset for device</param>
-        /// <returns>row num in 2d array</returns>
-        /// <exception cref="BrainFlowException">If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR</exception>
-        public static int get_rotation_calib_channel (int board_id, int preset = (int)BrainFlowPresets.DEFAULT_PRESET)
-        {
-            int[] val = new int[1];
-            int res = BoardControllerLibrary.get_rotation_calib_channel (board_id, preset, val);
-            if (res != (int)BrainFlowExitCodes.STATUS_OK)
-            {
-                throw new BrainFlowError (res);
-            }
-            return val[0];
-        }
-
-        /// <summary>
         /// get number of rows in returned by get_board_data() 2d array
         /// </summary>
         /// <param name="board_id"></param>

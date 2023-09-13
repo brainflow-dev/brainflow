@@ -329,14 +329,6 @@ class BoardControllerDLL(object):
             ndpointer(ctypes.c_int32)
         ]
 
-        self.get_rotation_calib_channel = self.lib.get_rotation_calib_channel
-        self.get_rotation_calib_channel.restype = ctypes.c_int
-        self.get_rotation_calib_channel.argtypes = [
-            ctypes.c_int,
-            ctypes.c_int,
-            ndpointer(ctypes.c_int32)
-        ]
-
         self.get_package_num_channel = self.lib.get_package_num_channel
         self.get_package_num_channel.restype = ctypes.c_int
         self.get_package_num_channel.argtypes = [
@@ -688,25 +680,6 @@ class BoardShim(object):
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         return int(battery_channel[0])
-
-    @classmethod
-    def get_rotation_calib_channel(cls, board_id: int, preset: int = BrainFlowPresets.DEFAULT_PRESET) -> int:
-        """get rotation calib channel for a board
-
-        :param board_id: Board Id
-        :type board_id: int
-        :param preset: preset
-        :type preset: int
-        :return: number of batter channel
-        :rtype: int
-        :raises BrainFlowError: If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
-        """
-
-        rotation_calib_channel = numpy.zeros(1).astype(numpy.int32)
-        res = BoardControllerDLL.get_instance().get_rotation_calib_channel(board_id, preset, rotation_calib_channel)
-        if res != BrainFlowExitCodes.STATUS_OK.value:
-            raise BrainFlowError('unable to request info about this board', res)
-        return int(rotation_calib_channel[0])
 
     @classmethod
     def get_num_rows(cls, board_id: int, preset: int = BrainFlowPresets.DEFAULT_PRESET) -> int:

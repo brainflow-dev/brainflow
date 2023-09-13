@@ -344,17 +344,6 @@ int BoardShim::get_battery_channel (int board_id, int preset)
     return battery_channel;
 }
 
-int BoardShim::get_rotation_calib_channel (int board_id, int preset)
-{
-    int rotation_calib_channel = 0;
-    int res = ::get_rotation_calib_channel (board_id, preset, &rotation_calib_channel);
-    if (res != (int)BrainFlowExitCodes::STATUS_OK)
-    {
-        throw BrainFlowException ("failed to get board info", res);
-    }
-    return rotation_calib_channel;
-}
-
 int BoardShim::get_num_rows (int board_id, int preset)
 {
     int num_rows = 0;

@@ -81,13 +81,6 @@ public:
      * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
-    static int get_rotation_calib_channel (
-        int board_id, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
-    /**
-     * get number of rows in returned from @ref get_board_data() 2d array
-     * @param board_id board id of your device
-     * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
-     */
     static int get_num_rows (int board_id, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
     /**
      * get device name

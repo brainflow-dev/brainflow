@@ -190,7 +190,6 @@ channel_function_names = (
     :get_ppg_channels,
     :get_accel_channels,
     :get_rotation_channels,
-    :get_rotation_calib_channel,
     :get_analog_channels,
     :get_gyro_channels,
     :get_other_channels,

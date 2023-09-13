@@ -111,11 +111,6 @@ int get_battery_channel (int board_id, int preset, int *battery_channel)
     return get_single_value (board_id, preset, "battery_channel", battery_channel);
 }
 
-int get_rotation_calib_channel (int board_id, int preset, int *rotation_calib_channel)
-{
-    return get_single_value (board_id, preset, "rotation_calib_channel", rotation_calib_channel);
-}
-
 int get_num_rows (int board_id, int preset, int *num_rows)
 {
     return get_single_value (board_id, preset, "num_rows", num_rows);

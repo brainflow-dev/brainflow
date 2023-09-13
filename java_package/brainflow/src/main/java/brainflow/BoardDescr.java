@@ -19,7 +19,6 @@ public class BoardDescr
     public List<Integer> other_channels;
     public Integer package_num_channel;
     public Integer battery_channel;
-    public Integer rotation_calib_channel;
     public Integer timestamp_channel;
     public Integer marker_channel;
     public Integer num_rows;

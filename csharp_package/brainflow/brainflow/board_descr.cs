@@ -24,8 +24,6 @@ namespace brainflow
         [DataMember]
         public int[] rotation_channels;
         [DataMember]
-        public int[] rotation_calib_channel;
-        [DataMember]
         public int[] gyro_channels;
         [DataMember]
         public int[] temperature_channels;

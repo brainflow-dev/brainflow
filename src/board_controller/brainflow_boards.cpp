@@ -1006,8 +1006,7 @@ BrainFlowBoards::BrainFlowBoards()
         {"eog_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
         {"rotation_channels", {9, 10, 11}},
         {"battery_channel", 12},
-        {"rotation_calib_channel", 13}, // IMU status
-        {"other_channels", {14}}
+        {"other_channels", {13, 14}}
     };
 }
 

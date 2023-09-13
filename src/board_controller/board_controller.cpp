@@ -14,8 +14,8 @@
 #include <string>
 #include <utility>
 
-#include "ant_neuro.h"
 #include "aavaa_v3.h"
+#include "ant_neuro.h"
 #include "board.h"
 #include "board_controller.h"
 #include "board_info_getter.h"
