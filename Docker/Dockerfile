@@ -33,11 +33,11 @@ ENV PATH=$PATH:/root/local/bin/julia/julia-1.5.3/bin
 RUN python3 -m pip install scipy pandas matplotlib mne jupyterlab notebook opencv-python pyriemann
 
 WORKDIR /root
-ARG checkout_id
+ARG checkout_id="none"
 # Compile
 RUN git clone "https://github.com/brainflow-dev/brainflow.git"
 WORKDIR /root/brainflow
-RUN if [ ! -z "${checkout_id}" ]; then git checkout "${checkout_id}"; fi
+RUN if [ "${checkout_id}" != "none" ]; then git checkout "${checkout_id}"; fi
 RUN python3 ./tools/build.py --use-openmp --bluetooth --ble
 ENV LD_LIBRARY_PATH=/root/brainflow/installed_linux/lib/
 
