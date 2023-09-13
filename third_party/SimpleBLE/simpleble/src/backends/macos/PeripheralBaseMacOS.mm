@@ -139,7 +139,6 @@
 
 - (void)connect {
     @synchronized(_task) {
-        NSLog(@"Connecting to peripheral...");
         // --- Connect to the peripheral ---
         @synchronized(self) {
             _task.error = nil;
@@ -147,16 +146,13 @@
             [self.centralManager connectPeripheral:self.peripheral options:@{}];  // TODO: Do we need to pass any options?
         }
 
-        NSLog(@"Waiting...");
         WAIT_UNTIL_FALSE_WITH_TIMEOUT(self, _task.pending, 5.0);
 
-        NSLog(@"Done waiting.");
         if (self.peripheral.state != CBPeripheralStateConnected || _task.error != nil) {
             [self throwBasedOnError:_task.error withFormat:@"Peripheral Connection"];
         }
 
         // --- Discover services and characteristics ---
-        NSLog(@"Discovering serives...");
 
         @synchronized(self) {
             _task.error = nil;
