@@ -497,6 +497,18 @@ std::vector<int> BoardShim::get_accel_channels (int board_id, int preset)
     return std::vector<int> (channels, channels + len);
 }
 
+std::vector<int> BoardShim::get_rotation_channels (int board_id, int preset)
+{
+    int channels[MAX_CHANNELS];
+    int len = 0;
+    int res = ::get_rotation_channels (board_id, preset, channels, &len);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to get board info", res);
+    }
+    return std::vector<int> (channels, channels + len);
+}
+
 std::vector<int> BoardShim::get_gyro_channels (int board_id, int preset)
 {
     int channels[MAX_CHANNELS];

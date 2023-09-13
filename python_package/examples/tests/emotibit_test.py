@@ -12,7 +12,7 @@ def main():
 
     presets = BoardShim.get_board_presets(board_id)
     print (presets)
-    
+
     board = BoardShim(board_id, params)
     board.prepare_session()
     board.start_stream()

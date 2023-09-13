@@ -57,6 +57,7 @@ export BrainFlowInputParams
     NTL_WIFI_BOARD = 50
     ANT_NEURO_EE_511_BOARD = 51
     FREEEEG128_BOARD = 52
+    AAVAA_V3_BOARD = 53
 
 end
 
@@ -188,6 +189,7 @@ channel_function_names = (
     :get_eda_channels,
     :get_ppg_channels,
     :get_accel_channels,
+    :get_rotation_channels,
     :get_analog_channels,
     :get_gyro_channels,
     :get_other_channels,
@@ -294,7 +296,7 @@ end
     end
     num_rows = get_num_rows(board_shim.master_board_id, preset)
     val = Vector{Float64}(undef, num_rows * data_size)
-    ccall((:get_board_data, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Cint, Ptr{Float64}, Cint, Ptr{UInt8}), 
+    ccall((:get_board_data, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Cint, Ptr{Float64}, Cint, Ptr{UInt8}),
             data_size, Int32(preset), val, board_shim.board_id, board_shim.input_json)
     value = transpose(reshape(val, (data_size, num_rows)))
     return value
@@ -304,7 +306,7 @@ end
     data_size = get_board_data_count(board_shim, preset)
     num_rows = get_num_rows(board_shim.master_board_id, preset)
     val = Vector{Float64}(undef, num_rows * data_size)
-    ccall((:get_board_data, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Cint, Ptr{Float64}, Cint, Ptr{UInt8}), 
+    ccall((:get_board_data, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Cint, Ptr{Float64}, Cint, Ptr{UInt8}),
             data_size, Int32(preset), val, board_shim.board_id, board_shim.input_json)
     value = transpose(reshape(val, (data_size, num_rows)))
     return value
@@ -314,7 +316,7 @@ end
     data_size = Vector{Cint}(undef, 1)
     num_rows = get_num_rows(board_shim.master_board_id, preset)
     val = Vector{Float64}(undef, num_rows * num_samples)
-    ccall((:get_current_board_data, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Cint, Ptr{Float64}, Ptr{Cint}, Cint, Ptr{UInt8}), 
+    ccall((:get_current_board_data, BOARD_CONTROLLER_INTERFACE), Cint, (Cint, Cint, Ptr{Float64}, Ptr{Cint}, Cint, Ptr{UInt8}),
             num_samples, Int32(preset), val, data_size, board_shim.board_id, board_shim.input_json)
     value = transpose(reshape(val[1:data_size[1] * num_rows], (data_size[1], num_rows)))
     return value

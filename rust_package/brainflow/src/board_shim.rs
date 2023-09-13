@@ -494,6 +494,10 @@ gen_vec_fn!(
     "Get list of accel channels in resulting data table for a board."
 );
 gen_vec_fn!(
+    rotation_channels,
+    "Get list of rotation channels in resulting data table for a board."
+);
+gen_vec_fn!(
     gyro_channels,
     "Get list of gyro channels in resulting data table for a board."
 );

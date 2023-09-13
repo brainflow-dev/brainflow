@@ -71,6 +71,7 @@ class BoardIds(enum.IntEnum):
     NTL_WIFI_BOARD = 50  #:
     ANT_NEURO_EE_511_BOARD = 51  #:
     FREEEEG128_BOARD = 52  #:
+    AAVAA_V3_BOARD = 53 #:
 
 
 class IpProtocolTypes(enum.IntEnum):
@@ -469,6 +470,15 @@ class BoardControllerDLL(object):
         self.get_accel_channels = self.lib.get_accel_channels
         self.get_accel_channels.restype = ctypes.c_int
         self.get_accel_channels.argtypes = [
+            ctypes.c_int,
+            ctypes.c_int,
+            ndpointer(ctypes.c_int32),
+            ndpointer(ctypes.c_int32)
+        ]
+
+        self.get_rotation_channels = self.lib.get_rotation_channels
+        self.get_rotation_channels.restype = ctypes.c_int
+        self.get_rotation_channels.argtypes = [
             ctypes.c_int,
             ctypes.c_int,
             ndpointer(ctypes.c_int32),
@@ -997,6 +1007,28 @@ class BoardShim(object):
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to request info about this board', res)
         result = accel_channels.tolist()[0:num_channels[0]]
+        return result
+
+    @classmethod
+    def get_rotation_channels(cls, board_id: int, preset: int = BrainFlowPresets.DEFAULT_PRESET) -> List[int]:
+        """get list of rotation channels in resulting data table for a board
+
+        :param board_id: Board Id
+        :type board_id: int
+        :param preset: preset
+        :type preset: int
+        :return: list of rotation channels in returned numpy array
+        :rtype: List[int]
+        :raises BrainFlowError: If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+        """
+
+        num_channels = numpy.zeros(1).astype(numpy.int32)
+        rotation_channels = numpy.zeros(512).astype(numpy.int32)
+
+        res = BoardControllerDLL.get_instance().get_rotation_channels(board_id, preset, rotation_channels, num_channels)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to request info about this board', res)
+        result = rotation_channels.tolist()[0:num_channels[0]]
         return result
 
     @classmethod

@@ -16,7 +16,7 @@ def run_command(cmd, cwd=None):
         if line:
             print(line.decode('utf-8', 'ignore'), end='')
         else:
-            if p.poll() != None:
+            if p.poll() is not None:
                 break
     if p.returncode != 0:
         raise ValueError('Process finished with error code %d' % p.returncode)
@@ -98,7 +98,9 @@ def get_win_generators():
     result = list()
     try:
         output = subprocess.check_output(
-            ['C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe', '-property', 'displayName'])
+            ['C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe',
+             '-property',
+             'displayName'])
         output = output.decode('utf-8', 'ignore')
         print(output)
         if '2022' in output:
@@ -135,7 +137,8 @@ def prepare_args():
             '--no-oymotion', dest='oymotion', action='store_false')
         parser.set_defaults(oymotion=False)
         parser.add_argument('--msvc-runtime', type=str, choices=[
-                            'static', 'dynamic'], help='how to link MSVC runtime', required=False, default='static')
+                            'static', 'dynamic'],
+                            help='how to link MSVC runtime', required=False, default='static')
         generators = get_win_generators()
         if not generators:
             parser.add_argument('--generator', type=str,
@@ -150,22 +153,27 @@ def prepare_args():
                                 required=False, default=generator.get_generator())
             if generator.get_arch() is not None:
                 parser.add_argument('--arch', type=str, choices=[
-                                    'x64', 'Win32', 'ARM', 'ARM64'], help='arch for CMake', required=False, default=generator.get_arch())
+                                    'x64', 'Win32', 'ARM', 'ARM64'],
+                                    help='arch for CMake',
+                                    required=False, default=generator.get_arch())
             else:
                 parser.add_argument('--arch', type=str, choices=[
-                                    'x64', 'Win32', 'ARM', 'ARM64'], help='arch for CMake', required=False)
+                                    'x64', 'Win32', 'ARM', 'ARM64'],
+                                    help='arch for CMake', required=False)
             if generator.get_sdk_version() is not None:
-                parser.add_argument('--cmake-system-version', type=str, help='system version for win',
+                parser.add_argument('--cmake-system-version', type=str,
+                                    help='system version for win',
                                     required=False, default=generator.get_sdk_version())
             else:
                 parser.add_argument(
-                    '--cmake-system-version', type=str, help='system version for win', required=False)
+                    '--cmake-system-version', type=str,
+                    help='system version for win', required=False)
     elif platform.system() == 'Darwin':
         macos_ver = platform.mac_ver()[0]
         versions = [int(x) for x in macos_ver.split('.')]
         if versions[0] >= 11:
             parser.add_argument('--cmake-osx-architectures', type=str,
-                                help='archs for osx', required=False, default='"arm64;x86_64"')
+                                help='archs for osx', required=False, default='arm64;x86_64')
         else:
             parser.add_argument('--cmake-osx-architectures',
                                 type=str, help='archs for osx', required=False)

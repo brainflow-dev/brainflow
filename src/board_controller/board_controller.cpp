@@ -14,6 +14,7 @@
 #include <string>
 #include <utility>
 
+#include "aavaa_v3.h"
 #include "ant_neuro.h"
 #include "board.h"
 #include "board_controller.h"
@@ -266,6 +267,9 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
             break;
         case BoardIds::NTL_WIFI_BOARD:
             board = std::shared_ptr<Board> (new NtlWifi (params));
+            break;
+        case BoardIds::AAVAA_V3_BOARD:
+            board = std::shared_ptr<Board> (new AAVAAv3 (params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
