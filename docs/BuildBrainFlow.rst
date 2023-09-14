@@ -135,7 +135,7 @@ Typescript
     If you want to install it from source files or build unreleased version from Github, you should first compile the core module (:ref:`compilation-label`). Then run ::
 
         cd nodejs_package
-        npm install --force
+        npm install
 
 
 Rust
