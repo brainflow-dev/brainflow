@@ -58,6 +58,9 @@ protected:
     size_t simpleble_peripheral_manufacturer_data_count (simpleble_peripheral_t handle);
     simpleble_err_t simpleble_peripheral_manufacturer_data_get (simpleble_peripheral_t handle,
         size_t index, simpleble_manufacturer_data_t *manufacturer_data);
+    simpleble_err_t simpleble_peripheral_read (simpleble_peripheral_t handle,
+        simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t **data,
+        size_t *data_length);
     simpleble_err_t simpleble_peripheral_is_connected (
         simpleble_peripheral_t handle, bool *connected);
 
