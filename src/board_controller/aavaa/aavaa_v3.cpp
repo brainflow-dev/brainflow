@@ -43,6 +43,7 @@ AAVAAv3::AAVAAv3 (struct BrainFlowInputParams params)
     is_streaming = false;
     start_command = "\x01\x62";
     stop_command = "\x01\x39";
+    firmware_command = "\x01\x7e";
 }
 
 AAVAAv3::~AAVAAv3 ()
@@ -326,14 +327,6 @@ int AAVAAv3::config_board (std::string config, std::string &response)
 
     int res = (int)BrainFlowExitCodes::STATUS_OK;
 
-    if (config == "w")
-    {
-        safe_logger (spdlog::level::trace, "device status was requested {}", device_status);
-        response = device_status;
-        device_status = "";
-        return res;
-    }
-
     if ((config[0] == 'z') || (config[0] == 'Z'))
     {
         bool was_streaming = is_streaming;
@@ -376,6 +369,13 @@ int AAVAAv3::config_board (std::string config, std::string &response)
     else
     {
         res = send_command (config);
+#ifdef _WIN32
+        Sleep (200);
+#else
+        sleep (0.2);
+#endif
+        response = device_status;
+        device_status = "";
     }
     return res;
 }
@@ -557,16 +557,31 @@ void AAVAAv3::read_data (
         // battery byte
         package[board_descr["default"]["battery_channel"].get<int> ()] = (double)data_frame[40];
 
+        if (SIZE_OF_DATA_FRAME > 47)
+        {
+            // gesture byte
+            package[board_descr["default"]["other_channels"][0].get<int> ()] =
+                (double)data_frame[46];
+
+            // gesture info 1
+            package[board_descr["default"]["other_channels"][1].get<int> ()] =
+                DETECTION_SCALE * cast_16bit_to_int32 (data_frame + 47);
+
+            // gesture info 2
+            package[board_descr["default"]["other_channels"][2].get<int> ()] =
+                DETECTION_SCALE * cast_16bit_to_int32 (data_frame + 49);
+        }
+
         // imu status byte
-        package[board_descr["default"]["other_channels"][0].get<int> ()] =
+        package[board_descr["default"]["other_channels"][3].get<int> ()] =
             (double)data_frame[41];
 
         // timestamp
         try
         {
-            package[board_descr["default"]["other_channels"][1].get<int> ()] =
+            package[board_descr["default"]["other_channels"][4].get<int> ()] =
                 *reinterpret_cast<uint32_t *> (data_frame + 42) *
-                TIMESTAMP_SCALE; // get_timestamp ();
+                TIMESTAMP_SCALE;
         }
         catch (const std::exception &e)
         {

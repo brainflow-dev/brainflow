@@ -32,10 +32,11 @@ public:
     std::string device_status;
 
 protected:
-    const double TIMESTAMP_SCALE = (double)(10. / 1000000.); // 10 us
+    const double TIMESTAMP_SCALE = (double)(4. / 1000.); // 4 ms
     const double IMU_SCALE = (double)(1. / 100.);
+    const double DETECTION_SCALE = 1.0;
     const int Ring_Buffer_Max_Size = 244 * 5;
-    const int SIZE_OF_DATA_FRAME = 47;
+    const int SIZE_OF_DATA_FRAME = 52;
     const double ADS1299_Vref = 4.5; // reference voltage for ADC in ADS1299
     const double ADS1299_gain = 12.; // assumed gain setting for ADS1299
     const double EEG_SCALE = ADS1299_Vref / float ((pow (2, 23) - 1)) / ADS1299_gain * 1000000.0;
@@ -50,4 +51,5 @@ protected:
     std::pair<simpleble_uuid_t, simpleble_uuid_t> write_characteristics;
     std::string start_command;
     std::string stop_command;
+    std::string firmware_command;
 };
