@@ -225,7 +225,7 @@ public:
               2, 2}) // to be confirmed
     {
         channel_letters = std::vector<char> {'1', '2', '3', '4', '5', '6', '7', '8', 'Q', 'W', 'E',
-            'R', 'T', 'Y', 'U', 'I', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K'};
+            'R', 'T', 'Y', 'U', 'I', 'A', 'S', 'D', 'G', 'H', 'J', 'K', 'L'};
     }
 
     virtual int apply_config (std::string config)
