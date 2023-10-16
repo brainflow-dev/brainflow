@@ -286,7 +286,7 @@ classdef BoardShim
         end
 
         function rotation_channels = get_rotation_channels(board_id, preset)
-            % get accel channels for provided board id
+            % get rotation channels for provided board id
             task_name = 'get_rotation_channels';
             lib_name = BoardShim.load_lib();
             num_channels = libpointer('int32Ptr', 0);
