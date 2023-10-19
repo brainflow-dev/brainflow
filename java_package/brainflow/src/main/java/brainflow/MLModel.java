@@ -59,7 +59,7 @@ public class MLModel
                     JarHelper.unpack_from_jar ("onnxruntime_arm64.dll");
                     break;
                 default:
-                    throw new RuntimeException ("Unsupported Windows architecture: " + arch);
+                    System.err.println("Unsupported Windows architecture: " + arch);
             }
         } else if (SystemUtils.IS_OS_MAC)
         {
