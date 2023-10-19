@@ -25,14 +25,19 @@ class GaleaEmulator(object):
         self.local_ip = '127.0.0.1'
         self.local_port = 2390
         self.server_socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
-        self.server_socket.settimeout(
-            0.1)  # decreases sampling rate significantly because it will wait for recv 0.1 sec but it's just a test
         self.server_socket.bind((self.local_ip, self.local_port))
         self.state = State.wait.value
         self.addr = None
         self.package_num = 0
         self.transaction_size = 12
         self.package_size = 114
+        self.sampling_rate = 250
+        self.transaction_speed_250 = .048 - .003225 #.048 is the time it takes to send 12 packages at 250Hz, we have to adjust this with an arbitrary value
+        self.server_socket.settimeout(
+            .0000001)  # decreases sampling rate significantly because it will wait for receive to timeout
+        self.total_packets_sent = 0
+        self.start_streaming_time = 0
+        self.DEBUG_MODE = False
 
     def run(self):
         start_time = time.time()
@@ -41,8 +46,11 @@ class GaleaEmulator(object):
                 msg, self.addr = self.server_socket.recvfrom(128)
                 if msg == Message.start_stream.value:
                     self.state = State.stream.value
+                    self.start_streaming_time = time.time()
                 elif msg == Message.stop_stream.value:
                     self.state = State.wait.value
+                    self.total_packets_sent = 0
+                    self.start_streaming_time
                 elif msg in Message.ack_values.value or msg.decode('utf-8').startswith('x'):
                     self.server_socket.sendto(Message.ack_from_device.value, self.addr)
                 elif msg == Message.time_calc_command.value:
@@ -89,9 +97,16 @@ class GaleaEmulator(object):
                     for i in range(self.transaction_size):
                         package.extend(bytes(transaction[i]))
                     self.server_socket.sendto(bytes(package), self.addr)
+                    self.total_packets_sent += self.transaction_size
                 except socket.timeout:
                     logging.info('timeout for send')
+                
+                time.sleep(self.transaction_speed_250)
 
+                if (self.DEBUG_MODE):
+                    elapsed_time = (time.time() - self.start_streaming_time)
+                    sampling_rate = self.total_packets_sent / elapsed_time
+                    print('elapsed time: ' + str(elapsed_time) + ' sampling rate: ' + str(sampling_rate))
 
 def main():
     emulator = GaleaEmulator()
