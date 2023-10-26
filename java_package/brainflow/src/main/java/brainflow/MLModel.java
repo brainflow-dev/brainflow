@@ -43,10 +43,24 @@ public class MLModel
         if (SystemUtils.IS_OS_WINDOWS)
         {
             lib_name = "MLModule.dll";
-            JarHelper.unpack_from_jar ("onnxruntime_arm.dll");
-            JarHelper.unpack_from_jar ("onnxruntime_arm64.dll");
-            JarHelper.unpack_from_jar ("onnxruntime_x64.dll");
-            JarHelper.unpack_from_jar ("onnxruntime_x86.dll");
+            String arch = System.getProperty ("os.arch");
+            switch (arch) {
+                case "x86":
+                    JarHelper.unpack_from_jar ("onnxruntime_x86.dll");
+                    break;
+                case "x86_64":
+                case "amd64":
+                    JarHelper.unpack_from_jar ("onnxruntime_x64.dll");
+                    break;
+                case "arm":
+                    JarHelper.unpack_from_jar ("onnxruntime_arm.dll");
+                    break;
+                case "arm64":
+                    JarHelper.unpack_from_jar ("onnxruntime_arm64.dll");
+                    break;
+                default:
+                    System.err.println("Unsupported Windows architecture: " + arch);
+            }
         } else if (SystemUtils.IS_OS_MAC)
         {
             lib_name = "libMLModule.dylib";
