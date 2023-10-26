@@ -53,6 +53,8 @@ class GaleaEmulator(object):
                     self.start_streaming_time
                 elif msg in Message.ack_values.value or msg.decode('utf-8').startswith('x'):
                     self.server_socket.sendto(Message.ack_from_device.value, self.addr)
+                elif msg in Message.ack_values.value or msg.decode('utf-8').startswith('z'):
+                    self.server_socket.sendto(Message.ack_from_device.value, self.addr)
                 elif msg == Message.time_calc_command.value:
                     cur_time = time.time()
                     resp = bytearray(struct.pack('d', (cur_time - start_time) * 1000))
