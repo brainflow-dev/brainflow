@@ -333,10 +333,10 @@ jobs:
     - name: Synthetic C# Test
       run: |
         ls $GITHUB_WORKSPACE/csharp_package/brainflow/examples/brainflow_get_data/
-        ls $GITHUB_WORKSPACE/csharp_package/brainflow/examples/brainflow_get_data/bin/Release
+        ls $GITHUB_WORKSPACE/csharp_package/brainflow/examples/brainflow_get_data/bin/
         ls $GITHUB_WORKSPACE/csharp_package/brainflow/examples/brainflow_get_data/bin/Release/netcoreapp3.1\
         cd $GITHUB_WORKSPACE/csharp_package/brainflow/examples/brainflow_get_data/bin/Release/netcoreapp3.1\
-        brainflow_get_data.exe --board-id -1
+        brainflow_get_data --board-id -1
     - name: Synthetic Node
       run: |
         cd $GITHUB_WORKSPACE/nodejs_package/tests
