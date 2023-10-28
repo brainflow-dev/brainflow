@@ -332,16 +332,8 @@ jobs:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Synthetic C# Test
       run: |
-        ls $GITHUB_WORKSPACE/csharp_package/brainflow/examples/brainflow_get_data/
-        echo 1
-        ls $GITHUB_WORKSPACE/csharp_package/brainflow/examples/brainflow_get_data/bin/
-        echo 2
-        ls $GITHUB_WORKSPACE/csharp_package/brainflow/examples/brainflow_get_data/bin/Release
-        echo 3
-        ls $GITHUB_WORKSPACE/csharp_package/brainflow/examples/brainflow_get_data/bin/Release/netcoreapp3.1
-        echo 4
         cd $GITHUB_WORKSPACE/csharp_package/brainflow/examples/brainflow_get_data/bin/Release/netcoreapp3.1
-        brainflow_get_data --board-id -1
+        ./brainflow_get_data --board-id -1
     - name: Synthetic Node
       run: |
         cd $GITHUB_WORKSPACE/nodejs_package/tests
