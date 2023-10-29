@@ -99,10 +99,17 @@ jobs:
       env:
         BRAINFLOW_VERSION: ${{ steps.version.outputs.version }}
     - name: C# build
+      if: (matrix.os == 'ubuntu-20.04')
       run: |
         cd $GITHUB_WORKSPACE/csharp_package/brainflow
         dotnet restore brainflow.sln
-        dotnet build brainflow.sln -c Release
+        dotnet build brainflow.sln -c Release --runtime linux-x64
+    - name: C# build
+      if: (matrix.os == 'macos-11.0')
+      run: |
+        cd $GITHUB_WORKSPACE/csharp_package/brainflow
+        dotnet restore brainflow.sln
+        dotnet build brainflow.sln -c Release --runtime osx.10.13-x64
     - name: Setup Python Package
       run: |
         cd $GITHUB_WORKSPACE/python_package
@@ -334,6 +341,9 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/csharp_package/brainflow/examples/brainflow_get_data/bin/Release/netcoreapp3.1
         ./brainflow_get_data --board-id -1
+      env:
+        LD_DEBUG: all
+        DYLD_PRINT_LIBRARIES: 1
     - name: Synthetic Node
       run: |
         cd $GITHUB_WORKSPACE/nodejs_package/tests
