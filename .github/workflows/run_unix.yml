@@ -333,7 +333,7 @@ jobs:
     - name: Synthetic C# Test
       run: |
         cd $GITHUB_WORKSPACE/csharp_package/brainflow/examples/brainflow_get_data/bin/Release/netcoreapp3.1
-        mono brainflow_get_data --board-id -1
+        ./brainflow_get_data --board-id -1
       env:
         LD_DEBUG: all
         DYLD_PRINT_LIBRARIES: 1
