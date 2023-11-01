@@ -22,7 +22,7 @@ extern "C"
         int preset, int *result, int board_id, const char *json_brainflow_input_params);
     SHARED_EXPORT int CALLING_CONVENTION get_board_data (int data_count, int preset,
         double *data_buf, int board_id, const char *json_brainflow_input_params);
-    SHARED_EXPORT int CALLING_CONVENTION config_board (const char *config, char *response,
+    SHARED_EXPORT int CALLING_CONVENTION config_board (const char *config, int config_len, char *response,
         int *response_len, int board_id, const char *json_brainflow_input_params);
     SHARED_EXPORT int CALLING_CONVENTION is_prepared (
         int *prepared, int board_id, const char *json_brainflow_input_params);

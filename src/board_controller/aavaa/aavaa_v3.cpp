@@ -327,48 +327,10 @@ int AAVAAv3::config_board (std::string config, std::string &response)
 
     int res = (int)BrainFlowExitCodes::STATUS_OK;
 
-    if ((config[0] == 'z') || (config[0] == 'Z'))
+
+    res = send_command (config);
+    if ((config[0] == 'w') || (config[1] == '~'))
     {
-        bool was_streaming = is_streaming;
-        if (was_streaming)
-        {
-            safe_logger (spdlog::level::trace,
-                "disabling streaming to turn on or off impedance, stop command is: {}",
-                stop_command.c_str ());
-            res = send_command (stop_command);
-            if (res == (int)BrainFlowExitCodes::STATUS_OK)
-            {
-                is_streaming = false;
-            }
-        }
-        if (config[0] == 'z')
-        {
-            start_command = "z";
-            stop_command = "Z";
-        }
-        else if (config[0] == 'Z')
-        {
-            start_command = "b";
-            stop_command = "s";
-        }
-        if (was_streaming)
-        {
-            if (res == (int)BrainFlowExitCodes::STATUS_OK)
-            {
-                safe_logger (spdlog::level::trace,
-                    "enabling streaming to turn on or off impedance, start command is: {}",
-                    start_command.c_str ());
-                res = send_command (start_command);
-            }
-            if (res == (int)BrainFlowExitCodes::STATUS_OK)
-            {
-                is_streaming = true;
-            }
-        }
-    }
-    else
-    {
-        res = send_command (config);
 #ifdef _WIN32
         Sleep (200);
 #else

@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "ble_lib_board.h"
-#include "board.h"
 #include "board_controller.h"
 
 

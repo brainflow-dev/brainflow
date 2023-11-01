@@ -307,6 +307,7 @@ class BoardControllerDLL(object):
         self.config_board.restype = ctypes.c_int
         self.config_board.argtypes = [
             ctypes.c_char_p,
+            ctypes.c_int,
             ndpointer(ctypes.c_ubyte),
             ndpointer(ctypes.c_int32),
             ctypes.c_int,
@@ -1372,10 +1373,12 @@ class BoardShim(object):
             config_string = config.encode()
         except BaseException:
             config_string = config
+
+        config_len = len(config)
         string = numpy.zeros(4096).astype(numpy.ubyte)
         string_len = numpy.zeros(1).astype(numpy.int32)
 
-        res = BoardControllerDLL.get_instance().config_board(config_string, string, string_len, self.board_id,
+        res = BoardControllerDLL.get_instance().config_board(config_string, config_len, string, string_len, self.board_id,
                                                              self.input_json)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to config board', res)

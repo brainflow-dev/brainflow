@@ -449,7 +449,7 @@ int java_set_jnienv (JNIEnv *java_jnienv)
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int config_board (const char *config, char *response, int *response_len, int board_id,
+int config_board (const char *config, int config_len, char *response, int *response_len, int board_id,
     const char *json_brainflow_input_params)
 {
     std::lock_guard<std::mutex> lock (mutex);
@@ -465,7 +465,7 @@ int config_board (const char *config, char *response, int *response_len, int boa
         return res;
     }
     auto board_it = boards.find (key);
-    std::string conf = config;
+    std::string conf(config, config_len);
     std::string resp = "";
     res = board_it->second->config_board (conf, resp);
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
