@@ -730,6 +730,7 @@ To create such board you need to specify the following board ID and fields of Br
 Initialization Example:
 
 .. code-block:: python
+
     params = BrainFlowInputParams()
     params.serial_port = "COM6"
     board = BoardShim(BoardIds.FREEEEG128_BOARD, params)

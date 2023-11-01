@@ -8,6 +8,7 @@
 
 #define GANGLION_WRITE_CHAR "2d30c083-f39f-4ce6-923f-3484ea480596"
 #define GANGLION_NOTIFY_CHAR "2d30c082-f39f-4ce6-923f-3484ea480596"
+#define GANGLION_SOFTWARE_REVISION "00002a28-0000-1000-8000-00805f9b34fb"
 
 
 static void ganglion_adapter_1_on_scan_start (simpleble_adapter_t adapter, void *board)
@@ -108,7 +109,6 @@ int GanglionNative::prepare_session ()
             lk, params.timeout * sec, [this] { return this->ganglion_peripheral != NULL; }))
     {
         safe_logger (spdlog::level::info, "Found GanglionNative device");
-        safe_logger (spdlog::level::info, "Detected firmware version {}", firmware);
     }
     else
     {
@@ -162,11 +162,21 @@ int GanglionNative::prepare_session ()
                 res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
             }
 
-            safe_logger (spdlog::level::trace, "found servce {}", service.uuid.value);
+            safe_logger (spdlog::level::trace, "found service {}", service.uuid.value);
             for (size_t j = 0; j < service.characteristic_count; j++)
             {
-                safe_logger (spdlog::level::trace, "found characteristic {}",
-                    service.characteristics[j].uuid.value);
+                // Read the software revision characteristic to get the firmware version
+                if (strcmp (service.characteristics[j].uuid.value, GANGLION_SOFTWARE_REVISION) == 0)
+                {
+                    uint8_t *data;
+                    size_t data_length;
+                    simpleble_peripheral_read (ganglion_peripheral, service.uuid,
+                        service.characteristics[j].uuid, &data, &data_length);
+
+                    // Data should be in the form x.x.x stored as ASCII values in the data buffer
+                    firmware = (data[0] == '3') ? 3 : 2;
+                    safe_logger (spdlog::level::info, "Detected firmware version {}", firmware);
+                }
 
                 if (strcmp (service.characteristics[j].uuid.value,
                         GANGLION_WRITE_CHAR) == 0) // Write Characteristics
@@ -444,7 +454,6 @@ void GanglionNative::adapter_1_on_scan_found (
 
     if (found)
     {
-        firmware = strncmp (peripheral_identified, "Ganglion 1.3", 12) == 0 ? 3 : 2;
         {
             std::lock_guard<std::mutex> lk (m);
             ganglion_peripheral = peripheral;

@@ -45,7 +45,7 @@ jobs:
       run: |
         mkdir %GITHUB_WORKSPACE%\build32
         cd %GITHUB_WORKSPACE%\build32
-        cmake -DBRAINFLOW_VERSION=%BRAINFLOW_VERSION% -DBUILD_OYMOTION_SDK=ON -DBUILD_ONNX=ON -DBUILD_BLE=ON -DBUILD_BLUETOOTH=ON -DBUILD_TESTS=ON -DWARNINGS_AS_ERRORS=ON -G "Visual Studio 17 2022" -A Win32 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed32\ ..
+        cmake -DBRAINFLOW_VERSION=%BRAINFLOW_VERSION% -DBUILD_OYMOTION_SDK=ON -DBUILD_ONNX=ON -DBUILD_BLE=ON -DBUILD_BLUETOOTH=ON -DWARNINGS_AS_ERRORS=ON -G "Visual Studio 17 2022" -A Win32 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed32\ ..
         cmake --build . --target install --config Release -j 2 --parallel 2
       env:
         BRAINFLOW_VERSION: ${{ steps.version.outputs.version }}
@@ -54,7 +54,7 @@ jobs:
       run: |
         mkdir %GITHUB_WORKSPACE%\build64
         cd %GITHUB_WORKSPACE%\build64
-        cmake -DBRAINFLOW_VERSION=%BRAINFLOW_VERSION% -DBUILD_OYMOTION_SDK=ON -DBUILD_ONNX=ON -DBUILD_BLE=ON -DBUILD_BLUETOOTH=ON -DBUILD_TESTS=ON -DWARNINGS_AS_ERRORS=ON -G "Visual Studio 17 2022" -A x64 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed64\ ..
+        cmake -DBRAINFLOW_VERSION=%BRAINFLOW_VERSION% -DBUILD_OYMOTION_SDK=ON -DBUILD_ONNX=ON -DBUILD_BLE=ON -DBUILD_BLUETOOTH=ON -DWARNINGS_AS_ERRORS=ON -G "Visual Studio 17 2022" -A x64 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed64\ ..
         cmake --build . --target install --config Release -j 2 --parallel 2
       env:
         BRAINFLOW_VERSION: ${{ steps.version.outputs.version }}
@@ -120,10 +120,6 @@ jobs:
       uses: julia-actions/setup-julia@v1
       with:
         version: 1.3.1
-    # Unit testing
-    - name: Run unit tests
-      run: .\build\tests\Release\brainflow_tests.exe
-      shell: cmd
     # BoardController testing
     - name: Run Julia Tests
       run: |

@@ -610,6 +610,29 @@ simpleble_err_t BLELibBoard::simpleble_peripheral_manufacturer_data_get (
     return func (handle, index, manufacturer_data);
 }
 
+simpleble_err_t BLELibBoard::simpleble_peripheral_read (simpleble_peripheral_t handle,
+    simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t **data, size_t *data_length)
+{
+    std::lock_guard<std::mutex> lock (BLELibBoard::mutex);
+    if (BLELibBoard::dll_loader == NULL)
+    {
+        safe_logger (spdlog::level::err, "BLELibBoard::dll_loader is not initialized");
+        return SIMPLEBLE_FAILURE;
+    }
+    simpleble_err_t (*func) (simpleble_peripheral_t, simpleble_uuid_t, simpleble_uuid_t, uint8_t **,
+        size_t *) = (simpleble_err_t (*) (simpleble_peripheral_t, simpleble_uuid_t,
+        simpleble_uuid_t, uint8_t **,
+        size_t *))BLELibBoard::dll_loader->get_address ("simpleble_peripheral_read");
+    if (func == NULL)
+    {
+        safe_logger (
+            spdlog::level::err, "failed to get function address for simpleble_peripheral_read");
+        return SIMPLEBLE_FAILURE;
+    }
+
+    return func (handle, service, characteristic, data, data_length);
+}
+
 simpleble_err_t BLELibBoard::simpleble_peripheral_is_connected (
     simpleble_peripheral_t handle, bool *connected)
 {

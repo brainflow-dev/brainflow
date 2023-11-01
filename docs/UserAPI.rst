@@ -159,3 +159,13 @@ Example:
 
 .. literalinclude:: ../rust_package/brainflow/examples/get_data.rs
    :language: rust
+
+Typescript API Reference
+--------------------------
+
+Typescript binding calls C/C++ code as any other binding. Use Typescript examples and API reference for other languaes as a starting point.
+
+Example:
+
+.. literalinclude:: ../nodejs_package/tests/brainflow_get_data.ts
+   :language: javascript

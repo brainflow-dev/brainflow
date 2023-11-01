@@ -255,5 +255,6 @@ void SyntheticBoard::read_thread ()
 
 int SyntheticBoard::config_board (std::string config, std::string &response)
 {
+    response = "Config:" + config;
     return (int)BrainFlowExitCodes::STATUS_OK;
 }

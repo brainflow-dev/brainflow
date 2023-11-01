@@ -46,6 +46,7 @@ set_target_properties (${GANGLION_LIB}
 
 if (MSVC)
     add_custom_command (TARGET ${GANGLION_LIB} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${GANGLION_LIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/nodejs_package/brainflow/lib/${GANGLION_LIB_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${GANGLION_LIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/python_package/brainflow/lib/${GANGLION_LIB_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${GANGLION_LIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/java_package/brainflow/src/main/resources/${GANGLION_LIB_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${GANGLION_LIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/csharp_package/brainflow/brainflow/lib/${GANGLION_LIB_NAME}"
@@ -55,6 +56,7 @@ if (MSVC)
 endif (MSVC)
 if (UNIX AND NOT ANDROID)
     add_custom_command (TARGET ${GANGLION_LIB} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${GANGLION_LIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/nodejs_package/brainflow/lib/${GANGLION_LIB_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${GANGLION_LIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/python_package/brainflow/lib/${GANGLION_LIB_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${GANGLION_LIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/julia_package/brainflow/lib/${GANGLION_LIB_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${GANGLION_LIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/java_package/brainflow/src/main/resources/${GANGLION_LIB_NAME}"

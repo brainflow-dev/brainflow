@@ -1207,7 +1207,7 @@ int detrend (double *data, int data_len, int detrend_operation)
     if (detrend_operation == (int)DetrendOperations::LINEAR)
     {
         // use mean and gradient to find a line
-        double mean_x = data_len / 2.0;
+        double mean_x = (data_len - 1) / 2.0;
         double mean_y = 0;
         for (int i = 0; i < data_len; i++)
         {

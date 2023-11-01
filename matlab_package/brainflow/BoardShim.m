@@ -285,17 +285,6 @@ classdef BoardShim
             accel_channels = data.Value(1,1:num_channels.Value) + 1;
         end
 
-        function rotation_channels = get_rotation_channels(board_id, preset)
-            % get accel channels for provided board id
-            task_name = 'get_rotation_channels';
-            lib_name = BoardShim.load_lib();
-            num_channels = libpointer('int32Ptr', 0);
-            data = libpointer('int32Ptr', zeros(1, 512));
-            exit_code = calllib(lib_name, task_name, board_id, preset, data, num_channels);
-            BoardShim.check_ec(exit_code, task_name);
-            rotation_channels = data.Value(1,1:num_channels.Value) + 1;
-        end
-
         function analog_channels = get_analog_channels(board_id, preset)
             % get analog channels for provided board id
             task_name = 'get_analog_channels';
