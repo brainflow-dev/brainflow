@@ -294,6 +294,7 @@ paket-files/
 .cr/
 
 # Python Tools for Visual Studio (PTVS)
+.DS_Store
 __pycache__/
 *.pyc
 *.egg-info
