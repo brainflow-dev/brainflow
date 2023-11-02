@@ -235,7 +235,7 @@ std::string BoardShim::config_board (std::string config)
     int response_len = 0;
     char response[8192];
     int res = ::config_board (
-        config.c_str (), config.size(), response, &response_len, board_id, serialized_params.c_str ());
+        config.c_str (), response, &response_len, board_id, serialized_params.c_str ());
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to config board", res);
