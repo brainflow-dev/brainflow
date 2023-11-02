@@ -334,7 +334,7 @@ int AAVAAv3::config_board (std::string config, std::string &response)
 #ifdef _WIN32
         Sleep (200);
 #else
-        sleep (0.2);
+        usleep (200000);
 #endif
         response = device_status;
         device_status = "";
