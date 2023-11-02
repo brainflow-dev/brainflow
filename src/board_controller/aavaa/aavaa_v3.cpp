@@ -535,15 +535,13 @@ void AAVAAv3::read_data (
         }
 
         // imu status byte
-        package[board_descr["default"]["other_channels"][3].get<int> ()] =
-            (double)data_frame[41];
+        package[board_descr["default"]["other_channels"][3].get<int> ()] = (double)data_frame[41];
 
         // timestamp
         try
         {
             package[board_descr["default"]["other_channels"][4].get<int> ()] =
-                *reinterpret_cast<uint32_t *> (data_frame + 42) *
-                TIMESTAMP_SCALE;
+                *reinterpret_cast<uint32_t *> (data_frame + 42) * TIMESTAMP_SCALE;
         }
         catch (const std::exception &e)
         {
