@@ -468,7 +468,7 @@ void AAVAAv3::read_data (
         Incoming_BLE_Data_Buffer.insert (Incoming_BLE_Data_Buffer.end (), data, data + size);
     }
 
-    while (Incoming_BLE_Data_Buffer.size () >= SIZE_OF_DATA_FRAME)
+    while (static_cast<int> (Incoming_BLE_Data_Buffer.size ()) >= SIZE_OF_DATA_FRAME)
     {
         if (Incoming_BLE_Data_Buffer[0] != START_BYTE)
         {
