@@ -4,6 +4,7 @@ import random
 import socket
 import struct
 import time
+from array import array
 
 
 class State(enum.Enum):
@@ -37,7 +38,9 @@ class GaleaEmulator(object):
             .0000001)  # decreases sampling rate significantly because it will wait for receive to timeout
         self.total_packets_sent = 0
         self.start_streaming_time = 0
-        self.DEBUG_MODE = False
+        self.debug_mode = False
+        self.channel_on_off = [1] * 24
+        self.channel_identifiers = array('u', ['1', '2', '3', '4', '5', '6', '7', '8', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I'])
 
     def run(self):
         start_time = time.time()
@@ -53,6 +56,7 @@ class GaleaEmulator(object):
                     self.start_streaming_time
                 elif msg in Message.ack_values.value or msg.decode('utf-8').startswith('x'):
                     self.server_socket.sendto(Message.ack_from_device.value, self.addr)
+                    self.process_channel_on_off(msg.decode('utf-8'))
                 elif msg in Message.ack_values.value or msg.decode('utf-8').startswith('z'):
                     self.server_socket.sendto(Message.ack_from_device.value, self.addr)
                 elif msg == Message.time_calc_command.value:
@@ -68,10 +72,22 @@ class GaleaEmulator(object):
 
             if self.state == State.stream.value:
                 transaction = list()
-                for _ in range(self.transaction_size):
+                for t in range(self.transaction_size):
                     single_package = list()
+                    channel = 0
                     for i in range(self.package_size):
-                        single_package.append(random.randint(0, 255))
+                        if (i > 4 and i < 77):
+                            sample = i - 4
+                            if (sample % 3 == 1):
+                                channel += 1
+                                if (self.debug_mode):
+                                    print(t, i, channel)
+                            if (self.channel_on_off[channel - 1] == 1):
+                                single_package.append(random.randint(0, 255))
+                            else:
+                               single_package.append(0)
+                        else:
+                            single_package.append(random.randint(0, 255))
                     single_package[0] = self.package_num
 
                     cur_time = time.time()
@@ -105,10 +121,22 @@ class GaleaEmulator(object):
                 
                 time.sleep(self.transaction_speed_250)
 
-                if (self.DEBUG_MODE):
+                if (self.debug_mode):
                     elapsed_time = (time.time() - self.start_streaming_time)
                     sampling_rate = self.total_packets_sent / elapsed_time
                     print('elapsed time: ' + str(elapsed_time) + ' sampling rate: ' + str(sampling_rate))
+
+    def process_channel_on_off(self, msg):
+        if msg.startswith('x'):
+            for channel_id in self.channel_identifiers:
+                channel_num = self.channel_identifiers.index(channel_id)
+                if (msg[1] == channel_id):
+                    if (msg[2] == '0'): # 0 is off (or Power Down), 1 is on
+                        self.channel_on_off[channel_num] = 1
+                        print('channel ' + str(channel_num + 1) + ' is on')
+                    else:
+                        self.channel_on_off[channel_num] = 0
+                        print('channel ' + str(channel_num + 1) + ' is off')
 
 def main():
     emulator = GaleaEmulator()
