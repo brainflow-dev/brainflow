@@ -40,7 +40,12 @@ class GaleaEmulator(object):
         self.start_streaming_time = 0
         self.debug_mode = False
         self.channel_on_off = [1] * 24
-        self.channel_identifiers = array('u', ['1', '2', '3', '4', '5', '6', '7', '8', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I'])
+        self.channel_identifiers = array('u', [
+            '1', '2', '3', '4', '5', '6', '7', '8',
+            'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 
+            'A', 'S', 'D', 'G', 'H', 'J', 'K', 'L'
+            ]
+        )
 
     def run(self):
         start_time = time.time()
