@@ -153,6 +153,20 @@ jobs:
     # start testing
     - name: Run unit tests
       run: $GITHUB_WORKSPACE/build/tests/brainflow_tests
+    - name: Synthetic C# Test
+      run: |
+        cd $GITHUB_WORKSPACE/csharp_package/brainflow/examples/brainflow_get_data/bin/Release/netcoreapp3.1
+        ./brainflow_get_data --board-id -1
+      env:
+        DYLD_PRINT_LIBRARIES: 1
+        LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
+    - name: EEG Metrics C# Test
+      run: |
+        cd $GITHUB_WORKSPACE/csharp_package/brainflow/examples/eeg_metrics/bin/Release/netcoreapp3.1
+        ./eeg_metrics --board-id -1
+      env:
+        DYLD_PRINT_LIBRARIES: 1
+        LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Run All Julia Tests
       run: |
         export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/installed/lib:$LD_LIBRARY_PATH
@@ -330,13 +344,6 @@ jobs:
         mvn exec:java -Dexec.mainClass="brainflow.examples.EEGMetrics" -Dexec.args="--board-id -1"
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
-    - name: Synthetic C# Test
-      run: |
-        cd $GITHUB_WORKSPACE/csharp_package/brainflow/examples/brainflow_get_data/bin/Release/netcoreapp3.1
-        ./brainflow_get_data --board-id -1
-      env:
-        LD_DEBUG: all
-        DYLD_PRINT_LIBRARIES: 1
     - name: Synthetic Node
       run: |
         cd $GITHUB_WORKSPACE/nodejs_package/tests

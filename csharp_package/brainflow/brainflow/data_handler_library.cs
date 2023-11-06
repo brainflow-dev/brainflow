@@ -337,221 +337,221 @@ namespace brainflow
 
     class DataHandlerLibraryLinux
     {
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_file_data_handler (string log_file);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int log_message_data_handler (int log_level, string message);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_level_data_handler (int log_level);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_lowpass (double[] data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_highpass (double[] data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_bandpass (double[] data, int len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_bandstop (double[] data, int len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_rolling_filter (double[] data, int len, int period, int operation);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_downsampling (double[] data, int len, int period, int operation, double[] downsampled_data);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int write_file (double[] data, int num_rows, int num_cols, string file_name, string file_mode);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int read_file (double[] data, int[] num_rows, int[] num_cols, string file_name, int max_elements);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_num_elements_in_file (string file_name, int[] num_elements);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_wavelet_transform (double[] data, int data_len, int wavelet, int decomposition_level, int extension, double[] output_data, int[] decomposition_lengths);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_inverse_wavelet_transform (double[] wavelet_coeffs, int original_data_len, int wavelet, int decomposition_level, int extension,
                                                                     int[] decomposition_lengths, double[] output_data);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_wavelet_denoising (double[] data, int data_len, int wavelet, int decomposition_level,
                                                             int wavelet_denoising, int threshold, int extenstion_type, int noise_level);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_csp (double[] data, double[] labels, int n_epochs, int n_channels, int n_times, double[] output_filters, double[] output_eigenvalues);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_window (int window_function, int window_len, double[] window_data);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_fft (double[] data, int data_len, int window, double[] re, double[] im);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_ifft (double[] re, double[] im, int data_len, double[] data);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_nearest_power_of_two (int value, int[] output);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_psd (double[] data, int data_len, int sampling_rate, int window, double[] ampls, double[] freqs);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_band_power (double[] ampls, double[] freqs, int data_len, double freq_start, double freq_end, double[] res);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_psd_welch (double[] data, int data_len, int nfft, int overlap, int sampling_rate, int window, double[] ampls, double[] freqs);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int detrend (double[] data, int len, int operation);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_custom_band_powers (double[] data, int rows, int cols, double[] start_freqs, double[] stop_freqs, int num_bands, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int remove_environmental_noise (double[] data, int len, int sampling_rate, int noise_type);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int calc_stddev (double[] data, int start_pos, int end_pos, double[] output);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_version_data_handler (byte[] version, int[] len, int max_len);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_railed_percentage (double[] data, int len, int gain, double[] output);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_oxygen_level (double[] ppg_ir, double[] ppg_red, int data_size, int sampling_rate, double coef1, double coef2, double coef3, double[] output);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int restore_data_from_wavelet_detailed_coeffs (double[] data, int data_len, int wavelet, int decomposition_level, int level_to_restore, double[] output);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int detect_peaks_z_score (double[] data, int data_len, int lag, double threshold, double influence, double[] output);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_heart_rate (double[] ppg_ir, double[] ppg_red, int data_size, int sampling_rate, int fft_size, double[] output);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_ica (double[] data, int rows, int cols, int num_components, double[] w, double[] k, double[] a, double[] s);
         // unsafe methods working with pointers
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int perform_lowpass (double* data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int perform_highpass (double* data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int perform_bandpass (double* data, int len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int perform_bandstop (double* data, int len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int perform_rolling_filter (double* data, int len, int period, int operation);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int perform_downsampling (double* data, int len, int period, int operation, double[] downsampled_data);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int perform_wavelet_transform (double* data, int data_len, int wavelet, int decomposition_level, int extension, double[] output_data, int[] decomposition_lengths);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int perform_wavelet_denoising (double* data, int data_len, int wavelet, int decomposition_level,
                                                             int wavelet_denoising, int threshold, int extenstion_type, int noise_level);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int perform_fft (double* data, int data_len, int window, double[] re, double[] im);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int get_psd (double* data, int data_len, int sampling_rate, int window, double[] ampls, double[] freqs);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int get_psd_welch (double* data, int data_len, int nfft, int overlap, int sampling_rate, int window, double[] ampls, double[] freqs);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int detrend (double* data, int len, int operation);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int remove_environmental_noise (double* data, int len, int sampling_rate, int noise_type);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int get_custom_band_powers (double* data, int rows, int cols, double[] start_freqs, double[] stop_freqs, int num_bands, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int calc_stddev (double* data, int start_pos, int end_pos, double[] output);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int get_railed_percentage (double* data, int len, int gain, double[] output);
-        [DllImport ("libDataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("DataHandler.so", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int detect_peaks_z_score (double* data, int data_len, int lag, double threshold, double influence, double[] output);
     }
 
     class DataHandlerLibraryMac
     {
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_file_data_handler (string log_file);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int log_message_data_handler (int log_level, string message);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_level_data_handler (int log_level);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_lowpass (double[] data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_highpass (double[] data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_bandpass (double[] data, int len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_bandstop (double[] data, int len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_rolling_filter (double[] data, int len, int period, int operation);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_downsampling (double[] data, int len, int period, int operation, double[] downsampled_data);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int write_file (double[] data, int num_rows, int num_cols, string file_name, string file_mode);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int read_file (double[] data, int[] num_rows, int[] num_cols, string file_name, int max_elements);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_num_elements_in_file (string file_name, int[] num_elements);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_wavelet_transform (double[] data, int data_len, int wavelet, int decomposition_level, int extension, double[] output_data, int[] decomposition_lengths);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_inverse_wavelet_transform (double[] wavelet_coeffs, int original_data_len, int wavelet, int decomposition_level, int extension,
                                                                     int[] decomposition_lengths, double[] output_data);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_wavelet_denoising (double[] data, int data_len, int wavelet, int decomposition_level,
                                                             int wavelet_denoising, int threshold, int extenstion_type, int noise_level);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_csp (double[] data, double[] labels, int n_epochs, int n_channels, int n_times, double[] output_filters, double[] output_eigenvalues);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_window (int window_function, int window_len, double[] window_data);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_fft (double[] data, int data_len, int window, double[] re, double[] im);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_ifft (double[] re, double[] im, int data_len, double[] data);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_nearest_power_of_two (int value, int[] output);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_psd (double[] data, int data_len, int sampling_rate, int window, double[] ampls, double[] freqs);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_band_power (double[] ampls, double[] freqs, int data_len, double freq_start, double freq_end, double[] res);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_psd_welch (double[] data, int data_len, int nfft, int overlap, int sampling_rate, int window, double[] ampls, double[] freqs);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int detrend (double[] data, int len, int operation);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_custom_band_powers (double[] data, int rows, int cols, double[] start_freqs, double[] stop_freqs, int num_bands, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int remove_environmental_noise (double[] data, int len, int sampling_rate, int noise_type);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int calc_stddev (double[] data, int start_pos, int end_pos, double[] output);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_version_data_handler (byte[] version, int[] len, int max_len);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_railed_percentage (double[] data, int len, int gain, double[] output);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_oxygen_level (double[] ppg_ir, double[] ppg_red, int data_size, int sampling_rate, double coef1, double coef2, double coef3, double[] output);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int restore_data_from_wavelet_detailed_coeffs (double[] data, int data_len, int wavelet, int decomposition_level, int level_to_restore, double[] output);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int detect_peaks_z_score (double[] data, int data_len, int lag, double threshold, double influence, double[] output);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_heart_rate (double[] ppg_ir, double[] ppg_red, int data_size, int sampling_rate, int fft_size, double[] output);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int perform_ica (double[] data, int rows, int cols, int num_components, double[] w, double[] k, double[] a, double[] s);
         // unsafe methods working with pointers
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int perform_lowpass (double* data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int perform_highpass (double* data, int len, int sampling_rate, double cutoff, int order, int filter_type, double ripple);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int perform_bandpass (double* data, int len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int perform_bandstop (double* data, int len, int sampling_rate, double start_freq, double stop_freq, int order, int filter_type, double ripple);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int perform_rolling_filter (double* data, int len, int period, int operation);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int perform_downsampling (double* data, int len, int period, int operation, double[] downsampled_data);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int perform_wavelet_transform (double* data, int data_len, int wavelet, int decomposition_level, int extension, double[] output_data, int[] decomposition_lengths);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int perform_wavelet_denoising (double* data, int data_len, int wavelet, int decomposition_level,
                                                             int wavelet_denoising, int threshold, int extenstion_type, int noise_level);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int perform_fft (double* data, int data_len, int window, double[] re, double[] im);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int get_psd (double* data, int data_len, int sampling_rate, int window, double[] ampls, double[] freqs);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int get_psd_welch (double* data, int data_len, int nfft, int overlap, int sampling_rate, int window, double[] ampls, double[] freqs);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int detrend (double* data, int len, int operation);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int remove_environmental_noise (double* data, int len, int sampling_rate, int noise_type);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int get_custom_band_powers (double* data, int rows, int cols, double[] start_freqs, double[] stop_freqs, int num_bands, int sampling_rate, int apply_filters, double[] avgs, double[] stddevs);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int calc_stddev (double* data, int start_pos, int end_pos, double[] output);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int get_railed_percentage (double* data, int len, int gain, double[] output);
-        [DllImport ("libDataHandler.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libDataHandler", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int detect_peaks_z_score (double* data, int data_len, int lag, double threshold, double influence, double[] output);
 
     }
