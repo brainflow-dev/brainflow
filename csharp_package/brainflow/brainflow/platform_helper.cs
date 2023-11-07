@@ -21,7 +21,7 @@ namespace brainflow
                 if (RuntimeInformation.IsOSPlatform (OSPlatform.Linux))
                 {
                     Console.Error.Write ("Linux platform detected");
-                    library_env = LibraryEnvironment.x64;
+                    library_env = LibraryEnvironment.Linux;
                 }
                 if (RuntimeInformation.IsOSPlatform (OSPlatform.OSX))
                 {
