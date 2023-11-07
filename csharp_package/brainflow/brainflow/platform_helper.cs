@@ -22,17 +22,21 @@ namespace brainflow
                 {
                     case PlatformID.MacOSX:
                         library_env = LibraryEnvironment.MacOS;
+                        Console.Error.Write ("MacOS platform detected");
                         break;
                     case PlatformID.Unix:
                         library_env = LibraryEnvironment.Linux;
+                        Console.Error.Write ("Linux platform detected");
                         break;
                     default:
                         if (Environment.Is64BitProcess)
                         {
+                            Console.Error.Write ("Win64 platform detected");
                             library_env = LibraryEnvironment.x64;
                         }
                         else
                         {
+                            Console.Error.Write ("Win32 platform detected");
                             library_env = LibraryEnvironment.x86;
                         }
                         break;

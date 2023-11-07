@@ -24,7 +24,7 @@ jobs:
     - name: Install dotnet
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '3.1.x'
+        dotnet-version: '7.0.x'
     - name: Install Python 3.7
       uses: actions/setup-python@v3
       with:
@@ -155,14 +155,14 @@ jobs:
       run: $GITHUB_WORKSPACE/build/tests/brainflow_tests
     - name: Synthetic C# Test
       run: |
-        cd $GITHUB_WORKSPACE/csharp_package/brainflow/examples/brainflow_get_data/bin/Release/netcoreapp3.1
+        cd $GITHUB_WORKSPACE/csharp_package/brainflow/examples/brainflow_get_data/bin/Release/net7.0
         ./brainflow_get_data --board-id -1
       env:
         DYLD_PRINT_LIBRARIES: 1
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: EEG Metrics C# Test
       run: |
-        cd $GITHUB_WORKSPACE/csharp_package/brainflow/examples/eeg_metrics/bin/Release/netcoreapp3.1
+        cd $GITHUB_WORKSPACE/csharp_package/brainflow/examples/eeg_metrics/bin/Release/net7.0
         ./eeg_metrics --board-id -1
       env:
         DYLD_PRINT_LIBRARIES: 1

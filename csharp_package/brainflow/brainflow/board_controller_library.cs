@@ -386,87 +386,87 @@ namespace brainflow
 
     public static class BoardControllerLibraryMac
     {
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int prepare_session (int board_id, string input_json);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int start_stream (int buffer_size, string streamer_params, int board_id, string input_json);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int insert_marker (double value, int preset, int board_id, string input_json);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int stop_stream (int board_id, string input_json);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int release_session (int board_id, string input_json);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_current_board_data (int num_samples, int preset, [In, Out][MarshalAs (UnmanagedType.LPArray, ArraySubType = UnmanagedType.R8)] double[,] data_buf, int[] returned_samples, int board_id, string input_json);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_board_data_count (int preset, int[] result, int board_id, string input_json);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_board_data (int data_count, int preset, [In, Out][MarshalAs (UnmanagedType.LPArray, ArraySubType = UnmanagedType.R8)] double[,] data_buf, int board_id, string input_json);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_level_board_controller (int log_level);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int log_message_board_controller (int log_level, string message);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int config_board (string config, byte[] response, int[] len, int board_id, string input_json);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_file_board_controller (string log_file);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_sampling_rate (int board_id, int preset, int[] sampling_rate);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_timestamp_channel (int board_id, int preset, int[] timestamp_channel);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_marker_channel (int board_id, int preset, int[] marker_channel);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_package_num_channel (int board_id, int preset, int[] package_num_channel);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_battery_channel (int board_id, int preset, int[] battery_channel);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_num_rows (int board_id, int preset, int[] num_rows);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_eeg_channels (int board_id, int preset, int[] channels, int[] len);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_emg_channels (int board_id, int preset, int[] channels, int[] len);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_ecg_channels (int board_id, int preset, int[] channels, int[] len);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_eog_channels (int board_id, int preset, int[] channels, int[] len);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_eda_channels (int board_id, int preset, int[] channels, int[] len);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_ppg_channels (int board_id, int preset, int[] channels, int[] len);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_accel_channels (int board_id, int preset, int[] channels, int[] len);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_rotation_channels (int board_id, int preset, int[] channels, int[] len);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_analog_channels (int board_id, int preset, int[] channels, int[] len);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_gyro_channels (int board_id, int preset, int[] channels, int[] len);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_other_channels (int board_id, int preset, int[] channels, int[] len);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_temperature_channels (int board_id, int preset, int[] channels, int[] len);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int is_prepared (int[] prepared, int board_id, string input_json);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_eeg_names (int board_id, int preset, byte[] eeg_names, int[] len);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_resistance_channels (int board_id, int preset, int[] channels, int[] len);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_exg_channels (int board_id, int preset, int[] channels, int[] len);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_device_name (int board_id, int preset, byte[] name, int[] len);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_board_descr (int board_id, int preset, byte[] board_descr, int[] len);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int release_all_sessions ();
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_version_board_controller (byte[] version, int[] len, int max_len);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_board_presets (int board_id, int[] names, int[] len);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int add_streamer (string streamer, int preset, int board_id, string input_json);
-        [DllImport ("BoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libBoardController.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int delete_streamer (string streamer, int preset, int board_id, string input_json);
         [DllImport ("libBoardController", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_magnetometer_channels (int board_id, int preset, int[] channels, int[] len);

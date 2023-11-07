@@ -84,21 +84,21 @@ namespace brainflow
 
     public static class MLModuleLibraryMac
     {
-        [DllImport ("libMLModule", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libMLModule.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_file_ml_module (string log_file);
-        [DllImport ("libMLModule", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libMLModule.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int log_message_ml_module (int log_level, string message);
-        [DllImport ("libMLModule", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libMLModule.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_level_ml_module (int log_level);
-        [DllImport ("libMLModule", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libMLModule.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int prepare (string input_json);
-        [DllImport ("libMLModule", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libMLModule.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int release (string input_json);
-        [DllImport ("libMLModule", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libMLModule.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int predict (double[] data, int data_len, double[] output, int[] output_len, string input_json);
-        [DllImport ("libMLModule", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libMLModule.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int release_all ();
-        [DllImport ("libMLModule", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport ("libMLModule.dylib", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_version_ml_module (byte[] version, int[] len, int max_len);
     }
 
