@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Runtime.InteropServices;
 
 namespace brainflow
 {
@@ -18,28 +18,28 @@ namespace brainflow
         {
             if (library_env == LibraryEnvironment.Unknown)
             {
-                switch (Environment.OSVersion.Platform)
+                if (RuntimeInformation.IsOSPlatform (OSPlatform.Linux))
                 {
-                    case PlatformID.MacOSX:
-                        library_env = LibraryEnvironment.MacOS;
-                        Console.Error.Write ("MacOS platform detected");
-                        break;
-                    case PlatformID.Unix:
-                        library_env = LibraryEnvironment.Linux;
-                        Console.Error.Write ("Linux platform detected");
-                        break;
-                    default:
-                        if (Environment.Is64BitProcess)
-                        {
-                            Console.Error.Write ("Win64 platform detected");
-                            library_env = LibraryEnvironment.x64;
-                        }
-                        else
-                        {
-                            Console.Error.Write ("Win32 platform detected");
-                            library_env = LibraryEnvironment.x86;
-                        }
-                        break;
+                    Console.Error.Write ("Linux platform detected");
+                    library_env = LibraryEnvironment.x64;
+                }
+                if (RuntimeInformation.IsOSPlatform (OSPlatform.OSX))
+                {
+                    Console.Error.Write ("OSX platform detected");
+                    library_env = LibraryEnvironment.MacOS;
+                }
+                if (RuntimeInformation.IsOSPlatform (OSPlatform.Windows))
+                {
+                    if (Environment.Is64BitProcess)
+                    {
+                        Console.Error.Write ("Win64 platform detected");
+                        library_env = LibraryEnvironment.x64;
+                    }
+                    else
+                    {
+                        Console.Error.Write ("Win32 platform detected");
+                        library_env = LibraryEnvironment.x86;
+                    }
                 }
             }
 
