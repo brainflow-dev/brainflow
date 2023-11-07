@@ -18,15 +18,16 @@ namespace brainflow
         {
             if (library_env == LibraryEnvironment.Unknown)
             {
+                // for linux and macos for now we dont add 32 to lib names even for 32 bits
                 if (RuntimeInformation.IsOSPlatform (OSPlatform.Linux))
                 {
                     Console.Error.Write ("Linux platform detected");
-                    library_env = LibraryEnvironment.Linux;
+                    library_env = LibraryEnvironment.x64;
                 }
                 if (RuntimeInformation.IsOSPlatform (OSPlatform.OSX))
                 {
                     Console.Error.Write ("OSX platform detected");
-                    library_env = LibraryEnvironment.MacOS;
+                    library_env = LibraryEnvironment.x64;
                 }
                 if (RuntimeInformation.IsOSPlatform (OSPlatform.Windows))
                 {
