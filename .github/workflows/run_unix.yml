@@ -153,7 +153,8 @@ jobs:
     # start testing
     - name: Run unit tests
       run: $GITHUB_WORKSPACE/build/tests/brainflow_tests
-    - name: Synthetic C# Test
+    - name: Synthetic C# Test MacOS
+      if: (matrix.os == 'macos-11.0')
       run: |
         cd $GITHUB_WORKSPACE/csharp_package/brainflow/examples/brainflow_get_data/bin/Release/net7.0
         cp $GITHUB_WORKSPACE/installed/lib/libBoardController.dylib $GITHUB_WORKSPACE/csharp_package/brainflow/examples/brainflow_get_data/bin/Release/net7.0/
@@ -162,12 +163,31 @@ jobs:
         DYLD_PRINT_LIBRARIES: 1
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
         DYLD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
-    - name: EEG Metrics C# Test
+    - name: EEG Metrics C# Test MacOS
+      if: (matrix.os == 'macos-11.0')
       run: |
         cd $GITHUB_WORKSPACE/csharp_package/brainflow/examples/eeg_metrics/bin/Release/net7.0
-        cp $GITHUB_WORKSPACE/installed/lib/libBoardController.dylib $GITHUB_WORKSPACE/csharp_package/brainflow/examples/brainflow_get_data/bin/Release/net7.0/
-        cp $GITHUB_WORKSPACE/installed/lib/libDataHandler.dylib $GITHUB_WORKSPACE/csharp_package/brainflow/examples/brainflow_get_data/bin/Release/net7.0/
-        cp $GITHUB_WORKSPACE/installed/lib/libMLModule.dylib $GITHUB_WORKSPACE/csharp_package/brainflow/examples/brainflow_get_data/bin/Release/net7.0/
+        cp $GITHUB_WORKSPACE/installed/lib/libBoardController.dylib $GITHUB_WORKSPACE/csharp_package/brainflow/examples/eeg_metrics/bin/Release/net7.0/
+        cp $GITHUB_WORKSPACE/installed/lib/libDataHandler.dylib $GITHUB_WORKSPACE/csharp_package/brainflow/examples/eeg_metrics/bin/Release/net7.0/
+        cp $GITHUB_WORKSPACE/installed/lib/libMLModule.dylib $GITHUB_WORKSPACE/csharp_package/brainflow/examples/eeg_metrics/bin/Release/net7.0/
+        ./eeg_metrics --board-id -1
+      env:
+        DYLD_PRINT_LIBRARIES: 1
+        LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
+        DYLD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
+    - name: Synthetic C# Test Ubuntu
+      if: (matrix.os == 'ubuntu-20.04')
+      run: |
+        cd $GITHUB_WORKSPACE/csharp_package/brainflow/examples/brainflow_get_data/bin/Release/net7.0
+        ./brainflow_get_data --board-id -1
+      env:
+        DYLD_PRINT_LIBRARIES: 1
+        LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
+        DYLD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
+    - name: EEG Metrics C# Test Ubuntu
+      if: (matrix.os == 'ubuntu-20.04')
+      run: |
+        cd $GITHUB_WORKSPACE/csharp_package/brainflow/examples/eeg_metrics/bin/Release/net7.0
         ./eeg_metrics --board-id -1
       env:
         DYLD_PRINT_LIBRARIES: 1
