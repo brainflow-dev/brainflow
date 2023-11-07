@@ -88,7 +88,7 @@ class GaleaEmulator(object):
                                 if (self.debug_mode):
                                     print(t, i, channel)
                             if (self.channel_on_off[channel - 1] == 1):
-                                single_package.append(random.randint(0, 255))
+                                single_package.append(random.randint(0, 80))
                             else:
                                single_package.append(0)
                         else:
