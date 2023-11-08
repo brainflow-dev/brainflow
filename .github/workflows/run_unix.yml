@@ -21,6 +21,10 @@ jobs:
       run: if [ $GITHUB_REF_TYPE == "tag" ]; then echo "::set-output name=version::$GITHUB_REF_NAME"; else echo "::set-output name=version::$GITHUB_SHA"; fi
     - name: Check Version
       run: echo ${{ steps.version.outputs.version }}
+    - name: Install dotnet
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '7.0.x'
     - name: Install Python 3.7
       uses: actions/setup-python@v3
       with:
@@ -94,6 +98,11 @@ jobs:
         docker run -e BRAINFLOW_VERSION=$BRAINFLOW_VERSION -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE dockcross/manylinux2014-x64:20210708-94745ff /bin/bash -c "yum install -y bluez-libs-devel dbus-devel && /opt/python/cp36-cp36m/bin/pip3.6 install cmake==3.21.4 && cd $GITHUB_WORKSPACE && mkdir build_docker && cd build_docker && /opt/_internal/cpython-3.6.14/bin/cmake -DBRAINFLOW_VERSION=$BRAINFLOW_VERSION -DBUILD_ONNX=ON -DBUILD_BLE=ON -DBUILD_BLUETOOTH=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed_docker -DCMAKE_BUILD_TYPE=Release .. && make && make install"
       env:
         BRAINFLOW_VERSION: ${{ steps.version.outputs.version }}
+    - name: C# build
+      run: |
+        cd $GITHUB_WORKSPACE/csharp_package/brainflow
+        dotnet restore brainflow.sln
+        dotnet build brainflow.sln -c Release
     - name: Setup Python Package
       run: |
         cd $GITHUB_WORKSPACE/python_package
@@ -144,6 +153,46 @@ jobs:
     # start testing
     - name: Run unit tests
       run: $GITHUB_WORKSPACE/build/tests/brainflow_tests
+    - name: Synthetic C# Test MacOS
+      if: (matrix.os == 'macos-11.0')
+      run: |
+        cd $GITHUB_WORKSPACE/csharp_package/brainflow/examples/brainflow_get_data/bin/Release/net7.0
+        cp $GITHUB_WORKSPACE/installed/lib/libBoardController.dylib $GITHUB_WORKSPACE/csharp_package/brainflow/examples/brainflow_get_data/bin/Release/net7.0/
+        ./brainflow_get_data --board-id -1
+      env:
+        DYLD_PRINT_LIBRARIES: 1
+        LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
+        DYLD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
+    - name: EEG Metrics C# Test MacOS
+      if: (matrix.os == 'macos-11.0')
+      run: |
+        cd $GITHUB_WORKSPACE/csharp_package/brainflow/examples/eeg_metrics/bin/Release/net7.0
+        cp $GITHUB_WORKSPACE/installed/lib/libBoardController.dylib $GITHUB_WORKSPACE/csharp_package/brainflow/examples/eeg_metrics/bin/Release/net7.0/
+        cp $GITHUB_WORKSPACE/installed/lib/libDataHandler.dylib $GITHUB_WORKSPACE/csharp_package/brainflow/examples/eeg_metrics/bin/Release/net7.0/
+        cp $GITHUB_WORKSPACE/installed/lib/libMLModule.dylib $GITHUB_WORKSPACE/csharp_package/brainflow/examples/eeg_metrics/bin/Release/net7.0/
+        ./eeg_metrics --board-id -1
+      env:
+        DYLD_PRINT_LIBRARIES: 1
+        LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
+        DYLD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
+    - name: Synthetic C# Test Ubuntu
+      if: (matrix.os == 'ubuntu-20.04')
+      run: |
+        cd $GITHUB_WORKSPACE/csharp_package/brainflow/examples/brainflow_get_data/bin/Release/net7.0
+        ./brainflow_get_data --board-id -1
+      env:
+        DYLD_PRINT_LIBRARIES: 1
+        LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
+        DYLD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
+    - name: EEG Metrics C# Test Ubuntu
+      if: (matrix.os == 'ubuntu-20.04')
+      run: |
+        cd $GITHUB_WORKSPACE/csharp_package/brainflow/examples/eeg_metrics/bin/Release/net7.0
+        ./eeg_metrics --board-id -1
+      env:
+        DYLD_PRINT_LIBRARIES: 1
+        LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
+        DYLD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Run All Julia Tests
       run: |
         export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/installed/lib:$LD_LIBRARY_PATH
