@@ -42,6 +42,7 @@ GanglionNative::GanglionNative (struct BrainFlowInputParams params)
     is_streaming = false;
     start_command = "b";
     stop_command = "s";
+    firmware = 0;
 }
 
 GanglionNative::~GanglionNative ()
@@ -316,6 +317,13 @@ int GanglionNative::release_session ()
 
 int GanglionNative::config_board (std::string config, std::string &response)
 {
+    // todo do smth to unify available commands
+    // and make them more or less standard between devices
+    if (config == "get_firmware_version")
+    {
+        response = std::to_string (firmware);
+        return (int)BrainFlowExitCodes::STATUS_OK;
+    }
     return config_board (config);
 }
 

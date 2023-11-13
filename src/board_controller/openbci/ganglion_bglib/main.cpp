@@ -24,7 +24,7 @@ namespace GanglionLib
     std::deque<struct GanglionLib::GanglionData> data_queue;
     SpinLock lock;
     volatile bd_addr connect_addr;
-    volatile uint8 firmware = 2;
+    volatile uint8 firmware = 0;
     volatile uint8 connection = -1;
     volatile uint16 ganglion_handle_start = 0;
     volatile uint16 ganglion_handle_end = 0;
