@@ -30,6 +30,7 @@ Ganglion::Ganglion (struct BrainFlowInputParams params)
         is_valid = true;
     }
     use_mac_addr = (params.mac_address.empty ()) ? false : true;
+    firmware = 0;
     is_streaming = false;
     keep_alive = false;
     initialized = false;
@@ -554,6 +555,11 @@ void Ganglion::decompress_firmware_2 (
 
 int Ganglion::config_board (std::string config, std::string &response)
 {
+    if (config == "get_firmware_version")
+    {
+        response = std::to_string (firmware);
+        return (int)BrainFlowExitCodes::STATUS_OK;
+    }
     const char *conf = config.c_str ();
     safe_logger (spdlog::level::debug, "Trying to config Ganglion with {}", conf);
     // need to pause, config and restart. I have no idea why it doesnt work if I restart it inside
