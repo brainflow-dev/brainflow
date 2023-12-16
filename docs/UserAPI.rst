@@ -63,7 +63,6 @@ BoardShim class
 .. doxygenclass:: BoardShim
    :members:
    :project: BrainFlowCpp
-   :undoc-members:
 
 DataFilter class
 ~~~~~~~~~~~~~~~~~~
@@ -71,7 +70,6 @@ DataFilter class
 .. doxygenclass:: DataFilter
    :members:
    :project: BrainFlowCpp
-   :undoc-members:
 
 MLModel class
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -79,7 +77,6 @@ MLModel class
 .. doxygenclass:: MLModel
    :members:
    :project: BrainFlowCpp
-   :undoc-members:
 
 BrainFlow constants
 ~~~~~~~~~~~~~~~~~~~~~
@@ -94,7 +91,6 @@ Content of Brainflow Package:
 
 .. doxygennamespace:: brainflow
    :project: BrainFlowJava
-   :undoc-members:
    :members:
    :content-only:
 
@@ -106,7 +102,6 @@ Content of brainflow namespace:
 
 .. doxygennamespace:: brainflow
    :project: BrainFlowCsharp
-   :undoc-members:
    :members:
    :content-only:
 
@@ -134,7 +129,6 @@ A few general rules to keep in mind:
 
 .. mat:automodule:: brainflow
    :members:
-   :undoc-members:
    :show-inheritance:
 
 
