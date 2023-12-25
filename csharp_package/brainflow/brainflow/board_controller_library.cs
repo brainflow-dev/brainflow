@@ -143,6 +143,8 @@ namespace brainflow
         [DllImport ("BoardController", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int config_board (string config, byte[] response, int[] len, int board_id, string input_json);
         [DllImport ("BoardController", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int config_board_with_bytes (byte[] bytes, int len, int board_id, string input_json);
+        [DllImport ("BoardController", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_file_board_controller (string log_file);
         [DllImport ("BoardController", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int get_sampling_rate (int board_id, int preset, int[] sampling_rate);
@@ -230,6 +232,8 @@ namespace brainflow
         public static extern int log_message_board_controller (int log_level, string message);
         [DllImport ("BoardController32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int config_board (string config, byte[] response, int[] len, int board_id, string input_json);
+        [DllImport ("BoardController32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int config_board_with_bytes (byte[] bytes, int len, int board_id, string input_json);
         [DllImport ("BoardController32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern int set_log_file_board_controller (string log_file);
         [DllImport ("BoardController32", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
@@ -451,6 +455,19 @@ namespace brainflow
                     return BoardControllerLibrary64.config_board (config, str, len, board_id, input_json);
                 case LibraryEnvironment.x86:
                     return BoardControllerLibrary32.config_board (config, str, len, board_id, input_json);
+            }
+
+            return (int)BrainFlowExitCodes.GENERAL_ERROR;
+        }
+
+        public static int config_board_with_bytes (byte[] bytes, int len, int board_id, string input_json)
+        {
+            switch (PlatformHelper.get_library_environment ())
+            {
+                case LibraryEnvironment.x64:
+                    return BoardControllerLibrary64.config_board_with_bytes (bytes, len, board_id, input_json);
+                case LibraryEnvironment.x86:
+                    return BoardControllerLibrary32.config_board_with_bytes (bytes, len, board_id, input_json);
             }
 
             return (int)BrainFlowExitCodes.GENERAL_ERROR;

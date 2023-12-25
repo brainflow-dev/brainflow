@@ -68,6 +68,7 @@ class BoardControllerDLL extends BoardControllerFunctions
         this.prepareSession = this.lib.func(CLike.prepare_session);
         this.startStream = this.lib.func(CLike.start_stream);
         this.configBoard = this.lib.func(CLike.config_board);
+        this.configBoardWithBytes = this.lib.func(CLike.config_board_with_bytes);
         this.getBoardDataCount = this.lib.func(CLike.get_board_data_count);
         this.getBoardData = this.lib.func(CLike.get_board_data);
         this.getCurrentBoardData = this.lib.func(CLike.get_current_board_data);
@@ -283,6 +284,16 @@ export class BoardShim
             throw new BrainFlowError (res, 'Could not config board');
         }
         return out[0].substring(0, len[0]);
+    }
+
+    public configBoardWithBytes(config: string, len: number): void
+    {
+        const res = BoardControllerDLL.getInstance().configBoardWithBytes(
+            config, len, this.boardId, this.inputJson);
+        if (res !== BrainFlowExitCodes.STATUS_OK)
+        {
+            throw new BrainFlowError (res, 'Could not config board with bytes');
+        }
     }
 
     public getBoardDataCount(preset = BrainFlowPresets.DEFAULT_PRESET): number

@@ -240,6 +240,19 @@ impl BoardShim {
             .to_string())
     }
 
+    /// Use this method carefully and only if you understand what you are doing.
+    pub fn config_board_with_bytes(&self, bytes: Vec<i8>) -> Result<()> {
+        let res = unsafe {
+            board_controller::config_board_with_bytes(
+                bytes.as_ptr(),
+                bytes.len() as c_int,
+                self.board_id as c_int,
+                self.json_brainflow_input_params.as_ptr(),
+            )
+        };
+        Ok(check_brainflow_exit_code(res)?)
+    }
+
     /// Insert Marker to Data Stream.
     pub fn insert_marker(&self, value: f64, preset: BrainFlowPresets) -> Result<()> {
         let res = unsafe {

@@ -725,6 +725,19 @@ namespace brainflow
             string response = System.Text.Encoding.UTF8.GetString (str, 0, len[0]);
             return response;
         }
+        
+        /// <summary>
+        /// send raw bytes to device, dont use it
+        /// </summary>
+        /// <param name="bytes"></param>
+        public void config_board_with_bytes (byte[] bytes)
+        {
+            int res = BoardControllerLibrary.config_board_with_bytes (bytes, bytes.Length, board_id, input_json);
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+        }
 
         /// <summary>
         /// add streamer

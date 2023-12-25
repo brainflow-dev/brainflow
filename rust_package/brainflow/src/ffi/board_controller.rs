@@ -259,6 +259,14 @@ extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
+    pub fn config_board_with_bytes(
+        bytes: *const ::std::os::raw::c_char,
+        len: ::std::os::raw::c_int,
+        board_id: ::std::os::raw::c_int,
+        json_brainflow_input_params: *const ::std::os::raw::c_char,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
     pub fn is_prepared(
         prepared: *mut ::std::os::raw::c_int,
         board_id: ::std::os::raw::c_int,

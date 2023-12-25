@@ -258,3 +258,14 @@ int SyntheticBoard::config_board (std::string config, std::string &response)
     response = "Config:" + config;
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
+
+// if you use this board as a reference, more likely you dont need to implement this method
+int SyntheticBoard::config_board_with_bytes (const char *bytes, int len)
+{
+    safe_logger (spdlog::level::info, "config_board_with_bytes for len: {}", len);
+    for (int i = 0; i < len; i++)
+    {
+        safe_logger (spdlog::level::trace, "byte: {} value: {}", i, (int)bytes[i]);
+    }
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}

@@ -287,6 +287,11 @@ end
     return sub_string
 end
 
+@brainflow_rethrow function config_board_with_bytes(bytes::Vector{Cuchar}, len::Integer, board_shim::BoardShim)
+    ccall((:config_board_with_bytes, BOARD_CONTROLLER_INTERFACE), Cint, (Ptr{UInt8}, Cint, Cint, Ptr{UInt8}),
+            bytes, len, board_shim.board_id, board_shim.input_json)
+end
+
 @brainflow_rethrow function get_board_data(num_samples::Integer, board_shim::BoardShim, preset::PresetType=Integer(DEFAULT_PRESET))
     data_size = get_board_data_count(board_shim, preset)
     if num_samples < 0
