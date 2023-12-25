@@ -25,6 +25,8 @@ public class BoardShim
 
         int config_board (String config, byte[] names, int[] len, int board_id, String params);
 
+        int config_board_with_bytes (byte[] bytes, int len, int board_id, String params);
+
         int add_streamer (String streamer, int preset, int board_id, String params);
 
         int delete_streamer (String streamer, int preset, int board_id, String params);
@@ -1415,6 +1417,18 @@ public class BoardShim
         }
         String resp = new String (str, 0, len[0]);
         return resp;
+    }
+
+    /**
+     * send string to a board, dont use it
+     */
+    public void config_board_with_bytes (byte[] bytes) throws BrainFlowError
+    {
+        int ec = instance.config_board_with_bytes (bytes, bytes.length, board_id, input_json);
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in config_board", ec);
+        }
     }
 
     /**

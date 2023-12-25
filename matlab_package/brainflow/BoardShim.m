@@ -385,6 +385,14 @@ classdef BoardShim
             [exit_code, tmp, response] = calllib(lib_name, task_name, config, blanks(4096), 4096, obj.board_id, obj.input_params_json);
             BoardShim.check_ec(exit_code, task_name);
         end
+        
+        function config_board_with_bytes(obj, bytes)
+            % send bytes to the board, do not use it
+            task_name = 'config_board_with_bytes';
+            lib_name = BoardShim.load_lib();
+            exit_code = calllib(lib_name, task_name, bytes, size(bytes, 2), obj.board_id, obj.input_params_json);
+            BoardShim.check_ec(exit_code, task_name);
+        end
 
         function add_streamer(obj, streamer, preset)
             % add streamer

@@ -54,6 +54,13 @@ public:
     virtual int release_session () = 0;
     virtual int config_board (std::string config, std::string &response) = 0;
 
+    // some devices may implement it but there is no requirement to have this method and we do not
+    // recommend anybody to use it
+    virtual int config_board_with_bytes (const char *bytes, int len)
+    {
+        return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
+    }
+
     int get_current_board_data (
         int num_samples, int preset, double *data_buf, int *returned_samples);
     int get_board_data_count (int preset, int *result);

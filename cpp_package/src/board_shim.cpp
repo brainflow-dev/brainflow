@@ -244,6 +244,15 @@ std::string BoardShim::config_board (std::string config)
     return resp;
 }
 
+void BoardShim::config_board_with_bytes (const char *bytes, int len)
+{
+    int res = ::config_board_with_bytes (bytes, len, board_id, serialized_params.c_str ());
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to config board with bytes", res);
+    }
+}
+
 void BoardShim::insert_marker (double value, int preset)
 {
     int res = ::insert_marker (value, preset, board_id, serialized_params.c_str ());

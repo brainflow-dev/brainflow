@@ -33,6 +33,8 @@ export enum BoardControllerCLikeFunctions {
         'int add_streamer (const char *streamer, int preset, int board_id, const char *json_brainflow_input_params)',
     config_board =
         'int config_board (const char *config, _Inout_ char *response, _Inout_ int *resp_len, int board_id, const char *json_brainflow_input_params)',
+    config_board_with_bytes =
+        'int config_board_with_bytes (const char *bytes, int len, int board_id, const char *json_brainflow_input_params)',
     delete_streamer =
         'int delete_streamer (const char *streamer, int preset, int board_id, const char *json_brainflow_input_params)',
     insert_marker =
@@ -136,6 +138,12 @@ export class BoardControllerFunctions
         config: string,
         response: string[],
         responseLen: number[],
+        boardId: BoardIds,
+        inputJson: string,
+        ) => BrainFlowExitCodes;
+    configBoardWithBytes!: (
+        config: string,
+        len: number,
         boardId: BoardIds,
         inputJson: string,
         ) => BrainFlowExitCodes;

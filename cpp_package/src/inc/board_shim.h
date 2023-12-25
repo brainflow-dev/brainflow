@@ -263,6 +263,8 @@ public:
     BrainFlowArray<double, 2> get_board_data (int num_datapoints, int preset);
     /// send string to a board, use it carefully and only if you understand what you are doing
     std::string config_board (std::string config);
+    /// send raw bytes to a board, not implemented for majority of devices, not recommended to use
+    void config_board_with_bytes (const char *bytes, int len);
     /// insert marker in data stream
     void insert_marker (double value, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
 };

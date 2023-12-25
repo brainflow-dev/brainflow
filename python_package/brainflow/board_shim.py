@@ -313,6 +313,15 @@ class BoardControllerDLL(object):
             ctypes.c_char_p
         ]
 
+        self.config_board_with_bytes = self.lib.config_board_with_bytes
+        self.config_board_with_bytes.restype = ctypes.c_int
+        self.config_board_with_bytes.argtypes = [
+            ndpointer(ctypes.c_ubyte),
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_char_p
+        ]
+
         self.get_sampling_rate = self.lib.get_sampling_rate
         self.get_sampling_rate.restype = ctypes.c_int
         self.get_sampling_rate.argtypes = [
@@ -1360,7 +1369,7 @@ class BoardShim(object):
 
         return data_arr.reshape(package_length, data_size)
 
-    def config_board(self, config) -> None:
+    def config_board(self, config) -> str:
         """Use this method carefully and only if you understand what you are doing, do NOT use it to start or stop streaming
 
         :param config: string to send to a board
@@ -1380,3 +1389,13 @@ class BoardShim(object):
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to config board', res)
         return string.tobytes().decode('utf-8')[0:string_len[0]]
+
+    def config_board_with_bytes(self, bytes_to_send) -> None:
+        """Use this method carefully and only if you understand what you are doing
+    
+        :param bytes_to_send: bytes to send
+        :type config: ndarray astype(numpy.ubyte)
+        """
+        res = BoardControllerDLL.get_instance().config_board_with_bytes(bytes_to_send, len(bytes_to_send), self.board_id, self.input_json)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to config board', res)

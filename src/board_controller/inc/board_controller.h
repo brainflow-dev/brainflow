@@ -24,6 +24,8 @@ extern "C"
         double *data_buf, int board_id, const char *json_brainflow_input_params);
     SHARED_EXPORT int CALLING_CONVENTION config_board (const char *config, char *response,
         int *response_len, int board_id, const char *json_brainflow_input_params);
+    SHARED_EXPORT int CALLING_CONVENTION config_board_with_bytes (
+        const char *bytes, int len, int board_id, const char *json_brainflow_input_params);
     SHARED_EXPORT int CALLING_CONVENTION is_prepared (
         int *prepared, int board_id, const char *json_brainflow_input_params);
     SHARED_EXPORT int CALLING_CONVENTION insert_marker (
