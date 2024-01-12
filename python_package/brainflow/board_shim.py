@@ -72,6 +72,8 @@ class BoardIds(enum.IntEnum):
     ANT_NEURO_EE_511_BOARD = 51  #:
     FREEEEG128_BOARD = 52  #:
     AAVAA_V3_BOARD = 53 #:
+    EXPLORE_PLUS_8_CHAN_BOARD = 54 #:
+    EXPLORE_PLUS_32_CHAN_BOARD = 55 #:
 
 
 class IpProtocolTypes(enum.IntEnum):
