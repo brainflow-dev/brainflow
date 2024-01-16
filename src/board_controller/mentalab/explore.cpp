@@ -306,6 +306,12 @@ void Explore::read_thread ()
             case 0x1e: // eeg99s
                 parse_eeg_data (&header, package_exg, payload_buffer, 4.5, 16);
                 break;
+            case 0x96: // eeg98 plus
+                parse_eeg_data (&header, package_exg, payload_buffer, 2.4, 16);
+                break;
+            case 0x94: // eeg32 plus
+                parse_eeg_data (&header, package_exg, payload_buffer, 2.4, 4);
+                break;
             case 0x13: // env
                 parse_env_data (&header, package_anc, payload_buffer);
                 break;
