@@ -28,10 +28,11 @@ jobs:
       uses: jwlawson/actions-setup-cmake@v1.4
       with:
         cmake-version: '3.16.x'
-    - name: Setup NDK
-      uses: nttld/setup-ndk@v1
-      with:
-        ndk-version: 25.1.8937393
+    - name: Install NDK
+      run: |
+        echo "y" | sudo -H ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;${ANDROID_NDK_VERSION}" --sdk_root=${ANDROID_SDK_ROOT} > /dev/null
+      env:
+        DEBIAN_FRONTEND: noninteractive
     # build for all ABIs
     - name: Compile libusb
       run: |
