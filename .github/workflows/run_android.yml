@@ -10,7 +10,7 @@ jobs:
       fail-fast: false
       max-parallel: 4
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-20.04]
 
     env:
       ANDROID_NDK_VERSION: 25.1.8937393
