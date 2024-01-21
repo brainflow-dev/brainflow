@@ -66,6 +66,8 @@ export enum BoardIds {
     GALEA_SERIAL_BOARD_V4 = 49,
     NTL_WIFI_BOARD = 50,
     ANT_NEURO_EE_511_BOARD = 51,
+    EXPLORE_PLUS_8_CHAN_BOARD = 54,
+    EXPLORE_PLUS_32_CHAN_BOARD = 55
 }
 
 export enum IpProtocolTypes {
