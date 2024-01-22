@@ -926,9 +926,9 @@ BrainFlowBoards::BrainFlowBoards()
         {"timestamp_channel", 27},
         {"marker_channel", 28},
         {"num_rows", 29},
-        {"eeg_channels", {7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24}},
-        {"eeg_names", "Fp1,Fp2,F1,C3,F2,Cz,C4,Pz,P4,O2,P3,O1,X1,X2,X3,X4,X5,X6"},
-        {"emg_channels", {1, 2, 3, 4}},
+        {"eeg_channels", {9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24}},
+        {"eeg_names", "F1,C3,F2,Cz,C4,Pz,P4,O2,P3,O1,X1,X2,X3,X4,X5,X6"},
+        {"emg_channels", {1, 2, 3, 4, 7, 8}},
         {"eog_channels", {5, 6}},
         {"other_channels", {25, 26}},
     };
