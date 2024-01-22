@@ -221,8 +221,8 @@ class GaleaV4GainTracker : public OpenBCIGainTracker
 {
 public:
     GaleaV4GainTracker ()
-        : OpenBCIGainTracker ({4, 4, 4, 4, 4, 4, 12, 12, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-              2, 2}) // to be confirmed
+        : OpenBCIGainTracker ({4, 4, 4, 4, 4, 4, 4, 4, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+              12, 12, 12, 12, 12}) // to be confirmed
     {
         channel_letters = std::vector<char> {'1', '2', '3', '4', '5', '6', '7', '8', 'Q', 'W', 'E',
             'R', 'T', 'Y', 'U', 'I', 'A', 'S', 'D', 'G', 'H', 'J', 'K', 'L'};
@@ -242,17 +242,13 @@ public:
                 std::copy (current_gains.begin (), current_gains.end (), old_gains.begin ());
                 for (size_t i = 0; i < current_gains.size (); i++)
                 {
-                    if (i < 6)
+                    if (i < 8)
                     {
                         current_gains[i] = 4;
                     }
-                    else if ((i == 6) || (i == 7))
-                    {
-                        current_gains[i] = 12;
-                    }
                     else
                     {
-                        current_gains[i] = 2;
+                        current_gains[i] = 12;
                     }
                 }
             }
