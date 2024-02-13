@@ -116,6 +116,23 @@ int GaleaV4::config_board (std::string conf, std::string &response)
         return res;
     }
 
+    if (conf == "get_gains")
+    {
+        std::stringstream gains;
+
+        for (int i = 0; i < 20; i++)
+        {
+            gains << gain_tracker.get_gain_for_channel (i);
+            if (i < 19)
+            {
+                gains << ", ";
+            }
+        }
+        response = gains.str ();
+        safe_logger (spdlog::level::info, "gains for all channels: {}", response);
+        return (int)BrainFlowExitCodes::STATUS_OK;
+    }
+
     if (gain_tracker.apply_config (conf) == (int)OpenBCICommandTypes::INVALID_COMMAND)
     {
         safe_logger (spdlog::level::warn, "invalid command: {}", conf.c_str ());
@@ -190,6 +207,13 @@ int GaleaV4::config_board (std::string conf, std::string &response)
         safe_logger (spdlog::level::warn,
             "reconfiguring device during the streaming may lead to inconsistent data, it's "
             "recommended to call stop_stream before config_board");
+    }
+
+    // log gain for all channels
+    for (int i = 0; i < 28; i++)
+    {
+        safe_logger (spdlog::level::info, "gain for channel {} is {}", i,
+            gain_tracker.get_gain_for_channel (i));
     }
 
     return (int)BrainFlowExitCodes::STATUS_OK;
