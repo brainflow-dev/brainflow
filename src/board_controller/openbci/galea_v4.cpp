@@ -74,7 +74,7 @@ int GaleaV4::prepare_session ()
     socket->set_timeout (socket_timeout);
     // force default settings for device
     std::string tmp;
-    std::string default_settings = "o"; // use demo mode with agnd
+    std::string default_settings = "d"; // use default mode
     res = config_board (default_settings, tmp);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
@@ -88,7 +88,7 @@ int GaleaV4::prepare_session ()
     res = config_board (sampl_rate, tmp);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
-        safe_logger (spdlog::level::err, "failed to apply defaul sampling rate");
+        safe_logger (spdlog::level::err, "failed to apply default sampling rate");
         delete socket;
         socket = NULL;
         return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
@@ -114,6 +114,23 @@ int GaleaV4::config_board (std::string conf, std::string &response)
         }
         int res = calc_time (response);
         return res;
+    }
+
+    if (conf == "get_gains")
+    {
+        std::stringstream gains;
+
+        for (int i = 0; i < 20; i++)
+        {
+            gains << gain_tracker.get_gain_for_channel (i);
+            if (i < 19)
+            {
+                gains << ", ";
+            }
+        }
+        response = gains.str ();
+        safe_logger (spdlog::level::info, "gains for all channels: {}", response);
+        return (int)BrainFlowExitCodes::STATUS_OK;
     }
 
     if (gain_tracker.apply_config (conf) == (int)OpenBCICommandTypes::INVALID_COMMAND)
