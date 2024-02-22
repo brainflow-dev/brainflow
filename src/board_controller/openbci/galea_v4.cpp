@@ -74,7 +74,7 @@ int GaleaV4::prepare_session ()
     socket->set_timeout (socket_timeout);
     // force default settings for device
     std::string tmp;
-    std::string default_settings = "o"; // use demo mode with agnd
+    std::string default_settings = "d"; // use default mode
     res = config_board (default_settings, tmp);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
@@ -88,7 +88,7 @@ int GaleaV4::prepare_session ()
     res = config_board (sampl_rate, tmp);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
-        safe_logger (spdlog::level::err, "failed to apply defaul sampling rate");
+        safe_logger (spdlog::level::err, "failed to apply default sampling rate");
         delete socket;
         socket = NULL;
         return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
@@ -207,13 +207,6 @@ int GaleaV4::config_board (std::string conf, std::string &response)
         safe_logger (spdlog::level::warn,
             "reconfiguring device during the streaming may lead to inconsistent data, it's "
             "recommended to call stop_stream before config_board");
-    }
-
-    // log gain for all channels
-    for (int i = 0; i < 28; i++)
-    {
-        safe_logger (spdlog::level::info, "gain for channel {} is {}", i,
-            gain_tracker.get_gain_for_channel (i));
     }
 
     return (int)BrainFlowExitCodes::STATUS_OK;
