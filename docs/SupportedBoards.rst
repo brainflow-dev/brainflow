@@ -1096,7 +1096,7 @@ BrainAlive Device
     :width: 500px
     :height: 333px
 
-`BrainAlive Website <https://braina.live//>`_
+`BrainAlive Website <https://brainalive.ai/bci>`_
 
 .. compound::
 
