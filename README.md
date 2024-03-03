@@ -1,5 +1,7 @@
 # [BrainFlow Website](https://brainflow.org/)
 
+All changes should be validated locally before pushing to this branch.
+
 ### Setup Docker Container For Development
 
 ```
