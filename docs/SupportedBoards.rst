@@ -1092,7 +1092,7 @@ BrainAlive
 BrainAlive Device
 ~~~~~~~~~~~~~~~~~~
 
-.. image:: https://live.staticflickr.com/65535/51752250946_7915ca2e2b.jpg
+.. image:: https://live.staticflickr.com/65535/53567093967_39a3cf6c9a.jpg
     :width: 500px
     :height: 333px
 
