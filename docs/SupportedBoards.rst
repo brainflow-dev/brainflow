@@ -1093,8 +1093,8 @@ BrainAlive Device
 ~~~~~~~~~~~~~~~~~~
 
 .. image:: https://live.staticflickr.com/65535/53567093967_39a3cf6c9a.jpg
-    :width: 500px
-    :height: 333px
+    :width: 468px
+    :height: 500px
 
 `BrainAlive Website <https://brainalive.ai/bci>`_
 
