@@ -8,7 +8,6 @@
 import Darwin
 
 enum BrainFlowExitCodes : Int32, Error {
-    case UNKNOWN_CODE = -1
     case STATUS_OK = 0
     case PORT_ALREADY_OPEN_ERROR = 1
     case UNABLE_TO_OPEN_PORT_ERROR = 2
@@ -36,6 +35,7 @@ enum BrainFlowExitCodes : Int32, Error {
 }
 
 enum BoardIds : Int32, CaseIterable, Equatable {
+    case NO_BOARD = -100 // only for internal usage
     case PLAYBACK_FILE_BOARD = -3
     case STREAMING_BOARD = -2
     case SYNTHETIC_BOARD = -1
@@ -51,10 +51,8 @@ enum BoardIds : Int32, CaseIterable, Equatable {
     case CALLIBRI_EEG_BOARD = 9
     case CALLIBRI_EMG_BOARD = 10
     case CALLIBRI_ECG_BOARD = 11
-    case FASCIA_BOARD = 12
     case NOTION_1_BOARD = 13
     case NOTION_2_BOARD = 14
-    case IRONBCI_BOARD = 15
     case GFORCE_PRO_BOARD = 16
     case FREEEEG32_BOARD = 17
     case BRAINBIT_BLED_BOARD = 18
@@ -77,6 +75,21 @@ enum BoardIds : Int32, CaseIterable, Equatable {
     case ANT_NEURO_EE_224_BOARD = 35
     case ANT_NEURO_EE_225_BOARD = 36
     case ENOPHONE_BOARD = 37
+    case MUSE_2_BOARD = 38
+    case MUSE_S_BOARD = 39
+    case BRAINALIVE_BOARD = 40
+    case MUSE_2016_BOARD = 41
+    case MUSE_2016_BLED_BOARD = 42
+    case EXPLORE_4_CHAN_BOARD = 44
+    case EXPLORE_8_CHAN_BOARD = 45
+    case GANGLION_NATIVE_BOARD = 46
+    case EMOTIBIT_BOARD = 47
+    case GALEA_BOARD_V4 = 48
+    case GALEA_SERIAL_BOARD_V4 = 49
+    case NTL_WIFI_BOARD = 50
+    case ANT_NEURO_EE_511_BOARD = 51
+    case FREEEEG128_BOARD = 52
+    case AAVAA_V3_BOARD = 53
     
     var name: String {
         get { String(describing: self) }
@@ -93,6 +106,9 @@ enum FilterTypes : Int32 {
     case BUTTERWORTH = 0
     case CHEBYSHEV_TYPE_1 = 1
     case BESSEL = 2
+    case BUTTERWORTH_ZERO_PHASE = 3
+    case CHEBYSHEV_TYPE_1_ZERO_PHASE = 4
+    case BESSEL_ZERO_PHASE = 5
 }
 
 enum AggOperations : Int32 {
@@ -124,6 +140,12 @@ enum BrainFlowClassifiers : Int32, Encodable {
     case DEFAULT_CLASSIFIER = 0
     case DYN_LIB_CLASSIFIER = 1
     case ONNX_CLASSIFIER = 2
+}
+
+enum BrainFlowPresets : Int32 {
+    case DEFAULT_PRESET = 0
+    case AUXILIARY_PRESET = 1
+    case ANCILLARY_PRESET = 2
 }
 
 enum LogLevels : Int32 {

@@ -8,20 +8,18 @@ import Foundation
 //import BrainFlow
 
 struct BoardDescription: Codable, Equatable {
-    let accel_channels: [Int32]
-    let ecg_channels: [Int32]
-    let eeg_channels: [Int32]
-    let eeg_names: String
-    let emg_channels: [Int32]
-    let eog_channels: [Int32]
-    let marker_channel: Int32
-    let name: String
-    let num_rows: Int32
     let package_num_channel: Int32
-    let sampling_rate: Int32
     let timestamp_channel: Int32
-    
-    // optionals:
+    let accel_channels: [Int32]?
+    let ecg_channels: [Int32]?
+    let eeg_channels: [Int32]?
+    let eeg_names: String?
+    let emg_channels: [Int32]?
+    let eog_channels: [Int32]?
+    let marker_channel: Int32?
+    let name: String?
+    let num_rows: Int32?
+    let sampling_rate: Int32?
     let battery_channel: Int32?
     let eda_channels: [Int32]?
     let gyro_channels: [Int32]?

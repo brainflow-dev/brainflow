@@ -27,6 +27,6 @@ func checkErrorCode(_ errorMsg: String, _ errorCode: Int32) throws {
             throw BrainFlowException (errorMsg, bfErrorCode)
         }
     } else {
-        throw BrainFlowException("Invalid error code: \(errorCode)", .UNKNOWN_CODE)
+        throw BrainFlowException("Invalid error code: \(errorCode)", .GENERAL_ERROR)
     }
 }
