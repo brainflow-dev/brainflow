@@ -88,8 +88,8 @@ target_include_directories(kissfft PUBLIC
 
 if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
     target_compile_options(kissfft PRIVATE
-        "$<$<COMPILE_LANGUAGE:CXX>:-ffast-math -fomit-frame-pointer -W -Wall -Wcast-align -Wcast-qual -Wwrite-strings>"
-        "$<$<COMPILE_LANGUAGE:C>:-Wstrict-prototypes;-Wmissing-prototypes;-Wnested-externs;-Wbad-function-cast>")
+        $<$<COMPILE_LANGUAGE:CXX>:-ffast-math -fomit-frame-pointer -W -Wall -Wcast-align -Wcast-qual -Wwrite-strings>
+        $<$<COMPILE_LANGUAGE:C>:-Wstrict-prototypes;-Wmissing-prototypes;-Wnested-externs;-Wbad-function-cast>)
 endif()
 
 #
