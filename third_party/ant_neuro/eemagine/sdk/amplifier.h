@@ -53,6 +53,7 @@
 #include <eemagine/sdk/channel.h>
 #include <eemagine/sdk/exceptions.h>
 #include <eemagine/sdk/stream.h>
+#include <cstdint>
 
 namespace eemagine
 {
