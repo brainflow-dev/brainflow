@@ -47,13 +47,14 @@
 #define __eemagine_sdk_amplifier_h__
 
 // system
+#include <cstdint>
 #include <string>
 #include <vector>
 // eemagine
 #include <eemagine/sdk/channel.h>
 #include <eemagine/sdk/exceptions.h>
 #include <eemagine/sdk/stream.h>
-#include <cstdint>
+
 
 namespace eemagine
 {
