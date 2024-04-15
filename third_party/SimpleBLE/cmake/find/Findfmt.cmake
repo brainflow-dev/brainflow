@@ -3,7 +3,7 @@
 
 include(FetchContent)
 
-if (LIBFMT_VENDORIZE)
+if(LIBFMT_VENDORIZE)
 
     # Load default parameters passed in through the command line.
     if(NOT LIBFMT_GIT_REPOSITORY)
@@ -33,4 +33,6 @@ if (LIBFMT_VENDORIZE)
     # https://cmake.org/cmake/help/latest/manual/cmake-developer.7.html
     set(fmt_FOUND 1)
 
+else()
+    find_package(fmt CONFIG REQUIRED)
 endif()

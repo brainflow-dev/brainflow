@@ -18,16 +18,22 @@ SocketServerTCP::SocketServerTCP (const char *local_ip, int local_port, bool rec
     server_socket = INVALID_SOCKET;
     connected_socket = INVALID_SOCKET;
     client_connected = false;
+    wsa_initialized = false;
 }
 
 int SocketServerTCP::bind ()
 {
+    if (wsa_initialized)
+    {
+        return (int)SocketServerTCPReturnCodes::SOCKET_ALREADY_CREATED_ERROR;
+    }
     WSADATA wsadata;
     int res = WSAStartup (MAKEWORD (2, 2), &wsadata);
     if (res != 0)
     {
         return (int)SocketServerTCPReturnCodes::WSA_STARTUP_ERROR;
     }
+    wsa_initialized = true;
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons (local_port);
     if (inet_pton (AF_INET, local_ip, &server_addr.sin_addr) == 0)
@@ -96,6 +102,20 @@ void SocketServerTCP::accept_worker ()
     }
 }
 
+int SocketServerTCP::send (const void *data, int size)
+{
+    if (connected_socket == INVALID_SOCKET)
+    {
+        return -1;
+    }
+    int res = ::send (connected_socket, (const char *)data, size, 0);
+    if (res == SOCKET_ERROR)
+    {
+        return -1;
+    }
+    return res;
+}
+
 int SocketServerTCP::recv (void *data, int size)
 {
     if (connected_socket == INVALID_SOCKET)
@@ -153,7 +173,11 @@ void SocketServerTCP::close ()
         closesocket (connected_socket);
         connected_socket = INVALID_SOCKET;
     }
-    WSACleanup ();
+    if (wsa_initialized)
+    {
+        WSACleanup ();
+        wsa_initialized = false;
+    }
 }
 
 ///////////////////////////////
@@ -243,6 +267,16 @@ void SocketServerTCP::accept_worker ()
 
         client_connected = true;
     }
+}
+
+int SocketServerTCP::send (const void *data, int size)
+{
+    if (connected_socket <= 0)
+    {
+        return -1;
+    }
+    int res = ::send (connected_socket, (const char *)data, size, 0);
+    return res;
 }
 
 int SocketServerTCP::recv (void *data, int size)

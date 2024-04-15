@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <chrono>
 #include <sstream>
 #include <stdio.h>
@@ -17,6 +18,8 @@
 #define SET_LOOPBACK_FALSE "loopback_false"
 #define NEW_TIMESTAMPS "new_timestamps"
 #define OLD_TIMESTAMPS "old_timestamps"
+#define SET_INDEX_PREFIX "set_index_percentage:"
+#define MAX_LINE_LENGTH 8192
 
 
 PlaybackFileBoard::PlaybackFileBoard (struct BrainFlowInputParams params)
@@ -27,10 +30,10 @@ PlaybackFileBoard::PlaybackFileBoard (struct BrainFlowInputParams params)
 {
     keep_alive = false;
     loopback = false;
-    is_streaming = false;
     initialized = false;
     use_new_timestamps = true;
-    this->state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
+    pos_percentage.resize (3);
+    std::fill (pos_percentage.begin (), pos_percentage.end (), -1);
 }
 
 PlaybackFileBoard::~PlaybackFileBoard ()
@@ -46,19 +49,20 @@ int PlaybackFileBoard::prepare_session ()
         safe_logger (spdlog::level::info, "Session is already prepared");
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
-    if ((params.file.empty ()) || (params.other_info.empty ()))
+
+    if (params.master_board == (int)BoardIds::NO_BOARD)
     {
-        safe_logger (spdlog::level::err, "playback file or master board id not provided");
+        safe_logger (spdlog::level::err, "master board id is not provided");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     try
     {
-        board_id = std::stoi (params.other_info);
-        board_descr = brainflow_boards_json["boards"][std::to_string (board_id)];
+        board_id = params.master_board;
+        board_descr = boards_struct.brainflow_boards_json["boards"][std::to_string (board_id)];
     }
     catch (json::exception &e)
     {
-        safe_logger (spdlog::level::err, "invalid json");
+        safe_logger (spdlog::level::err, "invalid json for master board");
         safe_logger (spdlog::level::err, e.what ());
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
@@ -70,15 +74,45 @@ int PlaybackFileBoard::prepare_session ()
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
-    // check that file exist in prepare_session
-    FILE *fp;
-    fp = fopen (params.file.c_str (), "r");
-    if (fp == NULL)
+    if (!params.file.empty ())
     {
-        safe_logger (spdlog::level::err, "invalid file path");
-        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+        std::vector<long int> offsets;
+        int res = get_file_offsets (params.file, offsets);
+        if (res != (int)BrainFlowExitCodes::STATUS_OK)
+        {
+            return res;
+        }
+        else
+        {
+            file_offsets.push_back (offsets);
+        }
     }
-    fclose (fp);
+    if (!params.file_aux.empty ())
+    {
+        std::vector<long int> offsets;
+        int res = get_file_offsets (params.file_aux, offsets);
+        if (res != (int)BrainFlowExitCodes::STATUS_OK)
+        {
+            return res;
+        }
+        else
+        {
+            file_offsets.push_back (offsets);
+        }
+    }
+    if (!params.file_anc.empty ())
+    {
+        std::vector<long int> offsets;
+        int res = get_file_offsets (params.file_anc, offsets);
+        if (res != (int)BrainFlowExitCodes::STATUS_OK)
+        {
+            return res;
+        }
+        else
+        {
+            file_offsets.push_back (offsets);
+        }
+    }
 
     initialized = true;
     return (int)BrainFlowExitCodes::STATUS_OK;
@@ -87,7 +121,7 @@ int PlaybackFileBoard::prepare_session ()
 int PlaybackFileBoard::start_stream (int buffer_size, const char *streamer_params)
 {
     safe_logger (spdlog::level::trace, "start stream");
-    if (is_streaming)
+    if (keep_alive)
     {
         safe_logger (spdlog::level::err, "Streaming thread already running");
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
@@ -100,33 +134,35 @@ int PlaybackFileBoard::start_stream (int buffer_size, const char *streamer_param
     }
 
     keep_alive = true;
-    streaming_thread = std::thread ([this] { this->read_thread (); });
-    // wait for data to ensure that everything is okay
-    std::unique_lock<std::mutex> lk (this->m);
-    auto sec = std::chrono::seconds (1);
-    if (cv.wait_for (lk, 2 * sec,
-            [this] { return this->state != (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR; }))
+    if (!params.file.empty ())
     {
-        this->is_streaming = true;
-        return this->state;
+        streaming_threads.push_back (std::thread (
+            [this] { this->read_thread ((int)BrainFlowPresets::DEFAULT_PRESET, params.file); }));
     }
-    else
+    if (!params.file_aux.empty ())
     {
-        safe_logger (spdlog::level::err, "no data received in 2sec, stopping thread");
-        this->is_streaming = true;
-        this->stop_stream ();
-        return (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
+        streaming_threads.push_back (std::thread ([this]
+            { this->read_thread ((int)BrainFlowPresets::AUXILIARY_PRESET, params.file_aux); }));
     }
+    if (!params.file_anc.empty ())
+    {
+        streaming_threads.push_back (std::thread ([this]
+            { this->read_thread ((int)BrainFlowPresets::ANCILLARY_PRESET, params.file_anc); }));
+    }
+
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int PlaybackFileBoard::stop_stream ()
 {
-    if (is_streaming)
+    if (keep_alive)
     {
         keep_alive = false;
-        is_streaming = false;
-        streaming_thread.join ();
-        this->state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
+        for (std::thread &streaming_thread : streaming_threads)
+        {
+            streaming_thread.join ();
+        }
+        streaming_threads.clear ();
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
     else
@@ -143,33 +179,64 @@ int PlaybackFileBoard::release_session ()
         free_packages ();
         initialized = false;
     }
+    file_offsets.clear ();
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-void PlaybackFileBoard::read_thread ()
+void PlaybackFileBoard::read_thread (int preset, std::string file)
 {
+    std::string preset_str = preset_to_string (preset);
+    if (board_descr.find (preset_str) == board_descr.end ())
+    {
+        safe_logger (spdlog::level::err, "no preset {} for board {}", preset, board_id);
+        return;
+    }
+
     FILE *fp;
-    fp = fopen (params.file.c_str (), "r");
+    fp = fopen (file.c_str (), "rb");
     if (fp == NULL)
     {
         safe_logger (spdlog::level::err, "failed to open file in thread");
         return;
     }
-    int num_rows = board_descr["num_rows"];
+
+    json board_preset = board_descr[preset_str];
+    int num_rows = board_preset["num_rows"];
     double *package = new double[num_rows];
     for (int i = 0; i < num_rows; i++)
     {
         package[i] = 0.0;
     }
-    char buf[4096];
+    char buf[MAX_LINE_LENGTH];
     double last_timestamp = -1.0;
     bool new_timestamps = use_new_timestamps; // to prevent changing during streaming
-    int timestamp_channel = board_descr["timestamp_channel"];
+    int timestamp_channel = board_preset["timestamp_channel"];
     double accumulated_time_delta = 0.0;
 
+    bool reached_end = false;
     while (keep_alive)
     {
         auto start = std::chrono::high_resolution_clock::now ();
+        // prevent race condition with another config_board method call
+        lock.lock ();
+        double cur_index = pos_percentage[preset];
+        if ((int)cur_index >= 0)
+        {
+            int new_pos = (int)(cur_index * (file_offsets[preset].size () / 100.0));
+            try
+            {
+                fseek (fp, file_offsets[preset][new_pos], SEEK_SET);
+                safe_logger (spdlog::level::trace, "set position in a file to {}", new_pos);
+            }
+            catch (...)
+            {
+                // should never happen since input is already validated
+                safe_logger (spdlog::level::warn, "invalid position in a file");
+            }
+            last_timestamp = -1;
+            pos_percentage[preset] = -1;
+        }
+        lock.unlock ();
         char *res = fgets (buf, sizeof (buf), fp);
         if ((loopback) && (res == NULL))
         {
@@ -179,6 +246,15 @@ void PlaybackFileBoard::read_thread ()
         }
         if ((!loopback) && (res == NULL))
         {
+            if (!reached_end)
+            {
+                reached_end = true;
+                // Log just once to inform the user that we have reached the endof the file, as we
+                // stop sending any samples. The user-programmer could be waiting as the stream
+                // needs to be stopped manually.
+                safe_logger (
+                    spdlog::level::trace, "End of file reached and not set to loop. Sleeping.");
+            }
 // busy wait instead exit
 #ifdef _WIN32
             Sleep (1);
@@ -213,46 +289,39 @@ void PlaybackFileBoard::read_thread ()
         }
         for (int i = 0; i < num_rows; i++)
         {
-            package[i] = std::stod (splitted[i]);
-        }
-        // notify main thread
-        if (this->state != (int)BrainFlowExitCodes::STATUS_OK)
-        {
+            try
             {
-                std::lock_guard<std::mutex> lk (this->m);
-                this->state = (int)BrainFlowExitCodes::STATUS_OK;
+                package[i] = std::stod (splitted[i]);
             }
-            this->cv.notify_one ();
+            catch (...)
+            {
+                safe_logger (spdlog::level::err, "failed to parse value: {}", splitted[i].c_str ());
+            }
         }
-        auto stop = std::chrono::high_resolution_clock::now ();
-        auto duration =
-            std::chrono::duration_cast<std::chrono::microseconds> (stop - start).count ();
-
         if (last_timestamp > 0)
         {
-            double time_wait = package[timestamp_channel] - last_timestamp; // in seconds
-            accumulated_time_delta += duration;
-            if (accumulated_time_delta > 1000.0)
-            {
-                time_wait = time_wait - (int)(accumulated_time_delta / 1000.0);
-                accumulated_time_delta -= 1000.0;
-            }
-            if (time_wait > 0.001)
+            double time_wait = (package[timestamp_channel] - last_timestamp) * 1000; // in ms
+            if (time_wait - accumulated_time_delta > 1)
             {
 #ifdef _WIN32
-                Sleep ((int)(time_wait * 1000));
+                Sleep ((int)(time_wait - accumulated_time_delta));
 #else
-                usleep ((int)(time_wait * 1000000));
+                usleep ((int)(1000 * (time_wait - accumulated_time_delta)));
 #endif
             }
+            auto stop = std::chrono::high_resolution_clock::now ();
+            auto duration =
+                std::chrono::duration_cast<std::chrono::microseconds> (stop - start).count ();
+            accumulated_time_delta += (duration / 1000.0 - time_wait);
         }
+
         last_timestamp = package[timestamp_channel];
 
         if (new_timestamps)
         {
             package[timestamp_channel] = get_timestamp ();
         }
-        push_package (package);
+        push_package (package, preset);
     }
     fclose (fp);
     delete[] package;
@@ -276,9 +345,68 @@ int PlaybackFileBoard::config_board (std::string config, std::string &response)
     {
         use_new_timestamps = false;
     }
+    else if (strncmp (config.c_str (), SET_INDEX_PREFIX, strlen (SET_INDEX_PREFIX)) == 0)
+    {
+        try
+        {
+            double new_index = std::stod (config.substr (strlen (SET_INDEX_PREFIX)));
+            if (((int)new_index >= 0) && ((int)new_index < 100))
+            {
+                lock.lock ();
+                std::fill (pos_percentage.begin (), pos_percentage.end (), new_index);
+                lock.unlock ();
+            }
+            else
+            {
+                safe_logger (
+                    spdlog::level::err, "invalid index value, should be between 0 and 100");
+                return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+            }
+        }
+        catch (const std::exception &e)
+        {
+            safe_logger (spdlog::level::err, "need to write a number after {}, exception is: {}",
+                SET_INDEX_PREFIX, e.what ());
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+        }
+    }
     else
     {
         safe_logger (spdlog::level::warn, "invalid config string {}", config);
+    }
+
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int PlaybackFileBoard::get_file_offsets (std::string filename, std::vector<long int> &offsets)
+{
+    offsets.clear ();
+
+    FILE *fp = fopen (filename.c_str (), "rb");
+    if (fp == NULL)
+    {
+        safe_logger (spdlog::level::err, "failed to open file: {}", filename.c_str ());
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    char buf[MAX_LINE_LENGTH];
+    long int bytes_read = 0;
+    while (true)
+    {
+        offsets.push_back (bytes_read);
+        char *res = fgets (buf, sizeof (buf), fp);
+        bytes_read += (long int)strlen (buf);
+        if (res == NULL)
+        {
+            break;
+        }
+    }
+
+    fclose (fp);
+    if (offsets.size () < 2)
+    {
+        safe_logger (spdlog::level::err, "empty file: {}", filename);
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
     return (int)BrainFlowExitCodes::STATUS_OK;

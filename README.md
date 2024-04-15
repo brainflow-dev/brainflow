@@ -48,13 +48,13 @@ The BrainFlow project strives to abide by generally accepted best practices in o
 ## Build Status
 |          Build Type         	|                                                                                Status                                                                               	|
 |:---------------------------:	|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------:	|
-|        Windows Tests        	|   [![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/brainflow-dev/brainflow/Run%20Windows/master?color=yellow&label=Windows%202019)](https://github.com/brainflow-dev/brainflow/actions/workflows/run_windows.yml)  	|
-| Unix(Linix and MacOS) Tests 	| [![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/brainflow-dev/brainflow/Run%20Unix/master?color=yellow&label=Ubuntu%20and%20MacOS)](https://github.com/brainflow-dev/brainflow/actions/workflows/run_unix.yml) 	|
-|        Android Tests        	|   [![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/brainflow-dev/brainflow/Run%20Android%20NDK/master?color=yellow&label=Android)](https://github.com/brainflow-dev/brainflow/actions/workflows/run_android.yml)   	|
-|         Alpine Tests        	|       [![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/brainflow-dev/brainflow/Run%20Alpine/master?color=yellow&label=Alpine)](https://github.com/brainflow-dev/brainflow/actions/workflows/run_alpine.yml)       	|
-|        Valgrind Tests       	|     [![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/brainflow-dev/brainflow/Run%20Valgrind/master?color=yellow&label=Valgrind)](https://github.com/brainflow-dev/brainflow/actions/workflows/valgrind.yml)      	|
-|           CppCheck          	|    [![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/brainflow-dev/brainflow/CppCheck/master?color=yellow&label=Static%20Analyzer)](https://github.com/brainflow-dev/brainflow/actions/workflows/cppcheck.yml)   	|
-|         Clang-Format        	|   [![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/brainflow-dev/brainflow/Clang%20Format/master?color=yellow&label=Code%20Style)](https://github.com/brainflow-dev/brainflow/actions/workflows/clang_format.yml)   	|  
+|        Windows Tests        	|   [![Run Windows](https://github.com/brainflow-dev/brainflow/actions/workflows/run_windows.yml/badge.svg?branch=master)](https://github.com/brainflow-dev/brainflow/actions/workflows/run_windows.yml)  	|
+| Unix(Linix and MacOS) Tests 	| [![Run Unix](https://github.com/brainflow-dev/brainflow/actions/workflows/run_unix.yml/badge.svg?branch=master)](https://github.com/brainflow-dev/brainflow/actions/workflows/run_unix.yml) 	|
+|        Android Tests        	|   [![Run Android NDK](https://github.com/brainflow-dev/brainflow/actions/workflows/run_android.yml/badge.svg?branch=master)](https://github.com/brainflow-dev/brainflow/actions/workflows/run_android.yml)   	|
+|         Alpine Tests        	|       [![Run Alpine](https://github.com/brainflow-dev/brainflow/actions/workflows/run_alpine.yml/badge.svg?branch=master)](https://github.com/brainflow-dev/brainflow/actions/workflows/run_alpine.yml)       	|
+|        Valgrind Tests       	|     [![Run Valgrind](https://github.com/brainflow-dev/brainflow/actions/workflows/valgrind.yml/badge.svg?branch=master)](https://github.com/brainflow-dev/brainflow/actions/workflows/valgrind.yml)      	|
+|           CppCheck          	|    [![CppCheck](https://github.com/brainflow-dev/brainflow/actions/workflows/cppcheck.yml/badge.svg?branch=master)](https://github.com/brainflow-dev/brainflow/actions/workflows/cppcheck.yml)   	|
+|         Clang-Format        	|   [![Clang Format](https://github.com/brainflow-dev/brainflow/actions/workflows/clang_format.yml/badge.svg?branch=master)](https://github.com/brainflow-dev/brainflow/actions/workflows/clang_format.yml)   	|  
 
 ## Brainflow Bindings
 

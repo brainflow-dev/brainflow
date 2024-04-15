@@ -1,0 +1,39 @@
+---
+BasedOnStyle: WebKit
+AccessModifierOffset: '-4'
+AlignEscapedNewlinesLeft: 'false'
+AlignTrailingComments: 'true'
+AllowAllParametersOfDeclarationOnNextLine: 'false'
+AllowShortBlocksOnASingleLine: 'false'
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: 'false'
+AllowShortLoopsOnASingleLine: 'false'
+AlwaysBreakBeforeMultilineStrings: 'false'
+AlwaysBreakTemplateDeclarations: 'true'
+BinPackParameters: 'true'
+BreakBeforeBinaryOperators: 'false'
+BreakBeforeBraces: Allman
+BreakBeforeTernaryOperators: 'false'
+BreakConstructorInitializersBeforeComma: 'false'
+ColumnLimit: '100'
+ConstructorInitializerAllOnOneLineOrOnePerLine: 'true'
+DisableFormat: 'false'
+IndentCaseLabels: 'true'
+IndentWidth: '4'
+KeepEmptyLinesAtTheStartOfBlocks: 'true'
+Language: JavaScript
+MaxEmptyLinesToKeep: '2'
+NamespaceIndentation: All
+PointerAlignment: Right
+SpaceBeforeAssignmentOperators: 'true'
+SpaceBeforeParens: Always
+SpaceInEmptyParentheses: 'false'
+SpacesInAngles: 'false'
+SpacesInCStyleCastParentheses: 'false'
+SpacesInContainerLiterals: 'false'
+SpacesInParentheses: 'false'
+Standard: Cpp11
+TabWidth: '4'
+UseTab: Never
+
+...

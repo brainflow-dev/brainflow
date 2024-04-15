@@ -1,7 +1,8 @@
+#include <sstream>
 #include <string.h>
 
 #include "board_info_getter.h"
-#include "multicast_streamer.h"
+#include "brainflow_env_vars.h"
 #include "streaming_board.h"
 
 #ifndef _WIN32
@@ -15,8 +16,6 @@ StreamingBoard::StreamingBoard (struct BrainFlowInputParams params)
                   // with master board id in prepare_session, board_id is protected and there is no
                   // api to get it so its ok
 {
-    client = NULL;
-    is_streaming = false;
     keep_alive = false;
     initialized = false;
 }
@@ -34,21 +33,19 @@ int StreamingBoard::prepare_session ()
         safe_logger (spdlog::level::info, "Session is already prepared");
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
-    if ((params.ip_address.empty ()) || (params.other_info.empty ()) || (params.ip_port == 0))
+    if (params.master_board == (int)BoardIds::NO_BOARD)
     {
-        safe_logger (spdlog::level::err,
-            "write multicast group ip to ip_address field, ip port to ip_port field and original "
-            "board id to other info");
+        safe_logger (spdlog::level::err, "Master board id is not provided");
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     try
     {
-        board_id = std::stoi (params.other_info);
-        board_descr = brainflow_boards_json["boards"][std::to_string (board_id)];
+        board_id = params.master_board;
+        board_descr = boards_struct.brainflow_boards_json["boards"][std::to_string (board_id)];
     }
     catch (json::exception &e)
     {
-        safe_logger (spdlog::level::err, "invalid json");
+        safe_logger (spdlog::level::err, "Invalid json for master board");
         safe_logger (spdlog::level::err, e.what ());
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
@@ -60,20 +57,73 @@ int StreamingBoard::prepare_session ()
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
 
-    client = new MultiCastClient (params.ip_address.c_str (), params.ip_port);
-    int res = client->init ();
-    if (res != (int)MultiCastReturnCodes::STATUS_OK)
+    // default preset
+    if ((!params.ip_address.empty ()) && (params.ip_port != 0))
     {
-#ifdef _WIN32
-        safe_logger (spdlog::level::err, "WSAGetLastError is {}", WSAGetLastError ());
-#else
-        safe_logger (spdlog::level::err, "errno {} message {}", errno, strerror (errno));
-#endif
-        safe_logger (spdlog::level::err, "failed to init socket: {}", res);
-        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+        MultiCastClient *client = new MultiCastClient (params.ip_address.c_str (), params.ip_port);
+        clients.push_back (client);
+        presets.push_back ((int)BrainFlowPresets::DEFAULT_PRESET);
     }
+    if ((!params.ip_address.empty ()) != (params.ip_port != 0))
+    {
+        safe_logger (spdlog::level::warn, "ip_address or ip_port is not specified");
+    }
+    // aux preset
+    if ((!params.ip_address_aux.empty ()) && (params.ip_port_aux != 0))
+    {
+        MultiCastClient *client =
+            new MultiCastClient (params.ip_address_aux.c_str (), params.ip_port_aux);
+        clients.push_back (client);
+        presets.push_back ((int)BrainFlowPresets::AUXILIARY_PRESET);
+    }
+    if ((!params.ip_address_aux.empty ()) != (params.ip_port_aux != 0))
+    {
+        safe_logger (spdlog::level::warn, "ip_address_aux or ip_port_aux is not specified");
+    }
+    // anc preset
+    if ((!params.ip_address_anc.empty ()) && (params.ip_port_anc != 0))
+    {
+        MultiCastClient *client =
+            new MultiCastClient (params.ip_address_anc.c_str (), params.ip_port_anc);
+        clients.push_back (client);
+        presets.push_back ((int)BrainFlowPresets::ANCILLARY_PRESET);
+    }
+    if ((!params.ip_address_anc.empty ()) != (params.ip_port_anc != 0))
+    {
+        safe_logger (spdlog::level::warn, "ip_address_anc or ip_port_anc is not specified");
+    }
+
+    if (clients.empty ())
+    {
+        safe_logger (spdlog::level::err, "No ip addresses and ports specified");
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
+    int res = (int)BrainFlowExitCodes::STATUS_OK;
     initialized = true;
-    return (int)BrainFlowExitCodes::STATUS_OK;
+    for (auto client : clients)
+    {
+        int socket_res = client->init ();
+        if (socket_res != (int)MultiCastReturnCodes::STATUS_OK)
+        {
+            log_socket_error (res);
+            initialized = false;
+            res = (int)BrainFlowExitCodes::GENERAL_ERROR;
+            break;
+        }
+    }
+
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        for (auto client : clients)
+        {
+            delete client;
+        }
+        clients.clear ();
+        presets.clear ();
+    }
+
+    return res;
 }
 
 int StreamingBoard::config_board (std::string config, std::string &response)
@@ -84,7 +134,7 @@ int StreamingBoard::config_board (std::string config, std::string &response)
 
 int StreamingBoard::start_stream (int buffer_size, const char *streamer_params)
 {
-    if (is_streaming)
+    if (keep_alive)
     {
         safe_logger (spdlog::level::err, "Streaming thread already running");
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
@@ -96,18 +146,23 @@ int StreamingBoard::start_stream (int buffer_size, const char *streamer_params)
     }
 
     keep_alive = true;
-    streaming_thread = std::thread ([this] { this->read_thread (); });
-    is_streaming = true;
+    for (int i = 0; i < (int)clients.size (); i++)
+    {
+        streaming_threads.push_back (std::thread ([this, i] { this->read_thread (i); }));
+    }
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
 int StreamingBoard::stop_stream ()
 {
-    if (is_streaming)
+    if (keep_alive)
     {
         keep_alive = false;
-        is_streaming = false;
-        streaming_thread.join ();
+        for (std::thread &streaming_thread : streaming_threads)
+        {
+            streaming_thread.join ();
+        }
+        streaming_threads.clear ();
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
     else
@@ -120,26 +175,34 @@ int StreamingBoard::release_session ()
 {
     if (initialized)
     {
-        if (is_streaming)
+        if (keep_alive)
         {
             stop_stream ();
         }
         free_packages ();
         initialized = false;
-        if (client)
+        for (auto client : clients)
         {
             delete client;
-            client = NULL;
         }
+        clients.clear ();
+        presets.clear ();
     }
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-void StreamingBoard::read_thread ()
+void StreamingBoard::read_thread (int num)
 {
-    // format for incomming package is determined by original board
-    int num_rows = board_descr["num_rows"];
-    int num_packages = MultiCastStreamer::get_packages_in_chunk ();
+    std::string preset_str = preset_to_string (presets[num]);
+    if (board_descr.find (preset_str) == board_descr.end ())
+    {
+        safe_logger (spdlog::level::err, "invalid json or push_package args, no such key");
+        return;
+    }
+
+    json board_preset = board_descr[preset_str];
+    int num_rows = board_preset["num_rows"];
+    int num_packages = get_brainflow_batch_size ();
     int transaction_len = num_rows * num_packages;
     int bytes_per_recv = sizeof (double) * transaction_len;
     double *transaction = new double[transaction_len];
@@ -150,17 +213,28 @@ void StreamingBoard::read_thread ()
 
     while (keep_alive)
     {
-        int res = client->recv (transaction, bytes_per_recv);
+        int res = clients[num]->recv (transaction, bytes_per_recv);
         if (res != bytes_per_recv)
         {
             safe_logger (
                 spdlog::level::trace, "unable to read {} bytes, read {}", bytes_per_recv, res);
+            log_socket_error (-1);
             continue;
         }
         for (int i = 0; i < num_packages; i++)
         {
-            push_package (transaction + i * num_rows);
+            push_package (transaction + i * num_rows, presets[num]);
         }
     }
     delete[] transaction;
+}
+
+void StreamingBoard::log_socket_error (int error_code)
+{
+#ifdef _WIN32
+    safe_logger (spdlog::level::err, "WSAGetLastError is {}", WSAGetLastError ());
+#else
+    safe_logger (spdlog::level::err, "errno {} message {}", errno, strerror (errno));
+#endif
+    safe_logger (spdlog::level::err, "socket operation error code: {}", error_code);
 }

@@ -1,4 +1,3 @@
-
 abstract type BrainFlowLib end
 struct BoardControllerLib <: BrainFlowLib end
 struct DataHandlerLib <: BrainFlowLib end

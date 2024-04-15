@@ -148,13 +148,13 @@ void GanglionWifi::read_thread ()
     */
     int res;
     unsigned char b[OpenBCIWifiShieldBoard::package_size];
-    int num_rows = board_descr["num_rows"];
+    int num_rows = board_descr["default"]["num_rows"];
     double *package = new double[num_rows];
     for (int i = 0; i < num_rows; i++)
     {
         package[i] = 0.0;
     }
-    std::vector<int> eeg_channels = board_descr["eeg_channels"];
+    std::vector<int> eeg_channels = board_descr["default"]["eeg_channels"];
 
     while (keep_alive)
     {
@@ -185,43 +185,46 @@ void GanglionWifi::read_thread ()
         }
 
         // package num
-        package[board_descr["package_num_channel"].get<int> ()] = (double)b[1];
+        package[board_descr["default"]["package_num_channel"].get<int> ()] = (double)b[1];
         // eeg
         for (unsigned int i = 0; i < eeg_channels.size (); i++)
         {
             package[eeg_channels[i]] = eeg_scale * cast_24bit_to_int32 (b + 2 + 3 * i);
         }
         // end byte
-        package[board_descr["other_channels"][0].get<int> ()] = (double)b[32];
+        package[board_descr["default"]["other_channels"][0].get<int> ()] = (double)b[32];
         // place raw bytes to other_channels with end byte
-        package[board_descr["other_channels"][1].get<int> ()] = (double)b[26];
-        package[board_descr["other_channels"][2].get<int> ()] = (double)b[27];
-        package[board_descr["other_channels"][3].get<int> ()] = (double)b[28];
-        package[board_descr["other_channels"][4].get<int> ()] = (double)b[29];
-        package[board_descr["other_channels"][5].get<int> ()] = (double)b[30];
-        package[board_descr["other_channels"][6].get<int> ()] = (double)b[31];
+        package[board_descr["default"]["other_channels"][1].get<int> ()] = (double)b[26];
+        package[board_descr["default"]["other_channels"][2].get<int> ()] = (double)b[27];
+        package[board_descr["default"]["other_channels"][3].get<int> ()] = (double)b[28];
+        package[board_descr["default"]["other_channels"][4].get<int> ()] = (double)b[29];
+        package[board_descr["default"]["other_channels"][5].get<int> ()] = (double)b[30];
+        package[board_descr["default"]["other_channels"][6].get<int> ()] = (double)b[31];
         // place accel data
         if (b[32] == END_BYTE_STANDARD)
         {
             // accel
             // mistake in firmware in axis
-            package[board_descr["accel_channels"][0].get<int> ()] =
+            package[board_descr["default"]["accel_channels"][0].get<int> ()] =
                 accel_scale * cast_16bit_to_int32 (b + 28);
-            package[board_descr["accel_channels"][1].get<int> ()] =
+            package[board_descr["default"]["accel_channels"][1].get<int> ()] =
                 accel_scale * cast_16bit_to_int32 (b + 26);
-            package[board_descr["accel_channels"][2].get<int> ()] =
+            package[board_descr["default"]["accel_channels"][2].get<int> ()] =
                 -accel_scale * cast_16bit_to_int32 (b + 30);
         }
         // place analog data
         if (b[32] == END_BYTE_ANALOG)
         {
             // analog
-            package[board_descr["analog_channels"][0].get<int> ()] = cast_16bit_to_int32 (b + 26);
-            package[board_descr["analog_channels"][1].get<int> ()] = cast_16bit_to_int32 (b + 28);
-            package[board_descr["analog_channels"][2].get<int> ()] = cast_16bit_to_int32 (b + 30);
+            package[board_descr["default"]["analog_channels"][0].get<int> ()] =
+                cast_16bit_to_int32 (b + 26);
+            package[board_descr["default"]["analog_channels"][1].get<int> ()] =
+                cast_16bit_to_int32 (b + 28);
+            package[board_descr["default"]["analog_channels"][2].get<int> ()] =
+                cast_16bit_to_int32 (b + 30);
         }
 
-        package[board_descr["timestamp_channel"].get<int> ()] = get_timestamp ();
+        package[board_descr["default"]["timestamp_channel"].get<int> ()] = get_timestamp ();
         push_package (package);
     }
     delete[] package;
@@ -232,7 +235,7 @@ void GanglionWifi::read_thread_impedance ()
     int res;
     unsigned char b[OpenBCIWifiShieldBoard::package_size];
     int num_channels = 0;
-    get_num_rows (board_id, &num_channels);
+    get_num_rows (board_id, (int)BrainFlowPresets::DEFAULT_PRESET, &num_channels);
     double *package = new double[num_channels];
     for (int i = 0; i < num_channels; i++)
     {

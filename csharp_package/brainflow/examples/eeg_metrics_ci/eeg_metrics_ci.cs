@@ -17,7 +17,6 @@ namespace examples
             int board_id = parse_args (args, input_params, model_params);
             BoardShim board_shim = new BoardShim (board_id, input_params);
             int sampling_rate = BoardShim.get_sampling_rate (board_shim.get_board_id ());
-            int nfft = DataFilter.get_nearest_power_of_two (sampling_rate);
             int[] eeg_channels = BoardShim.get_eeg_channels (board_shim.get_board_id ());
 
             board_shim.prepare_session ();
@@ -31,8 +30,9 @@ namespace examples
             double[] feature_vector = bands.Item1;
             MLModel model = new MLModel (model_params);
             model.prepare ();
-            Console.WriteLine (Enum.GetName (typeof (BrainFlowMetrics), model_params.metric) + " " + Enum.GetName (typeof (BrainFlowClassifiers), model_params.classifier) +
-                " : " + model.predict (feature_vector));
+            double[] predicted = model.predict (feature_vector);
+            for (int i = 0; i < predicted.Length; i++)
+                Console.WriteLine (predicted[i]);
             model.release ();
         }
 

@@ -22,24 +22,24 @@ endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
 
 if (MSVC)
     SET (BLUETOOTH_SRC
-        ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/socket_bluetooth_win.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/bluetooth/socket_bluetooth_win.cpp
     )
 elseif (APPLE)
     SET (BLUETOOTH_SRC
-        ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/socket_bluetooth_macos.mm
-        ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/macos_third_party/BluetoothDeviceResources.mm
-        ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/macos_third_party/BluetoothWorker.mm
-        ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/macos_third_party/pipe.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/bluetooth/socket_bluetooth_macos.mm
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/bluetooth/macos_third_party/BluetoothDeviceResources.mm
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/bluetooth/macos_third_party/BluetoothWorker.mm
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/bluetooth/macos_third_party/pipe.c
     )
 else ()
     SET (BLUETOOTH_SRC
-        ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/socket_bluetooth_linux.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/bluetooth/socket_bluetooth_linux.cpp
     )
 endif (MSVC)
 
 SET (BLUETOOTH_SRC
     ${BLUETOOTH_SRC}
-    ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/bluetooth_functions.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/bluetooth/bluetooth_functions.cpp
 )
 
 add_library (
@@ -49,36 +49,38 @@ add_library (
 
 target_include_directories (
     ${BLUETOOTH_LIB_NAME} PRIVATE
-    ${CMAKE_HOME_DIRECTORY}/src/utils/inc
-    ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/inc
-    ${CMAKE_HOME_DIRECTORY}/src/utils/bluetooth/macos_third_party
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/bluetooth/inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/bluetooth/macos_third_party
 )
 
 set_target_properties (${BLUETOOTH_LIB_NAME}
     PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
-    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/compiled
+    ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/compiled
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/compiled
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/compiled
 )
 
 if (MSVC)
     add_custom_command (TARGET ${BLUETOOTH_LIB_NAME} POST_BUILD
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BLUETOOTH_LIB_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/python_package/brainflow/lib/${BLUETOOTH_LIB_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BLUETOOTH_LIB_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/julia_package/brainflow/lib/${BLUETOOTH_LIB_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BLUETOOTH_LIB_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/java_package/brainflow/src/main/resources/${BLUETOOTH_LIB_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BLUETOOTH_LIB_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp_package/brainflow/brainflow/lib/${BLUETOOTH_LIB_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BLUETOOTH_LIB_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab_package/brainflow/lib/${BLUETOOTH_LIB_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/$<CONFIG>/${BLUETOOTH_LIB_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/rust_package/brainflow/lib/${BLUETOOTH_LIB_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${BLUETOOTH_LIB_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/python_package/brainflow/lib/${BLUETOOTH_LIB_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${BLUETOOTH_LIB_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/julia_package/brainflow/lib/${BLUETOOTH_LIB_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${BLUETOOTH_LIB_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/java_package/brainflow/src/main/resources/${BLUETOOTH_LIB_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${BLUETOOTH_LIB_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/csharp_package/brainflow/brainflow/lib/${BLUETOOTH_LIB_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${BLUETOOTH_LIB_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/matlab_package/brainflow/lib/${BLUETOOTH_LIB_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${BLUETOOTH_LIB_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/rust_package/brainflow/lib/${BLUETOOTH_LIB_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${BLUETOOTH_LIB_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/nodejs_package/brainflow/lib/${BLUETOOTH_LIB_COMPILED_NAME}"
     )
 endif (MSVC)
 if (UNIX AND NOT ANDROID)
     add_custom_command (TARGET ${BLUETOOTH_LIB_NAME} POST_BUILD
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${BLUETOOTH_LIB_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/python_package/brainflow/lib/${BLUETOOTH_LIB_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${BLUETOOTH_LIB_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/julia_package/brainflow/lib/${BLUETOOTH_LIB_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${BLUETOOTH_LIB_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/java_package/brainflow/src/main/resources/${BLUETOOTH_LIB_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${BLUETOOTH_LIB_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/csharp_package/brainflow/brainflow/${BLUETOOTH_LIB_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${BLUETOOTH_LIB_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/matlab_package/brainflow/lib/${BLUETOOTH_LIB_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_HOME_DIRECTORY}/compiled/${BLUETOOTH_LIB_COMPILED_NAME}" "${CMAKE_HOME_DIRECTORY}/rust_package/brainflow/lib/${BLUETOOTH_LIB_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${BLUETOOTH_LIB_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/python_package/brainflow/lib/${BLUETOOTH_LIB_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${BLUETOOTH_LIB_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/julia_package/brainflow/lib/${BLUETOOTH_LIB_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${BLUETOOTH_LIB_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/java_package/brainflow/src/main/resources/${BLUETOOTH_LIB_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${BLUETOOTH_LIB_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/csharp_package/brainflow/brainflow/${BLUETOOTH_LIB_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${BLUETOOTH_LIB_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/matlab_package/brainflow/lib/${BLUETOOTH_LIB_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${BLUETOOTH_LIB_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/rust_package/brainflow/lib/${BLUETOOTH_LIB_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${BLUETOOTH_LIB_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/nodejs_package/brainflow/lib/${BLUETOOTH_LIB_COMPILED_NAME}"
     )
 endif (UNIX AND NOT ANDROID)
 

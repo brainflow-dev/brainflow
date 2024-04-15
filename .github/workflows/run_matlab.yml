@@ -5,7 +5,7 @@ on: [push, pull_request]
 
 jobs:
   RunMatlabLinux:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
       - name: Check out repository
@@ -39,3 +39,11 @@ jobs:
         uses: matlab-actions/run-command@v1
         with:
           command: addpath('matlab_package/brainflow'),addpath('matlab_package/brainflow/examples'),addpath('matlab_package/brainflow/inc'),addpath('matlab_package/brainflow/lib'),CSP
+      - name: Run Spo2 Test
+        uses: matlab-actions/run-command@v1
+        with:
+          command: addpath('matlab_package/brainflow'),addpath('matlab_package/brainflow/examples'),addpath('matlab_package/brainflow/inc'),addpath('matlab_package/brainflow/lib'),Spo2
+      - name: Run ICA Test
+        uses: matlab-actions/run-command@v1
+        with:
+          command: addpath('matlab_package/brainflow'),addpath('matlab_package/brainflow/examples'),addpath('matlab_package/brainflow/inc'),addpath('matlab_package/brainflow/lib'),ICA

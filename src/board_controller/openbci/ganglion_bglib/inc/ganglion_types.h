@@ -1,6 +1,7 @@
 #pragma once
 
 #include "shared_export.h"
+#include <cstdint>
 #include <string.h>
 
 namespace GanglionLib
@@ -85,5 +86,11 @@ namespace GanglionLib
         NOT_IMPLEMENTED_ERROR = 16,
         INVALID_MAC_ADDR_ERROR = 17,
         PORT_OPEN_ERROR = 18
+    };
+
+    struct ConnectionParameters
+    {
+        char *mac_address;
+        uint8_t firmware;
     };
 }

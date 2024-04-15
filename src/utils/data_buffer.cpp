@@ -1,11 +1,28 @@
 #include "data_buffer.h"
 
+#include <new>
+
 DataBuffer::DataBuffer (int num_samples, size_t buffer_size)
 {
     this->buffer_size = buffer_size;
     this->num_samples = num_samples;
-    data = new double[buffer_size * num_samples];
     first_free = first_used = count = 0;
+
+    if (buffer_size == 0)
+    {
+        data = NULL;
+    }
+    else
+    {
+        try
+        {
+            data = new double[buffer_size * num_samples];
+        }
+        catch (const std::bad_alloc &)
+        {
+            data = NULL;
+        }
+    }
 }
 
 DataBuffer::~DataBuffer ()
@@ -20,15 +37,27 @@ bool DataBuffer::is_ready ()
 
 void DataBuffer::add_data (double *value)
 {
+    if (!is_ready ())
+    {
+        return;
+    }
+
     lock.lock ();
-    memcpy (this->data + first_free * num_samples, value, sizeof (double) * num_samples);
-    first_free = next (first_free);
-    count++;
-    if (first_free == first_used)
+
+    if (count == 0)
+    {
+        first_used = first_free = 0;
+    }
+    else if (first_free == first_used)
     {
         first_used = next (first_used);
         count--;
     }
+
+    memcpy (this->data + first_free * num_samples, value, sizeof (double) * num_samples);
+    first_free = next (first_free);
+    count++;
+
     lock.unlock ();
 }
 
@@ -48,13 +77,15 @@ void DataBuffer::get_chunk (size_t start, size_t size, double *data_buf)
     }
 }
 
-// removes data from buffer
+// Removes data from buffer
 size_t DataBuffer::get_data (size_t max_count, double *data_buf)
 {
     lock.lock ();
     size_t result_count = max_count;
     if (result_count > count)
+    {
         result_count = count;
+    }
     if (result_count)
     {
         get_chunk (first_used, result_count, data_buf);
@@ -65,7 +96,7 @@ size_t DataBuffer::get_data (size_t max_count, double *data_buf)
     return result_count;
 }
 
-// doesn't remove data from buffer
+// Doesn't remove data from buffer
 size_t DataBuffer::get_current_data (size_t max_count, double *data_buf)
 {
     lock.lock ();

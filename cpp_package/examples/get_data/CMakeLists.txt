@@ -106,3 +106,42 @@ target_link_libraries (
     ${DataHandlerPath}
     ${BoardControllerPath}
 )
+
+add_executable (
+    get_data_muse
+    src/get_data_muse.cpp
+)
+
+target_include_directories (
+    get_data_muse PUBLIC
+    ${brainflow_INCLUDE_DIRS}
+)
+
+target_link_libraries (
+    get_data_muse PUBLIC
+    # for some systems(ubuntu for example) order matters
+    ${BrainflowPath}
+    ${MLModulePath}
+    ${DataHandlerPath}
+    ${BoardControllerPath}
+)
+
+
+add_executable (
+    multiple_streamers
+    src/multiple_streamers.cpp
+)
+
+target_include_directories (
+    multiple_streamers PUBLIC
+    ${brainflow_INCLUDE_DIRS}
+)
+
+target_link_libraries (
+    multiple_streamers PUBLIC
+    # for some systems(ubuntu for example) order matters
+    ${BrainflowPath}
+    ${MLModulePath}
+    ${DataHandlerPath}
+    ${BoardControllerPath}
+)

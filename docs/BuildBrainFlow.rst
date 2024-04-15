@@ -47,8 +47,8 @@ You are able to install the latest release from `Nuget <https://www.nuget.org/pa
 **Unix(Mono)**
 
 - Compile BrainFlow's core module
-- Install Mono on your system
-- Build it using Mono
+- Install Mono and other dependcies on your system
+- Build it using dotnet command
 - **Make sure that unmanaged(C++) libraries exist in search path** - set LD_LIBRARY_PATH env variable or copy them to correct folder
 
 .. compound::
@@ -56,22 +56,27 @@ You are able to install the latest release from `Nuget <https://www.nuget.org/pa
     Example for Fedora: ::
 
         # compile c++ code
-        tools/build_linux.sh
-        # install dependencies, we skip dnf configuration steps 
+        python tools/build.py
+        # install dependencies
         sudo dnf install nuget
         sudo dnf install mono-devel
         sudo dnf install mono-complete
         sudo dnf install monodevelop
+        sudo dnf install dotnet-sdk-6.0
+        sudo dnf install dotnet-runtime-6.0
+        sudo dnf install dotnet-sdk-3.1
+        sudo dnf install dotnet-runtime-3.1
         # build solution
-        xbuild csharp_package/brainflow/brainflow.sln
+        dotnet build csharp_package/brainflow/brainflow.sln
         # run tests
-        export LD_LIBRARY_PATH=/home/andreyparfenov/brainflow/installed_linux/lib/
+        export LD_LIBRARY_PATH=/home/andreyparfenov/brainflow/installed/lib/
         mono csharp_package/brainflow/examples/denoising/bin/Debug/denoising.exe
 
 R
 -----
 
-R binding is based on `reticulate <https://rstudio.github.io/reticulate/>`_ package and calls Python code, so you need to install Python binding first, make sure that reticulate uses correct virtual environment, after that you will be able to build R package from command line or using R Studio, install it and run samples.
+R binding is based on `reticulate <https://rstudio.github.io/reticulate/>`_ package and calls Python 
+, so you need to install Python binding first, make sure that reticulate uses correct virtual environment, after that you will be able to build R package from command line or using R Studio, install it and run samples.
 
 Java
 -----
@@ -115,6 +120,23 @@ BrainFlow is a registered package in the Julia general registry, so it can be in
 When using BrainFlow for the first time in Julia, the BrainFlow artifact containing the compiled BrainFlow libraries will be downloaded from release page automatically.
 
 If you compile BrainFlow from source local libraries will take precedence over the artifact.
+
+Typescript
+-----------
+
+.. compound::
+
+    You can install BrainFlow using next command without compilation ::
+
+        npm install brainflow
+
+.. compound::
+
+    If you want to install it from source files or build unreleased version from Github, you should first compile the core module (:ref:`compilation-label`). Then run ::
+
+        cd nodejs_package
+        npm install
+
 
 Rust
 -------
@@ -236,6 +258,11 @@ Now you can use BrainFlow SDK in your Android application!
 
 Note: Android Studio inline compiler may show red errors but it should be compiled fine with Gradle. To fix inline compiler you can use *File > Sync Project with Gradle Files* or click at *File > Invalidate Cache/Restart > Invalidate and Restart*
 
+Prebuild libraries for *jniLibs.zip* are complied using:
+
+- Android NDK 25.1.8937393
+- *-DANDROID_NATIVE_API_LEVEL=android-24*
+
 .. compound::
     
     For some API calls you need to provide additional permissions via manifest file of your application ::
@@ -268,13 +295,13 @@ Compilation instructions:
 
         # to prepare project(choose ABIs which you need)
         # for arm64-v8a
-        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=E:\android-ndk-r21d-windows-x86_64\android-ndk-r21d\build\cmake\android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=android-19 -DANDROID_ABI=arm64-v8a ..
+        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=D:\workspace\android-ndk-r25b\build\cmake\android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=android-24 -DANDROID_ABI=arm64-v8a ..
         # for armeabi-v7a
-        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=E:\android-ndk-r21d-windows-x86_64\android-ndk-r21d\build\cmake\android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=android-19 -DANDROID_ABI=armeabi-v7a ..
+        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=D:\workspace\android-ndk-r25b\build\cmake\android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=android-24 -DANDROID_ABI=armeabi-v7a ..
         # for x86_64
-        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=E:\android-ndk-r21d-windows-x86_64\android-ndk-r21d\build\cmake\android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=android-19 -DANDROID_ABI=x86_64 ..
+        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=D:\workspace\android-ndk-r25b\build\cmake\android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=android-24 -DANDROID_ABI=x86_64 ..
         # for x86
-        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=E:\android-ndk-r21d-windows-x86_64\android-ndk-r21d\build\cmake\android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=android-19 -DANDROID_ABI=x86 ..
+        cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=D:\workspace\android-ndk-r25b\build\cmake\android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=android-24 -DANDROID_ABI=x86 ..
 
         # to build(should be run for each ABI from previous step**
         cmake --build . --target install --config Release -j 2 --parallel 2

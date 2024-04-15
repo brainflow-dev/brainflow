@@ -18,4 +18,5 @@ public:
 
 protected:
     std::string get_lib_name ();
+    void read_thread ();
 };

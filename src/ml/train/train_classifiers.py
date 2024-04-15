@@ -7,8 +7,8 @@ import logging
 import numpy as np
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
-from sklearn.gaussian_process import GaussianProcessClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import StackingClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import cross_val_score
@@ -42,6 +42,8 @@ def prepare_data(first_class, second_class, blacklisted_channels=None):
     dataset_y = list()
     for data_type in (first_class, second_class):
         for file in glob.glob(os.path.join('data', data_type, '*', '*.csv')):
+            data_x_temp = list()
+            data_y_temp = list()
             logging.info(file)
             board_id = os.path.basename(os.path.dirname(file))
             try:
@@ -58,13 +60,17 @@ def prepare_data(first_class, second_class, blacklisted_channels=None):
                         feature_vector = bands[0]
                         feature_vector = feature_vector.astype(float)
                         dataset_x.append(feature_vector)
+                        data_x_temp.append(feature_vector)
                         if data_type == first_class:
                             dataset_y.append(0)
+                            data_y_temp.append(0)
                         else:
                             dataset_y.append(1)
+                            data_y_temp.append(0)
                         cur_pos = cur_pos + int(window_size * overlaps[num] * sampling_rate)
             except Exception as e:
                 logging.error(str(e), exc_info=True)
+            print_dataset_info((data_x_temp, data_y_temp))
 
     logging.info('1st Class: %d 2nd Class: %d' % (len([x for x in dataset_y if x == 0]), len([x for x in dataset_y if x == 1])))
 
@@ -115,7 +121,7 @@ def print_dataset_info(data):
 
 def train_regression_mindfulness(data):
     model = LogisticRegression(solver='liblinear', max_iter=4000,
-                                penalty='l2', random_state=2, fit_intercept=True, intercept_scaling=0.2)
+                                penalty='l2', random_state=2, fit_intercept=False, intercept_scaling=3)
     logging.info('#### Logistic Regression ####')
     scores = cross_val_score(model, data[0], data[1], cv=5, scoring='f1_macro', n_jobs=8)
     logging.info('f1 macro %s' % str(scores))
@@ -139,9 +145,9 @@ def train_svm_mindfulness(data):
         f.write(onx.SerializeToString())
 
 def train_random_forest_mindfulness(data):
-    model = RandomForestClassifier(class_weight='balanced', random_state=1, n_jobs=8, n_estimators=200)
+    model = RandomForestClassifier(class_weight='balanced', random_state=1, n_jobs=15, n_estimators=200)
     logging.info('#### Random Forest ####')
-    scores = cross_val_score(model, data[0], data[1], cv=5, scoring='f1_macro', n_jobs=8)
+    scores = cross_val_score(model, data[0], data[1], cv=5, scoring='f1_macro', n_jobs=15)
     logging.info('f1 macro %s' % str(scores))
     model.fit(data[0], data[1])
 
@@ -153,7 +159,7 @@ def train_random_forest_mindfulness(data):
 def train_knn_mindfulness(data):
     model = KNeighborsClassifier(n_neighbors=10, n_jobs=8)
     logging.info('#### KNN ####')
-    scores = cross_val_score(model, data[0], data[1], cv=5, scoring='f1_macro', n_jobs=8)
+    scores = cross_val_score(model, data[0], data[1], cv=5, scoring='f1_macro', n_jobs=15)
     logging.info('f1 macro %s' % str(scores))
     model.fit(data[0], data[1])
 
@@ -166,13 +172,32 @@ def train_mlp_mindfulness(data):
     model = MLPClassifier(hidden_layer_sizes=(100, 20),learning_rate='adaptive', max_iter=1000,
                           random_state=1, verbose=True, activation='logistic', solver='adam')
     logging.info('#### MLP ####')
-    scores = cross_val_score(model, data[0], data[1], cv=5, scoring='f1_macro', n_jobs=8)
+    scores = cross_val_score(model, data[0], data[1], cv=5, scoring='f1_macro', n_jobs=15)
     logging.info('f1 macro %s' % str(scores))
     model.fit(data[0], data[1])
 
     initial_type = [('mindfulness_input', FloatTensorType([1, 5]))]
     onx = convert_sklearn(model, initial_types=initial_type, target_opset=11, options={type(model): {'zipmap': False}})
     with open('mlp_mindfulness.onnx', 'wb') as f:
+        f.write(onx.SerializeToString())
+
+def train_stacking_classifier(data):
+    model1 = MLPClassifier(hidden_layer_sizes=(100, 20),learning_rate='adaptive', max_iter=1000,
+                          random_state=1, verbose=True, activation='logistic', solver='adam')
+    model2 = KNeighborsClassifier(n_neighbors=10, n_jobs=8)
+    model3 = RandomForestClassifier(class_weight='balanced', random_state=1, n_jobs=8, n_estimators=200)
+    meta_model = LogisticRegression()
+    sclf = StackingClassifier(estimators=[('MLPClassifier', model1), ('KNeighborsClassifier', model2), ('RandomForestClassifier', model3)],
+                              final_estimator=meta_model, n_jobs=15,
+                              passthrough=True)
+    logging.info('#### Stacking ####')
+    scores = cross_val_score(sclf, data[0], data[1], cv=5, scoring='f1_macro', n_jobs=15)
+    logging.info('f1 macro %s' % str(scores))
+    sclf.fit(data[0], data[1])
+
+    initial_type = [('mindfulness_input', FloatTensorType([1, 5]))]
+    onx = convert_sklearn(sclf, initial_types=initial_type, target_opset=11, options={type(sclf): {'zipmap': False}})
+    with open('stacking_mindfulness.onnx', 'wb') as f:
         f.write(onx.SerializeToString())
 
 def main():
@@ -188,13 +213,14 @@ def main():
             dataset_y = pickle.load(f)
         data = dataset_x, dataset_y
     else:
-        data = prepare_data('relaxed', 'focused', blacklisted_channels={'T3', 'T4'})
+        data = prepare_data('relaxed', 'focused')
     print_dataset_info(data)
     train_regression_mindfulness(data)
     train_svm_mindfulness(data)
     train_knn_mindfulness(data)
     train_random_forest_mindfulness(data)
     train_mlp_mindfulness(data)
+    train_stacking_classifier(data)
 
 
 if __name__ == '__main__':

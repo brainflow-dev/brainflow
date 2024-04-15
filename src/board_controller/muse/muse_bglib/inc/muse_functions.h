@@ -10,7 +10,9 @@ extern "C"
     SHARED_EXPORT int CALLING_CONVENTION stop_stream (void *param);
     SHARED_EXPORT int CALLING_CONVENTION start_stream (void *param);
     SHARED_EXPORT int CALLING_CONVENTION close_device (void *param);
-    SHARED_EXPORT int CALLING_CONVENTION get_data (void *param);
+    SHARED_EXPORT int CALLING_CONVENTION get_data_default (void *param);
+    SHARED_EXPORT int CALLING_CONVENTION get_data_aux (void *param);
+    SHARED_EXPORT int CALLING_CONVENTION get_data_anc (void *param);
     SHARED_EXPORT int CALLING_CONVENTION release (void *param);
     SHARED_EXPORT int CALLING_CONVENTION config_device (void *param);
 #ifdef __cplusplus

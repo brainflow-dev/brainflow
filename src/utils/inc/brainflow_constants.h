@@ -30,6 +30,7 @@ enum class BrainFlowExitCodes : int
 
 enum class BoardIds : int
 {
+    NO_BOARD = -100, // only for internal usage
     PLAYBACK_FILE_BOARD = -3,
     STREAMING_BOARD = -2,
     SYNTHETIC_BOARD = -1,
@@ -45,10 +46,8 @@ enum class BoardIds : int
     CALLIBRI_EEG_BOARD = 9,
     CALLIBRI_EMG_BOARD = 10,
     CALLIBRI_ECG_BOARD = 11,
-    FASCIA_BOARD = 12,
     NOTION_1_BOARD = 13,
     NOTION_2_BOARD = 14,
-    IRONBCI_BOARD = 15,
     GFORCE_PRO_BOARD = 16,
     FREEEEG32_BOARD = 17,
     BRAINBIT_BLED_BOARD = 18,
@@ -76,10 +75,21 @@ enum class BoardIds : int
     BRAINALIVE_BOARD = 40,
     MUSE_2016_BOARD = 41,
     MUSE_2016_BLED_BOARD = 42,
-    PIEEG_BOARD = 43,
+    EXPLORE_4_CHAN_BOARD = 44,
+    EXPLORE_8_CHAN_BOARD = 45,
+    GANGLION_NATIVE_BOARD = 46,
+    EMOTIBIT_BOARD = 47,
+    GALEA_BOARD_V4 = 48,
+    GALEA_SERIAL_BOARD_V4 = 49,
+    NTL_WIFI_BOARD = 50,
+    ANT_NEURO_EE_511_BOARD = 51,
+    FREEEEG128_BOARD = 52,
+    AAVAA_V3_BOARD = 53,
+    EXPLORE_PLUS_8_CHAN_BOARD = 54,
+    EXPLORE_PLUS_32_CHAN_BOARD = 55,
     // use it to iterate
     FIRST = PLAYBACK_FILE_BOARD,
-    LAST = PIEEG_BOARD
+    LAST = EXPLORE_PLUS_32_CHAN_BOARD
 };
 
 enum class IpProtocolTypes : int
@@ -93,7 +103,10 @@ enum class FilterTypes : int
 {
     BUTTERWORTH = 0,
     CHEBYSHEV_TYPE_1 = 1,
-    BESSEL = 2
+    BESSEL = 2,
+    BUTTERWORTH_ZERO_PHASE = 3,
+    CHEBYSHEV_TYPE_1_ZERO_PHASE = 4,
+    BESSEL_ZERO_PHASE = 5
 };
 
 enum class AggOperations : int
@@ -132,16 +145,22 @@ enum class BrainFlowClassifiers : int
     ONNX_CLASSIFIER = 2
 };
 
-/// LogLevels enum to store all possible log levels
+enum class BrainFlowPresets : int
+{
+    DEFAULT_PRESET = 0,
+    AUXILIARY_PRESET = 1,
+    ANCILLARY_PRESET = 2
+};
+
 enum class LogLevels : int
 {
-    LEVEL_TRACE = 0,    /// TRACE
-    LEVEL_DEBUG = 1,    /// DEBUG
-    LEVEL_INFO = 2,     /// INFO
-    LEVEL_WARN = 3,     /// WARN
-    LEVEL_ERROR = 4,    /// ERROR
-    LEVEL_CRITICAL = 5, /// CRITICAL
-    LEVEL_OFF = 6       // OFF
+    LEVEL_TRACE = 0,
+    LEVEL_DEBUG = 1,
+    LEVEL_INFO = 2,
+    LEVEL_WARN = 3,
+    LEVEL_ERROR = 4,
+    LEVEL_CRITICAL = 5,
+    LEVEL_OFF = 6
 };
 
 enum class NoiseTypes : int

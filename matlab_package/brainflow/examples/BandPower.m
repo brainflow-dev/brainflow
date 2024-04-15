@@ -1,17 +1,17 @@
-BoardShim.set_log_file('brainflow.log');
 BoardShim.enable_dev_board_logger();
 
 params = BrainFlowInputParams();
 board_shim = BoardShim(int32(BoardIds.SYNTHETIC_BOARD), params);
 board_id = int32(BoardIds.SYNTHETIC_BOARD);
-board_descr = BoardShim.get_board_descr(board_id);
+preset = int32(BrainFlowPresets.DEFAULT_PRESET);
+board_descr = BoardShim.get_board_descr(board_id, preset);
 sampling_rate = int32(board_descr.sampling_rate);
 board_shim.prepare_session();
 board_shim.start_stream(45000, '');
 pause(10);
 board_shim.stop_stream();
 nfft = DataFilter.get_nearest_power_of_two(sampling_rate);
-data = board_shim.get_board_data(board_shim.get_board_data_count());
+data = board_shim.get_board_data(board_shim.get_board_data_count(preset), preset);
 board_shim.release_session();
 
 eeg_channels = board_descr.eeg_channels;

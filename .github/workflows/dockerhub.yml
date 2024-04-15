@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: New Version
+        description: Git tag to checkout
         default: ""
-        required: true
+        required: false
       publish:
         description: Make Public(true or false)
         default: "false"
@@ -26,12 +26,18 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Clone Repository
       uses: actions/checkout@v2
-    - name: Build Docker Container
+    - name: Build Docker Container with Tag
+      if: github.event_name == 'workflow_dispatch' && github.event.inputs.version != ''
       run: |
         cd Docker
         sudo docker build --tag brainflow/brainflow:${VERSION} --build-arg checkout_id=${VERSION} .
       env:
         VERSION: ${{ github.event.inputs.version }}
+    - name: Build Docker Container without Tag
+      if: github.event_name == 'workflow_dispatch' && github.event.inputs.version == ''
+      run: |
+        cd Docker
+        sudo docker build --tag brainflow/brainflow:0.0.1 .
     - name: Check Images
       run: sudo -H docker images
     - name: DockerHub Login

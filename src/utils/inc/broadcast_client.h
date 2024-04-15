@@ -17,7 +17,8 @@ enum class BroadCastClientReturnCodes : int
     STATUS_OK = 0,
     WSA_STARTUP_ERROR = 1,
     CREATE_SOCKET_ERROR = 2,
-    INIT_ERROR = 3
+    INIT_ERROR = 3,
+    SOCKET_ALREADY_CREATED_ERROR = 4
 };
 
 
@@ -45,6 +46,7 @@ private:
 #ifdef _WIN32
     SOCKET connect_socket;
     struct sockaddr_in socket_addr;
+    bool wsa_initialized;
 #else
     int connect_socket;
     struct sockaddr_in socket_addr;

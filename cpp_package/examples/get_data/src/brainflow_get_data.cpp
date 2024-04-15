@@ -19,6 +19,7 @@ int main (int argc, char *argv[])
 {
     BoardShim::enable_dev_board_logger ();
 
+    BoardShim::get_board_presets (-1);
     struct BrainFlowInputParams params;
     int board_id = 0;
     if (!parse_args (argc, argv, &params, &board_id))
@@ -92,12 +93,64 @@ bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, in
                 return false;
             }
         }
+        if (std::string (argv[i]) == std::string ("--ip-address-aux"))
+        {
+            if (i + 1 < argc)
+            {
+                i++;
+                params->ip_address_aux = std::string (argv[i]);
+            }
+            else
+            {
+                std::cerr << "missed argument" << std::endl;
+                return false;
+            }
+        }
+        if (std::string (argv[i]) == std::string ("--ip-address-anc"))
+        {
+            if (i + 1 < argc)
+            {
+                i++;
+                params->ip_address_anc = std::string (argv[i]);
+            }
+            else
+            {
+                std::cerr << "missed argument" << std::endl;
+                return false;
+            }
+        }
         if (std::string (argv[i]) == std::string ("--ip-port"))
         {
             if (i + 1 < argc)
             {
                 i++;
                 params->ip_port = std::stoi (std::string (argv[i]));
+            }
+            else
+            {
+                std::cerr << "missed argument" << std::endl;
+                return false;
+            }
+        }
+        if (std::string (argv[i]) == std::string ("--ip-port-aux"))
+        {
+            if (i + 1 < argc)
+            {
+                i++;
+                params->ip_port_aux = std::stoi (std::string (argv[i]));
+            }
+            else
+            {
+                std::cerr << "missed argument" << std::endl;
+                return false;
+            }
+        }
+        if (std::string (argv[i]) == std::string ("--ip-port-anc"))
+        {
+            if (i + 1 < argc)
+            {
+                i++;
+                params->ip_port_anc = std::stoi (std::string (argv[i]));
             }
             else
             {
@@ -189,6 +242,45 @@ bool parse_args (int argc, char *argv[], struct BrainFlowInputParams *params, in
             {
                 i++;
                 params->file = std::string (argv[i]);
+            }
+            else
+            {
+                std::cerr << "missed argument" << std::endl;
+                return false;
+            }
+        }
+        if (std::string (argv[i]) == std::string ("--file-aux"))
+        {
+            if (i + 1 < argc)
+            {
+                i++;
+                params->file_aux = std::string (argv[i]);
+            }
+            else
+            {
+                std::cerr << "missed argument" << std::endl;
+                return false;
+            }
+        }
+        if (std::string (argv[i]) == std::string ("--file-anc"))
+        {
+            if (i + 1 < argc)
+            {
+                i++;
+                params->file_anc = std::string (argv[i]);
+            }
+            else
+            {
+                std::cerr << "missed argument" << std::endl;
+                return false;
+            }
+        }
+        if (std::string (argv[i]) == std::string ("--master-board"))
+        {
+            if (i + 1 < argc)
+            {
+                i++;
+                params->master_board = std::stoi (std::string (argv[i]));
             }
             else
             {

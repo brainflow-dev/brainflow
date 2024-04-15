@@ -21,26 +21,53 @@ int MuseBGLibHelper::initialize (struct BrainFlowInputParams params)
     {
         input_params = params;
         exit_code = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
-        initialized = true;
-        int buffer_size = board_descr["num_rows"].get<int> ();
-        if (db != NULL)
+        int buffer_size_default = board_descr["default"]["num_rows"].get<int> ();
+        int buffer_size_aux = board_descr["auxiliary"]["num_rows"].get<int> ();
+        if (db_default != NULL)
         {
-            delete db;
-            db = NULL;
+            delete db_default;
+            db_default = NULL;
         }
-        db = new DataBuffer (buffer_size, 1000);
-        last_timestamp = -1.0;
-        current_buf.resize (12); // 12 eeg packages in single ble transaction
-        new_eeg_data.resize (4); // 4 eeg channels total
-        current_accel_pos = 0;
-        current_gyro_pos = 0;
-        memset (current_ppg_pos, 0, sizeof (current_ppg_pos));
+        db_default = new DataBuffer (buffer_size_default, 1000);
+        if (db_aux != NULL)
+        {
+            delete db_aux;
+            db_aux = NULL;
+        }
+        db_aux = new DataBuffer (buffer_size_aux, 1000);
+        if (board_id != (int)BoardIds::MUSE_2016_BLED_BOARD)
+        {
+            int buffer_size_anc = board_descr["ancillary"]["num_rows"].get<int> ();
+            current_anc_buf.resize (6); // 6 ppg packages in single transaction
+            for (int i = 0; i < 6; i++)
+            {
+                current_anc_buf[i].resize (buffer_size_anc);
+                std::fill (current_anc_buf[i].begin (), current_anc_buf[i].end (), 0.0);
+            }
+            new_ppg_data.resize (3); // 3 ppg chars
+            std::fill (new_ppg_data.begin (), new_ppg_data.end (), false);
+            if (db_anc != NULL)
+            {
+                delete db_anc;
+                db_anc = NULL;
+            }
+            db_anc = new DataBuffer (buffer_size_anc, 1000);
+        }
+        current_default_buf.resize (12); // 12 eeg packages in single ble transaction
+        new_eeg_data.resize (5);         // 5 eeg channels total
+        current_aux_buf.resize (3);      // 3 samples in each message for gyro and accel
         for (int i = 0; i < 12; i++)
         {
-            current_buf[i].resize (buffer_size);
-            std::fill (current_buf[i].begin (), current_buf[i].end (), 0.0);
-            std::fill (new_eeg_data.begin (), new_eeg_data.end (), false);
+            current_default_buf[i].resize (buffer_size_default);
+            std::fill (current_default_buf[i].begin (), current_default_buf[i].end (), 0.0);
         }
+        std::fill (new_eeg_data.begin (), new_eeg_data.end (), false);
+        for (int i = 0; i < 3; i++)
+        {
+            current_aux_buf[i].resize (buffer_size_aux);
+            std::fill (current_aux_buf[i].begin (), current_aux_buf[i].end (), 0.0);
+        }
+        initialized = true;
     }
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
@@ -89,6 +116,10 @@ int MuseBGLibHelper::stop_stream ()
             const char *stop_cmd = "h";
             res = config_device (stop_cmd);
         }
+        last_fifth_chan_timestamp = -1.0;
+        last_aux_timestamp = -1.0;
+        last_eeg_timestamp = -1.0;
+        last_ppg_timestamp = -1.0;
         return res;
     }
     else
@@ -143,7 +174,7 @@ int MuseBGLibHelper::close_device ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int MuseBGLibHelper::get_data (void *param)
+int MuseBGLibHelper::get_data_default (void *param)
 {
     if (!initialized)
     {
@@ -151,7 +182,39 @@ int MuseBGLibHelper::get_data (void *param)
     }
     state = (int)DeviceState::GET_DATA_CALLED;
     int res = (int)BrainFlowExitCodes::STATUS_OK;
-    size_t num_points = db->get_data (1, (double *)param);
+    size_t num_points = db_default->get_data (1, (double *)param);
+    if (num_points != 1)
+    {
+        res = (int)BrainFlowExitCodes::EMPTY_BUFFER_ERROR;
+    }
+    return res;
+}
+
+int MuseBGLibHelper::get_data_aux (void *param)
+{
+    if (!initialized)
+    {
+        return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
+    }
+    state = (int)DeviceState::GET_DATA_CALLED;
+    int res = (int)BrainFlowExitCodes::STATUS_OK;
+    size_t num_points = db_aux->get_data (1, (double *)param);
+    if (num_points != 1)
+    {
+        res = (int)BrainFlowExitCodes::EMPTY_BUFFER_ERROR;
+    }
+    return res;
+}
+
+int MuseBGLibHelper::get_data_anc (void *param)
+{
+    if (!initialized)
+    {
+        return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
+    }
+    state = (int)DeviceState::GET_DATA_CALLED;
+    int res = (int)BrainFlowExitCodes::STATUS_OK;
+    size_t num_points = db_anc->get_data (1, (double *)param);
     if (num_points != 1)
     {
         res = (int)BrainFlowExitCodes::EMPTY_BUFFER_ERROR;
@@ -172,21 +235,37 @@ int MuseBGLibHelper::release ()
     control_char_handle = 0;
     ccids.clear ();
     characteristics.clear ();
-    if (db)
+    if (db_default)
     {
-        delete db;
-        db = NULL;
+        delete db_default;
+        db_default = NULL;
+    }
+    if (db_aux)
+    {
+        delete db_aux;
+        db_aux = NULL;
+    }
+    if (db_anc)
+    {
+        delete db_anc;
+        db_anc = NULL;
     }
     new_eeg_data.clear ();
-    for (size_t i = 0; i < current_buf.size (); i++)
+    for (size_t i = 0; i < current_default_buf.size (); i++)
     {
-        current_buf[i].clear ();
+        current_default_buf[i].clear ();
     }
-    current_buf.clear ();
-    current_accel_pos = 0;
-    memset (current_ppg_pos, 0, sizeof (current_ppg_pos));
-    current_gyro_pos = 0;
-    last_timestamp = -1.0;
+    current_default_buf.clear ();
+    for (size_t i = 0; i < current_aux_buf.size (); i++)
+    {
+        current_aux_buf[i].clear ();
+    }
+    current_aux_buf.clear ();
+    for (size_t i = 0; i < current_anc_buf.size (); i++)
+    {
+        current_anc_buf[i].clear ();
+    }
+    current_anc_buf.clear ();
 
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
@@ -282,13 +361,9 @@ void MuseBGLibHelper::ble_evt_attclient_procedure_completed (
 void MuseBGLibHelper::ble_evt_attclient_find_information_found (
     const struct ble_msg_attclient_find_information_found_evt_t *msg)
 {
-    size_t chars_to_find = 9;
-    size_t ccids_to_find = 13;
-    try
-    {
-        std::vector<int> ppg_channels = board_descr["ppg_channels"];
-    }
-    catch (...)
+    size_t chars_to_find = 10;
+    size_t ccids_to_find = 14;
+    if (board_id == (int)BoardIds::MUSE_2016_BLED_BOARD)
     {
         // no ppg for old muse
         chars_to_find = 6;
@@ -356,6 +431,10 @@ void MuseBGLibHelper::ble_evt_attclient_find_information_found (
             {
                 characteristics[msg->chrhandle] = uuid;
             }
+            if (strcmp (str, MUSE_GATT_ATTR_RIGHTAUX) == 0)
+            {
+                characteristics[msg->chrhandle] = uuid;
+            }
         }
         if ((characteristics.size () == chars_to_find) &&
             (state == (int)DeviceState::OPEN_CALLED) && (ccids.size () >= ccids_to_find))
@@ -381,52 +460,61 @@ void MuseBGLibHelper::ble_evt_attclient_attribute_value (
     {
         return;
     }
+    unsigned char *data = (unsigned char *)msg->value.data;
+    double current_timestamp = get_timestamp ();
 
     if (uuid == MUSE_GATT_ATTR_ACCELEROMETER)
     {
         for (int i = 0; i < 3; i++)
         {
-            double accel_valx =
-                (double)cast_16bit_to_int32 ((unsigned char *)&msg->value.data[2 + i * 6]) / 16384;
-            double accel_valy =
-                (double)cast_16bit_to_int32 ((unsigned char *)&msg->value.data[4 + i * 6]) / 16384;
-            double accel_valz =
-                (double)cast_16bit_to_int32 ((unsigned char *)&msg->value.data[6 + i * 6]) / 16384;
-            for (int j = 0; j < 4; j++)
-            {
-                int pos = (current_accel_pos + i * 4 + j) % 12;
-                current_buf[pos][board_descr["accel_channels"][0].get<int> ()] = accel_valx;
-                current_buf[pos][board_descr["accel_channels"][1].get<int> ()] = accel_valy;
-                current_buf[pos][board_descr["accel_channels"][2].get<int> ()] = accel_valz;
-            }
+            double accel_valx = (double)cast_16bit_to_int32 (&data[2 + i * 6]) / 16384;
+            double accel_valy = (double)cast_16bit_to_int32 (&data[4 + i * 6]) / 16384;
+            double accel_valz = (double)cast_16bit_to_int32 (&data[6 + i * 6]) / 16384;
+            current_aux_buf[i][board_descr["auxiliary"]["accel_channels"][0].get<int> ()] =
+                accel_valx;
+            current_aux_buf[i][board_descr["auxiliary"]["accel_channels"][1].get<int> ()] =
+                accel_valy;
+            current_aux_buf[i][board_descr["auxiliary"]["accel_channels"][2].get<int> ()] =
+                accel_valz;
         }
-        current_accel_pos += 4;
     }
     else if (uuid == MUSE_GATT_ATTR_GYRO)
     {
+        unsigned int package_num = data[0] * 256 + data[1];
         for (int i = 0; i < 3; i++)
         {
             double gyro_valx =
-                (double)cast_16bit_to_int32 ((unsigned char *)&msg->value.data[2 + i * 6]) *
-                MUSE_GYRO_SCALE_FACTOR;
+                (double)cast_16bit_to_int32 (&data[2 + i * 6]) * MUSE_GYRO_SCALE_FACTOR;
             double gyro_valy =
-                (double)cast_16bit_to_int32 ((unsigned char *)&msg->value.data[4 + i * 6]) *
-                MUSE_GYRO_SCALE_FACTOR;
+                (double)cast_16bit_to_int32 (&data[4 + i * 6]) * MUSE_GYRO_SCALE_FACTOR;
             double gyro_valz =
-                (double)cast_16bit_to_int32 ((unsigned char *)&msg->value.data[6 + i * 6]) *
-                MUSE_GYRO_SCALE_FACTOR;
-            for (int j = 0; j < 4; j++)
+                (double)cast_16bit_to_int32 (&data[6 + i * 6]) * MUSE_GYRO_SCALE_FACTOR;
+            current_aux_buf[i][board_descr["auxiliary"]["gyro_channels"][0].get<int> ()] =
+                gyro_valx;
+            current_aux_buf[i][board_descr["auxiliary"]["gyro_channels"][1].get<int> ()] =
+                gyro_valy;
+            current_aux_buf[i][board_descr["auxiliary"]["gyro_channels"][2].get<int> ()] =
+                gyro_valz;
+            current_aux_buf[i][board_descr["auxiliary"]["package_num_channel"].get<int> ()] =
+                package_num;
+        }
+        // skip first package for timestamp correction
+        if (last_aux_timestamp > 0)
+        {
+            double step = (current_timestamp - last_aux_timestamp) / current_aux_buf.size ();
+            // push aux packages from gyro callback
+            for (size_t i = 0; i < current_aux_buf.size (); i++)
             {
-                int pos = (current_gyro_pos + i * 4 + j) % 12;
-                current_buf[pos][board_descr["gyro_channels"][0].get<int> ()] = gyro_valx;
-                current_buf[pos][board_descr["gyro_channels"][1].get<int> ()] = gyro_valy;
-                current_buf[pos][board_descr["gyro_channels"][2].get<int> ()] = gyro_valz;
+                current_aux_buf[i][board_descr["auxiliary"]["timestamp_channel"].get<int> ()] =
+                    last_aux_timestamp + step * (i + 1);
+                db_aux->add_data (&current_aux_buf[i][0]);
             }
         }
-        current_gyro_pos += 4;
+        last_aux_timestamp = current_timestamp;
     }
-    else if ((uuid == MUSE_GATT_ATTR_PPG0) || (uuid == MUSE_GATT_ATTR_PPG1) ||
-        (uuid == MUSE_GATT_ATTR_PPG2))
+    else if (((uuid == MUSE_GATT_ATTR_PPG0) || (uuid == MUSE_GATT_ATTR_PPG1) ||
+                 (uuid == MUSE_GATT_ATTR_PPG2)) &&
+        (board_id != (int)BoardIds::MUSE_2016_BLED_BOARD))
     {
         int ppg_chann_num = 0;
         if (uuid == MUSE_GATT_ATTR_PPG0)
@@ -442,24 +530,41 @@ void MuseBGLibHelper::ble_evt_attclient_attribute_value (
             ppg_chann_num = 2;
         }
 
-        try
+        new_ppg_data[ppg_chann_num] = true;
+        unsigned int package_num = data[0] * 256 + data[1];
+        std::vector<int> ppg_channels = board_descr["ancillary"]["ppg_channels"];
+        // format is: 2 bytes for package num, 6 int24 values for actual data
+        for (int i = 0; i < 6; i++)
         {
-            std::vector<int> ppg_channels = board_descr["ppg_channels"];
-            for (int i = 0; i < 6; i++)
+            double ppg_val = (double)cast_24bit_to_int32 (&data[2 + i * 3]);
+            current_anc_buf[i][ppg_channels[ppg_chann_num]] = ppg_val;
+            current_anc_buf[i][board_descr["ancillary"]["package_num_channel"].get<int> ()] =
+                package_num;
+        }
+        int num_trues = 0;
+        for (size_t i = 0; i < new_ppg_data.size (); i++)
+        {
+            if (new_ppg_data[i])
             {
-                double ppg_val =
-                    (double)cast_24bit_to_int32 ((unsigned char *)&msg->value.data[2 + i * 3]);
-                for (int j = 0; j < 2; j++)
+                num_trues++;
+            }
+        }
+
+        if (num_trues == new_ppg_data.size () - 1) // actually it streams only 2 of 3 ppg data types
+                                                   // and I am not sure that these 2 are freezed
+        {
+            if (last_ppg_timestamp > 0)
+            {
+                double step = (current_timestamp - last_ppg_timestamp) / current_anc_buf.size ();
+                for (size_t i = 0; i < current_anc_buf.size (); i++)
                 {
-                    int pos = (current_ppg_pos[ppg_chann_num] + i * 2 + j) % 12;
-                    current_buf[pos][ppg_channels[ppg_chann_num]] = ppg_val;
+                    current_anc_buf[i][board_descr["ancillary"]["timestamp_channel"].get<int> ()] =
+                        last_ppg_timestamp + step * (i + 1);
+                    db_anc->add_data (&current_anc_buf[i][0]);
                 }
             }
-            current_ppg_pos[ppg_chann_num] += 2;
-        }
-        catch (...)
-        {
-            // do nothing
+            last_ppg_timestamp = current_timestamp;
+            std::fill (new_ppg_data.begin (), new_ppg_data.end (), false);
         }
     }
     else
@@ -467,23 +572,29 @@ void MuseBGLibHelper::ble_evt_attclient_attribute_value (
         int pos = -1;
         if (uuid == MUSE_GATT_ATTR_TP9)
         {
-            pos = board_descr["eeg_channels"][0].get<int> ();
+            pos = board_descr["default"]["eeg_channels"][0].get<int> ();
             new_eeg_data[0] = true;
         }
         if (uuid == MUSE_GATT_ATTR_AF7)
         {
-            pos = board_descr["eeg_channels"][1].get<int> ();
+            pos = board_descr["default"]["eeg_channels"][1].get<int> ();
             new_eeg_data[1] = true;
         }
         if (uuid == MUSE_GATT_ATTR_AF8)
         {
-            pos = board_descr["eeg_channels"][2].get<int> ();
+            pos = board_descr["default"]["eeg_channels"][2].get<int> ();
             new_eeg_data[2] = true;
         }
         if (uuid == MUSE_GATT_ATTR_TP10)
         {
-            pos = board_descr["eeg_channels"][3].get<int> ();
+            pos = board_descr["default"]["eeg_channels"][3].get<int> ();
             new_eeg_data[3] = true;
+        }
+        if (uuid == MUSE_GATT_ATTR_RIGHTAUX)
+        {
+            pos = board_descr["default"]["other_channels"][0].get<int> ();
+            new_eeg_data[4] = true;
+            last_fifth_chan_timestamp = get_timestamp ();
         }
 
         if (pos < 0)
@@ -491,17 +602,20 @@ void MuseBGLibHelper::ble_evt_attclient_attribute_value (
             return;
         }
 
-        unsigned int package_num = msg->value.data[0] * 256 + msg->value.data[1];
+        unsigned int package_num = data[0] * 256 + data[1];
         for (int i = 2, counter = 0; i < msg->value.len; i += 3, counter += 2)
         {
-            double val1 = msg->value.data[i] << 4 | msg->value.data[i + 1] >> 4;
-            double val2 = (msg->value.data[i + 1] & 0xF) << 8 | msg->value.data[i + 2];
+            double val1 = data[i] << 4 | data[i + 1] >> 4;
+            double val2 = (data[i + 1] & 0xF) << 8 | data[i + 2];
             val1 = (val1 - 0x800) * 125.0 / 256.0;
             val2 = (val2 - 0x800) * 125.0 / 256.0;
-            current_buf[counter][pos] = val1;
-            current_buf[counter + 1][pos] = val2;
-            current_buf[counter][board_descr["package_num_channel"].get<int> ()] = package_num;
-            current_buf[counter + 1][board_descr["package_num_channel"].get<int> ()] = package_num;
+            current_default_buf[counter][pos] = val1;
+            current_default_buf[counter + 1][pos] = val2;
+            current_default_buf[counter]
+                               [board_descr["default"]["package_num_channel"].get<int> ()] =
+                                   package_num;
+            current_default_buf[counter +
+                1][board_descr["default"]["package_num_channel"].get<int> ()] = package_num;
         }
 
         int num_trues = 0;
@@ -512,34 +626,24 @@ void MuseBGLibHelper::ble_evt_attclient_attribute_value (
                 num_trues++;
             }
         }
-        if (num_trues == 1)
-        {
-            double timestamp = get_timestamp ();
-            if (last_timestamp < 0)
-            {
-                last_timestamp = timestamp;
-                return;
-            }
-            double step = (timestamp - last_timestamp) / current_buf.size ();
-            last_timestamp = timestamp;
-            size_t size = current_buf.size ();
-            for (size_t i = 0; i < size; i++)
-            {
-                current_buf[size - 1 - i][board_descr["timestamp_channel"].get<int> ()] =
-                    timestamp - i * step;
-            }
-        }
 
-        if (std::find (new_eeg_data.begin (), new_eeg_data.end (), false) == new_eeg_data.end ())
+        if ((num_trues == new_eeg_data.size ()) ||
+            ((num_trues == new_eeg_data.size () - 1) &&
+                (current_timestamp - last_fifth_chan_timestamp > 1)))
         {
-            for (size_t i = 0; i < current_buf.size (); i++)
+            if (last_eeg_timestamp > 0)
             {
-                if (current_buf[i][board_descr["timestamp_channel"].get<int> ()] >
-                    1.0) // skip first package to set timestamp
+                double step =
+                    (current_timestamp - last_eeg_timestamp) / current_default_buf.size ();
+                for (size_t i = 0; i < current_default_buf.size (); i++)
                 {
-                    db->add_data (&current_buf[i][0]);
+                    current_default_buf[i]
+                                       [board_descr["default"]["timestamp_channel"].get<int> ()] =
+                                           last_eeg_timestamp + step * (i + 1);
+                    db_default->add_data (&current_default_buf[i][0]);
                 }
             }
+            last_eeg_timestamp = current_timestamp;
             std::fill (new_eeg_data.begin (), new_eeg_data.end (), false);
         }
     }

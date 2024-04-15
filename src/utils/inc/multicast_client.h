@@ -19,7 +19,8 @@ enum class MultiCastReturnCodes : int
     CREATE_SOCKET_ERROR = 2,
     BIND_ERROR = 3,
     PTON_ERROR = 4,
-    SET_OPT_ERROR = 5
+    SET_OPT_ERROR = 5,
+    SOCKET_ALREADY_CREATED_ERROR = 6
 };
 
 class MultiCastClient
@@ -43,6 +44,7 @@ private:
 #ifdef _WIN32
     SOCKET client_socket;
     struct sockaddr_in socket_addr;
+    bool wsa_initialized;
 #else
     int client_socket;
     struct sockaddr_in socket_addr;

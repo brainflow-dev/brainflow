@@ -18,7 +18,8 @@ enum class SocketClientTCPReturnCodes : int
     WSA_STARTUP_ERROR = 1,
     CREATE_SOCKET_ERROR = 2,
     CONNECT_ERROR = 3,
-    PTON_ERROR = 4
+    PTON_ERROR = 4,
+    SOCKET_ALREADY_CREATED_ERROR = 5
 };
 
 class SocketClientTCP
@@ -52,6 +53,7 @@ private:
 #ifdef _WIN32
     SOCKET connect_socket;
     struct sockaddr_in socket_addr;
+    bool wsa_initialized;
 #else
     int connect_socket;
     struct sockaddr_in socket_addr;

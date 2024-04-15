@@ -24,6 +24,7 @@ namespace GanglionLib
     std::deque<struct GanglionLib::GanglionData> data_queue;
     SpinLock lock;
     volatile bd_addr connect_addr;
+    volatile uint8 firmware = 0;
     volatile uint8 connection = -1;
     volatile uint16 ganglion_handle_start = 0;
     volatile uint16 ganglion_handle_end = 0;
@@ -84,7 +85,13 @@ namespace GanglionLib
             return res;
         }
         ble_cmd_gap_end_procedure ();
-        return open_ble_dev ();
+
+        int result = open_ble_dev ();
+
+        uint8_t *firmware_ptr = (uint8_t *)param;
+        *firmware_ptr = firmware;
+
+        return result;
     }
 
     int open_ganglion_mac_addr (void *param)
@@ -100,7 +107,10 @@ namespace GanglionLib
         }
         exit_code = (int)CustomExitCodes::SYNC_ERROR;
         state = State::OPEN_CALLED;
-        char *mac_addr = (char *)param;
+
+        ConnectionParameters *connection_parameters = (ConnectionParameters *)param;
+
+        char *mac_addr = connection_parameters->mac_address;
         // convert string mac addr to bd_addr struct
         for (int i = 0; i < (int)strlen (mac_addr); i++)
         {
@@ -119,7 +129,19 @@ namespace GanglionLib
         {
             return (int)CustomExitCodes::INVALID_MAC_ADDR_ERROR;
         }
-        return open_ble_dev ();
+
+        ble_cmd_gap_discover (gap_discover_observation);
+
+        res = wait_for_callback (timeout);
+        if (res != (int)CustomExitCodes::STATUS_OK)
+        {
+            return res;
+        }
+        ble_cmd_gap_end_procedure ();
+
+        int result = open_ble_dev ();
+        connection_parameters->firmware = firmware;
+        return result;
     }
 
 #ifdef __linux__
@@ -148,13 +170,15 @@ namespace GanglionLib
             return (int)CustomExitCodes::SEND_CHARACTERISTIC_NOT_FOUND_ERROR;
         }
         volatile bool stop_config_thread = false;
-        std::thread config_thread = std::thread ([&] () {
-            while (!stop_config_thread)
+        std::thread config_thread = std::thread (
+            [&] ()
             {
-                ble_cmd_attclient_attribute_write (
-                    connection, ganglion_handle_send, 1, (uint8 *)param);
-            }
-        });
+                while (!stop_config_thread)
+                {
+                    ble_cmd_attclient_attribute_write (
+                        connection, ganglion_handle_send, 1, (uint8 *)param);
+                }
+            });
         int res = wait_for_callback (timeout);
         stop_config_thread = true;
         config_thread.join ();

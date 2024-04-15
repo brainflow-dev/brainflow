@@ -1,14 +1,15 @@
 #include <string.h>
+#include <typeinfo>
 
 #include "brainflow_constants.h"
 #include "file_streamer.h"
 
 
 FileStreamer::FileStreamer (const char *file, const char *file_mode, int data_len)
-    : Streamer (data_len)
+    : Streamer (data_len, "file", file, file_mode)
 {
-    strcpy (this->file, file);
-    strcpy (this->file_mode, file_mode);
+    strncpy (this->file, file, BRAINFLOW_FILE_NAME_LIMIT);
+    strncpy (this->file_mode, file_mode, BRAINFLOW_FILE_NAME_LIMIT);
     fp = NULL;
 }
 

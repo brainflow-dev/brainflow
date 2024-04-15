@@ -16,10 +16,6 @@ public:
 
     int init_streamer ();
     void stream_data (double *data);
-    static int get_packages_in_chunk ()
-    {
-        return 3;
-    }
 
 private:
     char ip[128];

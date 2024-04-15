@@ -21,11 +21,16 @@ protected:
     void simpleble_free (void *handle);
     // adapter
     size_t simpleble_adapter_get_count (void);
+    bool simpleble_adapter_is_bluetooth_enabled (void);
     simpleble_adapter_t simpleble_adapter_get_handle (size_t index);
     void simpleble_adapter_release_handle (simpleble_adapter_t handle);
     simpleble_err_t simpleble_adapter_scan_for (simpleble_adapter_t handle, int timeout_ms);
     simpleble_err_t simpleble_adapter_scan_start (simpleble_adapter_t handle);
     simpleble_err_t simpleble_adapter_scan_stop (simpleble_adapter_t handle);
+    simpleble_err_t simpleble_adapter_set_callback_on_scan_start (
+        simpleble_adapter_t handle, void (*) (simpleble_adapter_t, void *), void *);
+    simpleble_err_t simpleble_adapter_set_callback_on_scan_stop (
+        simpleble_adapter_t handle, void (*) (simpleble_adapter_t, void *), void *);
     simpleble_err_t simpleble_adapter_set_callback_on_scan_updated (simpleble_adapter_t handle,
         void (*) (simpleble_adapter_t, simpleble_peripheral_t, void *), void *);
     simpleble_err_t simpleble_adapter_set_callback_on_scan_found (simpleble_adapter_t handle,
@@ -53,6 +58,9 @@ protected:
     size_t simpleble_peripheral_manufacturer_data_count (simpleble_peripheral_t handle);
     simpleble_err_t simpleble_peripheral_manufacturer_data_get (simpleble_peripheral_t handle,
         size_t index, simpleble_manufacturer_data_t *manufacturer_data);
+    simpleble_err_t simpleble_peripheral_read (simpleble_peripheral_t handle,
+        simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t **data,
+        size_t *data_length);
     simpleble_err_t simpleble_peripheral_is_connected (
         simpleble_peripheral_t handle, bool *connected);
 

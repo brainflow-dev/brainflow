@@ -1,8 +1,5 @@
 package brainflow;
 
-import java.io.File;
-import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 
@@ -46,19 +43,33 @@ public class MLModel
         if (SystemUtils.IS_OS_WINDOWS)
         {
             lib_name = "MLModule.dll";
-            unpack_from_jar ("onnxruntime_arm.dll");
-            unpack_from_jar ("onnxruntime_arm64.dll");
-            unpack_from_jar ("onnxruntime_x64.dll");
-            unpack_from_jar ("onnxruntime_x86.dll");
+            String arch = System.getProperty ("os.arch");
+            switch (arch) {
+                case "x86":
+                    JarHelper.unpack_from_jar ("onnxruntime_x86.dll");
+                    break;
+                case "x86_64":
+                case "amd64":
+                    JarHelper.unpack_from_jar ("onnxruntime_x64.dll");
+                    break;
+                case "arm":
+                    JarHelper.unpack_from_jar ("onnxruntime_arm.dll");
+                    break;
+                case "arm64":
+                    JarHelper.unpack_from_jar ("onnxruntime_arm64.dll");
+                    break;
+                default:
+                    System.err.println("Unsupported Windows architecture: " + arch);
+            }
         } else if (SystemUtils.IS_OS_MAC)
         {
             lib_name = "libMLModule.dylib";
-            unpack_from_jar ("onnxruntime_x86.dll");
-            unpack_from_jar ("onnxruntime_x86.dll");
+            JarHelper.unpack_from_jar ("onnxruntime_x86.dll");
+            JarHelper.unpack_from_jar ("onnxruntime_x86.dll");
         } else if ((SystemUtils.IS_OS_LINUX) && (!is_os_android))
         {
-            unpack_from_jar ("libonnxruntime_x64.so");
-            unpack_from_jar ("libonnxruntime_arm64.so");
+            JarHelper.unpack_from_jar ("libonnxruntime_x64.so");
+            JarHelper.unpack_from_jar ("libonnxruntime_arm64.so");
         }
 
         if (is_os_android)
@@ -69,27 +80,14 @@ public class MLModel
         } else
         {
             // need to extract libraries from jar
-            unpack_from_jar (lib_name);
+            Path lib_path = JarHelper.unpack_from_jar (lib_name);
+            if (lib_path != null)
+            {
+                lib_name = lib_path.toString ();
+            }
         }
 
         instance = Native.loadLibrary (lib_name, DllInterface.class);
-    }
-
-    private static Path unpack_from_jar (String lib_name)
-    {
-        try
-        {
-            File file = new File (lib_name);
-            if (file.exists ())
-                file.delete ();
-            InputStream link = (BoardShim.class.getResourceAsStream (lib_name));
-            Files.copy (link, file.getAbsoluteFile ().toPath ());
-            return file.getAbsoluteFile ().toPath ();
-        } catch (Exception io)
-        {
-            System.err.println ("file: " + lib_name + " is not found in jar file");
-            return null;
-        }
     }
 
     private String input_params;

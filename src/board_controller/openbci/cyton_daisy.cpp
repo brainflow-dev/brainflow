@@ -11,6 +11,21 @@
 #define END_BYTE_MAX 0xC6
 
 
+int CytonDaisy::config_board (std::string conf, std::string &response)
+{
+    if (gain_tracker.apply_config (conf) == (int)OpenBCICommandTypes::INVALID_COMMAND)
+    {
+        safe_logger (spdlog::level::warn, "invalid command: {}", conf.c_str ());
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+    int res = OpenBCISerialBoard::config_board (conf, response);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        gain_tracker.revert_config ();
+    }
+    return res;
+}
+
 void CytonDaisy::read_thread ()
 {
     // format is the same as for cyton but need to join two packages together
@@ -32,11 +47,12 @@ void CytonDaisy::read_thread ()
     unsigned char b[32];
     bool first_sample = true;
     double accel[3] = {0.};
-    double *package = new double[board_descr["num_rows"].get<int> ()];
-    for (int i = 0; i < board_descr["num_rows"].get<int> (); i++)
+    double *package = new double[board_descr["default"]["num_rows"].get<int> ()];
+    for (int i = 0; i < board_descr["default"]["num_rows"].get<int> (); i++)
     {
         package[i] = 0.0;
     }
+    double accel_scale = (double)(0.002 / (pow (2, 4)));
 
     while (keep_alive)
     {
@@ -80,10 +96,12 @@ void CytonDaisy::read_thread ()
         // place unprocessed bytes to other_channels for all modes
         if (first_sample)
         {
-            package[board_descr["package_num_channel"].get<int> ()] = (double)b[0];
+            package[board_descr["default"]["package_num_channel"].get<int> ()] = (double)b[0];
             // eeg
             for (int i = 0; i < 8; i++)
             {
+                double eeg_scale = (double)(4.5 / float ((pow (2, 23) - 1)) /
+                    gain_tracker.get_gain_for_channel (i + 8) * 1000000.);
                 package[i + 9] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
             }
             // other_channels
@@ -99,6 +117,8 @@ void CytonDaisy::read_thread ()
             // eeg
             for (int i = 0; i < 8; i++)
             {
+                double eeg_scale = (double)(4.5 / float ((pow (2, 23) - 1)) /
+                    gain_tracker.get_gain_for_channel (i) * 1000000.);
                 package[i + 1] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
             }
             // need to average other_channels
@@ -183,7 +203,7 @@ void CytonDaisy::read_thread ()
         // commit package
         if (!first_sample)
         {
-            package[board_descr["timestamp_channel"].get<int> ()] = get_timestamp ();
+            package[board_descr["default"]["timestamp_channel"].get<int> ()] = get_timestamp ();
             push_package (package);
         }
     }

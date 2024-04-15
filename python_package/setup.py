@@ -14,7 +14,7 @@ setup(
     long_description_content_type='text/markdown',
     url='https://github.com/brainflow-dev/brainflow',
     author='Andrey Parfenov',
-    author_email='a1994ndrey@gmail.com',
+    author_email='andrey@brainflow.org',
     packages=find_packages(),
     install_requires=[
         'numpy',
@@ -58,7 +58,6 @@ setup(
             os.path.join('lib', 'eego-SDK32.dll'),
             os.path.join('lib', 'eego-SDK.dll'),
             os.path.join('lib', 'libeego-SDK.so'),
-            os.path.join('lib', 'libeego-SDK32.so'),
             os.path.join('lib', 'BrainFlowBluetooth.dll'),
             os.path.join('lib', 'BrainFlowBluetooth32.dll'),
             os.path.join('lib', 'libBrainFlowBluetooth.so'),

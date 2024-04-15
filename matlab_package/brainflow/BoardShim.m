@@ -7,7 +7,7 @@ classdef BoardShim
     end
 
     methods(Static)
-        
+
         function lib_name = load_lib()
             if ispc
                 if not(libisloaded('BoardController'))
@@ -28,13 +28,13 @@ classdef BoardShim
                 error('OS not supported!')
             end
         end
-        
+
         function check_ec(ec, task_name)
             if (ec ~= int32(BrainFlowExitCodes.STATUS_OK))
                 error('Non zero ec: %d, for task: %s', ec, task_name)
             end
         end
-        
+
         function release_all_sessions()
             % release all sessions
             task_name = 'release_all_sessions';
@@ -73,7 +73,7 @@ classdef BoardShim
             % disable logger
             BoardShim.set_log_level(int32(6))
         end
-        
+
         function log_message(log_level, message)
             % write message to BoardShim logger
             task_name = 'log_message_board_controller';
@@ -81,90 +81,102 @@ classdef BoardShim
             exit_code = calllib(lib_name, task_name, log_level, message);
             BoardShim.check_ec(exit_code, task_name);
         end
-        
-        function sampling_rate = get_sampling_rate(board_id)
+
+        function sampling_rate = get_sampling_rate(board_id, preset)
             % get sampling rate for provided board id
             task_name = 'get_sampling_rate';
             lib_name = BoardShim.load_lib();
             res = libpointer('int32Ptr', 0);
-            exit_code = calllib(lib_name, task_name, board_id, res);
+            exit_code = calllib(lib_name, task_name, board_id, preset, res);
             BoardShim.check_ec(exit_code, task_name);
             sampling_rate = res.value;
         end
-        
-        function package_num_channel = get_package_num_channel(board_id)
+
+        function package_num_channel = get_package_num_channel(board_id, preset)
             % get package num channel for provided board id
             task_name = 'get_package_num_channel';
             lib_name = BoardShim.load_lib();
             res = libpointer('int32Ptr', 0);
-            exit_code = calllib(lib_name, task_name, board_id, res);
+            exit_code = calllib(lib_name, task_name, board_id, preset, res);
             BoardShim.check_ec(exit_code, task_name);
             % Matlab counts array elements from 1 while BrainFlow Core counts from 0%
             package_num_channel = res.value + 1;
         end
-        
-        function marker_channel = get_marker_channel(board_id)
+
+        function marker_channel = get_marker_channel(board_id, preset)
             % get marker channel for provided board id
             task_name = 'get_marker_channel';
             lib_name = BoardShim.load_lib();
             res = libpointer('int32Ptr', 0);
-            exit_code = calllib(lib_name, task_name, board_id, res);
+            exit_code = calllib(lib_name, task_name, board_id, preset, res);
             BoardShim.check_ec(exit_code, task_name);
             % Matlab counts array elements from 1 while BrainFlow Core counts from 0%
             marker_channel = res.value + 1;
         end
 
-        function battery_channel = get_battery_channel(board_id)
+        function battery_channel = get_battery_channel(board_id, preset)
             % get battery channel for provided board id
             task_name = 'get_battery_channel';
             res = libpointer('int32Ptr', 0);
-            exit_code = calllib(lib_name, task_name, board_id, res);
+            exit_code = calllib(lib_name, task_name, board_id, preset, res);
             BoardShim.check_ec(exit_code, task_name);
             battery_channel = res.value + 1;
         end
-        
-        function num_rows = get_num_rows(board_id)
+
+        function num_rows = get_num_rows(board_id, preset)
             % get num rows for provided board id
             task_name = 'get_num_rows';
             lib_name = BoardShim.load_lib();
             res = libpointer('int32Ptr', 0);
-            exit_code = calllib(lib_name, task_name, board_id, res);
+            exit_code = calllib(lib_name, task_name, board_id, preset, res);
             BoardShim.check_ec(exit_code, task_name);
             num_rows = res.value;
         end
-        
-        function timestamp_channel = get_timestamp_channel(board_id)
+
+        function timestamp_channel = get_timestamp_channel(board_id, preset)
             % get timestamp channel for provided board id
             task_name = 'get_timestamp_channel';
             lib_name = BoardShim.load_lib();
             res = libpointer('int32Ptr', 0);
-            exit_code = calllib(lib_name, task_name, board_id, res);
+            exit_code = calllib(lib_name, task_name, board_id, preset, res);
             BoardShim.check_ec(exit_code, task_name);
             timestamp_channel = res.value + 1;
         end
-        
-        function board_descr = get_board_descr(board_id)
+
+        function board_descr = get_board_descr(board_id, preset)
             % get board descr for provided board id
             task_name = 'get_board_descr';
             lib_name = BoardShim.load_lib();
             % no way to understand how it works in matlab, used this link
             % https://nl.mathworks.com/matlabcentral/answers/131446-what-data-type-do-i-need-to-calllib-with-pointer-argument-char%
-            [exit_code, board_descr] = calllib(lib_name, task_name, board_id, blanks(16000), 16000);
+            [exit_code, board_descr] = calllib(lib_name, task_name, board_id, preset, blanks(16000), 16000);
             BoardShim.check_ec(exit_code, task_name);
             board_descr = jsondecode(board_descr);
         end
-        
-        function eeg_names = get_eeg_names(board_id)
+
+        function eeg_names = get_eeg_names(board_id, preset)
             % get eeg names for provided board id
             task_name = 'get_eeg_names';
             lib_name = BoardShim.load_lib();
             % no way to understand how it works in matlab, used this link
             % https://nl.mathworks.com/matlabcentral/answers/131446-what-data-type-do-i-need-to-calllib-with-pointer-argument-char%
-            [exit_code, eeg_names] = calllib(lib_name, task_name, board_id, blanks(4096), 4096);
+            [exit_code, eeg_names] = calllib(lib_name, task_name, board_id, preset, blanks(4096), 4096);
             BoardShim.check_ec(exit_code, task_name);
             eeg_names = split(eeg_names, ',');
         end
-        
+
+        function presets = get_board_presets(board_id)
+            % get supported presets
+            task_name = 'get_board_presets';
+            num_presets = libpointer('int32Ptr', 0);
+            lib_name = BoardShim.load_lib();
+            data = libpointer('int32Ptr', zeros(1, 512));
+            exit_code = calllib(lib_name, task_name, board_id, data, num_presets);
+            BoardShim.check_ec(exit_code, task_name);
+            presets = data.Value(1,1:num_presets.Value);
+
+        end
+
         function version = get_version()
             % get version
             task_name = 'get_version_board_controller';
@@ -174,149 +186,171 @@ classdef BoardShim
             [exit_code, version] = calllib(lib_name, task_name, blanks(64), 64, 64);
             BoardShim.check_ec(exit_code, task_name);
         end
-        
-        function device_name = get_device_name(board_id)
+
+        function device_name = get_device_name(board_id, preset)
             % get device name for provided board id
             task_name = 'get_device_name';
             lib_name = BoardShim.load_lib();
             % no way to understand how it works in matlab used this link
             % https://nl.mathworks.com/matlabcentral/answers/131446-what-data-type-do-i-need-to-calllib-with-pointer-argument-char%
-            [exit_code, device_name] = calllib(lib_name, task_name, board_id, blanks(4096), 4096);
+            [exit_code, device_name] = calllib(lib_name, task_name, board_id, preset, blanks(4096), 4096);
             BoardShim.check_ec(exit_code, task_name);
         end
-        
-        function eeg_channels = get_eeg_channels(board_id)
+
+        function eeg_channels = get_eeg_channels(board_id, preset)
             % get eeg channels for provided board id
             task_name = 'get_eeg_channels';
             num_channels = libpointer('int32Ptr', 0);
             lib_name = BoardShim.load_lib();
             data = libpointer('int32Ptr', zeros(1, 512));
-            exit_code = calllib(lib_name, task_name, board_id, data, num_channels);
+            exit_code = calllib(lib_name, task_name, board_id, preset, data, num_channels);
             BoardShim.check_ec(exit_code, task_name);
             eeg_channels = data.Value(1,1:num_channels.Value) + 1;
         end
-        
-        function exg_channels = get_exg_channels(board_id)
+
+        function exg_channels = get_exg_channels(board_id, preset)
             % get exg channels for provided board id
             task_name = 'get_exg_channels';
             num_channels = libpointer('int32Ptr', 0);
             lib_name = BoardShim.load_lib();
             data = libpointer('int32Ptr', zeros(1, 512));
-            exit_code = calllib(lib_name, task_name, board_id, data, num_channels);
+            exit_code = calllib(lib_name, task_name, board_id, preset, data, num_channels);
             BoardShim.check_ec(exit_code, task_name);
             exg_channels = data.Value(1,1:num_channels.Value) + 1;
         end
-        
-        function emg_channels = get_emg_channels(board_id)
+
+        function emg_channels = get_emg_channels(board_id, preset)
             % get emg channels for provided board id
             task_name = 'get_emg_channels';
             lib_name = BoardShim.load_lib();
             num_channels = libpointer('int32Ptr', 0);
             data = libpointer('int32Ptr', zeros(1, 512));
-            exit_code = calllib(lib_name, task_name, board_id, data, num_channels);
+            exit_code = calllib(lib_name, task_name, board_id, preset, data, num_channels);
             BoardShim.check_ec(exit_code, task_name);
             emg_channels = data.Value(1,1:num_channels.Value) + 1;
         end
-        
-        function ecg_channels = get_ecg_channels(board_id)
+
+        function ecg_channels = get_ecg_channels(board_id, preset)
             % get ecg channels for provided board id
             task_name = 'get_ecg_channels';
             lib_name = BoardShim.load_lib();
             num_channels = libpointer('int32Ptr', 0);
             data = libpointer('int32Ptr', zeros(1, 512));
-            exit_code = calllib(lib_name, task_name, board_id, data, num_channels);
+            exit_code = calllib(lib_name, task_name, board_id, preset, data, num_channels);
             BoardShim.check_ec(exit_code, task_name);
             ecg_channels = data.Value(1,1:num_channels.Value) + 1;
         end
-        
-        function eog_channels = get_eog_channels(board_id)
+
+        function eog_channels = get_eog_channels(board_id, preset)
             % get eog channels for provided board id
             task_name = 'get_eog_channels';
             lib_name = BoardShim.load_lib();
             num_channels = libpointer('int32Ptr', 0);
             data = libpointer('int32Ptr', zeros(1, 512));
-            exit_code = calllib(lib_name, task_name, board_id, data, num_channels);
+            exit_code = calllib(lib_name, task_name, board_id, preset, data, num_channels);
             BoardShim.check_ec(exit_code, task_name);
             eog_channels = data.Value(1,1:num_channels.Value) + 1;
         end
-        
-        function ppg_channels = get_ppg_channels(board_id)
+
+        function ppg_channels = get_ppg_channels(board_id, preset)
             % get ppg channels for provided board id
             task_name = 'get_ppg_channels';
             num_channels = libpointer('int32Ptr', 0);
             data = libpointer('int32Ptr', zeros(1, 512));
             lib_name = BoardShim.load_lib();
-            exit_code = calllib(lib_name, task_name, board_id, data, num_channels);
+            exit_code = calllib(lib_name, task_name, board_id, preset, data, num_channels);
             BoardShim.check_ec(exit_code, task_name);
             ppg_channels = data.Value(1,1:num_channels.Value) + 1;
         end
-        
-        function eda_channels = get_eda_channels(board_id)
+
+        function eda_channels = get_eda_channels(board_id, preset)
             % get eda channels for provided board id
             task_name = 'get_eda_channels';
             lib_name = BoardShim.load_lib();
             num_channels = libpointer('int32Ptr', 0);
             data = libpointer('int32Ptr', zeros(1, 512));
-            exit_code = calllib(lib_name, task_name, board_id, data, num_channels);
+            exit_code = calllib(lib_name, task_name, board_id, preset, data, num_channels);
             BoardShim.check_ec(exit_code, task_name);
             eda_channels = data.Value(1,1:num_channels.Value) + 1;
         end
-        
-        function accel_channels = get_accel_channels(board_id)
+
+        function accel_channels = get_accel_channels(board_id, preset)
             % get accel channels for provided board id
             task_name = 'get_accel_channels';
             lib_name = BoardShim.load_lib();
             num_channels = libpointer('int32Ptr', 0);
             data = libpointer('int32Ptr', zeros(1, 512));
-            exit_code = calllib(lib_name, task_name, board_id, data, num_channels);
+            exit_code = calllib(lib_name, task_name, board_id, preset, data, num_channels);
             BoardShim.check_ec(exit_code, task_name);
             accel_channels = data.Value(1,1:num_channels.Value) + 1;
         end
-        
-        function analog_channels = get_analog_channels(board_id)
+
+        function rotation_channels = get_rotation_channels(board_id, preset)
+            % get rotation channels for provided board id
+            task_name = 'get_rotation_channels';
+            lib_name = BoardShim.load_lib();
+            num_channels = libpointer('int32Ptr', 0);
+            data = libpointer('int32Ptr', zeros(1, 512));
+            exit_code = calllib(lib_name, task_name, board_id, preset, data, num_channels);
+            BoardShim.check_ec(exit_code, task_name);
+            rotation_channels = data.Value(1,1:num_channels.Value) + 1;
+        end
+
+        function analog_channels = get_analog_channels(board_id, preset)
             % get analog channels for provided board id
             task_name = 'get_analog_channels';
             lib_name = BoardShim.load_lib();
             num_channels = libpointer('int32Ptr', 0);
             data = libpointer('int32Ptr', zeros(1, 512));
-            exit_code = calllib(lib_name, task_name, board_id, data, num_channels);
+            exit_code = calllib(lib_name, task_name, board_id, preset, data, num_channels);
             BoardShim.check_ec(exit_code, task_name);
             analog_channels = data.Value(1,1:num_channels.Value) + 1;
         end
-        
-        function other_channels = get_other_channels(board_id)
+
+        function other_channels = get_other_channels(board_id, preset)
             % get other channels for provided board id
             task_name = 'get_other_channels';
             lib_name = BoardShim.load_lib();
             num_channels = libpointer('int32Ptr', 0);
             data = libpointer('int32Ptr', zeros(1, 512));
-            exit_code = calllib(lib_name, task_name, board_id, data, num_channels);
+            exit_code = calllib(lib_name, task_name, board_id, preset, data, num_channels);
             BoardShim.check_ec(exit_code, task_name);
             other_channels = data.Value(1,1:num_channels.Value) + 1;
         end
-        
-        function temperature_channels = get_temperature_channels(board_id)
+
+        function temperature_channels = get_temperature_channels(board_id, preset)
             % get temperature channels for provided board id
             task_name = 'get_temperature_channels';
             lib_name = BoardShim.load_lib();
             num_channels = libpointer('int32Ptr', 0);
             data = libpointer('int32Ptr', zeros(1, 512));
-            exit_code = calllib(lib_name, task_name, board_id, data, num_channels);
+            exit_code = calllib(lib_name, task_name, board_id, preset, data, num_channels);
             BoardShim.check_ec(exit_code, task_name);
             temperature_channels = data.Value(1,1:num_channels.Value) + 1;
         end
-        
-        function resistance_channels = get_resistance_channels(board_id)
+
+        function resistance_channels = get_resistance_channels(board_id, preset)
             % get resistance channels for provided board id
             task_name = 'get_resistance_channels';
             lib_name = BoardShim.load_lib();
             num_channels = libpointer('int32Ptr', 0);
             data = libpointer('int32Ptr', zeros(1, 512));
-            exit_code = calllib(lib_name, task_name, board_id, data, num_channels);
+            exit_code = calllib(lib_name, task_name, board_id, preset, data, num_channels);
             BoardShim.check_ec(exit_code, task_name);
             resistance_channels = data.Value(1,1:num_channels.Value) + 1;
         end
-        
+
+        function magnetometer_channels = get_magnetometer_channels(board_id, preset)
+            % get magnetometer channels for provided board id
+            task_name = 'get_magnetometer_channels';
+            lib_name = BoardShim.load_lib();
+            num_channels = libpointer('int32Ptr', 0);
+            data = libpointer('int32Ptr', zeros(1, 512));
+            exit_code = calllib(lib_name, task_name, board_id, preset, data, num_channels);
+            BoardShim.check_ec(exit_code, task_name);
+            magnetometer_channels = data.Value(1,1:num_channels.Value) + 1;
+        end
+
     end
 
     methods
@@ -327,11 +361,10 @@ classdef BoardShim
             obj.board_id = int32(board_id);
             obj.master_board_id = obj.board_id;
             if((board_id == int32(BoardIds.STREAMING_BOARD)) ||(board_id == int32(BoardIds.PLAYBACK_FILE_BOARD)))
-                double_val = str2double(input_params.other_info);
-                if(isnan(double_val))
-                    error("Write master board ID to other_info field");
+                if (input_params.master_board == int32(BoardIds.NO_BOARD))
+                    error('You need to provide master board id for streaming or playback boards');
                 end
-                obj.master_board_id = int32(double_val);
+                obj.master_board_id = input_params.master_board;
             end
         end
 
@@ -350,6 +383,34 @@ classdef BoardShim
             % no way to understand how it works in matlab used this link
             % https://nl.mathworks.com/matlabcentral/answers/131446-what-data-type-do-i-need-to-calllib-with-pointer-argument-char%
             [exit_code, tmp, response] = calllib(lib_name, task_name, config, blanks(4096), 4096, obj.board_id, obj.input_params_json);
+            BoardShim.check_ec(exit_code, task_name);
+        end
+        
+        function config_board_with_bytes(obj, bytes)
+            % send bytes to the board, do not use it
+            task_name = 'config_board_with_bytes';
+            lib_name = BoardShim.load_lib();
+            exit_code = calllib(lib_name, task_name, bytes, size(bytes, 2), obj.board_id, obj.input_params_json);
+            BoardShim.check_ec(exit_code, task_name);
+        end
+
+        function add_streamer(obj, streamer, preset)
+            % add streamer
+            task_name = 'add_streamer';
+            lib_name = BoardShim.load_lib();
+            % no way to understand how it works in matlab used this link
+            % https://nl.mathworks.com/matlabcentral/answers/131446-what-data-type-do-i-need-to-calllib-with-pointer-argument-char%
+            [exit_code, tmp] = calllib(lib_name, task_name, streamer, preset, obj.board_id, obj.input_params_json);
+            BoardShim.check_ec(exit_code, task_name);
+        end
+
+        function delete_streamer(obj, streamer, preset)
+            % delete streamer
+            task_name = 'delete_streamer';
+            lib_name = BoardShim.load_lib();
+            % no way to understand how it works in matlab used this link
+            % https://nl.mathworks.com/matlabcentral/answers/131446-what-data-type-do-i-need-to-calllib-with-pointer-argument-char%
+            [exit_code, tmp] = calllib(lib_name, task_name, streamer, preset, obj.board_id, obj.input_params_json);
             BoardShim.check_ec(exit_code, task_name);
         end
 
@@ -376,29 +437,29 @@ classdef BoardShim
             exit_code = calllib(lib_name, task_name, obj.board_id, obj.input_params_json);
             BoardShim.check_ec(exit_code, task_name);
         end
-        
-        function insert_marker(obj, value)
+
+        function insert_marker(obj, value, preset)
             % insert marker
             task_name = 'insert_marker';
             lib_name = BoardShim.load_lib();
-            exit_code = calllib(lib_name, task_name, double(value), obj.board_id, obj.input_params_json);
+            exit_code = calllib(lib_name, task_name, double(value), preset, obj.board_id, obj.input_params_json);
             BoardShim.check_ec(exit_code, task_name);
         end
 
-        function num_data_point = get_board_data_count(obj)
+        function num_data_point = get_board_data_count(obj, preset)
             % get amount of datapoints in internal buffer
             task_name = 'get_board_data_count';
             data_count = libpointer('int32Ptr', 0);
             lib_name = BoardShim.load_lib();
-            exit_code = calllib(lib_name, task_name, data_count, obj.board_id, obj.input_params_json);
+            exit_code = calllib(lib_name, task_name, preset, data_count, obj.board_id, obj.input_params_json);
             BoardShim.check_ec(exit_code, task_name);
             num_data_point = data_count.value;
         end
 
-        function data_buf = get_board_data(obj, num_datapoints)
+        function data_buf = get_board_data(obj, num_datapoints, preset)
             % get required amount of data by specifying it and remove it from the buffer
             task_name = 'get_board_data';
-            data_count = obj.get_board_data_count();
+            data_count = obj.get_board_data_count(preset);
             if (num_datapoints < 0)
                 BoardShim.check_ec(int32(ExitCodes.INVALID_ARGUMENTS_ERROR), 'invalid num_datapoints');
             else
@@ -406,26 +467,26 @@ classdef BoardShim
                     data_count = num_datapoints;
                 end
             end
-            num_rows = BoardShim.get_num_rows(obj.master_board_id);
+            num_rows = BoardShim.get_num_rows(obj.master_board_id, preset);
             lib_name = BoardShim.load_lib();
             data = libpointer('doublePtr', zeros(1, data_count * num_rows));
-            exit_code = calllib(lib_name, task_name, data_count, data, obj.board_id, obj.input_params_json);
+            exit_code = calllib(lib_name, task_name, data_count, preset, data, obj.board_id, obj.input_params_json);
             BoardShim.check_ec(exit_code, task_name);
             data_buf = transpose(reshape(data.Value, [data_count, num_rows]));
         end
 
-        function data_buf = get_current_board_data(obj, num_samples)
+        function data_buf = get_current_board_data(obj, num_samples, preset)
             % get latest datapoints, doesnt remove it from internal buffer
             task_name = 'get_current_board_data';
             data_count = libpointer('int32Ptr', 0);
-            num_rows = BoardShim.get_num_rows(obj.master_board_id);
+            num_rows = BoardShim.get_num_rows(obj.master_board_id, preset);
             lib_name = BoardShim.load_lib();
             data = libpointer('doublePtr', zeros(1, num_samples * num_rows));
-            exit_code = calllib(lib_name, task_name, num_samples, data, data_count, obj.board_id, obj.input_params_json);
+            exit_code = calllib(lib_name, task_name, num_samples, preset, data, data_count, obj.board_id, obj.input_params_json);
             BoardShim.check_ec(exit_code, task_name);
             data_buf = transpose(reshape(data.Value(1,1:data_count.Value * num_rows), [data_count.Value, num_rows]));
         end
-        
+
         function prepared = is_prepared(obj)
            % check if brainflow session prepared
            task_name = 'is_prepared';
@@ -435,7 +496,7 @@ classdef BoardShim
            BoardShim.check_ec(exit_code, task_name);
            prepared = boolean(res.value);
         end
-        
+
     end
-    
+
 end

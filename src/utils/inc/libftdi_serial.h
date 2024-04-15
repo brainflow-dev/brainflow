@@ -19,6 +19,7 @@ public:
     bool is_port_open ();
     int set_serial_port_settings (int ms_timeout = 1000, bool timeout_only = false);
     int set_custom_baudrate (int baudrate);
+    int set_custom_latency (int latency = 1);
     int flush_buffer ();
     int read_from_serial_port (void *bytes_to_read, int size);
     int send_to_serial_port (const void *message, int length);

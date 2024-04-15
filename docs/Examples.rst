@@ -79,8 +79,19 @@ Python EEG Metrics
 .. literalinclude:: ../python_package/examples/tests/eeg_metrics.py
    :language: py
 
+Python ICA
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../python_package/examples/tests/ica.py
+   :language: py
+
 Python Real Time Plot
 ~~~~~~~~~~~~~~~~~~~~~~~~
+
+Extra requirements for this code sample:
+
+.. literalinclude:: ../python_package/examples/plot_real_time/requirements.txt
+   :language: none
 
 .. literalinclude:: ../python_package/examples/plot_real_time/plot_real_time_min.py
    :language: py
@@ -142,6 +153,12 @@ Java EEG Metrics
 .. literalinclude:: ../java_package/brainflow/src/main/java/brainflow/examples/EEGMetrics.java
    :language: java
 
+Java ICA
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../java_package/brainflow/src/main/java/brainflow/examples/ICA.java
+   :language: java
+
 C#
 -----
 
@@ -197,6 +214,12 @@ C# EEG Metrics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. literalinclude:: ../csharp_package/brainflow/examples/eeg_metrics/eeg_metrics.cs
+   :language: c#
+
+C# ICA
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../csharp_package/brainflow/examples/ica/ica.cs
    :language: c#
 
 C++
@@ -281,6 +304,13 @@ C++ EEG Metrics
 .. literalinclude:: ../cpp_package/examples/ml/src/eeg_metrics.cpp
    :language: cpp
 
+C++ ICA
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../cpp_package/examples/signal_processing/src/ica.cpp
+   :language: cpp
+
+
 R
 ----
 
@@ -330,6 +360,12 @@ R EEG Metrics
 ~~~~~~~~~~~~~~
 
 .. literalinclude:: ../r_package/examples/eeg_metrics.R
+   :language: r
+
+R ICA
+~~~~~~~~~~~~~~
+
+.. literalinclude:: ../r_package/examples/ICA.R
    :language: r
 
 Matlab
@@ -383,6 +419,12 @@ Matlab EEG Metrics
 .. literalinclude:: ../matlab_package/brainflow/examples/EEGMetrics.m
    :language: matlab
 
+Matlab ICA
+~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../matlab_package/brainflow/examples/ICA.m
+   :language: matlab
+
 Julia
 --------
 
@@ -432,6 +474,12 @@ Julia EEG Metrics
 ~~~~~~~~~~~~~~~~~
 
 .. literalinclude:: ../julia_package/brainflow/test/eeg_metrics.jl
+   :language: julia
+
+Julia ICA
+~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../julia_package/brainflow/test/ica.jl
    :language: julia
 
 Rust
@@ -484,6 +532,75 @@ Rust EEG Metrics
 
 .. literalinclude:: ../rust_package/brainflow/examples/eeg_metrics.rs
    :language: rust
+
+Rust ICA
+~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../rust_package/brainflow/examples/ica.rs
+   :language: rust
+
+Typescript
+------------
+
+Typescript Get Data from a Board
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../nodejs_package/tests/brainflow_get_data.ts
+   :language: javascript
+
+Typescript Markers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../nodejs_package/tests/markers.ts
+   :language: javascript
+
+Typescript Read Write File
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../nodejs_package/tests/serialization.ts
+   :language: javascript
+
+Typescript Downsample Data
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../nodejs_package/tests/downsampling.ts
+   :language: javascript
+
+Typescript Transforms
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../nodejs_package/tests/transforms.ts
+   :language: javascript
+
+Typescript Signal Filtering
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../nodejs_package/tests/signal_filtering.ts
+   :language: javascript
+
+Typescript Denoising
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../nodejs_package/tests/denoising.ts
+   :language: javascript
+
+Typescript Band Power
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../nodejs_package/tests/bandpower.ts
+   :language: javascript
+
+Typescript EEG Metrics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../nodejs_package/tests/eeg_metrics.ts
+   :language: javascript
+
+Typescript ICA
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../nodejs_package/tests/ica.ts
+   :language: javascript
 
 Notebooks
 ------------

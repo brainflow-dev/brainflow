@@ -1,3 +1,6 @@
-scipy
-pyqtgraph
+PyQt5==5.15.7
+PyQt5-Qt5==5.15.2
+PyQt5-sip==12.11.0
+pyqtgraph==0.12.4
 brainflow
+scipy==1.11.4

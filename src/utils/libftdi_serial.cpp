@@ -141,6 +141,12 @@ int LibFTDISerial::set_custom_baudrate (int baudrate)
     }
 }
 
+int LibFTDISerial::set_custom_latency (int latency)
+{
+    log_error ("libftdi", "set_custom_latency is not supported for libftdi serial");
+    return (int)SerialExitCodes::SET_PORT_STATE_ERROR;
+}
+
 int LibFTDISerial::flush_buffer ()
 {
 #if FTDI_MAJOR_VERSION >= 2 || (FTDI_MAJOR_VERSION == 1 && FTDI_MINOR_VERSIOM >= 5)
@@ -313,6 +319,11 @@ int LibFTDISerial::set_serial_port_settings (int ms_timeout, bool timeout_only)
 }
 
 int LibFTDISerial::set_custom_baudrate (int baudrate)
+{
+    return (int)SerialExitCodes::NO_LIBFTDI_ERROR;
+}
+
+int LibFTDISerial::set_custom_latency (int latency)
 {
     return (int)SerialExitCodes::NO_LIBFTDI_ERROR;
 }

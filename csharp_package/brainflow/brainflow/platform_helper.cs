@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Runtime.InteropServices;
 
 namespace brainflow
 {
@@ -18,24 +18,29 @@ namespace brainflow
         {
             if (library_env == LibraryEnvironment.Unknown)
             {
-                switch (Environment.OSVersion.Platform)
+                // for linux and macos for now we dont add 32 to lib names even for 32 bits
+                if (RuntimeInformation.IsOSPlatform (OSPlatform.Linux))
                 {
-                    case PlatformID.MacOSX:
-                        library_env = LibraryEnvironment.MacOS;
-                        break;
-                    case PlatformID.Unix:
-                        library_env = LibraryEnvironment.Linux;
-                        break;
-                    default:
-                        if (Environment.Is64BitProcess)
-                        {
-                            library_env = LibraryEnvironment.x64;
-                        }
-                        else
-                        {
-                            library_env = LibraryEnvironment.x86;
-                        }
-                        break;
+                    Console.Error.Write ("Linux platform detected");
+                    library_env = LibraryEnvironment.x64;
+                }
+                if (RuntimeInformation.IsOSPlatform (OSPlatform.OSX))
+                {
+                    Console.Error.Write ("OSX platform detected");
+                    library_env = LibraryEnvironment.x64;
+                }
+                if (RuntimeInformation.IsOSPlatform (OSPlatform.Windows))
+                {
+                    if (Environment.Is64BitProcess)
+                    {
+                        Console.Error.Write ("Win64 platform detected");
+                        library_env = LibraryEnvironment.x64;
+                    }
+                    else
+                    {
+                        Console.Error.Write ("Win32 platform detected");
+                        library_env = LibraryEnvironment.x86;
+                    }
                 }
             }
 

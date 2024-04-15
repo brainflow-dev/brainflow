@@ -19,6 +19,9 @@ class FilterTypes(enum.IntEnum):
     BUTTERWORTH = 0  #:
     CHEBYSHEV_TYPE_1 = 1  #:
     BESSEL = 2  #:
+    BUTTERWORTH_ZERO_PHASE = 3  #:
+    CHEBYSHEV_TYPE_1_ZERO_PHASE = 4  #:
+    BESSEL_ZERO_PHASE = 5  #:
 
 
 class AggOperations(enum.IntEnum):
@@ -154,6 +157,11 @@ class DataHandlerDLL(object):
         full_path = pkg_resources.resource_filename(__name__, dll_path)
         if os.path.isfile(full_path):
             dir_path = os.path.abspath(os.path.dirname(full_path))
+            # for python 3.8 PATH env var doesnt work anymore
+            try:
+                os.add_dll_directory(dir_path)
+            except:
+                pass
             if platform.system() == 'Windows':
                 os.environ['PATH'] = dir_path + os.pathsep + os.environ.get('PATH', '')
             else:
@@ -213,6 +221,30 @@ class DataHandlerDLL(object):
             ctypes.c_double
         ]
 
+        self.get_oxygen_level = self.lib.get_oxygen_level
+        self.get_oxygen_level.restype = ctypes.c_int
+        self.get_oxygen_level.argtypes = [
+            ndpointer(ctypes.c_double),
+            ndpointer(ctypes.c_double),
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_double,
+            ctypes.c_double,
+            ctypes.c_double,
+            ndpointer(ctypes.c_double)
+        ]
+
+        self.get_heart_rate = self.lib.get_heart_rate
+        self.get_heart_rate.restype = ctypes.c_int
+        self.get_heart_rate.argtypes = [
+            ndpointer(ctypes.c_double),
+            ndpointer(ctypes.c_double),
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ndpointer(ctypes.c_double)
+        ]
+
         self.log_message_data_handler = self.lib.log_message_data_handler
         self.log_message_data_handler.restype = ctypes.c_int
         self.log_message_data_handler.argtypes = [
@@ -252,6 +284,15 @@ class DataHandlerDLL(object):
         self.calc_stddev = self.lib.calc_stddev
         self.calc_stddev.restype = ctypes.c_int
         self.calc_stddev.argtypes = [
+            ndpointer(ctypes.c_double),
+            ctypes.c_int,
+            ctypes.c_int,
+            ndpointer(ctypes.c_double)
+        ]
+
+        self.get_railed_percentage = self.lib.get_railed_percentage
+        self.get_railed_percentage.restype = ctypes.c_int
+        self.get_railed_percentage.argtypes = [
             ndpointer(ctypes.c_double),
             ctypes.c_int,
             ctypes.c_int,
@@ -306,6 +347,28 @@ class DataHandlerDLL(object):
             ctypes.c_int,
             ndpointer(ctypes.c_double),
             ndpointer(ctypes.c_int32)
+        ]
+
+        self.detect_peaks_z_score = self.lib.detect_peaks_z_score
+        self.detect_peaks_z_score.restype = ctypes.c_int
+        self.detect_peaks_z_score.argtypes = [
+            ndpointer(ctypes.c_double),
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_double,
+            ctypes.c_double,
+            ndpointer(ctypes.c_double)
+        ]
+
+        self.restore_data_from_wavelet_detailed_coeffs = self.lib.restore_data_from_wavelet_detailed_coeffs
+        self.restore_data_from_wavelet_detailed_coeffs.restype = ctypes.c_int
+        self.restore_data_from_wavelet_detailed_coeffs.argtypes = [
+            ndpointer(ctypes.c_double),
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ndpointer(ctypes.c_double)
         ]
 
         self.perform_inverse_wavelet_transform = self.lib.perform_inverse_wavelet_transform
@@ -392,6 +455,19 @@ class DataHandlerDLL(object):
             ctypes.c_int,
             ndpointer(ctypes.c_float),
             ndpointer(ctypes.c_float),
+        ]
+
+        self.perform_ica = self.lib.perform_ica
+        self.perform_ica.restype = ctypes.c_int
+        self.perform_ica.argtypes = [
+            ndpointer(ctypes.c_double),
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ndpointer(ctypes.c_double),
+            ndpointer(ctypes.c_double),
+            ndpointer(ctypes.c_double),
+            ndpointer(ctypes.c_double)
         ]
 
         self.get_custom_band_powers = self.lib.get_custom_band_powers
@@ -679,6 +755,75 @@ class DataFilter(object):
         return output[0]
 
     @classmethod
+    def get_railed_percentage(cls, data: NDArray[Float64], gain: int):
+        """get railed percentage
+
+        :param data: input array
+        :type data: NDArray[Float64]
+        :param gain: gain
+        :type gain: int
+        :return: railed percentage
+        :rtype: float
+        """
+        check_memory_layout_row_major(data, 1)
+        output = numpy.zeros(1).astype(numpy.float64)
+        res = DataHandlerDLL.get_instance().get_railed_percentage(data, data.shape[0], gain, output)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to get railed percentage', res)
+        return output[0]
+
+    @classmethod
+    def get_oxygen_level(cls, ppg_ir: NDArray[Float64], ppg_red: NDArray[Float64], sampling_rate: int,
+                         coef1=1.5958422, coef2=-34.6596622, coef3=112.6898759):
+        """get oxygen level from ppg
+
+        :param ppg_ir: input array
+        :type ppg_ir: NDArray[Float64]
+        :param ppg_red: input array
+        :type ppg_red: NDArray[Float64]
+        :param sampling_rate: sampling rate
+        :type sampling_rate: int
+        :return: oxygen level
+        :rtype: float
+        """
+        check_memory_layout_row_major(ppg_ir, 1)
+        check_memory_layout_row_major(ppg_red, 1)
+        if ppg_ir.shape[0] != ppg_red.shape[0]:
+            raise BrainFlowError('invalid shapes', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR)
+        output = numpy.zeros(1).astype(numpy.float64)
+        res = DataHandlerDLL.get_instance().get_oxygen_level(ppg_ir, ppg_red, ppg_red.shape[0], sampling_rate,
+                                                             coef1, coef2, coef3, output)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to calc oxygen level', res)
+        return output[0]
+
+    @classmethod
+    def get_heart_rate(cls, ppg_ir: NDArray[Float64], ppg_red: NDArray[Float64], sampling_rate: int, fft_size: int):
+        """get heart rate
+
+        :param ppg_ir: input array
+        :type ppg_ir: NDArray[Float64]
+        :param ppg_red: input array
+        :type ppg_red: NDArray[Float64]
+        :param sampling_rate: sampling rate
+        :type sampling_rate: int
+        :param fft_size: recommended 8192
+        :type fft_size: int
+        :return: heart rate
+        :rtype: float
+        """
+        check_memory_layout_row_major(ppg_ir, 1)
+        check_memory_layout_row_major(ppg_red, 1)
+        if ppg_ir.shape[0] != ppg_red.shape[0]:
+            raise BrainFlowError('invalid shapes', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR)
+        output = numpy.zeros(1).astype(numpy.float64)
+        res = DataHandlerDLL.get_instance().get_heart_rate(ppg_ir, ppg_red, ppg_red.shape[0], sampling_rate,
+                                                           fft_size, output)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to calc heart rate', res)
+        return output[0]
+
+    @classmethod
     def perform_downsampling(cls, data: NDArray[Float64], period: int, operation: int) -> NDArray[Float64]:
         """perform data downsampling, it doesnt apply lowpass filter for you, it just aggregates several data points
 
@@ -734,6 +879,56 @@ class DataFilter(object):
             raise BrainFlowError('unable to perform wavelet transform', res)
 
         return wavelet_coeffs[0: sum(lengths)], lengths
+
+    @classmethod
+    def restore_data_from_wavelet_detailed_coeffs(cls, data: NDArray[Float64], wavelet, decomposition_level, level_to_restore):
+        """restore data from a single wavelet coeff
+
+        :param data: initial data
+        :type data: NDArray[Float64]
+        :param wavelet: use WaveletTypes enum
+        :type wavelet: int
+        :param decomposition_level: level of decomposition
+        :type decomposition_level: int
+        :param level_to_restore: level of coeffs
+        :type level_to_restore: int
+        :return: 
+        :rtype: NDArray[Float64]
+        """
+        check_memory_layout_row_major(data, 1)
+
+        output = numpy.zeros(data.shape[0])
+        res = DataHandlerDLL.get_instance().restore_data_from_wavelet_detailed_coeffs(data, data.shape[0], wavelet,
+                                                                 decomposition_level, level_to_restore, output)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to perfom restore_data_from_wavelet_detailed_coeffs', res)
+
+        return output
+
+    @classmethod
+    def detect_peaks_z_score(cls, data: NDArray[Float64], lag=5, threshold=3.5, influence=0.1):
+        """z score algorithm for peak detection
+
+        :param data: initial data
+        :type data: NDArray[Float64]
+        :param lag: window size for averaging
+        :type lag: int
+        :param threshold: in stddev units
+        :type threshold: float
+        :param influence: contribution of peaks to mean value, between 0 and 1
+        :type influence: float
+        :return: 
+        :rtype: NDArray[Float64]
+        """
+        check_memory_layout_row_major(data, 1)
+
+        output = numpy.zeros(data.shape[0])
+        res = DataHandlerDLL.get_instance().detect_peaks_z_score(data, data.shape[0], lag,
+                                                                 threshold, influence, output)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to perfom detect_peaks_z_score', res)
+
+        return output
 
     @classmethod
     def perform_inverse_wavelet_transform(cls, wavelet_output: Tuple, original_data_len: int, wavelet: int,
@@ -849,7 +1044,7 @@ class DataFilter(object):
     def perform_fft(cls, data: NDArray[Float64], window: int) -> NDArray[Complex128]:
         """perform direct fft
 
-        :param data: data for fft, len of data must be a power of 2
+        :param data: data for fft, len of data must be even
         :type data: NDArray[Float64]
         :param window: window function
         :type window: int
@@ -858,13 +1053,6 @@ class DataFilter(object):
         """
 
         check_memory_layout_row_major(data, 1)
-
-        def is_power_of_two(n):
-            return (n != 0) and (n & (n - 1) == 0)
-
-        if (not is_power_of_two(data.shape[0])):
-            raise BrainFlowError('data len is not power of 2: %d' % data.shape[0],
-                                 BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
 
         temp_re = numpy.zeros(int(data.shape[0] / 2 + 1)).astype(numpy.float64)
         temp_im = numpy.zeros(int(data.shape[0] / 2 + 1)).astype(numpy.float64)
@@ -882,7 +1070,7 @@ class DataFilter(object):
     def get_psd(cls, data: NDArray[Float64], sampling_rate: int, window: int) -> Tuple:
         """calculate PSD
 
-        :param data: data to calc psd, len of data must be a power of 2
+        :param data: data to calc psd, len of data must be even
         :type data: NDArray[Float64]
         :param sampling_rate: sampling rate
         :type sampling_rate: int
@@ -893,13 +1081,6 @@ class DataFilter(object):
         """
 
         check_memory_layout_row_major(data, 1)
-
-        def is_power_of_two(n):
-            return (n != 0) and (n & (n - 1) == 0)
-
-        if (not is_power_of_two(data.shape[0])):
-            raise BrainFlowError('data len is not power of 2: %d' % data.shape[0],
-                                 BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
 
         ampls = numpy.zeros(int(data.shape[0] / 2 + 1)).astype(numpy.float64)
         freqs = numpy.zeros(int(data.shape[0] / 2 + 1)).astype(numpy.float64)
@@ -915,7 +1096,7 @@ class DataFilter(object):
 
         :param data: data to calc psd
         :type data: NDArray[Float64]
-        :param nfft: FFT Window size, must be power of 2
+        :param nfft: FFT Window size, must be even
         :type nfft: int
         :param overlap: overlap of FFT Windows, must be between 0 and nfft
         :type overlap: int
@@ -928,12 +1109,6 @@ class DataFilter(object):
         """
 
         check_memory_layout_row_major(data, 1)
-
-        def is_power_of_two(n):
-            return (n != 0) and (n & (n - 1) == 0)
-
-        if (not is_power_of_two(nfft)):
-            raise BrainFlowError('nfft is not power of 2: %d' % nfft, BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
 
         ampls = numpy.zeros(int(nfft / 2 + 1)).astype(numpy.float64)
         freqs = numpy.zeros(int(nfft / 2 + 1)).astype(numpy.float64)
@@ -1041,6 +1216,53 @@ class DataFilter(object):
             raise BrainFlowError('unable to get_avg_band_powers', res)
 
         return avg_bands, stddev_bands
+
+    @classmethod
+    def perform_ica(cls, data: NDArray, num_components: int, channels=None) -> Tuple:
+        """perform ICA
+
+        :param data: 2d array for calculation
+        :type data: NDArray
+        :param num_components: number of components
+        :type num_components: int
+        :param channels: channels - rows of data array which should be used for calculation, if None use all
+        :type channels: List
+        :return: w, k, a, s matrixes as a tuple
+        :rtype: tuple
+        """
+        check_memory_layout_row_major(data, 2)
+        if len(data.shape) != 2:
+            raise BrainFlowError('wrong number of dimensions', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+        if num_components < 1:
+            raise BrainFlowError('wrong number of components', BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+
+        if not channels:
+            channels_to_use = range(data.shape[0])
+        else:
+            channels_to_use = channels
+    
+        data_1d = numpy.zeros(len(channels_to_use) * data.shape[1]).astype(numpy.float64)
+
+        w = numpy.zeros(num_components * num_components).astype(numpy.float64)
+        k = numpy.zeros(len(channels_to_use) * num_components).astype(numpy.float64)
+        a = numpy.zeros(num_components * len(channels_to_use)).astype(numpy.float64)
+        s = numpy.zeros(data.shape[1] * num_components).astype(numpy.float64)
+
+        for i, channel in enumerate(channels_to_use):
+            for j in range(data.shape[1]):
+                data_1d[j + data.shape[1] * i] = data[channel][j]
+
+        res = DataHandlerDLL.get_instance().perform_ica(data_1d, len(channels_to_use), data.shape[1],
+                                                        num_components, w, k, a, s)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to calculate ICA', res)
+
+        w = w.reshape(num_components, num_components)
+        k = k.reshape(num_components, len(channels_to_use))
+        a = a.reshape(len(channels_to_use), num_components)
+        s = s.reshape(num_components, data.shape[1])
+
+        return w, k, a, s
 
     @classmethod
     def perform_ifft(cls, data: NDArray[Complex128]) -> NDArray[Float64]:

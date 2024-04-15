@@ -1,7 +1,7 @@
 import argparse
 import time
 
-from brainflow.board_shim import BoardShim, BrainFlowInputParams
+from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds, BrainFlowPresets
 
 
 def main():
@@ -18,11 +18,12 @@ def main():
     parser.add_argument('--serial-port', type=str, help='serial port', required=False, default='')
     parser.add_argument('--mac-address', type=str, help='mac address', required=False, default='')
     parser.add_argument('--other-info', type=str, help='other info', required=False, default='')
-    parser.add_argument('--streamer-params', type=str, help='streamer params', required=False, default='')
     parser.add_argument('--serial-number', type=str, help='serial number', required=False, default='')
     parser.add_argument('--board-id', type=int, help='board id, check docs to get a list of supported boards',
                         required=True)
     parser.add_argument('--file', type=str, help='file', required=False, default='')
+    parser.add_argument('--master-board', type=int, help='master board id for streaming and playback boards',
+                        required=False, default=BoardIds.NO_BOARD)
     args = parser.parse_args()
 
     params = BrainFlowInputParams()
@@ -35,21 +36,27 @@ def main():
     params.ip_protocol = args.ip_protocol
     params.timeout = args.timeout
     params.file = args.file
+    params.master_board = args.master_board
 
     board = BoardShim(args.board_id, params)
     board.prepare_session()
-    # board.start_stream () # use this for default options
-    board.start_stream(45000, args.streamer_params)
-    time.sleep(2)
+    board.start_stream ()
+    #time.sleep(10)
     # data = board.get_current_board_data (256) # get latest 256 packages or less, doesnt remove them from internal buffer
-    while 1:
-            data = board.get_board_data(1)  # get all data and remove it from internal buffer
-            if len(data[3]) != 0:
-                print(data)
+    #data = board.get_board_data()  # get all data and remove it from internal buffer
+    
+    start_time = time.time()
+    while True:
+        elapsed_time = time.time() - start_time
+        if elapsed_time > 5:
+            break
+        data = board.get_board_data()
+        print(data)
+    
     board.stop_stream()
     board.release_session()
 
-    
+    #print(data)
 
 
 if __name__ == "__main__":

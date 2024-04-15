@@ -30,6 +30,7 @@ Ganglion::Ganglion (struct BrainFlowInputParams params)
         is_valid = true;
     }
     use_mac_addr = (params.mac_address.empty ()) ? false : true;
+    firmware = 0;
     is_streaming = false;
     keep_alive = false;
     initialized = false;
@@ -226,9 +227,7 @@ void Ganglion::read_thread ()
     int max_attempts = params.timeout * 1000 / sleep_time;
     float last_data[8] = {0};
 
-    double accel_x = 0.;
-    double accel_y = 0.;
-    double accel_z = 0.;
+    double acceleration[3] = {0.};
 
     double resist_ref = 0.0;
     double resist_first = 0.0;
@@ -243,7 +242,7 @@ void Ganglion::read_thread ()
         return;
     }
 
-    int num_rows = board_descr["num_rows"];
+    int num_rows = board_descr["default"]["num_rows"];
     double *package = new double[num_rows];
 
     while (keep_alive)
@@ -267,68 +266,16 @@ void Ganglion::read_thread ()
                 safe_logger (spdlog::level::debug, "start streaming");
             }
 
-            // delta holds 8 nums (4 by each package)
-            float delta[8] = {0.f};
-            int bits_per_num = 0;
-            unsigned char package_bits[160] = {0}; // 20 * 8
-            for (int i = 0; i < 20; i++)
+            if (data.data[0] <= 200)
             {
-                uchar_to_bits (data.data[i], package_bits + i * 8);
-            }
-
-            // no compression, used to init variable
-            if (data.data[0] == 0)
-            {
-                // shift the last data packet to make room for a newer one
-                last_data[0] = last_data[4];
-                last_data[1] = last_data[5];
-                last_data[2] = last_data[6];
-                last_data[3] = last_data[7];
-
-                // add new packet
-                last_data[4] = (float)cast_24bit_to_int32 (data.data + 1);
-                last_data[5] = (float)cast_24bit_to_int32 (data.data + 4);
-                last_data[6] = (float)cast_24bit_to_int32 (data.data + 7);
-                last_data[7] = (float)cast_24bit_to_int32 (data.data + 10);
-
-                // scale new packet and insert into result
-                package[board_descr["package_num_channel"].get<int> ()] = 0.;
-                package[board_descr["eeg_channels"][0].get<int> ()] = eeg_scale * last_data[4];
-                package[board_descr["eeg_channels"][1].get<int> ()] = eeg_scale * last_data[5];
-                package[board_descr["eeg_channels"][2].get<int> ()] = eeg_scale * last_data[6];
-                package[board_descr["eeg_channels"][3].get<int> ()] = eeg_scale * last_data[7];
-                package[board_descr["accel_channels"][0].get<int> ()] = accel_x;
-                package[board_descr["accel_channels"][1].get<int> ()] = accel_y;
-                package[board_descr["accel_channels"][2].get<int> ()] = accel_z;
-                package[board_descr["timestamp_channel"].get<int> ()] = data.timestamp;
-                push_package (package);
-                continue;
-            }
-            // 18 bit compression, sends delta from previous value instead of real value!
-            else if ((data.data[0] >= 1) && (data.data[0] <= 100))
-            {
-                int last_digit = data.data[0] % 10;
-                switch (last_digit)
+                if (firmware == 3)
                 {
-                    // accel data is signed, so we must cast it to signed char
-                    // due to a known bug in ganglion firmware, we must swap x and z, and invert z.
-                    case 0:
-                        accel_z = -accel_scale * (char)data.data[19];
-                        break;
-                    case 1:
-                        accel_y = accel_scale * (char)data.data[19];
-                        break;
-                    case 2:
-                        accel_x = accel_scale * (char)data.data[19];
-                        break;
-                    default:
-                        break;
+                    decompress_firmware_3 (&data, last_data, acceleration, package);
                 }
-                bits_per_num = 18;
-            }
-            else if ((data.data[0] >= 101) && (data.data[0] <= 200))
-            {
-                bits_per_num = 19;
+                else if (firmware == 2)
+                {
+                    decompress_firmware_2 (&data, last_data, acceleration, package);
+                }
             }
             else if ((data.data[0] > 200) && (data.data[0] < 206))
             {
@@ -375,13 +322,17 @@ void Ganglion::read_thread ()
                     default:
                         break;
                 }
-                package[board_descr["package_num_channel"].get<int> ()] = data.data[0];
-                package[board_descr["resistance_channels"][0].get<int> ()] = resist_first;
-                package[board_descr["resistance_channels"][1].get<int> ()] = resist_second;
-                package[board_descr["resistance_channels"][2].get<int> ()] = resist_third;
-                package[board_descr["resistance_channels"][3].get<int> ()] = resist_fourth;
-                package[board_descr["resistance_channels"][4].get<int> ()] = resist_ref;
-                package[board_descr["timestamp_channel"].get<int> ()] = data.timestamp;
+                package[board_descr["default"]["package_num_channel"].get<int> ()] = data.data[0];
+                package[board_descr["default"]["resistance_channels"][0].get<int> ()] =
+                    resist_first;
+                package[board_descr["default"]["resistance_channels"][1].get<int> ()] =
+                    resist_second;
+                package[board_descr["default"]["resistance_channels"][2].get<int> ()] =
+                    resist_third;
+                package[board_descr["default"]["resistance_channels"][3].get<int> ()] =
+                    resist_fourth;
+                package[board_descr["default"]["resistance_channels"][4].get<int> ()] = resist_ref;
+                package[board_descr["default"]["timestamp_channel"].get<int> ()] = data.timestamp;
                 push_package (package);
                 continue;
             }
@@ -393,49 +344,6 @@ void Ganglion::read_thread ()
                 }
                 continue;
             }
-            // handle compressed data for 18 or 19 bits
-            for (int i = 8, counter = 0; i < bits_per_num * 8; i += bits_per_num, counter++)
-            {
-                if (bits_per_num == 18)
-                {
-                    delta[counter] = (float)cast_ganglion_bits_to_int32<18> (package_bits + i);
-                }
-                else
-                {
-                    delta[counter] = (float)cast_ganglion_bits_to_int32<19> (package_bits + i);
-                }
-            }
-
-            // apply the first delta to the last data we got in the previous iteration
-            for (int i = 0; i < 4; i++)
-            {
-                last_data[i] = last_data[i + 4] - delta[i];
-            }
-
-            // apply the second delta to the previous packet which we just decompressed above
-            for (int i = 4; i < 8; i++)
-            {
-                last_data[i] = last_data[i - 4] - delta[i];
-            }
-
-            // add first encoded package
-            package[board_descr["package_num_channel"].get<int> ()] = data.data[0];
-            package[board_descr["eeg_channels"][0].get<int> ()] = eeg_scale * last_data[0];
-            package[board_descr["eeg_channels"][1].get<int> ()] = eeg_scale * last_data[1];
-            package[board_descr["eeg_channels"][2].get<int> ()] = eeg_scale * last_data[2];
-            package[board_descr["eeg_channels"][3].get<int> ()] = eeg_scale * last_data[3];
-            package[board_descr["accel_channels"][0].get<int> ()] = accel_x;
-            package[board_descr["accel_channels"][1].get<int> ()] = accel_y;
-            package[board_descr["accel_channels"][2].get<int> ()] = accel_z;
-            package[board_descr["timestamp_channel"].get<int> ()] = data.timestamp;
-            push_package (package);
-            // add second package
-            package[board_descr["eeg_channels"][0].get<int> ()] = eeg_scale * last_data[4];
-            package[board_descr["eeg_channels"][1].get<int> ()] = eeg_scale * last_data[5];
-            package[board_descr["eeg_channels"][2].get<int> ()] = eeg_scale * last_data[6];
-            package[board_descr["eeg_channels"][3].get<int> ()] = eeg_scale * last_data[7];
-            package[board_descr["timestamp_channel"].get<int> ()] = data.timestamp;
-            push_package (package);
         }
         else
         {
@@ -463,8 +371,195 @@ void Ganglion::read_thread ()
     delete[] package;
 }
 
+void Ganglion::decompress_firmware_3 (
+    struct GanglionLib::GanglionData *data, float *last_data, double *acceleration, double *package)
+{
+    int bits_per_num = 0;
+    unsigned char package_bits[160] = {0}; // 20 * 8
+    for (int i = 0; i < 20; i++)
+    {
+        uchar_to_bits (data->data[i], package_bits + i * 8);
+    }
+
+    // 18 bit compression, sends 17 MSBs + sign bit of 24-bit sample
+    if (data->data[0] >= 0 && data->data[0] < 100)
+    {
+        int last_digit = data->data[0] % 10;
+        switch (last_digit)
+        {
+            // accel data is signed, so we must cast it to signed char
+            // swap x and z, and invert z to convert to standard coordinate space.
+            case 0:
+                acceleration[2] = -accel_scale * (char)data->data[19];
+                break;
+            case 1:
+                acceleration[1] = accel_scale * (char)data->data[19];
+                break;
+            case 2:
+                acceleration[0] = accel_scale * (char)data->data[19];
+                break;
+            default:
+                break;
+        }
+        bits_per_num = 18;
+    }
+    else if (data->data[0] >= 100 && data->data[0] < 200)
+    {
+        bits_per_num = 19;
+    }
+
+    // handle compressed data for 18 or 19 bits
+    for (int i = 8, counter = 0; i < bits_per_num * 8; i += bits_per_num, counter++)
+    {
+        if (bits_per_num == 18)
+        {
+            last_data[counter] = (float)(cast_ganglion_bits_to_int32<18> (package_bits + i) << 6);
+        }
+        else
+        {
+            last_data[counter] = (float)(cast_ganglion_bits_to_int32<19> (package_bits + i) << 5);
+        }
+    }
+
+    // add first encoded package
+    package[board_descr["default"]["package_num_channel"].get<int> ()] = data->data[0];
+    package[board_descr["default"]["eeg_channels"][0].get<int> ()] = eeg_scale * last_data[0];
+    package[board_descr["default"]["eeg_channels"][1].get<int> ()] = eeg_scale * last_data[1];
+    package[board_descr["default"]["eeg_channels"][2].get<int> ()] = eeg_scale * last_data[2];
+    package[board_descr["default"]["eeg_channels"][3].get<int> ()] = eeg_scale * last_data[3];
+    package[board_descr["default"]["accel_channels"][0].get<int> ()] = acceleration[0];
+    package[board_descr["default"]["accel_channels"][1].get<int> ()] = acceleration[1];
+    package[board_descr["default"]["accel_channels"][2].get<int> ()] = acceleration[2];
+    package[board_descr["default"]["timestamp_channel"].get<int> ()] = data->timestamp;
+    push_package (package);
+    // add second package
+    package[board_descr["default"]["eeg_channels"][0].get<int> ()] = eeg_scale * last_data[4];
+    package[board_descr["default"]["eeg_channels"][1].get<int> ()] = eeg_scale * last_data[5];
+    package[board_descr["default"]["eeg_channels"][2].get<int> ()] = eeg_scale * last_data[6];
+    package[board_descr["default"]["eeg_channels"][3].get<int> ()] = eeg_scale * last_data[7];
+    package[board_descr["default"]["timestamp_channel"].get<int> ()] = data->timestamp;
+    push_package (package);
+}
+
+void Ganglion::decompress_firmware_2 (
+    struct GanglionLib::GanglionData *data, float *last_data, double *acceleration, double *package)
+{
+    int bits_per_num = 0;
+    unsigned char package_bits[160] = {0}; // 20 * 8
+    for (int i = 0; i < 20; i++)
+    {
+        uchar_to_bits (data->data[i], package_bits + i * 8);
+    }
+
+    float delta[8] = {0.f}; // delta holds 8 nums (4 by each package)
+
+    // no compression, used to init variable
+    if (data->data[0] == 0)
+    {
+        // shift the last data packet to make room for a newer one
+        last_data[0] = last_data[4];
+        last_data[1] = last_data[5];
+        last_data[2] = last_data[6];
+        last_data[3] = last_data[7];
+
+        // add new packet
+        last_data[4] = (float)cast_24bit_to_int32 (data->data + 1);
+        last_data[5] = (float)cast_24bit_to_int32 (data->data + 4);
+        last_data[6] = (float)cast_24bit_to_int32 (data->data + 7);
+        last_data[7] = (float)cast_24bit_to_int32 (data->data + 10);
+
+        // scale new packet and insert into result
+        package[board_descr["default"]["package_num_channel"].get<int> ()] = 0.;
+        package[board_descr["default"]["eeg_channels"][0].get<int> ()] = eeg_scale * last_data[4];
+        package[board_descr["default"]["eeg_channels"][1].get<int> ()] = eeg_scale * last_data[5];
+        package[board_descr["default"]["eeg_channels"][2].get<int> ()] = eeg_scale * last_data[6];
+        package[board_descr["default"]["eeg_channels"][3].get<int> ()] = eeg_scale * last_data[7];
+        package[board_descr["default"]["accel_channels"][0].get<int> ()] = acceleration[0];
+        package[board_descr["default"]["accel_channels"][1].get<int> ()] = acceleration[1];
+        package[board_descr["default"]["accel_channels"][2].get<int> ()] = acceleration[2];
+        package[board_descr["default"]["timestamp_channel"].get<int> ()] = data->timestamp;
+        push_package (package);
+        return;
+    }
+    // 18 bit compression, sends delta from previous value instead of real value!
+    else if (data->data[0] >= 1 && data->data[0] <= 100)
+    {
+        int last_digit = data->data[0] % 10;
+        switch (last_digit)
+        {
+            // accel data is signed, so we must cast it to signed char
+            // swap x and z, and invert z to convert to standard coordinate space.
+            case 0:
+                acceleration[2] = -accel_scale * (char)data->data[19];
+                break;
+            case 1:
+                acceleration[1] = accel_scale * (char)data->data[19];
+                break;
+            case 2:
+                acceleration[0] = accel_scale * (char)data->data[19];
+                break;
+            default:
+                break;
+        }
+        bits_per_num = 18;
+    }
+    else if (data->data[0] >= 101 && data->data[0] <= 200)
+    {
+        bits_per_num = 19;
+    }
+
+    // handle compressed data for 18 or 19 bits
+    for (int i = 8, counter = 0; i < bits_per_num * 8; i += bits_per_num, counter++)
+    {
+        if (bits_per_num == 18)
+        {
+            delta[counter] = (float)cast_ganglion_bits_to_int32<18> (package_bits + i);
+        }
+        else
+        {
+            delta[counter] = (float)cast_ganglion_bits_to_int32<19> (package_bits + i);
+        }
+    }
+
+    // apply the first delta to the last data we got in the previous iteration
+    for (int i = 0; i < 4; i++)
+    {
+        last_data[i] = last_data[i + 4] - delta[i];
+    }
+
+    // apply the second delta to the previous packet which we just decompressed above
+    for (int i = 4; i < 8; i++)
+    {
+        last_data[i] = last_data[i - 4] - delta[i];
+    }
+
+    // add first encoded package
+    package[board_descr["default"]["package_num_channel"].get<int> ()] = data->data[0];
+    package[board_descr["default"]["eeg_channels"][0].get<int> ()] = eeg_scale * last_data[0];
+    package[board_descr["default"]["eeg_channels"][1].get<int> ()] = eeg_scale * last_data[1];
+    package[board_descr["default"]["eeg_channels"][2].get<int> ()] = eeg_scale * last_data[2];
+    package[board_descr["default"]["eeg_channels"][3].get<int> ()] = eeg_scale * last_data[3];
+    package[board_descr["default"]["accel_channels"][0].get<int> ()] = acceleration[0];
+    package[board_descr["default"]["accel_channels"][1].get<int> ()] = acceleration[1];
+    package[board_descr["default"]["accel_channels"][2].get<int> ()] = acceleration[2];
+    package[board_descr["default"]["timestamp_channel"].get<int> ()] = data->timestamp;
+    push_package (package);
+    // add second package
+    package[board_descr["default"]["eeg_channels"][0].get<int> ()] = eeg_scale * last_data[4];
+    package[board_descr["default"]["eeg_channels"][1].get<int> ()] = eeg_scale * last_data[5];
+    package[board_descr["default"]["eeg_channels"][2].get<int> ()] = eeg_scale * last_data[6];
+    package[board_descr["default"]["eeg_channels"][3].get<int> ()] = eeg_scale * last_data[7];
+    package[board_descr["default"]["timestamp_channel"].get<int> ()] = data->timestamp;
+    push_package (package);
+}
+
 int Ganglion::config_board (std::string config, std::string &response)
 {
+    if (config == "get_firmware_version")
+    {
+        response = std::to_string (firmware);
+        return (int)BrainFlowExitCodes::STATUS_OK;
+    }
     const char *conf = config.c_str ();
     safe_logger (spdlog::level::debug, "Trying to config Ganglion with {}", conf);
     // need to pause, config and restart. I have no idea why it doesnt work if I restart it inside
@@ -576,7 +671,16 @@ int Ganglion::call_open ()
         }
 
         safe_logger (spdlog::level::info, "search for {}", params.mac_address.c_str ());
-        res = func (const_cast<char *> (params.mac_address.c_str ()));
+
+        GanglionLib::ConnectionParameters connection_params;
+        connection_params.mac_address = const_cast<char *> (params.mac_address.c_str ());
+        connection_params.firmware = 2;
+
+        res = func ((void *)&connection_params);
+
+        safe_logger (
+            spdlog::level::info, "detected firmware version {}", connection_params.firmware);
+        firmware = connection_params.firmware;
     }
     else
     {
@@ -589,7 +693,10 @@ int Ganglion::call_open ()
 
         safe_logger (
             spdlog::level::info, "mac address is not specified, try to find ganglion without it");
-        res = func (NULL);
+
+        res = func ((void *)&firmware);
+
+        safe_logger (spdlog::level::info, "detected firmware version {}", firmware);
     }
     if (res != GanglionLib::CustomExitCodes::STATUS_OK)
     {

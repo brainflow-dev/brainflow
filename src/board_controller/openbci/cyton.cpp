@@ -11,6 +11,21 @@
 #define END_BYTE_MAX 0xC6
 
 
+int Cyton::config_board (std::string conf, std::string &response)
+{
+    if (gain_tracker.apply_config (conf) == (int)OpenBCICommandTypes::INVALID_COMMAND)
+    {
+        safe_logger (spdlog::level::warn, "invalid command: {}", conf.c_str ());
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+    int res = OpenBCISerialBoard::config_board (conf, response);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        gain_tracker.revert_config ();
+    }
+    return res;
+}
+
 void Cyton::read_thread ()
 {
     /*
@@ -30,13 +45,14 @@ void Cyton::read_thread ()
     int res;
     unsigned char b[32];
     double accel[3] = {0.};
-    int num_rows = board_descr["num_rows"];
+    int num_rows = board_descr["default"]["num_rows"];
     double *package = new double[num_rows];
     for (int i = 0; i < num_rows; i++)
     {
         package[i] = 0.0;
     }
-    std::vector<int> eeg_channels = board_descr["eeg_channels"];
+    std::vector<int> eeg_channels = board_descr["default"]["eeg_channels"];
+    double accel_scale = (double)(0.002 / (pow (2, 4)));
 
     while (keep_alive)
     {
@@ -72,21 +88,23 @@ void Cyton::read_thread ()
         }
 
         // package num
-        package[board_descr["package_num_channel"].get<int> ()] = (double)b[0];
+        package[board_descr["default"]["package_num_channel"].get<int> ()] = (double)b[0];
         // eeg
         for (unsigned int i = 0; i < eeg_channels.size (); i++)
         {
+            double eeg_scale = (double)(4.5 / float ((pow (2, 23) - 1)) /
+                gain_tracker.get_gain_for_channel (i) * 1000000.);
             package[eeg_channels[i]] = eeg_scale * cast_24bit_to_int32 (b + 1 + 3 * i);
         }
         // end byte
-        package[board_descr["other_channels"][0].get<int> ()] = (double)b[31];
+        package[board_descr["default"]["other_channels"][0].get<int> ()] = (double)b[31];
         // place unprocessed bytes for all modes to other_channels
-        package[board_descr["other_channels"][1].get<int> ()] = (double)b[25];
-        package[board_descr["other_channels"][2].get<int> ()] = (double)b[26];
-        package[board_descr["other_channels"][3].get<int> ()] = (double)b[27];
-        package[board_descr["other_channels"][4].get<int> ()] = (double)b[28];
-        package[board_descr["other_channels"][5].get<int> ()] = (double)b[29];
-        package[board_descr["other_channels"][6].get<int> ()] = (double)b[30];
+        package[board_descr["default"]["other_channels"][1].get<int> ()] = (double)b[25];
+        package[board_descr["default"]["other_channels"][2].get<int> ()] = (double)b[26];
+        package[board_descr["default"]["other_channels"][3].get<int> ()] = (double)b[27];
+        package[board_descr["default"]["other_channels"][4].get<int> ()] = (double)b[28];
+        package[board_descr["default"]["other_channels"][5].get<int> ()] = (double)b[29];
+        package[board_descr["default"]["other_channels"][6].get<int> ()] = (double)b[30];
         // place processed bytes for accel
         if (b[31] == END_BYTE_STANDARD)
         {
@@ -102,20 +120,23 @@ void Cyton::read_thread ()
                 accel[2] = accel_scale * accel_temp[2];
             }
 
-            package[board_descr["accel_channels"][0].get<int> ()] = accel[0];
-            package[board_descr["accel_channels"][1].get<int> ()] = accel[1];
-            package[board_descr["accel_channels"][2].get<int> ()] = accel[2];
+            package[board_descr["default"]["accel_channels"][0].get<int> ()] = accel[0];
+            package[board_descr["default"]["accel_channels"][1].get<int> ()] = accel[1];
+            package[board_descr["default"]["accel_channels"][2].get<int> ()] = accel[2];
         }
 
         // place processed bytes for analog
         if (b[31] == END_BYTE_ANALOG)
         {
-            package[board_descr["analog_channels"][0].get<int> ()] = cast_16bit_to_int32 (b + 25);
-            package[board_descr["analog_channels"][1].get<int> ()] = cast_16bit_to_int32 (b + 27);
-            package[board_descr["analog_channels"][2].get<int> ()] = cast_16bit_to_int32 (b + 29);
+            package[board_descr["default"]["analog_channels"][0].get<int> ()] =
+                cast_16bit_to_int32 (b + 25);
+            package[board_descr["default"]["analog_channels"][1].get<int> ()] =
+                cast_16bit_to_int32 (b + 27);
+            package[board_descr["default"]["analog_channels"][2].get<int> ()] =
+                cast_16bit_to_int32 (b + 29);
         }
 
-        package[board_descr["timestamp_channel"].get<int> ()] = get_timestamp ();
+        package[board_descr["default"]["timestamp_channel"].get<int> ()] = get_timestamp ();
 
         push_package (package);
     }

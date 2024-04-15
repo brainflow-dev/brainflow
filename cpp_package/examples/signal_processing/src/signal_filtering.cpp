@@ -52,17 +52,17 @@ int main (int argc, char *argv[])
                 case 0:
                     DataFilter::perform_lowpass (data.get_address (eeg_channels[i]),
                         data.get_size (1), BoardShim::get_sampling_rate (board_id), 50.0, 3,
-                        (int)FilterTypes::BUTTERWORTH, 0);
+                        (int)FilterTypes::BUTTERWORTH_ZERO_PHASE, 0);
                     break;
                 case 1:
                     DataFilter::perform_highpass (data.get_address (eeg_channels[i]),
                         data.get_size (1), BoardShim::get_sampling_rate (board_id), 3.0, 5,
-                        (int)FilterTypes::CHEBYSHEV_TYPE_1, 1);
+                        (int)FilterTypes::CHEBYSHEV_TYPE_1_ZERO_PHASE, 1);
                     break;
                 case 2:
                     DataFilter::perform_bandpass (data.get_address (eeg_channels[i]),
                         data.get_size (1), BoardShim::get_sampling_rate (board_id), 3.0, 45.0, 3,
-                        (int)FilterTypes::BESSEL, 0);
+                        (int)FilterTypes::BESSEL_ZERO_PHASE, 0);
                     break;
                 case 3:
                     DataFilter::perform_bandstop (data.get_address (eeg_channels[i]),

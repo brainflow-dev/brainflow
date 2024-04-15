@@ -1,8 +1,6 @@
 package brainflow;
 
-import java.io.File;
-import java.io.InputStream;
-import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,6 +18,7 @@ import com.sun.jna.Native;
 /**
  * DataFilter class to perform signal processing
  */
+@SuppressWarnings ("deprecation")
 public class DataFilter
 {
 
@@ -42,6 +41,12 @@ public class DataFilter
         int detrend (double[] data, int data_len, int operation);
 
         int perform_downsampling (double[] data, int data_len, int period, int operation, double[] filtered_data);
+
+        int restore_data_from_wavelet_detailed_coeffs (double[] data, int data_len, int wavelet,
+                int decomposition_level, int level_to_restore, double[] output);
+
+        int detect_peaks_z_score (double[] data, int data_len, int lag, double threshold, double influence,
+                double[] output);
 
         int remove_environmental_noise (double[] data, int data_len, int sampling_rate, int noise_type);
 
@@ -73,6 +78,8 @@ public class DataFilter
 
         int calc_stddev (double[] data, int start_pos, int end_pos, double[] output);
 
+        int get_railed_percentage (double[] data, int len, int gain, double[] output);
+
         int get_num_elements_in_file (String file_name, int[] num_elements);
 
         int get_nearest_power_of_two (int value, int[] output);
@@ -87,6 +94,15 @@ public class DataFilter
 
         int get_band_power (double[] ampls, double[] freqs, int len, double start_freq, double stop_freq,
                 double[] output);
+
+        int get_oxygen_level (double[] ppg_ir, double[] ppg_red, int len, int sampling_rate, double coef1, double coef2,
+                double coef3, double[] output);
+
+        int get_heart_rate (double[] ppg_ir, double[] ppg_red, int len, int sampling_rate, int fft_size,
+                double[] output);
+
+        int perform_ica (double[] data, int rows, int cols, int num_components, double[] w, double[] k, double[] a,
+                double[] s);
 
         int get_version_data_handler (byte[] version, int[] len, int max_len);
 
@@ -115,24 +131,13 @@ public class DataFilter
         } else
         {
             // need to extract libraries from jar
-            unpack_from_jar (lib_name);
+            Path lib_path = JarHelper.unpack_from_jar (lib_name);
+            if (lib_path != null)
+            {
+                lib_name = lib_path.toString ();
+            }
         }
         instance = Native.loadLibrary (lib_name, DllInterface.class);
-    }
-
-    private static void unpack_from_jar (String lib_name)
-    {
-        try
-        {
-            File file = new File (lib_name);
-            if (file.exists ())
-                file.delete ();
-            InputStream link = (BoardShim.class.getResourceAsStream (lib_name));
-            Files.copy (link, file.getAbsoluteFile ().toPath ());
-        } catch (Exception io)
-        {
-            System.err.println ("native library: " + lib_name + " is not found in jar file");
-        }
     }
 
     /**
@@ -194,6 +199,67 @@ public class DataFilter
     {
         double[] output = new double[1];
         int ec = instance.calc_stddev (data, start_pos, end_pos, output);
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in calc_stddev", ec);
+        }
+        return output[0];
+    }
+
+    /**
+     * get oxygen level
+     */
+    public static double get_oxygen_level (double[] ppg_ir, double[] ppg_red, int sampling_rate, double coef1,
+            double coef2, double coef3) throws BrainFlowError
+    {
+        if (ppg_ir.length != ppg_red.length)
+        {
+            throw new BrainFlowError ("Error in get_oxygen_level",
+                    BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
+        double[] output = new double[1];
+        int ec = instance.get_oxygen_level (ppg_ir, ppg_red, ppg_ir.length, sampling_rate, coef1, coef2, coef3, output);
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in get_oxygen_level", ec);
+        }
+        return output[0];
+    }
+
+    /**
+     * get oxygen level
+     */
+    public static double get_oxygen_level (double[] ppg_ir, double[] ppg_red, int sampling_rate) throws BrainFlowError
+    {
+        return get_oxygen_level (ppg_ir, ppg_red, sampling_rate, 1.5958422, -34.6596622, 112.6898759);
+    }
+
+    /**
+     * get heart rate
+     */
+    public static double get_heart_rate (double[] ppg_ir, double[] ppg_red, int sampling_rate, int fft_size)
+            throws BrainFlowError
+    {
+        if (ppg_ir.length != ppg_red.length)
+        {
+            throw new BrainFlowError ("Error in get_heart_rate", BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
+        double[] output = new double[1];
+        int ec = instance.get_heart_rate (ppg_ir, ppg_red, ppg_ir.length, sampling_rate, fft_size, output);
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in get_heart_rate", ec);
+        }
+        return output[0];
+    }
+
+    /**
+     * get railed percentage
+     */
+    public static double get_railed_percentage (double[] data, int len, int gain) throws BrainFlowError
+    {
+        double[] output = new double[1];
+        int ec = instance.get_railed_percentage (data, len, gain, output);
         if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
         {
             throw new BrainFlowError ("Error in set_log_file", ec);
@@ -384,6 +450,47 @@ public class DataFilter
             throw new BrainFlowError ("Failed to perform downsampling", ec);
         }
         return downsampled_data;
+    }
+
+    /**
+     * restore data from a single wavelet coeff
+     */
+    public static double[] restore_data_from_wavelet_detailed_coeffs (double[] data, int wavelet,
+            int decomposition_level, int level_to_restore) throws BrainFlowError
+    {
+        double[] restored_data = new double[data.length];
+        int ec = instance.restore_data_from_wavelet_detailed_coeffs (data, data.length, wavelet, decomposition_level,
+                level_to_restore, restored_data);
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Failed to perform restore_data_from_wavelet_detailed_coeffs", ec);
+        }
+        return restored_data;
+    }
+
+    /**
+     * restore data from a single wavelet coeff
+     */
+    public static double[] restore_data_from_wavelet_detailed_coeffs (double[] data, WaveletTypes wavelet,
+            int decomposition_level, int level_to_restore) throws BrainFlowError
+    {
+        return restore_data_from_wavelet_detailed_coeffs (data, wavelet.get_code (), decomposition_level,
+                level_to_restore);
+    }
+
+    /**
+     * peak detection using z score algorithm
+     */
+    public static double[] detect_peaks_z_score (double[] data, int lag, double threshold, double influence)
+            throws BrainFlowError
+    {
+        double[] peaks = new double[data.length];
+        int ec = instance.detect_peaks_z_score (data, data.length, lag, threshold, influence, peaks);
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Failed to perform detect_peaks_z_score", ec);
+        }
+        return peaks;
     }
 
     /**
@@ -594,7 +701,7 @@ public class DataFilter
      * 
      * @param data      data for fft transform
      * @param start_pos starting position to calc fft
-     * @param end_pos   end position to calc fft, total_len must be a power of two
+     * @param end_pos   end position to calc fft, total_len must be even
      * @param window    window function
      * @return array of complex values with size N / 2 + 1
      */
@@ -608,9 +715,9 @@ public class DataFilter
         // I didnt find a way to pass an offset using pointers, copy array
         double[] data_to_process = Arrays.copyOfRange (data, start_pos, end_pos);
         int len = data_to_process.length;
-        if ((len & (len - 1)) != 0)
+        if (len % 2 == 1)
         {
-            throw new BrainFlowError ("end_pos - start_pos must be a power of 2",
+            throw new BrainFlowError ("end_pos - start_pos must be even",
                     BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
         }
         double[][] complex_array = new double[2][];
@@ -629,7 +736,7 @@ public class DataFilter
      * 
      * @param data      data for fft transform
      * @param start_pos starting position to calc fft
-     * @param end_pos   end position to calc fft, total_len must be a power of two
+     * @param end_pos   end position to calc fft, total_len must be even
      * @param window    window function
      * @return array of complex values with size N / 2 + 1
      */
@@ -726,12 +833,81 @@ public class DataFilter
     }
 
     /**
+     * Calculates ICA
+     * 
+     * @param data
+     * @param num_components
+     * @return
+     * @throws BrainFlowError
+     */
+    public static List<double[][]> perform_ica (double[][] data, int num_components) throws BrainFlowError
+    {
+        if (data == null)
+        {
+            throw new BrainFlowError ("invalid args for perform_ica",
+                    BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
+        int[] channels = new int[data.length];
+        for (int i = 0; i < channels.length; i++)
+            channels[i] = i;
+        return perform_ica (data, num_components, channels);
+    }
+
+    /**
+     * calculates ICA
+     * 
+     * @param data
+     * @param num_components
+     * @param channels
+     * @return
+     * @throws BrainFlowError
+     */
+    public static List<double[][]> perform_ica (double[][] data, int num_components, int[] channels)
+            throws BrainFlowError
+    {
+        if ((data == null) || (channels == null) || (num_components < 1))
+        {
+            throw new BrainFlowError ("invalid args for perform_ica",
+                    BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+        }
+        double[] data_1d = new double[channels.length * data[channels[0]].length];
+        for (int i = 0; i < channels.length; i++)
+        {
+            for (int j = 0; j < data[channels[i]].length; j++)
+            {
+                data_1d[j + i * data[channels[i]].length] = data[channels[i]][j];
+            }
+        }
+        int cols = data[0].length;
+        int channels_len = channels.length;
+        double[] w = new double[num_components * num_components];
+        double[] k = new double[channels_len * num_components];
+        double[] a = new double[num_components * channels_len];
+        double[] s = new double[cols * num_components];
+
+        int ec = instance.perform_ica (data_1d, channels.length, data[channels[0]].length, num_components, w, k, a, s);
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Failed to perform_ica", ec);
+        }
+        List<double[][]> res = new ArrayList<double[][]> ();
+        double[][] w_mat = reshape_data_to_2d (num_components, num_components, w);
+        double[][] k_mat = reshape_data_to_2d (num_components, channels_len, k);
+        double[][] a_mat = reshape_data_to_2d (channels_len, num_components, a);
+        double[][] s_mat = reshape_data_to_2d (num_components, cols, s);
+        res.add (w_mat);
+        res.add (k_mat);
+        res.add (a_mat);
+        res.add (s_mat);
+        return res;
+    }
+
+    /**
      * get PSD
      * 
      * @param data          data to process
      * @param start_pos     starting position to calc PSD
-     * @param end_pos       end position to calc PSD, total_len must be a power of
-     *                      two
+     * @param end_pos       end position to calc PSD, total_len must be even
      * @param sampling_rate sampling rate
      * @param window        window function
      * @return pair of ampl and freq arrays with len N / 2 + 1
@@ -747,9 +923,9 @@ public class DataFilter
         // I didnt find a way to pass an offset using pointers, copy array
         double[] data_to_process = Arrays.copyOfRange (data, start_pos, end_pos);
         int len = data_to_process.length;
-        if ((len & (len - 1)) != 0)
+        if (len % 2 == 1)
         {
-            throw new BrainFlowError ("end_pos - start_pos must be a power of 2",
+            throw new BrainFlowError ("end_pos - start_pos must be even",
                     BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
         }
         double[] ampls = new double[len / 2 + 1];
@@ -768,8 +944,7 @@ public class DataFilter
      * 
      * @param data          data to process
      * @param start_pos     starting position to calc PSD
-     * @param end_pos       end position to calc PSD, total_len must be a power of
-     *                      two
+     * @param end_pos       end position to calc PSD, total_len must be even
      * @param sampling_rate sampling rate
      * @param window        window function
      * @return pair of ampl and freq arrays with len N / 2 + 1
@@ -784,7 +959,7 @@ public class DataFilter
      * get PSD using Welch Method
      * 
      * @param data          data to process
-     * @param nfft          size of FFT, must be power of two
+     * @param nfft          size of FFT, must be even
      * @param overlap       overlap between FFT Windows, must be between 0 and nfft
      * @param sampling_rate sampling rate
      * @param window        window function
@@ -793,10 +968,9 @@ public class DataFilter
     public static Pair<double[], double[]> get_psd_welch (double[] data, int nfft, int overlap, int sampling_rate,
             int window) throws BrainFlowError
     {
-        if ((nfft & (nfft - 1)) != 0)
+        if (nfft % 2 == 1)
         {
-            throw new BrainFlowError ("nfft must be a power of 2",
-                    BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
+            throw new BrainFlowError ("nfft must be even", BrainFlowExitCode.INVALID_ARGUMENTS_ERROR.get_code ());
         }
         double[] ampls = new double[nfft / 2 + 1];
         double[] freqs = new double[nfft / 2 + 1];
@@ -813,7 +987,7 @@ public class DataFilter
      * get PSD using Welch Method
      * 
      * @param data          data to process
-     * @param nfft          size of FFT, must be power of two
+     * @param nfft          size of FFT, must be even
      * @param overlap       overlap between FFT Windows, must be between 0 and nfft
      * @param sampling_rate sampling rate
      * @param window        window function
@@ -899,7 +1073,7 @@ public class DataFilter
         return reshape_data_to_2d (num_rows[0], num_cols[0], data_arr);
     }
 
-    private static double[] reshape_data_to_1d (int num_rows, int num_cols, double[][] buf)
+    public static double[] reshape_data_to_1d (int num_rows, int num_cols, double[][] buf)
     {
         double[] output_buf = new double[num_rows * num_cols];
         for (int i = 0; i < num_cols; i++)
@@ -912,7 +1086,7 @@ public class DataFilter
         return output_buf;
     }
 
-    private static double[][] reshape_data_to_2d (int num_rows, int num_cols, double[] linear_buffer)
+    public static double[][] reshape_data_to_2d (int num_rows, int num_cols, double[] linear_buffer)
     {
         double[][] result = new double[num_rows][];
         for (int i = 0; i < num_rows; i++)
