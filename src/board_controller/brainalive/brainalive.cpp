@@ -6,12 +6,7 @@
 #include "timestamp.h"
 
 // common constants
-#define BRAINALIVE_MAX_PACKET 7
-#define BRAINALIVE_PACKET_SIZE 32
-#define BRAINALIVE_FNIRS_AXL_PACKET_SIZE 24
-#define BRAINALIVE_MAX_PACKET_SIZE BRAINALIVE_PACKET_SIZE *BRAINALIVE_MAX_PACKET
-#define BRAINALIVE_MAX_PACKET_SIZE_INCLUDE_FNIRS                                                   \
-    BRAINALIVE_MAX_PACKET_SIZE + BRAINALIVE_FNIRS_AXL_PACKET_SIZE
+#define BRAINALIVE_PACKET_SIZE 224
 
 // info about services and chars
 #define START_BYTE 0x0A
@@ -19,28 +14,22 @@
 
 #define BRAINALIVE_WRITE_CHAR "0000fe41-8e22-4541-9d4c-21edae82ed19"
 #define BRAINALIVE_NOTIFY_CHAR "0000fe42-8e22-4541-9d4c-21edae82ed19"
-#define BRAINALIVE_BAT_CHAR "00002a19-0000-1000-8000-00805f9b34fb"
 
 // info for equations
 #define BRAINALIVE_EEG_SCALE_FACTOR 0.0476837158203125
 #define BRAINALIVE_EEG_GAIN_VALUE 12
 
 
-void adapter_1_on_scan_found (
+static void brainalive_adapter_1_on_scan_found (
     simpleble_adapter_t adapter, simpleble_peripheral_t peripheral, void *board)
 {
     ((BrainAlive *)(board))->adapter_1_on_scan_found (adapter, peripheral);
 }
 
-void read_notifications (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
-    size_t size, void *board)
+static void brainalive_read_notifications (simpleble_uuid_t service,
+    simpleble_uuid_t characteristic, uint8_t *data, size_t size, void *board)
 {
     ((BrainAlive *)(board))->read_data (service, characteristic, data, size, 0);
-}
-void read_bat_notifications (simpleble_uuid_t service, simpleble_uuid_t characteristic,
-    uint8_t *data, size_t size, void *board)
-{
-    ((BrainAlive *)(board))->read_bat_data (service, characteristic, data, size, 0);
 }
 
 BrainAlive::BrainAlive (struct BrainFlowInputParams params)
@@ -90,7 +79,14 @@ int BrainAlive::prepare_session ()
     }
 
     simpleble_adapter_set_callback_on_scan_found (
-        brainalive_adapter, ::adapter_1_on_scan_found, (void *)this);
+        brainalive_adapter, ::brainalive_adapter_1_on_scan_found, (void *)this);
+
+    if (!simpleble_adapter_is_bluetooth_enabled ())
+    {
+        safe_logger (spdlog::level::warn, "Probably bluetooth is disabled.");
+        // dont throw an exception because of this
+        // https://github.com/OpenBluetoothToolbox/SimpleBLE/issues/115
+    }
 
     simpleble_adapter_scan_start (brainalive_adapter);
     int res = (int)BrainFlowExitCodes::STATUS_OK;
@@ -109,19 +105,31 @@ int BrainAlive::prepare_session ()
     simpleble_adapter_scan_stop (brainalive_adapter);
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        if (simpleble_peripheral_connect (brainalive_peripheral) == SIMPLEBLE_SUCCESS)
+        // for safety
+        for (int i = 0; i < 3; i++)
         {
-            safe_logger (spdlog::level::info, "Connected to BrainAlive Device");
-        }
-        else
-        {
-            safe_logger (spdlog::level::err, "Failed to connect to BrainAlive Device");
-            res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+            if (simpleble_peripheral_connect (brainalive_peripheral) == SIMPLEBLE_SUCCESS)
+            {
+                safe_logger (spdlog::level::info, "Connected to BrainAlive Device");
+                res = (int)BrainFlowExitCodes::STATUS_OK;
+                break;
+            }
+            else
+            {
+                safe_logger (
+                    spdlog::level::warn, "Failed to connect to BrainAlive Device: {}/3", i);
+                res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+#ifdef _WIN32
+                Sleep (1000);
+#else
+                sleep (1);
+#endif
+            }
         }
     }
     else
     {
-        // https://github.com/OpenBluetoothToolbox/SimpleBLE/issues/26#issuecomment-955606799
+// https://github.com/OpenBluetoothToolbox/SimpleBLE/issues/26#issuecomment-955606799
 #ifdef __linux__
         usleep (1000000);
 #endif
@@ -146,50 +154,31 @@ int BrainAlive::prepare_session ()
             for (size_t j = 0; j < service.characteristic_count; j++)
             {
                 safe_logger (spdlog::level::trace, "found characteristic {}",
-                    service.characteristics[j].value);
+                    service.characteristics[j].uuid.value);
 
-                if (strcmp (service.characteristics[j].value,
+                if (strcmp (service.characteristics[j].uuid.value,
                         BRAINALIVE_WRITE_CHAR) == 0) // Write Characteristics
                 {
                     write_characteristics = std::pair<simpleble_uuid_t, simpleble_uuid_t> (
-                        service.uuid, service.characteristics[j]);
+                        service.uuid, service.characteristics[j].uuid);
                     control_characteristics_found = true;
                     safe_logger (spdlog::level::info, "found control characteristic");
                 }
-                if (strcmp (service.characteristics[j].value,
+                if (strcmp (service.characteristics[j].uuid.value,
                         BRAINALIVE_NOTIFY_CHAR) == 0) // Notification Characteristics
                 {
                     if (simpleble_peripheral_notify (brainalive_peripheral, service.uuid,
-                            service.characteristics[j], ::read_notifications,
+                            service.characteristics[j].uuid, ::brainalive_read_notifications,
                             (void *)this) == SIMPLEBLE_SUCCESS)
                     {
-                        notified_characteristics.push_back (
-                            std::pair<simpleble_uuid_t, simpleble_uuid_t> (
-                                service.uuid, service.characteristics[j]));
+
+                        notified_characteristics = std::pair<simpleble_uuid_t, simpleble_uuid_t> (
+                            service.uuid, service.characteristics[j].uuid);
                     }
                     else
                     {
                         safe_logger (spdlog::level::err, "Failed to notify for {} {}",
-                            service.uuid.value, service.characteristics[j].value);
-                        res = (int)BrainFlowExitCodes::GENERAL_ERROR;
-                    }
-                }
-                if (strcmp (service.characteristics[j].value,
-                        BRAINALIVE_BAT_CHAR) == 0) // Battery Notification Characteristics
-                {
-                    if (simpleble_peripheral_notify (brainalive_peripheral, service.uuid,
-                            service.characteristics[j], ::read_bat_notifications,
-                            (void *)this) == SIMPLEBLE_SUCCESS)
-                    {
-                        safe_logger (spdlog::level::debug, " notify sucess for battery {} {}");
-                        notified_characteristics.push_back (
-                            std::pair<simpleble_uuid_t, simpleble_uuid_t> (
-                                service.uuid, service.characteristics[j]));
-                    }
-                    else
-                    {
-                        safe_logger (spdlog::level::err, "Failed to notify for {} {}",
-                            service.uuid.value, service.characteristics[j].value);
+                            service.uuid.value, service.characteristics[j].uuid.value);
                         res = (int)BrainFlowExitCodes::GENERAL_ERROR;
                     }
                 }
@@ -215,10 +204,13 @@ int BrainAlive::start_stream (int buffer_size, const char *streamer_params)
         return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
     }
     int res = prepare_for_acquisition (buffer_size, streamer_params);
-    res = config_board ("0a8000000d");
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        safe_logger (spdlog::level::debug, "Start command Send 0x8000000d");
+        res = config_board ("0a8100000d");
+    }
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        safe_logger (spdlog::level::debug, "Start command Send 250sps");
         is_streaming = true;
     }
 
@@ -235,16 +227,6 @@ int BrainAlive::stop_stream ()
     if (is_streaming)
     {
         res = config_board ("0a4000000d");
-        for (auto notified : notified_characteristics)
-        {
-            if (simpleble_peripheral_unsubscribe (
-                    brainalive_peripheral, notified.first, notified.second) != SIMPLEBLE_SUCCESS)
-            {
-                safe_logger (spdlog::level::err, "failed to unsubscribe for {} {}",
-                    notified.first.value, notified.second.value);
-                res = (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
-            }
-        }
     }
     else
     {
@@ -258,7 +240,29 @@ int BrainAlive::release_session ()
 {
     if (initialized)
     {
-        stop_stream ();
+        // repeat it multiple times, failure here may lead to a crash
+        for (int i = 0; i < 2; i++)
+        {
+            stop_stream ();
+            // need to wait for notifications to stop triggered before unsubscribing, otherwise
+            // macos fails inside simpleble with timeout
+#ifdef _WIN32
+            Sleep (2000);
+#else
+            sleep (2);
+#endif
+            if (simpleble_peripheral_unsubscribe (brainalive_peripheral,
+                    notified_characteristics.first,
+                    notified_characteristics.second) != SIMPLEBLE_SUCCESS)
+            {
+                safe_logger (spdlog::level::err, "failed to unsubscribe for {} {}",
+                    notified_characteristics.first.value, notified_characteristics.second.value);
+            }
+            else
+            {
+                break;
+            }
+        }
         free_packages ();
         initialized = false;
     }
@@ -299,10 +303,11 @@ int BrainAlive::config_board (std::string config)
     uint8_t command[5];
     size_t len = config.size ();
     command[0] = 0x0a;
-    command[1] = config[2] << 4;
+    command[1] = 0x81; // it is hardcoded for now only
     command[2] = 0x00;
     command[3] = 0x00;
     command[4] = 0x0d;
+    safe_logger (spdlog::level::trace, config[2]);
     if (simpleble_peripheral_write_command (brainalive_peripheral, write_characteristics.first,
             write_characteristics.second, command, sizeof (command)) != SIMPLEBLE_SUCCESS)
     {
@@ -336,7 +341,7 @@ void BrainAlive::adapter_1_on_scan_found (
         }
         else
         {
-            if (strncmp (peripheral_identified, "BrainAlive", 10) == 0)
+            if (strncmp (peripheral_identified, "ADS_TES", 7) == 0)
             {
                 found = true;
             }
@@ -365,108 +370,31 @@ void BrainAlive::adapter_1_on_scan_found (
 void BrainAlive::read_data (simpleble_uuid_t service, simpleble_uuid_t characteristic,
     uint8_t *data, size_t size, int channel_num)
 {
-
-    if (size == BRAINALIVE_MAX_PACKET_SIZE)
+    if (size != BRAINALIVE_PACKET_SIZE)
     {
-        uint8_t BA_Temp_Buff[BRAINALIVE_MAX_PACKET][BRAINALIVE_PACKET_SIZE] = {0};
-        for (int i = 0; i < BRAINALIVE_MAX_PACKET; i++)
-        {
-            for (int j = i; j < BRAINALIVE_PACKET_SIZE; j++)
-            {
-                BA_Temp_Buff[i][j] = data[j + (i * BRAINALIVE_PACKET_SIZE)];
-            }
-        }
-
-        for (int k = 0; k < BRAINALIVE_MAX_PACKET; k++)
-        {
-            int j = 0;
-            double BA_Data_Buff[21] = {0};
-            for (int i = 4; i < 28; i += 3)
-                BA_Data_Buff[j++] = (((BA_Temp_Buff[k][i] << 16 | BA_Temp_Buff[k][i + 1] << 8 |
-                                          BA_Temp_Buff[k][i + 2])
-                                         << 8) >>
-                                        8) *
-                    BRAINALIVE_EEG_SCALE_FACTOR / BRAINALIVE_EEG_GAIN_VALUE;
-
-            BA_Data_Buff[17] = BA_Temp_Buff[k][29];
-            BA_Data_Buff[18] = Battery_Percentage;
-            BA_Data_Buff[19] = get_timestamp ();
-
-            push_package (&BA_Data_Buff[0]);
-        }
+        safe_logger (spdlog::level::warn, "unknown size of BrainAlive Data {}", size);
+        return;
     }
-    if (size == BRAINALIVE_MAX_PACKET_SIZE_INCLUDE_FNIRS)
-    {
-        uint8_t BA_Temp_Buff[BRAINALIVE_MAX_PACKET - 1][BRAINALIVE_PACKET_SIZE] = {0};
-        uint8_t BA_Temp_Buff_fnirs[BRAINALIVE_PACKET_SIZE + BRAINALIVE_FNIRS_AXL_PACKET_SIZE] = {0};
-        double BA_Data_Buff[21] = {0};
-
-        for (int i = 0; i < BRAINALIVE_MAX_PACKET - 1; i++)
+    for(int i =0; i< size; i+=32)
+    { 
+        double eeg_data[9] = {0};
+        for(int j = i+4 ,k =0; j<i+28; j += 3,k++)
         {
-            for (int j = i; j < BRAINALIVE_PACKET_SIZE; j++)
-            {
-                BA_Temp_Buff[i][j] = data[j + (i * BRAINALIVE_PACKET_SIZE)];
-            }
-        }
-        for (int j = 0; j < (BRAINALIVE_PACKET_SIZE + BRAINALIVE_FNIRS_AXL_PACKET_SIZE); j++)
-        {
-            BA_Temp_Buff_fnirs[j] = data[j + (6 * BRAINALIVE_PACKET_SIZE)];
-        }
-        for (int k = 0; k < BRAINALIVE_MAX_PACKET - 1; k++)
-        {
-            int j = 0;
-
-            for (int i = 4; i < 28; i += 3)
-                BA_Data_Buff[j++] = (((BA_Temp_Buff[k][i] << 16 | BA_Temp_Buff[k][i + 1] << 8 |
-                                          BA_Temp_Buff[k][i + 2])
-                                         << 8) >>
-                                        8) *
-                    BRAINALIVE_EEG_SCALE_FACTOR / BRAINALIVE_EEG_GAIN_VALUE;
-            BA_Data_Buff[17] = BA_Temp_Buff[k][29];
-            BA_Data_Buff[18] = Battery_Percentage;
-            BA_Data_Buff[19] = get_timestamp ();
-
-            push_package (&BA_Data_Buff[0]);
-        }
-        int j = 0;
-
-        for (int i = 4; i < 28; i += 3)
-            BA_Data_Buff[j++] = (((BA_Temp_Buff_fnirs[i] << 16 | BA_Temp_Buff_fnirs[i + 1] << 8 |
-                                      BA_Temp_Buff_fnirs[i + 2])
-                                     << 8) >>
-                                    8) *
+            eeg_data[k] = (((data[j] << 16 | data[j + 1] << 8 | data[j + 2]) << 8) >> 8) *
                 BRAINALIVE_EEG_SCALE_FACTOR / BRAINALIVE_EEG_GAIN_VALUE;
-        for (int i = 28; i < 46; i += 3)
-            BA_Data_Buff[j++] = (BA_Temp_Buff_fnirs[i] << 16 | BA_Temp_Buff_fnirs[i + 1] << 8 |
-                BA_Temp_Buff_fnirs[i + 2]);
-        for (int i = 46; i < 52; i += 2)
-            BA_Data_Buff[j++] =
-                ((BA_Temp_Buff_fnirs[i] << 8 | BA_Temp_Buff_fnirs[i + 1]) << 16) >> 16;
+                //printf("%d,",eeg_data[k]);
+        }
+        eeg_data[8] = data[i+29];
+        //printf("%d\n",data[i+29]);
+        push_package (&eeg_data[0]);
 
-        BA_Data_Buff[17] = BA_Temp_Buff_fnirs[53];
-        BA_Data_Buff[18] = Battery_Percentage;
-        BA_Data_Buff[19] = get_timestamp ();
-
-        push_package (&BA_Data_Buff[0]);
     }
-    if (size == BRAINALIVE_PACKET_SIZE)
-    {
-        int j = 0;
-        double BA_Data_Buff[21] = {0};
-        for (int i = 4; i < 28; i += 3)
-            BA_Data_Buff[j++] = (((data[i] << 16 | data[i + 1] << 8 | data[i + 2]) << 8) >> 8) *
-                BRAINALIVE_EEG_SCALE_FACTOR / BRAINALIVE_EEG_GAIN_VALUE;
-
-        BA_Data_Buff[17] = data[29];
-        BA_Data_Buff[18] = Battery_Percentage;
-        BA_Data_Buff[19] = get_timestamp ();
-
-        push_package (&BA_Data_Buff[0]);
-    }
-}
-
-void BrainAlive::read_bat_data (simpleble_uuid_t service, simpleble_uuid_t characteristic,
-    uint8_t *data, size_t size, int channel_num)
-{
-    Battery_Percentage = data[0];
+    // if ((data[0] == START_BYTE) && (data[45] == STOP_BYTE))
+    // {
+    //     double eeg_data[8] = {0};
+    //     for (int i = 4, j = 0; i < 28; i += 3, j++)
+    //         eeg_data[j] = (((data[i] << 16 | data[i + 1] << 8 | data[i + 2]) << 8) >> 8) *
+    //             BRAINALIVE_EEG_SCALE_FACTOR / BRAINALIVE_EEG_GAIN_VALUE;
+    //     push_package (&eeg_data[0]);
+    // }
 }
