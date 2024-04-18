@@ -78,10 +78,6 @@ jobs:
         cmake -G Ninja -DBRAINFLOW_VERSION=$BRAINFLOW_VERSION -DBUILD_ONNX=ON -DBUILD_BLUETOOTH=ON -DBUILD_TESTS=ON -DWARNINGS_AS_ERRORS=ON -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
         ninja
         ninja install
-        # for Swift CI builds:
-        xattr -w com.apple.xcode.CreatedByBuildSystem true $GITHUB_WORKSPACE/swift_package/BrainFlowCI/build
-        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
-        xcodebuild clean -project BrainFlowCI.xcodeproj
       env:
         BRAINFLOW_VERSION: ${{ steps.version.outputs.version }}
     - name: Compile BrainFlow Ubuntu
