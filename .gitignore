@@ -362,6 +362,7 @@ java_package/brainflow/src/main/resources/
 matlab_package/brainflow/inc/
 matlab_package/brainflow/lib/
 python_package/brainflow/lib/
+swift_package/BrainFlow/lib/
 rust_package/brainflow/lib/
 rust_package/brainflow/inc/
 src/ml/train/data/
@@ -380,3 +381,9 @@ CMakeSettings.json
 ._.gitignore
 
 build/
+
+# swift_package stuff:
+*.xcuserdata*
+xcuserdata
+.DS_Store
+swift_package/BrainFlowCI/Frameworks
