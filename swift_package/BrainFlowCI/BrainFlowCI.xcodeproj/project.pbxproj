@@ -7,9 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5F17B7832BA8B89C00DD1263 /* BoardShimTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD643A285617B2001AA429 /* BoardShimTests.swift */; };
-		5F17B7842BA8B89F00DD1263 /* BrainFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD643B285617B2001AA429 /* BrainFlowTests.swift */; };
-		5F17B7862BA8B8A400DD1263 /* DataFilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD643D285617B2001AA429 /* DataFilterTests.swift */; };
 		5F20CCB7285DDE5500F2CEB5 /* Numerics in Frameworks */ = {isa = PBXBuildFile; productRef = 5F20CCB6285DDE5500F2CEB5 /* Numerics */; };
 		5F20CCB9285DDE8200F2CEB5 /* Numerics in Frameworks */ = {isa = PBXBuildFile; productRef = 5F20CCB8285DDE8200F2CEB5 /* Numerics */; };
 		5F20CCBB285DDE8E00F2CEB5 /* BrainFlow in Frameworks */ = {isa = PBXBuildFile; productRef = 5F20CCBA285DDE8E00F2CEB5 /* BrainFlow */; };
@@ -203,9 +200,6 @@
 		5FD91A4A2BC49F1000AC3CCB /* MLModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641428560C67001AA429 /* MLModule.swift */; };
 		5FD91A4B2BC49F1000AC3CCB /* BoardDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641528560C67001AA429 /* BoardDescription.swift */; };
 		5FDD640328560B36001AA429 /* BrainFlow in Frameworks */ = {isa = PBXBuildFile; productRef = 5FDD640228560B36001AA429 /* BrainFlow */; };
-		5FDD643E285617B2001AA429 /* BoardShimTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD643A285617B2001AA429 /* BoardShimTests.swift */; };
-		5FDD643F285617B2001AA429 /* BrainFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD643B285617B2001AA429 /* BrainFlowTests.swift */; };
-		5FDD6441285617B2001AA429 /* DataFilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD643D285617B2001AA429 /* DataFilterTests.swift */; };
 		5FDD644228561815001AA429 /* BrainFlowExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641028560C67001AA429 /* BrainFlowExtensions.swift */; };
 		5FDD644328561815001AA429 /* DataFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD640E28560C67001AA429 /* DataFilter.swift */; };
 		5FDD644428561815001AA429 /* MLModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641428560C67001AA429 /* MLModule.swift */; };
@@ -530,10 +524,6 @@
 		5FDD641428560C67001AA429 /* MLModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MLModule.swift; sourceTree = "<group>"; };
 		5FDD641528560C67001AA429 /* BoardDescription.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BoardDescription.swift; sourceTree = "<group>"; };
 		5FDD643028560DBF001AA429 /* BrainFlowCITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BrainFlowCITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		5FDD643A285617B2001AA429 /* BoardShimTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BoardShimTests.swift; sourceTree = "<group>"; };
-		5FDD643B285617B2001AA429 /* BrainFlowTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrainFlowTests.swift; sourceTree = "<group>"; };
-		5FDD643C285617B2001AA429 /* BrainFlowCITests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrainFlowCITests.swift; sourceTree = "<group>"; };
-		5FDD643D285617B2001AA429 /* DataFilterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataFilterTests.swift; sourceTree = "<group>"; };
 		5FE97CE12BCDEC810056EC80 /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = main.swift; path = ../../examples/tests/ica/main.swift; sourceTree = "<group>"; };
 		5FE97CE32BCDEDC50056EC80 /* eeg_metrics.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = eeg_metrics.swift; path = ../../examples/tests/eeg_metrics/eeg_metrics.swift; sourceTree = "<group>"; };
 		5FE97CE52BCDEE350056EC80 /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = main.swift; path = ../../examples/tests/denoising/main.swift; sourceTree = "<group>"; };
@@ -837,7 +827,6 @@
 		5FDD63F728560953001AA429 /* BrainFlowCI */ = {
 			isa = PBXGroup;
 			children = (
-				5FDD6439285617B2001AA429 /* BrainFlowTests */,
 				5FDD640D28560C67001AA429 /* BrainFlowBindings */,
 			);
 			path = BrainFlowCI;
@@ -877,18 +866,6 @@
 			);
 			name = BrainFlowBindings;
 			path = ../../BrainFlow/Sources/BrainFlowBindings;
-			sourceTree = "<group>";
-		};
-		5FDD6439285617B2001AA429 /* BrainFlowTests */ = {
-			isa = PBXGroup;
-			children = (
-				5FDD643A285617B2001AA429 /* BoardShimTests.swift */,
-				5FDD643B285617B2001AA429 /* BrainFlowTests.swift */,
-				5FDD643C285617B2001AA429 /* BrainFlowCITests.swift */,
-				5FDD643D285617B2001AA429 /* DataFilterTests.swift */,
-			);
-			name = BrainFlowTests;
-			path = ../../BrainFlow/Tests/BrainFlowTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1437,9 +1414,6 @@
 				5FD91A492BC49F1000AC3CCB /* BoardShim.swift in Sources */,
 				5FD91A4A2BC49F1000AC3CCB /* MLModule.swift in Sources */,
 				5FD91A4B2BC49F1000AC3CCB /* BoardDescription.swift in Sources */,
-				5F17B7832BA8B89C00DD1263 /* BoardShimTests.swift in Sources */,
-				5F17B7842BA8B89F00DD1263 /* BrainFlowTests.swift in Sources */,
-				5F17B7862BA8B8A400DD1263 /* DataFilterTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1452,11 +1426,8 @@
 				5FDD644628561815001AA429 /* BrainFlowInputParams.swift in Sources */,
 				5FDD644328561815001AA429 /* DataFilter.swift in Sources */,
 				5FDD644828561815001AA429 /* BoardDescription.swift in Sources */,
-				5FDD6441285617B2001AA429 /* DataFilterTests.swift in Sources */,
 				5FDD644528561815001AA429 /* BrainFlowConstants.swift in Sources */,
-				5FDD643E285617B2001AA429 /* BoardShimTests.swift in Sources */,
 				5FDD644228561815001AA429 /* BrainFlowExtensions.swift in Sources */,
-				5FDD643F285617B2001AA429 /* BrainFlowTests.swift in Sources */,
 				5FDD644928561815001AA429 /* BoardShim.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
