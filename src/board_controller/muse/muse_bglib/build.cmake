@@ -64,7 +64,8 @@ if (UNIX AND NOT ANDROID)
     add_custom_command (TARGET ${MUSE_BLED_LIB} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${MUSE_BLED_LIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/nodejs_package/brainflow/lib/${MUSE_BLED_LIB_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${MUSE_BLED_LIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/swift_package/BrainFlow/lib/${MUSE_BLED_LIB_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${MUSE_BLED_LIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/python_package/brainflow/lib/${MUSE_BLED_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${MUSE_BLED_LIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/swift_package/BrainFlow/lib/${MUSE_BLED_LIB_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${MUSE_BLED_LIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/python_package/BrainFlowCI/Frameworks/${MUSE_BLED_LIB_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${MUSE_BLED_LIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/julia_package/brainflow/lib/${MUSE_BLED_LIB_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${MUSE_BLED_LIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/java_package/brainflow/src/main/resources/${MUSE_BLED_LIB_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${MUSE_BLED_LIB_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/csharp_package/brainflow/brainflow/${MUSE_BLED_LIB_NAME}"
