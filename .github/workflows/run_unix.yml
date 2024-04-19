@@ -153,47 +153,47 @@ jobs:
     - name: build band_power Swift
       run: |
         cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
-        xcodebuild  -project BrainFlowCI.xcodeproj -destination 'OS X' -scheme band_power
+        xcodebuild  -project BrainFlowCI.xcodeproj -destination 'platform=macOS, arch=x86_64' -scheme band_power
     - name: build band_power_all Swift
       run: |
         cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
-        xcodebuild  -project BrainFlowCI.xcodeproj -destination 'OS X' -scheme band_power_all
+        xcodebuild  -project BrainFlowCI.xcodeproj -destination 'platform=macOS, arch=x86_64' -scheme band_power_all
     - name: build brainflow_get_data Swift
       run: |
         cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
-        xcodebuild  -project BrainFlowCI.xcodeproj -destination 'OS X' -scheme brainflow_get_data
+        xcodebuild  -project BrainFlowCI.xcodeproj -destination 'platform=macOS, arch=x86_64' -scheme brainflow_get_data
     - name: build denoising Swift
       run: |
         cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
-        xcodebuild  -project BrainFlowCI.xcodeproj -destination 'OS X' -scheme denoising
+        xcodebuild  -project BrainFlowCI.xcodeproj -destination 'platform=macOS, arch=x86_64' -scheme denoising
     - name: build downsampling Swift
       run: |
         cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
-        xcodebuild  -project BrainFlowCI.xcodeproj -destination 'OS X' -scheme downsampling
+        xcodebuild  -project BrainFlowCI.xcodeproj -destination 'platform=macOS, arch=x86_64' -scheme downsampling
     - name: build eeg_metrics Swift
       run: |
         cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
-        xcodebuild  -project BrainFlowCI.xcodeproj -destination 'OS X' -scheme eeg_metrics
+        xcodebuild  -project BrainFlowCI.xcodeproj -destination 'platform=macOS, arch=x86_64' -scheme eeg_metrics
     - name: build ica Swift
       run: |
         cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
-        xcodebuild  -project BrainFlowCI.xcodeproj -destination 'OS X' -scheme ica
+        xcodebuild  -project BrainFlowCI.xcodeproj -destination 'platform=macOS, arch=x86_64' -scheme ica
     - name: build markers Swift
       run: |
         cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
-        xcodebuild  -project BrainFlowCI.xcodeproj -destination 'OS X' -scheme markers
+        xcodebuild  -project BrainFlowCI.xcodeproj -destination 'platform=macOS, arch=x86_64' -scheme markers
     - name: build read_write_file Swift
       run: |
         cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
-        xcodebuild  -project BrainFlowCI.xcodeproj -destination 'OS X' -scheme read_write_file
+        xcodebuild  -project BrainFlowCI.xcodeproj -destination 'platform=macOS, arch=x86_64' -scheme read_write_file
     - name: build signal_filtering Swift
       run: |
         cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
-        xcodebuild  -project BrainFlowCI.xcodeproj -destination 'OS X' -scheme signal_filtering
+        xcodebuild  -project BrainFlowCI.xcodeproj -destination 'platform=macOS, arch=x86_64' -scheme signal_filtering
     - name: build transforms Swift
       run: |
         cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
-        xcodebuild  -project BrainFlowCI.xcodeproj -destination 'OS X' -scheme transforms
+        xcodebuild  -project BrainFlowCI.xcodeproj -destination 'platform=macOS, arch=x86_64' -scheme transforms
 
     # start testing
     - name: Run unit tests
