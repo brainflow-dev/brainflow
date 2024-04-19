@@ -386,4 +386,4 @@ build/
 *.xcuserdata*
 xcuserdata
 .DS_Store
-swift_package/BrainFlowCI/Frameworks
+*.dylib
