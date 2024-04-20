@@ -61,9 +61,9 @@ jobs:
         ls -l Frameworks/
         ls -l install/PackageFrameworks/
         echo LC_LOAD_DYLIB:
-        otool -l install/band_power | grep LC_LOAD_DYLIB -A2
-        #echo LC_RPATH:
-        #otool -l install/band_power | grep LC_RPATH -A2
+        otool -l install/band_power | grep LC_LOAD_DYLIB -A2 || true
+        echo LC_RPATH:
+        otool -l install/band_power | grep LC_RPATH -A2 || true
 
     # start testing
     - name: Run unit tests
