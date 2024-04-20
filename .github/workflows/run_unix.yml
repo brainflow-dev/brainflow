@@ -58,13 +58,46 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
         xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme band_power
-        echo install:
-        ls -l install || true
-        echo LC_LOAD_DYLIB:
-        otool -l install/band_power | grep LC_LOAD_DYLIB -A2 || true
-        echo LC_RPATH:
-        otool -l install/band_power | grep LC_RPATH -A2 || true
-
+    - name: build band_power_all Swift
+      run: |
+        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
+        xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme band_power_all
+    - name: build brainflow_get_data Swift
+      run: |
+        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
+        xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme brainflow_get_data
+    - name: build denoising Swift
+      run: |
+        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
+        xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme denoising
+    - name: build downsampling Swift
+      run: |
+        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
+        xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme downsampling
+    - name: build eeg_metrics Swift
+      run: |
+        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
+        xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme eeg_metrics
+    - name: build ica Swift
+      run: |
+        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
+        xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme ica
+    - name: build markers Swift
+      run: |
+        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
+        xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme markers
+    - name: build read_write_file Swift
+      run: |
+        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
+        xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme read_write_file
+    - name: build signal_filtering Swift
+      run: |
+        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
+        xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme signal_filtering
+    - name: build transforms Swift
+      run: |
+        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
+        xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme transforms
     # start testing
     - name: Run unit tests
       run: $GITHUB_WORKSPACE/build/tests/brainflow_tests
