@@ -513,6 +513,7 @@
 		5F52BB902BCAAFCE00AC74F4 /* denoising */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = denoising; sourceTree = BUILT_PRODUCTS_DIR; };
 		5F52BBB32BCAB23700AC74F4 /* eeg_metrics */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = eeg_metrics; sourceTree = BUILT_PRODUCTS_DIR; };
 		5F52BBD32BCAB5DC00AC74F4 /* ica */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ica; sourceTree = BUILT_PRODUCTS_DIR; };
+		5FAE71FF2BD43C7A00E10975 /* band_power.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = band_power.entitlements; sourceTree = SOURCE_ROOT; };
 		5FDD63F528560953001AA429 /* BrainFlowCI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = BrainFlowCI; sourceTree = BUILT_PRODUCTS_DIR; };
 		5FDD640028560986001AA429 /* BrainFlow */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = BrainFlow; path = ../BrainFlow; sourceTree = "<group>"; };
 		5FDD640E28560C67001AA429 /* DataFilter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataFilter.swift; sourceTree = "<group>"; };
@@ -706,6 +707,7 @@
 		5F52BAA92BC9AAF300AC74F4 /* band_power */ = {
 			isa = PBXGroup;
 			children = (
+				5FAE71FF2BD43C7A00E10975 /* band_power.entitlements */,
 				5FE97CF32BCDF3930056EC80 /* main.swift */,
 			);
 			path = band_power;
@@ -1491,7 +1493,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_ENTITLEMENTS = band_power.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -1506,6 +1510,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OBJC_BRIDGING_HEADER = ../BrainFlow/BrainFlow.h;
 				SWIFT_VERSION = 5.0;
@@ -1517,7 +1522,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_ENTITLEMENTS = band_power.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -1532,6 +1539,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = ../BrainFlow/BrainFlow.h;
 				SWIFT_VERSION = 5.0;
 			};
