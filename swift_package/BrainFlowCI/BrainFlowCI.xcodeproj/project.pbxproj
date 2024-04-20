@@ -256,7 +256,7 @@
 		};
 		5F52BA9D2BC9A98600AC74F4 /* Embed Libraries */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 8;
+			buildActionMask = 12;
 			dstPath = PackageFrameworks;
 			dstSubfolderSpec = 10;
 			files = (
@@ -265,7 +265,7 @@
 				5F52BAAC2BC9E83800AC74F4 /* libBoardController.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		5F52BAC42BCA18C300AC74F4 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
