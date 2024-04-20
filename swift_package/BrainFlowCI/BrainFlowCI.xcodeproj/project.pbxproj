@@ -257,8 +257,8 @@
 		5F52BA9D2BC9A98600AC74F4 /* Embed Libraries */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 12;
-			dstPath = PackageFrameworks;
-			dstSubfolderSpec = 10;
+			dstPath = "";
+			dstSubfolderSpec = 6;
 			files = (
 				5F52BAAE2BC9E8C400AC74F4 /* libDataHandler.dylib in Embed Libraries */,
 				5F52BAAC2BC9E83800AC74F4 /* libBoardController.dylib in Embed Libraries */,
