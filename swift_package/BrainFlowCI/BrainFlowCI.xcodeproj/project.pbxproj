@@ -33,9 +33,9 @@
 		5F52BA982BC9A98600AC74F4 /* libBoardController.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; };
 		5F52BA9A2BC9A98600AC74F4 /* Numerics in Frameworks */ = {isa = PBXBuildFile; productRef = 5F52BA852BC9A98600AC74F4 /* Numerics */; };
 		5F52BA9B2BC9A98600AC74F4 /* BrainFlow in Frameworks */ = {isa = PBXBuildFile; productRef = 5F52BA892BC9A98600AC74F4 /* BrainFlow */; };
-		5F52BAAC2BC9E83800AC74F4 /* libBoardController.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; };
-		5F52BAAD2BC9E86700AC74F4 /* libMLModule.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
-		5F52BAAE2BC9E8C400AC74F4 /* libDataHandler.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
+		5F52BAAC2BC9E83800AC74F4 /* libBoardController.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5F52BAAD2BC9E86700AC74F4 /* libMLModule.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5F52BAAE2BC9E8C400AC74F4 /* libDataHandler.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		5F52BAAF2BC9E8D800AC74F4 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
 		5F52BAB52BCA18C300AC74F4 /* BrainFlowConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD640F28560C67001AA429 /* BrainFlowConstants.swift */; };
 		5F52BAB62BCA18C300AC74F4 /* BrainFlowInputParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641228560C67001AA429 /* BrainFlowInputParams.swift */; };
@@ -247,12 +247,12 @@
 		};
 		5F52BA9C2BC9A98600AC74F4 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 10;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		5F52BA9D2BC9A98600AC74F4 /* Embed Libraries */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -261,8 +261,8 @@
 			dstSubfolderSpec = 10;
 			files = (
 				5F52BAAE2BC9E8C400AC74F4 /* libDataHandler.dylib in Embed Libraries */,
-				5F52BAAD2BC9E86700AC74F4 /* libMLModule.dylib in Embed Libraries */,
 				5F52BAAC2BC9E83800AC74F4 /* libBoardController.dylib in Embed Libraries */,
+				5F52BAAD2BC9E86700AC74F4 /* libMLModule.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1496,6 +1496,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				HEADER_SEARCH_PATHS = "$SRCROOT/../../src/**";
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
@@ -1503,6 +1504,7 @@
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OBJC_BRIDGING_HEADER = ../BrainFlow/BrainFlow.h;
@@ -1520,6 +1522,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				HEADER_SEARCH_PATHS = "$SRCROOT/../../src/**";
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
@@ -1527,6 +1530,7 @@
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = ../BrainFlow/BrainFlow.h;
 				SWIFT_VERSION = 5.0;
