@@ -33,9 +33,9 @@
 		5F52BA982BC9A98600AC74F4 /* libBoardController.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; };
 		5F52BA9A2BC9A98600AC74F4 /* Numerics in Frameworks */ = {isa = PBXBuildFile; productRef = 5F52BA852BC9A98600AC74F4 /* Numerics */; };
 		5F52BA9B2BC9A98600AC74F4 /* BrainFlow in Frameworks */ = {isa = PBXBuildFile; productRef = 5F52BA892BC9A98600AC74F4 /* BrainFlow */; };
-		5F52BAAC2BC9E83800AC74F4 /* libBoardController.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		5F52BAAD2BC9E86700AC74F4 /* libMLModule.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		5F52BAAE2BC9E8C400AC74F4 /* libDataHandler.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5F52BAAC2BC9E83800AC74F4 /* libBoardController.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; };
+		5F52BAAD2BC9E86700AC74F4 /* libMLModule.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
+		5F52BAAE2BC9E8C400AC74F4 /* libDataHandler.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
 		5F52BAAF2BC9E8D800AC74F4 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
 		5F52BAB52BCA18C300AC74F4 /* BrainFlowConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD640F28560C67001AA429 /* BrainFlowConstants.swift */; };
 		5F52BAB62BCA18C300AC74F4 /* BrainFlowInputParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641228560C67001AA429 /* BrainFlowInputParams.swift */; };
@@ -233,9 +233,9 @@
 		};
 		5F466F9D2BC4577A00E129A7 /* Embed Libraries */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 8;
-			dstPath = PackageFrameworks;
-			dstSubfolderSpec = 10;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 6;
 			files = (
 				5F52BA682BC9A3DE00AC74F4 /* libsimpleble-c.dylib in Embed Libraries */,
 				5F52BA452BC4D55500AC74F4 /* libBoardController.dylib in Embed Libraries */,
@@ -243,7 +243,7 @@
 				5F52BA472BC97D2E00AC74F4 /* libMLModule.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		5F52BA9C2BC9A98600AC74F4 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -278,16 +278,16 @@
 		};
 		5F52BAC52BCA18C300AC74F4 /* Embed Libraries */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 8;
-			dstPath = PackageFrameworks;
-			dstSubfolderSpec = 10;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 6;
 			files = (
 				5F52BAC62BCA18C300AC74F4 /* libDataHandler.dylib in Embed Libraries */,
 				5F52BAC72BCA18C300AC74F4 /* libMLModule.dylib in Embed Libraries */,
 				5F52BAC82BCA18C300AC74F4 /* libBoardController.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		5F52BAE42BCAA88000AC74F4 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -300,16 +300,16 @@
 		};
 		5F52BAE52BCAA88000AC74F4 /* Embed Libraries */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 8;
-			dstPath = PackageFrameworks;
-			dstSubfolderSpec = 10;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 6;
 			files = (
 				5F52BAE62BCAA88000AC74F4 /* libDataHandler.dylib in Embed Libraries */,
 				5F52BAE72BCAA88000AC74F4 /* libMLModule.dylib in Embed Libraries */,
 				5F52BAE82BCAA88000AC74F4 /* libBoardController.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		5F52BB062BCAAB3400AC74F4 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -322,16 +322,16 @@
 		};
 		5F52BB072BCAAB3400AC74F4 /* Embed Libraries */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 8;
-			dstPath = PackageFrameworks;
-			dstSubfolderSpec = 10;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 6;
 			files = (
 				5F52BB082BCAAB3400AC74F4 /* libDataHandler.dylib in Embed Libraries */,
 				5F52BB092BCAAB3400AC74F4 /* libMLModule.dylib in Embed Libraries */,
 				5F52BB0A2BCAAB3400AC74F4 /* libBoardController.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		5F52BB262BCAAC7900AC74F4 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -344,16 +344,16 @@
 		};
 		5F52BB272BCAAC7900AC74F4 /* Embed Libraries */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 8;
-			dstPath = PackageFrameworks;
-			dstSubfolderSpec = 10;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 6;
 			files = (
 				5F52BB282BCAAC7900AC74F4 /* libDataHandler.dylib in Embed Libraries */,
 				5F52BB292BCAAC7900AC74F4 /* libMLModule.dylib in Embed Libraries */,
 				5F52BB2A2BCAAC7900AC74F4 /* libBoardController.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		5F52BB482BCAADF900AC74F4 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -366,16 +366,16 @@
 		};
 		5F52BB492BCAADF900AC74F4 /* Embed Libraries */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 8;
-			dstPath = PackageFrameworks;
-			dstSubfolderSpec = 10;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 6;
 			files = (
 				5F52BB4A2BCAADF900AC74F4 /* libDataHandler.dylib in Embed Libraries */,
 				5F52BB4B2BCAADF900AC74F4 /* libMLModule.dylib in Embed Libraries */,
 				5F52BB4C2BCAADF900AC74F4 /* libBoardController.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		5F52BB682BCAAF1300AC74F4 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -388,16 +388,16 @@
 		};
 		5F52BB692BCAAF1300AC74F4 /* Embed Libraries */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 8;
-			dstPath = PackageFrameworks;
-			dstSubfolderSpec = 10;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 6;
 			files = (
 				5F52BB6A2BCAAF1300AC74F4 /* libDataHandler.dylib in Embed Libraries */,
 				5F52BB6B2BCAAF1300AC74F4 /* libMLModule.dylib in Embed Libraries */,
 				5F52BB6C2BCAAF1300AC74F4 /* libBoardController.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		5F52BB882BCAAFCE00AC74F4 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -410,16 +410,16 @@
 		};
 		5F52BB892BCAAFCE00AC74F4 /* Embed Libraries */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 8;
-			dstPath = PackageFrameworks;
-			dstSubfolderSpec = 10;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 6;
 			files = (
 				5F52BB8A2BCAAFCE00AC74F4 /* libDataHandler.dylib in Embed Libraries */,
 				5F52BB8B2BCAAFCE00AC74F4 /* libMLModule.dylib in Embed Libraries */,
 				5F52BB8C2BCAAFCE00AC74F4 /* libBoardController.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		5F52BBAB2BCAB23700AC74F4 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -432,16 +432,16 @@
 		};
 		5F52BBAC2BCAB23700AC74F4 /* Embed Libraries */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 8;
-			dstPath = PackageFrameworks;
-			dstSubfolderSpec = 10;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 6;
 			files = (
 				5F52BBAD2BCAB23700AC74F4 /* libDataHandler.dylib in Embed Libraries */,
 				5F52BBAE2BCAB23700AC74F4 /* libMLModule.dylib in Embed Libraries */,
 				5F52BBAF2BCAB23700AC74F4 /* libBoardController.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		5F52BBCB2BCAB5DC00AC74F4 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -454,16 +454,16 @@
 		};
 		5F52BBCC2BCAB5DC00AC74F4 /* Embed Libraries */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 8;
-			dstPath = PackageFrameworks;
-			dstSubfolderSpec = 10;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 6;
 			files = (
 				5F52BBCD2BCAB5DC00AC74F4 /* libDataHandler.dylib in Embed Libraries */,
 				5F52BBCE2BCAB5DC00AC74F4 /* libMLModule.dylib in Embed Libraries */,
 				5F52BBCF2BCAB5DC00AC74F4 /* libBoardController.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		5FDD63F328560953001AA429 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -514,6 +514,16 @@
 		5F52BBB32BCAB23700AC74F4 /* eeg_metrics */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = eeg_metrics; sourceTree = BUILT_PRODUCTS_DIR; };
 		5F52BBD32BCAB5DC00AC74F4 /* ica */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ica; sourceTree = BUILT_PRODUCTS_DIR; };
 		5FAE71FF2BD43C7A00E10975 /* band_power.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = band_power.entitlements; sourceTree = SOURCE_ROOT; };
+		5FAE72002BD4413100E10975 /* brainflow_get_data.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = brainflow_get_data.entitlements; sourceTree = SOURCE_ROOT; };
+		5FAE72012BD4413400E10975 /* band_power_all.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = band_power_all.entitlements; sourceTree = SOURCE_ROOT; };
+		5FAE72022BD4413600E10975 /* markers.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = markers.entitlements; sourceTree = SOURCE_ROOT; };
+		5FAE72032BD4413800E10975 /* read_write_file.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = read_write_file.entitlements; sourceTree = SOURCE_ROOT; };
+		5FAE72042BD4413A00E10975 /* downsampling.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = downsampling.entitlements; sourceTree = SOURCE_ROOT; };
+		5FAE72052BD4413C00E10975 /* transforms.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = transforms.entitlements; sourceTree = SOURCE_ROOT; };
+		5FAE72062BD4413D00E10975 /* signal_filtering.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = signal_filtering.entitlements; sourceTree = SOURCE_ROOT; };
+		5FAE72072BD4413F00E10975 /* denoising.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = denoising.entitlements; sourceTree = SOURCE_ROOT; };
+		5FAE72082BD4414200E10975 /* eeg_metrics.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = eeg_metrics.entitlements; sourceTree = SOURCE_ROOT; };
+		5FAE72092BD4414400E10975 /* ica.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ica.entitlements; sourceTree = SOURCE_ROOT; };
 		5FDD63F528560953001AA429 /* BrainFlowCI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = BrainFlowCI; sourceTree = BUILT_PRODUCTS_DIR; };
 		5FDD640028560986001AA429 /* BrainFlow */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = BrainFlow; path = ../BrainFlow; sourceTree = "<group>"; };
 		5FDD640E28560C67001AA429 /* DataFilter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataFilter.swift; sourceTree = "<group>"; };
@@ -699,6 +709,7 @@
 		5F466F8D2BC454A900E129A7 /* brainflow_get_data */ = {
 			isa = PBXGroup;
 			children = (
+				5FAE72002BD4413100E10975 /* brainflow_get_data.entitlements */,
 				5FE97CF52BCE94DF0056EC80 /* brainflow_get_data.swift */,
 			);
 			path = brainflow_get_data;
@@ -716,6 +727,7 @@
 		5F52BACD2BCAA42A00AC74F4 /* band_power_all */ = {
 			isa = PBXGroup;
 			children = (
+				5FAE72012BD4413400E10975 /* band_power_all.entitlements */,
 				5FE97CF12BCDF33C0056EC80 /* main.swift */,
 			);
 			path = band_power_all;
@@ -724,6 +736,7 @@
 		5F52BAED2BCAA89400AC74F4 /* markers */ = {
 			isa = PBXGroup;
 			children = (
+				5FAE72022BD4413600E10975 /* markers.entitlements */,
 				5FE97CEF2BCDF20A0056EC80 /* markers.swift */,
 			);
 			path = markers;
@@ -732,6 +745,7 @@
 		5F52BB0F2BCAAB7100AC74F4 /* read_write_file */ = {
 			isa = PBXGroup;
 			children = (
+				5FAE72032BD4413800E10975 /* read_write_file.entitlements */,
 				5FE97CED2BCDF1DD0056EC80 /* main.swift */,
 			);
 			path = read_write_file;
@@ -740,6 +754,7 @@
 		5F52BB2F2BCAAC8800AC74F4 /* downsampling */ = {
 			isa = PBXGroup;
 			children = (
+				5FAE72042BD4413A00E10975 /* downsampling.entitlements */,
 				5FE97CEB2BCDF1BA0056EC80 /* main.swift */,
 			);
 			path = downsampling;
@@ -748,6 +763,7 @@
 		5F52BB512BCAAE1800AC74F4 /* transforms */ = {
 			isa = PBXGroup;
 			children = (
+				5FAE72052BD4413C00E10975 /* transforms.entitlements */,
 				5FE97CE92BCDF0360056EC80 /* main.swift */,
 			);
 			path = transforms;
@@ -756,6 +772,7 @@
 		5F52BB712BCAAF2B00AC74F4 /* signal_filtering */ = {
 			isa = PBXGroup;
 			children = (
+				5FAE72062BD4413D00E10975 /* signal_filtering.entitlements */,
 				5FE97CE72BCDEF6C0056EC80 /* main.swift */,
 			);
 			path = signal_filtering;
@@ -764,6 +781,7 @@
 		5F52BB912BCAAFDC00AC74F4 /* denoising */ = {
 			isa = PBXGroup;
 			children = (
+				5FAE72072BD4413F00E10975 /* denoising.entitlements */,
 				5FE97CE52BCDEE350056EC80 /* main.swift */,
 			);
 			path = denoising;
@@ -772,6 +790,7 @@
 		5F52BBB42BCAB26E00AC74F4 /* eeg_metrics */ = {
 			isa = PBXGroup;
 			children = (
+				5FAE72082BD4414200E10975 /* eeg_metrics.entitlements */,
 				5FE97CE32BCDEDC50056EC80 /* eeg_metrics.swift */,
 			);
 			path = eeg_metrics;
@@ -780,6 +799,7 @@
 		5F52BBD42BCAB60E00AC74F4 /* ica */ = {
 			isa = PBXGroup;
 			children = (
+				5FAE72092BD4414400E10975 /* ica.entitlements */,
 				5FE97CE12BCDEC810056EC80 /* main.swift */,
 			);
 			path = ica;
@@ -1442,6 +1462,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = brainflow_get_data.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
@@ -1468,6 +1489,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = brainflow_get_data.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
@@ -1550,7 +1572,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_ENTITLEMENTS = band_power_all.entitlements;
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -1563,6 +1586,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OBJC_BRIDGING_HEADER = ../BrainFlow/BrainFlow.h;
 				SWIFT_VERSION = 5.0;
@@ -1574,7 +1598,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_ENTITLEMENTS = band_power_all.entitlements;
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -1587,6 +1612,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = ../BrainFlow/BrainFlow.h;
 				SWIFT_VERSION = 5.0;
 			};
@@ -1597,7 +1623,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_ENTITLEMENTS = markers.entitlements;
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -1610,6 +1637,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OBJC_BRIDGING_HEADER = ../BrainFlow/BrainFlow.h;
 				SWIFT_VERSION = 5.0;
@@ -1621,7 +1649,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_ENTITLEMENTS = markers.entitlements;
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -1634,6 +1663,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = ../BrainFlow/BrainFlow.h;
 				SWIFT_VERSION = 5.0;
 			};
@@ -1644,7 +1674,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_ENTITLEMENTS = read_write_file.entitlements;
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -1657,6 +1688,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OBJC_BRIDGING_HEADER = ../BrainFlow/BrainFlow.h;
 				SWIFT_VERSION = 5.0;
@@ -1668,7 +1700,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_ENTITLEMENTS = read_write_file.entitlements;
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -1681,6 +1714,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = ../BrainFlow/BrainFlow.h;
 				SWIFT_VERSION = 5.0;
 			};
@@ -1691,7 +1725,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_ENTITLEMENTS = downsampling.entitlements;
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -1704,6 +1739,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OBJC_BRIDGING_HEADER = ../BrainFlow/BrainFlow.h;
 				SWIFT_VERSION = 5.0;
@@ -1715,7 +1751,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_ENTITLEMENTS = downsampling.entitlements;
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -1728,6 +1765,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = ../BrainFlow/BrainFlow.h;
 				SWIFT_VERSION = 5.0;
 			};
@@ -1738,7 +1776,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_ENTITLEMENTS = transforms.entitlements;
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -1751,6 +1790,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OBJC_BRIDGING_HEADER = ../BrainFlow/BrainFlow.h;
 				SWIFT_VERSION = 5.0;
@@ -1762,7 +1802,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_ENTITLEMENTS = transforms.entitlements;
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -1775,6 +1816,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = ../BrainFlow/BrainFlow.h;
 				SWIFT_VERSION = 5.0;
 			};
@@ -1785,7 +1827,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_ENTITLEMENTS = signal_filtering.entitlements;
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -1798,6 +1841,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OBJC_BRIDGING_HEADER = ../BrainFlow/BrainFlow.h;
 				SWIFT_VERSION = 5.0;
@@ -1809,7 +1853,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_ENTITLEMENTS = signal_filtering.entitlements;
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -1822,6 +1867,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = ../BrainFlow/BrainFlow.h;
 				SWIFT_VERSION = 5.0;
 			};
@@ -1832,7 +1878,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_ENTITLEMENTS = denoising.entitlements;
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -1845,6 +1892,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OBJC_BRIDGING_HEADER = ../BrainFlow/BrainFlow.h;
 				SWIFT_VERSION = 5.0;
@@ -1856,7 +1904,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_ENTITLEMENTS = denoising.entitlements;
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -1869,6 +1918,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = ../BrainFlow/BrainFlow.h;
 				SWIFT_VERSION = 5.0;
 			};
@@ -1879,7 +1929,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_ENTITLEMENTS = eeg_metrics.entitlements;
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -1892,6 +1943,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OBJC_BRIDGING_HEADER = ../BrainFlow/BrainFlow.h;
 				SWIFT_VERSION = 5.0;
@@ -1903,7 +1955,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_ENTITLEMENTS = eeg_metrics.entitlements;
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -1916,6 +1969,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = ../BrainFlow/BrainFlow.h;
 				SWIFT_VERSION = 5.0;
 			};
@@ -1926,7 +1980,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_ENTITLEMENTS = ica.entitlements;
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -1939,6 +1994,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OBJC_BRIDGING_HEADER = ../BrainFlow/BrainFlow.h;
 				SWIFT_VERSION = 5.0;
@@ -1950,7 +2006,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_ENTITLEMENTS = ica.entitlements;
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -1963,6 +2020,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = ../BrainFlow/BrainFlow.h;
 				SWIFT_VERSION = 5.0;
 			};
@@ -2020,6 +2078,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/";
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -2076,6 +2135,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/";
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
