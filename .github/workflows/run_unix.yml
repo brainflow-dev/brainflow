@@ -59,7 +59,7 @@ jobs:
         cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
         xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme band_power
         ls -l Frameworks/
-	ls -l install/PackageFrameworks/
+        ls -l install/PackageFrameworks/
         echo LC_LOAD_DYLIB:
         otool -l install/band_power | grep LC_LOAD_DYLIB -A2
         echo LC_RPATH:
