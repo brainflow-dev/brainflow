@@ -21,11 +21,38 @@ jobs:
       run: if [ $GITHUB_REF_TYPE == "tag" ]; then echo "::set-output name=version::$GITHUB_REF_NAME"; else echo "::set-output name=version::$GITHUB_SHA"; fi
     - name: Check Version
       run: echo ${{ steps.version.outputs.version }}
+    - name: Install dotnet
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '7.0.x'
+    - name: Install Python 3.7
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.7.7'
+        architecture: 'x64'
+    - name: Install Python Dependencies
+      if: (matrix.os == 'ubuntu-20.04')
+      run: |
+        sudo -H apt-get update -y
+        sudo -H apt-get install -y python3-setuptools python3-pygments libbluetooth-dev
+      env:
+        DEBIAN_FRONTEND: noninteractive
+    - name: Install Node
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+    - name: Install Typescript
+      run: |
+        npm install -g ts-node
     - name: Install Ninja
       if: (matrix.os == 'macos-11.0')
       uses: seanmiddleditch/gha-setup-ninja@master
       with:
         version: 1.10.2
+    - name: Install Julia
+      uses: julia-actions/setup-julia@v1
+      with:
+        version: 1.3.1
     - name: Setup Cmake
       uses: jwlawson/actions-setup-cmake@v1.13
       with:
@@ -53,87 +80,79 @@ jobs:
         ninja install
       env:
         BRAINFLOW_VERSION: ${{ steps.version.outputs.version }}
-    # build Swift tests:
-    - name: build band_power Swift
+    - name: Compile BrainFlow Ubuntu
+      if: (matrix.os == 'ubuntu-20.04')
       run: |
-        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
-        xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme band_power
-    - name: build band_power_all Swift
+        mkdir $GITHUB_WORKSPACE/build
+        cd $GITHUB_WORKSPACE/build
+        cmake -DBRAINFLOW_VERSION=$BRAINFLOW_VERSION -DBUILD_BLUETOOTH=ON -DBUILD_ONNX=ON -DBUILD_TESTS=ON -DWARNINGS_AS_ERRORS=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed -DCMAKE_BUILD_TYPE=Release ..
+        make
+        make install
+      env:
+        BRAINFLOW_VERSION: ${{ steps.version.outputs.version }}
+    - name: Compile BrainFlow in ManyLinux
+      # bindings in production have to use libraries compiled inside this image!
+      if: (matrix.os == 'ubuntu-20.04')
       run: |
-        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
-        xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme band_power_all
-    - name: build brainflow_get_data Swift
+        docker pull dockcross/manylinux2014-x64:20210708-94745ff
+        docker run -e BRAINFLOW_VERSION=$BRAINFLOW_VERSION -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE dockcross/manylinux2014-x64:20210708-94745ff /bin/bash -c "yum install -y bluez-libs-devel dbus-devel && /opt/python/cp36-cp36m/bin/pip3.6 install cmake==3.21.4 && cd $GITHUB_WORKSPACE && mkdir build_docker && cd build_docker && /opt/_internal/cpython-3.6.14/bin/cmake -DBRAINFLOW_VERSION=$BRAINFLOW_VERSION -DBUILD_ONNX=ON -DBUILD_BLE=ON -DBUILD_BLUETOOTH=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed_docker -DCMAKE_BUILD_TYPE=Release .. && make && make install"
+      env:
+        BRAINFLOW_VERSION: ${{ steps.version.outputs.version }}
+    - name: C# build
       run: |
-        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
-        xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme brainflow_get_data
-    - name: build denoising Swift
+        cd $GITHUB_WORKSPACE/csharp_package/brainflow
+        dotnet restore brainflow.sln
+        dotnet build brainflow.sln -c Release
+    - name: Setup Python Package
       run: |
-        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
-        xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme denoising
-    - name: build downsampling Swift
+        cd $GITHUB_WORKSPACE/python_package
+        sudo -H python3 -m pip install -U .
+    - name: Build Node Package
       run: |
-        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
-        xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme downsampling
-    - name: build eeg_metrics Swift
+        cd $GITHUB_WORKSPACE/nodejs_package/brainflow
+        npm install
+        npm run build
+    - name: Install Node Tests
       run: |
-        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
-        xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme eeg_metrics
-    - name: build ica Swift
+        cd $GITHUB_WORKSPACE/nodejs_package/tests
+        npm install
+    - name: Setup Java package
       run: |
-        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
-        xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme ica
-    - name: build markers Swift
+        cd $GITHUB_WORKSPACE/java_package/brainflow
+        mvn package
+        cp -av $GITHUB_WORKSPACE/java_package/brainflow/target/classes/brainflow/. $GITHUB_WORKSPACE/java_package/brainflow/target/classes/ 
+        cp -av $GITHUB_WORKSPACE/java_package/brainflow/target/classes/brainflow/. $GITHUB_WORKSPACE/java_package/brainflow/target/classes/
+    - name: Build Get Data Test
       run: |
-        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
-        xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme markers
-    - name: build read_write_file Swift
+        cd $GITHUB_WORKSPACE/cpp_package/examples/get_data
+        mkdir build
+        cd build
+        cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed ..
+        make
+    - name: Build Signal Processing Test
       run: |
-        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
-        xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme read_write_file
-    - name: build signal_filtering Swift
+        cd $GITHUB_WORKSPACE/cpp_package/examples/signal_processing
+        mkdir build
+        cd build
+        cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed ..
+        make
+    - name: Build ML Demo Test
       run: |
-        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
-        xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme signal_filtering
-    - name: build transforms Swift
+        cd $GITHUB_WORKSPACE/cpp_package/examples/ml
+        mkdir build
+        cd build
+        cmake -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/installed ..
+        make
+    - name: Install Emulator
       run: |
-        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
-        xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme transforms
+        cd $GITHUB_WORKSPACE/emulator
+        sudo -H python3 -m pip install -U .
+    - name: Install Python test Dependencies
+      run: sudo -H python3 -m pip install -r $GITHUB_WORKSPACE/python_package/examples/tests/requirements.txt
+
     # start testing
     - name: Run unit tests
       run: $GITHUB_WORKSPACE/build/tests/brainflow_tests
-    - name: band_power Swift
-      run: |
-        $GITHUB_WORKSPACE/swift_package/BrainFlowCI/install/band_power
-    - name: band_power_all Swift
-      run: |
-        $GITHUB_WORKSPACE/swift_package/BrainFlowCI/install/band_power_all
-    - name: brainflow_get_data Swift
-      run: |
-        $GITHUB_WORKSPACE/swift_package/BrainFlowCI/install/brainflow_get_data
-    - name: denoising Swift
-      run: |
-        $GITHUB_WORKSPACE/swift_package/BrainFlowCI/install/denoising
-    - name: downsampling Swift
-      run: |
-        $GITHUB_WORKSPACE/swift_package/BrainFlowCI/install/downsampling
-    - name: eeg_metrics Swift
-      run: |
-        $GITHUB_WORKSPACE/swift_package/BrainFlowCI/install/eeg_metrics
-    - name: ica Swift
-      run: |
-        $GITHUB_WORKSPACE/swift_package/BrainFlowCI/install/ica
-    - name: markers Swift
-      run: |
-        $GITHUB_WORKSPACE/swift_package/BrainFlowCI/install/markers
-    - name: read_write_file Swift
-      run: |
-        $GITHUB_WORKSPACE/swift_package/BrainFlowCI/install/read_write_file
-    - name: signal_filtering Swift
-      run: |
-        $GITHUB_WORKSPACE/swift_package/BrainFlowCI/install/signal_filtering
-    - name: transforms Swift
-      run: |
-        $GITHUB_WORKSPACE/swift_package/BrainFlowCI/install/transforms
     - name: Synthetic C# Test MacOS
       if: (matrix.os == 'macos-11.0')
       run: |
@@ -396,4 +415,3 @@ jobs:
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
