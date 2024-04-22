@@ -204,7 +204,7 @@ int BrainAlive::start_stream (int buffer_size, const char *streamer_params)
         return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
     }
     int res = prepare_for_acquisition (buffer_size, streamer_params);
-  
+
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
         res = config_board ("0a8100000d");
@@ -376,16 +376,15 @@ void BrainAlive::read_data (simpleble_uuid_t service, simpleble_uuid_t character
         safe_logger (spdlog::level::warn, "unknown size of BrainAlive Data {}", size);
         return;
     }
-    for(int i =0; i< size; i+=32)
-    { 
+    for (int i = 0; i < (int)size; i += 32)
+    {
         double eeg_data[9] = {0};
-        for(int j = i+4 ,k =0; j<i+28; j += 3,k++)
+        for (int j = i + 4, k = 0; j < i + 28; j += 3, k++)
         {
             eeg_data[k] = (((data[j] << 16 | data[j + 1] << 8 | data[j + 2]) << 8) >> 8) *
                 BRAINALIVE_EEG_SCALE_FACTOR / BRAINALIVE_EEG_GAIN_VALUE;
         }
-        eeg_data[8] = data[i+29];
+        eeg_data[8] = data[i + 29];
         push_package (&eeg_data[0]);
-
     }
 }
