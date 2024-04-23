@@ -6,7 +6,7 @@
 #include "timestamp.h"
 
 // common constants
-#define BRAINALIVE_PACKET_SIZE 46
+#define BRAINALIVE_PACKET_SIZE 224
 
 // info about services and chars
 #define START_BYTE 0x0A
@@ -206,11 +206,11 @@ int BrainAlive::start_stream (int buffer_size, const char *streamer_params)
     int res = prepare_for_acquisition (buffer_size, streamer_params);
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        res = config_board ("0a8000000d");
+        res = config_board ("0a8100000d");
     }
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        safe_logger (spdlog::level::debug, "Start command Send 0x8000000d");
+        safe_logger (spdlog::level::debug, "Start command Send 250sps");
         is_streaming = true;
     }
 
@@ -303,10 +303,11 @@ int BrainAlive::config_board (std::string config)
     uint8_t command[5];
     size_t len = config.size ();
     command[0] = 0x0a;
-    command[1] = config[2] << 4;
+    command[1] = 0x81; // it is hardcoded for now only
     command[2] = 0x00;
     command[3] = 0x00;
     command[4] = 0x0d;
+    safe_logger (spdlog::level::trace, config[2]);
     if (simpleble_peripheral_write_command (brainalive_peripheral, write_characteristics.first,
             write_characteristics.second, command, sizeof (command)) != SIMPLEBLE_SUCCESS)
     {
@@ -340,7 +341,7 @@ void BrainAlive::adapter_1_on_scan_found (
         }
         else
         {
-            if (strncmp (peripheral_identified, "BrainAlive", 10) == 0)
+            if (strncmp (peripheral_identified, "ADS_TES", 7) == 0)
             {
                 found = true;
             }
@@ -375,18 +376,15 @@ void BrainAlive::read_data (simpleble_uuid_t service, simpleble_uuid_t character
         return;
     }
 
-    if ((data[0] == START_BYTE) && (data[45] == STOP_BYTE))
+    for (int i = 0; i < (int)size; i += 32)
     {
-        int32_t ppg_data[3] = {0};
-        int32_t axl_data[3] = {0};
-        double eeg_data[8] = {0};
-        for (int i = 4, j = 0; i < 28; i += 3, j++)
-            eeg_data[j] = (((data[i] << 16 | data[i + 1] << 8 | data[i + 2]) << 8) >> 8) *
+        double eeg_data[9] = {0};
+        for (int j = i + 4, k = 0; j < i + 28; j += 3, k++)
+        {
+            eeg_data[k] = (((data[j] << 16 | data[j + 1] << 8 | data[j + 2]) << 8) >> 8) *
                 BRAINALIVE_EEG_SCALE_FACTOR / BRAINALIVE_EEG_GAIN_VALUE;
-        for (int i = 28, j = 0; i < 37; i += 3, j++)
-            ppg_data[j] = ((data[i] << 16 | data[i + 1] << 8 | data[i + 2]) & 0x7FFFF);
-        for (int i = 37, j = 0; i < 43; i += 2, j++)
-            axl_data[j] = ((data[i] << 8 | data[i + 1]) << 16) >> 16;
+        }
+        eeg_data[8] = data[i + 29];
         push_package (&eeg_data[0]);
     }
 }
