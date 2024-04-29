@@ -341,7 +341,7 @@ void BrainAlive::adapter_1_on_scan_found (
         }
         else
         {
-            if (strncmp (peripheral_identified, "ADS_TES", 7) == 0)
+            if (strncmp (peripheral_identified, "ORION_1", 7) == 0)
             {
                 found = true;
             }
