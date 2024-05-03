@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import BrainFlow
 
 func testBandPower() throws {
     // use synthetic board for demo

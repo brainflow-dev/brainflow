@@ -6,7 +6,6 @@
 //
 
 import Foundation
-//import BrainFlow
 
 struct BoardShim {
     let boardId: BoardIds
@@ -369,7 +368,7 @@ struct BoardShim {
                 return masterBoardId
             }
         }
-        throw BrainFlowException ("need to set params.otherInfo to master board id",
+        throw BrainFlowError ("need to set params.otherInfo to master board id",
                                   BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR)
     }
 
@@ -590,7 +589,7 @@ struct BoardShim {
         if let testSize = size {
             // size is not nil
             if testSize < 1 {
-                throw BrainFlowException("invalid num_samples", BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR)
+                throw BrainFlowError("invalid num_samples", BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR)
             }
             numSamples = testSize
         } else {

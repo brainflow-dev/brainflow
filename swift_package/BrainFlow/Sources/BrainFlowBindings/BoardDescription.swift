@@ -5,7 +5,6 @@
 //  Created by Scott Miller for Aeris Rising, LLC on 8/23/21.
 //
 import Foundation
-//import BrainFlow
 
 struct BoardDescription: Codable, Equatable {
     let package_num_channel: Int32
@@ -30,7 +29,7 @@ struct BoardDescription: Codable, Equatable {
     // decode the input JSON into self:
     init(_ descriptionJSON: String) throws {
         guard descriptionJSON != "" else {
-            throw BrainFlowException("Nil board description JSON", .JSON_NOT_FOUND_ERROR)
+            throw BrainFlowError("Nil board description JSON", .JSON_NOT_FOUND_ERROR)
         }
         
         let decoder = JSONDecoder()
@@ -41,7 +40,7 @@ struct BoardDescription: Codable, Equatable {
             self = json
         } catch {
             try? BoardShim.logMessage(.LEVEL_CRITICAL, "board description JSON decoding error:\n \(error)")
-            throw BrainFlowException("Invalid board description JSON", .NO_SUCH_DATA_IN_JSON_ERROR)
+            throw BrainFlowError("Invalid board description JSON", .NO_SUCH_DATA_IN_JSON_ERROR)
         }
     }
 }

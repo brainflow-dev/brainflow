@@ -4,7 +4,6 @@
 //  https://github.com/brainflow-dev/brainflow/tree/master/tests/python
 
 import XCTest
-//import BrainFlow
 @testable import BrainFlow
 
 class DataFilterTests: XCTestCase {

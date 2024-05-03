@@ -27,7 +27,6 @@
 		5F52BA8F2BC9A98600AC74F4 /* BoardDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641528560C67001AA429 /* BoardDescription.swift */; };
 		5F52BA902BC9A98600AC74F4 /* BrainFlowExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641028560C67001AA429 /* BrainFlowExtensions.swift */; };
 		5F52BA912BC9A98600AC74F4 /* MLModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641428560C67001AA429 /* MLModule.swift */; };
-		5F52BA922BC9A98600AC74F4 /* BrainFlowException.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641128560C67001AA429 /* BrainFlowException.swift */; };
 		5F52BA932BC9A98600AC74F4 /* DataFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD640E28560C67001AA429 /* DataFilter.swift */; };
 		5F52BA952BC9A98600AC74F4 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
 		5F52BA982BC9A98600AC74F4 /* libBoardController.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; };
@@ -43,7 +42,6 @@
 		5F52BAB82BCA18C300AC74F4 /* BoardDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641528560C67001AA429 /* BoardDescription.swift */; };
 		5F52BAB92BCA18C300AC74F4 /* BrainFlowExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641028560C67001AA429 /* BrainFlowExtensions.swift */; };
 		5F52BABB2BCA18C300AC74F4 /* MLModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641428560C67001AA429 /* MLModule.swift */; };
-		5F52BABC2BCA18C300AC74F4 /* BrainFlowException.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641128560C67001AA429 /* BrainFlowException.swift */; };
 		5F52BABD2BCA18C300AC74F4 /* DataFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD640E28560C67001AA429 /* DataFilter.swift */; };
 		5F52BABF2BCA18C300AC74F4 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
 		5F52BAC02BCA18C300AC74F4 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
@@ -59,7 +57,6 @@
 		5F52BAD82BCAA88000AC74F4 /* BoardDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641528560C67001AA429 /* BoardDescription.swift */; };
 		5F52BAD92BCAA88000AC74F4 /* BrainFlowExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641028560C67001AA429 /* BrainFlowExtensions.swift */; };
 		5F52BADB2BCAA88000AC74F4 /* MLModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641428560C67001AA429 /* MLModule.swift */; };
-		5F52BADC2BCAA88000AC74F4 /* BrainFlowException.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641128560C67001AA429 /* BrainFlowException.swift */; };
 		5F52BADD2BCAA88000AC74F4 /* DataFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD640E28560C67001AA429 /* DataFilter.swift */; };
 		5F52BADF2BCAA88000AC74F4 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
 		5F52BAE02BCAA88000AC74F4 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
@@ -76,7 +73,6 @@
 		5F52BAFA2BCAAB3400AC74F4 /* BoardDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641528560C67001AA429 /* BoardDescription.swift */; };
 		5F52BAFB2BCAAB3400AC74F4 /* BrainFlowExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641028560C67001AA429 /* BrainFlowExtensions.swift */; };
 		5F52BAFD2BCAAB3400AC74F4 /* MLModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641428560C67001AA429 /* MLModule.swift */; };
-		5F52BAFE2BCAAB3400AC74F4 /* BrainFlowException.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641128560C67001AA429 /* BrainFlowException.swift */; };
 		5F52BAFF2BCAAB3400AC74F4 /* DataFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD640E28560C67001AA429 /* DataFilter.swift */; };
 		5F52BB012BCAAB3400AC74F4 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
 		5F52BB022BCAAB3400AC74F4 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
@@ -92,7 +88,6 @@
 		5F52BB1A2BCAAC7900AC74F4 /* BoardDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641528560C67001AA429 /* BoardDescription.swift */; };
 		5F52BB1B2BCAAC7900AC74F4 /* BrainFlowExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641028560C67001AA429 /* BrainFlowExtensions.swift */; };
 		5F52BB1D2BCAAC7900AC74F4 /* MLModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641428560C67001AA429 /* MLModule.swift */; };
-		5F52BB1E2BCAAC7900AC74F4 /* BrainFlowException.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641128560C67001AA429 /* BrainFlowException.swift */; };
 		5F52BB1F2BCAAC7900AC74F4 /* DataFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD640E28560C67001AA429 /* DataFilter.swift */; };
 		5F52BB212BCAAC7900AC74F4 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
 		5F52BB222BCAAC7900AC74F4 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
@@ -108,7 +103,6 @@
 		5F52BB3D2BCAADF900AC74F4 /* BoardDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641528560C67001AA429 /* BoardDescription.swift */; };
 		5F52BB3E2BCAADF900AC74F4 /* BrainFlowExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641028560C67001AA429 /* BrainFlowExtensions.swift */; };
 		5F52BB3F2BCAADF900AC74F4 /* MLModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641428560C67001AA429 /* MLModule.swift */; };
-		5F52BB402BCAADF900AC74F4 /* BrainFlowException.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641128560C67001AA429 /* BrainFlowException.swift */; };
 		5F52BB412BCAADF900AC74F4 /* DataFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD640E28560C67001AA429 /* DataFilter.swift */; };
 		5F52BB432BCAADF900AC74F4 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
 		5F52BB442BCAADF900AC74F4 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
@@ -124,7 +118,6 @@
 		5F52BB5D2BCAAF1300AC74F4 /* BoardDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641528560C67001AA429 /* BoardDescription.swift */; };
 		5F52BB5E2BCAAF1300AC74F4 /* BrainFlowExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641028560C67001AA429 /* BrainFlowExtensions.swift */; };
 		5F52BB5F2BCAAF1300AC74F4 /* MLModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641428560C67001AA429 /* MLModule.swift */; };
-		5F52BB602BCAAF1300AC74F4 /* BrainFlowException.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641128560C67001AA429 /* BrainFlowException.swift */; };
 		5F52BB612BCAAF1300AC74F4 /* DataFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD640E28560C67001AA429 /* DataFilter.swift */; };
 		5F52BB632BCAAF1300AC74F4 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
 		5F52BB642BCAAF1300AC74F4 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
@@ -140,7 +133,6 @@
 		5F52BB7D2BCAAFCE00AC74F4 /* BoardDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641528560C67001AA429 /* BoardDescription.swift */; };
 		5F52BB7E2BCAAFCE00AC74F4 /* BrainFlowExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641028560C67001AA429 /* BrainFlowExtensions.swift */; };
 		5F52BB7F2BCAAFCE00AC74F4 /* MLModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641428560C67001AA429 /* MLModule.swift */; };
-		5F52BB802BCAAFCE00AC74F4 /* BrainFlowException.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641128560C67001AA429 /* BrainFlowException.swift */; };
 		5F52BB812BCAAFCE00AC74F4 /* DataFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD640E28560C67001AA429 /* DataFilter.swift */; };
 		5F52BB832BCAAFCE00AC74F4 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
 		5F52BB842BCAAFCE00AC74F4 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
@@ -156,7 +148,6 @@
 		5F52BB9E2BCAB23700AC74F4 /* BoardDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641528560C67001AA429 /* BoardDescription.swift */; };
 		5F52BB9F2BCAB23700AC74F4 /* BrainFlowExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641028560C67001AA429 /* BrainFlowExtensions.swift */; };
 		5F52BBA02BCAB23700AC74F4 /* MLModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641428560C67001AA429 /* MLModule.swift */; };
-		5F52BBA12BCAB23700AC74F4 /* BrainFlowException.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641128560C67001AA429 /* BrainFlowException.swift */; };
 		5F52BBA32BCAB23700AC74F4 /* DataFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD640E28560C67001AA429 /* DataFilter.swift */; };
 		5F52BBA52BCAB23700AC74F4 /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = 5F52BB982BCAB23700AC74F4 /* ArgumentParser */; };
 		5F52BBA62BCAB23700AC74F4 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
@@ -173,7 +164,6 @@
 		5F52BBC02BCAB5DC00AC74F4 /* BoardDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641528560C67001AA429 /* BoardDescription.swift */; };
 		5F52BBC12BCAB5DC00AC74F4 /* BrainFlowExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641028560C67001AA429 /* BrainFlowExtensions.swift */; };
 		5F52BBC22BCAB5DC00AC74F4 /* MLModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641428560C67001AA429 /* MLModule.swift */; };
-		5F52BBC32BCAB5DC00AC74F4 /* BrainFlowException.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641128560C67001AA429 /* BrainFlowException.swift */; };
 		5F52BBC42BCAB5DC00AC74F4 /* DataFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD640E28560C67001AA429 /* DataFilter.swift */; };
 		5F52BBC62BCAB5DC00AC74F4 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
 		5F52BBC72BCAB5DC00AC74F4 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
@@ -183,19 +173,32 @@
 		5F52BBCD2BCAB5DC00AC74F4 /* libDataHandler.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
 		5F52BBCE2BCAB5DC00AC74F4 /* libMLModule.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
 		5F52BBCF2BCAB5DC00AC74F4 /* libBoardController.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; };
+		5F9BC3532BE52DFE00C0C634 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9BC3522BE52DFE00C0C634 /* main.swift */; };
+		5F9BC3552BE532FF00C0C634 /* BrainFlowError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9BC3542BE532FF00C0C634 /* BrainFlowError.swift */; };
+		5F9BC3562BE5331500C0C634 /* BrainFlowError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9BC3542BE532FF00C0C634 /* BrainFlowError.swift */; };
+		5F9BC3572BE5331E00C0C634 /* BrainFlowError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9BC3542BE532FF00C0C634 /* BrainFlowError.swift */; };
+		5F9BC3582BE5332500C0C634 /* BrainFlowError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9BC3542BE532FF00C0C634 /* BrainFlowError.swift */; };
+		5F9BC3592BE5333300C0C634 /* BrainFlowError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9BC3542BE532FF00C0C634 /* BrainFlowError.swift */; };
+		5F9BC35A2BE5333900C0C634 /* BrainFlowError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9BC3542BE532FF00C0C634 /* BrainFlowError.swift */; };
+		5F9BC35B2BE5335200C0C634 /* markers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE97CEF2BCDF20A0056EC80 /* markers.swift */; };
+		5F9BC35C2BE5335E00C0C634 /* BrainFlowError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9BC3542BE532FF00C0C634 /* BrainFlowError.swift */; };
+		5F9BC35D2BE5336600C0C634 /* BrainFlowError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9BC3542BE532FF00C0C634 /* BrainFlowError.swift */; };
+		5F9BC35E2BE5336B00C0C634 /* BrainFlowError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9BC3542BE532FF00C0C634 /* BrainFlowError.swift */; };
+		5F9BC35F2BE5337200C0C634 /* BrainFlowError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9BC3542BE532FF00C0C634 /* BrainFlowError.swift */; };
+		5F9BC3602BE5337800C0C634 /* BrainFlowError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9BC3542BE532FF00C0C634 /* BrainFlowError.swift */; };
+		5F9BC3612BE5337D00C0C634 /* BrainFlowError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9BC3542BE532FF00C0C634 /* BrainFlowError.swift */; };
+		5F9BC3622BE5338400C0C634 /* BrainFlowError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9BC3542BE532FF00C0C634 /* BrainFlowError.swift */; };
 		5FD91A3A2BC49D9600AC3CCB /* BrainFlowConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD640F28560C67001AA429 /* BrainFlowConstants.swift */; };
 		5FD91A3B2BC49D9600AC3CCB /* BrainFlowInputParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641228560C67001AA429 /* BrainFlowInputParams.swift */; };
 		5FD91A3C2BC49D9600AC3CCB /* BoardShim.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641328560C67001AA429 /* BoardShim.swift */; };
 		5FD91A3D2BC49D9600AC3CCB /* BoardDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641528560C67001AA429 /* BoardDescription.swift */; };
 		5FD91A3E2BC49D9600AC3CCB /* BrainFlowExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641028560C67001AA429 /* BrainFlowExtensions.swift */; };
 		5FD91A3F2BC49D9600AC3CCB /* MLModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641428560C67001AA429 /* MLModule.swift */; };
-		5FD91A402BC49D9600AC3CCB /* BrainFlowException.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641128560C67001AA429 /* BrainFlowException.swift */; };
 		5FD91A412BC49D9600AC3CCB /* DataFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD640E28560C67001AA429 /* DataFilter.swift */; };
 		5FD91A442BC49F1000AC3CCB /* DataFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD640E28560C67001AA429 /* DataFilter.swift */; };
 		5FD91A452BC49F1000AC3CCB /* BrainFlowExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641028560C67001AA429 /* BrainFlowExtensions.swift */; };
 		5FD91A462BC49F1000AC3CCB /* BrainFlowConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD640F28560C67001AA429 /* BrainFlowConstants.swift */; };
 		5FD91A472BC49F1000AC3CCB /* BrainFlowInputParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641228560C67001AA429 /* BrainFlowInputParams.swift */; };
-		5FD91A482BC49F1000AC3CCB /* BrainFlowException.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641128560C67001AA429 /* BrainFlowException.swift */; };
 		5FD91A492BC49F1000AC3CCB /* BoardShim.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641328560C67001AA429 /* BoardShim.swift */; };
 		5FD91A4A2BC49F1000AC3CCB /* MLModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641428560C67001AA429 /* MLModule.swift */; };
 		5FD91A4B2BC49F1000AC3CCB /* BoardDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641528560C67001AA429 /* BoardDescription.swift */; };
@@ -205,7 +208,6 @@
 		5FDD644428561815001AA429 /* MLModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641428560C67001AA429 /* MLModule.swift */; };
 		5FDD644528561815001AA429 /* BrainFlowConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD640F28560C67001AA429 /* BrainFlowConstants.swift */; };
 		5FDD644628561815001AA429 /* BrainFlowInputParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641228560C67001AA429 /* BrainFlowInputParams.swift */; };
-		5FDD644728561815001AA429 /* BrainFlowException.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641128560C67001AA429 /* BrainFlowException.swift */; };
 		5FDD644828561815001AA429 /* BoardDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641528560C67001AA429 /* BoardDescription.swift */; };
 		5FDD644928561815001AA429 /* BoardShim.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDD641328560C67001AA429 /* BoardShim.swift */; };
 		5FE97CE22BCDEC810056EC80 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE97CE12BCDEC810056EC80 /* main.swift */; };
@@ -215,9 +217,7 @@
 		5FE97CEA2BCDF0360056EC80 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE97CE92BCDF0360056EC80 /* main.swift */; };
 		5FE97CEC2BCDF1BA0056EC80 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE97CEB2BCDF1BA0056EC80 /* main.swift */; };
 		5FE97CEE2BCDF1DD0056EC80 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE97CED2BCDF1DD0056EC80 /* main.swift */; };
-		5FE97CF02BCDF20A0056EC80 /* markers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE97CEF2BCDF20A0056EC80 /* markers.swift */; };
 		5FE97CF22BCDF33C0056EC80 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE97CF12BCDF33C0056EC80 /* main.swift */; };
-		5FE97CF42BCDF3930056EC80 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE97CF32BCDF3930056EC80 /* main.swift */; };
 		5FE97CF62BCE94DF0056EC80 /* brainflow_get_data.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE97CF52BCE94DF0056EC80 /* brainflow_get_data.swift */; };
 /* End PBXBuildFile section */
 
@@ -513,6 +513,8 @@
 		5F52BB902BCAAFCE00AC74F4 /* denoising */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = denoising; sourceTree = BUILT_PRODUCTS_DIR; };
 		5F52BBB32BCAB23700AC74F4 /* eeg_metrics */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = eeg_metrics; sourceTree = BUILT_PRODUCTS_DIR; };
 		5F52BBD32BCAB5DC00AC74F4 /* ica */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ica; sourceTree = BUILT_PRODUCTS_DIR; };
+		5F9BC3522BE52DFE00C0C634 /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = main.swift; path = ../../examples/tests/band_power/main.swift; sourceTree = "<group>"; };
+		5F9BC3542BE532FF00C0C634 /* BrainFlowError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BrainFlowError.swift; path = ../BrainFlow/Sources/BrainFlowBindings/BrainFlowError.swift; sourceTree = "<group>"; };
 		5FAE71FF2BD43C7A00E10975 /* band_power.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = band_power.entitlements; sourceTree = SOURCE_ROOT; };
 		5FAE72002BD4413100E10975 /* brainflow_get_data.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = brainflow_get_data.entitlements; sourceTree = SOURCE_ROOT; };
 		5FAE72012BD4413400E10975 /* band_power_all.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = band_power_all.entitlements; sourceTree = SOURCE_ROOT; };
@@ -544,7 +546,6 @@
 		5FE97CED2BCDF1DD0056EC80 /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = main.swift; path = ../../examples/tests/read_write_file/main.swift; sourceTree = "<group>"; };
 		5FE97CEF2BCDF20A0056EC80 /* markers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = markers.swift; path = ../../examples/tests/markers/markers.swift; sourceTree = "<group>"; };
 		5FE97CF12BCDF33C0056EC80 /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = main.swift; path = ../../examples/tests/band_power_all/main.swift; sourceTree = "<group>"; };
-		5FE97CF32BCDF3930056EC80 /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = main.swift; path = ../../examples/tests/band_power/main.swift; sourceTree = "<group>"; };
 		5FE97CF52BCE94DF0056EC80 /* brainflow_get_data.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = brainflow_get_data.swift; path = ../../examples/tests/brainflow_get_data/brainflow_get_data.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -718,8 +719,8 @@
 		5F52BAA92BC9AAF300AC74F4 /* band_power */ = {
 			isa = PBXGroup;
 			children = (
+				5F9BC3522BE52DFE00C0C634 /* main.swift */,
 				5FAE71FF2BD43C7A00E10975 /* band_power.entitlements */,
-				5FE97CF32BCDF3930056EC80 /* main.swift */,
 			);
 			path = band_power;
 			sourceTree = "<group>";
@@ -808,6 +809,7 @@
 		5FDD63EC28560953001AA429 = {
 			isa = PBXGroup;
 			children = (
+				5F9BC3542BE532FF00C0C634 /* BrainFlowError.swift */,
 				5F52BBD42BCAB60E00AC74F4 /* ica */,
 				5F52BBB42BCAB26E00AC74F4 /* eeg_metrics */,
 				5F52BB912BCAAFDC00AC74F4 /* denoising */,
@@ -1252,6 +1254,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5F9BC3582BE5332500C0C634 /* BrainFlowError.swift in Sources */,
 				5FD91A3A2BC49D9600AC3CCB /* BrainFlowConstants.swift in Sources */,
 				5FD91A3B2BC49D9600AC3CCB /* BrainFlowInputParams.swift in Sources */,
 				5FE97CF62BCE94DF0056EC80 /* brainflow_get_data.swift in Sources */,
@@ -1259,7 +1262,6 @@
 				5FD91A3D2BC49D9600AC3CCB /* BoardDescription.swift in Sources */,
 				5FD91A3E2BC49D9600AC3CCB /* BrainFlowExtensions.swift in Sources */,
 				5FD91A3F2BC49D9600AC3CCB /* MLModule.swift in Sources */,
-				5FD91A402BC49D9600AC3CCB /* BrainFlowException.swift in Sources */,
 				5FD91A412BC49D9600AC3CCB /* DataFilter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1268,14 +1270,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5F9BC3552BE532FF00C0C634 /* BrainFlowError.swift in Sources */,
 				5F52BA8C2BC9A98600AC74F4 /* BrainFlowConstants.swift in Sources */,
 				5F52BA8D2BC9A98600AC74F4 /* BrainFlowInputParams.swift in Sources */,
-				5FE97CF42BCDF3930056EC80 /* main.swift in Sources */,
+				5F9BC3532BE52DFE00C0C634 /* main.swift in Sources */,
 				5F52BA8E2BC9A98600AC74F4 /* BoardShim.swift in Sources */,
 				5F52BA8F2BC9A98600AC74F4 /* BoardDescription.swift in Sources */,
 				5F52BA902BC9A98600AC74F4 /* BrainFlowExtensions.swift in Sources */,
 				5F52BA912BC9A98600AC74F4 /* MLModule.swift in Sources */,
-				5F52BA922BC9A98600AC74F4 /* BrainFlowException.swift in Sources */,
 				5F52BA932BC9A98600AC74F4 /* DataFilter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1284,6 +1286,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5F9BC3592BE5333300C0C634 /* BrainFlowError.swift in Sources */,
 				5F52BAB52BCA18C300AC74F4 /* BrainFlowConstants.swift in Sources */,
 				5F52BAB62BCA18C300AC74F4 /* BrainFlowInputParams.swift in Sources */,
 				5FE97CF22BCDF33C0056EC80 /* main.swift in Sources */,
@@ -1291,7 +1294,6 @@
 				5F52BAB82BCA18C300AC74F4 /* BoardDescription.swift in Sources */,
 				5F52BAB92BCA18C300AC74F4 /* BrainFlowExtensions.swift in Sources */,
 				5F52BABB2BCA18C300AC74F4 /* MLModule.swift in Sources */,
-				5F52BABC2BCA18C300AC74F4 /* BrainFlowException.swift in Sources */,
 				5F52BABD2BCA18C300AC74F4 /* DataFilter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1300,14 +1302,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5F9BC35B2BE5335200C0C634 /* markers.swift in Sources */,
+				5F9BC35A2BE5333900C0C634 /* BrainFlowError.swift in Sources */,
 				5F52BAD52BCAA88000AC74F4 /* BrainFlowConstants.swift in Sources */,
 				5F52BAD62BCAA88000AC74F4 /* BrainFlowInputParams.swift in Sources */,
 				5F52BAD72BCAA88000AC74F4 /* BoardShim.swift in Sources */,
 				5F52BAD82BCAA88000AC74F4 /* BoardDescription.swift in Sources */,
 				5F52BAD92BCAA88000AC74F4 /* BrainFlowExtensions.swift in Sources */,
 				5F52BADB2BCAA88000AC74F4 /* MLModule.swift in Sources */,
-				5F52BADC2BCAA88000AC74F4 /* BrainFlowException.swift in Sources */,
-				5FE97CF02BCDF20A0056EC80 /* markers.swift in Sources */,
 				5F52BADD2BCAA88000AC74F4 /* DataFilter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1316,6 +1318,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5F9BC35C2BE5335E00C0C634 /* BrainFlowError.swift in Sources */,
 				5F52BAF72BCAAB3400AC74F4 /* BrainFlowConstants.swift in Sources */,
 				5F52BAF82BCAAB3400AC74F4 /* BrainFlowInputParams.swift in Sources */,
 				5FE97CEE2BCDF1DD0056EC80 /* main.swift in Sources */,
@@ -1323,7 +1326,6 @@
 				5F52BAFA2BCAAB3400AC74F4 /* BoardDescription.swift in Sources */,
 				5F52BAFB2BCAAB3400AC74F4 /* BrainFlowExtensions.swift in Sources */,
 				5F52BAFD2BCAAB3400AC74F4 /* MLModule.swift in Sources */,
-				5F52BAFE2BCAAB3400AC74F4 /* BrainFlowException.swift in Sources */,
 				5F52BAFF2BCAAB3400AC74F4 /* DataFilter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1332,6 +1334,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5F9BC35D2BE5336600C0C634 /* BrainFlowError.swift in Sources */,
 				5F52BB172BCAAC7900AC74F4 /* BrainFlowConstants.swift in Sources */,
 				5F52BB182BCAAC7900AC74F4 /* BrainFlowInputParams.swift in Sources */,
 				5FE97CEC2BCDF1BA0056EC80 /* main.swift in Sources */,
@@ -1339,7 +1342,6 @@
 				5F52BB1A2BCAAC7900AC74F4 /* BoardDescription.swift in Sources */,
 				5F52BB1B2BCAAC7900AC74F4 /* BrainFlowExtensions.swift in Sources */,
 				5F52BB1D2BCAAC7900AC74F4 /* MLModule.swift in Sources */,
-				5F52BB1E2BCAAC7900AC74F4 /* BrainFlowException.swift in Sources */,
 				5F52BB1F2BCAAC7900AC74F4 /* DataFilter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1348,6 +1350,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5F9BC35E2BE5336B00C0C634 /* BrainFlowError.swift in Sources */,
 				5F52BB392BCAADF900AC74F4 /* BrainFlowConstants.swift in Sources */,
 				5F52BB3A2BCAADF900AC74F4 /* BrainFlowInputParams.swift in Sources */,
 				5FE97CEA2BCDF0360056EC80 /* main.swift in Sources */,
@@ -1355,7 +1358,6 @@
 				5F52BB3D2BCAADF900AC74F4 /* BoardDescription.swift in Sources */,
 				5F52BB3E2BCAADF900AC74F4 /* BrainFlowExtensions.swift in Sources */,
 				5F52BB3F2BCAADF900AC74F4 /* MLModule.swift in Sources */,
-				5F52BB402BCAADF900AC74F4 /* BrainFlowException.swift in Sources */,
 				5F52BB412BCAADF900AC74F4 /* DataFilter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1364,6 +1366,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5F9BC35F2BE5337200C0C634 /* BrainFlowError.swift in Sources */,
 				5F52BB592BCAAF1300AC74F4 /* BrainFlowConstants.swift in Sources */,
 				5F52BB5A2BCAAF1300AC74F4 /* BrainFlowInputParams.swift in Sources */,
 				5FE97CE82BCDEF6C0056EC80 /* main.swift in Sources */,
@@ -1371,7 +1374,6 @@
 				5F52BB5D2BCAAF1300AC74F4 /* BoardDescription.swift in Sources */,
 				5F52BB5E2BCAAF1300AC74F4 /* BrainFlowExtensions.swift in Sources */,
 				5F52BB5F2BCAAF1300AC74F4 /* MLModule.swift in Sources */,
-				5F52BB602BCAAF1300AC74F4 /* BrainFlowException.swift in Sources */,
 				5F52BB612BCAAF1300AC74F4 /* DataFilter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1380,6 +1382,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5F9BC3602BE5337800C0C634 /* BrainFlowError.swift in Sources */,
 				5F52BB792BCAAFCE00AC74F4 /* BrainFlowConstants.swift in Sources */,
 				5F52BB7A2BCAAFCE00AC74F4 /* BrainFlowInputParams.swift in Sources */,
 				5FE97CE62BCDEE350056EC80 /* main.swift in Sources */,
@@ -1387,7 +1390,6 @@
 				5F52BB7D2BCAAFCE00AC74F4 /* BoardDescription.swift in Sources */,
 				5F52BB7E2BCAAFCE00AC74F4 /* BrainFlowExtensions.swift in Sources */,
 				5F52BB7F2BCAAFCE00AC74F4 /* MLModule.swift in Sources */,
-				5F52BB802BCAAFCE00AC74F4 /* BrainFlowException.swift in Sources */,
 				5F52BB812BCAAFCE00AC74F4 /* DataFilter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1396,13 +1398,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5F9BC3612BE5337D00C0C634 /* BrainFlowError.swift in Sources */,
 				5F52BB9B2BCAB23700AC74F4 /* BrainFlowConstants.swift in Sources */,
 				5F52BB9C2BCAB23700AC74F4 /* BrainFlowInputParams.swift in Sources */,
 				5F52BB9D2BCAB23700AC74F4 /* BoardShim.swift in Sources */,
 				5F52BB9E2BCAB23700AC74F4 /* BoardDescription.swift in Sources */,
 				5F52BB9F2BCAB23700AC74F4 /* BrainFlowExtensions.swift in Sources */,
 				5F52BBA02BCAB23700AC74F4 /* MLModule.swift in Sources */,
-				5F52BBA12BCAB23700AC74F4 /* BrainFlowException.swift in Sources */,
 				5F52BBA32BCAB23700AC74F4 /* DataFilter.swift in Sources */,
 				5FE97CE42BCDEDC50056EC80 /* eeg_metrics.swift in Sources */,
 			);
@@ -1412,6 +1414,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5F9BC3622BE5338400C0C634 /* BrainFlowError.swift in Sources */,
 				5F52BBBC2BCAB5DC00AC74F4 /* BrainFlowConstants.swift in Sources */,
 				5F52BBBD2BCAB5DC00AC74F4 /* BrainFlowInputParams.swift in Sources */,
 				5FE97CE22BCDEC810056EC80 /* main.swift in Sources */,
@@ -1419,7 +1422,6 @@
 				5F52BBC02BCAB5DC00AC74F4 /* BoardDescription.swift in Sources */,
 				5F52BBC12BCAB5DC00AC74F4 /* BrainFlowExtensions.swift in Sources */,
 				5F52BBC22BCAB5DC00AC74F4 /* MLModule.swift in Sources */,
-				5F52BBC32BCAB5DC00AC74F4 /* BrainFlowException.swift in Sources */,
 				5F52BBC42BCAB5DC00AC74F4 /* DataFilter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1428,11 +1430,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5F9BC3562BE5331500C0C634 /* BrainFlowError.swift in Sources */,
 				5FD91A442BC49F1000AC3CCB /* DataFilter.swift in Sources */,
 				5FD91A452BC49F1000AC3CCB /* BrainFlowExtensions.swift in Sources */,
 				5FD91A462BC49F1000AC3CCB /* BrainFlowConstants.swift in Sources */,
 				5FD91A472BC49F1000AC3CCB /* BrainFlowInputParams.swift in Sources */,
-				5FD91A482BC49F1000AC3CCB /* BrainFlowException.swift in Sources */,
 				5FD91A492BC49F1000AC3CCB /* BoardShim.swift in Sources */,
 				5FD91A4A2BC49F1000AC3CCB /* MLModule.swift in Sources */,
 				5FD91A4B2BC49F1000AC3CCB /* BoardDescription.swift in Sources */,
@@ -1443,7 +1445,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5FDD644728561815001AA429 /* BrainFlowException.swift in Sources */,
+				5F9BC3572BE5331E00C0C634 /* BrainFlowError.swift in Sources */,
 				5FDD644428561815001AA429 /* MLModule.swift in Sources */,
 				5FDD644628561815001AA429 /* BrainFlowInputParams.swift in Sources */,
 				5FDD644328561815001AA429 /* DataFilter.swift in Sources */,

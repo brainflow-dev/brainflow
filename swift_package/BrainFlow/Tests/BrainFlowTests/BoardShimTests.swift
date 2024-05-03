@@ -6,7 +6,6 @@
 //
 
 import XCTest
-//import BrainFlow
 @testable import BrainFlow
 
 class BoardShimTests: XCTestCase {

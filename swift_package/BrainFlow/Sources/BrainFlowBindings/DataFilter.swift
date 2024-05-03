@@ -130,14 +130,14 @@ struct DataFilter {
      */
     static func performDownsampling (data: [Double], period: Int32, operation: AggOperations) throws -> [Double] {
         guard (period > 0) else {
-            throw BrainFlowException("Invalid period", .INVALID_ARGUMENTS_ERROR)
+            throw BrainFlowError("Invalid period", .INVALID_ARGUMENTS_ERROR)
         }
         
         let dataLen = Int32(data.count)
         let newSize = dataLen / period
         
         if (newSize <= 0) {
-            throw BrainFlowException ("Invalid data size", .INVALID_ARGUMENTS_ERROR)
+            throw BrainFlowError ("Invalid data size", .INVALID_ARGUMENTS_ERROR)
         }
         
         var downsampledData = [Double](repeating: 0.0, count: Int(newSize))
@@ -204,7 +204,7 @@ struct DataFilter {
                                         decompositionLevel: Int32,
                                         extensionType: WaveletExtensionTypes = .SYMMETRIC) throws -> ([Double], [Int32]) {
         guard (decompositionLevel > 0) else {
-            throw BrainFlowException ("Invalid decomposition level", .INVALID_ARGUMENTS_ERROR)
+            throw BrainFlowError ("Invalid decomposition level", .INVALID_ARGUMENTS_ERROR)
         }
         
         let dataLen = Int32(data.count)
@@ -232,7 +232,7 @@ struct DataFilter {
                                                 wavelet: WaveletTypes, decompositionLevel: Int32,
                                                 extensionType: WaveletExtensionTypes = .SYMMETRIC) throws -> [Double] {
         guard (decompositionLevel > 0) else {
-            throw BrainFlowException ("Invalid decomposition level", .INVALID_ARGUMENTS_ERROR)
+            throw BrainFlowError ("Invalid decomposition level", .INVALID_ARGUMENTS_ERROR)
         }
         
         let waveletVal = wavelet.rawValue
@@ -293,7 +293,7 @@ struct DataFilter {
      */
     static func getWindow (window: WindowFunctions, windowLen: Int32) throws -> [Double] {
         guard windowLen > 0 else {
-            throw BrainFlowException("Window length must be >= 0", .INVALID_ARGUMENTS_ERROR)
+            throw BrainFlowError("Window length must be >= 0", .INVALID_ARGUMENTS_ERROR)
         }
         var windowData = [Double](repeating: 0.0, count: Int(windowLen))
         let errorCode = get_window (window.rawValue, windowLen, &windowData)
@@ -316,14 +316,14 @@ struct DataFilter {
             let endPos = startPos + data.count
             return try performFFT(data: data, startPos: Int32(startPos), endPos: Int32(endPos), window: window)
         } else {
-            throw BrainFlowException("Empty data buffer in performFFT", .EMPTY_BUFFER_ERROR)
+            throw BrainFlowError("Empty data buffer in performFFT", .EMPTY_BUFFER_ERROR)
         }
     }
     
     static func performFFT (data: [Double], startPos: Int32, endPos: Int32, window: WindowFunctions) throws -> [Complex<Double>] {
         let dataLen = data.count
         guard (startPos >= 0) && (endPos <= dataLen) && (startPos < endPos) else {
-            throw BrainFlowException ("Invalid position arguments in performFFT", .INVALID_ARGUMENTS_ERROR)
+            throw BrainFlowError ("Invalid position arguments in performFFT", .INVALID_ARGUMENTS_ERROR)
         }
         
         // I didnt find a way to pass an offset using pointers, copy array
@@ -331,7 +331,7 @@ struct DataFilter {
         let len = dataToProcess.count
         
         guard ((len & (len - 1)) == 0) else {
-            throw BrainFlowException ("end_pos - start_pos must be a power of 2 in performFFT", .INVALID_ARGUMENTS_ERROR)
+            throw BrainFlowError ("end_pos - start_pos must be a power of 2 in performFFT", .INVALID_ARGUMENTS_ERROR)
         }
         
         var complexReal = [Double](repeating: 0.0, count: (len / 2 + 1))
@@ -382,9 +382,9 @@ struct DataFilter {
     static func getCustomBandPowers(data: [[Double]]?, bands: [(Double,Double)]?, channels: [Int32]?, samplingRate: Int32,
                                     applyFilter: Bool) throws -> ([Double],[Double]) {
         guard ((data != nil) && (channels != nil) && (bands != nil)) else {
-            throw BrainFlowException ("data or channels or bands are null", .INVALID_ARGUMENTS_ERROR) }
+            throw BrainFlowError ("data or channels or bands are null", .INVALID_ARGUMENTS_ERROR) }
         guard ((channels!.count > 0) && (bands!.count > 0)) else {
-            throw BrainFlowException("wrong input for channels or bands", .INVALID_ARGUMENTS_ERROR) }
+            throw BrainFlowError("wrong input for channels or bands", .INVALID_ARGUMENTS_ERROR) }
 
         // convert channels from [Int32]? to [Int] for syntactic sugar:
         let iChannels = channels!.map{Int($0)}
@@ -426,7 +426,7 @@ struct DataFilter {
     static func getAvgBandPowers (data: [[Double]]?, channels: [Int32]?, samplingRate: Int32,
                                   applyFilter: Bool) throws -> ([Double], [Double]) {
         guard ((data != nil) && (channels != nil)) else {
-            throw BrainFlowException ("data or channels null", .INVALID_ARGUMENTS_ERROR)
+            throw BrainFlowError ("data or channels null", .INVALID_ARGUMENTS_ERROR)
         }
 
         let bands = [(2.0, 4.0), (4.0, 8.0), (8.0, 13.0), (13.0, 30.0), (30.0, 45.0)]
@@ -447,14 +447,14 @@ struct DataFilter {
       */
     static func getPSD (data: [Double], startPos: Int32, endPos: Int32, samplingRate: Int32, window: Int32) throws -> ([Double], [Double]) {
          guard ((startPos >= 0) && (endPos <= data.count) && (startPos < endPos)) else {
-             throw BrainFlowException ("invalid position arguments", .INVALID_ARGUMENTS_ERROR)
+             throw BrainFlowError ("invalid position arguments", .INVALID_ARGUMENTS_ERROR)
          }
         
         // I didnt find a way to pass an offset using pointers, copy array
         var dataToProcess = Array(data[Int(startPos)..<Int(endPos)])
         let len = dataToProcess.count
         guard ((len & (len - 1)) == 0) else {
-             throw BrainFlowException ("end_pos - start_pos must be a power of 2", .INVALID_ARGUMENTS_ERROR)
+             throw BrainFlowError ("end_pos - start_pos must be a power of 2", .INVALID_ARGUMENTS_ERROR)
         }
         
         var ampls = [Double](repeating: 0.0, count: len / 2 + 1)
@@ -478,7 +478,7 @@ struct DataFilter {
     static func getPSDwelch (data: [Double], nfft: Int32, overlap: Int32, samplingRate: Int32,
                              window: WindowFunctions) throws -> ([Double], [Double]) {
          guard ((nfft & (nfft - 1)) == 0) else {
-             throw BrainFlowException ("nfft must be a power of 2", .INVALID_ARGUMENTS_ERROR)
+             throw BrainFlowError ("nfft must be a power of 2", .INVALID_ARGUMENTS_ERROR)
          }
         
         var cData = data
@@ -525,7 +525,7 @@ struct DataFilter {
      */
     static func writeFile (data: [[Double]], fileName: String, fileMode: String) throws {
         guard data.count > 0 else {
-            throw BrainFlowException ("empty data array", .INVALID_ARGUMENTS_ERROR)
+            throw BrainFlowError ("empty data array", .INVALID_ARGUMENTS_ERROR)
         }
 
         var linearData = data.flatMap {$0}
@@ -562,10 +562,10 @@ struct DataFilter {
             ([[Double]], [[Double]], [[Double]], [[Double]]) {
         var channelsToUse: [Int] = []
         guard data.isRectangular() else {
-            throw BrainFlowException("input data is not rectangular", .INVALID_ARGUMENTS_ERROR)
+            throw BrainFlowError("input data is not rectangular", .INVALID_ARGUMENTS_ERROR)
         }
         guard numComponents >= 1 else {
-            throw BrainFlowException("wrong number of components", .INVALID_ARGUMENTS_ERROR)
+            throw BrainFlowError("wrong number of components", .INVALID_ARGUMENTS_ERROR)
         }
 
         if let channelIndexes = channels {
@@ -629,7 +629,7 @@ extension Array where Element == [Double] {
     // Return a tuple of (numRows, numCols) for the given 2D array:
     func shapeOfRectangular() throws -> (Int, Int) {
         guard self.isRectangular() else {
-            throw BrainFlowException("array is not rectangular", .INVALID_ARGUMENTS_ERROR)
+            throw BrainFlowError("array is not rectangular", .INVALID_ARGUMENTS_ERROR)
         }
         let numRows = self.numRows()
         let numCols = self[0].count
@@ -643,7 +643,7 @@ extension Array where Element == Double {
             Array(self[$0 ..< Swift.min($0 + size, count)])
         }
         guard result.isRectangular() else {
-            throw BrainFlowException("reshape result is not rectangular", .INVALID_ARGUMENTS_ERROR)
+            throw BrainFlowError("reshape result is not rectangular", .INVALID_ARGUMENTS_ERROR)
         }
         return result
     }

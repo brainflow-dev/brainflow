@@ -52,7 +52,7 @@ extension Encodable {
                 return ""
             }
         } catch {
-            throw BrainFlowException("Invalid JSON", .NO_SUCH_DATA_IN_JSON_ERROR)
+            throw BrainFlowError("Invalid JSON", .NO_SUCH_DATA_IN_JSON_ERROR)
         }
     }
 }

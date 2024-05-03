@@ -7,8 +7,8 @@
 
 import Foundation
 
-class BrainFlowException: Error, Equatable {
-    static func == (lhs: BrainFlowException, rhs: BrainFlowException) -> Bool {
+class BrainFlowError: Error, Equatable {
+    static func == (lhs: BrainFlowError, rhs: BrainFlowError) -> Bool {
         return (lhs.errorCode == rhs.errorCode) 
     }
     
@@ -24,9 +24,9 @@ class BrainFlowException: Error, Equatable {
 func checkErrorCode(_ errorMsg: String, _ errorCode: Int32) throws {
     if let bfErrorCode = BrainFlowExitCodes(rawValue: errorCode) {
         if bfErrorCode != BrainFlowExitCodes.STATUS_OK {
-            throw BrainFlowException (errorMsg, bfErrorCode)
+            throw BrainFlowError (errorMsg, bfErrorCode)
         }
     } else {
-        throw BrainFlowException("Invalid error code: \(errorCode)", .GENERAL_ERROR)
+        throw BrainFlowError("Invalid error code: \(errorCode)", .GENERAL_ERROR)
     }
 }

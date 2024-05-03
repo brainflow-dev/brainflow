@@ -6,7 +6,6 @@
 //
 
 import Foundation
-//import BrainFlow
 
 struct BrainFlowInputParams: Encodable {
     var serial_port: String = ""
