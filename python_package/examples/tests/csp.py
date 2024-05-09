@@ -10,7 +10,7 @@ def main():
 
     data = np.array([[[6, 3, 1, 5], [3, 0, 5, 1]], [[1, 5, 6, 2], [5, 1, 2, 2]]]).astype('float64')
 
-    filters, eigvals = DataFilter.get_csp(data, labels);
+    filters, eigvals = DataFilter.get_csp(data, labels)
 
     true_filters = np.array([[-0.313406, 0.0792153], [-0.280803, -0.480046]])
 

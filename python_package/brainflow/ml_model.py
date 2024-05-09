@@ -10,7 +10,7 @@ import numpy
 import pkg_resources
 from brainflow.board_shim import BrainFlowError, LogLevels
 from brainflow.exit_codes import BrainFlowExitCodes
-from nptyping import NDArray
+from nptyping import NDArray, Float64, Shape
 from numpy.ctypeslib import ndpointer
 
 
@@ -262,11 +262,11 @@ class MLModel(object):
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to release classifier', res)
 
-    def predict(self, data: NDArray) -> List:
+    def predict(self, data: NDArray[Shape["*"], Float64]) -> List:
         """calculate metric from data
 
         :param data: input array
-        :type data: NDArray
+        :type data: NDArray[Shape["*"], Float64]
         :return: metric value
         :rtype: List
         """

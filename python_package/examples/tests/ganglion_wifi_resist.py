@@ -13,8 +13,8 @@ def main():
     BoardShim.enable_dev_board_logger()
 
     params = BrainFlowInputParams()
-    params.ip_address = args.ip_address;
-    params.ip_port = args.ip_port;
+    params.ip_address = args.ip_address
+    params.ip_port = args.ip_port
     board = BoardShim(BoardIds.GANGLION_WIFI_BOARD.value, params)
     board.prepare_session()
 
