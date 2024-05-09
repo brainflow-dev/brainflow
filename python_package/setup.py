@@ -18,7 +18,8 @@ setup(
     packages=find_packages(),
     install_requires=[
         'numpy',
-        'nptyping==1.4.4'
+        'nptyping>=2.0.0',
+        'setuptools'
     ],
     package_data={
         'brainflow': [

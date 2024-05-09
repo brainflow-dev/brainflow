@@ -11,7 +11,7 @@ def main():
     board.prepare_session()
     # expected result: 5 seconds of resistance data(unknown sampling rate) after that 5 seconds of exg data
     board.config_board('z')
-    board.start_stream(45000, f'file://raw_data.csv:w')
+    board.start_stream(45000, 'file://raw_data.csv:w')
     time.sleep(5)
     board.config_board('Z')
     time.sleep(5)
