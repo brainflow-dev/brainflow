@@ -342,7 +342,7 @@ void BrainAlive::adapter_1_on_scan_found (
         }
         else
         {
-            if (strncmp (peripheral_identified, "ADS_TES", 7) == 0)
+            if (strncmp (peripheral_identified, "ORION_1", 7) == 0)
             {
                 found = true;
             }
@@ -376,6 +376,7 @@ void BrainAlive::read_data (simpleble_uuid_t service, simpleble_uuid_t character
         safe_logger (spdlog::level::warn, "unknown size of BrainAlive Data {}", size);
         return;
     }
+
     for (int i = 0; i < (int)size; i += 32)
     {
         double eeg_data[9] = {0};
