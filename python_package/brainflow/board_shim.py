@@ -10,7 +10,6 @@ import numpy
 import pkg_resources
 from brainflow.exit_codes import BrainFlowExitCodes, BrainFlowError
 from brainflow.utils import LogLevels
-from nptyping import NDArray, Float64, Shape
 from numpy.ctypeslib import ndpointer
 
 
@@ -777,7 +776,7 @@ class BoardShim(object):
         :type board_id: int
         :return: presets for this board id
         :rtype: List[str]
-        :raises BrainFlowError
+        :raises BrainFlowError: In case of internal error or invalid args
         """
 
         num_presets = numpy.zeros(1).astype(numpy.int32)
@@ -795,7 +794,7 @@ class BoardShim(object):
 
         :return: version
         :rtype: str
-        :raises BrainFlowError
+        :raises BrainFlowError: In case of internal error or invalid args
         """
         string = numpy.zeros(64).astype(numpy.ubyte)
         string_len = numpy.zeros(1).astype(numpy.int32)
@@ -1266,7 +1265,7 @@ class BoardShim(object):
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to release streaming session', res)
 
-    def get_current_board_data(self, num_samples: int, preset: int = BrainFlowPresets.DEFAULT_PRESET) -> NDArray[Shape["*, *"], Float64]:
+    def get_current_board_data(self, num_samples: int, preset: int = BrainFlowPresets.DEFAULT_PRESET):
         """Get specified amount of data or less if there is not enough data, doesnt remove data from ringbuffer
 
         :param num_samples: max number of samples
@@ -1345,7 +1344,7 @@ class BoardShim(object):
             raise BrainFlowError('unable to check session status', res)
         return bool(prepared[0])
 
-    def get_board_data(self, num_samples=None, preset: int = BrainFlowPresets.DEFAULT_PRESET) -> NDArray[Shape["*, *"], Float64]:
+    def get_board_data(self, num_samples=None, preset: int = BrainFlowPresets.DEFAULT_PRESET):
         """Get board data and remove data from ringbuffer
 
         :param num_samples: number of packages to get

@@ -9,7 +9,6 @@ import numpy
 import pkg_resources
 from brainflow.exit_codes import BrainFlowExitCodes, BrainFlowError
 from brainflow.utils import check_memory_layout_row_major, LogLevels
-from nptyping import NDArray, Float64, Complex128, Shape
 from numpy.ctypeslib import ndpointer
 
 
@@ -583,7 +582,7 @@ class DataFilter(object):
             raise BrainFlowError('unable to redirect logs to a file', res)
 
     @classmethod
-    def perform_lowpass(cls, data: NDArray[Shape["*"], Float64], sampling_rate: int, cutoff: float, order: int, filter_type: int,
+    def perform_lowpass(cls, data, sampling_rate: int, cutoff: float, order: int, filter_type: int,
                         ripple: float) -> None:
         """apply low pass filter to provided data
 
@@ -611,7 +610,7 @@ class DataFilter(object):
             raise BrainFlowError('unable to perform low pass filter', res)
 
     @classmethod
-    def perform_highpass(cls, data: NDArray[Shape["*"], Float64], sampling_rate: int, cutoff: float, order: int, filter_type: int,
+    def perform_highpass(cls, data, sampling_rate: int, cutoff: float, order: int, filter_type: int,
                          ripple: float) -> None:
         """apply high pass filter to provided data
 
@@ -639,7 +638,7 @@ class DataFilter(object):
             raise BrainFlowError('unable to apply high pass filter', res)
 
     @classmethod
-    def perform_bandpass(cls, data: NDArray[Shape["*"], Float64], sampling_rate: int, start_freq: float,
+    def perform_bandpass(cls, data, sampling_rate: int, start_freq: float,
                          stop_freq: float, order: int, filter_type: int, ripple: float) -> None:
         """apply band pass filter to provided data
 
@@ -669,7 +668,7 @@ class DataFilter(object):
             raise BrainFlowError('unable to apply band pass filter', res)
 
     @classmethod
-    def perform_bandstop(cls, data: NDArray[Shape["*"], Float64], sampling_rate: int, start_freq: float,
+    def perform_bandstop(cls, data, sampling_rate: int, start_freq: float,
                          stop_freq: float, order: int, filter_type: int, ripple: float) -> None:
         """apply band stop filter to provided data
 
@@ -699,7 +698,7 @@ class DataFilter(object):
             raise BrainFlowError('unable to apply band stop filter', res)
 
     @classmethod
-    def remove_environmental_noise(cls, data: NDArray[Shape["*"], Float64], sampling_rate: int, noise_type: float) -> None:
+    def remove_environmental_noise(cls, data, sampling_rate: int, noise_type: float) -> None:
         """remove env noise using notch filter
 
         :param data: data to filter, filter works in-place
@@ -719,7 +718,7 @@ class DataFilter(object):
             raise BrainFlowError('unable to apply notch filter', res)
 
     @classmethod
-    def perform_rolling_filter(cls, data: NDArray[Shape["*"], Float64], period: int, operation: int) -> None:
+    def perform_rolling_filter(cls, data, period: int, operation: int) -> None:
         """smooth data using moving average or median
 
         :param data: data to smooth, it works in-place
@@ -739,7 +738,7 @@ class DataFilter(object):
             raise BrainFlowError('unable to smooth data', res)
 
     @classmethod
-    def calc_stddev(cls, data: NDArray[Shape["*"], Float64]):
+    def calc_stddev(cls, data):
         """calc stddev
 
         :param data: input array
@@ -755,7 +754,7 @@ class DataFilter(object):
         return output[0]
 
     @classmethod
-    def get_railed_percentage(cls, data: NDArray[Shape["*"], Float64], gain: int):
+    def get_railed_percentage(cls, data, gain: int):
         """get railed percentage
 
         :param data: input array
@@ -773,7 +772,7 @@ class DataFilter(object):
         return output[0]
 
     @classmethod
-    def get_oxygen_level(cls, ppg_ir: NDArray[Shape["*"], Float64], ppg_red: NDArray[Shape["*"], Float64], sampling_rate: int,
+    def get_oxygen_level(cls, ppg_ir, ppg_red, sampling_rate: int,
                          coef1=1.5958422, coef2=-34.6596622, coef3=112.6898759):
         """get oxygen level from ppg
 
@@ -798,7 +797,7 @@ class DataFilter(object):
         return output[0]
 
     @classmethod
-    def get_heart_rate(cls, ppg_ir: NDArray[Shape["*"], Float64], ppg_red: NDArray[Shape["*"], Float64], sampling_rate: int, fft_size: int):
+    def get_heart_rate(cls, ppg_ir, ppg_red, sampling_rate: int, fft_size: int):
         """get heart rate
 
         :param ppg_ir: input array
@@ -824,7 +823,7 @@ class DataFilter(object):
         return output[0]
 
     @classmethod
-    def perform_downsampling(cls, data: NDArray[Shape["*"], Float64], period: int, operation: int) -> NDArray[Shape["*"], Float64]:
+    def perform_downsampling(cls, data, period: int, operation: int):
         """perform data downsampling, it doesnt apply lowpass filter for you, it just aggregates several data points
 
         :param data: initial data
@@ -853,7 +852,7 @@ class DataFilter(object):
         return downsampled_data
 
     @classmethod
-    def perform_wavelet_transform(cls, data: NDArray[Shape["*"], Float64], wavelet: int, decomposition_level: int,
+    def perform_wavelet_transform(cls, data, wavelet: int, decomposition_level: int,
                                   extension_type=WaveletExtensionTypes.SYMMETRIC) -> Tuple:
         """perform wavelet transform
 
@@ -881,7 +880,7 @@ class DataFilter(object):
         return wavelet_coeffs[0: sum(lengths)], lengths
 
     @classmethod
-    def restore_data_from_wavelet_detailed_coeffs(cls, data: NDArray[Shape["*"], Float64], wavelet, decomposition_level, level_to_restore):
+    def restore_data_from_wavelet_detailed_coeffs(cls, data, wavelet, decomposition_level, level_to_restore):
         """restore data from a single wavelet coeff
 
         :param data: initial data
@@ -906,7 +905,7 @@ class DataFilter(object):
         return output
 
     @classmethod
-    def detect_peaks_z_score(cls, data: NDArray[Shape["*"], Float64], lag=5, threshold=3.5, influence=0.1):
+    def detect_peaks_z_score(cls, data, lag=5, threshold=3.5, influence=0.1):
         """z score algorithm for peak detection
 
         :param data: initial data
@@ -932,8 +931,7 @@ class DataFilter(object):
 
     @classmethod
     def perform_inverse_wavelet_transform(cls, wavelet_output: Tuple, original_data_len: int, wavelet: int,
-                                          decomposition_level: int, extension_type=WaveletExtensionTypes.SYMMETRIC) -> \
-            NDArray[Shape["*"], Float64]:
+                                          decomposition_level: int, extension_type=WaveletExtensionTypes.SYMMETRIC):
         """perform wavelet transform
 
         :param wavelet_output: tuple of wavelet_coeffs and array with lengths
@@ -960,7 +958,7 @@ class DataFilter(object):
         return original_data
 
     @classmethod
-    def perform_wavelet_denoising(cls, data: NDArray[Shape["*"], Float64], wavelet: int, decomposition_level: int,
+    def perform_wavelet_denoising(cls, data, wavelet: int, decomposition_level: int,
                                   wavelet_denoising=WaveletDenoisingTypes.SURESHRINK,
                                   threshold=ThresholdTypes.HARD,
                                   extension_type=WaveletExtensionTypes.SYMMETRIC,
@@ -991,7 +989,7 @@ class DataFilter(object):
             raise BrainFlowError('unable to denoise data', res)
 
     @classmethod
-    def get_csp(cls, data: NDArray[Shape["*, *, *"], Float64], labels: NDArray[Shape["*"], Float64]) -> Tuple:
+    def get_csp(cls, data, labels) -> Tuple:
         """calculate filters and the corresponding eigenvalues using the Common Spatial Patterns
 
         :param data: [epochs x channels x times]-shaped 3D array of data for two classes
@@ -1024,7 +1022,7 @@ class DataFilter(object):
         return output_filters, output_eigenvalues
 
     @classmethod
-    def get_window(cls, window_function: int, window_len: int) -> NDArray[Shape["*"], Float64]:
+    def get_window(cls, window_function: int, window_len: int):
         """perform data windowing
 
         :param window_function: window function
@@ -1041,7 +1039,7 @@ class DataFilter(object):
         return window_data
 
     @classmethod
-    def perform_fft(cls, data: NDArray[Shape["*"], Float64], window: int) -> NDArray[Shape["*"], Complex128]:
+    def perform_fft(cls, data, window: int):
         """perform direct fft
 
         :param data: data for fft, len of data must be even
@@ -1067,7 +1065,7 @@ class DataFilter(object):
         return output
 
     @classmethod
-    def get_psd(cls, data: NDArray[Shape["*"], Float64], sampling_rate: int, window: int) -> Tuple:
+    def get_psd(cls, data, sampling_rate: int, window: int) -> Tuple:
         """calculate PSD
 
         :param data: data to calc psd, len of data must be even
@@ -1091,7 +1089,7 @@ class DataFilter(object):
         return ampls, freqs
 
     @classmethod
-    def get_psd_welch(cls, data: NDArray[Shape["*"], Float64], nfft: int, overlap: int, sampling_rate: int, window: int) -> Tuple:
+    def get_psd_welch(cls, data, nfft: int, overlap: int, sampling_rate: int, window: int) -> Tuple:
         """calculate PSD using Welch method
 
         :param data: data to calc psd
@@ -1120,7 +1118,7 @@ class DataFilter(object):
         return ampls, freqs
 
     @classmethod
-    def detrend(cls, data: NDArray[Shape["*"], Float64], detrend_operation: int) -> None:
+    def detrend(cls, data, detrend_operation: int) -> None:
         """detrend data
 
         :param data: data to calc psd
@@ -1156,7 +1154,7 @@ class DataFilter(object):
         return band_power[0]
 
     @classmethod
-    def get_avg_band_powers(cls, data: NDArray[Shape["*, *"], Float64], channels: List, sampling_rate: int, apply_filter: bool) -> Tuple:
+    def get_avg_band_powers(cls, data, channels: List, sampling_rate: int, apply_filter: bool) -> Tuple:
         """calculate avg and stddev of BandPowers across all channels, bands are 1-4,4-8,8-13,13-30,30-50
 
         :param data: 2d array for calculation
@@ -1175,7 +1173,7 @@ class DataFilter(object):
         return cls.get_custom_band_powers(data, bands, channels, sampling_rate, apply_filter)
 
     @classmethod
-    def get_custom_band_powers(cls, data: NDArray[Shape["*, *"], Float64], bands: List, channels: List, sampling_rate: int,
+    def get_custom_band_powers(cls, data, bands: List, channels: List, sampling_rate: int,
                                apply_filter: bool) -> Tuple:
         """calculate avg and stddev of BandPowers across selected channels
 
@@ -1218,7 +1216,7 @@ class DataFilter(object):
         return avg_bands, stddev_bands
 
     @classmethod
-    def perform_ica(cls, data: NDArray[Shape["*, *"], Float64], num_components: int, channels=None) -> Tuple:
+    def perform_ica(cls, data, num_components: int, channels=None) -> Tuple:
         """perform ICA
 
         :param data: 2d array for calculation
@@ -1265,7 +1263,7 @@ class DataFilter(object):
         return w, k, a, s
 
     @classmethod
-    def perform_ifft(cls, data: NDArray[Shape["*"], Complex128]) -> NDArray[Shape["*"], Float64]:
+    def perform_ifft(cls, data):
         """perform inverse fft
 
         :param data: data from fft
@@ -1303,7 +1301,7 @@ class DataFilter(object):
         return output[0]
 
     @classmethod
-    def write_file(cls, data: NDArray[Shape["*, *"], Float64], file_name: str, file_mode: str) -> None:
+    def write_file(cls, data, file_name: str, file_mode: str) -> None:
         """write data to file, in file data will be transposed
 
         :param data: data to store in a file
@@ -1329,7 +1327,7 @@ class DataFilter(object):
             raise BrainFlowError('unable to write file', res)
 
     @classmethod
-    def read_file(cls, file_name: str) -> NDArray[Shape["*, *"], Float64]:
+    def read_file(cls, file_name: str):
         """read data from file
 
         :param file_name: file name to read
