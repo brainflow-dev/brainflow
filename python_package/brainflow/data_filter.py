@@ -9,7 +9,6 @@ import numpy
 import pkg_resources
 from brainflow.exit_codes import BrainFlowExitCodes, BrainFlowError
 from brainflow.utils import check_memory_layout_row_major, LogLevels
-from nptyping import NDArray, Float64, Complex128
 from numpy.ctypeslib import ndpointer
 
 
@@ -583,12 +582,12 @@ class DataFilter(object):
             raise BrainFlowError('unable to redirect logs to a file', res)
 
     @classmethod
-    def perform_lowpass(cls, data: NDArray[Float64], sampling_rate: int, cutoff: float, order: int, filter_type: int,
+    def perform_lowpass(cls, data, sampling_rate: int, cutoff: float, order: int, filter_type: int,
                         ripple: float) -> None:
         """apply low pass filter to provided data
 
         :param data: data to filter, filter works in-place
-        :type data: NDArray[Float64]
+        :type data: NDArray[Shape["*"], Float64]
         :param sampling_rate: board's sampling rate
         :type sampling_rate: int
         :param cutoff: cutoff frequency
@@ -611,12 +610,12 @@ class DataFilter(object):
             raise BrainFlowError('unable to perform low pass filter', res)
 
     @classmethod
-    def perform_highpass(cls, data: NDArray[Float64], sampling_rate: int, cutoff: float, order: int, filter_type: int,
+    def perform_highpass(cls, data, sampling_rate: int, cutoff: float, order: int, filter_type: int,
                          ripple: float) -> None:
         """apply high pass filter to provided data
 
         :param data: data to filter, filter works in-place
-        :type data: NDArray[Float64]
+        :type data: NDArray[Shape["*"], Float64]
         :param sampling_rate: board's sampling rate
         :type sampling_rate: int
         :param cutoff: cutoff frequency
@@ -639,12 +638,12 @@ class DataFilter(object):
             raise BrainFlowError('unable to apply high pass filter', res)
 
     @classmethod
-    def perform_bandpass(cls, data: NDArray[Float64], sampling_rate: int, start_freq: float,
+    def perform_bandpass(cls, data, sampling_rate: int, start_freq: float,
                          stop_freq: float, order: int, filter_type: int, ripple: float) -> None:
         """apply band pass filter to provided data
 
         :param data: data to filter, filter works in-place
-        :type data: NDArray[Float64]
+        :type data: NDArray[Shape["*"], Float64]
         :param sampling_rate: board's sampling rate
         :type sampling_rate: int
         :param start_freq: start frequency
@@ -669,12 +668,12 @@ class DataFilter(object):
             raise BrainFlowError('unable to apply band pass filter', res)
 
     @classmethod
-    def perform_bandstop(cls, data: NDArray[Float64], sampling_rate: int, start_freq: float,
+    def perform_bandstop(cls, data, sampling_rate: int, start_freq: float,
                          stop_freq: float, order: int, filter_type: int, ripple: float) -> None:
         """apply band stop filter to provided data
 
         :param data: data to filter, filter works in-place
-        :type data: NDArray[Float64]
+        :type data: NDArray[Shape["*"], Float64]
         :param sampling_rate: board's sampling rate
         :type sampling_rate: int
         :param start_freq: start frequency
@@ -699,11 +698,11 @@ class DataFilter(object):
             raise BrainFlowError('unable to apply band stop filter', res)
 
     @classmethod
-    def remove_environmental_noise(cls, data: NDArray[Float64], sampling_rate: int, noise_type: float) -> None:
+    def remove_environmental_noise(cls, data, sampling_rate: int, noise_type: float) -> None:
         """remove env noise using notch filter
 
         :param data: data to filter, filter works in-place
-        :type data: NDArray[Float64]
+        :type data: NDArray[Shape["*"], Float64]
         :param sampling_rate: board's sampling rate
         :type sampling_rate: int
         :param noise_type: noise type
@@ -719,11 +718,11 @@ class DataFilter(object):
             raise BrainFlowError('unable to apply notch filter', res)
 
     @classmethod
-    def perform_rolling_filter(cls, data: NDArray[Float64], period: int, operation: int) -> None:
+    def perform_rolling_filter(cls, data, period: int, operation: int) -> None:
         """smooth data using moving average or median
 
         :param data: data to smooth, it works in-place
-        :type data: NDArray[Float64]
+        :type data: NDArray[Shape["*"], Float64]
         :param period: window size
         :type period: int
         :param operation: int value from AggOperation enum
@@ -739,11 +738,11 @@ class DataFilter(object):
             raise BrainFlowError('unable to smooth data', res)
 
     @classmethod
-    def calc_stddev(cls, data: NDArray[Float64]):
+    def calc_stddev(cls, data):
         """calc stddev
 
         :param data: input array
-        :type data: NDArray[Float64]
+        :type data: NDArray[Shape["*"], Float64]
         :return: stddev
         :rtype: float
         """
@@ -755,11 +754,11 @@ class DataFilter(object):
         return output[0]
 
     @classmethod
-    def get_railed_percentage(cls, data: NDArray[Float64], gain: int):
+    def get_railed_percentage(cls, data, gain: int):
         """get railed percentage
 
         :param data: input array
-        :type data: NDArray[Float64]
+        :type data: NDArray[Shape["*"], Float64]
         :param gain: gain
         :type gain: int
         :return: railed percentage
@@ -773,14 +772,14 @@ class DataFilter(object):
         return output[0]
 
     @classmethod
-    def get_oxygen_level(cls, ppg_ir: NDArray[Float64], ppg_red: NDArray[Float64], sampling_rate: int,
+    def get_oxygen_level(cls, ppg_ir, ppg_red, sampling_rate: int,
                          coef1=1.5958422, coef2=-34.6596622, coef3=112.6898759):
         """get oxygen level from ppg
 
         :param ppg_ir: input array
-        :type ppg_ir: NDArray[Float64]
+        :type ppg_ir: NDArray[Shape["*"], Float64]
         :param ppg_red: input array
-        :type ppg_red: NDArray[Float64]
+        :type ppg_red: NDArray[Shape["*"], Float64]
         :param sampling_rate: sampling rate
         :type sampling_rate: int
         :return: oxygen level
@@ -798,13 +797,13 @@ class DataFilter(object):
         return output[0]
 
     @classmethod
-    def get_heart_rate(cls, ppg_ir: NDArray[Float64], ppg_red: NDArray[Float64], sampling_rate: int, fft_size: int):
+    def get_heart_rate(cls, ppg_ir, ppg_red, sampling_rate: int, fft_size: int):
         """get heart rate
 
         :param ppg_ir: input array
-        :type ppg_ir: NDArray[Float64]
+        :type ppg_ir: NDArray[Shape["*"], Float64]
         :param ppg_red: input array
-        :type ppg_red: NDArray[Float64]
+        :type ppg_red: NDArray[Shape["*"], Float64]
         :param sampling_rate: sampling rate
         :type sampling_rate: int
         :param fft_size: recommended 8192
@@ -824,17 +823,17 @@ class DataFilter(object):
         return output[0]
 
     @classmethod
-    def perform_downsampling(cls, data: NDArray[Float64], period: int, operation: int) -> NDArray[Float64]:
+    def perform_downsampling(cls, data, period: int, operation: int):
         """perform data downsampling, it doesnt apply lowpass filter for you, it just aggregates several data points
 
         :param data: initial data
-        :type data: NDArray[Float64]
+        :type data: NDArray[Shape["*"], Float64]
         :param period: downsampling period
         :type period: int
         :param operation: int value from AggOperation enum
         :type operation: int
         :return: downsampled data
-        :rtype: NDArray[Float64]
+        :rtype: NDArray[Shape["*"], Float64]
         """
         check_memory_layout_row_major(data, 1)
         if not isinstance(period, int):
@@ -853,12 +852,12 @@ class DataFilter(object):
         return downsampled_data
 
     @classmethod
-    def perform_wavelet_transform(cls, data: NDArray[Float64], wavelet: int, decomposition_level: int,
+    def perform_wavelet_transform(cls, data, wavelet: int, decomposition_level: int,
                                   extension_type=WaveletExtensionTypes.SYMMETRIC) -> Tuple:
         """perform wavelet transform
 
         :param data: initial data
-        :type data: NDArray[Float64]
+        :type data: NDArray[Shape["*"], Float64]
         :param wavelet: use WaveletTypes enum
         :type wavelet: int
         :param decomposition_level: level of decomposition
@@ -881,11 +880,11 @@ class DataFilter(object):
         return wavelet_coeffs[0: sum(lengths)], lengths
 
     @classmethod
-    def restore_data_from_wavelet_detailed_coeffs(cls, data: NDArray[Float64], wavelet, decomposition_level, level_to_restore):
+    def restore_data_from_wavelet_detailed_coeffs(cls, data, wavelet, decomposition_level, level_to_restore):
         """restore data from a single wavelet coeff
 
         :param data: initial data
-        :type data: NDArray[Float64]
+        :type data: NDArray[Shape["*"], Float64]
         :param wavelet: use WaveletTypes enum
         :type wavelet: int
         :param decomposition_level: level of decomposition
@@ -893,7 +892,7 @@ class DataFilter(object):
         :param level_to_restore: level of coeffs
         :type level_to_restore: int
         :return: 
-        :rtype: NDArray[Float64]
+        :rtype: NDArray[Shape["*"], Float64]
         """
         check_memory_layout_row_major(data, 1)
 
@@ -906,11 +905,11 @@ class DataFilter(object):
         return output
 
     @classmethod
-    def detect_peaks_z_score(cls, data: NDArray[Float64], lag=5, threshold=3.5, influence=0.1):
+    def detect_peaks_z_score(cls, data, lag=5, threshold=3.5, influence=0.1):
         """z score algorithm for peak detection
 
         :param data: initial data
-        :type data: NDArray[Float64]
+        :type data: NDArray[Shape["*"], Float64]
         :param lag: window size for averaging
         :type lag: int
         :param threshold: in stddev units
@@ -918,7 +917,7 @@ class DataFilter(object):
         :param influence: contribution of peaks to mean value, between 0 and 1
         :type influence: float
         :return: 
-        :rtype: NDArray[Float64]
+        :rtype: NDArray[Shape["*"], Float64]
         """
         check_memory_layout_row_major(data, 1)
 
@@ -932,8 +931,7 @@ class DataFilter(object):
 
     @classmethod
     def perform_inverse_wavelet_transform(cls, wavelet_output: Tuple, original_data_len: int, wavelet: int,
-                                          decomposition_level: int, extension_type=WaveletExtensionTypes.SYMMETRIC) -> \
-            NDArray[Float64]:
+                                          decomposition_level: int, extension_type=WaveletExtensionTypes.SYMMETRIC):
         """perform wavelet transform
 
         :param wavelet_output: tuple of wavelet_coeffs and array with lengths
@@ -947,7 +945,7 @@ class DataFilter(object):
         :param extension_type: extension type, use WaveletExtensionTypes
         :type externsion_type: int
         :return: restored data
-        :rtype: NDArray[Float64]
+        :rtype: NDArray[Shape["*"], Float64]
         """
         original_data = numpy.zeros(original_data_len).astype(numpy.float64)
         res = DataHandlerDLL.get_instance().perform_inverse_wavelet_transform(wavelet_output[0], original_data_len,
@@ -960,7 +958,7 @@ class DataFilter(object):
         return original_data
 
     @classmethod
-    def perform_wavelet_denoising(cls, data: NDArray[Float64], wavelet: int, decomposition_level: int,
+    def perform_wavelet_denoising(cls, data, wavelet: int, decomposition_level: int,
                                   wavelet_denoising=WaveletDenoisingTypes.SURESHRINK,
                                   threshold=ThresholdTypes.HARD,
                                   extension_type=WaveletExtensionTypes.SYMMETRIC,
@@ -968,7 +966,7 @@ class DataFilter(object):
         """perform wavelet denoising
 
         :param data: data to denoise
-        :type data: NDArray[Float64]
+        :type data: NDArray[Shape["*"], Float64]
         :param wavelet: use WaveletTypes enum
         :type wavelet: int
         :param decomposition_level: decomposition level
@@ -991,13 +989,13 @@ class DataFilter(object):
             raise BrainFlowError('unable to denoise data', res)
 
     @classmethod
-    def get_csp(cls, data: NDArray[Float64], labels: NDArray[Float64]) -> Tuple:
+    def get_csp(cls, data, labels) -> Tuple:
         """calculate filters and the corresponding eigenvalues using the Common Spatial Patterns
 
         :param data: [epochs x channels x times]-shaped 3D array of data for two classes
-        :type data: NDArray[Float64]
+        :type data: NDArray[Shape["*, *, *"], Float64]
         :param labels: n_epochs-length 1D array of zeros and ones that assigns class labels for each epoch. Zero corresponds to the first class
-        :type labels: NDArray[Int64] 
+        :type labels: NDArray[Shape["*"], Float64]
         :return: [channels x channels]-shaped 2D array of filters and [channels]-length 1D array of the corresponding eigenvalues
         :rtype: Tuple
         """
@@ -1024,14 +1022,14 @@ class DataFilter(object):
         return output_filters, output_eigenvalues
 
     @classmethod
-    def get_window(cls, window_function: int, window_len: int) -> NDArray[Float64]:
+    def get_window(cls, window_function: int, window_len: int):
         """perform data windowing
 
         :param window_function: window function
         :type window: int
         :param window_len: len of the window function
         :return: numpy array, len of the array is the same as data
-        :rtype: NDArray[Float64]
+        :rtype: NDArray[Shape["*"], Float64]
         """
         window_data = numpy.zeros(int(window_len)).astype(numpy.float64)
         res = DataHandlerDLL.get_instance().get_window(window_function, window_len, window_data)
@@ -1041,15 +1039,15 @@ class DataFilter(object):
         return window_data
 
     @classmethod
-    def perform_fft(cls, data: NDArray[Float64], window: int) -> NDArray[Complex128]:
+    def perform_fft(cls, data, window: int):
         """perform direct fft
 
         :param data: data for fft, len of data must be even
-        :type data: NDArray[Float64]
+        :type data: NDArray[Shape["*"], Float64]
         :param window: window function
         :type window: int
         :return: numpy array of complex values, len of this array is N / 2 + 1
-        :rtype: NDArray[Complex128]
+        :rtype: NDArray[Shape["*"], Complex128]
         """
 
         check_memory_layout_row_major(data, 1)
@@ -1067,11 +1065,11 @@ class DataFilter(object):
         return output
 
     @classmethod
-    def get_psd(cls, data: NDArray[Float64], sampling_rate: int, window: int) -> Tuple:
+    def get_psd(cls, data, sampling_rate: int, window: int) -> Tuple:
         """calculate PSD
 
         :param data: data to calc psd, len of data must be even
-        :type data: NDArray[Float64]
+        :type data: NDArray[Shape["*"], Float64]
         :param sampling_rate: sampling rate
         :type sampling_rate: int
         :param window: window function
@@ -1091,11 +1089,11 @@ class DataFilter(object):
         return ampls, freqs
 
     @classmethod
-    def get_psd_welch(cls, data: NDArray[Float64], nfft: int, overlap: int, sampling_rate: int, window: int) -> Tuple:
+    def get_psd_welch(cls, data, nfft: int, overlap: int, sampling_rate: int, window: int) -> Tuple:
         """calculate PSD using Welch method
 
         :param data: data to calc psd
-        :type data: NDArray[Float64]
+        :type data: NDArray[Shape["*"], Float64]
         :param nfft: FFT Window size, must be even
         :type nfft: int
         :param overlap: overlap of FFT Windows, must be between 0 and nfft
@@ -1120,11 +1118,11 @@ class DataFilter(object):
         return ampls, freqs
 
     @classmethod
-    def detrend(cls, data: NDArray[Float64], detrend_operation: int) -> None:
+    def detrend(cls, data, detrend_operation: int) -> None:
         """detrend data
 
         :param data: data to calc psd
-        :type data: NDArray[Float64]
+        :type data: NDArray[Shape["*"], Float64]
         :param detrend_operation: Type of detrend operation
         :type detrend_operation: int
         """
@@ -1156,11 +1154,11 @@ class DataFilter(object):
         return band_power[0]
 
     @classmethod
-    def get_avg_band_powers(cls, data: NDArray, channels: List, sampling_rate: int, apply_filter: bool) -> Tuple:
+    def get_avg_band_powers(cls, data, channels: List, sampling_rate: int, apply_filter: bool) -> Tuple:
         """calculate avg and stddev of BandPowers across all channels, bands are 1-4,4-8,8-13,13-30,30-50
 
         :param data: 2d array for calculation
-        :type data: NDArray
+        :type data: NDArray[Shape["*, *"], Float64]
         :param channels: channels - rows of data array which should be used for calculation
         :type channels: List
         :param sampling_rate: sampling rate
@@ -1175,12 +1173,12 @@ class DataFilter(object):
         return cls.get_custom_band_powers(data, bands, channels, sampling_rate, apply_filter)
 
     @classmethod
-    def get_custom_band_powers(cls, data: NDArray, bands: List, channels: List, sampling_rate: int,
+    def get_custom_band_powers(cls, data, bands: List, channels: List, sampling_rate: int,
                                apply_filter: bool) -> Tuple:
         """calculate avg and stddev of BandPowers across selected channels
 
         :param data: 2d array for calculation
-        :type data: NDArray
+        :type data: NDArray[Shape["*, *"], Float64]
         :param bands: List of typles with bands to use. E.g [(1.5, 4.0), (4.0, 8.0), (8.0, 13.0), (13.0, 30.0), (30.0, 45.0)]
         :type bands: List
         :param channels: channels - rows of data array which should be used for calculation
@@ -1218,11 +1216,11 @@ class DataFilter(object):
         return avg_bands, stddev_bands
 
     @classmethod
-    def perform_ica(cls, data: NDArray, num_components: int, channels=None) -> Tuple:
+    def perform_ica(cls, data, num_components: int, channels=None) -> Tuple:
         """perform ICA
 
         :param data: 2d array for calculation
-        :type data: NDArray
+        :type data: NDArray[Shape["*, *"], Float64]
         :param num_components: number of components
         :type num_components: int
         :param channels: channels - rows of data array which should be used for calculation, if None use all
@@ -1265,13 +1263,13 @@ class DataFilter(object):
         return w, k, a, s
 
     @classmethod
-    def perform_ifft(cls, data: NDArray[Complex128]) -> NDArray[Float64]:
+    def perform_ifft(cls, data):
         """perform inverse fft
 
         :param data: data from fft
-        :type data: NDArray[Complex128]
+        :type data: NDArray[Shape["*"], Complex128]
         :return: restored data
-        :rtype: NDArray[Float64]
+        :rtype: NDArray[Shape["*"], Float64]
         """
         temp_re = numpy.zeros(data.shape[0]).astype(numpy.float64)
         temp_im = numpy.zeros(data.shape[0]).astype(numpy.float64)
@@ -1307,7 +1305,7 @@ class DataFilter(object):
         """write data to file, in file data will be transposed
 
         :param data: data to store in a file
-        :type data: 2d numpy array
+        :type data: NDArray[Shape["*, *"], Float64]
         :param file_name: file name to store data
         :type file_name: str
         :param file_mode: 'w' to rewrite file or 'a' to append data to file
@@ -1335,7 +1333,7 @@ class DataFilter(object):
         :param file_name: file name to read
         :type file_name: str
         :return: 2d numpy array with data from this file, data will be transposed to original dimensions
-        :rtype: 2d numpy array
+        :rtype: NDArray[Shape["*, *"], Float64]
         """
         try:
             file = file_name.encode()

@@ -149,6 +149,11 @@ Rust
         cd brainflow
         cargo build --features generate_binding
 
+Swift
+-------
+
+You can build Swift binding for BrainFlow using xcode. Before that you need to compile C/C++ code :ref:`compilation-label` and ensure that native libraries are properly placed. Keep in mind that currently it supports only MacOS.
+
 Docker Image
 --------------
 

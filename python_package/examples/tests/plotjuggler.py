@@ -1,7 +1,7 @@
 import argparse
 import time
 
-from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds, BrainFlowPresets
+from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 
 
 def main():
@@ -44,7 +44,7 @@ def main():
     for preset in presets:
         # to stream to plotjuggler
         board.add_streamer(
-            f'plotjuggler_udp://127.0.0.1:9870', preset)
+            'plotjuggler_udp://127.0.0.1:9870', preset)
         # to store data in a file
         board.add_streamer(f'file://data_{preset}.csv:w', preset)
     board.start_stream ()

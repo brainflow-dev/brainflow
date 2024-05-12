@@ -602,6 +602,69 @@ Typescript ICA
 .. literalinclude:: ../nodejs_package/tests/ica.ts
    :language: javascript
 
+Swift
+------------
+
+Swift Get Data from a Board
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../swift_package/examples/tests/brainflow_get_data/brainflow_get_data.swift
+   :language: swift
+
+Swift Markers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../swift_package/examples/tests/markers/markers.swift
+   :language: swift
+
+Swift Read Write File
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../swift_package/examples/tests/read_write_file/read_write_file.swift
+   :language: swift
+
+Swift Downsample Data
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../swift_package/examples/tests/downsampling/downsampling.swift
+   :language: swift
+
+Swift Transforms
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../swift_package/examples/tests/transforms/transforms.swift
+   :language: swift
+
+Swift Signal Filtering
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../swift_package/examples/tests/signal_filtering/signal_filtering.swift
+   :language: swift
+
+Swift Denoising
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../swift_package/examples/tests/denoising/denoising.swift
+   :language: swift
+
+Swift Band Power
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../swift_package/examples/tests/band_power/band_power.swift
+   :language: swift
+
+Swift EEG Metrics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../swift_package/examples/tests/eeg_metrics/eeg_metrics.swift
+   :language: swift
+
+Swift ICA
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../swift_package/examples/tests/ica/ica.swift
+   :language: swift
+
 Notebooks
 ------------
 .. toctree::

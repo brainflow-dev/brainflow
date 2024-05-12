@@ -163,3 +163,13 @@ Example:
 
 .. literalinclude:: ../nodejs_package/tests/brainflow_get_data.ts
    :language: javascript
+
+Swift
+------
+
+Swift binding calls C/C++ code as any other binding. Use Swift examples and API reference for other languaes as a starting point.
+
+Example:
+
+.. literalinclude:: ../swift_package/examples/tests/brainflow_get_data/brainflow_get_data.swift
+   :language: swift

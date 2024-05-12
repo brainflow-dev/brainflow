@@ -8,7 +8,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels, BoardIds
-from brainflow.data_filter import DataFilter, ThresholdTypes, AggOperations, NoiseTypes, WaveletTypes, DetrendOperations
+from brainflow.data_filter import DataFilter, NoiseTypes, WaveletTypes, DetrendOperations
 
 
 def main():
