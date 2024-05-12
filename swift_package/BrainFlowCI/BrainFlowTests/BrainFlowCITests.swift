@@ -7,7 +7,6 @@
 
 import Foundation
 import XCTest
-import BrainFlow
 
 class BrainFlowCItests: XCTestCase {
     func testGetDataFromBoard() throws {
@@ -26,7 +25,7 @@ class BrainFlowCItests: XCTestCase {
             
             XCTAssert((data.count == 32) && (data[0].count > 100))
             print(data)
-        } catch let bfError as BrainFlowException {
+        } catch let bfError as BrainFlowError {
             try? BoardShim.logMessage (.LEVEL_ERROR, bfError.message)
             try? BoardShim.logMessage (.LEVEL_ERROR, "Error code: \(bfError.errorCode)")
             XCTFail()

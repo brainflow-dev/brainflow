@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import BrainFlow
 
 func testSignalFiltering() throws {
     try BoardShim.enableDevBoardLogger()

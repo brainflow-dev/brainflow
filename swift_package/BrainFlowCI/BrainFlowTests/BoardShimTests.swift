@@ -6,7 +6,6 @@
 //
 
 import XCTest
-@testable import BrainFlow
 
 class BoardShimTests: XCTestCase {
     let cytonBoardID = BoardIds.CYTON_BOARD
@@ -136,13 +135,13 @@ class BoardShimTests: XCTestCase {
 
     func testAnalogChannels () throws {
         XCTAssertThrowsError(try BoardShim.getAnalogChannels(synthBoardID), "test message") { error in
-            XCTAssertEqual(error as? BrainFlowException, BrainFlowException("Error in board info getter", .UNSUPPORTED_BOARD_ERROR))
+            XCTAssertEqual(error as? BrainFlowError, BrainFlowError("Error in board info getter", .UNSUPPORTED_BOARD_ERROR))
           }
     }
 
     func testOtherChannels () throws {
         XCTAssertThrowsError(try BoardShim.getOtherChannels(synthBoardID), "test message") { error in
-            XCTAssertEqual(error as? BrainFlowException, BrainFlowException("Error in board info getter", .UNSUPPORTED_BOARD_ERROR))
+            XCTAssertEqual(error as? BrainFlowError, BrainFlowError("Error in board info getter", .UNSUPPORTED_BOARD_ERROR))
           }
     }
 
@@ -158,7 +157,7 @@ class BoardShimTests: XCTestCase {
         do {
             let result = try board.configBoard("set_index_percentage:10")
             XCTAssert(result == "Config:set_index_percentage:10")
-        } catch let bfError as BrainFlowException {
+        } catch let bfError as BrainFlowError {
                 try? BoardShim.logMessage (.LEVEL_ERROR, bfError.message)
                 try? BoardShim.logMessage (.LEVEL_ERROR, "Error code: \(bfError.errorCode)")
                 XCTFail()

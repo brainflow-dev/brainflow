@@ -152,7 +152,40 @@ Rust
 Swift
 -------
 
-You can build Swift binding for BrainFlow using xcode. Before that you need to compile C/C++ code :ref:`compilation-label` and ensure that native libraries are properly placed. Keep in mind that currently it supports only MacOS.
+You can build the Swift bindings for BrainFlow using Xcode. Before that you need to compile C/C++ code :ref:`compilation-label` and ensure that native libraries are properly placed. Keep in mind that currently it supports only MacOS.
+
+To compile your Swift app with the BrainFlow bindings, first copy all of the .swift files from swift_package/BrainFlow/Sources/BrainFlowBindings into your Xcode project:
+
+- Right click on your project in the Project Navigator window, and then select "Add Files to ...".
+- A file dialog will open in Xcode. In the file dialog select the swift_package/BrainFlow/Sources/BrainFlowBindings folder. Make sure the "Copy items if needed" box is checked, as well as the box next to your target in the "Add to targets" section.
+- Click the Add button.
+
+Next add the umbrella header file to your project and configure the project settings so that Xcode can find the BrainFlow headers:
+
+- In the project navigator right click on the BrainFlowBindings folder and select "Add Files to BrainFlowBindings".
+In the file dialog select the swift_package/BrainFlow/BrainFlow.h file.
+- Click the Add button.
+- Click on your project in the project navigator.
+- Click on your target in the target list.
+- Select "Build Settings" and then search for the word "bridging".
+- Open the "Objective-C Bridging Header" setting and add the value "${PROJECT_DIR}/BrainFlowBindings/BrainFlow.h".
+- Search for the "Header Search Paths" setting.
+- Open the "Header Search Paths" setting. Click the + button and then enter the full path to the brainflow/src directory. You may use an absolute or a relative path. 
+- To the right of the header search path entry select "recursive".
+
+Next add the BrainFlow dylibs to your project:
+
+- From the Finder, drag and drop the dylibs into your Xcode project, under the "Frameworks" group.
+- A dialog will open in Xcode. Make sure the "Copy items if needed" box is checked, and check the box next to your target in the "Add to targets" section of the dialog.
+- Click the "Finish" button.
+- Click on your project in the project navigator.
+- Click on your target in the target list.
+- Select "General" and then scroll down to the "Frameworks, Libraries and Embedded Content" section.
+- Make sure "Embed & Sign" or "Embed Without Signing" is selected for each of the added dylibs. 
+
+Finally, before you build, clean the build folder by clicking on the "Product" menu and selecting "Clean Build Folder...".
+
+Enjoy!
 
 Docker Image
 --------------

@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import BrainFlow
 
 // From https://stackoverflow.com/questions/48088882/how-can-split-from-string-to-array-by-chunks-of-given-size
 extension Array {

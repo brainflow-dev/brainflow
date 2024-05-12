@@ -4,7 +4,6 @@
 //  https://github.com/brainflow-dev/brainflow/tree/master/tests/python
 
 import XCTest
-@testable import BrainFlow
 
 class DataFilterTests: XCTestCase {
     func testBandPowerAll() {
@@ -32,7 +31,7 @@ class DataFilterTests: XCTestCase {
             XCTAssert((bands.0.count == 5) && (bands.1.count == 5) &&
                       (avgSum > 0) && (avgSum <= 1) && (stdSum > 0) && (stdSum < 10))
         }
-        catch let bfError as BrainFlowException {
+        catch let bfError as BrainFlowError {
             try? BoardShim.logMessage (.LEVEL_ERROR, bfError.message)
             try? BoardShim.logMessage (.LEVEL_ERROR, "Error code: \(bfError.errorCode)")
             }
@@ -56,7 +55,7 @@ class DataFilterTests: XCTestCase {
             XCTAssert(roundFilters == trueFilters)
             XCTAssert(roundEigVals == trueEigVals)
         }
-        catch let bfError as BrainFlowException {
+        catch let bfError as BrainFlowError {
             try? BoardShim.logMessage (.LEVEL_ERROR, bfError.message)
             try? BoardShim.logMessage (.LEVEL_ERROR, "Error code: \(bfError.errorCode)")
             }
@@ -86,20 +85,20 @@ class DataFilterTests: XCTestCase {
     
     func testWindowing () {
         let windowLen: Int32 = 20
-        let testError = BrainFlowException("test message", .INVALID_ARGUMENTS_ERROR)
+        let testError = BrainFlowError("test message", .INVALID_ARGUMENTS_ERROR)
         
         do {
             for window in WindowFunctions.allCases {
                 let windowData = try DataFilter.getWindow(window: window, windowLen: windowLen)
                 XCTAssert(windowData.count == windowLen)
                 XCTAssertThrowsError(try DataFilter.getWindow(window: window, windowLen: -1)) { error in
-                    if let bfError = error as? BrainFlowException {
+                    if let bfError = error as? BrainFlowError {
                         XCTAssertEqual(bfError, testError)
                     }
                 }
             }
         }
-        catch let bfError as BrainFlowException {
+        catch let bfError as BrainFlowError {
             try? BoardShim.logMessage (.LEVEL_ERROR, bfError.message)
         }
         catch {

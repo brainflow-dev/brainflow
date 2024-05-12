@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import BrainFlow
 
 func testReadWriteFile() throws {
     try BoardShim.enableDevBoardLogger()

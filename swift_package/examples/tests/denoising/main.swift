@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import BrainFlow
 
 func testDenoising() throws {
     try BoardShim.enableDevBoardLogger()

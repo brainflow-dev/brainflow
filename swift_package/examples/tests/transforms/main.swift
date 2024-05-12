@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import BrainFlow
 
 func testTransforms() throws {
     try BoardShim.enableDevBoardLogger()

@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import BrainFlow
 
 func testDownsampleData() throws {
     try BoardShim.enableDevBoardLogger()
