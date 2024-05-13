@@ -1,5 +1,5 @@
 //
-//  BrainFlowException.swift
+//  BrainFlowError.swift
 //  a Swift binding for BrainFlow's brainflow_exception.h
 //
 //  Created by Scott Miller on 8/23/21.

@@ -13,6 +13,23 @@ struct BoardShim {
     let bfParams: BrainFlowInputParams
     private let jsonBrainFlowInputParams: [CChar]
     
+    /*
+    try:
+        self.input_json = input_params.to_json().encode()
+    except BaseException:
+        self.input_json = input_params.to_json()
+    self.board_id = board_id
+    # we need it for streaming board
+    if board_id == BoardIds.STREAMING_BOARD.value or board_id == BoardIds.PLAYBACK_FILE_BOARD.value:
+        if input_params.master_board != BoardIds.NO_BOARD:
+            self._master_board_id = input_params.master_board
+        else:
+            raise BrainFlowError('you need set master board id in BrainFlowInputParams',
+                                 BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
+    else:
+        self._master_board_id = self.board_id
+    */
+        
     init (_ boardId: BoardIds, _ params: BrainFlowInputParams) throws {
         self.boardId = boardId
         self.bfParams = params
@@ -140,14 +157,14 @@ struct BoardShim {
      * Get names of EEG electrodes in 10-20 system. Only if electrodes have freezed
      * locations
      */
-    static func getEEGnames (_ boardId: BoardIds, _ preset: BrainFlowPresets = .DEFAULT_PRESET) throws -> [String] {
+    static func eegNames (_ boardId: BoardIds, _ preset: BrainFlowPresets = .DEFAULT_PRESET) throws -> [String] {
         var stringLen: Int32 = 0
         var bytes = [CChar](repeating: 0, count: 4096)
         let errorCode = get_eeg_names (boardId.rawValue, preset.rawValue, &bytes, &stringLen)
         try checkErrorCode("Error in board info getter", errorCode)
-        let EEGnames = bytes.toString(stringLen)
+        let eegNames = bytes.toString(stringLen)
 
-        return EEGnames.components(separatedBy: ",")
+        return eegNames.components(separatedBy: ",")
     }
 
     /**
@@ -159,7 +176,7 @@ struct BoardShim {
         let errorCode = get_board_descr (boardId.rawValue, preset.rawValue, &boardDescrStr, &stringLen)
         try checkErrorCode("failed to get board info", errorCode)
 
-        return try BoardDescription(boardDescrStr.toString(stringLen))
+        return try BoardDescription.fromJSON(boardDescrStr.toString(stringLen))
     }
 
     /**
@@ -355,26 +372,23 @@ struct BoardShim {
         return Array(channels[0..<Int(len)])
     }
 
-    /*
-     If the board is streaming or playback, then get the master board ID from params.other_info.
-     Otherwise return the board ID itself.
-     */
+    /// If the board is streaming or playback, then return the board ID itself. Otherwise return the master board ID.
     static func getMasterBoardID(boardId: BoardIds, params: BrainFlowInputParams) throws -> BoardIds {
         guard ((boardId == BoardIds.STREAMING_BOARD) || (boardId == BoardIds.PLAYBACK_FILE_BOARD)) else {
             return boardId
         }
-        if let otherInfoInt = Int32(params.other_info) {
-            if let masterBoardId = BoardIds(rawValue: otherInfoInt) {
-                return masterBoardId
-            }
-        }
-        throw BrainFlowError ("need to set params.otherInfo to master board id",
+        guard params.master_board != BoardIds.NO_BOARD.rawValue else {
+            throw BrainFlowError ("you need set master board id in BrainFlowInputParams",
                                   BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR)
+        }
+        guard let masterBoardID = BoardIds(rawValue: Int32(params.master_board)) else {
+            throw BrainFlowError ("you need set master board id in BrainFlowInputParams",
+                                  BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR)
+        }
+        return masterBoardID
     }
 
-    /**
-     * prepare steaming session, allocate resources
-     */
+    /// Prepare the steaming session and allocate resources.
     func prepareSession() throws {
         try? BoardShim.logMessage(.LEVEL_INFO, "prepare session")
         var jsonBFParams = self.jsonBrainFlowInputParams
@@ -544,44 +558,7 @@ struct BoardShim {
         return buffer.matrix2D(rowLength: Int(numSamples))
     }
 
-    /**
-     * get all data from the default ringbuffer and flush it
-     */
-    func getDefData () throws -> [[Double]] {
-        let size = try getBoardDataCount()
-        guard size > 0 else {
-            return [[Double]]()
-        }
-        
-        return try getBoardData(size)
-    }
-    
-    /**
-     * get all data from the auxiliary ringbuffer and flush it
-     */
-    func getAuxData () throws -> [[Double]] {
-        let preset = BrainFlowPresets.AUXILIARY_PRESET
-        let size = try getBoardDataCount(preset)
-        guard size > 0 else {
-            return [[Double]]()
-        }
-        
-        return try getBoardData(size, preset)
-    }
-    
-    /**
-     * get all data from the ancillary ringbuffer and flush it
-     */
-    func getAncData () throws -> [[Double]] {
-        let preset = BrainFlowPresets.ANCILLARY_PRESET
-        let size = try getBoardDataCount(preset)
-
-        guard size > 0 else {
-            return [[Double]]()
-        }
-        return try getBoardData(size, preset)
-    }
-    
+  
     func getBoardData (_ size: Int32? = nil, _ preset: BrainFlowPresets = .DEFAULT_PRESET) throws -> [[Double]] {
         var jsonBFParams = self.jsonBrainFlowInputParams
         let numRows = try BoardShim.getNumRows (getBoardId())

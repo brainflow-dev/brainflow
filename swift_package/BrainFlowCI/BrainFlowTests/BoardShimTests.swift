@@ -21,7 +21,7 @@ class BoardShimTests: XCTestCase {
     }
 
     func testEEGnames() throws {
-        let result = try BoardShim.getEEGnames(synthBoardID)
+        let result = try BoardShim.eegNames(synthBoardID)
         XCTAssert(result == ["Fz", "C3", "Cz", "C4", "Pz", "PO7", "Oz", "PO8", "F5", "F7", "F3", "F1", "F2", "F4", "F6", "F8"])
     }
 

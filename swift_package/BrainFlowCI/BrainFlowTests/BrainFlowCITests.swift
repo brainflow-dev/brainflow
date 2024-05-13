@@ -48,14 +48,11 @@ class BrainFlowCItests: XCTestCase {
         try board.stopStream()
         try board.releaseSession()
 
-        if let markerChInt32 = boardDescription.marker_channel {
-            let markerCh = Int(markerChInt32)
-            let uqMarkers = Set(data[markerCh])
-            XCTAssert(uqMarkers.count == 10)
-            print(data)
-        } else {
-            XCTAssert(false)
-        }
+        let markerChInt32 = boardDescription.marker_channel
+        let markerCh = Int(markerChInt32)
+        let uqMarkers = Set(data[markerCh])
+        XCTAssert(uqMarkers.count == 10)
+        print(data)
     }
     
     func testReadWriteFile() throws {
@@ -311,10 +308,7 @@ class BrainFlowCItests: XCTestCase {
         let params = BrainFlowInputParams()
         let boardId = BoardIds.SYNTHETIC_BOARD
         let boardDescription = try BoardShim.getBoardDescr(boardId)
-        guard let samplingRate = boardDescription.sampling_rate else {
-            XCTAssert(false)
-            return
-        }
+        let samplingRate = boardDescription.sampling_rate
         let board = try BoardShim(boardId, params)
         try board.prepareSession()
         try board.startStream()
@@ -325,11 +319,7 @@ class BrainFlowCItests: XCTestCase {
         var data = try board.getBoardData(size)
         try board.stopStream()
         try board.releaseSession()
-
-        guard let EEGchannels = boardDescription.eeg_channels else {
-            XCTAssert(false)
-            return
-        }
+        let EEGchannels = boardDescription.eeg_channels
         // second eeg channel of synthetic board is a sine wave at 10Hz, should see huge alpha
         let eegChannel = Int(EEGchannels[1])
         // optional detrend
@@ -346,6 +336,56 @@ class BrainFlowCItests: XCTestCase {
 
         // fail test if ratio is not smth we expect
         XCTAssert((bandPowerAlpha / bandPowerBeta) >= 100.0)
+    }
+    
+    func testBoardDescription() {
+        let badJSON: String = """
+            {"fake": 0}
+        """
+        let goodJSON: String = """
+            {"accel_channels": [17, 18, 19],
+             "battery_channel": 29,
+             "ecg_channels": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+             "eda_channels": [23],
+             "eeg_channels": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+             "eeg_names": "Fz,C3,Cz,C4,Pz,PO7,Oz,PO8,F5,F7,F3,F1,F2,F4,F6,F8",
+             "emg_channels": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+             "eog_channels": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+             "gyro_channels": [20, 21, 22],
+             "marker_channel": 31,
+             "name": "Synthetic",
+             "num_rows": 32,
+             "package_num_channel": 0,
+             "ppg_channels": [24, 25],
+             "resistance_channels": [27, 28],
+             "sampling_rate": 250,
+             "temperature_channels": [26],
+             "timestamp_channel": 30}
+         """
+        
+        do {
+            let synthDescription = try BoardShim.getBoardDescr(.SYNTHETIC_BOARD)
+            let synthJSON = BoardDescription.toJSON(synthDescription)
+            print(synthJSON)
+            let _ = try BoardDescription.fromJSON(synthJSON)
+        } catch {
+            XCTFail()
+        }
+        do {
+            let _ = try BoardDescription(nil)
+        } catch {
+            XCTFail()
+        }
+        do {
+            let goodDescription = try BoardDescription(goodJSON)
+            let fromGoodJSON = try BoardDescription.fromJSON(goodJSON)
+            print("goodDescription:\n\(goodDescription)")
+            print("fromGoodJSON:\n\(fromGoodJSON)")
+        } catch {
+            XCTFail()
+        }
+        XCTAssertThrowsError(try BoardDescription(badJSON))
+        XCTAssertThrowsError(try BoardDescription.fromJSON(badJSON))
     }
     
     func testEEGmetrics() throws {

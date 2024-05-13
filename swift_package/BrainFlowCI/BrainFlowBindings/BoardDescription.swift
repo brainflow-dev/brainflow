@@ -1,39 +1,34 @@
-//
-//  BoardDescription.swift
-//  a Swift reimagining of BrainFlow's board_description data type
-//
-//  Created by Scott Miller for Aeris Rising, LLC on 8/23/21.
-//
 import Foundation
 
+/// BoardDescription formalizes the attributes of a BrainFlow board via a structured JSON object.
 struct BoardDescription: Codable, Equatable {
-    let package_num_channel: Int32
-    let timestamp_channel: Int32
-    let accel_channels: [Int32]?
-    let ecg_channels: [Int32]?
-    let eeg_channels: [Int32]?
-    let eeg_names: String?
-    let emg_channels: [Int32]?
-    let eog_channels: [Int32]?
-    let marker_channel: Int32?
-    let name: String?
-    let num_rows: Int32?
-    let sampling_rate: Int32?
-    let battery_channel: Int32?
-    let eda_channels: [Int32]?
-    let gyro_channels: [Int32]?
-    let ppg_channels: [Int32]?
-    let resistance_channels: [Int32]?
-    let temperature_channels: [Int32]?
-    
+    var package_num_channel: Int32 = 0
+    var timestamp_channel: Int32 = 0
+    var accel_channels: [Int32] = [Int32]()
+    var ecg_channels: [Int32] = [Int32]()
+    var eeg_channels: [Int32] = [Int32]()
+    var eeg_names: String = ""
+    var emg_channels: [Int32] = [Int32]()
+    var eog_channels: [Int32] = [Int32]()
+    var marker_channel: Int32 = 0
+    var name: String = ""
+    var num_rows: Int32 = 0
+    var sampling_rate: Int32 = 0
+    var battery_channel: Int32 = 0
+    var eda_channels: [Int32] = [Int32]()
+    var gyro_channels: [Int32] = [Int32]()
+    var ppg_channels: [Int32] = [Int32]()
+    var resistance_channels: [Int32] = [Int32]()
+    var temperature_channels: [Int32] = [Int32]()
+        
     // decode the input JSON into self:
-    init(_ descriptionJSON: String) throws {
-        guard descriptionJSON != "" else {
-            throw BrainFlowError("Nil board description JSON", .JSON_NOT_FOUND_ERROR)
+    init(_ descriptionJSON: String?) throws {
+        guard let thisJSON = descriptionJSON else {
+            return
         }
         
         let decoder = JSONDecoder()
-        let jsonData = Data(descriptionJSON.utf8)
+        let jsonData = Data(thisJSON.utf8)
         
         do {
             let json = try decoder.decode(type(of: self), from: jsonData)
@@ -43,4 +38,22 @@ struct BoardDescription: Codable, Equatable {
             throw BrainFlowError("Invalid board description JSON", .NO_SUCH_DATA_IN_JSON_ERROR)
         }
     }
+    
+    /// Encode BoardDescription object into a JSON string.
+    static func toJSON(_ boardDescription: Self) -> String {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .prettyPrinted
+        if let data = try? encoder.encode(boardDescription),
+            let jsonString = String(data: data, encoding: .utf8) {
+            return jsonString
+        } else {
+            return ""
+        }
+    }
+    
+    /// Decode the JSON string into a BoardDescription object.
+    static func fromJSON(_ descriptionJSON: String?) throws -> Self {
+        return try BoardDescription(descriptionJSON)
+    }
+    
 }

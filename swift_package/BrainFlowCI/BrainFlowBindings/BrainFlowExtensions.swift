@@ -8,7 +8,7 @@
 import Foundation
 
 extension Array {
-    // Convert a 1D array into a 2D matrix:
+    /// Convert a 1D array into a 2D matrix.
     func matrix2D(rowLength: Int) -> [[Element]] {
         return stride(from: 0, to: count, by: rowLength).map {
             Array(self[$0 ..< Swift.min($0 + rowLength, count)])
@@ -17,7 +17,7 @@ extension Array {
 }
 
 extension Array where Element == CChar {
-    //  convert an array of characters returned from a C++ API, into a String
+    ///  Convert an array of characters returned from a C++ API, into a String.
     func toString(_ len: Int32) -> String {
         let data = Data(bytes: self, count: Int(len))
         if let result = String(data: data, encoding: .utf8) {
@@ -44,7 +44,6 @@ extension Encodable {
         encoder.outputFormatting = .prettyPrinted.union(.withoutEscapingSlashes)
         
         do {
-//            return try encoder.encode(self).description
             let data = try encoder.encode(self)
             if let str = String(data: data, encoding: .utf8) {
                 return str
