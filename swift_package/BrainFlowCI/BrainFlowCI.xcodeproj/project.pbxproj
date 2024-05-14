@@ -9,86 +9,18 @@
 /* Begin PBXBuildFile section */
 		5F466F962BC4576400E129A7 /* Numerics in Frameworks */ = {isa = PBXBuildFile; productRef = 5F466F952BC4576400E129A7 /* Numerics */; };
 		5F466FA22BC465CD00E129A7 /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = 5F466FA12BC465CD00E129A7 /* ArgumentParser */; };
-		5F52BA412BC4D39600AC74F4 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
-		5F52BA422BC4D39600AC74F4 /* libBoardController.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; };
-		5F52BA442BC4D39600AC74F4 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
-		5F52BA452BC4D55500AC74F4 /* libBoardController.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; };
-		5F52BA462BC97D2D00AC74F4 /* libDataHandler.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
-		5F52BA472BC97D2E00AC74F4 /* libMLModule.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
-		5F52BA672BC9A3D000AC74F4 /* libsimpleble-c.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA662BC9A3D000AC74F4 /* libsimpleble-c.dylib */; };
-		5F52BA682BC9A3DE00AC74F4 /* libsimpleble-c.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA662BC9A3D000AC74F4 /* libsimpleble-c.dylib */; };
-		5F52BA952BC9A98600AC74F4 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
-		5F52BA982BC9A98600AC74F4 /* libBoardController.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; };
 		5F52BA9A2BC9A98600AC74F4 /* Numerics in Frameworks */ = {isa = PBXBuildFile; productRef = 5F52BA852BC9A98600AC74F4 /* Numerics */; };
-		5F52BAAC2BC9E83800AC74F4 /* libBoardController.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; };
-		5F52BAAD2BC9E86700AC74F4 /* libMLModule.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
-		5F52BAAE2BC9E8C400AC74F4 /* libDataHandler.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
-		5F52BAAF2BC9E8D800AC74F4 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
-		5F52BABF2BCA18C300AC74F4 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
-		5F52BAC02BCA18C300AC74F4 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
-		5F52BAC12BCA18C300AC74F4 /* libBoardController.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; };
 		5F52BAC22BCA18C300AC74F4 /* Numerics in Frameworks */ = {isa = PBXBuildFile; productRef = 5F52BAB12BCA18C300AC74F4 /* Numerics */; };
-		5F52BAC62BCA18C300AC74F4 /* libDataHandler.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
-		5F52BAC72BCA18C300AC74F4 /* libMLModule.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
-		5F52BAC82BCA18C300AC74F4 /* libBoardController.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; };
-		5F52BADF2BCAA88000AC74F4 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
-		5F52BAE02BCAA88000AC74F4 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
-		5F52BAE12BCAA88000AC74F4 /* libBoardController.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; };
 		5F52BAE22BCAA88000AC74F4 /* Numerics in Frameworks */ = {isa = PBXBuildFile; productRef = 5F52BAD12BCAA88000AC74F4 /* Numerics */; };
-		5F52BAE62BCAA88000AC74F4 /* libDataHandler.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
-		5F52BAE72BCAA88000AC74F4 /* libMLModule.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
-		5F52BAE82BCAA88000AC74F4 /* libBoardController.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; };
 		5F52BAF12BCAA9E700AC74F4 /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = 5F52BAF02BCAA9E700AC74F4 /* ArgumentParser */; };
-		5F52BB012BCAAB3400AC74F4 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
-		5F52BB022BCAAB3400AC74F4 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
-		5F52BB032BCAAB3400AC74F4 /* libBoardController.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; };
 		5F52BB042BCAAB3400AC74F4 /* Numerics in Frameworks */ = {isa = PBXBuildFile; productRef = 5F52BAF32BCAAB3400AC74F4 /* Numerics */; };
-		5F52BB082BCAAB3400AC74F4 /* libDataHandler.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
-		5F52BB092BCAAB3400AC74F4 /* libMLModule.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
-		5F52BB0A2BCAAB3400AC74F4 /* libBoardController.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; };
-		5F52BB212BCAAC7900AC74F4 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
-		5F52BB222BCAAC7900AC74F4 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
-		5F52BB232BCAAC7900AC74F4 /* libBoardController.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; };
 		5F52BB242BCAAC7900AC74F4 /* Numerics in Frameworks */ = {isa = PBXBuildFile; productRef = 5F52BB132BCAAC7900AC74F4 /* Numerics */; };
-		5F52BB282BCAAC7900AC74F4 /* libDataHandler.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
-		5F52BB292BCAAC7900AC74F4 /* libMLModule.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
-		5F52BB2A2BCAAC7900AC74F4 /* libBoardController.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; };
-		5F52BB432BCAADF900AC74F4 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
-		5F52BB442BCAADF900AC74F4 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
-		5F52BB452BCAADF900AC74F4 /* libBoardController.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; };
 		5F52BB462BCAADF900AC74F4 /* Numerics in Frameworks */ = {isa = PBXBuildFile; productRef = 5F52BB352BCAADF900AC74F4 /* Numerics */; };
-		5F52BB4A2BCAADF900AC74F4 /* libDataHandler.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
-		5F52BB4B2BCAADF900AC74F4 /* libMLModule.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
-		5F52BB4C2BCAADF900AC74F4 /* libBoardController.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; };
-		5F52BB632BCAAF1300AC74F4 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
-		5F52BB642BCAAF1300AC74F4 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
-		5F52BB652BCAAF1300AC74F4 /* libBoardController.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; };
 		5F52BB662BCAAF1300AC74F4 /* Numerics in Frameworks */ = {isa = PBXBuildFile; productRef = 5F52BB552BCAAF1300AC74F4 /* Numerics */; };
-		5F52BB6A2BCAAF1300AC74F4 /* libDataHandler.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
-		5F52BB6B2BCAAF1300AC74F4 /* libMLModule.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
-		5F52BB6C2BCAAF1300AC74F4 /* libBoardController.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; };
-		5F52BB832BCAAFCE00AC74F4 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
-		5F52BB842BCAAFCE00AC74F4 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
-		5F52BB852BCAAFCE00AC74F4 /* libBoardController.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; };
 		5F52BB862BCAAFCE00AC74F4 /* Numerics in Frameworks */ = {isa = PBXBuildFile; productRef = 5F52BB752BCAAFCE00AC74F4 /* Numerics */; };
-		5F52BB8A2BCAAFCE00AC74F4 /* libDataHandler.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
-		5F52BB8B2BCAAFCE00AC74F4 /* libMLModule.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
-		5F52BB8C2BCAAFCE00AC74F4 /* libBoardController.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; };
 		5F52BBA52BCAB23700AC74F4 /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = 5F52BB982BCAB23700AC74F4 /* ArgumentParser */; };
-		5F52BBA62BCAB23700AC74F4 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
-		5F52BBA72BCAB23700AC74F4 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
-		5F52BBA82BCAB23700AC74F4 /* libBoardController.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; };
 		5F52BBA92BCAB23700AC74F4 /* Numerics in Frameworks */ = {isa = PBXBuildFile; productRef = 5F52BB952BCAB23700AC74F4 /* Numerics */; };
-		5F52BBAD2BCAB23700AC74F4 /* libDataHandler.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
-		5F52BBAE2BCAB23700AC74F4 /* libMLModule.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
-		5F52BBAF2BCAB23700AC74F4 /* libBoardController.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; };
-		5F52BBC62BCAB5DC00AC74F4 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
-		5F52BBC72BCAB5DC00AC74F4 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
-		5F52BBC82BCAB5DC00AC74F4 /* libBoardController.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; };
 		5F52BBC92BCAB5DC00AC74F4 /* Numerics in Frameworks */ = {isa = PBXBuildFile; productRef = 5F52BBB82BCAB5DC00AC74F4 /* Numerics */; };
-		5F52BBCD2BCAB5DC00AC74F4 /* libDataHandler.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
-		5F52BBCE2BCAB5DC00AC74F4 /* libMLModule.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
-		5F52BBCF2BCAB5DC00AC74F4 /* libBoardController.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; };
 		5F772BAB2BF0EE6B00F1D22A /* BrainFlowConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F772BA22BF0EE6B00F1D22A /* BrainFlowConstants.swift */; };
 		5F772BAC2BF0EE6B00F1D22A /* BrainFlowInputParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F772BA32BF0EE6B00F1D22A /* BrainFlowInputParams.swift */; };
 		5F772BAD2BF0EE6B00F1D22A /* BoardDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F772BA42BF0EE6B00F1D22A /* BoardDescription.swift */; };
@@ -187,6 +119,90 @@
 		5F772C0D2BF0F21E00F1D22A /* DataFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F772BAA2BF0EE6B00F1D22A /* DataFilter.swift */; };
 		5F772C0E2BF0F21E00F1D22A /* MLModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F772BA72BF0EE6B00F1D22A /* MLModule.swift */; };
 		5F9BC35B2BE5335200C0C634 /* markers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE97CEF2BCDF20A0056EC80 /* markers.swift */; };
+		5FA77A682BF3CDB1004E09F9 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A602BF3CDB1004E09F9 /* libMLModule.dylib */; };
+		5FA77A692BF3CDB1004E09F9 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A602BF3CDB1004E09F9 /* libMLModule.dylib */; };
+		5FA77A6A2BF3CDB1004E09F9 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A602BF3CDB1004E09F9 /* libMLModule.dylib */; };
+		5FA77A6C2BF3CDB1004E09F9 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A602BF3CDB1004E09F9 /* libMLModule.dylib */; };
+		5FA77A6D2BF3CDB1004E09F9 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A602BF3CDB1004E09F9 /* libMLModule.dylib */; };
+		5FA77A6E2BF3CDB1004E09F9 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A602BF3CDB1004E09F9 /* libMLModule.dylib */; };
+		5FA77A6F2BF3CDB1004E09F9 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A602BF3CDB1004E09F9 /* libMLModule.dylib */; };
+		5FA77A702BF3CDB1004E09F9 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A602BF3CDB1004E09F9 /* libMLModule.dylib */; };
+		5FA77A712BF3CDB1004E09F9 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A602BF3CDB1004E09F9 /* libMLModule.dylib */; };
+		5FA77A722BF3CDB1004E09F9 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A602BF3CDB1004E09F9 /* libMLModule.dylib */; };
+		5FA77A732BF3CDB1004E09F9 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A602BF3CDB1004E09F9 /* libMLModule.dylib */; };
+		5FA77A742BF3CDB1004E09F9 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A602BF3CDB1004E09F9 /* libMLModule.dylib */; };
+		5FA77A752BF3CDB1004E09F9 /* libBoardController.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A612BF3CDB1004E09F9 /* libBoardController.dylib */; };
+		5FA77A762BF3CDB1004E09F9 /* libBoardController.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A612BF3CDB1004E09F9 /* libBoardController.dylib */; };
+		5FA77A772BF3CDB1004E09F9 /* libBoardController.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A612BF3CDB1004E09F9 /* libBoardController.dylib */; };
+		5FA77A792BF3CDB1004E09F9 /* libBoardController.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A612BF3CDB1004E09F9 /* libBoardController.dylib */; };
+		5FA77A7A2BF3CDB1004E09F9 /* libBoardController.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A612BF3CDB1004E09F9 /* libBoardController.dylib */; };
+		5FA77A7B2BF3CDB1004E09F9 /* libBoardController.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A612BF3CDB1004E09F9 /* libBoardController.dylib */; };
+		5FA77A7C2BF3CDB1004E09F9 /* libBoardController.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A612BF3CDB1004E09F9 /* libBoardController.dylib */; };
+		5FA77A7D2BF3CDB1004E09F9 /* libBoardController.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A612BF3CDB1004E09F9 /* libBoardController.dylib */; };
+		5FA77A7E2BF3CDB1004E09F9 /* libBoardController.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A612BF3CDB1004E09F9 /* libBoardController.dylib */; };
+		5FA77A7F2BF3CDB1004E09F9 /* libBoardController.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A612BF3CDB1004E09F9 /* libBoardController.dylib */; };
+		5FA77A802BF3CDB1004E09F9 /* libBoardController.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A612BF3CDB1004E09F9 /* libBoardController.dylib */; };
+		5FA77A812BF3CDB1004E09F9 /* libBoardController.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A612BF3CDB1004E09F9 /* libBoardController.dylib */; };
+		5FA77A822BF3CDB1004E09F9 /* libBrainBitLib.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A622BF3CDB1004E09F9 /* libBrainBitLib.dylib */; };
+		5FA77A832BF3CDB1004E09F9 /* libBrainBitLib.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A622BF3CDB1004E09F9 /* libBrainBitLib.dylib */; };
+		5FA77A862BF3CDB1004E09F9 /* libBrainBitLib.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A622BF3CDB1004E09F9 /* libBrainBitLib.dylib */; };
+		5FA77A8F2BF3CDB1004E09F9 /* libGanglionLib.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A632BF3CDB1004E09F9 /* libGanglionLib.dylib */; };
+		5FA77A902BF3CDB1004E09F9 /* libGanglionLib.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A632BF3CDB1004E09F9 /* libGanglionLib.dylib */; };
+		5FA77A9C2BF3CDB1004E09F9 /* libneurosdk-shared.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A642BF3CDB1004E09F9 /* libneurosdk-shared.dylib */; };
+		5FA77A9D2BF3CDB1004E09F9 /* libneurosdk-shared.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A642BF3CDB1004E09F9 /* libneurosdk-shared.dylib */; };
+		5FA77AA92BF3CDB1004E09F9 /* libsimpleble-c.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A652BF3CDB1004E09F9 /* libsimpleble-c.dylib */; };
+		5FA77AAA2BF3CDB1004E09F9 /* libsimpleble-c.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A652BF3CDB1004E09F9 /* libsimpleble-c.dylib */; };
+		5FA77AB62BF3CDB1004E09F9 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A662BF3CDB1004E09F9 /* libDataHandler.dylib */; };
+		5FA77AB72BF3CDB1004E09F9 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A662BF3CDB1004E09F9 /* libDataHandler.dylib */; };
+		5FA77AB82BF3CDB1004E09F9 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A662BF3CDB1004E09F9 /* libDataHandler.dylib */; };
+		5FA77ABA2BF3CDB1004E09F9 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A662BF3CDB1004E09F9 /* libDataHandler.dylib */; };
+		5FA77ABB2BF3CDB1004E09F9 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A662BF3CDB1004E09F9 /* libDataHandler.dylib */; };
+		5FA77ABC2BF3CDB1004E09F9 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A662BF3CDB1004E09F9 /* libDataHandler.dylib */; };
+		5FA77ABD2BF3CDB1004E09F9 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A662BF3CDB1004E09F9 /* libDataHandler.dylib */; };
+		5FA77ABE2BF3CDB1004E09F9 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A662BF3CDB1004E09F9 /* libDataHandler.dylib */; };
+		5FA77ABF2BF3CDB1004E09F9 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A662BF3CDB1004E09F9 /* libDataHandler.dylib */; };
+		5FA77AC02BF3CDB1004E09F9 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A662BF3CDB1004E09F9 /* libDataHandler.dylib */; };
+		5FA77AC12BF3CDB1004E09F9 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A662BF3CDB1004E09F9 /* libDataHandler.dylib */; };
+		5FA77AC22BF3CDB1004E09F9 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A662BF3CDB1004E09F9 /* libDataHandler.dylib */; };
+		5FA77AC32BF3CDB1004E09F9 /* libonnxruntime_arm64.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A672BF3CDB1004E09F9 /* libonnxruntime_arm64.dylib */; };
+		5FA77AC42BF3CDB1004E09F9 /* libonnxruntime_arm64.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A672BF3CDB1004E09F9 /* libonnxruntime_arm64.dylib */; };
+		5FA77AD32BF3CE30004E09F9 /* libBoardController.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A612BF3CDB1004E09F9 /* libBoardController.dylib */; };
+		5FA77AD52BF3CE30004E09F9 /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A662BF3CDB1004E09F9 /* libDataHandler.dylib */; };
+		5FA77AD72BF3CE30004E09F9 /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FA77A602BF3CDB1004E09F9 /* libMLModule.dylib */; };
+		5FA77ADE2BF3D364004E09F9 /* libMLModule.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5FFCFB372BF24F98003F4DDF /* libMLModule.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77ADF2BF3D364004E09F9 /* libDataHandler.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5FFCFB352BF24F8C003F4DDF /* libDataHandler.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77AE02BF3D364004E09F9 /* libBoardController.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5FFCFB332BF24F7B003F4DDF /* libBoardController.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77AE12BF3DE41004E09F9 /* libBoardController.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5FA77A612BF3CDB1004E09F9 /* libBoardController.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77AE32BF3DE4F004E09F9 /* libBrainBitLib.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5FA77A622BF3CDB1004E09F9 /* libBrainBitLib.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77AE42BF3DE50004E09F9 /* libDataHandler.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5FA77A662BF3CDB1004E09F9 /* libDataHandler.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77AE62BF3DE54004E09F9 /* libMLModule.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5FA77A602BF3CDB1004E09F9 /* libMLModule.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77AEA2BF3DEB8004E09F9 /* libBoardController.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5FA77A612BF3CDB1004E09F9 /* libBoardController.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77AEC2BF3DEB9004E09F9 /* libDataHandler.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5FA77A662BF3CDB1004E09F9 /* libDataHandler.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77AED2BF3DEBA004E09F9 /* libMLModule.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5FA77A602BF3CDB1004E09F9 /* libMLModule.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77AEE2BF3E170004E09F9 /* libBoardController.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5FA77A612BF3CDB1004E09F9 /* libBoardController.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77AF02BF3E171004E09F9 /* libDataHandler.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5FA77A662BF3CDB1004E09F9 /* libDataHandler.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77AF12BF3E172004E09F9 /* libMLModule.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5FA77A602BF3CDB1004E09F9 /* libMLModule.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77AF22BF3E189004E09F9 /* libBoardController.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5FA77A612BF3CDB1004E09F9 /* libBoardController.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77AF42BF3E18A004E09F9 /* libDataHandler.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5FA77A662BF3CDB1004E09F9 /* libDataHandler.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77AF52BF3E18B004E09F9 /* libMLModule.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5FA77A602BF3CDB1004E09F9 /* libMLModule.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77AF62BF3E1C7004E09F9 /* libBoardController.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5FA77A612BF3CDB1004E09F9 /* libBoardController.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77AF82BF3E1C8004E09F9 /* libDataHandler.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5FA77A662BF3CDB1004E09F9 /* libDataHandler.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77AF92BF3E1C9004E09F9 /* libMLModule.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5FA77A602BF3CDB1004E09F9 /* libMLModule.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77AFA2BF3E1F1004E09F9 /* libBoardController.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5FA77A612BF3CDB1004E09F9 /* libBoardController.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77AFC2BF3E1F2004E09F9 /* libDataHandler.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5FA77A662BF3CDB1004E09F9 /* libDataHandler.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77AFD2BF3E1F4004E09F9 /* libMLModule.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5FA77A602BF3CDB1004E09F9 /* libMLModule.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77AFE2BF3E229004E09F9 /* libBoardController.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5FA77A612BF3CDB1004E09F9 /* libBoardController.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77B002BF3E22A004E09F9 /* libDataHandler.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5FA77A662BF3CDB1004E09F9 /* libDataHandler.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77B012BF3E22C004E09F9 /* libMLModule.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5FA77A602BF3CDB1004E09F9 /* libMLModule.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77B022BF3E240004E09F9 /* libBoardController.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5FA77A612BF3CDB1004E09F9 /* libBoardController.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77B042BF3E241004E09F9 /* libDataHandler.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5FA77A662BF3CDB1004E09F9 /* libDataHandler.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77B052BF3E243004E09F9 /* libMLModule.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5FA77A602BF3CDB1004E09F9 /* libMLModule.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77B062BF3E258004E09F9 /* libBoardController.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5FA77A612BF3CDB1004E09F9 /* libBoardController.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77B082BF3E259004E09F9 /* libDataHandler.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5FA77A662BF3CDB1004E09F9 /* libDataHandler.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77B092BF3E25A004E09F9 /* libMLModule.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5FA77A602BF3CDB1004E09F9 /* libMLModule.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77B0A2BF3E274004E09F9 /* libBoardController.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5FA77A612BF3CDB1004E09F9 /* libBoardController.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77B0C2BF3E275004E09F9 /* libDataHandler.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5FA77A662BF3CDB1004E09F9 /* libDataHandler.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5FA77B0D2BF3E276004E09F9 /* libMLModule.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5FA77A602BF3CDB1004E09F9 /* libMLModule.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		5FE97CE42BCDEDC50056EC80 /* eeg_metrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE97CE32BCDEDC50056EC80 /* eeg_metrics.swift */; };
 		5FE97CF62BCE94DF0056EC80 /* brainflow_get_data.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE97CF52BCE94DF0056EC80 /* brainflow_get_data.swift */; };
 		5FFCFAEF2BF0F8AB003F4DDF /* BoardShim.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F772BA82BF0EE6B00F1D22A /* BoardShim.swift */; };
@@ -198,19 +214,7 @@
 		5FFCFAF52BF0F8CA003F4DDF /* DataFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F772BAA2BF0EE6B00F1D22A /* DataFilter.swift */; };
 		5FFCFAF62BF0F8CC003F4DDF /* MLModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F772BA72BF0EE6B00F1D22A /* MLModule.swift */; };
 		5FFCFAF82BF10723003F4DDF /* Numerics in Frameworks */ = {isa = PBXBuildFile; productRef = 5FFCFAF72BF10723003F4DDF /* Numerics */; };
-		5FFCFAF92BF10739003F4DDF /* libBoardController.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; };
-		5FFCFAFA2BF10739003F4DDF /* libBoardController.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		5FFCFAFB2BF10739003F4DDF /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
-		5FFCFAFC2BF10739003F4DDF /* libDataHandler.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		5FFCFAFD2BF10739003F4DDF /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
-		5FFCFAFE2BF10739003F4DDF /* libMLModule.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		5FFCFB012BF10757003F4DDF /* Numerics in Frameworks */ = {isa = PBXBuildFile; productRef = 5FFCFB002BF10757003F4DDF /* Numerics */; };
-		5FFCFB022BF10766003F4DDF /* libBoardController.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; };
-		5FFCFB032BF10766003F4DDF /* libBoardController.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		5FFCFB042BF10766003F4DDF /* libDataHandler.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; };
-		5FFCFB052BF10766003F4DDF /* libDataHandler.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		5FFCFB062BF10766003F4DDF /* libMLModule.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; };
-		5FFCFB072BF10766003F4DDF /* libMLModule.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		5FFCFB0C2BF10A0F003F4DDF /* DataFilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FFCFB092BF10A0F003F4DDF /* DataFilterTests.swift */; };
 		5FFCFB0D2BF10A0F003F4DDF /* BoardShimTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FFCFB0A2BF10A0F003F4DDF /* BoardShimTests.swift */; };
 		5FFCFB0E2BF10A0F003F4DDF /* BrainFlowCITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FFCFB0B2BF10A0F003F4DDF /* BrainFlowCITests.swift */; };
@@ -240,32 +244,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
-				5F52BA682BC9A3DE00AC74F4 /* libsimpleble-c.dylib in Embed Libraries */,
-				5F52BA452BC4D55500AC74F4 /* libBoardController.dylib in Embed Libraries */,
-				5F52BA462BC97D2D00AC74F4 /* libDataHandler.dylib in Embed Libraries */,
-				5F52BA472BC97D2E00AC74F4 /* libMLModule.dylib in Embed Libraries */,
-			);
-			name = "Embed Libraries";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		5F52BA9C2BC9A98600AC74F4 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 12;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		5F52BA9D2BC9A98600AC74F4 /* Embed Libraries */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 12;
-			dstPath = "";
-			dstSubfolderSpec = 6;
-			files = (
-				5F52BAAE2BC9E8C400AC74F4 /* libDataHandler.dylib in Embed Libraries */,
-				5F52BAAC2BC9E83800AC74F4 /* libBoardController.dylib in Embed Libraries */,
-				5F52BAAD2BC9E86700AC74F4 /* libMLModule.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -285,9 +263,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
-				5F52BAC62BCA18C300AC74F4 /* libDataHandler.dylib in Embed Libraries */,
-				5F52BAC72BCA18C300AC74F4 /* libMLModule.dylib in Embed Libraries */,
-				5F52BAC82BCA18C300AC74F4 /* libBoardController.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -307,9 +282,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
-				5F52BAE62BCAA88000AC74F4 /* libDataHandler.dylib in Embed Libraries */,
-				5F52BAE72BCAA88000AC74F4 /* libMLModule.dylib in Embed Libraries */,
-				5F52BAE82BCAA88000AC74F4 /* libBoardController.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -329,9 +301,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
-				5F52BB082BCAAB3400AC74F4 /* libDataHandler.dylib in Embed Libraries */,
-				5F52BB092BCAAB3400AC74F4 /* libMLModule.dylib in Embed Libraries */,
-				5F52BB0A2BCAAB3400AC74F4 /* libBoardController.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -351,9 +320,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
-				5F52BB282BCAAC7900AC74F4 /* libDataHandler.dylib in Embed Libraries */,
-				5F52BB292BCAAC7900AC74F4 /* libMLModule.dylib in Embed Libraries */,
-				5F52BB2A2BCAAC7900AC74F4 /* libBoardController.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -373,9 +339,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
-				5F52BB4A2BCAADF900AC74F4 /* libDataHandler.dylib in Embed Libraries */,
-				5F52BB4B2BCAADF900AC74F4 /* libMLModule.dylib in Embed Libraries */,
-				5F52BB4C2BCAADF900AC74F4 /* libBoardController.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -395,9 +358,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
-				5F52BB6A2BCAAF1300AC74F4 /* libDataHandler.dylib in Embed Libraries */,
-				5F52BB6B2BCAAF1300AC74F4 /* libMLModule.dylib in Embed Libraries */,
-				5F52BB6C2BCAAF1300AC74F4 /* libBoardController.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -417,9 +377,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
-				5F52BB8A2BCAAFCE00AC74F4 /* libDataHandler.dylib in Embed Libraries */,
-				5F52BB8B2BCAAFCE00AC74F4 /* libMLModule.dylib in Embed Libraries */,
-				5F52BB8C2BCAAFCE00AC74F4 /* libBoardController.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -439,9 +396,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
-				5F52BBAD2BCAB23700AC74F4 /* libDataHandler.dylib in Embed Libraries */,
-				5F52BBAE2BCAB23700AC74F4 /* libMLModule.dylib in Embed Libraries */,
-				5F52BBAF2BCAB23700AC74F4 /* libBoardController.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -461,9 +415,159 @@
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
-				5F52BBCD2BCAB5DC00AC74F4 /* libDataHandler.dylib in Embed Libraries */,
-				5F52BBCE2BCAB5DC00AC74F4 /* libMLModule.dylib in Embed Libraries */,
-				5F52BBCF2BCAB5DC00AC74F4 /* libBoardController.dylib in Embed Libraries */,
+			);
+			name = "Embed Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5FA77A5F2BF3CCC3004E09F9 /* Embed Libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5FA77ADD2BF3D355004E09F9 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				5FA77ADE2BF3D364004E09F9 /* libMLModule.dylib in CopyFiles */,
+				5FA77ADF2BF3D364004E09F9 /* libDataHandler.dylib in CopyFiles */,
+				5FA77AE02BF3D364004E09F9 /* libBoardController.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5FA77AE22BF3DE42004E09F9 /* Embed Libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				5FA77AE12BF3DE41004E09F9 /* libBoardController.dylib in Embed Libraries */,
+				5FA77AE32BF3DE4F004E09F9 /* libBrainBitLib.dylib in Embed Libraries */,
+				5FA77AE42BF3DE50004E09F9 /* libDataHandler.dylib in Embed Libraries */,
+				5FA77AE62BF3DE54004E09F9 /* libMLModule.dylib in Embed Libraries */,
+			);
+			name = "Embed Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5FA77AEB2BF3DEB8004E09F9 /* Embed Libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				5FA77AEA2BF3DEB8004E09F9 /* libBoardController.dylib in Embed Libraries */,
+				5FA77AEC2BF3DEB9004E09F9 /* libDataHandler.dylib in Embed Libraries */,
+				5FA77AED2BF3DEBA004E09F9 /* libMLModule.dylib in Embed Libraries */,
+			);
+			name = "Embed Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5FA77AEF2BF3E170004E09F9 /* Embed Libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				5FA77AEE2BF3E170004E09F9 /* libBoardController.dylib in Embed Libraries */,
+				5FA77AF02BF3E171004E09F9 /* libDataHandler.dylib in Embed Libraries */,
+				5FA77AF12BF3E172004E09F9 /* libMLModule.dylib in Embed Libraries */,
+			);
+			name = "Embed Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5FA77AF32BF3E189004E09F9 /* Embed Libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				5FA77AF22BF3E189004E09F9 /* libBoardController.dylib in Embed Libraries */,
+				5FA77AF42BF3E18A004E09F9 /* libDataHandler.dylib in Embed Libraries */,
+				5FA77AF52BF3E18B004E09F9 /* libMLModule.dylib in Embed Libraries */,
+			);
+			name = "Embed Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5FA77AF72BF3E1C7004E09F9 /* Embed Libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				5FA77AF62BF3E1C7004E09F9 /* libBoardController.dylib in Embed Libraries */,
+				5FA77AF82BF3E1C8004E09F9 /* libDataHandler.dylib in Embed Libraries */,
+				5FA77AF92BF3E1C9004E09F9 /* libMLModule.dylib in Embed Libraries */,
+			);
+			name = "Embed Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5FA77AFB2BF3E1F1004E09F9 /* Embed Libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				5FA77AFA2BF3E1F1004E09F9 /* libBoardController.dylib in Embed Libraries */,
+				5FA77AFC2BF3E1F2004E09F9 /* libDataHandler.dylib in Embed Libraries */,
+				5FA77AFD2BF3E1F4004E09F9 /* libMLModule.dylib in Embed Libraries */,
+			);
+			name = "Embed Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5FA77AFF2BF3E229004E09F9 /* Embed Libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				5FA77AFE2BF3E229004E09F9 /* libBoardController.dylib in Embed Libraries */,
+				5FA77B002BF3E22A004E09F9 /* libDataHandler.dylib in Embed Libraries */,
+				5FA77B012BF3E22C004E09F9 /* libMLModule.dylib in Embed Libraries */,
+			);
+			name = "Embed Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5FA77B032BF3E240004E09F9 /* Embed Libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				5FA77B022BF3E240004E09F9 /* libBoardController.dylib in Embed Libraries */,
+				5FA77B042BF3E241004E09F9 /* libDataHandler.dylib in Embed Libraries */,
+				5FA77B052BF3E243004E09F9 /* libMLModule.dylib in Embed Libraries */,
+			);
+			name = "Embed Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5FA77B072BF3E258004E09F9 /* Embed Libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				5FA77B062BF3E258004E09F9 /* libBoardController.dylib in Embed Libraries */,
+				5FA77B082BF3E259004E09F9 /* libDataHandler.dylib in Embed Libraries */,
+				5FA77B092BF3E25A004E09F9 /* libMLModule.dylib in Embed Libraries */,
+			);
+			name = "Embed Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5FA77B0B2BF3E274004E09F9 /* Embed Libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				5FA77B0A2BF3E274004E09F9 /* libBoardController.dylib in Embed Libraries */,
+				5FA77B0C2BF3E275004E09F9 /* libDataHandler.dylib in Embed Libraries */,
+				5FA77B0D2BF3E276004E09F9 /* libMLModule.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -483,9 +587,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
-				5FFCFAFA2BF10739003F4DDF /* libBoardController.dylib in Embed Libraries */,
-				5FFCFAFC2BF10739003F4DDF /* libDataHandler.dylib in Embed Libraries */,
-				5FFCFAFE2BF10739003F4DDF /* libMLModule.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -496,9 +597,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				5FFCFB032BF10766003F4DDF /* libBoardController.dylib in Embed Libraries */,
-				5FFCFB052BF10766003F4DDF /* libDataHandler.dylib in Embed Libraries */,
-				5FFCFB072BF10766003F4DDF /* libMLModule.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -507,11 +605,6 @@
 
 /* Begin PBXFileReference section */
 		5F466F8C2BC454A900E129A7 /* brainflow_get_data */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = brainflow_get_data; sourceTree = BUILT_PRODUCTS_DIR; };
-		5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libDataHandler.dylib; path = Frameworks/libDataHandler.dylib; sourceTree = "<group>"; };
-		5F52BA3C2BC4D32F00AC74F4 /* libMuseLib.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libMuseLib.dylib; path = Frameworks/libMuseLib.dylib; sourceTree = "<group>"; };
-		5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libBoardController.dylib; path = Frameworks/libBoardController.dylib; sourceTree = "<group>"; };
-		5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libMLModule.dylib; path = Frameworks/libMLModule.dylib; sourceTree = "<group>"; };
-		5F52BA662BC9A3D000AC74F4 /* libsimpleble-c.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libsimpleble-c.dylib"; path = "Frameworks/libsimpleble-c.dylib"; sourceTree = "<group>"; };
 		5F52BAA52BC9A98600AC74F4 /* band_power */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = band_power; sourceTree = BUILT_PRODUCTS_DIR; };
 		5F52BACC2BCA18C300AC74F4 /* band_power_all */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = band_power_all; sourceTree = BUILT_PRODUCTS_DIR; };
 		5F52BAEC2BCAA88000AC74F4 /* markers */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = markers; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -532,10 +625,14 @@
 		5F772BA82BF0EE6B00F1D22A /* BoardShim.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BoardShim.swift; path = BrainFlowBindings/BoardShim.swift; sourceTree = "<group>"; };
 		5F772BA92BF0EE6B00F1D22A /* BrainFlowError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BrainFlowError.swift; path = BrainFlowBindings/BrainFlowError.swift; sourceTree = "<group>"; };
 		5F772BAA2BF0EE6B00F1D22A /* DataFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DataFilter.swift; path = BrainFlowBindings/DataFilter.swift; sourceTree = "<group>"; };
-		5F772C192BF0F2EF00F1D22A /* libGanglionLib.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGanglionLib.dylib; path = Frameworks/libGanglionLib.dylib; sourceTree = "<group>"; };
-		5F772C1A2BF0F2EF00F1D22A /* libneurosdk-shared.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libneurosdk-shared.dylib"; path = "Frameworks/libneurosdk-shared.dylib"; sourceTree = "<group>"; };
-		5F772C1B2BF0F2EF00F1D22A /* libBrainBitLib.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libBrainBitLib.dylib; path = Frameworks/libBrainBitLib.dylib; sourceTree = "<group>"; };
-		5F772C1C2BF0F2F000F1D22A /* libonnxruntime_arm64.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libonnxruntime_arm64.dylib; path = Frameworks/libonnxruntime_arm64.dylib; sourceTree = "<group>"; };
+		5FA77A602BF3CDB1004E09F9 /* libMLModule.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libMLModule.dylib; path = ../BrainFlow/lib/libMLModule.dylib; sourceTree = "<group>"; };
+		5FA77A612BF3CDB1004E09F9 /* libBoardController.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libBoardController.dylib; path = ../BrainFlow/lib/libBoardController.dylib; sourceTree = "<group>"; };
+		5FA77A622BF3CDB1004E09F9 /* libBrainBitLib.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libBrainBitLib.dylib; path = ../BrainFlow/lib/libBrainBitLib.dylib; sourceTree = "<group>"; };
+		5FA77A632BF3CDB1004E09F9 /* libGanglionLib.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGanglionLib.dylib; path = ../BrainFlow/lib/libGanglionLib.dylib; sourceTree = "<group>"; };
+		5FA77A642BF3CDB1004E09F9 /* libneurosdk-shared.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libneurosdk-shared.dylib"; path = "../BrainFlow/lib/libneurosdk-shared.dylib"; sourceTree = "<group>"; };
+		5FA77A652BF3CDB1004E09F9 /* libsimpleble-c.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libsimpleble-c.dylib"; path = "../BrainFlow/lib/libsimpleble-c.dylib"; sourceTree = "<group>"; };
+		5FA77A662BF3CDB1004E09F9 /* libDataHandler.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libDataHandler.dylib; path = ../BrainFlow/lib/libDataHandler.dylib; sourceTree = "<group>"; };
+		5FA77A672BF3CDB1004E09F9 /* libonnxruntime_arm64.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libonnxruntime_arm64.dylib; path = ../BrainFlow/lib/libonnxruntime_arm64.dylib; sourceTree = "<group>"; };
 		5FAE71FF2BD43C7A00E10975 /* band_power.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = band_power.entitlements; sourceTree = SOURCE_ROOT; };
 		5FAE72002BD4413100E10975 /* brainflow_get_data.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = brainflow_get_data.entitlements; sourceTree = SOURCE_ROOT; };
 		5FAE72012BD4413400E10975 /* band_power_all.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = band_power_all.entitlements; sourceTree = SOURCE_ROOT; };
@@ -572,6 +669,13 @@
 		5FFCFB272BF1B5FE003F4DDF /* read_write_file.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = read_write_file.swift; path = ../../examples/tests/read_write_file/read_write_file.swift; sourceTree = "<group>"; };
 		5FFCFB292BF1B672003F4DDF /* signal_filtering.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = signal_filtering.swift; path = ../../examples/tests/signal_filtering/signal_filtering.swift; sourceTree = "<group>"; };
 		5FFCFB2B2BF1B6DD003F4DDF /* transforms.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = transforms.swift; path = ../../examples/tests/transforms/transforms.swift; sourceTree = "<group>"; };
+		5FFCFB2D2BF24EBB003F4DDF /* libBoardController.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libBoardController.dylib; path = ../BrainFlow/lib/libBoardController.dylib; sourceTree = "<group>"; };
+		5FFCFB2F2BF24ED0003F4DDF /* libDataHandler.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libDataHandler.dylib; path = ../BrainFlow/lib/libDataHandler.dylib; sourceTree = "<group>"; };
+		5FFCFB312BF24EDE003F4DDF /* libMLModule.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libMLModule.dylib; path = ../BrainFlow/lib/libMLModule.dylib; sourceTree = "<group>"; };
+		5FFCFB332BF24F7B003F4DDF /* libBoardController.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libBoardController.dylib; path = ../BrainFlow/lib/libBoardController.dylib; sourceTree = "<group>"; };
+		5FFCFB352BF24F8C003F4DDF /* libDataHandler.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libDataHandler.dylib; path = ../BrainFlow/lib/libDataHandler.dylib; sourceTree = "<group>"; };
+		5FFCFB372BF24F98003F4DDF /* libMLModule.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libMLModule.dylib; path = ../BrainFlow/lib/libMLModule.dylib; sourceTree = "<group>"; };
+		5FFCFB3D2BF24FF5003F4DDF /* libMuseLib.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libMuseLib.dylib; path = ../BrainFlow/lib/libMuseLib.dylib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -579,12 +683,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5F52BA442BC4D39600AC74F4 /* libMLModule.dylib in Frameworks */,
-				5F52BA672BC9A3D000AC74F4 /* libsimpleble-c.dylib in Frameworks */,
-				5F52BA412BC4D39600AC74F4 /* libDataHandler.dylib in Frameworks */,
-				5F52BA422BC4D39600AC74F4 /* libBoardController.dylib in Frameworks */,
 				5F466FA22BC465CD00E129A7 /* ArgumentParser in Frameworks */,
+				5FA77A772BF3CDB1004E09F9 /* libBoardController.dylib in Frameworks */,
+				5FA77AB82BF3CDB1004E09F9 /* libDataHandler.dylib in Frameworks */,
 				5F466F962BC4576400E129A7 /* Numerics in Frameworks */,
+				5FA77A6A2BF3CDB1004E09F9 /* libMLModule.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -592,10 +695,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5F52BAAF2BC9E8D800AC74F4 /* libDataHandler.dylib in Frameworks */,
-				5F52BA952BC9A98600AC74F4 /* libMLModule.dylib in Frameworks */,
-				5F52BA982BC9A98600AC74F4 /* libBoardController.dylib in Frameworks */,
 				5F52BA9A2BC9A98600AC74F4 /* Numerics in Frameworks */,
+				5FA77AD72BF3CE30004E09F9 /* libMLModule.dylib in Frameworks */,
+				5FA77AD32BF3CE30004E09F9 /* libBoardController.dylib in Frameworks */,
+				5FA77AD52BF3CE30004E09F9 /* libDataHandler.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -603,10 +706,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5F52BABF2BCA18C300AC74F4 /* libDataHandler.dylib in Frameworks */,
-				5F52BAC02BCA18C300AC74F4 /* libMLModule.dylib in Frameworks */,
-				5F52BAC12BCA18C300AC74F4 /* libBoardController.dylib in Frameworks */,
+				5FA77A792BF3CDB1004E09F9 /* libBoardController.dylib in Frameworks */,
 				5F52BAC22BCA18C300AC74F4 /* Numerics in Frameworks */,
+				5FA77A6C2BF3CDB1004E09F9 /* libMLModule.dylib in Frameworks */,
+				5FA77ABA2BF3CDB1004E09F9 /* libDataHandler.dylib in Frameworks */,
+				5FA77A862BF3CDB1004E09F9 /* libBrainBitLib.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -615,10 +719,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				5F52BAF12BCAA9E700AC74F4 /* ArgumentParser in Frameworks */,
-				5F52BADF2BCAA88000AC74F4 /* libDataHandler.dylib in Frameworks */,
-				5F52BAE02BCAA88000AC74F4 /* libMLModule.dylib in Frameworks */,
-				5F52BAE12BCAA88000AC74F4 /* libBoardController.dylib in Frameworks */,
+				5FA77A7A2BF3CDB1004E09F9 /* libBoardController.dylib in Frameworks */,
+				5FA77ABB2BF3CDB1004E09F9 /* libDataHandler.dylib in Frameworks */,
 				5F52BAE22BCAA88000AC74F4 /* Numerics in Frameworks */,
+				5FA77A6D2BF3CDB1004E09F9 /* libMLModule.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -626,10 +730,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5F52BB012BCAAB3400AC74F4 /* libDataHandler.dylib in Frameworks */,
-				5F52BB022BCAAB3400AC74F4 /* libMLModule.dylib in Frameworks */,
-				5F52BB032BCAAB3400AC74F4 /* libBoardController.dylib in Frameworks */,
+				5FA77A7B2BF3CDB1004E09F9 /* libBoardController.dylib in Frameworks */,
 				5F52BB042BCAAB3400AC74F4 /* Numerics in Frameworks */,
+				5FA77A6E2BF3CDB1004E09F9 /* libMLModule.dylib in Frameworks */,
+				5FA77ABC2BF3CDB1004E09F9 /* libDataHandler.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -637,10 +741,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5F52BB212BCAAC7900AC74F4 /* libDataHandler.dylib in Frameworks */,
-				5F52BB222BCAAC7900AC74F4 /* libMLModule.dylib in Frameworks */,
-				5F52BB232BCAAC7900AC74F4 /* libBoardController.dylib in Frameworks */,
+				5FA77A7C2BF3CDB1004E09F9 /* libBoardController.dylib in Frameworks */,
 				5F52BB242BCAAC7900AC74F4 /* Numerics in Frameworks */,
+				5FA77A6F2BF3CDB1004E09F9 /* libMLModule.dylib in Frameworks */,
+				5FA77ABD2BF3CDB1004E09F9 /* libDataHandler.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -648,10 +752,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5F52BB432BCAADF900AC74F4 /* libDataHandler.dylib in Frameworks */,
-				5F52BB442BCAADF900AC74F4 /* libMLModule.dylib in Frameworks */,
-				5F52BB452BCAADF900AC74F4 /* libBoardController.dylib in Frameworks */,
+				5FA77A7D2BF3CDB1004E09F9 /* libBoardController.dylib in Frameworks */,
 				5F52BB462BCAADF900AC74F4 /* Numerics in Frameworks */,
+				5FA77A702BF3CDB1004E09F9 /* libMLModule.dylib in Frameworks */,
+				5FA77ABE2BF3CDB1004E09F9 /* libDataHandler.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -659,10 +763,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5F52BB632BCAAF1300AC74F4 /* libDataHandler.dylib in Frameworks */,
-				5F52BB642BCAAF1300AC74F4 /* libMLModule.dylib in Frameworks */,
-				5F52BB652BCAAF1300AC74F4 /* libBoardController.dylib in Frameworks */,
+				5FA77A7E2BF3CDB1004E09F9 /* libBoardController.dylib in Frameworks */,
 				5F52BB662BCAAF1300AC74F4 /* Numerics in Frameworks */,
+				5FA77A712BF3CDB1004E09F9 /* libMLModule.dylib in Frameworks */,
+				5FA77ABF2BF3CDB1004E09F9 /* libDataHandler.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -670,10 +774,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5F52BB832BCAAFCE00AC74F4 /* libDataHandler.dylib in Frameworks */,
-				5F52BB842BCAAFCE00AC74F4 /* libMLModule.dylib in Frameworks */,
-				5F52BB852BCAAFCE00AC74F4 /* libBoardController.dylib in Frameworks */,
+				5FA77A7F2BF3CDB1004E09F9 /* libBoardController.dylib in Frameworks */,
 				5F52BB862BCAAFCE00AC74F4 /* Numerics in Frameworks */,
+				5FA77A722BF3CDB1004E09F9 /* libMLModule.dylib in Frameworks */,
+				5FA77AC02BF3CDB1004E09F9 /* libDataHandler.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -682,10 +786,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				5F52BBA52BCAB23700AC74F4 /* ArgumentParser in Frameworks */,
-				5F52BBA62BCAB23700AC74F4 /* libDataHandler.dylib in Frameworks */,
-				5F52BBA72BCAB23700AC74F4 /* libMLModule.dylib in Frameworks */,
-				5F52BBA82BCAB23700AC74F4 /* libBoardController.dylib in Frameworks */,
+				5FA77A802BF3CDB1004E09F9 /* libBoardController.dylib in Frameworks */,
+				5FA77AC12BF3CDB1004E09F9 /* libDataHandler.dylib in Frameworks */,
 				5F52BBA92BCAB23700AC74F4 /* Numerics in Frameworks */,
+				5FA77A732BF3CDB1004E09F9 /* libMLModule.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -693,10 +797,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5F52BBC62BCAB5DC00AC74F4 /* libDataHandler.dylib in Frameworks */,
-				5F52BBC72BCAB5DC00AC74F4 /* libMLModule.dylib in Frameworks */,
-				5F52BBC82BCAB5DC00AC74F4 /* libBoardController.dylib in Frameworks */,
+				5FA77A812BF3CDB1004E09F9 /* libBoardController.dylib in Frameworks */,
 				5F52BBC92BCAB5DC00AC74F4 /* Numerics in Frameworks */,
+				5FA77A742BF3CDB1004E09F9 /* libMLModule.dylib in Frameworks */,
+				5FA77AC22BF3CDB1004E09F9 /* libDataHandler.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -704,10 +808,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5FA77A752BF3CDB1004E09F9 /* libBoardController.dylib in Frameworks */,
+				5FA77AA92BF3CDB1004E09F9 /* libsimpleble-c.dylib in Frameworks */,
 				5FFCFB012BF10757003F4DDF /* Numerics in Frameworks */,
-				5FFCFB062BF10766003F4DDF /* libMLModule.dylib in Frameworks */,
-				5FFCFB022BF10766003F4DDF /* libBoardController.dylib in Frameworks */,
-				5FFCFB042BF10766003F4DDF /* libDataHandler.dylib in Frameworks */,
+				5FA77A682BF3CDB1004E09F9 /* libMLModule.dylib in Frameworks */,
+				5FA77A8F2BF3CDB1004E09F9 /* libGanglionLib.dylib in Frameworks */,
+				5FA77AB62BF3CDB1004E09F9 /* libDataHandler.dylib in Frameworks */,
+				5FA77A9C2BF3CDB1004E09F9 /* libneurosdk-shared.dylib in Frameworks */,
+				5FA77A822BF3CDB1004E09F9 /* libBrainBitLib.dylib in Frameworks */,
+				5FA77AC32BF3CDB1004E09F9 /* libonnxruntime_arm64.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -715,10 +824,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5FA77A762BF3CDB1004E09F9 /* libBoardController.dylib in Frameworks */,
+				5FA77AAA2BF3CDB1004E09F9 /* libsimpleble-c.dylib in Frameworks */,
 				5FFCFAF82BF10723003F4DDF /* Numerics in Frameworks */,
-				5FFCFAFD2BF10739003F4DDF /* libMLModule.dylib in Frameworks */,
-				5FFCFAF92BF10739003F4DDF /* libBoardController.dylib in Frameworks */,
-				5FFCFAFB2BF10739003F4DDF /* libDataHandler.dylib in Frameworks */,
+				5FA77A692BF3CDB1004E09F9 /* libMLModule.dylib in Frameworks */,
+				5FA77A902BF3CDB1004E09F9 /* libGanglionLib.dylib in Frameworks */,
+				5FA77AB72BF3CDB1004E09F9 /* libDataHandler.dylib in Frameworks */,
+				5FA77A9D2BF3CDB1004E09F9 /* libneurosdk-shared.dylib in Frameworks */,
+				5FA77A832BF3CDB1004E09F9 /* libBrainBitLib.dylib in Frameworks */,
+				5FA77AC42BF3CDB1004E09F9 /* libonnxruntime_arm64.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -827,6 +941,12 @@
 		5FDD63EC28560953001AA429 = {
 			isa = PBXGroup;
 			children = (
+				5FFCFB372BF24F98003F4DDF /* libMLModule.dylib */,
+				5FFCFB352BF24F8C003F4DDF /* libDataHandler.dylib */,
+				5FFCFB332BF24F7B003F4DDF /* libBoardController.dylib */,
+				5FFCFB312BF24EDE003F4DDF /* libMLModule.dylib */,
+				5FFCFB2F2BF24ED0003F4DDF /* libDataHandler.dylib */,
+				5FFCFB2D2BF24EBB003F4DDF /* libBoardController.dylib */,
 				5FFCFB0A2BF10A0F003F4DDF /* BoardShimTests.swift */,
 				5FFCFB0B2BF10A0F003F4DDF /* BrainFlowCITests.swift */,
 				5FFCFB092BF10A0F003F4DDF /* DataFilterTests.swift */,
@@ -897,15 +1017,15 @@
 		5FDD640128560B36001AA429 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				5F772C1B2BF0F2EF00F1D22A /* libBrainBitLib.dylib */,
-				5F772C192BF0F2EF00F1D22A /* libGanglionLib.dylib */,
-				5F772C1A2BF0F2EF00F1D22A /* libneurosdk-shared.dylib */,
-				5F772C1C2BF0F2F000F1D22A /* libonnxruntime_arm64.dylib */,
-				5F52BA662BC9A3D000AC74F4 /* libsimpleble-c.dylib */,
-				5F52BA432BC4D39600AC74F4 /* libMLModule.dylib */,
-				5F52BA3D2BC4D32F00AC74F4 /* libBoardController.dylib */,
-				5F52BA3B2BC4D32F00AC74F4 /* libDataHandler.dylib */,
-				5F52BA3C2BC4D32F00AC74F4 /* libMuseLib.dylib */,
+				5FA77A612BF3CDB1004E09F9 /* libBoardController.dylib */,
+				5FA77A622BF3CDB1004E09F9 /* libBrainBitLib.dylib */,
+				5FA77A662BF3CDB1004E09F9 /* libDataHandler.dylib */,
+				5FA77A632BF3CDB1004E09F9 /* libGanglionLib.dylib */,
+				5FA77A602BF3CDB1004E09F9 /* libMLModule.dylib */,
+				5FA77A642BF3CDB1004E09F9 /* libneurosdk-shared.dylib */,
+				5FA77A672BF3CDB1004E09F9 /* libonnxruntime_arm64.dylib */,
+				5FA77A652BF3CDB1004E09F9 /* libsimpleble-c.dylib */,
+				5FFCFB3D2BF24FF5003F4DDF /* libMuseLib.dylib */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -937,6 +1057,7 @@
 				5F466F892BC454A900E129A7 /* Frameworks */,
 				5F466F8A2BC454A900E129A7 /* CopyFiles */,
 				5F466F9D2BC4577A00E129A7 /* Embed Libraries */,
+				5FA77AEB2BF3DEB8004E09F9 /* Embed Libraries */,
 			);
 			buildRules = (
 			);
@@ -957,8 +1078,8 @@
 			buildPhases = (
 				5F52BA8A2BC9A98600AC74F4 /* Sources */,
 				5F52BA942BC9A98600AC74F4 /* Frameworks */,
-				5F52BA9C2BC9A98600AC74F4 /* CopyFiles */,
-				5F52BA9D2BC9A98600AC74F4 /* Embed Libraries */,
+				5FA77A5F2BF3CCC3004E09F9 /* Embed Libraries */,
+				5FA77ADD2BF3D355004E09F9 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -980,6 +1101,7 @@
 				5F52BABE2BCA18C300AC74F4 /* Frameworks */,
 				5F52BAC42BCA18C300AC74F4 /* CopyFiles */,
 				5F52BAC52BCA18C300AC74F4 /* Embed Libraries */,
+				5FA77AE22BF3DE42004E09F9 /* Embed Libraries */,
 			);
 			buildRules = (
 			);
@@ -1001,6 +1123,7 @@
 				5F52BADE2BCAA88000AC74F4 /* Frameworks */,
 				5F52BAE42BCAA88000AC74F4 /* CopyFiles */,
 				5F52BAE52BCAA88000AC74F4 /* Embed Libraries */,
+				5FA77AEF2BF3E170004E09F9 /* Embed Libraries */,
 			);
 			buildRules = (
 			);
@@ -1023,6 +1146,7 @@
 				5F52BB002BCAAB3400AC74F4 /* Frameworks */,
 				5F52BB062BCAAB3400AC74F4 /* CopyFiles */,
 				5F52BB072BCAAB3400AC74F4 /* Embed Libraries */,
+				5FA77AF32BF3E189004E09F9 /* Embed Libraries */,
 			);
 			buildRules = (
 			);
@@ -1044,6 +1168,7 @@
 				5F52BB202BCAAC7900AC74F4 /* Frameworks */,
 				5F52BB262BCAAC7900AC74F4 /* CopyFiles */,
 				5F52BB272BCAAC7900AC74F4 /* Embed Libraries */,
+				5FA77AF72BF3E1C7004E09F9 /* Embed Libraries */,
 			);
 			buildRules = (
 			);
@@ -1065,6 +1190,7 @@
 				5F52BB422BCAADF900AC74F4 /* Frameworks */,
 				5F52BB482BCAADF900AC74F4 /* CopyFiles */,
 				5F52BB492BCAADF900AC74F4 /* Embed Libraries */,
+				5FA77AFB2BF3E1F1004E09F9 /* Embed Libraries */,
 			);
 			buildRules = (
 			);
@@ -1086,6 +1212,7 @@
 				5F52BB622BCAAF1300AC74F4 /* Frameworks */,
 				5F52BB682BCAAF1300AC74F4 /* CopyFiles */,
 				5F52BB692BCAAF1300AC74F4 /* Embed Libraries */,
+				5FA77AFF2BF3E229004E09F9 /* Embed Libraries */,
 			);
 			buildRules = (
 			);
@@ -1107,6 +1234,7 @@
 				5F52BB822BCAAFCE00AC74F4 /* Frameworks */,
 				5F52BB882BCAAFCE00AC74F4 /* CopyFiles */,
 				5F52BB892BCAAFCE00AC74F4 /* Embed Libraries */,
+				5FA77B032BF3E240004E09F9 /* Embed Libraries */,
 			);
 			buildRules = (
 			);
@@ -1128,6 +1256,7 @@
 				5F52BBA42BCAB23700AC74F4 /* Frameworks */,
 				5F52BBAB2BCAB23700AC74F4 /* CopyFiles */,
 				5F52BBAC2BCAB23700AC74F4 /* Embed Libraries */,
+				5FA77B072BF3E258004E09F9 /* Embed Libraries */,
 			);
 			buildRules = (
 			);
@@ -1150,6 +1279,7 @@
 				5F52BBC52BCAB5DC00AC74F4 /* Frameworks */,
 				5F52BBCB2BCAB5DC00AC74F4 /* CopyFiles */,
 				5F52BBCC2BCAB5DC00AC74F4 /* Embed Libraries */,
+				5FA77B0B2BF3E274004E09F9 /* Embed Libraries */,
 			);
 			buildRules = (
 			);
@@ -1501,6 +1631,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
 					"$(PROJECT_DIR)",
+					"${PROJECT_DIR}/../BrainFlow/lib",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
@@ -1528,6 +1659,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
 					"$(PROJECT_DIR)",
+					"${PROJECT_DIR}/../BrainFlow/lib",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
@@ -1555,6 +1687,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
 					"$(PROJECT_DIR)",
+					"${PROJECT_DIR}/../BrainFlow/lib",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
@@ -1584,6 +1717,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
 					"$(PROJECT_DIR)",
+					"${PROJECT_DIR}/../BrainFlow/lib",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
@@ -1610,6 +1744,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
 					"$(PROJECT_DIR)",
+					"${PROJECT_DIR}/../BrainFlow/lib",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
@@ -1636,6 +1771,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
 					"$(PROJECT_DIR)",
+					"${PROJECT_DIR}/../BrainFlow/lib",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
@@ -1661,6 +1797,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
 					"$(PROJECT_DIR)",
+					"${PROJECT_DIR}/../BrainFlow/lib",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
@@ -1687,6 +1824,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
 					"$(PROJECT_DIR)",
+					"${PROJECT_DIR}/../BrainFlow/lib",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
@@ -1712,6 +1850,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
 					"$(PROJECT_DIR)",
+					"${PROJECT_DIR}/../BrainFlow/lib",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
@@ -1738,6 +1877,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
 					"$(PROJECT_DIR)",
+					"${PROJECT_DIR}/../BrainFlow/lib",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
@@ -1763,6 +1903,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
 					"$(PROJECT_DIR)",
+					"${PROJECT_DIR}/../BrainFlow/lib",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
@@ -1789,6 +1930,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
 					"$(PROJECT_DIR)",
+					"${PROJECT_DIR}/../BrainFlow/lib",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
@@ -1814,6 +1956,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
 					"$(PROJECT_DIR)",
+					"${PROJECT_DIR}/../BrainFlow/lib",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
@@ -1840,6 +1983,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
 					"$(PROJECT_DIR)",
+					"${PROJECT_DIR}/../BrainFlow/lib",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
@@ -1865,6 +2009,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
 					"$(PROJECT_DIR)",
+					"${PROJECT_DIR}/../BrainFlow/lib",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
@@ -1891,6 +2036,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
 					"$(PROJECT_DIR)",
+					"${PROJECT_DIR}/../BrainFlow/lib",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
@@ -1916,6 +2062,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
 					"$(PROJECT_DIR)",
+					"${PROJECT_DIR}/../BrainFlow/lib",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
@@ -1942,6 +2089,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
 					"$(PROJECT_DIR)",
+					"${PROJECT_DIR}/../BrainFlow/lib",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
@@ -1967,6 +2115,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
 					"$(PROJECT_DIR)",
+					"${PROJECT_DIR}/../BrainFlow/lib",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
@@ -1993,6 +2142,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
 					"$(PROJECT_DIR)",
+					"${PROJECT_DIR}/../BrainFlow/lib",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
@@ -2018,6 +2168,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
 					"$(PROJECT_DIR)",
+					"${PROJECT_DIR}/../BrainFlow/lib",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
@@ -2044,6 +2195,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
 					"$(PROJECT_DIR)",
+					"${PROJECT_DIR}/../BrainFlow/lib",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.2;
@@ -2186,6 +2338,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
+					"${PROJECT_DIR}/../BrainFlow/lib",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = Scott.Miller.BrainFlowCI;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2207,6 +2360,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
+					"${PROJECT_DIR}/../BrainFlow/lib",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = Scott.Miller.BrainFlowCI;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2228,6 +2382,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
+					"${PROJECT_DIR}/../BrainFlow/lib",
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = Scott.Miller.BrainFlowCITests;
@@ -2253,6 +2408,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
+					"${PROJECT_DIR}/../BrainFlow/lib",
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = Scott.Miller.BrainFlowCITests;

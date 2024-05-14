@@ -64,14 +64,11 @@ struct markers: ParsableCommand {
         try board.stopStream()
         try board.releaseSession()
 
-        if let markerChInt32 = boardDescription.marker_channel {
-            let markerCh = Int(markerChInt32)
-            let uqMarkers = Set(data[markerCh])
-            print("Data:\n\(data)")
-            print("Unique markers: \(uqMarkers)")
-        } else {
-            print("ERROR: nil marker channel")
-        }
+        let markerChInt32 = boardDescription.marker_channel
+        let markerCh = Int(markerChInt32)
+        let uqMarkers = Set(data[markerCh])
+        print("Data:\n\(data)")
+        print("Unique markers: \(uqMarkers)")
     }
 }
 
