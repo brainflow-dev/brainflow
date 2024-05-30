@@ -8,135 +8,146 @@
 
 #ifdef USE_PERIPHERY
 
-PIEEGBoard::PIEEGBoard (int board_id, struct BrainFlowInputParams params) : Board (board_id, params)
+PIEEGBoard::PIEEGBoard(int board_id, struct BrainFlowInputParams params) : Board(board_id, params)
 {
     spi = NULL;
     gpio_in = NULL;
     keep_alive = false;
     initialized = false;
+    server_socket = nullptr;
 }
 
-PIEEGBoard::~PIEEGBoard ()
+PIEEGBoard::~PIEEGBoard()
 {
     skip_logs = true;
-    release_session ();
+    release_session();
 }
 
-int PIEEGBoard::prepare_session ()
+int PIEEGBoard::prepare_session()
 {
     if (initialized)
     {
-        safe_logger (spdlog::level::info, "Session already prepared");
+        safe_logger(spdlog::level::info, "Session already prepared");
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
-    if (params.serial_port.empty ())
+    if (params.serial_port.empty())
     {
         params.serial_port = "/dev/spidev0.0";
-        safe_logger (spdlog::level::info, "Use serial port {}", params.serial_port.c_str ());
+        safe_logger(spdlog::level::info, "Use serial port {}", params.serial_port.c_str());
     }
 
-    gpio_in = gpio_new ();
-    if (gpio_open (gpio_in, "/dev/gpiochip0", 26, GPIO_DIR_IN) < 0)
+    gpio_in = gpio_new();
+    if (gpio_open(gpio_in, "/dev/gpiochip0", 26, GPIO_DIR_IN) < 0)
     {
-        safe_logger (spdlog::level::err, "failed to open gpio");
-        gpio_free (gpio_in);
+        safe_logger(spdlog::level::err, "failed to open gpio");
+        gpio_free(gpio_in);
         gpio_in = NULL;
         return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
     }
-    spi = spi_new ();
-    if (spi_open_advanced (spi, params.serial_port.c_str (), 0b01, 1000000, MSB_FIRST, 8, 1) < 0)
+    spi = spi_new();
+    if (spi_open_advanced(spi, params.serial_port.c_str(), 0b01, 1000000, MSB_FIRST, 8, 1) < 0)
     {
-        safe_logger (spdlog::level::err, "failed to open spi dev");
-        spi_free (spi);
+        safe_logger(spdlog::level::err, "failed to open spi dev");
+        spi_free(spi);
         spi = NULL;
-        gpio_free (gpio_in);
+        gpio_free(gpio_in);
         gpio_in = NULL;
         return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
     }
-    int gpio_res = gpio_set_edge (gpio_in, GPIO_EDGE_FALLING);
+    int gpio_res = gpio_set_edge(gpio_in, GPIO_EDGE_FALLING);
     if (gpio_res != 0)
     {
-        safe_logger (spdlog::level::err, "failed to set gpio edge event handler: {}", gpio_res);
-        spi_free (spi);
+        safe_logger(spdlog::level::err, "failed to set gpio edge event handler: {}", gpio_res);
+        spi_free(spi);
         spi = NULL;
-        gpio_free (gpio_in);
+        gpio_free(gpio_in);
         gpio_in = NULL;
         return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
     }
 
+    server_socket = new SocketServerTCP("0.0.0.0", params.ip_port, true);
+    int res = server_socket->bind();
+    if (res != (int)SocketServerTCPReturnCodes::STATUS_OK)
+    {
+        delete server_socket;
+        server_socket = nullptr;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+
+    server_socket->accept();
     initialized = true;
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int PIEEGBoard::start_stream (int buffer_size, const char *streamer_params)
+int PIEEGBoard::start_stream(int buffer_size, const char *streamer_params)
 {
     if (keep_alive)
     {
-        safe_logger (spdlog::level::err, "Streaming thread already running");
+        safe_logger(spdlog::level::err, "Streaming thread already running");
         return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
-    int res = prepare_for_acquisition (buffer_size, streamer_params);
+    int res = prepare_for_acquisition(buffer_size, streamer_params);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         return res;
     }
 
-    int spi_res = write_reg (0x14, 0x80); // led
+    int spi_res = write_reg(0x14, 0x80); // led
     if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        spi_res = write_reg (0x05, 0x00); // ch1
+        spi_res = write_reg(0x05, 0x00); // ch1
     }
     if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        spi_res = write_reg (0x06, 0x0); // ch2
+        spi_res = write_reg(0x06, 0x0); // ch2
     }
     if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        spi_res = write_reg (0x07, 0x00); // ch3
+        spi_res = write_reg(0x07, 0x00); // ch3
     }
     if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        spi_res = write_reg (0x08, 0x00); // ch4
+        spi_res = write_reg(0x08, 0x00); // ch4
     }
     if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        spi_res = write_reg (0x09, 0x00); // ch5
+        spi_res = write_reg(0x09, 0x00); // ch5
     }
     if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        spi_res = write_reg (0x0A, 0x00); // ch6
+        spi_res = write_reg(0x0A, 0x00); // ch6
     }
     if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        spi_res = write_reg (0x0B, 0x00); // ch7
+        spi_res = write_reg(0x0B, 0x00); // ch7
     }
     if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        spi_res = write_reg (0x0C, 0x00); // ch8
+        spi_res = write_reg(0x0C, 0x00); // ch8
     }
     if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        spi_res = write_reg (0x15, 0x20); // mics
+        spi_res = write_reg(0x15, 0x20); // mics
     }
     if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        spi_res = write_reg (0x01, 0x96); // reg1
+        spi_res = write_reg(0x01, 0x96); // reg1
     }
     if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        spi_res = write_reg (0x02, 0xD4); // reg2
+        spi_res = write_reg(0x02, 0xD4); // reg2
     }
     if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        spi_res = write_reg (0x03, 0xE0); // reg3
+        spi_res = write_reg(0x03, 0xE0); // reg3
     }
     if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        spi_res = send_command (0x10); // sdatc
+        spi_res = send_command(0x10); // sdatac
     }
     if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        spi_res = send_command (0x08); // start
+        spi_res = send_command(0x08); // start
     }
 
     if (spi_res != (int)BrainFlowExitCodes::STATUS_OK)
@@ -145,20 +156,20 @@ int PIEEGBoard::start_stream (int buffer_size, const char *streamer_params)
     }
 
     keep_alive = true;
-    streaming_thread = std::thread ([this] { this->read_thread (); });
+    streaming_thread = std::thread([this] { this->read_thread(); });
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int PIEEGBoard::stop_stream ()
+int PIEEGBoard::stop_stream()
 {
     if (keep_alive)
     {
         keep_alive = false;
-        if (streaming_thread.joinable ())
+        if (streaming_thread.joinable())
         {
-            streaming_thread.join ();
+            streaming_thread.join();
         }
-        return send_command (0x0A); // stop
+        return send_command(0x0A); // stop
     }
     else
     {
@@ -166,34 +177,40 @@ int PIEEGBoard::stop_stream ()
     }
 }
 
-int PIEEGBoard::release_session ()
+int PIEEGBoard::release_session()
 {
     if (initialized)
     {
         if (keep_alive)
         {
-            stop_stream ();
+            stop_stream();
         }
-        free_packages ();
+        free_packages();
         initialized = false;
     }
     if (spi)
     {
-        spi_close (spi);
-        spi_free (spi);
+        spi_close(spi);
+        spi_free(spi);
         spi = NULL;
     }
     if (gpio_in)
     {
-        gpio_close (gpio_in);
-        gpio_free (gpio_in);
+        gpio_close(gpio_in);
+        gpio_free(gpio_in);
         gpio_in = NULL;
+    }
+    if (server_socket)
+    {
+        server_socket->close();
+        delete server_socket;
+        server_socket = nullptr;
     }
 
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int PIEEGBoard::config_board (std::string config, std::string &response)
+int PIEEGBoard::config_board(std::string config, std::string &response)
 {
     if (!initialized)
     {
@@ -202,7 +219,7 @@ int PIEEGBoard::config_board (std::string config, std::string &response)
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
-void PIEEGBoard::read_thread ()
+void PIEEGBoard::read_thread()
 {
     uint8_t buf[27] = {0};
     uint8_t zero27[27] = {0};
@@ -215,7 +232,7 @@ void PIEEGBoard::read_thread ()
 
     std::vector<int> eeg_channels = board_descr["default"]["eeg_channels"];
 
-    double eeg_scale = 4.5 / float ((pow (2, 23) - 1)) / 8 * 1000000.;
+    double eeg_scale = 4.5 / float((pow(2, 23) - 1)) / 8 * 1000000.;
     double timestamp = 0;
     int counter = 0;
     int timeout_ms = 1000;
@@ -224,37 +241,37 @@ void PIEEGBoard::read_thread ()
 
     while (keep_alive)
     {
-        int gpio_res = gpio_poll (gpio_in, timeout_ms);
-        timestamp = get_timestamp ();
+        int gpio_res = gpio_poll(gpio_in, timeout_ms);
+        timestamp = get_timestamp();
         if (gpio_res == 0)
         {
-            safe_logger (spdlog::level::trace, "no gpio event in {} ms", timeout_ms);
+            safe_logger(spdlog::level::trace, "no gpio event in {} ms", timeout_ms);
         }
         else if (gpio_res < 0)
         {
-            safe_logger (spdlog::level::warn, "error in gpio_poll: {}", gpio_res);
+            safe_logger(spdlog::level::warn, "error in gpio_poll: {}", gpio_res);
         }
         else
         {
             gpio_edge_t edge = GPIO_EDGE_NONE;
-            gpio_res = gpio_read_event (gpio_in, &edge, NULL);
+            gpio_res = gpio_read_event(gpio_in, &edge, NULL);
             if (gpio_res != 0)
             {
-                safe_logger (spdlog::level::warn, "failed to get gpio event: {}", gpio_res);
+                safe_logger(spdlog::level::warn, "failed to get gpio event: {}", gpio_res);
                 continue;
             }
             if (edge != GPIO_EDGE_FALLING)
             {
-                safe_logger (spdlog::level::warn, "unexpected gpio event");
+                safe_logger(spdlog::level::warn, "unexpected gpio event");
                 continue;
             }
-            int spi_res = spi_transfer (spi, zero27, buf, 27);
+            int spi_res = spi_transfer(spi, zero27, buf, 27);
             if (spi_res != 0)
             {
-                safe_logger (spdlog::level::warn, "failed to read from spi: {}", spi_res);
+                safe_logger(spdlog::level::warn, "failed to read from spi: {}", spi_res);
                 continue;
             }
-            for (size_t i = 0; i < eeg_channels.size (); i++)
+            for (size_t i = 0; i < eeg_channels.size(); i++)
             {
                 int offset = 3 * i + 3;
                 uint32_t voltage = (buf[offset] << 8) | buf[offset + 1];
@@ -269,34 +286,40 @@ void PIEEGBoard::read_thread ()
             }
             package[board_descr["default"]["timestamp_channel"].get<int>()] = timestamp;
             package[board_descr["default"]["package_num_channel"].get<int>()] = counter++;
-            push_package (package);
+            push_package(package);
+
+            // Send data over TCP
+            if (server_socket && server_socket->client_connected)
+            {
+                server_socket->send(package, num_rows * sizeof(double));
+            }
         }
     }
     delete[] package;
 }
 
-int PIEEGBoard::write_reg (uint8_t reg_address, uint8_t val)
+int PIEEGBoard::write_reg(uint8_t reg_address, uint8_t val)
 {
     uint8_t zero3[3] = {0, 0, 0};
     uint8_t reg_address_shift = 0x40 | reg_address;
     uint8_t write[3] = {reg_address_shift, 0x00, val};
-    int spi_res = spi_transfer (spi, write, zero3, 3);
+    int spi_res = spi_transfer(spi, write, zero3, 3);
     if (spi_res < 0)
     {
-        safe_logger (
+        safe_logger(
             spdlog::level::err, "failed to write reg {}, error: {}", (int)reg_address, spi_res);
         return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
     }
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-int PIEEGBoard::send_command (uint8_t command)
+int PIEEGBoard::send_command(uint8_t command)
 {
     uint8_t zero = 0;
-    int spi_res = spi_transfer (spi, &command, &zero, 1);
+    int spi_res = spi_transfer(spi, &command, &zero, 1);
     if (spi_res < 0)
     {
-        safe_logger (
+        safe_logger(
             spdlog::level::err, "failed to write command {}, error: {}", (int)command, spi_res);
         return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
     }
@@ -305,38 +328,37 @@ int PIEEGBoard::send_command (uint8_t command)
 
 #else
 
-PIEEGBoard::PIEEGBoard (int board_id, struct BrainFlowInputParams params) : Board (board_id, params)
+PIEEGBoard::PIEEGBoard(int board_id, struct BrainFlowInputParams params) : Board(board_id, params)
 {
 }
 
-PIEEGBoard::~PIEEGBoard ()
+PIEEGBoard::~PIEEGBoard()
 {
 }
 
-int PIEEGBoard::prepare_session ()
-{
-    return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
-}
-
-int PIEEGBoard::config_board (std::string config, std::string &response)
+int PIEEGBoard::prepare_session()
 {
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
-int PIEEGBoard::release_session ()
+int PIEEGBoard::config_board(std::string config, std::string &response)
 {
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
-int PIEEGBoard::stop_stream ()
+int PIEEGBoard::release_session()
 {
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
-int PIEEGBoard::start_stream (int buffer_size, const char *streamer_params)
+int PIEEGBoard::stop_stream()
+{
+    return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
+}
+
+int PIEEGBoard::start_stream(int buffer_size, const char *streamer_params)
 {
     return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
 }
 
 #endif
-

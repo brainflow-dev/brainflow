@@ -6,6 +6,7 @@
 #include "board.h"
 #include "board_controller.h"
 #include "math.h"
+#include "socket_server_tcp.h"
 
 #ifdef USE_PERIPHERY
 #include "gpio.h"
@@ -21,7 +22,7 @@ protected:
     std::thread streaming_thread;
     spi_t *spi;
     gpio_t *gpio_in;
-
+    SocketServerTCP *server_socket;
     void read_thread ();
     int write_reg (uint8_t reg_address, uint8_t val);
     int send_command (uint8_t command);
