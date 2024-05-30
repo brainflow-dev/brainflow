@@ -1268,3 +1268,59 @@ Available :ref:`presets-label`:
 - :code:`BrainFlowPresets.DEFAULT_PRESET`, it contains accelerometer, gyroscope and magnetometer data
 - :code:`BrainFlowPresets.AUXILIARY_PRESET`, it contains PPG data
 - :code:`BrainFlowPresets.ANCILLARY_PRESET`, it contains EDA and temperature data
+
+PiEEG
+------
+
+PiEEG Board
+~~~~~~~~~~~
+
+PiEEG (Measure EEG with RaspberryPi) – Brain-computer interface (EEG, EMG, and ECG bio-signals) is an open-source Raspberry Pi shield that measures biosignals such as those used in electroencephalography (EEG), electromyography (EMG), and electrocardiography (ECG). It integrates seamlessly with BrainFlow's API, allowing for easy data streaming, processing, and analysis.
+
+.. image:: https://github.com/Pi-EEG/EEGwithRaspberryPI/blob/master/Supplementary%20files/Fig.3.jpg
+    :width: 500px
+    :height: 299px
+
+`PiEEG Website <https://pieeg.com/>`_
+
+To create such a board, you need to specify the following board ID and fields of the BrainFlowInputParams object:
+
+- :code:`BoardIds.PIEEG_BOARD`
+- :code:`serial_port`, e.g., COM3, /dev/spidev0.0, etc.
+
+Initialization Example:
+
+.. code-block:: python
+
+    from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
+
+    params = BrainFlowInputParams()
+    params.serial_port = "/dev/spidev0.0"
+    board = BoardShim(BoardIds.PIEEG_BOARD, params)
+    board.prepare_session()
+    board.start_stream()
+
+Supported platforms:
+
+- Linux
+- MacOS
+- Devices like Raspberry Pi
+
+**Note**: Currently relies on c-periphery https://github.com/vsergeev/c-periphery/>.
+
+**Note**: Ensure that you have the necessary permissions to access the serial port on your operating system. For Unix-like systems, you may need to configure permissions for the serial port or run with sudo.
+
+Available commands for :code:`config_board`:
+
+- :code:`"set_sampling_rate:<rate>"` - Set the sampling rate for the EEG data acquisition.
+- :code:`"enable_channels:<channels>"` - Enable specific EEG channels.
+- :code:`"disable_channels:<channels>"` - Disable specific EEG channels.
+- :code:`"set_gain:<gain>"` - Set the gain for the EEG channels.
+
+Example usage for setting configurations:
+
+.. code-block:: python
+
+    board.config_board("set_sampling_rate:250")
+    board.config_board("enable_channels:1,2,3,4")
+    board.config_board("set_gain:24")
