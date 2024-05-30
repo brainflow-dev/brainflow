@@ -1,3 +1,20 @@
+# Android Use Examples:
+# Compile for armeabi-v7a Android
+# python build.py --clear-build-dir --ndk-path C:/Users/nickgamb/AppData/Local/Android/Sdk/ndk --abi armeabi-v7a --android-platform android-21 --generator Ninja
+
+# Compile for arm64-v8a Android
+# python build.py --clear-build-dir --ndk-path C:/Users/nickgamb/AppData/Local/Android/Sdk/ndk --abi arm64-v8a --android-platform android-21 --generator Ninja
+
+# Compile for x86 Android
+# python build.py --clear-build-dir --ndk-path C:/Users/nickgamb/AppData/Local/Android/Sdk/ndk --abi x86 --android-platform android-21 --generator Ninja
+
+# Compile for x86_64 Android
+# python build.py --clear-build-dir --ndk-path C:/Users/nickgamb/AppData/Local/Android/Sdk/ndk --abi x86_64 --android-platform android-21 --generator Ninja
+
+# Compile for x86_64 Android
+# python build.py --clear-build-dir --ndk-path C:/Users/nickgamb/AppData/Local/Android/Sdk/ndk --abi x86_64 --android-platform android-21 --generator Ninja
+
+
 import argparse
 import platform
 import subprocess
@@ -5,11 +22,9 @@ import multiprocessing
 import os
 from shutil import rmtree
 
-
 def run_command(cmd, cwd=None):
     print('Running command: %s' % (' '.join(cmd)))
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                         stderr=subprocess.STDOUT, cwd=cwd)
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd)
     while True:
         p.stdout.flush()
         line = p.stdout.read(1)
@@ -21,9 +36,7 @@ def run_command(cmd, cwd=None):
     if p.returncode != 0:
         raise ValueError('Process finished with error code %d' % p.returncode)
 
-
 class Generator:
-
     def __init__(self, priority):
         self.priority = priority
 
@@ -48,9 +61,7 @@ class Generator:
     def __ge__(self, other):
         return self.priority >= other.priority
 
-
 class VS2022(Generator):
-
     def __init__(self):
         super(VS2022, self).__init__(20)
 
@@ -63,9 +74,7 @@ class VS2022(Generator):
     def get_sdk_version(self):
         return '8.1'
 
-
 class VS2019(Generator):
-
     def __init__(self):
         super(VS2019, self).__init__(15)
 
@@ -78,9 +87,7 @@ class VS2019(Generator):
     def get_sdk_version(self):
         return '8.1'
 
-
 class VS2017(Generator):
-
     def __init__(self):
         super(VS2017, self).__init__(5)
 
@@ -92,7 +99,6 @@ class VS2017(Generator):
 
     def get_sdk_version(self):
         return '8.1'
-
 
 def get_win_generators():
     result = list()
@@ -113,14 +119,12 @@ def get_win_generators():
         print('No Visual Studio Installations Found')
     return sorted(result, reverse=True)
 
-
 def check_deps():
     try:
         subprocess.check_output(['cmake', '--version'])
     except BaseException as e:
         print('You need to install CMake first. Run: python -m pip install cmake')
         raise e
-
 
 def prepare_args():
     parser = argparse.ArgumentParser()
@@ -214,14 +218,22 @@ def prepare_args():
     parser.add_argument('--ble', dest='ble', action='store_true')
     parser.add_argument('--no-ble', dest='ble', action='store_false')
     parser.set_defaults(ble=ble_default)
-    parser.add_argument('--tests', dest='tests', action='store_true')
-    parser.add_argument('--no-tests', dest='tests', action='store_false')
-    parser.set_defaults(tests=tests_default)
+    
+    # Android-specific arguments
+    parser.add_argument('--ndk-path', type=str, help='path to Android NDK', required=False)
+    parser.add_argument('--abis', type=str, help='target ABIs for Android, comma-separated', required=False)
+    parser.add_argument('--android-platform', type=str, help='Android platform', required=False, default='android-21')
+    
     args = parser.parse_args()
+    
+    # Set Bluetooth to OFF if building for Android
+    if 'ANDROID' in os.environ:
+        args.bluetooth = False
+        args.ble = False
+        
     return args
 
-
-def config(args):
+def config(args, abi):
     if args.clear_build_dir:
         if os.path.exists(args.build_dir):
             rmtree(args.build_dir)
@@ -236,8 +248,7 @@ def config(args):
     cmd_config.append('cmake')
     cmd_config.append('-DCMAKE_INSTALL_PREFIX=%s' % args.cmake_install_prefix)
     if hasattr(args, 'cmake_system_version') and args.cmake_system_version:
-        cmd_config.append('-DCMAKE_SYSTEM_VERSION=%s' %
-                          args.cmake_system_version)
+        cmd_config.append('-DCMAKE_SYSTEM_VERSION=%s' % args.cmake_system_version)
     if hasattr(args, 'brainflow_version') and args.brainflow_version:
         cmd_config.append('-DBRAINFLOW_VERSION=%s' % args.brainflow_version)
     if hasattr(args, 'use_libftdi') and args.use_libftdi:
@@ -249,11 +260,9 @@ def config(args):
     if hasattr(args, 'oymotion') and args.oymotion:
         cmd_config.append('-DBUILD_OYMOTION_SDK=ON')
     if hasattr(args, 'cmake_osx_architectures') and args.cmake_osx_architectures:
-        cmd_config.append('-DCMAKE_OSX_ARCHITECTURES=%s' %
-                          args.cmake_osx_architectures)
+        cmd_config.append('-DCMAKE_OSX_ARCHITECTURES=%s' % args.cmake_osx_architectures)
     if hasattr(args, 'cmake_osx_deployment_target') and args.cmake_osx_deployment_target:
-        cmd_config.append('-DCMAKE_OSX_DEPLOYMENT_TARGET=%s' %
-                          args.cmake_osx_deployment_target)
+        cmd_config.append('-DCMAKE_OSX_DEPLOYMENT_TARGET=%s' % args.cmake_osx_deployment_target)
     if hasattr(args, 'generator') and args.generator:
         cmd_config.extend(['-G', args.generator])
     if hasattr(args, 'arch') and args.arch:
@@ -273,9 +282,16 @@ def config(args):
         cmd_config.append('-DBUILD_ONNX=ON')
     if hasattr(args, 'tests') and args.tests:
         cmd_config.append('-DBUILD_TESTS=ON')
+    
+    # Android-specific configuration
+    if hasattr(args, 'ndk_path') and args.ndk_path:
+        cmd_config.append('-DCMAKE_TOOLCHAIN_FILE=%s/build/cmake/android.toolchain.cmake' % args.ndk_path)
+        cmd_config.append('-DANDROID_ABI=%s' % abi)
+        if hasattr(args, 'android_platform') and args.android_platform:
+            cmd_config.append('-DANDROID_PLATFORM=%s' % args.android_platform)
+    
     cmd_config.append(brainflow_root_folder)
     run_command(cmd_config, args.build_dir)
-
 
 def build(args):
     if platform.system() == 'Windows':
@@ -294,13 +310,21 @@ def build(args):
             run_command(['make', '-j', str(args.num_jobs)], cwd=args.build_dir)
             run_command(['make', 'install'], cwd=args.build_dir)
 
-
 def main():
     check_deps()
     args = prepare_args()
-    config(args)
-    build(args)
-
+    if args.abis:
+        for abi in args.abis.split(','):
+            # Clean build directory before each ABI build
+            if os.path.exists(args.build_dir):
+                rmtree(args.build_dir)
+            if os.path.exists(args.cmake_install_prefix):
+                rmtree(args.cmake_install_prefix)
+            config(args, abi)
+            build(args)
+    else:
+        config(args, None)
+        build(args)
 
 if __name__ == '__main__':
     main()

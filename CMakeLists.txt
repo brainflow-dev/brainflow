@@ -1,70 +1,96 @@
-cmake_minimum_required (VERSION 3.13)
-project (brainflow)
+cmake_minimum_required(VERSION 3.13)
+project(brainflow)
 
-SET (CMAKE_CXX_STANDARD 11)
-SET (CMAKE_VERBOSE_MAKEFILE ON)
-SET (BRAINFLOW_VERSION "0.0.1" CACHE STRING "BrainFlow Version")
-SET (VERSION ${BRAINFLOW_VERSION})
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_VERBOSE_MAKEFILE ON)
+set(BRAINFLOW_VERSION "0.0.1" CACHE STRING "BrainFlow Version")
+set(VERSION ${BRAINFLOW_VERSION})
 
-SET (CMAKE_CXX_VISIBILITY_PRESET hidden)
-SET (CMAKE_C_VISIBILITY_PRESET hidden)
-SET (CMAKE_POSITION_INDEPENDENT_CODE ON)
-SET (VERSION_CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/compiled/brainflowConfigVersion.cmake)
-SET (CONFIG_INSTALL_DIR lib/cmake/brainflow)
-SET (PROJECT_CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/compiled/brainflowConfig.cmake)
-SET (TARGETS_EXPORT_NAME brainflowTargets)
-SET (PACKAGE_LIB_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/lib)
-SET (PACKAGE_INC_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/inc)
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_C_VISIBILITY_PRESET hidden)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(VERSION_CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/compiled/brainflowConfigVersion.cmake)
+set(CONFIG_INSTALL_DIR lib/cmake/brainflow)
+set(PROJECT_CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/compiled/brainflowConfig.cmake)
+set(TARGETS_EXPORT_NAME brainflowTargets)
+set(PACKAGE_LIB_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/lib)
+set(PACKAGE_INC_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/inc)
 
-option (USE_LIBFTDI "USE_LIBFTDI" OFF)
-option (USE_OPENMP "USE_OPENMP" OFF)
-option (WARNINGS_AS_ERRORS "WARNINGS_AS_ERRORS" OFF)
-option (BUILD_OYMOTION_SDK "BUILD_OYMOTION_SDK" OFF)
-option (BUILD_BLUETOOTH "BUILD_BLUETOOTH" OFF)
-option (BUILD_BLE "BUILD_BLE" OFF)
-option (BUILD_ONNX "BUILD_ONNX" OFF)
-option (BUILD_TESTS "BUILD_TESTS" OFF)
+# Set the Android NDK path
+if(DEFINED ENV{ANDROID_NDK_HOME})
+    set(ANDROID_NDK_HOME $ENV{ANDROID_NDK_HOME})
+endif()
 
-include (${CMAKE_CURRENT_SOURCE_DIR}/cmake/macros.cmake)
-configure_msvc_runtime ()
+if(ANDROID)
+    if(NOT DEFINED ANDROID_ABI)
+        message(FATAL_ERROR "ANDROID_ABI is not set")
+    endif()
+    set(CMAKE_ANDROID_ARCH_ABI ${ANDROID_ABI})
+    message(STATUS "Building for Android ABI: ${ANDROID_ABI}")
+endif()
 
-if (WARNINGS_AS_ERRORS)
-    if (MSVC)
-        add_compile_options (/WX)
-        if (CMAKE_BUILD_TYPE EQUAL "DEBUG")
-            add_compile_options (/bigobj)
-        endif (CMAKE_BUILD_TYPE EQUAL "DEBUG")
-    else ()
-        add_compile_options (-Werror -Wno-varargs)
-    endif ()
-endif (WARNINGS_AS_ERRORS)
+list(LENGTH ANDROID_ABI ABI_COUNT)
+if(ABI_COUNT GREATER 1)
+    message(FATAL_ERROR "ANDROID_ABI should only contain one architecture at a time: ${ANDROID_ABI}")
+endif()
 
-include (${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/build.cmake)
-include (${CMAKE_CURRENT_SOURCE_DIR}/src/data_handler/build.cmake)
-include (${CMAKE_CURRENT_SOURCE_DIR}/src/ml/build.cmake)
-include (${CMAKE_CURRENT_SOURCE_DIR}/cpp_package/build.cmake)
-if (BUILD_TESTS) 
-    include (${CMAKE_CURRENT_SOURCE_DIR}/src/tests/build.cmake)
-endif (BUILD_TESTS)
+if(ANDROID)
+    set(CMAKE_TOOLCHAIN_FILE ${ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake)
+endif()
 
-include (CMakePackageConfigHelpers)
+option(USE_LIBFTDI "USE_LIBFTDI" OFF)
+option(USE_OPENMP "USE_OPENMP" OFF)
+option(WARNINGS_AS_ERRORS "WARNINGS_AS_ERRORS" OFF)
+option(BUILD_OYMOTION_SDK "BUILD_OYMOTION_SDK" OFF)
+option(BUILD_BLUETOOTH "BUILD_BLUETOOTH" OFF)
+option(BUILD_BLE "BUILD_BLE" OFF)
+option(BUILD_ONNX "BUILD_ONNX" OFF)
+option(BUILD_TESTS "BUILD_TESTS" OFF)
 
-write_basic_package_version_file (
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/macros.cmake)
+configure_msvc_runtime()
+
+if(WARNINGS_AS_ERRORS)
+    if(MSVC)
+        add_compile_options(/WX)
+        if(CMAKE_BUILD_TYPE EQUAL "DEBUG")
+            add_compile_options(/bigobj)
+        endif()
+    else()
+        add_compile_options(-Werror -Wno-varargs)
+    endif()
+endif()
+
+add_subdirectory(src/board_controller/pieeg/inc/periphery)
+
+
+# Include other components
+include(${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/build.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/src/data_handler/build.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/src/ml/build.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cpp_package/build.cmake)
+if(BUILD_TESTS)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/src/tests/build.cmake)
+endif()
+
+include(CMakePackageConfigHelpers)
+
+write_basic_package_version_file(
     ${VERSION_CONFIG}
     VERSION ${BRAINFLOW_VERSION}
     COMPATIBILITY AnyNewerVersion
 )
-configure_package_config_file (
+configure_package_config_file(
     cmake/Config.cmake.in
     ${PROJECT_CONFIG}
     INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}
 )
 
-install (
+install(
     FILES ${PROJECT_CONFIG} ${VERSION_CONFIG}
     DESTINATION ${CONFIG_INSTALL_DIR}
 )
-install (
+install(
     EXPORT ${TARGETS_EXPORT_NAME}
     NAMESPACE brainflow::
     DESTINATION ${CONFIG_INSTALL_DIR}

@@ -84,6 +84,7 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/emotibit/emotibit.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ntl/ntl_wifi.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/aavaa/aavaa_v3.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/pieeg/pieeg_board.cpp
 )
 
 include (${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ant_neuro/build.cmake)
@@ -96,8 +97,11 @@ if (BUILD_OYMOTION_SDK)
     include (${CMAKE_CURRENT_SOURCE_DIR}/third_party/gForceSDKCXX/build.cmake)
 endif (BUILD_OYMOTION_SDK)
 
+# Link standard libraries conditionally
 if (BUILD_BLUETOOTH)
-    include (${CMAKE_CURRENT_SOURCE_DIR}/src/utils/bluetooth/build.cmake)
+    if (!ANDROID)
+        include (${CMAKE_CURRENT_SOURCE_DIR}/src/utils/bluetooth/build.cmake)
+    endif (!ANDROID)
 endif (BUILD_BLUETOOTH)
 
 if (BUILD_BLE)
@@ -140,16 +144,33 @@ target_include_directories (
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/emotibit/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ntl/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/aavaa/inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/pieeg/inc
 )
 
 target_compile_definitions(${BOARD_CONTROLLER_NAME} PRIVATE NOMINMAX BRAINFLOW_VERSION=${BRAINFLOW_VERSION})
 
 set_target_properties (${BOARD_CONTROLLER_NAME}
-    PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/compiled
-    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/compiled
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/compiled
+PROPERTIES
+ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/compiled
+LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/compiled
+RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/compiled
 )
+
+find_package(Threads REQUIRED)
+
+if (ANDROID)
+    target_link_libraries(${BOARD_CONTROLLER_NAME} PRIVATE log android c m dl)
+else()
+    target_link_libraries(${BOARD_CONTROLLER_NAME} PRIVATE pthread dl)
+endif(ANDROID)
+
+target_compile_definitions(BoardController PRIVATE USE_PERIPHERY)
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/pieeg/inc/periphery)
+
+set_target_properties(periphery PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/pieeg/inc/periphery/libperiphery.a)
+
+target_link_libraries(${BOARD_CONTROLLER_NAME} PRIVATE periphery c m ${CMAKE_THREAD_LIBS_INIT} dl)
 
 if (USE_LIBFTDI)
     find_package (LibFTDI1 NO_MODULE)
@@ -186,6 +207,7 @@ if (MSVC)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/src/utils/inc/brainflow_constants.h" "${CMAKE_CURRENT_SOURCE_DIR}/rust_package/brainflow/inc/brainflow_constants.h"
     )
 endif (MSVC)
+
 if (UNIX AND NOT ANDROID)
     add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${BOARD_CONTROLLER_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/nodejs_package/brainflow/lib/${BOARD_CONTROLLER_COMPILED_NAME}"
@@ -229,12 +251,8 @@ if (ANDROID)
 endif (ANDROID)
 
 if (UNIX AND NOT ANDROID)
-    target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE pthread dl)
+    target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE pthread dl m c)
 endif (UNIX AND NOT ANDROID)
-if (ANDROID)
-    find_library (log-lib log)
-    target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE log)
-endif (ANDROID)
 
 install (
     FILES

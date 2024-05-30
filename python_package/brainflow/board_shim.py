@@ -74,6 +74,7 @@ class BoardIds(enum.IntEnum):
     AAVAA_V3_BOARD = 53 #:
     EXPLORE_PLUS_8_CHAN_BOARD = 54 #:
     EXPLORE_PLUS_32_CHAN_BOARD = 55 #:
+    PIEEG_BOARD = 60 #:
 
 
 class IpProtocolTypes(enum.IntEnum):

@@ -3,3 +3,5 @@ from brainflow.exit_codes import *
 from brainflow.data_filter import *
 from brainflow.ml_model import *
 from brainflow.utils import *
+
+__version__ = "0.0.1"

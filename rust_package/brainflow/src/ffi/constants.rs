@@ -94,6 +94,7 @@ pub enum BoardIds {
     AavaaV3Board = 53,
     ExplorePlus8ChanBoard = 54,
     ExplorePlus32ChanBoard = 55,
+    PieegBoard = 60,
 }
 #[repr(i32)]
 #[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]
