@@ -7,134 +7,13 @@
 
 #include "custom_cast.h"
 #include "json.hpp"
-#include "timestamp.h"
-
-#ifdef __ANDROID__
-#include <sys/socket.h>
-#include <net/if.h>
-#include <ifaddrs.h>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-
-void freeifaddrs(struct ifaddrs *ifa)
-{
-    struct ifaddrs *next;
-    while (ifa)
-    {
-        next = ifa->ifa_next;
-        free(ifa->ifa_name);
-        free(ifa->ifa_addr);
-        free(ifa->ifa_ifu.ifu_broadaddr);
-        free(ifa);
-        ifa = next;
-    }
-}
-
-int getifaddrs(struct ifaddrs **ifap)
-{
-    struct ifaddrs *ifa, *ifa_head;
-    ifa_head = nullptr;
-
-    FILE *f = fopen("/proc/net/route", "r");
-    if (!f)
-    {
-        return -1;
-    }
-
-    char line[256];
-    while (fgets(line, sizeof(line), f))
-    {
-        char iface[16];
-        unsigned long dest_addr, gateway_addr, flags, ref_cnt, use, metric, mask;
-        if (sscanf(line, "%15s %lx %lx %lx %lu %lu %lu %lx",
-                   iface, &dest_addr, &gateway_addr, &flags, &ref_cnt, &use, &metric, &mask) == 8)
-        {
-            if (dest_addr == 0)
-            {
-                ifa = (struct ifaddrs *)malloc(sizeof(struct ifaddrs));
-                if (!ifa)
-                {
-                    fclose(f);
-                    freeifaddrs(ifa_head);
-                    return -1;
-                }
-                memset(ifa, 0, sizeof(struct ifaddrs));
-                ifa->ifa_next = ifa_head;
-                ifa_head = ifa;
-                ifa->ifa_name = strdup(iface);
-
-                ifa->ifa_flags = IFF_UP | IFF_RUNNING | IFF_BROADCAST;
-                struct sockaddr_in *sa = (struct sockaddr_in *)malloc(sizeof(struct sockaddr_in));
-                ifa->ifa_addr = (struct sockaddr *)sa;
-                sa->sin_family = AF_INET;
-                sa->sin_addr.s_addr = gateway_addr;
-
-                sa = (struct sockaddr_in *)malloc(sizeof(struct sockaddr_in));
-                ifa->ifa_ifu.ifu_broadaddr = (struct sockaddr *)sa;
-                sa->sin_family = AF_INET;
-                sa->sin_addr.s_addr = gateway_addr | (~mask);
-            }
-        }
-    }
-
-    fclose(f);
-    *ifap = ifa_head;
-    return 0;
-}
-
-int getnameinfo(const struct sockaddr *sa, socklen_t salen, char *host, size_t hostlen,
-                char *serv, size_t servlen, int flags)
-{
-    if (sa->sa_family != AF_INET)
-    {
-        return -1;
-    }
-
-    struct sockaddr_in *sin = (struct sockaddr_in *)sa;
-    if (!inet_ntop(AF_INET, &sin->sin_addr, host, hostlen))
-    {
-        return -1;
-    }
-
-    if (serv)
-    {
-        snprintf(serv, servlen, "%d", ntohs(sin->sin_port));
-    }
-
-    return 0;
-}
-
-std::vector<std::string> get_broadcast_addresses()
-{
-    std::vector<std::string> addresses;
-    struct ifaddrs *ifap, *ifa;
-    if (getifaddrs(&ifap) == 0)
-    {
-        for (ifa = ifap; ifa; ifa = ifa->ifa_next)
-        {
-            if (ifa->ifa_addr && ifa->ifa_addr->sa_family == AF_INET)
-            {
-                char host[NI_MAXHOST];
-                if (getnameinfo(ifa->ifa_ifu.ifu_broadaddr, sizeof(struct sockaddr_in),
-                                host, NI_MAXHOST, NULL, 0, NI_NUMERICHOST) == 0)
-                {
-                    addresses.push_back(std::string(host));
-                }
-            }
-        }
-        freeifaddrs(ifap);
-    }
-    return addresses;
-}
-
-#else
 #include "network_interfaces.h"
-#endif // __ANDROID__
+#include "timestamp.h"
 
 #include "emotibit_defines.h"
 
 using json = nlohmann::json;
+
 
 Emotibit::Emotibit (struct BrainFlowInputParams params)
     : Board ((int)BoardIds::EMOTIBIT_BOARD, params)
