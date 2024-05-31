@@ -14,7 +14,6 @@ PIEEGBoard::PIEEGBoard(int board_id, struct BrainFlowInputParams params) : Board
     gpio_in = NULL;
     keep_alive = false;
     initialized = false;
-    server_socket = nullptr;
 }
 
 PIEEGBoard::~PIEEGBoard()
@@ -65,16 +64,6 @@ int PIEEGBoard::prepare_session()
         return (int)BrainFlowExitCodes::UNABLE_TO_OPEN_PORT_ERROR;
     }
 
-    server_socket = new SocketServerTCP("0.0.0.0", params.ip_port, true);
-    int res = server_socket->bind();
-    if (res != (int)SocketServerTCPReturnCodes::STATUS_OK)
-    {
-        delete server_socket;
-        server_socket = nullptr;
-        return (int)BrainFlowExitCodes::GENERAL_ERROR;
-    }
-
-    server_socket->accept();
     initialized = true;
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
@@ -200,12 +189,6 @@ int PIEEGBoard::release_session()
         gpio_free(gpio_in);
         gpio_in = NULL;
     }
-    if (server_socket)
-    {
-        server_socket->close();
-        delete server_socket;
-        server_socket = nullptr;
-    }
 
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
@@ -287,12 +270,6 @@ void PIEEGBoard::read_thread()
             package[board_descr["default"]["timestamp_channel"].get<int>()] = timestamp;
             package[board_descr["default"]["package_num_channel"].get<int>()] = counter++;
             push_package(package);
-
-            // Send data over TCP
-            if (server_socket && server_socket->client_connected)
-            {
-                server_socket->send(package, num_rows * sizeof(double));
-            }
         }
     }
     delete[] package;

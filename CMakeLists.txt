@@ -16,28 +16,6 @@ set(TARGETS_EXPORT_NAME brainflowTargets)
 set(PACKAGE_LIB_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/lib)
 set(PACKAGE_INC_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/inc)
 
-# Set the Android NDK path
-if(DEFINED ENV{ANDROID_NDK_HOME})
-    set(ANDROID_NDK_HOME $ENV{ANDROID_NDK_HOME})
-endif()
-
-if(ANDROID)
-    if(NOT DEFINED ANDROID_ABI)
-        message(FATAL_ERROR "ANDROID_ABI is not set")
-    endif()
-    set(CMAKE_ANDROID_ARCH_ABI ${ANDROID_ABI})
-    message(STATUS "Building for Android ABI: ${ANDROID_ABI}")
-endif()
-
-list(LENGTH ANDROID_ABI ABI_COUNT)
-if(ABI_COUNT GREATER 1)
-    message(FATAL_ERROR "ANDROID_ABI should only contain one architecture at a time: ${ANDROID_ABI}")
-endif()
-
-if(ANDROID)
-    set(CMAKE_TOOLCHAIN_FILE ${ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake)
-endif()
-
 option(USE_LIBFTDI "USE_LIBFTDI" OFF)
 option(USE_OPENMP "USE_OPENMP" OFF)
 option(WARNINGS_AS_ERRORS "WARNINGS_AS_ERRORS" OFF)
@@ -61,10 +39,6 @@ if(WARNINGS_AS_ERRORS)
     endif()
 endif()
 
-add_subdirectory(src/board_controller/pieeg/inc/periphery)
-
-
-# Include other components
 include(${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/build.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/src/data_handler/build.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/src/ml/build.cmake)

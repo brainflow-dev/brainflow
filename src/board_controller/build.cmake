@@ -97,11 +97,10 @@ if (BUILD_OYMOTION_SDK)
     include (${CMAKE_CURRENT_SOURCE_DIR}/third_party/gForceSDKCXX/build.cmake)
 endif (BUILD_OYMOTION_SDK)
 
-# Link standard libraries conditionally
 if (BUILD_BLUETOOTH)
-    if (!ANDROID)
+    if (NOT ANDROID)
         include (${CMAKE_CURRENT_SOURCE_DIR}/src/utils/bluetooth/build.cmake)
-    endif (!ANDROID)
+    endif (NOT ANDROID)
 endif (BUILD_BLUETOOTH)
 
 if (BUILD_BLE)
@@ -150,27 +149,27 @@ target_include_directories (
 target_compile_definitions(${BOARD_CONTROLLER_NAME} PRIVATE NOMINMAX BRAINFLOW_VERSION=${BRAINFLOW_VERSION})
 
 set_target_properties (${BOARD_CONTROLLER_NAME}
-PROPERTIES
-ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/compiled
-LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/compiled
-RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/compiled
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/compiled
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/compiled
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/compiled
 )
 
 find_package(Threads REQUIRED)
 
 if (ANDROID)
-    target_link_libraries(${BOARD_CONTROLLER_NAME} PRIVATE log android c m dl)
+    find_library(log-lib log)
+    target_link_libraries(${BOARD_CONTROLLER_NAME} PRIVATE ${log-lib})
 else()
     target_link_libraries(${BOARD_CONTROLLER_NAME} PRIVATE pthread dl)
-endif(ANDROID)
+endif (ANDROID)
 
-target_compile_definitions(BoardController PRIVATE USE_PERIPHERY)
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/pieeg/inc/periphery)
-
-set_target_properties(periphery PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/pieeg/inc/periphery/libperiphery.a)
-
-target_link_libraries(${BOARD_CONTROLLER_NAME} PRIVATE periphery c m ${CMAKE_THREAD_LIBS_INIT} dl)
+if (BUILD_PERIPHERY)
+    target_compile_definitions(BoardController PRIVATE USE_PERIPHERY)
+    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/third_party/periphery)
+    set_target_properties(periphery PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/third_party/periphery/libperiphery.a)
+    target_link_libraries(${BOARD_CONTROLLER_NAME} PRIVATE periphery ${CMAKE_THREAD_LIBS_INIT} dl)
+endif (BUILD_PERIPHERY)
 
 if (USE_LIBFTDI)
     find_package (LibFTDI1 NO_MODULE)
@@ -207,7 +206,6 @@ if (MSVC)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/src/utils/inc/brainflow_constants.h" "${CMAKE_CURRENT_SOURCE_DIR}/rust_package/brainflow/inc/brainflow_constants.h"
     )
 endif (MSVC)
-
 if (UNIX AND NOT ANDROID)
     add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${BOARD_CONTROLLER_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/nodejs_package/brainflow/lib/${BOARD_CONTROLLER_COMPILED_NAME}"
@@ -251,7 +249,7 @@ if (ANDROID)
 endif (ANDROID)
 
 if (UNIX AND NOT ANDROID)
-    target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE pthread dl m c)
+    target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE pthread dl)
 endif (UNIX AND NOT ANDROID)
 
 install (
