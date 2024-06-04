@@ -128,7 +128,7 @@ int PIEEGBoard::start_stream(int buffer_size, const char *streamer_params)
     }
     if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        spi_res = write_reg(0x03, 0xE0); // reg3
+        spi_res = write_reg(0x03, 0xFF); // reg3
     }
     if (spi_res == (int)BrainFlowExitCodes::STATUS_OK)
     {
