@@ -165,9 +165,9 @@ else()
 endif (ANDROID)
 
 if (BUILD_PERIPHERY)
-    target_compile_definitions(BoardController PRIVATE USE_PERIPHERY)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/third_party/periphery)
+    target_compile_definitions(${BOARD_CONTROLLER_NAME} PRIVATE USE_PERIPHERY)
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/third_party/periphery)
-    set_target_properties(periphery PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/third_party/periphery/libperiphery.a)
     target_link_libraries(${BOARD_CONTROLLER_NAME} PRIVATE periphery ${CMAKE_THREAD_LIBS_INIT} dl)
 endif (BUILD_PERIPHERY)
 

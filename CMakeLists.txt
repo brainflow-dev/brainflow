@@ -24,6 +24,7 @@ option(BUILD_BLUETOOTH "BUILD_BLUETOOTH" OFF)
 option(BUILD_BLE "BUILD_BLE" OFF)
 option(BUILD_ONNX "BUILD_ONNX" OFF)
 option(BUILD_TESTS "BUILD_TESTS" OFF)
+option(BUILD_PERIPHERY "BUILD_PERIPHERY" OFF)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/macros.cmake)
 configure_msvc_runtime()
