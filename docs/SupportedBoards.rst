@@ -1084,7 +1084,7 @@ Steps to find MAC address:
 - On Linux: install bluez-utils and run :code:`bluetoothctl paired-devices`
 - On MacOS: run :code:`system_profiler SPBluetoothDataType`
 
-**On Linux in order to compile and use it you may need to install :code:`libbluetooth-dev` for Debian like systems from :code:`apt-get` and :code:`bluez-libs-devel` for Fedora like systems from :code:`dnf`.**
+On Linux in order to compile and use it you may need to install ``libbluetooth-dev`` for Debian like systems from ``apt-get`` and ``bluez-libs-devel`` for Fedora like systems from ``dnf``.
 
 BrainAlive
 -----------
@@ -1161,7 +1161,7 @@ Supported platforms:
 - MacOS
 - Devices like Raspberry Pi
 
-**On Linux in order to compile and use it you may need to install :code:`libbluetooth-dev` for Debian like systems from :code:`apt-get` and :code:`bluez-libs-devel` for Fedora like systems from :code:`dnf`.**
+On Linux in order to compile and use it you may need to install ``libbluetooth-dev`` for Debian like systems from ``apt-get`` and ``bluez-libs-devel`` for Fedora like systems from ``dnf``.
 
 Available :ref:`presets-label`:
 
@@ -1212,7 +1212,7 @@ Supported platforms:
 - MacOS
 - Devices like Raspberry Pi
 
-**On Linux in order to compile and use it you may need to install :code:`libbluetooth-dev` for Debian like systems from :code:`apt-get` and :code:`bluez-libs-devel` for Fedora like systems from :code:`dnf`.**
+On Linux in order to compile and use it you may need to install ``libbluetooth-dev`` for Debian like systems from ``apt-get`` and ``bluez-libs-devel`` for Fedora like systems from ``dnf``.
 
 Available :ref:`presets-label`:
 
