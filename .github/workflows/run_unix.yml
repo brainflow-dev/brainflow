@@ -149,10 +149,109 @@ jobs:
         sudo -H python3 -m pip install -U .
     - name: Install Python test Dependencies
       run: sudo -H python3 -m pip install -r $GITHUB_WORKSPACE/python_package/examples/tests/requirements.txt
-
+    # build Swift tests:
+    - name: build band_power Swift
+      if: (matrix.os == 'macos-11.0')
+      run: |
+        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
+        xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme band_power
+    - name: build band_power_all Swift
+      if: (matrix.os == 'macos-11.0')
+      run: |
+        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
+        xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme band_power_all
+    - name: build brainflow_get_data Swift
+      if: (matrix.os == 'macos-11.0')
+      run: |
+        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
+        xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme brainflow_get_data
+    - name: build denoising Swift
+      if: (matrix.os == 'macos-11.0')
+      run: |
+        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
+        xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme denoising
+    - name: build downsampling Swift
+      if: (matrix.os == 'macos-11.0')
+      run: |
+        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
+        xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme downsampling
+    - name: build eeg_metrics Swift
+      if: (matrix.os == 'macos-11.0')
+      run: |
+        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
+        xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme eeg_metrics
+    - name: build ica Swift
+      if: (matrix.os == 'macos-11.0')
+      run: |
+        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
+        xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme ica
+    - name: build markers Swift
+      if: (matrix.os == 'macos-11.0')
+      run: |
+        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
+        xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme markers
+    - name: build read_write_file Swift
+      if: (matrix.os == 'macos-11.0')
+      run: |
+        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
+        xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme read_write_file
+    - name: build signal_filtering Swift
+      if: (matrix.os == 'macos-11.0')
+      run: |
+        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
+        xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme signal_filtering
+    - name: build transforms Swift
+      if: (matrix.os == 'macos-11.0')
+      run: |
+        cd $GITHUB_WORKSPACE/swift_package/BrainFlowCI
+        xcodebuild install -project BrainFlowCI.xcodeproj -destination 'platform=macOS,arch=x86_64' DSTROOT=. INSTALL_PATH=install -scheme transforms
     # start testing
     - name: Run unit tests
       run: $GITHUB_WORKSPACE/build/tests/brainflow_tests
+    - name: band_power Swift
+      if: (matrix.os == 'macos-11.0')
+      run: |
+        $GITHUB_WORKSPACE/swift_package/BrainFlowCI/install/band_power
+    - name: band_power_all Swift
+      if: (matrix.os == 'macos-11.0')
+      run: |
+        $GITHUB_WORKSPACE/swift_package/BrainFlowCI/install/band_power_all
+    - name: brainflow_get_data Swift
+      if: (matrix.os == 'macos-11.0')
+      run: |
+        $GITHUB_WORKSPACE/swift_package/BrainFlowCI/install/brainflow_get_data
+    - name: denoising Swift
+      if: (matrix.os == 'macos-11.0')
+      run: |
+        $GITHUB_WORKSPACE/swift_package/BrainFlowCI/install/denoising
+    - name: downsampling Swift
+      if: (matrix.os == 'macos-11.0')
+      run: |
+        $GITHUB_WORKSPACE/swift_package/BrainFlowCI/install/downsampling
+    - name: eeg_metrics Swift
+      if: (matrix.os == 'macos-11.0')
+      run: |
+        $GITHUB_WORKSPACE/swift_package/BrainFlowCI/install/eeg_metrics
+    - name: ica Swift
+      if: (matrix.os == 'macos-11.0')
+      run: |
+        $GITHUB_WORKSPACE/swift_package/BrainFlowCI/install/ica
+    - name: markers Swift
+      if: (matrix.os == 'macos-11.0')
+      run: |
+        $GITHUB_WORKSPACE/swift_package/BrainFlowCI/install/markers
+    - name: read_write_file Swift
+      if: (matrix.os == 'macos-11.0')
+      run: |
+        $GITHUB_WORKSPACE/swift_package/BrainFlowCI/install/read_write_file
+    - name: signal_filtering Swift
+      if: (matrix.os == 'macos-11.0')
+      run: |
+        $GITHUB_WORKSPACE/swift_package/BrainFlowCI/install/signal_filtering
+    - name: transforms Swift
+      if: (matrix.os == 'macos-11.0')
+      run: |
+        $GITHUB_WORKSPACE/swift_package/BrainFlowCI/install/transforms
     - name: Synthetic C# Test MacOS
       if: (matrix.os == 'macos-11.0')
       run: |
