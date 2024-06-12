@@ -33,6 +33,7 @@ CLASSIFICATION WITH LARYNGEAL IMAGERY](https://arxiv.org/pdf/2107.00045.pdf)
 * [An EEG-based Application for Real-Time Mental State Recognition in Adaptive e-Learning Environment](http://manolito.image.ece.ntua.gr/papers/1092.pdf)
 * [Extending wireless wearable EEG device with Single Board Computer for real-time neurofeedback and neuromodulation applications](https://www.researchgate.net/profile/Arun-Sasidharan-2/publication/375927218_Extending_wireless_wearable_EEG_device_with_Single_Board_Computer_for_real-time_neurofeedback_and_neuromodulation_applications/links/656468403fa26f66f42f9f17/Extending-wireless-wearable-EEG-device-with-Single-Board-Computer-for-real-time-neurofeedback-and-neuromodulation-applications.pdf)
 * [Ha, J., Baek, SC., Lim, Y. et al. Validation of cost-efficient EEG experimental setup for neural tracking in an auditory attention task. Sci Rep 13, 22682 (2023). https://doi.org/10.1038/s41598-023-49990-6](https://www.nature.com/articles/s41598-023-49990-6)
+* [EEG Brain-Computer Interface](https://danielm.ca/media/BCI.pdf)
 
 ## Posts
 
