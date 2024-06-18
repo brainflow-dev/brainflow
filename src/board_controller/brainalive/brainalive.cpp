@@ -6,20 +6,22 @@
 #include "timestamp.h"
 
 // common constants
-#define BRAINALIVE_PACKET_SIZE 220 
+#define BRAINALIVE_PACKET_SIZE 220
 #define BRAINALIVE_SINGLE_PACKET_SIZE 44
-#define NUM_OF_PACKETS  BRAINALIVE_TOTAL_PACKET_SIZE / BRAINALIVE_SINGLE_PACKET_SIZE
+#define NUM_OF_PACKETS BRAINALIVE_TOTAL_PACKET_SIZE / BRAINALIVE_SINGLE_PACKET_SIZE
 
 #define BRAINALIVE_PACKET_ID_INDEX (BRAINALIVE_SINGLE_PACKET_SIZE - 3)
 
-#define BRAINALIVE_EEG_DATA_SIZE           24 
-#define BRAINALIVE_EEG_DATA_START_INDEX     4
-#define BRAINALIVE_EEG_DATA_END_INDEX   (BRAINALIVE_EEG_DATA_START_INDEX + BRAINALIVE_EEG_DATA_SIZE) 
+#define BRAINALIVE_EEG_DATA_SIZE 24
+#define BRAINALIVE_EEG_DATA_START_INDEX 4
+#define BRAINALIVE_EEG_DATA_END_INDEX (BRAINALIVE_EEG_DATA_START_INDEX + BRAINALIVE_EEG_DATA_SIZE)
 
-#define BRAINALIVE_ACCLR_MTR_DATA_SIZE         12
-#define BRAINALIVE_ACCLR_MTR_DATA_START_INDEX  BRAINALIVE_EEG_DATA_END_INDEX
-#define BRAINALIVE_ACCLR_MTR_DATA_END_INDEX    BRAINALIVE_ACCLR_MTR_DATA_START_INDEX + BRAINALIVE_ACCLR_MTR_DATA_SIZE
-#define BRAINALIVE_HANDSHAKING_PACKET_SIZE      6
+#define BRAINALIVE_ACCLR_MTR_DATA_SIZE 12
+#define BRAINALIVE_ACCLR_MTR_DATA_START_INDEX BRAINALIVE_EEG_DATA_END_INDEX
+#define BRAINALIVE_ACCLR_MTR_DATA_END_INDEX                                                        \
+    BRAINALIVE_ACCLR_MTR_DATA_START_INDEX + BRAINALIVE_ACCLR_MTR_DATA_SIZE
+#define BRAINALIVE_HANDSHAKING_PACKET_SIZE 6
+#define FSR_Value 8388608
 
 // info about services and chars
 #define START_BYTE 0x0A
@@ -355,7 +357,7 @@ void BrainAlive::adapter_1_on_scan_found (
         }
         else
         {
-            if (strncmp (peripheral_identified, "ORION_1", 7) == 0)
+            if (strncmp (peripheral_identified, "ORION_2", 7) == 0)
             {
                 found = true;
             }
@@ -384,6 +386,7 @@ void BrainAlive::adapter_1_on_scan_found (
 void BrainAlive::read_data (simpleble_uuid_t service, simpleble_uuid_t characteristic,
     uint8_t *data, size_t size, int channel_num)
 {
+    static int SOFTWARE_GAIN, HARDWARE_GAIN, REFFRENCE_VOLTAGE;
     if (size == BRAINALIVE_HANDSHAKING_PACKET_SIZE)
     {
         // printf ("inside 6\n");
@@ -397,21 +400,24 @@ void BrainAlive::read_data (simpleble_uuid_t service, simpleble_uuid_t character
         return;
     }
 
-    for (int i = 0; i < (int)size; i += 44)
+    for (int i = 0; i < (int)size; i += BRAINALIVE_SINGLE_PACKET_SIZE)
     {
         double ba_data[15] = {0};
-        int k =0;
-        for (int j = i + BRAINALIVE_EEG_DATA_START_INDEX; j < i + BRAINALIVE_EEG_DATA_END_INDEX; j += 3, k++)
+        int k = 0;
+        for (int j = i + BRAINALIVE_EEG_DATA_START_INDEX; j < i + BRAINALIVE_EEG_DATA_END_INDEX;
+             j += 3, k++)
         {
             ba_data[k] = (((data[j] << 16 | data[j + 1] << 8 | data[j + 2]) << 8) >> 8) *
-                (((REFFRENCE_VOLTAGE / FSR_Value) / (SOFTWARE_GAIN * HARDWARE_GAIN)) * 1000);
+                (((REFFRENCE_VOLTAGE / FSR_Value) / (float)(SOFTWARE_GAIN * HARDWARE_GAIN)) * 1000);
         }
-        for(int j = i+BRAINALIVE_ACCLR_MTR_DATA_START_INDEX,j< i+BRAINALIVE_ACCLR_MTR_DATA_END_INDEX, j+=2){
+        for (int j = i + BRAINALIVE_ACCLR_MTR_DATA_START_INDEX;
+             j < i + BRAINALIVE_ACCLR_MTR_DATA_END_INDEX; j += 2, k++)
+        {
             ba_data[k] = (data[j] << 8) | data[j + 1];
             if (ba_data[k] > 32767)
                 ba_data[k] = ba_data[k] - 65535;
         }
-        ba_data[8] = data[BRAINALIVE_PACKET_ID_INDEX];
+        ba_data[14] = data[BRAINALIVE_PACKET_ID_INDEX];
         push_package (&ba_data[0]);
     }
 }
