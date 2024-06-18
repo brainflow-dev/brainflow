@@ -129,6 +129,13 @@ int Muse::prepare_session ()
     simpleble_adapter_set_callback_on_scan_found (
         muse_adapter, ::adapter_on_scan_found, (void *)this);
 
+    if (!simpleble_adapter_is_bluetooth_enabled ())
+    {
+        safe_logger (spdlog::level::warn, "Probably bluetooth is disabled.");
+        // dont throw an exception because of this
+        // https://github.com/OpenBluetoothToolbox/SimpleBLE/issues/115
+    }
+
     simpleble_adapter_scan_start (muse_adapter);
     int res = (int)BrainFlowExitCodes::STATUS_OK;
     std::unique_lock<std::mutex> lk (m);
@@ -145,14 +152,25 @@ int Muse::prepare_session ()
     simpleble_adapter_scan_stop (muse_adapter);
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        if (simpleble_peripheral_connect (muse_peripheral) == SIMPLEBLE_SUCCESS)
+        // for safety
+        for (int i = 0; i < 3; i++)
         {
-            safe_logger (spdlog::level::info, "Connected to Muse Device");
-        }
-        else
-        {
-            safe_logger (spdlog::level::err, "Failed to connect to Muse Device");
-            res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+            if (simpleble_peripheral_connect (muse_peripheral) == SIMPLEBLE_SUCCESS)
+            {
+                safe_logger (spdlog::level::info, "Connected to Muse Device");
+                res = (int)BrainFlowExitCodes::STATUS_OK;
+                break;
+            }
+            else
+            {
+                safe_logger (spdlog::level::warn, "Failed to connect to Muse Device: {}/3", i);
+                res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
+#ifdef _WIN32
+                Sleep (1000);
+#else
+                sleep (1);
+#endif
+            }
         }
     }
 
@@ -182,182 +200,184 @@ int Muse::prepare_session ()
             for (size_t j = 0; j < service.characteristic_count; j++)
             {
                 safe_logger (spdlog::level::trace, "found characteristic {}",
-                    service.characteristics[j].value);
+                    service.characteristics[j].uuid.value);
 
-                if (strcmp (service.characteristics[j].value, MUSE_GATT_ATTR_STREAM_TOGGLE) == 0)
+                if (strcmp (service.characteristics[j].uuid.value, MUSE_GATT_ATTR_STREAM_TOGGLE) ==
+                    0)
                 {
                     control_characteristics = std::pair<simpleble_uuid_t, simpleble_uuid_t> (
-                        service.uuid, service.characteristics[j]);
+                        service.uuid, service.characteristics[j].uuid);
                     control_characteristics_found = true;
                     safe_logger (spdlog::level::info, "found control characteristic");
                 }
-                if (strcmp (service.characteristics[j].value, MUSE_GATT_ATTR_TP9) == 0)
+                if (strcmp (service.characteristics[j].uuid.value, MUSE_GATT_ATTR_TP9) == 0)
                 {
                     if (simpleble_peripheral_notify (muse_peripheral, service.uuid,
-                            service.characteristics[j], ::peripheral_on_tp9,
+                            service.characteristics[j].uuid, ::peripheral_on_tp9,
                             (void *)this) == SIMPLEBLE_SUCCESS)
                     {
                         notified_characteristics.push_back (
                             std::pair<simpleble_uuid_t, simpleble_uuid_t> (
-                                service.uuid, service.characteristics[j]));
+                                service.uuid, service.characteristics[j].uuid));
                     }
                     else
                     {
                         safe_logger (spdlog::level::err, "Failed to notify for {} {}",
-                            service.uuid.value, service.characteristics[j].value);
+                            service.uuid.value, service.characteristics[j].uuid.value);
                         res = (int)BrainFlowExitCodes::GENERAL_ERROR;
                     }
                 }
-                if (strcmp (service.characteristics[j].value, MUSE_GATT_ATTR_TP10) == 0)
+                if (strcmp (service.characteristics[j].uuid.value, MUSE_GATT_ATTR_TP10) == 0)
                 {
                     if (simpleble_peripheral_notify (muse_peripheral, service.uuid,
-                            service.characteristics[j], ::peripheral_on_tp10,
+                            service.characteristics[j].uuid, ::peripheral_on_tp10,
                             (void *)this) == SIMPLEBLE_SUCCESS)
                     {
                         notified_characteristics.push_back (
                             std::pair<simpleble_uuid_t, simpleble_uuid_t> (
-                                service.uuid, service.characteristics[j]));
+                                service.uuid, service.characteristics[j].uuid));
                     }
                     else
                     {
                         safe_logger (spdlog::level::err, "Failed to notify for {} {}",
-                            service.uuid.value, service.characteristics[j].value);
+                            service.uuid.value, service.characteristics[j].uuid.value);
                         res = (int)BrainFlowExitCodes::GENERAL_ERROR;
                     }
                 }
-                if (strcmp (service.characteristics[j].value, MUSE_GATT_ATTR_AF7) == 0)
+                if (strcmp (service.characteristics[j].uuid.value, MUSE_GATT_ATTR_AF7) == 0)
                 {
                     if (simpleble_peripheral_notify (muse_peripheral, service.uuid,
-                            service.characteristics[j], ::peripheral_on_af7,
+                            service.characteristics[j].uuid, ::peripheral_on_af7,
                             (void *)this) == SIMPLEBLE_SUCCESS)
                     {
                         notified_characteristics.push_back (
                             std::pair<simpleble_uuid_t, simpleble_uuid_t> (
-                                service.uuid, service.characteristics[j]));
+                                service.uuid, service.characteristics[j].uuid));
                     }
                     else
                     {
                         safe_logger (spdlog::level::err, "Failed to notify for {} {}",
-                            service.uuid.value, service.characteristics[j].value);
+                            service.uuid.value, service.characteristics[j].uuid.value);
                         res = (int)BrainFlowExitCodes::GENERAL_ERROR;
                     }
                 }
-                if (strcmp (service.characteristics[j].value, MUSE_GATT_ATTR_AF8) == 0)
+                if (strcmp (service.characteristics[j].uuid.value, MUSE_GATT_ATTR_AF8) == 0)
                 {
                     if (simpleble_peripheral_notify (muse_peripheral, service.uuid,
-                            service.characteristics[j], ::peripheral_on_af8,
+                            service.characteristics[j].uuid, ::peripheral_on_af8,
                             (void *)this) == SIMPLEBLE_SUCCESS)
                     {
                         notified_characteristics.push_back (
                             std::pair<simpleble_uuid_t, simpleble_uuid_t> (
-                                service.uuid, service.characteristics[j]));
+                                service.uuid, service.characteristics[j].uuid));
                     }
                     else
                     {
                         safe_logger (spdlog::level::err, "Failed to notify for {} {}",
-                            service.uuid.value, service.characteristics[j].value);
+                            service.uuid.value, service.characteristics[j].uuid.value);
                         res = (int)BrainFlowExitCodes::GENERAL_ERROR;
                     }
                 }
-                if (strcmp (service.characteristics[j].value, MUSE_GATT_ATTR_RIGHTAUX) == 0)
+                if (strcmp (service.characteristics[j].uuid.value, MUSE_GATT_ATTR_RIGHTAUX) == 0)
                 {
                     if (simpleble_peripheral_notify (muse_peripheral, service.uuid,
-                            service.characteristics[j], ::peripheral_on_right_aux,
+                            service.characteristics[j].uuid, ::peripheral_on_right_aux,
                             (void *)this) == SIMPLEBLE_SUCCESS)
                     {
                         notified_characteristics.push_back (
                             std::pair<simpleble_uuid_t, simpleble_uuid_t> (
-                                service.uuid, service.characteristics[j]));
+                                service.uuid, service.characteristics[j].uuid));
                     }
                     else
                     {
                         safe_logger (spdlog::level::err, "Failed to notify for {} {}",
-                            service.uuid.value, service.characteristics[j].value);
+                            service.uuid.value, service.characteristics[j].uuid.value);
                         res = (int)BrainFlowExitCodes::GENERAL_ERROR;
                     }
                 }
-                if (strcmp (service.characteristics[j].value, MUSE_GATT_ATTR_GYRO) == 0)
+                if (strcmp (service.characteristics[j].uuid.value, MUSE_GATT_ATTR_GYRO) == 0)
                 {
                     if (simpleble_peripheral_notify (muse_peripheral, service.uuid,
-                            service.characteristics[j], ::peripheral_on_gyro,
+                            service.characteristics[j].uuid, ::peripheral_on_gyro,
                             (void *)this) == SIMPLEBLE_SUCCESS)
                     {
                         notified_characteristics.push_back (
                             std::pair<simpleble_uuid_t, simpleble_uuid_t> (
-                                service.uuid, service.characteristics[j]));
+                                service.uuid, service.characteristics[j].uuid));
                     }
                     else
                     {
                         safe_logger (spdlog::level::err, "Failed to notify for {} {}",
-                            service.uuid.value, service.characteristics[j].value);
+                            service.uuid.value, service.characteristics[j].uuid.value);
                         res = (int)BrainFlowExitCodes::GENERAL_ERROR;
                     }
                 }
-                if (strcmp (service.characteristics[j].value, MUSE_GATT_ATTR_ACCELEROMETER) == 0)
+                if (strcmp (service.characteristics[j].uuid.value, MUSE_GATT_ATTR_ACCELEROMETER) ==
+                    0)
                 {
                     if (simpleble_peripheral_notify (muse_peripheral, service.uuid,
-                            service.characteristics[j], ::peripheral_on_accel,
+                            service.characteristics[j].uuid, ::peripheral_on_accel,
                             (void *)this) == SIMPLEBLE_SUCCESS)
                     {
                         notified_characteristics.push_back (
                             std::pair<simpleble_uuid_t, simpleble_uuid_t> (
-                                service.uuid, service.characteristics[j]));
+                                service.uuid, service.characteristics[j].uuid));
                     }
                     else
                     {
                         safe_logger (spdlog::level::err, "Failed to notify for {} {}",
-                            service.uuid.value, service.characteristics[j].value);
+                            service.uuid.value, service.characteristics[j].uuid.value);
                         res = (int)BrainFlowExitCodes::GENERAL_ERROR;
                     }
                 }
-                if (strcmp (service.characteristics[j].value, MUSE_GATT_ATTR_PPG0) == 0)
+                if (strcmp (service.characteristics[j].uuid.value, MUSE_GATT_ATTR_PPG0) == 0)
                 {
                     if (simpleble_peripheral_notify (muse_peripheral, service.uuid,
-                            service.characteristics[j], ::peripheral_on_ppg0,
+                            service.characteristics[j].uuid, ::peripheral_on_ppg0,
                             (void *)this) == SIMPLEBLE_SUCCESS)
                     {
                         notified_characteristics.push_back (
                             std::pair<simpleble_uuid_t, simpleble_uuid_t> (
-                                service.uuid, service.characteristics[j]));
+                                service.uuid, service.characteristics[j].uuid));
                     }
                     else
                     {
                         safe_logger (spdlog::level::err, "Failed to notify for {} {}",
-                            service.uuid.value, service.characteristics[j].value);
+                            service.uuid.value, service.characteristics[j].uuid.value);
                         res = (int)BrainFlowExitCodes::GENERAL_ERROR;
                     }
                 }
-                if (strcmp (service.characteristics[j].value, MUSE_GATT_ATTR_PPG1) == 0)
+                if (strcmp (service.characteristics[j].uuid.value, MUSE_GATT_ATTR_PPG1) == 0)
                 {
                     if (simpleble_peripheral_notify (muse_peripheral, service.uuid,
-                            service.characteristics[j], ::peripheral_on_ppg1,
+                            service.characteristics[j].uuid, ::peripheral_on_ppg1,
                             (void *)this) == SIMPLEBLE_SUCCESS)
                     {
                         notified_characteristics.push_back (
                             std::pair<simpleble_uuid_t, simpleble_uuid_t> (
-                                service.uuid, service.characteristics[j]));
+                                service.uuid, service.characteristics[j].uuid));
                     }
                     else
                     {
                         safe_logger (spdlog::level::err, "Failed to notify for {} {}",
-                            service.uuid.value, service.characteristics[j].value);
+                            service.uuid.value, service.characteristics[j].uuid.value);
                         res = (int)BrainFlowExitCodes::GENERAL_ERROR;
                     }
                 }
-                if (strcmp (service.characteristics[j].value, MUSE_GATT_ATTR_PPG2) == 0)
+                if (strcmp (service.characteristics[j].uuid.value, MUSE_GATT_ATTR_PPG2) == 0)
                 {
                     if (simpleble_peripheral_notify (muse_peripheral, service.uuid,
-                            service.characteristics[j], ::peripheral_on_ppg2,
+                            service.characteristics[j].uuid, ::peripheral_on_ppg2,
                             (void *)this) == SIMPLEBLE_SUCCESS)
                     {
                         notified_characteristics.push_back (
                             std::pair<simpleble_uuid_t, simpleble_uuid_t> (
-                                service.uuid, service.characteristics[j]));
+                                service.uuid, service.characteristics[j].uuid));
                     }
                     else
                     {
                         safe_logger (spdlog::level::err, "Failed to notify for {} {}",
-                            service.uuid.value, service.characteristics[j].value);
+                            service.uuid.value, service.characteristics[j].uuid.value);
                         res = (int)BrainFlowExitCodes::GENERAL_ERROR;
                     }
                 }
@@ -446,23 +466,6 @@ int Muse::stop_stream ()
     if (is_streaming)
     {
         res = config_board ("h");
-        // need to wait for notifications to stop triggered before unsubscribing, otherwise macos
-        // fails inside simpleble with timeout
-#ifdef _WIN32
-        Sleep (1000);
-#else
-        sleep (1);
-#endif
-        for (auto notified : notified_characteristics)
-        {
-            if (simpleble_peripheral_unsubscribe (
-                    muse_peripheral, notified.first, notified.second) != SIMPLEBLE_SUCCESS)
-            {
-                safe_logger (spdlog::level::err, "failed to unsubscribe for {} {}",
-                    notified.first.value, notified.second.value);
-                res = (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
-            }
-        }
     }
     else
     {
@@ -480,7 +483,27 @@ int Muse::release_session ()
 {
     if (initialized)
     {
-        stop_stream ();
+        // repeat it multiple times, failure here may lead to a crash
+        for (int i = 0; i < 2; i++)
+        {
+            stop_stream ();
+            // need to wait for notifications to stop triggered before unsubscribing, otherwise
+            // macos fails inside simpleble with timeout
+#ifdef _WIN32
+            Sleep (2000);
+#else
+            sleep (2);
+#endif
+            for (auto notified : notified_characteristics)
+            {
+                if (simpleble_peripheral_unsubscribe (
+                        muse_peripheral, notified.first, notified.second) != SIMPLEBLE_SUCCESS)
+                {
+                    safe_logger (spdlog::level::err, "failed to unsubscribe for {} {}",
+                        notified.first.value, notified.second.value);
+                }
+            }
+        }
         free_packages ();
         initialized = false;
     }

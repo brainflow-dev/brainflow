@@ -19,9 +19,11 @@ namespace GanglionLib
 {
     extern volatile int exit_code;
     extern volatile bd_addr connect_addr;
+    extern volatile uint8 firmware;
     extern volatile uint8 connection;
     extern volatile uint16 ganglion_handle_start;
     extern volatile uint16 ganglion_handle_end;
+
     // recv and send chars handles
     extern volatile uint16 ganglion_handle_recv;
     extern volatile uint16 ganglion_handle_send;
@@ -44,6 +46,7 @@ void ble_evt_gap_scan_response (const struct ble_msg_gap_scan_response_evt_t *ms
 {
     char name[512];
     bool name_found_in_response = false;
+
     for (int i = 0; i < msg->data.len;)
     {
         int8 len = msg->data.data[i++];
@@ -56,7 +59,7 @@ void ble_evt_gap_scan_response (const struct ble_msg_gap_scan_response_evt_t *ms
             break; // not enough data
         }
         uint8 type = msg->data.data[i++];
-        if (type == 0x09) // no idea what is 0x09
+        if (type == 0x09) // Ensure that the device is advertising with a complete name
         {
             name_found_in_response = true;
             memcpy (name, msg->data.data + i, len - 1);
@@ -68,10 +71,17 @@ void ble_evt_gap_scan_response (const struct ble_msg_gap_scan_response_evt_t *ms
 
     if (name_found_in_response)
     {
-        // strcasestr is unavailable for windows
-        if (strstr (name, "anglion") != NULL)
+        // Check if the found device is the one specified by the serial_number parameter
+        if (memcmp (msg->sender.addr, (uint8 *)GanglionLib::connect_addr.addr, sizeof (bd_addr)) ==
+            0)
+        {
+            GanglionLib::firmware = msg->data.data[0] == 20 && msg->data.data[13] == '3' ? 3 : 2;
+            GanglionLib::exit_code = (int)GanglionLib::STATUS_OK;
+        }
+        else if (strstr (name, "anglion") != NULL) // strcasestr is unavailable for windows
         {
             memcpy ((void *)GanglionLib::connect_addr.addr, msg->sender.addr, sizeof (bd_addr));
+            GanglionLib::firmware = msg->data.data[0] == 20 && msg->data.data[13] == '3' ? 3 : 2;
             GanglionLib::exit_code = (int)GanglionLib::STATUS_OK;
         }
     }

@@ -19,7 +19,8 @@ enum class SocketClientUDPReturnCodes : int
     CREATE_SOCKET_ERROR = 2,
     CONNECT_ERROR = 3,
     PTON_ERROR = 4,
-    INVALID_ARGUMENT_ERROR = 5
+    INVALID_ARGUMENT_ERROR = 5,
+    SOCKET_ALREADY_CREATED_ERROR = 6
 };
 
 
@@ -58,6 +59,7 @@ private:
 #ifdef _WIN32
     SOCKET connect_socket;
     struct sockaddr_in socket_addr;
+    bool wsa_initialized;
 #else
     int connect_socket;
     struct sockaddr_in socket_addr;

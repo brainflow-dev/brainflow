@@ -7,7 +7,6 @@ import logging
 import numpy as np
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
-from sklearn.gaussian_process import GaussianProcessClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import StackingClassifier
 from sklearn.neighbors import KNeighborsClassifier
@@ -43,6 +42,8 @@ def prepare_data(first_class, second_class, blacklisted_channels=None):
     dataset_y = list()
     for data_type in (first_class, second_class):
         for file in glob.glob(os.path.join('data', data_type, '*', '*.csv')):
+            data_x_temp = list()
+            data_y_temp = list()
             logging.info(file)
             board_id = os.path.basename(os.path.dirname(file))
             try:
@@ -59,13 +60,17 @@ def prepare_data(first_class, second_class, blacklisted_channels=None):
                         feature_vector = bands[0]
                         feature_vector = feature_vector.astype(float)
                         dataset_x.append(feature_vector)
+                        data_x_temp.append(feature_vector)
                         if data_type == first_class:
                             dataset_y.append(0)
+                            data_y_temp.append(0)
                         else:
                             dataset_y.append(1)
+                            data_y_temp.append(0)
                         cur_pos = cur_pos + int(window_size * overlaps[num] * sampling_rate)
             except Exception as e:
                 logging.error(str(e), exc_info=True)
+            print_dataset_info((data_x_temp, data_y_temp))
 
     logging.info('1st Class: %d 2nd Class: %d' % (len([x for x in dataset_y if x == 0]), len([x for x in dataset_y if x == 1])))
 
@@ -116,7 +121,7 @@ def print_dataset_info(data):
 
 def train_regression_mindfulness(data):
     model = LogisticRegression(solver='liblinear', max_iter=4000,
-                                penalty='l2', random_state=2, fit_intercept=True, intercept_scaling=0.2)
+                                penalty='l2', random_state=2, fit_intercept=False, intercept_scaling=3)
     logging.info('#### Logistic Regression ####')
     scores = cross_val_score(model, data[0], data[1], cv=5, scoring='f1_macro', n_jobs=8)
     logging.info('f1 macro %s' % str(scores))
@@ -208,7 +213,7 @@ def main():
             dataset_y = pickle.load(f)
         data = dataset_x, dataset_y
     else:
-        data = prepare_data('relaxed', 'focused', blacklisted_channels={'T3', 'T4'})
+        data = prepare_data('relaxed', 'focused')
     print_dataset_info(data)
     train_regression_mindfulness(data)
     train_svm_mindfulness(data)

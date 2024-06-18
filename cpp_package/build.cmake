@@ -11,9 +11,9 @@ else (CMAKE_SIZEOF_VOID_P EQUAL 8)
 endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
 
 SET (CPP_BINDING_SRC
-    ${CMAKE_HOME_DIRECTORY}/cpp_package/src/board_shim.cpp
-    ${CMAKE_HOME_DIRECTORY}/cpp_package/src/ml_model.cpp
-    ${CMAKE_HOME_DIRECTORY}/cpp_package/src/data_filter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/cpp_package/src/board_shim.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/cpp_package/src/ml_model.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/cpp_package/src/data_filter.cpp
 )
 
 add_library (
@@ -22,23 +22,23 @@ add_library (
 
 target_include_directories (
     ${BRAINFLOW_CPP_BINDING_NAME} PRIVATE
-    ${CMAKE_HOME_DIRECTORY}/src/board_controller/inc
-    ${CMAKE_HOME_DIRECTORY}/src/utils/inc
-    ${CMAKE_HOME_DIRECTORY}/src/data_handler/inc
-    ${CMAKE_HOME_DIRECTORY}/cpp_package/src/inc
-    ${CMAKE_HOME_DIRECTORY}/third_party/json
-    ${CMAKE_HOME_DIRECTORY}/src/ml/inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/data_handler/inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/cpp_package/src/inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/json
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ml/inc
 )
 
 target_link_libraries (${BRAINFLOW_CPP_BINDING_NAME} PRIVATE ${BOARD_CONTROLLER_NAME} ${DATA_HANDLER_NAME} ${ML_MODULE_NAME})
 
 install (
     FILES
-    ${CMAKE_HOME_DIRECTORY}/cpp_package/src/inc/data_filter.h
-    ${CMAKE_HOME_DIRECTORY}/cpp_package/src/inc/board_shim.h
-    ${CMAKE_HOME_DIRECTORY}/cpp_package/src/inc/ml_model.h
-    ${CMAKE_HOME_DIRECTORY}/src/utils/inc/brainflow_array.h
-    ${CMAKE_HOME_DIRECTORY}/src/utils/inc/brainflow_exception.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/cpp_package/src/inc/data_filter.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/cpp_package/src/inc/board_shim.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/cpp_package/src/inc/ml_model.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/inc/brainflow_array.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/inc/brainflow_exception.h
     DESTINATION inc
 )
 

@@ -126,6 +126,14 @@ extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
+    pub fn get_rotation_channels(
+        board_id: ::std::os::raw::c_int,
+        preset: ::std::os::raw::c_int,
+        rotation_channels: *mut ::std::os::raw::c_int,
+        len: *mut ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
     pub fn get_analog_channels(
         board_id: ::std::os::raw::c_int,
         preset: ::std::os::raw::c_int,
@@ -162,6 +170,14 @@ extern "C" {
         board_id: ::std::os::raw::c_int,
         preset: ::std::os::raw::c_int,
         resistance_channels: *mut ::std::os::raw::c_int,
+        len: *mut ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn get_magnetometer_channels(
+        board_id: ::std::os::raw::c_int,
+        preset: ::std::os::raw::c_int,
+        magnetometer_channels: *mut ::std::os::raw::c_int,
         len: *mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
 }
@@ -243,6 +259,14 @@ extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
+    pub fn config_board_with_bytes(
+        bytes: *const ::std::os::raw::c_char,
+        len: ::std::os::raw::c_int,
+        board_id: ::std::os::raw::c_int,
+        json_brainflow_input_params: *const ::std::os::raw::c_char,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
     pub fn is_prepared(
         prepared: *mut ::std::os::raw::c_int,
         board_id: ::std::os::raw::c_int,
@@ -259,6 +283,14 @@ extern "C" {
 }
 extern "C" {
     pub fn add_streamer(
+        streamer: *const ::std::os::raw::c_char,
+        preset: ::std::os::raw::c_int,
+        board_id: ::std::os::raw::c_int,
+        json_brainflow_input_params: *const ::std::os::raw::c_char,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn delete_streamer(
         streamer: *const ::std::os::raw::c_char,
         preset: ::std::os::raw::c_int,
         board_id: ::std::os::raw::c_int,

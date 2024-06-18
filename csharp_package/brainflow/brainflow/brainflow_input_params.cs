@@ -29,10 +29,30 @@ namespace brainflow
         [DataMember]
         public string ip_address;
         /// <summary>
+        /// IP address aux
+        /// </summary>
+        [DataMember]
+        public string ip_address_aux;
+        /// <summary>
+        /// IP address anc
+        /// </summary>
+        [DataMember]
+        public string ip_address_anc;
+        /// <summary>
         /// PORT
         /// </summary>
         [DataMember]
         public int ip_port;
+        /// <summary>
+        /// PORT
+        /// </summary>
+        [DataMember]
+        public int ip_port_aux;
+        /// <summary>
+        /// PORT
+        /// </summary>
+        [DataMember]
+        public int ip_port_anc;
         /// <summary>
         /// IP protocol, use IpProtocolTypes
         /// </summary>
@@ -59,28 +79,38 @@ namespace brainflow
         [DataMember]
         public string file;
         /// <summary>
+        /// file
+        /// </summary>
+        [DataMember]
+        public string file_aux;
+        /// <summary>
+        /// file
+        /// </summary>
+        [DataMember]
+        public string file_anc;
+        /// <summary>
         /// Master board, use BoardIds enums
         /// </summary>
         [DataMember]
         public int master_board;
-        /// <summary>
-        /// Preset, use BrainFlowPresets
-        /// </summary>
-        [DataMember]
-        public int preset;
 
         public BrainFlowInputParams ()
         {
             serial_port = "";
             mac_address = "";
             ip_address = "";
+            ip_address_aux = "";
+            ip_address_anc = "";
             ip_port = 0;
+            ip_port_aux = 0;
+            ip_port_anc = 0;
             ip_protocol = (int)IpProtocolTypes.NO_IP_PROTOCOL;
             other_info = "";
             timeout = 0;
             serial_number = "";
             file = "";
-            preset = (int)BrainFlowPresets.DEFAULT_PRESET;
+            file_aux = "";
+            file_anc = "";
             master_board = (int)BoardIds.NO_BOARD;
         }
 

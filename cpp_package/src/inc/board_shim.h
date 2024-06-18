@@ -153,7 +153,14 @@ public:
     static std::vector<int> get_accel_channels (
         int board_id, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
     /**
-     * get row indices which hold analog data
+     * get row indices which hold rotation data
+     * @param board_id board id of your device
+     * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+     */
+    static std::vector<int> get_rotation_channels (
+        int board_id, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
+    /**
+     * get row indices which hold rotation calib data
      * @param board_id board id of your device
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
@@ -186,6 +193,13 @@ public:
      * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
      */
     static std::vector<int> get_resistance_channels (
+        int board_id, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
+    /**
+     * get row indices which hold magnetometer data
+     * @param board_id board id of your device
+     * @throw BrainFlowException If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+     */
+    static std::vector<int> get_magnetometer_channels (
         int board_id, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
     /// release all currently prepared session
     static void release_all_sessions ();
@@ -221,6 +235,15 @@ public:
      */
     void add_streamer (
         std::string streamer_params, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
+    /**
+     * delete streamer
+     * @param streamer_params use it to pass data packages further or store them directly during
+     streaming, supported values: "file://%file_name%:w", "file://%file_name%:a",
+     "streaming_board://%multicast_group_ip%:%port%"". Range for multicast addresses is from
+     "224.0.0.0" to "239.255.255.255"
+     */
+    void delete_streamer (
+        std::string streamer_params, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
     /// check if session is ready or not
     bool is_prepared ();
     /// stop streaming thread, doesnt release other resources
@@ -240,6 +263,8 @@ public:
     BrainFlowArray<double, 2> get_board_data (int num_datapoints, int preset);
     /// send string to a board, use it carefully and only if you understand what you are doing
     std::string config_board (std::string config);
+    /// send raw bytes to a board, not implemented for majority of devices, not recommended to use
+    void config_board_with_bytes (const char *bytes, int len);
     /// insert marker in data stream
     void insert_marker (double value, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
 };

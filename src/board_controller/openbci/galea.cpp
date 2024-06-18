@@ -18,13 +18,10 @@ using json = nlohmann::json;
 #include <errno.h>
 #endif
 
-constexpr int Galea::max_bytes_in_transaction;
-constexpr int Galea::exg_package_size;
-constexpr int Galea::aux_package_size;
+constexpr int Galea::package_size;
+constexpr int Galea::max_num_packages;
+constexpr int Galea::max_transaction_size;
 constexpr int Galea::socket_timeout;
-constexpr int Galea::start_eeg_byte;
-constexpr int Galea::start_aux_byte;
-constexpr int Galea::stop_byte;
 
 Galea::Galea (struct BrainFlowInputParams params) : Board ((int)BoardIds::GALEA_BOARD, params)
 {
@@ -106,7 +103,7 @@ int Galea::config_board (std::string conf, std::string &response)
         safe_logger (spdlog::level::err, "You need to call prepare_session before config_board");
         return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
     }
-    // special handling for calc_time command
+    // special handling for some commands
     if (conf == "calc_time")
     {
         if (is_streaming)
@@ -118,12 +115,19 @@ int Galea::config_board (std::string conf, std::string &response)
         return res;
     }
 
+    if (gain_tracker.apply_config (conf) == (int)OpenBCICommandTypes::INVALID_COMMAND)
+    {
+        safe_logger (spdlog::level::warn, "invalid command: {}", conf.c_str ());
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+
     const char *config = conf.c_str ();
     safe_logger (spdlog::level::debug, "Trying to config Galea with {}", config);
     int len = (int)strlen (config);
     int res = socket->send (config, len);
     if (len != res)
     {
+        gain_tracker.revert_config ();
         if (res == -1)
         {
 #ifdef _WIN32
@@ -135,16 +139,16 @@ int Galea::config_board (std::string conf, std::string &response)
         safe_logger (spdlog::level::err, "Failed to config a board");
         return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
     }
+
     if (!is_streaming)
     {
-        char b[Galea::max_bytes_in_transaction];
-        res = Galea::exg_package_size;
+        char b[Galea::max_transaction_size];
+        res = Galea::max_transaction_size;
         int max_attempt = 25; // to dont get to infinite loop
         int current_attempt = 0;
-        while (((res % Galea::exg_package_size == 0) || (res % Galea::aux_package_size == 0)) &&
-            (res > 0))
+        while ((res >= 0) && (res % Galea::package_size == 0))
         {
-            res = socket->recv (b, Galea::max_bytes_in_transaction);
+            res = socket->recv (b, Galea::max_transaction_size);
             if (res == -1)
             {
 #ifdef _WIN32
@@ -179,6 +183,12 @@ int Galea::config_board (std::string conf, std::string &response)
                 safe_logger (spdlog::level::warn, "unknown char received: {}", b[0]);
                 return (int)BrainFlowExitCodes::STATUS_OK;
         }
+    }
+    else
+    {
+        safe_logger (spdlog::level::warn,
+            "reconfiguring device during the streaming may lead to inconsistent data, it's "
+            "recommended to call stop_stream before config_board");
     }
 
     return (int)BrainFlowExitCodes::STATUS_OK;
@@ -274,13 +284,13 @@ int Galea::stop_stream ()
         }
 
         // free kernel buffer
-        unsigned char b[Galea::max_bytes_in_transaction];
+        unsigned char b[Galea::max_transaction_size];
         res = 0;
         int max_attempt = 25; // to dont get to infinite loop
         int current_attempt = 0;
         while (res != -1)
         {
-            res = socket->recv (b, Galea::max_bytes_in_transaction);
+            res = socket->recv (b, Galea::max_transaction_size);
             current_attempt++;
             if (current_attempt == max_attempt)
             {
@@ -330,12 +340,14 @@ int Galea::release_session ()
 void Galea::read_thread ()
 {
     int res;
-    unsigned char b[Galea::max_bytes_in_transaction];
+    unsigned char b[Galea::max_transaction_size];
     DataBuffer time_buffer (1, 11);
-    for (int i = 0; i < Galea::max_bytes_in_transaction; i++)
+    double latest_times[10];
+    for (int i = 0; i < Galea::max_transaction_size; i++)
     {
         b[i] = 0;
     }
+
     int num_exg_rows = board_descr["default"]["num_rows"];
     int num_aux_rows = board_descr["auxiliary"]["num_rows"];
     double *exg_package = new double[num_exg_rows];
@@ -351,183 +363,124 @@ void Galea::read_thread ()
 
     while (keep_alive)
     {
-        res = socket->recv (b, Galea::max_bytes_in_transaction);
-        double pc_timestamp = get_timestamp ();
-        // inform the main thread that everything is ok and first package was received
-        if ((this->state != (int)BrainFlowExitCodes::STATUS_OK) &&
-            (((res % Galea::exg_package_size == 0) || (res % Galea::aux_package_size == 0)) &&
-                (res > 0)))
+        res = socket->recv (b, Galea::max_transaction_size);
+        if (res == -1)
         {
-            safe_logger (spdlog::level::info,
-                "received first package with {} bytes streaming is started", res);
-            {
-                std::lock_guard<std::mutex> lk (this->m);
-                this->state = (int)BrainFlowExitCodes::STATUS_OK;
-            }
-            this->cv.notify_one ();
-            safe_logger (spdlog::level::debug, "start streaming");
-        }
-        if ((res > 0) && (res % Galea::exg_package_size == 0) && (b[0] == Galea::start_eeg_byte))
-        {
-            add_exg_package (exg_package, b, res, pc_timestamp, &time_buffer);
-        }
-        else if ((res > 0) && (res % Galea::aux_package_size == 0) &&
-            (b[0] == Galea::start_aux_byte))
-        {
-            add_aux_package (aux_package, b, res, pc_timestamp, &time_buffer);
-        }
-        else
-        {
-            if (res == -1)
-            {
 #ifdef _WIN32
-                safe_logger (spdlog::level::err, "WSAGetLastError is {}", WSAGetLastError ());
+            safe_logger (spdlog::level::err, "WSAGetLastError is {}", WSAGetLastError ());
 #else
-                safe_logger (spdlog::level::err, "errno {} message {}", errno, strerror (errno));
+            safe_logger (spdlog::level::err, "errno {} message {}", errno, strerror (errno));
 #endif
-            }
+            continue;
+        }
+        if (res % Galea::package_size != 0)
+        {
             if (res > 0)
             {
                 // more likely its a string received, try to print it
                 b[res] = '\0';
-                safe_logger (spdlog::level::warn, "Received: {}, size is: {}", b, res);
+                safe_logger (spdlog::level::warn, "Received: {}", b);
+            }
+            continue;
+        }
+        else
+        {
+            int num_packages = res / Galea::package_size;
+            int offset_last_package = Galea::package_size * (num_packages - 1);
+            // calc delta between PC timestamp and device timestamp in last 10 packages,
+            // use this delta later on to assign timestamps
+            double pc_timestamp = get_timestamp ();
+            double timestamp_last_package = 0.0;
+            memcpy (&timestamp_last_package, b + 64 + offset_last_package, 8);
+            timestamp_last_package /= 1000; // from ms to seconds
+            double time_delta = pc_timestamp - timestamp_last_package;
+            time_buffer.add_data (&time_delta);
+            int num_time_deltas = (int)time_buffer.get_current_data (10, latest_times);
+            time_delta = 0.0;
+            for (int i = 0; i < num_time_deltas; i++)
+            {
+                time_delta += latest_times[i];
+            }
+            time_delta /= num_time_deltas;
+
+            // inform main thread that everything is ok and first package was received
+            if (this->state != (int)BrainFlowExitCodes::STATUS_OK)
+            {
+                safe_logger (spdlog::level::info,
+                    "received first package with {} bytes streaming is started", res);
+                {
+                    std::lock_guard<std::mutex> lk (this->m);
+                    this->state = (int)BrainFlowExitCodes::STATUS_OK;
+                }
+                this->cv.notify_one ();
+                safe_logger (spdlog::level::debug, "start streaming");
+            }
+
+            for (int cur_package = 0; cur_package < num_packages; cur_package++)
+            {
+                int offset = cur_package * package_size;
+                // exg (default preset)
+                exg_package[board_descr["default"]["package_num_channel"].get<int> ()] =
+                    (double)b[0 + offset];
+                for (int i = 4, tmp_counter = 0; i < 20; i++, tmp_counter++)
+                {
+                    double exg_scale = (double)(4.5 / float ((pow (2, 23) - 1)) /
+                        gain_tracker.get_gain_for_channel (tmp_counter) * 1000000.);
+                    exg_package[i - 3] =
+                        exg_scale * (double)cast_24bit_to_int32 (b + offset + 5 + 3 * (i - 4));
+                }
+                double timestamp_device = 0.0;
+                memcpy (&timestamp_device, b + 64 + offset, 8);
+                timestamp_device /= 1000; // from ms to seconds
+
+                exg_package[board_descr["default"]["timestamp_channel"].get<int> ()] =
+                    timestamp_device + time_delta - half_rtt;
+                exg_package[board_descr["default"]["other_channels"][0].get<int> ()] = pc_timestamp;
+                exg_package[board_descr["default"]["other_channels"][1].get<int> ()] =
+                    timestamp_device;
+                push_package (exg_package);
+
+                // aux, 5 times smaller sampling rate
+                if (((int)b[0 + offset]) % 5 == 0)
+                {
+                    aux_package[board_descr["auxiliary"]["package_num_channel"].get<int> ()] =
+                        (double)b[0 + offset];
+                    uint16_t temperature = 0;
+                    int32_t ppg_ir = 0;
+                    int32_t ppg_red = 0;
+                    float eda;
+                    memcpy (&temperature, b + 54 + offset, 2);
+                    memcpy (&eda, b + 1 + offset, 4);
+                    memcpy (&ppg_red, b + 56 + offset, 4);
+                    memcpy (&ppg_ir, b + 60 + offset, 4);
+                    // ppg
+                    aux_package[board_descr["auxiliary"]["ppg_channels"][0].get<int> ()] =
+                        (double)ppg_red;
+                    aux_package[board_descr["auxiliary"]["ppg_channels"][1].get<int> ()] =
+                        (double)ppg_ir;
+                    // eda
+                    aux_package[board_descr["auxiliary"]["eda_channels"][0].get<int> ()] =
+                        (double)eda;
+                    // temperature
+                    aux_package[board_descr["auxiliary"]["temperature_channels"][0].get<int> ()] =
+                        temperature / 100.0;
+                    // battery
+                    aux_package[board_descr["auxiliary"]["battery_channel"].get<int> ()] =
+                        (double)b[53 + offset];
+                    aux_package[board_descr["auxiliary"]["timestamp_channel"].get<int> ()] =
+                        timestamp_device + time_delta - half_rtt;
+                    aux_package[board_descr["auxiliary"]["other_channels"][0].get<int> ()] =
+                        pc_timestamp;
+                    aux_package[board_descr["auxiliary"]["other_channels"][1].get<int> ()] =
+                        timestamp_device;
+
+                    push_package (aux_package, (int)BrainFlowPresets::AUXILIARY_PRESET);
+                }
             }
         }
     }
     delete[] exg_package;
     delete[] aux_package;
-}
-
-void Galea::add_exg_package (
-    double *package, unsigned char *b, int num_bytes, double pc_timestamp, DataBuffer *time_buffer)
-{
-    // 20 times:
-    // b[0] start byte
-    // b[1] package num
-    // b[2-49] exg
-    // b[50-57] timestamp
-    // b[58] end byte
-    int num_exg_packages = num_bytes / Galea::exg_package_size;
-    if ((num_bytes < 1) || (num_bytes % Galea::exg_package_size != 0) ||
-        (b[0] != Galea::start_eeg_byte) || (b[num_bytes - 1] != Galea::stop_byte) ||
-        (num_exg_packages < 2))
-    {
-        safe_logger (spdlog::level::trace, "push exg package is called with invalid input data");
-        return;
-    }
-
-    int offset_last_package = Galea::exg_package_size * (num_exg_packages - 1);
-    double timestamp_last_package = 0.0;
-    memcpy (&timestamp_last_package, b + 50 + offset_last_package, 8);
-    timestamp_last_package /= 1000; // from ms to seconds
-    double time_delta = pc_timestamp - timestamp_last_package;
-    time_buffer->add_data (&time_delta);
-    double latest_times[10];
-    int num_time_deltas = (int)time_buffer->get_current_data (10, latest_times);
-    time_delta = 0.0;
-    for (int i = 0; i < num_time_deltas; i++)
-    {
-        time_delta += latest_times[i];
-    }
-    time_delta /= num_time_deltas;
-
-    for (int cur_package = 0; cur_package < num_exg_packages; cur_package++)
-    {
-        int offset = cur_package * Galea::exg_package_size;
-        // package num
-        package[board_descr["default"]["package_num_channel"].get<int> ()] = (double)b[1 + offset];
-        // eeg and emg
-        for (int i = 0; i < 16; i++)
-        {
-            if (i < 6)
-                package[i + 1] = emg_scale * (double)cast_24bit_to_int32 (b + offset + 2 + 3 * i);
-            else if ((i == 6) || (i == 7)) // fp1 and fp2
-                package[i + 1] =
-                    eeg_scale_sister_board * (double)cast_24bit_to_int32 (b + offset + 2 + 3 * i);
-            else
-                package[i + 1] =
-                    eeg_scale_main_board * (double)cast_24bit_to_int32 (b + offset + 2 + 3 * i);
-        }
-
-        double timestamp_device = 0.0;
-        memcpy (&timestamp_device, b + 50 + offset, 8);
-        timestamp_device /= 1000; // from ms to seconds
-        package[board_descr["default"]["timestamp_channel"].get<int> ()] =
-            timestamp_device + time_delta - half_rtt;
-        package[board_descr["default"]["other_channels"][0].get<int> ()] = pc_timestamp;
-        package[board_descr["default"]["other_channels"][1].get<int> ()] = timestamp_device;
-
-        push_package (package);
-    }
-}
-
-void Galea::add_aux_package (
-    double *package, unsigned char *b, int num_bytes, double pc_timestamp, DataBuffer *time_buffer)
-{
-    // 4 times:
-    // b[0] start byte
-    // b[1] package num
-    // b[2-5] eda
-    // b[6-7] temperature
-    // b[8-15] ppg
-    // b[16] battery
-    // b[17-24] timestamp
-    // b[25] end byte
-    int num_aux_packages = num_bytes / Galea::aux_package_size;
-    if ((num_bytes < 1) || (num_bytes % Galea::aux_package_size != 0) ||
-        (b[0] != Galea::start_aux_byte) || (b[num_bytes - 1] != Galea::stop_byte) ||
-        (num_aux_packages < 2))
-    {
-        safe_logger (spdlog::level::trace, "push aux package is called with invalid input data");
-        return;
-    }
-
-    int offset_last_package = Galea::aux_package_size * (num_aux_packages - 1);
-    double timestamp_last_package = 0.0;
-    memcpy (&timestamp_last_package, b + 17 + offset_last_package, 8);
-    timestamp_last_package /= 1000; // from ms to seconds
-    double time_delta = pc_timestamp - timestamp_last_package;
-    time_buffer->add_data (&time_delta);
-    double latest_times[10];
-    int num_time_deltas = (int)time_buffer->get_current_data (10, latest_times);
-    time_delta = 0.0;
-    for (int i = 0; i < num_time_deltas; i++)
-    {
-        time_delta += latest_times[i];
-    }
-    time_delta /= num_time_deltas;
-
-    for (int cur_package = 0; cur_package < num_aux_packages; cur_package++)
-    {
-        int offset = cur_package * Galea::aux_package_size;
-        // package num
-        package[board_descr["auxiliary"]["package_num_channel"].get<int> ()] =
-            (double)b[1 + offset];
-        uint16_t temperature = 0;
-        int32_t ppg_ir = 0;
-        int32_t ppg_red = 0;
-        float eda = 0;
-        memcpy (&temperature, b + 6 + offset, 2);
-        memcpy (&eda, b + 2 + offset, 4);
-        memcpy (&ppg_red, b + 8 + offset, 4);
-        memcpy (&ppg_ir, b + 12 + offset, 4);
-        package[board_descr["auxiliary"]["ppg_channels"][0].get<int> ()] = (double)ppg_red;
-        package[board_descr["auxiliary"]["ppg_channels"][1].get<int> ()] = (double)ppg_ir;
-        package[board_descr["auxiliary"]["eda_channels"][0].get<int> ()] = (double)eda;
-        package[board_descr["auxiliary"]["temperature_channels"][0].get<int> ()] =
-            temperature / 100.0;
-        package[board_descr["auxiliary"]["battery_channel"].get<int> ()] = (double)b[16 + offset];
-
-        double timestamp_device = 0.0;
-        memcpy (&timestamp_device, b + 17 + offset, 8);
-        timestamp_device /= 1000; // from ms to seconds
-        package[board_descr["auxiliary"]["timestamp_channel"].get<int> ()] =
-            timestamp_device + time_delta - half_rtt;
-        package[board_descr["auxiliary"]["other_channels"][0].get<int> ()] = pc_timestamp;
-        package[board_descr["auxiliary"]["other_channels"][1].get<int> ()] = timestamp_device;
-
-        push_package (package, (int)BrainFlowPresets::AUXILIARY_PRESET);
-    }
 }
 
 int Galea::calc_time (std::string &resp)
@@ -550,6 +503,7 @@ int Galea::calc_time (std::string &resp)
             spdlog::level::warn, "failed to recv resp from time calc command, resp size {}", res);
         return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
     }
+
 
     double duration = done - start;
     double timestamp_device = 0;

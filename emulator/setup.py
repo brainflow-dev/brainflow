@@ -8,7 +8,7 @@ setup(
     description='Emulator for brainflow project',
     url='https://github.com/Andrey1994/brainflow',
     author='Andrey Parfenov',
-    author_email='a1994ndrey@gmail.com',
+    author_email='andrey@brainflow.org',
     packages=find_packages(),
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',

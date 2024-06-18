@@ -1,4 +1,3 @@
-import brainflow
 from brainflow.board_shim import BoardShim
 
 BoardShim.enable_dev_board_logger()

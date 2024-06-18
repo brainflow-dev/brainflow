@@ -1,7 +1,9 @@
+cargo-features = ["edition2021"]
+
 [package]
 name = "brainflow"
 version = "0.0.1"
-authors = ["Andrey Parfenov <a1994ndrey@gmail.com>", "Daniel Hahne <brainflow@niel.re>"]
+authors = ["Andrey Parfenov <andrey@brainflow.org>", "Daniel Hahne <brainflow@niel.re>"]
 edition = "2018"
 description = "BrainFlow is a library intended to obtain, parse and analyze EEG, EMG, ECG, and other kinds of data from biosensors."
 repository = "https://github.com/brainflow-dev/brainflow"
@@ -28,6 +30,7 @@ thiserror = "1.0.29"
 
 [dev-dependencies]
 approx = "0.5.0"
+regex = "1.6.0"
 
 [build-dependencies]
 bindgen = { version = "0.59.1", optional = true }

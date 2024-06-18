@@ -60,6 +60,6 @@ jobs:
       with:
         add: '-u julia_package'
         author_name: Andrey1994
-        author_email: a1994ndrey@gmail.com
+        author_email: andrey@brainflow.org
         message: 'Bump Julia Version'
         token: ${{ secrets.GITHUB_TOKEN }}

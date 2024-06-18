@@ -15,8 +15,9 @@ namespace brainflow
         /// BrainFlow's board id
         /// </summary>
         public int board_id;
+        public BrainFlowInputParams input_params;
         private string input_json;
-        private int master_board_id; // for streaming board
+        private int master_board; // for streaming board
 
         /// <summary>
         /// Create an instance of BoardShim class
@@ -26,19 +27,25 @@ namespace brainflow
         public BoardShim (int board_id, BrainFlowInputParams input_params)
         {
             this.board_id = board_id;
-            this.master_board_id = board_id;
+            this.input_params = input_params;
+
             if ((board_id == (int)BoardIds.STREAMING_BOARD) || (board_id == (int)BoardIds.PLAYBACK_FILE_BOARD))
             {
-                try
+                if (input_params.master_board != (int)BoardIds.NO_BOARD)
                 {
-                    master_board_id = System.Convert.ToInt32 (input_params.other_info);
+                    master_board = input_params.master_board;
                 }
-                catch (FormatException)
+                else
                 {
                     throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
                 }
             }
-            this.input_json = input_params.to_json ();
+            else
+            {
+                master_board = board_id;
+            }
+
+            input_json = input_params.to_json ();
         }
 
         /// <summary>
@@ -144,7 +151,7 @@ namespace brainflow
         }
 
         /// <summary>
-        /// get number of rows in returned by get_board_data() 2d array 
+        /// get number of rows in returned by get_board_data() 2d array
         /// </summary>
         /// <param name="board_id"></param>
         /// <param name="preset">preset for device</param>
@@ -459,7 +466,31 @@ namespace brainflow
         }
 
         /// <summary>
-        /// get row indices which hold analog data 
+        /// get row indices which hold rotation data
+        /// </summary>
+        /// <param name="board_id"></param>
+        /// <param name="preset">preset for device</param>
+        /// <returns>array of row nums</returns>
+        /// <exception cref="BrainFlowException">If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR</exception>
+        public static int[] get_rotation_channels (int board_id, int preset = (int)BrainFlowPresets.DEFAULT_PRESET)
+        {
+            int[] len = new int[1];
+            int[] channels = new int[512];
+            int res = BoardControllerLibrary.get_rotation_channels (board_id, preset, channels, len);
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+            int[] result = new int[len[0]];
+            for (int i = 0; i < len[0]; i++)
+            {
+                result[i] = channels[i];
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// get row indices which hold analog data
         /// </summary>
         /// <param name="board_id"></param>
         /// <param name="preset">preset for device</param>
@@ -579,6 +610,30 @@ namespace brainflow
         }
 
         /// <summary>
+        /// get magnetometer channels for this board
+        /// </summary>
+        /// <param name="board_id"></param>
+        /// <param name="preset">preset for device</param>
+        /// <returns>array of row nums</returns>
+        /// <exception cref="BrainFlowException">If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR</exception>
+        public static int[] get_magnetometer_channels (int board_id, int preset = (int)BrainFlowPresets.DEFAULT_PRESET)
+        {
+            int[] len = new int[1];
+            int[] channels = new int[512];
+            int res = BoardControllerLibrary.get_magnetometer_channels (board_id, preset, channels, len);
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+            int[] result = new int[len[0]];
+            for (int i = 0; i < len[0]; i++)
+            {
+                result[i] = channels[i];
+            }
+            return result;
+        }
+
+        /// <summary>
         /// set log level, logger is disabled by default
         /// </summary>
         /// <param name="log_level"></param>
@@ -670,6 +725,19 @@ namespace brainflow
             string response = System.Text.Encoding.UTF8.GetString (str, 0, len[0]);
             return response;
         }
+        
+        /// <summary>
+        /// send raw bytes to device, dont use it
+        /// </summary>
+        /// <param name="bytes"></param>
+        public void config_board_with_bytes (byte[] bytes)
+        {
+            int res = BoardControllerLibrary.config_board_with_bytes (bytes, bytes.Length, board_id, input_json);
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+        }
 
         /// <summary>
         /// add streamer
@@ -678,6 +746,19 @@ namespace brainflow
         public void add_streamer (string streamer_params, int preset = (int)BrainFlowPresets.DEFAULT_PRESET)
         {
             int res = BoardControllerLibrary.add_streamer (streamer_params, preset, board_id, input_json);
+            if (res != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (res);
+            }
+        }
+
+        /// <summary>
+        /// delete streamer
+        /// </summary>
+        /// <param name="streamer_params">supoprted formats file://filename:w file://filename:a streaming_board://ip:port</param>
+        public void delete_streamer (string streamer_params, int preset = (int)BrainFlowPresets.DEFAULT_PRESET)
+        {
+            int res = BoardControllerLibrary.delete_streamer (streamer_params, preset, board_id, input_json);
             if (res != (int)BrainFlowExitCodes.STATUS_OK)
             {
                 throw new BrainFlowError (res);
@@ -755,8 +836,18 @@ namespace brainflow
         /// <returns> Master board id </returns>
         public int get_board_id ()
         {
-            return master_board_id;
+            return master_board;
         }
+
+        ///<summary>
+        /// Get input params
+        ///</summary>
+        /// <returns> input params </returns>
+        public BrainFlowInputParams get_input_params ()
+        {
+            return input_params;
+        }
+
         /// <summary>
         /// get number of packages in ringbuffer
         /// </summary>
@@ -781,21 +872,46 @@ namespace brainflow
         /// <returns>latest collected data, can be less than "num_samples"</returns>
         public double[,] get_current_board_data (int num_samples, int preset = (int)BrainFlowPresets.DEFAULT_PRESET)
         {
-            int num_rows = BoardShim.get_num_rows (master_board_id, preset);
-            double[] data_arr = new double[num_samples * num_rows];
+            int size = get_board_data_count (preset);
+            if (num_samples < 0)
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            size = Math.Min (size, num_samples);
+            int num_rows = BoardShim.get_num_rows (master_board, preset);
+            double[,] result = new double[num_rows, size];
             int[] current_size = new int[1];
-            int ec = BoardControllerLibrary.get_current_board_data (num_samples, preset, data_arr, current_size, board_id, input_json);
+            int ec = BoardControllerLibrary.get_current_board_data (num_samples, preset, result, current_size, board_id, input_json);
             if (ec != (int)BrainFlowExitCodes.STATUS_OK)
             {
                 throw new BrainFlowError (ec);
             }
-            double[,] result = new double[num_rows, current_size[0]];
-            for (int i = 0; i < num_rows; i++)
+            return result;
+        }
+
+        /// <summary>
+        /// get latest collected data, doesnt remove it from ringbuffer
+        /// </summary>
+        /// <param name="preset">preset for device</param>
+        /// <param name="result">array to store results, if provided BrainFlow does not allocate new memory</param>
+        /// <returns>latest collected data, can be less than "num_samples"</returns>
+        public double[,] get_current_board_data (double[,] result, int preset = (int)BrainFlowPresets.DEFAULT_PRESET)
+        {
+            int size = get_board_data_count (preset);
+            if (size < result.GetLength(1))
             {
-                for (int j = 0; j < current_size[0]; j++)
-                {
-                    result[i, j] = data_arr[i * current_size[0] + j];
-                }
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            int num_rows = BoardShim.get_num_rows (master_board, preset);
+            if (result.GetLength(0) != num_rows)
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            int[] current_size = new int[1];
+            int ec = BoardControllerLibrary.get_current_board_data (result.GetLength (1), preset, result, current_size, board_id, input_json);
+            if (ec != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (ec);
             }
             return result;
         }
@@ -823,6 +939,7 @@ namespace brainflow
         /// <summary>
         /// get collected data and remove it from ringbuffer
         /// </summary>
+        /// <param name="num_datapoints">number of datapoints to get</param>
         /// <param name="preset">preset for device</param>
         /// <returns>all collected data</returns>
         public double[,] get_board_data (int num_datapoints, int preset)
@@ -833,22 +950,40 @@ namespace brainflow
                 throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             }
             size = Math.Min (size, num_datapoints);
-            int num_rows = BoardShim.get_num_rows (master_board_id, preset);
-            double[] data_arr = new double[size * num_rows];
+            int num_rows = BoardShim.get_num_rows (master_board, preset);
+            double[,] data_arr = new double[num_rows, size];
             int ec = BoardControllerLibrary.get_board_data (size, preset, data_arr, board_id, input_json);
             if (ec != (int)BrainFlowExitCodes.STATUS_OK)
             {
                 throw new BrainFlowError (ec);
             }
-            double[,] result = new double[num_rows, size];
-            for (int i = 0; i < num_rows; i++)
+            return data_arr;
+        }
+
+        /// <summary>
+        /// get collected data and remove it from ringbuffer
+        /// </summary>
+        /// <param name="data_arr">array to store results, if provided BrainFlow will not allocate memory</param>
+        /// <param name="preset">preset for device</param>
+        /// <returns>all collected data</returns>
+        public double[,] get_board_data (double[,] data_arr, int preset)
+        {
+            int size = get_board_data_count (preset);
+            if (size < data_arr.GetLength(1))
             {
-                for (int j = 0; j < size; j++)
-                {
-                    result[i, j] = data_arr[i * size + j];
-                }
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
             }
-            return result;
+            int num_rows = BoardShim.get_num_rows (master_board, preset);
+            if (num_rows != data_arr.GetLength(0))
+            {
+                throw new BrainFlowError ((int)BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR);
+            }
+            int ec = BoardControllerLibrary.get_board_data (data_arr.GetLength (1), preset, data_arr, board_id, input_json);
+            if (ec != (int)BrainFlowExitCodes.STATUS_OK)
+            {
+                throw new BrainFlowError (ec);
+            }
+            return data_arr;
         }
     }
 }

@@ -16,7 +16,7 @@ def run_command(cmd, cwd=None):
         if line:
             print(line.decode('utf-8', 'ignore'), end='')
         else:
-            if p.poll() != None:
+            if p.poll() is not None:
                 break
     if p.returncode != 0:
         raise ValueError('Process finished with error code %d' % p.returncode)
@@ -98,7 +98,9 @@ def get_win_generators():
     result = list()
     try:
         output = subprocess.check_output(
-            ['C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe', '-property', 'displayName'])
+            ['C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe',
+             '-property',
+             'displayName'])
         output = output.decode('utf-8', 'ignore')
         print(output)
         if '2022' in output:
@@ -135,7 +137,8 @@ def prepare_args():
             '--no-oymotion', dest='oymotion', action='store_false')
         parser.set_defaults(oymotion=False)
         parser.add_argument('--msvc-runtime', type=str, choices=[
-                            'static', 'dynamic'], help='how to link MSVC runtime', required=False, default='static')
+                            'static', 'dynamic'],
+                            help='how to link MSVC runtime', required=False, default='static')
         generators = get_win_generators()
         if not generators:
             parser.add_argument('--generator', type=str,
@@ -150,22 +153,27 @@ def prepare_args():
                                 required=False, default=generator.get_generator())
             if generator.get_arch() is not None:
                 parser.add_argument('--arch', type=str, choices=[
-                                    'x64', 'Win32', 'ARM', 'ARM64'], help='arch for CMake', required=False, default=generator.get_arch())
+                                    'x64', 'Win32', 'ARM', 'ARM64'],
+                                    help='arch for CMake',
+                                    required=False, default=generator.get_arch())
             else:
                 parser.add_argument('--arch', type=str, choices=[
-                                    'x64', 'Win32', 'ARM', 'ARM64'], help='arch for CMake', required=False)
+                                    'x64', 'Win32', 'ARM', 'ARM64'],
+                                    help='arch for CMake', required=False)
             if generator.get_sdk_version() is not None:
-                parser.add_argument('--cmake-system-version', type=str, help='system version for win',
+                parser.add_argument('--cmake-system-version', type=str,
+                                    help='system version for win',
                                     required=False, default=generator.get_sdk_version())
             else:
                 parser.add_argument(
-                    '--cmake-system-version', type=str, help='system version for win', required=False)
+                    '--cmake-system-version', type=str,
+                    help='system version for win', required=False)
     elif platform.system() == 'Darwin':
         macos_ver = platform.mac_ver()[0]
         versions = [int(x) for x in macos_ver.split('.')]
         if versions[0] >= 11:
             parser.add_argument('--cmake-osx-architectures', type=str,
-                                help='archs for osx', required=False, default='"arm64;x86_64"')
+                                help='archs for osx', required=False, default='arm64;x86_64')
         else:
             parser.add_argument('--cmake-osx-architectures',
                                 type=str, help='archs for osx', required=False)
@@ -185,7 +193,6 @@ def prepare_args():
         parser.add_argument('--generator', type=str,
                             help='CMake generator', required=False)
         parser.add_argument('--use-libftdi', action='store_true')
-        parser.add_argument('--use-periphery', action='store_true')
 
     parser.add_argument('--build-dir', type=str, help='build folder',
                         required=False, default=os.path.join(cur_folder, '..', 'build'))
@@ -235,17 +242,15 @@ def config(args):
         cmd_config.append('-DBRAINFLOW_VERSION=%s' % args.brainflow_version)
     if hasattr(args, 'use_libftdi') and args.use_libftdi:
         cmd_config.append('-DUSE_LIBFTDI=ON')
-    if hasattr(args, 'use_periphery') and args.use_periphery:
-        cmd_config.append('-DUSE_PERIPHERY=ON')
     if args.warnings_as_errors:
         cmd_config.append('-DWARNINGS_AS_ERRORS=ON')
     if args.use_openmp:
         cmd_config.append('-DUSE_OPENMP=ON')
     if hasattr(args, 'oymotion') and args.oymotion:
         cmd_config.append('-DBUILD_OYMOTION_SDK=ON')
-    if hasattr(args, 'cmake_osx_architecture') and args.cmake_osx_architecture:
+    if hasattr(args, 'cmake_osx_architectures') and args.cmake_osx_architectures:
         cmd_config.append('-DCMAKE_OSX_ARCHITECTURES=%s' %
-                          args.cmake_osx_architecture)
+                          args.cmake_osx_architectures)
     if hasattr(args, 'cmake_osx_deployment_target') and args.cmake_osx_deployment_target:
         cmd_config.append('-DCMAKE_OSX_DEPLOYMENT_TARGET=%s' %
                           args.cmake_osx_deployment_target)

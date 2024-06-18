@@ -32,7 +32,7 @@ impl BoardIds {
     pub const FIRST: BoardIds = BoardIds::PlaybackFileBoard;
 }
 impl BoardIds {
-    pub const LAST: BoardIds = BoardIds::PieegBoard;
+    pub const LAST: BoardIds = BoardIds::ExplorePlus32ChanBoard;
 }
 #[repr(i32)]
 #[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -55,7 +55,6 @@ pub enum BoardIds {
     CallibriEcgBoard = 11,
     Notion1Board = 13,
     Notion2Board = 14,
-    IronbciBoard = 15,
     GforceProBoard = 16,
     Freeeeg32Board = 17,
     BrainbitBledBoard = 18,
@@ -83,7 +82,18 @@ pub enum BoardIds {
     BrainaliveBoard = 40,
     Muse2016Board = 41,
     Muse2016BledBoard = 42,
-    PieegBoard = 43,
+    Explore4ChanBoard = 44,
+    Explore8ChanBoard = 45,
+    GanglionNativeBoard = 46,
+    EmotibitBoard = 47,
+    GaleaBoardV4 = 48,
+    GaleaSerialBoardV4 = 49,
+    NtlWifiBoard = 50,
+    AntNeuroEe511Board = 51,
+    Freeeeg128Board = 52,
+    AavaaV3Board = 53,
+    ExplorePlus8ChanBoard = 54,
+    ExplorePlus32ChanBoard = 55,
 }
 #[repr(i32)]
 #[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -98,6 +108,9 @@ pub enum FilterTypes {
     Butterworth = 0,
     ChebyshevType1 = 1,
     Bessel = 2,
+    ButterworthZeroPhase = 3,
+    ChebyshevType1ZeroPhase = 4,
+    BesselZeroPhase = 5,
 }
 #[repr(i32)]
 #[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]

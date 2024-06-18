@@ -91,7 +91,7 @@ if read_the_docs_build:
     configure_doxyfile(input_dir, output_dir, 'BrainFlowCsharp')
     subprocess.call('doxygen', shell=True)
     breathe_projects['BrainFlowCsharp'] = output_dir + '/xml'
-    # core api, we dont use it right now but maybe later we will docs for developers too
+    # core api, we dont use it right now but maybe later we will have docs for developers too
     input_dir = '../src'
     output_dir = 'build-core'
     configure_doxyfile(input_dir, output_dir, 'BrainFlowCore')
@@ -142,7 +142,7 @@ nbsphinx_execute_arguments = [
 ]
 nbsphinx_input_prompt = 'In [%s]:'
 nbsphinx_output_prompt = 'Out[%s]:'
-nbsphinx_timeout = 60
+nbsphinx_timeout = 120
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for

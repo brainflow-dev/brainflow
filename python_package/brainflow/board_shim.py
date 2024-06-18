@@ -10,7 +10,6 @@ import numpy
 import pkg_resources
 from brainflow.exit_codes import BrainFlowExitCodes, BrainFlowError
 from brainflow.utils import LogLevels
-from nptyping import NDArray, Float64
 from numpy.ctypeslib import ndpointer
 
 
@@ -35,7 +34,6 @@ class BoardIds(enum.IntEnum):
     CALLIBRI_ECG_BOARD = 11  #:
     NOTION_1_BOARD = 13  #:
     NOTION_2_BOARD = 14  #:
-    IRONBCI_BOARD = 15  #:
     GFORCE_PRO_BOARD = 16  #:
     FREEEEG32_BOARD = 17  #:
     BRAINBIT_BLED_BOARD = 18  #:
@@ -63,7 +61,18 @@ class BoardIds(enum.IntEnum):
     BRAINALIVE_BOARD = 40  #:
     MUSE_2016_BOARD = 41  #:
     MUSE_2016_BLED_BOARD = 42  #:
-    PIEEG_BOARD = 43  #:
+    EXPLORE_4_CHAN_BOARD = 44  #:
+    EXPLORE_8_CHAN_BOARD = 45  #:
+    GANGLION_NATIVE_BOARD = 46  #:
+    EMOTIBIT_BOARD = 47  #:
+    GALEA_BOARD_V4 = 48  #:
+    GALEA_SERIAL_BOARD_V4 = 49  #:
+    NTL_WIFI_BOARD = 50  #:
+    ANT_NEURO_EE_511_BOARD = 51  #:
+    FREEEEG128_BOARD = 52  #:
+    AAVAA_V3_BOARD = 53 #:
+    EXPLORE_PLUS_8_CHAN_BOARD = 54 #:
+    EXPLORE_PLUS_32_CHAN_BOARD = 55 #:
 
 
 class IpProtocolTypes(enum.IntEnum):
@@ -91,8 +100,16 @@ class BrainFlowInputParams(object):
     :type mac_address: str
     :param ip_address: ip address is used for boards which reads data from socket connection
     :type ip_address: str
+    :param ip_address_aux: ip address is used for boards which reads data from socket connection
+    :type ip_address_aux: str
+    :param ip_address_anc: ip address is used for boards which reads data from socket connection
+    :type ip_address_anc: str
     :param ip_port: ip port for socket connection, for some boards where we know it in front you dont need this parameter
     :type ip_port: int
+    :param ip_port_aux: ip port for socket connection, for some boards where we know it in front you dont need this parameter
+    :type ip_port_aux: int
+    :param ip_port_anc: ip port for socket connection, for some boards where we know it in front you dont need this parameter
+    :type ip_port_anc: int
     :param ip_protocol: ip protocol type from IpProtocolTypes enum
     :type ip_protocol: int
     :param other_info: other info
@@ -101,20 +118,29 @@ class BrainFlowInputParams(object):
     :type serial_number: str
     :param file: file
     :type file: str
+    :param file_aux: file
+    :type file_aux: str
+    :param file_anc: file
+    :type file_anc: str
     """
 
     def __init__(self) -> None:
         self.serial_port = ''
         self.mac_address = ''
         self.ip_address = ''
+        self.ip_address_aux = ''
+        self.ip_address_anc = ''
         self.ip_port = 0
+        self.ip_port_aux = 0
+        self.ip_port_anc = 0
         self.ip_protocol = IpProtocolTypes.NO_IP_PROTOCOL.value
         self.other_info = ''
         self.timeout = 0
         self.serial_number = ''
         self.file = ''
+        self.file_aux = ''
+        self.file_anc = ''
         self.master_board = BoardIds.NO_BOARD.value
-        self.preset = BrainFlowPresets.DEFAULT_PRESET
 
     def to_json(self) -> None:
         return json.dumps(self, default=lambda o: o.__dict__,
@@ -142,10 +168,15 @@ class BoardControllerDLL(object):
             dll_path = 'lib/libBoardController.so'
         full_path = pkg_resources.resource_filename(__name__, dll_path)
         if os.path.isfile(full_path):
+            dir_path = os.path.abspath(os.path.dirname(full_path))
             # for python we load dll by direct path but this dll may depend on other dlls and they will not be found!
             # to solve it we can load all of them before loading the main one or change PATH\LD_LIBRARY_PATH env var.
             # env variable looks better, since it can be done only once for all dependencies
-            dir_path = os.path.abspath(os.path.dirname(full_path))
+            # for python 3.8 PATH env var doesnt work anymore
+            try:
+                os.add_dll_directory(dir_path)
+            except:
+                pass
             if platform.system() == 'Windows':
                 os.environ['PATH'] = dir_path + os.pathsep + os.environ.get('PATH', '')
             else:
@@ -182,6 +213,15 @@ class BoardControllerDLL(object):
         self.add_streamer = self.lib.add_streamer
         self.add_streamer.restype = ctypes.c_int
         self.add_streamer.argtypes = [
+            ctypes.c_char_p,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_char_p
+        ]
+
+        self.delete_streamer = self.lib.delete_streamer
+        self.delete_streamer.restype = ctypes.c_int
+        self.delete_streamer.argtypes = [
             ctypes.c_char_p,
             ctypes.c_int,
             ctypes.c_int,
@@ -270,6 +310,15 @@ class BoardControllerDLL(object):
             ctypes.c_char_p,
             ndpointer(ctypes.c_ubyte),
             ndpointer(ctypes.c_int32),
+            ctypes.c_int,
+            ctypes.c_char_p
+        ]
+
+        self.config_board_with_bytes = self.lib.config_board_with_bytes
+        self.config_board_with_bytes.restype = ctypes.c_int
+        self.config_board_with_bytes.argtypes = [
+            ndpointer(ctypes.c_ubyte),
+            ctypes.c_int,
             ctypes.c_int,
             ctypes.c_char_p
         ]
@@ -437,6 +486,15 @@ class BoardControllerDLL(object):
             ndpointer(ctypes.c_int32)
         ]
 
+        self.get_rotation_channels = self.lib.get_rotation_channels
+        self.get_rotation_channels.restype = ctypes.c_int
+        self.get_rotation_channels.argtypes = [
+            ctypes.c_int,
+            ctypes.c_int,
+            ndpointer(ctypes.c_int32),
+            ndpointer(ctypes.c_int32)
+        ]
+
         self.get_analog_channels = self.lib.get_analog_channels
         self.get_analog_channels.restype = ctypes.c_int
         self.get_analog_channels.argtypes = [
@@ -476,6 +534,15 @@ class BoardControllerDLL(object):
         self.get_resistance_channels = self.lib.get_resistance_channels
         self.get_resistance_channels.restype = ctypes.c_int
         self.get_resistance_channels.argtypes = [
+            ctypes.c_int,
+            ctypes.c_int,
+            ndpointer(ctypes.c_int32),
+            ndpointer(ctypes.c_int32)
+        ]
+
+        self.get_magnetometer_channels = self.lib.get_magnetometer_channels
+        self.get_magnetometer_channels.restype = ctypes.c_int
+        self.get_magnetometer_channels.argtypes = [
             ctypes.c_int,
             ctypes.c_int,
             ndpointer(ctypes.c_int32),
@@ -709,7 +776,7 @@ class BoardShim(object):
         :type board_id: int
         :return: presets for this board id
         :rtype: List[str]
-        :raises BrainFlowError
+        :raises BrainFlowError: In case of internal error or invalid args
         """
 
         num_presets = numpy.zeros(1).astype(numpy.int32)
@@ -727,7 +794,7 @@ class BoardShim(object):
 
         :return: version
         :rtype: str
-        :raises BrainFlowError
+        :raises BrainFlowError: In case of internal error or invalid args
         """
         string = numpy.zeros(64).astype(numpy.ubyte)
         string_len = numpy.zeros(1).astype(numpy.int32)
@@ -953,6 +1020,28 @@ class BoardShim(object):
         return result
 
     @classmethod
+    def get_rotation_channels(cls, board_id: int, preset: int = BrainFlowPresets.DEFAULT_PRESET) -> List[int]:
+        """get list of rotation channels in resulting data table for a board
+
+        :param board_id: Board Id
+        :type board_id: int
+        :param preset: preset
+        :type preset: int
+        :return: list of rotation channels in returned numpy array
+        :rtype: List[int]
+        :raises BrainFlowError: If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+        """
+
+        num_channels = numpy.zeros(1).astype(numpy.int32)
+        rotation_channels = numpy.zeros(512).astype(numpy.int32)
+
+        res = BoardControllerDLL.get_instance().get_rotation_channels(board_id, preset, rotation_channels, num_channels)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to request info about this board', res)
+        result = rotation_channels.tolist()[0:num_channels[0]]
+        return result
+
+    @classmethod
     def get_analog_channels(cls, board_id: int, preset: int = BrainFlowPresets.DEFAULT_PRESET) -> List[int]:
         """get list of analog channels in resulting data table for a board
 
@@ -1063,6 +1152,28 @@ class BoardShim(object):
         return result
 
     @classmethod
+    def get_magnetometer_channels(cls, board_id: int, preset: int = BrainFlowPresets.DEFAULT_PRESET) -> List[int]:
+        """get list of magnetometer channels in resulting data table for a board
+
+        :param board_id: Board Id
+        :type board_id: int
+        :param preset: preset
+        :type preset: int
+        :return: list of magnetometer channels in returned numpy array
+        :rtype: List[int]
+        :raises BrainFlowError: If this board has no such data exit code is UNSUPPORTED_BOARD_ERROR
+        """
+
+        num_channels = numpy.zeros(1).astype(numpy.int32)
+        magnetometer_channels = numpy.zeros(512).astype(numpy.int32)
+
+        res = BoardControllerDLL.get_instance().get_magnetometer_channels(board_id, preset, magnetometer_channels, num_channels)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to request info about this board', res)
+        result = magnetometer_channels.tolist()[0:num_channels[0]]
+        return result
+
+    @classmethod
     def release_all_sessions(cls) -> None:
         """release all prepared sessions"""
 
@@ -1097,6 +1208,27 @@ class BoardShim(object):
         res = BoardControllerDLL.get_instance().add_streamer(streamer, preset, self.board_id, self.input_json)
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to add streamer', res)
+
+    def delete_streamer(self, streamer_params: str, preset: int = BrainFlowPresets.DEFAULT_PRESET) -> None:
+        """Delete streamer
+
+        :param preset: preset
+        :type preset: int
+        :param streamer_params parameter to stream data from brainflow, supported vals: "file://%file_name%:w", "file://%file_name%:a", "streaming_board://%multicast_group_ip%:%port%". Range for multicast addresses is from "224.0.0.0" to "239.255.255.255"
+        :type streamer_params: str
+        """
+
+        if streamer_params is None:
+            streamer = None
+        else:
+            try:
+                streamer = streamer_params.encode()
+            except BaseException:
+                streamer = streamer_params
+
+        res = BoardControllerDLL.get_instance().delete_streamer(streamer, preset, self.board_id, self.input_json)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to delete streamer', res)
 
     def start_stream(self, num_samples: int = 1800 * 250, streamer_params: str = None) -> None:
         """Start streaming data, this methods stores data in ringbuffer
@@ -1133,7 +1265,7 @@ class BoardShim(object):
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to release streaming session', res)
 
-    def get_current_board_data(self, num_samples: int, preset: int = BrainFlowPresets.DEFAULT_PRESET) -> NDArray[Float64]:
+    def get_current_board_data(self, num_samples: int, preset: int = BrainFlowPresets.DEFAULT_PRESET):
         """Get specified amount of data or less if there is not enough data, doesnt remove data from ringbuffer
 
         :param num_samples: max number of samples
@@ -1141,7 +1273,7 @@ class BoardShim(object):
         :param preset: preset
         :type preset: int
         :return: latest data from a board
-        :rtype: NDArray[Float64]
+        :rtype: NDArray[Shape["*, *"], Float64]
         """
 
         package_length = BoardShim.get_num_rows(self._master_board_id, preset)
@@ -1212,7 +1344,7 @@ class BoardShim(object):
             raise BrainFlowError('unable to check session status', res)
         return bool(prepared[0])
 
-    def get_board_data(self, num_samples=None, preset: int = BrainFlowPresets.DEFAULT_PRESET) -> NDArray[Float64]:
+    def get_board_data(self, num_samples=None, preset: int = BrainFlowPresets.DEFAULT_PRESET):
         """Get board data and remove data from ringbuffer
 
         :param num_samples: number of packages to get
@@ -1220,7 +1352,7 @@ class BoardShim(object):
         :param preset: preset
         :type preset: int
         :return: all data from a board if num_samples is None, num_samples packages or less if not None
-        :rtype: NDArray[Float64]
+        :rtype: NDArray[Shape["*, *"], Float64]
         """
 
         data_size = self.get_board_data_count(preset)
@@ -1238,7 +1370,7 @@ class BoardShim(object):
 
         return data_arr.reshape(package_length, data_size)
 
-    def config_board(self, config) -> None:
+    def config_board(self, config) -> str:
         """Use this method carefully and only if you understand what you are doing, do NOT use it to start or stop streaming
 
         :param config: string to send to a board
@@ -1258,3 +1390,13 @@ class BoardShim(object):
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to config board', res)
         return string.tobytes().decode('utf-8')[0:string_len[0]]
+
+    def config_board_with_bytes(self, bytes_to_send) -> None:
+        """Use this method carefully and only if you understand what you are doing
+    
+        :param bytes_to_send: bytes to send
+        :type config: ndarray astype(numpy.ubyte)
+        """
+        res = BoardControllerDLL.get_instance().config_board_with_bytes(bytes_to_send, len(bytes_to_send), self.board_id, self.input_json)
+        if res != BrainFlowExitCodes.STATUS_OK.value:
+            raise BrainFlowError('unable to config board', res)

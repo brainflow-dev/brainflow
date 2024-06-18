@@ -1,12 +1,16 @@
+#include <cstdlib>
 #include <string.h>
+#include <string>
 
 #include "board.h"
 #include "brainflow_constants.h"
+#include "brainflow_env_vars.h"
 #include "file_streamer.h"
 #include "multicast_streamer.h"
 
 
-MultiCastStreamer::MultiCastStreamer (const char *ip, int port, int data_len) : Streamer (data_len)
+MultiCastStreamer::MultiCastStreamer (const char *ip, int port, int data_len)
+    : Streamer (data_len, "streaming_board", ip, std::to_string (port))
 {
     strcpy (this->ip, ip);
     this->port = port;
@@ -75,7 +79,7 @@ void MultiCastStreamer::stream_data (double *data)
 
 void MultiCastStreamer::thread_worker ()
 {
-    int num_packages = MultiCastStreamer::get_packages_in_chunk ();
+    int num_packages = get_brainflow_batch_size ();
     int transaction_len = num_packages * len;
     double *transaction = new double[transaction_len];
     for (int i = 0; i < transaction_len; i++)

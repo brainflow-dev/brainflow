@@ -22,6 +22,7 @@ mod ffi;
 /// Used to calculate derivative metrics from raw data.
 pub mod ml_model;
 
+mod test_helpers;
 /// Store all supported BrainFlow Errors.
 pub use error::BrainFlowError;
 /// Enum to store all supported Agg Operations.

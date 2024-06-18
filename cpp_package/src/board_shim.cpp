@@ -19,14 +19,19 @@ std::string params_to_string (struct BrainFlowInputParams params)
     j["serial_port"] = params.serial_port;
     j["ip_protocol"] = params.ip_protocol;
     j["ip_port"] = params.ip_port;
+    j["ip_port_aux"] = params.ip_port_aux;
+    j["ip_port_anc"] = params.ip_port_anc;
     j["ip_address"] = params.ip_address;
+    j["ip_address_aux"] = params.ip_address_aux;
+    j["ip_address_anc"] = params.ip_address_anc;
     j["mac_address"] = params.mac_address;
     j["other_info"] = params.other_info;
     j["timeout"] = params.timeout;
     j["serial_number"] = params.serial_number;
     j["file"] = params.file;
+    j["file_aux"] = params.file_aux;
+    j["file_anc"] = params.file_anc;
     j["master_board"] = params.master_board;
-    j["preset"] = params.preset;
     std::string post_str = j.dump ();
     return post_str;
 }
@@ -133,6 +138,16 @@ void BoardShim::add_streamer (std::string streamer_params, int preset)
     }
 }
 
+void BoardShim::delete_streamer (std::string streamer_params, int preset)
+{
+    int res =
+        ::delete_streamer (streamer_params.c_str (), preset, board_id, serialized_params.c_str ());
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to delete streamer", res);
+    }
+}
+
 void BoardShim::start_stream (int buffer_size, std::string streamer_params)
 {
     int res = ::start_stream (
@@ -227,6 +242,15 @@ std::string BoardShim::config_board (std::string config)
     }
     std::string resp ((const char *)response, response_len);
     return resp;
+}
+
+void BoardShim::config_board_with_bytes (const char *bytes, int len)
+{
+    int res = ::config_board_with_bytes (bytes, len, board_id, serialized_params.c_str ());
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to config board with bytes", res);
+    }
 }
 
 void BoardShim::insert_marker (double value, int preset)
@@ -482,6 +506,18 @@ std::vector<int> BoardShim::get_accel_channels (int board_id, int preset)
     return std::vector<int> (channels, channels + len);
 }
 
+std::vector<int> BoardShim::get_rotation_channels (int board_id, int preset)
+{
+    int channels[MAX_CHANNELS];
+    int len = 0;
+    int res = ::get_rotation_channels (board_id, preset, channels, &len);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to get board info", res);
+    }
+    return std::vector<int> (channels, channels + len);
+}
+
 std::vector<int> BoardShim::get_gyro_channels (int board_id, int preset)
 {
     int channels[MAX_CHANNELS];
@@ -535,6 +571,18 @@ std::vector<int> BoardShim::get_resistance_channels (int board_id, int preset)
     int channels[MAX_CHANNELS];
     int len = 0;
     int res = ::get_resistance_channels (board_id, preset, channels, &len);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to get board info", res);
+    }
+    return std::vector<int> (channels, channels + len);
+}
+
+std::vector<int> BoardShim::get_magnetometer_channels (int board_id, int preset)
+{
+    int channels[MAX_CHANNELS];
+    int len = 0;
+    int res = ::get_magnetometer_channels (board_id, preset, channels, &len);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to get board info", res);

@@ -29,6 +29,7 @@ public:
     // timeout_only indicates to configure only the timeout, not the baud and line properties
     virtual int set_serial_port_settings (int ms_timeout = 1000, bool timeout_only = false) = 0;
     virtual int set_custom_baudrate (int baudrate) = 0;
+    virtual int set_custom_latency (int latency = 1) = 0;
     virtual int flush_buffer () = 0;
     virtual int read_from_serial_port (void *bytes_to_read, int size) = 0;
     virtual int send_to_serial_port (const void *message, int length) = 0;

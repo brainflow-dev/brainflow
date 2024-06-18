@@ -63,7 +63,6 @@ BoardShim class
 .. doxygenclass:: BoardShim
    :members:
    :project: BrainFlowCpp
-   :undoc-members:
 
 DataFilter class
 ~~~~~~~~~~~~~~~~~~
@@ -71,7 +70,6 @@ DataFilter class
 .. doxygenclass:: DataFilter
    :members:
    :project: BrainFlowCpp
-   :undoc-members:
 
 MLModel class
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -79,7 +77,6 @@ MLModel class
 .. doxygenclass:: MLModel
    :members:
    :project: BrainFlowCpp
-   :undoc-members:
 
 BrainFlow constants
 ~~~~~~~~~~~~~~~~~~~~~
@@ -94,7 +91,6 @@ Content of Brainflow Package:
 
 .. doxygennamespace:: brainflow
    :project: BrainFlowJava
-   :undoc-members:
    :members:
    :content-only:
 
@@ -106,7 +102,6 @@ Content of brainflow namespace:
 
 .. doxygennamespace:: brainflow
    :project: BrainFlowCsharp
-   :undoc-members:
    :members:
    :content-only:
 
@@ -134,7 +129,6 @@ A few general rules to keep in mind:
 
 .. mat:automodule:: brainflow
    :members:
-   :undoc-members:
    :show-inheritance:
 
 
@@ -159,3 +153,23 @@ Example:
 
 .. literalinclude:: ../rust_package/brainflow/examples/get_data.rs
    :language: rust
+
+Typescript API Reference
+--------------------------
+
+Typescript binding calls C/C++ code as any other binding. Use Typescript examples and API reference for other languaes as a starting point.
+
+Example:
+
+.. literalinclude:: ../nodejs_package/tests/brainflow_get_data.ts
+   :language: javascript
+
+Swift
+------
+
+Swift binding calls C/C++ code as any other binding. Use Swift examples and API reference for other languaes as a starting point.
+
+Example:
+
+.. literalinclude:: ../swift_package/examples/tests/brainflow_get_data/brainflow_get_data.swift
+   :language: swift

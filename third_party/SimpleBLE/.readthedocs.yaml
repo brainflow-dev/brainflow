@@ -1,0 +1,28 @@
+version: 2
+build:
+  os: "ubuntu-22.04"
+  apt_packages:
+    - libdbus-1-dev
+  tools:
+    python: "3.9"
+  jobs:
+    post_checkout:
+      - echo "Command run at 'post_checkout' step"
+    pre_system_dependencies:
+      - echo "Command run at 'pre_system_dependencies' step"
+    post_system_dependencies:
+      - echo "Command run at 'post_system_dependencies' step"
+    pre_create_environment:
+      - echo "Command run at 'pre_create_environment' step"
+    post_create_environment:
+      - echo "Command run at 'post_create_environment' step"
+    pre_install:
+      - echo "Command run at 'pre_install' step"
+    post_install:
+      - echo "Command run at 'post_install' step"
+      # NOTE: Apparently sphinx_rtfd_theme==1.0.0 is not compatible with Sphinx 5.2
+      - pip install breathe==4.34.0 sphinx_rtd_theme==1.0.0 sphinx==5.1.1
+    pre_build:
+      - echo "Command run at 'pre_build' step"
+    post_build:
+      - echo "Command run at 'post_build' step"

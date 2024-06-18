@@ -61,9 +61,7 @@ int OpenBCISerialBoard::config_board (std::string config, std::string &response)
         // read response if streaming is not running
         res = send_to_board (config.c_str (), response);
     }
-    safe_logger (spdlog::level::warn,
-        "If you change gain you may need to rescale data, in data returned by BrainFlow we use "
-        "gain 24 to convert int24 to uV");
+
     return res;
 }
 
@@ -129,6 +127,10 @@ int OpenBCISerialBoard::set_port_settings ()
         return (int)BrainFlowExitCodes::SET_PORT_ERROR;
     }
     safe_logger (spdlog::level::trace, "set port settings");
+#ifdef __APPLE__
+    int set_latency_res = serial->set_custom_latency (1);
+    safe_logger (spdlog::level::info, "set_latency_res is: {}", set_latency_res);
+#endif
     return send_to_board ("v");
 }
 

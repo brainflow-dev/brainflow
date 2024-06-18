@@ -54,12 +54,20 @@ public:
     virtual int release_session () = 0;
     virtual int config_board (std::string config, std::string &response) = 0;
 
+    // some devices may implement it but there is no requirement to have this method and we do not
+    // recommend anybody to use it
+    virtual int config_board_with_bytes (const char *bytes, int len)
+    {
+        return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
+    }
+
     int get_current_board_data (
         int num_samples, int preset, double *data_buf, int *returned_samples);
     int get_board_data_count (int preset, int *result);
     int get_board_data (int data_count, int preset, double *data_buf);
     int insert_marker (double value, int preset);
     int add_streamer (const char *streamer_params, int preset);
+    int delete_streamer (const char *streamer_params, int preset);
 
     // Board::board_logger should not be called from destructors, to ensure that there are safe log
     // methods Board::board_logger still available but should be used only outside destructors
@@ -91,7 +99,7 @@ public:
 
 protected:
     std::map<int, DataBuffer *> dbs;
-    std::map<int, Streamer *> streamers; // todo convert to map<int, vector>
+    std::map<int, std::vector<Streamer *>> streamers;
     bool skip_logs;
     int board_id;
     struct BrainFlowInputParams params;
@@ -104,6 +112,8 @@ protected:
     void push_package (double *package, int preset = (int)BrainFlowPresets::DEFAULT_PRESET);
     std::string preset_to_string (int preset);
     int preset_to_int (std::string preset);
+    int parse_streamer_params (const char *streamer_params, std::string &streamer_type,
+        std::string &streamer_dest, std::string &streamer_mods);
 
 private:
     // reshapes data from DataBuffer format where all channels are mixed to linear buffer

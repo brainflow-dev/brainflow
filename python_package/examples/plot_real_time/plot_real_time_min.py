@@ -2,7 +2,7 @@ import argparse
 import logging
 
 import pyqtgraph as pg
-from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds, BrainFlowPresets
+from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 from brainflow.data_filter import DataFilter, FilterTypes, DetrendOperations
 from pyqtgraph.Qt import QtGui, QtCore
 
@@ -48,11 +48,11 @@ class Graph:
             # plot timeseries
             DataFilter.detrend(data[channel], DetrendOperations.CONSTANT.value)
             DataFilter.perform_bandpass(data[channel], self.sampling_rate, 3.0, 45.0, 2,
-                                        FilterTypes.BUTTERWORTH.value, 0)
+                                        FilterTypes.BUTTERWORTH_ZERO_PHASE, 0)
             DataFilter.perform_bandstop(data[channel], self.sampling_rate, 48.0, 52.0, 2,
-                                        FilterTypes.BUTTERWORTH.value, 0)
+                                        FilterTypes.BUTTERWORTH_ZERO_PHASE, 0)
             DataFilter.perform_bandstop(data[channel], self.sampling_rate, 58.0, 62.0, 2,
-                                        FilterTypes.BUTTERWORTH.value, 0)
+                                        FilterTypes.BUTTERWORTH_ZERO_PHASE, 0)
             self.curves[count].setData(data[channel].tolist())
 
         self.app.processEvents()
@@ -80,8 +80,6 @@ def main():
     parser.add_argument('--file', type=str, help='file', required=False, default='')
     parser.add_argument('--master-board', type=int, help='master board id for streaming and playback boards',
                         required=False, default=BoardIds.NO_BOARD)
-    parser.add_argument('--preset', type=int, help='preset for streaming and playback boards',
-                        required=False, default=BrainFlowPresets.DEFAULT_PRESET)
     args = parser.parse_args()
 
     params = BrainFlowInputParams()
@@ -95,10 +93,9 @@ def main():
     params.timeout = args.timeout
     params.file = args.file
     params.master_board = args.master_board
-    params.preset = args.preset
 
+    board_shim = BoardShim(args.board_id, params)
     try:
-        board_shim = BoardShim(args.board_id, params)
         board_shim.prepare_session()
         board_shim.start_stream(450000, args.streamer_params)
         Graph(board_shim)

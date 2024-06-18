@@ -211,6 +211,68 @@ extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
+    pub fn get_railed_percentage(
+        raw_data: *mut f64,
+        data_len: ::std::os::raw::c_int,
+        gain: ::std::os::raw::c_int,
+        output: *mut f64,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn get_oxygen_level(
+        ppg_ir: *mut f64,
+        ppg_red: *mut f64,
+        data_size: ::std::os::raw::c_int,
+        sampling_rate: ::std::os::raw::c_int,
+        callib_coef1: f64,
+        callib_coef2: f64,
+        callib_coef3: f64,
+        oxygen_level: *mut f64,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn get_heart_rate(
+        ppg_ir: *mut f64,
+        ppg_red: *mut f64,
+        data_size: ::std::os::raw::c_int,
+        sampling_rate: ::std::os::raw::c_int,
+        fft_size: ::std::os::raw::c_int,
+        rate: *mut f64,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn restore_data_from_wavelet_detailed_coeffs(
+        data: *mut f64,
+        data_len: ::std::os::raw::c_int,
+        wavelet: ::std::os::raw::c_int,
+        decomposition_level: ::std::os::raw::c_int,
+        level_to_restore: ::std::os::raw::c_int,
+        output: *mut f64,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn detect_peaks_z_score(
+        data: *mut f64,
+        data_len: ::std::os::raw::c_int,
+        lag: ::std::os::raw::c_int,
+        threshold: f64,
+        influence: f64,
+        output: *mut f64,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn perform_ica(
+        data: *mut f64,
+        rows: ::std::os::raw::c_int,
+        cols: ::std::os::raw::c_int,
+        num_components: ::std::os::raw::c_int,
+        w_mat: *mut f64,
+        k_mat: *mut f64,
+        a_mat: *mut f64,
+        s_mat: *mut f64,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
     pub fn set_log_level_data_handler(log_level: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {

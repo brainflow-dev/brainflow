@@ -159,6 +159,28 @@ classdef DataFilter
             downsampled_data = temp_output.Value;
         end
         
+        function restored_data = restore_data_from_wavelet_detailed_coeffs(data, wavelet, decomposition_level, level_to_restore)
+            % restore data from a single wavelet level
+            task_name = 'restore_data_from_wavelet_detailed_coeffs';
+            temp_input = libpointer('doublePtr', data);
+            lib_name = DataFilter.load_lib();
+            temp_output = libpointer('doublePtr', zeros(1, int32(size(data,2))));
+            exit_code = calllib(lib_name, task_name, temp_input, size(data, 2), int32(wavelet), decomposition_level, level_to_restore, temp_output);
+            DataFilter.check_ec(exit_code, task_name);
+            restored_data = temp_output.Value;
+        end
+        
+        function peaks = detect_peaks_z_score(data, lag, threshold, influence)
+            % peaks detection using z score algorithm
+            task_name = 'detect_peaks_z_score';
+            temp_input = libpointer('doublePtr', data);
+            lib_name = DataFilter.load_lib();
+            temp_output = libpointer('doublePtr', zeros(1, int32(size(data,2))));
+            exit_code = calllib(lib_name, task_name, temp_input, size(data, 2), int32(lag), threshold, influence, temp_output);
+            DataFilter.check_ec(exit_code, task_name);
+            peaks = temp_output.Value;
+        end
+        
         function [wavelet_data, wavelet_sizes] = perform_wavelet_transform(data, wavelet, decomposition_level, extension)
             % perform wavelet transform
             task_name = 'perform_wavelet_transform';
@@ -245,14 +267,46 @@ classdef DataFilter
             DataFilter.check_ec(exit_code, task_name);
             stddev = output.Value;
         end
+        
+        function railed = get_railed_percentage(data, gain)
+            % calc railed percentage
+            task_name = 'get_railed_percentage';
+            temp_input = libpointer('doublePtr', data);
+            output = libpointer('doublePtr', 0);
+            lib_name = DataFilter.load_lib();
+            exit_code = calllib(lib_name, task_name, temp_input, size(data, 2), gain, output);
+            DataFilter.check_ec(exit_code, task_name);
+            railed = output.Value;
+        end
 
+        function spo2 = get_oxygen_level(ppg_ir, ppg_red, sampling_rate, coef1, coef2, coef3)
+            % calc oxygen level
+            task_name = 'get_oxygen_level';
+            temp_input_ir = libpointer('doublePtr', ppg_ir);
+            temp_input_red = libpointer('doublePtr', ppg_red);
+            output = libpointer('doublePtr', 0);
+            lib_name = DataFilter.load_lib();
+            exit_code = calllib(lib_name, task_name, temp_input_ir, temp_input_red, size(ppg_ir, 2), sampling_rate, coef1, coef2, coef3, output);
+            DataFilter.check_ec(exit_code, task_name);
+            spo2 = output.Value;
+        end
+
+        function rate = get_heart_rate(ppg_ir, ppg_red, sampling_rate, fft_size)
+            % calc heart rate
+            task_name = 'get_heart_rate';
+            temp_input_ir = libpointer('doublePtr', ppg_ir);
+            temp_input_red = libpointer('doublePtr', ppg_red);
+            output = libpointer('doublePtr', 0);
+            lib_name = DataFilter.load_lib();
+            exit_code = calllib(lib_name, task_name, temp_input_ir, temp_input_red, size(ppg_ir, 2), sampling_rate, fft_size, output);
+            DataFilter.check_ec(exit_code, task_name);
+            rate = output.Value;
+        end
+        
         function fft_data = perform_fft(data, window)
             % perform fft
             task_name = 'perform_fft';
             n = size(data, 2);
-            if(bitand(n, n - 1) ~= 0)
-                error('For FFT shape must be power of 2!');
-            end
             temp_input = libpointer('doublePtr', data);
             lib_name = DataFilter.load_lib();
             temp_re = libpointer('doublePtr', zeros(1, int32(n / 2 + 1)));
@@ -301,13 +355,36 @@ classdef DataFilter
             stddev_bands = temp_stddevs.Value;
         end
         
+        function [w_mat, k_mat, a_mat, s_mat] = perform_ica_select_channels(data, num_components, channels)
+            % calculate ica
+            task_name = 'perform_ica';
+            data_1d = data(channels, :);
+            data_1d = transpose(data_1d);
+            data_1d = data_1d(:);
+            temp_input = libpointer('doublePtr', data_1d);
+            lib_name = DataFilter.load_lib();
+            temp_w = libpointer('doublePtr', zeros(1, num_components * num_components));
+            temp_k = libpointer('doublePtr', zeros(1, size(channels, 2) * num_components));
+            temp_a = libpointer('doublePtr', zeros(1, num_components * size(channels, 2)));
+            temp_s = libpointer('doublePtr', zeros(1, size(data, 2) * num_components));
+            exit_code = calllib(lib_name, task_name, temp_input, size(channels, 2), size(data, 2), num_components, temp_w, temp_k, temp_a, temp_s);
+            DataFilter.check_ec(exit_code, task_name);
+            w_mat = transpose(reshape(temp_w.Value, [num_components, num_components]));
+            k_mat = transpose(reshape(temp_k.Value, [size(channels,2), num_components]));
+            a_mat = transpose(reshape(temp_a.Value, [num_components, size(channels, 2)]));
+            s_mat = transpose(reshape(temp_s.Value, [size(data, 2), num_components]));
+        end
+        
+        function [w_mat, k_mat, a_mat, s_mat] = perform_ica(data, num_components)
+            % calculate ica
+            channels = uint32(1):uint32(size(data,1));
+            [w_mat, k_mat, a_mat, s_mat] = DataFilter.perform_ica_select_channels(data, num_components, channels);
+        end
+        
         function [ampls, freqs] = get_psd(data, sampling_rate, window)
             % calculate PSD
             task_name = 'get_psd';
             n = size(data, 2);
-            if(bitand(n, n - 1) ~= 0)
-                error('For FFT shape must be power of 2!');
-            end
             temp_input = libpointer('doublePtr', data);
             lib_name = DataFilter.load_lib();
             temp_ampls = libpointer('doublePtr', zeros(1, int32(n / 2 + 1)));
@@ -321,9 +398,6 @@ classdef DataFilter
         function [ampls, freqs] = get_psd_welch(data, nfft, overlap, sampling_rate, window)
             % calculate PSD using welch method
             task_name = 'get_psd_welch';
-            if(bitand(nfft, nfft - 1) ~= 0)
-                error('nfft must be power of 2!');
-            end
             temp_input = libpointer('doublePtr', data);
             lib_name = DataFilter.load_lib();
             temp_ampls = libpointer('doublePtr', zeros(1, int32(nfft / 2 + 1)));

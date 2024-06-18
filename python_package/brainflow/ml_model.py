@@ -10,7 +10,6 @@ import numpy
 import pkg_resources
 from brainflow.board_shim import BrainFlowError, LogLevels
 from brainflow.exit_codes import BrainFlowExitCodes
-from nptyping import NDArray
 from numpy.ctypeslib import ndpointer
 
 
@@ -85,6 +84,10 @@ class MLModuleDLL(object):
             # to solve it we can load all of them before loading the main one or change PATH\LD_LIBRARY_PATH env var.
             # env variable looks better, since it can be done only once for all dependencies
             dir_path = os.path.abspath(os.path.dirname(full_path))
+            try:
+                os.add_dll_directory(dir_path)
+            except:
+                pass
             if platform.system() == 'Windows':
                 os.environ['PATH'] = dir_path + os.pathsep + os.environ.get('PATH', '')
             else:
@@ -258,11 +261,11 @@ class MLModel(object):
         if res != BrainFlowExitCodes.STATUS_OK.value:
             raise BrainFlowError('unable to release classifier', res)
 
-    def predict(self, data: NDArray) -> List:
+    def predict(self, data) -> List:
         """calculate metric from data
 
         :param data: input array
-        :type data: NDArray
+        :type data: NDArray[Shape["*"], Float64]
         :return: metric value
         :rtype: List
         """

@@ -13,6 +13,9 @@ AggType = Union{AggOperations, Integer}
     BUTTERWORTH = 0
     CHEBYSHEV_TYPE_1 = 1
     BESSEL = 2
+    BUTTERWORTH_ZERO_PHASE = 3
+    CHEBYSHEV_TYPE_1_ZERO_PHASE = 4
+    BESSEL_ZERO_PHASE = 5
 
 end
 
@@ -185,6 +188,24 @@ end
     return
 end
 
+@brainflow_rethrow function restore_data_from_wavelet_detailed_coeffs(data, wavelet::WaveletType,
+                                                                      decomposition_level::Integer,
+                                                                      level_to_restore::Integer)
+    restored_data = Vector{Float64}(undef, length(data))
+    ccall((:restore_data_from_wavelet_detailed_coeffs, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Cint, Cint, Ptr{Float64}),
+            data, length(data), Int32(wavelet), Int32(decomposition_level), Int32(level_to_restore), restored_data)
+    return restored_data
+end
+
+@brainflow_rethrow function detect_peaks_z_score(data, lag::Integer,
+                                                 threshold::Float64,
+                                                 influence::Float64)
+    peaks = Vector{Float64}(undef, length(data))
+    ccall((:detect_peaks_z_score, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Float64, Float64, Ptr{Float64}),
+            data, length(data), Int32(lag), threshold, influence, peaks)
+    return peaks
+end
+
 @brainflow_rethrow function perform_wavelet_denoising(data, wavelet::WaveletType, decomposition_level::Integer,
                                                       wavelet_denoising::WaveletDenoisingType,
                                                       threshold::ThresholdType,
@@ -225,6 +246,35 @@ end
     output = Vector{Float64}(undef, 1)
     ccall((:calc_stddev, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Ptr{Float64}),
                 data, 0, length(data), output)
+    return output[1]
+end
+
+@brainflow_rethrow function get_railed_percentage(data, gain::Integer)
+    output = Vector{Float64}(undef, 1)
+    ccall((:get_railed_percentage, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Ptr{Float64}),
+                data, length(data), gain, output)
+    return output[1]
+end
+
+@brainflow_rethrow function get_oxygen_level(ppg_ir, ppg_red, sampling_rate::Integer, coef1=1.5958422, coef2=-34.6596622, coef3=112.6898759)
+    if length(ppg_ir) != length(ppg_red)
+      throw(BrainFlowError(string("invalid size", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))
+    end
+
+    output = Vector{Float64}(undef, 1)
+    ccall((:get_oxygen_level, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Ptr{Float64}, Cint, Cint, Float64, Float64, Float64, Ptr{Float64}),
+                ppg_ir, ppg_red, length(ppg_ir), Int32(sampling_rate), coef1, coef2, coef3, output)
+    return output[1]
+end
+
+@brainflow_rethrow function get_heart_rate(ppg_ir, ppg_red, sampling_rate::Integer, fft_size::Integer)
+    if length(ppg_ir) != length(ppg_red)
+      throw(BrainFlowError(string("invalid size", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))
+    end
+
+    output = Vector{Float64}(undef, 1)
+    ccall((:get_heart_rate, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Ptr{Float64}, Cint, Cint, Cint, Ptr{Float64}),
+                ppg_ir, ppg_red, length(ppg_ir), Int32(sampling_rate), Int32(fft_size), output)
     return output[1]
 end
 
@@ -299,12 +349,8 @@ end
 
 @brainflow_rethrow function perform_fft(data, window::WinType)
 
-    function is_power_of_two(value)
-        (value != 0) && (value & (value - 1) == 0)
-    end
-
-    if !is_power_of_two(length(data))
-        throw(BrainFlowError(string("Data Len must be power of two ", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))
+    if (length(data) % 2 == 1)
+        throw(BrainFlowError(string("Data Len must be even ", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))
     end
 
     temp_re = Vector{Float64}(undef, Integer(length(data) / 2) + 1)
@@ -357,14 +403,34 @@ end
     return temp_avgs, temp_stddevs
 end
 
+@brainflow_rethrow function perform_ica_select_channels(data, num_components::Integer, channels)
+    shape = size(data)
+    data_1d = reshape(transpose(data[channels,:]), (1, size(channels)[1] * shape[2]))
+    data_1d = copy(data_1d)
+
+    temp_w = Vector{Float64}(undef, num_components * num_components)
+    temp_k = Vector{Float64}(undef, length(channels) * num_components)
+    temp_a = Vector{Float64}(undef, num_components * length(channels))
+    temp_s = Vector{Float64}(undef, num_components * shape[2])
+
+    ccall((:perform_ica, DATA_HANDLER_INTERFACE), Cint, (Ptr{Float64}, Cint, Cint, Cint, Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64}),
+            data_1d, size(channels)[1], shape[2], num_components, temp_w, temp_k, temp_a, temp_s)
+    w = transpose(reshape(temp_w, (num_components, num_components)))
+    k = transpose(reshape(temp_k, (length(channels), num_components)))
+    a = transpose(reshape(temp_a, (num_components, length(channels))))
+    s = transpose(reshape(temp_s, (shape[2], num_components)))
+    return w, k, a, s
+end
+
+function perform_ica(data, num_components::Integer)
+    channels = Array((1:size(data)[1]))
+    return perform_ica_select_channels(data, num_components, channels)
+end
+
 @brainflow_rethrow function get_psd(data, sampling_rate::Integer, window::WinType)
 
-    function is_power_of_two(value)
-        (value != 0) && (value & (value - 1) == 0)
-    end
-
-    if !is_power_of_two(length(data))
-        throw(BrainFlowError(string("Data Len must be power of two ", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))
+    if (length(data) % 2 == 1)
+        throw(BrainFlowError(string("Data Len must be even ", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))
     end
 
     temp_ampls = Vector{Float64}(undef, Integer(length(data) / 2) + 1)
@@ -377,12 +443,8 @@ end
 
 @brainflow_rethrow function get_psd_welch(data, nfft::Integer, overlap::Integer, sampling_rate::Integer, window::WinType)
 
-    function is_power_of_two(value)
-        (value != 0) && (value & (value - 1) == 0)
-    end
-
-    if !is_power_of_two(nfft)
-        throw(BrainFlowError(string("nfft must be power of two ", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))
+    if (length(data) % 2 == 1)
+        throw(BrainFlowError(string("Data Len must be even ", INVALID_ARGUMENTS_ERROR), Integer(INVALID_ARGUMENTS_ERROR)))
     end
 
     temp_ampls = Vector{Float64}(undef, Integer(nfft / 2) + 1)

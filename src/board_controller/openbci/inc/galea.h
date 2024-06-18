@@ -8,21 +8,14 @@
 
 #include "board.h"
 #include "board_controller.h"
+#include "openbci_gain_tracker.h"
 #include "socket_client_udp.h"
-
-#define ADS1299_Vref 4.5
 
 
 class Galea : public Board
 {
 
 private:
-    // different default gains
-    const double eeg_scale_main_board = ADS1299_Vref / double ((pow (2, 23) - 1)) / 2.0 * 1000000.;
-    const double eeg_scale_sister_board =
-        ADS1299_Vref / double ((pow (2, 23) - 1)) / 12.0 * 1000000.;
-    const double emg_scale = ADS1299_Vref / double ((pow (2, 23) - 1)) / 4.0 * 1000000.;
-
     volatile bool keep_alive;
     volatile int state;
     volatile double half_rtt;
@@ -32,14 +25,11 @@ private:
     SocketClientUDP *socket;
     std::mutex m;
     std::condition_variable cv;
+    GaleaGainTracker gain_tracker;
 
     std::string find_device ();
     void read_thread ();
     int calc_time (std::string &resp);
-    void add_exg_package (double *package, unsigned char *bytes, int num_bytes, double pc_timestamp,
-        DataBuffer *times);
-    void add_aux_package (double *package, unsigned char *bytes, int num_bytes, double pc_timestamp,
-        DataBuffer *times);
 
 
 public:
@@ -52,11 +42,8 @@ public:
     int release_session ();
     int config_board (std::string config, std::string &response);
 
-    static constexpr int max_bytes_in_transaction = 4096;
-    static constexpr int exg_package_size = 59;
-    static constexpr int aux_package_size = 26;
+    static constexpr int package_size = 72;
+    static constexpr int max_num_packages = 25;
+    static constexpr int max_transaction_size = package_size * max_num_packages;
     static constexpr int socket_timeout = 2;
-    static constexpr int start_eeg_byte = 0xA0;
-    static constexpr int start_aux_byte = 0xA1;
-    static constexpr int stop_byte = 0xC0;
 };

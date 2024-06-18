@@ -7,6 +7,31 @@
 #include "data_handler.h"
 
 
+double DataFilter::get_oxygen_level (double *ppg_ir, double *ppg_red, int data_len,
+    int sampling_rate, double coef1, double coef2, double coef3)
+{
+    double value = 0.0;
+    int res =
+        ::get_oxygen_level (ppg_ir, ppg_red, data_len, sampling_rate, coef1, coef2, coef3, &value);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to calc spo2 value", res);
+    }
+    return value;
+}
+
+double DataFilter::get_heart_rate (
+    double *ppg_ir, double *ppg_red, int data_len, int sampling_rate, int fft_size)
+{
+    double value = 0.0;
+    int res = ::get_heart_rate (ppg_ir, ppg_red, data_len, sampling_rate, fft_size, &value);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to calc heart rate", res);
+    }
+    return value;
+}
+
 void DataFilter::perform_lowpass (double *data, int data_len, int sampling_rate, double cutoff,
     int order, int filter_type, double ripple)
 {
@@ -57,6 +82,27 @@ void DataFilter::remove_environmental_noise (
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to remove environmental noise", res);
+    }
+}
+
+void DataFilter::restore_data_from_wavelet_detailed_coeffs (double *data, int data_len, int wavelet,
+    int decomposition_level, int level_to_restore, double *output)
+{
+    int res = ::restore_data_from_wavelet_detailed_coeffs (
+        data, data_len, wavelet, decomposition_level, level_to_restore, output);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to restore", res);
+    }
+}
+
+void DataFilter::detect_peaks_z_score (
+    double *data, int data_len, int lag, double threshold, double influence, double *output)
+{
+    int res = ::detect_peaks_z_score (data, data_len, lag, threshold, influence, output);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to detect", res);
     }
 }
 
@@ -180,10 +226,10 @@ double *DataFilter::get_window (int window_function, int window_len)
 
 std::complex<double> *DataFilter::perform_fft (double *data, int data_len, int window, int *fft_len)
 {
-    if ((data_len & (data_len - 1)) || (data_len <= 0))
+    if ((data_len % 2 == 1) || (data_len <= 0))
     {
         throw BrainFlowException (
-            "data len is not power of 2", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+            "data len must be even", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
     }
     std::complex<double> *output = new std::complex<double>[data_len / 2 + 1];
     double *temp_re = new double[data_len / 2 + 1];
@@ -222,10 +268,10 @@ void DataFilter::detrend (double *data, int data_len, int detrend_operation)
 std::pair<double *, double *> DataFilter::get_psd (
     double *data, int data_len, int sampling_rate, int window, int *psd_len)
 {
-    if ((data_len & (data_len - 1)) || (data_len <= 0))
+    if ((data_len % 2 == 1) || (data_len <= 0))
     {
         throw BrainFlowException (
-            "data len is not power of 2", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+            "data len must be even", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
     }
     double *ampl = new double[data_len / 2 + 1];
     double *freq = new double[data_len / 2 + 1];
@@ -243,10 +289,10 @@ std::pair<double *, double *> DataFilter::get_psd (
 std::pair<double *, double *> DataFilter::get_psd_welch (
     double *data, int data_len, int nfft, int overlap, int sampling_rate, int window, int *psd_len)
 {
-    if ((nfft & (nfft - 1)) || (nfft <= 0))
+    if ((nfft % 2 == 1) || (data_len <= 0))
     {
         throw BrainFlowException (
-            "nfft is not power of 2", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+            "nfft must be even", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
     }
     double *ampl = new double[nfft / 2 + 1];
     double *freq = new double[nfft / 2 + 1];
@@ -257,7 +303,7 @@ std::pair<double *, double *> DataFilter::get_psd_welch (
         delete[] freq;
         throw BrainFlowException ("failed to get_psd_welch", res);
     }
-    *psd_len = data_len / 2 + 1;
+    *psd_len = nfft / 2 + 1;
     return std::make_pair (ampl, freq);
 }
 
@@ -465,6 +511,76 @@ double DataFilter::calc_stddev (double *data, int start_pos, int end_pos)
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
         throw BrainFlowException ("failed to calc stddev", res);
+    }
+    return output;
+}
+
+std::tuple<BrainFlowArray<double, 2>, BrainFlowArray<double, 2>, BrainFlowArray<double, 2>,
+    BrainFlowArray<double, 2>>
+DataFilter::perform_ica (
+    const BrainFlowArray<double, 2> &data, int num_components, std::vector<int> channels)
+{
+    if ((data.empty ()) || (channels.empty ()) || (num_components < 1))
+    {
+        throw BrainFlowException (
+            "Invalid params", (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR);
+    }
+
+    int cols = data.get_size (1);
+    int channels_len = (int)channels.size ();
+    double *data_1d = new double[cols * channels_len];
+    double *w = new double[num_components * num_components];
+    double *k = new double[channels_len * num_components];
+    double *a = new double[num_components * channels_len];
+    double *s = new double[cols * num_components];
+
+    for (int i = 0; i < channels_len; i++)
+    {
+        for (int j = 0; j < cols; j++)
+        {
+            data_1d[j + cols * i] = data.at (channels[i], j);
+        }
+    }
+    int res = ::perform_ica (data_1d, channels_len, cols, num_components, w, k, a, s);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        delete[] data_1d;
+        delete[] w;
+        delete[] k;
+        delete[] a;
+        delete[] s;
+        throw BrainFlowException ("failed to perform_ica", res);
+    }
+    BrainFlowArray<double, 2> w_mat (w, num_components, num_components);
+    BrainFlowArray<double, 2> k_mat (k, num_components, channels_len);
+    BrainFlowArray<double, 2> a_mat (a, channels_len, num_components);
+    BrainFlowArray<double, 2> s_mat (s, num_components, cols);
+    delete[] data_1d;
+    delete[] w;
+    delete[] k;
+    delete[] a;
+    delete[] s;
+    return std::make_tuple (w_mat, k_mat, a_mat, s_mat);
+}
+
+std::tuple<BrainFlowArray<double, 2>, BrainFlowArray<double, 2>, BrainFlowArray<double, 2>,
+    BrainFlowArray<double, 2>>
+DataFilter::perform_ica (const BrainFlowArray<double, 2> &data, int num_components)
+{
+    std::vector<int> channels;
+    int rows = data.get_size (0);
+    for (int i = 0; i < rows; i++)
+        channels.push_back (i);
+    return perform_ica (data, num_components, channels);
+}
+
+double DataFilter::get_railed_percentage (double *data, int data_len, int gain)
+{
+    double output = 0;
+    int res = ::get_railed_percentage (data, data_len, gain, &output);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        throw BrainFlowException ("failed to get railed percentege", res);
     }
     return output;
 }

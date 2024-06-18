@@ -19,7 +19,8 @@ enum class SocketServerTCPReturnCodes : int
     WSA_STARTUP_ERROR = 1,
     CREATE_SOCKET_ERROR = 2,
     CONNECT_ERROR = 3,
-    PTON_ERROR = 4
+    PTON_ERROR = 4,
+    SOCKET_ALREADY_CREATED_ERROR = 5
 };
 
 
@@ -36,6 +37,7 @@ public:
     int bind ();
     int accept ();
     int recv (void *data, int size);
+    int send (const void *data, int size);
     void close ();
     void accept_worker ();
 
@@ -55,6 +57,7 @@ private:
 #ifdef _WIN32
     volatile SOCKET server_socket;
     volatile SOCKET connected_socket;
+    bool wsa_initialized;
 #else
     volatile int server_socket;
     volatile int connected_socket;

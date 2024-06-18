@@ -12,12 +12,13 @@ public class BoardDescr
     public List<Integer> ppg_channels;
     public List<Integer> eda_channels;
     public List<Integer> accel_channels;
+    public List<Integer> rotation_channels;
     public List<Integer> gyro_channels;
     public List<Integer> temperature_channels;
     public List<Integer> resistance_channels;
     public List<Integer> other_channels;
     public Integer package_num_channel;
-    public Integer batter_channel;
+    public Integer battery_channel;
     public Integer timestamp_channel;
     public Integer marker_channel;
     public Integer num_rows;
@@ -34,6 +35,7 @@ public class BoardDescr
         ppg_channels = null;
         eda_channels = null;
         accel_channels = null;
+        rotation_channels = null;
         gyro_channels = null;
         temperature_channels = null;
         resistance_channels = null;

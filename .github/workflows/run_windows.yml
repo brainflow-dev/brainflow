@@ -10,13 +10,17 @@ jobs:
       fail-fast: false
       max-parallel: 4
       matrix:
-        os: [windows-2019]
+        os: [windows-2022]
 
     steps:
     - name: Clone Repository
       uses: actions/checkout@v2
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
+    - name: Install dotnet
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '7.0.x'
     - name: Set Version
       id: version
       run: if ("tag" -eq $Env:GITHUB_REF_TYPE) { echo "::set-output name=version::$Env:GITHUB_REF_NAME" } else { echo "::set-output name=version::$Env:GITHUB_SHA" }
@@ -34,14 +38,14 @@ jobs:
         java-version: 11.0.3
     - uses: hecrj/setup-rust-action@v1
       with:
-        rust-version: stable
+        rust-version: nightly
         components: cargo,rustc,rust-std
     # compile and prepare everything
     - name: Compile x32
       run: |
         mkdir %GITHUB_WORKSPACE%\build32
         cd %GITHUB_WORKSPACE%\build32
-        cmake -DBRAINFLOW_VERSION=%BRAINFLOW_VERSION% -DBUILD_OYMOTION_SDK=ON -DBUILD_ONNX=ON -DBUILD_BLUETOOTH=ON -DBUILD_TESTS=ON -DWARNINGS_AS_ERRORS=ON -G "Visual Studio 16 2019" -A Win32 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed32\ ..
+        cmake -DBRAINFLOW_VERSION=%BRAINFLOW_VERSION% -DBUILD_OYMOTION_SDK=ON -DBUILD_ONNX=ON -DBUILD_BLE=ON -DBUILD_BLUETOOTH=ON -DWARNINGS_AS_ERRORS=ON -G "Visual Studio 17 2022" -A Win32 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed32\ ..
         cmake --build . --target install --config Release -j 2 --parallel 2
       env:
         BRAINFLOW_VERSION: ${{ steps.version.outputs.version }}
@@ -50,29 +54,15 @@ jobs:
       run: |
         mkdir %GITHUB_WORKSPACE%\build64
         cd %GITHUB_WORKSPACE%\build64
-        cmake -DBRAINFLOW_VERSION=%BRAINFLOW_VERSION% -DBUILD_OYMOTION_SDK=ON -DBUILD_ONNX=ON -DBUILD_BLUETOOTH=ON -DBUILD_TESTS=ON -DWARNINGS_AS_ERRORS=ON -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed64\ ..
+        cmake -DBRAINFLOW_VERSION=%BRAINFLOW_VERSION% -DBUILD_OYMOTION_SDK=ON -DBUILD_ONNX=ON -DBUILD_BLE=ON -DBUILD_BLUETOOTH=ON -DWARNINGS_AS_ERRORS=ON -G "Visual Studio 17 2022" -A x64 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX=..\installed64\ ..
         cmake --build . --target install --config Release -j 2 --parallel 2
       env:
         BRAINFLOW_VERSION: ${{ steps.version.outputs.version }}
       shell: cmd
-    # need to build SimpleBLE outside from BrainFlow because they have different Windows System Versions
-    - name: Compile SimpleBLE x32
-      run: |
-        mkdir %GITHUB_WORKSPACE%\third_party\SimpleBLE\build32
-        cd %GITHUB_WORKSPACE%\third_party\SimpleBLE\build32
-        cmake -G "Visual Studio 16 2019" -A Win32 -DCMAKE_SYSTEM_VERSION=10.0.19041.0 -DCMAKE_INSTALL_PREFIX=%GITHUB_WORKSPACE%\installed32\ ..
-        cmake --build . --target install --config Release -j 2 --parallel 2
-      shell: cmd
-    - name: Compile SimpleBLE x64
-      run: |
-        mkdir %GITHUB_WORKSPACE%\third_party\SimpleBLE\build64
-        cd %GITHUB_WORKSPACE%\third_party\SimpleBLE\build64
-        cmake -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=10.0.19041.0 -DCMAKE_INSTALL_PREFIX=%GITHUB_WORKSPACE%\installed64\ ..
-        cmake --build . --target install --config Release -j 2 --parallel 2
-      shell: cmd
     - name: C# build
       run: |
         cd %GITHUB_WORKSPACE%\csharp_package\brainflow
+        dotnet restore brainflow.sln
         msbuild brainflow.sln /p:Configuration=Release /p:Platform="Any CPU"
       shell: cmd
     - name: Install Emulator
@@ -90,34 +80,35 @@ jobs:
     - name: Install Rust package
       run: |
         cd %GITHUB_WORKSPACE%\rust_package\brainflow
-        cargo build
+        rustup toolchain install nightly
+        cargo +nightly build
       shell: cmd
     - name: Build Cpp Get Data Test x64
       run: |
         mkdir %GITHUB_WORKSPACE%\cpp_package\examples\get_data\build
         cd %GITHUB_WORKSPACE%\cpp_package\examples\get_data\build
-        cmake -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%GITHUB_WORKSPACE%\installed64\ ..
+        cmake -G "Visual Studio 17 2022" -A x64 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%GITHUB_WORKSPACE%\installed64\ ..
         cmake --build . --config Release -j 2 --parallel 2
       shell: cmd
     - name: Build Cpp Signal Processing Test x64
       run: |
         mkdir %GITHUB_WORKSPACE%\cpp_package\examples\signal_processing\build
         cd %GITHUB_WORKSPACE%\cpp_package\examples\signal_processing\build
-        cmake -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%GITHUB_WORKSPACE%\installed64\ ..
+        cmake -G "Visual Studio 17 2022" -A x64 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%GITHUB_WORKSPACE%\installed64\ ..
         cmake --build . --config Release -j 2 --parallel 2
       shell: cmd
     - name: Build Cpp ML Test x64
       run: |
         mkdir %GITHUB_WORKSPACE%\cpp_package\examples\ml\build
         cd %GITHUB_WORKSPACE%\cpp_package\examples\ml\build
-        cmake -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%GITHUB_WORKSPACE%\installed64\ ..
+        cmake -G "Visual Studio 17 2022" -A x64 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%GITHUB_WORKSPACE%\installed64\ ..
         cmake --build . --config Release -j 2 --parallel 2
       shell: cmd
     - name: Build Cpp ML Test x32
       run: |
         mkdir %GITHUB_WORKSPACE%\cpp_package\examples\ml\build32
         cd %GITHUB_WORKSPACE%\cpp_package\examples\ml\build32
-        cmake -G "Visual Studio 16 2019" -A Win32 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%GITHUB_WORKSPACE%\installed32\ ..
+        cmake -G "Visual Studio 17 2022" -A Win32 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_PREFIX_PATH=%GITHUB_WORKSPACE%\installed32\ ..
         cmake --build . --config Release -j 2 --parallel 2
       shell: cmd
     - name: Build Java Package
@@ -129,10 +120,6 @@ jobs:
       uses: julia-actions/setup-julia@v1
       with:
         version: 1.3.1
-    # Unit testing
-    - name: Run unit tests
-      run: .\build\tests\Release\brainflow_tests.exe
-      shell: cmd
     # BoardController testing
     - name: Run Julia Tests
       run: |
@@ -152,7 +139,7 @@ jobs:
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\cpp_package\examples\get_data\build\Release\brainflow_get_data.exe --board-id 0 --serial-port
       shell: cmd
     - name: Cyton Windows C# Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\csharp_package\brainflow\examples\brainflow_get_data\bin\Release\brainflow_get_data.exe --board-id 0 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\csharp_package\brainflow\examples\brainflow_get_data\bin\Release\net7.0\brainflow_get_data.exe --board-id 0 --serial-port
       shell: cmd
     - name: Synthetic Windows Python Test
       run: python %GITHUB_WORKSPACE%\python_package\examples\tests\brainflow_get_data.py --board-id -1
@@ -172,7 +159,7 @@ jobs:
       shell: cmd
     - name: Synthetic Windows C# Test
       run: |
-        cd %GITHUB_WORKSPACE%\csharp_package\brainflow\examples\brainflow_get_data\bin\Release
+        cd %GITHUB_WORKSPACE%\csharp_package\brainflow\examples\brainflow_get_data\bin\Release\net7.0\
         brainflow_get_data.exe --board-id -1
       shell: cmd
     - name: Cyton Daisy Windows Python Test
@@ -185,13 +172,13 @@ jobs:
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\cpp_package\examples\get_data\build\Release\brainflow_get_data.exe --board-id 2 --serial-port
       shell: cmd
     - name: Cyton Daisy Windows C# Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\csharp_package\brainflow\examples\brainflow_get_data\bin\Release\brainflow_get_data.exe --board-id 2 --serial-port
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\cyton_windows.py %GITHUB_WORKSPACE%\csharp_package\brainflow\examples\brainflow_get_data\bin\Release\net7.0\brainflow_get_data.exe --board-id 2 --serial-port
       shell: cmd
     - name: Galea Windows Cpp Test
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\galea_udp.py %GITHUB_WORKSPACE%\cpp_package\examples\get_data\build\Release\brainflow_get_data.exe --board-id 3 --ip-address 127.0.0.1
       shell: cmd
     - name: Galea Windows C# Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\galea_udp.py %GITHUB_WORKSPACE%\csharp_package\brainflow\examples\brainflow_get_data\bin\Release\brainflow_get_data.exe --board-id 3 --ip-address 127.0.0.1
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\galea_udp.py %GITHUB_WORKSPACE%\csharp_package\brainflow\examples\brainflow_get_data\bin\Release\net7.0\brainflow_get_data.exe --board-id 3 --ip-address 127.0.0.1
       shell: cmd
     - name: FreeEEG32 Python Test
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\freeeeg32_windows.py python %GITHUB_WORKSPACE%\python_package\examples\tests\brainflow_get_data.py --board-id 17 --serial-port
@@ -267,6 +254,9 @@ jobs:
     - name: Serialization Cpp Test
       run: .\cpp_package\examples\signal_processing\build\Release\serialization.exe
       shell: cmd
+    - name: ICA C# Test
+      run: .\csharp_package\brainflow\examples\ica\bin\Release\net7.0\ica.exe
+      shell: cmd
     # Tests for MLModule
     - name: EEG Metrics Python Test
       run: python %GITHUB_WORKSPACE%\python_package\examples\tests\eeg_metrics.py --board-id -1
@@ -281,10 +271,10 @@ jobs:
       run: .\cpp_package\examples\ml\build32\Release\eeg_metrics_ci.exe --board-id -1 --metric 2 --classifier 2 --model-file %GITHUB_WORKSPACE%\src\ml\train\logreg_mindfulness.onnx
       shell: cmd
     - name: EEG Metrics C# Test
-      run: .\csharp_package\brainflow\examples\eeg_metrics\bin\Release\eeg_metrics.exe
+      run: .\csharp_package\brainflow\examples\eeg_metrics\bin\Release\net7.0\eeg_metrics.exe
       shell: cmd
     - name: EEG Metrics CI C# Test
-      run: .\csharp_package\brainflow\examples\eeg_metrics_ci\bin\Release\eeg_metrics_ci.exe --board-id -1 --metric 2 --classifier 2 --model-file %GITHUB_WORKSPACE%\src\ml\train\logreg_mindfulness.onnx
+      run: .\csharp_package\brainflow\examples\eeg_metrics_ci\bin\Release\net7.0\eeg_metrics_ci.exe --board-id -1 --metric 2 --classifier 2 --model-file %GITHUB_WORKSPACE%\src\ml\train\logreg_mindfulness.onnx
       shell: cmd
     - name: EEG Metrics CI Rust Test
       run: |

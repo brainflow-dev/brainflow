@@ -1,4 +1,13 @@
 .vscode
 *.binlog
 .DS_Store
-docs/_build
+_build
+_doxygen
+
+/build_*
+simplepyble/build
+simplepyble/dist
+
+__pycache__
+*.egg-info
+wheelhouse

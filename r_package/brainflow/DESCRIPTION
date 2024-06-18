@@ -3,7 +3,7 @@ Type: Package
 Title: R Interface to the brainflow project
 Version: 0.0.0.9000
 Authors@R: c(
-    person("Andrey", "Parfenov", email = "a1994ndrey@gmail.com", role = c("aut", "cre"))
+    person("Andrey", "Parfenov", email = "andrey@brainflow.org", role = c("aut", "cre"))
     )
 URL: https://github.com/Andrey1994/brainflow
 BugReports: https://github.com/Andrey1994/brainflow/issues

@@ -24,11 +24,15 @@ extern "C"
         double *data_buf, int board_id, const char *json_brainflow_input_params);
     SHARED_EXPORT int CALLING_CONVENTION config_board (const char *config, char *response,
         int *response_len, int board_id, const char *json_brainflow_input_params);
+    SHARED_EXPORT int CALLING_CONVENTION config_board_with_bytes (
+        const char *bytes, int len, int board_id, const char *json_brainflow_input_params);
     SHARED_EXPORT int CALLING_CONVENTION is_prepared (
         int *prepared, int board_id, const char *json_brainflow_input_params);
     SHARED_EXPORT int CALLING_CONVENTION insert_marker (
         double marker_value, int preset, int board_id, const char *json_brainflow_input_params);
     SHARED_EXPORT int CALLING_CONVENTION add_streamer (
+        const char *streamer, int preset, int board_id, const char *json_brainflow_input_params);
+    SHARED_EXPORT int CALLING_CONVENTION delete_streamer (
         const char *streamer, int preset, int board_id, const char *json_brainflow_input_params);
     SHARED_EXPORT int CALLING_CONVENTION release_all_sessions ();
 

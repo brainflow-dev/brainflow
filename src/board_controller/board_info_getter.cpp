@@ -166,6 +166,11 @@ int get_accel_channels (int board_id, int preset, int *accel_channels, int *len)
     return get_array_value (board_id, preset, "accel_channels", accel_channels, len);
 }
 
+int get_rotation_channels (int board_id, int preset, int *rotation_channels, int *len)
+{
+    return get_array_value (board_id, preset, "rotation_channels", rotation_channels, len);
+}
+
 int get_analog_channels (int board_id, int preset, int *analog_channels, int *len)
 {
     return get_array_value (board_id, preset, "analog_channels", analog_channels, len);
@@ -189,6 +194,11 @@ int get_temperature_channels (int board_id, int preset, int *temperature_channel
 int get_resistance_channels (int board_id, int preset, int *resistance_channels, int *len)
 {
     return get_array_value (board_id, preset, "resistance_channels", resistance_channels, len);
+}
+
+int get_magnetometer_channels (int board_id, int preset, int *magnetometer_channels, int *len)
+{
+    return get_array_value (board_id, preset, "magnetometer_channels", magnetometer_channels, len);
 }
 
 int get_exg_channels (int board_id, int preset, int *exg_channels, int *len)

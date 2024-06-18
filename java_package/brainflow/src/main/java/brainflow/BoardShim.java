@@ -1,9 +1,6 @@
 package brainflow;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,7 +25,11 @@ public class BoardShim
 
         int config_board (String config, byte[] names, int[] len, int board_id, String params);
 
+        int config_board_with_bytes (byte[] bytes, int len, int board_id, String params);
+
         int add_streamer (String streamer, int preset, int board_id, String params);
+
+        int delete_streamer (String streamer, int preset, int board_id, String params);
 
         int start_stream (int buffer_size, String streamer_params, int board_id, String params);
 
@@ -81,6 +82,8 @@ public class BoardShim
 
         int get_accel_channels (int board_id, int preset, int[] accel_channels, int[] len);
 
+        int get_rotation_channels (int board_id, int preset, int[] rotation_channels, int[] len);
+
         int get_analog_channels (int board_id, int preset, int[] analog_channels, int[] len);
 
         int get_gyro_channels (int board_id, int preset, int[] gyro_channels, int[] len);
@@ -88,6 +91,8 @@ public class BoardShim
         int get_other_channels (int board_id, int preset, int[] other_channels, int[] len);
 
         int get_resistance_channels (int board_id, int preset, int[] channels, int[] len);
+
+        int get_magnetometer_channels (int board_id, int preset, int[] channels, int[] len);
 
         int get_temperature_channels (int board_id, int preset, int[] temperature_channels, int[] len);
 
@@ -118,34 +123,34 @@ public class BoardShim
         if (SystemUtils.IS_OS_WINDOWS)
         {
             lib_name = "BoardController.dll";
-            unpack_from_jar ("neurosdk-x64.dll");
-            unpack_from_jar ("Unicorn.dll");
-            unpack_from_jar ("gForceSDKWrapper.dll");
-            unpack_from_jar ("gforce64.dll");
-            unpack_from_jar ("simpleble-c.dll");
-            unpack_from_jar ("MuseLib.dll");
-            unpack_from_jar ("BrainBitLib.dll");
-            unpack_from_jar ("GanglionLib.dll");
-            unpack_from_jar ("BrainFlowBluetooth.dll");
-            unpack_from_jar ("eego-SDK.dll");
+            JarHelper.unpack_from_jar ("neurosdk-x64.dll");
+            JarHelper.unpack_from_jar ("Unicorn.dll");
+            JarHelper.unpack_from_jar ("gForceSDKWrapper.dll");
+            JarHelper.unpack_from_jar ("gforce64.dll");
+            JarHelper.unpack_from_jar ("simpleble-c.dll");
+            JarHelper.unpack_from_jar ("MuseLib.dll");
+            JarHelper.unpack_from_jar ("BrainBitLib.dll");
+            JarHelper.unpack_from_jar ("GanglionLib.dll");
+            JarHelper.unpack_from_jar ("BrainFlowBluetooth.dll");
+            JarHelper.unpack_from_jar ("eego-SDK.dll");
         } else if (SystemUtils.IS_OS_MAC)
         {
             lib_name = "libBoardController.dylib";
-            unpack_from_jar ("libGanglionLib.dylib");
-            unpack_from_jar ("libneurosdk-shared.dylib");
-            unpack_from_jar ("libsimpleble-c.dylib");
-            unpack_from_jar ("libMuseLib.dylib");
-            unpack_from_jar ("libBrainBitLib.dylib");
-            unpack_from_jar ("libBrainFlowBluetooth.dylib");
+            JarHelper.unpack_from_jar ("libGanglionLib.dylib");
+            JarHelper.unpack_from_jar ("libneurosdk-shared.dylib");
+            JarHelper.unpack_from_jar ("libsimpleble-c.dylib");
+            JarHelper.unpack_from_jar ("libMuseLib.dylib");
+            JarHelper.unpack_from_jar ("libBrainBitLib.dylib");
+            JarHelper.unpack_from_jar ("libBrainFlowBluetooth.dylib");
         } else if ((SystemUtils.IS_OS_LINUX) && (!is_os_android))
         {
-            unpack_from_jar ("libunicorn.so");
-            unpack_from_jar ("libGanglionLib.so");
-            unpack_from_jar ("libsimpleble-c.so");
-            unpack_from_jar ("libMuseLib.so");
-            unpack_from_jar ("libBrainFlowBluetooth.so");
-            unpack_from_jar ("libBrainBitLib.so");
-            unpack_from_jar ("libeego-SDK.so");
+            JarHelper.unpack_from_jar ("libunicorn.so");
+            JarHelper.unpack_from_jar ("libGanglionLib.so");
+            JarHelper.unpack_from_jar ("libsimpleble-c.so");
+            JarHelper.unpack_from_jar ("libMuseLib.so");
+            JarHelper.unpack_from_jar ("libBrainFlowBluetooth.so");
+            JarHelper.unpack_from_jar ("libBrainBitLib.so");
+            JarHelper.unpack_from_jar ("libeego-SDK.so");
         }
 
         if (is_os_android)
@@ -156,29 +161,16 @@ public class BoardShim
         } else
         {
             // need to extract libraries from jar
-            unpack_from_jar (lib_name);
+            Path lib_path = JarHelper.unpack_from_jar (lib_name);
+            if (lib_path != null)
+            {
+                lib_name = lib_path.toString ();
+            }
         }
 
         instance = Native.loadLibrary (lib_name, DllInterface.class,
                 Collections.singletonMap (Library.OPTION_ALLOW_OBJECTS, Boolean.TRUE));
         instance.java_set_jnienv (JNIEnv.CURRENT);
-    }
-
-    private static Path unpack_from_jar (String lib_name)
-    {
-        try
-        {
-            File file = new File (lib_name);
-            if (file.exists ())
-                file.delete ();
-            InputStream link = (BoardShim.class.getResourceAsStream (lib_name));
-            Files.copy (link, file.getAbsoluteFile ().toPath ());
-            return file.getAbsoluteFile ().toPath ();
-        } catch (Exception io)
-        {
-            System.err.println ("file: " + lib_name + " is not found in jar file");
-            return null;
-        }
     }
 
     /**
@@ -852,6 +844,50 @@ public class BoardShim
 
     /**
      * get row indices in returned by get_board_data() 2d array which contain
+     * magnetometer data
+     */
+    public static int[] get_magnetometer_channels (int board_id, BrainFlowPresets preset) throws BrainFlowError
+    {
+        int[] len = new int[1];
+        int[] channels = new int[512];
+        int ec = instance.get_magnetometer_channels (board_id, preset.get_code (), channels, len);
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in board info getter", ec);
+        }
+
+        return Arrays.copyOfRange (channels, 0, len[0]);
+    }
+
+    /**
+     * get row indices in returned by get_board_data() 2d array which contain
+     * magnetometer data
+     */
+    public static int[] get_magnetometer_channels (int board_id) throws BrainFlowError
+    {
+        return get_magnetometer_channels (board_id, BrainFlowPresets.DEFAULT_PRESET);
+    }
+
+    /**
+     * get row indices in returned by get_board_data() 2d array which contain
+     * magnetometer data
+     */
+    public static int[] get_magnetometer_channels (BoardIds board_id, BrainFlowPresets preset) throws BrainFlowError
+    {
+        return get_magnetometer_channels (board_id.get_code (), preset);
+    }
+
+    /**
+     * get row indices in returned by get_board_data() 2d array which contain
+     * magnetometer data
+     */
+    public static int[] get_magnetometer_channels (BoardIds board_id) throws BrainFlowError
+    {
+        return get_magnetometer_channels (board_id.get_code ());
+    }
+
+    /**
+     * get row indices in returned by get_board_data() 2d array which contain
      * resistance data
      */
     public static int[] get_resistance_channels (int board_id, BrainFlowPresets preset) throws BrainFlowError
@@ -1334,6 +1370,18 @@ public class BoardShim
         }
     }
 
+    /**
+     * delete streamer
+     */
+    public void delete_streamer (String streamer, int preset) throws BrainFlowError
+    {
+        int ec = instance.delete_streamer (streamer, preset, board_id, input_json);
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in delete_streamer", ec);
+        }
+    }
+
     public void add_streamer (String streamer, BrainFlowPresets preset) throws BrainFlowError
     {
         add_streamer (streamer, preset.get_code ());
@@ -1342,6 +1390,16 @@ public class BoardShim
     public void add_streamer (String streamer) throws BrainFlowError
     {
         add_streamer (streamer, BrainFlowPresets.DEFAULT_PRESET);
+    }
+
+    public void delete_streamer (String streamer, BrainFlowPresets preset) throws BrainFlowError
+    {
+        delete_streamer (streamer, preset.get_code ());
+    }
+
+    public void delete_streamer (String streamer) throws BrainFlowError
+    {
+        delete_streamer (streamer, BrainFlowPresets.DEFAULT_PRESET);
     }
 
     /**
@@ -1362,11 +1420,23 @@ public class BoardShim
     }
 
     /**
+     * send string to a board, dont use it
+     */
+    public void config_board_with_bytes (byte[] bytes) throws BrainFlowError
+    {
+        int ec = instance.config_board_with_bytes (bytes, bytes.length, board_id, input_json);
+        if (ec != BrainFlowExitCode.STATUS_OK.get_code ())
+        {
+            throw new BrainFlowError ("Error in config_board", ec);
+        }
+    }
+
+    /**
      * start streaming thread, store data in internal ringbuffer and stream them
      * from brainflow at the same time
-     * 
+     *
      * @param buffer_size     size of internal ringbuffer
-     * 
+     *
      * @param streamer_params supported vals: "file://%file_name%:w",
      *                        "file://%file_name%:a",
      *                        "streaming_board://%multicast_group_ip%:%port%". Range
