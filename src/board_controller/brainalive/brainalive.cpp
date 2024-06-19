@@ -399,25 +399,33 @@ void BrainAlive::read_data (simpleble_uuid_t service, simpleble_uuid_t character
         safe_logger (spdlog::level::warn, "unknown size of BrainAlive Data {}", size);
         return;
     }
-
-    for (int i = 0; i < (int)size; i += BRAINALIVE_SINGLE_PACKET_SIZE)
+    else
     {
-        double ba_data[15] = {0};
-        int k = 0;
-        for (int j = i + BRAINALIVE_EEG_DATA_START_INDEX; j < i + BRAINALIVE_EEG_DATA_END_INDEX;
-             j += 3, k++)
+
+        for (int i = 0; i < (int)size; i += BRAINALIVE_SINGLE_PACKET_SIZE)
         {
-            ba_data[k] = (((data[j] << 16 | data[j + 1] << 8 | data[j + 2]) << 8) >> 8) *
-                (((REFFRENCE_VOLTAGE / FSR_Value) / (float)(SOFTWARE_GAIN * HARDWARE_GAIN)) * 1000);
+            double ba_data[15] = {0};
+            int k = 0;
+            for (int j = i + BRAINALIVE_EEG_DATA_START_INDEX; j < i + BRAINALIVE_EEG_DATA_END_INDEX;
+                 j += 3, k++)
+            {
+                ba_data[k] = (float)(((data[j] << 16 | data[j + 1] << 8 | data[j + 2]) << 8) >> 8) *
+                    ((((float)REFFRENCE_VOLTAGE / (float)FSR_Value) /
+                         (float)(SOFTWARE_GAIN * HARDWARE_GAIN)) *
+                        1000);
+                // printf ("%f,", ba_data[k]);
+            }
+            for (int j = i + BRAINALIVE_ACCLR_MTR_DATA_START_INDEX;
+                 j < i + BRAINALIVE_ACCLR_MTR_DATA_END_INDEX; j += 2, k++)
+            {
+                ba_data[k] = (data[j] << 8) | data[j + 1];
+                if (ba_data[k] > 32767)
+                    ba_data[k] = ba_data[k] - 65535;
+                // printf ("%f,", ba_data[k]);
+            }
+            ba_data[14] = data[BRAINALIVE_PACKET_ID_INDEX];
+            // printf ("%d\n", ba_data[14]);
+            push_package (&ba_data[0]);
         }
-        for (int j = i + BRAINALIVE_ACCLR_MTR_DATA_START_INDEX;
-             j < i + BRAINALIVE_ACCLR_MTR_DATA_END_INDEX; j += 2, k++)
-        {
-            ba_data[k] = (data[j] << 8) | data[j + 1];
-            if (ba_data[k] > 32767)
-                ba_data[k] = ba_data[k] - 65535;
-        }
-        ba_data[14] = data[BRAINALIVE_PACKET_ID_INDEX];
-        push_package (&ba_data[0]);
     }
 }
