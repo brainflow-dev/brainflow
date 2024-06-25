@@ -423,8 +423,8 @@ void BrainAlive::read_data (simpleble_uuid_t service, simpleble_uuid_t character
                     ba_data[k] = ba_data[k] - 65535;
                 // printf ("%f,", ba_data[k]);
             }
-            ba_data[14] = data[BRAINALIVE_PACKET_ID_INDEX];
-            // printf ("%d\n", ba_data[14]);
+            ba_data[14] = data[BRAINALIVE_PACKET_ID_INDEX+i];
+            //  printf ("%f\n", ba_data[14]);
             push_package (&ba_data[0]);
         }
     }
