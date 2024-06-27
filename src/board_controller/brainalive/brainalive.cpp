@@ -410,9 +410,8 @@ void BrainAlive::read_data (simpleble_uuid_t service, simpleble_uuid_t character
                  j += 3, k++)
             {
                 ba_data[k] = (float)(((data[j] << 16 | data[j + 1] << 8 | data[j + 2]) << 8) >> 8) *
-                    ((((float)REFFRENCE_VOLTAGE / (float)FSR_Value) /
-                         (float)(SOFTWARE_GAIN * HARDWARE_GAIN)) *
-                        1000);
+                    ((((float)REFFRENCE_VOLTAGE * 1000) /
+                        (float)(SOFTWARE_GAIN * HARDWARE_GAIN * FSR_Value)));
                 // printf ("%f,", ba_data[k]);
             }
             for (int j = i + BRAINALIVE_ACCLR_MTR_DATA_START_INDEX;
@@ -423,7 +422,7 @@ void BrainAlive::read_data (simpleble_uuid_t service, simpleble_uuid_t character
                     ba_data[k] = ba_data[k] - 65535;
                 // printf ("%f,", ba_data[k]);
             }
-            ba_data[14] = data[BRAINALIVE_PACKET_ID_INDEX+i];
+            ba_data[14] = data[BRAINALIVE_PACKET_ID_INDEX + i];
             //  printf ("%f\n", ba_data[14]);
             push_package (&ba_data[0]);
         }
