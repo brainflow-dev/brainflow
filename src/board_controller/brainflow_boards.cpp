@@ -71,7 +71,10 @@ BrainFlowBoards::BrainFlowBoards()
             {"50", json::object()},
             {"51", json::object()},
             {"52", json::object()},
-            {"53", json::object()}
+            {"53", json::object()},
+            {"54", json::object()},
+            {"55", json::object()},
+            {"56", json::object()}
         }
     }};
 
@@ -1081,6 +1084,16 @@ BrainFlowBoards::BrainFlowBoards()
         {"temperature_channels", {1}},
         {"battery_channel", 2},
         {"other_channels", {3}}
+    };
+    brainflow_boards_json["boards"]["56"]["default"] = {
+        {"name", "PIEEG"},
+        {"sampling_rate", 250},
+        {"package_num_channel", 0},
+        {"timestamp_channel", 9},
+        {"marker_channel", 10},
+        {"num_rows", 11},
+        {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},  
+        {"eeg_names", "Fp1,Fp2,C3,C4,P7,P8,O1,O2"}
     };
 }
 

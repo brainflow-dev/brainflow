@@ -1,0 +1,10 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=${exec_prefix}/@CMAKE_INSTALL_LIBDIR@
+includedir=${prefix}/@CMAKE_INSTALL_INCLUDEDIR@/@PROJECT_NAME@
+
+Name: libperiphery
+Description: Library for peripheral I/O (GPIO, LED, PWM, SPI, I2C, MMIO, Serial) in Linux
+Version: @VERSION@
+Libs: -L${libdir} -lperiphery
+Cflags: -I${includedir}

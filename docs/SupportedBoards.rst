@@ -1268,3 +1268,40 @@ Available :ref:`presets-label`:
 - :code:`BrainFlowPresets.DEFAULT_PRESET`, it contains accelerometer, gyroscope and magnetometer data
 - :code:`BrainFlowPresets.AUXILIARY_PRESET`, it contains PPG data
 - :code:`BrainFlowPresets.ANCILLARY_PRESET`, it contains EDA and temperature data
+
+PiEEG
+------
+
+PiEEG Board
+~~~~~~~~~~~
+
+PiEEG (Measure EEG with RaspberryPi) – Brain-computer interface (EEG, EMG, and ECG bio-signals) is an open-source Raspberry Pi shield that measures biosignals such as those used in electroencephalography (EEG), electromyography (EMG), and electrocardiography (ECG). It integrates seamlessly with BrainFlow's API, allowing for easy data streaming, processing, and analysis.
+
+.. image:: https://live.staticflickr.com/65535/53823500137_3bf2e27dbf_z.jpg
+    :width: 640px
+    :height: 384px
+
+`PiEEG Website <https://pieeg.com/>`_
+
+To create such a board, you need to specify the following board ID and fields of the BrainFlowInputParams object:
+
+- :code:`BoardIds.PIEEG_BOARD`
+- :code:`serial_port`(optional), e.g., COM3, /dev/spidev0.0, etc.
+
+Initialization Example:
+
+.. code-block:: python
+    from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
+    params = BrainFlowInputParams()
+    params.serial_port = "/dev/spidev0.0"
+    board = BoardShim(BoardIds.PIEEG_BOARD, params)
+    board.prepare_session()
+    board.start_stream()
+
+Supported platforms:
+
+- Raspberry Pi
+
+**Note**: Ensure that you have the necessary permissions to access the serial port on your operating system. For Unix-like systems, you may need to configure permissions for the serial port or run with sudo.
+
+**To use this board you need to compile BrainFlow from the source code right on your Raspbery Pi device with flag --build-periphery(build.py) or with -DBUILD_PERIPHERY=ON(CMake) and install desired bindings using local libraries.**
