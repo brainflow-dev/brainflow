@@ -84,6 +84,7 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/emotibit/emotibit.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ntl/ntl_wifi.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/aavaa/aavaa_v3.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/pieeg/pieeg_board.cpp
 )
 
 include (${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ant_neuro/build.cmake)
@@ -140,6 +141,7 @@ target_include_directories (
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/emotibit/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ntl/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/aavaa/inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/pieeg/inc
 )
 
 target_compile_definitions(${BOARD_CONTROLLER_NAME} PRIVATE NOMINMAX BRAINFLOW_VERSION=${BRAINFLOW_VERSION})
@@ -167,6 +169,13 @@ if (USE_LIBFTDI)
         message (FATAL_ERROR "USE_LIBFTDI SET but LibFTDI not found.")
     endif (LibFTDI1_FOUND)
 endif (USE_LIBFTDI)
+
+if (BUILD_PERIPHERY)
+    add_subdirectory (${CMAKE_CURRENT_SOURCE_DIR}/third_party/periphery)
+    target_compile_definitions (${BOARD_CONTROLLER_NAME} PRIVATE USE_PERIPHERY)
+    include_directories (${CMAKE_CURRENT_SOURCE_DIR}/third_party/periphery)
+    target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE periphery ${CMAKE_THREAD_LIBS_INIT} dl)
+endif (BUILD_PERIPHERY)
 
 if (MSVC)
     add_custom_command (TARGET ${BOARD_CONTROLLER_NAME} POST_BUILD
