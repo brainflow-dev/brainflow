@@ -218,7 +218,7 @@ void PIEEGBoard::read_thread ()
 
     double eeg_scale = 4.5 / float ((pow (2, 23) - 1)) / 8 * 1000000.;
     double timestamp = 0;
-    int counter = 0;
+    unsigned int counter = 0;
     int timeout_ms = 1000;
     uint32_t data_test = 0x7FFFFF;
     uint32_t data_check = 0xFFFFFF;
@@ -269,7 +269,7 @@ void PIEEGBoard::read_thread ()
                 package[eeg_channels[i]] = 0.27 * voltage;
             }
             package[board_descr["default"]["timestamp_channel"].get<int> ()] = timestamp;
-            package[board_descr["default"]["package_num_channel"].get<int> ()] = counter++;
+            package[board_descr["default"]["package_num_channel"].get<int> ()] = (double)counter++;
             push_package (package);
         }
     }
