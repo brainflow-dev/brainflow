@@ -21,7 +21,7 @@
 #define BRAINALIVE_ACCLR_MTR_DATA_END_INDEX                                                        \
     BRAINALIVE_ACCLR_MTR_DATA_START_INDEX + BRAINALIVE_ACCLR_MTR_DATA_SIZE
 #define BRAINALIVE_HANDSHAKING_PACKET_SIZE 6
-#define FSR_Value 8388608
+#define FSR_Value 8388607
 
 // info about services and chars
 #define START_BYTE 0x0A
@@ -357,7 +357,7 @@ void BrainAlive::adapter_1_on_scan_found (
         }
         else
         {
-            if (strncmp (peripheral_identified, "ORION_2", 7) == 0)
+            if (strncmp (peripheral_identified, "BA_FLEX", 7) == 0)
             {
                 found = true;
             }
