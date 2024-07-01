@@ -94,8 +94,8 @@ jobs:
       # bindings in production have to use libraries compiled inside this image!
       if: (matrix.os == 'ubuntu-20.04')
       run: |
-        docker pull dockcross/manylinux2014-x64:20210708-94745ff
-        docker run -e BRAINFLOW_VERSION=$BRAINFLOW_VERSION -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE dockcross/manylinux2014-x64:20210708-94745ff /bin/bash -c "yum install -y bluez-libs-devel dbus-devel && /opt/python/cp36-cp36m/bin/pip3.6 install cmake==3.21.4 && cd $GITHUB_WORKSPACE && mkdir build_docker && cd build_docker && /opt/_internal/cpython-3.6.14/bin/cmake -DBRAINFLOW_VERSION=$BRAINFLOW_VERSION -DBUILD_ONNX=ON -DBUILD_BLE=ON -DBUILD_BLUETOOTH=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed_docker -DCMAKE_BUILD_TYPE=Release .. && make && make install"
+        docker pull dockcross/manylinux_2_28-x64:20240418-88c04a4
+        docker run -e BRAINFLOW_VERSION=$BRAINFLOW_VERSION -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE dockcross/manylinux_2_28-x64:20240418-88c04a4 /bin/bash -c "yum install -y bluez-libs-devel dbus-devel && /opt/python/cp36-cp36m/bin/pip3.6 install cmake==3.21.4 && cd $GITHUB_WORKSPACE && mkdir build_docker && cd build_docker && /opt/_internal/cpython-3.6.14/bin/cmake -DBRAINFLOW_VERSION=$BRAINFLOW_VERSION -DBUILD_ONNX=ON -DBUILD_BLE=ON -DBUILD_BLUETOOTH=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed_docker -DCMAKE_BUILD_TYPE=Release .. && make && make install"
       env:
         BRAINFLOW_VERSION: ${{ steps.version.outputs.version }}
     - name: C# build
