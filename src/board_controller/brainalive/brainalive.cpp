@@ -10,7 +10,7 @@
 #define STOP_BYTE 0x0D
 #define BRAINALIVE_HANDSHAKING_PACKET_SIZE 6
 
-static int software_gain, hardware_gain, reffrence_volatage;
+int software_gain, hardware_gain, reffrence_volatage;
 
 #define BRAINALIVE_WRITE_CHAR "0000fe41-8e22-4541-9d4c-21edae82ed19"
 #define BRAINALIVE_NOTIFY_CHAR "0000fe42-8e22-4541-9d4c-21edae82ed19"
