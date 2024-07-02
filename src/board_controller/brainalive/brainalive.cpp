@@ -1,23 +1,19 @@
-#include <string>
-
 #include "brainalive.h"
 #include "custom_cast.h"
 #include "get_dll_dir.h"
 #include "timestamp.h"
+#include <string.h>
 
-// common constants
-#define BRAINALIVE_PACKET_SIZE 224
 
 // info about services and chars
 #define START_BYTE 0x0A
 #define STOP_BYTE 0x0D
+#define BRAINALIVE_HANDSHAKING_PACKET_SIZE 6
+
+int software_gain, hardware_gain, reffrence_volatage;
 
 #define BRAINALIVE_WRITE_CHAR "0000fe41-8e22-4541-9d4c-21edae82ed19"
 #define BRAINALIVE_NOTIFY_CHAR "0000fe42-8e22-4541-9d4c-21edae82ed19"
-
-// info for equations
-#define BRAINALIVE_EEG_SCALE_FACTOR 0.0476837158203125
-#define BRAINALIVE_EEG_GAIN_VALUE 12
 
 
 static void brainalive_adapter_1_on_scan_found (
@@ -29,7 +25,16 @@ static void brainalive_adapter_1_on_scan_found (
 static void brainalive_read_notifications (simpleble_uuid_t service,
     simpleble_uuid_t characteristic, uint8_t *data, size_t size, void *board)
 {
-    ((BrainAlive *)(board))->read_data (service, characteristic, data, size, 0);
+    if (size == BRAINALIVE_HANDSHAKING_PACKET_SIZE)
+    {
+        software_gain = data[1];
+        hardware_gain = data[2];
+        reffrence_volatage = (data[3] << 8) | data[4];
+    }
+    else
+    {
+        ((BrainAlive *)(board))->read_data (service, characteristic, data, size, 0);
+    }
 }
 
 BrainAlive::BrainAlive (struct BrainFlowInputParams params)
@@ -302,7 +307,6 @@ int BrainAlive::config_board (std::string config)
         return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
     }
     uint8_t command[5];
-    size_t len = config.size ();
     command[0] = 0x0a;
     command[1] = 0x81; // it is hardcoded for now only
     command[2] = 0x00;
@@ -342,7 +346,7 @@ void BrainAlive::adapter_1_on_scan_found (
         }
         else
         {
-            if (strncmp (peripheral_identified, "ORION_1", 7) == 0)
+            if (strncmp (peripheral_identified, "BA_FLEX", 7) == 0)
             {
                 found = true;
             }
@@ -371,21 +375,36 @@ void BrainAlive::adapter_1_on_scan_found (
 void BrainAlive::read_data (simpleble_uuid_t service, simpleble_uuid_t characteristic,
     uint8_t *data, size_t size, int channel_num)
 {
-    if (size != BRAINALIVE_PACKET_SIZE)
+    if (size == brainalive_packet_size)
+    {
+        for (int i = 0; i < (int)size; i += brainalive_single_packet_size)
+        {
+            double ba_data[ba_brainflow_package_size] = {0};
+            int k = 0;
+            for (int j = i + brainalive_eeg_Start_index; j < i + brainalive_eeg_end_index;
+                 j += 3, k++)
+            {
+                ba_data[k] = (float)(((data[j] << 16 | data[j + 1] << 8 | data[j + 2]) << 8) >> 8) *
+                    ((((float)reffrence_volatage * 1000) /
+                        (float)(software_gain * hardware_gain * FSR_Value)));
+            }
+            for (int j = i + brainalive_axl_start_index; j < i + brainalive_axl_end_index;
+                 j += 2, k++)
+            {
+                ba_data[k] = (data[j] << 8) | data[j + 1];
+                if (ba_data[k] > 32767)
+                    ba_data[k] = ba_data[k] - 65535;
+            }
+            ba_data[14] = data[brainalive_packet_index + i];
+            ba_data[15] = data[(brainalive_packet_index + 1) + i];
+            ba_data[16] = get_timestamp ();
+
+            push_package (&ba_data[0]);
+        }
+    }
+    else
     {
         safe_logger (spdlog::level::warn, "unknown size of BrainAlive Data {}", size);
         return;
-    }
-
-    for (int i = 0; i < (int)size; i += 32)
-    {
-        double eeg_data[9] = {0};
-        for (int j = i + 4, k = 0; j < i + 28; j += 3, k++)
-        {
-            eeg_data[k] = (((data[j] << 16 | data[j + 1] << 8 | data[j + 2]) << 8) >> 8) *
-                BRAINALIVE_EEG_SCALE_FACTOR / BRAINALIVE_EEG_GAIN_VALUE;
-        }
-        eeg_data[8] = data[i + 29];
-        push_package (&eeg_data[0]);
     }
 }
