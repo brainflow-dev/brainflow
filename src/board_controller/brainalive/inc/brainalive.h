@@ -42,6 +42,7 @@ public:
     static constexpr int FSR_Value = 8388607;
     static constexpr int ba_brainflow_package_size = 17;
 
+
 protected:
     volatile simpleble_adapter_t brainalive_adapter;
     volatile simpleble_peripheral_t brainalive_peripheral;

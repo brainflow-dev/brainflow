@@ -1,14 +1,15 @@
-#include <string>
-
 #include "brainalive.h"
 #include "custom_cast.h"
 #include "get_dll_dir.h"
 #include "timestamp.h"
+#include <string.h>
+
 
 // info about services and chars
 #define START_BYTE 0x0A
 #define STOP_BYTE 0x0D
 #define BRAINALIVE_HANDSHAKING_PACKET_SIZE 6
+
 static int software_gain, hardware_gain, reffrence_volatage;
 
 #define BRAINALIVE_WRITE_CHAR "0000fe41-8e22-4541-9d4c-21edae82ed19"
@@ -31,7 +32,9 @@ static void brainalive_read_notifications (simpleble_uuid_t service,
         reffrence_volatage = (data[3] << 8) | data[4];
     }
     else
+    {
         ((BrainAlive *)(board))->read_data (service, characteristic, data, size, 0);
+    }
 }
 
 BrainAlive::BrainAlive (struct BrainFlowInputParams params)
@@ -304,7 +307,6 @@ int BrainAlive::config_board (std::string config)
         return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
     }
     uint8_t command[5];
-    size_t len = config.size ();
     command[0] = 0x0a;
     command[1] = 0x81; // it is hardcoded for now only
     command[2] = 0x00;
