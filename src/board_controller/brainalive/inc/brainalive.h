@@ -8,6 +8,12 @@
 
 class BrainAlive : public BLELibBoard
 {
+
+private:
+    int software_gain = 0;
+    int hardware_gain = 0;
+    int reference_voltage = 0;
+
 public:
     BrainAlive (struct BrainFlowInputParams params);
     ~BrainAlive ();
@@ -22,6 +28,61 @@ public:
     void adapter_1_on_scan_found (simpleble_adapter_t adapter, simpleble_peripheral_t peripheral);
     void read_data (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
         size_t size, int channel_num);
+    void setSoftwareGain (int gain)
+    {
+        software_gain = gain;
+    }
+
+    void setHardwareGain (int gain)
+    {
+        hardware_gain = gain;
+    }
+
+    void setReferenceVoltage (int voltage)
+    {
+        reference_voltage = voltage;
+    }
+
+    int getSoftwareGain () const
+    {
+        return software_gain;
+    }
+
+    int getHardwareGain () const
+    {
+        return hardware_gain;
+    }
+
+    int getReferenceVoltage () const
+    {
+        return reference_voltage;
+    }
+
+    // common constants
+    static constexpr int brainalive_packet_size = 220;
+    static constexpr int brainalive_single_packet_size = 44;
+    static constexpr int num_of_packets = brainalive_packet_size / brainalive_single_packet_size;
+
+    static constexpr int brainalive_packet_index = (brainalive_single_packet_size - 3);
+
+    static constexpr int brainalive_eeg_data_szie = 24;
+    static constexpr int brainalive_eeg_Start_index = 4;
+    static constexpr int brainalive_eeg_end_index =
+        (brainalive_eeg_Start_index + brainalive_eeg_data_szie);
+
+    static constexpr int brainalive_axl_data_size = 6;
+    static constexpr int brainalive_gyro_data_size = 6;
+    static constexpr int brainalive_axl_start_index = brainalive_eeg_end_index;
+    static constexpr int brainalive_axl_end_index =
+        brainalive_axl_start_index + brainalive_axl_data_size;
+    static constexpr int brainalive_gyro_start_index = brainalive_axl_end_index;
+    static constexpr int brainalive_gyro_end_index =
+        brainalive_gyro_start_index + brainalive_gyro_data_size;
+    static constexpr int FSR_Value = 8388607;
+    static constexpr int ba_brainflow_package_size = 17;
+
+    static constexpr int brainalive_handshaking_packet_size = 6;
+
 
 protected:
     volatile simpleble_adapter_t brainalive_adapter;
