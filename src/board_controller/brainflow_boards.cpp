@@ -710,14 +710,14 @@ BrainFlowBoards::BrainFlowBoards()
     {
         {"name", "BrainAlive"},
         {"sampling_rate", 250},
-        {"package_num_channel", 14},
         {"marker_channel", 15},
         {"timestamp_channel", 16},
         {"num_rows", 17},
-        {"eeg_channels", {0, 1, 2, 3, 4, 5, 6, 7}},
+        {"package_num_channel", 0},
+        {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
         {"eeg_names", "F7,FT7,T7,CP5,CZ,C6,FC6,F4"},
-        {"accel_channels", {8, 9, 10}},
-        {"gyro_channels", {11, 12, 13}}
+        {"accel_channels", {9, 10, 11}},
+        {"gyro_channels", {12, 13, 14}}
     };
     brainflow_boards_json["boards"]["41"]["default"] =
     {

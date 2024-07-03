@@ -4,13 +4,9 @@
 #include "timestamp.h"
 #include <string.h>
 
-
 // info about services and chars
 #define START_BYTE 0x0A
 #define STOP_BYTE 0x0D
-#define BRAINALIVE_HANDSHAKING_PACKET_SIZE 6
-
-int software_gain, hardware_gain, reffrence_volatage;
 
 #define BRAINALIVE_WRITE_CHAR "0000fe41-8e22-4541-9d4c-21edae82ed19"
 #define BRAINALIVE_NOTIFY_CHAR "0000fe42-8e22-4541-9d4c-21edae82ed19"
@@ -25,11 +21,11 @@ static void brainalive_adapter_1_on_scan_found (
 static void brainalive_read_notifications (simpleble_uuid_t service,
     simpleble_uuid_t characteristic, uint8_t *data, size_t size, void *board)
 {
-    if (size == BRAINALIVE_HANDSHAKING_PACKET_SIZE)
+    if (size == BrainAlive::brainalive_handshaking_packet_size)
     {
-        software_gain = data[1];
-        hardware_gain = data[2];
-        reffrence_volatage = (data[3] << 8) | data[4];
+        ((BrainAlive *)(board))->setSoftwareGain (data[1]);
+        ((BrainAlive *)(board))->setHardwareGain (data[2]);
+        ((BrainAlive *)(board))->setReferenceVoltage (((data[3] << 8) | data[4]));
     }
     else
     {
@@ -379,27 +375,48 @@ void BrainAlive::read_data (simpleble_uuid_t service, simpleble_uuid_t character
     {
         for (int i = 0; i < (int)size; i += brainalive_single_packet_size)
         {
-            double ba_data[ba_brainflow_package_size] = {0};
-            int k = 0;
-            for (int j = i + brainalive_eeg_Start_index; j < i + brainalive_eeg_end_index;
+
+            int num_rows = board_descr["default"]["num_rows"];
+            double *package = new double[num_rows];
+            for (int i = 0; i < num_rows; i++)
+            {
+                package[i] = 0.0;
+            }
+            std::vector<int> eeg_channels = board_descr["default"]["eeg_channels"];
+            std::vector<int> accel_channels = board_descr["default"]["accel_channels"];
+            std::vector<int> gyro_channels = board_descr["default"]["gyro_channels"];
+
+            package[board_descr["default"]["package_num_channel"].get<int> ()] =
+                data[brainalive_packet_index + i];
+
+            for (int j = i + brainalive_eeg_Start_index, k = 0; j < i + brainalive_eeg_end_index;
                  j += 3, k++)
             {
-                ba_data[k] = (float)(((data[j] << 16 | data[j + 1] << 8 | data[j + 2]) << 8) >> 8) *
-                    ((((float)reffrence_volatage * 1000) /
-                        (float)(software_gain * hardware_gain * FSR_Value)));
+                package[eeg_channels[k]] =
+                    (float)(((data[j] << 16 | data[j + 1] << 8 | data[j + 2]) << 8) >> 8) *
+                    ((((float)getReferenceVoltage () * 1000) /
+                        (float)(getSoftwareGain () * getHardwareGain () * FSR_Value)));
             }
-            for (int j = i + brainalive_axl_start_index; j < i + brainalive_axl_end_index;
+
+            for (int j = i + brainalive_axl_start_index, k = 0; j < i + brainalive_axl_end_index;
                  j += 2, k++)
             {
-                ba_data[k] = (data[j] << 8) | data[j + 1];
-                if (ba_data[k] > 32767)
-                    ba_data[k] = ba_data[k] - 65535;
+                package[accel_channels[k]] = (data[j] << 8) | data[j + 1];
+                if (package[accel_channels[k]] > 32767)
+                    package[accel_channels[k]] = package[accel_channels[k]] - 65535;
             }
-            ba_data[14] = data[brainalive_packet_index + i];
-            ba_data[15] = data[(brainalive_packet_index + 1) + i];
-            ba_data[16] = get_timestamp ();
+            for (int j = i + brainalive_gyro_start_index, k = 0; j < i + brainalive_gyro_end_index;
+                 j += 2, k++)
+            {
+                package[gyro_channels[k]] = (data[j] << 8) | data[j + 1];
+                if (package[gyro_channels[k]] > 32767)
+                    package[gyro_channels[k]] = package[gyro_channels[k]] - 65535;
+            }
+            package[board_descr["default"]["marker_channel"].get<int> ()] =
+                data[(brainalive_packet_index + 1) + i];
+            package[board_descr["default"]["timestamp_channel"].get<int> ()] = get_timestamp ();
 
-            push_package (&ba_data[0]);
+            push_package (&package[0]);
         }
     }
     else
