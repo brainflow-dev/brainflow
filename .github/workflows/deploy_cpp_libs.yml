@@ -59,7 +59,7 @@ jobs:
       max-parallel: 16
       matrix:
         build_type: [Release, Debug]
-        os: [ubuntu-latest, macos-12.0]
+        os: [ubuntu-latest, macos-12]
 
     steps:
     - name: Clone Repository
@@ -69,13 +69,13 @@ jobs:
       with:
         cmake-version: '3.21.x'
     - name: Install Ninja
-      if: (matrix.os == 'macos-12.0')
+      if: (matrix.os == 'macos-12')
       uses: seanmiddleditch/gha-setup-ninja@master
       with:
         version: 1.10.2
     # build simpleble outside from brainflow because of different deployment targets
     - name: Compile SimpleBLE MacOS
-      if: (matrix.os == 'macos-12.0')
+      if: (matrix.os == 'macos-12')
       run: |
         mkdir $GITHUB_WORKSPACE/third_party/SimpleBLE/simpleble/build
         cd $GITHUB_WORKSPACE/third_party/SimpleBLE/simpleble/build
@@ -86,7 +86,7 @@ jobs:
       env:
         BUILD: ${{ matrix.build_type }}
     - name: Compile BrainFlow for MacOS
-      if: (matrix.os == 'macos-12.0')
+      if: (matrix.os == 'macos-12')
       run: |
         mkdir $GITHUB_WORKSPACE/build
         cd $GITHUB_WORKSPACE/build
