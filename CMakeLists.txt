@@ -36,7 +36,7 @@ if (WARNINGS_AS_ERRORS)
             add_compile_options (/bigobj)
         endif (CMAKE_BUILD_TYPE EQUAL "DEBUG")
     else ()
-        add_compile_options (-Werror -Wno-varargs)
+        add_compile_options (-Werror -Wno-varargs -Wno-error=deprecated-declarations)
     endif ()
 endif (WARNINGS_AS_ERRORS)
 
