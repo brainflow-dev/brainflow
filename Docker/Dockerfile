@@ -13,17 +13,12 @@ echo "deb https://cloud.r-project.org/bin/linux/ubuntu focal-cran40/" | tee /etc
 echo "deb https://download.mono-project.com/repo/ubuntu vs-bionic main" | tee /etc/apt/sources.list.d/mono-official-vs.list && \
 apt-get -qq update
 # Installing Dependencies
-RUN apt-get install -yqq python3 python3-pip python3-venv openjdk-13-jdk git curl wget build-essential python3-jira r-base rustc cargo nuget nuget mono-devel mono-complete monodevelop libxml2-dev libbluetooth-dev libdbus-1-dev dotnet-sdk-7.0 dotnet-runtime-7.0 dotnet-runtime-3.1 aspnetcore-runtime-7.0 nodejs npm
+RUN apt-get install -yqq python3 python3-pip python3-venv openjdk-13-jdk maven git curl wget build-essential python3-jira r-base rustc cargo nuget nuget mono-devel mono-complete monodevelop libxml2-dev libbluetooth-dev libdbus-1-dev dotnet-sdk-7.0 dotnet-runtime-7.0 dotnet-runtime-3.1 aspnetcore-runtime-7.0 nodejs npm
 RUN mkdir -p /root/local/bin
 WORKDIR /root/local/bin
 # install latest cmake
 RUN mkdir -p /opt/cmake && wget https://github.com/Kitware/CMake/releases/download/v3.24.3/cmake-3.24.3-linux-x86_64.sh && sh cmake-3.24.3-linux-x86_64.sh --prefix=/opt/cmake --skip-license
 ENV PATH=/opt/cmake/bin/:$PATH
-# Installing Maven and Julia
-RUN curl "https://mirrors.estointernet.in/apache/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz" -o maven.tar.gz
-RUN mkdir -p maven
-RUN tar xzf maven.tar.gz -C ./maven
-RUN export PATH=$PATH:/root/local/bin/maven/apache-maven-3.6.3/bin
 RUN wget "https://julialang-s3.julialang.org/bin/linux/x64/1.5/julia-1.5.3-linux-x86_64.tar.gz"
 RUN mkdir -p julia
 RUN tar xf julia-1.5.3-linux-x86_64.tar.gz -C ./julia
