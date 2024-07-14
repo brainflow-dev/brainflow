@@ -49,7 +49,7 @@ RUN dotnet build csharp_package/brainflow/brainflow.sln
 
 # Java Binding
 WORKDIR /root/brainflow/java_package/brainflow
-RUN /root/local/bin/maven/apache-maven-3.6.3/bin/mvn package
+RUN mvn package
 
 # Julia Bindings
 WORKDIR /root/brainflow/julia_package/brainflow
