@@ -1286,7 +1286,7 @@ PiEEG (Measure EEG with RaspberryPi) – Brain-computer interface (EEG, EMG, and
 To create such a board, you need to specify the following board ID and fields of the BrainFlowInputParams object:
 
 - :code:`BoardIds.PIEEG_BOARD`
-- :code:`serial_port`(optional), e.g., COM3, /dev/spidev0.0, etc.
+- :code:`serial_port`(optional), e.g. /dev/spidev0.0, etc. More likely you dont need to change the default
 
 Initialization Example:
 
