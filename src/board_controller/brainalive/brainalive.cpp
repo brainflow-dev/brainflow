@@ -21,11 +21,12 @@ static void brainalive_adapter_1_on_scan_found (
 static void brainalive_read_notifications (simpleble_uuid_t service,
     simpleble_uuid_t characteristic, uint8_t *data, size_t size, void *board)
 {
-    if (size == BrainAlive::brainalive_handshaking_packet_size)
+    if ((size == BrainAlive::brainalive_handshaking_packet_size) && (data[0] == START_BYTE) &&
+        (data[size - 1] == STOP_BYTE) && (data[2] = 0x60))
     {
-        ((BrainAlive *)(board))->setSoftwareGain (data[1]);
-        ((BrainAlive *)(board))->setHardwareGain (data[2]);
-        ((BrainAlive *)(board))->setReferenceVoltage (((data[3] << 8) | data[4]));
+        ((BrainAlive *)(board))->setSoftwareGain (data[3]);
+        ((BrainAlive *)(board))->setHardwareGain (data[4]);
+        ((BrainAlive *)(board))->setReferenceVoltage (((data[5] << 8) | data[6]));
     }
     else
     {
@@ -113,6 +114,7 @@ int BrainAlive::prepare_session ()
             {
                 safe_logger (spdlog::level::info, "Connected to BrainAlive Device");
                 res = (int)BrainFlowExitCodes::STATUS_OK;
+
                 break;
             }
             else
@@ -190,6 +192,7 @@ int BrainAlive::prepare_session ()
     if ((res == (int)BrainFlowExitCodes::STATUS_OK) && (control_characteristics_found))
     {
         initialized = true;
+        config_board ("0a036007000d");
     }
     else
     {
@@ -208,7 +211,7 @@ int BrainAlive::start_stream (int buffer_size, const char *streamer_params)
 
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        res = config_board ("0a8100000d");
+        res = config_board ("0a038100000d");
     }
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
@@ -228,7 +231,7 @@ int BrainAlive::stop_stream ()
     int res = (int)BrainFlowExitCodes::STATUS_OK;
     if (is_streaming)
     {
-        res = config_board ("0a4000000d");
+        res = config_board ("0a034000000d");
     }
     else
     {
@@ -302,15 +305,20 @@ int BrainAlive::config_board (std::string config)
     {
         return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
     }
-    uint8_t command[5];
-    command[0] = 0x0a;
-    command[1] = 0x81; // it is hardcoded for now only
-    command[2] = 0x00;
-    command[3] = 0x00;
-    command[4] = 0x0d;
-    safe_logger (spdlog::level::trace, config[2]);
+    // Calculate the number of bytes
+    size_t numBytes = config.length () / 2; // Each byte is represented by 2 hex characters
+    std::vector<uint8_t> byteArray (numBytes);
+    // Convert hex string to byte array
+    for (size_t i = 0; i < numBytes; ++i)
+    {
+        std::string byteString = config.substr (i * 2, 2); // Get 2 characters for each byte
+        byteArray[i] =
+            static_cast<unsigned char> (std::stoul (byteString, nullptr, 16)); // Convert to byte
+    }
+    safe_logger (spdlog::level::trace, byteArray[2]);
     if (simpleble_peripheral_write_command (brainalive_peripheral, write_characteristics.first,
-            write_characteristics.second, command, sizeof (command)) != SIMPLEBLE_SUCCESS)
+            write_characteristics.second, byteArray.data (),
+            sizeof (byteArray)) != SIMPLEBLE_SUCCESS)
     {
         safe_logger (spdlog::level::err, "failed to send command {} to device", config.c_str ());
         return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
