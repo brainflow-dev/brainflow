@@ -81,7 +81,7 @@ public:
     static constexpr int FSR_Value = 8388607;
     static constexpr int ba_brainflow_package_size = 17;
 
-    static constexpr int brainalive_handshaking_packet_size = 6;
+    static constexpr int brainalive_handshaking_packet_size = 8;
 
 
 protected:
