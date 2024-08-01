@@ -53,6 +53,7 @@
 #include "playback_file_board.h"
 #include "streaming_board.h"
 #include "synthetic_board.h"
+#include "synchroni_board.h"
 #include "unicorn_board.h"
 
 #include "json.hpp"
@@ -281,20 +282,20 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
         case BoardIds::PIEEG_BOARD:
             board = std::shared_ptr<Board> (new PIEEGBoard (board_id, params));
             break;
-        case BoardIds::SYNCHRONI_BOARD_1:
-            board = std::shared_ptr<Board> (new PIEEGBoard (board_id, params));
+        case BoardIds::SYNCHRONI_UNO:
+            board = std::shared_ptr<Board> (new SynchroniBoard (params));
             break;
-        case BoardIds::SYNCHRONI_BOARD_2:
-            board = std::shared_ptr<Board> (new PIEEGBoard (board_id, params));
+        case BoardIds::SYNCHRONI_TRIO:
+            board = std::shared_ptr<Board> (new SynchroniBoard (params));
             break;
-        case BoardIds::SYNCHRONI_BOARD_3:
-            board = std::shared_ptr<Board> (new PIEEGBoard (board_id, params));
+        case BoardIds::SYNCHRONI_PENTO:
+            board = std::shared_ptr<Board> (new SynchroniBoard (params));
             break;
-        case BoardIds::SYNCHRONI_BOARD_4:
-            board = std::shared_ptr<Board> (new PIEEGBoard (board_id, params));
+        case BoardIds::SYNCHRONI_OCTO:
+            board = std::shared_ptr<Board> (new SynchroniBoard (params));
             break;
-        case BoardIds::SYNCHRONI_BOARD_5:
-            board = std::shared_ptr<Board> (new PIEEGBoard (board_id, params));
+        case BoardIds::SYNCHRONI_NEO:
+            board = std::shared_ptr<Board> (new SynchroniBoard (params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

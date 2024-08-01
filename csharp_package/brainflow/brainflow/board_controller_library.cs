@@ -116,7 +116,11 @@ namespace brainflow
         EXPLORE_PLUS_8_CHAN_BOARD = 54,
         EXPLORE_PLUS_32_CHAN_BOARD = 55,
         PIEEG_BOARD = 56，
-        SYNCHRONI_TRIO = 70
+        SYNCHRONI_UNO = 70,
+        SYNCHRONI_TRIO = 71,
+        SYNCHRONI_PENTO = 72,
+        SYNCHRONI_OCTO = 73,
+        SYNCHRONI_NEO = 74
     };
 
 
