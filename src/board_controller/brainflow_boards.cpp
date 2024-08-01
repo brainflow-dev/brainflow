@@ -1100,6 +1100,14 @@ BrainFlowBoards::BrainFlowBoards()
         {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},  
         {"eeg_names", "Fp1,Fp2,C3,C4,P7,P8,O1,O2"}
     };
+    brainflow_boards_json["boards"]["70"]["default"] = {
+        {"name", "SYNCHRONI_TRIO"},
+        {"sampling_rate", 250},
+        {"eeg_channels", {1, 2}},
+        {"ecg_channels", {3}},
+        {"accel_channels", {4, 5, 6}},
+        {"gyro_channels", {7,8,9}},
+    };
 }
 
 BrainFlowBoards boards_struct;

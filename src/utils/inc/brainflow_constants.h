@@ -91,11 +91,7 @@ enum class BoardIds : int
     // use it to iterate
     FIRST = PLAYBACK_FILE_BOARD,
     LAST = PIEEG_BOARD,
-    SYNCHRONI_BOARD_1 = 70,
-    SYNCHRONI_BOARD_2 = 71,
-    SYNCHRONI_BOARD_3 = 72,
-    SYNCHRONI_BOARD_4 = 73,
-    SYNCHRONI_BOARD_5 = 74,
+    SYNCHRONI_TRIO = 70,
 };
 
 enum class IpProtocolTypes : int
