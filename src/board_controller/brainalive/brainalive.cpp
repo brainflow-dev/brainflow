@@ -22,7 +22,7 @@ static void brainalive_read_notifications (simpleble_uuid_t service,
     simpleble_uuid_t characteristic, uint8_t *data, size_t size, void *board)
 {
     if ((size == BrainAlive::brainalive_handshaking_packet_size) && (data[0] == START_BYTE) &&
-        (data[size - 1] == STOP_BYTE) && (data[2] = 0x60))
+        (data[size - 1] == STOP_BYTE) && (data[2] == BrainAlive::brainalive_handshaking_command))
     {
         ((BrainAlive *)(board))->setSoftwareGain (data[3]);
         ((BrainAlive *)(board))->setHardwareGain (data[4]);

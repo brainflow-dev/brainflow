@@ -82,6 +82,7 @@ public:
     static constexpr int ba_brainflow_package_size = 17;
 
     static constexpr int brainalive_handshaking_packet_size = 8;
+    static constexpr int brainalive_handshaking_command = 7;
 
 
 protected:
