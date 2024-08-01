@@ -65,7 +65,12 @@ public enum BoardIds
     AAVAA_V3_BOARD(53),
     EXPLORE_PLUS_8_CHAN_BOARD(54),
     EXPLORE_PLUS_32_CHAN_BOARD(55),
-    PIEEG_BOARD(56);
+    PIEEG_BOARD(56),
+    SYNCHRONI_BOARD_1(70),
+    SYNCHRONI_BOARD_2(71),
+    SYNCHRONI_BOARD_3(72),
+    SYNCHRONI_BOARD_4(73),
+    SYNCHRONI_BOARD_5(74);
 
     private final int board_id;
     private static final Map<Integer, BoardIds> bi_map = new HashMap<Integer, BoardIds> ();

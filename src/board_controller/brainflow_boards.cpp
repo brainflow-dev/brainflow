@@ -74,7 +74,12 @@ BrainFlowBoards::BrainFlowBoards()
             {"53", json::object()},
             {"54", json::object()},
             {"55", json::object()},
-            {"56", json::object()}
+            {"56", json::object()},
+            {"70", json::object()},// need more inforation
+            {"71", json::object()},
+            {"72", json::object()},
+            {"73", json::object()},
+            {"74", json::object()}, 
         }
     }};
 

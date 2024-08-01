@@ -281,6 +281,21 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
         case BoardIds::PIEEG_BOARD:
             board = std::shared_ptr<Board> (new PIEEGBoard (board_id, params));
             break;
+        case BoardIds::SYNCHRONI_BOARD_1:
+            board = std::shared_ptr<Board> (new PIEEGBoard (board_id, params));
+            break;
+        case BoardIds::SYNCHRONI_BOARD_2:
+            board = std::shared_ptr<Board> (new PIEEGBoard (board_id, params));
+            break;
+        case BoardIds::SYNCHRONI_BOARD_3:
+            board = std::shared_ptr<Board> (new PIEEGBoard (board_id, params));
+            break;
+        case BoardIds::SYNCHRONI_BOARD_4:
+            board = std::shared_ptr<Board> (new PIEEGBoard (board_id, params));
+            break;
+        case BoardIds::SYNCHRONI_BOARD_5:
+            board = std::shared_ptr<Board> (new PIEEGBoard (board_id, params));
+            break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
     }
