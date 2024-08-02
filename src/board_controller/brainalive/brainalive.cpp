@@ -24,9 +24,9 @@ static void brainalive_read_notifications (simpleble_uuid_t service,
     if ((size == BrainAlive::brainalive_handshaking_packet_size) && (data[0] == START_BYTE) &&
         (data[size - 1] == STOP_BYTE) && (data[2] == BrainAlive::brainalive_handshaking_command))
     {
-        ((BrainAlive *)(board))->setSoftwareGain (data[3]);
-        ((BrainAlive *)(board))->setHardwareGain (data[4]);
-        ((BrainAlive *)(board))->setReferenceVoltage (((data[5] << 8) | data[6]));
+        ((BrainAlive *)(board))->set_internal_gain (data[3]);
+        ((BrainAlive *)(board))->set_external_gain (data[4]);
+        ((BrainAlive *)(board))->set_ref_Voltage (((data[5] << 8) | data[6]));
     }
     else
     {
@@ -192,7 +192,11 @@ int BrainAlive::prepare_session ()
     if ((res == (int)BrainFlowExitCodes::STATUS_OK) && (control_characteristics_found))
     {
         initialized = true;
-        config_board ("0a036007000d");
+        res = config_board ("0a036007000d");
+        if (res == (int)BrainFlowExitCodes::STATUS_OK)
+            safe_logger (spdlog::level::debug, "Get config command send");
+        else
+            safe_logger (spdlog::level::debug, "Failed to send get config command");
     }
     else
     {
@@ -306,19 +310,19 @@ int BrainAlive::config_board (std::string config)
         return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
     }
     // Calculate the number of bytes
-    size_t numBytes = config.length () / 2; // Each byte is represented by 2 hex characters
-    std::vector<uint8_t> byteArray (numBytes);
+    size_t num_bytes = config.length () / 2; // Each byte is represented by 2 hex characters
+    std::vector<uint8_t> byte_array (num_bytes);
     // Convert hex string to byte array
-    for (size_t i = 0; i < numBytes; ++i)
+    for (size_t i = 0; i < num_bytes; ++i)
     {
-        std::string byteString = config.substr (i * 2, 2); // Get 2 characters for each byte
-        byteArray[i] =
-            static_cast<unsigned char> (std::stoul (byteString, nullptr, 16)); // Convert to byte
+        std::string byte_string = config.substr (i * 2, 2); // Get 2 characters for each byte
+        byte_array[i] =
+            static_cast<unsigned char> (std::stoul (byte_string, nullptr, 16)); // Convert to byte
     }
-    safe_logger (spdlog::level::trace, byteArray[2]);
+
     if (simpleble_peripheral_write_command (brainalive_peripheral, write_characteristics.first,
-            write_characteristics.second, byteArray.data (),
-            sizeof (byteArray)) != SIMPLEBLE_SUCCESS)
+            write_characteristics.second, byte_array.data (),
+            sizeof (byte_array)) != SIMPLEBLE_SUCCESS)
     {
         safe_logger (spdlog::level::err, "failed to send command {} to device", config.c_str ());
         return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
@@ -402,8 +406,8 @@ void BrainAlive::read_data (simpleble_uuid_t service, simpleble_uuid_t character
             {
                 package[eeg_channels[k]] =
                     (float)(((data[j] << 16 | data[j + 1] << 8 | data[j + 2]) << 8) >> 8) *
-                    ((((float)getReferenceVoltage () * 1000) /
-                        (float)(getSoftwareGain () * getHardwareGain () * FSR_Value)));
+                    ((((float)get_ref_voltage () * 1000) /
+                        (float)(get_internal_gain () * get_external_gain () * FSR_Value)));
             }
 
             for (int j = i + brainalive_axl_start_index, k = 0; j < i + brainalive_axl_end_index;
