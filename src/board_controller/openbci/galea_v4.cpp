@@ -408,10 +408,12 @@ void GaleaV4::read_thread ()
             // calc delta between PC timestamp and device timestamp in last 10 packages,
             // use this delta later on to assign timestamps
             double pc_timestamp = get_timestamp ();
-            double timestamp_last_package = 0.0;
-            memcpy (&timestamp_last_package, b + 88 + offset_last_package, 8);
-            timestamp_last_package /= 1000; // from ms to seconds
-            double time_delta = pc_timestamp - timestamp_last_package;
+            unsigned long long timestamp_last_package = 0.0;
+            memcpy (&timestamp_last_package, b + 88 + offset_last_package,
+                sizeof (unsigned long long)); // microseconds
+            double timestamp_last_package_converted =
+                static_cast<double> (timestamp_last_package) / 1000000.0; // convert to seconds
+            double time_delta = pc_timestamp - timestamp_last_package_converted;
             time_buffer.add_data (&time_delta);
             int num_time_deltas = (int)time_buffer.get_current_data (10, latest_times);
             time_delta = 0.0;
@@ -447,15 +449,18 @@ void GaleaV4::read_thread ()
                     exg_package[i - 3] =
                         exg_scale * (double)cast_24bit_to_int32 (b + offset + 5 + 3 * (i - 4));
                 }
-                double timestamp_device = 0.0;
-                memcpy (&timestamp_device, b + 88 + offset, 8);
-                timestamp_device /= 1000; // from ms to seconds
+                unsigned long long timestamp_device = 0.0;
+                memcpy (&timestamp_device, b + 88 + offset,
+                    sizeof (unsigned long long)); // reports microseconds
+
+                double timestamp_device_converted = static_cast<double> (timestamp_device);
+                timestamp_device_converted /= 1000000.0; // convert to seconds
 
                 exg_package[board_descr["default"]["timestamp_channel"].get<int> ()] =
-                    timestamp_device + time_delta - half_rtt;
+                    timestamp_device_converted + time_delta - half_rtt;
                 exg_package[board_descr["default"]["other_channels"][0].get<int> ()] = pc_timestamp;
                 exg_package[board_descr["default"]["other_channels"][1].get<int> ()] =
-                    timestamp_device;
+                    timestamp_device_converted;
                 push_package (exg_package);
 
                 // aux, 5 times smaller sampling rate
