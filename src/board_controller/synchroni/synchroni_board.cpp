@@ -37,15 +37,20 @@ void SynchroniBoard::read_data(simpleble_uuid_t service, simpleble_uuid_t charac
     double *package = new double[num_rows];
 
     for (int i = 0; i < num_rows; i++){
-        package[i] = 0.0;
+        int num_rows = board_descr["default"]["num_rows"];
+            double *package = new double[num_rows];
+            for (int i = 0; i < num_rows; i+=2)
+            {
+                package[i] = 0.0;
+            }
+            std::vector<int> eeg_channels = board_descr["default"]["eeg_channels"];
+            std::vector<int> accel_channels = board_descr["default"]["accel_channels"];
+            std::vector<int> gyro_channels = board_descr["default"]["gyro_channels"];
+        package[board_descr["default"]["package_num_channel"].get<int> ()] =
+                data[2 + i];
+        
     }
-    if (data[0] == 0xA)
-    {
-        if (data[1] == 0x1)
-        {
-
-        }
-    }
+    
 }
 
 void SynchroniBoard::decompress_eeg_config(uint8_t *data, double *package){
