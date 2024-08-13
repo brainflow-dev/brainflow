@@ -4,6 +4,8 @@
 #include "timestamp.h"
 #include <string.h>
 
+
+
 SynchroniBoard::SynchroniBoard (struct BrainFlowInputParams params)
 : BLELibBoard ((int)BoardIds::SYNCHRONI_TRIO,params)
 {
