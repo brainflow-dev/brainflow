@@ -30,7 +30,7 @@ int SynchroniBoard::start_stream(int buffer_size, const char * streamer_params)
 void SynchroniBoard::read_data(simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
         size_t size, int channel_num)
 {
-    if (size != 2)
+    if (size != SYNCHRONI_PACKET_SIZE)
     {
         safe_logger (spdlog::level::warn, "unexpected number of bytes received: {}", size);
         return;
@@ -50,6 +50,16 @@ void SynchroniBoard::read_data(simpleble_uuid_t service, simpleble_uuid_t charac
             std::vector<int> gyro_channels = board_descr["default"]["gyro_channels"];
         package[board_descr["default"]["package_num_channel"].get<int> ()] =
                 data[2 + i];
+            /** TODO:get indexs of data in package.
+             * Might need different approach, ask martin
+             * for(int j = i + synchroni_egg_start_index, k = 0; j < i + synchroni_eeg_end_index;
+                 j += 3, k++)
+                {
+                    package[eeg_channels[k]] =
+                            (float)(((data[j] << 16 | data[j + 1] << 8 | data[j + 2]) << 8) >> 8) 
+                }
+             */
+        push_package (&package[0]);
         
     }
     
