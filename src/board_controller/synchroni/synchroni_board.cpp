@@ -24,7 +24,23 @@ int SynchroniBoard::prepare_session()
 
 int SynchroniBoard::start_stream(int buffer_size, const char * streamer_params)
 {
+        if (!initialized)
+    {
+        return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
+    }
+    int res = prepare_for_acquisition (buffer_size, streamer_params);
 
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        res = config_board ("0a8100000d");
+    }
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        safe_logger (spdlog::level::debug, "Start command Send 250sps");
+        is_streaming = true;
+    }
+
+    return res;
 }
 
 void SynchroniBoard::read_data(simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,

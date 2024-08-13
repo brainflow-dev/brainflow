@@ -38,5 +38,6 @@ public:
         size_t size, int channel_num);
 protected:
     void SynchroniBoard::decompress_eeg_config(uint8_t *data, double *package);
-    
+    bool initialized;
+    bool is_streaming;
 };
