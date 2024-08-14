@@ -466,9 +466,12 @@ void GaleaV4::read_thread ()
                 // aux, 5 times smaller sampling rate
                 if (((int)b[0 + offset]) % 5 == 0)
                 {
-                    double accel_scale = (double)(0.002 / (pow (2, 4)));
-                    double gyro_scale = (double)(0.002 / (pow (2, 4)));         // to be confirmed
-                    double magnetometer_scale = (double)(0.002 / (pow (2, 4))); // to be confirmed
+                    double accel_scale = (double)(4.0 / static_cast<double> (pow (2, 16) - 1));
+                    double gyro_scale = (double)(4000.0 / static_cast<double> (pow (2, 16) - 1));
+                    double magnetometer_scale_xy =
+                        (double)(2.6 / static_cast<double> (pow (2, 16) - 1));
+                    double magnetometer_scale_z =
+                        (double)(5.0 / static_cast<double> (pow (2, 16) - 1));
                     aux_package[board_descr["auxiliary"]["package_num_channel"].get<int> ()] =
                         (double)b[0 + offset];
                     uint16_t temperature = 0;
@@ -501,25 +504,28 @@ void GaleaV4::read_thread ()
                         timestamp_device;
                     // accel
                     aux_package[board_descr["auxiliary"]["accel_channels"][0].get<int> ()] =
-                        accel_scale * cast_16bit_to_int32 (b + 96 + offset);
+                        accel_scale * (double)cast_16bit_to_int32_swap_order (b + 96 + offset);
                     aux_package[board_descr["auxiliary"]["accel_channels"][1].get<int> ()] =
-                        accel_scale * cast_16bit_to_int32 (b + 98 + offset);
+                        accel_scale * (double)cast_16bit_to_int32_swap_order (b + 98 + offset);
                     aux_package[board_descr["auxiliary"]["accel_channels"][2].get<int> ()] =
-                        accel_scale * cast_16bit_to_int32 (b + 100 + offset);
+                        accel_scale * (double)cast_16bit_to_int32_swap_order (b + 100 + offset);
                     // gyro
                     aux_package[board_descr["auxiliary"]["gyro_channels"][0].get<int> ()] =
-                        gyro_scale * cast_16bit_to_int32 (b + 102 + offset);
+                        gyro_scale * (double)cast_16bit_to_int32_swap_order (b + 102 + offset);
                     aux_package[board_descr["auxiliary"]["gyro_channels"][1].get<int> ()] =
-                        gyro_scale * cast_16bit_to_int32 (b + 104 + offset);
+                        gyro_scale * (double)cast_16bit_to_int32_swap_order (b + 104 + offset);
                     aux_package[board_descr["auxiliary"]["gyro_channels"][2].get<int> ()] =
-                        gyro_scale * cast_16bit_to_int32 (b + 106 + offset);
+                        gyro_scale * (double)cast_16bit_to_int32_swap_order (b + 106 + offset);
                     // magnetometer
                     aux_package[board_descr["auxiliary"]["magnetometer_channels"][0].get<int> ()] =
-                        magnetometer_scale * cast_16bit_to_int32 (b + 108 + offset);
+                        magnetometer_scale_xy *
+                        (double)cast_16bit_to_int32_swap_order (b + 108 + offset);
                     aux_package[board_descr["auxiliary"]["magnetometer_channels"][1].get<int> ()] =
-                        magnetometer_scale * cast_16bit_to_int32 (b + 110 + offset);
+                        magnetometer_scale_xy *
+                        (double)cast_16bit_to_int32_swap_order (b + 110 + offset);
                     aux_package[board_descr["auxiliary"]["magnetometer_channels"][2].get<int> ()] =
-                        magnetometer_scale * cast_16bit_to_int32 (b + 112 + offset);
+                        magnetometer_scale_z *
+                        (double)cast_16bit_to_int32_swap_order (b + 112 + offset);
 
                     push_package (aux_package, (int)BrainFlowPresets::AUXILIARY_PRESET);
                 }
