@@ -466,12 +466,12 @@ void GaleaV4::read_thread ()
                 // aux, 5 times smaller sampling rate
                 if (((int)b[0 + offset]) % 5 == 0)
                 {
-                    double accel_scale = (double)(4.0 / static_cast<double> (pow (2, 16) - 1));
-                    double gyro_scale = (double)(4000.0 / static_cast<double> (pow (2, 16) - 1));
+                    double accel_scale = (double)(8.0 / static_cast<double> (pow (2, 16) - 1));
+                    double gyro_scale = (double)(1000.0 / static_cast<double> (pow (2, 16) - 1));
                     double magnetometer_scale_xy =
-                        (double)(2.6 / static_cast<double> (pow (2, 16) - 1));
+                        (double)(2.6 / static_cast<double> (pow (2, 13) - 1));
                     double magnetometer_scale_z =
-                        (double)(5.0 / static_cast<double> (pow (2, 16) - 1));
+                        (double)(5.0 / static_cast<double> (pow (2, 15) - 1));
                     aux_package[board_descr["auxiliary"]["package_num_channel"].get<int> ()] =
                         (double)b[0 + offset];
                     uint16_t temperature = 0;
@@ -519,13 +519,13 @@ void GaleaV4::read_thread ()
                     // magnetometer
                     aux_package[board_descr["auxiliary"]["magnetometer_channels"][0].get<int> ()] =
                         magnetometer_scale_xy *
-                        (double)cast_16bit_to_int32_swap_order (b + 108 + offset);
+                        (double)cast_13bit_to_int32_swap_order (b + 108 + offset);
                     aux_package[board_descr["auxiliary"]["magnetometer_channels"][1].get<int> ()] =
                         magnetometer_scale_xy *
-                        (double)cast_16bit_to_int32_swap_order (b + 110 + offset);
+                        (double)cast_13bit_to_int32_swap_order (b + 110 + offset);
                     aux_package[board_descr["auxiliary"]["magnetometer_channels"][2].get<int> ()] =
                         magnetometer_scale_z *
-                        (double)cast_16bit_to_int32_swap_order (b + 112 + offset);
+                        (double)cast_15bit_to_int32_swap_order (b + 112 + offset);
 
                     push_package (aux_package, (int)BrainFlowPresets::AUXILIARY_PRESET);
                 }
