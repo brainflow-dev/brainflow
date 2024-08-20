@@ -2,7 +2,7 @@
 
 I'm really glad you're reading this, because we need volunteer developers to help this project come to fruition.
 
-If you haven't already, come find us in Slack ([#openbraintalk](https://c6ber255cc.execute-api.eu-west-1.amazonaws.com/Express/)).
+If you haven't already, come find us in Slack ([#openbraintalk](https://communityinviter.com/apps/openbraintalk/join-brainflow-on-slack)).
 We want you working on things you're excited about.
 
 Here are some important resources:

@@ -34,7 +34,7 @@ It provides a uniform SDK to work with biosensors with a primary focus on neuroi
 ## Resources
 
 * [***BrainFlow Docs, Dev and User guides and other information***](https://brainflow.readthedocs.io)
-* [***BrainFlow's slack workspace***](https://openbraintalk.slack.com/)***, use this*** [***link to join***](https://c6ber255cc.execute-api.eu-west-1.amazonaws.com/Express/)
+* [***BrainFlow's slack workspace***](https://openbraintalk.slack.com/)***, use this*** [***link to join***](https://communityinviter.com/apps/openbraintalk/join-brainflow-on-slack)
 * [***For BrainFlow Developers***](https://brainflow.readthedocs.io/en/master/BrainFlowDev.html)
 
 ## Contribution guidelines
