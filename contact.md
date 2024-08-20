@@ -10,7 +10,7 @@ For collaboration requests and information about our consulting and software dev
 
 ## Slack
 
-We use [Slack workspace](https://openbraintalk.slack.com/) to answer question about BrainFlow API and discuss new features, you are welcome to [join us there](https://c6ber255cc.execute-api.eu-west-1.amazonaws.com/Express/)
+We use [Slack workspace](https://openbraintalk.slack.com/) to answer question about BrainFlow API and discuss new features, you are welcome to [join us there](https://communityinviter.com/apps/openbraintalk/join-brainflow-on-slack)
 
 ## Github Issues
 

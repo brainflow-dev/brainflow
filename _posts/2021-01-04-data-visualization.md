@@ -260,4 +260,4 @@ schedule(t, InterruptException(), error=true)
 
 ## Conclusion
 
-I showed you how I visualized the streaming data from the gForcePro armband. For me it was a very smooth experience and I hope you learned just how easy it is nowadays to get started with your bio-sensor data. Please reach out if you do things with BrainFlow! You can also join our [BrainFlow Slack channel](https://c6ber255cc.execute-api.eu-west-1.amazonaws.com/Express/) if you have further questions or suggestions.
+I showed you how I visualized the streaming data from the gForcePro armband. For me it was a very smooth experience and I hope you learned just how easy it is nowadays to get started with your bio-sensor data. Please reach out if you do things with BrainFlow! You can also join our [BrainFlow Slack channel](https://communityinviter.com/apps/openbraintalk/join-brainflow-on-slack) if you have further questions or suggestions.
