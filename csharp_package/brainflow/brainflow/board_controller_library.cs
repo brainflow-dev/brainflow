@@ -115,7 +115,7 @@ namespace brainflow
         AAVAA_V3_BOARD = 53,
         EXPLORE_PLUS_8_CHAN_BOARD = 54,
         EXPLORE_PLUS_32_CHAN_BOARD = 55,
-        PIEEG_BOARD = 56，
+        PIEEG_BOARD = 56,
         SYNCHRONI_UNO = 70,
         SYNCHRONI_TRIO = 71,
         SYNCHRONI_PENTO = 72,

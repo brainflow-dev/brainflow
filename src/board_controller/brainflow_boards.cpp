@@ -75,11 +75,7 @@ BrainFlowBoards::BrainFlowBoards()
             {"54", json::object()},
             {"55", json::object()},
             {"56", json::object()},
-            {"70", json::object()},// need more inforation
-            {"71", json::object()},
-            {"72", json::object()},
-            {"73", json::object()},
-            {"74", json::object()}, 
+            {"70", json::object()},
         }
     }};
 
@@ -1100,42 +1096,12 @@ BrainFlowBoards::BrainFlowBoards()
         {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},  
         {"eeg_names", "Fp1,Fp2,C3,C4,P7,P8,O1,O2"}
     };
+
     brainflow_boards_json["boards"]["70"]["default"] = {
-        {"name", "SYNCHRONI_UNO"},
+        {"name", "SYNCHRONI_BOARD"},
         {"sampling_rate", 250},
-        {"eeg_channels", {1}},
-        {"accel_channels", {2, 3, 4}},
-        {"gyro_channels", {5,6,7}},
-    };
-    brainflow_boards_json["boards"]["71"]["default"] = {
-        {"name", "SYNCHRONI_TRIO"},
-        {"sampling_rate", 250},
-        {"eeg_channels", {1, 2}},
-        {"ecg_channels", {3}},
-        {"accel_channels", {4, 5, 6}},
-        {"gyro_channels", {7,8,9}},
-    };
-    
-    brainflow_boards_json["boards"]["72"]["default"] = {
-        {"name", "SYNCHRONI_PENTO"},
-        {"sampling_rate", 250},
-        {"eeg_channels", {1, 2,3,4}},
-        {"ecg_channels", {5}},
-        {"accel_channels", {6,7,8}},
-        {"gyro_channels", {9,10,11}},
-    };
-    brainflow_boards_json["boards"]["73"]["default"] = {
-        {"name", "SYNCHRONI_OCTO"},
-        {"sampling_rate", 250},
-        {"eeg_channels", {1, 2,3,4,5,6,7}},
+        {"eeg_channels", {1, 2,3,4,5,6,7,8}},
         {"ecg_channels", {8}},
-        {"accel_channels", {9,10,11}},
-        {"gyro_channels", {12,13,14}},
-    };
-    brainflow_boards_json["boards"]["74"]["default"] = {
-        {"name", "SYNCHRONI_NEO"},
-        {"sampling_rate", 250},
-        {"eeg_channels", {1,2,3,4,5,6,7,8}},
         {"accel_channels", {9,10,11}},
         {"gyro_channels", {12,13,14}},
     };
