@@ -1100,7 +1100,7 @@ BrainFlowBoards::BrainFlowBoards()
     brainflow_boards_json["boards"]["70"]["default"] = {
         {"name", "SYNCHRONI_BOARD"},
         {"sampling_rate", 250},
-        {"eeg_channels", {1, 2,3,4,5,6,7,8}},
+        {"eeg_channels", {1,2,3,4,5,6,7,8}},
         {"ecg_channels", {8}},
         {"accel_channels", {9,10,11}},
         {"gyro_channels", {12,13,14}},

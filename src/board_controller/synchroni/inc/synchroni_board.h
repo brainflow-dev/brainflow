@@ -17,6 +17,7 @@
 #define CMD_GET_IMU_CONFIG 0xAC
 #define CMD_SET_IMU_CONFIG 0xAD
 
+
 class SynchroniBoard : public BLELibBoard
 {
 
@@ -43,14 +44,14 @@ public:
 
     static constexpr int synchroni_packet_index = (synchroni_single_packet_size - 3);
 
-    static constexpr int synchroni_eeg_data_szie = 24;
-    static constexpr int synchroni_eeg_Start_index = 4;
+    static constexpr int synchroni_eeg_data_szie = 8;
+    static constexpr int synchroni_eeg_Start_index = 14;
     static constexpr int synchroni_eeg_end_index =
         (synchroni_eeg_Start_index + synchroni_eeg_data_szie);
 
-    static constexpr int synchroni_axl_data_size = 6;
-    static constexpr int synchroni_gyro_data_size = 6;
-    static constexpr int synchroni_axl_start_index = synchroni_eeg_end_index;
+    static constexpr int synchroni_axl_data_size = 8;
+    static constexpr int synchroni_gyro_data_size = 8;
+    static constexpr int synchroni_axl_start_index = 8;
     static constexpr int synchroni_axl_end_index =
         synchroni_axl_start_index + synchroni_axl_data_size;
     static constexpr int synchroni_gyro_start_index = synchroni_axl_end_index;
