@@ -29,6 +29,9 @@ option (BUILD_PERIPHERY "BUILD_PERIPHERY" OFF)
 include (${CMAKE_CURRENT_SOURCE_DIR}/cmake/macros.cmake)
 configure_msvc_runtime ()
 
+add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
+
 if (WARNINGS_AS_ERRORS)
     if (MSVC)
         add_compile_options (/WX)
