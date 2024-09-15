@@ -46,7 +46,7 @@ jobs:
 
     # Start Deploy Stage
     - name: Upload ${{ matrix.build_type }} ${{ matrix.arch }} with MSVC runtime ${{ matrix.msvc_runtime }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: compiled_libs
         path: artifacts
@@ -104,7 +104,7 @@ jobs:
       env:
         BUILD: ${{ matrix.build_type }}
     - name: Upload Artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: compiled_libs
         path: artifacts

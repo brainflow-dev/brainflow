@@ -50,7 +50,7 @@ jobs:
       env:
         VERSION: ${{ github.event.inputs.version }}
     - name: Upload Julia Diff
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v3
       with:
         name: julia.patch
         path: julia.patch
