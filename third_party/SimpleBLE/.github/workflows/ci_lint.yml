@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   clang-format:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout
@@ -19,7 +19,7 @@ jobs:
           inplace: False
 
   cppcheck:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout
@@ -39,7 +39,7 @@ jobs:
         run: cppcheck-htmlreport --title=SimpleBLE --file=cppcheck_res.xml --report-dir=report
       - name: Upload Report
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: report
           path: report

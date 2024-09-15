@@ -12,4 +12,4 @@ simpleble_os_t simpleble_get_operating_system() {
 #endif
 }
 
-const char* simpleble_get_version() { return "0.6.1"; }
+const char* simpleble_get_version() { return SIMPLEBLE_VERSION; }

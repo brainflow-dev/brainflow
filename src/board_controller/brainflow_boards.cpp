@@ -74,7 +74,9 @@ BrainFlowBoards::BrainFlowBoards()
             {"53", json::object()},
             {"54", json::object()},
             {"55", json::object()},
-            {"56", json::object()}
+            {"56", json::object()},
+            {"57", json::object()},
+            {"58", json::object()}
         }
     }};
 
@@ -1094,6 +1096,27 @@ BrainFlowBoards::BrainFlowBoards()
         {"num_rows", 11},
         {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},  
         {"eeg_names", "Fp1,Fp2,C3,C4,P7,P8,O1,O2"}
+    };
+    // TODO update:
+    brainflow_boards_json["boards"]["57"]["default"] = {
+        {"name", "Sync-Trio"},
+        {"sampling_rate", 250},
+        {"package_num_channel", 0},
+        {"timestamp_channel", 4},
+        {"marker_channel", 5},
+        {"num_rows", 6},
+        {"eeg_channels", {1, 2}},
+        {"ecg_channels", {3}}
+    };
+    brainflow_boards_json["boards"]["58"]["default"] = {
+        {"name", "Sync-Octo"},
+        {"sampling_rate", 250},
+        {"package_num_channel", 0},
+        {"timestamp_channel", 9},
+        {"marker_channel", 10},
+        {"num_rows", 11},
+        {"eeg_channels", {1, 2, 3, 4, 5, 6, 7}},
+        {"ecg_channels", {8}}  
     };
 }
 
