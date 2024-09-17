@@ -10,7 +10,7 @@
 constexpr int Knight::start_byte;
 constexpr int Knight::end_byte;
 
-Knight::Knight (int board_id, struct BrainFlowInputParams params): Board (board_id, params)
+Knight::Knight (int board_id, struct BrainFlowInputParams params) : Board (board_id, params)
 {
     serial = NULL;
     is_streaming = false;
@@ -25,7 +25,7 @@ Knight::Knight (int board_id, struct BrainFlowInputParams params): Board (board_
 Knight::~Knight ()
 {
     skip_logs = true;
-    release_session();
+    release_session ();
 }
 
 int Knight::prepare_session ()
@@ -120,7 +120,7 @@ int Knight::release_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
-void Knight::read_thread()
+void Knight::read_thread ()
 {
     /*
     [0] 1 Byte: Start byte
@@ -140,18 +140,18 @@ void Knight::read_thread()
 
     int res;
     unsigned char b[20] = {0};
-    float eeg_scale = 4 / float ((pow (2, 23) - 1)) / 12  * 1000000.;
+    float eeg_scale = 4 / float ((pow (2, 23) - 1)) / 12 * 1000000.;
     int num_rows = board_descr["default"]["num_rows"];
     double *package = new double[num_rows];
     for (int i = 0; i < num_rows; i++)
     {
         package[i] = 0.0;
     }
-    bool first_package_received = false; 
+    bool first_package_received = false;
 
     std::vector<int> eeg_channels = board_descr["default"]["eeg_channels"];
     std::vector<int> other_channels = board_descr["default"]["other_channels"];
-    
+
     while (keep_alive)
     {
         // checking the start byte
@@ -182,7 +182,6 @@ void Knight::read_thread()
 
         if (b[19] != Knight::end_byte)
         {
-            
             safe_logger (spdlog::level::warn, "Wrong end byte {}", b[19]);
             continue;
         }
@@ -191,20 +190,20 @@ void Knight::read_thread()
         package[board_descr["default"]["package_num_channel"].get<int> ()] = (double)b[0];
 
         // exg data retrieval
-        for (unsigned int i = 0; i < eeg_channels.size(); i++)
+        for (unsigned int i = 0; i < eeg_channels.size (); i++)
         {
-            package[eeg_channels[i]] = eeg_scale * cast_16bit_to_int32 (b + 1 + 2 * i); // CHANGE TO 2+2*i if not working
+            package[eeg_channels[i]] =
+                eeg_scale * cast_16bit_to_int32 (b + 1 + 2 * i); // CHANGE TO 2+2*i if not working
         }
 
-        //other channel data retrieval
-        package[other_channels[0]] = (double)b[17]; //LOFF STATP
-        package[other_channels[1]] = (double)b[18]; //LOFF STATN
+        // other channel data retrieval
+        package[other_channels[0]] = (double)b[17]; // LOFF STATP
+        package[other_channels[1]] = (double)b[18]; // LOFF STATN
 
         // time stamp channel
         package[board_descr["default"]["timestamp_channel"].get<int> ()] = get_timestamp ();
 
         push_package (package);
-
     }
     delete[] package;
 }
