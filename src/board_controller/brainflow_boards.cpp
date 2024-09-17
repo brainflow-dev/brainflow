@@ -74,7 +74,8 @@ BrainFlowBoards::BrainFlowBoards()
             {"53", json::object()},
             {"54", json::object()},
             {"55", json::object()},
-            {"56", json::object()}
+            {"56", json::object()},
+            {"57", json::object()}
         }
     }};
 
@@ -1094,6 +1095,17 @@ BrainFlowBoards::BrainFlowBoards()
         {"num_rows", 11},
         {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},  
         {"eeg_names", "Fp1,Fp2,C3,C4,P7,P8,O1,O2"}
+    };
+    brainflow_boards_json["boards"]["57"]["default"] =
+    {
+        {"name", "Knight"},
+        {"sampling_rate", 125},
+        {"timestamp_channel", 11},
+        {"marker_channel",12},
+        {"package_num_channel", 0},
+        {"num_rows", 13},
+        {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
+        {"other_channels", {9, 10}}
     };
 }
 

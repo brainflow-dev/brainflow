@@ -65,7 +65,8 @@ public enum BoardIds
     AAVAA_V3_BOARD(53),
     EXPLORE_PLUS_8_CHAN_BOARD(54),
     EXPLORE_PLUS_32_CHAN_BOARD(55),
-    PIEEG_BOARD(56);
+    PIEEG_BOARD(56),
+    NEUROPAWN_KNIGHT_BOARD(57);
 
     private final int board_id;
     private static final Map<Integer, BoardIds> bi_map = new HashMap<Integer, BoardIds> ();

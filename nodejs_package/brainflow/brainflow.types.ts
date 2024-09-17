@@ -68,7 +68,8 @@ export enum BoardIds {
     ANT_NEURO_EE_511_BOARD = 51,
     EXPLORE_PLUS_8_CHAN_BOARD = 54,
     EXPLORE_PLUS_32_CHAN_BOARD = 55,
-    PIEEG_BOARD = 56
+    PIEEG_BOARD = 56,
+    NEUROPAWN_KNIGHT_BOARD = 57
 }
 
 export enum IpProtocolTypes {
