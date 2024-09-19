@@ -2,6 +2,7 @@
 
 #include <simpledbus/advanced/Interface.h>
 #include <simpledbus/external/kvn_safe_callback.hpp>
+#include <simpledbus/base/Path.h>
 
 #include <memory>
 #include <mutex>
@@ -59,6 +60,19 @@ class Proxy {
         std::scoped_lock lock(_child_access_mutex);
         for (auto& [path, child] : _children) {
             result.push_back(std::dynamic_pointer_cast<T>(child));
+        }
+        return result;
+    }
+
+    template <typename T>
+    std::vector<std::shared_ptr<T>> children_casted_with_prefix(const std::string& prefix) {
+        std::vector<std::shared_ptr<T>> result;
+        std::scoped_lock lock(_child_access_mutex);
+        for (auto& [path, child] : _children) {
+            const std::string next_child = SimpleDBus::Path::next_child_strip(_path, path);
+            if (next_child.find(prefix) == 0) {
+                result.push_back(std::dynamic_pointer_cast<T>(child));
+            }
         }
         return result;
     }

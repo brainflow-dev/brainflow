@@ -16,14 +16,19 @@ int main() {
 
     std::vector<SimpleBLE::Peripheral> peripherals;
 
-    adapter.set_callback_on_scan_found([&](SimpleBLE::Peripheral peripheral) { peripherals.push_back(peripheral); });
+    adapter.set_callback_on_scan_found([&](SimpleBLE::Peripheral peripheral) {
+        std::cout << "Found device: " << peripheral.identifier() << " [" << peripheral.address() << "]" << std::endl;
+        if (peripheral.is_connectable()) {
+            peripherals.push_back(peripheral);
+        }
+    });
 
     adapter.set_callback_on_scan_start([]() { std::cout << "Scan started." << std::endl; });
     adapter.set_callback_on_scan_stop([]() { std::cout << "Scan stopped." << std::endl; });
     // Scan for 5 seconds and return.
     adapter.scan_for(5000);
 
-    std::cout << "The following devices were found:" << std::endl;
+    std::cout << "The following connectable devices were found:" << std::endl;
     for (size_t i = 0; i < peripherals.size(); i++) {
         std::cout << "[" << i << "] " << peripherals[i].identifier() << " [" << peripherals[i].address() << "]"
                   << std::endl;

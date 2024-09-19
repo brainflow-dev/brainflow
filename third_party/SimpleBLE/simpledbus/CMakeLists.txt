@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.21)
 
+# Only allow Linux builds
+if(NOT CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
+    message(FATAL_ERROR "-- [ERROR] UNSUPPORTED SYSTEM: '${CMAKE_HOST_SYSTEM_NAME}'. SimpleDBus can only be built on Linux.")
+endif()
+
 include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/prelude.cmake)
 
 project(
@@ -16,6 +21,8 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/epilogue.cmake)
 option(LIBFMT_VENDORIZE "Enable vendorized libfmt" ON)
 
 find_package(fmt REQUIRED)
+set_target_properties(fmt PROPERTIES EXCLUDE_FROM_ALL TRUE)
+
 find_package(DBus1 REQUIRED)
 
 # Load all variables that would eventually need to be exposed to downstream projects
@@ -109,6 +116,7 @@ if(SIMPLEDBUS_TEST)
         ${CMAKE_CURRENT_SOURCE_DIR}/test/src/test_message.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/src/test_proxy_interfaces.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/src/test_proxy_children.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/src/test_proxy_lifetime.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/src/test_path.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/src/helpers/PythonRunner.cpp)
 

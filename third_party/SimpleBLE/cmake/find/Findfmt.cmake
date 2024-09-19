@@ -10,7 +10,7 @@ if(LIBFMT_VENDORIZE)
         set(LIBFMT_GIT_REPOSITORY "https://github.com/fmtlib/fmt.git")
     endif()
     if(NOT LIBFMT_GIT_TAG)
-        set(LIBFMT_GIT_TAG "b6f4ceaed0a0a24ccf575fab6c56dd50ccf6f1a9") # v8.1.1
+        set(LIBFMT_GIT_TAG "a33701196adfad74917046096bf5a2aa0ab0bb50") # v9.1.0
     endif()
 
     if(NOT LIBFMT_LOCAL_PATH)

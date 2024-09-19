@@ -1,0 +1,98 @@
+name: PyPI Test Release
+
+on:
+  # push:
+  # pull_request:
+  workflow_dispatch:
+
+jobs:
+  build_sdist:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+          cache: "pip"
+
+      - name: Build source distribution
+        run: |
+            pip3 install build twine
+            python3 -m build --sdist
+
+      - name: Upload files
+        uses: actions/upload-artifact@v3
+        with:
+          name: simplepyble
+          path: dist/*.tar.gz
+
+      - name: Check packages
+        run: twine check dist/*.tar.gz
+
+      - name: Publish packages
+        if: ${{ env.HAS_TWINE_USERNAME == 'true' }}
+        run: |
+          twine upload --repository testpypi --skip-existing dist/*.tar.gz --verbose
+        env:
+          HAS_TWINE_USERNAME: ${{ secrets.TEST_PYPI_USER != '' }}
+          TWINE_USERNAME: ${{ secrets.TEST_PYPI_USER }}
+          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_PASSWORD }}
+
+  build_wheels:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-22.04 , windows-2022, macos-12]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up QEMU
+        if: runner.os == 'Linux'
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: arm64
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r simplepyble/requirements.txt
+
+      - name: Build wheel
+        uses: pypa/cibuildwheel@v2.16.5
+        env:
+          CIBW_BUILD: cp39-* # Only build for Python 3.9
+          CIBW_BUILD_VERBOSITY: 3
+          CIBW_BEFORE_ALL_LINUX: "yum update -y && yum group install -y \"Development Tools\" && yum install -y dbus-devel"
+          CIBW_ARCHS_LINUX: x86_64 i686 aarch64
+          CIBW_ARCHS_MACOS: x86_64 universal2 arm64
+          CIBW_ARCHS_WINDOWS: AMD64 x86
+          CIBW_SKIP: "*musllinux_* pp*"
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v3
+        with:
+          name: simpleble-wheels
+          path: wheelhouse/*.whl
+
+      - name: Check Packages
+        run: twine check wheelhouse/*.whl
+
+      - name: Publish packages
+        if: ${{ env.HAS_TWINE_USERNAME == 'true' }}
+        run: |
+          twine upload --repository testpypi --skip-existing wheelhouse/*.whl --verbose
+        env:
+          HAS_TWINE_USERNAME: ${{ secrets.TEST_PYPI_USER != '' }}
+          TWINE_USERNAME: ${{ secrets.TEST_PYPI_USER }}
+          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_PASSWORD }}

@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   build-docs:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout
@@ -15,10 +15,10 @@ jobs:
           sudo -H apt-get update -y
           sudo -H apt-get install -y doxygen libdbus-1-dev
 
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v2
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.9
+          python-version: 3.11
           cache: "pip"
 
       - name: Install dependencies
@@ -29,7 +29,7 @@ jobs:
         run: make html
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           path: docs/_build/*
           name: docs

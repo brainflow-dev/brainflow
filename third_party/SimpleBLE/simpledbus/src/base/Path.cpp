@@ -121,4 +121,9 @@ std::string Path::next_child(const std::string& base, const std::string& path) {
     return fetch_elements(path, count_elements(base) + 1);
 }
 
+std::string Path::next_child_strip(const std::string& base, const std::string& path) {
+    const std::string child = next_child(base, path);
+    return child.substr(base.length() + 1);
+}
+
 }  // namespace SimpleDBus

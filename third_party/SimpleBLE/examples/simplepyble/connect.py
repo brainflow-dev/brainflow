@@ -42,4 +42,7 @@ if __name__ == "__main__":
         for characteristic in service.characteristics():
             print(f"    Characteristic: {characteristic.uuid()}")
 
+            capabilities = " ".join(characteristic.capabilities())
+            print(f"    Capabilities: {capabilities}")
+
     peripheral.disconnect()

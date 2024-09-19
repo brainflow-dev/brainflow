@@ -3,8 +3,6 @@
 #include <memory>
 #include <vector>
 
-#include <simpleble/export.h>
-
 #include <simpleble/Exceptions.h>
 #include <simpleble/Types.h>
 #include "simpleble/Characteristic.h"
@@ -13,7 +11,7 @@ namespace SimpleBLE {
 
 class ServiceBase;
 
-class SIMPLEBLE_EXPORT Service {
+class Service {
   public:
     Service() = default;
     virtual ~Service() = default;

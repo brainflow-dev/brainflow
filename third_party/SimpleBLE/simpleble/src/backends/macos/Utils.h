@@ -6,3 +6,4 @@
 #include <simpleble/Types.h>
 
 SimpleBLE::BluetoothUUID uuidToSimpleBLE(CBUUID* uuid);
+NSString* uuidToString(CBUUID* uuid);

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <string>
+#include "external/kvn_bytearray.h"
 
 namespace SimpleBluez {
 
-typedef std::string ByteArray;
+using ByteArray = kvn::bytearray;
 
 }

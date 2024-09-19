@@ -22,10 +22,6 @@ std::optional<SimpleBLE::Adapter> getAdapter();
  */
 std::optional<std::size_t> getUserInputInt(const std::string& line, std::size_t max);
 
-/**
- * @brief Pretty print a ByteArray
- */
-void print_byte_array(const SimpleBLE::ByteArray& bytes);
 }  // namespace Utils
 
 #endif

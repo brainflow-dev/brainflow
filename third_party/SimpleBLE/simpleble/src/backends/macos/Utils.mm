@@ -11,3 +11,13 @@ SimpleBLE::BluetoothUUID uuidToSimpleBLE(CBUUID* uuid) {
         return uuid_raw;
     }
 }
+
+NSString* uuidToString(CBUUID* uuid) {
+    NSString* uuidString = [[uuid UUIDString] lowercaseString];
+
+    if ([uuidString length] == 4) {
+        return [NSString stringWithFormat:@"0000%@-0000-1000-8000-00805f9b34fb", uuidString];
+    } else {
+        return uuidString;
+    }
+}

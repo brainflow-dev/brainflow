@@ -71,6 +71,9 @@ void AdapterBase::scan_start() {
 
     // Start scanning and notify the user.
     adapter_->discovery_start();
+
+    // TODO: Does a discovery filter need to be set?
+
     SAFE_CALLBACK_CALL(this->callback_on_scan_start_);
     is_scanning_ = true;
 }

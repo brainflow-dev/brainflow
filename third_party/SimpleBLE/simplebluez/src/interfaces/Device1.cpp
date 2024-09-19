@@ -62,7 +62,18 @@ std::string Device1::Name() {
     return _properties["Name"].get_string();
 }
 
-std::map<uint16_t, std::vector<uint8_t>> Device1::ManufacturerData(bool refresh) {
+std::vector<std::string> Device1::UUIDs() {
+    std::scoped_lock lock(_property_update_mutex);
+
+    std::vector<std::string> uuids;
+    for (SimpleDBus::Holder& uuid : _properties["UUIDs"].get_array()) {
+        uuids.push_back(uuid.get_string());
+    }
+
+    return uuids;
+}
+
+std::map<uint16_t, ByteArray> Device1::ManufacturerData(bool refresh) {
     if (refresh) {
         property_refresh("ManufacturerData");
     }
@@ -72,7 +83,7 @@ std::map<uint16_t, std::vector<uint8_t>> Device1::ManufacturerData(bool refresh)
     return _manufacturer_data;
 }
 
-std::map<std::string, std::vector<uint8_t>> Device1::ServiceData(bool refresh) {
+std::map<std::string, ByteArray> Device1::ServiceData(bool refresh) {
     if (refresh) {
         property_refresh("ServiceData");
     }
@@ -125,7 +136,7 @@ void Device1::property_changed(std::string option_name) {
         std::map<uint16_t, SimpleDBus::Holder> manuf_data = _properties["ManufacturerData"].get_dict_uint16();
         // Loop through all received keys and store them.
         for (auto& [key, value_array] : manuf_data) {
-            std::vector<uint8_t> raw_manuf_data;
+            ByteArray raw_manuf_data;
             for (auto& elem : value_array.get_array()) {
                 raw_manuf_data.push_back(elem.get_byte());
             }
@@ -138,7 +149,7 @@ void Device1::property_changed(std::string option_name) {
         std::map<std::string, SimpleDBus::Holder> service_data = _properties["ServiceData"].get_dict_string();
         // Loop through all received keys and store them.
         for (auto& [key, value_array] : service_data) {
-            std::vector<uint8_t> raw_service_data;
+            ByteArray raw_service_data;
             for (auto& elem : value_array.get_array()) {
                 raw_service_data.push_back(elem.get_byte());
             }

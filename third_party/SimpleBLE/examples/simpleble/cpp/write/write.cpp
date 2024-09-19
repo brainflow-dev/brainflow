@@ -19,7 +19,9 @@ int main() {
 
     adapter.set_callback_on_scan_found([&](SimpleBLE::Peripheral peripheral) {
         std::cout << "Found device: " << peripheral.identifier() << " [" << peripheral.address() << "]" << std::endl;
-        peripherals.push_back(peripheral);
+        if (peripheral.is_connectable()) {
+            peripherals.push_back(peripheral);
+        }
     });
 
     adapter.set_callback_on_scan_start([]() { std::cout << "Scan started." << std::endl; });
@@ -67,10 +69,12 @@ int main() {
         return EXIT_FAILURE;
     }
 
+    SimpleBLE::ByteArray bytes = SimpleBLE::ByteArray::fromHex(contents);
+
     // NOTE: Alternatively, `write_command` can be used to write to a characteristic too.
     // `write_request` is for unacknowledged writes.
     // `write_command` is for acknowledged writes.
-    peripheral.write_request(uuids[selection.value()].first, uuids[selection.value()].second, contents);
+    peripheral.write_request(uuids[selection.value()].first, uuids[selection.value()].second, bytes);
 
     peripheral.disconnect();
     return EXIT_SUCCESS;

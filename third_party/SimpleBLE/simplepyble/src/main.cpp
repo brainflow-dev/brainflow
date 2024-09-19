@@ -13,13 +13,14 @@
 
 namespace py = pybind11;
 
+void wrap_types(py::module& m);
 void wrap_descriptor(py::module& m);
 void wrap_characteristic(py::module& m);
 void wrap_service(py::module& m);
 void wrap_peripheral(py::module& m);
 void wrap_adapter(py::module& m);
 
-PYBIND11_MODULE(simplepyble, m) {
+PYBIND11_MODULE(_simplepyble, m) {
     m.attr("__version__") = SIMPLEPYBLE_VERSION;
 
     // m.doc() = R"pbdoc(
@@ -39,6 +40,11 @@ PYBIND11_MODULE(simplepyble, m) {
         Returns the currently-running operating system.
     )pbdoc");
 
+    m.def("get_simpleble_version", &SimpleBLE::get_simpleble_version, R"pbdoc(
+        Returns the version of SimpleBLE.
+    )pbdoc");
+
+    wrap_types(m);
     wrap_descriptor(m);
     wrap_characteristic(m);
     wrap_service(m);

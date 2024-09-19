@@ -2,8 +2,6 @@
 
 #include <stdint.h>
 
-#include <simpleble/export.h>
-
 #ifdef _WIN32
 #define SHARED_EXPORT __declspec(dllexport)
 #define CALLING_CONVENTION __cdecl

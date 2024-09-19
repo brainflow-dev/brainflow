@@ -6,19 +6,13 @@ jobs:
 
 # ------------------------------------------------------------
   test-windows:
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      fail-fast: false
-      max-parallel: 4
-      matrix:
-        os: [windows-2019]
+    runs-on: windows-2022
 
     steps:
     - name: Clone Repository
       uses: actions/checkout@v3
     - name: Add msbuild to PATH
-      uses: microsoft/setup-msbuild@v1.0.2
+      uses: microsoft/setup-msbuild@v1.1
     - name: Clone and build GTest
       run: |
         git clone https://github.com/google/googletest
@@ -29,7 +23,7 @@ jobs:
       shell: cmd
     - name: Compile Tests for Windows x86
       run: |
-        cmake -B %GITHUB_WORKSPACE%\build_test -G "Visual Studio 16 2019" -DCMAKE_SYSTEM_VERSION=10.0.22000.0 -DGTEST_ROOT=%GITHUB_WORKSPACE%\googletest\install -S %GITHUB_WORKSPACE%/simpleble -DSIMPLEBLE_TEST=ON
+        cmake -B %GITHUB_WORKSPACE%\build_test -G "Visual Studio 17 2022" -DCMAKE_SYSTEM_VERSION=10.0.22000.0 -DGTEST_ROOT=%GITHUB_WORKSPACE%\googletest\install -S %GITHUB_WORKSPACE%/simpleble -DSIMPLEBLE_TEST=ON
         cmake --build %GITHUB_WORKSPACE%\build_test --config Release --parallel 4
         %GITHUB_WORKSPACE%\build_test\bin\Release\simpleble_test.exe
       shell: cmd
@@ -37,21 +31,15 @@ jobs:
   # ------------------------------------------------------------
 
   test-macos:
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      fail-fast: false
-      max-parallel: 4
-      matrix:
-        os: [macos-11.0]
+    runs-on: macos-12
 
     steps:
     - name: Clone Repository
       uses: actions/checkout@v3
     - name: Setup Cmake
-      uses: jwlawson/actions-setup-cmake@v1.12
+      uses: jwlawson/actions-setup-cmake@v1.13
       with:
-        cmake-version: '3.21.x'
+        cmake-version: '3.21'
     - name: Clone and build GTest
       run: |
         git clone https://github.com/google/googletest
@@ -68,13 +56,7 @@ jobs:
   # ------------------------------------------------------------
 
   test-linux:
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      fail-fast: false
-      max-parallel: 4
-      matrix:
-        os: [ubuntu-20.04]
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Clone Repository
@@ -90,9 +72,9 @@ jobs:
       run: |
         echo "DBUS_SESSION_BUS_ADDRESS=$(dbus-daemon --config-file=/usr/share/dbus-1/session.conf --print-address --fork | cut -d, -f1)" >> $GITHUB_ENV
     - name: Setup Cmake
-      uses: jwlawson/actions-setup-cmake@v1.12
+      uses: jwlawson/actions-setup-cmake@v1.13
       with:
-        cmake-version: '3.21.x'
+        cmake-version: '3.21'
     - name: Clone and build GTest
       run: |
         git clone https://github.com/google/googletest
@@ -149,16 +131,16 @@ jobs:
   # ------------------------------------------------------------
 
   test-python:
-    runs-on: "ubuntu-20.04"
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v2
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.9
+          python-version: 3.11
           cache: "pip"
 
       - name: Install dependencies
@@ -166,7 +148,6 @@ jobs:
 
       - name: Install SimplePyBLE with Plain flavor
         run: python setup.py install --plain
-        working-directory: ./simplepyble
 
       - name: Run PyTest
         run: pytest

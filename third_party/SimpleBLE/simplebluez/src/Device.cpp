@@ -2,6 +2,8 @@
 #include <simplebluez/Exceptions.h>
 #include <simplebluez/Service.h>
 
+#include <simpledbus/base/Path.h>
+
 using namespace SimpleBluez;
 
 Device::Device(std::shared_ptr<SimpleDBus::Connection> conn, const std::string& bus_name, const std::string& path)
@@ -10,8 +12,14 @@ Device::Device(std::shared_ptr<SimpleDBus::Connection> conn, const std::string& 
 Device::~Device() {}
 
 std::shared_ptr<SimpleDBus::Proxy> Device::path_create(const std::string& path) {
-    auto child = std::make_shared<Service>(_conn, _bus_name, path);
-    return std::static_pointer_cast<SimpleDBus::Proxy>(child);
+    const std::string next_child = SimpleDBus::Path::next_child_strip(_path, path);
+
+    if (next_child.find("service") == 0) {
+        auto child = std::make_shared<Service>(_conn, _bus_name, path);
+        return std::static_pointer_cast<SimpleDBus::Proxy>(child);
+    } else {
+        return std::make_shared<Proxy>(_conn, _bus_name, path);
+    }
 }
 
 std::shared_ptr<SimpleDBus::Interface> Device::interfaces_create(const std::string& interface_name) {
@@ -33,7 +41,9 @@ std::shared_ptr<Battery1> Device::battery1() {
     return std::dynamic_pointer_cast<Battery1>(interface_get("org.bluez.Battery1"));
 }
 
-std::vector<std::shared_ptr<Service>> Device::services() { return children_casted<Service>(); }
+std::vector<std::shared_ptr<Service>> Device::services() {
+    return children_casted_with_prefix<Service>("service");
+}
 
 std::shared_ptr<Service> Device::get_service(const std::string& uuid) {
     auto services_all = services();
@@ -73,9 +83,11 @@ int16_t Device::rssi() { return device1()->RSSI(); }
 
 int16_t Device::tx_power() { return device1()->TxPower(); }
 
-std::map<uint16_t, std::vector<uint8_t>> Device::manufacturer_data() { return device1()->ManufacturerData(); }
+std::vector<std::string> Device::uuids() { return device1()->UUIDs(); }
 
-std::map<std::string, std::vector<uint8_t>> Device::service_data() { return device1()->ServiceData(); }
+std::map<uint16_t, ByteArray> Device::manufacturer_data() { return device1()->ManufacturerData(); }
+
+std::map<std::string, ByteArray> Device::service_data() { return device1()->ServiceData(); }
 
 bool Device::paired() { return device1()->Paired(); }
 

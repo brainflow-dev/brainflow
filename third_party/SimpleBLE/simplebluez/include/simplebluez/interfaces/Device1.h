@@ -5,6 +5,8 @@
 
 #include <string>
 
+#include "simplebluez/Types.h"
+
 namespace SimpleBluez {
 
 class Device1 : public SimpleDBus::Interface {
@@ -26,8 +28,9 @@ class Device1 : public SimpleDBus::Interface {
     std::string AddressType();
     std::string Alias();
     std::string Name();
-    std::map<uint16_t, std::vector<uint8_t>> ManufacturerData(bool refresh = true);
-    std::map<std::string, std::vector<uint8_t>> ServiceData(bool refresh = true);
+    std::vector<std::string> UUIDs();
+    std::map<uint16_t, ByteArray> ManufacturerData(bool refresh = true);
+    std::map<std::string, ByteArray> ServiceData(bool refresh = true);
     bool Paired(bool refresh = true);
     bool Connected(bool refresh = true);
     bool ServicesResolved(bool refresh = true);
@@ -47,8 +50,8 @@ class Device1 : public SimpleDBus::Interface {
     std::string _address_type;
     bool _connected;
     bool _services_resolved;
-    std::map<uint16_t, std::vector<uint8_t>> _manufacturer_data;
-    std::map<std::string, std::vector<uint8_t>> _service_data;
+    std::map<uint16_t, ByteArray> _manufacturer_data;
+    std::map<std::string, ByteArray> _service_data;
 };
 
 }  // namespace SimpleBluez

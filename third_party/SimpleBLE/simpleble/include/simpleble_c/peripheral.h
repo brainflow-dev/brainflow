@@ -4,8 +4,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include <simpleble/export.h>
-
 #include <simpleble_c/types.h>
 
 #ifdef _WIN32
@@ -228,11 +226,11 @@ SHARED_EXPORT simpleble_err_t CALLING_CONVENTION simpleble_peripheral_write_comm
  * @param callback
  * @return simpleble_err_t
  */
-SHARED_EXPORT simpleble_err_t CALLING_CONVENTION
-simpleble_peripheral_notify(simpleble_peripheral_t handle, simpleble_uuid_t service, simpleble_uuid_t characteristic,
-                            void (*callback)(simpleble_uuid_t service, simpleble_uuid_t characteristic,
-                                             const uint8_t* data, size_t data_length, void* userdata),
-                            void* userdata);
+SHARED_EXPORT simpleble_err_t CALLING_CONVENTION simpleble_peripheral_notify(
+    simpleble_peripheral_t handle, simpleble_uuid_t service, simpleble_uuid_t characteristic,
+    void (*callback)(simpleble_peripheral_t handle, simpleble_uuid_t service, simpleble_uuid_t characteristic,
+                     const uint8_t* data, size_t data_length, void* userdata),
+    void* userdata);
 
 /**
  * @brief
@@ -243,11 +241,11 @@ simpleble_peripheral_notify(simpleble_peripheral_t handle, simpleble_uuid_t serv
  * @param callback
  * @return simpleble_err_t
  */
-SHARED_EXPORT simpleble_err_t CALLING_CONVENTION
-simpleble_peripheral_indicate(simpleble_peripheral_t handle, simpleble_uuid_t service, simpleble_uuid_t characteristic,
-                              void (*callback)(simpleble_uuid_t service, simpleble_uuid_t characteristic,
-                                               const uint8_t* data, size_t data_length, void* userdata),
-                              void* userdata);
+SHARED_EXPORT simpleble_err_t CALLING_CONVENTION simpleble_peripheral_indicate(
+    simpleble_peripheral_t handle, simpleble_uuid_t service, simpleble_uuid_t characteristic,
+    void (*callback)(simpleble_peripheral_t handle, simpleble_uuid_t service, simpleble_uuid_t characteristic,
+                     const uint8_t* data, size_t data_length, void* userdata),
+    void* userdata);
 
 /**
  * @brief

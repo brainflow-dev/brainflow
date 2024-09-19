@@ -1,7 +1,10 @@
 twine
+build
+auditwheel
 wheel
-ninja
+ninja; platform_system!='Windows'
 pytest
 pybind11
-setuptools
-cibuildwheel==2.9
+scikit-build
+cmake>=3.21
+setuptools>=42

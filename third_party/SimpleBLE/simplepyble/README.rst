@@ -29,6 +29,8 @@ Windows     Linux         MacOS                               iOS
 Windows 10+ Ubuntu 20.04+ 10.15+ (except 12.0, 12.1 and 12.2) 15.0+
 =========== ============= =================================== =====
 
+**NOTE:** WSL does not support Bluetooth.
+
 Installation
 ------------
 
@@ -45,10 +47,18 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 what you would like to change.
 
 License
--------
+=======
 
-All components within this project that have not been bundled from
-external creators, are licensed under the terms of the `MIT Licence`_.
+Since February 15th 2024, SimpleBLE is now available under the GNU General Public License
+version 3 (GPLv3), with the option for a commercial license without the GPLv3 restrictions
+available for a fee.
+
+**More information on pricing and commercial terms of service will be available soon.**
+
+To enquire about a commercial license, please contact us at ``contact at simpleble dot org``.
+
+Likewise, if you are using SimpleBLE in an open-source project and would like to request
+a free commercial license or if you have any other questions, please reach out at ``contact at simpleble dot org``.
 
 .. Links
 
@@ -57,8 +67,6 @@ external creators, are licensed under the terms of the `MIT Licence`_.
 .. _SimpleBLE: https://github.com/OpenBluetoothToolbox/SimpleBLE/
 
 .. _code examples: https://github.com/OpenBluetoothToolbox/SimpleBLE/tree/main/examples/simplepyble
-
-.. _MIT Licence: https://github.com/OpenBluetoothToolbox/SimpleBLE/blob/main/LICENCE.md
 
 .. _Discord: https://discord.gg/N9HqNEcvP3
 
@@ -69,3 +77,8 @@ external creators, are licensed under the terms of the `MIT Licence`_.
 
 .. |PyPI Licence| image:: https://img.shields.io/pypi/l/simplepyble
 
+.. Other projects using SimpleBLE
+
+.. _BrainFlow: https://github.com/brainflow-dev/brainflow
+.. _InsideBlue: https://github.com/eriklins/InsideBlue-BLE-Tool
+.. _NodeWebBluetooth: https://github.com/thegecko/webbluetooth

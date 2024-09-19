@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.21)
 
+# Only allow Linux builds
+if(NOT CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
+    message(FATAL_ERROR "-- [ERROR] UNSUPPORTED SYSTEM: '${CMAKE_HOST_SYSTEM_NAME}'. SimpleBluez can only be built on Linux.")
+endif()
+
 include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/prelude.cmake)
 
 project(
@@ -16,6 +21,8 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/epilogue.cmake)
 option(LIBFMT_VENDORIZE "Enable vendorized libfmt" ON)
 
 find_package(fmt REQUIRED)
+set_target_properties(fmt PROPERTIES EXCLUDE_FROM_ALL TRUE)
+
 find_package(DBus1 REQUIRED)
 
 if(NOT DEFINED SIMPLEDBUS_SANITIZE AND DEFINED SIMPLEBLUEZ_SANITIZE)
@@ -33,7 +40,8 @@ endif()
 
 set(SIMPLEBLUEZ_INCLUDE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../simpledbus/include)
+    ${CMAKE_CURRENT_SOURCE_DIR}/../simpledbus/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../external/include)
 
 set(SIMPLEBLUEZ_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ProxyOrg.cpp
@@ -86,12 +94,17 @@ set_target_properties(
 list(APPEND PRIVATE_COMPILE_DEFINITIONS SIMPLEDBUS_LOG_LEVEL=${SIMPLEDBUS_LOG_LEVEL})
 list(APPEND PRIVATE_COMPILE_DEFINITIONS SIMPLEBLUEZ_LOG_LEVEL=${SIMPLEBLUEZ_LOG_LEVEL})
 
+if(SIMPLEBLUEZ_USE_SESSION_DBUS)
+    list(APPEND PRIVATE_COMPILE_DEFINITIONS SIMPLEBLUEZ_USE_SESSION_DBUS)
+endif()
+
 target_link_libraries(simplebluez PUBLIC ${DBus1_LIBRARIES})
 target_link_libraries(simplebluez PRIVATE $<BUILD_INTERFACE:fmt::fmt-header-only>)
 
 target_include_directories(simplebluez PRIVATE ${SIMPLEBLUEZ_INCLUDE})
 target_include_directories(simplebluez INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../external/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../simpledbus/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     $<INSTALL_INTERFACE:${DBus1_INCLUDE_DIR}>
@@ -124,6 +137,10 @@ install(
 
 install(
     DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/include/simplebluez/
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/simplebluez)
+
+install(
+    DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../external/include/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/simplebluez)
 
 install(
