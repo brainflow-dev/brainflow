@@ -4,6 +4,8 @@
 #include "timestamp.h"
 #include <string.h>
 
+#define SYNCHRONI_WRITE_CHAR "f000ffe1-0451-4000-b000-000000000000"
+#define SYNCHRONI_NOTIFY_CHAR "f000ffe2-0451-4000-b000-000000000000"
 
 
 SynchroniBoard::SynchroniBoard (struct BrainFlowInputParams params)
