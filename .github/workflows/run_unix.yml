@@ -234,7 +234,9 @@ jobs:
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Cyton Daisy Python
-      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/python_package/examples/tests/brainflow_get_data.py --board-id 2 --serial-port 
+      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/python_package/examples/tests/brainflow_get_data.py --board-id 2 --serial-port
+    - name: KnightBoard Python
+      run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/knightboard_linux.py python3 $GITHUB_WORKSPACE/python_package/examples/tests/brainflow_get_data.py --board-id 57 --serial-port 
     - name: Cyton Daisy Python Markers
       run: sudo -H python3 $GITHUB_WORKSPACE/emulator/brainflow_emulator/cyton_linux.py python3 $GITHUB_WORKSPACE/python_package/examples/tests/markers.py --board-id 2 --serial-port 
     - name: Galea Cpp

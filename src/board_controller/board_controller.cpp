@@ -45,6 +45,8 @@
 #include "ganglion_wifi.h"
 #include "gforce_dual.h"
 #include "gforce_pro.h"
+#include "json.hpp"
+#include "knight.h"
 #include "muse.h"
 #include "muse_bled.h"
 #include "notion_osc.h"
@@ -54,8 +56,6 @@
 #include "streaming_board.h"
 #include "synthetic_board.h"
 #include "unicorn_board.h"
-
-#include "json.hpp"
 
 using json = nlohmann::json;
 
@@ -280,6 +280,10 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
             break;
         case BoardIds::PIEEG_BOARD:
             board = std::shared_ptr<Board> (new PIEEGBoard (board_id, params));
+            break;
+        case BoardIds::NEUROPAWN_KNIGHT_BOARD:
+            board =
+                std::shared_ptr<Board> (new Knight ((int)BoardIds::NEUROPAWN_KNIGHT_BOARD, params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;
