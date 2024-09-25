@@ -1305,3 +1305,37 @@ Supported platforms:
 **Note**: Ensure that you have the necessary permissions to access the serial port on your operating system. For Unix-like systems, you may need to configure permissions for the serial port or run with sudo.
 
 **To use this board you need to compile BrainFlow from the source code right on your Raspbery Pi device with flag --build-periphery(build.py) or with -DBUILD_PERIPHERY=ON(CMake) and install desired bindings using local libraries.**
+
+NeuroPawn
+--------
+
+Knight Board
+~~~~~~~~~~~~~
+
+.. image:: https://drive.google.com/file/d/192dUfIXKmOqcTIBr7PYJJ8VUdWCuzeIv/view?usp=sharing
+    :width: 400px
+    :height: 225px
+
+Visit us `here <https://www.neuropawn.tech/>`_
+
+To create such board you need to specify the following board ID and fields of BrainFlowInputParams object:
+
+- :code:`BoardIds.NEUROPAWN_KNIGHT_BOARD`
+- :code:`serial_port`, e.g. COM3, /dev/tty.*
+
+Initialization Example:
+
+.. code-block:: python
+
+    params = BrainFlowInputParams()
+    params.serial_port = "COM3"
+    board = BoardShim(BoardIds.NEUROPAWN_KNIGHT_BOARD, params)
+
+**On Unix-like systems you may need to configure permissions for serial port or run with sudo.**
+
+Supported platforms:
+
+- Windows
+- Linux
+- MacOS
+- Devices like Raspberry Pi
