@@ -183,6 +183,9 @@ jobs:
     - name: FreeEEG32 Python Test
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\freeeeg32_windows.py python %GITHUB_WORKSPACE%\python_package\examples\tests\brainflow_get_data.py --board-id 17 --serial-port
       shell: cmd
+    - name: KnightBoard Windows Python Test
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\knightboard_windows.py python %GITHUB_WORKSPACE%\python_package\examples\tests\brainflow_get_data.py --board-id 57 --serial-port
+      shell: cmd
     # Signal Processing Testing
     - name: Serialization Rust Test
       run: |
