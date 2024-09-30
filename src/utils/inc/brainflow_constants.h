@@ -91,7 +91,7 @@ enum class BoardIds : int
     NEUROPAWN_KNIGHT_BOARD = 57,
     // use it to iterate
     FIRST = PLAYBACK_FILE_BOARD,
-    LAST = PIEEG_BOARD
+    LAST = NEUROPAWN_KNIGHT_BOARD
 };
 
 enum class IpProtocolTypes : int
