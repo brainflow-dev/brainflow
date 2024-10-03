@@ -19,3 +19,22 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+IMPORTANT NOTICE: This Application is built upon SimpleBLE, 
+which is owned by The California Open Source Company LLC and used under license. 
+As an End User of this Application, you are prohibited from using, modifying, or 
+distributing SimpleBLE, or any part thereof, except as incorporated in this 
+Application. Specifically, you may not:
+
+a) Extract, isolate, or separate SimpleBLE from this Application; 
+b) Use SimpleBLE for any purpose other than as part of this Application; 
+c) Modify, adapt or translate SimpleBLE; 
+d) Create any Derivative Works based on SimpleBLE; 
+e) Distribute, sublicense, rent, lease, lend, or transfer SimpleBLE to any third party; 
+f) Reverse engineer, decompile, disassemble, or attempt to derive the source code 
+of SimpleBLE; or 
+g) Remove, obscure, or alter any copyright, trademark, or other proprietary rights 
+notices contained within SimpleBLE.
+Your use of this Application is subject to your compliance with these restrictions. 
+If you have any questions about these terms, please contact 
+The California Open Source Company LLC [contact@simpleble.org].
