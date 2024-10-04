@@ -6,8 +6,6 @@
 #include "get_dll_dir.h"
 #include "timestamp.h"
 
-#define SYNCHRONI_WRITE_CHAR "f000ffe1-0451-4000-b000-000000000000"
-#define SYNCHRONI_NOTIFY_CHAR "f000ffe2-0451-4000-b000-000000000000"
 
 
 static void synchroni_board_adapter_1_on_scan_updated (
