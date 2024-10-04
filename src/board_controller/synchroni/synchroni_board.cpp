@@ -177,6 +177,7 @@ int SynchroniBoard::prepare_session ()
 
     if ((res == (int)BrainFlowExitCodes::STATUS_OK) && (control_characteristics_found))
     {
+        
         initialized = true;
     }
     else
@@ -197,13 +198,14 @@ int SynchroniBoard::start_stream (int buffer_size, const char *streamer_params)
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
         // todo send smth to enable streaming
-        res = config_board ("");
+        res = config_board ("0x0FFFFFFFF");
     }
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
         is_streaming = true;
     }
-
+    safe_logger (spdlog::level::trace, "Stream Status is {}",
+                    is_streaming);
     return res;
 }
 
@@ -216,14 +218,15 @@ int SynchroniBoard::stop_stream ()
     int res = (int)BrainFlowExitCodes::STATUS_OK;
     if (is_streaming)
     {
-        // todo send smth to stop streaming
-        res = config_board ("");
+        res = config_board ("0x4000000d");
     }
     else
     {
         res = (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
     }
     is_streaming = false;
+    safe_logger (spdlog::level::trace, "Stream Status is {} res is {}, {}",
+                    is_streamingm,res,(int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR);
     return res;
 }
 
@@ -364,5 +367,31 @@ void SynchroniBoard::read_data (
     for (size_t i = 0; i < size; i++)
     {
         safe_logger (spdlog::level::info, "data: {} {}", i, data[i]);
+    }
+    int num_rows = board_descr["default"]["num_rows"];
+    double *package = new double[num_rows];
+    for (int i = 0; i < num_rows; i++)
+        {
+            package[i] = 0.0;
+        }
+
+    for (int i = 0; i < 20; i++)
+    {
+        uchar_to_bits (data[i], package_bits + i * 8);
+    }
+    std::vector<int> eeg_channels = board_descr["default"]["eeg_channels"];
+    std::vector<int> accel_channels = board_descr["default"]["accel_channels"];
+    std::vector<int> gyro_channels = board_descr["default"]["gyro_channels"];
+    if (data[1] >= 160 && data[1] <= 170){
+        switch(data[1])
+        {
+            case 160:
+            uint16_t sampleRate = static_cast<uint16_t>(data[2]) | (static_cast<uint16_t>(data[3]) << 8);
+            uint64_t conversionFactorBits = 0;
+            for (int i = 0; i < 8; ++i) {
+                conversionFactorBits |= (static_cast<uint64_t>(data[14 + i]) << (8 * i));
+            }
+        }
+
     }
 }
