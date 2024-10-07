@@ -1,0 +1,32 @@
+//
+//  BrainFlowError.swift
+//  a Swift binding for BrainFlow's brainflow_exception.h
+//
+//  Created by Scott Miller on 8/23/21.
+//
+
+import Foundation
+
+class BrainFlowError: Error, Equatable {
+    static func == (lhs: BrainFlowError, rhs: BrainFlowError) -> Bool {
+        return (lhs.errorCode == rhs.errorCode) 
+    }
+    
+    var message: String
+    var errorCode: BrainFlowExitCodes
+    
+    init(_ errorMessage: String, _ code: BrainFlowExitCodes) {
+        message = errorMessage
+        errorCode = code
+    }
+}
+
+func checkErrorCode(_ errorMsg: String, _ errorCode: Int32) throws {
+    if let bfErrorCode = BrainFlowExitCodes(rawValue: errorCode) {
+        if bfErrorCode != BrainFlowExitCodes.STATUS_OK {
+            throw BrainFlowError (errorMsg, bfErrorCode)
+        }
+    } else {
+        throw BrainFlowError("Invalid error code: \(errorCode)", .GENERAL_ERROR)
+    }
+}
