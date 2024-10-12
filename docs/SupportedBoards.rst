@@ -1316,7 +1316,7 @@ Knight Board
     :width: 400px
     :height: 274px
 
-NeuroPawn website `here <https://www.neuropawn.tech/>`_
+`NeuroPawn website <https://www.neuropawn.tech/>`_
 
 To create such board you need to specify the following board ID and fields of BrainFlowInputParams object:
 
