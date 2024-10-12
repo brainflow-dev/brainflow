@@ -1333,6 +1333,8 @@ Initialization Example:
 
 **On Unix-like systems you may need to configure permissions for serial port or run with sudo.**
 
+**On MacOS there are two serial ports for each device: /dev/tty..... and /dev/cu..... You HAVE to specify /dev/cu.....**
+
 Supported platforms:
 
 - Windows
