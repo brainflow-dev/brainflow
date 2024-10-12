@@ -1312,7 +1312,11 @@ NeuroPawn
 Knight Board
 ~~~~~~~~~~~~~
 
-Visit us `here <https://www.neuropawn.tech/>`_
+.. image:: https://live.staticflickr.com/65535/54061606098_e223ab04a6_w.jpg
+    :width: 400px
+    :height: 274px
+
+NeuroPawn website `here <https://www.neuropawn.tech/>`_
 
 To create such board you need to specify the following board ID and fields of BrainFlowInputParams object:
 
