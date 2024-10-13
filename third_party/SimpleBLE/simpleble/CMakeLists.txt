@@ -312,6 +312,8 @@ if (UNIX AND NOT ANDROID)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled/${FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../../matlab_package/brainflow/lib/${FILE_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled/${FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../../rust_package/brainflow/lib/${FILE_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled/${FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../../nodejs_package/brainflow/lib/${FILE_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled/${FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../../swift_package/BrainFlow/lib/${FILE_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled/${FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../../swift_package/BrainFlowCI/Frameworks/${FILE_NAME}"
     )
 endif (UNIX AND NOT ANDROID)
 
