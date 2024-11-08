@@ -293,6 +293,7 @@ int AntNeuroBoard::config_board (std::string config, std::string &response)
     std::string prefix = "sampling_rate:";
     std::string rv_prefix = "reference_range:";
     std::string bv_prefix = "bipolar_range:";
+    std::string mode_prefix = "impedance_mode:";
 
     if (config.find (prefix) != std::string::npos)
     {
@@ -391,6 +392,34 @@ int AntNeuroBoard::config_board (std::string config, std::string &response)
 
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
+    else if (config.find(mode_prefix) != std::string::npos)
+    {
+        bool new_impedance_mode;
+        std::string value = config.substr(mode_prefix.size());
+
+        if (value == "0" || value == "1")
+        {
+            try
+            {
+                new_impedance_mode = static_cast<bool>(std::stod(value));
+            }
+            catch (...)
+            {
+                safe_logger (spdlog::level::err, "format is '{}value'", mode_prefix.c_str ());
+                return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+            }
+
+            impedance_mode = new_impedance_mode;
+            return (int)BrainFlowExitCodes::STATUS_OK;
+        }
+        else
+        {
+            safe_logger (spdlog::level::err, "not supported value provided");
+            safe_logger (spdlog::level::debug, "supported values: '0' or '1'");
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+        }
+    }
+
     safe_logger (spdlog::level::err, "format is '{}value'", prefix.c_str ());
     return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
 }
