@@ -380,3 +380,4 @@ CMakeSettings.json
 ._.gitignore
 
 build/
+*.DS_Store

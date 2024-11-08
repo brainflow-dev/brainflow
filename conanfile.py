@@ -43,6 +43,8 @@ class BrainflowConan(ConanFile):
             cmake.definitions["BUILD_BLUETOOTH"] = "ON"
         if self.options.ble:
             cmake.definitions["BUILD_BLE"] = "ON"
+        if self.options.synchroni:
+            cmake.definitions["BUILD_SYNCHRONI_SDK"] = "ON"
         if self.settings.os != "Windows" and self.options.periphery:
             cmake.definitions["USE_PERIPHERY"] = "ON"
         if self.settings.os == "Windows" and self.options.oymotion:

@@ -215,6 +215,11 @@ def prepare_args():
     parser.add_argument('--ble', dest='ble', action='store_true')
     parser.add_argument('--no-ble', dest='ble', action='store_false')
     parser.set_defaults(ble=ble_default)
+
+    parser.add_argument('--synchroni', dest='synchroni', action='store_true')
+    parser.add_argument('--no-synchroni', dest='synchroni', action='store_false')
+    parser.set_defaults(synchroni='store_false')
+    
     parser.add_argument('--tests', dest='tests', action='store_true')
     parser.add_argument('--no-tests', dest='tests', action='store_false')
     parser.set_defaults(tests=tests_default)
@@ -272,6 +277,8 @@ def config(args):
         cmd_config.append('-DBUILD_BLUETOOTH=ON')
     if hasattr(args, 'ble') and args.ble:
         cmd_config.append('-DBUILD_BLE=ON')
+    if hasattr(args, 'synchroni') and args.synchroni:
+        cmd_config.append('-DBUILD_SYNCHRONI_SDK=ON')
     if hasattr(args, 'onnx') and args.onnx:
         cmd_config.append('-DBUILD_ONNX=ON')
     if hasattr(args, 'tests') and args.tests:
