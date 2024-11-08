@@ -143,10 +143,18 @@ int AntNeuroBoard::start_stream (int buffer_size, const char *streamer_params)
 
     try
     {
-        safe_logger (spdlog::level::info,
-            "sampling rate: {}, reference range: {}, bipolar range: {}", sampling_rate,
-            reference_range, bipolar_range);
-        stream = amp->OpenEegStream (sampling_rate, reference_range, bipolar_range);
+        if (impedance_mode) {
+            safe_logger (spdlog::level::info,
+                "start impedance stream");
+            stream = amp->OpenImpedanceStream();
+        }
+        else
+        {
+            safe_logger (spdlog::level::info,
+                "sampling rate: {}, reference range: {}, bipolar range: {}", sampling_rate,
+                reference_range, bipolar_range);
+            stream = amp->OpenEegStream (sampling_rate, reference_range, bipolar_range);
+        }
     }
     catch (const std::runtime_error &e)
     {
