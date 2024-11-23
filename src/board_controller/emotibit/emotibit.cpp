@@ -494,6 +494,13 @@ std::vector<std::string> Emotibit::split_string (const std::string &package, cha
 bool Emotibit::get_header (
     const std::string &package_string, int *package_num, int *data_len, std::string &type_tag)
 {
+    std::string serial_number = "";
+    return get_header (package_string, package_num, data_len, type_tag, serial_number);
+}
+
+bool Emotibit::get_header (const std::string &package_string, int *package_num, int *data_len,
+    std::string &type_tag, std::string &serial_number)
+{
     std::vector<std::string> package = split_string (package_string, PAYLOAD_DELIMITER);
     if (package.size () >= HEADER_LENGTH)
     {
@@ -518,6 +525,13 @@ bool Emotibit::get_header (
             if (package.at (3) != "")
             {
                 type_tag = package.at (3);
+                if (type_tag == HELLO_HOST)
+                {
+                    if (package.size () > 9)
+                    {
+                        serial_number = package.at (9);
+                    }
+                }
             }
             else
             {
@@ -630,13 +644,21 @@ int Emotibit::create_adv_connection ()
                         int package_num = 0;
                         int data_len = 0;
                         std::string type_tag = "";
-                        if (get_header (recv_package, &package_num, &data_len, type_tag))
+                        std::string serial_number = "";
+                        if (get_header (
+                                recv_package, &package_num, &data_len, type_tag, serial_number))
                         {
                             safe_logger (spdlog::level::info, "received {} package", type_tag);
-                            if ((type_tag == HELLO_HOST) || (type_tag == PONG))
+                            if (type_tag == HELLO_HOST)
                             {
-                                found = true;
-                                ip_address = emotibit_ip;
+                                safe_logger (
+                                    spdlog::level::info, "Found emotibit: {}", serial_number);
+                                if (params.serial_number.empty () ||
+                                    (params.serial_number == serial_number))
+                                {
+                                    found = true;
+                                    ip_address = emotibit_ip;
+                                }
                             }
                         }
                         else
@@ -795,7 +817,7 @@ int Emotibit::wait_for_connection ()
     }
     else
     {
-        int max_attempts = 15;
+        int max_attempts = 20;
         for (int i = 0; i < max_attempts; i++)
         {
             safe_logger (spdlog::level::trace, "waiting for accept {}/{}", i, max_attempts);

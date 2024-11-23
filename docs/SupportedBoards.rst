@@ -1248,6 +1248,7 @@ To create such board you need to specify the following board ID and fields of Br
 
 - :code:`BoardIds.EMOTIBIT_BOARD`
 - *optional:* :code:`ip_address`, you can provide *broadcast* ip address of the network with EmotiBit device, e.g. 192.168.178.255. If not provided BrainFlow will try to autodiscover the network and it may take a little longer.
+- *optional:* :code:`serial_number`, recommended you if have multiple boards in the same network.
 
 Initialization Example:
 
