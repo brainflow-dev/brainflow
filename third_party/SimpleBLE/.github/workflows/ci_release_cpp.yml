@@ -1,0 +1,187 @@
+name: Cpp Release
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: "The tag to upload artifacts"
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "The tag to upload artifacts"
+        required: true
+
+jobs:
+  linux:
+    runs-on: ubuntu-22.04
+
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        options: [
+          {container: dockcross/linux-x64, target: linux-x64},
+          {container: dockcross/linux-x86, target: linux-x86},
+          {container: dockcross/linux-armv6-lts, target: linux-armv6},
+        ]
+        type: [shared, static]
+
+    container:
+      image: ${{ matrix.options.container }}
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        env:
+          TAG: ${{ inputs.tag || github.ref }}
+        with:
+          ref: ${{ env.TAG }}
+
+      - name: Build DBus
+        uses: ./.github/actions/build-dbus
+        with:
+          os: ${{ runner.os }}
+          arch: ${{ matrix.options.target }}
+
+      - name: Build SimpleBLE
+        run: |
+          GITHUB_WORKSPACE=$(pwd)
+
+          if [ "${{ matrix.type }}" == "shared" ]; then
+            BUILD_SHARED_LIBS=ON
+          else
+            BUILD_SHARED_LIBS=OFF
+          fi
+
+          export CMAKE_PREFIX_PATH=/tmp/dbus/install:$CMAKE_PREFIX_PATH
+
+          cmake -B $GITHUB_WORKSPACE/build_simpleble -DCMAKE_BUILD_TYPE=Release -S $GITHUB_WORKSPACE/simpleble -DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS
+          cmake --build $GITHUB_WORKSPACE/build_simpleble --config Release --parallel 4
+          cmake --install $GITHUB_WORKSPACE/build_simpleble --prefix $GITHUB_WORKSPACE/build_simpleble/install
+
+          mkdir -p $GITHUB_WORKSPACE/artifacts
+          zip -r $GITHUB_WORKSPACE/artifacts/simpleble_${{ matrix.type }}_${{ matrix.options.target }}.zip $GITHUB_WORKSPACE/build_simpleble/install
+
+      - name: Upload binaries to job
+        uses: actions/upload-artifact@v4
+        with:
+          name: simpleble_${{ matrix.type }}_${{ matrix.options.target }}
+          path: artifacts/simpleble_${{ matrix.type }}_${{ matrix.options.target }}.zip
+
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        env:
+          TAG: ${{ inputs.tag || github.ref }}
+        with:
+          file: ${{ github.workspace }}/artifacts/**/*
+          tag: ${{ env.TAG }}
+          overwrite: true
+          file_glob: true
+
+  windows:
+    runs-on: windows-2022
+
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        arch: [Win32, x64]
+        type: [shared, static]
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        env:
+          TAG: ${{ inputs.tag || github.ref }}
+        with:
+          ref: ${{ env.TAG }}
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.1
+
+      - name: Compile SimpleBLE
+        shell: cmd
+        run: |
+
+          if "${{ matrix.type }}" == "shared" (
+            set BUILD_SHARED_LIBS=ON
+          ) else (
+            set BUILD_SHARED_LIBS=OFF
+          )
+
+          cmake -B %GITHUB_WORKSPACE%\build -G "Visual Studio 17 2022" -A ${{ matrix.arch }} -DCMAKE_SYSTEM_VERSION="10.0.19041.0" -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -S %GITHUB_WORKSPACE%/simpleble
+          cmake --build %GITHUB_WORKSPACE%\build --config Release --parallel 4
+          cmake --install %GITHUB_WORKSPACE%\build --prefix %GITHUB_WORKSPACE%\build\install
+
+          mkdir -p $GITHUB_WORKSPACE\artifacts
+          7z a -tzip %GITHUB_WORKSPACE%\artifacts\simpleble_${{ matrix.type }}_windows-${{ matrix.arch }}.zip %GITHUB_WORKSPACE%\build\install
+
+      - name: Upload binaries to job
+        uses: actions/upload-artifact@v4
+        with:
+          name: simpleble_${{ matrix.type }}_windows-${{ matrix.arch }}
+          path: artifacts/simpleble_${{ matrix.type }}_windows-${{ matrix.arch }}.zip
+
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        env:
+          TAG: ${{ inputs.tag || github.ref }}
+        with:
+          file: ${{ github.workspace }}/artifacts/**/*
+          tag: ${{ env.TAG }}
+          overwrite: true
+          file_glob: true
+
+  macos:
+    runs-on: macos-14
+
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        arch: [arm64, x86_64]
+        type: [shared, static]
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        env:
+          TAG: ${{ inputs.tag || github.ref }}
+        with:
+          ref: ${{ env.TAG }}
+
+      - name: Setup CMake
+        uses: ./.github/actions/setup-cmake
+
+      - name: Compile SimpleBLE
+        run: |
+
+          if [ "${{ matrix.type }}" == "shared" ]; then
+            BUILD_SHARED_LIBS=ON
+          else
+            BUILD_SHARED_LIBS=OFF
+          fi
+
+          cmake -B $GITHUB_WORKSPACE/build -DCMAKE_OSX_ARCHITECTURES="${{ matrix.arch }}" -DCMAKE_BUILD_TYPE=Release -S $GITHUB_WORKSPACE/simpleble -DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS
+          cmake --build $GITHUB_WORKSPACE/build --config Release --parallel 4
+          cmake --install $GITHUB_WORKSPACE/build --prefix $GITHUB_WORKSPACE/build/install
+
+          mkdir -p $GITHUB_WORKSPACE/artifacts
+          zip -r $GITHUB_WORKSPACE/artifacts/simpleble_${{ matrix.type }}_macos-${{ matrix.arch }}.zip $GITHUB_WORKSPACE/build/install
+
+      - name: Upload binaries to job
+        uses: actions/upload-artifact@v4
+        with:
+          name: simpleble_${{ matrix.type }}_macos-${{ matrix.arch }}
+          path: artifacts/simpleble_${{ matrix.type }}_macos-${{ matrix.arch }}.zip
+
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        env:
+          TAG: ${{ inputs.tag || github.ref }}
+        with:
+          file: ${{ github.workspace }}/artifacts/**/*
+          tag: ${{ env.TAG }}
+          overwrite: true
+          file_glob: true

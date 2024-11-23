@@ -1,0 +1,42 @@
+name: CI Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "The tag to upload artifacts"
+        required: false
+jobs:
+  pre_job:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Clone Repository 
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      - name: Perform version check
+        run: ./scripts/check_version.sh
+
+  cpp:
+    needs: [pre_job]
+    uses: ./.github/workflows/ci_release_cpp.yml
+    with:
+      tag: ${{ inputs.tag || github.ref }}
+    secrets: inherit
+
+  python:
+    needs: [pre_job]
+    uses: ./.github/workflows/ci_release_python.yml
+    with:
+      tag: ${{ inputs.tag || github.ref }}
+    secrets: inherit
+  
+  rust:
+    needs: [pre_job]
+    uses: ./.github/workflows/ci_release_rust.yml
+    with:
+      tag: ${{ inputs.tag || github.ref }}
+    secrets: inherit

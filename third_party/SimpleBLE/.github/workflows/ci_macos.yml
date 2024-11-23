@@ -1,0 +1,105 @@
+name: CI Macos
+
+on:
+  workflow_dispatch:
+  workflow_call:  # This allows it to be called from ci_main.yml
+
+jobs:
+  tests:
+    runs-on: macos-14
+
+    steps:
+    - name: Clone Repository
+      uses: actions/checkout@v4
+    - name: Setup cmake
+      uses: ./.github/actions/setup-cmake
+    - name: Setup gtest
+      uses: ./.github/actions/setup-gtest
+    - name: Compile Tests for MacOS arm64
+      run: |
+        cmake -B $GITHUB_WORKSPACE/build_test -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DCMAKE_BUILD_TYPE=Release -DGTEST_ROOT=$GITHUB_WORKSPACE/googletest/install -S $GITHUB_WORKSPACE/simpleble -DSIMPLEBLE_TEST=ON
+        cmake --build $GITHUB_WORKSPACE/build_test --config Release --parallel 4
+        $GITHUB_WORKSPACE/build_test/bin/simpleble_test
+  
+  examples:
+    runs-on: macos-14
+
+    steps:
+    - name: Clone Repository
+      uses: actions/checkout@v4
+    - name: Setup Cmake
+      uses: ./.github/actions/setup-cmake
+    - name: Compile Examples
+      run: |
+        cmake -B $GITHUB_WORKSPACE/build -DCMAKE_BUILD_TYPE=Release -S $GITHUB_WORKSPACE/examples/simpleble
+        cmake --build $GITHUB_WORKSPACE/build --config Release --parallel 4
+
+  build:
+    runs-on: macos-14
+    needs: [tests, examples]
+
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        # For testing purposes only static libraries are built to reduce run time.
+        # In release workflow all combinations are build.
+        type: [static]
+        arch: [arm64, x86_64]
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Setup CMake
+        uses: ./.github/actions/setup-cmake
+
+      - name: Compile SimpleBLE
+        run: |
+
+          if [ "${{ matrix.type }}" == "shared" ]; then
+            BUILD_SHARED_LIBS=ON
+          else
+            BUILD_SHARED_LIBS=OFF
+          fi
+
+          cmake -B $GITHUB_WORKSPACE/build -DCMAKE_OSX_ARCHITECTURES="${{ matrix.arch }}" -DCMAKE_BUILD_TYPE=Release -S $GITHUB_WORKSPACE/simpleble -DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS
+          cmake --build $GITHUB_WORKSPACE/build --config Release --parallel 4
+          cmake --install $GITHUB_WORKSPACE/build --prefix $GITHUB_WORKSPACE/build/install
+
+          mkdir -p $GITHUB_WORKSPACE/artifacts
+          zip -r $GITHUB_WORKSPACE/artifacts/simpleble_${{ matrix.type }}_macos-${{ matrix.arch }}.zip $GITHUB_WORKSPACE/build/install
+
+      - name: Upload binaries to job
+        uses: actions/upload-artifact@v4
+        with:
+          name: simpleble_${{ matrix.type }}_macos-${{ matrix.arch }}
+          path: artifacts/simpleble_${{ matrix.type }}_macos-${{ matrix.arch }}.zip
+
+  python:
+    needs: [tests, examples]
+    uses: ./.github/workflows/ci_wheels.yml
+    secrets: inherit
+    with:
+      os: macos-14
+
+  rust:
+    runs-on: ${{ matrix.os }}
+    needs: [tests, examples]
+
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        os: [macos-14]
+        arch: [arm64, x86_64]
+
+    steps:
+    - name: Clone Repository
+      uses: actions/checkout@v4
+    - name: Setup cmake
+      uses: ./.github/actions/setup-cmake
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+    - name: Compile SimpleBLE
+      run: cargo build

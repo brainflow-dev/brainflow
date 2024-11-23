@@ -1,7 +1,5 @@
 #pragma once
 
-#include <simpleble/export.h>
-
 #include <simpleble/Adapter.h>
 #include <simpleble/PeripheralSafe.h>
 
@@ -9,7 +7,7 @@ namespace SimpleBLE {
 
 namespace Safe {
 
-class SIMPLEBLE_EXPORT Adapter : public SimpleBLE::Adapter {
+class Adapter : public SimpleBLE::Adapter {
   public:
     Adapter(SimpleBLE::Adapter& adapter);
     virtual ~Adapter() = default;

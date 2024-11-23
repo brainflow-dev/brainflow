@@ -111,6 +111,12 @@ add_library (
     ${BOARD_CONTROLLER_SRC}
 )
 
+#it was an attemp to use simpleble on android via ndk, cannot make it work
+#if (ANDROID AND BUILD_BLE)
+#    target_compile_definitions (${BOARD_CONTROLLER_NAME} PRIVATE STATIC_SIMPLEBLE)
+#    target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE simpleble-c)
+#endif (ANDROID AND BUILD_BLE)
+
 target_include_directories (
     ${BOARD_CONTROLLER_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/

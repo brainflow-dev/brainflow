@@ -34,6 +34,9 @@ Standard API
    :members:
    :undoc-members:
 
+.. doxygentypedef:: SimpleBLE::ByteArray
+   :project: simpleble
+
 Safe API
 ========
 
@@ -55,3 +58,11 @@ C API
 
 .. doxygenfile:: peripheral.h
    :project: simpleble
+
+External API
+============
+
+.. doxygenclass:: kvn::bytearray
+   :project: external
+   :members:
+   :undoc-members:

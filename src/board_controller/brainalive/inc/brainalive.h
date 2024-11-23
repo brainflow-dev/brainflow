@@ -26,7 +26,7 @@ public:
     int config_board (std::string config);
 
     void adapter_1_on_scan_found (simpleble_adapter_t adapter, simpleble_peripheral_t peripheral);
-    void read_data (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
+    void read_data (simpleble_uuid_t service, simpleble_uuid_t characteristic, const uint8_t *data,
         size_t size, int channel_num);
     void set_internal_gain (int gain)
     {
