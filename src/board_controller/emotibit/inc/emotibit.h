@@ -7,7 +7,6 @@
 #include "board.h"
 #include "board_controller.h"
 
-#include "broadcast_server.h"
 #include "socket_client_udp.h"
 #include "socket_server_tcp.h"
 
@@ -24,7 +23,9 @@ private:
     std::thread connection_thread;
     SocketClientUDP *data_socket;
     SocketServerTCP *control_socket;
-    BroadCastServer *advertise_socket_server;
+    // there is one for broadcast but its used only to find ip, after
+    // that its replaced by normal udp socket
+    SocketClientUDP *adv_socket;
     std::mutex m;
     std::condition_variable cv;
     int control_port;

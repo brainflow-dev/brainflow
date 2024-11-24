@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "broadcast_server.h"
 #include "custom_cast.h"
 #include "json.hpp"
 #include "network_interfaces.h"
@@ -20,7 +21,7 @@ Emotibit::Emotibit (struct BrainFlowInputParams params)
 {
     data_socket = NULL;
     control_socket = NULL;
-    advertise_socket_server = NULL;
+    adv_socket = NULL;
     keep_alive = false;
     initialized = false;
     control_port = -1;
@@ -70,10 +71,10 @@ int Emotibit::prepare_session ()
 
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
-        if (advertise_socket_server != NULL)
+        if (adv_socket != NULL)
         {
-            delete advertise_socket_server;
-            advertise_socket_server = NULL;
+            delete adv_socket;
+            adv_socket = NULL;
         }
         if (data_socket != NULL)
         {
@@ -165,11 +166,11 @@ int Emotibit::release_session ()
             delete control_socket;
             control_socket = NULL;
         }
-        if (advertise_socket_server)
+        if (adv_socket)
         {
-            advertise_socket_server->close ();
-            delete advertise_socket_server;
-            advertise_socket_server = NULL;
+            adv_socket->close ();
+            delete adv_socket;
+            adv_socket = NULL;
         }
         control_port = -1;
         data_port = -1;
@@ -596,14 +597,14 @@ int Emotibit::create_adv_connection ()
 
     for (std::string broadcast_address : broadcast_addresses)
     {
+        BroadCastServer *advertise_socket =
+            new BroadCastServer (broadcast_address.c_str (), WIFI_ADVERTISING_PORT);
         res = (int)BrainFlowExitCodes::STATUS_OK;
         safe_logger (
             spdlog::level::info, "trying broadcast address: {}", broadcast_address.c_str ());
         if (res == (int)BrainFlowExitCodes::STATUS_OK)
         {
-            advertise_socket_server =
-                new BroadCastServer (broadcast_address.c_str (), WIFI_ADVERTISING_PORT);
-            int init_res = advertise_socket_server->init ();
+            int init_res = advertise_socket->init ();
             if (init_res != (int)BroadCastServerReturnCodes::STATUS_OK)
             {
                 safe_logger (spdlog::level::err, "failed to init broadcast server socket: {}", res);
@@ -614,7 +615,7 @@ int Emotibit::create_adv_connection ()
         {
             std::string package = create_package (HELLO_EMOTIBIT, 0, "", 0);
             safe_logger (spdlog::level::info, "sending package: {}", package.c_str ());
-            int bytes_send = advertise_socket_server->send (package.c_str (), (int)package.size ());
+            int bytes_send = advertise_socket->send (package.c_str (), (int)package.size ());
             if (bytes_send != (int)package.size ())
             {
                 safe_logger (
@@ -632,8 +633,8 @@ int Emotibit::create_adv_connection ()
             double start_time = get_timestamp ();
             for (int i = 0; (i < 100) && (!found); i++)
             {
-                int bytes_recv = advertise_socket_server->recv (
-                    recv_data, max_size, emotibit_ip, max_ip_addr_size);
+                int bytes_recv =
+                    advertise_socket->recv (recv_data, max_size, emotibit_ip, max_ip_addr_size);
                 if (bytes_recv > 0)
                 {
                     std::vector<std::string> splitted_packages =
@@ -679,17 +680,38 @@ int Emotibit::create_adv_connection ()
                 res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
             }
         }
-        if (res != (int)BrainFlowExitCodes::STATUS_OK)
+        if (advertise_socket != NULL)
         {
-            if (advertise_socket_server != NULL)
-            {
-                delete advertise_socket_server;
-                advertise_socket_server = NULL;
-            }
+            delete advertise_socket;
+            advertise_socket = NULL;
+        }
+        if (res == (int)BrainFlowExitCodes::STATUS_OK)
+        {
+            break;
+        }
+    }
+    // we dont need broadcast anymore, replace it with normal socket
+    if (res == (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        // ugly but makes it safer
+#ifdef _WIN32
+        Sleep (1000);
+#else
+        usleep (1000000);
+#endif
+        adv_socket = new SocketClientUDP (ip_address.c_str (), WIFI_ADVERTISING_PORT);
+        if (adv_socket->connect () != ((int)SocketClientUDPReturnCodes::STATUS_OK))
+        {
+            safe_logger (spdlog::level::err, "Failed to bind adv_socket");
+            res = (int)BrainFlowExitCodes::SET_PORT_ERROR;
+            adv_socket->close ();
+            delete adv_socket;
+            adv_socket = NULL;
         }
         else
         {
-            break;
+            safe_logger (spdlog::level::debug, "adv_connection established, ip: {}, port: {}",
+                ip_address, WIFI_ADVERTISING_PORT);
         }
     }
     return res;
@@ -771,7 +793,7 @@ int Emotibit::send_connect_msg ()
     safe_logger (spdlog::level::info, "sending connect package: {}", package.c_str ());
 
     int res = (int)BrainFlowExitCodes::STATUS_OK;
-    int bytes_send = advertise_socket_server->send (package.c_str (), (int)package.size ());
+    int bytes_send = adv_socket->send (package.c_str (), (int)package.size ());
     if (bytes_send != (int)package.size ())
     {
         safe_logger (spdlog::level::err, "failed to send connect package, res is {}", bytes_send);
@@ -860,7 +882,7 @@ void Emotibit::ping_thread ()
         payload.push_back (std::to_string (data_port));
         std::string package = create_package (PING, package_num++, payload);
         // safe_logger (spdlog::level::trace, "sending package: {}", package.c_str ());
-        int bytes_send = advertise_socket_server->send (package.c_str (), (int)package.size ());
+        int bytes_send = adv_socket->send (package.c_str (), (int)package.size ());
         if (bytes_send != (int)package.size ())
         {
             safe_logger (spdlog::level::err, "failed to send adv package, res is {}", bytes_send);
