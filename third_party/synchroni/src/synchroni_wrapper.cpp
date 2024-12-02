@@ -1,8 +1,7 @@
-#if defined _WIN32
-
-#endif
 #if defined __APPLE__
 #include <sensor/SensorController.hpp>
+#else
+#include "SensorController.hpp"
 #endif
 
 #include "synchroni_wrapper.h"
@@ -15,7 +14,7 @@
 #include <memory>
 #include <map>
 
-#define ENABLE_LOGGER
+// #define ENABLE_LOGGER
 
 using namespace std;
 using namespace sensor;
@@ -138,7 +137,9 @@ int synchroni_initialize (void *param){
     return 0;
 }
 int synchroni_open_device (void *param){
-    const char* mac_address = (const char*)param;
+    std::tuple<std::string> *info =
+        (std::tuple<std::string>*)(param);
+    std::string mac_address = std::get<0>(*info);
     
     SynchroniControllerDelegate::sensorControllerDelegate->boardMapMutex.lock();
     if (SynchroniControllerDelegate::sensorControllerDelegate->boardMap[mac_address] == NULL){
@@ -255,7 +256,9 @@ int synchroni_open_device (void *param){
 }
 
 int synchroni_start_stream (void *param){
-    const char* mac_address = (const char*)param;
+    std::tuple<std::string> *info =
+        (std::tuple<std::string>*)(param);
+    std::string mac_address = std::get<0>(*info);
     
     SynchroniControllerDelegate::sensorControllerDelegate->boardMapMutex.lock();
     if (SynchroniControllerDelegate::sensorControllerDelegate->boardMap[mac_address] == NULL){
@@ -309,7 +312,9 @@ int synchroni_start_stream (void *param){
 }
 
 int synchroni_stop_stream (void *param){
-    const char* mac_address = (const char*)param;
+    std::tuple<std::string> *info =
+        (std::tuple<std::string>*)(param);
+    std::string mac_address = std::get<0>(*info);
     
     SynchroniControllerDelegate::sensorControllerDelegate->boardMapMutex.lock();
     if (SynchroniControllerDelegate::sensorControllerDelegate->boardMap[mac_address] == NULL){
@@ -358,7 +363,9 @@ int synchroni_stop_stream (void *param){
 }
 
 int synchroni_close_device (void *param){
-    const char* mac_address = (const char*)param;
+    std::tuple<std::string> *info =
+        (std::tuple<std::string>*)(param);
+    std::string mac_address = std::get<0>(*info);
     
     SynchroniControllerDelegate::sensorControllerDelegate->boardMapMutex.lock();
     if (SynchroniControllerDelegate::sensorControllerDelegate->boardMap[mac_address] == NULL){
@@ -393,10 +400,10 @@ int synchroni_close_device (void *param){
     return 0;
 }
 int synchroni_get_data_default (void *param){
-    std::tuple<const char*, double *, int> *info =
-        (std::tuple<const char*, double *, int>*)(param);
+    std::tuple<std::string, double *, int> *info =
+        (std::tuple<std::string, double *, int>*)(param);
     
-    const char* mac_address = std::get<0>(*info);
+    std::string mac_address = std::get<0>(*info);
     double* data = std::get<1>(*info);
     int numOfRows = std::get<2>(*info);
     
@@ -460,27 +467,25 @@ int synchroni_get_data_default (void *param){
     {
         return (int)BrainFlowExitCodes::EMPTY_BUFFER_ERROR;
     }
-    return 0;
+    return (int)BrainFlowExitCodes::STATUS_OK;
 }
 int synchroni_release (void *param){
-    const char* mac_address = (const char*)param;
-    
+    std::tuple<std::string> *info =
+        (std::tuple<std::string>*)(param);
+    std::string mac_address = std::get<0>(*info);
+
     SynchroniControllerDelegate::sensorControllerDelegate->boardMapMutex.lock();
-    if (SynchroniControllerDelegate::sensorControllerDelegate->boardMap[mac_address] == NULL){
-        SynchroniControllerDelegate::sensorControllerDelegate->boardMapMutex.unlock();
-        return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
-    }
     SynchroniControllerDelegate::sensorControllerDelegate->boardMap.erase(mac_address);
     SynchroniControllerDelegate::sensorControllerDelegate->boardMapMutex.unlock();
-    
+    sensor::SensorController::destory();
     return 0;
 }
 int synchroni_config_device (void *param){
-    std::tuple<const char*, const char*, char *, int> *info =
-        (std::tuple<const char*, const char*, char *, int>*)(param);
+    std::tuple<std::string, std::string, char *, int> *info =
+        (std::tuple<std::string, std::string, char *, int>*)(param);
     
-    const char* mac_address =  std::get<0>(*info);
-    const char* key_char =  std::get<1>(*info);
+    std::string mac_address =  std::get<0>(*info);
+    std::string key_char =  std::get<1>(*info);
     char* result_char =  std::get<2>(*info);
     int buffer_size =  std::get<3>(*info);
 
@@ -517,3 +522,39 @@ int synchroni_config_device (void *param){
     }
     return 0;
 }
+
+#ifdef _WIN32
+BOOL WINAPI DllMain(
+    HINSTANCE hinstDLL,  // handle to DLL module
+    DWORD fdwReason,     // reason for calling function
+    LPVOID lpvReserved )  // reserved
+{
+    // Perform actions based on the reason for calling.
+    switch( fdwReason ) 
+    { 
+        case DLL_PROCESS_ATTACH:
+         // Initialize once for each new process.
+         // Return FALSE to fail DLL load.
+            break;
+
+        case DLL_THREAD_ATTACH:
+         // Do thread-specific initialization.
+            break;
+
+        case DLL_THREAD_DETACH:
+         // Do thread-specific cleanup.
+            break;
+
+        case DLL_PROCESS_DETACH:
+
+            if (lpvReserved != nullptr)
+            {
+                break; // do not do cleanup if process termination scenario
+            }
+            sensor::SensorController::destory();
+         // Perform any necessary cleanup.
+            break;
+    }
+    return TRUE;  // Successful DLL_PROCESS_ATTACH.
+}
+#endif

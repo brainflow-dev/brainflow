@@ -82,8 +82,9 @@ void SynchroniBoard::read_thread ()
     {
         data[i] = 0.0;
     }
-    std::tuple<const char*, double *, int> info =
-        std::make_tuple (params.mac_address.c_str(), data, num_rows);
+
+    std::tuple<std::string, double *, int> info =
+        std::make_tuple (params.mac_address, data, num_rows);
 
     while (keep_alive)
     {
@@ -144,8 +145,8 @@ int SynchroniBoard::config_board (std::string config, std::string &response)
     const int BUFFER_SIZE = 1024;
     char buffer[BUFFER_SIZE];
     memset(buffer, 0, sizeof(buffer));
-    std::tuple<const char*, const char*, char *, int> info =
-        std::make_tuple (params.mac_address.c_str(), config.c_str(), buffer, BUFFER_SIZE);
+    std::tuple<std::string, std::string, char *, int> info =
+        std::make_tuple (params.mac_address, config, buffer, BUFFER_SIZE);
 //    int res = s_config_device((void*)&info);
     int res = func((void*)&info);
     response = buffer;
@@ -189,7 +190,9 @@ int SynchroniBoard::call_open ()
         safe_logger (spdlog::level::err, "failed to get function address for open_device");
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    return func ((void*)params.mac_address.c_str());
+    std::tuple<std::string> info =
+        std::make_tuple (params.mac_address);
+    return func ((void*)&info);
 //    return s_open_device((void*)params.mac_address.c_str());
 }
 
@@ -205,7 +208,9 @@ int SynchroniBoard::call_start ()
         safe_logger (spdlog::level::err, "failed to get function address for start_stream");
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    return func ((void*)params.mac_address.c_str());
+    std::tuple<std::string> info =
+        std::make_tuple (params.mac_address);
+    return func ((void*)&info);
 //    return s_start_stream((void*)params.mac_address.c_str());
 }
 
@@ -221,7 +226,9 @@ int SynchroniBoard::call_stop ()
         safe_logger (spdlog::level::err, "failed to get function address for stop_stream");
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    return func ((void*)params.mac_address.c_str());
+    std::tuple<std::string> info =
+        std::make_tuple (params.mac_address);
+    return func ((void*)&info);
 //    return s_stop_stream((void*)params.mac_address.c_str());
 }
 
@@ -237,7 +244,9 @@ int SynchroniBoard::call_close ()
         safe_logger (spdlog::level::err, "failed to get function address for close_device");
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    return func ((void*)params.mac_address.c_str());
+    std::tuple<std::string> info =
+        std::make_tuple (params.mac_address);
+    return func ((void*)&info);
 //    return s_close_device((void*)params.mac_address.c_str());
 }
 
@@ -253,6 +262,8 @@ int SynchroniBoard::call_release ()
         safe_logger (spdlog::level::err, "failed to get function address for release");
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    return func ((void*)params.mac_address.c_str());
+    std::tuple<std::string> info =
+        std::make_tuple (params.mac_address);
+    return func ((void*)&info);
 //    return s_release((void*)params.mac_address.c_str());
 }

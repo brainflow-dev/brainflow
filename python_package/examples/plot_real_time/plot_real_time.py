@@ -6,6 +6,11 @@ from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 from brainflow.data_filter import DataFilter, FilterTypes, WindowOperations, DetrendOperations
 from pyqtgraph.Qt import QtGui, QtCore
 
+#python d:\workspace\brainflow\python_package\examples\plot_real_time\plot_real_time.py --board-id=57 --mac-address=C4:64:E3:D8:E6:C6
+
+#python d:\workspace\brainflow\python_package\examples\plot_real_time\plot_real_time.py --board-id=57 --mac-address=C4:64:E3:D8:E4:8D
+
+#python d:\workspace\brainflow\python_package\examples\plot_real_time\plot_real_time.py --board-id=58 --mac-address=60:77:71:74:E6:B7
 
 class Graph:
     def __init__(self, board_shim):

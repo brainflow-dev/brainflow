@@ -381,3 +381,4 @@ CMakeSettings.json
 
 build/
 *.DS_Store
+/tryinstall/
