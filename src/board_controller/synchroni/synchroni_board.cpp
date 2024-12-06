@@ -1,5 +1,7 @@
 #include <string.h>
 #include <iostream>
+#include <tuple>
+
 #include "synchroni_board.h"
 
 #include "custom_cast.h"
@@ -8,11 +10,15 @@
 
 using namespace std;
 
+std::shared_ptr<DLLLoader> SynchroniBoard::g_dll_loader = NULL;
 SynchroniBoard::SynchroniBoard (int board_id, struct BrainFlowInputParams params)
-    : DynLibBoard (board_id, params)
+    : Board (board_id, params)
 {
-    initialized = false;
     is_streaming = false;
+    keep_alive = false;
+    initialized = false;
+    state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
+    dll_loader = NULL;
 }
 
 SynchroniBoard::~SynchroniBoard ()
@@ -267,3 +273,133 @@ int SynchroniBoard::call_release ()
     return func ((void*)&info);
 //    return s_release((void*)params.mac_address.c_str());
 }
+
+///////////////////////////////////////////////////////////////////
+
+
+int SynchroniBoard::prepare_session ()
+{
+    if (initialized)
+    {
+        safe_logger (spdlog::level::info, "Session is already prepared");
+        return (int)BrainFlowExitCodes::STATUS_OK;
+    }
+    if (params.timeout <= 0)
+    {
+        params.timeout = 5;
+    }
+    if (!g_dll_loader){
+        g_dll_loader = make_shared<DLLLoader>(get_lib_name ().c_str ());
+    }
+    if (!dll_loader){
+        dll_loader = shared_ptr<DLLLoader>(g_dll_loader);
+    }
+    
+    if (!dll_loader->load_library ())
+    {
+        safe_logger (spdlog::level::err, "Failed to load library");
+        dll_loader = NULL;
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+    safe_logger (spdlog::level::debug, "Library is loaded");
+    int res = call_init ();
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        dll_loader = NULL;
+        return res;
+    }
+    res = call_open ();
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        dll_loader = NULL;
+        return res;
+    }
+    initialized = true;
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+int SynchroniBoard::start_stream (int buffer_size, const char *streamer_params)
+{
+    if (is_streaming)
+    {
+        safe_logger (spdlog::level::err, "Streaming thread already running");
+        return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
+    }
+    if (buffer_size <= 0 || buffer_size > MAX_CAPTURE_SAMPLES)
+    {
+        safe_logger (spdlog::level::err, "invalid array size");
+        return (int)BrainFlowExitCodes::INVALID_BUFFER_SIZE_ERROR;
+    }
+
+    int res = prepare_for_acquisition (buffer_size, streamer_params);
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        return res;
+    }
+
+    res = call_start ();
+    if (res != (int)BrainFlowExitCodes::STATUS_OK)
+    {
+        return res;
+    }
+
+    keep_alive = true;
+    streaming_thread = std::thread ([this] { read_thread (); });
+
+    // wait for data to ensure that everything is okay
+    std::unique_lock<std::mutex> lk (m);
+    auto sec = std::chrono::seconds (1);
+    if (cv.wait_for (lk, params.timeout * sec,
+            [this] { return state != (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR; }))
+    {
+        is_streaming = true;
+        return state;
+    }
+    else
+    {
+        safe_logger (
+            spdlog::level::err, "no data received in {} sec, stopping thread", params.timeout);
+        is_streaming = true;
+        stop_stream ();
+        return (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
+    }
+}
+
+int SynchroniBoard::stop_stream ()
+{
+    if (is_streaming)
+    {
+        keep_alive = false;
+        is_streaming = false;
+        streaming_thread.join ();
+        state = (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
+        return call_stop ();
+    }
+    else
+    {
+        return (int)BrainFlowExitCodes::STREAM_THREAD_IS_NOT_RUNNING;
+    }
+}
+
+int SynchroniBoard::release_session ()
+{
+    if (initialized)
+    {
+        stop_stream ();
+        initialized = false;
+    }
+
+    free_packages ();
+
+    call_close ();
+    call_release ();
+
+    if (dll_loader != NULL)
+    {
+        dll_loader = NULL;
+    }
+
+    return (int)BrainFlowExitCodes::STATUS_OK;
+}
+
+

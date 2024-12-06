@@ -578,6 +578,10 @@ class BoardShim(object):
         else:
             self._master_board_id = self.board_id
 
+    def __del__(self) -> None:
+        if self.is_prepared():
+            self.release_session()
+
     @classmethod
     def set_log_level(cls, log_level: int) -> None:
         """set BrainFlow log level, use it only if you want to write your own messages to BrainFlow logger,
