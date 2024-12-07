@@ -86,6 +86,7 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/aavaa/aavaa_v3.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/pieeg/pieeg_board.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/neuropawn/knight.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/biolistener/biolistener.cpp
 )
 
 include (${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ant_neuro/build.cmake)
@@ -144,6 +145,7 @@ target_include_directories (
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/aavaa/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/pieeg/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/neuropawn/inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/biolistener/inc
 )
 
 target_compile_definitions(${BOARD_CONTROLLER_NAME} PRIVATE NOMINMAX BRAINFLOW_VERSION=${BRAINFLOW_VERSION})

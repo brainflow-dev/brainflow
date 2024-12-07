@@ -75,7 +75,8 @@ BrainFlowBoards::BrainFlowBoards()
             {"54", json::object()},
             {"55", json::object()},
             {"56", json::object()},
-            {"57", json::object()}
+            {"57", json::object()},
+            {"58", json::object()}
         }
     }};
 
@@ -1107,6 +1108,17 @@ BrainFlowBoards::BrainFlowBoards()
         {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
         {"other_channels", {9, 10}}
     };
+    brainflow_boards_json["boards"]["58"]["default"] =
+        {
+            {"name", "BioListener"},
+            {"sampling_rate", 500},
+            {"timestamp_channel", 11},
+            {"marker_channel",12},
+            {"package_num_channel", 0},
+            {"num_rows", 13},
+            {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
+            {"other_channels", {9, 10}}
+        };
 }
 
 BrainFlowBoards boards_struct;

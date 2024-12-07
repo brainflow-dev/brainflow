@@ -60,5 +60,6 @@ classdef BoardIds < int32
         EXPLORE_PLUS_32_CHAN_BOARD(55)
         PIEEG_BOARD(56)
         NEUROPAWN_KNIGHT_BOARD(57)
+        BIOLISTENER_BOARD(58)
     end
 end
