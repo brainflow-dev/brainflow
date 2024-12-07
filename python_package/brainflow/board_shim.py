@@ -76,7 +76,7 @@ class BoardIds(enum.IntEnum):
     PIEEG_BOARD = 56  #:
     SYNCHRONI_3_CHANNELS_BOARD = 57  #:
     SYNCHRONI_8_CHANNELS_BOARD = 58  #:
-
+    OB3000_24_CHANNELS_BOARD = 59  #:
 
 class IpProtocolTypes(enum.IntEnum):
     """Enum to store Ip Protocol types"""
