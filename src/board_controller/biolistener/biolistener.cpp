@@ -13,13 +13,20 @@
 using json = nlohmann::json;
 
 
-BioListener::BioListener(int board_id, struct BrainFlowInputParams params) : Board (board_id, params)
+BioListener::BioListener (int board_id, struct BrainFlowInputParams params)
+    : Board (board_id, params)
 {
     control_socket = NULL;
     keep_alive = false;
     initialized = false;
     control_port = -1;
     data_port = -1;
+
+    // Data channels gain to default value
+    for (int i = 0; i < BIOLISTENER_DATA_CHANNELS_COUNT; i++)
+    {
+        channels_gain[i] = BIOLISTENER_DEFAULT_PGA_GAIN;
+    }
 }
 
 BioListener::~BioListener ()
@@ -49,7 +56,12 @@ int BioListener::prepare_session ()
     }
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        res = send_control_msg (R"({"command":"send_control_msg"})");
+        auto json_command = json {{"command", BIOLISTENER_COMMAND_RESET_ADC}};
+
+        res = send_control_msg ((json_command.dump () + PACKET_DELIMITER_CSV).c_str ());
+
+        // FIXME: sleep for 500ms to wait for reset
+        std::this_thread::sleep_for (std::chrono::milliseconds (500));
     }
 
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
@@ -90,7 +102,9 @@ int BioListener::start_stream (int buffer_size, const char *streamer_params)
     {
         return res;
     }
-    res = send_control_msg (R"({"command":"start_stream"})");
+
+    auto json_command = json {{"command", BIOLISTENER_COMMAND_START_SAMPLING}};
+    res = send_control_msg ((json_command.dump () + PACKET_DELIMITER_CSV).c_str ());
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
         keep_alive = true;
@@ -103,10 +117,13 @@ int BioListener::stop_stream ()
 {
     if (keep_alive)
     {
-        if (send_control_msg (R"({"command":"stop_stream")") != (int)BrainFlowExitCodes::STATUS_OK)
+        auto json_command = json {{"command", BIOLISTENER_COMMAND_STOP_SAMPLING}};
+        if (send_control_msg ((json_command.dump () + PACKET_DELIMITER_CSV).c_str ()) !=
+            (int)BrainFlowExitCodes::STATUS_OK)
         {
-            safe_logger (spdlog::level::warn, "failed to set low power mode");
+            safe_logger (spdlog::level::warn, "failed to stop stream");
         }
+
         keep_alive = false;
         streaming_thread.join ();
         return (int)BrainFlowExitCodes::STATUS_OK;
@@ -124,7 +141,6 @@ int BioListener::release_session ()
         }
         initialized = false;
         free_packages ();
-        send_control_msg (R"({"command":"release_session"})");
         if (control_socket)
         {
             control_socket->close ();
@@ -137,9 +153,64 @@ int BioListener::release_session ()
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
 
+bool BioListener::parse_tcp_buffer (
+    const char *buffer, size_t buffer_size, data_packet &parsed_packet)
+{
+    // Ensure the buffer size matches the packet size
+    if (buffer_size != PACKET_SIZE)
+    {
+        safe_logger (spdlog::level::trace, "Buffer size mismatch!");
+
+        return false;
+    }
+
+    // Copy the raw buffer into the struct
+    std::memcpy (&parsed_packet, buffer, PACKET_SIZE);
+
+    // Validate the header and footer
+    if (parsed_packet.header != 0xA0)
+    {
+        safe_logger (spdlog::level::trace, "Invalid header! Expected: 0xA0");
+        return false;
+    }
+
+    if (parsed_packet.footer != 0xC0)
+    {
+        safe_logger (spdlog::level::trace, "Invalid footer! Expected: 0xC0");
+        return false;
+    }
+
+    return true;
+}
+
+
+// Convert raw ADC code (two's complement) to voltage
+// ref: reference voltage (X if milli volts output is needed, X * 1000 if micro volts output)
+//      1.2V for ADS131M08, 2.5V for AD7771
+// raw_code: raw ADC code
+// pga_gain: gain of the PGA
+// adc_resolution: resolution of the ADC (2^23 for ADS131M08, 2^24 for AD7771)
+double BioListener::data_to_volts (
+    double ref, uint32_t raw_code, double pga_gain, double adc_resolution)
+{
+    // Calculate the resolution in millivolts
+    double resolution = ref / (adc_resolution * pga_gain);
+
+    // Compute the voltage in millivolts based on the raw ADC code
+    if (raw_code <= 0x7FFFFF)
+    { // Positive range
+        return resolution * (double)raw_code;
+    }
+    else
+    { // Negative range (two's complement)
+        return (resolution * (double)raw_code) - (ref / pga_gain);
+    }
+}
+
+
 void BioListener::read_thread ()
 {
-    const int max_size = 1024;
+    const int max_size = PACKET_SIZE;
     char message[max_size];
     int num_rows = board_descr["default"]["num_rows"];
     double *package = new double[num_rows];
@@ -159,90 +230,85 @@ void BioListener::read_thread ()
             safe_logger (spdlog::level::trace, "no data received");
             continue;
         }
-        std::string message_received = std::string (message, bytes_recv);
-        std::vector<std::string> splitted_packages =
-            split_string (message_received, PACKET_DELIMITER_CSV);
 
-        safe_logger (spdlog::level::trace, "Received message: >>>{}<<<", message_received.c_str ());
-
-
-        for (std::string recv_package : splitted_packages)
+        try
         {
-            safe_logger (spdlog::level::trace, "Received package: >>>{}<<<", recv_package.c_str ());
-            try {
-                json j = json::parse (recv_package);
-//                json j = json::from_msgpack(recv_package);
-
-                safe_logger (spdlog::level::trace, "Parsed json: {}", j.dump ());
-
-
-                // parse from_msgpack
-
-
-                if (j["type"] == 1)
-                {
-                    package[board_descr["default"]["timestamp_channel"].get<int> ()] = j["ts"];
-                    package[board_descr["default"]["package_num_channel"].get<int> ()] = j["n"];
-//                    int sensor_id = j["s_id"];
-
-                    // in data is array of 8 values, copy them to package
-                    for (int i = 0; i < 8; i++)
-                    {
-                        package[eeg_channels[i]] = j["data"][i];
-                    }
-
-
-                    push_package (package);
-                }
-
-
-            } catch (json::parse_error &e) {
-                safe_logger (spdlog::level::err, "Failed to parse json: {}", e.what ());
+            data_packet parsed_packet;
+            if (!parse_tcp_buffer (message, bytes_recv, parsed_packet))
+            {
+                safe_logger (spdlog::level::err, "Failed to parse data packet");
+                continue;
             }
 
+            if (parsed_packet.type == 1)
+            {
+                package[board_descr["default"]["timestamp_channel"].get<int> ()] = parsed_packet.ts;
+                package[board_descr["default"]["package_num_channel"].get<int> ()] =
+                    parsed_packet.n;
+                int sensor_id = parsed_packet.s_id;
 
+                for (int i = 0; i < BIOLISTENER_DATA_CHANNELS_COUNT; i++)
+                {
+                    double pga_gain;
+                    {
+                        std::lock_guard<std::mutex> lock (m_channels_gain);
+                        pga_gain = channels_gain[i];
+                    }
+
+                    if (sensor_id == BIOLISTENER_ADC_AD7771)
+                    {
+                        static const float ref_microV = 2500000.0;
+                        static const float adc_resolution = 16777216.0;
+                        package[eeg_channels[i]] = data_to_volts (
+                            ref_microV, parsed_packet.data[i], pga_gain, adc_resolution);
+                    }
+                    else if (sensor_id == BIOLISTENER_ADC_ADS131M08)
+                    {
+                        static const double ref_microV = 1200000.0;
+                        static const double adc_resolution = 8388608.0;
+                        package[eeg_channels[i]] = data_to_volts (
+                            ref_microV, parsed_packet.data[i], pga_gain, adc_resolution);
+                    }
+                    else
+                    {
+                        safe_logger (spdlog::level::err, "Unknown sensor id: {}", sensor_id);
+                        return;
+                    }
+                }
+                push_package (package);
+            }
+        }
+        catch (json::parse_error &e)
+        {
+            safe_logger (spdlog::level::err, "Failed to parse json: {}", e.what ());
         }
     }
 
     delete[] package;
 }
 
-std::vector<std::string> BioListener::split_string (const std::string &package, char delim)
-{
-    std::vector<std::string> result;
-    size_t start;
-    size_t end = 0;
-    while ((start = package.find_first_not_of (delim, end)) != std::string::npos)
-    {
-        end = package.find (delim, start);
-        std::string cur_str = package.substr (start, end - start);
-        result.push_back (cur_str);
-    }
-    return result;
-}
-
-
 int BioListener::create_control_connection ()
 {
     char local_ip[80];
 
-    strncpy(local_ip, params.ip_address.c_str(), sizeof(local_ip) - 1);
-    local_ip[sizeof(local_ip) - 1] = '\0';
-//    safe_logger (spdlog::level::info, "Local ip address is {}", params.ip_address.c_str ());
-//    int local_ip_res =
-//        SocketClientUDP::get_local_ip_addr (params.ip_address.c_str (), DEFAULT_CONTROL_PORT, local_ip);
-//    if (local_ip_res != (int)SocketClientUDPReturnCodes::STATUS_OK)
-//    {
-//        safe_logger (spdlog::level::err, "failed to get local ip addr: {}", local_ip_res);
-//        return (int)BrainFlowExitCodes::GENERAL_ERROR;
-//    }
+    strncpy (local_ip, params.ip_address.c_str (), sizeof (local_ip) - 1);
+    local_ip[sizeof (local_ip) - 1] = '\0';
+    //    safe_logger (spdlog::level::info, "Local ip address is {}", params.ip_address.c_str ());
+    //    int local_ip_res =
+    //        SocketClientUDP::get_local_ip_addr (params.ip_address.c_str (), DEFAULT_CONTROL_PORT,
+    //        local_ip);
+    //    if (local_ip_res != (int)SocketClientUDPReturnCodes::STATUS_OK)
+    //    {
+    //        safe_logger (spdlog::level::err, "failed to get local ip addr: {}", local_ip_res);
+    //        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    //    }
     safe_logger (spdlog::level::info, "local ip addr is {}", local_ip);
 
     int res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     for (int i = 0; i < 39; i += 2)
     {
         control_port = DEFAULT_CONTROL_PORT + i;
-        control_socket = new SocketServerTCP (local_ip, control_port, false);
+        control_socket = new SocketServerTCP (local_ip, control_port, true);
         if (control_socket->bind () == ((int)SocketServerTCPReturnCodes::STATUS_OK))
         {
             safe_logger (spdlog::level::info, "use port {} for control", control_port);
@@ -262,13 +328,45 @@ int BioListener::create_control_connection ()
 
 int BioListener::send_control_msg (const char *msg)
 {
-    // FIXME: hardcoded ports
-//    // should never happen
-//    if ((control_port < 0) || (data_port < 0))
-//    {
-//        safe_logger (spdlog::level::info, "ports for data or control are not set");
-//        return (int)BrainFlowExitCodes::GENERAL_ERROR;
-//    }
+    // should never happen
+    if (control_port < 0)
+    {
+        safe_logger (spdlog::level::info, "ports for control are not set");
+        return (int)BrainFlowExitCodes::GENERAL_ERROR;
+    }
+
+    // try to convert msg from json to string
+    try
+    {
+        auto j = json::parse (msg);
+        if (j.contains ("command") && j["command"] == BIOLISTENER_COMMAND_SET_ADC_CHANNEL_PGA)
+        {
+            int channel = j["channel"];
+            double pga = j["pga"];
+            if (channel >= 0 && channel < BIOLISTENER_DATA_CHANNELS_COUNT)
+            {
+                std::lock_guard<std::mutex> lock (m_channels_gain);
+                channels_gain[channel] = pga;
+                safe_logger (spdlog::level::info, "Set gain for channel: {}", channel);
+                safe_logger (spdlog::level::info, "Gain: {}", pga);
+            }
+        }
+    }
+    catch (json::parse_error &e)
+    {
+        safe_logger (spdlog::level::err, "Failed to parse json: {}", e.what ());
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+    catch (json::exception &e)
+    {
+        safe_logger (spdlog::level::err, "Failed to parse json: {}", e.what ());
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
+    catch (...)
+    {
+        safe_logger (spdlog::level::err, "Failed to parse json");
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
 
     // convert msg to string just by copying
     std::string package = msg;
@@ -305,7 +403,7 @@ int BioListener::wait_for_connection ()
             safe_logger (spdlog::level::trace, "waiting for accept {}/{}", i, max_attempts);
             if (control_socket->client_connected)
             {
-                safe_logger (spdlog::level::trace, "emotibit connected");
+                safe_logger (spdlog::level::trace, "BioListener connected");
                 break;
             }
             else
@@ -325,5 +423,3 @@ int BioListener::wait_for_connection ()
     }
     return res;
 }
-
-
