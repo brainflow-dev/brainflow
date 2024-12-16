@@ -168,13 +168,13 @@ bool BioListener::parse_tcp_buffer (
     std::memcpy (&parsed_packet, buffer, PACKET_SIZE);
 
     // Validate the header and footer
-    if (parsed_packet.header != 0xA0)
+    if (parsed_packet.header != BIOLISTENER_DATA_PACKET_HEADER)
     {
         safe_logger (spdlog::level::trace, "Invalid header! Expected: 0xA0");
         return false;
     }
 
-    if (parsed_packet.footer != 0xC0)
+    if (parsed_packet.footer != BIOLISTENER_DATA_PACKET_FOOTER)
     {
         safe_logger (spdlog::level::trace, "Invalid footer! Expected: 0xC0");
         return false;
@@ -240,7 +240,7 @@ void BioListener::read_thread ()
                 continue;
             }
 
-            if (parsed_packet.type == 1)
+            if (parsed_packet.type == BIOLISTENER_DATA_PACKET_BIOSIGNALS)
             {
                 package[board_descr["default"]["timestamp_channel"].get<int> ()] = parsed_packet.ts;
                 package[board_descr["default"]["package_num_channel"].get<int> ()] =
