@@ -257,17 +257,17 @@ void BioListener::read_thread ()
 
                     if (sensor_id == BIOLISTENER_ADC_AD7771)
                     {
-                        static const float ref_microV = 2500000.0;
-                        static const float adc_resolution = 16777216.0;
+                        static const double ref_microV = 2500000.0;
+                        static const double adc_resolution = 16777216.0;
                         package[eeg_channels[i]] = data_to_volts (
-                            ref_microV, parsed_packet.data[i], pga_gain, adc_resolution);
+                            ref_microV, parsed_packet.data[i], pga_gain, adc_resolution) * 2.0;
                     }
                     else if (sensor_id == BIOLISTENER_ADC_ADS131M08)
                     {
                         static const double ref_microV = 1200000.0;
-                        static const double adc_resolution = 8388608.0;
+                        static const double adc_resolution = 16777216.0;
                         package[eeg_channels[i]] = data_to_volts (
-                            ref_microV, parsed_packet.data[i], pga_gain, adc_resolution);
+                            ref_microV, parsed_packet.data[i], pga_gain, adc_resolution) * 2.0;
                     }
                     else
                     {
