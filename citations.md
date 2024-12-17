@@ -38,6 +38,8 @@ CLASSIFICATION WITH LARYNGEAL IMAGERY](https://arxiv.org/pdf/2107.00045.pdf)
 * [Connecting reality and virtuality with human machine interface (HMI)](https://repositorio.uniandes.edu.co/server/api/core/bitstreams/decc84d7-57aa-402b-b3eb-4b71091f3653/content)
 * [A Portable, Wireless and Low-cost Electroencephalogram Monitor using Raspberry Pi](https://scholar.google.com/scholar_url?url=https://humentech.utm.my/index.php/humentech/article/download/78/74&hl=ru&sa=X&d=4898799593110343236&ei=YL-4ZqW_Ea-Ly9YPh_ymkAQ&scisig=AFWwaebwZwkUfHrkv5sUPMS2OJ0m&oi=scholaralrt&hist=5H-pN8UAAAAJ:8422972904888955527:AFWwaea26jtZS4RpS-GW7PCoCtkS&html=&pos=0&folt=kw)
 * [Sameer N.B. Alladin*, Dani Berry*, Evgeniya Anisimova, Ruth Judson, Poppy Whittaker and Edwin S. Dalmaijer, Children aged 5–13 years show adult-like disgust avoidance, but not proto-nausea](https://scholar.google.com/scholar_url?url=https://journals.sagepub.com/doi/pdf/10.1177/23982128241279616&hl=ru&sa=X&d=1320270410984153383&ei=a27dZtekGs2G6rQP2taY2A8&scisig=AFWwaeZQY4UeZn03iACTQNhixLhr&oi=scholaralrt&hist=5H-pN8UAAAAJ:8422972904888955527:AFWwaea26jtZS4RpS-GW7PCoCtkS&html=&pos=0&folt=kw)
+* [A. A. Jiménez-Ocaña, A. Pantoja, R. Bailón and L. F. Giraldo, "Real-Time Stress Detection Using Single-Lead ECG Signal Analysis," 2024 3rd International Congress of Biomedical Engineering and Bioengineering (CIIBBI), Cali, Colombia, 2024, pp. 1-6, doi: 10.1109/CIIBBI63846.2024.10784783.
+keywords: {Visualization;Time-frequency analysis;Signal processing algorithms;Electrocardiography;Probability;Real-time systems;Time-domain analysis;Signal analysis;Stress;Biomedical engineering;real time;stress detection;single-lead ECG;EDR;XGBoost}](https://ieeexplore.ieee.org/abstract/document/10784783)
 
 ## Posts
 
