@@ -219,10 +219,15 @@ void BioListener::read_thread ()
         package[i] = 0.0;
     }
 
+    bool first_data_packet_received = false;
+
     std::vector<int> eeg_channels = board_descr["default"]["eeg_channels"];
     std::vector<int> other_channels = board_descr["default"]["other_channels"];
+    std::vector<int> accel_channels = board_descr["auxiliary"]["accel_channels"];
+    std::vector<int> gyro_channels = board_descr["auxiliary"]["gyro_channels"];
+    int temp_channel = board_descr["auxiliary"]["temperature_channels"][0];
 
-    while (keep_alive)
+        while (keep_alive)
     {
         int bytes_recv = control_socket->recv (message, max_size);
         if (bytes_recv < 1)
@@ -240,9 +245,16 @@ void BioListener::read_thread ()
                 continue;
             }
 
+            if (!first_data_packet_received)
+            {
+                // ENHANCEMENT: can be replaced with more accurate timestamp based on ntp or similar
+                timestamp_offset = get_timestamp () - ((double)parsed_packet.ts / 1000.0);
+                first_data_packet_received = true;
+            }
+
             if (parsed_packet.type == BIOLISTENER_DATA_PACKET_BIOSIGNALS)
             {
-                package[board_descr["default"]["timestamp_channel"].get<int> ()] = parsed_packet.ts;
+                package[board_descr["default"]["timestamp_channel"].get<int> ()] = timestamp_offset + ((double)parsed_packet.ts / 1000.0);
                 package[board_descr["default"]["package_num_channel"].get<int> ()] =
                     parsed_packet.n;
                 int sensor_id = parsed_packet.s_id;
@@ -276,6 +288,26 @@ void BioListener::read_thread ()
                     }
                 }
                 push_package (package);
+            }
+            else if (parsed_packet.type == BIOLISTENER_DATA_PACKET_IMU)
+            {
+                package[board_descr["default"]["timestamp_channel"].get<int> ()] = timestamp_offset + ((double)parsed_packet.ts / 1000.0);
+                package[board_descr["default"]["package_num_channel"].get<int> ()] = parsed_packet.n;
+
+                for (int i = 0; i < 3; i++)
+                {
+                    package[accel_channels[i]] = UINT32_TO_FLOAT(parsed_packet.data[i]);
+                    package[gyro_channels[i]] = UINT32_TO_FLOAT(parsed_packet.data[i + 3]);
+                }
+
+                package[temp_channel] = UINT32_TO_FLOAT(parsed_packet.data[6]);
+                package[board_descr["auxiliary"]["battery_channel"].get<int> ()] = UINT32_TO_FLOAT(parsed_packet.data[7]);
+
+                push_package (package, (int)BrainFlowPresets::AUXILIARY_PRESET);
+            }
+            else
+            {
+                safe_logger (spdlog::level::err, "Unknown data packet type: {}", parsed_packet.type);
             }
         }
         catch (json::parse_error &e)

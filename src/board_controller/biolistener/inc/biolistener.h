@@ -25,6 +25,7 @@
 
 #define BIOLISTENER_DATA_PACKET_DEBUG 0
 #define BIOLISTENER_DATA_PACKET_BIOSIGNALS 1
+#define BIOLISTENER_DATA_PACKET_IMU 2
 
 #define BIOLISTENER_DATA_PACKET_HEADER 0xA0
 #define BIOLISTENER_DATA_PACKET_FOOTER 0xC0
@@ -34,6 +35,9 @@
 
 #define BIOLISTENER_DATA_CHANNELS_COUNT 8
 #define BIOLISTENER_DEFAULT_PGA_GAIN 8
+
+#define FLOAT_TO_UINT32(x) (*((uint32_t *)&(x)))
+#define UINT32_TO_FLOAT(x) (*((float *)&(x)))
 
 typedef struct data_packet
 {
@@ -63,6 +67,8 @@ private:
     std::condition_variable cv;
     int control_port;
     int data_port;
+
+    double timestamp_offset;
 
     std::mutex m_channels_gain;
     double channels_gain[BIOLISTENER_DATA_CHANNELS_COUNT] {0};
