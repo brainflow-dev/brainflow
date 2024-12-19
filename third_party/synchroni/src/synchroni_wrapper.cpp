@@ -446,22 +446,28 @@ int synchroni_get_data_default (void *param){
     {
         double *board_data = (double *)data;
 
-        board_data[board_descr["default"]["package_num_channel"].get<int> ()] = lastEEG.channelSamples[0][0].sampleIndex;
+        if (wrapper->deviceInfo.EEGChannelCount > 0){
+            board_data[board_descr["default"]["package_num_channel"].get<int> ()] = lastEEG.channelSamples[0][0].sampleIndex;
         
-        double timeStamp = wrapper->startStreamTimeStamp + lastEEG.channelSamples[0][0].timeStampInMs / 1000.0;
-        board_data[board_descr["default"]["timestamp_channel"].get<int> ()] = timeStamp;
-        
-        int eegStart = board_descr["default"]["eeg_channels"][0].get<int>();
-        for (int i = 0; i < lastEEG.channelCount; i++)
-        {
-            board_data[i + eegStart] = lastEEG.channelSamples[i][0].data;
+            double timeStamp = wrapper->startStreamTimeStamp + lastEEG.channelSamples[0][0].timeStampInMs / 1000.0;
+            board_data[board_descr["default"]["timestamp_channel"].get<int> ()] = timeStamp;
+
+            int eegStart = board_descr["default"]["eeg_channels"][0].get<int>();
+            for (int i = 0; i < lastEEG.channelCount; i++)
+            {
+                board_data[i + eegStart] = lastEEG.channelSamples[i][0].data;
+            }
         }
         
-        int ecgStart = board_descr["default"]["ecg_channels"][0].get<int>();
-        for (int i = 0; i < lastECG.channelCount; i++)
+        if (wrapper->deviceInfo.ECGChannelCount > 0)
         {
-            board_data[i + ecgStart] = lastECG.channelSamples[i][0].data;
+            int ecgStart = board_descr["default"]["ecg_channels"][0].get<int>();
+            for (int i = 0; i < lastECG.channelCount; i++)
+            {
+                board_data[i + ecgStart] = lastECG.channelSamples[i][0].data;
+            }
         }
+
     }
     catch (...)
     {
