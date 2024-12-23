@@ -280,6 +280,9 @@ void AntNeuroBoard::read_thread ()
                 push_package (package);
             }
             std::this_thread::sleep_for (std::chrono::milliseconds (1));
+            if (impedance_mode) {
+                std::this_thread::sleep_for (std::chrono::milliseconds (500)); // some more sleep; twice every second should be more than enough
+            }
         }
         catch (...)
         {
