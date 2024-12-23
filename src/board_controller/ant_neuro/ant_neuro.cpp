@@ -94,6 +94,7 @@ int AntNeuroBoard::prepare_session ()
             fact->getVersion ().major, fact->getVersion ().minor, fact->getVersion ().micro,
             fact->getVersion ().build);
         amp = fact->getAmplifier ();
+        impedance_mode = false;
         reference_range = amp->getReferenceRangesAvailable ()[0];
         bipolar_range = amp->getBipolarRangesAvailable ()[0];
         if (sampling_rate < 0)
