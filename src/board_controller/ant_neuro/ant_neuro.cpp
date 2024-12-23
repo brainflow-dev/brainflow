@@ -144,10 +144,10 @@ int AntNeuroBoard::start_stream (int buffer_size, const char *streamer_params)
 
     try
     {
-        if (impedance_mode) {
-            safe_logger (spdlog::level::info,
-                "start impedance stream");
-            stream = amp->OpenImpedanceStream();
+        if (impedance_mode) 
+        {
+            safe_logger (spdlog::level::info, "start impedance stream");
+            stream = amp->OpenImpedanceStream ();
         }
         else
         {
@@ -281,9 +281,10 @@ void AntNeuroBoard::read_thread ()
                 push_package (package);
             }
             std::this_thread::sleep_for (std::chrono::milliseconds (1));
-            if (impedance_mode) {
-                 // some more sleep; twice every second should be more than enough
-                 // if left out, it yields impedances at around 64 Hz
+            if (impedance_mode) 
+            {
+                // some more sleep; twice every second should be more than enough
+                // if left out, it yields impedances at around 64 Hz
                 std::this_thread::sleep_for (std::chrono::milliseconds (500));
             }
         }
@@ -406,16 +407,16 @@ int AntNeuroBoard::config_board (std::string config, std::string &response)
 
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
-    else if (config.find(mode_prefix) != std::string::npos)
+    else if (config.find (mode_prefix) != std::string::npos)
     {
         bool new_impedance_mode;
-        std::string value = config.substr(mode_prefix.size());
+        std::string value = config.substr (mode_prefix.size ());
 
         if (value == "0" || value == "1")
         {
             try
             {
-                new_impedance_mode = static_cast<bool>(std::stod(value));
+                new_impedance_mode = static_cast<bool> (std::stod (value));
             }
             catch (...)
             {
