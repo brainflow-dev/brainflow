@@ -1026,12 +1026,20 @@ Ant Neuro has many devices and all of them are supported by BrainFlow:
 - :code:`ANT_NEURO_EE_225_BOARD`
 - :code:`ANT_NEURO_EE_511_BOARD`
 
-Initialization Example:
+Initialization and EEG reading example:
 
 .. code-block:: python
 
     params = BrainFlowInputParams()
-    board = BoardShim(BoardIds.ANT_NEURO_EE_410_BOARD, params)
+    board = BoardShim(BoardIds.ANT_NEURO_EE_410_BOARD, params)  # 8 channel amplifier
+    board.prepare_session()
+    board.start_stream()
+    for i in range(3):
+        time.sleep(1)
+        data = board.get_board_data()  # get all data and remove it from internal buffer
+        print(f'{data.shape[0]} channels x {data.shape[1]} samples')
+    board.stop_stream()
+    board.release_session()
 
 Supported platforms:
 
@@ -1040,7 +1048,10 @@ Supported platforms:
 
 Available commands:
 
+- Set impedance mode: :code:`board.config_board("impedance_mode:1")`, mode 0 or 1.
 - Set sampling rate: :code:`board.config_board("sampling_rate:500")`, for available values check docs from Ant Neuro.
+- Set reference range: :code:`board.config_board("reference_range:1.0")`, for available values check docs from Ant Neuro.
+- Set bipolar range: :code:`board.config_board("bipolar_range:2.5")`, for available values check docs from Ant Neuro.
 
 For more information about Ant Neuro boards please refer to their User Manual.
 
