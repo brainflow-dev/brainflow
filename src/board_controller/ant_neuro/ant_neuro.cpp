@@ -144,7 +144,7 @@ int AntNeuroBoard::start_stream (int buffer_size, const char *streamer_params)
 
     try
     {
-        if (impedance_mode) 
+        if (impedance_mode)
         {
             safe_logger (spdlog::level::info, "start impedance stream");
             stream = amp->OpenImpedanceStream ();
@@ -281,7 +281,7 @@ void AntNeuroBoard::read_thread ()
                 push_package (package);
             }
             std::this_thread::sleep_for (std::chrono::milliseconds (1));
-            if (impedance_mode) 
+            if (impedance_mode)
             {
                 // some more sleep; twice every second should be more than enough
                 // if left out, it yields impedances at around 64 Hz
