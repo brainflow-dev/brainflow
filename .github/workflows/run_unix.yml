@@ -402,7 +402,7 @@ jobs:
         npm run bandpower_all
     # deploy started
     - name: Install AWS CLI
-      run: sudo -H python3 -m pip install awscli==1.36.*
+      run: sudo -H python3 -m pip install awscli==1.21.10
     - name: Push Libraries Linux Docker
       if: ${{ github.event_name == 'push' && matrix.os == 'ubuntu-20.04' && github.repository == 'brainflow-dev/brainflow' }}
       run: |
