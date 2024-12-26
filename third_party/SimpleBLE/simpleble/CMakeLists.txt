@@ -87,11 +87,10 @@ add_library(simpleble ${SIMPLEBLE_SRC})
 if(ANDROID)
     add_library(simpleble-c STATIC ${SIMPLEBLE_C_SRC})
 else(ANDROID)
-    add_library(simpleble-c SHARED ${SIMPLEBLE_C_SRC})
+    add_library(${SIMPLEBLE-C} SHARED ${SIMPLEBLE_C_SRC})
 endif(ANDROID)
 
 add_library(simpleble::simpleble ALIAS simpleble)
-add_library(simpleble::simpleble-c ALIAS simpleble-c)
 
 set_target_properties(simpleble PROPERTIES
     CXX_VISIBILITY_PRESET hidden
@@ -109,7 +108,7 @@ set_target_properties(simpleble PROPERTIES
     MINSIZEREL_POSTFIX "-minsizerel"
     DEBUG_POSTFIX "")
 
-set_target_properties(simpleble-c PROPERTIES
+set_target_properties(${SIMPLEBLE-C} PROPERTIES
     C_VISIBILITY_PRESET hidden
     VISIBILITY_INLINES_HIDDEN YES
     CXX_STANDARD 17
@@ -119,8 +118,6 @@ set_target_properties(simpleble-c PROPERTIES
     DEFINE_SYMBOL simpleble_EXPORTS # Use the same symbol as simpleble
     VERSION "${PROJECT_VERSION}"
     SOVERSION "${PROJECT_VERSION_MAJOR}"
-    EXPORT_NAME simpleble-c
-    OUTPUT_NAME simpleble-c
     RELEASE_POSTFIX ""
     RELWITHDEBINFO_POSTFIX "-relwithdebinfo"
     MINSIZEREL_POSTFIX "-minsizerel"
@@ -132,26 +129,26 @@ set_target_properties(simpleble-c PROPERTIES
 
 # Configure include directories
 target_include_directories(simpleble PRIVATE ${SIMPLEBLE_PRIVATE_INCLUDES})
-target_include_directories(simpleble-c PRIVATE ${SIMPLEBLE_PRIVATE_INCLUDES})
+target_include_directories(${SIMPLEBLE-C} PRIVATE ${SIMPLEBLE_PRIVATE_INCLUDES})
 
 target_include_directories(simpleble INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../external/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-target_include_directories(simpleble-c INTERFACE
+target_include_directories(${SIMPLEBLE-C} INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 target_include_directories(simpleble SYSTEM PUBLIC
     $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/export>)
 
-target_include_directories(simpleble-c SYSTEM PUBLIC
+target_include_directories(${SIMPLEBLE-C} SYSTEM PUBLIC
     $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/export>)
 
 # Configure linked libraries
 target_link_libraries(simpleble PRIVATE $<BUILD_INTERFACE:fmt::fmt-header-only>)
-target_link_libraries(simpleble-c PRIVATE $<BUILD_INTERFACE:fmt::fmt-header-only>)
-target_link_libraries(simpleble-c PRIVATE simpleble::simpleble)
+target_link_libraries(${SIMPLEBLE-C} PRIVATE $<BUILD_INTERFACE:fmt::fmt-header-only>)
+target_link_libraries(${SIMPLEBLE-C} PRIVATE simpleble::simpleble)
 
 append_sanitize_options("${SIMPLEBLE_SANITIZE}")
 
@@ -241,7 +238,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
         ${CMAKE_CURRENT_SOURCE_DIR}/src/backends/linux)
 
     set_property(TARGET simpleble PROPERTY INSTALL_RPATH $ORIGIN)
-    set_property(TARGET simpleble-c PROPERTY INSTALL_RPATH $ORIGIN)
+    set_property(TARGET ${SIMPLEBLE-C} PROPERTY INSTALL_RPATH $ORIGIN)
 
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     message(STATUS "Windows Host Detected")
@@ -292,7 +289,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin" OR CMAKE_SYSTEM_NAME STREQUAL "iOS")
         ${CMAKE_CURRENT_SOURCE_DIR}/src/backends/macos/PeripheralBaseMacOS.mm)
 
     set_property(TARGET simpleble PROPERTY INSTALL_RPATH @loader_path)
-    set_property(TARGET simpleble-c PROPERTY INSTALL_RPATH @loader_path)
+    set_property(TARGET ${SIMPLEBLE-C} PROPERTY INSTALL_RPATH @loader_path)
 
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")
     message(STATUS "Configuring for Android")
@@ -337,7 +334,7 @@ apply_build_options(simpleble
     "${PRIVATE_LINK_OPTIONS}"
     "${PUBLIC_LINK_OPTIONS}")
 
-apply_build_options(simpleble-c
+apply_build_options(${SIMPLEBLE-C}
     "${PRIVATE_COMPILE_DEFINITIONS}"
     "${PRIVATE_COMPILE_OPTIONS}"
     "${PRIVATE_LINK_OPTIONS}"
