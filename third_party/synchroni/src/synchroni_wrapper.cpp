@@ -483,7 +483,6 @@ int synchroni_release (void *param){
     SynchroniControllerDelegate::sensorControllerDelegate->boardMapMutex.lock();
     SynchroniControllerDelegate::sensorControllerDelegate->boardMap.erase(mac_address);
     SynchroniControllerDelegate::sensorControllerDelegate->boardMapMutex.unlock();
-    sensor::SensorController::destory();
     return 0;
 }
 int synchroni_config_device (void *param){
