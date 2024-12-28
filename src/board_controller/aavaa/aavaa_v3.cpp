@@ -28,8 +28,8 @@ void aavaa_adapter_1_on_scan_found (
     ((AAVAAv3 *)(board))->adapter_1_on_scan_found (adapter, peripheral);
 }
 
-void aavaa_read_notifications (simpleble_uuid_t service, simpleble_uuid_t characteristic,
-    uint8_t *data, size_t size, void *board)
+void aavaa_read_notifications (simpleble_peripheral_t handle, simpleble_uuid_t service,
+    simpleble_uuid_t characteristic, const uint8_t *data, size_t size, void *board)
 {
     ((AAVAAv3 *)(board))->read_data (service, characteristic, data, size);
 }
@@ -469,7 +469,7 @@ void AAVAAv3::adapter_1_on_scan_found (
 }
 
 void AAVAAv3::read_data (
-    simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data, size_t size)
+    simpleble_uuid_t service, simpleble_uuid_t characteristic, const uint8_t *data, size_t size)
 {
     safe_logger (spdlog::level::trace, "received {} number of bytes", size);
 

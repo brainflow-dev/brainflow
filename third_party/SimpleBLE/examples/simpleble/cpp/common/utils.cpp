@@ -3,13 +3,6 @@
 #include <iomanip>
 #include <iostream>
 
-void Utils::print_byte_array(const SimpleBLE::ByteArray& bytes) {
-    for (auto b : bytes) {
-        std::cout << std::hex << std::setfill('0') << std::setw(2) << (uint32_t)((uint8_t)b) << " ";
-    }
-    std::cout << std::endl;
-}
-
 std::optional<std::size_t> Utils::getUserInputInt(const std::string& line, std::size_t max) {
     std::size_t ret;
 

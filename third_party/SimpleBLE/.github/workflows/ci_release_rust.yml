@@ -1,0 +1,52 @@
+name: Rust Release
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: "The tag to upload artifacts"
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "The tag to upload artifacts"
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+        env:
+          TAG: ${{ inputs.tag || github.ref }}
+        with:
+          ref: ${{ env.TAG }}
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: cargo-release Cache
+        id: cargo_release_cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.cargo/bin/cargo-release
+          key: cargo-release
+
+      - run: cargo install cargo-release
+        if: steps.cargo_release_cache.outputs.cache-hit != 'true'
+
+      - name: cargo release publish
+        run: |
+          cargo login ${{ secrets.CRATES_IO_API_TOKEN }}
+          cargo release \
+            publish \
+            --workspace \
+            --all-features \
+            --allow-branch HEAD \
+            --no-confirm \
+            --no-verify \
+            --execute
+        env:
+          HAS_CRATES_IO_API_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN != '' }}
+        if: ${{ env.HAS_CRATES_IO_API_TOKEN == 'true' }}

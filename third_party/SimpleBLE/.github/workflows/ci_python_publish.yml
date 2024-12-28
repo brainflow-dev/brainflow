@@ -1,0 +1,75 @@
+name: CI Python
+
+on:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      tag:
+        description: "The tag to upload artifacts"
+        required: true
+        type: string
+
+jobs:
+  source:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: "Download Python source distribution"
+        uses: actions/download-artifact@v4
+        with:
+          name: 'simplepyble'
+          path: 'sdist'
+  
+      - name: Check source distribution
+        run: |
+          pip3 install twine
+          twine check sdist/simplepyble*.tar.gz
+
+      - name: Publish source distribution to PyPI
+        run: twine upload --skip-existing sdist/simplepyble*.tar.gz --verbose
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USER }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+
+      - name: Upload source to release
+        uses: svenstaro/upload-release-action@v2
+        if: github.event_name == 'release'
+        env:
+          TAG: ${{ inputs.tag }}
+        with:
+          file: sdist/*.tar.gz
+          tag: ${{ env.TAG }}
+          overwrite: true
+          file_glob: true
+
+  wheels:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: "Download Python Wheels"
+        uses: actions/download-artifact@v4
+        with:
+          pattern: 'simpleble-wheels-*'
+          path: 'wheels'
+          merge-multiple: true
+      
+      - name: Check Packages
+        run: |
+          pip3 install twine
+          twine check wheels/*.whl
+
+      - name: Publish packages
+        run: twine upload --skip-existing wheels/*.whl --verbose
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USER }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+
+      - name: Upload wheels to release
+        uses: svenstaro/upload-release-action@v2
+        if: github.event_name == 'release'
+        env:
+          TAG: ${{ inputs.tag }}
+        with:
+          file: wheels/*.whl
+          tag: ${{ env.TAG }}
+          overwrite: true
+          file_glob: true
+

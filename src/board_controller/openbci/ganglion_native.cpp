@@ -27,8 +27,8 @@ static void ganglion_adapter_1_on_scan_found (
     ((GanglionNative *)(board))->adapter_1_on_scan_found (adapter, peripheral);
 }
 
-static void ganglion_read_notifications (simpleble_uuid_t service, simpleble_uuid_t characteristic,
-    uint8_t *data, size_t size, void *board)
+static void ganglion_read_notifications (simpleble_peripheral_t handle, simpleble_uuid_t service,
+    simpleble_uuid_t characteristic, const uint8_t *data, size_t size, void *board)
 {
     ((GanglionNative *)(board))->read_data (service, characteristic, data, size);
 }
@@ -475,7 +475,7 @@ void GanglionNative::adapter_1_on_scan_found (
 }
 
 void GanglionNative::read_data (
-    simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data, size_t size)
+    simpleble_uuid_t service, simpleble_uuid_t characteristic, const uint8_t *data, size_t size)
 {
     if (size < 2)
     {
@@ -576,7 +576,7 @@ void GanglionNative::read_data (
     }
 }
 
-void GanglionNative::decompress_firmware_3 (uint8_t *data, double *package)
+void GanglionNative::decompress_firmware_3 (const uint8_t *data, double *package)
 {
     int bits_per_num = 0;
     unsigned char package_bits[160] = {0}; // 20 * 8
@@ -655,7 +655,7 @@ void GanglionNative::decompress_firmware_3 (uint8_t *data, double *package)
     push_package (package);
 }
 
-void GanglionNative::decompress_firmware_2 (uint8_t *data, double *package)
+void GanglionNative::decompress_firmware_2 (const uint8_t *data, double *package)
 {
     int bits_per_num = 0;
     unsigned char package_bits[160] = {0}; // 20 * 8

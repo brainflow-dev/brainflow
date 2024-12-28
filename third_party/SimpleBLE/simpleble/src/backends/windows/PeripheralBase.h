@@ -77,6 +77,8 @@ class PeripheralBase {
     void set_callback_on_connected(std::function<void()> on_connected);
     void set_callback_on_disconnected(std::function<void()> on_disconnected);
 
+    // Internal methods not exposed to the user.
+
     void update_advertising_data(advertising_data_t advertising_data);
 
   private:

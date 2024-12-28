@@ -17,10 +17,4 @@ if(NOT DBus1_FOUND)
 
     set(DBus1_FOUND ${PC_DBUS_FOUND})
 
-    # get_cmake_property(_variableNames VARIABLES)
-    # list (SORT _variableNames)
-    # foreach (_variableName ${_variableNames})
-    #     message(STATUS "${_variableName}=${${_variableName}}")
-    # endforeach()
-
 endif()

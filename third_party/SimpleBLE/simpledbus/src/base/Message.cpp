@@ -23,17 +23,9 @@ using namespace SimpleDBus;
         dbus_message_iter_close_container(&sub_iter, &entry_iter);                            \
     }
 
-std::atomic_int32_t Message::creation_counter = 0;
+std::atomic_int32_t Message::_creation_counter = 0;
 
-Message::Message() : Message(nullptr) {}
-
-Message::Message(DBusMessage* msg) : _msg(msg), _iter_initialized(false), _is_extracted(false), indent(0) {
-    if (is_valid()) {
-        _unique_id = creation_counter++;
-    } else {
-        _unique_id = -1;
-    }
-}
+Message::Message() {}
 
 Message::~Message() {
     if (is_valid()) {
@@ -41,106 +33,96 @@ Message::~Message() {
     }
 }
 
-Message::Message(Message&& other) : Message() {
-    // Move constructor: Other needs to be completely cleared.
-    // Copy all fields over directly.
-    indent = other.indent;
+Message::Message(Message&& other) noexcept
+    : _indent(other._indent),
+      _unique_id(other._unique_id),
+      _iter(std::move(other._iter)),
+      _iter_initialized(other._iter_initialized),
+      _is_extracted(other._is_extracted),
+      _extracted(std::move(other._extracted)),
+      _msg(other._msg),
+      _arguments(std::move(other._arguments)) {
+    // Move constructor: Transfer ownership of resources from 'other' to this object.
+    // After the move, 'other' will be left in a valid but unspecified state.
 
-    this->_unique_id = other._unique_id;
-    this->_iter_initialized = other._iter_initialized;
-    this->_is_extracted = other._is_extracted;
-    this->_extracted = other._extracted;
-    this->_msg = other._msg;
-    this->_iter = other._iter;
-    this->_arguments = other._arguments;
-
-    // Invalidate the old message.
+    // Invalidate the moved-from object
     other._invalidate();
 }
 
-Message::Message(const Message& other) : Message() {
-    // Copy assignment: We need a completely new message and preserve the old one.
-    // After a safe deletion, a copy only needs to be made if the other message is valid.
-    if (other.is_valid()) {
-        // Copy all fields over directly
-        indent = other.indent;
+Message::Message(const Message& other)
+    : _indent(other._indent),
+      _unique_id(_creation_counter++),
+      _is_extracted(other._is_extracted),
+      _extracted(other._extracted),
+      _arguments(other._arguments) {
+    // Copy constructor: Create a new Message as a deep copy of 'other'.
+    // If 'other' is valid, all its contents are duplicated.
 
-        this->_unique_id = creation_counter++;
-        this->_is_extracted = other._is_extracted;
-        this->_extracted = other._extracted;
-        this->_arguments = other._arguments;
-        this->_msg = dbus_message_copy(other._msg);
+    if (other._msg) {
+        _msg = dbus_message_copy(other._msg);
+        if (_msg == nullptr) {
+            throw std::runtime_error("Failed to copy DBusMessage in copy constructor");
+        }
+    } else {
+        _msg = nullptr;
     }
 }
 
-Message& Message::operator=(Message&& other) {
-    // Move assignment: Other needs to be completely cleared.
+Message& Message::operator=(Message&& other) noexcept {
+    // Move assignment operator: Transfer ownership of resources from 'other' to this object.
+    // Any existing resources in this object are safely deleted before the transfer.
+    // After the move, 'other' will be left in a valid but unspecified state.
+
     if (this != &other) {
-        _safe_delete();
-        // Copy all fields over directly.
-        indent = other.indent;
+        _safe_delete();  // Clean up existing resources
 
-        this->_unique_id = other._unique_id;
-        this->_iter_initialized = other._iter_initialized;
-        this->_is_extracted = other._is_extracted;
-        this->_extracted = other._extracted;
-        this->_msg = other._msg;
-        this->_iter = other._iter;
-        this->_arguments = other._arguments;
+        // Transfer ownership
+        _indent = other._indent;
+        _unique_id = other._unique_id;
+        _iter = other._iter;
+        _iter_initialized = other._iter_initialized;
+        _is_extracted = other._is_extracted;
+        _extracted = std::move(other._extracted);
+        _msg = other._msg;
+        _arguments = std::move(other._arguments);
 
-        // Invalidate the old message.
+        // Invalidate the moved-from object
         other._invalidate();
     }
-
     return *this;
 }
 
 Message& Message::operator=(const Message& other) {
-    // Copy assignment: We need a completely new message and preserve the old one.
-    if (this != &other) {
-        _safe_delete();
-        // After a safe deletion, a copy only needs to be made if the other message is valid.
-        if (other.is_valid()) {
-            // Copy all fields over directly
-            indent = other.indent;
+    // Copy assignment operator: Replace the contents of this Message with a deep copy of 'other'.
+    // Any existing resources in this object are safely deleted before the copy.
+    // If 'other' is valid, all its contents are duplicated.
 
-            this->_unique_id = creation_counter++;
-            this->_is_extracted = other._is_extracted;
-            this->_extracted = other._extracted;
-            this->_arguments = other._arguments;
-            this->_msg = dbus_message_copy(other._msg);
+    if (this != &other) {
+        _safe_delete();  // Clean up existing resources
+
+        _indent = other._indent;
+        _unique_id = _creation_counter++;
+        _is_extracted = other._is_extracted;
+        _extracted = other._extracted;
+        _arguments = other._arguments;
+
+        if (other._msg) {
+            _msg = dbus_message_copy(other._msg);
+            if (_msg == nullptr) {
+                throw std::runtime_error("Failed to copy DBusMessage in copy assignment");
+            }
+        } else {
+            _msg = nullptr;
         }
     }
-
     return *this;
 }
 
-void Message::_invalidate() {
-    this->_unique_id = -1;
-    this->_msg = nullptr;
-    this->_iter_initialized = false;
-    this->_is_extracted = false;
-    this->_extracted = Holder();
-
-#ifdef DBUS_MESSAGE_ITER_INIT_CLOSED
-    this->_iter = DBUS_MESSAGE_ITER_INIT_CLOSED;
-#else
-    // For older versions of DBus, DBUS_MESSAGE_ITER_INIT_CLOSED is not defined.
-    this->_iter = DBusMessageIter();
-#endif
-    this->_arguments.clear();
-}
-
-void Message::_safe_delete() {
-    if (is_valid()) {
-        dbus_message_unref(this->_msg);
-        _invalidate();
-    }
-}
+Message::operator DBusMessage*() const { return _msg; }
 
 bool Message::is_valid() const { return _msg != nullptr; }
 
-void Message::_append_argument(DBusMessageIter* iter, Holder& argument, std::string signature) {
+void Message::_append_argument(DBusMessageIter* iter, const Holder& argument, const std::string& signature) {
     switch (signature[0]) {
         case DBUS_TYPE_BYTE: {
             uint8_t value = argument.get_byte();
@@ -213,7 +195,6 @@ void Message::_append_argument(DBusMessageIter* iter, Holder& argument, std::str
             dbus_message_iter_close_container(iter, &sub_iter);
             break;
         }
-
         case DBUS_TYPE_ARRAY: {
             auto sig_next = signature.substr(1);
             DBusMessageIter sub_iter;
@@ -286,64 +267,72 @@ void Message::_append_argument(DBusMessageIter* iter, Holder& argument, std::str
     }
 }
 
-void Message::append_argument(Holder argument, std::string signature) {
+void Message::append_argument(const Holder& argument, const std::string& signature) {
     dbus_message_iter_init_append(_msg, &_iter);
     _append_argument(&_iter, argument, signature);
     _arguments.push_back(argument);
 }
 
-int32_t Message::get_unique_id() { return _unique_id; }
+uint32_t Message::get_ref_count() const {
+    // NOTE: This is a hack based on the DBusMessage structure documentation that says that
+    // the first 4 bytes of the DBusMessage structure is the ref count.
+    // https://dbus.freedesktop.org/doc/api/html/structDBusMessage.html#a324c5377e0be18dd84ac519ab2d23f0d
+    if (is_valid()) {
+        return *reinterpret_cast<uint32_t*>(this->_msg);
+    }
+    return 0;
+}
 
-uint32_t Message::get_serial() {
+int32_t Message::get_unique_id() const { return _unique_id; }
+
+uint32_t Message::get_serial() const {
     if (is_valid()) {
         return dbus_message_get_serial(_msg);
-    } else {
-        return 0;
     }
+    return 0;
 }
 
 std::string Message::get_signature() {
     if (is_valid() && _iter_initialized) {
         return dbus_message_iter_get_signature(&_iter);
-    } else {
-        return "";
     }
+    return "";
 }
 
 Message::Type Message::get_type() const {
     if (is_valid()) {
-        return (Message::Type)dbus_message_get_type(_msg);
-    } else {
-        return Message::Type::INVALID;
+        return static_cast<Message::Type>(dbus_message_get_type(_msg));
     }
+    return Message::Type::INVALID;
 }
 
-std::string Message::get_path() {
+std::string Message::get_path() const {
     if (is_valid() && (get_type() == Message::Type::SIGNAL || get_type() == Message::Type::METHOD_CALL)) {
         return dbus_message_get_path(_msg);
-    } else {
-        return "";
     }
+    return "";
 }
 
-std::string Message::get_interface() {
+std::string Message::get_interface() const {
     if (is_valid()) {
         return dbus_message_get_interface(_msg);
-    } else {
-        return "";
     }
+    return "";
 }
 
-std::string Message::get_member() {
+std::string Message::get_member() const {
     if (is_valid() && get_type() == Message::Type::METHOD_CALL) {
         return dbus_message_get_member(_msg);
-    } else {
-        return "";
     }
+    return "";
 }
 
-bool Message::is_signal(std::string interface, std::string signal_name) {
+bool Message::is_signal(const std::string& interface, const std::string& signal_name) const {
     return is_valid() && dbus_message_is_signal(_msg, interface.c_str(), signal_name.c_str());
+}
+
+bool Message::is_method_call(const std::string& interface, const std::string& method) const {
+    return get_type() == Type::METHOD_CALL && get_interface() == interface && get_member() == method;
 }
 
 static const char* type_to_name(int message_type) {
@@ -384,7 +373,7 @@ std::string Message::to_string(bool append_arguments) const {
     if (get_type() == Message::Type::METHOD_CALL && append_arguments) {
         oss << std::endl;
         oss << "Arguments: " << std::endl;
-        for (auto arg : _arguments) {
+        for (const auto& arg : _arguments) {
             oss << arg.represent();
         }
     }
@@ -435,7 +424,7 @@ Holder Message::_extract_bytearray(DBusMessageIter* iter) {
 
 Holder Message::_extract_array(DBusMessageIter* iter) {
     Holder holder_array = Holder::create_array();
-    indent += 1;
+    _indent += 1;
     int current_type = dbus_message_iter_get_arg_type(iter);
     if (current_type == DBUS_TYPE_BYTE) {
         holder_array = _extract_bytearray(iter);
@@ -448,14 +437,14 @@ Holder Message::_extract_array(DBusMessageIter* iter) {
             dbus_message_iter_next(iter);
         }
     }
-    indent -= 1;
+    _indent -= 1;
     return holder_array;
 }
 
 Holder Message::_extract_dict(DBusMessageIter* iter) {
     bool holder_initialized = false;
     Holder holder_dict;
-    indent += 1;
+    _indent += 1;
     int current_type;
 
     // Loop through all dictionary entries.
@@ -478,89 +467,73 @@ Holder Message::_extract_dict(DBusMessageIter* iter) {
         holder_dict.dict_append(key.type(), key.get_contents(), value);
         dbus_message_iter_next(iter);
     }
-    indent -= 1;
+    _indent -= 1;
     return holder_dict;
 }
 
 Holder Message::_extract_generic(DBusMessageIter* iter) {
     int current_type = dbus_message_iter_get_arg_type(iter);
     if (current_type != DBUS_TYPE_INVALID) {
-        // for (int i = 0; i < indent; i++) {
-        //     std::cout << '\t';
-        // }
-        // std::cout << "Type: " << (char)current_type << std::endl;
         switch (current_type) {
             case DBUS_TYPE_BYTE: {
                 uint8_t contents;
                 dbus_message_iter_get_basic(iter, &contents);
                 return Holder::create_byte(contents);
-                break;
             }
             case DBUS_TYPE_BOOLEAN: {
                 bool contents;
                 dbus_message_iter_get_basic(iter, &contents);
                 return Holder::create_boolean(contents);
-                break;
             }
             case DBUS_TYPE_INT16: {
                 int16_t contents;
                 dbus_message_iter_get_basic(iter, &contents);
                 return Holder::create_int16(contents);
-                break;
             }
             case DBUS_TYPE_UINT16: {
                 uint16_t contents;
                 dbus_message_iter_get_basic(iter, &contents);
                 return Holder::create_uint16(contents);
-                break;
             }
             case DBUS_TYPE_INT32: {
                 int32_t contents;
                 dbus_message_iter_get_basic(iter, &contents);
                 return Holder::create_int32(contents);
-                break;
             }
             case DBUS_TYPE_UINT32: {
                 uint32_t contents;
                 dbus_message_iter_get_basic(iter, &contents);
                 return Holder::create_uint32(contents);
-                break;
             }
             case DBUS_TYPE_INT64: {
                 int64_t contents;
                 dbus_message_iter_get_basic(iter, &contents);
                 return Holder::create_int64(contents);
-                break;
             }
             case DBUS_TYPE_UINT64: {
                 uint64_t contents;
                 dbus_message_iter_get_basic(iter, &contents);
                 return Holder::create_uint64(contents);
-                break;
             }
             case DBUS_TYPE_DOUBLE: {
                 double contents;
                 dbus_message_iter_get_basic(iter, &contents);
                 return Holder::create_double(contents);
-                break;
             }
             case DBUS_TYPE_STRING: {
                 char* contents;
                 dbus_message_iter_get_basic(iter, &contents);
                 return Holder::create_string(contents);
-                break;
             }
             case DBUS_TYPE_OBJECT_PATH: {
                 char* contents;
                 dbus_message_iter_get_basic(iter, &contents);
                 return Holder::create_object_path(contents);
-                break;
             }
             case DBUS_TYPE_SIGNATURE: {
                 char* contents;
                 dbus_message_iter_get_basic(iter, &contents);
                 return Holder::create_signature(contents);
-                break;
             }
             case DBUS_TYPE_ARRAY: {
                 DBusMessageIter sub;
@@ -571,28 +544,79 @@ Holder Message::_extract_generic(DBusMessageIter* iter) {
                 } else {
                     return _extract_array(&sub);
                 }
-                break;
             }
             case DBUS_TYPE_VARIANT: {
                 DBusMessageIter sub;
                 dbus_message_iter_recurse(iter, &sub);
-                indent += 1;
+                _indent += 1;
                 Holder h = _extract_generic(&sub);
-                indent -= 1;
+                _indent -= 1;
                 return h;
-                break;
             }
         }
     }
     return Holder();
 }
 
-Message Message::create_method_call(std::string bus_name, std::string path, std::string interface, std::string method) {
-    return Message(dbus_message_new_method_call(bus_name.c_str(), path.c_str(), interface.c_str(), method.c_str()));
+Message Message::from_retained(DBusMessage* msg) {
+    Message message;
+    if (msg) {
+        dbus_message_ref(msg);
+        message._msg = msg;
+        message._unique_id = _creation_counter++;
+    }
+    return message;
 }
 
-Message Message::create_method_return(const Message& msg) { return Message(dbus_message_new_method_return(msg._msg)); }
+Message Message::from_acquired(DBusMessage* msg) {
+    Message message;
+    if (msg) {
+        message._msg = msg;
+        message._unique_id = _creation_counter++;
+    }
+    return message;
+}
 
-Message Message::create_error(const Message& msg, std::string error_name, std::string error_message) {
-    return Message(dbus_message_new_error(msg._msg, error_name.c_str(), error_message.c_str()));
+Message Message::create_method_call(const std::string& bus_name, const std::string& path, const std::string& interface,
+                                    const std::string& method) {
+    DBusMessage* msg = dbus_message_new_method_call(bus_name.c_str(), path.c_str(), interface.c_str(), method.c_str());
+    return Message::from_acquired(msg);
+}
+
+Message Message::create_method_return(const Message& msg) {
+    DBusMessage* msg_return = dbus_message_new_method_return(msg._msg);
+    return Message::from_acquired(msg_return);
+}
+
+Message Message::create_error(const Message& msg, const std::string& error_name, const std::string& error_message) {
+    DBusMessage* msg_error = dbus_message_new_error(msg._msg, error_name.c_str(), error_message.c_str());
+    return Message::from_acquired(msg_error);
+}
+
+Message Message::create_signal(const std::string& path, const std::string& interface, const std::string& signal) {
+    DBusMessage* msg_signal = dbus_message_new_signal(path.c_str(), interface.c_str(), signal.c_str());
+    return Message::from_acquired(msg_signal);
+}
+
+void Message::_invalidate() {
+    _unique_id = INVALID_UNIQUE_ID;
+    _msg = nullptr;
+    _iter_initialized = false;
+    _is_extracted = false;
+    _extracted = Holder();
+
+#ifdef DBUS_MESSAGE_ITER_INIT_CLOSED
+    _iter = DBUS_MESSAGE_ITER_INIT_CLOSED;
+#else
+    // For older versions of DBus, DBUS_MESSAGE_ITER_INIT_CLOSED is not defined.
+    _iter = DBusMessageIter();
+#endif
+    _arguments.clear();
+}
+
+void Message::_safe_delete() {
+    if (is_valid()) {
+        dbus_message_unref(this->_msg);
+        _invalidate();
+    }
 }

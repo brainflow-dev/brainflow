@@ -1,0 +1,72 @@
+name: CI Python
+
+on:
+  workflow_dispatch:
+  workflow_call:  # This allows it to be called from ci_main.yml
+
+jobs:
+  tests:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r simplepyble/requirements.txt
+
+      - name: Install SimplePyBLE with Plain flavor
+        run: python setup.py install --plain
+
+      - name: Run PyTest
+        run: pytest
+        working-directory: ./simplepyble/test
+
+  sdist:
+    runs-on: ubuntu-22.04
+    needs: tests
+
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+          cache: "pip"
+
+      - name: Build source distribution
+        run: |
+            pip3 install build twine
+            python3 -m build --sdist
+
+      - name: Upload files
+        uses: actions/upload-artifact@v4
+        with:
+          name: simplepyble
+          path: dist/*.tar.gz
+
+      - name: Check source distribution
+        run: twine check dist/*.tar.gz
+
+      - name: Publish source distribution
+        if: ${{ env.HAS_TWINE_USERNAME == 'true' }}
+        run: |
+          twine upload --repository testpypi --skip-existing dist/*.tar.gz --verbose
+        env:
+          HAS_TWINE_USERNAME: ${{ secrets.TEST_PYPI_USER != '' }}
+          TWINE_USERNAME: ${{ secrets.TEST_PYPI_USER }}
+          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_PASSWORD }}

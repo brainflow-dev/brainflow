@@ -1,0 +1,210 @@
+name: CI Linux
+
+on:
+  workflow_dispatch:
+  workflow_call:  # This allows it to be called from ci_main.yml
+    inputs:
+      libraries:
+        description: "Build libraries"
+        type: string
+        default: '["simpledbus","simplebluez","simpleble"]'
+        required: false
+
+jobs:
+  tests:
+    runs-on: ubuntu-22.04
+    steps:
+    - name: Clone Repository
+      uses: actions/checkout@v4
+    - name: Install Dependencies
+      env:
+          DEBIAN_FRONTEND: noninteractive
+      run: |
+        sudo -H apt-get update -y
+        sudo -H apt-get install -y dbus libdbus-1-dev python3-dev
+        sudo -H pip3 install -r $GITHUB_WORKSPACE/simpledbus/test/requirements.txt
+        echo "Runing for libraries: ${{ inputs.libraries }}"
+    - name: Setup cmake
+      uses: ./.github/actions/setup-cmake
+
+    - name: Setup gtest
+      uses: ./.github/actions/setup-gtest
+
+    - name: Start DBus
+      run: |
+        echo "DBUS_SESSION_BUS_ADDRESS=$(dbus-daemon --config-file=/usr/share/dbus-1/session.conf --print-address --fork | cut -d, -f1)" >> $GITHUB_ENV
+
+    - name: SimpleDBus Unit Tests
+      if: contains(inputs.libraries, 'simpledbus')
+      run: |
+        cmake -B $GITHUB_WORKSPACE/build_unit_simpledbus -DCMAKE_BUILD_TYPE=Release -DGTEST_ROOT=$GITHUB_WORKSPACE/googletest/install -S $GITHUB_WORKSPACE/simpledbus -DSIMPLEDBUS_TEST=ON
+        cmake --build $GITHUB_WORKSPACE/build_unit_simpledbus --config Release --parallel 4
+        $GITHUB_WORKSPACE/build_unit_simpledbus/bin/simpledbus_test
+    - name: SimpleDBus Unit Tests with Address Sanitizer
+      if: contains(inputs.libraries, 'simpledbus')
+      run: |
+        cmake -B $GITHUB_WORKSPACE/build_asan_simpledbus -DCMAKE_BUILD_TYPE=Debug -DSIMPLEDBUS_SANITIZE=Address -DGTEST_ROOT=$GITHUB_WORKSPACE/googletest/install -S $GITHUB_WORKSPACE/simpledbus -DSIMPLEDBUS_TEST=ON
+        cmake --build $GITHUB_WORKSPACE/build_asan_simpledbus --config Release --parallel 4
+        PYTHONMALLOC=malloc $GITHUB_WORKSPACE/build_asan_simpledbus/bin/simpledbus_test
+        cp "$(ls asan_log.txt.* | head -1)" asan_log.txt || true
+        (test ! -f asan_log.txt && echo "No ASAN log found") || (cat asan_log.txt && exit 1)
+    - name: SimpleDBus Unit Tests with Thread Sanitizer
+      if: contains(inputs.libraries, 'simpledbus')
+      run: |
+        cmake -B $GITHUB_WORKSPACE/build_tsan_simpledbus -DCMAKE_BUILD_TYPE=Debug -DSIMPLEDBUS_SANITIZE=Thread -DGTEST_ROOT=$GITHUB_WORKSPACE/googletest/install -S $GITHUB_WORKSPACE/simpledbus -DSIMPLEDBUS_TEST=ON
+        cmake --build $GITHUB_WORKSPACE/build_tsan_simpledbus --config Release --parallel 4
+        $GITHUB_WORKSPACE/build_tsan_simpledbus/bin/simpledbus_test
+        cp "$(ls tsan_log.txt.* | head -1)" tsan_log.txt || true
+        (test ! -f tsan_log.txt && echo "No TSAN log found") || (cat tsan_log.txt && exit 1)
+    
+    - name: SimpleBluez Unit Tests
+      if: contains(inputs.libraries, 'simplebluez')
+      run: |
+        cmake -B $GITHUB_WORKSPACE/build_unit_simplebluez -DCMAKE_BUILD_TYPE=Release -DGTEST_ROOT=$GITHUB_WORKSPACE/googletest/install -S $GITHUB_WORKSPACE/simplebluez -DSIMPLEBLUEZ_TEST=ON
+        cmake --build $GITHUB_WORKSPACE/build_unit_simplebluez --config Release --parallel 4
+        $GITHUB_WORKSPACE/build_unit_simplebluez/bin/simplebluez_test
+    - name: SimpleBluez Unit Tests with Address Sanitizer
+      if: contains(inputs.libraries, 'simplebluez')
+      run: |
+        cmake -B $GITHUB_WORKSPACE/build_asan_simplebluez -DCMAKE_BUILD_TYPE=Debug -DSIMPLEBLUEZ_SANITIZE=Address -DGTEST_ROOT=$GITHUB_WORKSPACE/googletest/install -S $GITHUB_WORKSPACE/simplebluez -DSIMPLEBLUEZ_TEST=ON
+        cmake --build $GITHUB_WORKSPACE/build_asan_simplebluez --config Release --parallel 4
+        PYTHONMALLOC=malloc $GITHUB_WORKSPACE/build_asan_simplebluez/bin/simplebluez_test
+        cp "$(ls asan_log.txt.* | head -1)" asan_log.txt || true
+        (test ! -f asan_log.txt && echo "No ASAN log found") || (cat asan_log.txt && exit 1)
+    - name: SimpleBluez Unit Tests with Thread Sanitizer
+      if: contains(inputs.libraries, 'simplebluez')
+      run: |
+        cmake -B $GITHUB_WORKSPACE/build_tsan_simplebluez -DCMAKE_BUILD_TYPE=Debug -DSIMPLEBLUEZ_SANITIZE=Thread -DGTEST_ROOT=$GITHUB_WORKSPACE/googletest/install -S $GITHUB_WORKSPACE/simplebluez -DSIMPLEBLUEZ_TEST=ON
+        cmake --build $GITHUB_WORKSPACE/build_tsan_simplebluez --config Release --parallel 4
+        $GITHUB_WORKSPACE/build_tsan_simplebluez/bin/simplebluez_test
+        cp "$(ls tsan_log.txt.* | head -1)" tsan_log.txt || true
+        (test ! -f tsan_log.txt && echo "No TSAN log found") || (cat tsan_log.txt && exit 1)
+
+    - name: SimpleBLE Unit Tests
+      if: contains(inputs.libraries, 'simpleble')
+      run: |
+        cmake -B $GITHUB_WORKSPACE/build_unit_simpleble -DCMAKE_BUILD_TYPE=Release -DGTEST_ROOT=$GITHUB_WORKSPACE/googletest/install -S $GITHUB_WORKSPACE/simpleble -DSIMPLEBLE_TEST=ON
+        cmake --build $GITHUB_WORKSPACE/build_unit_simpleble --config Release --parallel 4
+        $GITHUB_WORKSPACE/build_unit_simpleble/bin/simpleble_test
+
+
+  examples:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Clone Repository
+      uses: actions/checkout@v4
+    - name: Install Dependencies
+      run: |
+        sudo -H apt-get update -y
+        sudo -H apt-get install -y libdbus-1-dev
+      env:
+        DEBIAN_FRONTEND: noninteractive
+    - name: Setup cmake
+      uses: ./.github/actions/setup-cmake
+    - name:  Compile SimpleDBus Examples for Ubuntu
+      if: contains(inputs.libraries, 'simpledbus')
+      run: |
+        cmake -B $GITHUB_WORKSPACE/build_simpledbus_examples -DCMAKE_BUILD_TYPE=Release -S $GITHUB_WORKSPACE/examples/simpledbus
+        cmake --build $GITHUB_WORKSPACE/build_simpledbus_examples --config Release --parallel 4
+    - name:  Compile SimpleBluez Examples for Ubuntu
+      if: contains(inputs.libraries, 'simplebluez')
+      run: |
+        cmake -B $GITHUB_WORKSPACE/build_simplebluez_examples -DCMAKE_BUILD_TYPE=Release -S $GITHUB_WORKSPACE/examples/simplebluez
+        cmake --build $GITHUB_WORKSPACE/build_simplebluez_examples --config Release --parallel 4
+    - name:  Compile SimpleBLE Examples for Ubuntu
+      if: contains(inputs.libraries, 'simpleble')
+      run: |
+        cmake -B $GITHUB_WORKSPACE/build_simpleble_examples -DCMAKE_BUILD_TYPE=Release -S $GITHUB_WORKSPACE/examples/simpleble
+        cmake --build $GITHUB_WORKSPACE/build_simpleble_examples --config Release --parallel 4
+
+  build:
+    runs-on: ubuntu-22.04
+    needs: [tests, examples]
+
+    # Skip the job if input is empty. If not there is an error building the matrix and depending jobs will not run:
+    # 'Error when evaluating 'strategy' for job 'build'. Matrix vector 'library' does not contain any values'
+    if: ${{ inputs.libraries != '[]' && inputs.libraries != '' }}
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        # For testing purposes only static libraries are built to reduce run time.
+        # In release workflow all combinations are build.
+        options: [
+          {container: dockcross/linux-x64, target: linux-x64},
+          {container: dockcross/linux-x86, target: linux-x86},
+          {container: dockcross/linux-armv6-lts, target: linux-armv6},
+        ]
+        library: ${{ fromJSON(inputs.libraries) }}
+        type: [static] 
+
+    container:
+      image: ${{ matrix.options.container }}
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Build DBus
+        uses: ./.github/actions/build-dbus
+        with:
+          os: ${{ runner.os }}
+          arch: ${{ matrix.options.target }}
+
+      - name: Build ${{ matrix.library.name }}
+        run: |
+          GITHUB_WORKSPACE=$(pwd)
+
+          if [ "${{ matrix.type }}" == "shared" ]; then
+            BUILD_SHARED_LIBS=ON
+          else
+            BUILD_SHARED_LIBS=OFF
+          fi
+
+          export CMAKE_PREFIX_PATH=/tmp/dbus/install:$CMAKE_PREFIX_PATH
+
+          cmake -B $GITHUB_WORKSPACE/build_${{ matrix.library }} -DCMAKE_BUILD_TYPE=Release -S $GITHUB_WORKSPACE/${{ matrix.library }} -DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS
+          cmake --build $GITHUB_WORKSPACE/build_${{ matrix.library }} --config Release --parallel 4
+          cmake --install $GITHUB_WORKSPACE/build_${{ matrix.library }} --prefix $GITHUB_WORKSPACE/build_${{ matrix.library }}/install
+
+          mkdir -p $GITHUB_WORKSPACE/artifacts
+          zip -r $GITHUB_WORKSPACE/artifacts/${{ matrix.library }}_${{ matrix.type }}_${{ matrix.options.target }}.zip $GITHUB_WORKSPACE/build_${{ matrix.library }}/install
+
+      - name: Upload binaries to job
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.library }}_${{ matrix.type }}_${{ matrix.options.target }}
+          path: artifacts/${{ matrix.library }}_${{ matrix.type }}_${{ matrix.options.target }}.zip
+
+  python:
+    needs: [tests, examples]
+    uses: ./.github/workflows/ci_wheels.yml
+    secrets: inherit
+    with:
+      os: ubuntu-22.04
+
+  rust:
+    runs-on: ${{ matrix.os }}
+    needs: [tests, examples]
+
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        os: [ubuntu-20.04, ubuntu-22.04]
+
+    steps:
+    - name: Clone Repository
+      uses: actions/checkout@v4
+    - name: Install Dependencies
+      run: |
+        sudo -H apt-get update -y
+        sudo -H apt-get install -y libdbus-1-dev
+      env:
+        DEBIAN_FRONTEND: noninteractive
+    - name: Setup cmake
+      uses: ./.github/actions/setup-cmake
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+    - name: Compile SimpleBLE
+      run: cargo build

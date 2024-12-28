@@ -1,11 +1,14 @@
-======================
+Extras
+======
+
 Building documentation
-======================
+----------------------
+
 
 To build documentation for the projects in this repository,
 you first need to install Sphynx, using the following commands: ::
 
-   pip3 install sphinx sphinx_rtd_theme
+   pip3 install -r docs/requirements.txt
 
 Once all dependencies have been installed, HTML documentation can be built
 by calling the following commands: ::
@@ -13,19 +16,25 @@ by calling the following commands: ::
    cd <path-to-repository>/docs
    make html
 
-
-=================
 Release checklist
-=================
+-----------------
 
 Before releasing a new version of the project, the following steps should be
 performed:
 
+#. Ensure content parity between all readmes and the documentation.
+
+   - ``README.rst``
+   - ``LICENSE.md``
+   - ``simplepyble/README.rst``
+   - ``simplersble/README.md``
+
 #. Review/update the version number in the following files:
 
    - ``VERSION``
+   - ``Cargo.toml``
    - ``docs/changelog.rst``
-   - ``simplepyble/setup.py``
+   - ``setup.py``
 
 #. Commit the changes to the repository.
 
@@ -35,10 +44,10 @@ performed:
 
 #. Create a new release on GitHub.
 
-#. Run the CI job to build and upload the package to PyPI.
+#. Wait for ci_release.yml to finish.
 
 #. Advance the version number in the following files:
 
    - ``VERSION``
+   - ``Cargo.toml``
    - ``docs/changelog.rst``
-   - ``simplepyble/setup.py``

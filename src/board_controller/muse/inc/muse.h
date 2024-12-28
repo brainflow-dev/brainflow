@@ -42,14 +42,14 @@ public:
     int config_board (std::string config);
 
     void adapter_on_scan_found (simpleble_adapter_t adapter, simpleble_peripheral_t peripheral);
-    void peripheral_on_eeg (simpleble_uuid_t service, simpleble_uuid_t characteristic,
-        uint8_t *data, size_t size, size_t channel_num);
-    void peripheral_on_ppg (simpleble_uuid_t service, simpleble_uuid_t characteristic,
-        uint8_t *data, size_t size, size_t ppg_num);
-    void peripheral_on_accel (
-        simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data, size_t size);
-    void peripheral_on_gyro (
-        simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data, size_t size);
-    void peripheral_on_status (
-        simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data, size_t size);
+    void peripheral_on_eeg (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
+        simpleble_uuid_t characteristic, const uint8_t *data, size_t size, size_t channel_num);
+    void peripheral_on_ppg (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
+        simpleble_uuid_t characteristic, const uint8_t *data, size_t size, size_t ppg_num);
+    void peripheral_on_accel (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
+        simpleble_uuid_t characteristic, const uint8_t *data, size_t size);
+    void peripheral_on_gyro (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
+        simpleble_uuid_t characteristic, const uint8_t *data, size_t size);
+    void peripheral_on_status (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
+        simpleble_uuid_t characteristic, const uint8_t *data, size_t size);
 };
