@@ -257,6 +257,16 @@ void BioListener::read_thread ()
                 package[board_descr["default"]["timestamp_channel"].get<int> ()] = timestamp_offset + ((double)parsed_packet.ts / 1000.0);
                 package[board_descr["default"]["package_num_channel"].get<int> ()] =
                     parsed_packet.n;
+
+                static uint32_t package_num_channel_last = parsed_packet.n - 1;
+
+                if (package_num_channel_last + 1 != parsed_packet.n)
+                {
+                    safe_logger (spdlog::level::err, "Package num mismatch BIOLISTENER_DATA_PACKET_BIOSIGNALS! Lost: {} packets", parsed_packet.n - package_num_channel_last + 1);
+                }
+
+                package_num_channel_last = parsed_packet.n;
+
                 int sensor_id = parsed_packet.s_id;
 
                 for (int i = 0; i < BIOLISTENER_DATA_CHANNELS_COUNT; i++)
@@ -293,6 +303,15 @@ void BioListener::read_thread ()
             {
                 package[board_descr["default"]["timestamp_channel"].get<int> ()] = timestamp_offset + ((double)parsed_packet.ts / 1000.0);
                 package[board_descr["default"]["package_num_channel"].get<int> ()] = parsed_packet.n;
+
+                static uint32_t package_num_channel_last = parsed_packet.n - 1;
+
+                if (package_num_channel_last + 1 != parsed_packet.n)
+                {
+                    safe_logger (spdlog::level::err, "Package num mismatch BIOLISTENER_DATA_PACKET_IMU! Lost: {} packets", parsed_packet.n - package_num_channel_last + 1);
+                }
+
+                package_num_channel_last = parsed_packet.n;
 
                 for (int i = 0; i < 3; i++)
                 {
@@ -339,7 +358,7 @@ int BioListener::create_control_connection ()
     int res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     for (int i = 0; i < 39; i += 2)
     {
-        control_port = DEFAULT_CONTROL_PORT + i;
+        control_port = params.ip_port + i;
         control_socket = new SocketServerTCP (local_ip, control_port, true);
         if (control_socket->bind () == ((int)SocketServerTCPReturnCodes::STATUS_OK))
         {

@@ -12,7 +12,6 @@
 #include "socket_server_tcp.h"
 #include "socket_server_udp.h"
 
-#define DEFAULT_CONTROL_PORT 12345
 #define PACKET_DELIMITER_CSV '\n'
 
 #define BIOLISTENER_COMMAND_UNDEFINED 0
