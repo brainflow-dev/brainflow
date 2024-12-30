@@ -85,6 +85,7 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ntl/ntl_wifi.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/aavaa/aavaa_v3.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/pieeg/pieeg_board.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/synchroni/synchroni_board.cpp
 )
 
 include (${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ant_neuro/build.cmake)
@@ -96,6 +97,10 @@ include (${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/neuromd/build.cmake)
 if (BUILD_OYMOTION_SDK)
     include (${CMAKE_CURRENT_SOURCE_DIR}/third_party/gForceSDKCXX/build.cmake)
 endif (BUILD_OYMOTION_SDK)
+
+if (BUILD_SYNCHRONI_SDK)
+    include (${CMAKE_CURRENT_SOURCE_DIR}/third_party/synchroni/build.cmake)
+endif (BUILD_SYNCHRONI_SDK)
 
 if (BUILD_BLUETOOTH)
     include (${CMAKE_CURRENT_SOURCE_DIR}/src/utils/bluetooth/build.cmake)
@@ -142,6 +147,7 @@ target_include_directories (
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ntl/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/aavaa/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/pieeg/inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/synchroni/inc
 )
 
 target_compile_definitions(${BOARD_CONTROLLER_NAME} PRIVATE NOMINMAX BRAINFLOW_VERSION=${BRAINFLOW_VERSION})
@@ -201,7 +207,7 @@ if (UNIX AND NOT ANDROID)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${BOARD_CONTROLLER_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/python_package/brainflow/lib/${BOARD_CONTROLLER_COMPILED_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${BOARD_CONTROLLER_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/julia_package/brainflow/lib/${BOARD_CONTROLLER_COMPILED_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${BOARD_CONTROLLER_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/java_package/brainflow/src/main/resources/${BOARD_CONTROLLER_COMPILED_NAME}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${BOARD_CONTROLLER_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/csharp_package/brainflow/brainflow/${BOARD_CONTROLLER_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${BOARD_CONTROLLER_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/csharp_package/brainflow/brainflow/lib/${BOARD_CONTROLLER_COMPILED_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/inc/board_controller.h" "${CMAKE_CURRENT_SOURCE_DIR}/matlab_package/brainflow/inc/board_controller.h"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/inc/board_info_getter.h" "${CMAKE_CURRENT_SOURCE_DIR}/matlab_package/brainflow/inc/board_info_getter.h"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/src/utils/inc/shared_export_matlab.h" "${CMAKE_CURRENT_SOURCE_DIR}/matlab_package/brainflow/inc/shared_export.h"

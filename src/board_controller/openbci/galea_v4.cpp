@@ -408,10 +408,12 @@ void GaleaV4::read_thread ()
             // calc delta between PC timestamp and device timestamp in last 10 packages,
             // use this delta later on to assign timestamps
             double pc_timestamp = get_timestamp ();
-            double timestamp_last_package = 0.0;
-            memcpy (&timestamp_last_package, b + 88 + offset_last_package, 8);
-            timestamp_last_package /= 1000; // from ms to seconds
-            double time_delta = pc_timestamp - timestamp_last_package;
+            unsigned long long timestamp_last_package = 0.0;
+            memcpy (&timestamp_last_package, b + 88 + offset_last_package,
+                sizeof (unsigned long long)); // microseconds
+            double timestamp_last_package_converted =
+                static_cast<double> (timestamp_last_package) / 1000000.0; // convert to seconds
+            double time_delta = pc_timestamp - timestamp_last_package_converted;
             time_buffer.add_data (&time_delta);
             int num_time_deltas = (int)time_buffer.get_current_data (10, latest_times);
             time_delta = 0.0;
@@ -447,23 +449,29 @@ void GaleaV4::read_thread ()
                     exg_package[i - 3] =
                         exg_scale * (double)cast_24bit_to_int32 (b + offset + 5 + 3 * (i - 4));
                 }
-                double timestamp_device = 0.0;
-                memcpy (&timestamp_device, b + 88 + offset, 8);
-                timestamp_device /= 1000; // from ms to seconds
+                unsigned long long timestamp_device = 0.0;
+                memcpy (&timestamp_device, b + 88 + offset,
+                    sizeof (unsigned long long)); // reports microseconds
+
+                double timestamp_device_converted = static_cast<double> (timestamp_device);
+                timestamp_device_converted /= 1000000.0; // convert to seconds
 
                 exg_package[board_descr["default"]["timestamp_channel"].get<int> ()] =
-                    timestamp_device + time_delta - half_rtt;
+                    timestamp_device_converted + time_delta - half_rtt;
                 exg_package[board_descr["default"]["other_channels"][0].get<int> ()] = pc_timestamp;
                 exg_package[board_descr["default"]["other_channels"][1].get<int> ()] =
-                    timestamp_device;
+                    timestamp_device_converted;
                 push_package (exg_package);
 
                 // aux, 5 times smaller sampling rate
                 if (((int)b[0 + offset]) % 5 == 0)
                 {
-                    double accel_scale = (double)(0.002 / (pow (2, 4)));
-                    double gyro_scale = (double)(0.002 / (pow (2, 4)));         // to be confirmed
-                    double magnetometer_scale = (double)(0.002 / (pow (2, 4))); // to be confirmed
+                    double accel_scale = (double)(8.0 / static_cast<double> (pow (2, 16) - 1));
+                    double gyro_scale = (double)(1000.0 / static_cast<double> (pow (2, 16) - 1));
+                    double magnetometer_scale_xy =
+                        (double)(2.6 / static_cast<double> (pow (2, 13) - 1));
+                    double magnetometer_scale_z =
+                        (double)(5.0 / static_cast<double> (pow (2, 15) - 1));
                     aux_package[board_descr["auxiliary"]["package_num_channel"].get<int> ()] =
                         (double)b[0 + offset];
                     uint16_t temperature = 0;
@@ -496,25 +504,28 @@ void GaleaV4::read_thread ()
                         timestamp_device;
                     // accel
                     aux_package[board_descr["auxiliary"]["accel_channels"][0].get<int> ()] =
-                        accel_scale * cast_16bit_to_int32 (b + 96 + offset);
+                        accel_scale * (double)cast_16bit_to_int32_swap_order (b + 96 + offset);
                     aux_package[board_descr["auxiliary"]["accel_channels"][1].get<int> ()] =
-                        accel_scale * cast_16bit_to_int32 (b + 98 + offset);
+                        accel_scale * (double)cast_16bit_to_int32_swap_order (b + 98 + offset);
                     aux_package[board_descr["auxiliary"]["accel_channels"][2].get<int> ()] =
-                        accel_scale * cast_16bit_to_int32 (b + 100 + offset);
+                        accel_scale * (double)cast_16bit_to_int32_swap_order (b + 100 + offset);
                     // gyro
                     aux_package[board_descr["auxiliary"]["gyro_channels"][0].get<int> ()] =
-                        gyro_scale * cast_16bit_to_int32 (b + 102 + offset);
+                        gyro_scale * (double)cast_16bit_to_int32_swap_order (b + 102 + offset);
                     aux_package[board_descr["auxiliary"]["gyro_channels"][1].get<int> ()] =
-                        gyro_scale * cast_16bit_to_int32 (b + 104 + offset);
+                        gyro_scale * (double)cast_16bit_to_int32_swap_order (b + 104 + offset);
                     aux_package[board_descr["auxiliary"]["gyro_channels"][2].get<int> ()] =
-                        gyro_scale * cast_16bit_to_int32 (b + 106 + offset);
+                        gyro_scale * (double)cast_16bit_to_int32_swap_order (b + 106 + offset);
                     // magnetometer
                     aux_package[board_descr["auxiliary"]["magnetometer_channels"][0].get<int> ()] =
-                        magnetometer_scale * cast_16bit_to_int32 (b + 108 + offset);
+                        magnetometer_scale_xy *
+                        (double)cast_13bit_to_int32_swap_order (b + 108 + offset);
                     aux_package[board_descr["auxiliary"]["magnetometer_channels"][1].get<int> ()] =
-                        magnetometer_scale * cast_16bit_to_int32 (b + 110 + offset);
+                        magnetometer_scale_xy *
+                        (double)cast_13bit_to_int32_swap_order (b + 110 + offset);
                     aux_package[board_descr["auxiliary"]["magnetometer_channels"][2].get<int> ()] =
-                        magnetometer_scale * cast_16bit_to_int32 (b + 112 + offset);
+                        magnetometer_scale_z *
+                        (double)cast_15bit_to_int32_swap_order (b + 112 + offset);
 
                     push_package (aux_package, (int)BrainFlowPresets::AUXILIARY_PRESET);
                 }

@@ -52,6 +52,7 @@
 #include "pieeg_board.h"
 #include "playback_file_board.h"
 #include "streaming_board.h"
+#include "synchroni_board.h"
 #include "synthetic_board.h"
 #include "unicorn_board.h"
 
@@ -280,6 +281,18 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
             break;
         case BoardIds::PIEEG_BOARD:
             board = std::shared_ptr<Board> (new PIEEGBoard (board_id, params));
+            break;
+        case BoardIds::SYNCHRONI_UNO_BOARD:
+            board = std::shared_ptr<Board> (new SynchroniBoard (board_id, params));
+            break;
+        case BoardIds::SYNCHRONI_TRIO_BOARD:
+            board = std::shared_ptr<Board> (new SynchroniBoard (board_id, params));
+            break;
+        case BoardIds::SYNCHRONI_OCTO_BOARD:
+            board = std::shared_ptr<Board> (new SynchroniBoard (board_id, params));
+            break;
+        case BoardIds::SYNCHRONI_NEO_BOARD:
+            board = std::shared_ptr<Board> (new SynchroniBoard (board_id, params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

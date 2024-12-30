@@ -10,8 +10,8 @@ class BrainAlive : public BLELibBoard
 {
 
 private:
-    int software_gain = 0;
-    int hardware_gain = 0;
+    int internal_gain = 0;
+    int external_gain = 0;
     int reference_voltage = 0;
 
 public:
@@ -28,32 +28,32 @@ public:
     void adapter_1_on_scan_found (simpleble_adapter_t adapter, simpleble_peripheral_t peripheral);
     void read_data (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
         size_t size, int channel_num);
-    void setSoftwareGain (int gain)
+    void set_internal_gain (int gain)
     {
-        software_gain = gain;
+        internal_gain = gain;
     }
 
-    void setHardwareGain (int gain)
+    void set_external_gain (int gain)
     {
-        hardware_gain = gain;
+        external_gain = gain;
     }
 
-    void setReferenceVoltage (int voltage)
+    void set_ref_Voltage (int voltage)
     {
         reference_voltage = voltage;
     }
 
-    int getSoftwareGain () const
+    int get_internal_gain () const
     {
-        return software_gain;
+        return internal_gain;
     }
 
-    int getHardwareGain () const
+    int get_external_gain () const
     {
-        return hardware_gain;
+        return external_gain;
     }
 
-    int getReferenceVoltage () const
+    int get_ref_voltage () const
     {
         return reference_voltage;
     }
@@ -81,7 +81,8 @@ public:
     static constexpr int FSR_Value = 8388607;
     static constexpr int ba_brainflow_package_size = 17;
 
-    static constexpr int brainalive_handshaking_packet_size = 6;
+    static constexpr int brainalive_handshaking_packet_size = 8;
+    static constexpr int brainalive_handshaking_command = 7;
 
 
 protected:

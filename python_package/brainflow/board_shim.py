@@ -74,6 +74,10 @@ class BoardIds(enum.IntEnum):
     EXPLORE_PLUS_8_CHAN_BOARD = 54 #:
     EXPLORE_PLUS_32_CHAN_BOARD = 55 #:
     PIEEG_BOARD = 56  #:
+    SYNCHRONI_UNO_BOARD = 57  #:
+    SYNCHRONI_TRIO_BOARD = 58  #:
+    SYNCHRONI_OCTO_BOARD = 59  #:
+    SYNCHRONI_NEO_BOARD = 60  #:
 
 
 class IpProtocolTypes(enum.IntEnum):
@@ -575,6 +579,10 @@ class BoardShim(object):
                                      BrainFlowExitCodes.INVALID_ARGUMENTS_ERROR.value)
         else:
             self._master_board_id = self.board_id
+
+    def __del__(self) -> None:
+        if self.is_prepared():
+            self.release_session()
 
     @classmethod
     def set_log_level(cls, log_level: int) -> None:

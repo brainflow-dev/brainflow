@@ -88,9 +88,14 @@ enum class BoardIds : int
     EXPLORE_PLUS_8_CHAN_BOARD = 54,
     EXPLORE_PLUS_32_CHAN_BOARD = 55,
     PIEEG_BOARD = 56,
+    SYNCHRONI_UNO_BOARD = 57,
+    SYNCHRONI_TRIO_BOARD = 58,
+    SYNCHRONI_OCTO_BOARD = 59,
+    SYNCHRONI_NEO_BOARD = 60,
+
     // use it to iterate
     FIRST = PLAYBACK_FILE_BOARD,
-    LAST = PIEEG_BOARD
+    LAST = SYNCHRONI_NEO_BOARD
 };
 
 enum class IpProtocolTypes : int

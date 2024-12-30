@@ -1,4 +1,9 @@
-cmake_minimum_required (VERSION 3.13)
+if (APPLE)
+cmake_minimum_required (VERSION 3.28)
+else (APPLE)
+cmake_minimum_required (VERSION 3.16)
+endif (APPLE)
+
 project (brainflow)
 
 SET (CMAKE_CXX_STANDARD 11)
@@ -20,6 +25,7 @@ option (USE_LIBFTDI "USE_LIBFTDI" OFF)
 option (USE_OPENMP "USE_OPENMP" OFF)
 option (WARNINGS_AS_ERRORS "WARNINGS_AS_ERRORS" OFF)
 option (BUILD_OYMOTION_SDK "BUILD_OYMOTION_SDK" OFF)
+option (BUILD_SYNCHRONI_SDK "BUILD_SYNCHRONI_SDK" ON)
 option (BUILD_BLUETOOTH "BUILD_BLUETOOTH" OFF)
 option (BUILD_BLE "BUILD_BLE" OFF)
 option (BUILD_ONNX "BUILD_ONNX" OFF)

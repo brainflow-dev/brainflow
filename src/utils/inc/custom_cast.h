@@ -46,6 +46,42 @@ inline int32_t cast_16bit_to_int32_swap_order (unsigned char *byte_array)
     return cast_16bit_to_int32 (swapped);
 }
 
+inline int32_t cast_13bit_to_int32 (unsigned char *byte_array)
+{
+    int prefix = 0;
+    if (byte_array[0] > 0x0F)
+    {
+        prefix = 0xFFFFE000;
+    }
+    return prefix | (byte_array[0] << 8) | byte_array[1];
+}
+
+inline int32_t cast_13bit_to_int32_swap_order (unsigned char *byte_array)
+{
+    unsigned char swapped[2];
+    swapped[0] = byte_array[1];
+    swapped[1] = byte_array[0];
+    return cast_13bit_to_int32 (swapped);
+}
+
+inline int32_t cast_15bit_to_int32 (unsigned char *byte_array)
+{
+    int prefix = 0;
+    if (byte_array[0] > 0x3F)
+    {
+        prefix = 0xFFFF8000;
+    }
+    return prefix | (byte_array[0] << 8) | byte_array[1];
+}
+
+inline int32_t cast_15bit_to_int32_swap_order (unsigned char *byte_array)
+{
+    unsigned char swapped[2];
+    swapped[0] = byte_array[1];
+    swapped[1] = byte_array[0];
+    return cast_15bit_to_int32 (swapped);
+}
+
 inline void uchar_to_bits (unsigned char c, unsigned char *bits)
 {
     for (int i = sizeof (unsigned char) * 8; i; c >>= 1)

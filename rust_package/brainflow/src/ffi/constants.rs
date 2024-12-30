@@ -94,6 +94,10 @@ pub enum BoardIds {
     AavaaV3Board = 53,
     ExplorePlus8ChanBoard = 54,
     ExplorePlus32ChanBoard = 55,
+    SYNCHRONI_UNO_BOARD = 57,
+    SYNCHRONI_TRIO_BOARD = 58,
+    SYNCHRONI_OCTO_BOARD = 59,
+    SYNCHRONI_NEO_BOARD = 60,
 }
 #[repr(i32)]
 #[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]
