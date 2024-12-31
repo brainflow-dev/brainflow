@@ -78,7 +78,8 @@ BrainFlowBoards::BrainFlowBoards()
             {"57", json::object()},
             {"58", json::object()},
             {"59", json::object()},
-            {"60", json::object()}
+            {"60", json::object()},
+            {"61", json::object()}
         }
     }};
 
@@ -1120,6 +1121,24 @@ BrainFlowBoards::BrainFlowBoards()
         {"eeg_channels", {1, 2, 3, 4, 5, 6, 7}},
         {"ecg_channels", {8}}  
     };
+    brainflow_boards_json["boards"]["60"]["default"] = {
+        {"name", "Sync-Neo"},
+        {"sampling_rate", 250},
+        {"package_num_channel", 0},
+        {"timestamp_channel", 9},
+        {"marker_channel", 10},
+        {"num_rows", 11},
+        {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}} 
+    };
+    brainflow_boards_json["boards"]["61"]["default"] = {
+        {"name", "Sync-Uno"},
+        {"sampling_rate", 250},
+        {"package_num_channel", 0},
+        {"timestamp_channel", 2},
+        {"marker_channel", 3},
+        {"num_rows", 4},
+        {"eeg_channels", {1}} 
+    };
     brainflow_boards_json["boards"]["59"]["default"] = {
         {"name", "OB5000MAX"},
         {"sampling_rate", 250},
@@ -1128,16 +1147,6 @@ BrainFlowBoards::BrainFlowBoards()
         {"marker_channel", 10},
         {"num_rows", 11},
         {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
-    };
-    brainflow_boards_json["boards"]["60"]["default"] = {
-        {"name", "OB3000"},
-        {"sampling_rate", 500},
-        {"package_num_channel", 0},
-        {"timestamp_channel", 25},
-        {"marker_channel", 26},
-        {"num_rows", 27},
-        {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}},
-        {"ecg_channels", {24}}  
     };
 
 }
