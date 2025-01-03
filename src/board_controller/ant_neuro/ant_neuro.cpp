@@ -61,14 +61,7 @@ AntNeuroBoard::AntNeuroBoard (int board_id, struct BrainFlowInputParams params)
     fact = NULL;
     amp = NULL;
     stream = NULL;
-    try
-    {
-        sampling_rate = board_descr["default"]["sampling_rate"];
-    }
-    catch (...)
-    {
-        sampling_rate = -1.0;
-    }
+    sampling_rate = -1.0;
     reference_range = -1.0;
     bipolar_range = -1.0;
 }
@@ -97,10 +90,7 @@ int AntNeuroBoard::prepare_session ()
         impedance_mode = false;
         reference_range = amp->getReferenceRangesAvailable ()[0];
         bipolar_range = amp->getBipolarRangesAvailable ()[0];
-        if (sampling_rate < 0)
-        {
-            sampling_rate = amp->getSamplingRatesAvailable ()[0];
-        }
+        sampling_rate = amp->getSamplingRatesAvailable ()[0];
     }
     catch (const exceptions::notFound &e)
     {
@@ -152,7 +142,7 @@ int AntNeuroBoard::start_stream (int buffer_size, const char *streamer_params)
         else
         {
             safe_logger (spdlog::level::info,
-                "sampling rate: {}, reference range: {}, bipolar range: {}", sampling_rate,
+                "start eeg stream (sampling rate: {}, reference range: {}, bipolar range: {})", sampling_rate,
                 reference_range, bipolar_range);
             stream = amp->OpenEegStream (sampling_rate, reference_range, bipolar_range);
         }
@@ -226,6 +216,7 @@ void AntNeuroBoard::read_thread ()
     }
     std::vector<int> emg_channels;
     std::vector<int> eeg_channels;
+    std::vector<int> resistance_channels;
     try
     {
         emg_channels = board_descr["default"]["emg_channels"].get<std::vector<int>> ();
@@ -242,6 +233,14 @@ void AntNeuroBoard::read_thread ()
     {
         safe_logger (spdlog::level::trace, "device has no eeg channels");
     }
+    try
+    {
+        resistance_channels = board_descr["default"]["resistance_channels"].get<std::vector<int>> ();
+    }
+    catch (...)
+    {
+        safe_logger (spdlog::level::trace, "device has no resistance_channels channels");
+    }
     std::vector<channel> ant_channels = stream->getChannelList ();
 
     while (keep_alive)
@@ -254,17 +253,26 @@ void AntNeuroBoard::read_thread ()
             {
                 int eeg_counter = 0;
                 int emg_counter = 0;
+                int resistance_counter = 0;
                 for (int j = 0; j < buf_channels_len; j++)
                 {
                     if ((ant_channels[j].getType () == channel::reference) &&
                         (eeg_counter < (int)eeg_channels.size ()))
                     {
                         package[eeg_channels[eeg_counter++]] = buf.getSample (j, i);
+                        if (impedance_mode)
+                        {
+                            resistance_counter++;
+                        }
                     }
                     if ((ant_channels[j].getType () == channel::bipolar) &&
                         (emg_counter < (int)emg_channels.size ()))
                     {
                         package[emg_channels[emg_counter++]] = buf.getSample (j, i);
+                        if (impedance_mode)
+                        {
+                            resistance_counter++;
+                        }
                     }
                     if (ant_channels[j].getType () == channel::sample_counter)
                     {
@@ -276,17 +284,21 @@ void AntNeuroBoard::read_thread ()
                         package[board_descr["default"]["other_channels"][0].get<int> ()] =
                             buf.getSample (j, i);
                     }
+                    if ((ant_channels[j].getType () == channel::impedance_reference) &&
+                        (resistance_counter < (int)resistance_channels.size ()))
+                    {
+                        package[resistance_channels[resistance_counter++]] = buf.getSample (j, i);
+                    }
+                    if ((ant_channels[j].getType () == channel::impedance_ground) &&
+                        (resistance_counter < (int)resistance_channels.size ()))
+                    {
+                        package[resistance_channels[resistance_counter++]] = buf.getSample (j, i);
+                    }
                 }
                 package[board_descr["default"]["timestamp_channel"].get<int> ()] = get_timestamp ();
                 push_package (package);
             }
             std::this_thread::sleep_for (std::chrono::milliseconds (1));
-            if (impedance_mode)
-            {
-                // some more sleep; twice every second should be more than enough
-                // if left out, it yields impedances at around 64 Hz
-                std::this_thread::sleep_for (std::chrono::milliseconds (500));
-            }
         }
         catch (...)
         {
