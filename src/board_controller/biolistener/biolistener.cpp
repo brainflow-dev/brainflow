@@ -520,7 +520,7 @@ int BioListener<BIOLISTENER_DATA_CHANNELS_COUNT>::wait_for_connection ()
         }
         if (!control_socket->client_connected)
         {
-            safe_logger (spdlog::level::trace, "failed to establish connection");
+            safe_logger (spdlog::level::trace, "BioListener - failed to establish connection");
             res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
         }
     }
