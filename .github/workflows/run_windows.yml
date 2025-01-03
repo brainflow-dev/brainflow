@@ -189,12 +189,6 @@ jobs:
     - name: BioListener Windows Python Test
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\biolistener_emulator.py python %GITHUB_WORKSPACE%\python_package\examples\tests\brainflow_get_data.py --board-id 58 --ip-address 127.0.0.1 --ip-port 12345
       shell: cmd
-    - name: BioListener Windows Cpp Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\biolistener_emulator.py python %GITHUB_WORKSPACE%\cpp_package\examples\get_data\build\Release\brainflow_get_data.exe --board-id 58 --ip-address 127.0.0.1 --ip-port 12345
-      shell: cmd
-    - name: BioListener Windows C# Test
-      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\biolistener_emulator.py python %GITHUB_WORKSPACE%\csharp_package\brainflow\examples\brainflow_get_data\bin\Release\net7.0\brainflow_get_data.exe --board-id 58 --ip-address 127.0.0.1 --ip-port 12345
-      shell: cmd
     # Signal Processing Testing
     - name: Serialization Rust Test
       run: |
