@@ -1026,20 +1026,14 @@ Ant Neuro has many devices and all of them are supported by BrainFlow:
 - :code:`ANT_NEURO_EE_225_BOARD`
 - :code:`ANT_NEURO_EE_511_BOARD`
 
-Initialization and EEG reading example:
+Initialization example:
 
 .. code-block:: python
 
     params = BrainFlowInputParams()
     board = BoardShim(BoardIds.ANT_NEURO_EE_410_BOARD, params)  # 8 channel amplifier
-    board.prepare_session()
-    board.start_stream()
-    for i in range(3):
-        time.sleep(1)
-        data = board.get_board_data()  # get all data and remove it from internal buffer
-        print(f'{data.shape[0]} channels x {data.shape[1]} samples')
-    board.stop_stream()
-    board.release_session()
+
+`More elaborate example <https://github.com/brainflow-dev/brainflow/blob/master/python_package/examples/tests/eego_impedances_and_eeg.py>`_ (reading EEG and impedances)
 
 Supported platforms:
 
