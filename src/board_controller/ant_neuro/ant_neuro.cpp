@@ -299,6 +299,12 @@ void AntNeuroBoard::read_thread ()
                 push_package (package);
             }
             std::this_thread::sleep_for (std::chrono::milliseconds (1));
+            if (impedance_mode)
+            {
+                // some more sleep; twice every second should be more than enough
+                // if left out, it yields impedances at around 64 Hz
+                std::this_thread::sleep_for (std::chrono::milliseconds (500));
+            }
         }
         catch (...)
         {
