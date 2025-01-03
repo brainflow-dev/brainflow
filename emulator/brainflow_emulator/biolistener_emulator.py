@@ -147,9 +147,9 @@ class BioListenerEmulator(threading.Thread):
                 if self.state == State.stream.value:
                     self.server_socket.sendall(new_data_packet.pack())
             except ConnectionResetError:
-                print(f"Connection lost")
+                logging.debug(f"Connection lost")
             except Exception as e:
-                print(f"Error: {e}")
+                logging.debug(f"Error: {e}")
 
 
 def main(cmd_list):
