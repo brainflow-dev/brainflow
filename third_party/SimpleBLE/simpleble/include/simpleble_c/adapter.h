@@ -4,8 +4,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include <simpleble/export.h>
-
 #include <simpleble_c/types.h>
 
 #ifdef _WIN32
@@ -61,7 +59,7 @@ SHARED_EXPORT void CALLING_CONVENTION simpleble_adapter_release_handle(simpleble
  * @param handle
  * @return char*
  */
-SHARED_EXPORT char* CALLING_CONVENTION simpleble_adapter_identifier(simpleble_adapter_t handle);
+SHARED_EXPORT char* simpleble_adapter_identifier(simpleble_adapter_t handle);
 
 /**
  * @brief Returns the MAC address of a given adapter.
@@ -79,7 +77,7 @@ SHARED_EXPORT char* CALLING_CONVENTION simpleble_adapter_address(simpleble_adapt
  * @param handle
  * @return simpleble_err_t
  */
-SHARED_EXPORT simpleble_err_t CALLING_CONVENTION simpleble_adapter_scan_start(simpleble_adapter_t handle);
+SHARED_EXPORT simpleble_err_t simpleble_adapter_scan_start(simpleble_adapter_t handle);
 
 /**
  * @brief

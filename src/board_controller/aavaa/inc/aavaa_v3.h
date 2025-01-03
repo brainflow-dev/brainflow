@@ -26,8 +26,8 @@ public:
     void adapter_1_on_scan_start (simpleble_adapter_t adapter);
     void adapter_1_on_scan_stop (simpleble_adapter_t adapter);
     void adapter_1_on_scan_found (simpleble_adapter_t adapter, simpleble_peripheral_t peripheral);
-    void read_data (
-        simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data, size_t size);
+    void read_data (simpleble_uuid_t service, simpleble_uuid_t characteristic, const uint8_t *data,
+        size_t size);
     std::deque<uint8_t> Incoming_BLE_Data_Buffer;
     std::string device_status;
 

@@ -14,64 +14,64 @@ void adapter_on_scan_found (
     ((Muse *)(board))->adapter_on_scan_found (adapter, peripheral);
 }
 
-void peripheral_on_tp9 (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
-    size_t size, void *board)
+void peripheral_on_tp9 (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
+    simpleble_uuid_t characteristic, const uint8_t *data, size_t size, void *board)
 {
-    ((Muse *)(board))->peripheral_on_eeg (service, characteristic, data, size, 0);
+    ((Muse *)(board))->peripheral_on_eeg (peripheral, service, characteristic, data, size, 0);
 }
 
-void peripheral_on_af7 (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
-    size_t size, void *board)
+void peripheral_on_af7 (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
+    simpleble_uuid_t characteristic, const uint8_t *data, size_t size, void *board)
 {
-    ((Muse *)(board))->peripheral_on_eeg (service, characteristic, data, size, 1);
+    ((Muse *)(board))->peripheral_on_eeg (peripheral, service, characteristic, data, size, 1);
 }
 
-void peripheral_on_af8 (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
-    size_t size, void *board)
+void peripheral_on_af8 (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
+    simpleble_uuid_t characteristic, const uint8_t *data, size_t size, void *board)
 {
-    ((Muse *)(board))->peripheral_on_eeg (service, characteristic, data, size, 2);
+    ((Muse *)(board))->peripheral_on_eeg (peripheral, service, characteristic, data, size, 2);
 }
 
-void peripheral_on_tp10 (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
-    size_t size, void *board)
+void peripheral_on_tp10 (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
+    simpleble_uuid_t characteristic, const uint8_t *data, size_t size, void *board)
 {
-    ((Muse *)(board))->peripheral_on_eeg (service, characteristic, data, size, 3);
+    ((Muse *)(board))->peripheral_on_eeg (peripheral, service, characteristic, data, size, 3);
 }
 
-void peripheral_on_accel (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
-    size_t size, void *board)
+void peripheral_on_accel (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
+    simpleble_uuid_t characteristic, const uint8_t *data, size_t size, void *board)
 {
-    ((Muse *)(board))->peripheral_on_accel (service, characteristic, data, size);
+    ((Muse *)(board))->peripheral_on_accel (peripheral, service, characteristic, data, size);
 }
 
-void peripheral_on_gyro (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
-    size_t size, void *board)
+void peripheral_on_gyro (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
+    simpleble_uuid_t characteristic, const uint8_t *data, size_t size, void *board)
 {
-    ((Muse *)(board))->peripheral_on_gyro (service, characteristic, data, size);
+    ((Muse *)(board))->peripheral_on_gyro (peripheral, service, characteristic, data, size);
 }
 
-void peripheral_on_ppg0 (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
-    size_t size, void *board)
+void peripheral_on_ppg0 (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
+    simpleble_uuid_t characteristic, const uint8_t *data, size_t size, void *board)
 {
-    ((Muse *)(board))->peripheral_on_ppg (service, characteristic, data, size, 0);
+    ((Muse *)(board))->peripheral_on_ppg (peripheral, service, characteristic, data, size, 0);
 }
 
-void peripheral_on_ppg1 (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
-    size_t size, void *board)
+void peripheral_on_ppg1 (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
+    simpleble_uuid_t characteristic, const uint8_t *data, size_t size, void *board)
 {
-    ((Muse *)(board))->peripheral_on_ppg (service, characteristic, data, size, 1);
+    ((Muse *)(board))->peripheral_on_ppg (peripheral, service, characteristic, data, size, 1);
 }
 
-void peripheral_on_ppg2 (simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data,
-    size_t size, void *board)
+void peripheral_on_ppg2 (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
+    simpleble_uuid_t characteristic, const uint8_t *data, size_t size, void *board)
 {
-    ((Muse *)(board))->peripheral_on_ppg (service, characteristic, data, size, 2);
+    ((Muse *)(board))->peripheral_on_ppg (peripheral, service, characteristic, data, size, 2);
 }
 
-void peripheral_on_right_aux (simpleble_uuid_t service, simpleble_uuid_t characteristic,
-    uint8_t *data, size_t size, void *board)
+void peripheral_on_right_aux (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
+    simpleble_uuid_t characteristic, const uint8_t *data, size_t size, void *board)
 {
-    ((Muse *)(board))->peripheral_on_eeg (service, characteristic, data, size, 4);
+    ((Muse *)(board))->peripheral_on_eeg (peripheral, service, characteristic, data, size, 4);
 }
 
 
@@ -624,8 +624,8 @@ void Muse::adapter_on_scan_found (simpleble_adapter_t adapter, simpleble_periphe
     }
 }
 
-void Muse::peripheral_on_eeg (simpleble_uuid_t service, simpleble_uuid_t characteristic,
-    uint8_t *data, size_t size, size_t channel_num)
+void Muse::peripheral_on_eeg (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
+    simpleble_uuid_t characteristic, const uint8_t *data, size_t size, size_t channel_num)
 {
     std::lock_guard<std::mutex> callback_guard (callback_lock);
     if (size != 20)
@@ -707,8 +707,8 @@ void Muse::peripheral_on_eeg (simpleble_uuid_t service, simpleble_uuid_t charact
     }
 }
 
-void Muse::peripheral_on_accel (
-    simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data, size_t size)
+void Muse::peripheral_on_accel (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
+    simpleble_uuid_t characteristic, const uint8_t *data, size_t size)
 {
     std::lock_guard<std::mutex> callback_guard (callback_lock);
     if (size != 20)
@@ -728,8 +728,8 @@ void Muse::peripheral_on_accel (
     }
 }
 
-void Muse::peripheral_on_gyro (
-    simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data, size_t size)
+void Muse::peripheral_on_gyro (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
+    simpleble_uuid_t characteristic, const uint8_t *data, size_t size)
 {
     std::lock_guard<std::mutex> callback_guard (callback_lock);
     if (size != 20)
@@ -770,8 +770,8 @@ void Muse::peripheral_on_gyro (
     last_aux_timestamp = current_timestamp;
 }
 
-void Muse::peripheral_on_ppg (simpleble_uuid_t service, simpleble_uuid_t characteristic,
-    uint8_t *data, size_t size, size_t ppg_num)
+void Muse::peripheral_on_ppg (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
+    simpleble_uuid_t characteristic, const uint8_t *data, size_t size, size_t ppg_num)
 {
     std::lock_guard<std::mutex> callback_guard (callback_lock);
     if (size != 20)

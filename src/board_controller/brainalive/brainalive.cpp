@@ -18,8 +18,9 @@ static void brainalive_adapter_1_on_scan_found (
     ((BrainAlive *)(board))->adapter_1_on_scan_found (adapter, peripheral);
 }
 
-static void brainalive_read_notifications (simpleble_uuid_t service,
-    simpleble_uuid_t characteristic, uint8_t *data, size_t size, void *board)
+static void brainalive_read_notifications (simpleble_peripheral_t peripheral,
+    simpleble_uuid_t service, simpleble_uuid_t characteristic, const uint8_t *data, size_t size,
+    void *board)
 {
     if ((size == BrainAlive::brainalive_handshaking_packet_size) && (data[0] == START_BYTE) &&
         (data[size - 1] == STOP_BYTE) && (data[2] == BrainAlive::brainalive_handshaking_command))
@@ -381,7 +382,7 @@ void BrainAlive::adapter_1_on_scan_found (
 }
 
 void BrainAlive::read_data (simpleble_uuid_t service, simpleble_uuid_t characteristic,
-    uint8_t *data, size_t size, int channel_num)
+    const uint8_t *data, size_t size, int channel_num)
 {
     if (size == brainalive_packet_size)
     {

@@ -9,7 +9,7 @@ int main() {
     auto adapter_list = SimpleBLE::Safe::Adapter::get_adapters();
 
     if (!adapter_list.has_value()) {
-        std::cout << "Failed to " << std::endl;
+        std::cout << "Failed to list adapters" << std::endl;
         return EXIT_FAILURE;
     }
 

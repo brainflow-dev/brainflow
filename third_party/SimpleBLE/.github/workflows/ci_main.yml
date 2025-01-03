@@ -1,0 +1,203 @@
+name: CI Main
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  # This job is used to detect duplicate runs and skip one of them
+  # (For example when pushing a commit to an open pull request)
+  # See: https://github.com/fkirc/skip-duplicate-actions?tab=readme-ov-file#skip-concurrent-workflow-runs
+  pre_job:
+    runs-on: ubuntu-22.04
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - name: Print event details
+        run: |
+          echo "This run was triggered by $GITHUB_EVENT_NAME event."
+          cat $GITHUB_EVENT_PATH | jq .
+      - name: Detect duplicate runs
+        id: skip_check
+        uses: fkirc/skip-duplicate-actions@v5.3.1
+        with:
+          concurrent_skipping: 'same_content_newer'
+          skip_after_successful_duplicate: 'true'
+      - name: Clone Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      - name: Perform version check
+        run: |
+          ./scripts/check_version.sh
+
+  # This job detects changes in the diff and set some ouput variables accordingly.
+  # It is use to conditionaly run different jobs and steps of the pipeline
+  changes:
+    needs: pre_job
+    if: needs.pre_job.outputs.should_skip != 'true'
+    runs-on: ubuntu-22.04
+    permissions:
+      pull-requests: read
+    outputs:
+      common: ${{ steps.filter.outputs.common }}
+      linux: ${{ steps.filter.outputs.linux }}
+      windows: ${{ steps.filter.outputs.windows }}
+      macos: ${{ steps.filter.outputs.macos }}
+      python: ${{ steps.filter.outputs.python }}
+      rust: ${{ steps.filter.outputs.rust }}
+      docs: ${{ steps.filter.outputs.docs }}
+      miscs: ${{ steps.filter.outputs.miscs }}
+      changes: ${{ steps.filter.outputs.changes }}
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@v4
+      - name: Detect file changes
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          list-files: shell
+          filters: |
+            miscs:
+              - '.github/workflows/**'
+              - '.github/actions/**'
+              - 'examples/simpleble/**'
+              - 'cmake/**'
+            common: &common
+              - 'simpleble/include/**'
+              - 'simpleble/src/builders/**'
+              - 'simpleble/src/external/**'
+              - 'simpleble/src/frontends/**'
+              - 'simpleble/src/backends/common/**'
+              - 'external/**'
+            windows: &windows
+              - *common
+              - 'simpleble/src/backends/windows/**'
+            linux: &linux
+              - *common
+              - 'simpleble/src/backends/linux/**'
+              - 'simpledbus/**'
+              - 'examples/simpledbus/**'
+              - 'simplebluez/**'
+              - 'examples/simplebluez/**'
+            macos: &macos
+              - *common
+              - 'simpleble/src/backends/macos/**'
+            python:
+              - 'simpleble/src/backends/plain/**'
+              - 'simpleble/src/frontends/**'
+              - 'simplepyble/**'
+              - 'setup.py'
+            rust:
+              - *linux
+              - *macos
+              - 'simplersble/**'
+              - 'Cargo.lock'
+              - 'Cargo.toml'
+            docs:
+              - 'docs/**'
+              - '**/*.md'
+              - '**/*.rst'
+
+  # This job is used to dynamically generate the build matrix of 'build' job in 'ci_linux.yml'.
+  # The output variable 'values' is a list of strings: 'simpledbus', 'simplebluez' and 'simpleble'.
+  # This is not inside pre-job because 'changes' variable is set by dorny/paths-filter to ALL the filters
+  # that match, so we need to have a job with only these three filters.
+  # Note that the filters are defined in a way that makes each of them depend on the previous one.
+  # If in main branch, all libraries are listed in the output even if there are no matching changes.
+  libraries:
+    needs: pre_job
+    if: needs.pre_job.outputs.should_skip != 'true'
+    runs-on: ubuntu-22.04
+    permissions:
+      pull-requests: read
+    outputs:
+      values: ${{ github.ref == 'refs/heads/main' && '["simpledbus","simplebluez","simpleble"]' || steps.filter.outputs.changes }}
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@v4
+      - name: Detect file changes
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            simpledbus: &simpledbus
+              - 'simpledbus/**'
+            simplebluez: &simplebluez
+              - *simpledbus
+              - 'simplebluez/**'
+            simpleble: &simpleble
+              - *simplebluez
+              - 'simpleble/**'
+
+  lint:
+    needs: pre_job
+    if:  |
+      needs.pre_job.outputs.should_skip != 'true'
+    uses: ./.github/workflows/ci_lint.yml
+
+  docs:
+    needs: [pre_job, changes]
+    if:  |
+      needs.pre_job.outputs.should_skip != 'true' &&
+      (needs.changes.outputs.docs == 'true' || github.ref == 'refs/heads/main')
+    uses: ./.github/workflows/ci_docs.yml
+
+  windows:
+    needs: [pre_job, changes]
+    if: |
+      needs.pre_job.outputs.should_skip != 'true' &&
+      (needs.changes.outputs.windows == 'true' ||
+      needs.changes.outputs.miscs == 'true' ||
+      github.ref == 'refs/heads/main')
+    uses: ./.github/workflows/ci_windows.yml
+
+  linux:
+    needs: [pre_job, changes, libraries]
+    if: |
+      needs.pre_job.outputs.should_skip != 'true' &&
+      (needs.changes.outputs.linux == 'true' ||
+      needs.changes.outputs.miscs == 'true' ||
+      github.ref == 'refs/heads/main')
+    uses: ./.github/workflows/ci_linux.yml
+    with:
+      libraries: ${{ needs.libraries.outputs.values }}
+
+  macos:
+    needs: [pre_job, changes]
+    if: |
+      needs.pre_job.outputs.should_skip != 'true' &&
+      (needs.changes.outputs.macos == 'true' ||
+      needs.changes.outputs.miscs == 'true' ||
+      github.ref == 'refs/heads/main')
+    uses: ./.github/workflows/ci_macos.yml
+
+  python:
+    needs: [pre_job, changes]
+    if:  |
+      needs.pre_job.outputs.should_skip != 'true' &&
+      (needs.changes.outputs.python == 'true' || github.ref == 'refs/heads/main')
+    uses: ./.github/workflows/ci_python.yml
+    secrets: inherit
+
+  release-python:
+    needs: [pre_job, changes, windows, linux, macos, python]
+    # Note that Python is released on every commit in main branch with relevant
+    # changes (python, linux, windows, or macos filters). While cpp binaries are
+    # only published on manual releases.
+    if: |
+      needs.pre_job.outputs.should_skip != 'true' &&
+      (needs.changes.outputs.python == 'true' ||
+      needs.changes.outputs.windows == 'true' ||
+      needs.changes.outputs.linux == 'true' ||
+      needs.changes.outputs.macos == 'true') &&
+      github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/ci_python_publish.yml
+    with:
+      tag: ${{ github.ref }}
+    secrets: inherit

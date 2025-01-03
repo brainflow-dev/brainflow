@@ -12,8 +12,10 @@ class BLELibBoard : public Board
 {
 
 private:
+#ifndef STATIC_SIMPLEBLE
     static DLLLoader *dll_loader;
     static std::mutex mutex;
+#endif
 
 protected:
     static bool init_dll_loader ();
@@ -52,7 +54,10 @@ protected:
         size_t data_length);
     simpleble_err_t simpleble_peripheral_notify (simpleble_peripheral_t handle,
         simpleble_uuid_t service, simpleble_uuid_t characteristic,
-        void (*) (simpleble_uuid_t, simpleble_uuid_t, uint8_t *, size_t, void *), void *);
+        void (*callback) (simpleble_peripheral_t handle, simpleble_uuid_t service,
+            simpleble_uuid_t characteristic, const uint8_t *data, size_t data_length,
+            void *userdata),
+        void *userdata);
     simpleble_err_t simpleble_peripheral_unsubscribe (
         simpleble_peripheral_t handle, simpleble_uuid_t service, simpleble_uuid_t characteristic);
     size_t simpleble_peripheral_manufacturer_data_count (simpleble_peripheral_t handle);
