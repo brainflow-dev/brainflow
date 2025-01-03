@@ -37,6 +37,7 @@
 #define FLOAT_TO_UINT32(x) (*((uint32_t *)&(x)))
 #define UINT32_TO_FLOAT(x) (*((float *)&(x)))
 
+#pragma pack(push, 1)
 template <size_t BIOLISTENER_DATA_CHANNELS_COUNT>
 struct data_packet
 {
@@ -47,7 +48,8 @@ struct data_packet
     uint8_t s_id;
     uint32_t data[BIOLISTENER_DATA_CHANNELS_COUNT];
     uint8_t footer;
-} __attribute__ ((packed));
+};
+#pragma pack(pop)
 
 
 template <size_t BIOLISTENER_DATA_CHANNELS_COUNT>
