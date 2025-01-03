@@ -223,8 +223,7 @@ double BioListener<BIOLISTENER_DATA_CHANNELS_COUNT>::data_to_volts (
 template <size_t BIOLISTENER_DATA_CHANNELS_COUNT>
 void BioListener<BIOLISTENER_DATA_CHANNELS_COUNT>::read_thread ()
 {
-    const int max_size = packet_size;
-    char message[max_size];
+    char message[sizeof (data_packet<BIOLISTENER_DATA_CHANNELS_COUNT>)];
     int num_rows = board_descr["default"]["num_rows"];
     double *package = new double[num_rows];
     for (int i = 0; i < num_rows; i++)
@@ -242,7 +241,8 @@ void BioListener<BIOLISTENER_DATA_CHANNELS_COUNT>::read_thread ()
 
     while (keep_alive)
     {
-        int bytes_recv = control_socket->recv (message, max_size);
+        int bytes_recv =
+            control_socket->recv (message, sizeof (data_packet<BIOLISTENER_DATA_CHANNELS_COUNT>));
         if (bytes_recv < 1)
         {
             safe_logger (spdlog::level::trace, "no data received");
