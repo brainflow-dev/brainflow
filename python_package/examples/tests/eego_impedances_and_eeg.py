@@ -4,7 +4,7 @@ from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 
 if __name__ == '__main__':
     params = BrainFlowInputParams()
-    board = BoardShim(BoardIds.ANT_NEURO_EE_410_BOARD, params)  # 8 channel amplifier
+    board = BoardShim(BoardIds.ANT_NEURO_EE_411_BOARD, params)  # 8 channel amplifier
     board.prepare_session()
 
     # Get impedance data
