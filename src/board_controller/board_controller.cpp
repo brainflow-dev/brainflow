@@ -287,7 +287,7 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
                 std::shared_ptr<Board> (new Knight ((int)BoardIds::NEUROPAWN_KNIGHT_BOARD, params));
             break;
         case BoardIds::BIOLISTENER_BOARD:
-            board = std::shared_ptr<Board> (new BioListener (board_id, params));
+            board = std::shared_ptr<Board> (new BioListener<8> (board_id, params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

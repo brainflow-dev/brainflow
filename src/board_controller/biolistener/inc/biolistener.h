@@ -32,13 +32,13 @@
 #define BIOLISTENER_ADC_ADS131M08 0
 #define BIOLISTENER_ADC_AD7771 1
 
-#define BIOLISTENER_DATA_CHANNELS_COUNT 8
 #define BIOLISTENER_DEFAULT_PGA_GAIN 8
 
 #define FLOAT_TO_UINT32(x) (*((uint32_t *)&(x)))
 #define UINT32_TO_FLOAT(x) (*((float *)&(x)))
 
-typedef struct data_packet
+template <size_t BIOLISTENER_DATA_CHANNELS_COUNT>
+struct data_packet
 {
     uint8_t header;
     uint32_t ts;
@@ -47,11 +47,10 @@ typedef struct data_packet
     uint8_t s_id;
     uint32_t data[BIOLISTENER_DATA_CHANNELS_COUNT];
     uint8_t footer;
-} __attribute__ ((packed)) data_packet;
-
-const size_t PACKET_SIZE = sizeof (data_packet);
+} __attribute__ ((packed));
 
 
+template <size_t BIOLISTENER_DATA_CHANNELS_COUNT>
 class BioListener : public Board
 {
 
@@ -66,6 +65,8 @@ private:
     std::condition_variable cv;
     int control_port;
     int data_port;
+
+    size_t packet_size;
 
     double timestamp_offset;
 
@@ -91,5 +92,6 @@ public:
     int release_session ();
     int config_board (std::string config, std::string &response);
 
-    bool parse_tcp_buffer (const char *buffer, size_t buffer_size, data_packet &parsed_packet);
+    bool parse_tcp_buffer (const char *buffer, size_t buffer_size,
+        data_packet<BIOLISTENER_DATA_CHANNELS_COUNT> &parsed_packet);
 };
