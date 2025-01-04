@@ -17,7 +17,7 @@ class BluetoothGattService {
 //    bool addService(BluetoothGattService service);
 //    BluetoothGattCharacteristic getCharacteristic(std::string uuid);
     std::vector<BluetoothGattCharacteristic> getCharacteristics();
-//    std::vector<BluetoothGattService> getIncludedServices();
+//    std::vector<BluetoothGattService> getIncludedServices(); // TODO: This might be necessary if we don't see the secondary services in some other way.
     int getInstanceId();
     int getType();
     std::string getUuid();
@@ -36,7 +36,8 @@ class BluetoothGattService {
     static jmethodID _method_getType;
     static jmethodID _method_getUuid;
 
-    void initialize();
+    static void initialize();
+    void check_initialized() const;
 };
 
 }  // namespace Android

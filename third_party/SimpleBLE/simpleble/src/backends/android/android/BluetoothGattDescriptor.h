@@ -8,6 +8,7 @@ namespace SimpleBLE {
 namespace Android {
 
 class BluetoothGattDescriptor {
+  // See: https://developer.android.com/reference/android/bluetooth/BluetoothGattDescriptor
   public:
     BluetoothGattDescriptor();
     BluetoothGattDescriptor(JNI::Object obj);
@@ -32,7 +33,8 @@ class BluetoothGattDescriptor {
     static jmethodID _method_getValue;
     static jmethodID _method_setValue;
 
-    void initialize();
+    static void initialize();
+    void check_initialized() const;
 };
 
 }  // namespace Android

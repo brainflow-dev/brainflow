@@ -497,11 +497,11 @@ void GaleaV4::read_thread ()
                     aux_package[board_descr["auxiliary"]["battery_channel"].get<int> ()] =
                         (double)b[77 + offset];
                     aux_package[board_descr["auxiliary"]["timestamp_channel"].get<int> ()] =
-                        timestamp_device + time_delta - half_rtt;
+                        timestamp_device_converted + time_delta - half_rtt;
                     aux_package[board_descr["auxiliary"]["other_channels"][0].get<int> ()] =
                         pc_timestamp;
                     aux_package[board_descr["auxiliary"]["other_channels"][1].get<int> ()] =
-                        timestamp_device;
+                        timestamp_device_converted;
                     // accel
                     aux_package[board_descr["auxiliary"]["accel_channels"][0].get<int> ()] =
                         accel_scale * (double)cast_16bit_to_int32_swap_order (b + 96 + offset);

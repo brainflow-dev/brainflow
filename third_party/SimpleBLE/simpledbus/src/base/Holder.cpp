@@ -60,7 +60,7 @@ bool Holder::operator==(const Holder& other) const {
 
 Holder::Type Holder::type() const { return _type; }
 
-std::string Holder::_represent_simple() {
+std::string Holder::_represent_simple() const {
     std::ostringstream output;
     output << std::boolalpha;
 
@@ -101,7 +101,7 @@ std::string Holder::_represent_simple() {
     return output.str();
 }
 
-std::vector<std::string> Holder::_represent_container() {
+std::vector<std::string> Holder::_represent_container() const {
     std::vector<std::string> output_lines;
     switch (_type) {
         case BOOLEAN:
@@ -161,7 +161,7 @@ std::vector<std::string> Holder::_represent_container() {
     return output_lines;
 }
 
-std::string Holder::represent() {
+std::string Holder::represent() const {
     std::ostringstream output;
     auto output_lines = _represent_container();
     for (auto& output_line : output_lines) {
@@ -170,7 +170,7 @@ std::string Holder::represent() {
     return output.str();
 }
 
-std::string Holder::_signature_simple() {
+std::string Holder::_signature_simple() const {
     switch (_type) {
         case BOOLEAN:
             return DBUS_TYPE_BOOLEAN_AS_STRING;
@@ -200,7 +200,7 @@ std::string Holder::_signature_simple() {
     return "";
 }
 
-std::string Holder::_signature_type(Type type) {
+std::string Holder::_signature_type(Type type) noexcept {
     switch (type) {
         case BOOLEAN:
             return DBUS_TYPE_BOOLEAN_AS_STRING;
@@ -230,7 +230,7 @@ std::string Holder::_signature_type(Type type) {
     return "";
 }
 
-std::string Holder::_represent_type(Type type, std::any value) {
+std::string Holder::_represent_type(Type type, std::any value) noexcept {
     std::ostringstream output;
     output << std::boolalpha;
 
@@ -271,7 +271,7 @@ std::string Holder::_represent_type(Type type, std::any value) {
     return output.str();
 }
 
-std::string Holder::signature() {
+std::string Holder::signature() const {
     std::string output;
     switch (_type) {
         case BOOLEAN:

@@ -1,7 +1,7 @@
 SimpleBLE
 ==========
 
-The ultimate fully-fledged cross-platform library and bindings for Bluetooth Low Energy (BLE).
+The ultimate cross-platform library and bindings for Bluetooth Low Energy (BLE).
 
 |Latest Documentation Status|
 
@@ -9,55 +9,30 @@ Overview
 --------
 
 The SimpleBLE project aims to provide fully cross-platform BLE libraries and bindings
-for C++, Python, Rust and other languages, designed for simplicity and ease of use.
-All specific operating system quirks are handled internally to provide a consistent behavior
-and API across all platforms. The libraries also provide first-class support for vendorization
-of all third-party dependencies, allowing for easy integration into existing projects.
+for C++, Python, Rust and other languages, designed for simplicity and ease of use,
+with a consistent behavior and API across all platforms.
 
-**NOTICE: Since February 20, 2024 the license terms of SimpleBLE have changed. Please make sure to read and understand the details below.**
+SimpleBLE runs on Windows 10+, macOS 10.15+, Linux (Ubuntu 20.04+), iOS 15.0+, and Android (API 31+ - Still in Alpha).
 
-Below you'll find a list of components that are part of SimpleBLE:
+**Commercial licensing is available for projects requiring proprietary distribution.**
+
+Below you'll find a list of frontends that are part of SimpleBLE:
 
 * **SimpleBLE:** C++ cross-platform BLE library.
 * **SimplePyBLE:** Python bindings for SimpleBLE. See the `SimplePyBLE`_ PyPI page for more details.
 * **SimpleDroidBLE:** Android-specific package following the SimpleBLE API. (Still in Alpha, more to come)
 * **SimpleRsBLE:** Rust bindings for SimpleBLE (LEGACY - Big refactor coming soon). See the `SimpleRsBLE`_ Crates.io page for more details.
-* **SimpleBluez:** C++ abstraction layer for BlueZ over DBus. (Linux only)
-* **SimpleDBus:** C++ wrapper for libdbus-1 with convenience classes to handle DBus object hierarchies effectively. (Linux only)
+
+Additionally, we also provide a set of low-level libraries that can be used to interface with the underlying Bluetooth stack on Linux:
+
+* **SimpleBluez:** C++ abstraction layer for BlueZ over DBus.
+* **SimpleDBus:** C++ wrapper for libdbus-1 with convenience classes to handle DBus object hierarchies effectively.
 
 If you want to use SimpleBLE and need help. **Please do not hesitate to reach out!**
 
-* Visit our `ReadTheDocs`_ page.
-* Join our `Discord`_ server.
-* Contact us: ``contact at simpleble dot org``
-* Visit our `website`_ for more information.
-
-Supported platforms
--------------------
-
-.. list-table::
-   :header-rows: 1
-
-   * - Platform
-     - Versions
-     - Notes
-   * - Windows
-     - Windows 10+
-     - • WSL does not support Bluetooth.
-       • Only a single adapter is supported by the OS backend.
-   * - Linux
-     - Ubuntu 20.04+
-     - • Other distros using Bluez as their Bluetooth backend should work.
-   * - MacOS
-     - 10.15+ (Catalina and newer)
-     - • MacOS 12.0, 12.1, and 12.2 have a bug where the adapter won't return any peripherals after scanning.
-       • Only a single adapter is supported by the OS backend.
-   * - iOS
-     - 15.0+
-     - • Older versions of iOS might work but haven't been formally tested.
-   * - Android (Alpha)
-     - API 31+
-     - • Older APIs are missing certain features of the JVM API that are required by SimpleBLE.
+* Visit our `ReadTheDocs`_ page for comprehensive documentation.
+* Visit our `website`_ or email us at `email us <mailto:contact@simpleble.org>`_ for commercial licensing and professional support services.
+* Join our `Discord`_ server for community discussions and help.
 
 Projects using SimpleBLE
 ------------------------
@@ -82,6 +57,8 @@ available for a fee.
 **You can find more information on pricing and commercial terms of service on our `website`_.**
 
 For further enquiries, please contact us at ``contact at simpleble dot org``.
+
+**We offer free commercial licenses for small projects and early-stage companies - reach out to discuss your use case.**
 
 Licensing FAQ
 -------------

@@ -1248,6 +1248,7 @@ To create such board you need to specify the following board ID and fields of Br
 
 - :code:`BoardIds.EMOTIBIT_BOARD`
 - *optional:* :code:`ip_address`, you can provide *broadcast* ip address of the network with EmotiBit device, e.g. 192.168.178.255. If not provided BrainFlow will try to autodiscover the network and it may take a little longer.
+- *optional:* :code:`serial_number`, recommended you if have multiple boards in the same network.
 
 Initialization Example:
 
@@ -1305,3 +1306,39 @@ Supported platforms:
 **Note**: Ensure that you have the necessary permissions to access the serial port on your operating system. For Unix-like systems, you may need to configure permissions for the serial port or run with sudo.
 
 **To use this board you need to compile BrainFlow from the source code right on your Raspbery Pi device with flag --build-periphery(build.py) or with -DBUILD_PERIPHERY=ON(CMake) and install desired bindings using local libraries.**
+
+NeuroPawn
+--------
+
+Knight Board
+~~~~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/54061606098_e223ab04a6_w.jpg
+    :width: 400px
+    :height: 274px
+
+`NeuroPawn website <https://www.neuropawn.tech/>`_
+
+To create such board you need to specify the following board ID and fields of BrainFlowInputParams object:
+
+- :code:`BoardIds.NEUROPAWN_KNIGHT_BOARD`
+- :code:`serial_port`, e.g. COM3, /dev/tty.*
+
+Initialization Example:
+
+.. code-block:: python
+
+    params = BrainFlowInputParams()
+    params.serial_port = "COM3"
+    board = BoardShim(BoardIds.NEUROPAWN_KNIGHT_BOARD, params)
+
+**On Unix-like systems you may need to configure permissions for serial port or run with sudo.**
+
+**On MacOS there are two serial ports for each device: /dev/tty..... and /dev/cu..... You HAVE to specify /dev/cu.....**
+
+Supported platforms:
+
+- Windows
+- Linux
+- MacOS
+- Devices like Raspberry Pi

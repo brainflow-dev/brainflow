@@ -44,7 +44,7 @@ performed:
 
 #. Create a new release on GitHub.
 
-#. Run the CI job to build and upload the package to PyPI.
+#. Wait for ci_release.yml to finish.
 
 #. Run the CI job to build and upload the artifacts to GitHub.
 

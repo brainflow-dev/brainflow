@@ -16,7 +16,7 @@ if (APPLE)
 elseif (UNIX)
     SET(SIMPLEBLE-C simpleble-c)
     SET(FILE_NAME "libsimpleble-c.so")
-else ()
+else()
     if(CMAKE_SIZEOF_VOID_P EQUAL 8)
         SET(SIMPLEBLE-C simpleble-c)
         SET(FILE_NAME "simpleble-c.dll")
@@ -55,7 +55,8 @@ set(SIMPLEBLE_PRIVATE_INCLUDES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/external
     ${CMAKE_CURRENT_SOURCE_DIR}/src/backends/common
     ${CMAKE_CURRENT_SOURCE_DIR}/src/frontends/safe
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/include)
+    ${CMAKE_CURRENT_SOURCE_DIR}/../external/include
+    )
 
 set(SIMPLEBLE_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/frontends/base/Adapter.cpp
@@ -90,11 +91,14 @@ set(SIMPLEBLE_C_SRC
 
 # Define targets
 add_library(simpleble ${SIMPLEBLE_SRC})
-# BrainFlow: convert to shared library
-add_library(${SIMPLEBLE-C} SHARED ${SIMPLEBLE_C_SRC})
+
+if(ANDROID)
+    add_library(simpleble-c STATIC ${SIMPLEBLE_C_SRC})
+else(ANDROID)
+    add_library(${SIMPLEBLE-C} SHARED ${SIMPLEBLE_C_SRC})
+endif(ANDROID)
 
 add_library(simpleble::simpleble ALIAS simpleble)
-add_library(simpleble::simpleble-c ALIAS ${SIMPLEBLE-C})
 
 set_target_properties(simpleble PROPERTIES
     CXX_VISIBILITY_PRESET hidden
@@ -110,7 +114,7 @@ set_target_properties(simpleble PROPERTIES
     RELEASE_POSTFIX ""
     RELWITHDEBINFO_POSTFIX "-relwithdebinfo"
     MINSIZEREL_POSTFIX "-minsizerel"
-    DEBUG_POSTFIX "-debug")
+    DEBUG_POSTFIX "")
 
 set_target_properties(${SIMPLEBLE-C} PROPERTIES
     C_VISIBILITY_PRESET hidden
@@ -123,21 +127,7 @@ set_target_properties(${SIMPLEBLE-C} PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled
-    VERSION "${PROJECT_VERSION}"
-    SOVERSION "${PROJECT_VERSION_MAJOR}"
-    EXPORT_NAME ${SIMPLEBLE-C}
-    OUTPUT_NAME ${SIMPLEBLE-C}
-    RELEASE_POSTFIX ""
-    RELWITHDEBINFO_POSTFIX "-relwithdebinfo"
-    MINSIZEREL_POSTFIX "-minsizerel"
-    DEBUG_POSTFIX "-debug")
-
-# BrainFlow, no need for header
-#generate_export_header(
-#    simpleble
-#    BASE_NAME simpleble
-#    EXPORT_FILE_NAME export/simpleble/export.h
-#)
+)
 
 # Configure include directories
 target_include_directories(simpleble PRIVATE ${SIMPLEBLE_PRIVATE_INCLUDES})
@@ -355,39 +345,6 @@ apply_build_options(${SIMPLEBLE-C}
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/simpleble.pc.in
             ${CMAKE_CURRENT_BINARY_DIR}/simpleble.pc @ONLY)
 
-# BrainFlow does not install simpleble
-#install(
-#    TARGETS simpleble ${SIMPLEBLE-C}
-#    EXPORT simpleble-config
-#    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-#    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-#    RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}) # BrainFlow output to libdir
-
-#install(
-#    EXPORT simpleble-config
-#    NAMESPACE simpleble::
-#    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/simpleble)
-
-#install(
-#    DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/include/simpleble/
-#    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/simpleble)
-
-#install(
-#    DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../external/include/
-#    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/simpleble)
-
-#install(
-#    DIRECTORY ${PROJECT_BINARY_DIR}/export/simpleble/
-#    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/simpleble)
-
-#install(
-#    DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/include/simpleble_c/
-#    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/simpleble_c)
-
-#install(
-#    FILES ${CMAKE_CURRENT_BINARY_DIR}/simpleble.pc
-#    DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
-
 if(SIMPLEBLE_TEST)
     message(STATUS "Building Tests")
     find_package(GTest REQUIRED)
@@ -408,8 +365,7 @@ if(SIMPLEBLE_TEST)
     target_link_libraries(simpleble_test PRIVATE simpleble::simpleble GTest::gtest)
 endif()
 
-
-if (MSVC)
+if(MSVC)
     add_custom_command(TARGET ${SIMPLEBLE-C} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled/$<CONFIG>/${FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../../python_package/brainflow/lib/${FILE_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled/$<CONFIG>/${FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../../java_package/brainflow/src/main/resources/${FILE_NAME}"
@@ -419,8 +375,8 @@ if (MSVC)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled/$<CONFIG>/${FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../../rust_package/brainflow/lib/${FILE_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled/$<CONFIG>/${FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../../nodejs_package/brainflow/lib/${FILE_NAME}"
     )
-endif (MSVC)
-if (UNIX AND NOT ANDROID)
+endif(MSVC)
+if(UNIX AND NOT ANDROID)
     add_custom_command(TARGET ${SIMPLEBLE-C} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled/${FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../../python_package/brainflow/lib/${FILE_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled/${FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../../julia_package/brainflow/lib/${FILE_NAME}"
@@ -430,19 +386,19 @@ if (UNIX AND NOT ANDROID)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled/${FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../../rust_package/brainflow/lib/${FILE_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled/${FILE_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/../../../nodejs_package/brainflow/lib/${FILE_NAME}"
     )
-endif (UNIX AND NOT ANDROID)
+endif(UNIX AND NOT ANDROID)
 
-if (MSVC)
+if(MSVC)
     install(
         FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled/$<CONFIG>/${FILE_NAME}
         DESTINATION lib
     )
-endif (MSVC)
-if (UNIX AND NOT ANDROID)
+endif(MSVC)
+if(UNIX AND NOT ANDROID)
     install(
         FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../compiled/${FILE_NAME}
         DESTINATION lib
     )
-endif (UNIX AND NOT ANDROID)
+endif(UNIX AND NOT ANDROID)

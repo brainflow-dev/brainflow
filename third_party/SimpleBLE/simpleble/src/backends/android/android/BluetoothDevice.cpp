@@ -34,11 +34,22 @@ BluetoothDevice::BluetoothDevice(JNI::Object obj) : _obj(obj) {
     initialize();
 };
 
-std::string BluetoothDevice::getAddress() { return _obj.call_string_method(_method_getAddress); }
+void BluetoothDevice::check_initialized() const {
+    if (!_obj) throw std::runtime_error("BluetoothDevice is not initialized");
+}
 
-std::string BluetoothDevice::getName() { return _obj.call_string_method(_method_getName); }
+std::string BluetoothDevice::getAddress() {
+    check_initialized();
+    return _obj.call_string_method(_method_getAddress);
+}
+
+std::string BluetoothDevice::getName() {
+    check_initialized();
+    return _obj.call_string_method(_method_getName);
+}
 
 BluetoothGatt BluetoothDevice::connectGatt(bool autoConnect, Bridge::BluetoothGattCallback& callback) {
+    check_initialized();
     return BluetoothGatt(_obj.call_object_method(_method_connectGatt, nullptr, autoConnect, callback.get()));
 }
 

@@ -1,0 +1,39 @@
+name: 'Build GTest'
+description: 'Clone and build Google Test'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get latest GTest commit hash
+      id: gtest-hash
+      shell: bash
+      run: |
+        GTEST_HASH=$(curl -s https://api.github.com/repos/google/googletest/commits/main | jq -r .sha)
+        echo "value=$GTEST_HASH" >> $GITHUB_OUTPUT
+
+    - name: Cache GTest
+      id: cache-gtest
+      uses: actions/cache@v4
+      with:
+        path: ${{ github.workspace }}/googletest/install
+        key: ${{ runner.os }}-${{ runner.arch }}-gtest-${{ steps.gtest-hash.outputs.value }}
+
+    - name: Build GTest for Unix-like systems
+      if: runner.os != 'Windows' && steps.cache-gtest.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        git clone https://github.com/google/googletest
+        cd googletest
+        cmake . -B build
+        cmake --build ./build --config Release --parallel 4
+        cmake --install ./build --prefix ./install
+
+    - name: Build GTest for Windows
+      if: runner.os == 'Windows' && steps.cache-gtest.outputs.cache-hit != 'true'
+      shell: cmd
+      run: |
+        git clone https://github.com/google/googletest
+        cd googletest
+        cmake . -B build -Dgtest_force_shared_crt=ON
+        cmake --build .\build --config Release --parallel 4
+        cmake --install .\build --prefix .\install

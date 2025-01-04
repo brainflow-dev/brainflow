@@ -11,6 +11,7 @@
 #include <vector>
 #include <memory>
 #include "ThreadRunner.h"
+#include <android/log.h>
 
 // TODO: Switch to using regular SimpleBLE classes with try/catch blocks.
 
@@ -39,8 +40,34 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 
     SimpleBLE::Logging::Logger::get()->set_callback(
         [](SimpleBLE::Logging::Level level, const std::string& module, const std::string& file, uint32_t line, const std::string& function, const std::string& message) {
-            std::string log_message = fmt::format("[{}] {}:{}:{}: {}", module, file, line, function, message);
-            log_info(log_message);
+            std::string log_message = fmt::format("{}: {}:{} in {}: {}\n", module, file, line, function, message);
+
+            int android_log_level = ANDROID_LOG_UNKNOWN;
+            switch (level) {
+                case SimpleBLE::Logging::Level::Verbose:
+                    android_log_level = ANDROID_LOG_VERBOSE;
+                    break;
+                case SimpleBLE::Logging::Level::Debug:
+                    android_log_level = ANDROID_LOG_DEBUG;
+                    break;
+                case SimpleBLE::Logging::Level::Info:
+                    android_log_level = ANDROID_LOG_INFO;
+                    break;
+                case SimpleBLE::Logging::Level::Warn:
+                    android_log_level = ANDROID_LOG_WARN;
+                    break;
+                case SimpleBLE::Logging::Level::Error:
+                    android_log_level = ANDROID_LOG_ERROR;
+                    break;
+                case SimpleBLE::Logging::Level::Fatal:
+                    android_log_level = ANDROID_LOG_FATAL;
+                    break;
+                case SimpleBLE::Logging::Level::None:
+                    android_log_level = ANDROID_LOG_UNKNOWN;
+                    break;
+            }
+
+            __android_log_write(android_log_level, "SimpleBLE", log_message.c_str());
         }
     );
 

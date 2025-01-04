@@ -1,5 +1,5 @@
 plugins {
-    id("com.android.library") version "8.3.1"
+    id("com.android.library") version "8.7.1"
 }
 
 android {

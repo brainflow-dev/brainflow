@@ -96,7 +96,7 @@ class Object {
         env->ReleaseByteArrayElements(jarr, arr, JNI_ABORT);
         return result;
     }
-    
+
 
 
     template <typename... Args>
@@ -243,6 +243,8 @@ private:
 // TODO: Move these to their own namespace
 
 struct JObjectComparator {
+    // TODO: Lazy initialize jclass and jmethodID objects.
+
     bool operator()(const jobject& lhs, const jobject& rhs) const {
         if (lhs == nullptr && rhs == nullptr) {
             return false;  // Both are null, considered equal
@@ -278,6 +280,8 @@ struct JObjectComparator {
 };
 
 struct JniObjectComparator {
+    // TODO: Lazy initialize jclass and jmethodID objects.
+
     bool operator()(const Object& lhs, const Object& rhs) const {
         // Handle null object comparisons
         if (!lhs && !rhs) {

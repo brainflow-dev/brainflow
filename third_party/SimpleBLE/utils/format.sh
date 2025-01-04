@@ -12,6 +12,12 @@
 
 CLANG_FORMAT="clang-format"
 
+CLANG_FORMAT_VERSION=$($CLANG_FORMAT --version | sed 's/.*version \([1-9][0-9]*\)\..*/\1/')
+if [ "$CLANG_FORMAT_VERSION" != "14" ]; then
+    echo "CI/CD uses clang-format version 14. Local version is $CLANG_FORMAT_VERSION"
+    exit 1
+fi
+
 # Check if colordiff is installed
 if ! command -v colordiff &> /dev/null; then
     echo "colordiff is required but not installed. Please install it and run the script again."
@@ -46,7 +52,6 @@ EXCLUDED_PATHS=(
     "*CMakeFiles*"
     "*_deps*"
     "*build*"
-    "*external*"
 )
 
 FIND_CMD="find . -type f \( -name \"*.h\" -o -name \"*.hpp\" -o -name \"*.cpp\" -o -name \"*.c\" \)"

@@ -24,7 +24,7 @@ private:
     static jmethodID _method_connectGatt;
 
     static void initialize();
-
+    void check_initialized() const;
     JNI::Object _obj;
 
 };

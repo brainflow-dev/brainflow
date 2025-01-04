@@ -69,32 +69,37 @@ BluetoothGatt::BluetoothGatt() { initialize(); }
 
 BluetoothGatt::BluetoothGatt(JNI::Object obj) : BluetoothGatt() { _obj = obj; }
 
+
+void BluetoothGatt::check_initialized() const {
+    if (!_obj) throw std::runtime_error("BluetoothGatt is not initialized");
+}
+
 void BluetoothGatt::close() {
-    if (!_obj) return;
+    check_initialized();
 
     _obj.call_void_method(_method_close);
 }
 
 bool BluetoothGatt::connect() {
-    if (!_obj) return false;
+    check_initialized();
 
     return _obj.call_boolean_method(_method_connect);
 }
 
 void BluetoothGatt::disconnect() {
-    if (!_obj) return;
+    check_initialized();
 
     _obj.call_void_method(_method_disconnect);
 }
 
 bool BluetoothGatt::discoverServices() {
-    if (!_obj) return false;
+    check_initialized();
 
     return _obj.call_boolean_method(_method_discoverServices);
 }
 
 std::vector<BluetoothGattService> BluetoothGatt::getServices() {
-    if (!_obj) return std::vector<BluetoothGattService>();
+    check_initialized();
 
     JNI::Object services = _obj.call_object_method("getServices", "()Ljava/util/List;");
     if (!services) return std::vector<BluetoothGattService>();
@@ -113,31 +118,31 @@ std::vector<BluetoothGattService> BluetoothGatt::getServices() {
 }
 
 bool BluetoothGatt::readCharacteristic(BluetoothGattCharacteristic characteristic) {
-    if (!_obj) return false;
+    check_initialized();
 
     return _obj.call_boolean_method(_method_readCharacteristic, characteristic.getObject().get());
 }
 
 bool BluetoothGatt::readDescriptor(BluetoothGattDescriptor descriptor) {
-    if (!_obj) return false;
+    check_initialized();
 
     return _obj.call_boolean_method(_method_readDescriptor, descriptor.getObject().get());
 }
 
 bool BluetoothGatt::setCharacteristicNotification(BluetoothGattCharacteristic characteristic, bool enable) {
-    if (!_obj) return false;
+    check_initialized();
 
     return _obj.call_boolean_method(_method_setCharacteristicNotification, characteristic.getObject().get(), enable);
 }
 
 bool BluetoothGatt::writeCharacteristic(BluetoothGattCharacteristic characteristic) {
-    if (!_obj) return false;
+    check_initialized();
 
     return _obj.call_boolean_method(_method_writeCharacteristic, characteristic.getObject().get());
 }
 
 bool BluetoothGatt::writeDescriptor(BluetoothGattDescriptor descriptor) {
-    if (!_obj) return false;
+    check_initialized();
 
     return _obj.call_boolean_method(_method_writeDescriptor, descriptor.getObject().get());
 }

@@ -56,7 +56,7 @@ class BluetoothGatt {
     static jmethodID _method_writeDescriptor;
 
     static void initialize();
-
+    void check_initialized() const;
     JNI::Object _obj;
 };
 

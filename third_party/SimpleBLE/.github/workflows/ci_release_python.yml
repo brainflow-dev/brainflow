@@ -1,0 +1,96 @@
+name: PyPI Release
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: "The tag to upload artifacts"
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "The tag to upload artifacts"
+        required: true
+
+jobs:
+  build_sdist:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        env:
+          TAG: ${{ inputs.tag || github.ref }}
+        with:
+          ref: ${{ env.TAG }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+          cache: "pip"
+
+      - name: Build source distribution
+        run: |
+            pip3 install build twine
+            python3 -m build --sdist
+
+      - name: Upload files
+        uses: actions/upload-artifact@v4
+        with:
+          name: simplepyble
+          path: dist/*.tar.gz
+
+  build_wheels:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, windows-2022, macos-14]
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        env:
+          TAG: ${{ inputs.tag || github.ref }}
+        with:
+          ref: ${{ env.TAG }}
+
+      - name: Set up QEMU
+        if: runner.os == 'Linux'
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: arm64
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r simplepyble/requirements.txt
+
+      - name: Build wheel
+        uses: pypa/cibuildwheel@v2.19.2
+        env:
+          CIBW_BEFORE_ALL_LINUX: "yum update -y && yum group install -y \"Development Tools\" && yum install -y dbus-devel"
+          CIBW_ARCHS_LINUX: x86_64 i686 aarch64
+          CIBW_ARCHS_MACOS: x86_64 universal2 arm64
+          CIBW_ARCHS_WINDOWS: AMD64 x86
+          CIBW_SKIP: "*musllinux_* pp*"
+          MACOSX_DEPLOYMENT_TARGET: 10.15
+
+      - name: Upload wheels to job
+        uses: actions/upload-artifact@v4
+        with:
+          name: simpleble-wheels-${{ matrix.os }}
+          path: wheelhouse/*.whl
+
+  publish:
+    needs: [build_sdist, build_wheels]
+    uses: ./.github/workflows/ci_python_publish.yml
+    with:
+      tag: ${{ inputs.tag || github.ref }}
+    secrets: inherit

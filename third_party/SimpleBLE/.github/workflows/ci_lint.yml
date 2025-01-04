@@ -1,14 +1,16 @@
 name: CI Lint
 
-on: [push, pull_request]
+on:
+  workflow_dispatch:
+  workflow_call:  # This allows it to be called from ci_main.yml
 
 jobs:
   clang-format:
     runs-on: ubuntu-22.04
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: Clone Repository
+        uses: actions/checkout@v4
       - name: Run clang-format
         uses: DoozyX/clang-format-lint-action@v0.14
         with:
@@ -22,8 +24,8 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: Clone Repository
+        uses: actions/checkout@v4
 
       - name: Install CppCheck
         run: |
@@ -39,7 +41,7 @@ jobs:
         run: cppcheck-htmlreport --title=SimpleBLE --file=cppcheck_res.xml --report-dir=report
       - name: Upload Report
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: report
           path: report

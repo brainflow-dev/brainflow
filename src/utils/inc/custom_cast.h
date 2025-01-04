@@ -9,7 +9,7 @@
 #pragma warning(disable : 4146)
 
 // copypasted from OpenBCI_JavaScript_Utilities
-inline int32_t cast_24bit_to_int32 (unsigned char *byte_array)
+inline int32_t cast_24bit_to_int32 (const unsigned char *byte_array)
 {
     int prefix = 0;
     if (byte_array[0] > 127)
@@ -19,7 +19,7 @@ inline int32_t cast_24bit_to_int32 (unsigned char *byte_array)
     return (prefix << 24) | (byte_array[0] << 16) | (byte_array[1] << 8) | byte_array[2];
 }
 
-inline int32_t cast_24bit_to_int32_swap_order (unsigned char *byte_array)
+inline int32_t cast_24bit_to_int32_swap_order (const unsigned char *byte_array)
 {
     unsigned char swapped[3];
     swapped[0] = byte_array[2];
@@ -28,7 +28,7 @@ inline int32_t cast_24bit_to_int32_swap_order (unsigned char *byte_array)
     return cast_24bit_to_int32 (swapped);
 }
 
-inline int32_t cast_16bit_to_int32 (unsigned char *byte_array)
+inline int32_t cast_16bit_to_int32 (const unsigned char *byte_array)
 {
     int prefix = 0;
     if (byte_array[0] > 127)
@@ -38,7 +38,7 @@ inline int32_t cast_16bit_to_int32 (unsigned char *byte_array)
     return (prefix << 16) | (byte_array[0] << 8) | byte_array[1];
 }
 
-inline int32_t cast_16bit_to_int32_swap_order (unsigned char *byte_array)
+inline int32_t cast_16bit_to_int32_swap_order (const unsigned char *byte_array)
 {
     unsigned char swapped[2];
     swapped[0] = byte_array[1];
@@ -46,7 +46,7 @@ inline int32_t cast_16bit_to_int32_swap_order (unsigned char *byte_array)
     return cast_16bit_to_int32 (swapped);
 }
 
-inline int32_t cast_13bit_to_int32 (unsigned char *byte_array)
+inline int32_t cast_13bit_to_int32 (const unsigned char *byte_array)
 {
     int prefix = 0;
     if (byte_array[0] > 0x0F)
@@ -56,7 +56,7 @@ inline int32_t cast_13bit_to_int32 (unsigned char *byte_array)
     return prefix | (byte_array[0] << 8) | byte_array[1];
 }
 
-inline int32_t cast_13bit_to_int32_swap_order (unsigned char *byte_array)
+inline int32_t cast_13bit_to_int32_swap_order (const unsigned char *byte_array)
 {
     unsigned char swapped[2];
     swapped[0] = byte_array[1];
@@ -64,7 +64,7 @@ inline int32_t cast_13bit_to_int32_swap_order (unsigned char *byte_array)
     return cast_13bit_to_int32 (swapped);
 }
 
-inline int32_t cast_15bit_to_int32 (unsigned char *byte_array)
+inline int32_t cast_15bit_to_int32 (const unsigned char *byte_array)
 {
     int prefix = 0;
     if (byte_array[0] > 0x3F)
@@ -74,7 +74,7 @@ inline int32_t cast_15bit_to_int32 (unsigned char *byte_array)
     return prefix | (byte_array[0] << 8) | byte_array[1];
 }
 
-inline int32_t cast_15bit_to_int32_swap_order (unsigned char *byte_array)
+inline int32_t cast_15bit_to_int32_swap_order (const unsigned char *byte_array)
 {
     unsigned char swapped[2];
     swapped[0] = byte_array[1];
@@ -94,7 +94,7 @@ inline void uchar_to_bits (unsigned char c, unsigned char *bits)
 // input array is an array of 0 and 1 (not the chartacters '0' and '1',
 // but 8-bit unsigned integers 0 and 1)
 template <unsigned int N>
-inline int32_t cast_ganglion_bits_to_int32 (unsigned char *array)
+inline int32_t cast_ganglion_bits_to_int32 (const unsigned char *array)
 {
     // need to convert to std::string to feed the bitset
     std::string bitstring ((char *)array, N);

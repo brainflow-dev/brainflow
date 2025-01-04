@@ -86,6 +86,7 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/aavaa/aavaa_v3.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/pieeg/pieeg_board.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/synchroni/synchroni_board.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/neuropawn/knight.cpp
 )
 
 include (${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ant_neuro/build.cmake)
@@ -114,6 +115,11 @@ add_library (
     ${BOARD_CONTROLLER_NAME} SHARED
     ${BOARD_CONTROLLER_SRC}
 )
+
+#if (ANDROID AND BUILD_BLE)
+#    target_compile_definitions (${BOARD_CONTROLLER_NAME} PRIVATE STATIC_SIMPLEBLE)
+#    target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE simpleble-c)
+#endif (ANDROID AND BUILD_BLE)
 
 target_include_directories (
     ${BOARD_CONTROLLER_NAME} PRIVATE
@@ -148,6 +154,7 @@ target_include_directories (
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/aavaa/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/pieeg/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/synchroni/inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/neuropawn/inc
 )
 
 target_compile_definitions(${BOARD_CONTROLLER_NAME} PRIVATE NOMINMAX BRAINFLOW_VERSION=${BRAINFLOW_VERSION})

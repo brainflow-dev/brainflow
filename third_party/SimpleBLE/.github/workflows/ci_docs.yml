@@ -1,14 +1,16 @@
 name: CI Docs
 
-on: [push, pull_request]
+on:
+  workflow_dispatch:
+  workflow_call:  # This allows it to be called from ci_main.yml
 
 jobs:
   build-docs:
     runs-on: ubuntu-22.04
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: Clone Repository
+        uses: actions/checkout@v4
 
       - name: Install OS Dependencies
         run: |
@@ -29,7 +31,7 @@ jobs:
         run: make html
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: docs/_build/*
           name: docs

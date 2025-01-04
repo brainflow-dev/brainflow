@@ -32,7 +32,7 @@ impl BoardIds {
     pub const FIRST: BoardIds = BoardIds::PlaybackFileBoard;
 }
 impl BoardIds {
-    pub const LAST: BoardIds = BoardIds::ExplorePlus32ChanBoard;
+    pub const LAST: BoardIds = BoardIds::NeuropawnKnightBoard;
 }
 #[repr(i32)]
 #[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -94,11 +94,13 @@ pub enum BoardIds {
     AavaaV3Board = 53,
     ExplorePlus8ChanBoard = 54,
     ExplorePlus32ChanBoard = 55,
-    SYNCHRONI_UNO = 70,
-    SYNCHRONI_TRIO = 71,
-    SYNCHRONI_PENTO = 72,
-    SYNCHRONI_OCTO = 73,
-    SYNCHRONI_NEO = 74,
+    PieegBoard = 56,
+    NeuropawnKnightBoard = 57,
+    SynchroniTrio3ChannelsBoard = 58,
+    SynchroniOcto8ChannelsBoard = 59,
+    OB50008CHannelsBoard= 60 ,
+    SynchroniPento8ChannelsBoard = 61,
+    SynchroniUno1ChannelsBoard = 62
 }
 #[repr(i32)]
 #[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]

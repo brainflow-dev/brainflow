@@ -1,0 +1,87 @@
+name: CI Windows
+
+on:
+  workflow_dispatch:
+  workflow_call:  # This allows it to be called from ci_main.yml
+
+jobs:
+  tests:
+    runs-on: windows-2022
+
+    steps:
+    - name: Clone Repository
+      uses: actions/checkout@v4
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.1
+    - name: Setup gtest
+      uses: ./.github/actions/setup-gtest
+    - name: Compile Tests for Windows x86
+      run: |
+        cmake -B %GITHUB_WORKSPACE%\build_test -G "Visual Studio 17 2022" -DCMAKE_SYSTEM_VERSION=10.0.22000.0 -DGTEST_ROOT=%GITHUB_WORKSPACE%\googletest\install -S %GITHUB_WORKSPACE%/simpleble -DSIMPLEBLE_TEST=ON
+        cmake --build %GITHUB_WORKSPACE%\build_test --config Release --parallel 4
+        %GITHUB_WORKSPACE%\build_test\bin\Release\simpleble_test.exe
+      shell: cmd
+
+  examples:
+    runs-on: windows-2022
+
+    steps:
+    - name: Clone Repository
+      uses: actions/checkout@v4
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.1
+    - name: Compile Examples
+      run: |
+        cmake -B %GITHUB_WORKSPACE%\build -G "Visual Studio 17 2022" -DCMAKE_SYSTEM_VERSION=10.0.22000.0 -S %GITHUB_WORKSPACE%/examples/simpleble
+        cmake --build %GITHUB_WORKSPACE%\build --config Release --parallel 4
+      shell: cmd
+
+  build:
+    runs-on: windows-2022
+    needs: [tests, examples]
+
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        # For testing purposes only static libraries are built to reduce run time.
+        # In release workflow all combinations are build.
+        arch: [Win32, x64]
+        type: [static]
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.1
+
+      - name: Compile SimpleBLE
+        shell: cmd
+        run: |
+
+          if "${{ matrix.type }}" == "shared" (
+            set BUILD_SHARED_LIBS=ON
+          ) else (
+            set BUILD_SHARED_LIBS=OFF
+          )
+
+          cmake -B %GITHUB_WORKSPACE%\build -G "Visual Studio 17 2022" -A ${{ matrix.arch }} -DCMAKE_SYSTEM_VERSION="10.0.19041.0" -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -S %GITHUB_WORKSPACE%/simpleble
+          cmake --build %GITHUB_WORKSPACE%\build --config Release --parallel 4
+          cmake --install %GITHUB_WORKSPACE%\build --prefix %GITHUB_WORKSPACE%\build\install
+
+          mkdir -p $GITHUB_WORKSPACE\artifacts
+          7z a -tzip %GITHUB_WORKSPACE%\artifacts\simpleble_${{ matrix.type }}_windows-${{ matrix.arch }}.zip %GITHUB_WORKSPACE%\build\install
+
+      - name: Upload binaries to job
+        uses: actions/upload-artifact@v4
+        with:
+          name: simpleble_${{ matrix.type }}_windows-${{ matrix.arch }}
+          path: artifacts/simpleble_${{ matrix.type }}_windows-${{ matrix.arch }}.zip
+
+  python:
+    needs: [tests, examples]
+    uses: ./.github/workflows/ci_wheels.yml
+    secrets: inherit
+    with:
+      os: windows-2022

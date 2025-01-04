@@ -59,8 +59,8 @@ class Holder {
     } Type;
 
     Type type() const;
-    std::string represent();
-    std::string signature();
+    std::string represent() const;
+    std::string signature() const;
 
     // TODO: Deprecate these functions in favor of templated version.
     static Holder create_boolean(bool value);
@@ -131,15 +131,15 @@ class Holder {
     // Dictionaries are stored within a vector as a tuple of <key_type, key, holder>
     std::vector<std::tuple<Type, std::any, Holder>> holder_dict;
 
-    std::vector<std::string> _represent_container();
-    std::string _represent_simple();
-    std::string _signature_simple();
+    std::vector<std::string> _represent_container() const;
+    std::string _represent_simple() const;
+    std::string _signature_simple() const;
 
     template <typename T>
     std::map<T, Holder> _get_dict(Type key_type) const;
 
-    static std::string _signature_type(Type type);
-    static std::string _represent_type(Type type, std::any value);
+    static std::string _signature_type(Type type) noexcept;
+    static std::string _represent_type(Type type, std::any value) noexcept;
 };
 
 }  // namespace SimpleDBus

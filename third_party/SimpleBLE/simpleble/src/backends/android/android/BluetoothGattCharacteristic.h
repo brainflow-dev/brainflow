@@ -9,6 +9,7 @@ namespace SimpleBLE {
 namespace Android {
 
 class BluetoothGattCharacteristic {
+  // See: https://developer.android.com/reference/android/bluetooth/BluetoothGattCharacteristic
   public:
     BluetoothGattCharacteristic();
     BluetoothGattCharacteristic(JNI::Object obj);
@@ -50,7 +51,8 @@ class BluetoothGattCharacteristic {
     static jmethodID _method_setWriteType;
     static jmethodID _method_setValue;
 
-    void initialize();
+    static void initialize();
+    void check_initialized() const;
 };
 
 }  // namespace Android

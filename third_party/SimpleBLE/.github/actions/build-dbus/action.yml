@@ -1,0 +1,63 @@
+name: 'Build DBus'
+description: 'Clone and build DBus'
+
+inputs:
+  os:
+    description: "Runner OS"
+    type: string
+    default: ''
+    required: false
+
+  arch:
+    description: "Platform architecture"
+    type: string
+    default: ''
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install Dependencies
+      shell: bash
+      env:
+          DEBIAN_FRONTEND: noninteractive
+      run: |
+        sudo -H apt-get update -y
+        sudo -H apt-get install -y jq curl 
+
+    - name: Build Expat
+      uses: ./.github/actions/build-expat
+      with:
+        os: ${{ inputs.os }}
+        arch: ${{ inputs.arch }}
+    - name: Set env
+      shell: bash
+      run: |
+        echo "EXPAT_ROOT=/tmp/expat/install" >> $GITHUB_ENV
+        echo "DBUS_ROOT=/tmp/dbus/install" >> $GITHUB_ENV
+        echo "CMAKE_PREFIX_PATH=/tmp/dbus/install:/tmp/expat/install" >> $GITHUB_ENV
+
+    - name: Get latest DBus commit hash
+      id: dbus-hash
+      shell: bash
+      run: |
+        DBUS_HASH=$(curl -s https://gitlab.freedesktop.org/api/v4/projects/1187/repository/commits | jq -r '.[0].id')
+        echo "value=$DBUS_HASH" >> $GITHUB_OUTPUT
+
+    - name: Cache DBus
+      id: cache-dbus
+      uses: actions/cache@v4
+      with:
+        path: /tmp/dbus/install
+        key: ${{ inputs.os }}-${{ inputs.arch }}-dbus-${{ steps.dbus-hash.outputs.value }}
+
+    - name: Build DBus
+      if: steps.cache-dbus.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        git clone https://gitlab.freedesktop.org/dbus/dbus.git /tmp/dbus
+        cd /tmp/dbus
+
+        cmake -B build -DDBUS_SESSION_SOCKET_DIR=/usr/local/var/run/dbus/system_bus_socket -DDBUS_BUILD_TESTS=OFF
+        cmake --build build --config Release --parallel 4
+        cmake --install build --prefix /tmp/dbus/install

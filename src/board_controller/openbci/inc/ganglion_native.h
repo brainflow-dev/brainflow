@@ -95,8 +95,8 @@ public:
     void adapter_1_on_scan_start (simpleble_adapter_t adapter);
     void adapter_1_on_scan_stop (simpleble_adapter_t adapter);
     void adapter_1_on_scan_found (simpleble_adapter_t adapter, simpleble_peripheral_t peripheral);
-    void read_data (
-        simpleble_uuid_t service, simpleble_uuid_t characteristic, uint8_t *data, size_t size);
+    void read_data (simpleble_uuid_t service, simpleble_uuid_t characteristic, const uint8_t *data,
+        size_t size);
 
 protected:
     volatile simpleble_adapter_t ganglion_adapter;
@@ -115,6 +115,6 @@ protected:
     double const accel_scale = 0.016f;
     double const eeg_scale = (1.2f * 1000000) / (8388607.0f * 1.5f * 51.0f);
 
-    void decompress_firmware_3 (uint8_t *data, double *package);
-    void decompress_firmware_2 (uint8_t *data, double *package);
+    void decompress_firmware_3 (const uint8_t *data, double *package);
+    void decompress_firmware_2 (const uint8_t *data, double *package);
 };

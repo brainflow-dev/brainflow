@@ -66,7 +66,7 @@ class BluetoothGattCallback {
 
   private:
     struct FlagData {
-        bool flag;
+        bool flag = false;
         std::condition_variable cv;
         std::mutex mtx;
         std::vector<uint8_t> value;

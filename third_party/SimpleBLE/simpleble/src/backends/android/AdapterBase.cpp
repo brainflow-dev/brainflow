@@ -3,12 +3,12 @@
 #include "PeripheralBase.h"
 #include "PeripheralBuilder.h"
 
-#include <jni.h>
-#include <android/log.h>
-#include <thread>
-#include <fmt/core.h>
 #include <android/BluetoothDevice.h>
 #include <android/ScanResult.h>
+#include <android/log.h>
+#include <fmt/core.h>
+#include <jni.h>
+#include <thread>
 
 using namespace SimpleBLE;
 
@@ -31,13 +31,13 @@ void AdapterBase::initialize() {
     }
 
     if (_btAdapter.get() == nullptr) {
-        _btAdapter = _btAdapterCls.call_static_method( "getDefaultAdapter", "()Landroid/bluetooth/BluetoothAdapter;");
+        _btAdapter = _btAdapterCls.call_static_method("getDefaultAdapter", "()Landroid/bluetooth/BluetoothAdapter;");
     }
 
     if (_btScanner.get() == nullptr) {
-        _btScanner = _btAdapter.call_object_method("getBluetoothLeScanner", "()Landroid/bluetooth/le/BluetoothLeScanner;");
+        _btScanner = _btAdapter.call_object_method("getBluetoothLeScanner",
+                                                   "()Landroid/bluetooth/le/BluetoothLeScanner;");
     }
-
 }
 
 std::vector<std::shared_ptr<AdapterBase>> AdapterBase::get_adapters() {
@@ -58,7 +58,7 @@ bool AdapterBase::bluetooth_enabled() {
     int bluetoothState = _btAdapter.call_int_method("getState", "()I");
     __android_log_write(ANDROID_LOG_INFO, "SimpleBLE", fmt::format("Bluetooth state: {}", bluetoothState).c_str());
 
-    return isEnabled; //bluetoothState == 12;
+    return isEnabled;  // bluetoothState == 12;
 }
 
 AdapterBase::AdapterBase() {
@@ -87,18 +87,13 @@ AdapterBase::AdapterBase() {
             SAFE_CALLBACK_CALL(this->callback_on_scan_updated_, peripheral_builder);
         }
     });
-
 }
 
-AdapterBase::~AdapterBase() {
-
-}
+AdapterBase::~AdapterBase() {}
 
 void* AdapterBase::underlying() const { return nullptr; }
 
-std::string AdapterBase::identifier() {
-    return _btAdapter.call_string_method("getName", "()Ljava/lang/String;");
-}
+std::string AdapterBase::identifier() { return _btAdapter.call_string_method("getName", "()Ljava/lang/String;"); }
 
 BluetoothAddress AdapterBase::address() {
     return BluetoothAddress(_btAdapter.call_string_method("getAddress", "()Ljava/lang/String;"));
@@ -125,13 +120,9 @@ void AdapterBase::scan_for(int timeout_ms) {
 
 bool AdapterBase::scan_is_active() { return scanning_; }
 
-std::vector<Peripheral> AdapterBase::scan_get_results() {
-    return std::vector<Peripheral>();
-}
+std::vector<Peripheral> AdapterBase::scan_get_results() { return std::vector<Peripheral>(); }
 
-std::vector<Peripheral> AdapterBase::get_paired_peripherals() {
-    return std::vector<Peripheral>();
-}
+std::vector<Peripheral> AdapterBase::get_paired_peripherals() { return std::vector<Peripheral>(); }
 
 void AdapterBase::set_callback_on_scan_start(std::function<void()> on_scan_start) {
     if (on_scan_start) {
@@ -164,4 +155,3 @@ void AdapterBase::set_callback_on_scan_found(std::function<void(Peripheral)> on_
         callback_on_scan_found_.unload();
     }
 }
-

@@ -1,35 +1,25 @@
 SimplePyBLE
 ===========
 
-The ultimate fully-fledged cross-platform bindings for Bluetooth Low Energy (BLE).
+The ultimate cross-platform bindings for Bluetooth Low Energy (BLE).
 
 |Latest Documentation Status| |PyPI Licence|
 
 Overview
 --------
 
-SimplePyBLE provides Python bindings for `SimpleBLE`_, a fully cross-platform BLE
-library written in C++. It is designed for simplicity and ease of use with a
-licencing scheme chosen to be friendly towards commercial use.
+SimplePyBLE provides Python bindings for `SimpleBLE`_, a fully cross-platform BLE library,
+designed for simplicity and ease of use, with a consistent behavior and API across all platforms.
 
-If you want to use SimpleBLE and need help. **Please do not hesitate to reach out!**
+SimplePyBLE runs on Windows 10+, Linux (Ubuntu 20.04+) and MacOS 10.15+ (Catalina and newer).
 
-* Visit our `ReadTheDocs`_ page.
-* Join our `Discord`_ server.
-* Contact me: ``kevin at dewald dot me``
+**Commercial licensing is available for projects requiring proprietary distribution.**
 
-Are you using SimplePyBLE on your own project and would like to see it featured here?
-Reach out and I'll add a link to it below!
+If you want to use SimplePyBLE and need help. **Please do not hesitate to reach out!**
 
-Supported platforms
--------------------
-=========== ============= =================================== =====
-Windows     Linux         MacOS                               iOS
-=========== ============= =================================== =====
-Windows 10+ Ubuntu 20.04+ 10.15+ (except 12.0, 12.1 and 12.2) 15.0+
-=========== ============= =================================== =====
-
-**NOTE:** WSL does not support Bluetooth.
+* Visit our `ReadTheDocs`_ page for comprehensive documentation.
+* Visit our `website`_ or email us at `email us <mailto:contact@simpleble.org>`_ for commercial licensing and professional support services.
+* Join our `Discord`_ server for community discussions and help.
 
 Installation
 ------------
@@ -41,11 +31,6 @@ You can install SimplePyBLE from PyPI using pip: ::
 Please review our `code examples`_ on GitHub for more information on how to use
 SimplePyBLE.
 
-Contributing
-------------
-Pull requests are welcome. For major changes, please open an issue first to discuss
-what you would like to change.
-
 License
 =======
 
@@ -53,14 +38,15 @@ Since February 15th 2024, SimpleBLE is now available under the GNU General Publi
 version 3 (GPLv3), with the option for a commercial license without the GPLv3 restrictions
 available for a fee.
 
-**More information on pricing and commercial terms of service will be available soon.**
+**You can find more information on pricing and commercial terms of service on our `website`_.**
 
-To enquire about a commercial license, please contact us at ``contact at simpleble dot org``.
+For further enquiries, please contact us at ``contact at simpleble dot org``.
 
-Likewise, if you are using SimpleBLE in an open-source project and would like to request
-a free commercial license or if you have any other questions, please reach out at ``contact at simpleble dot org``.
+**We offer free commercial licenses for small projects and early-stage companies - reach out to discuss your use case.**
 
 .. Links
+
+.. _website: https://simpleble.org
 
 .. _SimplePyBLE: https://pypi.org/project/simplepyble/
 
@@ -76,9 +62,3 @@ a free commercial license or if you have any other questions, please reach out a
    :target: http://simpleble.readthedocs.org/en/latest
 
 .. |PyPI Licence| image:: https://img.shields.io/pypi/l/simplepyble
-
-.. Other projects using SimpleBLE
-
-.. _BrainFlow: https://github.com/brainflow-dev/brainflow
-.. _InsideBlue: https://github.com/eriklins/InsideBlue-BLE-Tool
-.. _NodeWebBluetooth: https://github.com/thegecko/webbluetooth
