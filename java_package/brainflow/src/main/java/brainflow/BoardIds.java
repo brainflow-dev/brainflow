@@ -66,10 +66,10 @@ public enum BoardIds
     EXPLORE_PLUS_8_CHAN_BOARD(54),
     EXPLORE_PLUS_32_CHAN_BOARD(55),
     PIEEG_BOARD(56),
-    SYNCHRONI_UNO_BOARD (57),
-    SYNCHRONI_TRIO_BOARD (58),
-    SYNCHRONI_OCTO_BOARD (59),
-    SYNCHRONI_NEO_BOARD (60),
+    SYNCHRONI_TRIO_3_CHANNELS_BOARD(57),
+    SYNCHRONI_OCTO_8_CHANNELS_BOARD(58),
+    SYNCHRONI_PENTO_8_CHANNELS_BOARD(60),
+    SYNCHRONI_UNO_1_CHANNELS_BOARD(61);
 
     private final int board_id;
     private static final Map<Integer, BoardIds> bi_map = new HashMap<Integer, BoardIds> ();

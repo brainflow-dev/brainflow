@@ -4,8 +4,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include <simpleble/export.h>
-
 #include <simpleble_c/types.h>
 
 #ifdef _WIN32

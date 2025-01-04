@@ -18,6 +18,7 @@ class Path {
     static bool is_parent(const std::string& base, const std::string& path);
 
     static std::string next_child(const std::string& base, const std::string& path);
+    static std::string next_child_strip(const std::string& base, const std::string& path);
 };
 
 }  // namespace SimpleDBus

@@ -1,5 +1,5 @@
 SimpleBLE
-==========
+=========
 
 The ultimate fully-fledged cross-platform library and bindings for Bluetooth Low Energy (BLE).
 
@@ -15,6 +15,7 @@ Table of Contents
    :caption: General
 
    overview
+   licensing_faq
    changelog
    extras
 
@@ -33,6 +34,12 @@ Table of Contents
 
    simplepyble/usage
    simplepyble/api
+
+.. toctree::
+   :maxdepth: 2
+   :caption: SimpleDroidBLE
+
+   simpledroidble/usage
 
 .. toctree::
    :maxdepth: 2

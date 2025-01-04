@@ -2,27 +2,85 @@
 Usage
 =====
 
-SimpleBluez should work on any Linux environment supporting DBus. To install
-the necessary dependencies on Debian-based systems, use the following command: ::
+SimpleBluez should work on any Linux environment supporting DBus and Bluez.
+Please follow the instructions below to build and run SimpleBluez in your specific environment.
 
-  sudo apt install libdbus-1-dev
+System Requirements
+===================
+
+When building SimpleBluez from source, you will need some dependencies based on your
+current operating system.
+
+General Requirements
+--------------------
+
+   - `CMake`_ (Version 3.21 or higher)
+
+Linux
+-----
+
+APT-based Distros
+~~~~~~~~~~~~~~~~~
+
+   - `libdbus-1-dev` (install via ``sudo apt install libdbus-1-dev``)
+
+RPM-based Distros
+~~~~~~~~~~~~~~~~~
+
+   - `dbus-devel`
+      - On Fedora, install via ``sudo dnf install dbus-devel``
+      - On CentOS, install via ``sudo yum install dbus-devel``
 
 
 Building and Installing the Library (Source)
 ============================================
 
-The included CMake build script can be used to build SimpleBluez.
-CMake is freely available for download from https://www.cmake.org/download/. ::
+Compiling the library is done using `CMake`_ and relies heavily on plenty of CMake
+functionality. It is strongly suggested that you get familiarized with CMake before
+blindly following the instructions below.
 
-   cd <path-to-simplebluez>
-   mkdir build && cd build
-   cmake .. -DSIMPLEBLUEZ_LOG_LEVEL=[VERBOSE|DEBUG|INFO|WARNING|ERROR|FATAL]
-   cmake --build . -j7
-   sudo cmake --install .
 
-To build a shared library set the ``BUILD_SHARED_LIBS`` CMake variable to ``TRUE`` ::
+Building SimpleBluez
+--------------------
 
-  cmake -DBUILD_SHARED_LIBS=TRUE ...
+You can use the following commands to build SimpleBluez: ::
+
+   cmake -S <path-to-simplebluez> -B build_simplebluez
+   cmake --build build_simplebluez -j7
+
+Note that if you want to modify the build configuration, you can do so by passing
+additional arguments to the ``cmake`` command. For example, to build a shared library
+set the ``BUILD_SHARED_LIBS`` CMake variable to ``TRUE`` ::
+
+   cmake -S <path-to-simplebluez> -B build_simplebluez -DBUILD_SHARED_LIBS=TRUE
+
+To modify the log level, set the ``SIMPLEBLUEZ_LOG_LEVEL`` CMake variable to one of the
+following values: ``VERBOSE``, ``DEBUG``, ``INFO``, ``WARN``, ``ERROR``, ``FATAL`` ::
+
+   cmake -S <path-to-simplebluez> -B build_simplebluez -DSIMPLEBLUEZ_LOG_LEVEL=DEBUG
+
+To force the usage of the DBus session bus, enable the ``SIMPLEBLUEZ_USE_SESSION_DBUS`` flag ::
+
+   cmake -S <path-to-simplebluez> -B build_simplebluez -DSIMPLEBLUEZ_USE_SESSION_DBUS=TRUE
+
+Installing SimpleBluez
+----------------------
+
+To install SimpleBluez, you can use the following commands: ::
+
+   cmake --install build_simplebluez
+
+Note that if you want to modify the installation configuration, you can do so by passing
+additional arguments to the ``cmake`` command. For example, to install the library to
+a specific location, set the ``CMAKE_INSTALL_PREFIX`` CMake variable to the desired
+location ::
+
+   cmake --install build_simplebluez --prefix /usr/local
+
+Note that on Linux and MacOS, you will need to run the ``cmake --install`` command
+with ``sudo`` privileges. ::
+
+   sudo cmake --install build_simplebluez
 
 
 Usage with CMake (Installed)
@@ -103,10 +161,8 @@ Build Examples
 
 Use the following instructions to build the provided SimpleBluez examples: ::
 
-   cd <path-to-repository>
-   mkdir build && cd build
-   cmake -DSIMPLEBLUEZ_LOCAL=ON ../examples/simplebluez
-   cmake --build . -j7
+   cmake -S <path-to-simplebluez>/examples/simplebluez -B build_simplebluez_examples -DSIMPLEBLUEZ_LOCAL=ON
+   cmake --build build_simplebluez_examples -j7
 
 
 Testing
@@ -124,11 +180,9 @@ Unit Tests
 
 To run the unit tests, run the following command: ::
 
-   cd <path-to-simplebluez>
-   mkdir build && cd build
-   cmake .. -DCMAKE_BUILD_TYPE=Debug -DSIMPLEBLUEZ_TEST=ON
-   cmake --build . -j7
-   ./bin/simplebluez_test
+   cmake -S <path-to-simplebluez> -B build_simplebluez_test -DSIMPLEBLUEZ_TEST=ON
+   cmake --build build_simplebluez_test -j7
+   ./build_simplebluez_test/bin/simplebluez_test
 
 
 Address Sanitizer Tests
@@ -136,11 +190,9 @@ Address Sanitizer Tests
 
 To run the address sanitizer tests, run the following command: ::
 
-   cd <path-to-simplebluez>
-   mkdir build && cd build
-   cmake .. -DCMAKE_BUILD_TYPE=Debug -DSIMPLEBLUEZ_SANITIZE=Address -DSIMPLEBLUEZ_TEST=ON
-   cmake --build . -j7
-   PYTHONMALLOC=malloc ./bin/simplebluez_test
+   cmake -S <path-to-simplebluez> -B build_simplebluez_test -DSIMPLEBLUEZ_SANITIZE=Address -DSIMPLEBLUEZ_TEST=ON
+   cmake --build build_simplebluez_test -j7
+   PYTHONMALLOC=malloc ./build_simplebluez_test/bin/simplebluez_test
 
 It's important for ``PYTHONMALLOC`` to be set to ``malloc``, otherwise the tests will
 fail due to Python's memory allocator from triggering false positives.
@@ -151,14 +203,14 @@ Thread Sanitizer Tests
 
 To run the thread sanitizer tests, run the following command: ::
 
-   cd <path-to-simplebluez>
-   mkdir build && cd build
-   cmake .. -DCMAKE_BUILD_TYPE=Debug -DSIMPLEBLUEZ_SANITIZE=Thread -DSIMPLEBLUEZ_TEST=ON
-   cmake --build . -j7
-    ./bin/simplebluez_test
+   cmake -S <path-to-simplebluez> -B build_simplebluez_test -DSIMPLEBLUEZ_SANITIZE=Thread -DSIMPLEBLUEZ_TEST=ON
+   cmake --build build_simplebluez_test -j7
+   ./build_simplebluez_test/bin/simplebluez_test
 
 
 .. Links
+
+.. _CMake: https://cmake.org/
 
 .. _cmake-init-fetchcontent: https://github.com/friendlyanon/cmake-init-fetchcontent
 

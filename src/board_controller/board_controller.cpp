@@ -282,16 +282,19 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
         case BoardIds::PIEEG_BOARD:
             board = std::shared_ptr<Board> (new PIEEGBoard (board_id, params));
             break;
-        case BoardIds::SYNCHRONI_UNO_BOARD:
+        case BoardIds::SYNCHRONI_TRIO_3_CHANNELS_BOARD:
             board = std::shared_ptr<Board> (new SynchroniBoard (board_id, params));
             break;
-        case BoardIds::SYNCHRONI_TRIO_BOARD:
+        case BoardIds::SYNCHRONI_OCTO_8_CHANNELS_BOARD:
             board = std::shared_ptr<Board> (new SynchroniBoard (board_id, params));
             break;
-        case BoardIds::SYNCHRONI_OCTO_BOARD:
+        case BoardIds::SYNCHRONI_NEO_8_CHANNELS_BOARD:
             board = std::shared_ptr<Board> (new SynchroniBoard (board_id, params));
             break;
-        case BoardIds::SYNCHRONI_NEO_BOARD:
+        case BoardIds::SYNCHRONI_UNO_1_CHANNELS_BOARD:
+            board = std::shared_ptr<Board> (new SynchroniBoard (board_id, params));
+            break;
+        case BoardIds::OB5000_8_CHANNELS_BOARD:
             board = std::shared_ptr<Board> (new SynchroniBoard (board_id, params));
             break;
         default:

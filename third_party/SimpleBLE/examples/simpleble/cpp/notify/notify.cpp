@@ -23,7 +23,9 @@ int main() {
 
     adapter.set_callback_on_scan_found([&](SimpleBLE::Peripheral peripheral) {
         std::cout << "Found device: " << peripheral.identifier() << " [" << peripheral.address() << "]" << std::endl;
-        peripherals.push_back(peripheral);
+        if (peripheral.is_connectable()) {
+            peripherals.push_back(peripheral);
+        }
     });
 
     adapter.set_callback_on_scan_start([]() { std::cout << "Scan started." << std::endl; });
@@ -68,10 +70,8 @@ int main() {
     }
 
     // Subscribe to the characteristic.
-    peripheral.notify(uuids[selection.value()].first, uuids[selection.value()].second, [&](SimpleBLE::ByteArray bytes) {
-        std::cout << "Received: ";
-        Utils::print_byte_array(bytes);
-    });
+    peripheral.notify(uuids[selection.value()].first, uuids[selection.value()].second,
+                      [&](SimpleBLE::ByteArray bytes) { std::cout << "Received: " << bytes << std::endl; });
 
     std::this_thread::sleep_for(5s);
 

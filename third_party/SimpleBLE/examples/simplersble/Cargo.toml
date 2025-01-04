@@ -1,0 +1,19 @@
+[package]
+edition = "2021"
+name = "simplersble-examples"
+version = "0.0.0"
+
+[[bin]]
+name = "list_adapters"
+
+[[bin]]
+name = "scan"
+
+[[bin]]
+name = "connect"
+
+[[bin]]
+name = "notify"
+
+[dependencies]
+simplersble = { path = "../.." }

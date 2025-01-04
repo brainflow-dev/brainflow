@@ -99,7 +99,7 @@ AdapterBase::AdapterBase(std::string device_id)
                         (uint8_t)section_data_buffer[5], (uint8_t)section_data_buffer[4],
                         (uint8_t)section_data_buffer[3], (uint8_t)section_data_buffer[2],
                         (uint8_t)section_data_buffer[1], (uint8_t)section_data_buffer[0]);
-                    service_data = section_data_buffer.substr(16);
+                    service_data = section_data_buffer.slice_from(16);
                 }
 
                 else if (section.DataType() ==
@@ -107,12 +107,12 @@ AdapterBase::AdapterBase(std::string device_id)
                     service_uuid = fmt::format("{:02x}{:02x}{:02x}{:02x}-0000-1000-8000-00805f9b34fb",
                                                (uint8_t)section_data_buffer[3], (uint8_t)section_data_buffer[2],
                                                (uint8_t)section_data_buffer[1], (uint8_t)section_data_buffer[0]);
-                    service_data = section_data_buffer.substr(4);
+                    service_data = section_data_buffer.slice_from(4);
                 } else if (section.DataType() ==
                            Advertisement::BluetoothLEAdvertisementDataTypes::ServiceData16BitUuids()) {
                     service_uuid = fmt::format("0000{:02x}{:02x}-0000-1000-8000-00805f9b34fb",
                                                (uint8_t)section_data_buffer[1], (uint8_t)section_data_buffer[0]);
-                    service_data = section_data_buffer.substr(2);
+                    service_data = section_data_buffer.slice_from(2);
                 } else {
                     continue;
                 }

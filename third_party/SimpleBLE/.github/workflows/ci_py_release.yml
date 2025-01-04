@@ -1,0 +1,133 @@
+name: PyPI Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "The tag to upload artifacts"
+        required: false
+
+jobs:
+  build_sdist:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        env:
+          TAG: ${{ inputs.tag || github.ref }}
+        with:
+          ref: ${{ env.TAG }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+          cache: "pip"
+
+      - name: Build source distribution
+        run: |
+            pip3 install build twine
+            python3 -m build --sdist
+
+      - name: Upload files
+        uses: actions/upload-artifact@v3
+        with:
+          name: simplepyble
+          path: dist/*.tar.gz
+
+      - name: Check packages
+        run: twine check dist/*.tar.gz
+
+      - name: Publish packages
+        run: twine upload --skip-existing dist/*.tar.gz --verbose
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USER }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+
+      - name: Upload source to release
+        uses: svenstaro/upload-release-action@v2
+        if: inputs.tag != '' && inputs.tag != null
+        env:
+          TAG: ${{ inputs.tag }}
+        with:
+          file: dist/*.tar.gz
+          tag: ${{ env.TAG }}
+          overwrite: true
+          file_glob: true
+
+  build_wheels:
+    runs-on: ${{ matrix.options.os }}
+
+    strategy:
+      matrix:
+        options: [
+          {os: ubuntu-22.04, arch: x86_64},
+          {os: ubuntu-22.04, arch: i686},
+          {os: ubuntu-22.04, arch: aarch64},
+          {os: windows-2022, arch: AMD64},
+          {os: windows-2022, arch: x86},
+          {os: macos-12    , arch: x86_64},
+          {os: macos-12    , arch: universal2},
+          {os: macos-12    , arch: arm64},
+        ]
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+        env:
+          TAG: ${{ inputs.tag || github.ref }}
+        with:
+          ref: ${{ env.TAG }}
+
+      - name: Set up QEMU
+        if: runner.os == 'Linux'
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: arm64
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r simplepyble/requirements.txt
+
+      - name: Build wheel
+        uses: pypa/cibuildwheel@v2.16.5
+        env:
+          CIBW_BEFORE_ALL_LINUX: "yum update -y && yum group install -y \"Development Tools\" && yum install -y dbus-devel"
+          CIBW_ARCHS_LINUX: ${{ matrix.options.arch }}
+          CIBW_ARCHS_MACOS: ${{ matrix.options.arch }}
+          CIBW_ARCHS_WINDOWS: ${{ matrix.options.arch }}
+          CIBW_SKIP: "*musllinux_* pp*"
+
+      - name: Upload wheels to job
+        uses: actions/upload-artifact@v3
+        with:
+          name: simpleble-wheels
+          path: wheelhouse/*.whl
+
+      - name: Check Packages
+        run: twine check wheelhouse/*.whl
+
+      - name: Upload wheels to release
+        uses: svenstaro/upload-release-action@v2
+        if: inputs.tag != '' && inputs.tag != null
+        env:
+          TAG: ${{ inputs.tag }}
+        with:
+          file: wheelhouse/*.whl
+          tag: ${{ env.TAG }}
+          overwrite: true
+          file_glob: true
+
+      - name: Publish packages
+        run: twine upload --skip-existing wheelhouse/*.whl --verbose
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USER }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}

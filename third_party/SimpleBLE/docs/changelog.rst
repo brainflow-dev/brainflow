@@ -5,7 +5,77 @@ All notable changes to this project will be documented in this file.
 
 The format is based on `Keep a Changelog`_, and this project adheres to `Semantic Versioning`_.
 
-[0.6.0] - 2022-XX-XX
+[0.8.0] - XXXX-XX-XX
+--------------------
+
+**Added**
+
+- (Android) Alpha preview of Android support.
+- (SimpleDBus) Added templated version of creation and getter functions for Holder class. *(Thanks lorsi96!)*
+
+**Changed**
+
+- Implemented standalone ByteArray class derived from `kvn::bytearray`. *(Thanks tlifschitz!)*
+-  **API CHANGE**: Notify and Indicate callback in C bindings now receive the peripheral handle as the first argument.
+
+**Fixed**
+
+- (SimpleBluez) Fixed improper handling of non `org.Bluez.Service1` objects within a `org.bluez.Device1` object. *(Thanks Kober Engineering!)*
+- (MacOS) Fixed incorrect storage and retrieval with standard Bluetooth UUIDs inside the peripheral class. *(Thanks TellowKrinkle!)*
+- (Python) Fixed incorrect handling of the GIL in certain functions. *(Thanks nomenquis and Medra AI!)*
+
+
+[0.7.X]
+--------------------
+
+This entire series is dedicated to reviewing and updating the license terms of the project.
+
+
+[0.7.0] - 2024-02-15
+--------------------
+
+**Added**
+
+- Function to query the version of SimpleBLE at runtime.
+- (Python) Missing API from SimpleBLE::Characteristic.
+
+**Changed**
+
+- (MacOS) Main adapter address is now hardcoded to allow caching based on adapter address. *(Thanks BlissChapman!)*
+- (Python) Release GIL when calling ``Peripheral.write_request`` and ``Peripheral.write_command``.
+- (MacOS) Rewrote the entire backend.
+- (MacOS) OperationFailed exception now contains the error message provided by the OS.
+
+**Fixed**
+
+- (MacOS) Remove unnecessary timeout during service discovery. *(Thanks BlissChapman!)*
+- (MacOS) Return correct list of devices when scanning. *(Thanks roozmahdavian!)*
+- (MacOS) Remove unnecessary timeout during characteristic notification. *(Thanks BlissChapman!)*
+- (MacOS) Remove unnecessary timeout during operations on characteristics.
+- (Windows) Failed connection attempt would not trigger an exception. *(Thanks eriklins!)*
+- (Linux) Use correct UUIDs for advertized services. *(Thanks Symbitic!)*
+
+
+[0.6.1] - 2023-03-14
+--------------------
+
+**Added**
+
+- (Python) Generate source distribution packages.
+- (SimpleDBus) Proxy objects keep track of their existence on the DBus object tree.
+
+**Changed**
+
+- Bluetooth enabled check was moved into the frontend modules. *(Thanks felixdollack!)*
+- (Windows) Use the standard C++ exception handling model. *(Thanks TheFrankyJoe!)*
+
+**Fixed**
+
+- CI artifacts for non-standard architectures are now properly built.
+- (SimpleBluez) Fixed incorrect handling of invalidated children objects.
+
+
+[0.6.0] - 2023-02-23
 --------------------
 
 **Added**
@@ -14,22 +84,48 @@ The format is based on `Keep a Changelog`_, and this project adheres to `Semanti
 -  Support for advertized services.
 -  Support for GATT Characteristic properties.
 -  Retrieve the MTU value of an established connection. *(Thanks Marco Cruz!)*
+-  Peripheral addresses can now be queried for their type. *(Thanks camm73!)*
+-  Tx Power is decoded from advertising data if available. *(Thanks camm73!)*
+-  Logger now provides default functions to log to a file or to stdout.
+-  Support for exposing advertized service data. *(Thanks Symbitic!)*
+-  (Rust) Preliminary implementation of Rust bindings.
 -  (Windows) Logging of WinRT initialization behavior.
 -  (SimpleBluez) Support for GATT characteristic flags.
 -  (SimpleBluez) Support for GATT characteristic MTUs. *(Thanks Marco Cruz!)*
 -  (SimpleBluez) Support for advertized services.
+-  (SimpleBluez) Mechanism to select the default DBus bus type during compilation-time. *(Thanks MrMinos!)*
 
 **Changed**
 
+-  Debug, MinSizeRel and RelWithDebInfo targets now contain their appropriate suffix. *(Thanks kutij!)*
+-  **API CHANGE**: Log level convention changed from uppercase to capitalizing the first letter.
+-  Updated ``libfmt`` dependency to version 9.1.0.
+-  Unused ``libfmt`` targets removed from the build process.
 -  (MacOS) More explicit exception messages.
 -  (MacOS) 16-bit UUIDs are now presented in their 128-bit form.
+-  (MacOS) Adapter address now swapped for a random UUID. *(Thanks nothingisdead!)*
+-  (Windows) Reinitialize the WinRT backend if a single-threaded apartment is detected. *(Thanks jferdelyi!)*
+-  (Windows) Callbacks for indications and notifications are now swapped if one already exists.
 
 **Fixed**
 
 -  Incorrect handling of services and characteristics in the Python examples. *(Thanks Carl-CWX!)*
+-  Minor potential race condition in the safe callback.
+-  Compilation-time log levels were not being set correctly. *(Thanks chen3496!)*
+-  Missing function definition in C-bindings. *(Thanks eriklins!)*
+-  (Linux) Peripheral would still issue callbacks after deletion.
 -  (MacOS) Increased priority of the dispatch queue to prevent jitter in the incoming data.
+-  (MacOS) Incorrect listing of advertized services. *(Thanks eriklins & Symbitic!)*
 -  (Windows) Missing peripheral identifier data. *(Thanks eriklins!)*
--  (Windows) Multiple initialization of the WinRT backend.
+-  (Windows) Multiple initializations of the WinRT backend.
+-  (Windows) Incorrect initialization of the WinRT backend. *(Thanks ChatGPT & Andrey1994!)*
+-  (Windows) Scan callbacks would continue after scan stopped.
+-  (Windows) Disconnecting would prevent the user from connecting again. *(Thanks klaff, felixdollack & lairdrt!)*
+-  (Windows) Uncleared callbacks when unsubscribe is called.
+-  (Windows) Incorrect handling of non-english locale by MSVC. *(Thanks felixdollack!)*
+-  (Windows) Disconnection callback would not be triggered on a manual disconnect. *(Thanks crashtua!)*
+-  (Python) Type returned by ``simplepyble.get_operating_system()`` was not defined.
+-  (SimpleBluez) Incorrect attempt to operate on an uninitialized DBus connection. *(Thanks jacobbreen25!)*
 
 
 [0.5.0] - 2022-09-25
@@ -102,8 +198,8 @@ The format is based on `Keep a Changelog`_, and this project adheres to `Semanti
 
 -  Updated Linux implementation to use SimpleBluez v0.5.0.
 -  Added support for Windows SDK 10.0.22000.0
--  Updated libfmt to version 8.1.1.
--  Cleaned up dependency management for libfmt and SimpleBluez.
+-  Updated ``libfmt`` to version 8.1.1.
+-  Cleaned up dependency management for ``libfmt`` and SimpleBluez.
 -  ``Adapter::get_paired_peripherals`` will return an empty list on Windows and MacOS.
 -  (Linux) **(Experimental)** Exceptions thrown inside the Bluez async thread are now caught to prevent lockups.
 -  ``NotConnected`` exception will be thrown instead of ``OperationFailed`` when peripheral not connected.

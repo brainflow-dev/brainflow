@@ -81,8 +81,7 @@ int main() {
         peripherals[iter].notify(uuids[selection.value()].first, uuids[selection.value()].second,
                                  [&, iter](SimpleBLE::ByteArray bytes) {
                                      if (print_allowed) {
-                                         std::cout << "Peripheral " << iter << " received: ";
-                                         Utils::print_byte_array(bytes);
+                                         std::cout << "Peripheral " << iter << " received: " << bytes << std::endl;
                                      }
                                  });
     }
