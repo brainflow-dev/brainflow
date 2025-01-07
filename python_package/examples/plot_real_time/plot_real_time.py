@@ -6,14 +6,7 @@ from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 from brainflow.data_filter import DataFilter, FilterTypes, WindowOperations, DetrendOperations
 from pyqtgraph.Qt import QtGui, QtCore
 
-#python d:\workspace\brainflow\python_package\examples\plot_real_time\plot_real_time.py --board-id=57 --mac-address=C4:64:E3:D8:E6:C6
 
-#python d:\workspace\brainflow\python_package\examples\plot_real_time\plot_real_time.py --board-id=57 --mac-address=C4:64:E3:D8:E4:8D
-
-#python d:\workspace\brainflow\python_package\examples\plot_real_time\plot_real_time.py --board-id=58 --mac-address=60:77:71:74:E6:B7
-
-#python d:\workspace\brainflow\python_package\examples\plot_real_time\plot_real_time.py --board-id=59 --mac-address=00:3C:84:22:30:F5
- 
 class Graph:
     def __init__(self, board_shim):
         pg.setConfigOption('background', 'w')
@@ -43,7 +36,7 @@ class Graph:
     def _init_pens(self):
         self.pens = list()
         self.brushes = list()
-        colors = ['#A54E4E', '#A473B6', '#5B45A4', '#2079D2', '#32B798', '#2FA537', '#9DA52F', '#A57E2F', '#A53B2F','#A54E4E', '#A473B6', '#5B45A4', '#2079D2', '#32B798', '#2FA537', '#9DA52F', '#A57E2F', '#A53B2F','#A54E4E', '#A473B6', '#5B45A4', '#2079D2', '#32B798', '#2FA537', '#9DA52F', '#A57E2F', '#A53B2F','#A54E4E', '#A473B6', '#5B45A4', '#2079D2', '#32B798', '#2FA537', '#9DA52F', '#A57E2F', '#A53B2F','#A54E4E', '#A473B6', '#5B45A4', '#2079D2', '#32B798', '#2FA537', '#9DA52F', '#A57E2F', '#A53B2F','#A54E4E', '#A473B6', '#5B45A4', '#2079D2', '#32B798', '#2FA537', '#9DA52F', '#A57E2F', '#A53B2F','#A54E4E', '#A473B6', '#5B45A4', '#2079D2', '#32B798', '#2FA537', '#9DA52F', '#A57E2F', '#A53B2F','#A54E4E', '#A473B6', '#5B45A4', '#2079D2', '#32B798', '#2FA537', '#9DA52F', '#A57E2F', '#A53B2F','#A54E4E', '#A473B6', '#5B45A4', '#2079D2', '#32B798', '#2FA537', '#9DA52F', '#A57E2F', '#A53B2F','#A54E4E', '#A473B6', '#5B45A4', '#2079D2', '#32B798', '#2FA537', '#9DA52F', '#A57E2F', '#A53B2F']
+        colors = ['#A54E4E', '#A473B6', '#5B45A4', '#2079D2', '#32B798', '#2FA537', '#9DA52F', '#A57E2F', '#A53B2F']
         for i in range(len(colors)):
             pen = pg.mkPen({'color': colors[i], 'width': 2})
             self.pens.append(pen)
