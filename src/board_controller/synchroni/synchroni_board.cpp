@@ -95,7 +95,7 @@ void SynchroniBoard::read_thread ()
     while (keep_alive)
     {
         int res = func ((void *)&info);
-//        int res = s_get_data((void *)&info);
+
         if (res == (int)BrainFlowExitCodes::STATUS_OK)
         {
             if (state != (int)BrainFlowExitCodes::STATUS_OK)
@@ -153,7 +153,7 @@ int SynchroniBoard::config_board (std::string config, std::string &response)
     memset(buffer, 0, sizeof(buffer));
     std::tuple<std::string, std::string, char *, int> info =
         std::make_tuple (params.mac_address, config, buffer, BUFFER_SIZE);
-//    int res = s_config_device((void*)&info);
+
     int res = func((void*)&info);
     response = buffer;
     return res;
@@ -175,7 +175,7 @@ int SynchroniBoard::call_init ()
 
     std::tuple<int, struct BrainFlowInputParams, json> info =
         std::make_tuple (board_id, params, board_descr);
-//    int res = s_initialize((void *)&info);
+
     int res = func ((void *)&info);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
@@ -199,7 +199,7 @@ int SynchroniBoard::call_open ()
     std::tuple<std::string> info =
         std::make_tuple (params.mac_address);
     return func ((void*)&info);
-//    return s_open_device((void*)params.mac_address.c_str());
+
 }
 
 int SynchroniBoard::call_start ()
@@ -217,7 +217,7 @@ int SynchroniBoard::call_start ()
     std::tuple<std::string> info =
         std::make_tuple (params.mac_address);
     return func ((void*)&info);
-//    return s_start_stream((void*)params.mac_address.c_str());
+
 }
 
 int SynchroniBoard::call_stop ()
@@ -235,7 +235,7 @@ int SynchroniBoard::call_stop ()
     std::tuple<std::string> info =
         std::make_tuple (params.mac_address);
     return func ((void*)&info);
-//    return s_stop_stream((void*)params.mac_address.c_str());
+
 }
 
 int SynchroniBoard::call_close ()
@@ -253,7 +253,7 @@ int SynchroniBoard::call_close ()
     std::tuple<std::string> info =
         std::make_tuple (params.mac_address);
     return func ((void*)&info);
-//    return s_close_device((void*)params.mac_address.c_str());
+
 }
 
 int SynchroniBoard::call_release ()
@@ -271,10 +271,10 @@ int SynchroniBoard::call_release ()
     std::tuple<std::string> info =
         std::make_tuple (params.mac_address);
     return func ((void*)&info);
-//    return s_release((void*)params.mac_address.c_str());
+
 }
 
-///////////////////////////////////////////////////////////////////
+
 
 
 int SynchroniBoard::prepare_session ()
