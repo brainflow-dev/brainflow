@@ -86,8 +86,7 @@ def main():
 
     try:
         # board_shim = BoardShim(BoardIds.ENOPHONE_BOARD, params)
-        # board_shim = BoardShim(BoardIds.SYNCHRONI_8_CHANNELS_BOARD, params)
-        board_shim = BoardShim(BoardIds.SYNCHRONI_3_CHANNELS_BOARD, params)
+        board_shim = BoardShim(BoardIds.ENOPHONE_BOARD, params)
         board_shim.prepare_session()
         board_shim.start_stream(450000, '')
         Graph(board_shim)
