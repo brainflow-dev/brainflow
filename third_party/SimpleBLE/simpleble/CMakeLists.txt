@@ -10,10 +10,10 @@ project(
     LANGUAGES CXX
 )
 
-if (APPLE)
+if(APPLE)
     SET(SIMPLEBLE-C simpleble-c)
     SET(FILE_NAME "libsimpleble-c.dylib")
-elseif (UNIX)
+elseif(UNIX)
     SET(SIMPLEBLE-C simpleble-c)
     SET(FILE_NAME "libsimpleble-c.so")
 else()
@@ -24,7 +24,7 @@ else()
         SET(SIMPLEBLE-C simpleble-c32)
         SET(FILE_NAME "simpleble-c32.dll")
     endif(CMAKE_SIZEOF_VOID_P EQUAL 8)
-endif (APPLE)
+endif(APPLE)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/epilogue.cmake)
 
@@ -34,14 +34,6 @@ include(GNUInstallDirs)
 option(SIMPLEBLE_PLAIN "Use plain version of SimpleBLE" OFF)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../fmt ${CMAKE_CURRENT_BINARY_DIR}/libfmt)
-#if(NOT TARGET fmt::fmt-header-only)
-#    option(LIBFMT_VENDORIZE "Enable vendorized libfmt" ON)
-#    find_package(fmt REQUIRED)
-
-#    if(TARGET fmt)
-#        set_target_properties(fmt PROPERTIES EXCLUDE_FROM_ALL TRUE)
-#    endif()
-#endif()
 
 if(SIMPLEBLE_TEST)
     message(STATUS "Building tests requires plain version of SimpleBLE")

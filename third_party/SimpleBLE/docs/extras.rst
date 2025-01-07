@@ -34,7 +34,7 @@ performed:
    - ``VERSION``
    - ``Cargo.toml``
    - ``docs/changelog.rst``
-   - ``setup.py`` (Add or remove the ``.devX`` suffix as needed.)
+   - ``setup.py``
 
 #. Commit the changes to the repository.
 
@@ -46,14 +46,8 @@ performed:
 
 #. Wait for ci_release.yml to finish.
 
-#. Run the CI job to build and upload the artifacts to GitHub.
-
-#. Perform a manual release of the Rust crate to crates.io.
-   - ``cargo publish`` (Ensure that the version number in ``Cargo.toml`` is correct.)
-
 #. Advance the version number in the following files:
 
    - ``VERSION``
    - ``Cargo.toml``
    - ``docs/changelog.rst``
-   - ``setup.py`` (Add or remove the ``.devX`` suffix as needed.)
