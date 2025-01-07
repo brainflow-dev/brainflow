@@ -158,58 +158,54 @@ int GaleaV4::config_board (std::string conf, std::string &response)
         return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
     }
 
-    if (!is_streaming)
-    {
-        char b[GaleaV4::max_transaction_size];
-        res = GaleaV4::max_transaction_size;
-        int max_attempt = 25; // to dont get to infinite loop
-        int current_attempt = 0;
-        while ((res >= 0) && (res % GaleaV4::package_size == 0))
-        {
-            res = socket->recv (b, GaleaV4::max_transaction_size);
-            if (res == -1)
-            {
-#ifdef _WIN32
-                safe_logger (spdlog::level::err, "config_board recv ack WSAGetLastError is {}",
-                    WSAGetLastError ());
-#else
-                safe_logger (spdlog::level::err, "config_board recv ack errno {} message {}", errno,
-                    strerror (errno));
-#endif
-                return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
-            }
-            current_attempt++;
-            if (current_attempt == max_attempt)
-            {
-                safe_logger (spdlog::level::err, "Device is streaming data while it should not!");
-                return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
-            }
-        }
-        // set response string
-        for (int i = 0; i < res; i++)
-        {
-            response = response + b[i];
-        }
-        switch (b[0])
-        {
-            case 'A':
-                return (int)BrainFlowExitCodes::STATUS_OK;
-            case 'I':
-                safe_logger (spdlog::level::err, "invalid command");
-                return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
-            default:
-                safe_logger (spdlog::level::warn, "unknown char received: {}", b[0]);
-                return (int)BrainFlowExitCodes::STATUS_OK;
-        }
-    }
-    else
+    if (is_streaming)
     {
         safe_logger (spdlog::level::warn,
             "reconfiguring device during the streaming may lead to inconsistent data, it's "
             "recommended to call stop_stream before config_board");
     }
 
-    return (int)BrainFlowExitCodes::STATUS_OK;
+    char b[GaleaV4::max_transaction_size];
+    res = GaleaV4::max_transaction_size;
+    int max_attempt = 25; // to dont get to infinite loop
+    int current_attempt = 0;
+    while ((res >= 0) && (res % GaleaV4::package_size == 0))
+    {
+        res = socket->recv (b, GaleaV4::max_transaction_size);
+        if (res == -1)
+        {
+#ifdef _WIN32
+            safe_logger (spdlog::level::err, "config_board recv ack WSAGetLastError is {}",
+                WSAGetLastError ());
+#else
+            safe_logger (spdlog::level::err, "config_board recv ack errno {} message {}", errno,
+                strerror (errno));
+#endif
+            return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
+        }
+        current_attempt++;
+        if (current_attempt == max_attempt)
+        {
+            safe_logger (spdlog::level::err, "Device is streaming data while it should not!");
+            return (int)BrainFlowExitCodes::STREAM_ALREADY_RUN_ERROR;
+        }
+    }
+    // set response string
+    for (int i = 0; i < res; i++)
+    {
+        response = response + b[i];
+    }
+    switch (b[0])
+    {
+        case 'A':
+            return (int)BrainFlowExitCodes::STATUS_OK;
+        case 'I':
+            safe_logger (spdlog::level::err, "invalid command");
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+        default:
+            safe_logger (spdlog::level::warn, "unknown char received: {}", b[0]);
+            return (int)BrainFlowExitCodes::STATUS_OK;
+    }
 }
 
 int GaleaV4::start_stream (int buffer_size, const char *streamer_params)
