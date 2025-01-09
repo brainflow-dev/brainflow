@@ -61,7 +61,14 @@ AntNeuroBoard::AntNeuroBoard (int board_id, struct BrainFlowInputParams params)
     fact = NULL;
     amp = NULL;
     stream = NULL;
+    try
+    {
+        sampling_rate = board_descr["default"]["sampling_rate"];
+    }
+    catch (...)
+    {
     sampling_rate = -1.0;
+    }
     reference_range = -1.0;
     bipolar_range = -1.0;
 }
@@ -90,7 +97,10 @@ int AntNeuroBoard::prepare_session ()
         impedance_mode = false;
         reference_range = amp->getReferenceRangesAvailable ()[0];
         bipolar_range = amp->getBipolarRangesAvailable ()[0];
+        if (sampling_rate < 0)
+        {
         sampling_rate = amp->getSamplingRatesAvailable ()[0];
+    }
     }
     catch (const exceptions::notFound &e)
     {
