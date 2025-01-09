@@ -67,10 +67,12 @@ AntNeuroBoard::AntNeuroBoard (int board_id, struct BrainFlowInputParams params)
     }
     catch (...)
     {
-    sampling_rate = -1.0;
+        sampling_rate = -1.0;
     }
     reference_range = -1.0;
     bipolar_range = -1.0;
+    impedance_mode = false;
+    impedance_package_num = -1;
 }
 
 AntNeuroBoard::~AntNeuroBoard ()
@@ -94,13 +96,14 @@ int AntNeuroBoard::prepare_session ()
             fact->getVersion ().major, fact->getVersion ().minor, fact->getVersion ().micro,
             fact->getVersion ().build);
         amp = fact->getAmplifier ();
-        impedance_mode = false;
         reference_range = amp->getReferenceRangesAvailable ()[0];
         bipolar_range = amp->getBipolarRangesAvailable ()[0];
         if (sampling_rate < 0)
         {
-        sampling_rate = amp->getSamplingRatesAvailable ()[0];
-    }
+            sampling_rate = amp->getSamplingRatesAvailable ()[0];
+        }
+        impedance_mode = false;
+        impedance_package_num = 0;
     }
     catch (const exceptions::notFound &e)
     {
@@ -152,8 +155,8 @@ int AntNeuroBoard::start_stream (int buffer_size, const char *streamer_params)
         else
         {
             safe_logger (spdlog::level::info,
-                "start eeg stream (sampling rate: {}, reference range: {}, bipolar range: {})", sampling_rate,
-                reference_range, bipolar_range);
+                "start eeg stream (sampling rate: {}, reference range: {}, bipolar range: {})", 
+                sampling_rate, reference_range, bipolar_range);
             stream = amp->OpenEegStream (sampling_rate, reference_range, bipolar_range);
         }
     }
@@ -245,7 +248,8 @@ void AntNeuroBoard::read_thread ()
     }
     try
     {
-        resistance_channels = board_descr["default"]["resistance_channels"].get<std::vector<int>> ();
+        resistance_channels = 
+            board_descr["default"]["resistance_channels"].get<std::vector<int>> ();
     }
     catch (...)
     {
@@ -306,6 +310,11 @@ void AntNeuroBoard::read_thread ()
                     }
                 }
                 package[board_descr["default"]["timestamp_channel"].get<int> ()] = get_timestamp ();
+                if (impedance_mode)
+                {
+                    package[board_descr["default"]["package_num_channel"].get<int> ()] = 
+                        impedance_package_num++;
+                }
                 push_package (package);
             }
             std::this_thread::sleep_for (std::chrono::milliseconds (1));
