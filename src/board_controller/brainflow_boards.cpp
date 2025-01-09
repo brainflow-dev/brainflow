@@ -485,6 +485,7 @@ BrainFlowBoards::BrainFlowBoards()
     brainflow_boards_json["boards"]["24"]["default"] =
     {
         {"name", "AntNeuroEE410"},
+        {"sampling_rate", 2000},
         {"timestamp_channel", 10},
         {"marker_channel", 11},
         {"package_num_channel", 9},
@@ -496,6 +497,7 @@ BrainFlowBoards::BrainFlowBoards()
     brainflow_boards_json["boards"]["25"]["default"] =
     {
         {"name", "AntNeuroEE411"},
+        {"sampling_rate", 2000},
         {"timestamp_channel", 10},
         {"marker_channel", 11},
         {"package_num_channel", 9},
@@ -507,6 +509,7 @@ BrainFlowBoards::BrainFlowBoards()
     brainflow_boards_json["boards"]["26"]["default"] =
     {
         {"name", "AntNeuroEE430"},
+        {"sampling_rate", 512},
         {"timestamp_channel", 10},
         {"marker_channel", 11},
         {"package_num_channel", 9},
@@ -518,6 +521,7 @@ BrainFlowBoards::BrainFlowBoards()
     brainflow_boards_json["boards"]["27"]["default"] =
     {
         {"name", "AntNeuroEE211"},
+        {"sampling_rate", 2000},
         {"timestamp_channel", 66},
         {"marker_channel", 67},
         {"package_num_channel", 65},
@@ -531,6 +535,7 @@ BrainFlowBoards::BrainFlowBoards()
     brainflow_boards_json["boards"]["28"]["default"] =
     {
         {"name", "AntNeuroEE212"},
+        {"sampling_rate", 2000},
         {"timestamp_channel", 34},
         {"marker_channel", 35},
         {"package_num_channel", 33},
@@ -542,6 +547,7 @@ BrainFlowBoards::BrainFlowBoards()
     brainflow_boards_json["boards"]["29"]["default"] =
     {
         {"name", "AntNeuroEE213"},
+        {"sampling_rate", 2000},
         {"timestamp_channel", 18},
         {"marker_channel", 19},
         {"package_num_channel", 17},
@@ -553,6 +559,7 @@ BrainFlowBoards::BrainFlowBoards()
     brainflow_boards_json["boards"]["30"]["default"] =
     {
         {"name", "AntNeuroEE214"},
+        {"sampling_rate", 2000},
         {"timestamp_channel", 58},
         {"marker_channel", 59},
         {"package_num_channel", 57},
@@ -566,6 +573,7 @@ BrainFlowBoards::BrainFlowBoards()
     brainflow_boards_json["boards"]["31"]["default"] =
     {
         {"name", "AntNeuroEE215"},
+        {"sampling_rate", 2000},
         {"timestamp_channel", 90},
         {"marker_channel", 91},
         {"package_num_channel", 89},
@@ -581,6 +589,7 @@ BrainFlowBoards::BrainFlowBoards()
     brainflow_boards_json["boards"]["32"]["default"] =
     {
         {"name", "AntNeuroEE221"},
+        {"sampling_rate", 16000},
         {"timestamp_channel", 18},
         {"marker_channel", 19},
         {"package_num_channel", 17},
@@ -592,6 +601,7 @@ BrainFlowBoards::BrainFlowBoards()
     brainflow_boards_json["boards"]["33"]["default"] =
     {
         {"name", "AntNeuroEE222"},
+        {"sampling_rate", 16000},
         {"timestamp_channel", 34},
         {"marker_channel", 35},
         {"package_num_channel", 33},
@@ -603,6 +613,7 @@ BrainFlowBoards::BrainFlowBoards()
     brainflow_boards_json["boards"]["34"]["default"] =
     {
         {"name", "AntNeuroEE223"},
+        {"sampling_rate", 16000},
         {"timestamp_channel", 58},
         {"marker_channel", 59},
         {"package_num_channel", 57},
@@ -616,6 +627,7 @@ BrainFlowBoards::BrainFlowBoards()
     brainflow_boards_json["boards"]["35"]["default"] =
     {
         {"name", "AntNeuroEE224"},
+        {"sampling_rate", 16000},
         {"timestamp_channel", 66},
         {"marker_channel", 67},
         {"package_num_channel", 65},
@@ -629,6 +641,7 @@ BrainFlowBoards::BrainFlowBoards()
     brainflow_boards_json["boards"]["36"]["default"] =
     {
         {"name", "AntNeuroEE225"},
+        {"sampling_rate", 16000},
         {"timestamp_channel", 90},
         {"marker_channel", 91},
         {"package_num_channel", 89},
