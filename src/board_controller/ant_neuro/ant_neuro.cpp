@@ -155,7 +155,7 @@ int AntNeuroBoard::start_stream (int buffer_size, const char *streamer_params)
         else
         {
             safe_logger (spdlog::level::info,
-                "start eeg stream (sampling rate: {}, reference range: {}, bipolar range: {})", 
+                "start eeg stream (sampling rate: {}, reference range: {}, bipolar range: {})",
                 sampling_rate, reference_range, bipolar_range);
             stream = amp->OpenEegStream (sampling_rate, reference_range, bipolar_range);
         }
@@ -248,7 +248,7 @@ void AntNeuroBoard::read_thread ()
     }
     try
     {
-        resistance_channels = 
+        resistance_channels =
             board_descr["default"]["resistance_channels"].get<std::vector<int>> ();
     }
     catch (...)
@@ -312,7 +312,7 @@ void AntNeuroBoard::read_thread ()
                 package[board_descr["default"]["timestamp_channel"].get<int> ()] = get_timestamp ();
                 if (impedance_mode)
                 {
-                    package[board_descr["default"]["package_num_channel"].get<int> ()] = 
+                    package[board_descr["default"]["package_num_channel"].get<int> ()] =
                         impedance_package_num++;
                 }
                 push_package (package);
