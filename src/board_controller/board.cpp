@@ -467,7 +467,7 @@ int Board::get_board_data (int data_count, int preset, double *data_buf)
     if (dbs.find (preset) == dbs.end ())
     {
         safe_logger (spdlog::level::err,
-            "stream is not startted or no preset: {} found for this board", preset);
+            "stream is not started or no preset: {} found for this board", preset);
         return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
     }
     if (!dbs[preset])

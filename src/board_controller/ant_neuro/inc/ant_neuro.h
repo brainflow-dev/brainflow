@@ -28,6 +28,8 @@ private:
     int sampling_rate;
     double reference_range;
     double bipolar_range;
+    bool impedance_mode;
+    int impedance_package_num;
 
     void read_thread ();
 #endif

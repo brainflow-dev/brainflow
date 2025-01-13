@@ -71,6 +71,8 @@ AntNeuroBoard::AntNeuroBoard (int board_id, struct BrainFlowInputParams params)
     }
     reference_range = -1.0;
     bipolar_range = -1.0;
+    impedance_mode = false;
+    impedance_package_num = -1;
 }
 
 AntNeuroBoard::~AntNeuroBoard ()
@@ -100,6 +102,8 @@ int AntNeuroBoard::prepare_session ()
         {
             sampling_rate = amp->getSamplingRatesAvailable ()[0];
         }
+        impedance_mode = false;
+        impedance_package_num = 0;
     }
     catch (const exceptions::notFound &e)
     {
@@ -143,10 +147,18 @@ int AntNeuroBoard::start_stream (int buffer_size, const char *streamer_params)
 
     try
     {
-        safe_logger (spdlog::level::info,
-            "sampling rate: {}, reference range: {}, bipolar range: {}", sampling_rate,
-            reference_range, bipolar_range);
-        stream = amp->OpenEegStream (sampling_rate, reference_range, bipolar_range);
+        if (impedance_mode)
+        {
+            safe_logger (spdlog::level::info, "start impedance stream");
+            stream = amp->OpenImpedanceStream ();
+        }
+        else
+        {
+            safe_logger (spdlog::level::info,
+                "start eeg stream (sampling rate: {}, reference range: {}, bipolar range: {})",
+                sampling_rate, reference_range, bipolar_range);
+            stream = amp->OpenEegStream (sampling_rate, reference_range, bipolar_range);
+        }
     }
     catch (const std::runtime_error &e)
     {
@@ -217,6 +229,7 @@ void AntNeuroBoard::read_thread ()
     }
     std::vector<int> emg_channels;
     std::vector<int> eeg_channels;
+    std::vector<int> resistance_channels;
     try
     {
         emg_channels = board_descr["default"]["emg_channels"].get<std::vector<int>> ();
@@ -233,6 +246,15 @@ void AntNeuroBoard::read_thread ()
     {
         safe_logger (spdlog::level::trace, "device has no eeg channels");
     }
+    try
+    {
+        resistance_channels =
+            board_descr["default"]["resistance_channels"].get<std::vector<int>> ();
+    }
+    catch (...)
+    {
+        safe_logger (spdlog::level::trace, "device has no resistance_channels channels");
+    }
     std::vector<channel> ant_channels = stream->getChannelList ();
 
     while (keep_alive)
@@ -245,17 +267,26 @@ void AntNeuroBoard::read_thread ()
             {
                 int eeg_counter = 0;
                 int emg_counter = 0;
+                int resistance_counter = 0;
                 for (int j = 0; j < buf_channels_len; j++)
                 {
                     if ((ant_channels[j].getType () == channel::reference) &&
                         (eeg_counter < (int)eeg_channels.size ()))
                     {
                         package[eeg_channels[eeg_counter++]] = buf.getSample (j, i);
+                        if (impedance_mode)
+                        {
+                            resistance_counter++;
+                        }
                     }
                     if ((ant_channels[j].getType () == channel::bipolar) &&
                         (emg_counter < (int)emg_channels.size ()))
                     {
                         package[emg_channels[emg_counter++]] = buf.getSample (j, i);
+                        if (impedance_mode)
+                        {
+                            resistance_counter++;
+                        }
                     }
                     if (ant_channels[j].getType () == channel::sample_counter)
                     {
@@ -267,11 +298,32 @@ void AntNeuroBoard::read_thread ()
                         package[board_descr["default"]["other_channels"][0].get<int> ()] =
                             buf.getSample (j, i);
                     }
+                    if ((ant_channels[j].getType () == channel::impedance_reference) &&
+                        (resistance_counter < (int)resistance_channels.size ()))
+                    {
+                        package[resistance_channels[resistance_counter++]] = buf.getSample (j, i);
+                    }
+                    if ((ant_channels[j].getType () == channel::impedance_ground) &&
+                        (resistance_counter < (int)resistance_channels.size ()))
+                    {
+                        package[resistance_channels[resistance_counter++]] = buf.getSample (j, i);
+                    }
                 }
                 package[board_descr["default"]["timestamp_channel"].get<int> ()] = get_timestamp ();
+                if (impedance_mode)
+                {
+                    package[board_descr["default"]["package_num_channel"].get<int> ()] =
+                        impedance_package_num++;
+                }
                 push_package (package);
             }
             std::this_thread::sleep_for (std::chrono::milliseconds (1));
+            if (impedance_mode)
+            {
+                // some more sleep; twice every second should be more than enough
+                // if left out, it yields impedances at around 64 Hz
+                std::this_thread::sleep_for (std::chrono::milliseconds (500));
+            }
         }
         catch (...)
         {
@@ -293,6 +345,7 @@ int AntNeuroBoard::config_board (std::string config, std::string &response)
     std::string prefix = "sampling_rate:";
     std::string rv_prefix = "reference_range:";
     std::string bv_prefix = "bipolar_range:";
+    std::string mode_prefix = "impedance_mode:";
 
     if (config.find (prefix) != std::string::npos)
     {
@@ -391,6 +444,34 @@ int AntNeuroBoard::config_board (std::string config, std::string &response)
 
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
+    else if (config.find (mode_prefix) != std::string::npos)
+    {
+        bool new_impedance_mode;
+        std::string value = config.substr (mode_prefix.size ());
+
+        if (value == "0" || value == "1")
+        {
+            try
+            {
+                new_impedance_mode = static_cast<bool> (std::stod (value));
+            }
+            catch (...)
+            {
+                safe_logger (spdlog::level::err, "format is '{}value'", mode_prefix.c_str ());
+                return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+            }
+
+            impedance_mode = new_impedance_mode;
+            return (int)BrainFlowExitCodes::STATUS_OK;
+        }
+        else
+        {
+            safe_logger (spdlog::level::err, "not supported value provided");
+            safe_logger (spdlog::level::debug, "supported values: '0' or '1'");
+            return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+        }
+    }
+
     safe_logger (spdlog::level::err, "format is '{}value'", prefix.c_str ());
     return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
 }
