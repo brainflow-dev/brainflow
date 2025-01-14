@@ -9,6 +9,9 @@ if (CMAKE_SIZEOF_VOID_P EQUAL 8)
     else ()
         SET (SYNCHRONI_SDK_WRAPPER_COMPILED_NAME "SynchroniLib.dll")
         SET (SYNCHRONI_SDK_WRAPPER_COMPILED_NAME_DOT_LIB "SynchroniLib.lib")
+        SET (SYNCHRONI_SDK_LINK_NAME_LIB "sensor")
+        SET (SYNCHRONI_SDK_LINK_NAME_DOT_LIB "sensor.lib")
+        SET (SYNCHRONI_SDK_ARCH "Win64")
     endif (APPLE)
 else (CMAKE_SIZEOF_VOID_P EQUAL 8)
     if (APPLE)
@@ -16,8 +19,12 @@ else (CMAKE_SIZEOF_VOID_P EQUAL 8)
     elseif (UNIX)
         SET (SYNCHRONI_SDK_WRAPPER_COMPILED_NAME "libSynchroniLib.so")
     else ()
+        SET (SYNCHRONI_SDK_WRAPPER_NAME "SynchroniLib32")
         SET (SYNCHRONI_SDK_WRAPPER_COMPILED_NAME "SynchroniLib32.dll")
         SET (SYNCHRONI_SDK_WRAPPER_COMPILED_NAME_DOT_LIB "SynchroniLib32.lib")
+        SET (SYNCHRONI_SDK_LINK_NAME_LIB "sensor32")
+        SET (SYNCHRONI_SDK_LINK_NAME_DOT_LIB "sensor32.lib")
+        SET (SYNCHRONI_SDK_ARCH "Win32")
     endif (APPLE)
 endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
 
@@ -36,9 +43,9 @@ add_library (
 if (APPLE)
     target_link_libraries (${SYNCHRONI_SDK_WRAPPER_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/third_party/synchroni/lib/mac/sensor.xcframework)
 elseif (UNIX)
-    SET (SYNCHRONI_SDK_WRAPPER_COMPILED_NAME "libSynchroniLib.so")
+    target_link_libraries (${SYNCHRONI_SDK_WRAPPER_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/third_party/synchroni/lib/linux/x86_64/For$<CONFIG>/libsensor.so)
 else ()
-    target_link_libraries (${SYNCHRONI_SDK_WRAPPER_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/third_party/synchroni/lib/windows/For$<CONFIG>/sensor.lib)
+    target_link_libraries (${SYNCHRONI_SDK_WRAPPER_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/third_party/synchroni/lib/windows/${SYNCHRONI_SDK_ARCH}/For$<CONFIG>/${SYNCHRONI_SDK_LINK_NAME_DOT_LIB})
 endif (APPLE)
 
 
@@ -72,13 +79,13 @@ if (MSVC)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${SYNCHRONI_SDK_WRAPPER_NAME}.dll" "${CMAKE_CURRENT_SOURCE_DIR}/julia_package/brainflow/lib/${SYNCHRONI_SDK_WRAPPER_NAME}.dll"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${SYNCHRONI_SDK_WRAPPER_NAME}.dll" "${CMAKE_CURRENT_SOURCE_DIR}/nodejs_package/brainflow/lib/${SYNCHRONI_SDK_WRAPPER_NAME}.dll"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${SYNCHRONI_SDK_WRAPPER_NAME}.dll" "${CMAKE_CURRENT_SOURCE_DIR}/rust_package/brainflow/lib/${SYNCHRONI_SDK_WRAPPER_NAME}.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/lib/windows/For$<CONFIG>/${SYNCHRONI_SDK_NAME}.dll" "${CMAKE_CURRENT_SOURCE_DIR}/matlab_package/brainflow/lib/${SYNCHRONI_SDK_NAME}.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/lib/windows/For$<CONFIG>/${SYNCHRONI_SDK_NAME}.dll" "${CMAKE_CURRENT_SOURCE_DIR}/python_package/brainflow/lib/${SYNCHRONI_SDK_NAME}.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/lib/windows/For$<CONFIG>/${SYNCHRONI_SDK_NAME}.dll" "${CMAKE_CURRENT_SOURCE_DIR}/csharp_package/brainflow/brainflow/lib/${SYNCHRONI_SDK_NAME}.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/lib/windows/For$<CONFIG>/${SYNCHRONI_SDK_NAME}.dll" "${CMAKE_CURRENT_SOURCE_DIR}/java_package/brainflow/src/main/resources/${SYNCHRONI_SDK_NAME}.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/lib/windows/For$<CONFIG>/${SYNCHRONI_SDK_NAME}.dll" "${CMAKE_CURRENT_SOURCE_DIR}/julia_package/brainflow/lib/${SYNCHRONI_SDK_NAME}.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/lib/windows/For$<CONFIG>/${SYNCHRONI_SDK_NAME}.dll" "${CMAKE_CURRENT_SOURCE_DIR}/nodejs_package/brainflow/lib/${SYNCHRONI_SDK_NAME}.dll"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/lib/windows/For$<CONFIG>/${SYNCHRONI_SDK_NAME}.dll" "${CMAKE_CURRENT_SOURCE_DIR}/rust_package/brainflow/lib/${SYNCHRONI_SDK_NAME}.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/lib/windows/${SYNCHRONI_SDK_ARCH}/For$<CONFIG>/${SYNCHRONI_SDK_LINK_NAME_LIB}.dll" "${CMAKE_CURRENT_SOURCE_DIR}/matlab_package/brainflow/lib/${SYNCHRONI_SDK_LINK_NAME_LIB}.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/lib/windows/${SYNCHRONI_SDK_ARCH}/For$<CONFIG>/${SYNCHRONI_SDK_LINK_NAME_LIB}.dll" "${CMAKE_CURRENT_SOURCE_DIR}/python_package/brainflow/lib/${SYNCHRONI_SDK_LINK_NAME_LIB}.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/lib/windows/${SYNCHRONI_SDK_ARCH}/For$<CONFIG>/${SYNCHRONI_SDK_LINK_NAME_LIB}.dll" "${CMAKE_CURRENT_SOURCE_DIR}/csharp_package/brainflow/brainflow/lib/${SYNCHRONI_SDK_LINK_NAME_LIB}.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/lib/windows/${SYNCHRONI_SDK_ARCH}/For$<CONFIG>/${SYNCHRONI_SDK_LINK_NAME_LIB}.dll" "${CMAKE_CURRENT_SOURCE_DIR}/java_package/brainflow/src/main/resources/${SYNCHRONI_SDK_LINK_NAME_LIB}.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/lib/windows/${SYNCHRONI_SDK_ARCH}/For$<CONFIG>/${SYNCHRONI_SDK_LINK_NAME_LIB}.dll" "${CMAKE_CURRENT_SOURCE_DIR}/julia_package/brainflow/lib/${SYNCHRONI_SDK_LINK_NAME_LIB}.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/lib/windows/${SYNCHRONI_SDK_ARCH}/For$<CONFIG>/${SYNCHRONI_SDK_LINK_NAME_LIB}.dll" "${CMAKE_CURRENT_SOURCE_DIR}/nodejs_package/brainflow/lib/${SYNCHRONI_SDK_LINK_NAME_LIB}.dll"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/lib/windows/${SYNCHRONI_SDK_ARCH}/For$<CONFIG>/${SYNCHRONI_SDK_LINK_NAME_LIB}.dll" "${CMAKE_CURRENT_SOURCE_DIR}/rust_package/brainflow/lib/${SYNCHRONI_SDK_LINK_NAME_LIB}.dll"
     )
 endif (MSVC)
 
@@ -91,6 +98,13 @@ if (UNIX)
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${SYNCHRONI_SDK_WRAPPER_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/csharp_package/brainflow/brainflow/lib/${SYNCHRONI_SDK_WRAPPER_COMPILED_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${SYNCHRONI_SDK_WRAPPER_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/matlab_package/brainflow/lib/${SYNCHRONI_SDK_WRAPPER_COMPILED_NAME}"
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/compiled/${SYNCHRONI_SDK_WRAPPER_COMPILED_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/rust_package/brainflow/lib/${SYNCHRONI_SDK_WRAPPER_COMPILED_NAME}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/lib/linux/x86_64/For$<CONFIG>/libsensor.so" "${CMAKE_CURRENT_SOURCE_DIR}/matlab_package/brainflow/lib/libsensor.so"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/lib/linux/x86_64/For$<CONFIG>/libsensor.so" "${CMAKE_CURRENT_SOURCE_DIR}/python_package/brainflow/lib/libsensor.so"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/lib/linux/x86_64/For$<CONFIG>/libsensor.so" "${CMAKE_CURRENT_SOURCE_DIR}/csharp_package/brainflow/brainflow/lib/libsensor.so"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/lib/linux/x86_64/For$<CONFIG>/libsensor.so" "${CMAKE_CURRENT_SOURCE_DIR}/java_package/brainflow/src/main/resources/libsensor.so"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/lib/linux/x86_64/For$<CONFIG>/libsensor.so" "${CMAKE_CURRENT_SOURCE_DIR}/julia_package/brainflow/lib/libsensor.so"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/lib/linux/x86_64/For$<CONFIG>/libsensor.so" "${CMAKE_CURRENT_SOURCE_DIR}/nodejs_package/brainflow/lib/libsensor.so"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/lib/linux/x86_64/For$<CONFIG>/libsensor.so" "${CMAKE_CURRENT_SOURCE_DIR}/rust_package/brainflow/lib/libsensor.so"
     )
 endif (UNIX)
 
@@ -99,18 +113,27 @@ if (MSVC)
         install (
             FILES
             ${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/SynchroniLib.dll
-            ${CMAKE_CURRENT_SOURCE_DIR}/third_party/synchroni/lib/windows/For$<CONFIG>/sensor.dll
+            ${CMAKE_CURRENT_SOURCE_DIR}/third_party/synchroni/lib/windows/${SYNCHRONI_SDK_ARCH}/For$<CONFIG>/${SYNCHRONI_SDK_LINK_NAME_LIB}.dll
             DESTINATION lib
         )
     else (CMAKE_SIZEOF_VOID_P EQUAL 8)
         install (
             FILES
             ${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/SynchroniLib32.dll
-            ${CMAKE_CURRENT_SOURCE_DIR}/third_party/synchroni/lib/windows/For$<CONFIG>/sensor32.dll
+            ${CMAKE_CURRENT_SOURCE_DIR}/third_party/synchroni/lib/windows/${SYNCHRONI_SDK_ARCH}/For$<CONFIG>/${SYNCHRONI_SDK_LINK_NAME_LIB}.dll
             DESTINATION lib
         )
     endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
 endif (MSVC)
+
+if (UNIX)
+        install (
+            FILES
+            ${CMAKE_CURRENT_SOURCE_DIR}/compiled/$<CONFIG>/${SYNCHRONI_SDK_WRAPPER_COMPILED_NAME}
+            ${CMAKE_CURRENT_SOURCE_DIR}/third_party/synchroni/lib/linux/x86_64/For$<CONFIG>/libsensor.so
+            DESTINATION lib
+        )
+endif(UNIX)
 
 install (
     TARGETS ${SYNCHRONI_SDK_WRAPPER_NAME}

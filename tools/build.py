@@ -136,6 +136,11 @@ def prepare_args():
         parser.add_argument(
             '--no-oymotion', dest='oymotion', action='store_false')
         parser.set_defaults(oymotion=False)
+
+        parser.add_argument('--synchroni', dest='synchroni', action='store_true')
+        parser.add_argument('--no-synchroni', dest='synchroni', action='store_false')
+        parser.set_defaults(synchroni='store_false')
+
         parser.add_argument('--msvc-runtime', type=str, choices=[
                             'static', 'dynamic'],
                             help='how to link MSVC runtime', required=False, default='static')
@@ -180,6 +185,11 @@ def prepare_args():
         parser.add_argument('--cmake-osx-deployment-target', type=str,
                             help='min supported version of osx', required=False, default='10.15')
         parser.add_argument('--use-libftdi', action='store_true')
+
+        parser.add_argument('--synchroni', dest='synchroni', action='store_true')
+        parser.add_argument('--no-synchroni', dest='synchroni', action='store_false')
+        parser.set_defaults(synchroni='store_false')
+
         try:
             output = subprocess.check_output(['ninja', '--version'])
             print(output)
@@ -216,10 +226,6 @@ def prepare_args():
     parser.add_argument('--no-ble', dest='ble', action='store_false')
     parser.set_defaults(ble=ble_default)
 
-    parser.add_argument('--synchroni', dest='synchroni', action='store_true')
-    parser.add_argument('--no-synchroni', dest='synchroni', action='store_false')
-    parser.set_defaults(synchroni='store_false')
-    
     parser.add_argument('--tests', dest='tests', action='store_true')
     parser.add_argument('--no-tests', dest='tests', action='store_false')
     parser.set_defaults(tests=tests_default)
