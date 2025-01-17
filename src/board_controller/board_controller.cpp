@@ -296,6 +296,10 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
             break;
         case BoardIds::OB5000_8_CHANNELS_BOARD:
             board = std::shared_ptr<Board> (new SynchroniBoard (board_id, params));
+            break;
+        case BoardIds::OB3000_24_CHANNELS_BOARD:
+            board = std::shared_ptr<Board> (new SynchroniBoard (board_id, params));
+            break;
         case BoardIds::NEUROPAWN_KNIGHT_BOARD:
             board =
                 std::shared_ptr<Board> (new Knight ((int)BoardIds::NEUROPAWN_KNIGHT_BOARD, params));

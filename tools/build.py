@@ -137,10 +137,6 @@ def prepare_args():
             '--no-oymotion', dest='oymotion', action='store_false')
         parser.set_defaults(oymotion=False)
 
-        parser.add_argument('--synchroni', dest='synchroni', action='store_true')
-        parser.add_argument('--no-synchroni', dest='synchroni', action='store_false')
-        parser.set_defaults(synchroni='store_false')
-
         parser.add_argument('--msvc-runtime', type=str, choices=[
                             'static', 'dynamic'],
                             help='how to link MSVC runtime', required=False, default='static')
@@ -186,9 +182,6 @@ def prepare_args():
                             help='min supported version of osx', required=False, default='10.15')
         parser.add_argument('--use-libftdi', action='store_true')
 
-        parser.add_argument('--synchroni', dest='synchroni', action='store_true')
-        parser.add_argument('--no-synchroni', dest='synchroni', action='store_false')
-        parser.set_defaults(synchroni='store_false')
 
         try:
             output = subprocess.check_output(['ninja', '--version'])
@@ -213,6 +206,11 @@ def prepare_args():
                         required=False, default=os.path.join(cur_folder, '..', 'installed'))
     parser.add_argument('--use-openmp', action='store_true')
     parser.add_argument('--onnx', action='store_true')
+    
+    parser.add_argument('--synchroni', dest='synchroni', action='store_true')
+    parser.add_argument('--no-synchroni', dest='synchroni', action='store_false')
+    parser.set_defaults(synchroni='store_false')
+
     parser.add_argument('--warnings-as-errors', action='store_true')
     parser.add_argument('--debug', action='store_true')
     parser.add_argument('--clear-build-dir', action='store_true')

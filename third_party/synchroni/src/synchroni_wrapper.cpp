@@ -13,7 +13,7 @@
 #include "spdlog/spdlog.h"
 #include <memory>
 #include <map>
-
+#include <iostream>
 // #define ENABLE_LOGGER
 
 using namespace std;
@@ -562,4 +562,23 @@ BOOL WINAPI DllMain(
     }
     return TRUE;  // Successful DLL_PROCESS_ATTACH.
 }
+#endif
+
+#ifdef __linux__
+//void __attribute__ ((constructor)) my_load (void);
+//void __attribute__ ((destructor)) my_unload (void);
+//
+//// Called when the library is loaded and before dlopen() returns
+//void my_load (void)
+//{
+//    printf ("my_load\n");
+//}
+//
+//// Called when the library is unloaded and before dlclose()
+//// returns
+//void my_unload (void)
+//{
+//    printf ("my_unload\n");
+//    sensor::SensorController::destory ();
+//}
 #endif

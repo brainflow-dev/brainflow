@@ -44,7 +44,11 @@ std::string SynchroniBoard::get_lib_name (){
     }
 #endif
 #ifdef __linux__
-    synclib_name = "libSynchroniLib.so";
+#if defined(__arm__) || defined(_M_ARM64) || defined(_M_ARM) || defined(__aarch64__)
+    synclib_name = "libSynchroniLib_arm64.so";
+#else
+    synclib_name = "libSynchroniLib_x64.so";
+#endif
 #endif
 #ifdef __APPLE__
     synclib_name = "libSynchroniLib.dylib";

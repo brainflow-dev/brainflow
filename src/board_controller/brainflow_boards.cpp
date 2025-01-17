@@ -1160,6 +1160,16 @@ BrainFlowBoards::BrainFlowBoards()
         {"num_rows", 4},
         {"eeg_channels", {1}} 
     };
+    brainflow_boards_json["boards"]["63"]["default"] = {
+        {"name", "OB3000"},
+        {"sampling_rate", 500},
+        {"package_num_channel", 0},
+        {"timestamp_channel", 25},
+        {"marker_channel", 26},
+        {"num_rows", 27},
+        {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}},
+        {"ecg_channels", {24}}  
+    };
 }
 
 BrainFlowBoards boards_struct;
