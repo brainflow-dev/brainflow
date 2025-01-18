@@ -1342,3 +1342,44 @@ Supported platforms:
 - Linux
 - MacOS
 - Devices like Raspberry Pi
+
+
+BioListener
+--------
+
+BioListener
+~~~~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/54273076343_6a7eb99697_k.jpg
+    :width: 519px
+    :height: 389px
+
+`BioListener website <https://github.com/serhii-matsyshyn/biolistener/>`_
+
+To create such board you need to specify the following board ID and fields of BrainFlowInputParams object:
+
+- :code:`BoardIds.BIOLISTENER_BOARD`
+- :code:`ip_port`, any local port which is currently free (and is selected on BioListener board), e.g. 12345
+- :code:`ip_address`, ip address of the current device, BrainFlow acts as a server. Use 0.0.0.0 to make the server listen on all network interfaces.
+
+Initialization Example:
+
+.. code-block:: python
+
+    params = BrainFlowInputParams()
+    params.ip_port = 12345
+    params.ip_address = "0.0.0.0"
+    board = BoardShim(BoardIds.BIOLISTENER_BOARD, params)
+
+Supported platforms:
+
+- Windows
+- Linux
+- MacOS
+- Devices like Raspberry Pi
+- Android
+
+Available :ref:`presets-label`:
+
+- :code:`BrainFlowPresets.DEFAULT_PRESET`, it contains EEG (EMG, ECG, EOG) data
+- :code:`BrainFlowPresets.AUXILIARY_PRESET`, it contains Gyro, Accel, battery and ESP32 chip temperature data
