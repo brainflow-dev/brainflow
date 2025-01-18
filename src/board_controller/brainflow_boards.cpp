@@ -1117,6 +1117,9 @@ BrainFlowBoards::BrainFlowBoards()
         {"package_num_channel", 0},
         {"num_rows", 13},
         {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
+        {"emg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
+        {"ecg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
+        {"eog_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
         {"other_channels", {9, 10}}
     };
     brainflow_boards_json["boards"]["58"]["auxiliary"] =
