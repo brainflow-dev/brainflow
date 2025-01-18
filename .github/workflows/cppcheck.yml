@@ -15,7 +15,7 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
     - name: Run Cppcheck
-      run: cppcheck --std=c++11 -ithird_party/spdlog -ithird_party/libsvm -ithird_party/SimpleBLE -ithird_party/fmt -ithird_party/SimpleDBus -ithird_party/SimpleBluez -ithird_party/kissfft -isrc/utils/os_serial_ioctl.cpp --error-exitcode=1 --xml --xml-version=2 --force src cpp_package third_party 2>cppcheck_res.xml
+      run: cppcheck --std=c++11 -ithird_party/wavelib -ithird_party/spdlog -ithird_party/libsvm -ithird_party/SimpleBLE -ithird_party/fmt -ithird_party/SimpleDBus -ithird_party/SimpleBluez -ithird_party/kissfft -isrc/utils/os_serial_ioctl.cpp --error-exitcode=1 --xml --xml-version=2 --force src cpp_package third_party 2>cppcheck_res.xml
     - name: Generate Report
       if: ${{ failure() }}
       run: cppcheck-htmlreport --title=BrainFlow --file=cppcheck_res.xml --report-dir=report
