@@ -1,0 +1,163 @@
+name: Cpp Release Test
+
+on:
+  # push:
+  # pull_request:
+  workflow_dispatch:
+
+jobs:
+  # ------------------------------------------------------------
+
+  cpp-release-linux:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        library: [
+          {lib: simpledbus, name: SimpleDBus},
+          {lib: simplebluez, name: SimpleBluez},
+          {lib: simpleble, name: SimpleBLE},
+        ]
+        options: [
+          {container: dockcross/linux-x64, target: linux-x64},
+          {container: dockcross/linux-x86, target: linux-x86},
+          {container: dockcross/linux-armv6-lts, target: linux-armv6},
+        ]
+        type: [shared, static]
+
+    container:
+      image: ${{ matrix.options.container }}
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Build Expat
+        run: |
+          git clone https://github.com/libexpat/libexpat.git /tmp/libexpat
+          cd /tmp/libexpat/expat
+
+          cmake -B /tmb/expat/build -S /tmp/libexpat/expat -DEXPAT_BUILD_DOCS=OFF -DEXPAT_BUILD_EXAMPLES=OFF -DEXPAT_BUILD_TESTS=OFF
+          cmake --build /tmb/expat/build --config Release --parallel 4
+          cmake --install /tmb/expat/build --prefix /tmp/expat/install
+
+      - name: Build DBus
+        run: |
+          git clone https://gitlab.freedesktop.org/dbus/dbus.git /tmp/dbus
+
+          export CMAKE_PREFIX_PATH=/tmp/expat/install:$CMAKE_PREFIX_PATH
+
+          cmake -B /tmb/dbus/build -S /tmp/dbus -DDBUS_SESSION_SOCKET_DIR=/usr/local/var/run/dbus/system_bus_socket -DDBUS_BUILD_TESTS=OFF
+          cmake --build /tmb/dbus/build --config Release --parallel 4
+          cmake --install /tmb/dbus/build --prefix /tmp/dbus/install
+
+      - name: Build ${{ matrix.library.name }}
+        run: |
+          GITHUB_WORKSPACE=$(pwd)
+
+          if [ "${{ matrix.type }}" = "shared" ]; then
+            BUILD_SHARED_LIBS=ON
+          else
+            BUILD_SHARED_LIBS=OFF
+          fi
+
+          export CMAKE_PREFIX_PATH=/tmp/dbus/install:$CMAKE_PREFIX_PATH
+
+          cmake -B $GITHUB_WORKSPACE/build_${{ matrix.library.lib }} -DCMAKE_BUILD_TYPE=Release -S $GITHUB_WORKSPACE/${{ matrix.library.lib }} -DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS
+          cmake --build $GITHUB_WORKSPACE/build_${{ matrix.library.lib }} --config Release --parallel 4
+          cmake --install $GITHUB_WORKSPACE/build_${{ matrix.library.lib }} --prefix $GITHUB_WORKSPACE/build_${{ matrix.library.lib }}/install
+
+          mkdir -p $GITHUB_WORKSPACE/artifacts
+          zip -r $GITHUB_WORKSPACE/artifacts/${{ matrix.library.lib }}_${{ matrix.type }}_${{ matrix.options.target }}.zip $GITHUB_WORKSPACE/build_${{ matrix.library.lib }}/install
+
+      - name: Upload binaries to job
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.library.lib }}_${{ matrix.type }}_${{ matrix.options.target }}
+          path: artifacts/${{ matrix.library.lib }}_${{ matrix.type }}_${{ matrix.options.target }}.zip
+
+  # ------------------------------------------------------------
+
+  cpp-release-windows:
+    runs-on: windows-2022
+
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        arch: [Win32, x64]
+        type: [shared, static]
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.1
+
+      - name: Compile SimpleBLE
+        shell: cmd
+        run: |
+
+          if "${{ matrix.type }}" == "shared" (
+            set BUILD_SHARED_LIBS=ON
+          ) else (
+            set BUILD_SHARED_LIBS=OFF
+          )
+
+          cmake -B %GITHUB_WORKSPACE%\build -G "Visual Studio 17 2022" -A ${{ matrix.arch }} -DCMAKE_SYSTEM_VERSION="10.0.19041.0" -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -S %GITHUB_WORKSPACE%/simpleble
+          cmake --build %GITHUB_WORKSPACE%\build --config Release --parallel 4
+          cmake --install %GITHUB_WORKSPACE%\build --prefix %GITHUB_WORKSPACE%\build\install
+
+          mkdir -p $GITHUB_WORKSPACE\artifacts
+          7z a -tzip %GITHUB_WORKSPACE%\artifacts\simpleble_${{ matrix.type }}_windows-${{ matrix.arch }}.zip %GITHUB_WORKSPACE%\build\install
+
+      - name: Upload binaries to job
+        uses: actions/upload-artifact@v3
+        with:
+          name: simpleble_${{ matrix.type }}_windows-${{ matrix.arch }}
+          path: artifacts/simpleble_${{ matrix.type }}_windows-${{ matrix.arch }}.zip
+
+  # ------------------------------------------------------------
+
+  cpp-release-macos:
+    runs-on: macos-12
+
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        arch: [arm64, x86_64]
+        type: [shared, static]
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v1.13
+        with:
+          cmake-version: '3.21'
+
+      - name: Compile SimpleBLE
+        run: |
+
+          if [ "${{ matrix.type }}" = "shared" ]; then
+            BUILD_SHARED_LIBS=ON
+          else
+            BUILD_SHARED_LIBS=OFF
+          fi
+
+          cmake -B $GITHUB_WORKSPACE/build -DCMAKE_OSX_ARCHITECTURES="${{ matrix.arch }}" -DCMAKE_BUILD_TYPE=Release -S $GITHUB_WORKSPACE/simpleble -DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS
+          cmake --build $GITHUB_WORKSPACE/build --config Release --parallel 4
+          cmake --install $GITHUB_WORKSPACE/build --prefix $GITHUB_WORKSPACE/build/install
+
+          mkdir -p $GITHUB_WORKSPACE/artifacts
+          zip -r $GITHUB_WORKSPACE/artifacts/simpleble_${{ matrix.type }}_macos-${{ matrix.arch }}.zip $GITHUB_WORKSPACE/build/install
+
+      - name: Upload binaries to job
+        uses: actions/upload-artifact@v3
+        with:
+          name: simpleble_${{ matrix.type }}_macos-${{ matrix.arch }}
+          path: artifacts/simpleble_${{ matrix.type }}_macos-${{ matrix.arch }}.zip

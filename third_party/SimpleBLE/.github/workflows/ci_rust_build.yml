@@ -1,0 +1,74 @@
+name: Rust Build
+
+on: [push, pull_request]
+
+jobs:
+
+  # ------------------------------------------------------------
+  # build-windows:
+  #   runs-on: windows-2022
+
+  #   strategy:
+  #     fail-fast: false
+  #     max-parallel: 4
+  #     matrix:
+  #       arch: [Win32, x64]
+  #       sdk: ["10.0.19041.0", "10.0.22000.0"]
+
+  #   steps:
+  #   - name: Clone Repository
+  #     uses: actions/checkout@v3
+
+
+  # ------------------------------------------------------------
+
+  build-macos:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        os: [macos-11, macos-12]
+        arch: [arm64, x86_64]
+
+    steps:
+    - name: Clone Repository
+      uses: actions/checkout@v3
+    - name: Install CMake
+      uses: jwlawson/actions-setup-cmake@v1.13
+      with:
+        cmake-version: '3.21'
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+    - name: Compile SimpleBLE
+      run: cargo build
+
+  # ------------------------------------------------------------
+
+  build-linux:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        os: [ubuntu-20.04, ubuntu-22.04]
+
+    steps:
+    - name: Clone Repository
+      uses: actions/checkout@v3
+    - name: Install Dependencies
+      run: |
+        sudo -H apt-get update -y
+        sudo -H apt-get install -y libdbus-1-dev
+      env:
+        DEBIAN_FRONTEND: noninteractive
+    - name: Install CMake
+      uses: jwlawson/actions-setup-cmake@v1.13
+      with:
+        cmake-version: '3.21'
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+    - name: Compile SimpleBLE
+      run: cargo build

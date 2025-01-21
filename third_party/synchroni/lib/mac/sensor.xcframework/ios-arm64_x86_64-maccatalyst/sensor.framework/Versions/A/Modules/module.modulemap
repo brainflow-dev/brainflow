@@ -1,0 +1,6 @@
+framework module sensor {
+  umbrella header "sensor.h"
+
+  export *
+  module * { export * }
+}

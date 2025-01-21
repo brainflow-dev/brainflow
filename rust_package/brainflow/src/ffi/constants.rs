@@ -96,6 +96,11 @@ pub enum BoardIds {
     ExplorePlus32ChanBoard = 55,
     PieegBoard = 56,
     NeuropawnKnightBoard = 57,
+    SynchroniTrio3ChannelsBoard = 58,
+    SynchroniOcto8ChannelsBoard = 59,
+    OB50008CHannelsBoard= 60 ,
+    SynchroniPento8ChannelsBoard = 61,
+    SynchroniUno1ChannelsBoard = 62
 }
 #[repr(i32)]
 #[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]

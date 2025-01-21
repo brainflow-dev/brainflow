@@ -85,6 +85,7 @@ def main():
     params.mac_address = args.mac_address
 
     try:
+        # board_shim = BoardShim(BoardIds.ENOPHONE_BOARD, params)
         board_shim = BoardShim(BoardIds.ENOPHONE_BOARD, params)
         board_shim.prepare_session()
         board_shim.start_stream(450000, '')
