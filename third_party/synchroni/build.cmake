@@ -50,7 +50,7 @@ add_library (
 )
 
 if (APPLE)
-    target_link_libraries (${SYNCHRONI_SDK_WRAPPER_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/third_party/synchroni/lib/mac/sensor.xcframework)
+    target_link_libraries (${SYNCHRONI_SDK_WRAPPER_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/third_party/synchroni/lib/mac/sensor.xcframework/macos-arm64_x86_64/sensor.framework)
 elseif (UNIX)
     target_link_libraries (${SYNCHRONI_SDK_WRAPPER_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/third_party/synchroni/lib/linux/${SYNCHRONI_SDK_ARCH}/For${CMAKE_BUILD_TYPE}/${SYNCHRONI_SDK_LINK_NAME_LIB})
 else ()

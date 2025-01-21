@@ -1,5 +1,5 @@
 if (APPLE)
-cmake_minimum_required (VERSION 3.28)
+cmake_minimum_required (VERSION 3.21)
 else (APPLE)
 cmake_minimum_required (VERSION 3.16)
 endif (APPLE)
