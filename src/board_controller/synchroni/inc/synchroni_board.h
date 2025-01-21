@@ -40,6 +40,4 @@ public:
     int stop_stream () override;
     int release_session () override;
     int config_board (std::string config, std::string &response) override;
-
 };
-

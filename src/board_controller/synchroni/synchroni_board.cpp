@@ -1,5 +1,5 @@
-#include <string.h>
 #include <iostream>
+#include <string.h>
 #include <tuple>
 
 #include "synchroni_board.h"
@@ -27,7 +27,8 @@ SynchroniBoard::~SynchroniBoard ()
     release_session ();
 }
 
-std::string SynchroniBoard::get_lib_name (){
+std::string SynchroniBoard::get_lib_name ()
+{
     std::string synclib_path = "";
     std::string synclib_name = "";
     char synclib_dir[1024];
@@ -151,21 +152,21 @@ int SynchroniBoard::config_board (std::string config, std::string &response)
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
 
-    
+
     const int BUFFER_SIZE = 1024;
     char buffer[BUFFER_SIZE];
-    memset(buffer, 0, sizeof(buffer));
+    memset (buffer, 0, sizeof (buffer));
     std::tuple<std::string, std::string, char *, int> info =
         std::make_tuple (params.mac_address, config, buffer, BUFFER_SIZE);
 
-    int res = func((void*)&info);
+    int res = func ((void *)&info);
     response = buffer;
     return res;
 }
 
 int SynchroniBoard::call_init ()
 {
-    
+
     if (dll_loader == NULL)
     {
         return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
@@ -200,10 +201,8 @@ int SynchroniBoard::call_open ()
         safe_logger (spdlog::level::err, "failed to get function address for open_device");
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    std::tuple<std::string> info =
-        std::make_tuple (params.mac_address);
-    return func ((void*)&info);
-
+    std::tuple<std::string> info = std::make_tuple (params.mac_address);
+    return func ((void *)&info);
 }
 
 int SynchroniBoard::call_start ()
@@ -218,10 +217,8 @@ int SynchroniBoard::call_start ()
         safe_logger (spdlog::level::err, "failed to get function address for start_stream");
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    std::tuple<std::string> info =
-        std::make_tuple (params.mac_address);
-    return func ((void*)&info);
-
+    std::tuple<std::string> info = std::make_tuple (params.mac_address);
+    return func ((void *)&info);
 }
 
 int SynchroniBoard::call_stop ()
@@ -236,10 +233,8 @@ int SynchroniBoard::call_stop ()
         safe_logger (spdlog::level::err, "failed to get function address for stop_stream");
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    std::tuple<std::string> info =
-        std::make_tuple (params.mac_address);
-    return func ((void*)&info);
-
+    std::tuple<std::string> info = std::make_tuple (params.mac_address);
+    return func ((void *)&info);
 }
 
 int SynchroniBoard::call_close ()
@@ -254,10 +249,8 @@ int SynchroniBoard::call_close ()
         safe_logger (spdlog::level::err, "failed to get function address for close_device");
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    std::tuple<std::string> info =
-        std::make_tuple (params.mac_address);
-    return func ((void*)&info);
-
+    std::tuple<std::string> info = std::make_tuple (params.mac_address);
+    return func ((void *)&info);
 }
 
 int SynchroniBoard::call_release ()
@@ -272,13 +265,9 @@ int SynchroniBoard::call_release ()
         safe_logger (spdlog::level::err, "failed to get function address for release");
         return (int)BrainFlowExitCodes::GENERAL_ERROR;
     }
-    std::tuple<std::string> info =
-        std::make_tuple (params.mac_address);
-    return func ((void*)&info);
-
+    std::tuple<std::string> info = std::make_tuple (params.mac_address);
+    return func ((void *)&info);
 }
-
-
 
 
 int SynchroniBoard::prepare_session ()
@@ -292,13 +281,15 @@ int SynchroniBoard::prepare_session ()
     {
         params.timeout = 5;
     }
-    if (!g_dll_loader){
-        g_dll_loader = make_shared<DLLLoader>(get_lib_name ().c_str ());
+    if (!g_dll_loader)
+    {
+        g_dll_loader = make_shared<DLLLoader> (get_lib_name ().c_str ());
     }
-    if (!dll_loader){
-        dll_loader = shared_ptr<DLLLoader>(g_dll_loader);
+    if (!dll_loader)
+    {
+        dll_loader = shared_ptr<DLLLoader> (g_dll_loader);
     }
-    
+
     if (!dll_loader->load_library ())
     {
         safe_logger (spdlog::level::err, "Failed to load library");
@@ -405,5 +396,3 @@ int SynchroniBoard::release_session ()
 
     return (int)BrainFlowExitCodes::STATUS_OK;
 }
-
-

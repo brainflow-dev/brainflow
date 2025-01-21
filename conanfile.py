@@ -15,10 +15,10 @@ class BrainflowConan(ConanFile):
     # Binary configuration
     settings = "os", "compiler", "build_type", "arch"
     options = {"libftdi": [True, False], "openmp": [True, False], "onnx": [True, False], "bluetooth": [True, False],
-               "ble": [True, False], "periphery": [True, False], "oymotion": [True, False],
+               "ble": [True, False], "periphery": [True, False], "oymotion": [True, False],"synchroni": [True, False],
                "static_msvc_runtime": [True, False]}
     default_options = {"libftdi": False, "openmp": False, "onnx": True, "bluetooth": True,
-                       "ble": True, "periphery": False, "oymotion": False, "static_msvc_runtime": True}
+                       "ble": True, "periphery": False, "oymotion": False,"synchroni": True, "static_msvc_runtime": True}
 
     # Sources are located in the same place as this recipe, copy them to the recipe
     exports_sources = "CMakeLists.txt", "src/*", "third_party/*", "cpp_package/build.cmake", "cpp_package/src/*", "cmake/*"
@@ -44,7 +44,10 @@ class BrainflowConan(ConanFile):
         if self.options.ble:
             cmake.definitions["BUILD_BLE"] = "ON"
         if self.options.synchroni:
-            cmake.definitions["BUILD_SYNCHRONI_SDK"] = "ON"
+            if self.settings.os == "Android":
+                cmake.definitions["BUILD_SYNCHRONI_SDK"] = "OFF"
+            else:
+                cmake.definitions["BUILD_SYNCHRONI_SDK"] = "ON"
         if self.settings.os != "Windows" and self.options.periphery:
             cmake.definitions["USE_PERIPHERY"] = "ON"
         if self.settings.os == "Windows" and self.options.oymotion:
