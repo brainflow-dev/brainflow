@@ -5,7 +5,7 @@
 #include <memory>
 #include <functional>
 #include <mutex>
-#include "sensorData.hpp"
+#include "SensorData.hpp"
 
 namespace sensor {
 

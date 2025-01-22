@@ -55,15 +55,26 @@
 			js9AVsuzZpBVqbwzT12WyxhH1jRJXbl2fYoJVn8nv9Q=
 			</data>
 		</dict>
+		<key>Headers/SensorProfile.h</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			AsLNZ4tujqDYaDt71hVilMqQa2M=
+			</data>
+			<key>hash2</key>
+			<data>
+			t90schmW6nLupfAHoxrCNZGKlR+A52LRPadI4gzQQxQ=
+			</data>
+		</dict>
 		<key>Headers/SensorProfile.hpp</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			tK6z3rMVEmhdXjDaG1R5YWUMCQI=
+			ScoQnVZ0N0xsiftJ6s9IVfP+1Lo=
 			</data>
 			<key>hash2</key>
 			<data>
-			+ESRV3YvFwHA9Hra1llu1hm7ceqK/qXlyU+lJdzV6/c=
+			IZ53bEdxLyiAXDsV8Zmd3v9G/HUAKT4osOkCUKsSM4M=
 			</data>
 		</dict>
 		<key>Headers/defines.h</key>
@@ -86,17 +97,6 @@
 			<key>hash2</key>
 			<data>
 			uPnFelYZa/cHn/pVLsX7I2UuJNNwD4cVXddGZtjd0QI=
-			</data>
-		</dict>
-		<key>Headers/sensorProfile.h</key>
-		<dict>
-			<key>hash</key>
-			<data>
-			AsLNZ4tujqDYaDt71hVilMqQa2M=
-			</data>
-			<key>hash2</key>
-			<data>
-			t90schmW6nLupfAHoxrCNZGKlR+A52LRPadI4gzQQxQ=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>
