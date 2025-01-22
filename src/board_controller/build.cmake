@@ -100,7 +100,11 @@ if (BUILD_OYMOTION_SDK)
 endif (BUILD_OYMOTION_SDK)
 
 if (BUILD_SYNCHRONI_SDK)
-    include (${CMAKE_CURRENT_SOURCE_DIR}/third_party/synchroni/build.cmake)
+    if (ANDROID)
+
+    else ()
+        include (${CMAKE_CURRENT_SOURCE_DIR}/third_party/synchroni/build.cmake)
+    endif ()
 endif (BUILD_SYNCHRONI_SDK)
 
 if (BUILD_BLUETOOTH)
@@ -115,11 +119,6 @@ add_library (
     ${BOARD_CONTROLLER_NAME} SHARED
     ${BOARD_CONTROLLER_SRC}
 )
-
-#if (ANDROID AND BUILD_BLE)
-#    target_compile_definitions (${BOARD_CONTROLLER_NAME} PRIVATE STATIC_SIMPLEBLE)
-#    target_link_libraries (${BOARD_CONTROLLER_NAME} PRIVATE simpleble-c)
-#endif (ANDROID AND BUILD_BLE)
 
 target_include_directories (
     ${BOARD_CONTROLLER_NAME} PRIVATE

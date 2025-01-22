@@ -1,8 +1,4 @@
-if (APPLE)
-cmake_minimum_required (VERSION 3.21)
-else (APPLE)
-cmake_minimum_required (VERSION 3.16)
-endif (APPLE)
+cmake_minimum_required (VERSION 3.13)
 
 project (brainflow)
 
