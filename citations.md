@@ -40,6 +40,7 @@ CLASSIFICATION WITH LARYNGEAL IMAGERY](https://arxiv.org/pdf/2107.00045.pdf)
 * [Sameer N.B. Alladin*, Dani Berry*, Evgeniya Anisimova, Ruth Judson, Poppy Whittaker and Edwin S. Dalmaijer, Children aged 5–13 years show adult-like disgust avoidance, but not proto-nausea](https://scholar.google.com/scholar_url?url=https://journals.sagepub.com/doi/pdf/10.1177/23982128241279616&hl=ru&sa=X&d=1320270410984153383&ei=a27dZtekGs2G6rQP2taY2A8&scisig=AFWwaeZQY4UeZn03iACTQNhixLhr&oi=scholaralrt&hist=5H-pN8UAAAAJ:8422972904888955527:AFWwaea26jtZS4RpS-GW7PCoCtkS&html=&pos=0&folt=kw)
 * [A. A. Jiménez-Ocaña, A. Pantoja, R. Bailón and L. F. Giraldo, "Real-Time Stress Detection Using Single-Lead ECG Signal Analysis," 2024 3rd International Congress of Biomedical Engineering and Bioengineering (CIIBBI), Cali, Colombia, 2024, pp. 1-6, doi: 10.1109/CIIBBI63846.2024.10784783.
 keywords: {Visualization;Time-frequency analysis;Signal processing algorithms;Electrocardiography;Probability;Real-time systems;Time-domain analysis;Signal analysis;Stress;Biomedical engineering;real time;stress detection;single-lead ECG;EDR;XGBoost}](https://ieeexplore.ieee.org/abstract/document/10784783)
+* [Zare, S.; Beaber, S.I.; Sun, Y. NeuroFlex: Feasibility of EEG-Based Motor Imagery Control of a Soft Glove for Hand Rehabilitation. Sensors 2025, 25, 610. https://doi.org/10.3390/s25030610](https://www.mdpi.com/1424-8220/25/3/610)
 
 ## Posts
 
