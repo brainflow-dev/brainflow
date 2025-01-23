@@ -274,7 +274,7 @@ int synchroni_open_device (void *param)
     }
 
     std::atomic<bool> deviceMatch (false);
-    int eegChannel = wrapper->board_descr["default"]["eeg_channels"].size ();
+    int eegChannel = int(wrapper->board_descr["default"]["eeg_channels"].size ());
     wrapper->profile->fetchDeviceInfo (timeout * 1000,
         [&deviceMatch, eegChannel, &wrapper] (DeviceInfo info, string err)
         {
