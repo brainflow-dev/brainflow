@@ -41,6 +41,7 @@ CLASSIFICATION WITH LARYNGEAL IMAGERY](https://arxiv.org/pdf/2107.00045.pdf)
 * [A. A. Jiménez-Ocaña, A. Pantoja, R. Bailón and L. F. Giraldo, "Real-Time Stress Detection Using Single-Lead ECG Signal Analysis," 2024 3rd International Congress of Biomedical Engineering and Bioengineering (CIIBBI), Cali, Colombia, 2024, pp. 1-6, doi: 10.1109/CIIBBI63846.2024.10784783.
 keywords: {Visualization;Time-frequency analysis;Signal processing algorithms;Electrocardiography;Probability;Real-time systems;Time-domain analysis;Signal analysis;Stress;Biomedical engineering;real time;stress detection;single-lead ECG;EDR;XGBoost}](https://ieeexplore.ieee.org/abstract/document/10784783)
 * [Zare, S.; Beaber, S.I.; Sun, Y. NeuroFlex: Feasibility of EEG-Based Motor Imagery Control of a Soft Glove for Hand Rehabilitation. Sensors 2025, 25, 610. https://doi.org/10.3390/s25030610](https://www.mdpi.com/1424-8220/25/3/610)
+* [R. L. Nierva et al., "A Scalable BLE-Based Signal Acquisition System for Wearable Devices," 2024 31st IEEE International Conference on Electronics, Circuits and Systems (ICECS), Nancy, France, 2024, pp. 1-4, doi: 10.1109/ICECS61496.2024.10849085. keywords: {Electrocardiography;Feature extraction;Electromyography;Electroencephalography;User experience;Registers;Synchronization;Wearable devices;Root mean square;Ganglia;wearable devices;OpenBCI;Bluetooth Low Energy;biopotential signals;feature extraction;BrainFlow},](https://ieeexplore.ieee.org/abstract/document/10849085/references#references)
 
 ## Posts
 
