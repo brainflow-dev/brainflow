@@ -3,7 +3,7 @@ import logging
 
 import pyqtgraph as pg
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
-from pyqtgraph.Qt import QtGui, QtCore
+from pyqtgraph.Qt import QtWidgets, QtCore
 
 import enotools
 
@@ -19,14 +19,14 @@ class Graph:
         self.num_points = self.window_size * self.sampling_rate
         self.plot_names = ['Quality A2', 'Quality A1', 'Quality C4', 'Quality C3']
         self.mains = None
-        self.app = QtGui.QApplication([])
-        self.win = pg.GraphicsWindow(title='Enophone Live Streaming', size=(800, 600))
+        self.app = QtWidgets.QApplication([])
+        self.win = pg.GraphicsLayoutWidget(title='Enophone Live Streaming', size=(800, 600), show=True)
         self._init_timeseries()
 
         timer = QtCore.QTimer()
         timer.timeout.connect(self.update)
         timer.start(self.update_speed_ms)
-        QtGui.QApplication.instance().exec_()
+        QtWidgets.QApplication.instance().exec()
 
     def _init_timeseries(self):
         self.plots = list()
