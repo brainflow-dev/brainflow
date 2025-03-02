@@ -21,7 +21,7 @@ jobs:
       run: cppcheck-htmlreport --title=BrainFlow --file=cppcheck_res.xml --report-dir=report
     - name: Upload Report
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: report
         path: report

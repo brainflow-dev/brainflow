@@ -76,7 +76,13 @@ BrainFlowBoards::BrainFlowBoards()
             {"55", json::object()},
             {"56", json::object()},
             {"57", json::object()},
-            {"58", json::object()}
+            {"58", json::object()},
+            {"59", json::object()},
+            {"60", json::object()},
+            {"61", json::object()},
+            {"62", json::object()},
+            {"63", json::object()},
+            {"64", json::object()}
         }
     }};
 
@@ -1129,7 +1135,64 @@ BrainFlowBoards::BrainFlowBoards()
         {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
         {"other_channels", {9, 10}}
     };
-    brainflow_boards_json["boards"]["58"]["default"] =
+    brainflow_boards_json["boards"]["58"]["default"] = {
+        {"name", "Sync-Trio"},
+        {"sampling_rate", 250},
+        {"package_num_channel", 0},
+        {"timestamp_channel", 4},
+        {"marker_channel", 5},
+        {"num_rows", 6},
+        {"eeg_channels", {1, 2}},
+        {"ecg_channels", {3}}
+    };
+    brainflow_boards_json["boards"]["59"]["default"] = {
+        {"name", "Sync-Octo"},
+        {"sampling_rate", 250},
+        {"package_num_channel", 0},
+        {"timestamp_channel", 9},
+        {"marker_channel", 10},
+        {"num_rows", 11},
+        {"eeg_channels", {1, 2, 3, 4, 5, 6, 7}},
+        {"ecg_channels", {8}}
+    };
+        brainflow_boards_json["boards"]["60"]["default"] = {
+        {"name", "OB5000MAX"},
+        {"sampling_rate", 250},
+        {"package_num_channel", 0},
+        {"timestamp_channel", 9},
+        {"marker_channel", 10},
+        {"num_rows", 11},
+        {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
+    };
+    brainflow_boards_json["boards"]["61"]["default"] = {
+        {"name", "Sync-Neo"},
+        {"sampling_rate", 250},
+        {"package_num_channel", 0},
+        {"timestamp_channel", 9},
+        {"marker_channel", 10},
+        {"num_rows", 11},
+        {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}}
+    };
+    brainflow_boards_json["boards"]["62"]["default"] = {
+        {"name", "Sync-Uno"},
+        {"sampling_rate", 250},
+        {"package_num_channel", 0},
+        {"timestamp_channel", 2},
+        {"marker_channel", 3},
+        {"num_rows", 4},
+        {"eeg_channels", {1}}
+    };
+    brainflow_boards_json["boards"]["63"]["default"] = {
+        {"name", "OB3000"},
+        {"sampling_rate", 500},
+        {"package_num_channel", 0},
+        {"timestamp_channel", 25},
+        {"marker_channel", 26},
+        {"num_rows", 27},
+        {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}},
+        {"ecg_channels", {24}}
+    };
+    brainflow_boards_json["boards"]["64"]["default"] =
     {
         {"name", "BioListener"},
         {"sampling_rate", 500},
@@ -1143,7 +1206,7 @@ BrainFlowBoards::BrainFlowBoards()
         {"eog_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
         {"other_channels", {9, 10}}
     };
-    brainflow_boards_json["boards"]["58"]["auxiliary"] =
+    brainflow_boards_json["boards"]["64"]["auxiliary"] =
     {
         {"name", "BioListener"},
         {"sampling_rate", 50},

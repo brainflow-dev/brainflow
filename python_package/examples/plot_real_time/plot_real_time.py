@@ -4,7 +4,7 @@ import logging
 import pyqtgraph as pg
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 from brainflow.data_filter import DataFilter, FilterTypes, WindowOperations, DetrendOperations
-from pyqtgraph.Qt import QtGui, QtCore
+from pyqtgraph.Qt import QtWidgets, QtCore
 
 
 class Graph:
@@ -20,8 +20,8 @@ class Graph:
         self.window_size = 4
         self.num_points = self.window_size * self.sampling_rate
 
-        self.app = QtGui.QApplication([])
-        self.win = pg.GraphicsWindow(title='BrainFlow Plot', size=(800, 600))
+        self.app = QtWidgets.QApplication([])
+        self.win = pg.GraphicsLayoutWidget(title='BrainFlow Plot', size=(800, 600), show=True)
 
         self._init_pens()
         self._init_timeseries()
@@ -31,7 +31,7 @@ class Graph:
         timer = QtCore.QTimer()
         timer.timeout.connect(self.update)
         timer.start(self.update_speed_ms)
-        QtGui.QApplication.instance().exec_()
+        QtWidgets.QApplication.instance().exec()
 
     def _init_pens(self):
         self.pens = list()
