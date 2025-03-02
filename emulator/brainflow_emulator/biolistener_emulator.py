@@ -80,7 +80,7 @@ class BioListenerEmulator(threading.Thread):
         self.local_port = 12345
         self.server_socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
         self.server_socket.settimeout(1)
-        self.state = State.stream.value
+        self.state = State.wait.value
         self.package_num = 0
         self.keep_alive = True
         logging.info(f"BioListener emulator started")
