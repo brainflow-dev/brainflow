@@ -80,7 +80,8 @@ class BoardIds(enum.IntEnum):
     OB5000_8_CHANNELS_BOARD = 60  #:
     SYNCHRONI_PENTO_8_CHANNELS_BOARD = 61  #:
     SYNCHRONI_UNO_1_CHANNELS_BOARD = 62 #:
-    BIOLISTENER_BOARD = 63  #:
+    OB3000_24_CHANNELS_BOARD = 63  #:
+    BIOLISTENER_BOARD = 64  #:
 
 
 class IpProtocolTypes(enum.IntEnum):

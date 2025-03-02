@@ -101,7 +101,8 @@ pub enum BoardIds {
     OB50008CHannelsBoard= 60 ,
     SynchroniPento8ChannelsBoard = 61,
     SynchroniUno1ChannelsBoard = 62,
-    BiolistenerBoard = 63
+    OB300024ChannelsBoard = 63,
+    BiolistenerBoard = 64
 }
 #[repr(i32)]
 #[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]
