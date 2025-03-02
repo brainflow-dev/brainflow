@@ -138,13 +138,17 @@ class BioListenerEmulator(threading.Thread):
                         if json_str["command"] in (1, 2, 3, 4):
                             logging.info("Command ignored - simulator supports only start and stop stream command")
                         elif json_str["command"] == 5:
+                            logging.info("Start stream command received")
                             self.state = State.stream.value
                         elif json_str["command"] == 6:
+                            logging.info("Stop stream command received")
                             self.state = State.wait.value
+                        else:
+                            logging.warning(f"Unknown command: {json_str['command']}")
             except TimeoutError:
                 pass
             except Exception as err:
-                logging.error("Error in recv thread")
+                logging.error(f"Error in recv thread: {err}")
 
             try:
                 if self.state == State.stream.value:
