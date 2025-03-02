@@ -79,10 +79,11 @@ class BioListenerEmulator(threading.Thread):
         self.local_ip = '127.0.0.1'
         self.local_port = 12345
         self.server_socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
-        self.server_socket.settimeout(0.01)
+        self.server_socket.settimeout(1)
         self.state = State.stream.value
         self.package_num = 0
         self.keep_alive = True
+        logging.info(f"BioListener emulator started")
 
     @staticmethod
     def volts_to_data(ref, voltage, pga_gain, adc_resolution):
@@ -105,6 +106,8 @@ class BioListenerEmulator(threading.Thread):
                 break
             except:
                 time.sleep(0.1)
+
+        logging.info(f"BioListener emulator connected to {self.local_ip}:{self.local_port}")
 
         started_at = time.time()
         while self.keep_alive:
@@ -141,15 +144,15 @@ class BioListenerEmulator(threading.Thread):
             except TimeoutError:
                 pass
             except Exception as err:
-                logging.debug("Error in recv thread")
+                logging.error("Error in recv thread")
 
             try:
                 if self.state == State.stream.value:
                     self.server_socket.sendall(new_data_packet.pack())
             except ConnectionResetError:
-                logging.debug(f"Connection lost")
+                logging.error(f"Connection lost")
             except Exception as e:
-                logging.debug(f"Error: {e}")
+                logging.error(f"Error: {e}")
 
 
 def main(cmd_list):
