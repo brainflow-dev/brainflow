@@ -83,6 +83,7 @@ class BioListenerEmulator(threading.Thread):
         self.state = State.wait.value
         self.package_num = 0
         self.keep_alive = True
+        self.connection_established = False
         logging.info(f"BioListener emulator started")
 
     @staticmethod
@@ -100,14 +101,21 @@ class BioListenerEmulator(threading.Thread):
         return raw_code
 
     def run(self):
+        logging.info(f"BioListener emulator connecting to {self.local_ip}:{self.local_port}...")
         while self.keep_alive:
             try:
                 self.server_socket.connect((self.local_ip, self.local_port))
+                self.connection_established = True
                 break
-            except:
+            except Exception as err:
+                logging.warning(f"Error connecting to {self.local_ip}:{self.local_port}: {err}")
                 time.sleep(0.1)
 
-        logging.info(f"BioListener emulator connected to {self.local_ip}:{self.local_port}")
+        if self.connection_established:
+            logging.info(f"BioListener emulator connected to {self.local_ip}:{self.local_port}")
+        else:
+            logging.error(f"BioListener emulator failed to connect to {self.local_ip}:{self.local_port}")
+            return
 
         started_at = time.time()
         while self.keep_alive:
@@ -147,6 +155,8 @@ class BioListenerEmulator(threading.Thread):
                             logging.warning(f"Unknown command: {json_str['command']}")
             except TimeoutError:
                 pass
+            except socket.timeout:
+                pass
             except Exception as err:
                 logging.error(f"Error in recv thread: {err}")
 
@@ -163,9 +173,12 @@ def main(cmd_list):
     if not cmd_list:
         raise Exception('No command to execute')
     server_thread = run_socket_server()
-    test_socket(cmd_list)
-    server_thread.keep_alive = False
-    server_thread.join()
+
+    try:
+        test_socket(cmd_list)
+    finally:
+        server_thread.keep_alive = False
+        server_thread.join()
 
 
 if __name__ == '__main__':
