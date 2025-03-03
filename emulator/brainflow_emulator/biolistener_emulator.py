@@ -79,6 +79,7 @@ class BioListenerEmulator(threading.Thread):
         self.local_ip = '127.0.0.1'
         self.local_port = 12345
         self.server_socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
+        self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.server_socket.settimeout(1)
         self.state = State.wait.value
         self.package_num = 0
@@ -102,13 +103,22 @@ class BioListenerEmulator(threading.Thread):
 
     def run(self):
         logging.info(f"BioListener emulator connecting to {self.local_ip}:{self.local_port}...")
-        while self.keep_alive:
+        while self.keep_alive and not self.connection_established:
             try:
                 self.server_socket.connect((self.local_ip, self.local_port))
                 self.connection_established = True
                 break
             except Exception as err:
                 logging.warning(f"Error connecting to {self.local_ip}:{self.local_port}: {err}")
+                # A failed connect may leave the socket unusable.
+                try:
+                    self.server_socket.close()
+                except Exception:
+                    pass
+                # Recreate the socket with the same options.
+                self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                self.server_socket.settimeout(1)
                 time.sleep(0.1)
 
         if self.connection_established:
