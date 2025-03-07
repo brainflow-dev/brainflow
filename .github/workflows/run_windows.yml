@@ -36,9 +36,9 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11.0.3
-    - uses: hecrj/setup-rust-action@v1
+    - uses: hecrj/setup-rust-action@v2
       with:
-        rust-version: nightly
+        rust-version: stable
         components: cargo,rustc,rust-std
     # compile and prepare everything
     - name: Compile x32
