@@ -59,7 +59,8 @@ int BioListener<BIOLISTENER_DATA_CHANNELS_COUNT>::prepare_session ()
     if (params.ip_address.empty ())
     {
         params.ip_address = "0.0.0.0";
-        safe_logger (spdlog::level::warn, "IP address is not set, listening on all network interfaces");
+        safe_logger (
+            spdlog::level::warn, "IP address is not set, listening on all network interfaces");
     }
 
     if (params.ip_port <= 0)
