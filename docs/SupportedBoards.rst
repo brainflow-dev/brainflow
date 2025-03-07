@@ -1364,8 +1364,11 @@ BioListener
 To create such board you need to specify the following board ID and fields of BrainFlowInputParams object:
 
 - :code:`BoardIds.BIOLISTENER_BOARD`
-- :code:`ip_port`, any local port which is currently free (and is selected on BioListener board), e.g. 12345
-- :code:`ip_address`, ip address of the current device, BrainFlow acts as a server. Use 0.0.0.0 to make the server listen on all network interfaces.
+- *optional:* :code:`ip_address`, ip address of the machine running the BrainFlow server (not the end device). If not provided, the server will listen on all network interfaces (at `0.0.0.0`)
+- *optional:* :code:`ip_port`, any free local port. If the chosen port is in use, the next available free port will be used. If not provided, the search for a free port starts at `12345`
+- *optional:* :code:`timeout`, timeout for device discovery, default is 3sec
+
+Make sure to configure the BioListener board as stated in the `BioListener documentation <https://github.com/serhii-matsyshyn/biolistener/>`_ to connect to the BrainFlow server.
 
 Initialization Example:
 

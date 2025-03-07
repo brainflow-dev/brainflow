@@ -12,30 +12,6 @@
 #include "socket_server_tcp.h"
 #include "socket_server_udp.h"
 
-#define PACKET_DELIMITER_CSV '\n'
-
-#define BIOLISTENER_COMMAND_UNDEFINED 0
-#define BIOLISTENER_COMMAND_SET_ADC_DATA_RATE 1
-#define BIOLISTENER_COMMAND_SET_ADC_CHANNEL_ENABLE 2
-#define BIOLISTENER_COMMAND_SET_ADC_CHANNEL_PGA 3
-#define BIOLISTENER_COMMAND_RESET_ADC 4
-#define BIOLISTENER_COMMAND_START_SAMPLING 5
-#define BIOLISTENER_COMMAND_STOP_SAMPLING 6
-
-#define BIOLISTENER_DATA_PACKET_DEBUG 0
-#define BIOLISTENER_DATA_PACKET_BIOSIGNALS 1
-#define BIOLISTENER_DATA_PACKET_IMU 2
-
-#define BIOLISTENER_DATA_PACKET_HEADER 0xA0
-#define BIOLISTENER_DATA_PACKET_FOOTER 0xC0
-
-#define BIOLISTENER_ADC_ADS131M08 0
-#define BIOLISTENER_ADC_AD7771 1
-
-#define BIOLISTENER_DEFAULT_PGA_GAIN 8
-
-#define FLOAT_TO_UINT32(x) (*((uint32_t *)&(x)))
-#define UINT32_TO_FLOAT(x) (*((float *)&(x)))
 
 #pragma pack(push, 1)
 template <size_t BIOLISTENER_DATA_CHANNELS_COUNT>
@@ -84,6 +60,9 @@ private:
     static double data_to_volts (
         double ref, uint32_t raw_code, double pga_gain, double adc_resolution);
 
+    bool parse_tcp_buffer (const char *buffer, size_t buffer_size,
+        data_packet<BIOLISTENER_DATA_CHANNELS_COUNT> &parsed_packet);
+
 public:
     BioListener (int board_id, struct BrainFlowInputParams params);
     ~BioListener ();
@@ -93,7 +72,4 @@ public:
     int stop_stream ();
     int release_session ();
     int config_board (std::string config, std::string &response);
-
-    bool parse_tcp_buffer (const char *buffer, size_t buffer_size,
-        data_packet<BIOLISTENER_DATA_CHANNELS_COUNT> &parsed_packet);
 };

@@ -8,6 +8,8 @@
 #include "network_interfaces.h"
 #include "timestamp.h"
 
+#include "biolistener_defines.h"
+
 using json = nlohmann::json;
 
 
@@ -50,7 +52,20 @@ int BioListener<BIOLISTENER_DATA_CHANNELS_COUNT>::prepare_session ()
 
     if (params.timeout < 2)
     {
-        params.timeout = 4;
+        params.timeout = 3;
+        safe_logger (spdlog::level::warn, "Timeout is too low, setting to 3 sec");
+    }
+
+    if (params.ip_address.empty ())
+    {
+        params.ip_address = "0.0.0.0";
+        safe_logger (spdlog::level::warn, "IP address is not set, listening on all network interfaces");
+    }
+
+    if (params.ip_port <= 0)
+    {
+        params.ip_port = 12345;
+        safe_logger (spdlog::level::warn, "IP port is not set, using default value 12345");
     }
 
     int res = create_control_connection ();
@@ -171,7 +186,6 @@ bool BioListener<BIOLISTENER_DATA_CHANNELS_COUNT>::parse_tcp_buffer (const char 
     if (buffer_size != packet_size)
     {
         safe_logger (spdlog::level::trace, "Buffer size mismatch!");
-
         return false;
     }
 
@@ -237,7 +251,7 @@ void BioListener<BIOLISTENER_DATA_CHANNELS_COUNT>::read_thread ()
     std::vector<int> other_channels = board_descr["default"]["other_channels"];
     std::vector<int> accel_channels = board_descr["auxiliary"]["accel_channels"];
     std::vector<int> gyro_channels = board_descr["auxiliary"]["gyro_channels"];
-    int temp_channel = board_descr["auxiliary"]["temperature_channels"][0];
+    int temperature_channel = board_descr["auxiliary"]["temperature_channels"][0];
 
     while (keep_alive)
     {
@@ -353,9 +367,9 @@ void BioListener<BIOLISTENER_DATA_CHANNELS_COUNT>::read_thread ()
             }
             else if (parsed_packet.type == BIOLISTENER_DATA_PACKET_IMU)
             {
-                package[board_descr["default"]["timestamp_channel"].template get<int> ()] =
+                package[board_descr["auxiliary"]["timestamp_channel"].template get<int> ()] =
                     timestamp_offset + ((double)parsed_packet.ts / 1000.0);
-                package[board_descr["default"]["package_num_channel"].template get<int> ()] =
+                package[board_descr["auxiliary"]["package_num_channel"].template get<int> ()] =
                     parsed_packet.n;
 
                 static uint32_t package_num_channel_last = parsed_packet.n - 1;
@@ -375,7 +389,7 @@ void BioListener<BIOLISTENER_DATA_CHANNELS_COUNT>::read_thread ()
                     package[gyro_channels[i]] = UINT32_TO_FLOAT (parsed_packet.data[i + 3]);
                 }
 
-                package[temp_channel] = UINT32_TO_FLOAT (parsed_packet.data[6]);
+                package[temperature_channel] = UINT32_TO_FLOAT (parsed_packet.data[6]);
                 package[board_descr["auxiliary"]["battery_channel"].template get<int> ()] =
                     UINT32_TO_FLOAT (parsed_packet.data[7]);
 
@@ -406,7 +420,7 @@ int BioListener<BIOLISTENER_DATA_CHANNELS_COUNT>::create_control_connection ()
     safe_logger (spdlog::level::info, "local ip addr is {}", local_ip);
 
     int res = (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
-    for (int i = 0; i < 39; i += 2)
+    for (int i = 0; i < BIOLISTENER_MAX_PORTS_TO_TRY_TILL_FREE_FOUND; i += 1)
     {
         control_port = params.ip_port + i;
         control_socket = new SocketServerTCP (local_ip, control_port, true);
@@ -500,7 +514,7 @@ int BioListener<BIOLISTENER_DATA_CHANNELS_COUNT>::wait_for_connection ()
     }
     else
     {
-        int max_attempts = 10;
+        int max_attempts = (params.timeout * 1000) / BIOLISTENER_SLEEP_TIME_BETWEEN_SOCKET_TRIES_MS;
         for (int i = 0; i < max_attempts; i++)
         {
             safe_logger (spdlog::level::trace, "waiting for accept {}/{}", i, max_attempts);
@@ -512,9 +526,9 @@ int BioListener<BIOLISTENER_DATA_CHANNELS_COUNT>::wait_for_connection ()
             else
             {
 #ifdef _WIN32
-                Sleep (300);
+                Sleep (BIOLISTENER_SLEEP_TIME_BETWEEN_SOCKET_TRIES_MS);
 #else
-                usleep (300000);
+                usleep (BIOLISTENER_SLEEP_TIME_BETWEEN_SOCKET_TRIES_MS * 1000);
 #endif
             }
         }
