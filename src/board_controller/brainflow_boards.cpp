@@ -80,8 +80,9 @@ BrainFlowBoards::BrainFlowBoards()
             {"59", json::object()},
             {"60", json::object()},
             {"61", json::object()},
-            {"62", json::object()}
-
+            {"62", json::object()},
+            {"63", json::object()},
+            {"64", json::object()}
         }
     }};
 
@@ -1152,7 +1153,7 @@ BrainFlowBoards::BrainFlowBoards()
         {"marker_channel", 10},
         {"num_rows", 11},
         {"eeg_channels", {1, 2, 3, 4, 5, 6, 7}},
-        {"ecg_channels", {8}}  
+        {"ecg_channels", {8}}
     };
         brainflow_boards_json["boards"]["60"]["default"] = {
         {"name", "OB5000MAX"},
@@ -1170,7 +1171,7 @@ BrainFlowBoards::BrainFlowBoards()
         {"timestamp_channel", 9},
         {"marker_channel", 10},
         {"num_rows", 11},
-        {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}} 
+        {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}}
     };
     brainflow_boards_json["boards"]["62"]["default"] = {
         {"name", "Sync-Uno"},
@@ -1179,7 +1180,7 @@ BrainFlowBoards::BrainFlowBoards()
         {"timestamp_channel", 2},
         {"marker_channel", 3},
         {"num_rows", 4},
-        {"eeg_channels", {1}} 
+        {"eeg_channels", {1}}
     };
     brainflow_boards_json["boards"]["63"]["default"] = {
         {"name", "OB3000"},
@@ -1189,7 +1190,35 @@ BrainFlowBoards::BrainFlowBoards()
         {"marker_channel", 26},
         {"num_rows", 27},
         {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}},
-        {"ecg_channels", {24}}  
+        {"ecg_channels", {24}}
+    };
+    brainflow_boards_json["boards"]["64"]["default"] =
+    {
+        {"name", "BioListener"},
+        {"sampling_rate", 500},
+        {"timestamp_channel", 11},
+        {"marker_channel", 12},
+        {"package_num_channel", 0},
+        {"num_rows", 13},
+        {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
+        {"emg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
+        {"ecg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
+        {"eog_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
+        {"other_channels", {9, 10}}
+    };
+    brainflow_boards_json["boards"]["64"]["auxiliary"] =
+    {
+        {"name", "BioListener"},
+        {"sampling_rate", 50},
+        {"timestamp_channel", 11},
+        {"marker_channel", 12},
+        {"package_num_channel", 0},
+        {"num_rows", 13},
+        {"accel_channels", {1, 2, 3}},
+        {"gyro_channels", {4, 5, 6}},
+        {"temperature_channels", {7}},
+        {"battery_channel", 8},
+        {"other_channels", {9, 10}}
     };
 }
 
