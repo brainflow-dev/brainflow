@@ -71,8 +71,9 @@ public enum BoardIds
     SYNCHRONI_OCTO_8_CHANNELS_BOARD(59),
     OB5000_8_CHANNELS_BOARD(60),
     SYNCHRONI_PENTO_8_CHANNELS_BOARD(61),
-    SYNCHRONI_UNO_1_CHANNELS_BOARD(62);
-
+    SYNCHRONI_UNO_1_CHANNELS_BOARD(62),
+    OB3000_24_CHANNELS_BOARD(63),
+    BIOLISTENER_BOARD(64);
 
     private final int board_id;
     private static final Map<Integer, BoardIds> bi_map = new HashMap<Integer, BoardIds> ();

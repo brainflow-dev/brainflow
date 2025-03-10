@@ -1347,3 +1347,47 @@ Supported platforms:
 - Linux
 - MacOS
 - Devices like Raspberry Pi
+
+
+BioListener
+--------
+
+BioListener
+~~~~~~~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/54273076343_6a7eb99697_k.jpg
+    :width: 519px
+    :height: 389px
+
+`BioListener website <https://github.com/serhii-matsyshyn/biolistener/>`_
+
+To create such board you need to specify the following board ID and fields of BrainFlowInputParams object:
+
+- :code:`BoardIds.BIOLISTENER_BOARD`
+- *optional:* :code:`ip_address`, ip address of the machine running the BrainFlow server (not the end device). If not provided, the server will listen on all network interfaces (at `0.0.0.0`)
+- *optional:* :code:`ip_port`, any free local port. If the chosen port is in use, the next available free port will be used. If not provided, the search for a free port starts at `12345`
+- *optional:* :code:`timeout`, timeout for device discovery, default is 3sec
+
+Make sure to configure the BioListener board as stated in the `BioListener documentation <https://github.com/serhii-matsyshyn/biolistener/>`_ to connect to the BrainFlow server.
+
+Initialization Example:
+
+.. code-block:: python
+
+    params = BrainFlowInputParams()
+    params.ip_port = 12345
+    params.ip_address = "0.0.0.0"
+    board = BoardShim(BoardIds.BIOLISTENER_BOARD, params)
+
+Supported platforms:
+
+- Windows
+- Linux
+- MacOS
+- Devices like Raspberry Pi
+- Android
+
+Available :ref:`presets-label`:
+
+- :code:`BrainFlowPresets.DEFAULT_PRESET`, it contains EEG (EMG, ECG, EOG) data
+- :code:`BrainFlowPresets.AUXILIARY_PRESET`, it contains Gyro, Accel, battery and ESP32 chip temperature data

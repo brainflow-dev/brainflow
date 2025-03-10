@@ -16,6 +16,7 @@
 
 #include "aavaa_v3.h"
 #include "ant_neuro.h"
+#include "biolistener.h"
 #include "board.h"
 #include "board_controller.h"
 #include "board_info_getter.h"
@@ -303,6 +304,9 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
         case BoardIds::NEUROPAWN_KNIGHT_BOARD:
             board =
                 std::shared_ptr<Board> (new Knight ((int)BoardIds::NEUROPAWN_KNIGHT_BOARD, params));
+            break;
+        case BoardIds::BIOLISTENER_BOARD:
+            board = std::shared_ptr<Board> (new BioListener<8> (board_id, params));
             break;
         default:
             return (int)BrainFlowExitCodes::UNSUPPORTED_BOARD_ERROR;

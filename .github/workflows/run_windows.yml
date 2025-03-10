@@ -186,6 +186,9 @@ jobs:
     - name: KnightBoard Windows Python Test
       run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\knightboard_windows.py python %GITHUB_WORKSPACE%\python_package\examples\tests\brainflow_get_data.py --board-id 57 --serial-port
       shell: cmd
+    - name: BioListener Windows Python Test
+      run: python %GITHUB_WORKSPACE%\emulator\brainflow_emulator\biolistener_emulator.py python %GITHUB_WORKSPACE%\python_package\examples\tests\brainflow_get_data.py --board-id 64 --ip-address 127.0.0.1 --ip-port 12345
+      shell: cmd
     # Signal Processing Testing
     - name: Serialization Rust Test
       run: |
