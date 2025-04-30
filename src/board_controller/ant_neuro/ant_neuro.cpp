@@ -529,7 +529,7 @@ int AntNeuroBoard::config_board (std::string config, std::string &response)
         std::ostringstream result;
         if (!bipolar_ranges.empty()) 
         {
-            std::copy(bipolar_ranges.begin(), bipolar_ranges.end() - 1, std::ostream_iterator<int>(result, ","));
+            std::copy(bipolar_ranges.begin(), bipolar_ranges.end() - 1, std::ostream_iterator<double>(result, ","));
             result << bipolar_ranges.back();  // no trailing comma
         }
         response = result.str();
