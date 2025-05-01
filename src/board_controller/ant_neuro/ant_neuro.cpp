@@ -349,14 +349,7 @@ int AntNeuroBoard::config_board (std::string config, std::string &response)
     std::string rv_prefix = "reference_range:";
     std::string bv_prefix = "bipolar_range:";
     std::string mode_prefix = "impedance_mode:";
-
-    std::string get_type = "get_type";
-    std::string get_firmware_version = "get_firmware_version";
-    std::string get_serial_number = "get_serial_number";
-    std::string get_sampling_rates_available = "get_sampling_rates_available";
-    std::string get_reference_ranges_available = "get_reference_ranges_available";
-    std::string get_bipolar_ranges_available = "get_bipolar_ranges_available";
-    std::string get_power_state = "get_power_state";
+    std::string get_info = "get_info";
 
     if (config.find (prefix) != std::string::npos)
     {
@@ -482,75 +475,73 @@ int AntNeuroBoard::config_board (std::string config, std::string &response)
             return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
         }
     }
-    // get info from ANT SDK
-    else if (config == get_type)
+    else if (config == get_info) // return stringified JSON with info from ANT board
     {
-        response = amp->getType ();
-        return (int)BrainFlowExitCodes::STATUS_OK;
-    }
-    else if (config == get_firmware_version)
-    {
-        int version = amp->getFirmwareVersion ();
-        response = std::to_string (version);
-        return (int)BrainFlowExitCodes::STATUS_OK;
-    }
-    else if (config == get_serial_number)
-    {
-        response = amp->getSerialNumber ();
-        return (int)BrainFlowExitCodes::STATUS_OK;
-    }
-    else if (config == get_sampling_rates_available)
-    {
-        std::vector<int> sampling_rates = amp->getSamplingRatesAvailable ();
-        std::ostringstream result;
-        if (!sampling_rates.empty ())
-        {
-            std::copy (sampling_rates.begin (), sampling_rates.end () - 1,
-                std::ostream_iterator<int> (result, ","));
-            result << sampling_rates.back (); // no trailing comma
-        }
-        response = result.str ();
-        return (int)BrainFlowExitCodes::STATUS_OK;
-    }
-    else if (config == get_reference_ranges_available)
-    {
-        std::vector<double> reference_ranges = amp->getReferenceRangesAvailable ();
-        std::ostringstream result;
-        if (!reference_ranges.empty ())
-        {
-            std::copy (reference_ranges.begin (), reference_ranges.end () - 1,
-                std::ostream_iterator<double> (result, ","));
-            result << reference_ranges.back (); // no trailing comma
-        }
-        response = result.str ();
-        return (int)BrainFlowExitCodes::STATUS_OK;
-    }
-    else if (config == get_bipolar_ranges_available)
-    {
-        std::vector<double> bipolar_ranges = amp->getBipolarRangesAvailable ();
-        std::ostringstream result;
-        if (!bipolar_ranges.empty ())
-        {
-            std::copy (bipolar_ranges.begin (), bipolar_ranges.end () - 1,
-                std::ostream_iterator<double> (result, ","));
-            result << bipolar_ranges.back (); // no trailing comma
-        }
-        response = result.str ();
-        return (int)BrainFlowExitCodes::STATUS_OK;
-    }
-    else if (config == get_power_state)
-    {
-        amplifier::power_state power_state = amp->getPowerState ();
         std::ostringstream oss;
-        oss << "is_powered: " << power_state.is_powered
-            << ", is_charging: " << power_state.is_charging
-            << ", charging_level: " << power_state.charging_level;
-        response = oss.str ();
+        oss << "{";
 
+        // getType
+        oss << "\"type\":\"" << amp->getType () << "\",";
+
+        // getFirmwareVersion
+        oss << "\"firmware_version\":" << amp->getFirmwareVersion () << ",";
+
+        // getSerialNumber
+        oss << "\"serial_number\":\"" << amp->getSerialNumber () << "\",";
+
+        // getSamplingRatesAvailable
+        std::vector<int> sampling_rates = amp->getSamplingRatesAvailable ();
+        oss << "\"sampling_rates\":[";
+        for (int i = 0; i < sampling_rates.size (); ++i)
+        {
+            oss << sampling_rates[i];
+            if (i != sampling_rates.size () - 1)
+            {
+                oss << ",";
+            }
+        }
+        oss << "],";
+
+        // getReferenceRangesAvailable
+        std::vector<double> reference_ranges = amp->getReferenceRangesAvailable ();
+        oss << "\"reference_ranges\":[";
+        for (int i = 0; i < reference_ranges.size (); ++i)
+        {
+            oss << reference_ranges[i];
+            if (i != reference_ranges.size() - 1)
+            {
+                oss << ",";
+            }
+        }
+        oss << "],";
+
+        // getBipolarRangesAvailable
+        std::vector<double> bipolar_ranges = amp->getBipolarRangesAvailable ();
+        oss << "\"bipolar_ranges\":[";
+        for (int i = 0; i < bipolar_ranges.size (); ++i)
+        {
+            oss << bipolar_ranges[i];
+            if (i != bipolar_ranges.size () - 1)
+            {
+                oss << ",";
+            }
+        }
+        oss << "],";
+
+        // getPowerState
+        amplifier::power_state power_state = amp->getPowerState ();
+        oss << "\"power_state\":{";
+        oss << "\"is_powered\":" << power_state.is_powered << ",";
+        oss << "\"is_charging\":" << power_state.is_charging << ",";
+        oss << "\"charging_level\":" << power_state.charging_level;
+        oss << "}";
+
+        oss << "}";
+
+        response = oss.str ();
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
-
-    safe_logger (spdlog::level::err, "format is '{}value'", prefix.c_str ());
+    safe_logger (spdlog::level::err, "format is '{}value' or 'get_info'", prefix.c_str ());
     return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
 }
 

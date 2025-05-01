@@ -1,4 +1,5 @@
 import time
+import json
 
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 
@@ -8,13 +9,9 @@ if __name__ == '__main__':
     board.prepare_session()
 
     # Get amplifier info
-    print(f"get_type: {board.config_board('get_type')}")
-    print(f"get_firmware_version: {board.config_board('get_firmware_version')}")
-    print(f"get_serial_number: {board.config_board('get_serial_number')}")
-    print(f"get_sampling_rates_available: {board.config_board('get_sampling_rates_available')}")
-    print(f"get_reference_ranges_available: {board.config_board('get_reference_ranges_available')}")
-    print(f"get_bipolar_ranges_available: {board.config_board('get_bipolar_ranges_available')}")
-    print(f"get_power_state: {board.config_board('get_power_state')}")
+    info = json.loads(board.config_board('get_info'))
+    for key, value in info.items():
+        print(f" - {key}: {value}")
 
     # Get impedance data
     board.config_board('impedance_mode:1')
