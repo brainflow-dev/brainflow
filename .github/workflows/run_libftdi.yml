@@ -10,7 +10,7 @@ jobs:
       fail-fast: false
       max-parallel: 4
       matrix:
-        os: [ubuntu-20.04]
+        os: [ubuntu-latest]
 
     steps:
     # compile and prepare env
@@ -22,7 +22,7 @@ jobs:
         python-version: '3.7.7'
         architecture: 'x64'
     - name: Install Ubuntu Dependencies
-      if: (matrix.os == 'ubuntu-20.04')
+      if: (matrix.os == 'ubuntu-latest')
       run: |
         sudo -H apt-get update -y
         sudo -H apt-get install -y python3-setuptools python3-pygments libftdi1-dev
