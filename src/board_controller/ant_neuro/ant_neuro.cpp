@@ -11,8 +11,8 @@
 #include <unistd.h>
 #endif
 
-#include <sstream>
 #include <iterator>
+#include <sstream>
 
 #include <algorithm>
 #include <chrono>
@@ -490,8 +490,8 @@ int AntNeuroBoard::config_board (std::string config, std::string &response)
     }
     else if (config == get_firmware_version)
     {
-        int version = amp->getFirmwareVersion();
-        response = std::to_string(version);
+        int version = amp->getFirmwareVersion ();
+        response = std::to_string (version);
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
     else if (config == get_serial_number)
@@ -501,38 +501,41 @@ int AntNeuroBoard::config_board (std::string config, std::string &response)
     }
     else if (config == get_sampling_rates_available)
     {
-        std::vector<int> sampling_rates = amp->getSamplingRatesAvailable();
+        std::vector<int> sampling_rates = amp->getSamplingRatesAvailable ();
         std::ostringstream result;
-        if (!sampling_rates.empty()) 
+        if (!sampling_rates.empty ())
         {
-            std::copy(sampling_rates.begin(), sampling_rates.end() - 1, std::ostream_iterator<int>(result, ","));
-            result << sampling_rates.back();  // no trailing comma
+            std::copy (sampling_rates.begin (), sampling_rates.end () - 1,
+                std::ostream_iterator<int> (result, ","));
+            result << sampling_rates.back (); // no trailing comma
         }
-        response = result.str();
+        response = result.str ();
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
     else if (config == get_reference_ranges_available)
     {
-        std::vector<double> reference_ranges = amp->getReferenceRangesAvailable();
+        std::vector<double> reference_ranges = amp->getReferenceRangesAvailable ();
         std::ostringstream result;
-        if (!reference_ranges.empty()) 
+        if (!reference_ranges.empty ())
         {
-            std::copy(reference_ranges.begin(), reference_ranges.end() - 1, std::ostream_iterator<double>(result, ","));
-            result << reference_ranges.back();  // no trailing comma
+            std::copy (reference_ranges.begin (), reference_ranges.end () - 1,
+                std::ostream_iterator<double> (result, ","));
+            result << reference_ranges.back (); // no trailing comma
         }
-        response = result.str();
+        response = result.str ();
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
     else if (config == get_bipolar_ranges_available)
     {
-        std::vector<double> bipolar_ranges = amp->getBipolarRangesAvailable();
+        std::vector<double> bipolar_ranges = amp->getBipolarRangesAvailable ();
         std::ostringstream result;
-        if (!bipolar_ranges.empty()) 
+        if (!bipolar_ranges.empty ())
         {
-            std::copy(bipolar_ranges.begin(), bipolar_ranges.end() - 1, std::ostream_iterator<double>(result, ","));
-            result << bipolar_ranges.back();  // no trailing comma
+            std::copy (bipolar_ranges.begin (), bipolar_ranges.end () - 1,
+                std::ostream_iterator<double> (result, ","));
+            result << bipolar_ranges.back (); // no trailing comma
         }
-        response = result.str();
+        response = result.str ();
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
     else if (config == get_power_state)
@@ -542,7 +545,7 @@ int AntNeuroBoard::config_board (std::string config, std::string &response)
         oss << "is_powered: " << power_state.is_powered
             << ", is_charging: " << power_state.is_charging
             << ", charging_level: " << power_state.charging_level;
-        response = oss.str();
+        response = oss.str ();
 
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
