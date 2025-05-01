@@ -508,7 +508,7 @@ int AntNeuroBoard::config_board (std::string config, std::string &response)
         for (int i = 0; i < reference_ranges.size (); ++i)
         {
             oss << reference_ranges[i];
-            if (i != reference_ranges.size() - 1)
+            if (i != reference_ranges.size () - 1)
             {
                 oss << ",";
             }
