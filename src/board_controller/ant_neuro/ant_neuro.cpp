@@ -11,7 +11,6 @@
 #include <unistd.h>
 #endif
 
-#include <iterator>
 #include <sstream>
 
 #include <algorithm>
@@ -492,7 +491,7 @@ int AntNeuroBoard::config_board (std::string config, std::string &response)
         // getSamplingRatesAvailable
         std::vector<int> sampling_rates = amp->getSamplingRatesAvailable ();
         oss << "\"sampling_rates\":[";
-        for (int i = 0; i < sampling_rates.size (); ++i)
+        for (size_t i = 0; i < sampling_rates.size (); ++i)
         {
             oss << sampling_rates[i];
             if (i != sampling_rates.size () - 1)
@@ -505,7 +504,7 @@ int AntNeuroBoard::config_board (std::string config, std::string &response)
         // getReferenceRangesAvailable
         std::vector<double> reference_ranges = amp->getReferenceRangesAvailable ();
         oss << "\"reference_ranges\":[";
-        for (int i = 0; i < reference_ranges.size (); ++i)
+        for (size_t i = 0; i < reference_ranges.size (); ++i)
         {
             oss << reference_ranges[i];
             if (i != reference_ranges.size () - 1)
@@ -518,7 +517,7 @@ int AntNeuroBoard::config_board (std::string config, std::string &response)
         // getBipolarRangesAvailable
         std::vector<double> bipolar_ranges = amp->getBipolarRangesAvailable ();
         oss << "\"bipolar_ranges\":[";
-        for (int i = 0; i < bipolar_ranges.size (); ++i)
+        for (size_t i = 0; i < bipolar_ranges.size (); ++i)
         {
             oss << bipolar_ranges[i];
             if (i != bipolar_ranges.size () - 1)
