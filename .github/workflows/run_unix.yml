@@ -25,11 +25,10 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '7.0.x'
-    - name: Install Python 3.7
-      uses: actions/setup-python@v3
+    - name: Install Python 3.10
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.7.7'
-        architecture: 'x64'
+        python-version: '3.11'
     - name: Install Python Dependencies
       if: (matrix.os == 'ubuntu-latest')
       run: |

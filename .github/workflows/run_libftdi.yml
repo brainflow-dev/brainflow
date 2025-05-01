@@ -16,11 +16,10 @@ jobs:
     # compile and prepare env
     - name: Clone Repository
       uses: actions/checkout@v2
-    - name: Install Python 3.7
-      uses: actions/setup-python@v3
+    - name: Install Python 3.10
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.7.7'
-        architecture: 'x64'
+        python-version: '3.11'
     - name: Install Ubuntu Dependencies
       if: (matrix.os == 'ubuntu-latest')
       run: |
