@@ -10,19 +10,18 @@ jobs:
       fail-fast: false
       max-parallel: 4
       matrix:
-        os: [ubuntu-20.04]
+        os: [ubuntu-latest]
 
     steps:
     # compile and prepare env
     - name: Clone Repository
       uses: actions/checkout@v2
-    - name: Install Python 3.7
-      uses: actions/setup-python@v3
+    - name: Install Python 3.10
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.7.7'
-        architecture: 'x64'
+        python-version: '3.11'
     - name: Install Ubuntu Dependencies
-      if: (matrix.os == 'ubuntu-20.04')
+      if: (matrix.os == 'ubuntu-latest')
       run: |
         sudo -H apt-get update -y
         sudo -H apt-get install -y python3-setuptools python3-pygments libftdi1-dev

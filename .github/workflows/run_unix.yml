@@ -10,7 +10,7 @@ jobs:
       fail-fast: false
       max-parallel: 4
       matrix:
-        os: [ubuntu-20.04, macos-13]
+        os: [ubuntu-latest, macos-13]
 
     steps:
     # compile and prepare env
@@ -25,13 +25,12 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '7.0.x'
-    - name: Install Python 3.7
-      uses: actions/setup-python@v3
+    - name: Install Python 3.10
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.7.7'
-        architecture: 'x64'
+        python-version: '3.11'
     - name: Install Python Dependencies
-      if: (matrix.os == 'ubuntu-20.04')
+      if: (matrix.os == 'ubuntu-latest')
       run: |
         sudo -H apt-get update -y
         sudo -H apt-get install -y python3-setuptools python3-pygments libbluetooth-dev
@@ -81,7 +80,7 @@ jobs:
       env:
         BRAINFLOW_VERSION: ${{ steps.version.outputs.version }}
     - name: Compile BrainFlow Ubuntu
-      if: (matrix.os == 'ubuntu-20.04')
+      if: (matrix.os == 'ubuntu-latest')
       run: |
         mkdir $GITHUB_WORKSPACE/build
         cd $GITHUB_WORKSPACE/build
@@ -92,7 +91,7 @@ jobs:
         BRAINFLOW_VERSION: ${{ steps.version.outputs.version }}
     - name: Compile BrainFlow in ManyLinux
       # bindings in production have to use libraries compiled inside this image!
-      if: (matrix.os == 'ubuntu-20.04')
+      if: (matrix.os == 'ubuntu-latest')
       run: |
         docker pull dockcross/manylinux_2_28-x64:20240418-88c04a4
         docker run -e BRAINFLOW_VERSION=$BRAINFLOW_VERSION -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE dockcross/manylinux_2_28-x64:20240418-88c04a4 /bin/bash -c "yum install -y bluez-libs-devel dbus-devel && /opt/python/cp36-cp36m/bin/pip3.6 install cmake==3.21.4 && cd $GITHUB_WORKSPACE && mkdir build_docker && cd build_docker && /opt/_internal/cpython-3.6.15/bin/cmake -DBRAINFLOW_VERSION=$BRAINFLOW_VERSION -DBUILD_ONNX=ON -DBUILD_BLE=ON -DBUILD_BLUETOOTH=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/installed_docker -DCMAKE_BUILD_TYPE=Release .. && make && make install"
@@ -176,7 +175,7 @@ jobs:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
         DYLD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: Synthetic C# Test Ubuntu
-      if: (matrix.os == 'ubuntu-20.04')
+      if: (matrix.os == 'ubuntu-latest')
       run: |
         cd $GITHUB_WORKSPACE/csharp_package/brainflow/examples/brainflow_get_data/bin/Release/net7.0
         ./brainflow_get_data --board-id -1
@@ -185,7 +184,7 @@ jobs:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
         DYLD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: EEG Metrics C# Test Ubuntu
-      if: (matrix.os == 'ubuntu-20.04')
+      if: (matrix.os == 'ubuntu-latest')
       run: |
         cd $GITHUB_WORKSPACE/csharp_package/brainflow/examples/eeg_metrics/bin/Release/net7.0
         ./eeg_metrics --board-id -1
@@ -364,7 +363,7 @@ jobs:
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: EEG Metrics Cpp Dyn Lib
-      if: (matrix.os == 'ubuntu-20.04')
+      if: (matrix.os == 'ubuntu-latest')
       run: $GITHUB_WORKSPACE/cpp_package/examples/ml/build/eeg_metrics_ci --board-id -1 --metric 2 --classifier 1 --model-file $GITHUB_WORKSPACE/cpp_package/examples/ml/build/libdyn_lib_test.so
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
@@ -404,9 +403,9 @@ jobs:
         npm run bandpower_all
     # deploy started
     - name: Install AWS CLI
-      run: sudo -H python3 -m pip install awscli==1.21.10
+      run: sudo -H python3 -m pip install awscli
     - name: Push Libraries Linux Docker
-      if: ${{ github.event_name == 'push' && matrix.os == 'ubuntu-20.04' && github.repository == 'brainflow-dev/brainflow' }}
+      if: ${{ github.event_name == 'push' && matrix.os == 'ubuntu-latest' && github.repository == 'brainflow-dev/brainflow' }}
       run: |
         aws s3 cp $GITHUB_WORKSPACE/installed_docker/lib/ s3://brainflow/$GITHUB_SHA/linux --recursive
       env:
