@@ -11,8 +11,6 @@
 #include <unistd.h>
 #endif
 
-#include <sstream>
-
 #include <algorithm>
 #include <chrono>
 
@@ -23,6 +21,7 @@
 #include "eemagine/sdk/wrapper.h"
 
 using namespace eemagine::sdk;
+using json = nlohmann::json;
 
 
 AntNeuroBoard::AntNeuroBoard (int board_id, struct BrainFlowInputParams params)
@@ -476,68 +475,20 @@ int AntNeuroBoard::config_board (std::string config, std::string &response)
     }
     else if (config == get_info) // return stringified JSON with info from ANT board
     {
-        std::ostringstream oss;
-        oss << "{";
-
-        // getType
-        oss << "\"type\":\"" << amp->getType () << "\",";
-
-        // getFirmwareVersion
-        oss << "\"firmware_version\":" << amp->getFirmwareVersion () << ",";
-
-        // getSerialNumber
-        oss << "\"serial_number\":\"" << amp->getSerialNumber () << "\",";
-
-        // getSamplingRatesAvailable
-        std::vector<int> sampling_rates = amp->getSamplingRatesAvailable ();
-        oss << "\"sampling_rates\":[";
-        for (size_t i = 0; i < sampling_rates.size (); ++i)
-        {
-            oss << sampling_rates[i];
-            if (i != sampling_rates.size () - 1)
-            {
-                oss << ",";
-            }
-        }
-        oss << "],";
-
-        // getReferenceRangesAvailable
-        std::vector<double> reference_ranges = amp->getReferenceRangesAvailable ();
-        oss << "\"reference_ranges\":[";
-        for (size_t i = 0; i < reference_ranges.size (); ++i)
-        {
-            oss << reference_ranges[i];
-            if (i != reference_ranges.size () - 1)
-            {
-                oss << ",";
-            }
-        }
-        oss << "],";
-
-        // getBipolarRangesAvailable
-        std::vector<double> bipolar_ranges = amp->getBipolarRangesAvailable ();
-        oss << "\"bipolar_ranges\":[";
-        for (size_t i = 0; i < bipolar_ranges.size (); ++i)
-        {
-            oss << bipolar_ranges[i];
-            if (i != bipolar_ranges.size () - 1)
-            {
-                oss << ",";
-            }
-        }
-        oss << "],";
-
-        // getPowerState
-        amplifier::power_state power_state = amp->getPowerState ();
-        oss << "\"power_state\":{";
-        oss << "\"is_powered\":" << power_state.is_powered << ",";
-        oss << "\"is_charging\":" << power_state.is_charging << ",";
-        oss << "\"charging_level\":" << power_state.charging_level;
-        oss << "}";
-
-        oss << "}";
-
-        response = oss.str ();
+        json j;
+        j["type"] = amp->getType ();
+        j["firmware_version"] = amp->getFirmwareVersion ();
+        j["serial_number"] = amp->getSerialNumber ();
+        j["sampling_rates"] = amp->getSamplingRatesAvailable ();
+        j["reference_ranges"] = amp->getReferenceRangesAvailable ();
+        j["bipolar_ranges"] = amp->getBipolarRangesAvailable ();
+        amplifier::power_state ps = amp->getPowerState ();
+        j["power_state"] = {
+            {"is_powered", ps.is_powered},
+            {"is_charging", ps.is_charging},
+            {"charging_level", ps.charging_level}
+        };
+        response = j.dump ();
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
     safe_logger (spdlog::level::err, "format is '{}value' or 'get_info'", prefix.c_str ());
