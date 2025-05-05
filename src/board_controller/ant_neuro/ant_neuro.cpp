@@ -483,11 +483,8 @@ int AntNeuroBoard::config_board (std::string config, std::string &response)
         j["reference_ranges"] = amp->getReferenceRangesAvailable ();
         j["bipolar_ranges"] = amp->getBipolarRangesAvailable ();
         amplifier::power_state ps = amp->getPowerState ();
-        j["power_state"] = {
-            {"is_powered", ps.is_powered},
-            {"is_charging", ps.is_charging},
-            {"charging_level", ps.charging_level}
-        };
+        j["power_state"] = {{"is_powered", ps.is_powered}, {"is_charging", ps.is_charging},
+            {"charging_level", ps.charging_level}};
         response = j.dump ();
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
