@@ -21,6 +21,7 @@
 #include "eemagine/sdk/wrapper.h"
 
 using namespace eemagine::sdk;
+using json = nlohmann::json;
 
 
 AntNeuroBoard::AntNeuroBoard (int board_id, struct BrainFlowInputParams params)
@@ -346,6 +347,7 @@ int AntNeuroBoard::config_board (std::string config, std::string &response)
     std::string rv_prefix = "reference_range:";
     std::string bv_prefix = "bipolar_range:";
     std::string mode_prefix = "impedance_mode:";
+    std::string get_info = "get_info";
 
     if (config.find (prefix) != std::string::npos)
     {
@@ -471,8 +473,22 @@ int AntNeuroBoard::config_board (std::string config, std::string &response)
             return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
         }
     }
-
-    safe_logger (spdlog::level::err, "format is '{}value'", prefix.c_str ());
+    else if (config == get_info) // return stringified JSON with info from ANT board
+    {
+        json j;
+        j["type"] = amp->getType ();
+        j["firmware_version"] = amp->getFirmwareVersion ();
+        j["serial_number"] = amp->getSerialNumber ();
+        j["sampling_rates"] = amp->getSamplingRatesAvailable ();
+        j["reference_ranges"] = amp->getReferenceRangesAvailable ();
+        j["bipolar_ranges"] = amp->getBipolarRangesAvailable ();
+        amplifier::power_state ps = amp->getPowerState ();
+        j["power_state"] = {{"is_powered", ps.is_powered}, {"is_charging", ps.is_charging},
+            {"charging_level", ps.charging_level}};
+        response = j.dump ();
+        return (int)BrainFlowExitCodes::STATUS_OK;
+    }
+    safe_logger (spdlog::level::err, "format is '{}value' or 'get_info'", prefix.c_str ());
     return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
 }
 

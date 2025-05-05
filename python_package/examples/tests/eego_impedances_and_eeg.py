@@ -1,4 +1,5 @@
 import time
+import json
 
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 
@@ -6,6 +7,11 @@ if __name__ == '__main__':
     params = BrainFlowInputParams()
     board = BoardShim(BoardIds.ANT_NEURO_EE_411_BOARD, params)  # 8 channel amplifier
     board.prepare_session()
+
+    # Get amplifier info
+    info = json.loads(board.config_board('get_info'))
+    for key, value in info.items():
+        print(f" - {key}: {value}")
 
     # Get impedance data
     board.config_board('impedance_mode:1')
