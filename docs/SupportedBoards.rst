@@ -1042,6 +1042,7 @@ Supported platforms:
 
 Available commands:
 
+- Get amplifier info: :code:`board.config_board("get_info")`, returns json-string with amplifier type, firmware version, serial number, available sampling rates, available reference ranges, available bipolar ranges, and power state.
 - Set impedance mode: :code:`board.config_board("impedance_mode:1")`, mode 0 or 1.
 - Set sampling rate: :code:`board.config_board("sampling_rate:500")`, for available values check docs from Ant Neuro.
 - Set reference range: :code:`board.config_board("reference_range:1.0")`, for available values check docs from Ant Neuro.
