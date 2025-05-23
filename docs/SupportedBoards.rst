@@ -1060,7 +1060,7 @@ Enophone Headphones
     :width: 401px
     :height: 500px
 
-`Enophone website <https://enophone.com/enophones/>`_
+`Enophone website <https://getenophone.com/>`_
 
 **You need to pair your device first.**
 
