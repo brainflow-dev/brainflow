@@ -67,5 +67,6 @@ classdef BoardIds < int32
         SYNCHRONI_UNO_1_CHANNELS_BOARD(62)
         OB3000_24_CHANNELS_BOARD(63)
         BIOLISTENER_BOARD(64)
+        CERELOG_X8_BOARD(65)
     end
 end

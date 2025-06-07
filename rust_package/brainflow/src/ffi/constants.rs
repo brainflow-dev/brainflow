@@ -102,7 +102,8 @@ pub enum BoardIds {
     SynchroniPento8ChannelsBoard = 61,
     SynchroniUno1ChannelsBoard = 62,
     OB300024ChannelsBoard = 63,
-    BiolistenerBoard = 64
+    BiolistenerBoard = 64,
+    CerelogX8Board = 65
 }
 #[repr(i32)]
 #[derive(FromPrimitive, ToPrimitive, Debug, Copy, Clone, Hash, PartialEq, Eq)]

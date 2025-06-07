@@ -88,13 +88,14 @@ SET (BOARD_CONTROLLER_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/synchroni/synchroni_board.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/neuropawn/knight.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/biolistener/biolistener.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/biolistener/biolistener.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/cerelog/cerelog.cpp
 )
 
 include (${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/ant_neuro/build.cmake)
 include (${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/ganglion_bglib/build.cmake)
 include (${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/gtec/build.cmake)
 include (${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/muse/muse_bglib/build.cmake)
-include (${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/neuromd/build.cmake)
 
 if (BUILD_OYMOTION_SDK)
     include (${CMAKE_CURRENT_SOURCE_DIR}/third_party/gForceSDKCXX/build.cmake)
@@ -138,6 +139,7 @@ target_include_directories (
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/openbci/ganglion_bglib/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/neuromd/brainbit_bglib/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/muse/inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/cerelog/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/muse/muse_bglib/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/neurosdk/inc/types
     ${CMAKE_CURRENT_SOURCE_DIR}/src/board_controller/neurosity/inc
