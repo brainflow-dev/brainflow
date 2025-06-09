@@ -14,6 +14,8 @@ class Cerelog_X8 : public Board {
         std::thread streaming_thread;
         Serial *serial;
         int state;
+        std::mutex m; // This is for thread processing later on
+        std::condition_variable cv; // I don't really know what this is doing
 
         void read_thread();
 
