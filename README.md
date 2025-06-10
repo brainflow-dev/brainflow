@@ -73,3 +73,11 @@ We support bindings for:
 
 ## License: 
 [MIT](https://github.com/brainflow-dev/brainflow/blob/master/LICENSE)
+
+## Dev cycle
+
+cd ..\build\
+cmake --build . --config Release --clean-first -j 4
+cd .\python_package\
+pip install -e .
+python .\tet.py
