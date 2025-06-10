@@ -1220,6 +1220,24 @@ BrainFlowBoards::BrainFlowBoards()
         {"battery_channel", 8},
         {"other_channels", {9, 10}}
     };
+    brainflow_boards_json["boards"]["65"]["default"] = {
+        {"name", "Cerelog_X8_BOARD"},
+        {"sampling_rate", 250},
+        {"timestamp_channel", 9},
+        {"marker_channel", 10},
+        {"num_rows", 10},
+        {"eeg_channels", {1,2,3,4,5,6,7,8}},
+        {"eeg_names", "P1,P2,P3,P4,P5,P6,P7,P8"}
+    };
+    brainflow_boards_json["boards"]["65"]["auxiliary"] = {
+        {"name", "Cerelog_X8_Board"},
+        {"sampling_rate", 512},
+        {"timestamp_channel", 9},
+        {"marker_channel", 10},
+        {"num_rows", 10},
+        {"eeg_channels", {1,2,3,4,5,6,7,8}},
+        {"eeg_names", "P1,P2,P3,P4,P5,P6,P7,P8"}
+    };
 }
 
 BrainFlowBoards boards_struct;

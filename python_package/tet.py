@@ -17,7 +17,7 @@ def test_my_board():
         board.start_stream()
         print("✓ Stream started")
         
-        time.sleep(2)  # Collect some data
+        time.sleep(5)  # Collect some data
         
         board.stop_stream()
         data = board.get_board_data()

@@ -109,17 +109,29 @@ void Cerelog_X8::read_thread() {
     constexpr int PACKET_TOTAL_SIZE = 2 + 1 + PACKET_MSG_LENGTH + 1 + 2; // start + len + msg + checksum + end
     
     unsigned char packet[PACKET_TOTAL_SIZE];
-    double exg_package[ADS1299_TOTAL_DATA_BYTES + 1]; // 8 channels + timestamp (no PC timestamp)
-    for (int i = 0; i < ADS1299_TOTAL_DATA_BYTES + 1; i++) exg_package[i] = 0.0;
+    
+    // Get board configuration
+    int num_rows = board_descr["default"]["num_rows"];
+    std::vector<int> eeg_channels = board_descr["default"]["eeg_channels"];
+    int timestamp_channel = board_descr["default"]["timestamp_channel"];
+    int marker_channel = board_descr["default"]["marker_channel"];
+    
+    // Initialize package with correct size
+    double *package = new double[num_rows];
+    for (int i = 0; i < num_rows; i++) {
+        package[i] = 0.0;
+    }
 
     while (keep_alive) {
         // Read until we find the start marker
         int res = serial->read_from_serial_port(packet, 1);
-        if (res != 1) { // unable to read, condition
+        if (res != 1) {
             safe_logger(spdlog::level::debug, "Unable to read 1 byte for start marker");
             continue;
         }
         if (packet[0] != ((START_MARKER >> 8) & 0xFF)) {
+            safe_logger(spdlog::level::debug, "Read one byte but not starter marker");
+
             continue;
         }
         // Read the rest of the start marker
@@ -127,6 +139,7 @@ void Cerelog_X8::read_thread() {
         if (res != 1 || packet[1] != (START_MARKER & 0xFF)) {
             continue;
         }
+
         // Read the rest of the packet
         int to_read = PACKET_TOTAL_SIZE - 2;
         int pos = 2;
@@ -167,25 +180,34 @@ void Cerelog_X8::read_thread() {
         timestamp |= (uint32_t)packet[PACKET_IDX_TIMESTAMP + 2] << 8;
         timestamp |= (uint32_t)packet[PACKET_IDX_TIMESTAMP + 3];
 
-        // Parse ADS1299 data (27 bytes, 8 channels, 3 bytes per channel, last 3 bytes unused)
+        // Parse ADS1299 data (27 bytes, 8 channels, 3 bytes per channel)
         // Each channel is 3 bytes, signed 24-bit integer
         for (int ch = 0; ch < 8; ch++) {
             int idx = PACKET_IDX_ADS1299_DATA + ch * 3;
             int32_t value = ((int32_t)packet[idx] << 16) |
-                            ((int32_t)packet[idx + 1] << 8) |
-                            ((int32_t)packet[idx + 2]);
+                           ((int32_t)packet[idx + 1] << 8) |
+                           ((int32_t)packet[idx + 2]);
             // Sign extension for 24-bit
             if (value & 0x800000) value |= 0xFF000000;
-            exg_package[ch] = (double)value;
+            
+            // Convert to microvolts and store in correct channel
+            double microvolts = (double)value * (4.5 / ((1 << 23) - 1));
+            package[eeg_channels[ch]] = microvolts;
         }
 
-        // Optionally, parse the remaining 3 bytes if needed (packet[PACKET_IDX_ADS1299_DATA + 24..26])
-
-        // Add timestamp to exg_package
-        exg_package[8] = (double)timestamp;
+        // Add timestamp
+        package[timestamp_channel] = (double)timestamp;
+        
+        // Add marker (default to 0)
+        package[marker_channel] = 0.0;
 
         // Push the package to the buffer
-        push_package(exg_package); // send this packet into the Brainflow system void
+        push_package(package);
+
+        safe_logger(spdlog::level::debug, "Package data: timestamp={}, marker={}, eeg_values={:.6f}, {:.6f}, {:.6f}", 
+            package[timestamp_channel], package[marker_channel],
+            // Log first few EEG values
+            package[eeg_channels[0]], package[eeg_channels[1]], package[eeg_channels[2]]);
 
         // Set state and notify if first package
         if (this->state != (int)BrainFlowExitCodes::STATUS_OK) {
@@ -198,6 +220,8 @@ void Cerelog_X8::read_thread() {
             safe_logger(spdlog::level::debug, "start streaming");
         }
     }
+    
+    delete[] package;
 }
 
 /* This will send a message to stop sending data
@@ -224,7 +248,6 @@ int Cerelog_X8::stop_stream() {
                 return (int)BrainFlowExitCodes::BOARD_WRITE_ERROR;
             }
         }
-
     }
 
     return 3;
