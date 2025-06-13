@@ -270,7 +270,7 @@ void Cerelog_X8::read_thread() {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
             continue;
         }
-        REAFAEL
+
         // Scan for start marker in the buffer
         while (buffer_pos + PACKET_TOTAL_SIZE <= buffer_len) {
             // Check for start marker (big endian)
@@ -337,20 +337,29 @@ void Cerelog_X8::read_thread() {
 
                 // Parse ADS1299 data (27 bytes, 8 channels, 3 bytes per channel)
                 for (int ch = 0; ch < 8; ch++) {
-                    int idx = PACKET_IDX_ADS1299_DATA + ch * 3;
+                    int idx = PACKET_IDX_ADS1299_DATA + ch * 3; // go to start point in the packet, 
                     if (idx + 2 >= (int)packet.size()) {
                         safe_logger(spdlog::level::err, "Packet too short for ADS1299 data, channel {}", ch);
                         continue;
                     }
+
+                    // If data looks good
                     int32_t value = ((int32_t)packet[idx] << 16) |
                                     ((int32_t)packet[idx + 1] << 8) |
                                     ((int32_t)packet[idx + 2]);
-                    // Sign extension for 24-bit
-                    if (value & 0x800000) value |= 0xFF000000;
-                    // Convert to microvolts and store in correct channel
-                    double microvolts = (double)value * (4.5 / ((1 << 23) - 1));
+                    
+                    // apply the mask and check JUST for that bit (sign extension baby)
+                    if (value & 0b00000000100000000000000000000000) {
+                        value = value | 0b11111111000000000000000000000000;
+                    }
+
+                    // Convert to volts and store in correct channel
+                    int gain = 24;
+                    float vref = 4.5;
+                    //double volts = (double)value * (4.5 / (1 << 24));
+                    double volts = (double)value * ((2.0f * vref / gain) / (1 << 24));
                     if (eeg_channels[ch] >= 0 && eeg_channels[ch] < num_rows) {
-                        package[eeg_channels[ch]] = microvolts;
+                        package[eeg_channels[ch]] = volts;
                     } else {
                         safe_logger(spdlog::level::warn, "EEG channel index {} out of bounds for package", eeg_channels[ch]);
                     }

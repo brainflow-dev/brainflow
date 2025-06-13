@@ -2,6 +2,7 @@ import time
 import numpy as np
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds, BrainFlowError, LogLevels
 import faulthandler
+import csv
 faulthandler.enable()
 
 def calculate_rms(signal):
@@ -14,7 +15,7 @@ def test_my_board():
     params = BrainFlowInputParams()
     params.serial_port = 'COM4'  # Set your port here
 
-    time_len = 3 # seconds
+    time_len = 10 # seconds
     try:
         board = BoardShim(BoardIds.CERELOG_X8_BOARD, params)
         BoardShim.enable_dev_board_logger()
@@ -47,7 +48,7 @@ def test_my_board():
             for ch in eeg_channels:
                 ch_data = data[ch]
                 rms = calculate_rms(ch_data)
-                print(f"RMS of EEG channel {ch}: {rms:.4f} uV")
+                print(f"RMS of EEG channel {ch}: {rms:.4f} V")
 
         # Calculate and print average Vpp of the channels
         vpp_values = []
@@ -58,9 +59,15 @@ def test_my_board():
                 vpp_values.append(ptp)
         if vpp_values:
             avg_vpp = np.mean(vpp_values)
-            print(f"Average Vpp of EEG channels: {avg_vpp:.4f} uV")
+            print(f"Average Vpp of EEG channels: {avg_vpp:.4f} V")
         else:
             print("No channels with Vpp >= 0.01 to calculate average Vpp.")
+        # Write data to CSV
+        with open('data.csv', mode='w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(['Time'] + [f"Channel {ch}" for ch in eeg_channels])
+            for i in range(data.shape[1]):
+                writer.writerow([i] + [f"{data[ch][i]:.4f}" for ch in eeg_channels])
 
         board.release_session()
         print("✓ Done!")
