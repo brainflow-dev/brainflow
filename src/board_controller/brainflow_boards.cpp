@@ -1192,8 +1192,7 @@ BrainFlowBoards::BrainFlowBoards()
         {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}},
         {"ecg_channels", {24}}
     };
-    brainflow_boards_json["boards"]["64"]["default"] =
-    {
+    brainflow_boards_json["boards"]["64"]["default"] = {
         {"name", "BioListener"},
         {"sampling_rate", 500},
         {"timestamp_channel", 11},
@@ -1206,8 +1205,7 @@ BrainFlowBoards::BrainFlowBoards()
         {"eog_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
         {"other_channels", {9, 10}}
     };
-    brainflow_boards_json["boards"]["64"]["auxiliary"] =
-    {
+    brainflow_boards_json["boards"]["64"]["auxiliary"] = {
         {"name", "BioListener"},
         {"sampling_rate", 50},
         {"timestamp_channel", 11},
@@ -1222,20 +1220,11 @@ BrainFlowBoards::BrainFlowBoards()
     };
     brainflow_boards_json["boards"]["65"]["default"] = {
         {"name", "Cerelog_X8_BOARD"},
-        {"sampling_rate", 250},
-        {"timestamp_channel", 9},
-        {"marker_channel", 10},
-        {"num_rows", 10},
-        {"eeg_channels", {1,2,3,4,5,6,7,8}},
-        {"eeg_names", "P1,P2,P3,P4,P5,P6,P7,P8"}
-    };
-    brainflow_boards_json["boards"]["65"]["auxiliary"] = {
-        {"name", "Cerelog_X8_Board"},
-        {"sampling_rate", 512},
-        {"timestamp_channel", 9},
-        {"marker_channel", 10},
-        {"num_rows", 10},
-        {"eeg_channels", {1,2,3,4,5,6,7,8}},
+        {"sampling_rate", 500},
+        {"timestamp_channel", 10},
+        {"marker_channel", 9},
+        {"num_rows", 11},
+        {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8}},
         {"eeg_names", "P1,P2,P3,P4,P5,P6,P7,P8"}
     };
 }

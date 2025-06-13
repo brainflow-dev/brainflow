@@ -63,7 +63,7 @@ int Cerelog_X8::config_board(std::string config, std::string &response) {
 
 /* This function seems a bit unnecessary for Cerelog since we start barragging with data anyway
    This function is also going to enable timestamp syncing?? 
-   This function CALLS READ_THREAD*/
+   This function CALLS READ_THREAD */
 int Cerelog_X8::start_stream(int buffer_size, const char* streamer_params) {
     if (!initialized) {
         return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
@@ -93,13 +93,17 @@ int Cerelog_X8::start_stream(int buffer_size, const char* streamer_params) {
     // Streaming begins now
     //res = serial->send_to_serial_port("b\n", 2); // We would switch up this message a bit. We weren't thinking about a back and forth paradigm for the board but that is the smart way to do this
     keep_alive = true;
-    streaming_thread = std::thread ([this] {this->read_thread();}); //
+    streaming_thread = std::thread (
+        [this] {
+            this->read_thread();
+        }
+    ); //
     safe_logger(spdlog::level::debug, "before mutex shit");
     
     // check for incoming data, wait for 5 seconds
     std::unique_lock<std::mutex> lk (this->m);
     auto sec = std::chrono::seconds(1);
-    bool state_changed = cv.wait_for(lk, 5 * sec,
+    bool state_changed = cv.wait_for(lk, 3 * sec,
     
     [this]() {
         if (this->state == (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR) {
@@ -110,9 +114,12 @@ int Cerelog_X8::start_stream(int buffer_size, const char* streamer_params) {
     
     );
 
-    if (state_changed) {
+    if (state_changed) { // how is state_changed being caslculated?
         this->is_streaming = true;
-        safe_logger(spdlog::level::debug, "THE STATE OF BOARD HAS CHANEGD FROM TIMEOUT ERROR");
+        safe_logger(
+            spdlog::level::debug,
+            "THE STATE OF BOARD HAS CHANEGD FROM TIMEOUT ERROR to " + std::to_string(this->state)
+        );
         return this->state;
     }
     
@@ -125,9 +132,9 @@ int Cerelog_X8::start_stream(int buffer_size, const char* streamer_params) {
         }
         this->is_streaming = false; // Ensure streaming flag is false
         return (int)BrainFlowExitCodes::SYNC_TIMEOUT_ERROR;
-        }
+    }
 }
-
+//BUFFERING IS THE ISSUE?? THE MORE COMPLICATED THE BEGINNING OF READING THOSE BYTES BECAME, THE MORE DIFFICULT EVERYTHING ELSE BECAME
 /* This is the function that is reading the serial data thread */
 void Cerelog_X8::read_thread() {
     // Constants for packet structure
@@ -193,12 +200,14 @@ void Cerelog_X8::read_thread() {
     if (timestamp_channel < 0 || timestamp_channel >= num_rows ||
         marker_channel < 0 || marker_channel >= num_rows) {
         safe_logger(spdlog::level::err, "Invalid timestamp or marker channel index");
-        return;
+        //return;
     }
+    // If we don't have enough EEG channels of data coming in
     if (eeg_channels.size() < 8) {
         safe_logger(spdlog::level::err, "Not enough EEG channels in board_descr (need at least 8)");
         return;
     }
+
     for (size_t i = 0; i < 8; ++i) {
         if (eeg_channels[i] < 0 || eeg_channels[i] >= num_rows) {
             safe_logger(spdlog::level::err, "EEG channel index {} out of bounds", eeg_channels[i]);
@@ -223,6 +232,9 @@ void Cerelog_X8::read_thread() {
     double last_system_time = 0;
     double timestamp_offset = 0;
     bool timestamp_synced = false;
+
+    // Counter for logging every 1000 samples
+    size_t sample_counter = 0;
 
     while (keep_alive) {
         // Shift any leftover bytes to the start of the buffer
@@ -258,7 +270,7 @@ void Cerelog_X8::read_thread() {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
             continue;
         }
-
+        REAFAEL
         // Scan for start marker in the buffer
         while (buffer_pos + PACKET_TOTAL_SIZE <= buffer_len) {
             // Check for start marker (big endian)
@@ -363,6 +375,18 @@ void Cerelog_X8::read_thread() {
                     safe_logger(spdlog::level::err, "Package size mismatch or empty package");
                 }
 
+                // Log every 500 samples: all channels and timestamp
+                sample_counter++;
+                if (sample_counter % 500 == 0) {
+                    // Build a string with all channel values and timestamp
+                    std::string log_msg = "Sample #" + std::to_string(sample_counter) + " | ";
+                    for (int i = 0; i < num_rows; ++i) {
+                        log_msg += "ch" + std::to_string(i) + "=" + std::to_string(package[i]);
+                        if (i != num_rows - 1) log_msg += ", ";
+                    }
+                    safe_logger(spdlog::level::info, log_msg);
+                }
+
                 // Set state and notify if first package
                 if (this->state != (int)BrainFlowExitCodes::STATUS_OK) {
                     safe_logger(spdlog::level::info, "received first package streaming is started");
@@ -416,7 +440,7 @@ If the board keep sending more and more, up to the limit of 40000 bytes, send an
 
 int Cerelog_X8::stop_stream() {
     // turn off flow
-    safe_logger(spdlog::level::err, "STOP STREAM FUNCTION CALLED BABY");
+    safe_logger(spdlog::level::info, "STOP STREAM FUNCTION CALLED BABY");
     if (is_streaming) {
         keep_alive = false;
         is_streaming = false;
@@ -466,4 +490,13 @@ double Cerelog_X8::convert_counter_to_timestamp(uint64_t packet_counter) {
     }
 
     return 3;
+}
+
+// Computes a simple checksum by summing all bytes in the buffer and returning the result as uint8_t
+uint8_t Cerelog_X8::calculate_checksum(const uint8_t* data, size_t length) {
+    uint8_t checksum = 0;
+    for (size_t i = 0; i < length; ++i) {
+        checksum += data[i];
+    }
+    return checksum;
 }

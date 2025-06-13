@@ -36,4 +36,5 @@ class Cerelog_X8 : public Board {
         int release_session();
         int config_board(std::string config, std::string &response);
         int config_board_with_bytes (const char *bytes, int len);
+        uint8_t calculate_checksum(const uint8_t* data, size_t length);
 };
