@@ -105,6 +105,14 @@ int AntNeuroBoard::prepare_session ()
         }
         impedance_mode = false;
         impedance_package_num = 0;
+        std::string board_name = "AntNeuro" + amp->getType ();
+        std::string expected_board_name = board_descr["default"]["name"];
+        if (expected_board_name != board_name)
+        {
+            std::string err_msg = "Board name " + expected_board_name +
+                " does not match board name of connected device " + board_name;
+            throw exceptions::notFound (err_msg);
+        }
     }
     catch (const exceptions::notFound &e)
     {

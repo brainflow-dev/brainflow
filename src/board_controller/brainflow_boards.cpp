@@ -1003,13 +1003,14 @@ BrainFlowBoards::BrainFlowBoards()
     {
         {"name", "AntNeuroEE511"},
         {"sampling_rate", 4096},
-        {"timestamp_channel", 30},
-        {"marker_channel", 31},
+        {"timestamp_channel", 32},
+        {"marker_channel", 33},
         {"package_num_channel", 0},
-        {"num_rows", 32},
+        {"num_rows", 34},
         {"eeg_channels", {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24}},
         {"emg_channels", {25, 26, 27, 28}},
-        {"other_channels", {29}}
+        {"resistance_channels", {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30}},
+        {"other_channels", {31}}
     };
     brainflow_boards_json["boards"]["52"]["default"] =
     {
