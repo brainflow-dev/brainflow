@@ -57,3 +57,4 @@ keywords: {Visualization;Time-frequency analysis;Signal processing algorithms;El
 * [Matthijs Cox, PyData Eindhoven 2021, Biosensor Machine Learning with Julia](https://www.youtube.com/watch?v=kLj0JQKhNMM)
 * [First Uruguayan hackhaton of robotic vehicle controlled by BCI](https://openbci.com/community/first-uruguayan-hackathon-of-robotic-vehicle-controlled-by-brain-computer-interfaces/)
 * [Lorelai Lyons, SciNoj Light: Brain data in Clojure](https://www.youtube.com/watch?v=MfA8Tyt7Rgk )
+* [Brain Data in Clojure (by Lorelai Lyons)](https://youtu.be/iWrPgbWYsSU?si=odfXtvLDyUMDoSaD)
