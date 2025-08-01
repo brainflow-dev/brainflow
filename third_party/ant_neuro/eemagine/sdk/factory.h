@@ -107,7 +107,9 @@ namespace eemagine
              * if no amplifiers are found.
              * @return pointer to an available amplifier
              */
-            eemagine::sdk::amplifier *getAmplifier ();
+            eemagine::sdk::amplifier *getAmplifier (
+                const std::string &board_name = "",
+                const std::string &serial_number = "");
             ///////////////////////////////////////////////////////////////////////////////
             /**
              * Returns a pointer to a virtual amplifier.

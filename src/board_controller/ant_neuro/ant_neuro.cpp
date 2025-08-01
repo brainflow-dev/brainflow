@@ -96,7 +96,8 @@ int AntNeuroBoard::prepare_session ()
         safe_logger (spdlog::level::info, "eego sdk version is: {}.{}.{}.{}",
             fact->getVersion ().major, fact->getVersion ().minor, fact->getVersion ().micro,
             fact->getVersion ().build);
-        amp = fact->getAmplifier ();
+        amp = fact->getAmplifier (board_descr["default"]["name"], params.serial_number);
+
         reference_range = amp->getReferenceRangesAvailable ()[0];
         bipolar_range = amp->getBipolarRangesAvailable ()[0];
         if (sampling_rate < 0)
@@ -105,14 +106,6 @@ int AntNeuroBoard::prepare_session ()
         }
         impedance_mode = false;
         impedance_package_num = 0;
-        std::string board_name = "AntNeuro" + amp->getType ();
-        std::string expected_board_name = board_descr["default"]["name"];
-        if (expected_board_name != board_name)
-        {
-            std::string err_msg = "Board name " + expected_board_name +
-                " does not match board name of connected device " + board_name;
-            throw exceptions::notFound (err_msg);
-        }
     }
     catch (const exceptions::notFound &e)
     {
