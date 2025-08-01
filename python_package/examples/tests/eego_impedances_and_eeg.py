@@ -5,6 +5,7 @@ from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 
 if __name__ == '__main__':
     params = BrainFlowInputParams()
+    # params.serial_number = '123456'  # optional, useeful if multiple devices are connected
     board = BoardShim(BoardIds.ANT_NEURO_EE_411_BOARD, params)  # 8 channel amplifier
     board.prepare_session()
 
