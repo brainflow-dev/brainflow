@@ -96,7 +96,56 @@ int AntNeuroBoard::prepare_session ()
         safe_logger (spdlog::level::info, "eego sdk version is: {}.{}.{}.{}",
             fact->getVersion ().major, fact->getVersion ().minor, fact->getVersion ().micro,
             fact->getVersion ().build);
-        amp = fact->getAmplifier (board_descr["default"]["name"], params.serial_number);
+
+        // Iterate through connected amplifiers
+        std::vector<amplifier *> amplifier_list = fact->getAmplifiers ();
+        if (amplifier_list.empty ())
+        {
+            throw exceptions::notFound ("no ANT amplifiers found.");
+        }
+
+        std::string expected_board_name = board_descr["default"]["name"];
+        std::string expected_serial_number = params.serial_number;
+
+        std::vector<amplifier *>::iterator iter = amplifier_list.begin ();
+        for (; iter != amplifier_list.end (); ++iter)
+        {
+            amplifier *current_amp = *iter;
+            std::string current_board_name = "AntNeuro" + current_amp->getType ();
+            std::string current_serial = current_amp->getSerialNumber ();
+
+            if ((!expected_board_name.empty () && current_board_name != expected_board_name) ||
+                (!expected_serial_number.empty () && current_serial != expected_serial_number))
+            {
+                safe_logger (spdlog::level::info, "Found non-matching amplifier (board name {}, serial {})",
+                    current_board_name, current_serial);
+                delete current_amp;
+                continue;
+            }
+
+            // Found the matching amplifier
+            safe_logger (spdlog::level::info, "Found amplifier (board name {}, serial {})!",
+                current_board_name, current_serial);
+            amp = current_amp;
+            break;
+        }
+
+        // Check if amplifier is found
+        if (amp == NULL)
+        {
+            throw exceptions::notFound ("No amplifier matched the given board name and serial number.");
+        }
+
+        // Clean up remaining amplifiers after the selected one
+        while (++iter != amplifier_list.end ())
+        {
+            amplifier *current_amp = *iter;
+            std::string current_board_name = "AntNeuro" + current_amp->getType ();
+            std::string current_serial = current_amp->getSerialNumber ();
+            safe_logger (spdlog::level::info, "Found non-matching amplifier (board name {}, serial {})",
+                current_board_name, current_serial);
+            delete current_amp;
+        }
 
         reference_range = amp->getReferenceRangesAvailable ()[0];
         bipolar_range = amp->getBipolarRangesAvailable ()[0];

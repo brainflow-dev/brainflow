@@ -921,9 +921,7 @@ std::vector<eemagine::sdk::amplifier *> eemagine::sdk::factory::getAmplifiers ()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-eemagine::sdk::amplifier *eemagine::sdk::factory::getAmplifier (
-    const std::string &board_name,
-    const std::string &serial_number)
+eemagine::sdk::amplifier *eemagine::sdk::factory::getAmplifier ()
 {
     eemagine::sdk::amplifier *rv = NULL;
     std::vector<eemagine::sdk::amplifier *> amplifier_list = getAmplifiers ();
@@ -934,28 +932,7 @@ eemagine::sdk::amplifier *eemagine::sdk::factory::getAmplifier (
     }
 
     std::vector<eemagine::sdk::amplifier *>::iterator iter = amplifier_list.begin ();
-    for (; iter != amplifier_list.end (); ++iter)
-    {
-        eemagine::sdk::amplifier *amp = *iter;
-
-        // Check board name and serial number
-        std::string amp_board_name = "AntNeuro" + amp->getType ();
-        if ((!board_name.empty () && amp_board_name != board_name) ||
-            (!serial_number.empty () && amp->getSerialNumber () != serial_number))
-        {
-            delete amp;
-            continue;
-        }
-
-        rv = amp;
-        break;
-    }
-
-    if (rv == NULL)
-    {
-        throw (eemagine::sdk::exceptions::notFound("no amplifier matching the given criteria"));
-    }
-
+    rv = *iter;
     // clean references
     while (++iter != amplifier_list.end ())
     {
