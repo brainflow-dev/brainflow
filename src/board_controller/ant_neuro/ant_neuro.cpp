@@ -161,7 +161,7 @@ int AntNeuroBoard::prepare_session ()
     }
     catch (const exceptions::notFound &e)
     {
-        safe_logger (spdlog::level::err, "No devices found, {}", e.what ());
+        safe_logger (spdlog::level::err, "Device not found, {}", e.what ());
         return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
     }
     catch (const std::runtime_error &e)
