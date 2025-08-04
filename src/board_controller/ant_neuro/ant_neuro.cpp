@@ -133,7 +133,7 @@ int AntNeuroBoard::prepare_session ()
         // Check if amplifier is found
         if (amp == NULL)
         {
-            throw exceptions::notFound ("No amplifier matched the given board name and serial number.");
+            throw exceptions::notFound ("no amplifier matched the given board name and serial number.");
         }
 
         // Clean up remaining amplifiers after the selected one
