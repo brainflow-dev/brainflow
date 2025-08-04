@@ -237,8 +237,8 @@ Unlike Ganglion board this BrainFlow board does not use BLED112 dongle, so you n
 To create such board you need to specify the following board ID and fields of BrainFlowInputParams object:
 
 - :code:`BoardIds.GANGLION_NATIVE_BOARD`
-- *optoinal:* :code:`mac_address`, if not provided BrainFlow will try to autodiscover the device
-- *optoinal:* :code:`serial_number`, if not provided BrainFlow will try to autodiscover the device
+- *optional:* :code:`mac_address`, if not provided BrainFlow will try to autodiscover the device
+- *optional:* :code:`serial_number`, if not provided BrainFlow will try to autodiscover the device
 
 Initialization Example:
 
@@ -1025,6 +1025,11 @@ Ant Neuro has many devices and all of them are supported by BrainFlow:
 - :code:`ANT_NEURO_EE_224_BOARD`
 - :code:`ANT_NEURO_EE_225_BOARD`
 - :code:`ANT_NEURO_EE_511_BOARD`
+
+The following fields of BrainFlowInputParams object are supported:
+
+- *optional:* :code:`serial_number`, important if you have multiple devices in the same place, can be found on the amplifier label (if not provided, BrainFlow will try to autodiscover the device)
+
 
 Initialization example:
 
