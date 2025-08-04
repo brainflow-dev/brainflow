@@ -118,8 +118,8 @@ int AntNeuroBoard::prepare_session ()
                 (!expected_serial_number.empty () && current_serial != expected_serial_number))
             {
                 safe_logger (spdlog::level::info, 
-                    "Found non-matching amplifier (board name {}, serial {})",
-                    current_board_name, current_serial);
+                    "Found non-matching amplifier (board name {}, serial {})", current_board_name, 
+                        current_serial);
                 delete current_amp;
                 continue;
             }
@@ -145,8 +145,8 @@ int AntNeuroBoard::prepare_session ()
             std::string current_board_name = "AntNeuro" + current_amp->getType ();
             std::string current_serial = current_amp->getSerialNumber ();
             safe_logger (spdlog::level::info, 
-                "Found non-matching amplifier (board name {}, serial {})",
-                current_board_name, current_serial);
+                "Found non-matching amplifier (board name {}, serial {})", current_board_name, 
+                    current_serial);
             delete current_amp;
         }
 
