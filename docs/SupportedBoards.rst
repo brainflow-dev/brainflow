@@ -1036,7 +1036,6 @@ Initialization example:
 .. code-block:: python
 
     params = BrainFlowInputParams()
-    params.serial_number = '123456'
     board = BoardShim(BoardIds.ANT_NEURO_EE_410_BOARD, params)  # 8 channel amplifier
 
 `More elaborate example <https://github.com/brainflow-dev/brainflow/blob/master/python_package/examples/tests/eego_impedances_and_eeg.py>`_ (reading EEG and impedances)
