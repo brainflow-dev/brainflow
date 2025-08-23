@@ -124,6 +124,7 @@ namespace brainflow
         SYNCHRONI_UNO_1_CHANNELS_BOARD = 62,
         OB3000_24_CHANNELS_BOARD = 63,
         BIOLISTENER_BOARD = 64,
+        MUSE_S_ANTHENA_BOARD = 65
     };
 
 
