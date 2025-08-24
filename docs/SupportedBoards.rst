@@ -223,6 +223,14 @@ Supported platforms:
 - MacOS
 - Devices like Raspberry Pi
 
+Available Ganglion commands can be found at `OpenBCI docs page <https://docs.openbci.com/Ganglion/GanglionSDK/>`_.
+
+Enabling accelerometer data:
+
+.. code-block:: python
+
+    board.config_board("n")  # this decreases the resolution of EEG data and enables accel data
+
 Ganglion Native
 ~~~~~~~~~~~~~~~~~
 
@@ -258,6 +266,14 @@ Supported platforms:
 - MacOS 10.15+, 12.0 to 12.2 have known issues while scanning, you need to update to 12.3+. On MacOS 12+ you may need to configure Bluetooth permissions for your appication
 - Linux, compilation from source code probably will be needed
 - Devices like Raspberry Pi
+
+Available Ganglion commands can be found at `OpenBCI docs page <https://docs.openbci.com/Ganglion/GanglionSDK/>`_.
+
+Enabling accelerometer data:
+
+.. code-block:: python
+
+    board.config_board("n")  # this decreases the resolution of EEG data and enables accel data
 
 Cyton Daisy
 ~~~~~~~~~~~~
