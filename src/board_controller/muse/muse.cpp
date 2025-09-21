@@ -558,8 +558,14 @@ int Muse::config_board (std::string config)
     {
         return (int)BrainFlowExitCodes::BOARD_NOT_CREATED_ERROR;
     }
-    uint8_t command[16];
+    constexpr int max_size = 16;
+    uint8_t command[max_size];
     size_t len = config.size ();
+    if (len + 2 >= max_size)
+    {
+        safe_logger (spdlog::level::err, "Invalid command, max size is {}", max_size);
+        return (int)BrainFlowExitCodes::INVALID_ARGUMENTS_ERROR;
+    }
     command[0] = (uint8_t)len + 1;
     for (size_t i = 0; i < len; i++)
     {
