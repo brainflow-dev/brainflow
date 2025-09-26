@@ -307,7 +307,7 @@ void AntNeuroBoard::read_thread ()
     }
     catch (...)
     {
-        safe_logger (spdlog::level::trace, "device has no resistance_channels channels");
+        safe_logger (spdlog::level::trace, "device has no resistance channels");
     }
     std::vector<channel> ant_channels = stream->getChannelList ();
 
@@ -319,6 +319,7 @@ void AntNeuroBoard::read_thread ()
             int buf_channels_len = buf.getChannelCount ();
             for (int i = 0; i < (int)buf.getSampleCount (); i++)
             {
+                std::fill(package, package + num_rows, 0.0);
                 int eeg_counter = 0;
                 int emg_counter = 0;
                 int resistance_counter = 0;
