@@ -319,7 +319,7 @@ void AntNeuroBoard::read_thread ()
             int buf_channels_len = buf.getChannelCount ();
             for (int i = 0; i < (int)buf.getSampleCount (); i++)
             {
-                std::fill(package, package + num_rows, 0.0);
+                std::fill (package, package + num_rows, 0.0);
                 int eeg_counter = 0;
                 int emg_counter = 0;
                 int resistance_counter = 0;
