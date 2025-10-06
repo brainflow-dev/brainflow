@@ -199,17 +199,17 @@ BrainFlowBoards::BrainFlowBoards()
         {"name", "GaleaAuxiliary"},
         {"sampling_rate", 50},
         {"package_num_channel", 0},
-        {"timestamp_channel", 17},
-        {"marker_channel", 18},
-        {"num_rows", 19},
-        {"battery_channel", 5},
-        {"eda_channels", {1}},
-        {"ppg_channels", {2, 3}},
-        {"accel_channels", {6, 7, 8}},
-        {"gyro_channels", {9, 10, 11}},
-        {"magnetometer_channels", {12, 13, 14}},
-        {"other_channels", {15, 16}},
-        {"temperature_channels", {4}}
+        {"timestamp_channel", 18},
+        {"marker_channel", 19},
+        {"num_rows", 20},
+        {"battery_channel", 6},
+        {"eda_channels", {1, 2}},
+        {"ppg_channels", {3, 4}},
+        {"accel_channels", {7, 8, 9}},
+        {"gyro_channels", {10, 11, 12}},
+        {"magnetometer_channels", {13, 14, 15}},
+        {"other_channels", {16, 17}},
+        {"temperature_channels", {5}}
     };
     brainflow_boards_json["boards"]["4"]["default"] =
     {

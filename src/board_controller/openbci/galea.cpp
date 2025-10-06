@@ -23,8 +23,7 @@ constexpr int Galea::max_num_packages;
 constexpr int Galea::max_transaction_size;
 constexpr int Galea::socket_timeout;
 
-Galea::Galea (struct BrainFlowInputParams params)
-    : Board ((int)BoardIds::GALEA_BOARD, params)
+Galea::Galea (struct BrainFlowInputParams params) : Board ((int)BoardIds::GALEA_BOARD, params)
 {
     socket = NULL;
     is_streaming = false;
@@ -477,9 +476,9 @@ void Galea::read_thread ()
                     uint16_t temperature = 0;
                     int32_t ppg_ir = 0;
                     int32_t ppg_red = 0;
-                    float eda;
+                    float eda_volts;
                     memcpy (&temperature, b + 78 + offset, 2);
-                    memcpy (&eda, b + 1 + offset, 4);
+                    memcpy (&eda_volts, b + 1 + offset, 4);
                     memcpy (&ppg_red, b + 80 + offset, 4);
                     memcpy (&ppg_ir, b + 84 + offset, 4);
                     // ppg
@@ -489,7 +488,13 @@ void Galea::read_thread ()
                         (double)ppg_ir;
                     // eda
                     aux_package[board_descr["auxiliary"]["eda_channels"][0].get<int> ()] =
-                        (double)eda;
+                        (double)eda_volts;
+                    constexpr double eda_coefficient_1 = 3724389.83278;
+                    constexpr double eda_coefficient_2 = 1652406.91447;
+                    double eda_conductance =
+                        1000000.0 / ((eda_coefficient_1 * eda_volts) - eda_coefficient_2);
+                    aux_package[board_descr["auxiliary"]["eda_channels"][1].get<int> ()] =
+                        eda_conductance;
                     // temperature
                     aux_package[board_descr["auxiliary"]["temperature_channels"][0].get<int> ()] =
                         temperature / 100.0;
