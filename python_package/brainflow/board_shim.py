@@ -38,7 +38,6 @@ class BoardIds(enum.IntEnum):
     FREEEEG32_BOARD = 17  #:
     BRAINBIT_BLED_BOARD = 18  #:
     GFORCE_DUAL_BOARD = 19  #:
-    GALEA_SERIAL_BOARD = 20  #:
     MUSE_S_BLED_BOARD = 21  #:
     MUSE_2_BLED_BOARD = 22  #:
     CROWN_BOARD = 23  #:
@@ -65,8 +64,6 @@ class BoardIds(enum.IntEnum):
     EXPLORE_8_CHAN_BOARD = 45  #:
     GANGLION_NATIVE_BOARD = 46  #:
     EMOTIBIT_BOARD = 47  #:
-    GALEA_BOARD_V4 = 48  #:
-    GALEA_SERIAL_BOARD_V4 = 49  #:
     NTL_WIFI_BOARD = 50  #:
     ANT_NEURO_EE_511_BOARD = 51  #:
     FREEEEG128_BOARD = 52  #:

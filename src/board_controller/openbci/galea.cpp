@@ -23,7 +23,8 @@ constexpr int Galea::max_num_packages;
 constexpr int Galea::max_transaction_size;
 constexpr int Galea::socket_timeout;
 
-Galea::Galea (struct BrainFlowInputParams params) : Board ((int)BoardIds::GALEA_BOARD, params)
+Galea::Galea (struct BrainFlowInputParams params)
+    : Board ((int)BoardIds::GALEA_BOARD, params)
 {
     socket = NULL;
     is_streaming = false;
@@ -73,7 +74,7 @@ int Galea::prepare_session ()
     socket->set_timeout (socket_timeout);
     // force default settings for device
     std::string tmp;
-    std::string default_settings = "o"; // use demo mode with agnd
+    std::string default_settings = "d"; // use default mode
     res = config_board (default_settings, tmp);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
@@ -87,7 +88,7 @@ int Galea::prepare_session ()
     res = config_board (sampl_rate, tmp);
     if (res != (int)BrainFlowExitCodes::STATUS_OK)
     {
-        safe_logger (spdlog::level::err, "failed to apply defaul sampling rate");
+        safe_logger (spdlog::level::err, "failed to apply default sampling rate");
         delete socket;
         socket = NULL;
         return (int)BrainFlowExitCodes::BOARD_NOT_READY_ERROR;
@@ -113,6 +114,23 @@ int Galea::config_board (std::string conf, std::string &response)
         }
         int res = calc_time (response);
         return res;
+    }
+
+    if (conf == "get_gains")
+    {
+        std::stringstream gains;
+
+        for (int i = 0; i < 20; i++)
+        {
+            gains << gain_tracker.get_gain_for_channel (i);
+            if (i < 19)
+            {
+                gains << ", ";
+            }
+        }
+        response = gains.str ();
+        safe_logger (spdlog::level::info, "gains for all channels: {}", response);
+        return (int)BrainFlowExitCodes::STATUS_OK;
     }
 
     if (gain_tracker.apply_config (conf) == (int)OpenBCICommandTypes::INVALID_COMMAND)
@@ -390,10 +408,12 @@ void Galea::read_thread ()
             // calc delta between PC timestamp and device timestamp in last 10 packages,
             // use this delta later on to assign timestamps
             double pc_timestamp = get_timestamp ();
-            double timestamp_last_package = 0.0;
-            memcpy (&timestamp_last_package, b + 64 + offset_last_package, 8);
-            timestamp_last_package /= 1000; // from ms to seconds
-            double time_delta = pc_timestamp - timestamp_last_package;
+            unsigned long long timestamp_last_package = 0.0;
+            memcpy (&timestamp_last_package, b + 88 + offset_last_package,
+                sizeof (unsigned long long)); // microseconds
+            double timestamp_last_package_converted =
+                static_cast<double> (timestamp_last_package) / 1000000.0; // convert to seconds
+            double time_delta = pc_timestamp - timestamp_last_package_converted;
             time_buffer.add_data (&time_delta);
             int num_time_deltas = (int)time_buffer.get_current_data (10, latest_times);
             time_delta = 0.0;
@@ -418,41 +438,50 @@ void Galea::read_thread ()
 
             for (int cur_package = 0; cur_package < num_packages; cur_package++)
             {
-                int offset = cur_package * package_size;
+                int offset = cur_package * Galea::package_size;
                 // exg (default preset)
                 exg_package[board_descr["default"]["package_num_channel"].get<int> ()] =
                     (double)b[0 + offset];
-                for (int i = 4, tmp_counter = 0; i < 20; i++, tmp_counter++)
+                for (int i = 4, tmp_counter = 0; i < 28; i++, tmp_counter++)
                 {
                     double exg_scale = (double)(4.5 / float ((pow (2, 23) - 1)) /
                         gain_tracker.get_gain_for_channel (tmp_counter) * 1000000.);
                     exg_package[i - 3] =
                         exg_scale * (double)cast_24bit_to_int32 (b + offset + 5 + 3 * (i - 4));
                 }
-                double timestamp_device = 0.0;
-                memcpy (&timestamp_device, b + 64 + offset, 8);
-                timestamp_device /= 1000; // from ms to seconds
+                unsigned long long timestamp_device = 0.0;
+                memcpy (&timestamp_device, b + 88 + offset,
+                    sizeof (unsigned long long)); // reports microseconds
+
+                double timestamp_device_converted = static_cast<double> (timestamp_device);
+                timestamp_device_converted /= 1000000.0; // convert to seconds
 
                 exg_package[board_descr["default"]["timestamp_channel"].get<int> ()] =
-                    timestamp_device + time_delta - half_rtt;
+                    timestamp_device_converted + time_delta - half_rtt;
                 exg_package[board_descr["default"]["other_channels"][0].get<int> ()] = pc_timestamp;
                 exg_package[board_descr["default"]["other_channels"][1].get<int> ()] =
-                    timestamp_device;
+                    timestamp_device_converted;
                 push_package (exg_package);
 
                 // aux, 5 times smaller sampling rate
                 if (((int)b[0 + offset]) % 5 == 0)
                 {
+                    double accel_scale = (double)(8.0 / static_cast<double> (pow (2, 16) - 1));
+                    double gyro_scale = (double)(1000.0 / static_cast<double> (pow (2, 16) - 1));
+                    double magnetometer_scale_xy =
+                        (double)(2.6 / static_cast<double> (pow (2, 13) - 1));
+                    double magnetometer_scale_z =
+                        (double)(5.0 / static_cast<double> (pow (2, 15) - 1));
                     aux_package[board_descr["auxiliary"]["package_num_channel"].get<int> ()] =
                         (double)b[0 + offset];
                     uint16_t temperature = 0;
                     int32_t ppg_ir = 0;
                     int32_t ppg_red = 0;
                     float eda;
-                    memcpy (&temperature, b + 54 + offset, 2);
+                    memcpy (&temperature, b + 78 + offset, 2);
                     memcpy (&eda, b + 1 + offset, 4);
-                    memcpy (&ppg_red, b + 56 + offset, 4);
-                    memcpy (&ppg_ir, b + 60 + offset, 4);
+                    memcpy (&ppg_red, b + 80 + offset, 4);
+                    memcpy (&ppg_ir, b + 84 + offset, 4);
                     // ppg
                     aux_package[board_descr["auxiliary"]["ppg_channels"][0].get<int> ()] =
                         (double)ppg_red;
@@ -466,13 +495,37 @@ void Galea::read_thread ()
                         temperature / 100.0;
                     // battery
                     aux_package[board_descr["auxiliary"]["battery_channel"].get<int> ()] =
-                        (double)b[53 + offset];
+                        (double)b[77 + offset];
                     aux_package[board_descr["auxiliary"]["timestamp_channel"].get<int> ()] =
-                        timestamp_device + time_delta - half_rtt;
+                        timestamp_device_converted + time_delta - half_rtt;
                     aux_package[board_descr["auxiliary"]["other_channels"][0].get<int> ()] =
                         pc_timestamp;
                     aux_package[board_descr["auxiliary"]["other_channels"][1].get<int> ()] =
-                        timestamp_device;
+                        timestamp_device_converted;
+                    // accel
+                    aux_package[board_descr["auxiliary"]["accel_channels"][0].get<int> ()] =
+                        accel_scale * (double)cast_16bit_to_int32_swap_order (b + 96 + offset);
+                    aux_package[board_descr["auxiliary"]["accel_channels"][1].get<int> ()] =
+                        accel_scale * (double)cast_16bit_to_int32_swap_order (b + 98 + offset);
+                    aux_package[board_descr["auxiliary"]["accel_channels"][2].get<int> ()] =
+                        accel_scale * (double)cast_16bit_to_int32_swap_order (b + 100 + offset);
+                    // gyro
+                    aux_package[board_descr["auxiliary"]["gyro_channels"][0].get<int> ()] =
+                        gyro_scale * (double)cast_16bit_to_int32_swap_order (b + 102 + offset);
+                    aux_package[board_descr["auxiliary"]["gyro_channels"][1].get<int> ()] =
+                        gyro_scale * (double)cast_16bit_to_int32_swap_order (b + 104 + offset);
+                    aux_package[board_descr["auxiliary"]["gyro_channels"][2].get<int> ()] =
+                        gyro_scale * (double)cast_16bit_to_int32_swap_order (b + 106 + offset);
+                    // magnetometer
+                    aux_package[board_descr["auxiliary"]["magnetometer_channels"][0].get<int> ()] =
+                        magnetometer_scale_xy *
+                        (double)cast_13bit_to_int32_swap_order (b + 108 + offset);
+                    aux_package[board_descr["auxiliary"]["magnetometer_channels"][1].get<int> ()] =
+                        magnetometer_scale_xy *
+                        (double)cast_13bit_to_int32_swap_order (b + 110 + offset);
+                    aux_package[board_descr["auxiliary"]["magnetometer_channels"][2].get<int> ()] =
+                        magnetometer_scale_z *
+                        (double)cast_15bit_to_int32_swap_order (b + 112 + offset);
 
                     push_package (aux_package, (int)BrainFlowPresets::AUXILIARY_PRESET);
                 }

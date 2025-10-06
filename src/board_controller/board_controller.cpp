@@ -38,9 +38,6 @@
 #include "explore.h"
 #include "freeeeg.h"
 #include "galea.h"
-#include "galea_serial.h"
-#include "galea_serial_v4.h"
-#include "galea_v4.h"
 #include "ganglion.h"
 #include "ganglion_native.h"
 #include "ganglion_wifi.h"
@@ -167,9 +164,6 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
         case BoardIds::GFORCE_DUAL_BOARD:
             board = std::shared_ptr<Board> (new GforceDual (params));
             break;
-        case BoardIds::GALEA_SERIAL_BOARD:
-            board = std::shared_ptr<Board> (new GaleaSerial (params));
-            break;
         case BoardIds::MUSE_S_BLED_BOARD:
             board = std::shared_ptr<Board> (new MuseBLED (board_id, params));
             break;
@@ -257,12 +251,6 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
             break;
         case BoardIds::EMOTIBIT_BOARD:
             board = std::shared_ptr<Board> (new Emotibit (params));
-            break;
-        case BoardIds::GALEA_BOARD_V4:
-            board = std::shared_ptr<Board> (new GaleaV4 (params));
-            break;
-        case BoardIds::GALEA_SERIAL_BOARD_V4:
-            board = std::shared_ptr<Board> (new GaleaSerialV4 (params));
             break;
         case BoardIds::ANT_NEURO_EE_511_BOARD:
             board = std::shared_ptr<Board> (
