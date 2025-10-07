@@ -1237,13 +1237,12 @@ BrainFlowBoards::BrainFlowBoards()
     brainflow_boards_json["boards"]["65"]["auxiliary"] =
     {
         {"name", "MuseAnthenaAux"},
-        {"sampling_rate", 52},
-        {"timestamp_channel", 7},
-        {"marker_channel", 8},
+        {"sampling_rate", 64},
+        {"timestamp_channel", 4},
+        {"marker_channel", 5},
         {"package_num_channel", 0},
-        {"num_rows", 9},
-        {"accel_channels", {1, 2, 3}},
-        {"gyro_channels", {4, 5, 6}}
+        {"num_rows", 6},
+        {"ppg_channels", {1, 2, 3}},
     };
 }
 

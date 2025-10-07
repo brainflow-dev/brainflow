@@ -23,6 +23,9 @@ protected:
 
     std::string bytes_to_string (const uint8_t *data, size_t size);
 
+    void parse_eeg_packet (const uint8_t *data, size_t size);
+    void parse_ppg_packet (const uint8_t *data, size_t size);
+
 public:
     MuseAnthena (int board_id, struct BrainFlowInputParams params);
     ~MuseAnthena ();

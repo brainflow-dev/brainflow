@@ -211,7 +211,8 @@ int MuseAnthena::prepare_session ()
     }
     if (res == (int)BrainFlowExitCodes::STATUS_OK)
     {
-        // p21 - eeg only
+        // enable everything by default
+        // p21(eeg only) and p1034(sleep mode) and p1035 are also available
         res = config_board ("p21");
     }
     else
@@ -399,15 +400,101 @@ void MuseAnthena::adapter_on_scan_found (
 void MuseAnthena::peripheral_on_eeg (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
     simpleble_uuid_t characteristic, const uint8_t *data, size_t size)
 {
-    safe_logger (spdlog::level::trace, "EEG packet: {}", bytes_to_string (data, size));
-    // TODO parse it and fill default preset
+    safe_logger (spdlog::level::trace, "incoming packet: {}", bytes_to_string (data, size));
+    if (size < 200)
+    {
+        safe_logger (spdlog::level::trace, "unexpected size: {}", size);
+        return;
+    }
+    // it ignores the 1st ble package since it has smth in the beginning and blocks with 0x11 +
+    // packet sub number later
+    // TODO: find out what is there in the beginning
+    if ((data[9] == 0x11) || (data[9] == 0x12))
+    {
+        parse_eeg_packet (data, size);
+    }
+    else
+    {
+        safe_logger (spdlog::level::trace, "unsupported packet type: {}", data[9]);
+    }
+}
+
+void MuseAnthena::parse_eeg_packet (const uint8_t *data, size_t size)
+{
+    int sub_number = (int)data[10];
+    int last_index = 0;
+    int num_rows = board_descr["default"]["num_rows"];
+    double *package = new double[num_rows];
+    std::vector<int> eeg_channels = board_descr["default"]["eeg_channels"];
+    for (int i = 0; i < num_rows; i++)
+    {
+        package[i] = 0.0;
+    }
+    package[board_descr["default"]["package_num_channel"].get<int> ()] = (double)data[1];
+    package[board_descr["default"]["timestamp_channel"].get<int> ()] = get_timestamp ();
+
+    for (int i = 9; i < (int)size - 8; i++)
+    {
+        if ((data[i] == EEG_PACKET_TYPE) && (data[i + 1] == sub_number) && (last_index <= i - 9))
+        {
+            double gain = 1.0; // random value, I am not sure in equations at all
+            double eeg_scale = (double)(4.5 / float ((pow (2, 16) - 1)) / gain * 1000000.);
+            int eeg1_value = eeg_scale * cast_16bit_to_int32_swap_order (data + i + 2);
+            int eeg2_value = eeg_scale * cast_16bit_to_int32_swap_order (data + i + 4);
+            int eeg3_value = eeg_scale * cast_16bit_to_int32_swap_order (data + i + 6);
+            int eeg4_value = eeg_scale * cast_16bit_to_int32_swap_order (data + i + 8);
+            sub_number++;
+            last_index = i;
+            package[eeg_channels[0]] = eeg1_value;
+            package[eeg_channels[1]] = eeg2_value;
+            package[eeg_channels[2]] = eeg3_value;
+            package[eeg_channels[3]] = eeg4_value;
+        }
+    }
+
+    push_package (package, (int)BrainFlowPresets::DEFAULT_PRESET);
+
+    delete[] package;
+}
+
+void MuseAnthena::parse_ppg_packet (const uint8_t *data, size_t size)
+{
+    int sub_number = (int)data[10];
+    int last_index = 0;
+    int num_rows = board_descr["auxiliary"]["num_rows"];
+    double *package = new double[num_rows];
+    std::vector<int> ppg_channels = board_descr["default"]["ppg_channels"];
+    for (int i = 0; i < num_rows; i++)
+    {
+        package[i] = 0.0;
+    }
+    package[board_descr["default"]["package_num_channel"].get<int> ()] = (double)data[1];
+    package[board_descr["default"]["timestamp_channel"].get<int> ()] = get_timestamp ();
+
+    for (int i = 9; i < (int)size - 8; i++)
+    {
+        if ((data[i] == PPG_PACKET_TYPE) && (data[i + 1] == sub_number) && (last_index <= i - 9))
+        {
+            sub_number++;
+            last_index = i;
+            package[ppg_channels[0]] = (double)cast_24bit_to_int32 ((unsigned char *)&data[2 + i]);
+            package[ppg_channels[1]] =
+                (double)cast_24bit_to_int32 ((unsigned char *)&data[2 + i + 3]);
+            package[ppg_channels[2]] =
+                (double)cast_24bit_to_int32 ((unsigned char *)&data[2 + i + 6]);
+        }
+    }
+
+    push_package (package, (int)BrainFlowPresets::AUXILIARY_PRESET);
+
+    delete[] package;
 }
 
 void MuseAnthena::peripheral_on_aux (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
     simpleble_uuid_t characteristic, const uint8_t *data, size_t size)
 {
+    // never seen smth in this char, keep it here just in case
     safe_logger (spdlog::level::trace, "AUX packet: {}", bytes_to_string (data, size));
-    // TODO parse it and fill aux preset
 }
 
 
