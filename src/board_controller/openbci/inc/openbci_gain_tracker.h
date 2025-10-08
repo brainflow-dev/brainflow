@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <sstream>
 #include <stdlib.h>
 #include <string>
 #include <vector>
@@ -126,6 +127,20 @@ public:
     {
         std::copy (old_gains.begin (), old_gains.end (), current_gains.begin ());
     }
+
+    virtual std::string get_gains_string ()
+    {
+        std::stringstream gains;
+        for (size_t i = 0; i < current_gains.size (); i++)
+        {
+            gains << current_gains[i];
+            if (i < current_gains.size () - 1)
+            {
+                gains << ", ";
+            }
+        }
+        return gains.str ();
+    }
 };
 
 class CytonGainTracker : public OpenBCIGainTracker
@@ -179,50 +194,8 @@ class GaleaGainTracker : public OpenBCIGainTracker
 {
 public:
     GaleaGainTracker ()
-        : OpenBCIGainTracker ({4, 4, 4, 4, 4, 4, 12, 12, 2, 2, 2, 2, 2, 2, 2, 2}) // to be confirmed
-    {
-    }
-
-    virtual int apply_config (std::string config)
-    {
-        if (config.size () == 1)
-        {
-            if ((config.at (0) == 'f') || (config.at (0) == 'g'))
-            {
-                std::copy (current_gains.begin (), current_gains.end (), old_gains.begin ());
-                std::fill (current_gains.begin (), current_gains.end (), 1);
-            }
-            if ((config.at (0) == 'o') || (config.at (0) == 'd'))
-            {
-                std::copy (current_gains.begin (), current_gains.end (), old_gains.begin ());
-                for (size_t i = 0; i < current_gains.size (); i++)
-                {
-                    if (i < 6)
-                    {
-                        current_gains[i] = 4;
-                    }
-                    else if ((i == 6) || (i == 7))
-                    {
-                        current_gains[i] = 12;
-                    }
-                    else
-                    {
-                        current_gains[i] = 2;
-                    }
-                }
-            }
-        }
-
-        return OpenBCIGainTracker::apply_config (config);
-    }
-};
-
-class GaleaV4GainTracker : public OpenBCIGainTracker
-{
-public:
-    GaleaV4GainTracker ()
-        : OpenBCIGainTracker ({4, 4, 4, 4, 4, 4, 4, 4, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
-              12, 12, 12, 12, 12}) // to be confirmed
+        : OpenBCIGainTracker ({4, 4, 4, 4, 4, 4, 4, 4, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 4, 4,
+              4, 4, 12, 12}) // 8 EMG + 12 EEG + 4 AUX(EMG) + 2 Reserved
     {
         channel_letters = std::vector<char> {'1', '2', '3', '4', '5', '6', '7', '8', 'Q', 'W', 'E',
             'R', 'T', 'Y', 'U', 'I', 'A', 'S', 'D', 'G', 'H', 'J', 'K', 'L'};
@@ -240,15 +213,27 @@ public:
             if ((config.at (0) == 'o') || (config.at (0) == 'd'))
             {
                 std::copy (current_gains.begin (), current_gains.end (), old_gains.begin ());
+                // 8 EMG + 12 EEG + 4 AUX(EMG) + 2 Reserved
                 for (size_t i = 0; i < current_gains.size (); i++)
                 {
-                    if (i < 8)
+                    if (i < 8) // EMG channels 0-7
                     {
                         current_gains[i] = 4;
                     }
-                    else
+                    else if (i < 20) // EEG channels 8-19
                     {
                         current_gains[i] = 12;
+                    }
+                    else if (i < 24) // AUX channels 20-23 (4 AUX EMG + 2 Reserved)
+                    {
+                        if (i < 22) // AUX EMG channels 20-21
+                        {
+                            current_gains[i] = 4;
+                        }
+                        else // Reserved channels 22-23
+                        {
+                            current_gains[i] = 12;
+                        }
                     }
                 }
             }
