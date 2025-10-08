@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <sstream>
 #include <stdlib.h>
 #include <string>
 #include <vector>
@@ -125,6 +126,20 @@ public:
     virtual void revert_config ()
     {
         std::copy (old_gains.begin (), old_gains.end (), current_gains.begin ());
+    }
+
+    virtual std::string get_gains_string ()
+    {
+        std::stringstream gains;
+        for (size_t i = 0; i < current_gains.size (); i++)
+        {
+            gains << current_gains[i];
+            if (i < current_gains.size () - 1)
+            {
+                gains << ", ";
+            }
+        }
+        return gains.str ();
     }
 };
 

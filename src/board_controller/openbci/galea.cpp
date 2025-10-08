@@ -117,17 +117,7 @@ int Galea::config_board (std::string conf, std::string &response)
 
     if (conf == "get_gains")
     {
-        std::stringstream gains;
-
-        for (int i = 0; i < 20; i++)
-        {
-            gains << gain_tracker.get_gain_for_channel (i);
-            if (i < 19)
-            {
-                gains << ", ";
-            }
-        }
-        response = gains.str ();
+        response = gain_tracker.get_gains_string ();
         safe_logger (spdlog::level::info, "gains for all channels: {}", response);
         return (int)BrainFlowExitCodes::STATUS_OK;
     }
