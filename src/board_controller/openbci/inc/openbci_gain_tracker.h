@@ -195,7 +195,7 @@ class GaleaGainTracker : public OpenBCIGainTracker
 public:
     GaleaGainTracker ()
         : OpenBCIGainTracker ({4, 4, 4, 4, 4, 4, 4, 4, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 4, 4,
-              4, 4, 12, 12}) // 8 EMG + 12 EEG + 4 AUX(EMG) + 2 Reserved
+              4, 4, 12, 12}) // Channels 1-8: EMG, 9-18: EEG, 19-22: AUX(EMG), 23-24: Reserved
     {
         channel_letters = std::vector<char> {'1', '2', '3', '4', '5', '6', '7', '8', 'Q', 'W', 'E',
             'R', 'T', 'Y', 'U', 'I', 'A', 'S', 'D', 'G', 'H', 'J', 'K', 'L'};
@@ -213,27 +213,24 @@ public:
             if ((config.at (0) == 'o') || (config.at (0) == 'd'))
             {
                 std::copy (current_gains.begin (), current_gains.end (), old_gains.begin ());
-                // 8 EMG + 12 EEG + 4 AUX(EMG) + 2 Reserved
+                // Channels 1-8: EMG, 9-18: EEG, 19-22: AUX(EMG), 23-24: Reserved
                 for (size_t i = 0; i < current_gains.size (); i++)
                 {
-                    if (i < 8) // EMG channels 0-7
+                    if (i < 8) // Channels 1-8: EMG (indices 0-7)
                     {
                         current_gains[i] = 4;
                     }
-                    else if (i < 20) // EEG channels 8-19
+                    else if (i < 18) // Channels 9-18: EEG (indices 8-17)
                     {
                         current_gains[i] = 12;
                     }
-                    else if (i < 24) // AUX channels 20-23 (4 AUX EMG + 2 Reserved)
+                    else if (i < 22) // Channels 19-22: AUX EMG (indices 18-21)
                     {
-                        if (i < 22) // AUX EMG channels 20-21
-                        {
-                            current_gains[i] = 4;
-                        }
-                        else // Reserved channels 22-23
-                        {
-                            current_gains[i] = 12;
-                        }
+                        current_gains[i] = 4;
+                    }
+                    else if (i < 24) // Channels 23-24: Reserved (indices 22-23)
+                    {
+                        current_gains[i] = 12;
                     }
                 }
             }
