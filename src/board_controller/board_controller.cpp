@@ -46,6 +46,7 @@
 #include "json.hpp"
 #include "knight.h"
 #include "muse.h"
+#include "muse_anthena.h"
 #include "muse_bled.h"
 #include "notion_osc.h"
 #include "ntl_wifi.h"
@@ -230,6 +231,9 @@ int prepare_session (int board_id, const char *json_brainflow_input_params)
             break;
         case BoardIds::MUSE_S_BOARD:
             board = std::shared_ptr<Board> (new Muse (board_id, params));
+            break;
+        case BoardIds::MUSE_S_ANTHENA_BOARD:
+            board = std::shared_ptr<Board> (new MuseAnthena (board_id, params));
             break;
         case BoardIds::BRAINALIVE_BOARD:
             board = std::shared_ptr<Board> (new BrainAlive (params));
