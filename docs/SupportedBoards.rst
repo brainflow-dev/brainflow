@@ -146,6 +146,74 @@ Supported platforms:
 OpenBCI
 --------
 
+Galea
+~~~~~~~
+
+.. image:: https://live.staticflickr.com/65535/54878775360_9bf1969eec_w.jpg
+    :width: 400px
+    :height: 400px
+
+`Specification for Galea from OpenBCI <https://galea.co/#specs/>`_
+
+To create such board you need to specify the following board ID and fields of BrainFlowInputParams object:
+
+- :code:`BoardIds.GALEA_BOARD`
+- :code:`timeout`, optional, will be used as a timeout for socket operations, should be between 1 and 600, default is 5 seconds
+
+Initialization Example:
+
+.. code-block:: python
+
+    params = BrainFlowInputParams()
+    board = BoardShim(BoardIds.GALEA_BOARD, params)
+
+Supported platforms:
+
+- Windows >= 8.1
+- Linux
+- MacOS
+- Devices like Raspberry Pi
+- Android
+
+Available :ref:`presets-label`:
+
+- :code:`BrainFlowPresets.DEFAULT_PRESET`, it contains EEG, EMG, and EOG data
+- :code:`BrainFlowPresets.AUXILIARY_PRESET`, it contains Gyroscope, Accelerometer, Magnetometer, EDA, PPG, temperature and battery data
+
+.. code-block:: python
+
+    import time
+    from pprint import pprint
+
+    from brainflow.board_shim import BoardShim, BrainFlowInputParams, BrainFlowPresets, BoardIds
+    from brainflow.data_filter import DataFilter
+
+    def main():
+        BoardShim.enable_dev_board_logger()
+
+        params = BrainFlowInputParams()
+        board = BoardShim(BoardIds.GALEA_BOARD, params)
+        board.prepare_session()
+        board.start_stream()
+        time.sleep(10)
+        data_default = board.get_board_data(preset=BrainFlowPresets.DEFAULT_PRESET)
+        data_aux = board.get_board_data(preset=BrainFlowPresets.AUXILIARY_PRESET)
+        board.stop_stream()
+        board.release_session()
+
+        DataFilter.write_file(data_eeg, 'data_default.csv', 'w')
+        DataFilter.write_file(data_orn, 'data_aux.csv', 'w')
+
+        # To get info about channels and presets
+        for preset in BoardShim.get_board_presets(BoardIds.GALEA_BOARD):
+            preset_description = BoardShim.get_board_descr(BoardIds.GALEA_BOARD, preset)
+            pprint(preset_description)
+
+
+    if __name__ == "__main__":
+        main()
+
+
 Cyton
 ~~~~~~~
 
