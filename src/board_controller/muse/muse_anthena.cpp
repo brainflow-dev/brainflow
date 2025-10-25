@@ -15,10 +15,10 @@ void anthena_adapter_on_scan_found (
     ((MuseAnthena *)(board))->adapter_on_scan_found (adapter, peripheral);
 }
 
-void anthena_peripheral_on_eeg (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
+void anthena_peripheral_on_main (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
     simpleble_uuid_t characteristic, const uint8_t *data, size_t size, void *board)
 {
-    ((MuseAnthena *)(board))->peripheral_on_eeg (peripheral, service, characteristic, data, size);
+    ((MuseAnthena *)(board))->peripheral_on_main (peripheral, service, characteristic, data, size);
 }
 
 void anthena_peripheral_on_aux (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
@@ -166,7 +166,7 @@ int MuseAnthena::prepare_session ()
                 if (strcmp (service.characteristics[j].uuid.value, MUSE_ANTHENA_GATT_EEG) == 0)
                 {
                     if (simpleble_peripheral_notify (muse_peripheral, service.uuid,
-                            service.characteristics[j].uuid, ::anthena_peripheral_on_eeg,
+                            service.characteristics[j].uuid, ::anthena_peripheral_on_main,
                             (void *)this) == SIMPLEBLE_SUCCESS)
                     {
                         notified_characteristics.push_back (
@@ -213,7 +213,7 @@ int MuseAnthena::prepare_session ()
     {
         // enable everything by default
         // p21(eeg only) and p1034(sleep mode) and p1035 are also available
-        res = config_board ("p21");
+        res = config_board ("p1035");
     }
     else
     {
@@ -397,7 +397,7 @@ void MuseAnthena::adapter_on_scan_found (
     }
 }
 
-void MuseAnthena::peripheral_on_eeg (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
+void MuseAnthena::peripheral_on_main (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
     simpleble_uuid_t characteristic, const uint8_t *data, size_t size)
 {
     safe_logger (spdlog::level::trace, "incoming packet: {}", bytes_to_string (data, size));
@@ -406,88 +406,83 @@ void MuseAnthena::peripheral_on_eeg (simpleble_peripheral_t peripheral, simplebl
         safe_logger (spdlog::level::trace, "unexpected size: {}", size);
         return;
     }
-    // it ignores the 1st ble package since it has smth in the beginning and blocks with 0x11 +
-    // packet sub number later
-    // TODO: find out what is there in the beginning
-    if ((data[9] == 0x11) || (data[9] == 0x12))
-    {
-        parse_eeg_packet (data, size);
-    }
-    else
-    {
-        safe_logger (spdlog::level::trace, "unsupported packet type: {}", data[9]);
-    }
-}
 
-void MuseAnthena::parse_eeg_packet (const uint8_t *data, size_t size)
-{
-    int sub_number = (int)data[10];
-    int last_index = 0;
-    int num_rows = board_descr["default"]["num_rows"];
-    double *package = new double[num_rows];
-    std::vector<int> eeg_channels = board_descr["default"]["eeg_channels"];
-    for (int i = 0; i < num_rows; i++)
+    for (size_t i = 9; i < size - 1;)
     {
-        package[i] = 0.0;
-    }
-    package[board_descr["default"]["package_num_channel"].get<int> ()] = (double)data[1];
-    package[board_descr["default"]["timestamp_channel"].get<int> ()] = get_timestamp ();
-
-    for (int i = 9; i < (int)size - 8; i++)
-    {
-        if ((data[i] == EEG_PACKET_TYPE) && (data[i + 1] == sub_number) && (last_index <= i - 9))
+        switch (static_cast<int> (data[i]))
         {
-            double gain = 1.0; // random value, I am not sure in equations at all
-            double eeg_scale = (double)(4.5 / float ((pow (2, 16) - 1)) / gain * 1000000.);
-            int eeg1_value = eeg_scale * cast_16bit_to_int32_swap_order (data + i + 2);
-            int eeg2_value = eeg_scale * cast_16bit_to_int32_swap_order (data + i + 4);
-            int eeg3_value = eeg_scale * cast_16bit_to_int32_swap_order (data + i + 6);
-            int eeg4_value = eeg_scale * cast_16bit_to_int32_swap_order (data + i + 8);
-            sub_number++;
-            last_index = i;
-            package[eeg_channels[0]] = eeg1_value;
-            package[eeg_channels[1]] = eeg2_value;
-            package[eeg_channels[2]] = eeg3_value;
-            package[eeg_channels[3]] = eeg4_value;
+            case 0x11:
+                if (((data[i + 1] == (last_sensor_packet_id + 1)) || (data[i + 1] == 0)) &&
+                    (i + MUSE_S_ANTHENA_MAIN_PACKET_SIZE <= size))
+                {
+                    parse_main_packet (data, i, size);
+                    last_sensor_packet_id = data[i + 1];
+                    i += (MUSE_S_ANTHENA_MAIN_PACKET_SIZE + 1);
+                }
+                else
+                {
+                    // safe_logger (spdlog::level::debug,
+                    //    "new id: {} doesnt match old one: {} for sensor packet: {}", data[i + 1],
+                    //    last_sensor_packet_id, bytes_to_string (data, size));
+                    i++;
+                }
+                break;
+            case 0x47:
+                if (((data[i + 1] == (last_sensor_packet_id + 1)) || (data[i + 1] == 0)) &&
+                    (i + MUSE_S_ANTHENA_SENSOR_PACKET_SIZE <= size))
+                {
+                    parse_sensor_packet (data, i, size);
+                    last_sensor_packet_id = data[i + 1];
+                    i += (MUSE_S_ANTHENA_SENSOR_PACKET_SIZE + 1);
+                }
+                else
+                {
+                    // safe_logger (spdlog::level::debug,
+                    //    "new id: {} doesnt match old one: {} for sensor packet: {}", data[i + 1],
+                    //    last_sensor_packet_id, bytes_to_string (data, size));
+                    i++;
+                }
+                break;
+            case 0x53:
+                if (((data[i + 1] == (last_status_packet_id + 1)) || (data[i + 1] == 0)) &&
+                    (i + MUSE_S_ANTHENA_STATUS_PACKET_SIZE <= size))
+                {
+                    last_status_packet_id = data[i + 1];
+                    i += (MUSE_S_ANTHENA_STATUS_PACKET_SIZE + 1);
+                }
+                else
+                {
+                    // safe_logger (spdlog::level::debug,
+                    //    "new id: {} doesnt match old one: {} for status packet: {}", data[i + 1],
+                    //    last_status_packet_id, bytes_to_string (data, size));
+                    i++;
+                }
+                break;
+            case 0x12:
+                if (((data[i + 1] == (last_traditional_packet_id + 1)) || (data[i + 1] == 0)) &&
+                    (i + MUSE_S_ANTHENA_TRADITIONAL_PACKET_SIZE <= size))
+                {
+                    last_traditional_packet_id = data[i + 1];
+                    i += (MUSE_S_ANTHENA_TRADITIONAL_PACKET_SIZE + 1);
+                }
+                else
+                {
+                    // safe_logger (spdlog::level::debug,
+                    //    "new id: {} doesnt match old one: {} for last_traditional_packet_id "
+                    //    "packet: {}",
+                    //    data[i + 1], last_traditional_packet_id, bytes_to_string (data, size));
+                    i++;
+                }
+                break;
+            default:
+                // safe_logger (
+                //    spdlog::level::debug, "incoming packet: {}", bytes_to_string (data, size));
+                // safe_logger ("Unknown packet type:" data[i]);
+                // increase just by one, alternative would be to drop the entire transaction
+                i++;
+                break;
         }
     }
-
-    push_package (package, (int)BrainFlowPresets::DEFAULT_PRESET);
-
-    delete[] package;
-}
-
-void MuseAnthena::parse_ppg_packet (const uint8_t *data, size_t size)
-{
-    int sub_number = (int)data[10];
-    int last_index = 0;
-    int num_rows = board_descr["auxiliary"]["num_rows"];
-    double *package = new double[num_rows];
-    std::vector<int> ppg_channels = board_descr["default"]["ppg_channels"];
-    for (int i = 0; i < num_rows; i++)
-    {
-        package[i] = 0.0;
-    }
-    package[board_descr["default"]["package_num_channel"].get<int> ()] = (double)data[1];
-    package[board_descr["default"]["timestamp_channel"].get<int> ()] = get_timestamp ();
-
-    for (int i = 9; i < (int)size - 8; i++)
-    {
-        if ((data[i] == PPG_PACKET_TYPE) && (data[i + 1] == sub_number) && (last_index <= i - 9))
-        {
-            sub_number++;
-            last_index = i;
-            package[ppg_channels[0]] = (double)cast_24bit_to_int32 ((unsigned char *)&data[2 + i]);
-            package[ppg_channels[1]] =
-                (double)cast_24bit_to_int32 ((unsigned char *)&data[2 + i + 3]);
-            package[ppg_channels[2]] =
-                (double)cast_24bit_to_int32 ((unsigned char *)&data[2 + i + 6]);
-        }
-    }
-
-    push_package (package, (int)BrainFlowPresets::AUXILIARY_PRESET);
-
-    delete[] package;
 }
 
 void MuseAnthena::peripheral_on_aux (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
@@ -497,6 +492,22 @@ void MuseAnthena::peripheral_on_aux (simpleble_peripheral_t peripheral, simplebl
     safe_logger (spdlog::level::trace, "AUX packet: {}", bytes_to_string (data, size));
 }
 
+void MuseAnthena::parse_main_packet (const uint8_t *data, size_t start_pos, size_t size)
+{
+}
+
+void MuseAnthena::parse_sensor_packet (const uint8_t *data, size_t start_pos, size_t size)
+{
+    if ((data == NULL) || (start_pos + MUSE_S_ANTHENA_SENSOR_PACKET_SIZE > size) ||
+        (data[start_pos] != MUSE_S_ANTHENA_SENSOR_PACKET_TYPE))
+    {
+        // safe_logger (spdlog::level::warn, "invalid packet in parse_sensor_packet: {}",
+        // bytes_to_string (data, size));
+        return;
+    }
+    int packet_num = (int)data[start_pos + 1];
+    int packet_sub_type = (data[start_pos + 2] << 8) | data[start_pos + 3];
+}
 
 std::string MuseAnthena::bytes_to_string (const uint8_t *data, size_t size)
 {

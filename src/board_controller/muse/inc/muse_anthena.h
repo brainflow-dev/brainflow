@@ -23,8 +23,8 @@ protected:
 
     std::string bytes_to_string (const uint8_t *data, size_t size);
 
-    void parse_eeg_packet (const uint8_t *data, size_t size);
-    void parse_ppg_packet (const uint8_t *data, size_t size);
+    void parse_main_packet (const uint8_t *data, size_t start_pos, size_t size);
+    void parse_sensor_packet (const uint8_t *data, size_t start_pos, size_t size);
 
 public:
     MuseAnthena (int board_id, struct BrainFlowInputParams params);
@@ -38,7 +38,7 @@ public:
     int config_board (std::string config);
 
     void adapter_on_scan_found (simpleble_adapter_t adapter, simpleble_peripheral_t peripheral);
-    void peripheral_on_eeg (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
+    void peripheral_on_main (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
         simpleble_uuid_t characteristic, const uint8_t *data, size_t size);
     void peripheral_on_aux (simpleble_peripheral_t peripheral, simpleble_uuid_t service,
         simpleble_uuid_t characteristic, const uint8_t *data, size_t size);
