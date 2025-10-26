@@ -47,6 +47,11 @@ keywords: {Visualization;Time-frequency analysis;Signal processing algorithms;El
 keywords: {Surveys;Protocols;Atmospheric measurements;Data integrity;Conferences;Metrology;Particle measurements;Sensors;Recording;personalized comfort;indoor comfort;multidomain platform;measurement procedure},](https://ieeexplore.ieee.org/abstract/document/11107172)
 * [Zhengdi Sun, Anle Mu, Ye Qian, Xudong Sun, Bridging minds and limbs: novel hybrid deep learning approach for low-cost EEG-based lower limb motor imagery classification, Biomedical Signal Processing and Control,Volume 112, Part A,](https://www.sciencedirect.com/science/article/abs/pii/S1746809425010390)
 * [Abdul Basit, Maha Nawaz, Saim Rehman, Muhammad Shafique, CognitiveArm: Enabling Real-Time EEG-Controlled Prosthetic Arm Using Embodied Machine Learning](https://arxiv.org/pdf/2508.07731)
+* [Viriyopase A, Narajeenron K
+Correlation Between Electroencephalogram Brain-to-Brain Synchronization and Team Strategies and Tools to Enhance Performance and Patient Safety Scores During Online Hexad Virtual Simulation-Based Interprofessional Education: Cross-Sectional Correlational Study
+JMIR Med Educ 2025;11:e69725
+URL: https://mededu.jmir.org/2025/1/e69725
+DOI: 10.2196/69725](https://mededu.jmir.org/2025/1/e69725/)
 
 
 ## Posts
