@@ -10,6 +10,7 @@ members = [
     "crates/brainflow-io",
     "crates/brainflow-boards",
     "crates/brainflow-sys",
+    "crates/brainflow-ffi",
 ]
 
 [workspace.package]

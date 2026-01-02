@@ -1,0 +1,23 @@
+[package]
+name = "brainflow-ffi"
+version = "0.1.0"
+edition = "2021"
+description = "C FFI bindings for BrainFlow Rust implementation"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+brainflow-boards = { path = "../brainflow-boards" }
+brainflow-fft = { path = "../brainflow-fft" }
+brainflow-filter = { path = "../brainflow-filter" }
+brainflow-wavelet = { path = "../brainflow-wavelet" }
+brainflow-ml = { path = "../brainflow-ml" }
+brainflow-math = { path = "../brainflow-math" }
+brainflow-sys = { path = "../brainflow-sys" }
+lazy_static = "1.4"
+
+[features]
+default = ["std"]
+std = ["brainflow-boards/std"]
