@@ -22,7 +22,9 @@ pub mod galea;
 pub mod ganglion;
 pub mod muse;
 pub mod openbci;
+pub mod playback;
 pub mod preset;
+pub mod streaming;
 pub mod synthetic;
 
 pub use board::{Board, BoardDescription, BoardState};
@@ -30,7 +32,9 @@ pub use controller::BoardController;
 pub use galea::GaleaBoard;
 pub use ganglion::GanglionBoard;
 pub use muse::{Muse2Board, Muse2016Board, MuseBoard, MuseSBoard};
+pub use playback::PlaybackFileBoard;
 pub use preset::Preset;
+pub use streaming::StreamingBoard;
 pub use synthetic::SyntheticBoard;
 
 /// Board IDs matching the C++ implementation.

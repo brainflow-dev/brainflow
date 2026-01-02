@@ -9,9 +9,18 @@ use brainflow_sys::error::{Error, ErrorCode, Result};
 use brainflow_sys::sync::Mutex;
 
 use crate::board::{Board, BoardDescription};
+use crate::galea::GaleaBoard;
+use crate::ganglion::GanglionBoard;
+use crate::muse::{MuseBoard, MuseVariant};
+use crate::openbci::{
+    CytonBoard, CytonDaisyBoard, CytonDaisyWifiBoard, CytonWifiBoard, FreeEeg32Board,
+    GanglionWifiBoard,
+};
+use crate::playback::PlaybackFileBoard;
 use crate::preset::Preset;
-use crate::{BoardId, BoardParams};
+use crate::streaming::StreamingBoard;
 use crate::synthetic::SyntheticBoard;
+use crate::{BoardId, BoardParams};
 
 /// Global board controller.
 ///
@@ -41,10 +50,86 @@ impl BoardController {
     }
 
     /// Create a board instance based on board ID.
-    fn create_board(board_id: BoardId, _params: &BoardParams) -> Result<Box<dyn Board>> {
+    fn create_board(board_id: BoardId, params: &BoardParams) -> Result<Box<dyn Board>> {
         match board_id {
+            // Utility boards
+            BoardId::PlaybackFile => {
+                let file = params.file.as_ref().ok_or_else(|| {
+                    Error::with_message(ErrorCode::InvalidArguments, "file path required")
+                })?;
+                let master_board = params.master_board.ok_or_else(|| {
+                    Error::with_message(ErrorCode::InvalidArguments, "master_board required")
+                })?;
+                Ok(Box::new(PlaybackFileBoard::new(file.clone(), master_board)))
+            }
+            BoardId::Streaming => {
+                let ip = params.ip_address.as_ref().ok_or_else(|| {
+                    Error::with_message(ErrorCode::InvalidArguments, "ip_address required")
+                })?;
+                let port = params.ip_port.ok_or_else(|| {
+                    Error::with_message(ErrorCode::InvalidArguments, "ip_port required")
+                })?;
+                let master_board = params.master_board.ok_or_else(|| {
+                    Error::with_message(ErrorCode::InvalidArguments, "master_board required")
+                })?;
+                Ok(Box::new(StreamingBoard::new(ip.clone(), port, master_board)))
+            }
             BoardId::Synthetic => Ok(Box::new(SyntheticBoard::new())),
-            // Add other board types here
+
+            // OpenBCI serial boards
+            BoardId::Cyton => {
+                let port = params.serial_port.as_ref().ok_or_else(|| {
+                    Error::with_message(ErrorCode::InvalidArguments, "serial_port required")
+                })?;
+                Ok(Box::new(CytonBoard::new(port)))
+            }
+            BoardId::CytonDaisy => {
+                let port = params.serial_port.as_ref().ok_or_else(|| {
+                    Error::with_message(ErrorCode::InvalidArguments, "serial_port required")
+                })?;
+                Ok(Box::new(CytonDaisyBoard::new(port)))
+            }
+            BoardId::FreeEeg32 => {
+                let port = params.serial_port.as_ref().ok_or_else(|| {
+                    Error::with_message(ErrorCode::InvalidArguments, "serial_port required")
+                })?;
+                Ok(Box::new(FreeEeg32Board::new(port)))
+            }
+
+            // OpenBCI WiFi boards
+            BoardId::CytonWifi => {
+                let ip = params.ip_address.as_ref().ok_or_else(|| {
+                    Error::with_message(ErrorCode::InvalidArguments, "ip_address required")
+                })?;
+                Ok(Box::new(CytonWifiBoard::new(ip, params.ip_port)))
+            }
+            BoardId::CytonDaisyWifi => {
+                let ip = params.ip_address.as_ref().ok_or_else(|| {
+                    Error::with_message(ErrorCode::InvalidArguments, "ip_address required")
+                })?;
+                Ok(Box::new(CytonDaisyWifiBoard::new(ip, params.ip_port)))
+            }
+            BoardId::GanglionWifi => {
+                let ip = params.ip_address.as_ref().ok_or_else(|| {
+                    Error::with_message(ErrorCode::InvalidArguments, "ip_address required")
+                })?;
+                Ok(Box::new(GanglionWifiBoard::new(ip, params.ip_port)))
+            }
+
+            // BLE boards
+            BoardId::Ganglion => Ok(Box::new(GanglionBoard::new())),
+            BoardId::Muse2 => Ok(Box::new(MuseBoard::new(MuseVariant::Muse2))),
+            BoardId::MuseS => Ok(Box::new(MuseBoard::new(MuseVariant::MuseS))),
+            BoardId::Muse2016 => Ok(Box::new(MuseBoard::new(MuseVariant::Muse2016))),
+
+            // Galea
+            BoardId::Galea => {
+                let ip = params.ip_address.as_ref().ok_or_else(|| {
+                    Error::with_message(ErrorCode::InvalidArguments, "ip_address required")
+                })?;
+                Ok(Box::new(GaleaBoard::new(ip, params.ip_port)))
+            }
+
             _ => Err(Error::with_message(
                 ErrorCode::UnsupportedBoard,
                 alloc::format!("Board {:?} not yet implemented", board_id),
@@ -274,5 +359,103 @@ mod tests {
         // Release
         controller.release_session(BoardId::Synthetic, &params).unwrap();
         assert!(!controller.is_prepared(BoardId::Synthetic, &params));
+    }
+
+    #[test]
+    fn test_board_factory_requires_params() {
+        let controller = BoardController::new();
+
+        // Cyton requires serial_port
+        let params = BoardParams::new();
+        let result = controller.prepare_session(BoardId::Cyton, &params);
+        assert!(result.is_err());
+
+        // Galea requires ip_address
+        let result = controller.prepare_session(BoardId::Galea, &params);
+        assert!(result.is_err());
+
+        // Streaming requires ip_address, ip_port, and master_board
+        let result = controller.prepare_session(BoardId::Streaming, &params);
+        assert!(result.is_err());
+
+        // PlaybackFile requires file and master_board
+        let result = controller.prepare_session(BoardId::PlaybackFile, &params);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_streaming_board_creation() {
+        let controller = BoardController::new();
+        let params = BoardParams::new()
+            .with_ip_address("127.0.0.1")
+            .with_ip_port(5000);
+
+        // Still missing master_board
+        let result = controller.prepare_session(BoardId::Streaming, &params);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_playback_board_missing_params() {
+        let controller = BoardController::new();
+
+        // Missing master_board should fail
+        let params = BoardParams::new().with_file("test.csv");
+        let result = controller.prepare_session(BoardId::PlaybackFile, &params);
+        assert!(result.is_err());
+
+        // Missing file should fail
+        let mut params = BoardParams::new();
+        params.master_board = Some(BoardId::Synthetic);
+        let result = controller.prepare_session(BoardId::PlaybackFile, &params);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_unsupported_board() {
+        let controller = BoardController::new();
+        let params = BoardParams::new();
+
+        // BrainBit is not implemented yet
+        let result = controller.prepare_session(BoardId::BrainBit, &params);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_get_board_description() {
+        let controller = BoardController::new();
+        let params = BoardParams::new();
+
+        controller.prepare_session(BoardId::Synthetic, &params).unwrap();
+
+        let desc = controller.get_board_description(BoardId::Synthetic, &params, Preset::Default).unwrap();
+        assert_eq!(desc.sampling_rate, 250);
+        assert!(!desc.eeg_channels.is_empty());
+
+        controller.release_session(BoardId::Synthetic, &params).unwrap();
+    }
+
+    #[test]
+    fn test_double_prepare_fails() {
+        let controller = BoardController::new();
+        let params = BoardParams::new();
+
+        controller.prepare_session(BoardId::Synthetic, &params).unwrap();
+
+        // Second prepare should fail
+        let result = controller.prepare_session(BoardId::Synthetic, &params);
+        assert!(result.is_err());
+
+        controller.release_session(BoardId::Synthetic, &params).unwrap();
+    }
+
+    #[test]
+    fn test_release_without_prepare_fails() {
+        let controller = BoardController::new();
+        let params = BoardParams::new();
+
+        // Release without prepare should fail
+        let result = controller.release_session(BoardId::Synthetic, &params);
+        assert!(result.is_err());
     }
 }
