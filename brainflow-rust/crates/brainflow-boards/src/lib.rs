@@ -18,10 +18,14 @@ use brainflow_sys::error::{Error, ErrorCode, Result};
 
 pub mod ant_neuro;
 pub mod board;
+pub mod brainbit;
 pub mod controller;
 pub mod emotibit;
+pub mod explore;
 pub mod galea;
 pub mod ganglion;
+pub mod gforce;
+pub mod misc;
 pub mod muse;
 pub mod neurosity;
 pub mod openbci;
@@ -32,10 +36,18 @@ pub mod synthetic;
 
 pub use ant_neuro::{AntNeuroBoard, AntNeuroVariant};
 pub use board::{Board, BoardDescription, BoardState};
+pub use brainbit::{BrainBitBoard, BrainBitVariant};
 pub use controller::BoardController;
 pub use emotibit::EmotiBitBoard;
+pub use explore::{ExploreBoard, ExploreVariant};
 pub use galea::GaleaBoard;
 pub use ganglion::GanglionBoard;
+pub use gforce::{GforceBoard, GforceVariant};
+pub use misc::{
+    AavaaV3Board, BrainAliveBoard, CallibriBoard, CallibriVariant, EnophoneBoard, FasciaBoard,
+    GanglionNativeBoard, IronbciBoard, NeuropawnKnightBoard, NtlWifiBoard, PieegBoard,
+    SynchroniBoard, UnicornBoard,
+};
 pub use muse::{
     Muse2016BledBoard, Muse2016Board, Muse2BledBoard, Muse2Board, MuseBoard, MuseSBledBoard,
     MuseSBoard, MuseVariant,

@@ -10,9 +10,17 @@ use brainflow_sys::sync::Mutex;
 
 use crate::ant_neuro::{AntNeuroBoard, AntNeuroVariant};
 use crate::board::{Board, BoardDescription};
+use crate::brainbit::{BrainBitBoard, BrainBitVariant};
 use crate::emotibit::EmotiBitBoard;
+use crate::explore::{ExploreBoard, ExploreVariant};
 use crate::galea::GaleaBoard;
 use crate::ganglion::GanglionBoard;
+use crate::gforce::{GforceBoard, GforceVariant};
+use crate::misc::{
+    AavaaV3Board, BrainAliveBoard, CallibriBoard, CallibriVariant, EnophoneBoard, FasciaBoard,
+    GanglionNativeBoard, IronbciBoard, NeuropawnKnightBoard, NtlWifiBoard, PieegBoard,
+    SynchroniBoard, UnicornBoard,
+};
 use crate::muse::{MuseBoard, MuseVariant};
 use crate::neurosity::{NeurosityBoard, NeurosityVariant};
 use crate::openbci::{
@@ -188,6 +196,41 @@ impl BoardController {
                 let port = params.ip_port;
                 Ok(Box::new(EmotiBitBoard::new(ip, port)))
             }
+
+            // BrainBit boards (BLE)
+            BoardId::BrainBit => Ok(Box::new(BrainBitBoard::new(BrainBitVariant::Standard))),
+            BoardId::BrainBitBled => Ok(Box::new(BrainBitBoard::new(BrainBitVariant::Bled))),
+
+            // Explore boards (BLE)
+            BoardId::Explore4Chan => Ok(Box::new(ExploreBoard::new(ExploreVariant::Chan4))),
+            BoardId::Explore8Chan => Ok(Box::new(ExploreBoard::new(ExploreVariant::Chan8))),
+            BoardId::Explore32Chan => Ok(Box::new(ExploreBoard::new(ExploreVariant::Chan32))),
+            BoardId::ExplorePlus8Chan => Ok(Box::new(ExploreBoard::new(ExploreVariant::Plus8))),
+            BoardId::ExplorePlus32Chan => Ok(Box::new(ExploreBoard::new(ExploreVariant::Plus32))),
+
+            // gForce boards (BLE/WiFi)
+            BoardId::GforcePro => Ok(Box::new(GforceBoard::new(GforceVariant::Pro))),
+            BoardId::GforceDual => Ok(Box::new(GforceBoard::new(GforceVariant::Dual))),
+
+            // Unicorn (requires g.tec SDK for full functionality)
+            BoardId::Unicorn => Ok(Box::new(UnicornBoard::new())),
+
+            // Callibri (requires NeuroMD SDK for full functionality)
+            BoardId::CallibriEeg => Ok(Box::new(CallibriBoard::new(CallibriVariant::Eeg))),
+            BoardId::CallibriEmg => Ok(Box::new(CallibriBoard::new(CallibriVariant::Emg))),
+            BoardId::CallibriEcg => Ok(Box::new(CallibriBoard::new(CallibriVariant::Ecg))),
+
+            // Other boards
+            BoardId::Pieeg => Ok(Box::new(PieegBoard::new())),
+            BoardId::Ironbci => Ok(Box::new(IronbciBoard::new())),
+            BoardId::Fascia => Ok(Box::new(FasciaBoard::new())),
+            BoardId::Enophone => Ok(Box::new(EnophoneBoard::new())),
+            BoardId::BrainAlive => Ok(Box::new(BrainAliveBoard::new())),
+            BoardId::GanglionNative => Ok(Box::new(GanglionNativeBoard::new())),
+            BoardId::NtlWifi => Ok(Box::new(NtlWifiBoard::new())),
+            BoardId::AavaaV3 => Ok(Box::new(AavaaV3Board::new())),
+            BoardId::NeuropawnKnight => Ok(Box::new(NeuropawnKnightBoard::new())),
+            BoardId::Synchroni => Ok(Box::new(SynchroniBoard::new())),
 
             _ => Err(Error::with_message(
                 ErrorCode::UnsupportedBoard,
@@ -471,13 +514,19 @@ mod tests {
     }
 
     #[test]
-    fn test_unsupported_board() {
+    fn test_all_boards_supported() {
         let controller = BoardController::new();
         let params = BoardParams::new();
 
-        // BrainBit is not implemented yet
+        // BrainBit should work (all boards are now supported)
         let result = controller.prepare_session(BoardId::BrainBit, &params);
-        assert!(result.is_err());
+        assert!(result.is_ok());
+        controller.release_session(BoardId::BrainBit, &params).unwrap();
+
+        // Unicorn should also work
+        let result = controller.prepare_session(BoardId::Unicorn, &params);
+        assert!(result.is_ok());
+        controller.release_session(BoardId::Unicorn, &params).unwrap();
     }
 
     #[test]
