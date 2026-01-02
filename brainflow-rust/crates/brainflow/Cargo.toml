@@ -1,0 +1,27 @@
+[package]
+name = "brainflow"
+description = "Pure Rust library for biosignal acquisition and processing"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+default = ["std"]
+std = ["brainflow-io/std", "brainflow-boards/std"]
+
+[dependencies]
+brainflow-math = { path = "../brainflow-math" }
+brainflow-fft = { path = "../brainflow-fft" }
+brainflow-filter = { path = "../brainflow-filter" }
+brainflow-wavelet = { path = "../brainflow-wavelet" }
+brainflow-ml = { path = "../brainflow-ml" }
+brainflow-io = { path = "../brainflow-io" }
+brainflow-boards = { path = "../brainflow-boards" }
+brainflow-sys = { path = "../brainflow-sys" }
+libm = "0.2"
+
+[dev-dependencies]

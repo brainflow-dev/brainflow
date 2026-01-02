@@ -1,0 +1,14 @@
+[package]
+name = "brainflow-ml"
+description = "Pure Rust ML inference for BrainFlow"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+brainflow-math = { path = "../brainflow-math" }
+libm = "0.2"

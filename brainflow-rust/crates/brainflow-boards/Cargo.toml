@@ -1,0 +1,20 @@
+[package]
+name = "brainflow-boards"
+description = "Board implementations for BrainFlow"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+default = ["std"]
+std = ["brainflow-io/std"]
+
+[dependencies]
+brainflow-math = { path = "../brainflow-math" }
+brainflow-io = { path = "../brainflow-io" }
+brainflow-sys = { path = "../brainflow-sys" }
+libm = "0.2"

@@ -1,0 +1,18 @@
+[package]
+name = "brainflow-sys"
+description = "Low-level OS abstractions for BrainFlow (no external dependencies)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+default = []
+std = []
+
+[target.'cfg(windows)'.dependencies]
+
+[target.'cfg(unix)'.dependencies]

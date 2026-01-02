@@ -1,0 +1,15 @@
+[package]
+name = "brainflow-math"
+description = "Pure Rust linear algebra, matrices, and numerical algorithms for BrainFlow"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+libm = "0.2"
+
+[dev-dependencies]

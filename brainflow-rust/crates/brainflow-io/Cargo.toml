@@ -1,0 +1,21 @@
+[package]
+name = "brainflow-io"
+description = "Pure Rust I/O abstractions (serial, sockets, Bluetooth) for BrainFlow"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+default = ["std"]
+std = []
+
+[dependencies]
+brainflow-sys = { path = "../brainflow-sys" }
+
+[target.'cfg(windows)'.dependencies]
+
+[target.'cfg(unix)'.dependencies]

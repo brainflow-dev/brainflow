@@ -1,0 +1,31 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/brainflow",
+    "crates/brainflow-math",
+    "crates/brainflow-fft",
+    "crates/brainflow-filter",
+    "crates/brainflow-wavelet",
+    "crates/brainflow-ml",
+    "crates/brainflow-io",
+    "crates/brainflow-boards",
+    "crates/brainflow-sys",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75.0"
+license = "MIT"
+repository = "https://github.com/brainflow-dev/brainflow"
+keywords = ["eeg", "biosignal", "neuroscience", "signal-processing"]
+categories = ["science", "hardware-support"]
+
+[workspace.lints.rust]
+unsafe_code = "warn"
+missing_docs = "warn"
+
+[workspace.lints.clippy]
+all = "warn"
+pedantic = "warn"
+nursery = "warn"
