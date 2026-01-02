@@ -525,6 +525,15 @@ pub type MuseSBoard = MuseBoard;
 /// Muse 2016 board (4 EEG channels).
 pub type Muse2016Board = MuseBoard;
 
+/// Muse 2 BLED board (uses BLED112 dongle).
+pub type Muse2BledBoard = MuseBoard;
+
+/// Muse S BLED board (uses BLED112 dongle).
+pub type MuseSBledBoard = MuseBoard;
+
+/// Muse 2016 BLED board (uses BLED112 dongle).
+pub type Muse2016BledBoard = MuseBoard;
+
 // Helper function to format name with IMU suffix
 fn format(base: &str, suffix: &str) -> String {
     let mut s = String::from(base);

@@ -16,22 +16,31 @@ use alloc::string::String;
 use alloc::vec::Vec;
 use brainflow_sys::error::{Error, ErrorCode, Result};
 
+pub mod ant_neuro;
 pub mod board;
 pub mod controller;
+pub mod emotibit;
 pub mod galea;
 pub mod ganglion;
 pub mod muse;
+pub mod neurosity;
 pub mod openbci;
 pub mod playback;
 pub mod preset;
 pub mod streaming;
 pub mod synthetic;
 
+pub use ant_neuro::{AntNeuroBoard, AntNeuroVariant};
 pub use board::{Board, BoardDescription, BoardState};
 pub use controller::BoardController;
+pub use emotibit::EmotiBitBoard;
 pub use galea::GaleaBoard;
 pub use ganglion::GanglionBoard;
-pub use muse::{Muse2Board, Muse2016Board, MuseBoard, MuseSBoard};
+pub use muse::{
+    Muse2016BledBoard, Muse2016Board, Muse2BledBoard, Muse2Board, MuseBoard, MuseSBledBoard,
+    MuseSBoard, MuseVariant,
+};
+pub use neurosity::{NeurosityBoard, NeurosityVariant};
 pub use playback::PlaybackFileBoard;
 pub use preset::Preset;
 pub use streaming::StreamingBoard;

@@ -4,6 +4,7 @@
 //! - Cyton (8-channel, serial)
 //! - CytonDaisy (16-channel, serial)
 //! - FreeEEG32 (32-channel, serial)
+//! - FreeEEG128 (128-channel, serial)
 //! - Ganglion (4-channel, BLE)
 //! - WiFi variants
 
@@ -13,6 +14,6 @@ mod packet;
 mod wifi;
 
 pub use cyton::{CytonBoard, CytonDaisyBoard};
-pub use freeeeg::FreeEeg32Board;
+pub use freeeeg::{FreeEeg128Board, FreeEeg32Board};
 pub use packet::{OpenBciPacket, PacketType};
 pub use wifi::{CytonDaisyWifiBoard, CytonWifiBoard, GanglionWifiBoard};

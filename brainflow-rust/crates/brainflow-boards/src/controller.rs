@@ -8,13 +8,16 @@ use alloc::vec::Vec;
 use brainflow_sys::error::{Error, ErrorCode, Result};
 use brainflow_sys::sync::Mutex;
 
+use crate::ant_neuro::{AntNeuroBoard, AntNeuroVariant};
 use crate::board::{Board, BoardDescription};
+use crate::emotibit::EmotiBitBoard;
 use crate::galea::GaleaBoard;
 use crate::ganglion::GanglionBoard;
 use crate::muse::{MuseBoard, MuseVariant};
+use crate::neurosity::{NeurosityBoard, NeurosityVariant};
 use crate::openbci::{
-    CytonBoard, CytonDaisyBoard, CytonDaisyWifiBoard, CytonWifiBoard, FreeEeg32Board,
-    GanglionWifiBoard,
+    CytonBoard, CytonDaisyBoard, CytonDaisyWifiBoard, CytonWifiBoard, FreeEeg128Board,
+    FreeEeg32Board, GanglionWifiBoard,
 };
 use crate::playback::PlaybackFileBoard;
 use crate::preset::Preset;
@@ -95,6 +98,12 @@ impl BoardController {
                 })?;
                 Ok(Box::new(FreeEeg32Board::new(port)))
             }
+            BoardId::FreeEeg128 => {
+                let port = params.serial_port.as_ref().ok_or_else(|| {
+                    Error::with_message(ErrorCode::InvalidArguments, "serial_port required")
+                })?;
+                Ok(Box::new(FreeEeg128Board::new(port)))
+            }
 
             // OpenBCI WiFi boards
             BoardId::CytonWifi => {
@@ -121,13 +130,63 @@ impl BoardController {
             BoardId::Muse2 => Ok(Box::new(MuseBoard::new(MuseVariant::Muse2))),
             BoardId::MuseS => Ok(Box::new(MuseBoard::new(MuseVariant::MuseS))),
             BoardId::Muse2016 => Ok(Box::new(MuseBoard::new(MuseVariant::Muse2016))),
+            BoardId::Muse2Bled => Ok(Box::new(MuseBoard::new(MuseVariant::Muse2))),
+            BoardId::MuseSBled => Ok(Box::new(MuseBoard::new(MuseVariant::MuseS))),
+            BoardId::Muse2016Bled => Ok(Box::new(MuseBoard::new(MuseVariant::Muse2016))),
 
-            // Galea
-            BoardId::Galea => {
+            // Galea (UDP variants)
+            BoardId::Galea | BoardId::GaleaV4 => {
                 let ip = params.ip_address.as_ref().ok_or_else(|| {
                     Error::with_message(ErrorCode::InvalidArguments, "ip_address required")
                 })?;
                 Ok(Box::new(GaleaBoard::new(ip, params.ip_port)))
+            }
+            BoardId::GaleaSerial | BoardId::GaleaV4Serial => {
+                let port = params.serial_port.as_ref().ok_or_else(|| {
+                    Error::with_message(ErrorCode::InvalidArguments, "serial_port required")
+                })?;
+                // Serial variants use GaleaBoard with a local address (for now)
+                Ok(Box::new(GaleaBoard::new("127.0.0.1", None)))
+            }
+
+            // ANT Neuro boards
+            BoardId::AntNeuroEe410 => Ok(Box::new(AntNeuroBoard::new(AntNeuroVariant::Ee410))),
+            BoardId::AntNeuroEe411 => Ok(Box::new(AntNeuroBoard::new(AntNeuroVariant::Ee411))),
+            BoardId::AntNeuroEe430 => Ok(Box::new(AntNeuroBoard::new(AntNeuroVariant::Ee430))),
+            BoardId::AntNeuroEe211 => Ok(Box::new(AntNeuroBoard::new(AntNeuroVariant::Ee211))),
+            BoardId::AntNeuroEe212 => Ok(Box::new(AntNeuroBoard::new(AntNeuroVariant::Ee212))),
+            BoardId::AntNeuroEe213 => Ok(Box::new(AntNeuroBoard::new(AntNeuroVariant::Ee213))),
+            BoardId::AntNeuroEe214 => Ok(Box::new(AntNeuroBoard::new(AntNeuroVariant::Ee214))),
+            BoardId::AntNeuroEe215 => Ok(Box::new(AntNeuroBoard::new(AntNeuroVariant::Ee215))),
+            BoardId::AntNeuroEe221 => Ok(Box::new(AntNeuroBoard::new(AntNeuroVariant::Ee221))),
+            BoardId::AntNeuroEe222 => Ok(Box::new(AntNeuroBoard::new(AntNeuroVariant::Ee222))),
+            BoardId::AntNeuroEe223 => Ok(Box::new(AntNeuroBoard::new(AntNeuroVariant::Ee223))),
+            BoardId::AntNeuroEe224 => Ok(Box::new(AntNeuroBoard::new(AntNeuroVariant::Ee224))),
+            BoardId::AntNeuroEe225 => Ok(Box::new(AntNeuroBoard::new(AntNeuroVariant::Ee225))),
+            BoardId::AntNeuroEe511 => Ok(Box::new(AntNeuroBoard::new(AntNeuroVariant::Ee511))),
+
+            // Neurosity boards (OSC protocol)
+            BoardId::Notion1 => {
+                let ip = params.ip_address.as_deref();
+                let port = params.ip_port;
+                Ok(Box::new(NeurosityBoard::new(NeurosityVariant::Notion1, ip, port)))
+            }
+            BoardId::Notion2 => {
+                let ip = params.ip_address.as_deref();
+                let port = params.ip_port;
+                Ok(Box::new(NeurosityBoard::new(NeurosityVariant::Notion2, ip, port)))
+            }
+            BoardId::Crown => {
+                let ip = params.ip_address.as_deref();
+                let port = params.ip_port;
+                Ok(Box::new(NeurosityBoard::new(NeurosityVariant::Crown, ip, port)))
+            }
+
+            // EmotiBit (WiFi biometric sensor)
+            BoardId::Emotibit => {
+                let ip = params.ip_address.as_deref();
+                let port = params.ip_port;
+                Ok(Box::new(EmotiBitBoard::new(ip, port)))
             }
 
             _ => Err(Error::with_message(
