@@ -53,6 +53,10 @@ pub enum ErrorCode {
     AnotherClassifierPrepared = 21,
     /// Unsupported classifier.
     UnsupportedClassifier = 22,
+    /// Failed to send data.
+    FailedToSendData = 23,
+    /// Failed to receive data.
+    FailedToReceiveData = 24,
 }
 
 impl ErrorCode {
@@ -83,6 +87,8 @@ impl ErrorCode {
             20 => Some(Self::ClassifierNotPrepared),
             21 => Some(Self::AnotherClassifierPrepared),
             22 => Some(Self::UnsupportedClassifier),
+            23 => Some(Self::FailedToSendData),
+            24 => Some(Self::FailedToReceiveData),
             _ => None,
         }
     }

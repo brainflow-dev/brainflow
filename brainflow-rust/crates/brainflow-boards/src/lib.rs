@@ -18,6 +18,7 @@ use brainflow_sys::error::{Error, ErrorCode, Result};
 
 pub mod board;
 pub mod controller;
+pub mod openbci;
 pub mod preset;
 pub mod synthetic;
 
