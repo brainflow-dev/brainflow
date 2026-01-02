@@ -12,11 +12,13 @@ extern crate alloc;
 #[cfg(feature = "std")]
 extern crate std;
 
+pub mod ble;
 pub mod buffer;
 pub mod http;
 pub mod serial;
 pub mod socket;
 
+pub use ble::{BleClient, BleDevice, BleScanner, GattCharacteristic, GattService, Uuid128};
 pub use buffer::RingBuffer;
 pub use http::{HttpClient, HttpResponse};
 pub use serial::{SerialConfig, SerialPort};

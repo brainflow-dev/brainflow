@@ -19,6 +19,8 @@ use brainflow_sys::error::{Error, ErrorCode, Result};
 pub mod board;
 pub mod controller;
 pub mod galea;
+pub mod ganglion;
+pub mod muse;
 pub mod openbci;
 pub mod preset;
 pub mod synthetic;
@@ -26,6 +28,8 @@ pub mod synthetic;
 pub use board::{Board, BoardDescription, BoardState};
 pub use controller::BoardController;
 pub use galea::GaleaBoard;
+pub use ganglion::GanglionBoard;
+pub use muse::{Muse2Board, Muse2016Board, MuseBoard, MuseSBoard};
 pub use preset::Preset;
 pub use synthetic::SyntheticBoard;
 
