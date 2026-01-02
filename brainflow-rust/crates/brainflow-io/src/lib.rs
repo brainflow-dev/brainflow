@@ -13,10 +13,12 @@ extern crate alloc;
 extern crate std;
 
 pub mod buffer;
+pub mod http;
 pub mod serial;
 pub mod socket;
 
 pub use buffer::RingBuffer;
+pub use http::{HttpClient, HttpResponse};
 pub use serial::{SerialConfig, SerialPort};
 pub use socket::{SocketConfig, TcpClient, TcpServer, UdpSocket};
 

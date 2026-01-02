@@ -33,7 +33,7 @@ impl Default for SocketConfig {
 }
 
 /// TCP client socket trait.
-pub trait TcpClient: Send {
+pub trait TcpClient: Send + Sync {
     /// Connect to a remote server.
     fn connect(&mut self, addr: &str, port: u16, config: &SocketConfig) -> Result<(), IoError>;
 
@@ -54,7 +54,7 @@ pub trait TcpClient: Send {
 }
 
 /// TCP server socket trait.
-pub trait TcpServer: Send {
+pub trait TcpServer: Send + Sync {
     /// Bind to a local address and port.
     fn bind(&mut self, addr: &str, port: u16, config: &SocketConfig) -> Result<(), IoError>;
 
@@ -78,7 +78,7 @@ pub trait TcpServer: Send {
 }
 
 /// UDP socket trait.
-pub trait UdpSocket: Send {
+pub trait UdpSocket: Send + Sync {
     /// Bind to a local port.
     fn bind(&mut self, port: u16) -> Result<(), IoError>;
 

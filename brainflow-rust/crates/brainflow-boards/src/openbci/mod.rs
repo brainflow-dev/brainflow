@@ -10,7 +10,9 @@
 mod cyton;
 mod freeeeg;
 mod packet;
+mod wifi;
 
 pub use cyton::{CytonBoard, CytonDaisyBoard};
 pub use freeeeg::FreeEeg32Board;
 pub use packet::{OpenBciPacket, PacketType};
+pub use wifi::{CytonDaisyWifiBoard, CytonWifiBoard, GanglionWifiBoard};
