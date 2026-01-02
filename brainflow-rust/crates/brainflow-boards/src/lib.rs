@@ -18,12 +18,14 @@ use brainflow_sys::error::{Error, ErrorCode, Result};
 
 pub mod board;
 pub mod controller;
+pub mod galea;
 pub mod openbci;
 pub mod preset;
 pub mod synthetic;
 
 pub use board::{Board, BoardDescription, BoardState};
 pub use controller::BoardController;
+pub use galea::GaleaBoard;
 pub use preset::Preset;
 pub use synthetic::SyntheticBoard;
 
