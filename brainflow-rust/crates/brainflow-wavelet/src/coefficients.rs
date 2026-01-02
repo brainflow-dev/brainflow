@@ -72,16 +72,19 @@ impl WaveletCoefficients {
     /// Get the lengths of all coefficient arrays plus signal lengths.
     ///
     /// Format: [approx_len, detail_lens..., signal_lens...]
-    /// where signal_lens are the original signal lengths at each level.
+    /// Detail lengths are stored coarsest to finest (matching flatten order).
+    /// Signal lengths are stored coarsest to finest for reconstruction.
     #[must_use]
     pub fn lengths(&self) -> Vec<usize> {
         let mut lengths = Vec::with_capacity(self.details.len() * 2 + 1);
         lengths.push(self.approximation.len());
-        for detail in &self.details {
+        // Details are stored finest to coarsest, but flatten outputs coarsest to finest
+        // So we reverse the lengths to match flatten order
+        for detail in self.details.iter().rev() {
             lengths.push(detail.len());
         }
-        // Append signal lengths for reconstruction
-        for &sig_len in &self.signal_lengths {
+        // Append signal lengths for reconstruction (coarsest to finest)
+        for &sig_len in self.signal_lengths.iter().rev() {
             lengths.push(sig_len);
         }
         lengths
@@ -108,6 +111,9 @@ impl WaveletCoefficients {
     /// The lengths array format can be either:
     /// - [approx_len, detail_lens...] (without signal lengths)
     /// - [approx_len, detail_lens..., signal_lens...] (with signal lengths)
+    ///
+    /// Detail lengths and signal lengths are stored coarsest to finest
+    /// (matching the order in flatten()).
     #[must_use]
     pub fn from_flat(coefficients: &[f64], lengths: &[usize]) -> Self {
         if lengths.is_empty() {
@@ -138,21 +144,33 @@ impl WaveletCoefficients {
             ((lengths.len() - 1) / 2, true)
         };
 
-        // Parse detail coefficient lengths
+        // Parse detail coefficient lengths (coarsest to finest in the flat array)
+        // but we need to store them finest to coarsest internally
+        let mut detail_vecs = Vec::with_capacity(num_details);
         for i in 0..num_details {
             let len = lengths[1 + i];
             if offset + len <= coefficients.len() {
-                coeffs.details.insert(0, coefficients[offset..offset + len].to_vec());
+                detail_vecs.push(coefficients[offset..offset + len].to_vec());
                 offset += len;
             }
         }
+        // Reverse to get finest to coarsest order for internal storage
+        for detail in detail_vecs.into_iter().rev() {
+            coeffs.details.push(detail);
+        }
 
         // Parse signal lengths (for reconstruction) if present
+        // These are stored coarsest to finest, but we need finest to coarsest
         if has_signal_lengths {
+            let mut sig_lens = Vec::with_capacity(num_details);
             for i in 0..num_details {
                 if 1 + num_details + i < lengths.len() {
-                    coeffs.signal_lengths.push(lengths[1 + num_details + i]);
+                    sig_lens.push(lengths[1 + num_details + i]);
                 }
+            }
+            // Reverse to get finest to coarsest order
+            for sig_len in sig_lens.into_iter().rev() {
+                coeffs.signal_lengths.push(sig_len);
             }
         }
 

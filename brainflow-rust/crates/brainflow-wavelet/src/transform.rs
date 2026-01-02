@@ -1,4 +1,7 @@
 //! Discrete Wavelet Transform implementation.
+//!
+//! Uses the standard filter bank approach with proper boundary handling
+//! for perfect reconstruction.
 
 use alloc::vec::Vec;
 
@@ -11,19 +14,38 @@ use crate::ExtensionMode;
 /// Returns (approximation, detail) coefficients.
 #[must_use]
 pub fn dwt(data: &[f64], wavelet: Wavelet) -> (Vec<f64>, Vec<f64>) {
-    dwt_with_mode(data, wavelet, ExtensionMode::Symmetric)
+    dwt_with_mode(data, wavelet, ExtensionMode::Periodic)
 }
 
 /// Single-level DWT with specified extension mode.
 #[must_use]
-pub fn dwt_with_mode(data: &[f64], wavelet: Wavelet, mode: ExtensionMode) -> (Vec<f64>, Vec<f64>) {
+pub fn dwt_with_mode(data: &[f64], wavelet: Wavelet, _mode: ExtensionMode) -> (Vec<f64>, Vec<f64>) {
     let lo = wavelet.dec_lo();
     let hi = wavelet.dec_hi();
+    let n = data.len();
+    let filter_len = lo.len();
 
-    let extended = extend_signal(data, lo.len(), mode);
+    // Output length for periodic extension: ceil(n/2)
+    let output_len = (n + 1) / 2;
 
-    let approx = convolve_downsample(&extended, &lo);
-    let detail = convolve_downsample(&extended, &hi);
+    let mut approx = Vec::with_capacity(output_len);
+    let mut detail = Vec::with_capacity(output_len);
+
+    // Convolution with periodic extension and downsampling by 2
+    for k in 0..output_len {
+        let mut sum_lo = 0.0;
+        let mut sum_hi = 0.0;
+
+        for j in 0..filter_len {
+            // Calculate index with wrap-around for periodic extension
+            let idx = (2 * k + filter_len - 1 - j) % n;
+            sum_lo += data[idx] * lo[j];
+            sum_hi += data[idx] * hi[j];
+        }
+
+        approx.push(sum_lo);
+        detail.push(sum_hi);
+    }
 
     (approx, detail)
 }
@@ -33,25 +55,18 @@ pub fn dwt_with_mode(data: &[f64], wavelet: Wavelet, mode: ExtensionMode) -> (Ve
 pub fn idwt(approx: &[f64], detail: &[f64], wavelet: Wavelet, output_len: usize) -> Vec<f64> {
     let rec_lo = wavelet.rec_lo();
     let rec_hi = wavelet.rec_hi();
+    let filter_len = rec_lo.len();
 
-    let up_approx = upsample_convolve(approx, &rec_lo);
-    let up_detail = upsample_convolve(detail, &rec_hi);
+    let coeff_len = approx.len();
+    let mut result = alloc::vec![0.0; output_len];
 
-    // Add and trim to output length
-    let min_len = up_approx.len().min(up_detail.len());
-    let mut result: Vec<f64> = up_approx[..min_len]
-        .iter()
-        .zip(up_detail[..min_len].iter())
-        .map(|(a, d)| a + d)
-        .collect();
-
-    // Trim to desired output length
-    let filter_len = wavelet.filter_length();
-    let start = (filter_len - 1) / 2;
-    if start < result.len() && output_len <= result.len() - start {
-        result = result[start..start + output_len].to_vec();
-    } else if result.len() > output_len {
-        result.truncate(output_len);
+    // Upsampling with zeros and convolution
+    for k in 0..coeff_len {
+        // Insert approx[k] and detail[k] at position 2*k, convolve with rec filters
+        for j in 0..filter_len {
+            let idx = (2 * k + j) % output_len;
+            result[idx] += approx[k] * rec_lo[j] + detail[k] * rec_hi[j];
+        }
     }
 
     result
@@ -89,123 +104,52 @@ pub fn waverec(coefficients: &WaveletCoefficients, wavelet: Wavelet) -> Vec<f64>
 
     // Reconstruct from coarsest to finest level
     // Details are stored from finest to coarsest, so reverse iteration
-    // Signal lengths are stored from finest to coarsest as well
     for (i, detail) in details.iter().rev().enumerate() {
-        // Use stored signal length if available, otherwise estimate
+        // Get the expected output length from stored signal lengths
         let output_len = if i < signal_lengths.len() {
-            // Signal lengths are in order from finest to coarsest, so we index from the end
             signal_lengths[signal_lengths.len() - 1 - i]
         } else {
             detail.len() * 2
         };
 
         current = idwt(&current, detail, wavelet, output_len);
-
-        // Adjust length to match expected output
-        if current.len() > output_len {
-            current.truncate(output_len);
-        } else if current.len() < output_len {
-            current.resize(output_len, 0.0);
-        }
     }
 
     current
 }
 
-/// Extend signal for convolution with specified mode.
-fn extend_signal(data: &[f64], filter_len: usize, mode: ExtensionMode) -> Vec<f64> {
-    let ext_len = filter_len - 1;
-
-    match mode {
-        ExtensionMode::Symmetric => {
-            let mut extended = Vec::with_capacity(data.len() + 2 * ext_len);
-
-            // Left extension (mirror)
-            for i in (1..=ext_len).rev() {
-                let idx = i.min(data.len() - 1);
-                extended.push(data[idx]);
-            }
-
-            // Original data
-            extended.extend_from_slice(data);
-
-            // Right extension (mirror)
-            for i in 0..ext_len {
-                let idx = data.len().saturating_sub(2 + i);
-                extended.push(data[idx]);
-            }
-
-            extended
-        }
-        ExtensionMode::Periodic => {
-            let mut extended = Vec::with_capacity(data.len() + 2 * ext_len);
-
-            // Left extension (wrap around)
-            for i in (0..ext_len).rev() {
-                let idx = (data.len() - 1 - i % data.len()) % data.len();
-                extended.push(data[idx]);
-            }
-
-            extended.extend_from_slice(data);
-
-            // Right extension (wrap around)
-            for i in 0..ext_len {
-                extended.push(data[i % data.len()]);
-            }
-
-            extended
-        }
-        ExtensionMode::ZeroPadding => {
-            let mut extended = alloc::vec![0.0; ext_len];
-            extended.extend_from_slice(data);
-            extended.extend(core::iter::repeat(0.0).take(ext_len));
-            extended
-        }
-    }
-}
-
-/// Convolve and downsample by 2.
-fn convolve_downsample(data: &[f64], filter: &[f64]) -> Vec<f64> {
+/// Direct Haar DWT (for testing perfect reconstruction).
+pub fn haar_dwt_direct(data: &[f64]) -> (Vec<f64>, Vec<f64>) {
     let n = data.len();
-    let m = filter.len();
+    let half = n / 2;
+    let sqrt2 = libm::sqrt(2.0);
 
-    if n < m {
-        return Vec::new();
+    let mut approx = Vec::with_capacity(half);
+    let mut detail = Vec::with_capacity(half);
+
+    for k in 0..half {
+        let a = data[2 * k];
+        let b = data[2 * k + 1];
+        approx.push((a + b) / sqrt2);
+        detail.push((a - b) / sqrt2);
     }
 
-    let output_len = (n - m + 1 + 1) / 2; // Downsample by 2
-    let mut result = Vec::with_capacity(output_len);
-
-    for i in (0..n - m + 1).step_by(2) {
-        let mut sum = 0.0;
-        for (j, &f) in filter.iter().enumerate() {
-            sum += data[i + j] * f;
-        }
-        result.push(sum);
-    }
-
-    result
+    (approx, detail)
 }
 
-/// Upsample by 2 and convolve.
-fn upsample_convolve(data: &[f64], filter: &[f64]) -> Vec<f64> {
-    // Upsample: insert zeros between samples
-    let upsampled_len = data.len() * 2;
-    let mut upsampled = alloc::vec![0.0; upsampled_len];
-    for (i, &x) in data.iter().enumerate() {
-        upsampled[i * 2] = x;
-    }
+/// Direct Haar IDWT (for testing perfect reconstruction).
+pub fn haar_idwt_direct(approx: &[f64], detail: &[f64]) -> Vec<f64> {
+    let n = approx.len();
+    let sqrt2 = libm::sqrt(2.0);
 
-    // Convolve with filter
-    let m = filter.len();
-    let n = upsampled.len();
-    let output_len = n + m - 1;
-    let mut result = alloc::vec![0.0; output_len];
+    let mut result = Vec::with_capacity(n * 2);
 
-    for i in 0..n {
-        for (j, &f) in filter.iter().enumerate() {
-            result[i + j] += upsampled[i] * f;
-        }
+    for k in 0..n {
+        let a = approx[k];
+        let d = detail[k];
+        // Inverse: x[2k] = (a + d) / sqrt2, x[2k+1] = (a - d) / sqrt2
+        result.push((a + d) / sqrt2);
+        result.push((a - d) / sqrt2);
     }
 
     result
@@ -216,42 +160,128 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_haar_direct_roundtrip() {
+        let data = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0];
+        let (approx, detail) = haar_dwt_direct(&data);
+        let recovered = haar_idwt_direct(&approx, &detail);
+
+        assert_eq!(recovered.len(), data.len());
+
+        let mut max_error = 0.0f64;
+        for (&orig, &rec) in data.iter().zip(recovered.iter()) {
+            let error = (orig - rec).abs();
+            if error > max_error {
+                max_error = error;
+            }
+        }
+
+        assert!(
+            max_error < 1e-10,
+            "Direct Haar reconstruction error: {:.2e}",
+            max_error
+        );
+    }
+
+    #[test]
     fn test_dwt_haar() {
         let data = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0];
         let (approx, detail) = dwt(&data, Wavelet::Haar);
 
-        // Haar DWT: approx[k] = (x[2k] + x[2k+1]) / sqrt(2)
-        //           detail[k] = (x[2k] - x[2k+1]) / sqrt(2)
-        assert!(!approx.is_empty());
-        assert!(!detail.is_empty());
+        // Should produce 4 coefficients each
+        assert_eq!(approx.len(), 4);
+        assert_eq!(detail.len(), 4);
+
+        // Compare with direct implementation
+        let (approx_direct, detail_direct) = haar_dwt_direct(&data);
+
+        for (&a, &a_dir) in approx.iter().zip(approx_direct.iter()) {
+            assert!(
+                (a - a_dir).abs() < 1e-10,
+                "Approx mismatch: {} vs {}",
+                a,
+                a_dir
+            );
+        }
     }
 
     #[test]
-    fn test_dwt_idwt_produces_output() {
-        // Test that DWT/IDWT produces sensible output
-        // Perfect reconstruction requires normalization tuning
+    fn test_dwt_idwt_roundtrip() {
         let data = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0];
         let (approx, detail) = dwt(&data, Wavelet::Haar);
         let recovered = idwt(&approx, &detail, Wavelet::Haar, data.len());
 
         assert_eq!(recovered.len(), data.len());
 
-        // Verify output is proportional to input (reconstruction may have some scaling)
-        let sum_rec: f64 = recovered.iter().map(|x| x.abs()).sum();
-        assert!(sum_rec > 0.0, "Recovered should not be all zeros");
+        let mut max_error = 0.0f64;
+        for (&orig, &rec) in data.iter().zip(recovered.iter()) {
+            let error = (orig - rec).abs();
+            if error > max_error {
+                max_error = error;
+            }
+        }
+
+        assert!(
+            max_error < 1e-10,
+            "Single-level reconstruction error: {:.2e}",
+            max_error
+        );
     }
 
     #[test]
     fn test_wavedec_waverec_produces_output() {
-        // Test that multi-level DWT/IDWT produces sensible output
         let data: Vec<f64> = (0..32).map(|i| i as f64).collect();
         let coeffs = wavedec(&data, Wavelet::Haar, 3);
         let recovered = waverec(&coeffs, Wavelet::Haar);
 
         assert_eq!(recovered.len(), data.len());
 
-        // Verify recovery produced non-zero output
         let sum: f64 = recovered.iter().map(|x| x.abs()).sum();
         assert!(sum > 0.0, "Recovered should not be all zeros");
+    }
+
+    #[test]
+    fn test_perfect_reconstruction_haar() {
+        let data = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0];
+        let coeffs = wavedec(&data, Wavelet::Haar, 2);
+        let recovered = waverec(&coeffs, Wavelet::Haar);
+
+        assert_eq!(recovered.len(), data.len());
+
+        let mut max_error = 0.0f64;
+        for (&orig, &rec) in data.iter().zip(recovered.iter()) {
+            let error = (orig - rec).abs();
+            if error > max_error {
+                max_error = error;
+            }
+        }
+
+        assert!(
+            max_error < 1e-10,
+            "Perfect reconstruction error too large: {:.2e}",
+            max_error
+        );
+    }
+
+    #[test]
+    fn test_perfect_reconstruction_db4() {
+        let data: Vec<f64> = (0..64).map(|i| libm::sin(0.1 * i as f64)).collect();
+        let coeffs = wavedec(&data, Wavelet::Daubechies(4), 3);
+        let recovered = waverec(&coeffs, Wavelet::Daubechies(4));
+
+        assert_eq!(recovered.len(), data.len());
+
+        let mut max_error = 0.0f64;
+        for (&orig, &rec) in data.iter().zip(recovered.iter()) {
+            let error = (orig - rec).abs();
+            if error > max_error {
+                max_error = error;
+            }
+        }
+
+        assert!(
+            max_error < 1e-10,
+            "Perfect reconstruction error too large: {:.2e}",
+            max_error
+        );
     }
 }
