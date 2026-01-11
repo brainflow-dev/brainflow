@@ -10,7 +10,7 @@ jobs:
       fail-fast: false
       max-parallel: 4
       matrix:
-        os: [ubuntu-latest, macos-13]
+        os: [ubuntu-latest, macos-14-large]
 
     steps:
     # compile and prepare env
@@ -44,7 +44,7 @@ jobs:
       run: |
         npm install -g ts-node
     - name: Install Ninja
-      if: (matrix.os == 'macos-13')
+      if: (matrix.os == 'macos-14-large')
       uses: seanmiddleditch/gha-setup-ninja@master
       with:
         version: 1.10.2
@@ -62,7 +62,7 @@ jobs:
         java-version: 11.0.3
     # build simpleble outside from brainflow because of different deployment targets
     - name: Compile SimpleBLE MacOS
-      if: (matrix.os == 'macos-13')
+      if: (matrix.os == 'macos-14-large')
       run: |
         mkdir $GITHUB_WORKSPACE/third_party/SimpleBLE/simpleble/build
         cd $GITHUB_WORKSPACE/third_party/SimpleBLE/simpleble/build
@@ -70,7 +70,7 @@ jobs:
         ninja
         ninja install
     - name: Compile BrainFlow MacOS
-      if: (matrix.os == 'macos-13')
+      if: (matrix.os == 'macos-14-large')
       run: |
         mkdir $GITHUB_WORKSPACE/build
         cd $GITHUB_WORKSPACE/build
@@ -153,7 +153,7 @@ jobs:
     - name: Run unit tests
       run: $GITHUB_WORKSPACE/build/tests/brainflow_tests
     - name: Synthetic C# Test MacOS
-      if: (matrix.os == 'macos-13')
+      if: (matrix.os == 'macos-14-large')
       run: |
         cd $GITHUB_WORKSPACE/csharp_package/brainflow/examples/brainflow_get_data/bin/Release/net7.0
         cp $GITHUB_WORKSPACE/installed/lib/libBoardController.dylib $GITHUB_WORKSPACE/csharp_package/brainflow/examples/brainflow_get_data/bin/Release/net7.0/
@@ -163,7 +163,7 @@ jobs:
         LD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
         DYLD_LIBRARY_PATH: ${{ github.workspace }}/installed/lib
     - name: EEG Metrics C# Test MacOS
-      if: (matrix.os == 'macos-13')
+      if: (matrix.os == 'macos-14-large')
       run: |
         cd $GITHUB_WORKSPACE/csharp_package/brainflow/examples/eeg_metrics/bin/Release/net7.0
         cp $GITHUB_WORKSPACE/installed/lib/libBoardController.dylib $GITHUB_WORKSPACE/csharp_package/brainflow/examples/eeg_metrics/bin/Release/net7.0/
@@ -412,7 +412,7 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     - name: Push Libraries MacOS Dev
-      if: ${{ github.event_name == 'push' && matrix.os == 'macos-13' && github.repository == 'brainflow-dev/brainflow' }}
+      if: ${{ github.event_name == 'push' && matrix.os == 'macos-14-large' && github.repository == 'brainflow-dev/brainflow' }}
       run: |
         aws s3 cp $GITHUB_WORKSPACE/installed/lib/ s3://brainflow/$GITHUB_SHA/macos_release --recursive
       env:
