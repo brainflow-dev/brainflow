@@ -49,9 +49,10 @@ jobs:
       with:
         version: 1.10.2
     - name: Install Julia
-      uses: julia-actions/setup-julia@v1
+      uses: julia-actions/setup-julia@v2
       with:
-        version: 1.3.1
+        version: '1'
+        arch: 'default'
     - name: Setup Cmake
       uses: jwlawson/actions-setup-cmake@v1.13
       with:
